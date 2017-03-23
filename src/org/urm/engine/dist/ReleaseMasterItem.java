@@ -44,13 +44,33 @@ public class ReleaseMasterItem {
 		Common.xmlSetElementAttr( doc , root , "md5" , MD5 );
 	}
 	
-	public void setItem( ActionBase action , Release release , MetaDistrBinaryItem distItem , DistItemInfo info ) throws Exception {
+	public void setRelease( ActionBase action , Release src , MetaDistrBinaryItem distItem , DistItemInfo info ) throws Exception {
 		KEY = distItem.KEY;
-		RELEASE = release.RELEASEVER;
+		RELEASE = src.RELEASEVER;
+		DELIVERY = distItem.delivery.NAME;
+		FOLDER = distItem.delivery.FOLDER;
+		FILE = info.fileName;
+		MD5 = info.md5value;
+	}
+
+	public void setManual( ActionBase action , MetaDistrBinaryItem distItem , DistItemInfo info ) throws Exception {
+		KEY = distItem.KEY;
+		RELEASE = master.release.RELEASEVER + "-manual";
 		DELIVERY = distItem.delivery.NAME;
 		FOLDER = distItem.delivery.FOLDER;
 		FILE = info.fileName;
 		MD5 = info.md5value;
 	}
 	
+	public void update( ActionBase action , MetaDistrBinaryItem distItem , DistItemInfo info ) throws Exception {
+		DELIVERY = distItem.delivery.NAME;
+		FOLDER = distItem.delivery.FOLDER;
+		FILE = info.fileName;
+		
+		if( !MD5.equals( info.md5value ) ) {
+			RELEASE = master.release.RELEASEVER + "-manual";
+			MD5 = info.md5value;
+		}
+	}
+
 }

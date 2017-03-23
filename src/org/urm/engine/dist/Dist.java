@@ -1010,7 +1010,7 @@ public class Dist {
 			}
 		}
 		
-		release.addMasterItem( action , distItem , info );
+		release.addMasterItem( action , src.release , distItem , info );
 		copyBinaryDistrToDistr( action , delivery , src , Common.getPath( BINARY_FOLDER , info.fileName ) );
 		folder = distFolder.getSubFolder( action , Common.getPath( delivery.distDelivery.FOLDER , BINARY_FOLDER ) );
 		folder.createFileFromString( action , info.fileName + ".md5" , info.md5value );

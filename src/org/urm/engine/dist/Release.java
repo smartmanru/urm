@@ -818,8 +818,8 @@ public class Release {
 		schedule.reopen( action );
 	}
 
-	public void addMasterItem( ActionBase action , MetaDistrBinaryItem distItem , DistItemInfo info ) throws Exception {
-		master.addMasterItem( action , distItem , info );
+	public void addMasterItem( ActionBase action , Release src , MetaDistrBinaryItem distItem , DistItemInfo info ) throws Exception {
+		master.addMasterItem( action , src , distItem , info );
 	}
 
 	public ReleaseMasterItem findMasterItem( MetaDistrBinaryItem distItem ) {

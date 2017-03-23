@@ -137,6 +137,9 @@ public class DistFinalizer {
 			}
 		}
 		
+		if( !finishDistMaster( action ) )
+			return( false );
+		
 		return( true );
 	}
 
@@ -167,6 +170,10 @@ public class DistFinalizer {
 				if( dir.equals( Dist.BINARY_FOLDER ) ) {
 					if( !finishDistDeliveryBinary( action , delivery , dirFilesDist , dirFilesRelease ) )
 						return( false );
+					if( dist.isMaster() ) {
+						if( !finishDistDeliveryMaster( action , delivery ) )
+							return( false );
+					}
 				}
 				else
 				if( dir.equals( Dist.CONFIG_FOLDER ) ) {
@@ -317,6 +324,44 @@ public class DistFinalizer {
 		String folder = fsd.dirPath;
 		action.info( "delete non-release database delivery folder=" + folder + " ..." );
 		distFolder.removeFolder( action , folder );
+		return( true );
+	}
+	
+	private boolean finishDistMaster( ActionBase action ) throws Exception {
+		MetaDistr distr = dist.meta.getDistr( action ); 
+		ReleaseMaster master = dist.release.master;
+		for( ReleaseMasterItem item : master.getMasterItems() ) {
+			if( distr.findBinaryItem( item.KEY ) == null )
+				master.removeMasterItem( item.KEY );
+		}
+		
+		return( true );
+	}
+
+	private boolean finishDistDeliveryMaster( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
+		for( MetaDistrBinaryItem item : delivery.getBinaryItems() ) {
+			if( !finishDistDeliveryMasterItem( action , delivery , item ) )
+				return( false );
+		}
+		
+		return( true );
+	}
+
+	private boolean finishDistDeliveryMasterItem( ActionBase action , MetaDistrDelivery delivery , MetaDistrBinaryItem distItem ) throws Exception {
+		ReleaseMaster master = dist.release.master;
+		ReleaseMasterItem masterItem = dist.release.findMasterItem( distItem );
+		DistItemInfo info = dist.getDistItemInfo( action , distItem , true , false );
+		if( !info.found ) {
+			String folder = Common.getPath( distItem.delivery.FOLDER , Dist.BINARY_FOLDER );
+			action.error( distItem.KEY + " - item not found (" + Common.getPath( folder , distItem.getBaseFile( action ) ) + ")" );
+			return( false );
+		}
+		
+		if( masterItem == null )
+			master.addMasterItem( action , null , distItem , info );
+		else
+			masterItem.update( action , distItem , info );
+		
 		return( true );
 	}
 	

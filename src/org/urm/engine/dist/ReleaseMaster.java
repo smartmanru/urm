@@ -82,16 +82,27 @@ public class ReleaseMaster {
 		}
 	}
 
-	public void addMasterItem( ActionBase action , MetaDistrBinaryItem distItem , DistItemInfo info ) throws Exception {
+	public void addMasterItem( ActionBase action , Release src , MetaDistrBinaryItem distItem , DistItemInfo info ) throws Exception {
 		ReleaseMasterItem item = mapItem.get( distItem.KEY );
 		if( item == null ) {
 			item = new ReleaseMasterItem( meta , this );
 			mapItem.put( distItem.KEY , item );
 		}
 		
-		item.setItem( action , release , distItem , info );
+		if( src != null )
+			item.setRelease( action , src , distItem , info );
+		else
+			item.setManual( action , distItem , info );
 	}
 
+	public void removeMasterItem( String key ) {
+		mapItem.remove( key );
+	}
+	
+	public ReleaseMasterItem[] getMasterItems() {
+		return( mapItem.values().toArray( new ReleaseMasterItem[0] ) );
+	}
+	
 	public ReleaseMasterItem findMasterItem( MetaDistrBinaryItem distItem ) {
 		return( mapItem.get( distItem.KEY ) );
 	}
