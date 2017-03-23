@@ -248,7 +248,8 @@ public class ActionPrintReleaseStatus extends ActionBase {
 
 	private void printProdBinaryStatus( Dist dist , FileSet files , MetaDistrBinaryItem distItem ) throws Exception {
 		ReleaseMasterItem masterItem = dist.release.findMasterItem( distItem );
-		String folder = Common.getPath( masterItem.FOLDER , Dist.BINARY_FOLDER );
+		String deliveryFolder = ( masterItem != null )? masterItem.FOLDER : distItem.delivery.FOLDER;
+		String folder = Common.getPath( deliveryFolder , Dist.BINARY_FOLDER );
 		String status = ( masterItem != null )? "OK (" + Common.getPath( folder , masterItem.FILE ) + ", " + 
 				masterItem.RELEASE + ")" : "missing (" + Common.getPath( folder , distItem.getBaseFile( this ) ) + ")";
 		

@@ -268,7 +268,6 @@ public class OptionsMeta {
 		
 		printhelp( "" );
 		
-		printhelp( "All options defined for command " + commandInfo.name + ":" );
 		if( options.isFlagSet( OPT_ALL ) ) {
 			printhelp( "Generic options:" );
 			for( int k = 0; k < genericOptionsCount; k++ ) {
