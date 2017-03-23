@@ -68,7 +68,7 @@ public class ReleaseMasterItem {
 		FILE = info.fileName;
 		
 		if( !MD5.equals( info.md5value ) ) {
-			RELEASE = master.release.RELEASEVER + "-manual";
+			RELEASE = "manual-" + master.release.RELEASEVER;
 			MD5 = info.md5value;
 		}
 	}
