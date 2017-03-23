@@ -322,6 +322,9 @@ public class OptionsMeta {
 				showOptionHelp( builder , var );
 			}
 		}
+		else
+			printhelp( "(use -all to display generic options)" );
+			
 
 		printhelp( "Specific options:" );
 		boolean specific = false;
