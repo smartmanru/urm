@@ -249,10 +249,34 @@ public class ActionPrintReleaseStatus extends ActionBase {
 
 	private void printProdBinaryStatus( Dist dist , FileSet files , MetaDistrBinaryItem distItem ) throws Exception {
 		ReleaseMasterItem masterItem = dist.release.findMasterItem( distItem );
-		String deliveryFolder = ( masterItem != null )? masterItem.FOLDER : distItem.delivery.FOLDER;
-		String folder = Common.getPath( deliveryFolder , Dist.BINARY_FOLDER );
-		String status = ( masterItem != null )? "OK (" + Common.getPath( folder , masterItem.FILE ) + ", " + 
-				masterItem.RELEASE + ")" : "missing (" + Common.getPath( folder , distItem.getBaseFile( this ) ) + ")";
+		DistItemInfo info = dist.getDistItemInfo( this , distItem , true , true );
+		
+		String status = "";
+		if( masterItem == null ) {
+			String folder = Common.getPath( distItem.delivery.FOLDER , Dist.BINARY_FOLDER );
+			status = ( info.found )? "OK (" + Common.getPath( folder , info.fileName ) + ", new)" : 
+				"missing (" + Common.getPath( folder , distItem.getBaseFile( this ) ) + ")";
+		}
+		else {
+			if( masterItem.FOLDER.equals( distItem.delivery.FOLDER ) ) { 
+				String folder = Common.getPath( masterItem.FOLDER , Dist.BINARY_FOLDER );
+				if( info.found ) {
+					if( !info.md5value.equals( masterItem.MD5 ) )
+						status = "OK (" + Common.getPath( folder , info.fileName ) + ", manual)";
+					else
+						status = "OK (" + Common.getPath( folder , info.fileName ) + ", " + masterItem.RELEASE + ")";
+				}
+				else					
+					status = "missing (" + Common.getPath( folder , distItem.getBaseFile( this ) ) + ")";
+			}
+			else {
+				String folder = Common.getPath( distItem.delivery.FOLDER , Dist.BINARY_FOLDER );
+				if( info.found )
+					status = "OK (" + Common.getPath( folder , info.fileName ) + ", moved)";
+				else
+					status = "missing (" + Common.getPath( folder , distItem.getBaseFile( this ) ) + ", obsolete)";
+			}
+		}
 		
 		info( "\t\tdistitem=" + distItem.KEY + ": " + status );
 	}
