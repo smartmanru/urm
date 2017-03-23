@@ -8,6 +8,8 @@ import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
 import org.urm.engine.dist.Release;
+import org.urm.engine.dist.ReleaseDelivery;
+import org.urm.engine.dist.ReleaseMasterItem;
 import org.urm.engine.dist.ReleaseSchedule;
 import org.urm.engine.dist.ReleaseSchedulePhase;
 import org.urm.engine.dist.ReleaseSet;
@@ -91,15 +93,17 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			}
 
 			info( "DELIVERIES:" );
-			for( String s : release.getDeliveryNames() )
-				info( "\tdelivery=" + s );
+			for( String s : release.getDeliveryNames() ) {
+				ReleaseDelivery delivery = release.findDelivery( s );
+				info( "\tdelivery=" + s + " (folder=" + delivery.distDelivery.FOLDER + ")" );
+			}
 		}
 		else {
 			info( "DELIVERIES:" );
 			MetaDistr distr = dist.meta.getDistr( this );
 			for( String s : distr.getDeliveryNames() ) {
-				info( "\tdelivery=" + s + ":" );
 				MetaDistrDelivery delivery = distr.findDelivery( s );
+				info( "\tdelivery=" + s + " (folder=" + delivery.FOLDER + ")" + ":" );
 				printProdDeliveryStatus( dist , files , delivery );
 			}
 		}
@@ -209,15 +213,6 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		info( "\t\tconfitem=" + conf.distConfItem.KEY + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
 	}
 
-	private void printProdBinaryStatus( Dist dist , FileSet files , MetaDistrBinaryItem manual ) throws Exception {
-		DistItemInfo info = dist.getDistItemInfo( this , manual , false , true );
-		String folder = Common.getPath( info.subPath , info.fileName );
-		String status = ( info.found )? "OK (" + folder + ", " + 
-				Common.getRefDate( info.timestamp ) + ")" : "missing (" + info.subPath + ")";
-		
-		info( "\t\tdistitem=" + manual.KEY + ": " + status );
-	}
-
 	private void printReleaseManualStatus( Dist dist , FileSet files , ReleaseTarget manual ) throws Exception {
 		String specifics = manual.getSpecifics( this );
 		DistItemInfo info = dist.getDistItemInfo( this , manual.distManualItem , false , true );
@@ -249,6 +244,15 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			String status = ( dbset == null || dbset.isEmpty() )? "missing/empty" : "OK";
 			info( "\tdelivery=" + delivery.NAME + ": " + status + Common.getCommentIfAny( folder ) );
 		}
+	}
+
+	private void printProdBinaryStatus( Dist dist , FileSet files , MetaDistrBinaryItem distItem ) throws Exception {
+		ReleaseMasterItem masterItem = dist.release.findMasterItem( distItem );
+		String folder = Common.getPath( masterItem.FOLDER , Dist.BINARY_FOLDER );
+		String status = ( masterItem != null )? "OK (" + Common.getPath( folder , masterItem.FILE ) + ", " + 
+				masterItem.RELEASE + ")" : "missing (" + Common.getPath( folder , distItem.getBaseFile( this ) ) + ")";
+		
+		info( "\t\tdistitem=" + distItem.KEY + ": " + status );
 	}
 
 }
