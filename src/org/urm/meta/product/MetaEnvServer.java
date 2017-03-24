@@ -14,6 +14,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.ServerAccountReference;
+import org.urm.meta.engine.ServerBaseItem;
 import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
@@ -57,7 +58,6 @@ public class MetaEnvServer extends PropertyController {
 	public String HOTDEPLOYDATA = "";
 	public String WEBSERVICEURL = "";
 	public String WEBMAINURL = "";
-	public String PLATFORMITEM = "";
 	public String LOGPATH = "";
 	public String LOGFILEPATH = "";
 	public boolean NOPIDS = false;
@@ -116,10 +116,8 @@ public class MetaEnvServer extends PropertyController {
 
 	public static String PROPERTY_XDOC = "xdoc";
 	
-	public static String PROPERTY_PLATFORMITEM = "platformitem";
-	
 	public static String ELEMENT_NODE = "node";
-	public static String ELEMENT_BASE = "platform";
+	public static String ELEMENT_PLATFORM = "platform";
 	public static String ELEMENT_DEPLOY = "deploy";
 
 	public MetaEnvStartGroup startGroup;
@@ -164,7 +162,6 @@ public class MetaEnvServer extends PropertyController {
 		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE );
 		XDOC = super.getPathProperty( action , PROPERTY_XDOC , NAME + ".xml" );
 		SYSNAME = super.getStringProperty( action , PROPERTY_SYSNAME );
-		PLATFORMITEM = super.getStringProperty( action , PROPERTY_PLATFORMITEM );
 		
 		if( isStartable() || isDeployPossible() ) {
 			ROOTPATH = super.getPathProperty( action , PROPERTY_ROOTPATH );
@@ -345,7 +342,7 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	private void loadBase( ActionBase action , Node node ) throws Exception {
-		Node item = ConfReader.xmlGetFirstChild( node , ELEMENT_BASE );
+		Node item = ConfReader.xmlGetFirstChild( node , ELEMENT_PLATFORM );
 		if( item == null )
 			return;
 		
@@ -716,7 +713,7 @@ public class MetaEnvServer extends PropertyController {
 		super.saveSplit( doc , root );
 		
 		if( basesw != null ) {
-			Element baseElement = Common.xmlCreateElement( doc , root , ELEMENT_BASE );
+			Element baseElement = Common.xmlCreateElement( doc , root , ELEMENT_PLATFORM );
 			basesw.save( action , doc , baseElement );
 		}
 
@@ -765,8 +762,10 @@ public class MetaEnvServer extends PropertyController {
 		super.setSystemStringProperty( PROPERTY_BASELINE , baselineServer );
 	}
 	
-	public void setPlatform( ServerTransaction transaction , String platformName ) throws Exception {
-		super.setSystemStringProperty( PROPERTY_PLATFORMITEM , platformName );
+	public void setPlatform( ServerTransaction transaction , ServerBaseItem item ) throws Exception {
+		if( basesw == null )
+			basesw = new MetaEnvServerBase( meta , this );
+		basesw.setItem( transaction , item );
 	}
 	
 	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {

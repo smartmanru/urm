@@ -8,6 +8,8 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
+import org.urm.engine.ServerTransaction;
+import org.urm.meta.engine.ServerBaseItem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -108,6 +110,11 @@ public class MetaEnvServerBase extends PropertyController {
 			Element prepareElement = Common.xmlCreateElement( doc , root , ELEMENT_PREPARE );
 			prepare.save( action , doc , prepareElement );
 		}
+	}
+
+	public void setItem( ServerTransaction transaction , ServerBaseItem item ) throws Exception {
+		super.setSystemStringProperty( PROPERTY_ID , item.ID );
+		super.updateProperties( transaction );
 	}
 	
 }
