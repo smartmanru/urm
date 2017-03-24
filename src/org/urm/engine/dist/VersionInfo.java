@@ -70,11 +70,11 @@ public class VersionInfo {
 	}
 	
 	public void setDistData( ActionBase action , Dist dist ) throws Exception {
-		String version = Common.getPartBeforeLast( dist.RELEASEDIR , "-" );
-		
 		int[] vn = new int[4];
-		parseVersion( action , version , vn );
-		checkDistVersion( action , vn , dist.release.RELEASEVER );
+		parseVersion( action , dist.release.RELEASEVER , vn );
+		
+		if( !dist.isMaster() )
+			checkDistVersion( action , vn , Common.getPartBeforeLast( dist.RELEASEDIR , "-" ) );
 		
 		v1 = vn[0]; 
 		v2 = vn[1]; 
