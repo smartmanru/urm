@@ -21,7 +21,7 @@ public class ServerContext {
 	// storage
 	public String DIST_ROOT;
 	public String DIST_APPFOLDER;
-	public String DIST_BASEPATH;
+	public String DIST_PLATFORMPATH;
 	
 	public String SECURE_CONFPATH;
 	
@@ -57,7 +57,7 @@ public class ServerContext {
 
 	public static String PROPERTY_DIST_ROOT = "dist.root";
 	public static String PROPERTY_DIST_APPFOLDER = "dist.appfolder";
-	public static String PROPERTY_DIST_BASEPATH = "dist.basepath";
+	public static String PROPERTY_DIST_PLATFORMPATH = "dist.basepath";
 
 	public static String PROPERTY_SECURE_CONFPATH = "secure.confpath";
 
@@ -125,7 +125,7 @@ public class ServerContext {
 
 		DIST_ROOT = properties.getSystemPathProperty( PROPERTY_DIST_ROOT , execrc , execrc.installPath + "/dist" , false );
 		DIST_APPFOLDER = properties.getSystemPathProperty( PROPERTY_DIST_APPFOLDER , execrc , "systems" , false );
-		DIST_BASEPATH = properties.getSystemPathProperty( PROPERTY_DIST_BASEPATH , execrc , "base" , false );
+		DIST_PLATFORMPATH = properties.getSystemPathProperty( PROPERTY_DIST_PLATFORMPATH , execrc , "platform" , false );
 
 		SECURE_CONFPATH = properties.getSystemPathProperty( PROPERTY_SECURE_CONFPATH , execrc , execrc.installPath + "/secured" , false );
 		
