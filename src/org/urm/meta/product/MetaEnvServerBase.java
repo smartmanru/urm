@@ -28,6 +28,7 @@ public class MetaEnvServerBase extends PropertyController {
 		super( server , "base" );
 		this.meta = meta;
 		this.server = server;
+		prepareMap = new HashMap<String,MetaEnvServerPrepareApp>();
 	}
 
 	@Override
@@ -86,8 +87,6 @@ public class MetaEnvServerBase extends PropertyController {
 		if( !super.initCreateStarted( server.getProperties() ) )
 			return;
 
-		prepareMap = new HashMap<String,MetaEnvServerPrepareApp>();
-		
 		super.setStringProperty( PROPERTY_ID , item.ID );
 		super.finishProperties( action );
 		super.initFinished();
@@ -96,8 +95,6 @@ public class MetaEnvServerBase extends PropertyController {
 	}
 	
 	private void loadPrepare( ActionBase action , Node node ) throws Exception {
-		prepareMap = new HashMap<String,MetaEnvServerPrepareApp>();
-		
 		Node[] items = ConfReader.xmlGetChildren( node , ELEMENT_PREPARE );
 		if( items == null )
 			return;
