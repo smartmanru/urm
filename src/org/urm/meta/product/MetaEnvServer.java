@@ -763,9 +763,12 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public void setPlatform( ServerTransaction transaction , ServerBaseItem item ) throws Exception {
-		if( basesw == null )
+		if( basesw == null ) {
 			basesw = new MetaEnvServerBase( meta , this );
-		basesw.setItem( transaction , item );
+			basesw.createBase( transaction.action , item );
+		}
+		else
+			basesw.setItem( transaction , item );
 	}
 	
 	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {

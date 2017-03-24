@@ -7,7 +7,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
-import org.urm.common.PropertySet;
 import org.urm.engine.ServerTransaction;
 import org.urm.meta.engine.ServerBaseItem;
 import org.w3c.dom.Document;
@@ -21,10 +20,8 @@ public class MetaEnvServerBase extends PropertyController {
 
 	public String ID;
 	public Map<String,MetaEnvServerPrepareApp> prepareMap;
-	public PropertySet properties;
 	
 	public static String PROPERTY_ID = "id";
-
 	public static String ELEMENT_PREPARE = "prepare";
 	
 	public MetaEnvServerBase( Meta meta , MetaEnvServer server ) {
@@ -47,8 +44,8 @@ public class MetaEnvServerBase extends PropertyController {
 	
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
-		ID = properties.getSystemRequiredStringProperty( PROPERTY_ID );
-		properties.finishRawProperties();
+		ID = super.getStringPropertyRequired( action , PROPERTY_ID );
+		super.finishRawProperties();
 	}
 
 	public MetaEnvServerBase copy( ActionBase action , Meta meta , MetaEnvServer server ) throws Exception {
@@ -75,16 +72,29 @@ public class MetaEnvServerBase extends PropertyController {
 		if( !super.initCreateStarted( server.getProperties() ) )
 			return;
 
-		properties.loadFromNodeAttributes( node , false );
+		super.loadFromNodeAttributes( action , node , false );
 		scatterProperties( action );
 		
-		properties.loadFromNodeElements( node , true );
-		properties.resolveRawProperties();
+		super.loadFromNodeElements( action , node , true );
+		super.resolveRawProperties();
 		
 		loadPrepare( action , node );
 		super.initFinished();
 	}
 		
+	public void createBase( ActionBase action , ServerBaseItem item ) throws Exception {
+		if( !super.initCreateStarted( server.getProperties() ) )
+			return;
+
+		prepareMap = new HashMap<String,MetaEnvServerPrepareApp>();
+		
+		super.setStringProperty( PROPERTY_ID , item.ID );
+		super.finishProperties( action );
+		super.initFinished();
+		
+		scatterProperties( action );
+	}
+	
 	private void loadPrepare( ActionBase action , Node node ) throws Exception {
 		prepareMap = new HashMap<String,MetaEnvServerPrepareApp>();
 		
@@ -104,7 +114,7 @@ public class MetaEnvServerBase extends PropertyController {
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		properties.saveSplit( doc , root );
+		super.saveSplit( doc , root );
 		
 		for( MetaEnvServerPrepareApp prepare : prepareMap.values() ) {
 			Element prepareElement = Common.xmlCreateElement( doc , root , ELEMENT_PREPARE );
