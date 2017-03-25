@@ -439,8 +439,6 @@ public class ServerProductMeta extends ServerObject {
 		createInitialSources( transaction );
 		createInitialDistr( transaction );
 		createInitialMonitoring( transaction );
-		
-		createInitialRepository( transaction );
 	}
 
 	private void createInitialVersion( TransactionBase transaction ) throws Exception {
@@ -482,8 +480,8 @@ public class ServerProductMeta extends ServerObject {
 		mon.createMonitoring( transaction );
 	}
 
-	private void createInitialRepository( TransactionBase transaction ) throws Exception {
-		repo = DistRepository.createInitialRepository( transaction.action , meta );
+	public void createInitialRepository( TransactionBase transaction , boolean forceClear ) throws Exception {
+		repo = DistRepository.createInitialRepository( transaction.action , meta , forceClear );
 	}
 	
 	public void saveAll( ActionBase action , MetadataStorage storageMeta ) throws Exception {

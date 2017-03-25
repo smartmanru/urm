@@ -56,9 +56,9 @@ public class DistRepository {
 		return( repo );
 	}
 
-	public static DistRepository createInitialRepository( ActionBase action , Meta meta ) throws Exception {
+	public static DistRepository createInitialRepository( ActionBase action , Meta meta , boolean forceClear ) throws Exception {
 		DistRepository repo = new DistRepository( meta );
-		repo.create( action );
+		repo.create( action , forceClear );
 		return( repo );
 	}
 
@@ -73,11 +73,17 @@ public class DistRepository {
 		readRepositoryFile( action );
 	}
 	
-	private void create( ActionBase action ) throws Exception {
+	private void create( ActionBase action , boolean forceClear ) throws Exception {
 		repoFolder = getDistFolder( action );
 		if( repoFolder.checkExists( action ) ) {
-			String path = repoFolder.getLocalPath( action );
-			action.exit1( _Error.ReleaseRepositoryExists1 , "unable to create release repository, already exists at " + path , path );
+			if( forceClear ) {
+				action.error( "remove existing distributive repository at " + repoFolder.getLocalPath( action ) + " ..." );
+				repoFolder.removeThis( action );
+			}
+			else {
+				String path = repoFolder.getLocalPath( action );
+				action.exit1( _Error.ReleaseRepositoryExists1 , "unable to create release repository, already exists at " + path , path );
+			}
 		}
 		
 		RemoteFolder parent = repoFolder.getParentFolder( action );
