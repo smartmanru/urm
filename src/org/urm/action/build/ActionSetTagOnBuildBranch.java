@@ -48,12 +48,14 @@ public class ActionSetTagOnBuildBranch extends ActionBase {
 
 	private void setTagFromTag( String SRCTAG , String TAG , VarCATEGORY CATEGORY , MetaSourceProject sourceProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
-		vcs.copyTagToTag( sourceProject , SRCTAG , TAG );
+		if( !vcs.copyTagToTag( sourceProject , SRCTAG , TAG ) )
+			super.ifexit3( _Error.ProjectCopyTagError3 , "unable to copy tag=" + SRCTAG + " to tag=" + TAG + " for proect=" + sourceProject.NAME , SRCTAG , TAG , sourceProject.NAME );
 	}
 	
 	private void setTagFromBranch( String BRANCH , String TAG , VarCATEGORY CATEGORY , MetaSourceProject sourceProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
-		vcs.setTag( sourceProject , BRANCH , TAG , context.CTX_DATE );
+		if( !vcs.setTag( sourceProject , BRANCH , TAG , context.CTX_DATE ) )
+			super.ifexit2( _Error.ProjectSetTagError2 , "unable to set tag=" + TAG + " on proect=" + sourceProject.NAME , TAG , sourceProject.NAME );
 	}
 	
 }

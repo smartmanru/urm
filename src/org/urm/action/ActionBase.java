@@ -259,6 +259,26 @@ abstract public class ActionBase extends ActionCore {
 			exit( errorCode , s + ", exiting (use -force to override)" , params );
 	}
 
+	public void ifexit0( int errorCode , String s ) throws Exception {
+		ifexit( errorCode , s , null );
+	}
+
+	public void ifexit1( int errorCode , String s , String param1 ) throws Exception {
+		ifexit( errorCode , s , new String[] { param1 } );
+	}
+
+	public void ifexit2( int errorCode , String s , String param1 , String param2 ) throws Exception {
+		ifexit( errorCode , s , new String[] { param1 , param2 } );
+	}
+
+	public void ifexit3( int errorCode , String s , String param1 , String param2 , String param3 ) throws Exception {
+		ifexit( errorCode , s , new String[] { param1 , param2 , param3 } );
+	}
+
+	public void ifexit4( int errorCode , String s , String param1 , String param2 , String param3 , String param4 ) throws Exception {
+		ifexit( errorCode , s , new String[] { param1 , param2 , param3 , param4 } );
+	}
+
 	public boolean runSimpleServer( SecurityAction sa , boolean readOnly ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
 		return( executor.runSimpleServer( sa , readOnly ) );
