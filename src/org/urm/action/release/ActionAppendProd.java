@@ -5,10 +5,12 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.VersionInfo;
+import org.urm.engine.dist.DistState.DISTSTATE;
 
 public class ActionAppendProd extends ActionBase {
 
 	public Dist dist;
+	public Dist master;
 	
 	public ActionAppendProd( ActionBase action , String stream , Dist dist ) {
 		super( action , stream , "Append release=" + dist.RELEASEDIR + " to master distributive" );
@@ -47,7 +49,7 @@ public class ActionAppendProd extends ActionBase {
 			
 		VersionInfo infoNext = VersionInfo.getDistVersion( this , next );
 		String nextVersion = infoNext.getFullVersion();
-		if( !nextVersion.equals( infoProd.getFullVersion() ) ) {
+		if( !nextVersion.equals( infoDist.getFullVersion() ) ) {
 			if( !super.isForced() ) {
 				String name = infoNext.getReleaseName();
 				super.fail1( _Error.CannotSkipRelease1 , "Unable to skip available release=" + name + ", use -force to override" , name );
@@ -61,15 +63,14 @@ public class ActionAppendProd extends ActionBase {
 	}
 
 	private void copyFiles( Dist prod , DistRepository repo ) throws Exception {
-		Dist masterNew = repo.copyDist( this , prod , prod.RELEASEDIR + "-new" );
+		master = repo.copyDist( this , prod , prod.RELEASEDIR + "-new" );
 		
-		masterNew.openForDataChange( this );
-		masterNew.saveReleaseXml( this );
-		masterNew.appendMasterFiles( this , dist );
-		masterNew.saveReleaseXml( this );
-		masterNew.closeDataChange( this );
+		master.openForControl( this );
+		master.appendMasterFiles( this , dist );
+		master.saveReleaseXml( this );
+		master.closeControl( this , DISTSTATE.RELEASED );
 		
-		repo.replaceDist( this , prod , masterNew );
+		repo.replaceDist( this , prod , master );
 	}
 	
 }

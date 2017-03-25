@@ -856,7 +856,7 @@ public class Dist {
 		if( reldel != null ) {
 			String folder = src.getDeliveryDatabaseFolder( action , reldel.distDelivery , src.release.RELEASEVER );
 			if( src.distFolder.checkFolderExists( action , folder ) )
-				distFolder.copyDir( action , src.distFolder.getFilePath( action , folder ) , folder );
+				distFolder.copyExtDir( action , src.distFolder.getFilePath( action , folder ) , folder );
 		}
 	}
 	
@@ -985,6 +985,8 @@ public class Dist {
 			for( ReleaseTarget item : delivery.getManualItems() )
 				copyMasterItem( action , src , delivery , item.distManualItem , true );
 		}
+		
+		release.master.addMasterHistory( action , src.release.RELEASEVER );
 	}
 	
 	public void appendMasterFiles( ActionBase action , Dist src ) throws Exception {
@@ -995,6 +997,9 @@ public class Dist {
 			for( ReleaseTarget item : delivery.getManualItems() )
 				copyMasterItem( action , src , delivery , item.distManualItem , false );
 		}
+		
+		release.master.addMasterHistory( action , src.release.RELEASEVER );
+		release.setReleaseVer( action , src.release.RELEASEVER );
 	}
 	
 	private void copyMasterItem( ActionBase action , Dist src , ReleaseDelivery delivery , MetaDistrBinaryItem distItem , boolean create ) throws Exception {
@@ -1021,19 +1026,20 @@ public class Dist {
 
 	public Dist copyDist( ActionBase action , String newName ) throws Exception {
 		RemoteFolder parent = distFolder.getParentFolder( action );
-		if( parent.checkFolderExists( action , RELEASEDIR ) )
+		if( !parent.checkFolderExists( action , RELEASEDIR ) )
 			action.exitUnexpectedState();
 		if( parent.checkFolderExists( action , newName ) )
 			parent.removeFolder( action , newName );
 		
 		parent.copyDir( action , RELEASEDIR , newName );
-		Dist distNew = DistRepositoryItem.read( action , repo , distFolder );
+		RemoteFolder folderNew = parent.getSubFolder( action , newName );
+		Dist distNew = DistRepositoryItem.read( action , repo , folderNew );
 		return( distNew );
 	}
 
 	public void moveDist( ActionBase action , String newName ) throws Exception {
 		RemoteFolder parent = distFolder.getParentFolder( action );
-		if( parent.checkFolderExists( action , RELEASEDIR ) )
+		if( !parent.checkFolderExists( action , RELEASEDIR ) )
 			action.exitUnexpectedState();
 		if( parent.checkFolderExists( action , newName ) )
 			parent.removeFolder( action , newName );

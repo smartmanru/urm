@@ -12,6 +12,7 @@ import org.urm.action.conf.ActionGetConf;
 import org.urm.action.database.ActionGetDB;
 import org.urm.action.monitor.ActionMonitorTop;
 import org.urm.action.release.ActionAddScope;
+import org.urm.action.release.ActionAppendProd;
 import org.urm.action.release.ActionArchiveRelease;
 import org.urm.action.release.ActionCopyRelease;
 import org.urm.action.release.ActionCreateProd;
@@ -251,6 +252,11 @@ public class ServerBlotter {
 		else
 		if( action instanceof ActionTouchRelease ) {
 			ActionTouchRelease xa = ( ActionTouchRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.STATUS , "reload distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionAppendProd ) {
+			ActionAppendProd xa = ( ActionAppendProd )action;
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.STATUS , "reload distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else

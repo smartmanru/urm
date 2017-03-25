@@ -1,8 +1,6 @@
 package org.urm.engine.dist;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
@@ -189,23 +187,25 @@ public class VersionInfo {
 
 	public static String[] orderVersions( String[] list ) {
 		Map<String,String> tosort = new HashMap<String,String>();
+		
 		for( String version : list ) {
+			String variant = Common.getPartAfterFirst( version , "-" );
+			version = Common.getPartBeforeFirst( version , "-" );
 			String[] items = Common.splitDotted( version );
 			String padded = "";
 			for( int k = 0; k < items.length; k++ )
 				padded += "0000000000".substring( items[k].length() ) + items[k];
+			
+			if( !variant.isEmpty() )
+				version += "-" + variant ;
 			tosort.put( padded , version );
 		}
 		
-		boolean first = true;
-		List<String> res = new LinkedList<String>();
-		for( String key : Common.getSortedKeys( tosort ) ) {
-			if( !first )
-				res.add( tosort.get( key ) );
-			first = false;
-		}
-			
-		return( res.toArray( new String[0] ) );
+		String[] sorted = Common.getSortedKeys( tosort );
+		for( int k = 0; k < sorted.length; k++ )
+			sorted[k] = tosort.get( sorted[k] );
+		
+		return( sorted );
 	}
 	
 }

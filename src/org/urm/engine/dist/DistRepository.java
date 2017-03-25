@@ -2,6 +2,8 @@ package org.urm.engine.dist;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
@@ -403,6 +405,7 @@ public class DistRepository {
 		String folderArchive = DistLabelInfo.getArchiveFolder( action );
 		repoFolder.ensureFolderExists( action , folderArchive );
 		repoFolder.moveFolderToFolder( action , folderOld , folderNew );
+		removeDist( dist );
 	}
 
 	public synchronized Dist reloadDist( ActionBase action , String RELEASELABEL ) throws Exception {
@@ -419,8 +422,18 @@ public class DistRepository {
 		return( item.dist );
 	}
 
+	public synchronized String[] getDistVersions() {
+		List<String> list = new LinkedList<String>();
+		for( String releasedir : distMap.keySet() ) {
+			if( releasedir.equals( Dist.MASTER_DIR ) )
+				continue;
+			list.add( releasedir );
+		}
+		return( list.toArray( new String[0] ) );
+	}
+	
 	public synchronized Dist getNextDist( ActionBase action , VersionInfo info ) throws Exception {
-		String[] versions = distMap.keySet().toArray( new String[0] );
+		String[] versions = getDistVersions();
 		String[] ordered = VersionInfo.orderVersions( versions );
 		
 		String name = info.getReleaseName();
