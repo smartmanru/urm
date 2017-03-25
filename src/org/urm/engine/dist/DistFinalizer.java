@@ -137,8 +137,10 @@ public class DistFinalizer {
 			}
 		}
 		
-		if( !finishDistMaster( action ) )
-			return( false );
+		if( dist.isMaster() ) {
+			if( !finishDistMaster( action ) )
+				return( false );
+		}
 		
 		return( true );
 	}
