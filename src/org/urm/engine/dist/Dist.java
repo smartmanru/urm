@@ -324,6 +324,9 @@ public class Dist {
 		VersionInfo info = VersionInfo.getReleaseVersion( action , RELEASEDIR );
 		lc = getLifecycle( action , lc , info.getLifecycleType() );
 		releaseDate = getReleaseDate( action , releaseDate , lc );
+		if( releaseDate == null )
+			action.exit1( _Error.MissingReleaseDate1 , "unable to create release label=" + RELEASEDIR + " due to missing release date" , RELEASEDIR );
+		
 		state.ctlCreate( action , releaseDate , lc );
 		load( action );
 	}

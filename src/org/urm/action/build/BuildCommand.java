@@ -29,7 +29,7 @@ public class BuildCommand {
 		
 		if( ca.isFailed() ) {
 			if( action.context.CTX_GET || action.context.CTX_DIST )
-				action.error( "BUILD FAILED, do not download any artefacts" );
+				action.error( "BUILD FAILED, skip downloading artefacts" );
 			else
 				action.error( "BUILD FAILED" );
 		}
