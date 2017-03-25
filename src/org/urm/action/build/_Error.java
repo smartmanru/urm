@@ -21,5 +21,6 @@ public class _Error {
 	public static final int ProjectPatchError1 = ErrorBase + 12;
 	public static final int MissingProjectItemDirectory1 = ErrorBase + 13;
 	public static final int MissingProjectItemFile2 = ErrorBase + 14;
+	public static final int ProjectTagError1 = ErrorBase + 15;
 	
 }

@@ -111,7 +111,8 @@ public class BuildCommand {
 	
 	public void setTag( ActionBase action , String TAG , ActionScope scope ) throws Exception {
 		ActionSetTagOnBuildBranch ca = new ActionSetTagOnBuildBranch( action , null , TAG );
-		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
+		if( !ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false ) )
+			action.exit1( _Error.ProjectTagError1 , "Error tagging projects, tag=" + TAG , TAG );
 	}
 	
 	public void printActiveProperties( ActionBase action , Meta meta ) throws Exception {
