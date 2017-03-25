@@ -62,6 +62,12 @@ public class ServerMirrorRepository extends ServerObject {
 		return( NAME );
 	}
 	
+	public boolean isActive() {
+		if( RESOURCE.isEmpty() )
+			return( false );
+		return( true );
+	}
+	
 	public boolean isServer() {
 		return( TYPE.equals( TYPE_SERVER ) );
 	}

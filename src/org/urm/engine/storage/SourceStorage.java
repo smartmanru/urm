@@ -66,6 +66,11 @@ public class SourceStorage {
 	public boolean downloadReleaseManualFolder( ActionBase action , Dist distStorage , LocalFolder dstFolder ) throws Exception {
 		ServerProductMeta storage = meta.getStorage( action );
 		ServerMirrorRepository mirror = action.getConfigurationMirror( storage );
+		if( !mirror.isActive() ) {
+			action.error( "release mirror has not been initialized. Skipped." );
+			return( false );
+		}
+		
 		GenericVCS vcs = getMirrorVCS( action , mirror );
 		String PATH = getDATAReleaseManualPath( action , distStorage );
 
