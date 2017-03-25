@@ -315,6 +315,7 @@ public class DistRepository {
 		addDist( dist );
 		dist.createMasterFiles( action , src );
 		dist.finish( action );
+		
 		return( dist );
 	}
 
