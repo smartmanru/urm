@@ -56,11 +56,7 @@ public class ShellCoreUnix extends ShellCore {
 	
 	@Override 
 	public void runCommand( ActionBase action , String cmd , int logLevel ) throws Exception {
-		if( !super.checkRunning( action ) )
-			exitError( action , _Error.RunCommandClosedSession1 , "attempt to run command in closed session: " + cmd , new String[] { cmd } );
-			
 		cmdCurrent = cmd;
-
 		cmdout.clear();
 		cmderr.clear();
 		

@@ -728,9 +728,6 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	private void runCommand( ActionBase action , String cmd , int logLevel , boolean addErrorLevel ) throws Exception {
-		if( !super.checkRunning( action ) )
-			exitError( action , _Error.RunCommandClosedSession1 , "attempt to run command in closed session: " + cmd , new String[] { cmd } );
-		
 		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
 			String execLine = prepareExecuteWindowsFromLinux( action , cmd , logLevel );
 			localSession.runCommand( action , execLine , logLevel );

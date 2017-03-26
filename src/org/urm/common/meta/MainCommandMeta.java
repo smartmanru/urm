@@ -25,7 +25,7 @@ public class MainCommandMeta extends CommandMeta {
 		cmdOpts = "";
 		super.defineAction( CommandMethodMeta.newNormal( this , "auth" , true , "console client authorization" , cmdOpts , "{-user U -key K|-user U -password P}" ) );
 		cmdOpts = "";
-		super.defineAction( CommandMethodMeta.newNormal( this , "websession" , true , "web session" , cmdOpts , "(internal action)" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , "interactive" , true , "interactive session" , cmdOpts , "(internal action)" ) );
 		super.defineAction( CommandMethodMeta.newNormal( this , "temporary" , true , "temporary" , cmdOpts , "(internal action)" ) );
 	}
 	

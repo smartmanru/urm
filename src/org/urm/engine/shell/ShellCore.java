@@ -157,21 +157,6 @@ abstract public class ShellCore {
 		return( true );
 	}
 
-	public boolean checkRunning( ActionBase action ) {
-		if( running )
-			return( true );
-		
-		try {
-			executor.restart( action );
-		}
-		catch( Throwable e ) {
-			action.log( "restart shell" , e );
-			return( false );
-		}
-		
-		return( true );
-	}
-	
 	public void kill( ActionBase action ) throws Exception {
 		if( !initialized )
 			return;

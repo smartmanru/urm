@@ -165,12 +165,12 @@ public class ServerEngine {
 		return( sessionContext );
 	}
 	
-	public ActionInit createWebSessionAction( ServerSession session ) throws Exception {
-		CommandOptions options = serverExecutor.createOptionsWebSession( this );
+	public ActionInit createInteractiveSessionAction( ServerSession session ) throws Exception {
+		CommandOptions options = serverExecutor.createOptionsInteractiveSession( this );
 		if( options == null )
 			return( null );
 		
-		ActionInit action = createAction( RootActionType.WebSession , options , session , "web" , null , false , "Web session id=" + session.sessionId + ", user=" + session.getLoginAuth().USER );
+		ActionInit action = createAction( RootActionType.InteractiveSession , options , session , "web" , null , false , "Interactive session id=" + session.sessionId + ", user=" + session.getLoginAuth().USER );
 		startAction( action );
 		
 		return( action );

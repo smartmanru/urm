@@ -2,7 +2,6 @@ package org.urm.engine.shell;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.storage.Folder;
-import org.urm.meta.Types.*;
 import org.urm.meta.engine.ServerAuthResource;
 
 public class RemoteShellExecutor extends ShellExecutor {
@@ -17,13 +16,13 @@ public class RemoteShellExecutor extends ShellExecutor {
 	@Override
 	public boolean start( ActionBase action ) throws Exception {
 		ShellProcess process = new ShellProcess( this );
-		if( core.sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX )
+		if( super.isWindowsFromUnix() )
 			return( process.createRemoteWindowsProcessFromLinux( action , auth ) );
 			
-		if( core.sessionType == VarSESSIONTYPE.UNIXFROMWINDOWS )
+		if( super.isUnixFromWindows() )
 			return( process.createRemoteLinuxProcessFromWindows( action , auth ) );
 		
-		if( core.sessionType == VarSESSIONTYPE.UNIXREMOTE )
+		if( super.isUnixRemote() )
 			return( process.createRemoteLinuxProcessFromLinux( action , auth ) );
 
 		action.exitUnexpectedState();

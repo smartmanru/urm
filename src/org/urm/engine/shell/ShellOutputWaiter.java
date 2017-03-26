@@ -114,7 +114,7 @@ public class ShellOutputWaiter {
 		
 		String buffer = "";
 		if( action.context.CTX_TRACEINTERNAL )
-			action.trace( "readStream - start reading ..." );
+			action.trace( "readStream - start reading " + stream + " ..." );
 		
 		while ( true ) {
 			int index = buffer.indexOf( '\n' );
