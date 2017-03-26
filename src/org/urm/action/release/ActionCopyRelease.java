@@ -5,6 +5,7 @@ import java.util.Date;
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.DistLabelInfo;
 import org.urm.engine.dist.DistRepository;
 import org.urm.meta.engine.ServerReleaseLifecycle;
 
@@ -27,6 +28,12 @@ public class ActionCopyRelease extends ActionBase {
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
 		DistRepository repo = artefactory.getDistRepository( this , src.meta );
+		DistLabelInfo info = repo.getLabelInfo( this , RELEASEDST );
+		if( info.prod ) {
+			super.fail0( _Error.CannotCopyProd0 , "Cannot create prod distributive, use prod command instead" );
+			return( SCOPESTATE.RunFail );
+		}
+		
 		dst = repo.createDist( this , RELEASEDST , releaseDate , lc );
 		dst.copyRelease( this , src );
 		return( SCOPESTATE.RunSuccess );

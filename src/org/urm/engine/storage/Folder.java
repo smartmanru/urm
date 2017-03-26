@@ -1,5 +1,7 @@
 package org.urm.engine.storage;
 
+import java.io.File;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -94,13 +96,9 @@ public abstract class Folder {
 		session.copyFile( action , srcFile , folderPath , newName , "" );
 	}
 
-	public void copyDir( ActionBase action , String srcpath ) throws Exception {
-		copyDir( action , srcpath , "" );
-	}
-	
 	public void copyDir( ActionBase action , String srcpath , String targetSubFolder ) throws Exception {
 		ShellExecutor session = getSession( action );
-		session.copyDirDirect( action , srcpath , Common.getPath( folderPath , targetSubFolder ) );
+		session.copyDirDirect( action , Common.getPath( folderPath , srcpath ) , Common.getPath( folderPath , targetSubFolder ) );
 	}
 	
 	public void copyFile( ActionBase action , String folder1 , String folder2 , String newName , String targetSubFolder ) throws Exception {
@@ -111,6 +109,11 @@ public abstract class Folder {
 			session.copyFile( action , Common.getPath( folderPath , folder1 ) , Common.getPath( folderPath , targetSubFolder , folder2 ) , newName , "" );
 	}
 
+	public void copyExtDir( ActionBase action , String srcpath , String targetSubFolder ) throws Exception {
+		ShellExecutor session = getSession( action );
+		session.copyDirDirect( action , srcpath , Common.getPath( folderPath , targetSubFolder ) );
+	}
+	
 	public String getFilePath( ActionBase action , String file ) {
 		return( folderPath + "/" + file ); 
 	}
@@ -501,6 +504,12 @@ public abstract class Folder {
 		}
 		
 		return( action.getLocalPath( filePath ) );
+	}
+
+	public Date getFileChangeTime( ActionBase action , String file ) throws Exception {
+		String path = getFilePath( action , file );
+		File fo = new File( action.getLocalPath( path ) );
+		return( new Date( fo.lastModified() ) );
 	}
 	
 }

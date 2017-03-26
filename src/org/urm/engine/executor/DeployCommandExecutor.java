@@ -84,7 +84,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 	private Dist getDist( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		return( dist );
 	}
 	
@@ -96,7 +96,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 		Dist dist = null;
 		Meta meta = action.getContextMeta();
 		if( !action.context.CTX_RELEASELABEL.isEmpty() )
-			dist = action.artefactory.getDistStorageByLabel( action , meta , action.context.CTX_RELEASELABEL );
+			dist = action.getReleaseDist( meta , action.context.CTX_RELEASELABEL );
 		
 		return( getServerScope( action , posFrom , dist ) );
 	}

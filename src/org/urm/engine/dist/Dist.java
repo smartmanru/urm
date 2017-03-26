@@ -8,6 +8,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.ServerBlotterReleaseItem;
 import org.urm.engine.ServerBlotterSet;
+import org.urm.engine.ServerBlotter;
 import org.urm.engine.ServerBlotter.BlotterType;
 import org.urm.engine.dist.DistState.DISTSTATE;
 import org.urm.engine.shell.ShellExecutor;
@@ -32,6 +33,9 @@ import org.w3c.dom.Document;
 
 public class Dist {
 
+	public static String MASTER_LABEL = "master";
+	public static String MASTER_DIR = "master";
+	
 	public static String META_FILENAME = "release.xml";
 	public static String CONFDIFF_FILENAME = "diffconf.txt";
 	public static String STATE_FILENAME = "state.txt";
@@ -77,8 +81,8 @@ public class Dist {
 		openedForControl = false;
 	}
 
-	public boolean isFullProd() {
-		return( release.PROPERTY_PROD );
+	public boolean isMaster() {
+		return( release.PROPERTY_MASTER );
 	}
 	
 	public boolean isFinalized() {
@@ -222,6 +226,10 @@ public class Dist {
 		return( distFolder.checkFileExists( action , path ) );
 	}
 	
+	public boolean checkFolderExists( ActionBase action , String path ) throws Exception {
+		return( distFolder.checkFolderExists( action , path ) );
+	}
+	
 	public String getDistFolder() {
 		return( distFolder.folderName );
 	}
@@ -272,7 +280,7 @@ public class Dist {
 		if( !openedForUse )
 			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
-		ReleaseDelivery delivery = release.findDelivery( action , conf.delivery.NAME );
+		ReleaseDelivery delivery = release.findDelivery( conf.delivery.NAME );
 		if( delivery == null )
 			action.exit1( _Error.UnknownReleaseDelivery1 , "unknown release delivery=" + conf.delivery.NAME , conf.delivery.NAME );
 		
@@ -298,7 +306,7 @@ public class Dist {
 	
 	public void createDeliveryFolders( ActionBase action ) throws Exception {
 		state.checkDistDataChangeEnabled( action );
-		for( ReleaseDelivery delivery : release.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : release.getDeliveries() ) {
 			createInternalDeliveryFolder( action , getDeliveryBinaryFolder( action , delivery.distDelivery ) );
 			createInternalDeliveryFolder( action , getDeliveryConfFolder( action , delivery.distDelivery ) );
 			createInternalDeliveryFolder( action , getDeliveryDatabaseFolder( action , delivery.distDelivery , release.RELEASEVER ) );
@@ -316,6 +324,9 @@ public class Dist {
 		VersionInfo info = VersionInfo.getReleaseVersion( action , RELEASEDIR );
 		lc = getLifecycle( action , lc , info.getLifecycleType() );
 		releaseDate = getReleaseDate( action , releaseDate , lc );
+		if( releaseDate == null )
+			action.exit1( _Error.MissingReleaseDate1 , "unable to create release label=" + RELEASEDIR + " due to missing release date" , RELEASEDIR );
+		
 		state.ctlCreate( action , releaseDate , lc );
 		load( action );
 	}
@@ -327,8 +338,16 @@ public class Dist {
 	}
 	
 	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {
-		this.RELEASEDIR = "prod";
+		this.RELEASEDIR = MASTER_DIR;
 		state.ctlCreateProd( action , RELEASEVER );
+		MetaDistr distr = meta.getDistr( action );
+		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
+			if( delivery.hasBinaryItems() ) {
+				String folder = getDeliveryBinaryFolder( action , delivery );
+				distFolder.ensureFolderExists( action , folder );
+			}
+		}
+		
 		load( action );
 	}
 	
@@ -358,6 +377,7 @@ public class Dist {
 		state.ctlCloseDataChange( action );
 		openedForChange = false;
 		openedForUse = false;
+		files = null;
 	}
 
 	public void closeControl( ActionBase action , DISTSTATE value ) throws Exception {
@@ -375,11 +395,15 @@ public class Dist {
 	}
 
 	public void finish( ActionBase action ) throws Exception {
+		if( isFinalized() ) {
+			action.info( "release is already finalized" );
+			return;
+		}
+		
 		openForDataChange( action );
-
 		DistFinalizer finalizer = new DistFinalizer( action , this , distFolder , release );
 		if( !finalizer.finish() ) {
-			action.error( "distributive is not ready to be finished" );
+			action.error( "distributive is not ready to be finalyzed" );
 			state.ctlCloseDataChange( action );
 			return;
 		}
@@ -390,12 +414,12 @@ public class Dist {
 	}
 
 	public void complete( ActionBase action ) throws Exception {
-		openForControl( action );
 		if( state.isCompleted() ) {
-			action.info( "distributive is not ready to be finished" );
+			action.info( "release is already completed" );
 			return;
 		}
 		
+		openForControl( action );
 		release.complete( action );
 		saveReleaseXml( action );
 		state.ctlCloseControl( action , DISTSTATE.COMPLETED );
@@ -412,16 +436,16 @@ public class Dist {
 		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
 		
 		String saveReleaseVer = release.RELEASEVER;
-		release.copy( action , src.release );
-		release.setReleaseVer( action , saveReleaseVer ); 
-		Document doc = src.release.createXml( action );
+		release.copyRelease( action , src.release );
+		release.setReleaseVer( action , saveReleaseVer );
+		Document doc = release.createXml( action );
 		Common.xmlSaveDoc( doc , filePath );
 		
 		openForDataChange( action );
 		
 		distFolder.copyFileFromLocal( action , filePath );
 		ShellExecutor shell = action.getShell( distFolder.account );
-		for( ReleaseDelivery delivery : src.release.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : src.release.getDeliveries() ) {
 			String dirFrom = src.distFolder.getFolderPath( action , delivery.distDelivery.FOLDER );
 			String dirTo = distFolder.getFolderPath( action , delivery.distDelivery.FOLDER );
 			int timeout = action.setTimeoutUnlimited();
@@ -432,7 +456,7 @@ public class Dist {
 		closeDataChange( action );
 		action.info( "release " + RELEASEDIR + " has beed copied from " + src.RELEASEDIR );
 	}
-	
+
 	public void dropRelease( ActionBase action ) throws Exception {
 		state.ctlCheckCanDropRelease( action );
 		distFolder.removeThis( action );
@@ -537,29 +561,33 @@ public class Dist {
 	}
 
 	public String getReleaseConfCompParentFolder( ActionBase action , MetaDistrConfItem comp ) throws Exception {
-		ReleaseDelivery delivery = release.getDelivery( action , comp.delivery.NAME );
-		String folder = getDeliveryConfFolder( action , delivery.distDelivery );
+		String folder = getDeliveryConfFolder( action , comp.delivery );
 		return( folder );
 	}
 	
 	public String getReleaseBinaryFolder( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		ReleaseDelivery delivery = release.getDelivery( action , item.delivery.NAME );
-		String folder = getDeliveryBinaryFolder( action , delivery.distDelivery );
+		String folder = getDeliveryBinaryFolder( action , item.delivery );
 		return( folder );
 	}
-	
-	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 ) throws Exception {
+
+	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 , boolean getTimestamp ) throws Exception {
 		DistItemInfo info = new DistItemInfo( item );
 		if( item.isDerived() ) {
-			DistItemInfo infosrc = getDistItemInfo( action , item.srcDistItem , false );
+			DistItemInfo infosrc = getDistItemInfo( action , item.srcDistItem , false , true );
 			info.subPath = infosrc.subPath;
 			info.fileName = infosrc.fileName;
 			info.found = infosrc.found;
+			info.timestamp = infosrc.timestamp;
 		}
 		else {
 			info.subPath = getReleaseBinaryFolder( action , item );
 			info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );
 			info.found = ( info.fileName.isEmpty() )? false : true;
+			
+			if( info.found && getTimestamp ) {
+				RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
+				info.timestamp = fileFolder.getFileChangeTime( action , info.fileName );
+			}
 		}
 		
 		if( info.found && getMD5 ) {
@@ -709,13 +737,13 @@ public class Dist {
 		action.info( "find distributive files ..." );
 		files = distFolder.getFileSet( action );
 		
-		for( ReleaseDelivery delivery : release.getDeliveries( action ).values() ) {
+		for( ReleaseDelivery delivery : release.getDeliveries() ) {
 			FileSet deliveryFiles = files.getDirByPath( action , delivery.distDelivery.FOLDER );
 			
-			for( ReleaseTargetItem targetItem : delivery.getProjectItems( action ).values() )
+			for( ReleaseTargetItem targetItem : delivery.getProjectItems() )
 				gatherDeliveryBinaryItem( action , delivery , deliveryFiles , targetItem );
 				
-			for( ReleaseTarget targetItem : delivery.getManualItems( action ).values() )
+			for( ReleaseTarget targetItem : delivery.getManualItems() )
 				gatherDeliveryManualItem( action , delivery , deliveryFiles , targetItem );
 		}
 	}
@@ -824,16 +852,16 @@ public class Dist {
 	}
 
 	public void copyDatabaseDistrToDistr( ActionBase action , ReleaseDelivery delivery , Dist src ) throws Exception {
-		ReleaseDelivery reldel = src.release.findDelivery( action , delivery.distDelivery.NAME );
+		ReleaseDelivery reldel = src.release.findDelivery( delivery.distDelivery.NAME );
 		if( reldel != null ) {
 			String folder = src.getDeliveryDatabaseFolder( action , reldel.distDelivery , src.release.RELEASEVER );
 			if( src.distFolder.checkFolderExists( action , folder ) )
-				distFolder.copyDir( action , src.distFolder.getFilePath( action , folder ) , folder );
+				distFolder.copyExtDir( action , src.distFolder.getFilePath( action , folder ) , folder );
 		}
 	}
 	
 	public void copyBinaryDistrToDistr( ActionBase action , ReleaseDelivery delivery , Dist src , String file ) throws Exception {
-		ReleaseDelivery reldel = src.release.findDelivery( action , delivery.distDelivery.NAME );
+		ReleaseDelivery reldel = src.release.findDelivery( delivery.distDelivery.NAME );
 		if( reldel != null ) {
 			String folder = reldel.distDelivery.FOLDER;
 			String fileSrc = src.distFolder.getFilePath( action , Common.getPath( folder , file ) );
@@ -846,7 +874,7 @@ public class Dist {
 	}
 	
 	public void appendConfDistrToDistr( ActionBase action , ReleaseDelivery delivery , Dist src , MetaDistrConfItem item ) throws Exception {
-		ReleaseDelivery reldel = src.release.findDelivery( action , delivery.distDelivery.NAME );
+		ReleaseDelivery reldel = src.release.findDelivery( delivery.distDelivery.NAME );
 		if( reldel != null ) {
 			String folder = src.getDeliveryConfFolder( action , reldel.distDelivery );
 			ShellExecutor session = distFolder.getSession( action );
@@ -940,6 +968,85 @@ public class Dist {
 		
 		action.exit0( _Error.MissingReleaseDate0 , "Missing release date" );
 		return( null );
+	}
+
+	public void finishStatus( ActionBase action ) throws Exception {
+		ServerBlotter blotter = action.getServerBlotter();
+		blotter.runDistStatus( action , meta , this );
+	}
+	
+	public void createMasterFiles( ActionBase action , Dist src ) throws Exception {
+		release.createMaster( action , src.release.RELEASEVER , true );
+		src.gatherFiles( action );
+		
+		for( ReleaseDelivery delivery : src.release.getDeliveries() ) {
+			for( ReleaseTargetItem item : delivery.getProjectItems() )
+				copyMasterItem( action , src , delivery , item.distItem , true );
+			for( ReleaseTarget item : delivery.getManualItems() )
+				copyMasterItem( action , src , delivery , item.distManualItem , true );
+		}
+		
+		release.master.addMasterHistory( action , src.release.RELEASEVER );
+	}
+	
+	public void appendMasterFiles( ActionBase action , Dist src ) throws Exception {
+		src.gatherFiles( action );
+		for( ReleaseDelivery delivery : src.release.getDeliveries() ) {
+			for( ReleaseTargetItem item : delivery.getProjectItems() )
+				copyMasterItem( action , src , delivery , item.distItem , false );
+			for( ReleaseTarget item : delivery.getManualItems() )
+				copyMasterItem( action , src , delivery , item.distManualItem , false );
+		}
+		
+		release.master.addMasterHistory( action , src.release.RELEASEVER );
+		release.setReleaseVer( action , src.release.RELEASEVER );
+	}
+	
+	private void copyMasterItem( ActionBase action , Dist src , ReleaseDelivery delivery , MetaDistrBinaryItem distItem , boolean create ) throws Exception {
+		DistItemInfo info = src.getDistItemInfo( action , distItem , true , false );
+		if( !info.found ) {
+			action.error( "missing item=" + distItem.KEY );
+			action.exitUnexpectedState();
+		}
+
+		RemoteFolder folder;
+		if( !create ) {
+			ReleaseMasterItem item = release.findMasterItem( distItem );
+			if( item != null ) {
+				folder = distFolder.getSubFolder( action , Common.getPath( item.FOLDER , BINARY_FOLDER ) );
+				folder.removeFiles( action , item.FILE + " " + item.FILE + ".md5" );
+			}
+		}
+		
+		release.addMasterItem( action , src.release , distItem , info );
+		copyBinaryDistrToDistr( action , delivery , src , Common.getPath( BINARY_FOLDER , info.fileName ) );
+		folder = distFolder.getSubFolder( action , Common.getPath( delivery.distDelivery.FOLDER , BINARY_FOLDER ) );
+		folder.createFileFromString( action , info.fileName + ".md5" , info.md5value );
+	}
+
+	public Dist copyDist( ActionBase action , String newName ) throws Exception {
+		RemoteFolder parent = distFolder.getParentFolder( action );
+		if( !parent.checkFolderExists( action , RELEASEDIR ) )
+			action.exitUnexpectedState();
+		if( parent.checkFolderExists( action , newName ) )
+			parent.removeFolder( action , newName );
+		
+		parent.copyDir( action , RELEASEDIR , newName );
+		RemoteFolder folderNew = parent.getSubFolder( action , newName );
+		Dist distNew = DistRepositoryItem.read( action , repo , folderNew );
+		return( distNew );
+	}
+
+	public void moveDist( ActionBase action , String newName ) throws Exception {
+		RemoteFolder parent = distFolder.getParentFolder( action );
+		if( !parent.checkFolderExists( action , RELEASEDIR ) )
+			action.exitUnexpectedState();
+		if( parent.checkFolderExists( action , newName ) )
+			parent.removeFolder( action , newName );
+		
+		parent.moveFolderToFolder( action , RELEASEDIR , newName );
+		distFolder = parent.getSubFolder( action , newName );
+		RELEASEDIR = distFolder.folderName;
 	}
 	
 }

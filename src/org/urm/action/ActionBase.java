@@ -10,6 +10,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunError;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.engine.ServerBlotter;
 import org.urm.engine.ServerBlotter.BlotterType;
 import org.urm.engine.ServerBlotterSet;
 import org.urm.engine.ServerCache;
@@ -20,6 +21,7 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.action.CommandOutput;
+import org.urm.engine.dist.Dist;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Artefactory;
@@ -255,6 +257,26 @@ abstract public class ActionBase extends ActionCore {
 			error( s + ", ignored" );
 		else
 			exit( errorCode , s + ", exiting (use -force to override)" , params );
+	}
+
+	public void ifexit0( int errorCode , String s ) throws Exception {
+		ifexit( errorCode , s , null );
+	}
+
+	public void ifexit1( int errorCode , String s , String param1 ) throws Exception {
+		ifexit( errorCode , s , new String[] { param1 } );
+	}
+
+	public void ifexit2( int errorCode , String s , String param1 , String param2 ) throws Exception {
+		ifexit( errorCode , s , new String[] { param1 , param2 } );
+	}
+
+	public void ifexit3( int errorCode , String s , String param1 , String param2 , String param3 ) throws Exception {
+		ifexit( errorCode , s , new String[] { param1 , param2 , param3 } );
+	}
+
+	public void ifexit4( int errorCode , String s , String param1 , String param2 , String param3 , String param4 ) throws Exception {
+		ifexit( errorCode , s , new String[] { param1 , param2 , param3 , param4 } );
 	}
 
 	public boolean runSimpleServer( SecurityAction sa , boolean readOnly ) {
@@ -572,6 +594,14 @@ abstract public class ActionBase extends ActionCore {
 		return( getShell( context.account ) );
 	}
 	
+	public Dist getReleaseDist( Meta meta , String RELEASELABEL ) throws Exception {
+		return( artefactory.getDistStorageByLabel( this , meta , RELEASELABEL ) );
+	}
+	
+	public Dist getMasterDist( Meta meta ) throws Exception {
+		return( artefactory.getDistStorageByLabel( this , meta , Dist.MASTER_LABEL ) );
+	}
+	
 	public String readFile( String path ) throws Exception {
     	trace( "read file path=" + path + " ..." );
 		return( ConfReader.readFile( engine.execrc , path ) );
@@ -722,6 +752,10 @@ abstract public class ActionBase extends ActionCore {
 		return( builder );
 	}
 
+	public ServerBlotter getServerBlotter() throws Exception {
+		return( engine.blotter );
+	}
+	
 	public ServerMirrorRepository getServerMirror() throws Exception {
 		ServerMirrors mirrors = getServerMirrors();
 		ServerMirrorRepository repo = mirrors.findServerRepository();

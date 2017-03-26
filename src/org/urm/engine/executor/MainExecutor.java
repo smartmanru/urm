@@ -28,7 +28,7 @@ public class MainExecutor extends CommandExecutor {
 		super.defineAction( new Configure() , "configure" );
 		super.defineAction( new SvnSave() , "svnsave" );
 		super.defineAction( new ServerOp() , "server" );
-		super.defineAction( new WebSession() , "websession" );
+		super.defineAction( new WebSession() , "interactive" );
 		super.defineAction( new Temporary() , "temporary" );
 	}
 
@@ -69,10 +69,10 @@ public class MainExecutor extends CommandExecutor {
 		return( options );
 	}
 
-	public CommandOptions createOptionsWebSession( ServerEngine engine ) throws Exception {
+	public CommandOptions createOptionsInteractiveSession( ServerEngine engine ) throws Exception {
 		CommandOptions options = new CommandOptions();
 		ActionData data = new ActionData( engine.execrc );
-		options.setAction( commandInfo.getAction( "websession" ) , data );
+		options.setAction( commandInfo.getAction( "interactive" ) , data );
 		return( options );
 	}
 

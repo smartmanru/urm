@@ -6,17 +6,18 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
+import org.urm.meta.Types.VarSESSIONTYPE;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
@@ -25,12 +26,13 @@ public abstract class ShellExecutor extends Shell {
 
 	public String rootPath;
 	public Folder tmpFolder;
-	public boolean dedicated; 
+	public boolean dedicated;
+	private boolean fatal; 
 	
 	public long tsLastStarted;
 	public long tsLastFinished;
 	
-	protected ShellCore core;
+	private ShellCore coreHidden;
 	
 	@Override
 	abstract public boolean start( ActionBase action ) throws Exception;
@@ -41,11 +43,30 @@ public abstract class ShellExecutor extends Shell {
 		this.rootPath = rootPath;
 		this.tmpFolder = tmpFolder;
 		this.dedicated = dedicated;
+		this.fatal = false;
+	}
+	
+	public boolean isWindowsFromUnix() {
+		if( coreHidden.sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isUnixFromWindows() {
+		if( coreHidden.sessionType == VarSESSIONTYPE.UNIXFROMWINDOWS )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isUnixRemote() {
+		if( coreHidden.sessionType == VarSESSIONTYPE.UNIXREMOTE )
+			return( true );
+		return( false );
 	}
 	
 	public static ShellExecutor getLocalShellExecutor( ActionBase action , int id , String name , ShellPool pool , String rootPath , Folder tmpFolder , boolean dedicated ) throws Exception {
 		ShellExecutor executor = new LocalShellExecutor( id , name , pool , rootPath , tmpFolder , dedicated );
-		executor.core = ShellCore.createShellCore( action, executor , action.context.account.osType , true );
+		executor.coreHidden = ShellCore.createShellCore( action, executor , action.context.account.osType , true );
 		return( executor );
 	}
 
@@ -54,21 +75,32 @@ public abstract class ShellExecutor extends Shell {
 		Folder tmpFolder = storage.getRedistTmpFolder( action );
 
 		ShellExecutor executor = new RemoteShellExecutor( id , name , pool , account , tmpFolder , auth , dedicated );
-		executor.core = ShellCore.createShellCore( action, executor , account.osType , false );
+		executor.coreHidden = ShellCore.createShellCore( action, executor , account.osType , false );
 		return( executor );
 	}
 
 	public boolean isRunning() {
-		return( core.running );
+		return( coreHidden.running );
 	}
 	
 	public boolean isLocal() {
 		return( account.isLocal() );
 	}
 	
-	private void opstart() {
+	private ShellCore opstart( ActionBase action ) throws Exception {
+		if( !coreHidden.running ) {
+			if( fatal ) {
+				String accName = super.account.getHostLogin();
+				action.exit1( _Error.ShellUnavailable1 , "fatal state of shell to account=" + accName , accName );
+			}
+			
+			restart( action );
+		}
+		
 		tsLastStarted = System.currentTimeMillis();
 		tsLastFinished = 0;
+		
+		return( coreHidden );
 	}
 	
 	private void opstop() {
@@ -80,12 +112,19 @@ public abstract class ShellExecutor extends Shell {
 	}
 	
 	public void restart( ActionBase action ) throws Exception {
-		core.kill( action );
-		core = ShellCore.createShellCore( action , this , core.osType , core.local );
+		if( fatal ) {
+			String accName = super.account.getHostLogin();
+			action.exit1( _Error.ShellUnavailable1 , "fatal state of shell to account=" + accName , accName );
+		}
+		
+		coreHidden.kill( action );
+		coreHidden = ShellCore.createShellCore( action , this , coreHidden.osType , coreHidden.local );
 		
 		start( action );
-		if( !core.initialized )
+		if( !coreHidden.initialized ) {
+			fatal = true; 
 			action.exit1( _Error.ShellInitFailed1 , "shell=" + name + " failed on init stage" , name );
+		}
 	}
 	
 	protected boolean createProcess( ActionBase action , ShellProcess process , ServerAuthResource auth ) throws Exception {
@@ -93,13 +132,13 @@ public abstract class ShellExecutor extends Shell {
 			action.debug( "start shell=" + name + " at rootPath=" + rootPath + " (" + Common.getEnumLower( account.osType ) + ")" );
 		else
 			action.debug( "start shell=" + name + " (" + Common.getEnumLower( account.osType ) + ")" );
-		return( core.createProcess( action , process , rootPath , auth ) );
+		return( coreHidden.createProcess( action , process , rootPath , auth ) );
 	}
 
 	@Override
 	public void kill( ActionBase action ) throws Exception {
 		action.debug( "kill shell=" + name + " at rootPath=" + rootPath );
-		core.kill( action );
+		coreHidden.kill( action );
 	}
 
 	public void release( ActionBase action ) {
@@ -109,13 +148,13 @@ public abstract class ShellExecutor extends Shell {
 	
 	// information
 	public String getHomePath() {
-		return( core.homePath );
+		return( coreHidden.homePath );
 	}
 
 	// operations
 	public synchronized String createDir( ActionBase action , String home , String dir ) throws Exception {
 		try {
-			opstart();
+			opstart( action );
 			String path = Common.getPath( home , dir );
 			ensureDirExists( action , path );
 			return( path );
@@ -127,7 +166,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void ensureDirExists( ActionBase action , String path ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			if( isLocal() ) {
 				path = action.getLocalPath( path );
 				if( !Files.isDirectory( Paths.get( path ) , LinkOption.NOFOLLOW_LINKS ) ) {
@@ -147,7 +186,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void createFileFromString( ActionBase action , String path , String value ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdCreateFileFromString( action , path , value );
 		}
 		finally {
@@ -157,7 +196,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void appendFileWithString( ActionBase action , String path , String value ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			if( isLocal() ) {
 				path = action.getLocalPath( path );
 				List<String> list = new LinkedList<String>();
@@ -174,7 +213,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void appendFileWithFile( ActionBase action , String pathDst , String pathSrc ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdAppendFileWithFile( action , pathDst , pathSrc );
 		}
 		finally {
@@ -184,7 +223,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized boolean checkDirExists( ActionBase action , String path ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			if( path.isEmpty() )
 				return( false );
 			
@@ -202,7 +241,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized Map<String,List<String>> getFilesContent( ActionBase action , String dir , String fileMask ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.cmdGetFilesContent( action , dir , fileMask ) );
 		}
 		finally {
@@ -212,7 +251,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized boolean isFileEmpty( ActionBase action , String path ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.cmdIsFileEmpty( action , path ) );
 		}
 		finally {
@@ -221,18 +260,12 @@ public abstract class ShellExecutor extends Shell {
 	}
 
 	public synchronized boolean checkFileExists( ActionBase action , String dir , String path ) throws Exception {
-		try {
-			opstart();
-			return( checkFileExists( action , Common.getPath( dir , path ) ) );
-		}
-		finally {
-			opstop();
-		}
+		return( checkFileExists( action , Common.getPath( dir , path ) ) );
 	}
 	
 	public synchronized boolean checkFileExists( ActionBase action , String path ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			if( path.isEmpty() )
 				return( false );
 	
@@ -249,7 +282,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized boolean checkPathExists( ActionBase action , String path ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			if( path.isEmpty() )
 				return( false );
 	
@@ -266,7 +299,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized String findOneTopWithGrep( ActionBase action , String path , String mask , String grepMask ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.cmdFindOneTopWithGrep( action , path , mask , grepMask ) );
 		}
 		finally {
@@ -276,7 +309,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized String findOneTop( ActionBase action , String path , String mask ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.cmdFindOneTop( action , path , mask ) );
 		}
 		finally {
@@ -286,7 +319,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void createMD5( ActionBase action , String filepath ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdCreateMD5( action , filepath );
 		}
 		finally {
@@ -296,7 +329,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void removeDirContent( ActionBase action , String dirpath ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdRemoveDirContent( action , dirpath );
 		}
 		finally {
@@ -306,7 +339,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void removeDir( ActionBase action , String dirpath ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdRemoveDir( action , dirpath );
 		}
 		finally {
@@ -316,7 +349,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void recreateDir( ActionBase action , String dirpath ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdRecreateDir( action , dirpath );
 		}
 		finally {
@@ -326,7 +359,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void removeFiles( ActionBase action , String dir , String files ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdRemoveFiles(action , dir , files );
 		}
 		finally {
@@ -336,7 +369,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void removeFilesWithExclude( ActionBase action , String dir , String files , String exclude ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdRemoveFilesWithExclude( action , dir , files , exclude );
 		}
 		finally {
@@ -346,7 +379,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void unzip( ActionBase action , String runDir , String zipFile , String folder ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdUnzipPart( action , runDir , zipFile , folder , "" );
 		}
 		finally {
@@ -356,7 +389,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void unzipPart( ActionBase action , String unzipDir , String zipFile , String zipPart , String targetDir ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdUnzipPart( action , unzipDir , zipFile , targetDir , zipPart );
 		}
 		finally {
@@ -366,7 +399,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void move( ActionBase action , String source , String target ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdMove( action , source , target );
 		}
 		finally {
@@ -376,7 +409,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void extractTarGz( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdExtractTarGz( action , tarFile , targetFolder , part );
 		}
 		finally {
@@ -386,7 +419,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void extractTar( ActionBase action , String tarFile , String targetFolder , String part ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdExtractTar( action , tarFile , targetFolder , part );
 		}
 		finally {
@@ -396,7 +429,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void extractTarGz( ActionBase action , String tarFile , String targetFolder ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdExtractTarGz( action , tarFile , targetFolder , "" );
 		}
 		finally {
@@ -406,7 +439,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void extractTar( ActionBase action , String tarFile , String targetFolder ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdExtractTar( action , tarFile , targetFolder , "" );
 		}
 		finally {
@@ -416,7 +449,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized String ls( ActionBase action , String path ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.cmdLs( action , path ) );
 		}
 		finally {
@@ -426,7 +459,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void createZipFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdCreateZipFromDirContent( action , tarFile , dir , content , exclude );
 		}
 		finally {
@@ -436,7 +469,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void createTarGzFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdCreateTarGzFromDirContent( action , tarFile , dir , content , exclude );
 		}
 		finally {
@@ -446,7 +479,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void createTarFromDirContent( ActionBase action , String tarFile , String dir , String content , String exclude ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdCreateTarFromDirContent( action , tarFile , dir , content , exclude );
 		}
 		finally {
@@ -456,7 +489,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized String getFileInfo( ActionBase action , String dir , String dirFile ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.cmdGetFileInfo( action , dir , dirFile ) );
 		}
 		finally {
@@ -465,18 +498,12 @@ public abstract class ShellExecutor extends Shell {
 	}
 
 	public synchronized void custom( ActionBase action , String cmd ) throws Exception {
-		try {
-			opstart();
-			custom( action , cmd , CommandOutput.LOGLEVEL_INFO );
-		}
-		finally {
-			opstop();
-		}
+		custom( action , cmd , CommandOutput.LOGLEVEL_INFO );
 	}
 	
 	public synchronized void custom( ActionBase action , String cmd , int logLevel ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.runCommand( action , cmd , logLevel );
 		}
 		finally {
@@ -486,7 +513,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void custom( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.runCommand( action , dir , cmd , CommandOutput.LOGLEVEL_INFO );
 		}
 		finally {
@@ -496,7 +523,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void checkErrors( ActionBase action ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			String err = core.getErr();
 			if( !err.isEmpty() )
 				action.exit2( _Error.ErrorExecutingCmd2 , "error executing CMD=" + core.cmdCurrent + ": " + err , core.cmdCurrent , err );
@@ -508,7 +535,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void customCheckErrorsDebug( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.runCommand( action , dir , cmd , CommandOutput.LOGLEVEL_TRACE );
 			String err = core.getErr();
 			if( !err.isEmpty() )
@@ -521,7 +548,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void customCritical( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			String cmdDir = core.getDirCmd( action , dir , cmd );
 			core.runCommandCritical( action , cmdDir );
 		}
@@ -532,7 +559,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void customCritical( ActionBase action , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.runCommandCritical( action , cmd );
 		}
 		finally {
@@ -542,7 +569,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized int customGetStatus( ActionBase action , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.runCommandGetStatusDebug( action , cmd ) );
 		}
 		finally {
@@ -552,7 +579,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized int customGetStatus( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			String cmdDir = core.getDirCmd( action , dir , cmd );
 			return( core.runCommandGetStatusDebug( action , cmdDir ) );
 		}
@@ -563,7 +590,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized int customGetStatusCheckErrors( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			String cmdDir = core.getDirCmd( action , dir , cmd );
 			int status = core.runCommandGetStatusDebug( action , cmdDir );
 			if( status != 0 )
@@ -582,7 +609,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized int customGetStatusNormal( ActionBase action , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.runCommandGetStatusNormal( action , cmd ) );
 		}
 		finally {
@@ -592,7 +619,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized int customGetStatusNormal( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			String cmdDir = core.getDirCmd( action , dir , cmd );
 			return( core.runCommandGetStatusNormal( action , cmdDir ) );
 		}
@@ -603,7 +630,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void customCheckStatus( ActionBase action , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.runCommandCheckStatusDebug( action , cmd );
 		}
 		finally {
@@ -613,7 +640,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void customCheckStatus( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.runCommandCheckStatusDebug( action , dir , cmd );
 		}
 		finally {
@@ -623,7 +650,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void customCheckErrorsDebug( ActionBase action , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.runCommandCheckDebug( action , cmd );
 		}
 		finally {
@@ -633,7 +660,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void customCheckErrorsNormal( ActionBase action , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.runCommandCheckNormal( action , cmd );
 		}
 		finally {
@@ -643,7 +670,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized String customGetValueNoCheck( ActionBase action , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.runCommandGetValueNoCheck( action , cmd , CommandOutput.LOGLEVEL_TRACE ) );
 		}
 		finally {
@@ -653,7 +680,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized String customGetValue( ActionBase action , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.runCommandGetValueCheckDebug( action , cmd ) );
 		}
 		finally {
@@ -663,7 +690,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized String[] customGetLines( ActionBase action , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.runCommandGetLines( action , cmd , CommandOutput.LOGLEVEL_TRACE ) );
 		}
 		finally {
@@ -673,7 +700,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized String[] customGetLines( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.runCommandGetLines( action , dir , cmd , CommandOutput.LOGLEVEL_TRACE ) );
 		}
 		finally {
@@ -683,7 +710,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized String customGetValue( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.runCommandGetValueCheckDebug( action , dir , cmd ) );
 		}
 		finally {
@@ -693,7 +720,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized String[] findFiles( ActionBase action , String dir , String mask ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.cmdFindFiles( action , dir , mask ) );
 		}
 		finally {
@@ -703,7 +730,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized String getFirstFile( ActionBase action , String dir ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.cmdGetFirstFile( action , dir ) );
 		}
 		finally {
@@ -713,7 +740,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void createJarFromFolder( ActionBase action , String runDir , String jarFile , String folder ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdCreateJarFromFolder( action , runDir , jarFile , folder );
 		}
 		finally {
@@ -723,7 +750,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void export( ActionBase action , String var , String value ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdSetShellVariable( action , var , value );
 		}
 		finally {
@@ -733,7 +760,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void mvnCheckStatus( ActionBase action , String runDir , String MAVEN_CMD ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.runCommandCheckStatusNormal( action , runDir , MAVEN_CMD );
 		}
 		finally {
@@ -743,7 +770,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void gitAddPomFiles( ActionBase action , String runDir ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdGitAddPomFiles( action , runDir );
 		}
 		finally {
@@ -753,7 +780,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void copyFiles( ActionBase action , String dirFrom , String files , String dirTo ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdCopyFiles( action , dirFrom , files , dirTo );
 		}
 		finally {
@@ -763,7 +790,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void copyFile( ActionBase action , String fileFrom , String fileTo ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdCopyFile( action, fileFrom , fileTo );
 		}
 		finally {
@@ -773,7 +800,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void copyFile( ActionBase action , String fileFrom , String targetDir , String finalName , String FOLDER ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdCopyFile( action , fileFrom , targetDir , finalName , FOLDER );
 		}
 		finally {
@@ -783,7 +810,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void copyDirContent( ActionBase action , String srcDir , String dstDir ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdCopyDirContent( action , srcDir , dstDir );
 		}
 		finally {
@@ -793,7 +820,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void copyDirDirect( ActionBase action , String dirFrom , String dirTo ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdCopyDirDirect( action , dirFrom , dirTo );
 		}
 		finally {
@@ -803,7 +830,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void copyDirToBase( ActionBase action , String dirFrom , String baseDstDir ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdCopyDirToBase( action , dirFrom , baseDstDir );
 		}
 		finally {
@@ -813,7 +840,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void scpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			int timeout = action.setTimeoutUnlimited();
 			if( account.isNativeScp() )
 				ShellProcess.scpFilesRemoteToLocal( action , srcPath , account , dstPath );
@@ -828,7 +855,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void scpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			if( account.isNativeScp() )
 				ShellProcess.scpDirContentRemoteToLocal( action , srcPath , account , dstPath );
 			else
@@ -841,7 +868,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void scpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			if( account.isNativeScp() )
 				ShellProcess.scpFilesLocalToRemote( action , srcPath , account , dstPath );
 			else
@@ -854,7 +881,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void scpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			if( account.isNativeScp() )
 				ShellProcess.scpDirLocalToRemote( action , srcDirPath , account , baseDstDir );
 			else
@@ -867,7 +894,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void scpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			if( account.isNativeScp() )
 				ShellProcess.scpDirContentLocalToRemote( action , srcDirPath , account , dstDir );
 			else
@@ -880,7 +907,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void scpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			if( account.isNativeScp() )
 				ShellProcess.scpDirRemoteToLocal( action , srcPath , account , dstPath );
 			else
@@ -892,127 +919,87 @@ public abstract class ShellExecutor extends Shell {
 	}
 
 	public synchronized void copyFileTargetToLocalDir( ActionBase action , Account account , String srcFilePath , String dstDir ) throws Exception {
-		try {
-			opstart();
-			if( account.local )
-				copyFile( action , srcFilePath , dstDir );
-			else
-				scpFilesRemoteToLocal( action , srcFilePath , account , Common.ensureDir( dstDir ) );
-		}
-		finally {
-			opstop();
-		}
+		if( account.local )
+			copyFile( action , srcFilePath , dstDir );
+		else
+			scpFilesRemoteToLocal( action , srcFilePath , account , Common.ensureDir( dstDir ) );
 	}
 
 	public synchronized void copyFileTargetToLocalFile( ActionBase action , Account account , String srcFilePath , String dstFilePath ) throws Exception {
-		try {
-			opstart();
-			if( account.local )
-				copyFile( action , srcFilePath , dstFilePath );
-			else
-				scpFilesRemoteToLocal( action , srcFilePath , account , dstFilePath );
-		}
-		finally {
-			opstop();
-		}
+		if( account.local )
+			copyFile( action , srcFilePath , dstFilePath );
+		else
+			scpFilesRemoteToLocal( action , srcFilePath , account , dstFilePath );
 	}
 
 	public synchronized void copyFilesTargetToLocal( ActionBase action , Account account , String srcFiles , String dstDir ) throws Exception {
-		try {
-			opstart();
-			if( account.local )
-				copyFiles( action , Common.getDirName( srcFiles ) , Common.getBaseName( srcFiles ) , dstDir );
-			else
-				scpFilesRemoteToLocal( action , srcFiles , account , Common.ensureDir( dstDir ) );
-		}
-		finally {
-			opstop();
-		}
+		if( account.local )
+			copyFiles( action , Common.getDirName( srcFiles ) , Common.getBaseName( srcFiles ) , dstDir );
+		else
+			scpFilesRemoteToLocal( action , srcFiles , account , Common.ensureDir( dstDir ) );
 	}
 
 	public synchronized void moveFilesTargetFromLocal( ActionBase action , Account account , String srcDir , String srcFiles , String dstDir ) throws Exception {
-		try {
-			opstart();
-			if( account.local )
-				move( action , Common.getPath( srcDir , srcFiles ) , dstDir );
-			else {
-				scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , account , Common.ensureDir( dstDir ) );
-				removeFiles( action , srcDir , srcFiles );
-			}
-		}
-		finally {
-			opstop();
+		if( account.local )
+			move( action , Common.getPath( srcDir , srcFiles ) , dstDir );
+		else {
+			scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , account , Common.ensureDir( dstDir ) );
+			removeFiles( action , srcDir , srcFiles );
 		}
 	}
 
 	public synchronized void copyFilesTargetFromLocal( ActionBase action , Account account , String srcDir , String srcFiles , String dstDir ) throws Exception {
-		try {
-			opstart();
-			if( account.local )
-				this.copyFiles( action , srcDir , srcFiles , dstDir );
-			else
-				scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , account , Common.ensureDir( dstDir ) );
-		}
-		finally {
-			opstop();
-		}
+		if( account.local )
+			this.copyFiles( action , srcDir , srcFiles , dstDir );
+		else
+			scpFilesLocalToRemote( action , Common.getPath( srcDir , srcFiles ) , account , Common.ensureDir( dstDir ) );
 	}
 
 	public synchronized void copyDirContentTargetToLocal( ActionBase action , Account account , String srcDir , String dstDir ) throws Exception {
-		try {
-			opstart();
-			if( account.local )
-				copyDirContent( action , srcDir , dstDir );
-			else
-				scpDirContentRemoteToLocal( action , srcDir , account , Common.ensureDir( dstDir ) );
-		}
-		finally {
-			opstop();
-		}
+		if( account.local )
+			copyDirContent( action , srcDir , dstDir );
+		else
+			scpDirContentRemoteToLocal( action , srcDir , account , Common.ensureDir( dstDir ) );
 	}
 	
 	public synchronized void copyDirTargetToLocal( ActionBase action , Account account , String srcDir , String dstBaseDir ) throws Exception {
-		try {
-			opstart();
-			if( account.local )
-				copyDirToBase( action , srcDir , dstBaseDir );
-			else
-				scpDirRemoteToLocal( action , srcDir , account , Common.ensureDir( dstBaseDir ) );
-		}
-		finally {
-			opstop();
-		}
+		if( account.local )
+			copyDirToBase( action , srcDir , dstBaseDir );
+		else
+			scpDirRemoteToLocal( action , srcDir , account , Common.ensureDir( dstBaseDir ) );
 	}
 
 	public synchronized void copyFileLocalToTarget( ActionBase action , Account account , String srcFilePath , String dstDir ) throws Exception {
-		try {
-			opstart();
-			if( account.local )
-				copyFile( action , srcFilePath , dstDir , "" , "" );
-			else
-				scpFilesLocalToRemote( action , srcFilePath , account , Common.ensureDir( dstDir ) );
-		}
-		finally {
-			opstop();
-		}
+		if( account.local )
+			copyFile( action , srcFilePath , dstDir , "" , "" );
+		else
+			scpFilesLocalToRemote( action , srcFilePath , account , Common.ensureDir( dstDir ) );
 	}
 
 	public synchronized void copyFileLocalToTargetRename( ActionBase action , Account account , String srcFilePath , String dstDir , String newName ) throws Exception {
-		try {
-			opstart();
-			if( account.local )
-				copyFile( action , srcFilePath , dstDir , newName , "" );
-			else
-				scpFilesLocalToRemote( action , srcFilePath , account , Common.getPath( dstDir , newName ) );
-		}
-		finally {
-			opstop();
-		}
+		if( account.local )
+			copyFile( action , srcFilePath , dstDir , newName , "" );
+		else
+			scpFilesLocalToRemote( action , srcFilePath , account , Common.getPath( dstDir , newName ) );
+	}
+
+	public synchronized void copyDirLocalToTarget( ActionBase action , Account account , String srcDirPath , String baseDstDir ) throws Exception {
+		if( account.local )
+			copyDirToBase( action , srcDirPath , baseDstDir );
+		else
+			scpDirLocalToRemote( action , srcDirPath , account , Common.ensureDir( baseDstDir ) );
+	}
+
+	public synchronized void copyDirContentLocalToTarget( ActionBase action , Account account , String srcDirPath , String dstDir ) throws Exception {
+		if( account.local )
+			copyDirContent( action , srcDirPath , dstDir );
+		else
+			scpDirContentLocalToRemote( action , srcDirPath , account , Common.ensureDir( dstDir ) );
 	}
 
 	public synchronized void copyDirFileToFile( ActionBase action , Account account , String dirPath , String fileSrc , String fileDst ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdCopyDirFileToFile( action , account , dirPath , fileSrc , fileDst );
 		}
 		finally {
@@ -1020,35 +1007,9 @@ public abstract class ShellExecutor extends Shell {
 		}
 	}
 	
-	public synchronized void copyDirLocalToTarget( ActionBase action , Account account , String srcDirPath , String baseDstDir ) throws Exception {
-		try {
-			opstart();
-			if( account.local )
-				copyDirToBase( action , srcDirPath , baseDstDir );
-			else
-				scpDirLocalToRemote( action , srcDirPath , account , Common.ensureDir( baseDstDir ) );
-		}
-		finally {
-			opstop();
-		}
-	}
-
-	public synchronized void copyDirContentLocalToTarget( ActionBase action , Account account , String srcDirPath , String dstDir ) throws Exception {
-		try {
-			opstart();
-			if( account.local )
-				this.copyDirContent( action , srcDirPath , dstDir );
-			else
-				this.scpDirContentLocalToRemote( action , srcDirPath , account , Common.ensureDir( dstDir ) );
-		}
-		finally {
-			opstop();
-		}
-	}
-
 	public synchronized String[] getFolders( ActionBase action , String rootPath ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.cmdGetFolders( action , rootPath ) );
 		}
 		finally {
@@ -1058,7 +1019,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void getDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdGetDirsAndFiles( action , rootPath , dirs , files );
 		}
 		finally {
@@ -1068,7 +1029,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void getTopDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			if( !isLocal() ) {
 				core.cmdGetTopDirsAndFiles( action , rootPath , dirs , files );
 				return;
@@ -1096,7 +1057,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized String getMD5( ActionBase action , String filePath ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.cmdGetMD5( action , filePath ) );
 		}
 		finally {
@@ -1106,7 +1067,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized String getTarContentMD5( ActionBase action , String filePath ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.cmdGetTarContentMD5( action , filePath ) );
 		}
 		finally {
@@ -1116,7 +1077,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized String getArchivePartMD5( ActionBase action , String filePath , String archivePartPath , String EXT ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.cmdGetArchivePartMD5( action , filePath , archivePartPath , EXT ) );
 		}
 		finally {
@@ -1126,7 +1087,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized String getFilesMD5( ActionBase action , String dir , String includeList , String excludeList ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.cmdGetFilesMD5( action , dir , includeList , excludeList ) );
 		}
 		finally {
@@ -1136,7 +1097,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized String getFileContentAsString( ActionBase action , String filePath ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			if( account.local )
 				return( action.readFile( filePath ) );
 			
@@ -1149,7 +1110,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized String[] grepFile( ActionBase action , String filePath , String mask ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			return( core.cmdGrepFile( action , filePath , mask ) );
 		}
 		finally {
@@ -1159,7 +1120,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void replaceFileLine( ActionBase action , String filePath , String mask , String newLine ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdReplaceFileLine( action , filePath , mask , newLine );
 		}
 		finally {
@@ -1169,7 +1130,7 @@ public abstract class ShellExecutor extends Shell {
 	
 	public synchronized void appendExecuteLog( ActionBase action , String msg ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdAppendExecuteLog( action , msg ); 
 		}
 		finally {
@@ -1179,7 +1140,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void appendUploadLog( ActionBase action , String src , String dst ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdAppendUploadLog( action , src , dst );
 		}
 		finally {
@@ -1189,7 +1150,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void createPublicDir( ActionBase action , String dir ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			core.cmdCreatePublicDir( action , dir );
 		}
 		finally {
@@ -1199,7 +1160,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized String[] getFileLines( ActionBase action , String filePath ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			if( account.local )
 				return( action.readFileLines( filePath ).toArray( new String[0] ) );
 			
@@ -1210,10 +1171,20 @@ public abstract class ShellExecutor extends Shell {
 		}
 	}
 	
+	public synchronized Date getFileChangeTime( ActionBase action , String path ) throws Exception {
+		try {
+			ShellCore core = opstart( action );
+			return( core.cmdGetFileChangeTime( action , path ) );
+		}
+		finally {
+			opstop();
+		}
+	}
+
 	public synchronized void downloadUnix( ActionBase action , String URL , String TARGETNAME , String auth ) throws Exception {
 		try {
-			opstart();
-			if( core.osType != VarOSTYPE.LINUX )
+			ShellCore core = opstart( action );
+			if( !isLinux() )
 				action.exitUnexpectedState();
 			
 			String TARGETDIRNAME;
@@ -1252,7 +1223,7 @@ public abstract class ShellExecutor extends Shell {
 
 	public synchronized void prepareDirForLinux( ActionBase action , String dirPath ) throws Exception {
 		try {
-			opstart();
+			ShellCore core = opstart( action );
 			String[] exts = Meta.getConfigurableExtensions( action );
 			
 			// create find mask
@@ -1283,7 +1254,7 @@ public abstract class ShellExecutor extends Shell {
 		if( !server.isService() )
 			return( false );
 
-		ShellCoreUnix coreUnix = ( ShellCoreUnix )core;
+		ShellCoreUnix coreUnix = ( ShellCoreUnix )coreHidden;
 		if( coreUnix.osType.equals( "CentOS" ) && coreUnix.osTypeVersion.startsWith( "6." ) )
 			return( false );
 		

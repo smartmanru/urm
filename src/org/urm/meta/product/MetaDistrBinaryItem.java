@@ -391,7 +391,7 @@ public class MetaDistrBinaryItem {
 				value += "-" + version;
 			else
 			if( deployVersion == VarITEMVERSION.MIDPOUND )
-				value += "#" + version;
+				value += "##" + version;
 			else
 			if( deployVersion == VarITEMVERSION.PREFIX )
 				value = version + "-" + value;

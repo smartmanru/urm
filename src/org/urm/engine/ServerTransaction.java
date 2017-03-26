@@ -172,7 +172,9 @@ public class ServerTransaction extends TransactionBase {
 		mirrors.addProductMirrors( this , product , forceClear );
 		
 		directory.createProduct( this , product );
-		super.createProductMetadata( directory , product );
+		Meta meta = super.createProductMetadata( directory , product );
+		ServerProductMeta storage = meta.getStorage( action );
+		storage.createInitialRepository( this , forceClear );
 	}
 	
 	public void modifyProduct( ServerProduct product ) throws Exception {

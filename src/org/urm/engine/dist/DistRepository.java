@@ -2,6 +2,8 @@ package org.urm.engine.dist;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
@@ -31,7 +33,8 @@ public class DistRepository {
 		MODIFY ,
 		BUILD ,
 		PUT ,
-		ARCHIVE
+		ARCHIVE ,
+		STATUS
 	};
 	
 	Meta meta;
@@ -55,9 +58,9 @@ public class DistRepository {
 		return( repo );
 	}
 
-	public static DistRepository createInitialRepository( ActionBase action , Meta meta ) throws Exception {
+	public static DistRepository createInitialRepository( ActionBase action , Meta meta , boolean forceClear ) throws Exception {
 		DistRepository repo = new DistRepository( meta );
-		repo.create( action );
+		repo.create( action , forceClear );
 		return( repo );
 	}
 
@@ -72,11 +75,17 @@ public class DistRepository {
 		readRepositoryFile( action );
 	}
 	
-	private void create( ActionBase action ) throws Exception {
+	private void create( ActionBase action , boolean forceClear ) throws Exception {
 		repoFolder = getDistFolder( action );
 		if( repoFolder.checkExists( action ) ) {
-			String path = repoFolder.getLocalPath( action );
-			action.exit1( _Error.ReleaseRepositoryExists1 , "unable to create release repository, already exists at " + path , path );
+			if( forceClear ) {
+				action.error( "remove existing distributive repository at " + repoFolder.getLocalPath( action ) + " ..." );
+				repoFolder.removeThis( action );
+			}
+			else {
+				String path = repoFolder.getLocalPath( action );
+				action.exit1( _Error.ReleaseRepositoryExists1 , "unable to create release repository, already exists at " + path , path );
+			}
 		}
 		
 		RemoteFolder parent = repoFolder.getParentFolder( action );
@@ -276,7 +285,7 @@ public class DistRepository {
 		return( folder );
 	}
 	
-	private DistLabelInfo getLabelInfo( ActionBase action , String RELEASELABEL ) throws Exception {
+	public DistLabelInfo getLabelInfo( ActionBase action , String RELEASELABEL ) throws Exception {
 		DistLabelInfo info = new DistLabelInfo( this );
 		info.createLabelInfo( action , RELEASELABEL );
 		return( info );
@@ -288,7 +297,7 @@ public class DistRepository {
 	}
 	
 	public synchronized Dist createProdInitial( ActionBase action , String RELEASEVER ) throws Exception {
-		DistLabelInfo info = getLabelInfo( action , "prod" );
+		DistLabelInfo info = getLabelInfo( action , Dist.MASTER_LABEL );
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
 		Dist dist = DistRepositoryItem.createProdDist( action , this , distFolder , RELEASEVER );
 		addDist( dist );
@@ -296,7 +305,7 @@ public class DistRepository {
 	}
 
 	public synchronized Dist createProdCopy( ActionBase action , String RELEASEDIR ) throws Exception {
-		DistLabelInfo info = getLabelInfo( action , "prod" );
+		DistLabelInfo info = getLabelInfo( action , Dist.MASTER_LABEL );
 		Dist src = this.getDistByLabel( action , RELEASEDIR );
 		if( !src.isCompleted() )
 			action.exit1( _Error.NotCompletedSource1 , "Unable to use incomplete source release " + src.RELEASEDIR , src.RELEASEDIR );
@@ -304,7 +313,9 @@ public class DistRepository {
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
 		Dist dist = DistRepositoryItem.createProdDist( action , this , distFolder , src.release.RELEASEVER );
 		addDist( dist );
-		dist.copyRelease( action , src );
+		dist.createMasterFiles( action , src );
+		dist.finish( action );
+		
 		return( dist );
 	}
 
@@ -395,6 +406,62 @@ public class DistRepository {
 		String folderArchive = DistLabelInfo.getArchiveFolder( action );
 		repoFolder.ensureFolderExists( action , folderArchive );
 		repoFolder.moveFolderToFolder( action , folderOld , folderNew );
+		removeDist( dist );
+	}
+
+	public synchronized Dist reloadDist( ActionBase action , String RELEASELABEL ) throws Exception {
+		DistLabelInfo info = getLabelInfo( action , RELEASELABEL );
+		
+		DistRepositoryItem item = findRunItem( info.RELEASEDIR );
+		Dist dist = findDist( info.RELEASEDIR );
+		if( dist != null )
+			removeDist( dist );
+		
+		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
+		item.read( action , distFolder );
+		addDist( item.dist );
+		return( item.dist );
+	}
+
+	public synchronized String[] getDistVersions() {
+		List<String> list = new LinkedList<String>();
+		for( String releasedir : distMap.keySet() ) {
+			if( releasedir.equals( Dist.MASTER_DIR ) )
+				continue;
+			list.add( releasedir );
+		}
+		return( list.toArray( new String[0] ) );
+	}
+	
+	public synchronized Dist getNextDist( ActionBase action , VersionInfo info ) throws Exception {
+		String[] versions = getDistVersions();
+		String[] ordered = VersionInfo.orderVersions( versions );
+		
+		String name = info.getReleaseName();
+		for( int k = 0; k < ordered.length; k++ ) {
+			if( name.equals( ordered[k] ) ) {
+				if( k >= ordered.length - 1 )
+					break;
+				return( distMap.get( ordered[k+1] ) );
+			}
+		}
+		return( null );
+	}
+
+	public Dist copyDist( ActionBase action , Dist dist , String newName ) throws Exception {
+		return( dist.copyDist( action , newName ) );
+	}
+	
+	public void replaceDist( ActionBase action , Dist dist , Dist distNew ) throws Exception {
+		removeDist( dist );
+		String releasedir = dist.RELEASEDIR;
+		DistRepositoryItem item = findRunItem( releasedir );
+		
+		dist.moveDist( action , dist.RELEASEDIR + "-old" );
+		distNew.moveDist( action , releasedir );
+		item.createItem( action , distNew );
+		
+		addDist( distNew );
 	}
 	
 }

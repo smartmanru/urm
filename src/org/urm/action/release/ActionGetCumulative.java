@@ -30,7 +30,7 @@ public class ActionGetCumulative extends ActionBase {
 		DistRepository repo = artefactory.getDistRepository( this , meta );
 
 		// dists - source releases sorted from last to most earlier
-		String[] versions = dist.release.getCumulativeVersions( this );
+		String[] versions = dist.release.getCumulativeVersions();
 		Dist[] dists = new Dist[ versions.length ];
 		for( int k = 0; k < versions.length; k++ ) {
 			Dist cumdist = repo.getDistByLabel( this , versions[ k ] );
@@ -51,10 +51,10 @@ public class ActionGetCumulative extends ActionBase {
 	}
 
 	private boolean addCumulativeVersion( DistRepository repo , String cumver , Dist cumdist ) throws Exception {
-		info( "add cumulative release version=" + cumver + " ..." );
+		info( "append cumulative release version=" + cumver + " ..." );
 		
 		if( !cumdist.isFinalized() ) {
-			error( "cannot settle cumulative release from non-finalized release version=" + cumver );
+			error( "cannot append cumulative release from non-finalized release version=" + cumver );
 			return( false );
 		}
 		
@@ -65,14 +65,14 @@ public class ActionGetCumulative extends ActionBase {
 	}
 	
 	private void copyFiles( Dist[] cumdists ) throws Exception {
-		for( ReleaseDelivery delivery : dist.release.getDeliveries( this ).values() ) {
-			if( delivery.hasDatabaseItems( this ) )
+		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
+			if( delivery.hasDatabaseItems() )
 				copyDatabaseItems( cumdists , delivery );
-			for( ReleaseTargetItem item : delivery.getProjectItems( this ).values() )
+			for( ReleaseTargetItem item : delivery.getProjectItems() )
 				copyBinaryItem( cumdists , delivery , item.distItem );
-			for( ReleaseTarget item : delivery.getManualItems( this ).values() )
+			for( ReleaseTarget item : delivery.getManualItems() )
 				copyBinaryItem( cumdists , delivery , item.distManualItem );
-			for( ReleaseTarget item : delivery.getConfItems( this ).values() )
+			for( ReleaseTarget item : delivery.getConfItems() )
 				copyConfItem( cumdists , delivery , item.distConfItem );
 		}
 	}

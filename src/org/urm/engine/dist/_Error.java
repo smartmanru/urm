@@ -64,5 +64,6 @@ public class _Error {
 	public static final int DateEalierThanToday2 = ErrorBase + 57;
 	public static final int DateEalierThanNextPhaseDeadline2 = ErrorBase + 58;
 	public static final int DateEqualToNextPhaseDeadline2 = ErrorBase + 59;
+	public static final int MissingReleaseDate1 = ErrorBase + 60;	
 	
 }

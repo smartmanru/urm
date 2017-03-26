@@ -8,6 +8,8 @@ import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
 import org.urm.engine.dist.Release;
+import org.urm.engine.dist.ReleaseDelivery;
+import org.urm.engine.dist.ReleaseMasterItem;
 import org.urm.engine.dist.ReleaseSchedule;
 import org.urm.engine.dist.ReleaseSchedulePhase;
 import org.urm.engine.dist.ReleaseSet;
@@ -15,6 +17,7 @@ import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.storage.FileSet;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductSettings;
@@ -32,7 +35,8 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	@Override protected SCOPESTATE executeSimple() throws Exception {
 		Release release = dist.release;
 		ReleaseSchedule schedule = release.schedule;
-		
+	
+		dist.gatherFiles( this );
 		FileSet files = dist.getFiles( this );
 		String hashStatus = dist.checkHash( this )? "OK" : "not matched";
 		
@@ -43,54 +47,82 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		info( "\tstate: " + dist.getState().name() );
 		info( "\tsignature: " + hashStatus );
 		info( "PROPERTIES:" );
-		info( "\tproperty=prod: " + Common.getBooleanValue( release.PROPERTY_PROD ) );
-		info( "\tproperty=buildmode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
-		info( "\tproperty=obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
-		info( "\tproperty=over: " + release.PROPERTY_COMPATIBILITY );
-		info( "\tproperty=cumulative: " + Common.getBooleanValue( release.isCumulative() ) );
-		info( "SCHEDULE:" );
-		info( "\trelease lifecycle: " + schedule.LIFECYCLE );
-		info( "\trelease date: " + Common.getDateValue( schedule.releaseDate ) );
-		
-		ReleaseSchedulePhase phase = schedule.getCurrentPhase();
-		if( phase != null ) {
-			info( "\trelease phase: " + phase.name );
-			info( "\tphase deadline: " + Common.getDateValue( phase.getDeadlineFinish() ) );
+		info( "\tproperty=master: " + Common.getBooleanValue( release.PROPERTY_MASTER ) );
+		if( !release.PROPERTY_MASTER ) {
+			info( "\tproperty=mode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
+			info( "\tproperty=obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
+			info( "\tproperty=over: " + release.PROPERTY_COMPATIBILITY );
+			info( "\tproperty=cumulative: " + Common.getBooleanValue( release.isCumulative() ) );
 		}
 		
-		if( context.CTX_ALL ) {
-			info( "\tphase schedule: " );
-			for( int k = 0; k < schedule.getPhaseCount(); k++ ) {
-				phase = schedule.getPhase( k );
-				Date started = ( phase.isStarted() )? phase.getStartDate() : phase.getDeadlineStart();
-				Date finished = ( phase.isFinished() )? phase.getFinishDate() : phase.getDeadlineFinish();
-				String status = ( phase.isStarted() )? ( ( phase.isFinished() )? "finished" : "started" ) : "expected";
-				
-				info( "\t\t" + (k+1) + ": " + phase.name + " - start=" + Common.getDateValue( started ) +
-					", finish=" + Common.getDateValue( finished ) + " (" + status + ")" );
+		if( !dist.isMaster() ) {
+			info( "SCHEDULE:" );
+			info( "\trelease lifecycle: " + schedule.LIFECYCLE );
+			info( "\trelease date: " + Common.getDateValue( schedule.releaseDate ) );
+			
+			ReleaseSchedulePhase phase = schedule.getCurrentPhase();
+			if( phase != null ) {
+				info( "\trelease phase: " + phase.name );
+				info( "\tphase deadline: " + Common.getDateValue( phase.getDeadlineFinish() ) );
+			}
+			
+			if( context.CTX_ALL ) {
+				info( "\tphase schedule: " );
+				for( int k = 0; k < schedule.getPhaseCount(); k++ ) {
+					phase = schedule.getPhase( k );
+					Date started = ( phase.isStarted() )? phase.getStartDate() : phase.getDeadlineStart();
+					Date finished = ( phase.isFinished() )? phase.getFinishDate() : phase.getDeadlineFinish();
+					String status = ( phase.isStarted() )? ( ( phase.isFinished() )? "finished" : "started" ) : "expected";
+					
+					info( "\t\t" + (k+1) + ": " + phase.name + " - start=" + Common.getDateValue( started ) +
+						", finish=" + Common.getDateValue( finished ) + " (" + status + ")" );
+				}
+			}
+		
+			if( release.isEmpty() ) {
+				info( "(scope is empty)" );
+				return( SCOPESTATE.NotRun );
+			}
+		
+			for( String set : release.getSourceSetNames() )
+				printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
+			
+			for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() ) {
+				ReleaseSet set = release.findCategorySet( CATEGORY );
+				if( set != null )
+					printReleaseCategorySetStatus( dist , files , set );
+			}
+
+			info( "DELIVERIES:" );
+			for( String s : release.getDeliveryNames() ) {
+				ReleaseDelivery delivery = release.findDelivery( s );
+				info( "\tdelivery=" + s + " (folder=" + delivery.distDelivery.FOLDER + ")" );
 			}
 		}
-		
-		if( release.isEmpty( this ) ) {
-			info( "(scope is empty)" );
-			return( SCOPESTATE.NotRun );
+		else {
+			info( "DELIVERIES:" );
+			MetaDistr distr = dist.meta.getDistr( this );
+			for( String s : distr.getDeliveryNames() ) {
+				MetaDistrDelivery delivery = distr.findDelivery( s );
+				info( "\tdelivery=" + s + " (folder=" + delivery.FOLDER + ")" + ":" );
+				printProdDeliveryStatus( dist , files , delivery );
+			}
 		}
-		
-		for( String set : Common.getSortedKeys( release.getSourceSets( this ) ) )
-			printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
-		for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() ) {
-			ReleaseSet set = release.findCategorySet( this , CATEGORY );
-			if( set != null )
-				printReleaseCategorySetStatus( dist , files , set );
-		}
-
-		info( "DELIVERIES:" );
-		for( String s : Common.getSortedKeys( release.getDeliveries( this ) ) )
-			info( "\tdelivery=" + s );
 	
 		return( SCOPESTATE.RunSuccess );
 	}
 
+	private void printProdDeliveryStatus( Dist dist , FileSet files , MetaDistrDelivery delivery ) throws Exception {
+		if( delivery.isEmpty() ) {
+			info( "\t\t(no items)" );
+		}
+			
+		for( String key : delivery.getBinaryItemNames() ) {
+			MetaDistrBinaryItem item = delivery.findBinaryItem( key );
+			printProdBinaryStatus( dist , files , item );
+		}
+	}
+	
 	private void printReleaseSourceSetStatus( Dist dist , FileSet files , ReleaseSet set ) throws Exception {
 		if( set.isEmpty() )
 			return;
@@ -128,7 +160,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 				exitUnexpectedCategory( set.CATEGORY );
 		}
 	}
-		
+
 	private void printReleaseBuildSetProjectStatus( Dist dist , FileSet files , ReleaseSet set , ReleaseTarget project ) throws Exception {
 		String specifics = project.getSpecifics( this );
 		if( project.isBuildableProject() ) {
@@ -166,10 +198,11 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	private void printReleaseBuildSetProjectItemStatus( Dist dist , FileSet files , ReleaseSet set , ReleaseTarget project , ReleaseTargetItem item ) throws Exception {
 		String specifics = item.getSpecifics( this );
 		MetaDistrBinaryItem distItem = item.distItem;
-		DistItemInfo info = dist.getDistItemInfo( this , distItem , false );
-		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ")" : "missing (" + info.subPath + ")";
+		DistItemInfo info = dist.getDistItemInfo( this , distItem , false , true );
+		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ", " + 
+				Common.getRefDate( info.timestamp ) + ")" : "missing (" + info.subPath + ")";
 		
-		info( "\tdistitem=" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
+		info( "\t\tdistitem=" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseConfStatus( Dist dist , FileSet files , ReleaseTarget conf ) throws Exception {
@@ -178,23 +211,24 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String folder = Common.getPath( info.subPath , info.fileName );
 		String status = ( info.found )? "OK" : "missing";
 		
-		info( "\tconfitem=" + conf.distConfItem.KEY + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
+		info( "\t\tconfitem=" + conf.distConfItem.KEY + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseManualStatus( Dist dist , FileSet files , ReleaseTarget manual ) throws Exception {
 		String specifics = manual.getSpecifics( this );
-		DistItemInfo info = dist.getDistItemInfo( this , manual.distManualItem , false );
+		DistItemInfo info = dist.getDistItemInfo( this , manual.distManualItem , false , true );
 		String folder = Common.getPath( info.subPath , info.fileName );
-		String status = ( info.found )? "OK" : "missing";
+		String status = ( info.found )? "OK (" + folder + ", " + 
+				Common.getRefDate( info.timestamp ) + ")" : "missing (" + info.subPath + ")";
 		
-		info( "\tdistitem=" + manual.distManualItem.KEY + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
+		info( "\t\tdistitem=" + manual.distManualItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseDatabaseStatus( Dist dist , FileSet files , ReleaseTarget db ) throws Exception {
 		MetaDistrDelivery delivery = db.distDatabaseItem;
 
 		if( dist.release.isCumulative() ) {
-			String[] versions = dist.release.getCumulativeVersions( this );
+			String[] versions = dist.release.getCumulativeVersions();
 			
 			for( String version : versions ) {
 				String folder = dist.getDeliveryDatabaseFolder( this , delivery , version );
@@ -211,6 +245,40 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			String status = ( dbset == null || dbset.isEmpty() )? "missing/empty" : "OK";
 			info( "\tdelivery=" + delivery.NAME + ": " + status + Common.getCommentIfAny( folder ) );
 		}
+	}
+
+	private void printProdBinaryStatus( Dist dist , FileSet files , MetaDistrBinaryItem distItem ) throws Exception {
+		ReleaseMasterItem masterItem = dist.release.findMasterItem( distItem );
+		DistItemInfo info = dist.getDistItemInfo( this , distItem , true , true );
+		
+		String status = "";
+		if( masterItem == null ) {
+			String folder = Common.getPath( distItem.delivery.FOLDER , Dist.BINARY_FOLDER );
+			status = ( info.found )? "OK (" + Common.getPath( folder , info.fileName ) + ", new)" : 
+				"missing (" + Common.getPath( folder , distItem.getBaseFile( this ) ) + ")";
+		}
+		else {
+			if( masterItem.FOLDER.equals( distItem.delivery.FOLDER ) ) { 
+				String folder = Common.getPath( masterItem.FOLDER , Dist.BINARY_FOLDER );
+				if( info.found ) {
+					if( !info.md5value.equals( masterItem.MD5 ) )
+						status = "OK (" + Common.getPath( folder , info.fileName ) + ", manual)";
+					else
+						status = "OK (" + Common.getPath( folder , info.fileName ) + ", " + masterItem.RELEASE + ")";
+				}
+				else					
+					status = "missing (" + Common.getPath( folder , distItem.getBaseFile( this ) ) + ")";
+			}
+			else {
+				String folder = Common.getPath( distItem.delivery.FOLDER , Dist.BINARY_FOLDER );
+				if( info.found )
+					status = "OK (" + Common.getPath( folder , info.fileName ) + ", moved)";
+				else
+					status = "missing (" + Common.getPath( folder , distItem.getBaseFile( this ) ) + ", obsolete)";
+			}
+		}
+		
+		info( "\t\tdistitem=" + distItem.KEY + ": " + status );
 	}
 
 }

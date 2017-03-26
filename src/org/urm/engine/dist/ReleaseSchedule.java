@@ -44,22 +44,25 @@ public class ReleaseSchedule {
 		archived = false;
 	}
 	
-	public ReleaseSchedule copy( ActionBase action , Meta meta , Release release ) throws Exception {
+	public ReleaseSchedule copy( ActionBase action , Meta meta , Release release , boolean createProd ) throws Exception {
 		ReleaseSchedule r = new ReleaseSchedule( meta , release );
-		r.LIFECYCLE = LIFECYCLE;
 		r.started = started;
-		r.releaseDate = releaseDate;
-		r.currentPhase = currentPhase;
-		r.releasePhases = releasePhases; 
-		r.deployPhases = deployPhases; 
-		r.released = released;
-		r.completed = completed;
-		r.archived = archived;
+		r.LIFECYCLE = ( createProd )? "" : LIFECYCLE;
+		r.releaseDate = ( createProd )? null : releaseDate;
+		r.currentPhase = ( createProd )? -1 : currentPhase;
+		r.releasePhases = ( createProd )? 0 : releasePhases; 
+		r.deployPhases = ( createProd )? 0 : deployPhases; 
+		r.released = ( createProd )? false : released;
+		r.completed = ( createProd )? false : completed;
+		r.archived = ( createProd )? false : archived;
 		
-		for( ReleaseSchedulePhase phase : phases ) {
-			ReleaseSchedulePhase rphase = phase.copy( action , meta , r );
-			r.phases.add( rphase );
+		if( !createProd ) {
+			for( ReleaseSchedulePhase phase : phases ) {
+				ReleaseSchedulePhase rphase = phase.copy( action , meta , r );
+				r.phases.add( rphase );
+			}
 		}
+		
 		return( r );
 	}
 
@@ -69,6 +72,7 @@ public class ReleaseSchedule {
 		Node node = ConfReader.xmlGetFirstChild( root , "schedule" );
 		if( node == null ) {
 			LIFECYCLE = "";
+			started = new Date();
 			releaseDate = null;
 			currentPhase = -1;
 			releasePhases = 0; 
@@ -81,6 +85,9 @@ public class ReleaseSchedule {
 		
 		LIFECYCLE = ConfReader.getAttrValue( node , "lifecycle" , "" );
 		started = Common.getDateValue( ConfReader.getAttrValue( node , "started" ) );
+		if( started == null )
+			started = new Date();
+			
 		releaseDate = Common.getDateValue( ConfReader.getAttrValue( node , "releasedate" ) );
 		currentPhase = ConfReader.getIntegerAttrValue( node , "phase" , 0 );
 		released = ConfReader.getBooleanAttrValue( node , "released" , false );
@@ -94,7 +101,7 @@ public class ReleaseSchedule {
 		int pos = 0;
 		for( Node phaseNode : items ) {
 			ReleaseSchedulePhase phase = new ReleaseSchedulePhase( meta , this );
-			phase.load( action , phaseNode , pos );
+			phase.load( action , phaseNode , pos , currentPhase );
 			phases.add( phase );
 			pos++;
 		}
@@ -336,18 +343,20 @@ public class ReleaseSchedule {
 			return;
 		}
 		
-		if( currentPhase < 0 || currentPhase < releasePhases )
-			action.exit0( _Error.DistributiveNotReleased1 , "Distributive is not in released state" );
+		if( currentPhase >= 0 && currentPhase < releasePhases )
+			action.exit0( _Error.DistributiveNotReleased1 , "Release is not finished" );
 		
 		completed = true;
 		
-		Date date = Common.getDateCurrentDay();
-		for( int k = currentPhase; k < phases.size(); k++ ) {
-			ReleaseSchedulePhase phase = getPhase( k );
-			if( !phase.isFinished() ) {
-				if( !phase.isStarted() )
-					phase.startPhase( action , date );
-				phase.finishPhase( action , date );
+		if( currentPhase >= 0 ) {
+			Date date = Common.getDateCurrentDay();
+			for( int k = currentPhase; k < phases.size(); k++ ) {
+				ReleaseSchedulePhase phase = getPhase( k );
+				if( !phase.isFinished() ) {
+					if( !phase.isStarted() )
+						phase.startPhase( action , date );
+					phase.finishPhase( action , date );
+				}
 			}
 		}
 		

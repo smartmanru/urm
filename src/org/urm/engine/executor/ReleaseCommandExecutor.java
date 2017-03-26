@@ -37,8 +37,9 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		defineAction( new FinishRelease() , "finish" );
 		defineAction( new CompleteRelease() , "complete" );
 		defineAction( new ReopenRelease() , "reopen" );
-		defineAction( new MaintainProd() , "prod" );
+		defineAction( new MasterOperations() , "master" );
 		defineAction( new ArchiveRelease() , "archive" );
+		defineAction( new TouchRelease() , "touch" );
 		defineAction( new AddReleaseBuildProjects() , "scope" );
 		defineAction( new AddReleaseBuildItems() , "scopeitems" );
 		defineAction( new AddReleaseDatabaseItems() , "scopedb" );
@@ -82,7 +83,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		ServerReleaseLifecycle lc = getLifecycleArg( action , 2 );
 		checkNoArgs( action , 3 );
 		Meta meta = action.getContextMeta();
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		impl.modifyRelease( action , dist , releaseDate , lc );
 	}
 	}
@@ -93,7 +94,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String CMD = getRequiredArg( action , 1 , "CMD" );
 		
 		Meta meta = action.getContextMeta();
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		
 		if( CMD.equals( "next" ) ) {
 			checkNoArgs( action , 2 );
@@ -178,7 +179,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class MaintainProd extends CommandAction {
+	private class MasterOperations extends CommandAction {
 	public void run( ActionInit action ) throws Exception {
 		String CMD = getRequiredArg( action , 0 , "CMD" );
 		Meta meta = action.getContextMeta();
@@ -192,6 +193,18 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 			String RELEASEDIR = getRequiredArg( action , 1 , "RELEASEDIR" );
 			checkNoArgs( action , 2 );
 			impl.createProdCopy( action , meta , RELEASEDIR );
+		}
+		else
+		if( CMD.equals( "status" ) ) {
+			checkNoArgs( action , 1 );
+			impl.prodStatus( action , meta );
+		}
+		else
+		if( CMD.equals( "add" ) ) {
+			String RELEASELABEL = getRequiredArg( action , 1 , "RELEASELABEL" );
+			checkNoArgs( action , 2 );
+			Dist dist = action.getReleaseDist( meta , RELEASELABEL );
+			impl.appendProd( action , dist );
 		}
 		else
 		if( CMD.equals( "drop" ) ) {
@@ -208,8 +221,17 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		Meta meta = action.getContextMeta();
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		impl.archiveRelease( action , dist );
+	}
+	}
+
+	private class TouchRelease extends CommandAction {
+	public void run( ActionInit action ) throws Exception {
+		Meta meta = action.getContextMeta();
+		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		checkNoArgs( action , 1 );
+		impl.touchRelease( action , meta , RELEASELABEL );
 	}
 	}
 
@@ -270,7 +292,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String[] PROJECTS = getArgList( action , 2 );
 
 		Meta meta = action.getContextMeta();
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		impl.buildRelease( action , SET , PROJECTS , dist );
 	}
 	}
@@ -282,7 +304,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String[] PROJECTS = getArgList( action , 2 );
 
 		Meta meta = action.getContextMeta();
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		
 		if( dist.release.isCumulative() ) {
 			if( SET.isEmpty() || SET.equals( "all" ) )
@@ -299,7 +321,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionInit action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		
 		String SET = getRequiredArg( action , 1 , "SET" );
 		if( SET.equals( "all" ) ) {

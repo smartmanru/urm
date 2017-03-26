@@ -27,9 +27,15 @@ public class ReleaseCommand {
 	}
 	
 	public void deleteProd( ActionBase action , Meta meta ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , "prod" );
+		Dist dist = action.getMasterDist( meta );
 		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , dist , true );
-		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_ADMIN , false );
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+	
+	public void prodStatus( ActionBase action , Meta meta ) throws Exception {
+		Dist dist = action.getMasterDist( meta );
+		ActionPrintReleaseStatus ma = new ActionPrintReleaseStatus( action , null , dist );
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , true );
 	}
 	
 	public void createRelease( ActionBase action , Meta meta , String RELEASELABEL , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
@@ -43,8 +49,8 @@ public class ReleaseCommand {
 	}
 
 	public void deleteRelease( ActionBase action , Meta meta , String RELEASELABEL , boolean force ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
-		if( dist.isFullProd() )
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
+		if( dist.isMaster() )
 			action.exit0( _Error.CannotDropProd0 , "Cannot drop full production release, use prod command" );
 		
 		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , dist , force );
@@ -52,59 +58,66 @@ public class ReleaseCommand {
 	}
 	
 	public void closeRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		ActionForceCloseRelease ma = new ActionForceCloseRelease( action , null , dist );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public void copyRelease( ActionBase action , Meta meta , String RELEASESRC , String RELEASEDST , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
-		Dist distSrc = action.artefactory.getDistStorageByLabel( action , meta , RELEASESRC );
+		Dist distSrc = action.getReleaseDist( meta , RELEASESRC );
 		ActionCopyRelease ma = new ActionCopyRelease( action , null , distSrc , RELEASEDST , releaseDate , lc );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public void finishRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		ActionFinishRelease ma = new ActionFinishRelease( action , null , dist );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public void completeRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		ActionCompleteRelease ma = new ActionCompleteRelease( action , null , dist );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public void reopenRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		ActionReopenRelease ma = new ActionReopenRelease( action , null , dist );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public void statusRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		ActionPrintReleaseStatus ma = new ActionPrintReleaseStatus( action , null , dist );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 
+	public void appendProd( ActionBase action , Dist dist ) throws Exception {
+		ActionAppendProd ma = new ActionAppendProd( action , null , dist );
+		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+	
 	private void addReleaseScope( ActionBase action , Dist dist , ActionScope scope ) throws Exception {
 		ActionAddScope ma = new ActionAddScope( action , null , dist );
 		
 		dist.openForDataChange( action );
 		if( !ma.runAll( scope , null , SecurityAction.ACTION_RELEASE , false ) ) {
 			dist.closeDataChange( action );
+			dist.finishStatus( action );
 			action.exit0( _Error.ReleaseSetChangeErrors0 , "release set is not changed because of errors" );
 		}
 
 		dist.saveReleaseXml( action );
 		dist.createDeliveryFolders( action );
 		dist.closeDataChange( action );
+		dist.finishStatus( action );
 		
 		action.info( "scope (" + scope.getScopeInfo( action ) + ") - added to release" );
 	}
 	
 	public void addReleaseBuildProjects( ActionBase action , Meta meta , String RELEASELABEL , String SET , String[] elements ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
@@ -113,7 +126,7 @@ public class ReleaseCommand {
 	}
 
 	public void addReleaseConfigItems( ActionBase action , Meta meta , String RELEASELABEL , String[] elements ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
@@ -122,7 +135,7 @@ public class ReleaseCommand {
 	}
 
 	public void addReleaseDatabaseItems( ActionBase action , Meta meta , String RELEASELABEL , String[] DELIVERIES ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
@@ -131,7 +144,7 @@ public class ReleaseCommand {
 	}
 
 	public void addReleaseBuildItems( ActionBase action , Meta meta , String RELEASELABEL , String[] ITEMS ) throws Exception {
-		Dist dist = action.artefactory.getDistStorageByLabel( action , meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
@@ -173,11 +186,13 @@ public class ReleaseCommand {
 		dist.openForDataChange( action );
 		if( !ma.runAll( scope , null , SecurityAction.ACTION_RELEASE , false ) ) {
 			dist.closeDataChange( action );
+			dist.finishStatus( action );
 			action.exit0( _Error.ReleaseSetChangeErrors0 , "release set is not changed because of errors" );
 		}
 
 		dist.saveReleaseXml( action );
 		dist.closeDataChange( action );
+		dist.finishStatus( action );
 		
 		action.info( "scope (" + scope.getScopeInfo( action ) + ") - removed from release" );
 	}
@@ -190,6 +205,7 @@ public class ReleaseCommand {
 		dist.descopeAll( action );
 		dist.saveReleaseXml( action );
 		dist.closeDataChange( action );
+		dist.finishStatus( action );
 		
 		action.info( "entire scope has been removed from release" );
 	}
@@ -248,6 +264,11 @@ public class ReleaseCommand {
 	public void archiveRelease( ActionBase action , Dist dist ) throws Exception {
 		ActionArchiveRelease ma = new ActionArchiveRelease( action , null , dist );
 		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+	
+	public void touchRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
+		ActionTouchRelease ma = new ActionTouchRelease( action , null , meta , RELEASELABEL );
+		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 }

@@ -25,7 +25,7 @@ public class BaseRepository {
 		BaseRepository repo = new BaseRepository( artefactory );
 		ServerSettings settings = action.getServerSettings();
 		ServerContext context = settings.getServerContext();
-		repo.repoFolder = new RemoteFolder( action.getLocalAccount() , context.DIST_BASEPATH );
+		repo.repoFolder = new RemoteFolder( action.getLocalAccount() , context.DIST_PLATFORMPATH );
 		return( repo );
 	}
 

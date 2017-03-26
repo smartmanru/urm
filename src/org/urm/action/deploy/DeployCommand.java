@@ -109,7 +109,7 @@ public class DeployCommand {
 		// download configuration templates
 		LocalFolder folder = null;
 		LocalFolder live = null;
-		if( action.context.CTX_CONFDEPLOY && !dist.release.isEmptyConfiguration( action ) ) {
+		if( action.context.CTX_CONFDEPLOY && !dist.release.isEmptyConfiguration() ) {
 			ActionConfCheck check = new ActionConfCheck( action , null );
 			if( !check.runAll( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false ) )
 				action.exit0( _Error.InvalidEnvironmentData0 , "configuration check failed: invalid environment data" );

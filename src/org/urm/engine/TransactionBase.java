@@ -634,7 +634,7 @@ public class TransactionBase extends ServerObject {
 		return( false );
 	}
 
-	public boolean changeDirectory( ServerDirectory sourceDirectory ) {
+	public boolean changeDirectory( ServerDirectory sourceDirectory , boolean critical ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -643,7 +643,8 @@ public class TransactionBase extends ServerObject {
 				if( directory != null )
 					return( true );
 				
-				if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
+				SecurityAction mode = ( critical )? SecurityAction.ACTION_ADMIN : SecurityAction.ACTION_CONFIGURE;
+				if( !checkSecurityServerChange( mode ) )
 					return( false );
 				
 				if( !engine.isRunning() )
@@ -1062,7 +1063,7 @@ public class TransactionBase extends ServerObject {
 		return( tm.metadata );
 	}
 	
-	protected void createProductMetadata( ServerDirectory directory , ServerProduct product ) throws Exception {
+	protected Meta createProductMetadata( ServerDirectory directory , ServerProduct product ) throws Exception {
 		TransactionMetadata tm = productMeta.get( product.NAME );
 		if( tm != null )
 			action.exitUnexpectedState();
@@ -1074,6 +1075,7 @@ public class TransactionBase extends ServerObject {
 		tm = new TransactionMetadata( this );
 		tm.createProduct( meta );
 		addTransactionMeta( meta , tm );
+		return( meta );
 	}
 
 	public Meta getTransactionProductMetadata( String productName ) throws Exception {

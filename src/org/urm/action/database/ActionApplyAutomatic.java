@@ -77,7 +77,7 @@ public class ActionApplyAutomatic extends ActionBase {
 
 		boolean done = false;
 		Map<String,MetaDatabaseSchema> schemaSet = server.getSchemaSet( this );
-		for( ReleaseDelivery releaseDelivery : dist.release.getDeliveries( this ).values() ) {
+		for( ReleaseDelivery releaseDelivery : dist.release.getDeliveries() ) {
 			if( optDelivery == null || optDelivery == releaseDelivery )
 				if( applyDelivery( server , client , registry , version , releaseDelivery , schemaSet , logs ) )
 					done = true;

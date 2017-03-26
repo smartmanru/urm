@@ -53,6 +53,7 @@ public class DistRepositoryItem {
 
 	public void read( ActionBase action , RemoteFolder distFolder ) throws Exception {
 		dist = read( action , repo , distFolder );
+		RELEASEDIR = dist.RELEASEDIR;
 	}
 	
 	public static Dist read( ActionBase action , DistRepository repo , RemoteFolder distFolder ) throws Exception {
@@ -61,7 +62,7 @@ public class DistRepositoryItem {
 			action.exit1( _Error.MissingRelease1 , "release does not exist at " + path , path );
 		}
 		
-		boolean prod = distFolder.folderName.equals( "prod" );
+		boolean prod = distFolder.folderName.equals( Dist.MASTER_DIR );
 		Dist dist = new Dist( repo.meta , repo );
 		dist.setFolder( distFolder , prod );
 		dist.load( action );

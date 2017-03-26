@@ -1,5 +1,7 @@
 package org.urm.engine.shell;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -552,6 +554,19 @@ public class ShellCoreWindows extends ShellCore {
 		return( this.runCommandGetLines( action , "type  " + fileWin , CommandOutput.LOGLEVEL_TRACE ) );
 	}
 	
+	@Override
+	public Date cmdGetFileChangeTime( ActionBase action , String filePath ) throws Exception {
+		String fileWin = Common.getWinPath( filePath );
+		String[] lines = this.runCommandGetLines( action , "wmic datafile where name=\"" + Common.replace( fileWin , "\\" , "\\\\" ) + "\" get lastmodified " , CommandOutput.LOGLEVEL_TRACE );
+		if( lines.length != 2 || !lines[0].equals( "LastModified" ) )
+			return( null );
+		
+		String value = lines[1].substring( 0 , 14 );
+		SimpleDateFormat formatter = new SimpleDateFormat( "yyyyMMddhhmmss" );
+		Date date = formatter.parse( value );
+		return( date );
+	}
+	
 	@Override 
 	public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
 		String executeLog = Common.getWinPath( Common.getPath( executor.rootPath , EXECUTE_LOG ) );
@@ -713,9 +728,6 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	private void runCommand( ActionBase action , String cmd , int logLevel , boolean addErrorLevel ) throws Exception {
-		if( !super.checkRunning( action ) )
-			exitError( action , _Error.RunCommandClosedSession1 , "attempt to run command in closed session: " + cmd , new String[] { cmd } );
-		
 		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
 			String execLine = prepareExecuteWindowsFromLinux( action , cmd , logLevel );
 			localSession.runCommand( action , execLine , logLevel );

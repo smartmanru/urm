@@ -101,6 +101,13 @@ public class ServerBase extends ServerObject {
 		return( mapCategory.get( id ) );
 	}
 
+	public ServerBaseGroup findGroup( CATEGORY_TYPE type , String groupName ) {
+		ServerBaseCategory ct = findCategory( type );
+		if( ct != null )
+			return( ct.findGroup( groupName ) );
+		return( null );
+	}
+	
 	public ServerBaseItem findBase( String id ) {
 		return( mapItem.get( id ) );
 	}

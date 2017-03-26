@@ -938,20 +938,46 @@ public class Common {
 		return( ( int )diff );
 	}
 
+	public static String getRefDate( Date refTime ) {
+		if( refTime == null )
+			return( "" );
+		return( getRefDate( refTime.getTime() ) );
+	}
+	
 	public static String getRefDate( Date baseTime , Date refTime ) {
 		if( baseTime == null || refTime == null )
 			return( "" );
 		return( getRefDate( baseTime.getTime() , refTime.getTime() ) );
 	}
+
+	public static String getRefDate( long refTime ) {
+		return( getRefDate( System.currentTimeMillis() , refTime ) );
+	}
+	
+	public static String getRefDateOnly( long refTime ) {
+		if( isToday( refTime ) )
+			return( "" );
+		return( getDate( refTime ) );
+	}
 	
 	public static String getRefDate( long baseTime , long refTime ) {
-		long baseDay = getDayNoTime( baseTime ); 
-		long refDay = getDayNoTime( refTime );
-		if( refDay == baseDay )
+		if( isToday( refTime ) )
 			return( getTime( refTime ) );
 		return( getDate( refTime ) );
 	}
 
+	public static boolean isToday( Date date ) {
+		return( isToday( date.getTime() ) );
+	}
+	
+	public static boolean isToday( long date ) {
+		long baseDay = getDayNoTime( System.currentTimeMillis() ); 
+		long refDay = getDayNoTime( date );
+		if( refDay == baseDay )
+			return( true );
+		return( false );
+	}
+	
 	public static int getObjectIndex( Object[] list , Object item ) {
 		for( int k = 0; k < list.length; k++ ) {
 			if( list[k] == item )

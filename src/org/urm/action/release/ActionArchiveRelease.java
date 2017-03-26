@@ -16,8 +16,10 @@ public class ActionArchiveRelease extends ActionBase {
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
 		DistRepository repo = artefactory.getDistRepository( this , dist.meta );
-		if( !dist.isCompleted() )
-			super.exit1( _Error.ArchiveNotCompleted1 , "Cannot archive not completed release=" + dist.RELEASEDIR , dist.RELEASEDIR );
+		if( !dist.isCompleted() ) {
+			super.fail1( _Error.ArchiveNotCompleted1 , "Cannot archive not completed release=" + dist.RELEASEDIR , dist.RELEASEDIR );
+			return( SCOPESTATE.RunFail );
+		}
 		
 		repo.archiveDist( this , dist );
 		return( SCOPESTATE.RunSuccess );

@@ -16,5 +16,11 @@ public class _Error {
 	public static final int AddCumulativeVersionFailed1 = ErrorBase + 7;
 	public static final int CannotDropProd0 = ErrorBase + 8;
 	public static final int ArchiveNotCompleted1 = ErrorBase + 9;
+	public static final int CannotCopyProd0 = ErrorBase + 10;
+	public static final int NotFinalizedProd0 = ErrorBase + 11;
+	public static final int CannotChangeCompletedProd0 = ErrorBase + 12;
+	public static final int CannotAppendIncompleteRelease0 = ErrorBase + 13;
+	public static final int CannotSkipRelease1 = ErrorBase + 14;
+	public static final int CannotAppendOlderRelease1 = ErrorBase + 15;
 	
 }

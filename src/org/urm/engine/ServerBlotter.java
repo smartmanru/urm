@@ -12,6 +12,7 @@ import org.urm.action.conf.ActionGetConf;
 import org.urm.action.database.ActionGetDB;
 import org.urm.action.monitor.ActionMonitorTop;
 import org.urm.action.release.ActionAddScope;
+import org.urm.action.release.ActionAppendProd;
 import org.urm.action.release.ActionArchiveRelease;
 import org.urm.action.release.ActionCopyRelease;
 import org.urm.action.release.ActionCreateProd;
@@ -25,6 +26,7 @@ import org.urm.action.release.ActionGetCumulative;
 import org.urm.action.release.ActionModifyRelease;
 import org.urm.action.release.ActionReopenRelease;
 import org.urm.action.release.ActionSchedulePhase;
+import org.urm.action.release.ActionTouchRelease;
 import org.urm.common.Common;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.dist.Dist;
@@ -215,7 +217,7 @@ public class ServerBlotter {
 		else
 		if( action instanceof ActionCreateProd ) {
 			ActionCreateProd xa = ( ActionCreateProd )action;
-			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.CREATE , "create complete production distributive version=" + xa.RELEASEVER ); 
+			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.CREATE , "create/copy production master distributive version=" + xa.RELEASEVER ); 
 		}
 		else
 		if( action instanceof ActionCreateRelease ) {
@@ -248,6 +250,16 @@ public class ServerBlotter {
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.ARCHIVE , "archive distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
+		if( action instanceof ActionTouchRelease ) {
+			ActionTouchRelease xa = ( ActionTouchRelease )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.STATUS , "reload distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionAppendProd ) {
+			ActionAppendProd xa = ( ActionAppendProd )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.STATUS , "reload distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
 		if( action instanceof ActionSchedulePhase ) {
 			ActionSchedulePhase xa = ( ActionSchedulePhase )action;
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PHASE , "phase control distributive releasedir=" + xa.dist.RELEASEDIR ); 
@@ -259,7 +271,7 @@ public class ServerBlotter {
 		}
 		else
 		if( action instanceof ActionDescope ) {
-			ActionFinishRelease xa = ( ActionFinishRelease )action;
+			ActionDescope xa = ( ActionDescope )action;
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "reduce scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
@@ -305,6 +317,20 @@ public class ServerBlotter {
 		}
 	}
 
+	public void runDistStatus( ActionBase action , Meta meta , Dist dist ) {
+		try {
+			DistRepository repo = action.artefactory.getDistRepository( action , meta );
+			DistRepositoryItem distItem = repo.findRunItem( action , dist );
+			if( distItem == null )
+				return;
+			
+			blotterReleases.affectReleaseItem( action , true , DistOperation.STATUS , distItem );
+		}
+		catch( Throwable e ) {
+			action.log( "change release status in blotter" , e );
+		}
+	}
+	
 	private void runDistAction( ActionBase action , boolean success , Meta meta , Dist dist , DistOperation op , String msg ) {
 		try {
 			DistRepository repo = action.artefactory.getDistRepository( action , meta );

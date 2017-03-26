@@ -8,10 +8,10 @@ public class DistLabelInfo {
 
 	DistRepository repo;
 	
-	String RELEASEPATH = "";
-	String RELEASEVER = "";
-	String RELEASEDIR = "";
-	boolean prod;
+	public String RELEASEPATH = "";
+	public String RELEASEVER = "";
+	public String RELEASEDIR = "";
+	public boolean prod;
 	
 	public DistLabelInfo( DistRepository repo ) {
 		this.repo = repo;
@@ -28,10 +28,10 @@ public class DistLabelInfo {
 			return;
 		}
 		
-		if( RELEASELABEL.equals( "prod" ) ) {
-			RELEASEVER = "(prod)";
-			RELEASEDIR = "prod";
-			RELEASEPATH = "prod";
+		if( RELEASELABEL.equals( Dist.MASTER_LABEL ) ) {
+			RELEASEVER = "(master)";
+			RELEASEDIR = Dist.MASTER_DIR;
+			RELEASEPATH = RELEASEDIR;
 			prod = true;
 		}
 		else

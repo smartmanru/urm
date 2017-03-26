@@ -1,5 +1,6 @@
 package org.urm.engine.shell;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -93,6 +94,7 @@ abstract public class ShellCore {
 	abstract public void cmdAppendUploadLog( ActionBase action , String src , String dst ) throws Exception;
 	abstract public void cmdCreatePublicDir( ActionBase action , String dir ) throws Exception;
 	abstract public String[] cmdGetFileLines( ActionBase action , String filePath ) throws Exception;
+	abstract public Date cmdGetFileChangeTime( ActionBase action , String filePath ) throws Exception;
 	abstract public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception;
 	
 	public static ShellCore createShellCore( ActionBase action , ShellExecutor executor , VarOSTYPE osType , boolean local ) throws Exception {
@@ -155,21 +157,6 @@ abstract public class ShellCore {
 		return( true );
 	}
 
-	public boolean checkRunning( ActionBase action ) {
-		if( running )
-			return( true );
-		
-		try {
-			executor.restart( action );
-		}
-		catch( Throwable e ) {
-			action.log( "restart shell" , e );
-			return( false );
-		}
-		
-		return( true );
-	}
-	
 	public void kill( ActionBase action ) throws Exception {
 		if( !initialized )
 			return;

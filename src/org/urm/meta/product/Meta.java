@@ -234,7 +234,7 @@ public class Meta extends ServerObject {
 		
 		return( value );
 	}
-	
+
 	public static String[] getVersionPatterns( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
 		String basename = distItem.DISTBASENAME;
 		String ext = distItem.EXT;

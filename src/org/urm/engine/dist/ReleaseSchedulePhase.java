@@ -59,18 +59,29 @@ public class ReleaseSchedulePhase {
 		return( r );
 	}
 
-	public void load( ActionBase action , Node root , int pos ) throws Exception {
+	public void load( ActionBase action , Node root , int pos , int current ) throws Exception {
 		this.pos = pos;
 		
 		name = ConfReader.getRequiredAttrValue( root , "name" );
 		days = ConfReader.getIntegerAttrValue( root , "days" , 0 );
 		normalDays = ConfReader.getIntegerAttrValue( root , "normaldays" , 0 );
 		release = ConfReader.getBooleanAttrValue( root , "release" , false );
-		finished = ConfReader.getBooleanAttrValue( root , "finished" , false );
 		unlimited = ConfReader.getBooleanAttrValue( root , "unlimited" , false );
-		startDate = Common.getDateValue( ConfReader.getAttrValue( root , "startdate" ) );
-		if( finished )
-			finishDate = Common.getDateValue( ConfReader.getAttrValue( root , "finishdate" ) );
+
+		if( current >= 0 && current < pos )
+			startDate = null;
+		else
+			startDate = Common.getDateValue( ConfReader.getAttrValue( root , "startdate" ) );
+		
+		if( current >= 0 && current <= pos ) {
+			finished = false;
+			finishDate = null;
+		}
+		else {
+			finished = ConfReader.getBooleanAttrValue( root , "finished" , false );
+			if( finished )
+				finishDate = Common.getDateValue( ConfReader.getAttrValue( root , "finishdate" ) );
+		}
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {

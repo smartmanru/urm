@@ -185,7 +185,7 @@ public class ActionScopeTarget {
 			if( releaseItem != null )
 				addItem( action , releaseItem , true );
 			else
-				action.info( "scope: ignore non-release item=" + itemName );
+				action.debug( "scope: ignore non-release item=" + itemName );
 		}
 	}
 	

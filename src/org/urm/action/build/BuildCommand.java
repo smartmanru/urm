@@ -29,7 +29,7 @@ public class BuildCommand {
 		
 		if( ca.isFailed() ) {
 			if( action.context.CTX_GET || action.context.CTX_DIST )
-				action.error( "BUILD FAILED, do not download any artefacts" );
+				action.error( "BUILD FAILED, skip downloading artefacts" );
 			else
 				action.error( "BUILD FAILED" );
 		}
@@ -83,8 +83,10 @@ public class BuildCommand {
 				res = false;
 		}
 		
-		if( copyDist )
+		if( copyDist ) {
 			dist.closeDataChange( action );
+			dist.finishStatus( action );
+		}
 		
 		if( !res )
 			action.exit0( _Error.BuildErrors0 , "there are errors, please check" );
@@ -99,8 +101,8 @@ public class BuildCommand {
 		action.info( "update configuration difference information ..." );
 		ConfBuilder builder = new ConfBuilder( action , scope.meta );
 		
-		for( ReleaseDelivery delivery : dist.release.getDeliveries( action ).values() ) {
-			if( delivery.getConfItems( action ).size() > 0 ) {
+		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
+			if( delivery.getConfItems().length > 0 ) {
 				String file = builder.createConfDiffFile( dist , delivery );
 				dist.replaceConfDiffFile( action , file , delivery );
 			}
@@ -109,7 +111,8 @@ public class BuildCommand {
 	
 	public void setTag( ActionBase action , String TAG , ActionScope scope ) throws Exception {
 		ActionSetTagOnBuildBranch ca = new ActionSetTagOnBuildBranch( action , null , TAG );
-		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
+		if( !ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false ) )
+			action.exit1( _Error.ProjectTagError1 , "Error tagging projects, tag=" + TAG , TAG );
 	}
 	
 	public void printActiveProperties( ActionBase action , Meta meta ) throws Exception {

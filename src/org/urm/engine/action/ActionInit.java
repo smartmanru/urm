@@ -29,7 +29,7 @@ public class ActionInit extends ActionBase {
 
 	public enum RootActionType {
 		Core ,
-		WebSession ,
+		InteractiveSession ,
 		Temporary ,
 		Command
 	};

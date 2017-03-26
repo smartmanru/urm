@@ -55,7 +55,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		tobeBinaryFolder = tobeFolder.getSubFolder( this , "binary" );
 		tobeBinaryFolder.ensureExists( this );
 		
-		if( dist.isFullProd() )
+		if( dist.isMaster() )
 			configure = new ActionConfigure( this , null , tobeConfigFolder );
 		else
 			configure = new ActionConfigure( this , null , dist , tobeConfigFolder );
@@ -236,7 +236,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		
 		debug( "calculate diff between: " + tobeServerFolder.folderPath + " and " + asisServerFolder.folderPath + " (prefix=" + nodePrefix + ") ..." );
 		ConfDiffSet diff = new ConfDiffSet( server.meta , releaseSet , prodSet , nodePrefix , true );
-		if( !dist.isFullProd() )
+		if( !dist.isMaster() )
 			diff.calculate( this , dist.release );
 		else
 			diff.calculate( this , null );
@@ -308,7 +308,7 @@ public class ActionVerifyDeploy extends ActionBase {
 	}
 	
 	private void executeNodeConf( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder asisConfigServerFolder ) throws Exception {
-		if( !dist.isFullProd() ) {
+		if( !dist.isMaster() ) {
 			if( dist.release.findConfComponent( this , confItem.KEY ) == null ) {
 				trace( "ignore non-release conf item=" + confItem.KEY );
 				return;
@@ -338,7 +338,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		if( binaryItem.isArchive() )
 			return( executeNodeArchive( server , node , location , binaryItem , tobeServerFolder , asisServerFolder ) );
 		
-		DistItemInfo distInfo = dist.getDistItemInfo( this , binaryItem , true );
+		DistItemInfo distInfo = dist.getDistItemInfo( this , binaryItem , true , false );
 		if( !distInfo.found ) {
 			debug( "ignore non-release item=" + binaryItem.KEY );
 			return( true );
@@ -373,7 +373,7 @@ public class ActionVerifyDeploy extends ActionBase {
 
 	private boolean executeNodeArchive( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrBinaryItem archiveItem , LocalFolder tobeServerFolder , LocalFolder asisServerFolder ) throws Exception {
 		boolean getMD5 = ( context.CTX_CHECK )? false : true;
-		DistItemInfo distInfo = dist.getDistItemInfo( this , archiveItem , getMD5 );
+		DistItemInfo distInfo = dist.getDistItemInfo( this , archiveItem , getMD5 , false );
 		if( !distInfo.found ) {
 			debug( "ignore non-release item=" + archiveItem.KEY );
 			return( true );

@@ -134,6 +134,12 @@ public class CommandOptions {
 		return( data.getOptionValue( var ) );
 	}
 	
+	public boolean isFlagSet( String var ) {
+		if( data.getFlagValue( var ) == FLAG.YES )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isValidVar( String var ) {
 		return( meta.isValidVar( var ) );
 	}
@@ -285,15 +291,15 @@ public class CommandOptions {
 	}
 
 	public void showTopHelp( CommandBuilder builder , CommandMeta main , CommandMeta[] commands ) {
-		meta.showTopHelp( builder , main , commands );
+		meta.showTopHelp( builder , main , commands , this );
 	}
 
 	public void showCommandHelp( CommandBuilder builder , CommandMeta commandInfo , boolean main ) {
-		meta.showCommandHelp( builder , commandInfo , main );
+		meta.showCommandHelp( builder , commandInfo , main , this );
 	}
 
 	public void showActionHelp( CommandBuilder builder , CommandMethodMeta action ) {
-		meta.showActionHelp( builder , action );
+		meta.showActionHelp( builder , action , this );
 	}
 
 	public Map<String,CommandVar> getDefinedVariables() {

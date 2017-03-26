@@ -267,6 +267,9 @@ public class ServerBlotterSet extends ServerEventsSource {
 	public synchronized ServerBlotterReleaseItem findReleaseItem( String productName , String releaseVer ) {
 		for( ServerBlotterItem item : items.values() ) {
 			ServerBlotterReleaseItem releaseItem = ( ServerBlotterReleaseItem )item;
+			if( releaseItem.repoItem.dist.isMaster() )
+				continue;
+			
 			if( productName.equals( releaseItem.INFO_PRODUCT ) && releaseVer.equals( releaseItem.repoItem.dist.release.RELEASEVER ) )
 				return( releaseItem );
 		}
