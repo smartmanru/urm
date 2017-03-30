@@ -483,6 +483,10 @@ public class ServerProductMeta extends ServerObject {
 	public void createInitialRepository( TransactionBase transaction , boolean forceClear ) throws Exception {
 		repo = DistRepository.createInitialRepository( transaction.action , meta , forceClear );
 	}
+
+	public DistRepository getDistRepository() {
+		return( repo );
+	}
 	
 	public void saveAll( ActionBase action , MetadataStorage storageMeta ) throws Exception {
 		saveVersion( action , storageMeta );
