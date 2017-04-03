@@ -23,8 +23,8 @@ public class MetaDatabase extends PropertyController {
 	
 	public String ALIGNEDMAPPING;
 	
-	public MetaDatabase( ServerProductMeta storage , Meta meta ) {
-		super( storage , "database" );
+	public MetaDatabase( ServerProductMeta storage , MetaProductSettings settings , Meta meta ) {
+		super( storage , settings , "database" );
 		
 		this.meta = meta;
 		meta.setDatabase( this );
@@ -49,8 +49,8 @@ public class MetaDatabase extends PropertyController {
 	}
 	
 	public MetaDatabase copy( ActionBase action , Meta meta ) throws Exception {
-		MetaDatabase r = new MetaDatabase( meta.getStorage( action ) , meta );
 		MetaProductSettings product = meta.getProductSettings( action );
+		MetaDatabase r = new MetaDatabase( meta.getStorage( action ) , product , meta );
 		r.initCopyStarted( this , product.getProperties() );
 		
 		r.admin = admin.copy( action , meta , r );

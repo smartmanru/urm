@@ -24,8 +24,8 @@ public class MetaSource extends PropertyController {
 	private Map<String,MetaSourceProjectSet> setMap;
 	private Map<String,MetaSourceProject> projectMap;
 	
-	public MetaSource( ServerProductMeta storage , Meta meta ) {
-		super( storage , "source" );
+	public MetaSource( ServerProductMeta storage , MetaProductSettings settings , Meta meta ) {
+		super( storage , settings , "source" );
 		this.meta = meta;
 		meta.setSources( this );
 		
@@ -50,8 +50,8 @@ public class MetaSource extends PropertyController {
 	}
 	
 	public MetaSource copy( ActionBase action , Meta meta ) throws Exception {
-		MetaSource r = new MetaSource( meta.getStorage( action ) , meta );
 		MetaProductSettings product = meta.getProductSettings( action );
+		MetaSource r = new MetaSource( meta.getStorage( action ) , product , meta );
 		r.initCopyStarted( this , product.getProperties() );
 		for( MetaSourceProjectSet set : setMap.values() ) {
 			MetaSourceProjectSet rset = set.copy( action , meta , r );

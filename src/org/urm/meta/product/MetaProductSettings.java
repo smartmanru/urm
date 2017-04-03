@@ -76,7 +76,7 @@ public class MetaProductSettings extends PropertyController {
 	public static String PROPERTY_CUSTOM_DATABASE = "custom.database";
 	
 	public MetaProductSettings( ServerProductMeta storage , Meta meta , PropertySet execprops ) {
-		super( storage , "product" );
+		super( storage , null , "product" );
 		
 		this.meta = meta;
 		this.execprops = execprops;
@@ -144,7 +144,7 @@ public class MetaProductSettings extends PropertyController {
 
 		return( r );
 	}
-	
+
 	public void createSettings( TransactionBase transaction , ServerSettings settings , ServerProductContext productContext ) throws Exception {
 		if( !super.initCreateStarted( execprops ) )
 			return;
@@ -171,6 +171,11 @@ public class MetaProductSettings extends PropertyController {
 		super.initFinished();
 	}
 
+	public void updateSettings( TransactionBase transaction , ServerProductContext productContext ) throws Exception {
+		core.setContextProperties( transaction.action , productContext );
+		super.updateProperties( transaction.action );
+	}
+	
 	public void load( ActionBase action , ServerProductContext productContext , Node root ) throws Exception {
 		if( !initCreateStarted( execprops ) )
 			return;
