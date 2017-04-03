@@ -284,5 +284,5 @@ public class ServerBlotterSet extends ServerEventsSource {
 		}
 		return( false );
 	}
-	
+
 }
