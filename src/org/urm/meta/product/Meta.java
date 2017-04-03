@@ -5,6 +5,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerSession;
 import org.urm.engine.ServerTransaction;
+import org.urm.engine.dist.DistRepository;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
@@ -157,6 +158,10 @@ public class Meta extends ServerObject {
 	
 	public MetaEnv[] getEnvironments() {
 		return( storage.getEnvironments() );
+	}
+	
+	public DistRepository getDistRepository() {
+		return( storage.getDistRepository() );
 	}
 	
 	public synchronized MetaEnv getEnvData( ActionBase action , String envFile , boolean loadProps ) throws Exception {

@@ -236,12 +236,12 @@ public class MetaSourceProject {
 	}
 
 	public String getDefaultBranch( ActionBase action ) throws Exception {
-		if( !BRANCH.isEmpty() )
-			return( BRANCH );
-		
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		if( !build.CONFIG_BRANCHNAME.isEmpty() )
 			return( build.CONFIG_BRANCHNAME );
+		
+		if( !BRANCH.isEmpty() )
+			return( BRANCH );
 		
 		String branch = NAME + "-prod";
 		return( branch );
