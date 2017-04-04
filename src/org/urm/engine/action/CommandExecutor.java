@@ -37,7 +37,7 @@ public abstract class CommandExecutor {
 		actionsMap.put( name , action );
 		actionsList.add( action );
 		
-		CommandMethodMeta method = commandInfo.getAction( name );
+		CommandMethodMeta method = commandInfo.getMethod( name );
 		action.setMethod( method );
 	}
 	

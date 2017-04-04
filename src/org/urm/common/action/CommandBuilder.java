@@ -108,7 +108,7 @@ public class CommandBuilder {
 	}
 
 	public boolean isInteractive( CommandOptions options ) throws Exception {
-		CommandMethodMeta method = commandInfo.getAction( options.action );
+		CommandMethodMeta method = commandInfo.getMethod( options.method );
 		return( method.isInteractive() );
 	}
 	
@@ -120,7 +120,7 @@ public class CommandBuilder {
 	public boolean checkHelp( CommandOptions options ) throws Exception {
 		// top help
 		if( options.command.equals( MainCommandMeta.NAME ) && 
-			options.action.equals( "help" ) && 
+			options.method.equals( "help" ) && 
 			options.getArgCount() == 0 ) {
 			showTopHelp( options );
 			return( true );
@@ -128,10 +128,10 @@ public class CommandBuilder {
 
 		// command help
 		if( ( options.command.equals( MainCommandMeta.NAME ) && 
-				options.action.equals( "help" ) && 
+				options.method.equals( "help" ) && 
 				options.getArgCount() == 1 ) ||
 			( options.command.equals( MainCommandMeta.NAME ) == false &&
-				options.action.equals( "help" ) && 
+				options.method.equals( "help" ) && 
 				options.getArgCount() == 0 ) ) {
 			String command = ( options.command.equals( MainCommandMeta.NAME ) )? options.getArg( 0 ) : options.command;
 			CommandMeta meta = ( command.equals( MainCommandMeta.NAME ) )? new MainCommandMeta() : createMeta( command );
@@ -143,25 +143,25 @@ public class CommandBuilder {
 
 		// action help
 		if( ( options.command.equals( MainCommandMeta.NAME ) && 
-				options.action.equals( "help" ) && 
+				options.method.equals( "help" ) && 
 				options.getArgCount() >= 2 ) ||
 			( options.command.equals( MainCommandMeta.NAME ) && 
-				options.action.equals( "help" ) == false && 
+				options.method.equals( "help" ) == false && 
 				options.getArgCount() >= 1 &&
 				options.getArg( 0 ).equals( "help" ) ) ||
 			( options.command.equals( MainCommandMeta.NAME ) == false &&
-				options.action.equals( "help" ) && 
+				options.method.equals( "help" ) && 
 				options.getArgCount() > 0 ) ||
 			( options.command.equals( MainCommandMeta.NAME ) == false &&
-				options.action.equals( "help" ) == false && 
+				options.method.equals( "help" ) == false && 
 				options.getArgCount() > 0 &&
 				options.getArg( 0 ).equals( "help" ) ) ) {
-			String command = ( options.command.equals( MainCommandMeta.NAME ) && options.action.equals( "help" ) )? options.getArg( 0 ) : options.command;
+			String command = ( options.command.equals( MainCommandMeta.NAME ) && options.method.equals( "help" ) )? options.getArg( 0 ) : options.command;
 			CommandMeta meta = ( command.equals( "bin" ) )? new MainCommandMeta() : createMeta( command );
 			
-			String action = ( options.command.equals( MainCommandMeta.NAME ) && options.action.equals( "help" ) )? options.getArg( 1 ) :
-				( ( options.action.equals( "help" ) )? options.getArg( 0 ) : options.action );
-			CommandMethodMeta method = meta.getAction( action );
+			String action = ( options.command.equals( MainCommandMeta.NAME ) && options.method.equals( "help" ) )? options.getArg( 1 ) :
+				( ( options.method.equals( "help" ) )? options.getArg( 0 ) : options.method );
+			CommandMethodMeta method = meta.getMethod( action );
 			options.showActionHelp( this , method );
 			return( true );
 		}

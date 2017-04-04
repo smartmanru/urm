@@ -95,7 +95,7 @@ public class SessionController {
 		ServerSession session = call.sessionContext;
 		session.setServerRemoteProductLayout( engine.serverAction );
 		
-		ActionInit action = engine.createAction( RootActionType.Command , options , session , "call-" + data.clientrc.product , call , false , "Run remote command=" + commandInfo.name + "::" + options.action );
+		ActionInit action = engine.createAction( RootActionType.Command , options , session , "call-" + data.clientrc.product , call , false , "Run remote command=" + commandInfo.name + "::" + options.method );
 		if( action == null )
 			return( null );
 
@@ -111,7 +111,7 @@ public class SessionController {
 		ActionBase serverAction = engine.serverAction;
 		session.setServerRemoteProductLayout( serverAction );
 		
-		ActionInit action = engine.createAction( RootActionType.Command , options , session , "webjmx-" + engine.execrc.product , null , false , "Run web JMX command=" + meta.name + "::" + options.action );
+		ActionInit action = engine.createAction( RootActionType.Command , options , session , "webjmx-" + engine.execrc.product , null , false , "Run web JMX command=" + meta.name + "::" + options.method );
 		if( action == null )
 			return( false );
 

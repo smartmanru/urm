@@ -40,7 +40,7 @@ public class CommandMeta {
 		return( false );
 	}
 
-	public CommandMethodMeta getAction( String actionName ) throws Exception {
+	public CommandMethodMeta getMethod( String actionName ) throws Exception {
 		CommandMethodMeta method = actionsMap.get( actionName );
 		if( method == null )
 			Common.exit2( _Error.MetaNoAction2 , "executor action is not present in meta, name=" + actionName , name , actionName );

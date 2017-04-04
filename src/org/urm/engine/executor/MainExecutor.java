@@ -54,7 +54,7 @@ public class MainExecutor extends CommandExecutor {
 		CommandOptions options = new CommandOptions();
 		ActionData data = new ActionData( engine.execrc );
 		data.addArg( "start" );
-		options.setAction( commandInfo.getAction( "server" ) , data );
+		options.setAction( commandInfo.getMethod( "server" ) , data );
 		
 		if( !options.setFromSystemProperties() )
 			return( null );
@@ -65,14 +65,14 @@ public class MainExecutor extends CommandExecutor {
 	public CommandOptions createOptionsTemporary( ServerEngine engine ) throws Exception {
 		CommandOptions options = new CommandOptions();
 		ActionData data = new ActionData( engine.execrc );
-		options.setAction( commandInfo.getAction( "temporary" ) , data );
+		options.setAction( commandInfo.getMethod( "temporary" ) , data );
 		return( options );
 	}
 
 	public CommandOptions createOptionsInteractiveSession( ServerEngine engine ) throws Exception {
 		CommandOptions options = new CommandOptions();
 		ActionData data = new ActionData( engine.execrc );
-		options.setAction( commandInfo.getAction( "interactive" ) , data );
+		options.setAction( commandInfo.getMethod( "interactive" ) , data );
 		return( options );
 	}
 

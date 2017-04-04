@@ -17,7 +17,7 @@ public class CommandOptions {
 	// implementation
 	public OptionsMeta meta;
 	public String command;
-	public String action;
+	public String method;
 	
 	public ActionData data;
 
@@ -36,7 +36,7 @@ public class CommandOptions {
 
 	public void setAction( CommandMethodMeta method , ActionData data ) {
 		this.command = method.command.name;
-		this.action = method.name;
+		this.method = method.name;
 		this.data = data;
 	}
 	
@@ -61,7 +61,7 @@ public class CommandOptions {
 		command = cmdParams[0];
 		
 		int k = 1;
-		action = cmdParams[1];
+		method = cmdParams[1];
 		k++;
 
 		// next items are options

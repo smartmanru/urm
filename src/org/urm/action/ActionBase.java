@@ -440,7 +440,7 @@ abstract public class ActionBase extends ActionCore {
 		String params = context.options.getParamsSet();
 		String args = context.options.getArgsSet();
 		
-		String log = "command=" + context.options.command + " action=" + context.options.action;
+		String log = "command=" + context.options.command + " action=" + context.options.method;
 		if( !flags.isEmpty() )
 			log += " " + flags;
 		if( !params.isEmpty() )
@@ -545,7 +545,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public String getFormalName() {
-		return( executor.commandInfo.name + "::" + context.options.action );
+		return( executor.commandInfo.name + "::" + context.options.method );
 	}
 	
 	public void commentExecutor( String msg ) {

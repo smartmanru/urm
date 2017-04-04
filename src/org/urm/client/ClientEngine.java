@@ -56,7 +56,7 @@ public class ClientEngine {
 
 	private boolean runClientMode( CommandBuilder builder , CommandMeta commandInfo , CommandOptions options ) throws Exception {
 		boolean res = false;
-		if( options.action.equals( "auth" ) ) {
+		if( options.method.equals( "auth" ) ) {
 			ClientAuth auth = new ClientAuth( this );
 			res = auth.setAuth( builder , options );
 		}

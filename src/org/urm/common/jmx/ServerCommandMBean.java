@@ -378,7 +378,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		action.debug( "operation invoked, name=" + name );
 		
 		// find action
-		CommandMethodMeta method = meta.getAction( name );
+		CommandMethodMeta method = meta.getMethod( name );
 		if( args.length != ( 1 + method.vars.length ) )
 			return( -1 );
 		

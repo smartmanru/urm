@@ -224,7 +224,7 @@ public class ServerEngine {
 		else
 			serverSession.setServerLayout( options );
 		
-		serverAction = createAction( RootActionType.Command , options , serverSession , "client" , null , false , "Run local command=" + commandInfo.name + "::" + options.action );
+		serverAction = createAction( RootActionType.Command , options , serverSession , "client" , null , false , "Run local command=" + commandInfo.name + "::" + options.method );
 		if( serverAction == null )
 			return( false );
 
@@ -258,35 +258,35 @@ public class ServerEngine {
 		return( res );
 	}
 
-	public CommandExecutor getExecutor( CommandOptions options ) throws Exception {
-		if( options.command.equals( MainCommandMeta.NAME ) )
+	public CommandExecutor getExecutor( String command ) throws Exception {
+		if( command.equals( MainCommandMeta.NAME ) )
 			return( mainExecutor );
-		if( options.command.equals( BuildCommandMeta.NAME ) )
+		if( command.equals( BuildCommandMeta.NAME ) )
 			return( buildExecutor );
-		if( options.command.equals( DatabaseCommandMeta.NAME ) )
+		if( command.equals( DatabaseCommandMeta.NAME ) )
 			return( databaseExecutor );
-		if( options.command.equals( DeployCommandMeta.NAME ) )
+		if( command.equals( DeployCommandMeta.NAME ) )
 			return( deployExecutor );
-		if( options.command.equals( MonitorCommandMeta.NAME ) )
+		if( command.equals( MonitorCommandMeta.NAME ) )
 			return( monitorExecutor );
-		if( options.command.equals( ReleaseCommandMeta.NAME ) )
+		if( command.equals( ReleaseCommandMeta.NAME ) )
 			return( releaseExecutor );
-		if( options.command.equals( XDocCommandMeta.NAME ) )
+		if( command.equals( XDocCommandMeta.NAME ) )
 			return( xdocExecutor );
 		
-		Common.exit1( _Error.UnknownCommandExecutor1 , "Unexpected URM args - unknown command executor=" + options.command + " (expected one of " +
+		Common.exit1( _Error.UnknownCommandExecutor1 , "Unexpected URM args - unknown command executor=" + command + " (expected one of " +
 				BuildCommandMeta.NAME + "/" +
 				DeployCommandMeta.NAME + "/" + 
 				DatabaseCommandMeta.NAME + "/" +
 				MonitorCommandMeta.NAME + "/" +
 				ReleaseCommandMeta.NAME + "/" +
-				XDocCommandMeta.NAME + ")" , options.command );
+				XDocCommandMeta.NAME + ")" , command );
 		return( null );
 	}
 	
 	public ActionInit createAction( RootActionType type , CommandOptions options , ServerSession session , String stream , ServerCall call , boolean memoryOnly , String actionInfo ) throws Exception {
-		CommandExecutor actionExecutor = getExecutor( options );
-		CommandAction commandAction = actionExecutor.getAction( options.action );
+		CommandExecutor actionExecutor = getExecutor( options.command );
+		CommandAction commandAction = actionExecutor.getAction( options.method );
 		if( !options.checkValidOptions( commandAction.method ) )
 			return( null );
 		
@@ -299,7 +299,7 @@ public class ServerEngine {
 		Artefactory artefactory = createArtefactory( session , context , memoryOnly );
 		
 		// create action
-		ActionInit action = createRootAction( type , actionExecutor , session , artefactory , options.action , memoryOnly , actionInfo );
+		ActionInit action = createRootAction( type , actionExecutor , session , artefactory , options.method , memoryOnly , actionInfo );
 		context.update( action );
 		actionExecutor.setActionContext( action , context );
 		
