@@ -322,7 +322,7 @@ public class Dist {
 	public void create( ActionBase action , String RELEASEDIR , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
 		this.RELEASEDIR = RELEASEDIR;
 		VersionInfo info = VersionInfo.getReleaseVersion( action , RELEASEDIR );
-		lc = getLifecycle( action , lc , info.getLifecycleType() );
+		lc = getLifecycle( action , meta , lc , info.getLifecycleType() );
 		releaseDate = getReleaseDate( action , releaseDate , lc );
 		if( releaseDate == null )
 			action.exit1( _Error.MissingReleaseDate1 , "unable to create release label=" + RELEASEDIR + " due to missing release date" , RELEASEDIR );
@@ -333,7 +333,7 @@ public class Dist {
 
 	public void changeReleaseDate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
 		VarLCTYPE type = release.getLifecycleType();
-		ServerReleaseLifecycle lcset = getLifecycle( action , lc , type );
+		ServerReleaseLifecycle lcset = getLifecycle( action , meta , lc , type );
 		release.setReleaseDate( action , releaseDate , lcset );
 	}
 	
@@ -885,7 +885,7 @@ public class Dist {
 		}
 	}
 	
-	private ServerReleaseLifecycle getLifecycle( ActionBase action , ServerReleaseLifecycle lc , VarLCTYPE type ) throws Exception {
+	public static ServerReleaseLifecycle getLifecycle( ActionBase action , Meta meta , ServerReleaseLifecycle lc , VarLCTYPE type ) throws Exception {
 		MetaProductCoreSettings core = meta.getProductCoreSettings( action );
 		
 		if( type == VarLCTYPE.MAJOR ) {
