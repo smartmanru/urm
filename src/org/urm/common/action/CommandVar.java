@@ -1,7 +1,14 @@
 package org.urm.common.action;
 
-public class CommandVar {
+import java.io.Serializable;
 
+public class CommandVar implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 474594974763700358L;
+	
 	public String varName;
 	public String userName;
 	public String help;
