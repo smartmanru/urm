@@ -6,7 +6,6 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
@@ -67,9 +66,8 @@ public class CommandContext {
 	public ServerEngine engine;
 	public CommandOptions options;
 	public ServerSession session;
-	public CommandMethodMeta commandMethod;
-	public CommandMethod commandAction;
 
+	public Meta meta;
 	public MetaEnv env; 
 	public MetaEnvSegment sg;
 	
@@ -277,6 +275,11 @@ public class CommandContext {
 			logLevelLimit = CommandOutput.LOGLEVEL_DEBUG;
 	}
 	
+	public void setOptions( ActionBase action , Meta meta , CommandOptions options ) throws Exception {
+		this.options = options;
+		update( action , meta );
+	}
+	
 	public void update( ActionBase action , MetaEnv env , MetaEnvSegment sg ) throws Exception {
 		this.env = env;  
 		this.sg = sg;
@@ -289,6 +292,8 @@ public class CommandContext {
 	}
 	
 	public void update( ActionBase action , Meta meta ) throws Exception {
+		this.meta = meta;
+		
 		boolean isproduct = ( meta != null )? true : false; 
 		boolean isenv = ( env == null )? false : true; 
 		boolean def = ( isenv && env.isProd() )? true : false;

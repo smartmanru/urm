@@ -769,6 +769,9 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public Meta getContextMeta() throws Exception {
+		if( context.meta != null )
+			return( context.meta );
+		
 		if( !session.product )
 			exitUnexpectedState();
 		return( getProductMetadata( session.productName ) );

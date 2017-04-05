@@ -81,6 +81,12 @@ public class ActionCore {
 		progressError = exception;
 	}
 	
+	public RunError getError() {
+		if( isCallFailed() )
+			return( progressError );
+		return( null );
+	}
+	
 	public boolean isStandalone() {
 		return( engine.execrc.isStandalone() );
 	}
