@@ -10,7 +10,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
-import org.urm.common.action.CommandVar.FLAG;
+import org.urm.common.action.CommandOption.FLAG;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.storage.HiddenFiles;
 import org.urm.meta.ServerProductMeta;

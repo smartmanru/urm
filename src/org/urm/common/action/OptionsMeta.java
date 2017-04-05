@@ -6,11 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.common.action.CommandOption.FLAG;
 
 public class OptionsMeta {
 
-	public List<CommandVar> optionsDefined = new LinkedList<CommandVar>();
-	public Map<String,CommandVar> optionsByName = new HashMap<String,CommandVar>();
+	public List<CommandOption> optionsDefined = new LinkedList<CommandOption>();
+	public Map<String,CommandOption> optionsByName = new HashMap<String,CommandOption>();
 	public Map<String,CommandVar> varByName = new HashMap<String,CommandVar>();
 	private int genericOptionsCount;
 
@@ -33,7 +34,6 @@ public class OptionsMeta {
 	public final static String OPT_DIST = "OPT_DIST";
 	public final static String OPT_UPDATENEXUS = "OPT_UPDATENEXUS";
 	public final static String OPT_CHECK = "OPT_CHECK";
-	public final static String OPT_MOVE_ERRORS = "OPT_MOVE_ERRORS";
 	public final static String OPT_REPLACE = "OPT_REPLACE";
 	public final static String OPT_BACKUP = "OPT_BACKUP";
 	public final static String OPT_OBSOLETE = "OPT_OBSOLETE";
@@ -81,120 +81,209 @@ public class OptionsMeta {
 	public final static String OPT_HOST = "OPT_HOST";
 	
 	public OptionsMeta() {
-		optionsDefined = new LinkedList<CommandVar>();
-		optionsByName = new HashMap<String,CommandVar>();
+		optionsDefined = new LinkedList<CommandOption>();
+		optionsByName = new HashMap<String,CommandOption>();
 		
-		defineGenericOption( CommandVar.newFlagYesOption( "trace" , OPT_TRACE , true , "show commands" ) );
-		defineGenericOption( CommandVar.newFlagYesOption( "showall" , OPT_SHOWALL , true , "show all log records" ) );
-		defineGenericOption( CommandVar.newFlagNoOption( "showmain" , OPT_SHOWALL , true , "show only important log records (see also showall)" ) );
-		defineGenericOption( CommandVar.newFlagYesOption( "showonly" , OPT_SHOWONLY , true , "do not perform builds or change distributive" ) );
-		defineGenericOption( CommandVar.newFlagNoOption( "execute" , OPT_SHOWONLY , true , "execute operations (see also showonly)" ) );
-		defineGenericOption( CommandVar.newFlagYesOption( "force" , OPT_FORCE , true , "ignore errors and constraints" ) );
-		defineGenericOption( CommandVar.newFlagYesOption( "ignore" , OPT_SKIPERRORS , true , "continue run disregarding errors" ) );
-		defineGenericOption( CommandVar.newFlagNoOption( "strict" , OPT_SKIPERRORS , true , "stop execution after error" ) );
-		defineGenericOption( CommandVar.newFlagYesOption( "all" , OPT_ALL , true , "use all possible items in scope, ignore reduce defaults" ) );
-		defineGenericOption( CommandVar.newFlagYesOption( "local" , OPT_LOCAL , false , "any session is opened as local under current user" ) );
-		defineGenericOption( CommandVar.newFlagYesOption( "offline" , OPT_OFFLINE , false , "do not use server even if configured" ) );
-		defineGenericOption( CommandVar.newIntParam( "timeout" , OPT_TIMEOUT , true , "use specific default timeout" ) );
-		defineGenericOption( CommandVar.newParam( "distpath" , OPT_DISTPATH , false , "use given path to find distributive files" ) );
-		defineGenericOption( CommandVar.newParam( "hiddenpath" , OPT_HIDDENPATH , false , "use given path to find hidden files and properties" ) );
-		defineGenericOption( CommandVar.newParam( "user" , OPT_USER , false , "use given user to connect to server" ) );
-		defineGenericOption( CommandVar.newParam( "key" , OPT_KEY , false , "use given private key file to connect to server" ) );
-		defineGenericOption( CommandVar.newParam( "password" , OPT_PASSWORD , false , "use given password to connect to server" ) );
+		defineGenericVar( CommandVar.newFlagVar( OPT_TRACE , true , "Trace" , "show internal information" ) );
+		defineGenericVar( CommandVar.newFlagVar( OPT_SHOWALL , true , "Show All" , "show detailed information" ) );
+		defineGenericVar( CommandVar.newFlagVar( OPT_SHOWONLY , true , "Show Only" , "do not perform any changes" ) );
+		defineGenericVar( CommandVar.newFlagVar( OPT_FORCE , true , "Force" , "ignore errors and constraints" ) );
+		defineGenericVar( CommandVar.newFlagVar( OPT_SKIPERRORS , true , "Skip Errors" , "continue run disregarding errors" ) );
+		defineGenericVar( CommandVar.newFlagVar( OPT_ALL , true , "Use All" , "use all possible items in scope, ignore reduce defaults" ) );
+		defineGenericVar( CommandVar.newFlagVar( OPT_LOCAL , false , "Run Local" , "any session is opened as local under current user" ) );
+		defineGenericVar( CommandVar.newFlagVar( OPT_OFFLINE , false , "Run Offline" , "do not use server even if configured" ) );
+		defineGenericVar( CommandVar.newIntVar( OPT_TIMEOUT , true , "Timeout" , "use specific default timeout" ) );
+		defineGenericVar( CommandVar.newVar( OPT_DISTPATH , false , "Dist Path" , "use given path to find distributive files" ) );
+		defineGenericVar( CommandVar.newVar( OPT_HIDDENPATH , false , "Secure Path" , "use given path to find hidden files and properties" ) );
+		defineGenericVar( CommandVar.newVar( OPT_USER , false , "User" , "use given user to connect to server" ) );
+		defineGenericVar( CommandVar.newVar( OPT_KEY , false , "Key" , "use given private key file to connect to server" ) );
+		defineGenericVar( CommandVar.newVar( OPT_PASSWORD , false , "Password" , "use given password to connect to server" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "trace" , OPT_TRACE , true , "show commands" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "showall" , OPT_SHOWALL , true , "show all log records" ) );
+		defineOption( CommandOption.newFlagNoOption( this , "showmain" , OPT_SHOWALL , true , "show only important log records (see also showall)" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "showonly" , OPT_SHOWONLY , true , "do not perform builds or change distributive" ) );
+		defineOption( CommandOption.newFlagNoOption( this , "execute" , OPT_SHOWONLY , true , "execute operations (see also showonly)" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "force" , OPT_FORCE , true , "ignore errors and constraints" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "ignore" , OPT_SKIPERRORS , true , "continue run disregarding errors" ) );
+		defineOption( CommandOption.newFlagNoOption( this , "strict" , OPT_SKIPERRORS , true , "stop execution after error" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "all" , OPT_ALL , true , "use all possible items in scope, ignore reduce defaults" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "local" , OPT_LOCAL , false , "any session is opened as local under current user" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "offline" , OPT_OFFLINE , false , "do not use server even if configured" ) );
+		defineOption( CommandOption.newIntParam( this , "timeout" , OPT_TIMEOUT , true , "use specific default timeout" ) );
+		defineOption( CommandOption.newParam( this , "distpath" , OPT_DISTPATH , false , "use given path to find distributive files" ) );
+		defineOption( CommandOption.newParam( this , "hiddenpath" , OPT_HIDDENPATH , false , "use given path to find hidden files and properties" ) );
+		defineOption( CommandOption.newParam( this , "user" , OPT_USER , false , "use given user to connect to server" ) );
+		defineOption( CommandOption.newParam( this , "key" , OPT_KEY , false , "use given private key file to connect to server" ) );
+		defineOption( CommandOption.newParam( this , "password" , OPT_PASSWORD , false , "use given password to connect to server" ) );
 		genericOptionsCount = optionsDefined.size();
+
+		defineVar( CommandVar.newFlagVar( OPT_GET , true , "Download" , "run getall after build" ) );
+		defineVar( CommandVar.newFlagVar( OPT_DIST , true , "Change Dist" , "copy to distributive after getall" ) );
+		defineVar( CommandVar.newFlagVar( OPT_UPDATENEXUS , true , "Update Nexus" , "force reupload items to thirdparty repository" ) );
+		defineVar( CommandVar.newFlagVar( OPT_CHECK , true , "Check Source" , "run source checks before build" ) );
+		defineVar( CommandVar.newFlagVar( OPT_REPLACE , true , "Replace" , "replace all item contents on deploy" ) );
+		defineVar( CommandVar.newFlagVar( OPT_BACKUP , true , "Backup" , "prepare backup before deploy" ) );
+		defineVar( CommandVar.newFlagVar( OPT_OBSOLETE , true , "Obsolete" , "ignore new layout" ) );
+		defineVar( CommandVar.newFlagVar( OPT_DEPLOYCONF , true , "Deploy Conf" , "deploy configuration files" ) );
+		defineVar( CommandVar.newFlagVar( OPT_PARTIALCONF , true , "Partial Conf" , "ignore missing configuration files" ) );
+		defineVar( CommandVar.newFlagVar( OPT_DEPLOYBINARY , true , "Deploy Binary" , "deploy binary files" ) );
+		defineVar( CommandVar.newFlagVar( OPT_DEPLOYHOT , true , "Deploy Hot" , "deploy hot files only" ) );
+		defineVar( CommandVar.newFlagVar( OPT_DEPLOYCOLD , true , "Deploy Cold" , "deploy cold files only" ) );
+		defineVar( CommandVar.newFlagVar( OPT_DEPLOYRAW , false , "Deploy Raw" , "internal use only" ) );
+		defineVar( CommandVar.newFlagVar( OPT_KEEPALIVE , true , "Keep Alive Conf" , "automatically maintain product configuration set" ) );
+		defineVar( CommandVar.newFlagVar( OPT_ZERODOWNTIME , true , "Zero Downtime" , "deploy with downtime" ) );
+		defineVar( CommandVar.newFlagVar( OPT_NONODES , true , "No Nodes" , "execute only on server-level, no nodes" ) );
+		defineVar( CommandVar.newFlagVar( OPT_NOCHATMSG , true , "No Chat" , "do not notify in chat window" ) );
+		defineVar( CommandVar.newFlagVar( OPT_ROOTUSER , true , "Use Root" , "execute under root" ) );
+		defineVar( CommandVar.newFlagVar( OPT_SUDO , true , "Use sudo" , "execute using sudo from specified hostuser" ) );
+		defineVar( CommandVar.newFlagVar( OPT_IGNOREVERSION , true , "Ignore Version" , "ignore version information on deploy" ) );
+		defineVar( CommandVar.newFlagVar( OPT_LIVE , true , "Use Live" , "use saved live configuration" ) );
+		defineVar( CommandVar.newFlagVar( OPT_HIDDEN , true , "Use Hidden" , "use hidden files to restore configuration" ) );
+		defineVar( CommandVar.newEnumVar( OPT_DBMODE , true , "DB Mode" , "execute database set mode" ) );
+		defineVar( CommandVar.newFlagVar( OPT_DBMOVE , true , "Move Errors" , "move erroneous scripts to error subfolder in source folder" ) );
+		defineVar( CommandVar.newFlagVar( OPT_DBAUTH , true , "Use DB Auth" , "do not use simple authorization" ) );
+		defineVar( CommandVar.newFlagVar( OPT_CUMULATIVE , true , "Cumulative" , "cumulative release" ) );
+		defineVar( CommandVar.newVar( OPT_DBALIGNED , true , "DB Aligned" , "use specific aligned set of scipts to apply" ) );
+		defineVar( CommandVar.newVar( OPT_DB , true , "DB Server" , "use specific database server to apply" ) );
+		defineVar( CommandVar.newVar( OPT_DBPASSWORD , true , "DB Password" , "use specified password to access database" ) );
+		defineVar( CommandVar.newVar( OPT_REGIONS , true , "Regions" , "use specific set of regions to apply" ) );
+		defineVar( CommandVar.newEnumVar( OPT_DBTYPE , true , "DB Change Type" , "execute database set specific change type" ) );
+		defineVar( CommandVar.newVar( OPT_RELEASE , true , "Release" , "use specific release name" ) );
+		defineVar( CommandVar.newVar( OPT_BRANCH , true , "Branch" , "use specific codebase branch name" ) );
+		defineVar( CommandVar.newVar( OPT_TAG , true , "Tag" , "use specific codebase tag name" ) );
+		defineVar( CommandVar.newVar( OPT_DATE , true , "Date" , "use codebase state on given date (ISO-8601)" ) );
+		defineVar( CommandVar.newVar( OPT_GROUP , true , "Project Group" , "use specific codebase project group" ) );
+		defineVar( CommandVar.newVar( OPT_VERSION , true , "Code Version" , "use specific codebase version" ) );
+		defineVar( CommandVar.newVar( OPT_SG , true , "Segment" , "use segments which names meet given regular mask" ) );
+		defineVar( CommandVar.newVar( OPT_DEPLOYGROUP , true , "Node Group" , "use only nodes belonging to specified deploygroup" ) );
+		defineVar( CommandVar.newVar( OPT_STARTGROUP , true , "Start Group" , "use only servers belonging to specified startgroup" ) );
+		defineVar( CommandVar.newVar( OPT_EXTRAARGS , true , "Extra Args" , "extra arguments for server interface scripts" ) );
+		defineVar( CommandVar.newVar( OPT_UNIT , true , "Product Unit" , "use distributive items only from given unit" ) );
+		defineVar( CommandVar.newVar( OPT_BUILDINFO , true , "Build Info" , "use given build info parameter" ) );
+		defineVar( CommandVar.newVar( OPT_HOSTUSER , true , "Host User" , "use given user when connecting to host" ) );
+		defineVar( CommandVar.newVar( OPT_NEWKEY , true , "New Key" , "use given key to change on host" ) );
+		defineVar( CommandVar.newVar( OPT_BUILDMODE , true , "Build Mode" , "use given build mode (branch, trunk, major, devbranch, devtrunk)" ) );
+		defineVar( CommandVar.newVar( OPT_COMPATIBILITY , true , "Compatibility" , "previous release installed" ) );
+		defineVar( CommandVar.newIntVar( OPT_PORT , false , "Port" , "server port" ) );
+		defineVar( CommandVar.newVar( OPT_HOST , false , "Host" , "server host" ) );
 		
-		defineOption( CommandVar.newFlagYesOption( "get" , OPT_GET , true , "run getall after build" ) );
-		defineOption( CommandVar.newFlagYesOption( "dist" , OPT_DIST , true , "copy to distributive after getall" ) );
-		defineOption( CommandVar.newFlagYesOption( "updatenexus" , OPT_UPDATENEXUS , true , "force reupload items to thirdparty repository" ) );
-		defineOption( CommandVar.newFlagYesOption( "check" , OPT_CHECK , true , "run source checks before build" ) );
-		defineOption( CommandVar.newFlagNoOption( "nocheck" , OPT_CHECK , true , "skip source checks before build (see also check)" ) );
-		defineOption( CommandVar.newFlagYesOption( "move" , OPT_MOVE_ERRORS , true , "move wrong release source files to error folder" ) );
-		defineOption( CommandVar.newFlagYesOption( "replace" , OPT_REPLACE , true , "replace all item contents on deploy" ) );
-		defineOption( CommandVar.newFlagYesOption( "backup" , OPT_BACKUP , true , "prepare backup before deploy" ) );
-		defineOption( CommandVar.newFlagNoOption( "nobackup" , OPT_BACKUP , true , "do not backup before deploy" ) );
-		defineOption( CommandVar.newFlagYesOption( "obsolete" , OPT_OBSOLETE , true , "ignore new layout" ) );
-		defineOption( CommandVar.newFlagNoOption( "noobsolete" , OPT_OBSOLETE , true , "use new layout" ) );
-		defineOption( CommandVar.newFlagYesOption( "conf" , OPT_DEPLOYCONF , true , "deploy configuration files" ) );
-		defineOption( CommandVar.newFlagNoOption( "noconf" , OPT_DEPLOYCONF , true , "do not deploy configuration files" ) );
-		defineOption( CommandVar.newFlagYesOption( "partialconf" , OPT_PARTIALCONF , true , "ignore missing configuration files" ) );
-		defineOption( CommandVar.newFlagYesOption( "binary" , OPT_DEPLOYBINARY , true , "deploy binary files" ) );
-		defineOption( CommandVar.newFlagNoOption( "nobinary" , OPT_DEPLOYBINARY , true , "do not deploy binary files" ) );
-		defineOption( CommandVar.newFlagYesOption( "hot" , OPT_DEPLOYHOT , true , "deploy hot files only" ) );
-		defineOption( CommandVar.newFlagYesOption( "cold" , OPT_DEPLOYCOLD , true , "deploy cold files only" ) );
-		defineOption( CommandVar.newFlagYesOption( "raw" , OPT_DEPLOYRAW , false , "internal use only" ) );
-		defineOption( CommandVar.newFlagYesOption( "keepalive" , OPT_KEEPALIVE , true , "automatically maintain product configuration set" ) );
-		defineOption( CommandVar.newFlagNoOption( "nokeepalive" , OPT_KEEPALIVE , true , "do not change product configuration set" ) );
-		defineOption( CommandVar.newFlagNoOption( "downtime" , OPT_ZERODOWNTIME , true , "deploy with downtime" ) );
-		defineOption( CommandVar.newFlagYesOption( "nodowntime" , OPT_ZERODOWNTIME , true , "deploy without downtime if possible" ) );
-		defineOption( CommandVar.newFlagYesOption( "nonodes" , OPT_NONODES , true , "execute only on server-level, no nodes" ) );
-		defineOption( CommandVar.newFlagYesOption( "nomsg" , OPT_NOCHATMSG , true , "do not notify in chat window" ) );
-		defineOption( CommandVar.newFlagYesOption( "root" , OPT_ROOTUSER , true , "execute under root" ) );
-		defineOption( CommandVar.newFlagYesOption( "sudo" , OPT_SUDO , true , "execute using sudo from specified hostuser" ) );
-		defineOption( CommandVar.newFlagYesOption( "ignoreversion" , OPT_IGNOREVERSION , true , "ignore version information on deploy" ) );
-		defineOption( CommandVar.newFlagYesOption( "live" , OPT_LIVE , true , "use saved live configuration" ) );
-		defineOption( CommandVar.newFlagYesOption( "hidden" , OPT_HIDDEN , true , "use hidden files to restore configuration" ) );
-		defineOption( CommandVar.newFlagEnumOption( "a" , "APPLY" , OPT_DBMODE , true , "execute database set - only new scipts" ) );
-		defineOption( CommandVar.newFlagEnumOption( "x" , "ANYWAY" , OPT_DBMODE , true , "execute database set - both already applied and new scipts" ) );
-		defineOption( CommandVar.newFlagEnumOption( "c" , "CORRECT" , OPT_DBMODE , true , "execute database set - only failed scripts" ) );
-		defineOption( CommandVar.newFlagEnumOption( "r" , "ROLLBACK" , OPT_DBMODE , true , "execute database set - rollback" ) );
-		defineOption( CommandVar.newFlagEnumOption( "p" , "PRINT" , OPT_DBMODE , true , "execute database set - show database status" ) );
-		defineOption( CommandVar.newFlagYesOption( "m" , OPT_DBMOVE , true , "move erroneous scripts to error subfolder in source folder" ) );
-		defineOption( CommandVar.newFlagYesOption( "auth" , OPT_DBAUTH , true , "do not use simple authorization" ) );
-		defineOption( CommandVar.newFlagNoOption( "noauth" , OPT_DBAUTH , true , "use simple authorization" ) );
-		defineOption( CommandVar.newFlagYesOption( "cumulative" , OPT_CUMULATIVE , true , "cumulative release" ) );
-		defineOption( CommandVar.newParam( "aligned" , OPT_DBALIGNED , true , "use specific aligned set of scipts to apply" ) );
-		defineOption( CommandVar.newParam( "db" , OPT_DB , true , "use specific database server to apply" ) );
-		defineOption( CommandVar.newParam( "dbpwd" , OPT_DBPASSWORD , true , "use specified password to access database" ) );
-		defineOption( CommandVar.newParam( "regions" , OPT_REGIONS , true , "use specific set of regions to apply" ) );
-		defineOption( CommandVar.newFlagEnumOption( "sql" , "SQL" , OPT_DBTYPE , true , "execute database set - only scripts" ) );
-		defineOption( CommandVar.newFlagEnumOption( "ctl" , "CTL" , OPT_DBTYPE , true , "execute database set - only load files" ) );
-		defineOption( CommandVar.newFlagEnumOption( "pub" , "PUB" , OPT_DBTYPE , true , "execute database set - only publish files" ) );
-		defineOption( CommandVar.newParam( "release" , OPT_RELEASE , true , "use specific release name" ) );
-		defineOption( CommandVar.newParam( "branch" , OPT_BRANCH , true , "use specific codebase branch name" ) );
-		defineOption( CommandVar.newParam( "tag" , OPT_TAG , true , "use specific codebase tag name" ) );
-		defineOption( CommandVar.newParam( "date" , OPT_DATE , true , "use codebase state on given date (ISO-8601)" ) );
-		defineOption( CommandVar.newParam( "group" , OPT_GROUP , true , "use specific codebase project group" ) );
-		defineOption( CommandVar.newParam( "version" , OPT_VERSION , true , "use specific codebase version" ) );
-		defineOption( CommandVar.newParam( "sg" , OPT_SG , true , "use segments which names meet given regular mask" ) );
-		defineOption( CommandVar.newParam( "deploygroup" , OPT_DEPLOYGROUP , true , "use only nodes belonging to specified deploygroup" ) );
-		defineOption( CommandVar.newParam( "startgroup" , OPT_STARTGROUP , true , "use only servers belonging to specified startgroup" ) );
-		defineOption( CommandVar.newParam( "args" , OPT_EXTRAARGS , true , "extra arguments for server interface scripts" ) );
-		defineOption( CommandVar.newParam( "unit" , OPT_UNIT , true , "use distributive items only from given unit" ) );
-		defineOption( CommandVar.newParam( "buildinfo" , OPT_BUILDINFO , true , "use given build info parameter" ) );
-		defineOption( CommandVar.newParam( "hostuser" , OPT_HOSTUSER , true , "use given user when connecting to host" ) );
-		defineOption( CommandVar.newParam( "newkey" , OPT_NEWKEY , true , "use given key to change on host" ) );
-		defineOption( CommandVar.newParam( "mode" , OPT_BUILDMODE , true , "use given build mode (branch, trunk, major, devbranch, devtrunk)" ) );
-		defineOption( CommandVar.newParam( "over" , OPT_COMPATIBILITY , true , "previous release installed" ) );
-		defineOption( CommandVar.newIntParam( "port" , OPT_PORT , false , "server port" ) );
-		defineOption( CommandVar.newParam( "host" , OPT_HOST , false , "server host" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "get" , OPT_GET , true , "run getall after build" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "dist" , OPT_DIST , true , "copy to distributive after getall" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "updatenexus" , OPT_UPDATENEXUS , true , "force reupload items to thirdparty repository" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "check" , OPT_CHECK , true , "run source checks before build" ) );
+		defineOption( CommandOption.newFlagNoOption( this , "nocheck" , OPT_CHECK , true , "skip source checks before build (see also check)" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "replace" , OPT_REPLACE , true , "replace all item contents on deploy" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "backup" , OPT_BACKUP , true , "prepare backup before deploy" ) );
+		defineOption( CommandOption.newFlagNoOption( this , "nobackup" , OPT_BACKUP , true , "do not backup before deploy" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "obsolete" , OPT_OBSOLETE , true , "ignore new layout" ) );
+		defineOption( CommandOption.newFlagNoOption( this , "noobsolete" , OPT_OBSOLETE , true , "use new layout" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "conf" , OPT_DEPLOYCONF , true , "deploy configuration files" ) );
+		defineOption( CommandOption.newFlagNoOption( this , "noconf" , OPT_DEPLOYCONF , true , "do not deploy configuration files" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "partialconf" , OPT_PARTIALCONF , true , "ignore missing configuration files" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "binary" , OPT_DEPLOYBINARY , true , "deploy binary files" ) );
+		defineOption( CommandOption.newFlagNoOption( this , "nobinary" , OPT_DEPLOYBINARY , true , "do not deploy binary files" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "hot" , OPT_DEPLOYHOT , true , "deploy hot files only" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "cold" , OPT_DEPLOYCOLD , true , "deploy cold files only" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "raw" , OPT_DEPLOYRAW , false , "internal use only" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "keepalive" , OPT_KEEPALIVE , true , "automatically maintain product configuration set" ) );
+		defineOption( CommandOption.newFlagNoOption( this , "nokeepalive" , OPT_KEEPALIVE , true , "do not change product configuration set" ) );
+		defineOption( CommandOption.newFlagNoOption( this , "downtime" , OPT_ZERODOWNTIME , true , "deploy with downtime" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "nodowntime" , OPT_ZERODOWNTIME , true , "deploy without downtime if possible" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "nonodes" , OPT_NONODES , true , "execute only on server-level, no nodes" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "nomsg" , OPT_NOCHATMSG , true , "do not notify in chat window" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "root" , OPT_ROOTUSER , true , "execute under root" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "sudo" , OPT_SUDO , true , "execute using sudo from specified hostuser" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "ignoreversion" , OPT_IGNOREVERSION , true , "ignore version information on deploy" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "live" , OPT_LIVE , true , "use saved live configuration" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "hidden" , OPT_HIDDEN , true , "use hidden files to restore configuration" ) );
+		defineOption( CommandOption.newFlagEnumOption( this , "a" , "APPLY" , OPT_DBMODE , true , "execute database set - only new scipts" ) );
+		defineOption( CommandOption.newFlagEnumOption( this , "x" , "ANYWAY" , OPT_DBMODE , true , "execute database set - both already applied and new scipts" ) );
+		defineOption( CommandOption.newFlagEnumOption( this , "c" , "CORRECT" , OPT_DBMODE , true , "execute database set - only failed scripts" ) );
+		defineOption( CommandOption.newFlagEnumOption( this , "r" , "ROLLBACK" , OPT_DBMODE , true , "execute database set - rollback" ) );
+		defineOption( CommandOption.newFlagEnumOption( this , "p" , "PRINT" , OPT_DBMODE , true , "execute database set - show database status" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "move" , OPT_DBMOVE , true , "move erroneous scripts to error subfolder in source folder" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "auth" , OPT_DBAUTH , true , "do not use simple authorization" ) );
+		defineOption( CommandOption.newFlagNoOption( this , "noauth" , OPT_DBAUTH , true , "use simple authorization" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "cumulative" , OPT_CUMULATIVE , true , "cumulative release" ) );
+		defineOption( CommandOption.newParam( this , "aligned" , OPT_DBALIGNED , true , "use specific aligned set of scipts to apply" ) );
+		defineOption( CommandOption.newParam( this , "db" , OPT_DB , true , "use specific database server to apply" ) );
+		defineOption( CommandOption.newParam( this , "dbpwd" , OPT_DBPASSWORD , true , "use specified password to access database" ) );
+		defineOption( CommandOption.newParam( this , "regions" , OPT_REGIONS , true , "use specific set of regions to apply" ) );
+		defineOption( CommandOption.newFlagEnumOption( this , "sql" , "SQL" , OPT_DBTYPE , true , "execute database set - only scripts" ) );
+		defineOption( CommandOption.newFlagEnumOption( this , "ctl" , "CTL" , OPT_DBTYPE , true , "execute database set - only load files" ) );
+		defineOption( CommandOption.newFlagEnumOption( this , "pub" , "PUB" , OPT_DBTYPE , true , "execute database set - only publish files" ) );
+		defineOption( CommandOption.newParam( this , "release" , OPT_RELEASE , true , "use specific release name" ) );
+		defineOption( CommandOption.newParam( this , "branch" , OPT_BRANCH , true , "use specific codebase branch name" ) );
+		defineOption( CommandOption.newParam( this , "tag" , OPT_TAG , true , "use specific codebase tag name" ) );
+		defineOption( CommandOption.newParam( this , "date" , OPT_DATE , true , "use codebase state on given date (ISO-8601)" ) );
+		defineOption( CommandOption.newParam( this , "group" , OPT_GROUP , true , "use specific codebase project group" ) );
+		defineOption( CommandOption.newParam( this , "version" , OPT_VERSION , true , "use specific codebase version" ) );
+		defineOption( CommandOption.newParam( this , "sg" , OPT_SG , true , "use segments which names meet given regular mask" ) );
+		defineOption( CommandOption.newParam( this , "deploygroup" , OPT_DEPLOYGROUP , true , "use only nodes belonging to specified deploygroup" ) );
+		defineOption( CommandOption.newParam( this , "startgroup" , OPT_STARTGROUP , true , "use only servers belonging to specified startgroup" ) );
+		defineOption( CommandOption.newParam( this , "args" , OPT_EXTRAARGS , true , "extra arguments for server interface scripts" ) );
+		defineOption( CommandOption.newParam( this , "unit" , OPT_UNIT , true , "use distributive items only from given unit" ) );
+		defineOption( CommandOption.newParam( this , "buildinfo" , OPT_BUILDINFO , true , "use given build info parameter" ) );
+		defineOption( CommandOption.newParam( this , "hostuser" , OPT_HOSTUSER , true , "use given user when connecting to host" ) );
+		defineOption( CommandOption.newParam( this , "newkey" , OPT_NEWKEY , true , "use given key to change on host" ) );
+		defineOption( CommandOption.newParam( this , "mode" , OPT_BUILDMODE , true , "use given build mode (branch, trunk, major, devbranch, devtrunk)" ) );
+		defineOption( CommandOption.newParam( this , "over" , OPT_COMPATIBILITY , true , "previous release installed" ) );
+		defineOption( CommandOption.newIntParam( this , "port" , OPT_PORT , false , "server port" ) );
+		defineOption( CommandOption.newParam( this , "host" , OPT_HOST , false , "server host" ) );
 	}
 	
-	public String getTraceVar() {
-		return( "OPT_TRACE" );
+	public void defineOption( CommandOption opt ) {
+		optionsDefined.add( opt );
+		optionsByName.put( opt.optName , opt );
+	}
+
+	public void defineVar( CommandVar var ) {
+		varByName.put( var.varName , var );
+	}
+
+	public void defineGenericVar( CommandVar var ) {
+		defineVar( var );
+		var.setGeneric();
 	}
 	
-	public String getTimeoutVar() {
-		return( "OPT_TIMEOUT" );
+	public CommandVar[] getVars() {
+		return( varByName.values().toArray( new CommandVar[0] ) );
 	}
 	
 	public CommandVar getVar( String varName ) {
 		return( varByName.get( varName ) );
 	}
 	
-	public CommandVar getOption( String optName ) {
-		return( optionsByName.get( optName ) );
+	public CommandVar getParamVar( String varName ) {
+		CommandVar var = getVar( varName );
+		if( var.isParam == false )
+			error( "wrong type var=" + varName );
+		return( var );
 	}
 	
-	public void defineOption( CommandVar var ) {
-		optionsDefined.add( var );
-		optionsByName.put( var.optName , var );
-		if( !varByName.containsKey( var.varName ) )
-			varByName.put( var.varName , var );
+	public CommandVar getIntParamVar( String varName ) {
+		CommandVar var = getVar( varName );
+		if( var.isParam == false || var.isInteger == false )
+			error( "wrong type var=" + varName );
+		return( var );
 	}
-
-	public void defineGenericOption( CommandVar var ) {
-		defineOption( var );
-		var.setGeneric();
+	
+	public CommandVar getFlagVar( String varName ) {
+		CommandVar var = getVar( varName );
+		if( var.isFlag == false )
+			error( "wrong type var=" + varName );
+		return( var );
+	}
+	
+	public CommandVar getEnumVar( String varName ) {
+		CommandVar var = getVar( varName );
+		if( var.isEnum == false )
+			error( "wrong type var=" + varName );
+		return( var );
+	}
+	
+	public CommandOption getOption( String optName ) {
+		return( optionsByName.get( optName ) );
 	}
 	
 	public boolean isValidVar( String var ) {
@@ -202,9 +291,9 @@ public class OptionsMeta {
 	}
 	
 	public boolean isFlagOption( String opt ) {
-		CommandVar info = optionsByName.get( opt ); 
+		CommandOption info = optionsByName.get( opt ); 
 		if( info != null )
-			if( info.isFlag )
+			if( info.var.isFlag )
 				return( true );
 		
 		return( false );
@@ -220,9 +309,9 @@ public class OptionsMeta {
 	}
 	
 	public boolean isEnumOption( String opt ) {
-		CommandVar info = optionsByName.get( opt ); 
+		CommandOption info = optionsByName.get( opt ); 
 		if( info != null )
-			if( info.isEnum )
+			if( info.var.isEnum )
 				return( true );
 		
 		return( false );
@@ -238,9 +327,9 @@ public class OptionsMeta {
 	}
 	
 	public boolean isParamOption( String opt ) {
-		CommandVar info = optionsByName.get( opt ); 
+		CommandOption info = optionsByName.get( opt ); 
 		if( info != null )
-			if( info.isParam )
+			if( info.var.isParam )
 				return( true );
 		
 		return( false );
@@ -255,18 +344,49 @@ public class OptionsMeta {
 		return( false );
 	}
 
-	private void showOptionHelp( CommandBuilder builder , CommandVar var ) {
+	public CommandOption getVarFlagOption( CommandVar var , boolean value ) {
+		for( CommandOption opt : optionsDefined ) {
+			if( opt.var == var && opt.var.isFlag ) {
+				if( ( opt.varFlagValue == FLAG.YES ) == value )
+					return( opt );
+			}
+		}
+		error( "unable to identify option of var=" + var.varName + ", value=" + value );
+		return( null );
+	}
+	
+	public CommandOption getVarEnumOption( CommandVar var , String value ) {
+		for( CommandOption opt : optionsDefined ) {
+			if( opt.var == var && opt.var.isEnum ) {
+				if( opt.varEnumValue.equals( value ) )
+					return( opt );
+			}
+		}
+		error( "unable to identify option of var=" + var.varName + ", value=" + value );
+		return( null );
+	}
+	
+	public CommandOption getVarParamOption( CommandVar var ) {
+		for( CommandOption opt : optionsDefined ) {
+			if( opt.var == var && opt.var.isParam )
+				return( opt );
+		}
+		error( "unable to identify option of var=" + var.varName );
+		return( null );
+	}
+	
+	private void showOptionHelp( CommandBuilder builder , CommandOption opt ) {
 		String identity;
-		if( var.isFlag )
-			identity = "-" + var.optName + ": flag " + var.varName + "=" + var.varValue;
+		if( opt.var.isFlag )
+			identity = "-" + opt.optName + ": flag " + opt.var.varName + "=" + opt.varFlagValue;
 		else
-		if( var.isEnum )
-			identity = "-" + var.optName + ": enum " + var.varName + "=" + var.varEnumValue;
+		if( opt.var.isEnum )
+			identity = "-" + opt.optName + ": enum " + opt.var.varName + "=" + opt.varEnumValue;
 		else
-			identity = "-" + var.optName + ": parameter (" + var.varName + ")";
+			identity = "-" + opt.optName + ": parameter (" + opt.var.varName + ")";
 		
 		String spacing = Common.replicate( " " , 50 - identity.length() ); 
-		printhelp( "\t" + identity + spacing + var.help ); 
+		printhelp( "\t" + identity + spacing + opt.help ); 
 	}
 
 	public void showTopHelp( CommandBuilder builder , CommandMeta main , CommandMeta[] commands , CommandOptions options ) {
@@ -322,7 +442,7 @@ public class OptionsMeta {
 		if( options.isFlagSet( OPT_ALL ) ) {
 			printhelp( "Generic options:" );
 			for( int k = 0; k < genericOptionsCount; k++ ) {
-				CommandVar var = optionsDefined.get( k );
+				CommandOption var = optionsDefined.get( k );
 				showOptionHelp( builder , var );
 			}
 		}
@@ -332,7 +452,7 @@ public class OptionsMeta {
 		printhelp( "Specific options:" );
 		boolean specific = false;
 		for( int k = genericOptionsCount; k < optionsDefined.size(); k++ ) {
-			CommandVar var = optionsDefined.get( k );
+			CommandOption var = optionsDefined.get( k );
 			if( !commandInfo.isOptionApplicaple( var ) )
 				continue;
 			
@@ -372,7 +492,7 @@ public class OptionsMeta {
 			printhelp( "All options defined for " + action.name + ":" );
 			printhelp( "Generic options:" );
 			for( int k = 0; k < genericOptionsCount; k++ ) {
-				CommandVar var = optionsDefined.get( k );
+				CommandOption var = optionsDefined.get( k );
 				showOptionHelp( builder , var );
 			}
 		}
@@ -383,7 +503,7 @@ public class OptionsMeta {
 		printhelp( "Specific options:" );
 		boolean specific = false;
 		for( int k = genericOptionsCount; k < optionsDefined.size(); k++ ) {
-			CommandVar var = optionsDefined.get( k );
+			CommandOption var = optionsDefined.get( k );
 			if( action.isOptionApplicable( var ) ) {
 				showOptionHelp( builder , var );
 				specific = true;
@@ -398,4 +518,8 @@ public class OptionsMeta {
 		System.out.println( "# " + s );
 	}
 
+	public void error( String s ) {
+		throw new RuntimeException( s );
+	}
+	
 }

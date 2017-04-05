@@ -17,6 +17,7 @@ import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandOptions;
+import org.urm.common.action.OptionsMeta;
 
 public class RemoteCall implements NotificationListener {
 
@@ -54,9 +55,9 @@ public class RemoteCall implements NotificationListener {
 	public RemoteCall( CommandOptions options ) {
 		this.options = options;
 		
-		String var = options.meta.getTraceVar();
+		String var = OptionsMeta.OPT_TRACE;
 		trace = options.getFlagValue( var , false );
-		var = options.meta.getTimeoutVar();
+		var = OptionsMeta.OPT_TIMEOUT;
 		timeout = options.getIntParamValue( var , options.optDefaultCommandTimeout );
 	}
 	

@@ -2,14 +2,15 @@ package org.urm.common.meta;
 
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandMeta;
+import org.urm.common.action.OptionsMeta;
 
 public class BuildCommandMeta extends CommandMeta {
 
 	public static String NAME = "build";
 	public static String DESC = "operations to manage source code, build binaries and copy files to distributives";
 
-	public BuildCommandMeta() {
-		super( NAME , DESC );
+	public BuildCommandMeta( OptionsMeta options ) {
+		super( options , NAME , DESC );
 		
 		String cmdOpts;
 		cmdOpts = "OPT_GET,OPT_CHECK,OPT_RELEASE,OPT_BRANCH,OPT_TAG,OPT_DATE,OPT_GROUP,OPT_VERSION";

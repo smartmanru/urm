@@ -57,15 +57,19 @@ public class CommandMethodMeta {
 	private CommandMethodMeta( CommandMeta command ) {
 		this.command = command;
 	}
-	
-	public boolean isOptionApplicable( CommandVar var ) {
+
+	public boolean isVarApplicable( CommandVar var ) {
 		if( var.isGeneric )
 			return( true );
 		
-		for( String option : vars )
-			if( option.equals( var.varName ) )
+		for( String varName : vars )
+			if( varName.equals( var.varName ) )
 				return( true );
 		return( false );
+	}
+	
+	public boolean isOptionApplicable( CommandOption opt ) {
+		return( isVarApplicable( opt.var ) );
 	}
 	
 	public boolean isInteractive() {

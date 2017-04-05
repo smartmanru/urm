@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.RunContext;
-import org.urm.common.action.CommandVar.FLAG;
+import org.urm.common.action.CommandOption.FLAG;
 
 public class ActionData implements Serializable {
 	
@@ -21,52 +21,52 @@ public class ActionData implements Serializable {
 	// standard command parameters
 	public RunContext clientrc;
 
-	protected Map<String,FLAG> flags = new HashMap<String,FLAG>();
-	protected Map<String,String> enums = new HashMap<String,String>();
-	protected Map<String,String> params = new HashMap<String,String>();
+	protected Map<String,FLAG> varFlags = new HashMap<String,FLAG>();
+	protected Map<String,String> varEnums = new HashMap<String,String>();
+	protected Map<String,String> varParams = new HashMap<String,String>();
+	protected List<CommandOption> optionsSet = new LinkedList<CommandOption>();
 	protected List<String> args = new LinkedList<String>();
-	protected List<CommandVar> optionsSet = new LinkedList<CommandVar>();
 
 	public ActionData( RunContext clientrc ) {
 		this.clientrc = clientrc;
 	}
 
-	public String getOptionValue( CommandVar var ) {
+	public String getVarValue( CommandVar var ) {
 		String value;
 		if( var.isFlag )
-			value = Common.getEnumLower( flags.get( var.varName ) );
+			value = Common.getEnumLower( varFlags.get( var.varName ) );
 		else
 		if( var.isEnum )
-			value = enums.get( var.varName );
+			value = varEnums.get( var.varName );
 		else
-			value = params.get( var.varName );
+			value = varParams.get( var.varName );
 		return( var.varName + "=" + value );
 	}
 
-	public boolean addFlagOption( CommandVar var ) {
-		if( flags.get( var.varName ) != null )
+	public boolean addFlagOption( CommandOption opt ) {
+		if( varFlags.get( opt.var.varName ) != null )
 			return( false );
 		
-		flags.put( var.varName , var.varValue );
-		optionsSet.add( var );
+		varFlags.put( opt.var.varName , opt.varFlagValue );
+		optionsSet.add( opt );
 		return( true );
 	}
 
-	public boolean addEnumOption( CommandVar var ) {
-		if( enums.get( var.varName ) != null )
+	public boolean addEnumOption( CommandOption opt ) {
+		if( varEnums.get( opt.var.varName ) != null )
 			return( false );
 		
-		enums.put( var.varName , var.varEnumValue );
-		optionsSet.add( var );
+		varEnums.put( opt.var.varName , opt.varEnumValue );
+		optionsSet.add( opt );
 		return( true );
 	}
 
-	public boolean addParamOption( CommandVar var , String value ) {
-		if( params.get( var.varName ) != null )
+	public boolean addParamOption( CommandOption opt , String value ) {
+		if( varParams.get( opt.var.varName ) != null )
 			return( false );
 		
-		params.put( var.varName , value );
-		optionsSet.add( var );
+		varParams.put( opt.var.varName , value );
+		optionsSet.add( opt );
 		return( true );
 	}
 	
@@ -76,12 +76,12 @@ public class ActionData implements Serializable {
 	}
 
 	public FLAG getFlagValue( String var ) {
-		FLAG val = flags.get( var );
+		FLAG val = varFlags.get( var );
 		return( val );
 	}
 	
 	public boolean getFlagValue( String var , boolean defValue ) {
-		FLAG val = flags.get( var );
+		FLAG val = varFlags.get( var );
 		if( val == null )
 			return( defValue );
 		
@@ -92,21 +92,21 @@ public class ActionData implements Serializable {
 	}
 	
 	public String getEnumValue( String var ) {
-		String val = enums.get( var );
+		String val = varEnums.get( var );
 		if( val == null )
 			return( "" );
 		return( val );
 	}
 
 	public String getParamValue( String var ) {
-		String val = params.get( var );
+		String val = varParams.get( var );
 		if( val == null )
 			return( "" );
 		return( val );
 	}
 	
 	public int getIntParamValue( String var , int defaultValue ) {
-		String val = params.get( var );
+		String val = varParams.get( var );
 		if( val == null || val.isEmpty() )
 			return( defaultValue );
 		return( Integer.parseInt( val ) );
@@ -149,7 +149,7 @@ public class ActionData implements Serializable {
 	}
 	
 	public boolean combineValue( String optVar , FLAG confValue , boolean defValue ) {
-		FLAG optValue = flags.get( optVar );
+		FLAG optValue = varFlags.get( optVar );
 
 		// option always overrides
 		if( optValue != null && optValue != FLAG.DEFAULT )
@@ -162,10 +162,10 @@ public class ActionData implements Serializable {
 		return( defValue );
 	}
 	
-	public String getRunningOptions() {
+	public String getRunningInfo() {
 		String values = "";
-		for( CommandVar option : optionsSet ) {
-			String value = getOptionValue( option );
+		for( CommandOption option : optionsSet ) {
+			String value = getVarValue( option.var );
 			values = Common.addToList( values , value , ", " );
 		}
 		
@@ -177,16 +177,16 @@ public class ActionData implements Serializable {
 	public String getFlagsSet() {
 		String s = "";
 		for( int k = 0; k < optionsSet.size(); k++ ) {
-			CommandVar var = optionsSet.get( k );
-			if( var.isFlag ) {
+			CommandOption opt = optionsSet.get( k );
+			if( opt.var.isFlag ) {
 				if( !s.isEmpty() )
 					s += " ";
-				s += var.varName + "=" + flags.get( var.varName );
+				s += opt.var.varName + "=" + varFlags.get( opt.var.varName );
 			}
-			else if( var.isEnum ) {
+			else if( opt.var.isEnum ) {
 				if( !s.isEmpty() )
 					s += " ";
-				s += var.varName + "=" + enums.get( var.varName );
+				s += opt.var.varName + "=" + varEnums.get( opt.var.varName );
 			}
 		}
 		return( s );
@@ -195,18 +195,18 @@ public class ActionData implements Serializable {
 	public String getParamsSet() {
 		String s = "";
 		for( int k = 0; k < optionsSet.size(); k++ ) {
-			CommandVar var = optionsSet.get( k );
-			if( var.isFlag || var.isEnum )
+			CommandOption opt = optionsSet.get( k );
+			if( opt.var.isFlag || opt.var.isEnum )
 				continue;
 			
 			if( !s.isEmpty() )
 				s += " ";
-			s += var.varName + "=" + params.get( var.varName );
+			s += opt.var.varName + "=" + varParams.get( opt.var.varName );
 		}
 		return( s );
 	}
 
-	public List<CommandVar> getOptionsSet() {
+	public List<CommandOption> getOptionsSet() {
 		return( optionsSet );
 	}
 	
@@ -226,43 +226,42 @@ public class ActionData implements Serializable {
 			args.add( arg );
 	}
 	
-	public void setParam( CommandVar var , String value ) {
-		if( value == null || value.isEmpty() ) {
-			params.remove( var.varName );
-			return;
-		}
-		
-		params.put( var.varName , value );
-	}
-	
-	public void setFlag( CommandVar var , boolean value ) {
-		flags.put( var.varName , ( value )? FLAG.YES : FLAG.NO );
-	}
-	
 	public void clearFlag( CommandVar var ) {
-		flags.remove( var.varName );
+		varFlags.remove( var.varName );
+		for( CommandOption option : optionsSet ) {
+			if( option.var == var ) {
+				optionsSet.remove( option.optName );
+				break;
+			}
+		}
 	}
 
 	public void clearParam( CommandVar var ) {
-		params.remove( var.varName );
+		varParams.remove( var.varName );
+		for( CommandOption option : optionsSet ) {
+			if( option.var == var ) {
+				optionsSet.remove( option.optName );
+				break;
+			}
+		}
 	}
 
 	public void clear() {
-		params.clear();
-		flags.clear();
-		enums.clear();
-		args.clear();
+		varParams.clear();
+		varFlags.clear();
+		varEnums.clear();
 		optionsSet.clear();
+		args.clear();
 	}
 
 	public void set( ActionData src ) {
 		clear();
 		
-		params.putAll( src.params );
-		flags.putAll( src.flags );
-		enums.putAll( src.enums );
-		args.addAll( src.args );
+		varParams.putAll( src.varParams );
+		varFlags.putAll( src.varFlags );
+		varEnums.putAll( src.varEnums );
 		optionsSet.addAll( src.optionsSet );
+		args.addAll( src.args );
 	}
 	
 }

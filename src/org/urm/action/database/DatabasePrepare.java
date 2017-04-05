@@ -425,7 +425,7 @@ public class DatabasePrepare {
 	}
 
 	private void moveErrors( ActionBase action , FileSet P_ALIGNEDSET , String P_ALIGNEDID , String P_PATH , String P_COMMENT ) throws Exception {
-		if( !action.context.CTX_MOVE_ERRORS ) {
+		if( !action.context.CTX_DBMOVE ) {
 			action.error( "errors in " + P_PATH + ": " + P_COMMENT );
 			return;
 		}

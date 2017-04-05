@@ -29,7 +29,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	String propertyBasedMethods;
 	
 	public static DatabaseCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
-		DatabaseCommandMeta commandInfo = new DatabaseCommandMeta();
+		DatabaseCommandMeta commandInfo = new DatabaseCommandMeta( engine.optionsMeta );
 		return( new DatabaseCommandExecutor( engine , commandInfo ) );
 	}
 		

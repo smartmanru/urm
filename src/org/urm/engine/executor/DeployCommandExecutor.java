@@ -23,7 +23,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 	String propertyBasedMethods;
 	
 	public static DeployCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
-		DeployCommandMeta commandInfo = new DeployCommandMeta();
+		DeployCommandMeta commandInfo = new DeployCommandMeta( engine.optionsMeta );
 		return( new DeployCommandExecutor( engine , commandInfo ) );
 	}
 		

@@ -5,6 +5,7 @@ import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandOptions;
+import org.urm.common.action.OptionsMeta;
 import org.urm.common.jmx.ServerMBean;
 import org.urm.common.meta.BuildCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
@@ -43,6 +44,7 @@ public class ServerEngine {
 	public ServerHouseKeeping houseKeeping;
 	
 	public ServerCache cache;
+	public OptionsMeta optionsMeta;
 	public MainExecutor serverExecutor;
 	public ActionInit serverAction;
 	public ShellPool shellPool;
@@ -55,7 +57,6 @@ public class ServerEngine {
 	private TransactionBase currentTransaction = null;
 
 	public ServerBlotter blotter;
-	public MainExecutor mainExecutor;
 	public BuildCommandExecutor buildExecutor;
 	public DatabaseCommandExecutor databaseExecutor;
 	public DeployCommandExecutor deployExecutor;
@@ -76,6 +77,7 @@ public class ServerEngine {
 		loader = new ServerLoader( this );
 		sessionController = new SessionController( this );
 		blotter = new ServerBlotter( this );
+		optionsMeta = new OptionsMeta();
 	}
 	
 	public void init() throws Exception {
@@ -86,7 +88,6 @@ public class ServerEngine {
 		sessionController.init();
 		blotter.init();
 		
-		mainExecutor = MainExecutor.createExecutor( this );
 		buildExecutor = BuildCommandExecutor.createExecutor( this );
 		databaseExecutor = DatabaseCommandExecutor.createExecutor( this );
 		deployExecutor = DeployCommandExecutor.createExecutor( this );
@@ -260,7 +261,8 @@ public class ServerEngine {
 
 	public CommandExecutor getExecutor( String command ) throws Exception {
 		if( command.equals( MainCommandMeta.NAME ) )
-			return( mainExecutor );
+			return( serverExecutor );
+		
 		if( command.equals( BuildCommandMeta.NAME ) )
 			return( buildExecutor );
 		if( command.equals( DatabaseCommandMeta.NAME ) )

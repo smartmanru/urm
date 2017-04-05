@@ -2,14 +2,15 @@ package org.urm.common.meta;
 
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandMeta;
+import org.urm.common.action.OptionsMeta;
 
 public class ReleaseCommandMeta extends CommandMeta {
 
 	public static String NAME = "release";
 	public static String DESC = "create, populate and manage lifecycle of releases";
 	
-	public ReleaseCommandMeta() {
-		super( NAME , DESC );
+	public ReleaseCommandMeta( OptionsMeta options ) {
+		super( options , NAME , DESC );
 		
 		String releaseOpts = "OPT_BUILDMODE,OPT_OBSOLETE,OPT_COMPATIBILITY,OPT_CUMULATIVE";
 		defineAction( CommandMethodMeta.newNormal( this , "create" , true , "create release" , releaseOpts , "<RELEASELABEL> [<RELEASEDATE> [<LIFECYCLE>]]" ) );

@@ -14,7 +14,7 @@ public class XDocCommandExecutor extends CommandExecutor {
 	XDocCommand impl;
 	
 	public static XDocCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
-		XDocCommandMeta commandInfo = new XDocCommandMeta();
+		XDocCommandMeta commandInfo = new XDocCommandMeta( engine.optionsMeta );
 		return( new XDocCommandExecutor( engine , commandInfo ) );
 	}
 		

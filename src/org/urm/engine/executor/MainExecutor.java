@@ -18,7 +18,7 @@ import org.urm.meta.product.Meta;
 public class MainExecutor extends CommandExecutor {
 
 	public static MainExecutor createExecutor( ServerEngine engine ) throws Exception {
-		MainCommandMeta commandInfo = new MainCommandMeta();
+		MainCommandMeta commandInfo = new MainCommandMeta( engine.optionsMeta );
 		return( new MainExecutor( engine , commandInfo ) );
 	}
 		
@@ -40,7 +40,7 @@ public class MainExecutor extends CommandExecutor {
 	}
 	
 	public CommandOptions createOptionsByArgs( CommandBuilder builder , String[] args ) throws Exception {
-		CommandOptions options = new CommandOptions();
+		CommandOptions options = new CommandOptions( commandInfo.options );
 		if( !builder.setOptions( commandInfo , args , options ) )
 			return( null );
 		
@@ -51,7 +51,7 @@ public class MainExecutor extends CommandExecutor {
 	}
 
 	public CommandOptions createOptionsStartServerByWeb( ServerEngine engine ) throws Exception {
-		CommandOptions options = new CommandOptions();
+		CommandOptions options = new CommandOptions( commandInfo.options );
 		ActionData data = new ActionData( engine.execrc );
 		data.addArg( "start" );
 		options.setAction( commandInfo.getMethod( "server" ) , data );
@@ -63,14 +63,14 @@ public class MainExecutor extends CommandExecutor {
 	}
 
 	public CommandOptions createOptionsTemporary( ServerEngine engine ) throws Exception {
-		CommandOptions options = new CommandOptions();
+		CommandOptions options = new CommandOptions( commandInfo.options );
 		ActionData data = new ActionData( engine.execrc );
 		options.setAction( commandInfo.getMethod( "temporary" ) , data );
 		return( options );
 	}
 
 	public CommandOptions createOptionsInteractiveSession( ServerEngine engine ) throws Exception {
-		CommandOptions options = new CommandOptions();
+		CommandOptions options = new CommandOptions( commandInfo.options );
 		ActionData data = new ActionData( engine.execrc );
 		options.setAction( commandInfo.getMethod( "interactive" ) , data );
 		return( options );

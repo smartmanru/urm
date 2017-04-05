@@ -14,7 +14,7 @@ public class MonitorCommandExecutor extends CommandExecutor {
 	MonitorCommand impl;
 
 	public static MonitorCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
-		MonitorCommandMeta commandInfo = new MonitorCommandMeta();
+		MonitorCommandMeta commandInfo = new MonitorCommandMeta( engine.optionsMeta );
 		return( new MonitorCommandExecutor( engine , commandInfo ) );
 	}
 		

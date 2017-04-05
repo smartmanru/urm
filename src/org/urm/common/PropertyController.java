@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
-import org.urm.common.action.CommandVar.FLAG;
+import org.urm.common.action.CommandOption.FLAG;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;

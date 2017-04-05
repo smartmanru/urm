@@ -20,7 +20,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 	BuildCommand impl;
 	
 	public static BuildCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
-		BuildCommandMeta commandInfo = new BuildCommandMeta();
+		BuildCommandMeta commandInfo = new BuildCommandMeta( engine.optionsMeta );
 		return( new BuildCommandExecutor( engine , commandInfo ) );
 	}
 		

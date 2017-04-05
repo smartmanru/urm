@@ -10,7 +10,7 @@ import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
-import org.urm.common.action.CommandVar.FLAG;
+import org.urm.common.action.CommandOption.FLAG;
 import org.urm.engine.ServerCall;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerSession;
@@ -105,7 +105,6 @@ public class CommandContext {
 	public boolean CTX_DIST;
 	public boolean CTX_UPDATENEXUS;
 	public boolean CTX_CHECK;
-	public boolean CTX_MOVE_ERRORS;
 	public boolean CTX_REPLACE;
 	public boolean CTX_BACKUP;
 	public boolean CTX_OBSOLETE;
@@ -211,7 +210,6 @@ public class CommandContext {
 		this.CTX_DIST = context.CTX_DIST;
 		this.CTX_UPDATENEXUS = context.CTX_UPDATENEXUS;
 		this.CTX_CHECK = context.CTX_CHECK;
-		this.CTX_MOVE_ERRORS = context.CTX_MOVE_ERRORS;
 		this.CTX_REPLACE = context.CTX_REPLACE;
 		this.CTX_BACKUP = context.CTX_BACKUP;
 		this.CTX_OBSOLETE = context.CTX_OBSOLETE;
@@ -328,7 +326,6 @@ public class CommandContext {
 		CTX_DIST = getFlagValue( "OPT_DIST" );
 		CTX_UPDATENEXUS = getFlagValue( "OPT_UPDATENEXUS" );
 		CTX_CHECK = getFlagValue( "OPT_CHECK" , false );
-		CTX_MOVE_ERRORS = getFlagValue( "OPT_MOVE_ERRORS" );
 		CTX_REPLACE = getFlagValue( "OPT_REPLACE" );
 		CTX_BACKUP = combineValue( "OPT_BACKUP" , ( isenv )? env.BACKUP : null , def );
 		CTX_OBSOLETE = combineValue( "OPT_OBSOLETE" , ( isenv )? env.OBSOLETE : null , true );

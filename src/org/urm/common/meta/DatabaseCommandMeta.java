@@ -2,14 +2,15 @@ package org.urm.common.meta;
 
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandMeta;
+import org.urm.common.action.OptionsMeta;
 
 public class DatabaseCommandMeta extends CommandMeta {
 
 	public static String NAME = "database";
 	public static String DESC = "manage databases, export/import operations, apply changes";
 	
-	public DatabaseCommandMeta() {
-		super( NAME , DESC );
+	public DatabaseCommandMeta( OptionsMeta options ) {
+		super( options , NAME , DESC );
 		
 		String cmdOpts = "";
 		cmdOpts = "OPT_SG, OPT_DBPASSWORD";

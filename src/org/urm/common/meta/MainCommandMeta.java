@@ -2,6 +2,7 @@ package org.urm.common.meta;
 
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
+import org.urm.common.action.OptionsMeta;
 
 public class MainCommandMeta extends CommandMeta {
 
@@ -14,8 +15,8 @@ public class MainCommandMeta extends CommandMeta {
 	public static String CONTEXT_FILENAME_LIXUX = "_context.sh";
 	public static String CONTEXT_FILENAME_WIN = "_context.cmd";
 	
-	public MainCommandMeta() {
-		super( NAME , DESC );
+	public MainCommandMeta( OptionsMeta options ) {
+		super( options , NAME , DESC );
 		
 		String cmdOpts = "OPT_HOST,OPT_PORT";
 		super.defineAction( CommandMethodMeta.newCritical( this , "configure" , true , "configure proxy files" , cmdOpts , "{default|server|standalone} [envname [sgname]]" ) );

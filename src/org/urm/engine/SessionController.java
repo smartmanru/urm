@@ -45,7 +45,7 @@ public class SessionController {
 	public void start( ActionBase serverAction ) throws Exception {
 		stop = false;
 		serverAction.debug( "start session controller ..." );
-		CommandBuilder builder = new CommandBuilder( engine.serverSession.clientrc , engine.serverSession.execrc );
+		CommandBuilder builder = new CommandBuilder( engine.serverSession.clientrc , engine.serverSession.execrc , engine.optionsMeta );
 		executors = builder.getExecutors( true , true );
 		serverAction.debug( "session controller has been started" );
 	}
@@ -84,7 +84,7 @@ public class SessionController {
 			return( null );
 		}
 		
-		CommandBuilder builder = new CommandBuilder( data.clientrc , engine.execrc );
+		CommandBuilder builder = new CommandBuilder( data.clientrc , engine.execrc , engine.optionsMeta );
 		CommandOptions options = new CommandOptions( serverAction.context.options.meta );
 		options.setAction( method , data );
 		

@@ -20,7 +20,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	ReleaseCommand impl;
 	
 	public static ReleaseCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
-		ReleaseCommandMeta commandInfo = new ReleaseCommandMeta();
+		ReleaseCommandMeta commandInfo = new ReleaseCommandMeta( engine.optionsMeta );
 		return( new ReleaseCommandExecutor( engine , commandInfo ) );
 	}
 		

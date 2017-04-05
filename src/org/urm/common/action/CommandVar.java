@@ -1,22 +1,10 @@
 package org.urm.common.action;
 
-import java.io.Serializable;
+public class CommandVar {
 
-public class CommandVar implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2840654112004844114L;
-
-	public enum FLAG { DEFAULT , YES , NO }; 
-	
-	public String optName;
-	public String help;
 	public String varName;
-	public FLAG varValue;
-	public String varEnumValue;
-	public boolean jmx;
+	public String userName;
+	public String help;
 	
 	public boolean isParam = false;
 	public boolean isString = false;
@@ -24,13 +12,13 @@ public class CommandVar implements Serializable {
 	public boolean isEnum = false;
 	public boolean isGeneric = false;
 	public boolean isInteger = false;
+	public boolean jmx = false;
 	
-	public static CommandVar newParam( String opt , String varName , boolean jmx , String help ) {
+	public static CommandVar newVar( String varName , boolean jmx , String userName , String help ) {
 		CommandVar var = new CommandVar();
-		var.optName = opt;
 		var.help = help;
 		var.varName = varName;
-		var.varValue = FLAG.DEFAULT;
+		var.userName = userName;
 		var.isParam = true;
 		var.isString = true;
 		var.jmx = jmx;
@@ -38,12 +26,11 @@ public class CommandVar implements Serializable {
 		return( var );
 	}
 
-	public static CommandVar newIntParam( String opt , String varName , boolean jmx , String help ) {
+	public static CommandVar newIntVar( String varName , boolean jmx , String userName , String help ) {
 		CommandVar var = new CommandVar();
-		var.optName = opt;
 		var.help = help;
 		var.varName = varName;
-		var.varValue = FLAG.DEFAULT;
+		var.userName = userName;
 		var.isParam = true;
 		var.isInteger = true;
 		var.jmx = jmx;
@@ -51,36 +38,22 @@ public class CommandVar implements Serializable {
 		return( var );
 	}
 
-	public static CommandVar newFlagYesOption( String opt , String varName , boolean jmx , String help ) {
+	public static CommandVar newFlagVar( String varName , boolean jmx , String userName , String help ) {
 		CommandVar var = new CommandVar();
-		var.optName = opt;
 		var.help = help;
 		var.varName = varName;
-		var.varValue = FLAG.YES;
+		var.userName = userName;
 		var.isFlag = true;
 		var.jmx = jmx;
 
 		return( var );
 	}
 	
-	public static CommandVar newFlagNoOption( String opt , String varName , boolean jmx , String help ) {
+	public static CommandVar newEnumVar( String varName , boolean jmx , String userName , String help ) {
 		CommandVar var = new CommandVar();
-		var.optName = opt;
 		var.help = help;
 		var.varName = varName;
-		var.varValue = FLAG.NO;
-		var.isFlag = true;
-		var.jmx = jmx;
-
-		return( var );
-	}
-
-	public static CommandVar newFlagEnumOption( String opt , String enumValue , String varName , boolean jmx , String help ) {
-		CommandVar var = new CommandVar();
-		var.optName = opt;
-		var.help = help;
-		var.varName = varName;
-		var.varEnumValue = enumValue;
+		var.userName = userName;
 		var.isEnum = true;
 		var.jmx = jmx;
 		
