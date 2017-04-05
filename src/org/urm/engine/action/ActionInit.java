@@ -35,14 +35,14 @@ public class ActionInit extends ActionBase {
 	};
 	
 	public RootActionType type;
-	public CommandAction commandAction;
+	public CommandMethod commandAction;
 	public String actionName;
 	private ServerLoader loader;
 	
 	protected TransactionBase transaction;
 	private boolean memoryOnly;
 
-	public ActionInit( RootActionType type , ServerLoader loader , ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandAction commandAction , String actionName , boolean memoryOnly , String actionInfo ) {
+	public ActionInit( RootActionType type , ServerLoader loader , ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandMethod commandAction , String actionName , boolean memoryOnly , String actionInfo ) {
 		super( session , artefactory , executor , output , actionInfo );
 		this.type = type;
 		this.actionInit = this;

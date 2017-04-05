@@ -1,5 +1,6 @@
 package org.urm.engine.executor;
 
+import org.urm.action.ActionBase;
 import org.urm.action.main.ActionConfigure;
 import org.urm.action.main.ActionSave;
 import org.urm.action.main.ActionServer;
@@ -9,8 +10,7 @@ import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.meta.MainCommandMeta;
 import org.urm.engine.ServerEngine;
-import org.urm.engine.action.ActionInit;
-import org.urm.engine.action.CommandAction;
+import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.Meta;
@@ -33,9 +33,9 @@ public class MainExecutor extends CommandExecutor {
 	}
 
 	@Override
-	public boolean run( ActionInit action ) {
+	public boolean runExecutorImpl( ActionBase action , CommandMethod method ) {
 		// log action and run 
-		boolean res = super.runMethod( action , action.commandAction );
+		boolean res = super.runMethod( action , method );
 		return( res );
 	}
 	
@@ -77,11 +77,11 @@ public class MainExecutor extends CommandExecutor {
 	}
 
 	// configure proxy files
-	private class Configure extends CommandAction {
+	private class Configure extends CommandMethod {
 		public Configure() {
 		}
 		
-		public void run( ActionInit action ) throws Exception {
+		public void run( ActionBase action ) throws Exception {
 			String OSTYPE = getArg( action , 0 );
 			String USEENV = getArg( action , 1 );
 			String USESG = getArg( action , 2 );
@@ -98,8 +98,8 @@ public class MainExecutor extends CommandExecutor {
 	}
 
 	// save master to svn
-	private class SvnSave extends CommandAction {
-		public void run( ActionInit action ) throws Exception {
+	private class SvnSave extends CommandMethod {
+		public void run( ActionBase action ) throws Exception {
 			Meta meta = action.getContextMeta();
 			ActionSave ca = new ActionSave( action , null , meta );
 			ca.runSimpleProduct( meta.name , SecurityAction.ACTION_CONFIGURE , false );
@@ -107,8 +107,8 @@ public class MainExecutor extends CommandExecutor {
 	}
 
 	// server operation
-	private class ServerOp extends CommandAction {
-		public void run( ActionInit action ) throws Exception {
+	private class ServerOp extends CommandMethod {
+		public void run( ActionBase action ) throws Exception {
 			String OP = getRequiredArg( action , 0 , "ACTION" );
 			ActionServer ca = new ActionServer( action , null , OP );
 			ca.runSimpleServer( SecurityAction.ACTION_CONFIGURE , false );
@@ -116,16 +116,16 @@ public class MainExecutor extends CommandExecutor {
 	}
 
 	// server operation
-	private class WebSession extends CommandAction {
-		public void run( ActionInit action ) throws Exception {
+	private class WebSession extends CommandMethod {
+		public void run( ActionBase action ) throws Exception {
 			ActionWebSession ca = new ActionWebSession( action , null );
 			ca.runSimpleServer( SecurityAction.ACTION_CONFIGURE , true );
 		}
 	}
 
 	// server operation
-	private class Temporary extends CommandAction {
-		public void run( ActionInit action ) throws Exception {
+	private class Temporary extends CommandMethod {
+		public void run( ActionBase action ) throws Exception {
 		}
 	}
 

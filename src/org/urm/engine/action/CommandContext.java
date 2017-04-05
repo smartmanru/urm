@@ -68,7 +68,7 @@ public class CommandContext {
 	public CommandOptions options;
 	public ServerSession session;
 	public CommandMethodMeta commandMethod;
-	public CommandAction commandAction;
+	public CommandMethod commandAction;
 
 	public MetaEnv env; 
 	public MetaEnvSegment sg;

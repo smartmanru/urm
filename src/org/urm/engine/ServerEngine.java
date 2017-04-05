@@ -16,7 +16,7 @@ import org.urm.common.meta.ReleaseCommandMeta;
 import org.urm.common.meta.XDocCommandMeta;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.ActionInit.RootActionType;
-import org.urm.engine.action.CommandAction;
+import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.action.CommandOutput;
@@ -240,7 +240,7 @@ public class ServerEngine {
 	private boolean runServerAction() throws Exception {
 		// execute
 		try {
-			serverExecutor.runAction( serverAction );
+			serverExecutor.runExecutor( serverAction , serverAction.commandAction );
 		}
 		catch( Throwable e ) {
 			serverAction.handle( e );
@@ -288,7 +288,7 @@ public class ServerEngine {
 	
 	public ActionInit createAction( RootActionType type , CommandOptions options , ServerSession session , String stream , ServerCall call , boolean memoryOnly , String actionInfo ) throws Exception {
 		CommandExecutor actionExecutor = getExecutor( options.command );
-		CommandAction commandAction = actionExecutor.getAction( options.method );
+		CommandMethod commandAction = actionExecutor.getAction( options.method );
 		if( !options.checkValidOptions( commandAction.method ) )
 			return( null );
 		
@@ -315,7 +315,7 @@ public class ServerEngine {
 	
 	public ActionInit createRootAction( RootActionType type , CommandExecutor executor , ServerSession session , Artefactory artefactory , String actionName , boolean memoryOnly , String actionInfo ) throws Exception { 
 		CommandOutput output = new CommandOutput();
-		CommandAction commandAction = executor.getAction( actionName );
+		CommandMethod commandAction = executor.getAction( actionName );
 		ActionInit action = new ActionInit( type , loader , session , artefactory , executor , output , commandAction , commandAction.method.name , memoryOnly , actionInfo );
 		return( action );
 	}

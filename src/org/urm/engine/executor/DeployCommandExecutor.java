@@ -1,13 +1,13 @@
 package org.urm.engine.executor;
 
+import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.deploy.DeployCommand;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
 import org.urm.engine.ServerEngine;
-import org.urm.engine.action.ActionInit;
-import org.urm.engine.action.CommandAction;
+import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
 import org.urm.meta.product.Meta;
@@ -60,39 +60,28 @@ public class DeployCommandExecutor extends CommandExecutor {
 		super.defineAction( new Login() , "login" );
 		
 		propertyBasedMethods = "confcheck configure deployredist redist restoreconfigs verifydeploy";
+		impl = new DeployCommand();
 	}
 	
 	@Override
-	public boolean run( ActionInit action ) {
-		try {
-			// create implementation
-			impl = new DeployCommand();
-			
-			boolean loadProps = Common.checkPartOfSpacedList( action.actionName , propertyBasedMethods ); 
-			action.context.loadEnv( action , loadProps );
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			return( false );
-		}
-		
+	public boolean runExecutorImpl( ActionBase action , CommandMethod method ) {
 		// log action and run 
-		boolean res = super.runMethod( action , action.commandAction );
+		boolean res = super.runMethod( action , method );
 		return( res );
 	}
 
-	private Dist getDist( ActionInit action ) throws Exception {
+	private Dist getDist( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		return( dist );
 	}
 	
-	private ActionScope getServerScope( ActionInit action ) throws Exception {
+	private ActionScope getServerScope( ActionBase action ) throws Exception {
 		return( getServerScope( action , 0 ) );
 	}
 	
-	private ActionScope getServerScope( ActionInit action , int posFrom ) throws Exception {
+	private ActionScope getServerScope( ActionBase action , int posFrom ) throws Exception {
 		Dist dist = null;
 		Meta meta = action.getContextMeta();
 		if( !action.context.CTX_RELEASELABEL.isEmpty() )
@@ -101,7 +90,7 @@ public class DeployCommandExecutor extends CommandExecutor {
 		return( getServerScope( action , posFrom , dist ) );
 	}
 
-	private ActionScope getServerScope( ActionInit action , int posFrom , Dist release ) throws Exception {
+	private ActionScope getServerScope( ActionBase action , int posFrom , Dist release ) throws Exception {
 		String s = getArg( action , posFrom + 1 );
 		if( s.matches( "[0-9]+" ) ) {
 			String SERVER = getArg( action , posFrom );
@@ -119,8 +108,8 @@ public class DeployCommandExecutor extends CommandExecutor {
 		return( ActionScope.getEnvServersScope( action , meta , action.context.sg , SERVERS , release ) );
 	}
 	
-	private class BaseOps extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class BaseOps extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String CMD = getRequiredArg( action , 0 , "CMD" );
 		ActionScope scope = getServerScope( action , 1 );
 		if( CMD.equals( "install" ) )
@@ -136,60 +125,60 @@ public class DeployCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class CheckEnv extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CheckEnv extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
 		impl.checkEnv( action , scope );
 	}
 	}
 
-	private class ConfCheck extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class ConfCheck extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
 		impl.confCheck( action , scope );
 	}
 	}
 
-	private class Configure extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class Configure extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
 		impl.configure( action , scope );
 	}
 	}
 
-	private class DeployRedist extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class DeployRedist extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		Dist dist = getDist( action );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.deployRedist( action , scope , dist );
 	}
 	}
 
-	private class DropRedist extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class DropRedist extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String releaseDir = getRequiredArg( action , 0 , "release" );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.dropRedist( action , scope , releaseDir );
 	}
 	}
 
-	private class GetDeployInfo extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class GetDeployInfo extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
 		impl.getDeployInfo( action , scope );
 	}
 	}
 
-	private class GetRedistInfo extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class GetRedistInfo extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		Dist dist = getDist( action );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.getRedistInfo( action , scope , dist );
 	}
 	}
 
-	private class Hosts extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class Hosts extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String CMD = getRequiredArg( action , 0 , "COMMAND" );
 		String VALUE = getRequiredArg( action , 1 , "COMMAND" );
 		
@@ -218,63 +207,63 @@ public class DeployCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class Key extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class Key extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String CMD = getRequiredArg( action , 0 , "COMMAND" );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.changeKeys( action , scope , CMD );
 	}
 	}
 
-	private class Login extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class Login extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String SERVER = getRequiredArg( action , 0 , "SERVER" );
 		String NODE = getArg( action , 1 );
 		impl.login( action , action.context.sg , SERVER , NODE );
 	}
 	}
 
-	private class Redist extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class Redist extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		Dist dist = getDist( action );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.redist( action , scope , dist );
 	}
 	}
 
-	private class RestartEnv extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class RestartEnv extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
 		impl.restartEnv( action , scope );
 	}
 	}
 
-	private class Rollback extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class Rollback extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		Dist dist = getDist( action );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.rollback( action , scope , dist );
 	}
 	}
 
-	private class Rollout extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class Rollout extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		Dist dist = getDist( action );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.rollout( action , scope , dist );
 	}
 	}
 
-	private class RunCmd extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class RunCmd extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String CMD = getRequiredArg( action , 0 , "COMMAND" );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.runCmd( action , scope , CMD );
 	}
 	}
 
-	private class Scp extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class Scp extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String SRCINFO = getRequiredArg( action , 0 , "SRCINFO" );
 		String DSTPATH = getRequiredArg( action , 1 , "DSTPATH" );
 		ActionScope scope = getServerScope( action , 2 );
@@ -282,81 +271,81 @@ public class DeployCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class List extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class List extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		action.context.CTX_ALL = true;
 		ActionScope scope = getServerScope( action );
 		impl.list( action , scope );
 	}
 	}
 
-	private class SendChatMsg extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class SendChatMsg extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String msg = getRequiredArg( action , 0 , "MSG" );
 		impl.sendMsg( action , msg );
 	}
 	}
 
-	private class StartEnv extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class StartEnv extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
 		impl.startEnv( action , scope );
 	}
 	}
 
-	private class StopEnv extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class StopEnv extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
 		impl.stopEnv( action , scope );
 	}
 	}
 
-	private class VerifyConfigs extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class VerifyConfigs extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
 		impl.verifyConfigs( action , scope );
 	}
 	}
 
-	private class RestoreConfigs extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class RestoreConfigs extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
 		impl.restoreConfigs( action , scope );
 	}
 	}
 
-	private class SaveConfigs extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class SaveConfigs extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
 		impl.saveConfigs( action , scope );
 	}
 	}
 
-	private class UpgradeEnv extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class UpgradeEnv extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String PATCHID = getRequiredArg( action , 0 , "PATCHID" );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.upgradeEnv( action , PATCHID , scope );
 	}
 	}
 
-	private class VerifyDeploy extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class VerifyDeploy extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		Dist dist = getDist( action );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.verifyDeploy( action , scope , dist );
 	}
 	}
 
-	private class WaitEnv extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class WaitEnv extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
 		impl.waitEnv( action , scope );
 	}
 	}
 
-	private class WaitWeb extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class WaitWeb extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String SERVER = getRequiredArg( action , 0 , "SERVER" );
 		String NODE = getArg( action , 1 );
 		impl.waitWeb( action , SERVER , NODE );

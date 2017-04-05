@@ -1,13 +1,12 @@
 package org.urm.engine.executor;
 
+import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.database.DatabaseCommand;
-import org.urm.common.Common;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.engine.ServerEngine;
-import org.urm.engine.action.ActionInit;
-import org.urm.engine.action.CommandAction;
+import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
@@ -45,34 +44,23 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		super.defineAction( new ExportDB() , "export" );
 		
 		propertyBasedMethods = "initdb dbmanual dbapply import";
+		impl = new DatabaseCommand();
 	}
 	
 	@Override
-	public boolean run( ActionInit action ) {
-		try {
-			// create implementation
-			impl = new DatabaseCommand();
-			
-			boolean loadProps = Common.checkPartOfSpacedList( action.actionName , propertyBasedMethods ); 
-			action.context.loadEnv( action , loadProps );
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			return( false );
-		}
-		
+	public boolean runExecutorImpl( ActionBase action , CommandMethod method ) {
 		// log action and run 
-		boolean res = super.runMethod( action , action.commandAction );
+		boolean res = super.runMethod( action , method );
 		return( res );
 	}
 
-	private ActionScope getIndexScope( ActionInit action , Dist dist , int posFrom ) throws Exception {
+	private ActionScope getIndexScope( ActionBase action , Dist dist , int posFrom ) throws Exception {
 		String[] INDEXES = getArgList( action , posFrom );
 		return( ActionScope.getReleaseDatabaseManualItemsScope( action , dist , INDEXES ) );
 	}
 	
-	private class GetReleaseScripts extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class GetReleaseScripts extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
@@ -82,16 +70,16 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class InitDB extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class InitDB extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String SERVER = getRequiredArg( action , 0 , "SERVER" );
 		int node = getIntArg( action , 1 , -1 );
 		impl.initDatabase( action , SERVER , node );
 	}
 	}
 
-	private class ApplyManual extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class ApplyManual extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
@@ -102,8 +90,8 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class ApplyAutomatic extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class ApplyAutomatic extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
@@ -123,8 +111,8 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class ManageRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class ManageRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
 		DistRepository repo = action.artefactory.getDistRepository( action , meta );
@@ -148,8 +136,8 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class ImportDB extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class ImportDB extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String SERVER = getRequiredArg( action , 0 , "SERVER" );
 		String CMD = getRequiredArg( action , 1 , "CMD" );
 		String SCHEMA = getArg( action , 2 );
@@ -157,8 +145,8 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class ExportDB extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class ExportDB extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String SERVER = getRequiredArg( action , 0 , "SERVER" );
 		String CMD = getRequiredArg( action , 1 , "CMD" );
 		String SCHEMA = getArg( action , 2 );

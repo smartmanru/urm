@@ -2,13 +2,13 @@ package org.urm.engine.executor;
 
 import java.util.Date;
 
+import org.urm.action.ActionBase;
 import org.urm.action.release.ReleaseCommand;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.meta.ReleaseCommandMeta;
 import org.urm.engine.ServerEngine;
-import org.urm.engine.action.ActionInit;
-import org.urm.engine.action.CommandAction;
+import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
 import org.urm.meta.engine.ServerReleaseLifecycle;
@@ -47,26 +47,18 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		defineAction( new BuildRelease() , "build" );
 		defineAction( new GetRelease() , "getdist" );
 		defineAction( new DescopeRelease() , "descope" );
+		
+		impl = new ReleaseCommand();
 	}	
 
 	@Override
-	public boolean run( ActionInit action ) {
-		try {
-			// create implementation
-			impl = new ReleaseCommand();
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			return( false );
-		}
-		
-		// log action and run 
-		boolean res = super.runMethod( action , action.commandAction );
+	public boolean runExecutorImpl( ActionBase action , CommandMethod method ) {
+		boolean res = super.runMethod( action , method );
 		return( res );
 	}
 
-	private class CreateRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CreateRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Date releaseDate = getDateArg( action , 1 );
 		ServerReleaseLifecycle lc = getLifecycleArg( action , 2 );
@@ -76,8 +68,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class ModifyRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class ModifyRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Date releaseDate = getDateArg( action , 1 );
 		ServerReleaseLifecycle lc = getLifecycleArg( action , 2 );
@@ -88,8 +80,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class PhaseRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class PhaseRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String CMD = getRequiredArg( action , 1 , "CMD" );
 		
@@ -122,8 +114,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class DeleteRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class DeleteRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
 		Meta meta = action.getContextMeta();
@@ -131,8 +123,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class CloseRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CloseRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
 		Meta meta = action.getContextMeta();
@@ -140,8 +132,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class CopyRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CopyRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASESRC = getRequiredArg( action , 0 , "RELEASESRC" );
 		String RELEASEDST = getRequiredArg( action , 1 , "RELEASEDST" );
 		Date releaseDate = getRequiredDateArg( action , 2 , "RELEASEDATE" );
@@ -152,8 +144,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class FinishRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class FinishRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
 		Meta meta = action.getContextMeta();
@@ -161,8 +153,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class CompleteRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CompleteRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
 		Meta meta = action.getContextMeta();
@@ -170,8 +162,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class ReopenRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class ReopenRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
 		Meta meta = action.getContextMeta();
@@ -179,8 +171,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class MasterOperations extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class MasterOperations extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String CMD = getRequiredArg( action , 0 , "CMD" );
 		Meta meta = action.getContextMeta();
 		if( CMD.equals( "create" ) ) {
@@ -216,8 +208,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class ArchiveRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class ArchiveRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		Meta meta = action.getContextMeta();
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
@@ -226,8 +218,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class TouchRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class TouchRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		Meta meta = action.getContextMeta();
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
@@ -235,8 +227,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class StatusRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class StatusRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
 		Meta meta = action.getContextMeta();
@@ -244,8 +236,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class AddReleaseBuildProjects extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class AddReleaseBuildProjects extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String SET = getArg( action , 1 );
 		String[] elements = getArgList( action , 2 );
@@ -255,8 +247,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class AddReleaseConfigItems extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class AddReleaseConfigItems extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String[] elements = getArgList( action , 1 );
 		
@@ -265,8 +257,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class AddReleaseDatabaseItems extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class AddReleaseDatabaseItems extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String[] elements = getArgList( action , 1 );
 		
@@ -275,8 +267,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class AddReleaseBuildItems extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class AddReleaseBuildItems extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String[] elements = getArgList( action , 1 );
 		
@@ -285,8 +277,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class BuildRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class BuildRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String SET = getArg( action , 1 );
 		String[] PROJECTS = getArgList( action , 2 );
@@ -297,8 +289,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class GetRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class GetRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String SET = getArg( action , 1 );
 		String[] PROJECTS = getArgList( action , 2 );
@@ -317,8 +309,8 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class DescopeRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class DescopeRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );

@@ -23,17 +23,17 @@ public abstract class CommandExecutor {
 	public ServerEngine engine;
 	public CommandMeta commandInfo;
 		
-	public Map<String,CommandAction> actionsMap = new HashMap<String,CommandAction>();
-	public List<CommandAction> actionsList = new LinkedList<CommandAction>();
+	public Map<String,CommandMethod> actionsMap = new HashMap<String,CommandMethod>();
+	public List<CommandMethod> actionsList = new LinkedList<CommandMethod>();
 	
-	protected abstract boolean run( ActionInit action );
+	protected abstract boolean runExecutorImpl( ActionBase action , CommandMethod method );
 
 	public CommandExecutor( ServerEngine engine , CommandMeta commandInfo ) {
 		this.engine = engine;
 		this.commandInfo = commandInfo;
 	}
 	
-	public void defineAction( CommandAction action , String name ) throws Exception {
+	public void defineAction( CommandMethod action , String name ) throws Exception {
 		actionsMap.put( name , action );
 		actionsList.add( action );
 		
@@ -41,21 +41,21 @@ public abstract class CommandExecutor {
 		action.setMethod( method );
 	}
 	
-	public CommandAction getAction( String action ) throws Exception {
-		CommandAction commandAction = actionsMap.get( action ); 
+	public CommandMethod getAction( String action ) throws Exception {
+		CommandMethod commandAction = actionsMap.get( action ); 
 		if( commandAction == null )
 			Common.exit2( _Error.UnknownExecutorAction2 , "unknown action=" + action , commandInfo.name , action );
 		return( commandAction );
 	}
 
-	public boolean runAction( ActionInit action ) {
-		if( run( action ) )
+	public boolean runExecutor( ActionBase action , CommandMethod method ) {
+		if( runExecutorImpl( action , method ) )
 			return( true );
 		
 		return( false );
 	}
 	
-	public boolean runMethod( ActionInit action , CommandAction method ) {
+	public boolean runMethod( ActionBase action , CommandMethod method ) {
 		try {
 			action.debug( "execute " + method.getClass().getSimpleName() + " ..." );
 			action.debug( "context: " + action.context.getInfo() );
