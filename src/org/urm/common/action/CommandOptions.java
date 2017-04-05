@@ -313,22 +313,26 @@ public class CommandOptions {
 		data.setArgs( args );
 	}
 
-	public void setParam( CommandVar var , String value ) {
+	public CommandOption setParam( CommandVar var , String value ) {
 		CommandOption info = meta.getVarParamOption( var );
 		addParamOption( info.optName , value );
+		return( info );
 	}
 	
-	public void setFlag( CommandVar var , boolean value ) {
+	public CommandOption setFlag( CommandVar var , boolean value ) {
 		CommandOption info = meta.getVarFlagOption( var , value );
 		addFlagOption( info.optName );
+		return( info );
 	}
 	
-	public void clearFlag( CommandVar var ) {
-		data.clearFlag( var );
+	public CommandOption setEnum( CommandVar var , String value ) {
+		CommandOption info = meta.getVarEnumOption( var , value );
+		addFlagOption( info.optName );
+		return( info );
 	}
 	
-	public void clearParam( CommandVar var ) {
-		data.clearParam( var );
+	public void clearVar( CommandVar var ) {
+		data.clearVar( var );
 	}
 	
 	public void clearData() {

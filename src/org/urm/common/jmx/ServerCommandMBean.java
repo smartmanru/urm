@@ -252,7 +252,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		if( var.isParam && var.isInteger ) {
 			Integer intvalue = ( Integer )value;
 			if( intvalue == null )
-				setopts.clearParam( var );
+				setopts.clearVar( var );
 			else
 				setopts.setParam( var , "" + intvalue.intValue() );
 			return;
@@ -261,7 +261,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		if( var.isFlag ) {
 			Integer intvalue = ( Integer )value;
 			if( intvalue == null )
-				setopts.clearFlag( var );
+				setopts.clearVar( var );
 			else
 				setopts.setFlag( var , ( intvalue.intValue() == 1 )? true : false );
 			return;

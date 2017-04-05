@@ -40,7 +40,7 @@ public class ActionData implements Serializable {
 			value = varEnums.get( var.varName );
 		else
 			value = varParams.get( var.varName );
-		return( var.varName + "=" + value );
+		return( value );
 	}
 
 	public boolean addFlagOption( CommandOption opt ) {
@@ -165,7 +165,7 @@ public class ActionData implements Serializable {
 	public String getRunningInfo() {
 		String values = "";
 		for( CommandOption option : optionsSet ) {
-			String value = getVarValue( option.var );
+			String value = option.var.varName + "=" + getVarValue( option.var );
 			values = Common.addToList( values , value , ", " );
 		}
 		
@@ -226,18 +226,16 @@ public class ActionData implements Serializable {
 			args.add( arg );
 	}
 	
-	public void clearFlag( CommandVar var ) {
-		varFlags.remove( var.varName );
-		for( CommandOption option : optionsSet ) {
-			if( option.var == var ) {
-				optionsSet.remove( option.optName );
-				break;
-			}
-		}
-	}
-
-	public void clearParam( CommandVar var ) {
-		varParams.remove( var.varName );
+	public void clearVar( CommandVar var ) {
+		if( var.isFlag )
+			varFlags.remove( var.varName );
+		else
+		if( var.isEnum )
+			varEnums.remove( var.varName );
+		else
+		if( var.isParam )
+			varParams.remove( var.varName );
+		
 		for( CommandOption option : optionsSet ) {
 			if( option.var == var ) {
 				optionsSet.remove( option.optName );
