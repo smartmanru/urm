@@ -37,7 +37,7 @@ public class ReleaseCommandMeta extends CommandMeta {
 		defineAction( CommandMethodMeta.newNormal( this , "scopeconf" , true , "add configuration items to release" , addConfOpts , "<RELEASELABEL> [component1 component2 ...]" ) );
 		String buildReleaseOpts = "OPT_DIST,OPT_GET,OPT_CHECK";
 		defineAction( CommandMethodMeta.newNormal( this , "build" , true , "build release and (with -dist) get files into distributive" , buildReleaseOpts , "<RELEASELABEL> {all|set [projects]}" ) );
-		String getReleaseOpts = "OPT_DIST,OPT_MOVE_ERRORS";
+		String getReleaseOpts = "OPT_DIST,OPT_DBMOVE";
 		defineAction( CommandMethodMeta.newNormal( this , "getdist" , true , "download ready and/or built release items" , getReleaseOpts , "<RELEASELABEL> {all|set [projects]}" ) );
 		String getDescopeOpts = "";
 		defineAction( CommandMethodMeta.newNormal( this , "descope" , true , "descope release elements" , getDescopeOpts , "<RELEASELABEL> set [project [project items]|configuration components|database deliveries]" ) );

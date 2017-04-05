@@ -115,6 +115,8 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		// parameters
 		for( String varName : method.vars ) {
 			CommandVar var = options.getVar( varName );
+			if( var == null )
+				action.exitUnexpectedState();
 			MBeanParameterInfo param = addParameter( action , var );
 			params.add( param );
 		}

@@ -23,9 +23,10 @@ public class CommandBuilder {
 		System.out.println( "# " + s );
 	}
 
-	public CommandBuilder( RunContext clientrc , RunContext execrc , OptionsMeta options ) {
+	public CommandBuilder( RunContext clientrc , RunContext execrc , OptionsMeta optionsMeta ) {
 		this.clientrc = clientrc;
 		this.execrc = execrc;
+		this.optionsMeta = optionsMeta;
 	}
 
 	public CommandMeta buildCommand( String[] args , CommandOptions options ) throws Exception {

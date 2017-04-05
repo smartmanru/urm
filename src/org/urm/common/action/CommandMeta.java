@@ -25,6 +25,10 @@ public class CommandMeta {
 	public void defineAction( CommandMethodMeta action ) {
 		actionsMap.put( action.name , action );
 		actionsList.add( action );
+		for( String varName : action.vars ) {
+			if( options.getVar( varName ) == null )
+				throw new RuntimeException( "unknown option command=" + name + ", action=" + action.name + ", option=" + varName );
+		}
 	}
 	
 	public void print( String s ) {
