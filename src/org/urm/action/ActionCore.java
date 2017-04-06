@@ -11,7 +11,6 @@ import org.urm.meta.Types.*;
 public class ActionCore {
 
 	public ServerEngine engine;
-	public ActionCore parent;
 	public ServerBlotterActionItem blotterRootItem;
 	public ServerBlotterTreeItem blotterTreeItem;
 	public RunContext execrc;
@@ -29,9 +28,8 @@ public class ActionCore {
 	
 	public ActionEventsSource eventSource;
 	
-	protected ActionCore( ServerEngine engine , ActionCore parent , String INFO ) {
+	protected ActionCore( ServerEngine engine , String INFO ) {
 		this.engine = engine;
-		this.parent = parent;
 		this.execrc = engine.execrc;
 		this.INFO = INFO;
 		

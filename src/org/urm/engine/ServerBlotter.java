@@ -212,7 +212,7 @@ public class ServerBlotter {
 		// release blotter
 		if( action instanceof ActionCopyRelease ) {
 			ActionCopyRelease xa = ( ActionCopyRelease )action;
-			runDistAction( xa , success , xa.src.meta , xa.dst , DistOperation.CREATE , "copy distributive from " + xa.src.RELEASEDIR + " to " + xa.dst.RELEASEDIR ); 
+			runDistAction( xa , success , xa.src.meta , xa.dst , DistOperation.CREATE , "copy distributive from " + xa.src.RELEASEDIR + " to " + xa.RELEASEDST ); 
 		}
 		else
 		if( action instanceof ActionCreateProd ) {

@@ -63,6 +63,7 @@ import org.w3c.dom.Node;
 abstract public class ActionBase extends ActionCore {
 
 	public ActionInit actionInit;
+	public ActionBase parent;
 	
 	public ServerSession session;
 	public CommandExecutor executor;
@@ -92,7 +93,7 @@ abstract public class ActionBase extends ActionCore {
 	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	
 	public ActionBase( ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , String actionInfo ) {
-		super( executor.engine , null , actionInfo );
+		super( executor.engine , actionInfo );
 		
 		this.session = session;
 		this.executor = executor;
@@ -103,9 +104,10 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public ActionBase( ActionBase base , String stream , String actionInfo ) {
-		super( base.engine , base , actionInfo );
+		super( base.engine , actionInfo );
 		
 		this.actionInit = base.actionInit;
+		this.parent = base;
 		
 		this.session = base.session;
 		this.executor = base.executor;
@@ -128,9 +130,13 @@ abstract public class ActionBase extends ActionCore {
 	public void fail( int errorCode , String s , String[] params ) {
 		error( s );
 		RunError error = new RunError( errorCode , s , params );
+		fail( error );
+	}
+
+	public void fail( RunError error ) {
 		super.setFailed( error );
 		if( parent != null )
-			parent.setFailed( error );
+			parent.fail( error );
 	}
 	
 	public String getUserName() {
@@ -197,7 +203,10 @@ abstract public class ActionBase extends ActionCore {
 		if( !prompt.isEmpty() )
 			s += " " + prompt;
 		output.log( context , s , e );
-		fail1( _Error.InternalActionError1 , "Internal action error: " + s , s );
+		if( e instanceof RunError )
+			fail( ( RunError )e );
+		else
+			fail1( _Error.InternalActionError1 , "Internal action error: " + s , s );
 	}
 	
 	public synchronized void log( String prompt , Throwable e ) {
