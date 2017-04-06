@@ -81,8 +81,6 @@ public abstract class CommandExecutor {
 	}
 	
 	public void setActionContext( ActionInit action , CommandContext context ) throws Exception {
-		action.setContext( context );
-		
 		// load initial properties
 		action.setLogLevel( context.logLevelLimit );
 		

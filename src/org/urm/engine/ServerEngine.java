@@ -302,6 +302,7 @@ public class ServerEngine {
 		
 		// create action
 		ActionInit action = createRootAction( type , actionExecutor , session , artefactory , options.method , memoryOnly , actionInfo );
+		action.setContext( context );
 		context.update( action );
 		actionExecutor.setActionContext( action , context );
 		
