@@ -48,17 +48,7 @@ public class Release {
 		schedule = new ReleaseSchedule( meta , this );
 	}
 
-	public void copyRelease( ActionBase action , Release src ) throws Exception {
-		this.RELEASEVER = src.RELEASEVER;
-
-		schedule = src.schedule.copy( action , meta , src , false ); 
-		
-		this.PROPERTY_MASTER = false;
-		this.PROPERTY_OBSOLETE = src.PROPERTY_OBSOLETE;
-		this.PROPERTY_BUILDMODE = src.PROPERTY_BUILDMODE;
-		this.PROPERTY_COMPATIBILITY = src.PROPERTY_COMPATIBILITY;
-		this.PROPERTY_CUMULATIVE = src.PROPERTY_CUMULATIVE;
-
+	public void copyReleaseScope( ActionBase action , Release src ) throws Exception {
 		descopeAll( action );
 		for( Entry<String,ReleaseSet> entry : src.sourceSetMap.entrySet() ) {
 			ReleaseSet set = entry.getValue().copy( action , this );

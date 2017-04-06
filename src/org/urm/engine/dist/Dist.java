@@ -432,12 +432,10 @@ public class Dist {
 		state.ctlCloseDataChange( action );
 	}
 
-	public void copyRelease( ActionBase action , Dist src ) throws Exception {
+	public void copyScope( ActionBase action , Dist src ) throws Exception {
 		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
 		
-		String saveReleaseVer = release.RELEASEVER;
-		release.copyRelease( action , src.release );
-		release.setReleaseVer( action , saveReleaseVer );
+		release.copyReleaseScope( action , src.release );
 		Document doc = release.createXml( action );
 		Common.xmlSaveDoc( doc , filePath );
 		
