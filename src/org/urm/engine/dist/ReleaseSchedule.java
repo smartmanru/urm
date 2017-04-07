@@ -291,7 +291,7 @@ public class ReleaseSchedule {
 			dateBest = phase.getDateBeforePhaseBest();
 		}
 		
-		dateBest = Common.addDays( releaseDate , 1 );
+		dateBest = releaseDate;
 		for( int k = releasePhases; k < phases.size(); k++ ) {
 			ReleaseSchedulePhase phase = getPhase( k );
 			phase.setStartDateBest( dateBest );
@@ -307,7 +307,7 @@ public class ReleaseSchedule {
 			dateDeadline = phase.getDateBeforePhaseExpected();
 		}
 		
-		dateDeadline = Common.addDays( releaseDate , 1 );
+		dateDeadline = releaseDate;
 		for( int k = releasePhases; k < phases.size(); k++ ) {
 			ReleaseSchedulePhase phase = getPhase( k );
 			phase.setStartDateExpected( dateDeadline );
