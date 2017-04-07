@@ -225,18 +225,21 @@ public class ReleaseSchedulePhase {
 			this.deadlineStart = deadlineStart;
 		
 		if( days > 0 )
-			this.deadlineFinish = Common.addDays( deadlineStart , (days-1) );
+			this.deadlineFinish = Common.addDays( this.deadlineStart , (days-1) );
 		else
-			this.deadlineFinish = deadlineStart;
+			this.deadlineFinish = this.deadlineStart;
 	}
 
 	public void setStartDateBest( Date bestStart ) {
-		this.bestStart = bestStart;
+		if( requireStartDay() )
+			this.bestStart = Common.addDays( bestStart , 1 );
+		else
+			this.bestStart = bestStart;
 		
 		if( normalDays > 0 )
-			this.bestFinish = Common.addDays( bestStart , (normalDays-1) );
+			this.bestFinish = Common.addDays( this.bestStart , (normalDays-1) );
 		else
-			this.bestFinish = bestStart;
+			this.bestFinish = this.bestStart;
 	}
 
 	public void startPhase( ActionBase action , Date date ) throws Exception {
