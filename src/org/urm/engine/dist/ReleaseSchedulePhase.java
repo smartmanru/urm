@@ -219,7 +219,10 @@ public class ReleaseSchedulePhase {
 	}
 
 	public void setStartDateExpected( Date deadlineStart ) {
-		this.deadlineStart = deadlineStart;
+		if( requireStartDay() )
+			this.deadlineStart = Common.addDays( deadlineStart , 1 );
+		else
+			this.deadlineStart = deadlineStart;
 		
 		if( days > 0 )
 			this.deadlineFinish = Common.addDays( deadlineStart , (days-1) );
