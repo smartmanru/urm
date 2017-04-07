@@ -32,7 +32,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		defineAction( new PhaseRelease() , "phase" );
 		defineAction( new DeleteRelease() , "drop" );
 		defineAction( new StatusRelease() , "status" );
-		defineAction( new CloseRelease() , "close" );
+		defineAction( new CleanupRelease() , "cleanup" );
 		defineAction( new CopyRelease() , "copy" );
 		defineAction( new FinishRelease() , "finish" );
 		defineAction( new CompleteRelease() , "complete" );
@@ -123,12 +123,12 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class CloseRelease extends CommandMethod {
+	private class CleanupRelease extends CommandMethod {
 	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
 		Meta meta = action.getContextMeta();
-		impl.closeRelease( action , meta , RELEASELABEL );
+		impl.cleanupRelease( action , meta , RELEASELABEL );
 	}
 	}
 

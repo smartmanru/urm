@@ -26,8 +26,12 @@ public class CommandMeta {
 		actionsMap.put( action.name , action );
 		actionsList.add( action );
 		for( String varName : action.vars ) {
-			if( options.getVar( varName ) == null )
+			CommandVar var = options.getVar( varName );
+			if( var == null )
 				throw new RuntimeException( "unknown option command=" + name + ", action=" + action.name + ", option=" + varName );
+			
+			if( var.isGeneric )
+				throw new RuntimeException( "unexpected generic option command=" + name + ", action=" + action.name + ", option=" + varName );
 		}
 	}
 	

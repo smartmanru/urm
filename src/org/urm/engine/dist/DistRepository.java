@@ -319,15 +319,15 @@ public class DistRepository {
 		return( dist );
 	}
 
-	public DistRepositoryItem findRunItem( ActionBase action , Dist dist ) throws Exception {
+	public DistRepositoryItem findRunItem( ActionBase action , Dist dist ) {
 		return( runMap.get( dist.RELEASEDIR ) );
 	}
 	
-	private Dist findDist( ActionBase action , DistLabelInfo info ) throws Exception {
+	private Dist findDist( ActionBase action , DistLabelInfo info ) {
 		return( findDist( info.RELEASEDIR ) );
 	}
 	
-	private synchronized Dist findDist( String releaseDir ) {
+	public synchronized Dist findDist( String releaseDir ) {
 		return( distMap.get( releaseDir ) );
 	}
 

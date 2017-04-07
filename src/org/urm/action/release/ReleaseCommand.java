@@ -57,7 +57,7 @@ public class ReleaseCommand {
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
-	public void closeRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
+	public void cleanupRelease( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		ActionForceCloseRelease ma = new ActionForceCloseRelease( action , null , dist );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );

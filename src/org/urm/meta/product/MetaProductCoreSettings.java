@@ -83,12 +83,12 @@ public class MetaProductCoreSettings {
 			return;
 		}
 		
-		RELEASELC_MAJOR = ConfReader.getPropertyValue( core , PROPERTY_RELEASELC_MAJOR );
-		RELEASELC_MINOR = ConfReader.getPropertyValue( core , PROPERTY_RELEASELC_MINOR );
+		RELEASELC_MAJOR = ConfReader.getPropertyValue( core , PROPERTY_RELEASELC_MAJOR , "" );
+		RELEASELC_MINOR = ConfReader.getPropertyValue( core , PROPERTY_RELEASELC_MINOR , "" );
 		releaseLCUrgentAll = ConfReader.getBooleanPropertyValue( core , PROPERTY_RELEASELC_URGENTANY , false );
 		String URGENTS = "";
 		if( !releaseLCUrgentAll )
-			URGENTS = ConfReader.getPropertyValue( core , PROPERTY_RELEASELC_URGENTS );
+			URGENTS = ConfReader.getPropertyValue( core , PROPERTY_RELEASELC_URGENTS , "" );
 		RELEASELC_URGENT_LIST = Common.splitSpaced( URGENTS );
 	}
 
