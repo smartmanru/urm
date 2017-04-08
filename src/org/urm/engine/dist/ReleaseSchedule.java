@@ -506,9 +506,6 @@ public class ReleaseSchedule {
 		if( phases.size() * 2 != dates.length )
 			action.exitUnexpectedState();
 
-		if( currentPhase < releasePhases )
-			releaseDate = dates[ releasePhases - 1 ];
-		
 		for( int k = 0; k < phases.size(); k++ ) {
 			Date startDate = dates[ k * 2 ];
 			Date finishDate = dates[ k * 2 + 1 ];
@@ -521,6 +518,9 @@ public class ReleaseSchedule {
 				startDate = phase.getDeadlineStart();
 				
 			phase.setDeadlines( action , startDate , finishDate );
+			
+			if( k == releasePhases - 1 )
+				releaseDate = finishDate;
 		}
 	}
 	
