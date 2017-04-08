@@ -501,5 +501,27 @@ public class ReleaseSchedule {
 		phase.setDuration( action , duration );
 		setDeadlinesExpected();
 	}
+
+	public void setAllDates( ActionBase action , Date[] dates ) throws Exception {
+		if( phases.size() * 2 != dates.length )
+			action.exitUnexpectedState();
+
+		if( currentPhase < releasePhases )
+			releaseDate = dates[ releasePhases - 1 ];
+		
+		for( int k = 0; k < phases.size(); k++ ) {
+			Date startDate = dates[ k * 2 ];
+			Date finishDate = dates[ k * 2 + 1 ];
+			ReleaseSchedulePhase phase = phases.get( k );
+			
+			if( phase.isFinished() )
+				continue;
+			
+			if( phase.isStarted() )
+				startDate = phase.getDeadlineStart();
+				
+			phase.setDeadlines( action , startDate , finishDate );
+		}
+	}
 	
 }

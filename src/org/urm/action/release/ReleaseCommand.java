@@ -271,4 +271,9 @@ public class ReleaseCommand {
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
+	public void setSchedule( ActionBase action , Dist dist , Date[] dates ) throws Exception {
+		ActionSchedulePhase ma = new ActionSchedulePhase( action , null , dist , dates );
+		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+	
 }

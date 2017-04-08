@@ -27,26 +27,27 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	private ReleaseCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
-		defineAction( new CreateRelease() , "create" );
-		defineAction( new ModifyRelease() , "modify" );
-		defineAction( new PhaseRelease() , "phase" );
-		defineAction( new DeleteRelease() , "drop" );
-		defineAction( new StatusRelease() , "status" );
-		defineAction( new CleanupRelease() , "cleanup" );
-		defineAction( new CopyRelease() , "copy" );
-		defineAction( new FinishRelease() , "finish" );
-		defineAction( new CompleteRelease() , "complete" );
-		defineAction( new ReopenRelease() , "reopen" );
-		defineAction( new MasterOperations() , "master" );
-		defineAction( new ArchiveRelease() , "archive" );
-		defineAction( new TouchRelease() , "touch" );
-		defineAction( new AddReleaseBuildProjects() , "scope" );
-		defineAction( new AddReleaseBuildItems() , "scopeitems" );
-		defineAction( new AddReleaseDatabaseItems() , "scopedb" );
-		defineAction( new AddReleaseConfigItems() , "scopeconf" );
-		defineAction( new BuildRelease() , "build" );
-		defineAction( new GetRelease() , "getdist" );
-		defineAction( new DescopeRelease() , "descope" );
+		defineAction( new CreateRelease() , ReleaseCommandMeta.METHOD_CREATE );
+		defineAction( new ModifyRelease() , ReleaseCommandMeta.METHOD_MODIFY );
+		defineAction( new PhaseRelease() , ReleaseCommandMeta.METHOD_PHASE );
+		defineAction( new ScheduleRelease() , ReleaseCommandMeta.METHOD_SCHEDULE );
+		defineAction( new DeleteRelease() , ReleaseCommandMeta.METHOD_DROP );
+		defineAction( new StatusRelease() , ReleaseCommandMeta.METHOD_STATUS );
+		defineAction( new CleanupRelease() , ReleaseCommandMeta.METHOD_CLEANUP );
+		defineAction( new CopyRelease() , ReleaseCommandMeta.METHOD_COPY );
+		defineAction( new FinishRelease() , ReleaseCommandMeta.METHOD_FINISH );
+		defineAction( new CompleteRelease() , ReleaseCommandMeta.METHOD_COMPLETE );
+		defineAction( new ReopenRelease() , ReleaseCommandMeta.METHOD_REOPEN );
+		defineAction( new MasterOperations() , ReleaseCommandMeta.METHOD_MASTER );
+		defineAction( new ArchiveRelease() , ReleaseCommandMeta.METHOD_ARCHIVE );
+		defineAction( new TouchRelease() , ReleaseCommandMeta.METHOD_TOUCH );
+		defineAction( new AddReleaseBuildProjects() , ReleaseCommandMeta.METHOD_SCOPE );
+		defineAction( new AddReleaseBuildItems() , ReleaseCommandMeta.METHOD_SCOPEITEMS );
+		defineAction( new AddReleaseDatabaseItems() , ReleaseCommandMeta.METHOD_SCOPEDB );
+		defineAction( new AddReleaseConfigItems() , ReleaseCommandMeta.METHOD_SCOPECONF );
+		defineAction( new BuildRelease() , ReleaseCommandMeta.METHOD_BUILD );
+		defineAction( new GetRelease() , ReleaseCommandMeta.METHOD_GETDIST );
+		defineAction( new DescopeRelease() , ReleaseCommandMeta.METHOD_DESCOPE );
 		
 		impl = new ReleaseCommand();
 	}	
@@ -114,6 +115,24 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 	}
 
+	private class ScheduleRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
+		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		Meta meta = action.getContextMeta();
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
+		
+		int nPhases = dist.release.schedule.getPhaseCount();
+		Date[] dates = new Date[ nPhases * 2 ];
+		for( int k = 0; k < nPhases; k++ ) {
+			dates[ 2 * k ] = getRequiredDateArg( action , 1 + 2 * k , "STARTDATE" + (k+1) );
+			dates[ 2 * k + 1 ] = getRequiredDateArg( action , 1 + 2 * k + 1 , "FINISHDATE" + (k+1) );
+		}
+		
+		checkNoArgs( action , 2 * nPhases + 2 );
+		impl.setSchedule( action , dist , dates );
+	}
+	}
+	
 	private class DeleteRelease extends CommandMethod {
 	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );

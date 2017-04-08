@@ -186,7 +186,7 @@ public class ReleaseSchedulePhase {
 	}
 	
 	public boolean requireStartDay() {
-		return( ( unlimited || days > 0 )? true : false );
+		return( ( unlimited || normalDays > 0 )? true : false );
 	}
 	
 	public int getDaysActually() {
@@ -268,6 +268,12 @@ public class ReleaseSchedulePhase {
 		this.days = duration;
 	}
 
+	private void changeDays() {
+		days = Common.getDateDiffDays( deadlineStart , deadlineFinish );
+		if( requireStartDay() )
+			days++;
+	}
+	
 	public void setFinishDeadline( ActionBase action , Date deadlineDate , boolean shiftStart ) throws Exception {
 		deadlineFinish = deadlineDate;
 		if( shiftStart ) {
@@ -276,11 +282,8 @@ public class ReleaseSchedulePhase {
 			else
 				deadlineStart = deadlineFinish;
 		}
-		else {
-			days = Common.getDateDiffDays( deadlineStart , deadlineFinish );
-			if( requireStartDay() )
-				days++;
-		}
+		else
+			changeDays();
 	}
 	
 	public void setStartDeadline( ActionBase action , Date deadlineDate , boolean shiftFinish ) throws Exception {
@@ -291,12 +294,14 @@ public class ReleaseSchedulePhase {
 			else
 				deadlineFinish = deadlineStart;
 		}
-		else {
-			boolean require = requireStartDay();
-			days = Common.getDateDiffDays( deadlineStart , deadlineFinish );
-			if( require )
-				days++;
-		}
+		else
+			changeDays();
 	}
 
+	public void setDeadlines( ActionBase action , Date deadlineStart , Date deadlineFinish ) throws Exception {
+		this.deadlineStart = deadlineStart;
+		this.deadlineFinish = deadlineFinish;
+		changeDays();
+	}
+	
 }
