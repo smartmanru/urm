@@ -27,6 +27,7 @@ public class ReleaseCommandMeta extends CommandMeta {
 	public static String METHOD_GETDIST = "getdist";
 	public static String METHOD_DESCOPE = "descope";
 	public static String METHOD_SCHEDULE = "schedule";
+	public static String METHOD_SCOPESET = "scopeset";
 	
 	public static String NAME = "release";
 	public static String DESC = "create, populate and manage lifecycle of releases";
@@ -64,6 +65,7 @@ public class ReleaseCommandMeta extends CommandMeta {
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_GETDIST , true , "download ready and/or built release items" , getReleaseOpts , "<RELEASELABEL> {all|set [projects]}" ) );
 		String getDescopeOpts = "";
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_DESCOPE , true , "descope release elements" , getDescopeOpts , "<RELEASELABEL> set [project [project items]|configuration components|database deliveries]" ) );
+		defineAction( CommandMethodMeta.newNormal( this , METHOD_SCOPESET , true , "set scope elements by path list" , getDescopeOpts , "<RELEASELABEL> {source {set[/project[/item]] ...}|delivery {delivery[/item]} ...}" ) );
 	}	
 	
 }

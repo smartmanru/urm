@@ -45,6 +45,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		defineAction( new AddReleaseBuildItems() , ReleaseCommandMeta.METHOD_SCOPEITEMS );
 		defineAction( new AddReleaseDatabaseItems() , ReleaseCommandMeta.METHOD_SCOPEDB );
 		defineAction( new AddReleaseConfigItems() , ReleaseCommandMeta.METHOD_SCOPECONF );
+		defineAction( new ScopeSet() , ReleaseCommandMeta.METHOD_SCOPESET );
 		defineAction( new BuildRelease() , ReleaseCommandMeta.METHOD_BUILD );
 		defineAction( new GetRelease() , ReleaseCommandMeta.METHOD_GETDIST );
 		defineAction( new DescopeRelease() , ReleaseCommandMeta.METHOD_DESCOPE );
@@ -293,6 +294,16 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		
 		Meta meta = action.getContextMeta();
 		impl.addReleaseBuildItems( action , meta , RELEASELABEL , elements );
+	}
+	}
+
+	private class ScopeSet extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
+		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		String[] elements = getArgList( action , 1 );
+		
+		Meta meta = action.getContextMeta();
+		impl.setScope( action , meta , RELEASELABEL , elements );
 	}
 	}
 
