@@ -19,7 +19,8 @@ public class ActionAddScope extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override 
+	protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		// full set scope
 		if( set.setFull ) {
 			if( !addAllProductSetElements( set ) )
