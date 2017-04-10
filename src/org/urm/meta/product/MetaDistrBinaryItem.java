@@ -81,7 +81,7 @@ public class MetaDistrBinaryItem {
 		if( distItemOrigin == VarDISTITEMORIGIN.BUILD )
 			SRCPROJECTITEM = ConfReader.getAttrValue( node , "srcitem" );
 		
-		if( distItemOrigin == VarDISTITEMORIGIN.DISTITEM ) {
+		if( distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
 			SRCDISTITEM = ConfReader.getAttrValue( node , "srcitem" );
 			SRCITEMPATH = ConfReader.getAttrValue( node , "srcpath" );
 		}
@@ -138,7 +138,7 @@ public class MetaDistrBinaryItem {
 		if( distItemOrigin == VarDISTITEMORIGIN.BUILD )
 			Common.xmlSetElementAttr( doc , root , "srcitem" , SRCPROJECTITEM );
 		
-		if( distItemOrigin == VarDISTITEMORIGIN.DISTITEM ) {
+		if( distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
 			Common.xmlSetElementAttr( doc , root , "srcitem" , SRCDISTITEM );
 			Common.xmlSetElementAttr( doc , root , "srcpath" , SRCITEMPATH );
 		}
@@ -204,7 +204,7 @@ public class MetaDistrBinaryItem {
 	}
 	
 	public void resolveReferences( ActionBase action ) throws Exception {
-		if( distItemOrigin == VarDISTITEMORIGIN.DISTITEM ) {
+		if( distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
 			MetaDistr distr = meta.getDistr( action );
 			srcDistItem = distr.getBinaryItem( action , SRCDISTITEM );
 		}
@@ -298,7 +298,7 @@ public class MetaDistrBinaryItem {
 		return( null );
 	}
 
-	public boolean isDerived() {
+	public boolean isDerivedItem() {
 		if( srcDistItem != null )
 			return( true );
 		return( false );
@@ -358,7 +358,7 @@ public class MetaDistrBinaryItem {
 	}
 
 	public void setDistOrigin( ServerTransaction transaction , MetaDistrBinaryItem itemSrc , String srcPath ) throws Exception {
-		this.distItemOrigin = VarDISTITEMORIGIN.DISTITEM;
+		this.distItemOrigin = VarDISTITEMORIGIN.DERIVED;
 		this.SRCPROJECTITEM = "";
 		this.sourceProjectItem = null;
 		this.SRCDISTITEM = itemSrc.KEY;

@@ -39,6 +39,7 @@ public class ReleaseTarget {
 	public MetaDistrConfItem distConfItem;
 	public MetaDistrDelivery distDatabaseItem;
 	public MetaDistrBinaryItem distManualItem;
+	public MetaDistrBinaryItem distDerivedItem;
 	
 	Map<String,ReleaseTargetItem> itemMap = new HashMap<String,ReleaseTargetItem>();
 	
@@ -64,6 +65,7 @@ public class ReleaseTarget {
 		nx.distConfItem = distConfItem;
 		nx.distDatabaseItem = distDatabaseItem;
 		nx.distManualItem = distManualItem;
+		nx.distDerivedItem = distDerivedItem;
 
 		for( Entry<String,ReleaseTargetItem> entry : itemMap.entrySet() ) {
 			ReleaseTargetItem item = entry.getValue().copy( action , nr , ns , nx );
@@ -105,6 +107,10 @@ public class ReleaseTarget {
 			if( distManualItem != null )
 				return( true );
 		}
+		else if( CATEGORY == VarCATEGORY.DERIVED ) {
+			if( distDerivedItem != null )
+				return( true );
+		}
 		
 		action.exitUnexpectedState();
 		return( false );
@@ -112,6 +118,18 @@ public class ReleaseTarget {
 	
 	public boolean isProjectTarget() {
 		if( sourceProject != null )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isManualTarget() {
+		if( distManualItem != null )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isDerivedTarget() {
+		if( distDerivedItem != null )
 			return( true );
 		return( false );
 	}
@@ -140,6 +158,9 @@ public class ReleaseTarget {
 		else
 		if( CATEGORY == VarCATEGORY.MANUAL )
 			loadManual( action , node );
+		else
+		if( CATEGORY == VarCATEGORY.DERIVED )
+			loadDerived( action , node );
 		else
 			action.exitUnexpectedCategory( CATEGORY );
 	}
@@ -196,6 +217,15 @@ public class ReleaseTarget {
 		ALL = true;
 	}
 
+	private void loadDerived( ActionBase action , Node node ) throws Exception {
+		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		MetaDistr distr = meta.getDistr( action ); 
+		distDerivedItem = distr.getBinaryItem( action , name );
+		this.NAME = name;
+		
+		ALL = true;
+	}
+
 	public void createFromProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems ) throws Exception {
 		this.sourceProject = sourceProject;
 		this.CATEGORY = VarCATEGORY.PROJECT;
@@ -231,6 +261,16 @@ public class ReleaseTarget {
 		
 		this.distManualItem = item;
 		this.CATEGORY = VarCATEGORY.MANUAL;
+		this.ALL = true;
+		this.NAME = item.KEY;
+	}
+	
+	public void createFromDerivedItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+		if( item.distItemOrigin != VarDISTITEMORIGIN.DERIVED )
+			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item.KEY , item.KEY );
+		
+		this.distDerivedItem = item;
+		this.CATEGORY = VarCATEGORY.DERIVED;
 		this.ALL = true;
 		this.NAME = item.KEY;
 	}
@@ -329,6 +369,8 @@ public class ReleaseTarget {
 			return( getSpecificsDatabase( action ) );
 		if( distManualItem != null )
 			return( getSpecificsManual( action ) );
+		if( distDerivedItem != null )
+			return( getSpecificsDerived( action ) );
 		return( "" );
 	}
 	
@@ -361,6 +403,10 @@ public class ReleaseTarget {
 		return( "" );
 	}
 	
+	public String getSpecificsDerived( ActionBase action ) throws Exception {
+		return( "" );
+	}
+	
 	public boolean isEmpty( ActionBase action ) throws Exception {
 		return( itemMap.isEmpty() );
 	}
@@ -374,6 +420,8 @@ public class ReleaseTarget {
 			return( createXmlDatabase( action , doc , parent ) );
 		if( distManualItem != null )
 			return( createXmlManual( action , doc , parent ) );
+		if( distManualItem != null )
+			return( createXmlDerived( action , doc , parent ) );
 		return( null );
 	}
 	
@@ -418,6 +466,12 @@ public class ReleaseTarget {
 	public Element createXmlManual( ActionBase action , Document doc , Element parent ) throws Exception {
 		Element element = Common.xmlCreateElement( doc , parent , "distitem" );
 		Common.xmlSetElementAttr( doc , element , "name" , distManualItem.KEY );
+		return( element );
+	}
+
+	public Element createXmlDerived( ActionBase action , Document doc , Element parent ) throws Exception {
+		Element element = Common.xmlCreateElement( doc , parent , "distitem" );
+		Common.xmlSetElementAttr( doc , element , "name" , distDerivedItem.KEY );
 		return( element );
 	}
 

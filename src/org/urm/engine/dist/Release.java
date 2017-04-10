@@ -756,6 +756,23 @@ public class Release {
 		return( true );
 	}
 
+	public boolean addDerivedItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+		if( item.distItemOrigin != VarDISTITEMORIGIN.DERIVED )
+			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item.KEY , item.KEY );
+			
+		ReleaseSet set = getCategorySet( action , VarCATEGORY.DERIVED );
+		if( set.ALL )
+			return( true );
+
+		ReleaseTarget target = set.findTarget( item.KEY );
+		if( target != null )
+			return( true );
+		
+		target = set.addDerivedItem( action , item );
+		registerTarget( action , target );
+		return( true );
+	}
+
 	public boolean isCompatible( ActionBase action , String RELEASEVER ) throws Exception {
 		if( PROPERTY_COMPATIBILITY.isEmpty() )
 			return( true );

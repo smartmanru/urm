@@ -212,6 +212,14 @@ public class MetaDistr extends PropertyController {
 		return( list.toArray( new String[0] ) );
 	}
 	
+	public String[] getDerivedItemNames() {
+		List<String> list = new LinkedList<String>();
+		for( MetaDistrBinaryItem item : mapBinaryItems.values() )
+			if( item.isDerivedItem() )
+				list.add( item.KEY );
+		return( list.toArray( new String[0] ) );
+	}
+	
 	public String[] getBinaryItemNames() {
 		return( Common.getSortedKeys( mapBinaryItems ) );
 	}

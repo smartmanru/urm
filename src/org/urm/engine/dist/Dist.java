@@ -570,7 +570,7 @@ public class Dist {
 
 	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 , boolean getTimestamp ) throws Exception {
 		DistItemInfo info = new DistItemInfo( item );
-		if( item.isDerived() ) {
+		if( item.isDerivedItem() ) {
 			DistItemInfo infosrc = getDistItemInfo( action , item.srcDistItem , false , true );
 			info.subPath = infosrc.subPath;
 			info.fileName = infosrc.fileName;
@@ -590,7 +590,7 @@ public class Dist {
 		
 		if( info.found && getMD5 ) {
 			RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
-			if( item.isDerived() )
+			if( item.isDerivedItem() )
 				info.md5value = fileFolder.getArchivePartMD5( action , info.fileName , item.SRCITEMPATH , item.srcDistItem.EXT );
 			else
 			if( item.isArchive() )
@@ -679,9 +679,15 @@ public class Dist {
 				return( false );
 			return( true );
 		}
-		else if( item.distItemOrigin == VarDISTITEMORIGIN.DISTITEM )
+		else
+		if( item.distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
+			ReleaseTarget target = release.findCategoryTarget( action , VarCATEGORY.DERIVED , item.KEY );
+			if( target == null )
+				return( false );
 			return( checkIfReleaseItem( action , item.srcDistItem ) );
-		else if( item.distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
+		}
+		else 
+		if( item.distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
 			ReleaseTarget target = release.findBuildProject( action , item.sourceProjectItem.project.NAME );
 			if( target == null )
 				return( false );
@@ -711,7 +717,19 @@ public class Dist {
 			
 			return( Common.getPath( BINARY_FOLDER , target.DISTFILE ) );
 		}
-		else if( item.distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
+		else
+		if( item.distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
+			ReleaseTarget target = release.findCategoryTarget( action , VarCATEGORY.DERIVED , item.KEY );
+			if( target == null )
+				return( "" );
+			
+			if( target.DISTFILE == null || target.DISTFILE.isEmpty() )
+				return( "" );
+			
+			return( Common.getPath( BINARY_FOLDER , target.DISTFILE ) );
+		}
+		else
+		if( item.distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
 			ReleaseTarget target = release.findBuildProject( action , item.sourceProjectItem.project.NAME );
 			if( target == null )
 				return( "" );

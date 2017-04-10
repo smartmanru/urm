@@ -290,6 +290,14 @@ public class ReleaseSet {
 		}
 	}
 
+	public void addAllDerivedItems( ActionBase action ) throws Exception {
+		MetaDistr distr = meta.getDistr( action ); 
+		for( MetaDistrBinaryItem item : distr.getBinaryItems() ) {
+			if( item.distItemOrigin == VarDISTITEMORIGIN.DERIVED )
+				addDerivedItem( action , item );
+		}
+	}
+
 	public ReleaseTarget addConfItem( ActionBase action , MetaDistrConfItem item , boolean allFiles ) throws Exception {
 		ReleaseTarget confItem = new ReleaseTarget( meta , this , CATEGORY );
 		confItem.createFromConfItem( action , item , allFiles );
@@ -312,6 +320,14 @@ public class ReleaseSet {
 		
 		map.put( manualItem.NAME , manualItem );
 		return( manualItem );
+	}
+
+	public ReleaseTarget addDerivedItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+		ReleaseTarget derivedItem = new ReleaseTarget( meta , this , CATEGORY );
+		derivedItem.createFromDerivedItem( action , item );
+		
+		map.put( derivedItem.NAME , derivedItem );
+		return( derivedItem );
 	}
 
 	public void removeTarget( ActionBase action , ReleaseTarget source ) throws Exception {

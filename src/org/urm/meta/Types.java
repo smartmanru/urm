@@ -50,6 +50,7 @@ public class Types {
 		PROJECT ,
 		CONFIG ,
 		MANUAL ,
+		DERIVED ,
 		DB ,
 		ENV ,
 		BUILDABLE ,
@@ -170,8 +171,8 @@ public class Types {
 	public enum VarDISTITEMORIGIN {
 		UNKNOWN ,
 		MANUAL ,
-		BUILD ,
-		DISTITEM
+		DERIVED ,
+		BUILD
 	};
 	
 	public enum VarPROCESSMODE {
