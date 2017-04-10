@@ -131,15 +131,22 @@ public class ActionSetScope extends ActionBase {
 
 	private boolean executeByDelivery() throws Exception {
 		MetaDistr distr = dist.meta.getDistr( this );
+		MetaSource source = dist.meta.getSources( this );
 		
 		// add new 
 		dist.reloadCheckOpenedForDataChange( this );
 		if( pathItems.length == 1 ) {
 			if( pathItems[0].equals( "all" ) ) {
-				for( VarCATEGORY category : new VarCATEGORY[] { VarCATEGORY.PROJECT , VarCATEGORY.MANUAL , VarCATEGORY.DERIVED , VarCATEGORY.CONFIG , VarCATEGORY.DB } ) {
+				for( VarCATEGORY category : new VarCATEGORY[] { VarCATEGORY.MANUAL , VarCATEGORY.DERIVED , VarCATEGORY.CONFIG , VarCATEGORY.DB } ) {
 					if( !dist.addAllCategory( this , category ) )
 						return( false );
 				}
+				
+				for( MetaSourceProjectSet set : source.getSets() ) {
+					if( !dist.addAllSource( this , set ) )
+						return( false );
+				}
+				return( true );
 			}
 			if( pathItems[0].equals( "none" ) ) {
 				dist.descopeAll( this );

@@ -101,6 +101,9 @@ public class ReleaseSet {
 			if( CATEGORY == VarCATEGORY.MANUAL )
 				loadManual( action , node );
 			else
+			if( CATEGORY == VarCATEGORY.DERIVED )
+				loadDerived( action , node );
+			else
 				action.exitUnexpectedCategory( CATEGORY );
 		}
 	}
@@ -207,6 +210,27 @@ public class ReleaseSet {
 			loadTarget( action , pnode ); 
 	}
 
+	private void loadDerived( ActionBase action , Node node ) throws Exception {
+		NAME = Common.getEnumLower( VarCATEGORY.DERIVED );
+		ALL = ConfReader.getBooleanAttrValue( node , "all" , false );
+
+		Node[] deriveditems = ConfReader.xmlGetChildren( node , "distitem" );
+		if( ALL ) {
+			if( deriveditems == null || deriveditems.length == 0 ) {
+				addAllDerivedItems( action );
+				return;
+			}
+
+			action.exit0( _Error.UnexpectedFullSetDerivedItems0 , "unexpected derived items defined with all=true" );
+		}
+
+		if( deriveditems == null )
+			return;
+		
+		for( Node pnode : deriveditems )
+			loadTarget( action , pnode ); 
+	}
+
 	public void createSourceSet( ActionBase action , MetaSourceProjectSet set , boolean ALL ) throws Exception {
 		this.set = set;
 		this.NAME = set.NAME;
@@ -237,6 +261,9 @@ public class ReleaseSet {
 			else
 			if( CATEGORY == VarCATEGORY.MANUAL )
 				addAllManualItems( action );
+			else
+			if( CATEGORY == VarCATEGORY.DERIVED )
+				addAllDerivedItems( action );
 			else
 				action.exitUnexpectedCategory( CATEGORY );
 		}
