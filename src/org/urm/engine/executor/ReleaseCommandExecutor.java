@@ -300,10 +300,15 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	private class ScopeSet extends CommandMethod {
 	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
-		String[] elements = getArgList( action , 1 );
+		String TYPE = getRequiredArg( action , 1 , "SCOPETYPE" );
+		String[] elements = getArgList( action , 2 );
 		
 		Meta meta = action.getContextMeta();
-		impl.setScope( action , meta , RELEASELABEL , elements );
+		if( TYPE.equals( "source" ) )
+			impl.setScope( action , meta , RELEASELABEL , true , elements );
+		else
+		if( TYPE.equals( "delivery" ) )
+			impl.setScope( action , meta , RELEASELABEL , false , elements );
 	}
 	}
 

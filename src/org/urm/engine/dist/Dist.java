@@ -541,6 +541,26 @@ public class Dist {
 		return( true );
 	}
 
+	public boolean addDerivedItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+		action.debug( "release - add derived item=" + item.KEY );
+		
+		if( !release.addCategorySet( action , VarCATEGORY.DERIVED , false ) )
+			return( false );
+		if( !release.addDerivedItem( action , item ) )
+			return( false );
+		return( true );
+	}
+
+	public boolean addBinaryItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+		if( item.isProjectItem() )
+			return( addProjectItem( action , item.sourceProjectItem.project , item.sourceProjectItem ) );
+		if( item.isManualItem() )
+			return( addManualItem( action , item ) );
+		if( item.isDerivedItem() )
+			return( addDerivedItem( action , item ) );
+		return( false );
+	}
+	
 	public boolean addDatabaseItem( ActionBase action , MetaDistrDelivery item ) throws Exception {
 		action.debug( "release - add database delivery=" + item.NAME );
 		
@@ -618,8 +638,11 @@ public class Dist {
 		return( info );
 	}
 
-	public void descopeSet( ActionBase action , ReleaseSet set ) throws Exception {
+	public void reloadCheckOpenedForDataChange( ActionBase action ) throws Exception {
 		state.ctlReloadCheckOpenedForDataChange( action );
+	}
+	
+	public void descopeSet( ActionBase action , ReleaseSet set ) throws Exception {
 		for( ReleaseTarget target : set.getTargets() )
 			dropTarget( action , target );
 		
@@ -628,15 +651,18 @@ public class Dist {
 		else
 			release.deleteCategorySet( action , set.CATEGORY );
 	}
+
+	public void descopeAllProjects( ActionBase action ) throws Exception {
+		for( ReleaseSet set : release.getSourceSets() )
+			descopeSet( action , set );
+	}
 	
 	public void descopeTarget( ActionBase action , ReleaseTarget target ) throws Exception {
-		state.ctlReloadCheckOpenedForDataChange( action );
 		dropTarget( action , target );
 		release.deleteTarget( action , target );
 	}
 	
 	public void descopeTargetItems( ActionBase action , ReleaseTargetItem[] items ) throws Exception {
-		state.ctlReloadCheckOpenedForDataChange( action );
 		for( ReleaseTargetItem item : items ) {
 			dropTargetItem( action , item );
 			release.deleteProjectItem( action , item );

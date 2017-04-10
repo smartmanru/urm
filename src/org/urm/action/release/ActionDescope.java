@@ -24,12 +24,14 @@ public class ActionDescope extends ActionBase {
 		if( !set.setFull )
 			return( SCOPESTATE.NotRun );
 		
+		dist.reloadCheckOpenedForDataChange( this );
 		dist.descopeSet( this , set.rset );
 		return( SCOPESTATE.RunSuccess );
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		if( target.itemFull ) {
+			dist.reloadCheckOpenedForDataChange( this );
 			dist.descopeTarget( this , target.releaseTarget );
 			return( SCOPESTATE.RunSuccess );
 		}
@@ -38,6 +40,7 @@ public class ActionDescope extends ActionBase {
 		for( ActionScopeTargetItem item : target.getItems( this ) )
 			items.add( item.releaseItem );
 		
+		dist.reloadCheckOpenedForDataChange( this );
 		dist.descopeTargetItems( this , items.toArray( new ReleaseTargetItem[0] ) );
 		
 		return( SCOPESTATE.RunSuccess );
