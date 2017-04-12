@@ -123,7 +123,7 @@ public class OptionsMeta {
 		genericOptionsCount = optionsDefined.size();
 
 		defineVar( CommandVar.newFlagVar( OPT_GET , true , "Download" , "run getall after build" ) );
-		defineVar( CommandVar.newFlagVar( OPT_DIST , true , "Change Dist" , "copy to distributive after getall" ) );
+		defineVar( CommandVar.newFlagVar( OPT_DIST , true , "Change Distributive" , "copy to distributive after getall" ) );
 		defineVar( CommandVar.newFlagVar( OPT_UPDATENEXUS , true , "Update Nexus" , "force reupload items to thirdparty repository" ) );
 		defineVar( CommandVar.newFlagVar( OPT_CHECK , true , "Check Source" , "run source checks before build" ) );
 		defineVar( CommandVar.newFlagVar( OPT_REPLACE , true , "Replace" , "replace all item contents on deploy" ) );
