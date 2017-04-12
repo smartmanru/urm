@@ -457,5 +457,9 @@ public class DistRepository {
 		
 		addDist( distNew );
 	}
+
+	public Dist findMasterDist() {
+		return( distMap.get( Dist.MASTER_DIR ) );
+	}
 	
 }
