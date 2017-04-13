@@ -281,6 +281,9 @@ public class ActionScope {
 	}
 	
 	private void createEnvScope( ActionBase action , MetaEnv env , MetaEnvSegment sg , Dist dist ) throws Exception {
+		if( env == null )
+			action.exit0( _Error.MissingEnvironment0 , "Missing environment" );
+		
 		String sgMask = null;
 		if( sg != null )
 			sgMask = sg.NAME;
