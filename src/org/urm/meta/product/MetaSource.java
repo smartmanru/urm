@@ -213,5 +213,11 @@ public class MetaSource extends PropertyController {
 		project.set.removeProject( transaction , project );
 		projectMap.remove( project.NAME );
 	}
+
+	public boolean hasProjects() {
+		if( projectMap.isEmpty() )
+			return( false );
+		return( true );
+	}
 	
 }
