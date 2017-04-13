@@ -25,6 +25,11 @@ public class CommandOptions {
 		this.meta = meta;
 	}
 
+	public void setMethod( String command , String method ) {
+		this.command = command;
+		this.method = method;
+	}
+	
 	public void setCommand( String command , ActionData data ) {
 		this.command = command;
 		this.data = data;
