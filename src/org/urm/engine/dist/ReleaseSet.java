@@ -101,6 +101,9 @@ public class ReleaseSet {
 			if( CATEGORY == VarCATEGORY.MANUAL )
 				loadManual( action , node );
 			else
+			if( CATEGORY == VarCATEGORY.DERIVED )
+				loadDerived( action , node );
+			else
 				action.exitUnexpectedCategory( CATEGORY );
 		}
 	}
@@ -207,6 +210,27 @@ public class ReleaseSet {
 			loadTarget( action , pnode ); 
 	}
 
+	private void loadDerived( ActionBase action , Node node ) throws Exception {
+		NAME = Common.getEnumLower( VarCATEGORY.DERIVED );
+		ALL = ConfReader.getBooleanAttrValue( node , "all" , false );
+
+		Node[] deriveditems = ConfReader.xmlGetChildren( node , "distitem" );
+		if( ALL ) {
+			if( deriveditems == null || deriveditems.length == 0 ) {
+				addAllDerivedItems( action );
+				return;
+			}
+
+			action.exit0( _Error.UnexpectedFullSetDerivedItems0 , "unexpected derived items defined with all=true" );
+		}
+
+		if( deriveditems == null )
+			return;
+		
+		for( Node pnode : deriveditems )
+			loadTarget( action , pnode ); 
+	}
+
 	public void createSourceSet( ActionBase action , MetaSourceProjectSet set , boolean ALL ) throws Exception {
 		this.set = set;
 		this.NAME = set.NAME;
@@ -237,6 +261,9 @@ public class ReleaseSet {
 			else
 			if( CATEGORY == VarCATEGORY.MANUAL )
 				addAllManualItems( action );
+			else
+			if( CATEGORY == VarCATEGORY.DERIVED )
+				addAllDerivedItems( action );
 			else
 				action.exitUnexpectedCategory( CATEGORY );
 		}
@@ -290,6 +317,14 @@ public class ReleaseSet {
 		}
 	}
 
+	public void addAllDerivedItems( ActionBase action ) throws Exception {
+		MetaDistr distr = meta.getDistr( action ); 
+		for( MetaDistrBinaryItem item : distr.getBinaryItems() ) {
+			if( item.distItemOrigin == VarDISTITEMORIGIN.DERIVED )
+				addDerivedItem( action , item );
+		}
+	}
+
 	public ReleaseTarget addConfItem( ActionBase action , MetaDistrConfItem item , boolean allFiles ) throws Exception {
 		ReleaseTarget confItem = new ReleaseTarget( meta , this , CATEGORY );
 		confItem.createFromConfItem( action , item , allFiles );
@@ -312,6 +347,14 @@ public class ReleaseSet {
 		
 		map.put( manualItem.NAME , manualItem );
 		return( manualItem );
+	}
+
+	public ReleaseTarget addDerivedItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+		ReleaseTarget derivedItem = new ReleaseTarget( meta , this , CATEGORY );
+		derivedItem.createFromDerivedItem( action , item );
+		
+		map.put( derivedItem.NAME , derivedItem );
+		return( derivedItem );
 	}
 
 	public void removeTarget( ActionBase action , ReleaseTarget source ) throws Exception {

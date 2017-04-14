@@ -176,7 +176,7 @@ public class ActionRedist extends ActionBase {
 			return( false );
 		}
 		
-		if( binaryItem.distItemOrigin == VarDISTITEMORIGIN.DISTITEM ) {
+		if( binaryItem.distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
 			String fileName = dist.getBinaryDistItemFile( this , binaryItem.srcDistItem );
 			if( fileName.isEmpty() ) {
 				trace( "source of binary item=" + binaryItem.KEY + " is not found. Skipped." );
@@ -188,7 +188,8 @@ public class ActionRedist extends ActionBase {
 			VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
 			return( redist.copyReleaseFile( this , binaryItem , location , fileExtracted , deployBaseName , version , stateInfo ) );
 		}
-		else if( binaryItem.distItemOrigin == VarDISTITEMORIGIN.BUILD || binaryItem.distItemOrigin == VarDISTITEMORIGIN.MANUAL ) {
+		else 
+		if( binaryItem.distItemOrigin == VarDISTITEMORIGIN.BUILD || binaryItem.distItemOrigin == VarDISTITEMORIGIN.MANUAL || binaryItem.distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
 			String fileName = dist.getBinaryDistItemFile( this , binaryItem );
 			if( fileName.isEmpty() ) {
 				trace( "binary item=" + binaryItem.KEY + " is not found. Skipped." );

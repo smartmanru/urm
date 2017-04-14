@@ -291,7 +291,7 @@ public class ReleaseSchedule {
 			dateBest = phase.getDateBeforePhaseBest();
 		}
 		
-		dateBest = Common.addDays( releaseDate , 1 );
+		dateBest = releaseDate;
 		for( int k = releasePhases; k < phases.size(); k++ ) {
 			ReleaseSchedulePhase phase = getPhase( k );
 			phase.setStartDateBest( dateBest );
@@ -307,7 +307,7 @@ public class ReleaseSchedule {
 			dateDeadline = phase.getDateBeforePhaseExpected();
 		}
 		
-		dateDeadline = Common.addDays( releaseDate , 1 );
+		dateDeadline = releaseDate;
 		for( int k = releasePhases; k < phases.size(); k++ ) {
 			ReleaseSchedulePhase phase = getPhase( k );
 			phase.setStartDateExpected( dateDeadline );
@@ -500,6 +500,28 @@ public class ReleaseSchedule {
 
 		phase.setDuration( action , duration );
 		setDeadlinesExpected();
+	}
+
+	public void setAllDates( ActionBase action , Date[] dates ) throws Exception {
+		if( phases.size() * 2 != dates.length )
+			action.exitUnexpectedState();
+
+		for( int k = 0; k < phases.size(); k++ ) {
+			Date startDate = dates[ k * 2 ];
+			Date finishDate = dates[ k * 2 + 1 ];
+			ReleaseSchedulePhase phase = phases.get( k );
+			
+			if( phase.isFinished() )
+				continue;
+			
+			if( phase.isStarted() )
+				startDate = phase.getDeadlineStart();
+				
+			phase.setDeadlines( action , startDate , finishDate );
+			
+			if( k == releasePhases - 1 )
+				releaseDate = finishDate;
+		}
 	}
 	
 }

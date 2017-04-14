@@ -233,7 +233,7 @@ public class ActionConfigure extends ActionBase {
 	}
 	
 	private void configureProductAll( Meta meta , boolean build , boolean deploy , boolean linux ) throws Exception {
-		CommandBuilder builder = new CommandBuilder( context.session.clientrc , context.session.execrc );
+		CommandBuilder builder = new CommandBuilder( context.session.clientrc , context.session.execrc , engine.optionsMeta );
 		
 		CommandMeta[] executors = builder.getExecutors( build , deploy );
 		CommandMeta dbe = null;

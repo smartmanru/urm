@@ -1,7 +1,10 @@
 package org.urm.common;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.urm.action.ActionBase;
-import org.urm.common.action.CommandVar.FLAG;
+import org.urm.common.action.CommandOption.FLAG;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
@@ -18,17 +21,48 @@ public abstract class PropertyController extends ServerObject {
 	private boolean loadFinished;
 	private PropertySet properties;
 
+	private PropertyController propertyParent;
+	private List<PropertyController> propertyChilds;
+	
 	abstract public boolean isValid();
 	abstract public void scatterProperties( ActionBase action ) throws Exception;
 	
-	public PropertyController( ServerObject parent , String name ) {
+	public PropertyController( ServerObject dataParent , PropertyController propertyParent , String name ) {
+		super( dataParent );
+		create( propertyParent , name );
+	}
+
+	public PropertyController( PropertyController parent , String name ) {
 		super( parent );
+		create( parent , name );
+	}
+
+	@Override
+	public void deleteObject() {
+		deleteObjectDown();
+		if( propertyParent != null )
+			propertyParent.propertyChilds.remove( this );
+		super.deleteObject();
+	}
+
+	@Override
+	public void deleteObjectDown() {
+		for( PropertyController child : propertyChilds )
+			child.deleteObjectDown();
+	}
+	
+	private void create( PropertyController parent , String name ) {
 		this.setName = name;
 		
 		loadFailed = false;
 		loadFinished = false;
+		propertyChilds = new LinkedList<PropertyController>();
+		
+		this.propertyParent = parent;
+		if( propertyParent != null )
+			propertyParent.propertyChilds.add( this );
 	}
-
+	
 	public PropertySet getProperties() {
 		return( properties );
 	}
@@ -309,5 +343,16 @@ public abstract class PropertyController extends ServerObject {
 	public String getFinalProperty( String name , Account account , boolean allowParent , boolean allowUnresolved ) throws Exception {
 		return( properties.getFinalProperty( name , account , allowParent , allowUnresolved ) );		
 	}
+
+	public void recalculateChildProperties( ActionBase action ) throws Exception {
+		for( PropertyController child : propertyChilds )
+			child.parentPropertiesModified( action );
+	}
 	
+	public void parentPropertiesModified( ActionBase action ) throws Exception {
+		recalculateProperties();
+		scatterProperties( action );
+		recalculateChildProperties( action );
+	}
+
 }

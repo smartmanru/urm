@@ -322,7 +322,7 @@ public class Dist {
 	public void create( ActionBase action , String RELEASEDIR , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
 		this.RELEASEDIR = RELEASEDIR;
 		VersionInfo info = VersionInfo.getReleaseVersion( action , RELEASEDIR );
-		lc = getLifecycle( action , lc , info.getLifecycleType() );
+		lc = getLifecycle( action , meta , lc , info.getLifecycleType() );
 		releaseDate = getReleaseDate( action , releaseDate , lc );
 		if( releaseDate == null )
 			action.exit1( _Error.MissingReleaseDate1 , "unable to create release label=" + RELEASEDIR + " due to missing release date" , RELEASEDIR );
@@ -333,7 +333,7 @@ public class Dist {
 
 	public void changeReleaseDate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
 		VarLCTYPE type = release.getLifecycleType();
-		ServerReleaseLifecycle lcset = getLifecycle( action , lc , type );
+		ServerReleaseLifecycle lcset = getLifecycle( action , meta , lc , type );
 		release.setReleaseDate( action , releaseDate , lcset );
 	}
 	
@@ -432,12 +432,10 @@ public class Dist {
 		state.ctlCloseDataChange( action );
 	}
 
-	public void copyRelease( ActionBase action , Dist src ) throws Exception {
+	public void copyScope( ActionBase action , Dist src ) throws Exception {
 		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
 		
-		String saveReleaseVer = release.RELEASEVER;
-		release.copyRelease( action , src.release );
-		release.setReleaseVer( action , saveReleaseVer );
+		release.copyReleaseScope( action , src.release );
 		Document doc = release.createXml( action );
 		Common.xmlSaveDoc( doc , filePath );
 		
@@ -543,6 +541,26 @@ public class Dist {
 		return( true );
 	}
 
+	public boolean addDerivedItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+		action.debug( "release - add derived item=" + item.KEY );
+		
+		if( !release.addCategorySet( action , VarCATEGORY.DERIVED , false ) )
+			return( false );
+		if( !release.addDerivedItem( action , item ) )
+			return( false );
+		return( true );
+	}
+
+	public boolean addBinaryItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+		if( item.isProjectItem() )
+			return( addProjectItem( action , item.sourceProjectItem.project , item.sourceProjectItem ) );
+		if( item.isManualItem() )
+			return( addManualItem( action , item ) );
+		if( item.isDerivedItem() )
+			return( addDerivedItem( action , item ) );
+		return( false );
+	}
+	
 	public boolean addDatabaseItem( ActionBase action , MetaDistrDelivery item ) throws Exception {
 		action.debug( "release - add database delivery=" + item.NAME );
 		
@@ -572,7 +590,7 @@ public class Dist {
 
 	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 , boolean getTimestamp ) throws Exception {
 		DistItemInfo info = new DistItemInfo( item );
-		if( item.isDerived() ) {
+		if( item.isDerivedItem() ) {
 			DistItemInfo infosrc = getDistItemInfo( action , item.srcDistItem , false , true );
 			info.subPath = infosrc.subPath;
 			info.fileName = infosrc.fileName;
@@ -592,7 +610,7 @@ public class Dist {
 		
 		if( info.found && getMD5 ) {
 			RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
-			if( item.isDerived() )
+			if( item.isDerivedItem() )
 				info.md5value = fileFolder.getArchivePartMD5( action , info.fileName , item.SRCITEMPATH , item.srcDistItem.EXT );
 			else
 			if( item.isArchive() )
@@ -620,8 +638,11 @@ public class Dist {
 		return( info );
 	}
 
-	public void descopeSet( ActionBase action , ReleaseSet set ) throws Exception {
+	public void reloadCheckOpenedForDataChange( ActionBase action ) throws Exception {
 		state.ctlReloadCheckOpenedForDataChange( action );
+	}
+	
+	public void descopeSet( ActionBase action , ReleaseSet set ) throws Exception {
 		for( ReleaseTarget target : set.getTargets() )
 			dropTarget( action , target );
 		
@@ -630,15 +651,18 @@ public class Dist {
 		else
 			release.deleteCategorySet( action , set.CATEGORY );
 	}
+
+	public void descopeAllProjects( ActionBase action ) throws Exception {
+		for( ReleaseSet set : release.getSourceSets() )
+			descopeSet( action , set );
+	}
 	
 	public void descopeTarget( ActionBase action , ReleaseTarget target ) throws Exception {
-		state.ctlReloadCheckOpenedForDataChange( action );
 		dropTarget( action , target );
 		release.deleteTarget( action , target );
 	}
 	
 	public void descopeTargetItems( ActionBase action , ReleaseTargetItem[] items ) throws Exception {
-		state.ctlReloadCheckOpenedForDataChange( action );
 		for( ReleaseTargetItem item : items ) {
 			dropTargetItem( action , item );
 			release.deleteProjectItem( action , item );
@@ -681,9 +705,15 @@ public class Dist {
 				return( false );
 			return( true );
 		}
-		else if( item.distItemOrigin == VarDISTITEMORIGIN.DISTITEM )
+		else
+		if( item.distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
+			ReleaseTarget target = release.findCategoryTarget( action , VarCATEGORY.DERIVED , item.KEY );
+			if( target == null )
+				return( false );
 			return( checkIfReleaseItem( action , item.srcDistItem ) );
-		else if( item.distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
+		}
+		else 
+		if( item.distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
 			ReleaseTarget target = release.findBuildProject( action , item.sourceProjectItem.project.NAME );
 			if( target == null )
 				return( false );
@@ -713,7 +743,19 @@ public class Dist {
 			
 			return( Common.getPath( BINARY_FOLDER , target.DISTFILE ) );
 		}
-		else if( item.distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
+		else
+		if( item.distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
+			ReleaseTarget target = release.findCategoryTarget( action , VarCATEGORY.DERIVED , item.KEY );
+			if( target == null )
+				return( "" );
+			
+			if( target.DISTFILE == null || target.DISTFILE.isEmpty() )
+				return( "" );
+			
+			return( Common.getPath( BINARY_FOLDER , target.DISTFILE ) );
+		}
+		else
+		if( item.distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
 			ReleaseTarget target = release.findBuildProject( action , item.sourceProjectItem.project.NAME );
 			if( target == null )
 				return( "" );
@@ -885,7 +927,7 @@ public class Dist {
 		}
 	}
 	
-	private ServerReleaseLifecycle getLifecycle( ActionBase action , ServerReleaseLifecycle lc , VarLCTYPE type ) throws Exception {
+	public static ServerReleaseLifecycle getLifecycle( ActionBase action , Meta meta , ServerReleaseLifecycle lc , VarLCTYPE type ) throws Exception {
 		MetaProductCoreSettings core = meta.getProductCoreSettings( action );
 		
 		if( type == VarLCTYPE.MAJOR ) {

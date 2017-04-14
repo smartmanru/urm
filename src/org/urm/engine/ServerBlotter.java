@@ -26,6 +26,7 @@ import org.urm.action.release.ActionGetCumulative;
 import org.urm.action.release.ActionModifyRelease;
 import org.urm.action.release.ActionReopenRelease;
 import org.urm.action.release.ActionSchedulePhase;
+import org.urm.action.release.ActionSetScope;
 import org.urm.action.release.ActionTouchRelease;
 import org.urm.common.Common;
 import org.urm.engine.action.ActionInit;
@@ -212,7 +213,7 @@ public class ServerBlotter {
 		// release blotter
 		if( action instanceof ActionCopyRelease ) {
 			ActionCopyRelease xa = ( ActionCopyRelease )action;
-			runDistAction( xa , success , xa.src.meta , xa.dst , DistOperation.CREATE , "copy distributive from " + xa.src.RELEASEDIR + " to " + xa.dst.RELEASEDIR ); 
+			runDistAction( xa , success , xa.src.meta , xa.dst , DistOperation.CREATE , "copy distributive from " + xa.src.RELEASEDIR + " to " + xa.RELEASEDST ); 
 		}
 		else
 		if( action instanceof ActionCreateProd ) {
@@ -268,6 +269,11 @@ public class ServerBlotter {
 		if( action instanceof ActionAddScope ) {
 			ActionAddScope xa = ( ActionAddScope )action;
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "extend scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionSetScope ) {
+			ActionSetScope xa = ( ActionSetScope )action;
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "set scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
 		if( action instanceof ActionDescope ) {

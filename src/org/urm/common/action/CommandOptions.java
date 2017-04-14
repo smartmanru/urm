@@ -2,10 +2,10 @@ package org.urm.common.action;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
+import org.urm.common.Common;
 import org.urm.common.RunContext;
-import org.urm.common.action.CommandVar.FLAG;
+import org.urm.common.action.CommandOption.FLAG;
 
 public class CommandOptions {
 
@@ -17,18 +17,19 @@ public class CommandOptions {
 	// implementation
 	public OptionsMeta meta;
 	public String command;
-	public String action;
+	public String method;
 	
 	public ActionData data;
-
-	public CommandOptions() {
-		meta = new OptionsMeta();
-	}
 
 	public CommandOptions( OptionsMeta meta ) {
 		this.meta = meta;
 	}
 
+	public void setMethod( String command , String method ) {
+		this.command = command;
+		this.method = method;
+	}
+	
 	public void setCommand( String command , ActionData data ) {
 		this.command = command;
 		this.data = data;
@@ -36,12 +37,12 @@ public class CommandOptions {
 
 	public void setAction( CommandMethodMeta method , ActionData data ) {
 		this.command = method.command.name;
-		this.action = method.name;
+		this.method = method.name;
 		this.data = data;
 	}
 	
 	public boolean setFromSystemProperties() {
-		for( CommandVar var : meta.varByName.values() ) {
+		for( CommandVar var : meta.getVars() ) {
 			String value = System.getProperty( var.varName );
 			if( value != null )
 				if( !setVarValue( var , value ) )
@@ -61,7 +62,7 @@ public class CommandOptions {
 		command = cmdParams[0];
 		
 		int k = 1;
-		action = cmdParams[1];
+		method = cmdParams[1];
 		k++;
 
 		// next items are options
@@ -104,8 +105,8 @@ public class CommandOptions {
 				return( false );
 		}
 
-		if( data.getFlagValue( meta.getTraceVar() ) == FLAG.YES ) {
-			String ro = data.getRunningOptions();
+		if( data.getFlagValue( OptionsMeta.OPT_TRACE ) == FLAG.YES ) {
+			String ro = data.getRunningInfo();
 			print( "current options=" + ro );
 		}
 		
@@ -113,12 +114,19 @@ public class CommandOptions {
 	}
 
 	private boolean setVarValue( CommandVar var , String value ) {
-		if( var.isFlag )
-			return( addFlagOption( var.optName ) );
-		if( var.isEnum )
-			return( addEnumOption( var.optName ) );
-		if( var.isParam )
-			return( addParamOption( var.optName , value ) );
+		if( var.isFlag ) {
+			boolean x = ( value.isEmpty() )? true : Common.getBooleanValue( value );
+			CommandOption info = meta.getVarFlagOption( var , x );
+			return( addFlagOption( info.optName ) );
+		}
+		if( var.isEnum ) {
+			CommandOption info = meta.getVarEnumOption( var , value );
+			return( addEnumOption( info.optName ) );
+		}
+		if( var.isParam ) {
+			CommandOption info = meta.getVarParamOption( var );
+			return( addParamOption( info.optName , value ) );
+		}
 		return( false );
 	}
 	
@@ -127,11 +135,11 @@ public class CommandOptions {
 	}
 	
 	public String getRunningOptions() {
-		return( data.getRunningOptions() );
+		return( data.getRunningInfo() );
 	}
 	
-	public String getOptionValue( CommandVar var ) {
-		return( data.getOptionValue( var ) );
+	public String getVarValue( CommandVar var ) {
+		return( data.getVarValue( var ) );
 	}
 	
 	public boolean isFlagSet( String var ) {
@@ -167,14 +175,14 @@ public class CommandOptions {
 	public boolean isParamVar( String var ) {
 		return( meta.isParamVar( var ) );
 	}
-	
+
 	public boolean addFlagOption( String opt ) {
 		if( !isFlagOption( opt ) )
 			throw new RuntimeException( "option=" + opt + " is not a flag" );
 		
-		CommandVar info = meta.getOption( opt );
+		CommandOption info = meta.getOption( opt );
 		if( !data.addFlagOption( info ) ) {
-			print( "flag=" + info.varName + " is already set" );
+			print( "var=" + info.var.varName + " is already set" );
 			return( false );
 		}
 		
@@ -185,9 +193,9 @@ public class CommandOptions {
 		if( !isEnumOption( opt ) )
 			throw new RuntimeException( "option=" + opt + " is not a enum" );
 		
-		CommandVar info = meta.getOption( opt );
+		CommandOption info = meta.getOption( opt );
 		if( !data.addEnumOption( info ) ) {
-			print( "enum=" + info.varName + " is already set" );
+			print( "var=" + info.var.varName + " is already set" );
 			return( false );
 		}
 		
@@ -198,9 +206,9 @@ public class CommandOptions {
 		if( !isParamOption( opt ) )
 			throw new RuntimeException( "option=" + opt + " is not a parameter" );
 		
-		CommandVar info = meta.getOption( opt );
+		CommandOption info = meta.getOption( opt );
 		if( !data.addParamOption( info , value ) ) {
-			print( "parameter=" + info.varName + " is already set" );
+			print( "var=" + info.var.varName + " is already set" );
 			return( false );
 		}
 		
@@ -235,7 +243,7 @@ public class CommandOptions {
 		return( data.getParamsSet() );
 	}
 
-	public List<CommandVar> getOptionsSet() {
+	public List<CommandOption> getOptionsSet() {
 		return( data.getOptionsSet() );
 	}
 	
@@ -268,9 +276,9 @@ public class CommandOptions {
 	}
 	
 	public boolean checkValidOptions( CommandMethodMeta commandAction ) {
-		for( CommandVar var : data.getOptionsSet() ) {
-			if( !commandAction.isOptionApplicable( var ) ) {
-				print( "option " + var.varName + " is not applicable for action " + commandAction.name );
+		for( CommandOption opt : data.getOptionsSet() ) {
+			if( !commandAction.isOptionApplicable( opt ) ) {
+				print( "option " + opt.optName + " is not applicable for action " + commandAction.name );
 				return( false );
 			}
 		}
@@ -302,28 +310,34 @@ public class CommandOptions {
 		meta.showActionHelp( builder , action , this );
 	}
 
-	public Map<String,CommandVar> getDefinedVariables() {
-		return( meta.varByName );
+	public CommandVar[] getDefinedVariables() {
+		return( meta.varByName.values().toArray( new CommandVar[0] ) );
 	}
 
 	public void setArgs( String[] args ) {
 		data.setArgs( args );
 	}
 
-	public void setParam( CommandVar var , String value ) {
-		data.setParam( var , value );
+	public CommandOption setParam( CommandVar var , String value ) {
+		CommandOption info = meta.getVarParamOption( var );
+		addParamOption( info.optName , value );
+		return( info );
 	}
 	
-	public void setFlag( CommandVar var , boolean value ) {
-		data.setFlag( var , value );
+	public CommandOption setFlag( CommandVar var , boolean value ) {
+		CommandOption info = meta.getVarFlagOption( var , value );
+		addFlagOption( info.optName );
+		return( info );
 	}
 	
-	public void clearFlag( CommandVar var ) {
-		data.clearFlag( var );
+	public CommandOption setEnum( CommandVar var , String value ) {
+		CommandOption info = meta.getVarEnumOption( var , value );
+		addFlagOption( info.optName );
+		return( info );
 	}
 	
-	public void clearParam( CommandVar var ) {
-		data.clearParam( var );
+	public void clearVar( CommandVar var ) {
+		data.clearVar( var );
 	}
 	
 	public void clearData() {

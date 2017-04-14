@@ -36,7 +36,8 @@ public class ServerAuth extends ServerObject {
 		ACTION_DEPLOY ,
 		ACTION_MONITOR ,
 		ACTION_XDOC ,
-		ACTION_ADMIN
+		ACTION_ADMIN ,
+		ACTION_EXECUTE
 	};
 	
 	public enum SourceType {
@@ -349,7 +350,8 @@ public class ServerAuth extends ServerObject {
 			return( true );
 		
 		ServerAuthRoleSet roles = security.getBaseRoles();
-		if( sa == SecurityAction.ACTION_MONITOR ) {
+		
+		if( sa == SecurityAction.ACTION_MONITOR || sa == SecurityAction.ACTION_EXECUTE ) {
 			if( roles.isAny() )
 				return( true );
 			return( false );

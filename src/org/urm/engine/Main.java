@@ -5,6 +5,7 @@ import org.urm.common.RunError;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandOptions;
+import org.urm.common.action.OptionsMeta;
 import org.urm.engine.executor.MainExecutor;
 
 public class Main {
@@ -41,7 +42,8 @@ public class Main {
 		MainExecutor serverExecutor = MainExecutor.createExecutor( engine );
 		
 		// server run options
-		CommandBuilder builder = new CommandBuilder( execrc , execrc );
+		OptionsMeta meta = new OptionsMeta();
+		CommandBuilder builder = new CommandBuilder( execrc , execrc , meta );
 		CommandOptions options = serverExecutor.createOptionsByArgs( builder , args );
 		if( options == null )
 			return( false );

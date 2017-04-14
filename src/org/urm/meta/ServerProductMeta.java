@@ -249,7 +249,8 @@ public class ServerProductMeta extends ServerObject {
 		if( database != null )
 			return( database );
 		
-		database = new MetaDatabase( this , meta );
+		MetaProductSettings settings = loadProduct( action , storageMeta );
+		database = new MetaDatabase( this , settings , meta );
 		
 		if( !loadFailed ) {
 			try {
@@ -274,7 +275,8 @@ public class ServerProductMeta extends ServerObject {
 		if( distr != null )
 			return( distr );
 		
-		distr = new MetaDistr( this , meta );
+		MetaProductSettings settings = loadProduct( action , storageMeta );
+		distr = new MetaDistr( this , settings , meta );
 		meta.setDistr( distr );
 		
 		if( !loadFailed ) {
@@ -300,7 +302,8 @@ public class ServerProductMeta extends ServerObject {
 		if( sources != null )
 			return( sources );
 		
-		sources = new MetaSource( this , meta );
+		MetaProductSettings settings = loadProduct( action , storageMeta );
+		sources = new MetaSource( this , settings , meta );
 		meta.setSources( sources );
 		
 		if( !loadFailed ) {
@@ -326,7 +329,8 @@ public class ServerProductMeta extends ServerObject {
 		if( mon != null )
 			return( mon );
 		
-		mon = new MetaMonitoring( this , meta );
+		MetaProductSettings settings = loadProduct( action , storageMeta );
+		mon = new MetaMonitoring( this , settings , meta );
 		
 		if( !loadFailed ) {
 			try {
@@ -352,7 +356,8 @@ public class ServerProductMeta extends ServerObject {
 		if( env != null )
 			return( env );
 		
-		env = new MetaEnv( this , meta );
+		MetaProductSettings settings = loadProduct( action , storageMeta );
+		env = new MetaEnv( this , settings , meta );
 		envs.put( envName , env );
 
 		if( !loadFailed ) {
@@ -458,25 +463,25 @@ public class ServerProductMeta extends ServerObject {
 	}
 	
 	private void createInitialDatabase( TransactionBase transaction ) throws Exception {
-		database = new MetaDatabase( this , meta );
+		database = new MetaDatabase( this , product , meta );
 		database.createDatabase( transaction );
 		meta.setDatabase( database );
 	}
 	
 	private void createInitialDistr( TransactionBase transaction ) throws Exception {
-		distr = new MetaDistr( this , meta );
+		distr = new MetaDistr( this , product , meta );
 		distr.createDistr( transaction );
 		meta.setDistr( distr );
 	}
 	
 	private void createInitialSources( TransactionBase transaction ) throws Exception {
-		sources = new MetaSource( this , meta );
+		sources = new MetaSource( this , product , meta );
 		sources.createSources( transaction );
 		meta.setSources( sources );
 	}
 	
 	private void createInitialMonitoring( TransactionBase transaction ) throws Exception {
-		mon = new MetaMonitoring( this , meta );
+		mon = new MetaMonitoring( this , product , meta );
 		mon.createMonitoring( transaction );
 	}
 

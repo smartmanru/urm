@@ -319,15 +319,15 @@ public class DistRepository {
 		return( dist );
 	}
 
-	public DistRepositoryItem findRunItem( ActionBase action , Dist dist ) throws Exception {
+	public DistRepositoryItem findRunItem( ActionBase action , Dist dist ) {
 		return( runMap.get( dist.RELEASEDIR ) );
 	}
 	
-	private Dist findDist( ActionBase action , DistLabelInfo info ) throws Exception {
+	private Dist findDist( ActionBase action , DistLabelInfo info ) {
 		return( findDist( info.RELEASEDIR ) );
 	}
 	
-	private synchronized Dist findDist( String releaseDir ) {
+	public synchronized Dist findDist( String releaseDir ) {
 		return( distMap.get( releaseDir ) );
 	}
 
@@ -353,7 +353,6 @@ public class DistRepository {
 
 	public synchronized DistRepositoryItem addDistAction( ActionBase action , boolean success , Dist dist , DistOperation op , String msg ) throws Exception {
 		DistRepositoryItem item = null;
-		boolean save = false;
 		if( op == DistOperation.CREATE ) {
 			if( success == false )
 				return( null );
@@ -361,7 +360,6 @@ public class DistRepository {
 			item = new DistRepositoryItem( this );
 			item.createItem( action , dist );
 			addRunItem( item );
-			save = true;
 		}
 		else {
 			item = findRunItem( dist.RELEASEDIR );
@@ -372,22 +370,18 @@ public class DistRepository {
 		item.addAction( action , success , op , msg );
 		
 		if( op == DistOperation.DROP ) {
-			if( success ) {
+			if( success )
 				removeRunItem( item );
-				save = true;
-			}
 		}
 		else
 		if( op == DistOperation.ARCHIVE ) {
 			if( success ) {
-				save = true;
 				removeRunItem( item );
 				item.archiveItem( action );
 			}
 		}
 		
-		if( save )
-			saveRepositoryFile( action );
+		saveRepositoryFile( action );
 		return( item );
 	}
 
@@ -462,6 +456,10 @@ public class DistRepository {
 		item.createItem( action , distNew );
 		
 		addDist( distNew );
+	}
+
+	public Dist findMasterDist() {
+		return( distMap.get( Dist.MASTER_DIR ) );
 	}
 	
 }

@@ -17,6 +17,7 @@ import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandOptions;
+import org.urm.common.action.OptionsMeta;
 
 public class RemoteCall implements NotificationListener {
 
@@ -54,9 +55,9 @@ public class RemoteCall implements NotificationListener {
 	public RemoteCall( CommandOptions options ) {
 		this.options = options;
 		
-		String var = options.meta.getTraceVar();
+		String var = OptionsMeta.OPT_TRACE;
 		trace = options.getFlagValue( var , false );
-		var = options.meta.getTimeoutVar();
+		var = OptionsMeta.OPT_TIMEOUT;
 		timeout = options.getIntParamValue( var , options.optDefaultCommandTimeout );
 	}
 	
@@ -138,14 +139,14 @@ public class RemoteCall implements NotificationListener {
 	private boolean serverCommandCall( CommandBuilder builder , String name ) {
 		String sessionId;
 		try {
-			String clientId = options.action + "-" + System.currentTimeMillis();
+			String clientId = options.method + "-" + System.currentTimeMillis();
 			mbeanName = new ObjectName( name );
 			RemoteCallFilter filter = new RemoteCallFilter( clientId );
 			
 			stopwait = false;
 			mbsc.addNotificationListener( mbeanName , this , filter , clientId );
 			sessionId = ( String )mbsc.invoke( mbeanName , GENERIC_ACTION_NAME , 
-					new Object[] { options.action , options.data , clientId , auth.authUser , auth.authPassword } , 
+					new Object[] { options.method , options.data , clientId , auth.authUser , auth.authPassword } , 
 					new String[] { String.class.getName() , ActionData.class.getName() , String.class.getName() , String.class.getName() , String.class.getName() } );
 		}
 		catch( Throwable e ) {

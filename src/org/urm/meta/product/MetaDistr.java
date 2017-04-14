@@ -25,8 +25,8 @@ public class MetaDistr extends PropertyController {
 	private Map<String,MetaDistrConfItem> mapConfItems;
 	private Map<String,MetaDistrComponent> mapComps;
 	
-	public MetaDistr( ServerProductMeta storage , Meta meta ) {
-		super( storage , "distr" );
+	public MetaDistr( ServerProductMeta storage , MetaProductSettings settings , Meta meta ) {
+		super( storage , settings , "distr" );
 		this.meta = meta;
 		meta.setDistr( this );
 		
@@ -53,8 +53,8 @@ public class MetaDistr extends PropertyController {
 	}
 	
 	public MetaDistr copy( ActionBase action , Meta meta ) throws Exception {
-		MetaDistr r = new MetaDistr( meta.getStorage( action ) , meta );
 		MetaProductSettings product = meta.getProductSettings( action );
+		MetaDistr r = new MetaDistr( meta.getStorage( action ) , product , meta );
 		r.initCopyStarted( this , product.getProperties() );
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
 			MetaDistrDelivery rd = delivery.copy( action , meta , r );
@@ -208,6 +208,14 @@ public class MetaDistr extends PropertyController {
 		List<String> list = new LinkedList<String>();
 		for( MetaDistrBinaryItem item : mapBinaryItems.values() )
 			if( item.isManualItem() )
+				list.add( item.KEY );
+		return( list.toArray( new String[0] ) );
+	}
+	
+	public String[] getDerivedItemNames() {
+		List<String> list = new LinkedList<String>();
+		for( MetaDistrBinaryItem item : mapBinaryItems.values() )
+			if( item.isDerivedItem() )
 				list.add( item.KEY );
 		return( list.toArray( new String[0] ) );
 	}

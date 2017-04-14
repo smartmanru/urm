@@ -281,6 +281,9 @@ public class ActionScope {
 	}
 	
 	private void createEnvScope( ActionBase action , MetaEnv env , MetaEnvSegment sg , Dist dist ) throws Exception {
+		if( env == null )
+			action.exit0( _Error.MissingEnvironment0 , "Missing environment" );
+		
 		String sgMask = null;
 		if( sg != null )
 			sgMask = sg.NAME;
@@ -374,6 +377,11 @@ public class ActionScope {
 				sset = createProductCategoryScopeSet( action , VarCATEGORY.MANUAL );
 				sset.addManualItems( action , new String[] { itemName } );
 			}
+			else
+			if( item.distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
+				sset = createProductCategoryScopeSet( action , VarCATEGORY.DERIVED );
+				sset.addDerivedItems( action , new String[] { itemName } );
+			}
 			else {
 				sset = createProjectScopeSet( action , item.sourceProjectItem.project.set );
 			
@@ -394,6 +402,9 @@ public class ActionScope {
 			ActionScopeSet sset = null;
 			if( item.distItemOrigin == VarDISTITEMORIGIN.MANUAL )
 				sset = createReleaseCategoryScopeSet( action , dist , VarCATEGORY.MANUAL );
+			else
+			if( item.distItemOrigin == VarDISTITEMORIGIN.DERIVED )
+				sset = createReleaseCategoryScopeSet( action , dist , VarCATEGORY.DERIVED );
 			else {
 				ReleaseSet rset = dist.release.getSourceSet( action , item.sourceProjectItem.project.set.NAME );
 				sset = createReleaseScopeSet( action , rset );
@@ -410,6 +421,7 @@ public class ActionScope {
 		addAllProductConfigs( action );
 		addAllProductDatabase( action );
 		addAllManualItems( action );
+		addAllDerivedItems( action );
 	}
 	
 	private void createProductSet( ActionBase action , String set , String[] TARGETS ) throws Exception {
@@ -422,6 +434,9 @@ public class ActionScope {
 		else 
 		if( set.equals( Common.getEnumLower( VarCATEGORY.MANUAL ) ) )
 			addManualItems( action , TARGETS );
+		else 
+		if( set.equals( Common.getEnumLower( VarCATEGORY.DERIVED ) ) )
+			addDerivedItems( action , TARGETS );
 		else {
 			MetaSource sources = meta.getSources( action );
 			MetaSourceProjectSet pset = sources.getProjectSet( action , set );  
@@ -435,6 +450,7 @@ public class ActionScope {
 		addAllReleaseConfigs( action , release );
 		addAllReleaseDatabase( action , release );
 		addAllReleaseManualItems( action , release );
+		addAllReleaseDerivedItems( action , release );
 	}
 	
 	private void createReleaseSet( ActionBase action , Dist release , String SET , String[] TARGETS )	throws Exception {
@@ -447,6 +463,9 @@ public class ActionScope {
 		else 
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.MANUAL ) ) )
 			addReleaseManualItems( action , release , TARGETS );
+		else 
+		if( SET.equals( Common.getEnumLower( VarCATEGORY.DERIVED ) ) )
+			addReleaseDerivedItems( action , release , TARGETS );
 		else {
 			MetaSource sources = meta.getSources( action );
 			MetaSourceProjectSet set = sources.getProjectSet( action , SET );
@@ -538,6 +557,10 @@ public class ActionScope {
 
 	public boolean hasManual( ActionBase action ) throws Exception {
 		return( hasCategorySet( action , VarCATEGORY.MANUAL ) );
+	}
+
+	public boolean hasDerived( ActionBase action ) throws Exception {
+		return( hasCategorySet( action , VarCATEGORY.DERIVED ) );
 	}
 
 	public List<ActionScopeSet> getSetList( ActionBase action ) throws Exception {
@@ -682,6 +705,21 @@ public class ActionScope {
  		addReleaseManualItems( action , release , null );
  	}
 	
+	private void addAllDerivedItems( ActionBase action ) throws Exception {
+		ActionScopeSet set = createProductCategoryScopeSet( action , VarCATEGORY.DERIVED );
+		set.addDerivedItems( action , null );
+	}
+
+ 	private void addReleaseDerivedItems( ActionBase action , Dist release , String[] ITEMS ) throws Exception {
+		ActionScopeSet set = createReleaseCategoryScopeSet( action , release , VarCATEGORY.DERIVED );
+		if( set != null )
+			set.addDerivedItems( action , ITEMS );
+ 	}
+	
+ 	private void addAllReleaseDerivedItems( ActionBase action , Dist release ) throws Exception {
+ 		addReleaseDerivedItems( action , release , null );
+ 	}
+	
 	private void addAllSourceProjects( ActionBase action ) throws Exception {
 		MetaSource sources = meta.getSources( action );
 		for( MetaSourceProjectSet pset : sources.getSets() ) {
@@ -738,6 +776,11 @@ public class ActionScope {
 	private void addManualItems( ActionBase action , String[] DISTITEMS ) throws Exception {
 		ActionScopeSet sset = createProductCategoryScopeSet( action , VarCATEGORY.MANUAL );
 		sset.addManualItems( action , DISTITEMS );
+	}
+	
+	private void addDerivedItems( ActionBase action , String[] DISTITEMS ) throws Exception {
+		ActionScopeSet sset = createProductCategoryScopeSet( action , VarCATEGORY.DERIVED );
+		sset.addDerivedItems( action , DISTITEMS );
 	}
 	
  	private void addAllReleaseDatabase( ActionBase action , Dist release ) throws Exception {

@@ -45,7 +45,7 @@ public class SessionController {
 	public void start( ActionBase serverAction ) throws Exception {
 		stop = false;
 		serverAction.debug( "start session controller ..." );
-		CommandBuilder builder = new CommandBuilder( engine.serverSession.clientrc , engine.serverSession.execrc );
+		CommandBuilder builder = new CommandBuilder( engine.serverSession.clientrc , engine.serverSession.execrc , engine.optionsMeta );
 		executors = builder.getExecutors( true , true );
 		serverAction.debug( "session controller has been started" );
 	}
@@ -84,7 +84,7 @@ public class SessionController {
 			return( null );
 		}
 		
-		CommandBuilder builder = new CommandBuilder( data.clientrc , engine.execrc );
+		CommandBuilder builder = new CommandBuilder( data.clientrc , engine.execrc , engine.optionsMeta );
 		CommandOptions options = new CommandOptions( serverAction.context.options.meta );
 		options.setAction( method , data );
 		
@@ -95,7 +95,7 @@ public class SessionController {
 		ServerSession session = call.sessionContext;
 		session.setServerRemoteProductLayout( engine.serverAction );
 		
-		ActionInit action = engine.createAction( RootActionType.Command , options , session , "call-" + data.clientrc.product , call , false , "Run remote command=" + commandInfo.name + "::" + options.action );
+		ActionInit action = engine.createAction( RootActionType.Command , options , session , "call-" + data.clientrc.product , call , false , "Run remote command=" + commandInfo.name + "::" + options.method );
 		if( action == null )
 			return( null );
 
@@ -111,7 +111,7 @@ public class SessionController {
 		ActionBase serverAction = engine.serverAction;
 		session.setServerRemoteProductLayout( serverAction );
 		
-		ActionInit action = engine.createAction( RootActionType.Command , options , session , "webjmx-" + engine.execrc.product , null , false , "Run web JMX command=" + meta.name + "::" + options.action );
+		ActionInit action = engine.createAction( RootActionType.Command , options , session , "webjmx-" + engine.execrc.product , null , false , "Run web JMX command=" + meta.name + "::" + options.method );
 		if( action == null )
 			return( false );
 
@@ -131,7 +131,7 @@ public class SessionController {
 		// execute
 		try {
 			engine.startAction( clientAction );
-			executor.runAction( clientAction );
+			executor.runExecutor( clientAction , clientAction.commandAction );
 		}
 		catch( Throwable e ) {
 			clientAction.handle( e );

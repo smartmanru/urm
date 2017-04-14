@@ -48,17 +48,7 @@ public class Release {
 		schedule = new ReleaseSchedule( meta , this );
 	}
 
-	public void copyRelease( ActionBase action , Release src ) throws Exception {
-		this.RELEASEVER = src.RELEASEVER;
-
-		schedule = src.schedule.copy( action , meta , src , false ); 
-		
-		this.PROPERTY_MASTER = false;
-		this.PROPERTY_OBSOLETE = src.PROPERTY_OBSOLETE;
-		this.PROPERTY_BUILDMODE = src.PROPERTY_BUILDMODE;
-		this.PROPERTY_COMPATIBILITY = src.PROPERTY_COMPATIBILITY;
-		this.PROPERTY_CUMULATIVE = src.PROPERTY_CUMULATIVE;
-
+	public void copyReleaseScope( ActionBase action , Release src ) throws Exception {
 		descopeAll( action );
 		for( Entry<String,ReleaseSet> entry : src.sourceSetMap.entrySet() ) {
 			ReleaseSet set = entry.getValue().copy( action , this );
@@ -762,6 +752,23 @@ public class Release {
 			return( true );
 		
 		target = set.addManualItem( action , item );
+		registerTarget( action , target );
+		return( true );
+	}
+
+	public boolean addDerivedItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
+		if( item.distItemOrigin != VarDISTITEMORIGIN.DERIVED )
+			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item.KEY , item.KEY );
+			
+		ReleaseSet set = getCategorySet( action , VarCATEGORY.DERIVED );
+		if( set.ALL )
+			return( true );
+
+		ReleaseTarget target = set.findTarget( item.KEY );
+		if( target != null )
+			return( true );
+		
+		target = set.addDerivedItem( action , item );
 		registerTarget( action , target );
 		return( true );
 	}

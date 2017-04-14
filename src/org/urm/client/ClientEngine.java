@@ -4,6 +4,7 @@ import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandOptions;
+import org.urm.common.action.OptionsMeta;
 import org.urm.common.jmx.RemoteCall;
 
 public class ClientEngine {
@@ -15,8 +16,9 @@ public class ClientEngine {
 		RunContext execrc = new RunContext();
 		execrc.load();
 		
-		CommandBuilder builder = new CommandBuilder( execrc , execrc );
-		CommandOptions options = new CommandOptions();
+		OptionsMeta meta = new OptionsMeta();
+		CommandBuilder builder = new CommandBuilder( execrc , execrc , meta );
+		CommandOptions options = new CommandOptions( meta );
 		CommandMeta commandInfo = builder.buildCommand( args , options ); 
 		if( commandInfo == null )
 			return( false );
@@ -56,7 +58,7 @@ public class ClientEngine {
 
 	private boolean runClientMode( CommandBuilder builder , CommandMeta commandInfo , CommandOptions options ) throws Exception {
 		boolean res = false;
-		if( options.action.equals( "auth" ) ) {
+		if( options.method.equals( "auth" ) ) {
 			ClientAuth auth = new ClientAuth( this );
 			res = auth.setAuth( builder , options );
 		}

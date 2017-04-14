@@ -18,6 +18,7 @@ public class ReleaseDelivery {
 	private Map<String,ReleaseTargetItem> projectItems;
 	private Map<String,ReleaseTarget> confItems;
 	private Map<String,ReleaseTarget> manualItems;
+	private Map<String,ReleaseTarget> derivedItems;
 	private ReleaseTarget dbItem;
 	
 	public ReleaseDelivery( Meta meta , Release release , MetaDistrDelivery distDelivery ) {
@@ -28,6 +29,7 @@ public class ReleaseDelivery {
 		projectItems = new HashMap<String,ReleaseTargetItem>();
 		confItems = new HashMap<String,ReleaseTarget>();
 		manualItems = new HashMap<String,ReleaseTarget>();
+		derivedItems = new HashMap<String,ReleaseTarget>();
 		dbItem = null;
 	}
 
@@ -55,6 +57,13 @@ public class ReleaseDelivery {
 			ReleaseSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
 			ReleaseTarget dst = dstSet.getTarget( action , src.NAME );
 			nx.manualItems.put( entry.getKey() , dst );
+		}
+		
+		for( Entry<String,ReleaseTarget> entry : derivedItems.entrySet() ) {
+			ReleaseTarget src = entry.getValue();
+			ReleaseSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
+			ReleaseTarget dst = dstSet.getTarget( action , src.NAME );
+			nx.derivedItems.put( entry.getKey() , dst );
 		}
 		
 		nx.dbItem = dbItem;
@@ -90,6 +99,11 @@ public class ReleaseDelivery {
 			action.debug( "add manual delivery: " + distDelivery.NAME + "::" + target.distManualItem.KEY );
 			manualItems.put( target.distManualItem.KEY , target );
 		}
+		else 
+		if( target.distDerivedItem != null ) {
+			action.debug( "add derived delivery: " + distDelivery.NAME + "::" + target.distDerivedItem.KEY );
+			derivedItems.put( target.distDerivedItem.KEY , target );
+		}
 		else
 			action.exit1( _Error.UnexpectedReleaseSourceType1 , "unexpected type of release source =" + target.NAME , target.NAME );
 	}
@@ -108,6 +122,11 @@ public class ReleaseDelivery {
 		if( target.distManualItem != null ) {
 			action.debug( "remove manual delivery: " + distDelivery.NAME + "::" + target.distManualItem.KEY );
 			manualItems.remove( target.distManualItem.KEY );
+		}
+		else 
+		if( target.distDerivedItem != null ) {
+			action.debug( "remove manual delivery: " + distDelivery.NAME + "::" + target.distDerivedItem.KEY );
+			derivedItems.remove( target.distDerivedItem.KEY );
 		}
 		else
 			action.exit1( _Error.UnexpectedReleaseSourceType1 , "unexpected type of release source =" + target.NAME , target.NAME );
@@ -141,6 +160,18 @@ public class ReleaseDelivery {
 		return( manualItems.get( name ) );
 	}
 
+	public String[] getDerivedItemNames() {
+		return( Common.getSortedKeys( derivedItems ) );
+	}
+	
+	public ReleaseTarget[] getDerivedItems() {
+		return( derivedItems.values().toArray( new ReleaseTarget[0] ) );
+	}
+
+	public ReleaseTarget findDerivedItem( String name ) {
+		return( derivedItems.get( name ) );
+	}
+
 	public String[] getProjectItemNames() {
 		return( Common.getSortedKeys( projectItems ) );
 	}
@@ -154,7 +185,7 @@ public class ReleaseDelivery {
 	}
 	
 	public boolean isEmpty() {
-		if( projectItems.isEmpty() && confItems.isEmpty() && manualItems.isEmpty() && dbItem == null )
+		if( projectItems.isEmpty() && confItems.isEmpty() && manualItems.isEmpty() && derivedItems.isEmpty() && dbItem == null )
 			return( true );
 		return( false );
 	}
@@ -178,6 +209,12 @@ public class ReleaseDelivery {
 	}
 
 	public boolean hasManualItems() {
+		if( !manualItems.isEmpty() )
+			return( true );
+		return( false );
+	}
+	
+	public boolean hasDerivedItems() {
 		if( !manualItems.isEmpty() )
 			return( true );
 		return( false );

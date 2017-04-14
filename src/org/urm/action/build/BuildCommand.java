@@ -24,7 +24,7 @@ public class BuildCommand {
 	}
 
 	public void buildTags( ActionBase action , String TAG , ActionScope scope , LocalFolder OUTDIR , String OUTFILE , Dist dist ) throws Exception {
-		ActionBuild ca = new ActionBuild( action.actionInit , null , OUTDIR , OUTFILE , TAG , dist );
+		ActionBuild ca = new ActionBuild( action , null , OUTDIR , OUTFILE , TAG , dist );
 		ca.runEachBuildableProject( scope , SecurityAction.ACTION_BUILD , false );
 		
 		if( ca.isFailed() ) {

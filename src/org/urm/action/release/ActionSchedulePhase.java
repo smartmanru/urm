@@ -15,10 +15,12 @@ public class ActionSchedulePhase extends ActionBase {
 	boolean cmdNext = false;
 	boolean cmdPhaseDeadline = false;
 	boolean cmdPhaseDuration = false;
+	boolean cmdScheduleAll = false;
 	
 	String PHASE;
 	Date deadlineDate;
 	int duration;
+	Date[] dates;
 
 	public ActionSchedulePhase( ActionBase action , String stream , Dist dist ) {
 		super( action , stream , "Proceed to next phase release=" + dist.RELEASEDIR );
@@ -42,6 +44,13 @@ public class ActionSchedulePhase extends ActionBase {
 		cmdPhaseDuration = true;
 	}
 
+	public ActionSchedulePhase( ActionBase action , String stream , Dist dist , Date[] dates ) {
+		super( action , stream , "Schedule all phases release=" + dist.RELEASEDIR );
+		this.dist = dist;
+		this.dates = dates;
+		cmdScheduleAll = true;
+	}
+	
 	@Override protected SCOPESTATE executeSimple() throws Exception {
 		ReleaseSchedule schedule = dist.release.schedule;
 		if( cmdNext && schedule.currentPhase >= 0 ) {
@@ -65,6 +74,9 @@ public class ActionSchedulePhase extends ActionBase {
 		else
 		if( cmdPhaseDuration )
 			schedule.setPhaseDuration( this , PHASE , duration );
+		else
+		if( cmdScheduleAll )
+			schedule.setAllDates( this , dates );
 	
 		close( state );
 		return( SCOPESTATE.RunSuccess );

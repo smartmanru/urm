@@ -27,7 +27,7 @@ public class MetaProductVersion extends PropertyController {
 	public static String PROPERTY_PROD_NEXTTAG = "prod.nexttag";
 	
 	public MetaProductVersion( ServerProductMeta storage , Meta meta ) {
-		super( storage , "version" );
+		super( storage , null , "version" );
 		
 		this.meta = meta;
 		meta.setVersion( this );
@@ -98,6 +98,21 @@ public class MetaProductVersion extends PropertyController {
 		super.initFinished();
 	}
 
+	public void updateVersion( TransactionBase transaction , int majorFirstNumber , int majorSecondNumber , int majorNextFirstNumber , int majorNextSecondNumber , int lastProdTag , int nextProdTag ) throws Exception {
+		this.majorFirstNumber = majorFirstNumber;
+		this.majorSecondNumber = majorSecondNumber;
+		this.majorNextFirstNumber = majorNextFirstNumber;
+		this.majorNextSecondNumber = majorNextSecondNumber;
+		this.lastProdTag = lastProdTag;
+		this.nextProdTag = nextProdTag;
+		
+		if( !isValid() )
+			transaction.exit0( _Error.InconsistentVersionAttributes0 , "Inconsistent version attributes" );
+		
+		setProperties( transaction.action );
+		super.recalculateProperties();
+	}
+	
 	public void setProperties( ActionBase action ) throws Exception {
 		super.setNumberProperty( PROPERTY_MAJOR_FIRST , majorFirstNumber );
 		super.setNumberProperty( PROPERTY_MAJOR_LAST , majorSecondNumber );

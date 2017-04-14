@@ -10,7 +10,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
-import org.urm.common.action.CommandVar.FLAG;
+import org.urm.common.action.CommandOption.FLAG;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.storage.HiddenFiles;
 import org.urm.meta.ServerProductMeta;
@@ -84,8 +84,8 @@ public class MetaEnv extends PropertyController {
 
 	public static String ELEMENT_SEGMENT = "segment";
 	
-	public MetaEnv( ServerProductMeta storage , Meta meta ) {
-		super( storage , "env" );
+	public MetaEnv( ServerProductMeta storage , MetaProductSettings settings , Meta meta ) {
+		super( storage , settings , "env" );
 		this.meta = meta;
 		originalList = new LinkedList<MetaEnvSegment>();
 		sgMap = new HashMap<String,MetaEnvSegment>();
@@ -149,8 +149,8 @@ public class MetaEnv extends PropertyController {
 	}
 
 	public MetaEnv copy( ActionBase action , Meta meta ) throws Exception {
-		MetaEnv r = new MetaEnv( meta.getStorage( action ) , meta );
 		MetaProductSettings product = meta.getProductSettings( action );
+		MetaEnv r = new MetaEnv( meta.getStorage( action ) , product , meta );
 		r.initCopyStarted( this , product.getProperties() );
 		
 		for( MetaEnvSegment sg : originalList ) {
@@ -302,11 +302,11 @@ public class MetaEnv extends PropertyController {
 		}
 	}
 	
-	public void createSG( ServerTransaction transaction , MetaEnvSegment sg ) {
+	public void createSegment( ServerTransaction transaction , MetaEnvSegment sg ) {
 		addSG( sg );
 	}
 	
-	public void deleteSG( ServerTransaction transaction , MetaEnvSegment sg ) {
+	public void deleteSegment( ServerTransaction transaction , MetaEnvSegment sg ) {
 		int index = originalList.indexOf( sg );
 		if( index < 0 )
 			return;

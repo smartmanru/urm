@@ -924,7 +924,7 @@ public class Common {
 	}
 
 	public static Date addDays( Date point , int shift ) {
-		long value = point.getTime() + shift * ( 24 * 60 * 60 * 1000 );
+		long value = point.getTime() + shift * ( 24 * 60 * 60 * 1000L );
 		return( new Date( value ) );
 	}
 
@@ -934,7 +934,7 @@ public class Common {
 	
 	public static int getDateDiffDays( long start , long finish ) {
 		long diff = finish - start;
-		diff /= ( 24 * 60 * 60 * 1000 );
+		diff /= ( 24 * 60 * 60 * 1000L );
 		return( ( int )diff );
 	}
 

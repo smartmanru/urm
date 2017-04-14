@@ -8,7 +8,7 @@ import java.util.Properties;
 
 import org.urm.common.PropertyValue.PropertyValueOrigin;
 import org.urm.common.PropertyValue.PropertyValueType;
-import org.urm.common.action.CommandVar.FLAG;
+import org.urm.common.action.CommandOption.FLAG;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.w3c.dom.Document;

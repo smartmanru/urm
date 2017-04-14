@@ -46,8 +46,8 @@ public class MetaMonitoring extends PropertyController {
 	public static String PROPERTY_MINORINTERVAL = "minor.interval";
 	public static String PROPERTY_MINSILENT = "silent.between";
 	
-	public MetaMonitoring( ServerProductMeta storage , Meta meta ) {
-		super( storage , "monitoring" );
+	public MetaMonitoring( ServerProductMeta storage , MetaProductSettings settings , Meta meta ) {
+		super( storage , settings , "monitoring" );
 		
 		this.meta = meta;
 		mapTargets = new HashMap<String,MetaMonitoringTarget>();
@@ -80,8 +80,8 @@ public class MetaMonitoring extends PropertyController {
 	}
 	
 	public MetaMonitoring copy( ActionBase action , Meta meta ) throws Exception {
-		MetaMonitoring r = new MetaMonitoring( meta.getStorage( action ) , meta );
 		MetaProductSettings product = meta.getProductSettings( action );
+		MetaMonitoring r = new MetaMonitoring( meta.getStorage( action ) , product , meta );
 		r.initCopyStarted( this , product.getProperties() );
 		
 		for( MetaMonitoringTarget target : mapTargets.values() ) {

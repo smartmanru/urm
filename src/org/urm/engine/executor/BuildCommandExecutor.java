@@ -7,8 +7,7 @@ import org.urm.action.build.BuildCommand;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.meta.BuildCommandMeta;
 import org.urm.engine.ServerEngine;
-import org.urm.engine.action.ActionInit;
-import org.urm.engine.action.CommandAction;
+import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.storage.LocalFolder;
@@ -20,7 +19,7 @@ public class BuildCommandExecutor extends CommandExecutor {
 	BuildCommand impl;
 	
 	public static BuildCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
-		BuildCommandMeta commandInfo = new BuildCommandMeta();
+		BuildCommandMeta commandInfo = new BuildCommandMeta( engine.optionsMeta );
 		return( new BuildCommandExecutor( engine , commandInfo ) );
 	}
 		
@@ -48,21 +47,13 @@ public class BuildCommandExecutor extends CommandExecutor {
 		super.defineAction( new CodebaseSetVersion() , "codebase-setversion" );
 		super.defineAction( new ThirdpartyUploadDist() , "uploaddist" );
 		super.defineAction( new ThirdpartyUploadLib() , "uploadlib" );
+		
+		impl = new BuildCommand();
 	}
 
 	@Override
-	public boolean run( ActionInit action ) {
-		try {
-			// create implementation
-			impl = new BuildCommand();
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			return( false );
-		}
-		
-		// log action and run 
-		boolean res = super.runMethod( action , action.commandAction );
+	public boolean runExecutorImpl( ActionBase action , CommandMethod method ) {
+		boolean res = super.runMethod( action , method );
 		return( res );
 	}
 
@@ -112,8 +103,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	
 	// script interface
-	private class Custom extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class Custom extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String SET = getArg( action , 0 );
 		String[] PROJECTS = getArgList( action , 1 );
 		Meta meta = action.getContextMeta();
@@ -121,8 +112,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class BuildAllRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class BuildAllRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		action.checkRequired( action.context.buildMode , "BUILDMODE" );
 		String SET = getArg( action , 0 );
 		String[] PROJECTS = getArgList( action , 1 );
@@ -132,15 +123,15 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class CheckSet extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CheckSet extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		Meta meta = action.getContextMeta();
 		impl.printActiveProperties( action , meta );
 	}
 	}
 	
-	private class GetAll extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class GetAll extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String SET = getArg( action , 0 );
 		String[] TARGETS = getArgList( action , 1 );
 		action.logAction();
@@ -165,8 +156,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class GetAllRelease extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class GetAllRelease extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		action.checkRequired( action.context.buildMode , "BUILDMODE" );
 		
 		String SET = getArg( action , 0 );
@@ -178,8 +169,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	
 	// implementation
-	private class BuildAllTags extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class BuildAllTags extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String TAG = getArg( action , 0 );
 		String SET = getArg( action , 1 );
 		String[] PROJECTS = getArgList( action , 2 );
@@ -188,8 +179,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class CodebaseCheckout extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CodebaseCheckout extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String CODIRNAME = getCODIR( action , 0 );
 		LocalFolder CODIR = action.artefactory.getAnyFolder( action , CODIRNAME );
 		ActionScope scope = getCodebaseScope( action , 1 ); 
@@ -197,8 +188,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class CodebaseCommit extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CodebaseCommit extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String CODIRNAME = getCODIR( action , 0 );
 		String MESSAGE = getRequiredArg( action , 1 , "MESSAGE" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
@@ -207,8 +198,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class CodebaseCopyBranches extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CodebaseCopyBranches extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String BRANCH1 = getRequiredArg( action , 0 , "BRANCH1" );
 		String BRANCH2 = getRequiredArg( action , 1 , "BRANCH2" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
@@ -216,8 +207,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class CodebaseCopyBranchToTag extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CodebaseCopyBranchToTag extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String BRANCH = getRequiredArg( action , 0 , "BRANCH" );
 		String TAG = getRequiredArg( action , 1 , "TAG" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
@@ -225,8 +216,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class CodebaseCopyNewTags extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CodebaseCopyNewTags extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String TAG1 = getRequiredArg( action , 0 , "TAG1" );
 		String TAG2 = getRequiredArg( action , 1 , "TAG2" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
@@ -234,8 +225,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class CodebaseCopyTags extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CodebaseCopyTags extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String TAG1 = getRequiredArg( action , 0 , "TAG1" );
 		String TAG2 = getRequiredArg( action , 1 , "TAG2" );
 		ActionScope scope = getCodebaseScope( action , 2 );
@@ -243,8 +234,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class CodebaseCopyTagToBranch extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CodebaseCopyTagToBranch extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String TAG1 = getRequiredArg( action , 0 , "TAG1" );
 		String BRANCH2 = getRequiredArg( action , 1 , "BRANCH2" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
@@ -252,24 +243,24 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class CodebaseDropTags extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CodebaseDropTags extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String TAG1 = getRequiredArg( action , 0 , "TAG1" );
 		ActionScope scope = getCodebaseScope( action , 1 ); 
 		impl.dropTags( action , scope , TAG1 );
 	}
 	}
 	
-	private class CodebaseDropBranch extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CodebaseDropBranch extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String BRANCH1 = getRequiredArg( action , 0 , "BRANCH1" );
 		ActionScope scope = getCodebaseScope( action , 1 ); 
 		impl.dropBranch( action , scope , BRANCH1 );
 	}
 	}
 	
-	private class CodebaseExport extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CodebaseExport extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String CODIRNAME = getCODIR( action , 0 );
 		ActionScope scope = getCodebaseScope( action , 1 ); 
 		LocalFolder CODIR = action.artefactory.getAnyFolder( action , CODIRNAME );
@@ -277,8 +268,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class CodebaseRenameBranch extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CodebaseRenameBranch extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String BRANCH1 = getRequiredArg( action , 0 , "BRANCH1" );
 		String BRANCH2 = getRequiredArg( action , 1 , "BRANCH2" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
@@ -286,8 +277,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class CodebaseRenameTags extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CodebaseRenameTags extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String TAG1 = getRequiredArg( action , 0 , "TAG1" );
 		String TAG2 = getRequiredArg( action , 1 , "TAG2" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
@@ -295,16 +286,16 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 	
-	private class CodebaseSetVersion extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class CodebaseSetVersion extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String VERSION = getRequiredArg( action , 0 , "VERSION" );
 		ActionScope scope = getCodebaseScope( action , 1 );
 		impl.setVersion( action , scope , VERSION );
 	}
 	}
 
-	private class ThirdpartyUploadDist extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class ThirdpartyUploadDist extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		
 		Meta meta = action.getContextMeta();
@@ -315,8 +306,8 @@ public class BuildCommandExecutor extends CommandExecutor {
 	}
 	}
 
-	private class ThirdpartyUploadLib extends CommandAction {
-	public void run( ActionInit action ) throws Exception {
+	private class ThirdpartyUploadLib extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
 		String GROUPID = getRequiredArg( action , 0 , "GROUPID" );
 		String FILE = getRequiredArg( action , 1 , "FILE" );
 		String ARTEFACTID = getArg( action , 2 );

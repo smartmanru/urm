@@ -5,6 +5,7 @@ import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandOptions;
+import org.urm.common.action.OptionsMeta;
 import org.urm.common.jmx.ServerMBean;
 import org.urm.common.meta.BuildCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
@@ -15,7 +16,7 @@ import org.urm.common.meta.ReleaseCommandMeta;
 import org.urm.common.meta.XDocCommandMeta;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.ActionInit.RootActionType;
-import org.urm.engine.action.CommandAction;
+import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.action.CommandOutput;
@@ -43,6 +44,7 @@ public class ServerEngine {
 	public ServerHouseKeeping houseKeeping;
 	
 	public ServerCache cache;
+	public OptionsMeta optionsMeta;
 	public MainExecutor serverExecutor;
 	public ActionInit serverAction;
 	public ShellPool shellPool;
@@ -55,7 +57,6 @@ public class ServerEngine {
 	private TransactionBase currentTransaction = null;
 
 	public ServerBlotter blotter;
-	public MainExecutor mainExecutor;
 	public BuildCommandExecutor buildExecutor;
 	public DatabaseCommandExecutor databaseExecutor;
 	public DeployCommandExecutor deployExecutor;
@@ -76,6 +77,7 @@ public class ServerEngine {
 		loader = new ServerLoader( this );
 		sessionController = new SessionController( this );
 		blotter = new ServerBlotter( this );
+		optionsMeta = new OptionsMeta();
 	}
 	
 	public void init() throws Exception {
@@ -86,7 +88,6 @@ public class ServerEngine {
 		sessionController.init();
 		blotter.init();
 		
-		mainExecutor = MainExecutor.createExecutor( this );
 		buildExecutor = BuildCommandExecutor.createExecutor( this );
 		databaseExecutor = DatabaseCommandExecutor.createExecutor( this );
 		deployExecutor = DeployCommandExecutor.createExecutor( this );
@@ -224,7 +225,7 @@ public class ServerEngine {
 		else
 			serverSession.setServerLayout( options );
 		
-		serverAction = createAction( RootActionType.Command , options , serverSession , "client" , null , false , "Run local command=" + commandInfo.name + "::" + options.action );
+		serverAction = createAction( RootActionType.Command , options , serverSession , "client" , null , false , "Run local command=" + commandInfo.name + "::" + options.method );
 		if( serverAction == null )
 			return( false );
 
@@ -239,7 +240,7 @@ public class ServerEngine {
 	private boolean runServerAction() throws Exception {
 		// execute
 		try {
-			serverExecutor.runAction( serverAction );
+			serverExecutor.runExecutor( serverAction , serverAction.commandAction );
 		}
 		catch( Throwable e ) {
 			serverAction.handle( e );
@@ -258,35 +259,36 @@ public class ServerEngine {
 		return( res );
 	}
 
-	public CommandExecutor getExecutor( CommandOptions options ) throws Exception {
-		if( options.command.equals( MainCommandMeta.NAME ) )
-			return( mainExecutor );
-		if( options.command.equals( BuildCommandMeta.NAME ) )
+	public CommandExecutor getExecutor( String command ) throws Exception {
+		if( command.equals( MainCommandMeta.NAME ) )
+			return( serverExecutor );
+		
+		if( command.equals( BuildCommandMeta.NAME ) )
 			return( buildExecutor );
-		if( options.command.equals( DatabaseCommandMeta.NAME ) )
+		if( command.equals( DatabaseCommandMeta.NAME ) )
 			return( databaseExecutor );
-		if( options.command.equals( DeployCommandMeta.NAME ) )
+		if( command.equals( DeployCommandMeta.NAME ) )
 			return( deployExecutor );
-		if( options.command.equals( MonitorCommandMeta.NAME ) )
+		if( command.equals( MonitorCommandMeta.NAME ) )
 			return( monitorExecutor );
-		if( options.command.equals( ReleaseCommandMeta.NAME ) )
+		if( command.equals( ReleaseCommandMeta.NAME ) )
 			return( releaseExecutor );
-		if( options.command.equals( XDocCommandMeta.NAME ) )
+		if( command.equals( XDocCommandMeta.NAME ) )
 			return( xdocExecutor );
 		
-		Common.exit1( _Error.UnknownCommandExecutor1 , "Unexpected URM args - unknown command executor=" + options.command + " (expected one of " +
+		Common.exit1( _Error.UnknownCommandExecutor1 , "Unexpected URM args - unknown command executor=" + command + " (expected one of " +
 				BuildCommandMeta.NAME + "/" +
 				DeployCommandMeta.NAME + "/" + 
 				DatabaseCommandMeta.NAME + "/" +
 				MonitorCommandMeta.NAME + "/" +
 				ReleaseCommandMeta.NAME + "/" +
-				XDocCommandMeta.NAME + ")" , options.command );
+				XDocCommandMeta.NAME + ")" , command );
 		return( null );
 	}
 	
 	public ActionInit createAction( RootActionType type , CommandOptions options , ServerSession session , String stream , ServerCall call , boolean memoryOnly , String actionInfo ) throws Exception {
-		CommandExecutor actionExecutor = getExecutor( options );
-		CommandAction commandAction = actionExecutor.getAction( options.action );
+		CommandExecutor actionExecutor = getExecutor( options.command );
+		CommandMethod commandAction = actionExecutor.getAction( options.method );
 		if( !options.checkValidOptions( commandAction.method ) )
 			return( null );
 		
@@ -299,7 +301,8 @@ public class ServerEngine {
 		Artefactory artefactory = createArtefactory( session , context , memoryOnly );
 		
 		// create action
-		ActionInit action = createRootAction( type , actionExecutor , session , artefactory , options.action , memoryOnly , actionInfo );
+		ActionInit action = createRootAction( type , actionExecutor , session , artefactory , options.method , memoryOnly , actionInfo );
+		action.setContext( context );
 		context.update( action );
 		actionExecutor.setActionContext( action , context );
 		
@@ -313,7 +316,7 @@ public class ServerEngine {
 	
 	public ActionInit createRootAction( RootActionType type , CommandExecutor executor , ServerSession session , Artefactory artefactory , String actionName , boolean memoryOnly , String actionInfo ) throws Exception { 
 		CommandOutput output = new CommandOutput();
-		CommandAction commandAction = executor.getAction( actionName );
+		CommandMethod commandAction = executor.getAction( actionName );
 		ActionInit action = new ActionInit( type , loader , session , artefactory , executor , output , commandAction , commandAction.method.name , memoryOnly , actionInfo );
 		return( action );
 	}

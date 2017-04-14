@@ -9,13 +9,15 @@ import org.urm.common.Common;
 
 public class CommandMeta {
 
+	public OptionsMeta options;
 	public String name;
 	public String desc;
 
 	public Map<String,CommandMethodMeta> actionsMap = new HashMap<String,CommandMethodMeta>();
 	public List<CommandMethodMeta> actionsList = new LinkedList<CommandMethodMeta>();
 	
-	public CommandMeta( String name , String desc ) {
+	public CommandMeta( OptionsMeta options , String name , String desc ) {
+		this.options = options;
 		this.name = name;
 		this.desc = desc;
 	}
@@ -23,6 +25,14 @@ public class CommandMeta {
 	public void defineAction( CommandMethodMeta action ) {
 		actionsMap.put( action.name , action );
 		actionsList.add( action );
+		for( String varName : action.vars ) {
+			CommandVar var = options.getVar( varName );
+			if( var == null )
+				throw new RuntimeException( "unknown option command=" + name + ", action=" + action.name + ", option=" + varName );
+			
+			if( var.isGeneric )
+				throw new RuntimeException( "unexpected generic option command=" + name + ", action=" + action.name + ", option=" + varName );
+		}
 	}
 	
 	public void print( String s ) {
@@ -33,14 +43,14 @@ public class CommandMeta {
 		print( "# " + s );
 	}
 	
-	public boolean isOptionApplicaple( CommandVar var ) {
+	public boolean isOptionApplicaple( CommandOption opt ) {
 		for( CommandMethodMeta action : actionsMap.values() )
-			if( action.isOptionApplicable( var ) )
+			if( action.isOptionApplicable( opt ) )
 				return( true );
 		return( false );
 	}
 
-	public CommandMethodMeta getAction( String actionName ) throws Exception {
+	public CommandMethodMeta getMethod( String actionName ) throws Exception {
 		CommandMethodMeta method = actionsMap.get( actionName );
 		if( method == null )
 			Common.exit2( _Error.MetaNoAction2 , "executor action is not present in meta, name=" + actionName , name , actionName );

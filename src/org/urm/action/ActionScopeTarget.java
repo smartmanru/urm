@@ -30,6 +30,7 @@ public class ActionScopeTarget {
 	public MetaDistrDelivery dbDelivery;
 	public MetaDistrConfItem confItem;
 	public MetaDistrBinaryItem manualItem;
+	public MetaDistrBinaryItem derivedItem;
 	public MetaEnvServer envServer;
 	public boolean dbManualItems = false;
 	
@@ -101,6 +102,16 @@ public class ActionScopeTarget {
 
 		target.manualItem = manualItem;
 		target.NAME = manualItem.KEY;
+		target.itemFull = true;
+		target.specifiedExplicitly = specifiedExplicitly;
+		return( target );
+	}
+	
+	public static ActionScopeTarget createDerivedDistItemTarget( ActionScopeSet set , MetaDistrBinaryItem derivedItem , boolean specifiedExplicitly ) {
+		ActionScopeTarget target = new ActionScopeTarget( set );
+
+		target.derivedItem = derivedItem;
+		target.NAME = derivedItem.KEY;
 		target.itemFull = true;
 		target.specifiedExplicitly = specifiedExplicitly;
 		return( target );

@@ -6,6 +6,7 @@ import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.shell.Account;
+import org.urm.meta.ServerProductContext;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerAuth;
 import org.urm.meta.engine.ServerAuthResource;
@@ -214,12 +215,6 @@ public class ServerTransaction extends TransactionBase {
 		settings.setProductBuildModeDefaultsProperties( this , mode , props );
 	}
 	
-	public void setProductVersion( MetaProductVersion version ) throws Exception {
-		checkTransactionMetadata( version.meta.getStorage( action ) );
-		ServerProductMeta metadata = getTransactionMetadata( version.meta );
-		metadata.setVersion( this , version );
-	}
-
 	public void setProductProperties( Meta meta , PropertySet props , boolean system ) throws Exception {
 		ServerProductMeta metadata = getTransactionMetadata( meta );
 		MetaProductSettings settings = metadata.getProductSettings();
@@ -238,18 +233,25 @@ public class ServerTransaction extends TransactionBase {
 		settings.setBuildModeProperties( this , mode , props );
 	}
 
-	public MetaProductVersion createProductVersion( Meta meta , int majorFirstNumber , int majorSecondNumber , int majorNextFirstNumber , int majorNextSecondNumber , int lastProdTag , int nextProdTag ) throws Exception {
+	public MetaProductVersion updateProductVersion( Meta meta , int majorFirstNumber , int majorSecondNumber , int majorNextFirstNumber , int majorNextSecondNumber , int lastProdTag , int nextProdTag ) throws Exception {
 		ServerProductMeta metadata = getTransactionMetadata( meta );
-		MetaProductVersion version = new MetaProductVersion( metadata , metadata.meta );
-		version.createVersion( this , majorFirstNumber , majorSecondNumber , majorNextFirstNumber , majorNextSecondNumber , lastProdTag , nextProdTag );
-		metadata.setVersion( this , version );
+		MetaProductVersion version = metadata.getVersion();
+		version.updateVersion( this , majorFirstNumber , majorSecondNumber , majorNextFirstNumber , majorNextSecondNumber , lastProdTag , nextProdTag );
+		
+		ServerProductContext context = new ServerProductContext( meta );
+		context.create( action , version );
+		MetaProductSettings settings = meta.getProductSettings( action );
+		settings.updateSettings( this , context );
+		
+		settings.recalculateChildProperties( action );
 		return( version );
 	}
 	
 	public MetaEnv createMetaEnv( Meta meta , String name , VarENVTYPE envType ) throws Exception {
 		ServerProductMeta metadata = getTransactionMetadata( meta );
-		MetaEnv env = new MetaEnv( metadata , metadata.meta );
-		env.createEnv( getAction() , name , envType );
+		MetaProductSettings settings = meta.getProductSettings( action );
+		MetaEnv env = new MetaEnv( metadata , settings , metadata.meta );
+		env.createEnv( action , name , envType );
 		metadata.addEnv( this , env );
 		return( env );
 	}
@@ -270,19 +272,19 @@ public class ServerTransaction extends TransactionBase {
 		env.updateProperties( this );
 	}
 	
-	public void updateMetaEnvSG( MetaEnvSegment sg ) throws Exception {
+	public void updateMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
 		checkTransactionMetadata( sg.meta.getStorage( action ) );
 		sg.updateProperties( this );
 	}
 	
-	public void createMetaEnvSG( MetaEnvSegment sg ) throws Exception {
+	public void createMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
 		checkTransactionMetadata( sg.meta.getStorage( action ) );
-		sg.env.createSG( this , sg );
+		sg.env.createSegment( this , sg );
 	}
 	
-	public void deleteMetaEnvSG( MetaEnvSegment sg ) throws Exception {
+	public void deleteMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
 		checkTransactionMetadata( sg.meta.getStorage( action ) );
-		sg.env.deleteSG( this , sg );
+		sg.env.deleteSegment( this , sg );
 		sg.deleteObject();
 	}
 

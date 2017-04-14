@@ -48,7 +48,7 @@ public abstract class ServerCall implements Runnable {
 
 	public boolean start() {
     	try {
-    		CommandMethodMeta method = command.getAction( actionName );
+    		CommandMethodMeta method = command.getMethod( actionName );
     		action = sessionController.createRemoteAction( engine.serverAction , this , method , data );
     	}
     	catch( Throwable e ) {

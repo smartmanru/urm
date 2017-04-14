@@ -159,6 +159,9 @@ public class ActionScopeSet {
 		String itemlist = "";
 		if( CATEGORY == VarCATEGORY.MANUAL )
 			itemlist = "manual files";
+		else
+		if( CATEGORY == VarCATEGORY.DERIVED )
+			itemlist = "derived files";
 		for( ActionScopeTarget scopeTarget : targets.values() )
 			itemlist = Common.concat( itemlist , scopeTarget.getScopeInfo( action ) , ", " );
 		
@@ -254,8 +257,10 @@ public class ActionScopeSet {
 		MetaDistr distr = meta.getDistr( action );
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			setFull = true; 
-			for( MetaDistrBinaryItem item : distr.getBinaryItems() )
+			for( String itemName : distr.getManualItemNames() ) {
+				MetaDistrBinaryItem item = distr.findBinaryItem( itemName );
 				addProductManualItem( action , item , false );
+			}
 			return;
 		}
 		
@@ -274,6 +279,52 @@ public class ActionScopeSet {
 	}
 	
 	private void addReleaseManualItems( ActionBase action , String[] ITEMS ) throws Exception {
+		if( ITEMS == null || ITEMS.length == 0 ) {
+			setFull = true; 
+			for( ReleaseTarget item : rset.getTargets() )
+				addReleaseTarget( action , item , false );
+			return;
+		}
+		
+		for( String key : ITEMS ) {
+			ReleaseTarget item = rset.getTarget( action , key );
+			addReleaseTarget( action , item , true );
+		}
+	}
+
+	public void addDerivedItems( ActionBase action , String[] COMPS ) throws Exception {
+		if( rset != null )
+			addReleaseDerivedItems( action , COMPS );
+		else
+			addProductDerivedItems( action , COMPS );
+	}
+	
+	private void addProductDerivedItems( ActionBase action , String[] ITEMS ) throws Exception {
+		MetaDistr distr = meta.getDistr( action );
+		if( ITEMS == null || ITEMS.length == 0 ) {
+			setFull = true; 
+			for( String itemName : distr.getDerivedItemNames() ) {
+				MetaDistrBinaryItem item = distr.findBinaryItem( itemName );
+				addProductDerivedItem( action , item , false );
+			}
+			return;
+		}
+		
+		for( String item : ITEMS ) {
+			MetaDistrBinaryItem distitem = distr.getBinaryItem( action , item );
+			if( distitem.distItemOrigin != VarDISTITEMORIGIN.DERIVED )
+				action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item , item );
+			
+			addProductManualItem( action , distitem , true );
+		}
+	}
+
+	private void addProductDerivedItem( ActionBase action , MetaDistrBinaryItem item , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createDerivedDistItemTarget( this , item , specifiedExplicitly );
+		addTarget( action , target );
+	}
+	
+	private void addReleaseDerivedItems( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			setFull = true; 
 			for( ReleaseTarget item : rset.getTargets() )

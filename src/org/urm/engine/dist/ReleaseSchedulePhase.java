@@ -186,7 +186,7 @@ public class ReleaseSchedulePhase {
 	}
 	
 	public boolean requireStartDay() {
-		return( ( unlimited || days > 0 )? true : false );
+		return( ( unlimited || normalDays > 0 )? true : false );
 	}
 	
 	public int getDaysActually() {
@@ -219,21 +219,27 @@ public class ReleaseSchedulePhase {
 	}
 
 	public void setStartDateExpected( Date deadlineStart ) {
-		this.deadlineStart = deadlineStart;
+		if( requireStartDay() )
+			this.deadlineStart = Common.addDays( deadlineStart , 1 );
+		else
+			this.deadlineStart = deadlineStart;
 		
 		if( days > 0 )
-			this.deadlineFinish = Common.addDays( deadlineStart , (days-1) );
+			this.deadlineFinish = Common.addDays( this.deadlineStart , (days-1) );
 		else
-			this.deadlineFinish = deadlineStart;
+			this.deadlineFinish = this.deadlineStart;
 	}
 
 	public void setStartDateBest( Date bestStart ) {
-		this.bestStart = bestStart;
+		if( requireStartDay() )
+			this.bestStart = Common.addDays( bestStart , 1 );
+		else
+			this.bestStart = bestStart;
 		
 		if( normalDays > 0 )
-			this.bestFinish = Common.addDays( bestStart , (normalDays-1) );
+			this.bestFinish = Common.addDays( this.bestStart , (normalDays-1) );
 		else
-			this.bestFinish = bestStart;
+			this.bestFinish = this.bestStart;
 	}
 
 	public void startPhase( ActionBase action , Date date ) throws Exception {
@@ -262,6 +268,12 @@ public class ReleaseSchedulePhase {
 		this.days = duration;
 	}
 
+	private void changeDays() {
+		days = Common.getDateDiffDays( deadlineStart , deadlineFinish );
+		if( requireStartDay() )
+			days++;
+	}
+	
 	public void setFinishDeadline( ActionBase action , Date deadlineDate , boolean shiftStart ) throws Exception {
 		deadlineFinish = deadlineDate;
 		if( shiftStart ) {
@@ -270,11 +282,8 @@ public class ReleaseSchedulePhase {
 			else
 				deadlineStart = deadlineFinish;
 		}
-		else {
-			days = Common.getDateDiffDays( deadlineStart , deadlineFinish );
-			if( requireStartDay() )
-				days++;
-		}
+		else
+			changeDays();
 	}
 	
 	public void setStartDeadline( ActionBase action , Date deadlineDate , boolean shiftFinish ) throws Exception {
@@ -285,12 +294,14 @@ public class ReleaseSchedulePhase {
 			else
 				deadlineFinish = deadlineStart;
 		}
-		else {
-			boolean require = requireStartDay();
-			days = Common.getDateDiffDays( deadlineStart , deadlineFinish );
-			if( require )
-				days++;
-		}
+		else
+			changeDays();
 	}
 
+	public void setDeadlines( ActionBase action , Date deadlineStart , Date deadlineFinish ) throws Exception {
+		this.deadlineStart = deadlineStart;
+		this.deadlineFinish = deadlineFinish;
+		changeDays();
+	}
+	
 }

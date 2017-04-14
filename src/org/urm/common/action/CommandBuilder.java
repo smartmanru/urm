@@ -16,15 +16,17 @@ public class CommandBuilder {
 
 	public RunContext clientrc;
 	public RunContext execrc;
+	public OptionsMeta optionsMeta;
 	public CommandMeta commandInfo;
 	
 	public void out( String s ) {
 		System.out.println( "# " + s );
 	}
 
-	public CommandBuilder( RunContext clientrc , RunContext execrc ) {
+	public CommandBuilder( RunContext clientrc , RunContext execrc , OptionsMeta optionsMeta ) {
 		this.clientrc = clientrc;
 		this.execrc = execrc;
+		this.optionsMeta = optionsMeta;
 	}
 
 	public CommandMeta buildCommand( String[] args , CommandOptions options ) throws Exception {
@@ -49,19 +51,19 @@ public class CommandBuilder {
 		// discriminate
 		CommandMeta commandInfo = null;
 		if( cmd.equals( MainCommandMeta.NAME ) )
-			commandInfo = new MainCommandMeta();
+			commandInfo = new MainCommandMeta( optionsMeta );
 		else if( cmd.equals( BuildCommandMeta.NAME ) )
-			commandInfo = new BuildCommandMeta();
+			commandInfo = new BuildCommandMeta( optionsMeta );
 		else if( cmd.equals( DeployCommandMeta.NAME ) )
-			commandInfo = new DeployCommandMeta();
+			commandInfo = new DeployCommandMeta( optionsMeta );
 		else if( cmd.equals( DatabaseCommandMeta.NAME ) )
-			commandInfo = new DatabaseCommandMeta();
+			commandInfo = new DatabaseCommandMeta( optionsMeta );
 		else if( cmd.equals( MonitorCommandMeta.NAME ) )
-			commandInfo = new MonitorCommandMeta();
+			commandInfo = new MonitorCommandMeta( optionsMeta );
 		else if( cmd.equals( ReleaseCommandMeta.NAME ) )
-			commandInfo = new ReleaseCommandMeta();
+			commandInfo = new ReleaseCommandMeta( optionsMeta );
 		else if( cmd.equals( XDocCommandMeta.NAME ) )
-			commandInfo = new XDocCommandMeta();
+			commandInfo = new XDocCommandMeta( optionsMeta );
 		else
 			out( "Unexpected URM args - unknown command executor=" + cmd + " (expected one of " + 
 					MainCommandMeta.NAME + "/" + 
@@ -93,34 +95,34 @@ public class CommandBuilder {
 	public CommandMeta[] getExecutors( boolean build , boolean deploy ) {
 		List<CommandMeta> list = new LinkedList<CommandMeta>();
 		if( build )
-			list.add( new BuildCommandMeta() );
+			list.add( new BuildCommandMeta( optionsMeta ) );
 		if( deploy ) {
-			list.add( new DeployCommandMeta() );
-			list.add( new MonitorCommandMeta() );
+			list.add( new DeployCommandMeta( optionsMeta ) );
+			list.add( new MonitorCommandMeta( optionsMeta ) );
 		}
 		if( build || deploy ) {
-			list.add( new DatabaseCommandMeta() );
-			list.add( new ReleaseCommandMeta() );
-			list.add( new XDocCommandMeta() );
+			list.add( new DatabaseCommandMeta( optionsMeta ) );
+			list.add( new ReleaseCommandMeta( optionsMeta ) );
+			list.add( new XDocCommandMeta( optionsMeta ) );
 		}
 		
 		return( list.toArray( new CommandMeta[0] ) );
 	}
 
 	public boolean isInteractive( CommandOptions options ) throws Exception {
-		CommandMethodMeta method = commandInfo.getAction( options.action );
+		CommandMethodMeta method = commandInfo.getMethod( options.method );
 		return( method.isInteractive() );
 	}
 	
 	public void showTopHelp( CommandOptions options ) {
-		CommandMeta main = new MainCommandMeta();
+		CommandMeta main = new MainCommandMeta( optionsMeta );
 		options.showTopHelp( this , main , getExecutors( true , true ) );
 	}
 
 	public boolean checkHelp( CommandOptions options ) throws Exception {
 		// top help
 		if( options.command.equals( MainCommandMeta.NAME ) && 
-			options.action.equals( "help" ) && 
+			options.method.equals( "help" ) && 
 			options.getArgCount() == 0 ) {
 			showTopHelp( options );
 			return( true );
@@ -128,13 +130,13 @@ public class CommandBuilder {
 
 		// command help
 		if( ( options.command.equals( MainCommandMeta.NAME ) && 
-				options.action.equals( "help" ) && 
+				options.method.equals( "help" ) && 
 				options.getArgCount() == 1 ) ||
 			( options.command.equals( MainCommandMeta.NAME ) == false &&
-				options.action.equals( "help" ) && 
+				options.method.equals( "help" ) && 
 				options.getArgCount() == 0 ) ) {
 			String command = ( options.command.equals( MainCommandMeta.NAME ) )? options.getArg( 0 ) : options.command;
-			CommandMeta meta = ( command.equals( MainCommandMeta.NAME ) )? new MainCommandMeta() : createMeta( command );
+			CommandMeta meta = ( command.equals( MainCommandMeta.NAME ) )? new MainCommandMeta( optionsMeta ) : createMeta( command );
 			boolean main = options.command.equals( MainCommandMeta.NAME );
 			
 			options.showCommandHelp( this , meta , main );
@@ -143,25 +145,25 @@ public class CommandBuilder {
 
 		// action help
 		if( ( options.command.equals( MainCommandMeta.NAME ) && 
-				options.action.equals( "help" ) && 
+				options.method.equals( "help" ) && 
 				options.getArgCount() >= 2 ) ||
 			( options.command.equals( MainCommandMeta.NAME ) && 
-				options.action.equals( "help" ) == false && 
+				options.method.equals( "help" ) == false && 
 				options.getArgCount() >= 1 &&
 				options.getArg( 0 ).equals( "help" ) ) ||
 			( options.command.equals( MainCommandMeta.NAME ) == false &&
-				options.action.equals( "help" ) && 
+				options.method.equals( "help" ) && 
 				options.getArgCount() > 0 ) ||
 			( options.command.equals( MainCommandMeta.NAME ) == false &&
-				options.action.equals( "help" ) == false && 
+				options.method.equals( "help" ) == false && 
 				options.getArgCount() > 0 &&
 				options.getArg( 0 ).equals( "help" ) ) ) {
-			String command = ( options.command.equals( MainCommandMeta.NAME ) && options.action.equals( "help" ) )? options.getArg( 0 ) : options.command;
-			CommandMeta meta = ( command.equals( "bin" ) )? new MainCommandMeta() : createMeta( command );
+			String command = ( options.command.equals( MainCommandMeta.NAME ) && options.method.equals( "help" ) )? options.getArg( 0 ) : options.command;
+			CommandMeta meta = ( command.equals( "bin" ) )? new MainCommandMeta( optionsMeta ) : createMeta( command );
 			
-			String action = ( options.command.equals( MainCommandMeta.NAME ) && options.action.equals( "help" ) )? options.getArg( 1 ) :
-				( ( options.action.equals( "help" ) )? options.getArg( 0 ) : options.action );
-			CommandMethodMeta method = meta.getAction( action );
+			String action = ( options.command.equals( MainCommandMeta.NAME ) && options.method.equals( "help" ) )? options.getArg( 1 ) :
+				( ( options.method.equals( "help" ) )? options.getArg( 0 ) : options.method );
+			CommandMethodMeta method = meta.getMethod( action );
 			options.showActionHelp( this , method );
 			return( true );
 		}

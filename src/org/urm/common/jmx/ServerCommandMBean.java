@@ -30,8 +30,8 @@ import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandMethodMeta.ACTION_TYPE;
 import org.urm.common.action.CommandOptions;
+import org.urm.common.action.CommandOption.FLAG;
 import org.urm.common.action.CommandVar;
-import org.urm.common.action.CommandVar.FLAG;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerSession;
 import org.urm.engine.SessionController;
@@ -69,13 +69,13 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	}
 
 	public void createInfo() throws Exception {
-		options = new CommandOptions();
+		options = new CommandOptions( meta.options );
 		ActionData data = new ActionData( engine.execrc );
 		options.setCommand( meta.name , data );
 		
 		// attributes
 		List<MBeanAttributeInfo> attrs = new LinkedList<MBeanAttributeInfo>();
-		for( CommandVar var : options.getDefinedVariables().values() ) {
+		for( CommandVar var : options.getDefinedVariables() ) {
 			if( var.isGeneric && var.jmx ) {
 				MBeanAttributeInfo attr = addGenericOption( action , var );
 				attrs.add( attr );
@@ -115,6 +115,8 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		// parameters
 		for( String varName : method.vars ) {
 			CommandVar var = options.getVar( varName );
+			if( var == null )
+				action.exitUnexpectedState();
 			MBeanParameterInfo param = addParameter( action , var );
 			params.add( param );
 		}
@@ -250,7 +252,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		if( var.isParam && var.isInteger ) {
 			Integer intvalue = ( Integer )value;
 			if( intvalue == null )
-				setopts.clearParam( var );
+				setopts.clearVar( var );
 			else
 				setopts.setParam( var , "" + intvalue.intValue() );
 			return;
@@ -259,7 +261,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		if( var.isFlag ) {
 			Integer intvalue = ( Integer )value;
 			if( intvalue == null )
-				setopts.clearFlag( var );
+				setopts.clearVar( var );
 			else
 				setopts.setFlag( var , ( intvalue.intValue() == 1 )? true : false );
 			return;
@@ -378,7 +380,7 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 		action.debug( "operation invoked, name=" + name );
 		
 		// find action
-		CommandMethodMeta method = meta.getAction( name );
+		CommandMethodMeta method = meta.getMethod( name );
 		if( args.length != ( 1 + method.vars.length ) )
 			return( -1 );
 		
