@@ -438,6 +438,13 @@ public class ReleaseSchedule {
 			ReleaseSchedulePhase phase = getCurrentPhase();
 			phase.finishPhase( action , Common.getDateCurrentDay() );
 			currentPhase++;
+			
+			ReleaseSchedulePhase phaseNext = getCurrentPhase();
+			Date date = phase.getFinishDate();
+			if( phaseNext.requireStartDay() )
+				date = Common.addDays( date , 1 );
+				
+			phaseNext.startPhase( action , date );
 		}
 	}
 
