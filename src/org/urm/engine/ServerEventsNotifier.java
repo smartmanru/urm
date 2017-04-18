@@ -17,13 +17,13 @@ public class ServerEventsNotifier extends ServerEventsSource implements Runnable
 		}
 	};
 	
-	private ServerThread thread;
+	private ServerExecutorThread thread;
 	private List<NotifyEvent> queue;
 	
 	public ServerEventsNotifier( ServerEvents events ) {
 		super( events , "urm.notifier" );
 		queue = new LinkedList<NotifyEvent>();
-		thread = new ServerThread( events.engine , this , "events notifier" , true );
+		thread = new ServerExecutorThread( events.engine , this , "events notifier" , true );
 	}
 
 	@Override

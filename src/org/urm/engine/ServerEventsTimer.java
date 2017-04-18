@@ -4,11 +4,11 @@ import org.urm.common.Common;
 
 public class ServerEventsTimer extends ServerEventsSource implements Runnable {
 
-	private ServerThread thread;
+	private ServerExecutorThread thread;
 	
 	public ServerEventsTimer( ServerEvents events ) {
 		super( events , "urm.timer" );
-		thread = new ServerThread( events.engine , this , "events second timer" , true ); 
+		thread = new ServerExecutorThread( events.engine , this , "events second timer" , true ); 
 	}
 
 	@Override

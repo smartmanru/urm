@@ -6,11 +6,11 @@ public class ServerHouseKeeping implements Runnable {
 
 	ServerEngine engine;
 	
-	private ServerThread thread;
+	private ServerExecutorThread thread;
 	
 	public ServerHouseKeeping( ServerEngine engine ) {
 		this.engine = engine;
-		thread = new ServerThread( engine , this , "house keeping" , true );
+		thread = new ServerExecutorThread( engine , this , "house keeping" , true );
 	}
 	
 	@Override

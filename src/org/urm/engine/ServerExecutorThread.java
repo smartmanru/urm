@@ -1,6 +1,6 @@
 package org.urm.engine;
 
-public class ServerThread implements Runnable {
+public class ServerExecutorThread implements Runnable {
 
 	ServerEngine engine;
 	Runnable runnable;
@@ -12,7 +12,7 @@ public class ServerThread implements Runnable {
 	private boolean stopping;
 	private boolean stopped;
 	
-	public ServerThread( ServerEngine engine , Runnable runnable , String name , boolean cycle ) {
+	public ServerExecutorThread( ServerEngine engine , Runnable runnable , String name , boolean cycle ) {
 		this.engine = engine;
 		this.runnable = runnable;
 		this.name = name;

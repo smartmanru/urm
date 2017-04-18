@@ -12,7 +12,7 @@ import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
 import org.urm.engine.ServerEventsSubscription;
 import org.urm.engine.ServerSourceEvent;
-import org.urm.engine.ServerThread;
+import org.urm.engine.ServerExecutorThread;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;
 import org.urm.meta.product.Meta;
@@ -29,7 +29,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	ServerMonitoringSource source;
 	ServerEngine engine;
 	
-	private ServerThread thread;
+	private ServerExecutorThread thread;
 	
 	ActionMonitorTop ca;
 	ServerEventsApp eventsApp;
@@ -41,7 +41,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		this.engine = monitoring.engine;
 		this.eventsApp = eventsApp;
 		
-		thread = new ServerThread( engine , this , "monitoring::" + productName , false ); 
+		thread = new ServerExecutorThread( engine , this , "monitoring::" + productName , false ); 
 	}
 	
 	@Override
