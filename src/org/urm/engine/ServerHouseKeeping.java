@@ -2,34 +2,40 @@ package org.urm.engine;
 
 import org.urm.common.Common;
 
-public class ServerHouseKeeping implements Runnable {
+public class ServerHouseKeeping {
 
 	ServerEngine engine;
 	
-	private ServerExecutorThread thread;
+	class ServerExecutorTaskHouseKeep extends ServerExecutorTask {
+		ServerExecutorTaskHouseKeep() {
+			super( "house keeping" );
+		}
+		
+		@Override
+		public void execute() {
+			try {
+				Common.sleep( 1000 );
+				runHouseKeeping();
+			}
+			catch( Throwable e ) {
+				engine.handle( "thread pool house keeping error" , e );
+			}
+		}
+	};		
+	
+	private ServerExecutorTaskHouseKeep task;
 	
 	public ServerHouseKeeping( ServerEngine engine ) {
 		this.engine = engine;
-		thread = new ServerExecutorThread( engine , this , "house keeping" , true );
+		task = new ServerExecutorTaskHouseKeep();
 	}
 	
-	@Override
-	public void run() {
-		try {
-			Common.sleep( 1000 );
-			runHouseKeeping();
-		}
-		catch( Throwable e ) {
-			engine.handle( "thread pool house keeping error" , e );
-		}
-	}
-
 	public void start() {
-        thread.start();
+        engine.executor.executeCycle( task );
 	}
 	
 	public void stop() {
-		thread.stop();
+		engine.executor.stopTask( task );
 	}
 
 	private void runHouseKeeping() throws Exception {

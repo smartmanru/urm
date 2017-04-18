@@ -2,13 +2,29 @@ package org.urm.engine;
 
 import org.urm.common.Common;
 
-public class ServerEventsTimer extends ServerEventsSource implements Runnable {
+public class ServerEventsTimer extends ServerEventsSource {
 
-	private ServerExecutorThread thread;
+	class ServerExecutorTaskTimer extends ServerExecutorTask {
+		ServerExecutorTaskTimer() {
+			super( "second timer" );
+		}
+		
+		@Override
+		public void execute() {
+			try {
+				cycle();
+			}
+			catch( Throwable e ) {
+				events.engine.handle( "events notifier error" , e );
+			}
+		}
+	};		
+	
+	private ServerExecutorTaskTimer task;
 	
 	public ServerEventsTimer( ServerEvents events ) {
 		super( events , "urm.timer" );
-		thread = new ServerExecutorThread( events.engine , this , "events second timer" , true ); 
+		task = new ServerExecutorTaskTimer(); 
 	}
 
 	@Override
@@ -16,18 +32,17 @@ public class ServerEventsTimer extends ServerEventsSource implements Runnable {
 		return( null );
 	}
 	
-	@Override
-	public void run() {
+	private void cycle() {
 		Common.sleep( 1000 );
 		super.trigger( ServerEvents.EVENT_SECONDTIMER , null );
 	}
 
 	public void start() {
-		thread.start();
+		events.engine.executor.executeCycle( task );
 	}
 
 	public synchronized void stop() {
-		thread.stop();
+		events.engine.executor.stopTask( task );
 	}
 	
 }

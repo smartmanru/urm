@@ -38,6 +38,8 @@ import org.urm.meta.engine.ServerMonitoring;
 public class ServerEngine {
 
 	public RunContext execrc;
+	
+	public ServerExecutor executor;
 	public ServerSession serverSession;
 	public SessionController sessionController;
 	public ServerMBean jmxController;
@@ -69,6 +71,7 @@ public class ServerEngine {
 	public ServerEngine( RunContext execrc ) {
 		this.execrc = execrc;
 		
+		executor = new ServerExecutor( this ); 
 		houseKeeping = new ServerHouseKeeping( this );
 		cache = new ServerCache( this ); 
 

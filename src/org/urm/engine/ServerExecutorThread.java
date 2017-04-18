@@ -2,9 +2,8 @@ package org.urm.engine;
 
 public class ServerExecutorThread implements Runnable {
 
-	ServerEngine engine;
-	Runnable runnable;
-	String name;
+	ServerExecutor executor;
+	ServerExecutorTask task;
 	boolean cycle;
 	
 	private Thread thread;
@@ -12,10 +11,9 @@ public class ServerExecutorThread implements Runnable {
 	private boolean stopping;
 	private boolean stopped;
 	
-	public ServerExecutorThread( ServerEngine engine , Runnable runnable , String name , boolean cycle ) {
-		this.engine = engine;
-		this.runnable = runnable;
-		this.name = name;
+	public ServerExecutorThread( ServerExecutor executor , ServerExecutorTask task , boolean cycle ) {
+		this.executor = executor;
+		this.task = task;
 		this.cycle = cycle;
 		
 		started = false;
@@ -25,45 +23,50 @@ public class ServerExecutorThread implements Runnable {
 	
 	@Override
 	public void run() {
+		task.setThread( this );
 		while( !stopping ) {
-			runnable.run();
+			task.execute();
 			if( !cycle )
 				break;
 		}
 		
-		synchronized( this ) {
+		synchronized( task ) {
 			stopped = true;
 			started = false;
 			thread = null;
-			notifyAll();
+			task.notifyAll();
 		}
 	}
 	
-	public synchronized boolean isRunning() {
-		if( stopped || stopping )
-			return( false );
-		return( started );
+	public boolean isRunning() {
+		synchronized( task ) {
+			if( stopped || stopping )
+				return( false );
+			return( started );
+		}
 	}
 	
-	public synchronized void start() {
-		engine.info( name + " - start thread ..." );
-		
-		started = true;
-		stopping = false;
-        thread = new Thread( null , this , name );
-        thread.start();
+	public void start() {
+		synchronized( task ) {
+			executor.engine.trace( task.name + " - start thread ..." );
+			
+			started = true;
+			stopping = false;
+	        thread = new Thread( null , this , task.name );
+	        thread.start();
+		}
 	}
 	
 	public void stop() {
 		if( started == false || stopped )
 			return;
 		
-		engine.info( name + " - stop thread ..." );
+		executor.engine.trace( task.name + " - stop thread ..." );
 		try {
 			if( started ) {
-				synchronized( this ) {
+				synchronized( task ) {
 					stopping = true;
-					notifyAll();
+					task.notifyAll();
 				}
 
 				while( true ) {
@@ -77,10 +80,10 @@ public class ServerExecutorThread implements Runnable {
 			}
 		}
 		catch( Throwable e ) {
-			engine.handle( "exception when stopping " + name + " thread" , e );
+			executor.engine.handle( "exception when stopping " + task.name + " thread" , e );
 		}
 		
-		engine.debug( name + " thread has been stopped" );
+		executor.engine.trace( task.name + " thread has been stopped" );
 	}
 
 }
