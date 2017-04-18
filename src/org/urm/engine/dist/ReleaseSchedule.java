@@ -139,8 +139,6 @@ public class ReleaseSchedule {
 
 	public void createProd( ActionBase action ) throws Exception {
 		this.LIFECYCLE = "";
-		started = new Date();
-		currentPhase = -1;
 		releasePhases = 0;
 		deployPhases = 0;
 		released = false;
@@ -148,11 +146,15 @@ public class ReleaseSchedule {
 		archived = false;
 		phases.clear();
 	}
+
+	public void create( ActionBase action ) throws Exception {
+		started = new Date();
+		currentPhase = -1;
+	}
 	
 	public void createReleaseSchedule( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
 		this.LIFECYCLE = ( lc == null )? "" : lc.ID;
-		currentPhase = 0;
-		started = new Date();
+		currentPhase = ( lc == null )? -1 : 0;
 		phases.clear();
 		
 		if( lc != null ) {
