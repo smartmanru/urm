@@ -10,6 +10,7 @@ public class ServerEvents extends ServerObject {
 	public static int EVENT_SECONDTIMER = 2;
 	public static int EVENT_BLOTTEREVENT = 3;
 	public static int EVENT_NOTIFY = 4;
+	public static int EVENT_FINISHCHILDSTATE = 5;
 	public static int EVENT_MONITORSTATECHANGED = 11;
 	public static int EVENT_MONITORCHILDCHANGED = 12;
 	public static int EVENT_MONITORGRAPHCHANGED = 13;
