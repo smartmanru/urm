@@ -286,5 +286,13 @@ public class MetaSourceProject {
 	public void removeItem( ServerTransaction transaction , MetaSourceProjectItem item ) throws Exception {
 		removeItem( item );
 	}
+
+	public boolean hasDistItems() {
+		for( MetaSourceProjectItem item : itemList ) {
+			if( !item.isInternal() )
+				return( true );
+		}
+		return( false );
+	}
 	
 }

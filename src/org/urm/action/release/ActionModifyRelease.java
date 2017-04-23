@@ -22,7 +22,7 @@ public class ActionModifyRelease extends ActionBase {
 
 	@Override protected SCOPESTATE executeSimple() throws Exception {
 		dist.openForDataChange( this );
-		if( releaseDate != null )
+		if( releaseDate != null && releaseDate.equals( dist.release.schedule.releaseDate ) == false )
 			dist.changeReleaseDate( this , releaseDate , lc );
 		dist.release.setProperties( this );
 		dist.saveReleaseXml( this );
