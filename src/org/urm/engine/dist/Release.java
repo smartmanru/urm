@@ -69,6 +69,7 @@ public class Release {
 	public void createMaster( ActionBase action , String RELEASEVER , boolean copy ) throws Exception {
 		this.RELEASEVER = RELEASEVER;
 
+		schedule.create( action );
 		schedule.createProd( action ); 
 		
 		this.PROPERTY_MASTER = true;
@@ -152,6 +153,7 @@ public class Release {
 		this.PROPERTY_MASTER = false;
 		this.PROPERTY_CUMULATIVE = action.context.CTX_CUMULATIVE;
 
+		schedule.create( action );
 		schedule.createReleaseSchedule( action , releaseDate , lc );
 		setProperties( action );
 		createEmptyXml( action , RELEASEFILEPATH );

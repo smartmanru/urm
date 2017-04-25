@@ -349,6 +349,9 @@ public class ServerAuth extends ServerObject {
 		if( security.isAdmin() )
 			return( true );
 		
+		if( sa == SecurityAction.ACTION_SECURED || sa == SecurityAction.ACTION_ADMIN )
+			return( false );
+
 		ServerAuthRoleSet roles = security.getBaseRoles();
 		
 		if( sa == SecurityAction.ACTION_MONITOR || sa == SecurityAction.ACTION_EXECUTE ) {
@@ -357,16 +360,6 @@ public class ServerAuth extends ServerObject {
 			return( false );
 		}
 		
-		if( sa == SecurityAction.ACTION_DEPLOY ) {
-			if( roles.secDev || roles.secRel || roles.secOpr )
-				return( true );
-			return( false );
-		}
-		
-		if( sa == SecurityAction.ACTION_SECURED || sa == SecurityAction.ACTION_ADMIN ) {
-			return( false );
-		}
-
 		if( sa == SecurityAction.ACTION_CONFIGURE || sa == SecurityAction.ACTION_XDOC ) {
 			if( readOnly ) {
 				if( roles.isAny() )
@@ -375,18 +368,6 @@ public class ServerAuth extends ServerObject {
 			return( false );
 		}
 				
-		if( sa == SecurityAction.ACTION_BUILD ) {
-			if( roles.secDev || roles.secRel )
-				return( true );
-			return( false );
-		}
-		
-		if( sa == SecurityAction.ACTION_RELEASE ) {
-			if( roles.secDev || roles.secRel || roles.secOpr )
-				return( true );
-			return( false );
-		}
-		
 		return( false );
 	}
 
@@ -446,7 +427,11 @@ public class ServerAuth extends ServerObject {
 					return( true );
 			}
 			else {
-				if( ( roles.secDev && envtype == VarENVTYPE.DEVELOPMENT ) || ( roles.secRel && envtype == VarENVTYPE.UAT ) || ( roles.secOpr && envtype == VarENVTYPE.PRODUCTION ) )
+				if( ( roles.secDev && envtype == VarENVTYPE.DEVELOPMENT ) || 
+					( roles.secRel && envtype == VarENVTYPE.UAT ) || 
+					( roles.secTest && envtype == VarENVTYPE.DEVELOPMENT ) || 
+					( roles.secTest && envtype == VarENVTYPE.UAT ) || 
+					( roles.secOpr && envtype == VarENVTYPE.PRODUCTION ) )
 					return( true );
 			}
 			return( false );
@@ -455,7 +440,7 @@ public class ServerAuth extends ServerObject {
 		if( sa == SecurityAction.ACTION_CONFIGURE ) {
 			if( env == null ) {
 				if( readOnly ) {
-					if( roles.secDev || roles.secRel || roles.secOpr )
+					if( roles.secDev || roles.secRel || roles.secTest || roles.secOpr )
 						return( true );
 				}
 				else {
@@ -465,11 +450,13 @@ public class ServerAuth extends ServerObject {
 			}
 			else {
 				if( readOnly ) {
-					if( roles.secDev || roles.secRel || roles.secOpr )
+					if( roles.secDev || roles.secRel || roles.secTest || roles.secOpr )
 						return( true );
 				}
 				else {
-					if( ( roles.secDev && envtype == VarENVTYPE.DEVELOPMENT ) || ( roles.secRel && envtype == VarENVTYPE.UAT ) || ( roles.secOpr && envtype == VarENVTYPE.PRODUCTION ) )
+					if( ( roles.secDev && envtype == VarENVTYPE.DEVELOPMENT ) || 
+						( roles.secRel && envtype == VarENVTYPE.UAT ) || 
+						( roles.secOpr && envtype == VarENVTYPE.PRODUCTION ) )
 						return( true );
 				}
 			}
@@ -478,7 +465,7 @@ public class ServerAuth extends ServerObject {
 		
 		if( sa == SecurityAction.ACTION_BUILD ) {
 			if( readOnly ) {
-				if( roles.secDev || roles.secRel || roles.secOpr )
+				if( roles.secDev || roles.secRel || roles.secTest || roles.secOpr )
 					return( true );
 			}
 			else {
@@ -491,18 +478,22 @@ public class ServerAuth extends ServerObject {
 		}
 		
 		if( sa == SecurityAction.ACTION_RELEASE ) {
-			if( roles.secRel || ( readOnly && ( roles.secDev || roles.secOpr ) ) )
+			if( roles.secRel || ( readOnly && ( roles.secDev || roles.secTest || roles.secOpr ) ) )
 				return( true );
 			return( false );
 		}
 		
 		if( sa == SecurityAction.ACTION_DEPLOY || sa == SecurityAction.ACTION_MONITOR || sa == SecurityAction.ACTION_XDOC ) {
 			if( readOnly ) {
-				if( roles.secDev || roles.secRel || roles.secOpr )
+				if( roles.secDev || roles.secRel || roles.secTest || roles.secOpr )
 					return( true );
 			}
 			else {
-				if( ( roles.secDev && envtype == VarENVTYPE.DEVELOPMENT ) || ( roles.secRel && envtype == VarENVTYPE.UAT ) || ( roles.secOpr && envtype == VarENVTYPE.PRODUCTION ) )
+				if( ( roles.secDev && envtype == VarENVTYPE.DEVELOPMENT ) || 
+					( roles.secRel && envtype == VarENVTYPE.UAT ) || 
+					( roles.secTest && envtype == VarENVTYPE.DEVELOPMENT ) || 
+					( roles.secTest && envtype == VarENVTYPE.UAT ) || 
+					( roles.secOpr && envtype == VarENVTYPE.PRODUCTION ) )
 					return( true );
 			}
 		}

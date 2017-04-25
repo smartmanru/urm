@@ -11,8 +11,8 @@ import org.urm.engine.ServerEvents;
 import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
 import org.urm.engine.ServerEventsSubscription;
+import org.urm.engine.ServerExecutorTask;
 import org.urm.engine.ServerSourceEvent;
-import org.urm.engine.ServerThread;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;
 import org.urm.meta.product.Meta;
@@ -22,14 +22,25 @@ import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaMonitoringTarget;
 
-public class ServerMonitoringProduct implements Runnable , ServerEventsListener {
+public class ServerMonitoringProduct implements ServerEventsListener {
+	
+	class ServerExecutorTaskMonitorProduct extends ServerExecutorTask {
+		ServerExecutorTaskMonitorProduct( String productName ) {
+			super( "monitoring::" + productName );
+		}
+		
+		@Override
+		public void execute() {
+			runTop();
+		}
+	};		
+	
+	private ServerExecutorTaskMonitorProduct task;
 
 	ServerMonitoring monitoring;
 	String productName;
 	ServerMonitoringSource source;
 	ServerEngine engine;
-	
-	private ServerThread thread;
 	
 	ActionMonitorTop ca;
 	ServerEventsApp eventsApp;
@@ -41,11 +52,10 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 		this.engine = monitoring.engine;
 		this.eventsApp = eventsApp;
 		
-		thread = new ServerThread( engine , this , "monitoring::" + productName , false ); 
+		task = new ServerExecutorTaskMonitorProduct( productName ); 
 	}
 	
-	@Override
-	public void run() {
+	public void runTop() {
 		try {
 			ca = new ActionMonitorTop( engine.serverAction , productName , productName , eventsApp );
 			eventsApp.subscribe( ca.eventSource , this );
@@ -151,12 +161,12 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 	
 	public synchronized void start() {
-		thread.start();
+		engine.executor.executeOnce( task );
 	}
 	
 	public synchronized void stop() {
 		ca.stopRunning();
-		thread.stop();
+		engine.executor.stopTask( task );
 		
 		// cleanup product data
 		source.setState( MONITORING_STATE.STATE_NOMONITORING );
@@ -165,14 +175,14 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 
 	private void processSegmentEvent( ActionEventsSource source , ServerMonitoringSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
-		if( !thread.isRunning() )
+		if( !task.isRunning() )
 			return;
 
 		sgSource.setPrimaryLog( status.getLog() );
 	}
 	
 	private void processSegmentItemsEvent( ActionEventsSource source , ServerMonitoringSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
-		if( !thread.isRunning() )
+		if( !task.isRunning() )
 			return;
 
 		sgSource.setExtraLog( ServerMonitoring.EXTRA_SEGMENT_ITEMS , status.getLog() );
@@ -183,7 +193,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 	
 	private void processServerEvent( ActionEventsSource source , ServerMonitoringSource serverSource , MetaEnvServer server , ServerStatus status ) {
-		if( !thread.isRunning() )
+		if( !task.isRunning() )
 			return;
 
 		serverSource.setPrimaryLog( status.getLog() );
@@ -194,7 +204,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 	
 	private void processServerItemsEvent( ActionEventsSource source , ServerMonitoringSource serverSource , MetaEnvServer server , ServerStatus status ) {
-		if( !thread.isRunning() )
+		if( !task.isRunning() )
 			return;
 
 		serverSource.setExtraLog( ServerMonitoring.EXTRA_SERVER_ITEMS , status.getLog() );
@@ -205,7 +215,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 	
 	private void processNodeEvent( ActionEventsSource source , ServerMonitoringSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
-		if( !thread.isRunning() )
+		if( !task.isRunning() )
 			return;
 
 		nodeSource.setPrimaryLog( status.getLog() );
@@ -216,7 +226,7 @@ public class ServerMonitoringProduct implements Runnable , ServerEventsListener 
 	}
 	
 	private void processNodeItemsEvent( ActionEventsSource source , ServerMonitoringSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
-		if( !thread.isRunning() )
+		if( !task.isRunning() )
 			return;
 
 		nodeSource.setExtraLog( ServerMonitoring.EXTRA_NODE_ITEMS , status.getLog() );

@@ -3,6 +3,7 @@ package org.urm.action;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.engine.ServerEvents;
 import org.urm.engine.shell.Account;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
@@ -127,6 +128,15 @@ public class ScopeState {
 	public void setActionStatus( SCOPESTATE state ) {
 		this.state = state;
 		action.eventSource.finishScopeItem( this );
+		
+		if( action instanceof ActionBase ) {
+			ActionBase notifyParent = ( ActionBase )action;
+			notifyParent = notifyParent.parent;
+			while( notifyParent != null ) {
+				notifyParent.eventSource.finishScopeItem( ServerEvents.EVENT_FINISHCHILDSTATE , this );
+				notifyParent = notifyParent.parent;
+			}
+		}
 	}
 
 	public void createItemScopeState( ActionScopeTargetItem item , SCOPESTATE state ) {

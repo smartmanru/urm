@@ -3,7 +3,7 @@ package org.urm.engine;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ServerEventsNotifier extends ServerEventsSource implements Runnable {
+public class ServerEventsNotifier extends ServerEventsSource {
 
 	class NotifyEvent {
 		public ServerEventsApp app;
@@ -16,14 +16,30 @@ public class ServerEventsNotifier extends ServerEventsSource implements Runnable
 			this.eventData = eventData;
 		}
 	};
-	
-	private ServerThread thread;
+
+	class ServerExecutorTaskNotify extends ServerExecutorTask {
+		ServerExecutorTaskNotify() {
+			super( "events notifier" );
+		}
+		
+		@Override
+		public void execute() {
+			try {
+				cycle();
+			}
+			catch( Throwable e ) {
+				events.engine.handle( "events notifier error" , e );
+			}
+		}
+	};		
+
+	private ServerExecutorTaskNotify task;
 	private List<NotifyEvent> queue;
 	
 	public ServerEventsNotifier( ServerEvents events ) {
 		super( events , "urm.notifier" );
 		queue = new LinkedList<NotifyEvent>();
-		thread = new ServerThread( events.engine , this , "events notifier" , true );
+		task = new ServerExecutorTaskNotify();
 	}
 
 	@Override
@@ -31,27 +47,14 @@ public class ServerEventsNotifier extends ServerEventsSource implements Runnable
 		return( null );
 	}
 	
-	@Override
-	public void run() {
-		try {
-			cycle();
-		}
-		catch( Throwable e ) {
-			events.engine.handle( "events notifier error" , e );
-		}
-	}
-
 	private void cycle() {
 		NotifyEvent event = null;
 		try {
-			synchronized( thread ) {
-				if( !thread.isRunning() )
-					return;
-				
+			synchronized( task ) {
 				if( queue.isEmpty() )
-					thread.wait();
+					task.wait();
 
-				if( !thread.isRunning() )
+				if( !task.isRunning() )
 					return;
 				
 				if( queue.isEmpty() )
@@ -70,21 +73,21 @@ public class ServerEventsNotifier extends ServerEventsSource implements Runnable
 	}
 	
 	public void start() {
-		thread.start();
+		events.engine.executor.executeCycle( task );
 	}
 
 	public synchronized void stop() {
-		thread.stop();
+		events.engine.executor.stopTask( task );
 	}
 
 	public void addEvent( ServerEventsApp app , ServerEventsListener listener , Object eventData ) {
-		synchronized( thread ) {
-			if( !thread.isRunning() )
+		synchronized( task ) {
+			if( !task.isRunning() )
 				return;
 			
 			NotifyEvent event = new NotifyEvent( app , listener , eventData );
 			queue.add( event );
-			thread.notifyAll();
+			task.notifyAll();
 		}
 	}
 	

@@ -294,24 +294,26 @@ public class DistState {
 		action.info( "distributive has been reopened" );
 	}
 
-	public void ctlOpenForUse( ActionBase action , boolean openForUse ) throws Exception {
+	public void ctlOpenForUse( ActionBase action , boolean requireReleased ) throws Exception {
 		// check current status
 		ctlLoadReleaseState( action );
 		
-		if( openForUse == false ) {
-			if( state != DISTSTATE.COMPLETED && state != DISTSTATE.RELEASED && state != DISTSTATE.DIRTY )
+		if( requireReleased == false ) {
+			if( isFinalized() == false && state != DISTSTATE.DIRTY )
 				action.exit1( _Error.DistributiveNotReadyForUse1 , "distributive is not ready for use, state=" + state.name() , state.name() );
 		}
 		
-		if( openForUse == true ) {
+		if( requireReleased == true ) {
 			if( state != DISTSTATE.COMPLETED && state != DISTSTATE.RELEASED )
 				action.exit1( _Error.DistributiveNotReadyForProd1 , "distributive is not ready for use in prod environment, state=" + state.name() , state.name() );
 		}
 
-		String dataHashCurrent = getDataHashValue( action );
-		String metaHashCurrent = getMetaHashValue( action );
-		if( dataHashCurrent.equals( dataHash ) == false || metaHashCurrent.equals( metaHash ) == false )
-			action.exit0( _Error.DistributiveHashDiffers0 , "distributive is not ready for use, hash value differs from declared" );
+		if( state != DISTSTATE.DIRTY ) {
+			String dataHashCurrent = getDataHashValue( action );
+			String metaHashCurrent = getMetaHashValue( action );
+			if( dataHashCurrent.equals( dataHash ) == false || metaHashCurrent.equals( metaHash ) == false )
+				action.exit0( _Error.DistributiveHashDiffers0 , "distributive is not ready for use, hash value differs from declared" );
+		}
 	}
 
 	public void ctlOpenForControl( ActionBase action ) throws Exception {

@@ -38,6 +38,8 @@ import org.urm.meta.engine.ServerMonitoring;
 public class ServerEngine {
 
 	public RunContext execrc;
+	
+	public ServerExecutor executor;
 	public ServerSession serverSession;
 	public SessionController sessionController;
 	public ServerMBean jmxController;
@@ -69,6 +71,7 @@ public class ServerEngine {
 	public ServerEngine( RunContext execrc ) {
 		this.execrc = execrc;
 		
+		executor = new ServerExecutor( this ); 
 		houseKeeping = new ServerHouseKeeping( this );
 		cache = new ServerCache( this ); 
 
@@ -498,25 +501,28 @@ public class ServerEngine {
 		if( serverAction != null )
 			serverAction.info( s );
 		else
-			System.out.println( "transaction (info): " + s );
+			System.out.println( "engine (info): " + s );
 	}
 	
 	public void debug( String s ) {
 		if( serverAction != null )
 			serverAction.debug( s );
 		else
-			System.out.println( "transaction (debug): " + s );
+			System.out.println( "engine (debug): " + s );
 	}
 	
 	public void error( String s ) {
 		if( serverAction != null )
 			serverAction.error( s );
 		else
-			System.out.println( "transaction (error): " + s );
+			System.out.println( "engine (error): " + s );
 	}
 	
 	public void trace( String s ) {
-		serverAction.trace( s );
+		if( serverAction != null )
+			serverAction.trace( s );
+		else
+			System.out.println( "engine (trace): " + s );
 	}
 	
 	public void exit1( int e , String s , String p1 ) throws Exception {
