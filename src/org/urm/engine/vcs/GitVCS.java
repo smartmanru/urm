@@ -371,14 +371,18 @@ public class GitVCS extends GenericVCS {
 		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
 		storage.refreshBare();
 		
+		String checkPath = masterFolder;
+		if( masterFolder == null || masterFolder.equals( "/" ) )
+			checkPath = "";
+		
 		String s;
 		String OSPATH = storage.getBareOSPath();
 		if( shell.isWindows() ) {
-			s = shell.customGetValue( action , "git -C " + OSPATH + " ls-tree master --name-only" );
+			s = shell.customGetValue( action , "git -C " + OSPATH + " ls-tree master " + checkPath + " --name-only" );
 			s = Common.replace( s , "\\n" , " \"" );
 		}
 		else {
-			s = shell.customGetValue( action , "git -C " + OSPATH + " ls-tree master --name-only | tr \"\\n\" \" \"" );
+			s = shell.customGetValue( action , "git -C " + OSPATH + " ls-tree master " + checkPath + " --name-only | tr \"\\n\" \" \"" );
 		}
 		return( Common.splitSpaced( s ) );
 	}
@@ -431,15 +435,25 @@ public class GitVCS extends GenericVCS {
 	}
 	
 	@Override public void deleteFileToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
-		action.exitNotImplemented();
+		String path = PATCHPATH.getFilePath( action , folder );
+		String filePath = file;
+		if( PATCHPATH.windows )
+			filePath = Common.getWinPath( filePath );
+		shell.customCheckStatus( action , path , "git rm " + filePath );
 	}
 	
 	@Override public void addDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
-		action.exitNotImplemented();
+		String path = PATCHPATH.getFilePath( action , folder );
+		if( PATCHPATH.windows )
+			path = Common.getWinPath( path );
+		shell.customCheckStatus( action , path , "git add " + path );
 	}
 	
 	@Override public void deleteDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
-		action.exitNotImplemented();
+		String path = PATCHPATH.getFilePath( action , folder );
+		if( PATCHPATH.windows )
+			path = Common.getWinPath( path );
+		shell.customCheckStatus( action , path , "git rm -rf " + path );
 	}
 
 	@Override public void createMasterTag( ServerMirrorRepository mirror , String masterFolder , String TAG , String commitMessage ) throws Exception {

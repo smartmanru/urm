@@ -70,8 +70,8 @@ public class GitMirrorStorage extends MirrorStorage {
 		
 		// create bare repository if not exists
 		String repoPath = REPONAME;
-		if( REPOROOT != null && !REPOROOT.isEmpty() )
-			repoPath = REPOROOT + "/" + repoPath;
+		if( REPOROOT != null && !REPOROOT.equals( "/" ) )
+			repoPath = Common.getPath( REPOROOT , repoPath );
 		
 		cloneRemoteToBare( repoPath );
 		if( !vcs.checkMirrorEmpty( mirror ) )
