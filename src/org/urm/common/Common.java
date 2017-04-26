@@ -352,6 +352,8 @@ public class Common {
 		}
 		if( path2.equals( "." ) )
 			return( path1 );
+		if( path1.equals( "/" ) )
+			return( "/" + path2 );
 		return( path1 + "/" + path2 );
 	}
 	
