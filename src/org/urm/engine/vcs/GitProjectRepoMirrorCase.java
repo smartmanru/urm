@@ -5,11 +5,11 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.product.MetaSourceProject;
 
-public class GitProjectRepo extends GitMirrorStorage {
+public class GitProjectRepoMirrorCase extends GitMirrorCase {
 	
 	public MetaSourceProject project;
 	
-	public GitProjectRepo( GitVCS vcs , ServerMirrorRepository mirror , MetaSourceProject project , LocalFolder PATCHFOLDER ) {
+	public GitProjectRepoMirrorCase( GitVCS vcs , ServerMirrorRepository mirror , MetaSourceProject project , LocalFolder PATCHFOLDER ) {
 		super( vcs , mirror , PATCHFOLDER );
 		this.project = project;
 	}

@@ -8,31 +8,34 @@ import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.product.MetaProductSettings;
 
-public abstract class MirrorStorage {
+public abstract class MirrorCase {
 
+	enum VarMIRRORCASE {
+		SERVER_META ,
+		PRODUCT_META ,
+		PRODUCT_DATA ,
+		PRODUCT_PROJECT
+	};
+	
 	GenericVCS vcs;
 	ServerMirrorRepository mirror;
 	
 	public Account account;
-	
-	private LocalFolder repoFolder;
-	private LocalFolder commitFolder;
 	
 	protected ShellExecutor shell;
 	protected ActionBase action;
 	
 	public abstract boolean isEmpty() throws Exception;
 	
-	public MirrorStorage( GenericVCS vcs , ServerMirrorRepository mirror , LocalFolder customRepoFolder ) {
+	public MirrorCase( GenericVCS vcs , ServerMirrorRepository mirror ) {
 		this.vcs = vcs;
 		this.mirror = mirror;
-		this.repoFolder = customRepoFolder;
 		
 		shell = vcs.shell;
 		action = vcs.action;
 	}
 	
-	public void create( boolean newStorage , boolean check ) throws Exception {
+	private void create( boolean newStorage , boolean check ) throws Exception {
 		LocalFolder repox = repoFolder;
 		if( repox == null ) {
 			LocalFolder basex = getBaseFolder();
@@ -62,23 +65,23 @@ public abstract class MirrorStorage {
 		this.commitFolder = commitx;
 	}
 	
-	public String getRepoOSPath() throws Exception {
+	private String getRepoOSPath() throws Exception {
 		return( shell.getOSPath( action , repoFolder.folderPath ) );
 	}
 	
-	public String getCommitOSPath() throws Exception {
+	private String getCommitOSPath() throws Exception {
 		return( shell.getOSPath( action , commitFolder.folderPath ) );
 	}
 	
-	public LocalFolder getRepoFolder() throws Exception {
+	private LocalFolder getRepoFolder() throws Exception {
 		return( repoFolder );
 	}
 	
-	public LocalFolder getCommitFolder() throws Exception {
+	private LocalFolder getCommitFolder() throws Exception {
 		return( commitFolder );
 	}
 	
-	public LocalFolder getBaseFolder() throws Exception {
+	private LocalFolder getBaseFolder() throws Exception {
 		String mirrorPath;
 		if( vcs.meta == null ) {
 			ServerSettings settings = action.getServerSettings();
@@ -90,12 +93,12 @@ public abstract class MirrorStorage {
 		}
 		
 		if( mirrorPath.isEmpty() )
-			action.exit0( _Error.MissingMirrorPathParameter0 , "Missing configuraion parameter: mirror path" );
+			action.exit0( _Error.MissingMirrorPathParameter0 , "Missing configuration parameter: mirror path" );
 		
 		return( action.getLocalFolder( mirrorPath ) );
 	}
 
-	public void remove() throws Exception {
+	private void remove() throws Exception {
 		if( repoFolder.checkExists( action ) )
 			repoFolder.removeThis( action );
 	}

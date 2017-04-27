@@ -10,17 +10,14 @@ import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.product.MetaProductSettings;
 
-public class GitMirrorStorage extends MirrorStorage {
+public class GitMirrorCase extends MirrorCase {
 
 	GitVCS vcs;
 	
-	String REPONAME;
-	String REPOROOT;
-	
 	LocalFolder bareFolder;
 	
-	public GitMirrorStorage( GitVCS vcs , ServerMirrorRepository mirror , LocalFolder customRepoFolder ) {
-		super( vcs , mirror , customRepoFolder );
+	public GitMirrorStorage( GitVCS vcs , ServerMirrorRepository mirror ) {
+		super( vcs , mirror );
 		this.vcs = vcs;
 	}
 	
