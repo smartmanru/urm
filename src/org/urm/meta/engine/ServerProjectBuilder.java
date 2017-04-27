@@ -309,7 +309,10 @@ public class ServerProjectBuilder extends ServerObject {
 			targetNuget = false;
 			TARGETNUGETPLATFORM = "";
 		}
-		
+
+		if( builderMethod == VarBUILDERTYPE.GENERIC )
+			GENERIC_COMMAND = src.GENERIC_COMMAND;
+
 		if( builderMethod == VarBUILDERTYPE.ANT )
 			ANT_HOMEPATH = src.ANT_HOMEPATH;
 		else
