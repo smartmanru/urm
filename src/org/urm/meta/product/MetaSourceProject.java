@@ -251,10 +251,11 @@ public class MetaSourceProject {
 		return( Common.getSortedKeys( itemMap ) );
 	}
 
-	public void setProjectData( ServerTransaction transaction , String desc , String group , VarPROJECTTYPE type , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
+	public void setProjectData( ServerTransaction transaction , String desc , boolean prod , String group , VarPROJECTTYPE type , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
 		this.DESC = desc;
 		this.BUILDGROUP = group;
 		this.type = type;
+		this.codebaseProd = prod;
 		
 		this.codebaseProd = false;
 		this.BRANCH = "";
@@ -268,8 +269,7 @@ public class MetaSourceProject {
 		this.BRANCH = branch;
 	}
 
-	public void setCodebase( ServerTransaction transaction , boolean prod , String branch , String builder , String builderAddOptions ) throws Exception {
-		this.codebaseProd = prod;
+	public void setCodebase( ServerTransaction transaction , String branch , String builder , String builderAddOptions ) throws Exception {
 		this.BRANCH = branch;
 		this.BUILDER = builder;
 		this.BUILDER_ADDOPTIONS = builderAddOptions;
