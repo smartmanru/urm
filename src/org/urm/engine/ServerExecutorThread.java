@@ -70,9 +70,9 @@ public class ServerExecutorThread implements Runnable {
 				}
 
 				while( true ) {
-					synchronized( this ) {
+					synchronized( task ) {
 						if( !stopped )
-							wait();
+							task.wait();
 						if( stopped )
 							break;
 					}

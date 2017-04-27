@@ -39,7 +39,7 @@ public class GitMirrorStorage extends MirrorStorage {
 		List<String> dirs = new LinkedList<String>();
 		List<String> files = new LinkedList<String>();
 		
-		LocalFolder commitFolder = super.getCommitFolder();
+		LocalFolder commitFolder = getCommitFolder();
 		if( !commitFolder.checkExists( action ) )
 			return( true );
 		
@@ -52,7 +52,15 @@ public class GitMirrorStorage extends MirrorStorage {
 			return( true );
 		return( false );
 	}
-	
+
+	@Override
+	public LocalFolder getCommitFolder() throws Exception {
+		LocalFolder commitFolder = super.getCommitFolder();
+		if( !mirror.RESOURCE_DATA.isEmpty() )
+			commitFolder = commitFolder.getSubFolder( action , mirror.RESOURCE_DATA );
+		return( commitFolder );
+	}
+
 	public String getBranch() {
 		String branch = mirror.BRANCH;
 		if( branch == null || branch.isEmpty() || branch.equals( "trunk" ) )
@@ -123,14 +131,8 @@ public class GitMirrorStorage extends MirrorStorage {
 		repoFolder.ensureExists( action );
 		int status = shell.customGetStatus( action , repoFolder.folderPath , "git init" );
 		
-		ServerAuthResource res = vcs.res;
-		String user = "";
-		if( !res.ac.isAnonymous() )
-			user = res.ac.getUser( action );
 		String branch = getBranch();
-		
-		shell.customCheckStatus( action , repoFolder.folderPath , "git config user.name " + Common.getQuoted( user ) );
-		shell.customCheckStatus( action , repoFolder.folderPath , "git config user.email " + Common.getQuoted( "ignore@mail.com" ) );
+		setAccess( repoFolder.getLocalPath( action ) );
 		
 		repoFolder.createFileFromString( action , "README.md" , "# URM REPOSITORY" );
 		vcs.addFileToCommit( mirror , repoFolder , "" , "README.md" );
@@ -152,11 +154,13 @@ public class GitMirrorStorage extends MirrorStorage {
 		int status = shell.customGetStatus( action , "git -C " + OSPATH + " clone " + OSPATH + " --shared -b " + BRANCH + " " + OSPATHPROJECT );
 		if( status != 0 )
 			action.exit2( _Error.GitUnableClone2 , "Unable to clone from " + OSPATH + " to " + OSPATHPROJECT , OSPATH , OSPATHPROJECT );
+		
+		setAccess( OSPATHPROJECT );
 	}
 	
 	public void refreshMirror() throws Exception {
 		refreshBare();
-		LocalFolder repoFolder = super.getRepoFolder();
+		LocalFolder repoFolder = getCommitFolder();
 		fetchOrigin( repoFolder.folderPath );
 	}
 
@@ -168,7 +172,7 @@ public class GitMirrorStorage extends MirrorStorage {
 		if( shell.isWindows() )
 			action.exitNotImplemented();
 			
-		LocalFolder commitFolder = super.getCommitFolder();
+		LocalFolder commitFolder = getCommitFolder();
 		MetaProductSettings product = vcs.meta.getProductSettings( action );
 		shell.customCheckErrorsDebug( action , commitFolder.folderPath , 
 			"F_LIST=`git diff --name-only`; " +
@@ -178,7 +182,7 @@ public class GitMirrorStorage extends MirrorStorage {
 	}
 
 	public void pushMirror() throws Exception {
-		LocalFolder repoFolder = super.getRepoFolder();
+		LocalFolder repoFolder = getCommitFolder();
 		pushOrigin( repoFolder.folderPath );
 		pushOrigin( bareFolder.folderPath );
 	}
@@ -195,9 +199,6 @@ public class GitMirrorStorage extends MirrorStorage {
 		ServerAuthResource res = vcs.res;
 		String url = res.BASEURL;
 		String urlAuth = vcs.getRepositoryAuthUrl();
-		String user = "";
-		if( !res.ac.isAnonymous() )
-			user = res.ac.getUser( action );
 		
 		bareFolder.ensureExists( action );
 		
@@ -212,12 +213,21 @@ public class GitMirrorStorage extends MirrorStorage {
 		if( status != 0 )
 			action.exit2( _Error.UnableCloneRepository2 , "Unable to clone repository " + url + " to " + OSPATH , url , OSPATH );
 
+		setAccess( OSPATH );
+	}
+
+	private void setAccess( String OSPATH ) throws Exception {
+		ServerAuthResource res = vcs.res;
+		String user = "";
+		if( !res.ac.isAnonymous() )
+			user = res.ac.getUser( action );
+		
 		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.name " + Common.getQuoted( user ) );
 		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.email " + Common.getQuoted( "ignore@mail.com" ) );
 	}
 	
 	public boolean exportFromPath( String BRANCHTAG , String SUBPATH , String FILENAME ) throws Exception {
-		LocalFolder commitFolder = super.getCommitFolder();
+		LocalFolder commitFolder = getCommitFolder();
 		Folder BASEDIR = commitFolder.getParentFolder( action );
 		String BASENAME = commitFolder.getBaseName( action );
 		
