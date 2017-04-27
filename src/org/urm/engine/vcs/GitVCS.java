@@ -417,7 +417,7 @@ public class GitVCS extends GenericVCS {
 		if( status != 0 )
 			return( false );
 		
-		GitMirrorStorage storage = getMasterMirrorStorage( mirror , PATCHPATH );
+		GitMirrorStorage storage = getMasterMirrorStorage( mirror , null );
 		LocalFolder storageFolder = storage.getCommitFolder();
 		if( !PATCHPATH.equals( storageFolder ) )
 			storage.pushOrigin( PATCHPATH.folderPath );
