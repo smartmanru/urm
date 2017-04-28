@@ -70,9 +70,9 @@ public class ServerTransaction extends TransactionBase {
 		repo.refreshMirror( this );
 	}
 
-	public void dropMirror( ServerMirrorRepository repo ) throws Exception {
+	public void dropMirror( ServerMirrorRepository repo , boolean dropOnServer ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
-		repo.dropMirror( this );
+		repo.dropMirror( this , dropOnServer );
 		repo.deleteObject();
 	}
 

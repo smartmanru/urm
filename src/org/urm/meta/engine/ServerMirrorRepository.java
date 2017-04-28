@@ -1,6 +1,5 @@
 package org.urm.meta.engine;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,11 +7,10 @@ import org.urm.action.ActionBase;
 import org.urm.common.PropertySet;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.action.ActionInit;
-import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
 import org.urm.engine.vcs.GenericVCS;
-import org.urm.engine.vcs.MirrorStorage;
+import org.urm.engine.vcs.MirrorCase;
 import org.urm.meta.ServerObject;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
@@ -223,19 +221,19 @@ public class ServerMirrorRepository extends ServerObject {
 		
 		Map<String,LocalFolder> map = getFolderMap( action );
 		
-		MirrorStorage storage;
+		MirrorCase mc = vcs.getMirror( this );
 		if( push )
-			storage = vcs.createInitialMirror( this );
+			mc.createEmptyMirrorOnServer();
 		else
-			storage = vcs.createServerMirror( this );
+			mc.useMirror();
 		
 		for( String mirrorFolder : map.keySet() ) {
 			LocalFolder folder = map.get( mirrorFolder );
 			folder.ensureExists( action );
 			if( push )
-				syncFolderToVcs( action , vcs , storage , mirrorFolder , folder );
+				mc.syncFolderToVcs( mirrorFolder , folder );
 			else
-				syncVcsToFolder( action , vcs , storage , mirrorFolder , folder );
+				mc.syncVcsToFolder( mirrorFolder , folder );
 		}
 	}
 	
@@ -278,18 +276,11 @@ public class ServerMirrorRepository extends ServerObject {
 		createProperties();
 	}
 	
-	public void dropMirror( ServerTransaction transaction ) throws Exception {
+	public void dropMirror( ServerTransaction transaction , boolean dropOnServer ) throws Exception {
 		if( RESOURCE.isEmpty() )
 			return;
 		
-		if( isServer() )
-			dropMirrorInternal( transaction );
-		else
-		if( isProductMeta() )
-			dropMirrorInternal( transaction );
-		else
-		if( isProductData() )
-			dropMirrorInternal( transaction );
+		dropMirrorInternal( transaction , dropOnServer );
 		
 		RESOURCE = "";
 		RESOURCE_REPO = "";
@@ -299,213 +290,51 @@ public class ServerMirrorRepository extends ServerObject {
 		createProperties();
 	}
 	
-	private void dropMirrorInternal( ServerTransaction transaction ) throws Exception {
+	private void dropMirrorInternal( ServerTransaction transaction , boolean dropOnServer ) throws Exception {
+		if( isProject() && dropOnServer )
+			transaction.exitUnexpectedState();
+		
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , "" , true );
-		vcs.dropMirror( this );
+		MirrorCase mc = vcs.getMirror( this );
+		mc.dropMirror( dropOnServer );
 	}
 
 	public void pushMirror( ServerTransaction transaction ) throws Exception {
-		if( isServer() )
-			pushMirrorInternal( transaction );
-		else
-		if( isProductMeta() )
-			pushMirrorInternal( transaction );
-		else
-		if( isProductData() )
-			pushMirrorInternal( transaction );
+		pushMirrorInternal( transaction );
 	}
 
 	private void pushMirrorInternal( ServerTransaction transaction ) throws Exception {
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE );
-		vcs.refreshMirror( this );
-		MirrorStorage storage = vcs.getMirror( this );
+		MirrorCase mc = vcs.getMirror( this );
+		mc.refreshComponent( true );
+		
 		ActionInit action = transaction.getAction();
 		
 		Map<String,LocalFolder> map = getFolderMap( action );
 		for( String mirrorFolder : map.keySet() ) {
 			LocalFolder folder = map.get( mirrorFolder );
 			folder.ensureExists( action );
-			syncFolderToVcs( action , vcs , storage , mirrorFolder , folder );
+			mc.syncFolderToVcs( mirrorFolder , folder );
 		}
 		
-		vcs.pushMirror( this );
+		mc.pushComponentChanges();
 	}
 	
 	public void refreshMirror( ServerTransaction transaction ) throws Exception {
-		if( isServer() )
-			refreshServerMirror( transaction );
-		else
-		if( isProductMeta() )
-			refreshProductMetaMirror( transaction );
-		else
-		if( isProductData() )
-			refreshProductDataMirror( transaction );
-	}
-
-	private void refreshServerMirror( ServerTransaction transaction ) throws Exception {
-		refreshMirrorInternal( transaction );
-	}
-	
-	private void refreshProductMetaMirror( ServerTransaction transaction ) throws Exception {
-		refreshMirrorInternal( transaction );
-	}
-
-	private void refreshProductDataMirror( ServerTransaction transaction ) throws Exception {
 		refreshMirrorInternal( transaction );
 	}
 
 	private void refreshMirrorInternal( ServerTransaction transaction ) throws Exception {
 		ActionInit action = transaction.getAction();
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE );
-		vcs.refreshMirror( this );
+		MirrorCase mc = vcs.getMirror( this );
+		mc.refreshComponent( true );
 		
-		MirrorStorage storage = vcs.getMirror( this );
 		Map<String,LocalFolder> map = getFolderMap( action );
 		for( String mirrorFolder : map.keySet() ) {
 			LocalFolder folder = map.get( mirrorFolder );
 			folder.ensureExists( action );
-			syncVcsToFolder( action , vcs , storage , mirrorFolder , folder );
-		}
-	}
-	
-	private void syncFolderToVcs( ActionBase action , GenericVCS vcs , MirrorStorage storage , String mirrorFolder , LocalFolder folder ) throws Exception {
-		LocalFolder cf = storage.getCommitFolder();
-		LocalFolder mf = cf.getSubFolder( action , mirrorFolder );
-		LocalFolder sf = folder;
-		if( !mf.checkExists( action ) ) {
-			mf.ensureExists( action );
-			mf.copyDirContent( action , sf );
-			vcs.addDirToCommit( this , mf , "." );
-		}
-		else {
-			FileSet mset = mf.getFileSet( action );
-			FileSet sset = sf.getFileSet( action );
-			syncFolderToVcs( action , vcs , storage , mf , sf , mset , sset );
-		}
-		
-		vcs.commitMasterFolder( this , mf , "" , "sync from source" );
-		vcs.pushMirror( this );
-	}
-
-	private void syncFolderToVcs( ActionBase action , GenericVCS vcs , MirrorStorage storage , LocalFolder mfolder , LocalFolder sfolder , FileSet mset , FileSet sset ) throws Exception {
-		// add to mirror and change
-		for( FileSet sd : sset.dirs.values() ) {
-			if( vcs.ignoreDir( sd.dirName ) )
-				continue;
-			
-			FileSet md = mset.dirs.get( sd.dirName );
-			if( md == null ) {
-				sfolder.copyFolder( action , sd.dirPath , mfolder.getSubFolder( action , sd.dirPath ) );
-				vcs.addDirToCommit( this , mfolder , sd.dirPath );
-			}
-			else
-				syncFolderToVcs( action , vcs , storage , mfolder , sfolder , md , sd );
-		}
-
-		// delete from mirror
-		for( FileSet md : mset.dirs.values() ) {
-			if( vcs.ignoreDir( md.dirName ) )
-				continue;
-			
-			FileSet sd = sset.dirs.get( md.dirName );
-			if( sd == null )
-				vcs.deleteDirToCommit( this , mfolder , md.dirPath );
-		}
-		
-		// add files to mirror and change
-		LocalFolder dstFolder = mfolder.getSubFolder( action , mset.dirPath );
-		for( String sf : sset.files.keySet() ) {
-			if( vcs.ignoreFile( sf ) )
-				continue;
-			
-			sfolder.copyFile( action , sset.dirPath , sf , dstFolder , sf );
-			if( mset.files.get( sf ) == null )
-				vcs.addFileToCommit( this , mfolder , mset.dirPath , sf );
-		}
-
-		// delete from mirror
-		for( String mf : mset.files.keySet() ) {
-			if( vcs.ignoreFile( mf ) )
-				continue;
-			
-			if( sset.files.get( mf ) == null )
-				vcs.deleteFileToCommit( this , mfolder , mset.dirPath , mf );
-		}
-	}
-	
-	private void syncVcsToFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , String mirrorFolder , LocalFolder folder ) throws Exception {
-		LocalFolder cf = storage.getCommitFolder();
-		LocalFolder mf = cf.getSubFolder( action , mirrorFolder );
-		if( !mf.checkExists( action ) ) {
-			folder.removeThis( action );
-			folder.ensureExists( action );
-			return;
-		}
-
-		folder.ensureExists( action );
-		
-		LocalFolder sf = folder;
-		FileSet mset = mf.getFileSet( action );
-		FileSet sset = sf.getFileSet( action );
-		syncVcsToFolder( action , vcs , storage , mf , sf , mset , sset );
-		
-		if( action.isLocalLinux() )
-			addLinuxExecution( action , vcs , folder , mset );
-	}
-
-	private void addLinuxExecution( ActionBase action , GenericVCS vcs , LocalFolder folder , FileSet set ) throws Exception {
-		for( String f : set.files.keySet() ) {
-			if( f.endsWith( ".sh" ) ) {
-				File ff = new File( folder.getFilePath( action , f ) );
-				ff.setExecutable( true );
-			}
-		}
-		for( FileSet md : set.dirs.values() ) {
-			if( vcs.ignoreDir( md.dirName ) )
-				continue;
-			addLinuxExecution( action , vcs , folder.getSubFolder( action , md.dirName ) , md );
-		}
-	}
-	
-	private void syncVcsToFolder( ActionBase action , GenericVCS vcs , MirrorStorage storage , LocalFolder mfolder , LocalFolder sfolder , FileSet mset , FileSet sset ) throws Exception {
-		// add to source and change
-		for( FileSet md : mset.dirs.values() ) {
-			if( vcs.ignoreDir( md.dirName ) )
-				continue;
-			
-			FileSet sd = sset.dirs.get( md.dirName );
-			if( sd == null )
-				mfolder.copyFolder( action , md.dirPath , sfolder.getSubFolder( action , md.dirPath ) );
-			else
-				syncVcsToFolder( action , vcs , storage , mfolder , sfolder , md , sd );
-		}
-
-		// delete from source
-		for( FileSet sd : sset.dirs.values() ) {
-			if( vcs.ignoreDir( sd.dirName ) )
-				continue;
-			
-			FileSet md = mset.dirs.get( sd.dirName );
-			if( md == null )
-				sfolder.removeFolder( action , sd.dirPath );
-		}
-		
-		// add files to source and change
-		LocalFolder dstFolder = sfolder.getSubFolder( action , sset.dirPath );
-		for( String mf : mset.files.keySet() ) {
-			if( vcs.ignoreFile( mf ) )
-				continue;
-			
-			mfolder.copyFile( action , mset.dirPath , mf , dstFolder , mf );
-		}
-
-		// delete from mirror
-		for( String sf : sset.files.keySet() ) {
-			if( vcs.ignoreFile( sf ) )
-				continue;
-			
-			if( mset.files.get( sf ) == null )
-				dstFolder.removeFolderFile( action , "" , sf );
+			mc.syncVcsToFolder( mirrorFolder , folder );
 		}
 	}
 	

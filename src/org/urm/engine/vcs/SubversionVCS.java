@@ -16,6 +16,8 @@ import org.urm.meta.product.MetaSourceProject;
 
 public class SubversionVCS extends GenericVCS {
 
+	static String MASTERBRANCH = "trunk";
+
 	String SVNPATH;
 	String SVNAUTH;
 	
@@ -26,6 +28,11 @@ public class SubversionVCS extends GenericVCS {
 			this.SVNAUTH = res.ac.getSvnAuth( action );
 		else
 			this.SVNAUTH = "";
+	}
+	
+	@Override
+	public MirrorCase getMirror( ServerMirrorRepository mirror ) throws Exception {
+		return( new MirrorCaseSubversion( this , mirror ) );
 	}
 	
 	@Override public String getMainBranch() {
@@ -44,7 +51,8 @@ public class SubversionVCS extends GenericVCS {
 		return( false );
 	}
 	
-	@Override public boolean checkout( MetaSourceProject project , LocalFolder PATCHFOLDER , String BRANCH ) throws Exception {
+	@Override 
+	public boolean checkout( MetaSourceProject project , LocalFolder PATCHFOLDER , String BRANCH ) throws Exception {
 		String CO_PATH;
 		String XBRANCH = BRANCH;
 		if( !XBRANCH.equals( "trunk" ) )
@@ -77,7 +85,8 @@ public class SubversionVCS extends GenericVCS {
 		return( false );
 	}
 
-	@Override public boolean commit( MetaSourceProject project , LocalFolder PATCHFOLDER , String COMMENT ) throws Exception {
+	@Override 
+	public boolean commit( MetaSourceProject project , LocalFolder PATCHFOLDER , String COMMENT ) throws Exception {
 		if( !PATCHFOLDER.checkExists( action ) ) {
 			action.error( "directory " + PATCHFOLDER.folderPath + " does not exist " );
 			return( false );
@@ -88,7 +97,8 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	@Override public boolean copyBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
+	@Override 
+	public boolean copyBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
 		// check source status
 		String BRANCH1X = BRANCH1;
 		if( !BRANCH1X.equals( "trunk" ) )
@@ -117,7 +127,8 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	@Override public boolean renameBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
+	@Override 
+	public boolean renameBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
 		// check source status
 		String BRANCH1X = BRANCH1;
 		if( !BRANCH1X.equals( "trunk" ) )
@@ -146,7 +157,8 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	@Override public boolean copyTagToNewTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+	@Override 
+	public boolean copyTagToNewTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
 		// check source status
 		String projectPath = getProjectPath( project );
 		String tag1Path = Common.getPath( projectPath , "tags" , TAG1 );
@@ -167,7 +179,8 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	@Override public boolean copyTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+	@Override 
+	public boolean copyTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
 		// check source status
 		String projectPath = getProjectPath( project );
 		String tag1Path = Common.getPath( projectPath , "tags" , TAG1 );
@@ -188,7 +201,8 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 	
-	@Override public boolean renameTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+	@Override 
+	public boolean renameTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
 		// check source status
 		String projectPath = getProjectPath( project );
 		String tag1Path = Common.getPath( projectPath , "tags" , TAG1 );
@@ -209,7 +223,8 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 	
-	@Override public boolean copyTagToNewBranch( MetaSourceProject project , String TAG1 , String BRANCH2 ) throws Exception {
+	@Override 
+	public boolean copyTagToNewBranch( MetaSourceProject project , String TAG1 , String BRANCH2 ) throws Exception {
 		// check source status
 		String projectPath = getProjectPath( project );
 		String tag1Path = Common.getPath( projectPath , "tags" , TAG1 );
@@ -233,7 +248,8 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 	
-	@Override public boolean dropTag( MetaSourceProject project , String TAG ) throws Exception {
+	@Override 
+	public boolean dropTag( MetaSourceProject project , String TAG ) throws Exception {
 		// check status
 		String projectPath = getProjectPath( project );
 		String tagPath = Common.getPath( projectPath , "tags" , TAG );
@@ -247,7 +263,8 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 	
-	@Override public boolean dropBranch( MetaSourceProject project , String BRANCH ) throws Exception {
+	@Override 
+	public boolean dropBranch( MetaSourceProject project , String BRANCH ) throws Exception {
 		// check source status
 		String projectPath = getProjectPath( project );
 		String BRANCHX = BRANCH;
@@ -264,7 +281,8 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 	
-	@Override public boolean export( MetaSourceProject project , LocalFolder PATCHFOLDER , String BRANCH , String TAG , String FILENAME ) throws Exception {
+	@Override 
+	public boolean export( MetaSourceProject project , LocalFolder PATCHFOLDER , String BRANCH , String TAG , String FILENAME ) throws Exception {
 		String projectPath = getProjectPath( project );
 		String CO_PATH;
 		if( !TAG.isEmpty() )
@@ -299,7 +317,8 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	@Override public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String BRANCHDATE ) throws Exception {
+	@Override 
+	public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String BRANCHDATE ) throws Exception {
 		// check source status
 		String projectPath = getProjectPath( project );
 		String BRANCHX = BRANCH;
@@ -328,23 +347,27 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 	
-	@Override public boolean isValidRepositoryMasterRootPath( ServerMirrorRepository mirror , String path ) throws Exception {
+	@Override 
+	public boolean isValidRepositoryMasterRootPath( ServerMirrorRepository mirror , String path ) throws Exception {
 		String fullPath = Common.getPath( getRepositoryRootPath( mirror ) , path ); 
 		return( checkSvnPathExists( fullPath ) );
 	}
 	
-	@Override public boolean isValidRepositoryMasterPath( ServerMirrorRepository mirror , String path ) throws Exception {
+	@Override 
+	public boolean isValidRepositoryMasterPath( ServerMirrorRepository mirror , String path ) throws Exception {
 		String fullPath = Common.getPath( getRepositoryPath( mirror ) , path ); 
 		return( checkSvnPathExists( fullPath ) );
 	}
 	
-	@Override public boolean isValidRepositoryTagPath( ServerMirrorRepository mirror , String TAG , String path ) throws Exception {
+	@Override 
+	public boolean isValidRepositoryTagPath( ServerMirrorRepository mirror , String TAG , String path ) throws Exception {
 		String fullPath = Common.getPath( getRepositoryPath( mirror ) , "tags" , TAG );
 		fullPath = Common.getPath( fullPath , path ); 
 		return( checkSvnPathExists( fullPath ) );
 	}
 	
-	@Override public boolean exportRepositoryMasterPath( ServerMirrorRepository mirror , LocalFolder PATCHFOLDER , String ITEMPATH , String name ) throws Exception {
+	@Override 
+	public boolean exportRepositoryMasterPath( ServerMirrorRepository mirror , LocalFolder PATCHFOLDER , String ITEMPATH , String name ) throws Exception {
 		if( !isValidRepositoryMasterPath( mirror , ITEMPATH ) )
 			return( false );
 			
@@ -359,7 +382,8 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	@Override public boolean exportRepositoryTagPath( ServerMirrorRepository mirror , LocalFolder PATCHFOLDER , String TAG , String ITEMPATH , String name ) throws Exception {
+	@Override 
+	public boolean exportRepositoryTagPath( ServerMirrorRepository mirror , LocalFolder PATCHFOLDER , String TAG , String ITEMPATH , String name ) throws Exception {
 		if( !isValidRepositoryTagPath( mirror , TAG , ITEMPATH ) )
 			return( false );
 		
@@ -375,18 +399,21 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	@Override public String getInfoMasterPath( ServerMirrorRepository mirror , String ITEMPATH ) throws Exception {
+	@Override 
+	public String getInfoMasterPath( ServerMirrorRepository mirror , String ITEMPATH ) throws Exception {
 		String CO_PATH = Common.getPath( getRepositoryPath( mirror ) , ITEMPATH );
 		return( CO_PATH );
 	}
 
-	@Override public boolean createMasterFolder( ServerMirrorRepository mirror , String ITEMPATH , String commitMessage ) throws Exception {
+	@Override 
+	public boolean createMasterFolder( ServerMirrorRepository mirror , String ITEMPATH , String commitMessage ) throws Exception {
 		String fullPath = Common.getPath( getRepositoryPath( mirror ) , ITEMPATH ); 
 		shell.customCheckStatus( action , "svn mkdir " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " --parents " + Common.getQuoted( fullPath ) + " > " + shell.getOSDevNull() );
 		return( true );
 	}
 	
-	@Override public boolean moveMasterFiles( ServerMirrorRepository mirror , String srcFolder , String dstFolder , String itemPath , String commitMessage ) throws Exception {
+	@Override 
+	public boolean moveMasterFiles( ServerMirrorRepository mirror , String srcFolder , String dstFolder , String itemPath , String commitMessage ) throws Exception {
 		String F_ITEMDIR = Common.getDirName( itemPath );
 		String dstFullPath = Common.getPath( getRepositoryPath( mirror ) , dstFolder , F_ITEMDIR ); 
 		String srcFullPath = Common.getPath( getRepositoryPath( mirror ) , srcFolder , itemPath ); 
@@ -395,7 +422,8 @@ public class SubversionVCS extends GenericVCS {
 		return( true );
 	}
 
-	@Override public String[] listMasterItems( ServerMirrorRepository mirror , String masterFolder ) throws Exception {
+	@Override 
+	public String[] listMasterItems( ServerMirrorRepository mirror , String masterFolder ) throws Exception {
 		String fullPath = Common.getPath( getRepositoryPath( mirror ) , masterFolder );
 		String s = shell.customGetValue( action , "svn list " + SVNAUTH + " " + fullPath );
 		s = Common.replace( s , "/" , "" );
@@ -404,29 +432,34 @@ public class SubversionVCS extends GenericVCS {
 		return( Common.splitSpaced( s ) );
 	}
 
-	@Override public void deleteMasterFolder( ServerMirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception {
+	@Override 
+	public void deleteMasterFolder( ServerMirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception {
 		String fullPath = Common.getPath( getRepositoryPath( mirror ) , masterFolder );
 		shell.customCheckStatus( action , "svn delete -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + fullPath );
 	}
 	
-	@Override public void checkoutMasterFolder( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder ) throws Exception {
+	@Override 
+	public void checkoutMasterFolder( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder ) throws Exception {
 		String fullPath = Common.getPath( getRepositoryPath( mirror ) , masterFolder );
 		String ospath = action.getOSPath( PATCHPATH.folderPath );
 		shell.customCheckStatus( action , "svn co " + SVNAUTH + " " + fullPath + " " + ospath );
 	}
 	
-	@Override public void importMasterFolder( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception {
+	@Override 
+	public void importMasterFolder( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception {
 		String fullPath = Common.getPath( getRepositoryPath( mirror ) , masterFolder );
 		String ospath = action.getOSPath( PATCHPATH.folderPath );
 		shell.customCheckStatus( action , "svn import -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + ospath + " " + fullPath );
 	}
 	
-	@Override public void ensureMasterFolderExists( ServerMirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception {
+	@Override 
+	public void ensureMasterFolderExists( ServerMirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception {
 		String fullPath = Common.getPath( getRepositoryPath( mirror ) , masterFolder );
 		shell.customCheckStatus( action , "svn mkdir --parents -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + fullPath );
 	}
 	
-	@Override public boolean commitMasterFolder( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) {
+	@Override 
+	public boolean commitMasterFolder( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) {
 		try {
 			shell.customCheckStatus( action , Common.getPath( PATCHPATH.folderPath , masterFolder ) , "svn commit -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH );
 			return( true );
@@ -437,27 +470,32 @@ public class SubversionVCS extends GenericVCS {
 		return( false );
 	}
 	
-	@Override public void addFileToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
+	@Override 
+	public void addFileToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
 		String ospath = action.getOSPath( Common.getPath( folder , file ) );
 		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn add " + ospath );
 	}
 	
-	@Override public void deleteFileToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
+	@Override 
+	public void deleteFileToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
 		String ospath = action.getOSPath( Common.getPath( folder , file ) );
 		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn delete " + ospath );
 	}
 	
-	@Override public void addDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
+	@Override 
+	public void addDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
 		String ospath = action.getOSPath( folder );
 		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn add " + ospath );
 	}
 	
-	@Override public void deleteDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
+	@Override 
+	public void deleteDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
 		String ospath = action.getOSPath( folder );
 		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn delete " + ospath );
 	}
 
-	@Override public void createMasterTag( ServerMirrorRepository mirror , String masterFolder , String TAG , String commitMessage ) throws Exception {
+	@Override 
+	public void createMasterTag( ServerMirrorRepository mirror , String masterFolder , String TAG , String commitMessage ) throws Exception {
 		String fullPathSrc = Common.getPath( getRepositoryPath( mirror ) , masterFolder );
 		String fullPathTag = Common.getPath( getRepositoryPath( mirror ) , "tags" , TAG );
 		
@@ -480,54 +518,6 @@ public class SubversionVCS extends GenericVCS {
 	}
 
 	@Override
-	public boolean checkMirrorEmpty( ServerMirrorRepository mirror ) throws Exception {
-		String[] items = listMasterItems( mirror , mirror.RESOURCE_DATA );
-		if( items.length == 0 )
-			return( true );
-		return( false );
-	}
-
-	@Override
-	public MirrorStorage createInitialMirror( ServerMirrorRepository mirror ) throws Exception {
-		SubversionMirrorStorage storage = getStorage( mirror , true , null );
-		storage.createLocalMirror();
-		
-		return( storage );
-	}
-
-	@Override
-	public MirrorStorage createServerMirror( ServerMirrorRepository mirror ) throws Exception {
-		SubversionMirrorStorage storage = getStorage( mirror , true , null );
-		storage.createServerMirror();
-		
-		return( storage );
-	}
-
-	@Override
-	public void dropMirror( ServerMirrorRepository mirror ) throws Exception {
-		SubversionMirrorStorage storage = getStorage( mirror , false , null );
-		storage.remove();
-	}
-	
-	@Override
-	public void pushMirror( ServerMirrorRepository mirror ) throws Exception {
-		SubversionMirrorStorage storage = getStorage( mirror , false , null );
-		storage.commit( "push to origin" );
-	}
-	
-	@Override
-	public void refreshMirror( ServerMirrorRepository mirror ) throws Exception {
-		SubversionMirrorStorage storage = getStorage( mirror , false , null );
-		storage.update();
-	}
-
-	@Override
-	public MirrorStorage getMirror( ServerMirrorRepository mirror ) throws Exception {
-		SubversionMirrorStorage storage = getStorage( mirror , false , null );
-		return( storage );
-	}
-
-	@Override
 	public boolean verifyRepository( String repo , String pathToRepo ) {
 		String url = res.BASEURL;
 		if( !pathToRepo.isEmpty() )
@@ -545,12 +535,6 @@ public class SubversionVCS extends GenericVCS {
 	}
 	
 	// implementation
-	private SubversionMirrorStorage getStorage( ServerMirrorRepository mirror , boolean create , LocalFolder customRepoFolder ) throws Exception {
-		SubversionMirrorStorage storage = new SubversionMirrorStorage( this , mirror , customRepoFolder );
-		storage.create( create , false );
-		return( storage );
-	}
-	
 	private boolean checkSvnPathExists( String path ) throws Exception {
 		int status = shell.customGetStatus( action , "svn info " + SVNAUTH + " " + path + " > " + shell.getOSDevNull() );
 		if( status != 0 )

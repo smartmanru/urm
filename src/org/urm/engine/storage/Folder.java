@@ -381,12 +381,16 @@ public abstract class Folder {
 		ShellExecutor session = getSession( action ); 
 		session.downloadUnix( action , DOWNLOAD_URL_REQUEST , Common.getPath( folderPath , DOWNLOAD_FILENAME ) , auth );
 	}
-	
+
 	public FileSet getFileSet( ActionBase action ) throws Exception {
+		return( getFileSet( action , "" ) );
+	}
+	
+	public FileSet getFileSet( ActionBase action , String excludeRegExp ) throws Exception {
 		List<String> dirs = new LinkedList<String>(); 
 		List<String> files = new LinkedList<String>(); 
 		ShellExecutor session = getSession( action ); 
-		session.getDirsAndFiles( action , folderPath , dirs , files );
+		session.getDirsAndFiles( action , folderPath , dirs , files , excludeRegExp );
 
 		FileSet root = new FileSet( this , dirs , files );
 		root.makeStructure( action );

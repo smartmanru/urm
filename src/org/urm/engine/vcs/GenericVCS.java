@@ -27,13 +27,7 @@ public abstract class GenericVCS {
 		this.shell = shell;
 	}
 	
-	public abstract MirrorStorage createInitialMirror( ServerMirrorRepository mirror ) throws Exception;
-	public abstract MirrorStorage createServerMirror( ServerMirrorRepository mirror ) throws Exception;
-	public abstract boolean checkMirrorEmpty( ServerMirrorRepository mirror ) throws Exception;
-	public abstract void dropMirror( ServerMirrorRepository mirror ) throws Exception;
-	public abstract void pushMirror( ServerMirrorRepository mirror ) throws Exception;
-	public abstract void refreshMirror( ServerMirrorRepository mirror ) throws Exception;
-	public abstract MirrorStorage getMirror( ServerMirrorRepository mirror ) throws Exception;
+	public abstract MirrorCase getMirror( ServerMirrorRepository mirror ) throws Exception;
 	public abstract boolean verifyRepository( String repo , String pathToRepo );
 
 	public abstract String getMainBranch();

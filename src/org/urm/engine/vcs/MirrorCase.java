@@ -1,8 +1,11 @@
 package org.urm.engine.vcs;
 
+import java.io.File;
+
 import org.urm.action.ActionBase;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
+import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.ServerMirrorRepository;
 import org.urm.meta.engine.ServerSettings;
@@ -10,13 +13,6 @@ import org.urm.meta.product.MetaProductSettings;
 
 public abstract class MirrorCase {
 
-	enum VarMIRRORCASE {
-		SERVER_META ,
-		PRODUCT_META ,
-		PRODUCT_DATA ,
-		PRODUCT_PROJECT
-	};
-	
 	GenericVCS vcs;
 	ServerMirrorRepository mirror;
 	
@@ -24,9 +20,30 @@ public abstract class MirrorCase {
 	
 	protected ShellExecutor shell;
 	protected ActionBase action;
+
+	abstract public LocalFolder getRepositoryFolder() throws Exception;
+	abstract public LocalFolder getBranchFolder() throws Exception;
+	abstract public LocalFolder getComponentFolder() throws Exception;
 	
-	public abstract boolean isEmpty() throws Exception;
+	abstract public void createEmptyMirrorOnServer() throws Exception;
+	abstract public void useMirror() throws Exception;
+	abstract public void dropMirror( boolean dropOnServer ) throws Exception;
 	
+	abstract public void refreshRepository() throws Exception;
+	abstract public void refreshBranch( boolean refreshRepository ) throws Exception;
+	abstract public void refreshComponent( boolean refreshRepository ) throws Exception;
+	
+	abstract public void pushComponentChanges() throws Exception;
+	abstract public boolean checkValidBranch() throws Exception;
+	abstract public String getSpecialDirectory();
+	
+	public MirrorCase( GenericVCS vcs ) {
+		this.vcs = vcs;
+		
+		shell = vcs.shell;
+		action = vcs.action;
+	}
+
 	public MirrorCase( GenericVCS vcs , ServerMirrorRepository mirror ) {
 		this.vcs = vcs;
 		this.mirror = mirror;
@@ -34,54 +51,8 @@ public abstract class MirrorCase {
 		shell = vcs.shell;
 		action = vcs.action;
 	}
-	
-	private void create( boolean newStorage , boolean check ) throws Exception {
-		LocalFolder repox = repoFolder;
-		if( repox == null ) {
-			LocalFolder basex = getBaseFolder();
-			repox = basex.getSubFolder( action , mirror.getFolderName() );
-		}
-		
-		LocalFolder commitx = repox.getSubFolder( action , mirror.RESOURCE_DATA );
-		String commitOSPath = shell.getOSPath( action , commitx.folderPath );
-		
-		if( newStorage ) {
-			if( check ) {
-				String repoOSPath = shell.getOSPath( action , repox.folderPath );
-				if( repox.checkExists( action ) )
-					action.exit1( _Error.CommitDirectoryAlreadyExists1 , "Commit path " + repoOSPath + " already exists" , repoOSPath );
-			}
-		
-			commitx.getParentFolder( action ).ensureExists( action );
-		}
-		else {
-			if( check ) {
-				if( !commitx.checkExists( action ) )
-					action.exit1( _Error.CommitDirectoryAlreadyExists1 , "Commit path " + commitOSPath + " should be already created" , commitOSPath );
-			}
-		}
-	
-		this.repoFolder = repox;
-		this.commitFolder = commitx;
-	}
-	
-	private String getRepoOSPath() throws Exception {
-		return( shell.getOSPath( action , repoFolder.folderPath ) );
-	}
-	
-	private String getCommitOSPath() throws Exception {
-		return( shell.getOSPath( action , commitFolder.folderPath ) );
-	}
-	
-	private LocalFolder getRepoFolder() throws Exception {
-		return( repoFolder );
-	}
-	
-	private LocalFolder getCommitFolder() throws Exception {
-		return( commitFolder );
-	}
-	
-	private LocalFolder getBaseFolder() throws Exception {
+
+	public LocalFolder getBaseFolder() throws Exception {
 		String mirrorPath;
 		if( vcs.meta == null ) {
 			ServerSettings settings = action.getServerSettings();
@@ -98,9 +69,163 @@ public abstract class MirrorCase {
 		return( action.getLocalFolder( mirrorPath ) );
 	}
 
-	private void remove() throws Exception {
-		if( repoFolder.checkExists( action ) )
-			repoFolder.removeThis( action );
+	public LocalFolder getResourceFolder() throws Exception {
+		LocalFolder base = getBaseFolder();
+		return( base.getSubFolder( action , vcs.res.NAME ) );
+	}
+	
+	public void removeResourceFolder() throws Exception {
+		LocalFolder res = getResourceFolder();
+		res.removeThis( action );
+	}
+	
+	public void syncFolderToVcs( String mirrorSubFolder , LocalFolder folder ) throws Exception {
+		LocalFolder cf = getComponentFolder();
+		LocalFolder mf = cf.getSubFolder( action , mirrorSubFolder );
+		LocalFolder sf = folder;
+		
+		if( !mf.checkExists( action ) ) {
+			mf.ensureExists( action );
+			mf.copyDirContent( action , sf );
+			vcs.addDirToCommit( mirror , mf , "." );
+		}
+		else {
+			FileSet mset = mf.getFileSet( action , getPattern() );
+			FileSet sset = sf.getFileSet( action );
+			syncFolderToVcs( mf , sf , mset , sset );
+		}
+		
+		vcs.commitMasterFolder( mirror , mf , "" , "sync from source" );
+		pushComponentChanges();
+	}
+
+	public void syncVcsToFolder( String mirrorFolder , LocalFolder folder ) throws Exception {
+		LocalFolder cf = getComponentFolder();
+		LocalFolder mf = cf.getSubFolder( action , mirrorFolder );
+		if( !mf.checkExists( action ) ) {
+			folder.removeThis( action );
+			folder.ensureExists( action );
+			return;
+		}
+
+		folder.ensureExists( action );
+		
+		LocalFolder sf = folder;
+		FileSet mset = mf.getFileSet( action , getPattern() );
+		FileSet sset = sf.getFileSet( action );
+		syncVcsToFolder( mf , sf , mset , sset );
+		
+		if( action.isLocalLinux() )
+			addLinuxExecution( folder , mset );
+	}
+
+	public String getPattern() {
+		String dir = getSpecialDirectory();
+		if( shell.isLinux() )
+			return( "/" + dir + "/" );
+		return( "\\\\" + dir + "\\\\.*" );
+	}
+	
+	private void syncFolderToVcs( LocalFolder mfolder , LocalFolder sfolder , FileSet mset , FileSet sset ) throws Exception {
+		// add to mirror and change
+		for( FileSet sd : sset.dirs.values() ) {
+			if( vcs.ignoreDir( sd.dirName ) )
+				continue;
+			
+			FileSet md = mset.dirs.get( sd.dirName );
+			if( md == null ) {
+				sfolder.copyFolder( action , sd.dirPath , mfolder.getSubFolder( action , sd.dirPath ) );
+				vcs.addDirToCommit( mirror , mfolder , sd.dirPath );
+			}
+			else
+				syncFolderToVcs( mfolder , sfolder , md , sd );
+		}
+
+		// delete from mirror
+		for( FileSet md : mset.dirs.values() ) {
+			if( vcs.ignoreDir( md.dirName ) )
+				continue;
+			
+			FileSet sd = sset.dirs.get( md.dirName );
+			if( sd == null )
+				vcs.deleteDirToCommit( mirror , mfolder , md.dirPath );
+		}
+		
+		// add files to mirror and change
+		LocalFolder dstFolder = mfolder.getSubFolder( action , mset.dirPath );
+		for( String sf : sset.files.keySet() ) {
+			if( vcs.ignoreFile( sf ) )
+				continue;
+			
+			sfolder.copyFile( action , sset.dirPath , sf , dstFolder , sf );
+			if( mset.files.get( sf ) == null )
+				vcs.addFileToCommit( mirror , mfolder , mset.dirPath , sf );
+		}
+
+		// delete from mirror
+		for( String mf : mset.files.keySet() ) {
+			if( vcs.ignoreFile( mf ) )
+				continue;
+			
+			if( sset.files.get( mf ) == null )
+				vcs.deleteFileToCommit( mirror , mfolder , mset.dirPath , mf );
+		}
+	}
+	
+	private void addLinuxExecution( LocalFolder folder , FileSet set ) throws Exception {
+		for( String f : set.files.keySet() ) {
+			if( f.endsWith( ".sh" ) ) {
+				File ff = new File( folder.getFilePath( action , f ) );
+				ff.setExecutable( true );
+			}
+		}
+		for( FileSet md : set.dirs.values() ) {
+			if( vcs.ignoreDir( md.dirName ) )
+				continue;
+			addLinuxExecution( folder.getSubFolder( action , md.dirName ) , md );
+		}
+	}
+	
+	private void syncVcsToFolder( LocalFolder mfolder , LocalFolder sfolder , FileSet mset , FileSet sset ) throws Exception {
+		// add to source and change
+		for( FileSet md : mset.dirs.values() ) {
+			if( vcs.ignoreDir( md.dirName ) )
+				continue;
+			
+			FileSet sd = sset.dirs.get( md.dirName );
+			if( sd == null )
+				mfolder.copyFolder( action , md.dirPath , sfolder.getSubFolder( action , md.dirPath ) );
+			else
+				syncVcsToFolder( mfolder , sfolder , md , sd );
+		}
+
+		// delete from source
+		for( FileSet sd : sset.dirs.values() ) {
+			if( vcs.ignoreDir( sd.dirName ) )
+				continue;
+			
+			FileSet md = mset.dirs.get( sd.dirName );
+			if( md == null )
+				sfolder.removeFolder( action , sd.dirPath );
+		}
+		
+		// add files to source and change
+		LocalFolder dstFolder = sfolder.getSubFolder( action , sset.dirPath );
+		for( String mf : mset.files.keySet() ) {
+			if( vcs.ignoreFile( mf ) )
+				continue;
+			
+			mfolder.copyFile( action , mset.dirPath , mf , dstFolder , mf );
+		}
+
+		// delete from mirror
+		for( String sf : sset.files.keySet() ) {
+			if( vcs.ignoreFile( sf ) )
+				continue;
+			
+			if( mset.files.get( sf ) == null )
+				dstFolder.removeFolderFile( action , "" , sf );
+		}
 	}
 	
 }

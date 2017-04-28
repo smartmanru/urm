@@ -150,7 +150,7 @@ public class ServerMirrors extends ServerObject {
 		}
 		
 		for( ServerMirrorRepository repo : repos ) {
-			repo.dropMirror( transaction );
+			repo.dropMirror( transaction , vcsDeleteFlag );
 			repoMap.remove( repo.NAME );
 		}
 	}
@@ -163,7 +163,7 @@ public class ServerMirrors extends ServerObject {
 	public void deleteProjectMirror( ServerTransaction transaction , MetaSourceProject project ) throws Exception {
 		ServerMirrorRepository repoOld = findProjectRepository( project );
 		if( repoOld != null ) {
-			repoOld.dropMirror( transaction );
+			repoOld.dropMirror( transaction , false );
 			repoMap.remove( repoOld.NAME );
 		}
 	}

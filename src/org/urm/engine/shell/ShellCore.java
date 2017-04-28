@@ -78,7 +78,7 @@ abstract public class ShellCore {
 	abstract public void cmdScpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception;
 	abstract public void cmdScpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception;
 	abstract public void cmdScpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception;
-	abstract public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception;
+	abstract public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files , String excludeRegExp ) throws Exception;
 	abstract public void cmdGetTopDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception;
 	abstract public String[] cmdGetFolders( ActionBase action , String rootPath ) throws Exception;
 	abstract public String cmdGetFirstFile( ActionBase action , String dir ) throws Exception;

@@ -470,38 +470,40 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	@Override 
-	public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
-		String delimiter = "URM_DELIMITER";
-		List<String> res = runCommandCheckGetOutputDebug( action , rootPath , 
-				"chdir " + cmdAnd + " dir /ad /s /b " + cmdAnd + " echo " + delimiter + " " + cmdAnd + " dir /a-d /b /s 2>nul" );
+	public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files , String excludeRegExp ) throws Exception {
+		String excludeOption = ( excludeRegExp == null || excludeRegExp.isEmpty() )? "" : " | findstr /V /R \"" + excludeRegExp + "\"";
+		List<String> resDirs = runCommandCheckGetOutputDebug( action , rootPath , 
+				"chdir " + cmdAnd + " dir /ad /s /b" + excludeOption + " 2>nul" );
 		
-		if( res.isEmpty() )
+		if( resDirs.isEmpty() )
 			action.exit1( _Error.MissingDirectory1 , "directory " + rootPath + " does not exist" , rootPath );
 		
-		String pwd = res.get( 0 );
+		String pwd = resDirs.get( 0 );
 		int skipStart = pwd.length() + 1;
 		
-		List<String> copyTo = dirs;
-		boolean ok = false;
-		for( int k = 1; k < res.size(); k++ ) {
-			String s = res.get( k );
-			if( s.startsWith( delimiter ) ) {
-				copyTo = files;
-				ok = true;
-				continue;
-			}
-
+		for( int k = 1; k < resDirs.size(); k++ ) {
+			String s = resDirs.get( k );
 			if( s.startsWith( pwd ) )
 				s = s.substring( skipStart );
 			else
 				action.exit1( _Error.UnexpectedDirContentLine1 , "unexpected line=" + s , s );
 			
 			s = s.replace( "\\" , "/" );
-			copyTo.add( s );
+			dirs.add( s );
 		}
 		
-		if( !ok )
-			action.exit1( _Error.UnableReadDirectory1 , "unable to read directory " + rootPath , rootPath );
+		List<String> resFiles = runCommandCheckGetOutputDebug( action , rootPath , 
+				"dir /a-d /s /b" + excludeOption + " 2>nul" );
+		for( int k = 0; k < resFiles.size(); k++ ) {
+			String s = resFiles.get( k );
+			if( s.startsWith( pwd ) )
+				s = s.substring( skipStart );
+			else
+				action.exit1( _Error.UnexpectedDirContentLine1 , "unexpected line=" + s , s );
+			
+			s = s.replace( "\\" , "/" );
+			files.add( s );
+		}
 	}
 
 	@Override 
