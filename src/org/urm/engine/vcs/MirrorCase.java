@@ -76,7 +76,8 @@ public abstract class MirrorCase {
 	
 	public void removeResourceFolder() throws Exception {
 		LocalFolder res = getResourceFolder();
-		res.removeThis( action );
+		if( shell.checkDirExists( action , res.folderPath ) )
+			res.removeThis( action );
 	}
 	
 	public void syncFolderToVcs( String mirrorSubFolder , LocalFolder folder ) throws Exception {

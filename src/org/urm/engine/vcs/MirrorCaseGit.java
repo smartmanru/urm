@@ -299,7 +299,8 @@ public class MirrorCaseGit extends MirrorCase {
 			repo.ensureExists( action );
 			
 			OSPATH = shell.getOSPath( action , repo.folderPath );
-			String cmd = "git clone " + urlAuth + "/" + remotePath + " --mirror";
+			String urlAuthFull = Common.getPath( urlAuth , remotePath );
+			String cmd = "git clone " + urlAuthFull + " --mirror";
 			cmd += " " + OSPATH;
 			
 			status = shell.customGetStatus( action , cmd );
@@ -313,7 +314,7 @@ public class MirrorCaseGit extends MirrorCase {
 		action.setTimeout( timeout );
 		if( status != 0 ) {
 			repo.removeThis( action );
-			String urlShow = url + "/" + remotePath;
+			String urlShow = Common.getPath( url , remotePath );
 			action.exit2( _Error.UnableCloneRepository2 , "Unable to clone repository " + urlShow + " to " + OSPATH , urlShow , OSPATH );
 		}
 	}

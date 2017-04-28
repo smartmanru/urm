@@ -12,6 +12,8 @@ import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.engine.vcs.GenericVCS;
+import org.urm.engine.vcs.MirrorCase;
 import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.product.MetaSourceProject;
@@ -167,5 +169,11 @@ public class ServerMirrors extends ServerObject {
 			repoMap.remove( repoOld.NAME );
 		}
 	}
-	
+
+	public void dropResourceMirrors( ActionBase action , ServerAuthResource res ) throws Exception {
+		GenericVCS vcs = GenericVCS.getVCS( action , null , res.NAME );
+		MirrorCase mc = vcs.getMirror( null );
+		mc.removeResourceFolder();
+	}
+
 }

@@ -83,7 +83,7 @@ public class ServerTransaction extends TransactionBase {
 	
 	public void updateResource( ServerAuthResource res , ServerAuthResource resNew ) throws Exception {
 		checkTransactionResources( res.resources );
-		res.updateResource( this , resNew );
+		resources.updateResource( this , res , resNew );
 	}
 	
 	public void deleteResource( ServerAuthResource res ) throws Exception {
