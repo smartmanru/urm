@@ -473,7 +473,7 @@ public class ShellCoreWindows extends ShellCore {
 	public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files , String excludeRegExp ) throws Exception {
 		String excludeOption = ( excludeRegExp == null || excludeRegExp.isEmpty() )? "" : " | findstr /V /R \"" + excludeRegExp + "\"";
 		List<String> resDirs = runCommandCheckGetOutputDebug( action , rootPath , 
-				"chdir " + cmdAnd + " dir /ad /s /b" + excludeOption + " 2>nul" );
+				"chdir " + cmdAnd + " dir /ad /s /b 2>nul" + excludeOption );
 		
 		if( resDirs.isEmpty() )
 			action.exit1( _Error.MissingDirectory1 , "directory " + rootPath + " does not exist" , rootPath );
@@ -493,7 +493,7 @@ public class ShellCoreWindows extends ShellCore {
 		}
 		
 		List<String> resFiles = runCommandCheckGetOutputDebug( action , rootPath , 
-				"dir /a-d /s /b" + excludeOption + " 2>nul" );
+				"dir /a-d /s /b 2>nul" + excludeOption );
 		for( int k = 0; k < resFiles.size(); k++ ) {
 			String s = resFiles.get( k );
 			if( s.startsWith( pwd ) )

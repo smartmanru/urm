@@ -313,7 +313,8 @@ public class MirrorCaseGit extends MirrorCase {
 		action.setTimeout( timeout );
 		if( status != 0 ) {
 			repo.removeThis( action );
-			action.exit2( _Error.UnableCloneRepository2 , "Unable to clone repository " + url + " to " + OSPATH , url , OSPATH );
+			String urlShow = url + "/" + remotePath;
+			action.exit2( _Error.UnableCloneRepository2 , "Unable to clone repository " + urlShow + " to " + OSPATH , urlShow , OSPATH );
 		}
 	}
 
