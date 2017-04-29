@@ -15,19 +15,19 @@ public class GitProjectRepo {
 	protected ShellExecutor shell;
 	protected ActionBase action;
 	
-	public GitProjectRepo( GitVCS vcs , ServerMirrorRepository mirror , MetaSourceProject project ) {
-		mc = new MirrorCaseGit( vcs , mirror );
+	public GitProjectRepo( GitVCS vcs , ServerMirrorRepository mirror , MetaSourceProject project , String BRANCH ) {
+		mc = new MirrorCaseGit( vcs , mirror , BRANCH );
 		this.project = project;
 		this.shell = vcs.shell;
 		this.action = vcs.action;
 	}
 
 	public void refreshMirror() throws Exception {
-		mc.refreshRepository();
+		mc.refreshMirror();
 	}
 	
 	public void pushMirror() throws Exception {
-		mc.pushComponentChanges();
+		mc.pushMirror();
 	}
 	
 	public String getBareOSPath() throws Exception {

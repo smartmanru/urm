@@ -22,7 +22,7 @@ public class GitVCS extends GenericVCS {
 
 	@Override
 	public MirrorCase getMirror( ServerMirrorRepository mirror ) throws Exception {
-		return( new MirrorCaseGit( this , mirror ) );
+		return( new MirrorCaseGit( this , mirror , "" ) );
 	}
 	
 	@Override public String getMainBranch() {
@@ -449,7 +449,7 @@ public class GitVCS extends GenericVCS {
 			return( false );
 		
 		MirrorCaseGit mc = getMasterMirrorCase( mirror );
-		mc.pushComponentChanges();
+		mc.pushMirror();
 		return( true );
 	}
 	
@@ -528,12 +528,13 @@ public class GitVCS extends GenericVCS {
 	
 	private GitProjectRepo getRepo( MetaSourceProject project ) throws Exception {
 		ServerMirrorRepository mirror = action.getProjectMirror( project );
-		GitProjectRepo repo = new GitProjectRepo( this , mirror , project );
+		String BRANCH = project.getDefaultBranch( action );
+		GitProjectRepo repo = new GitProjectRepo( this , mirror , project , BRANCH );
 		return( repo );
 	}
 
 	private MirrorCaseGit getMasterMirrorCase( ServerMirrorRepository mirror ) throws Exception {
-		MirrorCaseGit mc = new MirrorCaseGit( this , mirror );
+		MirrorCaseGit mc = new MirrorCaseGit( this , mirror , "" );
 		return( mc );
 	}
 	

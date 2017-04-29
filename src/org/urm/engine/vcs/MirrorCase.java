@@ -15,26 +15,24 @@ public abstract class MirrorCase {
 
 	GenericVCS vcs;
 	ServerMirrorRepository mirror;
+	String BRANCH;
 	
 	public Account account;
 	
 	protected ShellExecutor shell;
 	protected ActionBase action;
 
-	abstract public LocalFolder getRepositoryFolder() throws Exception;
-	abstract public LocalFolder getBranchFolder() throws Exception;
-	abstract public LocalFolder getComponentFolder() throws Exception;
+	abstract public String getResourceRepositoryPath() throws Exception;
+	abstract public String getResourceBranchPath() throws Exception;
+	abstract public String getResourceComponentPath() throws Exception;
 	
 	abstract public void createEmptyMirrorOnServer() throws Exception;
 	abstract public void useMirror() throws Exception;
+	abstract public void refreshMirror() throws Exception;
+	abstract public void pushMirror() throws Exception;
 	abstract public void dropMirror( boolean dropOnServer ) throws Exception;
 	
-	abstract public void refreshRepository() throws Exception;
-	abstract public void refreshBranch( boolean refreshRepository ) throws Exception;
-	abstract public void refreshComponent( boolean refreshRepository ) throws Exception;
-	
-	abstract public void pushComponentChanges() throws Exception;
-	abstract public boolean checkValidBranch() throws Exception;
+	abstract public LocalFolder getMirrorFolder() throws Exception;
 	abstract public String getSpecialDirectory();
 	
 	public MirrorCase( GenericVCS vcs ) {
@@ -44,9 +42,10 @@ public abstract class MirrorCase {
 		action = vcs.action;
 	}
 
-	public MirrorCase( GenericVCS vcs , ServerMirrorRepository mirror ) {
+	public MirrorCase( GenericVCS vcs , ServerMirrorRepository mirror , String BRANCH ) {
 		this.vcs = vcs;
 		this.mirror = mirror;
+		this.BRANCH = BRANCH;
 		
 		shell = vcs.shell;
 		action = vcs.action;
@@ -69,9 +68,28 @@ public abstract class MirrorCase {
 		return( action.getLocalFolder( mirrorPath ) );
 	}
 
+	public String getBaseResourcePath() {
+		return( vcs.res.NAME );
+	}
+
 	public LocalFolder getResourceFolder() throws Exception {
 		LocalFolder base = getBaseFolder();
-		return( base.getSubFolder( action , vcs.res.NAME ) );
+		return( base.getSubFolder( action , getBaseResourcePath() ) );
+	}
+
+	protected LocalFolder getRepositoryFolder() throws Exception {
+		LocalFolder res = getResourceFolder();
+		return( res.getSubFolder( action , getResourceRepositoryPath() ) );
+	}
+	
+	protected LocalFolder getBranchFolder() throws Exception {
+		LocalFolder res = getResourceFolder();
+		return( res.getSubFolder( action , getResourceBranchPath() ) );
+	}
+	
+	protected LocalFolder getComponentFolder() throws Exception {
+		LocalFolder res = getResourceFolder();
+		return( res.getSubFolder( action , getResourceComponentPath() ) );
 	}
 	
 	public void removeResourceFolder() throws Exception {
@@ -81,7 +99,7 @@ public abstract class MirrorCase {
 	}
 	
 	public void syncFolderToVcs( String mirrorSubFolder , LocalFolder folder ) throws Exception {
-		LocalFolder cf = getComponentFolder();
+		LocalFolder cf = getMirrorFolder();
 		LocalFolder mf = cf.getSubFolder( action , mirrorSubFolder );
 		LocalFolder sf = folder;
 		
@@ -97,11 +115,11 @@ public abstract class MirrorCase {
 		}
 		
 		vcs.commitMasterFolder( mirror , mf , "" , "sync from source" );
-		pushComponentChanges();
+		pushMirror();
 	}
 
 	public void syncVcsToFolder( String mirrorFolder , LocalFolder folder ) throws Exception {
-		LocalFolder cf = getComponentFolder();
+		LocalFolder cf = getMirrorFolder();
 		LocalFolder mf = cf.getSubFolder( action , mirrorFolder );
 		if( !mf.checkExists( action ) ) {
 			folder.removeThis( action );

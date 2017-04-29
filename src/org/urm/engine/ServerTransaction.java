@@ -57,9 +57,9 @@ public class ServerTransaction extends TransactionBase {
 	}
 
 	// transactional operations
-	public void createMirrorRepository( ServerMirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , String repobranch , boolean push ) throws Exception {
+	public void createMirrorRepository( ServerMirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
-		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , repobranch , push );
+		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , push );
 	}
 
 	public void pushMirror( ServerMirrorRepository repo ) throws Exception {

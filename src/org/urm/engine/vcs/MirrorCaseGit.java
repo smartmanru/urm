@@ -14,34 +14,28 @@ public class MirrorCaseGit extends MirrorCase {
 
 	GitVCS vcsGit;
 	
-	public MirrorCaseGit( GitVCS vcs , ServerMirrorRepository mirror ) {
-		super( vcs , mirror );
+	public MirrorCaseGit( GitVCS vcs , ServerMirrorRepository mirror , String BRANCH ) {
+		super( vcs , mirror , BRANCH );
 		this.vcsGit = vcs;
 	}
 
 	@Override
-	public LocalFolder getRepositoryFolder() throws Exception {
-		LocalFolder res = super.getResourceFolder();
-		String folder = Common.getPath( mirror.RESOURCE_ROOT , mirror.RESOURCE_REPO + ".git.bare" );
-		return( res.getSubFolder( action , folder ) );
+	public String getResourceRepositoryPath() {
+		String path = Common.getPath( mirror.RESOURCE_ROOT , mirror.RESOURCE_REPO + ".git.bare" );
+		return( path );
 	}
 	
 	@Override
-	public LocalFolder getBranchFolder() throws Exception {
-		LocalFolder res = super.getResourceFolder();
-		String folder = Common.getPath( mirror.RESOURCE_ROOT , mirror.RESOURCE_REPO + ".git.branches" );
-		if( mirror.BRANCH.isEmpty() )
-			folder = Common.getPath( folder , GitVCS.MASTERBRANCH );
-		else
-			folder = Common.getPath( folder , mirror.BRANCH );
-		
-		return( res.getSubFolder( action , folder ) );
+	public String getResourceBranchPath() {
+		String path = Common.getPath( mirror.RESOURCE_ROOT , mirror.RESOURCE_REPO + ".git.branches" );
+		String branch = getBranch();
+		return( Common.getPath( path , branch ) );
 	}
 	
 	@Override
-	public LocalFolder getComponentFolder() throws Exception {
-		LocalFolder branch = getBranchFolder();
-		return( branch.getSubFolder( action , mirror.RESOURCE_DATA ) );
+	public String getResourceComponentPath() {
+		String branch = getResourceBranchPath();
+		return( Common.getPath( branch , mirror.RESOURCE_DATA ) );
 	}
 	
 	@Override
@@ -60,7 +54,7 @@ public class MirrorCaseGit extends MirrorCase {
 		LocalFolder branch = getBranchFolder();
 		vcs.addDirToCommit( mirror , branch , mirror.RESOURCE_DATA );
 		vcs.commitMasterFolder( mirror , branch , mirror.RESOURCE_DATA , "add mirror component" );
-		pushComponentChanges();
+		pushMirror();
 	}
 	
 	@Override
@@ -76,25 +70,37 @@ public class MirrorCaseGit extends MirrorCase {
 	}
 
 	@Override
+	public void refreshMirror() throws Exception {
+		refreshComponent( true );
+	}
+	
+	@Override
+	public void pushMirror() throws Exception {
+		LocalFolder comp = getComponentFolder();
+		pushOrigin( comp.folderPath );
+		LocalFolder repo = getRepositoryFolder();
+		pushOrigin( repo.folderPath );
+	}
+	
+	@Override
 	public void dropMirror( boolean dropOnServer ) throws Exception {
 	}
 	
-	@Override
-	public void refreshRepository() throws Exception {
-		LocalFolder repoFolder = getRepositoryFolder();
-		fetchOrigin( repoFolder.folderPath );
+	@Override 
+	public LocalFolder getMirrorFolder() throws Exception {
+		return( getComponentFolder() );
 	}
 	
-	@Override
-	public void refreshBranch( boolean refreshRepository ) throws Exception {
-		if( refreshRepository )
-			refreshRepository();
-		
-		LocalFolder branchFolder = getBranchFolder();
-		fetchOrigin( branchFolder.folderPath );
+	@Override 
+	public String getSpecialDirectory() {
+		return( "\\.git" );
 	}
 	
-	@Override
+	public boolean checkValidBranch() throws Exception {
+		String branch = getBranch();
+		return( checkValidBranch( branch ) );
+	}
+
 	public void refreshComponent( boolean refreshRepository ) throws Exception {
 		if( refreshRepository )
 			refreshBranch( true );
@@ -104,23 +110,17 @@ public class MirrorCaseGit extends MirrorCase {
 		}
 	}
 	
-	@Override
-	public void pushComponentChanges() throws Exception {
-		LocalFolder comp = getComponentFolder();
-		pushOrigin( comp.folderPath );
-		LocalFolder repo = getRepositoryFolder();
-		pushOrigin( repo.folderPath );
+	public void refreshRepository() throws Exception {
+		LocalFolder repoFolder = getRepositoryFolder();
+		fetchOrigin( repoFolder.folderPath );
 	}
 	
-	@Override 
-	public boolean checkValidBranch() throws Exception {
-		String branch = getBranch();
-		return( checkValidBranch( branch ) );
-	}
-
-	@Override 
-	public String getSpecialDirectory() {
-		return( "\\.git" );
+	public void refreshBranch( boolean refreshRepository ) throws Exception {
+		if( refreshRepository )
+			refreshRepository();
+		
+		LocalFolder branchFolder = getBranchFolder();
+		fetchOrigin( branchFolder.folderPath );
 	}
 	
 	public boolean checkCompEmpty() throws Exception {
@@ -271,7 +271,7 @@ public class MirrorCaseGit extends MirrorCase {
 	}
 
 	private String getBranch() {
-		String branch = mirror.BRANCH;
+		String branch = BRANCH;
 		if( branch == null || branch.isEmpty() || branch.equals( SubversionVCS.MASTERBRANCH ) )
 			branch = GitVCS.MASTERBRANCH;
 		return( branch );

@@ -32,7 +32,7 @@ public class SubversionVCS extends GenericVCS {
 	
 	@Override
 	public MirrorCase getMirror( ServerMirrorRepository mirror ) throws Exception {
-		return( new MirrorCaseSubversion( this , mirror ) );
+		return( new MirrorCaseSubversion( this , mirror , "" ) );
 	}
 	
 	@Override public String getMainBranch() {

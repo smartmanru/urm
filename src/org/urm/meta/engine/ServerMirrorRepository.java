@@ -36,7 +36,6 @@ public class ServerMirrorRepository extends ServerObject {
 	public String RESOURCE_REPO;
 	public String RESOURCE_ROOT;
 	public String RESOURCE_DATA;
-	public String BRANCH;
 	
 	public static String TYPE_SERVER = "server";
 	public static String TYPE_PROJECT = "project";
@@ -114,7 +113,6 @@ public class ServerMirrorRepository extends ServerObject {
 		RESOURCE_REPO = properties.getSystemStringProperty( "repository" );
 		RESOURCE_ROOT = properties.getSystemStringProperty( "rootpath" );
 		RESOURCE_DATA = properties.getSystemStringProperty( "datapath" );
-		BRANCH = properties.getSystemStringProperty( "branch" );
 	}
 
 	public void createProperties() throws Exception {
@@ -127,7 +125,6 @@ public class ServerMirrorRepository extends ServerObject {
 		properties.setOriginalStringProperty( "repository" , RESOURCE_REPO );
 		properties.setOriginalStringProperty( "rootpath" , RESOURCE_ROOT );
 		properties.setOriginalStringProperty( "datapath" , RESOURCE_DATA );
-		properties.setOriginalStringProperty( "branch" , BRANCH );
 	}
 
 	public String getResource( ActionBase action ) throws Exception {
@@ -136,12 +133,11 @@ public class ServerMirrorRepository extends ServerObject {
 		return( RESOURCE );
 	}
 	
-	public void createMirrorRepository( ServerTransaction transaction , String resource , String reponame , String reporoot , String dataroot , String repobranch , boolean push ) throws Exception {
+	public void createMirrorRepository( ServerTransaction transaction , String resource , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
 		RESOURCE = resource;
 		RESOURCE_REPO = reponame;
 		RESOURCE_ROOT = ( reporoot.isEmpty() )? "/" : reporoot;
 		RESOURCE_DATA = ( dataroot.isEmpty() )? "/" : dataroot;
-		BRANCH = "";
 		
 		try {
 			if( isServer() )
@@ -158,7 +154,6 @@ public class ServerMirrorRepository extends ServerObject {
 			RESOURCE_REPO = "";
 			RESOURCE_ROOT = "";
 			RESOURCE_DATA = "";
-			BRANCH = "";
 			transaction.handle0( e , _Error.UnablePublishRepository0 , "Unable to create mirror repository" );
 		}
 		
@@ -246,7 +241,6 @@ public class ServerMirrorRepository extends ServerObject {
 		RESOURCE_REPO = "";
 		RESOURCE_ROOT = "";
 		RESOURCE_DATA = "";
-		BRANCH = "";
 		createProperties();
 	}
 	
@@ -259,7 +253,6 @@ public class ServerMirrorRepository extends ServerObject {
 		RESOURCE_REPO = "";
 		RESOURCE_ROOT = "";
 		RESOURCE_DATA = "";
-		BRANCH = "";
 		createProperties();
 	}
 	
@@ -272,7 +265,6 @@ public class ServerMirrorRepository extends ServerObject {
 		RESOURCE_REPO = project.REPOSITORY;
 		RESOURCE_ROOT = project.REPOPATH;
 		RESOURCE_DATA = project.CODEPATH;
-		BRANCH = project.BRANCH;
 		createProperties();
 	}
 	
@@ -286,7 +278,6 @@ public class ServerMirrorRepository extends ServerObject {
 		RESOURCE_REPO = "";
 		RESOURCE_ROOT = "";
 		RESOURCE_DATA = "";
-		BRANCH = "";
 		createProperties();
 	}
 	
@@ -306,7 +297,7 @@ public class ServerMirrorRepository extends ServerObject {
 	private void pushMirrorInternal( ServerTransaction transaction ) throws Exception {
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE );
 		MirrorCase mc = vcs.getMirror( this );
-		mc.refreshComponent( true );
+		mc.useMirror();
 		
 		ActionInit action = transaction.getAction();
 		
@@ -317,7 +308,7 @@ public class ServerMirrorRepository extends ServerObject {
 			mc.syncFolderToVcs( mirrorFolder , folder );
 		}
 		
-		mc.pushComponentChanges();
+		mc.pushMirror();
 	}
 	
 	public void refreshMirror( ServerTransaction transaction ) throws Exception {
@@ -328,7 +319,7 @@ public class ServerMirrorRepository extends ServerObject {
 		ActionInit action = transaction.getAction();
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE );
 		MirrorCase mc = vcs.getMirror( this );
-		mc.refreshComponent( true );
+		mc.useMirror();
 		
 		Map<String,LocalFolder> map = getFolderMap( action );
 		for( String mirrorFolder : map.keySet() ) {
