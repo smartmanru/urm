@@ -32,6 +32,8 @@ public abstract class MirrorCase {
 	abstract public void pushMirror() throws Exception;
 	abstract public void dropMirror( boolean dropOnServer ) throws Exception;
 	
+	abstract public void syncFolderToVcs( String mirrorSubFolder , LocalFolder folder ) throws Exception;
+	abstract public void syncVcsToFolder( String mirrorFolder , LocalFolder folder ) throws Exception;
 	abstract public LocalFolder getMirrorFolder() throws Exception;
 	abstract public String getSpecialDirectory();
 	
@@ -98,7 +100,7 @@ public abstract class MirrorCase {
 			res.removeThis( action );
 	}
 	
-	public void syncFolderToVcs( String mirrorSubFolder , LocalFolder folder ) throws Exception {
+	protected void syncFolderToVcsContent( String mirrorSubFolder , LocalFolder folder ) throws Exception {
 		LocalFolder cf = getMirrorFolder();
 		LocalFolder mf = cf.getSubFolder( action , mirrorSubFolder );
 		LocalFolder sf = folder;
@@ -113,12 +115,9 @@ public abstract class MirrorCase {
 			FileSet sset = sf.getFileSet( action );
 			syncFolderToVcs( mf , sf , mset , sset );
 		}
-		
-		vcs.commitMasterFolder( mirror , mf , "" , "sync from source" );
-		pushMirror();
 	}
 
-	public void syncVcsToFolder( String mirrorFolder , LocalFolder folder ) throws Exception {
+	protected void syncVcsToFolderContent( String mirrorFolder , LocalFolder folder ) throws Exception {
 		LocalFolder cf = getMirrorFolder();
 		LocalFolder mf = cf.getSubFolder( action , mirrorFolder );
 		if( !mf.checkExists( action ) ) {

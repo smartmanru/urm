@@ -127,6 +127,20 @@ public class MirrorCaseSubversion extends MirrorCase {
 		return( "\\.svn" );
 	}
 	
+	@Override
+	public void syncFolderToVcs( String mirrorSubFolder , LocalFolder folder ) throws Exception {
+		LocalFolder cf = getMirrorFolder();
+		LocalFolder mf = cf.getSubFolder( action , mirrorSubFolder );
+		
+		super.syncFolderToVcsContent( mirrorSubFolder , folder );
+		vcs.commitMasterFolder( mirror , mf , "" , "sync from source" );
+	}
+	
+	@Override
+	public void syncVcsToFolder( String mirrorFolder , LocalFolder folder ) throws Exception {
+		super.syncVcsToFolderContent( mirrorFolder , folder );
+	}
+	
 	public boolean checkValidServerBranch() throws Exception {
 		String branch = getBranch();
 		return( checkValidServerBranch( branch ) );

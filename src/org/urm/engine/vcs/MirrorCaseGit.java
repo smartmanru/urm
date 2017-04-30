@@ -8,7 +8,6 @@ import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerMirrorRepository;
-import org.urm.meta.product.MetaProductSettings;
 
 public class MirrorCaseGit extends MirrorCase {
 
@@ -95,6 +94,22 @@ public class MirrorCaseGit extends MirrorCase {
 	public String getSpecialDirectory() {
 		return( "\\.git" );
 	}
+
+	@Override
+	public void syncFolderToVcs( String mirrorSubFolder , LocalFolder folder ) throws Exception {
+		LocalFolder cf = getMirrorFolder();
+		LocalFolder mf = cf.getSubFolder( action , mirrorSubFolder );
+		
+		super.syncFolderToVcsContent( mirrorSubFolder , folder );
+		addModified( mf );
+		
+		vcs.commitMasterFolder( mirror , mf , "" , "sync from source" );
+	}
+	
+	@Override
+	public void syncVcsToFolder( String mirrorFolder , LocalFolder folder ) throws Exception {
+		super.syncVcsToFolderContent( mirrorFolder , folder );
+	}
 	
 	public boolean checkValidBranch() throws Exception {
 		String branch = getBranch();
@@ -177,15 +192,7 @@ public class MirrorCaseGit extends MirrorCase {
 	}
 	
 	public void addModified( LocalFolder checkoutFolder ) throws Exception {
-		if( shell.isWindows() )
-			action.exitNotImplemented();
-			
-		MetaProductSettings product = vcs.meta.getProductSettings( action );
-		shell.customCheckErrorsDebug( action , checkoutFolder.folderPath , 
-			"F_LIST=`git diff --name-only`; " +
-			"if [ " + Common.getQuoted( "$F_LIST" ) + " != " + Common.getQuoted( "" ) + " ]; then git add $F_LIST; fi; " +
-			"git commit -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: set version" ) + "; " +
-			"git push origin 2>&1; if [ $? != 0 ]; then echo error on push origin >&2; fi" );
+		shell.customCheckErrorsDebug( action , checkoutFolder.folderPath , "git add -u" );
 	}
 
 	public void pushOrigin( String path ) throws Exception {

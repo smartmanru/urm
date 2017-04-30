@@ -230,6 +230,9 @@ public class ServerMirrorRepository extends ServerObject {
 			else
 				mc.syncVcsToFolder( mirrorFolder , folder );
 		}
+		
+		if( push )
+			mc.pushMirror();
 	}
 	
 	void createProductMeta( ServerTransaction transaction , ServerProduct product , String name ) throws Exception {
