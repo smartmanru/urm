@@ -311,7 +311,8 @@ public class MirrorCaseGit extends MirrorCase {
 			cmd += " " + OSPATH;
 			
 			status = shell.customGetStatus( action , cmd );
-			setAccess( OSPATH );
+			if( status == 0 )
+				setAccess( OSPATH );
 		}
 		catch( Throwable e ) {
 			action.log( "mirror repository" , e );
