@@ -36,7 +36,7 @@ public class RunContext implements Serializable {
 	public String encoding;
 
 	public static String PROPERTY_HOSTNAME = "hostname";
-	public static String PROPERTY_USER_HOME = "urm.userhome";
+	public static String PROPERTY_USER_HOME = "userhome";
 	public static String PROPERTY_OS_TYPE = "urm.os";
 	public static String PROPERTY_INSTALL_PATH = "urm.installpath";
 	public static String PROPERTY_WORK_PATH = "urm.workpath";

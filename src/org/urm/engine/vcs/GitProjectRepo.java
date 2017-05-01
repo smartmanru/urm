@@ -22,8 +22,16 @@ public class GitProjectRepo {
 		this.action = vcs.action;
 	}
 
+	public void refreshRepository() throws Exception {
+		mc.refreshRepository();
+	}
+	
 	public void refreshMirror() throws Exception {
 		mc.refreshMirror();
+	}
+	
+	public void pushRepository() throws Exception {
+		mc.pushRepository();
 	}
 	
 	public void pushMirror() throws Exception {

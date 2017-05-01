@@ -77,7 +77,7 @@ public class GitVCS extends GenericVCS {
 		BRANCH1 = getBranchName( BRANCH1 );
 		BRANCH2 = getBranchName( BRANCH2 );
 		GitProjectRepo repo = getRepo( project );
-		repo.refreshMirror();
+		repo.refreshRepository();
 		
 		if( !repo.checkBranchExists( BRANCH1 ) ) {
 			action.error( project.NAME + ": branch " + BRANCH1 + " does not exist" );
@@ -91,7 +91,7 @@ public class GitVCS extends GenericVCS {
 
 		MetaProductSettings product = meta.getProductSettings( action );
 		repo.copyMirrorBranchFromBranch( BRANCH1 , BRANCH2 , product.CONFIG_ADM_TRACKER + "-0000: create branch " + BRANCH2 + " from " + BRANCH1 );
-		repo.pushMirror();
+		repo.pushRepository();
 		return( true );
 	}
 
@@ -100,7 +100,7 @@ public class GitVCS extends GenericVCS {
 		BRANCH1 = getBranchName( BRANCH1 );
 		BRANCH2 = getBranchName( BRANCH2 );
 		GitProjectRepo repo = getRepo( project );
-		repo.refreshMirror();
+		repo.refreshRepository();
 		
 		if( !repo.checkBranchExists( BRANCH1 ) ) {
 			action.error( project.NAME + ": branch " + BRANCH1 + " does not exist" );
@@ -115,7 +115,7 @@ public class GitVCS extends GenericVCS {
 		MetaProductSettings product = meta.getProductSettings( action );
 		repo.copyMirrorBranchFromBranch( BRANCH1 , BRANCH2 , product.CONFIG_ADM_TRACKER + "-0000: rename branch " + BRANCH1 + " to " + BRANCH2 );
 		repo.dropMirrorBranch( BRANCH1 );
-		repo.pushMirror();
+		repo.pushRepository();
 		return( true );
 	}
 
@@ -124,7 +124,7 @@ public class GitVCS extends GenericVCS {
 		TAG1 = getTagName( TAG1 );
 		TAG2 = getTagName( TAG2 );
 		GitProjectRepo repo = getRepo( project );
-		repo.refreshMirror();
+		repo.refreshRepository();
 		
 		if( !repo.checkTagExists( TAG1 ) ) {
 			action.error( project.NAME + ": tag " + TAG1 + " does not exist" );
@@ -138,7 +138,7 @@ public class GitVCS extends GenericVCS {
 
 		MetaProductSettings product = meta.getProductSettings( action );
 		repo.copyMirrorTagFromTag( TAG1 , TAG2 , product.CONFIG_ADM_TRACKER + "-0000: create tag from " + TAG1 );
-		repo.pushMirror();
+		repo.pushRepository();
 		return( true );
 	}
 
@@ -147,7 +147,7 @@ public class GitVCS extends GenericVCS {
 		TAG1 = getTagName( TAG1 );
 		TAG2 = getTagName( TAG2 );
 		GitProjectRepo repo = getRepo( project );
-		repo.refreshMirror();
+		repo.refreshRepository();
 		
 		if( !repo.checkTagExists( TAG1 ) ) {
 			action.error( project.NAME + ": tag " + TAG1 + " does not exist" );
@@ -162,7 +162,7 @@ public class GitVCS extends GenericVCS {
 
 		MetaProductSettings product = meta.getProductSettings( action );
 		repo.copyMirrorTagFromTag( TAG1 , TAG2 , product.CONFIG_ADM_TRACKER + "-0000: create tag " + TAG2 + " from " + TAG1 );
-		repo.pushMirror();
+		repo.pushRepository();
 		return( true );
 	}
 
@@ -171,7 +171,7 @@ public class GitVCS extends GenericVCS {
 		TAG1 = getTagName( TAG1 );
 		TAG2 = getTagName( TAG2 );
 		GitProjectRepo repo = getRepo( project );
-		repo.refreshMirror();
+		repo.refreshRepository();
 		
 		if( !repo.checkTagExists( TAG1 ) ) {
 			action.error( project.NAME + ": tag " + TAG1 + " does not exist" );
@@ -181,13 +181,13 @@ public class GitVCS extends GenericVCS {
 		if( repo.checkTagExists( TAG2 ) ) {
 			// drop tag
 			repo.dropMirrorTag( TAG2 );
-			repo.pushMirror();
+			repo.pushRepository();
 		}
 
 		MetaProductSettings product = meta.getProductSettings( action );
 		repo.copyMirrorTagFromTag( TAG1 , TAG2 , product.CONFIG_ADM_TRACKER + "-0000: rename tag " + TAG1 + " to " + TAG2 );
 		repo.dropMirrorTag( TAG1 );
-		repo.pushMirror();
+		repo.pushRepository();
 		return( true );
 	}
 
@@ -196,7 +196,7 @@ public class GitVCS extends GenericVCS {
 		TAG1 = getTagName( TAG1 );
 		BRANCH2 = getBranchName( BRANCH2 );
 		GitProjectRepo repo = getRepo( project );
-		repo.refreshMirror();
+		repo.refreshRepository();
 		
 		if( !repo.checkTagExists( TAG1 ) ) {
 			action.error( repo + ": tag " + TAG1 + " does not exist" );
@@ -210,7 +210,7 @@ public class GitVCS extends GenericVCS {
 
 		MetaProductSettings product = meta.getProductSettings( action );
 		repo.copyMirrorBranchFromTag( TAG1 , BRANCH2 , product.CONFIG_ADM_TRACKER + "-0000: create branch " + BRANCH2 + " from " + TAG1 );
-		repo.pushMirror();
+		repo.pushRepository();
 		return( true );
 	}
 
@@ -218,7 +218,7 @@ public class GitVCS extends GenericVCS {
 	public boolean dropTag( MetaSourceProject project , String TAG ) throws Exception {
 		TAG = getTagName( TAG );
 		GitProjectRepo repo = getRepo( project );
-		repo.refreshMirror();
+		repo.refreshRepository();
 		
 		if( !repo.checkTagExists( TAG ) ) {
 			action.error( project.NAME + ": tag " + TAG + " does not exist" );
@@ -227,7 +227,7 @@ public class GitVCS extends GenericVCS {
 		
 		// drop tag
 		repo.dropMirrorTag( TAG );
-		repo.pushMirror();
+		repo.pushRepository();
 		return( true );
 	}
 	
@@ -235,7 +235,7 @@ public class GitVCS extends GenericVCS {
 	public boolean dropBranch( MetaSourceProject project , String BRANCH ) throws Exception {
 		BRANCH = getBranchName( BRANCH );
 		GitProjectRepo repo = getRepo( project );
-		repo.refreshMirror();
+		repo.refreshRepository();
 		
 		if( !repo.checkBranchExists( BRANCH ) ) {
 			action.error( project.NAME + ": branch " + BRANCH + " does not exist" );
@@ -244,7 +244,7 @@ public class GitVCS extends GenericVCS {
 		
 		// drop branch
 		repo.dropMirrorBranch( BRANCH );
-		repo.pushMirror();
+		repo.pushRepository();
 		return( true );
 	}
 
@@ -253,7 +253,7 @@ public class GitVCS extends GenericVCS {
 		TAG = getTagName( TAG );
 		BRANCH = getBranchName( BRANCH );
 		GitProjectRepo repo = getRepo( project );
-		repo.refreshMirror();
+		repo.refreshRepository();
 		
 		boolean res;
 		String FILEPATH = project.CODEPATH;
@@ -275,7 +275,7 @@ public class GitVCS extends GenericVCS {
 		TAG = getTagName( TAG );
 		BRANCH = getBranchName( BRANCH );
 		GitProjectRepo repo = getRepo( project );
-		repo.refreshMirror();
+		repo.refreshRepository();
 
 		String CO_BRANCH = BRANCH;
 		if( CO_BRANCH.startsWith( "branches/" ) )
@@ -288,7 +288,7 @@ public class GitVCS extends GenericVCS {
 		
 		MetaProductSettings product = meta.getProductSettings( action );
 		repo.setMirrorTag( CO_BRANCH , TAG , product.CONFIG_ADM_TRACKER + "-0000: create tag" , BRANCHDATE );
-		repo.pushMirror();
+		repo.pushRepository();
 		return( true );
 	}
 

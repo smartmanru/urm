@@ -38,9 +38,10 @@ public class ReleaseDelivery {
 		
 		for( Entry<String,ReleaseTargetItem> entry : projectItems.entrySet() ) {
 			ReleaseTargetItem src = entry.getValue();
-			ReleaseSet srcSet = src.target.set;
+			ReleaseTarget srcTarget = src.target;
+			ReleaseSet srcSet = srcTarget.set;
 			ReleaseSet dstSet = nr.getSourceSet( action , srcSet.NAME );
-			ReleaseTarget dstTarget = dstSet.getTarget( action , src.NAME );
+			ReleaseTarget dstTarget = dstSet.getTarget( action , srcTarget.NAME );
 			ReleaseTargetItem dst = dstTarget.findItem( src.NAME );
 			nx.projectItems.put( entry.getKey() , dst );
 		}

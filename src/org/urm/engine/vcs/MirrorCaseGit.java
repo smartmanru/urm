@@ -111,6 +111,11 @@ public class MirrorCaseGit extends MirrorCase {
 		super.syncVcsToFolderContent( mirrorFolder , folder );
 	}
 	
+	public void pushRepository() throws Exception {
+		LocalFolder repo = getRepositoryFolder();
+		pushOrigin( repo.folderPath );
+	}
+	
 	public boolean checkValidBranch() throws Exception {
 		String branch = getBranch();
 		return( checkValidBranch( branch ) );
