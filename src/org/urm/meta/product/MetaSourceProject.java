@@ -61,6 +61,7 @@ public class MetaSourceProject {
 		POS = ConfReader.getIntegerAttrValue( node , "order" , 0 );
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
 		DESC = ConfReader.getAttrValue( node , "desc" );
+		codebaseProd = ConfReader.getBooleanAttrValue( node , "prod" , false );
 
 		// read item attrs
 		REPOSITORY = ConfReader.getAttrValue( node , "repository" );
@@ -76,7 +77,6 @@ public class MetaSourceProject {
 		
 		type = Types.getProjectType( ConfReader.getAttrValue( node , "type" ) , true );
 		if( type == VarPROJECTTYPE.BUILDABLE ) {
-			codebaseProd = ConfReader.getBooleanAttrValue( node , "prod" , false );
 			TRACKER = ConfReader.getAttrValue( node , "jira" );
 			BRANCH = ConfReader.getAttrValue( node , "branch" );
 			BUILDER = ConfReader.getAttrValue( node , "builder" );
@@ -120,6 +120,7 @@ public class MetaSourceProject {
 		Common.xmlSetElementAttr( doc , root , "order" , "" + POS );
 		Common.xmlSetElementAttr( doc , root , "name" , NAME );
 		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
+		Common.xmlSetElementAttr( doc , root , "prod" , Common.getBooleanValue( codebaseProd ) );
 
 		// read item attrs
 		Common.xmlSetElementAttr( doc , root , "repository" , REPOSITORY );
@@ -132,7 +133,6 @@ public class MetaSourceProject {
 		}
 		
 		if( type == VarPROJECTTYPE.BUILDABLE ) {
-			Common.xmlSetElementAttr( doc , root , "prod" , Common.getBooleanValue( codebaseProd ) );
 			Common.xmlSetElementAttr( doc , root , "jira" , TRACKER );
 			Common.xmlSetElementAttr( doc , root , "branch" , BRANCH );
 			Common.xmlSetElementAttr( doc , root , "builder" , BUILDER );
@@ -155,10 +155,10 @@ public class MetaSourceProject {
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.type = type;
+		r.codebaseProd = codebaseProd;
 
 		// read item attrs
 		r.REPOSITORY = REPOSITORY;
-		r.codebaseProd = codebaseProd;
 		r.BUILDGROUP = BUILDGROUP;
 		r.TRACKER = TRACKER;
 		r.BRANCH = BRANCH;
