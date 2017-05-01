@@ -257,8 +257,6 @@ public class MetaSourceProject {
 		this.type = type;
 		this.codebaseProd = prod;
 		
-		this.codebaseProd = false;
-		this.BRANCH = "";
 		this.BUILDER = "";
 		this.BUILDER_ADDOPTIONS = "";
 		
