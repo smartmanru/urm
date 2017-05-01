@@ -23,6 +23,13 @@ public class ReleaseMasterHistory {
 		this.master = master;
 	}
 
+	public ReleaseMasterHistory copy( ActionBase action , ReleaseMaster rm ) throws Exception {
+		ReleaseMasterHistory rrh = new ReleaseMasterHistory( rm.meta , rm );
+		rrh.RELEASE = RELEASE;
+		rrh.appendDate = appendDate;
+		return( rrh );
+	}
+	
 	public void load( ActionBase action , Node root ) throws Exception {
 		RELEASE = ConfReader.getAttrValue( root , "release" );
 		appendDate = Common.getDateValue( ConfReader.getAttrValue( root , "added" ) );

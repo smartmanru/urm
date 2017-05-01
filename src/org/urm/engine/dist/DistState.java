@@ -29,21 +29,31 @@ public class DistState {
 	}
 	
 	// state
+	private Dist dist;
+	private RemoteFolder distFolder;
+
 	public DISTSTATE state;
 	DISTSTATE stateMem;
 	String stateChangeID;
 	String dataHash;
 	String metaHash;
-
 	String activeChangeID;
 	
-	private Dist dist;
-	private RemoteFolder distFolder;
-
 	public DistState( Dist dist , RemoteFolder distFolder ) {
 		this.dist = dist;
 		this.distFolder = distFolder;
 		this.state = DISTSTATE.UNKNOWN;
+	}
+	
+	public DistState copy( ActionBase action , Dist rdist ) throws Exception {
+		DistState rstate = new DistState( rdist , distFolder );
+		rstate.state = state;
+		rstate.stateMem = stateMem;
+		rstate.stateChangeID = stateChangeID;
+		rstate.dataHash = dataHash;
+		rstate.metaHash = metaHash;
+		rstate.activeChangeID = activeChangeID;
+		return( rstate );
 	}
 	
 	private void ctlSetStatus( ActionBase action , DISTSTATE newState ) throws Exception {

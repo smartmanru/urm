@@ -162,7 +162,7 @@ public class ServerProductMeta extends ServerObject {
 				r.loadFailed = true;
 		}
 		
-		r.repo = DistRepository.loadDistRepository( action , r.meta );
+		r.repo = repo.copy( action , r.meta );
 		return( r );
 	}
 

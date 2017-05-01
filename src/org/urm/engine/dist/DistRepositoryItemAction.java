@@ -23,6 +23,16 @@ public class DistRepositoryItemAction {
 		actionSuccess = false;
 	}
 
+	public DistRepositoryItemAction copy( ActionBase action , DistRepositoryItem item ) throws Exception {
+		DistRepositoryItemAction rh = new DistRepositoryItemAction( item );
+		rh.ACTION_NAME = ACTION_NAME;
+		rh.actionStarted = actionStarted;
+		rh.actionSuccess = actionSuccess;
+		rh.actionOp = actionOp;
+		rh.ACTION_INFO = ACTION_INFO;
+		return( rh );
+	}
+	
 	public void load( ActionBase action , Node root ) throws Exception {
 		ACTION_NAME = ConfReader.getAttrValue( root , "action" );
 		actionStarted = ConfReader.getLongAttrValue( root , "started" , 0 );

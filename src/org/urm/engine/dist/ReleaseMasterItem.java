@@ -26,6 +26,17 @@ public class ReleaseMasterItem {
 		this.master = master;
 	}
 
+	public ReleaseMasterItem copy( ActionBase action , ReleaseMaster rm ) throws Exception {
+		ReleaseMasterItem ritem = new ReleaseMasterItem( rm.meta , rm );
+		ritem.KEY = KEY;
+		ritem.RELEASE = RELEASE;
+		ritem.DELIVERY = DELIVERY;
+		ritem.FOLDER = FOLDER;
+		ritem.FILE = FILE;
+		ritem.MD5 = MD5;
+		return( ritem );
+	}
+	
 	public void load( ActionBase action , Node root ) throws Exception {
 		KEY = ConfReader.getAttrValue( root , "key" );
 		RELEASE = ConfReader.getAttrValue( root , "release" );
