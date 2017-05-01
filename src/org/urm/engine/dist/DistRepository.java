@@ -52,6 +52,16 @@ public class DistRepository {
 		runMap = new HashMap<String,DistRepositoryItem>();
 	}
 	
+	public DistRepository copy( ActionBase action , Meta meta ) throws Exception {
+		DistRepository rrepo = new DistRepository( meta );
+		for( DistRepositoryItem item : runMap.values() ) {
+			DistRepositoryItem ritem = item.copy( action , rrepo );
+			rrepo.addRunItem( ritem );
+			rrepo.addDist( ritem.dist );
+		}
+		return( rrepo );
+	}
+
 	public static DistRepository loadDistRepository( ActionBase action , Meta meta ) throws Exception {
 		DistRepository repo = new DistRepository( meta );
 		repo.open( action );

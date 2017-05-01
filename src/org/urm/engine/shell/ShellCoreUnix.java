@@ -496,35 +496,37 @@ public class ShellCoreUnix extends ShellCore {
 	}
 
 	@Override 
-	public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
-		String delimiter = "URM_DELIMITER";
-		List<String> res = runCommandCheckGetOutputDebug( action , rootPath , 
-				"find . -type d | sort; echo " + delimiter + "; find . -type f | sort" );
+	public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files , String excludeRegExp ) throws Exception {
+		String excludeOption = ( excludeRegExp == null || excludeRegExp.isEmpty() )? "" : " | egrep -v \"" + excludeRegExp + "\"";
+		List<String> resDirs = runCommandCheckGetOutputDebug( action , rootPath , 
+				"find . -type d | sort" + excludeOption );
 		
-		if( res.isEmpty() )
+		if( resDirs.isEmpty() )
 			action.exit1( _Error.MissingDirectory1 , "directory " + rootPath + " does not exist" , rootPath );
 		
-		List<String> copyTo = dirs;
-		boolean ok = false;
-		for( int k = 0; k < res.size(); k++ ) {
-			String s = res.get( k );
+		for( int k = 0; k < resDirs.size(); k++ ) {
+			String s = resDirs.get( k );
 			if( s.equals( "." ) )
 				continue;
-			
-			if( s.equals( delimiter ) ) {
-				copyTo = files;
-				ok = true;
-				continue;
-			}
 			
 			if( s.startsWith( "./") )
 				s = s.substring( 2 );
 			
-			copyTo.add( s );
+			dirs.add( s );
 		}
 		
-		if( !ok )
-			action.exit1( _Error.UnableReadDirectory1 , "unable to read directory " + rootPath , rootPath );
+		List<String> resFiles = runCommandCheckGetOutputDebug( action , rootPath , 
+				"find . -type f | sort" + excludeOption );
+		for( int k = 0; k < resFiles.size(); k++ ) {
+			String s = resFiles.get( k );
+			if( s.equals( "." ) )
+				continue;
+			
+			if( s.startsWith( "./") )
+				s = s.substring( 2 );
+			
+			files.add( s );
+		}
 	}
 
 	@Override 

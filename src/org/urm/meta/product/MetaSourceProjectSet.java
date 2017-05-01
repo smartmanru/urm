@@ -133,7 +133,7 @@ public class MetaSourceProjectSet {
 	private void reorderProjects() {
 		List<String> order = new LinkedList<String>();
 		for( MetaSourceProject project : map.values() ) {
-			String key = project.POS + "#" + project.NAME;
+			String key = Common.getZeroPadded( project.POS , 10 ) + "#" + project.NAME;
 			order.add( key );
 		}
 		

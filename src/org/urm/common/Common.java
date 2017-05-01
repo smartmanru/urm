@@ -987,5 +987,11 @@ public class Common {
 		}
 		return( -1 );
 	}
+
+	public static String getZeroPadded( int value , int totalChars ) {
+		String v = "00000000000000000000" + value;
+		v = v.substring( v.length() - 10 );
+		return( v );
+	}
 	
 }

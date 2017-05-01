@@ -48,6 +48,25 @@ public class Release {
 		schedule = new ReleaseSchedule( meta , this );
 	}
 
+	public Release copy( ActionBase action , Dist rdist ) throws Exception {
+		Release rr = new Release( rdist.meta , rdist );
+		rr.RELEASEVER = RELEASEVER;
+		
+		rr.PROPERTY_MASTER = PROPERTY_MASTER;
+		rr.PROPERTY_OBSOLETE = PROPERTY_OBSOLETE;
+		rr.PROPERTY_BUILDMODE = PROPERTY_BUILDMODE;
+		rr.PROPERTY_COMPATIBILITY = PROPERTY_COMPATIBILITY;
+		rr.PROPERTY_CUMULATIVE = PROPERTY_CUMULATIVE;
+		
+		rr.copyReleaseScope( action , this );
+		rr.schedule = schedule.copy( action , rr.meta , rr , false );
+		
+		if( master != null )
+			rr.master = master.copy( action , rr );
+		
+		return( rr );
+	}
+	
 	public void copyReleaseScope( ActionBase action , Release src ) throws Exception {
 		descopeAll( action );
 		for( Entry<String,ReleaseSet> entry : src.sourceSetMap.entrySet() ) {

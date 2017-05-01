@@ -1017,10 +1017,10 @@ public abstract class ShellExecutor extends Shell {
 		}
 	}
 	
-	public synchronized void getDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files ) throws Exception {
+	public synchronized void getDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files , String excludeRegExp ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			core.cmdGetDirsAndFiles( action , rootPath , dirs , files );
+			core.cmdGetDirsAndFiles( action , rootPath , dirs , files , excludeRegExp );
 		}
 		finally {
 			opstop();

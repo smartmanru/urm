@@ -69,6 +69,32 @@ public class Dist {
 		this.repo = repo;
 	}
 	
+	public Dist copy( ActionBase action , DistRepository rrepo ) throws Exception {
+		Dist rdist = new Dist( rrepo.meta , rrepo );
+		rdist.distFolder = distFolder;
+		rdist.RELEASEDIR = RELEASEDIR;
+		
+		rdist.release = release.copy( action , rdist );
+		rdist.infoPath = infoPath;
+		rdist.files = files;
+		rdist.state = state.copy( action , rdist );
+		
+		rdist.openedForUse = openedForUse;
+		rdist.openedForChange = openedForChange;
+		rdist.openedForControl = openedForControl;
+		return( rdist );
+	}
+	
+	public void load( ActionBase action ) throws Exception {
+		action.debug( "loading release specification from " + META_FILENAME + " ..." );
+		
+		state.ctlLoadReleaseState( action );
+		
+		infoPath = distFolder.copyFileToLocal( action , action.getWorkFolder() , META_FILENAME , "" );
+		release = new Release( meta , this );
+		release.load( action , infoPath );
+	}
+
 	public void setFolder( RemoteFolder distFolder , boolean prod ) {
 		this.distFolder = distFolder;
 		this.RELEASEDIR = distFolder.folderName;
@@ -105,16 +131,6 @@ public class Dist {
 		return( state.state );
 	}
 	
-	public void load( ActionBase action ) throws Exception {
-		action.debug( "loading release specification from " + META_FILENAME + " ..." );
-		
-		state.ctlLoadReleaseState( action );
-		
-		infoPath = distFolder.copyFileToLocal( action , action.getWorkFolder() , META_FILENAME , "" );
-		release = new Release( meta , this );
-		release.load( action , infoPath );
-	}
-
 	public boolean checkHash( ActionBase action ) throws Exception {
 		if( !state.isFinalized() )
 			return( true );

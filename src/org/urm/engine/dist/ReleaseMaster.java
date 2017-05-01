@@ -30,6 +30,21 @@ public class ReleaseMaster {
 	public void create( ActionBase action ) throws Exception {
 	}
 	
+	public ReleaseMaster copy( ActionBase action , Release rr ) throws Exception {
+		ReleaseMaster rMaster = new ReleaseMaster( rr.meta , rr );
+		
+		for( ReleaseMasterHistory hItem : mapHistory.values() ) {
+			ReleaseMasterHistory rhItem = hItem.copy( action , rMaster );
+			rMaster.addHistoryItem( rhItem );
+		}
+		
+		for( ReleaseMasterItem item : mapItem.values() ) {
+			ReleaseMasterItem ritem = item.copy( action , rMaster );
+			rMaster.addMasterItem( ritem );
+		}
+		return( rMaster );
+	}
+	
 	public void load( ActionBase action , Node root ) throws Exception {
 		if( root == null )
 			return;
@@ -49,8 +64,12 @@ public class ReleaseMaster {
 		for( Node node : items ) {
 			ReleaseMasterHistory rh = new ReleaseMasterHistory( meta , this );
 			rh.load( action , node );
-			mapHistory.put( rh.RELEASE , rh );
+			addHistoryItem( rh );
 		}
+	}
+	
+	private void addHistoryItem( ReleaseMasterHistory rh ) {
+		mapHistory.put( rh.RELEASE , rh );
 	}
 	
 	public void loadItems( ActionBase action , Node root ) throws Exception {
@@ -64,8 +83,12 @@ public class ReleaseMaster {
 		for( Node node : items ) {
 			ReleaseMasterItem item = new ReleaseMasterItem( meta , this );
 			item.load( action , node );
-			mapItem.put( item.KEY , item );
+			addMasterItem( item );
 		}
+	}
+	
+	private void addMasterItem( ReleaseMasterItem item ) {
+		mapItem.put( item.KEY , item );
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {

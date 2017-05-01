@@ -57,9 +57,9 @@ public class ServerTransaction extends TransactionBase {
 	}
 
 	// transactional operations
-	public void createMirrorRepository( ServerMirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , String repobranch , boolean push ) throws Exception {
+	public void createMirrorRepository( ServerMirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
-		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , repobranch , push );
+		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , push );
 	}
 
 	public void pushMirror( ServerMirrorRepository repo ) throws Exception {
@@ -70,9 +70,9 @@ public class ServerTransaction extends TransactionBase {
 		repo.refreshMirror( this );
 	}
 
-	public void dropMirror( ServerMirrorRepository repo ) throws Exception {
+	public void dropMirror( ServerMirrorRepository repo , boolean dropOnServer ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
-		repo.dropMirror( this );
+		repo.dropMirror( this , dropOnServer );
 		repo.deleteObject();
 	}
 
@@ -83,7 +83,7 @@ public class ServerTransaction extends TransactionBase {
 	
 	public void updateResource( ServerAuthResource res , ServerAuthResource resNew ) throws Exception {
 		checkTransactionResources( res.resources );
-		res.updateResource( this , resNew );
+		resources.updateResource( this , res , resNew );
 	}
 	
 	public void deleteResource( ServerAuthResource res ) throws Exception {

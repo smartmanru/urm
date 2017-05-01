@@ -120,7 +120,9 @@ public class RunContext implements Serializable {
 			
 			hostName = getEnvRequired( "HOSTNAME" );
 			userName = getEnvRequired( "USER" );
-	    	userHome = getEnvRequired( "HOME" );
+			userHome = getProperty( PROPERTY_USER_HOME );
+			if( userHome.isEmpty() )
+				userHome = getEnvRequired( "HOME" );
 		}
 		else {
 			installPath = Common.getLinuxPath( getProperty( PROPERTY_INSTALL_PATH ) );
@@ -129,7 +131,9 @@ public class RunContext implements Serializable {
 			
 			hostName = getEnvRequired( "COMPUTERNAME" );
 			userName = getEnvRequired( "USERNAME" );
-	    	userHome = Common.getLinuxPath( getEnvRequired( "HOMEDRIVE" ) + getEnvRequired( "HOMEPATH" ) );
+			userHome = getProperty( PROPERTY_USER_HOME );
+			if( userHome.isEmpty() )
+				userHome = Common.getLinuxPath( getEnvRequired( "HOMEDRIVE" ) + getEnvRequired( "HOMEPATH" ) );
 		}
 	
 		encoding = getProperty( "urm.encoding" );

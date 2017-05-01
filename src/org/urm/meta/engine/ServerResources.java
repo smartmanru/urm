@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.ServerEngine;
@@ -110,11 +111,23 @@ public class ServerResources extends ServerObject {
 		resourceMap.put( res.NAME , res );
 	}
 	
+	public void updateResource( ServerTransaction transaction , ServerAuthResource res , ServerAuthResource resNew ) throws Exception {
+		res.updateResource( transaction , resNew );
+		dropResourceMirrors( transaction , res );
+	}
+	
 	public void deleteResource( ServerTransaction transaction , ServerAuthResource res ) throws Exception {
 		if( resourceMap.get( res.NAME ) == null )
 			transaction.exit( _Error.UnknownResource1 , "unknown resource name=" + res.NAME , new String[] { res.NAME } );
 			
 		resourceMap.remove( res.NAME );
+		dropResourceMirrors( transaction , res );
 	}
 
+	public void dropResourceMirrors( ServerTransaction transaction , ServerAuthResource res ) throws Exception {
+		ActionBase action = transaction.getAction();
+		ServerMirrors mirrors = action.getServerMirrors();
+		mirrors.dropResourceMirrors( action , res );
+	}
+	
 }

@@ -28,6 +28,18 @@ public class DistRepositoryItem {
 		history = new LinkedList<DistRepositoryItemAction>(); 
 	}
 	
+	public DistRepositoryItem copy( ActionBase action , DistRepository repo ) throws Exception {
+		DistRepositoryItem ritem = new DistRepositoryItem( repo );
+		ritem.RELEASEDIR = RELEASEDIR;
+		for( DistRepositoryItemAction historyItem : history ) {
+			DistRepositoryItemAction rhistoryItem = historyItem.copy( action , ritem );
+			ritem.addHistory( rhistoryItem );
+		}
+		
+		ritem.dist = dist.copy( action , ritem.repo );
+		return( ritem );
+	}
+	
 	public void load( ActionBase action , Node root ) throws Exception {
 		RELEASEDIR = ConfReader.getAttrValue( root , "releasedir" );
 		
