@@ -142,14 +142,10 @@ public class VersionInfo {
 	}
 
 	public String getSortVersion() {
-		String x1 = "00000000000000000000" + v1;
-		String x2 = "00000000000000000000" + v2;
-		String x3 = "00000000000000000000" + v3;
-		String x4 = "00000000000000000000" + v4;
-		x1 = x1.substring( x1.length() - 10 );
-		x2 = x2.substring( x2.length() - 10 );
-		x3 = x3.substring( x3.length() - 10 );
-		x4 = x4.substring( x4.length() - 10 );
+		String x1 = Common.getZeroPadded( v1 , 10 );
+		String x2 = Common.getZeroPadded( v2 , 10 );
+		String x3 = Common.getZeroPadded( v3 , 10 );
+		String x4 = Common.getZeroPadded( v4 , 10 );
 		return( x1 + "." + x2 + "." + x3 + "." + x4 );
 	}
 	
