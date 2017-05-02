@@ -1,14 +1,22 @@
 package org.urm.meta.engine;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.ServerBlotterReleaseItem;
+import org.urm.engine.ServerBlotterSet;
 import org.urm.engine.ServerTransaction;
+import org.urm.engine.ServerBlotter.BlotterType;
+import org.urm.engine.dist.Release;
+import org.urm.engine.dist.VersionInfo;
 import org.urm.meta.ServerObject;
 import org.urm.meta.Types;
 import org.urm.meta.Types.VarLCTYPE;
+import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -215,6 +223,36 @@ public class ServerReleaseLifecycle extends ServerObject {
 
 	public boolean isRegular() {
 		return( regular );
+	}
+
+	public static Date getReleaseDate( ActionBase action , String RELEASEVER , Meta meta ) throws Exception {
+		VersionInfo info = VersionInfo.getReleaseVersion( action , RELEASEVER );
+		String prevReleaseVer = info.getPreviousVersion();
+		if( prevReleaseVer.isEmpty() )
+			return( null );
+		
+		ServerBlotterSet blotter = action.getBlotter( BlotterType.BLOTTER_RELEASE );
+		ServerBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
+		if( item == null )
+			return( null );
+		
+		String LIFECYCLE = item.repoItem.dist.release.schedule.LIFECYCLE;
+		if( LIFECYCLE.isEmpty() )
+			return( null );
+		
+		ServerReleaseLifecycles lifecycles = action.getServerReleaseLifecycles();
+		ServerReleaseLifecycle lc = lifecycles.findLifecycle( LIFECYCLE );
+		if( lc == null )
+			return( null );
+		
+		return( lc.getNextReleaseDate( action , item.repoItem.dist.release ) );
+	}
+	
+	public Date getNextReleaseDate( ActionBase action , Release release ) throws Exception {
+		if( isRegular() )
+			return( Common.addDays( release.schedule.releaseDate , shiftDays ) );
+		
+		return( Common.addDays( release.schedule.releaseDate , daysToRelease ) );
 	}
 
 }
