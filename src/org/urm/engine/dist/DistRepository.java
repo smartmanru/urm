@@ -54,6 +54,8 @@ public class DistRepository {
 	
 	public DistRepository copy( ActionBase action , Meta meta ) throws Exception {
 		DistRepository rrepo = new DistRepository( meta );
+		rrepo.repoFolder = repoFolder;
+		
 		for( DistRepositoryItem item : runMap.values() ) {
 			DistRepositoryItem ritem = item.copy( action , rrepo );
 			rrepo.addRunItem( ritem );
