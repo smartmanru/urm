@@ -117,6 +117,11 @@ public class MetaSourceProjectSet {
 	}
 	
 	public void addProject( ServerTransaction transaction , MetaSourceProject project ) throws Exception {
+		for( MetaSourceProject p : orderedList ) {
+			if( p.POS >= project.POS )
+				p.setOrder( transaction , p.POS + 1 );
+		}
+			
 		map.put( project.NAME , project );
 		reorderProjects();
 	}
