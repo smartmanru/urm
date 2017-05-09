@@ -372,7 +372,7 @@ public class ReleaseSchedule {
 		
 		if( currentPhase >= 0 ) {
 			Date date = Common.getDateCurrentDay();
-			releaseDateActual = date;
+			completeDateActual = date;
 			
 			for( int k = currentPhase; k < phases.size(); k++ ) {
 				ReleaseSchedulePhase phase = getPhase( k );
