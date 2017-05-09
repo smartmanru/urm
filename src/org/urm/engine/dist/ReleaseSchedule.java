@@ -23,6 +23,8 @@ public class ReleaseSchedule {
 	public String LIFECYCLE;
 	public Date started;
 	public Date releaseDate;
+	public Date releaseDateActual;
+	public Date completeDateActual;
 	public int currentPhase;
 	public int releasePhases;
 	public int deployPhases;
@@ -49,6 +51,8 @@ public class ReleaseSchedule {
 		r.started = started;
 		r.LIFECYCLE = ( createProd )? "" : LIFECYCLE;
 		r.releaseDate = ( createProd )? null : releaseDate;
+		r.releaseDateActual = ( createProd )? null : releaseDateActual;
+		r.completeDateActual = ( createProd )? null : completeDateActual;  
 		r.currentPhase = ( createProd )? -1 : currentPhase;
 		r.releasePhases = ( createProd )? 0 : releasePhases; 
 		r.deployPhases = ( createProd )? 0 : deployPhases; 
@@ -74,6 +78,8 @@ public class ReleaseSchedule {
 			LIFECYCLE = "";
 			started = new Date();
 			releaseDate = null;
+			releaseDateActual = null;
+			completeDateActual = null;
 			currentPhase = -1;
 			releasePhases = 0; 
 			deployPhases = 0; 
@@ -89,6 +95,8 @@ public class ReleaseSchedule {
 			started = new Date();
 			
 		releaseDate = Common.getDateValue( ConfReader.getAttrValue( node , "releasedate" ) );
+		releaseDateActual = Common.getDateValue( ConfReader.getAttrValue( node , "releaseactual" ) );
+		completeDateActual = Common.getDateValue( ConfReader.getAttrValue( node , "completeactual" ) );
 		currentPhase = ConfReader.getIntegerAttrValue( node , "phase" , 0 );
 		released = ConfReader.getBooleanAttrValue( node , "released" , false );
 		completed = ConfReader.getBooleanAttrValue( node , "completed" , false );
@@ -126,6 +134,8 @@ public class ReleaseSchedule {
 		Common.xmlSetElementAttr( doc , node , "lifecycle" , LIFECYCLE );
 		Common.xmlSetElementAttr( doc , node , "started" , Common.getDateValue( started ) );
 		Common.xmlSetElementAttr( doc , node , "releasedate" , Common.getDateValue( releaseDate ) );
+		Common.xmlSetElementAttr( doc , node , "releaseactual" , Common.getDateValue( releaseDateActual ) );
+		Common.xmlSetElementAttr( doc , node , "completeactual" , Common.getDateValue( completeDateActual ) );
 		Common.xmlSetElementAttr( doc , node , "phase" , "" + currentPhase );
 		Common.xmlSetElementAttr( doc , node , "released" , Common.getBooleanValue( released ) );
 		Common.xmlSetElementAttr( doc , node , "completed" , Common.getBooleanValue( completed ) );
@@ -317,10 +327,20 @@ public class ReleaseSchedule {
 		}
 	}
 	
+	public Date getDateReleased() {
+		return( releaseDateActual );
+	}
+	
+	public Date getDateCompleted() {
+		return( completeDateActual );
+	}
+	
 	public void finish( ActionBase action ) throws Exception {
 		released = true;
 		
 		Date date = Common.getDateCurrentDay();
+		releaseDateActual = date;
+		
 		for( int k = 0; k < releasePhases; k++ ) {
 			ReleaseSchedulePhase phase = getPhase( k );
 			if( !phase.isFinished() ) {
@@ -329,7 +349,7 @@ public class ReleaseSchedule {
 				phase.finishPhase( action , date );
 			}
 		}
-		
+
 		currentPhase = releasePhases;
 		if( deployPhases > 0 ) {
 			ReleaseSchedulePhase phase = getPhase( releasePhases );
@@ -352,6 +372,8 @@ public class ReleaseSchedule {
 		
 		if( currentPhase >= 0 ) {
 			Date date = Common.getDateCurrentDay();
+			releaseDateActual = date;
+			
 			for( int k = currentPhase; k < phases.size(); k++ ) {
 				ReleaseSchedulePhase phase = getPhase( k );
 				if( !phase.isFinished() ) {
@@ -367,6 +389,7 @@ public class ReleaseSchedule {
 	
 	public void reopen( ActionBase action ) throws Exception {
 		released = false;
+		releaseDateActual = null;
 		
 		Date date = Common.getDateCurrentDay();
 		for( int k = 0; k < deployPhases; k++ ) {

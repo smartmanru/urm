@@ -122,6 +122,11 @@ public class MetaSourceProjectSet {
 	}
 
 	public void changeProjectOrder( ServerTransaction transaction , MetaSourceProject project , int POS ) throws Exception {
+		for( MetaSourceProject p : orderedList ) {
+			if( p.POS >= POS )
+				p.setOrder( transaction , p.POS + 1 );
+		}
+			
 		project.setOrder( transaction , POS );
 		reorderProjects();
 	}
