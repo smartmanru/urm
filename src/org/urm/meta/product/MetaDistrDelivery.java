@@ -232,6 +232,15 @@ public class MetaDistrDelivery {
 	public void modifyBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 	}
 	
+	public void moveItemToThis( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+		if( item.delivery == this )
+			return;
+			
+		item.delivery.mapBinaryItems.remove( item.KEY );
+		mapBinaryItems.put( item.KEY , item );
+		item.setDelivery( transaction , this );
+	}
+
 	public void deleteBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		deleteBinaryItemInternal( transaction , item );
 		mapBinaryItems.remove( item.KEY );

@@ -63,6 +63,10 @@ public class MetaDistrBinaryItem {
 		CUSTOMDEPLOY = false;
 	}
 	
+	public void setDelivery( ServerTransaction transaction , MetaDistrDelivery deliveryNew ) throws Exception {
+		this.delivery = deliveryNew; 
+	}
+	
 	public void changeProjectToManual( ServerTransaction transaction ) throws Exception {
 		if( distItemOrigin != VarDISTITEMORIGIN.BUILD )
 			transaction.exitUnexpectedState();
