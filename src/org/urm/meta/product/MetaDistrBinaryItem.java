@@ -391,6 +391,9 @@ public class MetaDistrBinaryItem {
 		}
 		else {
 			String version = "1.0";
+			if( sourceProjectItem != null && sourceProjectItem.ITEMVERSION.isEmpty() == false )
+				version = sourceProjectItem.ITEMVERSION;
+			
 			if( deployVersion == VarITEMVERSION.MIDDASH )
 				value += "-" + version;
 			else
