@@ -53,7 +53,6 @@ public class MetaDistrConfItem {
 		this.itemType = VarCONFITEMTYPE.DIR;
 		this.FILES = "";
 		this.TEMPLATES = "";
-		this.EXCLUDE = "";
 	}
 
 	public void setFilesData( ServerTransaction transaction , String itemFiles , String itemTemplates ) throws Exception {
