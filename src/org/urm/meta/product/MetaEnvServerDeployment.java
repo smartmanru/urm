@@ -160,7 +160,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 				if( item.confItem == p_confItem )
 					return( true );
 		}
-		return( true );
+		return( false );
 	}
 	
 	public boolean hasBinaryItemDeployment( MetaDistrBinaryItem p_binaryItem ) {
@@ -172,7 +172,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 				if( item.binaryItem == p_binaryItem )
 					return( true );
 		}
-		return( true );
+		return( false );
 	}
 
 	public boolean hasDatabaseItemDeployment( MetaDatabaseSchema p_schema ) {
@@ -184,7 +184,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 				if( item.schema == p_schema )
 					return( true );
 		}
-		return( true );
+		return( false );
 	}
 
 	public String getDeployPath( ActionBase action ) throws Exception {
