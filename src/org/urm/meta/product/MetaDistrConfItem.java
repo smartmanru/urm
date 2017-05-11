@@ -42,8 +42,9 @@ public class MetaDistrConfItem {
 		this.CREATEDIR = false;
 	}
 
-	public void setCommonData( ServerTransaction transaction , String itemSecured , String itemExtList , boolean itemCreateDir ) throws Exception {
+	public void setCommonData( ServerTransaction transaction , String itemSecured , String itemExclude , String itemExtList , boolean itemCreateDir ) throws Exception {
 		this.SECURED = itemSecured;
+		this.EXCLUDE = itemExclude;
 		this.EXTCONF = itemExtList;
 		this.CREATEDIR = itemCreateDir;
 	}
@@ -55,11 +56,10 @@ public class MetaDistrConfItem {
 		this.EXCLUDE = "";
 	}
 
-	public void setFilesData( ServerTransaction transaction , String itemFiles , String itemTemplates , String itemExclude ) throws Exception {
+	public void setFilesData( ServerTransaction transaction , String itemFiles , String itemTemplates ) throws Exception {
 		this.itemType = VarCONFITEMTYPE.FILES;
 		this.FILES = itemFiles;
 		this.TEMPLATES = itemTemplates;
-		this.EXCLUDE = itemExclude;
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
