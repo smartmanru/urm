@@ -56,7 +56,7 @@ public class DatabasePrepare {
 		errorFolder = "db-" + Common.getNameTimeStamp();
 		
 		S_CHECK_FAILED = false;
-		ALL_SCHEMA_LIST = dbDelivery.SCHEMASET;
+		ALL_SCHEMA_LIST = Common.getList( dbDelivery.getDatabaseSchemaNames() );
 		
 		action.debug( "prepare from " + src.folderPath + " to " + dst.folderPath + " (permitted schema list={" + ALL_SCHEMA_LIST + "}) ..." );
 		

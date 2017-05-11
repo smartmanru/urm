@@ -138,7 +138,7 @@ public class ServerProductMeta extends ServerObject {
 				r.loadFailed = true;
 		}
 		if( distr != null ) {
-			r.distr = distr.copy( action , r.meta );
+			r.distr = distr.copy( action , r.meta , r.database );
 			if( r.distr.isLoadFailed() )
 				r.loadFailed = true;
 		}
@@ -276,6 +276,7 @@ public class ServerProductMeta extends ServerObject {
 			return( distr );
 		
 		MetaProductSettings settings = loadProduct( action , storageMeta );
+		MetaDatabase db = loadDatabase( action , storageMeta );
 		distr = new MetaDistr( this , settings , meta );
 		meta.setDistr( distr );
 		
@@ -286,7 +287,7 @@ public class ServerProductMeta extends ServerObject {
 				action.debug( "read distributive definition file " + file + "..." );
 				Document doc = action.readXmlFile( file );
 				Node root = doc.getDocumentElement();
-				distr.load( action , root );
+				distr.load( action , db , root );
 				if( distr.isLoadFailed() )
 					setLoadFailed( action , "invalid distributive metadata, product=" + name );
 			}

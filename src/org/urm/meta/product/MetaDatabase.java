@@ -115,8 +115,20 @@ public class MetaDatabase extends PropertyController {
 		}
 	}
 
-	public String[] getSchemaSet() {
+	public boolean isEmpty() {
+		return( mapSchema.isEmpty() );
+	}
+	
+	public String[] getSchemaNames() {
 		return( Common.getSortedKeys( mapSchema ) );
+	}
+
+	public MetaDatabaseSchema[] getSchemaList() {
+		return( mapSchema.values().toArray( new MetaDatabaseSchema[0] ) );
+	}
+
+	public MetaDatabaseSchema findSchema( String name ) {
+		return( mapSchema.get( name ) );
 	}
 	
 	public MetaDatabaseSchema getSchema( ActionBase action , String name ) throws Exception {
