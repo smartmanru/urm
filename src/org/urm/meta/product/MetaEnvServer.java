@@ -376,8 +376,8 @@ public class MetaEnvServer extends PropertyController {
 		return( deployMap.get( name ) );
 	}
 	
-	public List<MetaEnvServerNode> getNodes() {
-		return( nodes );
+	public MetaEnvServerNode[] getNodes() {
+		return( nodes.toArray( new MetaEnvServerNode[0] ) );
 	}
 
 	public MetaEnvServerNode findNode( int POS ) {
@@ -392,7 +392,7 @@ public class MetaEnvServer extends PropertyController {
 		return( nodes.get( POS - 1 ) );
 	}
 
-	public boolean hasWebServices( ActionBase action ) throws Exception {
+	public boolean hasWebServices() {
 		for( MetaEnvServerDeployment deploy : deployments ) {
 			if( deploy.comp != null )
 				if( deploy.comp.hasWebServices() )
@@ -444,13 +444,13 @@ public class MetaEnvServer extends PropertyController {
 		return( s );
 	}
 
-	public List<MetaEnvServerNode> getNodes( ActionBase action , String[] NODES ) throws Exception {
+	public MetaEnvServerNode[] getNodes( ActionBase action , String[] NODES ) throws Exception {
 		List<MetaEnvServerNode> list = new LinkedList<MetaEnvServerNode>();
 		for( String NODE : NODES ) {
 			MetaEnvServerNode node = getNode( action , Integer.parseInt( NODE ) );
 			list.add( node );
 		}
-		return( list );
+		return( list.toArray( new MetaEnvServerNode[0] ) );
 	}
 	
 	public boolean isConfigurable() {
@@ -461,7 +461,7 @@ public class MetaEnvServer extends PropertyController {
 		return( true );
 	}
 	
-	public boolean hasConfiguration( ActionBase action ) throws Exception {
+	public boolean hasConfiguration() {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.confItem != null )
 				return( true );
@@ -472,39 +472,39 @@ public class MetaEnvServer extends PropertyController {
 		return( false );
 	}
 
-	public boolean hasConfItemDeployment( ActionBase action , MetaDistrConfItem confItem ) throws Exception {
+	public boolean hasConfItemDeployment( MetaDistrConfItem confItem ) {
 		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.hasConfItemDeployment( action , confItem ) )
+			if( deployment.hasConfItemDeployment( confItem ) )
 				return( true );
 		}
 		return( false );
 	}
 
-	public boolean hasBinaryItemDeployment( ActionBase action , MetaDistrBinaryItem binaryItem ) throws Exception {
+	public boolean hasBinaryItemDeployment( MetaDistrBinaryItem binaryItem ) {
 		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.hasBinaryItemDeployment( action , binaryItem ) )
+			if( deployment.hasBinaryItemDeployment( binaryItem ) )
 				return( true );
 		}
 		return( false );
 	}
 
-	public boolean hasDatabaseItemDeployment( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
+	public boolean hasDatabaseItemDeployment( MetaDistrDelivery delivery ) {
 		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() ) {
-			if( hasDatabaseItemDeployment( action , schema ) )
+			if( hasDatabaseItemDeployment( schema ) )
 				return( true );
 		}
 		return( false );
 	}
 
-	public boolean hasDatabaseItemDeployment( ActionBase action , MetaDatabaseSchema schema ) throws Exception {
+	public boolean hasDatabaseItemDeployment( MetaDatabaseSchema schema ) {
 		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.hasDatabaseItemDeployment( action , schema ) ) 
+			if( deployment.hasDatabaseItemDeployment( schema ) ) 
 				return( true );
 		}
 		return( false );
 	}
 	
-	public Map<String, MetaDistrConfItem> getConfItems( ActionBase action ) throws Exception {
+	public Map<String, MetaDistrConfItem> getConfItems() throws Exception {
 		Map<String, MetaDistrConfItem> confs = new HashMap<String, MetaDistrConfItem>(); 
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.confItem != null ) {

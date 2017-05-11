@@ -327,5 +327,13 @@ public class MetaEnvSegment extends PropertyController {
 	public void setStartInfo( ServerTransaction transaction , MetaEnvStartInfo startInfo ) throws Exception {
 		this.startInfo = startInfo;
 	}
+
+	public boolean isConfUsed( MetaDistrConfItem item ) {
+		for( MetaEnvServer server : originalList ) {
+			if( server.hasConfItemDeployment( item ) )
+				return( true );
+		}
+		return( false );
+	}
 	
 }

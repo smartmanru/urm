@@ -49,7 +49,7 @@ public class ActionStartServer extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	public List<MetaEnvServerNode> getActionServerNodes( MetaEnvServer actionServer , List<ActionScopeTargetItem> targetNodes ) throws Exception {
+	public MetaEnvServerNode[] getActionServerNodes( MetaEnvServer actionServer , List<ActionScopeTargetItem> targetNodes ) throws Exception {
 		if( targetNodes == null )
 			return( actionServer.getNodes() );
 		
@@ -57,12 +57,12 @@ public class ActionStartServer extends ActionBase {
 		for( ActionScopeTargetItem item : targetNodes )
 			nodes.add( item.envServerNode );
 
-		return( nodes ); 
+		return( nodes.toArray( new MetaEnvServerNode[0] ) ); 
 	}
 	
 	public void executeServerSingle( MetaEnvServer actionServer , List<ActionScopeTargetItem> targetNodes ) throws Exception {
-		List<MetaEnvServerNode> nodes = getActionServerNodes( actionServer , targetNodes );
-		if( nodes.isEmpty() ) {
+		MetaEnvServerNode[] nodes = getActionServerNodes( actionServer , targetNodes );
+		if( nodes.length == 0 ) {
 			debug( "server=" + actionServer.NAME + " has no nodes specified to start. Skipped." );
 			return;
 		}

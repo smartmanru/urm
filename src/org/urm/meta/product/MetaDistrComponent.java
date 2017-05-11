@@ -143,7 +143,7 @@ public class MetaDistrComponent {
 		}
 	}	
 	
-	public boolean hasWebServices() throws Exception {
+	public boolean hasWebServices() {
 		if( mapWS.isEmpty() )
 			return( false );
 		return( true );

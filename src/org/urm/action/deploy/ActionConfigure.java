@@ -66,7 +66,7 @@ public class ActionConfigure extends ActionBase {
 		Map<String, MetaDistrConfItem> confs = new HashMap<String, MetaDistrConfItem>(); 
 		for( ActionScopeSet set : scope.getSets( this ) )
 			for( ActionScopeTarget target : set.getTargets( this ).values() )
-				confs.putAll( target.envServer.getConfItems( this ) );
+				confs.putAll( target.envServer.getConfItems() );
 		
 		// export/copy to template folder
 		for( MetaDistrConfItem conf : confs.values() )

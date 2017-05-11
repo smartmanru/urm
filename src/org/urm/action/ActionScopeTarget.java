@@ -263,8 +263,8 @@ public class ActionScopeTarget {
 		return( BUILDTAG );
 	}
 
-	public void addServerNodes( ActionBase action , List<MetaEnvServerNode> nodes ) throws Exception {
-		if( nodes == null || nodes.isEmpty() ) {
+	public void addServerNodes( ActionBase action , MetaEnvServerNode[] nodes ) throws Exception {
+		if( nodes == null || nodes.length == 0 ) {
 			itemFull = true;
 			for( MetaEnvServerNode node : envServer.getNodes() )
 				addServerNode( action , node , false );

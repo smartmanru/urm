@@ -182,7 +182,7 @@ public class ActionScope {
 		return( scope );
 	}
 
-	public static ActionScopeTarget getEnvServerNodesScope( ActionBase action , MetaEnvServer srv , List<MetaEnvServerNode> nodes ) throws Exception {
+	public static ActionScopeTarget getEnvServerNodesScope( ActionBase action , MetaEnvServer srv , MetaEnvServerNode[] nodes ) throws Exception {
 		ActionScope scope = new ActionScope( action , srv.meta );
 		
 		String nodeList = "";
@@ -325,7 +325,7 @@ public class ActionScope {
 		}
 	}
 	
-	private ActionScopeTarget createEnvServerNodesScope( ActionBase action , MetaEnvSegment sg , MetaEnvServer srv , List<MetaEnvServerNode> nodes ) throws Exception {
+	private ActionScopeTarget createEnvServerNodesScope( ActionBase action , MetaEnvSegment sg , MetaEnvServer srv , MetaEnvServerNode[] nodes ) throws Exception {
 		scopeFull = false;
 		ActionScopeSet sset = createEnvScopeSet( action , context.env , sg , true );
 		return( sset.addEnvServer( action , srv , nodes , true ) );

@@ -151,7 +151,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 		super.saveSplit( doc , root );
 	}
 	
-	public boolean hasConfItemDeployment( ActionBase action , MetaDistrConfItem p_confItem ) throws Exception {
+	public boolean hasConfItemDeployment( MetaDistrConfItem p_confItem ) {
 		if( this.confItem == p_confItem ) 
 			return( true );
 		
@@ -163,7 +163,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 		return( true );
 	}
 	
-	public boolean hasBinaryItemDeployment( ActionBase action , MetaDistrBinaryItem p_binaryItem ) throws Exception {
+	public boolean hasBinaryItemDeployment( MetaDistrBinaryItem p_binaryItem ) {
 		if( this.binaryItem == p_binaryItem ) 
 			return( true );
 		
@@ -175,7 +175,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 		return( true );
 	}
 
-	public boolean hasDatabaseItemDeployment( ActionBase action , MetaDatabaseSchema p_schema ) throws Exception {
+	public boolean hasDatabaseItemDeployment( MetaDatabaseSchema p_schema ) {
 		if( this.schema == p_schema ) 
 			return( true );
 		
