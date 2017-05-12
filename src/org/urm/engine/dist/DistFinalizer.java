@@ -52,9 +52,7 @@ public class DistFinalizer {
 					createExpectedProjectDeliveryItem( action , fs , delivery , item );
 				for( ReleaseTarget item : delivery.getManualItems() )
 					createExpectedManualDeliveryItem( action , fs , delivery , item );
-				ReleaseTarget dbitem = delivery.getDatabaseItem( action );
-				if( dbitem != null )
-					createExpectedDatabaseDeliveryItem( action , fs , delivery , dbitem );
+				createExpectedDatabaseDeliveryItem( action , fs , delivery );
 			}
 		}
 		
@@ -80,7 +78,7 @@ public class DistFinalizer {
 		dir.addFile( file + ".md5" );
 	}
 	
-	private void createExpectedDatabaseDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTarget item ) throws Exception {
+	private void createExpectedDatabaseDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery ) throws Exception {
 		fs.createDir( dist.getDeliveryDatabaseFolder( action , delivery.distDelivery , dist.release.RELEASEVER ) );
 	}
 	
@@ -98,8 +96,8 @@ public class DistFinalizer {
 	private boolean finishDist( ActionBase action , FileSet fsd , FileSet fsr ) throws Exception {
 		// check expected directory set is the same as actual
 		// folders = deliveries
-		for( String dir : fsd.dirs.keySet() ) {
-			FileSet dirFilesDist = fsd.dirs.get( dir );
+		for( String dir : fsd.getAllDirNames() ) {
+			FileSet dirFilesDist = fsd.findDirByName( dir );
 			MetaDistrDelivery delivery = null;
 			if( dist.isMaster() ) {
 				MetaDistr distr = dist.meta.getDistr( action );
@@ -123,14 +121,14 @@ public class DistFinalizer {
 				distFolder.removeFiles( action , dir );
 			}
 			else {
-				FileSet dirFilesRelease = fsr.dirs.get( dir );
+				FileSet dirFilesRelease = fsr.findDirByName( dir );
 				if( !finishDistDelivery( action , delivery , dirFilesDist , dirFilesRelease ) )
 					return( false );
 			}
 		}
 		
-		for( String dir : fsr.dirs.keySet() ) {
-			FileSet dirFilesDist = fsd.dirs.get( dir );
+		for( String dir : fsr.getAllDirNames() ) {
+			FileSet dirFilesDist = fsd.findDirByName( dir );
 			if( dirFilesDist == null ) {
 				action.error( "distributive has missing delivery=" + dir );
 				return( false );
@@ -147,9 +145,9 @@ public class DistFinalizer {
 
 	private boolean finishDistDelivery( ActionBase action , MetaDistrDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
 		// check by category
-		for( String dir : fsd.dirs.keySet() ) {
-			FileSet dirFilesDist = fsd.dirs.get( dir );
-			FileSet dirFilesRelease = fsr.dirs.get( dir );
+		for( String dir : fsd.getAllDirNames() ) {
+			FileSet dirFilesDist = fsd.findDirByName( dir );
+			FileSet dirFilesRelease = fsr.findDirByName( dir );
 			if( dirFilesRelease == null ) {
 				if( dir.equals( Dist.DATABASE_FOLDER ) ) {
 					if( !finishDistDeliveryDatabase( action , delivery , dirFilesDist , null ) )
@@ -192,8 +190,8 @@ public class DistFinalizer {
 			}
 		}
 
-		for( String dir : fsr.dirs.keySet() ) {
-			FileSet dirFilesDist = fsd.dirs.get( dir );
+		for( String dir : fsr.getAllDirNames() ) {
+			FileSet dirFilesDist = fsd.findDirByName( dir );
 			if( dirFilesDist == null ) {
 				action.error( "distributive has missing delivery=" + delivery.NAME + ", dir=" + dir );
 				return( false );
@@ -204,7 +202,7 @@ public class DistFinalizer {
 	}
 
 	private boolean finishDistDeliveryBinary( ActionBase action , MetaDistrDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
-		for( String fileDist : fsd.files.keySet() ) {
+		for( String fileDist : fsd.getAllFiles() ) {
 			String fileRelease = findBasenameFile( fileDist , fsr );
 			if( fileRelease == null ) {
 				if( !action.isForced() ) {
@@ -222,7 +220,7 @@ public class DistFinalizer {
 		if( fsr == null )
 			return( true );
 		
-		for( String fileRelease : fsr.files.keySet() ) {
+		for( String fileRelease : fsr.getAllFiles() ) {
 			String fileDist = findBasenameFile( fileRelease , fsd );
 			if( fileDist == null ) {
 				if( fileRelease.endsWith( ".md5" ) ) {
@@ -245,12 +243,12 @@ public class DistFinalizer {
 	}
 
 	private String findBasenameFile( String file , FileSet fs ) {
-		return( fs.files.get( file ) );
+		return( fs.getFilePath( file ) );
 	}
 	
 	private boolean finishDistDeliveryConfig( ActionBase action , MetaDistrDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
-		for( String dir : fsd.dirs.keySet() ) {
-			FileSet dirFilesRelease = fsr.dirs.get( dir );
+		for( String dir : fsd.getAllDirNames() ) {
+			FileSet dirFilesRelease = fsr.findDirByName( dir );
 			if( dirFilesRelease == null ) {
 				if( !action.isForced() ) {
 					action.error( "distributive delivery " + delivery.NAME + 
@@ -264,8 +262,8 @@ public class DistFinalizer {
 			}
 		}
 		
-		for( String dir : fsr.dirs.keySet() ) {
-			FileSet dirFilesDist = fsd.dirs.get( dir );
+		for( String dir : fsr.getAllDirNames() ) {
+			FileSet dirFilesDist = fsd.findDirByName( dir );
 			if( dirFilesDist == null ) {
 				action.error( "distributive has missing delivery=" + delivery.NAME + ", config=" + dir );
 				return( false );
@@ -297,14 +295,14 @@ public class DistFinalizer {
 		}
 		
 		String[] versions = dist.release.getApplyVersions( action );
-		for( String dir : fsd.dirs.keySet() ) {
-			FileSet dirFilesDist = fsd.dirs.get( dir );
+		for( String dir : fsd.getAllDirNames() ) {
+			FileSet dirFilesDist = fsd.findDirByName( dir );
 			if( !finishDistDeliveryDatabaseSet( action , delivery , dirFilesDist , versions ) )
 				return( false );
 		}
 		
-		for( String dir : fsr.dirs.keySet() ) {
-			FileSet dirFilesDist = fsd.dirs.get( dir );
+		for( String dir : fsr.getAllDirNames() ) {
+			FileSet dirFilesDist = fsd.findDirByName( dir );
 			if( dirFilesDist == null || dirFilesDist.isEmpty() ) {
 				action.error( "distributive has missing/empty database delivery=" + delivery.NAME + ", set=" + dir );
 				return( false );

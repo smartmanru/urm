@@ -128,7 +128,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		scriptFolder.ensureExists( this );
 		logReleaseExecute.ensureExists( this );
 		
-		for( String file : deliveryFiles.files.keySet() ) {
+		for( String file : deliveryFiles.getAllFiles() ) {
 			if( checkApplicable( server , file , schemaSet ) ) {
 				prepareFile( server , scriptFolder , logReleaseExecute , distFolder , file );
 				copy = true;
@@ -218,7 +218,7 @@ public class ActionApplyAutomatic extends ActionBase {
 
 		FileSet files = logReleaseExecute.getFileSet( this );
 		boolean ok = true;
-		for( String file : Common.getSortedKeys( files.files ) ) {
+		for( String file : files.getAllFiles() ) {
 			if( !executeRunSetScript( server , client , registry , releaseDelivery , logReleaseExecute , file ) )
 				ok = false;
 		}

@@ -230,8 +230,11 @@ public class MetaDistrDelivery {
 	}
 	
 	public boolean hasDatabaseItems() {
-		if( allSchemas )
-			return( db.isEmpty() );
+		if( allSchemas ) {
+			if( !db.isEmpty() )
+				return( true );
+			return( false );
+		}
 			
 		if( mapDatabaseSchema.isEmpty() )
 			return( false );

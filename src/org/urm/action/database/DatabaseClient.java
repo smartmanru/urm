@@ -101,7 +101,7 @@ public class DatabaseClient {
 		logFolder.ensureExists( action );
 		
 		boolean res = true;
-		for( String file : Common.getSortedKeys( set.files ) ) {
+		for( String file : set.getAllFiles() ) {
 			if( !applyManualScript( action , shell , folder , file , logFolder ) ) {
 				res = false;
 				if( !action.isForced() ) {

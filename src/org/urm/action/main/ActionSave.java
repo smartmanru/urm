@@ -78,7 +78,7 @@ public class ActionSave extends ActionBase {
 	
 	private void executeDir( FileSet set , List<String> lines , List<String> filesNotInSvn ) throws Exception {
 		ServerMirrorRepository mirror = super.getServerMirror();
-		for( FileSet dir : set.dirs.values() ) {
+		for( FileSet dir : set.getAllDirs() ) {
 			// check dir in lines
 			boolean dirInLines = false;
 			for( String line : lines ) {
@@ -101,8 +101,8 @@ public class ActionSave extends ActionBase {
 			}
 		}
 		
-		for( String fileBase : set.files.keySet() ) {
-			String fileActual = set.files.get( fileBase );
+		for( String fileBase : set.getAllFiles() ) {
+			String fileActual = set.getFilePath( fileBase );
 			// check file in lines
 			boolean fileInLines = false;
 			for( String line : lines ) {

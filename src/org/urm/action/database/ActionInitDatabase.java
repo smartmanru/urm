@@ -2,7 +2,6 @@ package org.urm.action.database;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState.SCOPESTATE;
-import org.urm.common.Common;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
@@ -33,7 +32,7 @@ public class ActionInitDatabase extends ActionBase {
 		logs.ensureExists( this );
 		
 		FileSet files = urmScripts.getFileSet( this );
-		for( String file : Common.getSortedKeys( files.files ) )
+		for( String file : files.getAllFiles() )
 			executeInitScript( client , urmScripts , logs , file );
 		
 		return( SCOPESTATE.RunSuccess );

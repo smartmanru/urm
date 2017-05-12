@@ -81,7 +81,7 @@ public class ServerDeployment {
 
 	private void readLocationData( ActionBase action , RedistStorage redist , FileSet files ) throws Exception {
 		type = DeployInfoType.LOCATION;
-		for( String file : files.files.keySet() ) {
+		for( String file : files.getAllFiles() ) {
 			// ignore version files
 			if( file.endsWith( ".ver" ) )
 				continue;

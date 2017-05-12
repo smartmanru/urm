@@ -191,7 +191,7 @@ public class DatabaseRegistry {
 		
 		// check compatibility
 		if( !release.isCompatible( action , last.version ) ) {
-			action.error( "last release=" + last.version + " is not compatible with current, compatibility list={" + release.PROPERTY_COMPATIBILITY + "}" );
+			action.error( "last release=" + last.version + " is not compatible with current, compatibility list={" + release.COMPATIBILITY + "}" );
 			return( false );
 		}
 	

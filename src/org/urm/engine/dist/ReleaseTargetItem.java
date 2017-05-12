@@ -4,6 +4,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabase;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
@@ -20,6 +22,7 @@ public class ReleaseTargetItem {
 	
 	public MetaSourceProjectItem sourceItem;
 	public MetaDistrBinaryItem distItem;
+	public MetaDatabaseSchema schema;
 	public String NAME = "";
 	public String BUILDVERSION = "";
 	
@@ -35,10 +38,23 @@ public class ReleaseTargetItem {
 		
 		nx.sourceItem = sourceItem;
 		nx.distItem = distItem;
+		nx.schema = schema;
 		nx.NAME = NAME;
 		nx.BUILDVERSION = BUILDVERSION;
 		
 		return( nx );
+	}
+	
+	public boolean isBinary() {
+		if( distItem != null )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isDatabase() {
+		if( schema != null )
+			return( true );
+		return( false );
 	}
 	
 	public void setDistFile( ActionBase action , String DISTFILE ) throws Exception {
@@ -46,7 +62,11 @@ public class ReleaseTargetItem {
 	}
 	
 	public String getId() {
-		return( target.NAME + ":" + distItem.KEY );
+		if( isBinary() )
+			return( target.NAME + ":" + distItem.KEY );
+		if( isDatabase() )
+			return( target.NAME + ":" + schema.SCHEMA );
+		return( null );
 	}
 	
 	public boolean checkPropsEqualsToOptions( ActionBase action ) throws Exception {
@@ -58,23 +78,42 @@ public class ReleaseTargetItem {
 	}
 
 	public MetaDistrDelivery getDelivery( ActionBase action ) throws Exception {
-		if( distItem == null )
-			return( null );
-		return( distItem.delivery );
+		if( isBinary() ) {
+			if( distItem == null )
+				return( null );
+			return( distItem.delivery );
+		}
+		if( isDatabase() )
+			return( target.distDatabaseDelivery );
+		action.exitUnexpectedState();
+		return( null );
 	}
 	
 	public void loadSourceItem( ActionBase action , Node node ) throws Exception {
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		BUILDVERSION = ConfReader.getAttrValue( node , "BUILDVERSION" );
+		BUILDVERSION = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDVERSION );
 		MetaDistr distr = meta.getDistr( action );
 		this.distItem = distr.getBinaryItem( action , NAME );
 		this.sourceItem = target.sourceProject.getItem( action , distItem.sourceProjectItem.ITEMNAME );
+	}
+	
+	public void loadDatabaseItem( ActionBase action , Node node ) throws Exception {
+		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		BUILDVERSION = "";
+		MetaDatabase db = meta.getDatabase( action );
+		this.schema = db.getSchema( action , NAME );
 	}
 	
 	public void createFromDistrItem( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
 		this.distItem = distItem;
 		this.sourceItem = target.sourceProject.getItem( action , distItem.sourceProjectItem.ITEMNAME );
 		NAME = distItem.KEY;
+		BUILDVERSION = "";
+	}
+	
+	public void createFromSchema( ActionBase action , MetaDatabaseSchema schema ) throws Exception {
+		this.schema = schema;
+		NAME = schema.SCHEMA;
 		BUILDVERSION = "";
 	}
 	
@@ -85,11 +124,20 @@ public class ReleaseTargetItem {
 	}
 	
 	public Element createXml( ActionBase action , Document doc , Element parent ) throws Exception {
-		Element element = Common.xmlCreateElement( doc , parent , "distitem" );
-		Common.xmlSetElementAttr( doc , element , "name" , NAME );
-		if( !BUILDVERSION.isEmpty() )
-			Common.xmlSetElementAttr( doc , element , "buildversion" , BUILDVERSION );
-		return( element );
+		if( isBinary() ) {
+			Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_DISTITEM );
+			Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , NAME );
+			if( !BUILDVERSION.isEmpty() )
+				Common.xmlSetElementAttr( doc , element , Release.PROPERTY_BUILDVERSION , BUILDVERSION );
+			return( element );
+		}
+		if( isDatabase() ) {
+			Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_SCHEMA );
+			Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , NAME );
+			return( element );
+		}
+		action.exitUnexpectedState();
+		return( null );
 	}
 	
 }

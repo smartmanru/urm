@@ -49,15 +49,15 @@ public class ReleaseMaster {
 		if( root == null )
 			return;
 		
-		loadHistory( action , ConfReader.xmlGetFirstChild( root , "history" ) );
-		loadItems( action , ConfReader.xmlGetFirstChild( root , "files" ) );
+		loadHistory( action , ConfReader.xmlGetFirstChild( root , Release.ELEMENT_HISTORY ) );
+		loadItems( action , ConfReader.xmlGetFirstChild( root , Release.ELEMENT_FILES ) );
 	}
 
 	public void loadHistory( ActionBase action , Node root ) throws Exception {
 		if( root == null )
 			return;
 		
-		Node[] items = ConfReader.xmlGetChildren( root , "release" );
+		Node[] items = ConfReader.xmlGetChildren( root , Release.ELEMENT_RELEASE );
 		if( items == null )
 			return;
 		
@@ -76,7 +76,7 @@ public class ReleaseMaster {
 		if( root == null )
 			return;
 		
-		Node[] items = ConfReader.xmlGetChildren( root , "distitem" );
+		Node[] items = ConfReader.xmlGetChildren( root , Release.ELEMENT_DISTITEM );
 		if( items == null )
 			return;
 		
@@ -92,15 +92,15 @@ public class ReleaseMaster {
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Element history = Common.xmlCreateElement( doc , root , "history" );
+		Element history = Common.xmlCreateElement( doc , root , Release.ELEMENT_HISTORY );
 		for( ReleaseMasterHistory release : mapHistory.values() ) {
-			Element node = Common.xmlCreateElement( doc , history , "release" );
+			Element node = Common.xmlCreateElement( doc , history , Release.ELEMENT_RELEASE );
 			release.save( action , doc , node );
 		}
 		
-		Element files = Common.xmlCreateElement( doc , root , "files" );
+		Element files = Common.xmlCreateElement( doc , root , Release.ELEMENT_FILES );
 		for( ReleaseMasterItem item : mapItem.values() ) {
-			Element node = Common.xmlCreateElement( doc , files , "distitem" );
+			Element node = Common.xmlCreateElement( doc , files , Release.ELEMENT_DISTITEM );
 			item.save( action , doc , node );
 		}
 	}

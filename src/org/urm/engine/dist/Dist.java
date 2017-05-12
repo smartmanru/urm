@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.action.database.DatabaseScriptFile;
 import org.urm.common.Common;
 import org.urm.engine.ServerBlotterReleaseItem;
 import org.urm.engine.ServerBlotterSet;
@@ -19,6 +20,7 @@ import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.ServerReleaseLifecycle;
 import org.urm.meta.engine.ServerReleaseLifecycles;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
@@ -108,7 +110,7 @@ public class Dist {
 	}
 
 	public boolean isMaster() {
-		return( release.PROPERTY_MASTER );
+		return( release.MASTER );
 	}
 	
 	public boolean isFinalized() {
@@ -577,17 +579,27 @@ public class Dist {
 		return( false );
 	}
 	
-	public boolean addDatabaseItem( ActionBase action , MetaDistrDelivery item ) throws Exception {
-		action.debug( "release - add database delivery=" + item.NAME );
-		
+	public boolean addDatabaseDeliveryAllSchemes( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
+		action.debug( "release - add database delivery=" + delivery.NAME );
 		if( !release.addCategorySet( action , VarCATEGORY.DB , false ) )
 			return( false );
-		if( !release.addDatabaseItem( action , item ) )
+		if( !release.addDatabaseDelivery( action , delivery , true ) )
 			return( false );
 		return( true );
 	}
 
-	public boolean addDatabase( ActionBase action ) throws Exception {
+	public boolean addDatabaseDeliverySchema( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
+		action.debug( "release - add database delivery=" + delivery.NAME + ", schema=" + schema );
+		if( !release.addCategorySet( action , VarCATEGORY.DB , false ) )
+			return( false );
+		if( !release.addDatabaseDelivery( action , delivery , false ) )
+			return( false );
+		if( !release.addDatabaseSchema( action , delivery , schema ) )
+			return( false );
+		return( true );
+	}
+	
+	public boolean addDatabaseAll( ActionBase action ) throws Exception {
 		action.debug( "release - add database" );
 		if( !release.addCategorySet( action , VarCATEGORY.DB , true ) )
 			return( false );
@@ -681,7 +693,11 @@ public class Dist {
 	public void descopeTargetItems( ActionBase action , ReleaseTargetItem[] items ) throws Exception {
 		for( ReleaseTargetItem item : items ) {
 			dropTargetItem( action , item );
-			release.deleteProjectItem( action , item );
+			if( item.isBinary() )
+				release.deleteProjectItem( action , item );
+			else
+			if( item.isDatabase() )
+				release.deleteDatabaseSchema( action , item );
 		}
 	}
 	
@@ -692,7 +708,7 @@ public class Dist {
 		}
 		else
 		if( target.CATEGORY == VarCATEGORY.DB ) {
-			String folder = getDeliveryDatabaseFolder( action , target.distDatabaseItem , release.RELEASEVER );
+			String folder = getDeliveryDatabaseFolder( action , target.distDatabaseDelivery , release.RELEASEVER );
 			distFolder.removeFolderContent( action , folder );
 		}
 		else
@@ -707,8 +723,20 @@ public class Dist {
 	}
 
 	private void dropTargetItem( ActionBase action , ReleaseTargetItem item ) throws Exception {
-		String folder = getReleaseBinaryFolder( action , item.distItem );
-		distFolder.deleteVFile( action , folder , item.distItem.DISTBASENAME , item.distItem.EXT );
+		if( item.isBinary() ) {
+			String folder = getReleaseBinaryFolder( action , item.distItem );
+			distFolder.deleteVFile( action , folder , item.distItem.DISTBASENAME , item.distItem.EXT );
+		}
+		else
+		if( item.isDatabase() ) {
+			String folderName = getReleaseBinaryFolder( action , item.distItem );
+			RemoteFolder folder = distFolder.getSubFolder( action , folderName );
+			if( folder.checkExists( action ) ) {
+				FileSet fs = folder.getFileSet( action );
+				String[] files = DatabaseScriptFile.getDistSchemaFiles( fs , item.schema );
+				folder.removeFiles( action , Common.getList( files , " " ) );
+			}
+		}
 	}
 
 	public boolean checkIfReleaseItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
@@ -855,7 +883,7 @@ public class Dist {
 		if( set == null )
 			return( new String[0] );
 		
-		return( set.files.keySet().toArray( new String[0] ) );
+		return( set.getAllFiles() );
 	}
 
 	public String findManualDatabaseItemFile( ActionBase action , String index ) throws Exception {
@@ -866,7 +894,7 @@ public class Dist {
 		if( set == null )
 			return( null );
 		
-		for( String file : set.files.keySet() ) {
+		for( String file : set.getAllFiles() ) {
 			if( file.startsWith( index + "-" ) )
 				return( file );
 		}

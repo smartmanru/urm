@@ -14,6 +14,7 @@ import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.meta.Types;
 import org.urm.meta.Types.VarCATEGORY;
 import org.urm.meta.Types.VarDEPLOYITEMTYPE;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
@@ -164,6 +165,16 @@ public class ActionSetScope extends ActionBase {
 					return( false );
 				continue;
 			}
+			if( els.length == 2 ) {
+				MetaDistrDelivery delivery = distr.getDelivery( this , els[0] );
+				check.put( els[0] , "delivery" );
+				
+				VarDEPLOYITEMTYPE type = Types.getDeployItemType( els[1] , true );
+				if( type == VarDEPLOYITEMTYPE.SCHEMA ) {
+					if( !addDeliveryAllSchemes( check , delivery ) )
+						return( false );
+				}
+			}
 			if( els.length == 3 ) {
 				MetaDistrDelivery delivery = distr.getDelivery( this , els[0] );
 				check.put( els[0] , "delivery" );
@@ -182,7 +193,8 @@ public class ActionSetScope extends ActionBase {
 				}
 				else
 				if( type == VarDEPLOYITEMTYPE.SCHEMA ) {
-					if( !dist.addDatabase( this ) )
+					MetaDatabaseSchema schema = delivery.getSchema( this , els[2] );
+					if( !dist.addDatabaseDeliverySchema( this , delivery , schema ) )
 						return( false );
 				}
 			}
@@ -219,12 +231,12 @@ public class ActionSetScope extends ActionBase {
 				}
 			}
 			
-			String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.SCHEMA.toString() , "all" } , "/" ) );
-			if( checkItem == null ) {
-				ReleaseTarget target = delivery.getDatabaseItem( this );
-				if( target != null )
-					dist.descopeTarget( this , target );
-				continue;
+			for( ReleaseTargetItem item : delivery.getDatabaseItems() ) {
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.SCHEMA.toString() , item.schema.SCHEMA } , "/" ) );
+				if( checkItem == null ) {
+					dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
+					continue;
+				}
 			}
 		}
 		return( true );
@@ -242,10 +254,18 @@ public class ActionSetScope extends ActionBase {
 			check.put( Common.getList( new String[] { delivery.NAME , VarDEPLOYITEMTYPE.CONF.toString() , confItem.KEY } , "/" ) , "conf" );
 		}
 		if( delivery.hasDatabaseItems() ) {
-			if( dist.addDatabase( this ) )
+			if( !addDeliveryAllSchemes( check , delivery ) )
 				return( false );
-			check.put( Common.getList( new String[] { delivery.NAME , VarDEPLOYITEMTYPE.SCHEMA.toString() , "all" } , "/" ) , "database" );
 		}
+		return( true );
+	}
+	
+	private boolean addDeliveryAllSchemes( Map<String,String> check , MetaDistrDelivery delivery ) throws Exception {
+		if( !dist.addDatabaseDeliveryAllSchemes( this , delivery ) )
+			return( false );
+		
+		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() )
+			check.put( Common.getList( new String[] { delivery.NAME , VarDEPLOYITEMTYPE.SCHEMA.toString() , schema.SCHEMA } , "/" ) , "database" );
 		return( true );
 	}
 	

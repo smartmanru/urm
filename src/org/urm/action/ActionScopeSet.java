@@ -397,9 +397,8 @@ public class ActionScopeSet {
 			}
 		}
 		
-		ReleaseTarget dbtarget  = delivery.getDatabaseItem( action );
-		if( dbtarget != null ) {
-			if( server.hasDatabaseItemDeployment( dbtarget.distDatabaseItem ) )
+		for( ReleaseTargetItem item : delivery.getDatabaseItems() ) {
+			if( server.hasDatabaseItemDeployment( item.schema ) )
 				return( true );
 		}
 

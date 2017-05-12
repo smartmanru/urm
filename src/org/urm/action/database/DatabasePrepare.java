@@ -70,7 +70,7 @@ public class DatabasePrepare {
 		FileSet[] F_ALIGNEDDIRLIST = null;
 		FileSet aligned = srcFileSet.getDirByPath( action , ALIGNED_FOLDER );
 		if( aligned != null )
-			F_ALIGNEDDIRLIST = aligned.dirs.values().toArray( new FileSet[0] );
+			F_ALIGNEDDIRLIST = aligned.getAllDirs();
 
 		// check scripts from SVN (exit on errors if no -s option)
 		checkAll( action , F_ALIGNEDDIRLIST );
@@ -110,7 +110,7 @@ public class DatabasePrepare {
 		S_CHECK_FAILED = false;
 
 		// check folders
-		for( String dir : Common.getSortedKeys( P_ALIGNEDSET.dirs ) ) {
+		for( String dir : P_ALIGNEDSET.getAllDirNames() ) {
 			if( dir.equals( COREDDL_FOLDER ) || 
 				dir.equals( COREDML_FOLDER ) || 
 				dir.equals( COREPRODONLY_FOLDER ) || 
@@ -204,7 +204,7 @@ public class DatabasePrepare {
 			F_REGIONALINDEX = "RR";
 
 		// add registration index
-		for( String x : Common.getSortedKeys( P_CTLFROM.files ) ) {
+		for( String x : P_CTLFROM.getAllFiles() ) {
 			if( !x.endsWith( ".ctl" ) )
 				continue;
 		
@@ -228,7 +228,7 @@ public class DatabasePrepare {
 
 	private boolean checkDuplicateIndex( ActionBase action , FileSet dir , String index , String ext ) throws Exception {
 		int count = 0;
-		for( String s : dir.files.keySet() ) {
+		for( String s : dir.getAllFiles() ) {
 			if( s.startsWith( index + "-" ) && s.endsWith( "." + ext ) ) {
 				count++;
 				if( count > 1 )
@@ -241,7 +241,7 @@ public class DatabasePrepare {
 	private void checkDir( ActionBase action , FileSet P_ALIGNEDSET , String P_ALIGNEDID , String P_DIR , String P_TYPE , String P_SCHEMALIST ) throws Exception {
 		FileSet dir = P_ALIGNEDSET.getDirByPath( action , P_DIR );
 		action.trace( "check dir=" + P_DIR + " ..." );
-		for( String xbase : Common.getSortedKeys( dir.files ) ) {
+		for( String xbase : dir.getAllFiles() ) {
 			action.trace( "check file=" + xbase + " ..." );
 			
 			boolean F_ONEFAILED = false;
@@ -373,7 +373,7 @@ public class DatabasePrepare {
 
 		// process apply scripts
 		SQL_DST_DIR.ensureExists( action );
-		for( String x : Common.getSortedKeys( SQL_SRC_DIR.files ) ) {
+		for( String x : SQL_SRC_DIR.getAllFiles() ) {
 			if( !x.endsWith( ".sql" ) )
 				continue;
 			
@@ -401,7 +401,7 @@ public class DatabasePrepare {
 			LocalFolder dstRollback = SQL_DST_DIR.getSubFolder( action , Dist.ROLLBACK_FOLDER );
 			dstRollback.ensureExists( action );
 
-			for( String x : Common.getSortedKeys( srcRollback.files ) ) {
+			for( String x : srcRollback.getAllFiles() ) {
 				if( !x.endsWith( ".sql" ) )
 					continue;
 			

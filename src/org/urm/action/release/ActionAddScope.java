@@ -58,7 +58,7 @@ public class ActionAddScope extends ActionBase {
 		if( target.CATEGORY == VarCATEGORY.CONFIG )
 			return( dist.addConfItem( this , target.confItem ) );
 		if( target.CATEGORY == VarCATEGORY.DB )
-			return( dist.addDatabaseItem( this , target.dbDelivery ) );
+			return( dist.addDatabaseDeliveryAllSchemes( this , target.dbDelivery ) );
 		if( target.CATEGORY == VarCATEGORY.MANUAL )
 			return( dist.addManualItem( this , target.manualItem ) );
 		if( Meta.isSourceCategory( target.CATEGORY ) )
