@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.meta.Types;
 import org.urm.meta.engine.ServerReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -275,7 +276,7 @@ public class Release {
 		if( element == null )
 			return;
 		
-		if( Meta.isSourceCategory( CATEGORY ) ) {
+		if( Types.isSourceCategory( CATEGORY ) ) {
 			Node[] sets = ConfReader.xmlGetChildren( element , ELEMENT_SET );
 			if( sets == null )
 				return;
@@ -322,7 +323,7 @@ public class Release {
 		}
 		else {
 			// get project sets
-			for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() )
+			for( VarCATEGORY CATEGORY : Types.getAllReleaseCategories() )
 				loadSets( action , root , CATEGORY );
 		}
 		
@@ -331,7 +332,7 @@ public class Release {
 
 	private void registerSet( ActionBase action , ReleaseSet set ) throws Exception {
 		action.trace( "add set=" + set.NAME + ", category=" + Common.getEnumLower( set.CATEGORY ) );
-		if( Meta.isSourceCategory( set.CATEGORY ) )
+		if( Types.isSourceCategory( set.CATEGORY ) )
 			sourceSetMap.put( set.NAME , set );
 		else
 			categorySetMap.put( set.CATEGORY , set );
@@ -348,7 +349,7 @@ public class Release {
 	
 	private void registerTarget( ActionBase action , ReleaseTarget target ) throws Exception {
 		action.trace( "add target=" + target.NAME );
-		if( Meta.isSourceCategory( target.CATEGORY ) ) {
+		if( Types.isSourceCategory( target.CATEGORY ) ) {
 			for( ReleaseTargetItem item : target.getItems() )
 				registerTargetItem( action , item );
 		}
@@ -551,7 +552,7 @@ public class Release {
 		Common.xmlCreatePropertyElement( doc , root , PROPERTY_COMPATIBILITY , COMPATIBILITY );
 		Common.xmlCreateBooleanPropertyElement( doc , root , PROPERTY_CUMULATIVE , CUMULATIVE );
 		
-		for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() )
+		for( VarCATEGORY CATEGORY : Types.getAllReleaseCategories() )
 			Common.xmlCreateElement( doc , root , Common.getEnumLower( CATEGORY ) );
 		
 		schedule.save( action , doc , root );
@@ -652,7 +653,7 @@ public class Release {
 	}
 
 	private void unregisterTarget( ActionBase action , ReleaseTarget target ) throws Exception {
-		if( Meta.isSourceCategory( target.CATEGORY ) ) {
+		if( Types.isSourceCategory( target.CATEGORY ) ) {
 			for( ReleaseTargetItem item : target.getItems() )
 				unregisterTargetItem( action , item );
 		}
@@ -673,7 +674,7 @@ public class Release {
 		for( ReleaseTarget project : set.getTargets() )
 			unregisterTarget( action , project );
 		
-		if( Meta.isSourceCategory( set.CATEGORY ) )
+		if( Types.isSourceCategory( set.CATEGORY ) )
 			sourceSetMap.remove( set.NAME );
 		else
 			categorySetMap.remove( set.CATEGORY );

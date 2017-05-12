@@ -11,6 +11,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
+import org.urm.meta.Types;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -521,7 +522,7 @@ public class ActionScope {
 	}
 
 	private ActionScopeSet getScopeSet( ActionBase action , VarCATEGORY CATEGORY , String name ) throws Exception {
-		if( Meta.isSourceCategory( CATEGORY ) )
+		if( Types.isSourceCategory( CATEGORY ) )
 			return( sourceMap.get( name ) );
 		if( CATEGORY == VarCATEGORY.ENV )
 			return( envMap.get( name ) );
@@ -580,7 +581,7 @@ public class ActionScope {
 			if( categories != null ) {
 				add = false;
 				for( VarCATEGORY CATEGORY : categories ) {
-					if( Meta.checkCategoryProperty( set.CATEGORY , CATEGORY ) )
+					if( Types.checkCategoryProperty( set.CATEGORY , CATEGORY ) )
 						add = true;
 				}
 			}
@@ -608,7 +609,7 @@ public class ActionScope {
 	}
 	
 	public String getSourceScopeInfo( ActionBase action ) throws Exception {
-		return( getScopeInfo( action , Meta.getAllSourceCategories() ) );
+		return( getScopeInfo( action , Types.getAllSourceCategories() ) );
 	}
 	
 	public boolean isEmpty( ActionBase action , VarCATEGORY[] categories ) throws Exception {
@@ -620,7 +621,7 @@ public class ActionScope {
 			}
 			
 			for( VarCATEGORY CATEGORY : categories ) {
-				if( Meta.checkCategoryProperty( set.CATEGORY , CATEGORY ) && !set.isEmpty( action ) )
+				if( Types.checkCategoryProperty( set.CATEGORY , CATEGORY ) && !set.isEmpty( action ) )
 					return( false );
 			}
 		}
@@ -796,7 +797,7 @@ public class ActionScope {
 	private void addScopeSet( ActionBase action , ActionScopeSet sset ) throws Exception {
 		action.trace( "scope: scope add set category=" + Common.getEnumLower( sset.CATEGORY ) + ", name=" + sset.NAME );
 		
-		if( Meta.isSourceCategory( sset.CATEGORY ) )
+		if( Types.isSourceCategory( sset.CATEGORY ) )
 			sourceMap.put( sset.NAME , sset );
 		else
 		if( sset.CATEGORY == VarCATEGORY.ENV )
@@ -806,7 +807,7 @@ public class ActionScope {
 	}
 	
 	public ActionScopeSet findSet( ActionBase action , VarCATEGORY CATEGORY , String NAME ) throws Exception {
-		if( Meta.isSourceCategory( CATEGORY ) )
+		if( Types.isSourceCategory( CATEGORY ) )
 			return( sourceMap.get( NAME ) );
 		if( CATEGORY == VarCATEGORY.ENV )
 			return( envMap.get( NAME ) );

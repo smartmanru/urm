@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.meta.product.Meta;
+import org.urm.meta.Types;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 
@@ -186,7 +186,7 @@ public class FileSet {
 			return( "" );
 		}
 		
-		String[] patterns = Meta.getVersionPatterns( action , distItem );
+		String[] patterns = Types.getVersionPatterns( action , distItem );
 		for( String baseName : delivery.files.keySet() ) {
 			for( String pattern : patterns ) {
 				if( baseName.matches( pattern ) )

@@ -32,6 +32,7 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
+import org.urm.meta.Types;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerAuthUser;
 import org.urm.meta.engine.ServerBase;
@@ -339,7 +340,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public boolean runEachSourceProject( ActionScope scope , SecurityAction sa , boolean readOnly ) {
-		VarCATEGORY[] categories = Meta.getAllSourceCategories();
+		VarCATEGORY[] categories = Types.getAllSourceCategories();
 		return( runCategories( scope , categories , sa , readOnly ) );
 	}
 	

@@ -17,7 +17,7 @@ import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.storage.FileSet;
-import org.urm.meta.product.Meta;
+import org.urm.meta.Types;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -89,7 +89,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			for( String set : release.getSourceSetNames() )
 				printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
 			
-			for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() ) {
+			for( VarCATEGORY CATEGORY : Types.getAllReleaseCategories() ) {
 				ReleaseSet set = release.findCategorySet( CATEGORY );
 				if( set != null )
 					printReleaseCategorySetStatus( dist , files , set );

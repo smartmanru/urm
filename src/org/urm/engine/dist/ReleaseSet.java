@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.meta.Types;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -88,7 +89,7 @@ public class ReleaseSet {
 	
 	public void load( ActionBase action , Node node ) throws Exception {
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
-		if( Meta.isSourceCategory( CATEGORY ) )
+		if( Types.isSourceCategory( CATEGORY ) )
 			loadBinary( action , node );
 		else {
 			NAME = Common.getEnumLower( CATEGORY );
@@ -425,7 +426,7 @@ public class ReleaseSet {
 	}
 
 	public Element createXml( ActionBase action , Document doc , Element parent ) throws Exception {
-		if( Meta.isSourceCategory( CATEGORY ) )
+		if( Types.isSourceCategory( CATEGORY ) )
 			return( createXmlBinary( action , doc , parent ) );
 
 		return( createXmlCategory( action , doc , parent ) );

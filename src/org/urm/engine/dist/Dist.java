@@ -17,6 +17,7 @@ import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
+import org.urm.meta.Types;
 import org.urm.meta.engine.ServerReleaseLifecycle;
 import org.urm.meta.engine.ServerReleaseLifecycles;
 import org.urm.meta.product.Meta;
@@ -674,7 +675,7 @@ public class Dist {
 		for( ReleaseTarget target : set.getTargets() )
 			dropTarget( action , target );
 		
-		if( Meta.isSourceCategory( set.CATEGORY ) )
+		if( Types.isSourceCategory( set.CATEGORY ) )
 			release.deleteSourceSet( action , set.set );
 		else
 			release.deleteCategorySet( action , set.CATEGORY );

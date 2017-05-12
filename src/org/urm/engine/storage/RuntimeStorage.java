@@ -7,7 +7,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
-import org.urm.meta.product.Meta;
+import org.urm.meta.Types;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaEnvServer;
@@ -144,7 +144,7 @@ public class RuntimeStorage extends ServerStorage {
 	
 	private void deploy( ActionBase action , VersionInfo version , ServerDeployment deployment , boolean rollout ) throws Exception {
 		for( VarCONTENTTYPE content : VarCONTENTTYPE.values() ) {
-			if( Meta.isBinaryContent( action , content ) ) {
+			if( Types.isBinaryContent( content ) ) {
 				if( !action.context.CTX_DEPLOYBINARY ) {
 					action.trace( "ignore conf deploy content" );
 					continue;

@@ -10,9 +10,9 @@ import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.shell.Account;
+import org.urm.meta.Types;
 import org.urm.meta.engine.ServerAuth;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
-import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
@@ -509,7 +509,7 @@ public class ScopeExecutor {
 				if( categories != null ) {
 					run = false;
 					for( VarCATEGORY CATEGORY : categories ) {
-						if( Meta.checkCategoryProperty( set.CATEGORY , CATEGORY ) )
+						if( Types.checkCategoryProperty( set.CATEGORY , CATEGORY ) )
 							run = true;
 					}
 				}
@@ -811,7 +811,7 @@ public class ScopeExecutor {
 		List<ActionScopeTarget> list = new LinkedList<ActionScopeTarget>();
 		Map<String,ActionScopeTarget> map = new HashMap<String,ActionScopeTarget>();
 		
-		if( Meta.isSourceCategory( set.CATEGORY ) ) {
+		if( Types.isSourceCategory( set.CATEGORY ) ) {
 			for( ActionScopeTarget target : targets )
 				map.put( target.sourceProject.NAME , target );
 			

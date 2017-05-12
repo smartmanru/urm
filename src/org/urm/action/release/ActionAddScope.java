@@ -7,7 +7,7 @@ import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
-import org.urm.meta.product.Meta;
+import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 
 public class ActionAddScope extends ActionBase {
@@ -49,7 +49,7 @@ public class ActionAddScope extends ActionBase {
 	}
 
 	private boolean addAllProductSetElements( ActionScopeSet set ) throws Exception {
-		if( Meta.isSourceCategory( set.CATEGORY ) )
+		if( Types.isSourceCategory( set.CATEGORY ) )
 			return( dist.addAllSource( this , set.pset ) );
 		return( dist.addAllCategory( this , set.CATEGORY ) );
 	}
@@ -61,7 +61,7 @@ public class ActionAddScope extends ActionBase {
 			return( dist.addDatabaseDeliveryAllSchemes( this , target.dbDelivery ) );
 		if( target.CATEGORY == VarCATEGORY.MANUAL )
 			return( dist.addManualItem( this , target.manualItem ) );
-		if( Meta.isSourceCategory( target.CATEGORY ) )
+		if( Types.isSourceCategory( target.CATEGORY ) )
 			return( dist.addProjectAllItems( this , target.sourceProject ) );
 
 		this.exitUnexpectedCategory( target.CATEGORY );
