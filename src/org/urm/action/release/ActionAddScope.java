@@ -25,7 +25,7 @@ public class ActionAddScope extends ActionBase {
 		if( set.setFull ) {
 			if( !addAllProductSetElements( set ) )
 				exit0( _Error.OperationCancelled0 , "operation cancelled" );
-			return( SCOPESTATE.NotRun );
+			return( SCOPESTATE.RunSuccess );
 		}
 		
 		// by target

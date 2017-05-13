@@ -464,4 +464,10 @@ public class ReleaseSet {
 		return( element );
 	}
 
+	public void setSpecifics( ActionBase action , String BUILDBRANCH , String BUILDTAG , String BUILDVERSION ) throws Exception {
+		this.BUILDBRANCH = BUILDBRANCH; 
+		this.BUILDTAG = BUILDTAG; 
+		this.BUILDVERSION = BUILDVERSION;
+	}
+	
 }
