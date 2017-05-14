@@ -12,6 +12,10 @@ import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.ServerTransaction;
+import org.urm.engine.dist.Release;
+import org.urm.engine.dist.ReleaseDelivery;
+import org.urm.engine.dist.ReleaseTarget;
+import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.ServerAccountReference;
 import org.urm.meta.engine.ServerBaseItem;
@@ -897,6 +901,38 @@ public class MetaEnvServer extends PropertyController {
 				deployment.deleteObject();
 			}
 		}
+	}
+
+	public boolean isReleaseApplicable( Release release ) {
+		for( ReleaseDelivery delivery : release.getDeliveries() ) {
+			if( isDatabase() ) {
+				for( ReleaseTargetItem item : delivery.getDatabaseItems() ) {
+					if( hasDatabaseItemDeployment( item.schema ) )
+						return( true );
+				}
+			}
+			
+			for( ReleaseTargetItem item : delivery.getProjectItems() ) {
+				if( hasBinaryItemDeployment( item.distItem ) )
+					return( true );
+			}
+			
+			for( ReleaseTarget item : delivery.getManualItems() ) {
+				if( hasBinaryItemDeployment( item.distManualItem ) )
+					return( true );
+			}
+			
+			for( ReleaseTarget item : delivery.getDerivedItems() ) {
+				if( hasBinaryItemDeployment( item.distDerivedItem ) )
+					return( true );
+			}
+			
+			for( ReleaseTarget item : delivery.getConfItems() ) {
+				if( hasConfItemDeployment( item.distConfItem ) )
+					return( true );
+			}
+		}
+		return( false );
 	}
 	
 }
