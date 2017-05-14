@@ -657,6 +657,11 @@ public class Release {
 			for( ReleaseTargetItem item : target.getItems() )
 				unregisterTargetItem( action , item );
 		}
+		else
+		if( target.isDatabaseTarget() ) {
+			for( ReleaseTargetItem item : target.getItems() )
+				unregisterTargetItem( action , item );
+		}
 		else {
 			MetaDistrDelivery distDelivery = target.getDelivery( action );
 			if( distDelivery == null )
