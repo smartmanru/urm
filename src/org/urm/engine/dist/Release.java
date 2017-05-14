@@ -466,16 +466,16 @@ public class Release {
 		return( comp );
 	}
 
-	public Map<String,ReleaseTarget> getCategoryComponents( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
+	public ReleaseTarget[] getCategoryTargets( VarCATEGORY CATEGORY ) {
 		ReleaseSet set = categorySetMap.get( CATEGORY );
 		if( set == null )
-			return( new HashMap<String,ReleaseTarget>() );
+			return( new ReleaseTarget[0] );
 		
-		return( set.map );
+		return( set.getTargets() );
 	}
 	
-	public Map<String,ReleaseTarget> getConfComponents( ActionBase action ) throws Exception {
-		return( getCategoryComponents( action , VarCATEGORY.CONFIG ) );
+	public ReleaseTarget[] getConfComponents() {
+		return( getCategoryTargets( VarCATEGORY.CONFIG ) );
 	}
 
 	public ReleaseDelivery[] getDeliveries() {

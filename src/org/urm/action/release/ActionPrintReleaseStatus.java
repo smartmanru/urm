@@ -164,26 +164,26 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	}
 
 	private void printReleaseBuildSetProjectStatus( Dist dist , FileSet files , ReleaseSet set , ReleaseTarget project ) throws Exception {
-		String specifics = project.getSpecifics( this );
+		String specifics = project.getSpecifics();
 		if( project.isBuildableProject() ) {
 			if( project.sourceProject.isEmpty( this ) ) {
 				info( "\tbuild project=" + project.sourceProject.NAME + " (internal)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
-			if( project.isEmpty( this ) ) {
+			if( project.isEmpty() ) {
 				info( "\tbuild project=" + project.sourceProject.NAME + " (no items added)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
-			if( !project.isEmpty( this ) )
+			if( !project.isEmpty() )
 				info( "\tbuild project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + ":" );
 			else
 				info( "\tbuild project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + " (no items)" );
 		}
 		else
 		if( project.isPrebuiltProject() ) {
-			if( project.isEmpty( this ) )
+			if( project.isEmpty() )
 				return;
 			
 			info( "\tprebuilt project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + ":" );
@@ -208,7 +208,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	}
 
 	private void printReleaseConfStatus( Dist dist , FileSet files , ReleaseTarget conf ) throws Exception {
-		String specifics = conf.getSpecifics( this );
+		String specifics = conf.getSpecifics();
 		DistItemInfo info = dist.getDistItemInfo( this , conf.distConfItem );
 		String folder = Common.getPath( info.subPath , info.fileName );
 		String status = ( info.found )? "OK" : "missing";
@@ -217,7 +217,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	}
 
 	private void printReleaseManualStatus( Dist dist , FileSet files , ReleaseTarget manual ) throws Exception {
-		String specifics = manual.getSpecifics( this );
+		String specifics = manual.getSpecifics();
 		DistItemInfo info = dist.getDistItemInfo( this , manual.distManualItem , false , true );
 		String folder = Common.getPath( info.subPath , info.fileName );
 		String status = ( info.found )? "OK (" + folder + ", " + 

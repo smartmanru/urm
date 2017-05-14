@@ -406,21 +406,21 @@ public class ReleaseTarget {
 		return( null );
 	}
 	
-	public String getSpecifics( ActionBase action ) throws Exception {
+	public String getSpecifics() {
 		if( sourceProject != null )
-			return( getSpecificsProject( action ) );
+			return( getSpecificsProject() );
 		if( distConfItem != null )
-			return( getSpecificsConfig( action ) );
+			return( getSpecificsConfig() );
 		if( distDatabaseDelivery != null )
-			return( getSpecificsDatabase( action ) );
+			return( getSpecificsDatabase() );
 		if( distManualItem != null )
-			return( getSpecificsManual( action ) );
+			return( getSpecificsManual() );
 		if( distDerivedItem != null )
-			return( getSpecificsDerived( action ) );
+			return( getSpecificsDerived() );
 		return( "" );
 	}
 	
-	public String getSpecificsProject( ActionBase action ) throws Exception {
+	public String getSpecificsProject() {
 		String s = "";
 		if( ALL == false )
 			s += "partial";
@@ -433,27 +433,27 @@ public class ReleaseTarget {
 		return( s );
 	}
 
-	public String getSpecificsConfig( ActionBase action ) throws Exception {
+	public String getSpecificsConfig() {
 		if( !ALL )
 			return( "partial" );
 		return( "" );
 	}
 	
-	public String getSpecificsDatabase( ActionBase action ) throws Exception {
+	public String getSpecificsDatabase() {
 		if( !ALL )
 			return( "partial" );
 		return( "" );
 	}
 	
-	public String getSpecificsManual( ActionBase action ) throws Exception {
+	public String getSpecificsManual() {
 		return( "" );
 	}
 	
-	public String getSpecificsDerived( ActionBase action ) throws Exception {
+	public String getSpecificsDerived() {
 		return( "" );
 	}
 	
-	public boolean isEmpty( ActionBase action ) throws Exception {
+	public boolean isEmpty() {
 		return( itemMap.isEmpty() );
 	}
 
