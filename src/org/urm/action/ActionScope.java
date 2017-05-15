@@ -318,7 +318,7 @@ public class ActionScope {
 	private void createEnvDatabaseScope( ActionBase action , Dist dist ) throws Exception {
 		scopeFull = true;
 		for( MetaEnvSegment sg : context.env.getSegments() ) {
-			if( !sg.hasDatabaseServers( action ) )
+			if( !sg.hasDatabaseServers() )
 				continue;
 			
 			ActionScopeSet sset = createEnvScopeSet( action , context.env , sg , false );

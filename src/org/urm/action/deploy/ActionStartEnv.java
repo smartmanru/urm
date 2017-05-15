@@ -30,8 +30,7 @@ public class ActionStartEnv extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		List<MetaEnvStartGroup> groups = set.sg.startInfo.getForwardGroupList();
-		for( MetaEnvStartGroup group : groups ) {
+		for( MetaEnvStartGroup group : set.sg.startInfo.getForwardGroupList() ) {
 			if( !startServerGroup( set , group , targets ) )
 				ifexit( _Error.FailedGroupOperation0 , "failed group operation" , null );
 		}

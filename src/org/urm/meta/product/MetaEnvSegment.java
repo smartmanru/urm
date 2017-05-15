@@ -225,7 +225,7 @@ public class MetaEnvSegment extends PropertyController {
 		return( s );
 	}
 
-	public boolean hasDatabaseServers( ActionBase action ) throws Exception {
+	public boolean hasDatabaseServers() {
 		for( MetaEnvServer server : originalList )
 			if( server.isDatabase() )
 				return( true );
