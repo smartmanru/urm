@@ -54,7 +54,7 @@ public class ReleaseTarget {
 	}
 
 	public ReleaseTarget copy( ActionBase action , Release nr , ReleaseSet ns ) throws Exception {
-		ReleaseTarget nx = new ReleaseTarget( meta , ns , CATEGORY );
+		ReleaseTarget nx = new ReleaseTarget( ns.meta , ns , CATEGORY );
 		
 		nx.ALL = ALL;
 		nx.NAME = NAME;
@@ -63,11 +63,12 @@ public class ReleaseTarget {
 		nx.BUILDTAG = BUILDTAG; 
 		nx.BUILDVERSION = BUILDVERSION;
 		
-		nx.sourceProject = sourceProject;
-		nx.distConfItem = distConfItem;
-		nx.distDatabaseDelivery = distDatabaseDelivery;
-		nx.distManualItem = distManualItem;
-		nx.distDerivedItem = distDerivedItem;
+		nx.sourceProject = ( sourceProject == null )? null : ns.set.getProject( action , sourceProject.NAME );
+		MetaDistr ndistr = ns.meta.getDistr( action );
+		nx.distConfItem = ( distConfItem == null )? null : ndistr.getConfItem( action , distConfItem.KEY );
+		nx.distDatabaseDelivery = ( distDatabaseDelivery == null )? null : ndistr.getDelivery( action , distDatabaseDelivery.NAME );
+		nx.distManualItem = ( distManualItem == null )? null : ndistr.getBinaryItem( action , distManualItem.KEY );
+		nx.distDerivedItem = ( distDerivedItem == null )? null : ndistr.getBinaryItem( action , distDerivedItem.KEY );
 
 		for( Entry<String,ReleaseTargetItem> entry : itemMap.entrySet() ) {
 			ReleaseTargetItem item = entry.getValue().copy( action , nr , ns , nx );

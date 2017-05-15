@@ -34,11 +34,12 @@ public class ReleaseTargetItem {
 	}
 
 	public ReleaseTargetItem copy( ActionBase action , Release nr , ReleaseSet ns , ReleaseTarget nt ) throws Exception {
-		ReleaseTargetItem nx = new ReleaseTargetItem( meta , nt );
+		ReleaseTargetItem nx = new ReleaseTargetItem( nt.meta , nt );
 		
-		nx.sourceItem = sourceItem;
-		nx.distItem = distItem;
-		nx.schema = schema;
+		nx.sourceItem = ( sourceItem == null )? null : nt.sourceProject.getItem( action , sourceItem.ITEMNAME );
+		nx.distItem = ( distItem == null )? null : sourceItem.distItem;
+		MetaDatabase ndb = nt.meta.getDatabase( action );
+		nx.schema = ( schema == null )? null : ndb.getSchema( action , schema.SCHEMA );
 		nx.NAME = NAME;
 		nx.BUILDVERSION = BUILDVERSION;
 		

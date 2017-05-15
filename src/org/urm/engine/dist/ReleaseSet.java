@@ -44,13 +44,16 @@ public class ReleaseSet {
 	}
 	
 	public ReleaseSet copy( ActionBase action , Release nr ) throws Exception {
-		ReleaseSet nx = new ReleaseSet( meta , nr , CATEGORY );
+		ReleaseSet nx = new ReleaseSet( nr.meta , nr , CATEGORY );
 		nx.NAME = NAME;
 		nx.ALL = ALL;
 		nx.BUILDBRANCH = BUILDBRANCH;
 		nx.BUILDTAG = BUILDTAG;
 		nx.BUILDVERSION = BUILDVERSION;
-		nx.set = set;
+		if( set != null ) {
+			MetaSource nsources = nr.meta.getSources( action );
+			nx.set = nsources.getProjectSet( action , set.NAME );
+		}
 		
 		for( Entry<String,ReleaseTarget> entry : map.entrySet() ) {
 			ReleaseTarget item = entry.getValue().copy( action , nr , nx );
