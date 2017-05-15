@@ -82,8 +82,13 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		// copy from release
-		if( dist.release.findCategoryTarget( this , VarCATEGORY.CONFIG , conf.KEY ) != null )
-			dist.copyDistConfToFolder( this , conf , templateFolder.getSubFolder( this , conf.KEY ) );
+		if( dist.release.findCategoryTarget( this , VarCATEGORY.CONFIG , conf.KEY ) != null ) {
+			LocalFolder folder = templateFolder.getSubFolder( this , conf.KEY );
+			if( folder.checkExists( this ) )
+				dist.copyDistConfToFolder( this , conf , folder );
+			else
+				super.debug( "missing configuration component=" + conf.KEY );
+		}
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
