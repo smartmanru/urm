@@ -21,15 +21,14 @@ public class DeployPlan {
 	boolean redist;
 	boolean deploy;
 	
-	public DeployPlan( Dist dist , MetaEnv env ) {
+	public DeployPlan( Dist dist , MetaEnv env , boolean redist , boolean deploy ) {
 		this.dist = dist;
 		this.env = env;
+		this.redist = redist;
+		this.deploy = deploy;
 		
 		listSg = new LinkedList<DeployPlanSegment>();
 		mapSg = new HashMap<String,DeployPlanSegment>();
-		
-		redist = false;
-		deploy = false;
 	}
 	
 	public int getSegmentCount() {
@@ -45,6 +44,10 @@ public class DeployPlan {
 		return( mapSg.get( sgName ) );
 	}
 	
+	public void selectSegment( DeployPlanSegment sg ) {
+		this.selectSg = sg;
+	}
+			
 	public void selectSet( String setName ) {
 		if( setName.isEmpty() )
 			selectSet = null;
@@ -63,6 +66,18 @@ public class DeployPlan {
 
 	public void setDeploy( boolean deploy ) {
 		this.deploy = deploy;
+	}
+	
+	public boolean hasExecute() {
+		for( DeployPlanSegment sg : listSg ) {
+			for( DeployPlanSet set : sg.listSets ) {
+				for( DeployPlanItem item : set.listItems ) {
+					if( item.execute )
+						return( true );
+				}
+			}
+		}
+		return( false );
 	}
 	
 }
