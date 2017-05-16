@@ -9,6 +9,7 @@ import org.urm.engine.dist.ReleaseSet;
 
 public class BuildPlanSet {
 	
+	public BuildPlan plan;
 	public ReleaseSet set;
 	public int pos;
 	public String name;
@@ -18,7 +19,8 @@ public class BuildPlanSet {
 	public boolean conf;
 	public boolean db;
 	
-	public BuildPlanSet( ReleaseSet set , int pos , String name ) {
+	public BuildPlanSet( BuildPlan plan , ReleaseSet set , int pos , String name ) {
+		this.plan = plan;
 		this.set = set;
 		this.pos = pos;
 		this.name = name;

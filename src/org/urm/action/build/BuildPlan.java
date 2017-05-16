@@ -47,10 +47,10 @@ public class BuildPlan {
 		}
 	}
 
-	public boolean isEmpty() {
+	public boolean hasExecute() {
 		if( hasCompile() || hasConf() || hasDatabase() )
-			return( false );
-		return( true );
+			return( true );
+		return( false );
 	}
 	
 	public boolean hasCompile() {
