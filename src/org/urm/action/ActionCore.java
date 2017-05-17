@@ -10,6 +10,7 @@ import org.urm.meta.Types.*;
 
 public class ActionCore {
 
+	public ActionCore parent;
 	public ServerEngine engine;
 	public ServerBlotterActionItem blotterRootItem;
 	public ServerBlotterTreeItem blotterTreeItem;
@@ -28,8 +29,9 @@ public class ActionCore {
 	
 	public ActionEventsSource eventSource;
 	
-	protected ActionCore( ServerEngine engine , String INFO ) {
+	protected ActionCore( ServerEngine engine , ActionCore parent , String INFO ) {
 		this.engine = engine;
+		this.parent = parent;
 		this.execrc = engine.execrc;
 		this.INFO = INFO;
 		
@@ -95,6 +97,12 @@ public class ActionCore {
 	
 	public String getInternalPath( String path ) throws Exception {
 		return( Common.getLinuxPath( path ) );
+	}
+	
+	public void fail( RunError error ) {
+		setFailed( error );
+		if( parent != null )
+			parent.fail( error );
 	}
 	
 	public void fail( int errorCode , String s , String[] params ) {
@@ -189,6 +197,6 @@ public class ActionCore {
 	public void exitUnexpectedState() throws Exception {
 		exit( _Error.InternalError0 , "unexpected state" , null );
 	}
-	
+
 }
 

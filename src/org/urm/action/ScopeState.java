@@ -129,13 +129,11 @@ public class ScopeState {
 		this.state = state;
 		action.eventSource.finishScopeItem( this );
 		
-		if( action instanceof ActionBase ) {
-			ActionBase notifyParent = ( ActionBase )action;
+		ActionCore notifyParent = action;
+		notifyParent = notifyParent.parent;
+		while( notifyParent != null ) {
+			notifyParent.eventSource.finishScopeItem( ServerEvents.EVENT_FINISHCHILDSTATE , this );
 			notifyParent = notifyParent.parent;
-			while( notifyParent != null ) {
-				notifyParent.eventSource.finishScopeItem( ServerEvents.EVENT_FINISHCHILDSTATE , this );
-				notifyParent = notifyParent.parent;
-			}
 		}
 	}
 
