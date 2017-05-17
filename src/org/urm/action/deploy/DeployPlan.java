@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.common.RunError;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.meta.DeployCommandMeta;
 import org.urm.engine.ServerEventsApp;
@@ -24,6 +25,7 @@ public class DeployPlan {
 	public MetaEnv env;
 	public DeployPlanSegment selectSg;
 	public DeployPlanSet selectSet;
+	public RunError error; 
 
 	boolean redist;
 	boolean deploy;
@@ -105,7 +107,10 @@ public class DeployPlan {
 		}
 		
 		MetaEnvSegment sg = ( selectSg == null )? null : selectSg.sg;
-		return( action.runNotifyMethod( app , listener , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_REDIST , args , options ) );
+		error = action.runNotifyMethod( app , listener , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_REDIST , args , options );
+		if( error != null )
+			return( false );
+		return( true );
 	}
 
 	public boolean executeDeploy( ActionBase action , ServerEventsApp app , ServerEventsListener listener , CommandOptions options ) {
@@ -126,7 +131,10 @@ public class DeployPlan {
 		}
 		
 		MetaEnvSegment sg = ( selectSg == null )? null : selectSg.sg;
-		return( action.runNotifyMethod( app , listener , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_DEPLOYREDIST , args , options ) );
+		error = action.runNotifyMethod( app , listener , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_DEPLOYREDIST , args , options );
+		if( error != null )
+			return( false );
+		return( true );
 	}
 	
 }

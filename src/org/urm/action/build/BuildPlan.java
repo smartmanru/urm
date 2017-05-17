@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.common.RunError;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.meta.ReleaseCommandMeta;
 import org.urm.engine.ServerEventsApp;
@@ -19,6 +20,7 @@ public class BuildPlan {
 	Map<String,BuildPlanSet> mapSets;
 	public Dist dist;
 	public BuildPlanSet selectSet;
+	public RunError error;
 	
 	public BuildPlan( Dist dist ) {
 		this.dist = dist;
@@ -172,7 +174,8 @@ public class BuildPlan {
 			}
 			
 			if( run ) {
-				if( !action.runNotifyMethod( app , listener , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_BUILD , args , options ) )
+				error = action.runNotifyMethod( app , listener , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_BUILD , args , options );
+				if( error != null )
 					return( false );
 			}
 		}
@@ -200,7 +203,8 @@ public class BuildPlan {
 			}
 			
 			if( run ) {
-				if( !action.runNotifyMethod( app , listener , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options ) )
+				error = action.runNotifyMethod( app , listener , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options );
+				if( error != null )
 					return( false );
 			}
 		}
@@ -228,7 +232,8 @@ public class BuildPlan {
 			}
 			
 			if( run ) {
-				if( !action.runNotifyMethod( app , listener , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options ) )
+				error = action.runNotifyMethod( app , listener , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options );
+				if( error != null )
 					return( false );
 			}
 		}

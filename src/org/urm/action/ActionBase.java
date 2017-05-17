@@ -825,7 +825,7 @@ abstract public class ActionBase extends ActionCore {
 		return( engine.blotter.getBlotterSet( type ) );
 	}
 	
-	public boolean runNotifyMethod( ServerEventsApp app , ServerEventsListener listener , Meta meta , MetaEnv env , MetaEnvSegment sg , String command , String method , String[] args , CommandOptions options ) {
+	public RunError runNotifyMethod( ServerEventsApp app , ServerEventsListener listener , Meta meta , MetaEnv env , MetaEnvSegment sg , String command , String method , String[] args , CommandOptions options ) {
 		ServerEventsSubscription sub = null;
 		try {
 			CommandExecutor executor = engine.getExecutor( command );
@@ -838,18 +838,18 @@ abstract public class ActionBase extends ActionCore {
 			
 			sub = app.subscribe( eventSource , listener );
 			if( !action.runSimpleServer( SecurityAction.ACTION_EXECUTE , true ) )
-				return( false );
+				return( action.getError() );
 		}
 		catch( Throwable e ) {
 			log( "method " + super.NAME , e );
-			return( false );
+			return( new RunError( e , _Error.InternalError0 , "Internal Error" , new String[0] ) );
 		}
 		finally {
 			if( sub != null )
 				app.unsubscribe( sub );
 		}
 		
-		return( true );
+		return( null );
 	}
 	
 }
