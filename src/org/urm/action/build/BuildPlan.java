@@ -6,26 +6,70 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
+import org.urm.action.ScopeState.SCOPESTATE;
+import org.urm.action.ScopeState.SCOPETYPE;
 import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.meta.ReleaseCommandMeta;
+import org.urm.engine.ServerEvents;
 import org.urm.engine.ServerEventsApp;
 import org.urm.engine.ServerEventsListener;
+import org.urm.engine.ServerEventsSource;
+import org.urm.engine.ServerEventsState;
+import org.urm.engine.ServerEventsSubscription;
+import org.urm.engine.ServerSourceEvent;
 import org.urm.engine.dist.Dist;
+import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectSet;
 
-public class BuildPlan {
+public class BuildPlan extends ServerEventsSource implements ServerEventsListener {
 	
-	public List<BuildPlanSet> listSets;
+	List<BuildPlanSet> listSets;
 	Map<String,BuildPlanSet> mapSets;
 	public Dist dist;
 	public BuildPlanSet selectSet;
 	public RunError error;
 	
-	public BuildPlan( Dist dist ) {
+	ServerEventsApp eventsApp;
+
+	public static int EVENT_ITEMFINISHED = 1000;
+	
+	private BuildPlan( Dist dist , ServerEvents events , String id ) {
+		super( events , id );
 		this.dist = dist;
+		
 		listSets = new LinkedList<BuildPlanSet>();
 		mapSets = new HashMap<String,BuildPlanSet>();
+		eventsApp = events.createApp( id );
+	}
+	
+	@Override
+	public ServerEventsState getState() {
+		return( null );
+	}
+	
+	@Override
+	public void triggerEvent( ServerSourceEvent event ) {
+		if( event.eventType == ServerEvents.EVENT_FINISHCHILDSTATE ) {
+			ScopeState state = ( ScopeState )event.data;
+			if( state.action instanceof ActionSetTagOnBuildBranch ) {
+				if( state.type == SCOPETYPE.TypeTarget )
+					addSetTagStatus( state.target.sourceProject , state.state );
+			}
+		}
+	}
+	
+	@Override
+	public void triggerSubscriptionRemoved( ServerEventsSubscription sub ) {
+	}
+	
+	public static BuildPlan create( ActionBase action , ServerEventsApp app , ServerEventsListener listener , Dist dist ) {
+		ServerEvents events = action.engine.getEvents();
+		BuildPlan plan = new BuildPlan( dist , events , "build-plan-" + action.ID );
+		app.subscribe( plan , listener );
+		return( plan );
 	}
 	
 	public int getSetCount() {
@@ -139,17 +183,17 @@ public class BuildPlan {
 		return( true );
 	}
 	
-	public boolean executeBuild( ActionBase action , ServerEventsApp app , ServerEventsListener listener , CommandOptions options ) {
-		if( !executeCompile( action , app , listener , options ) )
+	public boolean executeBuild( ActionBase action , CommandOptions options ) {
+		if( !executeCompile( action , options ) )
 			return( false );
-		if( !executeConf( action , app , listener , options ) )
+		if( !executeConf( action , options ) )
 			return( false );
-		if( !executeDatabase( action , app , listener , options ) )
+		if( !executeDatabase( action , options ) )
 			return( false );
 		return( true );
 	}
 	
-	public boolean executeCompile( ActionBase action , ServerEventsApp app , ServerEventsListener listener , CommandOptions options ) {
+	public boolean executeCompile( ActionBase action , CommandOptions options ) {
 		String[] args = null;
 		boolean run = true;
 		
@@ -174,7 +218,7 @@ public class BuildPlan {
 			}
 			
 			if( run ) {
-				error = action.runNotifyMethod( app , listener , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_BUILD , args , options );
+				error = action.runNotifyMethod( eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_BUILD , args , options );
 				if( error != null )
 					return( false );
 			}
@@ -182,7 +226,7 @@ public class BuildPlan {
 		return( true );
 	}
 	
-	public boolean executeConf( ActionBase action , ServerEventsApp app , ServerEventsListener listener , CommandOptions options ) {
+	public boolean executeConf( ActionBase action , CommandOptions options ) {
 		String[] args = null;
 		boolean run = true;
 			
@@ -203,7 +247,7 @@ public class BuildPlan {
 			}
 			
 			if( run ) {
-				error = action.runNotifyMethod( app , listener , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options );
+				error = action.runNotifyMethod( eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options );
 				if( error != null )
 					return( false );
 			}
@@ -211,7 +255,7 @@ public class BuildPlan {
 		return( true );
 	}
 	
-	public boolean executeDatabase( ActionBase action , ServerEventsApp app , ServerEventsListener listener , CommandOptions options ) {
+	public boolean executeDatabase( ActionBase action , CommandOptions options ) {
 		String[] args = null;
 		boolean run = true;
 		
@@ -232,13 +276,42 @@ public class BuildPlan {
 			}
 			
 			if( run ) {
-				error = action.runNotifyMethod( app , listener , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options );
+				error = action.runNotifyMethod( eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options );
 				if( error != null )
 					return( false );
 			}
 		}
 		
 		return( true );
+	}
+	
+	public BuildPlanSet getSet( MetaSourceProjectSet sourceSet ) {
+		for( BuildPlanSet set : listSets ) {
+			if( set.build && set.set.set == sourceSet )
+				return( set );
+		}
+		return( null );
+	}
+	
+	public BuildPlanItem getItem( MetaSourceProject sourceProject ) {
+		BuildPlanSet set = getSet( sourceProject.set );
+		for( BuildPlanItem item : set.listItems ) {
+			if( item.target.sourceProject == sourceProject )
+				return( item );
+		}
+		return( null );
+	}
+	
+	private void addSetTagStatus( MetaSourceProject sourceProject , SCOPESTATE state ) {
+		BuildPlanItem item = getItem( sourceProject );
+		if( item == null )
+			return;
+		
+		if( state != SCOPESTATE.RunSuccess ) {
+			item.doneBuild = true;
+			item.failedBuild = true;
+			super.trigger( EVENT_ITEMFINISHED , item );
+		}
 	}
 	
 }

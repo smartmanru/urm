@@ -836,7 +836,7 @@ abstract public class ActionBase extends ActionCore {
 			action.context.env = env;
 			action.context.sg = sg;
 			
-			sub = app.subscribe( eventSource , listener );
+			sub = app.subscribe( action.eventSource , listener );
 			if( !action.runSimpleServer( SecurityAction.ACTION_EXECUTE , true ) )
 				return( action.getError() );
 		}
