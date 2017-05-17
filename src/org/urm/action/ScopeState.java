@@ -30,8 +30,8 @@ public class ScopeState {
 		RunFail
 	};
 	
-	ActionCore action;
-	ScopeState parent;
+	public ActionCore action;
+	public ScopeState parent;
 
 	public SCOPETYPE type;	
 	public ActionScope scope;
