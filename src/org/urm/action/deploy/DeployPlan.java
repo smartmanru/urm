@@ -204,10 +204,9 @@ public class DeployPlan extends ServerEventsSource implements ServerEventsListen
 			return;
 		
 		item.doneRedist = true;
-		if( state != SCOPESTATE.RunSuccess ) {
+		if( state != SCOPESTATE.RunSuccess )
 			item.failedRedist = true;
-			super.trigger( EVENT_ITEMFINISHED , item );
-		}
+		super.trigger( EVENT_ITEMFINISHED , item );
 	}
 	
 }
