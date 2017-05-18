@@ -99,6 +99,12 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 		}
 	}
 
+	public void clearRun() {
+		error = null;
+		for( BuildPlanSet set : listSets )
+			set.clearRun();
+	}
+	
 	public boolean hasExecute() {
 		if( hasCompile() || hasConf() || hasDatabase() )
 			return( true );
@@ -308,8 +314,7 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 			return;
 		
 		if( state != SCOPESTATE.RunSuccess ) {
-			item.doneBuild = true;
-			item.failedBuild = true;
+			item.setBuildDone( false );
 			super.trigger( EVENT_ITEMFINISHED , item );
 		}
 	}

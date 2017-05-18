@@ -13,13 +13,14 @@ public class DeployPlanItem {
 	public boolean app;
 	
 	public boolean execute;
+	public boolean executeRedist;
+	public boolean executeDeploy;
+	
 	public boolean startDeploy;
 	public boolean doneRedist;
 	public boolean doneDeploy;
 	public boolean failedRedist;
 	public boolean failedDeploy;
-	public boolean executeRedist;
-	public boolean executeDeploy;
 
 	public DeployPlanItem( DeployPlanSet set , MetaEnvServer server , int pos , String key ) {
 		this.set = set;
@@ -27,17 +28,18 @@ public class DeployPlanItem {
 		this.server = server;
 		this.key = key;
 		
+		database = false;
+		app = false;
+		
 		execute = true;
+		executeRedist = false;
+		executeDeploy = false;
+		
 		startDeploy = false;
 		doneRedist = false;
 		doneDeploy = false;
 		failedRedist = false;
 		failedDeploy = false;
-		executeRedist = false;
-		executeDeploy = false;
-		
-		database = false;
-		app = false;
 	}
 
 	public void createApp() {
@@ -68,6 +70,14 @@ public class DeployPlanItem {
 			if( set.sg.plan.deploy && execute )
 				executeDeploy = true;
 		}
+	}
+
+	public void clearRun() {
+		startDeploy = false;
+		doneRedist = false;
+		doneDeploy = false;
+		failedRedist = false;
+		failedDeploy = false;
 	}
 	
 }

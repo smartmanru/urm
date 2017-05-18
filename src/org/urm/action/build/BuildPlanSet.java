@@ -68,5 +68,10 @@ public class BuildPlanSet {
 		}
 		return( selected.toArray( new String[0] ) );
 	}
+
+	public void clearRun() {
+		for( BuildPlanItem item : listItems )
+			item.clearRun();
+	}
 	
 }

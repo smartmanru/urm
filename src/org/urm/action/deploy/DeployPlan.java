@@ -82,6 +82,12 @@ public class DeployPlan extends ServerEventsSource implements ServerEventsListen
 		return( plan );
 	}
 	
+	public void clearRun() {
+		error = null;
+		for( DeployPlanSegment sg : listSg )
+			sg.clearRun();
+	}
+	
 	public int getSegmentCount() {
 		return( listSg.size() );
 	}

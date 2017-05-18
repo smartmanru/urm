@@ -33,5 +33,10 @@ public class DeployPlanSegment {
 	public DeployPlanSet findSet( String setName ) {
 		return( mapSets.get( setName ) );
 	}
+
+	public void clearRun() {
+		for( DeployPlanSet set : listSets )
+			set.clearRun();
+	}
 	
 }

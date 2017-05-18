@@ -24,12 +24,13 @@ public class BuildPlanItem {
 		this.key = key;
 		
 		execute = true;
+		executeBuild = false;
+		executeGet = false;
+		
 		doneBuild = false;
 		doneGet = false;
 		failedBuild = false;
 		failedGet = false;
-		executeBuild = false;
-		executeGet = false;
 	}
 	
 	public String getFullPos() {
@@ -43,4 +44,16 @@ public class BuildPlanItem {
 		executeGet = ( canGet && execute )? true : false;
 	}
 
+	public void setBuildDone( boolean success ) {
+		doneBuild = true;
+		failedBuild = ( success )? false : true;
+	}
+	
+	public void clearRun() {
+		doneBuild = false;
+		doneGet = false;
+		failedBuild = false;
+		failedGet = false;
+	}
+	
 }

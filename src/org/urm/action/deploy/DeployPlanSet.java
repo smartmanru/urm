@@ -48,5 +48,10 @@ public class DeployPlanSet {
 		}
 		return( selected.toArray( new String[0] ) );
 	}
+
+	public void clearRun() {
+		for( DeployPlanItem item : listItems )
+			item.clearRun();
+	}
 	
 }
