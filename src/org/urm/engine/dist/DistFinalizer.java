@@ -79,7 +79,8 @@ public class DistFinalizer {
 	}
 	
 	private void createExpectedDatabaseDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery ) throws Exception {
-		fs.createDir( dist.getDeliveryDatabaseFolder( action , delivery.distDelivery , dist.release.RELEASEVER ) );
+		if( delivery.hasDatabaseItems() )
+			fs.createDir( dist.getDeliveryDatabaseFolder( action , delivery.distDelivery , dist.release.RELEASEVER ) );
 	}
 	
 	private void createExpectedMasterDeliveryItem( ActionBase action , FileSet fsd , FileSet fs , MetaDistrDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
