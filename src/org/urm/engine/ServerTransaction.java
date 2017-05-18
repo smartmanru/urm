@@ -628,9 +628,14 @@ public class ServerTransaction extends TransactionBase {
 		service.comp.deleteWebService( this , service );
 	}
 
-	public void setDeliveryDatabase( MetaDistrDelivery delivery , List<MetaDatabaseSchema> set ) throws Exception {
+	public void setDeliveryDatabaseAll( MetaDistrDelivery delivery ) throws Exception {
 		checkTransactionMetadata( delivery.meta.getStorage( action ) );
-		delivery.setDatabase( this , set );
+		delivery.setDatabaseAll( this );
+	}
+
+	public void setDeliveryDatabaseSet( MetaDistrDelivery delivery , MetaDatabaseSchema[] set ) throws Exception {
+		checkTransactionMetadata( delivery.meta.getStorage( action ) );
+		delivery.setDatabaseSet( this , set );
 	}
 
 	public MetaSourceProjectSet createSourceProjectSet( MetaSource sources , String name ) throws Exception {

@@ -116,6 +116,23 @@ public class ReleaseCommand {
 		action.info( "scope (" + scope.getScopeInfo( action ) + ") - added to release" );
 	}
 	
+	private void setScopeSpecifics( ActionBase action , Dist dist , ActionScope scope ) throws Exception {
+		ActionSetSpecifics ma = new ActionSetSpecifics( action , null , dist );
+		
+		dist.openForDataChange( action );
+		if( !ma.runAll( scope , null , SecurityAction.ACTION_RELEASE , false ) ) {
+			dist.closeDataChange( action );
+			dist.finishStatus( action );
+			action.exit0( _Error.ReleaseSetChangeErrors0 , "release set is not changed because of errors" );
+		}
+
+		dist.saveReleaseXml( action );
+		dist.closeDataChange( action );
+		dist.finishStatus( action );
+		
+		action.info( "scope (" + scope.getScopeInfo( action ) + ") - release sccope specifics updated" );
+	}
+	
 	private void setReleaseScope( ActionBase action , Dist dist , boolean source , String[] pathItems ) throws Exception {
 		ActionSetScope ma = new ActionSetScope( action , null , dist , source , pathItems );
 		
@@ -141,6 +158,15 @@ public class ReleaseCommand {
 		
 		ActionScope scope = ActionScope.getProductSetScope( action , meta , SET , elements );
 		addReleaseScope( action , dist , scope );
+	}
+
+	public void setScopeSpecifics( ActionBase action , Meta meta , String RELEASELABEL , String SET , String[] elements ) throws Exception {
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
+		if( dist.release.isCumulative() )
+			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
+		
+		ActionScope scope = ActionScope.getReleaseSetScope( action , dist , SET , elements );
+		setScopeSpecifics( action , dist , scope );
 	}
 
 	public void addReleaseConfigItems( ActionBase action , Meta meta , String RELEASELABEL , String[] elements ) throws Exception {

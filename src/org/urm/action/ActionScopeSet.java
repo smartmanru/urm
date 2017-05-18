@@ -386,30 +386,29 @@ public class ActionScopeSet {
 	}
 
 	private boolean checkServerDatabaseDelivery( ActionBase action , MetaEnvServer server , ReleaseDelivery delivery ) throws Exception {
-		return( server.hasDatabaseItemDeployment( action , delivery.distDelivery ) );
+		return( server.hasDatabaseItemDeployment( delivery.distDelivery ) );
 	}
 	
 	private boolean checkServerDelivery( ActionBase action , MetaEnvServer server , ReleaseDelivery delivery ) throws Exception {
 		if( action.context.CTX_CONFDEPLOY ) {
 			for( ReleaseTarget target : delivery.getConfItems() ) {
-				if( server.hasConfItemDeployment( action , target.distConfItem ) )
+				if( server.hasConfItemDeployment( target.distConfItem ) )
 					return( true );
 			}
 		}
 		
-		ReleaseTarget dbtarget  = delivery.getDatabaseItem( action );
-		if( dbtarget != null ) {
-			if( server.hasDatabaseItemDeployment( action , dbtarget.distDatabaseItem ) )
+		for( ReleaseTargetItem item : delivery.getDatabaseItems() ) {
+			if( server.hasDatabaseItemDeployment( item.schema ) )
 				return( true );
 		}
 
 		if( action.context.CTX_DEPLOYBINARY ) {
 			for( ReleaseTarget target : delivery.getManualItems() ) {
-				if( server.hasBinaryItemDeployment( action , target.distManualItem ) )
+				if( server.hasBinaryItemDeployment( target.distManualItem ) )
 					return( true );
 			}
 			for( ReleaseTargetItem item : delivery.getProjectItems() ) {
-				if( server.hasBinaryItemDeployment( action , item.distItem ) )
+				if( server.hasBinaryItemDeployment( item.distItem ) )
 					return( true );
 			}
 		}
@@ -503,7 +502,7 @@ public class ActionScopeSet {
 		}
 	}
 	
-	public ActionScopeTarget addEnvServer( ActionBase action , MetaEnvServer server , List<MetaEnvServerNode> nodes , boolean specifiedExplicitly ) throws Exception {
+	public ActionScopeTarget addEnvServer( ActionBase action , MetaEnvServer server , MetaEnvServerNode[] nodes , boolean specifiedExplicitly ) throws Exception {
 		if( !specifiedExplicitly ) {
 			// check offline or not in given start group
 			if( server.OFFLINE ) {
@@ -542,7 +541,7 @@ public class ActionScopeSet {
 			}
 		}
 		
-		List<MetaEnvServerNode> nodes = server.getNodes( action , NODES );
+		MetaEnvServerNode[] nodes = server.getNodes( action , NODES );
 		return( addEnvServer( action , server , nodes , specifiedExplicitly ) );
 	}
 

@@ -23,6 +23,8 @@ public class ReleaseSchedule {
 	public String LIFECYCLE;
 	public Date started;
 	public Date releaseDate;
+	public Date releaseDateActual;
+	public Date completeDateActual;
 	public int currentPhase;
 	public int releasePhases;
 	public int deployPhases;
@@ -49,6 +51,8 @@ public class ReleaseSchedule {
 		r.started = started;
 		r.LIFECYCLE = ( createProd )? "" : LIFECYCLE;
 		r.releaseDate = ( createProd )? null : releaseDate;
+		r.releaseDateActual = ( createProd )? null : releaseDateActual;
+		r.completeDateActual = ( createProd )? null : completeDateActual;  
 		r.currentPhase = ( createProd )? -1 : currentPhase;
 		r.releasePhases = ( createProd )? 0 : releasePhases; 
 		r.deployPhases = ( createProd )? 0 : deployPhases; 
@@ -69,11 +73,13 @@ public class ReleaseSchedule {
 	public void load( ActionBase action , Node root ) throws Exception {
 		phases.clear();
 		
-		Node node = ConfReader.xmlGetFirstChild( root , "schedule" );
+		Node node = ConfReader.xmlGetFirstChild( root , Release.ELEMENT_SCHEDULE );
 		if( node == null ) {
 			LIFECYCLE = "";
 			started = new Date();
 			releaseDate = null;
+			releaseDateActual = null;
+			completeDateActual = null;
 			currentPhase = -1;
 			releasePhases = 0; 
 			deployPhases = 0; 
@@ -83,18 +89,20 @@ public class ReleaseSchedule {
 			return;
 		}
 		
-		LIFECYCLE = ConfReader.getAttrValue( node , "lifecycle" , "" );
-		started = Common.getDateValue( ConfReader.getAttrValue( node , "started" ) );
+		LIFECYCLE = ConfReader.getAttrValue( node , Release.PROPERTY_LIFECYCLE , "" );
+		started = Common.getDateValue( ConfReader.getAttrValue( node , Release.PROPERTY_STARTED ) );
 		if( started == null )
 			started = new Date();
 			
-		releaseDate = Common.getDateValue( ConfReader.getAttrValue( node , "releasedate" ) );
-		currentPhase = ConfReader.getIntegerAttrValue( node , "phase" , 0 );
-		released = ConfReader.getBooleanAttrValue( node , "released" , false );
-		completed = ConfReader.getBooleanAttrValue( node , "completed" , false );
-		archived = ConfReader.getBooleanAttrValue( node , "archived" , false );
+		releaseDate = Common.getDateValue( ConfReader.getAttrValue( node , Release.PROPERTY_RELEASEDATE ) );
+		releaseDateActual = Common.getDateValue( ConfReader.getAttrValue( node , Release.PROPERTY_RELEASEDATEACTUAL ) );
+		completeDateActual = Common.getDateValue( ConfReader.getAttrValue( node , Release.PROPERTY_COMPLETEDATEACTUAL ) );
+		currentPhase = ConfReader.getIntegerAttrValue( node , Release.PROPERTY_PHASE , 0 );
+		released = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_RELEASEDSTATUS , false );
+		completed = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_COMPLETEDSTATUS , false );
+		archived = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ARCHIVEDSTATUS , false );
 		
-		Node[] items = ConfReader.xmlGetChildren( node , "phase" );
+		Node[] items = ConfReader.xmlGetChildren( node , Release.ELEMENT_PHASE );
 		if( items == null )
 			return;
 		
@@ -122,17 +130,19 @@ public class ReleaseSchedule {
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Element node = Common.xmlCreateElement( doc , root , "schedule" );
-		Common.xmlSetElementAttr( doc , node , "lifecycle" , LIFECYCLE );
-		Common.xmlSetElementAttr( doc , node , "started" , Common.getDateValue( started ) );
-		Common.xmlSetElementAttr( doc , node , "releasedate" , Common.getDateValue( releaseDate ) );
-		Common.xmlSetElementAttr( doc , node , "phase" , "" + currentPhase );
-		Common.xmlSetElementAttr( doc , node , "released" , Common.getBooleanValue( released ) );
-		Common.xmlSetElementAttr( doc , node , "completed" , Common.getBooleanValue( completed ) );
-		Common.xmlSetElementAttr( doc , node , "archived" , Common.getBooleanValue( archived ) );
+		Element node = Common.xmlCreateElement( doc , root , Release.ELEMENT_SCHEDULE );
+		Common.xmlSetElementAttr( doc , node , Release.PROPERTY_LIFECYCLE , LIFECYCLE );
+		Common.xmlSetElementAttr( doc , node , Release.PROPERTY_STARTED , Common.getDateValue( started ) );
+		Common.xmlSetElementAttr( doc , node , Release.PROPERTY_RELEASEDATE , Common.getDateValue( releaseDate ) );
+		Common.xmlSetElementAttr( doc , node , Release.PROPERTY_RELEASEDATEACTUAL , Common.getDateValue( releaseDateActual ) );
+		Common.xmlSetElementAttr( doc , node , Release.PROPERTY_COMPLETEDATEACTUAL , Common.getDateValue( completeDateActual ) );
+		Common.xmlSetElementAttr( doc , node , Release.PROPERTY_PHASE , "" + currentPhase );
+		Common.xmlSetElementAttr( doc , node , Release.PROPERTY_RELEASEDSTATUS , Common.getBooleanValue( released ) );
+		Common.xmlSetElementAttr( doc , node , Release.PROPERTY_COMPLETEDSTATUS , Common.getBooleanValue( completed ) );
+		Common.xmlSetElementAttr( doc , node , Release.PROPERTY_ARCHIVEDSTATUS , Common.getBooleanValue( archived ) );
 		
 		for( ReleaseSchedulePhase phase : phases ) {
-			Element phaseElement = Common.xmlCreateElement( doc , node , "phase" );
+			Element phaseElement = Common.xmlCreateElement( doc , node , Release.ELEMENT_PHASE );
 			phase.save( action , doc , phaseElement );
 		}
 	}
@@ -317,10 +327,20 @@ public class ReleaseSchedule {
 		}
 	}
 	
+	public Date getDateReleased() {
+		return( releaseDateActual );
+	}
+	
+	public Date getDateCompleted() {
+		return( completeDateActual );
+	}
+	
 	public void finish( ActionBase action ) throws Exception {
 		released = true;
 		
 		Date date = Common.getDateCurrentDay();
+		releaseDateActual = date;
+		
 		for( int k = 0; k < releasePhases; k++ ) {
 			ReleaseSchedulePhase phase = getPhase( k );
 			if( !phase.isFinished() ) {
@@ -329,7 +349,7 @@ public class ReleaseSchedule {
 				phase.finishPhase( action , date );
 			}
 		}
-		
+
 		currentPhase = releasePhases;
 		if( deployPhases > 0 ) {
 			ReleaseSchedulePhase phase = getPhase( releasePhases );
@@ -352,6 +372,8 @@ public class ReleaseSchedule {
 		
 		if( currentPhase >= 0 ) {
 			Date date = Common.getDateCurrentDay();
+			completeDateActual = date;
+			
 			for( int k = currentPhase; k < phases.size(); k++ ) {
 				ReleaseSchedulePhase phase = getPhase( k );
 				if( !phase.isFinished() ) {
@@ -367,6 +389,7 @@ public class ReleaseSchedule {
 	
 	public void reopen( ActionBase action ) throws Exception {
 		released = false;
+		releaseDateActual = null;
 		
 		Date date = Common.getDateCurrentDay();
 		for( int k = 0; k < deployPhases; k++ ) {

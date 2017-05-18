@@ -1,8 +1,10 @@
 package org.urm.meta;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.meta.product.MetaDistrBinaryItem;
 import org.w3c.dom.Node;
 
 public class Types {
@@ -674,6 +676,90 @@ public class Types {
 		}
 		
 		return( value );
+	}
+	
+    public static boolean isArchive( VarDISTITEMTYPE distItemType ) {
+		if( distItemType == VarDISTITEMTYPE.ARCHIVE_CHILD || 
+			distItemType == VarDISTITEMTYPE.ARCHIVE_DIRECT || 
+			distItemType == VarDISTITEMTYPE.ARCHIVE_SUBDIR )
+			return( true );
+		return( false );
+    }
+
+	public static boolean isBinaryContent( VarCONTENTTYPE c ) throws Exception {
+		if( c == VarCONTENTTYPE.BINARYCOLDDEPLOY || c == VarCONTENTTYPE.BINARYCOPYONLY || c == VarCONTENTTYPE.BINARYHOTDEPLOY )
+			return( true );
+		return( false );
+	}
+	
+	public static boolean isConfContent( VarCONTENTTYPE c ) throws Exception {
+		if( c == VarCONTENTTYPE.CONFCOLDDEPLOY || c == VarCONTENTTYPE.CONFCOPYONLY || c == VarCONTENTTYPE.CONFHOTDEPLOY )
+			return( true );
+		return( false );
+	}
+
+	public static VarCATEGORY readCategoryAttr( Node node ) throws Exception {
+		String value = ConfReader.getAttrValue( node , "category" );
+		return( Types.getCategory( value , true ) );
+	}
+	
+	public static boolean isSourceCategory( VarCATEGORY value ) {
+		if( value == VarCATEGORY.PROJECT )
+			return( true );
+		return( false );
+	}
+	
+	public static VarCATEGORY[] getAllReleaseCategories() {
+		VarCATEGORY[] categories = { VarCATEGORY.PROJECT , VarCATEGORY.CONFIG , VarCATEGORY.DB , VarCATEGORY.MANUAL , VarCATEGORY.DERIVED };
+		return( categories );
+	}
+
+	public static VarCATEGORY[] getAllSourceCategories() {
+		VarCATEGORY[] categories = { VarCATEGORY.PROJECT };
+		return( categories );
+	}
+
+	public static boolean checkCategoryProperty( VarCATEGORY part , VarCATEGORY property ) {
+		if( part == property )
+			return( true );
+		if( property == VarCATEGORY.BUILDABLE ) {
+			if( part == VarCATEGORY.PROJECT )
+				return( true );
+		}
+		return( false );
+	}
+	
+	public static String getVersionPattern( ActionBase action , VarITEMVERSION version , String basename , String ext ) throws Exception {
+		String value = "";
+		if( version == VarITEMVERSION.NONE || version == VarITEMVERSION.IGNORE )
+			value = basename + ext;
+		else if( version == VarITEMVERSION.MIDPOUND )
+			value = Common.getLiteral( basename ) + "##[0-9.]+" + Common.getLiteral( ext );
+		else if( version == VarITEMVERSION.MIDDASH )
+			value = basename + "-[0-9.]+" + ext;
+		else if( version == VarITEMVERSION.PREFIX )
+			value = "[0-9.]+-" + Common.getLiteral( basename + ext );
+		else
+			action.exitUnexpectedState();
+		
+		return( value );
+	}
+
+	public static String[] getVersionPatterns( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
+		String basename = distItem.DISTBASENAME;
+		String ext = distItem.EXT;
+		if( distItem.deployVersion == VarITEMVERSION.IGNORE ) {
+			String[] values = new String[1];
+			values[0] = getVersionPattern( action , distItem.deployVersion , basename , ext );
+			return( values );
+		}
+
+		String[] values = new String[4];
+		values[0] = getVersionPattern( action , VarITEMVERSION.NONE , basename , ext );
+		values[1] = getVersionPattern( action , VarITEMVERSION.MIDPOUND , basename , ext );
+		values[2] = getVersionPattern( action , VarITEMVERSION.MIDDASH , basename , ext );
+		values[3] = getVersionPattern( action , VarITEMVERSION.PREFIX , basename , ext );
+		return( values );
 	}
 	
 }

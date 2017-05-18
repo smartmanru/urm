@@ -8,8 +8,10 @@ import java.util.Map.Entry;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.meta.Types;
 import org.urm.meta.engine.ServerReleaseLifecycle;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
@@ -29,11 +31,11 @@ public class Release {
 	
 	public String RELEASEVER;
 	
-	public boolean PROPERTY_MASTER;
-	public boolean PROPERTY_OBSOLETE;
-	public VarBUILDMODE PROPERTY_BUILDMODE;
-	public String PROPERTY_COMPATIBILITY;
-	private boolean PROPERTY_CUMULATIVE;
+	public boolean MASTER;
+	public boolean OBSOLETE;
+	public VarBUILDMODE BUILDMODE;
+	public String COMPATIBILITY;
+	private boolean CUMULATIVE;
 	
 	Map<String,ReleaseSet> sourceSetMap = new HashMap<String,ReleaseSet>();
 	Map<VarCATEGORY,ReleaseSet> categorySetMap = new HashMap<VarCATEGORY,ReleaseSet>();
@@ -41,6 +43,55 @@ public class Release {
 
 	public ReleaseSchedule schedule;
 	public ReleaseMaster master;
+
+	public static String ELEMENT_RELEASE = "release";
+	public static String ELEMENT_SET = "set";
+	public static String ELEMENT_PROJECT = "project";
+	public static String ELEMENT_CONFITEM = "confitem";
+	public static String ELEMENT_DISTITEM = "distitem";
+	public static String ELEMENT_DELIVERY = "delivery";
+	public static String ELEMENT_SCHEMA = "schema";
+	public static String ELEMENT_HISTORY = "history";
+	public static String ELEMENT_FILES = "files";
+	public static String ELEMENT_PHASE = "phase";
+	public static String ELEMENT_SCHEDULE = "schedule";
+
+	public static String PROPERTY_VERSION = "version";
+	public static String PROPERTY_MASTER = "master";
+	public static String PROPERTY_BUILDMODE = "mode"; 
+	public static String PROPERTY_OBSOLETE = "obsolete";
+	public static String PROPERTY_COMPATIBILITY = "over";
+	public static String PROPERTY_CUMULATIVE = "cumulative";
+	
+	public static String PROPERTY_BUILDBRANCH = "buildbranch";
+	public static String PROPERTY_BUILDTAG = "buildtag";
+	public static String PROPERTY_BUILDVERSION = "buildversion";
+	public static String PROPERTY_PARTIAL = "partial";
+	public static String PROPERTY_ALL = "all";
+	
+	public static String PROPERTY_RELEASE = "release";
+	public static String PROPERTY_DATEADDED = "added";
+	public static String PROPERTY_KEY = "key";
+	public static String PROPERTY_DELIVERY = "delivery";
+	public static String PROPERTY_FOLDER = "folder";
+	public static String PROPERTY_FILE = "folder";
+	public static String PROPERTY_MD5 = "md5";
+	public static String PROPERTY_LIFECYCLE = "lifecycle";
+	public static String PROPERTY_STARTED = "started";
+	public static String PROPERTY_RELEASEDATE = "releasedate";
+	public static String PROPERTY_RELEASEDATEACTUAL = "releaseactual";
+	public static String PROPERTY_COMPLETEDATEACTUAL = "completeactual";
+	public static String PROPERTY_PHASE = "phase";
+	public static String PROPERTY_RELEASEDSTATUS = "released";
+	public static String PROPERTY_COMPLETEDSTATUS = "completed";
+	public static String PROPERTY_ARCHIVEDSTATUS = "archived";
+	public static String PROPERTY_DAYS = "days";
+	public static String PROPERTY_NORMALDAYS = "normaldays";
+	public static String PROPERTY_UNLIMITED = "unlimited";
+	public static String PROPERTY_STARTDATE = "startdate";
+	public static String PROPERTY_RELEASESTAGE = "release";
+	public static String PROPERTY_FINISHED = "finished";
+	public static String PROPERTY_FINISHDATE = "finishdate";
 	
 	public Release( Meta meta , Dist dist ) {
 		this.meta = meta;
@@ -52,11 +103,11 @@ public class Release {
 		Release rr = new Release( rdist.meta , rdist );
 		rr.RELEASEVER = RELEASEVER;
 		
-		rr.PROPERTY_MASTER = PROPERTY_MASTER;
-		rr.PROPERTY_OBSOLETE = PROPERTY_OBSOLETE;
-		rr.PROPERTY_BUILDMODE = PROPERTY_BUILDMODE;
-		rr.PROPERTY_COMPATIBILITY = PROPERTY_COMPATIBILITY;
-		rr.PROPERTY_CUMULATIVE = PROPERTY_CUMULATIVE;
+		rr.MASTER = MASTER;
+		rr.OBSOLETE = OBSOLETE;
+		rr.BUILDMODE = BUILDMODE;
+		rr.COMPATIBILITY = COMPATIBILITY;
+		rr.CUMULATIVE = CUMULATIVE;
 		
 		rr.copyReleaseScope( action , this );
 		rr.schedule = schedule.copy( action , rr.meta , rr , false );
@@ -91,11 +142,11 @@ public class Release {
 		schedule.create( action );
 		schedule.createProd( action ); 
 		
-		this.PROPERTY_MASTER = true;
-		this.PROPERTY_OBSOLETE = true;
-		this.PROPERTY_BUILDMODE = VarBUILDMODE.UNKNOWN;
-		this.PROPERTY_COMPATIBILITY = "";
-		this.PROPERTY_CUMULATIVE = true;
+		this.MASTER = true;
+		this.OBSOLETE = true;
+		this.BUILDMODE = VarBUILDMODE.UNKNOWN;
+		this.COMPATIBILITY = "";
+		this.CUMULATIVE = true;
 
 		master = new ReleaseMaster( meta , this );
 		master.create( action );
@@ -105,7 +156,7 @@ public class Release {
 	}
 	
 	public void addRelease( ActionBase action , Release src ) throws Exception {
-		if( this.PROPERTY_MASTER )
+		if( this.MASTER )
 			action.exitUnexpectedState();
 		
 		for( Entry<String,ReleaseSet> entry : src.sourceSetMap.entrySet() ) {
@@ -132,7 +183,7 @@ public class Release {
 	}
 	
 	public boolean isCumulative() {
-		return( PROPERTY_CUMULATIVE );
+		return( CUMULATIVE );
 	}
 	
 	public String[] getApplyVersions( ActionBase action ) throws Exception {
@@ -153,24 +204,24 @@ public class Release {
 	}
 	
 	public void setProperties( ActionBase action ) throws Exception {
-		PROPERTY_BUILDMODE = action.context.CTX_BUILDMODE;
-		PROPERTY_OBSOLETE = action.context.CTX_OBSOLETE;
+		BUILDMODE = action.context.CTX_BUILDMODE;
+		OBSOLETE = action.context.CTX_OBSOLETE;
 		
 		if( action.context.CTX_ALL )
-			PROPERTY_COMPATIBILITY = "";
+			COMPATIBILITY = "";
 		for( String OLDRELEASE : Common.splitSpaced( action.context.CTX_OLDRELEASE ) ) {
 			OLDRELEASE = DistLabelInfo.normalizeReleaseVer( action , OLDRELEASE );
 			if( OLDRELEASE.compareTo( RELEASEVER ) >= 0 )
 				action.exit1( _Error.CompatibilityExpectedForEarlierRelease1 , "compatibility is expected for earlier release (version=" + OLDRELEASE + ")" , OLDRELEASE );
 			
-			PROPERTY_COMPATIBILITY = Common.addItemToUniqueSpacedList( PROPERTY_COMPATIBILITY , OLDRELEASE );
+			COMPATIBILITY = Common.addItemToUniqueSpacedList( COMPATIBILITY , OLDRELEASE );
 		}
 	}
 	
 	public void createNormal( ActionBase action , String RELEASEVER , Date releaseDate , ServerReleaseLifecycle lc , String RELEASEFILEPATH ) throws Exception {
 		this.RELEASEVER = DistLabelInfo.normalizeReleaseVer( action , RELEASEVER );
-		this.PROPERTY_MASTER = false;
-		this.PROPERTY_CUMULATIVE = action.context.CTX_CUMULATIVE;
+		this.MASTER = false;
+		this.CUMULATIVE = action.context.CTX_CUMULATIVE;
 
 		schedule.create( action );
 		schedule.createReleaseSchedule( action , releaseDate , lc );
@@ -225,8 +276,8 @@ public class Release {
 		if( element == null )
 			return;
 		
-		if( Meta.isSourceCategory( CATEGORY ) ) {
-			Node[] sets = ConfReader.xmlGetChildren( element , "set" );
+		if( Types.isSourceCategory( CATEGORY ) ) {
+			Node[] sets = ConfReader.xmlGetChildren( element , ELEMENT_SET );
 			if( sets == null )
 				return;
 			
@@ -252,27 +303,27 @@ public class Release {
 		Document doc = action.readXmlFile( file );
 		Node root = doc.getDocumentElement();
 
-		RELEASEVER = ConfReader.getAttrValue( root , "version" );
+		RELEASEVER = ConfReader.getAttrValue( root , PROPERTY_VERSION );
 		if( RELEASEVER.isEmpty() )
 			action.exit0( _Error.ReleaseVersionNotSet0 , "release version property is not set, unable to use distributive" );
 		
 		// properties
-		PROPERTY_MASTER = getReleasePropertyBoolean( action , root , "master" , false );
-		PROPERTY_BUILDMODE = getReleasePropertyBuildMode( action , root , "mode" ); 
-		PROPERTY_OBSOLETE = getReleasePropertyBoolean( action , root , "obsolete" , true );
-		PROPERTY_COMPATIBILITY = getReleaseProperty( action , root , "over" );
-		PROPERTY_CUMULATIVE = getReleasePropertyBoolean( action , root , "cumulative" , false );
+		MASTER = getReleasePropertyBoolean( action , root , PROPERTY_MASTER , false );
+		BUILDMODE = getReleasePropertyBuildMode( action , root , PROPERTY_BUILDMODE ); 
+		OBSOLETE = getReleasePropertyBoolean( action , root , PROPERTY_OBSOLETE , true );
+		COMPATIBILITY = getReleaseProperty( action , root , PROPERTY_COMPATIBILITY );
+		CUMULATIVE = getReleasePropertyBoolean( action , root , PROPERTY_CUMULATIVE , false );
 
 		schedule.load( action , root );
 		
-		if( PROPERTY_MASTER ) {
+		if( MASTER ) {
 			Node node = ConfReader.xmlGetFirstChild( root , Dist.MASTER_LABEL );
 			master = new ReleaseMaster( meta , this );
 			master.load( action , node );
 		}
 		else {
 			// get project sets
-			for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() )
+			for( VarCATEGORY CATEGORY : Types.getAllReleaseCategories() )
 				loadSets( action , root , CATEGORY );
 		}
 		
@@ -281,7 +332,7 @@ public class Release {
 
 	private void registerSet( ActionBase action , ReleaseSet set ) throws Exception {
 		action.trace( "add set=" + set.NAME + ", category=" + Common.getEnumLower( set.CATEGORY ) );
-		if( Meta.isSourceCategory( set.CATEGORY ) )
+		if( Types.isSourceCategory( set.CATEGORY ) )
 			sourceSetMap.put( set.NAME , set );
 		else
 			categorySetMap.put( set.CATEGORY , set );
@@ -298,7 +349,12 @@ public class Release {
 	
 	private void registerTarget( ActionBase action , ReleaseTarget target ) throws Exception {
 		action.trace( "add target=" + target.NAME );
-		if( Meta.isSourceCategory( target.CATEGORY ) ) {
+		if( Types.isSourceCategory( target.CATEGORY ) ) {
+			for( ReleaseTargetItem item : target.getItems() )
+				registerTargetItem( action , item );
+		}
+		else
+		if( target.isDatabaseTarget() ) {
 			for( ReleaseTargetItem item : target.getItems() )
 				registerTargetItem( action , item );
 		}
@@ -331,11 +387,9 @@ public class Release {
 	}
 
 	private String getReleaseProperty( ActionBase action , Node node , String name ) throws Exception {
-		Node prop = ConfReader.xmlGetNamedNode( node , "property" , name );
-		if( prop == null )
+		String value = ConfReader.getPropertyValue( node , name );
+		if( value == null )
 			return( "" );
-		
-		String value = ConfReader.getAttrValue( prop , "value" );
 		return( value );
 	}
 
@@ -412,16 +466,16 @@ public class Release {
 		return( comp );
 	}
 
-	public Map<String,ReleaseTarget> getCategoryComponents( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
+	public ReleaseTarget[] getCategoryTargets( VarCATEGORY CATEGORY ) {
 		ReleaseSet set = categorySetMap.get( CATEGORY );
 		if( set == null )
-			return( new HashMap<String,ReleaseTarget>() );
+			return( new ReleaseTarget[0] );
 		
-		return( set.map );
+		return( set.getTargets() );
 	}
 	
-	public Map<String,ReleaseTarget> getConfComponents( ActionBase action ) throws Exception {
-		return( getCategoryComponents( action , VarCATEGORY.CONFIG ) );
+	public ReleaseTarget[] getConfComponents() {
+		return( getCategoryTargets( VarCATEGORY.CONFIG ) );
 	}
 
 	public ReleaseDelivery[] getDeliveries() {
@@ -489,16 +543,16 @@ public class Release {
 	}
 	
 	public Document createEmptyXmlDoc( ActionBase action ) throws Exception {
-		Document doc = Common.xmlCreateDoc( "release" );
+		Document doc = Common.xmlCreateDoc( ELEMENT_RELEASE );
 		Element root = doc.getDocumentElement();
-		Common.xmlSetElementAttr( doc , root , "version" , RELEASEVER );
-		Common.xmlCreatePropertyElement( doc , root , "master" , Common.getBooleanValue( PROPERTY_MASTER ) );
-		Common.xmlCreatePropertyElement( doc , root , "mode" , Common.getEnumLower( PROPERTY_BUILDMODE ) );
-		Common.xmlCreateBooleanPropertyElement( doc , root , "obsolete" , PROPERTY_OBSOLETE );
-		Common.xmlCreatePropertyElement( doc , root , "over" , PROPERTY_COMPATIBILITY );
-		Common.xmlCreateBooleanPropertyElement( doc , root , "cumulative" , PROPERTY_CUMULATIVE );
+		Common.xmlSetElementAttr( doc , root , PROPERTY_VERSION , RELEASEVER );
+		Common.xmlCreatePropertyElement( doc , root , PROPERTY_MASTER , Common.getBooleanValue( MASTER ) );
+		Common.xmlCreatePropertyElement( doc , root , PROPERTY_BUILDMODE , Common.getEnumLower( BUILDMODE ) );
+		Common.xmlCreateBooleanPropertyElement( doc , root , PROPERTY_OBSOLETE , OBSOLETE );
+		Common.xmlCreatePropertyElement( doc , root , PROPERTY_COMPATIBILITY , COMPATIBILITY );
+		Common.xmlCreateBooleanPropertyElement( doc , root , PROPERTY_CUMULATIVE , CUMULATIVE );
 		
-		for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() )
+		for( VarCATEGORY CATEGORY : Types.getAllReleaseCategories() )
 			Common.xmlCreateElement( doc , root , Common.getEnumLower( CATEGORY ) );
 		
 		schedule.save( action , doc , root );
@@ -515,7 +569,7 @@ public class Release {
 		Document doc = createEmptyXmlDoc( action );
 		Element root = doc.getDocumentElement();
 		
-		if( PROPERTY_MASTER ) {
+		if( MASTER ) {
 			Element parent = Common.xmlCreateElement( doc , root , Dist.MASTER_LABEL );
 			master.save( action , doc , parent );
 		}
@@ -599,7 +653,12 @@ public class Release {
 	}
 
 	private void unregisterTarget( ActionBase action , ReleaseTarget target ) throws Exception {
-		if( Meta.isSourceCategory( target.CATEGORY ) ) {
+		if( Types.isSourceCategory( target.CATEGORY ) ) {
+			for( ReleaseTargetItem item : target.getItems() )
+				unregisterTargetItem( action , item );
+		}
+		else
+		if( target.isDatabaseTarget() ) {
 			for( ReleaseTargetItem item : target.getItems() )
 				unregisterTargetItem( action , item );
 		}
@@ -620,10 +679,31 @@ public class Release {
 		for( ReleaseTarget project : set.getTargets() )
 			unregisterTarget( action , project );
 		
-		if( Meta.isSourceCategory( set.CATEGORY ) )
+		if( Types.isSourceCategory( set.CATEGORY ) )
 			sourceSetMap.remove( set.NAME );
 		else
 			categorySetMap.remove( set.CATEGORY );
+	}
+
+	public boolean addDatabaseDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allSchemes ) throws Exception {
+		ReleaseSet set = getCategorySet( action , VarCATEGORY.DB );
+		if( set == null )
+			return( false );
+		
+		ReleaseTarget target = set.findTarget( delivery.NAME );
+		if( target == null ) {
+			target = set.addDatabaseDelivery( action , delivery , allSchemes );
+			registerTarget( action , target );
+			return( true );
+		}
+		
+		if( allSchemes == true && target.ALL == false ) {
+			deleteDatabaseDelivery( action , delivery );
+			addDatabaseDelivery( action , delivery , true );
+			return( true );
+		}
+		
+		return( true );
 	}
 	
 	public boolean addProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems ) throws Exception {
@@ -679,6 +759,18 @@ public class Release {
 		deleteTarget( action , target );
 	}
 
+	public void deleteDatabaseDelivery( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
+		ReleaseSet set = getCategorySet( action , VarCATEGORY.DB );
+		if( set == null )
+			return;
+		
+		ReleaseTarget target = set.findTarget( delivery.NAME );
+		if( target == null )
+			return;
+		
+		deleteTarget( action , target );
+	}
+
 	public boolean addProjectItem( ActionBase action , MetaSourceProject sourceProject , MetaSourceProjectItem sourceItem ) throws Exception {
 		if( sourceItem.isInternal() )
 			action.exit1( _Error.UnexpectedInternalItem1 , "unexpected call for INTERNAL item=" + sourceItem.ITEMNAME , sourceItem.ITEMNAME );
@@ -702,13 +794,39 @@ public class Release {
 		return( true );
 	}
 
+	public boolean addDatabaseSchema( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
+		ReleaseSet set = getCategorySet( action , VarCATEGORY.DB );
+		if( set == null )
+			return( false );
+		
+		if( set.ALL )
+			return( true );
+		
+		ReleaseTarget target = set.findTarget( delivery.NAME );
+		if( target == null )
+			return( false );
+
+		if( target.ALL )
+			return( true );
+		
+		ReleaseTargetItem item = target.addDatabaseSchema( action , schema );
+		registerTargetItem( action , item );
+		return( true );
+	}
+
 	public void deleteProjectItem( ActionBase action , ReleaseTargetItem item ) throws Exception {
 		item.target.set.makePartial( action );
 		item.target.removeSourceItem( action , item );
 		unregisterTargetItem( action , item );
 	}
 	
-	public void deleteProjectItem( ActionBase action , VarCATEGORY CATEGORY , MetaSourceProject sourceProject , MetaSourceProjectItem sourceItem ) throws Exception {
+	public void deleteDatabaseSchema( ActionBase action , ReleaseTargetItem item ) throws Exception {
+		item.target.set.makePartial( action );
+		item.target.removeDatabaseItem( action , item );
+		unregisterTargetItem( action , item );
+	}
+	
+	public void deleteProjectItem( ActionBase action , MetaSourceProject sourceProject , MetaSourceProjectItem sourceItem ) throws Exception {
 		ReleaseSet set = sourceSetMap.get( sourceProject.set.NAME );
 		if( set == null )
 			return;
@@ -724,6 +842,22 @@ public class Release {
 		deleteProjectItem( action , item );
 	}
 	
+	public void deleteDatabaseSchema( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
+		ReleaseSet set = getCategorySet( action , VarCATEGORY.DB );
+		if( set == null )
+			return;
+
+		ReleaseTarget target = set.findTarget( delivery.NAME );
+		if( target == null )
+			return;
+		
+		ReleaseTargetItem item = target.findDatabaseSchema( schema );
+		if( item == null )
+			return;
+
+		deleteDatabaseSchema( action , item );
+	}
+	
 	public boolean addConfItem( ActionBase action , MetaDistrConfItem item ) throws Exception {
 		ReleaseSet set = getCategorySet( action , VarCATEGORY.CONFIG );
 		if( set.ALL )
@@ -737,25 +871,6 @@ public class Release {
 		}
 		
 		target = set.addConfItem( action , item , action.context.CTX_REPLACE );
-		registerTarget( action , target );
-		return( true );
-	}
-
-	public boolean addDatabaseItem( ActionBase action , MetaDistrDelivery item ) throws Exception {
-		if( !item.hasDatabaseItems() ) {
-			action.error( "no database items in delivery=" + item.NAME );
-			return( false );
-		}
-		
-		ReleaseSet set = getCategorySet( action , VarCATEGORY.DB );
-		if( set.ALL )
-			return( true );
-
-		ReleaseTarget target = set.findTarget( item.NAME );
-		if( target != null )
-			return( true );
-		
-		target = set.addDatabaseItem( action , item );
 		registerTarget( action , target );
 		return( true );
 	}
@@ -795,16 +910,16 @@ public class Release {
 	}
 
 	public boolean isCompatible( ActionBase action , String RELEASEVER ) throws Exception {
-		if( PROPERTY_COMPATIBILITY.isEmpty() )
+		if( COMPATIBILITY.isEmpty() )
 			return( true );
 			
-		if( Common.checkPartOfSpacedList( RELEASEVER , PROPERTY_COMPATIBILITY ) )
+		if( Common.checkPartOfSpacedList( RELEASEVER , COMPATIBILITY ) )
 			return( true );
 		return( false );
 	}
 
 	public String[] getCumulativeVersions() {
-		String versions = Common.getSortedUniqueSpacedList( PROPERTY_COMPATIBILITY + " " + RELEASEVER );
+		String versions = Common.getSortedUniqueSpacedList( COMPATIBILITY + " " + RELEASEVER );
 		String[] list = Common.splitSpaced( versions );
 		return( VersionInfo.orderVersions( list ) );
 	}
@@ -832,7 +947,7 @@ public class Release {
 	}
 
 	public VarLCTYPE getLifecycleType() {
-		if( PROPERTY_MASTER )
+		if( MASTER )
 			return( VarLCTYPE.MAJOR );
 		return( VersionInfo.getLifecycleType( RELEASEVER ) );
 	}

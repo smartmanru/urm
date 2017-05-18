@@ -345,5 +345,13 @@ public class MetaEnv extends PropertyController {
 		for( MetaEnvSegment sg : originalList )
 			sg.deleteHostAccount( transaction , account );
 	}
+
+	public boolean isConfUsed( MetaDistrConfItem item ) {
+		for( MetaEnvSegment sg : originalList ) {
+			if( sg.isConfUsed( item ) )
+				return( true );
+		}
+		return( false );
+	}
 	
 }

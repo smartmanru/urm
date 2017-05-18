@@ -54,15 +54,15 @@ public class MetaEnvStartInfo {
 		groups.add( sg );
 	}
 	
-	public List<MetaEnvStartGroup> getForwardGroupList() {
-		return( groups );
+	public MetaEnvStartGroup[] getForwardGroupList() {
+		return( groups.toArray( new MetaEnvStartGroup[0] ) );
 	}
 
-	public List<MetaEnvStartGroup> getReverseGroupList() {
+	public MetaEnvStartGroup[] getReverseGroupList() {
 		List<MetaEnvStartGroup> revs = new LinkedList<MetaEnvStartGroup>();
 		for( int k = groups.size() - 1; k >= 0; k-- )
 			revs.add( groups.get( k ) );
-		return( revs );
+		return( revs.toArray( new MetaEnvStartGroup[0] ) );
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
@@ -73,10 +73,8 @@ public class MetaEnvStartInfo {
 	}
 
 	public void removeServer( ServerTransaction transaction , MetaEnvServer server ) {
-		if( server.startGroup != null ) {
+		if( server.startGroup != null )
 			server.startGroup.removeServer( transaction , server );
-		}
-			
 	}
 
 	public MetaEnvStartGroup findServerGroup( String serverName ) {

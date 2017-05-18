@@ -96,7 +96,7 @@ public class MetaDistrComponentItem {
 	}
 
 	public void loadSchema( ActionBase action , Node node ) throws Exception {
-		NAME = ConfReader.getRequiredAttrValue( node , "schema" );
+		NAME = ConfReader.getRequiredAttrValue( node , "name" );
 		
 		MetaDatabase database = meta.getDatabase( action );
 		type = VarCOMPITEMTYPE.SCHEMA;

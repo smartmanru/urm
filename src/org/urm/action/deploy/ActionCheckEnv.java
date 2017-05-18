@@ -245,7 +245,7 @@ public class ActionCheckEnv extends ActionBase {
 	}
 	
 	private boolean checkOneServerWebServices( MetaEnvServer server , String ACCESSPOINT , NodeStatus nodeStatus , ServerStatus serverStatus ) throws Exception {
-		if( !server.hasWebServices( this ) )
+		if( !server.hasWebServices() )
 			return( true );
 		
 		// by comps

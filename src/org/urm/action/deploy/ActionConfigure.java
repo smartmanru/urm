@@ -66,7 +66,7 @@ public class ActionConfigure extends ActionBase {
 		Map<String, MetaDistrConfItem> confs = new HashMap<String, MetaDistrConfItem>(); 
 		for( ActionScopeSet set : scope.getSets( this ) )
 			for( ActionScopeTarget target : set.getTargets( this ).values() )
-				confs.putAll( target.envServer.getConfItems( this ) );
+				confs.putAll( target.envServer.getConfItems() );
 		
 		// export/copy to template folder
 		for( MetaDistrConfItem conf : confs.values() )
@@ -82,8 +82,13 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		// copy from release
-		if( dist.release.findCategoryTarget( this , VarCATEGORY.CONFIG , conf.KEY ) != null )
-			dist.copyDistConfToFolder( this , conf , templateFolder.getSubFolder( this , conf.KEY ) );
+		if( dist.release.findCategoryTarget( this , VarCATEGORY.CONFIG , conf.KEY ) != null ) {
+			LocalFolder folder = templateFolder.getSubFolder( this , conf.KEY );
+			if( folder.checkExists( this ) )
+				dist.copyDistConfToFolder( this , conf , folder );
+			else
+				super.debug( "missing configuration component=" + conf.KEY );
+		}
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {

@@ -12,6 +12,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.engine.ServerTransaction;
+import org.urm.engine.dist.Release;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.ServerAccountReference;
 import org.urm.meta.engine.ServerHostAccount;
@@ -224,7 +225,7 @@ public class MetaEnvSegment extends PropertyController {
 		return( s );
 	}
 
-	public boolean hasDatabaseServers( ActionBase action ) throws Exception {
+	public boolean hasDatabaseServers() {
 		for( MetaEnvServer server : originalList )
 			if( server.isDatabase() )
 				return( true );
@@ -326,6 +327,22 @@ public class MetaEnvSegment extends PropertyController {
 
 	public void setStartInfo( ServerTransaction transaction , MetaEnvStartInfo startInfo ) throws Exception {
 		this.startInfo = startInfo;
+	}
+
+	public boolean isConfUsed( MetaDistrConfItem item ) {
+		for( MetaEnvServer server : originalList ) {
+			if( server.hasConfItemDeployment( item ) )
+				return( true );
+		}
+		return( false );
+	}
+
+	public boolean isReleaseApplicable( Release release ) {
+		for( MetaEnvServer server : originalList ) {
+			if( server.isReleaseApplicable( release ) )
+				return( true );
+		}
+		return( false );
 	}
 	
 }

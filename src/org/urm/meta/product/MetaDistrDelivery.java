@@ -1,7 +1,6 @@
 package org.urm.meta.product;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
@@ -17,22 +16,25 @@ public class MetaDistrDelivery {
 
 	public Meta meta;
 	public MetaDistr dist;
+	public MetaDatabase db;
 	
 	public String NAME;
 	public String FOLDER;
 	public String DESC;
-	public String SCHEMASET;
+	public boolean allSchemas;
 
 	private Map<String,MetaDistrBinaryItem> mapBinaryItems;
 	private Map<String,MetaDistrConfItem> mapConfComps;
 	private Map<String,MetaDatabaseSchema> mapDatabaseSchema;
 	
-	public MetaDistrDelivery( Meta meta , MetaDistr dist ) {
+	public MetaDistrDelivery( Meta meta , MetaDistr dist , MetaDatabase db ) {
 		this.meta = meta;
 		this.dist = dist;
+		this.db = db;
 		mapBinaryItems = new HashMap<String,MetaDistrBinaryItem>();
 		mapConfComps = new HashMap<String,MetaDistrConfItem>();
 		mapDatabaseSchema = new HashMap<String,MetaDatabaseSchema>();
+		allSchemas = false;
 	}
 
 	public void createDelivery( ServerTransaction transaction , String NAME , String FOLDER , String DESC ) {
@@ -51,16 +53,19 @@ public class MetaDistrDelivery {
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		FOLDER = ConfReader.getAttrValue( node , "folder" , NAME );
 		DESC = ConfReader.getAttrValue( node , "desc" );
+		allSchemas = ConfReader.getBooleanAttrValue( node , "dball" , false );
 		
 		loadBinaryItems( action , node );
 		loadConfigurationComponents( action , node );
-		loadDatabaseItems( action , node );
+		if( !allSchemas )
+			loadDatabaseItems( action , node );
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "name" , NAME );
 		Common.xmlSetElementAttr( doc , root , "folder" , FOLDER );
 		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
+		Common.xmlSetElementAttr( doc , root , "dball" , Common.getBooleanValue( allSchemas ) );
 		
 		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
 			Element itemElement = Common.xmlCreateElement( doc , root , "distitem" );
@@ -71,10 +76,12 @@ public class MetaDistrDelivery {
 			Element itemElement = Common.xmlCreateElement( doc , root , "confitem" );
 			item.save( action , doc , itemElement );
 		}
-			
-		for( MetaDatabaseSchema item : mapDatabaseSchema.values() ) {
-			Element itemElement = Common.xmlCreateElement( doc , root , "database" );
-			Common.xmlSetElementAttr( doc , itemElement , "schema" , item.SCHEMA );
+
+		if( !allSchemas ) {
+			for( MetaDatabaseSchema item : mapDatabaseSchema.values() ) {
+				Element itemElement = Common.xmlCreateElement( doc , root , "database" );
+				Common.xmlSetElementAttr( doc , itemElement , "schema" , item.SCHEMA );
+			}
 		}
 	}
 	
@@ -113,16 +120,14 @@ public class MetaDistrDelivery {
 			MetaDatabaseSchema schema = database.getSchema( action , schemaName );
 			mapDatabaseSchema.put( schemaName , schema );
 		}
-		
-		SCHEMASET = Common.getList( Common.getSortedKeys( mapDatabaseSchema ) , " " );
 	}
 
-	public MetaDistrDelivery copy( ActionBase action , Meta meta , MetaDistr distr ) throws Exception {
-		MetaDistrDelivery r = new MetaDistrDelivery( meta , distr );
+	public MetaDistrDelivery copy( ActionBase action , Meta meta , MetaDistr distr , MetaDatabase db ) throws Exception {
+		MetaDistrDelivery r = new MetaDistrDelivery( meta , distr , db );
 		r.NAME = NAME;
 		r.FOLDER = FOLDER;
 		r.DESC = DESC;
-		r.SCHEMASET = SCHEMASET;
+		r.allSchemas = allSchemas;
 		
 		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
 			MetaDistrBinaryItem ritem = item.copy( action , meta , r );
@@ -172,10 +177,16 @@ public class MetaDistrDelivery {
 	}
 
 	public MetaDatabaseSchema findSchema( String NAME ) {
+		if( allSchemas )
+			return( db.findSchema( NAME ) );
+			
 		return( mapDatabaseSchema.get( NAME ) );
 	}
 	
 	public MetaDatabaseSchema getSchema( ActionBase action , String NAME ) throws Exception {
+		if( allSchemas )
+			return( db.getSchema( action , NAME ) );
+			
 		MetaDatabaseSchema item = mapDatabaseSchema.get( NAME );
 		if( item == null )
 			action.exit1( _Error.UnknownDeliverySchema1 , "unknown delivery schema=" + NAME , NAME );
@@ -199,10 +210,16 @@ public class MetaDistrDelivery {
 	}
 
 	public String[] getDatabaseSchemaNames() {
+		if( allSchemas )
+			return( db.getSchemaNames() );
+		
 		return( Common.getSortedKeys( mapDatabaseSchema ) );
 	}
 	
 	public MetaDatabaseSchema[] getDatabaseSchemes() {
+		if( allSchemas )
+			return( db.getSchemaList() );
+			
 		return( mapDatabaseSchema.values().toArray( new MetaDatabaseSchema[0] ) );
 	}
 
@@ -213,6 +230,12 @@ public class MetaDistrDelivery {
 	}
 	
 	public boolean hasDatabaseItems() {
+		if( allSchemas ) {
+			if( !db.isEmpty() )
+				return( true );
+			return( false );
+		}
+			
 		if( mapDatabaseSchema.isEmpty() )
 			return( false );
 		return( true );
@@ -232,6 +255,15 @@ public class MetaDistrDelivery {
 	public void modifyBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 	}
 	
+	public void moveItemToThis( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+		if( item.delivery == this )
+			return;
+			
+		item.delivery.mapBinaryItems.remove( item.KEY );
+		mapBinaryItems.put( item.KEY , item );
+		item.setDelivery( transaction , this );
+	}
+
 	public void deleteBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		deleteBinaryItemInternal( transaction , item );
 		mapBinaryItems.remove( item.KEY );
@@ -268,15 +300,23 @@ public class MetaDistrDelivery {
 	}
 
 	public void deleteSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+		if( allSchemas )
+			return;
+		
 		mapDatabaseSchema.remove( schema.SCHEMA );
-		SCHEMASET = Common.getList( Common.getSortedKeys( mapDatabaseSchema ) , " " );
 	}
 
-	public void setDatabase( ServerTransaction transaction , List<MetaDatabaseSchema> set ) throws Exception {
+	public void setDatabaseAll( ServerTransaction transaction ) throws Exception {
+		allSchemas = true;
+		mapDatabaseSchema.clear();
+	}
+	
+	public void setDatabaseSet( ServerTransaction transaction , MetaDatabaseSchema[] set ) throws Exception {
+		allSchemas = false;
+			
 		mapDatabaseSchema.clear();
 		for( MetaDatabaseSchema schema : set )
 			mapDatabaseSchema.put( schema.SCHEMA , schema );
-		SCHEMASET = Common.getList( Common.getSortedKeys( mapDatabaseSchema ) , " " );
 	}
 	
 }

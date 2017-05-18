@@ -230,7 +230,7 @@ public class BuildCommand {
 	}
 	
 	public void buildRelease( ActionBase action , Meta meta , String SET , String[] PROJECTS , Dist dist ) throws Exception {
-		action.setBuildMode( dist.release.PROPERTY_BUILDMODE );
+		action.setBuildMode( dist.release.BUILDMODE );
 		
 		String TAG;
 		if( !action.context.CTX_TAG.isEmpty() )
@@ -261,7 +261,7 @@ public class BuildCommand {
 	}
 
 	public void getAllRelease( ActionBase action , String SET , String[] PROJECTS , Dist dist ) throws Exception {
-		action.setBuildMode( dist.release.PROPERTY_BUILDMODE );
+		action.setBuildMode( dist.release.BUILDMODE );
 		
 		ActionScope scope = ActionScope.getReleaseSetScope( action , dist , SET , PROJECTS );
 		if( scope.isEmpty( action ) ) {

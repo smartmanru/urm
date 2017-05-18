@@ -351,20 +351,20 @@ public class SourceStorage {
 
 	private void saveLiveConfigItemCopyFolder( ActionBase action , GenericVCS vcs , ServerMirrorRepository mirror , FileSet tobeFiles , FileSet coFiles , LocalFolder folder , LocalFolder coFolder ) throws Exception {
 		// add new files
-		for( String file : tobeFiles.files.keySet() ) {
-			if( !coFiles.files.containsKey( file ) )
+		for( String file : tobeFiles.getAllFiles() ) {
+			if( !coFiles.findFileByName( file ) )
 				vcs.addFileToCommit( mirror , coFolder , coFiles.dirPath , file );
 		}
 		
 		// delete old files
-		for( String file : coFiles.files.keySet() ) {
-			if( !tobeFiles.files.containsKey( file ) )
+		for( String file : coFiles.getAllFiles() ) {
+			if( !tobeFiles.findFileByName( file ) )
 				vcs.deleteFileToCommit( mirror , coFolder , coFiles.dirPath , file );
 		}
 		
 		// add new dirs and check subfolders
-		for( FileSet tobeDir : tobeFiles.dirs.values() ) {
-			FileSet coDir = coFiles.dirs.get( tobeDir.dirName );
+		for( FileSet tobeDir : tobeFiles.getAllDirs() ) {
+			FileSet coDir = coFiles.findDirByName( tobeDir.dirName );
 			if( coDir == null )
 				vcs.addDirToCommit( mirror , coFolder , Common.getPath( coFiles.dirPath , tobeDir.dirName ) );
 			else
@@ -372,10 +372,10 @@ public class SourceStorage {
 		}
 		
 		// delete old dirs
-		for( String coDir : coFiles.dirs.keySet() ) {
+		for( String coDir : coFiles.getAllDirNames() ) {
 			if( coDir.equals( ".svn" ) || coDir.equals( ".git" ) )
 				continue;
-			if( !tobeFiles.dirs.containsKey( coDir ) )
+			if( tobeFiles.findDirByName( coDir ) == null )
 				vcs.deleteDirToCommit( mirror , coFolder , Common.getPath( coFiles.dirPath , coDir ) );
 		}
 	}

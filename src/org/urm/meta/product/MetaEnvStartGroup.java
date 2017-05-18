@@ -62,8 +62,15 @@ public class MetaEnvStartGroup {
 		server.setStartGroup( action , this );
 	}
 	
-	public List<MetaEnvServer> getServers() {
-		return( servers );
+	public MetaEnvServer[] getServers() {
+		return( servers.toArray( new MetaEnvServer[0] ) );
+	}
+
+	public String[] getServerNames() {
+		List<String> names = new LinkedList<String>();
+		for( MetaEnvServer server : servers )
+			names.add( server.NAME );
+		return( Common.getSortedList( names ) );
 	}
 
 	public void removeServer( ServerTransaction transaction , MetaEnvServer server ) {

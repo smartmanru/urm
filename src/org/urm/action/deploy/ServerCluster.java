@@ -1,7 +1,5 @@
 package org.urm.action.deploy;
 
-import java.util.List;
-
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
@@ -12,9 +10,9 @@ import org.urm.meta.product.MetaEnvServerNode;
 public class ServerCluster {
 
 	MetaEnvServer srv;
-	List<MetaEnvServerNode> nodes;
+	MetaEnvServerNode[] nodes;
 	
-	public ServerCluster( MetaEnvServer srv , List<MetaEnvServerNode> nodes ) {
+	public ServerCluster( MetaEnvServer srv , MetaEnvServerNode[] nodes ) {
 		this.srv = srv;
 		this.nodes = nodes;
 	}

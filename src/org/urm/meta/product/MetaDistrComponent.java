@@ -97,7 +97,7 @@ public class MetaDistrComponent {
 			}
 		}
 		
-		items = ConfReader.xmlGetChildren( node , "database" );
+		items = ConfReader.xmlGetChildren( node , "schema" );
 		if( items != null ) {
 			for( Node itemNode : items ) {
 				MetaDistrComponentItem item = new MetaDistrComponentItem( meta , this );
@@ -133,7 +133,7 @@ public class MetaDistrComponent {
 		}
 		
 		for( MetaDistrComponentItem item : mapSchemaItems.values() ) {
-			Element itemElement = Common.xmlCreateElement( doc , root , "database" );
+			Element itemElement = Common.xmlCreateElement( doc , root , "schema" );
 			item.save( action , doc , itemElement );
 		}
 
@@ -143,7 +143,7 @@ public class MetaDistrComponent {
 		}
 	}	
 	
-	public boolean hasWebServices() throws Exception {
+	public boolean hasWebServices() {
 		if( mapWS.isEmpty() )
 			return( false );
 		return( true );

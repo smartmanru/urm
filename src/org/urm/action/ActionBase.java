@@ -5,16 +5,21 @@ import java.util.List;
 import java.util.Properties;
 
 import org.urm.action.ScopeState.SCOPESTATE;
+import org.urm.action.main.ActionMethod;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunError;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.common.action.CommandOptions;
 import org.urm.engine.ServerBlotter;
 import org.urm.engine.ServerBlotter.BlotterType;
 import org.urm.engine.ServerBlotterSet;
 import org.urm.engine.ServerCache;
 import org.urm.engine.ServerCacheObject;
+import org.urm.engine.ServerEventsApp;
+import org.urm.engine.ServerEventsListener;
+import org.urm.engine.ServerEventsSubscription;
 import org.urm.engine.ServerSession;
 import org.urm.engine.SessionSecurity;
 import org.urm.engine.action.ActionInit;
@@ -32,6 +37,7 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
+import org.urm.meta.Types;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerAuthUser;
 import org.urm.meta.engine.ServerBase;
@@ -63,7 +69,6 @@ import org.w3c.dom.Node;
 abstract public class ActionBase extends ActionCore {
 
 	public ActionInit actionInit;
-	public ActionBase parent;
 	
 	public ServerSession session;
 	public CommandExecutor executor;
@@ -93,7 +98,7 @@ abstract public class ActionBase extends ActionCore {
 	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	
 	public ActionBase( ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , String actionInfo ) {
-		super( executor.engine , actionInfo );
+		super( executor.engine , null , actionInfo );
 		
 		this.session = session;
 		this.executor = executor;
@@ -104,7 +109,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public ActionBase( ActionBase base , String stream , String actionInfo ) {
-		super( base.engine , actionInfo );
+		super( base.engine , base , actionInfo );
 		
 		this.actionInit = base.actionInit;
 		this.parent = base;
@@ -133,12 +138,6 @@ abstract public class ActionBase extends ActionCore {
 		fail( error );
 	}
 
-	public void fail( RunError error ) {
-		super.setFailed( error );
-		if( parent != null )
-			parent.fail( error );
-	}
-	
 	public String getUserName() {
 		if( session == null )
 			return( "" );
@@ -339,7 +338,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public boolean runEachSourceProject( ActionScope scope , SecurityAction sa , boolean readOnly ) {
-		VarCATEGORY[] categories = Meta.getAllSourceCategories();
+		VarCATEGORY[] categories = Types.getAllSourceCategories();
 		return( runCategories( scope , categories , sa , readOnly ) );
 	}
 	
@@ -824,6 +823,33 @@ abstract public class ActionBase extends ActionCore {
 
 	public ServerBlotterSet getBlotter( BlotterType type ) {
 		return( engine.blotter.getBlotterSet( type ) );
+	}
+	
+	public RunError runNotifyMethod( ServerEventsApp app , ServerEventsListener listener , Meta meta , MetaEnv env , MetaEnvSegment sg , String command , String method , String[] args , CommandOptions options ) {
+		ServerEventsSubscription sub = null;
+		try {
+			CommandExecutor executor = engine.getExecutor( command );
+			options.setMethod( command , method );
+			options.setArgs( args );
+	
+			ActionMethod action = new ActionMethod( this , null , meta , executor , options );
+			action.context.env = env;
+			action.context.sg = sg;
+			
+			sub = app.subscribe( action.eventSource , listener );
+			if( !action.runSimpleServer( SecurityAction.ACTION_EXECUTE , true ) )
+				return( action.getError() );
+		}
+		catch( Throwable e ) {
+			log( "method " + super.NAME , e );
+			return( new RunError( e , _Error.InternalError0 , "Internal Error" , new String[0] ) );
+		}
+		finally {
+			if( sub != null )
+				app.unsubscribe( sub );
+		}
+		
+		return( null );
 	}
 	
 }

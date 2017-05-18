@@ -9,6 +9,7 @@ import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.ShellExecutor;
+import org.urm.meta.Types;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -99,14 +100,14 @@ public class RedistStateInfo {
 	private FileInfo createFileInfo( ActionBase action , VarCONTENTTYPE CONTENTTYPE , String verName , String verInfo ) throws Exception {
 		String baseitem = verName;
 		MetaDistr distr = meta.getDistr( action );
-		if( Meta.isBinaryContent( action , CONTENTTYPE ) ) {
+		if( Types.isBinaryContent( CONTENTTYPE ) ) {
 			MetaDistrBinaryItem item = distr.getBinaryItem( action , baseitem );
 			FileInfo info = new FileInfo();
 			info.set( action , item , verInfo );
 			return( info );
 		}
 		
-		if( Meta.isConfContent( action , CONTENTTYPE ) ) {
+		if( Types.isConfContent( CONTENTTYPE ) ) {
 			MetaDistrConfItem item = distr.getConfItem( action , baseitem );
 			FileInfo info = new FileInfo();
 			info.set( action , item , verInfo );

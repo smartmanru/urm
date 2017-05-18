@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.meta.product.Meta;
+import org.urm.meta.Types;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 
@@ -19,9 +19,9 @@ public class FileSet {
 	public String dirPath;
 	public String dirName;
 	// map basename to dir
-	public Map<String,FileSet> dirs = new HashMap<String,FileSet>();
+	private Map<String,FileSet> dirs = new HashMap<String,FileSet>();
 	// map basename to path relative to rootFolder
-	public Map<String,String> files = new HashMap<String,String>();
+	private Map<String,String> files = new HashMap<String,String>();
 	// find content
 	public List<String> dirList;
 	public List<String> fileList;
@@ -52,6 +52,61 @@ public class FileSet {
 
 	public void addFile( String baseName ) throws Exception {
 		files.put( baseName , Common.getPath( dirPath , baseName ) );
+	}
+	
+	public String[] getAllDirNames() {
+		return( Common.getSortedKeys( dirs ) );
+	}
+	
+	public FileSet[] getAllDirs() {
+		List<FileSet> sorted = new LinkedList<FileSet>();
+		for( String dir : Common.getSortedKeys( dirs ) )
+			sorted.add( dirs.get( dir ) );
+		return( sorted.toArray( new FileSet[0] ) );
+	}
+	
+	public FileSet findDirByName( String name ) {
+		return( dirs.get( name ) );
+	}
+	
+	public boolean findFileByName( String name ) {
+		return( files.containsKey( name ) );
+	}
+	
+	public String findFileMatched( String regexp ) {
+		for( String s : files.keySet() ) {
+			if( s.matches( regexp ) )
+				return( files.get( s ) );
+		}
+		for( FileSet dir : dirs.values() ) {
+			String f = dir.findFileMatched( regexp );
+			if( f != null )
+				return( f );
+		}
+		return( null );
+	}
+	
+	public String[] getFilesMatched( String regexp ) {
+		List<String> files = new LinkedList<String>();
+		getFilesMatchedInternal( files , regexp );
+		return( Common.getSortedList( files ) );
+	}
+	
+	private void getFilesMatchedInternal( List<String> list , String regexp ) {
+		for( String s : files.keySet() ) {
+			if( s.matches( regexp ) )
+				list.add( files.get( s ) );
+		}
+		for( FileSet dir : dirs.values() )
+			dir.getFilesMatchedInternal( list , regexp );
+	}
+	
+	public String[] getAllFiles() {
+		return( Common.getSortedKeys( files ) );
+	}
+	
+	public String getFilePath( String name ) {
+		return( files.get( name ) );
 	}
 	
 	public FileSet createDir( String dir ) throws Exception {
@@ -131,7 +186,7 @@ public class FileSet {
 			return( "" );
 		}
 		
-		String[] patterns = Meta.getVersionPatterns( action , distItem );
+		String[] patterns = Types.getVersionPatterns( action , distItem );
 		for( String baseName : delivery.files.keySet() ) {
 			for( String pattern : patterns ) {
 				if( baseName.matches( pattern ) )

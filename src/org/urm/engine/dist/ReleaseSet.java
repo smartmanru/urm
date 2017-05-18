@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.meta.Types;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -43,13 +44,16 @@ public class ReleaseSet {
 	}
 	
 	public ReleaseSet copy( ActionBase action , Release nr ) throws Exception {
-		ReleaseSet nx = new ReleaseSet( meta , nr , CATEGORY );
+		ReleaseSet nx = new ReleaseSet( nr.meta , nr , CATEGORY );
 		nx.NAME = NAME;
 		nx.ALL = ALL;
 		nx.BUILDBRANCH = BUILDBRANCH;
 		nx.BUILDTAG = BUILDTAG;
 		nx.BUILDVERSION = BUILDVERSION;
-		nx.set = set;
+		if( set != null ) {
+			MetaSource nsources = nr.meta.getSources( action );
+			nx.set = nsources.getProjectSet( action , set.NAME );
+		}
 		
 		for( Entry<String,ReleaseTarget> entry : map.entrySet() ) {
 			ReleaseTarget item = entry.getValue().copy( action , nr , nx );
@@ -87,8 +91,8 @@ public class ReleaseSet {
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
-		ALL = ConfReader.getBooleanAttrValue( node , "all" , false );
-		if( Meta.isSourceCategory( CATEGORY ) )
+		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
+		if( Types.isSourceCategory( CATEGORY ) )
 			loadBinary( action , node );
 		else {
 			NAME = Common.getEnumLower( CATEGORY );
@@ -122,11 +126,11 @@ public class ReleaseSet {
 		set = sources.getProjectSet( action , SET );
 		NAME = set.NAME;
 		
-		BUILDBRANCH = ConfReader.getAttrValue( node , "buildbranch" );
-		BUILDTAG = ConfReader.getAttrValue( node , "buildtag" );
-		BUILDVERSION = ConfReader.getAttrValue( node , "buildversion" );
+		BUILDBRANCH = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDBRANCH );
+		BUILDTAG = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDTAG );
+		BUILDVERSION = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDVERSION );
 
-		Node[] projects = ConfReader.xmlGetChildren( node , "project" );
+		Node[] projects = ConfReader.xmlGetChildren( node , Release.ELEMENT_PROJECT );
 		if( ALL ) {
 			if( projects == null || projects.length == 0 ) {
 				addAllSourceProjects( action );
@@ -149,9 +153,9 @@ public class ReleaseSet {
 	
 	private void loadConfiguration( ActionBase action , Node node ) throws Exception {
 		NAME = Common.getEnumLower( VarCATEGORY.CONFIG );
-		ALL = ConfReader.getBooleanAttrValue( node , "all" , false );
+		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
-		Node[] confitems = ConfReader.xmlGetChildren( node , "confitem" );
+		Node[] confitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_CONFITEM );
 		if( ALL ) {
 			if( confitems == null || confitems.length == 0 ) {
 				addAllConfItems( action );
@@ -170,9 +174,9 @@ public class ReleaseSet {
 	
 	private void loadDatabase( ActionBase action , Node node ) throws Exception {
 		NAME = Common.getEnumLower( VarCATEGORY.DB );
-		ALL = ConfReader.getBooleanAttrValue( node , "all" , false );
+		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
-		Node[] dbitems = ConfReader.xmlGetChildren( node , "delivery" );
+		Node[] dbitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DELIVERY );
 		if( ALL ) {
 			if( dbitems == null || dbitems.length == 0 ) {
 				addAllDatabaseItems( action );
@@ -191,9 +195,9 @@ public class ReleaseSet {
 
 	private void loadManual( ActionBase action , Node node ) throws Exception {
 		NAME = Common.getEnumLower( VarCATEGORY.MANUAL );
-		ALL = ConfReader.getBooleanAttrValue( node , "all" , false );
+		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
-		Node[] manualitems = ConfReader.xmlGetChildren( node , "distitem" );
+		Node[] manualitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DISTITEM );
 		if( ALL ) {
 			if( manualitems == null || manualitems.length == 0 ) {
 				addAllManualItems( action );
@@ -212,9 +216,9 @@ public class ReleaseSet {
 
 	private void loadDerived( ActionBase action , Node node ) throws Exception {
 		NAME = Common.getEnumLower( VarCATEGORY.DERIVED );
-		ALL = ConfReader.getBooleanAttrValue( node , "all" , false );
+		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
-		Node[] deriveditems = ConfReader.xmlGetChildren( node , "distitem" );
+		Node[] deriveditems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DISTITEM );
 		if( ALL ) {
 			if( deriveditems == null || deriveditems.length == 0 ) {
 				addAllDerivedItems( action );
@@ -306,7 +310,7 @@ public class ReleaseSet {
 	public void addAllDatabaseItems( ActionBase action ) throws Exception {
 		MetaDistr distr = meta.getDistr( action ); 
 		for( MetaDistrDelivery delivery : distr.getDatabaseDeliveries() )
-			addDatabaseItem( action , delivery );
+			addDatabaseDelivery( action , delivery , true );
 	}
 
 	public void addAllManualItems( ActionBase action ) throws Exception {
@@ -333,9 +337,9 @@ public class ReleaseSet {
 		return( confItem );
 	}
 	
-	public ReleaseTarget addDatabaseItem( ActionBase action , MetaDistrDelivery item ) throws Exception {
+	public ReleaseTarget addDatabaseDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allSchemes ) throws Exception {
 		ReleaseTarget dbItem = new ReleaseTarget( meta , this , CATEGORY );
-		dbItem.createFromDatabaseItem( action , item );
+		dbItem.createFromDatabaseDelivery( action , delivery , allSchemes );
 		
 		map.put( dbItem.NAME , dbItem );
 		return( dbItem );
@@ -425,22 +429,22 @@ public class ReleaseSet {
 	}
 
 	public Element createXml( ActionBase action , Document doc , Element parent ) throws Exception {
-		if( Meta.isSourceCategory( CATEGORY ) )
+		if( Types.isSourceCategory( CATEGORY ) )
 			return( createXmlBinary( action , doc , parent ) );
 
 		return( createXmlCategory( action , doc , parent ) );
 	}
 	
 	public Element createXmlBinary( ActionBase action , Document doc , Element parent ) throws Exception {
-		Element element = Common.xmlCreateElement( doc , parent , "set" );
+		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_SET );
 		
-		Common.xmlSetElementAttr( doc , element , "name" , set.NAME );
+		Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , set.NAME );
 		if( !BUILDBRANCH.isEmpty() )
-			Common.xmlSetElementAttr( doc , element , "buildbranch" , BUILDBRANCH );
+			Common.xmlSetElementAttr( doc , element , Release.PROPERTY_BUILDBRANCH , BUILDBRANCH );
 		if( !BUILDTAG.isEmpty() )
-			Common.xmlSetElementAttr( doc , element , "buildtag" , BUILDTAG );
+			Common.xmlSetElementAttr( doc , element , Release.PROPERTY_BUILDTAG , BUILDTAG );
 		if( !BUILDVERSION.isEmpty() )
-			Common.xmlSetElementAttr( doc , element , "buildversion" , BUILDVERSION );
+			Common.xmlSetElementAttr( doc , element , Release.PROPERTY_BUILDVERSION , BUILDVERSION );
 		
 		return( addXmlTargetList( action , doc , element ) );
 	}
@@ -451,7 +455,7 @@ public class ReleaseSet {
 
 	public Element addXmlTargetList( ActionBase action , Document doc , Element element ) throws Exception {
 		if( ALL ) {
-			Common.xmlSetElementAttr( doc , element , "all" , Common.getBooleanValue( true ) );
+			Common.xmlSetElementAttr( doc , element , Release.PROPERTY_ALL , Common.getBooleanValue( true ) );
 			return( element );
 		}
 
@@ -463,17 +467,10 @@ public class ReleaseSet {
 		return( element );
 	}
 
-	public boolean checkAllBinaryIncluded( ActionBase action ) throws Exception {
-		for( MetaSourceProject project : set.getProjects() ) {
-			ReleaseTarget target = findTarget( project.NAME );
-			if( target == null )
-				return( false );
-			
-			if( !target.checkSourceAllIncluded( action ) )
-				return( false );
-		}
-
-		return( true );
+	public void setSpecifics( ActionBase action , String BUILDBRANCH , String BUILDTAG , String BUILDVERSION ) throws Exception {
+		this.BUILDBRANCH = BUILDBRANCH; 
+		this.BUILDTAG = BUILDTAG; 
+		this.BUILDVERSION = BUILDVERSION;
 	}
-
+	
 }

@@ -146,11 +146,11 @@ public abstract class MirrorCase {
 	
 	private void syncFolderToVcs( LocalFolder mfolder , LocalFolder sfolder , FileSet mset , FileSet sset ) throws Exception {
 		// add to mirror and change
-		for( FileSet sd : sset.dirs.values() ) {
+		for( FileSet sd : sset.getAllDirs() ) {
 			if( vcs.ignoreDir( sd.dirName ) )
 				continue;
 			
-			FileSet md = mset.dirs.get( sd.dirName );
+			FileSet md = mset.findDirByName( sd.dirName );
 			if( md == null ) {
 				sfolder.copyFolder( action , sd.dirPath , mfolder.getSubFolder( action , sd.dirPath ) );
 				vcs.addDirToCommit( mirror , mfolder , sd.dirPath );
@@ -160,44 +160,44 @@ public abstract class MirrorCase {
 		}
 
 		// delete from mirror
-		for( FileSet md : mset.dirs.values() ) {
+		for( FileSet md : mset.getAllDirs() ) {
 			if( vcs.ignoreDir( md.dirName ) )
 				continue;
 			
-			FileSet sd = sset.dirs.get( md.dirName );
+			FileSet sd = sset.findDirByName( md.dirName );
 			if( sd == null )
 				vcs.deleteDirToCommit( mirror , mfolder , md.dirPath );
 		}
 		
 		// add files to mirror and change
 		LocalFolder dstFolder = mfolder.getSubFolder( action , mset.dirPath );
-		for( String sf : sset.files.keySet() ) {
+		for( String sf : sset.getAllFiles() ) {
 			if( vcs.ignoreFile( sf ) )
 				continue;
 			
 			sfolder.copyFile( action , sset.dirPath , sf , dstFolder , sf );
-			if( mset.files.get( sf ) == null )
+			if( !mset.findFileByName( sf ) )
 				vcs.addFileToCommit( mirror , mfolder , mset.dirPath , sf );
 		}
 
 		// delete from mirror
-		for( String mf : mset.files.keySet() ) {
+		for( String mf : mset.getAllFiles() ) {
 			if( vcs.ignoreFile( mf ) )
 				continue;
 			
-			if( sset.files.get( mf ) == null )
+			if( !sset.findFileByName( mf ) )
 				vcs.deleteFileToCommit( mirror , mfolder , mset.dirPath , mf );
 		}
 	}
 	
 	private void addLinuxExecution( LocalFolder folder , FileSet set ) throws Exception {
-		for( String f : set.files.keySet() ) {
+		for( String f : set.getAllFiles() ) {
 			if( f.endsWith( ".sh" ) ) {
 				File ff = new File( folder.getFilePath( action , f ) );
 				ff.setExecutable( true );
 			}
 		}
-		for( FileSet md : set.dirs.values() ) {
+		for( FileSet md : set.getAllDirs() ) {
 			if( vcs.ignoreDir( md.dirName ) )
 				continue;
 			addLinuxExecution( folder.getSubFolder( action , md.dirName ) , md );
@@ -206,11 +206,11 @@ public abstract class MirrorCase {
 	
 	private void syncVcsToFolder( LocalFolder mfolder , LocalFolder sfolder , FileSet mset , FileSet sset ) throws Exception {
 		// add to source and change
-		for( FileSet md : mset.dirs.values() ) {
+		for( FileSet md : mset.getAllDirs() ) {
 			if( vcs.ignoreDir( md.dirName ) )
 				continue;
 			
-			FileSet sd = sset.dirs.get( md.dirName );
+			FileSet sd = sset.findDirByName( md.dirName );
 			if( sd == null )
 				mfolder.copyFolder( action , md.dirPath , sfolder.getSubFolder( action , md.dirPath ) );
 			else
@@ -218,18 +218,18 @@ public abstract class MirrorCase {
 		}
 
 		// delete from source
-		for( FileSet sd : sset.dirs.values() ) {
+		for( FileSet sd : sset.getAllDirs() ) {
 			if( vcs.ignoreDir( sd.dirName ) )
 				continue;
 			
-			FileSet md = mset.dirs.get( sd.dirName );
+			FileSet md = mset.findDirByName( sd.dirName );
 			if( md == null )
 				sfolder.removeFolder( action , sd.dirPath );
 		}
 		
 		// add files to source and change
 		LocalFolder dstFolder = sfolder.getSubFolder( action , sset.dirPath );
-		for( String mf : mset.files.keySet() ) {
+		for( String mf : mset.getAllFiles() ) {
 			if( vcs.ignoreFile( mf ) )
 				continue;
 			
@@ -237,11 +237,11 @@ public abstract class MirrorCase {
 		}
 
 		// delete from mirror
-		for( String sf : sset.files.keySet() ) {
+		for( String sf : sset.getAllFiles() ) {
 			if( vcs.ignoreFile( sf ) )
 				continue;
 			
-			if( mset.files.get( sf ) == null )
+			if( !mset.findFileByName( sf ) )
 				dstFolder.removeFolderFile( action , "" , sf );
 		}
 	}

@@ -19,7 +19,7 @@ public class ReleaseDelivery {
 	private Map<String,ReleaseTarget> confItems;
 	private Map<String,ReleaseTarget> manualItems;
 	private Map<String,ReleaseTarget> derivedItems;
-	private ReleaseTarget dbItem;
+	private Map<String,ReleaseTargetItem> schemaItems;
 	
 	public ReleaseDelivery( Meta meta , Release release , MetaDistrDelivery distDelivery ) {
 		this.meta = meta; 
@@ -30,7 +30,7 @@ public class ReleaseDelivery {
 		confItems = new HashMap<String,ReleaseTarget>();
 		manualItems = new HashMap<String,ReleaseTarget>();
 		derivedItems = new HashMap<String,ReleaseTarget>();
-		dbItem = null;
+		schemaItems = new HashMap<String,ReleaseTargetItem>();
 	}
 
 	public ReleaseDelivery copy( ActionBase action , Release nr ) throws Exception {
@@ -67,33 +67,46 @@ public class ReleaseDelivery {
 			nx.derivedItems.put( entry.getKey() , dst );
 		}
 		
-		nx.dbItem = dbItem;
+		for( Entry<String,ReleaseTargetItem> entry : schemaItems.entrySet() ) {
+			ReleaseTargetItem src = entry.getValue();
+			ReleaseTarget srcTarget = src.target;
+			ReleaseSet dstSet = nr.getCategorySet( action , srcTarget.set.CATEGORY );
+			ReleaseTarget dstTarget = dstSet.getTarget( action , srcTarget.NAME );
+			ReleaseTargetItem dst = dstTarget.findItem( src.NAME );
+			nx.schemaItems.put( entry.getKey() , dst );
+		}
 		
 		return( nx );
 	}
 	
 	public void addTargetItem( ActionBase action , ReleaseTargetItem item ) throws Exception {
-		action.debug( "add delivery binary item: " + distDelivery.NAME + "::" + item.distItem.KEY );
-		projectItems.put( item.distItem.KEY , item );
+		if( item.distItem != null ) {
+			action.debug( "add delivery binary item: " + distDelivery.NAME + "::" + item.distItem.KEY );
+			projectItems.put( item.distItem.KEY , item );
+		}
+		else
+		if( item.schema != null ) {
+			action.debug( "add delivery schema item: " + distDelivery.NAME + "::" + item.schema.SCHEMA );
+			schemaItems.put( item.schema.SCHEMA , item );
+		}
 	}
 
 	public void removeTargetItem( ActionBase action , ReleaseTargetItem item ) throws Exception {
-		action.debug( "remove delivery binary item: " + distDelivery.NAME + "::" + item.distItem.KEY );
-		projectItems.remove( item.distItem.KEY );
+		if( item.distItem != null ) {
+			action.debug( "remove delivery binary item: " + distDelivery.NAME + "::" + item.distItem.KEY );
+			projectItems.remove( item.distItem.KEY );
+		}
+		else
+		if( item.schema != null ) {
+			action.debug( "remove delivery schema item: " + distDelivery.NAME + "::" + item.schema.SCHEMA );
+			schemaItems.remove( item.schema.SCHEMA );
+		}
 	}
 
 	public void addCategoryTarget( ActionBase action , ReleaseTarget target ) throws Exception {
 		if( target.distConfItem != null ) {
 			action.debug( "add delivery configuration item: " + distDelivery.NAME + "::" + target.distConfItem.KEY );
 			confItems.put( target.distConfItem.KEY , target );
-		}
-		else 
-		if( target.distDatabaseItem != null ) {
-			if( dbItem != null )
-				action.exit0( _Error.DatabaseItemAlreadyAdded0 , "database item is already added to release" );
-			
-			action.debug( "add database delivery: " + distDelivery.NAME );
-			dbItem = target;
 		}
 		else 
 		if( target.distManualItem != null ) {
@@ -115,11 +128,6 @@ public class ReleaseDelivery {
 			confItems.remove( target.distConfItem.KEY );
 		}
 		else 
-		if( target.distDatabaseItem != null ) {
-			action.debug( "remove database delivery: " + distDelivery.NAME );
-			dbItem = null;
-		}
-		else 
 		if( target.distManualItem != null ) {
 			action.debug( "remove manual delivery: " + distDelivery.NAME + "::" + target.distManualItem.KEY );
 			manualItems.remove( target.distManualItem.KEY );
@@ -133,10 +141,14 @@ public class ReleaseDelivery {
 			action.exit1( _Error.UnexpectedReleaseSourceType1 , "unexpected type of release source =" + target.NAME , target.NAME );
 	}
 
-	public ReleaseTarget getDatabaseItem( ActionBase action ) throws Exception {
-		return( dbItem );
+	public String[] getDatabaseItemNames() {
+		return( Common.getSortedKeys( schemaItems ) );
 	}
 	
+	public ReleaseTargetItem[] getDatabaseItems() {
+		return( schemaItems.values().toArray( new ReleaseTargetItem[0] ) );
+	}
+
 	public ReleaseTarget[] getConfItems() {
 		return( confItems.values().toArray( new ReleaseTarget[0] ) );
 	}
@@ -185,8 +197,12 @@ public class ReleaseDelivery {
 		return( projectItems.get( name ) );
 	}
 	
+	public ReleaseTargetItem findDatabaseItem( String name ) {
+		return( schemaItems.get( name ) );
+	}
+	
 	public boolean isEmpty() {
-		if( projectItems.isEmpty() && confItems.isEmpty() && manualItems.isEmpty() && derivedItems.isEmpty() && dbItem == null )
+		if( projectItems.isEmpty() && confItems.isEmpty() && manualItems.isEmpty() && derivedItems.isEmpty() && schemaItems.isEmpty() )
 			return( true );
 		return( false );
 	}
@@ -204,7 +220,7 @@ public class ReleaseDelivery {
 	}
 	
 	public boolean hasDatabaseItems() {
-		if( dbItem != null )
+		if( !schemaItems.isEmpty() )
 			return( true );
 		return( false );
 	}

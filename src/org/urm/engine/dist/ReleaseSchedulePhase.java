@@ -5,6 +5,7 @@ import java.util.Date;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.meta.Types.VarNAMETYPE;
 import org.urm.meta.engine.ServerReleaseLifecyclePhase;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
@@ -62,38 +63,38 @@ public class ReleaseSchedulePhase {
 	public void load( ActionBase action , Node root , int pos , int current ) throws Exception {
 		this.pos = pos;
 		
-		name = ConfReader.getRequiredAttrValue( root , "name" );
-		days = ConfReader.getIntegerAttrValue( root , "days" , 0 );
-		normalDays = ConfReader.getIntegerAttrValue( root , "normaldays" , 0 );
-		release = ConfReader.getBooleanAttrValue( root , "release" , false );
-		unlimited = ConfReader.getBooleanAttrValue( root , "unlimited" , false );
+		name = Meta.getNameAttr( action , root , VarNAMETYPE.ANY );
+		days = ConfReader.getIntegerAttrValue( root , Release.PROPERTY_DAYS , 0 );
+		normalDays = ConfReader.getIntegerAttrValue( root , Release.PROPERTY_NORMALDAYS , 0 );
+		release = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_RELEASESTAGE , false );
+		unlimited = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_UNLIMITED , false );
 
 		if( current >= 0 && current < pos )
 			startDate = null;
 		else
-			startDate = Common.getDateValue( ConfReader.getAttrValue( root , "startdate" ) );
+			startDate = Common.getDateValue( ConfReader.getAttrValue( root , Release.PROPERTY_STARTDATE ) );
 		
 		if( current >= 0 && current <= pos ) {
 			finished = false;
 			finishDate = null;
 		}
 		else {
-			finished = ConfReader.getBooleanAttrValue( root , "finished" , false );
+			finished = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_FINISHED , false );
 			if( finished )
-				finishDate = Common.getDateValue( ConfReader.getAttrValue( root , "finishdate" ) );
+				finishDate = Common.getDateValue( ConfReader.getAttrValue( root , Release.PROPERTY_FINISHDATE ) );
 		}
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "name" , name );
-		Common.xmlSetElementAttr( doc , root , "days" , "" + days );
-		Common.xmlSetElementAttr( doc , root , "normaldays" , "" + normalDays );
-		Common.xmlSetElementAttr( doc , root , "release" , Common.getBooleanValue( release ) );
-		Common.xmlSetElementAttr( doc , root , "finished" , Common.getBooleanValue( finished ) );
-		Common.xmlSetElementAttr( doc , root , "unlimited" , Common.getBooleanValue( unlimited ) );
-		Common.xmlSetElementAttr( doc , root , "startdate" , Common.getDateValue( startDate ) );
+		Meta.setNameAttr( action , doc , root , VarNAMETYPE.ANY , name );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_DAYS , "" + days );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_NORMALDAYS , "" + normalDays );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_RELEASESTAGE , Common.getBooleanValue( release ) );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_FINISHED , Common.getBooleanValue( finished ) );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_UNLIMITED , Common.getBooleanValue( unlimited ) );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_STARTDATE , Common.getDateValue( startDate ) );
 		if( finished )
-			Common.xmlSetElementAttr( doc , root , "finishdate" , Common.getDateValue( finishDate ) );
+			Common.xmlSetElementAttr( doc , root , Release.PROPERTY_FINISHDATE , Common.getDateValue( finishDate ) );
 	}
 	
 	public void create( ActionBase action , ServerReleaseLifecyclePhase lcPhase , int pos ) throws Exception {

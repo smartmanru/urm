@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState.SCOPESTATE;
+import org.urm.action.database.DatabaseScriptFile;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
@@ -16,7 +17,8 @@ import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.storage.FileSet;
-import org.urm.meta.product.Meta;
+import org.urm.meta.Types;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
@@ -47,11 +49,11 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		info( "\tstate: " + dist.getState().name() );
 		info( "\tsignature: " + hashStatus );
 		info( "PROPERTIES:" );
-		info( "\tproperty=master: " + Common.getBooleanValue( release.PROPERTY_MASTER ) );
-		if( !release.PROPERTY_MASTER ) {
-			info( "\tproperty=mode: " + Common.getEnumLower( release.PROPERTY_BUILDMODE ) );
-			info( "\tproperty=obsolete: " + Common.getBooleanValue( release.PROPERTY_OBSOLETE ) );
-			info( "\tproperty=over: " + release.PROPERTY_COMPATIBILITY );
+		info( "\tproperty=master: " + Common.getBooleanValue( release.MASTER ) );
+		if( !release.MASTER ) {
+			info( "\tproperty=mode: " + Common.getEnumLower( release.BUILDMODE ) );
+			info( "\tproperty=obsolete: " + Common.getBooleanValue( release.OBSOLETE ) );
+			info( "\tproperty=over: " + release.COMPATIBILITY );
 			info( "\tproperty=cumulative: " + Common.getBooleanValue( release.isCumulative() ) );
 		}
 		
@@ -87,7 +89,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			for( String set : release.getSourceSetNames() )
 				printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
 			
-			for( VarCATEGORY CATEGORY : Meta.getAllReleaseCategories() ) {
+			for( VarCATEGORY CATEGORY : Types.getAllReleaseCategories() ) {
 				ReleaseSet set = release.findCategorySet( CATEGORY );
 				if( set != null )
 					printReleaseCategorySetStatus( dist , files , set );
@@ -162,26 +164,26 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	}
 
 	private void printReleaseBuildSetProjectStatus( Dist dist , FileSet files , ReleaseSet set , ReleaseTarget project ) throws Exception {
-		String specifics = project.getSpecifics( this );
+		String specifics = project.getSpecifics();
 		if( project.isBuildableProject() ) {
 			if( project.sourceProject.isEmpty( this ) ) {
 				info( "\tbuild project=" + project.sourceProject.NAME + " (internal)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
-			if( project.isEmpty( this ) ) {
+			if( project.isEmpty() ) {
 				info( "\tbuild project=" + project.sourceProject.NAME + " (no items added)" + Common.getCommentIfAny( specifics ) );
 				return;
 			}
 			
-			if( !project.isEmpty( this ) )
+			if( !project.isEmpty() )
 				info( "\tbuild project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + ":" );
 			else
 				info( "\tbuild project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + " (no items)" );
 		}
 		else
 		if( project.isPrebuiltProject() ) {
-			if( project.isEmpty( this ) )
+			if( project.isEmpty() )
 				return;
 			
 			info( "\tprebuilt project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + ":" );
@@ -206,7 +208,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	}
 
 	private void printReleaseConfStatus( Dist dist , FileSet files , ReleaseTarget conf ) throws Exception {
-		String specifics = conf.getSpecifics( this );
+		String specifics = conf.getSpecifics();
 		DistItemInfo info = dist.getDistItemInfo( this , conf.distConfItem );
 		String folder = Common.getPath( info.subPath , info.fileName );
 		String status = ( info.found )? "OK" : "missing";
@@ -215,7 +217,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	}
 
 	private void printReleaseManualStatus( Dist dist , FileSet files , ReleaseTarget manual ) throws Exception {
-		String specifics = manual.getSpecifics( this );
+		String specifics = manual.getSpecifics();
 		DistItemInfo info = dist.getDistItemInfo( this , manual.distManualItem , false , true );
 		String folder = Common.getPath( info.subPath , info.fileName );
 		String status = ( info.found )? "OK (" + folder + ", " + 
@@ -225,7 +227,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	}
 
 	private void printReleaseDatabaseStatus( Dist dist , FileSet files , ReleaseTarget db ) throws Exception {
-		MetaDistrDelivery delivery = db.distDatabaseItem;
+		MetaDistrDelivery delivery = db.distDatabaseDelivery;
 
 		if( dist.release.isCumulative() ) {
 			String[] versions = dist.release.getCumulativeVersions();
@@ -244,7 +246,20 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			FileSet dbset = files.getDirByPath( this , folder );
 			String status = ( dbset == null || dbset.isEmpty() )? "missing/empty" : "OK";
 			info( "\tdelivery=" + delivery.NAME + ": " + status + Common.getCommentIfAny( folder ) );
+			
+			for( String key : db.getItemNames() ) {
+				ReleaseTargetItem item = db.findItem( key );
+				printReleaseDatabaseSchemaStatus( dist , dbset , db , item );
+			}
 		}
+	}
+
+	private void printReleaseDatabaseSchemaStatus( Dist dist , FileSet files , ReleaseTarget project , ReleaseTargetItem item ) throws Exception {
+		String specifics = item.getSpecifics( this );
+		MetaDatabaseSchema schema = item.schema;
+		boolean found = DatabaseScriptFile.checkDistHasSchemaFiles( files , schema );
+		String status = ( found )? "found" : "missing";
+		info( "\tschema=" + schema.SCHEMA + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printProdBinaryStatus( Dist dist , FileSet files , MetaDistrBinaryItem distItem ) throws Exception {

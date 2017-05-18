@@ -63,6 +63,10 @@ public class MetaDistrBinaryItem {
 		CUSTOMDEPLOY = false;
 	}
 	
+	public void setDelivery( ServerTransaction transaction , MetaDistrDelivery deliveryNew ) throws Exception {
+		this.delivery = deliveryNew; 
+	}
+	
 	public void changeProjectToManual( ServerTransaction transaction ) throws Exception {
 		if( distItemOrigin != VarDISTITEMORIGIN.BUILD )
 			transaction.exitUnexpectedState();
@@ -387,6 +391,9 @@ public class MetaDistrBinaryItem {
 		}
 		else {
 			String version = "1.0";
+			if( sourceProjectItem != null && sourceProjectItem.ITEMVERSION.isEmpty() == false )
+				version = sourceProjectItem.ITEMVERSION;
+			
 			if( deployVersion == VarITEMVERSION.MIDDASH )
 				value += "-" + version;
 			else

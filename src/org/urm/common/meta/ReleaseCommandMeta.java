@@ -19,7 +19,8 @@ public class ReleaseCommandMeta extends CommandMeta {
 	public static String METHOD_MASTER = "master";
 	public static String METHOD_ARCHIVE = "archive";
 	public static String METHOD_TOUCH = "touch";
-	public static String METHOD_SCOPE = "scope";
+	public static String METHOD_SCOPEADD = "scopeadd";
+	public static String METHOD_SCOPESPEC = "scopespec";
 	public static String METHOD_SCOPEITEMS = "scopeitems";
 	public static String METHOD_SCOPEDB = "scopedb";
 	public static String METHOD_SCOPECONF = "scopeconf";
@@ -53,7 +54,8 @@ public class ReleaseCommandMeta extends CommandMeta {
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_ARCHIVE , true , "archive release" , releaseOpts , "<RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_TOUCH , true , "reload release" , releaseOpts , "<RELEASELABEL>" ) );
 		String addOpts = "OPT_BRANCH,OPT_TAG,OPT_VERSION,OPT_REPLACE";
-		defineAction( CommandMethodMeta.newNormal( this , METHOD_SCOPE , true , "add projects to build (except for prebuilt) and use all its binary items" , addOpts , "<RELEASELABEL> <set> [target1 target2 ...]" ) );
+		defineAction( CommandMethodMeta.newNormal( this , METHOD_SCOPEADD , true , "add projects to build (except for prebuilt) and use all its binary items" , addOpts , "<RELEASELABEL> {all|<set> {all|target1 target2 ...}}" ) );
+		defineAction( CommandMethodMeta.newNormal( this , METHOD_SCOPESPEC , true , "change source project specific attributes" , addOpts , "<RELEASELABEL> {all|<set> {all|target1 target2 ...}}" ) );
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_SCOPEITEMS , true , "add specified binary items to built (if not prebuilt) and get" , addOpts , "<RELEASELABEL> item1 [item2 ...]" ) );
 		String addDbOpts = "";
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_SCOPEDB , true , "add database changes to release deliveries" , addDbOpts , "<RELEASELABEL> delivery1 [delivery2 ...]" ) );

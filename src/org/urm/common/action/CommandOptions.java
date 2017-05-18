@@ -318,6 +318,10 @@ public class CommandOptions {
 		data.setArgs( args );
 	}
 
+	public CommandOption setParam( String var , String value ) {
+		return( setParam( meta.getParamVar( var ) , value ) );
+	}
+	
 	public CommandOption setParam( CommandVar var , String value ) {
 		CommandOption info = meta.getVarParamOption( var );
 		addParamOption( info.optName , value );

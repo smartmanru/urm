@@ -66,12 +66,7 @@ public class ActionScopeTarget {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 		target.NAME = releaseProject.NAME;
 		target.releaseTarget = releaseProject;
-		
 		target.sourceProject = releaseProject.sourceProject;
-		target.dbDelivery = releaseProject.distDatabaseItem;
-		target.confItem = releaseProject.distConfItem;
-		target.manualItem = releaseProject.distManualItem;
-		
 		target.itemFull = ( releaseProject.sourceProject == null )? true : releaseProject.ALL;
 		target.specifiedExplicitly = specifiedExplicitly;
 		return( target );
@@ -80,7 +75,6 @@ public class ActionScopeTarget {
 	public static ActionScopeTarget createDatabaseDeliveryTarget( ActionScopeSet set , MetaDistrDelivery delivery , boolean specifiedExplicitly , boolean all ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 		target.dbDelivery = delivery;
-		
 		target.NAME = "db." + delivery.NAME;
 		target.itemFull = all;
 		target.specifiedExplicitly = specifiedExplicitly;
@@ -263,8 +257,8 @@ public class ActionScopeTarget {
 		return( BUILDTAG );
 	}
 
-	public void addServerNodes( ActionBase action , List<MetaEnvServerNode> nodes ) throws Exception {
-		if( nodes == null || nodes.isEmpty() ) {
+	public void addServerNodes( ActionBase action , MetaEnvServerNode[] nodes ) throws Exception {
+		if( nodes == null || nodes.length == 0 ) {
 			itemFull = true;
 			for( MetaEnvServerNode node : envServer.getNodes() )
 				addServerNode( action , node , false );

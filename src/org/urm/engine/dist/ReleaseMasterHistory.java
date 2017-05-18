@@ -31,13 +31,13 @@ public class ReleaseMasterHistory {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		RELEASE = ConfReader.getAttrValue( root , "release" );
-		appendDate = Common.getDateValue( ConfReader.getAttrValue( root , "added" ) );
+		RELEASE = ConfReader.getAttrValue( root , Release.PROPERTY_RELEASE );
+		appendDate = Common.getDateValue( ConfReader.getAttrValue( root , Release.PROPERTY_DATEADDED ) );
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "release" , RELEASE );
-		Common.xmlSetElementAttr( doc , root , "added" , Common.getDateValue( appendDate ) );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_RELEASE , RELEASE );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_DATEADDED , Common.getDateValue( appendDate ) );
 	}
 
 	public void create( ActionBase action , String RELEASEVER ) throws Exception {

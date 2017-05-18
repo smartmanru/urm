@@ -9,8 +9,9 @@ import org.urm.engine.dist.DistRepository;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
-import org.urm.meta.Types;
 import org.urm.meta.Types.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class Meta extends ServerObject {
@@ -37,6 +38,8 @@ public class Meta extends ServerObject {
 	static String S_REDIST_ARCHIVE_TYPE_SUBDIR = "subdir";
 	
 	private static String configurableExtensionsFindOptions = createConfigurableExtensions();
+
+	public static String PROPERTY_NAME = "name";
 	
 	public Meta( ServerProductMeta storage , ServerSession session ) {
 		super( null );
@@ -193,87 +196,7 @@ public class Meta extends ServerObject {
 		return( configurableExtensions );
 	}
 
-	public static VarCATEGORY readCategoryAttr( Node node ) throws Exception {
-		String value = ConfReader.getAttrValue( node , "category" );
-		return( Types.getCategory( value , true ) );
-	}
-	
-	public static boolean isSourceCategory( VarCATEGORY value ) {
-		if( value == VarCATEGORY.PROJECT )
-			return( true );
-		return( false );
-	}
-	
-	public static VarCATEGORY[] getAllReleaseCategories() {
-		VarCATEGORY[] categories = { VarCATEGORY.PROJECT , VarCATEGORY.CONFIG , VarCATEGORY.DB , VarCATEGORY.MANUAL , VarCATEGORY.DERIVED };
-		return( categories );
-	}
-
-	public static VarCATEGORY[] getAllSourceCategories() {
-		VarCATEGORY[] categories = { VarCATEGORY.PROJECT };
-		return( categories );
-	}
-
-	public static boolean checkCategoryProperty( VarCATEGORY part , VarCATEGORY property ) {
-		if( part == property )
-			return( true );
-		if( property == VarCATEGORY.BUILDABLE ) {
-			if( part == VarCATEGORY.PROJECT )
-				return( true );
-		}
-		return( false );
-	}
-	
-	public static String getVersionPattern( ActionBase action , VarITEMVERSION version , String basename , String ext ) throws Exception {
-		String value = "";
-		if( version == VarITEMVERSION.NONE || version == VarITEMVERSION.IGNORE )
-			value = basename + ext;
-		else if( version == VarITEMVERSION.MIDPOUND )
-			value = Common.getLiteral( basename ) + "##[0-9.]+" + Common.getLiteral( ext );
-		else if( version == VarITEMVERSION.MIDDASH )
-			value = basename + "-[0-9.]+" + ext;
-		else if( version == VarITEMVERSION.PREFIX )
-			value = "[0-9.]+-" + Common.getLiteral( basename + ext );
-		else
-			action.exitUnexpectedState();
-		
-		return( value );
-	}
-
-	public static String[] getVersionPatterns( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
-		String basename = distItem.DISTBASENAME;
-		String ext = distItem.EXT;
-		if( distItem.deployVersion == VarITEMVERSION.IGNORE ) {
-			String[] values = new String[1];
-			values[0] = getVersionPattern( action , distItem.deployVersion , basename , ext );
-			return( values );
-		}
-
-		String[] values = new String[4];
-		values[0] = getVersionPattern( action , VarITEMVERSION.NONE , basename , ext );
-		values[1] = getVersionPattern( action , VarITEMVERSION.MIDPOUND , basename , ext );
-		values[2] = getVersionPattern( action , VarITEMVERSION.MIDDASH , basename , ext );
-		values[3] = getVersionPattern( action , VarITEMVERSION.PREFIX , basename , ext );
-		return( values );
-	}
-	
-	public static boolean isBinaryContent( ActionBase action , VarCONTENTTYPE c ) throws Exception {
-		if( c == VarCONTENTTYPE.BINARYCOLDDEPLOY || c == VarCONTENTTYPE.BINARYCOPYONLY || c == VarCONTENTTYPE.BINARYHOTDEPLOY )
-			return( true );
-		return( false );
-	}
-	
-	public static boolean isConfContent( ActionBase action , VarCONTENTTYPE c ) throws Exception {
-		if( c == VarCONTENTTYPE.CONFCOLDDEPLOY || c == VarCONTENTTYPE.CONFCOPYONLY || c == VarCONTENTTYPE.CONFHOTDEPLOY )
-			return( true );
-		return( false );
-	}
-	
-    public static String getNameAttr( ActionBase action , Node node , VarNAMETYPE nameType ) throws Exception {
-    	String name = ConfReader.getRequiredAttrValue( node , "name" );
-    	if( nameType == VarNAMETYPE.ANY )
-    		return( name );
-    	
+	public static String getMask( ActionBase action , VarNAMETYPE nameType ) throws Exception {
     	String mask = null;
     	if( nameType == VarNAMETYPE.ALPHANUM )
     		mask = "[0-9a-zA-Z_]+";
@@ -285,20 +208,30 @@ public class Meta extends ServerObject {
     		mask = "[0-9a-zA-Z_.-]+";
     	else
     		action.exitUnexpectedState();
-    		
+    	return( mask );
+	}
+	
+    public static String getNameAttr( ActionBase action , Node node , VarNAMETYPE nameType ) throws Exception {
+    	String name = ConfReader.getRequiredAttrValue( node , PROPERTY_NAME );
+    	if( nameType == VarNAMETYPE.ANY )
+    		return( name );
+    	
+    	String mask = getMask( action , nameType );
     	if( !name.matches( mask ) )
     		action.exit1( _Error.WrongNameAttribute1 , "name attribute should contain only alphanumeric or dot characters, value=" + name , name );
     	return( name );	
     }
 
-    public static boolean isArchive( VarDISTITEMTYPE distItemType ) {
-		if( distItemType == VarDISTITEMTYPE.ARCHIVE_CHILD || 
-			distItemType == VarDISTITEMTYPE.ARCHIVE_DIRECT || 
-			distItemType == VarDISTITEMTYPE.ARCHIVE_SUBDIR )
-			return( true );
-		return( false );
+    public static void setNameAttr( ActionBase action , Document doc , Element element , VarNAMETYPE nameType , String value ) throws Exception {
+    	if( nameType != VarNAMETYPE.ANY ) {
+        	String mask = getMask( action , nameType );
+        	if( !value.matches( mask ) )
+        		action.exit1( _Error.WrongNameAttribute1 , "name attribute should contain only alphanumeric or dot characters, value=" + value , value );
+    	}
+    	
+    	Common.xmlSetElementAttr( doc , element , PROPERTY_NAME , value );
     }
-
+    
     public MetaEnv findMetaEnv( MetaEnv env ) {
     	if( env == null )
     		return( null );

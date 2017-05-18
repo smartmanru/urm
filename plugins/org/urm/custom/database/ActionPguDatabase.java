@@ -50,7 +50,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 	protected void copyServices( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , LocalFolder P_TARGETDIR ) throws Exception {
 		LocalFolder scriptDir = P_TARGETDIR.getSubFolder( action , "scripts" );
 		
-		for( FileSet name : P_ALIGNEDNAME.dirs.values() ) {
+		for( FileSet name : P_ALIGNEDNAME.getAllDirs() ) {
 //			if( name.dirName.equals( "coresvc" ) )
 //				copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coresvc" ) , scriptDir );
 			if( name.dirName.startsWith( "war." ) )
@@ -119,7 +119,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 			P_TARGETDIR.removeFiles( action , SRC_SVCFILE_EP );
 			P_TARGETDIR.removeFiles( action , SRC_SMEVATTRFILE );
 
-			for( String script : Common.getSortedKeys( svcspec.files ) ) {
+			for( String script : svcspec.getAllFiles() ) {
 				if( !script.endsWith( ".sql" ) )
 					continue;
 					
@@ -164,7 +164,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 //			F_REGIONALINDEX = "RR";
 
 		// add registration index
-		for( String x : Common.getSortedKeys( P_DIRFROM.files ) ) {
+		for( String x : P_DIRFROM.getAllFiles() ) {
 			if( !x.endsWith( ".zip" ) )
 				continue;
 			
@@ -216,7 +216,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 		S_CHECK_FAILED = false;
 
 		// check folders
-		for( String dir : Common.getSortedKeys( P_ALIGNEDNAME.dirs ) ) {
+		for( String dir : P_ALIGNEDNAME.getAllDirNames() ) {
 			if( dir.startsWith( "war." ) )
 				checkOneWar( action , P_ALIGNEDNAME , P_ALIGNEDID , dir );
 			else

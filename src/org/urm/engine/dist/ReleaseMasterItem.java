@@ -38,21 +38,21 @@ public class ReleaseMasterItem {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		KEY = ConfReader.getAttrValue( root , "key" );
-		RELEASE = ConfReader.getAttrValue( root , "release" );
-		DELIVERY = ConfReader.getAttrValue( root , "delivery" );
-		FOLDER = ConfReader.getAttrValue( root , "folder" );
-		FILE = ConfReader.getAttrValue( root , "file" );
-		MD5 = ConfReader.getAttrValue( root , "md5" );
+		KEY = ConfReader.getAttrValue( root , Release.PROPERTY_KEY );
+		RELEASE = ConfReader.getAttrValue( root , Release.PROPERTY_RELEASE );
+		DELIVERY = ConfReader.getAttrValue( root , Release.PROPERTY_DELIVERY );
+		FOLDER = ConfReader.getAttrValue( root , Release.PROPERTY_FOLDER );
+		FILE = ConfReader.getAttrValue( root , Release.PROPERTY_FILE );
+		MD5 = ConfReader.getAttrValue( root , Release.PROPERTY_MD5 );
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "key" , KEY );
-		Common.xmlSetElementAttr( doc , root , "release" , RELEASE );
-		Common.xmlSetElementAttr( doc , root , "delivery" , DELIVERY );
-		Common.xmlSetElementAttr( doc , root , "folder" , FOLDER );
-		Common.xmlSetElementAttr( doc , root , "file" , FILE );
-		Common.xmlSetElementAttr( doc , root , "md5" , MD5 );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_KEY , KEY );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_RELEASE , RELEASE );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_DELIVERY , DELIVERY );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_FOLDER , FOLDER );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_FILE , FILE );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_MD5 , MD5 );
 	}
 	
 	public void setRelease( ActionBase action , Release src , MetaDistrBinaryItem distItem , DistItemInfo info ) throws Exception {

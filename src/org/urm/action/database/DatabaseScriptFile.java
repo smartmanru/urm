@@ -2,6 +2,8 @@ package org.urm.action.database;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.storage.FileSet;
+import org.urm.meta.product.MetaDatabaseSchema;
 
 public class DatabaseScriptFile {
 
@@ -41,6 +43,18 @@ public class DatabaseScriptFile {
 		PREFIXINSTANCE = parts[2];
 	}
 
+	public static boolean checkDistHasSchemaFiles( FileSet files , MetaDatabaseSchema schema ) {
+		String regexp = "[^-]+-[^-]+-[^-]+" + schema.SCHEMA + "[-.].*";
+		if( files.findFileMatched( regexp ) != null )
+			return( true );
+		return( false );
+	}
+
+	public static String[] getDistSchemaFiles( FileSet files , MetaDatabaseSchema schema ) {
+		String regexp = "[^-]+-[^-]+-[^-]+" + schema.SCHEMA + "[-.].*";
+		return( files.getFilesMatched( regexp ) );
+	}
+	
 	public void setSrcFile( ActionBase action , String name ) throws Exception {
 		String[] parts = Common.splitDashed( name );
 		if( parts.length < 3 ) 
