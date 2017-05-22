@@ -8,6 +8,7 @@ public class BuildPlanItem {
 	public int pos;
 	public ReleaseTarget target;
 	public String key;
+	public String dbVersion;
 	
 	public boolean execute;
 	public boolean doneBuild;
@@ -33,6 +34,10 @@ public class BuildPlanItem {
 		failedGet = false;
 	}
 	
+	public void createDatabase( String dbVersion ) {
+		this.dbVersion = dbVersion;
+	}
+	
 	public String getFullPos() {
 		return( set.getFullPos() + "." + ( pos + 1 ) );
 	}
@@ -47,6 +52,11 @@ public class BuildPlanItem {
 	public void setBuildDone( boolean success ) {
 		doneBuild = true;
 		failedBuild = ( success )? false : true;
+	}
+	
+	public void setGetDone( boolean success ) {
+		doneGet = true;
+		failedGet = ( success )? false : true;
 	}
 	
 	public void clearRun() {

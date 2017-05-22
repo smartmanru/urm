@@ -79,5 +79,19 @@ public class DeployPlanItem {
 		failedRedist = false;
 		failedDeploy = false;
 	}
+
+	public void setDoneRedist( boolean success ) {
+		doneRedist = true;
+		failedRedist = success;
+	}
+
+	public void setDeployStarted() {
+		startDeploy = true;
+	}
+	
+	public void setDeployDone( boolean success ) {
+		doneDeploy = true;
+		failedDeploy = success;
+	}
 	
 }
