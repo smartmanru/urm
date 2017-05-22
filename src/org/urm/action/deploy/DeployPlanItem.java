@@ -21,6 +21,8 @@ public class DeployPlanItem {
 	public boolean doneDeploy;
 	public boolean failedRedist;
 	public boolean failedDeploy;
+	public boolean noRedist;
+	public boolean noDeploy;
 
 	public DeployPlanItem( DeployPlanSet set , MetaEnvServer server , int pos , String key ) {
 		this.set = set;
@@ -40,6 +42,8 @@ public class DeployPlanItem {
 		doneDeploy = false;
 		failedRedist = false;
 		failedDeploy = false;
+		noRedist = false;
+		noDeploy = false;
 	}
 
 	public void createApp() {
@@ -78,6 +82,8 @@ public class DeployPlanItem {
 		doneDeploy = false;
 		failedRedist = false;
 		failedDeploy = false;
+		noRedist = false;
+		noDeploy = false;
 	}
 
 	public void setDoneRedist( boolean success ) {
@@ -92,6 +98,16 @@ public class DeployPlanItem {
 	public void setDeployDone( boolean success ) {
 		doneDeploy = true;
 		failedDeploy = success;
+	}
+	
+	public void setRedistNotRun() {
+		if( executeRedist && doneRedist == false )
+			noRedist = true;
+	}
+	
+	public void setDeployNotRun() {
+		if( executeDeploy && doneDeploy == false )
+			noDeploy = true;
 	}
 	
 }

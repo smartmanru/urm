@@ -43,6 +43,8 @@ public class DeployPlan extends ServerEventsSource implements ServerEventsListen
 	ServerEventsApp eventsApp;
 
 	public static int EVENT_ITEMFINISHED = 1000;
+	public static int EVENT_REDISTFINISHED = 1001;
+	public static int EVENT_DEPLOYFINISHED = 1002;
 	
 	private DeployPlan( Dist dist , MetaEnv env , boolean redist , boolean deploy , ServerEvents events , String id ) {
 		super( events , id );
@@ -177,9 +179,9 @@ public class DeployPlan extends ServerEventsSource implements ServerEventsListen
 		
 		MetaEnvSegment sg = ( selectSg == null )? null : selectSg.sg;
 		error = action.runNotifyMethod( eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_REDIST , args , options );
-		if( error != null )
-			return( false );
-		return( true );
+		boolean res = ( error != null )? false : true;
+		finishPlanRedist();
+		return( res );
 	}
 
 	public boolean executeDeploy( ActionBase action , CommandOptions options ) {
@@ -201,9 +203,9 @@ public class DeployPlan extends ServerEventsSource implements ServerEventsListen
 		
 		MetaEnvSegment sg = ( selectSg == null )? null : selectSg.sg;
 		error = action.runNotifyMethod( eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_DEPLOYREDIST , args , options );
-		if( error != null )
-			return( false );
-		return( true );
+		boolean res = ( error != null )? false : true;
+		finishPlanDeploy();
+		return( res );
 	}
 	
 	public DeployPlanSegment getSegment( MetaEnvSegment sg ) {
@@ -287,6 +289,30 @@ public class DeployPlan extends ServerEventsSource implements ServerEventsListen
 			item.setDeployDone( true );
 		
 		super.trigger( EVENT_ITEMFINISHED , item );
+	}
+	
+	private void finishPlanRedist() {
+		for( DeployPlanSegment sg : listSg ) {
+			for( DeployPlanSet set : sg.listSets ) {
+				for( DeployPlanItem item : set.listItems ) {
+					if( selectSet != null && set != selectSet )
+						item.setRedistNotRun();
+				}
+			}
+		}
+		super.trigger( EVENT_REDISTFINISHED , null );
+	}
+	
+	private void finishPlanDeploy() {
+		for( DeployPlanSegment sg : listSg ) {
+			for( DeployPlanSet set : sg.listSets ) {
+				for( DeployPlanItem item : set.listItems ) {
+					if( selectSet != null && set != selectSet )
+						item.setDeployNotRun();
+				}
+			}
+		}
+		super.trigger( EVENT_DEPLOYFINISHED , null );
 	}
 	
 }

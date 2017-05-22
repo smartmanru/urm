@@ -41,6 +41,7 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 	ServerEventsApp eventsApp;
 
 	public static int EVENT_ITEMFINISHED = 1000;
+	public static int EVENT_PLANFINISHED = 1001;
 	
 	private BuildPlan( Dist dist , ServerEvents events , String id ) {
 		super( events , id );
@@ -221,16 +222,24 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 	}
 	
 	public boolean executeBuild( ActionBase action , CommandOptions options ) {
-		if( !executeCompile( action , options ) )
-			return( false );
-		if( !executeConf( action , options ) )
-			return( false );
-		if( !executeDatabase( action , options ) )
-			return( false );
-		return( true );
+		boolean res = true;
+		if( res && !executeCompileInternal( action , options ) )
+			res = false;
+		if( res && !executeConfInternal( action , options ) )
+			res = false;
+		if( res && !executeDatabaseInternal( action , options ) )
+			res = false;
+		finishPlan();
+		return( res );
+	}
+
+	public boolean executeCompile( ActionBase action , CommandOptions options ) {
+		boolean res = executeCompileInternal( action , options );
+		finishPlan();
+		return( res );
 	}
 	
-	public boolean executeCompile( ActionBase action , CommandOptions options ) {
+	private boolean executeCompileInternal( ActionBase action , CommandOptions options ) {
 		String[] args = null;
 		boolean run = true;
 		
@@ -262,8 +271,14 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 		}
 		return( true );
 	}
-	
+
 	public boolean executeConf( ActionBase action , CommandOptions options ) {
+		boolean res = executeConfInternal( action , options );
+		finishPlan();
+		return( res );
+	}
+	
+	private boolean executeConfInternal( ActionBase action , CommandOptions options ) {
 		String[] args = null;
 		boolean run = true;
 			
@@ -291,8 +306,24 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 		}
 		return( true );
 	}
-	
+
 	public boolean executeDatabase( ActionBase action , CommandOptions options ) {
+		boolean res = executeDatabaseInternal( action , options );
+		finishPlan();
+		return( res );
+	}
+
+	private void finishPlan() {
+		for( BuildPlanSet set : listSets ) {
+			for( BuildPlanItem item : set.listItems ) {
+				if( selectSet == null || set == selectSet )
+					item.setNotRun();
+			}
+		}
+		super.trigger( EVENT_PLANFINISHED , null );
+	}
+	
+	private boolean executeDatabaseInternal( ActionBase action , CommandOptions options ) {
 		String[] args = null;
 		boolean run = true;
 		

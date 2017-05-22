@@ -17,6 +17,8 @@ public class BuildPlanItem {
 	public boolean failedGet;
 	public boolean executeBuild;
 	public boolean executeGet;
+	public boolean noBuild;
+	public boolean noGet;
 	
 	public BuildPlanItem( BuildPlanSet set , ReleaseTarget target , int pos , String key ) {
 		this.set = set;
@@ -32,6 +34,8 @@ public class BuildPlanItem {
 		doneGet = false;
 		failedBuild = false;
 		failedGet = false;
+		noBuild = false;
+		noGet = false;
 	}
 	
 	public void createDatabase( String dbVersion ) {
@@ -64,6 +68,15 @@ public class BuildPlanItem {
 		doneGet = false;
 		failedBuild = false;
 		failedGet = false;
+		noBuild = false;
+		noGet = false;
+	}
+
+	public void setNotRun() {
+		if( executeBuild && doneBuild == false )
+			noBuild = true;
+		if( executeGet && doneGet == false )
+			noGet = true;
 	}
 	
 }
