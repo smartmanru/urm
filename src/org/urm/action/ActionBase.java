@@ -323,7 +323,7 @@ abstract public class ActionBase extends ActionCore {
 		return( executor.runSingleTarget( item , env , sa , readOnly ) );
 	}
 	
-	public boolean runCustomTarget( ScopeState state , ActionScopeTarget target ) {
+	protected boolean runCustomTarget( ScopeState state , ActionScopeTarget target ) {
 		return( scopeExecutor.runCustomTarget( target , state ) );
 	}
 	
