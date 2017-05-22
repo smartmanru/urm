@@ -3,6 +3,7 @@ package org.urm.action.release;
 import java.util.Date;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.database.DatabaseScriptFile;
 import org.urm.common.Common;
@@ -34,7 +35,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		Release release = dist.release;
 		ReleaseSchedule schedule = release.schedule;
 	

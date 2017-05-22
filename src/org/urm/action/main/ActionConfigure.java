@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.common.action.CommandBuilder;
@@ -67,7 +68,7 @@ public class ActionConfigure extends ActionBase {
 		deleteOld = true;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		commentExecutor( "configure ..." );
 		
 		executorMasterFolderRel = "..";

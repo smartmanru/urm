@@ -1,6 +1,7 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
@@ -17,7 +18,7 @@ public class ActionAppendProd extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		Dist prod = super.getMasterDist( dist.meta );
 		if( !prod.isFinalized() ) {
 			super.fail0( _Error.NotFinalizedProd0 , "Unable to append to non-finalyzed master release" );

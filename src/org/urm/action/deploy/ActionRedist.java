@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
@@ -37,7 +38,7 @@ public class ActionRedist extends ActionBase {
 		infoAction( "execute sg=" + set.sg.NAME + ", releasedir=" + dist.RELEASEDIR + ", servers={" + set.getScopeInfo( this ) + "} ..." );
 	}
 	
-	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		if( server.isDeployPossible() )
 			executeServer( target );

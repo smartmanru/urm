@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.SimpleHttp;
 import org.urm.meta.product.MetaDistrComponentWS;
@@ -33,7 +34,7 @@ public class ActionMonitorCheckItem extends ActionBase {
 		nodeData = new LinkedList<NodeStatus>(); 
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		if( server == null ) {
 			if( item.monitorUrl )
 				monitorUrl( item.URL );

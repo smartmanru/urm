@@ -1,6 +1,7 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
@@ -22,7 +23,7 @@ public class ActionGetCumulative extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		dist.openForDataChange( this );
 		dist.descopeAll( this );
 		dist.saveReleaseXml( this );

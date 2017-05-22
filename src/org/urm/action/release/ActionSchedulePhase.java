@@ -3,6 +3,7 @@ package org.urm.action.release;
 import java.util.Date;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistState.DISTSTATE;
@@ -51,7 +52,7 @@ public class ActionSchedulePhase extends ActionBase {
 		cmdScheduleAll = true;
 	}
 	
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		ReleaseSchedule schedule = dist.release.schedule;
 		if( cmdNext && schedule.currentPhase >= 0 ) {
 			if( schedule.currentPhase == schedule.releasePhases - 1 ) {
@@ -65,7 +66,7 @@ public class ActionSchedulePhase extends ActionBase {
 			}
 		}
 		
-		DISTSTATE state = open();
+		DISTSTATE distState = open();
 		if( cmdNext )
 			schedule.nextPhase( this );
 		else
@@ -78,7 +79,7 @@ public class ActionSchedulePhase extends ActionBase {
 		if( cmdScheduleAll )
 			schedule.setAllDates( this , dates );
 	
-		close( state );
+		close( distState );
 		return( SCOPESTATE.RunSuccess );
 	}
 

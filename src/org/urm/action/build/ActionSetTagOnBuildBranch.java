@@ -2,6 +2,7 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.vcs.ProjectVersionControl;
@@ -17,7 +18,7 @@ public class ActionSetTagOnBuildBranch extends ActionBase {
 		this.TAG = TAG;
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
 		String BUILDBRANCH = "";
 		String BUILDTAG = "";
 		

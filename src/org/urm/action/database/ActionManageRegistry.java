@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.meta.product.MetaDistrDelivery;
@@ -26,7 +27,7 @@ public class ActionManageRegistry extends ActionBase {
 		this.indexScope = ( indexScope == null )? "" : indexScope;
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		DatabaseClient client = new DatabaseClient();
 		if( !client.checkConnect( this , server ) )

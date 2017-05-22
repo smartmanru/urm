@@ -5,6 +5,7 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
@@ -34,7 +35,7 @@ public class ActionSaveConfigs extends ActionBase {
 		}
 	}
 	
-	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer; 
 		if( !server.isConfigurable() ) {
 			debug( "ignore server=" + server.NAME + ", type=" + server.getServerTypeName( this ) );

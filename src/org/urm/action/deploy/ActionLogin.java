@@ -1,6 +1,7 @@
 package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellInteractive;
@@ -16,7 +17,7 @@ public class ActionLogin extends ActionBase {
 		this.node = node;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		// handle user options
 		Account account = getNodeAccount( node );
 		if( !context.CTX_HOSTUSER.isEmpty() )

@@ -3,6 +3,7 @@ package org.urm.action.database;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.engine.dist.Dist;
@@ -22,7 +23,7 @@ public class ActionApplyManual extends ActionBase {
 		this.server = server;
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		info( "apply manual database items ..." );
 		LogStorage logs = artefactory.getDatabaseLogStorage( this , target.meta , release.release.RELEASEVER );
 		info( "log to " + logs.logFolder.folderPath );

@@ -5,6 +5,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
@@ -40,7 +41,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		info( "log to " + logs.logFolder.folderPath );
 	}
 	
-	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		DatabaseClient client = new DatabaseClient();
 		if( !client.checkConnect( this , server ) )

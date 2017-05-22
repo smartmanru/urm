@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
@@ -56,7 +57,7 @@ public class ActionImportDatabase extends ActionBase {
 		this.SCHEMA = SCHEMA;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		workFolder = artefactory.getWorkFolder( this );
 		loadImportSettings();
 		

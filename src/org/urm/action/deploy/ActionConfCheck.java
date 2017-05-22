@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.meta.product.MetaEnv;
@@ -22,7 +23,7 @@ public class ActionConfCheck extends ActionBase {
 		super( action , stream , "Check configuration parameters" );
 	}
 	
-	@Override protected SCOPESTATE executeScope( ActionScope scope ) throws Exception {
+	@Override protected SCOPESTATE executeScope( ScopeState state , ActionScope scope ) throws Exception {
 		info( "check configuration parameters in env=" + context.env.ID + " ..." );
 		S_CONFCHECK_STATUS = true;
 
@@ -31,7 +32,7 @@ public class ActionConfCheck extends ActionBase {
 		return( SCOPESTATE.NotRun );
 	}
 	
-	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override protected SCOPESTATE executeScopeSet( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		info( "check configuration parameters in segment=" + set.sg.NAME + " ..." );
 
 		// read properties
@@ -39,7 +40,7 @@ public class ActionConfCheck extends ActionBase {
 		return( SCOPESTATE.NotRun );
 	}
 	
-	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		// read properties
 		executeServer( target.envServer );
 		return( SCOPESTATE.RunSuccess );

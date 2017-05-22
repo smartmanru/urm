@@ -2,6 +2,7 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.vcs.ProjectVersionControl;
 
@@ -16,7 +17,7 @@ public class ActionDropCodebase extends ActionBase {
 		this.VAR1 = VAR1;
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
 		if( branchVAR1 == true )
 			vcs.dropBranch( scopeProject.sourceProject , VAR1 );

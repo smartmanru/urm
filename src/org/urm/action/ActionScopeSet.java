@@ -50,6 +50,7 @@ public class ActionScopeSet {
 		this.scope = scope;
 		this.meta = scope.meta;
 		this.specifiedExplicitly = specifiedExplicitly;
+		this.setFull = false;
 	}
 	
 	public boolean isEmpty( ActionBase action ) throws Exception {

@@ -1,6 +1,7 @@
 package org.urm.action.build;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.storage.LocalFolder;
@@ -24,7 +25,7 @@ public class ActionGetManual extends ActionBase {
 		this.downloadFolder = downloadFolder;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , meta , downloadFolder );
 		
 		LocalFolder manualFolder = downloadFolder.getSubFolder( this , "manual" );

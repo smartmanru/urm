@@ -3,6 +3,7 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.VersionInfo;
@@ -20,7 +21,7 @@ public class ActionRollout extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		// ignore database and unreachable
 		MetaEnvServer server = target.envServer;
 		if( !server.isDeployPossible() ) {

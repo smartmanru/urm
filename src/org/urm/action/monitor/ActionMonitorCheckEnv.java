@@ -2,6 +2,7 @@ package org.urm.action.monitor;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.deploy.ActionCheckEnv;
 import org.urm.engine.storage.LocalFolder;
@@ -24,7 +25,7 @@ public class ActionMonitorCheckEnv extends ActionBase {
 		this.target = target;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		ActionCheckEnv action = new ActionCheckEnv( this , null );
 		
 		MetaEnv env = target.meta.getEnv( this , target.ENV );

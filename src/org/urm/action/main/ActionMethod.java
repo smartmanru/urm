@@ -1,6 +1,7 @@
 package org.urm.action.main;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.RunError;
 import org.urm.common.action.CommandOptions;
@@ -21,7 +22,7 @@ public class ActionMethod extends ActionBase {
 		this.methodOptions = methodOptions;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		context.setOptions( this , meta , methodOptions );
 		CommandMethod executorMethod = methodExecutor.getAction( methodOptions.method );
 		if( methodExecutor.runExecutor( this , executorMethod ) )

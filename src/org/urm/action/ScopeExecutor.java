@@ -89,7 +89,7 @@ public class ScopeExecutor {
 		}
 		
 		startExecutor( scope );
-		SCOPESTATE ss = runAllInternal( scope , stateFinal );
+		SCOPESTATE ss = runAllInternal( scope );
 		return( finishExecutor( ss ) );
 	}
 	
@@ -114,7 +114,7 @@ public class ScopeExecutor {
 
 		try {
 			if( checkNeedRunAction( ss , action ) )
-				ss = getActionStatus( ss , action , runTargetCategoriesInternal( scope , categories , stateFinal ) );
+				ss = getActionStatus( ss , action , runTargetCategoriesInternal( scope , categories ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -191,7 +191,7 @@ public class ScopeExecutor {
 					list = Common.addItemToUniqueSpacedList( list , target.NAME );
 				
 				action.debug( action.NAME + ": run scope={" + set.NAME + "={" + list + "}}" );
-				ss = runTargetListInternal( set.CATEGORY , set , targets , true , stateSet );
+				ss = runTargetListInternal( set , targets , true , stateSet );
 			}
 		}
 		catch( Throwable e ) {
@@ -242,7 +242,7 @@ public class ScopeExecutor {
 		try {
 			if( checkNeedRunAction( ss , action ) ) {
 				action.debug( action.NAME + ": run scope={" + item.set.NAME + "={" + item.NAME + "}}" );
-				ss = runTargetListInternal( item.CATEGORY , item.set , new ActionScopeTarget[] { item } , true , stateSet );
+				ss = runTargetListInternal( item.set , new ActionScopeTarget[] { item } , true , stateSet );
 			}
 		}
 		catch( Throwable e ) {
@@ -286,7 +286,7 @@ public class ScopeExecutor {
 		try {
 			if( checkNeedRunAction( ss , action ) ) {
 				runUniqueHosts = true;
-				ss = runTargetCategoriesInternal( scope , categories , stateFinal );
+				ss = runTargetCategoriesInternal( scope , categories );
 			}
 		}
 		catch( Throwable e ) {
@@ -334,7 +334,7 @@ public class ScopeExecutor {
 		try {
 			if( checkNeedRunAction( ss , action ) ) {
 				runUniqueAccounts = true;
-				ss = runTargetCategoriesInternal( scope , categories , stateFinal );
+				ss = runTargetCategoriesInternal( scope , categories );
 			}
 		}
 		catch( Throwable e ) {
@@ -370,7 +370,7 @@ public class ScopeExecutor {
 
 		try {
 			if( checkNeedRunAction( ss , action ) )
-				ss = getActionStatus( ss , action , action.executeSimple() );
+				ss = getActionStatus( ss , action , action.executeSimple( stateFinal ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -389,7 +389,27 @@ public class ScopeExecutor {
 		return( finishExecutor( ss ) );
 	}
 
-	private SCOPESTATE runTargetListInternal( VarCATEGORY CATEGORY , ActionScopeSet set , ActionScopeTarget[] items , boolean runBefore , ScopeState stateSet ) {
+	public boolean runCustomTarget( ActionScopeTarget target , ScopeState state ) {
+		try {
+			ScopeState stateTarget = new ScopeState( state , target );
+			SCOPESTATE ssTarget = runSingleTargetInternal( target , stateTarget );
+			if( isRunDone( ssTarget ) ) {
+				stateTarget.setActionStatus( ssTarget );
+				if( !action.continueRun() )
+					return( false );
+			}
+			else
+				stateTarget.setActionNotRun();
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			return( false );
+		}
+		
+		return( true );
+	}
+	
+	private SCOPESTATE runTargetListInternal( ActionScopeSet set , ActionScopeTarget[] items , boolean runBefore , ScopeState stateSet ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			if( runUniqueHosts ) {
@@ -420,12 +440,12 @@ public class ScopeExecutor {
 			
 		try {
 			if( checkNeedRunAction( ss , action ) && runBefore )
-				ss = getActionStatus( ss , action , action.executeScopeSet( set , items ) );
+				ss = getActionStatus( ss , action , action.executeScopeSet( stateSet , set , items ) );
 
 			if( checkNeedRunAction( ss , action ) && !isRunDone( ss ) ) {
 				for( ActionScopeTarget target : getOrderedTargets( set , items ) ) {
 					ScopeState stateTarget = new ScopeState( stateSet , target );
-					SCOPESTATE ssTarget = runSingleTargetInternal( CATEGORY , target , stateTarget );
+					SCOPESTATE ssTarget = runSingleTargetInternal( target , stateTarget );
 					ss = addChildState( ss , ssTarget );
 					
 					if( isRunDone( ssTarget ) ) {
@@ -474,9 +494,9 @@ public class ScopeExecutor {
 		
 		try {
 			if( checkNeedRunAction( ss , action ) ) {
-				ss = getActionStatus( ss , action , action.executeScopeSet( set , items ) );
+				ss = getActionStatus( ss , action , action.executeScopeSet( stateSet , set , items ) );
 				if( !isRunDone( ss ) )
-					ss = runTargetListInternal( set.CATEGORY , set , set.targets.values().toArray( new ActionScopeTarget[0] ) , false , stateSet );
+					ss = runTargetListInternal( set , set.targets.values().toArray( new ActionScopeTarget[0] ) , false , stateSet );
 			}
 		}
 		catch( Throwable e ) {
@@ -496,7 +516,7 @@ public class ScopeExecutor {
 		return( ss );
 	}
 	
-	private SCOPESTATE runTargetCategoriesInternal( ActionScope scope , VarCATEGORY[] categories , ScopeState stateScope ) {
+	private SCOPESTATE runTargetCategoriesInternal( ActionScope scope , VarCATEGORY[] categories ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			if( scope.isEmpty( action , categories ) ) {
@@ -518,7 +538,7 @@ public class ScopeExecutor {
 					continue;
 
 				// execute set
-				ScopeState stateSet = new ScopeState( stateScope , set );
+				ScopeState stateSet = new ScopeState( stateFinal , set );
 				SCOPESTATE ssSet = runTargetSetInternal( set , stateSet );
 				ss = addChildState( ss , ssSet );
 				
@@ -539,7 +559,7 @@ public class ScopeExecutor {
 		return( ss );
 	}
 	
-	private SCOPESTATE runAllInternal( ActionScope scope , ScopeState stateScope ) {
+	private SCOPESTATE runAllInternal( ActionScope scope ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			String all = ( scope.scopeFull )? " (all)" : "";
@@ -553,9 +573,9 @@ public class ScopeExecutor {
 		
 		try {
 			if( checkNeedRunAction( ss , action ) ) {
-				ss = getActionStatus( ss , action , action.executeScope( scope ) );
+				ss = getActionStatus( ss , action , action.executeScope( stateFinal , scope ) );
 				if( !isRunDone( ss ) )
-					ss = runTargetCategoriesInternal( scope , null , stateScope );
+					ss = runTargetCategoriesInternal( scope , null );
 			}
 		}
 		catch( Throwable e ) {
@@ -575,7 +595,7 @@ public class ScopeExecutor {
 		return( ss );
 	}
 
-	private SCOPESTATE runSingleTargetInternal( VarCATEGORY CATEGORY , ActionScopeTarget target , ScopeState stateTarget ) {
+	private SCOPESTATE runSingleTargetInternal( ActionScopeTarget target , ScopeState stateTarget ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			String all = ( target.itemFull )? " (all)" : "";
@@ -589,9 +609,9 @@ public class ScopeExecutor {
 		
 		try {
 			if( checkNeedRunAction( ss , action ) ) {
-				ss = getActionStatus( ss , action , action.executeScopeTarget( target ) );
+				ss = getActionStatus( ss , action , action.executeScopeTarget( stateTarget , target ) );
 				if( !isRunDone( ss ) )
-					ss = runTargetItemsInternal( CATEGORY , target , stateTarget );
+					ss = runTargetItemsInternal( target , stateTarget );
 			}
 		}
 		catch( Throwable e ) {
@@ -611,7 +631,7 @@ public class ScopeExecutor {
 		return( ss );
 	}
 
-	private SCOPESTATE runTargetItemsInternal( VarCATEGORY CATEGORY , ActionScopeTarget target , ScopeState stateTarget ) {
+	private SCOPESTATE runTargetItemsInternal( ActionScopeTarget target , ScopeState stateTarget ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			List<ActionScopeTargetItem> items = target.getItems( action );
@@ -622,7 +642,7 @@ public class ScopeExecutor {
 			
 			for( ActionScopeTargetItem item : items ) {
 				ScopeState stateItem = new ScopeState( stateTarget , item ); 
-				SCOPESTATE ssItem = runSingleTargetItemInternal( CATEGORY , target , item , stateItem );
+				SCOPESTATE ssItem = runSingleTargetItemInternal( target , item , stateItem );
 				ss = addChildState( ss , ssItem );
 				
 				if( isRunDone( ssItem ) ) {
@@ -642,7 +662,7 @@ public class ScopeExecutor {
 		return( ss );
 	}
 	
-	private SCOPESTATE runSingleTargetItemInternal( VarCATEGORY CATEGORY , ActionScopeTarget target , ActionScopeTargetItem item , ScopeState stateItem ) {
+	private SCOPESTATE runSingleTargetItemInternal( ActionScopeTarget target , ActionScopeTargetItem item , ScopeState stateItem ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			action.debug( action.NAME + ": run item=" + item.NAME );
@@ -655,7 +675,7 @@ public class ScopeExecutor {
 		
 		try {		
 			if( checkNeedRunAction( ss , action ) ) {
-				ss = getActionStatus( ss , action , action.executeScopeTargetItem( target , item ) );
+				ss = getActionStatus( ss , action , action.executeScopeTargetItem( stateItem , target , item ) );
 				if( ss == SCOPESTATE.NotRun )
 					action.trace( "target=" + target.NAME + ", item=" + item.NAME + " is not processed" );
 			}
@@ -709,7 +729,7 @@ public class ScopeExecutor {
 			String serverNodes = set.sg.getServerNodesByHost( action , host );
 			action.info( account.getPrintName() + ": serverNodes={" + serverNodes + "}" );
 			
-			ss = getActionStatus( ss , action , action.executeAccount( set , account ) );
+			ss = getActionStatus( ss , action , action.executeAccount( stateAccount , set , account ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -744,12 +764,12 @@ public class ScopeExecutor {
 		return( ss );
 	}
 	
-	private SCOPESTATE runSingleAccountInternal( ActionScopeSet set , Account account , ScopeState stateSet ) {
+	private SCOPESTATE runSingleAccountInternal( ActionScopeSet set , Account account , ScopeState stateAccount ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			String serverNodes = set.sg.getServerNodesByAccount( action , account );
 			action.info( account.getPrintName() + ": serverNodes={" + serverNodes + "}" );
-			ss = getActionStatus( ss , action , action.executeAccount( set , account ) );
+			ss = getActionStatus( ss , action , action.executeAccount( stateAccount , set , account ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -865,8 +885,7 @@ public class ScopeExecutor {
 	private void startExecutor( ActionScope scope ) {
 		try {
 			stateFinal = new ScopeState( action , scope );
-			action.eventSource.setRootState( stateFinal );
-			action.engine.blotter.startAction( action );
+			action.startExecutor( this , stateFinal );
 		}
 		catch( Throwable e ) {
 			action.engine.log( "start action" , e );
