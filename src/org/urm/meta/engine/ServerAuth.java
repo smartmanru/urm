@@ -59,12 +59,14 @@ public class ServerAuth extends ServerObject {
 	
 	Map<String,ServerAuthUser> localUsers;
 	Map<String,ServerAuthGroup> groups;
+	ServerAuthLdap ldapSettings;
 	
 	public ServerAuth( ServerEngine engine ) {
 		super( null );
 		this.engine = engine;
 		localUsers = new HashMap<String,ServerAuthUser>();
-		groups = new HashMap<String,ServerAuthGroup>(); 
+		groups = new HashMap<String,ServerAuthGroup>();
+		ldapSettings = new ServerAuthLdap( this ); 
 	}
 	
 	@Override
@@ -107,6 +109,11 @@ public class ServerAuth extends ServerObject {
 		Node root = doc.getDocumentElement();
 		readLocalUsers( root );
 		readGroups( root );
+		
+		Node ldap = ConfReader.xmlGetFirstChild( root , "ldap" );
+		if( ldap != null )
+			ldapSettings.load( ldap );
+		ldapSettings.create();
 	}
 	
 	private void readLocalUsers( Node root ) throws Exception {
@@ -173,6 +180,9 @@ public class ServerAuth extends ServerObject {
 			Element node = Common.xmlCreateElement( doc , groupsElement , "group" );
 			user.save( doc , node );
 		}
+		
+		Element ldapElement = Common.xmlCreateElement( doc , root , "ldap" );
+		ldapSettings.save( doc , ldapElement );
 		
 		Common.xmlSaveDoc( doc , path );
 	}
@@ -267,7 +277,21 @@ public class ServerAuth extends ServerObject {
 		return( localUsers.get( username ) );
 	}
 	
+	public ServerAuthLdap getLdapSettings() {
+		return( ldapSettings );
+	}
+	
 	public ServerAuthUser getLdapUserData( String username ) {
+		ActionBase action = engine.serverAction;
+		if( action == null )
+			return( null );
+
+		try {
+			return( ldapSettings.getLdapUserData( action , username ) );
+		}
+		catch( Throwable e ) {
+			action.log( "find user in LDAP" , e );
+		}
 		return( null );
 	}
 
@@ -646,6 +670,12 @@ public class ServerAuth extends ServerObject {
 		
 		engine.trace( "unknown authentification type: user=" + username );
 		return( false );
+	}
+
+	public ServerAuthResource getResource( String name ) throws Exception {
+		ServerResources resources = engine.getResources();
+		ServerAuthResource res = resources.getResource( name );
+		return( res );
 	}
 	
 }
