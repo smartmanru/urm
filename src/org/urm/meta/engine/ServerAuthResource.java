@@ -11,28 +11,13 @@ import org.urm.engine.shell.ShellPool;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.meta.ServerObject;
+import org.urm.meta.Types.VarRESOURCETYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class ServerAuthResource extends ServerObject {
 
-	public enum VarRESOURCECATEGORY {
-		ANY ,
-		VCS ,
-		SSH ,
-		NEXUS ,
-		SOURCE
-	};
-	
-	public enum VarRESOURCETYPE {
-		UNKNOWN ,
-		SVN ,
-		GIT ,
-		NEXUS ,
-		SSH
-	};
-	
 	public ServerResources resources;
 
 	private boolean loaded;
@@ -133,6 +118,12 @@ public class ServerAuthResource extends ServerObject {
 
 	public boolean isSshKey() {
 		if( rcType == VarRESOURCETYPE.SSH )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isCredentials() {
+		if( rcType == VarRESOURCETYPE.CREDENTIALS )
 			return( true );
 		return( false );
 	}
