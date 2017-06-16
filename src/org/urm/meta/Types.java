@@ -20,11 +20,11 @@ public class Types {
 	
 	public enum VarRESOURCETYPE {
 		UNKNOWN ,
+		CREDENTIALS ,
+		SSH ,
 		SVN ,
 		GIT ,
-		NEXUS ,
-		SSH ,
-		CREDENTIALS
+		NEXUS
 	};
 	
 	public enum VarELEMENTTYPE {
