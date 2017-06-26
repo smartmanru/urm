@@ -128,6 +128,9 @@ public class ServerResources extends ServerObject {
 	}
 
 	public void dropResourceMirrors( ServerTransaction transaction , ServerAuthResource res ) throws Exception {
+		if( !res.isVCS() )
+			return;
+		
 		ActionBase action = transaction.getAction();
 		ServerMirrors mirrors = action.getServerMirrors();
 		mirrors.dropResourceMirrors( action , res );

@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.naming.directory.SearchResult;
+
 import org.urm.action.ActionBase;
 import org.urm.action.ActionCore;
 import org.urm.client.ClientAuth;
@@ -18,6 +20,7 @@ import org.urm.engine.ServerSession;
 import org.urm.engine.ServerTransaction;
 import org.urm.engine.SessionSecurity;
 import org.urm.engine._Error;
+import org.urm.engine.action.ActionInit;
 import org.urm.meta.ServerObject;
 import org.urm.meta.product.Meta;
 import org.urm.meta.Types.*;
@@ -98,6 +101,14 @@ public class ServerAuth extends ServerObject {
 		}
 	}
 
+	public void start( ActionInit action ) throws Exception {
+		ldapSettings.start( action );
+	}
+	
+	public void stop( ActionInit action ) throws Exception {
+		ldapSettings.stop( action );
+	}
+	
 	private String getAuthFile() {
 		String path = Common.getPath( engine.execrc.installPath , "etc" );
 		String authFile = Common.getPath( path , "auth.xml" );
@@ -113,7 +124,6 @@ public class ServerAuth extends ServerObject {
 		Node ldap = ConfReader.xmlGetFirstChild( root , "ldap" );
 		if( ldap != null )
 			ldapSettings.load( ldap );
-		ldapSettings.create();
 	}
 	
 	private void readLocalUsers( Node root ) throws Exception {
@@ -204,11 +214,11 @@ public class ServerAuth extends ServerObject {
 		return( group + "-" + name );
 	}
 	
-	public ServerAuthContext loadAuthData( ActionBase action , String authKey ) throws Exception {
+	public ServerAuthContext loadAuthData( String authKey ) throws Exception {
 		PropertySet props = new PropertySet( "authfile" , null );
 		String filePath = getAuthFile( authKey );
 		
-		File file = new File( action.getLocalPath( filePath ) );
+		File file = new File( engine.execrc.getLocalPath( filePath ) );
 		if( file.isFile() )
 			props.loadFromPropertyFile( filePath , engine.execrc , false );
 		props.finishRawProperties();
@@ -228,14 +238,25 @@ public class ServerAuth extends ServerObject {
 		if( user == null )
 			return( null );
 		
-		String authKey = getAuthKey( AUTH_GROUP_USER , username );
-		ServerAuthContext ac = loadAuthData( engine.serverAction , authKey );
+		ServerAuthContext ac = null;
+		
+		if( user.local ) {
+			String authKey = getAuthKey( AUTH_GROUP_USER , username );
+			ac = loadAuthData( authKey );
+				
+			String passwordMD5 = Common.getMD5( password );
+			if( password == null || !passwordMD5.equals( ac.PASSWORDSAVE ) )
+				return( null );
+		}
+		else {
+			SearchResult res = ldapSettings.verifyLogin( username , password );
+			if( res == null )
+				return( null );
 			
-		String passwordMD5 = Common.getMD5( password );
-		if( password == null || !passwordMD5.equals( ac.PASSWORDSAVE ) )
-			return( null );
-	
-		ac.PASSWORDONLINE = password;
+			ac = ldapSettings.getAuthContext( res );
+		}
+
+		ac.setOnlinePassword( password );
 		
 		SessionSecurity security = new SessionSecurity( this );
 		security.setUser( user );
@@ -270,7 +291,12 @@ public class ServerAuth extends ServerObject {
 	}
 	
 	public String[] getLdapUserList() {
-		return( new String[0] );
+		try {
+			return( ldapSettings.getUserList() );
+		}
+		catch( Throwable e ) {
+			return( new String[0] );
+		}
 	}
 
 	public ServerAuthUser getLocalUserData( String username ) {
@@ -279,6 +305,11 @@ public class ServerAuth extends ServerObject {
 	
 	public ServerAuthLdap getLdapSettings() {
 		return( ldapSettings );
+	}
+	
+	public void setLdapData( ActionBase action , ServerAuthLdap ldap ) throws Exception {
+		ldapSettings = ldap;
+		save( action );
 	}
 	
 	public ServerAuthUser getLdapUserData( String username ) {
@@ -329,9 +360,9 @@ public class ServerAuth extends ServerObject {
 		return( groups.get( groupName ) );
 	}
 
-	public ServerAuthUser createUser( ActionBase action , String name , String email , String full , boolean admin ) throws Exception {
+	public ServerAuthUser createLocalUser( ActionBase action , String name , String email , String full , boolean admin ) throws Exception {
 		ServerAuthUser user = new ServerAuthUser( this );
-		user.create( action , name , email , full , admin );
+		user.create( action , true , name , email , full , admin );
 		addLocalUser( user );
 		return( user );
 	}
@@ -350,7 +381,7 @@ public class ServerAuth extends ServerObject {
 	public void setUserPassword( ActionBase action , ServerAuthUser user , String password ) throws Exception {
 		// create initial admin user
 		String authKey = getAuthKey( AUTH_GROUP_USER , user.NAME );
-		ServerAuthContext ac = loadAuthData( action , authKey );
+		ServerAuthContext ac = loadAuthData( authKey );
 		ac.setUserPassword( password );
 		ac.createProperties();
 		saveAuthData( authKey , ac );
@@ -382,6 +413,11 @@ public class ServerAuth extends ServerObject {
 			if( roles.isAny() )
 				return( true );
 			return( false );
+		}
+		
+		if( sa == SecurityAction.ACTION_RELEASE ) {
+			if( roles.secOpr || roles.secRel || roles.secTest )
+				return( true );
 		}
 		
 		if( sa == SecurityAction.ACTION_CONFIGURE || sa == SecurityAction.ACTION_XDOC ) {
@@ -639,7 +675,7 @@ public class ServerAuth extends ServerObject {
 			}
 			
 			String authKey = getAuthKey( AUTH_GROUP_USER , username );
-			ServerAuthContext ac = loadAuthData( engine.serverAction , authKey );
+			ServerAuthContext ac = loadAuthData( authKey );
 			if( !ac.PUBLICKEY.isEmpty() ) {
 		        String checkMessage = ClientAuth.getCheckMessage( username );
 				if( ClientAuth.verifySigned( checkMessage , password , ac.PUBLICKEY ) ) {

@@ -159,11 +159,11 @@ public class ServerAuthResource extends ServerObject {
 			auth.saveAuthData( AUTHKEY , ac ); 
 	}
 	
-	public void loadAuthData( ActionBase action ) throws Exception {
+	public void loadAuthData() throws Exception {
 		if( ac != null )
 			return;
 		ServerAuth auth = resources.engine.getAuth();
-		ac = auth.loadAuthData( action , AUTHKEY );
+		ac = auth.loadAuthData( AUTHKEY );
 	}
 
 	public void createResource() throws Exception {
@@ -204,7 +204,7 @@ public class ServerAuthResource extends ServerObject {
 	
 	public boolean sshVerify( ActionBase action , VarOSTYPE osType , String host , int port , String user ) {
 		try {
-			loadAuthData( action );
+			loadAuthData();
 			Account account = Account.getDatacenterAccount( action , "" , user , host , port , osType );
 			ShellPool pool = action.engine.shellPool;
 			ShellExecutor shell = pool.createDedicatedRemoteShell( action , action.context.stream , account , this , false );

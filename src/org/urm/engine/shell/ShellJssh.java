@@ -45,7 +45,7 @@ public class ShellJssh {
 	
 	private ServerAuthResource getAuthResource( ActionBase action , Account account ) throws Exception {
 		ServerAuthResource res = account.getResource( action );
-		res.loadAuthData( action );
+		res.loadAuthData();
 		return( res );
 	}
 	

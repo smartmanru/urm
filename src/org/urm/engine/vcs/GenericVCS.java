@@ -79,7 +79,7 @@ public abstract class GenericVCS {
 	public static GenericVCS getVCS( ActionBase action , Meta meta , String vcs , String BUILDER , boolean noAuth ) throws Exception {
 		ServerAuthResource res = action.getResource( vcs );
 		if( !noAuth )
-			res.loadAuthData( action );
+			res.loadAuthData();
 		
 		ShellExecutor shell = action.shell;
 		if( !BUILDER.isEmpty() ) {
@@ -95,7 +95,7 @@ public abstract class GenericVCS {
 	}
 
 	private static GenericVCS getVCS( ActionBase action , Meta meta , ServerAuthResource res , ShellExecutor shell ) throws Exception {
-		res.loadAuthData( action );
+		res.loadAuthData();
 		if( res.isSvn() )
 			return( new SubversionVCS( action , meta , res , shell ) );
 		

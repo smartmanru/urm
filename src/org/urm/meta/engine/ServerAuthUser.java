@@ -11,6 +11,7 @@ public class ServerAuthUser {
 
 	ServerAuth auth;
 	
+	public boolean local;
 	public String NAME;
 	public String FULLNAME;
 	public String EMAIL;
@@ -20,7 +21,8 @@ public class ServerAuthUser {
 		this.auth = auth;
 	}
 
-	public void create( ActionBase action , String name , String email , String full , boolean admin ) {
+	public void create( ActionBase action , boolean local , String name , String email , String full , boolean admin ) {
+		this.local = local;
 		this.NAME = name;
 		this.EMAIL = email;
 		this.FULLNAME = full;
@@ -34,6 +36,7 @@ public class ServerAuthUser {
 	}
 	
 	public void loadLocalUser( Node root ) throws Exception {
+		local = true;
 		NAME = ConfReader.getAttrValue( root , "name" );
 		FULLNAME = ConfReader.getAttrValue( root , "fullname" );
 		EMAIL = ConfReader.getAttrValue( root , "email" );

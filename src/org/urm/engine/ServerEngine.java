@@ -103,6 +103,7 @@ public class ServerEngine {
 	
 	public void runServer( ActionInit action ) throws Exception {
 		serverAction.debug( "load server configuration ..." );
+		auth.start( serverAction );
 		loader.loadServerProducts( action.actionInit );
 		blotter.start( serverAction );
 		
@@ -140,6 +141,7 @@ public class ServerEngine {
 		loader.clearServerProducts();
 		blotter.clear();
 		cache.clear();
+		auth.stop( serverAction );
 		
 		running = false;
 	}

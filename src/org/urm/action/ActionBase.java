@@ -381,7 +381,7 @@ abstract public class ActionBase extends ActionCore {
 	public ShellExecutor createDedicatedRemoteShell( String name , Account account , boolean setAction ) throws Exception {
 		ServerResources res = getServerResources();
 		ServerAuthResource ar = res.getResource( account.AUTHRESOURCE );
-		ar.loadAuthData( this );
+		ar.loadAuthData();
 		return( engine.shellPool.createDedicatedRemoteShell( this , name , account , ar , setAction ) );
 	}
 	
