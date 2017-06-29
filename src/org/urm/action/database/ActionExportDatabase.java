@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.DistRepository;
@@ -53,7 +54,7 @@ public class ActionExportDatabase extends ActionBase {
 		this.SCHEMA = SCHEMA;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		loadExportSettings();
 		
 		client = new DatabaseClient();

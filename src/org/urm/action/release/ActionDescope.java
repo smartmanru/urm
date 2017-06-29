@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTargetItem;
@@ -20,7 +21,7 @@ public class ActionDescope extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override protected SCOPESTATE executeScopeSet( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		if( !set.setFull )
 			return( SCOPESTATE.NotRun );
 		
@@ -29,7 +30,7 @@ public class ActionDescope extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 	
-	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		if( target.itemFull ) {
 			dist.reloadCheckOpenedForDataChange( this );
 			dist.descopeTarget( this , target.releaseTarget );

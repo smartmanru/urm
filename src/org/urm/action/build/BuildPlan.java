@@ -9,6 +9,9 @@ import org.urm.action.ActionBase;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.ScopeState.SCOPETYPE;
+import org.urm.action.conf.ActionGetConf;
+import org.urm.action.database.ActionGetDB;
+import org.urm.action.release.ActionGetCumulative;
 import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.action.CommandOptions;
@@ -21,6 +24,9 @@ import org.urm.engine.ServerEventsState;
 import org.urm.engine.ServerEventsSubscription;
 import org.urm.engine.ServerSourceEvent;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseDelivery;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 
@@ -35,6 +41,7 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 	ServerEventsApp eventsApp;
 
 	public static int EVENT_ITEMFINISHED = 1000;
+	public static int EVENT_PLANFINISHED = 1001;
 	
 	private BuildPlan( Dist dist , ServerEvents events , String id ) {
 		super( events , id );
@@ -57,6 +64,31 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 			if( state.action instanceof ActionSetTagOnBuildBranch ) {
 				if( state.type == SCOPETYPE.TypeTarget )
 					addSetTagStatus( state.target.sourceProject , state.state );
+			}
+			else
+			if( state.action instanceof ActionGetBinary ) {
+				if( state.type == SCOPETYPE.TypeTarget )
+					addGetBinaryStatus( state.target.sourceProject , state.state );
+			}
+			else
+			if( state.action instanceof ActionGetDB ) {
+				if( state.type == SCOPETYPE.TypeTarget )
+					addGetDBNormalStatus( state.target.dbDelivery , state.state );
+			}
+			else
+			if( state.action instanceof ActionGetConf ) {
+				if( state.type == SCOPETYPE.TypeTarget )
+					addGetConfStatus( state.target.confItem , state.state );
+			}
+			else
+			if( state.action instanceof ActionGetCumulative ) {
+				if( state.type == SCOPETYPE.TypeScope )
+					addGetDBCumulativeStatus( state.state );
+			}
+			else
+			if( state.action instanceof ActionBuild ) {
+				if( state.type == SCOPETYPE.TypeTarget )
+					addBuildStatus( state.target.sourceProject , state.state );
 			}
 		}
 	}
@@ -190,16 +222,24 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 	}
 	
 	public boolean executeBuild( ActionBase action , CommandOptions options ) {
-		if( !executeCompile( action , options ) )
-			return( false );
-		if( !executeConf( action , options ) )
-			return( false );
-		if( !executeDatabase( action , options ) )
-			return( false );
-		return( true );
+		boolean res = true;
+		if( res && !executeCompileInternal( action , options ) )
+			res = false;
+		if( res && !executeConfInternal( action , options ) )
+			res = false;
+		if( res && !executeDatabaseInternal( action , options ) )
+			res = false;
+		finishPlan();
+		return( res );
+	}
+
+	public boolean executeCompile( ActionBase action , CommandOptions options ) {
+		boolean res = executeCompileInternal( action , options );
+		finishPlan();
+		return( res );
 	}
 	
-	public boolean executeCompile( ActionBase action , CommandOptions options ) {
+	private boolean executeCompileInternal( ActionBase action , CommandOptions options ) {
 		String[] args = null;
 		boolean run = true;
 		
@@ -231,8 +271,14 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 		}
 		return( true );
 	}
-	
+
 	public boolean executeConf( ActionBase action , CommandOptions options ) {
+		boolean res = executeConfInternal( action , options );
+		finishPlan();
+		return( res );
+	}
+	
+	private boolean executeConfInternal( ActionBase action , CommandOptions options ) {
 		String[] args = null;
 		boolean run = true;
 			
@@ -260,8 +306,24 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 		}
 		return( true );
 	}
-	
+
 	public boolean executeDatabase( ActionBase action , CommandOptions options ) {
+		boolean res = executeDatabaseInternal( action , options );
+		finishPlan();
+		return( res );
+	}
+
+	private void finishPlan() {
+		for( BuildPlanSet set : listSets ) {
+			for( BuildPlanItem item : set.listItems ) {
+				if( selectSet == null || set == selectSet )
+					item.setNotRun();
+			}
+		}
+		super.trigger( EVENT_PLANFINISHED , null );
+	}
+	
+	private boolean executeDatabaseInternal( ActionBase action , CommandOptions options ) {
 		String[] args = null;
 		boolean run = true;
 		
@@ -299,10 +361,44 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 		return( null );
 	}
 	
+	public BuildPlanSet getConfSet() {
+		for( BuildPlanSet set : listSets ) {
+			if( set.conf )
+				return( set );
+		}
+		return( null );
+	}
+	
+	public BuildPlanSet getDatabaseSet() {
+		for( BuildPlanSet set : listSets ) {
+			if( set.db )
+				return( set );
+		}
+		return( null );
+	}
+	
 	public BuildPlanItem getItem( MetaSourceProject sourceProject ) {
 		BuildPlanSet set = getSet( sourceProject.set );
 		for( BuildPlanItem item : set.listItems ) {
 			if( item.target.sourceProject == sourceProject )
+				return( item );
+		}
+		return( null );
+	}
+	
+	public BuildPlanItem getItem( MetaDistrConfItem confItem ) {
+		BuildPlanSet set = getConfSet();
+		for( BuildPlanItem item : set.listItems ) {
+			if( item.target.distConfItem == confItem )
+				return( item );
+		}
+		return( null );
+	}
+	
+	public BuildPlanItem getItem( MetaDistrDelivery delivery , String dbVersion ) {
+		BuildPlanSet set = getDatabaseSet();
+		for( BuildPlanItem item : set.listItems ) {
+			if( item.target.distDatabaseDelivery == delivery && item.dbVersion.equals( dbVersion ) )
 				return( item );
 		}
 		return( null );
@@ -317,6 +413,59 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 			item.setBuildDone( false );
 			super.trigger( EVENT_ITEMFINISHED , item );
 		}
+	}
+	
+	private void addGetBinaryStatus( MetaSourceProject sourceProject , SCOPESTATE state ) {
+		BuildPlanItem item = getItem( sourceProject );
+		if( item == null )
+			return;
+		
+		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
+		item.setGetDone( success );
+		super.trigger( EVENT_ITEMFINISHED , item );
+	}
+	
+	private void addGetConfStatus( MetaDistrConfItem confItem , SCOPESTATE state ) {
+		BuildPlanItem item = getItem( confItem );
+		if( item == null )
+			return;
+		
+		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
+		item.setGetDone( success );
+		super.trigger( EVENT_ITEMFINISHED , item );
+	}
+	
+	private void addGetDBNormalStatus( MetaDistrDelivery delivery , SCOPESTATE state ) {
+		BuildPlanItem item = getItem( delivery , dist.release.RELEASEVER );
+		if( item == null )
+			return;
+		
+		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
+		item.setGetDone( success );
+		super.trigger( EVENT_ITEMFINISHED , item );
+	}
+	
+	private void addGetDBCumulativeStatus( SCOPESTATE state ) {
+		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
+			for( String version : dist.release.getCumulativeVersions() ) {
+				BuildPlanItem item = getItem( delivery.distDelivery , version );
+				if( item != null ) {
+					boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
+					item.setGetDone( success );
+					super.trigger( EVENT_ITEMFINISHED , item );
+				}
+			}
+		}
+	}
+	
+	private void addBuildStatus( MetaSourceProject sourceProject , SCOPESTATE state ) {
+		BuildPlanItem item = getItem( sourceProject );
+		if( item == null )
+			return;
+		
+		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
+		item.setBuildDone( success );
+		super.trigger( EVENT_ITEMFINISHED , item );
 	}
 	
 }

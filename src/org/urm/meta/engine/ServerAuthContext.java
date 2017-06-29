@@ -38,6 +38,10 @@ public class ServerAuthContext extends ServerObject {
 		createProperties();
 	}
 	
+	public void createLdap( String name ) {
+		this.USER = name;
+	}
+	
 	public boolean isAnonymous() {
 		if( METHOD.equals( METHOD_ANONYMOUS ) )
 			return( true );

@@ -34,6 +34,8 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.engine.ServerAuth;
 import org.urm.meta.engine.ServerMonitoring;
+import org.urm.meta.engine.ServerRegistry;
+import org.urm.meta.engine.ServerResources;
 
 public class ServerEngine {
 
@@ -101,6 +103,7 @@ public class ServerEngine {
 	
 	public void runServer( ActionInit action ) throws Exception {
 		serverAction.debug( "load server configuration ..." );
+		auth.start( serverAction );
 		loader.loadServerProducts( action.actionInit );
 		blotter.start( serverAction );
 		
@@ -138,6 +141,7 @@ public class ServerEngine {
 		loader.clearServerProducts();
 		blotter.clear();
 		cache.clear();
+		auth.stop( serverAction );
 		
 		running = false;
 	}
@@ -481,6 +485,11 @@ public class ServerEngine {
 		return( loader );
 	}
 
+	public ServerResources getResources() {
+		ServerRegistry registry = loader.getRegistry();
+		return( registry.resources );
+	}
+	
 	public void updatePermissions( ActionBase action , String user ) throws Exception {
 		sessionController.updatePermissions( action , user );
 	}

@@ -83,7 +83,7 @@ public class ActionCheckEnv extends ActionBase {
 		co.finishScopeItem( ServerEvents.EVENT_CACHE_SEGMENT , sgStatus );
 	}
 	
-	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		ActionScopeSet set = target.set;
 		
 		ScopeState parent = super.eventSource.findSetState( target.set );

@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
@@ -30,7 +31,7 @@ public class ActionBuild extends ActionBase {
 	}
 
 	@Override 
-	protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	protected SCOPESTATE executeScopeSet( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		// run in order of build
 		debug( "build set=" + set.NAME + " ..." );
 		for( MetaSourceProject project : set.pset.getOrderedList() ) {
@@ -46,7 +47,7 @@ public class ActionBuild extends ActionBase {
 			}
 				
 			debug( "build project=" + project.NAME );
-			if( !executeTarget( target ) ) {
+			if( !super.runCustomTarget( state , target ) ) {
 				if( !super.continueRun() ) {
 					error( "cancel build due to errors" );
 					return( SCOPESTATE.RunFail );
@@ -57,14 +58,15 @@ public class ActionBuild extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 	
-	private boolean executeTarget( ActionScopeTarget scopeProject ) throws Exception {
-		MetaSourceProject project = scopeProject.sourceProject;
+	@Override
+	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
+		MetaSourceProject project = target.sourceProject;
 		
-		String version = scopeProject.getProjectBuildVersion( this );
+		String version = target.getProjectBuildVersion( this );
 		
 		// execute
 		Builder builder = Builder.createBuilder( this , project , TAG , version );
-		info( "ActionBuild: CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", PROJECT=" + project.NAME + 
+		info( "ActionBuild: CATEGORY=" + Common.getEnumLower( target.CATEGORY ) + ", PROJECT=" + project.NAME + 
 				", REPOSITORY=" + project.REPOSITORY + ", TAG=" + TAG + ", VERSION=" + version + ", BUILDER=" + builder.builder.NAME );
 
 		// in separate shell
@@ -90,8 +92,10 @@ public class ActionBuild extends ActionBase {
 		super.stopRedirect();
 		
 		// check status
-		info( "ActionBuild: build finished for CATEGORY=" + Common.getEnumLower( scopeProject.CATEGORY ) + ", TAG=" + TAG + ", VERSION=" + version + ", BUILDSTATUS=" + BUILDSTATUS );
-		return( res );
+		info( "ActionBuild: build finished for CATEGORY=" + Common.getEnumLower( target.CATEGORY ) + ", TAG=" + TAG + ", VERSION=" + version + ", BUILDSTATUS=" + BUILDSTATUS );
+		if( !res )
+			return( SCOPESTATE.RunFail );
+		return( SCOPESTATE.RunSuccess );
 	}
 	
 }

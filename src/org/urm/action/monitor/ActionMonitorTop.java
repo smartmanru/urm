@@ -41,7 +41,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 	}
 
 	@Override 
-	protected SCOPESTATE executeSimple() throws Exception {
+	protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		continueRunning = true;
 
 		long lastStartMajor = 0;

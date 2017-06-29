@@ -77,15 +77,16 @@ abstract public class ActionBase extends ActionCore {
 	
 	public ShellExecutor shell;
 	public CommandOutput output;
+	public ScopeExecutor scopeExecutor;
 
 	public int commandTimeout;
 	
-	protected SCOPESTATE executeSimple() throws Exception { return( SCOPESTATE.NotRun ); };
-	protected SCOPESTATE executeScope( ActionScope scope ) throws Exception { return( SCOPESTATE.NotRun ); };
-	protected SCOPESTATE executeScopeSet( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception { return( SCOPESTATE.NotRun ); };
-	protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception { return( SCOPESTATE.NotRun ); };
-	protected SCOPESTATE executeScopeTargetItem( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception { return( SCOPESTATE.NotRun ); };
-	protected SCOPESTATE executeAccount( ActionScopeSet set , Account account ) throws Exception { return( SCOPESTATE.NotRun ); };
+	protected SCOPESTATE executeSimple( ScopeState state ) throws Exception { return( SCOPESTATE.NotRun ); };
+	protected SCOPESTATE executeScope( ScopeState state , ActionScope scope ) throws Exception { return( SCOPESTATE.NotRun ); };
+	protected SCOPESTATE executeScopeSet( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception { return( SCOPESTATE.NotRun ); };
+	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception { return( SCOPESTATE.NotRun ); };
+	protected SCOPESTATE executeScopeTargetItem( ScopeState state , ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception { return( SCOPESTATE.NotRun ); };
+	protected SCOPESTATE executeAccount( ScopeState state , ActionScopeSet set , Account account ) throws Exception { return( SCOPESTATE.NotRun ); };
 	protected void runBefore() throws Exception {};
 	protected void runAfter() throws Exception {};
 	protected void runBefore( ActionScope scope ) throws Exception {};
@@ -322,6 +323,10 @@ abstract public class ActionBase extends ActionCore {
 		return( executor.runSingleTarget( item , env , sa , readOnly ) );
 	}
 	
+	protected boolean runCustomTarget( ScopeState state , ActionScopeTarget target ) {
+		return( scopeExecutor.runCustomTarget( target , state ) );
+	}
+	
 	public boolean runTargetList( ActionScopeSet set , ActionScopeTarget[] items , MetaEnv env , SecurityAction sa , boolean readOnly ) {
 		ScopeExecutor executor = new ScopeExecutor( this );
 		return( executor.runTargetList( set , items , env , sa , readOnly ) );
@@ -376,7 +381,7 @@ abstract public class ActionBase extends ActionCore {
 	public ShellExecutor createDedicatedRemoteShell( String name , Account account , boolean setAction ) throws Exception {
 		ServerResources res = getServerResources();
 		ServerAuthResource ar = res.getResource( account.AUTHRESOURCE );
-		ar.loadAuthData( this );
+		ar.loadAuthData();
 		return( engine.shellPool.createDedicatedRemoteShell( this , name , account , ar , setAction ) );
 	}
 	
@@ -402,6 +407,12 @@ abstract public class ActionBase extends ActionCore {
 		return( account );
 	}
 
+	public void startExecutor( ScopeExecutor scopeExecutor , ScopeState stateFinal ) throws Exception {
+		this.scopeExecutor = scopeExecutor;
+		eventSource.setRootState( stateFinal );
+		engine.blotter.startAction( this );
+	}
+	
 	public void startRedirect( String title , String logFile ) throws Exception {
 		String file = logFile;
 		if( file.startsWith( "~/" ) )

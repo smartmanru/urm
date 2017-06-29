@@ -2,6 +2,7 @@ package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
@@ -18,7 +19,7 @@ public class ActionChangeKeys extends ActionBase {
 		this.cmd = cmd;
 	}
 
-	@Override protected SCOPESTATE executeAccount( ActionScopeSet set , Account account ) throws Exception {
+	@Override protected SCOPESTATE executeAccount( ScopeState state , ActionScopeSet set , Account account ) throws Exception {
 		String F_NEWKEY = context.env.KEYFILE;
 		String F_OLDKEY = F_NEWKEY;
 

@@ -30,7 +30,7 @@ public class NexusStorage {
 
 	public static boolean verifyRepository( ActionBase action , String repository , ServerAuthResource res ) throws Exception {
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository + "/";
-		res.loadAuthData( action );
+		res.loadAuthData();
 		String user = res.ac.getUser( action );
 		String password = res.ac.getPassword( action );
 		return( SimpleHttp.check( action , REPOPATH , user , password ) );

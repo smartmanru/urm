@@ -2,6 +2,7 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
@@ -42,7 +43,7 @@ public class ActionSetVersion extends ActionBase {
 			shell.gitAddPomFiles( this , CODEPATH.folderPath );
 	}
 	
-	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeProject ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
 		// ignore if builder is not maven
 		if( !scopeProject.sourceProject.getBuilder( this ).equals( "maven" ) ) {
 			info( "project=" + scopeProject.sourceProject.NAME + " is not built by maven. Skipped." );

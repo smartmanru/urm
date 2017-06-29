@@ -11,7 +11,7 @@ import org.urm.common.ConfReader;
 import org.urm.engine.ServerEngine;
 import org.urm.engine.ServerTransaction;
 import org.urm.meta.ServerObject;
-import org.urm.meta.engine.ServerAuthResource.VarRESOURCECATEGORY;
+import org.urm.meta.Types.VarRESOURCECATEGORY;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -94,6 +94,9 @@ public class ServerResources extends ServerObject {
 			if( rcCategory == VarRESOURCECATEGORY.SSH && res.isSshKey() )
 				list.add( res.NAME );
 			else
+			if( rcCategory == VarRESOURCECATEGORY.CREDENTIALS && res.isCredentials() )
+				list.add( res.NAME );
+			else
 			if( ( rcCategory == VarRESOURCECATEGORY.SOURCE || rcCategory == VarRESOURCECATEGORY.NEXUS ) && res.isNexus() )
 				list.add( res.NAME );
 			else
@@ -125,6 +128,9 @@ public class ServerResources extends ServerObject {
 	}
 
 	public void dropResourceMirrors( ServerTransaction transaction , ServerAuthResource res ) throws Exception {
+		if( !res.isVCS() )
+			return;
+		
 		ActionBase action = transaction.getAction();
 		ServerMirrors mirrors = action.getServerMirrors();
 		mirrors.dropResourceMirrors( action , res );

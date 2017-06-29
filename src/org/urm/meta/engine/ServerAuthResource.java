@@ -11,28 +11,13 @@ import org.urm.engine.shell.ShellPool;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.meta.ServerObject;
+import org.urm.meta.Types.VarRESOURCETYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class ServerAuthResource extends ServerObject {
 
-	public enum VarRESOURCECATEGORY {
-		ANY ,
-		VCS ,
-		SSH ,
-		NEXUS ,
-		SOURCE
-	};
-	
-	public enum VarRESOURCETYPE {
-		UNKNOWN ,
-		SVN ,
-		GIT ,
-		NEXUS ,
-		SSH
-	};
-	
 	public ServerResources resources;
 
 	private boolean loaded;
@@ -137,6 +122,12 @@ public class ServerAuthResource extends ServerObject {
 		return( false );
 	}
 	
+	public boolean isCredentials() {
+		if( rcType == VarRESOURCETYPE.CREDENTIALS )
+			return( true );
+		return( false );
+	}
+	
 	public void updateResource( ServerTransaction transaction , ServerAuthResource src ) throws Exception {
 		if( !NAME.equals( src.NAME ) )
 			transaction.exit( _Error.TransactionMismatchedResource1 , "mismatched resource name on change new name=" + src.NAME , new String[] { src.NAME } );
@@ -168,11 +159,11 @@ public class ServerAuthResource extends ServerObject {
 			auth.saveAuthData( AUTHKEY , ac ); 
 	}
 	
-	public void loadAuthData( ActionBase action ) throws Exception {
+	public void loadAuthData() throws Exception {
 		if( ac != null )
 			return;
 		ServerAuth auth = resources.engine.getAuth();
-		ac = auth.loadAuthData( action , AUTHKEY );
+		ac = auth.loadAuthData( AUTHKEY );
 	}
 
 	public void createResource() throws Exception {
@@ -213,7 +204,7 @@ public class ServerAuthResource extends ServerObject {
 	
 	public boolean sshVerify( ActionBase action , VarOSTYPE osType , String host , int port , String user ) {
 		try {
-			loadAuthData( action );
+			loadAuthData();
 			Account account = Account.getDatacenterAccount( action , "" , user , host , port , osType );
 			ShellPool pool = action.engine.shellPool;
 			ShellExecutor shell = pool.createDedicatedRemoteShell( action , action.context.stream , account , this , false );

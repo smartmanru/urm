@@ -3,6 +3,7 @@ package org.urm.action.main;
 import java.util.List;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.common.meta.MainCommandMeta;
@@ -26,7 +27,7 @@ public class ActionSave extends ActionBase {
 		this.meta = meta;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder pf = urm.getInstallFolder( this );
 		LocalFolder pfProducts = urm.getServerProductsFolder( this );

@@ -9,6 +9,24 @@ import org.w3c.dom.Node;
 
 public class Types {
 
+	public enum VarRESOURCECATEGORY {
+		ANY ,
+		VCS ,
+		SSH ,
+		CREDENTIALS ,
+		NEXUS ,
+		SOURCE
+	};
+	
+	public enum VarRESOURCETYPE {
+		UNKNOWN ,
+		CREDENTIALS ,
+		SSH ,
+		SVN ,
+		GIT ,
+		NEXUS
+	};
+	
 	public enum VarELEMENTTYPE {
 		UNKNOWN ,
 		EXTERNAL ,
@@ -760,6 +778,12 @@ public class Types {
 		values[2] = getVersionPattern( action , VarITEMVERSION.MIDDASH , basename , ext );
 		values[3] = getVersionPattern( action , VarITEMVERSION.PREFIX , basename , ext );
 		return( values );
+	}
+
+	public static boolean isResource( VarRESOURCETYPE rc ) {
+		if( rc == VarRESOURCETYPE.GIT || rc == VarRESOURCETYPE.NEXUS || rc == VarRESOURCETYPE.SVN )
+			return( true );
+		return( false );
 	}
 	
 }

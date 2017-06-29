@@ -1,6 +1,7 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 
@@ -13,7 +14,7 @@ public class ActionReopenRelease extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		dist.reopen( this );
 		return( SCOPESTATE.RunSuccess );
 	}

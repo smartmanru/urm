@@ -1,6 +1,7 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
@@ -20,7 +21,7 @@ public class ActionCreateProd extends ActionBase {
 		this.copy = copy;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		DistRepository repo = artefactory.getDistRepository( this , meta );
 		if( copy )
 			dist = repo.createProdCopy( this , RELEASEVER );

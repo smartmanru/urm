@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
@@ -15,7 +16,7 @@ public class ActionBaseList extends ActionBase {
 		super( action , stream , "Enlist installed base software" );
 	}
 
-	@Override protected SCOPESTATE executeAccount( ActionScopeSet set , Account account ) throws Exception {
+	@Override protected SCOPESTATE executeAccount( ScopeState state , ActionScopeSet set , Account account ) throws Exception {
 		VersionInfoStorage vis = artefactory.getVersionInfoStorage( this , account );
 		Map<String,String> items = vis.getBaseList( this );
 		info( "============================================ account=" + account.getPrintName() );

@@ -6,6 +6,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
@@ -21,7 +22,7 @@ public class ActionStopServer extends ActionBase {
 		this.server = target.envServer;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		List<ActionScopeTargetItem> nodes = target.getItems( this );
 		if( nodes.isEmpty() ) {
 			debug( "server=" + server.NAME + " has no nodes specified to stop. Skipped." );

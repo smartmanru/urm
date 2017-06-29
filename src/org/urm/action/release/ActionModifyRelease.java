@@ -3,6 +3,7 @@ package org.urm.action.release;
 import java.util.Date;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.meta.engine.ServerReleaseLifecycle;
@@ -20,7 +21,7 @@ public class ActionModifyRelease extends ActionBase {
 		this.lc = lc;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		dist.openForDataChange( this );
 		if( releaseDate != null && releaseDate.equals( dist.release.schedule.releaseDate ) == false )
 			dist.changeReleaseDate( this , releaseDate , lc );

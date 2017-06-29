@@ -1,6 +1,7 @@
 package org.urm.action.main;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.jmx.RemoteCall;
 
@@ -13,7 +14,7 @@ public class ActionServer extends ActionBase {
 		this.OP = OP;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		if( OP.equals( "start" ) )
 			executeServerStart();
 		else if( OP.equals( "stop" ) )

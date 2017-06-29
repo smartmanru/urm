@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.ScopeState.SCOPETYPE;
+import org.urm.action.database.ActionApplyAutomatic;
 import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.action.CommandOptions;
@@ -42,6 +43,8 @@ public class DeployPlan extends ServerEventsSource implements ServerEventsListen
 	ServerEventsApp eventsApp;
 
 	public static int EVENT_ITEMFINISHED = 1000;
+	public static int EVENT_REDISTFINISHED = 1001;
+	public static int EVENT_DEPLOYFINISHED = 1002;
 	
 	private DeployPlan( Dist dist , MetaEnv env , boolean redist , boolean deploy , ServerEvents events , String id ) {
 		super( events , id );
@@ -67,6 +70,26 @@ public class DeployPlan extends ServerEventsSource implements ServerEventsListen
 			if( state.action instanceof ActionRedist ) {
 				if( state.type == SCOPETYPE.TypeTarget )
 					addRedistStatus( state.target.envServer , state.state );
+			}
+			else
+			if( state.action instanceof ActionStopServer ) {
+				if( state.type == SCOPETYPE.TypeTarget )
+					addStopServerStatus( state.target.envServer , state.state );
+			}
+			else
+			if( state.action instanceof ActionRollout ) {
+				if( state.type == SCOPETYPE.TypeTarget )
+					addRolloutStatus( state.target.envServer , state.state );
+			}
+			else
+			if( state.action instanceof ActionStartServer ) {
+				if( state.type == SCOPETYPE.TypeTarget )
+					addStartServerStatus( state.target.envServer , state.state );
+			}
+			else
+			if( state.action instanceof ActionApplyAutomatic ) {
+				if( state.type == SCOPETYPE.TypeTarget )
+					addDatabaseApplyStatus( state.target.envServer , state.state );
 			}
 		}
 	}
@@ -156,9 +179,9 @@ public class DeployPlan extends ServerEventsSource implements ServerEventsListen
 		
 		MetaEnvSegment sg = ( selectSg == null )? null : selectSg.sg;
 		error = action.runNotifyMethod( eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_REDIST , args , options );
-		if( error != null )
-			return( false );
-		return( true );
+		boolean res = ( error != null )? false : true;
+		finishPlanRedist();
+		return( res );
 	}
 
 	public boolean executeDeploy( ActionBase action , CommandOptions options ) {
@@ -180,9 +203,9 @@ public class DeployPlan extends ServerEventsSource implements ServerEventsListen
 		
 		MetaEnvSegment sg = ( selectSg == null )? null : selectSg.sg;
 		error = action.runNotifyMethod( eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_DEPLOYREDIST , args , options );
-		if( error != null )
-			return( false );
-		return( true );
+		boolean res = ( error != null )? false : true;
+		finishPlanDeploy();
+		return( res );
 	}
 	
 	public DeployPlanSegment getSegment( MetaEnvSegment sg ) {
@@ -209,10 +232,87 @@ public class DeployPlan extends ServerEventsSource implements ServerEventsListen
 		if( item == null )
 			return;
 		
-		item.doneRedist = true;
-		if( state != SCOPESTATE.RunSuccess )
-			item.failedRedist = true;
+		boolean success = ( state == SCOPESTATE.RunFail || state == SCOPESTATE.RunBeforeFail )? false : true;
+		item.setDoneRedist( success );
 		super.trigger( EVENT_ITEMFINISHED , item );
+	}
+	
+	private void addStopServerStatus( MetaEnvServer server , SCOPESTATE state ) {
+		DeployPlanItem item = getItem( server );
+		if( item == null )
+			return;
+		
+		if( state == SCOPESTATE.RunSuccess )
+			item.setDeployStarted();
+		else
+		if( state != SCOPESTATE.NotRun )
+			item.setDeployDone( false );
+		super.trigger( EVENT_ITEMFINISHED , item );
+	}
+	
+	private void addRolloutStatus( MetaEnvServer server , SCOPESTATE state ) {
+		DeployPlanItem item = getItem( server );
+		if( item == null )
+			return;
+		
+		if( state != SCOPESTATE.RunSuccess )
+			item.setDeployDone( false );
+		else {
+			if( !item.startDeploy )
+				item.setDeployDone( true );
+		}
+		
+		super.trigger( EVENT_ITEMFINISHED , item );
+	}
+	
+	private void addStartServerStatus( MetaEnvServer server , SCOPESTATE state ) {
+		DeployPlanItem item = getItem( server );
+		if( item == null )
+			return;
+		
+		if( state != SCOPESTATE.RunSuccess )
+			item.setDeployDone( false );
+		else
+			item.setDeployDone( true );
+		
+		super.trigger( EVENT_ITEMFINISHED , item );
+	}
+	
+	private void addDatabaseApplyStatus( MetaEnvServer server , SCOPESTATE state ) {
+		DeployPlanItem item = getItem( server );
+		if( item == null )
+			return;
+		
+		if( state != SCOPESTATE.RunSuccess )
+			item.setDeployDone( false );
+		else
+			item.setDeployDone( true );
+		
+		super.trigger( EVENT_ITEMFINISHED , item );
+	}
+	
+	private void finishPlanRedist() {
+		for( DeployPlanSegment sg : listSg ) {
+			for( DeployPlanSet set : sg.listSets ) {
+				for( DeployPlanItem item : set.listItems ) {
+					if( selectSet != null && set != selectSet )
+						item.setRedistNotRun();
+				}
+			}
+		}
+		super.trigger( EVENT_REDISTFINISHED , null );
+	}
+	
+	private void finishPlanDeploy() {
+		for( DeployPlanSegment sg : listSg ) {
+			for( DeployPlanSet set : sg.listSets ) {
+				for( DeployPlanItem item : set.listItems ) {
+					if( selectSet != null && set != selectSet )
+						item.setDeployNotRun();
+				}
+			}
+		}
+		super.trigger( EVENT_DEPLOYFINISHED , null );
 	}
 	
 }

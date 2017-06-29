@@ -1,6 +1,7 @@
 package org.urm.action.database;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
@@ -19,7 +20,7 @@ public class ActionInitDatabase extends ActionBase {
 		this.node = node;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		DatabaseClient client = new DatabaseClient();
 		info( "initialize administrative database on database server " + server.NAME + ", node=" + node.POS + " ..." );
 		if( !client.checkConnect( this , server , node ) )

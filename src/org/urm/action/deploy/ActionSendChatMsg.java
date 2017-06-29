@@ -1,6 +1,7 @@
 package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
@@ -27,7 +28,7 @@ public class ActionSendChatMsg extends ActionBase {
 		this.sg = sg;
 	}
 
-	@Override protected SCOPESTATE executeSimple() throws Exception {
+	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		if( context.CTX_NOCHATMSG )
 			return( SCOPESTATE.NotRun );
 		
