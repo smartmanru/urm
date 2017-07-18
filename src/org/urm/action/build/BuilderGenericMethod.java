@@ -1,6 +1,7 @@
 package org.urm.action.build;
 
 import org.urm.action.ActionBase;
+import org.urm.common.PropertySet;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
@@ -24,10 +25,11 @@ public class BuilderGenericMethod extends Builder {
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
 		// generic params
 		action.info( "build PATCHPATH=" + CODEPATH.folderPath + " using ant " + builder.VERSION + " ..." );
+		PropertySet props = super.createProperties( action , project );
 
 		// set environment
-		String GENERIC_CMD = super.getVarString( action , builder.GENERIC_COMMAND );
-		String GENERIC_OPTIONS = super.getVarString( action , project.BUILDER_ADDOPTIONS );
+		String GENERIC_CMD = super.getVarString( action , props , builder.GENERIC_COMMAND );
+		String GENERIC_OPTIONS = super.getVarString( action , props , project.BUILDER_ADDOPTIONS );
 		GENERIC_CMD += " " + GENERIC_OPTIONS;
 
 		ShellExecutor session = action.shell;

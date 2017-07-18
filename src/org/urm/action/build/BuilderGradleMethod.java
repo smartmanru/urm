@@ -1,6 +1,7 @@
 package org.urm.action.build;
 
 import org.urm.action.ActionBase;
+import org.urm.common.PropertySet;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
@@ -27,10 +28,14 @@ public class BuilderGradleMethod extends Builder {
 	}
 
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
+		// generic params
+		action.info( "build PATCHPATH=" + CODEPATH.folderPath + " using gradle " + builder.VERSION + " ..." );
+		PropertySet props = super.createProperties( action , project );
+
 		// set java and gradle environment
 		String BUILD_JAVA_HOME = builder.JAVA_JDKHOMEPATH;
 		String BUILD_GRADLE_HOME = builder.GRADLE_HOMEPATH; 
-		String MODULE_ADDITIONAL_OPTIONS = super.getVarString( action , project.BUILDER_ADDOPTIONS );
+		String MODULE_ADDITIONAL_OPTIONS = super.getVarString( action , props , project.BUILDER_ADDOPTIONS );
 
 		ShellExecutor session = action.shell;
 		session.export( action , "JAVA_HOME" , session.getLocalPath( BUILD_JAVA_HOME ) );

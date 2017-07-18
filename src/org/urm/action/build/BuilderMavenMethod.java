@@ -3,6 +3,7 @@ package org.urm.action.build;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.common.PropertySet;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
@@ -94,12 +95,13 @@ public class BuilderMavenMethod extends Builder {
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
 		// maven params
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
+		PropertySet props = super.createProperties( action , project );
 
 		String NEXUS_PATH = getNexusPath( action , project );
 		String MODULE_ALT_REPO = "-DaltDeploymentRepository=nexus2::default::" + NEXUS_PATH;
 		String MODULE_MSETTINGS = "--settings=" + build.CONFIG_MAVEN_CFGFILE;
 		String MODULE_MAVEN_CMD = "deploy";
-		String MODULE_ADDITIONAL_OPTIONS = super.getVarString( action , project.BUILDER_ADDOPTIONS );
+		String MODULE_ADDITIONAL_OPTIONS = super.getVarString( action , props , project.BUILDER_ADDOPTIONS );
 		if( action.context.CTX_SHOWALL )
 			MODULE_ADDITIONAL_OPTIONS += " -X";
 

@@ -555,25 +555,25 @@ public class PropertySet {
 	}
 	
 	public int getSystemRequiredIntProperty( String prop ) throws Exception {
-		PropertyValue pv = resolveSystemProperty( prop , true );
+		PropertyValue pv = resolveSystemProperty( prop , true , true );
 		pv.setType( PropertyValueType.PROPERTY_NUMBER );
 		return( pv.getNumber() );
 	}
 
 	public String getSystemRequiredStringProperty( String prop ) throws Exception {
-		PropertyValue pv = resolveSystemProperty( prop , true );
+		PropertyValue pv = resolveSystemProperty( prop , true , true );
 		pv.setType( PropertyValueType.PROPERTY_STRING );
 		return( pv.getString() );
 	}
 
 	public String getSystemRequiredPathProperty( String prop , RunContext execrc ) throws Exception {
-		PropertyValue pv = resolveSystemProperty( prop , true );
+		PropertyValue pv = resolveSystemProperty( prop , true , true );
 		pv.setType( PropertyValueType.PROPERTY_PATH );
 		return( pv.getPath( execrc.isWindows() ) );
 	}
 	
 	public String getSystemPathExprProperty( String prop , RunContext execrc , String defaultExpr , boolean setRequired ) throws Exception {
-		PropertyValue pv = resolveSystemProperty( prop , false );
+		PropertyValue pv = resolveSystemProperty( prop , false , true );
 		pv.setType( PropertyValueType.PROPERTY_PATH );
 		if( setRequired )
 			pv.setRequired();
@@ -585,7 +585,7 @@ public class PropertySet {
 	}
 	
 	public String getSystemPathProperty( String prop , RunContext execrc , String defaultValue , boolean setRequired ) throws Exception {
-		PropertyValue pv = resolveSystemProperty( prop , false );
+		PropertyValue pv = resolveSystemProperty( prop , false , true );
 		pv.setType( PropertyValueType.PROPERTY_PATH );
 		if( setRequired )
 			pv.setRequired();
@@ -602,7 +602,7 @@ public class PropertySet {
 	}
 	
 	public String getSystemStringExprProperty( String prop , String defaultExpr , boolean setRequired ) throws Exception {
-		PropertyValue pv = resolveSystemProperty( prop , false );
+		PropertyValue pv = resolveSystemProperty( prop , false , true );
 		pv.setType( PropertyValueType.PROPERTY_STRING );
 		if( setRequired )
 			pv.setRequired();
@@ -618,7 +618,20 @@ public class PropertySet {
 	}
 
 	public String getSystemStringProperty( String prop , String defaultValue , boolean setRequired ) throws Exception {
-		PropertyValue pv = resolveSystemProperty( prop , false );
+		PropertyValue pv = resolveSystemProperty( prop , false , true );
+		pv.setType( PropertyValueType.PROPERTY_STRING );
+		if( setRequired )
+			pv.setRequired();
+		pv.setDefault( defaultValue );
+		return( pv.getString() );
+	}
+
+	public String getSystemTemplateProperty( String prop ) throws Exception {
+		return( getSystemTemplateProperty( prop , "" , false ) );
+	}
+
+	public String getSystemTemplateProperty( String prop , String defaultValue , boolean setRequired ) throws Exception {
+		PropertyValue pv = resolveSystemProperty( prop , false , false );
 		pv.setType( PropertyValueType.PROPERTY_STRING );
 		if( setRequired )
 			pv.setRequired();
@@ -627,7 +640,7 @@ public class PropertySet {
 	}
 
 	public int getSystemIntExprProperty( String prop , String defaultExpr , boolean setRequired ) throws Exception {
-		PropertyValue pv = resolveSystemProperty( prop , false );
+		PropertyValue pv = resolveSystemProperty( prop , false , true );
 		pv.setType( PropertyValueType.PROPERTY_NUMBER );
 		if( setRequired )
 			pv.setRequired();
@@ -639,7 +652,7 @@ public class PropertySet {
 	}
 
 	public int getSystemIntProperty( String prop , int defaultValue , boolean setRequired ) throws Exception {
-		PropertyValue pv = resolveSystemProperty( prop , false );
+		PropertyValue pv = resolveSystemProperty( prop , false , true );
 		pv.setType( PropertyValueType.PROPERTY_NUMBER );
 		if( setRequired )
 			pv.setRequired();
@@ -648,7 +661,7 @@ public class PropertySet {
 	}
 
 	public boolean getSystemBooleanExprProperty( String prop , String defaultExpr , boolean setRequired ) throws Exception {
-		PropertyValue pv = resolveSystemProperty( prop , false );
+		PropertyValue pv = resolveSystemProperty( prop , false , true );
 		pv.setType( PropertyValueType.PROPERTY_BOOL );
 		if( setRequired )
 			pv.setRequired();
@@ -664,7 +677,7 @@ public class PropertySet {
 	}
 	
 	public FLAG getSystemOptionProperty( String prop , Boolean defaultValue , boolean setRequired ) throws Exception {
-		PropertyValue pv = resolveSystemProperty( prop , false );
+		PropertyValue pv = resolveSystemProperty( prop , false , true );
 		pv.setType( PropertyValueType.PROPERTY_BOOL );
 		if( setRequired )
 			pv.setRequired();
@@ -690,7 +703,7 @@ public class PropertySet {
 	}
 	
 	public boolean getSystemBooleanProperty( String prop , boolean defaultValue , boolean setRequired ) throws Exception {
-		PropertyValue pv = resolveSystemProperty( prop , false );
+		PropertyValue pv = resolveSystemProperty( prop , false , true );
 		pv.setType( PropertyValueType.PROPERTY_BOOL );
 		if( setRequired )
 			pv.setRequired();
@@ -739,7 +752,7 @@ public class PropertySet {
 	}
 	
 	// implementation
-	private PropertyValue resolveSystemProperty( String prop , boolean required ) throws Exception {
+	private PropertyValue resolveSystemProperty( String prop , boolean required , boolean checkResolved ) throws Exception {
 		PropertyValue pv = getPropertyValue( prop );
 		if( required ) {
 			if( pv == null )
@@ -757,7 +770,7 @@ public class PropertySet {
 		if( required )
 			pv.setRequired();
 		recalculateProperty( pv );
-		if( !pv.isResolved() )
+		if( checkResolved && !pv.isResolved() )
 			Common.exit3( _Error.UnresolvedVariableValue3 , "set=" + set + ": unresolved variable=" + prop + ", value=" + pv.getFinalValue() , set , prop , pv.getFinalValue() );
 		
 		if( required ) {

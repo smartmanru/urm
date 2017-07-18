@@ -1,6 +1,7 @@
 package org.urm.action.build;
 
 import org.urm.action.ActionBase;
+import org.urm.common.PropertySet;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
@@ -24,11 +25,12 @@ public class BuilderAntMethod extends Builder {
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
 		// ant params
 		action.info( "build PATCHPATH=" + CODEPATH.folderPath + " using ant " + builder.VERSION + " ..." );
+		PropertySet props = super.createProperties( action , project );
 
 		// set environment
 		String BUILD_JAVA_HOME = builder.JAVA_JDKHOMEPATH;
 		String BUILD_ANT_HOME = builder.ANT_HOMEPATH; 
-		String MODULE_ADDITIONAL_OPTIONS = super.getVarString( action , project.BUILDER_ADDOPTIONS );
+		String MODULE_ADDITIONAL_OPTIONS = super.getVarString( action , props , project.BUILDER_ADDOPTIONS );
 		String ANT_CMD = "ant ";
 		if( !action.isDebug() )
 			ANT_CMD += "-silent ";

@@ -152,15 +152,15 @@ public class ServerProjectBuilder extends ServerObject {
 		VERSION = "";
 		
 		if( builderMethod == VarBUILDERTYPE.GENERIC )
-			GENERIC_COMMAND = properties.getSystemStringProperty( PROPERTY_GENERIC_COMMAND );
+			GENERIC_COMMAND = properties.getSystemTemplateProperty( PROPERTY_GENERIC_COMMAND );
 		else
 		if( builderMethod == VarBUILDERTYPE.ANT )
 			ANT_HOMEPATH = properties.getSystemStringProperty( PROPERTY_ANT_HOMEPATH );
 		else
 		if( builderMethod == VarBUILDERTYPE.MAVEN ) {
 			MAVEN_HOMEPATH = properties.getSystemStringProperty( PROPERTY_MAVEN_HOMEPATH );
-			MAVEN_COMMAND = properties.getSystemStringProperty( PROPERTY_MAVEN_COMMAND );
-			MAVEN_OPTIONS = properties.getSystemStringProperty( PROPERTY_MAVEN_OPTIONS );
+			MAVEN_COMMAND = properties.getSystemTemplateProperty( PROPERTY_MAVEN_COMMAND );
+			MAVEN_OPTIONS = properties.getSystemTemplateProperty( PROPERTY_MAVEN_OPTIONS );
 		}
 		else
 		if( builderMethod == VarBUILDERTYPE.GRADLE )
@@ -168,7 +168,7 @@ public class ServerProjectBuilder extends ServerObject {
 		else
 		if( builderMethod == VarBUILDERTYPE.MSBUILD ) {
 			MSBUILD_HOMEPATH = properties.getSystemStringProperty( PROPERTY_MSBUILD_HOMEPATH );
-			MSBUILD_OPTIONS = properties.getSystemStringProperty( PROPERTY_MSBUILD_OPTIONS );
+			MSBUILD_OPTIONS = properties.getSystemTemplateProperty( PROPERTY_MSBUILD_OPTIONS );
 		}
 		
 		if( builderMethod == VarBUILDERTYPE.ANT || builderMethod == VarBUILDERTYPE.MAVEN || builderMethod == VarBUILDERTYPE.GRADLE )
