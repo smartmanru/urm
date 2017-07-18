@@ -186,7 +186,7 @@ public class MirrorCaseGit extends MirrorCase {
 		if( !checkValidBranch( BRANCH ) )
 			action.exit2( _Error.GitUnableClone2 , "Unable to clone from " + OSPATH + " to " + OSPATHPROJECT , OSPATH , OSPATHPROJECT );
 			
-		int status = shell.customGetStatus( action , "git -C " + OSPATH + " clone " + OSPATH + " --shared -b " + BRANCH + " " + OSPATHPROJECT );
+		int status = shell.customGetStatus( action , "git -C " + OSPATH + " clone -q " + OSPATH + " --shared -b " + BRANCH + " " + OSPATHPROJECT );
 		if( status != 0 )
 			action.exit2( _Error.GitUnableClone2 , "Unable to clone from " + OSPATH + " to " + OSPATHPROJECT , OSPATH , OSPATHPROJECT );
 		
@@ -319,7 +319,7 @@ public class MirrorCaseGit extends MirrorCase {
 			
 			OSPATH = shell.getOSPath( action , repo.folderPath );
 			String urlAuthFull = Common.getPath( urlAuth , remotePath );
-			String cmd = "git clone " + urlAuthFull + " --mirror";
+			String cmd = "git clone -q " + urlAuthFull + " --mirror";
 			cmd += " " + OSPATH;
 			
 			status = shell.customGetStatus( action , cmd );
@@ -364,7 +364,7 @@ public class MirrorCaseGit extends MirrorCase {
 
 	private void fetchOrigin( String path ) throws Exception {
 		String OSPATH = shell.getOSPath( action , path );
-		int status = shell.customGetStatus( action , "git -C " + OSPATH + " fetch origin" );
+		int status = shell.customGetStatus( action , "git -C " + OSPATH + " fetch -q origin" );
 		if( status != 0 )
 			action.exit1( _Error.UnableFetchOrigin1 , "Unable to fetch origin, path=" + OSPATH , OSPATH );
 	}
