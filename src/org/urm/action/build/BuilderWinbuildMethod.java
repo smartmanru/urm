@@ -1,6 +1,7 @@
 package org.urm.action.build;
 
 import org.urm.action.ActionBase;
+import org.urm.common.PropertySet;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
@@ -28,12 +29,13 @@ public class BuilderWinbuildMethod extends Builder {
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
 		// msbuilder params
 		String MSBUILD_PATH = builder.MSBUILD_HOMEPATH + "\\Bin\\msbuild.exe";
+		PropertySet props = super.createProperties( action , project );
 		
 		String NUGET_PATH = getNugetSourcePath( action );
 		String MSBUILD_OPTIONS = builder.MSBUILD_OPTIONS;
 		if( action.context.CTX_SHOWALL )
 			MSBUILD_OPTIONS += " /verbosity:detailed";
-		String MODULE_ADDITIONAL_OPTIONS = super.getVarString( action , project.BUILDER_ADDOPTIONS );
+		String MODULE_ADDITIONAL_OPTIONS = super.getVarString( action , props , project.BUILDER_ADDOPTIONS );
 		MSBUILD_OPTIONS += " " + MODULE_ADDITIONAL_OPTIONS;
 
 		String BUILD_CMD = MSBUILD_PATH + " " + MSBUILD_OPTIONS;

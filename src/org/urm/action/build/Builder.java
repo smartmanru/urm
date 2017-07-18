@@ -30,6 +30,16 @@ public abstract class Builder {
 	abstract public boolean checkSourceCode( ActionBase action ) throws Exception;
 	abstract public boolean runBuild( ActionBase action ) throws Exception;
 	abstract public void removeExportedCode( ActionBase action ) throws Exception;
+
+	static String PROPERTY_PROJECTNAME = "project.name";
+	static String PROPERTY_PROJECTDESC = "project.desc";
+	static String PROPERTY_REPOSITORY = "project.repository";
+	static String PROPERTY_BUILDGROUP = "project.buildgroup";
+	static String PROPERTY_GROUPPOS = "project.grouppos";
+	static String PROPERTY_REPOPATH = "project.repopath";
+	static String PROPERTY_CODEPATH = "project.codepath";
+	static String PROPERTY_BUILDTAG = "build.tag";
+	static String PROPERTY_BUILDVERSION = "build.version";
 	
 	protected Builder( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
 		this.builder = builder;
@@ -101,10 +111,24 @@ public abstract class Builder {
 		return( res.BASEURL + "/content/repositories/" + build.CONFIG_NEXUS_REPO );
 	}
 
-	public String getVarString( ActionBase action , String value ) throws Exception {
+	public PropertySet createProperties( ActionBase action , MetaSourceProject project ) throws Exception {
 		MetaProductSettings product = project.meta.getProductSettings( action );
 		MetaProductBuildSettings settings = product.getBuildSettings( action );
 		PropertySet props = settings.getProperties();
+		PropertySet propsGenerated = new PropertySet( "build" , props );
+		propsGenerated.setManualStringProperty( PROPERTY_PROJECTNAME , project.NAME );
+		propsGenerated.setManualStringProperty( PROPERTY_PROJECTDESC , project.DESC );
+		propsGenerated.setManualStringProperty( PROPERTY_REPOSITORY , project.REPOSITORY );
+		propsGenerated.setManualStringProperty( PROPERTY_BUILDGROUP , project.BUILDGROUP );
+		propsGenerated.setManualStringProperty( PROPERTY_GROUPPOS , "" + project.POS );
+		propsGenerated.setManualStringProperty( PROPERTY_REPOPATH , project.REPOPATH );
+		propsGenerated.setManualStringProperty( PROPERTY_CODEPATH , project.CODEPATH );
+		propsGenerated.setManualStringProperty( PROPERTY_BUILDTAG , TAG );
+		propsGenerated.setManualStringProperty( PROPERTY_BUILDVERSION , APPVERSION );
+		return( propsGenerated );
+	}
+	
+	public String getVarString( ActionBase action , PropertySet props , String value ) throws Exception {
 		String res = props.getFinalString( value , action.shell.isWindows() , true , false );
 		return( res );
 	}
