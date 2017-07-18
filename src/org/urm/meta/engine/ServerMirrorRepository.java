@@ -284,9 +284,23 @@ public class ServerMirrorRepository extends ServerObject {
 		createProperties();
 	}
 	
+	public void clearMirror( ServerTransaction transaction ) throws Exception {
+		if( RESOURCE.isEmpty() )
+			return;
+		
+		RESOURCE = "";
+		RESOURCE_REPO = "";
+		RESOURCE_ROOT = "";
+		RESOURCE_DATA = "";
+		createProperties();
+	}
+	
 	private void dropMirrorInternal( ServerTransaction transaction , boolean dropOnServer ) throws Exception {
 		if( isProject() && dropOnServer )
 			transaction.exitUnexpectedState();
+		
+		if( RESOURCE.isEmpty() )
+			return;
 		
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , "" , true );
 		MirrorCase mc = vcs.getMirror( this );

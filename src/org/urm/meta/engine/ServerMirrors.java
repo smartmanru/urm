@@ -170,10 +170,16 @@ public class ServerMirrors extends ServerObject {
 		}
 	}
 
-	public void dropResourceMirrors( ActionBase action , ServerAuthResource res ) throws Exception {
+	public void dropResourceMirrors( ServerTransaction transaction , ServerAuthResource res ) throws Exception {
+		ActionBase action = transaction.getAction();
 		GenericVCS vcs = GenericVCS.getVCS( action , null , res.NAME );
 		MirrorCase mc = vcs.getMirror( null );
 		mc.removeResourceFolder();
+
+		for( ServerMirrorRepository repo : repoMap.values() ) {
+			if( repo.RESOURCE.equals( res.NAME ) )
+				repo.clearMirror( transaction );
+		}
 	}
 
 }
