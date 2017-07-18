@@ -145,7 +145,10 @@ public class MirrorCaseGit extends MirrorCase {
 			refreshRepository();
 		else
 			useMirror();
-		
+		refreshBranchInternal();
+	}
+
+	public void refreshBranchInternal() throws Exception {
 		LocalFolder branchFolder = getBranchFolder();
 		fetchOrigin( branchFolder.folderPath );
 	}
@@ -342,7 +345,7 @@ public class MirrorCaseGit extends MirrorCase {
 	private void useBranchMirror() throws Exception {
 		LocalFolder branch = getBranchFolder();
 		if( branch.checkExists( action ) ) {
-			refreshBranch( false );
+			refreshBranchInternal();
 			return;
 		}
 
