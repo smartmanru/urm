@@ -125,12 +125,14 @@ public class MirrorCaseGit extends MirrorCase {
 		if( refreshRepository )
 			refreshBranch( true );
 		else {
+			useMirror();
 			LocalFolder compFolder = getComponentFolder();
 			fetchOrigin( compFolder.folderPath );
 		}
 	}
 	
 	public void refreshRepository() throws Exception {
+		useMirror();
 		LocalFolder repoFolder = getRepositoryFolder();
 		fetchOrigin( repoFolder.folderPath );
 	}
@@ -138,6 +140,8 @@ public class MirrorCaseGit extends MirrorCase {
 	public void refreshBranch( boolean refreshRepository ) throws Exception {
 		if( refreshRepository )
 			refreshRepository();
+		else
+			useMirror();
 		
 		LocalFolder branchFolder = getBranchFolder();
 		fetchOrigin( branchFolder.folderPath );
