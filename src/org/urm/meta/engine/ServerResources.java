@@ -123,8 +123,8 @@ public class ServerResources extends ServerObject {
 		if( resourceMap.get( res.NAME ) == null )
 			transaction.exit( _Error.UnknownResource1 , "unknown resource name=" + res.NAME , new String[] { res.NAME } );
 			
-		resourceMap.remove( res.NAME );
 		dropResourceMirrors( transaction , res );
+		resourceMap.remove( res.NAME );
 	}
 
 	public void dropResourceMirrors( ServerTransaction transaction , ServerAuthResource res ) throws Exception {
