@@ -34,6 +34,7 @@ public class PropertyValue {
 	private boolean resolved;
 	private boolean system;
 	private boolean missing;
+	private boolean templated;
 	
 	public PropertyValue( PropertyValue src ) {
 		this.property = src.property;
@@ -49,6 +50,7 @@ public class PropertyValue {
 		this.resolved = src.resolved;
 		this.system = src.system;
 		this.missing = src.missing;
+		this.templated = src.templated;
 	}
 
 	public PropertyValue( String property , PropertyValueOrigin origin , PropertySet originSet , String desc ) {
@@ -62,6 +64,7 @@ public class PropertyValue {
 		this.system = false;
 		this.missing = true;
 		this.nullvalue = true;
+		this.templated = false;
 		this.defaultValue = "";
 		this.originalValue = "";
 		this.finalValue = "";
@@ -85,6 +88,10 @@ public class PropertyValue {
 	
 	public boolean isRequired() {
 		return( required );
+	}
+	
+	public boolean isTemplated() {
+		return( templated );
 	}
 	
 	public boolean isDefault() {
@@ -143,6 +150,10 @@ public class PropertyValue {
 	
 	public void setDesc( String descNew ) {
 		this.desc = descNew;
+	}
+	
+	public void setTemplated() {
+		this.templated = true;
 	}
 	
 	public void setNull() {
