@@ -133,7 +133,7 @@ public class ServerResources extends ServerObject {
 		
 		ActionBase action = transaction.getAction();
 		ServerMirrors mirrors = action.getServerMirrors();
-		mirrors.dropResourceMirrors( action , res );
+		mirrors.dropResourceMirrors( transaction , res );
 	}
 	
 }
