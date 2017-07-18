@@ -243,6 +243,9 @@ public class PropertySet {
 				if( pv.isResolved() )
 					continue;
 				
+				if( pv.isTemplated() )
+					continue;
+				
 				if( !resolveProperty( pv , allowUnresolved ) )
 					unresolvedCheck++;
 			}
@@ -636,6 +639,7 @@ public class PropertySet {
 		if( setRequired )
 			pv.setRequired();
 		pv.setDefault( defaultValue );
+		pv.setTemplated();
 		return( pv.getString() );
 	}
 
