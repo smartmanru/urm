@@ -503,6 +503,9 @@ public class PropertySet {
 			if( pv.isResolved() )
 				continue;
 			
+			if( pv.isTemplated() )
+				continue;
+			
 			Common.exit2( _Error.UnresolvedVariable2 , "set=" + set + ": unresolved property=" + pv.property , set , pv.property );
 		}
 	}
