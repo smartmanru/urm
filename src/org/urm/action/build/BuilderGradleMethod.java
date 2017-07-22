@@ -4,7 +4,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.PropertySet;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
-import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.ServerProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProject;
@@ -65,11 +64,6 @@ public class BuilderGradleMethod extends Builder {
 		
 		action.info( "buildGradle: gradle build successfully finished" );
 		return( true );
-	}
-
-	@Override public void removeExportedCode( ActionBase action ) throws Exception {
-		LocalFolder CODEPATH = storage.buildFolder; 
-		CODEPATH.removeThis( action );
 	}
 
 }
