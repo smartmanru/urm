@@ -43,7 +43,6 @@ public class GitVCS extends GenericVCS {
 	
 	@Override 
 	public boolean checkout( MetaSourceProject project , LocalFolder PATCHFOLDER , String BRANCH ) throws Exception {
-		BRANCH = getBranchName( BRANCH );
 		GitProjectRepo repo = getRepo( project );
 		repo.refreshMirror();
 
@@ -74,8 +73,6 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean copyBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
-		BRANCH1 = getBranchName( BRANCH1 );
-		BRANCH2 = getBranchName( BRANCH2 );
 		GitProjectRepo repo = getRepo( project );
 		repo.refreshRepository();
 		
@@ -97,8 +94,6 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean renameBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
-		BRANCH1 = getBranchName( BRANCH1 );
-		BRANCH2 = getBranchName( BRANCH2 );
 		GitProjectRepo repo = getRepo( project );
 		repo.refreshRepository();
 		
@@ -121,8 +116,6 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean copyTagToNewTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
-		TAG1 = getTagName( TAG1 );
-		TAG2 = getTagName( TAG2 );
 		GitProjectRepo repo = getRepo( project );
 		repo.refreshRepository();
 		
@@ -144,8 +137,6 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean copyTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
-		TAG1 = getTagName( TAG1 );
-		TAG2 = getTagName( TAG2 );
 		GitProjectRepo repo = getRepo( project );
 		repo.refreshRepository();
 		
@@ -168,8 +159,6 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean renameTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
-		TAG1 = getTagName( TAG1 );
-		TAG2 = getTagName( TAG2 );
 		GitProjectRepo repo = getRepo( project );
 		repo.refreshRepository();
 		
@@ -193,8 +182,6 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean copyTagToNewBranch( MetaSourceProject project , String TAG1 , String BRANCH2 ) throws Exception {
-		TAG1 = getTagName( TAG1 );
-		BRANCH2 = getBranchName( BRANCH2 );
 		GitProjectRepo repo = getRepo( project );
 		repo.refreshRepository();
 		
@@ -216,7 +203,6 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean dropTag( MetaSourceProject project , String TAG ) throws Exception {
-		TAG = getTagName( TAG );
 		GitProjectRepo repo = getRepo( project );
 		repo.refreshRepository();
 		
@@ -233,7 +219,6 @@ public class GitVCS extends GenericVCS {
 	
 	@Override 
 	public boolean dropBranch( MetaSourceProject project , String BRANCH ) throws Exception {
-		BRANCH = getBranchName( BRANCH );
 		GitProjectRepo repo = getRepo( project );
 		repo.refreshRepository();
 		
@@ -250,8 +235,6 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean export( MetaSourceProject project , LocalFolder PATCHFOLDER , String BRANCH , String TAG , String FILENAME ) throws Exception {
-		TAG = getTagName( TAG );
-		BRANCH = getBranchName( BRANCH );
 		GitProjectRepo repo = getRepo( project );
 		repo.refreshRepository();
 		
@@ -272,8 +255,6 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String BRANCHDATE ) throws Exception {
-		TAG = getTagName( TAG );
-		BRANCH = getBranchName( BRANCH );
 		GitProjectRepo repo = getRepo( project );
 		repo.refreshRepository();
 
@@ -294,7 +275,6 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean isValidRepositoryTagPath( ServerMirrorRepository mirror , String TAG , String path ) throws Exception {
-		TAG = getTagName( TAG );
 		action.exitNotImplemented();
 		return( false );
 	}
@@ -336,8 +316,8 @@ public class GitVCS extends GenericVCS {
 		MirrorCaseGit mc = getMasterMirrorCase( mirror );
 		mc.refreshRepository();
 		
-		TAG = getTagName( TAG );
-		boolean res = mc.exportFromPath( PATCHFOLDER , TAG , name , ITEMPATH );
+		String GITTAG = getGitTagName( TAG );
+		boolean res = mc.exportFromPath( PATCHFOLDER , GITTAG , name , ITEMPATH );
 		return( res );
 	}
 	
@@ -489,7 +469,7 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public void createMasterTag( ServerMirrorRepository mirror , String masterFolder , String TAG , String commitMessage ) throws Exception {
-		TAG = getTagName( TAG );
+		TAG = getGitTagName( TAG );
 		action.exitNotImplemented();
 	}
 
@@ -538,7 +518,7 @@ public class GitVCS extends GenericVCS {
 		return( mc );
 	}
 	
-	private String getBranchName( String BRANCH ) {
+	public String getGitBranchName( String BRANCH ) {
 		if( BRANCH.isEmpty() )
 			return( "" );
 		
@@ -547,7 +527,7 @@ public class GitVCS extends GenericVCS {
 		return( "branch-" + BRANCH );
 	}
 	
-	private String getTagName( String TAG ) {
+	public String getGitTagName( String TAG ) {
 		if( TAG.isEmpty() )
 			return( "" );
 		

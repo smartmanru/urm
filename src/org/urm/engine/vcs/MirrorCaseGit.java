@@ -168,9 +168,10 @@ public class MirrorCaseGit extends MirrorCase {
 		return( false );
 	}
 
-	public boolean checkValidBranch( String branch ) throws Exception {
+	public boolean checkValidBranch( String BRANCH ) throws Exception {
 		String OSPATH = getBareOSPath();
-		String STATUS = shell.customGetValue( action , "git -C " + OSPATH + " branch --list " + branch );
+		String GITBRANCH = vcsGit.getGitBranchName( BRANCH );
+		String STATUS = shell.customGetValue( action , "git -C " + OSPATH + " branch --list " + GITBRANCH );
 		
 		if( STATUS.isEmpty() )
 			return( false );
@@ -188,8 +189,9 @@ public class MirrorCaseGit extends MirrorCase {
 		
 		if( !checkValidBranch( BRANCH ) )
 			action.exit2( _Error.GitUnableClone2 , "Unable to clone from " + OSPATH + " to " + OSPATHPROJECT , OSPATH , OSPATHPROJECT );
-			
-		int status = shell.customGetStatus( action , "git -C " + OSPATH + " clone -q " + OSPATH + " --shared -b " + BRANCH + " " + OSPATHPROJECT );
+		
+		String GITBRANCH = vcsGit.getGitBranchName( BRANCH );
+		int status = shell.customGetStatus( action , "git -C " + OSPATH + " clone -q " + OSPATH + " --shared -b " + GITBRANCH + " " + OSPATHPROJECT );
 		if( status != 0 )
 			action.exit2( _Error.GitUnableClone2 , "Unable to clone from " + OSPATH + " to " + OSPATHPROJECT , OSPATH , OSPATHPROJECT );
 		
@@ -217,7 +219,7 @@ public class MirrorCaseGit extends MirrorCase {
 			action.exit1( _Error.UnablePushOrigin1 , "Unable to push origin, path=" + OSPATH , OSPATH );
 	}
 	
-	public boolean exportFromPath( LocalFolder exportFolder , String BRANCHTAG , String SUBPATH , String FILENAME ) throws Exception {
+	public boolean exportFromPath( LocalFolder exportFolder , String GITBRANCHTAG , String SUBPATH , String FILENAME ) throws Exception {
 		refreshRepository();
 		
 		Folder BASEDIR = exportFolder.getParentFolder( action );
@@ -235,11 +237,11 @@ public class MirrorCaseGit extends MirrorCase {
 				if( shell.isWindows() ) {
 					String WINPATH = getBareOSPath();
 					String WINPATHPROJECT = exportFolder.getLocalPath( action );
-					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
+					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + GITBRANCHTAG + " " + 
 							" . | ( cd /D " + WINPATHPROJECT + " & tar x --exclude pax_global_header)" );
 				}
 				else {
-					shell.customCheckStatus( action , "git -C " + getBareOSPath() + " archive " + BRANCHTAG + " " + 
+					shell.customCheckStatus( action , "git -C " + getBareOSPath() + " archive " + GITBRANCHTAG + " " + 
 						" . | ( cd " + exportFolder.folderPath + "; tar x )" );
 				}
 			}
@@ -251,11 +253,11 @@ public class MirrorCaseGit extends MirrorCase {
 					String WINPATH = getBareOSPath();
 					String WINPATHPROJECT = exportFolder.getLocalPath( action );
 					String WINPATHSUB = Common.getWinPath( SUBPATH );
-					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
+					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + GITBRANCHTAG + " " + 
 							WINPATHSUB + " | ( cd /D " + WINPATHPROJECT + " & tar x " + WINPATHSUB + " " + STRIPOPTION + " )" );
 				}
 				else {
-					shell.customCheckStatus( action , "git -C " + getBareOSPath() + " archive " + BRANCHTAG + " " + 
+					shell.customCheckStatus( action , "git -C " + getBareOSPath() + " archive " + GITBRANCHTAG + " " + 
 							SUBPATH + " | ( cd " + exportFolder.folderPath + "; tar x --exclude pax_global_header " + SUBPATH + " " + STRIPOPTION + " )" );
 				}
 			}
@@ -278,11 +280,11 @@ public class MirrorCaseGit extends MirrorCase {
 				String WINPATH = getBareOSPath();
 				String WINPATHBASE = Common.getWinPath( BASEDIR.folderPath );
 				String WINPATHFILE = Common.getWinPath( FILEPATH );
-				shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + BRANCHTAG + " " + 
+				shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + GITBRANCHTAG + " " + 
 						WINPATHFILE + " | ( cd /D " + WINPATHBASE + " & tar x --exclude pax_global_header " + WINPATHFILE + " " + STRIPOPTION + " )" );
 			}
 			else {
-				shell.customCheckStatus( action , "git -C " + getBareOSPath() + " archive " + BRANCHTAG + " " + 
+				shell.customCheckStatus( action , "git -C " + getBareOSPath() + " archive " + GITBRANCHTAG + " " + 
 						FILEPATH + " | ( cd " + BASEDIR.folderPath + "; tar x " + FILEPATH + " " + STRIPOPTION + " )" );
 			}
 			if( !FILENAME.equals( BASENAME ) )
