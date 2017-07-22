@@ -41,11 +41,11 @@ public class ProjectVersionControl {
 		return( res );
 	}
 	
-	public boolean commit( LocalFolder PATCHFOLDER , MetaSourceProject project , String MESSAGE ) {
+	public boolean commit( MetaSourceProject project , String BRANCH , LocalFolder PATCHFOLDER , String MESSAGE ) {
 		try {
 			action.info( "commit PATCHPATH=" + PATCHFOLDER.folderPath + ", PROJECT=" + project.NAME + ", MESSAGE=" + MESSAGE + " ..." );
 			GenericVCS vcs = getVCS( project );
-			return( vcs.commit( project , PATCHFOLDER , MESSAGE ) );
+			return( vcs.commit( project , BRANCH , PATCHFOLDER , MESSAGE ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );

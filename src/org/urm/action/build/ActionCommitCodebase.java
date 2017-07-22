@@ -21,7 +21,8 @@ public class ActionCommitCodebase extends ActionBase {
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
 		LocalFolder COPATH = CODIR.getSubFolder( this , scopeProject.sourceProject.NAME );
-		vcs.commit( COPATH , scopeProject.sourceProject , MESSAGE );
+		String BRANCH = scopeProject.sourceProject.getDefaultBranch( this );
+		vcs.commit( scopeProject.sourceProject , BRANCH , COPATH , MESSAGE );
 		return( SCOPESTATE.RunSuccess );
 	}
 	

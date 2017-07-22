@@ -59,6 +59,9 @@ public class MirrorCaseGit extends MirrorCase {
 	@Override
 	public void useMirror() throws Exception {
 		useRepositoryMirror();
+		if( BRANCH.isEmpty() )
+			return;
+		
 		useBranchMirror();
 		
 		LocalFolder compFolder = getComponentFolder();

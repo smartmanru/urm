@@ -43,7 +43,7 @@ public class GitVCS extends GenericVCS {
 	
 	@Override 
 	public boolean checkout( MetaSourceProject project , LocalFolder PATCHFOLDER , String BRANCH ) throws Exception {
-		GitProjectRepo repo = getRepo( project );
+		GitProjectRepo repo = getRepo( project , BRANCH );
 		repo.refreshMirror();
 
 		String REPOVERSION = "(branch head)";
@@ -55,13 +55,13 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean commit( MetaSourceProject project , LocalFolder PATCHFOLDER , String MESSAGE ) throws Exception {
+	public boolean commit( MetaSourceProject project , String BRANCH , LocalFolder PATCHFOLDER , String MESSAGE ) throws Exception {
 		if( !PATCHFOLDER.checkExists( action ) ) {
 			action.error( "directory " + PATCHFOLDER.folderPath + " does not exist " );
 			return( false );
 		}
 
-		GitProjectRepo repo = getRepo( project );
+		GitProjectRepo repo = getRepo( project , BRANCH );
 		repo.refreshMirror();
 		
 		// automatically add modified and push
@@ -73,7 +73,7 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean copyBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
-		GitProjectRepo repo = getRepo( project );
+		GitProjectRepo repo = getRepo( project , "" );
 		repo.refreshRepository();
 		
 		if( !repo.checkBranchExists( BRANCH1 ) ) {
@@ -94,7 +94,7 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean renameBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
-		GitProjectRepo repo = getRepo( project );
+		GitProjectRepo repo = getRepo( project , "" );
 		repo.refreshRepository();
 		
 		if( !repo.checkBranchExists( BRANCH1 ) ) {
@@ -116,7 +116,7 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean copyTagToNewTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
-		GitProjectRepo repo = getRepo( project );
+		GitProjectRepo repo = getRepo( project , "" );
 		repo.refreshRepository();
 		
 		if( !repo.checkTagExists( TAG1 ) ) {
@@ -137,7 +137,7 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean copyTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
-		GitProjectRepo repo = getRepo( project );
+		GitProjectRepo repo = getRepo( project , "" );
 		repo.refreshRepository();
 		
 		if( !repo.checkTagExists( TAG1 ) ) {
@@ -159,7 +159,7 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean renameTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
-		GitProjectRepo repo = getRepo( project );
+		GitProjectRepo repo = getRepo( project , "" );
 		repo.refreshRepository();
 		
 		if( !repo.checkTagExists( TAG1 ) ) {
@@ -182,7 +182,7 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean copyTagToNewBranch( MetaSourceProject project , String TAG1 , String BRANCH2 ) throws Exception {
-		GitProjectRepo repo = getRepo( project );
+		GitProjectRepo repo = getRepo( project , "" );
 		repo.refreshRepository();
 		
 		if( !repo.checkTagExists( TAG1 ) ) {
@@ -203,7 +203,7 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean dropTag( MetaSourceProject project , String TAG ) throws Exception {
-		GitProjectRepo repo = getRepo( project );
+		GitProjectRepo repo = getRepo( project , "" );
 		repo.refreshRepository();
 		
 		if( !repo.checkTagExists( TAG ) ) {
@@ -219,7 +219,7 @@ public class GitVCS extends GenericVCS {
 	
 	@Override 
 	public boolean dropBranch( MetaSourceProject project , String BRANCH ) throws Exception {
-		GitProjectRepo repo = getRepo( project );
+		GitProjectRepo repo = getRepo( project , "" );
 		repo.refreshRepository();
 		
 		if( !repo.checkBranchExists( BRANCH ) ) {
@@ -235,7 +235,7 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean export( MetaSourceProject project , LocalFolder PATCHFOLDER , String BRANCH , String TAG , String FILENAME ) throws Exception {
-		GitProjectRepo repo = getRepo( project );
+		GitProjectRepo repo = getRepo( project , "" );
 		repo.refreshRepository();
 		
 		boolean res;
@@ -255,7 +255,7 @@ public class GitVCS extends GenericVCS {
 
 	@Override 
 	public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String BRANCHDATE ) throws Exception {
-		GitProjectRepo repo = getRepo( project );
+		GitProjectRepo repo = getRepo( project , BRANCH );
 		repo.refreshRepository();
 
 		String CO_BRANCH = BRANCH;
@@ -506,9 +506,8 @@ public class GitVCS extends GenericVCS {
 		return( urlAuth );
 	}
 	
-	private GitProjectRepo getRepo( MetaSourceProject project ) throws Exception {
+	private GitProjectRepo getRepo( MetaSourceProject project , String BRANCH ) throws Exception {
 		ServerMirrorRepository mirror = action.getProjectMirror( project );
-		String BRANCH = project.getDefaultBranch( action );
 		GitProjectRepo repo = new GitProjectRepo( this , mirror , project , BRANCH );
 		return( repo );
 	}

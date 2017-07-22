@@ -86,7 +86,7 @@ public class SubversionVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean commit( MetaSourceProject project , LocalFolder PATCHFOLDER , String COMMENT ) throws Exception {
+	public boolean commit( MetaSourceProject project , String BRANCH , LocalFolder PATCHFOLDER , String COMMENT ) throws Exception {
 		if( !PATCHFOLDER.checkExists( action ) ) {
 			action.error( "directory " + PATCHFOLDER.folderPath + " does not exist " );
 			return( false );
