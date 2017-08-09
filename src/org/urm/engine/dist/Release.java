@@ -43,6 +43,7 @@ public class Release {
 
 	public ReleaseSchedule schedule;
 	public ReleaseMaster master;
+	public ReleaseChanges changes;
 
 	public static String ELEMENT_RELEASE = "release";
 	public static String ELEMENT_SET = "set";
@@ -127,6 +128,8 @@ public class Release {
 		rr.copyReleaseScope( action , this );
 		rr.schedule = schedule.copy( action , rr.meta , rr , false );
 		
+		if( changes != null )
+			rr.changes = changes.copy( action , meta , rr );
 		if( master != null )
 			rr.master = master.copy( action , rr );
 		
@@ -238,6 +241,7 @@ public class Release {
 		this.MASTER = false;
 		this.CUMULATIVE = action.context.CTX_CUMULATIVE;
 
+		changes = new ReleaseChanges( meta , this );
 		schedule.create( action );
 		schedule.createReleaseSchedule( action , releaseDate , lc );
 		setProperties( action );
@@ -340,6 +344,8 @@ public class Release {
 			// get project sets
 			for( VarCATEGORY CATEGORY : Types.getAllReleaseCategories() )
 				loadSets( action , root , CATEGORY );
+			changes = new ReleaseChanges( meta , this );
+			changes.load( action , root );
 		}
 		
 		return( doc );
@@ -598,6 +604,8 @@ public class Release {
 				Element parent = ( Element )ConfReader.xmlGetFirstChild( root , Common.getEnumLower( set.CATEGORY ) );
 				set.createXml( action , doc , parent );
 			}
+			
+			changes.save( action , doc , root );
 		}
 			
 		return( doc );

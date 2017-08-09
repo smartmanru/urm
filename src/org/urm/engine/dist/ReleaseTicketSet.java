@@ -1,5 +1,7 @@
 package org.urm.engine.dist;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +32,9 @@ public class ReleaseTicketSet {
 	public ReleaseTicketSet( Meta meta , ReleaseChanges changes ) {
 		this.meta = meta; 
 		this.changes = changes;
+		items = new LinkedList<ReleaseTicket>();
+		map = new HashMap<String,ReleaseTicket>();
+		targets = new LinkedList<ReleaseTicketSetTarget>();
 	}
 
 	public ReleaseTicketSet copy( ActionBase action , Meta meta , ReleaseChanges changes ) throws Exception {
@@ -115,4 +120,17 @@ public class ReleaseTicketSet {
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETSETTARGETS , TARGETS );
 	}
 
+	public void create( ActionBase action , String code , String name , String comments ) throws Exception {
+		this.CODE = code;
+		this.NAME = name;
+		this.COMMENTS = comments;
+		status = VarTICKETSETSTATUS.NEW;
+	}
+	
+	public void modify( ActionBase action , String code , String name , String comments ) throws Exception {
+		this.CODE = code;
+		this.NAME = name;
+		this.COMMENTS = comments;
+	}
+	
 }

@@ -328,4 +328,9 @@ public class ReleaseCommand {
 		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
+	public void executeTickets( ActionBase action , Dist dist , String method , String[] args ) throws Exception {
+		ActionTickets ma = new ActionTickets( action , null , dist , method , args );
+		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+	
 }

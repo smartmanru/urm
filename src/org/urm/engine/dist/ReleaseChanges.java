@@ -1,5 +1,6 @@
 package org.urm.engine.dist;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
@@ -20,6 +21,7 @@ public class ReleaseChanges {
 	public ReleaseChanges( Meta meta , Release release ) {
 		this.meta = meta; 
 		this.release = release;
+		sets = new HashMap<String,ReleaseTicketSet>();
 	}
 
 	public ReleaseChanges copy( ActionBase action , Meta meta , Release release ) throws Exception {
@@ -35,6 +37,10 @@ public class ReleaseChanges {
 
 	private void addSet( ReleaseTicketSet set ) {
 		sets.put( set.CODE , set );
+	}
+	
+	private void removeSet( ReleaseTicketSet set ) {
+		sets.remove( set.CODE );
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
@@ -64,4 +70,33 @@ public class ReleaseChanges {
 		}
 	}
 
+	public String[] getSetCodes() {
+		return( Common.getSortedKeys( sets ) );
+	}
+	
+	public ReleaseTicketSet findSet( String code ) {
+		return( sets.get( code ) );
+	}
+
+	public void createSet( ActionBase action , String code , String name , String comments ) throws Exception {
+		if( findSet( code ) != null )
+			action.exitUnexpectedState();
+		
+		ReleaseTicketSet set = new ReleaseTicketSet( meta , this );
+		set.create( action , code , name , comments );
+		addSet( set );
+	}
+	
+	public void modifySet( ActionBase action , ReleaseTicketSet set , String code , String name , String comments ) throws Exception {
+		ReleaseTicketSet current = findSet( code );
+		if( current != null && current != set )
+			action.exitUnexpectedState();
+
+		if( current == null )
+			removeSet( set );
+		set.modify( action , code , name , comments );
+		if( current == null )
+			addSet( set );
+	}
+	
 }

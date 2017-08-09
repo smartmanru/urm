@@ -22,5 +22,6 @@ public class _Error {
 	public static final int CannotAppendIncompleteRelease0 = ErrorBase + 13;
 	public static final int CannotSkipRelease1 = ErrorBase + 14;
 	public static final int CannotAppendOlderRelease1 = ErrorBase + 15;
+	public static final int InvalidSyntax0 = ErrorBase + 16;
 	
 }

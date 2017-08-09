@@ -50,6 +50,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		defineAction( new BuildRelease() , ReleaseCommandMeta.METHOD_BUILD );
 		defineAction( new GetRelease() , ReleaseCommandMeta.METHOD_GETDIST );
 		defineAction( new DescopeRelease() , ReleaseCommandMeta.METHOD_DESCOPE );
+		defineAction( new ExecuteTickets() , ReleaseCommandMeta.METHOD_TICKETS );
 		
 		impl = new ReleaseCommand();
 	}	
@@ -388,5 +389,18 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		}
 	}
 	}
+
+	private class ExecuteTickets extends CommandMethod {
+	public void run( ActionBase action ) throws Exception {
+		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		Meta meta = action.getContextMeta();
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
+		String METHOD = getRequiredArg( action , 1 , "METHOD" );
+		String[] args = getArgList( action , 2 );
+		
+		impl.executeTickets( action , dist , METHOD , args );
+	}
+	}
+
 	
 }
