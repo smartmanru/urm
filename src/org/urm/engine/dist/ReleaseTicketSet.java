@@ -132,5 +132,21 @@ public class ReleaseTicketSet {
 		this.NAME = name;
 		this.COMMENTS = comments;
 	}
+
+	public void setDescoped( ActionBase action ) throws Exception {
+		for( ReleaseTicket ticket : items )
+			ticket.setDescoped( action );
+		status = VarTICKETSETSTATUS.DESCOPED;
+	}
+
+	public boolean isDescoped() {
+		if( status == VarTICKETSETSTATUS.DESCOPED )
+			return( true );
+		return( false );
+	}
+
+	public ReleaseTicket[] getTickets() {
+		return( items.toArray( new ReleaseTicket[0] ) );
+	}
 	
 }

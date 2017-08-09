@@ -15,6 +15,9 @@ public class ActionTickets extends ActionBase {
 	
 	public static String METHOD_CREATESET = "createset";
 	public static String METHOD_MODIFYSET = "modifyset";
+	public static String METHOD_DROPSET = "dropset";
+
+	public static String OPTION_DESCOPE = "descope";
 	
 	public ActionTickets( ActionBase action , String stream , Dist dist , String method , String[] args ) {
 		super( action , stream , "change tickets release=" + dist.RELEASEDIR );
@@ -64,6 +67,18 @@ public class ActionTickets extends ActionBase {
 			String commentsNew = ( args.length > 3 )? args[3] : "";
 			executeModifySet( code , codeNew , nameNew , commentsNew );
 		}
+		else
+		if( method.equals( METHOD_DROPSET ) ) {
+			if( args.length < 1 || args.length > 2 ) {
+				exitInvalidArgs();
+				return;
+			}
+			
+			String code = args[0];
+			String option = ( args.length > 1 )? args[1] : "";
+			boolean descope = ( option.equals( OPTION_DESCOPE ) )? true : false;
+			executeDropSet( code , descope );
+		}
 			
 	}
 
@@ -83,6 +98,15 @@ public class ActionTickets extends ActionBase {
 			return;
 		}
 		dist.release.changes.modifySet( this , set , codeNew , nameNew , commentsNew );
+	}
+	
+	private void executeDropSet( String code , boolean descope ) throws Exception {
+		ReleaseTicketSet set = dist.release.changes.findSet( code );
+		if( set == null ) {
+			exitInvalidArgs();
+			return;
+		}
+		dist.release.changes.dropSet( this , set , descope );
 	}
 	
 }

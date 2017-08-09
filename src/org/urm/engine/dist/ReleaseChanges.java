@@ -99,4 +99,11 @@ public class ReleaseChanges {
 			addSet( set );
 	}
 	
+	public void dropSet( ActionBase action , ReleaseTicketSet set , boolean descope ) throws Exception {
+		if( descope )
+			set.setDescoped( action );
+		else
+			removeSet( set );
+	}
+	
 }

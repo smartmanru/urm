@@ -66,4 +66,14 @@ public class ReleaseTicket {
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETSTATUS , Common.getEnumLower( status ) );
 	}
 
+	public void setDescoped( ActionBase action ) throws Exception {
+		status = VarTICKETSTATUS.DESCOPED;
+	}
+
+	public boolean isDescoped() {
+		if( status == VarTICKETSTATUS.DESCOPED )
+			return( true );
+		return( false );
+	}
+	
 }
