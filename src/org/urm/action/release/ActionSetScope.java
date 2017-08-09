@@ -9,7 +9,7 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.dist.ReleaseSet;
+import org.urm.engine.dist.ReleaseDistSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.meta.Types;
@@ -101,7 +101,7 @@ public class ActionSetScope extends ActionBase {
 		}
 		
 		// descope missing
-		for( ReleaseSet set : dist.release.getSourceSets() ) {
+		for( ReleaseDistSet set : dist.release.getSourceSets() ) {
 			String checkSet = check.get( set.set.NAME );
 			if( checkSet == null ) {
 				dist.descopeSet( this , set );

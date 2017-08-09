@@ -37,8 +37,8 @@ public class Release {
 	public String COMPATIBILITY;
 	private boolean CUMULATIVE;
 	
-	Map<String,ReleaseSet> sourceSetMap = new HashMap<String,ReleaseSet>();
-	Map<VarCATEGORY,ReleaseSet> categorySetMap = new HashMap<VarCATEGORY,ReleaseSet>();
+	Map<String,ReleaseDistSet> sourceSetMap = new HashMap<String,ReleaseDistSet>();
+	Map<VarCATEGORY,ReleaseDistSet> categorySetMap = new HashMap<VarCATEGORY,ReleaseDistSet>();
 	Map<String,ReleaseDelivery> deliveryMap = new HashMap<String,ReleaseDelivery>();
 
 	public ReleaseSchedule schedule;
@@ -55,6 +55,9 @@ public class Release {
 	public static String ELEMENT_FILES = "files";
 	public static String ELEMENT_PHASE = "phase";
 	public static String ELEMENT_SCHEDULE = "schedule";
+	public static String ELEMENT_CHANGES = "changes";
+	public static String ELEMENT_TICKETSET = "ticketset";
+	public static String ELEMENT_TICKET = "ticket";
 
 	public static String PROPERTY_VERSION = "version";
 	public static String PROPERTY_MASTER = "master";
@@ -93,6 +96,18 @@ public class Release {
 	public static String PROPERTY_FINISHED = "finished";
 	public static String PROPERTY_FINISHDATE = "finishdate";
 	
+	public static String PROPERTY_TICKETSETCODE = "code";
+	public static String PROPERTY_TICKETSETCOMMENTS = "comments";
+	public static String PROPERTY_TICKETSETTARGETS = "targets";
+	public static String PROPERTY_TICKETSETSTATUS = "status";
+	
+	public static String PROPERTY_TICKETCODE = "code";
+	public static String PROPERTY_TICKETCOMMENTS = "comments";
+	public static String PROPERTY_TICKETLINK = "link";
+	public static String PROPERTY_TICKETOWNER = "owner";
+	public static String PROPERTY_TICKETQA = "qa";
+	public static String PROPERTY_TICKETSTATUS = "status";
+	
 	public Release( Meta meta , Dist dist ) {
 		this.meta = meta;
 		this.dist = dist;
@@ -120,13 +135,13 @@ public class Release {
 	
 	public void copyReleaseScope( ActionBase action , Release src ) throws Exception {
 		descopeAll( action );
-		for( Entry<String,ReleaseSet> entry : src.sourceSetMap.entrySet() ) {
-			ReleaseSet set = entry.getValue().copy( action , this );
+		for( Entry<String,ReleaseDistSet> entry : src.sourceSetMap.entrySet() ) {
+			ReleaseDistSet set = entry.getValue().copy( action , this );
 			sourceSetMap.put( entry.getKey() , set );
 		}
 		
-		for( Entry<VarCATEGORY,ReleaseSet> entry : src.categorySetMap.entrySet() ) {
-			ReleaseSet set = entry.getValue().copy( action , this );
+		for( Entry<VarCATEGORY,ReleaseDistSet> entry : src.categorySetMap.entrySet() ) {
+			ReleaseDistSet set = entry.getValue().copy( action , this );
 			categorySetMap.put( entry.getKey() , set );
 		}
 		
@@ -159,9 +174,9 @@ public class Release {
 		if( this.MASTER )
 			action.exitUnexpectedState();
 		
-		for( Entry<String,ReleaseSet> entry : src.sourceSetMap.entrySet() ) {
-			ReleaseSet set = sourceSetMap.get( entry.getKey() );
-			ReleaseSet srcset = entry.getValue();
+		for( Entry<String,ReleaseDistSet> entry : src.sourceSetMap.entrySet() ) {
+			ReleaseDistSet set = sourceSetMap.get( entry.getKey() );
+			ReleaseDistSet srcset = entry.getValue();
 			if( set == null ) {
 				set = srcset.copy( action , this );
 				sourceSetMap.put( entry.getKey() , set );
@@ -170,9 +185,9 @@ public class Release {
 				set.addReleaseSet( action , srcset );
 		}
 		
-		for( Entry<VarCATEGORY,ReleaseSet> entry : src.categorySetMap.entrySet() ) {
-			ReleaseSet set = categorySetMap.get( entry.getKey() );
-			ReleaseSet srcset = entry.getValue();
+		for( Entry<VarCATEGORY,ReleaseDistSet> entry : src.categorySetMap.entrySet() ) {
+			ReleaseDistSet set = categorySetMap.get( entry.getKey() );
+			ReleaseDistSet srcset = entry.getValue();
 			if( set == null ) {
 				set = srcset.copy( action , this );
 				categorySetMap.put( entry.getKey() , set );
@@ -239,31 +254,31 @@ public class Release {
 		return( Common.getSortedKeys( sourceSetMap ) );
 	}
 	
-	public ReleaseSet[] getSourceSets() {
-		return( sourceSetMap.values().toArray( new ReleaseSet[0] ) );
+	public ReleaseDistSet[] getSourceSets() {
+		return( sourceSetMap.values().toArray( new ReleaseDistSet[0] ) );
 	}
 	
-	public ReleaseSet findSourceSet( String name ) {
+	public ReleaseDistSet findSourceSet( String name ) {
 		return( sourceSetMap.get( name ) );
 	}
 	
-	public ReleaseSet getSourceSet( ActionBase action , String name ) throws Exception {
-		ReleaseSet set = findSourceSet( name );
+	public ReleaseDistSet getSourceSet( ActionBase action , String name ) throws Exception {
+		ReleaseDistSet set = findSourceSet( name );
 		if( set == null )
 			action.exit1( _Error.UnknownReleaseSet1 , "unknown release set=" + name , name );
 		return( set );
 	}
 	
-	public Map<VarCATEGORY,ReleaseSet> getCategorySets( ActionBase action ) throws Exception {
+	public Map<VarCATEGORY,ReleaseDistSet> getCategorySets( ActionBase action ) throws Exception {
 		return( categorySetMap );
 	}
 	
-	public ReleaseSet findCategorySet( VarCATEGORY CATEGORY ) {
+	public ReleaseDistSet findCategorySet( VarCATEGORY CATEGORY ) {
 		return( categorySetMap.get( CATEGORY ) );
 	}
 	
-	public ReleaseSet getCategorySet( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
-		ReleaseSet set = findCategorySet( CATEGORY );
+	public ReleaseDistSet getCategorySet( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
+		ReleaseDistSet set = findCategorySet( CATEGORY );
 		if( set == null ) {
 			String name = Common.getEnumLower( CATEGORY );
 			action.exit1( _Error.UnknownReleaseCategorySet1 , "unknown release category set=" + name , name );
@@ -282,13 +297,13 @@ public class Release {
 				return;
 			
 			for( Node node : sets ) {
-				ReleaseSet set = new ReleaseSet( meta , this , CATEGORY );
+				ReleaseDistSet set = new ReleaseDistSet( meta , this , CATEGORY );
 				set.load( action , node );
 				registerSet( action , set );
 			}
 		}
 		else {
-			ReleaseSet set = new ReleaseSet( meta , this , CATEGORY );
+			ReleaseDistSet set = new ReleaseDistSet( meta , this , CATEGORY );
 			set.load( action , element );
 			if( !set.isEmpty() )
 				registerSet( action , set );
@@ -330,7 +345,7 @@ public class Release {
 		return( doc );
 	}
 
-	private void registerSet( ActionBase action , ReleaseSet set ) throws Exception {
+	private void registerSet( ActionBase action , ReleaseDistSet set ) throws Exception {
 		action.trace( "add set=" + set.NAME + ", category=" + Common.getEnumLower( set.CATEGORY ) );
 		if( Types.isSourceCategory( set.CATEGORY ) )
 			sourceSetMap.put( set.NAME , set );
@@ -413,14 +428,14 @@ public class Release {
 	}
 	
 	public ReleaseTarget[] getSourceTargets( ActionBase action , String setName ) throws Exception {
-		ReleaseSet set = sourceSetMap.get( setName );
+		ReleaseDistSet set = sourceSetMap.get( setName );
 		if( set == null )
 			return( new ReleaseTarget[0] );
 		return( set.getTargets() );
 	}
 
 	public ReleaseTarget[] getCategoryTargets( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
-		ReleaseSet set = categorySetMap.get( CATEGORY );
+		ReleaseDistSet set = categorySetMap.get( CATEGORY );
 		if( set == null )
 			return( new ReleaseTarget[0] );
 		return( set.getTargets() );
@@ -429,7 +444,7 @@ public class Release {
 	public ReleaseTarget findBuildProject( ActionBase action , String name ) throws Exception {
 		MetaSource sources = meta.getSources( action ); 
 		MetaSourceProject sourceProject = sources.getProject( action , name );
-		ReleaseSet set = sourceSetMap.get( sourceProject.set.NAME );
+		ReleaseDistSet set = sourceSetMap.get( sourceProject.set.NAME );
 		if( set == null )
 			return( null );
 		
@@ -446,7 +461,7 @@ public class Release {
 	}
 
 	public ReleaseTarget findCategoryTarget( ActionBase action , VarCATEGORY CATEGORY , String KEY ) throws Exception {
-		ReleaseSet set = categorySetMap.get( CATEGORY );
+		ReleaseDistSet set = categorySetMap.get( CATEGORY );
 		if( set == null )
 			return( null );
 		
@@ -467,7 +482,7 @@ public class Release {
 	}
 
 	public ReleaseTarget[] getCategoryTargets( VarCATEGORY CATEGORY ) {
-		ReleaseSet set = categorySetMap.get( CATEGORY );
+		ReleaseDistSet set = categorySetMap.get( CATEGORY );
 		if( set == null )
 			return( new ReleaseTarget[0] );
 		
@@ -517,17 +532,17 @@ public class Release {
 	}
 	
 	public boolean isEmpty() {
-		for( ReleaseSet set : sourceSetMap.values() )
+		for( ReleaseDistSet set : sourceSetMap.values() )
 			if( !set.isEmpty() )
 				return( false );
-		for( ReleaseSet set : categorySetMap.values() )
+		for( ReleaseDistSet set : categorySetMap.values() )
 			if( !set.isEmpty() )
 				return( false );
 		return( true );
 	}
 
 	public boolean isEmptyConfiguration() throws Exception {
-		ReleaseSet set = findCategorySet( VarCATEGORY.CONFIG );
+		ReleaseDistSet set = findCategorySet( VarCATEGORY.CONFIG );
 		if( set == null || set.isEmpty() )
 			return( true );
 		
@@ -535,7 +550,7 @@ public class Release {
 	}
 	
 	public boolean isEmptyDatabase() {
-		ReleaseSet set = findCategorySet( VarCATEGORY.DB );
+		ReleaseDistSet set = findCategorySet( VarCATEGORY.DB );
 		if( set == null || set.isEmpty() )
 			return( true );
 		
@@ -574,12 +589,12 @@ public class Release {
 			master.save( action , doc , parent );
 		}
 		else {
-			for( ReleaseSet set : sourceSetMap.values() ) {
+			for( ReleaseDistSet set : sourceSetMap.values() ) {
 				Element parent = ( Element )ConfReader.xmlGetFirstChild( root , Common.getEnumLower( set.CATEGORY ) );
 				set.createXml( action , doc , parent );
 			}
 	
-			for( ReleaseSet set : categorySetMap.values() ) {
+			for( ReleaseDistSet set : categorySetMap.values() ) {
 				Element parent = ( Element )ConfReader.xmlGetFirstChild( root , Common.getEnumLower( set.CATEGORY ) );
 				set.createXml( action , doc , parent );
 			}
@@ -595,9 +610,9 @@ public class Release {
 	}
 	
 	public boolean addSourceSet( ActionBase action , MetaSourceProjectSet sourceSet , boolean all ) throws Exception {
-		ReleaseSet set = findSourceSet( sourceSet.NAME );
+		ReleaseDistSet set = findSourceSet( sourceSet.NAME );
 		if( set == null ) {
-			set = new ReleaseSet( meta , this , VarCATEGORY.PROJECT );
+			set = new ReleaseDistSet( meta , this , VarCATEGORY.PROJECT );
 			set.createSourceSet( action , sourceSet , all );
 			registerSet( action , set );
 			return( true );
@@ -616,9 +631,9 @@ public class Release {
 	}
 	
 	public boolean addCategorySet( ActionBase action , VarCATEGORY CATEGORY , boolean all ) throws Exception {
-		ReleaseSet set = findCategorySet( CATEGORY );
+		ReleaseDistSet set = findCategorySet( CATEGORY );
 		if( set == null ) {
-			set = new ReleaseSet( meta , this , CATEGORY );
+			set = new ReleaseDistSet( meta , this , CATEGORY );
 			set.createCategorySet( action , CATEGORY , all );
 			registerSet( action , set );
 			return( true );
@@ -637,7 +652,7 @@ public class Release {
 	}
 
 	public void deleteCategorySet( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
-		ReleaseSet set = findCategorySet( CATEGORY );
+		ReleaseDistSet set = findCategorySet( CATEGORY );
 		if( set == null )
 			return;
 		
@@ -645,7 +660,7 @@ public class Release {
 	}
 
 	public void deleteSourceSet( ActionBase action , MetaSourceProjectSet sourceSet ) throws Exception {
-		ReleaseSet set = findSourceSet( sourceSet.NAME );
+		ReleaseDistSet set = findSourceSet( sourceSet.NAME );
 		if( set == null )
 			return;
 		
@@ -675,7 +690,7 @@ public class Release {
 		}
 	}
 
-	private void unregisterSet( ActionBase action , ReleaseSet set ) throws Exception {
+	private void unregisterSet( ActionBase action , ReleaseDistSet set ) throws Exception {
 		for( ReleaseTarget project : set.getTargets() )
 			unregisterTarget( action , project );
 		
@@ -686,7 +701,7 @@ public class Release {
 	}
 
 	public boolean addDatabaseDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allSchemes ) throws Exception {
-		ReleaseSet set = getCategorySet( action , VarCATEGORY.DB );
+		ReleaseDistSet set = getCategorySet( action , VarCATEGORY.DB );
 		if( set == null )
 			return( false );
 		
@@ -707,7 +722,7 @@ public class Release {
 	}
 	
 	public boolean addProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems ) throws Exception {
-		ReleaseSet set = sourceSetMap.get( sourceProject.set.NAME );
+		ReleaseDistSet set = sourceSetMap.get( sourceProject.set.NAME );
 		if( set == null )
 			return( false );
 		
@@ -736,7 +751,7 @@ public class Release {
 	}
 	
 	public void deleteCategoryTarget( ActionBase action , VarCATEGORY CATEGORY , String NAME ) throws Exception {
-		ReleaseSet set = getCategorySet( action , CATEGORY );
+		ReleaseDistSet set = getCategorySet( action , CATEGORY );
 		if( set == null )
 			return;
 
@@ -748,7 +763,7 @@ public class Release {
 	}
 	
 	public void deleteProjectSource( ActionBase action , MetaSourceProject sourceProject ) throws Exception {
-		ReleaseSet set = findSourceSet( sourceProject.set.NAME );
+		ReleaseDistSet set = findSourceSet( sourceProject.set.NAME );
 		if( set == null )
 			return;
 		
@@ -760,7 +775,7 @@ public class Release {
 	}
 
 	public void deleteDatabaseDelivery( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		ReleaseSet set = getCategorySet( action , VarCATEGORY.DB );
+		ReleaseDistSet set = getCategorySet( action , VarCATEGORY.DB );
 		if( set == null )
 			return;
 		
@@ -775,7 +790,7 @@ public class Release {
 		if( sourceItem.isInternal() )
 			action.exit1( _Error.UnexpectedInternalItem1 , "unexpected call for INTERNAL item=" + sourceItem.ITEMNAME , sourceItem.ITEMNAME );
 		
-		ReleaseSet set = sourceSetMap.get( sourceProject.set.NAME );
+		ReleaseDistSet set = sourceSetMap.get( sourceProject.set.NAME );
 		if( set == null )
 			return( false );
 		
@@ -795,7 +810,7 @@ public class Release {
 	}
 
 	public boolean addDatabaseSchema( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
-		ReleaseSet set = getCategorySet( action , VarCATEGORY.DB );
+		ReleaseDistSet set = getCategorySet( action , VarCATEGORY.DB );
 		if( set == null )
 			return( false );
 		
@@ -827,7 +842,7 @@ public class Release {
 	}
 	
 	public void deleteProjectItem( ActionBase action , MetaSourceProject sourceProject , MetaSourceProjectItem sourceItem ) throws Exception {
-		ReleaseSet set = sourceSetMap.get( sourceProject.set.NAME );
+		ReleaseDistSet set = sourceSetMap.get( sourceProject.set.NAME );
 		if( set == null )
 			return;
 
@@ -843,7 +858,7 @@ public class Release {
 	}
 	
 	public void deleteDatabaseSchema( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
-		ReleaseSet set = getCategorySet( action , VarCATEGORY.DB );
+		ReleaseDistSet set = getCategorySet( action , VarCATEGORY.DB );
 		if( set == null )
 			return;
 
@@ -859,7 +874,7 @@ public class Release {
 	}
 	
 	public boolean addConfItem( ActionBase action , MetaDistrConfItem item ) throws Exception {
-		ReleaseSet set = getCategorySet( action , VarCATEGORY.CONFIG );
+		ReleaseDistSet set = getCategorySet( action , VarCATEGORY.CONFIG );
 		if( set.ALL )
 			return( true );
 
@@ -879,7 +894,7 @@ public class Release {
 		if( item.distItemOrigin != VarDISTITEMORIGIN.MANUAL )
 			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item.KEY , item.KEY );
 			
-		ReleaseSet set = getCategorySet( action , VarCATEGORY.MANUAL );
+		ReleaseDistSet set = getCategorySet( action , VarCATEGORY.MANUAL );
 		if( set.ALL )
 			return( true );
 
@@ -896,7 +911,7 @@ public class Release {
 		if( item.distItemOrigin != VarDISTITEMORIGIN.DERIVED )
 			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item.KEY , item.KEY );
 			
-		ReleaseSet set = getCategorySet( action , VarCATEGORY.DERIVED );
+		ReleaseDistSet set = getCategorySet( action , VarCATEGORY.DERIVED );
 		if( set.ALL )
 			return( true );
 
@@ -933,14 +948,14 @@ public class Release {
 	public void rebuildDeliveries( ActionBase action ) throws Exception {
 		deliveryMap.clear();
 		
-		for( ReleaseSet set : sourceSetMap.values() ) {
+		for( ReleaseDistSet set : sourceSetMap.values() ) {
 			for( ReleaseTarget target : set.getTargets() ) {
 				for( ReleaseTargetItem item : target.getItems() )
 					registerTargetItem( action , item );
 			}
 		}
 		
-		for( ReleaseSet set : categorySetMap.values() ) {
+		for( ReleaseDistSet set : categorySetMap.values() ) {
 			for( ReleaseTarget target : set.getTargets() )
 				registerTarget( action , target );
 		}

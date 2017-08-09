@@ -9,7 +9,7 @@ import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.Release;
 import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.dist.ReleaseSet;
+import org.urm.engine.dist.ReleaseDistSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.shell.Account;
@@ -37,7 +37,7 @@ public class ActionScopeSet {
 	public boolean setFull;
 	
 	public MetaSourceProjectSet pset;
-	public ReleaseSet rset;
+	public ReleaseDistSet rset;
 	
 	Map<String,ActionScopeTarget> targets = new HashMap<String,ActionScopeTarget>();
 	ActionScopeTarget manualTarget;
@@ -72,7 +72,7 @@ public class ActionScopeSet {
 		this.setFull = false;
 	}
 
-	public void create( ActionBase action , ReleaseSet rset ) throws Exception {
+	public void create( ActionBase action , ReleaseDistSet rset ) throws Exception {
 		this.rset = rset;
 		this.pset = rset.set;
 		this.NAME = rset.NAME;

@@ -671,7 +671,7 @@ public class Dist {
 		state.ctlReloadCheckOpenedForDataChange( action );
 	}
 	
-	public void descopeSet( ActionBase action , ReleaseSet set ) throws Exception {
+	public void descopeSet( ActionBase action , ReleaseDistSet set ) throws Exception {
 		for( ReleaseTarget target : set.getTargets() )
 			dropTarget( action , target );
 		
@@ -682,7 +682,7 @@ public class Dist {
 	}
 
 	public void descopeAllProjects( ActionBase action ) throws Exception {
-		for( ReleaseSet set : release.getSourceSets() )
+		for( ReleaseDistSet set : release.getSourceSets() )
 			descopeSet( action , set );
 	}
 	

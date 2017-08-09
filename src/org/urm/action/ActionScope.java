@@ -9,7 +9,7 @@ import org.urm.common.Common;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.dist.ReleaseSet;
+import org.urm.engine.dist.ReleaseDistSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.meta.Types;
 import org.urm.meta.product.Meta;
@@ -407,7 +407,7 @@ public class ActionScope {
 			if( item.distItemOrigin == VarDISTITEMORIGIN.DERIVED )
 				sset = createReleaseCategoryScopeSet( action , dist , VarCATEGORY.DERIVED );
 			else {
-				ReleaseSet rset = dist.release.getSourceSet( action , item.sourceProjectItem.project.set.NAME );
+				ReleaseDistSet rset = dist.release.getSourceSet( action , item.sourceProjectItem.project.set.NAME );
 				sset = createReleaseScopeSet( action , rset );
 			}
 			
@@ -471,7 +471,7 @@ public class ActionScope {
 			MetaSource sources = meta.getSources( action );
 			MetaSourceProjectSet set = sources.getProjectSet( action , SET );
 			if( release.release.addSourceSet( action , set , false ) ) {
-				ReleaseSet rset = release.release.getSourceSet( action , SET );  
+				ReleaseDistSet rset = release.release.getSourceSet( action , SET );  
 				addReleaseProjects( action , release , rset , TARGETS );
 			}
 		}
@@ -486,7 +486,7 @@ public class ActionScope {
 		if( sset != null )
 			return( sset );
 		
-		ReleaseSet rset = release.release.findCategorySet( CATEGORY );
+		ReleaseDistSet rset = release.release.findCategorySet( CATEGORY );
 		if( rset == null ) {
 			action.debug( "ignore non-release set=" + Common.getEnumLower( CATEGORY ) );
 			return( null );
@@ -529,7 +529,7 @@ public class ActionScope {
 		return( categoryMap.get( CATEGORY ) );
 	}
 
-	private ActionScopeSet createReleaseScopeSet( ActionBase action , ReleaseSet rset ) throws Exception {
+	private ActionScopeSet createReleaseScopeSet( ActionBase action , ReleaseDistSet rset ) throws Exception {
 		ActionScopeSet sset = getScopeSet( action , rset.CATEGORY , rset.NAME );
 		if( sset != null )
 			return( sset );
@@ -735,13 +735,13 @@ public class ActionScope {
 	}
 		
 	private void addAllReleaseProjects( ActionBase action , Dist release ) throws Exception {
-		for( ReleaseSet rset : release.release.getSourceSets() ) {
+		for( ReleaseDistSet rset : release.release.getSourceSets() ) {
 			ActionScopeSet sset = createReleaseScopeSet( action , rset );
 			sset.addProjects( action , null );
 		}
 	}
 		
-	private void addReleaseProjects( ActionBase action , Dist release , ReleaseSet rset , String[] PROJECTS ) throws Exception {
+	private void addReleaseProjects( ActionBase action , Dist release , ReleaseDistSet rset , String[] PROJECTS ) throws Exception {
 		ActionScopeSet sset = createReleaseScopeSet( action , rset );
 		sset.addProjects( action , PROJECTS );
 	}

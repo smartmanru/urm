@@ -1,0 +1,118 @@
+package org.urm.engine.dist;
+
+import java.util.List;
+import java.util.Map;
+
+import org.urm.action.ActionBase;
+import org.urm.common.Common;
+import org.urm.common.ConfReader;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
+import org.urm.meta.product.Meta;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+public class ReleaseTicketSet {
+
+	public Meta meta;
+	public ReleaseChanges changes;
+
+	public String CODE;
+	public String NAME;
+	public String COMMENTS;
+	public VarTICKETSETSTATUS status;
+	
+	private List<ReleaseTicket> items;
+	private Map<String,ReleaseTicket> map;
+	private List<ReleaseTicketSetTarget> targets;
+	
+	public ReleaseTicketSet( Meta meta , ReleaseChanges changes ) {
+		this.meta = meta; 
+		this.changes = changes;
+	}
+
+	public ReleaseTicketSet copy( ActionBase action , Meta meta , ReleaseChanges changes ) throws Exception {
+		ReleaseTicketSet r = new ReleaseTicketSet( meta , changes );
+
+		r.CODE = CODE;
+		r.NAME = NAME;
+		r.COMMENTS = COMMENTS;
+		r.status = status;
+		
+		for( ReleaseTicket ticket : items ) {
+			ReleaseTicket rticket = ticket.copy( action , meta , r );
+			r.addTicket( rticket );
+		}
+		
+		for( ReleaseTicketSetTarget target : targets ) {
+			ReleaseTicketSetTarget rtarget = target.copy( action , meta , r );
+			r.addTarget( rtarget );
+		}
+		
+		return( r );
+	}
+
+	private void addTicket( ReleaseTicket ticket ) {
+		items.add( ticket );
+		map.put( ticket.CODE , ticket );
+	}
+	
+	private void addTarget( ReleaseTicketSetTarget target ) {
+		targets.add( target );
+	}
+	
+	public void load( ActionBase action , Node root ) throws Exception {
+		items.clear();
+		map.clear();
+		targets.clear();
+		
+		CODE = ConfReader.getRequiredAttrValue( root , Release.PROPERTY_TICKETSETCODE );
+		NAME = Meta.getNameAttr( action , root , VarNAMETYPE.ANY );
+		COMMENTS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSETCOMMENTS );
+		String STATUS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSETSTATUS );
+		status = Types.getTicketSetStatus( STATUS , true );
+		
+		Node[] items = ConfReader.xmlGetChildren( root , Release.ELEMENT_TICKET );
+		if( items == null )
+			return;
+
+		int pos = 0;
+		for( Node ticketNode : items ) {
+			ReleaseTicket ticket = new ReleaseTicket( meta , this , pos );
+			ticket.load( action , ticketNode );
+			addTicket( ticket );
+			pos++;
+		}
+		
+		String TARGETS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSETTARGETS );
+		String[] targetItems = Common.splitSpaced( TARGETS );
+
+		for( String targetItem : targetItems ) {
+			ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
+			target.load( action , targetItem );
+			addTarget( target );
+		}
+	}
+	
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETSETCODE , CODE );
+		Meta.setNameAttr( action , doc , root , VarNAMETYPE.ANY , NAME );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETSETCOMMENTS , COMMENTS );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETSETSTATUS , Common.getEnumLower( status ) );
+		
+		for( ReleaseTicket ticket : items ) {
+			Element ticketElement = Common.xmlCreateElement( doc , root , Release.ELEMENT_TICKET );
+			ticket.save( action , doc , ticketElement );
+		}
+
+		String TARGETS = "";
+		for( ReleaseTicketSetTarget target : targets ) {
+			String targetItem = target.save( action );
+			TARGETS = Common.addToList( TARGETS , targetItem , " " );
+		}
+		
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETSETTARGETS , TARGETS );
+	}
+
+}

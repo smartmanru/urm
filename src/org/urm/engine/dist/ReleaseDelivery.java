@@ -39,8 +39,8 @@ public class ReleaseDelivery {
 		for( Entry<String,ReleaseTargetItem> entry : projectItems.entrySet() ) {
 			ReleaseTargetItem src = entry.getValue();
 			ReleaseTarget srcTarget = src.target;
-			ReleaseSet srcSet = srcTarget.set;
-			ReleaseSet dstSet = nr.getSourceSet( action , srcSet.NAME );
+			ReleaseDistSet srcSet = srcTarget.set;
+			ReleaseDistSet dstSet = nr.getSourceSet( action , srcSet.NAME );
 			ReleaseTarget dstTarget = dstSet.getTarget( action , srcTarget.NAME );
 			ReleaseTargetItem dst = dstTarget.findItem( src.NAME );
 			nx.projectItems.put( entry.getKey() , dst );
@@ -48,21 +48,21 @@ public class ReleaseDelivery {
 		
 		for( Entry<String,ReleaseTarget> entry : confItems.entrySet() ) {
 			ReleaseTarget src = entry.getValue();
-			ReleaseSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
+			ReleaseDistSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
 			ReleaseTarget dst = dstSet.getTarget( action , src.NAME );
 			nx.confItems.put( entry.getKey() , dst );
 		}
 		
 		for( Entry<String,ReleaseTarget> entry : manualItems.entrySet() ) {
 			ReleaseTarget src = entry.getValue();
-			ReleaseSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
+			ReleaseDistSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
 			ReleaseTarget dst = dstSet.getTarget( action , src.NAME );
 			nx.manualItems.put( entry.getKey() , dst );
 		}
 		
 		for( Entry<String,ReleaseTarget> entry : derivedItems.entrySet() ) {
 			ReleaseTarget src = entry.getValue();
-			ReleaseSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
+			ReleaseDistSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
 			ReleaseTarget dst = dstSet.getTarget( action , src.NAME );
 			nx.derivedItems.put( entry.getKey() , dst );
 		}
@@ -70,7 +70,7 @@ public class ReleaseDelivery {
 		for( Entry<String,ReleaseTargetItem> entry : schemaItems.entrySet() ) {
 			ReleaseTargetItem src = entry.getValue();
 			ReleaseTarget srcTarget = src.target;
-			ReleaseSet dstSet = nr.getCategorySet( action , srcTarget.set.CATEGORY );
+			ReleaseDistSet dstSet = nr.getCategorySet( action , srcTarget.set.CATEGORY );
 			ReleaseTarget dstTarget = dstSet.getTarget( action , srcTarget.NAME );
 			ReleaseTargetItem dst = dstTarget.findItem( src.NAME );
 			nx.schemaItems.put( entry.getKey() , dst );
