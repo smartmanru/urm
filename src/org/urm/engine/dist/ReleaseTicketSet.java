@@ -148,5 +148,9 @@ public class ReleaseTicketSet {
 	public ReleaseTicket[] getTickets() {
 		return( items.toArray( new ReleaseTicket[0] ) );
 	}
+
+	public ReleaseTicket findTicket( String code ) {
+		return( map.get( code ) );
+	}
 	
 }
