@@ -146,6 +146,8 @@ public class ReleaseTicketSet {
 	}
 
 	public ReleaseTicket[] getTickets() {
+		if( items.isEmpty() )
+			return( new ReleaseTicket[0] );
 		return( items.toArray( new ReleaseTicket[0] ) );
 	}
 
