@@ -74,6 +74,13 @@ public class ReleaseChanges {
 		return( Common.getSortedKeys( sets ) );
 	}
 	
+	public ReleaseTicketSet getSet( ActionBase action , String code ) throws Exception {
+		ReleaseTicketSet set = sets.get( code );
+		if( set == null )
+			action.exit2( _Error.UnknownReleaseTicketSet2 , "Unknown set=" + code + " in release=" + release.dist.RELEASEDIR , code , release.dist.RELEASEDIR );
+		return( set );
+	}
+
 	public ReleaseTicketSet findSet( String code ) {
 		return( sets.get( code ) );
 	}
@@ -85,6 +92,10 @@ public class ReleaseChanges {
 		ReleaseTicketSet set = new ReleaseTicketSet( meta , this );
 		set.create( action , code , name , comments );
 		addSet( set );
+	}
+	
+	public void createTicket( ActionBase action , ReleaseTicketSet set , String code , String name , String link , String comments ) throws Exception {
+		set.createTicket( action , code , name , link , comments );
 	}
 	
 	public void modifySet( ActionBase action , ReleaseTicketSet set , String code , String name , String comments ) throws Exception {

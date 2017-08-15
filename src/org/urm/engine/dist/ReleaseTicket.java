@@ -4,8 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.Types;
-import org.urm.meta.Types.VarNAMETYPE;
-import org.urm.meta.Types.VarTICKETSTATUS;
+import org.urm.meta.Types.*;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -74,6 +73,27 @@ public class ReleaseTicket {
 		if( status == VarTICKETSTATUS.DESCOPED )
 			return( true );
 		return( false );
+	}
+
+	public void create( ActionBase action , String code , String name , String link , String comments ) throws Exception {
+		this.CODE = code;
+		this.NAME = name;
+		this.LINK = link;
+		this.COMMENTS = comments;
+		status = VarTICKETSTATUS.NEW;
+		this.OWNER = "";
+		this.QA = "";
+	}
+	
+	public void modify( ActionBase action , String code , String name , String link , String comments ) throws Exception {
+		this.CODE = code;
+		this.NAME = name;
+		this.LINK = link;
+		this.COMMENTS = comments;
+	}
+
+	public void setPos( ActionBase action , int pos ) throws Exception {
+		this.POS = pos;
 	}
 	
 }

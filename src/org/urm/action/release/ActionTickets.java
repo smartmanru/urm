@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseTicket;
 import org.urm.engine.dist.ReleaseTicketSet;
 
 public class ActionTickets extends ActionBase {
@@ -16,6 +17,9 @@ public class ActionTickets extends ActionBase {
 	public static String METHOD_CREATESET = "createset";
 	public static String METHOD_MODIFYSET = "modifyset";
 	public static String METHOD_DROPSET = "dropset";
+	public static String METHOD_CREATETICKET = "createticket";
+	public static String METHOD_MODIFYTICKET = "modifyticket";
+	public static String METHOD_DELETETICKET = "deleteticket";
 
 	public static String OPTION_DESCOPE = "descope";
 	
@@ -79,7 +83,48 @@ public class ActionTickets extends ActionBase {
 			boolean descope = ( option.equals( OPTION_DESCOPE ) )? true : false;
 			executeDropSet( code , descope );
 		}
+		else
+		if( method.equals( METHOD_CREATETICKET ) ) {
+			if( args.length < 3 || args.length > 5 ) {
+				exitInvalidArgs();
+				return;
+			}
 			
+			String setName = args[0];
+			String code = args[1];
+			String name = args[2];
+			String link = ( args.length > 3 )? args[3] : "";
+			String comments = ( args.length > 4 )? args[4] : "";
+			executeCreateTicket( setName , code , name , link , comments );
+		}
+		else
+		if( method.equals( METHOD_MODIFYTICKET ) ) {
+			if( args.length < 4 || args.length > 6 ) {
+				exitInvalidArgs();
+				return;
+			}
+			
+			String setName = args[0];
+			int pos = Integer.parseInt( args[1] );
+			String code = args[2];
+			String name = args[3];
+			String link = ( args.length > 4 )? args[4] : "";
+			String comments = ( args.length > 5 )? args[5] : "";
+			executeModifyTicket( setName , pos , code , name , link , comments );
+		}
+		else
+		if( method.equals( METHOD_DELETETICKET ) ) {
+			if( args.length < 2 || args.length > 3 ) {
+				exitInvalidArgs();
+				return;
+			}
+			
+			String codeSet = args[0];
+			int ticketPos = Integer.parseInt( args[1] );
+			String option = ( args.length > 2 )? args[2] : "";
+			boolean descope = ( option.equals( OPTION_DESCOPE ) )? true : false;
+			executeDropTicket( codeSet , ticketPos , descope );
+		}
 	}
 
 	private void exitInvalidArgs() throws Exception {
@@ -92,21 +137,29 @@ public class ActionTickets extends ActionBase {
 	}
 	
 	private void executeModifySet( String code , String codeNew , String nameNew , String commentsNew ) throws Exception {
-		ReleaseTicketSet set = dist.release.changes.findSet( code );
-		if( set == null ) {
-			exitInvalidArgs();
-			return;
-		}
+		ReleaseTicketSet set = dist.release.changes.getSet( this , code );
 		dist.release.changes.modifySet( this , set , codeNew , nameNew , commentsNew );
 	}
 	
 	private void executeDropSet( String code , boolean descope ) throws Exception {
-		ReleaseTicketSet set = dist.release.changes.findSet( code );
-		if( set == null ) {
-			exitInvalidArgs();
-			return;
-		}
+		ReleaseTicketSet set = dist.release.changes.getSet( this , code );
 		dist.release.changes.dropSet( this , set , descope );
+	}
+	
+	private void executeCreateTicket( String setCode , String code , String name , String link , String comments ) throws Exception {
+		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
+		dist.release.changes.createTicket( this , set , code , name , link , comments );
+	}
+	
+	private void executeModifyTicket( String setCode , int POS , String code , String name , String link , String comments ) throws Exception {
+		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
+		ReleaseTicket ticket = set.getTicket( this , POS );
+		set.modifyTicket( this , ticket , code , name , link , comments );
+	}
+	
+	private void executeDropTicket( String setCode , int ticketPos , boolean descope ) throws Exception {
+		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
+		set.dropTicket( this , ticketPos , descope );
 	}
 	
 }

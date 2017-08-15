@@ -82,7 +82,7 @@ public class ReleaseTicketSet {
 		if( items == null )
 			return;
 
-		int pos = 0;
+		int pos = 1;
 		for( Node ticketNode : items ) {
 			ReleaseTicket ticket = new ReleaseTicket( meta , this , pos );
 			ticket.load( action , ticketNode );
@@ -127,6 +127,12 @@ public class ReleaseTicketSet {
 		status = VarTICKETSETSTATUS.NEW;
 	}
 	
+	public void createTicket( ActionBase action , String code , String name , String link , String comments ) throws Exception {
+		ReleaseTicket ticket = new ReleaseTicket( meta , this , items.size() + 1 );
+		ticket.create( action , code , name , link , comments );
+		addTicket( ticket );
+	}
+	
 	public void modify( ActionBase action , String code , String name , String comments ) throws Exception {
 		this.CODE = code;
 		this.NAME = name;
@@ -151,8 +157,46 @@ public class ReleaseTicketSet {
 		return( items.toArray( new ReleaseTicket[0] ) );
 	}
 
+	public ReleaseTicket[] getActiveTickets() {
+		List<ReleaseTicket> tickets = new LinkedList<ReleaseTicket>();
+		for( ReleaseTicket ticket : items ) {
+			if( !ticket.isDescoped() )
+				tickets.add( ticket );
+		}
+		return( tickets.toArray( new ReleaseTicket[0] ) );
+	}
+	
 	public ReleaseTicket findTicket( String code ) {
 		return( map.get( code ) );
+	}
+
+	public ReleaseTicket getTicket( ActionBase action , int POS ) throws Exception {
+		if( POS < 1 || POS > items.size() )
+			action.exitUnexpectedState();
+		return( items.get( POS - 1 ) );
+	}
+
+	public void modifyTicket( ActionBase action , ReleaseTicket ticket , String code , String name , String link , String comments ) throws Exception {
+		map.remove( ticket.CODE );
+		ticket.modify( action , code , name , link , comments );
+		map.put( ticket.CODE , ticket );
+	}
+
+	public void dropTicket( ActionBase action , int ticketPos , boolean descope ) throws Exception {
+		ReleaseTicket ticket = getTicket( action , ticketPos );
+			
+		if( descope )
+			ticket.setDescoped( action );
+		else {
+			map.remove( ticket );
+			items.remove( ticket );
+			
+			int pos = 1;
+			for( ReleaseTicket ticketUpdate : items ) {
+				ticketUpdate.setPos( action , pos );
+				pos++;
+			}
+		}
 	}
 	
 }
