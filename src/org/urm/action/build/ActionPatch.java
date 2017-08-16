@@ -107,7 +107,7 @@ public class ActionPatch extends ActionBase {
 			return( true );
 		}
 		
-		if( item.isSourceBasic() ) {
+		if( item.isSourceBasic() || item.isSourcePackage() ) {
 			LocalFolder codeDirFolder = codeFolder.getSubFolder( this , item.ITEMPATH );
 			String file = item.ITEMBASENAME + item.ITEMEXTENSION;
 			return( copyFile( codeDirFolder , downloadFolder , file ) );

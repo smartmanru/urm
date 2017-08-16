@@ -114,6 +114,7 @@ public class Types {
 		BASIC ,
 		DIRECTORY ,
 		STATICWAR ,
+		PACKAGE ,
 		CUSTOM
 	};
 	
@@ -181,7 +182,7 @@ public class Types {
 	public enum VarDISTITEMTYPE {
 		UNKNOWN ,
 		BINARY ,
-		DOTNETPKG ,
+		PACKAGE ,
 		STATICWAR ,
 		ARCHIVE_DIRECT ,	// deploydir = archive/content
 		ARCHIVE_CHILD ,		// deploydir/archivename = archive/archivename/fullcontent
@@ -293,6 +294,13 @@ public class Types {
 		SCHEMA
 	};
 
+	public enum VarPACKAGEEXTENSION {
+		UNKNOWN ,
+		NUPKG ,
+		RPM ,
+		DEB
+	}
+	
 	public static VarOSTYPE getOSType( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
@@ -799,6 +807,24 @@ public class Types {
 		return( value );
 	}
 
+	public static VarPACKAGEEXTENSION getPackageExtension( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingPackageExtension0 , "missing package extension" );
+			return( VarPACKAGEEXTENSION.UNKNOWN );
+		}
+		
+		VarPACKAGEEXTENSION value = null;
+		try {
+			value = VarPACKAGEEXTENSION.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidPackageExtension1 , "invalid package extension=" + ID , ID );
+		}
+		
+		return( value );
+	}
+
     public static boolean isArchive( VarDISTITEMTYPE distItemType ) {
 		if( distItemType == VarDISTITEMTYPE.ARCHIVE_CHILD || 
 			distItemType == VarDISTITEMTYPE.ARCHIVE_DIRECT || 
@@ -888,5 +914,19 @@ public class Types {
 			return( true );
 		return( false );
 	}
+
+	public static boolean isPackageExtension( String ext ) {
+		try {
+			if( !ext.startsWith( "." ) )
+				return( false );
+			
+			getPackageExtension( ext.substring( 1 ) , true );
+		}
+		catch( Throwable e ) {
+			return( false );
+		}
+		return( true );
+	}
+	
 	
 }

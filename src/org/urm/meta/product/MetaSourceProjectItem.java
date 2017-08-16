@@ -123,6 +123,12 @@ public class MetaSourceProjectItem {
 		return( false );
 	}
 	
+	public boolean isSourcePackage() {
+		if( itemSrcType == VarITEMSRCTYPE.PACKAGE )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isSourceStaticWar() {
 		if( itemSrcType == VarITEMSRCTYPE.STATICWAR )
 			return( true );
@@ -141,7 +147,7 @@ public class MetaSourceProjectItem {
 	
 	public String getArtefactSampleFile() {
 		String value = ITEMBASENAME;
-		if( itemSrcType == VarITEMSRCTYPE.BASIC || itemSrcType == VarITEMSRCTYPE.CUSTOM ) {
+		if( itemSrcType == VarITEMSRCTYPE.BASIC || itemSrcType == VarITEMSRCTYPE.PACKAGE || itemSrcType == VarITEMSRCTYPE.CUSTOM ) {
 			if( !ITEMVERSION.isEmpty() )
 				value += "-" + ITEMVERSION;
 			value += ITEMEXTENSION;

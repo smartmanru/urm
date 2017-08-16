@@ -96,7 +96,8 @@ public class MetaDistrBinaryItem {
 		BUILDINFO = ConfReader.getAttrValue( node , "buildinfo" );
 
 		// binary item
-		if( distItemType == VarDISTITEMTYPE.BINARY ) {
+		if( distItemType == VarDISTITEMTYPE.BINARY ||
+			distItemType == VarDISTITEMTYPE.PACKAGE ) {
 			EXT = ConfReader.getRequiredAttrValue( node , "extension" );
 		}
 		else
@@ -117,7 +118,7 @@ public class MetaDistrBinaryItem {
 		}
 		else
 		// nupkg item
-		if( distItemType == VarDISTITEMTYPE.DOTNETPKG ) {
+		if( distItemType == VarDISTITEMTYPE.PACKAGE ) {
 			EXT = ConfReader.getRequiredAttrValue( node , "extension" );
 		}
 		else {
@@ -153,7 +154,8 @@ public class MetaDistrBinaryItem {
 		Common.xmlSetElementAttr( doc , root , "buildinfo" , BUILDINFO );
 
 		// binary item
-		if( distItemType == VarDISTITEMTYPE.BINARY ) {
+		if( distItemType == VarDISTITEMTYPE.BINARY || 
+			distItemType == VarDISTITEMTYPE.PACKAGE ) {
 			Common.xmlSetElementAttr( doc , root , "extension" , EXT );
 		}
 		else
@@ -174,7 +176,7 @@ public class MetaDistrBinaryItem {
 		}
 		else
 		// nupkg item
-		if( distItemType == VarDISTITEMTYPE.DOTNETPKG ) {
+		if( distItemType == VarDISTITEMTYPE.PACKAGE ) {
 			Common.xmlSetElementAttr( doc , root , "extension" , EXT );
 		}
 		

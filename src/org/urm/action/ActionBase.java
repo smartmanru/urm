@@ -374,6 +374,10 @@ abstract public class ActionBase extends ActionCore {
 		return( engine.shellPool.getExecutor( this , account , context.stream ) );
 	}
 
+	public ShellExecutor getShell( RemoteFolder folder ) throws Exception {
+		return( getShell( folder.account ) );
+	}
+
 	public ShellExecutor createDedicatedShell( String name ) throws Exception {
 		return( engine.shellPool.createDedicatedLocalShell( this , name ) );
 	}

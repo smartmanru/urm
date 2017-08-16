@@ -68,5 +68,7 @@ public class _Error {
 	public static final int MissingTicketSetTargetType0 = ErrorBase + 104;
 	public static final int InvalidTicketType1 = ErrorBase + 105;
 	public static final int MissingTicketType0 = ErrorBase + 106;
+	public static final int InvalidPackageExtension1 = ErrorBase + 107;
+	public static final int MissingPackageExtension0 = ErrorBase + 108;
 
 }
