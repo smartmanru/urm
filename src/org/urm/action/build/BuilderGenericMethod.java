@@ -23,7 +23,7 @@ public class BuilderGenericMethod extends Builder {
 
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
 		// generic params
-		action.info( "build PATCHPATH=" + CODEPATH.folderPath + " using ant " + builder.VERSION + " ..." );
+		action.info( "build PATCHPATH=" + CODEPATH.folderPath + " using generic method=" + builder.NAME + " ..." );
 		PropertySet props = super.createProperties( action , project );
 
 		// set environment
