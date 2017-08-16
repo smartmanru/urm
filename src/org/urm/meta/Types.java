@@ -269,6 +269,13 @@ public class Types {
 		DESCOPED
 	};
 
+	public enum VarTICKETTYPE {
+		UNKNOWN ,
+		FEATURE ,
+		CHANGE ,
+		BUGFIX
+	};
+
 	public enum VarTICKETSTATUS {
 		UNKNOWN ,
 		NEW ,
@@ -733,6 +740,24 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidTicketSetStatus1 , "invalid ticket set status=" + ID , ID );
+		}
+		
+		return( value );
+	}
+
+	public static VarTICKETTYPE getTicketType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingTicketType0 , "missing ticket type" );
+			return( VarTICKETTYPE.UNKNOWN );
+		}
+		
+		VarTICKETTYPE value = null;
+		try {
+			value = VarTICKETTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidTicketType1 , "invalid ticket type=" + ID , ID );
 		}
 		
 		return( value );

@@ -6,6 +6,8 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTicket;
 import org.urm.engine.dist.ReleaseTicketSet;
+import org.urm.meta.Types;
+import org.urm.meta.Types.VarTICKETTYPE;
 
 public class ActionTickets extends ActionBase {
 
@@ -85,32 +87,34 @@ public class ActionTickets extends ActionBase {
 		}
 		else
 		if( method.equals( METHOD_CREATETICKET ) ) {
-			if( args.length < 3 || args.length > 5 ) {
-				exitInvalidArgs();
-				return;
-			}
-			
-			String setName = args[0];
-			String code = args[1];
-			String name = args[2];
-			String link = ( args.length > 3 )? args[3] : "";
-			String comments = ( args.length > 4 )? args[4] : "";
-			executeCreateTicket( setName , code , name , link , comments );
-		}
-		else
-		if( method.equals( METHOD_MODIFYTICKET ) ) {
 			if( args.length < 4 || args.length > 6 ) {
 				exitInvalidArgs();
 				return;
 			}
 			
 			String setName = args[0];
-			int pos = Integer.parseInt( args[1] );
+			VarTICKETTYPE type = Types.getTicketType( args[1] , true );
 			String code = args[2];
 			String name = args[3];
 			String link = ( args.length > 4 )? args[4] : "";
 			String comments = ( args.length > 5 )? args[5] : "";
-			executeModifyTicket( setName , pos , code , name , link , comments );
+			executeCreateTicket( setName , type , code , name , link , comments );
+		}
+		else
+		if( method.equals( METHOD_MODIFYTICKET ) ) {
+			if( args.length < 5 || args.length > 7 ) {
+				exitInvalidArgs();
+				return;
+			}
+			
+			String setName = args[0];
+			int pos = Integer.parseInt( args[1] );
+			VarTICKETTYPE type = Types.getTicketType( args[2] , true );
+			String code = args[3];
+			String name = args[4];
+			String link = ( args.length > 5 )? args[5] : "";
+			String comments = ( args.length > 6 )? args[6] : "";
+			executeModifyTicket( setName , pos , type , code , name , link , comments );
 		}
 		else
 		if( method.equals( METHOD_DELETETICKET ) ) {
@@ -146,15 +150,15 @@ public class ActionTickets extends ActionBase {
 		dist.release.changes.dropSet( this , set , descope );
 	}
 	
-	private void executeCreateTicket( String setCode , String code , String name , String link , String comments ) throws Exception {
+	private void executeCreateTicket( String setCode , VarTICKETTYPE type , String code , String name , String link , String comments ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
-		dist.release.changes.createTicket( this , set , code , name , link , comments );
+		dist.release.changes.createTicket( this , set , type , code , name , link , comments );
 	}
 	
-	private void executeModifyTicket( String setCode , int POS , String code , String name , String link , String comments ) throws Exception {
+	private void executeModifyTicket( String setCode , int POS , VarTICKETTYPE type , String code , String name , String link , String comments ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
 		ReleaseTicket ticket = set.getTicket( this , POS );
-		set.modifyTicket( this , ticket , code , name , link , comments );
+		set.modifyTicket( this , ticket , type , code , name , link , comments );
 	}
 	
 	private void executeDropTicket( String setCode , int ticketPos , boolean descope ) throws Exception {

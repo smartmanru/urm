@@ -22,6 +22,7 @@ public class ReleaseTicket {
 	public String OWNER;
 	public String QA;
 	public String COMMENTS;
+	public VarTICKETTYPE type;
 	public VarTICKETSTATUS status;
 	
 	public ReleaseTicket( Meta meta , ReleaseTicketSet set , int pos ) {
@@ -39,6 +40,7 @@ public class ReleaseTicket {
 		r.OWNER = OWNER;
 		r.QA = QA;
 		r.COMMENTS = COMMENTS;
+		r.type = type;
 		r.status = status;
 		
 		return( r );
@@ -51,6 +53,8 @@ public class ReleaseTicket {
 		OWNER = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETOWNER );
 		QA = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETQA );
 		COMMENTS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETCOMMENTS );
+		String TYPE = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETTYPE );
+		type = Types.getTicketType( TYPE , false );
 		String STATUS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSTATUS );
 		status = Types.getTicketStatus( STATUS , true );
 	}
@@ -62,6 +66,7 @@ public class ReleaseTicket {
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETOWNER , OWNER );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETQA , QA );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETCOMMENTS , COMMENTS );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETTYPE , Common.getEnumLower( type ) );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETSTATUS , Common.getEnumLower( status ) );
 	}
 
@@ -75,17 +80,20 @@ public class ReleaseTicket {
 		return( false );
 	}
 
-	public void create( ActionBase action , String code , String name , String link , String comments ) throws Exception {
+	public void create( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments ) throws Exception {
+		this.type = type;
 		this.CODE = code;
 		this.NAME = name;
 		this.LINK = link;
 		this.COMMENTS = comments;
+		type = VarTICKETTYPE.CHANGE;
 		status = VarTICKETSTATUS.NEW;
 		this.OWNER = "";
 		this.QA = "";
 	}
 	
-	public void modify( ActionBase action , String code , String name , String link , String comments ) throws Exception {
+	public void modify( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments ) throws Exception {
+		this.type = type;
 		this.CODE = code;
 		this.NAME = name;
 		this.LINK = link;

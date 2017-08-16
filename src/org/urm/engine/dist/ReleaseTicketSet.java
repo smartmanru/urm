@@ -127,9 +127,9 @@ public class ReleaseTicketSet {
 		status = VarTICKETSETSTATUS.NEW;
 	}
 	
-	public void createTicket( ActionBase action , String code , String name , String link , String comments ) throws Exception {
+	public void createTicket( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments ) throws Exception {
 		ReleaseTicket ticket = new ReleaseTicket( meta , this , items.size() + 1 );
-		ticket.create( action , code , name , link , comments );
+		ticket.create( action , type , code , name , link , comments );
 		addTicket( ticket );
 	}
 	
@@ -176,9 +176,9 @@ public class ReleaseTicketSet {
 		return( items.get( POS - 1 ) );
 	}
 
-	public void modifyTicket( ActionBase action , ReleaseTicket ticket , String code , String name , String link , String comments ) throws Exception {
+	public void modifyTicket( ActionBase action , ReleaseTicket ticket , VarTICKETTYPE type , String code , String name , String link , String comments ) throws Exception {
 		map.remove( ticket.CODE );
-		ticket.modify( action , code , name , link , comments );
+		ticket.modify( action , type , code , name , link , comments );
 		map.put( ticket.CODE , ticket );
 	}
 

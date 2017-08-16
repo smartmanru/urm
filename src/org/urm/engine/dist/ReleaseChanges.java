@@ -6,6 +6,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.meta.Types.VarTICKETTYPE;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -94,8 +95,8 @@ public class ReleaseChanges {
 		addSet( set );
 	}
 	
-	public void createTicket( ActionBase action , ReleaseTicketSet set , String code , String name , String link , String comments ) throws Exception {
-		set.createTicket( action , code , name , link , comments );
+	public void createTicket( ActionBase action , ReleaseTicketSet set , VarTICKETTYPE type , String code , String name , String link , String comments ) throws Exception {
+		set.createTicket( action , type , code , name , link , comments );
 	}
 	
 	public void modifySet( ActionBase action , ReleaseTicketSet set , String code , String name , String comments ) throws Exception {
