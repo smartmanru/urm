@@ -59,7 +59,7 @@ public class ReleaseTicket {
 		type = Types.getTicketType( TYPE , false );
 		String STATUS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSTATUS );
 		status = Types.getTicketStatus( STATUS , true );
-		accepted = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETACCEPTED , true );
+		accepted = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETACCEPTED , false );
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
