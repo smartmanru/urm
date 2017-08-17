@@ -129,5 +129,11 @@ public class ReleaseTicket {
 			return( false );
 		return( true );
 	}
+
+	public void accept( ActionBase action ) throws Exception {
+		accepted = true;
+		if( status == VarTICKETSTATUS.NEW )
+			status = VarTICKETSTATUS.ACTIVE;
+	}
 	
 }

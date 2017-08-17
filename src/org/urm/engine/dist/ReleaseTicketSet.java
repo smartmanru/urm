@@ -241,4 +241,14 @@ public class ReleaseTicketSet {
 		return( true );
 	}
 
+	public void acceptAll( ActionBase action ) throws Exception {
+		if( status == VarTICKETSETSTATUS.NEW )
+			status = VarTICKETSETSTATUS.ACTIVE;
+		
+		for( ReleaseTicket ticket : items ) {
+			if( !ticket.isAccepted() )
+				ticket.accept( action );
+		}
+	}
+	
 }

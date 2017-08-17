@@ -19,6 +19,7 @@ public class ActionTickets extends ActionBase {
 	public static String METHOD_CREATESET = "createset";
 	public static String METHOD_MODIFYSET = "modifyset";
 	public static String METHOD_DROPSET = "dropset";
+	public static String METHOD_ACCEPTSET = "acceptset";
 	public static String METHOD_CREATETICKET = "createticket";
 	public static String METHOD_MODIFYTICKET = "modifyticket";
 	public static String METHOD_MOVETICKET = "moveticket";
@@ -85,6 +86,16 @@ public class ActionTickets extends ActionBase {
 			String option = ( args.length > 1 )? args[1] : "";
 			boolean descope = ( option.equals( OPTION_DESCOPE ) )? true : false;
 			executeDropSet( code , descope );
+		}
+		else
+		if( method.equals( METHOD_ACCEPTSET ) ) {
+			if( args.length < 1 || args.length > 1 ) {
+				exitInvalidArgs();
+				return;
+			}
+			
+			String code = args[0];
+			executeAcceptSet( code );
 		}
 		else
 		if( method.equals( METHOD_CREATETICKET ) ) {
@@ -161,6 +172,11 @@ public class ActionTickets extends ActionBase {
 	private void executeDropSet( String code , boolean descope ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , code );
 		dist.release.changes.dropSet( this , set , descope );
+	}
+	
+	private void executeAcceptSet( String code ) throws Exception {
+		ReleaseTicketSet set = dist.release.changes.getSet( this , code );
+		dist.release.changes.acceptSet( this , set );
 	}
 	
 	private void executeCreateTicket( String setCode , VarTICKETTYPE type , String code , String name , String link , String comments ) throws Exception {
