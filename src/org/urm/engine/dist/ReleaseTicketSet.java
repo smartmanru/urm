@@ -63,10 +63,23 @@ public class ReleaseTicketSet {
 		map.put( ticket.CODE , ticket );
 	}
 	
+	private void removeTicket( ReleaseTicket ticket ) {
+		map.remove( ticket );
+		items.remove( ticket );
+	}
+
+	private void reorderTickets( ActionBase action ) throws Exception {
+		int pos = 1;
+		for( ReleaseTicket ticketUpdate : items ) {
+			ticketUpdate.setPos( action , pos );
+			pos++;
+		}
+	}
+	
 	private void addTarget( ReleaseTicketSetTarget target ) {
 		targets.add( target );
 	}
-	
+
 	public void load( ActionBase action , Node root ) throws Exception {
 		items.clear();
 		map.clear();
@@ -188,15 +201,17 @@ public class ReleaseTicketSet {
 		if( descope )
 			ticket.setDescoped( action );
 		else {
-			map.remove( ticket );
-			items.remove( ticket );
-			
-			int pos = 1;
-			for( ReleaseTicket ticketUpdate : items ) {
-				ticketUpdate.setPos( action , pos );
-				pos++;
-			}
+			removeTicket( ticket );
+			reorderTickets( action );
 		}
+	}
+	
+	public void moveTicket( ActionBase action , ReleaseTicket ticket , ReleaseTicketSet newSet ) throws Exception {
+		removeTicket( ticket );
+		reorderTickets( action );
+		
+		newSet.addTicket( ticket );
+		newSet.reorderTickets( action );
 	}
 	
 }

@@ -21,6 +21,7 @@ public class ActionTickets extends ActionBase {
 	public static String METHOD_DROPSET = "dropset";
 	public static String METHOD_CREATETICKET = "createticket";
 	public static String METHOD_MODIFYTICKET = "modifyticket";
+	public static String METHOD_MOVETICKET = "moveticket";
 	public static String METHOD_DELETETICKET = "deleteticket";
 
 	public static String OPTION_DESCOPE = "descope";
@@ -117,6 +118,18 @@ public class ActionTickets extends ActionBase {
 			executeModifyTicket( setName , pos , type , code , name , link , comments );
 		}
 		else
+		if( method.equals( METHOD_MOVETICKET ) ) {
+			if( args.length < 3 || args.length > 3 ) {
+				exitInvalidArgs();
+				return;
+			}
+			
+			String codeSet = args[0];
+			int ticketPos = Integer.parseInt( args[1] );
+			String newSet = args[2];
+			executeMoveTicket( codeSet , ticketPos , newSet );
+		}
+		else
 		if( method.equals( METHOD_DELETETICKET ) ) {
 			if( args.length < 2 || args.length > 3 ) {
 				exitInvalidArgs();
@@ -164,6 +177,15 @@ public class ActionTickets extends ActionBase {
 	private void executeDropTicket( String setCode , int ticketPos , boolean descope ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
 		set.dropTicket( this , ticketPos , descope );
+	}
+	
+	private void executeMoveTicket( String setCode , int ticketPos , String newSetCode ) throws Exception {
+		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
+		ReleaseTicketSet setNew = dist.release.changes.getSet( this , newSetCode );
+		if( set == setNew )
+			return;
+		ReleaseTicket ticket = set.getTicket( this , ticketPos );
+		set.moveTicket( this , ticket , setNew );
 	}
 	
 }
