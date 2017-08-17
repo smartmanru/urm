@@ -213,5 +213,32 @@ public class ReleaseTicketSet {
 		newSet.addTicket( ticket );
 		newSet.reorderTickets( action );
 	}
+
+	public boolean isRunning() {
+		if( status != VarTICKETSETSTATUS.NEW )
+			return( true );
+		
+		for( ReleaseTicket ticket : items ) {
+			if( ticket.isRunning() )
+				return( true );
+		}
+		return( false );
+	}
 	
+	public boolean isCompleted() {
+		for( ReleaseTicket ticket : items ) {
+			if( !ticket.isCompleted() )
+				return( false );
+		}
+		return( true );
+	}
+	
+	public boolean isAccepted() {
+		for( ReleaseTicket ticket : items ) {
+			if( !ticket.isAccepted() )
+				return( false );
+		}
+		return( true );
+	}
+
 }

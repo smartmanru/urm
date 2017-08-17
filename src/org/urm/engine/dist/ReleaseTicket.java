@@ -24,6 +24,7 @@ public class ReleaseTicket {
 	public String COMMENTS;
 	public VarTICKETTYPE type;
 	public VarTICKETSTATUS status;
+	public boolean accepted;
 	
 	public ReleaseTicket( Meta meta , ReleaseTicketSet set , int pos ) {
 		this.meta = meta; 
@@ -42,6 +43,7 @@ public class ReleaseTicket {
 		r.COMMENTS = COMMENTS;
 		r.type = type;
 		r.status = status;
+		r.accepted = accepted;
 		
 		return( r );
 	}
@@ -57,6 +59,7 @@ public class ReleaseTicket {
 		type = Types.getTicketType( TYPE , false );
 		String STATUS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSTATUS );
 		status = Types.getTicketStatus( STATUS , true );
+		accepted = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETACCEPTED , true );
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
@@ -68,10 +71,12 @@ public class ReleaseTicket {
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETCOMMENTS , COMMENTS );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETTYPE , Common.getEnumLower( type ) );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETSTATUS , Common.getEnumLower( status ) );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETACCEPTED , Common.getBooleanValue( accepted ) );
 	}
 
 	public void setDescoped( ActionBase action ) throws Exception {
 		status = VarTICKETSTATUS.DESCOPED;
+		accepted = false;
 	}
 
 	public boolean isDescoped() {
@@ -90,6 +95,7 @@ public class ReleaseTicket {
 		status = VarTICKETSTATUS.NEW;
 		this.OWNER = "";
 		this.QA = "";
+		this.accepted = false;
 	}
 	
 	public void modify( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments ) throws Exception {
@@ -102,6 +108,26 @@ public class ReleaseTicket {
 
 	public void setPos( ActionBase action , int pos ) throws Exception {
 		this.POS = pos;
+	}
+
+	public boolean isCompleted() {
+		if( !accepted )
+			return( false );
+		
+		if( status == VarTICKETSTATUS.QADONE || status == VarTICKETSTATUS.DESCOPED )
+			return( true );
+			
+		return( false );
+	}
+
+	public boolean isAccepted() {
+		return( accepted );
+	}
+
+	public boolean isRunning() {
+		if( status == VarTICKETSTATUS.NEW )
+			return( false );
+		return( true );
 	}
 	
 }

@@ -109,6 +109,7 @@ public class Release {
 	public static String PROPERTY_TICKETQA = "qa";
 	public static String PROPERTY_TICKETTYPE = "type";
 	public static String PROPERTY_TICKETSTATUS = "status";
+	public static String PROPERTY_TICKETACCEPTED = "accepted";
 	
 	public Release( Meta meta , Dist dist ) {
 		this.meta = meta;

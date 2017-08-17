@@ -117,5 +117,13 @@ public class ReleaseChanges {
 		else
 			removeSet( set );
 	}
+
+	public boolean isCompleted() {
+		for( ReleaseTicketSet set : sets.values() ) {
+			if( !set.isCompleted() )
+				return( false );
+		}
+		return( true );
+	}
 	
 }
