@@ -92,34 +92,37 @@ public class ActionPatch extends ActionBase {
 	private boolean executeGetProjectArtefact( MetaSourceProjectItem item ) throws Exception {
 		LocalFolder downloadFolder = artefactory.getArtefactFolder( this , item.meta );
 		LocalFolder codeFolder = builder.CODEPATH;
+		LocalFolder targetFolder = codeFolder;
+		if( item.project.isBuildable() )
+			targetFolder = codeFolder.getSubFolder( this , builder.builder.TARGETLOCALPATH );
 		
 		if( item.isSourceDirectory() ) {
-			LocalFolder codeDirFolder = codeFolder.getSubFolder( this , item.ITEMPATH );
+			LocalFolder targetDirFolder = targetFolder.getSubFolder( this , item.ITEMPATH );
 			LocalFolder downloadDirFolder = downloadFolder.getSubFolder( this , item.ITEMBASENAME );
-			if( !shell.checkDirExists( this , codeDirFolder.folderPath ) ) {
-				String dir = shell.getLocalPath( codeDirFolder.folderPath );
+			if( !shell.checkDirExists( this , targetDirFolder.folderPath ) ) {
+				String dir = shell.getLocalPath( targetDirFolder.folderPath );
 				super.fail1( _Error.MissingProjectItemDirectory1 , "Missing project item directory: " + dir , dir );
 				return( false );
 			}
 			
 			shell.recreateDir( this , downloadDirFolder.folderPath );
-			shell.copyDirContent( this , codeDirFolder.folderPath , downloadDirFolder.folderPath );
+			shell.copyDirContent( this , targetDirFolder.folderPath , downloadDirFolder.folderPath );
 			return( true );
 		}
 		
 		if( item.isSourceBasic() || item.isSourcePackage() ) {
-			LocalFolder codeDirFolder = codeFolder.getSubFolder( this , item.ITEMPATH );
+			LocalFolder targetDirFolder = targetFolder.getSubFolder( this , item.ITEMPATH );
 			String file = item.ITEMBASENAME + item.ITEMEXTENSION;
-			return( copyFile( codeDirFolder , downloadFolder , file ) );
+			return( copyFile( targetDirFolder , downloadFolder , file ) );
 		}
 			
 		if( item.isSourceStaticWar() ) {
-			LocalFolder codeDirFolder = codeFolder.getSubFolder( this , item.ITEMPATH );
+			LocalFolder targetDirFolder = targetFolder.getSubFolder( this , item.ITEMPATH );
 			String file = item.ITEMBASENAME + item.ITEMEXTENSION;
-			if( !copyFile( codeDirFolder , downloadFolder , file ) )
+			if( !copyFile( targetDirFolder , downloadFolder , file ) )
 				return( false );
 			file = item.ITEMBASENAME + item.ITEMSTATICEXTENSION;
-			if( !copyFile( codeDirFolder , downloadFolder , file ) )
+			if( !copyFile( targetDirFolder , downloadFolder , file ) )
 				return( false );
 			return( true );
 		}
