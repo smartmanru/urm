@@ -475,6 +475,8 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public void setBuildMode( VarBUILDMODE value ) throws Exception {
+		if( value == VarBUILDMODE.UNKNOWN )
+			super.exit0( _Error.MissingBuildMode0 , "Missing build mode" );
 		context.setBuildMode( value );
 	}
 
