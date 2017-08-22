@@ -173,5 +173,26 @@ public class ReleaseTicket {
 		if( status == VarTICKETSTATUS.NEW )
 			status = VarTICKETSTATUS.ACTIVE;
 	}
+
+	public void setDevDone( ActionBase action ) throws Exception {
+		if( status == VarTICKETSTATUS.NEW )
+			status = VarTICKETSTATUS.ACTIVE;
+		devdone = true;
+		DEV = action.getUserName();
+	}
+	
+	public void setVerified( ActionBase action ) throws Exception {
+		if( !devdone )
+			return;
+		
+		if( !accepted )
+			return;
+		
+		if( isDescoped() )
+			return;
+			
+		status = VarTICKETSTATUS.QADONE;
+		QA = action.getUserName();
+	}
 	
 }

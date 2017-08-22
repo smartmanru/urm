@@ -129,5 +129,10 @@ public class ReleaseChanges {
 		}
 		return( true );
 	}
+
+	public void setDevDone( ActionBase action , ReleaseTicket ticket ) throws Exception {
+		ReleaseTicketSet set = ticket.set;
+		set.setDevDone( action , ticket );
+	}
 	
 }

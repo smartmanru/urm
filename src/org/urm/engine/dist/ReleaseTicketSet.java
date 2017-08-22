@@ -250,5 +250,13 @@ public class ReleaseTicketSet {
 				ticket.accept( action );
 		}
 	}
+
+	public void setDevDone( ActionBase action , ReleaseTicket ticket ) throws Exception {
+		ticket.setDevDone( action );
+	}
+	
+	public void setTicketVerified( ActionBase action , ReleaseTicket ticket ) throws Exception {
+		ticket.setVerified( action );
+	}
 	
 }

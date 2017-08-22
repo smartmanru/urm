@@ -25,6 +25,8 @@ public class ActionTickets extends ActionBase {
 	public static String METHOD_MODIFYTICKET = "modifyticket";
 	public static String METHOD_MOVETICKET = "moveticket";
 	public static String METHOD_DELETETICKET = "deleteticket";
+	public static String METHOD_SETTICKETDEVDONE = "setdevdone";
+	public static String METHOD_SETTICKETQADONE = "setqadone";
 
 	public static String OPTION_DESCOPE = "descope";
 	
@@ -158,6 +160,28 @@ public class ActionTickets extends ActionBase {
 			boolean descope = ( option.equals( OPTION_DESCOPE ) )? true : false;
 			executeDropTicket( codeSet , ticketPos , descope );
 		}
+		else
+		if( method.equals( METHOD_SETTICKETDEVDONE ) ) {
+			if( args.length < 2 || args.length > 2 ) {
+				exitInvalidArgs();
+				return;
+			}
+			
+			String codeSet = args[0];
+			int ticketPos = Integer.parseInt( args[1] );
+			executeSetTicketDone( codeSet , ticketPos );
+		}
+		else
+		if( method.equals( METHOD_SETTICKETQADONE ) ) {
+			if( args.length < 2 || args.length > 2 ) {
+				exitInvalidArgs();
+				return;
+			}
+			
+			String codeSet = args[0];
+			int ticketPos = Integer.parseInt( args[1] );
+			executeSetTicketVerified( codeSet , ticketPos );
+		}
 	}
 
 	private void exitInvalidArgs() throws Exception {
@@ -198,6 +222,18 @@ public class ActionTickets extends ActionBase {
 	private void executeDropTicket( String setCode , int ticketPos , boolean descope ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
 		set.dropTicket( this , ticketPos , descope );
+	}
+	
+	private void executeSetTicketDone( String setCode , int ticketPos ) throws Exception {
+		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
+		ReleaseTicket ticket = set.getTicket( this , ticketPos );
+		set.setDevDone( this , ticket );
+	}
+	
+	private void executeSetTicketVerified( String setCode , int ticketPos ) throws Exception {
+		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
+		ReleaseTicket ticket = set.getTicket( this , ticketPos );
+		set.setTicketVerified( this , ticket );
 	}
 	
 	private void executeMoveTicket( String setCode , int ticketPos , String newSetCode ) throws Exception {
