@@ -20,6 +20,7 @@ public class ReleaseTicket {
 	public String NAME;
 	public String LINK;
 	public String OWNER;
+	public String DEV;
 	public String QA;
 	public String COMMENTS;
 	public VarTICKETTYPE type;
@@ -40,11 +41,13 @@ public class ReleaseTicket {
 		r.NAME = NAME;
 		r.LINK = LINK;
 		r.OWNER = OWNER;
+		r.DEV = DEV;
 		r.QA = QA;
 		r.COMMENTS = COMMENTS;
 		r.type = type;
 		r.status = status;
 		r.accepted = accepted;
+		r.devdone = devdone;
 		
 		return( r );
 	}
@@ -54,6 +57,7 @@ public class ReleaseTicket {
 		NAME = Meta.getNameAttr( action , root , VarNAMETYPE.ANY );
 		LINK = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETLINK );
 		OWNER = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETOWNER );
+		DEV = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETDEV );
 		QA = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETQA );
 		COMMENTS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETCOMMENTS );
 		String TYPE = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETTYPE );
@@ -69,6 +73,7 @@ public class ReleaseTicket {
 		Meta.setNameAttr( action , doc , root , VarNAMETYPE.ANY , NAME );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETLINK , LINK );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETOWNER , OWNER );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETDEV , DEV );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETQA , QA );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETCOMMENTS , COMMENTS );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETTYPE , Common.getEnumLower( type ) );
@@ -96,9 +101,12 @@ public class ReleaseTicket {
 		type = VarTICKETTYPE.CHANGE;
 		status = VarTICKETSTATUS.NEW;
 		this.OWNER = owner;
+		this.DEV = "";
 		this.QA = "";
 		this.accepted = false;
 		this.devdone = devdone;
+		if( devdone )
+			this.DEV = owner;
 	}
 	
 	public void modify( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
@@ -108,7 +116,19 @@ public class ReleaseTicket {
 		this.LINK = link;
 		this.COMMENTS = comments;
 		this.OWNER = owner;
-		this.devdone = devdone;
+		if( devdone != this.devdone ) {
+			if( devdone )
+				this.DEV = owner;
+			else
+				this.DEV = "";
+			
+			this.devdone = devdone;
+		}
+		
+		if( !devdone ) {
+			if( status != VarTICKETSTATUS.NEW && status != VarTICKETSTATUS.DESCOPED )
+				status = VarTICKETSTATUS.ACTIVE;
+		}
 	}
 
 	public void setPos( ActionBase action , int pos ) throws Exception {
