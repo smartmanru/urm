@@ -100,7 +100,7 @@ public class ActionTickets extends ActionBase {
 		}
 		else
 		if( method.equals( METHOD_CREATETICKET ) ) {
-			if( args.length < 5 || args.length > 6 ) {
+			if( args.length < 6 || args.length > 8 ) {
 				exitInvalidArgs();
 				return;
 			}
@@ -109,14 +109,15 @@ public class ActionTickets extends ActionBase {
 			VarTICKETTYPE type = Types.getTicketType( args[1] , true );
 			String code = args[2];
 			String name = args[3];
-			boolean devdone = Common.getBooleanValue( args[4] );
-			String link = ( args.length > 5 )? args[5] : "";
-			String comments = ( args.length > 6 )? args[6] : "";
-			executeCreateTicket( setName , type , code , name , link , comments , devdone );
+			String link = ( args.length > 4 )? args[4] : "";
+			String comments = ( args.length > 5 )? args[5] : "";
+			String owner = ( args.length > 6 )? args[6] : "";
+			boolean devdone = ( args.length > 7 )? Common.getBooleanValue( args[7] ) : false;
+			executeCreateTicket( setName , type , code , name , link , comments , owner , devdone );
 		}
 		else
 		if( method.equals( METHOD_MODIFYTICKET ) ) {
-			if( args.length < 6 || args.length > 8 ) {
+			if( args.length < 7 || args.length > 9 ) {
 				exitInvalidArgs();
 				return;
 			}
@@ -126,10 +127,11 @@ public class ActionTickets extends ActionBase {
 			VarTICKETTYPE type = Types.getTicketType( args[2] , true );
 			String code = args[3];
 			String name = args[4];
-			boolean devdone = Common.getBooleanValue( args[5] );
-			String link = ( args.length > 6 )? args[6] : "";
-			String comments = ( args.length > 7 )? args[7] : "";
-			executeModifyTicket( setName , pos , type , code , name , link , comments , devdone );
+			String link = ( args.length > 5 )? args[5] : "";
+			String comments = ( args.length > 6 )? args[6] : "";
+			String owner = ( args.length > 7 )? args[7] : "";
+			boolean devdone = ( args.length > 8 )? Common.getBooleanValue( args[8] ) : false;
+			executeModifyTicket( setName , pos , type , code , name , link , comments , owner , devdone );
 		}
 		else
 		if( method.equals( METHOD_MOVETICKET ) ) {
@@ -182,15 +184,15 @@ public class ActionTickets extends ActionBase {
 		dist.release.changes.acceptSet( this , set );
 	}
 	
-	private void executeCreateTicket( String setCode , VarTICKETTYPE type , String code , String name , String link , String comments , boolean devdone ) throws Exception {
+	private void executeCreateTicket( String setCode , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
-		dist.release.changes.createTicket( this , set , type , code , name , link , comments , devdone );
+		dist.release.changes.createTicket( this , set , type , code , name , link , comments , owner , devdone );
 	}
 	
-	private void executeModifyTicket( String setCode , int POS , VarTICKETTYPE type , String code , String name , String link , String comments , boolean devdone ) throws Exception {
+	private void executeModifyTicket( String setCode , int POS , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
 		ReleaseTicket ticket = set.getTicket( this , POS );
-		set.modifyTicket( this , ticket , type , code , name , link , comments , devdone );
+		set.modifyTicket( this , ticket , type , code , name , link , comments , owner , devdone );
 	}
 	
 	private void executeDropTicket( String setCode , int ticketPos , boolean descope ) throws Exception {

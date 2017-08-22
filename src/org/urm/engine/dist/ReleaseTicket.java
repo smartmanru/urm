@@ -87,7 +87,7 @@ public class ReleaseTicket {
 		return( false );
 	}
 
-	public void create( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments , boolean devdone ) throws Exception {
+	public void create( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		this.type = type;
 		this.CODE = code;
 		this.NAME = name;
@@ -95,18 +95,19 @@ public class ReleaseTicket {
 		this.COMMENTS = comments;
 		type = VarTICKETTYPE.CHANGE;
 		status = VarTICKETSTATUS.NEW;
-		this.OWNER = "";
+		this.OWNER = owner;
 		this.QA = "";
 		this.accepted = false;
 		this.devdone = devdone;
 	}
 	
-	public void modify( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments , boolean devdone ) throws Exception {
+	public void modify( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		this.type = type;
 		this.CODE = code;
 		this.NAME = name;
 		this.LINK = link;
 		this.COMMENTS = comments;
+		this.OWNER = owner;
 		this.devdone = devdone;
 	}
 
@@ -137,6 +138,12 @@ public class ReleaseTicket {
 
 	public boolean isRunning() {
 		if( status == VarTICKETSTATUS.NEW )
+			return( false );
+		return( true );
+	}
+
+	public boolean isQaDone() {
+		if( status == VarTICKETSTATUS.QADONE )
 			return( false );
 		return( true );
 	}
