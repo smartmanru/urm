@@ -3,6 +3,7 @@ package org.urm.action.release;
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
+import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTicket;
 import org.urm.engine.dist.ReleaseTicketSet;
@@ -99,7 +100,7 @@ public class ActionTickets extends ActionBase {
 		}
 		else
 		if( method.equals( METHOD_CREATETICKET ) ) {
-			if( args.length < 4 || args.length > 6 ) {
+			if( args.length < 5 || args.length > 6 ) {
 				exitInvalidArgs();
 				return;
 			}
@@ -108,13 +109,14 @@ public class ActionTickets extends ActionBase {
 			VarTICKETTYPE type = Types.getTicketType( args[1] , true );
 			String code = args[2];
 			String name = args[3];
-			String link = ( args.length > 4 )? args[4] : "";
-			String comments = ( args.length > 5 )? args[5] : "";
-			executeCreateTicket( setName , type , code , name , link , comments );
+			boolean devdone = Common.getBooleanValue( args[4] );
+			String link = ( args.length > 5 )? args[5] : "";
+			String comments = ( args.length > 6 )? args[6] : "";
+			executeCreateTicket( setName , type , code , name , link , comments , devdone );
 		}
 		else
 		if( method.equals( METHOD_MODIFYTICKET ) ) {
-			if( args.length < 5 || args.length > 7 ) {
+			if( args.length < 6 || args.length > 8 ) {
 				exitInvalidArgs();
 				return;
 			}
@@ -124,9 +126,10 @@ public class ActionTickets extends ActionBase {
 			VarTICKETTYPE type = Types.getTicketType( args[2] , true );
 			String code = args[3];
 			String name = args[4];
-			String link = ( args.length > 5 )? args[5] : "";
-			String comments = ( args.length > 6 )? args[6] : "";
-			executeModifyTicket( setName , pos , type , code , name , link , comments );
+			boolean devdone = Common.getBooleanValue( args[5] );
+			String link = ( args.length > 6 )? args[6] : "";
+			String comments = ( args.length > 7 )? args[7] : "";
+			executeModifyTicket( setName , pos , type , code , name , link , comments , devdone );
 		}
 		else
 		if( method.equals( METHOD_MOVETICKET ) ) {
@@ -179,15 +182,15 @@ public class ActionTickets extends ActionBase {
 		dist.release.changes.acceptSet( this , set );
 	}
 	
-	private void executeCreateTicket( String setCode , VarTICKETTYPE type , String code , String name , String link , String comments ) throws Exception {
+	private void executeCreateTicket( String setCode , VarTICKETTYPE type , String code , String name , String link , String comments , boolean devdone ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
-		dist.release.changes.createTicket( this , set , type , code , name , link , comments );
+		dist.release.changes.createTicket( this , set , type , code , name , link , comments , devdone );
 	}
 	
-	private void executeModifyTicket( String setCode , int POS , VarTICKETTYPE type , String code , String name , String link , String comments ) throws Exception {
+	private void executeModifyTicket( String setCode , int POS , VarTICKETTYPE type , String code , String name , String link , String comments , boolean devdone ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
 		ReleaseTicket ticket = set.getTicket( this , POS );
-		set.modifyTicket( this , ticket , type , code , name , link , comments );
+		set.modifyTicket( this , ticket , type , code , name , link , comments , devdone );
 	}
 	
 	private void executeDropTicket( String setCode , int ticketPos , boolean descope ) throws Exception {

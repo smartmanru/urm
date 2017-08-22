@@ -25,6 +25,7 @@ public class ReleaseTicket {
 	public VarTICKETTYPE type;
 	public VarTICKETSTATUS status;
 	public boolean accepted;
+	public boolean devdone;
 	
 	public ReleaseTicket( Meta meta , ReleaseTicketSet set , int pos ) {
 		this.meta = meta; 
@@ -60,6 +61,7 @@ public class ReleaseTicket {
 		String STATUS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSTATUS );
 		status = Types.getTicketStatus( STATUS , true );
 		accepted = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETACCEPTED , false );
+		devdone = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETDEVDONE , false );
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
@@ -72,11 +74,11 @@ public class ReleaseTicket {
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETTYPE , Common.getEnumLower( type ) );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETSTATUS , Common.getEnumLower( status ) );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETACCEPTED , Common.getBooleanValue( accepted ) );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETDEVDONE , Common.getBooleanValue( devdone ) );
 	}
 
 	public void setDescoped( ActionBase action ) throws Exception {
 		status = VarTICKETSTATUS.DESCOPED;
-		accepted = false;
 	}
 
 	public boolean isDescoped() {
@@ -85,7 +87,7 @@ public class ReleaseTicket {
 		return( false );
 	}
 
-	public void create( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments ) throws Exception {
+	public void create( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments , boolean devdone ) throws Exception {
 		this.type = type;
 		this.CODE = code;
 		this.NAME = name;
@@ -96,14 +98,16 @@ public class ReleaseTicket {
 		this.OWNER = "";
 		this.QA = "";
 		this.accepted = false;
+		this.devdone = devdone;
 	}
 	
-	public void modify( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments ) throws Exception {
+	public void modify( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments , boolean devdone ) throws Exception {
 		this.type = type;
 		this.CODE = code;
 		this.NAME = name;
 		this.LINK = link;
 		this.COMMENTS = comments;
+		this.devdone = devdone;
 	}
 
 	public void setPos( ActionBase action , int pos ) throws Exception {
@@ -115,6 +119,13 @@ public class ReleaseTicket {
 			return( false );
 		
 		if( status == VarTICKETSTATUS.QADONE || status == VarTICKETSTATUS.DESCOPED )
+			return( true );
+			
+		return( false );
+	}
+
+	public boolean isDevDone() {
+		if( devdone )
 			return( true );
 			
 		return( false );

@@ -281,7 +281,6 @@ public class Types {
 		UNKNOWN ,
 		NEW ,
 		ACTIVE ,
-		DEVDONE ,
 		QADONE ,
 		DESCOPED
 	};

@@ -95,8 +95,8 @@ public class ReleaseChanges {
 		addSet( set );
 	}
 	
-	public void createTicket( ActionBase action , ReleaseTicketSet set , VarTICKETTYPE type , String code , String name , String link , String comments ) throws Exception {
-		set.createTicket( action , type , code , name , link , comments );
+	public void createTicket( ActionBase action , ReleaseTicketSet set , VarTICKETTYPE type , String code , String name , String link , String comments , boolean devdone ) throws Exception {
+		set.createTicket( action , type , code , name , link , comments , devdone );
 	}
 	
 	public void modifySet( ActionBase action , ReleaseTicketSet set , String code , String name , String comments ) throws Exception {
