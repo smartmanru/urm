@@ -116,6 +116,8 @@ public class Release {
 	public static String PROPERTY_TICKETTARGETTYPE = "type";
 	public static String PROPERTY_TICKETTARGETITEM = "item";
 	public static String PROPERTY_TICKETTARGETCOMMENTS = "comments";
+	public static String PROPERTY_TICKETTARGETACCEPTED = "accepted";
+	public static String PROPERTY_TICKETTARGETDESCOPED = "descoped";
 	
 	public Release( Meta meta , Dist dist ) {
 		this.meta = meta;
