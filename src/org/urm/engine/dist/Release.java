@@ -59,6 +59,7 @@ public class Release {
 	public static String ELEMENT_CHANGES = "changes";
 	public static String ELEMENT_TICKETSET = "ticketset";
 	public static String ELEMENT_TICKET = "ticket";
+	public static String ELEMENT_TICKETSETTARGET = "target";
 
 	public static String PROPERTY_VERSION = "version";
 	public static String PROPERTY_MASTER = "master";
@@ -99,7 +100,6 @@ public class Release {
 	
 	public static String PROPERTY_TICKETSETCODE = "code";
 	public static String PROPERTY_TICKETSETCOMMENTS = "comments";
-	public static String PROPERTY_TICKETSETTARGETS = "targets";
 	public static String PROPERTY_TICKETSETSTATUS = "status";
 	
 	public static String PROPERTY_TICKETCODE = "code";
@@ -112,6 +112,10 @@ public class Release {
 	public static String PROPERTY_TICKETSTATUS = "status";
 	public static String PROPERTY_TICKETACCEPTED = "accepted";
 	public static String PROPERTY_TICKETDEVDONE = "devdone";
+
+	public static String PROPERTY_TICKETTARGETTYPE = "type";
+	public static String PROPERTY_TICKETTARGETITEM = "item";
+	public static String PROPERTY_TICKETTARGETCOMMENTS = "comments";
 	
 	public Release( Meta meta , Dist dist ) {
 		this.meta = meta;

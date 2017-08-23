@@ -2,9 +2,13 @@ package org.urm.engine.dist;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.urm.meta.product.Meta;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class ReleaseTicketSetTarget {
 
@@ -13,6 +17,7 @@ public class ReleaseTicketSetTarget {
 
 	public VarTICKETSETTARGETTYPE type;
 	public String ITEM;
+	public String COMMENTS;
 	
 	public ReleaseTicketSetTarget( Meta meta , ReleaseTicketSet set ) {
 		this.meta = meta; 
@@ -21,23 +26,23 @@ public class ReleaseTicketSetTarget {
 
 	public ReleaseTicketSetTarget copy( ActionBase action , Meta meta , ReleaseTicketSet set ) throws Exception {
 		ReleaseTicketSetTarget r = new ReleaseTicketSetTarget( meta , set );
-		r.ITEM = ITEM;
 		r.type = type;
+		r.ITEM = ITEM;
+		r.COMMENTS = COMMENTS;
 		return( r );
 	}
 
-	public void load( ActionBase action , String value ) throws Exception {
-		String[] items = Common.split( value , ":" );
-		if( items.length != 2 )
-			action.exitUnexpectedState();
-		
-		type = Types.getTicketSetTargetType( items[0] , true );
-		ITEM = items[1];
+	public void load( ActionBase action , Node root ) throws Exception {
+		String TYPE = ConfReader.getRequiredAttrValue( root , Release.PROPERTY_TICKETTARGETTYPE );
+		type = Types.getTicketSetTargetType( TYPE , true );
+		ITEM = ConfReader.getRequiredAttrValue( root , Release.PROPERTY_TICKETTARGETITEM );
+		COMMENTS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETTARGETCOMMENTS );
 	}
 
-	public String save( ActionBase action ) throws Exception {
-		String value = Common.getEnumLower( type ) + ":" + ITEM;
-		return( value );
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETTARGETTYPE , Common.getEnumLower( type ) );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETTARGETITEM , ITEM );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETTARGETCOMMENTS , COMMENTS );
 	}
 	
 }

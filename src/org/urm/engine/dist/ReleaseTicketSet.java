@@ -103,12 +103,13 @@ public class ReleaseTicketSet {
 			pos++;
 		}
 		
-		String TARGETS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSETTARGETS );
-		String[] targetItems = Common.splitSpaced( TARGETS );
+		items = ConfReader.xmlGetChildren( root , Release.ELEMENT_TICKETSETTARGET );
+		if( items == null )
+			return;
 
-		for( String targetItem : targetItems ) {
+		for( Node targetNode : items ) {
 			ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
-			target.load( action , targetItem );
+			target.load( action , targetNode );
 			addTarget( target );
 		}
 	}
@@ -124,13 +125,10 @@ public class ReleaseTicketSet {
 			ticket.save( action , doc , ticketElement );
 		}
 
-		String TARGETS = "";
 		for( ReleaseTicketSetTarget target : targets ) {
-			String targetItem = target.save( action );
-			TARGETS = Common.addToList( TARGETS , targetItem , " " );
+			Element targetElement = Common.xmlCreateElement( doc , root , Release.ELEMENT_TICKETSETTARGET );
+			target.save( action , doc , targetElement );
 		}
-		
-		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETSETTARGETS , TARGETS );
 	}
 
 	public void create( ActionBase action , String code , String name , String comments ) throws Exception {
@@ -168,6 +166,12 @@ public class ReleaseTicketSet {
 		if( items.isEmpty() )
 			return( new ReleaseTicket[0] );
 		return( items.toArray( new ReleaseTicket[0] ) );
+	}
+
+	public ReleaseTicketSetTarget[] getTargets() {
+		if( targets.isEmpty() )
+			return( new ReleaseTicketSetTarget[0] );
+		return( targets.toArray( new ReleaseTicketSetTarget[0] ) );
 	}
 
 	public ReleaseTicket[] getActiveTickets() {
