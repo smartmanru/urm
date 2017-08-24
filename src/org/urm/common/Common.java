@@ -993,5 +993,19 @@ public class Common {
 		v = v.substring( v.length() - 10 );
 		return( v );
 	}
+
+	public static String[] addArrays( String[] list1 , String[] list2 ) {
+		if( list1.length == 0 )
+			return( list2 );
+		if( list2.length == 0 )
+			return( list1 );
+		
+		String[] list = new String[ list1.length + list2.length ];
+		for( int k = 0; k < list1.length; k++ )
+			list[ k ] = list1[ k ];
+		for( int k = 0; k < list2.length; k++ )
+			list[ list1.length + k ] = list2[ k ];
+		return( list );
+	}
 	
 }

@@ -11,6 +11,9 @@ import org.urm.common.ConfReader;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectItem;
+import org.urm.meta.product.MetaSourceProjectSet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -261,6 +264,37 @@ public class ReleaseTicketSet {
 	
 	public void setTicketVerified( ActionBase action , ReleaseTicket ticket ) throws Exception {
 		ticket.setVerified( action );
+	}
+	
+	public void createTarget( ActionBase action , MetaSourceProjectSet projectSet ) throws Exception {
+		ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
+		target.create( action , projectSet );
+		addTarget( target );
+	}
+	
+	public void createTarget( ActionBase action , MetaSourceProject project , String[] items ) throws Exception {
+		if( items == null ) {
+			ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
+			target.create( action , project , true );
+			addTarget( target );
+		}
+		else
+		if( items.length == 0 ) {
+			ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
+			target.create( action , project , false );
+			addTarget( target );
+		}
+		else {
+			for( String item : items ) {
+				MetaSourceProjectItem projectItem = project.getItem( action , item );
+				if( projectItem.distItem == null )
+					continue;
+				
+				ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
+				target.create( action , projectItem.distItem );
+				addTarget( target );
+			}
+		}
 	}
 	
 }

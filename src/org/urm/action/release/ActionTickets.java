@@ -1,5 +1,7 @@
 package org.urm.action.release;
 
+import java.util.Arrays;
+
 import org.urm.action.ActionBase;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
@@ -9,6 +11,9 @@ import org.urm.engine.dist.ReleaseTicket;
 import org.urm.engine.dist.ReleaseTicketSet;
 import org.urm.meta.Types;
 import org.urm.meta.Types.VarTICKETTYPE;
+import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectSet;
 
 public class ActionTickets extends ActionBase {
 
@@ -27,8 +32,14 @@ public class ActionTickets extends ActionBase {
 	public static String METHOD_DELETETICKET = "deleteticket";
 	public static String METHOD_SETTICKETDEVDONE = "setdevdone";
 	public static String METHOD_SETTICKETQADONE = "setqadone";
+	public static String METHOD_CREATETARGET = "createtarget";
 
 	public static String OPTION_DESCOPE = "descope";
+	
+	public static String TARGET_SET = "set";
+	public static String TARGET_PROJECT = "project";
+	public static String TARGET_PROJECTNOITEMS = "projectnoitems";
+	public static String TARGET_PROJECTITEMS = "projectitems";
 	
 	public ActionTickets( ActionBase action , String stream , Dist dist , String method , String[] args ) {
 		super( action , stream , "change tickets release=" + dist.RELEASEDIR );
@@ -182,6 +193,56 @@ public class ActionTickets extends ActionBase {
 			int ticketPos = Integer.parseInt( args[1] );
 			executeSetTicketVerified( codeSet , ticketPos );
 		}
+		else
+		if( method.equals( METHOD_CREATETARGET ) ) {
+			if( args.length < 2 ) {
+				exitInvalidArgs();
+				return;
+			}
+			
+			String codeSet = args[0];
+			String cmd = args[1];
+			if( cmd.equals( TARGET_SET ) ) {
+				if( args.length != 3 ) {
+					exitInvalidArgs();
+					return;
+				}
+				
+				String projectSet = args[2];
+				executeCreateSetTarget( codeSet , projectSet , null );
+			}
+			else
+			if( cmd.equals( TARGET_PROJECT ) ) {
+				if( args.length != 3 ) {
+					exitInvalidArgs();
+					return;
+				}
+				
+				String project = args[2];
+				executeCreateProjectTarget( codeSet , project , null );
+			}
+			else
+			if( cmd.equals( TARGET_PROJECTNOITEMS ) ) {
+				if( args.length != 3 ) {
+					exitInvalidArgs();
+					return;
+				}
+				
+				String project = args[2];
+				executeCreateProjectTarget( codeSet , project , new String[0] );
+			}
+			else
+			if( cmd.equals( TARGET_PROJECTITEMS ) ) {
+				if( args.length <= 3 ) {
+					exitInvalidArgs();
+					return;
+				}
+				
+				String project = args[2];
+				String[] items = Arrays.copyOfRange( args , 3 , args.length );
+				executeCreateProjectTarget( codeSet , project , items );
+			}
+		}
 	}
 
 	private void exitInvalidArgs() throws Exception {
@@ -243,6 +304,20 @@ public class ActionTickets extends ActionBase {
 			return;
 		ReleaseTicket ticket = set.getTicket( this , ticketPos );
 		set.moveTicket( this , ticket , setNew );
+	}
+	
+	private void executeCreateSetTarget( String setCode , String element , String[] items ) throws Exception {
+		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
+		MetaSource sources = dist.meta.getSources( this );
+		MetaSourceProjectSet projectSet = sources.getProjectSet( this , element );
+		set.createTarget( this , projectSet );
+	}
+	
+	private void executeCreateProjectTarget( String setCode , String element , String[] items ) throws Exception {
+		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
+		MetaSource sources = dist.meta.getSources( this );
+		MetaSourceProject project = sources.getProject( this , element );
+		set.createTarget( this , project , items );
 	}
 	
 }
