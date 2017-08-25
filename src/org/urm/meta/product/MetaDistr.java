@@ -232,7 +232,7 @@ public class MetaDistr extends PropertyController {
 		return( Common.getSortedKeys( mapConfItems ) );
 	}
 	
-	public MetaDistrConfItem findConfItem( ActionBase action , String KEY ) throws Exception {
+	public MetaDistrConfItem findConfItem( String KEY ) {
 		return( mapConfItems.get( KEY ) );
 	}
 

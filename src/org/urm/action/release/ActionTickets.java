@@ -10,7 +10,10 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTicket;
 import org.urm.engine.dist.ReleaseTicketSet;
 import org.urm.meta.Types;
+import org.urm.meta.Types.VarTICKETSETTARGETTYPE;
 import org.urm.meta.Types.VarTICKETTYPE;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
@@ -40,6 +43,11 @@ public class ActionTickets extends ActionBase {
 	public static String TARGET_PROJECT = "project";
 	public static String TARGET_PROJECTNOITEMS = "projectnoitems";
 	public static String TARGET_PROJECTITEMS = "projectitems";
+	public static String TARGET_DELIVERY = "delivery";
+	public static String TARGET_DELIVERYITEMS = "deliveryitems";
+	public static String TARGET_DELIVERYBINARY = "binary";
+	public static String TARGET_DELIVERYCONF = "conf";
+	public static String TARGET_DELIVERYSCHEMA = "schema";
 	
 	public ActionTickets( ActionBase action , String stream , Dist dist , String method , String[] args ) {
 		super( action , stream , "change tickets release=" + dist.RELEASEDIR );
@@ -242,6 +250,29 @@ public class ActionTickets extends ActionBase {
 				String[] items = Arrays.copyOfRange( args , 3 , args.length );
 				executeCreateProjectTarget( codeSet , project , items );
 			}
+			else
+			if( cmd.equals( TARGET_DELIVERY ) ) {
+				if( args.length != 4 ) {
+					exitInvalidArgs();
+					return;
+				}
+				
+				String delivery = args[2];
+				String type = args[3];
+				executeCreateDeliveryTarget( codeSet , delivery , type , null );
+			}
+			else
+			if( cmd.equals( TARGET_DELIVERYITEMS ) ) {
+				if( args.length <= 4 ) {
+					exitInvalidArgs();
+					return;
+				}
+				
+				String delivery = args[2];
+				String type = args[3];
+				String[] items = Arrays.copyOfRange( args , 4 , args.length );
+				executeCreateDeliveryTarget( codeSet , delivery , type , items );
+			}
 		}
 	}
 
@@ -318,6 +349,20 @@ public class ActionTickets extends ActionBase {
 		MetaSource sources = dist.meta.getSources( this );
 		MetaSourceProject project = sources.getProject( this , element );
 		set.createTarget( this , project , items );
+	}
+	
+	private void executeCreateDeliveryTarget( String setCode , String deliveryName , String type , String[] items ) throws Exception {
+		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
+		MetaDistr distr = dist.meta.getDistr( this );
+		MetaDistrDelivery delivery = distr.getDelivery( this , deliveryName );
+		if( type.equals( TARGET_DELIVERYBINARY ) )
+			set.createTarget( this , delivery , VarTICKETSETTARGETTYPE.DISTITEM , items );
+		else
+		if( type.equals( TARGET_DELIVERYCONF ) )
+			set.createTarget( this , delivery , VarTICKETSETTARGETTYPE.CONFITEM , items );
+		else
+		if( type.equals( TARGET_DELIVERYSCHEMA ) )
+			set.createTarget( this , delivery , VarTICKETSETTARGETTYPE.SCHEMA , items );
 	}
 	
 }

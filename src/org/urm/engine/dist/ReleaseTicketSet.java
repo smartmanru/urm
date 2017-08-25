@@ -11,6 +11,10 @@ import org.urm.common.ConfReader;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
@@ -302,6 +306,41 @@ public class ReleaseTicketSet {
 				
 				ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
 				target.create( action , projectItem.distItem );
+				addTarget( target );
+			}
+		}
+	}
+
+	public void createTarget( ActionBase action , MetaDistrDelivery delivery , VarTICKETSETTARGETTYPE type , String[] items ) throws Exception {
+		if( items == null ) {
+			ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
+			if( type == VarTICKETSETTARGETTYPE.DISTITEM )
+				target.create( action , delivery , VarTICKETSETTARGETTYPE.DELIVERYBINARIES );
+			else
+			if( type == VarTICKETSETTARGETTYPE.CONFITEM )
+				target.create( action , delivery , VarTICKETSETTARGETTYPE.DELIVERYCONFS );
+			else
+			if( type == VarTICKETSETTARGETTYPE.SCHEMA )
+				target.create( action , delivery , VarTICKETSETTARGETTYPE.DELIVERYDATABASE );
+			addTarget( target );
+		}
+		else {
+			for( String item : items ) {
+				ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
+				if( type == VarTICKETSETTARGETTYPE.DISTITEM ) {
+					MetaDistrBinaryItem binaryItem = delivery.getBinaryItem( action , item );
+					target.create( action , binaryItem );
+				}
+				else
+				if( type == VarTICKETSETTARGETTYPE.CONFITEM ) {
+					MetaDistrConfItem confItem = delivery.getConfItem( action , item );
+					target.create( action , confItem );
+				}
+				else
+				if( type == VarTICKETSETTARGETTYPE.SCHEMA ) {
+					MetaDatabaseSchema schemaItem = delivery.getSchema( action , item );
+					target.create( action , delivery , schemaItem );
+				}
 				addTarget( target );
 			}
 		}

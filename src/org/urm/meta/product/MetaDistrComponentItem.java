@@ -63,7 +63,7 @@ public class MetaDistrComponentItem {
 			r.binaryItem = comp.dist.findBinaryItem( binaryItem.KEY );
 		else
 		if( confItem != null )
-			r.confItem = comp.dist.findConfItem( action , confItem.KEY );
+			r.confItem = comp.dist.findConfItem( confItem.KEY );
 		else
 		if( schema != null ) {
 			MetaDatabase database = r.meta.getDatabase( action );

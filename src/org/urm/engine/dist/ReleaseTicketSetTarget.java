@@ -6,7 +6,10 @@ import org.urm.common.ConfReader;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.w3c.dom.Document;
@@ -20,6 +23,7 @@ public class ReleaseTicketSetTarget {
 
 	public VarTICKETSETTARGETTYPE type;
 	public String ITEM;
+	public String DELIVERY;
 	public boolean accepted;
 	public boolean descoped;
 	
@@ -73,6 +77,27 @@ public class ReleaseTicketSetTarget {
 		descoped = false;
 	}
 	
+	public void create( ActionBase action , MetaDistrConfItem item ) {
+		type = VarTICKETSETTARGETTYPE.CONFITEM;
+		ITEM = item.KEY;
+		accepted = false;
+		descoped = false;
+	}
+	
+	public void create( ActionBase action , MetaDistrDelivery delivery , VarTICKETSETTARGETTYPE type ) {
+		this.type = type;
+		ITEM = delivery.NAME;
+		accepted = false;
+		descoped = false;
+	}
+	
+	public void create( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) {
+		this.type = VarTICKETSETTARGETTYPE.SCHEMA;
+		ITEM = delivery.NAME + ":" + schema.SCHEMA;
+		accepted = false;
+		descoped = false;
+	}
+	
 	public boolean isAccepted() {
 		return( accepted );
 	}
@@ -98,7 +123,7 @@ public class ReleaseTicketSetTarget {
 			return( true );
 		return( false );
 	}
-		
+
 	public boolean isConfiguration() {
 		if( type == VarTICKETSETTARGETTYPE.CONFITEM )
 			return( true );
@@ -111,6 +136,38 @@ public class ReleaseTicketSetTarget {
 		return( false );
 	}
 
+	public boolean isDelivery() {
+		if( type == VarTICKETSETTARGETTYPE.DELIVERYBINARIES || type == VarTICKETSETTARGETTYPE.DELIVERYCONFS || type == VarTICKETSETTARGETTYPE.DELIVERYDATABASE )
+			return( true );
+		return( false );
+	}
+
+	public boolean isDeliveryBinaries() {
+		if( type == VarTICKETSETTARGETTYPE.DELIVERYBINARIES )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isDeliveryConfs() {
+		if( type == VarTICKETSETTARGETTYPE.DELIVERYCONFS )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isDeliveryDatabase() {
+		if( type == VarTICKETSETTARGETTYPE.DELIVERYDATABASE )
+			return( true );
+		return( false );
+	}
+	
+	public String getDatabaseDelivery() {
+		return( Common.getPartBeforeFirst( ITEM , ":" ) );
+	}
+	
+	public String getDatabaseSchema() {
+		return( Common.getPartAfterFirst( ITEM , ":" ) );
+	}
+	
 	public boolean isProjectBuildOnly() {
 		if( type == VarTICKETSETTARGETTYPE.PROJECTNOITEMS )
 			return( true );
