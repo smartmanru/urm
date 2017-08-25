@@ -147,32 +147,27 @@ public class ReleaseTicket {
 	}
 
 	public boolean isCompleted() {
-		if( !accepted )
-			return( false );
-		
 		if( accepted && ( status == VarTICKETSTATUS.QADONE || descoped ) )
 			return( true );
-			
 		return( false );
 	}
 
 	public boolean isNew() {
 		if( status == VarTICKETSTATUS.NEW )
-			return( false );
-		return( true );
+			return( true );
+		return( false );
 	}
 
 	public boolean isDevDone() {
-		if( status == VarTICKETSTATUS.DEVDONE )
+		if( status == VarTICKETSTATUS.DEVDONE || status == VarTICKETSTATUS.QADONE )
 			return( true );
-			
 		return( false );
 	}
 
 	public boolean isQaDone() {
 		if( status == VarTICKETSTATUS.QADONE )
-			return( false );
-		return( true );
+			return( true );
+		return( false );
 	}
 
 	public boolean isRunning() {
