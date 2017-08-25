@@ -36,6 +36,7 @@ public class ActionTickets extends ActionBase {
 	public static String METHOD_SETTICKETDEVDONE = "setdevdone";
 	public static String METHOD_SETTICKETQADONE = "setqadone";
 	public static String METHOD_CREATETARGET = "createtarget";
+	public static String METHOD_DROPTARGET = "droptarget";
 
 	public static String OPTION_DESCOPE = "descope";
 	
@@ -202,6 +203,19 @@ public class ActionTickets extends ActionBase {
 			executeSetTicketVerified( codeSet , ticketPos );
 		}
 		else
+		if( method.equals( METHOD_DROPTARGET ) ) {
+			if( args.length < 2 || args.length > 3 ) {
+				exitInvalidArgs();
+				return;
+			}
+			
+			String codeSet = args[0];
+			int targetPos = Integer.parseInt( args[1] );
+			String option = ( args.length > 2 )? args[2] : "";
+			boolean descope = ( option.equals( OPTION_DESCOPE ) )? true : false;
+			executeDropTarget( codeSet , targetPos , descope );
+		}
+		else
 		if( method.equals( METHOD_CREATETARGET ) ) {
 			if( args.length < 2 ) {
 				exitInvalidArgs();
@@ -314,6 +328,11 @@ public class ActionTickets extends ActionBase {
 	private void executeDropTicket( String setCode , int ticketPos , boolean descope ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
 		set.dropTicket( this , ticketPos , descope );
+	}
+	
+	private void executeDropTarget( String setCode , int targetPos , boolean descope ) throws Exception {
+		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
+		set.dropTarget( this , targetPos , descope );
 	}
 	
 	private void executeSetTicketDone( String setCode , int ticketPos ) throws Exception {

@@ -75,10 +75,22 @@ public class ReleaseTicketSet {
 		items.remove( ticket );
 	}
 
+	private void removeTarget( ReleaseTicketSetTarget target ) {
+		targets.remove( target.POS );
+	}
+
 	private void reorderTickets( ActionBase action ) throws Exception {
 		int pos = 1;
 		for( ReleaseTicket ticketUpdate : items ) {
 			ticketUpdate.setPos( action , pos );
+			pos++;
+		}
+	}
+	
+	private void reorderTargets( ActionBase action ) throws Exception {
+		int pos = 1;
+		for( ReleaseTicketSetTarget targetUpdate : targets ) {
+			targetUpdate.setPos( action , pos );
 			pos++;
 		}
 	}
@@ -111,10 +123,12 @@ public class ReleaseTicketSet {
 		
 		items = ConfReader.xmlGetChildren( root , Release.ELEMENT_TICKETSETTARGET );
 		if( items != null ) {
+			int pos = 1;
 			for( Node targetNode : items ) {
-				ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
+				ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this , pos );
 				target.load( action , targetNode );
 				addTarget( target );
+				pos++;
 			}
 		}
 	}
@@ -192,6 +206,12 @@ public class ReleaseTicketSet {
 		return( items.get( POS - 1 ) );
 	}
 
+	public ReleaseTicketSetTarget getTarget( ActionBase action , int POS ) throws Exception {
+		if( POS < 1 || POS > items.size() )
+			action.exitUnexpectedState();
+		return( targets.get( POS - 1 ) );
+	}
+
 	public void modifyTicket( ActionBase action , ReleaseTicket ticket , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		map.remove( ticket.CODE );
 		ticket.modify( action , type , code , name , link , comments , owner , devdone );
@@ -206,6 +226,17 @@ public class ReleaseTicketSet {
 		else {
 			removeTicket( ticket );
 			reorderTickets( action );
+		}
+	}
+	
+	public void dropTarget( ActionBase action , int ticketPos , boolean descope ) throws Exception {
+		ReleaseTicketSetTarget target = getTarget( action , ticketPos );
+			
+		if( descope )
+			target.descope( action );
+		else {
+			removeTarget( target );
+			reorderTargets( action );
 		}
 	}
 	
@@ -281,20 +312,22 @@ public class ReleaseTicketSet {
 	}
 	
 	public void createTarget( ActionBase action , MetaSourceProjectSet projectSet ) throws Exception {
-		ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
+		int pos = targets.size() + 1;
+		ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this , pos );
 		target.create( action , projectSet );
 		addTarget( target );
 	}
 	
 	public void createTarget( ActionBase action , MetaSourceProject project , String[] items ) throws Exception {
+		int pos = targets.size() + 1;
 		if( items == null ) {
-			ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
+			ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this , pos );
 			target.create( action , project , true );
 			addTarget( target );
 		}
 		else
 		if( items.length == 0 ) {
-			ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
+			ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this , pos );
 			target.create( action , project , false );
 			addTarget( target );
 		}
@@ -304,7 +337,7 @@ public class ReleaseTicketSet {
 				if( projectItem.distItem == null )
 					continue;
 				
-				ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
+				ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this , pos );
 				target.create( action , projectItem.distItem );
 				addTarget( target );
 			}
@@ -312,8 +345,9 @@ public class ReleaseTicketSet {
 	}
 
 	public void createTarget( ActionBase action , MetaDistrDelivery delivery , VarTICKETSETTARGETTYPE type , String[] items ) throws Exception {
+		int pos = targets.size() + 1;
 		if( items == null ) {
-			ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
+			ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this , pos );
 			if( type == VarTICKETSETTARGETTYPE.DISTITEM )
 				target.create( action , delivery , VarTICKETSETTARGETTYPE.DELIVERYBINARIES );
 			else
@@ -326,7 +360,7 @@ public class ReleaseTicketSet {
 		}
 		else {
 			for( String item : items ) {
-				ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
+				ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this , pos );
 				if( type == VarTICKETSETTARGETTYPE.DISTITEM ) {
 					MetaDistrBinaryItem binaryItem = delivery.getBinaryItem( action , item );
 					target.create( action , binaryItem );

@@ -20,6 +20,7 @@ public class ReleaseTicketSetTarget {
 
 	public Meta meta;
 	public ReleaseTicketSet set;
+	public int POS;
 
 	public VarTICKETSETTARGETTYPE type;
 	public String ITEM;
@@ -27,13 +28,15 @@ public class ReleaseTicketSetTarget {
 	public boolean accepted;
 	public boolean descoped;
 	
-	public ReleaseTicketSetTarget( Meta meta , ReleaseTicketSet set ) {
+	public ReleaseTicketSetTarget( Meta meta , ReleaseTicketSet set , int POS ) {
 		this.meta = meta; 
 		this.set = set;
+		this.POS = POS;
 	}
 
 	public ReleaseTicketSetTarget copy( ActionBase action , Meta meta , ReleaseTicketSet set ) throws Exception {
-		ReleaseTicketSetTarget r = new ReleaseTicketSetTarget( meta , set );
+		ReleaseTicketSetTarget r = new ReleaseTicketSetTarget( meta , set , POS );
+		r.POS = POS;
 		r.type = type;
 		r.ITEM = ITEM;
 		r.accepted = accepted;
@@ -56,6 +59,10 @@ public class ReleaseTicketSetTarget {
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETTARGETDESCOPED , Common.getBooleanValue( descoped ) );
 	}
 
+	public void setPos( ActionBase action , int POS ) throws Exception {
+		this.POS = POS;
+	}
+	
 	public void create( ActionBase action , MetaSourceProjectSet projectSet ) {
 		type = VarTICKETSETTARGETTYPE.PROJECTSET;
 		ITEM = projectSet.NAME;
