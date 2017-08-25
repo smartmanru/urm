@@ -153,16 +153,10 @@ public class ReleaseTicketSet {
 		this.COMMENTS = comments;
 	}
 
-	public void setDescoped( ActionBase action ) throws Exception {
+	public void descope( ActionBase action ) throws Exception {
 		for( ReleaseTicket ticket : items )
-			ticket.setDescoped( action );
+			ticket.descope( action );
 		status = VarTICKETSETSTATUS.DESCOPED;
-	}
-
-	public boolean isDescoped() {
-		if( status == VarTICKETSETSTATUS.DESCOPED )
-			return( true );
-		return( false );
 	}
 
 	public ReleaseTicket[] getTickets() {
@@ -206,7 +200,7 @@ public class ReleaseTicketSet {
 		ReleaseTicket ticket = getTicket( action , ticketPos );
 			
 		if( descope )
-			ticket.setDescoped( action );
+			ticket.descope( action );
 		else {
 			removeTicket( ticket );
 			reorderTickets( action );
@@ -219,6 +213,24 @@ public class ReleaseTicketSet {
 		
 		newSet.addTicket( ticket );
 		newSet.reorderTickets( action );
+	}
+
+	public boolean isNew() {
+		if( status == VarTICKETSETSTATUS.NEW )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isActive() {
+		if( status == VarTICKETSETSTATUS.ACTIVE )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isDescoped() {
+		if( status == VarTICKETSETSTATUS.DESCOPED )
+			return( true );
+		return( false );
 	}
 
 	public boolean isRunning() {

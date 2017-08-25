@@ -26,7 +26,7 @@ public class ReleaseTicket {
 	public VarTICKETTYPE type;
 	public VarTICKETSTATUS status;
 	public boolean accepted;
-	public boolean devdone;
+	public boolean descoped;
 	
 	public ReleaseTicket( Meta meta , ReleaseTicketSet set , int pos ) {
 		this.meta = meta; 
@@ -47,7 +47,7 @@ public class ReleaseTicket {
 		r.type = type;
 		r.status = status;
 		r.accepted = accepted;
-		r.devdone = devdone;
+		r.descoped = descoped;
 		
 		return( r );
 	}
@@ -65,7 +65,7 @@ public class ReleaseTicket {
 		String STATUS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSTATUS );
 		status = Types.getTicketStatus( STATUS , true );
 		accepted = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETACCEPTED , false );
-		devdone = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETDEVDONE , false );
+		descoped = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETDESCOPED , false );
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
@@ -79,17 +79,20 @@ public class ReleaseTicket {
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETTYPE , Common.getEnumLower( type ) );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETSTATUS , Common.getEnumLower( status ) );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETACCEPTED , Common.getBooleanValue( accepted ) );
-		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETDEVDONE , Common.getBooleanValue( devdone ) );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETDESCOPED , Common.getBooleanValue( descoped ) );
 	}
 
-	public void setDescoped( ActionBase action ) throws Exception {
-		status = VarTICKETSTATUS.DESCOPED;
+	public void accept( ActionBase action ) throws Exception {
+		accepted = true;
 	}
 
-	public boolean isDescoped() {
-		if( status == VarTICKETSTATUS.DESCOPED )
-			return( true );
-		return( false );
+	public void descope( ActionBase action ) throws Exception {
+		if( !descoped ) {
+			if( set.isActive() )
+				accepted = false;
+			
+			descoped = true;
+		}
 	}
 
 	public void create( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
@@ -99,14 +102,18 @@ public class ReleaseTicket {
 		this.LINK = link;
 		this.COMMENTS = comments;
 		type = VarTICKETTYPE.CHANGE;
-		status = VarTICKETSTATUS.NEW;
 		this.OWNER = owner;
-		this.DEV = "";
 		this.QA = "";
 		this.accepted = false;
-		this.devdone = devdone;
-		if( devdone )
+		this.descoped = false;
+		if( devdone ) {
 			this.DEV = owner;
+			status = VarTICKETSTATUS.DEVDONE;
+		}
+		else {
+			this.DEV = "";
+			status = VarTICKETSTATUS.NEW;
+		}
 	}
 	
 	public void modify( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
@@ -116,18 +123,14 @@ public class ReleaseTicket {
 		this.LINK = link;
 		this.COMMENTS = comments;
 		this.OWNER = owner;
-		if( devdone != this.devdone ) {
-			if( devdone )
-				this.DEV = owner;
-			else
-				this.DEV = "";
-			
-			this.devdone = devdone;
-		}
 		
-		if( !devdone ) {
-			if( status != VarTICKETSTATUS.NEW && status != VarTICKETSTATUS.DESCOPED )
-				status = VarTICKETSTATUS.ACTIVE;
+		if( devdone ) {
+			this.DEV = owner;
+			status = VarTICKETSTATUS.DEVDONE;
+		}
+		else {
+			this.DEV = "";
+			status = VarTICKETSTATUS.NEW;
 		}
 	}
 
@@ -135,31 +138,35 @@ public class ReleaseTicket {
 		this.POS = pos;
 	}
 
-	public boolean isCompleted() {
-		if( !accepted )
-			return( false );
-		
-		if( status == VarTICKETSTATUS.QADONE || status == VarTICKETSTATUS.DESCOPED )
-			return( true );
-			
-		return( false );
-	}
-
-	public boolean isDevDone() {
-		if( devdone )
-			return( true );
-			
-		return( false );
-	}
-
 	public boolean isAccepted() {
 		return( accepted );
 	}
 
-	public boolean isRunning() {
+	public boolean isDescoped() {
+		return( descoped );
+	}
+
+	public boolean isCompleted() {
+		if( !accepted )
+			return( false );
+		
+		if( accepted && ( status == VarTICKETSTATUS.QADONE || descoped ) )
+			return( true );
+			
+		return( false );
+	}
+
+	public boolean isNew() {
 		if( status == VarTICKETSTATUS.NEW )
 			return( false );
 		return( true );
+	}
+
+	public boolean isDevDone() {
+		if( status == VarTICKETSTATUS.DEVDONE )
+			return( true );
+			
+		return( false );
 	}
 
 	public boolean isQaDone() {
@@ -168,31 +175,24 @@ public class ReleaseTicket {
 		return( true );
 	}
 
-	public void accept( ActionBase action ) throws Exception {
-		accepted = true;
-		if( status == VarTICKETSTATUS.NEW )
-			status = VarTICKETSTATUS.ACTIVE;
+	public boolean isRunning() {
+		if( accepted && descoped == false  )
+			return( true );
+		return( false );
 	}
 
 	public void setDevDone( ActionBase action ) throws Exception {
-		if( status == VarTICKETSTATUS.NEW )
-			status = VarTICKETSTATUS.ACTIVE;
-		devdone = true;
-		DEV = action.getUserName();
+		if( isRunning() && isNew() ) {
+			status = VarTICKETSTATUS.DEVDONE;
+			DEV = action.getUserName();
+		}
 	}
 	
 	public void setVerified( ActionBase action ) throws Exception {
-		if( !devdone )
-			return;
-		
-		if( !accepted )
-			return;
-		
-		if( isDescoped() )
-			return;
-			
-		status = VarTICKETSTATUS.QADONE;
-		QA = action.getUserName();
+		if( isRunning() && isDevDone() ) {
+			status = VarTICKETSTATUS.QADONE;
+			QA = action.getUserName();
+		}
 	}
 	
 }

@@ -280,9 +280,8 @@ public class Types {
 	public enum VarTICKETSTATUS {
 		UNKNOWN ,
 		NEW ,
-		ACTIVE ,
-		QADONE ,
-		DESCOPED
+		DEVDONE ,
+		QADONE
 	};
 
 	public enum VarTICKETSETTARGETTYPE {

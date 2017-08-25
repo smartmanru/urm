@@ -251,7 +251,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 
 	private String getReleaseKey( DistRepositoryItem repoItem ) {
-		return( getReleaseKey( repoItem.dist ) );
+		return( repoItem.repo.meta.name + "-" + repoItem.RELEASEDIR );
 	}
 
 	private String getReleaseKey( Dist dist ) {

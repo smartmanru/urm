@@ -116,5 +116,18 @@ public class ReleaseTicketSetTarget {
 			return( true );
 		return( false );
 	}
+
+	public void accept( ActionBase action ) throws Exception {
+		accepted = true;
+	}
+
+	public void descope( ActionBase action ) throws Exception {
+		if( !descoped ) {
+			if( set.isActive() )
+				accepted = false;
+			
+			descoped = true;
+		}
+	}
 	
 }

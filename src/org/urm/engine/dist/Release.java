@@ -111,7 +111,7 @@ public class Release {
 	public static String PROPERTY_TICKETTYPE = "type";
 	public static String PROPERTY_TICKETSTATUS = "status";
 	public static String PROPERTY_TICKETACCEPTED = "accepted";
-	public static String PROPERTY_TICKETDEVDONE = "devdone";
+	public static String PROPERTY_TICKETDESCOPED = "descoped";
 
 	public static String PROPERTY_TICKETTARGETTYPE = "type";
 	public static String PROPERTY_TICKETTARGETITEM = "item";
