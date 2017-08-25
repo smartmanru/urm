@@ -95,25 +95,23 @@ public class ReleaseTicketSet {
 		status = Types.getTicketSetStatus( STATUS , true );
 		
 		Node[] items = ConfReader.xmlGetChildren( root , Release.ELEMENT_TICKET );
-		if( items == null )
-			return;
-
-		int pos = 1;
-		for( Node ticketNode : items ) {
-			ReleaseTicket ticket = new ReleaseTicket( meta , this , pos );
-			ticket.load( action , ticketNode );
-			addTicket( ticket );
-			pos++;
+		if( items != null ) {
+			int pos = 1;
+			for( Node ticketNode : items ) {
+				ReleaseTicket ticket = new ReleaseTicket( meta , this , pos );
+				ticket.load( action , ticketNode );
+				addTicket( ticket );
+				pos++;
+			}
 		}
 		
 		items = ConfReader.xmlGetChildren( root , Release.ELEMENT_TICKETSETTARGET );
-		if( items == null )
-			return;
-
-		for( Node targetNode : items ) {
-			ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
-			target.load( action , targetNode );
-			addTarget( target );
+		if( items != null ) {
+			for( Node targetNode : items ) {
+				ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this );
+				target.load( action , targetNode );
+				addTarget( target );
+			}
 		}
 	}
 	
