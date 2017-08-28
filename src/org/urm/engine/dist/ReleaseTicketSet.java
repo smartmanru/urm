@@ -76,7 +76,7 @@ public class ReleaseTicketSet {
 	}
 
 	private void removeTarget( ReleaseTicketSetTarget target ) {
-		targets.remove( target.POS );
+		targets.remove( target );
 	}
 
 	private void reorderTickets( ActionBase action ) throws Exception {
@@ -207,7 +207,7 @@ public class ReleaseTicketSet {
 	}
 
 	public ReleaseTicketSetTarget getTarget( ActionBase action , int POS ) throws Exception {
-		if( POS < 1 || POS > items.size() )
+		if( POS < 1 || POS > targets.size() )
 			action.exitUnexpectedState();
 		return( targets.get( POS - 1 ) );
 	}

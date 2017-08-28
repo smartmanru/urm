@@ -65,6 +65,7 @@ public class ActionTickets extends ActionBase {
 			dist.saveReleaseXml( this );
 		}
 		catch( Throwable e ) {
+			super.log( "tickets command" , e );
 			dist.closeDataChange( this );
 			return( SCOPESTATE.RunFail );
 		}
