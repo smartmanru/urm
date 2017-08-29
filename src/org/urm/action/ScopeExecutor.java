@@ -562,7 +562,7 @@ public class ScopeExecutor {
 	private SCOPESTATE runAllInternal( ActionScope scope ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
-			String all = ( scope.scopeFull )? " (all)" : "";
+			String all = ( scope.isFull() )? " (all)" : "";
 			action.debug( action.NAME + ": execute scope" + all + " ..." );
 			action.runBefore( scope );
 		}

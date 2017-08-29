@@ -196,5 +196,5 @@ public class ReleaseTicketSetTarget {
 			descoped = true;
 		}
 	}
-	
+
 }

@@ -1,6 +1,7 @@
 package org.urm.engine.executor;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ActionReleaseScopeMaker;
 import org.urm.action.ActionScope;
 import org.urm.action.database.DatabaseCommand;
 import org.urm.common.action.CommandMeta;
@@ -56,7 +57,9 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 
 	private ActionScope getIndexScope( ActionBase action , Dist dist , int posFrom ) throws Exception {
 		String[] INDEXES = getArgList( action , posFrom );
-		return( ActionScope.getReleaseDatabaseManualItemsScope( action , dist , INDEXES ) );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		maker.addScopeReleaseDatabaseManualItems( INDEXES );
+		return( maker.getScope() );
 	}
 	
 	private class GetReleaseScripts extends CommandMethod {
@@ -65,7 +68,10 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		String[] DELIVERIES = getArgList( action , 1 );
-		ActionScope scope = ActionScope.getReleaseCategoryScope( action , dist , VarCATEGORY.DB , DELIVERIES );
+		
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		maker.addScopeReleaseCategory( VarCATEGORY.DB , DELIVERIES );
+		ActionScope scope = maker.getScope();
 		impl.getReleaseScripts( action , scope , dist );
 	}
 	}

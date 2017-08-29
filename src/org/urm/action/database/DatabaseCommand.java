@@ -1,6 +1,7 @@
 package org.urm.action.database;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ActionEnvScopeMaker;
 import org.urm.action.ActionScope;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.engine.dist.Dist;
@@ -60,15 +61,20 @@ public class DatabaseCommand {
 			action.exit0( _Error.DatabaseModeNotSet0 , "database mode is not set" );
 		
 		action.info( "apply database changes (" + op + ") release=" + dist.RELEASEDIR + ", delivery=" + deliveryInfo + ", items=" + itemsInfo );
+		
+		ActionEnvScopeMaker maker = new ActionEnvScopeMaker( action , action.context.env );
+		maker.addScopeEnvDatabase( dist );
+		
 		ActionApplyAutomatic ma = new ActionApplyAutomatic( action , null , dist , delivery , indexScope );
-		ActionScope scope = ActionScope.getEnvDatabaseScope( action , dist.meta , dist );
-		ma.runAll( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
+		ma.runAll( maker.getScope() , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void manageRelease( ActionBase action , Meta meta , String RELEASEVER , MetaDistrDelivery delivery , String CMD , String indexScope ) throws Exception {
+		ActionEnvScopeMaker maker = new ActionEnvScopeMaker( action , action.context.env );
+		maker.addScopeEnvDatabase( null );
+		
 		ActionManageRegistry ma = new ActionManageRegistry( action , null , RELEASEVER , CMD , delivery , indexScope );
-		ActionScope scope = ActionScope.getEnvDatabaseScope( action , meta , null );
-		ma.runAll( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
+		ma.runAll( maker.getScope() , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void importDatabase( ActionBase action , String SERVER , String CMD , String SCHEMA ) throws Exception {

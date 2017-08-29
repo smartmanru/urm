@@ -25,7 +25,7 @@ public class ActionSaveConfigs extends ActionBase {
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , scope.meta );
-		if( scope.scopeFull && isForced() )
+		if( scope.isPartialEnv() == false && isForced() )
 			deleteOldConfServers( scope );
 		
 		// check need to tag configuration

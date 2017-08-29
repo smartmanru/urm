@@ -1,6 +1,7 @@
 package org.urm.engine.executor;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ActionEnvScopeMaker;
 import org.urm.action.ActionScope;
 import org.urm.action.deploy.DeployCommand;
 import org.urm.common.Common;
@@ -90,7 +91,9 @@ public class DeployCommandExecutor extends CommandExecutor {
 		return( getServerScope( action , posFrom , dist ) );
 	}
 
-	private ActionScope getServerScope( ActionBase action , int posFrom , Dist release ) throws Exception {
+	private ActionScope getServerScope( ActionBase action , int posFrom , Dist dist ) throws Exception {
+		ActionEnvScopeMaker maker = new ActionEnvScopeMaker( action , action.context.env );
+		
 		String s = getArg( action , posFrom + 1 );
 		if( s.matches( "[0-9]+" ) ) {
 			String SERVER = getArg( action , posFrom );
@@ -98,14 +101,17 @@ public class DeployCommandExecutor extends CommandExecutor {
 			if( action.context.sg == null ) {
 				if( !SERVER.isEmpty() )
 					action.exit0( _Error.MissingSegmentName0, "Segment name is required to use specific server" );
-				return( ActionScope.getEnvScope( action , action.context.env , null , release ) );
+				maker.addScopeEnv( null , dist );
 			}
-			return( ActionScope.getEnvServerNodesScope( action , action.context.sg , SERVER , NODES , release ) );
+			else
+				maker.addScopeEnvServerNodes( action.context.sg , SERVER , NODES , dist );
 		}
-		
-		String[] SERVERS = getArgList( action , posFrom );
-		Meta meta = action.getContextMeta();
-		return( ActionScope.getEnvServersScope( action , meta , action.context.sg , SERVERS , release ) );
+		else {
+			String[] SERVERS = getArgList( action , posFrom );
+			maker.addScopeEnvServers( action.context.sg , SERVERS , dist );
+		}
+
+		return( maker.getScope() );
 	}
 	
 	private class BaseOps extends CommandMethod {

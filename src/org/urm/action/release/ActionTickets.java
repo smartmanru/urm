@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ActionScope;
+import org.urm.action.ActionProductScopeMaker;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
@@ -342,35 +342,52 @@ public class ActionTickets extends ActionBase {
 		// change release scope
 		List<ReleaseTicketSetTarget> targetList = new LinkedList<ReleaseTicketSetTarget>();
 		if( targets == null ) {
-			for( ReleaseTicketSetTarget target : set.getTargets() )
-				targetList.add( target );
+			for( ReleaseTicketSetTarget target : set.getTargets() ) {
+				if( !target.isAccepted() )
+					targetList.add( target );
+			}
 		}
 		else {
 			for( String targetPos : targets ) {
 				ReleaseTicketSetTarget target = set.getTarget( this , Integer.parseInt( targetPos ) );
-				targetList.add( target );
+				if( !target.isAccepted() )
+					targetList.add( target );
 			}
 		}
 
+		ActionProductScopeMaker scopeAdd = new ActionProductScopeMaker( this , dist.meta );
+		ActionProductScopeMaker scopeRemove = new ActionProductScopeMaker( this , dist.meta );
+		
 		// add to scope
 		for( ReleaseTicketSetTarget target : targetList ) {
-			if( !target.isAccepted() ) {
-				if( !target.isDescoped() ) {
-					executeAcceptTarget( target , false );
-					target.accept( this );
-				}
-			}
+			if( target.isDescoped() )
+				executeAcceptTargetScope( target , scopeRemove , true );
+			else
+				executeAcceptTargetScope( target , scopeAdd , true );
+		}
+
+		// remove from scope
+		for( ReleaseTicketSetTarget target : targetList ) {
+			if( target.isDescoped() )
+				executeAcceptTargetScope( target , scopeAdd , false );
+			else
+				executeAcceptTargetScope( target , scopeRemove , false );
+		}
+
+		// execute change scope
+		if( !scopeAdd.isEmpty() ) {
+			ActionBase runAction = new ActionAddScope( this , null , dist );
+			runAction.runAll( scopeAdd.getScope() , null , SecurityAction.ACTION_RELEASE , false );
 		}
 		
-		// descope
-		for( ReleaseTicketSetTarget target : targetList ) {
-			if( !target.isAccepted() ) {
-				if( target.isDescoped() ) {
-					executeAcceptTarget( target , true );
-					target.accept( this );
-				}
-			}
+		if( !scopeRemove.isEmpty() ) {
+			ActionBase runAction = new ActionDescope( this , null , dist );
+			runAction.runAll( scopeRemove.getScope() , null , SecurityAction.ACTION_RELEASE , false );
 		}
+		
+		// accept targets
+		for( ReleaseTicketSetTarget target : targetList )
+			target.accept( this );
 
 		// accept set and tickets
 		set.activate( this );
@@ -389,56 +406,46 @@ public class ActionTickets extends ActionBase {
 		}
 	}
 	
-	private void executeAcceptTarget( ReleaseTicketSetTarget target , boolean descope ) throws Exception {
-		ActionBase runAction = null;
-		ActionScope scope = null;
-		
-		if( descope )
-			runAction = new ActionDescope( this , null , dist );
-		else
-			runAction = new ActionAddScope( this , null , dist );
-		
+	private void executeAcceptTargetScope( ReleaseTicketSetTarget target , ActionProductScopeMaker maker , boolean add ) throws Exception {
 		if( target.isProjectSet() ) {
-			scope = ActionScope.getProductSetScope( this , dist.meta , target.ITEM , null );
+			maker.addScopeProductSet( target.ITEM , null );
 		}
 		else
 		if( target.isProject() ) {
 			MetaSource sources = dist.meta.getSources( this );
 			MetaSourceProject project = sources.getProject( this , target.ITEM );
-			scope = ActionScope.getProductSetScope( this , dist.meta , project.set.NAME , new String[] { target.ITEM } );
+			maker.addScopeProductSet( project.set.NAME , new String[] { target.ITEM } );
 		}
 		else
 		if( target.isBinary() ) {
-			scope = ActionScope.getProductDistItemsScope( this , dist.meta , new String[] { target.ITEM } );
+			maker.addScopeProductDistItems( new String[] { target.ITEM } );
 		}
 		else
 		if( target.isConfiguration() ) {
-			scope = ActionScope.getProductConfItemsScope( this , dist.meta , new String[] { target.ITEM } );
+			maker.addScopeProductConfItems( new String[] { target.ITEM } );
 		}
 		else
 		if( target.isDatabase() ) {
 			String delivery = target.getDatabaseDelivery();
 			String schema = target.getDatabaseSchema();
-			scope = ActionScope.getProductDatabaseDeliverySchemesScope( this , dist.meta , delivery , new String[] { schema } );
+			maker.addScopeProductDatabaseDeliverySchemes( delivery , new String[] { schema } );
 		}
 		else
 		if( target.isDelivery() ) {
 			MetaDistr distr = dist.meta.getDistr( this );
 			MetaDistrDelivery delivery = distr.findDelivery( target.ITEM );
 			if( target.isDeliveryBinaries() ) {
-				scope = ActionScope.getProductDistItemsScope( this , dist.meta , delivery.getBinaryItemNames() );
+				maker.addScopeProductDistItems( delivery.getBinaryItemNames() );
 			}
 			else
 			if( target.isDeliveryConfs() ) {
-				scope = ActionScope.getProductConfItemsScope( this , dist.meta , delivery.getConfItemNames() );
+				maker.addScopeProductConfItems( delivery.getConfItemNames() );
 			}
 			else
 			if( target.isDeliveryDatabase() ) {
-				scope = ActionScope.getProductDatabaseDeliverySchemesScope( this , dist.meta , delivery.NAME , delivery.getDatabaseSchemaNames() );
+				maker.addScopeProductDatabaseDeliverySchemes( delivery.NAME , delivery.getDatabaseSchemaNames() );
 			}
 		}
-			
-		runAction.runEachSourceProject( scope , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	private void executeCreateTicket( String setCode , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {

@@ -1,7 +1,7 @@
 package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ActionScope;
+import org.urm.action.ActionEnvScopeMaker;
 import org.urm.action.ActionScopeTarget;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaEnvServer;
@@ -90,7 +90,8 @@ public class ServerCluster {
 		}
 		else {
 			ActionCheckEnv ca = new ActionCheckEnv( action , null );
-			ActionScopeTarget scope = ActionScope.getEnvServerNodesScope( action , srv , nodes ); 
+			ActionEnvScopeMaker maker = new ActionEnvScopeMaker( action , srv.sg.env );
+			ActionScopeTarget scope = maker.addScopeEnvServerNodes( srv , nodes ); 
 			if( !ca.runSingleTarget( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false ) ) {
 				action.trace( "checkenv failed" );
 				res = false;

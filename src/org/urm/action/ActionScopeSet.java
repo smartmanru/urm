@@ -53,7 +53,7 @@ public class ActionScopeSet {
 		this.setFull = false;
 	}
 	
-	public boolean isEmpty( ActionBase action ) throws Exception {
+	public boolean isEmpty() {
 		// manual files are by default
 		if( CATEGORY == VarCATEGORY.MANUAL && setFull )
 			return( false );
@@ -613,4 +613,5 @@ public class ActionScopeSet {
 		}
 		return( groupTargets );
 	}
+	
 }

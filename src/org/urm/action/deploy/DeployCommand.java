@@ -98,7 +98,7 @@ public class DeployCommand {
 	}
 
 	public void redist( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
-		if( scope.isEmpty( action ) ) {
+		if( scope.isEmpty() ) {
 			action.info( "nothing to redist" );
 			return;
 		}
