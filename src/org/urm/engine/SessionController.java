@@ -99,6 +99,7 @@ public class SessionController {
 		if( action == null )
 			return( null );
 
+		action.context.loadEnv( action , false );
 		return( action );
 	}
 
