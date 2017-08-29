@@ -187,15 +187,6 @@ public class ReleaseTicketSet {
 		return( targets.toArray( new ReleaseTicketSetTarget[0] ) );
 	}
 
-	public ReleaseTicket[] getActiveTickets() {
-		List<ReleaseTicket> tickets = new LinkedList<ReleaseTicket>();
-		for( ReleaseTicket ticket : items ) {
-			if( !ticket.isDescoped() )
-				tickets.add( ticket );
-		}
-		return( tickets.toArray( new ReleaseTicket[0] ) );
-	}
-	
 	public ReleaseTicket findTicket( String code ) {
 		return( map.get( code ) );
 	}
