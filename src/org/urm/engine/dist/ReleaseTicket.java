@@ -25,6 +25,7 @@ public class ReleaseTicket {
 	public String COMMENTS;
 	public VarTICKETTYPE type;
 	public VarTICKETSTATUS status;
+	public boolean active;
 	public boolean accepted;
 	public boolean descoped;
 	
@@ -46,6 +47,7 @@ public class ReleaseTicket {
 		r.COMMENTS = COMMENTS;
 		r.type = type;
 		r.status = status;
+		r.active = active;
 		r.accepted = accepted;
 		r.descoped = descoped;
 		
@@ -64,8 +66,11 @@ public class ReleaseTicket {
 		type = Types.getTicketType( TYPE , false );
 		String STATUS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSTATUS );
 		status = Types.getTicketStatus( STATUS , true );
+		active = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETACTIVE , false );
 		accepted = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETACCEPTED , false );
 		descoped = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETDESCOPED , false );
+		if( accepted )
+			active = true;
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
@@ -78,12 +83,14 @@ public class ReleaseTicket {
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETCOMMENTS , COMMENTS );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETTYPE , Common.getEnumLower( type ) );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETSTATUS , Common.getEnumLower( status ) );
+		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETACTIVE , Common.getBooleanValue( active ) );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETACCEPTED , Common.getBooleanValue( accepted ) );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETDESCOPED , Common.getBooleanValue( descoped ) );
 	}
 
 	public void accept( ActionBase action ) throws Exception {
 		accepted = true;
+		active = true;
 	}
 
 	public void descope( ActionBase action ) throws Exception {
@@ -104,6 +111,7 @@ public class ReleaseTicket {
 		type = VarTICKETTYPE.CHANGE;
 		this.OWNER = owner;
 		this.QA = "";
+		this.active = false;
 		this.accepted = false;
 		this.descoped = false;
 		if( devdone ) {
@@ -171,7 +179,7 @@ public class ReleaseTicket {
 	}
 
 	public boolean isRunning() {
-		if( accepted && descoped == false  )
+		if( active )
 			return( true );
 		return( false );
 	}
