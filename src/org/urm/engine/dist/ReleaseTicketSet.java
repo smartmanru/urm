@@ -281,6 +281,10 @@ public class ReleaseTicketSet {
 			if( !ticket.isAccepted() )
 				return( false );
 		}
+		for( ReleaseTicketSetTarget target : targets ) {
+			if( !target.isAccepted() )
+				return( false );
+		}
 		return( true );
 	}
 
