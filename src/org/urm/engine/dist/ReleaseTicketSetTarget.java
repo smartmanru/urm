@@ -182,6 +182,9 @@ public class ReleaseTicketSetTarget {
 	}
 
 	public void accept( ActionBase action ) throws Exception {
+		if( accepted )
+			return;
+		
 		accepted = true;
 	}
 

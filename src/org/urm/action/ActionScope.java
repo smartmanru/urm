@@ -74,13 +74,18 @@ public class ActionScope {
 	}
 
 	public static ActionScope getReleaseDatabaseManualItemsScope( ActionBase action , Dist dist , String[] INDEXES ) throws Exception {
-		action.trace( "scope: Release Manual Database Scope, release=" + dist.RELEASEDIR + ", items=" + Common.getListSet( INDEXES ) );
-		return( getDatabaseItemsScope( action , dist.meta , dist , null , INDEXES ) );
+		action.trace( "scope: Release Database Delivery Index Scope, release=" + dist.RELEASEDIR + ", items=" + Common.getListSet( INDEXES ) );
+		return( getDatabaseIndexScope( action , dist.meta , dist , null , INDEXES ) );
 	}
 	
 	public static ActionScope getReleaseDatabaseDeliveryItemsScope( ActionBase action , Dist dist , String DELIVERY , String[] INDEXES ) throws Exception {
-		action.trace( "scope: Release Delivery Database Scope, release=" + dist.RELEASEDIR + ", delivery=" + DELIVERY + ", items=" + Common.getListSet( INDEXES ) );
-		return( getDatabaseItemsScope( action , dist.meta , dist , DELIVERY , INDEXES ) );
+		action.trace( "scope: Release Database Delivery Index Scope, release=" + dist.RELEASEDIR + ", delivery=" + DELIVERY + ", items=" + Common.getListSet( INDEXES ) );
+		return( getDatabaseIndexScope( action , dist.meta , dist , DELIVERY , INDEXES ) );
+	}
+	
+	public static ActionScope getReleaseDatabaseSchemesScope( ActionBase action , Dist dist , String DELIVERY , String[] SCHEMES ) throws Exception {
+		action.trace( "scope: Release Database Delivery Schemes Scope, release=" + dist.RELEASEDIR + ", delivery=" + DELIVERY + ", items=" + Common.getListSet( SCHEMES ) );
+		return( getDatabaseSchemaScope( action , dist.meta , dist , DELIVERY , SCHEMES ) );
 	}
 	
 	public static ActionScope getReleaseCategoryScope( ActionBase action , Dist dist , VarCATEGORY CATEGORY , String[] TARGETS ) throws Exception {
@@ -138,6 +143,48 @@ public class ActionScope {
 			scope.createReleaseDistItemsScope( action , dist , null , false );
 		else
 			scope.createReleaseDistItemsScope( action , dist , ITEMS , true );
+		return( scope );
+	}
+
+	public static ActionScope getProductConfItemsScope( ActionBase action , Meta meta , String[] ITEMS ) throws Exception {
+		action.trace( "scope: Product Configuration Items Scope, items=" + Common.getListSet( ITEMS ) );
+		ActionScope scope = new ActionScope( action , meta );
+
+		if( ITEMS == null || ITEMS.length == 0 )
+			action.exit0( _Error.MissingTargetItems0 , "missing items (use \"all\" to reference all items)" );
+		
+		if( ITEMS.length == 1 && ITEMS[0].equals( "all" ) )
+			scope.addProductConfigs( action , null );
+		else
+			scope.addProductConfigs( action , ITEMS );
+		return( scope );
+	}
+
+	public static ActionScope getProductDatabaseDeliveriesScope( ActionBase action , Meta meta , String[] ITEMS ) throws Exception {
+		action.trace( "scope: Product Database Deliveries Scope, items=" + Common.getListSet( ITEMS ) );
+		ActionScope scope = new ActionScope( action , meta );
+
+		if( ITEMS == null || ITEMS.length == 0 )
+			action.exit0( _Error.MissingTargetItems0 , "missing items (use \"all\" to reference all items)" );
+		
+		if( ITEMS.length == 1 && ITEMS[0].equals( "all" ) )
+			scope.addProductDatabaseDeliveries( action , null );
+		else
+			scope.addProductDatabaseDeliveries( action , ITEMS );
+		return( scope );
+	}
+
+	public static ActionScope getProductDatabaseDeliverySchemesScope( ActionBase action , Meta meta , String DELIVERY , String[] ITEMS ) throws Exception {
+		action.trace( "scope: Product Database Delivery Schemes Scope, items=" + Common.getListSet( ITEMS ) );
+		ActionScope scope = new ActionScope( action , meta );
+
+		if( ITEMS == null || ITEMS.length == 0 )
+			action.exit0( _Error.MissingTargetItems0 , "missing items (use \"all\" to reference all items)" );
+		
+		if( ITEMS.length == 1 && ITEMS[0].equals( "all" ) )
+			scope.addProductDatabaseDeliverySchemes( action , DELIVERY , null );
+		else
+			scope.addProductDatabaseDeliverySchemes( action , DELIVERY , ITEMS );
 		return( scope );
 	}
 
@@ -237,7 +284,7 @@ public class ActionScope {
 		return( scope );
 	}
 
-	private static ActionScope getDatabaseItemsScope( ActionBase action , Meta meta , Dist dist , String DELIVERY , String[] INDEXES ) throws Exception {
+	private static ActionScope getDatabaseIndexScope( ActionBase action , Meta meta , Dist dist , String DELIVERY , String[] INDEXES ) throws Exception {
 		ActionScope scope = new ActionScope( action , meta );
 		
 		VarCATEGORY CATEGORY;
@@ -265,17 +312,49 @@ public class ActionScope {
 			
 			if( DELIVERY.equals( "all" ) ) {
 				for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
-					ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , false , all );
+					ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , all , false );
 					if( !all )
 						target.addIndexItems( action , INDEXES );
 				}
 			}
 			else {
 				ReleaseDelivery delivery = dist.release.getDelivery( action , DELIVERY );
-				ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , true , all );
+				ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , all , true );
 				if( !all )
 					target.addIndexItems( action , INDEXES );
 			}
+		}
+		
+		return( scope );
+	}
+	
+	private static ActionScope getDatabaseSchemaScope( ActionBase action , Meta meta , Dist dist , String DELIVERY , String[] SCHEMES ) throws Exception {
+		ActionScope scope = new ActionScope( action , meta );
+		
+		VarCATEGORY CATEGORY;
+
+		if( SCHEMES.length == 0 )
+			action.exit0( _Error.MissingDatabaseItems0 , "use \"all\" to reference all items" );
+		
+		boolean all = ( SCHEMES.length == 1 && SCHEMES[0].equals( "all" ) )? true : false;
+		
+		CATEGORY = VarCATEGORY.DB;
+		ActionScopeSet sset = scope.createReleaseCategoryScopeSet( action , dist , CATEGORY );
+		if( sset == null )
+			return( scope );
+		
+		if( DELIVERY.equals( "all" ) ) {
+			for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
+				ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , all , false );
+				if( !all )
+					target.addDatabaseSchemes( action , SCHEMES );
+			}
+		}
+		else {
+			ReleaseDelivery delivery = dist.release.getDelivery( action , DELIVERY );
+			ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , all , true );
+			if( !all )
+				target.addDatabaseSchemes( action , SCHEMES );
 		}
 		
 		return( scope );
@@ -431,7 +510,7 @@ public class ActionScope {
 			addProductConfigs( action , TARGETS );
 		else 
 		if( set.equals( Common.getEnumLower( VarCATEGORY.DB ) ) )
-			addProductDatabase( action , TARGETS );
+			addProductDatabaseDeliveries( action , TARGETS );
 		else 
 		if( set.equals( Common.getEnumLower( VarCATEGORY.MANUAL ) ) )
 			addManualItems( action , TARGETS );
@@ -460,7 +539,7 @@ public class ActionScope {
 			addReleaseConfigs( action , release , TARGETS );
 		else 
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.DB ) ) )
-			addReleaseDatabase( action , release , TARGETS );
+			addReleaseDatabaseDeliveries( action , release , TARGETS );
 		else 
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.MANUAL ) ) )
 			addReleaseManualItems( action , release , TARGETS );
@@ -766,12 +845,17 @@ public class ActionScope {
 	}
 	
 	private void addAllProductDatabase( ActionBase action ) throws Exception {
-		addProductDatabase( action , null );
+		addProductDatabaseDeliveries( action , null );
 	}
 	
-	private void addProductDatabase( ActionBase action , String[] DBSETS ) throws Exception {
+	private void addProductDatabaseDeliveries( ActionBase action , String[] DELIVERIES ) throws Exception {
 		ActionScopeSet set = createProductCategoryScopeSet( action , VarCATEGORY.DB );
-		set.addDatabaseItems( action , DBSETS );
+		set.addDatabaseDeliveries( action , DELIVERIES );
+	}
+
+	private void addProductDatabaseDeliverySchemes( ActionBase action , String DELIVERY , String[] SCHEMES ) throws Exception {
+		ActionScopeSet set = createProductCategoryScopeSet( action , VarCATEGORY.DB );
+		set.addDatabaseDeliverySchemes( action , DELIVERY , SCHEMES );
 	}
 
 	private void addManualItems( ActionBase action , String[] DISTITEMS ) throws Exception {
@@ -785,13 +869,13 @@ public class ActionScope {
 	}
 	
  	private void addAllReleaseDatabase( ActionBase action , Dist release ) throws Exception {
-		addReleaseDatabase( action , release , null );
+		addReleaseDatabaseDeliveries( action , release , null );
 	}
 
-	private void addReleaseDatabase( ActionBase action , Dist release , String[] DBSETS ) throws Exception {
-		ActionScopeSet sset = createReleaseCategoryScopeSet( action , release ,VarCATEGORY.DB );
+	private void addReleaseDatabaseDeliveries( ActionBase action , Dist release , String[] DELIVERIES ) throws Exception {
+		ActionScopeSet sset = createReleaseCategoryScopeSet( action , release , VarCATEGORY.DB );
 		if( sset != null )
-			sset.addDatabaseItems( action , DBSETS );
+			sset.addDatabaseDeliveries( action , DELIVERIES );
 	}
 	
 	private void addScopeSet( ActionBase action , ActionScopeSet sset ) throws Exception {

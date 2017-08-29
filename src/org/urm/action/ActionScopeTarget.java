@@ -7,6 +7,8 @@ import org.urm.common.Common;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabase;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
@@ -152,10 +154,17 @@ public class ActionScopeTarget {
 		if( releaseTarget != null )
 			addReleaseProjectItems( action , ITEMS );
 		else
-			addSourceProjectItems( action , ITEMS );
+			addProjectItemsInternal( action , ITEMS );
 	}
 	
-	private void addSourceProjectItems( ActionBase action , String[] ITEMS ) throws Exception {
+	public void addDatabaseSchemes( ActionBase action , String[] ITEMS ) throws Exception {
+		if( releaseTarget != null )
+			addReleaseDatabaseSchemes( action , ITEMS );
+		else
+			addDatabaseSchemesInternal( action , ITEMS );
+	}
+	
+	private void addProjectItemsInternal( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			itemFull = true;
 			for( MetaSourceProjectItem item : sourceProject.getItems() )
@@ -171,6 +180,21 @@ public class ActionScopeTarget {
 			
 			MetaSourceProjectItem projectItem = sourceProject.getItem( action , itemName );
 			addProjectItem( action , projectItem , true );
+		}
+	}
+
+	private void addDatabaseSchemesInternal( ActionBase action , String[] ITEMS ) throws Exception {
+		if( ITEMS == null || ITEMS.length == 0 ) {
+			itemFull = true;
+			for( MetaDatabaseSchema item : dbDelivery.getDatabaseSchemes() )
+				addDatabaseSchema( action , item , false );
+			return;
+		}
+		
+		MetaDatabase db = dbDelivery.db;
+		for( String itemName : ITEMS ) {
+			MetaDatabaseSchema item = db.getSchema( action , itemName );
+			addDatabaseSchema( action , item , true );
 		}
 	}
 
@@ -194,8 +218,33 @@ public class ActionScopeTarget {
 		}
 	}
 	
+	private void addReleaseDatabaseSchemes( ActionBase action , String[] ITEMS ) throws Exception {
+		if( ITEMS == null || ITEMS.length == 0 ) {
+			itemFull = true;
+			for( ReleaseTargetItem item : releaseTarget.getItems() )
+				addItem( action , item , false );
+			return;
+		}
+		
+		MetaDistrDelivery delivery = releaseTarget.distDatabaseDelivery;
+		for( String itemName : ITEMS ) {
+			MetaDatabaseSchema item = delivery.getSchema( action , itemName );
+			
+			ReleaseTargetItem releaseItem = releaseTarget.findDatabaseSchema( item );
+			if( releaseItem != null )
+				addItem( action , releaseItem , true );
+			else
+				action.debug( "scope: ignore non-release item=" + itemName );
+		}
+	}
+	
 	public void addProjectItem( ActionBase action , MetaSourceProjectItem item , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createSourceProjectTargetItem( this , item , item.distItem , specifiedExplicitly );
+		items.add( scopeItem );
+	}
+	
+	public void addDatabaseSchema( ActionBase action , MetaDatabaseSchema schema , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createDeliverySchemaTargetItem( this , schema , specifiedExplicitly );
 		items.add( scopeItem );
 	}
 	

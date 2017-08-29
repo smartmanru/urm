@@ -1,17 +1,22 @@
 package org.urm.action.release;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ActionScope;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTicket;
 import org.urm.engine.dist.ReleaseTicketSet;
+import org.urm.engine.dist.ReleaseTicketSetTarget;
 import org.urm.meta.Types;
 import org.urm.meta.Types.VarTICKETSETTARGETTYPE;
 import org.urm.meta.Types.VarTICKETTYPE;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSource;
@@ -113,13 +118,34 @@ public class ActionTickets extends ActionBase {
 		}
 		else
 		if( method.equals( METHOD_ACCEPTSET ) ) {
-			if( args.length < 1 || args.length > 1 ) {
+			if( args.length < 3 || args.length > 3 ) {
 				exitInvalidArgs();
 				return;
 			}
 			
 			String code = args[0];
-			executeAcceptSet( code );
+			
+			String tickets = args[1];
+			String[] ticketList = null;
+			if( tickets.equals( "all" ) )
+				ticketList = null;
+			else
+			if( tickets.equals( "none" ) )
+				ticketList = new String[0];
+			else
+				ticketList = Common.split( tickets , "," );
+			
+			String targets = args[2];
+			String[] targetList = null;
+			if( targets.equals( "all" ) )
+				targetList = null;
+			else
+			if( targets.equals( "none" ) )
+				targetList = new String[0];
+			else
+				targetList = Common.split( targets , "," );
+			
+			executeAcceptSet( code , ticketList , targetList );
 		}
 		else
 		if( method.equals( METHOD_CREATETICKET ) ) {
@@ -310,9 +336,109 @@ public class ActionTickets extends ActionBase {
 		dist.release.changes.dropSet( this , set , descope );
 	}
 	
-	private void executeAcceptSet( String code ) throws Exception {
+	private void executeAcceptSet( String code , String[] tickets , String[] targets ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , code );
-		dist.release.changes.acceptSet( this , set );
+		
+		// change release scope
+		List<ReleaseTicketSetTarget> targetList = new LinkedList<ReleaseTicketSetTarget>();
+		if( targets == null ) {
+			for( ReleaseTicketSetTarget target : set.getTargets() )
+				targetList.add( target );
+		}
+		else {
+			for( String targetPos : targets ) {
+				ReleaseTicketSetTarget target = set.getTarget( this , Integer.parseInt( targetPos ) );
+				targetList.add( target );
+			}
+		}
+
+		// add to scope
+		for( ReleaseTicketSetTarget target : targetList ) {
+			if( !target.isAccepted() ) {
+				if( !target.isDescoped() ) {
+					executeAcceptTarget( target , false );
+					target.accept( this );
+				}
+			}
+		}
+		
+		// descope
+		for( ReleaseTicketSetTarget target : targetList ) {
+			if( !target.isAccepted() ) {
+				if( target.isDescoped() ) {
+					executeAcceptTarget( target , true );
+					target.accept( this );
+				}
+			}
+		}
+
+		// accept set and tickets
+		set.activate( this );
+		if( tickets == null ) {
+			for( ReleaseTicket ticket : set.getTickets() ) {
+				if( !ticket.isAccepted() )
+					ticket.accept( this );
+			}
+		}
+		else {
+			for( String ticketPos : tickets ) {
+				ReleaseTicket ticket = set.getTicket( this , Integer.parseInt( ticketPos ) );
+				if( !ticket.isAccepted() )
+					ticket.accept( this );
+			}
+		}
+	}
+	
+	private void executeAcceptTarget( ReleaseTicketSetTarget target , boolean descope ) throws Exception {
+		ActionBase runAction = null;
+		ActionScope scope = null;
+		
+		if( descope )
+			runAction = new ActionDescope( this , null , dist );
+		else
+			runAction = new ActionAddScope( this , null , dist );
+		
+		if( target.isProjectSet() ) {
+			scope = ActionScope.getProductSetScope( this , dist.meta , target.ITEM , null );
+		}
+		else
+		if( target.isProject() ) {
+			MetaSource sources = dist.meta.getSources( this );
+			MetaSourceProject project = sources.getProject( this , target.ITEM );
+			scope = ActionScope.getProductSetScope( this , dist.meta , project.set.NAME , new String[] { target.ITEM } );
+		}
+		else
+		if( target.isBinary() ) {
+			scope = ActionScope.getProductDistItemsScope( this , dist.meta , new String[] { target.ITEM } );
+		}
+		else
+		if( target.isConfiguration() ) {
+			scope = ActionScope.getProductConfItemsScope( this , dist.meta , new String[] { target.ITEM } );
+		}
+		else
+		if( target.isDatabase() ) {
+			String delivery = target.getDatabaseDelivery();
+			String schema = target.getDatabaseSchema();
+			scope = ActionScope.getProductDatabaseDeliverySchemesScope( this , dist.meta , delivery , new String[] { schema } );
+		}
+		else
+		if( target.isDelivery() ) {
+			MetaDistr distr = dist.meta.getDistr( this );
+			MetaDistrDelivery delivery = distr.findDelivery( target.ITEM );
+			if( target.isDeliveryBinaries() ) {
+				scope = ActionScope.getProductDistItemsScope( this , dist.meta , delivery.getBinaryItemNames() );
+			}
+			else
+			if( target.isDeliveryConfs() ) {
+				scope = ActionScope.getProductConfItemsScope( this , dist.meta , delivery.getConfItemNames() );
+			}
+			else
+			if( target.isDeliveryDatabase() ) {
+				scope = ActionScope.getProductDatabaseDeliverySchemesScope( this , dist.meta , delivery.NAME , delivery.getDatabaseSchemaNames() );
+			}
+		}
+			
+		runAction.runEachSourceProject( scope , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	private void executeCreateTicket( String setCode , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {

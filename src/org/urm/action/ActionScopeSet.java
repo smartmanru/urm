@@ -127,9 +127,13 @@ public class ActionScopeSet {
 		return( target );
 	}
 	
-	public ActionScopeTarget addDatabaseDelivery( ActionBase action , ReleaseDelivery delivery , boolean specifiedExplicitly , boolean all ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createDatabaseDeliveryTarget( this , delivery.distDelivery , specifiedExplicitly , all );
+	public ActionScopeTarget addDatabaseDelivery( ActionBase action , ReleaseDelivery delivery , boolean allItems , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createDatabaseDeliveryTarget( this , delivery.distDelivery , specifiedExplicitly , allItems );
 		addTarget( action , target );
+		
+		if( allItems )
+			target.addDatabaseSchemes( action , null );
+		
 		return( target );
 	}
 	
@@ -339,19 +343,34 @@ public class ActionScopeSet {
 		}
 	}
 
-	private void addReleaseTarget( ActionBase action , ReleaseTarget releaseItem , boolean specifiedExplicitly ) throws Exception {
+	private ActionScopeTarget addReleaseTarget( ActionBase action , ReleaseTarget releaseItem , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeTarget target = ActionScopeTarget.createReleaseSourceProjectTarget( this , releaseItem , specifiedExplicitly );
 		addTarget( action , target );
+		return( target );
 	}
 
-	public void addDatabaseItems( ActionBase action , String[] DELIVERIES ) throws Exception {
+	public void addDatabaseDeliveries( ActionBase action , String[] DELIVERIES ) throws Exception {
 		if( rset != null )
-			addReleaseDatabaseItems( action , DELIVERIES );
+			addReleaseDatabaseDeliveries( action , DELIVERIES );
 		else
-			addProductDatabaseItems( action , DELIVERIES );
+			addProductDatabaseDeliveries( action , DELIVERIES );
 	}
 	
-	private void addProductDatabaseItems( ActionBase action , String[] DELIVERIES ) throws Exception {
+	public void addDatabaseDeliverySchemes( ActionBase action , String DELIVERY , String[] SCHEMES ) throws Exception {
+		if( rset != null ) {
+			ReleaseTarget item = rset.getTarget( action , DELIVERY );
+			ActionScopeTarget target = addReleaseTarget( action , item , true );
+			target.addDatabaseSchemes( action , SCHEMES );
+		}
+		else {
+			MetaDistr distr = meta.getDistr( action );
+			MetaDistrDelivery item = distr.getDelivery( action , DELIVERY );
+			ActionScopeTarget target = addProductDatabase( action , item , true );
+			target.addDatabaseSchemes( action , SCHEMES );
+		}
+	}
+	
+	private void addProductDatabaseDeliveries( ActionBase action , String[] DELIVERIES ) throws Exception {
 		MetaDistr distr = meta.getDistr( action );
 		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
 			setFull = true; 
@@ -367,12 +386,13 @@ public class ActionScopeSet {
 		}
 	}
 
-	private void addProductDatabase( ActionBase action , MetaDistrDelivery dbitem , boolean specifiedExplicitly ) throws Exception {
+	private ActionScopeTarget addProductDatabase( ActionBase action , MetaDistrDelivery dbitem , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeTarget target = ActionScopeTarget.createDatabaseDeliveryTarget( this , dbitem , specifiedExplicitly , true );
 		addTarget( action , target );
+		return( target );
 	}
 
-	private void addReleaseDatabaseItems( ActionBase action , String[] DELIVERIES ) throws Exception {
+	private void addReleaseDatabaseDeliveries( ActionBase action , String[] DELIVERIES ) throws Exception {
 		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
 			setFull = true; 
 			for( ReleaseTarget item : rset.getTargets() )

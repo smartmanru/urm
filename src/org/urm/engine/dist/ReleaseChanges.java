@@ -121,10 +121,6 @@ public class ReleaseChanges {
 		}
 	}
 
-	public void acceptSet( ActionBase action , ReleaseTicketSet set ) throws Exception {
-		set.acceptAll( action );
-	}
-
 	public boolean isCompleted() {
 		for( ReleaseTicketSet set : sets.values() ) {
 			if( !set.isCompleted() )

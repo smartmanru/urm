@@ -70,7 +70,13 @@ public class ActionAddScope extends ActionBase {
 	}
 	
 	private boolean addTargetItem( ActionScopeSet set , ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {
-		return( dist.addProjectItem( this , target.sourceProject , item.sourceItem ) );
+		if( Types.isSourceCategory( target.CATEGORY ) )
+			return( dist.addProjectItem( this , target.sourceProject , item.sourceItem ) );
+		if( target.CATEGORY == VarCATEGORY.DB )
+			return( dist.addDatabaseDeliverySchema( this , target.dbDelivery , item.schema ) );
+		
+		this.exitUnexpectedCategory( target.CATEGORY );
+		return( false );
 	}
 	
 }
