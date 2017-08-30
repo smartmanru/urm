@@ -35,7 +35,6 @@ public class ActionScopeSet {
 	public ReleaseDistSet rset;
 	
 	Map<String,ActionScopeTarget> targets = new HashMap<String,ActionScopeTarget>();
-	ActionScopeTarget manualTarget;
 
 	public MetaEnv env;
 	public MetaEnvSegment sg;
@@ -241,7 +240,43 @@ public class ActionScopeSet {
 		return( groupTargets );
 	}
 
-	public void createMinusSet( ActionBase action , ActionScopeSet setAdd , ActionScope remove ) throws Exception {
+	public void createMinusSet( ActionBase action , ActionScopeSet setAdd , ActionScopeSet setRemove ) throws Exception {
+		this.setFull = setAdd.setFull;
+		this.NAME = setAdd.NAME;
+		this.CATEGORY = setAdd.CATEGORY;
+		
+		this.pset = setAdd.pset;
+		this.rset = setAdd.rset;
+
+		this.env = setAdd.env;
+		this.sg = setAdd.sg;
+		
+		for( ActionScopeTarget target : targets.values() )
+			createMinusTarget( action , target , setRemove );
 	}	
+
+	public void createMinusTarget( ActionBase action , ActionScopeTarget targetAdd , ActionScopeSet setRemove ) throws Exception {
+		ActionScopeTarget targetRemove = null;
+		if( setRemove != null )
+			targetRemove = setRemove.findSimilarTarget( action , targetAdd );
+		
+		if( targetRemove != null ) {
+			if( targetRemove.isLeafTarget() )
+				return;
+		}
+
+		ActionScopeTarget targetNew = targetAdd.copy( this );
+		if( !targetNew.isLeafTarget() ) {
+			targetNew.createMinusTarget( action , targetAdd , targetRemove );
+			if( targetNew.isEmpty() )
+				return;
+		}
+		
+		addTarget( action , targetNew );
+	}
+
+	public ActionScopeTarget findSimilarTarget( ActionBase action , ActionScopeTarget sample ) throws Exception {
+		return( findTarget( action , sample.NAME ) );
+	}
 	
 }

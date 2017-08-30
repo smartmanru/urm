@@ -248,7 +248,7 @@ public class ActionProductScopeMaker {
 	}
 
 	private void addProductConfig( ActionScopeSet set , MetaDistrConfItem distrComp , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createConfItemTarget( set , distrComp , specifiedExplicitly );
+		ActionScopeTarget target = ActionScopeTarget.createProductConfItemTarget( set , distrComp , specifiedExplicitly );
 		set.addTarget( action , target );
 	}
 
@@ -273,7 +273,7 @@ public class ActionProductScopeMaker {
 	}
 
 	private void addProductManualItem( ActionScopeSet set , MetaDistrBinaryItem item , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createManualDistItemTarget( set , item , specifiedExplicitly );
+		ActionScopeTarget target = ActionScopeTarget.createProductManualDistItemTarget( set , item , specifiedExplicitly );
 		set.addTarget( action , target );
 	}
 	
@@ -298,7 +298,7 @@ public class ActionProductScopeMaker {
 	}
 
 	private void addProductDerivedItem( ActionScopeSet set , MetaDistrBinaryItem item , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createDerivedDistItemTarget( set , item , specifiedExplicitly );
+		ActionScopeTarget target = ActionScopeTarget.createProductDerivedDistItemTarget( set , item , specifiedExplicitly );
 		set.addTarget( action , target );
 	}
 	
@@ -325,7 +325,7 @@ public class ActionProductScopeMaker {
 	}
 
 	public ActionScopeTarget addProductSourceProject( ActionScopeSet set , MetaSourceProject sourceProject , boolean allItems , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createSourceProjectTarget( set , sourceProject , specifiedExplicitly ); 
+		ActionScopeTarget target = ActionScopeTarget.createProductSourceProjectTarget( set , sourceProject , specifiedExplicitly ); 
 		set.addTarget( action , target );
 		
 		if( allItems )

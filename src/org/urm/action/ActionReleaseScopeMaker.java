@@ -419,7 +419,7 @@ public class ActionReleaseScopeMaker {
 	}
 	
 	public ActionScopeTarget addReleaseManualDatabase( ActionScopeSet set , boolean all ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createDatabaseManualTarget( set , all );
+		ActionScopeTarget target = ActionScopeTarget.createReleaseDatabaseManualTarget( set , all );
 		set.addTarget( action , target );
 		return( target );
 	}

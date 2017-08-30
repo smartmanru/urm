@@ -338,7 +338,7 @@ public class ActionScope {
 			createMinusSet( action , setAdd , remove );
 	}
 	
-	private void createMinusSet( ActionBase action , ActionScopeSet setAdd , ActionScope remove ) throws Exception {
+	private void createMinusSet( ActionBase action , ActionScopeSet setAdd , ActionScope scopeRemove ) throws Exception {
 		ActionScopeSet setNew = new ActionScopeSet( this , true );
 		if( Types.isSourceCategory( setAdd.CATEGORY ) )
 			setNew.create( action , setAdd.CATEGORY );
@@ -348,11 +348,15 @@ public class ActionScope {
 		else
 			setNew.create( action , setAdd.pset );
 		
-		ActionScopeSet setRemove = remove.getCategorySet( action , setAdd.CATEGORY );
+		ActionScopeSet setRemove = scopeRemove.findSimilarSet( action , setAdd );
 		setNew.createMinusSet( action , setAdd , setRemove );
 		
 		if( !setNew.isEmpty() )
 			addScopeSet( action , setNew );
 	}
 
+	public ActionScopeSet findSimilarSet( ActionBase action , ActionScopeSet sample ) throws Exception {
+		return( findSet( action , sample.CATEGORY , sample.NAME ) );
+	}
+	
 }

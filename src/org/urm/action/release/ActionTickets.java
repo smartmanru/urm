@@ -383,12 +383,14 @@ public class ActionTickets extends ActionBase {
 		
 		if( !scopeAdd.isEmpty() ) {
 			ActionBase runAction = new ActionAddScope( this , null , dist );
-			runAction.runAll( scopeAdd , null , SecurityAction.ACTION_RELEASE , false );
+			if( !runAction.runAll( scopeAdd , null , SecurityAction.ACTION_RELEASE , false ) )
+				super.fail1( _Error.CannotExtendScope1 , "Cannot extend scope of release=" + dist.RELEASEDIR , dist.RELEASEDIR );
 		}
 		
 		if( !scopeRemove.isEmpty() ) {
 			ActionBase runAction = new ActionDescope( this , null , dist );
-			runAction.runAll( scopeRemove , null , SecurityAction.ACTION_RELEASE , false );
+			if( !runAction.runAll( scopeRemove , null , SecurityAction.ACTION_RELEASE , false ) )
+				super.fail1( _Error.CannotReduceScope1 , "Cannot extend scope of release=" + dist.RELEASEDIR , dist.RELEASEDIR );
 		}
 		
 		// accept targets

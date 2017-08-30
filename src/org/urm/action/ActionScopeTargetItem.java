@@ -28,6 +28,20 @@ public class ActionScopeTargetItem {
 		this.meta = target.meta;
 	}
 	
+	public ActionScopeTargetItem copy( ActionScopeTarget targetNew ) {
+		ActionScopeTargetItem item = new ActionScopeTargetItem( targetNew );
+		item.NAME = NAME;
+		item.distItem = distItem;
+		item.sourceItem = sourceItem;
+		item.envServerNode = envServerNode;
+		item.schema = schema;
+		
+		item.releaseItem = releaseItem;
+		item.scriptIndex = scriptIndex;
+		item.specifiedExplicitly = specifiedExplicitly;
+		return( item );
+	}
+	
 	public static ActionScopeTargetItem createSourceProjectTargetItem( ActionScopeTarget target , MetaSourceProjectItem sourceItem , MetaDistrBinaryItem distItem , boolean specifiedExplicitly ) {
 		ActionScopeTargetItem ti = new ActionScopeTargetItem( target ); 
 		ti.distItem = distItem;
@@ -95,6 +109,20 @@ public class ActionScopeTargetItem {
 			action.exit0( _Error.BuildVersionNotSet0 , "buildByTag: BUILDVERSION not set" );
 		
 		return( BUILDVERSION );
+	}
+
+	public boolean isSimilarItem( ActionBase action , ActionScopeTargetItem sample ) throws Exception {
+		if( distItem != sample.distItem ||
+			sourceItem != sample.sourceItem ||
+			envServerNode != sample.envServerNode ||
+			schema != sample.schema ||
+			scriptIndex != sample.scriptIndex )
+			return( false );
+		
+		if( scriptIndex )
+			return( NAME.equals( sample.NAME ) );
+		
+		return( true );
 	}
 	
 }
