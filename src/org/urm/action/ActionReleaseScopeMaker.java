@@ -21,7 +21,7 @@ public class ActionReleaseScopeMaker {
 	private Dist dist;
 	
 	public ActionReleaseScopeMaker( ActionBase action , Dist dist ) {
-		scope = new ActionScope( action , meta );
+		scope = new ActionScope( action , dist.meta );
 		this.action = action;
 		this.meta = dist.meta;
 		this.dist = dist;
