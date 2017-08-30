@@ -879,6 +879,8 @@ public class ScopeExecutor {
 	private SCOPESTATE getActionStatus( SCOPESTATE ss , ActionBase action , SCOPESTATE ssAction ) {
 		if( action.isCallFailed() )
 			return( SCOPESTATE.RunFail );
+		if( ssAction == SCOPESTATE.RunFail )
+			action.fail0( _Error.InternalError0 , "Internal error" );
 		return( ssAction );
 	}
 
