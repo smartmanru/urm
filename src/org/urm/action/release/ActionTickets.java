@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionProductScopeMaker;
+import org.urm.action.ActionScope;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
@@ -355,34 +356,39 @@ public class ActionTickets extends ActionBase {
 			}
 		}
 
-		ActionProductScopeMaker scopeAdd = new ActionProductScopeMaker( this , dist.meta );
-		ActionProductScopeMaker scopeRemove = new ActionProductScopeMaker( this , dist.meta );
+		ActionProductScopeMaker scopeNew = new ActionProductScopeMaker( this , dist.meta );
+		ActionProductScopeMaker scopeDescope = new ActionProductScopeMaker( this , dist.meta );
 		
 		// add to scope
 		for( ReleaseTicketSetTarget target : targetList ) {
 			if( target.isDescoped() )
-				executeAcceptTargetScope( target , scopeRemove , true );
+				executeAcceptTargetScope( target , scopeDescope , true );
 			else
-				executeAcceptTargetScope( target , scopeAdd , true );
+				executeAcceptTargetScope( target , scopeNew , true );
 		}
 
 		// remove from scope
 		for( ReleaseTicketSetTarget target : targetList ) {
 			if( target.isDescoped() )
-				executeAcceptTargetScope( target , scopeAdd , false );
+				executeAcceptTargetScope( target , scopeNew , false );
 			else
-				executeAcceptTargetScope( target , scopeRemove , false );
+				executeAcceptTargetScope( target , scopeDescope , false );
 		}
 
 		// execute change scope
+		ActionScope scopeAdd = new ActionScope( this , dist.meta );
+		scopeAdd.createMinus( this , scopeNew.getScope() , scopeDescope.getScope() );
+		ActionScope scopeRemove = new ActionScope( this , dist.meta );
+		scopeAdd.createMinus( this , scopeNew.getScope() , scopeDescope.getScope() );
+		
 		if( !scopeAdd.isEmpty() ) {
 			ActionBase runAction = new ActionAddScope( this , null , dist );
-			runAction.runAll( scopeAdd.getScope() , null , SecurityAction.ACTION_RELEASE , false );
+			runAction.runAll( scopeAdd , null , SecurityAction.ACTION_RELEASE , false );
 		}
 		
 		if( !scopeRemove.isEmpty() ) {
 			ActionBase runAction = new ActionDescope( this , null , dist );
-			runAction.runAll( scopeRemove.getScope() , null , SecurityAction.ACTION_RELEASE , false );
+			runAction.runAll( scopeRemove , null , SecurityAction.ACTION_RELEASE , false );
 		}
 		
 		// accept targets

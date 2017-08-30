@@ -6,7 +6,10 @@ import org.urm.meta.Types.VarDISTITEMORIGIN;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 
 public class ActionProductScopeMaker {
@@ -137,17 +140,17 @@ public class ActionProductScopeMaker {
 			ActionScopeSet sset = null;
 			if( item.distItemOrigin == VarDISTITEMORIGIN.MANUAL ) {
 				sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.MANUAL );
-				sset.addManualItems( action , new String[] { itemName } );
+				addProductManualItems( sset , new String[] { itemName } );
 			}
 			else
 			if( item.distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
 				sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.DERIVED );
-				sset.addDerivedItems( action , new String[] { itemName } );
+				addProductDerivedItems( sset , new String[] { itemName } );
 			}
 			else {
 				sset = scope.makeProjectScopeSet( action , item.sourceProjectItem.project.set );
 			
-				ActionScopeTarget scopeProject = sset.addSourceProject( action , item.sourceProjectItem.project , false , true ); 
+				ActionScopeTarget scopeProject = addProductSourceProject( sset , item.sourceProjectItem.project , false , true ); 
 				scopeProject.addProjectItem( action , item.sourceProjectItem , specifiedExplicitly );
 			}
 		}
@@ -157,13 +160,13 @@ public class ActionProductScopeMaker {
 		MetaSource sources = meta.getSources( action );
 		for( MetaSourceProjectSet pset : sources.getSets() ) {
 			ActionScopeSet sset = scope.makeProjectScopeSet( action , pset );
-			sset.addProjects( action , null );
+			addProductSourceProjects( sset , null );
 		}
 	}
 
 	private void addSourceProjects( MetaSourceProjectSet pset , String[] PROJECTS ) throws Exception {
 		ActionScopeSet sset = scope.makeProjectScopeSet( action , pset );
-		sset.addProjects( action , PROJECTS );
+		addProductSourceProjects( sset , PROJECTS );
 	}
 		
 	private void addAllProductConfigs() throws Exception {
@@ -172,7 +175,7 @@ public class ActionProductScopeMaker {
 	
 	private void addProductConfigs( String[] CONFCOMPS ) throws Exception {
 		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.CONFIG );
-		sset.addConfigComps( action , CONFCOMPS );
+		addProductConfigComps( sset , CONFCOMPS );
 	}
 
 	private void addAllProductDatabase() throws Exception {
@@ -181,7 +184,7 @@ public class ActionProductScopeMaker {
 	
 	private void addProductDatabaseDeliveries( String[] DELIVERIES ) throws Exception {
 		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , VarCATEGORY.DB );
-		set.addDatabaseDeliveries( action , DELIVERIES );
+		addProductDatabaseDeliveries( set , DELIVERIES );
 	}
 
 	private void addAllManualItems() throws Exception {
@@ -190,7 +193,7 @@ public class ActionProductScopeMaker {
 
 	private void addManualItems( String[] DISTITEMS ) throws Exception {
 		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.MANUAL );
-		sset.addManualItems( action , DISTITEMS );
+		addProductManualItems( sset , DISTITEMS );
 	}
 	
 	private void addAllDerivedItems() throws Exception {
@@ -199,12 +202,136 @@ public class ActionProductScopeMaker {
 
 	private void addDerivedItems( String[] DISTITEMS ) throws Exception {
 		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.DERIVED );
-		sset.addDerivedItems( action , DISTITEMS );
+		addProductDerivedItems( sset , DISTITEMS );
 	}
 	
 	private void addProductDatabaseDeliverySchemes( String DELIVERY , String[] SCHEMES ) throws Exception {
 		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , VarCATEGORY.DB );
-		set.addDatabaseDeliverySchemes( action , DELIVERY , SCHEMES );
+		addProductDatabaseDeliverySchemes( set , DELIVERY , SCHEMES );
 	}
 
+	private void addProductDatabaseDeliveries( ActionScopeSet set , String[] DELIVERIES ) throws Exception {
+		MetaDistr distr = meta.getDistr( action );
+		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
+			set.setFullContent( true ); 
+			for( MetaDistrDelivery item : distr.getDatabaseDeliveries() )
+				addProductDatabase( set , item , false );
+			return;
+		}
+		
+		for( String key : DELIVERIES ) {
+			MetaDistrDelivery item = distr.getDelivery( action , key );
+			if( item.hasDatabaseItems() )
+				addProductDatabase( set , item , true );
+		}
+	}
+
+	private ActionScopeTarget addProductDatabase( ActionScopeSet set , MetaDistrDelivery dbitem , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createDatabaseDeliveryTarget( set , dbitem , specifiedExplicitly , true );
+		set.addTarget( action , target );
+		return( target );
+	}
+
+	private void addProductConfigComps( ActionScopeSet set , String[] COMPS ) throws Exception {
+		MetaDistr distr = meta.getDistr( action );
+		if( COMPS == null || COMPS.length == 0 ) {
+			set.setFullContent( true ); 
+			for( MetaDistrConfItem item : distr.getConfItems() )
+				addProductConfig( set , item , false );
+			return;
+		}
+		
+		for( String key : COMPS ) {
+			MetaDistrConfItem comp = distr.getConfItem( action , key );
+			addProductConfig( set , comp , true );
+		}
+	}
+
+	private void addProductConfig( ActionScopeSet set , MetaDistrConfItem distrComp , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createConfItemTarget( set , distrComp , specifiedExplicitly );
+		set.addTarget( action , target );
+	}
+
+	private void addProductManualItems( ActionScopeSet set , String[] ITEMS ) throws Exception {
+		MetaDistr distr = meta.getDistr( action );
+		if( ITEMS == null || ITEMS.length == 0 ) {
+			set.setFullContent( true ); 
+			for( String itemName : distr.getManualItemNames() ) {
+				MetaDistrBinaryItem item = distr.findBinaryItem( itemName );
+				addProductManualItem( set , item , false );
+			}
+			return;
+		}
+		
+		for( String item : ITEMS ) {
+			MetaDistrBinaryItem distitem = distr.getBinaryItem( action , item );
+			if( distitem.distItemOrigin != VarDISTITEMORIGIN.MANUAL )
+				action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item , item );
+			
+			addProductManualItem( set , distitem , true );
+		}
+	}
+
+	private void addProductManualItem( ActionScopeSet set , MetaDistrBinaryItem item , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createManualDistItemTarget( set , item , specifiedExplicitly );
+		set.addTarget( action , target );
+	}
+	
+	private void addProductDerivedItems( ActionScopeSet set , String[] ITEMS ) throws Exception {
+		MetaDistr distr = meta.getDistr( action );
+		if( ITEMS == null || ITEMS.length == 0 ) {
+			set.setFullContent( true ); 
+			for( String itemName : distr.getDerivedItemNames() ) {
+				MetaDistrBinaryItem item = distr.findBinaryItem( itemName );
+				addProductDerivedItem( set , item , false );
+			}
+			return;
+		}
+		
+		for( String item : ITEMS ) {
+			MetaDistrBinaryItem distitem = distr.getBinaryItem( action , item );
+			if( distitem.distItemOrigin != VarDISTITEMORIGIN.DERIVED )
+				action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item , item );
+			
+			addProductManualItem( set , distitem , true );
+		}
+	}
+
+	private void addProductDerivedItem( ActionScopeSet set , MetaDistrBinaryItem item , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createDerivedDistItemTarget( set , item , specifiedExplicitly );
+		set.addTarget( action , target );
+	}
+	
+	private void addProductDatabaseDeliverySchemes( ActionScopeSet set , String DELIVERY , String[] SCHEMES ) throws Exception {
+		MetaDistr distr = meta.getDistr( action );
+		MetaDistrDelivery item = distr.getDelivery( action , DELIVERY );
+		ActionScopeTarget target = addProductDatabase( set , item , true );
+		target.addDatabaseSchemes( action , SCHEMES );
+	}
+	
+	private void addProductSourceProjects( ActionScopeSet set , String[] PROJECTS ) throws Exception {
+		if( PROJECTS == null || PROJECTS.length == 0 ) {
+			set.setFullContent( true ); 
+			for( MetaSourceProject project : set.pset.getProjects() )
+				addProductSourceProject( set , project , true , false );
+			return;
+		}
+		
+		MetaSource sources = meta.getSources( action );
+		for( String name : PROJECTS ) {
+			MetaSourceProject sourceProject = sources.getProject( action , name );
+			addProductSourceProject( set , sourceProject , true , true );
+		}
+	}
+
+	public ActionScopeTarget addProductSourceProject( ActionScopeSet set , MetaSourceProject sourceProject , boolean allItems , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createSourceProjectTarget( set , sourceProject , specifiedExplicitly ); 
+		set.addTarget( action , target );
+		
+		if( allItems )
+			target.addProjectItems( action , null );
+		
+		return( target );
+	}
+		
 }

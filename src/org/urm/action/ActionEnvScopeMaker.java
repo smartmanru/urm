@@ -1,5 +1,8 @@
 package org.urm.action;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.meta.product.Meta;
@@ -105,7 +108,7 @@ public class ActionEnvScopeMaker {
 			if( sgMask.isEmpty() || sgItem.NAME.matches( sgMask ) ) {
 				boolean specifiedExplicitly = ( sgMask.isEmpty() )? false : true;
 				ActionScopeSet sset = scope.makeEnvScopeSet( action , env , sgItem , specifiedExplicitly );
-				sset.addEnvServers( action , null , dist );
+				addEnvServers( sset , null , dist );
 			}
 		}
 	}
@@ -116,7 +119,7 @@ public class ActionEnvScopeMaker {
 			scope.setFullEnv( action , true );
 			
 		ActionScopeSet sset = scope.makeEnvScopeSet( action , env , sg , true );
-		sset.addEnvServers( action , SERVERS , dist ); 
+		addEnvServers( sset , SERVERS , dist ); 
 	}
 
 	private void addEnvDatabaseScope( Dist dist ) throws Exception {
@@ -125,20 +128,116 @@ public class ActionEnvScopeMaker {
 				continue;
 			
 			ActionScopeSet sset = scope.makeEnvScopeSet( action , env , sg , false );
-			sset.addEnvDatabases( action , dist );
+			addEnvDatabases( sset , dist );
 		}
 	}
 	
 	private ActionScopeTarget addEnvServerNodesScope( MetaEnvSegment sg , MetaEnvServer srv , MetaEnvServerNode[] nodes ) throws Exception {
 		ActionScopeSet sset = scope.makeEnvScopeSet( action , env , sg , true );
-		return( sset.addEnvServer( action , srv , nodes , true ) );
+		return( addEnvServer( sset , srv , nodes , true ) );
 	}
 	
 	private void addEnvServerNodesScope( MetaEnvSegment sg , String SERVER , String[] NODES , Dist dist ) throws Exception {
 		ActionScopeSet sset = scope.makeEnvScopeSet( action , env , sg , true );
 		MetaEnvServer server = sg.getServer( action , SERVER );
+		addEnvServerNodes( sset , server , NODES , true , dist );
+	}
+
+	public void addEnvServers( ActionScopeSet set , String[] SERVERS , Dist release ) throws Exception {
+		Map<String,MetaEnvServer> releaseServers = null;
+		if( release != null )
+			releaseServers = set.getReleaseServers( action , release );
+	
+		if( SERVERS == null || SERVERS.length == 0 ) {
+			set.setFullContent( true ); 
+			for( MetaEnvServer server : set.sg.getServers() ) {
+				boolean addServer = ( release == null )? true : releaseServers.containsKey( server.NAME ); 
+				if( addServer )
+					addEnvServer( set , server , null , false );
+				else
+					action.trace( "scope: skip non-release server=" + server.NAME );
+			}
+			return;
+		}
 		
-		sset.addEnvServerNodes( action , server , NODES , true , dist );
+		Map<String,MetaEnvServer> added = new HashMap<String,MetaEnvServer>();
+		for( String SERVER : SERVERS ) {
+			MetaEnvServer server = set.sg.getServer( action , SERVER );
+			boolean addServer = ( release == null )? true : releaseServers.containsKey( SERVER ); 
+			if( addServer ) {
+				added.put( server.NAME , server );
+				addEnvServer( set , server , null , true );
+			}
+			else
+				action.trace( "scope: skip non-release server=" + SERVER );
+		}
+	}
+
+	public void addEnvDatabases( ActionScopeSet set , Dist dist ) throws Exception {
+		Map<String,MetaEnvServer> releaseServers = set.getEnvDatabaseServers( action , dist );
+	
+		if( action.context.CTX_DB.isEmpty() )
+			set.setFullContent( true ); 
+		else
+			set.setFullContent( false );
+		
+		for( MetaEnvServer server : set.sg.getServers() ) {
+			if( !server.isDatabase() )
+				continue;
+			
+			boolean addServer = ( dist == null )? true : releaseServers.containsKey( server.NAME );
+			if( addServer ) {
+				if( action.context.CTX_DB.isEmpty() == false && action.context.CTX_DB.equals( server.NAME ) == false )
+					action.trace( "scope: ignore not-action scope server=" + server.NAME );
+				else
+					addEnvServer( set , server , null , false );
+			}
+			else
+				action.trace( "scope: skip non-release server=" + server.NAME );
+		}
+	}
+	
+	public ActionScopeTarget addEnvServer( ActionScopeSet set , MetaEnvServer server , MetaEnvServerNode[] nodes , boolean specifiedExplicitly ) throws Exception {
+		if( !specifiedExplicitly ) {
+			// check offline or not in given start group
+			if( server.OFFLINE ) {
+				if( !action.context.CTX_ALL ) {
+					action.trace( "scope: ignore offline server=" + server.NAME );
+					return( null );
+				}
+			}
+			
+			if( !action.context.CTX_STARTGROUP.isEmpty() ) {
+				if( server.startGroup == null ) {
+					action.trace( "scope: ignore non-specified startgroup server=" + server.NAME );
+					return( null );
+				}
+				
+				if( !server.startGroup.NAME.equals( action.context.CTX_STARTGROUP ) ) {
+					action.trace( "scope: ignore different startgroup server=" + server.NAME );
+					return( null );
+				}
+			}
+		}
+
+		ActionScopeTarget target = ActionScopeTarget.createEnvServerTarget( set , server , specifiedExplicitly );
+		set.addTarget( action , target );
+		target.addServerNodes( action , nodes );
+		return( target );
+	}
+	
+	public ActionScopeTarget addEnvServerNodes( ActionScopeSet set , MetaEnvServer server , String[] NODES , boolean specifiedExplicitly , Dist release ) throws Exception {
+		Map<String,MetaEnvServer> releaseServers = null;
+		if( release != null ) {
+			releaseServers = set.getReleaseServers( action , release );
+			if( !releaseServers.containsKey( server.NAME ) ) {
+				action.trace( "scope: ignore non-release server=" + server.NAME );
+				return( null );
+			}
+		}
+		
+		MetaEnvServerNode[] nodes = server.getNodes( action , NODES );
+		return( addEnvServer( set , server , nodes , specifiedExplicitly ) );
 	}
 
 }

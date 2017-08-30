@@ -14,16 +14,11 @@ import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.shell.Account;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaDistr;
-import org.urm.meta.product.MetaDistrBinaryItem;
-import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaEnvStartGroup;
-import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.Types.*;
@@ -51,6 +46,10 @@ public class ActionScopeSet {
 		this.meta = scope.meta;
 		this.specifiedExplicitly = specifiedExplicitly;
 		this.setFull = false;
+	}
+	
+	public void setFullContent( boolean full ) {
+		this.setFull = full;
 	}
 	
 	public boolean isEmpty() {
@@ -96,54 +95,11 @@ public class ActionScopeSet {
 		this.sg = sg;
 	}
 
-	private void addTarget( ActionBase action , ActionScopeTarget target ) throws Exception {
+	public void addTarget( ActionBase action , ActionScopeTarget target ) throws Exception {
 		action.trace( "scope: add target=" + target.NAME );
 		targets.put( target.NAME , target );
 	}
 	
-	public ActionScopeTarget addSourceProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createSourceProjectTarget( this , sourceProject , specifiedExplicitly ); 
-		addTarget( action , target );
-		
-		if( allItems )
-			target.addProjectItems( action , null );
-		
-		return( target );
-	}
-		
-	public ActionScopeTarget addReleaseProject( ActionBase action , ReleaseTarget releaseProject , boolean allItems , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createReleaseSourceProjectTarget( this , releaseProject , specifiedExplicitly ); 
-		addTarget( action , target );
-		
-		if( allItems )
-			target.addProjectItems( action , null );
-		
-		return( target );
-	}
-		
-	public ActionScopeTarget addManualDatabase( ActionBase action , boolean all ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createDatabaseManualTarget( this , all );
-		addTarget( action , target );
-		return( target );
-	}
-	
-	public ActionScopeTarget addDatabaseDelivery( ActionBase action , ReleaseDelivery delivery , boolean allItems , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createDatabaseDeliveryTarget( this , delivery.distDelivery , specifiedExplicitly , allItems );
-		addTarget( action , target );
-		
-		if( allItems )
-			target.addDatabaseSchemes( action , null );
-		
-		return( target );
-	}
-	
-	public ActionScopeTarget addReleaseProjectItems( ActionBase action , ReleaseTarget releaseProject , String[] ITEMS ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createReleaseSourceProjectTarget( this, releaseProject , true );
-		addTarget( action , target );
-		target.addProjectItems( action , ITEMS );
-		return( target );
-	}
-
 	public ActionScopeTarget findSourceTarget( ActionBase action , MetaSourceProject project ) throws Exception {
 		return( targets.get( project.NAME ) );
 	}
@@ -172,238 +128,6 @@ public class ActionScopeSet {
 		
 		scope += itemlist + "}";
 		return( scope );
-	}
-
-	public void addProjects( ActionBase action , String[] PROJECTS ) throws Exception {
-		if( rset != null )
-			addReleaseProjects( action , PROJECTS );
-		else
-			addSourceProjects( action , PROJECTS );
-	}
-	
-	private void addSourceProjects( ActionBase action , String[] PROJECTS ) throws Exception {
-		if( PROJECTS == null || PROJECTS.length == 0 ) {
-			setFull = true; 
-			for( MetaSourceProject project : pset.getProjects() )
-				addSourceProject( action , project , true , false );
-			return;
-		}
-		
-		MetaSource sources = meta.getSources( action );
-		for( String name : PROJECTS ) {
-			MetaSourceProject sourceProject = sources.getProject( action , name );
-			addSourceProject( action , sourceProject , true , true );
-		}
-	}
-
-	private void addReleaseProjects( ActionBase action , String[] PROJECTS ) throws Exception {
-		if( PROJECTS == null || PROJECTS.length == 0 ) {
-			setFull = true; 
-			for( ReleaseTarget project : rset.getTargets() )
-				addReleaseProject( action , project , true , false );
-			return;
-		}
-		
-		for( String name : PROJECTS ) {
-			ReleaseTarget sourceProject = rset.getTarget( action ,  name );
-			addReleaseProject( action , sourceProject , true , true );
-		}
-	}
-
-	public void addConfigComps( ActionBase action , String[] COMPS ) throws Exception {
-		if( rset != null )
-			addReleaseConfigComps( action , COMPS );
-		else
-			addProductConfigComps( action , COMPS );
-	}
-	
-	private void addProductConfigComps( ActionBase action , String[] COMPS ) throws Exception {
-		MetaDistr distr = meta.getDistr( action );
-		if( COMPS == null || COMPS.length == 0 ) {
-			setFull = true; 
-			for( MetaDistrConfItem item : distr.getConfItems() )
-				addProductConfig( action , item , false );
-			return;
-		}
-		
-		for( String key : COMPS ) {
-			MetaDistrConfItem comp = distr.getConfItem( action , key );
-			addProductConfig( action , comp , true );
-		}
-	}
-
-	private void addProductConfig( ActionBase action , MetaDistrConfItem distrComp , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createConfItemTarget( this , distrComp , specifiedExplicitly );
-		addTarget( action , target );
-	}
-
-	private void addReleaseConfigComps( ActionBase action , String[] COMPS ) throws Exception {
-		if( COMPS == null || COMPS.length == 0 ) {
-			setFull = true; 
-			for( ReleaseTarget item : rset.getTargets() )
-				addReleaseTarget( action , item , false );
-			return;
-		}
-		
-		for( String key : COMPS ) {
-			ReleaseTarget item = rset.getTarget( action , key );
-			addReleaseTarget( action , item , true );
-		}
-	}
-
-	public void addManualItems( ActionBase action , String[] COMPS ) throws Exception {
-		if( rset != null )
-			addReleaseManualItems( action , COMPS );
-		else
-			addProductManualItems( action , COMPS );
-	}
-	
-	private void addProductManualItems( ActionBase action , String[] ITEMS ) throws Exception {
-		MetaDistr distr = meta.getDistr( action );
-		if( ITEMS == null || ITEMS.length == 0 ) {
-			setFull = true; 
-			for( String itemName : distr.getManualItemNames() ) {
-				MetaDistrBinaryItem item = distr.findBinaryItem( itemName );
-				addProductManualItem( action , item , false );
-			}
-			return;
-		}
-		
-		for( String item : ITEMS ) {
-			MetaDistrBinaryItem distitem = distr.getBinaryItem( action , item );
-			if( distitem.distItemOrigin != VarDISTITEMORIGIN.MANUAL )
-				action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item , item );
-			
-			addProductManualItem( action , distitem , true );
-		}
-	}
-
-	private void addProductManualItem( ActionBase action , MetaDistrBinaryItem item , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createManualDistItemTarget( this , item , specifiedExplicitly );
-		addTarget( action , target );
-	}
-	
-	private void addReleaseManualItems( ActionBase action , String[] ITEMS ) throws Exception {
-		if( ITEMS == null || ITEMS.length == 0 ) {
-			setFull = true; 
-			for( ReleaseTarget item : rset.getTargets() )
-				addReleaseTarget( action , item , false );
-			return;
-		}
-		
-		for( String key : ITEMS ) {
-			ReleaseTarget item = rset.getTarget( action , key );
-			addReleaseTarget( action , item , true );
-		}
-	}
-
-	public void addDerivedItems( ActionBase action , String[] COMPS ) throws Exception {
-		if( rset != null )
-			addReleaseDerivedItems( action , COMPS );
-		else
-			addProductDerivedItems( action , COMPS );
-	}
-	
-	private void addProductDerivedItems( ActionBase action , String[] ITEMS ) throws Exception {
-		MetaDistr distr = meta.getDistr( action );
-		if( ITEMS == null || ITEMS.length == 0 ) {
-			setFull = true; 
-			for( String itemName : distr.getDerivedItemNames() ) {
-				MetaDistrBinaryItem item = distr.findBinaryItem( itemName );
-				addProductDerivedItem( action , item , false );
-			}
-			return;
-		}
-		
-		for( String item : ITEMS ) {
-			MetaDistrBinaryItem distitem = distr.getBinaryItem( action , item );
-			if( distitem.distItemOrigin != VarDISTITEMORIGIN.DERIVED )
-				action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item , item );
-			
-			addProductManualItem( action , distitem , true );
-		}
-	}
-
-	private void addProductDerivedItem( ActionBase action , MetaDistrBinaryItem item , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createDerivedDistItemTarget( this , item , specifiedExplicitly );
-		addTarget( action , target );
-	}
-	
-	private void addReleaseDerivedItems( ActionBase action , String[] ITEMS ) throws Exception {
-		if( ITEMS == null || ITEMS.length == 0 ) {
-			setFull = true; 
-			for( ReleaseTarget item : rset.getTargets() )
-				addReleaseTarget( action , item , false );
-			return;
-		}
-		
-		for( String key : ITEMS ) {
-			ReleaseTarget item = rset.getTarget( action , key );
-			addReleaseTarget( action , item , true );
-		}
-	}
-
-	private ActionScopeTarget addReleaseTarget( ActionBase action , ReleaseTarget releaseItem , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createReleaseSourceProjectTarget( this , releaseItem , specifiedExplicitly );
-		addTarget( action , target );
-		return( target );
-	}
-
-	public void addDatabaseDeliveries( ActionBase action , String[] DELIVERIES ) throws Exception {
-		if( rset != null )
-			addReleaseDatabaseDeliveries( action , DELIVERIES );
-		else
-			addProductDatabaseDeliveries( action , DELIVERIES );
-	}
-	
-	public void addDatabaseDeliverySchemes( ActionBase action , String DELIVERY , String[] SCHEMES ) throws Exception {
-		if( rset != null ) {
-			ReleaseTarget item = rset.getTarget( action , DELIVERY );
-			ActionScopeTarget target = addReleaseTarget( action , item , true );
-			target.addDatabaseSchemes( action , SCHEMES );
-		}
-		else {
-			MetaDistr distr = meta.getDistr( action );
-			MetaDistrDelivery item = distr.getDelivery( action , DELIVERY );
-			ActionScopeTarget target = addProductDatabase( action , item , true );
-			target.addDatabaseSchemes( action , SCHEMES );
-		}
-	}
-	
-	private void addProductDatabaseDeliveries( ActionBase action , String[] DELIVERIES ) throws Exception {
-		MetaDistr distr = meta.getDistr( action );
-		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
-			setFull = true; 
-			for( MetaDistrDelivery item : distr.getDatabaseDeliveries() )
-				addProductDatabase( action , item , false );
-			return;
-		}
-		
-		for( String key : DELIVERIES ) {
-			MetaDistrDelivery item = distr.getDelivery( action , key );
-			if( item.hasDatabaseItems() )
-				addProductDatabase( action , item , true );
-		}
-	}
-
-	private ActionScopeTarget addProductDatabase( ActionBase action , MetaDistrDelivery dbitem , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createDatabaseDeliveryTarget( this , dbitem , specifiedExplicitly , true );
-		addTarget( action , target );
-		return( target );
-	}
-
-	private void addReleaseDatabaseDeliveries( ActionBase action , String[] DELIVERIES ) throws Exception {
-		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
-			setFull = true; 
-			for( ReleaseTarget item : rset.getTargets() )
-				addReleaseTarget( action , item , false );
-			return;
-		}
-		
-		for( String key : DELIVERIES ) {
-			ReleaseTarget item = rset.getTarget( action , key );
-			addReleaseTarget( action , item , true );
-		}
 	}
 
 	private boolean checkServerDatabaseDelivery( ActionBase action , MetaEnvServer server , ReleaseDelivery delivery ) throws Exception {
@@ -437,7 +161,7 @@ public class ActionScopeSet {
 		return( false );
 	}
 	
-	private Map<String,MetaEnvServer> getReleaseServers( ActionBase action , Dist release ) throws Exception {
+	public Map<String,MetaEnvServer> getReleaseServers( ActionBase action , Dist release ) throws Exception {
 		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
 		Release info = release.release;
 
@@ -450,7 +174,7 @@ public class ActionScopeSet {
 		return( mapServers );
 	}
 	
-	private Map<String,MetaEnvServer> getEnvDatabaseServers( ActionBase action , Dist dist ) throws Exception {
+	public Map<String,MetaEnvServer> getEnvDatabaseServers( ActionBase action , Dist dist ) throws Exception {
 		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
 		if( dist == null ) {
 			for( MetaEnvServer server : sg.getServers() )
@@ -469,103 +193,6 @@ public class ActionScopeSet {
 		return( mapServers );
 	}
 	
-	public void addEnvServers( ActionBase action , String[] SERVERS , Dist release ) throws Exception {
-		Map<String,MetaEnvServer> releaseServers = null;
-		if( release != null )
-			releaseServers = getReleaseServers( action , release );
-	
-		if( SERVERS == null || SERVERS.length == 0 ) {
-			setFull = true; 
-			for( MetaEnvServer server : sg.getServers() ) {
-				boolean addServer = ( release == null )? true : releaseServers.containsKey( server.NAME ); 
-				if( addServer )
-					addEnvServer( action , server , null , false );
-				else
-					action.trace( "scope: skip non-release server=" + server.NAME );
-			}
-			return;
-		}
-		
-		Map<String,MetaEnvServer> added = new HashMap<String,MetaEnvServer>();
-		for( String SERVER : SERVERS ) {
-			MetaEnvServer server = sg.getServer( action , SERVER );
-			boolean addServer = ( release == null )? true : releaseServers.containsKey( SERVER ); 
-			if( addServer ) {
-				added.put( server.NAME , server );
-				addEnvServer( action , server , null , true );
-			}
-			else
-				action.trace( "scope: skip non-release server=" + SERVER );
-		}
-	}
-
-	public void addEnvDatabases( ActionBase action , Dist dist ) throws Exception {
-		Map<String,MetaEnvServer> releaseServers = getEnvDatabaseServers( action , dist );
-	
-		if( action.context.CTX_DB.isEmpty() )
-			setFull = true; 
-		else
-			setFull = false;
-		
-		for( MetaEnvServer server : sg.getServers() ) {
-			if( !server.isDatabase() )
-				continue;
-			
-			boolean addServer = ( dist == null )? true : releaseServers.containsKey( server.NAME );
-			if( addServer ) {
-				if( action.context.CTX_DB.isEmpty() == false && action.context.CTX_DB.equals( server.NAME ) == false )
-					action.trace( "scope: ignore not-action scope server=" + server.NAME );
-				else
-					addEnvServer( action , server , null , false );
-			}
-			else
-				action.trace( "scope: skip non-release server=" + server.NAME );
-		}
-	}
-	
-	public ActionScopeTarget addEnvServer( ActionBase action , MetaEnvServer server , MetaEnvServerNode[] nodes , boolean specifiedExplicitly ) throws Exception {
-		if( !specifiedExplicitly ) {
-			// check offline or not in given start group
-			if( server.OFFLINE ) {
-				if( !action.context.CTX_ALL ) {
-					action.trace( "scope: ignore offline server=" + server.NAME );
-					return( null );
-				}
-			}
-			
-			if( !action.context.CTX_STARTGROUP.isEmpty() ) {
-				if( server.startGroup == null ) {
-					action.trace( "scope: ignore non-specified startgroup server=" + server.NAME );
-					return( null );
-				}
-				
-				if( !server.startGroup.NAME.equals( action.context.CTX_STARTGROUP ) ) {
-					action.trace( "scope: ignore different startgroup server=" + server.NAME );
-					return( null );
-				}
-			}
-		}
-
-		ActionScopeTarget target = ActionScopeTarget.createEnvServerTarget( this , server , specifiedExplicitly );
-		addTarget( action , target );
-		target.addServerNodes( action , nodes );
-		return( target );
-	}
-	
-	public ActionScopeTarget addEnvServerNodes( ActionBase action , MetaEnvServer server , String[] NODES , boolean specifiedExplicitly , Dist release ) throws Exception {
-		Map<String,MetaEnvServer> releaseServers = null;
-		if( release != null ) {
-			releaseServers = getReleaseServers( action , release );
-			if( !releaseServers.containsKey( server.NAME ) ) {
-				action.trace( "scope: ignore non-release server=" + server.NAME );
-				return( null );
-			}
-		}
-		
-		MetaEnvServerNode[] nodes = server.getNodes( action , NODES );
-		return( addEnvServer( action , server , nodes , specifiedExplicitly ) );
-	}
-
 	public ActionScopeTarget findTarget( ActionBase action , String NAME ) throws Exception {
 		ActionScopeTarget target = targets.get( NAME );
 		return( target );
@@ -613,5 +240,8 @@ public class ActionScopeSet {
 		}
 		return( groupTargets );
 	}
+
+	public void createMinusSet( ActionBase action , ActionScopeSet setAdd , ActionScope remove ) throws Exception {
+	}	
 	
 }

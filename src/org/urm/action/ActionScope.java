@@ -37,6 +37,12 @@ public class ActionScope {
 		this.scopeFullRelease = false;
 	}
 	
+	public void setIncomplete() {
+		this.scopeFullProduct = false;
+		this.scopeFullEnv = false;
+		this.scopeFullRelease = false;
+	}
+	
 	public void setFullProduct( ActionBase action , boolean full ) throws Exception {
 		this.scopeFullProduct = full;
 	}
@@ -129,7 +135,6 @@ public class ActionScope {
 		return( sset );
 	}
 
-	//////////////////////////////////////
 	private ActionScopeSet getCategorySet( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
 		return( categoryMap.get( CATEGORY ) );
 	}
@@ -319,4 +324,35 @@ public class ActionScope {
 			s = Common.addToList( s , target.NAME , "," );
 		return( s );
 	}
+	
+	public void createMinus( ActionBase action , ActionScope add , ActionScope remove ) throws Exception {
+		this.scopeFullProduct = add.scopeFullProduct;
+		this.scopeFullEnv = add.scopeFullEnv;
+		this.scopeFullRelease = add.scopeFullRelease;
+
+		for( ActionScopeSet setAdd : add.categoryMap.values() )
+			createMinusSet( action , setAdd , remove );
+		for( ActionScopeSet setAdd : add.sourceMap.values() )
+			createMinusSet( action , setAdd , remove );
+		for( ActionScopeSet setAdd : add.envMap.values() )
+			createMinusSet( action , setAdd , remove );
+	}
+	
+	private void createMinusSet( ActionBase action , ActionScopeSet setAdd , ActionScope remove ) throws Exception {
+		ActionScopeSet setNew = new ActionScopeSet( this , true );
+		if( Types.isSourceCategory( setAdd.CATEGORY ) )
+			setNew.create( action , setAdd.CATEGORY );
+		else
+		if( setAdd.CATEGORY == VarCATEGORY.ENV )
+			setNew.create( action , setAdd.env , setAdd.sg );
+		else
+			setNew.create( action , setAdd.pset );
+		
+		ActionScopeSet setRemove = remove.getCategorySet( action , setAdd.CATEGORY );
+		setNew.createMinusSet( action , setAdd , setRemove );
+		
+		if( !setNew.isEmpty() )
+			addScopeSet( action , setNew );
+	}
+
 }

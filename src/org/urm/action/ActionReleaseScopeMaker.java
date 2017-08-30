@@ -50,6 +50,17 @@ public class ActionReleaseScopeMaker {
 		addReleaseDatabaseSchemaScope( DELIVERY , SCHEMES );
 	}
 	
+	public void addScopeReleaseDatabaseDeliverySchemes( String DELIVERY , String[] ITEMS ) throws Exception {
+		action.trace( "scope: Release Database Delivery Schemes Scope, items=" + Common.getListSet( ITEMS ) );
+		if( ITEMS == null || ITEMS.length == 0 )
+			action.exit0( _Error.MissingTargetItems0 , "missing items (use \"all\" to reference all items)" );
+		
+		if( ITEMS.length == 1 && ITEMS[0].equals( "all" ) )
+			addReleaseDatabaseDeliverySchemes( DELIVERY , null );
+		else
+			addReleaseDatabaseDeliverySchemes( DELIVERY , ITEMS );
+	}
+
 	public void addScopeReleaseCategory( VarCATEGORY CATEGORY , String[] TARGETS ) throws Exception {
 		addScopeReleaseSet( Common.getEnumLower( CATEGORY ) , TARGETS ); 
 	}
@@ -118,7 +129,7 @@ public class ActionReleaseScopeMaker {
 			if( sset == null )
 				return;
 			
-			ActionScopeTarget target = sset.addManualDatabase( action , all );
+			ActionScopeTarget target = addReleaseManualDatabase( sset , all );
 			if( !all )
 				target.addIndexItems( action , INDEXES );
 		}
@@ -130,14 +141,14 @@ public class ActionReleaseScopeMaker {
 			
 			if( DELIVERY.equals( "all" ) ) {
 				for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
-					ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , all , false );
+					ActionScopeTarget target = addReleaseDatabaseDelivery( sset , delivery , all , false );
 					if( !all )
 						target.addIndexItems( action , INDEXES );
 				}
 			}
 			else {
 				ReleaseDelivery delivery = dist.release.getDelivery( action , DELIVERY );
-				ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , all , true );
+				ActionScopeTarget target = addReleaseDatabaseDelivery( sset , delivery , all , true );
 				if( !all )
 					target.addIndexItems( action , INDEXES );
 			}
@@ -157,14 +168,14 @@ public class ActionReleaseScopeMaker {
 		
 		if( DELIVERY.equals( "all" ) ) {
 			for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
-				ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , all , false );
+				ActionScopeTarget target = addReleaseDatabaseDelivery( sset , delivery , all , false );
 				if( !all )
 					target.addDatabaseSchemes( action , SCHEMES );
 			}
 		}
 		else {
 			ReleaseDelivery delivery = dist.release.getDelivery( action , DELIVERY );
-			ActionScopeTarget target = sset.addDatabaseDelivery( action , delivery , all , true );
+			ActionScopeTarget target = addReleaseDatabaseDelivery( sset , delivery , all , true );
 			if( !all )
 				target.addDatabaseSchemes( action , SCHEMES );
 		}
@@ -178,7 +189,7 @@ public class ActionReleaseScopeMaker {
 		}
 
 		ActionScopeSet sset = scope.makeProjectScopeSet( action , releaseProject.sourceProject.set );
-		ActionScopeTarget target = sset.addReleaseProjectItems( action , releaseProject , ITEMS );
+		ActionScopeTarget target = addReleaseProjectItems( sset , releaseProject , ITEMS );
 		return( target );
 	}
 	
@@ -200,8 +211,11 @@ public class ActionReleaseScopeMaker {
 				sset = scope.makeReleaseScopeSet( action , rset );
 			}
 			
-			ActionScopeTarget scopeProject = sset.addSourceProject( action , item.sourceProjectItem.project , false , true ); 
-			scopeProject.addProjectItem( action , item.sourceProjectItem , specifiedExplicitly );
+			ReleaseTarget rtarget = sset.rset.getTarget( action , item.sourceProjectItem.project.NAME );
+			if( rtarget != null ) {
+				ActionScopeTarget scopeProject = addReleaseSourceProject( sset , rtarget , false , true ); 
+				scopeProject.addProjectItem( action , item.sourceProjectItem , specifiedExplicitly );
+			}
 		}
 	}
 	
@@ -231,7 +245,7 @@ public class ActionReleaseScopeMaker {
 			MetaSourceProjectSet set = sources.getProjectSet( action , SET );
 			if( dist.release.addSourceSet( action , set , false ) ) {
 				ReleaseDistSet rset = dist.release.getSourceSet( action , SET );  
-				addReleaseProjects( rset , TARGETS );
+				addReleaseSourceProjects( rset , TARGETS );
 			}
 		}
 	}
@@ -239,7 +253,7 @@ public class ActionReleaseScopeMaker {
  	private void addReleaseManualItems( String[] ITEMS ) throws Exception {
 		ActionScopeSet set = scope.makeReleaseCategoryScopeSet( action , dist , VarCATEGORY.MANUAL );
 		if( set != null )
-			set.addManualItems( action , ITEMS );
+			addReleaseManualItems( set , ITEMS );
  	}
 	
  	private void addAllReleaseManualItems() throws Exception {
@@ -249,7 +263,7 @@ public class ActionReleaseScopeMaker {
  	private void addReleaseDerivedItems( String[] ITEMS ) throws Exception {
 		ActionScopeSet set = scope.makeReleaseCategoryScopeSet( action , dist , VarCATEGORY.DERIVED );
 		if( set != null )
-			set.addDerivedItems( action , ITEMS );
+			addReleaseDerivedItems( set , ITEMS );
  	}
 	
  	private void addAllReleaseDerivedItems() throws Exception {
@@ -259,19 +273,19 @@ public class ActionReleaseScopeMaker {
 	private void addAllReleaseProjects() throws Exception {
 		for( ReleaseDistSet rset : dist.release.getSourceSets() ) {
 			ActionScopeSet sset = scope.makeReleaseScopeSet( action , rset );
-			sset.addProjects( action , null );
+			addReleaseSourceProjects( sset , null );
 		}
 	}
 		
-	private void addReleaseProjects( ReleaseDistSet rset , String[] PROJECTS ) throws Exception {
+	private void addReleaseSourceProjects( ReleaseDistSet rset , String[] PROJECTS ) throws Exception {
 		ActionScopeSet sset = scope.makeReleaseScopeSet( action , rset );
-		sset.addProjects( action , PROJECTS );
+		addReleaseSourceProjects( sset , PROJECTS );
 	}
 		
 	private void addReleaseConfigs( String[] CONFCOMPS ) throws Exception {
 		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , VarCATEGORY.CONFIG );
 		if( sset != null )
-			sset.addConfigComps( action , CONFCOMPS );
+			addReleaseConfigComps( sset , CONFCOMPS );
 	}
 
 	private void addAllReleaseConfigs() throws Exception {
@@ -285,7 +299,129 @@ public class ActionReleaseScopeMaker {
 	private void addReleaseDatabaseDeliveries( String[] DELIVERIES ) throws Exception {
 		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , VarCATEGORY.DB );
 		if( sset != null )
-			sset.addDatabaseDeliveries( action , DELIVERIES );
+			addReleaseDatabaseDeliveries( sset , DELIVERIES );
+	}
+
+	private void addReleaseDatabaseDeliverySchemes( String DELIVERY , String[] SCHEMES ) throws Exception {
+		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , VarCATEGORY.DB );
+		if( sset != null )
+			addReleaseDatabaseDeliverySchemes( sset , DELIVERY , SCHEMES );
+	}
+
+	
+	private void addReleaseDatabaseDeliveries( ActionScopeSet set , String[] DELIVERIES ) throws Exception {
+		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
+			set.setFullContent( true ); 
+			for( ReleaseTarget item : set.rset.getTargets() )
+				addReleaseTarget( set , item , false );
+			return;
+		}
+		
+		for( String key : DELIVERIES ) {
+			ReleaseTarget item = set.rset.getTarget( action , key );
+			addReleaseTarget( set , item , true );
+		}
+	}
+
+	private ActionScopeTarget addReleaseTarget( ActionScopeSet set , ReleaseTarget releaseItem , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createReleaseSourceProjectTarget( set , releaseItem , specifiedExplicitly );
+		set.addTarget( action , target );
+		return( target );
+	}
+
+	private void addReleaseConfigComps( ActionScopeSet set , String[] COMPS ) throws Exception {
+		if( COMPS == null || COMPS.length == 0 ) {
+			set.setFullContent( true ); 
+			for( ReleaseTarget item : set.rset.getTargets() )
+				addReleaseTarget( set , item , false );
+			return;
+		}
+		
+		for( String key : COMPS ) {
+			ReleaseTarget item = set.rset.getTarget( action , key );
+			addReleaseTarget( set , item , true );
+		}
+	}
+
+	private void addReleaseManualItems( ActionScopeSet set , String[] ITEMS ) throws Exception {
+		if( ITEMS == null || ITEMS.length == 0 ) {
+			set.setFullContent( true ); 
+			for( ReleaseTarget item : set.rset.getTargets() )
+				addReleaseTarget( set , item , false );
+			return;
+		}
+		
+		for( String key : ITEMS ) {
+			ReleaseTarget item = set.rset.getTarget( action , key );
+			addReleaseTarget( set , item , true );
+		}
+	}
+
+	private void addReleaseDerivedItems( ActionScopeSet set , String[] ITEMS ) throws Exception {
+		if( ITEMS == null || ITEMS.length == 0 ) {
+			set.setFullContent( true ); 
+			for( ReleaseTarget item : set.rset.getTargets() )
+				addReleaseTarget( set , item , false );
+			return;
+		}
+		
+		for( String key : ITEMS ) {
+			ReleaseTarget item = set.rset.getTarget( action , key );
+			addReleaseTarget( set , item , true );
+		}
+	}
+
+	private void addReleaseDatabaseDeliverySchemes( ActionScopeSet set , String DELIVERY , String[] SCHEMES ) throws Exception {
+		ReleaseTarget item = set.rset.getTarget( action , DELIVERY );
+		ActionScopeTarget target = addReleaseTarget( set , item , true );
+		target.addDatabaseSchemes( action , SCHEMES );
+	}
+	
+	private void addReleaseSourceProjects( ActionScopeSet set , String[] PROJECTS ) throws Exception {
+		if( PROJECTS == null || PROJECTS.length == 0 ) {
+			set.setFullContent( true ); 
+			for( ReleaseTarget project : set.rset.getTargets() )
+				addReleaseSourceProject( set , project , true , false );
+			return;
+		}
+		
+		for( String name : PROJECTS ) {
+			ReleaseTarget sourceProject = set.rset.getTarget( action ,  name );
+			addReleaseSourceProject( set , sourceProject , true , true );
+		}
+	}
+
+	public ActionScopeTarget addReleaseSourceProject( ActionScopeSet set , ReleaseTarget releaseProject , boolean allItems , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createReleaseSourceProjectTarget( set , releaseProject , specifiedExplicitly ); 
+		set.addTarget( action , target );
+		
+		if( allItems )
+			target.addProjectItems( action , null );
+		
+		return( target );
+	}
+		
+	public ActionScopeTarget addReleaseProjectItems( ActionScopeSet set , ReleaseTarget releaseProject , String[] ITEMS ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createReleaseSourceProjectTarget( set, releaseProject , true );
+		set.addTarget( action , target );
+		target.addProjectItems( action , ITEMS );
+		return( target );
+	}
+
+	public ActionScopeTarget addReleaseDatabaseDelivery( ActionScopeSet set , ReleaseDelivery delivery , boolean allItems , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createDatabaseDeliveryTarget( set , delivery.distDelivery , specifiedExplicitly , allItems );
+		set.addTarget( action , target );
+		
+		if( allItems )
+			target.addDatabaseSchemes( action , null );
+		
+		return( target );
+	}
+	
+	public ActionScopeTarget addReleaseManualDatabase( ActionScopeSet set , boolean all ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createDatabaseManualTarget( set , all );
+		set.addTarget( action , target );
+		return( target );
 	}
 	
 }
