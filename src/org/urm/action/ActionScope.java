@@ -341,12 +341,12 @@ public class ActionScope {
 	private void createMinusSet( ActionBase action , ActionScopeSet setAdd , ActionScope scopeRemove ) throws Exception {
 		ActionScopeSet setNew = new ActionScopeSet( this , true );
 		if( Types.isSourceCategory( setAdd.CATEGORY ) )
-			setNew.create( action , setAdd.CATEGORY );
+			setNew.create( action , setAdd.pset );
 		else
 		if( setAdd.CATEGORY == VarCATEGORY.ENV )
 			setNew.create( action , setAdd.env , setAdd.sg );
 		else
-			setNew.create( action , setAdd.pset );
+			setNew.create( action , setAdd.CATEGORY );
 		
 		ActionScopeSet setRemove = scopeRemove.findSimilarSet( action , setAdd );
 		setNew.createMinusSet( action , setAdd , setRemove );

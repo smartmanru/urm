@@ -416,7 +416,7 @@ public class ActionTickets extends ActionBase {
 	
 	private void executeAcceptTargetScope( ReleaseTicketSetTarget target , ActionProductScopeMaker maker , boolean add ) throws Exception {
 		if( target.isProjectSet() ) {
-			maker.addScopeProductSet( target.ITEM , null );
+			maker.addScopeProductSet( target.ITEM , new String[] { "all" } );
 		}
 		else
 		if( target.isProject() ) {
