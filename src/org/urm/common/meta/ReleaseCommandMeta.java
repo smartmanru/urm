@@ -69,7 +69,7 @@ public class ReleaseCommandMeta extends CommandMeta {
 		String getDescopeOpts = "";
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_DESCOPE , true , "descope release elements" , getDescopeOpts , "<RELEASELABEL> set [project [project items]|configuration components|database deliveries]" ) );
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_SCOPESET , true , "set scope elements by path list" , getDescopeOpts , "<RELEASELABEL> {source {set[/project[/item]] ...}|delivery {delivery[/item]} ...}" ) );
-		defineAction( CommandMethodMeta.newNormal( this , METHOD_TICKETS , true , "change release tickets" , getDescopeOpts , "<RELEASELABEL> {createset|modifyset|dropset|acceptset|createticket|modifyticket|moveticket}dropticket|setdevdone|createtarget|droptarget} <args>" ) );
+		defineAction( CommandMethodMeta.newNormal( this , METHOD_TICKETS , true , "change release tickets" , getDescopeOpts , "<RELEASELABEL> {createset|modifyset|dropset|acceptset|createticket|modifyticket|moveticket|copyticket|dropticket|setdevdone|createtarget|droptarget} <args>" ) );
 	}	
 	
 }

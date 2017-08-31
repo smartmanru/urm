@@ -11,6 +11,7 @@ import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.ReleaseTicket;
 import org.urm.engine.dist.ReleaseTicketSet;
 import org.urm.engine.dist.ReleaseTicketSetTarget;
@@ -28,6 +29,7 @@ public class ActionTickets extends ActionBase {
 
 	String RELEASELABEL;
 	public Dist dist;
+	public Dist distNew;
 	public String method;
 	String[] args;
 	
@@ -38,6 +40,7 @@ public class ActionTickets extends ActionBase {
 	public static String METHOD_CREATETICKET = "createticket";
 	public static String METHOD_MODIFYTICKET = "modifyticket";
 	public static String METHOD_MOVETICKET = "moveticket";
+	public static String METHOD_COPYTICKET = "copyticket";
 	public static String METHOD_DELETETICKET = "deleteticket";
 	public static String METHOD_SETTICKETDEVDONE = "setdevdone";
 	public static String METHOD_SETTICKETQADONE = "setqadone";
@@ -66,18 +69,22 @@ public class ActionTickets extends ActionBase {
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		dist.openForDataChange( this );
 		
+		SCOPESTATE res = SCOPESTATE.RunSuccess;
 		try {
 			executeCommand();
 			dist.saveReleaseXml( this );
+			if( distNew != null )
+				distNew.saveReleaseXml( this );
 		}
 		catch( Throwable e ) {
 			super.handle( "tickets command" , e );
-			dist.closeDataChange( this );
-			return( SCOPESTATE.RunFail );
+			res = SCOPESTATE.RunFail;
 		}
-		
+
 		dist.closeDataChange( this );
-		return( SCOPESTATE.RunSuccess );
+		if( distNew != null )
+			distNew.closeDataChange( this );
+		return( res );
 	}
 
 	private void executeCommand() throws Exception {
@@ -194,6 +201,19 @@ public class ActionTickets extends ActionBase {
 			int ticketPos = Integer.parseInt( args[1] );
 			String newSet = args[2];
 			executeMoveTicket( codeSet , ticketPos , newSet );
+		}
+		else
+		if( method.equals( METHOD_COPYTICKET ) ) {
+			if( args.length < 4 || args.length > 4 ) {
+				exitInvalidArgs();
+				return;
+			}
+			
+			String codeSet = args[0];
+			int ticketPos = Integer.parseInt( args[1] );
+			String newRelease = args[2];
+			String newSet = args[3];
+			executeCopyTicket( codeSet , ticketPos , newRelease , newSet );
 		}
 		else
 		if( method.equals( METHOD_DELETETICKET ) ) {
@@ -496,6 +516,21 @@ public class ActionTickets extends ActionBase {
 			return;
 		ReleaseTicket ticket = set.getTicket( this , ticketPos );
 		set.moveTicket( this , ticket , setNew );
+	}
+	
+	private void executeCopyTicket( String setCode , int ticketPos , String newRelease , String newSetCode ) throws Exception {
+		if( newRelease.equals( dist.RELEASEDIR ) )
+			return;
+		
+		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
+		ReleaseTicket ticket = set.getTicket( this , ticketPos );
+		
+		DistRepository repo = dist.meta.getDistRepository();
+		distNew = repo.getDistByLabel( this , newRelease );
+		distNew.openForDataChange( this );
+		
+		ReleaseTicketSet setNew = distNew.release.changes.getSet( this , newSetCode );
+		set.copyTicket( this , ticket , setNew );
 	}
 	
 	private void executeCreateSetTarget( String setCode , String element , String[] items ) throws Exception {

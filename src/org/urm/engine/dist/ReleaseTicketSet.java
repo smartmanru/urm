@@ -239,6 +239,17 @@ public class ReleaseTicketSet {
 		newSet.reorderTickets( action );
 	}
 
+	public void copyTicket( ActionBase action , ReleaseTicket ticket , ReleaseTicketSet newSet ) throws Exception {
+		if( newSet.findTicket( ticket.CODE ) != null ) {
+			String release = newSet.changes.release.dist.RELEASEDIR;
+			action.exit3( _Error.DuplicateReleaseTicket3 , "Duplicate ticket release=" + release + ", set=" + newSet.CODE + ", ticket=" + ticket.CODE , release , newSet.CODE , ticket.CODE );
+		}
+		
+		ReleaseTicket ticketNew = ticket.copyNew( action , meta , newSet ); 
+		newSet.addTicket( ticketNew );
+		newSet.reorderTickets( action );
+	}
+
 	public boolean isNew() {
 		if( status == VarTICKETSETSTATUS.NEW )
 			return( true );

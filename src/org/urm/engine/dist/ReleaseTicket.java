@@ -54,6 +54,14 @@ public class ReleaseTicket {
 		return( r );
 	}
 
+	public ReleaseTicket copyNew( ActionBase action , Meta meta , ReleaseTicketSet set ) throws Exception {
+		ReleaseTicket ticket = copy( action , meta , set );
+		ticket.active = false;
+		ticket.accepted = false;
+		ticket.descoped = false;
+		return( ticket );
+	}
+	
 	public void load( ActionBase action , Node root ) throws Exception {
 		CODE = ConfReader.getRequiredAttrValue( root , Release.PROPERTY_TICKETCODE );
 		NAME = Meta.getNameAttr( action , root , VarNAMETYPE.ANY );
