@@ -279,5 +279,13 @@ public class ReleaseTicketSetTarget {
 		
 		return( false );
 	}
+
+	public boolean isActive() {
+		if( descoped == false && accepted )
+			return( true );
+		if( descoped && accepted == false )
+			return( true );
+		return( false );
+	}
 	
 }
