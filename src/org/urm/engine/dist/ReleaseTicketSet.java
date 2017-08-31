@@ -405,4 +405,28 @@ public class ReleaseTicketSet {
 		return( false );
 	}
 	
+	public boolean references( MetaDistrBinaryItem item ) {
+		for( ReleaseTicketSetTarget target : targets ) {
+			if( target.references( item ) )
+				return( true );
+		}
+		return( false );
+	}
+	
+	public boolean references( MetaDistrConfItem item ) {
+		for( ReleaseTicketSetTarget target : targets ) {
+			if( target.references( item ) )
+				return( true );
+		}
+		return( false );
+	}
+	
+	public boolean references( MetaDistrDelivery delivery , MetaDatabaseSchema item ) {
+		for( ReleaseTicketSetTarget target : targets ) {
+			if( target.references( delivery , item ) )
+				return( true );
+		}
+		return( false );
+	}
+	
 }

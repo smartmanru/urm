@@ -25,7 +25,6 @@ public class ReleaseTicketSetTarget {
 
 	public VarTICKETSETTARGETTYPE type;
 	public String ITEM;
-	public String DELIVERY;
 	public boolean accepted;
 	public boolean descoped;
 	
@@ -213,6 +212,71 @@ public class ReleaseTicketSetTarget {
 	public boolean isEqualTo( MetaSourceProjectItem item ) {
 		if( isBinary() && ITEM.equals( item.distItem.KEY ) )
 			return( true );
+		return( false );
+	}
+	
+	public boolean references( MetaDistrBinaryItem item ) {
+		if( isProjectSet() ) {
+			if( item.sourceProjectItem != null && ITEM.equals( item.sourceProjectItem.project.set.NAME ) )
+				return( true );
+			return( false );
+		}
+		
+		if( isProject() ) {
+			if( isProjectBuildOnly() )
+				return( false );
+			if( item.sourceProjectItem != null && ITEM.equals( item.sourceProjectItem.project.NAME ) )
+				return( true );
+			return( false );
+		}
+		
+		if( isBinary() ) {
+			if( ITEM.equals( item.KEY ) )
+				return( true );
+			return( false );
+		}
+
+		if( isDeliveryBinaries() ) {
+			if( ITEM.equals( item.delivery.NAME ) )
+				return( true );
+			return( false );
+		}
+		
+		return( false );
+	}
+
+	public boolean references( MetaDistrConfItem item ) {
+		if( isConfiguration() ) {
+			if( ITEM.equals( item.KEY ) )
+				return( true );
+			return( false );
+		}
+
+		if( isDeliveryConfs() ) {
+			if( ITEM.equals( item.delivery.NAME ) )
+				return( true );
+			return( false );
+		}
+		
+		return( false );
+	}
+	
+	public boolean references( MetaDistrDelivery delivery , MetaDatabaseSchema item ) {
+		if( isDatabase() ) {
+			String deliveryName = getDatabaseDelivery();
+			String schemaName = getDatabaseSchema();
+			if( deliveryName.equals( delivery.NAME ) && schemaName.equals( item.SCHEMA ) )
+				return( true );
+			return( false );
+		}
+
+		if( isDeliveryDatabase() ) {
+			String deliveryName = getDatabaseDelivery();
+			if( deliveryName.equals( delivery.NAME ) )
+				return( true );
+			return( false );
+		}
+		
 		return( false );
 	}
 	
