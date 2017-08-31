@@ -380,5 +380,29 @@ public class ReleaseTicketSet {
 			}
 		}
 	}
+
+	public boolean references( MetaSourceProjectSet set ) {
+		for( ReleaseTicketSetTarget target : targets ) {
+			if( target.isEqualTo( set ) )
+				return( true );
+		}
+		return( false );
+	}
+	
+	public boolean references( MetaSourceProject project ) {
+		for( ReleaseTicketSetTarget target : targets ) {
+			if( target.isEqualTo( project ) )
+				return( true );
+		}
+		return( false );
+	}
+	
+	public boolean references( MetaSourceProjectItem item ) {
+		for( ReleaseTicketSetTarget target : targets ) {
+			if( target.isEqualTo( item ) )
+				return( true );
+		}
+		return( false );
+	}
 	
 }

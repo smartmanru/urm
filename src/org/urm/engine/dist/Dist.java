@@ -420,6 +420,13 @@ public class Dist {
 		}
 		
 		openForDataChange( action );
+		
+		if( !release.changes.isCompleted() ) {
+			action.error( "release changes are not completed" );
+			state.ctlCloseDataChange( action );
+			return;
+		}
+		
 		DistFinalizer finalizer = new DistFinalizer( action , this , distFolder , release );
 		if( !finalizer.finish() ) {
 			action.error( "distributive is not ready to be finalyzed" );

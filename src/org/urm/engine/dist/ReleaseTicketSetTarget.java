@@ -11,6 +11,7 @@ import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -197,4 +198,22 @@ public class ReleaseTicketSetTarget {
 		}
 	}
 
+	public boolean isEqualTo( MetaSourceProjectSet set ) {
+		if( isProjectSet() && ITEM.equals( set.NAME ) )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isEqualTo( MetaSourceProject project ) {
+		if( isProject() && ITEM.equals( project.NAME ) )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isEqualTo( MetaSourceProjectItem item ) {
+		if( isBinary() && ITEM.equals( item.distItem.KEY ) )
+			return( true );
+		return( false );
+	}
+	
 }
