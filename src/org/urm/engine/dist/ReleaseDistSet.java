@@ -21,7 +21,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ReleaseSet {
+public class ReleaseDistSet {
 
 	Meta meta;
 	Release release;
@@ -37,14 +37,14 @@ public class ReleaseSet {
 
 	Map<String,ReleaseTarget> map = new HashMap<String,ReleaseTarget>(); 
 	
-	public ReleaseSet( Meta meta , Release release , VarCATEGORY CATEGORY ) {
+	public ReleaseDistSet( Meta meta , Release release , VarCATEGORY CATEGORY ) {
 		this.meta = meta;
 		this.release = release;
 		this.CATEGORY = CATEGORY;
 	}
 	
-	public ReleaseSet copy( ActionBase action , Release nr ) throws Exception {
-		ReleaseSet nx = new ReleaseSet( nr.meta , nr , CATEGORY );
+	public ReleaseDistSet copy( ActionBase action , Release nr ) throws Exception {
+		ReleaseDistSet nx = new ReleaseDistSet( nr.meta , nr , CATEGORY );
 		nx.NAME = NAME;
 		nx.ALL = ALL;
 		nx.BUILDBRANCH = BUILDBRANCH;
@@ -63,7 +63,7 @@ public class ReleaseSet {
 		return( nx );
 	}
 	
-	public void addReleaseSet( ActionBase action , ReleaseSet srcset ) throws Exception {
+	public void addReleaseSet( ActionBase action , ReleaseDistSet srcset ) throws Exception {
 		for( Entry<String,ReleaseTarget> entry : srcset.map.entrySet() ) {
 			ReleaseTarget srcitem = entry.getValue();
 			ReleaseTarget item = map.get( entry.getKey() );

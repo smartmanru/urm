@@ -76,6 +76,13 @@ public class ServerDirectory extends ServerObject {
 		return( Common.getSortedKeys( mapProducts ) );
 	}
 	
+	public String[] getSystemProducts( String systemName ) {
+		ServerSystem system = findSystem( systemName );
+		if( system == null )
+			return( new String[0] );
+		return( system.getProductNames() );
+	}
+	
 	public ServerSystem findSystem( ServerSystem system ) {
 		if( system == null )
 			return( null );

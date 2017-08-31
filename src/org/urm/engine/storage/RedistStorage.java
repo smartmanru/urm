@@ -9,6 +9,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
+import org.urm.meta.Types;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaEnvServer;
@@ -425,7 +426,7 @@ public class RedistStorage extends ServerStorage {
 
 	public FileInfo getRuntimeItemInfo( ActionBase action , MetaDistrBinaryItem binaryItem , String LOCATION , String specificDeployBaseName ) throws Exception {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
-		
+
 		if( binaryItem.distItemType == VarDISTITEMTYPE.BINARY ) {
 			String runtimeFile = deployFolder.findBinaryDistItemFile( action , binaryItem , specificDeployBaseName );
 			if( runtimeFile.isEmpty() )
@@ -436,6 +437,27 @@ public class RedistStorage extends ServerStorage {
 			return( info );
 		}
 		
+		if( binaryItem.distItemType == VarDISTITEMTYPE.PACKAGE ) {
+			VarPACKAGEEXTENSION ext = Types.getPackageExtension( binaryItem.EXT , true );
+			ShellExecutor shell = action.getShell( deployFolder );
+			if( ext == VarPACKAGEEXTENSION.RPM ) {
+				String values = shell.customGetValue( action , "rpm -q --qf=\"%{VERSION}:%{SIGMD5}:%{RELEASE}:%{ARCH}\" " + binaryItem.DEPLOYBASENAME );
+				String[] items = Common.split( values , ":" );
+				if( items.length != 4 )
+					action.exit2( _Error.ItemNotFoundInLive2 , "item=" + binaryItem.KEY + ", is not found in " + deployFolder.folderPath , binaryItem.KEY , deployFolder.folderPath );
+				
+				String version = items[0].equals( "(none)" )? "" : items[0];
+				String md5 = items[1].equals( "(none)" )? "" : items[1];
+				String release = items[2].equals( "(none)" )? "" : items[2];
+				String arch = items[3].equals( "(none)" )? "" : items[3];
+				String name = binaryItem.DEPLOYBASENAME + "-" + version + "-" + release + "." + arch + ".rpm";
+				FileInfo info = new FileInfo( binaryItem , VersionInfo.getFileVersion( action , version ) , md5 , binaryItem.DEPLOYBASENAME , name );
+				return( info );
+			}
+			
+			action.exitUnexpectedState();
+		}
+			
 		String md5value = getArchiveMD5( action , binaryItem , deployFolder , true );
 		FileInfo info = new FileInfo( binaryItem , null , md5value , "" , "" );
 		return( info );
@@ -500,6 +522,11 @@ public class RedistStorage extends ServerStorage {
 			return( deployName );
 		}
 
+		if( item.distItemType == VarDISTITEMTYPE.PACKAGE ) {
+			String deployName = getVersionItem( action , item , deployBaseName , version );
+			return( deployName );
+		}
+		
 		action.exitUnexpectedState();
 		return( null );
 	}

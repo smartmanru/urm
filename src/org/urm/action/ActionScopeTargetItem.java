@@ -2,6 +2,7 @@ package org.urm.action;
 
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductBuildSettings;
@@ -15,7 +16,9 @@ public class ActionScopeTargetItem {
 	public String NAME;
 	public MetaDistrBinaryItem distItem;
 	public MetaSourceProjectItem sourceItem;
-	public MetaEnvServerNode envServerNode; 
+	public MetaEnvServerNode envServerNode;
+	public MetaDatabaseSchema schema;
+	
 	public ReleaseTargetItem releaseItem;
 	public boolean scriptIndex = false;
 	public boolean specifiedExplicitly;
@@ -25,12 +28,34 @@ public class ActionScopeTargetItem {
 		this.meta = target.meta;
 	}
 	
+	public ActionScopeTargetItem copy( ActionScopeTarget targetNew ) {
+		ActionScopeTargetItem item = new ActionScopeTargetItem( targetNew );
+		item.NAME = NAME;
+		item.distItem = distItem;
+		item.sourceItem = sourceItem;
+		item.envServerNode = envServerNode;
+		item.schema = schema;
+		
+		item.releaseItem = releaseItem;
+		item.scriptIndex = scriptIndex;
+		item.specifiedExplicitly = specifiedExplicitly;
+		return( item );
+	}
+	
 	public static ActionScopeTargetItem createSourceProjectTargetItem( ActionScopeTarget target , MetaSourceProjectItem sourceItem , MetaDistrBinaryItem distItem , boolean specifiedExplicitly ) {
 		ActionScopeTargetItem ti = new ActionScopeTargetItem( target ); 
 		ti.distItem = distItem;
 		ti.sourceItem = sourceItem;
 		ti.specifiedExplicitly = specifiedExplicitly;
 		ti.NAME = sourceItem.ITEMNAME;
+		return( ti );
+	}
+	
+	public static ActionScopeTargetItem createDeliverySchemaTargetItem( ActionScopeTarget target , MetaDatabaseSchema schema , boolean specifiedExplicitly ) {
+		ActionScopeTargetItem ti = new ActionScopeTargetItem( target ); 
+		ti.schema = schema;
+		ti.specifiedExplicitly = specifiedExplicitly;
+		ti.NAME = schema.SCHEMA;
 		return( ti );
 	}
 	
@@ -84,6 +109,20 @@ public class ActionScopeTargetItem {
 			action.exit0( _Error.BuildVersionNotSet0 , "buildByTag: BUILDVERSION not set" );
 		
 		return( BUILDVERSION );
+	}
+
+	public boolean isSimilarItem( ActionBase action , ActionScopeTargetItem sample ) throws Exception {
+		if( distItem != sample.distItem ||
+			sourceItem != sample.sourceItem ||
+			envServerNode != sample.envServerNode ||
+			schema != sample.schema ||
+			scriptIndex != sample.scriptIndex )
+			return( false );
+		
+		if( scriptIndex )
+			return( NAME.equals( sample.NAME ) );
+		
+		return( true );
 	}
 	
 }

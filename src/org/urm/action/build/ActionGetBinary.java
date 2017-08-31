@@ -239,7 +239,7 @@ public class ActionGetBinary extends ActionBase {
 			return;
 		}
 		
-		if( item.isSourceBasic() ) {
+		if( item.isSourceBasic() || item.isSourcePackage() ) {
 			String file = item.ITEMBASENAME + item.ITEMEXTENSION;
 			copyFile( item , remoteShell , redistPath , downloadFolder , file , item.ITEMEXTENSION );
 			return;

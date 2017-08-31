@@ -253,12 +253,12 @@ public class ServerBlotter {
 		else
 		if( action instanceof ActionTouchRelease ) {
 			ActionTouchRelease xa = ( ActionTouchRelease )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.STATUS , "reload distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.STATUS , "reload distributive releasedir=" + xa.RELEASELABEL ); 
 		}
 		else
 		if( action instanceof ActionAppendProd ) {
 			ActionAppendProd xa = ( ActionAppendProd )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.STATUS , "reload distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "append master distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
 		if( action instanceof ActionSchedulePhase ) {
@@ -339,8 +339,15 @@ public class ServerBlotter {
 	
 	private void runDistAction( ActionBase action , boolean success , Meta meta , Dist dist , DistOperation op , String msg ) {
 		try {
+			DistRepositoryItem distItem = null;
 			DistRepository repo = action.artefactory.getDistRepository( action , meta );
-			DistRepositoryItem distItem = repo.addDistAction( action , success , dist , op , msg );
+			if( op != DistOperation.STATUS )
+				distItem = repo.addDistAction( action , success , dist , op , msg );
+			else {
+				if( dist != null )
+					distItem = repo.findRunItem( action , dist );
+			}
+			
 			if( distItem == null )
 				return;
 			

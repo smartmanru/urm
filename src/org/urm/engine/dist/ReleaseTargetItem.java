@@ -33,7 +33,7 @@ public class ReleaseTargetItem {
 		this.target = target;
 	}
 
-	public ReleaseTargetItem copy( ActionBase action , Release nr , ReleaseSet ns , ReleaseTarget nt ) throws Exception {
+	public ReleaseTargetItem copy( ActionBase action , Release nr , ReleaseDistSet ns , ReleaseTarget nt ) throws Exception {
 		ReleaseTargetItem nx = new ReleaseTargetItem( nt.meta , nt );
 		
 		nx.sourceItem = ( sourceItem == null )? null : nt.sourceProject.getItem( action , sourceItem.ITEMNAME );

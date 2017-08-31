@@ -9,8 +9,8 @@ import org.urm.meta.product.Meta;
 
 public class ActionTouchRelease extends ActionBase {
 
-	Meta meta;
-	String RELEASELABEL;
+	public Meta meta;
+	public String RELEASELABEL;
 	public Dist dist;
 	
 	public ActionTouchRelease( ActionBase action , String stream , Meta meta , String RELEASELABEL ) {

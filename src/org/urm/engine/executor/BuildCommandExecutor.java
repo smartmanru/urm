@@ -1,6 +1,8 @@
 package org.urm.engine.executor;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ActionProductScopeMaker;
+import org.urm.action.ActionReleaseScopeMaker;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.build.BuildCommand;
@@ -83,12 +85,17 @@ public class BuildCommandExecutor extends CommandExecutor {
 		Meta meta = action.getContextMeta();
 		if( !RELEASELABEL.isEmpty() ) {
 			dist = action.getReleaseDist( meta , RELEASELABEL );
-			scope = ActionScope.getReleaseSetScope( action , dist , SET , PROJECTS );
+			ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+			maker.addScopeReleaseSet( SET , PROJECTS );
+			scope = maker.getScope();
 		}
-		else
-			scope = ActionScope.getProductSetScope( action , meta , SET , PROJECTS );
+		else {
+			ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
+			maker.addScopeProductSet( SET , PROJECTS );
+			scope = maker.getScope();
+		}
 		
-		if( scope.isEmpty( action ) )
+		if( scope.isEmpty() )
 			action.exit0( _Error.ScopeEmpty0 , "nothing to do, scope is empty" );
 		
 		return( scope );
@@ -142,12 +149,17 @@ public class BuildCommandExecutor extends CommandExecutor {
 		Meta meta = action.getContextMeta();
 		if( !RELEASELABEL.isEmpty() ) {
 			dist = action.getReleaseDist( meta , RELEASELABEL );
-			scope = ActionScope.getReleaseSetScope( action , dist , SET , TARGETS );
+			ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+			maker.addScopeReleaseSet( SET , TARGETS );
+			scope = maker.getScope();
 		}
-		else
-			scope = ActionScope.getProductSetScope( action , meta , SET , TARGETS );
+		else {
+			ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
+			maker.addScopeProductSet( SET , TARGETS );
+			scope = maker.getScope();
+		}
 		
-		if( scope.isEmpty( action ) ) {
+		if( scope.isEmpty() ) {
 			action.info( "nothing to get" );
 			return;
 		}
@@ -299,10 +311,11 @@ public class BuildCommandExecutor extends CommandExecutor {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		
 		Meta meta = action.getContextMeta();
-		Dist release = action.getReleaseDist( meta , RELEASELABEL );
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		
-		ActionScopeTarget scopeProject = ActionScope.getReleaseProjectItemsScopeTarget( action , release , "thirdparty" , null );
-		impl.thirdpartyUploadDist( action , scopeProject , release );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		ActionScopeTarget scopeProject = maker.addScopeReleaseProjectItemsTarget( "thirdparty" , null );
+		impl.thirdpartyUploadDist( action , scopeProject , dist );
 	}
 	}
 

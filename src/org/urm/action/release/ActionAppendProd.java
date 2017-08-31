@@ -21,7 +21,7 @@ public class ActionAppendProd extends ActionBase {
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		Dist prod = super.getMasterDist( dist.meta );
 		if( !prod.isFinalized() ) {
-			super.fail0( _Error.NotFinalizedProd0 , "Unable to append to non-finalyzed master release" );
+			super.fail0( _Error.NotFinalizedProd0 , "Unable to append to non-finalized master release" );
 			return( SCOPESTATE.RunFail );
 		}
 			

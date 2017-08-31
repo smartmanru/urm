@@ -374,6 +374,10 @@ abstract public class ActionBase extends ActionCore {
 		return( engine.shellPool.getExecutor( this , account , context.stream ) );
 	}
 
+	public ShellExecutor getShell( RemoteFolder folder ) throws Exception {
+		return( getShell( folder.account ) );
+	}
+
 	public ShellExecutor createDedicatedShell( String name ) throws Exception {
 		return( engine.shellPool.createDedicatedLocalShell( this , name ) );
 	}
@@ -471,6 +475,8 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public void setBuildMode( VarBUILDMODE value ) throws Exception {
+		if( value == VarBUILDMODE.UNKNOWN )
+			super.exit0( _Error.MissingBuildMode0 , "Missing build mode" );
 		context.setBuildMode( value );
 	}
 

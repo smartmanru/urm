@@ -37,7 +37,7 @@ public class DistRepository {
 		STATUS
 	};
 	
-	Meta meta;
+	public Meta meta;
 	RemoteFolder repoFolder;
 
 	public Map<String,Dist> distMap; 
@@ -128,13 +128,24 @@ public class DistRepository {
 			return;
 		
 		for( Node releaseNode : items ) {
-			DistRepositoryItem item = new DistRepositoryItem( this );
-			item.load( action , releaseNode );
-			DistLabelInfo info = getLabelInfo( action , item.RELEASEDIR );
-			RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
-			item.read( action , distFolder );
-			addRunItem( item );
-			addDist( item.dist );
+			try {
+				DistRepositoryItem item = new DistRepositoryItem( this );
+				item.load( action , releaseNode );
+				DistLabelInfo info = getLabelInfo( action , item.RELEASEDIR );
+				RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
+				addRunItem( item );
+				
+				try {
+					item.read( action , distFolder );
+					addDist( item.dist );
+				}
+				catch( Throwable e ) {
+					action.log( "Unable to read distributive item", e);
+				}
+			}
+			catch( Throwable e ) {
+				action.log( "Unable to load distributive item", e);
+			}
 		}
 	}
 
@@ -352,7 +363,7 @@ public class DistRepository {
 	}
 
 	private synchronized void addRunItem( DistRepositoryItem item ) {
-		runMap.put( item.dist.RELEASEDIR , item );
+		runMap.put( item.RELEASEDIR , item );
 	}
 	
 	private synchronized DistRepositoryItem findRunItem( String releaseDir ) {
@@ -360,7 +371,7 @@ public class DistRepository {
 	}
 
 	private synchronized void removeRunItem( DistRepositoryItem item ) {
-		runMap.remove( item.dist.RELEASEDIR );
+		runMap.remove( item.RELEASEDIR );
 	}
 
 	public synchronized DistRepositoryItem addDistAction( ActionBase action , boolean success , Dist dist , DistOperation op , String msg ) throws Exception {
@@ -429,9 +440,9 @@ public class DistRepository {
 		return( item.dist );
 	}
 
-	public synchronized String[] getDistVersions() {
+	public synchronized String[] getActiveVersions() {
 		List<String> list = new LinkedList<String>();
-		for( String releasedir : distMap.keySet() ) {
+		for( String releasedir : runMap.keySet() ) {
 			if( releasedir.equals( Dist.MASTER_DIR ) )
 				continue;
 			list.add( releasedir );
@@ -440,7 +451,7 @@ public class DistRepository {
 	}
 	
 	public synchronized Dist getNextDist( ActionBase action , VersionInfo info ) throws Exception {
-		String[] versions = getDistVersions();
+		String[] versions = getActiveVersions();
 		String[] ordered = VersionInfo.orderVersions( versions );
 		
 		String name = info.getReleaseName();

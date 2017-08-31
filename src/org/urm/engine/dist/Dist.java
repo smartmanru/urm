@@ -420,6 +420,13 @@ public class Dist {
 		}
 		
 		openForDataChange( action );
+		
+		if( !release.changes.isCompleted() ) {
+			action.error( "release changes are not completed" );
+			state.ctlCloseDataChange( action );
+			return;
+		}
+		
 		DistFinalizer finalizer = new DistFinalizer( action , this , distFolder , release );
 		if( !finalizer.finish() ) {
 			action.error( "distributive is not ready to be finalyzed" );
@@ -671,7 +678,7 @@ public class Dist {
 		state.ctlReloadCheckOpenedForDataChange( action );
 	}
 	
-	public void descopeSet( ActionBase action , ReleaseSet set ) throws Exception {
+	public void descopeSet( ActionBase action , ReleaseDistSet set ) throws Exception {
 		for( ReleaseTarget target : set.getTargets() )
 			dropTarget( action , target );
 		
@@ -682,7 +689,7 @@ public class Dist {
 	}
 
 	public void descopeAllProjects( ActionBase action ) throws Exception {
-		for( ReleaseSet set : release.getSourceSets() )
+		for( ReleaseDistSet set : release.getSourceSets() )
 			descopeSet( action , set );
 	}
 	

@@ -3,6 +3,8 @@ package org.urm.action.build;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ActionProductScopeMaker;
+import org.urm.action.ActionReleaseScopeMaker;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.conf.ActionGetConf;
@@ -208,12 +210,18 @@ public class BuildCommand {
 		action.logAction();
 		
 		ActionScope scope;
-		if( dist == null )
-			scope = ActionScope.getProductSetScope( action , meta , SET , PROJECTS );
-		else
-			scope = ActionScope.getReleaseSetScope( action , dist , SET , PROJECTS );
+		if( dist == null ) {
+			ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
+			maker.addScopeProductSet( SET , PROJECTS );
+			scope = maker.getScope();
+		}
+		else {
+			ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+			maker.addScopeReleaseSet( SET , PROJECTS );
+			scope = maker.getScope();
+		}
 			
-		if( scope.isEmpty( action ) ) {
+		if( scope.isEmpty() ) {
 			action.info( "nothing to build" );
 			return;
 		}
@@ -245,8 +253,10 @@ public class BuildCommand {
 	
 		action.logAction();
 	
-		ActionScope scope = ActionScope.getReleaseSetScope( action , dist , SET , PROJECTS );
-		if( scope.isEmpty( action ) ) {
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		maker.addScopeReleaseSet( SET , PROJECTS );
+		ActionScope scope = maker.getScope();
+		if( scope.isEmpty() ) {
 			action.info( "nothing to build" );
 			return;
 		}
@@ -263,8 +273,10 @@ public class BuildCommand {
 	public void getAllRelease( ActionBase action , String SET , String[] PROJECTS , Dist dist ) throws Exception {
 		action.setBuildMode( dist.release.BUILDMODE );
 		
-		ActionScope scope = ActionScope.getReleaseSetScope( action , dist , SET , PROJECTS );
-		if( scope.isEmpty( action ) ) {
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		maker.addScopeReleaseSet( SET , PROJECTS );
+		ActionScope scope = maker.getScope();
+		if( scope.isEmpty() ) {
 			action.info( "nothing to get" );
 			return;
 		}

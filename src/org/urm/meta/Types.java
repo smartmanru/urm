@@ -114,6 +114,7 @@ public class Types {
 		BASIC ,
 		DIRECTORY ,
 		STATICWAR ,
+		PACKAGE ,
 		CUSTOM
 	};
 	
@@ -181,7 +182,7 @@ public class Types {
 	public enum VarDISTITEMTYPE {
 		UNKNOWN ,
 		BINARY ,
-		DOTNETPKG ,
+		PACKAGE ,
 		STATICWAR ,
 		ARCHIVE_DIRECT ,	// deploydir = archive/content
 		ARCHIVE_CHILD ,		// deploydir/archivename = archive/archivename/fullcontent
@@ -262,6 +263,47 @@ public class Types {
 		DEPLOYMENT
 	};
 
+	public enum VarTICKETSETSTATUS {
+		UNKNOWN ,
+		NEW ,
+		ACTIVE ,
+		DESCOPED
+	};
+
+	public enum VarTICKETTYPE {
+		UNKNOWN ,
+		FEATURE ,
+		CHANGE ,
+		BUGFIX
+	};
+
+	public enum VarTICKETSTATUS {
+		UNKNOWN ,
+		NEW ,
+		DEVDONE ,
+		QADONE
+	};
+
+	public enum VarTICKETSETTARGETTYPE {
+		UNKNOWN ,
+		PROJECTSET ,
+		PROJECTALLITEMS ,
+		PROJECTNOITEMS ,
+		DISTITEM ,
+		CONFITEM ,
+		SCHEMA ,
+		DELIVERYBINARIES ,
+		DELIVERYCONFS ,
+		DELIVERYDATABASE
+	};
+
+	public enum VarPACKAGEEXTENSION {
+		UNKNOWN ,
+		NUPKG ,
+		RPM ,
+		DEB
+	}
+	
 	public static VarOSTYPE getOSType( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
@@ -695,7 +737,97 @@ public class Types {
 		
 		return( value );
 	}
-	
+
+	public static VarTICKETSETSTATUS getTicketSetStatus( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingTicketSetStatus0 , "missing ticket set status" );
+			return( VarTICKETSETSTATUS.UNKNOWN );
+		}
+		
+		VarTICKETSETSTATUS value = null;
+		try {
+			value = VarTICKETSETSTATUS.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidTicketSetStatus1 , "invalid ticket set status=" + ID , ID );
+		}
+		
+		return( value );
+	}
+
+	public static VarTICKETTYPE getTicketType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingTicketType0 , "missing ticket type" );
+			return( VarTICKETTYPE.UNKNOWN );
+		}
+		
+		VarTICKETTYPE value = null;
+		try {
+			value = VarTICKETTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidTicketType1 , "invalid ticket type=" + ID , ID );
+		}
+		
+		return( value );
+	}
+
+	public static VarTICKETSTATUS getTicketStatus( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingTicketStatus0 , "missing ticket status" );
+			return( VarTICKETSTATUS.UNKNOWN );
+		}
+		
+		VarTICKETSTATUS value = null;
+		try {
+			value = VarTICKETSTATUS.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidTicketStatus1 , "invalid ticket status=" + ID , ID );
+		}
+		
+		return( value );
+	}
+
+	public static VarTICKETSETTARGETTYPE getTicketSetTargetType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingTicketSetTargetType0 , "missing ticket set target type" );
+			return( VarTICKETSETTARGETTYPE.UNKNOWN );
+		}
+		
+		VarTICKETSETTARGETTYPE value = null;
+		try {
+			value = VarTICKETSETTARGETTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidTicketSetTargetType1 , "invalid ticket set target type=" + ID , ID );
+		}
+		
+		return( value );
+	}
+
+	public static VarPACKAGEEXTENSION getPackageExtension( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingPackageExtension0 , "missing package extension" );
+			return( VarPACKAGEEXTENSION.UNKNOWN );
+		}
+		
+		VarPACKAGEEXTENSION value = null;
+		try {
+			value = VarPACKAGEEXTENSION.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidPackageExtension1 , "invalid package extension=" + ID , ID );
+		}
+		
+		return( value );
+	}
+
     public static boolean isArchive( VarDISTITEMTYPE distItemType ) {
 		if( distItemType == VarDISTITEMTYPE.ARCHIVE_CHILD || 
 			distItemType == VarDISTITEMTYPE.ARCHIVE_DIRECT || 
@@ -785,5 +917,19 @@ public class Types {
 			return( true );
 		return( false );
 	}
+
+	public static boolean isPackageExtension( String ext ) {
+		try {
+			if( !ext.startsWith( "." ) )
+				return( false );
+			
+			getPackageExtension( ext.substring( 1 ) , true );
+		}
+		catch( Throwable e ) {
+			return( false );
+		}
+		return( true );
+	}
+	
 	
 }

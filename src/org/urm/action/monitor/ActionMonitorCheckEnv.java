@@ -1,6 +1,7 @@
 package org.urm.action.monitor;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ActionEnvScopeMaker;
 import org.urm.action.ActionScope;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
@@ -32,7 +33,10 @@ public class ActionMonitorCheckEnv extends ActionBase {
 		MetaEnvSegment sg = env.getSG( this , target.SG );
 		action.context.update( action , env , sg );
 		action.context.CTX_FORCE = true;
-		ActionScope scope = ActionScope.getEnvScope( action , env , sg , null );
+		
+		ActionEnvScopeMaker maker = new ActionEnvScopeMaker( action , env );
+		maker.addScopeEnv( sg , null );
+		ActionScope scope = maker.getScope();
 		
 		LocalFolder logsFolder = storage.getLogsFolder( action , target );
 		logsFolder.ensureExists( this );

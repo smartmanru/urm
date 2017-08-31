@@ -29,7 +29,6 @@ public abstract class Builder {
 	abstract public boolean prepareSource( ActionBase action ) throws Exception;
 	abstract public boolean checkSourceCode( ActionBase action ) throws Exception;
 	abstract public boolean runBuild( ActionBase action ) throws Exception;
-	abstract public void removeExportedCode( ActionBase action ) throws Exception;
 
 	static String PROPERTY_PROJECTNAME = "project.name";
 	static String PROPERTY_PROJECTDESC = "project.desc";
@@ -47,6 +46,10 @@ public abstract class Builder {
 		this.storage = storage;
 		this.TAG = TAG;
 		this.APPVERSION = APPVERSION;
+	}
+
+	public void removeExportedCode( ActionBase action ) throws Exception {
+		CODEPATH.removeThis( action );
 	}
 
 	public static Builder createBuilder( ActionBase action , MetaSourceProject project , String TAG , String VERSION ) throws Exception {

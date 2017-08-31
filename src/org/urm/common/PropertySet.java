@@ -865,6 +865,8 @@ public class PropertySet {
 		PropertyValue pv = new PropertyValue( prop , origin , this , desc );
 		pv.setType( type );
 		pv.setOriginalAndFinalValue( value );
+		if( !custom )
+			pv.setSystem();
 		setProperty( pv );
 	}
 

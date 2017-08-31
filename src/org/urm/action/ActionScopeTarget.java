@@ -7,6 +7,8 @@ import org.urm.common.Common;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabase;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
@@ -16,6 +18,7 @@ import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
+import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 
 public class ActionScopeTarget {
@@ -28,6 +31,7 @@ public class ActionScopeTarget {
 	public ReleaseTarget releaseTarget;
 	public MetaSourceProject sourceProject;
 	public MetaDistrDelivery dbDelivery;
+	
 	public MetaDistrConfItem confItem;
 	public MetaDistrBinaryItem manualItem;
 	public MetaDistrBinaryItem derivedItem;
@@ -46,7 +50,7 @@ public class ActionScopeTarget {
 		this.CATEGORY = set.CATEGORY;
 	}
 	
-	public static ActionScopeTarget createDatabaseManualTarget( ActionScopeSet set , boolean all ) {
+	public static ActionScopeTarget createReleaseDatabaseManualTarget( ActionScopeSet set , boolean all ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 		target.NAME = "db.manual";
 		target.dbManualItems = true;
@@ -54,7 +58,7 @@ public class ActionScopeTarget {
 		return( target );
 	}
 
-	public static ActionScopeTarget createSourceProjectTarget( ActionScopeSet set , MetaSourceProject sourceProject , boolean specifiedExplicitly ) {
+	public static ActionScopeTarget createProductSourceProjectTarget( ActionScopeSet set , MetaSourceProject sourceProject , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 		target.sourceProject = sourceProject;
 		target.NAME = sourceProject.NAME;
@@ -81,7 +85,7 @@ public class ActionScopeTarget {
 		return( target );
 	}
 	
-	public static ActionScopeTarget createConfItemTarget( ActionScopeSet set , MetaDistrConfItem confItem , boolean specifiedExplicitly ) {
+	public static ActionScopeTarget createProductConfItemTarget( ActionScopeSet set , MetaDistrConfItem confItem , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 
 		target.confItem = confItem;
@@ -91,7 +95,7 @@ public class ActionScopeTarget {
 		return( target );
 	}
 	
-	public static ActionScopeTarget createManualDistItemTarget( ActionScopeSet set , MetaDistrBinaryItem manualItem , boolean specifiedExplicitly ) {
+	public static ActionScopeTarget createProductManualDistItemTarget( ActionScopeSet set , MetaDistrBinaryItem manualItem , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 
 		target.manualItem = manualItem;
@@ -101,7 +105,7 @@ public class ActionScopeTarget {
 		return( target );
 	}
 	
-	public static ActionScopeTarget createDerivedDistItemTarget( ActionScopeSet set , MetaDistrBinaryItem derivedItem , boolean specifiedExplicitly ) {
+	public static ActionScopeTarget createProductDerivedDistItemTarget( ActionScopeSet set , MetaDistrBinaryItem derivedItem , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 
 		target.derivedItem = derivedItem;
@@ -118,6 +122,42 @@ public class ActionScopeTarget {
 		target.NAME = envServer.NAME;
 		target.specifiedExplicitly = specifiedExplicitly;
 		return( target );
+	}
+	
+	public boolean isLeafTarget() {
+		if( dbManualItems ||
+			CATEGORY == VarCATEGORY.CONFIG ||
+			CATEGORY == VarCATEGORY.DERIVED ||
+			CATEGORY == VarCATEGORY.MANUAL )
+			return( true );
+		return( false );
+	}
+
+	public boolean isEmpty() {
+		if( isLeafTarget() )
+			return( false );
+		return( items.isEmpty() );
+	}
+	
+	public ActionScopeTarget copy( ActionScopeSet setNew ) {
+		if( dbManualItems )
+			return( createReleaseDatabaseManualTarget( setNew , itemFull ) );
+		if( CATEGORY == VarCATEGORY.CONFIG )
+			return( createProductConfItemTarget( setNew , confItem , specifiedExplicitly ) );
+		if( CATEGORY == VarCATEGORY.DERIVED )
+			return( createProductDerivedDistItemTarget( setNew , derivedItem , specifiedExplicitly ) );
+		if( CATEGORY == VarCATEGORY.MANUAL )
+			return( createProductDerivedDistItemTarget( setNew , manualItem , specifiedExplicitly ) );
+		if( Types.isSourceCategory( CATEGORY ) ) {
+			if( releaseTarget != null )
+				return( createReleaseSourceProjectTarget( setNew , releaseTarget , specifiedExplicitly ) );
+			return( createProductSourceProjectTarget( setNew , sourceProject , specifiedExplicitly ) );
+		}
+		if( CATEGORY == VarCATEGORY.ENV )
+			return( createEnvServerTarget( setNew , envServer , specifiedExplicitly ) );
+		if( CATEGORY == VarCATEGORY.DB )
+			return( createDatabaseDeliveryTarget( setNew , dbDelivery , specifiedExplicitly , itemFull ) );
+		return( null );
 	}
 	
 	public void setAssociated( ActionBase action ) throws Exception {
@@ -152,10 +192,17 @@ public class ActionScopeTarget {
 		if( releaseTarget != null )
 			addReleaseProjectItems( action , ITEMS );
 		else
-			addSourceProjectItems( action , ITEMS );
+			addProjectItemsInternal( action , ITEMS );
 	}
 	
-	private void addSourceProjectItems( ActionBase action , String[] ITEMS ) throws Exception {
+	public void addDatabaseSchemes( ActionBase action , String[] ITEMS ) throws Exception {
+		if( releaseTarget != null )
+			addReleaseDatabaseSchemes( action , ITEMS );
+		else
+			addDatabaseSchemesInternal( action , ITEMS );
+	}
+	
+	private void addProjectItemsInternal( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			itemFull = true;
 			for( MetaSourceProjectItem item : sourceProject.getItems() )
@@ -171,6 +218,21 @@ public class ActionScopeTarget {
 			
 			MetaSourceProjectItem projectItem = sourceProject.getItem( action , itemName );
 			addProjectItem( action , projectItem , true );
+		}
+	}
+
+	private void addDatabaseSchemesInternal( ActionBase action , String[] ITEMS ) throws Exception {
+		if( ITEMS == null || ITEMS.length == 0 ) {
+			itemFull = true;
+			for( MetaDatabaseSchema item : dbDelivery.getDatabaseSchemes() )
+				addDatabaseSchema( action , item , false );
+			return;
+		}
+		
+		MetaDatabase db = dbDelivery.db;
+		for( String itemName : ITEMS ) {
+			MetaDatabaseSchema item = db.getSchema( action , itemName );
+			addDatabaseSchema( action , item , true );
 		}
 	}
 
@@ -194,8 +256,33 @@ public class ActionScopeTarget {
 		}
 	}
 	
+	private void addReleaseDatabaseSchemes( ActionBase action , String[] ITEMS ) throws Exception {
+		if( ITEMS == null || ITEMS.length == 0 ) {
+			itemFull = true;
+			for( ReleaseTargetItem item : releaseTarget.getItems() )
+				addItem( action , item , false );
+			return;
+		}
+		
+		MetaDistrDelivery delivery = releaseTarget.distDatabaseDelivery;
+		for( String itemName : ITEMS ) {
+			MetaDatabaseSchema item = delivery.getSchema( action , itemName );
+			
+			ReleaseTargetItem releaseItem = releaseTarget.findDatabaseSchema( item );
+			if( releaseItem != null )
+				addItem( action , releaseItem , true );
+			else
+				action.debug( "scope: ignore non-release item=" + itemName );
+		}
+	}
+	
 	public void addProjectItem( ActionBase action , MetaSourceProjectItem item , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createSourceProjectTargetItem( this , item , item.distItem , specifiedExplicitly );
+		items.add( scopeItem );
+	}
+	
+	public void addDatabaseSchema( ActionBase action , MetaDatabaseSchema schema , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createDeliverySchemaTargetItem( this , schema , specifiedExplicitly );
 		items.add( scopeItem );
 	}
 	
@@ -307,6 +394,31 @@ public class ActionScopeTarget {
 		if( CATEGORY == VarCATEGORY.PROJECT && !sourceProject.isBuildable() )
 			return( true );
 		return( false );
+	}
+
+	public void createMinusTarget( ActionBase action , ActionScopeTarget targetAdd , ActionScopeTarget targetRemove ) throws Exception {
+		for( ActionScopeTargetItem item : items )
+			createMinusTargetItem( action , item , targetRemove );
+	}	
+
+	public void createMinusTargetItem( ActionBase action , ActionScopeTargetItem itemAdd , ActionScopeTarget targetRemove ) throws Exception {
+		ActionScopeTargetItem itemRemove = null;
+		if( targetRemove != null )
+			itemRemove = targetRemove.findSimilarItem( action , itemAdd );
+		
+		if( itemRemove != null )
+			return;
+		
+		ActionScopeTargetItem itemNew = itemAdd.copy( this );
+		items.add( itemNew );
+	}
+
+	public ActionScopeTargetItem findSimilarItem( ActionBase action , ActionScopeTargetItem sample ) throws Exception {
+		for( ActionScopeTargetItem item : items ) {
+			if( item.isSimilarItem( action , sample ) )
+				return( item );
+		}
+		return( null );
 	}
 	
 }

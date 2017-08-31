@@ -27,7 +27,7 @@ import org.w3c.dom.Node;
 public class ReleaseTarget {
 
 	Meta meta;
-	public ReleaseSet set;
+	public ReleaseDistSet set;
 	public VarCATEGORY CATEGORY;
 
 	public boolean ALL;
@@ -47,13 +47,13 @@ public class ReleaseTarget {
 	
 	public String DISTFILE;
 
-	public ReleaseTarget( Meta meta , ReleaseSet set , VarCATEGORY CATEGORY ) {
+	public ReleaseTarget( Meta meta , ReleaseDistSet set , VarCATEGORY CATEGORY ) {
 		this.meta = meta;
 		this.set = set;
 		this.CATEGORY = CATEGORY;
 	}
 
-	public ReleaseTarget copy( ActionBase action , Release nr , ReleaseSet ns ) throws Exception {
+	public ReleaseTarget copy( ActionBase action , Release nr , ReleaseDistSet ns ) throws Exception {
 		ReleaseTarget nx = new ReleaseTarget( ns.meta , ns , CATEGORY );
 		
 		nx.ALL = ALL;

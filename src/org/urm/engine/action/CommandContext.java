@@ -385,6 +385,9 @@ public class CommandContext {
 	}
 
 	public void loadEnv( ActionBase action , boolean loadProps ) throws Exception {
+		if( session.ENV.isEmpty() )
+			return;
+		
 		String useSG = session.SG;
 		if( useSG.isEmpty() )
 			useSG = CTX_SEGMENT;

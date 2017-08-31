@@ -3,6 +3,8 @@ package org.urm.action.release;
 import java.util.Date;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ActionProductScopeMaker;
+import org.urm.action.ActionReleaseScopeMaker;
 import org.urm.action.ActionScope;
 import org.urm.action.build.BuildCommand;
 import org.urm.engine.dist.Dist;
@@ -156,7 +158,9 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionScope scope = ActionScope.getProductSetScope( action , meta , SET , elements );
+		ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
+		maker.addScopeProductSet( SET , elements );
+		ActionScope scope = maker.getScope();
 		addReleaseScope( action , dist , scope );
 	}
 
@@ -165,7 +169,9 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionScope scope = ActionScope.getReleaseSetScope( action , dist , SET , elements );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		maker.addScopeReleaseSet( SET , elements );
+		ActionScope scope = maker.getScope();
 		setScopeSpecifics( action , dist , scope );
 	}
 
@@ -174,7 +180,9 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionScope scope = ActionScope.getProductCategoryScope( action , meta , VarCATEGORY.CONFIG , elements );
+		ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
+		maker.addScopeProductCategory( VarCATEGORY.CONFIG , elements );
+		ActionScope scope = maker.getScope();
 		addReleaseScope( action , dist , scope );
 	}
 
@@ -183,7 +191,9 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionScope scope = ActionScope.getProductCategoryScope( action , meta , VarCATEGORY.DB , DELIVERIES );
+		ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
+		maker.addScopeProductCategory( VarCATEGORY.DB , DELIVERIES );
+		ActionScope scope = maker.getScope();
 		addReleaseScope( action , dist , scope );
 	}
 
@@ -192,7 +202,9 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionScope scope = ActionScope.getProductDistItemsScope( action , meta , ITEMS );
+		ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
+		maker.addScopeProductDistItems( ITEMS );
+		ActionScope scope = maker.getScope();
 		addReleaseScope( action , dist , scope );
 	}
 
@@ -266,7 +278,9 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionScope scope = ActionScope.getReleaseCategoryScope( action , dist , VarCATEGORY.CONFIG , COMPS );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		maker.addScopeReleaseCategory( VarCATEGORY.CONFIG , COMPS );
+		ActionScope scope = maker.getScope();
 		descope( action , dist , scope );
 	}
 	
@@ -274,7 +288,9 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionScope scope = ActionScope.getReleaseCategoryScope( action , dist , VarCATEGORY.MANUAL , ITEMS );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		maker.addScopeReleaseCategory( VarCATEGORY.MANUAL , ITEMS );
+		ActionScope scope = maker.getScope();
 		descope( action , dist , scope );
 	}
 	
@@ -282,11 +298,12 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionScope scope;
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
 		if( PROJECT.equals( "all" ) )
-			scope = ActionScope.getReleaseSetScope( action , dist , SET , new String [] { "all" } );
+			maker.addScopeReleaseSet( SET , new String [] { "all" } );
 		else
-			scope = ActionScope.getReleaseProjectItemsScope( action , dist , PROJECT , ITEMS );
+			maker.addScopeReleaseProjectItems( PROJECT , ITEMS );
+		ActionScope scope = maker.getScope();
 		descope( action , dist , scope );
 	}
 	
@@ -294,7 +311,9 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionScope scope = ActionScope.getReleaseCategoryScope( action , dist , VarCATEGORY.DB , DELIVERIES );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		maker.addScopeReleaseCategory( VarCATEGORY.DB , DELIVERIES );
+		ActionScope scope = maker.getScope();
 		descope( action , dist , scope );
 	}
 
@@ -325,6 +344,11 @@ public class ReleaseCommand {
 	
 	public void setSchedule( ActionBase action , Dist dist , Date[] dates ) throws Exception {
 		ActionSchedulePhase ma = new ActionSchedulePhase( action , null , dist , dates );
+		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+	
+	public void executeTickets( ActionBase action , Dist dist , String method , String[] args ) throws Exception {
+		ActionTickets ma = new ActionTickets( action , null , dist , method , args );
 		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	

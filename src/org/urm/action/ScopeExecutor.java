@@ -562,7 +562,7 @@ public class ScopeExecutor {
 	private SCOPESTATE runAllInternal( ActionScope scope ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
-			String all = ( scope.scopeFull )? " (all)" : "";
+			String all = ( scope.isFull() )? " (all)" : "";
 			action.debug( action.NAME + ": execute scope" + all + " ..." );
 			action.runBefore( scope );
 		}
@@ -879,6 +879,8 @@ public class ScopeExecutor {
 	private SCOPESTATE getActionStatus( SCOPESTATE ss , ActionBase action , SCOPESTATE ssAction ) {
 		if( action.isCallFailed() )
 			return( SCOPESTATE.RunFail );
+		if( ssAction == SCOPESTATE.RunFail )
+			action.fail0( _Error.InternalError0 , "Internal error" );
 		return( ssAction );
 	}
 

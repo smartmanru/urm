@@ -51,6 +51,14 @@ public class VersionInfo {
 		return( vi );
 	}
 
+	public static String getReleaseVersion( String RELEASEDIR ) {
+		return( Common.getPartBeforeLast( RELEASEDIR , "-" ) );
+	}
+
+	public static String getReleaseVariant( String RELEASEDIR ) {
+		return( Common.getPartAfterLast( RELEASEDIR , "-" ) );
+	}
+
 	public void setVersion( ActionBase action , String version ) throws Exception {
 		int[] vn = new int[4];
 		parseVersion( action , version , vn );

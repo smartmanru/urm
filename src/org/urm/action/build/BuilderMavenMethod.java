@@ -141,9 +141,4 @@ public class BuilderMavenMethod extends Builder {
 		return( true );
 	}
 
-	@Override public void removeExportedCode( ActionBase action ) throws Exception {
-		LocalFolder CODEPATH = storage.buildFolder; 
-		CODEPATH.removeThis( action );
-	}
-
 }
