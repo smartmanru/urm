@@ -251,7 +251,7 @@ public class ActionScopeSet {
 		this.env = setAdd.env;
 		this.sg = setAdd.sg;
 		
-		for( ActionScopeTarget target : targets.values() )
+		for( ActionScopeTarget target : setAdd.targets.values() )
 			createMinusTarget( action , target , setRemove );
 	}	
 

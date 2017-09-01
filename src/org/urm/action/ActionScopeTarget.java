@@ -397,7 +397,7 @@ public class ActionScopeTarget {
 	}
 
 	public void createMinusTarget( ActionBase action , ActionScopeTarget targetAdd , ActionScopeTarget targetRemove ) throws Exception {
-		for( ActionScopeTargetItem item : items )
+		for( ActionScopeTargetItem item : targetAdd.items )
 			createMinusTargetItem( action , item , targetRemove );
 	}	
 
