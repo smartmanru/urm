@@ -382,24 +382,16 @@ public class ActionTickets extends ActionBase {
 		// add to scope
 		for( ReleaseTicketSetTarget target : targetList ) {
 			if( target.isDescoped() )
-				executeAcceptTargetScope( target , scopeDescope , true );
+				executeAcceptTargetScope( target , scopeDescope );
 			else
-				executeAcceptTargetScope( target , scopeNew , true );
-		}
-
-		// remove from scope
-		for( ReleaseTicketSetTarget target : targetList ) {
-			if( target.isDescoped() )
-				executeAcceptTargetScope( target , scopeNew , false );
-			else
-				executeAcceptTargetScope( target , scopeDescope , false );
+				executeAcceptTargetScope( target , scopeNew );
 		}
 
 		// execute change scope
 		ActionScope scopeAdd = new ActionScope( this , dist.meta );
 		scopeAdd.createMinus( this , scopeNew.getScope() , scopeDescope.getScope() );
 		ActionScope scopeRemove = new ActionScope( this , dist.meta );
-		scopeAdd.createMinus( this , scopeNew.getScope() , scopeDescope.getScope() );
+		scopeRemove.createMinus( this , scopeDescope.getScope() , scopeNew.getScope() );
 		
 		if( !scopeAdd.isEmpty() ) {
 			ActionBase runAction = new ActionAddScope( this , null , dist );
@@ -434,7 +426,7 @@ public class ActionTickets extends ActionBase {
 		}
 	}
 	
-	private void executeAcceptTargetScope( ReleaseTicketSetTarget target , ActionProductScopeMaker maker , boolean add ) throws Exception {
+	private void executeAcceptTargetScope( ReleaseTicketSetTarget target , ActionProductScopeMaker maker ) throws Exception {
 		if( target.isProjectSet() ) {
 			maker.addScopeProductSet( target.ITEM , new String[] { "all" } );
 		}
