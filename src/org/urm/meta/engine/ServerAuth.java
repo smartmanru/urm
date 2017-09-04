@@ -21,7 +21,7 @@ import org.urm.engine.EngineTransaction;
 import org.urm.engine.SessionSecurity;
 import org.urm.engine._Error;
 import org.urm.engine.action.ActionInit;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 import org.urm.meta.product.Meta;
 import org.urm.meta.Types.*;
 import org.urm.meta.product.MetaEnv;
@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerAuth extends ServerObject {
+public class ServerAuth extends EngineObject {
 
 	public enum SecurityAction {
 		ACTION_SECURED ,

@@ -11,7 +11,7 @@ import org.urm.common.PropertySet;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.ServerMonitoring;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -46,7 +46,7 @@ public class MetaMonitoring extends PropertyController {
 	public static String PROPERTY_MINORINTERVAL = "minor.interval";
 	public static String PROPERTY_MINSILENT = "silent.between";
 	
-	public MetaMonitoring( ServerProductMeta storage , MetaProductSettings settings , Meta meta ) {
+	public MetaMonitoring( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
 		super( storage , settings , "monitoring" );
 		
 		this.meta = meta;

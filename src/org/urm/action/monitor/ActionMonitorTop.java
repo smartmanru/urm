@@ -18,8 +18,8 @@ import org.urm.engine.events.EngineSourceEvent;
 import org.urm.engine.status.NodeStatus;
 import org.urm.engine.status.SegmentStatus;
 import org.urm.engine.storage.MonitoringStorage;
-import org.urm.meta.ServerLoader;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
@@ -60,8 +60,8 @@ public class ActionMonitorTop extends ActionBase implements EngineEventsListener
 		
 		MonitorInfo info = null;
 		while( continueRunning ) {
-			ServerLoader loader = super.engine.getLoader( super.actionInit );
-			ServerProductMeta productStorage = loader.findProductStorage( productName );
+			EngineLoader loader = super.engine.getLoader( super.actionInit );
+			ProductMeta productStorage = loader.findProductStorage( productName );
 			if( productStorage == null ) {
 				info( "product=" + productName + ": not found, stop monitoring ..." );
 				break;

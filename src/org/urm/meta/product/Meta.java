@@ -6,21 +6,21 @@ import org.urm.common.ConfReader;
 import org.urm.engine.EngineSession;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.dist.DistRepository;
-import org.urm.meta.ServerLoader;
-import org.urm.meta.ServerObject;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineObject;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class Meta extends ServerObject {
+public class Meta extends EngineObject {
 
 	public String name;
 	public EngineSession session;
 	
-	private ServerLoader loader;
-	private ServerProductMeta storage;
+	private EngineLoader loader;
+	private ProductMeta storage;
 
 	private MetaProductVersion version;
 	private MetaProductSettings product;
@@ -41,7 +41,7 @@ public class Meta extends ServerObject {
 
 	public static String PROPERTY_NAME = "name";
 	
-	public Meta( ServerProductMeta storage , EngineSession session ) {
+	public Meta( ProductMeta storage , EngineSession session ) {
 		super( null );
 		this.storage = storage;
 		this.loader = storage.loader;
@@ -54,7 +54,7 @@ public class Meta extends ServerObject {
 		return( name );
 	}
 	
-	public void replaceStorage( ActionBase action , ServerProductMeta storage ) throws Exception {
+	public void replaceStorage( ActionBase action , ProductMeta storage ) throws Exception {
 		loader.releaseSessionProductMetadata( action , this , false );
 		
 		// clear old refs
@@ -106,7 +106,7 @@ public class Meta extends ServerObject {
 		this.sources = sources;
 	}
 
-	public synchronized ServerProductMeta getStorage( ActionBase action ) throws Exception {
+	public synchronized ProductMeta getStorage( ActionBase action ) throws Exception {
 		return( storage );
 	}
 

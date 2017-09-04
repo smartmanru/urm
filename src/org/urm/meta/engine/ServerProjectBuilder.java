@@ -7,14 +7,14 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerProjectBuilder extends ServerObject {
+public class ServerProjectBuilder extends EngineObject {
 
 	public ServerBuilders builders;
 

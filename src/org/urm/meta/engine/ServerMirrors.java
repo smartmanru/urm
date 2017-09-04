@@ -14,14 +14,14 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.engine.vcs.MirrorCase;
-import org.urm.meta.ServerObject;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.EngineObject;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.product.MetaSourceProject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerMirrors extends ServerObject {
+public class ServerMirrors extends EngineObject {
 
 	public ServerRegistry registry;
 	public Engine engine;
@@ -76,12 +76,12 @@ public class ServerMirrors extends ServerObject {
 		return( findRepository( name ) );
 	}
 	
-	public ServerMirrorRepository findProductMetaRepository( ServerProductMeta meta ) {
+	public ServerMirrorRepository findProductMetaRepository( ProductMeta meta ) {
 		String name = "product-" + meta.name + "-meta";
 		return( findRepository( name ) );
 	}
 	
-	public ServerMirrorRepository findProductDataRepository( ServerProductMeta meta ) {
+	public ServerMirrorRepository findProductDataRepository( ProductMeta meta ) {
 		String name = "product-" + meta.name + "-data";
 		return( findRepository( name ) );
 	}

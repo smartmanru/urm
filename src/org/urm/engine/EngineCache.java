@@ -3,9 +3,9 @@ package org.urm.engine;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 
-public class EngineCache extends ServerObject {
+public class EngineCache extends EngineObject {
 
 	Engine engine;
 	

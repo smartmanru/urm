@@ -16,9 +16,9 @@ import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSubscription;
 import org.urm.engine.status.ServerStatusSource;
 import org.urm.engine.status.ServerStatusData;
-import org.urm.meta.ServerLoader;
-import org.urm.meta.ServerObject;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineObject;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
@@ -30,9 +30,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerMonitoring extends ServerObject {
+public class ServerMonitoring extends EngineObject {
 
-	ServerLoader loader;
+	EngineLoader loader;
 	Engine engine;
 	EngineEvents events;
 
@@ -45,7 +45,7 @@ public class ServerMonitoring extends ServerObject {
 	public static int MONITORING_SEGMENT = 5;
 	public static int MONITORING_SERVER = 6;
 	public static int MONITORING_NODE = 7;
-	public Map<ServerObject,ServerStatusSource> sourceMap;
+	public Map<EngineObject,ServerStatusSource> sourceMap;
 	
 	public PropertySet properties;
 	public boolean ENABLED;
@@ -69,14 +69,14 @@ public class ServerMonitoring extends ServerObject {
 	public static String PROPERTY_DIR_REPORTS = "default.reports.path";
 	public static String PROPERTY_DIR_LOGS = "default.logs.path";
 	
-	public ServerMonitoring( ServerLoader loader ) {
+	public ServerMonitoring( EngineLoader loader ) {
 		super( null );
 		this.loader = loader; 
 		this.engine = loader.engine;
 		this.events = engine.getEvents();
 		
 		mapProduct = new HashMap<String,ServerMonitoringProduct>();
-		sourceMap = new HashMap<ServerObject,ServerStatusSource>();
+		sourceMap = new HashMap<EngineObject,ServerStatusSource>();
 	}
 
 	@Override
@@ -166,7 +166,7 @@ public class ServerMonitoring extends ServerObject {
 	}
 	
 	public void startProduct( ServerProduct product ) {
-		ServerProductMeta storage = loader.findProductStorage( product.NAME );
+		ProductMeta storage = loader.findProductStorage( product.NAME );
 		if( storage == null || storage.loadFailed ) {
 			engine.trace( "ignore monitoring for non-healthy product=" + product.NAME );
 			return;
@@ -219,14 +219,14 @@ public class ServerMonitoring extends ServerObject {
 		createSource( MONITORING_NODE , node );
 	}
 	
-	private ServerStatusSource createSource( int level , ServerObject object ) {
+	private ServerStatusSource createSource( int level , EngineObject object ) {
 		String name = "o" + level + "." + object.objectId;
 		ServerStatusSource source = new ServerStatusSource( events , object , level , name );
 		sourceMap.put( object , source );
 		return( source );
 	}
 	
-	private void removeSource( int level , ServerObject object ) {
+	private void removeSource( int level , EngineObject object ) {
 		ServerStatusSource source = sourceMap.get( object );
 		if( source == null )
 			return;
@@ -235,7 +235,7 @@ public class ServerMonitoring extends ServerObject {
 		sourceMap.remove( object );
 	}
 
-	private void replaceSource( int level , ServerObject objectOld , ServerObject objectNew ) {
+	private void replaceSource( int level , EngineObject objectOld , EngineObject objectNew ) {
 		ServerStatusSource source = sourceMap.get( objectOld );
 		if( source == null )
 			return;
@@ -259,7 +259,7 @@ public class ServerMonitoring extends ServerObject {
 
 		ServerRegistry registry = loader.getRegistry();
 		ServerProduct product = registry.directory.findProduct( productName );
-		ServerProductMeta storage = loader.findProductStorage( productName );
+		ProductMeta storage = loader.findProductStorage( productName );
 		
 		// stop childs
 		for( String envName : storage.getEnvironmentNames() ) {
@@ -308,7 +308,7 @@ public class ServerMonitoring extends ServerObject {
 		return( getObjectSource( registry.directory ) );
 	}
 	
-	public ServerStatusSource getObjectSource( ServerObject object ) {
+	public ServerStatusSource getObjectSource( EngineObject object ) {
 		return( sourceMap.get( object ) );
 	}
 
@@ -332,7 +332,7 @@ public class ServerMonitoring extends ServerObject {
 		return( registry.directory.findProduct( name ) );
 	}
 
-	public EngineEventsSubscription subscribe( EngineEventsApp app , EngineEventsListener listener , ServerObject object ) {
+	public EngineEventsSubscription subscribe( EngineEventsApp app , EngineEventsListener listener , EngineObject object ) {
 		ServerStatusSource source = getObjectSource( object );
 		if( source == null )
 			return( null );
@@ -340,17 +340,17 @@ public class ServerMonitoring extends ServerObject {
 		return( app.subscribe( source , listener ) );
 	}
 
-	public void createProduct( ServerProductMeta storage ) {
+	public void createProduct( ProductMeta storage ) {
 		ServerRegistry registry = loader.getRegistry();
 		ServerProduct product = registry.directory.findProduct( storage.name );
 		startProduct( product );
 	}
 	
-	public void deleteProduct( ServerProductMeta storage ) {
+	public void deleteProduct( ProductMeta storage ) {
 		stopProduct( storage.name , true );
 	}
 	
-	public void modifyProduct( ServerProductMeta storageOld , ServerProductMeta storage ) {
+	public void modifyProduct( ProductMeta storageOld , ProductMeta storage ) {
 		for( String envName : storage.getEnvironmentNames() ) {
 			MetaEnv envNew = storage.findEnvironment( envName );
 			MetaEnv envOld = storageOld.findEnvironment( envName );

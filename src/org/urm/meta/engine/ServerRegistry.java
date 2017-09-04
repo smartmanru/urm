@@ -5,22 +5,22 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.engine.TransactionBase;
-import org.urm.meta.ServerLoader;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerRegistry extends ServerObject {
+public class ServerRegistry extends EngineObject {
 
-	public ServerLoader loader;
+	public EngineLoader loader;
 	
 	public ServerMirrors mirrors;
 	public ServerResources resources;
 	public ServerDirectory directory;
 	public ServerBuilders builders;
 
-	public ServerRegistry( ServerLoader loader ) {
+	public ServerRegistry( EngineLoader loader ) {
 		super( null );
 		this.loader = loader;
 		mirrors = new ServerMirrors( this ); 

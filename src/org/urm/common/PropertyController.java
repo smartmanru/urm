@@ -8,12 +8,12 @@ import org.urm.common.action.CommandOption.FLAG;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public abstract class PropertyController extends ServerObject {
+public abstract class PropertyController extends EngineObject {
 
 	private String setName;
 	
@@ -27,7 +27,7 @@ public abstract class PropertyController extends ServerObject {
 	abstract public boolean isValid();
 	abstract public void scatterProperties( ActionBase action ) throws Exception;
 	
-	public PropertyController( ServerObject dataParent , PropertyController propertyParent , String name ) {
+	public PropertyController( EngineObject dataParent , PropertyController propertyParent , String name ) {
 		super( dataParent );
 		create( propertyParent , name );
 	}

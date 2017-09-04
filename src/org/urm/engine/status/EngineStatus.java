@@ -1,9 +1,9 @@
 package org.urm.engine.status;
 
 import org.urm.engine.Engine;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 
-public class EngineStatus extends ServerObject {
+public class EngineStatus extends EngineObject {
 
 	Engine engine;
 	

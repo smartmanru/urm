@@ -12,7 +12,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -25,7 +25,7 @@ public class MetaDistr extends PropertyController {
 	private Map<String,MetaDistrConfItem> mapConfItems;
 	private Map<String,MetaDistrComponent> mapComps;
 	
-	public MetaDistr( ServerProductMeta storage , MetaProductSettings settings , Meta meta ) {
+	public MetaDistr( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
 		super( storage , settings , "distr" );
 		this.meta = meta;
 		meta.setDistr( this );

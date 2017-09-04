@@ -9,7 +9,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -23,7 +23,7 @@ public class MetaDatabase extends PropertyController {
 	
 	public String ALIGNEDMAPPING;
 	
-	public MetaDatabase( ServerProductMeta storage , MetaProductSettings settings , Meta meta ) {
+	public MetaDatabase( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
 		super( storage , settings , "database" );
 		
 		this.meta = meta;

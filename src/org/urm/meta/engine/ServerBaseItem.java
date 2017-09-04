@@ -3,13 +3,13 @@ package org.urm.meta.engine;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 import org.urm.meta.engine.ServerBase.CATEGORY_TYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerBaseItem extends ServerObject {
+public class ServerBaseItem extends EngineObject {
 
 	public ServerBaseGroup group;
 	public String ID;

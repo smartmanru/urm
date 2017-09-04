@@ -1,6 +1,6 @@
 package org.urm.engine;
 
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.product.Meta;
 
@@ -12,8 +12,8 @@ public class TransactionMetadata {
 	public boolean deleteMetadata;
 	public Meta sessionMeta;
 
-	public ServerProductMeta metadata;
-	protected ServerProductMeta metadataOld;
+	public ProductMeta metadata;
+	protected ProductMeta metadataOld;
 	
 	public TransactionMetadata( TransactionBase transaction ) {
 		this.transaction = transaction;
@@ -55,7 +55,7 @@ public class TransactionMetadata {
 	}
 
 	public boolean changeProduct( Meta meta ) throws Exception {
-		ServerProductMeta sourceMetadata = meta.getStorage( transaction.action );
+		ProductMeta sourceMetadata = meta.getStorage( transaction.action );
 		if( sourceMetadata.isPrimary() ) {
 			metadataOld = sourceMetadata;
 			metadata = sourceMetadata.copy( transaction.action );
@@ -71,7 +71,7 @@ public class TransactionMetadata {
 	}
 
 	public boolean deleteProduct( Meta meta ) throws Exception {
-		ServerProductMeta sourceMetadata = meta.getStorage( transaction.action );
+		ProductMeta sourceMetadata = meta.getStorage( transaction.action );
 		if( sourceMetadata.isPrimary() ) {
 			deleteMetadata = true;
 			metadataOld = sourceMetadata;
@@ -109,7 +109,7 @@ public class TransactionMetadata {
 		return( true );
 	}
 
-	public void checkTransactionMetadata( ServerProductMeta sourceMeta ) throws Exception {
+	public void checkTransactionMetadata( ProductMeta sourceMeta ) throws Exception {
 		if( ( deleteMetadata == false && metadata == null ) || ( deleteMetadata == true && metadataOld == null ) )
 			transaction.exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
 		if( ( deleteMetadata == false && metadata != sourceMeta ) || ( deleteMetadata == true && metadataOld != sourceMeta ) )

@@ -6,8 +6,8 @@ import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.shell.Account;
-import org.urm.meta.ServerProductContext;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.ProductContext;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.ServerAuth;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerBaseGroup;
@@ -174,7 +174,7 @@ public class EngineTransaction extends TransactionBase {
 		
 		directory.createProduct( this , product );
 		Meta meta = super.createProductMetadata( directory , product );
-		ServerProductMeta storage = meta.getStorage( action );
+		ProductMeta storage = meta.getStorage( action );
 		storage.createInitialRepository( this , forceClear );
 	}
 	
@@ -216,29 +216,29 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void setProductProperties( Meta meta , PropertySet props , boolean system ) throws Exception {
-		ServerProductMeta metadata = getTransactionMetadata( meta );
+		ProductMeta metadata = getTransactionMetadata( meta );
 		MetaProductSettings settings = metadata.getProductSettings();
 		settings.setProperties( this , props , system );
 	}
 	
 	public void setProductBuildCommonProperties( Meta meta , PropertySet props ) throws Exception {
-		ServerProductMeta metadata = getTransactionMetadata( meta );
+		ProductMeta metadata = getTransactionMetadata( meta );
 		MetaProductSettings settings = metadata.getProductSettings();
 		settings.setBuildCommonProperties( this , props );
 	}
 	
 	public void setProductBuildModeProperties( Meta meta , VarBUILDMODE mode , PropertySet props ) throws Exception {
-		ServerProductMeta metadata = getTransactionMetadata( meta );
+		ProductMeta metadata = getTransactionMetadata( meta );
 		MetaProductSettings settings = metadata.getProductSettings();
 		settings.setBuildModeProperties( this , mode , props );
 	}
 
 	public MetaProductVersion updateProductVersion( Meta meta , int majorFirstNumber , int majorSecondNumber , int majorNextFirstNumber , int majorNextSecondNumber , int lastProdTag , int nextProdTag ) throws Exception {
-		ServerProductMeta metadata = getTransactionMetadata( meta );
+		ProductMeta metadata = getTransactionMetadata( meta );
 		MetaProductVersion version = metadata.getVersion();
 		version.updateVersion( this , majorFirstNumber , majorSecondNumber , majorNextFirstNumber , majorNextSecondNumber , lastProdTag , nextProdTag );
 		
-		ServerProductContext context = new ServerProductContext( meta );
+		ProductContext context = new ProductContext( meta );
 		context.create( action , version );
 		MetaProductSettings settings = meta.getProductSettings( action );
 		settings.updateSettings( this , context );
@@ -248,7 +248,7 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public MetaEnv createMetaEnv( Meta meta , String name , VarENVTYPE envType ) throws Exception {
-		ServerProductMeta metadata = getTransactionMetadata( meta );
+		ProductMeta metadata = getTransactionMetadata( meta );
 		MetaProductSettings settings = meta.getProductSettings( action );
 		MetaEnv env = new MetaEnv( metadata , settings , metadata.meta );
 		env.createEnv( action , name , envType );
@@ -257,7 +257,7 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void deleteMetaEnv( MetaEnv env ) throws Exception {
-		ServerProductMeta metadata = getTransactionMetadata( env.meta );
+		ProductMeta metadata = getTransactionMetadata( env.meta );
 		metadata.deleteEnv( this , env );
 		env.deleteObject();
 	}

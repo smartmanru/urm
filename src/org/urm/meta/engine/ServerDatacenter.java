@@ -10,12 +10,12 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerDatacenter extends ServerObject {
+public class ServerDatacenter extends EngineObject {
 
 	ServerInfrastructure infra;
 	

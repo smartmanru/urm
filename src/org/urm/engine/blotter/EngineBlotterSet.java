@@ -15,7 +15,7 @@ import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.dist.DistRepositoryItem;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
@@ -58,7 +58,7 @@ public class EngineBlotterSet extends EngineEventsSource {
 		ServerDirectory directory = action.getServerDirectory();
 		for( String productName : directory.getProducts() ) {
 			Meta meta = action.getProductMetadata( productName );
-			ServerProductMeta storage = meta.getStorage( action );
+			ProductMeta storage = meta.getStorage( action );
 			DistRepository repo = storage.getDistRepository( action );
 			if( repo != null )
 				startReleaseSetRepo( action , repo );

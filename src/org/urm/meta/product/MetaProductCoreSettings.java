@@ -4,7 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
-import org.urm.meta.ServerProductContext;
+import org.urm.meta.ProductContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -71,7 +71,7 @@ public class MetaProductCoreSettings {
 		return( r );
 	}
 
-	public void load( ActionBase action , ServerProductContext productContext , Node root ) throws Exception {
+	public void load( ActionBase action , ProductContext productContext , Node root ) throws Exception {
 		setContextProperties( action , productContext );
 		
 		Node core = ConfReader.xmlGetFirstChild( root , "core" );
@@ -100,7 +100,7 @@ public class MetaProductCoreSettings {
 		Common.xmlCreatePropertyElement( doc , core , PROPERTY_RELEASELC_URGENTS , Common.getList( RELEASELC_URGENT_LIST ) );
 	}
 	
-	public void create( ActionBase action , ServerProductContext productContext ) throws Exception {
+	public void create( ActionBase action , ProductContext productContext ) throws Exception {
 		setContextProperties( action , productContext );
 		
 		RELEASELC_MAJOR = "";
@@ -108,7 +108,7 @@ public class MetaProductCoreSettings {
 		RELEASELC_URGENT_LIST = new String[0];
 	}
 	
-	public void setContextProperties( ActionBase action , ServerProductContext productContext ) throws Exception {
+	public void setContextProperties( ActionBase action , ProductContext productContext ) throws Exception {
 		CONFIG_PRODUCT = productContext.CONFIG_PRODUCT;
 		CONFIG_PRODUCTHOME = productContext.CONFIG_PRODUCTHOME;
 		

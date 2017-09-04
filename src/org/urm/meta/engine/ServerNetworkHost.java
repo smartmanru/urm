@@ -11,13 +11,13 @@ import org.urm.common.ConfReader;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.urm.meta.Types;
 
-public class ServerNetworkHost extends ServerObject {
+public class ServerNetworkHost extends EngineObject {
 
 	public ServerNetwork network;
 	Map<String,ServerHostAccount> accountMap;

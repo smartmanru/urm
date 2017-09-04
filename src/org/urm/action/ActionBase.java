@@ -35,8 +35,8 @@ import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.ServerObject;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.EngineObject;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.Types;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerAuthUser;
@@ -677,7 +677,7 @@ abstract public class ActionBase extends ActionCore {
 		return( getCacheObject( "product" , item ) );
 	}
 	
-	public EngineCacheObject getCacheObject( ServerObject object ) {
+	public EngineCacheObject getCacheObject( EngineObject object ) {
 		if( object instanceof ServerProduct ) {
 			ServerProduct xo = ( ServerProduct )object; 
 			return( getProductCacheObject( xo.NAME ) );
@@ -756,13 +756,13 @@ abstract public class ActionBase extends ActionCore {
 		return( repo );
 	}
 
-	public ServerMirrorRepository getMetaMirror( ServerProductMeta meta ) throws Exception {
+	public ServerMirrorRepository getMetaMirror( ProductMeta meta ) throws Exception {
 		ServerMirrors mirrors = getServerMirrors();
 		ServerMirrorRepository repo = mirrors.findProductMetaRepository( meta );
 		return( repo );
 	}
 
-	public ServerMirrorRepository getConfigurationMirror( ServerProductMeta meta ) throws Exception {
+	public ServerMirrorRepository getConfigurationMirror( ProductMeta meta ) throws Exception {
 		ServerMirrors mirrors = getServerMirrors();
 		ServerMirrorRepository repo = mirrors.findProductDataRepository( meta );
 		if( repo == null )

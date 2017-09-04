@@ -8,19 +8,19 @@ import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.status.ServerStatusData.OBJECT_STATE;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 import org.urm.meta.engine.ServerMonitoring;
 
 public class ServerStatusSource extends EngineEventsSource {
 
 	public ServerMonitoring mon;
 	public int level;
-	public ServerObject object;
+	public EngineObject object;
 	public ServerStatusData state;
 	private ServerStatusData primary;
 	private Map<String,ServerStatusData> extra;
 
-	public ServerStatusSource( EngineEvents events , ServerObject object , int level , String name ) {
+	public ServerStatusSource( EngineEvents events , EngineObject object , int level , String name ) {
 		super( events , name );
 		this.object = object;
 		this.level = level;
@@ -35,7 +35,7 @@ public class ServerStatusSource extends EngineEventsSource {
 		return( state );
 	}
 
-	public void setObject( ServerObject object ) {
+	public void setObject( EngineObject object ) {
 		this.object = object;
 	}
 	

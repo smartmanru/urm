@@ -8,8 +8,8 @@ import org.urm.engine.TransactionBase;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
-import org.urm.meta.ServerLoader;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.ServerAuth;
 import org.urm.meta.engine.ServerBase;
 import org.urm.meta.engine.ServerBuilders;
@@ -37,12 +37,12 @@ public class ActionInit extends ActionBase {
 	public RootActionType type;
 	public CommandMethod commandAction;
 	public String actionName;
-	private ServerLoader loader;
+	private EngineLoader loader;
 	
 	protected TransactionBase transaction;
 	private boolean memoryOnly;
 
-	public ActionInit( RootActionType type , ServerLoader loader , EngineSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandMethod commandAction , String actionName , boolean memoryOnly , String actionInfo ) {
+	public ActionInit( RootActionType type , EngineLoader loader , EngineSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandMethod commandAction , String actionName , boolean memoryOnly , String actionInfo ) {
 		super( session , artefactory , executor , output , actionInfo );
 		this.type = type;
 		this.actionInit = this;
@@ -245,16 +245,16 @@ public class ActionInit extends ActionBase {
 		return( loader.isProductBroken( productName ) );
 	}
 	
-	public void setProductMetadata( TransactionBase transaction , ServerProductMeta storage ) throws Exception {
+	public void setProductMetadata( TransactionBase transaction , ProductMeta storage ) throws Exception {
 		loader.setProductMetadata( transaction , storage );
 	}
 
-	public void deleteProductMetadata( TransactionBase transaction , ServerProductMeta storage ) throws Exception {
+	public void deleteProductMetadata( TransactionBase transaction , ProductMeta storage ) throws Exception {
 		loader.deleteProductMetadata( transaction , storage );
 	}
 
 	public Meta createProductMetadata( TransactionBase transaction , ServerDirectory directory , ServerProduct product ) throws Exception {
-		ServerProductMeta storage = loader.createProductMetadata( transaction , directory , product );
+		ProductMeta storage = loader.createProductMetadata( transaction , directory , product );
 		return( loader.createSessionProductMetadata( transaction.action , storage ) );
 	}
 

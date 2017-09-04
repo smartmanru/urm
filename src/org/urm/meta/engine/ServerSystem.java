@@ -7,12 +7,12 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerSystem extends ServerObject {
+public class ServerSystem extends EngineObject {
 
 	public ServerDirectory directory;
 	public Map<String,ServerProduct> mapProducts;

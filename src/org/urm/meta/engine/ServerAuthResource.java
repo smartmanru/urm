@@ -10,13 +10,13 @@ import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.shell.EngineShellPool;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.vcs.GenericVCS;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 import org.urm.meta.Types.VarRESOURCETYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerAuthResource extends ServerObject {
+public class ServerAuthResource extends EngineObject {
 
 	public ServerResources resources;
 

@@ -34,7 +34,7 @@ import org.urm.engine.shell.EngineShellPool;
 import org.urm.engine.status.EngineStatus;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.ServerLoader;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.ServerAuth;
 import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerRegistry;
@@ -58,7 +58,7 @@ public class Engine {
 	
 	private ServerAuth auth;
 	private EngineEvents events;
-	private ServerLoader loader;
+	private EngineLoader loader;
 	private EngineStatus status;
 	public boolean running;
 
@@ -83,7 +83,7 @@ public class Engine {
 
 		auth = new ServerAuth( this );
 		events = new EngineEvents( this );
-		loader = new ServerLoader( this );
+		loader = new EngineLoader( this );
 		sessionController = new SessionController( this );
 		status = new EngineStatus( this );
 		blotter = new EngineBlotter( this );
@@ -488,7 +488,7 @@ public class Engine {
 		return( cache );
 	}
 
-	public ServerLoader getLoader( ActionInit action ) {
+	public EngineLoader getLoader( ActionInit action ) {
 		return( loader );
 	}
 

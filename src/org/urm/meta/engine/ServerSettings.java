@@ -8,16 +8,16 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
 import org.urm.engine.EngineTransaction;
-import org.urm.meta.ServerLoader;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineObject;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerSettings extends ServerObject {
+public class ServerSettings extends EngineObject {
 
-	public ServerLoader loader;
+	public EngineLoader loader;
 	
 	public ServerContext serverContext;
 
@@ -25,7 +25,7 @@ public class ServerSettings extends ServerObject {
 	private PropertySet defaultProductBuildProperties;
 	private Map<VarBUILDMODE,PropertySet> mapBuildModeDefaults;
 	
-	public ServerSettings( ServerLoader loader ) {
+	public ServerSettings( EngineLoader loader ) {
 		super( null );
 		this.loader = loader;
 		

@@ -13,8 +13,8 @@ import org.urm.common.PropertySet;
 import org.urm.common.action.CommandOption.FLAG;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.HiddenFiles;
-import org.urm.meta.ServerProductMeta;
-import org.urm.meta.ServerRef;
+import org.urm.meta.ProductMeta;
+import org.urm.meta.EngineRef;
 import org.urm.meta.engine.ServerAccountReference;
 import org.urm.meta.engine.ServerHostAccount;
 import org.urm.meta.Types;
@@ -34,7 +34,7 @@ public class MetaEnv extends PropertyController {
 	public String ID;
 	public String BASELINE;
 	public boolean OFFLINE;
-	public ServerRef<MetaEnv> baselineEnvRef;
+	public EngineRef<MetaEnv> baselineEnvRef;
 	public String REDISTWIN_PATH;
 	public String REDISTLINUX_PATH;
 	public boolean DISTR_USELOCAL;
@@ -84,12 +84,12 @@ public class MetaEnv extends PropertyController {
 
 	public static String ELEMENT_SEGMENT = "segment";
 	
-	public MetaEnv( ServerProductMeta storage , MetaProductSettings settings , Meta meta ) {
+	public MetaEnv( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
 		super( storage , settings , "env" );
 		this.meta = meta;
 		originalList = new LinkedList<MetaEnvSegment>();
 		sgMap = new HashMap<String,MetaEnvSegment>();
-		baselineEnvRef = new ServerRef<MetaEnv>();
+		baselineEnvRef = new EngineRef<MetaEnv>();
 	}
 	
 	@Override

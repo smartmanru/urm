@@ -6,7 +6,7 @@ import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductVersion;
 
-public class ServerProductContext {
+public class ProductContext {
 
 	Meta meta;
 	
@@ -20,7 +20,7 @@ public class ServerProductContext {
 	public int CONFIG_VERSION_BRANCH_NEXTMAJOR;
 	public int CONFIG_VERSION_BRANCH_NEXTMINOR;
 
-	public ServerProductContext( Meta meta ) {
+	public ProductContext( Meta meta ) {
 		this.meta = meta;
 	}
 

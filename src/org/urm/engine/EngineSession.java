@@ -8,12 +8,12 @@ import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
 import org.urm.engine.action.ActionInit;
-import org.urm.meta.ServerLoader;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineObject;
 import org.urm.meta.engine.ServerAuthContext;
 import org.urm.meta.product.Meta;
 
-public class EngineSession extends ServerObject {
+public class EngineSession extends EngineObject {
 
 	public SessionController controller;
 	public RunContext clientrc;
@@ -65,7 +65,7 @@ public class EngineSession extends ServerObject {
 		closed = true;
 		
 		ActionInit action = controller.engine.serverAction;
-		ServerLoader loader = controller.engine.getLoader( action );
+		EngineLoader loader = controller.engine.getLoader( action );
 		for( String product : Common.getSortedKeys( productMeta ) ) {
 			Meta meta = productMeta.get( product );
 			loader.releaseSessionProductMetadata( action , meta );

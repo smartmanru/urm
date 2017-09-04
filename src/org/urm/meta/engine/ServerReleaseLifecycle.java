@@ -13,7 +13,7 @@ import org.urm.engine.blotter.EngineBlotterSet;
 import org.urm.engine.blotter.EngineBlotter.BlotterType;
 import org.urm.engine.dist.Release;
 import org.urm.engine.dist.VersionInfo;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 import org.urm.meta.Types;
 import org.urm.meta.Types.VarLCTYPE;
 import org.urm.meta.product.Meta;
@@ -21,7 +21,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerReleaseLifecycle extends ServerObject {
+public class ServerReleaseLifecycle extends EngineObject {
 
 	ServerReleaseLifecycles lifecycles;
 	

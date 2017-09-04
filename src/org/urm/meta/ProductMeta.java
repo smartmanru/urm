@@ -31,9 +31,9 @@ import org.urm.meta.product.MetaSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public class ServerProductMeta extends ServerObject {
+public class ProductMeta extends EngineObject {
 
-	public ServerLoader loader;
+	public EngineLoader loader;
 	public String name;
 	
 	public Meta meta;
@@ -64,7 +64,7 @@ public class ServerProductMeta extends ServerObject {
 	private Map<EngineSession,Meta> sessionMeta;
 	private boolean primary;
 	
-	public ServerProductMeta( ServerLoader loader , String name ) {
+	public ProductMeta( EngineLoader loader , String name ) {
 		super( null );
 		this.loader = loader;
 		this.name = name;
@@ -114,8 +114,8 @@ public class ServerProductMeta extends ServerObject {
 		return( primary );
 	}
 	
-	public synchronized ServerProductMeta copy( ActionBase action ) throws Exception {
-		ServerProductMeta r = new ServerProductMeta( loader , name );
+	public synchronized ProductMeta copy( ActionBase action ) throws Exception {
+		ProductMeta r = new ProductMeta( loader , name );
 		
 		if( version != null ) {
 			r.version = version.copy( action , r.meta );
@@ -225,7 +225,7 @@ public class ServerProductMeta extends ServerObject {
 
 		if( !loadFailed ) {
 			try {
-				ServerProductContext productContext = new ServerProductContext( meta );
+				ProductContext productContext = new ProductContext( meta );
 				productContext.create( action , version );
 				
 				// read
@@ -456,7 +456,7 @@ public class ServerProductMeta extends ServerObject {
 	private void createInitialProduct( TransactionBase transaction , ServerSettings settings ) throws Exception {
 		product = new MetaProductSettings( this , meta , settings.serverContext.execprops );
 		
-		ServerProductContext productContext = new ServerProductContext( meta );
+		ProductContext productContext = new ProductContext( meta );
 		productContext.create( transaction.action , version );
 		
 		product.createSettings( transaction , settings , productContext );

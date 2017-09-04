@@ -11,7 +11,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -24,7 +24,7 @@ public class MetaSource extends PropertyController {
 	private Map<String,MetaSourceProjectSet> setMap;
 	private Map<String,MetaSourceProject> projectMap;
 	
-	public MetaSource( ServerProductMeta storage , MetaProductSettings settings , Meta meta ) {
+	public MetaSource( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
 		super( storage , settings , "source" );
 		this.meta = meta;
 		meta.setSources( this );

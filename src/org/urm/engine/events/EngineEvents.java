@@ -1,9 +1,9 @@
 package org.urm.engine.events;
 
 import org.urm.engine.Engine;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 
-public class EngineEvents extends ServerObject {
+public class EngineEvents extends EngineObject {
 
 	Engine engine;
 	

@@ -10,12 +10,12 @@ import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerDirectory extends ServerObject {
+public class ServerDirectory extends EngineObject {
 
 	public ServerRegistry registry;
 	public Engine engine;

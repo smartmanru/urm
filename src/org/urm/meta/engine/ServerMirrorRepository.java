@@ -11,7 +11,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.engine.vcs.MirrorCase;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
@@ -19,7 +19,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerMirrorRepository extends ServerObject {
+public class ServerMirrorRepository extends EngineObject {
 
 	public ServerMirrors mirrors;
 	

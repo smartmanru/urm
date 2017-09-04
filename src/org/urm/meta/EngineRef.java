@@ -1,12 +1,12 @@
 package org.urm.meta;
 
-public class ServerRef<ItemType extends ServerObject> {
+public class EngineRef<ItemType extends EngineObject> {
 	public ItemType value;
 	
-	public ServerRef() {
+	public EngineRef() {
 	}
 	
-	public ServerRef( ItemType value ) {
+	public EngineRef( ItemType value ) {
 		set( value );
 	}
 	

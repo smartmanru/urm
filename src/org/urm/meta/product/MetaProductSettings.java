@@ -11,8 +11,8 @@ import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
-import org.urm.meta.ServerProductContext;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.ProductContext;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.ServerSettings;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
@@ -75,7 +75,7 @@ public class MetaProductSettings extends PropertyController {
 	public static String PROPERTY_CUSTOM_DEPLOY = "custom.deploy";
 	public static String PROPERTY_CUSTOM_DATABASE = "custom.database";
 	
-	public MetaProductSettings( ServerProductMeta storage , Meta meta , PropertySet execprops ) {
+	public MetaProductSettings( ProductMeta storage , Meta meta , PropertySet execprops ) {
 		super( storage , null , "product" );
 		
 		this.meta = meta;
@@ -145,7 +145,7 @@ public class MetaProductSettings extends PropertyController {
 		return( r );
 	}
 
-	public void createSettings( TransactionBase transaction , ServerSettings settings , ServerProductContext productContext ) throws Exception {
+	public void createSettings( TransactionBase transaction , ServerSettings settings , ProductContext productContext ) throws Exception {
 		if( !super.initCreateStarted( execprops ) )
 			return;
 
@@ -171,12 +171,12 @@ public class MetaProductSettings extends PropertyController {
 		super.initFinished();
 	}
 
-	public void updateSettings( TransactionBase transaction , ServerProductContext productContext ) throws Exception {
+	public void updateSettings( TransactionBase transaction , ProductContext productContext ) throws Exception {
 		core.setContextProperties( transaction.action , productContext );
 		super.updateProperties( transaction.action );
 	}
 	
-	public void load( ActionBase action , ServerProductContext productContext , Node root ) throws Exception {
+	public void load( ActionBase action , ProductContext productContext , Node root ) throws Exception {
 		if( !initCreateStarted( execprops ) )
 			return;
 

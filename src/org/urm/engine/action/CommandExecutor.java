@@ -12,7 +12,7 @@ import org.urm.common.RunError;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.engine.Engine;
-import org.urm.meta.ServerLoader;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.urm.meta.engine.ServerReleaseLifecycle;
@@ -168,7 +168,7 @@ public abstract class CommandExecutor {
 		if( value.isEmpty() )
 			return( null );
 		
-		ServerLoader loader = engine.getLoader( action.actionInit );
+		EngineLoader loader = engine.getLoader( action.actionInit );
 		ServerReleaseLifecycles lifecycles = loader.getReleaseLifecycles();
 		return( lifecycles.getLifecycle( action , value ) );
 	}

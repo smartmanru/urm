@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.urm.common.RunError;
 import org.urm.engine.action.ActionInit;
-import org.urm.meta.ServerObject;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.EngineObject;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.ServerAuth;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.engine.ServerAuth.SpecialRights;
@@ -45,7 +45,7 @@ import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.Types.*;
 
-public class TransactionBase extends ServerObject {
+public class TransactionBase extends EngineObject {
 
 	public Engine engine;
 	public ActionInit action;
@@ -953,7 +953,7 @@ public class TransactionBase extends ServerObject {
 		checkTransaction();
 	}
 
-	protected void checkTransactionMetadata( ServerProductMeta sourceMeta ) throws Exception {
+	protected void checkTransactionMetadata( ProductMeta sourceMeta ) throws Exception {
 		checkTransaction();
 		TransactionMetadata meta = productMeta.get( sourceMeta.name );
 		if( meta == null )
@@ -1029,7 +1029,7 @@ public class TransactionBase extends ServerObject {
 	}
 
 	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
-		ServerProductMeta metadata = getTransactionMetadata( env.meta );
+		ProductMeta metadata = getTransactionMetadata( env.meta );
 		return( metadata.findEnvironment( env.ID ) );
 	}
 
@@ -1056,7 +1056,7 @@ public class TransactionBase extends ServerObject {
 		return( meta );
 	}
 
-	public ServerProductMeta getTransactionMetadata( Meta meta ) throws Exception {
+	public ProductMeta getTransactionMetadata( Meta meta ) throws Exception {
 		TransactionMetadata tm = productMeta.get( meta.name );
 		if( tm == null )
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );

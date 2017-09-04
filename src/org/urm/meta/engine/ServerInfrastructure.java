@@ -9,19 +9,19 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.engine.EngineTransaction;
-import org.urm.meta.ServerLoader;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerInfrastructure extends ServerObject {
+public class ServerInfrastructure extends EngineObject {
 
-	public ServerLoader loader;
+	public EngineLoader loader;
 	
 	private Map<String,ServerDatacenter> mapDatacenters;
 	
-	public ServerInfrastructure( ServerLoader loader ) {
+	public ServerInfrastructure( EngineLoader loader ) {
 		super( null );
 		this.loader = loader;
 		mapDatacenters = new HashMap<String,ServerDatacenter>(); 

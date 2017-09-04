@@ -13,20 +13,20 @@ import org.urm.common.RunContext;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.blotter.EngineBlotterSet;
 import org.urm.engine.blotter.EngineBlotter.BlotterType;
-import org.urm.meta.ServerLoader;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineObject;
 import org.urm.meta.Types.VarLCTYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerReleaseLifecycles extends ServerObject {
+public class ServerReleaseLifecycles extends EngineObject {
 
-	public ServerLoader loader;
+	public EngineLoader loader;
 	
 	private Map<String,ServerReleaseLifecycle> lcMap;
 	
-	public ServerReleaseLifecycles( ServerLoader loader ) {
+	public ServerReleaseLifecycles( EngineLoader loader ) {
 		super( null );
 		this.loader = loader;
 		lcMap = new HashMap<String,ServerReleaseLifecycle>(); 

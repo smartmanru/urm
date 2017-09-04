@@ -7,12 +7,12 @@ import java.util.Map.Entry;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
-import org.urm.meta.ServerObject;
+import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerBaseGroup extends ServerObject {
+public class ServerBaseGroup extends EngineObject {
 
 	public String ID;
 	public String DESC;
