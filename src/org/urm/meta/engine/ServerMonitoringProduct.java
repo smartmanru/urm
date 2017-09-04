@@ -12,9 +12,11 @@ import org.urm.engine.events.ServerEventsSubscription;
 import org.urm.engine.events.ServerSourceEvent;
 import org.urm.engine.status.NodeStatus;
 import org.urm.engine.status.SegmentStatus;
+import org.urm.engine.status.ServerStatusSource;
+import org.urm.engine.status.ServerStatusData;
 import org.urm.engine.status.ServerStatus;
+import org.urm.engine.status.ServerStatusData.OBJECT_STATE;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
-import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
@@ -39,13 +41,13 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 
 	ServerMonitoring monitoring;
 	String productName;
-	ServerMonitoringSource source;
+	ServerStatusSource source;
 	ServerEngine engine;
 	
 	ActionMonitorTop ca;
 	ServerEventsApp eventsApp;
 
-	public ServerMonitoringProduct( ServerMonitoring monitoring , String productName , ServerMonitoringSource source , ServerEventsApp eventsApp ) {
+	public ServerMonitoringProduct( ServerMonitoring monitoring , String productName , ServerStatusSource source , ServerEventsApp eventsApp ) {
 		this.monitoring = monitoring;
 		this.productName = productName;
 		this.source = source;
@@ -75,7 +77,7 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			SegmentStatus status = ( SegmentStatus )event.data;
 			MetaEnvSegment sg = status.sg;
-			ServerMonitoringSource serverSource = monitoring.getObjectSource( sg );
+			ServerStatusSource serverSource = monitoring.getObjectSource( sg );
 			if( serverSource == null )
 				return;
 			
@@ -87,7 +89,7 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			SegmentStatus status = ( SegmentStatus )event.data;
 			MetaEnvSegment sg = status.sg;
-			ServerMonitoringSource sgSource = monitoring.getObjectSource( sg );
+			ServerStatusSource sgSource = monitoring.getObjectSource( sg );
 			if( sgSource == null )
 				return;
 			
@@ -99,7 +101,7 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			ScopeState state = ( ScopeState )event.data;
 			MetaEnvServer server = state.target.envServer;
-			ServerMonitoringSource serverSource = monitoring.getObjectSource( server );
+			ServerStatusSource serverSource = monitoring.getObjectSource( server );
 			if( serverSource == null )
 				return;
 			
@@ -112,7 +114,7 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			ServerStatus status = ( ServerStatus )event.data;
 			MetaEnvServer server = status.server;
-			ServerMonitoringSource serverSource = monitoring.getObjectSource( server );
+			ServerStatusSource serverSource = monitoring.getObjectSource( server );
 			if( serverSource == null )
 				return;
 			
@@ -124,7 +126,7 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			ScopeState state = ( ScopeState )event.data;
 			MetaEnvServerNode node = state.item.envServerNode;
-			ServerMonitoringSource nodeSource = monitoring.getObjectSource( node );
+			ServerStatusSource nodeSource = monitoring.getObjectSource( node );
 			if( nodeSource == null )
 				return;
 			
@@ -137,7 +139,7 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			NodeStatus status = ( NodeStatus )event.data;
 			MetaEnvServerNode node = status.node;
-			ServerMonitoringSource nodeSource = monitoring.getObjectSource( node );
+			ServerStatusSource nodeSource = monitoring.getObjectSource( node );
 			if( nodeSource == null )
 				return;
 			
@@ -147,7 +149,7 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 		
 		if( event.eventType == ServerEvents.EVENT_MONITORGRAPHCHANGED ) {
 			MetaMonitoringTarget target = ( MetaMonitoringTarget )event.data;
-			ServerMonitoringSource sgSource = monitoring.findTargetSource( target );
+			ServerStatusSource sgSource = monitoring.findTargetSource( target );
 			if( sgSource == null )
 				return;
 			
@@ -169,19 +171,19 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 		engine.executor.stopTask( task );
 		
 		// cleanup product data
-		source.setState( MONITORING_STATE.STATE_NOMONITORING );
+		source.setState( OBJECT_STATE.STATE_NOMONITORING );
 		ServerProduct product = ( ServerProduct )source.object;
 		recalculateSystem( product.system );
 	}
 
-	private void processSegmentEvent( ActionEventsSource source , ServerMonitoringSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
+	private void processSegmentEvent( ActionEventsSource source , ServerStatusSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
 		if( !task.isRunning() )
 			return;
 
 		sgSource.setPrimaryLog( status.getLog() );
 	}
 	
-	private void processSegmentItemsEvent( ActionEventsSource source , ServerMonitoringSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
+	private void processSegmentItemsEvent( ActionEventsSource source , ServerStatusSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
 		if( !task.isRunning() )
 			return;
 
@@ -192,7 +194,7 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 		}
 	}
 	
-	private void processServerEvent( ActionEventsSource source , ServerMonitoringSource serverSource , MetaEnvServer server , ServerStatus status ) {
+	private void processServerEvent( ActionEventsSource source , ServerStatusSource serverSource , MetaEnvServer server , ServerStatus status ) {
 		if( !task.isRunning() )
 			return;
 
@@ -203,7 +205,7 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 		}
 	}
 	
-	private void processServerItemsEvent( ActionEventsSource source , ServerMonitoringSource serverSource , MetaEnvServer server , ServerStatus status ) {
+	private void processServerItemsEvent( ActionEventsSource source , ServerStatusSource serverSource , MetaEnvServer server , ServerStatus status ) {
 		if( !task.isRunning() )
 			return;
 
@@ -214,7 +216,7 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 		}
 	}
 	
-	private void processNodeEvent( ActionEventsSource source , ServerMonitoringSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
+	private void processNodeEvent( ActionEventsSource source , ServerStatusSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
 		if( !task.isRunning() )
 			return;
 
@@ -225,7 +227,7 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 		}
 	}
 	
-	private void processNodeItemsEvent( ActionEventsSource source , ServerMonitoringSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
+	private void processNodeItemsEvent( ActionEventsSource source , ServerStatusSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
 		if( !task.isRunning() )
 			return;
 
@@ -237,15 +239,15 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 	}
 	
 	private void recalculateServer( MetaEnvServer server ) {
-		ServerMonitoringSource serverSource = monitoring.getObjectSource( server );
+		ServerStatusSource serverSource = monitoring.getObjectSource( server );
 		if( serverSource == null )
 			return;
 
-		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
+		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
 		for( MetaEnvServerNode node : server.getNodes() ) {
-			ServerMonitoringSource nodeSource = monitoring.getObjectSource( node );
+			ServerStatusSource nodeSource = monitoring.getObjectSource( node );
 			if( nodeSource != null )
-				finalState = ServerMonitoringState.addState( finalState , nodeSource.state.state );
+				finalState = ServerStatusData.addState( finalState , nodeSource.state.state );
 		}
 		
 		if( serverSource.setState( finalState ) ) {
@@ -255,15 +257,15 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 	}
 	
 	private void recalculateSegment( MetaEnvSegment sg ) {
-		ServerMonitoringSource sgSource = monitoring.getObjectSource( sg );
+		ServerStatusSource sgSource = monitoring.getObjectSource( sg );
 		if( sgSource == null )
 			return;
 
-		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
+		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
 		for( MetaEnvServer server : sg.getServers() ) {
-			ServerMonitoringSource serverSource = monitoring.getObjectSource( server );
+			ServerStatusSource serverSource = monitoring.getObjectSource( server );
 			if( serverSource != null )
-				finalState = ServerMonitoringState.addState( finalState , serverSource.state.state );
+				finalState = ServerStatusData.addState( finalState , serverSource.state.state );
 		}
 		
 		if( sgSource.setState( finalState ) ) {
@@ -273,15 +275,15 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 	}
 	
 	private void recalculateEnv( MetaEnv env ) {
-		ServerMonitoringSource envSource = monitoring.getObjectSource( env );
+		ServerStatusSource envSource = monitoring.getObjectSource( env );
 		if( envSource == null )
 			return;
 
-		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
+		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
 		for( MetaEnvSegment sg : env.getSegments() ) {
-			ServerMonitoringSource sgSource = monitoring.getObjectSource( sg );
+			ServerStatusSource sgSource = monitoring.getObjectSource( sg );
 			if( sgSource != null )
-				finalState = ServerMonitoringState.addState( finalState , sgSource.state.state );
+				finalState = ServerStatusData.addState( finalState , sgSource.state.state );
 		}
 		
 		if( envSource.setState( finalState ) ) {
@@ -295,16 +297,16 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 		if( product == null )
 			return;
 		
-		ServerMonitoringSource productSource = monitoring.getObjectSource( product );
+		ServerStatusSource productSource = monitoring.getObjectSource( product );
 		if( productSource == null )
 			return;
 
-		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
+		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
 		for( String envName : meta.getEnvNames() ) {
 			MetaEnv env = meta.findEnv( envName );
-			ServerMonitoringSource envSource = monitoring.getObjectSource( env );
+			ServerStatusSource envSource = monitoring.getObjectSource( env );
 			if( envSource != null )
-				finalState = ServerMonitoringState.addState( finalState , envSource.state.state );
+				finalState = ServerStatusData.addState( finalState , envSource.state.state );
 		}
 		
 		if( productSource.setState( finalState ) ) {
@@ -314,16 +316,16 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 	}
 
 	private void recalculateSystem( ServerSystem system ) {
-		ServerMonitoringSource systemSource = monitoring.getObjectSource( system );
+		ServerStatusSource systemSource = monitoring.getObjectSource( system );
 		if( systemSource == null )
 			return;
 
-		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
+		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
 		for( String productName : system.getProductNames() ) {
 			ServerProduct product = system.findProduct( productName );
-			ServerMonitoringSource productSource = monitoring.getObjectSource( product );
+			ServerStatusSource productSource = monitoring.getObjectSource( product );
 			if( productSource != null )
-				finalState = ServerMonitoringState.addState( finalState , productSource.state.state );
+				finalState = ServerStatusData.addState( finalState , productSource.state.state );
 		}
 		
 		if( systemSource.setState( finalState ) )
@@ -331,16 +333,16 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 	}
 
 	private void recalculateApp( ServerDirectory directory ) {
-		ServerMonitoringSource appSource = monitoring.getAppSource();
+		ServerStatusSource appSource = monitoring.getAppSource();
 		if( appSource == null )
 			return;
 
-		MONITORING_STATE finalState = MONITORING_STATE.STATE_NOMONITORING;
+		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
 		for( String systemName : directory.getSystems() ) {
 			ServerSystem system = directory.findSystem( systemName );
-			ServerMonitoringSource systemSource = monitoring.getObjectSource( system );
+			ServerStatusSource systemSource = monitoring.getObjectSource( system );
 			if( systemSource != null )
-				finalState = ServerMonitoringState.addState( finalState , systemSource.state.state );
+				finalState = ServerStatusData.addState( finalState , systemSource.state.state );
 		}
 		
 		appSource.setState( finalState );

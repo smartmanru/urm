@@ -6,17 +6,15 @@ import java.util.List;
 import org.urm.action.ActionCore;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState;
-import org.urm.action.monitor.MonitorStatus;
-import org.urm.meta.engine.ServerMonitoringState;
+import org.urm.engine.status.ServerStatusData.OBJECT_STATE;
 import org.urm.meta.engine.WholeUrlFailed;
-import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;
 import org.urm.meta.Types.*;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 
-public class NodeStatus extends MonitorStatus {
+public class NodeStatus extends Status {
 
-	public MONITORING_STATE mainState;
+	public OBJECT_STATE mainState;
 	public VarPROCESSMODE mode;
 	public MetaEnvServer proxy;
 	public String unknownReason;
@@ -39,7 +37,7 @@ public class NodeStatus extends MonitorStatus {
 	}
 	
 	private void create() {
-		mainState = MONITORING_STATE.STATE_NEVERQUERIED;
+		mainState = OBJECT_STATE.STATE_NEVERQUERIED;
 		manual = false;
 		compFailed = false;
 		processFailed = false;
@@ -53,52 +51,52 @@ public class NodeStatus extends MonitorStatus {
 	}
 
 	public void setUnknown( String reason ) {
-		itemState = MONITORING_STATE.STATE_UNKNOWN;
+		itemState = OBJECT_STATE.STATE_UNKNOWN;
 		unknownReason = reason;
 	}
 	
 	public void setProcessMode( VarPROCESSMODE mode ) {
 		this.mode = mode;
 		if( mode == VarPROCESSMODE.STARTED ) {
-			itemState = mainState = MONITORING_STATE.STATE_HEALTHY;
+			itemState = mainState = OBJECT_STATE.STATE_HEALTHY;
 			return;
 		}
 		
 		processFailed = true;
 		if( mode == VarPROCESSMODE.UNKNOWN )
-			mainState = MONITORING_STATE.STATE_UNABLE_GETSTATE;
+			mainState = OBJECT_STATE.STATE_UNABLE_GETSTATE;
 		else
 		if( mode == VarPROCESSMODE.ERRORS )
-			mainState = MONITORING_STATE.STATE_ERRORS_FATAL;
+			mainState = OBJECT_STATE.STATE_ERRORS_FATAL;
 		else
 		if( mode == VarPROCESSMODE.STARTING )
-			mainState = MONITORING_STATE.STATE_ERRORS_ALERTS;
+			mainState = OBJECT_STATE.STATE_ERRORS_ALERTS;
 		else
 		if( mode == VarPROCESSMODE.STOPPED )
-			mainState = MONITORING_STATE.STATE_STOPPED;
+			mainState = OBJECT_STATE.STATE_STOPPED;
 		
 		itemState = mainState; 
 	}
 
 	public void setCompsFailed() {
 		compFailed = true;
-		itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_ERRORS_ALERTS );
+		itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
 	}
 	
 	public void setProxyFailed( MetaEnvServer server ) {
 		proxy = server;
 		proxyFailed = true;
-		itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_ERRORS_ALERTS );
+		itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
 	}
 
 	public void addWholeUrlStatus( String URL , String role , boolean ok ) throws Exception {
 		if( !ok ) {
 			wholeUrlFailed = true;
 			wholeUrls.add( new WholeUrlFailed( URL , role ) );
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_ERRORS_ALERTS );
+			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
 		}
 		else
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_HEALTHY );
+			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_HEALTHY );
 	}
 	
 }

@@ -14,6 +14,8 @@ import org.urm.engine.events.ServerEvents;
 import org.urm.engine.events.ServerEventsApp;
 import org.urm.engine.events.ServerEventsListener;
 import org.urm.engine.events.ServerEventsSubscription;
+import org.urm.engine.status.ServerStatusSource;
+import org.urm.engine.status.ServerStatusData;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
 import org.urm.meta.ServerProductMeta;
@@ -43,7 +45,7 @@ public class ServerMonitoring extends ServerObject {
 	public static int MONITORING_SEGMENT = 5;
 	public static int MONITORING_SERVER = 6;
 	public static int MONITORING_NODE = 7;
-	public Map<ServerObject,ServerMonitoringSource> sourceMap;
+	public Map<ServerObject,ServerStatusSource> sourceMap;
 	
 	public PropertySet properties;
 	public boolean ENABLED;
@@ -74,7 +76,7 @@ public class ServerMonitoring extends ServerObject {
 		this.events = engine.getEvents();
 		
 		mapProduct = new HashMap<String,ServerMonitoringProduct>();
-		sourceMap = new HashMap<ServerObject,ServerMonitoringSource>();
+		sourceMap = new HashMap<ServerObject,ServerStatusSource>();
 	}
 
 	@Override
@@ -143,7 +145,7 @@ public class ServerMonitoring extends ServerObject {
 			events.deleteApp( eventsApp );
 		}
 		
-		for( ServerMonitoringSource source : sourceMap.values() )
+		for( ServerStatusSource source : sourceMap.values() )
 			source.clearState();
 	}
 
@@ -182,7 +184,7 @@ public class ServerMonitoring extends ServerObject {
 			startEnvironment( env );
 		}
 		
-		ServerMonitoringSource source = createSource( MONITORING_PRODUCT , product );
+		ServerStatusSource source = createSource( MONITORING_PRODUCT , product );
 		ServerMonitoringProduct mon = new ServerMonitoringProduct( this , product.NAME , source , eventsApp );
 		mapProduct.put( product.NAME , mon );
 		mon.start();
@@ -217,15 +219,15 @@ public class ServerMonitoring extends ServerObject {
 		createSource( MONITORING_NODE , node );
 	}
 	
-	private ServerMonitoringSource createSource( int level , ServerObject object ) {
+	private ServerStatusSource createSource( int level , ServerObject object ) {
 		String name = "o" + level + "." + object.objectId;
-		ServerMonitoringSource source = new ServerMonitoringSource( this , object , level , name );
+		ServerStatusSource source = new ServerStatusSource( events , object , level , name );
 		sourceMap.put( object , source );
 		return( source );
 	}
 	
 	private void removeSource( int level , ServerObject object ) {
-		ServerMonitoringSource source = sourceMap.get( object );
+		ServerStatusSource source = sourceMap.get( object );
 		if( source == null )
 			return;
 		
@@ -234,7 +236,7 @@ public class ServerMonitoring extends ServerObject {
 	}
 
 	private void replaceSource( int level , ServerObject objectOld , ServerObject objectNew ) {
-		ServerMonitoringSource source = sourceMap.get( objectOld );
+		ServerStatusSource source = sourceMap.get( objectOld );
 		if( source == null )
 			return;
 		
@@ -301,17 +303,17 @@ public class ServerMonitoring extends ServerObject {
 			removeSource( MONITORING_NODE , node );
 	}
 
-	public ServerMonitoringSource getAppSource() {
+	public ServerStatusSource getAppSource() {
 		ServerRegistry registry = loader.getRegistry();
 		return( getObjectSource( registry.directory ) );
 	}
 	
-	public ServerMonitoringSource getObjectSource( ServerObject object ) {
+	public ServerStatusSource getObjectSource( ServerObject object ) {
 		return( sourceMap.get( object ) );
 	}
 
-	public ServerMonitoringState getState( ServerEventsSubscription sub ) {
-		ServerMonitoringState state = ( ServerMonitoringState )sub.getState();
+	public ServerStatusData getState( ServerEventsSubscription sub ) {
+		ServerStatusData state = ( ServerStatusData )sub.getState();
 		return( state );
 	}
 
@@ -331,7 +333,7 @@ public class ServerMonitoring extends ServerObject {
 	}
 
 	public ServerEventsSubscription subscribe( ServerEventsApp app , ServerEventsListener listener , ServerObject object ) {
-		ServerMonitoringSource source = getObjectSource( object );
+		ServerStatusSource source = getObjectSource( object );
 		if( source == null )
 			return( null );
 		
@@ -423,7 +425,7 @@ public class ServerMonitoring extends ServerObject {
 	public void modifyTarget( ServerTransaction transaction , MetaMonitoringTarget target ) throws Exception {
 	}
 
-	public ServerMonitoringSource findTargetSource( MetaMonitoringTarget target ) {
+	public ServerStatusSource findTargetSource( MetaMonitoringTarget target ) {
 		MetaEnv env = target.meta.findEnv( target.ENV );
 		if( env == null )
 			return( null );

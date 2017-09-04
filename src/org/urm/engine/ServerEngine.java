@@ -31,6 +31,7 @@ import org.urm.engine.executor.ReleaseCommandExecutor;
 import org.urm.engine.executor.XDocCommandExecutor;
 import org.urm.engine.shell.ShellCoreJNI;
 import org.urm.engine.shell.ShellPool;
+import org.urm.engine.status.EngineStatus;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.ServerLoader;
@@ -58,6 +59,7 @@ public class ServerEngine {
 	private ServerAuth auth;
 	private ServerEvents events;
 	private ServerLoader loader;
+	private EngineStatus status;
 	public boolean running;
 
 	private TransactionBase currentTransaction = null;
@@ -83,7 +85,9 @@ public class ServerEngine {
 		events = new ServerEvents( this );
 		loader = new ServerLoader( this );
 		sessionController = new SessionController( this );
+		status = new EngineStatus( this );
 		blotter = new ServerBlotter( this );
+		
 		optionsMeta = new OptionsMeta();
 	}
 	
@@ -91,6 +95,7 @@ public class ServerEngine {
 		cache.init();
 		auth.init();
 		events.init();
+		status.init();
 		loader.init();
 		sessionController.init();
 		blotter.init();

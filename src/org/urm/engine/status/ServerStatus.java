@@ -6,15 +6,13 @@ import java.util.List;
 import org.urm.action.ActionCore;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ScopeState;
-import org.urm.action.monitor.MonitorStatus;
-import org.urm.meta.engine.ServerMonitoringState;
-import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;
+import org.urm.engine.status.ServerStatusData.OBJECT_STATE;
 import org.urm.meta.engine.RoleItemFailed;
 import org.urm.meta.engine.WholeUrlFailed;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 
-public class ServerStatus extends MonitorStatus {
+public class ServerStatus extends Status {
 
 	public boolean nodeFailed;
 	public boolean roleFailed;
@@ -49,35 +47,35 @@ public class ServerStatus extends MonitorStatus {
 		if( status.isFailed() ) 
 			nodeFailed = true;
 		nodes.add( status );
-		itemState = ServerMonitoringState.addState( itemState , status.itemState );
+		itemState = ServerStatusData.addState( itemState , status.itemState );
 	}
 
 	public void addRoleStatus( String role , MetaEnvServerNode node , boolean failed ) {
 		if( failed ) {
 			roleFailed = true;
 			roles.add( new RoleItemFailed( role , node ) );
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_ERRORS_ALERTS );
+			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
 		}
 		else
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_HEALTHY );
+			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_HEALTHY );
 	}
 
 	public void addWholeUrlStatus( String URL , String role , boolean ok ) throws Exception {
 		if( !ok ) {
 			wholeUrlFailed = true;
 			wholeUrls.add( new WholeUrlFailed( URL , role ) );
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_ERRORS_ALERTS );
+			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
 		}
 		else
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_HEALTHY );
+			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_HEALTHY );
 	}
 
 	public void addDatabaseStatus( boolean ok ) {
 		if( ok )
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_HEALTHY );
+			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_HEALTHY );
 		else {
 			databaseFailed = true;
-			itemState = ServerMonitoringState.addState( itemState , MONITORING_STATE.STATE_ERRORS_ALERTS );
+			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
 		}
 	}
 	
