@@ -1,8 +1,8 @@
 package org.urm.engine;
 
-import org.urm.engine.events.ServerEventsState;
+import org.urm.engine.events.EngineEventsState;
 
-public class EngineCacheObjectState extends ServerEventsState {
+public class EngineCacheObjectState extends EngineEventsState {
 	
 	public Object data;
 	

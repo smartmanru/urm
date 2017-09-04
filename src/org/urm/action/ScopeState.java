@@ -3,7 +3,7 @@ package org.urm.action;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.engine.events.ServerEvents;
+import org.urm.engine.events.EngineEvents;
 import org.urm.engine.shell.Account;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
@@ -132,7 +132,7 @@ public class ScopeState {
 		ActionCore notifyParent = action;
 		notifyParent = notifyParent.parent;
 		while( notifyParent != null ) {
-			notifyParent.eventSource.finishScopeItem( ServerEvents.EVENT_FINISHCHILDSTATE , this );
+			notifyParent.eventSource.finishScopeItem( EngineEvents.EVENT_FINISHCHILDSTATE , this );
 			notifyParent = notifyParent.parent;
 		}
 	}

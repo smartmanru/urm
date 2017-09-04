@@ -34,10 +34,10 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepository.DistOperation;
-import org.urm.engine.events.ServerEvents;
-import org.urm.engine.events.ServerEventsApp;
-import org.urm.engine.events.ServerEventsListener;
-import org.urm.engine.events.ServerEventsSubscription;
+import org.urm.engine.events.EngineEvents;
+import org.urm.engine.events.EngineEventsApp;
+import org.urm.engine.events.EngineEventsListener;
+import org.urm.engine.events.EngineEventsSubscription;
 import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.meta.product.Meta;
 
@@ -81,7 +81,7 @@ public class EngineBlotter {
 	}
 
 	private EngineBlotterSet addBlotter( BlotterType type , String name ) {
-		ServerEvents events = engine.getEvents();
+		EngineEvents events = engine.getEvents();
 		EngineBlotterSet set = new EngineBlotterSet( this , type , events , name );
 		blotters.add( set );
 		return( set );
@@ -389,7 +389,7 @@ public class EngineBlotter {
 		set.finishItem( item );
 	}
 	
-	public ServerEventsSubscription subscribe( ServerEventsApp app , ServerEventsListener listener , BlotterType type ) {
+	public EngineEventsSubscription subscribe( EngineEventsApp app , EngineEventsListener listener , BlotterType type ) {
 		EngineBlotterSet set = getBlotterSet( type );
 		if( set == null )
 			return( null );

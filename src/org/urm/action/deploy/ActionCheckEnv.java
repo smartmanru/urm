@@ -11,7 +11,7 @@ import org.urm.action.database.DatabaseClient;
 import org.urm.common.Common;
 import org.urm.common.SimpleHttp;
 import org.urm.engine.EngineCacheObject;
-import org.urm.engine.events.ServerEvents;
+import org.urm.engine.events.EngineEvents;
 import org.urm.engine.status.NodeStatus;
 import org.urm.engine.status.SegmentStatus;
 import org.urm.engine.status.ServerStatus;
@@ -80,7 +80,7 @@ public class ActionCheckEnv extends ActionBase {
 			info( "## sg " + F_STATUSOBJECT + " check OK" );
 		
 		sgStatus.setLog( super.logFinishCapture( sgCaptureIndex ) );
-		co.finishScopeItem( ServerEvents.EVENT_CACHE_SEGMENT , sgStatus );
+		co.finishScopeItem( EngineEvents.EVENT_CACHE_SEGMENT , sgStatus );
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
@@ -137,7 +137,7 @@ public class ActionCheckEnv extends ActionBase {
 		
 		String[] log = super.logFinishCapture( captureIndex );
 		serverStatus.setLog( log );
-		co.finishScopeItem( ServerEvents.EVENT_CACHE_SERVER , serverStatus );
+		co.finishScopeItem( EngineEvents.EVENT_CACHE_SERVER , serverStatus );
 		
 		return( SCOPESTATE.RunSuccess );
 	}
@@ -336,7 +336,7 @@ public class ActionCheckEnv extends ActionBase {
 		if( main ) {
 			String[] log = super.logFinishCapture( captureIndex );
 			nodeStatus.setLog( log );
-			co.finishScopeItem( ServerEvents.EVENT_CACHE_NODE , nodeStatus );
+			co.finishScopeItem( EngineEvents.EVENT_CACHE_NODE , nodeStatus );
 			serverStatus.addNodeStatus( nodeStatus ); 
 		}
 		else

@@ -1,9 +1,9 @@
 package org.urm.engine.status;
 
 import org.urm.action.ScopeState.SCOPESTATE;
-import org.urm.engine.events.ServerEventsState;
+import org.urm.engine.events.EngineEventsState;
 
-public class ServerStatusData extends ServerEventsState {
+public class ServerStatusData extends EngineEventsState {
 	
 	public enum OBJECT_STATE {
 		STATE_UNKNOWN ,

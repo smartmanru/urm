@@ -17,7 +17,7 @@ import org.urm.common.meta.XDocCommandMeta;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.ActionInit.RootActionType;
 import org.urm.engine.blotter.EngineBlotter;
-import org.urm.engine.events.ServerEvents;
+import org.urm.engine.events.EngineEvents;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
@@ -57,7 +57,7 @@ public class Engine {
 	public ShellPool shellPool;
 	
 	private ServerAuth auth;
-	private ServerEvents events;
+	private EngineEvents events;
 	private ServerLoader loader;
 	private EngineStatus status;
 	public boolean running;
@@ -82,7 +82,7 @@ public class Engine {
 		cache = new EngineCache( this ); 
 
 		auth = new ServerAuth( this );
-		events = new ServerEvents( this );
+		events = new EngineEvents( this );
 		loader = new ServerLoader( this );
 		sessionController = new SessionController( this );
 		status = new EngineStatus( this );
@@ -480,7 +480,7 @@ public class Engine {
 		return( auth );
 	}
 
-	public ServerEvents getEvents() {
+	public EngineEvents getEvents() {
 		return( events );
 	}
 

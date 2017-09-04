@@ -1,10 +1,10 @@
 package org.urm.action;
 
-import org.urm.engine.events.ServerEvents;
-import org.urm.engine.events.ServerEventsSource;
-import org.urm.engine.events.ServerEventsState;
+import org.urm.engine.events.EngineEvents;
+import org.urm.engine.events.EngineEventsSource;
+import org.urm.engine.events.EngineEventsState;
 
-public class ActionEventsSource extends ServerEventsSource {
+public class ActionEventsSource extends EngineEventsSource {
 
 	ActionEventsState rootState;
 
@@ -13,7 +13,7 @@ public class ActionEventsSource extends ServerEventsSource {
 	}
 
 	@Override
-	public ServerEventsState getState() {
+	public EngineEventsState getState() {
 		return( rootState );
 	}
 
@@ -22,7 +22,7 @@ public class ActionEventsSource extends ServerEventsSource {
 	}
 	
 	public void finishScopeItem( ScopeState state ) {
-		super.trigger( ServerEvents.EVENT_FINISHSTATE , state );
+		super.trigger( EngineEvents.EVENT_FINISHSTATE , state );
 	}
 	
 	public void finishScopeItem( int eventType , ScopeState state ) {

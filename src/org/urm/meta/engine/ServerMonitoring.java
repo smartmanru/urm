@@ -10,10 +10,10 @@ import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
-import org.urm.engine.events.ServerEvents;
-import org.urm.engine.events.ServerEventsApp;
-import org.urm.engine.events.ServerEventsListener;
-import org.urm.engine.events.ServerEventsSubscription;
+import org.urm.engine.events.EngineEvents;
+import org.urm.engine.events.EngineEventsApp;
+import org.urm.engine.events.EngineEventsListener;
+import org.urm.engine.events.EngineEventsSubscription;
 import org.urm.engine.status.ServerStatusSource;
 import org.urm.engine.status.ServerStatusData;
 import org.urm.meta.ServerLoader;
@@ -34,7 +34,7 @@ public class ServerMonitoring extends ServerObject {
 
 	ServerLoader loader;
 	Engine engine;
-	ServerEvents events;
+	EngineEvents events;
 
 	Map<String,ServerMonitoringProduct> mapProduct;
 	
@@ -55,7 +55,7 @@ public class ServerMonitoring extends ServerObject {
 	public String DIR_LOGS;
 	public String RESOURCE_URL;
 
-	ServerEventsApp eventsApp;
+	EngineEventsApp eventsApp;
 	
 	public static String EXTRA_SEGMENT_ITEMS = "sgitems";
 	public static String EXTRA_SERVER_ITEMS = "serveritems";
@@ -122,7 +122,7 @@ public class ServerMonitoring extends ServerObject {
 			return;
 		
 		sourceMap.clear();
-		ServerEvents events = engine.getEvents();
+		EngineEvents events = engine.getEvents();
 		eventsApp = events.createApp( "monitoring" );
 		
 		ServerRegistry registry = loader.getRegistry();
@@ -141,7 +141,7 @@ public class ServerMonitoring extends ServerObject {
 		mapProduct.clear();
 		
 		if( eventsApp != null ) {
-			ServerEvents events = engine.getEvents();
+			EngineEvents events = engine.getEvents();
 			events.deleteApp( eventsApp );
 		}
 		
@@ -312,7 +312,7 @@ public class ServerMonitoring extends ServerObject {
 		return( sourceMap.get( object ) );
 	}
 
-	public ServerStatusData getState( ServerEventsSubscription sub ) {
+	public ServerStatusData getState( EngineEventsSubscription sub ) {
 		ServerStatusData state = ( ServerStatusData )sub.getState();
 		return( state );
 	}
@@ -332,7 +332,7 @@ public class ServerMonitoring extends ServerObject {
 		return( registry.directory.findProduct( name ) );
 	}
 
-	public ServerEventsSubscription subscribe( ServerEventsApp app , ServerEventsListener listener , ServerObject object ) {
+	public EngineEventsSubscription subscribe( EngineEventsApp app , EngineEventsListener listener , ServerObject object ) {
 		ServerStatusSource source = getObjectSource( object );
 		if( source == null )
 			return( null );

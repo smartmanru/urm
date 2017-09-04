@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ScopeState;
-import org.urm.engine.events.ServerEvents;
-import org.urm.engine.events.ServerEventsSource;
-import org.urm.engine.events.ServerEventsState;
+import org.urm.engine.events.EngineEvents;
+import org.urm.engine.events.EngineEventsSource;
+import org.urm.engine.events.EngineEventsState;
 
-public class EngineCacheObject extends ServerEventsSource {
+public class EngineCacheObject extends EngineEventsSource {
 	
 	EngineCache cache;
 	String group;
@@ -17,7 +17,7 @@ public class EngineCacheObject extends ServerEventsSource {
 	Object main;
 	Map<String,Object> data;
 	
-	public EngineCacheObject( EngineCache cache , String group , String item , ServerEvents events , String eventsSourceId ) {
+	public EngineCacheObject( EngineCache cache , String group , String item , EngineEvents events , String eventsSourceId ) {
 		super( events , eventsSourceId );
 		this.cache = cache;
 		this.group = group;
@@ -27,7 +27,7 @@ public class EngineCacheObject extends ServerEventsSource {
 	}
 
 	@Override
-	public ServerEventsState getState() {
+	public EngineEventsState getState() {
 		return( new EngineCacheObjectState( this , super.getStateId() , main ) );
 	}
 

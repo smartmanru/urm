@@ -11,16 +11,16 @@ import org.urm.engine.blotter.EngineBlotter.BlotterType;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepository.DistOperation;
-import org.urm.engine.events.ServerEvents;
-import org.urm.engine.events.ServerEventsSource;
-import org.urm.engine.events.ServerEventsState;
+import org.urm.engine.events.EngineEvents;
+import org.urm.engine.events.EngineEventsSource;
+import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
 
-public class EngineBlotterSet extends ServerEventsSource {
+public class EngineBlotterSet extends EngineEventsSource {
 
 	public EngineBlotter blotter;
 	public BlotterType type;
@@ -29,7 +29,7 @@ public class EngineBlotterSet extends ServerEventsSource {
 	private Map<String,EngineBlotterMemo> memos;
 	private EngineBlotterStat stat;
 	
-	public EngineBlotterSet( EngineBlotter blotter , BlotterType type , ServerEvents events , String setId ) {
+	public EngineBlotterSet( EngineBlotter blotter , BlotterType type , EngineEvents events , String setId ) {
 		super( events , setId );
 		this.blotter = blotter;
 		this.type = type;
@@ -40,8 +40,8 @@ public class EngineBlotterSet extends ServerEventsSource {
 	}
 	
 	@Override
-	public ServerEventsState getState() {
-		return( new ServerEventsState( this , super.getStateId() ) );
+	public EngineEventsState getState() {
+		return( new EngineEventsState( this , super.getStateId() ) );
 	}
 	
 	public synchronized void init() {
@@ -152,12 +152,12 @@ public class EngineBlotterSet extends ServerEventsSource {
 	
 	public void notifyItem( EngineBlotterItem item , BlotterEvent event ) {
 		EngineBlotterEvent data = new EngineBlotterEvent( item , event );
-		super.trigger( ServerEvents.EVENT_BLOTTEREVENT , data );
+		super.trigger( EngineEvents.EVENT_BLOTTEREVENT , data );
 	}
 	
 	public void notifyChildItem( EngineBlotterItem baseItem , EngineBlotterTreeItem treeItem , BlotterEvent event ) {
 		EngineBlotterEvent data = new EngineBlotterEvent( baseItem , treeItem , event );
-		super.trigger( ServerEvents.EVENT_BLOTTEREVENT , data );
+		super.trigger( EngineEvents.EVENT_BLOTTEREVENT , data );
 	}
 	
 	public synchronized void startChildAction( EngineBlotterActionItem baseItem , EngineBlotterTreeItem treeItem ) {

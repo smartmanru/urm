@@ -18,19 +18,19 @@ import org.urm.common.action.CommandOptions;
 import org.urm.common.meta.ReleaseCommandMeta;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.events.ServerEvents;
-import org.urm.engine.events.ServerEventsApp;
-import org.urm.engine.events.ServerEventsListener;
-import org.urm.engine.events.ServerEventsSource;
-import org.urm.engine.events.ServerEventsState;
-import org.urm.engine.events.ServerEventsSubscription;
-import org.urm.engine.events.ServerSourceEvent;
+import org.urm.engine.events.EngineEvents;
+import org.urm.engine.events.EngineEventsApp;
+import org.urm.engine.events.EngineEventsListener;
+import org.urm.engine.events.EngineEventsSource;
+import org.urm.engine.events.EngineEventsState;
+import org.urm.engine.events.EngineEventsSubscription;
+import org.urm.engine.events.EngineSourceEvent;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 
-public class BuildPlan extends ServerEventsSource implements ServerEventsListener {
+public class BuildPlan extends EngineEventsSource implements EngineEventsListener {
 	
 	List<BuildPlanSet> listSets;
 	Map<String,BuildPlanSet> mapSets;
@@ -38,12 +38,12 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 	public BuildPlanSet selectSet;
 	public RunError error;
 	
-	ServerEventsApp eventsApp;
+	EngineEventsApp eventsApp;
 
 	public static int EVENT_ITEMFINISHED = 1000;
 	public static int EVENT_PLANFINISHED = 1001;
 	
-	private BuildPlan( Dist dist , ServerEvents events , String id ) {
+	private BuildPlan( Dist dist , EngineEvents events , String id ) {
 		super( events , id );
 		this.dist = dist;
 		
@@ -53,13 +53,13 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 	}
 	
 	@Override
-	public ServerEventsState getState() {
+	public EngineEventsState getState() {
 		return( null );
 	}
 	
 	@Override
-	public void triggerEvent( ServerSourceEvent event ) {
-		if( event.eventType == ServerEvents.EVENT_FINISHCHILDSTATE ) {
+	public void triggerEvent( EngineSourceEvent event ) {
+		if( event.eventType == EngineEvents.EVENT_FINISHCHILDSTATE ) {
 			ScopeState state = ( ScopeState )event.data;
 			if( state.action instanceof ActionSetTagOnBuildBranch ) {
 				if( state.type == SCOPETYPE.TypeTarget )
@@ -94,11 +94,11 @@ public class BuildPlan extends ServerEventsSource implements ServerEventsListene
 	}
 	
 	@Override
-	public void triggerSubscriptionRemoved( ServerEventsSubscription sub ) {
+	public void triggerSubscriptionRemoved( EngineEventsSubscription sub ) {
 	}
 	
-	public static BuildPlan create( ActionBase action , ServerEventsApp app , ServerEventsListener listener , Dist dist ) {
-		ServerEvents events = action.engine.getEvents();
+	public static BuildPlan create( ActionBase action , EngineEventsApp app , EngineEventsListener listener , Dist dist ) {
+		EngineEvents events = action.engine.getEvents();
 		BuildPlan plan = new BuildPlan( dist , events , "build-plan-" + action.ID );
 		app.subscribe( plan , listener );
 		return( plan );

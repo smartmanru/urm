@@ -24,9 +24,9 @@ import org.urm.engine.blotter.EngineBlotter;
 import org.urm.engine.blotter.EngineBlotterSet;
 import org.urm.engine.blotter.EngineBlotter.BlotterType;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.events.ServerEventsApp;
-import org.urm.engine.events.ServerEventsListener;
-import org.urm.engine.events.ServerEventsSubscription;
+import org.urm.engine.events.EngineEventsApp;
+import org.urm.engine.events.EngineEventsListener;
+import org.urm.engine.events.EngineEventsSubscription;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Artefactory;
@@ -842,8 +842,8 @@ abstract public class ActionBase extends ActionCore {
 		return( engine.blotter.getBlotterSet( type ) );
 	}
 	
-	public RunError runNotifyMethod( ServerEventsApp app , ServerEventsListener listener , Meta meta , MetaEnv env , MetaEnvSegment sg , String command , String method , String[] args , CommandOptions options ) {
-		ServerEventsSubscription sub = null;
+	public RunError runNotifyMethod( EngineEventsApp app , EngineEventsListener listener , Meta meta , MetaEnv env , MetaEnvSegment sg , String command , String method , String[] args , CommandOptions options ) {
+		EngineEventsSubscription sub = null;
 		try {
 			CommandExecutor executor = engine.getExecutor( command );
 			options.setMethod( command , method );

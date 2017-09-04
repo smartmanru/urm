@@ -10,11 +10,11 @@ import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.EngineCacheObject;
-import org.urm.engine.events.ServerEvents;
-import org.urm.engine.events.ServerEventsApp;
-import org.urm.engine.events.ServerEventsListener;
-import org.urm.engine.events.ServerEventsSubscription;
-import org.urm.engine.events.ServerSourceEvent;
+import org.urm.engine.events.EngineEvents;
+import org.urm.engine.events.EngineEventsApp;
+import org.urm.engine.events.EngineEventsListener;
+import org.urm.engine.events.EngineEventsSubscription;
+import org.urm.engine.events.EngineSourceEvent;
 import org.urm.engine.status.NodeStatus;
 import org.urm.engine.status.SegmentStatus;
 import org.urm.engine.storage.MonitoringStorage;
@@ -29,14 +29,14 @@ import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringItem;
 import org.urm.meta.product.MetaMonitoringTarget;
 
-public class ActionMonitorTop extends ActionBase implements ServerEventsListener {
+public class ActionMonitorTop extends ActionBase implements EngineEventsListener {
 
 	boolean continueRunning;
 	String productName;
-	ServerEventsApp eventsApp;
+	EngineEventsApp eventsApp;
 	EngineCacheObject co;
 	
-	public ActionMonitorTop( ActionBase action , String stream , String productName , ServerEventsApp eventsApp ) {
+	public ActionMonitorTop( ActionBase action , String stream , String productName , EngineEventsApp eventsApp ) {
 		super( action , stream , "Monitoring, check product=" + productName );
 		this.productName = productName;
 		this.eventsApp = eventsApp;
@@ -124,7 +124,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 			for( MetaMonitoringTarget target : mon.getTargets( this ) ) {
 				trace( "refresh target graph env=" + target.ENV + ", sg=" + target.SG );
 				info.addHistoryGraph( target );
-				super.eventSource.customEvent( ServerEvents.EVENT_MONITORGRAPHCHANGED , target );
+				super.eventSource.customEvent( EngineEvents.EVENT_MONITORGRAPHCHANGED , target );
 			}
 			
 			// calculate sleep and next action
@@ -162,19 +162,19 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 	}
 
 	@Override
-	public void triggerEvent( ServerSourceEvent event ) {
-		if( event.eventType == ServerEvents.EVENT_CACHE_SEGMENT )
-			super.eventSource.forwardScopeItem( ServerEvents.EVENT_MONITORING_SEGMENT , ( ScopeState )event.data );
+	public void triggerEvent( EngineSourceEvent event ) {
+		if( event.eventType == EngineEvents.EVENT_CACHE_SEGMENT )
+			super.eventSource.forwardScopeItem( EngineEvents.EVENT_MONITORING_SEGMENT , ( ScopeState )event.data );
 		else
-		if( event.eventType == ServerEvents.EVENT_CACHE_SERVER )
-			super.eventSource.forwardScopeItem( ServerEvents.EVENT_MONITORING_SERVER , ( ScopeState )event.data );
+		if( event.eventType == EngineEvents.EVENT_CACHE_SERVER )
+			super.eventSource.forwardScopeItem( EngineEvents.EVENT_MONITORING_SERVER , ( ScopeState )event.data );
 		else
-		if( event.eventType == ServerEvents.EVENT_CACHE_NODE )
-			super.eventSource.forwardScopeItem( ServerEvents.EVENT_MONITORING_NODE , ( ScopeState )event.data );
+		if( event.eventType == EngineEvents.EVENT_CACHE_NODE )
+			super.eventSource.forwardScopeItem( EngineEvents.EVENT_MONITORING_NODE , ( ScopeState )event.data );
 	}
 	
 	@Override
-	public void triggerSubscriptionRemoved( ServerEventsSubscription sub ) {
+	public void triggerSubscriptionRemoved( EngineEventsSubscription sub ) {
 	}
 
 	public void updateCheckItemState( ActionMonitorCheckItem checkAction , boolean res ) {
@@ -313,14 +313,14 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 					totalStatus = false;
 			}
 			else {
-				super.eventSource.customEvent( ServerEvents.EVENT_MONITORING_SERVERITEMS , action.serverStatus );
+				super.eventSource.customEvent( EngineEvents.EVENT_MONITORING_SERVERITEMS , action.serverStatus );
 				for( NodeStatus nodeStatus : action.getNodes() )
-					super.eventSource.customEvent( ServerEvents.EVENT_MONITORING_NODEITEMS , nodeStatus );
+					super.eventSource.customEvent( EngineEvents.EVENT_MONITORING_NODEITEMS , nodeStatus );
 			}
 		}
 		
 		sgStatus.setActionStatus( totalStatus );
-		super.eventSource.customEvent( ServerEvents.EVENT_MONITORING_SGITEMS , sgStatus );
+		super.eventSource.customEvent( EngineEvents.EVENT_MONITORING_SGITEMS , sgStatus );
 	}
 	
 }

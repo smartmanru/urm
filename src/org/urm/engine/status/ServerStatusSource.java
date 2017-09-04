@@ -4,14 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ScopeState.SCOPESTATE;
-import org.urm.engine.events.ServerEvents;
-import org.urm.engine.events.ServerEventsSource;
-import org.urm.engine.events.ServerEventsState;
+import org.urm.engine.events.EngineEvents;
+import org.urm.engine.events.EngineEventsSource;
+import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.status.ServerStatusData.OBJECT_STATE;
 import org.urm.meta.ServerObject;
 import org.urm.meta.engine.ServerMonitoring;
 
-public class ServerStatusSource extends ServerEventsSource {
+public class ServerStatusSource extends EngineEventsSource {
 
 	public ServerMonitoring mon;
 	public int level;
@@ -20,7 +20,7 @@ public class ServerStatusSource extends ServerEventsSource {
 	private ServerStatusData primary;
 	private Map<String,ServerStatusData> extra;
 
-	public ServerStatusSource( ServerEvents events , ServerObject object , int level , String name ) {
+	public ServerStatusSource( EngineEvents events , ServerObject object , int level , String name ) {
 		super( events , name );
 		this.object = object;
 		this.level = level;
@@ -31,7 +31,7 @@ public class ServerStatusSource extends ServerEventsSource {
 	}
 	
 	@Override
-	public ServerEventsState getState() {
+	public EngineEventsState getState() {
 		return( state );
 	}
 
@@ -63,7 +63,7 @@ public class ServerStatusSource extends ServerEventsSource {
 		
 		if( finalState != state.state ) {
 			state.setState( finalState );
-			super.trigger( ServerEvents.EVENT_MONITORSTATECHANGED , state );
+			super.trigger( EngineEvents.EVENT_MONITORSTATECHANGED , state );
 			return( true );
 		}
 		
