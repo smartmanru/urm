@@ -7,7 +7,7 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
-import org.urm.meta.engine.ServerProjectBuilder;
+import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaProductSettings;
 
 public class ActionSetVersion extends ActionBase {
@@ -22,7 +22,7 @@ public class ActionSetVersion extends ActionBase {
 	private void updateVersion( ActionScopeTarget scopeProject , LocalFolder PATCHPATH ) throws Exception {
 		LocalFolder CODEPATH = PATCHPATH;
 		String BUILDER = scopeProject.sourceProject.getBuilder( this );
-		ServerProjectBuilder builder = super.getBuilder( BUILDER );
+		ProjectBuilder builder = super.getBuilder( BUILDER );
 		String JAVA_HOME = builder .JAVA_JDKHOMEPATH;
 		
 		shell.export( this , "JAVA_HOME" , JAVA_HOME );

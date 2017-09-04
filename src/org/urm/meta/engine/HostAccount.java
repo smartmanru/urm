@@ -14,15 +14,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerHostAccount extends EngineObject {
+public class HostAccount extends EngineObject {
 
-	public ServerNetworkHost host;
+	public NetworkHost host;
 
 	public String ID;
 	public boolean isAdmin;
 	public String AUTHRES;
 	
-	public ServerHostAccount( ServerNetworkHost host ) {
+	public HostAccount( NetworkHost host ) {
 		super( host );
 		this.host = host;
 		isAdmin = false;
@@ -33,8 +33,8 @@ public class ServerHostAccount extends EngineObject {
 		return( ID );
 	}
 	
-	public ServerHostAccount copy( ServerNetworkHost rh ) throws Exception {
-		ServerHostAccount r = new ServerHostAccount( rh );
+	public HostAccount copy( NetworkHost rh ) throws Exception {
+		HostAccount r = new HostAccount( rh );
 		r.ID = ID;
 		r.isAdmin = isAdmin;
 		r.AUTHRES = AUTHRES;
@@ -72,9 +72,9 @@ public class ServerHostAccount extends EngineObject {
 		this.AUTHRES = resource;
 	}
 
-	public void getApplicationReferences( List<ServerAccountReference> refs ) {
+	public void getApplicationReferences( List<AccountReference> refs ) {
 		EngineLoader loader = host.network.datacenter.infra.loader;
-		ServerRegistry registry = loader.getRegistry();
+		EngineRegistry registry = loader.getRegistry();
 		for( String productName : registry.directory.getProducts() ) {
 			ProductMeta storage = loader.findProductStorage( productName );
 			storage.getApplicationReferences( this , refs );

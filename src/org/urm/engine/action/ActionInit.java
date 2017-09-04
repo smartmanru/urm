@@ -10,19 +10,19 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductMeta;
-import org.urm.meta.engine.ServerAuth;
-import org.urm.meta.engine.ServerBase;
-import org.urm.meta.engine.ServerBuilders;
-import org.urm.meta.engine.ServerContext;
-import org.urm.meta.engine.ServerDirectory;
-import org.urm.meta.engine.ServerInfrastructure;
-import org.urm.meta.engine.ServerMirrors;
-import org.urm.meta.engine.ServerMonitoring;
-import org.urm.meta.engine.ServerProduct;
-import org.urm.meta.engine.ServerRegistry;
-import org.urm.meta.engine.ServerReleaseLifecycles;
-import org.urm.meta.engine.ServerResources;
-import org.urm.meta.engine.ServerSettings;
+import org.urm.meta.engine.EngineAuth;
+import org.urm.meta.engine.EngineBase;
+import org.urm.meta.engine.EngineBuilders;
+import org.urm.meta.engine.EngineContext;
+import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.EngineInfrastructure;
+import org.urm.meta.engine.EngineMirrors;
+import org.urm.meta.engine.EngineMonitoring;
+import org.urm.meta.engine.Product;
+import org.urm.meta.engine.EngineRegistry;
+import org.urm.meta.engine.EngineReleaseLifecycles;
+import org.urm.meta.engine.EngineResources;
+import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.Meta;
 
 public class ActionInit extends ActionBase {
@@ -78,7 +78,7 @@ public class ActionInit extends ActionBase {
 		this.session = null;
 	}
 	
-	public ServerSettings getActiveServerSettings() {
+	public EngineSettings getActiveServerSettings() {
 		if( transaction != null ) {
 			if( transaction.settings != null )
 				return( transaction.settings );
@@ -86,8 +86,8 @@ public class ActionInit extends ActionBase {
 		return( loader.getServerSettings() );
 	}
 
-	public ServerContext getActiveServerContext() {
-		ServerSettings settings = getActiveServerSettings();
+	public EngineContext getActiveServerContext() {
+		EngineSettings settings = getActiveServerSettings();
 		return( settings.getServerContext() );
 	}
 
@@ -99,17 +99,17 @@ public class ActionInit extends ActionBase {
 		return( loader.getServerSettingsFolder( this ) );
 	}
 	
-	public void setServerSettings( TransactionBase transaction , ServerSettings settings ) throws Exception {
+	public void setServerSettings( TransactionBase transaction , EngineSettings settings ) throws Exception {
 		loader.setServerSettings( transaction , settings );
 	}
 	
-	public ServerMirrors getActiveMirrors() {
+	public EngineMirrors getActiveMirrors() {
 		if( transaction != null ) {
 			if( transaction.mirrors != null )
 				return( transaction.mirrors );
 		}
 		
-		ServerRegistry registry = loader.getRegistry();
+		EngineRegistry registry = loader.getRegistry();
 		return( registry.mirrors );
 	}
 	
@@ -129,49 +129,49 @@ public class ActionInit extends ActionBase {
 		loader.saveMonitoring( transaction );
 	}
 	
-	public ServerResources getActiveResources() {
+	public EngineResources getActiveResources() {
 		if( transaction != null ) {
 			if( transaction.resources != null )
 				return( transaction.resources );
 		}
 		
-		ServerRegistry registry = loader.getRegistry();
+		EngineRegistry registry = loader.getRegistry();
 		return( registry.resources );
 	}
 
-	public void setResources( TransactionBase transaction , ServerResources resources ) throws Exception {
+	public void setResources( TransactionBase transaction , EngineResources resources ) throws Exception {
 		loader.setResources( transaction , resources );
 	}
 	
-	public ServerBuilders getActiveBuilders() {
+	public EngineBuilders getActiveBuilders() {
 		if( transaction != null ) {
 			if( transaction.builders != null )
 				return( transaction.builders );
 		}
 		
-		ServerRegistry registry = loader.getRegistry();
+		EngineRegistry registry = loader.getRegistry();
 		return( registry.builders );
 	}
 	
-	public void setBuilders( TransactionBase transaction , ServerBuilders builders ) throws Exception {
+	public void setBuilders( TransactionBase transaction , EngineBuilders builders ) throws Exception {
 		loader.setBuilders( transaction , builders );
 	}
 	
-	public ServerDirectory getActiveDirectory() {
+	public EngineDirectory getActiveDirectory() {
 		if( transaction != null ) {
 			if( transaction.directory != null )
 				return( transaction.directory );
 		}
 		
-		ServerRegistry registry = loader.getRegistry();
+		EngineRegistry registry = loader.getRegistry();
 		return( registry.directory );
 	}
 	
-	public ServerInfrastructure getActiveInfrastructure() {
+	public EngineInfrastructure getActiveInfrastructure() {
 		return( loader.getInfrastructure() );
 	}
 	
-	public ServerReleaseLifecycles getActiveReleaseLifecycles() {
+	public EngineReleaseLifecycles getActiveReleaseLifecycles() {
 		if( transaction != null ) {
 			if( transaction.lifecycles != null )
 				return( transaction.lifecycles );
@@ -179,35 +179,35 @@ public class ActionInit extends ActionBase {
 		return( loader.getReleaseLifecycles() );
 	}
 	
-	public ServerMonitoring getActiveMonitoring() {
+	public EngineMonitoring getActiveMonitoring() {
 		return( loader.getMonitoring() );
 	}
 	
-	public ServerBase getServerBase() {
+	public EngineBase getServerBase() {
 		return( loader.getServerBase() );
 	}
 
-	public ServerReleaseLifecycles getServerReleaseLifecycles() {
+	public EngineReleaseLifecycles getServerReleaseLifecycles() {
 		return( loader.getReleaseLifecycles() );
 	}
 	
-	public ServerInfrastructure getServerInfrastructure() {
+	public EngineInfrastructure getServerInfrastructure() {
 		return( loader.getInfrastructure() );
 	}
 	
-	public ServerMonitoring getServerMonitoring() {
+	public EngineMonitoring getServerMonitoring() {
 		return( loader.getMonitoring() );
 	}
 	
-	public ServerAuth getServerAuth() {
+	public EngineAuth getServerAuth() {
 		return( engine.getAuth() );
 	}
 	
-	public void setDirectory( TransactionBase transaction , ServerDirectory directory ) throws Exception {
+	public void setDirectory( TransactionBase transaction , EngineDirectory directory ) throws Exception {
 		loader.setDirectory( transaction , directory );
 	}
 
-	public void setMirrors( TransactionBase transaction , ServerMirrors mirrors ) throws Exception {
+	public void setMirrors( TransactionBase transaction , EngineMirrors mirrors ) throws Exception {
 		loader.setMirrors( transaction , mirrors );
 	}
 
@@ -253,7 +253,7 @@ public class ActionInit extends ActionBase {
 		loader.deleteProductMetadata( transaction , storage );
 	}
 
-	public Meta createProductMetadata( TransactionBase transaction , ServerDirectory directory , ServerProduct product ) throws Exception {
+	public Meta createProductMetadata( TransactionBase transaction , EngineDirectory directory , Product product ) throws Exception {
 		ProductMeta storage = loader.createProductMetadata( transaction , directory , product );
 		return( loader.createSessionProductMetadata( transaction.action , storage ) );
 	}

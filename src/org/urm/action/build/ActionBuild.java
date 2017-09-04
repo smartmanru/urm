@@ -9,7 +9,7 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.MetaSourceProject;
 
 public class ActionBuild extends ActionBase {

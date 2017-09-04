@@ -15,20 +15,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerDirectory extends EngineObject {
+public class EngineDirectory extends EngineObject {
 
-	public ServerRegistry registry;
+	public EngineRegistry registry;
 	public Engine engine;
 
-	private Map<String,ServerSystem> mapSystems;
-	private Map<String,ServerProduct> mapProducts;
+	private Map<String,System> mapSystems;
+	private Map<String,Product> mapProducts;
 	
-	public ServerDirectory( ServerRegistry registry ) {
+	public EngineDirectory( EngineRegistry registry ) {
 		super( registry );
 		this.registry = registry;
 		this.engine = registry.loader.engine;
-		mapSystems = new HashMap<String,ServerSystem>();
-		mapProducts = new HashMap<String,ServerProduct>();
+		mapSystems = new HashMap<String,System>();
+		mapProducts = new HashMap<String,Product>();
 	}
 
 	@Override
@@ -45,23 +45,23 @@ public class ServerDirectory extends EngineObject {
 			return;
 		
 		for( Node itemNode : items ) {
-			ServerSystem item = new ServerSystem( this );
+			System item = new System( this );
 			item.load( itemNode );
 			mapSystems.put( item.NAME , item );
 			
-			for( ServerProduct product : item.mapProducts.values() )
+			for( Product product : item.mapProducts.values() )
 				mapProducts.put( product.NAME , product );
 		}
 	}
 	
-	public ServerDirectory copy() throws Exception {
-		ServerDirectory r = new ServerDirectory( registry );
+	public EngineDirectory copy() throws Exception {
+		EngineDirectory r = new EngineDirectory( registry );
 		
-		for( ServerSystem system : mapSystems.values() ) {
-			ServerSystem rs = system.copy( r );
+		for( System system : mapSystems.values() ) {
+			System rs = system.copy( r );
 			r.mapSystems.put( rs.NAME , rs );
 			
-			for( ServerProduct rp : rs.mapProducts.values() )
+			for( Product rp : rs.mapProducts.values() )
 				r.mapProducts.put( rp.NAME , rp );
 		}
 
@@ -77,47 +77,47 @@ public class ServerDirectory extends EngineObject {
 	}
 	
 	public String[] getSystemProducts( String systemName ) {
-		ServerSystem system = findSystem( systemName );
+		System system = findSystem( systemName );
 		if( system == null )
 			return( new String[0] );
 		return( system.getProductNames() );
 	}
 	
-	public ServerSystem findSystem( ServerSystem system ) {
+	public System findSystem( System system ) {
 		if( system == null )
 			return( null );
 		return( mapSystems.get( system.NAME ) );
 	}
 	
-	public ServerSystem findSystem( String name ) {
+	public System findSystem( String name ) {
 		return( mapSystems.get( name ) );
 	}
 	
-	public ServerProduct findProduct( ServerProduct product ) {
+	public Product findProduct( Product product ) {
 		if( product == null )
 			return( null );
 		return( mapProducts.get( product.NAME ) );
 	}
 	
-	public ServerProduct findProduct( String name ) {
+	public Product findProduct( String name ) {
 		return( mapProducts.get( name ) );
 	}
 	
 	public void save( Document doc , Element root ) throws Exception {
 		// directory 
-		for( ServerSystem system : mapSystems.values() ) {
+		for( System system : mapSystems.values() ) {
 			Element elementSystem = Common.xmlCreateElement( doc , root , "system" );
 			system.save( doc , elementSystem );
 		}
 	}
 
-	public void addSystem( EngineTransaction transaction , ServerSystem system ) throws Exception {
+	public void addSystem( EngineTransaction transaction , System system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != null )
 			transaction.exit( _Error.DuplicateSystem1 , "system=" + system.NAME + " is not unique" , new String[] { system.NAME } );
 		mapSystems.put( system.NAME , system );
 	}
 
-	public void deleteSystem( EngineTransaction transaction , ServerSystem system ) throws Exception {
+	public void deleteSystem( EngineTransaction transaction , System system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != system )
 			transaction.exit( _Error.TransactionSystemOld1 , "system=" + system.NAME + " is unknown or mismatched" , new String[] { system.NAME } );
 		
@@ -127,28 +127,28 @@ public class ServerDirectory extends EngineObject {
 		mapSystems.remove( system.NAME );
 	}
 
-	public ServerSystem getSystem( String name ) throws Exception {
-		ServerSystem system = findSystem( name );
+	public System getSystem( String name ) throws Exception {
+		System system = findSystem( name );
 		if( system == null )
 			Common.exit1( _Error.UnknownSystem1 , "unknown system=" + name , name );
 		return( system );
 	}
 
-	public ServerProduct getProduct( String name ) throws Exception {
-		ServerProduct product = findProduct( name );
+	public Product getProduct( String name ) throws Exception {
+		Product product = findProduct( name );
 		if( product == null )
 			Common.exit1( _Error.UnknownProduct1 , "unknown product=" + name , name );
 		return( product );
 	}
 
-	public void createProduct( EngineTransaction transaction , ServerProduct product ) throws Exception {
+	public void createProduct( EngineTransaction transaction , Product product ) throws Exception {
 		if( mapProducts.containsKey( product.NAME ) )
 			transaction.exit( _Error.DuplicateProduct1 , "product=" + product.NAME + " is not unique" , new String[] { product.NAME } );
 		mapProducts.put( product.NAME , product );
 		product.system.addProduct( transaction , product );
 	}
 	
-	public void deleteProduct( EngineTransaction transaction , ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+	public void deleteProduct( EngineTransaction transaction , Product product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		if( mapProducts.get( product.NAME ) != product )
 			transaction.exit( _Error.UnknownProduct1 , "product=" + product.NAME + " is unknown or mismatched" , new String[] { product.NAME } );
 		

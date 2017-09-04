@@ -8,22 +8,22 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.shell.Account;
 import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
-import org.urm.meta.engine.ServerAuth;
-import org.urm.meta.engine.ServerAuthResource;
-import org.urm.meta.engine.ServerBaseGroup;
-import org.urm.meta.engine.ServerBaseItem;
-import org.urm.meta.engine.ServerDatacenter;
-import org.urm.meta.engine.ServerHostAccount;
-import org.urm.meta.engine.ServerMirrorRepository;
-import org.urm.meta.engine.ServerMirrors;
-import org.urm.meta.engine.ServerMonitoring;
-import org.urm.meta.engine.ServerNetwork;
-import org.urm.meta.engine.ServerNetworkHost;
-import org.urm.meta.engine.ServerProduct;
-import org.urm.meta.engine.ServerProjectBuilder;
-import org.urm.meta.engine.ServerReleaseLifecycle;
-import org.urm.meta.engine.ServerReleaseLifecyclePhase;
-import org.urm.meta.engine.ServerSystem;
+import org.urm.meta.engine.EngineAuth;
+import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.EngineBaseGroup;
+import org.urm.meta.engine.EngineBaseItem;
+import org.urm.meta.engine.Datacenter;
+import org.urm.meta.engine.HostAccount;
+import org.urm.meta.engine.EngineMirrorRepository;
+import org.urm.meta.engine.EngineMirrors;
+import org.urm.meta.engine.EngineMonitoring;
+import org.urm.meta.engine.Network;
+import org.urm.meta.engine.NetworkHost;
+import org.urm.meta.engine.Product;
+import org.urm.meta.engine.ProjectBuilder;
+import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.engine.ReleaseLifecyclePhase;
+import org.urm.meta.engine.System;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
@@ -57,119 +57,119 @@ public class EngineTransaction extends TransactionBase {
 	}
 
 	// transactional operations
-	public void createMirrorRepository( ServerMirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
+	public void createMirrorRepository( EngineMirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
 		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , push );
 	}
 
-	public void pushMirror( ServerMirrorRepository repo ) throws Exception {
+	public void pushMirror( EngineMirrorRepository repo ) throws Exception {
 		repo.pushMirror( this );
 	}
 
-	public void refreshMirror( ServerMirrorRepository repo ) throws Exception {
+	public void refreshMirror( EngineMirrorRepository repo ) throws Exception {
 		repo.refreshMirror( this );
 	}
 
-	public void dropMirror( ServerMirrorRepository repo , boolean dropOnServer ) throws Exception {
+	public void dropMirror( EngineMirrorRepository repo , boolean dropOnServer ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
 		repo.dropMirror( this , dropOnServer );
 		repo.deleteObject();
 	}
 
-	public void createResource( ServerAuthResource res ) throws Exception {
+	public void createResource( EngineAuthResource res ) throws Exception {
 		checkTransactionResources( res.resources );
 		resources.createResource( this , res );
 	}
 	
-	public void updateResource( ServerAuthResource res , ServerAuthResource resNew ) throws Exception {
+	public void updateResource( EngineAuthResource res , EngineAuthResource resNew ) throws Exception {
 		checkTransactionResources( res.resources );
 		resources.updateResource( this , res , resNew );
 	}
 	
-	public void deleteResource( ServerAuthResource res ) throws Exception {
+	public void deleteResource( EngineAuthResource res ) throws Exception {
 		checkTransactionResources( res.resources );
 		resources.deleteResource( this , res );
 		res.deleteObject();
 	}
 
-	public void verifyResource( ServerAuthResource res ) throws Exception {
+	public void verifyResource( EngineAuthResource res ) throws Exception {
 		checkTransactionResources( res.resources );
 		res.setVerified( this );
 	}
 	
-	public ServerProjectBuilder createBuilder( ServerProjectBuilder builder ) throws Exception {
+	public ProjectBuilder createBuilder( ProjectBuilder builder ) throws Exception {
 		checkTransactionBuilders();
 		return( builders.createBuilder( this , builder ) );
 	}
 	
-	public void updateBuilder( ServerProjectBuilder builder , ServerProjectBuilder builderNew ) throws Exception {
+	public void updateBuilder( ProjectBuilder builder , ProjectBuilder builderNew ) throws Exception {
 		checkTransactionBuilders();
 		builder.setBuilderData( this , builderNew );
 	}
 	
-	public void deleteBuilder( ServerProjectBuilder builder ) throws Exception {
+	public void deleteBuilder( ProjectBuilder builder ) throws Exception {
 		checkTransactionBuilders();
 		builders.deleteBuilder( this , builder );
 		builder.deleteObject();
 	}
 	
-	public ServerReleaseLifecycle createLifecycleType( ServerReleaseLifecycle lc ) throws Exception {
+	public ReleaseLifecycle createLifecycleType( ReleaseLifecycle lc ) throws Exception {
 		checkTransactionReleaseLifecycles();
 		return( lifecycles.createLifecycle( this , lc ) );
 	}
 	
-	public void updateLifecycleType( ServerReleaseLifecycle lc , ServerReleaseLifecycle lcNew ) throws Exception {
+	public void updateLifecycleType( ReleaseLifecycle lc , ReleaseLifecycle lcNew ) throws Exception {
 		checkTransactionReleaseLifecycles();
 		lc.setLifecycleData( this , lcNew );
 	}
 	
-	public void deleteLifecycleType( ServerReleaseLifecycle lc ) throws Exception {
+	public void deleteLifecycleType( ReleaseLifecycle lc ) throws Exception {
 		checkTransactionReleaseLifecycles();
 		lifecycles.deleteLifecycle( this , lc );
 		lc.deleteObject();
 	}
 	
-	public ServerReleaseLifecycle copyLifecycleType( ServerReleaseLifecycle lc , String name , String desc ) throws Exception {
+	public ReleaseLifecycle copyLifecycleType( ReleaseLifecycle lc , String name , String desc ) throws Exception {
 		checkTransactionReleaseLifecycles();
 		return( lifecycles.copyLifecycle( this , lc , name , desc ) );
 	}
 	
-	public void enableLifecycleType( ServerReleaseLifecycle lc , boolean enable ) throws Exception {
+	public void enableLifecycleType( ReleaseLifecycle lc , boolean enable ) throws Exception {
 		checkTransactionReleaseLifecycles();
 		lc.enableLifecycle( this , enable );
 	}
 	
-	public void changeLifecyclePhases( ServerReleaseLifecycle lc , ServerReleaseLifecyclePhase[] phases ) throws Exception {
+	public void changeLifecyclePhases( ReleaseLifecycle lc , ReleaseLifecyclePhase[] phases ) throws Exception {
 		checkTransactionReleaseLifecycles();
 		lc.changePhases( this , phases );
 	}
 	
-	public void createSystem( ServerSystem system ) throws Exception {
+	public void createSystem( System system ) throws Exception {
 		checkTransactionDirectory();
 		directory.addSystem( this , system );
 	}
 	
-	public void modifySystem( ServerSystem system ) throws Exception {
+	public void modifySystem( System system ) throws Exception {
 		checkTransactionDirectory();
 		system.modifySystem( this );
 	}
 
-	public void deleteSystem( ServerSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+	public void deleteSystem( System system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		checkTransactionDirectory();
 		
-		ServerMirrors mirrors = action.getServerMirrors();
+		EngineMirrors mirrors = action.getServerMirrors();
 		for( String productName : system.getProductNames() ) {
-			ServerProduct product = system.findProduct( productName );
+			Product product = system.findProduct( productName );
 			mirrors.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		}
 		directory.deleteSystem( this , system );
 		system.deleteObject();
 	}
 	
-	public void createProduct( ServerProduct product , boolean forceClear ) throws Exception {
+	public void createProduct( Product product , boolean forceClear ) throws Exception {
 		checkTransactionDirectory();
 		
-		ServerMirrors mirrors = action.getServerMirrors();
+		EngineMirrors mirrors = action.getServerMirrors();
 		mirrors.addProductMirrors( this , product , forceClear );
 		
 		directory.createProduct( this , product );
@@ -178,18 +178,18 @@ public class EngineTransaction extends TransactionBase {
 		storage.createInitialRepository( this , forceClear );
 	}
 	
-	public void modifyProduct( ServerProduct product ) throws Exception {
+	public void modifyProduct( Product product ) throws Exception {
 		checkTransactionDirectory();
 		product.modifyProduct( this );
 	}
 
-	public void deleteProduct( ServerMirrors mirrors , ServerProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+	public void deleteProduct( EngineMirrors mirrors , Product product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		checkTransactionDirectory();
 		checkTransactionMirrors( mirrors );
 		checkTransactionMetadata( product.NAME );
 		
 		mirrors.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
-		ServerAuth auth = action.getServerAuth();
+		EngineAuth auth = action.getServerAuth();
 		auth.deleteProduct( this , product );
 		directory.deleteProduct( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		product.deleteObject();
@@ -352,104 +352,104 @@ public class EngineTransaction extends TransactionBase {
 		node.setProperties( this , props , system );
 	}
 	
-	public void createDatacenter( ServerDatacenter datacenter ) throws Exception {
+	public void createDatacenter( Datacenter datacenter ) throws Exception {
 		checkTransactionInfrastructure();
 		infra.createDatacenter( this , datacenter );
 	}
 
-	public void modifyDatacenter( ServerDatacenter datacenter ) throws Exception {
+	public void modifyDatacenter( Datacenter datacenter ) throws Exception {
 		checkTransactionInfrastructure();
 		infra.modifyDatacenter( this , datacenter );
 	}
 
-	public void deleteDatacenter( ServerDatacenter datacenter ) throws Exception {
+	public void deleteDatacenter( Datacenter datacenter ) throws Exception {
 		checkTransactionInfrastructure();
-		ServerAuth auth = action.getServerAuth();
+		EngineAuth auth = action.getServerAuth();
 		auth.deleteDatacenter( this , datacenter );
 		infra.deleteDatacenter( this , datacenter );
 		datacenter.deleteObject();
 	}
 	
-	public void createNetwork( ServerDatacenter datacenter , ServerNetwork network ) throws Exception {
+	public void createNetwork( Datacenter datacenter , Network network ) throws Exception {
 		checkTransactionInfrastructure();
 		datacenter.createNetwork( this , network );
 	}
 
-	public void deleteNetwork( ServerNetwork network ) throws Exception {
+	public void deleteNetwork( Network network ) throws Exception {
 		checkTransactionInfrastructure();
-		ServerAuth auth = action.getServerAuth();
+		EngineAuth auth = action.getServerAuth();
 		auth.deleteNetwork( this , network );
 		network.datacenter.deleteNetwork( this , network );
 		network.deleteObject();
 	}
 
-	public void modifyNetwork( ServerNetwork network ) throws Exception {
+	public void modifyNetwork( Network network ) throws Exception {
 		checkTransactionInfrastructure();
 		network.datacenter.modifyNetwork( this , network );
 	}
 
-	public void createNetworkHost( ServerNetworkHost host ) throws Exception {
+	public void createNetworkHost( NetworkHost host ) throws Exception {
 		checkTransactionInfrastructure();
 		host.network.createHost( this , host );
 	}
 	
-	public void modifyNetworkHost( ServerNetworkHost host , boolean renameReferences ) throws Exception {
+	public void modifyNetworkHost( NetworkHost host , boolean renameReferences ) throws Exception {
 		checkTransactionInfrastructure();
 		host.network.modifyHost( this , host );
 	}
 	
-	public void deleteNetworkHost( ServerNetworkHost host ) throws Exception {
+	public void deleteNetworkHost( NetworkHost host ) throws Exception {
 		checkTransactionInfrastructure();
 		host.network.deleteHost( this , host );
 	}
 	
-	public void createHostAccount( ServerHostAccount account ) throws Exception {
+	public void createHostAccount( HostAccount account ) throws Exception {
 		checkTransactionInfrastructure();
 		account.host.createAccount( this , account );
 	}
 	
-	public void createHostAccount( ServerNetwork network , Account account , ServerAuthResource resource ) throws Exception {
+	public void createHostAccount( Network network , Account account , EngineAuthResource resource ) throws Exception {
 		checkTransactionInfrastructure();
-		ServerNetworkHost host = network.createHost( this , account ); 
+		NetworkHost host = network.createHost( this , account ); 
 		host.createAccount( this , account , resource );
 	}
 	
-	public void modifyHostAccount( ServerHostAccount account , boolean renameReferences ) throws Exception {
+	public void modifyHostAccount( HostAccount account , boolean renameReferences ) throws Exception {
 		checkTransactionInfrastructure();
 		account.host.modifyAccount( this , account );
 	}
 	
-	public void deleteHostAccount( ServerHostAccount account ) throws Exception {
+	public void deleteHostAccount( HostAccount account ) throws Exception {
 		checkTransactionInfrastructure();
 		account.host.deleteAccount( this , account );
 	}
 	
-	public void createBaseGroup( ServerBaseGroup group ) throws Exception {
+	public void createBaseGroup( EngineBaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.createGroup( this , group );
 		action.saveBase( this );
 	}
 
-	public void deleteBaseGroup( ServerBaseGroup group ) throws Exception {
+	public void deleteBaseGroup( EngineBaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.deleteGroup( this , group );
 		action.saveBase( this );
 	}
 
-	public void modifyBaseGroup( ServerBaseGroup group ) throws Exception {
+	public void modifyBaseGroup( EngineBaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.modifyGroup( this , group );
 		action.saveBase( this );
 	}
 
-	public void createBaseItem( ServerBaseItem item ) throws Exception {
+	public void createBaseItem( EngineBaseItem item ) throws Exception {
 		checkTransactionBase();
 		item.group.category.base.createItem( this , item );
 		item.group.createItem( this , item );
 		action.saveBase( this );
 	}
 
-	public void deleteBaseItem( ServerBaseItem item ) throws Exception {
+	public void deleteBaseItem( EngineBaseItem item ) throws Exception {
 		checkTransactionBase();
 		item.group.deleteItem( this , item );
 		action.saveBase( this );
@@ -457,14 +457,14 @@ public class EngineTransaction extends TransactionBase {
 
 	public void disableMonitoring() throws Exception {
 		checkTransactionMonitoring();
-		ServerMonitoring mon = action.getActiveMonitoring();
+		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setEnabled( this , false );
 		action.saveMonitoring( this );
 	}
 	
 	public void enableMonitoring() throws Exception {
 		checkTransactionMonitoring();
-		ServerMonitoring mon = action.getActiveMonitoring();
+		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setEnabled( this , true );
 		action.saveMonitoring( this );
 	}
@@ -486,20 +486,20 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void deleteMonitoringTarget( MetaMonitoringTarget target ) throws Exception {
 		checkTransactionMetadata( target.meta.getStorage( action ) );
-		ServerMonitoring mon = action.getActiveMonitoring();
+		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.deleteTarget( this , target );
 	}
 	
 	public void modifyMonitoringTarget( MetaMonitoringTarget target , int MAXTIME ) throws Exception {
 		checkTransactionMetadata( target.meta.getStorage( action ) );
-		ServerMonitoring mon = action.getActiveMonitoring();
+		EngineMonitoring mon = action.getActiveMonitoring();
 		target.modifyTarget( this , MAXTIME );
 		mon.modifyTarget( this , target );
 	}
 
 	public void setDefaultMonitoringProperties( PropertySet props ) throws Exception {
 		checkTransactionMonitoring();
-		ServerMonitoring mon = action.getActiveMonitoring();
+		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setDefaultProperties( this , props );
 		action.saveMonitoring( this );
 	}
@@ -669,17 +669,17 @@ public class EngineTransaction extends TransactionBase {
 		set.reorderProjects( this );
 	}
 	
-	public void createMirrorRepository( ServerMirrors mirrors , MetaSourceProject project ) throws Exception {
+	public void createMirrorRepository( EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
 		checkTransactionMirrors( mirrors );
 		mirrors.createProjectMirror( this , project );
 	}
 
-	public void changeMirrorRepository( ServerMirrors mirrors , MetaSourceProject project ) throws Exception {
+	public void changeMirrorRepository( EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
 		checkTransactionMirrors( mirrors );
 		mirrors.changeProjectMirror( this , project );
 	}
 
-	public void deleteSourceProject( ServerMirrors mirrors , MetaSourceProject project , boolean leaveManual ) throws Exception {
+	public void deleteSourceProject( EngineMirrors mirrors , MetaSourceProject project , boolean leaveManual ) throws Exception {
 		checkTransactionMetadata( project.meta.getStorage( action ) );
 		checkTransactionMirrors( mirrors );
 		

@@ -11,7 +11,7 @@ import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
-import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.Types.*;
 
@@ -65,7 +65,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Date releaseDate = getDateArg( action , 1 );
-		ServerReleaseLifecycle lc = getLifecycleArg( action , 2 );
+		ReleaseLifecycle lc = getLifecycleArg( action , 2 );
 		checkNoArgs( action , 3 );
 		Meta meta = action.getContextMeta();
 		impl.createRelease( action , meta , RELEASELABEL , releaseDate , lc );
@@ -76,7 +76,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	public void run( ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Date releaseDate = getDateArg( action , 1 );
-		ServerReleaseLifecycle lc = getLifecycleArg( action , 2 );
+		ReleaseLifecycle lc = getLifecycleArg( action , 2 );
 		checkNoArgs( action , 3 );
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
@@ -159,7 +159,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		String RELEASESRC = getRequiredArg( action , 0 , "RELEASESRC" );
 		String RELEASEDST = getRequiredArg( action , 1 , "RELEASEDST" );
 		Date releaseDate = getRequiredDateArg( action , 2 , "RELEASEDATE" );
-		ServerReleaseLifecycle lc = getLifecycleArg( action , 3 );
+		ReleaseLifecycle lc = getLifecycleArg( action , 3 );
 		checkNoArgs( action , 4 );
 		Meta meta = action.getContextMeta();
 		impl.copyRelease( action , meta , RELEASESRC , RELEASEDST , releaseDate , lc );

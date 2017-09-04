@@ -38,22 +38,22 @@ import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.Types;
-import org.urm.meta.engine.ServerAuthResource;
-import org.urm.meta.engine.ServerAuthUser;
-import org.urm.meta.engine.ServerBase;
-import org.urm.meta.engine.ServerBuilders;
-import org.urm.meta.engine.ServerContext;
-import org.urm.meta.engine.ServerDirectory;
-import org.urm.meta.engine.ServerInfrastructure;
-import org.urm.meta.engine.ServerMirrorRepository;
-import org.urm.meta.engine.ServerMirrors;
-import org.urm.meta.engine.ServerMonitoring;
-import org.urm.meta.engine.ServerProduct;
-import org.urm.meta.engine.ServerProjectBuilder;
-import org.urm.meta.engine.ServerReleaseLifecycles;
-import org.urm.meta.engine.ServerResources;
-import org.urm.meta.engine.ServerSettings;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.EngineAuthUser;
+import org.urm.meta.engine.EngineBase;
+import org.urm.meta.engine.EngineBuilders;
+import org.urm.meta.engine.EngineContext;
+import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.EngineInfrastructure;
+import org.urm.meta.engine.EngineMirrorRepository;
+import org.urm.meta.engine.EngineMirrors;
+import org.urm.meta.engine.EngineMonitoring;
+import org.urm.meta.engine.Product;
+import org.urm.meta.engine.ProjectBuilder;
+import org.urm.meta.engine.EngineReleaseLifecycles;
+import org.urm.meta.engine.EngineResources;
+import org.urm.meta.engine.EngineSettings;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
@@ -145,7 +145,7 @@ abstract public class ActionBase extends ActionCore {
 		SessionSecurity security = session.getSecurity();
 		if( security == null )
 			return( "" );
-		ServerAuthUser user = security.getUser();
+		EngineAuthUser user = security.getUser();
 		return( user.NAME );
 	}
 	
@@ -383,8 +383,8 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public ShellExecutor createDedicatedRemoteShell( String name , Account account , boolean setAction ) throws Exception {
-		ServerResources res = getServerResources();
-		ServerAuthResource ar = res.getResource( account.AUTHRESOURCE );
+		EngineResources res = getServerResources();
+		EngineAuthResource ar = res.getResource( account.AUTHRESOURCE );
 		ar.loadAuthData();
 		return( engine.shellPool.createDedicatedRemoteShell( this , name , account , ar , setAction ) );
 	}
@@ -678,8 +678,8 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public EngineCacheObject getCacheObject( EngineObject object ) {
-		if( object instanceof ServerProduct ) {
-			ServerProduct xo = ( ServerProduct )object; 
+		if( object instanceof Product ) {
+			Product xo = ( Product )object; 
 			return( getProductCacheObject( xo.NAME ) );
 		}
 		if( object instanceof Meta ) {
@@ -705,43 +705,43 @@ abstract public class ActionBase extends ActionCore {
 		return( null );
 	}
 	
-	public ServerResources getServerResources() {
+	public EngineResources getServerResources() {
 		return( actionInit.getActiveResources() );
 	}
 	
-	public ServerBuilders getServerBuilders() {
+	public EngineBuilders getServerBuilders() {
 		return( actionInit.getActiveBuilders() );
 	}
 	
-	public ServerDirectory getServerDirectory() {
+	public EngineDirectory getServerDirectory() {
 		return( actionInit.getActiveDirectory() );
 	}
 	
-	public ServerSettings getServerSettings() {
+	public EngineSettings getServerSettings() {
 		return( actionInit.getActiveServerSettings() );
 	}
 
-	public ServerContext getServerContext() {
+	public EngineContext getServerContext() {
 		return( actionInit.getActiveServerContext() );
 	}
 	
-	public ServerMirrors getServerMirrors() {
+	public EngineMirrors getServerMirrors() {
 		return( actionInit.getActiveMirrors() );
 	}
 	
-	public ServerBase getServerBase() {
+	public EngineBase getServerBase() {
 		return( actionInit.getServerBase() );
 	}
 	
-	public ServerInfrastructure getServerInfrastructure() {
+	public EngineInfrastructure getServerInfrastructure() {
 		return( actionInit.getServerInfrastructure() );
 	}
 	
-	public ServerReleaseLifecycles getServerReleaseLifecycles() {
+	public EngineReleaseLifecycles getServerReleaseLifecycles() {
 		return( actionInit.getServerReleaseLifecycles() );
 	}
 	
-	public ServerMonitoring getServerMonitoring() {
+	public EngineMonitoring getServerMonitoring() {
 		return( actionInit.getServerMonitoring() );
 	}
 	
@@ -750,30 +750,30 @@ abstract public class ActionBase extends ActionCore {
 		return( product.getBuildSettings( this ) );
 	}
 
-	public ServerMirrorRepository getProjectMirror( MetaSourceProject project ) throws Exception {
-		ServerMirrors mirrors = getServerMirrors();
-		ServerMirrorRepository repo = mirrors.findProjectRepository( project );
+	public EngineMirrorRepository getProjectMirror( MetaSourceProject project ) throws Exception {
+		EngineMirrors mirrors = getServerMirrors();
+		EngineMirrorRepository repo = mirrors.findProjectRepository( project );
 		return( repo );
 	}
 
-	public ServerMirrorRepository getMetaMirror( ProductMeta meta ) throws Exception {
-		ServerMirrors mirrors = getServerMirrors();
-		ServerMirrorRepository repo = mirrors.findProductMetaRepository( meta );
+	public EngineMirrorRepository getMetaMirror( ProductMeta meta ) throws Exception {
+		EngineMirrors mirrors = getServerMirrors();
+		EngineMirrorRepository repo = mirrors.findProductMetaRepository( meta );
 		return( repo );
 	}
 
-	public ServerMirrorRepository getConfigurationMirror( ProductMeta meta ) throws Exception {
-		ServerMirrors mirrors = getServerMirrors();
-		ServerMirrorRepository repo = mirrors.findProductDataRepository( meta );
+	public EngineMirrorRepository getConfigurationMirror( ProductMeta meta ) throws Exception {
+		EngineMirrors mirrors = getServerMirrors();
+		EngineMirrorRepository repo = mirrors.findProductDataRepository( meta );
 		if( repo == null )
 			exit0( _Error.MissingMirrorConfig0 , "Missing product configuration files mirror" );
 		
 		return( repo );
 	}
 
-	public ServerProjectBuilder getBuilder( String name ) throws Exception {
-		ServerBuilders builders = getServerBuilders();
-		ServerProjectBuilder builder = builders.getBuilder( name );
+	public ProjectBuilder getBuilder( String name ) throws Exception {
+		EngineBuilders builders = getServerBuilders();
+		ProjectBuilder builder = builders.getBuilder( name );
 		return( builder );
 	}
 
@@ -781,15 +781,15 @@ abstract public class ActionBase extends ActionCore {
 		return( engine.blotter );
 	}
 	
-	public ServerMirrorRepository getServerMirror() throws Exception {
-		ServerMirrors mirrors = getServerMirrors();
-		ServerMirrorRepository repo = mirrors.findServerRepository();
+	public EngineMirrorRepository getServerMirror() throws Exception {
+		EngineMirrors mirrors = getServerMirrors();
+		EngineMirrorRepository repo = mirrors.findServerRepository();
 		return( repo );
 	}
 	
-	public ServerAuthResource getResource( String name ) throws Exception {
-		ServerResources resources = getServerResources();
-		ServerAuthResource res = resources.getResource( name );
+	public EngineAuthResource getResource( String name ) throws Exception {
+		EngineResources resources = getServerResources();
+		EngineAuthResource res = resources.getResource( name );
 		return( res );
 	}
 	

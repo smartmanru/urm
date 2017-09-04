@@ -16,7 +16,7 @@ import org.urm.engine.storage.NexusDownloadInfo;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.storage.SourceStorage;
 import org.urm.meta.Types.*;
-import org.urm.meta.engine.ServerProjectBuilder;
+import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaSourceProjectItem;
 
 public class ActionGetBinary extends ActionBase {
@@ -51,12 +51,12 @@ public class ActionGetBinary extends ActionBase {
 	}
 	
 	private void downloadCoreProject( ActionScopeTarget scopeProject ) throws Exception {
-		ServerProjectBuilder builder = super.getBuilder( scopeProject.sourceProject.BUILDER );
+		ProjectBuilder builder = super.getBuilder( scopeProject.sourceProject.BUILDER );
 		for( ActionScopeTargetItem scopeItem : scopeProject.getItems( this ) )
 			downloadBuiltItem( builder , scopeProject , scopeItem );
 	}
 	
-	private void downloadBuiltItem( ServerProjectBuilder builder , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
+	private void downloadBuiltItem( ProjectBuilder builder , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
 		MetaSourceProjectItem item = scopeItem.sourceItem;
 		if( item.isInternal() ) {
 			debug( "skip internal project item " + scopeItem.sourceItem.ITEMNAME + " ..." );
@@ -143,7 +143,7 @@ public class ActionGetBinary extends ActionBase {
 		}
 	}
 
-	private void downloadNugetItem( ServerProjectBuilder builder , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
+	private void downloadNugetItem( ProjectBuilder builder , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
 		String ARTEFACTID = scopeItem.sourceItem.ITEMPATH;
 		String BUILDVERSION = scopeItem.getProjectItemBuildVersion( this );
 		boolean copyDistr = context.CTX_DIST;
@@ -210,7 +210,7 @@ public class ActionGetBinary extends ActionBase {
 			exitUnexpectedState();
 	}
 
-	private void downloadBuiltLocalItem( ServerProjectBuilder builder , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
+	private void downloadBuiltLocalItem( ProjectBuilder builder , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
 		MetaSourceProjectItem item = scopeItem.sourceItem;
 		
 		Account account = builder.getRemoteAccount( this );

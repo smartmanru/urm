@@ -15,10 +15,10 @@ import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.storage.MetadataStorage;
-import org.urm.meta.engine.ServerAccountReference;
-import org.urm.meta.engine.ServerDirectory;
-import org.urm.meta.engine.ServerHostAccount;
-import org.urm.meta.engine.ServerSettings;
+import org.urm.meta.engine.AccountReference;
+import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.HostAccount;
+import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDesign;
@@ -217,7 +217,7 @@ public class ProductMeta extends EngineObject {
 			}
 		}
 		else {
-			ServerSettings settings = action.getServerSettings();
+			EngineSettings settings = action.getServerSettings();
 			execprops = settings.serverContext.execprops;
 		}
 		
@@ -438,7 +438,7 @@ public class ProductMeta extends EngineObject {
 		}
 	}
 	
-	public synchronized void createInitial( TransactionBase transaction , ServerSettings settings , ServerDirectory directory ) throws Exception {
+	public synchronized void createInitial( TransactionBase transaction , EngineSettings settings , EngineDirectory directory ) throws Exception {
 		createInitialVersion( transaction );
 		createInitialProduct( transaction , settings );
 		createInitialDatabase( transaction );
@@ -453,7 +453,7 @@ public class ProductMeta extends EngineObject {
 		meta.setVersion( version );
 	}
 	
-	private void createInitialProduct( TransactionBase transaction , ServerSettings settings ) throws Exception {
+	private void createInitialProduct( TransactionBase transaction , EngineSettings settings ) throws Exception {
 		product = new MetaProductSettings( this , meta , settings.serverContext.execprops );
 		
 		ProductContext productContext = new ProductContext( meta );
@@ -619,12 +619,12 @@ public class ProductMeta extends EngineObject {
 		env.deleteObject();
 	}
 
-	public void getApplicationReferences( ServerHostAccount account , List<ServerAccountReference> refs ) {
+	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
 		for( MetaEnv env : envs.values() )
 			env.getApplicationReferences( account , refs );
 	}
 
-	public void deleteHostAccount( EngineTransaction transaction , ServerHostAccount account ) throws Exception {
+	public void deleteHostAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
 		for( MetaEnv env : envs.values() )
 			env.deleteHostAccount( transaction , account );
 	}

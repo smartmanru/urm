@@ -11,14 +11,14 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.shell.Account;
 import org.urm.meta.Types;
-import org.urm.meta.engine.ServerAuth;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.Types.*;
+import org.urm.meta.engine.EngineAuth;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 
 public class ScopeExecutor {
 
@@ -38,7 +38,7 @@ public class ScopeExecutor {
 	}
 
 	public boolean runSimpleServer( SecurityAction sa , boolean readOnly ) {
-		ServerAuth auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessServerAction( action , sa , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", server operation)" );
 			return( false );
@@ -47,7 +47,7 @@ public class ScopeExecutor {
 	}
 	
 	public boolean runSimpleProduct( String product , SecurityAction sa , boolean readOnly ) {
-		ServerAuth auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , product , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", product operation)" );
 			return( false );
@@ -56,7 +56,7 @@ public class ScopeExecutor {
 	}
 	
 	public boolean runSimpleEnv( MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ServerAuth auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , env , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", environment operation)" );
 			return( false );
@@ -65,7 +65,7 @@ public class ScopeExecutor {
 	}
 	
 	public boolean runProductBuild( String productName , SecurityAction sa , VarBUILDMODE mode , boolean readOnly ) {
-		ServerAuth auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , productName , mode , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", build operation)" );
 			return( false );
@@ -74,7 +74,7 @@ public class ScopeExecutor {
 	}
 	
 	public boolean runAll( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ServerAuth auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( env != null ) {
 			if( !auth.checkAccessProductAction( action , sa , scope.meta , env , readOnly ) ) {
 				accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, scope)" );
@@ -94,7 +94,7 @@ public class ScopeExecutor {
 	}
 	
 	public boolean runCategories( ActionScope scope , VarCATEGORY[] categories , SecurityAction sa , boolean readOnly ) {
-		ServerAuth auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , scope.meta , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", categories)" );
 			return( false );
@@ -134,7 +134,7 @@ public class ScopeExecutor {
 	}
 	
 	public boolean runAll( ActionScopeSet set , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ServerAuth auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( env != null ) {
 			if( !auth.checkAccessProductAction( action , sa , set.scope.meta , env , readOnly ) ) {
 				accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, scope set)" );
@@ -158,7 +158,7 @@ public class ScopeExecutor {
 	}
 	
 	public boolean runTargetList( ActionScopeSet set , ActionScopeTarget[] targets , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ServerAuth auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( env != null ) {
 			if( !auth.checkAccessProductAction( action , sa , set.scope.meta , env , readOnly ) ) {
 				accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, scope targets)" );
@@ -213,7 +213,7 @@ public class ScopeExecutor {
 	}
 	
 	public boolean runSingleTarget( ActionScopeTarget item , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ServerAuth auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( env != null ) {
 			if( !auth.checkAccessProductAction( action , sa , item.set.scope.meta , env , readOnly ) ) {
 				accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, scope target)" );
@@ -264,7 +264,7 @@ public class ScopeExecutor {
 	}
 	
 	public boolean runEnvUniqueHosts( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ServerAuth auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , scope.meta , env , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, hosts)" );
 			return( false );
@@ -312,7 +312,7 @@ public class ScopeExecutor {
 				return( runEnvUniqueHosts( scope , env , sa , readOnly ) );
 		}
 
-		ServerAuth auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , scope.meta , env , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, acccounts)" );
 			return( false );

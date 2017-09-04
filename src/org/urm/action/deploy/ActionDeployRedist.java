@@ -13,7 +13,7 @@ import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.storage.RedistStorage;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 
 public class ActionDeployRedist extends ActionBase {
 

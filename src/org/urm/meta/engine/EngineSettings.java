@@ -15,21 +15,21 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerSettings extends EngineObject {
+public class EngineSettings extends EngineObject {
 
 	public EngineLoader loader;
 	
-	public ServerContext serverContext;
+	public EngineContext serverContext;
 
 	private PropertySet defaultProductProperties;
 	private PropertySet defaultProductBuildProperties;
 	private Map<VarBUILDMODE,PropertySet> mapBuildModeDefaults;
 	
-	public ServerSettings( EngineLoader loader ) {
+	public EngineSettings( EngineLoader loader ) {
 		super( null );
 		this.loader = loader;
 		
-		serverContext = new ServerContext( this );
+		serverContext = new EngineContext( this );
 		mapBuildModeDefaults = new HashMap<VarBUILDMODE,PropertySet>();
 	}
 
@@ -83,7 +83,7 @@ public class ServerSettings extends EngineObject {
 		}
 	}
 	
-	public ServerContext getServerContext() {
+	public EngineContext getServerContext() {
 		return( serverContext );
 	}
 
@@ -103,8 +103,8 @@ public class ServerSettings extends EngineObject {
 		return( mapBuildModeDefaults.values().toArray( new PropertySet[0] ) );
 	}
 
-	public ServerSettings copy() throws Exception {
-		ServerSettings r = new ServerSettings( loader );
+	public EngineSettings copy() throws Exception {
+		EngineSettings r = new EngineSettings( loader );
 		r.serverContext = serverContext.copy();
 		
 		r.defaultProductProperties = defaultProductProperties.copy( serverContext.properties );

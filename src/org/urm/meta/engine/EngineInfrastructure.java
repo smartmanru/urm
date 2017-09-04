@@ -15,16 +15,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerInfrastructure extends EngineObject {
+public class EngineInfrastructure extends EngineObject {
 
 	public EngineLoader loader;
 	
-	private Map<String,ServerDatacenter> mapDatacenters;
+	private Map<String,Datacenter> mapDatacenters;
 	
-	public ServerInfrastructure( EngineLoader loader ) {
+	public EngineInfrastructure( EngineLoader loader ) {
 		super( null );
 		this.loader = loader;
-		mapDatacenters = new HashMap<String,ServerDatacenter>(); 
+		mapDatacenters = new HashMap<String,Datacenter>(); 
 	}
 	
 	@Override
@@ -41,7 +41,7 @@ public class ServerInfrastructure extends EngineObject {
 			return;
 		
 		for( Node node : list ) {
-			ServerDatacenter datacenter = new ServerDatacenter( this );
+			Datacenter datacenter = new Datacenter( this );
 			datacenter.load( node );
 			addDatacenter( datacenter );
 		}
@@ -52,7 +52,7 @@ public class ServerInfrastructure extends EngineObject {
 		Element root = doc.getDocumentElement();
 		
 		for( String id : Common.getSortedKeys( mapDatacenters ) ) {
-			ServerDatacenter datacenter = mapDatacenters.get( id );
+			Datacenter datacenter = mapDatacenters.get( id );
 			Element node = Common.xmlCreateElement( doc , root , "datacenter" );
 			datacenter.save( doc , node );
 		}
@@ -60,11 +60,11 @@ public class ServerInfrastructure extends EngineObject {
 		Common.xmlSaveDoc( doc , path );
 	}
 
-	public void addDatacenter( ServerDatacenter datacenter ) {
+	public void addDatacenter( Datacenter datacenter ) {
 		mapDatacenters.put( datacenter.ID , datacenter );
 	}
 
-	public ServerDatacenter findDatacenter( String id ) {
+	public Datacenter findDatacenter( String id ) {
 		return( mapDatacenters.get( id ) );
 	}
 
@@ -72,12 +72,12 @@ public class ServerInfrastructure extends EngineObject {
 		return( Common.getSortedKeys( mapDatacenters ) );
 	}
 
-	public void createDatacenter( EngineTransaction transaction , ServerDatacenter datacenter ) throws Exception {
+	public void createDatacenter( EngineTransaction transaction , Datacenter datacenter ) throws Exception {
 		addDatacenter( datacenter );
 	}
 	
-	public void modifyDatacenter( EngineTransaction transaction , ServerDatacenter datacenter ) throws Exception {
-		for( Entry<String,ServerDatacenter> entry : mapDatacenters.entrySet() ) {
+	public void modifyDatacenter( EngineTransaction transaction , Datacenter datacenter ) throws Exception {
+		for( Entry<String,Datacenter> entry : mapDatacenters.entrySet() ) {
 			if( entry.getValue() == datacenter ) {
 				mapDatacenters.remove( entry.getKey() );
 				break;
@@ -87,7 +87,7 @@ public class ServerInfrastructure extends EngineObject {
 		addDatacenter( datacenter );
 	}
 	
-	public void deleteDatacenter( EngineTransaction transaction , ServerDatacenter datacenter ) throws Exception {
+	public void deleteDatacenter( EngineTransaction transaction , Datacenter datacenter ) throws Exception {
 		mapDatacenters.remove( datacenter.ID );
 		datacenter.deleteDatacenter( transaction );
 	}

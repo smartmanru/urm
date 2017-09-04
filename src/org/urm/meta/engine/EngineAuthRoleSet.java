@@ -6,21 +6,21 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerAuthRoleSet {
+public class EngineAuthRoleSet {
 	public boolean secDev = false;
 	public boolean secRel = false;
 	public boolean secTest = false;
 	public boolean secOpr = false;
 	public boolean secInfra = false;
 
-	public ServerAuthRoleSet() {
+	public EngineAuthRoleSet() {
 	}
 	
-	public ServerAuthRoleSet( ServerAuthRoleSet src ) {
+	public EngineAuthRoleSet( EngineAuthRoleSet src ) {
 		set( src );
 	}
 	
-	public void set( ServerAuthRoleSet src ) {
+	public void set( EngineAuthRoleSet src ) {
 		this.secDev = src.secDev;
 		this.secRel = src.secRel;
 		this.secTest = src.secTest;
@@ -48,7 +48,7 @@ public class ServerAuthRoleSet {
 		secInfra = false;
 	}
 	
-	public void add( ServerAuthRoleSet src ) {
+	public void add( EngineAuthRoleSet src ) {
 		if( src.secDev )
 			secDev = true;
 		if( src.secRel )

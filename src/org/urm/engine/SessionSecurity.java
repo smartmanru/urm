@@ -3,36 +3,36 @@ package org.urm.engine;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.meta.engine.ServerAuth;
-import org.urm.meta.engine.ServerAuth.SpecialRights;
-import org.urm.meta.engine.ServerAuthContext;
-import org.urm.meta.engine.ServerAuthGroup;
-import org.urm.meta.engine.ServerAuthRoleSet;
-import org.urm.meta.engine.ServerAuthUser;
+import org.urm.meta.engine.EngineAuth;
+import org.urm.meta.engine.EngineAuthContext;
+import org.urm.meta.engine.EngineAuthGroup;
+import org.urm.meta.engine.EngineAuthUser;
+import org.urm.meta.engine.EngineAuthRoleSet;
+import org.urm.meta.engine.EngineAuth.SpecialRights;
 
 public class SessionSecurity {
 
-	ServerAuth auth;
+	EngineAuth auth;
 	
 	private boolean server;
-	private ServerAuthUser user;
-	private ServerAuthContext ac;
+	private EngineAuthUser user;
+	private EngineAuthContext ac;
 
-	ServerAuthRoleSet secBase;
-	ServerAuthRoleSet secProductAny;
-	ServerAuthRoleSet secNetworkAny;
-	Map<String,ServerAuthRoleSet> secProduct;
-	Map<String,ServerAuthRoleSet> secNetwork;
+	EngineAuthRoleSet secBase;
+	EngineAuthRoleSet secProductAny;
+	EngineAuthRoleSet secNetworkAny;
+	Map<String,EngineAuthRoleSet> secProduct;
+	Map<String,EngineAuthRoleSet> secNetwork;
 	Map<SpecialRights,Integer> secSpecial;
 	
-	public SessionSecurity( ServerAuth auth ) {
+	public SessionSecurity( EngineAuth auth ) {
 		this.auth = auth;
 		server = false;
-		secBase = new ServerAuthRoleSet();
-		secProductAny = new ServerAuthRoleSet();
-		secNetworkAny = new ServerAuthRoleSet();
-		secProduct = new HashMap<String,ServerAuthRoleSet>();
-		secNetwork = new HashMap<String,ServerAuthRoleSet>();
+		secBase = new EngineAuthRoleSet();
+		secProductAny = new EngineAuthRoleSet();
+		secNetworkAny = new EngineAuthRoleSet();
+		secProduct = new HashMap<String,EngineAuthRoleSet>();
+		secNetwork = new HashMap<String,EngineAuthRoleSet>();
 		secSpecial = new HashMap<SpecialRights,Integer>(); 
 	}
 
@@ -48,19 +48,19 @@ public class SessionSecurity {
 		server = true;
 	}
 	
-	public ServerAuthUser getUser() {
+	public EngineAuthUser getUser() {
 		return( user );
 	}
 
-	public void setUser( ServerAuthUser user ) {
+	public void setUser( EngineAuthUser user ) {
 		this.user = user;
 	}
 	
-	public ServerAuthContext getContext() {
+	public EngineAuthContext getContext() {
 		return( ac );
 	}
 
-	public void setContext( ServerAuthContext ac ) {
+	public void setContext( EngineAuthContext ac ) {
 		this.ac = ac;
 	}
 
@@ -75,7 +75,7 @@ public class SessionSecurity {
 		secNetwork.clear();
 		secSpecial.clear();
 		
-		for( ServerAuthGroup group : auth.getUserGroups( user ) ) {
+		for( EngineAuthGroup group : auth.getUserGroups( user ) ) {
 			if( group.hasUser( user ) ) {
 				secBase.add( group.roles );
 				
@@ -83,9 +83,9 @@ public class SessionSecurity {
 					secProductAny.add( group.roles );
 				else {
 					for( String product : group.getPermissionProducts() ) {
-						ServerAuthRoleSet roles = secProduct.get( product );
+						EngineAuthRoleSet roles = secProduct.get( product );
 						if( roles == null ) {
-							roles = new ServerAuthRoleSet( group.roles );
+							roles = new EngineAuthRoleSet( group.roles );
 							secProduct.put( product , roles );
 						}
 						else
@@ -97,9 +97,9 @@ public class SessionSecurity {
 					secNetworkAny.add( group.roles );
 				else {
 					for( String network : group.getPermissionNetworks() ) {
-						ServerAuthRoleSet roles = secNetwork.get( network );
+						EngineAuthRoleSet roles = secNetwork.get( network );
 						if( roles == null ) {
-							roles = new ServerAuthRoleSet( group.roles );
+							roles = new EngineAuthRoleSet( group.roles );
 							secNetwork.put( network , roles );
 						}
 						else
@@ -113,21 +113,21 @@ public class SessionSecurity {
 		}
 	}
 
-	public synchronized ServerAuthRoleSet getBaseRoles() {
-		return( new ServerAuthRoleSet( secBase ) );
+	public synchronized EngineAuthRoleSet getBaseRoles() {
+		return( new EngineAuthRoleSet( secBase ) );
 	}
 
-	public synchronized ServerAuthRoleSet getProductRoles( String productName ) {
-		ServerAuthRoleSet set = new ServerAuthRoleSet( secProductAny );
-		ServerAuthRoleSet roles = secProduct.get( productName );
+	public synchronized EngineAuthRoleSet getProductRoles( String productName ) {
+		EngineAuthRoleSet set = new EngineAuthRoleSet( secProductAny );
+		EngineAuthRoleSet roles = secProduct.get( productName );
 		if( roles != null )
 			set.add( roles );
 		return( set );
 	}
 	
-	public synchronized ServerAuthRoleSet getNetworkRoles( String networkName ) {
-		ServerAuthRoleSet set = new ServerAuthRoleSet( secNetworkAny );
-		ServerAuthRoleSet roles = secNetwork.get( networkName );
+	public synchronized EngineAuthRoleSet getNetworkRoles( String networkName ) {
+		EngineAuthRoleSet set = new EngineAuthRoleSet( secNetworkAny );
+		EngineAuthRoleSet roles = secNetwork.get( networkName );
 		if( roles != null )
 			set.add( roles );
 		return( set );

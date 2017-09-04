@@ -12,8 +12,8 @@ import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandOptions;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.ActionInit.RootActionType;
+import org.urm.meta.engine.EngineAuthUser;
 import org.urm.engine.action.CommandExecutor;
-import org.urm.meta.engine.ServerAuthUser;
 
 public class SessionController {
 
@@ -246,7 +246,7 @@ public class SessionController {
 	public synchronized void updatePermissions( ActionBase action , String user ) throws Exception {
 		for( EngineSession session : sessions.values() ) {
 			SessionSecurity security = session.getSecurity();
-			ServerAuthUser su = security.getUser();
+			EngineAuthUser su = security.getUser();
 			if( su != null ) {
 				if( user.equals( su.NAME ) )
 					security.setPermissions();

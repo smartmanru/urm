@@ -7,9 +7,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerAuthUser {
+public class EngineAuthUser {
 
-	ServerAuth auth;
+	EngineAuth auth;
 	
 	public boolean local;
 	public String NAME;
@@ -17,7 +17,7 @@ public class ServerAuthUser {
 	public String EMAIL;
 	public boolean ADMIN;
 	
-	public ServerAuthUser( ServerAuth auth ) {
+	public EngineAuthUser( EngineAuth auth ) {
 		this.auth = auth;
 	}
 

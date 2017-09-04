@@ -7,14 +7,14 @@ import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.engine.ServerAuthResource;
-import org.urm.meta.engine.ServerProjectBuilder;
+import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProject;
 
 public class BuilderWinbuildMethod extends Builder {
 
-	public BuilderWinbuildMethod( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
+	public BuilderWinbuildMethod( ProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
 		super( builder , project , storage , TAG , APPVERSION );
 	}
 
@@ -90,7 +90,7 @@ public class BuilderWinbuildMethod extends Builder {
 
 	private String getNugetSourcePath( ActionBase action ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
-		ServerAuthResource res = action.getResource( builder.TARGETNEXUS );
+		EngineAuthResource res = action.getResource( builder.TARGETNEXUS );
 		return( res.BASEURL + "/service/local/nuget/" + build.CONFIG_NEXUS_REPO + "-nuget/" );
 	}
 	

@@ -20,16 +20,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerReleaseLifecycles extends EngineObject {
+public class EngineReleaseLifecycles extends EngineObject {
 
 	public EngineLoader loader;
 	
-	private Map<String,ServerReleaseLifecycle> lcMap;
+	private Map<String,ReleaseLifecycle> lcMap;
 	
-	public ServerReleaseLifecycles( EngineLoader loader ) {
+	public EngineReleaseLifecycles( EngineLoader loader ) {
 		super( null );
 		this.loader = loader;
-		lcMap = new HashMap<String,ServerReleaseLifecycle>(); 
+		lcMap = new HashMap<String,ReleaseLifecycle>(); 
 	}
 	
 	@Override
@@ -46,7 +46,7 @@ public class ServerReleaseLifecycles extends EngineObject {
 			return;
 		
 		for( Node node : list ) {
-			ServerReleaseLifecycle lc = new ServerReleaseLifecycle( this );
+			ReleaseLifecycle lc = new ReleaseLifecycle( this );
 			lc.load( node );
 			addLifecycle( lc );
 		}
@@ -57,7 +57,7 @@ public class ServerReleaseLifecycles extends EngineObject {
 		Element root = doc.getDocumentElement();
 		
 		for( String id : Common.getSortedKeys( lcMap ) ) {
-			ServerReleaseLifecycle lc = lcMap.get( id );
+			ReleaseLifecycle lc = lcMap.get( id );
 			Element node = Common.xmlCreateElement( doc , root , "lifecycle" );
 			lc.save( doc , node );
 		}
@@ -65,16 +65,16 @@ public class ServerReleaseLifecycles extends EngineObject {
 		Common.xmlSaveDoc( doc , path );
 	}
 
-	public void addLifecycle( ServerReleaseLifecycle lc ) {
+	public void addLifecycle( ReleaseLifecycle lc ) {
 		lcMap.put( lc.ID , lc );
 	}
 
-	public ServerReleaseLifecycle findLifecycle( String id ) {
+	public ReleaseLifecycle findLifecycle( String id ) {
 		return( lcMap.get( id ) );
 	}
 
-	public ServerReleaseLifecycle getLifecycle( ActionBase action , String id ) throws Exception {
-		ServerReleaseLifecycle lc = findLifecycle( id );
+	public ReleaseLifecycle getLifecycle( ActionBase action , String id ) throws Exception {
+		ReleaseLifecycle lc = findLifecycle( id );
 		if( lc == null )
 			action.exit1( _Error.UnknownLifecycle1 , "unknown lifecycle id=" + id , id );
 		return( lc );
@@ -87,7 +87,7 @@ public class ServerReleaseLifecycles extends EngineObject {
 	public String[] getLifecycles( VarLCTYPE type , boolean enabledOnly ) {
 		List<String> list = new LinkedList<String>();
 		for( String lcName : Common.getSortedKeys( lcMap ) ) {
-			ServerReleaseLifecycle lc = lcMap.get( lcName );
+			ReleaseLifecycle lc = lcMap.get( lcName );
 			if( lc.lcType == type ) {
 				if( enabledOnly == false || lc.enabled )
 					list.add( lcName );
@@ -96,31 +96,31 @@ public class ServerReleaseLifecycles extends EngineObject {
 		return( list.toArray( new String[0] ) );
 	}
 
-	public ServerReleaseLifecycle createLifecycle( EngineTransaction transaction , ServerReleaseLifecycle lcNew ) throws Exception {
+	public ReleaseLifecycle createLifecycle( EngineTransaction transaction , ReleaseLifecycle lcNew ) throws Exception {
 		if( lcMap.get( lcNew.ID ) != null )
 			transaction.exit1( _Error.LifecycleAlreadyExists1 , "lifecycle already exists name=" + lcNew.ID , lcNew.ID );
 			
-		ServerReleaseLifecycle lc = new ServerReleaseLifecycle( this );
+		ReleaseLifecycle lc = new ReleaseLifecycle( this );
 		lc.setLifecycleData( transaction ,  lcNew );
 		lcMap.put( lc.ID , lc );
 		return( lc );
 	}
 	
-	public void deleteLifecycle( EngineTransaction transaction , ServerReleaseLifecycle lc ) throws Exception {
+	public void deleteLifecycle( EngineTransaction transaction , ReleaseLifecycle lc ) throws Exception {
 		if( lcMap.get( lc.ID ) == null )
 			transaction.exit1( _Error.UnknownLifecycle1 , "unknown lifecycle id=" + lc.ID , lc.ID );
 			
 		lcMap.remove( lc.ID );
 	}
 
-	public ServerReleaseLifecycle copyLifecycle( EngineTransaction transaction , ServerReleaseLifecycle lc , String name , String desc ) throws Exception {
-		ServerReleaseLifecycle lcNew = lc.copy( this );
+	public ReleaseLifecycle copyLifecycle( EngineTransaction transaction , ReleaseLifecycle lc , String name , String desc ) throws Exception {
+		ReleaseLifecycle lcNew = lc.copy( this );
 		lcNew.setLifecycleName( transaction , name , desc );
 		addLifecycle( lcNew );
 		return( lcNew );
 	}
 
-	public boolean isUsed( ServerReleaseLifecycle lc ) {
+	public boolean isUsed( ReleaseLifecycle lc ) {
 		EngineBlotterSet blotter = loader.engine.blotter.getBlotterSet( BlotterType.BLOTTER_RELEASE );
 		if( blotter.checkLifecycleUsed( lc.ID ) )
 			return( true );

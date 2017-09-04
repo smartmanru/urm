@@ -6,8 +6,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.ServerAuthResource;
-import org.urm.meta.engine.ServerMirrorRepository;
+import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.EngineMirrorRepository;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
@@ -16,12 +16,12 @@ public class GitVCS extends GenericVCS {
 
 	static String MASTERBRANCH = "master";
 
-	public GitVCS( ActionBase action , Meta meta , ServerAuthResource res , ShellExecutor shell ) {
+	public GitVCS( ActionBase action , Meta meta , EngineAuthResource res , ShellExecutor shell ) {
 		super( action , meta , res , shell );
 	}
 
 	@Override
-	public MirrorCase getMirror( ServerMirrorRepository mirror ) throws Exception {
+	public MirrorCase getMirror( EngineMirrorRepository mirror ) throws Exception {
 		return( new MirrorCaseGit( this , mirror , "" ) );
 	}
 	
@@ -274,13 +274,13 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean isValidRepositoryTagPath( ServerMirrorRepository mirror , String TAG , String path ) throws Exception {
+	public boolean isValidRepositoryTagPath( EngineMirrorRepository mirror , String TAG , String path ) throws Exception {
 		action.exitNotImplemented();
 		return( false );
 	}
 	
 	@Override 
-	public boolean isValidRepositoryMasterRootPath( ServerMirrorRepository mirror , String path ) throws Exception {
+	public boolean isValidRepositoryMasterRootPath( EngineMirrorRepository mirror , String path ) throws Exception {
 		MirrorCaseGit mc = getMasterMirrorCase( mirror );
 		mc.refreshRepository();
 		
@@ -296,7 +296,7 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean isValidRepositoryMasterPath( ServerMirrorRepository mirror , String path ) throws Exception {
+	public boolean isValidRepositoryMasterPath( EngineMirrorRepository mirror , String path ) throws Exception {
 		MirrorCaseGit mc = getMasterMirrorCase( mirror );
 		mc.refreshRepository();
 		
@@ -312,7 +312,7 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean exportRepositoryTagPath( ServerMirrorRepository mirror , LocalFolder PATCHFOLDER , String TAG , String ITEMPATH , String name ) throws Exception {
+	public boolean exportRepositoryTagPath( EngineMirrorRepository mirror , LocalFolder PATCHFOLDER , String TAG , String ITEMPATH , String name ) throws Exception {
 		MirrorCaseGit mc = getMasterMirrorCase( mirror );
 		mc.refreshRepository();
 		
@@ -322,7 +322,7 @@ public class GitVCS extends GenericVCS {
 	}
 	
 	@Override 
-	public boolean exportRepositoryMasterPath( ServerMirrorRepository mirror , LocalFolder PATCHFOLDER , String ITEMPATH , String name ) throws Exception {
+	public boolean exportRepositoryMasterPath( EngineMirrorRepository mirror , LocalFolder PATCHFOLDER , String ITEMPATH , String name ) throws Exception {
 		if( !isValidRepositoryMasterPath( mirror , ITEMPATH ) )
 			return( false );
 			
@@ -355,25 +355,25 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override 
-	public String getInfoMasterPath( ServerMirrorRepository mirror , String ITEMPATH ) throws Exception {
+	public String getInfoMasterPath( EngineMirrorRepository mirror , String ITEMPATH ) throws Exception {
 		String CO_PATH = "git:" + mirror.NAME + ":" + ITEMPATH;
 		return( CO_PATH );
 	}
 	
 	@Override 
-	public boolean createMasterFolder( ServerMirrorRepository mirror , String ITEMPATH , String commitMessage ) throws Exception {
+	public boolean createMasterFolder( EngineMirrorRepository mirror , String ITEMPATH , String commitMessage ) throws Exception {
 		action.exitNotImplemented();
 		return( false );
 	}
 	
 	@Override 
-	public boolean moveMasterFiles( ServerMirrorRepository mirror , String srcFolder , String dstFolder , String itemPath , String commitMessage ) throws Exception {
+	public boolean moveMasterFiles( EngineMirrorRepository mirror , String srcFolder , String dstFolder , String itemPath , String commitMessage ) throws Exception {
 		action.exitNotImplemented();
 		return( false );
 	}
 	
 	@Override 
-	public String[] listMasterItems( ServerMirrorRepository mirror , String masterFolder ) throws Exception {
+	public String[] listMasterItems( EngineMirrorRepository mirror , String masterFolder ) throws Exception {
 		MirrorCaseGit mc = getMasterMirrorCase( mirror );
 		mc.refreshRepository();
 		
@@ -394,35 +394,35 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override 
-	public void deleteMasterFolder( ServerMirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception {
+	public void deleteMasterFolder( EngineMirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception {
 		MirrorCaseGit mc = getMasterMirrorCase( mirror );
 		mc.refreshRepository();
 		action.exitNotImplemented();
 	}
 
 	@Override 
-	public void checkoutMasterFolder( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder ) throws Exception {
+	public void checkoutMasterFolder( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder ) throws Exception {
 		MirrorCaseGit mc = getMasterMirrorCase( mirror );
 		mc.refreshRepository();
 		action.exitNotImplemented();
 	}
 	
 	@Override 
-	public void importMasterFolder( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception {
+	public void importMasterFolder( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception {
 		MirrorCaseGit mc = getMasterMirrorCase( mirror );
 		mc.refreshRepository();
 		action.exitNotImplemented();
 	}
 	
 	@Override 
-	public void ensureMasterFolderExists( ServerMirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception {
+	public void ensureMasterFolderExists( EngineMirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception {
 		MirrorCaseGit mc = getMasterMirrorCase( mirror );
 		mc.refreshRepository();
 		action.exitNotImplemented();
 	}
 	
 	@Override 
-	public boolean commitMasterFolder( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception {
+	public boolean commitMasterFolder( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception {
 		String folder = PATCHPATH.getFilePath( action , masterFolder );
 		int status = shell.customGetStatus( action , folder , "git commit -m " + Common.getQuoted( commitMessage ) );
 		if( status != 0 )
@@ -434,7 +434,7 @@ public class GitVCS extends GenericVCS {
 	}
 	
 	@Override 
-	public void addFileToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
+	public void addFileToCommit( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
 		String path = PATCHPATH.getFilePath( action , folder );
 		String filePath = file;
 		if( PATCHPATH.windows )
@@ -443,7 +443,7 @@ public class GitVCS extends GenericVCS {
 	}
 	
 	@Override 
-	public void deleteFileToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
+	public void deleteFileToCommit( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
 		String path = PATCHPATH.getFilePath( action , folder );
 		String filePath = file;
 		if( PATCHPATH.windows )
@@ -452,7 +452,7 @@ public class GitVCS extends GenericVCS {
 	}
 	
 	@Override 
-	public void addDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
+	public void addDirToCommit( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
 		String path = PATCHPATH.getFilePath( action , folder );
 		if( PATCHPATH.windows )
 			path = Common.getWinPath( path );
@@ -460,7 +460,7 @@ public class GitVCS extends GenericVCS {
 	}
 	
 	@Override 
-	public void deleteDirToCommit( ServerMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
+	public void deleteDirToCommit( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
 		String path = PATCHPATH.getFilePath( action , folder );
 		if( PATCHPATH.windows )
 			path = Common.getWinPath( path );
@@ -468,7 +468,7 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override 
-	public void createMasterTag( ServerMirrorRepository mirror , String masterFolder , String TAG , String commitMessage ) throws Exception {
+	public void createMasterTag( EngineMirrorRepository mirror , String masterFolder , String TAG , String commitMessage ) throws Exception {
 		TAG = getGitTagName( TAG );
 		action.exitNotImplemented();
 	}
@@ -507,12 +507,12 @@ public class GitVCS extends GenericVCS {
 	}
 	
 	private GitProjectRepo getRepo( MetaSourceProject project , String BRANCH ) throws Exception {
-		ServerMirrorRepository mirror = action.getProjectMirror( project );
+		EngineMirrorRepository mirror = action.getProjectMirror( project );
 		GitProjectRepo repo = new GitProjectRepo( this , mirror , project , BRANCH );
 		return( repo );
 	}
 
-	private MirrorCaseGit getMasterMirrorCase( ServerMirrorRepository mirror ) throws Exception {
+	private MirrorCaseGit getMasterMirrorCase( EngineMirrorRepository mirror ) throws Exception {
 		MirrorCaseGit mc = new MirrorCaseGit( this , mirror , "" );
 		return( mc );
 	}

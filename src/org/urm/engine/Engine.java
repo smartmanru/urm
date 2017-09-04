@@ -35,10 +35,10 @@ import org.urm.engine.status.EngineStatus;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.EngineLoader;
-import org.urm.meta.engine.ServerAuth;
-import org.urm.meta.engine.ServerMonitoring;
-import org.urm.meta.engine.ServerRegistry;
-import org.urm.meta.engine.ServerResources;
+import org.urm.meta.engine.EngineAuth;
+import org.urm.meta.engine.EngineMonitoring;
+import org.urm.meta.engine.EngineRegistry;
+import org.urm.meta.engine.EngineResources;
 
 public class Engine {
 
@@ -56,7 +56,7 @@ public class Engine {
 	public ActionInit serverAction;
 	public EngineShellPool shellPool;
 	
-	private ServerAuth auth;
+	private EngineAuth auth;
 	private EngineEvents events;
 	private EngineLoader loader;
 	private EngineStatus status;
@@ -81,7 +81,7 @@ public class Engine {
 		houseKeeping = new EngineHouseKeeping( this );
 		cache = new EngineCache( this ); 
 
-		auth = new ServerAuth( this );
+		auth = new EngineAuth( this );
 		events = new EngineEvents( this );
 		loader = new EngineLoader( this );
 		sessionController = new SessionController( this );
@@ -116,7 +116,7 @@ public class Engine {
 		
 		sessionController.start( serverAction );
 		
-		ServerMonitoring mon = loader.getMonitoring();
+		EngineMonitoring mon = loader.getMonitoring();
 		mon.start();
 		events.start();
 		
@@ -138,7 +138,7 @@ public class Engine {
 		houseKeeping.stop();
 		
 		events.stop();
-		ServerMonitoring mon = loader.getMonitoring();
+		EngineMonitoring mon = loader.getMonitoring();
 		mon.stop();
 		shellPool.stop( serverAction );
 		
@@ -476,7 +476,7 @@ public class Engine {
 		return( currentTransaction );
 	}
 
-	public ServerAuth getAuth() {
+	public EngineAuth getAuth() {
 		return( auth );
 	}
 
@@ -492,8 +492,8 @@ public class Engine {
 		return( loader );
 	}
 
-	public ServerResources getResources() {
-		ServerRegistry registry = loader.getRegistry();
+	public EngineResources getResources() {
+		EngineRegistry registry = loader.getRegistry();
 		return( registry.resources );
 	}
 	

@@ -18,8 +18,8 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.Types;
-import org.urm.meta.engine.ServerReleaseLifecycle;
-import org.urm.meta.engine.ServerReleaseLifecycles;
+import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.engine.EngineReleaseLifecycles;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
@@ -338,7 +338,7 @@ public class Dist {
 	}
 	
 	// top-level control
-	public void create( ActionBase action , String RELEASEDIR , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	public void create( ActionBase action , String RELEASEDIR , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		this.RELEASEDIR = RELEASEDIR;
 		VersionInfo info = VersionInfo.getReleaseVersion( action , RELEASEDIR );
 		lc = getLifecycle( action , meta , lc , info.getLifecycleType() );
@@ -350,9 +350,9 @@ public class Dist {
 		load( action );
 	}
 
-	public void changeReleaseDate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	public void changeReleaseDate( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		VarLCTYPE type = release.getLifecycleType();
-		ServerReleaseLifecycle lcset = getLifecycle( action , meta , lc , type );
+		ReleaseLifecycle lcset = getLifecycle( action , meta , lc , type );
 		release.setReleaseDate( action , releaseDate , lcset );
 	}
 	
@@ -979,7 +979,7 @@ public class Dist {
 		}
 	}
 	
-	public static ServerReleaseLifecycle getLifecycle( ActionBase action , Meta meta , ServerReleaseLifecycle lc , VarLCTYPE type ) throws Exception {
+	public static ReleaseLifecycle getLifecycle( ActionBase action , Meta meta , ReleaseLifecycle lc , VarLCTYPE type ) throws Exception {
 		MetaProductCoreSettings core = meta.getProductCoreSettings( action );
 		
 		if( type == VarLCTYPE.MAJOR ) {
@@ -995,7 +995,7 @@ public class Dist {
 					return( lc );
 				}
 				
-				ServerReleaseLifecycles lifecycles = action.getServerReleaseLifecycles();
+				EngineReleaseLifecycles lifecycles = action.getServerReleaseLifecycles();
 				return( lifecycles.findLifecycle( expected ) );
 			}
 		}
@@ -1013,7 +1013,7 @@ public class Dist {
 					return( lc );
 				}
 				
-				ServerReleaseLifecycles lifecycles = action.getServerReleaseLifecycles();
+				EngineReleaseLifecycles lifecycles = action.getServerReleaseLifecycles();
 				return( lifecycles.findLifecycle( expected ) );
 			}
 		}
@@ -1038,7 +1038,7 @@ public class Dist {
 		return( null );
 	}
 	
-	private Date getReleaseDate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	private Date getReleaseDate( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		if( releaseDate != null )
 			return( releaseDate );
 		

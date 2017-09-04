@@ -21,9 +21,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerAuthLdap {
+public class EngineAuthLdap {
 
-	ServerAuth auth;
+	EngineAuth auth;
 	
 	public boolean ldapUse;
 	public String ldapHost;
@@ -43,7 +43,7 @@ public class ServerAuthLdap {
 	private String USER_FILTER;
 	public String PROVIDER_URL;
 	
-	public ServerAuthLdap( ServerAuth auth ) {
+	public EngineAuthLdap( EngineAuth auth ) {
 		this.auth = auth;
 		setNotUse();
 	}
@@ -141,7 +141,7 @@ public class ServerAuthLdap {
 		if( ldapUserRes.isEmpty() )
 			return;
 		
-		ServerAuthResource res = auth.getResource( ldapUserRes );
+		EngineAuthResource res = auth.getResource( ldapUserRes );
 		res.loadAuthData();
 		if( !res.ac.isCommon() )
 			return;
@@ -205,8 +205,8 @@ public class ServerAuthLdap {
 		}
 	}
 
-	public ServerAuthContext getAuthContext( SearchResult res ) throws Exception {
-		ServerAuthContext ac = new ServerAuthContext( auth );
+	public EngineAuthContext getAuthContext( SearchResult res ) throws Exception {
+		EngineAuthContext ac = new EngineAuthContext( auth );
 		ac.createLdap( getAttr( res , userNameAttr ) );
 		return( ac );
 	}
@@ -256,12 +256,12 @@ public class ServerAuthLdap {
 		return( obj.toString() );
 	}
 	
-	public ServerAuthUser getLdapUserData( ActionBase action , String username ) throws Exception {
+	public EngineAuthUser getLdapUserData( ActionBase action , String username ) throws Exception {
 		if( !ldapUse )
 			return( null );
 		
 		SearchResult res = findUser( username );
-		ServerAuthUser user = new ServerAuthUser( auth );
+		EngineAuthUser user = new EngineAuthUser( auth );
 		user.create( action , false , username , getAttr( res , userEmailAttr ) , getAttr( res , userDisplayNameAttr ) , false );
 		return( user );
 	}

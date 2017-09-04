@@ -12,8 +12,8 @@ import org.urm.common.ConfReader;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.shell.Account;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.engine.ServerContext;
-import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.EngineContext;
+import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaProductSettings;
@@ -246,7 +246,7 @@ public class DistRepository {
 		return( dist );
 	}
 
-	public synchronized Dist createDist( ActionBase action , String RELEASELABEL , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	public synchronized Dist createDist( ActionBase action , String RELEASELABEL , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		DistLabelInfo info = getLabelInfo( action , RELEASELABEL );
 		Dist dist = findDist( action , info );
 		if( dist != null ) {
@@ -295,7 +295,7 @@ public class DistRepository {
 		}
 		else {
 			if( distPath.isEmpty() ) {
-				ServerContext sc = action.getServerContext();
+				EngineContext sc = action.getServerContext();
 				distPath = sc.DIST_ROOT;
 				distPath = Common.getPath( distPath , meta.name );
 			}

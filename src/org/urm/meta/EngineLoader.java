@@ -12,17 +12,17 @@ import org.urm.engine.TransactionBase;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
-import org.urm.meta.engine.ServerBase;
-import org.urm.meta.engine.ServerBuilders;
-import org.urm.meta.engine.ServerDirectory;
-import org.urm.meta.engine.ServerInfrastructure;
-import org.urm.meta.engine.ServerMirrors;
-import org.urm.meta.engine.ServerMonitoring;
-import org.urm.meta.engine.ServerProduct;
-import org.urm.meta.engine.ServerRegistry;
-import org.urm.meta.engine.ServerReleaseLifecycles;
-import org.urm.meta.engine.ServerResources;
-import org.urm.meta.engine.ServerSettings;
+import org.urm.meta.engine.EngineBase;
+import org.urm.meta.engine.EngineBuilders;
+import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.EngineInfrastructure;
+import org.urm.meta.engine.EngineMirrors;
+import org.urm.meta.engine.EngineMonitoring;
+import org.urm.meta.engine.Product;
+import org.urm.meta.engine.EngineRegistry;
+import org.urm.meta.engine.EngineReleaseLifecycles;
+import org.urm.meta.engine.EngineResources;
+import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDesign;
@@ -37,24 +37,24 @@ public class EngineLoader {
 
 	public Engine engine;
 	
-	private ServerSettings settings;
-	private ServerRegistry registry;
-	private ServerBase base;
-	private ServerInfrastructure infra;
-	private ServerReleaseLifecycles lifecycles;
-	private ServerMonitoring mon;
+	private EngineSettings settings;
+	private EngineRegistry registry;
+	private EngineBase base;
+	private EngineInfrastructure infra;
+	private EngineReleaseLifecycles lifecycles;
+	private EngineMonitoring mon;
 	private ProductMeta offline;
 	private Map<String,ProductMeta> productMeta;
 	
 	public EngineLoader( Engine engine ) {
 		this.engine = engine;
 		
-		settings = new ServerSettings( this );
-		registry = new ServerRegistry( this ); 
-		base = new ServerBase( this ); 
-		infra = new ServerInfrastructure( this ); 
-		lifecycles = new ServerReleaseLifecycles( this ); 
-		mon = new ServerMonitoring( this ); 
+		settings = new EngineSettings( this );
+		registry = new EngineRegistry( this ); 
+		base = new EngineBase( this ); 
+		infra = new EngineInfrastructure( this ); 
+		lifecycles = new EngineReleaseLifecycles( this ); 
+		mon = new EngineMonitoring( this ); 
 		productMeta = new HashMap<String,ProductMeta>();
 	}
 	
@@ -71,12 +71,12 @@ public class EngineLoader {
 	}
 	
 	public void reloadCore() throws Exception {
-		registry = new ServerRegistry( this ); 
-		base = new ServerBase( this ); 
-		settings = new ServerSettings( this );
-		infra = new ServerInfrastructure( this ); 
-		lifecycles = new ServerReleaseLifecycles( this ); 
-		mon = new ServerMonitoring( this ); 
+		registry = new EngineRegistry( this ); 
+		base = new EngineBase( this ); 
+		settings = new EngineSettings( this );
+		infra = new EngineInfrastructure( this ); 
+		lifecycles = new EngineReleaseLifecycles( this ); 
+		mon = new EngineMonitoring( this ); 
 		init();
 	}
 
@@ -370,19 +370,19 @@ public class EngineLoader {
 		registry.save( transaction.getAction() , propertyFile , engine.execrc );
 	}
 	
-	public void setResources( TransactionBase transaction , ServerResources resourcesNew ) throws Exception {
+	public void setResources( TransactionBase transaction , EngineResources resourcesNew ) throws Exception {
 		registry.setResources( transaction , resourcesNew );
 	}
 
-	public void setBuilders( TransactionBase transaction , ServerBuilders buildersNew ) throws Exception {
+	public void setBuilders( TransactionBase transaction , EngineBuilders buildersNew ) throws Exception {
 		registry.setBuilders( transaction , buildersNew );
 	}
 
-	public void setDirectory( TransactionBase transaction , ServerDirectory directoryNew ) throws Exception {
+	public void setDirectory( TransactionBase transaction , EngineDirectory directoryNew ) throws Exception {
 		registry.setDirectory( transaction , directoryNew );
 	}
 
-	public void setMirrors( TransactionBase transaction , ServerMirrors mirrorsNew ) throws Exception {
+	public void setMirrors( TransactionBase transaction , EngineMirrors mirrorsNew ) throws Exception {
 		registry.setMirrors( transaction , mirrorsNew );
 	}
 
@@ -406,53 +406,53 @@ public class EngineLoader {
 		mon.save( transaction.getAction() , propertyFile , engine.execrc );
 	}
 
-	public ServerSettings getServerSettings() {
+	public EngineSettings getServerSettings() {
 		synchronized( engine ) {
 			return( settings );
 		}
 	}
 
-	public ServerRegistry getRegistry() {
+	public EngineRegistry getRegistry() {
 		synchronized( engine ) {
 			return( registry );
 		}
 	}
 
-	public ServerInfrastructure getInfrastructure() {
+	public EngineInfrastructure getInfrastructure() {
 		synchronized( engine ) {
 			return( infra );
 		}
 	}
 
-	public ServerReleaseLifecycles getReleaseLifecycles() {
+	public EngineReleaseLifecycles getReleaseLifecycles() {
 		synchronized( engine ) {
 			return( lifecycles );
 		}
 	}
 
-	public ServerMonitoring getMonitoring() {
+	public EngineMonitoring getMonitoring() {
 		synchronized( engine ) {
 			return( mon );
 		}
 	}
 
-	public ServerBase getServerBase() {
+	public EngineBase getServerBase() {
 		synchronized( engine ) {
 			return( base );
 		}
 	}
 
-	public void setServerSettings( TransactionBase transaction , ServerSettings settingsNew ) throws Exception {
+	public void setServerSettings( TransactionBase transaction , EngineSettings settingsNew ) throws Exception {
 		String propertyFile = getServerSettingsFile();
 		settingsNew.save( propertyFile , engine.execrc );
 		settings = settingsNew;
 	}
 
-	public ProductMeta createProductMetadata( TransactionBase transaction , ServerDirectory directoryNew , ServerProduct product ) throws Exception {
+	public ProductMeta createProductMetadata( TransactionBase transaction , EngineDirectory directoryNew , Product product ) throws Exception {
 		ActionInit action = transaction.getAction();
 		
 		ProductMeta set = new ProductMeta( this , product.NAME );
-		ServerSettings settings = action.getServerSettings();
+		EngineSettings settings = action.getServerSettings();
 		set.createInitial( transaction , settings , directoryNew );
 		
 		return( set );

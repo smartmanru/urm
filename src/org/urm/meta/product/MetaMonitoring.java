@@ -12,7 +12,7 @@ import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.ProductMeta;
-import org.urm.meta.engine.ServerMonitoring;
+import org.urm.meta.engine.EngineMonitoring;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -100,14 +100,14 @@ public class MetaMonitoring extends PropertyController {
 			return;
 		
 		ActionBase action = transaction.getAction();
-		ServerMonitoring sm = action.getServerMonitoring();
+		EngineMonitoring sm = action.getServerMonitoring();
 		PropertySet src = sm.properties;
 		super.setSystemBooleanProperty( PROPERTY_ENABLED , false );
-		super.setSystemUrlProperty( PROPERTY_RESOURCE_URL , src.getExpressionByProperty( ServerMonitoring.PROPERTY_RESOURCE_URL ) );
-		super.setSystemPathProperty( PROPERTY_DIR_RES , src.getExpressionByProperty( ServerMonitoring.PROPERTY_RESOURCE_PATH ) );
-		super.setSystemPathProperty( PROPERTY_DIR_DATA , src.getExpressionByProperty( ServerMonitoring.PROPERTY_DIR_DATA ) );
-		super.setSystemPathProperty( PROPERTY_DIR_REPORTS , src.getExpressionByProperty( ServerMonitoring.PROPERTY_DIR_REPORTS ) );
-		super.setSystemPathProperty( PROPERTY_DIR_LOGS , src.getExpressionByProperty( ServerMonitoring.PROPERTY_DIR_LOGS ) );
+		super.setSystemUrlProperty( PROPERTY_RESOURCE_URL , src.getExpressionByProperty( EngineMonitoring.PROPERTY_RESOURCE_URL ) );
+		super.setSystemPathProperty( PROPERTY_DIR_RES , src.getExpressionByProperty( EngineMonitoring.PROPERTY_RESOURCE_PATH ) );
+		super.setSystemPathProperty( PROPERTY_DIR_DATA , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_DATA ) );
+		super.setSystemPathProperty( PROPERTY_DIR_REPORTS , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_REPORTS ) );
+		super.setSystemPathProperty( PROPERTY_DIR_LOGS , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_LOGS ) );
 		scatterProperties( action );
 		super.initFinished();
 	}

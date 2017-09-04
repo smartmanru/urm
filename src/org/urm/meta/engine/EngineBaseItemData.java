@@ -21,9 +21,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerBaseItemData extends PropertyController {
+public class EngineBaseItemData extends PropertyController {
 
-	public ServerBaseItem item;
+	public EngineBaseItem item;
 	public BaseRepository repo;
 	public MetaEnvServerNode serverNode;
 
@@ -45,14 +45,14 @@ public class ServerBaseItemData extends PropertyController {
 	public VarSERVERACCESSTYPE serverAccessType;
 	public Charset charset;
 
-	public ServerBaseItemData( ServerBaseItem item , BaseRepository repo ) {
+	public EngineBaseItemData( EngineBaseItem item , BaseRepository repo ) {
 		super( null , "base" );
 		this.item = item;
 		this.repo = repo;
 		create();
 	}
 
-	public ServerBaseItemData( ServerBaseItem item , BaseRepository repo , MetaEnvServerNode serverNode ) {
+	public EngineBaseItemData( EngineBaseItem item , BaseRepository repo , MetaEnvServerNode serverNode ) {
 		super( serverNode , "final" );
 		this.item = item;
 		this.repo = repo;

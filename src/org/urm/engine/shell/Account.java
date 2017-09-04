@@ -7,11 +7,11 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.meta.engine.ServerAuthResource;
-import org.urm.meta.engine.ServerDatacenter;
-import org.urm.meta.engine.ServerHostAccount;
-import org.urm.meta.engine.ServerInfrastructure;
-import org.urm.meta.engine.ServerNetworkHost;
+import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.Datacenter;
+import org.urm.meta.engine.HostAccount;
+import org.urm.meta.engine.EngineInfrastructure;
+import org.urm.meta.engine.NetworkHost;
 
 public class Account {
 
@@ -93,13 +93,13 @@ public class Account {
 		account.DATACENTER = datacenter;
 		
 		// find account
-		ServerHostAccount hostAccount = null;
+		HostAccount hostAccount = null;
 		if( !local ) {
-			ServerInfrastructure infra = action.getServerInfrastructure();
+			EngineInfrastructure infra = action.getServerInfrastructure();
 			if( datacenter.isEmpty() )
 				action.exit0( _Error.MissingDatacenter0 , "Unable to access account, missing datacenter" );
 			
-			ServerDatacenter dc = infra.findDatacenter( datacenter );
+			Datacenter dc = infra.findDatacenter( datacenter );
 			if( dc == null )
 				action.exit1( _Error.UnknownDatacenter1 , "Unable to access account, unknown datacenter=" + datacenter , datacenter );
 			
@@ -163,15 +163,15 @@ public class Account {
 		String host = Common.getPartAfterLast( hostLogin , "@" );
 		
 		// find account
-		ServerInfrastructure infra = action.getServerInfrastructure();
+		EngineInfrastructure infra = action.getServerInfrastructure();
 		if( datacenter.isEmpty() )
 			action.exit0( _Error.MissingDatacenter0 , "Unable to access account, missing datacenter" );
 		
-		ServerDatacenter dc = infra.findDatacenter( datacenter );
+		Datacenter dc = infra.findDatacenter( datacenter );
 		if( dc == null )
 			action.exit1( _Error.UnknownDatacenter1 , "Unable to access account, unknown datacenter=" + datacenter , datacenter );
 		
-		ServerHostAccount account = dc.getFinalAccount( action , hostLogin );
+		HostAccount account = dc.getFinalAccount( action , hostLogin );
 		if( account.host.osType != osType ) {
 			String p1 = Common.getEnumLower( account.host.osType );
 			String p2 = Common.getEnumLower( osType );
@@ -321,7 +321,7 @@ public class Account {
 		return( "" );
 	}
 
-	public void setHost( ActionBase action , ServerNetworkHost host ) throws Exception {
+	public void setHost( ActionBase action , NetworkHost host ) throws Exception {
 		if( isHostName() ) {
 			HOST = host.ID;
 			IP = host.IP;
@@ -336,25 +336,25 @@ public class Account {
 		PORT = host.PORT;
 	}
 
-	public ServerAuthResource getResource( ActionBase action ) throws Exception {
+	public EngineAuthResource getResource( ActionBase action ) throws Exception {
 		if( AUTHRESOURCE.isEmpty() ) {
 			String hostLogin = getHostLogin();
-			ServerInfrastructure infra = action.getServerInfrastructure();
+			EngineInfrastructure infra = action.getServerInfrastructure();
 			if( DATACENTER.isEmpty() )
 				action.exit0( _Error.MissingDatacenter0 , "Unable to access resource, missing datacenter" );
 			
-			ServerDatacenter dc = infra.findDatacenter( DATACENTER );
+			Datacenter dc = infra.findDatacenter( DATACENTER );
 			if( dc == null )
 				action.exit1( _Error.UnknownDatacenter1 , "Unable to access resource, unknown datacenter=" + DATACENTER , DATACENTER );
 			
-			ServerHostAccount hostAccount = dc.getFinalAccount( action , hostLogin );
+			HostAccount hostAccount = dc.getFinalAccount( action , hostLogin );
 			if( hostAccount.AUTHRES.isEmpty() )
 				action.exit1( _Error.MissingAuthKey1 , "Missing auth resource to login to " + hostLogin , hostLogin );
 			
 			AUTHRESOURCE = hostAccount.AUTHRES;
 		}
 		
-		ServerAuthResource res = action.getResource( AUTHRESOURCE );
+		EngineAuthResource res = action.getResource( AUTHRESOURCE );
 		return( res );
 	}
 	

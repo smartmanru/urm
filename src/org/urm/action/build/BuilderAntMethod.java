@@ -5,12 +5,12 @@ import org.urm.common.PropertySet;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.ServerProjectBuilder;
+import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaSourceProject;
 
 public class BuilderAntMethod extends Builder {
 
-	public BuilderAntMethod( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
+	public BuilderAntMethod( ProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
 		super( builder , project , storage , TAG , APPVERSION );
 	}
 

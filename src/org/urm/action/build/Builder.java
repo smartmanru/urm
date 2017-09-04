@@ -9,16 +9,16 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
-import org.urm.meta.engine.ServerAuthResource;
-import org.urm.meta.engine.ServerBuilders;
-import org.urm.meta.engine.ServerProjectBuilder;
+import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.EngineBuilders;
+import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 
 public abstract class Builder {
 
-	public ServerProjectBuilder builder;
+	public ProjectBuilder builder;
 	public MetaSourceProject project;
 	public BuildStorage storage;
 	public String TAG;
@@ -40,7 +40,7 @@ public abstract class Builder {
 	static String PROPERTY_BUILDTAG = "build.tag";
 	static String PROPERTY_BUILDVERSION = "build.version";
 	
-	protected Builder( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
+	protected Builder( ProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
 		this.builder = builder;
 		this.project = project;
 		this.storage = storage;
@@ -55,8 +55,8 @@ public abstract class Builder {
 	public static Builder createBuilder( ActionBase action , MetaSourceProject project , String TAG , String VERSION ) throws Exception {
 		String BUILDER = project.getBuilder( action );
 		
-		ServerBuilders builders = action.getServerBuilders();
-		ServerProjectBuilder builder = builders.getBuilder( BUILDER );
+		EngineBuilders builders = action.getServerBuilders();
+		ProjectBuilder builder = builders.getBuilder( BUILDER );
 		
 		Builder projectBuilder = null;
 		
@@ -109,7 +109,7 @@ public abstract class Builder {
 	}
 	
 	public String getNexusPath( ActionBase action , MetaSourceProject project ) throws Exception {
-		ServerAuthResource res = action.getResource( builder.TARGETNEXUS );
+		EngineAuthResource res = action.getResource( builder.TARGETNEXUS );
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
 		return( res.BASEURL + "/content/repositories/" + build.CONFIG_NEXUS_REPO );
 	}

@@ -5,8 +5,8 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
-import org.urm.meta.engine.ServerAuthResource;
-import org.urm.meta.engine.ServerBuilders;
+import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductBuildSettings;
 
@@ -35,7 +35,7 @@ public class ActionUploadLibItem extends ActionBase {
 			super.exitUnexpectedState();
 		
 		// set environment
-		ServerBuilders builders = super.getServerBuilders();
+		EngineBuilders builders = super.getServerBuilders();
 		MetaProductBuildSettings build = getBuildSettings( meta );
 		String BUILD_MSETTINGS="--settings=" + shell.getLocalPath( build.CONFIG_MAVEN_CFGFILE );
 		String BUILD_JAVA_HOME = shell.getLocalPath( builders.JAVA_HOMEPATH );
@@ -87,7 +87,7 @@ public class ActionUploadLibItem extends ActionBase {
 			F_CLASSIFIER = "-Dclassifier=" + CLASSIFIER;
 
 		String CMD;
-		ServerAuthResource res = getResource( scopeProject.sourceProject.RESOURCE );
+		EngineAuthResource res = getResource( scopeProject.sourceProject.RESOURCE );
 		if( F_EXTENSION.equals( "pom" ) ) {
 	        CMD = "mvn -e deploy:deploy-file " + BUILD_MSETTINGS + 
 	        	" -DupdateReleaseInfo=true -DuniqueVersion=false -DrepositoryId=nexus" + 

@@ -10,7 +10,7 @@ import org.urm.action.ActionSet;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.MetaEnvStartGroup;
 
 public class ActionStartEnv extends ActionBase {

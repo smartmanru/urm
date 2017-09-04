@@ -4,12 +4,12 @@ import org.urm.action.ActionBase;
 import org.urm.common.PropertySet;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
-import org.urm.meta.engine.ServerProjectBuilder;
+import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaSourceProject;
 
 public class BuilderGenericMethod extends Builder {
 
-	public BuilderGenericMethod( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
+	public BuilderGenericMethod( ProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
 		super( builder , project , storage , TAG , APPVERSION );
 	}
 

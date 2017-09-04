@@ -36,7 +36,7 @@ import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
 import org.urm.engine.SessionController;
 import org.urm.engine.SessionSecurity;
-import org.urm.meta.engine.ServerAuth;
+import org.urm.meta.engine.EngineAuth;
 
 public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster {
 
@@ -397,7 +397,7 @@ public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster
 		
 		RunContext clientrc = RunContext.copy( engine.execrc );
 		clientrc.product = product;
-		ServerAuth auth = engine.getAuth();
+		EngineAuth auth = engine.getAuth();
 		SessionSecurity security = auth.createServerSecurity();
 		EngineSession session = engine.sessionController.createSession( security , clientrc , true );
 		if( !server.runWebJmx( session , meta , cmdopts ) )
@@ -427,7 +427,7 @@ public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster
 		String user = ( String )args[3];
 		String password = ( String )args[4];
 		
-		ServerAuth auth = engine.getAuth();
+		EngineAuth auth = engine.getAuth();
 		if( !auth.checkLogin( user , password ) )
 			return( -1 );
 		

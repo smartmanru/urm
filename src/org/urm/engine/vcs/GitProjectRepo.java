@@ -4,7 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.ServerMirrorRepository;
+import org.urm.meta.engine.EngineMirrorRepository;
 import org.urm.meta.product.MetaSourceProject;
 
 public class GitProjectRepo {
@@ -15,7 +15,7 @@ public class GitProjectRepo {
 	protected ShellExecutor shell;
 	protected ActionBase action;
 	
-	public GitProjectRepo( GitVCS vcs , ServerMirrorRepository mirror , MetaSourceProject project , String BRANCH ) {
+	public GitProjectRepo( GitVCS vcs , EngineMirrorRepository mirror , MetaSourceProject project , String BRANCH ) {
 		mc = new MirrorCaseGit( vcs , mirror , BRANCH );
 		this.project = project;
 		this.shell = vcs.shell;

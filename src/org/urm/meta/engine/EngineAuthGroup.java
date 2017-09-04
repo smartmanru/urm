@@ -8,32 +8,32 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.engine.ServerAuth.SourceType;
-import org.urm.meta.engine.ServerAuth.SpecialRights;
+import org.urm.meta.engine.EngineAuth.SourceType;
+import org.urm.meta.engine.EngineAuth.SpecialRights;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerAuthGroup {
+public class EngineAuthGroup {
 
-	ServerAuth auth;
+	EngineAuth auth;
 	
 	public String NAME;
 	Map<String,SourceType> users;
 	
 	// permissions
-	public ServerAuthRoleSet roles;
+	public EngineAuthRoleSet roles;
 	public boolean anyProducts;
 	public boolean anyNetworks;
 	public Map<String,Integer> products;
 	public Map<String,Integer> networks;
 	public SpecialRights[] special;
 	
-	public ServerAuthGroup( ServerAuth auth ) {
+	public EngineAuthGroup( EngineAuth auth ) {
 		this.auth = auth;
 		users = new HashMap<String,SourceType>();
 		
-		roles = new ServerAuthRoleSet();
+		roles = new EngineAuthRoleSet();
 		products = new HashMap<String,Integer>(); 
 		networks = new HashMap<String,Integer>();
 		special = new SpecialRights[0];
@@ -205,7 +205,7 @@ public class ServerAuthGroup {
 		}
 	}
 	
-	public void deleteUser( ActionBase action , ServerAuthUser user ) throws Exception {
+	public void deleteUser( ActionBase action , EngineAuthUser user ) throws Exception {
 		users.remove( user.NAME );
 	}
 
@@ -219,7 +219,7 @@ public class ServerAuthGroup {
 		return( list.toArray( new String[0] ) );
 	}
 	
-	public boolean hasUser( ServerAuthUser user ) {
+	public boolean hasUser( EngineAuthUser user ) {
 		if( users.containsKey( user.NAME ) )
 			return( true );
 		return( false );
@@ -253,7 +253,7 @@ public class ServerAuthGroup {
 		return( true );
 	}
 	
-	public void addUser( ActionBase action , SourceType source , ServerAuthUser user ) throws Exception {
+	public void addUser( ActionBase action , SourceType source , EngineAuthUser user ) throws Exception {
 		if( !users.containsKey( user.NAME ) )
 			users.put( user.NAME , source );
 	}
@@ -266,7 +266,7 @@ public class ServerAuthGroup {
 		return( users.get( user ) );
 	}
 
-	public void setGroupPermissions( ActionBase action , ServerAuthRoleSet roles , boolean allProd , String[] products , boolean allNet , String[] networks , SpecialRights[] special ) throws Exception {
+	public void setGroupPermissions( ActionBase action , EngineAuthRoleSet roles , boolean allProd , String[] products , boolean allNet , String[] networks , SpecialRights[] special ) throws Exception {
 		this.roles.set( roles );
 		this.anyProducts = allProd;
 		for( String product : products )

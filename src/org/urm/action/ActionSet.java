@@ -3,7 +3,7 @@ package org.urm.action;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.MetaEnv;
 
 public class ActionSet {

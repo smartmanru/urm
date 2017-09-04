@@ -14,8 +14,8 @@ import org.urm.common.PropertySet;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.dist.Release;
 import org.urm.engine.shell.Account;
-import org.urm.meta.engine.ServerAccountReference;
-import org.urm.meta.engine.ServerHostAccount;
+import org.urm.meta.engine.AccountReference;
+import org.urm.meta.engine.HostAccount;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -316,12 +316,12 @@ public class MetaEnvSegment extends PropertyController {
 		return( super.isLoadFailed() );
 	}
 
-	public void getApplicationReferences( ServerHostAccount account , List<ServerAccountReference> refs ) {
+	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
 		for( MetaEnvServer server : originalList )
 			server.getApplicationReferences( account , refs );
 	}
 
-	public void deleteHostAccount( EngineTransaction transaction , ServerHostAccount account ) throws Exception {
+	public void deleteHostAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
 		super.deleteObject();
 	}
 

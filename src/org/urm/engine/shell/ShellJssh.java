@@ -10,7 +10,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.EngineAuthResource;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -43,13 +43,13 @@ public class ShellJssh {
 		jsch = new JSch();
 	}
 	
-	private ServerAuthResource getAuthResource( ActionBase action , Account account ) throws Exception {
-		ServerAuthResource res = account.getResource( action );
+	private EngineAuthResource getAuthResource( ActionBase action , Account account ) throws Exception {
+		EngineAuthResource res = account.getResource( action );
 		res.loadAuthData();
 		return( res );
 	}
 	
-	public void startJsshProcess( ActionBase action , String rootPath , ServerAuthResource res ) throws Exception {
+	public void startJsshProcess( ActionBase action , String rootPath , EngineAuthResource res ) throws Exception {
 		Account account = process.shell.account;
 		if( res == null )
 			res = getAuthResource( action , account );
@@ -59,12 +59,12 @@ public class ShellJssh {
 		action.debug( "jssh shell=" + process.shell.name + " - successfully connected" );		
 	}
 
-	private void startJsshInternal( ActionBase action , Account account , ServerAuthResource res ) throws Exception {
+	private void startJsshInternal( ActionBase action , Account account , EngineAuthResource res ) throws Exception {
 		startJsshSession( action , account , res );
 		startJsshCommandChannel( action );
 	}
 	
-	private void startJsshSession( ActionBase action , Account account , ServerAuthResource res ) throws Exception {
+	private void startJsshSession( ActionBase action , Account account , EngineAuthResource res ) throws Exception {
 		String hostLogin = account.getHostLogin();
 		action.debug( "connecting to account=" + hostLogin + " ..." );
 		this.account = account;
@@ -317,7 +317,7 @@ public class ShellJssh {
 	}
 
 	private void scpConnect( ActionBase action ) throws Exception {
-		ServerAuthResource res = getAuthResource( action , account );
+		EngineAuthResource res = getAuthResource( action , account );
 		startJsshSession( action , account , res );
 		startJsshScpChannel( action );
 	}

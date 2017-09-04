@@ -15,10 +15,10 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.LogStorage;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.Types.*;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 
 public class BuildCommand {
 	

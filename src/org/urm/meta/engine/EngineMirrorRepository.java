@@ -19,9 +19,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerMirrorRepository extends EngineObject {
+public class EngineMirrorRepository extends EngineObject {
 
-	public ServerMirrors mirrors;
+	public EngineMirrors mirrors;
 	
 	private boolean loaded;
 	public boolean loadFailed;
@@ -42,7 +42,7 @@ public class ServerMirrorRepository extends EngineObject {
 	public static String TYPE_PRODUCT_META = "product.meta";
 	public static String TYPE_PRODUCT_DATA = "product.data";
 
-	public ServerMirrorRepository( ServerMirrors mirrors ) {
+	public EngineMirrorRepository( EngineMirrors mirrors ) {
 		super( mirrors );
 		this.mirrors = mirrors;
 		
@@ -81,8 +81,8 @@ public class ServerMirrorRepository extends EngineObject {
 		return( TYPE.equals( TYPE_PRODUCT_DATA ) );
 	}
 	
-	public ServerMirrorRepository copy( ServerMirrors mirror ) throws Exception {
-		ServerMirrorRepository r = new ServerMirrorRepository( mirror );
+	public EngineMirrorRepository copy( EngineMirrors mirror ) throws Exception {
+		EngineMirrorRepository r = new EngineMirrorRepository( mirror );
 		r.properties = properties.copy( null );
 		r.scatterSystemProperties();
 		return( r );
@@ -235,7 +235,7 @@ public class ServerMirrorRepository extends EngineObject {
 			mc.pushMirror();
 	}
 	
-	void createProductMeta( EngineTransaction transaction , ServerProduct product , String name ) throws Exception {
+	void createProductMeta( EngineTransaction transaction , Product product , String name ) throws Exception {
 		NAME = name;
 		TYPE = TYPE_PRODUCT_META;
 		PRODUCT = product.NAME;
@@ -247,7 +247,7 @@ public class ServerMirrorRepository extends EngineObject {
 		createProperties();
 	}
 	
-	void createProductData( EngineTransaction transaction , ServerProduct product , String name ) throws Exception {
+	void createProductData( EngineTransaction transaction , Product product , String name ) throws Exception {
 		NAME = name;
 		TYPE = TYPE_PRODUCT_DATA;
 		PRODUCT = product.NAME;

@@ -7,9 +7,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerContext {
+public class EngineContext {
 
-	public ServerSettings settings;
+	public EngineSettings settings;
 	public RunContext execrc;
 	public PropertySet execprops;
 	public PropertySet properties;
@@ -85,10 +85,10 @@ public class ServerContext {
 	public static String PROPERTY_CHAT_JABBER_CONFERENCESERVER = "chat.jabber.conferenceserver";
 	public static String PROPERTY_CHAT_ROCKET_RESOURCE = "chat.rocket.resource";
 	
-	private ServerContext() {
+	private EngineContext() {
 	}
 	
-	public ServerContext( ServerSettings settings ) {
+	public EngineContext( EngineSettings settings ) {
 		this.settings = settings;
 		this.execrc = null;
 		
@@ -96,8 +96,8 @@ public class ServerContext {
 		properties = new PropertySet( "engine" , execprops );
 	}
 
-	public ServerContext copy() throws Exception {
-		ServerContext r = new ServerContext();
+	public EngineContext copy() throws Exception {
+		EngineContext r = new EngineContext();
 		r.settings = settings;
 		r.execrc = execrc;
 		r.execprops = execprops.copy( null );

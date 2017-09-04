@@ -8,8 +8,8 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.engine.Engine;
 import org.urm.engine.storage.Folder;
-import org.urm.meta.engine.ServerAuthResource;
-import org.urm.meta.engine.ServerContext;
+import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.EngineContext;
 
 public class EngineShellPool {
 
@@ -178,7 +178,7 @@ public class EngineShellPool {
 		SHELL_UNAVAILABLE_SKIPTIME = DEFAULT_SHELL_UNAVAILABLE_SKIPTIME;
 		SHELL_HOUSEKEEP_TIME = DEFAULT_SHELL_HOUSEKEEP_TIME;
 		if( !action.isStandalone() ) {
-			ServerContext context = action.getServerSettings().serverContext;
+			EngineContext context = action.getServerSettings().serverContext;
 			SHELL_SILENT_MAX = context.SHELL_SILENTMAX;
 			SHELL_UNAVAILABLE_SKIPTIME = context.SHELL_UNAVAILABLE_SKIPTIME;
 			SHELL_HOUSEKEEP_TIME = context.SHELL_HOUSEKEEP_TIME;
@@ -314,7 +314,7 @@ public class EngineShellPool {
 		return( shell );
 	}
 
-	private ShellExecutor startDedicatedRemoteShell( ActionBase action , int id , String name , Account account , ServerAuthResource auth , boolean setAction ) throws Exception {
+	private ShellExecutor startDedicatedRemoteShell( ActionBase action , int id , String name , Account account , EngineAuthResource auth , boolean setAction ) throws Exception {
 		ShellExecutor shell = createRemoteShell( action , id , name , account , auth , true );
 		
 		if( setAction )
@@ -333,7 +333,7 @@ public class EngineShellPool {
 		return( shell );
 	}
 	
-	private ShellExecutor createRemoteShell( ActionBase action , int id , String name , Account account , ServerAuthResource auth , boolean dedicated ) throws Exception {
+	private ShellExecutor createRemoteShell( ActionBase action , int id , String name , Account account , EngineAuthResource auth , boolean dedicated ) throws Exception {
 		if( stop )
 			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
 		
@@ -377,7 +377,7 @@ public class EngineShellPool {
 		return( shell );
 	}
 
-	public ShellExecutor createDedicatedRemoteShell( ActionBase action , String stream , Account account , ServerAuthResource authResource , boolean setAction ) throws Exception {
+	public ShellExecutor createDedicatedRemoteShell( ActionBase action , String stream , Account account , EngineAuthResource authResource , boolean setAction ) throws Exception {
 		if( stop )
 			action.exit0( _Error.ServerShutdown0 , "server is in progress of shutdown" );
 		
@@ -474,7 +474,7 @@ public class EngineShellPool {
 		}
 	}
 
-	public ShellInteractive createInteractiveShell( ActionBase action , Account account , ServerAuthResource auth ) throws Exception {
+	public ShellInteractive createInteractiveShell( ActionBase action , Account account , EngineAuthResource auth ) throws Exception {
 		int id = 0;
 		String name = "remote::" + account.getPrintName() + "::" + action.ID;
 		synchronized( engine ) {

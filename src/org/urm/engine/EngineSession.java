@@ -10,7 +10,7 @@ import org.urm.common.action.CommandOptions;
 import org.urm.engine.action.ActionInit;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
-import org.urm.meta.engine.ServerAuthContext;
+import org.urm.meta.engine.EngineAuthContext;
 import org.urm.meta.product.Meta;
 
 public class EngineSession extends EngineObject {
@@ -90,11 +90,11 @@ public class EngineSession extends EngineObject {
 		productMeta.remove( meta.name );
 	}
 	
-	public void setLoginAuth( ServerAuthContext ac ) {
+	public void setLoginAuth( EngineAuthContext ac ) {
 		security.setContext( ac );
 	}
 	
-	public ServerAuthContext getLoginAuth() {
+	public EngineAuthContext getLoginAuth() {
 		return( security.getContext() );
 	}
 	

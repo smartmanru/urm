@@ -7,7 +7,7 @@ import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnvServer;

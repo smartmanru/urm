@@ -10,17 +10,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerProduct extends EngineObject {
+public class Product extends EngineObject {
 
-	public ServerDirectory directory;
-	public ServerSystem system;
+	public EngineDirectory directory;
+	public System system;
 	
 	public String NAME;
 	public String DESC;
 	public String PATH;
 	public boolean OFFLINE;
 
-	public ServerProduct( ServerDirectory directory , ServerSystem system ) {
+	public Product( EngineDirectory directory , System system ) {
 		super( directory );
 		this.directory = directory;
 		this.system = system;
@@ -38,8 +38,8 @@ public class ServerProduct extends EngineObject {
 		OFFLINE = true;
 	}
 
-	public ServerProduct copy( ServerDirectory nr , ServerSystem rs ) {
-		ServerProduct r = new ServerProduct( nr , rs );
+	public Product copy( EngineDirectory nr , System rs ) {
+		Product r = new Product( nr , rs );
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.PATH = PATH;

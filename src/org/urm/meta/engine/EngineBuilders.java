@@ -12,9 +12,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerBuilders extends EngineObject {
+public class EngineBuilders extends EngineObject {
 
-	public ServerRegistry registry;
+	public EngineRegistry registry;
 	public Engine engine;
 
 	public boolean registerBuild;
@@ -25,14 +25,14 @@ public class ServerBuilders extends EngineObject {
 	public String NEXUS_RESOURCE;
 	public String NEXUS_ROOTPATH;
 	
-	Map<String,ServerProjectBuilder> builderMap;
+	Map<String,ProjectBuilder> builderMap;
 
-	public ServerBuilders( ServerRegistry registry ) {
+	public EngineBuilders( EngineRegistry registry ) {
 		super( registry );
 		this.registry = registry;
 		this.engine = registry.loader.engine;
 		
-		builderMap = new HashMap<String,ServerProjectBuilder>();
+		builderMap = new HashMap<String,ProjectBuilder>();
 	}
 
 	@Override
@@ -40,8 +40,8 @@ public class ServerBuilders extends EngineObject {
 		return( "server-builders" );
 	}
 	
-	public ServerBuilders copy() throws Exception {
-		ServerBuilders r = new ServerBuilders( registry );
+	public EngineBuilders copy() throws Exception {
+		EngineBuilders r = new EngineBuilders( registry );
 
 		r.registerBuild = registerBuild;
 		r.MAVEN_HOMEPATH = MAVEN_HOMEPATH;
@@ -51,8 +51,8 @@ public class ServerBuilders extends EngineObject {
 		r.NEXUS_RESOURCE = NEXUS_RESOURCE;
 		r.NEXUS_ROOTPATH = NEXUS_ROOTPATH;
 		
-		for( ServerProjectBuilder res : builderMap.values() ) {
-			ServerProjectBuilder rc = res.copy( r );
+		for( ProjectBuilder res : builderMap.values() ) {
+			ProjectBuilder rc = res.copy( r );
 			r.builderMap.put( rc.NAME , rc );
 		}
 		return( r );
@@ -77,7 +77,7 @@ public class ServerBuilders extends EngineObject {
 			return;
 		
 		for( Node node : list ) {
-			ServerProjectBuilder builder = new ServerProjectBuilder( this );
+			ProjectBuilder builder = new ProjectBuilder( this );
 			builder.load( node );
 
 			builderMap.put( builder.NAME , builder );
@@ -95,19 +95,19 @@ public class ServerBuilders extends EngineObject {
 			Common.xmlCreatePropertyElement( doc , root , "nexus.rootpath" , NEXUS_ROOTPATH );
 		}
 		
-		for( ServerProjectBuilder res : builderMap.values() ) {
+		for( ProjectBuilder res : builderMap.values() ) {
 			Element resElement = Common.xmlCreateElement( doc , root , "builder" );
 			res.save( doc , resElement );
 		}
 	}
 
-	public ServerProjectBuilder findBuilder( String name ) {
-		ServerProjectBuilder builder = builderMap.get( name );
+	public ProjectBuilder findBuilder( String name ) {
+		ProjectBuilder builder = builderMap.get( name );
 		return( builder );
 	}
 
-	public ServerProjectBuilder getBuilder( String name ) throws Exception {
-		ServerProjectBuilder builder = builderMap.get( name );
+	public ProjectBuilder getBuilder( String name ) throws Exception {
+		ProjectBuilder builder = builderMap.get( name );
 		if( builder == null )
 			Common.exit1( _Error.UnknownBuilder1 , "unknown builder=" + name , name );
 		return( builder );
@@ -117,17 +117,17 @@ public class ServerBuilders extends EngineObject {
 		return( Common.getSortedKeys( builderMap ) );
 	}
 	
-	public ServerProjectBuilder createBuilder( EngineTransaction transaction , ServerProjectBuilder builderNew ) throws Exception {
+	public ProjectBuilder createBuilder( EngineTransaction transaction , ProjectBuilder builderNew ) throws Exception {
 		if( builderMap.get( builderNew.NAME ) != null )
 			transaction.exit( _Error.BuilderAlreadyExists1 , "builder already exists name=" + builderNew.NAME , new String[] { builderNew.NAME } );
 			
-		ServerProjectBuilder builder = new ServerProjectBuilder( this );
+		ProjectBuilder builder = new ProjectBuilder( this );
 		builder.setBuilderData( transaction ,  builderNew );
 		builderMap.put( builder.NAME , builder );
 		return( builder );
 	}
 	
-	public void deleteBuilder( EngineTransaction transaction , ServerProjectBuilder builder ) throws Exception {
+	public void deleteBuilder( EngineTransaction transaction , ProjectBuilder builder ) throws Exception {
 		if( builderMap.get( builder.NAME ) == null )
 			transaction.exit( _Error.UnknownBuilder1 , "unknown builder name=" + builder.NAME , new String[] { builder.NAME } );
 			

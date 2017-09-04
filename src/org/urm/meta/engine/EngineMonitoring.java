@@ -30,13 +30,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerMonitoring extends EngineObject {
+public class EngineMonitoring extends EngineObject {
 
 	EngineLoader loader;
 	Engine engine;
 	EngineEvents events;
 
-	Map<String,ServerMonitoringProduct> mapProduct;
+	Map<String,EngineMonitoringProduct> mapProduct;
 	
 	public static int MONITORING_APP = 1;
 	public static int MONITORING_SYSTEM = 2;
@@ -69,13 +69,13 @@ public class ServerMonitoring extends EngineObject {
 	public static String PROPERTY_DIR_REPORTS = "default.reports.path";
 	public static String PROPERTY_DIR_LOGS = "default.logs.path";
 	
-	public ServerMonitoring( EngineLoader loader ) {
+	public EngineMonitoring( EngineLoader loader ) {
 		super( null );
 		this.loader = loader; 
 		this.engine = loader.engine;
 		this.events = engine.getEvents();
 		
-		mapProduct = new HashMap<String,ServerMonitoringProduct>();
+		mapProduct = new HashMap<String,EngineMonitoringProduct>();
 		sourceMap = new HashMap<EngineObject,ServerStatusSource>();
 	}
 
@@ -85,15 +85,15 @@ public class ServerMonitoring extends EngineObject {
 	}
 	
 	public void scatterProperties() throws Exception {
-		ServerSettings settings = loader.getServerSettings();
+		EngineSettings settings = loader.getServerSettings();
 		PropertySet src = settings.serverContext.properties;
 		
 		ENABLED = properties.getSystemBooleanProperty( PROPERTY_ENABLED , false , true );
-		RESOURCE_URL = properties.getSystemUrlExprProperty( PROPERTY_RESOURCE_URL , getProductExpr( src , ServerContext.PROPERTY_MON_RESURL ) , true );
-		DIR_RES = properties.getSystemPathExprProperty( PROPERTY_RESOURCE_PATH , engine.execrc , getProductExpr( src , ServerContext.PROPERTY_MON_RESPATH ) , true );
-		DIR_DATA = properties.getSystemPathExprProperty( PROPERTY_DIR_DATA , engine.execrc , getProductExpr( src , ServerContext.PROPERTY_MON_DATAPATH ) , true );
-		DIR_REPORTS = properties.getSystemPathExprProperty( PROPERTY_DIR_REPORTS , engine.execrc , getProductExpr( src , ServerContext.PROPERTY_MON_REPORTPATH ) , true );
-		DIR_LOGS = properties.getSystemPathExprProperty( PROPERTY_DIR_LOGS , engine.execrc , getProductExpr( src , ServerContext.PROPERTY_MON_LOGPATH ) , true );
+		RESOURCE_URL = properties.getSystemUrlExprProperty( PROPERTY_RESOURCE_URL , getProductExpr( src , EngineContext.PROPERTY_MON_RESURL ) , true );
+		DIR_RES = properties.getSystemPathExprProperty( PROPERTY_RESOURCE_PATH , engine.execrc , getProductExpr( src , EngineContext.PROPERTY_MON_RESPATH ) , true );
+		DIR_DATA = properties.getSystemPathExprProperty( PROPERTY_DIR_DATA , engine.execrc , getProductExpr( src , EngineContext.PROPERTY_MON_DATAPATH ) , true );
+		DIR_REPORTS = properties.getSystemPathExprProperty( PROPERTY_DIR_REPORTS , engine.execrc , getProductExpr( src , EngineContext.PROPERTY_MON_REPORTPATH ) , true );
+		DIR_LOGS = properties.getSystemPathExprProperty( PROPERTY_DIR_LOGS , engine.execrc , getProductExpr( src , EngineContext.PROPERTY_MON_LOGPATH ) , true );
 	}
 
 	private String getProductExpr( PropertySet src , String prop ) {
@@ -102,7 +102,7 @@ public class ServerMonitoring extends EngineObject {
 	}
 	
 	public void load( String monFile , RunContext execrc ) throws Exception {
-		ServerSettings settings = loader.getServerSettings();
+		EngineSettings settings = loader.getServerSettings();
 		properties = new PropertySet( "defmon" , settings.serverContext.properties );
 		Document doc = ConfReader.readXmlFile( execrc , monFile );
 		Node root = doc.getDocumentElement();
@@ -125,17 +125,17 @@ public class ServerMonitoring extends EngineObject {
 		EngineEvents events = engine.getEvents();
 		eventsApp = events.createApp( "monitoring" );
 		
-		ServerRegistry registry = loader.getRegistry();
+		EngineRegistry registry = loader.getRegistry();
 		startApp( registry.directory );
 		for( String systemName : registry.directory.getSystems() ) {
-			ServerSystem system = registry.directory.findSystem( systemName );
+			System system = registry.directory.findSystem( systemName );
 			startSystem( system );
 		}
 	}
 
 	public void stop() {
 		engine.info( "stop monitoring ..." );
-		for( ServerMonitoringProduct mon : mapProduct.values() )
+		for( EngineMonitoringProduct mon : mapProduct.values() )
 			mon.stop();
 
 		mapProduct.clear();
@@ -149,23 +149,23 @@ public class ServerMonitoring extends EngineObject {
 			source.clearState();
 	}
 
-	public void startApp( ServerDirectory directory ) {
+	public void startApp( EngineDirectory directory ) {
 		createSource( MONITORING_APP , directory );
 		engine.trace( "monitoring started for applications" );
 	}
 	
-	public void startSystem( ServerSystem system ) {
+	public void startSystem( System system ) {
 		createSource( MONITORING_SYSTEM , system );
 		engine.trace( "monitoring started for system=" + system.NAME );
 		
 		// start products
 		for( String productName : system.getProductNames() ) {
-			ServerProduct product = system.findProduct( productName );
+			Product product = system.findProduct( productName );
 			startProduct( product );
 		}
 	}
 	
-	public void startProduct( ServerProduct product ) {
+	public void startProduct( Product product ) {
 		ProductMeta storage = loader.findProductStorage( product.NAME );
 		if( storage == null || storage.loadFailed ) {
 			engine.trace( "ignore monitoring for non-healthy product=" + product.NAME );
@@ -185,7 +185,7 @@ public class ServerMonitoring extends EngineObject {
 		}
 		
 		ServerStatusSource source = createSource( MONITORING_PRODUCT , product );
-		ServerMonitoringProduct mon = new ServerMonitoringProduct( this , product.NAME , source , eventsApp );
+		EngineMonitoringProduct mon = new EngineMonitoringProduct( this , product.NAME , source , eventsApp );
 		mapProduct.put( product.NAME , mon );
 		mon.start();
 		engine.trace( "monitoring started for product=" + product.NAME );
@@ -250,15 +250,15 @@ public class ServerMonitoring extends EngineObject {
 	}
 	
 	public void stopProduct( String productName , boolean delete ) {
-		ServerMonitoringProduct mon = mapProduct.get( productName );
+		EngineMonitoringProduct mon = mapProduct.get( productName );
 		if( mon == null )
 			return;
 		
 		mon.stop();
 		mapProduct.remove( productName );
 
-		ServerRegistry registry = loader.getRegistry();
-		ServerProduct product = registry.directory.findProduct( productName );
+		EngineRegistry registry = loader.getRegistry();
+		Product product = registry.directory.findProduct( productName );
 		ProductMeta storage = loader.findProductStorage( productName );
 		
 		// stop childs
@@ -304,7 +304,7 @@ public class ServerMonitoring extends EngineObject {
 	}
 
 	public ServerStatusSource getAppSource() {
-		ServerRegistry registry = loader.getRegistry();
+		EngineRegistry registry = loader.getRegistry();
 		return( getObjectSource( registry.directory ) );
 	}
 	
@@ -327,8 +327,8 @@ public class ServerMonitoring extends EngineObject {
 		scatterProperties();
 	}
 	
-	public ServerProduct findProduct( String name ) {
-		ServerRegistry registry = loader.getRegistry();
+	public Product findProduct( String name ) {
+		EngineRegistry registry = loader.getRegistry();
 		return( registry.directory.findProduct( name ) );
 	}
 
@@ -341,8 +341,8 @@ public class ServerMonitoring extends EngineObject {
 	}
 
 	public void createProduct( ProductMeta storage ) {
-		ServerRegistry registry = loader.getRegistry();
-		ServerProduct product = registry.directory.findProduct( storage.name );
+		EngineRegistry registry = loader.getRegistry();
+		Product product = registry.directory.findProduct( storage.name );
 		startProduct( product );
 	}
 	

@@ -5,9 +5,9 @@ import org.urm.common.Common;
 import org.urm.common.PropertySet;
 import org.urm.meta.EngineObject;
 
-public class ServerAuthContext extends EngineObject {
+public class EngineAuthContext extends EngineObject {
 
-	ServerAuth auth;
+	EngineAuth auth;
 	public PropertySet properties;
 	
 	public String METHOD = "";
@@ -22,7 +22,7 @@ public class ServerAuthContext extends EngineObject {
 	public static String METHOD_USER = "user";
 	public static String METHOD_SSHKEY = "sshkey";
 	
-	public ServerAuthContext( ServerAuth auth ) {
+	public EngineAuthContext( EngineAuth auth ) {
 		super( auth );
 		this.auth = auth;
 	}
@@ -60,8 +60,8 @@ public class ServerAuthContext extends EngineObject {
 		return( false );
 	}
 	
-	public ServerAuthContext copy() throws Exception {
-		ServerAuthContext r = new ServerAuthContext( auth );
+	public EngineAuthContext copy() throws Exception {
+		EngineAuthContext r = new EngineAuthContext( auth );
 		if( properties != null ) {
 			r.properties = properties.copy( properties.parent );
 			r.scatterSystemProperties();
@@ -106,7 +106,7 @@ public class ServerAuthContext extends EngineObject {
 		if( isCommon() )
 			return( USER );
 		
-		ServerAuthContext login = action.session.getLoginAuth();
+		EngineAuthContext login = action.session.getLoginAuth();
 		return( login.USER );
 	}
 	
@@ -117,7 +117,7 @@ public class ServerAuthContext extends EngineObject {
 		if( isCommon() )
 			return( PASSWORDSAVE );
 		
-		ServerAuthContext login = action.session.getLoginAuth();
+		EngineAuthContext login = action.session.getLoginAuth();
 		return( login.PASSWORDONLINE );
 	}
 
@@ -126,7 +126,7 @@ public class ServerAuthContext extends EngineObject {
 	}
 	
 	public void setResourcePassword( String password ) {
-		METHOD = ServerAuthContext.METHOD_COMMON;
+		METHOD = EngineAuthContext.METHOD_COMMON;
 		PASSWORDSAVE = password;
 	}
 	
@@ -136,7 +136,7 @@ public class ServerAuthContext extends EngineObject {
 	}
 	
 	public void setUserPassword( String password ) throws Exception {
-		METHOD = ServerAuthContext.METHOD_USER;
+		METHOD = EngineAuthContext.METHOD_USER;
 		PASSWORDSAVE = Common.getMD5( password );
 	}
 	

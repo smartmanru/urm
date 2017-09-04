@@ -20,7 +20,7 @@ import org.urm.engine.status.SegmentStatus;
 import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductMeta;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;

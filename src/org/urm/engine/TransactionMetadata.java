@@ -1,7 +1,7 @@
 package org.urm.engine;
 
 import org.urm.meta.ProductMeta;
-import org.urm.meta.engine.ServerMonitoring;
+import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.product.Meta;
 
 public class TransactionMetadata {
@@ -83,7 +83,7 @@ public class TransactionMetadata {
 	}
 
 	public boolean saveProduct() throws Exception {
-		ServerMonitoring mon = transaction.action.getServerMonitoring();
+		EngineMonitoring mon = transaction.action.getServerMonitoring();
 		
 		if( deleteMetadata ) {
 			if( metadataOld == null )

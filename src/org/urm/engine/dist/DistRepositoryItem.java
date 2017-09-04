@@ -9,7 +9,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.dist.DistRepository.DistOperation;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.ReleaseLifecycle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -86,7 +86,7 @@ public class DistRepositoryItem {
 		RELEASEDIR = dist.RELEASEDIR;
 	}
 	
-	public static Dist createDist( ActionBase action , DistRepository repo , RemoteFolder distFolder , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	public static Dist createDist( ActionBase action , DistRepository repo , RemoteFolder distFolder , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		if( distFolder.checkExists( action ) ) {
 			String path = distFolder.folderPath;
 			action.ifexit( _Error.ReleaseAlreadyExists1 , "distributive already exists at " + path , new String[] { path } );

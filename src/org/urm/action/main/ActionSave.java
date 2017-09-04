@@ -12,8 +12,8 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.engine.vcs.SubversionVCS;
-import org.urm.meta.engine.ServerDirectory;
-import org.urm.meta.engine.ServerMirrorRepository;
+import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.EngineMirrorRepository;
 import org.urm.meta.product.Meta;
 
 public class ActionSave extends ActionBase {
@@ -47,7 +47,7 @@ public class ActionSave extends ActionBase {
 		saveProduct( pf , false );
 		
 		UrmStorage urm = artefactory.getUrmStorage();
-		ServerDirectory directory = actionInit.getServerDirectory();
+		EngineDirectory directory = actionInit.getServerDirectory();
 		for( String name : directory.getProducts() ) {
 			info( "save product=" + name + " ..." );
 			
@@ -64,7 +64,7 @@ public class ActionSave extends ActionBase {
 		List<String> lines = readFileLines( masterPath );
 		FileSet set = pfMaster.getFileSet( this );
 		
-		ServerMirrorRepository mirror = super.getMetaMirror( meta.getStorage( this ) );
+		EngineMirrorRepository mirror = super.getMetaMirror( meta.getStorage( this ) );
 		vcs = GenericVCS.getSvnDirect( this , mirror.getResource( this ) );
 		if( vcs.checkVersioned( mirror , pfMaster.folderPath ) ) {
 			List<String> filesNotInSvn = vcs.getFilesNotInSvn( mirror , pfMaster );
@@ -78,7 +78,7 @@ public class ActionSave extends ActionBase {
 	}
 	
 	private void executeDir( FileSet set , List<String> lines , List<String> filesNotInSvn ) throws Exception {
-		ServerMirrorRepository mirror = super.getServerMirror();
+		EngineMirrorRepository mirror = super.getServerMirror();
 		for( FileSet dir : set.getAllDirs() ) {
 			// check dir in lines
 			boolean dirInLines = false;

@@ -22,7 +22,7 @@ import org.urm.common.meta.MainCommandMeta;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.engine.storage.UrmStorage;
-import org.urm.meta.engine.ServerDirectory;
+import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
@@ -96,7 +96,7 @@ public class ActionConfigure extends ActionBase {
 	}
 	
 	private void configureServer() throws Exception {
-		ServerDirectory directory = actionInit.getServerDirectory();
+		EngineDirectory directory = actionInit.getServerDirectory();
 		for( String name : directory.getProducts() ) {
 			if( USEPRODUCT.isEmpty() || USEPRODUCT.equals( name ) ) {
 				info( "configure product name=" + name + " ..." );

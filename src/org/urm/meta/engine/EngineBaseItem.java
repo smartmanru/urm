@@ -4,18 +4,18 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineObject;
-import org.urm.meta.engine.ServerBase.CATEGORY_TYPE;
+import org.urm.meta.engine.EngineBase.CATEGORY_TYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerBaseItem extends EngineObject {
+public class EngineBaseItem extends EngineObject {
 
-	public ServerBaseGroup group;
+	public EngineBaseGroup group;
 	public String ID;
 	public String DESC;
 	
-	public ServerBaseItem( ServerBaseGroup group ) {
+	public EngineBaseItem( EngineBaseGroup group ) {
 		super( group );
 		this.group = group;
 	}
@@ -35,7 +35,7 @@ public class ServerBaseItem extends EngineObject {
 		this.DESC = DESC;
 	}
 	
-	public ServerBaseItem copy( ServerBaseGroup rgroup ) {
+	public EngineBaseItem copy( EngineBaseGroup rgroup ) {
 		return( null );
 	}
 

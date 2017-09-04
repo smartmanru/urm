@@ -12,19 +12,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerSystem extends EngineObject {
+public class System extends EngineObject {
 
-	public ServerDirectory directory;
-	public Map<String,ServerProduct> mapProducts;
+	public EngineDirectory directory;
+	public Map<String,Product> mapProducts;
 	
 	public String NAME;
 	public String DESC;
 	public boolean OFFLINE;
 	
-	public ServerSystem( ServerDirectory directory ) {
+	public System( EngineDirectory directory ) {
 		super( directory );
 		this.directory = directory;
-		mapProducts = new HashMap<String,ServerProduct>();
+		mapProducts = new HashMap<String,Product>();
 	}
 
 	@Override
@@ -38,14 +38,14 @@ public class ServerSystem extends EngineObject {
 		this.OFFLINE = true;
 	}
 	
-	public ServerSystem copy( ServerDirectory nd ) {
-		ServerSystem r = new ServerSystem( nd );
+	public System copy( EngineDirectory nd ) {
+		System r = new System( nd );
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.OFFLINE = OFFLINE;
 		
-		for( ServerProduct product : mapProducts.values() ) {
-			ServerProduct rp = product.copy( nd , r );
+		for( Product product : mapProducts.values() ) {
+			Product rp = product.copy( nd , r );
 			r.mapProducts.put( rp.NAME , rp );
 		}
 		return( r );
@@ -61,7 +61,7 @@ public class ServerSystem extends EngineObject {
 			return;
 		
 		for( Node itemNode : items ) {
-			ServerProduct item = new ServerProduct( directory , this );
+			Product item = new Product( directory , this );
 			item.load( itemNode );
 			mapProducts.put( item.NAME , item );
 		}
@@ -71,22 +71,22 @@ public class ServerSystem extends EngineObject {
 		return( Common.getSortedKeys( mapProducts ) );
 	}
 
-	public ServerProduct[] getProducts() {
-		return( mapProducts.values().toArray( new ServerProduct[0] ) );
+	public Product[] getProducts() {
+		return( mapProducts.values().toArray( new Product[0] ) );
 	}
 
-	public ServerProduct findProduct( String key ) {
+	public Product findProduct( String key ) {
 		return( mapProducts.get( key ) );
 	}
 
 	public void modifySystem( EngineTransaction transaction ) throws Exception {
 	}
 
-	public void addProduct( EngineTransaction transaction , ServerProduct product ) throws Exception {
+	public void addProduct( EngineTransaction transaction , Product product ) throws Exception {
 		mapProducts.put( product.NAME , product );
 	}
 	
-	public void removeProduct( EngineTransaction transaction , ServerProduct product ) throws Exception {
+	public void removeProduct( EngineTransaction transaction , Product product ) throws Exception {
 		mapProducts.remove( product.NAME );
 	}
 
@@ -95,7 +95,7 @@ public class ServerSystem extends EngineObject {
 	}
 	
 	public boolean isBroken( ActionBase action ) {
-		for( ServerProduct product : mapProducts.values() ) {
+		for( Product product : mapProducts.values() ) {
 			if( product.isBroken( action ) )
 				return( true );
 		}
@@ -108,7 +108,7 @@ public class ServerSystem extends EngineObject {
 		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( OFFLINE ) );
 		
 		for( String productName : getProductNames() ) {
-			ServerProduct product = findProduct( productName );
+			Product product = findProduct( productName );
 			Element elementProduct = Common.xmlCreateElement( doc , root , "product" );
 			product.save( doc , elementProduct );
 		}

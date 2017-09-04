@@ -15,8 +15,8 @@ import org.urm.engine.Engine;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
-import org.urm.meta.engine.ServerReleaseLifecycle;
-import org.urm.meta.engine.ServerReleaseLifecycles;
+import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.engine.EngineReleaseLifecycles;
 
 public abstract class CommandExecutor {
 
@@ -163,13 +163,13 @@ public abstract class CommandExecutor {
 		return( action.context.options.getDateArg( pos ) );
 	}
 
-	public ServerReleaseLifecycle getLifecycleArg( ActionBase action , int pos ) throws Exception {
+	public ReleaseLifecycle getLifecycleArg( ActionBase action , int pos ) throws Exception {
 		String value = getArg( action , pos );
 		if( value.isEmpty() )
 			return( null );
 		
 		EngineLoader loader = engine.getLoader( action.actionInit );
-		ServerReleaseLifecycles lifecycles = loader.getReleaseLifecycles();
+		EngineReleaseLifecycles lifecycles = loader.getReleaseLifecycles();
 		return( lifecycles.getLifecycle( action , value ) );
 	}
 	

@@ -16,9 +16,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerAuthResource extends EngineObject {
+public class EngineAuthResource extends EngineObject {
 
-	public ServerResources resources;
+	public EngineResources resources;
 
 	private boolean loaded;
 	public boolean loadFailed;
@@ -31,9 +31,9 @@ public class ServerAuthResource extends EngineObject {
 	public String DESC;
 	public String AUTHKEY;
 	public boolean verified;
-	public ServerAuthContext ac;
+	public EngineAuthContext ac;
 	
-	public ServerAuthResource( ServerResources resources ) {
+	public EngineAuthResource( EngineResources resources ) {
 		super( resources );
 		this.resources = resources;
 		loaded = false;
@@ -46,8 +46,8 @@ public class ServerAuthResource extends EngineObject {
 		return( NAME );
 	}
 	
-	public ServerAuthResource copy( ServerResources resources ) throws Exception {
-		ServerAuthResource r = new ServerAuthResource( resources );
+	public EngineAuthResource copy( EngineResources resources ) throws Exception {
+		EngineAuthResource r = new EngineAuthResource( resources );
 		r.properties = properties.copy( null );
 		r.scatterSystemProperties();
 		if( ac != null )
@@ -75,7 +75,7 @@ public class ServerAuthResource extends EngineObject {
 	private void scatterSystemProperties() throws Exception {
 		NAME = properties.getSystemRequiredStringProperty( "name" );
 		String TYPE = properties.getSystemRequiredStringProperty( "type" );  
-		rcType = ServerAuthResource.getResourceType( TYPE , false );
+		rcType = EngineAuthResource.getResourceType( TYPE , false );
 		BASEURL = properties.getSystemStringProperty( "baseurl" );
 		DESC = properties.getSystemStringProperty( "desc" );
 		AUTHKEY = properties.getSystemStringProperty( "authkey" );
@@ -128,7 +128,7 @@ public class ServerAuthResource extends EngineObject {
 		return( false );
 	}
 	
-	public void updateResource( EngineTransaction transaction , ServerAuthResource src ) throws Exception {
+	public void updateResource( EngineTransaction transaction , EngineAuthResource src ) throws Exception {
 		if( !NAME.equals( src.NAME ) )
 			transaction.exit( _Error.TransactionMismatchedResource1 , "mismatched resource name on change new name=" + src.NAME , new String[] { src.NAME } );
 		
@@ -139,8 +139,8 @@ public class ServerAuthResource extends EngineObject {
 		createProperties();
 		
 		if( src.ac != null && !src.ac.METHOD.isEmpty() ) {
-			ServerAuth auth = resources.engine.getAuth();
-			ac = new ServerAuthContext( auth );
+			EngineAuth auth = resources.engine.getAuth();
+			ac = new EngineAuthContext( auth );
 			ac.load( src.ac.properties );
 		}
 	}
@@ -151,8 +151,8 @@ public class ServerAuthResource extends EngineObject {
 	}
 	
 	public void saveAuthData() throws Exception {
-		ServerAuth auth = resources.engine.getAuth();
-		AUTHKEY = auth.getAuthKey( ServerAuth.AUTH_GROUP_RESOURCE , NAME );
+		EngineAuth auth = resources.engine.getAuth();
+		AUTHKEY = auth.getAuthKey( EngineAuth.AUTH_GROUP_RESOURCE , NAME );
 		properties.setOriginalStringProperty( "authkey" , AUTHKEY );
 		
 		if( ac != null && !ac.METHOD.isEmpty() )
@@ -162,13 +162,13 @@ public class ServerAuthResource extends EngineObject {
 	public void loadAuthData() throws Exception {
 		if( ac != null )
 			return;
-		ServerAuth auth = resources.engine.getAuth();
+		EngineAuth auth = resources.engine.getAuth();
 		ac = auth.loadAuthData( AUTHKEY );
 	}
 
 	public void createResource() throws Exception {
-		ServerAuth auth = resources.engine.getAuth();
-		AUTHKEY = auth.getAuthKey( ServerAuth.AUTH_GROUP_RESOURCE , NAME );
+		EngineAuth auth = resources.engine.getAuth();
+		AUTHKEY = auth.getAuthKey( EngineAuth.AUTH_GROUP_RESOURCE , NAME );
 		createProperties();
 	}
 

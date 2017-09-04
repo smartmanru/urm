@@ -12,7 +12,7 @@ import org.urm.common.meta.MainCommandMeta;
 import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 
 public class MainExecutor extends CommandExecutor {

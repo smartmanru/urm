@@ -13,7 +13,7 @@ import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
-import org.urm.meta.engine.ServerSettings;
+import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
@@ -145,7 +145,7 @@ public class MetaProductSettings extends PropertyController {
 		return( r );
 	}
 
-	public void createSettings( TransactionBase transaction , ServerSettings settings , ProductContext productContext ) throws Exception {
+	public void createSettings( TransactionBase transaction , EngineSettings settings , ProductContext productContext ) throws Exception {
 		if( !super.initCreateStarted( execprops ) )
 			return;
 

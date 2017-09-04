@@ -9,7 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.Types;
-import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -225,7 +225,7 @@ public class Release {
 		this.RELEASEVER = RELEASEVER;
 	}
 	
-	public void setReleaseDate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	public void setReleaseDate( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		if( lc == null )
 			schedule.changeReleaseSchedule( action , releaseDate );
 		else
@@ -247,7 +247,7 @@ public class Release {
 		}
 	}
 	
-	public void createNormal( ActionBase action , String RELEASEVER , Date releaseDate , ServerReleaseLifecycle lc , String RELEASEFILEPATH ) throws Exception {
+	public void createNormal( ActionBase action , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc , String RELEASEFILEPATH ) throws Exception {
 		this.RELEASEVER = DistLabelInfo.normalizeReleaseVer( action , RELEASEVER );
 		this.MASTER = false;
 		this.CUMULATIVE = action.context.CTX_CUMULATIVE;

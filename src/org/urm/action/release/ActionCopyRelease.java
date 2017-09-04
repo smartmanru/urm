@@ -8,18 +8,18 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistLabelInfo;
 import org.urm.engine.dist.DistRepository;
-import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.ReleaseLifecycle;
 
 public class ActionCopyRelease extends ActionBase {
 
 	public Dist src;
 	public String RELEASEDST;
 	public Date releaseDate;
-	public ServerReleaseLifecycle lc;
+	public ReleaseLifecycle lc;
 	
 	public Dist dst;
 	
-	public ActionCopyRelease( ActionBase action , String stream , Dist src , String RELEASEDST , Date releaseDate , ServerReleaseLifecycle lc ) {
+	public ActionCopyRelease( ActionBase action , String stream , Dist src , String RELEASEDST , Date releaseDate , ReleaseLifecycle lc ) {
 		super( action , stream , "Copy distributive src=" + src.RELEASEDIR + ", dst=" + RELEASEDST );
 		this.src = src;
 		this.RELEASEDST = RELEASEDST;

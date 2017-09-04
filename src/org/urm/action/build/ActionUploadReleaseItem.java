@@ -9,7 +9,7 @@ import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
-import org.urm.meta.engine.ServerBuilders;
+import org.urm.meta.engine.EngineBuilders;
 
 public class ActionUploadReleaseItem extends ActionBase {
 
@@ -25,7 +25,7 @@ public class ActionUploadReleaseItem extends ActionBase {
 		List<ActionScopeTargetItem> items = scopeProject.getItems( this );
 		
 		// set maven
-		ServerBuilders builders = super.getServerBuilders();
+		EngineBuilders builders = super.getServerBuilders();
 		String BUILD_JAVA_HOME = shell.getLocalPath( builders.JAVA_HOMEPATH );
 		String BUILD_MAVEN_HOME = shell.getLocalPath( builders.MAVEN_HOMEPATH );
 

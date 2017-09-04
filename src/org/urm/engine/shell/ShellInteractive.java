@@ -1,18 +1,18 @@
 package org.urm.engine.shell;
 
 import org.urm.action.ActionBase;
-import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.EngineAuthResource;
 
 public class ShellInteractive extends Shell {
 
-	ServerAuthResource auth;
+	EngineAuthResource auth;
 	
-	public static ShellInteractive getShell( ActionBase action , int id , String name , EngineShellPool pool , Account account , ServerAuthResource auth ) throws Exception {
+	public static ShellInteractive getShell( ActionBase action , int id , String name , EngineShellPool pool , Account account , EngineAuthResource auth ) throws Exception {
 		ShellInteractive shell = new ShellInteractive( id , name , pool , account , auth );
 		return( shell );
 	}
 
-	private ShellInteractive( int id , String name , EngineShellPool pool , Account account , ServerAuthResource auth ) {
+	private ShellInteractive( int id , String name , EngineShellPool pool , Account account , EngineAuthResource auth ) {
 		super( id , name , pool , account );
 		this.auth = auth;
 	}

@@ -16,19 +16,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerResources extends EngineObject {
+public class EngineResources extends EngineObject {
 
-	public ServerRegistry registry;
+	public EngineRegistry registry;
 	public Engine engine;
 
-	Map<String,ServerAuthResource> resourceMap;
+	Map<String,EngineAuthResource> resourceMap;
 
-	public ServerResources( ServerRegistry registry ) {
+	public EngineResources( EngineRegistry registry ) {
 		super( registry );
 		this.registry = registry;
 		this.engine = registry.loader.engine;
 		
-		resourceMap = new HashMap<String,ServerAuthResource>();
+		resourceMap = new HashMap<String,EngineAuthResource>();
 	}
 
 	@Override
@@ -36,11 +36,11 @@ public class ServerResources extends EngineObject {
 		return( "server-resources" );
 	}
 	
-	public ServerResources copy() throws Exception {
-		ServerResources r = new ServerResources( registry );
+	public EngineResources copy() throws Exception {
+		EngineResources r = new EngineResources( registry );
 		
-		for( ServerAuthResource res : resourceMap.values() ) {
-			ServerAuthResource rc = res.copy( r );
+		for( EngineAuthResource res : resourceMap.values() ) {
+			EngineAuthResource rc = res.copy( r );
 			r.resourceMap.put( rc.NAME , rc );
 		}
 		return( r );
@@ -55,7 +55,7 @@ public class ServerResources extends EngineObject {
 			return;
 		
 		for( Node node : list ) {
-			ServerAuthResource res = new ServerAuthResource( this );
+			EngineAuthResource res = new EngineAuthResource( this );
 			res.load( node );
 
 			resourceMap.put( res.NAME , res );
@@ -63,19 +63,19 @@ public class ServerResources extends EngineObject {
 	}
 
 	public void save( Document doc , Element root ) throws Exception {
-		for( ServerAuthResource res : resourceMap.values() ) {
+		for( EngineAuthResource res : resourceMap.values() ) {
 			Element resElement = Common.xmlCreateElement( doc , root , "resource" );
 			res.save( doc , resElement );
 		}
 	}
 
-	public ServerAuthResource findResource( String name ) {
-		ServerAuthResource res = resourceMap.get( name );
+	public EngineAuthResource findResource( String name ) {
+		EngineAuthResource res = resourceMap.get( name );
 		return( res );
 	}
 
-	public ServerAuthResource getResource( String name ) throws Exception {
-		ServerAuthResource res = resourceMap.get( name );
+	public EngineAuthResource getResource( String name ) throws Exception {
+		EngineAuthResource res = resourceMap.get( name );
 		if( res == null )
 			Common.exit1( _Error.UnknownResource1 , "unknown resource=" + name , name );
 		return( res );
@@ -87,7 +87,7 @@ public class ServerResources extends EngineObject {
 	
 	public String[] getList( VarRESOURCECATEGORY rcCategory ) {
 		List<String> list = new LinkedList<String>();
-		for( ServerAuthResource res : resourceMap.values() ) {
+		for( EngineAuthResource res : resourceMap.values() ) {
 			if( rcCategory == VarRESOURCECATEGORY.ANY )
 				list.add( res.NAME );
 			else
@@ -106,7 +106,7 @@ public class ServerResources extends EngineObject {
 		return( Common.getSortedList( list ) );
 	}
 	
-	public void createResource( EngineTransaction transaction , ServerAuthResource res ) throws Exception {
+	public void createResource( EngineTransaction transaction , EngineAuthResource res ) throws Exception {
 		if( resourceMap.get( res.NAME ) != null )
 			transaction.exit( _Error.DuplicateResource1 , "resource already exists name=" + res.NAME , new String[] { res.NAME } );
 			
@@ -114,12 +114,12 @@ public class ServerResources extends EngineObject {
 		resourceMap.put( res.NAME , res );
 	}
 	
-	public void updateResource( EngineTransaction transaction , ServerAuthResource res , ServerAuthResource resNew ) throws Exception {
+	public void updateResource( EngineTransaction transaction , EngineAuthResource res , EngineAuthResource resNew ) throws Exception {
 		res.updateResource( transaction , resNew );
 		dropResourceMirrors( transaction , res );
 	}
 	
-	public void deleteResource( EngineTransaction transaction , ServerAuthResource res ) throws Exception {
+	public void deleteResource( EngineTransaction transaction , EngineAuthResource res ) throws Exception {
 		if( resourceMap.get( res.NAME ) == null )
 			transaction.exit( _Error.UnknownResource1 , "unknown resource name=" + res.NAME , new String[] { res.NAME } );
 			
@@ -127,12 +127,12 @@ public class ServerResources extends EngineObject {
 		resourceMap.remove( res.NAME );
 	}
 
-	public void dropResourceMirrors( EngineTransaction transaction , ServerAuthResource res ) throws Exception {
+	public void dropResourceMirrors( EngineTransaction transaction , EngineAuthResource res ) throws Exception {
 		if( !res.isVCS() )
 			return;
 		
 		ActionBase action = transaction.getAction();
-		ServerMirrors mirrors = action.getServerMirrors();
+		EngineMirrors mirrors = action.getServerMirrors();
 		mirrors.dropResourceMirrors( transaction , res );
 	}
 	

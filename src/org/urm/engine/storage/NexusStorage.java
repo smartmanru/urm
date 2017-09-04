@@ -3,8 +3,8 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.SimpleHttp;
-import org.urm.meta.engine.ServerAuthResource;
-import org.urm.meta.engine.ServerProjectBuilder;
+import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaProductBuildSettings;
@@ -28,7 +28,7 @@ public class NexusStorage {
 		this.meta = meta;
 	}
 
-	public static boolean verifyRepository( ActionBase action , String repository , ServerAuthResource res ) throws Exception {
+	public static boolean verifyRepository( ActionBase action , String repository , EngineAuthResource res ) throws Exception {
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository + "/";
 		res.loadAuthData();
 		String user = res.ac.getUser( action );
@@ -37,7 +37,7 @@ public class NexusStorage {
 	}
 	
 	public NexusDownloadInfo downloadNexus( ActionBase action , String GROUPID , String ARTEFACTID , String VERSION , String PACKAGING , String CLASSIFIER , MetaDistrBinaryItem item ) throws Exception {
-		ServerAuthResource res = action.getResource( NEXUS_RESOURCE );
+		EngineAuthResource res = action.getResource( NEXUS_RESOURCE );
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository;
 		String NAME = ARTEFACTID + "-" + VERSION;
 		if( !CLASSIFIER.isEmpty() )
@@ -66,7 +66,7 @@ public class NexusStorage {
 	}
 
 	public NexusDownloadInfo downloadNuget( ActionBase action , String ARTEFACTID , String VERSION , MetaDistrBinaryItem item ) throws Exception {
-		ServerAuthResource res = action.getResource( NEXUS_RESOURCE );
+		EngineAuthResource res = action.getResource( NEXUS_RESOURCE );
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository;
 		String NAME = ARTEFACTID + "-" + VERSION + ".nupkg";
 
@@ -86,7 +86,7 @@ public class NexusStorage {
 		LocalFolder tmp = artefactoryFolder.getSubFolder( action , "tmp" );
 		tmp.ensureExists( action );
 		
-		ServerProjectBuilder builder = action.getBuilder( item.project.getBuilder( action ) );
+		ProjectBuilder builder = action.getBuilder( item.project.getBuilder( action ) );
 		action.shell.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 
 				Common.getPath( "lib" , builder.TARGETNUGETPLATFORM , "*" ) );
 		action.shell.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 

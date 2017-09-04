@@ -18,20 +18,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerNetwork extends EngineObject {
+public class Network extends EngineObject {
 
-	public ServerDatacenter datacenter;
+	public Datacenter datacenter;
 	
 	public String ID;
 	public String MASK;
 	public String DESC;
 	
-	private Map<String,ServerNetworkHost> hostMap;
+	private Map<String,NetworkHost> hostMap;
 	
-	public ServerNetwork( ServerDatacenter datacenter ) {
+	public Network( Datacenter datacenter ) {
 		super( datacenter );
 		this.datacenter = datacenter;
-		hostMap = new HashMap<String,ServerNetworkHost>();
+		hostMap = new HashMap<String,NetworkHost>();
 	}
 	
 	@Override
@@ -39,14 +39,14 @@ public class ServerNetwork extends EngineObject {
 		return( ID );
 	}
 	
-	public ServerNetwork copy( ServerDatacenter datacenter ) throws Exception {
-		ServerNetwork r = new ServerNetwork( datacenter );
+	public Network copy( Datacenter datacenter ) throws Exception {
+		Network r = new Network( datacenter );
 		r.ID = ID;
 		r.MASK = MASK;
 		r.DESC = DESC;
 		
-		for( ServerNetworkHost host : hostMap.values() ) {
-			ServerNetworkHost rhost = host.copy( r );
+		for( NetworkHost host : hostMap.values() ) {
+			NetworkHost rhost = host.copy( r );
 			r.addNetworkHost( rhost );
 		}
 		return( r );
@@ -65,13 +65,13 @@ public class ServerNetwork extends EngineObject {
 			return;
 		
 		for( Node node : list ) {
-			ServerNetworkHost host = new ServerNetworkHost( this );
+			NetworkHost host = new NetworkHost( this );
 			host.load( node );
 			addNetworkHost( host );
 		}
 	}
 
-	private void addNetworkHost( ServerNetworkHost host ) {
+	private void addNetworkHost( NetworkHost host ) {
 		hostMap.put( host.ID , host );
 	}
 	
@@ -80,13 +80,13 @@ public class ServerNetwork extends EngineObject {
 		Common.xmlSetElementAttr( doc , root , "mask" , MASK );
 		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 		
-		for( ServerNetworkHost host : hostMap.values() ) {
+		for( NetworkHost host : hostMap.values() ) {
 			Element element = Common.xmlCreateElement( doc , root , "host" );
 			host.save( doc , element );
 		}
 	}
 
-	public ServerNetworkHost findHost( String id ) {
+	public NetworkHost findHost( String id ) {
 		return( hostMap.get( id ) );
 	}
 	
@@ -94,8 +94,8 @@ public class ServerNetwork extends EngineObject {
 		return( Common.getSortedKeys( hostMap ) );
 	}
 	
-	public ServerNetworkHost[] getHosts() {
-		return( hostMap.values().toArray( new ServerNetworkHost[0] ) );
+	public NetworkHost[] getHosts() {
+		return( hostMap.values().toArray( new NetworkHost[0] ) );
 	}
 	
 	public void createNetwork( EngineTransaction transaction  , String ID , String MASK , String DESC ) throws Exception {
@@ -112,7 +112,7 @@ public class ServerNetwork extends EngineObject {
 
 	public String[] getFinalAccounts() {
 		List<String> list = new LinkedList<String>();
-		for( ServerNetworkHost host : hostMap.values() ) {
+		for( NetworkHost host : hostMap.values() ) {
 			String[] accounts = host.getFinalAccounts();
 			for( String account : accounts )
 				list.add( account );
@@ -120,9 +120,9 @@ public class ServerNetwork extends EngineObject {
 		return( Common.getSortedList( list ) );
 	}
 
-	public ServerHostAccount findFinalAccount( String finalAccount ) {
-		for( ServerNetworkHost host : hostMap.values() ) {
-			ServerHostAccount account = host.findFinalAccount( finalAccount );
+	public HostAccount findFinalAccount( String finalAccount ) {
+		for( NetworkHost host : hostMap.values() ) {
+			HostAccount account = host.findFinalAccount( finalAccount );
 			if( account != null )
 				return( account );
 		}
@@ -181,17 +181,17 @@ public class ServerNetwork extends EngineObject {
 		this.DESC = DESC;
 	}
 
-	public void createHost( EngineTransaction transaction , ServerNetworkHost host ) {
+	public void createHost( EngineTransaction transaction , NetworkHost host ) {
 		addNetworkHost( host );
 	}
 	
-	public void deleteHost( EngineTransaction transaction , ServerNetworkHost host ) {
+	public void deleteHost( EngineTransaction transaction , NetworkHost host ) {
 		hostMap.remove( host.ID );
 	}
 	
-	public void modifyHost( EngineTransaction transaction , ServerNetworkHost host ) {
+	public void modifyHost( EngineTransaction transaction , NetworkHost host ) {
 		String oldId = null;
-		for( Entry<String,ServerNetworkHost> entry : hostMap.entrySet() ) {
+		for( Entry<String,NetworkHost> entry : hostMap.entrySet() ) {
 			if( entry.getValue() == host ) {
 				oldId = entry.getKey();
 			}
@@ -200,13 +200,13 @@ public class ServerNetwork extends EngineObject {
 		addNetworkHost( host );
 	}
 
-	public ServerNetworkHost createHost( EngineTransaction transaction , Account account ) throws Exception {
-		for( ServerNetworkHost host : hostMap.values() ) {
+	public NetworkHost createHost( EngineTransaction transaction , Account account ) throws Exception {
+		for( NetworkHost host : hostMap.values() ) {
 			if( host.isEqualsHost( account ) )
 				return( host );
 		}
 
-		ServerNetworkHost host = new ServerNetworkHost( this );
+		NetworkHost host = new NetworkHost( this );
 		host.createHost( transaction , account.osType , account.HOST , account.IP , account.PORT , "" );
 		createHost( transaction , host );
 		return( host );
@@ -216,8 +216,8 @@ public class ServerNetwork extends EngineObject {
 		super.deleteObject();
 	}
 
-	public void getApplicationReferences( List<ServerAccountReference> refs ) {
-		for( ServerNetworkHost host : hostMap.values() )
+	public void getApplicationReferences( List<AccountReference> refs ) {
+		for( NetworkHost host : hostMap.values() )
 			host.getApplicationReferences( refs );
 	}
 	

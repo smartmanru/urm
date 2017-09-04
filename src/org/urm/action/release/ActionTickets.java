@@ -18,7 +18,7 @@ import org.urm.engine.dist.ReleaseTicketSetTarget;
 import org.urm.meta.Types;
 import org.urm.meta.Types.VarTICKETSETTARGETTYPE;
 import org.urm.meta.Types.VarTICKETTYPE;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSource;

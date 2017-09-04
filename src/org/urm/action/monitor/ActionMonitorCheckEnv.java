@@ -8,7 +8,7 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.deploy.ActionCheckEnv;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaMonitoringTarget;

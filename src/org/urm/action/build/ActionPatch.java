@@ -6,7 +6,7 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.ServerBuilders;
+import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProjectItem;
 
@@ -142,7 +142,7 @@ public class ActionPatch extends ActionBase {
 	}
 	
 	private boolean uploadBuildStatus() throws Exception {
-		ServerBuilders builders = super.getServerBuilders();
+		EngineBuilders builders = super.getServerBuilders();
 		MetaProductBuildSettings build = getBuildSettings( builder.project.meta );
 		
 		String UPLOAD_PROJECT_NAME = builder.project.NAME;

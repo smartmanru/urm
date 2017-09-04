@@ -8,33 +8,33 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineObject;
-import org.urm.meta.engine.ServerBase.CATEGORY_TYPE;
+import org.urm.meta.engine.EngineBase.CATEGORY_TYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerBaseCategory extends EngineObject {
+public class EngineBaseCategory extends EngineObject {
 
 	public CATEGORY_TYPE type;
 	public String ID;
 	public String NAME;
 
-	public ServerBase base;
-	Map<String,ServerBaseGroup> groupMap;
+	public EngineBase base;
+	Map<String,EngineBaseGroup> groupMap;
 
-	public ServerBaseCategory( ServerBase base ) {
+	public EngineBaseCategory( EngineBase base ) {
 		super( null );
 		this.base = base;
-		groupMap = new HashMap<String,ServerBaseGroup>();
+		groupMap = new HashMap<String,EngineBaseGroup>();
 	}
 	
-	public ServerBaseCategory( ServerBase base , CATEGORY_TYPE type , String NAME ) {
+	public EngineBaseCategory( EngineBase base , CATEGORY_TYPE type , String NAME ) {
 		super( null );
 		this.base = base;
 		this.type = type;
 		this.NAME = NAME;
 		this.ID = type.name().toLowerCase();
-		groupMap = new HashMap<String,ServerBaseGroup>();
+		groupMap = new HashMap<String,EngineBaseGroup>();
 	}
 	
 	@Override
@@ -42,11 +42,11 @@ public class ServerBaseCategory extends EngineObject {
 		return( ID );
 	}
 	
-	public ServerBaseCategory copy( ServerBase rn ) throws Exception {
-		ServerBaseCategory r = new ServerBaseCategory( rn , type , NAME );
+	public EngineBaseCategory copy( EngineBase rn ) throws Exception {
+		EngineBaseCategory r = new EngineBaseCategory( rn , type , NAME );
 		
-		for( ServerBaseGroup group : groupMap.values() ) {
-			ServerBaseGroup rgroup = group.copy( r );
+		for( EngineBaseGroup group : groupMap.values() ) {
+			EngineBaseGroup rgroup = group.copy( r );
 			r.addGroup( rgroup );
 		}
 		return( r );
@@ -65,13 +65,13 @@ public class ServerBaseCategory extends EngineObject {
 			return;
 		
 		for( Node node : list ) {
-			ServerBaseGroup group = new ServerBaseGroup( this );
+			EngineBaseGroup group = new EngineBaseGroup( this );
 			group.load( node );
 			addGroup( group );
 		}
 	}
 
-	public void addGroup( ServerBaseGroup group ) {
+	public void addGroup( EngineBaseGroup group ) {
 		groupMap.put( group.ID , group );
 	}
 
@@ -80,7 +80,7 @@ public class ServerBaseCategory extends EngineObject {
 		Common.xmlSetElementAttr( doc , root , "id" , ID );
 		Common.xmlSetElementAttr( doc , root , "name" , NAME );
 		
-		for( ServerBaseGroup group : groupMap.values() ) {
+		for( EngineBaseGroup group : groupMap.values() ) {
 			Element element = Common.xmlCreateElement( doc , root , "group" );
 			group.save( doc , element );
 		}
@@ -90,25 +90,25 @@ public class ServerBaseCategory extends EngineObject {
 		return( Common.getSortedKeys( groupMap ) );
 	}
 
-	public ServerBaseGroup[] getGroups() {
-		return( groupMap.values().toArray( new ServerBaseGroup[0] ) );
+	public EngineBaseGroup[] getGroups() {
+		return( groupMap.values().toArray( new EngineBaseGroup[0] ) );
 	}
 
-	public ServerBaseGroup findGroup( String ID ) {
+	public EngineBaseGroup findGroup( String ID ) {
 		return( groupMap.get( ID ) );
 	}
 	
-	public void createGroup( EngineTransaction transaction , ServerBaseGroup group ) throws Exception {
+	public void createGroup( EngineTransaction transaction , EngineBaseGroup group ) throws Exception {
 		addGroup( group );
 	}
 	
-	public void deleteGroup( EngineTransaction transaction , ServerBaseGroup group ) throws Exception {
+	public void deleteGroup( EngineTransaction transaction , EngineBaseGroup group ) throws Exception {
 		groupMap.remove( group );
 	}
 	
-	public void modifyGroup( EngineTransaction transaction , ServerBaseGroup group ) {
+	public void modifyGroup( EngineTransaction transaction , EngineBaseGroup group ) {
 		String oldId = null;
-		for( Entry<String,ServerBaseGroup> entry : groupMap.entrySet() ) {
+		for( Entry<String,EngineBaseGroup> entry : groupMap.entrySet() ) {
 			if( entry.getValue() == group )
 				oldId = entry.getKey();
 		}

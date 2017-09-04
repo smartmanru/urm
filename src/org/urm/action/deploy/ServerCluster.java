@@ -3,7 +3,7 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionEnvScopeMaker;
 import org.urm.action.ActionScopeTarget;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 

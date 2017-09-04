@@ -7,24 +7,24 @@ import org.urm.common.RunError;
 import org.urm.engine.action.ActionInit;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
-import org.urm.meta.engine.ServerAuth;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
-import org.urm.meta.engine.ServerAuth.SpecialRights;
-import org.urm.meta.engine.ServerAuthResource;
-import org.urm.meta.engine.ServerBase;
-import org.urm.meta.engine.ServerBuilders;
-import org.urm.meta.engine.ServerDirectory;
-import org.urm.meta.engine.ServerInfrastructure;
-import org.urm.meta.engine.ServerMirrorRepository;
-import org.urm.meta.engine.ServerMirrors;
-import org.urm.meta.engine.ServerMonitoring;
-import org.urm.meta.engine.ServerNetwork;
-import org.urm.meta.engine.ServerProduct;
-import org.urm.meta.engine.ServerProjectBuilder;
-import org.urm.meta.engine.ServerReleaseLifecycles;
-import org.urm.meta.engine.ServerResources;
-import org.urm.meta.engine.ServerSettings;
-import org.urm.meta.engine.ServerSystem;
+import org.urm.meta.engine.EngineAuth;
+import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.EngineBase;
+import org.urm.meta.engine.EngineBuilders;
+import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.EngineInfrastructure;
+import org.urm.meta.engine.EngineMirrorRepository;
+import org.urm.meta.engine.EngineMirrors;
+import org.urm.meta.engine.EngineMonitoring;
+import org.urm.meta.engine.Network;
+import org.urm.meta.engine.Product;
+import org.urm.meta.engine.ProjectBuilder;
+import org.urm.meta.engine.EngineReleaseLifecycles;
+import org.urm.meta.engine.EngineResources;
+import org.urm.meta.engine.EngineSettings;
+import org.urm.meta.engine.System;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
+import org.urm.meta.engine.EngineAuth.SpecialRights;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -51,21 +51,21 @@ public class TransactionBase extends EngineObject {
 	public ActionInit action;
 	public RunError error;
 	
-	public ServerInfrastructure infra;
-	public ServerReleaseLifecycles lifecycles;
-	public ServerBase base;
+	public EngineInfrastructure infra;
+	public EngineReleaseLifecycles lifecycles;
+	public EngineBase base;
 	
-	public ServerSettings settings;
-	public ServerResources resources;
-	public ServerBuilders builders;
-	public ServerDirectory directory;
-	public ServerMirrors mirrors;
+	public EngineSettings settings;
+	public EngineResources resources;
+	public EngineBuilders builders;
+	public EngineDirectory directory;
+	public EngineMirrors mirrors;
 
-	protected ServerSettings settingsOld;
-	protected ServerResources resourcesOld;
-	protected ServerBuilders buildersOld;
-	protected ServerDirectory directoryOld;
-	protected ServerMirrors mirrorsOld;
+	protected EngineSettings settingsOld;
+	protected EngineResources resourcesOld;
+	protected EngineBuilders buildersOld;
+	protected EngineDirectory directoryOld;
+	protected EngineMirrors mirrorsOld;
 	private boolean saveRegistry;
 
 	private Map<String,TransactionMetadata> productMeta;
@@ -382,7 +382,7 @@ public class TransactionBase extends EngineObject {
 		action.trace( s );
 	}
 	
-	public boolean changeInfrastructure( ServerInfrastructure sourceInfrastructure , ServerNetwork network ) {
+	public boolean changeInfrastructure( EngineInfrastructure sourceInfrastructure , Network network ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -432,7 +432,7 @@ public class TransactionBase extends EngineObject {
 		return( false );
 	}
 
-	public boolean changeReleaseLifecycles( ServerReleaseLifecycles sourceLifecycles ) {
+	public boolean changeReleaseLifecycles( EngineReleaseLifecycles sourceLifecycles ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -476,7 +476,7 @@ public class TransactionBase extends EngineObject {
 		return( false );
 	}
 
-	public boolean changeBase( ServerBase sourceBase , SpecialRights sr ) {
+	public boolean changeBase( EngineBase sourceBase , SpecialRights sr ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -520,7 +520,7 @@ public class TransactionBase extends EngineObject {
 		return( false );
 	}
 
-	public boolean changeResources( ServerResources sourceResources ) {
+	public boolean changeResources( EngineResources sourceResources ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -577,7 +577,7 @@ public class TransactionBase extends EngineObject {
 		return( false );
 	}
 
-	public boolean changeBuilders( ServerBuilders sourceBuilders ) {
+	public boolean changeBuilders( EngineBuilders sourceBuilders ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -634,7 +634,7 @@ public class TransactionBase extends EngineObject {
 		return( false );
 	}
 
-	public boolean changeDirectory( ServerDirectory sourceDirectory , boolean critical ) {
+	public boolean changeDirectory( EngineDirectory sourceDirectory , boolean critical ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -692,7 +692,7 @@ public class TransactionBase extends EngineObject {
 		return( false );
 	}
 
-	public boolean changeMirrors( ServerMirrors sourceMirrors ) {
+	public boolean changeMirrors( EngineMirrors sourceMirrors ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -745,7 +745,7 @@ public class TransactionBase extends EngineObject {
 		return( false );
 	}
 
-	public boolean changeMonitoring( ServerMonitoring sourceMonitoring ) {
+	public boolean changeMonitoring( EngineMonitoring sourceMonitoring ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -765,7 +765,7 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
-	public boolean changeSettings( ServerSettings sourceSettings ) {
+	public boolean changeSettings( EngineSettings sourceSettings ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -919,7 +919,7 @@ public class TransactionBase extends EngineObject {
 			exit( _Error.TransactionMissingBaseChanges0 , "Missing base changes" , null );
 	}
 
-	protected void checkTransactionResources( ServerResources sourceResources ) throws Exception {
+	protected void checkTransactionResources( EngineResources sourceResources ) throws Exception {
 		checkTransaction();
 		if( resources == null || resources != sourceResources )
 			exit( _Error.TransactionMissingResourceChanges0 , "Missing resources changes" , null );
@@ -937,7 +937,7 @@ public class TransactionBase extends EngineObject {
 			exit( _Error.TransactionMissingDirectoryChanges0 , "Missing directory changes" , null );
 	}
 
-	protected void checkTransactionMirrors( ServerMirrors sourceMirrors ) throws Exception {
+	protected void checkTransactionMirrors( EngineMirrors sourceMirrors ) throws Exception {
 		checkTransaction();
 		if( sourceMirrors == null || mirrors != sourceMirrors )
 			exit( _Error.TransactionMissingMirrorsChanges0 , "Missing mirrors changes" , null );
@@ -967,27 +967,27 @@ public class TransactionBase extends EngineObject {
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
 	}
 	
-	public ServerResources getTransactionResources() {
+	public EngineResources getTransactionResources() {
 		return( resources );
 	}
 	
-	public ServerBuilders getTransactionBuilders() {
+	public EngineBuilders getTransactionBuilders() {
 		return( builders );
 	}
 	
-	public ServerReleaseLifecycles getTransactionLifecycles() {
+	public EngineReleaseLifecycles getTransactionLifecycles() {
 		return( lifecycles );
 	}
 	
-	public ServerDirectory getTransactionDirectory() {
+	public EngineDirectory getTransactionDirectory() {
 		return( directory );
 	}
 	
-	public ServerMirrors getTransactionMirrors() {
+	public EngineMirrors getTransactionMirrors() {
 		return( mirrors );
 	}
 	
-	public ServerSettings getTransactionSettings() {
+	public EngineSettings getTransactionSettings() {
 		return( settings );
 	}
 	
@@ -999,7 +999,7 @@ public class TransactionBase extends EngineObject {
 		return( tm.sessionMeta );
 	}
 	
-	public ServerInfrastructure getTransactionInfrastructure() {
+	public EngineInfrastructure getTransactionInfrastructure() {
 		return( infra );
 	}
 
@@ -1008,19 +1008,19 @@ public class TransactionBase extends EngineObject {
 	}
 
 	// helpers
-	public ServerAuthResource getResource( ServerAuthResource resource ) throws Exception {
+	public EngineAuthResource getResource( EngineAuthResource resource ) throws Exception {
 		return( resources.getResource( resource.NAME ) );
 	}
 	
-	public ServerProjectBuilder getBuilder( ServerProjectBuilder builder ) throws Exception {
+	public ProjectBuilder getBuilder( ProjectBuilder builder ) throws Exception {
 		return( builders.getBuilder( builder.NAME ) );
 	}
 	
-	public ServerSystem getSystem( ServerSystem system ) throws Exception {
+	public System getSystem( System system ) throws Exception {
 		return( directory.getSystem( system.NAME ) );
 	}
 	
-	public ServerProduct getProduct( ServerProduct product ) throws Exception {
+	public Product getProduct( Product product ) throws Exception {
 		return( directory.getProduct( product.NAME ) );
 	}
 	
@@ -1063,7 +1063,7 @@ public class TransactionBase extends EngineObject {
 		return( tm.metadata );
 	}
 	
-	protected Meta createProductMetadata( ServerDirectory directory , ServerProduct product ) throws Exception {
+	protected Meta createProductMetadata( EngineDirectory directory , Product product ) throws Exception {
 		TransactionMetadata tm = productMeta.get( product.NAME );
 		if( tm != null )
 			action.exitUnexpectedState();
@@ -1147,7 +1147,7 @@ public class TransactionBase extends EngineObject {
 		return( sourceNew.getProjectSet( action , set.NAME ) );
 	}
 
-	public ServerMirrorRepository getMirrorRepository( ServerMirrorRepository repo ) throws Exception {
+	public EngineMirrorRepository getMirrorRepository( EngineMirrorRepository repo ) throws Exception {
 		return( mirrors.getRepository( repo.NAME ) );
 	}
 	
@@ -1156,7 +1156,7 @@ public class TransactionBase extends EngineObject {
 	}
 	
 	public boolean checkSecurityServerChange( SecurityAction sa ) {
-		ServerAuth auth = engine.getAuth();
+		EngineAuth auth = engine.getAuth();
 		if( auth.checkAccessServerAction( action , sa , false ) )
 			return( true );
 		
@@ -1165,7 +1165,7 @@ public class TransactionBase extends EngineObject {
 	}
 
 	public boolean checkSecuritySpecial( SpecialRights sr ) {
-		ServerAuth auth = engine.getAuth();
+		EngineAuth auth = engine.getAuth();
 		if( auth.checkAccessSpecial( action , sr ) )
 			return( true );
 		
@@ -1173,8 +1173,8 @@ public class TransactionBase extends EngineObject {
 		return( false );
 	}
 
-	public boolean checkSecurityInfrastructureChange( ServerNetwork network ) {
-		ServerAuth auth = engine.getAuth();
+	public boolean checkSecurityInfrastructureChange( Network network ) {
+		EngineAuth auth = engine.getAuth();
 		if( auth.checkAccessNetworkAction( action , SecurityAction.ACTION_CONFIGURE , network , true , false ) )
 			return( true );
 		
@@ -1183,7 +1183,7 @@ public class TransactionBase extends EngineObject {
 	}
 
 	public boolean checkSecurityProductChange( Meta meta , MetaEnv env ) {
-		ServerAuth auth = engine.getAuth();
+		EngineAuth auth = engine.getAuth();
 		if( auth.checkAccessProductAction( action , SecurityAction.ACTION_CONFIGURE , meta , env , false ) )
 			return( true );
 		

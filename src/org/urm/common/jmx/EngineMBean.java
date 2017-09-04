@@ -23,8 +23,8 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.EngineLoader;
-import org.urm.meta.engine.ServerDirectory;
-import org.urm.meta.engine.ServerSettings;
+import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.EngineSettings;
 
 import com.sun.jdmk.comm.HtmlAdaptorServer;
 
@@ -47,7 +47,7 @@ public class EngineMBean implements DynamicMBean {
 		int port = action.context.CTX_PORT;
 		if( port <= 0 ) {
 			EngineLoader loader = engine.getLoader( action );
-			ServerSettings settings = loader.getServerSettings();
+			EngineSettings settings = loader.getServerSettings();
 			port = settings.serverContext.CONNECTION_JMX_PORT;
 			if( port <= 0 )
 				port = RemoteCall.DEFAULT_SERVER_PORT;
@@ -142,7 +142,7 @@ public class EngineMBean implements DynamicMBean {
 		if( !products.checkExists( action ) )
 			action.exit1( _Error.CannotFindDirectory1 , "cannot find directory: " + products.folderPath , products.folderPath );
 		
-		ServerDirectory directory = action.actionInit.getServerDirectory();
+		EngineDirectory directory = action.actionInit.getServerDirectory();
 		for( String name : directory.getProducts() )
 			addProduct( name );
 	}		

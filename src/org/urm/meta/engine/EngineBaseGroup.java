@@ -12,18 +12,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerBaseGroup extends EngineObject {
+public class EngineBaseGroup extends EngineObject {
 
 	public String ID;
 	public String DESC;
 
-	public ServerBaseCategory category;
-	Map<String,ServerBaseItem> itemMap;
+	public EngineBaseCategory category;
+	Map<String,EngineBaseItem> itemMap;
 
-	public ServerBaseGroup( ServerBaseCategory category ) {
+	public EngineBaseGroup( EngineBaseCategory category ) {
 		super( category );
 		this.category = category;
-		itemMap = new HashMap<String,ServerBaseItem>();
+		itemMap = new HashMap<String,EngineBaseItem>();
 	}
 	
 	@Override
@@ -31,11 +31,11 @@ public class ServerBaseGroup extends EngineObject {
 		return( ID );
 	}
 	
-	public ServerBaseGroup copy( ServerBaseCategory rn ) throws Exception {
-		ServerBaseGroup r = new ServerBaseGroup( rn );
+	public EngineBaseGroup copy( EngineBaseCategory rn ) throws Exception {
+		EngineBaseGroup r = new EngineBaseGroup( rn );
 		
-		for( ServerBaseItem item : itemMap.values() ) {
-			ServerBaseItem ritem = item.copy( r );
+		for( EngineBaseItem item : itemMap.values() ) {
+			EngineBaseItem ritem = item.copy( r );
 			r.addItem( ritem );
 		}
 		return( r );
@@ -53,13 +53,13 @@ public class ServerBaseGroup extends EngineObject {
 			return;
 		
 		for( Node node : list ) {
-			ServerBaseItem item = new ServerBaseItem( this );
+			EngineBaseItem item = new EngineBaseItem( this );
 			item.load( node );
 			addItem( item );
 		}
 	}
 
-	public void addItem( ServerBaseItem item ) {
+	public void addItem( EngineBaseItem item ) {
 		itemMap.put( item.ID , item );
 	}
 
@@ -67,7 +67,7 @@ public class ServerBaseGroup extends EngineObject {
 		Common.xmlSetElementAttr( doc , root , "id" , ID );
 		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 		
-		for( ServerBaseItem item : itemMap.values() ) {
+		for( EngineBaseItem item : itemMap.values() ) {
 			Element element = Common.xmlCreateElement( doc , root , "item" );
 			item.save( doc , element );
 		}
@@ -77,11 +77,11 @@ public class ServerBaseGroup extends EngineObject {
 		return( Common.getSortedKeys( itemMap ) );
 	}
 
-	public ServerBaseItem[] getItems() {
-		return( itemMap.values().toArray( new ServerBaseItem[0] ) );
+	public EngineBaseItem[] getItems() {
+		return( itemMap.values().toArray( new EngineBaseItem[0] ) );
 	}
 
-	public ServerBaseItem findItem( String ID ) {
+	public EngineBaseItem findItem( String ID ) {
 		return( itemMap.get( ID ) );
 	}
 	
@@ -95,17 +95,17 @@ public class ServerBaseGroup extends EngineObject {
 		this.DESC = DESC;
 	}
 	
-	public void createItem( EngineTransaction transaction , ServerBaseItem item ) throws Exception {
+	public void createItem( EngineTransaction transaction , EngineBaseItem item ) throws Exception {
 		addItem( item );
 	}
 	
-	public void deleteItem( EngineTransaction transaction , ServerBaseItem item ) throws Exception {
+	public void deleteItem( EngineTransaction transaction , EngineBaseItem item ) throws Exception {
 		itemMap.remove( item );
 	}
 	
-	public void modifyItem( EngineTransaction transaction , ServerBaseItem item ) {
+	public void modifyItem( EngineTransaction transaction , EngineBaseItem item ) {
 		String oldId = null;
-		for( Entry<String,ServerBaseItem> entry : itemMap.entrySet() ) {
+		for( Entry<String,EngineBaseItem> entry : itemMap.entrySet() ) {
 			if( entry.getValue() == item )
 				oldId = entry.getKey();
 		}

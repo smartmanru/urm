@@ -16,7 +16,7 @@ import org.urm.engine.status.ServerStatusSource;
 import org.urm.engine.status.ServerStatusData;
 import org.urm.engine.status.ServerStatus;
 import org.urm.engine.status.ServerStatusData.OBJECT_STATE;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
@@ -24,7 +24,7 @@ import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaMonitoringTarget;
 
-public class ServerMonitoringProduct implements EngineEventsListener {
+public class EngineMonitoringProduct implements EngineEventsListener {
 	
 	class ServerExecutorTaskMonitorProduct extends EngineExecutorTask {
 		ServerExecutorTaskMonitorProduct( String productName ) {
@@ -39,7 +39,7 @@ public class ServerMonitoringProduct implements EngineEventsListener {
 	
 	private ServerExecutorTaskMonitorProduct task;
 
-	ServerMonitoring monitoring;
+	EngineMonitoring monitoring;
 	String productName;
 	ServerStatusSource source;
 	Engine engine;
@@ -47,7 +47,7 @@ public class ServerMonitoringProduct implements EngineEventsListener {
 	ActionMonitorTop ca;
 	EngineEventsApp eventsApp;
 
-	public ServerMonitoringProduct( ServerMonitoring monitoring , String productName , ServerStatusSource source , EngineEventsApp eventsApp ) {
+	public EngineMonitoringProduct( EngineMonitoring monitoring , String productName , ServerStatusSource source , EngineEventsApp eventsApp ) {
 		this.monitoring = monitoring;
 		this.productName = productName;
 		this.source = source;
@@ -172,7 +172,7 @@ public class ServerMonitoringProduct implements EngineEventsListener {
 		
 		// cleanup product data
 		source.setState( OBJECT_STATE.STATE_NOMONITORING );
-		ServerProduct product = ( ServerProduct )source.object;
+		Product product = ( Product )source.object;
 		recalculateSystem( product.system );
 	}
 
@@ -187,8 +187,8 @@ public class ServerMonitoringProduct implements EngineEventsListener {
 		if( !task.isRunning() )
 			return;
 
-		sgSource.setExtraLog( ServerMonitoring.EXTRA_SEGMENT_ITEMS , status.getLog() );
-		if( sgSource.setExtraState( ServerMonitoring.EXTRA_SEGMENT_ITEMS , status.itemState ) ) {
+		sgSource.setExtraLog( EngineMonitoring.EXTRA_SEGMENT_ITEMS , status.getLog() );
+		if( sgSource.setExtraState( EngineMonitoring.EXTRA_SEGMENT_ITEMS , status.itemState ) ) {
 			MetaEnv env = sg.env;
 			recalculateEnv( env );
 		}
@@ -209,8 +209,8 @@ public class ServerMonitoringProduct implements EngineEventsListener {
 		if( !task.isRunning() )
 			return;
 
-		serverSource.setExtraLog( ServerMonitoring.EXTRA_SERVER_ITEMS , status.getLog() );
-		if( serverSource.setExtraState( ServerMonitoring.EXTRA_SERVER_ITEMS , status.itemState ) ) {
+		serverSource.setExtraLog( EngineMonitoring.EXTRA_SERVER_ITEMS , status.getLog() );
+		if( serverSource.setExtraState( EngineMonitoring.EXTRA_SERVER_ITEMS , status.itemState ) ) {
 			MetaEnvSegment sg = server.sg;
 			recalculateSegment( sg );
 		}
@@ -231,8 +231,8 @@ public class ServerMonitoringProduct implements EngineEventsListener {
 		if( !task.isRunning() )
 			return;
 
-		nodeSource.setExtraLog( ServerMonitoring.EXTRA_NODE_ITEMS , status.getLog() );
-		if( nodeSource.setExtraState( ServerMonitoring.EXTRA_NODE_ITEMS , status.itemState ) ) {
+		nodeSource.setExtraLog( EngineMonitoring.EXTRA_NODE_ITEMS , status.getLog() );
+		if( nodeSource.setExtraState( EngineMonitoring.EXTRA_NODE_ITEMS , status.itemState ) ) {
 			MetaEnvServer server = node.server;
 			recalculateServer( server );
 		}
@@ -293,7 +293,7 @@ public class ServerMonitoringProduct implements EngineEventsListener {
 	}
 
 	private void recalculateProduct( Meta meta ) {
-		ServerProduct product = monitoring.findProduct( meta.name );
+		Product product = monitoring.findProduct( meta.name );
 		if( product == null )
 			return;
 		
@@ -310,19 +310,19 @@ public class ServerMonitoringProduct implements EngineEventsListener {
 		}
 		
 		if( productSource.setState( finalState ) ) {
-			ServerSystem system = product.system;
+			System system = product.system;
 			recalculateSystem( system );
 		}
 	}
 
-	private void recalculateSystem( ServerSystem system ) {
+	private void recalculateSystem( System system ) {
 		ServerStatusSource systemSource = monitoring.getObjectSource( system );
 		if( systemSource == null )
 			return;
 
 		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
 		for( String productName : system.getProductNames() ) {
-			ServerProduct product = system.findProduct( productName );
+			Product product = system.findProduct( productName );
 			ServerStatusSource productSource = monitoring.getObjectSource( product );
 			if( productSource != null )
 				finalState = ServerStatusData.addState( finalState , productSource.state.state );
@@ -332,14 +332,14 @@ public class ServerMonitoringProduct implements EngineEventsListener {
 			recalculateApp( system.directory );
 	}
 
-	private void recalculateApp( ServerDirectory directory ) {
+	private void recalculateApp( EngineDirectory directory ) {
 		ServerStatusSource appSource = monitoring.getAppSource();
 		if( appSource == null )
 			return;
 
 		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
 		for( String systemName : directory.getSystems() ) {
-			ServerSystem system = directory.findSystem( systemName );
+			System system = directory.findSystem( systemName );
 			ServerStatusSource systemSource = monitoring.getObjectSource( system );
 			if( systemSource != null )
 				finalState = ServerStatusData.addState( finalState , systemSource.state.state );

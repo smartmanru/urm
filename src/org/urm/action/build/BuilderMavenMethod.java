@@ -7,7 +7,7 @@ import org.urm.common.PropertySet;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.ServerProjectBuilder;
+import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.w3c.dom.Document;
@@ -21,7 +21,7 @@ public class BuilderMavenMethod extends Builder {
 	boolean MODULEOPTIONS_REPLACESNAPSHOTS = false;
 	boolean MODULEOPTIONS_COMPACT_STATIC = false;
 
-	public BuilderMavenMethod( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
+	public BuilderMavenMethod( ProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
 		super( builder , project , storage , TAG , APPVERSION );
 	}
 

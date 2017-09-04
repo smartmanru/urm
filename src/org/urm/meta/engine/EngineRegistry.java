@@ -11,22 +11,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ServerRegistry extends EngineObject {
+public class EngineRegistry extends EngineObject {
 
 	public EngineLoader loader;
 	
-	public ServerMirrors mirrors;
-	public ServerResources resources;
-	public ServerDirectory directory;
-	public ServerBuilders builders;
+	public EngineMirrors mirrors;
+	public EngineResources resources;
+	public EngineDirectory directory;
+	public EngineBuilders builders;
 
-	public ServerRegistry( EngineLoader loader ) {
+	public EngineRegistry( EngineLoader loader ) {
 		super( null );
 		this.loader = loader;
-		mirrors = new ServerMirrors( this ); 
-		resources = new ServerResources( this );
-		directory = new ServerDirectory( this );
-		builders = new ServerBuilders( this ); 
+		mirrors = new EngineMirrors( this ); 
+		resources = new EngineResources( this );
+		directory = new EngineDirectory( this );
+		builders = new EngineBuilders( this ); 
 	}
 	
 	@Override
@@ -66,19 +66,19 @@ public class ServerRegistry extends EngineObject {
 		Common.xmlSaveDoc( doc , path );
 	}
 
-	public void setResources( TransactionBase transaction , ServerResources resourcesNew ) throws Exception {
+	public void setResources( TransactionBase transaction , EngineResources resourcesNew ) throws Exception {
 		resources = resourcesNew;
 	}
 	
-	public void setDirectory( TransactionBase transaction , ServerDirectory directoryNew ) throws Exception {
+	public void setDirectory( TransactionBase transaction , EngineDirectory directoryNew ) throws Exception {
 		directory = directoryNew;
 	}
 	
-	public void setMirrors( TransactionBase transaction , ServerMirrors mirrorsNew ) throws Exception {
+	public void setMirrors( TransactionBase transaction , EngineMirrors mirrorsNew ) throws Exception {
 		mirrors = mirrorsNew;
 	}
 	
-	public void setBuilders( TransactionBase transaction , ServerBuilders buildersNew ) throws Exception {
+	public void setBuilders( TransactionBase transaction , EngineBuilders buildersNew ) throws Exception {
 		builders = buildersNew;
 	}
 	

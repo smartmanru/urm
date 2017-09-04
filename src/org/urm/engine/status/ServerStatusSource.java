@@ -9,11 +9,11 @@ import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.status.ServerStatusData.OBJECT_STATE;
 import org.urm.meta.EngineObject;
-import org.urm.meta.engine.ServerMonitoring;
+import org.urm.meta.engine.EngineMonitoring;
 
 public class ServerStatusSource extends EngineEventsSource {
 
-	public ServerMonitoring mon;
+	public EngineMonitoring mon;
 	public int level;
 	public EngineObject object;
 	public ServerStatusData state;

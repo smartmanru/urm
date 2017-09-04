@@ -11,8 +11,8 @@ import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.meta.Types;
-import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.Types.*;
+import org.urm.meta.engine.EngineAuthResource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -196,12 +196,12 @@ public class MetaSourceProject {
 	}
 	
 	public boolean isGitVCS( ActionBase action ) throws Exception {
-		ServerAuthResource res = action.getResource( RESOURCE );
+		EngineAuthResource res = action.getResource( RESOURCE );
 		return( res.isGit() );
 	}
 	
 	public boolean isSvnVCS( ActionBase action ) throws Exception {
-		ServerAuthResource res = action.getResource( RESOURCE );
+		EngineAuthResource res = action.getResource( RESOURCE );
 		return( res.isSvn() );
 	}
 

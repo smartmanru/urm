@@ -8,8 +8,8 @@ import org.urm.action.ActionReleaseScopeMaker;
 import org.urm.action.ActionScope;
 import org.urm.action.build.BuildCommand;
 import org.urm.engine.dist.Dist;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
-import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.Types.*;
 
@@ -40,12 +40,12 @@ public class ReleaseCommand {
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , true );
 	}
 	
-	public void createRelease( ActionBase action , Meta meta , String RELEASELABEL , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	public void createRelease( ActionBase action , Meta meta , String RELEASELABEL , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		ActionCreateRelease ma = new ActionCreateRelease( action , null , meta , RELEASELABEL , releaseDate , lc );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 
-	public void modifyRelease( ActionBase action , Dist dist , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	public void modifyRelease( ActionBase action , Dist dist , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		ActionModifyRelease ma = new ActionModifyRelease( action , null , dist , releaseDate , lc );
 		ma.runSimpleProduct( dist.meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
@@ -65,7 +65,7 @@ public class ReleaseCommand {
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
-	public void copyRelease( ActionBase action , Meta meta , String RELEASESRC , String RELEASEDST , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	public void copyRelease( ActionBase action , Meta meta , String RELEASESRC , String RELEASEDST , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		Dist distSrc = action.getReleaseDist( meta , RELEASESRC );
 		ActionCopyRelease ma = new ActionCopyRelease( action , null , distSrc , RELEASEDST , releaseDate , lc );
 		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_RELEASE , false );

@@ -4,13 +4,13 @@ import org.urm.action.ActionBase;
 import org.urm.common.PropertySet;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
-import org.urm.meta.engine.ServerProjectBuilder;
+import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProject;
 
 public class BuilderGradleMethod extends Builder {
 
-	public BuilderGradleMethod( ServerProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
+	public BuilderGradleMethod( ProjectBuilder builder , MetaSourceProject project , BuildStorage storage , String TAG , String APPVERSION ) {
 		super( builder , project , storage , TAG , APPVERSION );
 	}
 	

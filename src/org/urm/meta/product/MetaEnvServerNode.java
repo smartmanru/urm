@@ -8,9 +8,9 @@ import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
-import org.urm.meta.engine.ServerAccountReference;
-import org.urm.meta.engine.ServerHostAccount;
-import org.urm.meta.engine.ServerNetworkHost;
+import org.urm.meta.engine.AccountReference;
+import org.urm.meta.engine.HostAccount;
+import org.urm.meta.engine.NetworkHost;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
@@ -174,14 +174,14 @@ public class MetaEnvServerNode extends PropertyController {
 		return( OFFLINE );
 	}
 
-	public void getApplicationReferences( ServerHostAccount account , List<ServerAccountReference> refs ) {
+	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
 		if( !checkReferencedByHostAccount( account ) )
 			return;
 		
-		refs.add( new ServerAccountReference( account , this ) );
+		refs.add( new AccountReference( account , this ) );
 	}
 	
-	public boolean checkReferencedByHostAccount( ServerHostAccount account ) {
+	public boolean checkReferencedByHostAccount( HostAccount account ) {
 		Account ha = Account.getDatacenterAccount( server.sg.SG , HOSTLOGIN );
 		if( account.host.isEqualsHost( ha ) && account.ID.equals( ha.USER ) )
 			return( true );
@@ -189,14 +189,14 @@ public class MetaEnvServerNode extends PropertyController {
 		return( false );
 	}
 
-	public void deleteHostAccount( EngineTransaction transaction , ServerHostAccount account ) throws Exception {
+	public void deleteHostAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
 		if( !checkReferencedByHostAccount( account ) )
 			return;
 
 		setOffline( transaction , true );
 	}
 
-	public void updateHost( EngineTransaction transaction , ServerNetworkHost host ) throws Exception {
+	public void updateHost( EngineTransaction transaction , NetworkHost host ) throws Exception {
 		Account ha = Account.getDatacenterAccount( server.sg.SG , HOSTLOGIN );
 		
 		ActionBase action = transaction.getAction();

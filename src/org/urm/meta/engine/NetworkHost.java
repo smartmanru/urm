@@ -17,10 +17,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.urm.meta.Types;
 
-public class ServerNetworkHost extends EngineObject {
+public class NetworkHost extends EngineObject {
 
-	public ServerNetwork network;
-	Map<String,ServerHostAccount> accountMap;
+	public Network network;
+	Map<String,HostAccount> accountMap;
 
 	public String ID;
 	public String IP;
@@ -28,10 +28,10 @@ public class ServerNetworkHost extends EngineObject {
 	public VarOSTYPE osType;
 	public String DESC;
 	
-	public ServerNetworkHost( ServerNetwork network ) {
+	public NetworkHost( Network network ) {
 		super( network );
 		this.network = network;
-		accountMap = new HashMap<String,ServerHostAccount>();
+		accountMap = new HashMap<String,HostAccount>();
 	}
 	
 	@Override
@@ -39,11 +39,11 @@ public class ServerNetworkHost extends EngineObject {
 		return( ID );
 	}
 	
-	public ServerNetworkHost copy( ServerNetwork rn ) throws Exception {
-		ServerNetworkHost r = new ServerNetworkHost( rn );
+	public NetworkHost copy( Network rn ) throws Exception {
+		NetworkHost r = new NetworkHost( rn );
 		
-		for( ServerHostAccount account : accountMap.values() ) {
-			ServerHostAccount raccount = account.copy( r );
+		for( HostAccount account : accountMap.values() ) {
+			HostAccount raccount = account.copy( r );
 			r.addHostAccount( raccount );
 		}
 		return( r );
@@ -65,13 +65,13 @@ public class ServerNetworkHost extends EngineObject {
 			return;
 		
 		for( Node node : list ) {
-			ServerHostAccount account = new ServerHostAccount( this );
+			HostAccount account = new HostAccount( this );
 			account.load( node );
 			addHostAccount( account );
 		}
 	}
 
-	private void addHostAccount( ServerHostAccount account ) {
+	private void addHostAccount( HostAccount account ) {
 		accountMap.put( account.ID , account );
 	}
 	
@@ -82,7 +82,7 @@ public class ServerNetworkHost extends EngineObject {
 		Common.xmlSetElementAttr( doc , root , "ostype" , Common.getEnumLower( osType ) );
 		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 		
-		for( ServerHostAccount account : accountMap.values() ) {
+		for( HostAccount account : accountMap.values() ) {
 			Element element = Common.xmlCreateElement( doc , root , "account" );
 			account.save( doc , element );
 		}
@@ -90,7 +90,7 @@ public class ServerNetworkHost extends EngineObject {
 
 	public String[] getFinalAccounts() {
 		List<String> list = new LinkedList<String>();
-		for( ServerHostAccount account : accountMap.values() ) {
+		for( HostAccount account : accountMap.values() ) {
 			String item = account.getFinalAccount();
 			list.add( item );
 		}
@@ -117,25 +117,25 @@ public class ServerNetworkHost extends EngineObject {
 		return( Common.getSortedKeys( accountMap ) );
 	}
 
-	public ServerHostAccount findAccount( String accountUser ) {
-		for( ServerHostAccount account : accountMap.values() ) {
+	public HostAccount findAccount( String accountUser ) {
+		for( HostAccount account : accountMap.values() ) {
 			if( account.ID.equals( accountUser ) )
 				return( account );
 		}
 		return( null );
 	}
 	
-	public void createAccount( EngineTransaction transaction , ServerHostAccount account ) throws Exception {
+	public void createAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
 		addHostAccount( account );
 	}
 	
-	public void deleteAccount( EngineTransaction transaction , ServerHostAccount account ) throws Exception {
+	public void deleteAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
 		accountMap.remove( account.ID );
 	}
 	
-	public void modifyAccount( EngineTransaction transaction , ServerHostAccount account ) {
+	public void modifyAccount( EngineTransaction transaction , HostAccount account ) {
 		String oldId = null;
-		for( Entry<String,ServerHostAccount> entry : accountMap.entrySet() ) {
+		for( Entry<String,HostAccount> entry : accountMap.entrySet() ) {
 			if( entry.getValue() == account )
 				oldId = entry.getKey();
 		}
@@ -153,7 +153,7 @@ public class ServerNetworkHost extends EngineObject {
 		return( false );
 	}
 	
-	public ServerHostAccount findFinalAccount( String finalAccount ) {
+	public HostAccount findFinalAccount( String finalAccount ) {
 		if( finalAccount.isEmpty() )
 			return( null );
 		
@@ -170,12 +170,12 @@ public class ServerNetworkHost extends EngineObject {
 		return( false );
 	}
 
-	public ServerHostAccount createAccount( EngineTransaction transaction , Account hostAccount , ServerAuthResource resource ) throws Exception {
-		ServerHostAccount account = findAccount( hostAccount.USER );
+	public HostAccount createAccount( EngineTransaction transaction , Account hostAccount , EngineAuthResource resource ) throws Exception {
+		HostAccount account = findAccount( hostAccount.USER );
 		if( account != null )
 			return( account );
 				
-		account = new ServerHostAccount( this );
+		account = new HostAccount( this );
 		boolean isAdmin = ( hostAccount.isLinux() && hostAccount.USER.equals( "root" ) )? true : false;
 		
 		String ACCRES = ( resource == null )? "" : resource.NAME;
@@ -188,8 +188,8 @@ public class ServerNetworkHost extends EngineObject {
 		super.deleteObject();
 	}
 
-	public void getApplicationReferences( List<ServerAccountReference> refs ) {
-		for( ServerHostAccount account : accountMap.values() )
+	public void getApplicationReferences( List<AccountReference> refs ) {
+		for( HostAccount account : accountMap.values() )
 			account.getApplicationReferences( refs );
 	}
 	
