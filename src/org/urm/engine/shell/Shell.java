@@ -19,7 +19,7 @@ abstract public class Shell {
 	
 	public int id;
 	public String name;
-	public ShellPool pool;
+	public EngineShellPool pool;
 	public Account account;
 	public String rootPath;
 
@@ -39,7 +39,7 @@ abstract public class Shell {
 	
 	ShellOutputWaiter wc;
 	
-	public Shell( int id , String name , ShellPool pool , Account account ) {
+	public Shell( int id , String name , EngineShellPool pool , Account account ) {
 		this.id = id;
 		this.name = name;
 		this.pool = pool;

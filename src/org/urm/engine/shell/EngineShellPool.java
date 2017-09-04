@@ -11,7 +11,7 @@ import org.urm.engine.storage.Folder;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerContext;
 
-public class ShellPool {
+public class EngineShellPool {
 
 	public Engine engine;
 	public String rootPath;
@@ -49,7 +49,7 @@ public class ShellPool {
 		public int activeInteractiveCount;
 	}
 	
-	public ShellPool( Engine engine ) {
+	public EngineShellPool( Engine engine ) {
 		this.engine = engine;
 		rootPath = engine.execrc.userHome;
 		masterAccount = new Account( engine.execrc );

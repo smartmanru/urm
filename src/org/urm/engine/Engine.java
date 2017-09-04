@@ -30,7 +30,7 @@ import org.urm.engine.executor.MonitorCommandExecutor;
 import org.urm.engine.executor.ReleaseCommandExecutor;
 import org.urm.engine.executor.XDocCommandExecutor;
 import org.urm.engine.shell.ShellCoreJNI;
-import org.urm.engine.shell.ShellPool;
+import org.urm.engine.shell.EngineShellPool;
 import org.urm.engine.status.EngineStatus;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
@@ -54,7 +54,7 @@ public class Engine {
 	public OptionsMeta optionsMeta;
 	public MainExecutor serverExecutor;
 	public ActionInit serverAction;
-	public ShellPool shellPool;
+	public EngineShellPool shellPool;
 	
 	private ServerAuth auth;
 	private EngineEvents events;
@@ -336,7 +336,7 @@ public class Engine {
 	}
 	
 	public void createPool() throws Exception {
-		shellPool = new ShellPool( this );
+		shellPool = new EngineShellPool( this );
 		shellPool.start( serverAction );
 	}
 

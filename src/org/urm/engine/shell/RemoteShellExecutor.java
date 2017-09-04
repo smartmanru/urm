@@ -8,7 +8,7 @@ public class RemoteShellExecutor extends ShellExecutor {
 	
 	ServerAuthResource auth;
 	
-	public RemoteShellExecutor( int id , String name , ShellPool pool , Account account , Folder tmpFolder , ServerAuthResource auth , boolean dedicated ) {
+	public RemoteShellExecutor( int id , String name , EngineShellPool pool , Account account , Folder tmpFolder , ServerAuthResource auth , boolean dedicated ) {
 		super( id , name , pool , account , "" , tmpFolder , dedicated );
 		this.auth = auth;
 	}

@@ -7,7 +7,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
-import org.urm.engine.shell.ShellPool;
+import org.urm.engine.shell.EngineShellPool;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.meta.ServerObject;
@@ -206,7 +206,7 @@ public class ServerAuthResource extends ServerObject {
 		try {
 			loadAuthData();
 			Account account = Account.getResourceAccount( action , NAME , user , host , port , osType );
-			ShellPool pool = action.engine.shellPool;
+			EngineShellPool pool = action.engine.shellPool;
 			ShellExecutor shell = pool.createDedicatedRemoteShell( action , action.context.stream , account , this , false );
 			
 			if( shell != null ) {
