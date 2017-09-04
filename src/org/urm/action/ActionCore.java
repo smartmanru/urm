@@ -4,16 +4,16 @@ import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.RunContext;
 import org.urm.engine.Engine;
-import org.urm.engine.blotter.ServerBlotterActionItem;
-import org.urm.engine.blotter.ServerBlotterTreeItem;
+import org.urm.engine.blotter.EngineBlotterActionItem;
+import org.urm.engine.blotter.EngineBlotterTreeItem;
 import org.urm.meta.Types.*;
 
 public class ActionCore {
 
 	public ActionCore parent;
 	public Engine engine;
-	public ServerBlotterActionItem blotterRootItem;
-	public ServerBlotterTreeItem blotterTreeItem;
+	public EngineBlotterActionItem blotterRootItem;
+	public EngineBlotterTreeItem blotterTreeItem;
 	public RunContext execrc;
 	
 	private static int instanceSequence = 0;
@@ -46,7 +46,7 @@ public class ActionCore {
 		eventSource = new ActionEventsSource( this );
 	}
 
-	public void setBlotterItem( ServerBlotterActionItem blotterItem , ServerBlotterTreeItem blotterTreeItem ) {
+	public void setBlotterItem( EngineBlotterActionItem blotterItem , EngineBlotterTreeItem blotterTreeItem ) {
 		this.blotterRootItem = blotterItem;
 		this.blotterTreeItem = blotterTreeItem;
 	}

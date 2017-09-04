@@ -41,7 +41,7 @@ import org.urm.engine.events.ServerEventsSubscription;
 import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.meta.product.Meta;
 
-public class ServerBlotter {
+public class EngineBlotter {
 
 	public enum BlotterType {
 		BLOTTER_ROOT ,
@@ -62,43 +62,43 @@ public class ServerBlotter {
 	
 	public long day;
 	
-	protected ServerBlotterSet blotterRoots;
-	protected ServerBlotterSet blotterBuilds;
-	protected ServerBlotterSet blotterReleases;
-	protected ServerBlotterSet blotterDeploy;
-	private List<ServerBlotterSet> blotters;
+	protected EngineBlotterSet blotterRoots;
+	protected EngineBlotterSet blotterBuilds;
+	protected EngineBlotterSet blotterReleases;
+	protected EngineBlotterSet blotterDeploy;
+	private List<EngineBlotterSet> blotters;
 	
-	public ServerBlotter( Engine engine ) {
+	public EngineBlotter( Engine engine ) {
 		this.engine = engine;
 
 		day = Common.getDayNoTime( System.currentTimeMillis() );
 		
-		blotters = new LinkedList<ServerBlotterSet>(); 
+		blotters = new LinkedList<EngineBlotterSet>(); 
 		blotterRoots = addBlotter( BlotterType.BLOTTER_ROOT , "blotter.roots" );
 		blotterBuilds = addBlotter( BlotterType.BLOTTER_BUILD , "blotter.builds" );
 		blotterReleases = addBlotter( BlotterType.BLOTTER_RELEASE , "blotter.releases" );
 		blotterDeploy = addBlotter( BlotterType.BLOTTER_DEPLOY , "blotter.deploy" );
 	}
 
-	private ServerBlotterSet addBlotter( BlotterType type , String name ) {
+	private EngineBlotterSet addBlotter( BlotterType type , String name ) {
 		ServerEvents events = engine.getEvents();
-		ServerBlotterSet set = new ServerBlotterSet( this , type , events , name );
+		EngineBlotterSet set = new EngineBlotterSet( this , type , events , name );
 		blotters.add( set );
 		return( set );
 	}
 	
 	public void init() {
-		for( ServerBlotterSet set : blotters )
+		for( EngineBlotterSet set : blotters )
 			set.init();
 	}
 	
 	public void clear() {
-		for( ServerBlotterSet set : blotters )
+		for( EngineBlotterSet set : blotters )
 			set.clear();
 	}
 	
 	public void start( ActionInit action ) throws Exception {
-		for( ServerBlotterSet set : blotters )
+		for( EngineBlotterSet set : blotters )
 			set.start( action );
 	}
 	
@@ -108,33 +108,33 @@ public class ServerBlotter {
 			return;
 		
 		day = timeDay;
-		for( ServerBlotterSet set : blotters )
+		for( EngineBlotterSet set : blotters )
 			set.houseKeeping( time );
 	}
 	
-	public ServerBlotterItem[] getBlotterItems( BlotterType type , boolean includeFinished ) {
-		ServerBlotterSet set = getBlotterSet( type );
+	public EngineBlotterItem[] getBlotterItems( BlotterType type , boolean includeFinished ) {
+		EngineBlotterSet set = getBlotterSet( type );
 		if( set == null )
-			return( new ServerBlotterItem[0] );
+			return( new EngineBlotterItem[0] );
 		return( set.getItems( includeFinished ) ); 
 	}
 	
-	public ServerBlotterItem getBlotterItem( BlotterType type , String ID ) {
-		ServerBlotterSet set = getBlotterSet( type );
+	public EngineBlotterItem getBlotterItem( BlotterType type , String ID ) {
+		EngineBlotterSet set = getBlotterSet( type );
 		if( set == null )
 			return( null );
 		return( set.getItem( ID ) ); 
 	}
 	
-	public ServerBlotterStat getBlotterStatistics( BlotterType type ) {
-		ServerBlotterSet set = getBlotterSet( type );
+	public EngineBlotterStat getBlotterStatistics( BlotterType type ) {
+		EngineBlotterSet set = getBlotterSet( type );
 		if( set == null )
 			return( null );
 		return( set.getStatistics() ); 
 	}
 	
-	public ServerBlotterSet getBlotterSet( BlotterType type ) {
-		for( ServerBlotterSet set : blotters ) {
+	public EngineBlotterSet getBlotterSet( BlotterType type ) {
+		for( EngineBlotterSet set : blotters ) {
 			if( set.type == type )
 				return( set );
 		}
@@ -143,7 +143,7 @@ public class ServerBlotter {
 	
 	public void startAction( ActionBase action ) throws Exception {
 		if( action instanceof ActionInit ) {
-			ServerBlotterItem item = blotterRoots.createRootItem( ( ActionInit )action );
+			EngineBlotterItem item = blotterRoots.createRootItem( ( ActionInit )action );
 			notifyItem( item , BlotterEvent.BLOTTER_START );
 			return;
 		}
@@ -154,35 +154,35 @@ public class ServerBlotter {
 		if( action.parent.blotterTreeItem == null )
 			return;
 		
-		ServerBlotterActionItem rootItem = action.parent.blotterRootItem;
-		ServerBlotterTreeItem parentTreeItem = action.parent.blotterTreeItem;
-		ServerBlotterActionItem parentBaseItem = getBaseItem( rootItem , parentTreeItem );
+		EngineBlotterActionItem rootItem = action.parent.blotterRootItem;
+		EngineBlotterTreeItem parentTreeItem = action.parent.blotterTreeItem;
+		EngineBlotterActionItem parentBaseItem = getBaseItem( rootItem , parentTreeItem );
 
 		if( action instanceof ActionPatch ) {
-			ServerBlotterActionItem baseItem = blotterBuilds.createBuildItem( rootItem , parentBaseItem , parentTreeItem , ( ActionPatch )action );
+			EngineBlotterActionItem baseItem = blotterBuilds.createBuildItem( rootItem , parentBaseItem , parentTreeItem , ( ActionPatch )action );
 			parentTreeItem.addChild( baseItem.treeItem );
 			startChildAction( rootItem , parentBaseItem , baseItem.treeItem );
 			notifyItem( baseItem , BlotterEvent.BLOTTER_START );
 			return;
 		}
 
-		ServerBlotterTreeItem treeItem = blotterRoots.createChildItem( action , parentBaseItem , parentTreeItem );
+		EngineBlotterTreeItem treeItem = blotterRoots.createChildItem( action , parentBaseItem , parentTreeItem );
 		startChildAction( rootItem , parentBaseItem , treeItem );
 	}
 
-	private void startChildAction( ServerBlotterActionItem rootItem , ServerBlotterActionItem baseItem , ServerBlotterTreeItem treeItem ) {
+	private void startChildAction( EngineBlotterActionItem rootItem , EngineBlotterActionItem baseItem , EngineBlotterTreeItem treeItem ) {
 		blotterRoots.startChildAction( rootItem , treeItem );
 		notifyChildItem( rootItem , treeItem , BlotterEvent.BLOTTER_STARTCHILD );
 		
 		if( baseItem != rootItem ) {
-			ServerBlotterSet set = baseItem.blotterSet;
+			EngineBlotterSet set = baseItem.blotterSet;
 			set.startChildAction( baseItem , treeItem );
 			notifyChildItem( baseItem , treeItem , BlotterEvent.BLOTTER_STARTCHILD );
 		}
 	}
 	
-	private ServerBlotterActionItem getBaseItem( ServerBlotterActionItem rootItem , ServerBlotterTreeItem treeItem ) {
-		ServerBlotterTreeItem parentItem = treeItem;
+	private EngineBlotterActionItem getBaseItem( EngineBlotterActionItem rootItem , EngineBlotterTreeItem treeItem ) {
+		EngineBlotterTreeItem parentItem = treeItem;
 		while( parentItem != null ) {
 			if( parentItem.baseItem != null )
 				return( parentItem.baseItem );
@@ -197,9 +197,9 @@ public class ServerBlotter {
 			return;
 
 		// action tree
-		ServerBlotterTreeItem treeItem = action.blotterTreeItem;
-		ServerBlotterActionItem rootItem = treeItem.rootItem;
-		ServerBlotterActionItem baseItem = treeItem.baseItem;
+		EngineBlotterTreeItem treeItem = action.blotterTreeItem;
+		EngineBlotterActionItem rootItem = treeItem.rootItem;
+		EngineBlotterActionItem baseItem = treeItem.baseItem;
 		treeItem.stopAction( success );
 
 		if( baseItem != null ) {
@@ -363,34 +363,34 @@ public class ServerBlotter {
 		}
 	}
 	
-	private void stopChildAction( ServerBlotterActionItem rootItem , ServerBlotterActionItem baseItem , ServerBlotterTreeItem treeItem , boolean success ) {
+	private void stopChildAction( EngineBlotterActionItem rootItem , EngineBlotterActionItem baseItem , EngineBlotterTreeItem treeItem , boolean success ) {
 		blotterRoots.stopChildAction( rootItem , treeItem , success );
 		notifyChildItem( rootItem , treeItem , BlotterEvent.BLOTTER_STOPCHILD );
 		
 		if( baseItem != rootItem ) {
-			ServerBlotterSet set = baseItem.blotterSet;
+			EngineBlotterSet set = baseItem.blotterSet;
 			set.stopChildAction( baseItem , treeItem , success );
 			notifyChildItem( baseItem , treeItem , BlotterEvent.BLOTTER_STOPCHILD );
 		}
 	}
 	
-	private void notifyItem( ServerBlotterItem item , BlotterEvent event ) {
-		ServerBlotterSet set = item.blotterSet;
+	private void notifyItem( EngineBlotterItem item , BlotterEvent event ) {
+		EngineBlotterSet set = item.blotterSet;
 		set.notifyItem( item , event );
 	}
 	
-	private void notifyChildItem( ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem , BlotterEvent event ) {
-		ServerBlotterSet set = baseItem.blotterSet;
+	private void notifyChildItem( EngineBlotterItem baseItem , EngineBlotterTreeItem treeItem , BlotterEvent event ) {
+		EngineBlotterSet set = baseItem.blotterSet;
 		set.notifyChildItem( baseItem , treeItem , event );
 	}
 	
-	private void finishItem( ServerBlotterActionItem item ) {
-		ServerBlotterSet set = item.blotterSet;
+	private void finishItem( EngineBlotterActionItem item ) {
+		EngineBlotterSet set = item.blotterSet;
 		set.finishItem( item );
 	}
 	
 	public ServerEventsSubscription subscribe( ServerEventsApp app , ServerEventsListener listener , BlotterType type ) {
-		ServerBlotterSet set = getBlotterSet( type );
+		EngineBlotterSet set = getBlotterSet( type );
 		if( set == null )
 			return( null );
 		

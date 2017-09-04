@@ -6,8 +6,8 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.action.build.ActionPatch;
 import org.urm.engine.action.ActionInit;
-import org.urm.engine.blotter.ServerBlotter.BlotterEvent;
-import org.urm.engine.blotter.ServerBlotter.BlotterType;
+import org.urm.engine.blotter.EngineBlotter.BlotterEvent;
+import org.urm.engine.blotter.EngineBlotter.BlotterType;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepository.DistOperation;
@@ -20,23 +20,23 @@ import org.urm.meta.engine.ServerDirectory;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
 
-public class ServerBlotterSet extends ServerEventsSource {
+public class EngineBlotterSet extends ServerEventsSource {
 
-	public ServerBlotter blotter;
+	public EngineBlotter blotter;
 	public BlotterType type;
 	
-	private Map<String,ServerBlotterItem> items;
-	private Map<String,ServerBlotterMemo> memos;
-	private ServerBlotterStat stat;
+	private Map<String,EngineBlotterItem> items;
+	private Map<String,EngineBlotterMemo> memos;
+	private EngineBlotterStat stat;
 	
-	public ServerBlotterSet( ServerBlotter blotter , BlotterType type , ServerEvents events , String setId ) {
+	public EngineBlotterSet( EngineBlotter blotter , BlotterType type , ServerEvents events , String setId ) {
 		super( events , setId );
 		this.blotter = blotter;
 		this.type = type;
 
-		items = new HashMap<String,ServerBlotterItem>();
-		memos = new HashMap<String,ServerBlotterMemo>();
-		stat = new ServerBlotterStat( this );
+		items = new HashMap<String,EngineBlotterItem>();
+		memos = new HashMap<String,EngineBlotterMemo>();
+		stat = new EngineBlotterStat( this );
 	}
 	
 	@Override
@@ -68,7 +68,7 @@ public class ServerBlotterSet extends ServerEventsSource {
 	public synchronized void startReleaseSetRepo( ActionInit action , DistRepository repo ) throws Exception {
 		for( DistRepositoryItem repoItem : repo.getRunItems() ) {
 			String key = getReleaseKey( repoItem );
-			ServerBlotterReleaseItem item = new ServerBlotterReleaseItem( this , key );
+			EngineBlotterReleaseItem item = new EngineBlotterReleaseItem( this , key );
 			item.createReleaseItem( repoItem );
 			items.put( item.ID , item );
 		}
@@ -86,8 +86,8 @@ public class ServerBlotterSet extends ServerEventsSource {
 		stat.statInit( blotter.day );
 		
 		if( houseKeeping ) {
-			ServerBlotterItem[] set = items.values().toArray( new ServerBlotterItem[0] );
-			for( ServerBlotterItem item : set ) {
+			EngineBlotterItem[] set = items.values().toArray( new EngineBlotterItem[0] );
+			for( EngineBlotterItem item : set ) {
 				if( item.toberemoved ) {
 					items.remove( item.ID );
 					removeItem( item );
@@ -95,13 +95,13 @@ public class ServerBlotterSet extends ServerEventsSource {
 			}
 		}
 		else {
-			for( ServerBlotterItem item : items.values() )
+			for( EngineBlotterItem item : items.values() )
 				removeItem( item );
 			items.clear();
 		}
 	}
 	
-	public synchronized ServerBlotterStat getStatistics() {
+	public synchronized EngineBlotterStat getStatistics() {
 		return( stat.copy() );
 	}
 	
@@ -121,27 +121,27 @@ public class ServerBlotterSet extends ServerEventsSource {
 		return( type == BlotterType.BLOTTER_DEPLOY );
 	}
 
-	public synchronized ServerBlotterItem[] getItems( boolean includeFinished ) {
-		Map<String,ServerBlotterItem> selected = null;
+	public synchronized EngineBlotterItem[] getItems( boolean includeFinished ) {
+		Map<String,EngineBlotterItem> selected = null;
 		if( includeFinished )
 			selected = items;
 		else {
-			selected = new HashMap<String,ServerBlotterItem>();
-			for( ServerBlotterItem item : items.values() ) {
+			selected = new HashMap<String,EngineBlotterItem>();
+			for( EngineBlotterItem item : items.values() ) {
 				if( !item.toberemoved )
 					selected.put( item.ID , item );
 			}
 		}
 			
-		return( selected.values().toArray( new ServerBlotterItem[0] ) ); 
+		return( selected.values().toArray( new EngineBlotterItem[0] ) ); 
 	}
 
-	public synchronized ServerBlotterItem getItem( String ID ) {
+	public synchronized EngineBlotterItem getItem( String ID ) {
 		return( items.get( ID ) );
 	}
 	
-	public synchronized void finishItem( ServerBlotterActionItem item ) {
-		ServerBlotterMemo memo = item.memo;
+	public synchronized void finishItem( EngineBlotterActionItem item ) {
+		EngineBlotterMemo memo = item.memo;
 		if( memo != null && item.success ) {
 			long elapsed = item.stopTime - item.startTime;
 			memo.addEvent( elapsed );
@@ -150,36 +150,36 @@ public class ServerBlotterSet extends ServerEventsSource {
 		stat.statFinishItem( item );
 	}
 	
-	public void notifyItem( ServerBlotterItem item , BlotterEvent event ) {
-		ServerBlotterEvent data = new ServerBlotterEvent( item , event );
+	public void notifyItem( EngineBlotterItem item , BlotterEvent event ) {
+		EngineBlotterEvent data = new EngineBlotterEvent( item , event );
 		super.trigger( ServerEvents.EVENT_BLOTTEREVENT , data );
 	}
 	
-	public void notifyChildItem( ServerBlotterItem baseItem , ServerBlotterTreeItem treeItem , BlotterEvent event ) {
-		ServerBlotterEvent data = new ServerBlotterEvent( baseItem , treeItem , event );
+	public void notifyChildItem( EngineBlotterItem baseItem , EngineBlotterTreeItem treeItem , BlotterEvent event ) {
+		EngineBlotterEvent data = new EngineBlotterEvent( baseItem , treeItem , event );
 		super.trigger( ServerEvents.EVENT_BLOTTEREVENT , data );
 	}
 	
-	public synchronized void startChildAction( ServerBlotterActionItem baseItem , ServerBlotterTreeItem treeItem ) {
+	public synchronized void startChildAction( EngineBlotterActionItem baseItem , EngineBlotterTreeItem treeItem ) {
 		baseItem.startChildAction( treeItem );
 		stat.statAddChildItem( baseItem , treeItem );
 	}
 
-	public synchronized void stopChildAction( ServerBlotterActionItem baseItem , ServerBlotterTreeItem treeItem , boolean success ) {
+	public synchronized void stopChildAction( EngineBlotterActionItem baseItem , EngineBlotterTreeItem treeItem , boolean success ) {
 		baseItem.stopChildAction( treeItem , success );
 		stat.statFinishChildItem( baseItem , treeItem , success );
 	}
 
-	public synchronized ServerBlotterActionItem createRootItem( ActionInit action ) {
-		ServerBlotterActionItem item = new ServerBlotterActionItem( this , action , null , null , null );
+	public synchronized EngineBlotterActionItem createRootItem( ActionInit action ) {
+		EngineBlotterActionItem item = new EngineBlotterActionItem( this , action , null , null , null );
 		
 		item.createRootItem();
 		addItem( item );
 		return( item );
 	}
 
-	public synchronized ServerBlotterActionItem createBuildItem( ServerBlotterActionItem rootItem , ServerBlotterActionItem baseItem , ServerBlotterTreeItem parentTreeItem , ActionPatch action ) {
-		ServerBlotterActionItem item = new ServerBlotterActionItem( this , action , rootItem , baseItem , parentTreeItem );
+	public synchronized EngineBlotterActionItem createBuildItem( EngineBlotterActionItem rootItem , EngineBlotterActionItem baseItem , EngineBlotterTreeItem parentTreeItem , ActionPatch action ) {
+		EngineBlotterActionItem item = new EngineBlotterActionItem( this , action , rootItem , baseItem , parentTreeItem );
 		
 		MetaSourceProject project = action.builder.project;
 		item.createBuildItem( project.meta.name , project.NAME , action.builder.TAG , action.logDir , action.logFile );
@@ -187,19 +187,19 @@ public class ServerBlotterSet extends ServerEventsSource {
 		return( item );
 	}
 
-	public synchronized ServerBlotterTreeItem createChildItem( ActionBase action , ServerBlotterActionItem parentBaseItem , ServerBlotterTreeItem parentTreeItem ) {
-		ServerBlotterTreeItem item = new ServerBlotterTreeItem( action , parentTreeItem.rootItem , parentTreeItem , null );
+	public synchronized EngineBlotterTreeItem createChildItem( ActionBase action , EngineBlotterActionItem parentBaseItem , EngineBlotterTreeItem parentTreeItem ) {
+		EngineBlotterTreeItem item = new EngineBlotterTreeItem( action , parentTreeItem.rootItem , parentTreeItem , null );
 		parentTreeItem.addChild( item );
 		action.setBlotterItem( parentBaseItem , item );
 		return( item );
 	}
 	
-	private void removeItem( ServerBlotterItem item ) {
+	private void removeItem( EngineBlotterItem item ) {
 		item.setRemoved();
 		
 		if( item.isRootItem() ) {
 			try {
-				ServerBlotterActionItem rootItem = ( ServerBlotterActionItem )item; 
+				EngineBlotterActionItem rootItem = ( EngineBlotterActionItem )item; 
 				ActionInit action = ( ActionInit )rootItem.action;
 				if( rootItem.success && action.isDebug() == false )
 					action.artefactory.workFolder.removeThis( action );
@@ -210,12 +210,12 @@ public class ServerBlotterSet extends ServerEventsSource {
 		}
 	}
 	
-	private void addItem( ServerBlotterActionItem item ) {
+	private void addItem( EngineBlotterActionItem item ) {
 		if( item.isBuildItem() ) {
 			String key = "build#" + item.INFO_PRODUCT + "#" + item.INFO_PROJECT;
-			ServerBlotterMemo memo = memos.get( key );
+			EngineBlotterMemo memo = memos.get( key );
 			if( memo == null ) {
-				memo = new ServerBlotterMemo( this , key );
+				memo = new EngineBlotterMemo( this , key );
 				memos.put( key , memo );
 			}
 			
@@ -227,18 +227,18 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 
 	
-	public synchronized ServerBlotterReleaseItem affectReleaseItem( ActionBase action , boolean success , DistOperation op , DistRepositoryItem repoItem ) {
+	public synchronized EngineBlotterReleaseItem affectReleaseItem( ActionBase action , boolean success , DistOperation op , DistRepositoryItem repoItem ) {
 		String key = getReleaseKey( repoItem );
 		
-		ServerBlotterReleaseItem item = null;
+		EngineBlotterReleaseItem item = null;
 		if( op == DistOperation.CREATE ) {
-			item = new ServerBlotterReleaseItem( this , key );
+			item = new EngineBlotterReleaseItem( this , key );
 			item.createReleaseItem( repoItem );
 			items.put( item.ID , item );
 			notifyItem( item , BlotterEvent.BLOTTER_START );
 		}
 		else {
-			item = ( ServerBlotterReleaseItem )items.get( key );
+			item = ( EngineBlotterReleaseItem )items.get( key );
 			if( item == null )
 				return( null );
 			
@@ -261,15 +261,15 @@ public class ServerBlotterSet extends ServerEventsSource {
 		return( dist.meta.name + "-" + dist.RELEASEDIR );
 	}
 	
-	public synchronized ServerBlotterReleaseItem findReleaseItem( Dist dist ) {
+	public synchronized EngineBlotterReleaseItem findReleaseItem( Dist dist ) {
 		String key = getReleaseKey( dist );
-		ServerBlotterReleaseItem item = ( ServerBlotterReleaseItem )items.get( key );
+		EngineBlotterReleaseItem item = ( EngineBlotterReleaseItem )items.get( key );
 		return( item );
 	}
 
-	public synchronized ServerBlotterReleaseItem findReleaseItem( String productName , String releaseVer ) {
-		for( ServerBlotterItem item : items.values() ) {
-			ServerBlotterReleaseItem releaseItem = ( ServerBlotterReleaseItem )item;
+	public synchronized EngineBlotterReleaseItem findReleaseItem( String productName , String releaseVer ) {
+		for( EngineBlotterItem item : items.values() ) {
+			EngineBlotterReleaseItem releaseItem = ( EngineBlotterReleaseItem )item;
 			if( releaseItem.repoItem.dist.isMaster() )
 				continue;
 			
@@ -280,8 +280,8 @@ public class ServerBlotterSet extends ServerEventsSource {
 	}
 
 	public boolean checkLifecycleUsed( String LC ) {
-		for( ServerBlotterItem item : items.values() ) {
-			ServerBlotterReleaseItem releaseItem = ( ServerBlotterReleaseItem )item;
+		for( EngineBlotterItem item : items.values() ) {
+			EngineBlotterReleaseItem releaseItem = ( EngineBlotterReleaseItem )item;
 			if( LC.equals( releaseItem.repoItem.dist.release.schedule.LIFECYCLE ) )
 				return( true );
 		}

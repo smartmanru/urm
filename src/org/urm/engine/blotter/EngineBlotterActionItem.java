@@ -5,10 +5,10 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.ActionInit.RootActionType;
 import org.urm.engine.storage.Folder;
 
-public class ServerBlotterActionItem extends ServerBlotterItem {
+public class EngineBlotterActionItem extends EngineBlotterItem {
 
 	public ActionBase action;
-	public ServerBlotterTreeItem treeItem;
+	public EngineBlotterTreeItem treeItem;
 
 	public long startTime;
 	public long stopTime;
@@ -26,17 +26,17 @@ public class ServerBlotterActionItem extends ServerBlotterItem {
 	
 	public RootActionType rootType;
 
-	public ServerBlotterMemo memo;
-	public ServerBlotterActionItem root;
-	public ServerBlotterActionItem parent;
+	public EngineBlotterMemo memo;
+	public EngineBlotterActionItem root;
+	public EngineBlotterActionItem parent;
 	
-	public ServerBlotterActionItem( ServerBlotterSet blotterSet , ActionBase action , ServerBlotterActionItem rootItem , ServerBlotterActionItem parentItem , ServerBlotterTreeItem parentTreeItem ) {
+	public EngineBlotterActionItem( EngineBlotterSet blotterSet , ActionBase action , EngineBlotterActionItem rootItem , EngineBlotterActionItem parentItem , EngineBlotterTreeItem parentTreeItem ) {
 		super( blotterSet , "action-" + action.ID );
 		
 		this.action = action;
 		this.root = ( rootItem == null )? this : rootItem;
 		this.parent = parentItem;
-		this.treeItem = new ServerBlotterTreeItem( action , this.root , parentTreeItem , this );
+		this.treeItem = new EngineBlotterTreeItem( action , this.root , parentTreeItem , this );
 		
 		startTime = treeItem.startTime;
 		stopTime = 0;
@@ -47,14 +47,14 @@ public class ServerBlotterActionItem extends ServerBlotterItem {
 		action.setBlotterItem( this , treeItem );
 	}
 
-	public void setMemo( ServerBlotterMemo memo ) {
+	public void setMemo( EngineBlotterMemo memo ) {
 		this.memo = memo;
 	}
 	
-	public void startChildAction( ServerBlotterTreeItem treeItem ) {
+	public void startChildAction( EngineBlotterTreeItem treeItem ) {
 	}
 	
-	public void stopChildAction( ServerBlotterTreeItem treeItem , boolean success ) {
+	public void stopChildAction( EngineBlotterTreeItem treeItem , boolean success ) {
 		if( !success )
 			errors = true;
 	}

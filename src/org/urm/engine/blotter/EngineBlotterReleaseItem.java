@@ -4,14 +4,14 @@ import org.urm.common.Common;
 import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.engine.dist.VersionInfo;
 
-public class ServerBlotterReleaseItem extends ServerBlotterItem {
+public class EngineBlotterReleaseItem extends EngineBlotterItem {
 
 	public DistRepositoryItem repoItem;
 	
 	public String INFO_PRODUCT;
 	public String SORTKEY;
 	
-	public ServerBlotterReleaseItem( ServerBlotterSet blotterSet , String ID ) {
+	public EngineBlotterReleaseItem( EngineBlotterSet blotterSet , String ID ) {
 		super( blotterSet , ID );
 	}
 

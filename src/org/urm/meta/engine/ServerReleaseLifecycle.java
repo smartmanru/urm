@@ -8,9 +8,9 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
-import org.urm.engine.blotter.ServerBlotterReleaseItem;
-import org.urm.engine.blotter.ServerBlotterSet;
-import org.urm.engine.blotter.ServerBlotter.BlotterType;
+import org.urm.engine.blotter.EngineBlotterReleaseItem;
+import org.urm.engine.blotter.EngineBlotterSet;
+import org.urm.engine.blotter.EngineBlotter.BlotterType;
 import org.urm.engine.dist.Release;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.meta.ServerObject;
@@ -231,8 +231,8 @@ public class ServerReleaseLifecycle extends ServerObject {
 		if( prevReleaseVer.isEmpty() )
 			return( null );
 		
-		ServerBlotterSet blotter = action.getBlotter( BlotterType.BLOTTER_RELEASE );
-		ServerBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
+		EngineBlotterSet blotter = action.getBlotter( BlotterType.BLOTTER_RELEASE );
+		EngineBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
 		if( item == null )
 			return( null );
 		

@@ -11,8 +11,8 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.engine.EngineTransaction;
-import org.urm.engine.blotter.ServerBlotterSet;
-import org.urm.engine.blotter.ServerBlotter.BlotterType;
+import org.urm.engine.blotter.EngineBlotterSet;
+import org.urm.engine.blotter.EngineBlotter.BlotterType;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
 import org.urm.meta.Types.VarLCTYPE;
@@ -121,7 +121,7 @@ public class ServerReleaseLifecycles extends ServerObject {
 	}
 
 	public boolean isUsed( ServerReleaseLifecycle lc ) {
-		ServerBlotterSet blotter = loader.engine.blotter.getBlotterSet( BlotterType.BLOTTER_RELEASE );
+		EngineBlotterSet blotter = loader.engine.blotter.getBlotterSet( BlotterType.BLOTTER_RELEASE );
 		if( blotter.checkLifecycleUsed( lc.ID ) )
 			return( true );
 		return( false );

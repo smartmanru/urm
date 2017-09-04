@@ -20,9 +20,9 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.action.CommandOutput;
-import org.urm.engine.blotter.ServerBlotter;
-import org.urm.engine.blotter.ServerBlotterSet;
-import org.urm.engine.blotter.ServerBlotter.BlotterType;
+import org.urm.engine.blotter.EngineBlotter;
+import org.urm.engine.blotter.EngineBlotterSet;
+import org.urm.engine.blotter.EngineBlotter.BlotterType;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.events.ServerEventsApp;
 import org.urm.engine.events.ServerEventsListener;
@@ -777,7 +777,7 @@ abstract public class ActionBase extends ActionCore {
 		return( builder );
 	}
 
-	public ServerBlotter getServerBlotter() throws Exception {
+	public EngineBlotter getServerBlotter() throws Exception {
 		return( engine.blotter );
 	}
 	
@@ -838,7 +838,7 @@ abstract public class ActionBase extends ActionCore {
 		setContext( nc );
 	}
 
-	public ServerBlotterSet getBlotter( BlotterType type ) {
+	public EngineBlotterSet getBlotter( BlotterType type ) {
 		return( engine.blotter.getBlotterSet( type ) );
 	}
 	

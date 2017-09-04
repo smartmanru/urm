@@ -7,10 +7,10 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseScriptFile;
 import org.urm.common.Common;
-import org.urm.engine.blotter.ServerBlotter;
-import org.urm.engine.blotter.ServerBlotterReleaseItem;
-import org.urm.engine.blotter.ServerBlotterSet;
-import org.urm.engine.blotter.ServerBlotter.BlotterType;
+import org.urm.engine.blotter.EngineBlotter;
+import org.urm.engine.blotter.EngineBlotterReleaseItem;
+import org.urm.engine.blotter.EngineBlotterSet;
+import org.urm.engine.blotter.EngineBlotter.BlotterType;
 import org.urm.engine.dist.DistState.DISTSTATE;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
@@ -1048,8 +1048,8 @@ public class Dist {
 				String prevReleaseVer = info.getPreviousVersion();
 				
 				if( !prevReleaseVer.isEmpty() ) {
-					ServerBlotterSet blotter = action.getBlotter( BlotterType.BLOTTER_RELEASE );
-					ServerBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
+					EngineBlotterSet blotter = action.getBlotter( BlotterType.BLOTTER_RELEASE );
+					EngineBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
 					
 					if( item != null ) {
 						releaseDate = Common.addDays( item.repoItem.dist.release.schedule.releaseDate , lc.shiftDays );
@@ -1065,7 +1065,7 @@ public class Dist {
 	}
 
 	public void finishStatus( ActionBase action ) throws Exception {
-		ServerBlotter blotter = action.getServerBlotter();
+		EngineBlotter blotter = action.getServerBlotter();
 		blotter.runDistStatus( action , meta , this );
 	}
 	

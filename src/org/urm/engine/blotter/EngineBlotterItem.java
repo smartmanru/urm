@@ -1,17 +1,17 @@
 package org.urm.engine.blotter;
 
-import org.urm.engine.blotter.ServerBlotter.BlotterType;
+import org.urm.engine.blotter.EngineBlotter.BlotterType;
 
-public class ServerBlotterItem {
+public class EngineBlotterItem {
 
-	public ServerBlotterSet blotterSet;
+	public EngineBlotterSet blotterSet;
 	
 	public boolean toberemoved;
 	public boolean removed;
 	
 	public String ID;
 
-	public ServerBlotterItem( ServerBlotterSet blotterSet , String ID ) {
+	public EngineBlotterItem( EngineBlotterSet blotterSet , String ID ) {
 		this.blotterSet = blotterSet;
 		this.ID = ID;
 		removed = false;

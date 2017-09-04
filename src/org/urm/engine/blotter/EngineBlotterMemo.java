@@ -1,8 +1,8 @@
 package org.urm.engine.blotter;
 
-public class ServerBlotterMemo {
+public class EngineBlotterMemo {
 
-	ServerBlotterSet blotterSet;
+	EngineBlotterSet blotterSet;
 	String key;
 	
 	private long totalTime;
@@ -11,7 +11,7 @@ public class ServerBlotterMemo {
 	public long averageDuration;
 	public long lastDuration;
 	
-	public ServerBlotterMemo( ServerBlotterSet blotterSet , String key ) {
+	public EngineBlotterMemo( EngineBlotterSet blotterSet , String key ) {
 		this.blotterSet = blotterSet;
 		
 		totalTime = 0;

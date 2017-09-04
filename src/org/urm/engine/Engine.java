@@ -16,7 +16,7 @@ import org.urm.common.meta.ReleaseCommandMeta;
 import org.urm.common.meta.XDocCommandMeta;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.ActionInit.RootActionType;
-import org.urm.engine.blotter.ServerBlotter;
+import org.urm.engine.blotter.EngineBlotter;
 import org.urm.engine.events.ServerEvents;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandContext;
@@ -64,7 +64,7 @@ public class Engine {
 
 	private TransactionBase currentTransaction = null;
 
-	public ServerBlotter blotter;
+	public EngineBlotter blotter;
 	public BuildCommandExecutor buildExecutor;
 	public DatabaseCommandExecutor databaseExecutor;
 	public DeployCommandExecutor deployExecutor;
@@ -86,7 +86,7 @@ public class Engine {
 		loader = new ServerLoader( this );
 		sessionController = new SessionController( this );
 		status = new EngineStatus( this );
-		blotter = new ServerBlotter( this );
+		blotter = new EngineBlotter( this );
 		
 		optionsMeta = new OptionsMeta();
 	}
