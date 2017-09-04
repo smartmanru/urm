@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.ServerEngine;
+import org.urm.engine.Engine;
 import org.urm.engine.storage.Folder;
 import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.engine.ServerContext;
 
 public class ShellPool {
 
-	public ServerEngine engine;
+	public Engine engine;
 	public String rootPath;
 	
 	Map<String,Object> staged = new HashMap<String,Object>();
@@ -49,7 +49,7 @@ public class ShellPool {
 		public int activeInteractiveCount;
 	}
 	
-	public ShellPool( ServerEngine engine ) {
+	public ShellPool( Engine engine ) {
 		this.engine = engine;
 		rootPath = engine.execrc.userHome;
 		masterAccount = new Account( engine.execrc );

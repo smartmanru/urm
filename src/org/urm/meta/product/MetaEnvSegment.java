@@ -11,7 +11,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.dist.Release;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.ServerAccountReference;
@@ -102,7 +102,7 @@ public class MetaEnvSegment extends PropertyController {
 		return( r );
 	}
 
-	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
+	public void setProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		super.updateProperties( transaction , props , system );
 		scatterProperties( transaction.getAction() );
 	}
@@ -274,11 +274,11 @@ public class MetaEnvSegment extends PropertyController {
 		scatterProperties( action );
 	}
 
-	public void createServer( ServerTransaction transaction , MetaEnvServer server ) {
+	public void createServer( EngineTransaction transaction , MetaEnvServer server ) {
 		addServer( server );
 	}
 	
-	public void modifyServer( ServerTransaction transaction , MetaEnvServer server ) {
+	public void modifyServer( EngineTransaction transaction , MetaEnvServer server ) {
 		for( Entry<String,MetaEnvServer> entry : serverMap.entrySet() ) {
 			if( entry.getValue() == server ) {
 				serverMap.remove( entry.getKey() );
@@ -290,7 +290,7 @@ public class MetaEnvSegment extends PropertyController {
 		addServer( server );
 	}
 	
-	public void deleteServer( ServerTransaction transaction , MetaEnvServer server ) {
+	public void deleteServer( EngineTransaction transaction , MetaEnvServer server ) {
 		int index = originalList.indexOf( server );
 		if( index < 0 )
 			return;
@@ -300,11 +300,11 @@ public class MetaEnvSegment extends PropertyController {
 		startInfo.removeServer( transaction , server );
 	}
 	
-	public void setBaseline( ServerTransaction transaction , String baselineSG ) throws Exception {
+	public void setBaseline( EngineTransaction transaction , String baselineSG ) throws Exception {
 		super.setSystemStringProperty( PROPERTY_BASELINE , baselineSG );
 	}
 	
-	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
+	public void setOffline( EngineTransaction transaction , boolean offline ) throws Exception {
 		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
 	}
 	
@@ -321,11 +321,11 @@ public class MetaEnvSegment extends PropertyController {
 			server.getApplicationReferences( account , refs );
 	}
 
-	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+	public void deleteHostAccount( EngineTransaction transaction , ServerHostAccount account ) throws Exception {
 		super.deleteObject();
 	}
 
-	public void setStartInfo( ServerTransaction transaction , MetaEnvStartInfo startInfo ) throws Exception {
+	public void setStartInfo( EngineTransaction transaction , MetaEnvStartInfo startInfo ) throws Exception {
 		this.startInfo = startInfo;
 	}
 

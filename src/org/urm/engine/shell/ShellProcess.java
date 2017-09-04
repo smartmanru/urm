@@ -6,7 +6,7 @@ import java.io.OutputStream;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.ServerCall;
+import org.urm.engine.EngineCall;
 import org.urm.engine.action.CommandOutput;
 import org.urm.meta.engine.ServerAuthResource;
 
@@ -187,17 +187,17 @@ public class ShellProcess {
 	
 	public void runRemoteInteractiveSshLinux( ActionBase action , String KEY , ServerAuthResource auth ) throws Exception {
 		jssh = new ShellJssh( this , true );
-		ServerCall call = action.context.call;
+		EngineCall call = action.context.call;
 		executeRemoteInteractive( action , call , auth );
 	}
 	
 	public void runRemoteInteractiveSshWindows( ActionBase action , String KEY , ServerAuthResource auth ) throws Exception {
 		jssh = new ShellJssh( this , true );
-		ServerCall call = action.context.call;
+		EngineCall call = action.context.call;
 		executeRemoteInteractive( action , call , auth );
 	}
 	
-	private void executeRemoteInteractive( ActionBase action , ServerCall call , ServerAuthResource auth ) throws Exception {
+	private void executeRemoteInteractive( ActionBase action , EngineCall call , ServerAuthResource auth ) throws Exception {
 		if( builder != null )
 			builder.redirectErrorStream( true );
 		shell.startProcess( action , this , null , true , auth );

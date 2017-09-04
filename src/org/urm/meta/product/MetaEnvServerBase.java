@@ -7,7 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.engine.ServerBaseItem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -119,7 +119,7 @@ public class MetaEnvServerBase extends PropertyController {
 		}
 	}
 
-	public void setItem( ServerTransaction transaction , ServerBaseItem item ) throws Exception {
+	public void setItem( EngineTransaction transaction , ServerBaseItem item ) throws Exception {
 		super.setSystemStringProperty( PROPERTY_ID , item.ID );
 		super.updateProperties( transaction );
 	}

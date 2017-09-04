@@ -3,8 +3,8 @@ package org.urm.meta.engine;
 import org.urm.action.ActionEventsSource;
 import org.urm.action.ScopeState;
 import org.urm.action.monitor.ActionMonitorTop;
-import org.urm.engine.ServerEngine;
-import org.urm.engine.ServerExecutorTask;
+import org.urm.engine.Engine;
+import org.urm.engine.EngineExecutorTask;
 import org.urm.engine.events.ServerEvents;
 import org.urm.engine.events.ServerEventsApp;
 import org.urm.engine.events.ServerEventsListener;
@@ -26,7 +26,7 @@ import org.urm.meta.product.MetaMonitoringTarget;
 
 public class ServerMonitoringProduct implements ServerEventsListener {
 	
-	class ServerExecutorTaskMonitorProduct extends ServerExecutorTask {
+	class ServerExecutorTaskMonitorProduct extends EngineExecutorTask {
 		ServerExecutorTaskMonitorProduct( String productName ) {
 			super( "monitoring::" + productName );
 		}
@@ -42,7 +42,7 @@ public class ServerMonitoringProduct implements ServerEventsListener {
 	ServerMonitoring monitoring;
 	String productName;
 	ServerStatusSource source;
-	ServerEngine engine;
+	Engine engine;
 	
 	ActionMonitorTop ca;
 	ServerEventsApp eventsApp;

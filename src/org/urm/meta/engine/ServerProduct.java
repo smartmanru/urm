@@ -3,7 +3,7 @@ package org.urm.meta.engine;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.ServerObject;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
@@ -31,7 +31,7 @@ public class ServerProduct extends ServerObject {
 		return( NAME );
 	}
 	
-	public void createProduct( ServerTransaction transaction , String newName , String newDesc , String newPath ) throws Exception {
+	public void createProduct( EngineTransaction transaction , String newName , String newDesc , String newPath ) throws Exception {
 		NAME = newName;
 		DESC = newDesc;
 		PATH = newPath;
@@ -58,7 +58,7 @@ public class ServerProduct extends ServerObject {
 		return( action.getProductMetadata( NAME ) );
 	}
 	
-	public void modifyProduct( ServerTransaction transaction ) throws Exception {
+	public void modifyProduct( EngineTransaction transaction ) throws Exception {
 	}
 	
 	public boolean isOffline() {

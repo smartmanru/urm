@@ -13,7 +13,7 @@ import org.urm.meta.ServerObject;
 import org.urm.meta.engine.ServerAuthContext;
 import org.urm.meta.product.Meta;
 
-public class ServerSession extends ServerObject {
+public class EngineSession extends ServerObject {
 
 	public SessionController controller;
 	public RunContext clientrc;
@@ -39,7 +39,7 @@ public class ServerSession extends ServerObject {
 	private Map<String,Meta> productMeta;
 	private SessionSecurity security;
 	
-	public ServerSession( SessionController controller , SessionSecurity security , RunContext clientrc , int sessionId , boolean client ) {
+	public EngineSession( SessionController controller , SessionSecurity security , RunContext clientrc , int sessionId , boolean client ) {
 		super( null );
 		this.controller = controller;
 		this.security = security;
@@ -117,7 +117,7 @@ public class ServerSession extends ServerObject {
 	}
 	
 	public void setServerRemoteProductLayout( ActionBase serverAction ) throws Exception {
-		ServerSession serverSession = serverAction.session;
+		EngineSession serverSession = serverAction.session;
 		
 		installPath = serverSession.installPath;
 		masterPath = serverSession.masterPath;

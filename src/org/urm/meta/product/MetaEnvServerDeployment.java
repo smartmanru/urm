@@ -3,7 +3,7 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertyController;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
@@ -111,7 +111,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 			schema = database.getSchema( action , SCHEMA );
 	}
 	
-	public void create( ServerTransaction transaction , VarDEPLOYITEMTYPE itemType , String itemName , VarNODETYPE nodeType , VarDEPLOYMODE deployMode , String deployPath ) throws Exception {
+	public void create( EngineTransaction transaction , VarDEPLOYITEMTYPE itemType , String itemName , VarNODETYPE nodeType , VarDEPLOYMODE deployMode , String deployPath ) throws Exception {
 		if( !super.initCreateStarted( server.getProperties() ) )
 			transaction.exitUnexpectedState();
 

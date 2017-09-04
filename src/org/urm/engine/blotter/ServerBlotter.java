@@ -29,7 +29,7 @@ import org.urm.action.release.ActionSchedulePhase;
 import org.urm.action.release.ActionSetScope;
 import org.urm.action.release.ActionTouchRelease;
 import org.urm.common.Common;
-import org.urm.engine.ServerEngine;
+import org.urm.engine.Engine;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
@@ -58,7 +58,7 @@ public class ServerBlotter {
 		BLOTTER_RELEASEACTION
 	};
 	
-	public ServerEngine engine;
+	public Engine engine;
 	
 	public long day;
 	
@@ -68,7 +68,7 @@ public class ServerBlotter {
 	protected ServerBlotterSet blotterDeploy;
 	private List<ServerBlotterSet> blotters;
 	
-	public ServerBlotter( ServerEngine engine ) {
+	public ServerBlotter( Engine engine ) {
 		this.engine = engine;
 
 		day = Common.getDayNoTime( System.currentTimeMillis() );

@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.ServerObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -85,25 +85,25 @@ public class ServerBaseGroup extends ServerObject {
 		return( itemMap.get( ID ) );
 	}
 	
-	public void createGroup( ServerTransaction transaction , String ID , String DESC ) throws Exception {
+	public void createGroup( EngineTransaction transaction , String ID , String DESC ) throws Exception {
 		this.ID = ID;
 		this.DESC = DESC;
 	}
 	
-	public void modifyGroup( ServerTransaction transaction , String ID , String DESC ) throws Exception {
+	public void modifyGroup( EngineTransaction transaction , String ID , String DESC ) throws Exception {
 		this.ID = ID;
 		this.DESC = DESC;
 	}
 	
-	public void createItem( ServerTransaction transaction , ServerBaseItem item ) throws Exception {
+	public void createItem( EngineTransaction transaction , ServerBaseItem item ) throws Exception {
 		addItem( item );
 	}
 	
-	public void deleteItem( ServerTransaction transaction , ServerBaseItem item ) throws Exception {
+	public void deleteItem( EngineTransaction transaction , ServerBaseItem item ) throws Exception {
 		itemMap.remove( item );
 	}
 	
-	public void modifyItem( ServerTransaction transaction , ServerBaseItem item ) {
+	public void modifyItem( EngineTransaction transaction , ServerBaseItem item ) {
 		String oldId = null;
 		for( Entry<String,ServerBaseItem> entry : itemMap.entrySet() ) {
 			if( entry.getValue() == item )
@@ -113,7 +113,7 @@ public class ServerBaseGroup extends ServerObject {
 		addItem( item );
 	}
 
-	public void deleteItem( ServerTransaction transaction ) throws Exception {
+	public void deleteItem( EngineTransaction transaction ) throws Exception {
 		super.deleteObject();
 	}
 

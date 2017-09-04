@@ -3,7 +3,7 @@ package org.urm.engine.events;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.engine.ServerExecutorTask;
+import org.urm.engine.EngineExecutorTask;
 
 public class ServerEventsNotifier extends ServerEventsSource {
 
@@ -19,7 +19,7 @@ public class ServerEventsNotifier extends ServerEventsSource {
 		}
 	};
 
-	class ServerExecutorTaskNotify extends ServerExecutorTask {
+	class ServerExecutorTaskNotify extends EngineExecutorTask {
 		ServerExecutorTaskNotify() {
 			super( "events notifier" );
 		}

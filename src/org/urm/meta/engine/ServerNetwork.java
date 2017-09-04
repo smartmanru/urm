@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.ServerObject;
 import org.w3c.dom.Document;
@@ -98,13 +98,13 @@ public class ServerNetwork extends ServerObject {
 		return( hostMap.values().toArray( new ServerNetworkHost[0] ) );
 	}
 	
-	public void createNetwork( ServerTransaction transaction  , String ID , String MASK , String DESC ) throws Exception {
+	public void createNetwork( EngineTransaction transaction  , String ID , String MASK , String DESC ) throws Exception {
 		this.ID = ID;
 		this.MASK = MASK;
 		this.DESC = DESC;
 	}
 
-	public void modifyNetwork( ServerTransaction transaction  , String ID , String MASK , String DESC ) throws Exception {
+	public void modifyNetwork( EngineTransaction transaction  , String ID , String MASK , String DESC ) throws Exception {
 		this.ID = ID;
 		this.MASK = MASK;
 		this.DESC = DESC;
@@ -176,20 +176,20 @@ public class ServerNetwork extends ServerObject {
         }
 	}
 	
-	public void modify( ServerTransaction transaction , String MASK , String DESC ) {
+	public void modify( EngineTransaction transaction , String MASK , String DESC ) {
 		this.MASK = MASK;
 		this.DESC = DESC;
 	}
 
-	public void createHost( ServerTransaction transaction , ServerNetworkHost host ) {
+	public void createHost( EngineTransaction transaction , ServerNetworkHost host ) {
 		addNetworkHost( host );
 	}
 	
-	public void deleteHost( ServerTransaction transaction , ServerNetworkHost host ) {
+	public void deleteHost( EngineTransaction transaction , ServerNetworkHost host ) {
 		hostMap.remove( host.ID );
 	}
 	
-	public void modifyHost( ServerTransaction transaction , ServerNetworkHost host ) {
+	public void modifyHost( EngineTransaction transaction , ServerNetworkHost host ) {
 		String oldId = null;
 		for( Entry<String,ServerNetworkHost> entry : hostMap.entrySet() ) {
 			if( entry.getValue() == host ) {
@@ -200,7 +200,7 @@ public class ServerNetwork extends ServerObject {
 		addNetworkHost( host );
 	}
 
-	public ServerNetworkHost createHost( ServerTransaction transaction , Account account ) throws Exception {
+	public ServerNetworkHost createHost( EngineTransaction transaction , Account account ) throws Exception {
 		for( ServerNetworkHost host : hostMap.values() ) {
 			if( host.isEqualsHost( account ) )
 				return( host );
@@ -212,7 +212,7 @@ public class ServerNetwork extends ServerObject {
 		return( host );
 	}
 
-	public void deleteNetwork( ServerTransaction transaction ) throws Exception {
+	public void deleteNetwork( EngineTransaction transaction ) throws Exception {
 		super.deleteObject();
 	}
 

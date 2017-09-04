@@ -8,7 +8,7 @@ import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
 import org.w3c.dom.Document;
@@ -72,11 +72,11 @@ public class ServerInfrastructure extends ServerObject {
 		return( Common.getSortedKeys( mapDatacenters ) );
 	}
 
-	public void createDatacenter( ServerTransaction transaction , ServerDatacenter datacenter ) throws Exception {
+	public void createDatacenter( EngineTransaction transaction , ServerDatacenter datacenter ) throws Exception {
 		addDatacenter( datacenter );
 	}
 	
-	public void modifyDatacenter( ServerTransaction transaction , ServerDatacenter datacenter ) throws Exception {
+	public void modifyDatacenter( EngineTransaction transaction , ServerDatacenter datacenter ) throws Exception {
 		for( Entry<String,ServerDatacenter> entry : mapDatacenters.entrySet() ) {
 			if( entry.getValue() == datacenter ) {
 				mapDatacenters.remove( entry.getKey() );
@@ -87,7 +87,7 @@ public class ServerInfrastructure extends ServerObject {
 		addDatacenter( datacenter );
 	}
 	
-	public void deleteDatacenter( ServerTransaction transaction , ServerDatacenter datacenter ) throws Exception {
+	public void deleteDatacenter( EngineTransaction transaction , ServerDatacenter datacenter ) throws Exception {
 		mapDatacenters.remove( datacenter.ID );
 		datacenter.deleteDatacenter( transaction );
 	}

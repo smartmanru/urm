@@ -6,7 +6,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.ServerAccountReference;
 import org.urm.meta.engine.ServerHostAccount;
@@ -81,7 +81,7 @@ public class MetaEnvServerNode extends PropertyController {
 		return( r );
 	}
 	
-	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
+	public void setProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		super.updateProperties( transaction , props , system );
 		scatterProperties( transaction.getAction() );
 	}
@@ -161,11 +161,11 @@ public class MetaEnvServerNode extends PropertyController {
 		scatterProperties( action );
 	}
 
-	public void setPos( ServerTransaction transaction , int POS ) {
+	public void setPos( EngineTransaction transaction , int POS ) {
 		this.POS = POS;
 	}
 	
-	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
+	public void setOffline( EngineTransaction transaction , boolean offline ) throws Exception {
 		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
 		scatterProperties( transaction.action );
 	}
@@ -189,14 +189,14 @@ public class MetaEnvServerNode extends PropertyController {
 		return( false );
 	}
 
-	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+	public void deleteHostAccount( EngineTransaction transaction , ServerHostAccount account ) throws Exception {
 		if( !checkReferencedByHostAccount( account ) )
 			return;
 
 		setOffline( transaction , true );
 	}
 
-	public void updateHost( ServerTransaction transaction , ServerNetworkHost host ) throws Exception {
+	public void updateHost( EngineTransaction transaction , ServerNetworkHost host ) throws Exception {
 		Account ha = Account.getDatacenterAccount( server.sg.SG , HOSTLOGIN );
 		
 		ActionBase action = transaction.getAction();

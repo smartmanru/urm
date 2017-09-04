@@ -6,7 +6,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.ServerObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -32,7 +32,7 @@ public class ServerSystem extends ServerObject {
 		return( NAME );
 	}
 	
-	public void createSystem( ServerTransaction transaction , String name , String desc ) {
+	public void createSystem( EngineTransaction transaction , String name , String desc ) {
 		this.NAME = name;
 		this.DESC = desc;
 		this.OFFLINE = true;
@@ -79,14 +79,14 @@ public class ServerSystem extends ServerObject {
 		return( mapProducts.get( key ) );
 	}
 
-	public void modifySystem( ServerTransaction transaction ) throws Exception {
+	public void modifySystem( EngineTransaction transaction ) throws Exception {
 	}
 
-	public void addProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
+	public void addProduct( EngineTransaction transaction , ServerProduct product ) throws Exception {
 		mapProducts.put( product.NAME , product );
 	}
 	
-	public void removeProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
+	public void removeProduct( EngineTransaction transaction , ServerProduct product ) throws Exception {
 		mapProducts.remove( product.NAME );
 	}
 

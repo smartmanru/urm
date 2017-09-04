@@ -1,11 +1,11 @@
 package org.urm.engine.events;
 
-import org.urm.engine.ServerEngine;
+import org.urm.engine.Engine;
 import org.urm.meta.ServerObject;
 
 public class ServerEvents extends ServerObject {
 
-	ServerEngine engine;
+	Engine engine;
 	
 	public static int EVENT_FINISHSTATE = 1;
 	public static int EVENT_SECONDTIMER = 2;
@@ -30,7 +30,7 @@ public class ServerEvents extends ServerObject {
 	ServerEventsTimer timer;
 	ServerEventsNotifier notifier;
 	
-	public ServerEvents( ServerEngine engine ) {
+	public ServerEvents( Engine engine ) {
 		super( null );
 		this.engine = engine;
 		

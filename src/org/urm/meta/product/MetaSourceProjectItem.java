@@ -3,7 +3,7 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
@@ -32,7 +32,7 @@ public class MetaSourceProjectItem {
 		this.project = project;
 	}
 	
-	public void createItem( ServerTransaction transaction , String name ) throws Exception {
+	public void createItem( EngineTransaction transaction , String name ) throws Exception {
 		this.ITEMNAME = name;
 		itemSrcType = VarITEMSRCTYPE.UNKNOWN;
 		ITEMBASENAME = "";

@@ -10,8 +10,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
-import org.urm.engine.ServerSession;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineSession;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.storage.MetadataStorage;
@@ -61,7 +61,7 @@ public class ServerProductMeta extends ServerObject {
 
 	public boolean loadFailed;
 	
-	private Map<ServerSession,Meta> sessionMeta;
+	private Map<EngineSession,Meta> sessionMeta;
 	private boolean primary;
 	
 	public ServerProductMeta( ServerLoader loader , String name ) {
@@ -75,7 +75,7 @@ public class ServerProductMeta extends ServerObject {
 		envs = new HashMap<String,MetaEnv>();
 		
 		loadFailed = false;
-		sessionMeta = new HashMap<ServerSession,Meta>();
+		sessionMeta = new HashMap<EngineSession,Meta>();
 		primary = false;
 	}
 
@@ -100,7 +100,7 @@ public class ServerProductMeta extends ServerObject {
 		sessionMeta.remove( meta.session );
 	}
 
-	public synchronized Meta findSessionMeta( ServerSession session ) {
+	public synchronized Meta findSessionMeta( EngineSession session ) {
 		return( sessionMeta.get( session ) );
 	}
 
@@ -556,12 +556,12 @@ public class ServerProductMeta extends ServerObject {
 		storageMeta.saveEnvConfFile( action , doc , designFile );
 	}
 	
-	public void setVersion( ServerTransaction transaction , MetaProductVersion version ) throws Exception {
+	public void setVersion( EngineTransaction transaction , MetaProductVersion version ) throws Exception {
 		this.version.deleteObject();
 		this.version = version;
 	}
 
-	public void addEnv( ServerTransaction transaction , MetaEnv env ) throws Exception {
+	public void addEnv( EngineTransaction transaction , MetaEnv env ) throws Exception {
 		String envFile = env.ID + ".xml";
 		envs.put( envFile , env );
 	}
@@ -610,7 +610,7 @@ public class ServerProductMeta extends ServerObject {
 		return( envs.values().toArray( new MetaEnv[0] ) );
 	}
 	
-	public void deleteEnv( ServerTransaction transaction , MetaEnv env ) throws Exception {
+	public void deleteEnv( EngineTransaction transaction , MetaEnv env ) throws Exception {
 		String envFile = env.ID + ".xml";
 		envs.remove( envFile );
 		ActionBase action = transaction.getAction();
@@ -624,7 +624,7 @@ public class ServerProductMeta extends ServerObject {
 			env.getApplicationReferences( account , refs );
 	}
 
-	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+	public void deleteHostAccount( EngineTransaction transaction , ServerHostAccount account ) throws Exception {
 		for( MetaEnv env : envs.values() )
 			env.deleteHostAccount( transaction , account );
 	}

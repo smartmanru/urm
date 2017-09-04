@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.PropertySet;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
@@ -133,7 +133,7 @@ public class ServerMirrorRepository extends ServerObject {
 		return( RESOURCE );
 	}
 	
-	public void createMirrorRepository( ServerTransaction transaction , String resource , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
+	public void createMirrorRepository( EngineTransaction transaction , String resource , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
 		RESOURCE = resource;
 		RESOURCE_REPO = reponame;
 		RESOURCE_ROOT = ( reporoot.isEmpty() )? "/" : reporoot;
@@ -160,19 +160,19 @@ public class ServerMirrorRepository extends ServerObject {
 		createProperties();
 	}
 	
-	private void createServerMirror( ServerTransaction transaction , boolean push ) throws Exception {
+	private void createServerMirror( EngineTransaction transaction , boolean push ) throws Exception {
 		// reject already published
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
 		createMirrorInternal( transaction , push );
 	}
 
-	private void createProductMetaMirror( ServerTransaction transaction , boolean push ) throws Exception {
+	private void createProductMetaMirror( EngineTransaction transaction , boolean push ) throws Exception {
 		// reject already published
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
 		createMirrorInternal( transaction , push );
 	}
 
-	private void createProductDataMirror( ServerTransaction transaction , boolean push ) throws Exception {
+	private void createProductDataMirror( EngineTransaction transaction , boolean push ) throws Exception {
 		// reject already published
 		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
 		createMirrorInternal( transaction , push );
@@ -210,7 +210,7 @@ public class ServerMirrorRepository extends ServerObject {
 		map.put( key , home.getSubFolder( action , subPath ) );
 	}
 	
-	private void createMirrorInternal( ServerTransaction transaction , boolean push ) throws Exception {
+	private void createMirrorInternal( EngineTransaction transaction , boolean push ) throws Exception {
 		ActionInit action = transaction.getAction();
 		GenericVCS vcs = GenericVCS.getVCS( action , null , RESOURCE );
 		
@@ -235,7 +235,7 @@ public class ServerMirrorRepository extends ServerObject {
 			mc.pushMirror();
 	}
 	
-	void createProductMeta( ServerTransaction transaction , ServerProduct product , String name ) throws Exception {
+	void createProductMeta( EngineTransaction transaction , ServerProduct product , String name ) throws Exception {
 		NAME = name;
 		TYPE = TYPE_PRODUCT_META;
 		PRODUCT = product.NAME;
@@ -247,7 +247,7 @@ public class ServerMirrorRepository extends ServerObject {
 		createProperties();
 	}
 	
-	void createProductData( ServerTransaction transaction , ServerProduct product , String name ) throws Exception {
+	void createProductData( EngineTransaction transaction , ServerProduct product , String name ) throws Exception {
 		NAME = name;
 		TYPE = TYPE_PRODUCT_DATA;
 		PRODUCT = product.NAME;
@@ -259,7 +259,7 @@ public class ServerMirrorRepository extends ServerObject {
 		createProperties();
 	}
 	
-	void createProjectSource( ServerTransaction transaction , MetaSourceProject project , String name ) throws Exception {
+	void createProjectSource( EngineTransaction transaction , MetaSourceProject project , String name ) throws Exception {
 		NAME = name;
 		TYPE = TYPE_PROJECT;
 		PRODUCT = project.meta.name;
@@ -271,7 +271,7 @@ public class ServerMirrorRepository extends ServerObject {
 		createProperties();
 	}
 	
-	public void dropMirror( ServerTransaction transaction , boolean dropOnServer ) throws Exception {
+	public void dropMirror( EngineTransaction transaction , boolean dropOnServer ) throws Exception {
 		if( RESOURCE.isEmpty() )
 			return;
 		
@@ -284,7 +284,7 @@ public class ServerMirrorRepository extends ServerObject {
 		createProperties();
 	}
 	
-	public void clearMirror( ServerTransaction transaction ) throws Exception {
+	public void clearMirror( EngineTransaction transaction ) throws Exception {
 		if( RESOURCE.isEmpty() )
 			return;
 		
@@ -295,7 +295,7 @@ public class ServerMirrorRepository extends ServerObject {
 		createProperties();
 	}
 	
-	private void dropMirrorInternal( ServerTransaction transaction , boolean dropOnServer ) throws Exception {
+	private void dropMirrorInternal( EngineTransaction transaction , boolean dropOnServer ) throws Exception {
 		if( isProject() && dropOnServer )
 			transaction.exitUnexpectedState();
 		
@@ -307,11 +307,11 @@ public class ServerMirrorRepository extends ServerObject {
 		mc.dropMirror( dropOnServer );
 	}
 
-	public void pushMirror( ServerTransaction transaction ) throws Exception {
+	public void pushMirror( EngineTransaction transaction ) throws Exception {
 		pushMirrorInternal( transaction );
 	}
 
-	private void pushMirrorInternal( ServerTransaction transaction ) throws Exception {
+	private void pushMirrorInternal( EngineTransaction transaction ) throws Exception {
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE );
 		MirrorCase mc = vcs.getMirror( this );
 		mc.useMirror();
@@ -328,11 +328,11 @@ public class ServerMirrorRepository extends ServerObject {
 		mc.pushMirror();
 	}
 	
-	public void refreshMirror( ServerTransaction transaction ) throws Exception {
+	public void refreshMirror( EngineTransaction transaction ) throws Exception {
 		refreshMirrorInternal( transaction );
 	}
 
-	private void refreshMirrorInternal( ServerTransaction transaction ) throws Exception {
+	private void refreshMirrorInternal( EngineTransaction transaction ) throws Exception {
 		ActionInit action = transaction.getAction();
 		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE );
 		MirrorCase mc = vcs.getMirror( this );

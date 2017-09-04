@@ -2,11 +2,11 @@ package org.urm.engine;
 
 import org.urm.common.Common;
 
-public class ServerHouseKeeping {
+public class EngineHouseKeeping {
 
-	ServerEngine engine;
+	Engine engine;
 	
-	class ServerExecutorTaskHouseKeep extends ServerExecutorTask {
+	class ServerExecutorTaskHouseKeep extends EngineExecutorTask {
 		ServerExecutorTaskHouseKeep() {
 			super( "house keeping" );
 		}
@@ -25,7 +25,7 @@ public class ServerHouseKeeping {
 	
 	private ServerExecutorTaskHouseKeep task;
 	
-	public ServerHouseKeeping( ServerEngine engine ) {
+	public EngineHouseKeeping( Engine engine ) {
 		this.engine = engine;
 		task = new ServerExecutorTaskHouseKeep();
 	}

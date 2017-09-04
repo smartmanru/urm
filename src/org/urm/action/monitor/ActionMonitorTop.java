@@ -9,7 +9,7 @@ import org.urm.action.ActionSetItem;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
-import org.urm.engine.ServerCacheObject;
+import org.urm.engine.EngineCacheObject;
 import org.urm.engine.events.ServerEvents;
 import org.urm.engine.events.ServerEventsApp;
 import org.urm.engine.events.ServerEventsListener;
@@ -34,7 +34,7 @@ public class ActionMonitorTop extends ActionBase implements ServerEventsListener
 	boolean continueRunning;
 	String productName;
 	ServerEventsApp eventsApp;
-	ServerCacheObject co;
+	EngineCacheObject co;
 	
 	public ActionMonitorTop( ActionBase action , String stream , String productName , ServerEventsApp eventsApp ) {
 		super( action , stream , "Monitoring, check product=" + productName );

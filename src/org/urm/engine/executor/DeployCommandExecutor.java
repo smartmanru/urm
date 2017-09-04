@@ -7,7 +7,7 @@ import org.urm.action.deploy.DeployCommand;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
-import org.urm.engine.ServerEngine;
+import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
@@ -23,12 +23,12 @@ public class DeployCommandExecutor extends CommandExecutor {
 	
 	String propertyBasedMethods;
 	
-	public static DeployCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
+	public static DeployCommandExecutor createExecutor( Engine engine ) throws Exception {
 		DeployCommandMeta commandInfo = new DeployCommandMeta( engine.optionsMeta );
 		return( new DeployCommandExecutor( engine , commandInfo ) );
 	}
 		
-	private DeployCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+	private DeployCommandExecutor( Engine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		super.defineAction( new BaseOps() , DeployCommandMeta.METHOD_BASE );

@@ -6,7 +6,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -73,7 +73,7 @@ public class MetaEnvStartGroup {
 		return( Common.getSortedList( names ) );
 	}
 
-	public void removeServer( ServerTransaction transaction , MetaEnvServer server ) {
+	public void removeServer( EngineTransaction transaction , MetaEnvServer server ) {
 		servers.remove( server );
 		server.setStartGroup( transaction.action , null );
 	}
@@ -86,7 +86,7 @@ public class MetaEnvStartGroup {
 		return( null );
 	}
 
-	public void create( ServerTransaction transaction , String name ) {
+	public void create( EngineTransaction transaction , String name ) {
 		this.NAME = name;
 	}
 	

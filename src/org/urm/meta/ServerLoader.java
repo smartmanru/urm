@@ -6,8 +6,8 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertySet;
-import org.urm.engine.ServerEngine;
-import org.urm.engine.ServerSession;
+import org.urm.engine.Engine;
+import org.urm.engine.EngineSession;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.storage.LocalFolder;
@@ -35,7 +35,7 @@ import org.urm.meta.product.MetaSource;
 
 public class ServerLoader {
 
-	public ServerEngine engine;
+	public Engine engine;
 	
 	private ServerSettings settings;
 	private ServerRegistry registry;
@@ -46,7 +46,7 @@ public class ServerLoader {
 	private ServerProductMeta offline;
 	private Map<String,ServerProductMeta> productMeta;
 	
-	public ServerLoader( ServerEngine engine ) {
+	public ServerLoader( Engine engine ) {
 		this.engine = engine;
 		
 		settings = new ServerSettings( this );
@@ -189,7 +189,7 @@ public class ServerLoader {
 	}
 
 	public synchronized Meta findSessionProductMetadata( ActionBase action , String productName ) throws Exception {
-		ServerSession session = action.session;
+		EngineSession session = action.session;
 		Meta meta = session.findMeta( productName );
 		if( meta != null )
 			return( meta );
@@ -210,7 +210,7 @@ public class ServerLoader {
 	}
 	
 	public synchronized Meta getSessionProductMetadata( ActionBase action , String productName , boolean primary ) throws Exception {
-		ServerSession session = action.session;
+		EngineSession session = action.session;
 		Meta meta = session.findMeta( productName );
 		if( meta != null ) {
 			if( primary ) {
@@ -229,7 +229,7 @@ public class ServerLoader {
 	}
 
 	public synchronized Meta createSessionProductMetadata( ActionBase action , ServerProductMeta storage ) throws Exception {
-		ServerSession session = action.session;
+		EngineSession session = action.session;
 		Meta meta = new Meta( storage , session );
 		engine.trace( "new run session meta object, id=" + meta.objectId + ", session=" + session.objectId );
 		storage.addSessionMeta( meta );
@@ -242,7 +242,7 @@ public class ServerLoader {
 	}
 	
 	public synchronized void releaseSessionProductMetadata( ActionBase action , Meta meta , boolean deleteMeta ) throws Exception {
-		ServerSession session = action.session;
+		EngineSession session = action.session;
 		session.releaseProductMeta( meta );
 		ServerProductMeta storage = meta.getStorage( action );
 		storage.releaseSessionMeta( meta );
@@ -255,7 +255,7 @@ public class ServerLoader {
 		meta.deleteObject();
 	}
 	
-	private ServerProductMeta getMetaStorage( ActionBase action , ServerSession session , String productName ) throws Exception {
+	private ServerProductMeta getMetaStorage( ActionBase action , EngineSession session , String productName ) throws Exception {
 		if( session.offline ) {
 			if( offline == null )
 				offline = new ServerProductMeta( this , session.productName );

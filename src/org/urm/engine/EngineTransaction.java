@@ -50,9 +50,9 @@ import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.Types.*;
 
-public class ServerTransaction extends TransactionBase {
+public class EngineTransaction extends TransactionBase {
 
-	public ServerTransaction( ServerEngine engine , ActionInit action ) {
+	public EngineTransaction( Engine engine , ActionInit action ) {
 		super( engine , action );
 	}
 

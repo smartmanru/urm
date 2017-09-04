@@ -7,10 +7,10 @@ import org.urm.common.action.CommandMethodMeta;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.shell.ShellInteractive;
 
-public abstract class ServerCall implements Runnable {
+public abstract class EngineCall implements Runnable {
 
-	public ServerEngine engine;
-	public ServerSession sessionContext;
+	public Engine engine;
+	public EngineSession sessionContext;
 	public CommandMeta command;
 	public String actionName;
 	public ActionData data;
@@ -29,7 +29,7 @@ public abstract class ServerCall implements Runnable {
 	abstract protected void notifyLog( String msg );
 	abstract protected void notifyLog( Throwable e );
 	
-	public ServerCall( ServerEngine engine , ServerSession sessionContext , CommandMeta command , String actionName , ActionData data ) {
+	public EngineCall( Engine engine , EngineSession sessionContext , CommandMeta command , String actionName , ActionData data ) {
 		this.engine = engine;
 		this.sessionContext = sessionContext;
 		this.command = command;

@@ -11,7 +11,7 @@ import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
-import org.urm.engine.ServerEngine;
+import org.urm.engine.Engine;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
@@ -20,7 +20,7 @@ import org.urm.meta.engine.ServerReleaseLifecycles;
 
 public abstract class CommandExecutor {
 
-	public ServerEngine engine;
+	public Engine engine;
 	public CommandMeta commandInfo;
 		
 	public Map<String,CommandMethod> actionsMap = new HashMap<String,CommandMethod>();
@@ -28,7 +28,7 @@ public abstract class CommandExecutor {
 	
 	protected abstract boolean runExecutorImpl( ActionBase action , CommandMethod method );
 
-	public CommandExecutor( ServerEngine engine , CommandMeta commandInfo ) {
+	public CommandExecutor( Engine engine , CommandMeta commandInfo ) {
 		this.engine = engine;
 		this.commandInfo = commandInfo;
 	}

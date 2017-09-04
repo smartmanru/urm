@@ -7,7 +7,7 @@ import org.urm.action.release.ReleaseCommand;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.meta.ReleaseCommandMeta;
-import org.urm.engine.ServerEngine;
+import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
@@ -19,12 +19,12 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 
 	ReleaseCommand impl;
 	
-	public static ReleaseCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
+	public static ReleaseCommandExecutor createExecutor( Engine engine ) throws Exception {
 		ReleaseCommandMeta commandInfo = new ReleaseCommandMeta( engine.optionsMeta );
 		return( new ReleaseCommandExecutor( engine , commandInfo ) );
 	}
 		
-	private ReleaseCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+	private ReleaseCommandExecutor( Engine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		defineAction( new CreateRelease() , ReleaseCommandMeta.METHOD_CREATE );

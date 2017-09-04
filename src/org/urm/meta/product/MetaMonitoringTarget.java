@@ -6,7 +6,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
 import org.w3c.dom.Document;
@@ -126,14 +126,14 @@ public class MetaMonitoringTarget {
 		folder.ensureExists( action );
 	}
 
-	public void createTarget( ServerTransaction transaction , MetaEnvSegment sg , int MAXTIME ) throws Exception {
+	public void createTarget( EngineTransaction transaction , MetaEnvSegment sg , int MAXTIME ) throws Exception {
 		this.ENV = sg.env.ID;
 		this.SG = sg.NAME;
 		this.MAXTIME = MAXTIME;
 		setName( transaction.getAction() );
 	}
 
-	public void modifyTarget( ServerTransaction transaction , int MAXTIME ) throws Exception {
+	public void modifyTarget( EngineTransaction transaction , int MAXTIME ) throws Exception {
 		this.MAXTIME = MAXTIME;
 	}
 	

@@ -2,7 +2,7 @@ package org.urm.meta.engine;
 
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -154,11 +154,11 @@ public class ServerContext {
 		CHAT_ROCKET_RESOURCE = properties.getSystemStringProperty( PROPERTY_CHAT_ROCKET_RESOURCE , "" , false );
 	}
 
-	public void setServerProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+	public void setServerProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
 		properties.updateProperties( props , true );
 	}
 
-	public void resolveServerProperties( ServerTransaction transaction ) throws Exception {
+	public void resolveServerProperties( EngineTransaction transaction ) throws Exception {
 		properties.resolveRawProperties();
 		scatterSystemProperties();
 	}

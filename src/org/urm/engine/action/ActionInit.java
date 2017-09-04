@@ -3,7 +3,7 @@ package org.urm.engine.action;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.common.Common;
-import org.urm.engine.ServerSession;
+import org.urm.engine.EngineSession;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
@@ -42,7 +42,7 @@ public class ActionInit extends ActionBase {
 	protected TransactionBase transaction;
 	private boolean memoryOnly;
 
-	public ActionInit( RootActionType type , ServerLoader loader , ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandMethod commandAction , String actionName , boolean memoryOnly , String actionInfo ) {
+	public ActionInit( RootActionType type , ServerLoader loader , EngineSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandMethod commandAction , String actionName , boolean memoryOnly , String actionInfo ) {
 		super( session , artefactory , executor , output , actionInfo );
 		this.type = type;
 		this.actionInit = this;

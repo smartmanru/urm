@@ -3,7 +3,7 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.ServerProductContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -130,7 +130,7 @@ public class MetaProductCoreSettings {
 		settings.setManualNumberProperty( MetaProductVersion.PROPERTY_PROD_NEXTTAG , CONFIG_NEXTPRODTAG );
 	}
 	
-	public void setLifecycles( ServerTransaction transaction , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
+	public void setLifecycles( EngineTransaction transaction , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
 		RELEASELC_MAJOR = major;
 		RELEASELC_MINOR = minor;
 		releaseLCUrgentAll = urgentsAll;

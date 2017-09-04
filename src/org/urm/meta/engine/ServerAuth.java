@@ -15,9 +15,9 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
-import org.urm.engine.ServerEngine;
-import org.urm.engine.ServerSession;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.Engine;
+import org.urm.engine.EngineSession;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.SessionSecurity;
 import org.urm.engine._Error;
 import org.urm.engine.action.ActionInit;
@@ -53,7 +53,7 @@ public class ServerAuth extends ServerObject {
 		SPECIAL_BASEITEMS
 	};
 	
-	ServerEngine engine;
+	Engine engine;
 
 	public static String AUTH_GROUP_RESOURCE = "resource"; 
 	public static String AUTH_GROUP_USER = "user"; 
@@ -64,7 +64,7 @@ public class ServerAuth extends ServerObject {
 	Map<String,ServerAuthGroup> groups;
 	ServerAuthLdap ldapSettings;
 	
-	public ServerAuth( ServerEngine engine ) {
+	public ServerAuth( Engine engine ) {
 		super( null );
 		this.engine = engine;
 		localUsers = new HashMap<String,ServerAuthUser>();
@@ -233,7 +233,7 @@ public class ServerAuth extends ServerObject {
 		ac.properties.saveToPropertyFile( filePath , engine.execrc , false , "auth file" );
 	}
 
-	public ServerSession connect( String username , String password , RunContext clientrc ) throws Exception {
+	public EngineSession connect( String username , String password , RunContext clientrc ) throws Exception {
 		ServerAuthUser user = getUser( username );
 		if( user == null )
 			return( null );
@@ -263,7 +263,7 @@ public class ServerAuth extends ServerObject {
 		security.setContext( ac );
 		security.setPermissions();
 		
-		ServerSession session = engine.createClientSession( security , clientrc );
+		EngineSession session = engine.createClientSession( security , clientrc );
 		return( session );
 	}
 
@@ -627,7 +627,7 @@ public class ServerAuth extends ServerObject {
 		save( action );
 	}
 	
-	public synchronized void deleteProduct( ServerTransaction transaction , ServerProduct product ) throws Exception {
+	public synchronized void deleteProduct( EngineTransaction transaction , ServerProduct product ) throws Exception {
 		ActionBase action = transaction.getAction();
 		boolean authChanged = false;
 		for( ServerAuthGroup group : groups.values() ) {
@@ -643,14 +643,14 @@ public class ServerAuth extends ServerObject {
 			save( action );
 	}
 
-	public synchronized void deleteDatacenter( ServerTransaction transaction , ServerDatacenter datacenter ) throws Exception {
+	public synchronized void deleteDatacenter( EngineTransaction transaction , ServerDatacenter datacenter ) throws Exception {
 		for( String networkName : datacenter.getNetworkNames() ) {
 			ServerNetwork network = datacenter.findNetwork( networkName );
 			deleteNetwork( transaction , network );
 		}
 	}
 	
-	public synchronized void deleteNetwork( ServerTransaction transaction , ServerNetwork network ) throws Exception {
+	public synchronized void deleteNetwork( EngineTransaction transaction , ServerNetwork network ) throws Exception {
 		ActionBase action = transaction.getAction();
 		boolean authChanged = false;
 		for( ServerAuthGroup group : groups.values() ) {

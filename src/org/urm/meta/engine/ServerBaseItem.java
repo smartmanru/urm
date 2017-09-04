@@ -2,7 +2,7 @@ package org.urm.meta.engine;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.ServerObject;
 import org.urm.meta.engine.ServerBase.CATEGORY_TYPE;
 import org.w3c.dom.Document;
@@ -25,12 +25,12 @@ public class ServerBaseItem extends ServerObject {
 		return( ID );
 	}
 	
-	public void createBaseItem( ServerTransaction transaction , String ID , String DESC ) {
+	public void createBaseItem( EngineTransaction transaction , String ID , String DESC ) {
 		this.ID = ID;
 		this.DESC = DESC;
 	}
 	
-	public void modifyBaseItem( ServerTransaction transaction , String ID , String DESC ) {
+	public void modifyBaseItem( EngineTransaction transaction , String ID , String DESC ) {
 		this.ID = ID;
 		this.DESC = DESC;
 	}

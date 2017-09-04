@@ -9,7 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.Types.*;
@@ -188,14 +188,14 @@ public class MetaSource extends PropertyController {
 		return( null );
 	}
 
-	public MetaSourceProjectSet createProjectSet( ServerTransaction transaction , String name ) throws Exception {
+	public MetaSourceProjectSet createProjectSet( EngineTransaction transaction , String name ) throws Exception {
 		MetaSourceProjectSet set = new MetaSourceProjectSet( meta , this );
 		set.create( transaction , name );
 		addProjectSet( set );
 		return( set );
 	}
 
-	public MetaSourceProject createProject( ServerTransaction transaction , MetaSourceProjectSet set , String name , int POS ) throws Exception {
+	public MetaSourceProject createProject( EngineTransaction transaction , MetaSourceProjectSet set , String name , int POS ) throws Exception {
 		MetaSourceProject project = new MetaSourceProject( set.meta , set );
 		project.createProject( transaction , name , POS );
 		set.addProject( transaction , project );
@@ -203,13 +203,13 @@ public class MetaSource extends PropertyController {
 		return( project );
 	}
 
-	public void removeProjectSet( ServerTransaction transaction , MetaSourceProjectSet set ) throws Exception {
+	public void removeProjectSet( EngineTransaction transaction , MetaSourceProjectSet set ) throws Exception {
 		for( MetaSourceProject project : set.getProjects() )
 			projectMap.remove( project.NAME );
 		setMap.remove( set.NAME );
 	}
 
-	public void removeProject( ServerTransaction transaction , MetaSourceProject project ) throws Exception {
+	public void removeProject( EngineTransaction transaction , MetaSourceProject project ) throws Exception {
 		project.set.removeProject( transaction , project );
 		projectMap.remove( project.NAME );
 	}

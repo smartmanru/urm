@@ -3,7 +3,7 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -127,7 +127,7 @@ public class MetaProductBuildSettings extends PropertyController {
 		super.saveAsElements( doc , root , false );
 	}
 
-	public void setProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+	public void setProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
 		super.updateProperties( transaction , props , true );
 	}
 

@@ -4,7 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseSpecific;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
@@ -29,7 +29,7 @@ public class MetaDatabaseSchema {
 		this.database = database;
 	}
 	
-	public void createSchema( ServerTransaction transaction , String SCHEMA ) throws Exception {
+	public void createSchema( EngineTransaction transaction , String SCHEMA ) throws Exception {
 		this.SCHEMA = SCHEMA;
 		dbmsType = VarDBMSTYPE.UNKNOWN;
 		DBNAME = "";
@@ -37,7 +37,7 @@ public class MetaDatabaseSchema {
 		DESC = "";
 	}
 
-	public void setData( ServerTransaction transaction , String desc , VarDBMSTYPE dbType , String dbName , String dbUser ) throws Exception {
+	public void setData( EngineTransaction transaction , String desc , VarDBMSTYPE dbType , String dbName , String dbUser ) throws Exception {
 		this.DESC = desc;
 		this.dbmsType = dbType;
 		this.DBNAME = dbName;

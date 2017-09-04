@@ -17,7 +17,7 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.urm.common.action.CommandMeta;
-import org.urm.engine.ServerEngine;
+import org.urm.engine.Engine;
 import org.urm.engine.SessionController;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.storage.LocalFolder;
@@ -30,14 +30,14 @@ import com.sun.jdmk.comm.HtmlAdaptorServer;
 
 public class EngineMBean implements DynamicMBean {
 
-	ServerEngine engine;
+	Engine engine;
 	ActionInit action;
 	
 	private MBeanServer mbs = null;
 	private MBeanInfo mbean = null;
 	JMXConnectorServer jmxConnector;
 	
-	public EngineMBean( ActionInit action , ServerEngine engine ) {
+	public EngineMBean( ActionInit action , Engine engine ) {
 		this.action = action;
 		this.engine = engine;
 	}

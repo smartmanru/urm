@@ -8,7 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.meta.Types;
 import org.urm.meta.engine.ServerAuthResource;
@@ -48,12 +48,12 @@ public class MetaSourceProject {
 		this.set = set;
 	}
 	
-	public void createProject( ServerTransaction transaction , String name , int POS ) throws Exception {
+	public void createProject( EngineTransaction transaction , String name , int POS ) throws Exception {
 		this.NAME = name;
 		this.POS = POS;
 	}
 	
-	public void addItem( ServerTransaction transaction , MetaSourceProjectItem item ) throws Exception {
+	public void addItem( EngineTransaction transaction , MetaSourceProjectItem item ) throws Exception {
 		addItem( item );
 	}
 	
@@ -251,7 +251,7 @@ public class MetaSourceProject {
 		return( Common.getSortedKeys( itemMap ) );
 	}
 
-	public void setProjectData( ServerTransaction transaction , String desc , boolean prod , String group , VarPROJECTTYPE type , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
+	public void setProjectData( EngineTransaction transaction , String desc , boolean prod , String group , VarPROJECTTYPE type , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
 		this.DESC = desc;
 		this.BUILDGROUP = group;
 		this.type = type;
@@ -267,21 +267,21 @@ public class MetaSourceProject {
 		this.BRANCH = branch;
 	}
 
-	public void setCodebase( ServerTransaction transaction , String branch , String builder , String builderAddOptions ) throws Exception {
+	public void setCodebase( EngineTransaction transaction , String branch , String builder , String builderAddOptions ) throws Exception {
 		this.BRANCH = branch;
 		this.BUILDER = builder;
 		this.BUILDER_ADDOPTIONS = builderAddOptions;
 	}
 
-	public void setOrder( ServerTransaction transaction , int POS ) throws Exception {
+	public void setOrder( EngineTransaction transaction , int POS ) throws Exception {
 		this.POS = POS;
 	}
 
-	public void changeProjectSet( ServerTransaction transaction , MetaSourceProjectSet setNew ) throws Exception {
+	public void changeProjectSet( EngineTransaction transaction , MetaSourceProjectSet setNew ) throws Exception {
 		this.set = setNew;
 	}
 
-	public void removeItem( ServerTransaction transaction , MetaSourceProjectItem item ) throws Exception {
+	public void removeItem( EngineTransaction transaction , MetaSourceProjectItem item ) throws Exception {
 		removeItem( item );
 	}
 

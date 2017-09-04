@@ -7,7 +7,7 @@ import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
 import org.w3c.dom.Document;
@@ -86,7 +86,7 @@ public class ServerBase extends ServerObject {
 		mapItem.put( item.ID , item );
 	}
 
-	public void createItem( ServerTransaction transaction , ServerBaseItem item ) throws Exception {
+	public void createItem( EngineTransaction transaction , ServerBaseItem item ) throws Exception {
 		if( mapItem.get( item.ID ) != null )
 			transaction.exit1( _Error.DuplicateBaseItem1 , "duplicate base item=" + item.ID , item.ID );
 		

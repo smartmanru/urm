@@ -5,17 +5,17 @@ import java.util.Map;
 
 import org.urm.meta.ServerObject;
 
-public class ServerCache extends ServerObject {
+public class EngineCache extends ServerObject {
 
-	ServerEngine engine;
+	Engine engine;
 	
-	Map<String,Map<String,ServerCacheObject>> data;
+	Map<String,Map<String,EngineCacheObject>> data;
 	
-	public ServerCache( ServerEngine engine ) {
+	public EngineCache( Engine engine ) {
 		super( null );
 		this.engine = engine;
 		
-		data = new HashMap<String,Map<String,ServerCacheObject>>(); 
+		data = new HashMap<String,Map<String,EngineCacheObject>>(); 
 	}
 
 	@Override
@@ -31,17 +31,17 @@ public class ServerCache extends ServerObject {
 		data.clear();
 	}
 	
-	public synchronized ServerCacheObject getObject( String group , String item ) {
-		Map<String,ServerCacheObject> items = data.get( group );
+	public synchronized EngineCacheObject getObject( String group , String item ) {
+		Map<String,EngineCacheObject> items = data.get( group );
 		if( items == null ) {
-			items = new HashMap<String,ServerCacheObject>();
+			items = new HashMap<String,EngineCacheObject>();
 			data.put( group , items );
 		}
 		
-		ServerCacheObject object = items.get( item );
+		EngineCacheObject object = items.get( item );
 		if( object == null ) {
 			String sourceId = "cache-" + group + "-" + item;
-			object = new ServerCacheObject( this , group , item , engine.getEvents() , sourceId );
+			object = new EngineCacheObject( this , group , item , engine.getEvents() , sourceId );
 			items.put( item , object );
 		}
 		

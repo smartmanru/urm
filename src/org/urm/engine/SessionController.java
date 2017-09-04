@@ -17,7 +17,7 @@ import org.urm.meta.engine.ServerAuthUser;
 
 public class SessionController {
 
-	ServerEngine engine;
+	Engine engine;
 	
 	boolean running = false;
 	boolean stop = false;
@@ -25,17 +25,17 @@ public class SessionController {
 
 	public CommandMeta[] executors = null;
 	
-	Map<Integer,ServerSession> sessions;
-	Map<String,ServerCall> calls;
+	Map<Integer,EngineSession> sessions;
+	Map<String,EngineCall> calls;
 	Map<Integer,ActionInit> actions;
 	
 	int sessionSequence = 0;
 	
-	public SessionController( ServerEngine engine ) {
+	public SessionController( Engine engine ) {
 		this.engine = engine;
 	
-		sessions = new HashMap<Integer,ServerSession>(); 
-		calls = new HashMap<String,ServerCall>();
+		sessions = new HashMap<Integer,EngineSession>(); 
+		calls = new HashMap<String,EngineCall>();
 		actions = new HashMap<Integer,ActionInit>(); 
 	}
 
@@ -78,7 +78,7 @@ public class SessionController {
 		waitAllActions( serverAction );
 	}
 
-	public ActionInit createRemoteAction( ActionBase serverAction , ServerCall call , CommandMethodMeta method , ActionData data ) throws Exception {
+	public ActionInit createRemoteAction( ActionBase serverAction , EngineCall call , CommandMethodMeta method , ActionData data ) throws Exception {
 		if( !running ) {
 			engine.error( "server is in progress of shutdown" );
 			return( null );
@@ -92,7 +92,7 @@ public class SessionController {
 		if( commandInfo == null )
 			return( null );
 		
-		ServerSession session = call.sessionContext;
+		EngineSession session = call.sessionContext;
 		session.setServerRemoteProductLayout( engine.serverAction );
 		
 		ActionInit action = engine.createAction( RootActionType.Command , options , session , "call-" + data.clientrc.product , call , false , "Run remote command=" + commandInfo.name + "::" + options.method );
@@ -103,7 +103,7 @@ public class SessionController {
 		return( action );
 	}
 
-	public boolean runWebJmx( ServerSession session , CommandMeta meta , CommandOptions options ) throws Exception {
+	public boolean runWebJmx( EngineSession session , CommandMeta meta , CommandOptions options ) throws Exception {
 		if( !running ) {
 			engine.error( "server is in progress of shutdown" );
 			return( false );
@@ -120,7 +120,7 @@ public class SessionController {
 	}
 	
 	public boolean runClientAction( ActionBase serverAction , ActionInit clientAction ) {
-		ServerSession session = clientAction.session;
+		EngineSession session = clientAction.session;
 		CommandExecutor executor = clientAction.executor;
 		
 		serverAction.debug( "run client action sessionId=" + session.sessionId + ", workFolder=" + clientAction.artefactory.workFolder.folderPath + " ..." );
@@ -160,24 +160,24 @@ public class SessionController {
 		return( res );
 	}
 
-	public synchronized ServerSession createSession( SessionSecurity security , RunContext clientrc , boolean client ) {
+	public synchronized EngineSession createSession( SessionSecurity security , RunContext clientrc , boolean client ) {
 		int sessionId = ++sessionSequence;
-		ServerSession session = new ServerSession( this , security , clientrc , sessionId , client );
+		EngineSession session = new EngineSession( this , security , clientrc , sessionId , client );
 		sessions.put( session.sessionId , session );
 		return( session );
 	}
 
-	public ServerCall getCall( int sessionId ) {
-		ServerCall call = calls.get( "" + sessionId );
+	public EngineCall getCall( int sessionId ) {
+		EngineCall call = calls.get( "" + sessionId );
 		return( call );
 	}
 	
-	public synchronized void threadStarted( ActionBase serverAction , ServerCall thread ) {
+	public synchronized void threadStarted( ActionBase serverAction , EngineCall thread ) {
 		calls.put( "" + thread.sessionContext.sessionId , thread );
 		serverAction.debug( "thread started: sessionId=" + thread.sessionContext.sessionId );
 	}
 
-	public synchronized void threadStopped( ActionBase serverAction , ServerCall thread ) {
+	public synchronized void threadStopped( ActionBase serverAction , EngineCall thread ) {
 		calls.remove( "" + thread.sessionContext.sessionId );
 		serverAction.debug( "thread stopped: sessionId=" + thread.sessionContext.sessionId );
 	}
@@ -199,7 +199,7 @@ public class SessionController {
 	}
 
 	public void executeInteractiveCommand( String sessionId , String input ) throws Exception {
-		ServerCall call = calls.get( "" + sessionId );
+		EngineCall call = calls.get( "" + sessionId );
 		if( call == null )
 			engine.exit1( _Error.UnknownCallSession1 , "unknown call session=" + sessionId , sessionId );
 		
@@ -207,13 +207,13 @@ public class SessionController {
 	}
 
 	public void stopSession( String sessionId ) throws Exception {
-		ServerCall call = calls.get( "" + sessionId );
+		EngineCall call = calls.get( "" + sessionId );
 		if( call != null )
 			call.stop();
 	}
 
 	public boolean waitConnect( String sessionId ) throws Exception {
-		ServerCall call = calls.get( "" + sessionId );
+		EngineCall call = calls.get( "" + sessionId );
 		if( call == null )
 			engine.exit1( _Error.UnknownCallSession1 , "unknown call session=" + sessionId , sessionId );
 		
@@ -236,7 +236,7 @@ public class SessionController {
 		}
 	}
 
-	public void closeSession( ServerSession session ) throws Exception {
+	public void closeSession( EngineSession session ) throws Exception {
 		session.close();
 		synchronized( this ) {
 			sessions.remove( session.sessionId );
@@ -244,7 +244,7 @@ public class SessionController {
 	}
 
 	public synchronized void updatePermissions( ActionBase action , String user ) throws Exception {
-		for( ServerSession session : sessions.values() ) {
+		for( EngineSession session : sessions.values() ) {
 			SessionSecurity security = session.getSecurity();
 			ServerAuthUser su = security.getUser();
 			if( su != null ) {

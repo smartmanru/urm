@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.ServerObject;
 import org.w3c.dom.Document;
@@ -91,25 +91,25 @@ public class ServerDatacenter extends ServerObject {
 		return( mapNetworks.values().toArray( new ServerNetwork[0] ) );
 	}
 	
-	public void createDatacenter( ServerTransaction transaction  , String ID , String DESC ) throws Exception {
+	public void createDatacenter( EngineTransaction transaction  , String ID , String DESC ) throws Exception {
 		this.ID = ID;
 		this.DESC = DESC;
 	}
 
-	public void modifyDatacenter( ServerTransaction transaction  , String ID , String DESC ) throws Exception {
+	public void modifyDatacenter( EngineTransaction transaction  , String ID , String DESC ) throws Exception {
 		this.ID = ID;
 		this.DESC = DESC;
 	}
 
-	public void deleteDatacenter( ServerTransaction transaction ) throws Exception {
+	public void deleteDatacenter( EngineTransaction transaction ) throws Exception {
 		super.deleteObject();
 	}
 	
-	public void createNetwork( ServerTransaction transaction , ServerNetwork network ) throws Exception {
+	public void createNetwork( EngineTransaction transaction , ServerNetwork network ) throws Exception {
 		addNetwork( network );
 	}
 	
-	public void modifyNetwork( ServerTransaction transaction , ServerNetwork network ) throws Exception {
+	public void modifyNetwork( EngineTransaction transaction , ServerNetwork network ) throws Exception {
 		for( Entry<String,ServerNetwork> entry : mapNetworks.entrySet() ) {
 			if( entry.getValue() == network ) {
 				mapNetworks.remove( entry.getKey() );
@@ -120,7 +120,7 @@ public class ServerDatacenter extends ServerObject {
 		addNetwork( network );
 	}
 	
-	public void deleteNetwork( ServerTransaction transaction , ServerNetwork network ) throws Exception {
+	public void deleteNetwork( EngineTransaction transaction , ServerNetwork network ) throws Exception {
 		mapNetworks.remove( network.ID );
 		network.deleteNetwork( transaction );
 	}

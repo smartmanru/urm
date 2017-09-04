@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.ServerObject;
 import org.urm.meta.engine.ServerBase.CATEGORY_TYPE;
 import org.w3c.dom.Document;
@@ -98,15 +98,15 @@ public class ServerBaseCategory extends ServerObject {
 		return( groupMap.get( ID ) );
 	}
 	
-	public void createGroup( ServerTransaction transaction , ServerBaseGroup group ) throws Exception {
+	public void createGroup( EngineTransaction transaction , ServerBaseGroup group ) throws Exception {
 		addGroup( group );
 	}
 	
-	public void deleteGroup( ServerTransaction transaction , ServerBaseGroup group ) throws Exception {
+	public void deleteGroup( EngineTransaction transaction , ServerBaseGroup group ) throws Exception {
 		groupMap.remove( group );
 	}
 	
-	public void modifyGroup( ServerTransaction transaction , ServerBaseGroup group ) {
+	public void modifyGroup( EngineTransaction transaction , ServerBaseGroup group ) {
 		String oldId = null;
 		for( Entry<String,ServerBaseGroup> entry : groupMap.entrySet() ) {
 			if( entry.getValue() == group )
@@ -116,7 +116,7 @@ public class ServerBaseCategory extends ServerObject {
 		addGroup( group );
 	}
 
-	public void deleteHost( ServerTransaction transaction ) throws Exception {
+	public void deleteHost( EngineTransaction transaction ) throws Exception {
 		super.deleteObject();
 	}
 

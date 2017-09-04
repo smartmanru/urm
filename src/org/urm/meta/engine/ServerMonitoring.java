@@ -8,8 +8,8 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
-import org.urm.engine.ServerEngine;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.Engine;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.events.ServerEvents;
 import org.urm.engine.events.ServerEventsApp;
 import org.urm.engine.events.ServerEventsListener;
@@ -33,7 +33,7 @@ import org.w3c.dom.Node;
 public class ServerMonitoring extends ServerObject {
 
 	ServerLoader loader;
-	ServerEngine engine;
+	Engine engine;
 	ServerEvents events;
 
 	Map<String,ServerMonitoringProduct> mapProduct;
@@ -317,12 +317,12 @@ public class ServerMonitoring extends ServerObject {
 		return( state );
 	}
 
-	public void setEnabled( ServerTransaction transaction , boolean enabled ) throws Exception {
+	public void setEnabled( EngineTransaction transaction , boolean enabled ) throws Exception {
 		properties.setOriginalSystemBooleanProperty( PROPERTY_ENABLED , enabled );
 		ENABLED = enabled;
 	}
 
-	public void setDefaultProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+	public void setDefaultProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
 		properties.updateProperties( props , true );
 		scatterProperties();
 	}
@@ -418,11 +418,11 @@ public class ServerMonitoring extends ServerObject {
 		}
 	}
 
-	public void deleteTarget( ServerTransaction transaction , MetaMonitoringTarget target ) throws Exception {
+	public void deleteTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {
 		target.monitoring.deleteTarget( transaction , target );
 	}
 	
-	public void modifyTarget( ServerTransaction transaction , MetaMonitoringTarget target ) throws Exception {
+	public void modifyTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {
 	}
 
 	public ServerStatusSource findTargetSource( MetaMonitoringTarget target ) {

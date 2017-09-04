@@ -6,7 +6,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -37,13 +37,13 @@ public class MetaDistrDelivery {
 		allSchemas = false;
 	}
 
-	public void createDelivery( ServerTransaction transaction , String NAME , String FOLDER , String DESC ) {
+	public void createDelivery( EngineTransaction transaction , String NAME , String FOLDER , String DESC ) {
 		this.NAME = NAME;
 		this.FOLDER = FOLDER;
 		this.DESC = DESC;
 	}
 	
-	public void modifyDelivery( ServerTransaction transaction , String NAME , String FOLDER , String DESC ) {
+	public void modifyDelivery( EngineTransaction transaction , String NAME , String FOLDER , String DESC ) {
 		this.NAME = NAME;
 		this.FOLDER = FOLDER;
 		this.DESC = DESC;
@@ -241,21 +241,21 @@ public class MetaDistrDelivery {
 		return( true );
 	}
 
-	public void deleteAllItems( ServerTransaction transaction ) throws Exception {
+	public void deleteAllItems( EngineTransaction transaction ) throws Exception {
 		for( MetaDistrBinaryItem item : mapBinaryItems.values() )
 			deleteBinaryItemInternal( transaction , item );
 		for( MetaDistrConfItem item : mapConfComps.values() )
 			deleteConfItemInternal( transaction , item );
 	}
 
-	public void createBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+	public void createBinaryItem( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		mapBinaryItems.put( item.KEY , item );
 	}
 	
-	public void modifyBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+	public void modifyBinaryItem( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 	}
 	
-	public void moveItemToThis( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+	public void moveItemToThis( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		if( item.delivery == this )
 			return;
 			
@@ -264,12 +264,12 @@ public class MetaDistrDelivery {
 		item.setDelivery( transaction , this );
 	}
 
-	public void deleteBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+	public void deleteBinaryItem( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		deleteBinaryItemInternal( transaction , item );
 		mapBinaryItems.remove( item.KEY );
 	}
 
-	private void deleteBinaryItemInternal( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+	private void deleteBinaryItemInternal( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		for( MetaDistrComponent comp : dist.getComponents() ) {
 			MetaDistrComponentItem compItem = comp.findBinaryItem( item.KEY );
 			if( compItem != null )
@@ -278,19 +278,19 @@ public class MetaDistrDelivery {
 		meta.deleteBinaryItemFromEnvironments( transaction , item );
 	}
 	
-	public void createConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+	public void createConfItem( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
 		mapConfComps.put( item.KEY , item );
 	}
 	
-	public void modifyConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+	public void modifyConfItem( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
 	}
 
-	public void deleteConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+	public void deleteConfItem( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
 		deleteConfItemInternal( transaction , item );
 		mapConfComps.remove( item.KEY );
 	}
 	
-	private void deleteConfItemInternal( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+	private void deleteConfItemInternal( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
 		for( MetaDistrComponent comp : dist.getComponents() ) {
 			MetaDistrComponentItem compItem = comp.findConfItem( item.KEY );
 			if( compItem != null )
@@ -299,19 +299,19 @@ public class MetaDistrDelivery {
 		meta.deleteConfItemFromEnvironments( transaction , item );
 	}
 
-	public void deleteSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+	public void deleteSchema( EngineTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
 		if( allSchemas )
 			return;
 		
 		mapDatabaseSchema.remove( schema.SCHEMA );
 	}
 
-	public void setDatabaseAll( ServerTransaction transaction ) throws Exception {
+	public void setDatabaseAll( EngineTransaction transaction ) throws Exception {
 		allSchemas = true;
 		mapDatabaseSchema.clear();
 	}
 	
-	public void setDatabaseSet( ServerTransaction transaction , MetaDatabaseSchema[] set ) throws Exception {
+	public void setDatabaseSet( EngineTransaction transaction , MetaDatabaseSchema[] set ) throws Exception {
 		allSchemas = false;
 			
 		mapDatabaseSchema.clear();

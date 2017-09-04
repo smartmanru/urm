@@ -10,7 +10,7 @@ import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.blotter.ServerBlotterSet;
 import org.urm.engine.blotter.ServerBlotter.BlotterType;
 import org.urm.meta.ServerLoader;
@@ -96,7 +96,7 @@ public class ServerReleaseLifecycles extends ServerObject {
 		return( list.toArray( new String[0] ) );
 	}
 
-	public ServerReleaseLifecycle createLifecycle( ServerTransaction transaction , ServerReleaseLifecycle lcNew ) throws Exception {
+	public ServerReleaseLifecycle createLifecycle( EngineTransaction transaction , ServerReleaseLifecycle lcNew ) throws Exception {
 		if( lcMap.get( lcNew.ID ) != null )
 			transaction.exit1( _Error.LifecycleAlreadyExists1 , "lifecycle already exists name=" + lcNew.ID , lcNew.ID );
 			
@@ -106,14 +106,14 @@ public class ServerReleaseLifecycles extends ServerObject {
 		return( lc );
 	}
 	
-	public void deleteLifecycle( ServerTransaction transaction , ServerReleaseLifecycle lc ) throws Exception {
+	public void deleteLifecycle( EngineTransaction transaction , ServerReleaseLifecycle lc ) throws Exception {
 		if( lcMap.get( lc.ID ) == null )
 			transaction.exit1( _Error.UnknownLifecycle1 , "unknown lifecycle id=" + lc.ID , lc.ID );
 			
 		lcMap.remove( lc.ID );
 	}
 
-	public ServerReleaseLifecycle copyLifecycle( ServerTransaction transaction , ServerReleaseLifecycle lc , String name , String desc ) throws Exception {
+	public ServerReleaseLifecycle copyLifecycle( EngineTransaction transaction , ServerReleaseLifecycle lc , String name , String desc ) throws Exception {
 		ServerReleaseLifecycle lcNew = lc.copy( this );
 		lcNew.setLifecycleName( transaction , name , desc );
 		addLifecycle( lcNew );

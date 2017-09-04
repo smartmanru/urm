@@ -6,7 +6,7 @@ import org.urm.action.ActionScope;
 import org.urm.action.database.DatabaseCommand;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
-import org.urm.engine.ServerEngine;
+import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
@@ -28,12 +28,12 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	
 	String propertyBasedMethods;
 	
-	public static DatabaseCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
+	public static DatabaseCommandExecutor createExecutor( Engine engine ) throws Exception {
 		DatabaseCommandMeta commandInfo = new DatabaseCommandMeta( engine.optionsMeta );
 		return( new DatabaseCommandExecutor( engine , commandInfo ) );
 	}
 		
-	private DatabaseCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+	private DatabaseCommandExecutor( Engine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		super.defineAction( new InitDB() , "initdb" );

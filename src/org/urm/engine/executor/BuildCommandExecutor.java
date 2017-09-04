@@ -8,7 +8,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.build.BuildCommand;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.meta.BuildCommandMeta;
-import org.urm.engine.ServerEngine;
+import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
@@ -20,12 +20,12 @@ public class BuildCommandExecutor extends CommandExecutor {
 
 	BuildCommand impl;
 	
-	public static BuildCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
+	public static BuildCommandExecutor createExecutor( Engine engine ) throws Exception {
 		BuildCommandMeta commandInfo = new BuildCommandMeta( engine.optionsMeta );
 		return( new BuildCommandExecutor( engine , commandInfo ) );
 	}
 		
-	private BuildCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+	private BuildCommandExecutor( Engine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		super.defineAction( new BuildAllTags() , "buildall-tags" );

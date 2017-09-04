@@ -3,7 +3,7 @@ package org.urm.action;
 import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.RunContext;
-import org.urm.engine.ServerEngine;
+import org.urm.engine.Engine;
 import org.urm.engine.blotter.ServerBlotterActionItem;
 import org.urm.engine.blotter.ServerBlotterTreeItem;
 import org.urm.meta.Types.*;
@@ -11,7 +11,7 @@ import org.urm.meta.Types.*;
 public class ActionCore {
 
 	public ActionCore parent;
-	public ServerEngine engine;
+	public Engine engine;
 	public ServerBlotterActionItem blotterRootItem;
 	public ServerBlotterTreeItem blotterTreeItem;
 	public RunContext execrc;
@@ -29,7 +29,7 @@ public class ActionCore {
 	
 	public ActionEventsSource eventSource;
 	
-	protected ActionCore( ServerEngine engine , ActionCore parent , String INFO ) {
+	protected ActionCore( Engine engine , ActionCore parent , String INFO ) {
 		this.engine = engine;
 		this.parent = parent;
 		this.execrc = engine.execrc;

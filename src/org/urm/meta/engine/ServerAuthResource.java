@@ -4,7 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.shell.ShellPool;
@@ -128,7 +128,7 @@ public class ServerAuthResource extends ServerObject {
 		return( false );
 	}
 	
-	public void updateResource( ServerTransaction transaction , ServerAuthResource src ) throws Exception {
+	public void updateResource( EngineTransaction transaction , ServerAuthResource src ) throws Exception {
 		if( !NAME.equals( src.NAME ) )
 			transaction.exit( _Error.TransactionMismatchedResource1 , "mismatched resource name on change new name=" + src.NAME , new String[] { src.NAME } );
 		
@@ -145,7 +145,7 @@ public class ServerAuthResource extends ServerObject {
 		}
 	}
 
-	public void setVerified( ServerTransaction transaction ) throws Exception {
+	public void setVerified( EngineTransaction transaction ) throws Exception {
 		verified = true;
 		createProperties();
 	}

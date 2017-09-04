@@ -10,7 +10,7 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.database.DatabaseClient;
 import org.urm.common.Common;
 import org.urm.common.SimpleHttp;
-import org.urm.engine.ServerCacheObject;
+import org.urm.engine.EngineCacheObject;
 import org.urm.engine.events.ServerEvents;
 import org.urm.engine.status.NodeStatus;
 import org.urm.engine.status.SegmentStatus;
@@ -39,7 +39,7 @@ public class ActionCheckEnv extends ActionBase {
 	
 	SegmentStatus sgStatus;
 	int sgCaptureIndex;
-	ServerCacheObject co;
+	EngineCacheObject co;
 	
 	public ActionCheckEnv( ActionBase action , String stream ) {
 		super( action , stream , "Check environment status" );

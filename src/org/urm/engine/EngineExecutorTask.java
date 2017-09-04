@@ -1,17 +1,17 @@
 package org.urm.engine;
 
-abstract public class ServerExecutorTask {
+abstract public class EngineExecutorTask {
 
 	abstract public void execute();
 	
 	public String name;
-	public ServerExecutorThread thread;
+	public EngineExecutorThread thread;
 	
-	protected ServerExecutorTask( String name ) {
+	protected EngineExecutorTask( String name ) {
 		this.name = name;
 	}
 
-	public void setThread( ServerExecutorThread thread ) {
+	public void setThread( EngineExecutorThread thread ) {
 		this.thread = thread;
 	}
 

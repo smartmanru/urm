@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.action.CommandOption.FLAG;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.meta.ServerObject;
@@ -231,7 +231,7 @@ public abstract class PropertyController extends ServerObject {
 		finishProperties( action );
 	}
 	
-	protected void updateProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
+	protected void updateProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		if( !system )
 			properties.removeUserProperties();
 		properties.updateProperties( props , system );
@@ -239,7 +239,7 @@ public abstract class PropertyController extends ServerObject {
 			scatterProperties( transaction.action );
 	}
 	
-	public void updateProperties( ServerTransaction transaction ) throws Exception {
+	public void updateProperties( EngineTransaction transaction ) throws Exception {
 		properties.recalculateProperties();
 		scatterProperties( transaction.action );
 	}

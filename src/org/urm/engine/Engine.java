@@ -40,17 +40,17 @@ import org.urm.meta.engine.ServerMonitoring;
 import org.urm.meta.engine.ServerRegistry;
 import org.urm.meta.engine.ServerResources;
 
-public class ServerEngine {
+public class Engine {
 
 	public RunContext execrc;
 	
-	public ServerExecutor executor;
-	public ServerSession serverSession;
+	public EngineExecutor executor;
+	public EngineSession serverSession;
 	public SessionController sessionController;
 	public EngineMBean jmxController;
-	public ServerHouseKeeping houseKeeping;
+	public EngineHouseKeeping houseKeeping;
 	
-	public ServerCache cache;
+	public EngineCache cache;
 	public OptionsMeta optionsMeta;
 	public MainExecutor serverExecutor;
 	public ActionInit serverAction;
@@ -74,12 +74,12 @@ public class ServerEngine {
 	
 	public static int META_CHANGE_TIMEOUT = 5000;
 	
-	public ServerEngine( RunContext execrc ) {
+	public Engine( RunContext execrc ) {
 		this.execrc = execrc;
 		
-		executor = new ServerExecutor( this ); 
-		houseKeeping = new ServerHouseKeeping( this );
-		cache = new ServerCache( this ); 
+		executor = new EngineExecutor( this ); 
+		houseKeeping = new EngineHouseKeeping( this );
+		cache = new EngineCache( this ); 
 
 		auth = new ServerAuth( this );
 		events = new ServerEvents( this );
@@ -175,12 +175,12 @@ public class ServerEngine {
 		stopServer();
 	}
 
-	public ServerSession createClientSession( SessionSecurity security , RunContext clientrc ) throws Exception {
-		ServerSession sessionContext = sessionController.createSession( security , clientrc , true );
+	public EngineSession createClientSession( SessionSecurity security , RunContext clientrc ) throws Exception {
+		EngineSession sessionContext = sessionController.createSession( security , clientrc , true );
 		return( sessionContext );
 	}
 	
-	public ActionInit createInteractiveSessionAction( ServerSession session ) throws Exception {
+	public ActionInit createInteractiveSessionAction( EngineSession session ) throws Exception {
 		CommandOptions options = serverExecutor.createOptionsInteractiveSession( this );
 		if( options == null )
 			return( null );
@@ -191,7 +191,7 @@ public class ServerEngine {
 		return( action );
 	}
 	
-	public ActionInit createTemporaryAction( String name , ServerSession session ) throws Exception {
+	public ActionInit createTemporaryAction( String name , EngineSession session ) throws Exception {
 		CommandOptions options = serverExecutor.createOptionsTemporary( this );
 		if( options == null )
 			return( null );
@@ -300,7 +300,7 @@ public class ServerEngine {
 		return( null );
 	}
 	
-	public ActionInit createAction( RootActionType type , CommandOptions options , ServerSession session , String stream , ServerCall call , boolean memoryOnly , String actionInfo ) throws Exception {
+	public ActionInit createAction( RootActionType type , CommandOptions options , EngineSession session , String stream , EngineCall call , boolean memoryOnly , String actionInfo ) throws Exception {
 		CommandExecutor actionExecutor = getExecutor( options.command );
 		CommandMethod commandAction = actionExecutor.getAction( options.method );
 		if( !options.checkValidOptions( commandAction.method ) )
@@ -328,7 +328,7 @@ public class ServerEngine {
 		return( action );
 	}
 	
-	public ActionInit createRootAction( RootActionType type , CommandExecutor executor , ServerSession session , Artefactory artefactory , String actionName , boolean memoryOnly , String actionInfo ) throws Exception { 
+	public ActionInit createRootAction( RootActionType type , CommandExecutor executor , EngineSession session , Artefactory artefactory , String actionName , boolean memoryOnly , String actionInfo ) throws Exception { 
 		CommandOutput output = new CommandOutput();
 		CommandMethod commandAction = executor.getAction( actionName );
 		ActionInit action = new ActionInit( type , loader , session , artefactory , executor , output , commandAction , commandAction.method.name , memoryOnly , actionInfo );
@@ -384,7 +384,7 @@ public class ServerEngine {
 		}
 	}
 
-	private Artefactory createArtefactory( ServerSession session , CommandContext context , boolean memoryOnly ) throws Exception {
+	private Artefactory createArtefactory( EngineSession session , CommandContext context , boolean memoryOnly ) throws Exception {
 		if( memoryOnly )
 			return( new Artefactory( null ) );
 			
@@ -425,11 +425,11 @@ public class ServerEngine {
 		return( artefactory );
 	}
 
-	public ServerTransaction createTransaction( ActionInit action ) {
+	public EngineTransaction createTransaction( ActionInit action ) {
 		if( action == null )
 			return( null );
 		
-		ServerTransaction transaction = new ServerTransaction( this , action );
+		EngineTransaction transaction = new EngineTransaction( this , action );
 		return( transaction );
 	}
 	
@@ -484,7 +484,7 @@ public class ServerEngine {
 		return( events );
 	}
 
-	public ServerCache getCache() {
+	public EngineCache getCache() {
 		return( cache );
 	}
 

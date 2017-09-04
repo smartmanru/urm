@@ -10,9 +10,9 @@ import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.common.action.CommandOption.FLAG;
-import org.urm.engine.ServerCall;
-import org.urm.engine.ServerEngine;
-import org.urm.engine.ServerSession;
+import org.urm.engine.EngineCall;
+import org.urm.engine.Engine;
+import org.urm.engine.EngineSession;
 import org.urm.engine.shell.Account;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
@@ -63,15 +63,15 @@ public class CommandContext {
 		
 	};
 	
-	public ServerEngine engine;
+	public Engine engine;
 	public CommandOptions options;
-	public ServerSession session;
+	public EngineSession session;
 
 	public Meta meta;
 	public MetaEnv env; 
 	public MetaEnvSegment sg;
 	
-	public ServerCall call;
+	public EngineCall call;
 	public String stream;
 	public String streamLog;
 	public int logLevelLimit;
@@ -150,7 +150,7 @@ public class CommandContext {
 	public String CTX_HOST = "";
 	public int CTX_PORT = -1;
 
-	public CommandContext( ServerEngine engine , ServerSession session , CommandOptions options , String stream , ServerCall call ) {
+	public CommandContext( Engine engine , EngineSession session , CommandOptions options , String stream , EngineCall call ) {
 		this.engine = engine;
 		this.session = session;
 		

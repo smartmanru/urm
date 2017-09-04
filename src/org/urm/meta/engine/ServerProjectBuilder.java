@@ -4,7 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.meta.ServerObject;
@@ -274,7 +274,7 @@ public class ServerProjectBuilder extends ServerObject {
 		return( false );
 	}
 	
-	public void setBuilderData( ServerTransaction transaction , ServerProjectBuilder src ) throws Exception {
+	public void setBuilderData( EngineTransaction transaction , ServerProjectBuilder src ) throws Exception {
 		NAME = src.NAME;
 		DESC = src.DESC;
 		VERSION = src.VERSION;

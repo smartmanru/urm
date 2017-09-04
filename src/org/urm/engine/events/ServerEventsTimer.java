@@ -1,11 +1,11 @@
 package org.urm.engine.events;
 
 import org.urm.common.Common;
-import org.urm.engine.ServerExecutorTask;
+import org.urm.engine.EngineExecutorTask;
 
 public class ServerEventsTimer extends ServerEventsSource {
 
-	class ServerExecutorTaskTimer extends ServerExecutorTask {
+	class ServerExecutorTaskTimer extends EngineExecutorTask {
 		ServerExecutorTaskTimer() {
 			super( "second timer" );
 		}

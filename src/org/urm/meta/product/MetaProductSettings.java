@@ -9,7 +9,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.meta.ServerProductContext;
 import org.urm.meta.ServerProductMeta;
@@ -262,15 +262,15 @@ public class MetaProductSettings extends PropertyController {
 		return( getBuildModeSettings( action , action.context.buildMode ) );
 	}
     
-	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
+	public void setProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		super.updateProperties( transaction , props , system );
 	}
 
-	public void setBuildCommonProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+	public void setBuildCommonProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
 		buildCommon.setProperties( transaction , props );
 	}
 	
-	public void setBuildModeProperties( ServerTransaction transaction , VarBUILDMODE mode , PropertySet props ) throws Exception {
+	public void setBuildModeProperties( EngineTransaction transaction , VarBUILDMODE mode , PropertySet props ) throws Exception {
 		MetaProductBuildSettings set = buildModes.get( mode );
 		if( set == null ) {
 			MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "mode" , meta , this );

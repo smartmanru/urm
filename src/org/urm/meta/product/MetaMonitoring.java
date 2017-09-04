@@ -8,7 +8,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.ServerProductMeta;
@@ -193,12 +193,12 @@ public class MetaMonitoring extends PropertyController {
 		return( null );
 	}
 
-	public void setMonitoringEnabled( ServerTransaction transaction , boolean enabled ) throws Exception {
+	public void setMonitoringEnabled( EngineTransaction transaction , boolean enabled ) throws Exception {
 		super.setBooleanProperty( PROPERTY_ENABLED , enabled );
 		ENABLED = enabled;
 	}
 
-	public MetaMonitoringTarget createTarget( ServerTransaction transaction , MetaEnvSegment sg , int MAXTIME ) throws Exception {
+	public MetaMonitoringTarget createTarget( EngineTransaction transaction , MetaEnvSegment sg , int MAXTIME ) throws Exception {
 		if( findMonitoringTarget( sg ) != null )
 			transaction.exitUnexpectedState();
 		
@@ -208,11 +208,11 @@ public class MetaMonitoring extends PropertyController {
 		return( target );
 	}
 
-	public void deleteTarget( ServerTransaction transaction , MetaMonitoringTarget target ) throws Exception {
+	public void deleteTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {
 		mapTargets.remove( target.NAME );
 	}
 	
-	public void setProductProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+	public void setProductProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
 		super.updateProperties( props );
 		setMonitoringEnabled( transaction , false );
 		scatterProperties( transaction.getAction() );

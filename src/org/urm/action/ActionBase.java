@@ -12,9 +12,9 @@ import org.urm.common.PropertySet;
 import org.urm.common.RunError;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.common.action.CommandOptions;
-import org.urm.engine.ServerCache;
-import org.urm.engine.ServerCacheObject;
-import org.urm.engine.ServerSession;
+import org.urm.engine.EngineCache;
+import org.urm.engine.EngineCacheObject;
+import org.urm.engine.EngineSession;
 import org.urm.engine.SessionSecurity;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
@@ -70,7 +70,7 @@ abstract public class ActionBase extends ActionCore {
 
 	public ActionInit actionInit;
 	
-	public ServerSession session;
+	public EngineSession session;
 	public CommandExecutor executor;
 	public CommandContext context;
 	public Artefactory artefactory;
@@ -98,7 +98,7 @@ abstract public class ActionBase extends ActionCore {
 	protected void runBefore( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	
-	public ActionBase( ServerSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , String actionInfo ) {
+	public ActionBase( EngineSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , String actionInfo ) {
 		super( executor.engine , null , actionInfo );
 		
 		this.session = session;
@@ -668,16 +668,16 @@ abstract public class ActionBase extends ActionCore {
 		}
 	}
 
-	public ServerCacheObject getCacheObject( String group , String item ) {
-		ServerCache cache = engine.getCache();
+	public EngineCacheObject getCacheObject( String group , String item ) {
+		EngineCache cache = engine.getCache();
 		return( cache.getObject( group , item ) );
 	}
 	
-	public ServerCacheObject getProductCacheObject( String item ) {
+	public EngineCacheObject getProductCacheObject( String item ) {
 		return( getCacheObject( "product" , item ) );
 	}
 	
-	public ServerCacheObject getCacheObject( ServerObject object ) {
+	public EngineCacheObject getCacheObject( ServerObject object ) {
 		if( object instanceof ServerProduct ) {
 			ServerProduct xo = ( ServerProduct )object; 
 			return( getProductCacheObject( xo.NAME ) );

@@ -7,7 +7,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.blotter.ServerBlotterReleaseItem;
 import org.urm.engine.blotter.ServerBlotterSet;
 import org.urm.engine.blotter.ServerBlotter.BlotterType;
@@ -130,12 +130,12 @@ public class ServerReleaseLifecycle extends ServerObject {
 		}
 	}
 
-	public void setLifecycleName( ServerTransaction transaction , String name , String desc ) throws Exception {
+	public void setLifecycleName( EngineTransaction transaction , String name , String desc ) throws Exception {
 		this.ID = name;
 		this.DESC = desc;
 	}
 	
-	public void setLifecycleData( ServerTransaction transaction , ServerReleaseLifecycle src ) throws Exception {
+	public void setLifecycleData( EngineTransaction transaction , ServerReleaseLifecycle src ) throws Exception {
 		lcType = src.lcType;
 		ID = src.ID;
 		DESC = src.DESC;
@@ -146,7 +146,7 @@ public class ServerReleaseLifecycle extends ServerObject {
 		shiftDays = src.shiftDays;
 	}
 
-	public void enableLifecycle( ServerTransaction transaction , boolean enabled ) throws Exception {
+	public void enableLifecycle( EngineTransaction transaction , boolean enabled ) throws Exception {
 		this.enabled = enabled;
 	}
 
@@ -154,7 +154,7 @@ public class ServerReleaseLifecycle extends ServerObject {
 		return( phases.toArray( new ServerReleaseLifecyclePhase[0] ) );
 	}
 	
-	public synchronized void changePhases( ServerTransaction transaction , ServerReleaseLifecyclePhase[] phasesNew ) throws Exception {
+	public synchronized void changePhases( EngineTransaction transaction , ServerReleaseLifecyclePhase[] phasesNew ) throws Exception {
 		for( ServerReleaseLifecyclePhase phase : phases )
 			phase.deleteObject();
 		phases.clear();

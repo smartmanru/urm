@@ -8,8 +8,8 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerEngine;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.Engine;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.ServerObject;
 import org.urm.meta.Types.VarRESOURCECATEGORY;
 import org.w3c.dom.Document;
@@ -19,7 +19,7 @@ import org.w3c.dom.Node;
 public class ServerResources extends ServerObject {
 
 	public ServerRegistry registry;
-	public ServerEngine engine;
+	public Engine engine;
 
 	Map<String,ServerAuthResource> resourceMap;
 
@@ -106,7 +106,7 @@ public class ServerResources extends ServerObject {
 		return( Common.getSortedList( list ) );
 	}
 	
-	public void createResource( ServerTransaction transaction , ServerAuthResource res ) throws Exception {
+	public void createResource( EngineTransaction transaction , ServerAuthResource res ) throws Exception {
 		if( resourceMap.get( res.NAME ) != null )
 			transaction.exit( _Error.DuplicateResource1 , "resource already exists name=" + res.NAME , new String[] { res.NAME } );
 			
@@ -114,12 +114,12 @@ public class ServerResources extends ServerObject {
 		resourceMap.put( res.NAME , res );
 	}
 	
-	public void updateResource( ServerTransaction transaction , ServerAuthResource res , ServerAuthResource resNew ) throws Exception {
+	public void updateResource( EngineTransaction transaction , ServerAuthResource res , ServerAuthResource resNew ) throws Exception {
 		res.updateResource( transaction , resNew );
 		dropResourceMirrors( transaction , res );
 	}
 	
-	public void deleteResource( ServerTransaction transaction , ServerAuthResource res ) throws Exception {
+	public void deleteResource( EngineTransaction transaction , ServerAuthResource res ) throws Exception {
 		if( resourceMap.get( res.NAME ) == null )
 			transaction.exit( _Error.UnknownResource1 , "unknown resource name=" + res.NAME , new String[] { res.NAME } );
 			
@@ -127,7 +127,7 @@ public class ServerResources extends ServerObject {
 		resourceMap.remove( res.NAME );
 	}
 
-	public void dropResourceMirrors( ServerTransaction transaction , ServerAuthResource res ) throws Exception {
+	public void dropResourceMirrors( EngineTransaction transaction , ServerAuthResource res ) throws Exception {
 		if( !res.isVCS() )
 			return;
 		

@@ -9,7 +9,7 @@ import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.meta.MainCommandMeta;
-import org.urm.engine.ServerEngine;
+import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.meta.engine.ServerAuth.SecurityAction;
@@ -17,12 +17,12 @@ import org.urm.meta.product.Meta;
 
 public class MainExecutor extends CommandExecutor {
 
-	public static MainExecutor createExecutor( ServerEngine engine ) throws Exception {
+	public static MainExecutor createExecutor( Engine engine ) throws Exception {
 		MainCommandMeta commandInfo = new MainCommandMeta( engine.optionsMeta );
 		return( new MainExecutor( engine , commandInfo ) );
 	}
 		
-	private MainExecutor( ServerEngine engine , MainCommandMeta commandInfo ) throws Exception {
+	private MainExecutor( Engine engine , MainCommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		super.defineAction( new Configure() , "configure" );
@@ -50,7 +50,7 @@ public class MainExecutor extends CommandExecutor {
 		return( options );
 	}
 
-	public CommandOptions createOptionsStartServerByWeb( ServerEngine engine ) throws Exception {
+	public CommandOptions createOptionsStartServerByWeb( Engine engine ) throws Exception {
 		CommandOptions options = new CommandOptions( commandInfo.options );
 		ActionData data = new ActionData( engine.execrc );
 		data.addArg( "start" );
@@ -62,14 +62,14 @@ public class MainExecutor extends CommandExecutor {
 		return( options );
 	}
 
-	public CommandOptions createOptionsTemporary( ServerEngine engine ) throws Exception {
+	public CommandOptions createOptionsTemporary( Engine engine ) throws Exception {
 		CommandOptions options = new CommandOptions( commandInfo.options );
 		ActionData data = new ActionData( engine.execrc );
 		options.setAction( commandInfo.getMethod( "temporary" ) , data );
 		return( options );
 	}
 
-	public CommandOptions createOptionsInteractiveSession( ServerEngine engine ) throws Exception {
+	public CommandOptions createOptionsInteractiveSession( Engine engine ) throws Exception {
 		CommandOptions options = new CommandOptions( commandInfo.options );
 		ActionData data = new ActionData( engine.execrc );
 		options.setAction( commandInfo.getMethod( "interactive" ) , data );

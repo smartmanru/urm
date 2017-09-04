@@ -7,7 +7,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
 import org.urm.meta.Types.*;
@@ -143,22 +143,22 @@ public class ServerSettings extends ServerObject {
 		Common.xmlSaveDoc( doc , path );
 	}
 
-	public void setServerProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+	public void setServerProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
 		serverContext.setServerProperties( transaction , props );
 		serverContext.resolveServerProperties( transaction );
 	}
 
-	public void setProductDefaultsProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+	public void setProductDefaultsProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
 		defaultProductProperties.updateProperties( props , true );
 		defaultProductProperties.resolveRawProperties( true );
 	}
 
-	public void setProductBuildCommonDefaultsProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+	public void setProductBuildCommonDefaultsProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
 		defaultProductBuildProperties.updateProperties( props , true );
 		defaultProductBuildProperties.resolveRawProperties( true );
 	}
 	
-	public void setProductBuildModeDefaultsProperties( ServerTransaction transaction , VarBUILDMODE mode , PropertySet props ) throws Exception {
+	public void setProductBuildModeDefaultsProperties( EngineTransaction transaction , VarBUILDMODE mode , PropertySet props ) throws Exception {
 		PropertySet set = mapBuildModeDefaults.get( mode );
 		if( set == null ) {
 			set = new PropertySet( "build." + Common.getEnumLower( mode ) , defaultProductBuildProperties );

@@ -3,8 +3,8 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerSession;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineSession;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.dist.DistRepository;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerObject;
@@ -17,7 +17,7 @@ import org.w3c.dom.Node;
 public class Meta extends ServerObject {
 
 	public String name;
-	public ServerSession session;
+	public EngineSession session;
 	
 	private ServerLoader loader;
 	private ServerProductMeta storage;
@@ -41,7 +41,7 @@ public class Meta extends ServerObject {
 
 	public static String PROPERTY_NAME = "name";
 	
-	public Meta( ServerProductMeta storage , ServerSession session ) {
+	public Meta( ServerProductMeta storage , EngineSession session ) {
 		super( null );
 		this.storage = storage;
 		this.loader = storage.loader;
@@ -265,28 +265,28 @@ public class Meta extends ServerObject {
     	return( server.findNode( node.POS ) );
     }
 
-	public void deleteBinaryItemFromEnvironments( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+	public void deleteBinaryItemFromEnvironments( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
 			for( MetaEnvSegment sg : env.getSegments() )
 				for( MetaEnvServer server : sg.getServers() )
 					server.reflectDeleteBinaryItem( transaction , item );
 	}
 
-	public void deleteConfItemFromEnvironments( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+	public void deleteConfItemFromEnvironments( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
 			for( MetaEnvSegment sg : env.getSegments() )
 				for( MetaEnvServer server : sg.getServers() )
 					server.reflectDeleteConfItem( transaction , item );
 	}
 
-	public void deleteComponentFromEnvironments( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
+	public void deleteComponentFromEnvironments( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
 			for( MetaEnvSegment sg : env.getSegments() )
 				for( MetaEnvServer server : sg.getServers() )
 					server.reflectDeleteComponent( transaction , item );
 	}
 
-	public void deleteDatabaseSchemaFromEnvironments( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+	public void deleteDatabaseSchemaFromEnvironments( EngineTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
 			for( MetaEnvSegment sg : env.getSegments() )
 				for( MetaEnvServer server : sg.getServers() )

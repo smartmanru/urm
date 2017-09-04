@@ -47,7 +47,7 @@ import org.urm.meta.Types.*;
 
 public class TransactionBase extends ServerObject {
 
-	public ServerEngine engine;
+	public Engine engine;
 	public ActionInit action;
 	public RunError error;
 	
@@ -70,7 +70,7 @@ public class TransactionBase extends ServerObject {
 
 	private Map<String,TransactionMetadata> productMeta;
 	
-	public TransactionBase( ServerEngine engine , ActionInit action ) {
+	public TransactionBase( Engine engine , ActionInit action ) {
 		super( null );
 		this.engine = engine;
 		this.action = action;

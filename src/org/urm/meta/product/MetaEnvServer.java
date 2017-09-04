@@ -11,7 +11,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.dist.Release;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseTarget;
@@ -762,11 +762,11 @@ public class MetaEnvServer extends PropertyController {
 		scatterProperties( action );
 	}
 
-	public void setBaseline( ServerTransaction transaction , String baselineServer ) throws Exception {
+	public void setBaseline( EngineTransaction transaction , String baselineServer ) throws Exception {
 		super.setSystemStringProperty( PROPERTY_BASELINE , baselineServer );
 	}
 	
-	public void setPlatform( ServerTransaction transaction , ServerBaseItem item ) throws Exception {
+	public void setPlatform( EngineTransaction transaction , ServerBaseItem item ) throws Exception {
 		if( basesw == null ) {
 			basesw = new MetaEnvServerBase( meta , this );
 			basesw.createBase( transaction.action , item );
@@ -775,7 +775,7 @@ public class MetaEnvServer extends PropertyController {
 			basesw.setItem( transaction , item );
 	}
 	
-	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
+	public void setOffline( EngineTransaction transaction , boolean offline ) throws Exception {
 		// check props
 		if( !offline ) {
 			ActionBase action = transaction.getAction();
@@ -790,11 +790,11 @@ public class MetaEnvServer extends PropertyController {
 		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
 	}
 
-	public void createNode( ServerTransaction transaction , MetaEnvServerNode node ) {
+	public void createNode( EngineTransaction transaction , MetaEnvServerNode node ) {
 		addNode( transaction , node );
 	}
 	
-	private void addNode( ServerTransaction transaction , MetaEnvServerNode node ) {
+	private void addNode( EngineTransaction transaction , MetaEnvServerNode node ) {
 		int index = nodes.size();
 		if( node.POS > 0 )
 			index = node.POS - 1;
@@ -814,7 +814,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 	
-	public void deleteNode( ServerTransaction transaction , MetaEnvServerNode node ) {
+	public void deleteNode( EngineTransaction transaction , MetaEnvServerNode node ) {
 		int index = nodes.indexOf( node );
 		if( index < 0 )
 			return;
@@ -827,7 +827,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 
-	public void modifyNode( ServerTransaction transaction , MetaEnvServerNode node ) {
+	public void modifyNode( EngineTransaction transaction , MetaEnvServerNode node ) {
 		int index = nodes.indexOf( node );
 		if( index < 0 )
 			return;
@@ -844,16 +844,16 @@ public class MetaEnvServer extends PropertyController {
 			node.getApplicationReferences( account , refs );
 	}
 
-	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+	public void deleteHostAccount( EngineTransaction transaction , ServerHostAccount account ) throws Exception {
 		super.deleteObject();
 	}
 	
-	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
+	public void setProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		super.updateProperties( transaction , props , system );
 		scatterProperties( transaction.getAction() );
 	}
 
-	public void setDeployments( ServerTransaction transaction , List<MetaEnvServerDeployment> deploymentsNew ) throws Exception {
+	public void setDeployments( EngineTransaction transaction , List<MetaEnvServerDeployment> deploymentsNew ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments )
 			deployment.deleteObject();
 		deployments.clear();
@@ -863,7 +863,7 @@ public class MetaEnvServer extends PropertyController {
 			addDeployment( deployment );
 	}
 
-	public void reflectDeleteBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+	public void reflectDeleteBinaryItem( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.isBinaryItem() && deployment.binaryItem == item ) {
 				deployMap.remove( deployment.getName() );
@@ -873,7 +873,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 	
-	public void reflectDeleteConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+	public void reflectDeleteConfItem( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.isConfItem() && deployment.confItem == item ) {
 				deployMap.remove( deployment.getName() );
@@ -883,7 +883,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 	
-	public void reflectDeleteComponent( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
+	public void reflectDeleteComponent( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.isComponent() && deployment.comp == item ) {
 				deployMap.remove( deployment.getName() );
@@ -893,7 +893,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 	
-	public void reflectDeleteSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+	public void reflectDeleteSchema( EngineTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.isDatabase() && deployment.schema == schema ) {
 				deployMap.remove( deployment.getName() );

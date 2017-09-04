@@ -11,7 +11,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.common.action.CommandOption.FLAG;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.HiddenFiles;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.ServerRef;
@@ -302,11 +302,11 @@ public class MetaEnv extends PropertyController {
 		}
 	}
 	
-	public void createSegment( ServerTransaction transaction , MetaEnvSegment sg ) {
+	public void createSegment( EngineTransaction transaction , MetaEnvSegment sg ) {
 		addSG( sg );
 	}
 	
-	public void deleteSegment( ServerTransaction transaction , MetaEnvSegment sg ) {
+	public void deleteSegment( EngineTransaction transaction , MetaEnvSegment sg ) {
 		int index = originalList.indexOf( sg );
 		if( index < 0 )
 			return;
@@ -315,16 +315,16 @@ public class MetaEnv extends PropertyController {
 		sgMap.remove( sg.NAME );
 	}
 	
-	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
+	public void setProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		super.updateProperties( transaction , props , system );
 		scatterProperties( transaction.getAction() );
 	}
 	
-	public void setBaseline( ServerTransaction transaction , String baselineEnv ) throws Exception {
+	public void setBaseline( EngineTransaction transaction , String baselineEnv ) throws Exception {
 		super.setSystemStringProperty( PROPERTY_BASELINE , baselineEnv );
 	}
 	
-	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
+	public void setOffline( EngineTransaction transaction , boolean offline ) throws Exception {
 		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
 	}
 	
@@ -341,7 +341,7 @@ public class MetaEnv extends PropertyController {
 			sg.getApplicationReferences( account , refs );
 	}
 
-	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+	public void deleteHostAccount( EngineTransaction transaction , ServerHostAccount account ) throws Exception {
 		for( MetaEnvSegment sg : originalList )
 			sg.deleteHostAccount( transaction , account );
 	}

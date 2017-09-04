@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.ServerObject;
 import org.w3c.dom.Document;
@@ -97,7 +97,7 @@ public class ServerNetworkHost extends ServerObject {
 		return( Common.getSortedList( list ) );
 	}
 
-	public void createHost( ServerTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP , int PORT , String DESC ) throws Exception {
+	public void createHost( EngineTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP , int PORT , String DESC ) throws Exception {
 		this.osType = osType;
 		this.ID = ( HOSTNAME.isEmpty() )? IP : HOSTNAME;
 		this.IP = IP;
@@ -105,7 +105,7 @@ public class ServerNetworkHost extends ServerObject {
 		this.DESC = DESC;
 	}
 	
-	public void modifyHost( ServerTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP , int PORT , String DESC ) throws Exception {
+	public void modifyHost( EngineTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP , int PORT , String DESC ) throws Exception {
 		this.osType = osType;
 		this.ID = ( HOSTNAME.isEmpty() )? IP : HOSTNAME;
 		this.IP = IP;
@@ -125,15 +125,15 @@ public class ServerNetworkHost extends ServerObject {
 		return( null );
 	}
 	
-	public void createAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+	public void createAccount( EngineTransaction transaction , ServerHostAccount account ) throws Exception {
 		addHostAccount( account );
 	}
 	
-	public void deleteAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+	public void deleteAccount( EngineTransaction transaction , ServerHostAccount account ) throws Exception {
 		accountMap.remove( account.ID );
 	}
 	
-	public void modifyAccount( ServerTransaction transaction , ServerHostAccount account ) {
+	public void modifyAccount( EngineTransaction transaction , ServerHostAccount account ) {
 		String oldId = null;
 		for( Entry<String,ServerHostAccount> entry : accountMap.entrySet() ) {
 			if( entry.getValue() == account )
@@ -170,7 +170,7 @@ public class ServerNetworkHost extends ServerObject {
 		return( false );
 	}
 
-	public ServerHostAccount createAccount( ServerTransaction transaction , Account hostAccount , ServerAuthResource resource ) throws Exception {
+	public ServerHostAccount createAccount( EngineTransaction transaction , Account hostAccount , ServerAuthResource resource ) throws Exception {
 		ServerHostAccount account = findAccount( hostAccount.USER );
 		if( account != null )
 			return( account );
@@ -184,7 +184,7 @@ public class ServerNetworkHost extends ServerObject {
 		return( account );
 	}
 	
-	public void deleteHost( ServerTransaction transaction ) throws Exception {
+	public void deleteHost( EngineTransaction transaction ) throws Exception {
 		super.deleteObject();
 	}
 

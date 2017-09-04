@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -37,11 +37,11 @@ public class MetaDistrComponent {
 		mapWS = new HashMap<String,MetaDistrComponentWS>();
 	}
 
-	public void createComponent( ServerTransaction transaction , String name ) throws Exception {
+	public void createComponent( EngineTransaction transaction , String name ) throws Exception {
 		this.NAME = name;
 	}
 	
-	public void setData( ServerTransaction transaction , String desc ) throws Exception {
+	public void setData( EngineTransaction transaction , String desc ) throws Exception {
 		this.DESC = desc;
 	}
 	
@@ -233,7 +233,7 @@ public class MetaDistrComponent {
 		return( service );
 	}
 	
-	public void removeCompItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
+	public void removeCompItem( EngineTransaction transaction , MetaDistrComponentItem item ) throws Exception {
 		if( item.binaryItem != null )
 			mapBinaryItems.remove( item.binaryItem.KEY );
 		else
@@ -244,7 +244,7 @@ public class MetaDistrComponent {
 			mapSchemaItems.remove( item.schema.SCHEMA );
 	}
 
-	public void createItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
+	public void createItem( EngineTransaction transaction , MetaDistrComponentItem item ) throws Exception {
 		if( item.type == VarCOMPITEMTYPE.BINARY )
 			mapBinaryItems.put( item.NAME , item );
 		else
@@ -276,20 +276,20 @@ public class MetaDistrComponent {
 		}
 	}
 
-	public void modifyItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
+	public void modifyItem( EngineTransaction transaction , MetaDistrComponentItem item ) throws Exception {
 		removeCompItemByRef( item );
 		createItem( transaction , item );
 	}
 
-	public void deleteItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
+	public void deleteItem( EngineTransaction transaction , MetaDistrComponentItem item ) throws Exception {
 		removeCompItem( transaction , item );
 	}
 
-	public void createWebService( ServerTransaction transaction , MetaDistrComponentWS service ) throws Exception {
+	public void createWebService( EngineTransaction transaction , MetaDistrComponentWS service ) throws Exception {
 		mapWS.put( service.NAME , service );
 	}
 	
-	public void modifyWebService( ServerTransaction transaction , MetaDistrComponentWS service ) throws Exception {
+	public void modifyWebService( EngineTransaction transaction , MetaDistrComponentWS service ) throws Exception {
 		for( Entry<String,MetaDistrComponentWS> entry : mapWS.entrySet() ) {
 			if( entry.getValue() == service ) {
 				mapWS.remove( entry.getKey() );
@@ -299,7 +299,7 @@ public class MetaDistrComponent {
 		mapWS.put( service.NAME , service );
 	}
 
-	public void deleteWebService( ServerTransaction transaction , MetaDistrComponentWS service ) throws Exception {
+	public void deleteWebService( EngineTransaction transaction , MetaDistrComponentWS service ) throws Exception {
 		mapWS.remove( service.NAME );
 	}
 	
