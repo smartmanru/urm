@@ -14,7 +14,7 @@ import org.urm.action.monitor.ServerStatus;
 import org.urm.common.Common;
 import org.urm.common.SimpleHttp;
 import org.urm.engine.ServerCacheObject;
-import org.urm.engine.ServerEvents;
+import org.urm.engine.events.ServerEvents;
 import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerDeployment;

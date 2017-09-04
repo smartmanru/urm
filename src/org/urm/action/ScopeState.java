@@ -3,7 +3,7 @@ package org.urm.action;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.engine.ServerEvents;
+import org.urm.engine.events.ServerEvents;
 import org.urm.engine.shell.Account;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;

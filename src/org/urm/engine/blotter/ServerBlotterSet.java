@@ -1,16 +1,19 @@
-package org.urm.engine;
+package org.urm.engine.blotter;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.action.build.ActionPatch;
-import org.urm.engine.ServerBlotter.BlotterEvent;
-import org.urm.engine.ServerBlotter.BlotterType;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.blotter.ServerBlotter.BlotterEvent;
+import org.urm.engine.blotter.ServerBlotter.BlotterType;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepository.DistOperation;
+import org.urm.engine.events.ServerEvents;
+import org.urm.engine.events.ServerEventsSource;
+import org.urm.engine.events.ServerEventsState;
 import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.meta.ServerProductMeta;
 import org.urm.meta.engine.ServerDirectory;

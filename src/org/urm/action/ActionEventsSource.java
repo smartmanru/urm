@@ -1,8 +1,8 @@
 package org.urm.action;
 
-import org.urm.engine.ServerEvents;
-import org.urm.engine.ServerEventsSource;
-import org.urm.engine.ServerEventsState;
+import org.urm.engine.events.ServerEvents;
+import org.urm.engine.events.ServerEventsSource;
+import org.urm.engine.events.ServerEventsState;
 
 public class ActionEventsSource extends ServerEventsSource {
 

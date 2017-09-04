@@ -1,4 +1,4 @@
-package org.urm.engine;
+package org.urm.engine.blotter;
 
 public class ServerBlotterMemo {
 

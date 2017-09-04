@@ -1,6 +1,6 @@
 package org.urm.action;
 
-import org.urm.engine.ServerEventsState;
+import org.urm.engine.events.ServerEventsState;
 
 public class ActionEventsState extends ServerEventsState {
 

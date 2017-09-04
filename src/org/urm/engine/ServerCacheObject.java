@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ScopeState;
+import org.urm.engine.events.ServerEvents;
+import org.urm.engine.events.ServerEventsSource;
+import org.urm.engine.events.ServerEventsState;
 
 public class ServerCacheObject extends ServerEventsSource {
 	

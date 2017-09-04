@@ -1,5 +1,6 @@
-package org.urm.engine;
+package org.urm.engine.events;
 
+import org.urm.engine.ServerEngine;
 import org.urm.meta.ServerObject;
 
 public class ServerEvents extends ServerObject {

@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ScopeState.SCOPESTATE;
-import org.urm.engine.ServerEvents;
-import org.urm.engine.ServerEventsSource;
-import org.urm.engine.ServerEventsState;
+import org.urm.engine.events.ServerEvents;
+import org.urm.engine.events.ServerEventsSource;
+import org.urm.engine.events.ServerEventsState;
 import org.urm.meta.ServerObject;
 import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;
 

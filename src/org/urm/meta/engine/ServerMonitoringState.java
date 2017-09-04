@@ -1,7 +1,7 @@
 package org.urm.meta.engine;
 
 import org.urm.action.ScopeState.SCOPESTATE;
-import org.urm.engine.ServerEventsState;
+import org.urm.engine.events.ServerEventsState;
 
 public class ServerMonitoringState extends ServerEventsState {
 	

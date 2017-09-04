@@ -1,4 +1,4 @@
-package org.urm.engine;
+package org.urm.engine.events;
 
 public class ServerEventsState {
 
