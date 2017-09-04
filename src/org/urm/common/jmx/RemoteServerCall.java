@@ -7,10 +7,10 @@ import org.urm.engine.ServerSession;
 
 public class RemoteServerCall extends ServerCall {
 
-	public ServerCommandMBean command;
+	public EngineCommandMBean command;
 	public String clientId;
 	
-	public RemoteServerCall( ServerEngine engine , ServerSession sessionContext , String clientId , ServerCommandMBean command , String actionName , ActionData data ) {
+	public RemoteServerCall( ServerEngine engine , ServerSession sessionContext , String clientId , EngineCommandMBean command , String actionName , ActionData data ) {
 		super( engine , sessionContext , command.meta , actionName , data );
 		this.command = command;
 		this.clientId = clientId;

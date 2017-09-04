@@ -38,7 +38,7 @@ import org.urm.engine.SessionController;
 import org.urm.engine.SessionSecurity;
 import org.urm.meta.engine.ServerAuth;
 
-public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster {
+public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster {
 
 	public ActionBase action;
 	public ServerEngine engine;
@@ -49,13 +49,13 @@ public class ServerCommandMBean implements DynamicMBean, NotificationBroadcaster
 	NotificationBroadcasterSupport broadcaster; 
 	MBeanNotificationInfo[] notifyInfo;
 	
-	public ServerMBean jmxServer;
+	public EngineMBean jmxServer;
 	public SessionController server;
 	
 	public MBeanInfo mbean;
 	public CommandOptions options;
 	
-	public ServerCommandMBean( ActionBase action , ServerEngine engine , ServerMBean jmxServer , String product , CommandMeta meta ) {
+	public EngineCommandMBean( ActionBase action , ServerEngine engine , EngineMBean jmxServer , String product , CommandMeta meta ) {
 		this.action = action;
 		this.engine = engine;
 		this.product = product;

@@ -28,7 +28,7 @@ import org.urm.meta.engine.ServerSettings;
 
 import com.sun.jdmk.comm.HtmlAdaptorServer;
 
-public class ServerMBean implements DynamicMBean {
+public class EngineMBean implements DynamicMBean {
 
 	ServerEngine engine;
 	ActionInit action;
@@ -37,7 +37,7 @@ public class ServerMBean implements DynamicMBean {
 	private MBeanInfo mbean = null;
 	JMXConnectorServer jmxConnector;
 	
-	public ServerMBean( ActionInit action , ServerEngine engine ) {
+	public EngineMBean( ActionInit action , ServerEngine engine ) {
 		this.action = action;
 		this.engine = engine;
 	}
@@ -150,7 +150,7 @@ public class ServerMBean implements DynamicMBean {
 	private void addProduct( String product ) throws Exception {
 		SessionController sessionController = engine.sessionController;
 		for( CommandMeta meta : sessionController.executors  ) {
-			ServerCommandMBean bean = new ServerCommandMBean( action , action.executor.engine , this , product , meta );
+			EngineCommandMBean bean = new EngineCommandMBean( action , action.executor.engine , this , product , meta );
 			bean.createInfo();
 			
 			String name = RemoteCall.getCommandMBeanName( product , meta.name );
