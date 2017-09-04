@@ -4,7 +4,7 @@ import org.urm.action.ActionCore;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState;
-import org.urm.engine.status.ServerStatusData.OBJECT_STATE;
+import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;

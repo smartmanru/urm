@@ -6,7 +6,7 @@ import java.util.List;
 import org.urm.action.ActionCore;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState;
-import org.urm.engine.status.ServerStatusData.OBJECT_STATE;
+import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.meta.engine.WholeUrlFailed;
 import org.urm.meta.Types.*;
 import org.urm.meta.product.MetaEnvServer;
@@ -80,23 +80,23 @@ public class NodeStatus extends Status {
 
 	public void setCompsFailed() {
 		compFailed = true;
-		itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
+		itemState = StatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
 	}
 	
 	public void setProxyFailed( MetaEnvServer server ) {
 		proxy = server;
 		proxyFailed = true;
-		itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
+		itemState = StatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
 	}
 
 	public void addWholeUrlStatus( String URL , String role , boolean ok ) throws Exception {
 		if( !ok ) {
 			wholeUrlFailed = true;
 			wholeUrls.add( new WholeUrlFailed( URL , role ) );
-			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
+			itemState = StatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
 		}
 		else
-			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_HEALTHY );
+			itemState = StatusData.addState( itemState , OBJECT_STATE.STATE_HEALTHY );
 	}
 	
 }

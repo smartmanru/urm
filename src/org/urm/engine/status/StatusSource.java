@@ -7,27 +7,27 @@ import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
-import org.urm.engine.status.ServerStatusData.OBJECT_STATE;
+import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.meta.EngineObject;
 import org.urm.meta.engine.EngineMonitoring;
 
-public class ServerStatusSource extends EngineEventsSource {
+public class StatusSource extends EngineEventsSource {
 
 	public EngineMonitoring mon;
 	public int level;
 	public EngineObject object;
-	public ServerStatusData state;
-	private ServerStatusData primary;
-	private Map<String,ServerStatusData> extra;
+	public StatusData state;
+	private StatusData primary;
+	private Map<String,StatusData> extra;
 
-	public ServerStatusSource( EngineEvents events , EngineObject object , int level , String name ) {
+	public StatusSource( EngineEvents events , EngineObject object , int level , String name ) {
 		super( events , name );
 		this.object = object;
 		this.level = level;
 		
-		state = new ServerStatusData( this );
-		primary = new ServerStatusData( this );
-		extra= new HashMap<String,ServerStatusData>(); 
+		state = new StatusData( this );
+		primary = new StatusData( this );
+		extra= new HashMap<String,StatusData>(); 
 	}
 	
 	@Override
@@ -46,7 +46,7 @@ public class ServerStatusSource extends EngineEventsSource {
 	}
 	
 	public boolean setState( SCOPESTATE state ) {
-		OBJECT_STATE newState = ServerStatusData.getState( state );
+		OBJECT_STATE newState = StatusData.getState( state );
 		return( setState( newState ) );
 	}
 	
@@ -70,17 +70,17 @@ public class ServerStatusSource extends EngineEventsSource {
 		return( false );
 	}
 
-	public synchronized ServerStatusData getExtraState( String key ) {
-		ServerStatusData extraState = extra.get( key );
+	public synchronized StatusData getExtraState( String key ) {
+		StatusData extraState = extra.get( key );
 		if( extraState == null ) {
-			extraState = new ServerStatusData( this );
+			extraState = new StatusData( this );
 			extra.put( key , extraState );
 		}
 		return( extraState );
 	}
 	
 	public boolean setExtraState( String key , OBJECT_STATE newState ) {
-		ServerStatusData extraState = getExtraState( key );
+		StatusData extraState = getExtraState( key );
 		if( extraState.state == newState )
 			return( false );
 
@@ -90,8 +90,8 @@ public class ServerStatusSource extends EngineEventsSource {
 	
 	private OBJECT_STATE getFinalState() {
 		OBJECT_STATE state = primary.state;
-		for( ServerStatusData extraState : extra.values() )
-			state = ServerStatusData.addState( extraState.state , state );
+		for( StatusData extraState : extra.values() )
+			state = StatusData.addState( extraState.state , state );
 		return( state );
 	}
 	
@@ -100,7 +100,7 @@ public class ServerStatusSource extends EngineEventsSource {
 	}
 
 	public void setExtraLog( String key , String[] log ) {
-		ServerStatusData extraState = getExtraState( key );
+		StatusData extraState = getExtraState( key );
 		extraState.setLog( log );
 	}
 
@@ -109,7 +109,7 @@ public class ServerStatusSource extends EngineEventsSource {
 	}
 
 	public String[] getExtraLog( String key ) {
-		ServerStatusData extraState = getExtraState( key );
+		StatusData extraState = getExtraState( key );
 		return( extraState.log );
 	}
 

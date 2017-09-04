@@ -12,10 +12,10 @@ import org.urm.engine.events.EngineEventsSubscription;
 import org.urm.engine.events.EngineSourceEvent;
 import org.urm.engine.status.NodeStatus;
 import org.urm.engine.status.SegmentStatus;
-import org.urm.engine.status.ServerStatusSource;
-import org.urm.engine.status.ServerStatusData;
+import org.urm.engine.status.StatusSource;
+import org.urm.engine.status.StatusData;
 import org.urm.engine.status.ServerStatus;
-import org.urm.engine.status.ServerStatusData.OBJECT_STATE;
+import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
@@ -41,13 +41,13 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 
 	EngineMonitoring monitoring;
 	String productName;
-	ServerStatusSource source;
+	StatusSource source;
 	Engine engine;
 	
 	ActionMonitorTop ca;
 	EngineEventsApp eventsApp;
 
-	public EngineMonitoringProduct( EngineMonitoring monitoring , String productName , ServerStatusSource source , EngineEventsApp eventsApp ) {
+	public EngineMonitoringProduct( EngineMonitoring monitoring , String productName , StatusSource source , EngineEventsApp eventsApp ) {
 		this.monitoring = monitoring;
 		this.productName = productName;
 		this.source = source;
@@ -77,7 +77,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			SegmentStatus status = ( SegmentStatus )event.data;
 			MetaEnvSegment sg = status.sg;
-			ServerStatusSource serverSource = monitoring.getObjectSource( sg );
+			StatusSource serverSource = monitoring.getObjectSource( sg );
 			if( serverSource == null )
 				return;
 			
@@ -89,7 +89,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			SegmentStatus status = ( SegmentStatus )event.data;
 			MetaEnvSegment sg = status.sg;
-			ServerStatusSource sgSource = monitoring.getObjectSource( sg );
+			StatusSource sgSource = monitoring.getObjectSource( sg );
 			if( sgSource == null )
 				return;
 			
@@ -101,7 +101,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			ScopeState state = ( ScopeState )event.data;
 			MetaEnvServer server = state.target.envServer;
-			ServerStatusSource serverSource = monitoring.getObjectSource( server );
+			StatusSource serverSource = monitoring.getObjectSource( server );
 			if( serverSource == null )
 				return;
 			
@@ -114,7 +114,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			ServerStatus status = ( ServerStatus )event.data;
 			MetaEnvServer server = status.server;
-			ServerStatusSource serverSource = monitoring.getObjectSource( server );
+			StatusSource serverSource = monitoring.getObjectSource( server );
 			if( serverSource == null )
 				return;
 			
@@ -126,7 +126,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			ScopeState state = ( ScopeState )event.data;
 			MetaEnvServerNode node = state.item.envServerNode;
-			ServerStatusSource nodeSource = monitoring.getObjectSource( node );
+			StatusSource nodeSource = monitoring.getObjectSource( node );
 			if( nodeSource == null )
 				return;
 			
@@ -139,7 +139,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
 			NodeStatus status = ( NodeStatus )event.data;
 			MetaEnvServerNode node = status.node;
-			ServerStatusSource nodeSource = monitoring.getObjectSource( node );
+			StatusSource nodeSource = monitoring.getObjectSource( node );
 			if( nodeSource == null )
 				return;
 			
@@ -149,7 +149,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		
 		if( event.eventType == EngineEvents.EVENT_MONITORGRAPHCHANGED ) {
 			MetaMonitoringTarget target = ( MetaMonitoringTarget )event.data;
-			ServerStatusSource sgSource = monitoring.findTargetSource( target );
+			StatusSource sgSource = monitoring.findTargetSource( target );
 			if( sgSource == null )
 				return;
 			
@@ -176,14 +176,14 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		recalculateSystem( product.system );
 	}
 
-	private void processSegmentEvent( ActionEventsSource source , ServerStatusSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
+	private void processSegmentEvent( ActionEventsSource source , StatusSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
 		if( !task.isRunning() )
 			return;
 
 		sgSource.setPrimaryLog( status.getLog() );
 	}
 	
-	private void processSegmentItemsEvent( ActionEventsSource source , ServerStatusSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
+	private void processSegmentItemsEvent( ActionEventsSource source , StatusSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
 		if( !task.isRunning() )
 			return;
 
@@ -194,7 +194,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		}
 	}
 	
-	private void processServerEvent( ActionEventsSource source , ServerStatusSource serverSource , MetaEnvServer server , ServerStatus status ) {
+	private void processServerEvent( ActionEventsSource source , StatusSource serverSource , MetaEnvServer server , ServerStatus status ) {
 		if( !task.isRunning() )
 			return;
 
@@ -205,7 +205,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		}
 	}
 	
-	private void processServerItemsEvent( ActionEventsSource source , ServerStatusSource serverSource , MetaEnvServer server , ServerStatus status ) {
+	private void processServerItemsEvent( ActionEventsSource source , StatusSource serverSource , MetaEnvServer server , ServerStatus status ) {
 		if( !task.isRunning() )
 			return;
 
@@ -216,7 +216,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		}
 	}
 	
-	private void processNodeEvent( ActionEventsSource source , ServerStatusSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
+	private void processNodeEvent( ActionEventsSource source , StatusSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
 		if( !task.isRunning() )
 			return;
 
@@ -227,7 +227,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		}
 	}
 	
-	private void processNodeItemsEvent( ActionEventsSource source , ServerStatusSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
+	private void processNodeItemsEvent( ActionEventsSource source , StatusSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
 		if( !task.isRunning() )
 			return;
 
@@ -239,15 +239,15 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 	}
 	
 	private void recalculateServer( MetaEnvServer server ) {
-		ServerStatusSource serverSource = monitoring.getObjectSource( server );
+		StatusSource serverSource = monitoring.getObjectSource( server );
 		if( serverSource == null )
 			return;
 
 		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
 		for( MetaEnvServerNode node : server.getNodes() ) {
-			ServerStatusSource nodeSource = monitoring.getObjectSource( node );
+			StatusSource nodeSource = monitoring.getObjectSource( node );
 			if( nodeSource != null )
-				finalState = ServerStatusData.addState( finalState , nodeSource.state.state );
+				finalState = StatusData.addState( finalState , nodeSource.state.state );
 		}
 		
 		if( serverSource.setState( finalState ) ) {
@@ -257,15 +257,15 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 	}
 	
 	private void recalculateSegment( MetaEnvSegment sg ) {
-		ServerStatusSource sgSource = monitoring.getObjectSource( sg );
+		StatusSource sgSource = monitoring.getObjectSource( sg );
 		if( sgSource == null )
 			return;
 
 		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
 		for( MetaEnvServer server : sg.getServers() ) {
-			ServerStatusSource serverSource = monitoring.getObjectSource( server );
+			StatusSource serverSource = monitoring.getObjectSource( server );
 			if( serverSource != null )
-				finalState = ServerStatusData.addState( finalState , serverSource.state.state );
+				finalState = StatusData.addState( finalState , serverSource.state.state );
 		}
 		
 		if( sgSource.setState( finalState ) ) {
@@ -275,15 +275,15 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 	}
 	
 	private void recalculateEnv( MetaEnv env ) {
-		ServerStatusSource envSource = monitoring.getObjectSource( env );
+		StatusSource envSource = monitoring.getObjectSource( env );
 		if( envSource == null )
 			return;
 
 		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
 		for( MetaEnvSegment sg : env.getSegments() ) {
-			ServerStatusSource sgSource = monitoring.getObjectSource( sg );
+			StatusSource sgSource = monitoring.getObjectSource( sg );
 			if( sgSource != null )
-				finalState = ServerStatusData.addState( finalState , sgSource.state.state );
+				finalState = StatusData.addState( finalState , sgSource.state.state );
 		}
 		
 		if( envSource.setState( finalState ) ) {
@@ -297,16 +297,16 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		if( product == null )
 			return;
 		
-		ServerStatusSource productSource = monitoring.getObjectSource( product );
+		StatusSource productSource = monitoring.getObjectSource( product );
 		if( productSource == null )
 			return;
 
 		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
 		for( String envName : meta.getEnvNames() ) {
 			MetaEnv env = meta.findEnv( envName );
-			ServerStatusSource envSource = monitoring.getObjectSource( env );
+			StatusSource envSource = monitoring.getObjectSource( env );
 			if( envSource != null )
-				finalState = ServerStatusData.addState( finalState , envSource.state.state );
+				finalState = StatusData.addState( finalState , envSource.state.state );
 		}
 		
 		if( productSource.setState( finalState ) ) {
@@ -316,16 +316,16 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 	}
 
 	private void recalculateSystem( System system ) {
-		ServerStatusSource systemSource = monitoring.getObjectSource( system );
+		StatusSource systemSource = monitoring.getObjectSource( system );
 		if( systemSource == null )
 			return;
 
 		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
 		for( String productName : system.getProductNames() ) {
 			Product product = system.findProduct( productName );
-			ServerStatusSource productSource = monitoring.getObjectSource( product );
+			StatusSource productSource = monitoring.getObjectSource( product );
 			if( productSource != null )
-				finalState = ServerStatusData.addState( finalState , productSource.state.state );
+				finalState = StatusData.addState( finalState , productSource.state.state );
 		}
 		
 		if( systemSource.setState( finalState ) )
@@ -333,16 +333,16 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 	}
 
 	private void recalculateApp( EngineDirectory directory ) {
-		ServerStatusSource appSource = monitoring.getAppSource();
+		StatusSource appSource = monitoring.getAppSource();
 		if( appSource == null )
 			return;
 
 		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
 		for( String systemName : directory.getSystems() ) {
 			System system = directory.findSystem( systemName );
-			ServerStatusSource systemSource = monitoring.getObjectSource( system );
+			StatusSource systemSource = monitoring.getObjectSource( system );
 			if( systemSource != null )
-				finalState = ServerStatusData.addState( finalState , systemSource.state.state );
+				finalState = StatusData.addState( finalState , systemSource.state.state );
 		}
 		
 		appSource.setState( finalState );

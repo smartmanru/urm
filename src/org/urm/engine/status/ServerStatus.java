@@ -6,7 +6,7 @@ import java.util.List;
 import org.urm.action.ActionCore;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ScopeState;
-import org.urm.engine.status.ServerStatusData.OBJECT_STATE;
+import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.meta.engine.RoleItemFailed;
 import org.urm.meta.engine.WholeUrlFailed;
 import org.urm.meta.product.MetaEnvServer;
@@ -47,35 +47,35 @@ public class ServerStatus extends Status {
 		if( status.isFailed() ) 
 			nodeFailed = true;
 		nodes.add( status );
-		itemState = ServerStatusData.addState( itemState , status.itemState );
+		itemState = StatusData.addState( itemState , status.itemState );
 	}
 
 	public void addRoleStatus( String role , MetaEnvServerNode node , boolean failed ) {
 		if( failed ) {
 			roleFailed = true;
 			roles.add( new RoleItemFailed( role , node ) );
-			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
+			itemState = StatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
 		}
 		else
-			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_HEALTHY );
+			itemState = StatusData.addState( itemState , OBJECT_STATE.STATE_HEALTHY );
 	}
 
 	public void addWholeUrlStatus( String URL , String role , boolean ok ) throws Exception {
 		if( !ok ) {
 			wholeUrlFailed = true;
 			wholeUrls.add( new WholeUrlFailed( URL , role ) );
-			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
+			itemState = StatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
 		}
 		else
-			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_HEALTHY );
+			itemState = StatusData.addState( itemState , OBJECT_STATE.STATE_HEALTHY );
 	}
 
 	public void addDatabaseStatus( boolean ok ) {
 		if( ok )
-			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_HEALTHY );
+			itemState = StatusData.addState( itemState , OBJECT_STATE.STATE_HEALTHY );
 		else {
 			databaseFailed = true;
-			itemState = ServerStatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
+			itemState = StatusData.addState( itemState , OBJECT_STATE.STATE_ERRORS_ALERTS );
 		}
 	}
 	

@@ -14,8 +14,8 @@ import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSubscription;
-import org.urm.engine.status.ServerStatusSource;
-import org.urm.engine.status.ServerStatusData;
+import org.urm.engine.status.StatusSource;
+import org.urm.engine.status.StatusData;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
@@ -45,7 +45,7 @@ public class EngineMonitoring extends EngineObject {
 	public static int MONITORING_SEGMENT = 5;
 	public static int MONITORING_SERVER = 6;
 	public static int MONITORING_NODE = 7;
-	public Map<EngineObject,ServerStatusSource> sourceMap;
+	public Map<EngineObject,StatusSource> sourceMap;
 	
 	public PropertySet properties;
 	public boolean ENABLED;
@@ -76,7 +76,7 @@ public class EngineMonitoring extends EngineObject {
 		this.events = engine.getEvents();
 		
 		mapProduct = new HashMap<String,EngineMonitoringProduct>();
-		sourceMap = new HashMap<EngineObject,ServerStatusSource>();
+		sourceMap = new HashMap<EngineObject,StatusSource>();
 	}
 
 	@Override
@@ -145,7 +145,7 @@ public class EngineMonitoring extends EngineObject {
 			events.deleteApp( eventsApp );
 		}
 		
-		for( ServerStatusSource source : sourceMap.values() )
+		for( StatusSource source : sourceMap.values() )
 			source.clearState();
 	}
 
@@ -184,7 +184,7 @@ public class EngineMonitoring extends EngineObject {
 			startEnvironment( env );
 		}
 		
-		ServerStatusSource source = createSource( MONITORING_PRODUCT , product );
+		StatusSource source = createSource( MONITORING_PRODUCT , product );
 		EngineMonitoringProduct mon = new EngineMonitoringProduct( this , product.NAME , source , eventsApp );
 		mapProduct.put( product.NAME , mon );
 		mon.start();
@@ -219,15 +219,15 @@ public class EngineMonitoring extends EngineObject {
 		createSource( MONITORING_NODE , node );
 	}
 	
-	private ServerStatusSource createSource( int level , EngineObject object ) {
+	private StatusSource createSource( int level , EngineObject object ) {
 		String name = "o" + level + "." + object.objectId;
-		ServerStatusSource source = new ServerStatusSource( events , object , level , name );
+		StatusSource source = new StatusSource( events , object , level , name );
 		sourceMap.put( object , source );
 		return( source );
 	}
 	
 	private void removeSource( int level , EngineObject object ) {
-		ServerStatusSource source = sourceMap.get( object );
+		StatusSource source = sourceMap.get( object );
 		if( source == null )
 			return;
 		
@@ -236,7 +236,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 
 	private void replaceSource( int level , EngineObject objectOld , EngineObject objectNew ) {
-		ServerStatusSource source = sourceMap.get( objectOld );
+		StatusSource source = sourceMap.get( objectOld );
 		if( source == null )
 			return;
 		
@@ -303,17 +303,17 @@ public class EngineMonitoring extends EngineObject {
 			removeSource( MONITORING_NODE , node );
 	}
 
-	public ServerStatusSource getAppSource() {
+	public StatusSource getAppSource() {
 		EngineRegistry registry = loader.getRegistry();
 		return( getObjectSource( registry.directory ) );
 	}
 	
-	public ServerStatusSource getObjectSource( EngineObject object ) {
+	public StatusSource getObjectSource( EngineObject object ) {
 		return( sourceMap.get( object ) );
 	}
 
-	public ServerStatusData getState( EngineEventsSubscription sub ) {
-		ServerStatusData state = ( ServerStatusData )sub.getState();
+	public StatusData getState( EngineEventsSubscription sub ) {
+		StatusData state = ( StatusData )sub.getState();
 		return( state );
 	}
 
@@ -333,7 +333,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 
 	public EngineEventsSubscription subscribe( EngineEventsApp app , EngineEventsListener listener , EngineObject object ) {
-		ServerStatusSource source = getObjectSource( object );
+		StatusSource source = getObjectSource( object );
 		if( source == null )
 			return( null );
 		
@@ -425,7 +425,7 @@ public class EngineMonitoring extends EngineObject {
 	public void modifyTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {
 	}
 
-	public ServerStatusSource findTargetSource( MetaMonitoringTarget target ) {
+	public StatusSource findTargetSource( MetaMonitoringTarget target ) {
 		MetaEnv env = target.meta.findEnv( target.ENV );
 		if( env == null )
 			return( null );

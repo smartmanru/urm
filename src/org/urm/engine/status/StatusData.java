@@ -3,7 +3,7 @@ package org.urm.engine.status;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.events.EngineEventsState;
 
-public class ServerStatusData extends EngineEventsState {
+public class StatusData extends EngineEventsState {
 	
 	public enum OBJECT_STATE {
 		STATE_UNKNOWN ,
@@ -16,11 +16,11 @@ public class ServerStatusData extends EngineEventsState {
 		STATE_HEALTHY
 	};
 	
-	public ServerStatusSource monitoringSource;
+	public StatusSource monitoringSource;
 	public OBJECT_STATE state;
 	public String[] log;
 	
-	public ServerStatusData( ServerStatusSource source ) {
+	public StatusData( StatusSource source ) {
 		super( source , 0 );
 		monitoringSource = source;
 		state = OBJECT_STATE.STATE_NOMONITORING;
