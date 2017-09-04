@@ -3,7 +3,7 @@ package org.urm.engine.events;
 import org.urm.engine.Engine;
 import org.urm.meta.ServerObject;
 
-public class ServerEvents extends ServerObject {
+public class EngineEvents extends ServerObject {
 
 	Engine engine;
 	
@@ -27,15 +27,15 @@ public class ServerEvents extends ServerObject {
 	public static int EVENT_MONITORING_SERVERITEMS = 151;
 	public static int EVENT_MONITORING_NODEITEMS = 152;
 
-	ServerEventsTimer timer;
-	ServerEventsNotifier notifier;
+	EngineEventsTimer timer;
+	EngineEventsNotifier notifier;
 	
-	public ServerEvents( Engine engine ) {
+	public EngineEvents( Engine engine ) {
 		super( null );
 		this.engine = engine;
 		
-		timer = new ServerEventsTimer( this );
-		notifier = new ServerEventsNotifier( this ); 
+		timer = new EngineEventsTimer( this );
+		notifier = new EngineEventsNotifier( this ); 
 	}
 
 	@Override
@@ -56,22 +56,22 @@ public class ServerEvents extends ServerObject {
 		timer.stop();
 	}
 
-	public ServerEventsApp createApp( String appId ) {
+	public EngineEventsApp createApp( String appId ) {
 		engine.trace( "start events management for application=" + appId );
-		return( new ServerEventsApp( this , appId ) );
+		return( new EngineEventsApp( this , appId ) );
 	}
 
-	public void deleteApp( ServerEventsApp app ) {
+	public void deleteApp( EngineEventsApp app ) {
 		app.close();
 		engine.trace( "stop events management for application=" + app.appId );
 	}
 
-	public ServerEventsSubscription subscribeTimer( ServerEventsApp app , ServerEventsListener listener ) {
+	public EngineEventsSubscription subscribeTimer( EngineEventsApp app , EngineEventsListener listener ) {
 		return( app.subscribe( timer , listener ) );
 	}			
 
 
-	public void notifyListener( ServerEventsApp app , ServerEventsListener listener , Object eventData ) {
+	public void notifyListener( EngineEventsApp app , EngineEventsListener listener , Object eventData ) {
 		notifier.addEvent( app , listener , eventData );
 	}
 	

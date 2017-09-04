@@ -5,14 +5,14 @@ import java.util.List;
 
 import org.urm.engine.EngineExecutorTask;
 
-public class ServerEventsNotifier extends ServerEventsSource {
+public class EngineEventsNotifier extends EngineEventsSource {
 
 	class NotifyEvent {
-		public ServerEventsApp app;
-		public ServerEventsListener listener;
+		public EngineEventsApp app;
+		public EngineEventsListener listener;
 		public Object eventData;
 		
-		public NotifyEvent( ServerEventsApp app , ServerEventsListener listener , Object eventData ) {
+		public NotifyEvent( EngineEventsApp app , EngineEventsListener listener , Object eventData ) {
 			this.app = app;
 			this.listener = listener;
 			this.eventData = eventData;
@@ -38,14 +38,14 @@ public class ServerEventsNotifier extends ServerEventsSource {
 	private ServerExecutorTaskNotify task;
 	private List<NotifyEvent> queue;
 	
-	public ServerEventsNotifier( ServerEvents events ) {
+	public EngineEventsNotifier( EngineEvents events ) {
 		super( events , "urm.notifier" );
 		queue = new LinkedList<NotifyEvent>();
 		task = new ServerExecutorTaskNotify();
 	}
 
 	@Override
-	public ServerEventsState getState() {
+	public EngineEventsState getState() {
 		return( null );
 	}
 	
@@ -70,7 +70,7 @@ public class ServerEventsNotifier extends ServerEventsSource {
 			return;
 		}
 		
-		ServerSourceEvent sse = new ServerSourceEvent( this , 0 , ServerEvents.EVENT_NOTIFY , event.eventData );
+		EngineSourceEvent sse = new EngineSourceEvent( this , 0 , EngineEvents.EVENT_NOTIFY , event.eventData );
 		event.app.triggerEvent( event.listener , sse );
 	}
 	
@@ -82,7 +82,7 @@ public class ServerEventsNotifier extends ServerEventsSource {
 		events.engine.executor.stopTask( task );
 	}
 
-	public void addEvent( ServerEventsApp app , ServerEventsListener listener , Object eventData ) {
+	public void addEvent( EngineEventsApp app , EngineEventsListener listener , Object eventData ) {
 		synchronized( task ) {
 			if( !task.isRunning() )
 				return;

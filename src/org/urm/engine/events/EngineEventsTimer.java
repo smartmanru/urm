@@ -3,7 +3,7 @@ package org.urm.engine.events;
 import org.urm.common.Common;
 import org.urm.engine.EngineExecutorTask;
 
-public class ServerEventsTimer extends ServerEventsSource {
+public class EngineEventsTimer extends EngineEventsSource {
 
 	class ServerExecutorTaskTimer extends EngineExecutorTask {
 		ServerExecutorTaskTimer() {
@@ -23,19 +23,19 @@ public class ServerEventsTimer extends ServerEventsSource {
 	
 	private ServerExecutorTaskTimer task;
 	
-	public ServerEventsTimer( ServerEvents events ) {
+	public EngineEventsTimer( EngineEvents events ) {
 		super( events , "urm.timer" );
 		task = new ServerExecutorTaskTimer(); 
 	}
 
 	@Override
-	public ServerEventsState getState() {
+	public EngineEventsState getState() {
 		return( null );
 	}
 	
 	private void cycle() {
 		Common.sleep( 1000 );
-		super.trigger( ServerEvents.EVENT_SECONDTIMER , null );
+		super.trigger( EngineEvents.EVENT_SECONDTIMER , null );
 	}
 
 	public void start() {
