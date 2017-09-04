@@ -15,6 +15,8 @@ import org.urm.engine.events.ServerEventsApp;
 import org.urm.engine.events.ServerEventsListener;
 import org.urm.engine.events.ServerEventsSubscription;
 import org.urm.engine.events.ServerSourceEvent;
+import org.urm.engine.status.NodeStatus;
+import org.urm.engine.status.SegmentStatus;
 import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.ServerLoader;
 import org.urm.meta.ServerProductMeta;

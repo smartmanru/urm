@@ -1,4 +1,4 @@
-package org.urm.action.monitor;
+package org.urm.engine.status;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import org.urm.action.ActionCore;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.ScopeState;
+import org.urm.action.monitor.MonitorStatus;
 import org.urm.meta.engine.ServerMonitoringState;
 import org.urm.meta.engine.WholeUrlFailed;
 import org.urm.meta.engine.ServerMonitoringState.MONITORING_STATE;

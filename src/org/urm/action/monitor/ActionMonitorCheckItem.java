@@ -7,6 +7,8 @@ import org.urm.action.ActionBase;
 import org.urm.action.ScopeState;
 import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.SimpleHttp;
+import org.urm.engine.status.NodeStatus;
+import org.urm.engine.status.ServerStatus;
 import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerDeployment;
