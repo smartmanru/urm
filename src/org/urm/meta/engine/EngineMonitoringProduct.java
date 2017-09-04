@@ -171,7 +171,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		engine.executor.stopTask( task );
 		
 		// cleanup product data
-		source.setState( OBJECT_STATE.STATE_NOMONITORING );
+		source.setState( OBJECT_STATE.STATE_NODATA );
 		Product product = ( Product )source.object;
 		recalculateSystem( product.system );
 	}
@@ -243,7 +243,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		if( serverSource == null )
 			return;
 
-		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
+		OBJECT_STATE finalState = OBJECT_STATE.STATE_NODATA;
 		for( MetaEnvServerNode node : server.getNodes() ) {
 			StatusSource nodeSource = monitoring.getObjectSource( node );
 			if( nodeSource != null )
@@ -261,7 +261,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		if( sgSource == null )
 			return;
 
-		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
+		OBJECT_STATE finalState = OBJECT_STATE.STATE_NODATA;
 		for( MetaEnvServer server : sg.getServers() ) {
 			StatusSource serverSource = monitoring.getObjectSource( server );
 			if( serverSource != null )
@@ -279,7 +279,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		if( envSource == null )
 			return;
 
-		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
+		OBJECT_STATE finalState = OBJECT_STATE.STATE_NODATA;
 		for( MetaEnvSegment sg : env.getSegments() ) {
 			StatusSource sgSource = monitoring.getObjectSource( sg );
 			if( sgSource != null )
@@ -301,7 +301,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		if( productSource == null )
 			return;
 
-		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
+		OBJECT_STATE finalState = OBJECT_STATE.STATE_NODATA;
 		for( String envName : meta.getEnvNames() ) {
 			MetaEnv env = meta.findEnv( envName );
 			StatusSource envSource = monitoring.getObjectSource( env );
@@ -320,7 +320,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		if( systemSource == null )
 			return;
 
-		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
+		OBJECT_STATE finalState = OBJECT_STATE.STATE_NODATA;
 		for( String productName : system.getProductNames() ) {
 			Product product = system.findProduct( productName );
 			StatusSource productSource = monitoring.getObjectSource( product );
@@ -337,7 +337,7 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		if( appSource == null )
 			return;
 
-		OBJECT_STATE finalState = OBJECT_STATE.STATE_NOMONITORING;
+		OBJECT_STATE finalState = OBJECT_STATE.STATE_NODATA;
 		for( String systemName : directory.getSystems() ) {
 			System system = directory.findSystem( systemName );
 			StatusSource systemSource = monitoring.getObjectSource( system );

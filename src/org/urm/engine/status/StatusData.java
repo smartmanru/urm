@@ -7,7 +7,7 @@ public class StatusData extends EngineEventsState {
 	
 	public enum OBJECT_STATE {
 		STATE_UNKNOWN ,
-		STATE_NOMONITORING ,
+		STATE_NODATA ,
 		STATE_NEVERQUERIED ,
 		STATE_STOPPED ,
 		STATE_UNABLE_GETSTATE ,
@@ -16,14 +16,14 @@ public class StatusData extends EngineEventsState {
 		STATE_HEALTHY
 	};
 	
-	public StatusSource monitoringSource;
+	public StatusSource source;
 	public OBJECT_STATE state;
 	public String[] log;
 	
 	public StatusData( StatusSource source ) {
 		super( source , 0 );
-		monitoringSource = source;
-		state = OBJECT_STATE.STATE_NOMONITORING;
+		this.source = source;
+		state = OBJECT_STATE.STATE_NODATA;
 	}
 
 	public OBJECT_STATE getState() {
@@ -38,9 +38,9 @@ public class StatusData extends EngineEventsState {
 		if( finalState == addState )
 			return( finalState );
 
-		if( addState == OBJECT_STATE.STATE_NOMONITORING )
+		if( addState == OBJECT_STATE.STATE_NODATA )
 			return( finalState );
-		if( finalState == OBJECT_STATE.STATE_NOMONITORING )
+		if( finalState == OBJECT_STATE.STATE_NODATA )
 			return( addState );
 		
 		if( addState == OBJECT_STATE.STATE_NEVERQUERIED )

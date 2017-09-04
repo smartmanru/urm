@@ -40,8 +40,8 @@ public class StatusSource extends EngineEventsSource {
 	}
 	
 	public void clearState() {
-		state.setState( OBJECT_STATE.STATE_NOMONITORING );
-		primary.setState( OBJECT_STATE.STATE_NOMONITORING );
+		state.setState( OBJECT_STATE.STATE_NODATA );
+		primary.setState( OBJECT_STATE.STATE_NODATA );
 		extra.clear();
 	}
 	
