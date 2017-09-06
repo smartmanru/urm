@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
-import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
@@ -15,14 +14,12 @@ public class ActionEnvScopeMaker {
 
 	private ActionScope scope;
 	private ActionBase action;
-	private Meta meta;
 	private MetaEnv env;
 	
 	public ActionEnvScopeMaker( ActionBase action , MetaEnv env ) {
-		scope = new ActionScope( action , meta );
+		scope = new ActionScope( action , env.meta );
 		this.action = action;
 		this.env = env;
-		this.meta = env.meta;
 	}
 
 	public ActionScope getScope() {
