@@ -1,27 +1,15 @@
-package org.urm.action;
+package org.urm.engine.status;
 
-import java.util.LinkedList;
-import java.util.List;
-
+import org.urm.action.ActionCore;
+import org.urm.action.ActionScope;
+import org.urm.action.ActionScopeSet;
+import org.urm.action.ActionScopeTarget;
+import org.urm.action.ActionScopeTargetItem;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.shell.Account;
-import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
 
-public class ScopeState {
+public class ScopeState extends ObjectState {
 
-	public enum SCOPETYPE {
-		TypeScope ,
-		TypeSet ,
-		TypeTarget ,
-		TypeItem ,
-		TypeAccount ,
-		TypeMonTarget ,
-		TypeServer ,
-		TypeServerNode
-	};
-	
 	public enum SCOPESTATE {
 		New ,
 		NotRun ,
@@ -31,90 +19,55 @@ public class ScopeState {
 	};
 	
 	public ActionCore action;
-	public ScopeState parent;
+	public SCOPESTATE state;
 
-	public SCOPETYPE type;	
 	public ActionScope scope;
 	public ActionScopeSet set;
 	public ActionScopeTarget target;
 	public ActionScopeTargetItem item;
 	public Account account;
-	public MetaEnvSegment sg;
-	public MetaEnvServer server;
-	public MetaEnvServerNode node;
-	public SCOPESTATE state;
-	
-	List<ScopeState> childs;
 	
 	public ScopeState( ActionCore action , ActionScope scope ) {
-		this.type = SCOPETYPE.TypeScope;
+		super( STATETYPE.TypeScope , null , scope );
 		this.scope = scope;
-		create( action , null );
+		create( action );
 	}
 
 	public ScopeState( ScopeState parent , ActionScopeSet set ) {
-		this.type = SCOPETYPE.TypeSet;
+		super( STATETYPE.TypeSet , parent , set );
 		this.scope = set.scope;
 		this.set = set;
-		create( parent.action , parent );
+		create( parent.action );
 	}
 
 	public ScopeState( ScopeState parent , Account account ) {
-		this.type = SCOPETYPE.TypeAccount;
+		super( STATETYPE.TypeAccount , parent , account );
 		this.scope = parent.scope;
 		this.set = parent.set;
 		this.account = account;
-		create( parent.action , parent );
+		create( parent.action );
 	}
 
 	public ScopeState( ScopeState parent , ActionScopeTarget target ) {
-		this.type = SCOPETYPE.TypeTarget;
+		super( STATETYPE.TypeTarget , parent , target );
 		this.scope = target.set.scope;
 		this.set = target.set;
 		this.target = target;
-		create( parent.action , parent );
+		create( parent.action );
 	}
 
 	public ScopeState( ScopeState parent , ActionScopeTargetItem item ) {
-		this.type = SCOPETYPE.TypeItem;
+		super( STATETYPE.TypeItem , parent , item );
 		this.scope = item.target.set.scope;
 		this.set = item.target.set;
 		this.target = item.target;
 		this.item = item;
-		create( parent.action , parent );
+		create( parent.action );
 	}
 
-	public ScopeState( ActionCore action , MetaEnvSegment sg ) {
-		this.type = SCOPETYPE.TypeMonTarget;
-		this.scope = null;
-		this.set = null;
-		this.sg = sg;
-		create( action , null );
-	}
-
-	public ScopeState( ActionCore action , MetaEnvServer server ) {
-		this.type = SCOPETYPE.TypeServer;
-		this.scope = null;
-		this.set = null;
-		this.server = server;
-		create( action , null );
-	}
-
-	public ScopeState( ActionCore action , MetaEnvServerNode node ) {
-		this.type = SCOPETYPE.TypeServerNode;
-		this.scope = null;
-		this.set = null;
-		this.node = node;
-		create( action , null );
-	}
-
-	private void create( ActionCore action , ScopeState parent ) {
+	private void create( ActionCore action ) {
 		this.action = action;
-		this.parent = parent;
 		this.state = SCOPESTATE.New;
-		childs = new LinkedList<ScopeState>();
-		if( parent != null )
-			parent.childs.add( this );
 	}
 	
 	public void setActionStatus( boolean status ) {
@@ -147,34 +100,36 @@ public class ScopeState {
 	}
 
 	public ScopeState findTargetState( ActionScopeTarget target ) {
-		if( type == SCOPETYPE.TypeItem )
-			return( parent );
-		if( type == SCOPETYPE.TypeAccount )
+		if( type == STATETYPE.TypeItem )
+			return( ( ScopeState )parent );
+		if( type == STATETYPE.TypeAccount )
 			return( null );
-		if( type == SCOPETYPE.TypeTarget )
+		if( type == STATETYPE.TypeTarget )
 			return( this );
 		ScopeState stateSet = findSetState( target.set );
 		if( stateSet == null )
 			return( null );
-		for( ScopeState child : stateSet.childs ) {
-			if( child.target == target )
-				return( child );
+		for( ObjectState child : stateSet.childs ) {
+			ScopeState childState = ( ScopeState )child; 
+			if( childState.target == target )
+				return( childState );
 		}
 		return( null );
 	}
 
 	public ScopeState findSetState( ActionScopeSet set ) {
-		if( type == SCOPETYPE.TypeItem )
-			return( parent.parent );
-		if( type == SCOPETYPE.TypeAccount )
-			return( parent );
-		if( type == SCOPETYPE.TypeTarget )
-			return( parent );
-		if( type == SCOPETYPE.TypeSet )
+		if( type == STATETYPE.TypeItem )
+			return( ( ScopeState )parent.parent );
+		if( type == STATETYPE.TypeAccount )
+			return( ( ScopeState )parent );
+		if( type == STATETYPE.TypeTarget )
+			return( ( ScopeState )parent );
+		if( type == STATETYPE.TypeSet )
 			return( this );
-		for( ScopeState child : childs ) {
-			if( child.set == set )
-				return( child );
+		for( ObjectState child : childs ) {
+			ScopeState childState = ( ScopeState )child;
+			if( childState.set == set )
+				return( childState );
 		}
 		return( null );
 	}
