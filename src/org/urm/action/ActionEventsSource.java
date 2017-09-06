@@ -3,6 +3,8 @@ package org.urm.action;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
+import org.urm.engine.status.ObjectState;
+import org.urm.engine.status.ScopeState;
 
 public class ActionEventsSource extends EngineEventsSource {
 
@@ -29,7 +31,7 @@ public class ActionEventsSource extends EngineEventsSource {
 		super.trigger( eventType , state );
 	}
 	
-	public void forwardScopeItem( int eventType , ScopeState state ) {
+	public void forwardState( int eventType , ObjectState state ) {
 		super.trigger( eventType , state );
 	}
 

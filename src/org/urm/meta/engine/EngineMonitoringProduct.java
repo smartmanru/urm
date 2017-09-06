@@ -1,7 +1,6 @@
 package org.urm.meta.engine;
 
 import org.urm.action.ActionEventsSource;
-import org.urm.action.ScopeState;
 import org.urm.action.monitor.ActionMonitorTop;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineExecutorTask;
@@ -99,13 +98,12 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		
 		if( event.eventType == EngineEvents.EVENT_MONITORING_SERVER ) {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
-			ScopeState state = ( ScopeState )event.data;
-			MetaEnvServer server = state.target.envServer;
+			ServerStatus status = ( ServerStatus )event.data;
+			MetaEnvServer server = status.server;
 			StatusSource serverSource = monitoring.getObjectSource( server );
 			if( serverSource == null )
 				return;
 			
-			ServerStatus status = ( ServerStatus )state;
 			processServerEvent( source , serverSource , server , status );
 			return;
 		}
@@ -124,13 +122,12 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		
 		if( event.eventType == EngineEvents.EVENT_MONITORING_NODE ) {
 			ActionEventsSource source = ( ActionEventsSource )event.source;
-			ScopeState state = ( ScopeState )event.data;
-			MetaEnvServerNode node = state.item.envServerNode;
+			NodeStatus status = ( NodeStatus )event.data;
+			MetaEnvServerNode node = status.node;
 			StatusSource nodeSource = monitoring.getObjectSource( node );
 			if( nodeSource == null )
 				return;
 			
-			NodeStatus status = ( NodeStatus )state;
 			processNodeEvent( source , nodeSource , node , status );
 			return;
 		}

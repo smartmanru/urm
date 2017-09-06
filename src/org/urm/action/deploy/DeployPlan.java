@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
-import org.urm.action.ScopeState.SCOPETYPE;
 import org.urm.action.database.ActionApplyAutomatic;
 import org.urm.common.Common;
 import org.urm.common.RunError;
@@ -22,6 +19,9 @@ import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.events.EngineEventsSubscription;
 import org.urm.engine.events.EngineSourceEvent;
+import org.urm.engine.status.ObjectState.STATETYPE;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
@@ -68,27 +68,27 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 		if( event.eventType == EngineEvents.EVENT_FINISHCHILDSTATE ) {
 			ScopeState state = ( ScopeState )event.data;
 			if( state.action instanceof ActionRedist ) {
-				if( state.type == SCOPETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeTarget )
 					addRedistStatus( state.target.envServer , state.state );
 			}
 			else
 			if( state.action instanceof ActionStopServer ) {
-				if( state.type == SCOPETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeTarget )
 					addStopServerStatus( state.target.envServer , state.state );
 			}
 			else
 			if( state.action instanceof ActionRollout ) {
-				if( state.type == SCOPETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeTarget )
 					addRolloutStatus( state.target.envServer , state.state );
 			}
 			else
 			if( state.action instanceof ActionStartServer ) {
-				if( state.type == SCOPETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeTarget )
 					addStartServerStatus( state.target.envServer , state.state );
 			}
 			else
 			if( state.action instanceof ActionApplyAutomatic ) {
-				if( state.type == SCOPETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeTarget )
 					addDatabaseApplyStatus( state.target.envServer , state.state );
 			}
 		}

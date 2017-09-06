@@ -25,7 +25,7 @@ import org.urm.meta.Types.*;
 
 public class ActionScopeSet {
 
-	ActionScope scope;
+	public ActionScope scope;
 	public Meta meta;
 	public String NAME;
 	public VarCATEGORY CATEGORY;

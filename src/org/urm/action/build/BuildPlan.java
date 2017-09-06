@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
-import org.urm.action.ScopeState.SCOPETYPE;
 import org.urm.action.conf.ActionGetConf;
 import org.urm.action.database.ActionGetDB;
 import org.urm.action.release.ActionGetCumulative;
@@ -25,6 +22,9 @@ import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.events.EngineEventsSubscription;
 import org.urm.engine.events.EngineSourceEvent;
+import org.urm.engine.status.ObjectState.STATETYPE;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSourceProject;
@@ -62,32 +62,32 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 		if( event.eventType == EngineEvents.EVENT_FINISHCHILDSTATE ) {
 			ScopeState state = ( ScopeState )event.data;
 			if( state.action instanceof ActionSetTagOnBuildBranch ) {
-				if( state.type == SCOPETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeTarget )
 					addSetTagStatus( state.target.sourceProject , state.state );
 			}
 			else
 			if( state.action instanceof ActionGetBinary ) {
-				if( state.type == SCOPETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeTarget )
 					addGetBinaryStatus( state.target.sourceProject , state.state );
 			}
 			else
 			if( state.action instanceof ActionGetDB ) {
-				if( state.type == SCOPETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeTarget )
 					addGetDBNormalStatus( state.target.dbDelivery , state.state );
 			}
 			else
 			if( state.action instanceof ActionGetConf ) {
-				if( state.type == SCOPETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeTarget )
 					addGetConfStatus( state.target.confItem , state.state );
 			}
 			else
 			if( state.action instanceof ActionGetCumulative ) {
-				if( state.type == SCOPETYPE.TypeScope )
+				if( state.type == STATETYPE.TypeScope )
 					addGetDBCumulativeStatus( state.state );
 			}
 			else
 			if( state.action instanceof ActionBuild ) {
-				if( state.type == SCOPETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeTarget )
 					addBuildStatus( state.target.sourceProject , state.state );
 			}
 		}

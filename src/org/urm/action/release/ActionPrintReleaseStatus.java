@@ -3,8 +3,6 @@ package org.urm.action.release;
 import java.util.Date;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.database.DatabaseScriptFile;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
@@ -17,6 +15,8 @@ import org.urm.engine.dist.ReleaseSchedulePhase;
 import org.urm.engine.dist.ReleaseDistSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
 import org.urm.meta.Types;
 import org.urm.meta.product.MetaDatabaseSchema;

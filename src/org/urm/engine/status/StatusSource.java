@@ -3,10 +3,10 @@ package org.urm.engine.status;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.meta.EngineObject;
 import org.urm.meta.engine.EngineMonitoring;

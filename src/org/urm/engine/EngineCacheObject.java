@@ -3,10 +3,10 @@ package org.urm.engine;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.action.ScopeState;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
+import org.urm.engine.status.ObjectState;
 
 public class EngineCacheObject extends EngineEventsSource {
 	
@@ -43,7 +43,7 @@ public class EngineCacheObject extends EngineEventsSource {
 		return( new EngineCacheObjectState( this , super.getStateId() , data.get( key ) ) );
 	}
 	
-	public void finishScopeItem( int eventType , ScopeState state ) {
+	public void triggerState( int eventType , ObjectState state ) {
 		super.trigger( eventType , state );
 	}
 	

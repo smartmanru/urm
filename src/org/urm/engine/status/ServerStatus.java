@@ -3,9 +3,6 @@ package org.urm.engine.status;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.action.ActionCore;
-import org.urm.action.ActionScopeTarget;
-import org.urm.action.ScopeState;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.meta.engine.RoleItemFailed;
 import org.urm.meta.engine.WholeUrlFailed;
@@ -14,6 +11,10 @@ import org.urm.meta.product.MetaEnvServerNode;
 
 public class ServerStatus extends Status {
 
+	public MetaEnvServer server;
+	
+	public boolean itemsStatus;
+	
 	public boolean nodeFailed;
 	public boolean roleFailed;
 	public boolean wholeUrlFailed;
@@ -23,17 +24,11 @@ public class ServerStatus extends Status {
 	List<RoleItemFailed> roles;
 	List<WholeUrlFailed> wholeUrls;
 	
-	public ServerStatus( ActionCore action , MetaEnvServer server ) {
-		super( action , server );
-		create();
-	}
-
-	public ServerStatus( ScopeState parent , ActionScopeTarget item ) {
-		super( parent , item );
-		create();
-	}
+	public ServerStatus( ObjectState parent , MetaEnvServer server ) {
+		super( STATETYPE.TypeServer , parent , server );
+		this.server = server;
 	
-	private void create() {
+		itemsStatus = false;
 		nodeFailed = false;
 		roleFailed = false;
 		wholeUrlFailed = false;
@@ -43,6 +38,10 @@ public class ServerStatus extends Status {
 		wholeUrls = new LinkedList<WholeUrlFailed>();
 	}
 
+	public void setItemsStatus( boolean itemsStatus ) {
+		this.itemsStatus = itemsStatus;
+	}
+	
 	public void addNodeStatus( NodeStatus status ) {
 		if( status.isFailed() ) 
 			nodeFailed = true;

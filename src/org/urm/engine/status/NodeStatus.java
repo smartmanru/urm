@@ -3,9 +3,6 @@ package org.urm.engine.status;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.action.ActionCore;
-import org.urm.action.ActionScopeTargetItem;
-import org.urm.action.ScopeState;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.meta.engine.WholeUrlFailed;
 import org.urm.meta.Types.*;
@@ -14,6 +11,8 @@ import org.urm.meta.product.MetaEnvServerNode;
 
 public class NodeStatus extends Status {
 
+	public MetaEnvServerNode node;
+	
 	public OBJECT_STATE mainState;
 	public VarPROCESSMODE mode;
 	public MetaEnvServer proxy;
@@ -26,17 +25,10 @@ public class NodeStatus extends Status {
 	public boolean proxyFailed;
 	public boolean wholeUrlFailed;
 
-	public NodeStatus( ActionCore action , MetaEnvServerNode node ) {
-		super( action , node );
-		create();
-	}
-	
-	public NodeStatus( ScopeState parent , ActionScopeTargetItem item ) {
-		super( parent , item );
-		create();
-	}
-	
-	private void create() {
+	public NodeStatus( ObjectState parent , MetaEnvServerNode node ) {
+		super( STATETYPE.TypeServerNode , parent , node );
+		this.node = node;
+		
 		mainState = OBJECT_STATE.STATE_NEVERQUERIED;
 		manual = false;
 		compFailed = false;

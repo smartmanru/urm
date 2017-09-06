@@ -1,6 +1,8 @@
 package org.urm.engine.status;
 
+import org.urm.action.ActionBase;
 import org.urm.engine.Engine;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 
 public class EngineStatus extends EngineObject {
@@ -18,6 +20,12 @@ public class EngineStatus extends EngineObject {
 	}
 
 	public void init() throws Exception {
+	}
+	
+	public synchronized void start( ActionBase action , EngineLoader loader ) {
+	}
+	
+	public synchronized void clear() throws Exception {
 	}
 	
 }

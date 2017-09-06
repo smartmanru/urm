@@ -1,9 +1,9 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 
 public class ActionReopenRelease extends ActionBase {
 

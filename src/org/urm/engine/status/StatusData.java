@@ -1,7 +1,7 @@
 package org.urm.engine.status;
 
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.events.EngineEventsState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 
 public class StatusData extends EngineEventsState {
 	

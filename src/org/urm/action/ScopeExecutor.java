@@ -5,11 +5,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.shell.Account;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.Types;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;

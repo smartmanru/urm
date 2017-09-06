@@ -2,8 +2,8 @@ package org.urm.action.build;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.ProjectVersionControl;

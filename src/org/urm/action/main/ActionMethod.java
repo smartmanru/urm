@@ -1,12 +1,12 @@
 package org.urm.action.main;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.RunError;
 import org.urm.common.action.CommandOptions;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.action.CommandMethod;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
 
 public class ActionMethod extends ActionBase {

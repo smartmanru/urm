@@ -1,10 +1,10 @@
 package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellInteractive;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionLogin extends ActionBase {

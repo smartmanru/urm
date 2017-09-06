@@ -6,8 +6,6 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionSet;
 import org.urm.action.ActionSetItem;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.EngineCacheObject;
 import org.urm.engine.events.EngineEvents;
@@ -16,7 +14,10 @@ import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSubscription;
 import org.urm.engine.events.EngineSourceEvent;
 import org.urm.engine.status.NodeStatus;
+import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.SegmentStatus;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.engine.status.ServerStatus;
 import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductMeta;
@@ -164,13 +165,13 @@ public class ActionMonitorTop extends ActionBase implements EngineEventsListener
 	@Override
 	public void triggerEvent( EngineSourceEvent event ) {
 		if( event.eventType == EngineEvents.EVENT_CACHE_SEGMENT )
-			super.eventSource.forwardScopeItem( EngineEvents.EVENT_MONITORING_SEGMENT , ( ScopeState )event.data );
+			super.eventSource.forwardState( EngineEvents.EVENT_MONITORING_SEGMENT , ( SegmentStatus )event.data );
 		else
 		if( event.eventType == EngineEvents.EVENT_CACHE_SERVER )
-			super.eventSource.forwardScopeItem( EngineEvents.EVENT_MONITORING_SERVER , ( ScopeState )event.data );
+			super.eventSource.forwardState( EngineEvents.EVENT_MONITORING_SERVER , ( ServerStatus )event.data );
 		else
 		if( event.eventType == EngineEvents.EVENT_CACHE_NODE )
-			super.eventSource.forwardScopeItem( EngineEvents.EVENT_MONITORING_NODE , ( ScopeState )event.data );
+			super.eventSource.forwardState( EngineEvents.EVENT_MONITORING_NODE , ( NodeStatus )event.data );
 	}
 	
 	@Override
@@ -256,7 +257,7 @@ public class ActionMonitorTop extends ActionBase implements EngineEventsListener
 		int sgIndex = super.logStartCapture();
 		info( "Run fast segment checks, sg=" + target.SG + " ..." );
 		MetaEnvSegment sg = addSystemTargetItems( mon , info , target , set );
-		SegmentStatus sgStatus = new SegmentStatus( this , sg );
+		SegmentStatus sgStatus = new SegmentStatus( null , sg );
 		
 		// direct
 		for( MetaMonitoringItem item : target.getUrlsList( this ) ) {
@@ -319,7 +320,7 @@ public class ActionMonitorTop extends ActionBase implements EngineEventsListener
 			}
 		}
 		
-		sgStatus.setActionStatus( totalStatus );
+		sgStatus.setTotalStatus( totalStatus );
 		super.eventSource.customEvent( EngineEvents.EVENT_MONITORING_SGITEMS , sgStatus );
 	}
 	

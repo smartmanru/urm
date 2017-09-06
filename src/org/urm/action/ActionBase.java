@@ -4,7 +4,6 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Properties;
 
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.main.ActionMethod;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
@@ -29,6 +28,8 @@ import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSubscription;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.BaseRepository;
 import org.urm.engine.storage.Folder;

@@ -1,12 +1,12 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.dist.DistState.DISTSTATE;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 
 public class ActionAppendProd extends ActionBase {
 

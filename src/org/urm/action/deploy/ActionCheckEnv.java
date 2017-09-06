@@ -5,16 +5,16 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.database.DatabaseClient;
 import org.urm.common.Common;
 import org.urm.common.SimpleHttp;
 import org.urm.engine.EngineCacheObject;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.status.NodeStatus;
+import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.SegmentStatus;
 import org.urm.engine.status.ServerStatus;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerDeployment;
@@ -66,7 +66,7 @@ public class ActionCheckEnv extends ActionBase {
 	}
 	
 	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		sgStatus = new SegmentStatus( this , set.sg );
+		sgStatus = new SegmentStatus( null , set.sg );
 		sgCaptureIndex = super.logStartCapture();
 		info( "execute segment=" + set.sg.NAME + " ..." );
 		co = super.getCacheObject( set.meta );
@@ -80,14 +80,14 @@ public class ActionCheckEnv extends ActionBase {
 			info( "## sg " + F_STATUSOBJECT + " check OK" );
 		
 		sgStatus.setLog( super.logFinishCapture( sgCaptureIndex ) );
-		co.finishScopeItem( EngineEvents.EVENT_CACHE_SEGMENT , sgStatus );
+		co.triggerState( EngineEvents.EVENT_CACHE_SEGMENT , sgStatus );
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		ActionScopeSet set = target.set;
 		
 		ScopeState parent = super.eventSource.findSetState( target.set );
-		ServerStatus serverStatus = new ServerStatus( parent , target );
+		ServerStatus serverStatus = new ServerStatus( parent , target.envServer );
 		int captureIndex = super.logStartCapture();
 		try {
 			S_CHECKENV_TARGET_FAILED = false;
@@ -137,7 +137,7 @@ public class ActionCheckEnv extends ActionBase {
 		
 		String[] log = super.logFinishCapture( captureIndex );
 		serverStatus.setLog( log );
-		co.finishScopeItem( EngineEvents.EVENT_CACHE_SERVER , serverStatus );
+		co.triggerState( EngineEvents.EVENT_CACHE_SERVER , serverStatus );
 		
 		return( SCOPESTATE.RunSuccess );
 	}
@@ -290,7 +290,7 @@ public class ActionCheckEnv extends ActionBase {
 		NodeStatus nodeStatus = null;
 		int captureIndex = 0;
 		if( main ) {
-			nodeStatus = new NodeStatus( serverStatus , item );
+			nodeStatus = new NodeStatus( serverStatus , node );
 			captureIndex = super.logStartCapture();
 		}
 		
@@ -336,7 +336,7 @@ public class ActionCheckEnv extends ActionBase {
 		if( main ) {
 			String[] log = super.logFinishCapture( captureIndex );
 			nodeStatus.setLog( log );
-			co.finishScopeItem( EngineEvents.EVENT_CACHE_NODE , nodeStatus );
+			co.triggerState( EngineEvents.EVENT_CACHE_NODE , nodeStatus );
 			serverStatus.addNodeStatus( nodeStatus ); 
 		}
 		else
