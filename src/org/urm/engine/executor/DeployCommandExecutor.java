@@ -96,8 +96,8 @@ public class DeployCommandExecutor extends CommandExecutor {
 		
 		String SERVER = getArg( action , posFrom );
 		if( action.context.sg == null ) {
-			if( !SERVER.isEmpty() )
-				action.exit0( _Error.MissingSegmentName0, "Segment name is required to use specific server" );
+			if( !SERVER.equals( "all" ) )
+				action.exit0( _Error.MissingSegmentName0, "Segment option is required to use specific server" );
 			maker.addScopeEnv( null , dist );
 		}
 		else {
