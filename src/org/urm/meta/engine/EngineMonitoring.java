@@ -3,6 +3,7 @@ package org.urm.meta.engine;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
@@ -12,8 +13,8 @@ import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
-import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSubscription;
+import org.urm.engine.status.EngineStatus;
 import org.urm.engine.status.StatusSource;
 import org.urm.engine.status.StatusData;
 import org.urm.meta.EngineLoader;
@@ -21,9 +22,6 @@ import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.w3c.dom.Document;
@@ -38,13 +36,6 @@ public class EngineMonitoring extends EngineObject {
 
 	Map<String,EngineMonitoringProduct> mapProduct;
 	
-	public static int MONITORING_APP = 1;
-	public static int MONITORING_SYSTEM = 2;
-	public static int MONITORING_PRODUCT = 3;
-	public static int MONITORING_ENVIRONMENT = 4;
-	public static int MONITORING_SEGMENT = 5;
-	public static int MONITORING_SERVER = 6;
-	public static int MONITORING_NODE = 7;
 	public Map<EngineObject,StatusSource> sourceMap;
 	
 	public PropertySet properties;
@@ -56,10 +47,6 @@ public class EngineMonitoring extends EngineObject {
 	public String RESOURCE_URL;
 
 	EngineEventsApp eventsApp;
-	
-	public static String EXTRA_SEGMENT_ITEMS = "sgitems";
-	public static String EXTRA_SERVER_ITEMS = "serveritems";
-	public static String EXTRA_NODE_ITEMS = "nodeitems";
 	
 	// properties
 	public static String PROPERTY_ENABLED = "monitoring.enabled";
@@ -126,8 +113,7 @@ public class EngineMonitoring extends EngineObject {
 		eventsApp = events.createApp( "monitoring" );
 		
 		EngineRegistry registry = loader.getRegistry();
-		startApp( registry.directory );
-		for( String systemName : registry.directory.getSystems() ) {
+		for( String systemName : registry.directory.getSystemNames() ) {
 			System system = registry.directory.findSystem( systemName );
 			startSystem( system );
 		}
@@ -149,167 +135,11 @@ public class EngineMonitoring extends EngineObject {
 			source.clearState();
 	}
 
-	public void startApp( EngineDirectory directory ) {
-		createSource( MONITORING_APP , directory );
-		engine.trace( "monitoring started for applications" );
-	}
-	
-	public void startSystem( System system ) {
-		createSource( MONITORING_SYSTEM , system );
-		engine.trace( "monitoring started for system=" + system.NAME );
-		
-		// start products
+	private void startSystem( System system ) {
 		for( String productName : system.getProductNames() ) {
 			Product product = system.findProduct( productName );
 			startProduct( product );
 		}
-	}
-	
-	public void startProduct( Product product ) {
-		ProductMeta storage = loader.findProductStorage( product.NAME );
-		if( storage == null || storage.loadFailed ) {
-			engine.trace( "ignore monitoring for non-healthy product=" + product.NAME );
-			return;
-		}
-		
-		MetaMonitoring meta = storage.getMonitoring();
-		if( !meta.ENABLED ) {
-			engine.trace( "monitoring is turned off for product=" + product.NAME );
-			return;
-		}
-
-		// start childs
-		for( String envName : storage.getEnvironmentNames() ) {
-			MetaEnv env = storage.findEnvironment( envName );
-			startEnvironment( env );
-		}
-		
-		StatusSource source = createSource( MONITORING_PRODUCT , product );
-		EngineMonitoringProduct mon = new EngineMonitoringProduct( this , product.NAME , source , eventsApp );
-		mapProduct.put( product.NAME , mon );
-		mon.start();
-		engine.trace( "monitoring started for product=" + product.NAME );
-	}
-
-	public void startEnvironment( MetaEnv env ) {
-		createSource( MONITORING_ENVIRONMENT , env );
-		
-		// start childs
-		for( MetaEnvSegment sg : env.getSegments() )
-			startSegment( sg );
-	}
-
-	public void startSegment( MetaEnvSegment sg ) {
-		createSource( MONITORING_SEGMENT , sg );
-		
-		// start childs
-		for( MetaEnvServer server : sg.getServers() )
-			startServer( server );
-	}
-	
-	public void startServer( MetaEnvServer server ) {
-		createSource( MONITORING_SERVER , server );
-		
-		// start childs
-		for( MetaEnvServerNode node : server.getNodes() )
-			startNode( node );
-	}
-	
-	public void startNode( MetaEnvServerNode node ) {
-		createSource( MONITORING_NODE , node );
-	}
-	
-	private StatusSource createSource( int level , EngineObject object ) {
-		String name = "o" + level + "." + object.objectId;
-		StatusSource source = new StatusSource( events , object , level , name );
-		sourceMap.put( object , source );
-		return( source );
-	}
-	
-	private void removeSource( int level , EngineObject object ) {
-		StatusSource source = sourceMap.get( object );
-		if( source == null )
-			return;
-		
-		source.unsubscribeAll();
-		sourceMap.remove( object );
-	}
-
-	private void replaceSource( int level , EngineObject objectOld , EngineObject objectNew ) {
-		StatusSource source = sourceMap.get( objectOld );
-		if( source == null )
-			return;
-		
-		sourceMap.remove( objectOld );
-		source.setObject( objectNew );
-		sourceMap.put( objectNew , source );
-	}
-
-	public void stopProduct( String productName ) {
-		stopProduct( productName , false );
-	}
-	
-	public void stopProduct( String productName , boolean delete ) {
-		EngineMonitoringProduct mon = mapProduct.get( productName );
-		if( mon == null )
-			return;
-		
-		mon.stop();
-		mapProduct.remove( productName );
-
-		EngineRegistry registry = loader.getRegistry();
-		Product product = registry.directory.findProduct( productName );
-		ProductMeta storage = loader.findProductStorage( productName );
-		
-		// stop childs
-		for( String envName : storage.getEnvironmentNames() ) {
-			MetaEnv env = storage.findEnvironment( envName );
-			stopEnvironment( env , delete );
-		}
-		
-		if( delete )
-			removeSource( MONITORING_PRODUCT , product );
-	}
-
-	public void stopEnvironment( MetaEnv env , boolean delete ) {
-		// stop childs
-		for( MetaEnvSegment sg : env.getSegments() )
-			stopSegment( sg , delete );
-		
-		if( delete )
-			removeSource( MONITORING_ENVIRONMENT , env );
-	}
-
-	public void stopSegment( MetaEnvSegment sg , boolean delete ) {
-		// stop childs
-		for( MetaEnvServer server : sg.getServers() )
-			stopServer( server , delete );
-		
-		if( delete )
-			removeSource( MONITORING_SEGMENT , sg );
-	}
-	
-	public void stopServer( MetaEnvServer server , boolean delete ) {
-		// stop childs
-		for( MetaEnvServerNode node : server.getNodes() )
-			stopNode( node , delete );
-		
-		if( delete )
-			removeSource( MONITORING_SERVER , server );
-	}
-	
-	public void stopNode( MetaEnvServerNode node , boolean delete ) {
-		if( delete )
-			removeSource( MONITORING_NODE , node );
-	}
-
-	public StatusSource getAppSource() {
-		EngineRegistry registry = loader.getRegistry();
-		return( getObjectSource( registry.directory ) );
-	}
-	
-	public StatusSource getObjectSource( EngineObject object ) {
-		return( sourceMap.get( object ) );
 	}
 
 	public StatusData getState( EngineEventsSubscription sub ) {
@@ -332,92 +162,6 @@ public class EngineMonitoring extends EngineObject {
 		return( registry.directory.findProduct( name ) );
 	}
 
-	public EngineEventsSubscription subscribe( EngineEventsApp app , EngineEventsListener listener , EngineObject object ) {
-		StatusSource source = getObjectSource( object );
-		if( source == null )
-			return( null );
-		
-		return( app.subscribe( source , listener ) );
-	}
-
-	public void createProduct( ProductMeta storage ) {
-		EngineRegistry registry = loader.getRegistry();
-		Product product = registry.directory.findProduct( storage.name );
-		startProduct( product );
-	}
-	
-	public void deleteProduct( ProductMeta storage ) {
-		stopProduct( storage.name , true );
-	}
-	
-	public void modifyProduct( ProductMeta storageOld , ProductMeta storage ) {
-		for( String envName : storage.getEnvironmentNames() ) {
-			MetaEnv envNew = storage.findEnvironment( envName );
-			MetaEnv envOld = storageOld.findEnvironment( envName );
-			if( envOld != null )
-				modifyEnvironment( envOld , envNew );
-			else
-				startEnvironment( envNew );
-		}
-		for( String envName : storageOld.getEnvironmentNames() ) {
-			MetaEnv envOld = storageOld.findEnvironment( envName );
-			MetaEnv envNew = storage.findEnvironment( envName );
-			if( envNew == null )
-				stopEnvironment( envOld , true );
-		}
-	}
-
-	private void modifyEnvironment( MetaEnv envOld , MetaEnv envNew ) {
-		replaceSource( MONITORING_ENVIRONMENT , envOld , envNew );
-		
-		for( MetaEnvSegment sgNew : envNew.getSegments() ) {
-			MetaEnvSegment sgOld = envOld.findSegment( sgNew.NAME );
-			if( sgOld != null )
-				modifySegment( sgOld , sgNew );
-			else
-				startSegment( sgNew );
-		}
-		for( MetaEnvSegment sgOld : envOld.getSegments() ) {
-			MetaEnvSegment sgNew = envNew.findSegment( sgOld.NAME );
-			if( sgNew == null )
-				stopSegment( sgOld , true );
-		}
-	}
-	
-	private void modifySegment( MetaEnvSegment sgOld , MetaEnvSegment sgNew ) {
-		replaceSource( MONITORING_SEGMENT , sgOld , sgNew );
-		
-		for( MetaEnvServer serverNew : sgNew.getServers() ) {
-			MetaEnvServer serverOld = sgOld.findServer( serverNew.NAME );
-			if( serverOld != null )
-				modifyServer( serverOld , serverNew );
-			else
-				startServer( serverNew );
-		}
-		for( MetaEnvServer serverOld : sgOld.getServers() ) {
-			MetaEnvServer serverNew = sgNew.findServer( serverOld.NAME );
-			if( serverNew == null )
-				stopServer( serverOld , true );
-		}
-	}
-	
-	private void modifyServer( MetaEnvServer serverOld , MetaEnvServer serverNew ) {
-		replaceSource( MONITORING_SEGMENT , serverOld , serverNew );
-		
-		for( MetaEnvServerNode nodeNew : serverNew.getNodes() ) {
-			MetaEnvServerNode nodeOld = serverOld.findNode( nodeNew.POS );
-			if( nodeOld != null )
-				replaceSource( MONITORING_NODE , nodeOld , nodeNew );
-			else
-				startNode( nodeNew );
-		}
-		for( MetaEnvServerNode nodeOld : serverOld.getNodes() ) {
-			MetaEnvServerNode nodeNew = serverNew.findNode( nodeOld.POS );
-			if( nodeNew == null )
-				stopNode( nodeOld , true );
-		}
-	}
-
 	public void deleteTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {
 		target.monitoring.deleteTarget( transaction , target );
 	}
@@ -432,7 +176,27 @@ public class EngineMonitoring extends EngineObject {
 		MetaEnvSegment sg = env.findSegment( target.SG );
 		if( sg == null)
 			return( null );
-		return( getObjectSource( sg ) );
+		
+		EngineStatus status = engine.getStatus();
+		return( status.getObjectSource( sg ) );
+	}
+
+	public synchronized void createProduct( ActionBase action , Product product , ProductMeta storage ) {
+	}
+	
+	public void modifyProduct( ActionBase action , ProductMeta storageOld , ProductMeta storageNew ) {
+	}
+	
+	public synchronized void deleteProduct( ActionBase action , ProductMeta storage ) {
+	}	
+	
+	public synchronized void startProduct( String product ) {
+	}
+	
+	public synchronized void stopProduct( String product ) {
+	}
+	
+	private synchronized void startProduct( Product product ) {
 	}
 	
 }

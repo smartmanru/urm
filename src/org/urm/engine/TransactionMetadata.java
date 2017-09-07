@@ -1,7 +1,11 @@
 package org.urm.engine;
 
+import org.urm.engine.status.EngineStatus;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineMonitoring;
+import org.urm.meta.engine.EngineRegistry;
+import org.urm.meta.engine.Product;
 import org.urm.meta.product.Meta;
 
 public class TransactionMetadata {
@@ -83,13 +87,11 @@ public class TransactionMetadata {
 	}
 
 	public boolean saveProduct() throws Exception {
-		EngineMonitoring mon = transaction.action.getServerMonitoring();
-		
 		if( deleteMetadata ) {
 			if( metadataOld == null )
 				return( true );
 
-			mon.deleteProduct( metadataOld );
+			deleteProduct( metadataOld );
 			transaction.action.deleteProductMetadata( transaction , metadataOld );
 			transaction.trace( "transaction product storage meta: delete=" + metadataOld.objectId );
 		}
@@ -101,9 +103,9 @@ public class TransactionMetadata {
 			sessionMeta.replaceStorage( transaction.action , metadata );
 			transaction.trace( "transaction product storage meta: save=" + metadata.objectId );
 			if( createMetadata )
-				mon.createProduct( metadata );
+				createProduct( metadata );
 			else
-				mon.modifyProduct( metadataOld , metadata );
+				modifyProduct( metadataOld , metadata );
 		}
 		
 		return( true );
@@ -114,6 +116,34 @@ public class TransactionMetadata {
 			transaction.exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
 		if( ( deleteMetadata == false && metadata != sourceMeta ) || ( deleteMetadata == true && metadataOld != sourceMeta ) )
 			transaction.exit1( _Error.InternalTransactionError1 , "Internal error: invalid transaction metadata" , "invalid transaction metadata" );
+	}
+
+	private void createProduct( ProductMeta metadata ) {
+		EngineLoader loader = metadata.loader;
+		EngineRegistry registry = loader.getRegistry();
+		Product product = registry.directory.findProduct( metadata.name );
+		
+		EngineStatus status = transaction.action.getServerStatus();
+		status.createProduct( transaction.action , product , metadata );
+		
+		EngineMonitoring mon = transaction.action.getServerMonitoring();
+		mon.createProduct( transaction.action , product , metadata );
+	}
+	
+	private void deleteProduct( ProductMeta metadata ) {
+		EngineStatus status = transaction.action.getServerStatus();
+		status.deleteProduct( transaction.action , metadata );
+		
+		EngineMonitoring mon = transaction.action.getServerMonitoring();
+		mon.deleteProduct( transaction.action , metadata );
+	}
+	
+	private void modifyProduct( ProductMeta metadataOld , ProductMeta metadataNew ) {
+		EngineStatus status = transaction.action.getServerStatus();
+		status.modifyProduct( transaction.action , metadataOld , metadataNew );
+		
+		EngineMonitoring mon = transaction.action.getServerMonitoring();
+		mon.modifyProduct( transaction.action , metadataOld , metadataNew );
 	}
 	
 }

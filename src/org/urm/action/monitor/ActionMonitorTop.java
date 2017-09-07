@@ -7,17 +7,12 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionSet;
 import org.urm.action.ActionSetItem;
 import org.urm.common.Common;
-import org.urm.engine.EngineCacheObject;
 import org.urm.engine.events.EngineEvents;
-import org.urm.engine.events.EngineEventsApp;
-import org.urm.engine.events.EngineEventsListener;
-import org.urm.engine.events.EngineEventsSubscription;
-import org.urm.engine.events.EngineSourceEvent;
+import org.urm.engine.status.EngineStatus;
 import org.urm.engine.status.NodeStatus;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.SegmentStatus;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.engine.status.ServerStatus;
 import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductMeta;
@@ -30,17 +25,14 @@ import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringItem;
 import org.urm.meta.product.MetaMonitoringTarget;
 
-public class ActionMonitorTop extends ActionBase implements EngineEventsListener {
+public class ActionMonitorTop extends ActionBase {
 
 	boolean continueRunning;
 	String productName;
-	EngineEventsApp eventsApp;
-	EngineCacheObject co;
 	
-	public ActionMonitorTop( ActionBase action , String stream , String productName , EngineEventsApp eventsApp ) {
+	public ActionMonitorTop( ActionBase action , String stream , String productName ) {
 		super( action , stream , "Monitoring, check product=" + productName );
 		this.productName = productName;
-		this.eventsApp = eventsApp;
 	}
 
 	@Override 
@@ -55,9 +47,6 @@ public class ActionMonitorTop extends ActionBase implements EngineEventsListener
 		boolean runMajor = true;
 		int majorCount = 0;
 		int minorCount = 0;
-		
-		co = super.getProductCacheObject( productName );
-		eventsApp.subscribe( co , this );
 		
 		MonitorInfo info = null;
 		while( continueRunning ) {
@@ -160,22 +149,6 @@ public class ActionMonitorTop extends ActionBase implements EngineEventsListener
 		}
 		
 		return( SCOPESTATE.RunSuccess );
-	}
-
-	@Override
-	public void triggerEvent( EngineSourceEvent event ) {
-		if( event.eventType == EngineEvents.EVENT_CACHE_SEGMENT )
-			super.eventSource.forwardState( EngineEvents.EVENT_MONITORING_SEGMENT , ( SegmentStatus )event.data );
-		else
-		if( event.eventType == EngineEvents.EVENT_CACHE_SERVER )
-			super.eventSource.forwardState( EngineEvents.EVENT_MONITORING_SERVER , ( ServerStatus )event.data );
-		else
-		if( event.eventType == EngineEvents.EVENT_CACHE_NODE )
-			super.eventSource.forwardState( EngineEvents.EVENT_MONITORING_NODE , ( NodeStatus )event.data );
-	}
-	
-	@Override
-	public void triggerSubscriptionRemoved( EngineEventsSubscription sub ) {
 	}
 
 	public void updateCheckItemState( ActionMonitorCheckItem checkAction , boolean res ) {
@@ -307,6 +280,7 @@ public class ActionMonitorTop extends ActionBase implements EngineEventsListener
 	private void checkSystemTargetItems( MetaMonitoring mon , MonitorInfo info , MetaMonitoringTarget target , ActionSet set , SegmentStatus sgStatus ) throws Exception {
 		boolean totalStatus = true;
 		
+		EngineStatus engineStatus = super.getServerStatus();
 		for( ActionSetItem item : set.getActions() ) {
 			ActionMonitorCheckItem action = ( ActionMonitorCheckItem )item.action;
 			if( action.server == null ) {
@@ -314,14 +288,14 @@ public class ActionMonitorTop extends ActionBase implements EngineEventsListener
 					totalStatus = false;
 			}
 			else {
-				super.eventSource.customEvent( EngineEvents.EVENT_MONITORING_SERVERITEMS , action.serverStatus );
+				engineStatus.setServerItemsStatus( this , action.server , action.serverStatus );
 				for( NodeStatus nodeStatus : action.getNodes() )
-					super.eventSource.customEvent( EngineEvents.EVENT_MONITORING_NODEITEMS , nodeStatus );
+					engineStatus.setServerNodeItemsStatus( this , nodeStatus.node , nodeStatus );
 			}
 		}
 		
 		sgStatus.setTotalStatus( totalStatus );
-		super.eventSource.customEvent( EngineEvents.EVENT_MONITORING_SGITEMS , sgStatus );
+		engineStatus.setSegmentItemsStatus( this , sgStatus.sg , sgStatus );
 	}
 	
 }

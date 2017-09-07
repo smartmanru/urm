@@ -8,8 +8,7 @@ import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.database.DatabaseClient;
 import org.urm.common.Common;
 import org.urm.common.SimpleHttp;
-import org.urm.engine.EngineCacheObject;
-import org.urm.engine.events.EngineEvents;
+import org.urm.engine.status.EngineStatus;
 import org.urm.engine.status.NodeStatus;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.SegmentStatus;
@@ -39,7 +38,6 @@ public class ActionCheckEnv extends ActionBase {
 	
 	SegmentStatus sgStatus;
 	int sgCaptureIndex;
-	EngineCacheObject co;
 	
 	public ActionCheckEnv( ActionBase action , String stream ) {
 		super( action , stream , "Check environment status" );
@@ -48,7 +46,6 @@ public class ActionCheckEnv extends ActionBase {
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		// check all processes
 		infoAction( "check environment=" + context.env.ID + " ..." );
-		co = super.getCacheObject( scope.meta );
 	}
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
@@ -69,7 +66,6 @@ public class ActionCheckEnv extends ActionBase {
 		sgStatus = new SegmentStatus( null , set.sg );
 		sgCaptureIndex = super.logStartCapture();
 		info( "execute segment=" + set.sg.NAME + " ..." );
-		co = super.getCacheObject( set.meta );
 	}
 
 	@Override protected void runAfter( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
@@ -80,7 +76,8 @@ public class ActionCheckEnv extends ActionBase {
 			info( "## sg " + F_STATUSOBJECT + " check OK" );
 		
 		sgStatus.setLog( super.logFinishCapture( sgCaptureIndex ) );
-		co.triggerState( EngineEvents.EVENT_CACHE_SEGMENT , sgStatus );
+		EngineStatus status = super.getServerStatus();
+		status.setSegmentStatus( this , set.sg , sgStatus );
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
@@ -137,7 +134,8 @@ public class ActionCheckEnv extends ActionBase {
 		
 		String[] log = super.logFinishCapture( captureIndex );
 		serverStatus.setLog( log );
-		co.triggerState( EngineEvents.EVENT_CACHE_SERVER , serverStatus );
+		EngineStatus status = super.getServerStatus();
+		status.setServerStatus( this , target.envServer , serverStatus );
 		
 		return( SCOPESTATE.RunSuccess );
 	}
@@ -336,7 +334,8 @@ public class ActionCheckEnv extends ActionBase {
 		if( main ) {
 			String[] log = super.logFinishCapture( captureIndex );
 			nodeStatus.setLog( log );
-			co.triggerState( EngineEvents.EVENT_CACHE_NODE , nodeStatus );
+			EngineStatus status = super.getServerStatus();
+			status.setServerNodeStatus( this , node , nodeStatus );
 			serverStatus.addNodeStatus( nodeStatus ); 
 		}
 		else

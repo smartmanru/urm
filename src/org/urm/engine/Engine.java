@@ -138,6 +138,7 @@ public class Engine {
 		
 		houseKeeping.stop();
 		
+		status.stop( serverAction );
 		events.stop();
 		EngineMonitoring mon = loader.getMonitoring();
 		mon.stop();
@@ -148,7 +149,6 @@ public class Engine {
 		jmxController = null;
 		loader.clearServerProducts();
 		blotter.clear();
-		status.clear();
 		cache.clear();
 		auth.stop( serverAction );
 		
@@ -482,6 +482,10 @@ public class Engine {
 		return( auth );
 	}
 
+	public EngineStatus getStatus() {
+		return( status );
+	}
+	
 	public EngineEvents getEvents() {
 		return( events );
 	}

@@ -6,6 +6,7 @@ import java.util.Map;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
+import org.urm.engine.status.EngineStatus.StatusType;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.meta.EngineObject;
@@ -14,16 +15,16 @@ import org.urm.meta.engine.EngineMonitoring;
 public class StatusSource extends EngineEventsSource {
 
 	public EngineMonitoring mon;
-	public int level;
+	public StatusType type;
 	public EngineObject object;
 	public StatusData state;
 	private StatusData primary;
 	private Map<String,StatusData> extra;
 
-	public StatusSource( EngineEvents events , EngineObject object , int level , String name ) {
+	public StatusSource( EngineEvents events , EngineObject object , StatusType type , String name ) {
 		super( events , name );
 		this.object = object;
-		this.level = level;
+		this.type = type;
 		
 		state = new StatusData( this );
 		primary = new StatusData( this );
@@ -63,7 +64,7 @@ public class StatusSource extends EngineEventsSource {
 		
 		if( finalState != state.state ) {
 			state.setState( finalState );
-			super.trigger( EngineEvents.EVENT_MONITORSTATECHANGED , state );
+			super.trigger( EngineEvents.EVENT_STATECHANGED , state );
 			return( true );
 		}
 		

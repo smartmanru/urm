@@ -5,6 +5,7 @@ import org.urm.action.ActionScope;
 import org.urm.common.Common;
 import org.urm.engine.EngineSession;
 import org.urm.engine.TransactionBase;
+import org.urm.engine.status.EngineStatus;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
@@ -201,6 +202,10 @@ public class ActionInit extends ActionBase {
 	
 	public EngineAuth getServerAuth() {
 		return( engine.getAuth() );
+	}
+	
+	public EngineStatus getServerStatus() {
+		return( engine.getStatus() );
 	}
 	
 	public void setDirectory( TransactionBase transaction , EngineDirectory directory ) throws Exception {

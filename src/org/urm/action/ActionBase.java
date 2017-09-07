@@ -28,6 +28,7 @@ import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSubscription;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
+import org.urm.engine.status.EngineStatus;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.Artefactory;
@@ -732,6 +733,10 @@ abstract public class ActionBase extends ActionCore {
 	
 	public EngineBase getServerBase() {
 		return( actionInit.getServerBase() );
+	}
+	
+	public EngineStatus getServerStatus() {
+		return( actionInit.getServerStatus() );
 	}
 	
 	public EngineInfrastructure getServerInfrastructure() {

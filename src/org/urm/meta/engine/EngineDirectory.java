@@ -68,7 +68,7 @@ public class EngineDirectory extends EngineObject {
 		return( r );
 	}
 	
-	public String[] getSystems() {
+	public String[] getSystemNames() {
 		return( Common.getSortedKeys( mapSystems ) );
 	}
 

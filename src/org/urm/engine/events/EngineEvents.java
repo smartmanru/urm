@@ -12,20 +12,15 @@ public class EngineEvents extends EngineObject {
 	public static int EVENT_BLOTTEREVENT = 3;
 	public static int EVENT_NOTIFY = 4;
 	public static int EVENT_FINISHCHILDSTATE = 5;
-	public static int EVENT_MONITORSTATECHANGED = 11;
+	public static int EVENT_STATECHANGED = 11;
 	public static int EVENT_MONITORCHILDCHANGED = 12;
 	public static int EVENT_MONITORGRAPHCHANGED = 13;
-	public static int EVENT_CACHE_PRODUCT = 20;
-	public static int EVENT_CACHE_ENV = 21;
-	public static int EVENT_CACHE_SEGMENT = 22;
-	public static int EVENT_CACHE_SERVER = 23;
-	public static int EVENT_CACHE_NODE = 24;
-	public static int EVENT_MONITORING_SEGMENT = 50;
-	public static int EVENT_MONITORING_SERVER = 51;
-	public static int EVENT_MONITORING_NODE = 52;
-	public static int EVENT_MONITORING_SGITEMS = 150;
-	public static int EVENT_MONITORING_SERVERITEMS = 151;
-	public static int EVENT_MONITORING_NODEITEMS = 152;
+	public static int EVENT_SEGMENT = 50;
+	public static int EVENT_SERVER = 51;
+	public static int EVENT_NODE = 52;
+	public static int EVENT_SGITEMS = 150;
+	public static int EVENT_SERVERITEMS = 151;
+	public static int EVENT_NODEITEMS = 152;
 
 	EngineEventsTimer timer;
 	EngineEventsNotifier notifier;
