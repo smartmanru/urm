@@ -24,15 +24,15 @@ public class ActionEventsSource extends EngineEventsSource {
 	}
 	
 	public void finishScopeItem( ScopeState state ) {
-		super.trigger( EngineEvents.EVENT_FINISHSTATE , state );
+		super.notify( EngineEvents.EVENT_FINISHSTATE , state );
 	}
 	
 	public void finishScopeItem( int eventType , ScopeState state ) {
-		super.trigger( eventType , state );
+		super.notify( eventType , state );
 	}
 	
 	public void forwardState( int eventType , ObjectState state ) {
-		super.trigger( eventType , state );
+		super.notify( eventType , state );
 	}
 
 	public ScopeState findSetState( ActionScopeSet set ) {
@@ -44,7 +44,7 @@ public class ActionEventsSource extends EngineEventsSource {
 	}
 
 	public void customEvent( int eventType , Object data ) {
-		super.trigger( eventType , data );
+		super.notify( eventType , data );
 	}
 
 }

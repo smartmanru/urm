@@ -10,7 +10,6 @@ public class EngineEvents extends EngineObject {
 	public static int EVENT_FINISHSTATE = 1;
 	public static int EVENT_SECONDTIMER = 2;
 	public static int EVENT_BLOTTEREVENT = 3;
-	public static int EVENT_NOTIFY = 4;
 	public static int EVENT_FINISHCHILDSTATE = 5;
 	public static int EVENT_STATECHANGED = 11;
 	public static int EVENT_MONITORCHILDCHANGED = 12;
@@ -35,7 +34,7 @@ public class EngineEvents extends EngineObject {
 
 	@Override
 	public String getName() {
-		return( "server-events" );
+		return( "engine-events" );
 	}
 	
 	public void init() throws Exception {
@@ -66,8 +65,12 @@ public class EngineEvents extends EngineObject {
 	}			
 
 
-	public void notifyListener( EngineEventsApp app , EngineEventsListener listener , Object eventData ) {
+	public void notifyListener( EngineEventsApp app , EngineEventsListener listener , EngineSourceEvent eventData ) {
 		notifier.addEvent( app , listener , eventData );
+	}
+	
+	public void notifyApp( EngineEventsApp app , EngineSourceEvent eventData ) {
+		notifier.addEvent( app , null , eventData );
 	}
 	
 }

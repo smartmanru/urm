@@ -39,22 +39,25 @@ abstract public class EngineEventsSource {
 		}
 	}
 
-	protected void trigger( int eventType , Object data ) {
-		EngineSourceEvent event = null;
-		EngineEventsApp[] apps = null;
-		
+	protected void notify( int eventType , Object data ) {
 		synchronized( events ) {
 			stateId++;
-			event = new EngineSourceEvent( this , stateId , eventType , data );
-			apps = appMap.values().toArray( new EngineEventsApp[0] );
+			EngineSourceEvent event = new EngineSourceEvent( this , eventType , data , stateId );
+			for( EngineEventsApp app : appMap.values() )
+				events.notifyApp( app , event );
 		}
-		
-		for( EngineEventsApp app : apps )
-			app.triggerEvent( event );
 	}
 
 	public int getStateId() {
 		return( stateId );
+	}
+
+	public EngineSourceEvent createCustomEvent( int eventType , Object object ) {
+		synchronized( events ) {
+			stateId++;
+			EngineSourceEvent event = new EngineSourceEvent( this , eventType , object , stateId );
+			return( event );
+		}
 	}
 	
 }

@@ -10,9 +10,9 @@ public class EngineEventsNotifier extends EngineEventsSource {
 	class NotifyEvent {
 		public EngineEventsApp app;
 		public EngineEventsListener listener;
-		public Object eventData;
+		public EngineSourceEvent eventData;
 		
-		public NotifyEvent( EngineEventsApp app , EngineEventsListener listener , Object eventData ) {
+		public NotifyEvent( EngineEventsApp app , EngineEventsListener listener , EngineSourceEvent eventData ) {
 			this.app = app;
 			this.listener = listener;
 			this.eventData = eventData;
@@ -70,8 +70,7 @@ public class EngineEventsNotifier extends EngineEventsSource {
 			return;
 		}
 		
-		EngineSourceEvent sse = new EngineSourceEvent( this , 0 , EngineEvents.EVENT_NOTIFY , event.eventData );
-		event.app.triggerEvent( event.listener , sse );
+		event.app.triggerEvent( event.eventData );
 	}
 	
 	public void start() {
@@ -82,7 +81,7 @@ public class EngineEventsNotifier extends EngineEventsSource {
 		events.engine.executor.stopTask( task );
 	}
 
-	public void addEvent( EngineEventsApp app , EngineEventsListener listener , Object eventData ) {
+	public void addEvent( EngineEventsApp app , EngineEventsListener listener , EngineSourceEvent eventData ) {
 		synchronized( task ) {
 			if( !task.isRunning() )
 				return;

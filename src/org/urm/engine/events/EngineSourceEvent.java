@@ -7,7 +7,7 @@ public class EngineSourceEvent {
 	public int eventType;
 	public Object data;
 	
-	EngineSourceEvent( EngineEventsSource source , int stateId , int eventType , Object data ) {
+	public EngineSourceEvent( EngineEventsSource source , int eventType , Object data , int stateId ) {
 		this.source = source;
 		this.stateId = stateId;
 		this.eventType = eventType;

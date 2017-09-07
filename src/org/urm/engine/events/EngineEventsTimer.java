@@ -35,7 +35,7 @@ public class EngineEventsTimer extends EngineEventsSource {
 	
 	private void cycle() {
 		Common.sleep( 1000 );
-		super.trigger( EngineEvents.EVENT_SECONDTIMER , null );
+		super.notify( EngineEvents.EVENT_SECONDTIMER , null );
 	}
 
 	public void start() {

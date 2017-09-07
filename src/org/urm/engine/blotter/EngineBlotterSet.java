@@ -152,12 +152,12 @@ public class EngineBlotterSet extends EngineEventsSource {
 	
 	public void notifyItem( EngineBlotterItem item , BlotterEvent event ) {
 		EngineBlotterEvent data = new EngineBlotterEvent( item , event );
-		super.trigger( EngineEvents.EVENT_BLOTTEREVENT , data );
+		super.notify( EngineEvents.EVENT_BLOTTEREVENT , data );
 	}
 	
 	public void notifyChildItem( EngineBlotterItem baseItem , EngineBlotterTreeItem treeItem , BlotterEvent event ) {
 		EngineBlotterEvent data = new EngineBlotterEvent( baseItem , treeItem , event );
-		super.trigger( EngineEvents.EVENT_BLOTTEREVENT , data );
+		super.notify( EngineEvents.EVENT_BLOTTEREVENT , data );
 	}
 	
 	public synchronized void startChildAction( EngineBlotterActionItem baseItem , EngineBlotterTreeItem treeItem ) {

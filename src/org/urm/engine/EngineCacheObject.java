@@ -43,8 +43,8 @@ public class EngineCacheObject extends EngineEventsSource {
 		return( new EngineCacheObjectState( this , super.getStateId() , data.get( key ) ) );
 	}
 	
-	public void triggerState( int eventType , ObjectState state ) {
-		super.trigger( eventType , state );
+	public void notifyState( int eventType , ObjectState state ) {
+		super.notify( eventType , state );
 	}
 	
 }

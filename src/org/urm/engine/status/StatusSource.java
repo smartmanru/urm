@@ -64,7 +64,7 @@ public class StatusSource extends EngineEventsSource {
 		
 		if( finalState != state.state ) {
 			state.setState( finalState );
-			super.trigger( EngineEvents.EVENT_STATECHANGED , state );
+			super.notify( EngineEvents.EVENT_STATECHANGED , state );
 			return( true );
 		}
 		
@@ -115,7 +115,7 @@ public class StatusSource extends EngineEventsSource {
 	}
 
 	public void customEvent( int eventType , Object data ) {
-		super.trigger( eventType , data );
+		super.notify( eventType , data );
 	}
 	
 }

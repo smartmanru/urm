@@ -320,7 +320,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 					item.setNotRun();
 			}
 		}
-		super.trigger( EVENT_PLANFINISHED , null );
+		super.notify( EVENT_PLANFINISHED , null );
 	}
 	
 	private boolean executeDatabaseInternal( ActionBase action , CommandOptions options ) {
@@ -411,7 +411,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 		
 		if( state != SCOPESTATE.RunSuccess ) {
 			item.setBuildDone( false );
-			super.trigger( EVENT_ITEMFINISHED , item );
+			super.notify( EVENT_ITEMFINISHED , item );
 		}
 	}
 	
@@ -422,7 +422,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 		
 		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
 		item.setGetDone( success );
-		super.trigger( EVENT_ITEMFINISHED , item );
+		super.notify( EVENT_ITEMFINISHED , item );
 	}
 	
 	private void addGetConfStatus( MetaDistrConfItem confItem , SCOPESTATE state ) {
@@ -432,7 +432,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 		
 		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
 		item.setGetDone( success );
-		super.trigger( EVENT_ITEMFINISHED , item );
+		super.notify( EVENT_ITEMFINISHED , item );
 	}
 	
 	private void addGetDBNormalStatus( MetaDistrDelivery delivery , SCOPESTATE state ) {
@@ -442,7 +442,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 		
 		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
 		item.setGetDone( success );
-		super.trigger( EVENT_ITEMFINISHED , item );
+		super.notify( EVENT_ITEMFINISHED , item );
 	}
 	
 	private void addGetDBCumulativeStatus( SCOPESTATE state ) {
@@ -452,7 +452,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 				if( item != null ) {
 					boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
 					item.setGetDone( success );
-					super.trigger( EVENT_ITEMFINISHED , item );
+					super.notify( EVENT_ITEMFINISHED , item );
 				}
 			}
 		}
@@ -465,7 +465,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 		
 		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
 		item.setBuildDone( success );
-		super.trigger( EVENT_ITEMFINISHED , item );
+		super.notify( EVENT_ITEMFINISHED , item );
 	}
 	
 }
