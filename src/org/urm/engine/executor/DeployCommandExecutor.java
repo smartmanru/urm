@@ -94,21 +94,22 @@ public class DeployCommandExecutor extends CommandExecutor {
 	private ActionScope getServerScope( ActionBase action , int posFrom , Dist dist ) throws Exception {
 		ActionEnvScopeMaker maker = new ActionEnvScopeMaker( action , action.context.env );
 		
-		String s = getArg( action , posFrom + 1 );
-		if( s.matches( "[0-9]+" ) ) {
-			String SERVER = getArg( action , posFrom );
-			String[] NODES = getArgList( action , posFrom + 1 );
-			if( action.context.sg == null ) {
-				if( !SERVER.isEmpty() )
-					action.exit0( _Error.MissingSegmentName0, "Segment name is required to use specific server" );
-				maker.addScopeEnv( null , dist );
-			}
-			else
-				maker.addScopeEnvServerNodes( action.context.sg , SERVER , NODES , dist );
+		String SERVER = getArg( action , posFrom );
+		if( action.context.sg == null ) {
+			if( !SERVER.isEmpty() )
+				action.exit0( _Error.MissingSegmentName0, "Segment name is required to use specific server" );
+			maker.addScopeEnv( null , dist );
 		}
 		else {
-			String[] SERVERS = getArgList( action , posFrom );
-			maker.addScopeEnvServers( action.context.sg , SERVERS , dist );
+			String s = getArg( action , posFrom + 1 );
+			if( s.matches( "[0-9]+" ) ) {
+				String[] NODES = getArgList( action , posFrom + 1 );
+				maker.addScopeEnvServerNodes( action.context.sg , SERVER , NODES , dist );
+			}
+			else {
+				String[] SERVERS = getArgList( action , posFrom );
+				maker.addScopeEnvServers( action.context.sg , SERVERS , dist );
+			}
 		}
 
 		return( maker.getScope() );
