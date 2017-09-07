@@ -140,7 +140,7 @@ public class EngineStatus extends EngineObject {
 
 	public synchronized void setProductStatus( ActionBase action , Product product , OBJECT_STATE state ) {
 		StatusSource productSource = getObjectSource( product );
-		if( productSource.setState( state ) ) {
+		if( productSource != null && productSource.setState( state ) ) {
 			System system = product.system;
 			recalculateSystem( system );
 		}
@@ -264,15 +264,19 @@ public class EngineStatus extends EngineObject {
 	}
 
 	private StatusSource createGlobalSource( StatusType type , EngineObject object , String name ) {
-		StatusSource source = new StatusSource( events , object , type , type.name() + "-" + name );
-		globalSources.put( name , source );
+		String sourceName = type.name() + "-" + name;
+		StatusSource source = new StatusSource( events , object , type , sourceName );
+		globalSources.put( sourceName , source );
 		return( source );
 	}
 	
 	private void deleteGlobalSource( StatusType type , String name ) {
 		String sourceName = type.name() + "-" + name;
 		StatusSource source = globalSources.get( sourceName );
-		globalSources.remove( name );
+		if( source == null )
+			return;
+		
+		globalSources.remove( sourceName );
 		source.unsubscribeAll();
 	}
 	
