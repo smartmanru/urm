@@ -59,6 +59,7 @@ public class Engine {
 	private EngineAuth auth;
 	private EngineEvents events;
 	private EngineLoader loader;
+	private EngineSchedule schedule;
 	private EngineStatus status;
 	public boolean running;
 
@@ -83,6 +84,7 @@ public class Engine {
 
 		auth = new EngineAuth( this );
 		events = new EngineEvents( this );
+		schedule = new EngineSchedule( this ); 
 		loader = new EngineLoader( this );
 		sessionController = new SessionController( this );
 		status = new EngineStatus( this );
@@ -95,6 +97,7 @@ public class Engine {
 		cache.init();
 		auth.init();
 		events.init();
+		schedule.init();
 		status.init();
 		loader.init();
 		sessionController.init();
@@ -111,9 +114,10 @@ public class Engine {
 	public void runServer( ActionInit action ) throws Exception {
 		serverAction.debug( "load server configuration ..." );
 		auth.start( serverAction );
-		loader.loadServerProducts( action );
-		status.start( action , loader );
+		loader.loadServerProducts( serverAction );
+		status.start( serverAction , loader );
 		blotter.start( serverAction );
+		schedule.start( serverAction );
 		
 		sessionController.start( serverAction );
 		
@@ -137,9 +141,10 @@ public class Engine {
 		serverAction.info( "stopping server ..." );
 		
 		houseKeeping.stop();
-		
 		status.stop( serverAction );
 		events.stop();
+		schedule.stop();
+		
 		EngineMonitoring mon = loader.getMonitoring();
 		mon.stop();
 		shellPool.stop( serverAction );

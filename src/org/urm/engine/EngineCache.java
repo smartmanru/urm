@@ -20,7 +20,7 @@ public class EngineCache extends EngineObject {
 
 	@Override
 	public String getName() {
-		return( "server-cache" );
+		return( "engine-cache" );
 	}
 	
 	public synchronized void init() {
