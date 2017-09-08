@@ -29,6 +29,7 @@ import org.urm.engine.executor.MainExecutor;
 import org.urm.engine.executor.MonitorCommandExecutor;
 import org.urm.engine.executor.ReleaseCommandExecutor;
 import org.urm.engine.executor.XDocCommandExecutor;
+import org.urm.engine.schedule.EngineScheduler;
 import org.urm.engine.shell.ShellCoreJNI;
 import org.urm.engine.shell.EngineShellPool;
 import org.urm.engine.status.EngineStatus;
@@ -59,7 +60,7 @@ public class Engine {
 	private EngineAuth auth;
 	private EngineEvents events;
 	private EngineLoader loader;
-	private EngineSchedule schedule;
+	private EngineScheduler schedule;
 	private EngineStatus status;
 	public boolean running;
 
@@ -84,7 +85,7 @@ public class Engine {
 
 		auth = new EngineAuth( this );
 		events = new EngineEvents( this );
-		schedule = new EngineSchedule( this ); 
+		schedule = new EngineScheduler( this ); 
 		loader = new EngineLoader( this );
 		sessionController = new SessionController( this );
 		status = new EngineStatus( this );

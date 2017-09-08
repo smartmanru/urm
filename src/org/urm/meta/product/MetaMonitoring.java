@@ -10,6 +10,7 @@ import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
+import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineMonitoring;
@@ -198,12 +199,12 @@ public class MetaMonitoring extends PropertyController {
 		ENABLED = enabled;
 	}
 
-	public MetaMonitoringTarget createTarget( EngineTransaction transaction , MetaEnvSegment sg , int MAXTIME ) throws Exception {
+	public MetaMonitoringTarget createTarget( EngineTransaction transaction , MetaEnvSegment sg , ScheduleProperties task , int maxTime ) throws Exception {
 		if( findMonitoringTarget( sg ) != null )
 			transaction.exitUnexpectedState();
 		
 		MetaMonitoringTarget target = new MetaMonitoringTarget( meta , this );
-		target.createTarget( transaction , sg , MAXTIME );
+		target.createTarget( transaction , sg , task , maxTime );
 		mapTargets.put( target.NAME , target );
 		return( target );
 	}

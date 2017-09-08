@@ -5,6 +5,7 @@ import java.util.List;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.shell.Account;
 import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
@@ -479,9 +480,9 @@ public class EngineTransaction extends TransactionBase {
 		mon.setMonitoringEnabled( this , false );
 	}
 
-	public MetaMonitoringTarget createMonitoringTarget( MetaMonitoring mon , MetaEnvSegment sg , int MAXTIME ) throws Exception {
+	public MetaMonitoringTarget createMonitoringTarget( MetaMonitoring mon , MetaEnvSegment sg , ScheduleProperties schedule , int maxTime ) throws Exception {
 		checkTransactionMetadata( mon.meta.getStorage( action ) );
-		return( mon.createTarget( this , sg , MAXTIME ) );
+		return( mon.createTarget( this , sg , schedule , maxTime ) );
 	}
 	
 	public void deleteMonitoringTarget( MetaMonitoringTarget target ) throws Exception {
@@ -490,10 +491,10 @@ public class EngineTransaction extends TransactionBase {
 		mon.deleteTarget( this , target );
 	}
 	
-	public void modifyMonitoringTarget( MetaMonitoringTarget target , int MAXTIME ) throws Exception {
+	public void modifyMonitoringTarget( MetaMonitoringTarget target , ScheduleProperties schedule , int maxTime ) throws Exception {
 		checkTransactionMetadata( target.meta.getStorage( action ) );
 		EngineMonitoring mon = action.getActiveMonitoring();
-		target.modifyTarget( this , MAXTIME );
+		target.modifyTarget( this , schedule , maxTime );
 		mon.modifyTarget( this , target );
 	}
 

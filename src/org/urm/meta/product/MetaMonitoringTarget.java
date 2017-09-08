@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
+import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
 import org.w3c.dom.Document;
@@ -22,6 +23,8 @@ public class MetaMonitoringTarget {
 	
 	public String ENV;
 	public String SG;
+	
+	public ScheduleProperties schedule;
 	public int MAXTIME;
 
 	private List<MetaMonitoringItem> listUrls;
@@ -47,6 +50,7 @@ public class MetaMonitoringTarget {
 		r.NAME = NAME;
 		r.ENV = ENV;
 		r.SG = SG;
+		r.schedule = schedule;
 		r.MAXTIME = MAXTIME;
 		
 		for( MetaMonitoringItem item : listUrls ) {
@@ -65,6 +69,9 @@ public class MetaMonitoringTarget {
 	public void loadTarget( ActionBase action , Node node ) throws Exception {
 		ENV = ConfReader.getRequiredAttrValue( node , "env" );
 		SG = ConfReader.getRequiredAttrValue( node , "segment" );
+		String SCHEDULE = ConfReader.getAttrValue( node , "schedule" );
+		schedule = new ScheduleProperties();
+		schedule.setScheduleData( action , SCHEDULE );
 		MAXTIME = ConfReader.getIntegerAttrValue( node , "maxtime" , 300000 );
 		setName( action );
 		
@@ -103,6 +110,8 @@ public class MetaMonitoringTarget {
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "env" , ENV );
 		Common.xmlSetElementAttr( doc , root , "segment" , SG );
+		String SCHEDULE = schedule.getScheduleData();
+		Common.xmlSetElementAttr( doc , root , "schedule" , SCHEDULE );
 		Common.xmlSetElementAttr( doc , root , "maxtime" , "" + MAXTIME );
 		
 		for( MetaMonitoringItem item : listUrls ) {
@@ -126,15 +135,21 @@ public class MetaMonitoringTarget {
 		folder.ensureExists( action );
 	}
 
-	public void createTarget( EngineTransaction transaction , MetaEnvSegment sg , int MAXTIME ) throws Exception {
+	public void createTarget( EngineTransaction transaction , MetaEnvSegment sg , ScheduleProperties schedule , int maxTime ) throws Exception {
 		this.ENV = sg.env.ID;
 		this.SG = sg.NAME;
-		this.MAXTIME = MAXTIME;
+		this.schedule = schedule;
+		this.MAXTIME = maxTime;
 		setName( transaction.getAction() );
 	}
 
-	public void modifyTarget( EngineTransaction transaction , int MAXTIME ) throws Exception {
-		this.MAXTIME = MAXTIME;
+	public void modifyTarget( EngineTransaction transaction , ScheduleProperties schedule , int maxTime ) throws Exception {
+		this.schedule = schedule;
+		this.MAXTIME = maxTime;
+	}
+
+	public ScheduleProperties getSchedule() {
+		return( schedule );
 	}
 	
 }
