@@ -480,22 +480,12 @@ public class EngineTransaction extends TransactionBase {
 		mon.setMonitoringEnabled( this , false );
 	}
 
-	public MetaMonitoringTarget createMonitoringTarget( MetaMonitoring mon , MetaEnvSegment sg , ScheduleProperties schedule , int maxTime ) throws Exception {
-		checkTransactionMetadata( mon.meta.getStorage( action ) );
-		return( mon.createTarget( this , sg , schedule , maxTime ) );
-	}
-	
-	public void deleteMonitoringTarget( MetaMonitoringTarget target ) throws Exception {
-		checkTransactionMetadata( target.meta.getStorage( action ) );
+	public MetaMonitoringTarget modifyMonitoringTarget( MetaMonitoring monMeta , MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
+		checkTransactionMetadata( monMeta.meta.getStorage( action ) );
+		MetaMonitoringTarget target = monMeta.modifyTarget( this , sg , major , enabled , maxTime , schedule );
 		EngineMonitoring mon = action.getActiveMonitoring();
-		mon.deleteTarget( this , target );
-	}
-	
-	public void modifyMonitoringTarget( MetaMonitoringTarget target , ScheduleProperties schedule , int maxTime ) throws Exception {
-		checkTransactionMetadata( target.meta.getStorage( action ) );
-		EngineMonitoring mon = action.getActiveMonitoring();
-		target.modifyTarget( this , schedule , maxTime );
 		mon.modifyTarget( this , target );
+		return( target );
 	}
 
 	public void setDefaultMonitoringProperties( PropertySet props ) throws Exception {

@@ -147,10 +147,14 @@ public class MetaMonitoring extends PropertyController {
 		for( Node deliveryNode : items ) {
 			MetaMonitoringTarget item = new MetaMonitoringTarget( meta , this );
 			item.loadTarget( action , deliveryNode );
-			mapTargets.put( item.NAME , item );
+			addTarget( item );
 		}
 	}
 	
+	private void addTarget( MetaMonitoringTarget target ) {
+		mapTargets.put( target.NAME , target );
+	}
+
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		boolean create = createFolders( action );
 		if( !create ) {
@@ -199,20 +203,18 @@ public class MetaMonitoring extends PropertyController {
 		ENABLED = enabled;
 	}
 
-	public MetaMonitoringTarget createTarget( EngineTransaction transaction , MetaEnvSegment sg , ScheduleProperties task , int maxTime ) throws Exception {
-		if( findMonitoringTarget( sg ) != null )
-			transaction.exitUnexpectedState();
+	public MetaMonitoringTarget modifyTarget( EngineTransaction transaction , MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
+		MetaMonitoringTarget target = findMonitoringTarget( sg );
+		if( target == null ) {
+			target = new MetaMonitoringTarget( meta , this );
+			target.createTarget( transaction , sg );
+			addTarget( target );
+		}
 		
-		MetaMonitoringTarget target = new MetaMonitoringTarget( meta , this );
-		target.createTarget( transaction , sg , task , maxTime );
-		mapTargets.put( target.NAME , target );
+		target.modifyTarget( transaction , major , enabled , schedule , maxTime );
 		return( target );
 	}
 
-	public void deleteTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {
-		mapTargets.remove( target.NAME );
-	}
-	
 	public void setProductProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
 		super.updateProperties( props );
 		setMonitoringEnabled( transaction , false );

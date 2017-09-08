@@ -117,7 +117,7 @@ public class MonitorInfo {
 		long startTime = endTime - 86400;
 		gDef.setTimeSpan( startTime , endTime );
 		gDef.setMinValue( 0 );
-		gDef.setMaxValue( target.MAXTIME );
+		gDef.setMaxValue( target.maxTimeMajor );
 		gDef.setRigid( true );
 		gDef.setWidth( 1024 );
 		gDef.setHeight( 200 );

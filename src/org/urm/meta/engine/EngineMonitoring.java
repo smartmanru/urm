@@ -162,10 +162,6 @@ public class EngineMonitoring extends EngineObject {
 		return( registry.directory.findProduct( name ) );
 	}
 
-	public void deleteTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {
-		target.monitoring.deleteTarget( transaction , target );
-	}
-	
 	public void modifyTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {
 	}
 
