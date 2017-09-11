@@ -156,6 +156,8 @@ public class MetaMonitoringTarget {
 		this.ENV = sg.env.ID;
 		this.SG = sg.NAME;
 		setName( transaction.getAction() );
+		scheduleMajor = new ScheduleProperties();
+		scheduleMinor = new ScheduleProperties();
 	}
 
 	public void modifyTarget( EngineTransaction transaction , boolean major , boolean enabled , ScheduleProperties schedule , int maxTime ) throws Exception {

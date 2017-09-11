@@ -10,6 +10,7 @@ import org.urm.engine.events.EngineEventsSubscription;
 import org.urm.engine.events.EngineSourceEvent;
 import org.urm.engine.schedule.EngineScheduler;
 import org.urm.engine.schedule.EngineScheduler.ScheduleTaskCategory;
+import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.schedule.ScheduleTask;
 import org.urm.engine.status.StatusSource;
 import org.urm.meta.engine.EngineAuth.SecurityAction;
@@ -23,8 +24,8 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		MetaEnvSegment sg;
 		long timeLimit;
 	
-		ScheduleTaskSegmentMonitoringMajor( String name , MetaEnvSegment sg , long timeLimit ) {
-			super( name );
+		ScheduleTaskSegmentMonitoringMajor( String name , ScheduleProperties schedule , MetaEnvSegment sg , long timeLimit ) {
+			super( name , schedule );
 			this.sg = sg;
 			this.timeLimit = timeLimit;
 		}
@@ -34,8 +35,8 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		MetaEnvSegment sg;
 		long timeLimit;
 	
-		ScheduleTaskSegmentMonitoringMinor( String name , MetaEnvSegment sg , long timeLimit ) {
-			super( name );
+		ScheduleTaskSegmentMonitoringMinor( String name , ScheduleProperties schedule , MetaEnvSegment sg , long timeLimit ) {
+			super( name , schedule );
 			this.sg = sg;
 			this.timeLimit = timeLimit;
 		}
@@ -96,15 +97,26 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 		if( action.isProductOffline( meta.meta ) )
 			return;
 		
-		for( MetaMonitoringTarget target : meta.getTargets() ) {
+		for( MetaMonitoringTarget target : meta.getTargets() )
 			startTarget( action , target );
-		}
 	}
 	
-	public synchronized void stop( ActionBase action , boolean force ) throws Exception {
-		ca.stopRunning();
+	public synchronized void stop( ActionBase action ) throws Exception {
+		for( MetaMonitoringTarget target : meta.getTargets() )
+			stopTarget( action , target );
 	}
 
+	private void stopTarget( ActionBase action , MetaMonitoringTarget target ) throws Exception {
+		MetaEnvSegment sg = target.getSegment( action );
+		EngineScheduler scheduler = action.getServerScheduler();
+		String sgName = sg.meta.name + "-" + sg.env.ID + sg.NAME;
+		
+		String codeMajor = sgName + "-major";
+		ScheduleTask task = scheduler.findTask( ScheduleTaskCategory.MONITORING , codeMajor );
+		if( task != null )
+			scheduler.deleteTask( action , ScheduleTaskCategory.MONITORING , task );
+	}
+	
 	private void startTarget( ActionBase action , MetaMonitoringTarget target ) throws Exception {
 		MetaEnvSegment sg = target.getSegment( action );
 		if( action.isSegmentOffline( sg ) )
@@ -118,8 +130,8 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 			String codeMajor = sgName + "-major";
 			ScheduleTask task = scheduler.findTask( ScheduleTaskCategory.MONITORING , codeMajor );
 			if( task == null ) {
-				task = new ScheduleTaskSegmentMonitoringMajor( codeMajor , sg , target.maxTimeMajor ); 
-				scheduler.addTask( action , ScheduleTaskCategory.MONITORING , task , target.scheduleMajor );
+				task = new ScheduleTaskSegmentMonitoringMajor( codeMajor , target.scheduleMajor , sg , target.maxTimeMajor ); 
+				scheduler.addTask( action , ScheduleTaskCategory.MONITORING , task );
 			}
 		}
 		
@@ -127,8 +139,8 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 			String codeMinor = sgName + "-minor";
 			ScheduleTask task = scheduler.findTask( ScheduleTaskCategory.MONITORING , sgName + "-minor" );
 			if( task == null ) {
-				task = new ScheduleTaskSegmentMonitoringMinor( codeMinor , sg , target.maxTimeMinor ); 
-				scheduler.addTask( action , ScheduleTaskCategory.MONITORING , task , target.scheduleMinor );
+				task = new ScheduleTaskSegmentMonitoringMinor( codeMinor , target.scheduleMinor , sg , target.maxTimeMinor ); 
+				scheduler.addTask( action , ScheduleTaskCategory.MONITORING , task );
 			}
 		}
 	}

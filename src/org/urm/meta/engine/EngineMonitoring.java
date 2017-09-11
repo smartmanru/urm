@@ -118,7 +118,7 @@ public class EngineMonitoring extends EngineObject {
 	public synchronized void stop( ActionBase action ) throws Exception {
 		engine.info( "stop monitoring ..." );
 		running = false;
-		stopAll( action , true );
+		stopAll( action );
 		mapProduct.clear();
 		
 		if( eventsApp != null ) {
@@ -132,9 +132,9 @@ public class EngineMonitoring extends EngineObject {
 			mon.start( action );
 	}
 	
-	private void stopAll( ActionBase action , boolean force ) throws Exception {
+	private void stopAll( ActionBase action ) throws Exception {
 		for( EngineMonitoringProduct mon : mapProduct.values() )
-			mon.stop( action , force );
+			mon.stop( action );
 	}
 	
 	private void createSystem( ActionBase action , System system ) throws Exception {
@@ -151,7 +151,7 @@ public class EngineMonitoring extends EngineObject {
 		if( enabled )
 			startAll( transaction.getAction() );
 		else
-			stopAll( transaction.getAction() , true );
+			stopAll( transaction.getAction() );
 	}
 
 	public void setDefaultProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
@@ -165,7 +165,7 @@ public class EngineMonitoring extends EngineObject {
 			return;
 		
 		ActionBase action = transaction.getAction();
-		mon.stop( action , true );
+		mon.stop( action );
 		MetaMonitoring metaMon = meta.getMonitoring( action );
 		metaMon.setProductProperties( transaction , props );
 		mon.start( action );
@@ -201,7 +201,7 @@ public class EngineMonitoring extends EngineObject {
 	public synchronized void deleteProduct( ActionBase action , ProductMeta storage ) throws Exception {
 		EngineMonitoringProduct mon = mapProduct.get( storage.name );
 		if( mon != null ) {
-			mon.stop( action , true );
+			mon.stop( action );
 			mapProduct.remove( storage.name );
 		}
 	}	
@@ -215,7 +215,7 @@ public class EngineMonitoring extends EngineObject {
 	public synchronized void stopProduct( ActionBase action , String product ) throws Exception {
 		EngineMonitoringProduct mon = mapProduct.get( product );
 		if( mon != null )
-			mon.stop( action , true );
+			mon.stop( action );
 	}
 
 	public boolean isEnabled() {

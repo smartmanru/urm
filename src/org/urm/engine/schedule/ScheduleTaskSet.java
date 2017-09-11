@@ -18,4 +18,12 @@ public class ScheduleTaskSet {
 		return( data.get( name ) );
 	}
 	
+	public void addTask( ScheduleTask task ) {
+		data.put( task.name , task );
+	}
+
+	public void deleteTask( ScheduleTask task ) {
+		data.remove( task.name );
+	}
+	
 }
