@@ -128,7 +128,7 @@ public class MetaMonitoring extends PropertyController {
 		super.initFinished();
 	}
 
-	public MetaMonitoringTarget[] getTargets( ActionBase action ) throws Exception { 
+	public MetaMonitoringTarget[] getTargets() { 
 		return( mapTargets.values().toArray( new MetaMonitoringTarget[0] ) );
 	}
 	

@@ -60,7 +60,7 @@ public class Engine {
 	private EngineAuth auth;
 	private EngineEvents events;
 	private EngineLoader loader;
-	private EngineScheduler schedule;
+	private EngineScheduler scheduler;
 	private EngineStatus status;
 	public boolean running;
 
@@ -85,7 +85,7 @@ public class Engine {
 
 		auth = new EngineAuth( this );
 		events = new EngineEvents( this );
-		schedule = new EngineScheduler( this ); 
+		scheduler = new EngineScheduler( this ); 
 		loader = new EngineLoader( this );
 		sessionController = new SessionController( this );
 		status = new EngineStatus( this );
@@ -98,7 +98,7 @@ public class Engine {
 		cache.init();
 		auth.init();
 		events.init();
-		schedule.init();
+		scheduler.init();
 		status.init();
 		loader.init();
 		sessionController.init();
@@ -118,12 +118,12 @@ public class Engine {
 		loader.loadServerProducts( serverAction );
 		status.start( serverAction , loader );
 		blotter.start( serverAction );
-		schedule.start( serverAction );
+		scheduler.start( serverAction );
 		
 		sessionController.start( serverAction );
 		
 		EngineMonitoring mon = loader.getMonitoring();
-		mon.start();
+		mon.start( serverAction );
 		events.start();
 		
 		jmxController = new EngineMBean( action , this );
@@ -144,10 +144,10 @@ public class Engine {
 		houseKeeping.stop();
 		status.stop( serverAction );
 		events.stop();
-		schedule.stop();
+		scheduler.stop();
 		
 		EngineMonitoring mon = loader.getMonitoring();
-		mon.stop();
+		mon.stop( serverAction );
 		shellPool.stop( serverAction );
 		
 		jmxController.stop();
@@ -490,6 +490,10 @@ public class Engine {
 
 	public EngineStatus getStatus() {
 		return( status );
+	}
+	
+	public EngineScheduler getScheduler() {
+		return( scheduler );
 	}
 	
 	public EngineEvents getEvents() {

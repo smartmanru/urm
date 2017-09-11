@@ -171,4 +171,9 @@ public class MetaMonitoringTarget {
 		}
 	}
 
+	public MetaEnvSegment getSegment( ActionBase action ) throws Exception {
+		MetaEnv env = meta.getEnv( action , ENV );
+		return( env.getSG( action , SG ) );
+	}
+	
 }

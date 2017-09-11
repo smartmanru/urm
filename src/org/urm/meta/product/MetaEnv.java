@@ -328,10 +328,6 @@ public class MetaEnv extends PropertyController {
 		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
 	}
 	
-	public boolean isOffline() {
-		return( OFFLINE );
-	}
-
 	public boolean isBroken() {
 		return( super.isLoadFailed() );
 	}

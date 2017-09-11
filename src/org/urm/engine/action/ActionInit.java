@@ -5,6 +5,7 @@ import org.urm.action.ActionScope;
 import org.urm.common.Common;
 import org.urm.engine.EngineSession;
 import org.urm.engine.TransactionBase;
+import org.urm.engine.schedule.EngineScheduler;
 import org.urm.engine.status.EngineStatus;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
@@ -206,6 +207,10 @@ public class ActionInit extends ActionBase {
 	
 	public EngineStatus getServerStatus() {
 		return( engine.getStatus() );
+	}
+	
+	public EngineScheduler getServerScheduler() {
+		return( engine.getScheduler() );
 	}
 	
 	public void setDirectory( TransactionBase transaction , EngineDirectory directory ) throws Exception {

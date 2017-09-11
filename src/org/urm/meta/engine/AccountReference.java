@@ -51,11 +51,10 @@ public class AccountReference {
 	}
 
 	public static void sort( ActionBase action , List<AccountReference> refs , boolean infraFirst ) {
-		EngineDirectory directory = action.getServerDirectory();
 		Map<String,AccountReference> initial = new HashMap<String,AccountReference>();
 		for( AccountReference ref : refs ) {
 			String productName = ref.node.server.sg.env.meta.name;
-			Product product = directory.findProduct( productName );
+			Product product = action.findProduct( productName );
 			String appKey = product.system.NAME + "-" + productName + "-" + ref.node.server.sg.env.ID + "-" + 
 				ref.node.server.sg.NAME + "-" + ref.node.server.NAME + "-" + ref.node.POS;
 			String infraKey = ref.account.host.network.ID + "-" + ref.account.host.ID + "-" + ref.account.ID;

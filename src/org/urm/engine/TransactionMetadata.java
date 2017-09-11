@@ -1,10 +1,8 @@
 package org.urm.engine;
 
 import org.urm.engine.status.EngineStatus;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineMonitoring;
-import org.urm.meta.engine.EngineRegistry;
 import org.urm.meta.engine.Product;
 import org.urm.meta.product.Meta;
 
@@ -118,19 +116,17 @@ public class TransactionMetadata {
 			transaction.exit1( _Error.InternalTransactionError1 , "Internal error: invalid transaction metadata" , "invalid transaction metadata" );
 	}
 
-	private void createProduct( ProductMeta metadata ) {
-		EngineLoader loader = metadata.loader;
-		EngineRegistry registry = loader.getRegistry();
-		Product product = registry.directory.findProduct( metadata.name );
+	private void createProduct( ProductMeta metadata ) throws Exception {
+		Product product = transaction.action.findProduct( metadata.name );
 		
 		EngineStatus status = transaction.action.getServerStatus();
 		status.createProduct( transaction.action , product , metadata );
 		
 		EngineMonitoring mon = transaction.action.getServerMonitoring();
-		mon.createProduct( transaction.action , product , metadata );
+		mon.createProduct( transaction.action , metadata );
 	}
 	
-	private void deleteProduct( ProductMeta metadata ) {
+	private void deleteProduct( ProductMeta metadata ) throws Exception {
 		EngineStatus status = transaction.action.getServerStatus();
 		status.deleteProduct( transaction.action , metadata );
 		
@@ -138,7 +134,7 @@ public class TransactionMetadata {
 		mon.deleteProduct( transaction.action , metadata );
 	}
 	
-	private void modifyProduct( ProductMeta metadataOld , ProductMeta metadataNew ) {
+	private void modifyProduct( ProductMeta metadataOld , ProductMeta metadataNew ) throws Exception {
 		EngineStatus status = transaction.action.getServerStatus();
 		status.modifyProduct( transaction.action , metadataOld , metadataNew );
 		

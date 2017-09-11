@@ -497,8 +497,8 @@ public class EngineTransaction extends TransactionBase {
 
 	public void setProductMonitoringProperties( Meta meta , PropertySet props ) throws Exception {
 		checkTransactionMetadata( meta.getStorage( action ) );
-		MetaMonitoring mon = meta.getMonitoring( action );
-		mon.setProductProperties( this , props );
+		EngineMonitoring mon = action.getActiveMonitoring();
+		mon.setProductMonitoringProperties( this , meta , props );
 	}
 
 	public void setStartInfo( MetaEnvSegment sg , MetaEnvStartInfo startInfo ) throws Exception {

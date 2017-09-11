@@ -3,7 +3,6 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.Product;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.Types.*;
@@ -107,8 +106,7 @@ public class UrmStorage {
 			return( artefactory.getAnyFolder( action , dir ) );
 		}
 		
-		EngineDirectory directory = action.getServerDirectory();
-		Product product = directory.findProduct( productName );
+		Product product = action.findProduct( productName );
 		if( product == null )
 			action.exitUnexpectedState();
 		

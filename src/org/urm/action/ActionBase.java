@@ -26,6 +26,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSubscription;
+import org.urm.engine.schedule.EngineScheduler;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.EngineStatus;
@@ -739,6 +740,10 @@ abstract public class ActionBase extends ActionCore {
 		return( actionInit.getServerStatus() );
 	}
 	
+	public EngineScheduler getServerScheduler() {
+		return( actionInit.getServerScheduler() );
+	}
+	
 	public EngineInfrastructure getServerInfrastructure() {
 		return( actionInit.getServerInfrastructure() );
 	}
@@ -749,6 +754,16 @@ abstract public class ActionBase extends ActionCore {
 	
 	public EngineMonitoring getServerMonitoring() {
 		return( actionInit.getServerMonitoring() );
+	}
+	
+	public Product getProduct( String name ) throws Exception {
+		EngineDirectory directory = getServerDirectory();
+		return( directory.getProduct( name ) );
+	}
+	
+	public Product findProduct( String name ) {
+		EngineDirectory directory = getServerDirectory();
+		return( directory.findProduct( name ) );
 	}
 	
 	public MetaProductBuildSettings getBuildSettings( Meta meta ) throws Exception {
@@ -812,6 +827,46 @@ abstract public class ActionBase extends ActionCore {
 		return( actionInit.getActiveProductMetadata( productName ) );
 	}
 
+	public boolean isProductOffline( Meta meta ) {
+		return( isProductOffline( meta.name ) );
+	}
+	
+	public boolean isProductOffline( String productName ) {
+		Product product = findProduct( productName );
+		if( product == null )
+			return( true );
+		
+		if( product.isOffline() )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isEnvOffline( MetaEnv env ) {
+		if( env.OFFLINE )
+			return( true );
+		if( !isProductOffline( env.meta.name ) )
+			return( false );
+		return( false );
+	}
+
+	public boolean isSegmentOffline( MetaEnvSegment sg ) {
+		if( sg.OFFLINE )
+			return( true );
+		return( isEnvOffline( sg.env ) );
+	}
+	
+	public boolean isServerOffline( MetaEnvServer server ) {
+		if( server.OFFLINE )
+			return( true );
+		return( isSegmentOffline( server.sg ) );
+	}
+	
+	public boolean isServerNodeOffline( MetaEnvServerNode node ) {
+		if( node.OFFLINE )
+			return( true );
+		return( isServerOffline( node.server ) );
+	}
+	
 	public boolean isProductBroken( String productName ) {
 		return( actionInit.isActiveProductBroken( productName ) );
 	}

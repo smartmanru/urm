@@ -146,7 +146,7 @@ public class ActionCheckEnv extends ActionBase {
 		S_CHECKENV_SERVER_COMPS_FAILED = "";
 
 		// ignore offline server
-		if( server.isOffline() ) {
+		if( server.OFFLINE ) {
 			debug( "ignore offline server=" + server.NAME );
 			return;
 		}

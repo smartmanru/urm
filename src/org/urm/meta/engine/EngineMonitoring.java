@@ -13,15 +13,15 @@ import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
-import org.urm.engine.events.EngineEventsSubscription;
 import org.urm.engine.status.EngineStatus;
 import org.urm.engine.status.StatusSource;
-import org.urm.engine.status.StatusData;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
+import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
+import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.w3c.dom.Document;
@@ -35,8 +35,7 @@ public class EngineMonitoring extends EngineObject {
 	EngineEvents events;
 
 	Map<String,EngineMonitoringProduct> mapProduct;
-	
-	public Map<EngineObject,StatusSource> sourceMap;
+	boolean running;
 	
 	public PropertySet properties;
 	public boolean ENABLED;
@@ -63,7 +62,7 @@ public class EngineMonitoring extends EngineObject {
 		this.events = engine.getEvents();
 		
 		mapProduct = new HashMap<String,EngineMonitoringProduct>();
-		sourceMap = new HashMap<EngineObject,StatusSource>();
+		running = false;
 	}
 
 	@Override
@@ -104,64 +103,74 @@ public class EngineMonitoring extends EngineObject {
 		Common.xmlSaveDoc( doc , path );
 	}
 
-	public void start() {
-		if( !ENABLED )
-			return;
-		
-		sourceMap.clear();
+	public void start( ActionBase action ) throws Exception {
 		EngineEvents events = engine.getEvents();
 		eventsApp = events.createApp( "monitoring" );
+		running = true;
 		
 		EngineRegistry registry = loader.getRegistry();
 		for( String systemName : registry.directory.getSystemNames() ) {
 			System system = registry.directory.findSystem( systemName );
-			startSystem( system );
+			createSystem( action , system );
 		}
 	}
-
-	public void stop() {
+	
+	public synchronized void stop( ActionBase action ) throws Exception {
 		engine.info( "stop monitoring ..." );
-		for( EngineMonitoringProduct mon : mapProduct.values() )
-			mon.stop();
-
+		running = false;
+		stopAll( action , true );
 		mapProduct.clear();
 		
 		if( eventsApp != null ) {
 			EngineEvents events = engine.getEvents();
 			events.deleteApp( eventsApp );
 		}
-		
-		for( StatusSource source : sourceMap.values() )
-			source.clearState();
 	}
 
-	private void startSystem( System system ) {
+	private void startAll( ActionBase action ) throws Exception {
+		for( EngineMonitoringProduct mon : mapProduct.values() )
+			mon.start( action );
+	}
+	
+	private void stopAll( ActionBase action , boolean force ) throws Exception {
+		for( EngineMonitoringProduct mon : mapProduct.values() )
+			mon.stop( action , force );
+	}
+	
+	private void createSystem( ActionBase action , System system ) throws Exception {
 		for( String productName : system.getProductNames() ) {
-			Product product = system.findProduct( productName );
-			startProduct( product );
+			ProductMeta storage = loader.findProductStorage( productName );
+			createProduct( action , storage );
 		}
-	}
-
-	public StatusData getState( EngineEventsSubscription sub ) {
-		StatusData state = ( StatusData )sub.getState();
-		return( state );
 	}
 
 	public void setEnabled( EngineTransaction transaction , boolean enabled ) throws Exception {
 		properties.setOriginalSystemBooleanProperty( PROPERTY_ENABLED , enabled );
 		ENABLED = enabled;
+		
+		if( enabled )
+			startAll( transaction.getAction() );
+		else
+			stopAll( transaction.getAction() , true );
 	}
 
 	public void setDefaultProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
 		properties.updateProperties( props , true );
 		scatterProperties();
 	}
-	
-	public Product findProduct( String name ) {
-		EngineRegistry registry = loader.getRegistry();
-		return( registry.directory.findProduct( name ) );
-	}
 
+	public void setProductMonitoringProperties( EngineTransaction transaction , Meta meta , PropertySet props ) throws Exception {
+		EngineMonitoringProduct mon = mapProduct.get( meta.name );
+		if( mon == null )
+			return;
+		
+		ActionBase action = transaction.getAction();
+		mon.stop( action , true );
+		MetaMonitoring metaMon = meta.getMonitoring( action );
+		metaMon.setProductProperties( transaction , props );
+		mon.start( action );
+	}
+	
 	public void modifyTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {
 	}
 
@@ -177,22 +186,42 @@ public class EngineMonitoring extends EngineObject {
 		return( status.getObjectSource( sg ) );
 	}
 
-	public synchronized void createProduct( ActionBase action , Product product , ProductMeta storage ) {
+	public synchronized void createProduct( ActionBase action , ProductMeta storage ) throws Exception {
+		MetaMonitoring meta = storage.getMonitoring();
+		EngineMonitoringProduct mon = new EngineMonitoringProduct( this , meta , eventsApp );
+		mapProduct.put( storage.name , mon );
+		mon.start( action );
 	}
 	
-	public void modifyProduct( ActionBase action , ProductMeta storageOld , ProductMeta storageNew ) {
+	public synchronized void modifyProduct( ActionBase action , ProductMeta storageOld , ProductMeta storageNew ) throws Exception {
+		deleteProduct( action , storageOld );
+		createProduct( action , storageNew );
 	}
 	
-	public synchronized void deleteProduct( ActionBase action , ProductMeta storage ) {
+	public synchronized void deleteProduct( ActionBase action , ProductMeta storage ) throws Exception {
+		EngineMonitoringProduct mon = mapProduct.get( storage.name );
+		if( mon != null ) {
+			mon.stop( action , true );
+			mapProduct.remove( storage.name );
+		}
 	}	
 	
-	public synchronized void startProduct( String product ) {
+	public synchronized void startProduct( ActionBase action , String product ) throws Exception {
+		EngineMonitoringProduct mon = mapProduct.get( product );
+		if( mon != null )
+			mon.start( action );
 	}
 	
-	public synchronized void stopProduct( String product ) {
+	public synchronized void stopProduct( ActionBase action , String product ) throws Exception {
+		EngineMonitoringProduct mon = mapProduct.get( product );
+		if( mon != null )
+			mon.stop( action , true );
 	}
-	
-	private synchronized void startProduct( Product product ) {
+
+	public boolean isEnabled() {
+		if( running && ENABLED )
+			return( true );
+		return( false );
 	}
 	
 }

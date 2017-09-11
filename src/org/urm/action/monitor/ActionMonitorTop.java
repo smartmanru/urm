@@ -111,7 +111,7 @@ public class ActionMonitorTop extends ActionBase {
 			}
 			
 			// create graphs
-			for( MetaMonitoringTarget target : mon.getTargets( this ) ) {
+			for( MetaMonitoringTarget target : mon.getTargets() ) {
 				trace( "refresh target graph env=" + target.ENV + ", sg=" + target.SG );
 				info.addHistoryGraph( target );
 				super.eventSource.customEvent( EngineEvents.EVENT_MONITORGRAPHCHANGED , target );
@@ -188,7 +188,7 @@ public class ActionMonitorTop extends ActionBase {
 	private void executeOnceMajor( MetaMonitoring mon , MonitorInfo info ) throws Exception {
 		// run checkenv for all targets
 		ActionSet set = new ActionSet( this , "major" );
-		MetaMonitoringTarget[] targets = mon.getTargets( this );
+		MetaMonitoringTarget[] targets = mon.getTargets();
 		
 		if( targets.length == 0 ) {
 			super.debug( "no monitoring targets, skipped." );
@@ -211,7 +211,7 @@ public class ActionMonitorTop extends ActionBase {
 	
 	private void executeOnceMinor( MetaMonitoring mon , MonitorInfo info ) throws Exception {
 		// run checkenv for all targets
-		for( MetaMonitoringTarget target : mon.getTargets( this ) ) {
+		for( MetaMonitoringTarget target : mon.getTargets() ) {
 			checkTargetItems( mon , info , target );
 		}
 	}
@@ -265,7 +265,7 @@ public class ActionMonitorTop extends ActionBase {
 		MetaEnv env = getEnv( target );
 		MetaEnvSegment sg = env.getSG( this , target.SG );
 		for( MetaEnvServer server : sg.getServers() ) {
-			if( !server.isOffline() )
+			if( !super.isServerOffline( server ) )
 				addSystemServerItems( mon , info , target , set , server );
 		}
 		

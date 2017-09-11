@@ -170,10 +170,6 @@ public class MetaEnvServerNode extends PropertyController {
 		scatterProperties( transaction.action );
 	}
 
-	public boolean isOffline() {
-		return( OFFLINE );
-	}
-
 	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
 		if( !checkReferencedByHostAccount( account ) )
 			return;

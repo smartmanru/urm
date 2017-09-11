@@ -709,10 +709,6 @@ public class MetaEnvServer extends PropertyController {
 		return( true );
 	}
 
-	public boolean isOffline() {
-		return( OFFLINE );
-	}
-	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		super.saveSplit( doc , root );
 		
