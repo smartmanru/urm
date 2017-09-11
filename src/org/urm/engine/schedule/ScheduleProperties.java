@@ -155,14 +155,14 @@ public class ScheduleProperties {
 		if( specificDateTime != null )
 			value += " specific:" + specificDateTime.getTime();
 		if( scheduleType == ScheduleTaskType.INTERVAL )
-			value += " endbased=" + Common.getBooleanValue( regularFromEnd );
+			value += " endbased:" + Common.getBooleanValue( regularFromEnd );
 		if( scheduleType == ScheduleTaskType.WEEKLY ||
 			scheduleType == ScheduleTaskType.DAILY ||
 			scheduleType == ScheduleTaskType.HOURLY ||
 			scheduleType == ScheduleTaskType.INTERVAL )
-			value += " interval=" + regularInterval;
+			value += " interval:" + regularInterval;
 		if( scheduleType == ScheduleTaskType.INTERVAL && regularFromEnd == false )
-			value += " between=" + betweenInterval;
+			value += " between:" + betweenInterval;
 		return( value );
 	}
 	
@@ -183,7 +183,7 @@ public class ScheduleProperties {
 				String var = pair[0];
 				String data = pair[1];
 				if( var.equals( "type" ) ) {
-					scheduleTypeValue = ScheduleTaskType.valueOf( data );
+					scheduleTypeValue = ScheduleTaskType.valueOf( data.toUpperCase() );
 				}
 				else
 				if( var.equals( "specific" ) ) {
