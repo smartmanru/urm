@@ -33,6 +33,7 @@ public class ScheduleTask extends EngineExecutorTask {
 	
 	public void finish() {
 		lastFinished = new Date();
+		dispatched = false;
 	}
 	
 	public void setExpectedTime( Date date ) {

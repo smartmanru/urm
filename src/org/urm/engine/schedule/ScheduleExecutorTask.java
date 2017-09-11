@@ -14,18 +14,18 @@ public class ScheduleExecutorTask extends EngineExecutorTask {
 	}
 
 	public void execute() {
-		scheduler.engine.debug( "EXECUTOR=" + id + ": started" );
+		scheduler.engine.trace( "SCHEDULE executor=" + id + ": started" );
 		ScheduleTask task = scheduler.getNextTask( this );
 		if( task == null )
 			return;
 		
 		try {
-			scheduler.engine.debug( "EXECUTOR=" + id + ": start task=" + task.name );
+			scheduler.engine.debug( "SCHEDULE executor=" + id + ": start task=" + task.name );
 			task.start();
 			task.execute();
 		}
 		catch( Throwable e ) {
-			scheduler.engine.log( "schedule executor task" , e );
+			scheduler.engine.log( "SCHEDULE executor task" , e );
 		}
 
 		task.finish();

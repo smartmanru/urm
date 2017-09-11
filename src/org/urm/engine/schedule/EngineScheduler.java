@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.engine.Engine;
 import org.urm.meta.EngineObject;
 
@@ -33,7 +34,7 @@ public class EngineScheduler extends EngineObject {
 	static int minExecutors = 2;
 	static int maxExecutors = 10;
 	
-	boolean started;
+	boolean running;
 	int executorsLastId;
 	int executorsAvailable;
 	
@@ -42,7 +43,7 @@ public class EngineScheduler extends EngineObject {
 		this.engine = engine;
 		
 		executors = new LinkedList<ScheduleExecutorTask>();
-		started = false;
+		running = false;
 		executorsLastId = 0;
 		executorsAvailable = 0;
 		
@@ -61,7 +62,7 @@ public class EngineScheduler extends EngineObject {
 	}
 	
 	public synchronized void start( ActionBase action ) {
-		started = true;
+		running = true;
 		
 		engine.executor.executeCycle( dispatcher );
 		for( int k = 0; k < minExecutors; k++ )
@@ -69,7 +70,7 @@ public class EngineScheduler extends EngineObject {
 	}
 	
 	public synchronized void stop() {
-		started = false;
+		running = false;
 	}
 
 	public long getTimeInterval( int hours , int minutes , int seconds ) {
@@ -117,12 +118,14 @@ public class EngineScheduler extends EngineObject {
 		synchronized( tasks ) {
 			boolean empty = tasks.isEmpty();
 			boolean added = false;
+			int index = 0;
 			
-			if( empty ) {
+			if( !empty ) {
 				for( int k = 0; k < tasks.size(); k++ ) {
 					ScheduleTask queueTask = tasks.get( k );
-					if( runTime.before( queueTask.lastStarted ) ) {
+					if( runTime.before( queueTask.expectedTime ) ) {
 						tasks.add( k , task );
+						index = k;
 						added = true;
 						break;
 					}
@@ -133,6 +136,7 @@ public class EngineScheduler extends EngineObject {
 				tasks.add( task );
 			
 			synchronized( dispatcher ) {
+				engine.debug( "SCHEDULE task=" + task.name + ": scheduled at " + Common.getTimeStamp( runTime ) + " [" + index + "]" );
 				dispatcher.notify();
 			}
 		}
@@ -160,59 +164,88 @@ public class EngineScheduler extends EngineObject {
 	}
 
 	public ScheduleTask getNextTask( ScheduleExecutorTask executor ) {
+		ScheduleTask task = null;
 		while( true ) {
 			synchronized( tasks ) {
 				if( tasks.isEmpty() ) {
-					try {
-						tasks.wait();
-					}
-					catch( Throwable e ) {
-						return( null );
-					}
-					
-					if( !started )
+					if( !waitTask() )
 						return( null );
 				}
 			
 				if( !tasks.isEmpty() ) {
-					ScheduleTask task = tasks.remove( 0 );
+					task = tasks.get( 0 );
+					if( !task.dispatched ) {
+						if( !waitTask() )
+							return( null );
+					}
+					
+					tasks.remove( 0 );
 					executorsAvailable--;
-					return( task );
-				}
-			}
-		}
-	}
-
-	public void waitDispatch() {
-		boolean waitAny = false;
-		long waitTime = 0;
-		
-		synchronized( tasks ) {
-			waitAny = true;
-			for( ScheduleTask task : tasks ) {
-				if( !task.dispatched ) {
-					task.setDispatched();
-				
-					waitAny = false;
-					Date dateNow = new Date();
-					waitTime = task.expectedTime.getTime() - dateNow.getTime();
 					break;
 				}
 			}
 		}
 		
 		synchronized( dispatcher ) {
-			try {
-				if( waitAny )
-					dispatcher.wait();
-				else {
-					if( waitTime > 0 )
-						dispatcher.wait( waitTime );
-				}
+			dispatcher.notify();
+		}
+		
+		return( task );
+	}
+
+	private boolean waitTask() {
+		try {
+			tasks.wait();
+		}
+		catch( Throwable e ) {
+			return( false );
+		}
+		
+		if( !running )
+			return( false );
+		
+		return( true );
+	}
+	
+	public void waitDispatch() {
+		boolean waitAny = false;
+		long waitTime = 0;
+		
+		while( true ) {
+			if( !running )
+				return;
 			
-				tasks.notify();
+			synchronized( tasks ) {
+				waitAny = true;
+				for( ScheduleTask task : tasks ) {
+					if( !task.dispatched ) {
+						waitAny = false;
+						Date dateNow = new Date();
+						waitTime = task.expectedTime.getTime() - dateNow.getTime();
+						
+						if( waitTime <= 0 ) {
+							task.setDispatched();
+							tasks.notify();
+							return;
+						}
+						break;
+					}
+				}
 			}
-			catch( Throwable e ) {
+		
+			synchronized( dispatcher ) {
+				try {
+					if( waitAny )
+						dispatcher.wait();
+					else {
+						if( waitTime > 0 ) {
+							engine.trace( "SCHEDULE dispatcher: wait for " + ( waitTime / 1000 ) + "s" );
+							dispatcher.wait( waitTime );
+						}
+					}
+				}
+				catch( Throwable e ) {
+				}
 			}
 		}
 	}
