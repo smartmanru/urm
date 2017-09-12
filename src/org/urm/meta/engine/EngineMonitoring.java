@@ -21,6 +21,7 @@ import org.urm.meta.ProductMeta;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
+import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
 import org.urm.meta.product.MetaProductCoreSettings;
@@ -223,5 +224,30 @@ public class EngineMonitoring extends EngineObject {
 			return( true );
 		return( false );
 	}
+
+	public boolean isRunning( System system ) {
+		return( isEnabled() && system.OFFLINE == false );
+	}
 	
+	public boolean isRunning( Product product ) {
+		EngineMonitoringProduct mon = mapProduct.get( product.NAME );
+		return( mon != null && isRunning( product.system ) && product.OFFLINE == false && mon.meta.ENABLED );
+	}
+	
+	public boolean isRunning( MetaEnv env ) {
+		EngineRegistry registry = loader.getRegistry();
+		Product product = registry.directory.findProduct( env.meta.name );
+		return( product != null && isRunning( product ) && env.OFFLINE == false );
+	}
+
+	public boolean isRunning( MetaEnvSegment sg ) {
+		EngineMonitoringProduct mon = mapProduct.get( sg.meta.name );
+		MetaMonitoringTarget target = mon.meta.findMonitoringTarget( sg );
+		return( target != null && isRunning( sg.env ) && sg.OFFLINE == false && ( target.enabledMajor || target.enabledMinor ) );
+	}	
+	
+	public boolean isRunning( MetaEnvServer server ) {
+		return( isRunning( server.sg ) && server.OFFLINE == false );
+	}
+
 }
