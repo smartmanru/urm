@@ -29,6 +29,10 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 			this.sg = sg;
 			this.timeLimit = timeLimit;
 		}
+		
+		@Override
+		public void execute() {
+		}
 	};
 	
 	class ScheduleTaskSegmentMonitoringMinor extends ScheduleTask {
@@ -39,6 +43,10 @@ public class EngineMonitoringProduct implements EngineEventsListener {
 			super( name , schedule );
 			this.sg = sg;
 			this.timeLimit = timeLimit;
+		}
+		
+		@Override
+		public void execute() {
 		}
 	};
 	

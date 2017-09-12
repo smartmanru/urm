@@ -71,6 +71,12 @@ public class EngineScheduler extends EngineObject {
 	
 	public synchronized void stop() {
 		running = false;
+		sets.clear();
+		tasks.clear();
+		for( ScheduleExecutorTask executor : executors )
+			engine.executor.stopTask( executor );
+		
+		executors.clear();
 	}
 
 	public long getTimeInterval( int hours , int minutes , int seconds ) {
@@ -86,6 +92,9 @@ public class EngineScheduler extends EngineObject {
 	}
 
 	public void addTask( ActionBase action , ScheduleTaskCategory category , ScheduleTask task ) {
+		if( !running )
+			return;
+			
 		ScheduleTaskSet set = sets.get( category );
 		if( set == null )
 			return;
@@ -113,6 +122,9 @@ public class EngineScheduler extends EngineObject {
 	}
 	
 	private void addTaskToQueue( ScheduleTask task , Date runTime ) {
+		if( !running )
+			return;
+			
 		task.setExpectedTime( runTime );
 		
 		synchronized( tasks ) {
@@ -164,6 +176,9 @@ public class EngineScheduler extends EngineObject {
 	}
 
 	public ScheduleTask getNextTask( ScheduleExecutorTask executor ) {
+		if( !running )
+			return( null );
+			
 		ScheduleTask task = null;
 		while( true ) {
 			synchronized( tasks ) {

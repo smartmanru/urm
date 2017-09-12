@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.urm.engine.EngineExecutorTask;
 
-public class ScheduleTask extends EngineExecutorTask {
+abstract public class ScheduleTask extends EngineExecutorTask {
 
 	final ScheduleProperties schedule;
 	
@@ -15,15 +15,13 @@ public class ScheduleTask extends EngineExecutorTask {
 	public Date lastStarted;
 	public Date lastFinished;
 	
+	@Override abstract public void execute();
+	
 	public ScheduleTask( String name , ScheduleProperties schedule ) {
 		super( name );
 		this.schedule = schedule;
 		dispatched = false;
 		stopped = false;
-	}
-	
-	@Override
-	public void execute() {
 	}
 	
 	public void start() {
