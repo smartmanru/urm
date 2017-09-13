@@ -7,7 +7,6 @@ import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.status.EngineStatus.StatusType;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.meta.EngineObject;
 import org.urm.meta.engine.EngineMonitoring;
@@ -18,6 +17,7 @@ public class StatusSource extends EngineEventsSource {
 	public StatusType type;
 	public EngineObject object;
 	public StatusData state;
+	
 	private StatusData primary;
 	private Map<String,StatusData> extra;
 
@@ -28,12 +28,12 @@ public class StatusSource extends EngineEventsSource {
 		
 		state = new StatusData( this );
 		primary = new StatusData( this );
-		extra= new HashMap<String,StatusData>(); 
+		extra = new HashMap<String,StatusData>(); 
 	}
 	
 	@Override
 	public EngineEventsState getState() {
-		return( state );
+		return( new StatusData( state ) );
 	}
 
 	public void setObject( EngineObject object ) {
@@ -41,34 +41,25 @@ public class StatusSource extends EngineEventsSource {
 	}
 	
 	public void clearState() {
-		state.setState( OBJECT_STATE.STATE_NODATA );
-		primary.setState( OBJECT_STATE.STATE_NODATA );
+		state.clear();
+		primary.clear();
 		extra.clear();
 	}
 	
-	public boolean setState( SCOPESTATE state ) {
-		OBJECT_STATE newState = StatusData.getState( state );
-		return( setState( newState ) );
-	}
-	
 	public boolean setState( OBJECT_STATE newState ) {
-		if( primary.state == newState )
+		if( !primary.setState( newState ) )
 			return( false );
-
-		primary.setState( newState );
+		
 		return( updateFinalState() );
 	}
 	
 	private boolean updateFinalState() {
 		OBJECT_STATE finalState = getFinalState();
+		if( !state.setState( finalState ) )
+			return( false );
 		
-		if( finalState != state.state ) {
-			state.setState( finalState );
-			super.notify( EngineEvents.EVENT_STATECHANGED , state );
-			return( true );
-		}
-		
-		return( false );
+		super.notify( EngineEvents.EVENT_STATECHANGED , state );
+		return( true );
 	}
 
 	public synchronized StatusData getExtraState( String key ) {
@@ -77,15 +68,15 @@ public class StatusSource extends EngineEventsSource {
 			extraState = new StatusData( this );
 			extra.put( key , extraState );
 		}
+		
 		return( extraState );
 	}
 	
 	public boolean setExtraState( String key , OBJECT_STATE newState ) {
 		StatusData extraState = getExtraState( key );
-		if( extraState.state == newState )
+		if( !extraState.setState( newState ) )
 			return( false );
 
-		extraState.setState( newState );
 		return( updateFinalState() );
 	}
 	

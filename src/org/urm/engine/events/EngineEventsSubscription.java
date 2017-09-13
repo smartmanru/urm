@@ -20,7 +20,7 @@ public class EngineEventsSubscription {
 		listener.triggerSubscriptionRemoved( this );
 	}
 	
-	public EngineEventsState getState() {
+	public synchronized EngineEventsState getState() {
 		return( source.getState() );
 	}
 	

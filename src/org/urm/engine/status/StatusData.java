@@ -1,5 +1,7 @@
 package org.urm.engine.status;
 
+import java.util.Date;
+
 import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 
@@ -19,6 +21,16 @@ public class StatusData extends EngineEventsState {
 	public StatusSource source;
 	public OBJECT_STATE state;
 	public String[] log;
+	public Date updated;
+	public Date modified;
+
+	public StatusData( StatusData copy ) {
+		super( copy.source , copy.stateId );
+		this.state = copy.state;
+		this.log = copy.log;
+		this.updated = copy.updated;
+		this.modified = copy.modified;
+	}
 	
 	public StatusData( StatusSource source ) {
 		super( source , 0 );
@@ -26,12 +38,21 @@ public class StatusData extends EngineEventsState {
 		state = OBJECT_STATE.STATE_NODATA;
 	}
 
-	public OBJECT_STATE getState() {
-		return( state );
+	public void clear() {
+		state = OBJECT_STATE.STATE_NODATA;
+		updated = null;
+		modified = null;
 	}
 	
-	public void setState( OBJECT_STATE state ) {
-		this.state = state;
+	public boolean setState( OBJECT_STATE state ) {
+		updated = new Date();
+		if( this.state != state ) {
+			this.state = state;
+			modified = updated;
+			return( true );
+		}
+		
+		return( false );
 	}
 
 	public static OBJECT_STATE addState( OBJECT_STATE finalState , OBJECT_STATE addState ) {

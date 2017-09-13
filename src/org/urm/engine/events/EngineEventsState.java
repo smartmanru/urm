@@ -2,11 +2,11 @@ package org.urm.engine.events;
 
 public class EngineEventsState {
 
-	EngineEventsSource source;
-	int stateId;
+	public EngineEventsSource eventsSource;
+	public int stateId;
 	
-	public EngineEventsState( EngineEventsSource source , int stateId ) {
-		this.source = source;
+	public EngineEventsState( EngineEventsSource eventsSource , int stateId ) {
+		this.eventsSource = eventsSource;
 		this.stateId = stateId;
 	}
 	

@@ -83,6 +83,9 @@ public class EngineStatus extends EngineObject {
 	}
 	
 	public synchronized StatusSource getObjectSource( EngineObject object ) {
+		if( object instanceof EngineDirectory )
+			return( getAppSource() );
+			
 		if( object instanceof System ) {
 			System system = ( System )object; 
 			return( getGlobalSource( StatusType.SYSTEM , system.NAME ) );
