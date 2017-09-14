@@ -33,8 +33,8 @@ public class MonitorTargetInfo {
 	String F_RRDFILE;
 	
 	public MonitorTargetInfo( MetaMonitoringTarget target , MonitoringStorage storage ) {
-		this.meta = target.meta;
 		this.target = target;
+		this.meta = target.meta;
 		this.storage = storage;
 		rrdDbFail = false;
 	}

@@ -13,13 +13,11 @@ import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerDeployment;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringItem;
 import org.urm.meta.product.MetaMonitoringTarget;
 
 public class ActionMonitorCheckItem extends ActionBase {
 
-	public MetaMonitoring mon;
 	MetaMonitoringTarget target;
 	public MetaMonitoringItem item;
 	public MetaEnvServer server;
@@ -27,9 +25,8 @@ public class ActionMonitorCheckItem extends ActionBase {
 	public ServerStatus serverStatus;
 	List<NodeStatus> nodeData;
 	
-	public ActionMonitorCheckItem( ActionBase action , String stream , MetaMonitoring mon , MetaMonitoringTarget target , MetaMonitoringItem item , MetaEnvServer server ) {
+	public ActionMonitorCheckItem( ActionBase action , String stream , MetaMonitoringTarget target , MetaMonitoringItem item , MetaEnvServer server ) {
 		super( action , stream , "Monitoring, check item" );
-		this.mon = mon;
 		this.target = target;
 		this.item = item;
 		this.server = server;

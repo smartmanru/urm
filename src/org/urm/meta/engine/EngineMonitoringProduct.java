@@ -1,6 +1,10 @@
 package org.urm.meta.engine;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.urm.action.ActionBase;
+import org.urm.action.monitor.ActionMonitorTarget;
 import org.urm.action.monitor.MonitorTargetInfo;
 import org.urm.action.monitor.MonitorTop;
 import org.urm.engine.Engine;
@@ -15,43 +19,45 @@ import org.urm.meta.product.MetaMonitoringTarget;
 public class EngineMonitoringProduct {
 
 	class ScheduleTaskSegmentMonitoringMajor extends ScheduleTask {
-		MonitorTargetInfo info;
+		ActionMonitorTarget targetAction;
 	
-		ScheduleTaskSegmentMonitoringMajor( String name , MonitorTargetInfo info ) {
-			super( name , info.target.scheduleMajor );
-			this.info = info;
+		ScheduleTaskSegmentMonitoringMajor( String name , ActionMonitorTarget targetAction ) {
+			super( name , targetAction.target.scheduleMajor );
+			this.targetAction = targetAction;
 		}
 		
 		@Override
 		public void execute() throws Exception {
-			MonitorTop executor = new MonitorTop( info );
-			executor.runMajorChecks( engine.serverAction , super.iteration );
+			MonitorTop executor = new MonitorTop( targetAction );
+			executor.runMajorChecks( super.iteration );
 		}
 	};
 	
 	class ScheduleTaskSegmentMonitoringMinor extends ScheduleTask {
-		MonitorTargetInfo info;
+		ActionMonitorTarget targetAction;
 	
-		ScheduleTaskSegmentMonitoringMinor( String name , MonitorTargetInfo info ) {
-			super( name , info.target.scheduleMinor );
-			this.info = info;
+		ScheduleTaskSegmentMonitoringMinor( String name , ActionMonitorTarget targetAction ) {
+			super( name , targetAction.target.scheduleMajor );
+			this.targetAction = targetAction;
 		}
 		
 		@Override
 		public void execute() throws Exception {
-			MonitorTop executor = new MonitorTop( info );
-			executor.runMinorChecks( engine.serverAction , super.iteration );
+			MonitorTop executor = new MonitorTop( targetAction );
+			executor.runMinorChecks( super.iteration );
 		}
 	};
 	
 	EngineMonitoring monitoring;
 	MetaMonitoring meta;
 	Engine engine;
+	Map<String,ActionMonitorTarget> targets;
 	
 	public EngineMonitoringProduct( EngineMonitoring monitoring , MetaMonitoring meta ) {
 		this.monitoring = monitoring;
 		this.meta = meta;
 		this.engine = monitoring.engine;
+		targets = new HashMap<String,ActionMonitorTarget>(); 
 	}
 	
 	public synchronized void start( ActionBase action ) throws Exception {
@@ -69,17 +75,23 @@ public class EngineMonitoringProduct {
 	}
 	
 	public synchronized void stop( ActionBase action ) throws Exception {
-		for( MetaMonitoringTarget target : meta.getTargets() )
+		for( ActionMonitorTarget target : targets.values() )
 			stopTarget( action , target );
+		targets.clear();
 	}
 
-	private void stopTarget( ActionBase action , MetaMonitoringTarget target ) throws Exception {
-		MetaEnvSegment sg = target.getSegment( action );
+	private void stopTarget( ActionBase action , ActionMonitorTarget targetAction ) throws Exception {
+		MetaEnvSegment sg = targetAction.target.getSegment( action );
 		EngineScheduler scheduler = action.getServerScheduler();
 		String sgName = sg.meta.name + "-" + sg.env.ID + sg.NAME;
 		
 		String codeMajor = sgName + "-major";
 		ScheduleTask task = scheduler.findTask( ScheduleTaskCategory.MONITORING , codeMajor );
+		if( task != null )
+			scheduler.deleteTask( action , ScheduleTaskCategory.MONITORING , task );
+		
+		String codeMinor = sgName + "-minor";
+		task = scheduler.findTask( ScheduleTaskCategory.MONITORING , codeMinor );
 		if( task != null )
 			scheduler.deleteTask( action , ScheduleTaskCategory.MONITORING , task );
 	}
@@ -88,28 +100,32 @@ public class EngineMonitoringProduct {
 		MetaEnvSegment sg = target.getSegment( action );
 		if( action.isSegmentOffline( sg ) )
 			return;
+	
+		ActionMonitorTarget targetAction = targets.get( target.NAME );
+		if( targetAction == null ) {
+			MonitoringStorage storage = action.artefactory.getMonitoringStorage( action , meta );
+			MonitorTargetInfo info = new MonitorTargetInfo( target , storage );
+			targetAction = new ActionMonitorTarget( action , null , info );
+			targets.put( target.NAME , targetAction );
+		}
 		
 		EngineScheduler scheduler = action.getServerScheduler();
-		
-		MonitoringStorage storage = action.artefactory.getMonitoringStorage( action , meta );
-		MonitorTargetInfo info = new MonitorTargetInfo( target , storage );
-		
 		String sgName = sg.meta.name + "-" + sg.env.ID + sg.NAME;
 		
 		if( target.enabledMajor ) {
 			String codeMajor = sgName + "-major";
 			ScheduleTask task = scheduler.findTask( ScheduleTaskCategory.MONITORING , codeMajor );
 			if( task == null ) {
-				task = new ScheduleTaskSegmentMonitoringMajor( codeMajor , info ); 
+				task = new ScheduleTaskSegmentMonitoringMajor( codeMajor , targetAction ); 
 				scheduler.addTask( action , ScheduleTaskCategory.MONITORING , task );
 			}
 		}
 		
 		if( target.enabledMinor ) {
 			String codeMinor = sgName + "-minor";
-			ScheduleTask task = scheduler.findTask( ScheduleTaskCategory.MONITORING , sgName + "-minor" );
+			ScheduleTask task = scheduler.findTask( ScheduleTaskCategory.MONITORING , codeMinor );
 			if( task == null ) {
-				task = new ScheduleTaskSegmentMonitoringMinor( codeMinor , info ); 
+				task = new ScheduleTaskSegmentMonitoringMinor( codeMinor , targetAction ); 
 				scheduler.addTask( action , ScheduleTaskCategory.MONITORING , task );
 			}
 		}
