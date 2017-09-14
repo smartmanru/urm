@@ -12,9 +12,6 @@ import org.urm.common.RunContext;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.events.EngineEvents;
-import org.urm.engine.events.EngineEventsApp;
-import org.urm.engine.status.EngineStatus;
-import org.urm.engine.status.StatusSource;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
@@ -46,8 +43,6 @@ public class EngineMonitoring extends EngineObject {
 	public String DIR_LOGS;
 	public String RESOURCE_URL;
 
-	EngineEventsApp eventsApp;
-	
 	// properties
 	public static String PROPERTY_ENABLED = "monitoring.enabled";
 	public static String PROPERTY_RESOURCE_PATH = "default.resources.path";
@@ -105,8 +100,6 @@ public class EngineMonitoring extends EngineObject {
 	}
 
 	public void start( ActionBase action ) throws Exception {
-		EngineEvents events = engine.getEvents();
-		eventsApp = events.createApp( "monitoring" );
 		running = true;
 		
 		EngineRegistry registry = loader.getRegistry();
@@ -121,11 +114,6 @@ public class EngineMonitoring extends EngineObject {
 		running = false;
 		stopAll( action );
 		mapProduct.clear();
-		
-		if( eventsApp != null ) {
-			EngineEvents events = engine.getEvents();
-			events.deleteApp( eventsApp );
-		}
 	}
 
 	private void startAll( ActionBase action ) throws Exception {
@@ -175,21 +163,9 @@ public class EngineMonitoring extends EngineObject {
 	public void modifyTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {
 	}
 
-	public StatusSource findTargetSource( MetaMonitoringTarget target ) {
-		MetaEnv env = target.meta.findEnv( target.ENV );
-		if( env == null )
-			return( null );
-		MetaEnvSegment sg = env.findSegment( target.SG );
-		if( sg == null)
-			return( null );
-		
-		EngineStatus status = engine.getStatus();
-		return( status.getObjectSource( sg ) );
-	}
-
 	public synchronized void createProduct( ActionBase action , ProductMeta storage ) throws Exception {
 		MetaMonitoring meta = storage.getMonitoring();
-		EngineMonitoringProduct mon = new EngineMonitoringProduct( this , meta , eventsApp );
+		EngineMonitoringProduct mon = new EngineMonitoringProduct( this , meta );
 		mapProduct.put( storage.name , mon );
 		mon.start( action );
 	}

@@ -10,7 +10,6 @@ import org.urm.action.build.ActionGetManual;
 import org.urm.action.build.ActionPatch;
 import org.urm.action.conf.ActionGetConf;
 import org.urm.action.database.ActionGetDB;
-import org.urm.action.monitor.ActionMonitorTop;
 import org.urm.action.release.ActionAddScope;
 import org.urm.action.release.ActionAppendProd;
 import org.urm.action.release.ActionArchiveRelease;
@@ -148,9 +147,6 @@ public class EngineBlotter {
 			return;
 		}
 
-		if( action instanceof ActionMonitorTop )
-			return;
-		
 		if( action.parent.blotterTreeItem == null )
 			return;
 		

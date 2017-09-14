@@ -15,7 +15,7 @@ abstract public class ScheduleTask extends EngineExecutorTask {
 	public Date lastStarted;
 	public Date lastFinished;
 	
-	@Override abstract public void execute();
+	@Override abstract public void execute() throws Exception;
 	
 	public ScheduleTask( String name , ScheduleProperties schedule ) {
 		super( name );
@@ -24,7 +24,9 @@ abstract public class ScheduleTask extends EngineExecutorTask {
 		stopped = false;
 	}
 	
+	@Override
 	public void start() {
+		super.start();
 		lastStarted = new Date();
 		lastFinished = null;
 	}

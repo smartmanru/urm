@@ -1,15 +1,18 @@
 package org.urm.engine.schedule;
 
+import org.urm.engine.Engine;
 import org.urm.engine.EngineExecutorTask;
 
 public class ScheduleExecutorTask extends EngineExecutorTask {
 	
 	EngineScheduler scheduler;
+	Engine engine;
 	int id;
 	
 	public ScheduleExecutorTask( EngineScheduler scheduler , int id ) {
 		super( "schedule-executor-" + id );
 		this.scheduler = scheduler;
+		this.engine = scheduler.engine;
 		this.id = id;
 	}
 
@@ -20,12 +23,14 @@ public class ScheduleExecutorTask extends EngineExecutorTask {
 			return;
 		
 		try {
-			scheduler.engine.debug( "SCHEDULE executor=" + id + ": start task=" + task.name );
+			engine.debug( "SCHEDULE executor=" + id + ": start task=" + task.name );
 			task.start();
 			task.execute();
+			task.finishSuccessful();
 		}
 		catch( Throwable e ) {
-			scheduler.engine.log( "SCHEDULE executor task" , e );
+			engine.log( "SCHEDULE executor task" , e );
+			task.finishFailed( e );
 		}
 
 		task.finish();

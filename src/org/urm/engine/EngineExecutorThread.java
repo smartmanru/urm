@@ -25,7 +25,14 @@ public class EngineExecutorThread implements Runnable {
 	public void run() {
 		task.setThread( this );
 		while( !stopping ) {
-			task.execute();
+			try {
+				task.execute();
+				task.finishSuccessful();
+			}
+			catch( Throwable e ) {
+				task.finishFailed( e );
+			}
+			
 			if( !cycle )
 				break;
 		}
