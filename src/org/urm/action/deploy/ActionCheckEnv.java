@@ -82,6 +82,8 @@ public class ActionCheckEnv extends ActionBase {
 	
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		ActionScopeSet set = target.set;
+		EngineStatus status = super.getServerStatus();
+		status.updateRunTime( this , target.envServer );
 		
 		ScopeState parent = super.eventSource.findSetState( target.set );
 		ServerStatus serverStatus = new ServerStatus( parent , target.envServer );
@@ -134,7 +136,6 @@ public class ActionCheckEnv extends ActionBase {
 		
 		String[] log = super.logFinishCapture( captureIndex );
 		serverStatus.setLog( log );
-		EngineStatus status = super.getServerStatus();
 		status.setServerStatus( this , target.envServer , serverStatus );
 		
 		return( SCOPESTATE.RunSuccess );
@@ -163,8 +164,11 @@ public class ActionCheckEnv extends ActionBase {
 
 		if( main ) {
 			debug( "check nodes ..." );
+			EngineStatus status = super.getServerStatus();
+			
 			boolean someNodeAvailable = false;
 			for( ActionScopeTargetItem node : target.getItems( this ) ) {
+				status.updateRunTime( this , node.envServerNode );
 				checkOneServerNode( node , server , node.envServerNode , main , role , serverStatus );
 				if( !S_CHECKENV_NODE_STOPPED )
 					someNodeAvailable = true;

@@ -1,5 +1,6 @@
 package org.urm.engine.status;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ public class StatusSource extends EngineEventsSource {
 	public StatusType type;
 	public EngineObject object;
 	public StatusData state;
+	public Date runTime;
 	
 	private StatusData primary;
 	private Map<String,StatusData> extra;
@@ -33,7 +35,7 @@ public class StatusSource extends EngineEventsSource {
 	
 	@Override
 	public EngineEventsState getState() {
-		return( new StatusData( state ) );
+		return( new StatusData( state , runTime ) );
 	}
 
 	public void setObject( EngineObject object ) {
@@ -44,6 +46,7 @@ public class StatusSource extends EngineEventsSource {
 		state.clear();
 		primary.clear();
 		extra.clear();
+		runTime = null;
 	}
 	
 	public boolean setState( OBJECT_STATE newState ) {
@@ -107,6 +110,10 @@ public class StatusSource extends EngineEventsSource {
 
 	public void customEvent( int eventType , Object data ) {
 		super.notify( eventType , data );
+	}
+
+	public void updateRunTime() {
+		runTime = new Date();
 	}
 	
 }

@@ -315,5 +315,52 @@ public class EngineStatus extends EngineObject {
 		
 		appSource.setState( finalState );
 	}
+
+	public void updateRunTime( ActionBase action , MetaEnvSegment sg ) {
+		EngineProductStatus productStatus = products.get( sg.meta.name );
+		if( productStatus == null )
+			return;
+
+		StatusSource source = productStatus.getObjectSource( sg );
+		if( source != null ) {
+			source.updateRunTime();
+			source = productStatus.getObjectSource( sg.env );
+			if( source != null ) {
+				source.updateRunTime();
+				Product product = productStatus.product;
+				source = getGlobalSource( StatusType.PRODUCT , product.NAME );
+				if( source != null ) {
+					source.updateRunTime();
+					source = getGlobalSource( StatusType.PRODUCT , product.system.NAME );
+					if( source != null ) {
+						source.updateRunTime();
+						source = getAppSource();
+						if( source != null )
+							source.updateRunTime();
+					}
+				}
+			}
+		}
+	}
+
+	public void updateRunTime( ActionBase action , MetaEnvServer server ) {
+		EngineProductStatus productStatus = products.get( server.meta.name );
+		if( productStatus == null )
+			return;
+		
+		StatusSource source = productStatus.getObjectSource( server );
+		if( source != null )
+			source.updateRunTime();
+	}
+	
+	public void updateRunTime( ActionBase action , MetaEnvServerNode node ) {
+		EngineProductStatus productStatus = products.get( node.meta.name );
+		if( productStatus == null )
+			return;
+		
+		StatusSource source = productStatus.getObjectSource( node );
+		if( source != null )
+			source.updateRunTime();
+	}
 	
 }

@@ -1,6 +1,8 @@
 package org.urm.action.monitor;
 
 import java.util.Date;
+
+import org.urm.engine.status.EngineStatus;
 import org.urm.meta.product.Meta;
 
 public class MonitorTop {
@@ -15,6 +17,7 @@ public class MonitorTop {
 
 	public void runMajorChecks( int iteration ) throws Exception {
 		synchronized( targetAction ) {
+			updateTime();
 			Date start = new Date();
 			targetAction.info( "product=" + meta.name + ": start major checks #" + iteration + ": " );
 			targetAction.executeOnceMajor();
@@ -26,6 +29,7 @@ public class MonitorTop {
 	
 	public void runMinorChecks( int iteration ) throws Exception {
 		synchronized( targetAction ) {
+			updateTime();
 			Date start = new Date();
 			targetAction.info( "product=" + meta.name + ": start minor checks #" + iteration + ": " );
 			targetAction.executeOnceMinor();
@@ -33,6 +37,11 @@ public class MonitorTop {
 			targetAction.info( "product=" + meta.name + ": minor checks #" + iteration + " done in : " + ( stop.getTime() - start.getTime() ) + "ms" );
 			targetAction.createGraph();
 		}
-	}		
+	}
+	
+	private void updateTime() throws Exception {
+		EngineStatus status = targetAction.getServerStatus();
+		status.updateRunTime( targetAction , targetAction.target.getSegment( targetAction ) );
+	}
 	
 }

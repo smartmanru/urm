@@ -23,13 +23,15 @@ public class StatusData extends EngineEventsState {
 	public String[] log;
 	public Date updated;
 	public Date modified;
+	public Date runTime;
 
-	public StatusData( StatusData copy ) {
+	public StatusData( StatusData copy , Date runTime ) {
 		super( copy.source , copy.stateId );
 		this.state = copy.state;
 		this.log = copy.log;
 		this.updated = copy.updated;
 		this.modified = copy.modified;
+		this.runTime = runTime;
 	}
 	
 	public StatusData( StatusSource source ) {
