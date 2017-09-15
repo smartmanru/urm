@@ -46,9 +46,12 @@ public class ActionMonitorTarget extends ActionBase {
 		info.stop( this );
 
 		MetaEnvSegment sg = info.target.getSegment( this );
-		EngineStatus status = super.getServerStatus();
-		StatusSource source = status.getObjectSource( sg );
-		source.customEvent( EngineEvents.EVENT_MONITORGRAPHCHANGED , info );
+		if( sg != null ) { 
+			EngineStatus status = super.getServerStatus();
+			StatusSource source = status.getObjectSource( sg );
+			if( source != null )
+				source.customEvent( EngineEvents.EVENT_MONITORGRAPHCHANGED , info );
+		}
 	}
 
 	public void executeOnceMinor() throws Exception {
