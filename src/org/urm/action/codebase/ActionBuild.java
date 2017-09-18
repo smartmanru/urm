@@ -1,4 +1,4 @@
-package org.urm.action.build;
+package org.urm.action.codebase;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
@@ -84,7 +84,7 @@ public class ActionBuild extends ActionBase {
 
 		BUILDSTATUS = "SUCCESSFUL";
 		boolean res = true;
-		if( !action.runProductBuild( project.meta.name , SecurityAction.ACTION_BUILD , context.buildMode , false ) ) {
+		if( !action.runProductBuild( project.meta.name , SecurityAction.ACTION_CODEBASE , context.buildMode , false ) ) {
 			BUILDSTATUS = "FAILED";
 			res = false;
 			super.fail1( _Error.ProjectBuildError1 , "Errors while building project=" + project.NAME , project.NAME );

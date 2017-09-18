@@ -355,10 +355,6 @@ abstract public class ActionBase extends ActionCore {
 		return( runCategories( scope , categories , sa , readOnly ) );
 	}
 	
-	public boolean runEachCoreProject( ActionScope scope , SecurityAction sa , boolean readOnly ) {
-		return( runEachCategoryTarget( scope , VarCATEGORY.BUILDABLE , sa , readOnly ) );
-	}
-
 	public boolean runEachPrebuiltProject( String methodName , ActionScope scope , SecurityAction sa , boolean readOnly ) {
 		return( runEachCategoryTarget( scope , VarCATEGORY.PREBUILT , sa , readOnly ) );
 	}

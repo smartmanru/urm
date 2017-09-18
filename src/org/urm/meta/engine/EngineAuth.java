@@ -34,7 +34,7 @@ public class EngineAuth extends EngineObject {
 	public enum SecurityAction {
 		ACTION_SECURED ,
 		ACTION_CONFIGURE ,
-		ACTION_BUILD ,
+		ACTION_CODEBASE ,
 		ACTION_RELEASE ,
 		ACTION_DEPLOY ,
 		ACTION_MONITOR ,
@@ -523,7 +523,7 @@ public class EngineAuth extends EngineObject {
 			return( false );
 		}
 		
-		if( sa == SecurityAction.ACTION_BUILD ) {
+		if( sa == SecurityAction.ACTION_CODEBASE ) {
 			if( readOnly ) {
 				if( roles.secDev || roles.secRel || roles.secTest || roles.secOpr )
 					return( true );

@@ -7,7 +7,7 @@ import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.OptionsMeta;
 import org.urm.common.jmx.EngineMBean;
-import org.urm.common.meta.BuildCommandMeta;
+import org.urm.common.meta.CodebaseCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
 import org.urm.common.meta.MainCommandMeta;
@@ -22,7 +22,7 @@ import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.action.CommandOutput;
-import org.urm.engine.executor.BuildCommandExecutor;
+import org.urm.engine.executor.CodebaseCommandExecutor;
 import org.urm.engine.executor.DatabaseCommandExecutor;
 import org.urm.engine.executor.DeployCommandExecutor;
 import org.urm.engine.executor.MainExecutor;
@@ -67,7 +67,7 @@ public class Engine {
 	private TransactionBase currentTransaction = null;
 
 	public EngineBlotter blotter;
-	public BuildCommandExecutor buildExecutor;
+	public CodebaseCommandExecutor buildExecutor;
 	public DatabaseCommandExecutor databaseExecutor;
 	public DeployCommandExecutor deployExecutor;
 	public MonitorCommandExecutor monitorExecutor;
@@ -104,7 +104,7 @@ public class Engine {
 		sessionController.init();
 		blotter.init();
 		
-		buildExecutor = BuildCommandExecutor.createExecutor( this );
+		buildExecutor = CodebaseCommandExecutor.createExecutor( this );
 		databaseExecutor = DatabaseCommandExecutor.createExecutor( this );
 		deployExecutor = DeployCommandExecutor.createExecutor( this );
 		monitorExecutor = MonitorCommandExecutor.createExecutor( this );
@@ -285,7 +285,7 @@ public class Engine {
 		if( command.equals( MainCommandMeta.NAME ) )
 			return( serverExecutor );
 		
-		if( command.equals( BuildCommandMeta.NAME ) )
+		if( command.equals( CodebaseCommandMeta.NAME ) )
 			return( buildExecutor );
 		if( command.equals( DatabaseCommandMeta.NAME ) )
 			return( databaseExecutor );
@@ -299,7 +299,7 @@ public class Engine {
 			return( xdocExecutor );
 		
 		Common.exit1( _Error.UnknownCommandExecutor1 , "Unexpected URM args - unknown command executor=" + command + " (expected one of " +
-				BuildCommandMeta.NAME + "/" +
+				CodebaseCommandMeta.NAME + "/" +
 				DeployCommandMeta.NAME + "/" + 
 				DatabaseCommandMeta.NAME + "/" +
 				MonitorCommandMeta.NAME + "/" +

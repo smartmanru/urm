@@ -4,10 +4,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
-import org.urm.action.build.ActionBuild;
-import org.urm.action.build.ActionGetBinary;
-import org.urm.action.build.ActionGetManual;
-import org.urm.action.build.ActionPatch;
+import org.urm.action.codebase.ActionBuild;
+import org.urm.action.codebase.ActionGetBinary;
+import org.urm.action.codebase.ActionGetManual;
+import org.urm.action.codebase.ActionPatch;
 import org.urm.action.conf.ActionGetConf;
 import org.urm.action.database.ActionGetDB;
 import org.urm.action.release.ActionAddScope;

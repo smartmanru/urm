@@ -34,7 +34,7 @@ public class DatabaseCommand {
 		LocalFolder downloadFolder = action.artefactory.getWorkFolder( action , "download" );
 		downloadFolder.recreateThis( action );
 		ActionGetDB ma = new ActionGetDB( action , null , dist , downloadFolder , action.context.CTX_DIST );
-		ma.runAll( scope , null , SecurityAction.ACTION_BUILD , false );
+		ma.runAll( scope , null , SecurityAction.ACTION_CODEBASE , false );
 	}
 
 	public void applyManual( ActionBase action , ActionScope scope , Dist dist , MetaEnvServer server ) throws Exception {

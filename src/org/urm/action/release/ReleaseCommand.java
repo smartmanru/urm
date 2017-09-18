@@ -6,7 +6,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionProductScopeMaker;
 import org.urm.action.ActionReleaseScopeMaker;
 import org.urm.action.ActionScope;
-import org.urm.action.build.BuildCommand;
+import org.urm.action.codebase.CodebaseCommand;
 import org.urm.engine.dist.Dist;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.engine.EngineAuth.SecurityAction;
@@ -220,7 +220,7 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotBuildCumulative0 , "cannot build cumulative release" );
 		
-		BuildCommand buildImpl = new BuildCommand();
+		CodebaseCommand buildImpl = new CodebaseCommand();
 		buildImpl.buildRelease( action , dist.meta , SET , PROJECTS , dist );
 	}
 
@@ -228,7 +228,7 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotDownloadCumulative0 , "cannot download cumulative release" );
 		
-		BuildCommand buildImpl = new BuildCommand();
+		CodebaseCommand buildImpl = new CodebaseCommand();
 		action.context.CTX_DIST = true;
 		buildImpl.getAllRelease( action , SET , PROJECTS , dist );
 	}

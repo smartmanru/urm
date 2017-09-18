@@ -13,7 +13,7 @@ import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.jmx.RemoteCall;
-import org.urm.common.meta.BuildCommandMeta;
+import org.urm.common.meta.CodebaseCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
 import org.urm.common.meta.MainCommandMeta;
@@ -46,7 +46,7 @@ public class ActionConfigure extends ActionBase {
 	String sgMasterFolderRel;
 	String envDbMasterFolderRel;
 	String sgDbMasterFolderRel;
-	String buildMasterFolderRel;
+	String codebaseMasterFolderRel;
 
 	public ActionConfigure( ActionBase action , String stream , String OSTYPE , String USEENV , String USESG ) {
 		super( action , stream , "Create proxy files" );
@@ -76,7 +76,7 @@ public class ActionConfigure extends ActionBase {
 		sgMasterFolderRel = "../../..";
 		envDbMasterFolderRel = "../../..";
 		sgDbMasterFolderRel = "../../../..";
-		buildMasterFolderRel = "../..";
+		codebaseMasterFolderRel = "../..";
 
 		// set execution context
 		configureDefault();
@@ -189,22 +189,22 @@ public class ActionConfigure extends ActionBase {
 	}
 	
 	private void configureProductDefault( Meta meta ) throws Exception {
-		LocalFolder pfBuild = pfMaster.getSubFolder( this , BuildCommandMeta.NAME );
+		LocalFolder pfCodebase = pfMaster.getSubFolder( this , CodebaseCommandMeta.NAME );
 		LocalFolder pfDeploy = pfMaster.getSubFolder( this , DeployCommandMeta.NAME );
 		
-		boolean buildUnix = false;
-		boolean buildWindows = false;
+		boolean codebaseUnix = false;
+		boolean codebaseWindows = false;
 		boolean deployUnix = false;
 		boolean deployWindows = false;
 		
 		if( runLinux )
-			buildUnix = deployUnix = true;
+			codebaseUnix = deployUnix = true;
 		else {
 			if( deleteOld == false ) {
 				if( isLocalLinux() ) {
-					if( pfBuild.checkExists( this ) )
-						if( pfBuild.findFiles( this , "*.sh" ).length > 0 )
-							buildUnix = true;
+					if( pfCodebase.checkExists( this ) )
+						if( pfCodebase.findFiles( this , "*.sh" ).length > 0 )
+							codebaseUnix = true;
 					if( pfDeploy.checkExists( this ) )
 						if( pfDeploy.findFiles( this , "*.sh" ).length > 0 )
 							deployUnix = true;
@@ -213,13 +213,13 @@ public class ActionConfigure extends ActionBase {
 		}
 
 		if( runWindows )
-			buildWindows = deployWindows = true;
+			codebaseWindows = deployWindows = true;
 		else {
 			if( deleteOld == false ) {
 				if( isLocalWindows() ) {
-					if( pfBuild.checkExists( this ) )
-						if( pfBuild.findFiles( this , "*.cmd" ).length > 0 )
-							buildWindows = true;
+					if( pfCodebase.checkExists( this ) )
+						if( pfCodebase.findFiles( this , "*.cmd" ).length > 0 )
+							codebaseWindows = true;
 					if( pfDeploy.checkExists( this ) )
 						if( pfDeploy.findFiles( this , "*.cmd" ).length > 0 )
 							deployWindows = true;
@@ -227,16 +227,16 @@ public class ActionConfigure extends ActionBase {
 			}
 		}
 		
-		if( buildUnix || deployUnix )
-			configureProductAll( meta , buildUnix , deployUnix , true );
-		if( buildWindows || deployWindows )
-			configureProductAll( meta , buildWindows , deployWindows , false );
+		if( codebaseUnix || deployUnix )
+			configureProductAll( meta , codebaseUnix , deployUnix , true );
+		if( codebaseWindows || deployWindows )
+			configureProductAll( meta , codebaseWindows , deployWindows , false );
 	}
 	
-	private void configureProductAll( Meta meta , boolean build , boolean deploy , boolean linux ) throws Exception {
+	private void configureProductAll( Meta meta , boolean codebase , boolean deploy , boolean linux ) throws Exception {
 		CommandBuilder builder = new CommandBuilder( context.session.clientrc , context.session.execrc , engine.optionsMeta );
 		
-		CommandMeta[] executors = builder.getExecutors( build , deploy );
+		CommandMeta[] executors = builder.getExecutors( codebase , deploy );
 		CommandMeta dbe = null;
 		for( CommandMeta executor : executors ) {
 			if( executor.name.equals( DatabaseCommandMeta.NAME ) ) {
@@ -318,7 +318,7 @@ public class ActionConfigure extends ActionBase {
 			addAffected( linux , proxyPath , true );
 		}
 		
-		if( executor.name.equals( BuildCommandMeta.NAME ) ) {
+		if( executor.name.equals( CodebaseCommandMeta.NAME ) ) {
 			for( VarBUILDMODE mode : VarBUILDMODE.values() ) {
 				if( mode == VarBUILDMODE.UNKNOWN )
 					continue;
@@ -397,7 +397,7 @@ public class ActionConfigure extends ActionBase {
 		// env-level wrappers
 		for( CommandMethodMeta cmdAction : executor.actionsList ) {
 			if( !cmdAction.top )
-				configureExecutorWrapper( efBuild , executor , cmdAction.name , linux , buildMasterFolderRel , null );
+				configureExecutorWrapper( efBuild , executor , cmdAction.name , linux , codebaseMasterFolderRel , null );
 		}
 	}
 
