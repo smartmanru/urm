@@ -5,9 +5,9 @@ import org.urm.action.ActionProductScopeMaker;
 import org.urm.action.ActionReleaseScopeMaker;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
-import org.urm.action.build.BuildCommand;
+import org.urm.action.codebase.CodebaseCommand;
 import org.urm.common.action.CommandMeta;
-import org.urm.common.meta.BuildCommandMeta;
+import org.urm.common.meta.CodebaseCommandMeta;
 import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
@@ -16,41 +16,41 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductBuildSettings;
 
-public class BuildCommandExecutor extends CommandExecutor {
+public class CodebaseCommandExecutor extends CommandExecutor {
 
-	BuildCommand impl;
+	CodebaseCommand impl;
 	
-	public static BuildCommandExecutor createExecutor( Engine engine ) throws Exception {
-		BuildCommandMeta commandInfo = new BuildCommandMeta( engine.optionsMeta );
-		return( new BuildCommandExecutor( engine , commandInfo ) );
+	public static CodebaseCommandExecutor createExecutor( Engine engine ) throws Exception {
+		CodebaseCommandMeta commandInfo = new CodebaseCommandMeta( engine.optionsMeta );
+		return( new CodebaseCommandExecutor( engine , commandInfo ) );
 	}
 		
-	private BuildCommandExecutor( Engine engine , CommandMeta commandInfo ) throws Exception {
+	private CodebaseCommandExecutor( Engine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
-		super.defineAction( new BuildAllTags() , "buildall-tags" );
-		super.defineAction( new BuildAllRelease() , "buildall-release" );
-		super.defineAction( new CheckSet() , "checkset" );
-		super.defineAction( new Custom() , "custom" );
-		super.defineAction( new GetAll() , "getall" );
-		super.defineAction( new GetAllRelease() , "getall-release" );
-		super.defineAction( new CodebaseCheckout() , "codebase-checkout" );
-		super.defineAction( new CodebaseCommit() , "codebase-commit" );
-		super.defineAction( new CodebaseCopyBranches() , "codebase-copybranches" );
-		super.defineAction( new CodebaseCopyBranchToTag() , "codebase-copybranchtotag" );
-		super.defineAction( new CodebaseCopyNewTags() , "codebase-copynewtags" );
-		super.defineAction( new CodebaseCopyTags() , "codebase-copytags" );
-		super.defineAction( new CodebaseCopyTagToBranch() , "codebase-copytagtobranch" );
-		super.defineAction( new CodebaseDropBranch() , "codebase-dropbranch" );
-		super.defineAction( new CodebaseDropTags() , "codebase-droptags" );
-		super.defineAction( new CodebaseExport() , "codebase-export" );
-		super.defineAction( new CodebaseRenameBranch() , "codebase-renamebranch" );
-		super.defineAction( new CodebaseRenameTags() , "codebase-renametags" );
-		super.defineAction( new CodebaseSetVersion() , "codebase-setversion" );
-		super.defineAction( new ThirdpartyUploadDist() , "uploaddist" );
-		super.defineAction( new ThirdpartyUploadLib() , "uploadlib" );
+		super.defineAction( new BuildAllTags() , CodebaseCommandMeta.METHOD_BUILDTAGS );
+		super.defineAction( new BuildAllRelease() , CodebaseCommandMeta.METHOD_BUILDRELEASE );
+		super.defineAction( new CheckSet() , CodebaseCommandMeta.METHOD_CHECKSET );
+		super.defineAction( new Custom() , CodebaseCommandMeta.METHOD_CUSTOM );
+		super.defineAction( new GetAll() , CodebaseCommandMeta.METHOD_GETBUILD );
+		super.defineAction( new GetAllRelease() , CodebaseCommandMeta.METHOD_GETRELEASE );
+		super.defineAction( new CodebaseCheckout() , CodebaseCommandMeta.METHOD_CHECKOUT );
+		super.defineAction( new CodebaseCommit() , CodebaseCommandMeta.METHOD_COMMIT );
+		super.defineAction( new CodebaseCopyBranches() , CodebaseCommandMeta.METHOD_COPYBRANCHES );
+		super.defineAction( new CodebaseCopyBranchToTag() , CodebaseCommandMeta.METHOD_COPYBRANCHTOTAG );
+		super.defineAction( new CodebaseCopyNewTags() , CodebaseCommandMeta.METHOD_COPYNEWTAGS );
+		super.defineAction( new CodebaseCopyTags() , CodebaseCommandMeta.METHOD_COPYTAGS );
+		super.defineAction( new CodebaseCopyTagToBranch() , CodebaseCommandMeta.METHOD_COPYTAGTOBRANCH );
+		super.defineAction( new CodebaseDropBranch() , CodebaseCommandMeta.METHOD_DROPBRANCH );
+		super.defineAction( new CodebaseDropTags() , CodebaseCommandMeta.METHOD_DROPTAGS );
+		super.defineAction( new CodebaseExport() , CodebaseCommandMeta.METHOD_EXPORT );
+		super.defineAction( new CodebaseRenameBranch() , CodebaseCommandMeta.METHOD_RENAMEBRANCH );
+		super.defineAction( new CodebaseRenameTags() , CodebaseCommandMeta.METHOD_RENAMETAGS );
+		super.defineAction( new CodebaseSetVersion() , CodebaseCommandMeta.METHOD_SETVERSION );
+		super.defineAction( new ThirdpartyUploadDist() , CodebaseCommandMeta.METHOD_UPLOADDIST );
+		super.defineAction( new ThirdpartyUploadLib() , CodebaseCommandMeta.METHOD_UPLOADLIB );
 		
-		impl = new BuildCommand();
+		impl = new CodebaseCommand();
 	}
 
 	@Override
