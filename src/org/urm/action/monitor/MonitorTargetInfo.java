@@ -2,6 +2,7 @@ package org.urm.action.monitor;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.Date;
 
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
@@ -212,7 +213,7 @@ public class MonitorTargetInfo {
 		gDef.setHeight( 200 );
 		gDef.setVerticalLabel( "Milliseconds" );
 		gDef.setAltYGrid( true );
-		gDef.setTitle( target.ENV + ", sg=" + target.SG + " check segment execution time (0 if not running)" );
+		gDef.setTitle( target.ENV + ", sg=" + target.SG + " check segment execution time (0 if not running) - " + Common.getRefDate( new Date() ) );
 		gDef.setColor( RrdGraphDef.COLOR_GRID , Color.decode( "0xC0C0C0" ) );
 		gDef.setColor( RrdGraphDef.COLOR_BACK , Color.decode( "0xE4E4E4" ) );
 		gDef.setTimeAxis( RrdGraphDef.MINUTE , 30 , RrdGraphDef.HOUR , 1 , RrdGraphDef.HOUR , 1 , 0 , "%H" );
