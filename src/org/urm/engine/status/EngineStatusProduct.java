@@ -16,7 +16,7 @@ import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 
-public class EngineProductStatus extends EngineObject {
+public class EngineStatusProduct extends EngineObject {
 
 	EngineStatus engineStatus;
 	EngineEvents events;
@@ -25,7 +25,7 @@ public class EngineProductStatus extends EngineObject {
 	
 	private Map<EngineObject,StatusSource> productSources;
 	
-	public EngineProductStatus( EngineStatus engineStatus , Product product , Meta meta ) {
+	public EngineStatusProduct( EngineStatus engineStatus , Product product , Meta meta ) {
 		super( engineStatus );
 		this.product = product;
 		this.meta = meta;
@@ -225,7 +225,7 @@ public class EngineProductStatus extends EngineObject {
 	}
 
 	private void startEnvironmentSource( ActionBase action , MetaEnv env ) {
-		createProductSource( StatusType.ENVIRONMENT , env , env.ID );
+		createProductSource( StatusType.ENVIRONMENT , env , env.ID , new EnvStatus( env ) );
 	}
 	
 	private void startSegment( ActionBase action , MetaEnvSegment sg ) {
@@ -237,7 +237,7 @@ public class EngineProductStatus extends EngineObject {
 	}
 
 	private void startSegmentSource( ActionBase action , MetaEnvSegment sg ) {
-		createProductSource( StatusType.SEGMENT , sg , sg.env.ID + "-" + sg.NAME );
+		createProductSource( StatusType.SEGMENT , sg , sg.env.ID + "-" + sg.NAME , new SegmentStatus( sg ) );
 	}
 	
 	private void startServer( ActionBase action , MetaEnvServer server ) {
@@ -249,7 +249,7 @@ public class EngineProductStatus extends EngineObject {
 	}
 
 	private void startServerSource( ActionBase action , MetaEnvServer server ) {
-		createProductSource( StatusType.SERVER , server , server.sg.env.ID + "-" + server.sg.NAME + "-" + server.NAME );
+		createProductSource( StatusType.SERVER , server , server.sg.env.ID + "-" + server.sg.NAME + "-" + server.NAME , new ServerStatus( server ) );
 	}
 	
 	private void startNode( ActionBase action , MetaEnvServerNode node ) {
@@ -257,11 +257,11 @@ public class EngineProductStatus extends EngineObject {
 	}
 	
 	private void startNodeSource( ActionBase action , MetaEnvServerNode node ) {
-		createProductSource( StatusType.NODE , node , node.server.sg.env.ID + "-" + node.server.sg.NAME + "-" + node.server.NAME + "-" + node.POS );
+		createProductSource( StatusType.NODE , node , node.server.sg.env.ID + "-" + node.server.sg.NAME + "-" + node.server.NAME + "-" + node.POS , new NodeStatus( node ) );
 	}
 	
-	private StatusSource createProductSource( StatusType type , EngineObject object , String name ) {
-		StatusSource source = new StatusSource( events , object , type , name );
+	private StatusSource createProductSource( StatusType type , EngineObject object , String name , Status status ) {
+		StatusSource source = new StatusSource( events , object , type , name , status );
 		productSources.put( object , source );
 		return( source );
 	}
@@ -308,7 +308,7 @@ public class EngineProductStatus extends EngineObject {
 	
 	private void processSegmentItems( ActionBase action , StatusSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
 		sgSource.setExtraLog( EngineStatus.EXTRA_SEGMENT_ITEMS , status.getLog() );
-		if( sgSource.setExtraState( EngineStatus.EXTRA_SEGMENT_ITEMS , status.itemState ) ) {
+		if( sgSource.setExtraState( EngineStatus.EXTRA_SEGMENT_ITEMS , status.itemState , status ) ) {
 			MetaEnv env = sg.env;
 			recalculateEnv( action , env );
 		}
@@ -316,7 +316,7 @@ public class EngineProductStatus extends EngineObject {
 	
 	private void processServer( ActionBase action , StatusSource serverSource , MetaEnvServer server , ServerStatus status ) {
 		serverSource.setPrimaryLog( status.getLog() );
-		if( serverSource.setState( status.itemState ) ) {
+		if( serverSource.setState( status.itemState , status ) ) {
 			MetaEnvSegment sg = server.sg;
 			recalculateSegment( action , sg );
 		}
@@ -324,7 +324,7 @@ public class EngineProductStatus extends EngineObject {
 	
 	private void processServerItems( ActionBase action , StatusSource serverSource , MetaEnvServer server , ServerStatus status ) {
 		serverSource.setExtraLog( EngineStatus.EXTRA_SERVER_ITEMS , status.getLog() );
-		if( serverSource.setExtraState( EngineStatus.EXTRA_SERVER_ITEMS , status.itemState ) ) {
+		if( serverSource.setExtraState( EngineStatus.EXTRA_SERVER_ITEMS , status.itemState , status ) ) {
 			MetaEnvSegment sg = server.sg;
 			recalculateSegment( action , sg );
 		}
@@ -332,7 +332,7 @@ public class EngineProductStatus extends EngineObject {
 	
 	private void processServerNode( ActionBase action , StatusSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
 		nodeSource.setPrimaryLog( status.getLog() );
-		if( nodeSource.setState( status.itemState ) ) {
+		if( nodeSource.setState( status.itemState , status ) ) {
 			MetaEnvServer server = node.server;
 			recalculateServer( action , server );
 		}
@@ -340,7 +340,7 @@ public class EngineProductStatus extends EngineObject {
 	
 	private void processServerNodeItems( ActionBase action , StatusSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
 		nodeSource.setExtraLog( EngineStatus.EXTRA_NODE_ITEMS , status.getLog() );
-		if( nodeSource.setExtraState( EngineStatus.EXTRA_NODE_ITEMS , status.itemState ) ) {
+		if( nodeSource.setExtraState( EngineStatus.EXTRA_NODE_ITEMS , status.itemState , status ) ) {
 			MetaEnvServer server = node.server;
 			recalculateServer( action , server );
 		}
@@ -358,7 +358,7 @@ public class EngineProductStatus extends EngineObject {
 				finalState = StatusData.addState( finalState , nodeSource.state.state );
 		}
 		
-		if( serverSource.setState( finalState ) ) {
+		if( serverSource.setFinalState( finalState ) ) {
 			MetaEnvSegment sg = server.sg;
 			recalculateSegment( action , sg );
 		}
@@ -376,7 +376,7 @@ public class EngineProductStatus extends EngineObject {
 				finalState = StatusData.addState( finalState , serverSource.state.state );
 		}
 		
-		if( sgSource.setState( finalState ) ) {
+		if( sgSource.setFinalState( finalState ) ) {
 			MetaEnv env = sg.env;
 			recalculateEnv( action , env );
 		}
@@ -394,7 +394,7 @@ public class EngineProductStatus extends EngineObject {
 				finalState = StatusData.addState( finalState , sgSource.state.state );
 		}
 		
-		if( envSource.setState( finalState ) )
+		if( envSource.setFinalState( finalState ) )
 			recalculateProduct( action );
 	}
 
