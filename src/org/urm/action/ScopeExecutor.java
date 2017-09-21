@@ -28,6 +28,7 @@ public class ScopeExecutor {
 
 	boolean runUniqueHosts = false;
 	boolean runUniqueAccounts = false;
+	volatile boolean running;
 	
 	ActionEventsSource eventsSource;
 	ScopeState stateFinal;
@@ -36,8 +37,15 @@ public class ScopeExecutor {
 		this.action = action;
 		this.context = action.context;
 		this.eventsSource = action.eventSource;
+		runUniqueHosts = false;
+		runUniqueAccounts = false;
+		running = false;
 	}
 
+	public void stopExecution() {
+		running = false;
+	}
+	
 	public boolean runSimpleServer( SecurityAction sa , boolean readOnly ) {
 		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessServerAction( action , sa , readOnly ) ) {
@@ -445,6 +453,9 @@ public class ScopeExecutor {
 
 			if( checkNeedRunAction( ss , action ) && !isRunDone( ss ) ) {
 				for( ActionScopeTarget target : getOrderedTargets( set , items ) ) {
+					if( !running )
+						break;
+					
 					ScopeState stateTarget = new ScopeState( stateSet , target );
 					SCOPESTATE ssTarget = runSingleTargetInternal( target , stateTarget );
 					ss = addChildState( ss , ssTarget );
@@ -530,6 +541,9 @@ public class ScopeExecutor {
 				if( categories != null ) {
 					run = false;
 					for( VarCATEGORY CATEGORY : categories ) {
+						if( !running )
+							break;
+						
 						if( Types.checkCategoryProperty( set.CATEGORY , CATEGORY ) )
 							run = true;
 					}
@@ -642,6 +656,9 @@ public class ScopeExecutor {
 			}
 			
 			for( ActionScopeTargetItem item : items ) {
+				if( !running )
+					break;
+				
 				ScopeState stateItem = new ScopeState( stateTarget , item ); 
 				SCOPESTATE ssItem = runSingleTargetItemInternal( target , item , stateItem );
 				ss = addChildState( ss , ssItem );
@@ -702,6 +719,9 @@ public class ScopeExecutor {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			for( Account host : hosts ) {
+				if( !running )
+					break;
+					
 				ScopeState stateAccount = new ScopeState( stateSet , host );
 				SCOPESTATE ssAccount = runSingleHostInternal( set , host.HOST , host.PORT , host.osType , stateAccount );
 				ss = addChildState( ss , ssAccount );
@@ -744,6 +764,9 @@ public class ScopeExecutor {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			for( Account account : accounts ) {
+				if( !running )
+					break;
+					
 				ScopeState stateAccount = new ScopeState( stateSet , account );
 				SCOPESTATE ssAccount = runSingleAccountInternal( set , account , stateAccount );
 				ss = addChildState( ss , ssAccount );
@@ -781,6 +804,8 @@ public class ScopeExecutor {
 	}
 
 	public boolean isRunDone( SCOPESTATE ss ) {
+		if( !running )
+			return( false );
 		if( ss == SCOPESTATE.RunFail || ss == SCOPESTATE.RunSuccess )
 			return( true );
 		return( false );
@@ -869,6 +894,8 @@ public class ScopeExecutor {
 	}
 
 	private boolean checkNeedRunAction( SCOPESTATE ss , ActionBase action ) {
+		if( !running )
+			return( false );
 		if( ss == SCOPESTATE.RunBeforeFail )
 			return( false );
 		if( !action.continueRun() )
@@ -878,6 +905,10 @@ public class ScopeExecutor {
 	}
 
 	private SCOPESTATE getActionStatus( SCOPESTATE ss , ActionBase action , SCOPESTATE ssAction ) {
+		if( !running ) {
+			action.fail0( _Error.ActionStopped0 , "Action has been stopped" );
+			return( SCOPESTATE.RunStopped );
+		}
 		if( action.isCallFailed() )
 			return( SCOPESTATE.RunFail );
 		if( ssAction == SCOPESTATE.RunFail )
@@ -886,6 +917,7 @@ public class ScopeExecutor {
 	}
 
 	private void startExecutor( ActionScope scope ) {
+		running = true;
 		try {
 			stateFinal = new ScopeState( action , scope );
 			action.startExecutor( this , stateFinal );
@@ -905,10 +937,12 @@ public class ScopeExecutor {
 				res = false;
 			
 			action.engine.blotter.stopAction( action , res );
+			running = false;
 			return( res );
 		}
 		catch( Throwable e ) {
 			action.engine.log( "stop action" , e );
+			running = false;
 			return( false );
 		}
 	}

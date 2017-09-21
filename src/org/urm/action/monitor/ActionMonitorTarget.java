@@ -20,16 +20,21 @@ public class ActionMonitorTarget extends ActionBase {
 	public MonitorTargetInfo info;
 	public MetaMonitoringTarget target;
 	
+	volatile boolean running;
+	volatile ActionBase currentAction;
+	
 	public ActionMonitorTarget( ActionBase action , String stream , MonitorTargetInfo info ) {
 		super( action , stream , "monitoring, check target" );
 		this.info = info;
 		this.target = info.target;
+		running = false;
 	}
 
 	public long executeOnceMajor() throws Exception {
-		ActionMonitorCheckEnv actionCheck = new ActionMonitorCheckEnv( this , info.target.NAME , info.storage , info.target );
+		ActionMonitorCheckEnv actionCheck = new ActionMonitorCheckEnv( this , null , info );
+		currentAction = actionCheck;
 		MetaEnv env = getEnv( target );
-		actionCheck.runSimpleEnv( env , SecurityAction.ACTION_DEPLOY , false );
+		currentAction.runSimpleEnv( env , SecurityAction.ACTION_DEPLOY , false );
 		info.addCheckEnvData( this , actionCheck.timePassedMillis , actionCheck.isOK() );
 		Common.sleep( 1000 );
 		return( actionCheck.timePassedMillis );
@@ -41,7 +46,21 @@ public class ActionMonitorTarget extends ActionBase {
 		return( env );
 	}
 	
+	public void start() {
+		running = true;
+	}
+	
+	public void stop() {
+		running = false;
+		ActionBase action = currentAction;
+		if( action != null )
+			action.stopExecution();
+	}
+	
 	public void createGraph() throws Exception {
+		if( !running )
+			return;
+		
 		if( !info.isAvailable() )
 			return;
 		
@@ -72,8 +91,12 @@ public class ActionMonitorTarget extends ActionBase {
 		EngineStatus engineStatus = super.getServerStatus();
 		
 		for( MetaEnvServer server : sg.getServers() ) {
+			if( !running )
+				break;
+			
 			if( !super.isServerOffline( server ) ) {
 				ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , target , null , server );
+				currentAction = action;
 				action.runSimpleEnv( server.sg.env , SecurityAction.ACTION_DEPLOY , false );
 				if( action.isFailed() )
 					ok = false;
@@ -86,14 +109,22 @@ public class ActionMonitorTarget extends ActionBase {
 		
 		// direct
 		for( MetaMonitoringItem item : target.getUrlsList( this ) ) {
+			if( !running )
+				break;
+			
 			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , target , item , null );
+			currentAction = action;
 			action.runSimpleEnv( sg.env , SecurityAction.ACTION_DEPLOY , false );
 			if( action.isFailed() )
 				ok = false;
 		}
 		
 		for( MetaMonitoringItem item : target.getWSList( this ) ) {
+			if( !running )
+				break;
+			
 			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , target , item , null );
+			currentAction = action;
 			action.runSimpleEnv( sg.env , SecurityAction.ACTION_DEPLOY , false );
 			if( action.isFailed() )
 				ok = false;

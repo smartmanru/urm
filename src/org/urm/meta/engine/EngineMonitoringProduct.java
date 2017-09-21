@@ -81,6 +81,8 @@ public class EngineMonitoringProduct {
 	}
 
 	private void stopTarget( ActionBase action , ActionMonitorTarget targetAction ) throws Exception {
+		targetAction.stop();
+		
 		MetaEnvSegment sg = targetAction.target.getSegment( action );
 		EngineScheduler scheduler = action.getServerScheduler();
 		String sgName = sg.meta.name + "-" + sg.env.ID + sg.NAME;
@@ -108,6 +110,8 @@ public class EngineMonitoringProduct {
 			targetAction = new ActionMonitorTarget( action , null , info );
 			targets.put( target.NAME , targetAction );
 		}
+		
+		targetAction.start();
 		
 		EngineScheduler scheduler = action.getServerScheduler();
 		String sgName = sg.meta.name + "-" + sg.env.ID + sg.NAME;

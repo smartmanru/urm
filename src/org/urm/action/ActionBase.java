@@ -142,6 +142,11 @@ abstract public class ActionBase extends ActionCore {
 		fail( error );
 	}
 
+	public void stopExecution() {
+		if( scopeExecutor != null )
+			scopeExecutor.stopExecution();
+	}
+	
 	public String getUserName() {
 		if( session == null )
 			return( "" );

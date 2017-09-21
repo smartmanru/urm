@@ -15,7 +15,8 @@ public class ScopeState extends ObjectState {
 		NotRun ,
 		RunSuccess , 
 		RunBeforeFail ,
-		RunFail
+		RunFail ,
+		RunStopped
 	};
 	
 	public ActionCore action;

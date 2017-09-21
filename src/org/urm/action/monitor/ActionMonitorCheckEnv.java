@@ -15,19 +15,19 @@ import org.urm.meta.product.MetaMonitoringTarget;
 
 public class ActionMonitorCheckEnv extends ActionBase {
 
-	public MonitoringStorage storage;
-	public MetaMonitoringTarget target;
-	
+	MonitorTargetInfo info;
 	public long timePassedMillis;
 	
-	public ActionMonitorCheckEnv( ActionBase action , String stream , MonitoringStorage storage , MetaMonitoringTarget target ) {
+	public ActionMonitorCheckEnv( ActionBase action , String stream , MonitorTargetInfo info ) {
 		super( action , stream , "Monitoring, check environment" );
-		this.storage = storage;
-		this.target = target;
+		this.info = info; 
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		ActionCheckEnv action = new ActionCheckEnv( this , null );
+
+		MonitoringStorage storage = info.storage;
+		MetaMonitoringTarget target = info.target;
 		
 		MetaEnv env = target.meta.getEnv( this , target.ENV );
 		MetaEnvSegment sg = env.getSG( this , target.SG );

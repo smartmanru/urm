@@ -30,5 +30,6 @@ public class _Error {
 	public static final int AccessDenied0 = ErrorBase + 21;
 	public static final int MissingEnvironment0 = ErrorBase + 22;
 	public static final int MissingBuildMode0 = ErrorBase + 23;
+	public static final int ActionStopped0 = ErrorBase + 24;
 
 }
