@@ -23,21 +23,25 @@ public class StatusSource extends EngineEventsSource {
 	private StatusData primary;
 	private Map<String,StatusData> extra;
 
-	public StatusSource( EngineEvents events , EngineObject object , StatusType type , String name ) {
+	public StatusSource( EngineEvents events , EngineObject object , StatusType type , String name , Status status ) {
 		super( events , name );
 		this.object = object;
 		this.type = type;
 		
-		state = new StatusData( this );
-		primary = new StatusData( this );
+		state = new StatusData( this , status );
+		primary = new StatusData( this , null );
 		extra = new HashMap<String,StatusData>(); 
 	}
 	
 	@Override
 	public EngineEventsState getState() {
-		return( new StatusData( state , runTime ) );
+		return( getStatusState() );
 	}
 
+	public StatusData getStatusState() {
+		return( new StatusData( state , runTime ) );
+	}
+	
 	public void setObject( EngineObject object ) {
 		this.object = object;
 	}
@@ -49,13 +53,20 @@ public class StatusSource extends EngineEventsSource {
 		runTime = null;
 	}
 	
-	public boolean setState( OBJECT_STATE newState ) {
+	public boolean setFinalState( OBJECT_STATE newState ) {
 		if( !primary.setState( newState ) )
 			return( false );
 		
 		return( updateFinalState() );
 	}
-	
+
+	public boolean setState( OBJECT_STATE newState , Status specific ) {
+		if( !primary.setState( newState , specific ) )
+			return( false );
+		
+		return( updateFinalState() );
+	}
+
 	private boolean updateFinalState() {
 		OBJECT_STATE finalState = getFinalState();
 		if( !state.setState( finalState ) )
@@ -68,16 +79,16 @@ public class StatusSource extends EngineEventsSource {
 	public synchronized StatusData getExtraState( String key ) {
 		StatusData extraState = extra.get( key );
 		if( extraState == null ) {
-			extraState = new StatusData( this );
+			extraState = new StatusData( this , null );
 			extra.put( key , extraState );
 		}
 		
 		return( extraState );
 	}
 	
-	public boolean setExtraState( String key , OBJECT_STATE newState ) {
+	public boolean setExtraState( String key , OBJECT_STATE newState , Status specific ) {
 		StatusData extraState = getExtraState( key );
-		if( !extraState.setState( newState ) )
+		if( !extraState.setState( newState , specific ) )
 			return( false );
 
 		return( updateFinalState() );

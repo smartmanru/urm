@@ -137,7 +137,7 @@ public class ActionMonitorTarget extends ActionBase {
 		
 		info( "Fast server checks finished" );
 		String[] log = super.logFinishCapture( sgIndex );
-		SegmentStatus sgStatus = new SegmentStatus( null , sg );
+		SegmentStatus sgStatus = new SegmentStatus( sg );
 		sgStatus.setLog( log );
 		sgStatus.setTotalStatus( ok );
 		engineStatus.setSegmentItemsStatus( this , sgStatus.sg , sgStatus );

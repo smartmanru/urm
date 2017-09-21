@@ -43,7 +43,7 @@ public class EngineStatus extends EngineObject {
 	public static String EXTRA_NODE_ITEMS = "nodeitems";
 	
 	private Map<String,StatusSource> globalSources;
-	private Map<String,EngineProductStatus> products;
+	private Map<String,EngineStatusProduct> products;
 	
 	public EngineStatus( Engine engine ) {
 		super( null );
@@ -51,7 +51,7 @@ public class EngineStatus extends EngineObject {
 		this.events = engine.getEvents();
 		
 		globalSources = new HashMap<String,StatusSource>();
-		products = new HashMap<String,EngineProductStatus>(); 
+		products = new HashMap<String,EngineStatusProduct>(); 
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class EngineStatus extends EngineObject {
 	
 	public synchronized void stop( ActionBase action ) throws Exception {
 		action.trace( "stop status tracking ..." );
-		for( EngineProductStatus status : products.values() )
+		for( EngineStatusProduct status : products.values() )
 			status.stop( action );
 		products.clear();
 		
@@ -120,7 +120,7 @@ public class EngineStatus extends EngineObject {
 	}
 
 	public synchronized StatusSource getProductSource( Meta meta , EngineObject object ) {
-		EngineProductStatus productStatus = products.get( meta.name );
+		EngineStatusProduct productStatus = products.get( meta.name );
 		if( productStatus == null )
 			return( null );
 		
@@ -143,44 +143,44 @@ public class EngineStatus extends EngineObject {
 
 	public synchronized void setProductStatus( ActionBase action , Product product , OBJECT_STATE state ) {
 		StatusSource productSource = getObjectSource( product );
-		if( productSource != null && productSource.setState( state ) ) {
+		if( productSource != null && productSource.setFinalState( state ) ) {
 			System system = product.system;
 			recalculateSystem( system );
 		}
 	}
 
 	public synchronized void setSegmentStatus( ActionBase action , MetaEnvSegment sg , SegmentStatus status ) {
-		EngineProductStatus productStatus = getProductStatus( sg.meta );
+		EngineStatusProduct productStatus = getProductStatus( sg.meta );
 		if( productStatus != null )
 			productStatus.setSegmentStatus( action , sg , status );
 	}
 	
 	public synchronized void setSegmentItemsStatus( ActionBase action , MetaEnvSegment sg , SegmentStatus status ) {
-		EngineProductStatus productStatus = getProductStatus( sg.meta );
+		EngineStatusProduct productStatus = getProductStatus( sg.meta );
 		if( productStatus != null )
 			productStatus.setSegmentItemsStatus( action , sg , status );
 	}
 	
 	public synchronized void setServerStatus( ActionBase action , MetaEnvServer server , ServerStatus status ) {
-		EngineProductStatus productStatus = getProductStatus( server.meta );
+		EngineStatusProduct productStatus = getProductStatus( server.meta );
 		if( productStatus != null )
 			productStatus.setServerStatus( action , server , status );
 	}
 	
 	public synchronized void setServerItemsStatus( ActionBase action , MetaEnvServer server , ServerStatus status ) {
-		EngineProductStatus productStatus = getProductStatus( server.meta );
+		EngineStatusProduct productStatus = getProductStatus( server.meta );
 		if( productStatus != null )
 			productStatus.setServerItemsStatus( action , server , status );
 	}
 	
 	public synchronized void setServerNodeStatus( ActionBase action , MetaEnvServerNode node , NodeStatus status ) {
-		EngineProductStatus productStatus = getProductStatus( node.meta );
+		EngineStatusProduct productStatus = getProductStatus( node.meta );
 		if( productStatus != null )
 			productStatus.setServerNodeStatus( action , node , status );
 	}
 	
 	public synchronized void setServerNodeItemsStatus( ActionBase action , MetaEnvServerNode node , NodeStatus status ) {
-		EngineProductStatus productStatus = getProductStatus( node.meta );
+		EngineStatusProduct productStatus = getProductStatus( node.meta );
 		if( productStatus != null )
 			productStatus.setServerNodeItemsStatus( action , node , status );
 	}
@@ -198,7 +198,7 @@ public class EngineStatus extends EngineObject {
 	}
 
 	public void modifyProduct( ActionBase action , ProductMeta storageOld , ProductMeta storageNew ) {
-		EngineProductStatus productStatus = products.get( storageOld.name );
+		EngineStatusProduct productStatus = products.get( storageOld.name );
 		if( productStatus == null )
 			return;
 		
@@ -206,7 +206,7 @@ public class EngineStatus extends EngineObject {
 	}
 	
 	public synchronized void deleteProduct( ActionBase action , ProductMeta storage ) {
-		EngineProductStatus productStatus = products.get( storage.name );
+		EngineStatusProduct productStatus = products.get( storage.name );
 		if( productStatus == null )
 			return;
 		
@@ -216,7 +216,7 @@ public class EngineStatus extends EngineObject {
 		deleteGlobalSource( StatusType.PRODUCT , storage.name );
 	}
 
-	private EngineProductStatus getProductStatus( Meta meta ) {
+	private EngineStatusProduct getProductStatus( Meta meta ) {
 		return( products.get( meta.name ) );
 	}
 	
@@ -229,7 +229,7 @@ public class EngineStatus extends EngineObject {
 		EngineDirectory directory = registry.directory;
 		
 		action.trace( "start status tracking for applications ..." );
-		createGlobalSource( StatusType.APP , directory , "app" );
+		createGlobalSource( StatusType.APP , directory , "app" , new AppStatus() );
 		
 		for( String systemName : directory.getSystemNames() ) {
 			System system = directory.findSystem( systemName );
@@ -239,7 +239,7 @@ public class EngineStatus extends EngineObject {
 	
 	private void startSystem( ActionBase action , EngineLoader loader , System system ) {
 		action.trace( "start status tracking for system=" + system.NAME + " ..." );
-		createGlobalSource( StatusType.SYSTEM , system , system.NAME );
+		createGlobalSource( StatusType.SYSTEM , system , system.NAME , new SystemStatus( system ) );
 		
 		// start products
 		for( String productName : system.getProductNames() ) {
@@ -257,18 +257,18 @@ public class EngineStatus extends EngineObject {
 		
 		// start product
 		action.trace( "start status tracking for product=" + product.NAME + " ..." );
-		createGlobalSource( StatusType.PRODUCT , product , product.NAME );
+		createGlobalSource( StatusType.PRODUCT , product , product.NAME , new ProductStatus( product ) );
 		
 		Meta meta = storage.meta;
-		EngineProductStatus productStatus = new EngineProductStatus( this , product , meta );
+		EngineStatusProduct productStatus = new EngineStatusProduct( this , product , meta );
 		products.put( meta.name , productStatus );
 		
 		productStatus.start( action );
 	}
 
-	private StatusSource createGlobalSource( StatusType type , EngineObject object , String name ) {
+	private StatusSource createGlobalSource( StatusType type , EngineObject object , String name , Status status ) {
 		String sourceName = type.name() + "-" + name;
-		StatusSource source = new StatusSource( events , object , type , sourceName );
+		StatusSource source = new StatusSource( events , object , type , sourceName , status );
 		globalSources.put( sourceName , source );
 		return( source );
 	}
@@ -296,7 +296,7 @@ public class EngineStatus extends EngineObject {
 				finalState = StatusData.addState( finalState , productSource.state.state );
 		}
 		
-		if( systemSource.setState( finalState ) )
+		if( systemSource.setFinalState( finalState ) )
 			recalculateApp( system.directory );
 	}
 
@@ -313,11 +313,11 @@ public class EngineStatus extends EngineObject {
 				finalState = StatusData.addState( finalState , systemSource.state.state );
 		}
 		
-		appSource.setState( finalState );
+		appSource.setFinalState( finalState );
 	}
 
 	public void updateRunTime( ActionBase action , MetaEnvSegment sg ) {
-		EngineProductStatus productStatus = products.get( sg.meta.name );
+		EngineStatusProduct productStatus = products.get( sg.meta.name );
 		if( productStatus == null )
 			return;
 
@@ -344,7 +344,7 @@ public class EngineStatus extends EngineObject {
 	}
 
 	public void updateRunTime( ActionBase action , MetaEnvServer server ) {
-		EngineProductStatus productStatus = products.get( server.meta.name );
+		EngineStatusProduct productStatus = products.get( server.meta.name );
 		if( productStatus == null )
 			return;
 		
@@ -354,7 +354,7 @@ public class EngineStatus extends EngineObject {
 	}
 	
 	public void updateRunTime( ActionBase action , MetaEnvServerNode node ) {
-		EngineProductStatus productStatus = products.get( node.meta.name );
+		EngineStatusProduct productStatus = products.get( node.meta.name );
 		if( productStatus == null )
 			return;
 		

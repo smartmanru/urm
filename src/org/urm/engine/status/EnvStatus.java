@@ -6,8 +6,8 @@ public class EnvStatus extends Status {
 
 	public MetaEnv env;
 	
-	public EnvStatus( ObjectState parent , MetaEnv env ) {
-		super( STATETYPE.TypeEnv , parent , env );
+	public EnvStatus( MetaEnv env ) {
+		super( STATETYPE.TypeEnv , null , env );
 		this.env = env;
 	}
 

@@ -76,7 +76,7 @@ public class ActionMonitorCheckItem extends ActionBase {
 
 	private void monitorServerItems() throws Exception {
 		int serverIndex = super.logStartCapture();
-		serverStatus = new ServerStatus( null , server );
+		serverStatus = new ServerStatus( server );
 		info( "Run fast server checks, server=" + server.NAME + " ..." );
 		boolean res = monitorServerItems( null );
 		serverStatus.setItemsStatus( res );
@@ -89,7 +89,7 @@ public class ActionMonitorCheckItem extends ActionBase {
 		serverStatus.setLog( log );
 		
 		for( MetaEnvServerNode node : server.getNodes() ) {
-			NodeStatus nodeStatus = new NodeStatus( null , node );
+			NodeStatus nodeStatus = new NodeStatus( node );
 			nodeData.add( nodeStatus );
 			
 			int nodeIndex = super.logStartCapture();

@@ -25,8 +25,8 @@ public class NodeStatus extends Status {
 	public boolean proxyFailed;
 	public boolean wholeUrlFailed;
 
-	public NodeStatus( ObjectState parent , MetaEnvServerNode node ) {
-		super( STATETYPE.TypeServerNode , parent , node );
+	public NodeStatus( MetaEnvServerNode node ) {
+		super( STATETYPE.TypeServerNode , null , node );
 		this.node = node;
 		
 		mainState = OBJECT_STATE.STATE_NEVERQUERIED;

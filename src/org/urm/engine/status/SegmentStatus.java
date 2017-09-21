@@ -7,8 +7,8 @@ public class SegmentStatus extends Status {
 	public MetaEnvSegment sg;
 	boolean sgTotal;
 	
-	public SegmentStatus( ObjectState parent , MetaEnvSegment sg ) {
-		super( STATETYPE.TypeSegment , parent , sg );
+	public SegmentStatus( MetaEnvSegment sg ) {
+		super( STATETYPE.TypeSegment , null , sg );
 		this.sg = sg;
 	}
 

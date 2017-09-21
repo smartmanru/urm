@@ -63,7 +63,7 @@ public class ActionCheckEnv extends ActionBase {
 	}
 	
 	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		sgStatus = new SegmentStatus( null , set.sg );
+		sgStatus = new SegmentStatus( set.sg );
 		sgCaptureIndex = super.logStartCapture();
 		info( "execute segment=" + set.sg.NAME + " ..." );
 	}
@@ -85,8 +85,7 @@ public class ActionCheckEnv extends ActionBase {
 		EngineStatus status = super.getServerStatus();
 		status.updateRunTime( this , target.envServer );
 		
-		ScopeState parent = super.eventSource.findSetState( target.set );
-		ServerStatus serverStatus = new ServerStatus( parent , target.envServer );
+		ServerStatus serverStatus = new ServerStatus( target.envServer );
 		int captureIndex = super.logStartCapture();
 		try {
 			S_CHECKENV_TARGET_FAILED = false;
@@ -292,7 +291,7 @@ public class ActionCheckEnv extends ActionBase {
 		NodeStatus nodeStatus = null;
 		int captureIndex = 0;
 		if( main ) {
-			nodeStatus = new NodeStatus( serverStatus , node );
+			nodeStatus = new NodeStatus( node );
 			captureIndex = super.logStartCapture();
 		}
 		

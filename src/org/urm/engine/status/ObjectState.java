@@ -6,6 +6,9 @@ import java.util.List;
 public class ObjectState {
 
 	public enum STATETYPE {
+		TypeApp ,
+		TypeSystem ,
+		TypeProduct ,
 		TypeScope ,
 		TypeSet ,
 		TypeTarget ,

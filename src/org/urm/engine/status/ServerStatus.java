@@ -20,12 +20,11 @@ public class ServerStatus extends Status {
 	public boolean wholeUrlFailed;
 	public boolean databaseFailed;
 
-	List<NodeStatus> nodes;
 	List<RoleItemFailed> roles;
 	List<WholeUrlFailed> wholeUrls;
 	
-	public ServerStatus( ObjectState parent , MetaEnvServer server ) {
-		super( STATETYPE.TypeServer , parent , server );
+	public ServerStatus( MetaEnvServer server ) {
+		super( STATETYPE.TypeServer , null , server );
 		this.server = server;
 	
 		itemsStatus = false;
@@ -33,7 +32,6 @@ public class ServerStatus extends Status {
 		roleFailed = false;
 		wholeUrlFailed = false;
 		databaseFailed = false;
-		nodes = new LinkedList<NodeStatus>(); 
 		roles = new LinkedList<RoleItemFailed>();
 		wholeUrls = new LinkedList<WholeUrlFailed>();
 	}
@@ -45,7 +43,6 @@ public class ServerStatus extends Status {
 	public void addNodeStatus( NodeStatus status ) {
 		if( status.isFailed() ) 
 			nodeFailed = true;
-		nodes.add( status );
 		itemState = StatusData.addState( itemState , status.itemState );
 	}
 
