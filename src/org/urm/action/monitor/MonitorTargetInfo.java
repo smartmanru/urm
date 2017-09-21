@@ -24,9 +24,12 @@ public class MonitorTargetInfo {
 	public MetaMonitoringTarget target;
 	public MonitoringStorage storage;
 	
-	public long timeMajor;
+	public long timeLastMajor;
+	public long timeLastMinor;
 	public boolean statusMajor;
 	public boolean statusMinor;
+	public boolean validMajor;
+	public boolean validMinor;
 	
 	RrdDb rrdDb;
 	boolean rrdDbFail;
@@ -37,15 +40,33 @@ public class MonitorTargetInfo {
 		this.meta = target.meta;
 		this.storage = storage;
 		rrdDbFail = false;
+		validMajor = false;
+		validMinor = false;
+		statusMajor = false;
+		statusMinor = false;
+	}
+
+	public boolean isAvailable() {
+		if( target.enabledMajor || target.enabledMinor ) {
+			if( target.enabledMajor && !validMajor )
+				return( false );
+			if( target.enabledMinor && !validMinor )
+				return( false );
+			return( true );
+		}
+		return( false );
 	}
 	
-	public void setLastMajor( boolean statusMajor , long timeMajor ) throws Exception {
+	private void setLastMajor( boolean statusMajor , long timeMillis ) throws Exception {
 		this.statusMajor = statusMajor;
-		this.timeMajor = timeMajor; 
+		this.timeLastMajor = timeMillis;
+		validMajor = true;
 	}
 	
-	public void setLastMinor( boolean statusMinor ) throws Exception {
+	private void setLastMinor( boolean statusMinor , long timeMillis ) throws Exception {
 		this.statusMinor = statusMinor;
+		this.timeLastMinor = timeMillis;
+		validMinor = true;
 	}
 
 	public void stop( ActionBase action ) {
@@ -120,20 +141,25 @@ public class MonitorTargetInfo {
 		setLastMajor( status , timeMillis );
 	}
 
-	public void addCheckMinorsData( ActionBase action , boolean status ) throws Exception {
+	public void addCheckMinorsData( ActionBase action , long timeMillis , boolean status ) throws Exception {
 		action.info( "addCheckMinorsData: product=" + target.meta.name + ", env=" + target.ENV + ", sg=" + target.SG + 
 				", succeeded:" + Common.getBooleanValue( status ) );
-		setLastMinor( status );
+		setLastMinor( status , timeMillis );
 	}
 
 	public void addHistoryGraph( ActionBase action ) throws Exception {
 		// add to totals, update reports
+		long timeLimit = 0;
+		if( target.enabledMajor )
+			timeLimit += target.maxTimeMajor;
+		if( target.enabledMinor )
+			timeLimit += target.maxTimeMinor;
 		addRrdRecord( action );
-		createHistoryGraph( action );
+		createHistoryGraph( action , timeLimit );
 		updateReport( action );
 	}
 	
-	private RrdGraph createHistoryGraph( ActionBase action ) throws Exception {
+	private RrdGraph createHistoryGraph( ActionBase action , long timeLimit ) throws Exception {
 		if( rrdDbFail )
 			return( null );
 		
@@ -180,7 +206,7 @@ public class MonitorTargetInfo {
 		long startTime = endTime - 86400;
 		gDef.setTimeSpan( startTime , endTime );
 		gDef.setMinValue( 0 );
-		gDef.setMaxValue( target.maxTimeMajor );
+		gDef.setMaxValue( timeLimit );
 		gDef.setRigid( true );
 		gDef.setWidth( 1024 );
 		gDef.setHeight( 200 );
@@ -247,6 +273,12 @@ public class MonitorTargetInfo {
 		}
 
 		String F_RRDFILE_LOG = F_RRDFILE + ".log"; 
+
+		long timeLast = 0;
+		if( validMajor )
+			timeLast += timeLastMajor;
+		if( validMinor )
+			timeLast += timeLastMinor;
 		
 		int F_STATUSTOTAL = 100;
 		int F_ENVTOTAL = 100;
@@ -255,7 +287,7 @@ public class MonitorTargetInfo {
 		if( statusMajor == false || statusMinor == false )
 			F_STATUSTOTAL = 1;
 		
-		String X_VALUES = F_STATUSTOTAL + ":" + F_ENVTOTAL + ":" + timeMajor;
+		String X_VALUES = F_STATUSTOTAL + ":" + F_ENVTOTAL + ":" + timeLast;
 		long F_TS = System.currentTimeMillis();
 		long X_TS = F_TS / 1000;
 
@@ -278,7 +310,7 @@ public class MonitorTargetInfo {
 		Sample sample = rrdDb.createSample( t );
 		sample.setValue( "total" , F_STATUSTOTAL );
 		sample.setValue( "checkenv" , F_ENVTOTAL );
-		sample.setValue( "checkenv-time" , timeMajor );
+		sample.setValue( "checkenv-time" , timeLast );
 		sample.update();
 	}
 	

@@ -26,12 +26,13 @@ public class ActionMonitorTarget extends ActionBase {
 		this.target = info.target;
 	}
 
-	public void executeOnceMajor() throws Exception {
+	public long executeOnceMajor() throws Exception {
 		ActionMonitorCheckEnv actionCheck = new ActionMonitorCheckEnv( this , info.target.NAME , info.storage , info.target );
 		MetaEnv env = getEnv( target );
 		actionCheck.runSimpleEnv( env , SecurityAction.ACTION_DEPLOY , false );
 		info.addCheckEnvData( this , actionCheck.timePassedMillis , actionCheck.isOK() );
 		Common.sleep( 1000 );
+		return( actionCheck.timePassedMillis );
 	}
 	
 	private MetaEnv getEnv( MetaMonitoringTarget target ) throws Exception {
@@ -41,6 +42,9 @@ public class ActionMonitorTarget extends ActionBase {
 	}
 	
 	public void createGraph() throws Exception {
+		if( !info.isAvailable() )
+			return;
+		
 		super.trace( "refresh target graph env=" + info.target.ENV + ", sg=" + info.target.SG );
 		info.addHistoryGraph( this );
 		info.stop( this );
@@ -54,10 +58,12 @@ public class ActionMonitorTarget extends ActionBase {
 		}
 	}
 
-	public void executeOnceMinor() throws Exception {
+	public long executeOnceMinor() throws Exception {
 		// system
 		int sgIndex = super.logStartCapture();
 		super.info( "Run fast segment checks, sg=" + info.target.SG + " ..." );
+		
+		long timeStart = System.currentTimeMillis();
 		
 		boolean ok = true;
 		
@@ -93,6 +99,8 @@ public class ActionMonitorTarget extends ActionBase {
 				ok = false;
 		}
 		
+		long timeFinish = System.currentTimeMillis();
+		
 		if( !ok )
 			super.fail1( _Error.MonitorTargetFailed1 , "Monitoring target failed name=" + target.NAME , target.NAME );
 		
@@ -103,7 +111,9 @@ public class ActionMonitorTarget extends ActionBase {
 		sgStatus.setTotalStatus( ok );
 		engineStatus.setSegmentItemsStatus( this , sgStatus.sg , sgStatus );
 		
-		info.addCheckMinorsData( this , ok );
+		long timePassed = timeFinish - timeStart;
+		info.addCheckMinorsData( this , timePassed , ok );
+		return( timePassed );
 	}
 
 }

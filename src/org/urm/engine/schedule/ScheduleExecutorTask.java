@@ -17,7 +17,6 @@ public class ScheduleExecutorTask extends EngineExecutorTask {
 	}
 
 	public void execute() {
-		scheduler.engine.trace( "SCHEDULE executor=" + id + ": started" );
 		ScheduleTask task = scheduler.getNextTask( this );
 		if( task == null )
 			return;

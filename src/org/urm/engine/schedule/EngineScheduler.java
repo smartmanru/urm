@@ -117,8 +117,11 @@ public class EngineScheduler extends EngineObject {
 		if( set == null )
 			return;
 
-		set.deleteTask( task );
-		task.setStopped();
+		synchronized( tasks ) {
+			task.setStopped();
+			set.deleteTask( task );
+			tasks.remove( task );
+		}
 	}
 	
 	private void addTaskToQueue( ScheduleTask task , Date runTime ) {
