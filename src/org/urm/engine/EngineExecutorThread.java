@@ -7,9 +7,9 @@ public class EngineExecutorThread implements Runnable {
 	boolean cycle;
 	
 	private Thread thread;
-	private boolean started;
-	private boolean stopping;
-	private boolean stopped;
+	private volatile boolean started;
+	private volatile boolean stopping;
+	private volatile boolean stopped;
 	
 	public EngineExecutorThread( EngineExecutor executor , EngineExecutorTask task , boolean cycle ) {
 		this.executor = executor;
