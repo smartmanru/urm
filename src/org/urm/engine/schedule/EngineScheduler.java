@@ -141,24 +141,24 @@ public class EngineScheduler extends EngineObject {
 		task.setExpectedTime( runTime );
 		
 		synchronized( tasks ) {
-			boolean empty = tasks.isEmpty();
+			int size = tasks.size();
 			boolean added = false;
 			int index = 0;
 			
-			if( !empty ) {
-				for( int k = 0; k < tasks.size(); k++ ) {
-					ScheduleTask queueTask = tasks.get( k );
-					if( runTime.before( queueTask.expectedTime ) ) {
-						tasks.add( k , task );
-						index = k;
-						added = true;
-						break;
-					}
+			for( int k = 0; k < size; k++ ) {
+				ScheduleTask queueTask = tasks.get( k );
+				if( runTime.before( queueTask.expectedTime ) ) {
+					tasks.add( k , task );
+					index = k;
+					added = true;
+					break;
 				}
 			}
 			
-			if( !added )
+			if( !added ) {
+				index = size; 
 				tasks.add( task );
+			}
 			
 			synchronized( dispatcher ) {
 				engine.debug( "SCHEDULE task=" + task.name + ": scheduled at " + Common.getTimeStamp( runTime ) + " [" + index + "]" );
