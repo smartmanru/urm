@@ -34,7 +34,7 @@ public class EngineScheduler extends EngineObject {
 	static int minExecutors = 2;
 	static int maxExecutors = 10;
 	
-	boolean running;
+	volatile boolean running;
 	int executorsLastId;
 	int executorsAvailable;
 	
@@ -69,14 +69,23 @@ public class EngineScheduler extends EngineObject {
 			createExecutor();
 	}
 	
-	public synchronized void stop() {
+	public void stop() {
 		running = false;
-		sets.clear();
-		tasks.clear();
+		
+		synchronized( tasks ) {
+			sets.clear();
+			tasks.clear();
+			tasks.notifyAll();
+		}
+		
+		synchronized( dispatcher ) {
+			dispatcher.notifyAll();
+		}
+		
 		for( ScheduleExecutorTask executor : executors )
 			engine.executor.stopTask( executor );
-		
 		executors.clear();
+		engine.executor.stopTask( dispatcher );
 	}
 
 	public long getTimeInterval( int hours , int minutes , int seconds ) {
@@ -234,6 +243,9 @@ public class EngineScheduler extends EngineObject {
 				return;
 			
 			synchronized( tasks ) {
+				if( !running )
+					return;
+				
 				waitAny = true;
 				for( ScheduleTask task : tasks ) {
 					if( !task.dispatched ) {
@@ -253,6 +265,9 @@ public class EngineScheduler extends EngineObject {
 		
 			synchronized( dispatcher ) {
 				try {
+					if( !running )
+						return;
+					
 					if( waitAny )
 						dispatcher.wait();
 					else {
