@@ -202,14 +202,11 @@ public class EngineScheduler extends EngineObject {
 			
 				if( !tasks.isEmpty() ) {
 					task = tasks.get( 0 );
-					if( !task.dispatched ) {
-						if( !waitTask() )
-							return( null );
+					if( task.dispatched ) {
+						tasks.remove( 0 );
+						executorsAvailable--;
+						break;
 					}
-					
-					tasks.remove( 0 );
-					executorsAvailable--;
-					break;
 				}
 			}
 		}
