@@ -58,7 +58,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	}
 	
 	@Override
-	public void triggerEvent( EngineSourceEvent event ) {
+	public void triggerEvent( EngineEventsSubscription sub , EngineSourceEvent event ) {
 		if( event.eventType == EngineEvents.EVENT_FINISHCHILDSTATE ) {
 			ScopeState state = ( ScopeState )event.data;
 			if( state.action instanceof ActionSetTagOnBuildBranch ) {

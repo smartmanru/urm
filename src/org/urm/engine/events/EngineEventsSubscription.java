@@ -13,7 +13,7 @@ public class EngineEventsSubscription {
 	}
 
 	public void triggerEvent( EngineSourceEvent event ) {
-		listener.triggerEvent( event );
+		listener.triggerEvent( this , event );
 	}
 
 	public void triggerSubscriptionRemoved() {

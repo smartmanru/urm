@@ -64,7 +64,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 	}
 	
 	@Override
-	public void triggerEvent( EngineSourceEvent event ) {
+	public void triggerEvent( EngineEventsSubscription sub , EngineSourceEvent event ) {
 		if( event.eventType == EngineEvents.EVENT_FINISHCHILDSTATE ) {
 			ScopeState state = ( ScopeState )event.data;
 			if( state.action instanceof ActionRedist ) {

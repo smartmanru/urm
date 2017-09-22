@@ -80,6 +80,9 @@ public class EngineEventsApp {
 	}
 
 	public void triggerEvent( EngineSourceEvent event ) {
+		if( closed )
+			return;
+			
 		List<EngineEventsSubscription> subsUse = new LinkedList<EngineEventsSubscription>();
 		synchronized( events ) {
 			for( EngineEventsSubscription sub : subs ) {
@@ -92,11 +95,6 @@ public class EngineEventsApp {
 			sub.triggerEvent( event );
 	}
 
-	public void triggerEvent( EngineEventsListener listener , EngineSourceEvent event ) {
-		if( !closed )
-			listener.triggerEvent( event );
-	}
-	
 	public void triggerSourceRemoved( EngineEventsSource source ) {
 		synchronized( events ) {
 			for( EngineEventsSubscription sub : subs ) {
