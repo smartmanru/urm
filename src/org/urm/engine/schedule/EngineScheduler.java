@@ -73,7 +73,8 @@ public class EngineScheduler extends EngineObject {
 		running = false;
 		
 		synchronized( tasks ) {
-			sets.clear();
+			for( ScheduleTaskSet set : sets.values() )
+				set.clear();
 			tasks.clear();
 			tasks.notifyAll();
 		}

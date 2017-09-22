@@ -14,6 +14,10 @@ public class ScheduleTaskSet {
 		data = new HashMap<String,ScheduleTask>(); 
 	}
 	
+	public void clear() {
+		data.clear();
+	}
+	
 	public ScheduleTask findTask( String name ) {
 		return( data.get( name ) );
 	}

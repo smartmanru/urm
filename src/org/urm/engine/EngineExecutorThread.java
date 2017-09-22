@@ -59,6 +59,8 @@ public class EngineExecutorThread implements Runnable {
 			
 			started = true;
 			stopping = false;
+			stopped = false;
+			
 	        thread = new Thread( null , this , task.name );
 	        thread.start();
 		}
