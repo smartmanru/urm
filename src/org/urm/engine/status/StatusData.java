@@ -139,5 +139,29 @@ public class StatusData extends EngineEventsState {
 	public void setLog( String[] log ) {
 		this.log = log;
 	}
-		
+
+	public SystemStatus getSystemStatus() {
+		return( ( SystemStatus )specific );
+	}
+	
+	public ProductStatus getProductStatus() {
+		return( ( ProductStatus )specific );
+	}
+	
+	public EnvStatus getEnvStatus() {
+		return( ( EnvStatus )specific );
+	}
+	
+	public SegmentStatus getSegmentStatus() {
+		return( ( SegmentStatus )specific );
+	}
+	
+	public ServerStatus getServerStatus() {
+		return( ( ServerStatus )specific );
+	}
+	
+	public NodeStatus getNodeStatus() {
+		return( ( NodeStatus )specific );
+	}
+	
 }
