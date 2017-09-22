@@ -207,6 +207,10 @@ public class EngineScheduler extends EngineObject {
 						executorsAvailable--;
 						break;
 					}
+					else {
+						if( !waitTask() )
+							return( null );
+					}
 				}
 			}
 		}
