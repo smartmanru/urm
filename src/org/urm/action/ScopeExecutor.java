@@ -8,6 +8,11 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandContext;
+import org.urm.engine.events.EngineEvents;
+import org.urm.engine.events.EngineEventsApp;
+import org.urm.engine.events.EngineEventsListener;
+import org.urm.engine.events.EngineEventsSubscription;
+import org.urm.engine.events.EngineSourceEvent;
 import org.urm.engine.shell.Account;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -21,9 +26,21 @@ import org.urm.meta.Types.*;
 import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.engine.EngineAuth.SecurityAction;
 
-public class ScopeExecutor {
+public class ScopeExecutor implements EngineEventsListener {
 
+	enum AsyncType {
+		ASYNC_RUNSIMPLE ,
+		ASYNC_RUNSCOPE ,
+		ASYNC_RUNSCOPESET ,
+		ASYNC_RUNSCOPETARGET ,
+		ASYNC_RUNSCOPESETTARGETS ,
+		ASYNC_RUNCATEGORIES ,
+		ASYNC_RUNUNIQUEHOSTS ,
+		ASYNC_RUNUNIQUEACCOUNTS
+	};
+	
 	ActionBase action;
+	boolean async;
 	CommandContext context;
 
 	boolean runUniqueHosts = false;
@@ -32,9 +49,18 @@ public class ScopeExecutor {
 	
 	ActionEventsSource eventsSource;
 	ScopeState stateFinal;
+
+	AsyncType asyncType;
+	ActionScope asyncScope;
+	ActionScopeSet asyncScopeSet;
+	ActionScopeTarget asyncScopeTarget;
+	ActionScopeTarget[] asyncTargets;
+	VarCATEGORY[] asyncCategories;
+	EngineEventsSubscription asyncSub;
 	
-	public ScopeExecutor( ActionBase action ) {
+	public ScopeExecutor( ActionBase action , boolean async ) {
 		this.action = action;
+		this.async = async;
 		this.context = action.context;
 		this.eventsSource = action.eventSource;
 		runUniqueHosts = false;
@@ -42,8 +68,53 @@ public class ScopeExecutor {
 		running = false;
 	}
 
+	@Override
+	public void triggerEvent( EngineEventsSubscription sub , EngineSourceEvent event ) {
+		if( event.eventType == EngineEvents.EVENT_RUNASYNC ) {
+			EngineEventsApp app = action.actionInit.getEventsApp();
+			app.unsubscribe( this );
+			asyncSub = null;
+			
+			executeAsync();
+		}
+	}
+	
+	@Override
+	public void triggerSubscriptionRemoved( EngineEventsSubscription sub ) {
+	}
+	
 	public void stopExecution() {
 		running = false;
+	}
+	
+	public boolean runAsync() {
+		EngineEventsApp app = action.actionInit.getEventsApp();
+		asyncSub = app.subscribe( eventsSource , this );
+		if( asyncSub == null )
+			return( false );
+		
+		eventsSource.customEvent( EngineEvents.EVENT_RUNASYNC , this );
+		return( true );
+	}
+	
+	public boolean executeAsync() {
+		if( asyncType == AsyncType.ASYNC_RUNSIMPLE )
+			return( runSimple() );
+		if( asyncType == AsyncType.ASYNC_RUNSCOPE )
+			return( runScope( asyncScope ) );
+		if( asyncType == AsyncType.ASYNC_RUNSCOPESET )
+			return( runScopeSet( asyncScopeSet ) );
+		if( asyncType == AsyncType.ASYNC_RUNSCOPETARGET )
+			return( runScopeTarget( asyncScopeTarget ) );
+		if( asyncType == AsyncType.ASYNC_RUNSCOPESETTARGETS )
+			return( runScopeSetTargets( asyncScopeSet , asyncTargets ) );
+		if( asyncType == AsyncType.ASYNC_RUNCATEGORIES )
+			return( runCategories( asyncScope , asyncCategories ) );
+		if( asyncType == AsyncType.ASYNC_RUNUNIQUEHOSTS )
+			return( runUniqueHosts( asyncScope ) );
+		if( asyncType == AsyncType.ASYNC_RUNUNIQUEACCOUNTS )
+			return( runUniqueAccounts( asyncScope ) );
+		return( false );
 	}
 	
 	public boolean runSimpleServer( SecurityAction sa , boolean readOnly ) {
@@ -52,6 +123,12 @@ public class ScopeExecutor {
 			accessDenied( "access denied (user=" + action.getUserName() + ", server operation)" );
 			return( false );
 		}
+		
+		if( async ) {
+			asyncType = AsyncType.ASYNC_RUNSIMPLE;
+			return( runAsync() );
+		}
+		
 		return( runSimple() );
 	}
 	
@@ -61,6 +138,12 @@ public class ScopeExecutor {
 			accessDenied( "access denied (user=" + action.getUserName() + ", product operation)" );
 			return( false );
 		}
+		
+		if( async ) {
+			asyncType = AsyncType.ASYNC_RUNSIMPLE;
+			return( runAsync() );
+		}
+		
 		return( runSimple() );
 	}
 	
@@ -70,6 +153,12 @@ public class ScopeExecutor {
 			accessDenied( "access denied (user=" + action.getUserName() + ", environment operation)" );
 			return( false );
 		}
+		
+		if( async ) {
+			asyncType = AsyncType.ASYNC_RUNSIMPLE;
+			return( runAsync() );
+		}
+		
 		return( runSimple() );
 	}
 	
@@ -79,6 +168,12 @@ public class ScopeExecutor {
 			accessDenied( "access denied (user=" + action.getUserName() + ", build operation)" );
 			return( false );
 		}
+		
+		if( async ) {
+			asyncType = AsyncType.ASYNC_RUNSIMPLE;
+			return( runAsync() );
+		}
+		
 		return( runSimple() );
 	}
 	
@@ -96,10 +191,14 @@ public class ScopeExecutor {
 				return( false );
 			}
 		}
+
+		if( async ) {
+			asyncType = AsyncType.ASYNC_RUNSCOPE;
+			asyncScope = scope;
+			return( runAsync() );
+		}
 		
-		startExecutor( scope );
-		SCOPESTATE ss = runAllInternal( scope );
-		return( finishExecutor( ss ) );
+		return( runScope( scope ) );
 	}
 	
 	public boolean runCategories( ActionScope scope , VarCATEGORY[] categories , SecurityAction sa , boolean readOnly ) {
@@ -108,38 +207,15 @@ public class ScopeExecutor {
 			accessDenied( "access denied (user=" + action.getUserName() + ", categories)" );
 			return( false );
 		}
-		
-		startExecutor( scope );
-		
-		SCOPESTATE ss = SCOPESTATE.New;
-		try {
-			action.debug( action.NAME + ": run scope={" + scope.getScopeInfo( action , categories ) + "}" );
-			action.runBefore( scope );
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			ss = SCOPESTATE.RunBeforeFail;
-		}
 
-		try {
-			if( checkNeedRunAction( ss , action ) )
-				ss = getActionStatus( ss , action , runTargetCategoriesInternal( scope , categories ) );
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			ss = SCOPESTATE.RunFail;
+		if( async ) {
+			asyncType = AsyncType.ASYNC_RUNCATEGORIES;
+			asyncScope = scope;
+			asyncCategories = categories;
+			return( runAsync() );
 		}
 		
-		try {
-			if( isRunDone( ss )  )
-				action.runAfter( scope );
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			ss = SCOPESTATE.RunFail;
-		}
-		
-		return( finishExecutor( ss ) );
+		return( runCategories( scope , categories ) );
 	}
 	
 	public boolean runAll( ActionScopeSet set , MetaEnv env , SecurityAction sa , boolean readOnly ) {
@@ -157,13 +233,13 @@ public class ScopeExecutor {
 			}
 		}
 		
-		startExecutor( set.scope );
-		ScopeState stateSet = new ScopeState( stateFinal , set );
+		if( async ) {
+			asyncType = AsyncType.ASYNC_RUNSCOPESET;
+			asyncScopeSet = set;
+			return( runAsync() );
+		}
 		
-		SCOPESTATE res = runTargetSetInternal( set , stateSet );
-		
-		stateSet.setActionStatus( res );
-		return( finishExecutor( res ) );
+		return( runScopeSet( set ) );
 	}
 	
 	public boolean runTargetList( ActionScopeSet set , ActionScopeTarget[] targets , MetaEnv env , SecurityAction sa , boolean readOnly ) {
@@ -180,45 +256,15 @@ public class ScopeExecutor {
 				return( false );
 			}
 		}
-		
-		startExecutor( set.scope );
-		ScopeState stateSet = new ScopeState( stateFinal , set );
-		
-		SCOPESTATE ss = SCOPESTATE.New;
-		try {
-			action.runBefore();
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			ss = SCOPESTATE.RunBeforeFail;
-		}
 
-		try {
-			if( checkNeedRunAction( ss , action ) ) {
-				String list = "";
-				for( ActionScopeTarget target : targets )
-					list = Common.addItemToUniqueSpacedList( list , target.NAME );
-				
-				action.debug( action.NAME + ": run scope={" + set.NAME + "={" + list + "}}" );
-				ss = runTargetListInternal( set , targets , true , stateSet );
-			}
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			ss = SCOPESTATE.RunFail;
+		if( async ) {
+			asyncType = AsyncType.ASYNC_RUNSCOPESETTARGETS;
+			asyncScopeSet = set;
+			asyncTargets = targets;
+			return( runAsync() );
 		}
 		
-		try {
-			if( isRunDone( ss ) )
-				action.runAfter();
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			ss = SCOPESTATE.RunFail;
-		}
-		
-		stateSet.setActionStatus( ss );
-		return( finishExecutor( ss ) );
+		return( runScopeSetTargets( set , targets ) );
 	}
 	
 	public boolean runSingleTarget( ActionScopeTarget item , MetaEnv env , SecurityAction sa , boolean readOnly ) {
@@ -236,40 +282,13 @@ public class ScopeExecutor {
 			}
 		}
 		
-		startExecutor( item.set.scope );
-		ScopeState stateSet = new ScopeState( stateFinal , item.set );
-		
-		SCOPESTATE ss = SCOPESTATE.New;
-		try {
-			action.runBefore();
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			ss = SCOPESTATE.RunBeforeFail;
-		}
-
-		try {
-			if( checkNeedRunAction( ss , action ) ) {
-				action.debug( action.NAME + ": run scope={" + item.set.NAME + "={" + item.NAME + "}}" );
-				ss = runTargetListInternal( item.set , new ActionScopeTarget[] { item } , true , stateSet );
-			}
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			ss = SCOPESTATE.RunFail;
+		if( async ) {
+			asyncType = AsyncType.ASYNC_RUNSCOPETARGET;
+			asyncScopeTarget = item;
+			return( runAsync() );
 		}
 		
-		try {
-			if( isRunDone( ss ) )
-				action.runAfter();
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			ss = SCOPESTATE.RunFail;
-		}
-		
-		stateSet.setActionStatus( ss );
-		return( finishExecutor( ss ) );
+		return( runScopeTarget( item ) );
 	}
 	
 	public boolean runEnvUniqueHosts( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
@@ -279,40 +298,13 @@ public class ScopeExecutor {
 			return( false );
 		}
 			
-		startExecutor( scope );
-		
-		SCOPESTATE ss = SCOPESTATE.New;
-		VarCATEGORY[] categories = new VarCATEGORY[] { VarCATEGORY.ENV };
-		try {
-			action.debug( action.NAME + ": run unique hosts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
-			action.runBefore( scope );
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			ss = SCOPESTATE.RunBeforeFail;
-		}
-
-		try {
-			if( checkNeedRunAction( ss , action ) ) {
-				runUniqueHosts = true;
-				ss = runTargetCategoriesInternal( scope , categories );
-			}
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			ss = SCOPESTATE.RunFail;
+		if( async ) {
+			asyncType = AsyncType.ASYNC_RUNUNIQUEHOSTS;
+			asyncScope = scope;
+			return( runAsync() );
 		}
 		
-		try {
-			if( isRunDone( ss ) )
-				action.runAfter( scope );
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			ss = SCOPESTATE.RunFail;
-		}
-		
-		return( finishExecutor( ss ) );
+		return( runUniqueHosts( scope ) );
 	}
 	
 	public boolean runEnvUniqueAccounts( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
@@ -327,40 +319,34 @@ public class ScopeExecutor {
 			return( false );
 		}
 			
-		startExecutor( scope );
+		if( async ) {
+			asyncType = AsyncType.ASYNC_RUNUNIQUEACCOUNTS;
+			asyncScope = scope;
+			return( runAsync() );
+		}
 		
-		SCOPESTATE ss = SCOPESTATE.New;
-		VarCATEGORY[] categories = new VarCATEGORY[] { VarCATEGORY.ENV };
-		try {
-			action.debug( action.NAME + ": run unique accounts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
-			action.runBefore( scope );
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			ss = SCOPESTATE.RunBeforeFail;
-		}
+		return( runUniqueAccounts( scope ) );
+	}
 
+	// sync only
+	public boolean runCustomTarget( ActionScopeTarget target , ScopeState state ) {
 		try {
-			if( checkNeedRunAction( ss , action ) ) {
-				runUniqueAccounts = true;
-				ss = runTargetCategoriesInternal( scope , categories );
+			ScopeState stateTarget = new ScopeState( state , target );
+			SCOPESTATE ssTarget = runSingleTargetInternal( target , stateTarget );
+			if( isRunDone( ssTarget ) ) {
+				stateTarget.setActionStatus( ssTarget );
+				if( !action.continueRun() )
+					return( false );
 			}
+			else
+				stateTarget.setActionNotRun();
 		}
 		catch( Throwable e ) {
 			action.handle( e );
-			ss = SCOPESTATE.RunFail;
+			return( false );
 		}
 		
-		try {
-			if( isRunDone( ss ) )
-				action.runAfter( scope );
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			ss = SCOPESTATE.RunFail;
-		}
-		
-		return( finishExecutor( ss ) );
+		return( true );
 	}
 	
 	// implementation
@@ -397,25 +383,207 @@ public class ScopeExecutor {
 		
 		return( finishExecutor( ss ) );
 	}
+	
+	private boolean runScope( ActionScope scope ) {
+		startExecutor( scope );
+		SCOPESTATE ss = runAllInternal( scope );
+		return( finishExecutor( ss ) );
+	}
+	
+	private boolean runScopeSet( ActionScopeSet set ) {
+		startExecutor( set.scope );
+		ScopeState stateSet = new ScopeState( stateFinal , set );
+		
+		SCOPESTATE res = runTargetSetInternal( set , stateSet );
+		
+		stateSet.setActionStatus( res );
+		return( finishExecutor( res ) );
+	}
 
-	public boolean runCustomTarget( ActionScopeTarget target , ScopeState state ) {
+	private boolean runScopeTarget( ActionScopeTarget item ) {
+		startExecutor( item.set.scope );
+		ScopeState stateSet = new ScopeState( stateFinal , item.set );
+		
+		SCOPESTATE ss = SCOPESTATE.New;
 		try {
-			ScopeState stateTarget = new ScopeState( state , target );
-			SCOPESTATE ssTarget = runSingleTargetInternal( target , stateTarget );
-			if( isRunDone( ssTarget ) ) {
-				stateTarget.setActionStatus( ssTarget );
-				if( !action.continueRun() )
-					return( false );
-			}
-			else
-				stateTarget.setActionNotRun();
+			action.runBefore();
 		}
 		catch( Throwable e ) {
 			action.handle( e );
-			return( false );
+			ss = SCOPESTATE.RunBeforeFail;
+		}
+	
+		try {
+			if( checkNeedRunAction( ss , action ) ) {
+				action.debug( action.NAME + ": run scope={" + item.set.NAME + "={" + item.NAME + "}}" );
+				ss = runTargetListInternal( item.set , new ActionScopeTarget[] { item } , true , stateSet );
+			}
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			ss = SCOPESTATE.RunFail;
 		}
 		
-		return( true );
+		try {
+			if( isRunDone( ss ) )
+				action.runAfter();
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			ss = SCOPESTATE.RunFail;
+		}
+		
+		stateSet.setActionStatus( ss );
+		return( finishExecutor( ss ) );
+	}
+	
+	private boolean runScopeSetTargets( ActionScopeSet set , ActionScopeTarget[] targets ) {
+		startExecutor( set.scope );
+		ScopeState stateSet = new ScopeState( stateFinal , set );
+		
+		SCOPESTATE ss = SCOPESTATE.New;
+		try {
+			action.runBefore();
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			ss = SCOPESTATE.RunBeforeFail;
+		}
+	
+		try {
+			if( checkNeedRunAction( ss , action ) ) {
+				String list = "";
+				for( ActionScopeTarget target : targets )
+					list = Common.addItemToUniqueSpacedList( list , target.NAME );
+				
+				action.debug( action.NAME + ": run scope={" + set.NAME + "={" + list + "}}" );
+				ss = runTargetListInternal( set , targets , true , stateSet );
+			}
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			ss = SCOPESTATE.RunFail;
+		}
+		
+		try {
+			if( isRunDone( ss ) )
+				action.runAfter();
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			ss = SCOPESTATE.RunFail;
+		}
+		
+		stateSet.setActionStatus( ss );
+		return( finishExecutor( ss ) );
+	}
+
+	private boolean runCategories( ActionScope scope , VarCATEGORY[] categories ) {
+		startExecutor( scope );
+		
+		SCOPESTATE ss = SCOPESTATE.New;
+		try {
+			action.debug( action.NAME + ": run scope={" + scope.getScopeInfo( action , categories ) + "}" );
+			action.runBefore( scope );
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			ss = SCOPESTATE.RunBeforeFail;
+		}
+	
+		try {
+			if( checkNeedRunAction( ss , action ) )
+				ss = getActionStatus( ss , action , runTargetCategoriesInternal( scope , categories ) );
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			ss = SCOPESTATE.RunFail;
+		}
+		
+		try {
+			if( isRunDone( ss )  )
+				action.runAfter( scope );
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			ss = SCOPESTATE.RunFail;
+		}
+		
+		return( finishExecutor( ss ) );
+	}
+	
+	private boolean runUniqueHosts( ActionScope scope ) {
+		startExecutor( scope );
+		
+		SCOPESTATE ss = SCOPESTATE.New;
+		VarCATEGORY[] categories = new VarCATEGORY[] { VarCATEGORY.ENV };
+		try {
+			action.debug( action.NAME + ": run unique hosts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
+			action.runBefore( scope );
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			ss = SCOPESTATE.RunBeforeFail;
+		}
+	
+		try {
+			if( checkNeedRunAction( ss , action ) ) {
+				runUniqueHosts = true;
+				ss = runTargetCategoriesInternal( scope , categories );
+			}
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			ss = SCOPESTATE.RunFail;
+		}
+		
+		try {
+			if( isRunDone( ss ) )
+				action.runAfter( scope );
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			ss = SCOPESTATE.RunFail;
+		}
+		
+		return( finishExecutor( ss ) );
+	}
+	
+	private boolean runUniqueAccounts( ActionScope scope ) {
+		startExecutor( scope );
+		
+		SCOPESTATE ss = SCOPESTATE.New;
+		VarCATEGORY[] categories = new VarCATEGORY[] { VarCATEGORY.ENV };
+		try {
+			action.debug( action.NAME + ": run unique accounts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
+			action.runBefore( scope );
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			ss = SCOPESTATE.RunBeforeFail;
+		}
+	
+		try {
+			if( checkNeedRunAction( ss , action ) ) {
+				runUniqueAccounts = true;
+				ss = runTargetCategoriesInternal( scope , categories );
+			}
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			ss = SCOPESTATE.RunFail;
+		}
+		
+		try {
+			if( isRunDone( ss ) )
+				action.runAfter( scope );
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			ss = SCOPESTATE.RunFail;
+		}
+		
+		return( finishExecutor( ss ) );
 	}
 	
 	private SCOPESTATE runTargetListInternal( ActionScopeSet set , ActionScopeTarget[] items , boolean runBefore , ScopeState stateSet ) {

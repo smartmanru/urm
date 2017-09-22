@@ -339,7 +339,8 @@ public class Engine {
 	public ActionInit createRootAction( RootActionType type , CommandExecutor executor , EngineSession session , Artefactory artefactory , String actionName , boolean memoryOnly , String actionInfo ) throws Exception { 
 		CommandOutput output = new CommandOutput();
 		CommandMethod commandAction = executor.getAction( actionName );
-		ActionInit action = new ActionInit( type , loader , session , artefactory , executor , output , commandAction , commandAction.method.name , memoryOnly , actionInfo );
+		ActionInit action = new ActionInit( session , artefactory , executor , output , actionInfo );
+		action.create( type , loader , commandAction , actionName , memoryOnly );
 		return( action );
 	}
 	
@@ -375,6 +376,7 @@ public class Engine {
 	}
 	
 	public void finishAction( ActionInit action , boolean closeSession ) throws Exception {
+		action.close();
 		action.stopAllOutputs();
 		
 		if( !action.isMemoryOnly() ) {

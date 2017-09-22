@@ -5,6 +5,8 @@ import org.urm.action.ActionScope;
 import org.urm.common.Common;
 import org.urm.engine.EngineSession;
 import org.urm.engine.TransactionBase;
+import org.urm.engine.events.EngineEvents;
+import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.schedule.EngineScheduler;
 import org.urm.engine.status.EngineStatus;
 import org.urm.engine.storage.Artefactory;
@@ -43,15 +45,11 @@ public class ActionInit extends ActionBase {
 	
 	protected TransactionBase transaction;
 	private boolean memoryOnly;
+	private EngineEventsApp eventsApp;
 
-	public ActionInit( RootActionType type , EngineLoader loader , EngineSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , CommandMethod commandAction , String actionName , boolean memoryOnly , String actionInfo ) {
+	public ActionInit( EngineSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , String actionInfo ) {
 		super( session , artefactory , executor , output , actionInfo );
-		this.type = type;
 		this.actionInit = this;
-		this.commandAction = commandAction;
-		this.actionName = actionName;
-		this.loader = loader;
-		this.memoryOnly = memoryOnly;
 	}
 
 	@Override
@@ -64,6 +62,26 @@ public class ActionInit extends ActionBase {
 		Common.exitUnexpected();
 	}
 
+	public void create( RootActionType type , EngineLoader loader , CommandMethod commandAction , String actionName , boolean memoryOnly ) throws Exception {
+		this.type = type;
+		this.commandAction = commandAction;
+		this.actionName = actionName;
+		this.loader = loader;
+		this.memoryOnly = memoryOnly;
+		
+		EngineEvents events = loader.engine.getEvents();
+		eventsApp = events.createApp( "session-" + super.session.sessionId );
+	}
+
+	public void close() {
+		EngineEvents events = loader.engine.getEvents();
+		events.deleteApp( eventsApp );
+	}
+	
+	public EngineEventsApp getEventsApp() {
+		return( eventsApp );
+	}
+	
 	public boolean isMemoryOnly() {
 		return( memoryOnly );
 	}
