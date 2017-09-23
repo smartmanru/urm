@@ -65,13 +65,17 @@ public class EngineEvents extends EngineObject {
 		return( app.subscribe( timer , listener ) );
 	}			
 
+	public void notifyApp( EngineEventsApp app , SourceEvent eventData ) {
+		app.notifyEvent( eventData );
+	}
 
-	public void notifyListener( EngineEventsApp app , EngineEventsListener listener , EngineSourceEvent eventData ) {
-		notifier.addEvent( app , listener , eventData );
+	public void notifyListener( EngineEventsApp app , EngineEventsListener listener , SourceEvent eventData ) {
+		NotifyEvent event = new NotifyEvent( app , listener , eventData );
+		notifier.addEvent( event );
 	}
 	
-	public void notifyApp( EngineEventsApp app , EngineSourceEvent eventData ) {
-		notifier.addEvent( app , null , eventData );
+	public void notifyEvent( NotifyEvent event ) {
+		notifier.addEvent( event );
 	}
 	
 }

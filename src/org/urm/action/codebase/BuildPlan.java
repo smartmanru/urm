@@ -21,7 +21,7 @@ import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.events.EngineEventsSubscription;
-import org.urm.engine.events.EngineSourceEvent;
+import org.urm.engine.events.SourceEvent;
 import org.urm.engine.status.ObjectState.STATETYPE;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -58,7 +58,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	}
 	
 	@Override
-	public void triggerEvent( EngineEventsSubscription sub , EngineSourceEvent event ) {
+	public void triggerEvent( EngineEventsSubscription sub , SourceEvent event ) {
 		if( event.eventType == EngineEvents.EVENT_FINISHCHILDSTATE ) {
 			ScopeState state = ( ScopeState )event.data;
 			if( state.action instanceof ActionSetTagOnBuildBranch ) {

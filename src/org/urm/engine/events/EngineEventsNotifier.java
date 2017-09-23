@@ -7,27 +7,15 @@ import org.urm.engine.EngineExecutorTask;
 
 public class EngineEventsNotifier extends EngineEventsSource {
 
-	class NotifyEvent {
-		public EngineEventsApp app;
-		public EngineEventsListener listener;
-		public EngineSourceEvent eventData;
-		
-		public NotifyEvent( EngineEventsApp app , EngineEventsListener listener , EngineSourceEvent eventData ) {
-			this.app = app;
-			this.listener = listener;
-			this.eventData = eventData;
-		}
-	};
-
 	class ServerExecutorTaskNotify extends EngineExecutorTask {
-		ServerExecutorTaskNotify() {
-			super( "events notifier" );
+		ServerExecutorTaskNotify( int index ) {
+			super( "events-notifier-" + index );
 		}
 		
 		@Override
 		public void execute() {
 			try {
-				cycle();
+				cycle( this );
 			}
 			catch( Throwable e ) {
 				events.engine.handle( "events notifier error" , e );
@@ -35,13 +23,17 @@ public class EngineEventsNotifier extends EngineEventsSource {
 		}
 	};		
 
-	private ServerExecutorTaskNotify task;
+	private List<ServerExecutorTaskNotify> tasks;
 	private List<NotifyEvent> queue;
+	private volatile boolean running;
+
+	static int NOTIFY_POOL = 10; 
 	
 	public EngineEventsNotifier( EngineEvents events ) {
 		super( events , "urm.notifier" );
 		queue = new LinkedList<NotifyEvent>();
-		task = new ServerExecutorTaskNotify();
+		tasks = new LinkedList<ServerExecutorTaskNotify>();
+		running = false;
 	}
 
 	@Override
@@ -49,14 +41,14 @@ public class EngineEventsNotifier extends EngineEventsSource {
 		return( null );
 	}
 	
-	private void cycle() {
+	private void cycle( ServerExecutorTaskNotify task ) {
 		NotifyEvent event = null;
 		try {
-			synchronized( task ) {
+			synchronized( tasks ) {
 				if( queue.isEmpty() )
-					task.wait();
+					tasks.wait();
 
-				if( !task.isRunning() )
+				if( !running )
 					return;
 				
 				if( queue.isEmpty() )
@@ -70,25 +62,42 @@ public class EngineEventsNotifier extends EngineEventsSource {
 			return;
 		}
 		
-		event.app.triggerEvent( event.eventData );
+		try {
+			event.listener.triggerEvent( event.sub , event.eventData );
+		}
+		catch( Throwable e ) {
+			events.engine.handle( "events notifier error" , e );
+		}
+		
+		if( event.sub != null )
+			event.sub.finishEvent( event );
 	}
 	
 	public void start() {
-		events.engine.executor.executeCycle( task );
+		running = true;
+		for( int k = 0; k < NOTIFY_POOL; k++ ) {
+			ServerExecutorTaskNotify task = new ServerExecutorTaskNotify( k + 1 );
+			events.engine.executor.executeCycle( task );
+		}
 	}
 
-	public synchronized void stop() {
-		events.engine.executor.stopTask( task );
+	public void stop() {
+		synchronized( tasks ) {
+			running = false;
+			for( ServerExecutorTaskNotify task : tasks )
+				events.engine.executor.stopTask( task );
+			tasks.clear();
+			tasks.notifyAll();
+		}
 	}
 
-	public void addEvent( EngineEventsApp app , EngineEventsListener listener , EngineSourceEvent eventData ) {
-		synchronized( task ) {
-			if( !task.isRunning() )
+	public void addEvent( NotifyEvent event ) {
+		synchronized( tasks ) {
+			if( !running )
 				return;
 			
-			NotifyEvent event = new NotifyEvent( app , listener , eventData );
 			queue.add( event );
-			task.notifyAll();
+			tasks.notify();
 		}
 	}
 	

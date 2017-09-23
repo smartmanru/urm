@@ -12,7 +12,7 @@ import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSubscription;
-import org.urm.engine.events.EngineSourceEvent;
+import org.urm.engine.events.SourceEvent;
 import org.urm.engine.shell.Account;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -69,7 +69,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 
 	@Override
-	public void triggerEvent( EngineEventsSubscription sub , EngineSourceEvent event ) {
+	public void triggerEvent( EngineEventsSubscription sub , SourceEvent event ) {
 		if( event.eventType == EngineEvents.EVENT_RUNASYNC ) {
 			EngineEventsApp app = action.actionInit.getEventsApp();
 			app.unsubscribe( this );

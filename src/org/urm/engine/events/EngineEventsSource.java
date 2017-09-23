@@ -42,7 +42,7 @@ abstract public class EngineEventsSource {
 	protected void notify( int eventType , Object data ) {
 		synchronized( events ) {
 			stateId++;
-			EngineSourceEvent event = new EngineSourceEvent( this , eventType , data , stateId );
+			SourceEvent event = new SourceEvent( this , eventType , data , stateId );
 			for( EngineEventsApp app : appMap.values() )
 				events.notifyApp( app , event );
 		}
@@ -52,10 +52,10 @@ abstract public class EngineEventsSource {
 		return( stateId );
 	}
 
-	public EngineSourceEvent createCustomEvent( int eventType , Object object ) {
+	public SourceEvent createCustomEvent( int eventType , Object object ) {
 		synchronized( events ) {
 			stateId++;
-			EngineSourceEvent event = new EngineSourceEvent( this , eventType , object , stateId );
+			SourceEvent event = new SourceEvent( this , eventType , object , stateId );
 			return( event );
 		}
 	}
