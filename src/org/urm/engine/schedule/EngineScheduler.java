@@ -224,7 +224,7 @@ public class EngineScheduler extends EngineObject {
 
 	private boolean waitTask() {
 		try {
-			tasks.wait();
+			tasks.wait( 30000 );
 		}
 		catch( Throwable e ) {
 			return( false );
@@ -271,7 +271,7 @@ public class EngineScheduler extends EngineObject {
 						return;
 					
 					if( waitAny )
-						dispatcher.wait();
+						dispatcher.wait( 30000 );
 					else {
 						if( waitTime > 0 ) {
 							engine.trace( "SCHEDULE dispatcher: wait for " + ( waitTime / 1000 ) + "s" );
