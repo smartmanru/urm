@@ -117,7 +117,6 @@ public class EngineScheduler extends EngineObject {
 		set.addTask( task );
 		
 		synchronized( this ) {
-			ensureExecutorAvailable();
 			addTaskToQueue( task , firstRun );
 		}
 	}
@@ -233,53 +232,42 @@ public class EngineScheduler extends EngineObject {
 	}
 	
 	public void waitDispatch() {
-		boolean waitAny = false;
-		long waitTime = 0;
-		
-		while( true ) {
-			if( !running )
-				return;
-			
-			synchronized( tasks ) {
+		long waitTime = dispatchAll();
+		synchronized( dispatcher ) {
+			try {
 				if( !running )
 					return;
 				
-				waitAny = true;
-				for( ScheduleTask task : tasks ) {
-					if( !task.dispatched ) {
-						waitAny = false;
-						Date dateNow = new Date();
-						waitTime = task.expectedTime.getTime() - dateNow.getTime();
-						
-						if( waitTime <= 0 ) {
-							task.setDispatched();
-							engine.trace( "SCHEDULE dispatcher: dispatched task=" + task.name );
-							tasks.notify();
-							return;
-						}
-						break;
-					}
-				}
+				engine.trace( "SCHEDULE dispatcher: wait for " + ( waitTime / 1000 ) + "s" );
+				dispatcher.wait( waitTime );
 			}
-		
-			synchronized( dispatcher ) {
-				try {
-					if( !running )
-						return;
+			catch( Throwable e ) {
+			}
+		}
+	}
+
+	private long dispatchAll() {
+		Date dateNow = new Date();
+		synchronized( tasks ) {
+			for( ScheduleTask task : tasks ) {
+				if( !running )
+					return( -1 );
+				
+				if( !task.dispatched ) {
+					long waitTime = task.expectedTime.getTime() - dateNow.getTime();
 					
-					if( waitAny )
-						dispatcher.wait( 30000 );
-					else {
-						if( waitTime > 0 ) {
-							engine.trace( "SCHEDULE dispatcher: wait for " + ( waitTime / 1000 ) + "s" );
-							dispatcher.wait( waitTime );
-						}
-					}
-				}
-				catch( Throwable e ) {
+					if( waitTime > 0 )
+						return( waitTime );
+					
+					task.setDispatched();
+					engine.trace( "SCHEDULE dispatcher: dispatched task=" + task.name );
+					ensureExecutorAvailable();
+					tasks.notify();
 				}
 			}
 		}
+		
+		return( 30000 );
 	}
 	
 	public synchronized void release( ScheduleExecutorTask executor , ScheduleTask task ) {
