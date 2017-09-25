@@ -80,6 +80,7 @@ abstract public class ActionBase extends ActionCore {
 	
 	public ShellExecutor shell;
 	public CommandOutput output;
+	public int outputChannel;
 	public ScopeExecutor scopeExecutor;
 
 	public int commandTimeout;
@@ -107,6 +108,7 @@ abstract public class ActionBase extends ActionCore {
 		this.session = session;
 		this.executor = executor;
 		this.output = output;
+		this.outputChannel = -1;
 		this.artefactory = artefactory;
 		
 		commandTimeout = 0;
@@ -121,6 +123,7 @@ abstract public class ActionBase extends ActionCore {
 		this.session = base.session;
 		this.executor = base.executor;
 		this.output = base.output;
+		this.outputChannel = base.outputChannel;
 		this.artefactory = base.artefactory;
 		
 		this.shell = base.shell;
@@ -210,7 +213,7 @@ abstract public class ActionBase extends ActionCore {
 		String s = NAME;
 		if( !prompt.isEmpty() )
 			s += " " + prompt;
-		output.log( context , s , e );
+		output.log( context , outputChannel , s , e );
 		if( e instanceof RunError )
 			fail( ( RunError )e );
 		else
@@ -218,7 +221,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public synchronized void log( String prompt , Throwable e ) {
-		output.log( context , prompt , e );
+		output.log( context , outputChannel , prompt , e );
 	}
 	
 	public void infoAction( String s ) {
@@ -238,11 +241,11 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public void logExact( String s , int logLevel ) {
-		output.logExact( context , s , logLevel );
+		output.logExact( context , outputChannel , s , logLevel );
 	}
 	
 	public void logExactInteractive( String s , int logLevel ) {
-		output.logExactInteractive( context , s , logLevel );
+		output.logExactInteractive( context , outputChannel , s , logLevel );
 	}
 	
 	public int logStartCapture() {
@@ -254,19 +257,19 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public void error( String s ) {
-		output.error( context , s );
+		output.error( context , outputChannel , s );
 	}
 	
 	public void trace( String s ) {
-		output.trace( context , s );
+		output.trace( context , outputChannel , s );
 	}
 	
 	public void info( String s ) {
-		output.info( context , s );
+		output.info( context , outputChannel , s );
 	}
 	
 	public void debug( String s ) {
-		output.debug( context , s );
+		output.debug( context , outputChannel , s );
 	}
 	
 	public void ifexit( int errorCode , String s , String[] params ) throws Exception {
@@ -481,20 +484,14 @@ abstract public class ActionBase extends ActionCore {
 		if( file.startsWith( "~/" ) )
 			file = shell.getHomePath() + file.substring( 1 );
 		
-		String msg = "logging started to " + shell.getOSPath( this , file );
-		output.createOutputFile( context , msg , file );
-		output.info( context , title );
+		String path = shell.getOSPath( this , file );
+		String msg = "logging started to " + path;
+		outputChannel = output.startRedirect( context , outputChannel , file , msg , title );
 	}
 	
 	public void stopRedirect() throws Exception {
 		debug( "logging stopped." );
-		output.stopOutputFile();
-	}
-	
-	public void tee() throws Exception {
-		LocalFolder folder = artefactory.getWorkFolder( this );
-		String fname = folder.getFilePath( this , "executor.log" );
-		output.tee( execrc , NAME , fname );
+		outputChannel = output.stopRedirect( outputChannel );
 	}
 	
 	public void redirectTS( String title , String dir , String basename , String ext ) throws Exception {
@@ -639,11 +636,6 @@ abstract public class ActionBase extends ActionCore {
 
 	public boolean isLocalRun() {
 		return( context.CTX_LOCAL );
-	}
-
-	public void stopAllOutputs() throws Exception {
-		output.stopAllOutputs();
-		context.logStopCapture();
 	}
 
 	public String getTmpFilePath( String name ) throws Exception {

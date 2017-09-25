@@ -235,7 +235,7 @@ public class MonitorTargetInfo {
 	private void updateReport( ActionBase action ) throws Exception {
 		LocalFolder resourceFolder = storage.getResourceFolder( action );
 		if( !resourceFolder.checkExists( action ) ) {
-			action.trace( "ignore create report due to missing resource folder: " + resourceFolder.folderPath );
+			action.trace( "environment " + target.ENV + ", sg=" + target.SG + " - ignore create report due to missing resource folder: " + resourceFolder.folderPath );
 			return;
 		}
 		
@@ -247,11 +247,11 @@ public class MonitorTargetInfo {
 		String F_IMAGETEXT;
 		if( F_STATUS ) {
 			F_IMAGEFILE = storage.getRunningImageBasename();
-			F_IMAGETEXT = "Environment " + target.ENV + " , sg=" + target.SG + " is up and running";
+			F_IMAGETEXT = "environment " + target.ENV + ", sg=" + target.SG + " is up and running";
 		}
 		else {
 			F_IMAGEFILE = storage.getFailedImageBasename();
-			F_IMAGETEXT = "Environment " + target.ENV + " , sg=" + target.SG + " is not working";
+			F_IMAGETEXT = "environment " + target.ENV + ", sg=" + target.SG + " is not working";
 		}
 
 		LocalFolder reportsFolder = storage.getReportsFolder( action , target );

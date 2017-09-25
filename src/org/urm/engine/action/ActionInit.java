@@ -73,6 +73,17 @@ public class ActionInit extends ActionBase {
 		eventsApp = events.createApp( "session-" + super.session.sessionId );
 	}
 
+	public void tee() throws Exception {
+		LocalFolder folder = artefactory.getWorkFolder( this );
+		String fname = folder.getFilePath( this , "executor.log" );
+		output.tee( execrc , NAME , fname );
+	}
+	
+	public void stopAllOutputs() throws Exception {
+		output.stopAllOutputs();
+		context.logStopCapture();
+	}
+
 	public void close() {
 		EngineEvents events = loader.engine.getEvents();
 		events.deleteApp( eventsApp );

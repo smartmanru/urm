@@ -15,10 +15,14 @@ public class CommandOutput {
 	class OutputFile {
 		FileOutputStream outstream;
 		PrintWriter outfile;
+		int channelBase;
+		boolean stopped;
 		
-		public OutputFile( RunContext execrc , String fname ) throws Exception {
-			outstream = new FileOutputStream( execrc.getLocalPath( fname ) );
-			outfile = new PrintWriter( outstream );
+		public OutputFile( RunContext execrc , String fname , int channelBase ) throws Exception {
+			this.outstream = new FileOutputStream( execrc.getLocalPath( fname ) );
+			this.outfile = new PrintWriter( outstream );
+			this.channelBase = channelBase;
+			this.stopped = false;
 		}
 
 		public void close() throws Exception {
@@ -26,6 +30,7 @@ public class CommandOutput {
 			outfile.close();
 			outstream.flush();
 			outstream.close();
+			stopped = true;
 		}
 		
 		public void printStackTrace( Throwable e ) {
@@ -40,8 +45,8 @@ public class CommandOutput {
 		
 	};
 	
-	OutputFile outchild = null;
-	OutputFile outtee = null;
+	List<OutputFile> channels;
+	OutputFile outtee;
 	int logActionLevelLimit;
 	int logServerLevelLimit;
 
@@ -53,11 +58,10 @@ public class CommandOutput {
 	public static int LOGLEVEL_DEBUG = 2;
 	public static int LOGLEVEL_TRACE = 3;
 	
-	List<OutputFile> parentOutputs = new LinkedList<OutputFile>();
-	
 	public CommandOutput() {
 		logActionLevelLimit = LOGLEVEL_ERROR;
 		logServerLevelLimit = LOGLEVEL_ERROR;
+		channels = new LinkedList<OutputFile>(); 
 	}
 
 	public synchronized void setLogLevel( ActionBase action , int logActionLevelLimit ) {
@@ -75,7 +79,7 @@ public class CommandOutput {
 		}
 	}
 
-	private void log( CommandContext context , String s , int logLevel ) {
+	private void log( CommandContext context , int channel , String s , int logLevel ) {
 		if( logActionLevelLimit >= 0 && logServerLevelLimit >= 0 && 
 			logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
 			return;
@@ -93,10 +97,10 @@ public class CommandOutput {
 		if( logLevel == LOGLEVEL_TRACE )
 			prefix = "[TRACE] ";
 		else
-			outExact( context , "unexpected log level=" + logLevel + ", msg=" + s );
+			outExact( context , channel , "unexpected log level=" + logLevel + ", msg=" + s );
 
 		String ts = Common.getLogTimeStamp() + " " + prefix + s;
-		outExact( context , ts + " " + context.streamLog );
+		outExact( context , channel , ts + " " + context.streamLog );
 		
 		if( context.call != null ) {
 			if( logActionLevelLimit >= 0 &&  
@@ -107,12 +111,12 @@ public class CommandOutput {
 		}
 	}
 	
-	public synchronized void logExact( CommandContext context , String s , int logLevel ) {
+	public synchronized void logExact( CommandContext context , int channel , String s , int logLevel ) {
 		if( logActionLevelLimit >= 0 && logServerLevelLimit >= 0 && 
 			logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
 			return;
 		
-		outExact( context , s );
+		outExact( context , channel , s );
 		
 		if( context.call != null ) {
 			if( logActionLevelLimit >= 0 &&  
@@ -123,7 +127,7 @@ public class CommandOutput {
 		}
 	}
 	
-	public synchronized void logExactInteractive( CommandContext context , String s , int logLevel ) {
+	public synchronized void logExactInteractive( CommandContext context , int channel , String s , int logLevel ) {
 		if( context.call != null )
 			context.call.addLog( s );
 		
@@ -131,10 +135,10 @@ public class CommandOutput {
 			logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
 			return;
 		
-		outExact( context , s );
+		outExact( context , channel , s );
 	}
 	
-	public synchronized void log( CommandContext context , String prompt , Throwable e ) {
+	public synchronized void log( CommandContext context , int channel , String prompt , Throwable e ) {
 		if( logActionLevelLimit < 0 || logServerLevelLimit < 0 ) {
 			synchronized( syncStatic ) {
 				System.out.println( "TRACEINTERNAL: " + prompt );
@@ -160,47 +164,50 @@ public class CommandOutput {
 		}
 		
 		synchronized( syncStatic ) {
-			log( context , s , LOGLEVEL_ERROR );
+			log( context , channel , s , LOGLEVEL_ERROR );
 			if( logActionLevelLimit >= LOGLEVEL_DEBUG || logServerLevelLimit >= LOGLEVEL_DEBUG ) {
-				if( outchild != null )
+				if( channel >= 0 && channel < channels.size() ) {
+					OutputFile outchild = channels.get( channel );
 					outchild.printStackTrace( e );
+				}
 				else {
 					if( outtee != null )
 						outtee.printStackTrace( e );
 					
 					e.printStackTrace();
+					System.out.flush();
 				}
-				System.out.flush();
 			}
 		}
 	}
 	
-	public synchronized void error( CommandContext context , String s ) {
-		log( context , s , LOGLEVEL_ERROR );
+	public synchronized void error( CommandContext context , int channel , String s ) {
+		log( context , channel , s , LOGLEVEL_ERROR );
 	}
 	
-	public synchronized void info( CommandContext context , String s ) {
-		log( context , s , LOGLEVEL_INFO );
+	public synchronized void info( CommandContext context , int channel , String s ) {
+		log( context , channel , s , LOGLEVEL_INFO );
 	}
 	
-	public synchronized void debug( CommandContext context , String s ) {
-		log( context , s , LOGLEVEL_DEBUG );
+	public synchronized void debug( CommandContext context , int channel , String s ) {
+		log( context , channel , s , LOGLEVEL_DEBUG );
 	}
 	
-	public synchronized void trace( CommandContext context , String s ) {
-		log( context , s , LOGLEVEL_TRACE );
+	public synchronized void trace( CommandContext context , int channel , String s ) {
+		log( context , channel , s , LOGLEVEL_TRACE );
 	}
 
-	private void outExact( CommandContext context , String s ) {
+	private void outExact( CommandContext context , int channel , String s ) {
 		if( logActionLevelLimit < 0 || logServerLevelLimit < 0 ) {
 			outExactStatic( "TRACEINTERNAL: line=" + s.replaceAll("\\p{C}", "?") );
 			return;
 		}
 		
 		context.outExact( s );
-		
-		if( outchild != null )
+		if( channel >= 0 && channel < channels.size() ) {
+			OutputFile outchild = channels.get( channel );
 			outchild.println( s );
+		}
 		else {
 			if( outtee != null )
 				outtee.println( s );
@@ -216,33 +223,17 @@ public class CommandOutput {
 	}
 	
 	public synchronized void tee( RunContext execrc , String title , String file ) throws Exception {
-		outtee = new OutputFile( execrc , file );
+		outtee = new OutputFile( execrc , file , 0 );
 		outtee.println( "############# start logging on " + Common.getNameTimeStamp() );
 	}
 	
-	public synchronized void createOutputFile( CommandContext context , String title , String file ) throws Exception {
-		// add current to stack
-		if( outchild != null )
-			parentOutputs.add( outchild );
-		
-		outchild = new OutputFile( context.engine.execrc , file );
-		log( context , title , LOGLEVEL_INFO );
-	}
-	
-	public synchronized void stopOutputFile() throws Exception {
-		outchild.close();
-		
-		if( parentOutputs.isEmpty() )
-			outchild = null;
-		else {
-			outchild = parentOutputs.get( parentOutputs.size() - 1 );
-			parentOutputs.remove( parentOutputs.size() - 1 );
-		}
-	}
-	
 	public synchronized void stopAllOutputs() throws Exception {
-		while( outchild != null )
-			stopOutputFile();
+		for( int index = channels.size() - 1; index >= 0; index-- ) {
+			OutputFile outchild = channels.get( index );
+			if( !outchild.stopped )
+				stopOutputFile( outchild );
+		}
+		channels.clear();
 		
 		if( outtee != null ) {
 			outtee.println( "############# stop logging on " + Common.getNameTimeStamp() );
@@ -250,4 +241,44 @@ public class CommandOutput {
 			outtee = null;
 		}
 	}
+	
+	public synchronized int startRedirect( CommandContext context , int channel , String file , String msg , String title ) throws Exception {
+		OutputFile outchild = new OutputFile( context.engine.execrc , file , channel );
+		int newChannel = channels.size();
+		channels.add( outchild );
+		
+		log( context , channel , msg , LOGLEVEL_INFO );
+		info( context , newChannel , title );
+		return( newChannel );
+	}
+	
+	public synchronized int stopRedirect( int channel ) throws Exception {
+		if( channel >= 0 && channel < channels.size() ) {
+			OutputFile outchild = channels.get( channel );
+			if( !outchild.stopped )
+				stopOutputFile( outchild );
+			
+			int index = channels.size() - 1;
+			if( channel == index ) {
+				// remove closed tail
+				for( ; index >= 0; index-- ) {
+					outchild = channels.get( index );
+					if( !outchild.stopped )
+						break;
+					
+					channels.remove( index );
+				}
+			}
+			
+			if( outchild.channelBase < channels.size() )
+				return( outchild.channelBase );
+		}
+		
+		return( -1 );
+	}
+	
+	private void stopOutputFile( OutputFile outchild ) throws Exception {
+		outchild.close();
+	}
+	
 }
