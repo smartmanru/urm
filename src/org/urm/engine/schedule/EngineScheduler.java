@@ -257,6 +257,7 @@ public class EngineScheduler extends EngineObject {
 						
 						if( waitTime <= 0 ) {
 							task.setDispatched();
+							engine.trace( "SCHEDULE dispatcher: dispatched task=" + task.name );
 							tasks.notify();
 							return;
 						}
