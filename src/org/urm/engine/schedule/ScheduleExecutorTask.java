@@ -32,6 +32,7 @@ public class ScheduleExecutorTask extends EngineExecutorTask {
 			task.finishFailed( e );
 		}
 
+		engine.debug( "SCHEDULE executor=" + id + ": finished task=" + task.name );
 		task.finish();
 		scheduler.release( this , task );
 	}
