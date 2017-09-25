@@ -21,8 +21,10 @@ public class ScheduleExecutorTask extends EngineExecutorTask {
 		if( task == null )
 			return;
 		
+		long startTime = 0;
 		try {
 			engine.debug( "SCHEDULE executor=" + id + ": start task=" + task.name );
+			startTime = System.currentTimeMillis();
 			task.start();
 			task.execute();
 			task.finishSuccessful();
@@ -32,7 +34,9 @@ public class ScheduleExecutorTask extends EngineExecutorTask {
 			task.finishFailed( e );
 		}
 
-		engine.debug( "SCHEDULE executor=" + id + ": finished task=" + task.name );
+		long finishTime = System.currentTimeMillis();
+		long passTime = finishTime - startTime;
+		engine.debug( "SCHEDULE executor=" + id + ": finished task=" + task.name + " (time=" + passTime + "ms)" );
 		task.finish();
 		scheduler.release( this , task );
 	}
