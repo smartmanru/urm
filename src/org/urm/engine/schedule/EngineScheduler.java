@@ -215,10 +215,6 @@ public class EngineScheduler extends EngineObject {
 			}
 		}
 		
-		synchronized( dispatcher ) {
-			dispatcher.notify();
-		}
-		
 		return( task );
 	}
 
