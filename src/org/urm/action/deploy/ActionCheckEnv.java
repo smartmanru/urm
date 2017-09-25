@@ -64,6 +64,8 @@ public class ActionCheckEnv extends ActionBase {
 	
 	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		sgStatus = new SegmentStatus( set.sg );
+		EngineStatus status = super.getServerStatus();
+		status.updateRunTime( this , set.sg );
 		sgCaptureIndex = super.logStartCapture();
 		info( "execute segment=" + set.sg.NAME + " ..." );
 	}
