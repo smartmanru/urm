@@ -14,7 +14,6 @@ import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.shell.Account;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
@@ -36,7 +35,6 @@ public class ActionScopeSet {
 	
 	Map<String,ActionScopeTarget> targets = new HashMap<String,ActionScopeTarget>();
 
-	public MetaEnv env;
 	public MetaEnvSegment sg;
 	boolean specifiedExplicitly;
 	
@@ -85,12 +83,11 @@ public class ActionScopeSet {
 		this.setFull = false;
 	}
 
-	public void create( ActionBase action , MetaEnv env , MetaEnvSegment sg ) throws Exception {
+	public void create( ActionBase action , MetaEnvSegment sg ) throws Exception {
 		this.pset = null;
 		this.NAME = sg.NAME;
 		this.CATEGORY = VarCATEGORY.ENV;
 		this.setFull = false;
-		this.env = env;
 		this.sg = sg;
 	}
 
@@ -247,8 +244,6 @@ public class ActionScopeSet {
 		
 		this.pset = setAdd.pset;
 		this.rset = setAdd.rset;
-
-		this.env = setAdd.env;
 		this.sg = setAdd.sg;
 		
 		for( ActionScopeTarget target : setAdd.targets.values() )

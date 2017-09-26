@@ -10,15 +10,17 @@ import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.status.EngineStatus.StatusType;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.meta.EngineObject;
-import org.urm.meta.engine.EngineMonitoring;
 
 public class StatusSource extends EngineEventsSource {
 
-	public EngineMonitoring mon;
+	public static int EVENT_UPDATESTARTED = 1000;
+	public static int EVENT_UPDATEFINISHED = 1001;
+	
 	public StatusType type;
 	public EngineObject object;
 	public StatusData state;
 	public Date runTime;
+	public boolean updating;
 	
 	private StatusData primary;
 	private Map<String,StatusData> extra;
@@ -39,7 +41,7 @@ public class StatusSource extends EngineEventsSource {
 	}
 
 	public StatusData getStatusState() {
-		return( new StatusData( state , runTime ) );
+		return( new StatusData( state , runTime , updating ) );
 	}
 	
 	public void setObject( EngineObject object ) {
@@ -125,6 +127,13 @@ public class StatusSource extends EngineEventsSource {
 
 	public void updateRunTime() {
 		runTime = new Date();
+		updating = true;
+		super.notify( EVENT_UPDATESTARTED , getStatusState() );
+	}
+
+	public void finishUpdate() {
+		updating = false;
+		super.notify( EVENT_UPDATEFINISHED , getStatusState() );
 	}
 	
 }

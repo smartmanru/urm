@@ -24,16 +24,20 @@ public class StatusData extends EngineEventsState {
 	public Date updated;
 	public Date modified;
 	public Date runTime;
+	public boolean updating;
 	public Status specific;
 
-	public StatusData( StatusData copy , Date runTime ) {
+	public StatusData( StatusData copy , Date runTime , boolean updating ) {
 		super( copy.source , copy.stateId );
+		this.source = copy.source;
 		this.state = copy.state;
 		this.log = copy.log;
 		this.updated = copy.updated;
 		this.modified = copy.modified;
-		this.runTime = runTime;
 		this.specific = copy.specific;
+		
+		this.runTime = runTime;
+		this.updating = updating;
 	}
 	
 	public StatusData( StatusSource source , Status specific ) {
@@ -41,6 +45,7 @@ public class StatusData extends EngineEventsState {
 		this.source = source;
 		this.specific = specific;
 		state = OBJECT_STATE.STATE_NODATA;
+		updating = false;
 	}
 
 	public void clear() {

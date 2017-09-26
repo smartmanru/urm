@@ -25,12 +25,22 @@ public class ActionScope {
 	private Map<String,ActionScopeSet> sourceMap = new HashMap<String,ActionScopeSet>();
 	private Map<String,ActionScopeSet> envMap = new HashMap<String,ActionScopeSet>();
 
+	public MetaEnv env;
 	public boolean scopeFullProduct;
 	public boolean scopeFullEnv;
 	public boolean scopeFullRelease;
 	
 	public ActionScope( ActionBase action , Meta meta ) {
 		this.meta = meta;
+		this.context = action.context;
+		this.scopeFullProduct = false;
+		this.scopeFullEnv = false;
+		this.scopeFullRelease = false;
+	}
+	
+	public ActionScope( ActionBase action , MetaEnv env ) {
+		this.meta = env.meta;
+		this.env = env;
 		this.context = action.context;
 		this.scopeFullProduct = false;
 		this.scopeFullEnv = false;
@@ -101,7 +111,7 @@ public class ActionScope {
 			return( sset );
 		
 		sset = new ActionScopeSet( this , specifiedExplicitly );
-		sset.create( action , env , sg );
+		sset.create( action , sg );
 		addScopeSet( action , sset );
 		return( sset );
 	}
@@ -344,7 +354,7 @@ public class ActionScope {
 			setNew.create( action , setAdd.pset );
 		else
 		if( setAdd.CATEGORY == VarCATEGORY.ENV )
-			setNew.create( action , setAdd.env , setAdd.sg );
+			setNew.create( action , setAdd.sg );
 		else
 			setNew.create( action , setAdd.CATEGORY );
 		

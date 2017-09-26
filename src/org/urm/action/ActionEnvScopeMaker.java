@@ -17,7 +17,7 @@ public class ActionEnvScopeMaker {
 	private MetaEnv env;
 	
 	public ActionEnvScopeMaker( ActionBase action , MetaEnv env ) {
-		scope = new ActionScope( action , env.meta );
+		scope = new ActionScope( action , env );
 		this.action = action;
 		this.env = env;
 	}

@@ -46,28 +46,32 @@ public class ActionCheckEnv extends ActionBase {
 	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		// check all processes
 		infoAction( "check environment=" + context.env.ID + " ..." );
+		EngineStatus status = super.getServerStatus();
+		status.updateRunTime( this , scope.env );
 	}
 
 	@Override protected void runAfter( ActionScope scope ) throws Exception {
-		String status = "SUCCESSFUL";
+		String value = "SUCCESSFUL";
 		if( !S_CHECKENV_TOTAL_SERVERS_FAILED.isEmpty() )
 			super.fail0( _Error.CheckenvFailed0 , "Checkenv failed" );
 	
 		if( super.isFailed() ) {
-			status = "FAILED";
-			errorAction( "total status is " + status );
+			value = "FAILED";
+			errorAction( "total status is " + value );
 		}
 		else {
-			infoAction( "total status is " + status );
+			infoAction( "total status is " + value );
 		}
+		EngineStatus status = super.getServerStatus();
+		status.finishUpdate( this , scope.env );
 	}
 	
 	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		sgStatus = new SegmentStatus( set.sg );
-		EngineStatus status = super.getServerStatus();
-		status.updateRunTime( this , set.sg );
 		sgCaptureIndex = super.logStartCapture();
 		info( "execute segment=" + set.sg.NAME + " ..." );
+		EngineStatus status = super.getServerStatus();
+		status.updateRunTime( this , set.sg );
 	}
 
 	@Override protected void runAfter( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
@@ -80,6 +84,7 @@ public class ActionCheckEnv extends ActionBase {
 		sgStatus.setLog( super.logFinishCapture( sgCaptureIndex ) );
 		EngineStatus status = super.getServerStatus();
 		status.setSegmentStatus( this , set.sg , sgStatus );
+		status.finishUpdate( this , set.sg );
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
@@ -138,6 +143,7 @@ public class ActionCheckEnv extends ActionBase {
 		String[] log = super.logFinishCapture( captureIndex );
 		serverStatus.setLog( log );
 		status.setServerStatus( this , target.envServer , serverStatus );
+		status.finishUpdate( this , target.envServer );
 		
 		return( SCOPESTATE.RunSuccess );
 	}
@@ -171,6 +177,7 @@ public class ActionCheckEnv extends ActionBase {
 			for( ActionScopeTargetItem node : target.getItems( this ) ) {
 				status.updateRunTime( this , node.envServerNode );
 				checkOneServerNode( node , server , node.envServerNode , main , role , serverStatus );
+				status.finishUpdate( this , node.envServerNode );
 				if( !S_CHECKENV_NODE_STOPPED )
 					someNodeAvailable = true;
 			}

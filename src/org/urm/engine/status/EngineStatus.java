@@ -316,33 +316,40 @@ public class EngineStatus extends EngineObject {
 		appSource.setFinalState( finalState );
 	}
 
-	public void updateRunTime( ActionBase action , MetaEnvSegment sg ) {
-		EngineStatusProduct productStatus = products.get( sg.meta.name );
+	public void updateRunTime( ActionBase action , MetaEnv env ) {
+		EngineStatusProduct productStatus = products.get( env.meta.name );
 		if( productStatus == null )
 			return;
 
-		StatusSource source = productStatus.getObjectSource( sg );
+		StatusSource source = productStatus.getObjectSource( env );
 		if( source != null ) {
 			source.updateRunTime();
-			source = productStatus.getObjectSource( sg.env );
+			
+			Product product = productStatus.product;
+			source = getGlobalSource( StatusType.PRODUCT , product.NAME );
 			if( source != null ) {
 				source.updateRunTime();
-				Product product = productStatus.product;
-				source = getGlobalSource( StatusType.PRODUCT , product.NAME );
+				source = getGlobalSource( StatusType.PRODUCT , product.system.NAME );
 				if( source != null ) {
 					source.updateRunTime();
-					source = getGlobalSource( StatusType.PRODUCT , product.system.NAME );
-					if( source != null ) {
+					source = getAppSource();
+					if( source != null )
 						source.updateRunTime();
-						source = getAppSource();
-						if( source != null )
-							source.updateRunTime();
-					}
 				}
 			}
 		}
 	}
 
+	public void updateRunTime( ActionBase action , MetaEnvSegment sg ) {
+		EngineStatusProduct productStatus = products.get( sg.meta.name );
+		if( productStatus == null )
+			return;
+		
+		StatusSource source = productStatus.getObjectSource( sg );
+		if( source != null )
+			source.updateRunTime();
+	}
+	
 	public void updateRunTime( ActionBase action , MetaEnvServer server ) {
 		EngineStatusProduct productStatus = products.get( server.meta.name );
 		if( productStatus == null )
@@ -361,6 +368,60 @@ public class EngineStatus extends EngineObject {
 		StatusSource source = productStatus.getObjectSource( node );
 		if( source != null )
 			source.updateRunTime();
+	}
+	
+	public void finishUpdate( ActionBase action , MetaEnv env ) {
+		EngineStatusProduct productStatus = products.get( env.meta.name );
+		if( productStatus == null )
+			return;
+
+		StatusSource source = productStatus.getObjectSource( env );
+		if( source != null ) {
+			source.finishUpdate();
+			
+			Product product = productStatus.product;
+			source = getGlobalSource( StatusType.PRODUCT , product.NAME );
+			if( source != null ) {
+				source.finishUpdate();
+				source = getGlobalSource( StatusType.PRODUCT , product.system.NAME );
+				if( source != null ) {
+					source.finishUpdate();
+					source = getAppSource();
+					if( source != null )
+						source.finishUpdate();
+				}
+			}
+		}
+	}
+
+	public void finishUpdate( ActionBase action , MetaEnvSegment sg ) {
+		EngineStatusProduct productStatus = products.get( sg.meta.name );
+		if( productStatus == null )
+			return;
+		
+		StatusSource source = productStatus.getObjectSource( sg );
+		if( source != null )
+			source.finishUpdate();
+	}
+	
+	public void finishUpdate( ActionBase action , MetaEnvServer server ) {
+		EngineStatusProduct productStatus = products.get( server.meta.name );
+		if( productStatus == null )
+			return;
+		
+		StatusSource source = productStatus.getObjectSource( server );
+		if( source != null )
+			source.finishUpdate();
+	}
+	
+	public void finishUpdate( ActionBase action , MetaEnvServerNode node ) {
+		EngineStatusProduct productStatus = products.get( node.meta.name );
+		if( productStatus == null )
+			return;
+		
+		StatusSource source = productStatus.getObjectSource( node );
+		if( source != null )
+			source.finishUpdate();
 	}
 	
 }

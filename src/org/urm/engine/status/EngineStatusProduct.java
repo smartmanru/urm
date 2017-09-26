@@ -304,6 +304,7 @@ public class EngineStatusProduct extends EngineObject {
 
 	private void processSegment( ActionBase action , StatusSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
 		sgSource.setPrimaryLog( status.getLog() );
+		sgSource.finishUpdate();
 	}
 	
 	private void processSegmentItems( ActionBase action , StatusSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
