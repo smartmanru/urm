@@ -7,11 +7,19 @@ public class EngineEvents extends EngineObject {
 
 	Engine engine;
 	
-	public static int EVENT_FINISHSTATE = 1;
-	public static int EVENT_SECONDTIMER = 2;
-	public static int EVENT_BLOTTEREVENT = 3;
-	public static int EVENT_RUNASYNC = 4;
-	public static int EVENT_FINISHCHILDSTATE = 5;
+	public static int OWNER_ENGINE = 1;
+	public static int OWNER_ENGINESTATUS = 2;
+	public static int OWNER_ENGINEBUILDPLAN = 3;
+	public static int OWNER_ENGINEDEPLOYPLAN = 4;
+	
+	public static int EVENT_STARTSTATE = 1;
+	public static int EVENT_FINISHSTATE = 2;
+	public static int EVENT_SECONDTIMER = 3;
+	public static int EVENT_BLOTTEREVENT = 4;
+	public static int EVENT_RUNASYNC = 5;
+	public static int EVENT_FINISHCHILDSTATE = 6;
+	public static int EVENT_STARTACTION = 7;
+	public static int EVENT_FINISHACTION = 8;
 	public static int EVENT_STATECHANGED = 11;
 	public static int EVENT_MONITORCHILDCHANGED = 12;
 	public static int EVENT_MONITORGRAPHCHANGED = 13;

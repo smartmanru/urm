@@ -3,6 +3,8 @@ package org.urm.common.meta;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.OptionsMeta;
+import org.urm.common.action.CommandMethodMeta.ACTION_ACCESS;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 
 public class MainCommandMeta extends CommandMeta {
 
@@ -19,15 +21,15 @@ public class MainCommandMeta extends CommandMeta {
 		super( options , NAME , DESC );
 		
 		String cmdOpts = "OPT_HOST,OPT_PORT";
-		super.defineAction( CommandMethodMeta.newCritical( this , "configure" , true , "configure proxy files" , cmdOpts , "{default|server|standalone} [envname [sgname]]" ) );
-		super.defineAction( CommandMethodMeta.newCritical( this , "svnsave" , true , "save master file set in svn" , cmdOpts , "" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , "configure" , ACTION_ACCESS.SERVER , false , SecurityAction.ACTION_ADMIN , true , "configure proxy files" , cmdOpts , "{default|server|standalone} [envname [sgname]]" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , "svnsave" , ACTION_ACCESS.SERVER , false , SecurityAction.ACTION_ADMIN , true , "save master file set in svn" , cmdOpts , "" ) );
 		cmdOpts = "OPT_PORT";
-		super.defineAction( CommandMethodMeta.newNormal( this , "server" , true , "server control" , cmdOpts , "{start|stop|status}" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , "server" , ACTION_ACCESS.SERVER , false , SecurityAction.ACTION_ADMIN , true , "server control" , cmdOpts , "{start|stop|status}" ) );
 		cmdOpts = "";
-		super.defineAction( CommandMethodMeta.newNormal( this , "auth" , true , "console client authorization" , cmdOpts , "{-user U -key K|-user U -password P}" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , "auth" , ACTION_ACCESS.SERVER , true , SecurityAction.ACTION_EXECUTE , true , "console client authorization" , cmdOpts , "{-user U -key K|-user U -password P}" ) );
 		cmdOpts = "";
-		super.defineAction( CommandMethodMeta.newNormal( this , "interactive" , true , "interactive session" , cmdOpts , "(internal action)" ) );
-		super.defineAction( CommandMethodMeta.newNormal( this , "temporary" , true , "temporary" , cmdOpts , "(internal action)" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , "interactive" , ACTION_ACCESS.SERVER , true , SecurityAction.ACTION_EXECUTE , true , "interactive session" , cmdOpts , "(internal action)" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , "temporary" , ACTION_ACCESS.SERVER , true , SecurityAction.ACTION_EXECUTE , true , "temporary" , cmdOpts , "(internal action)" ) );
 	}
 	
 }

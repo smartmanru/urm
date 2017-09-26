@@ -29,6 +29,13 @@ public class ActionScope {
 	public boolean scopeFullProduct;
 	public boolean scopeFullEnv;
 	public boolean scopeFullRelease;
+
+	public ActionScope( ActionBase action ) {
+		this.context = action.context;
+		this.scopeFullProduct = false;
+		this.scopeFullEnv = false;
+		this.scopeFullRelease = false;
+	}
 	
 	public ActionScope( ActionBase action , Meta meta ) {
 		this.meta = meta;

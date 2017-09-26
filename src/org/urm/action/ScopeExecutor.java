@@ -93,7 +93,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		if( asyncSub == null )
 			return( false );
 		
-		eventsSource.customEvent( EngineEvents.EVENT_RUNASYNC , this );
+		eventsSource.customEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_RUNASYNC , this );
 		return( true );
 	}
 	
@@ -351,7 +351,8 @@ public class ScopeExecutor implements EngineEventsListener {
 	
 	// implementation
 	private boolean runSimple() {
-		startExecutor( null );
+		ActionScope scope = new ActionScope( action );
+		startExecutor( scope );
 
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
@@ -1087,6 +1088,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	private void startExecutor( ActionScope scope ) {
 		running = true;
 		try {
+			action.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STARTACTION , action );
 			stateFinal = new ScopeState( action , scope );
 			action.startExecutor( this , stateFinal );
 		}
@@ -1106,6 +1108,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			
 			action.engine.blotter.stopAction( action , res );
 			running = false;
+			action.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_FINISHACTION , action );
 			return( res );
 		}
 		catch( Throwable e ) {

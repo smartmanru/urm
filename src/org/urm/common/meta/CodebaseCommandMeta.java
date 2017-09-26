@@ -1,8 +1,10 @@
 package org.urm.common.meta;
 
 import org.urm.common.action.CommandMethodMeta;
+import org.urm.common.action.CommandMethodMeta.ACTION_ACCESS;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.OptionsMeta;
+import org.urm.meta.engine.EngineAuth.SecurityAction;
 
 public class CodebaseCommandMeta extends CommandMeta {
 
@@ -36,39 +38,39 @@ public class CodebaseCommandMeta extends CommandMeta {
 		
 		String cmdOpts;
 		cmdOpts = "OPT_GET,OPT_CHECK,OPT_RELEASE,OPT_BRANCH,OPT_TAG,OPT_DATE,OPT_GROUP,OPT_VERSION";
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_BUILDTAGS , false , "build from tag" , cmdOpts , "<TAG> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_BUILDTAGS , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "build from tag" , cmdOpts , "<TAG> [set [projects]]" ) );
 		
 		cmdOpts = "OPT_GET,OPT_DIST,OPT_CHECK,OPT_RELEASE,OPT_BRANCH,OPT_TAG,OPT_DATE,OPT_GROUP,OPT_VERSION";
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_BUILDRELEASE , false , "build release" , cmdOpts , "[set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_BUILDRELEASE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "build release" , cmdOpts , "[set [projects]]" ) );
 
 		cmdOpts = "";
-		super.defineAction( CommandMethodMeta.newInfo( this , METHOD_CHECKSET , false , "check configuration variables" , "" , "" ) );
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_CUSTOM , false , "run any custom operation in build scope" , cmdOpts , "[set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newInfo( this , METHOD_CHECKSET , ACTION_ACCESS.PRODUCT , true , SecurityAction.ACTION_CONFIGURE , false , "check configuration variables" , "" , "" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_CUSTOM , ACTION_ACCESS.PRODUCT , true , SecurityAction.ACTION_CONFIGURE , false , "run any custom operation in build scope" , cmdOpts , "[set [projects]]" ) );
 		
 		cmdOpts = "OPT_RELEASE,OPT_TAG,OPT_DATE,OPT_GROUP,OPT_VERSION";
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_GETBUILD , false , "download build items" , cmdOpts , "[set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_GETBUILD , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "download build items" , cmdOpts , "[set [projects]]" ) );
 
 		cmdOpts = "OPT_DIST,OPT_RELEASE,OPT_TAG,OPT_DATE,OPT_GROUP,OPT_VERSION";
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_GETRELEASE , false , "download release build items" , cmdOpts , "[set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_GETRELEASE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "download release build items" , cmdOpts , "[set [projects]]" ) );
 		
 		cmdOpts = "OPT_RELEASE,OPT_BRANCH,OPT_TAG,OPT_DATE,OPT_GROUP";
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_CHECKOUT , true , "checkout sources to update" , cmdOpts , "<CODIR> [set [projects]]" ) );
-		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_COMMIT , true , "commit sources after updates" , cmdOpts , "<CODIR> [set [projects]]" ) );
-		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_COPYBRANCHES , true , "copy tag or branch to branch" , cmdOpts , "<SRCBRANCH> <DSTBRANCH> [set [projects]]" ) );
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_COPYBRANCHTOTAG , true , "copy tag or branch to branch" , cmdOpts , "<SRCBRANCH> <DSTTAG> [set [projects]]" ) );
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_COPYNEWTAGS , true , "copy tag to tag, do not delete old tags" , cmdOpts , "<SRCTAG> <DSTTAG> [set [projects]]" ) );
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_COPYTAGS , true , "copy tag to tag, delete old tags" , cmdOpts , "<SRCTAG> <DSTTAG> [set [projects]]" ) );
-		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_COPYTAGTOBRANCH , true , "copy tag to new branch" , cmdOpts , "<SRCTAG> <DSTBRANCH> [set [projects]]" ) );
-		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_DROPBRANCH , true , "drop branches" , cmdOpts , "<BRANCH> [set [projects]]" ) );
-		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_DROPTAGS , true , "drop tags" , cmdOpts , "<TAG> [set [projects]]" ) );
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_EXPORT , true , "codebase export" , cmdOpts , "<CODIR> [set [projects]]" ) );
-		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_RENAMEBRANCH , true , "rename branch" , cmdOpts , "<SRCBRANCH> <DSTBRANCH> [set [projects]]" ) );
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_RENAMETAGS , true , "rename tag" , cmdOpts , "<SRCTAG> <DSTTAG> [set [projects]]" ) );
-		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_SETVERSION , true , "change version in pom.xml using maven" , cmdOpts , "<VERSION> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_CHECKOUT , ACTION_ACCESS.PRODUCT , true , SecurityAction.ACTION_CODEBASE , true , "checkout sources to update" , cmdOpts , "<CODIR> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_COMMIT , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "commit sources after updates" , cmdOpts , "<CODIR> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_COPYBRANCHES , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "copy tag or branch to branch" , cmdOpts , "<SRCBRANCH> <DSTBRANCH> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_COPYBRANCHTOTAG , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "copy tag or branch to branch" , cmdOpts , "<SRCBRANCH> <DSTTAG> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_COPYNEWTAGS , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "copy tag to tag, do not delete old tags" , cmdOpts , "<SRCTAG> <DSTTAG> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_COPYTAGS , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "copy tag to tag, delete old tags" , cmdOpts , "<SRCTAG> <DSTTAG> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_COPYTAGTOBRANCH , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "copy tag to new branch" , cmdOpts , "<SRCTAG> <DSTBRANCH> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_DROPBRANCH , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "drop branches" , cmdOpts , "<BRANCH> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_DROPTAGS , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "drop tags" , cmdOpts , "<TAG> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_EXPORT , ACTION_ACCESS.PRODUCT , true , SecurityAction.ACTION_CODEBASE , true , "codebase export" , cmdOpts , "<CODIR> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_RENAMEBRANCH , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "rename branch" , cmdOpts , "<SRCBRANCH> <DSTBRANCH> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_RENAMETAGS , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "rename tag" , cmdOpts , "<SRCTAG> <DSTTAG> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_SETVERSION , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "change version in pom.xml using maven" , cmdOpts , "<VERSION> [set [projects]]" ) );
 
 		cmdOpts = "";
-		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_UPLOADDIST , true , "upload thirdparty final binaries to nexus from release" , cmdOpts , "<RELEASELABEL>" ) );
-		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_UPLOADLIB , true , "upload thirdparty build binaries to nexus" , cmdOpts , "<groupid> <file> [<artefactid> [<version> [classifier]]]" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_UPLOADDIST , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "upload thirdparty final binaries to nexus from release" , cmdOpts , "<RELEASELABEL>" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_UPLOADLIB , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "upload thirdparty build binaries to nexus" , cmdOpts , "<groupid> <file> [<artefactid> [<version> [classifier]]]" ) );
 	}
 	
 }

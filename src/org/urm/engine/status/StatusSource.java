@@ -74,7 +74,7 @@ public class StatusSource extends EngineEventsSource {
 		if( !state.setState( finalState ) )
 			return( false );
 		
-		super.notify( EngineEvents.EVENT_STATECHANGED , state );
+		super.notify( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STATECHANGED , state );
 		return( true );
 	}
 
@@ -121,19 +121,19 @@ public class StatusSource extends EngineEventsSource {
 		return( extraState.log );
 	}
 
-	public void customEvent( int eventType , Object data ) {
-		super.notify( eventType , data );
+	public void customEvent( int eventOwner , int eventType , Object data ) {
+		super.notify( eventOwner , eventType , data );
 	}
 
 	public void updateRunTime() {
 		runTime = new Date();
 		updating = true;
-		super.notify( EVENT_UPDATESTARTED , getStatusState() );
+		super.notify( EngineEvents.OWNER_ENGINESTATUS , EVENT_UPDATESTARTED , getStatusState() );
 	}
 
 	public void finishUpdate() {
 		updating = false;
-		super.notify( EVENT_UPDATEFINISHED , getStatusState() );
+		super.notify( EngineEvents.OWNER_ENGINESTATUS , EVENT_UPDATEFINISHED , getStatusState() );
 	}
 	
 }

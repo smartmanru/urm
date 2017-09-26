@@ -73,7 +73,7 @@ public class ActionMonitorTarget extends ActionBase {
 			EngineStatus status = super.getServerStatus();
 			StatusSource source = status.getObjectSource( sg );
 			if( source != null )
-				source.customEvent( EngineEvents.EVENT_MONITORGRAPHCHANGED , info );
+				source.customEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_MONITORGRAPHCHANGED , info );
 		}
 	}
 

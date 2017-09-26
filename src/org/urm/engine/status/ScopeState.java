@@ -86,7 +86,7 @@ public class ScopeState extends ObjectState {
 		ActionCore notifyParent = action;
 		notifyParent = notifyParent.parent;
 		while( notifyParent != null ) {
-			notifyParent.eventSource.finishScopeItem( EngineEvents.EVENT_FINISHCHILDSTATE , this );
+			notifyParent.eventSource.finishScopeItem( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_FINISHCHILDSTATE , this );
 			notifyParent = notifyParent.parent;
 		}
 	}

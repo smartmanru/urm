@@ -39,10 +39,10 @@ abstract public class EngineEventsSource {
 		}
 	}
 
-	protected void notify( int eventType , Object data ) {
+	protected void notify( int eventOwner , int eventType , Object data ) {
 		synchronized( events ) {
 			stateId++;
-			SourceEvent event = new SourceEvent( this , eventType , data , stateId );
+			SourceEvent event = new SourceEvent( this , eventOwner , eventType , data , stateId );
 			for( EngineEventsApp app : appMap.values() )
 				events.notifyApp( app , event );
 		}
@@ -52,10 +52,14 @@ abstract public class EngineEventsSource {
 		return( stateId );
 	}
 
-	public SourceEvent createCustomEvent( int eventType , Object object ) {
+	public void notifyCustomEvent( int eventOwner , int eventType , Object object ) {
+		notify( eventOwner , eventType , object );
+	}
+	
+	public SourceEvent createCustomEvent( int eventOwner , int eventType , Object object ) {
 		synchronized( events ) {
 			stateId++;
-			SourceEvent event = new SourceEvent( this , eventType , object , stateId );
+			SourceEvent event = new SourceEvent( this , eventOwner , eventType , object , stateId );
 			return( event );
 		}
 	}

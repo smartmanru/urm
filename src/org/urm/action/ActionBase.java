@@ -473,9 +473,9 @@ abstract public class ActionBase extends ActionCore {
 		return( account );
 	}
 
-	public void startExecutor( ScopeExecutor scopeExecutor , ScopeState stateFinal ) throws Exception {
+	public void startExecutor( ScopeExecutor scopeExecutor , ScopeState state ) throws Exception {
 		this.scopeExecutor = scopeExecutor;
-		eventSource.setRootState( stateFinal );
+		eventSource.setRootState( state );
 		engine.blotter.startAction( this );
 	}
 	
@@ -977,5 +977,5 @@ abstract public class ActionBase extends ActionCore {
 		
 		return( null );
 	}
-	
+
 }
