@@ -41,8 +41,6 @@ public class ScopeExecutor implements EngineEventsListener {
 	
 	ActionBase action;
 	boolean async;
-	int asyncMethod;
-	Object asyncData;
 	CommandContext context;
 
 	boolean runUniqueHosts = false;
@@ -60,23 +58,9 @@ public class ScopeExecutor implements EngineEventsListener {
 	VarCATEGORY[] asyncCategories;
 	EngineEventsSubscription asyncSub;
 	
-	public ScopeExecutor( ActionBase action ) {
-		this.action = action;
-		this.async = false;
-		this.asyncMethod = 0;
-		this.asyncData = null;
-		this.context = action.context;
-		this.eventsSource = action.eventSource;
-		runUniqueHosts = false;
-		runUniqueAccounts = false;
-		running = false;
-	}
-	
-	public ScopeExecutor( ActionBase action , boolean async , int asyncMethod , Object asyncData ) {
+	public ScopeExecutor( ActionBase action , boolean async ) {
 		this.action = action;
 		this.async = async;
-		this.asyncMethod = asyncMethod;
-		this.asyncData = asyncData;
 		this.context = action.context;
 		this.eventsSource = action.eventSource;
 		runUniqueHosts = false;
@@ -86,13 +70,8 @@ public class ScopeExecutor implements EngineEventsListener {
 
 	@Override
 	public void triggerEvent( EngineEventsSubscription sub , SourceEvent event ) {
-		if( event.eventType == EngineEvents.EVENT_RUNASYNC ) {
-			EngineEventsApp app = action.actionInit.getEventsApp();
-			app.unsubscribe( this );
-			asyncSub = null;
-			
+		if( event.eventType == EngineEvents.EVENT_RUNASYNC )
 			executeAsync();
-		}
 	}
 	
 	public void stopExecution() {
@@ -100,12 +79,10 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runAsync() {
+		EngineEvents events = action.engine.getEvents();
 		EngineEventsApp app = action.actionInit.getEventsApp();
-		asyncSub = app.subscribe( eventsSource , this , asyncMethod , asyncData );
-		if( asyncSub == null )
-			return( false );
-		
-		eventsSource.customEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_RUNASYNC , this );
+		SourceEvent event = eventsSource.createCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_RUNASYNC , this );
+		events.notifyListener( app , this , event );
 		return( true );
 	}
 	
