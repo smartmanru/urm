@@ -88,8 +88,6 @@ public class ActionCheckEnv extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
-		Common.sleep( 30000 );
-		
 		ActionScopeSet set = target.set;
 		EngineStatus status = super.getServerStatus();
 		status.updateRunTime( this , target.envServer );
