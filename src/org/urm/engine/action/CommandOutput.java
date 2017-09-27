@@ -13,12 +13,14 @@ import org.urm.common.RunError;
 public class CommandOutput {
 
 	class OutputFile {
+		String fname;
 		FileOutputStream outstream;
 		PrintWriter outfile;
 		int channelBase;
 		boolean stopped;
 		
 		public OutputFile( RunContext execrc , String fname , int channelBase ) throws Exception {
+			this.fname = fname;
 			this.outstream = new FileOutputStream( execrc.getLocalPath( fname ) );
 			this.outfile = new PrintWriter( outstream );
 			this.channelBase = channelBase;
@@ -197,7 +199,7 @@ public class CommandOutput {
 		log( context , channel , s , LOGLEVEL_TRACE );
 	}
 
-	private void outExact( CommandContext context , int channel , String s ) {
+	private synchronized void outExact( CommandContext context , int channel , String s ) {
 		if( logActionLevelLimit < 0 || logServerLevelLimit < 0 ) {
 			outExactStatic( "TRACEINTERNAL: line=" + s.replaceAll("\\p{C}", "?") );
 			return;

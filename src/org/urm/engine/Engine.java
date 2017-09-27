@@ -193,7 +193,7 @@ public class Engine {
 		if( options == null )
 			return( null );
 		
-		ActionInit action = createAction( RootActionType.InteractiveSession , options , session , "web" , null , false , "Interactive session id=" + session.sessionId + ", user=" + session.getLoginAuth().USER );
+		ActionInit action = createRootAction( RootActionType.InteractiveSession , options , session , "web" , null , false , "Interactive session id=" + session.sessionId + ", user=" + session.getLoginAuth().USER );
 		startAction( action );
 		
 		return( action );
@@ -204,7 +204,7 @@ public class Engine {
 		if( options == null )
 			return( null );
 		
-		ActionInit action = createAction( RootActionType.Temporary , options , session , name , null , true , "Temporary action, session=" + session.sessionId );
+		ActionInit action = createRootAction( RootActionType.Temporary , options , session , name , null , true , "Temporary action, session=" + session.sessionId );
 		startAction( action );
 		
 		return( action );
@@ -226,7 +226,7 @@ public class Engine {
 		serverSession.setServerLayout( options );
 		
 		// create server action
-		serverAction = createAction( RootActionType.Core , options , serverSession , "server" , null , false , "Server instance" );
+		serverAction = createRootAction( RootActionType.Core , options , serverSession , "server" , null , false , "Server instance" );
 		if( serverAction == null )
 			return( false );
 
@@ -247,7 +247,7 @@ public class Engine {
 		else
 			serverSession.setServerLayout( options );
 		
-		serverAction = createAction( RootActionType.Command , options , serverSession , "client" , null , false , "Run local command=" + commandInfo.name + "::" + options.method );
+		serverAction = createRootAction( RootActionType.Command , options , serverSession , "client" , null , false , "Run local command=" + commandInfo.name + "::" + options.method );
 		if( serverAction == null )
 			return( false );
 
@@ -308,7 +308,7 @@ public class Engine {
 		return( null );
 	}
 	
-	public ActionInit createAction( RootActionType type , CommandOptions options , EngineSession session , String stream , EngineCall call , boolean memoryOnly , String actionInfo ) throws Exception {
+	public ActionInit createRootAction( RootActionType type , CommandOptions options , EngineSession session , String stream , EngineCall call , boolean memoryOnly , String actionInfo ) throws Exception {
 		CommandExecutor actionExecutor = getExecutor( options.command );
 		CommandMethod commandAction = actionExecutor.getAction( options.method );
 		if( !options.checkValidOptions( commandAction.method ) )
@@ -319,28 +319,24 @@ public class Engine {
 		if( !context.setRunContext() )
 			return( null );
 
-		// create artefactory
-		Artefactory artefactory = createArtefactory( session , context , memoryOnly );
-		
 		// create action
-		ActionInit action = createRootAction( type , actionExecutor , session , artefactory , options.method , memoryOnly , actionInfo );
+		CommandOutput output = new CommandOutput();
+		
+		Artefactory artefactory = createArtefactory( session , context , memoryOnly );
+		ActionInit action = new ActionInit( session , artefactory , actionExecutor , output , actionInfo );
+		action.create( type , loader , commandAction , options.method , memoryOnly );
+		
 		action.setContext( context );
 		context.update( action );
-		actionExecutor.setActionContext( action , context );
+		
+		action.setLogLevel( context.logLevelLimit );
+		action.setTimeout( context.CTX_TIMEOUT );
 		
 		if( memoryOnly )
 			action.debug( "memory action created: actionId=" + action.ID + ", name=" + action.actionName );
 		else
-			action.debug( "normal action created: actionId=" + action.ID + ", name=" + action.actionName + ", workfolder=" + artefactory.workFolder.folderPath );
+			action.debug( "normal action created: actionId=" + action.ID + ", name=" + action.actionName + ", workfolder=" + action.artefactory.workFolder.folderPath );
 		
-		return( action );
-	}
-	
-	public ActionInit createRootAction( RootActionType type , CommandExecutor executor , EngineSession session , Artefactory artefactory , String actionName , boolean memoryOnly , String actionInfo ) throws Exception { 
-		CommandOutput output = new CommandOutput();
-		CommandMethod commandAction = executor.getAction( actionName );
-		ActionInit action = new ActionInit( session , artefactory , executor , output , actionInfo );
-		action.create( type , loader , commandAction , actionName , memoryOnly );
 		return( action );
 	}
 	

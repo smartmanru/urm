@@ -80,14 +80,6 @@ public abstract class CommandExecutor {
 		return( true );
 	}
 	
-	public void setActionContext( ActionInit action , CommandContext context ) throws Exception {
-		// load initial properties
-		action.setLogLevel( context.logLevelLimit );
-		
-		// create shell pool
-		action.setTimeout( context.CTX_TIMEOUT );
-	}
-	
 	public void checkRequired( ActionBase action , String value , String name ) throws Exception {
 		if( value == null || value.isEmpty() )
 			action.exit1( _Error.NameUndefined1 , name + " is undefined. Exiting" , name );
