@@ -28,6 +28,13 @@ import org.urm.meta.product.MetaEnvServer;
 
 public class DeployPlan extends EngineEventsSource implements EngineEventsListener {
 	
+	public static int METHOD_REDIST = 1;
+	public static int METHOD_DEPLOYDIST = 2;
+	
+	public static int EVENT_ITEMFINISHED = 1000;
+	public static int EVENT_REDISTFINISHED = 1001;
+	public static int EVENT_DEPLOYFINISHED = 1002;
+	
 	public List<DeployPlanSegment> listSg;
 	Map<String,DeployPlanSegment> mapSg;
 	
@@ -42,10 +49,6 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 	
 	EngineEventsApp eventsApp;
 
-	public static int EVENT_ITEMFINISHED = 1000;
-	public static int EVENT_REDISTFINISHED = 1001;
-	public static int EVENT_DEPLOYFINISHED = 1002;
-	
 	private DeployPlan( Dist dist , MetaEnv env , boolean redist , boolean deploy , EngineEvents events , String id ) {
 		super( events , id );
 		this.dist = dist;
@@ -92,10 +95,6 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 					addDatabaseApplyStatus( state.target.envServer , state.state );
 			}
 		}
-	}
-	
-	@Override
-	public void triggerSubscriptionRemoved( EngineEventsSubscription sub ) {
 	}
 	
 	public static DeployPlan create( ActionBase action , EngineEventsApp app , EngineEventsListener listener , Dist dist , MetaEnv env , boolean redist , boolean deploy ) {
@@ -178,7 +177,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 		}
 		
 		MetaEnvSegment sg = ( selectSg == null )? null : selectSg.sg;
-		error = action.runNotifyMethod( eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_REDIST , args , options );
+		error = action.runNotifyMethod( METHOD_REDIST , null , eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_REDIST , args , options );
 		boolean res = ( error != null )? false : true;
 		finishPlanRedist();
 		return( res );
@@ -202,7 +201,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 		}
 		
 		MetaEnvSegment sg = ( selectSg == null )? null : selectSg.sg;
-		error = action.runNotifyMethod( eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_DEPLOYREDIST , args , options );
+		error = action.runNotifyMethod( METHOD_DEPLOYDIST , null , eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_DEPLOYREDIST , args , options );
 		boolean res = ( error != null )? false : true;
 		finishPlanDeploy();
 		return( res );

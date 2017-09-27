@@ -19,28 +19,22 @@ abstract public class EngineEventsSource {
 		appMap = new HashMap<String,EngineEventsApp>(); 
 	}
 
-	void subscribe( EngineEventsApp app ) {
-		synchronized( events ) {
-			appMap.put( app.appId , app );
-		}			
+	synchronized void subscribe( EngineEventsApp app ) {
+		appMap.put( app.appId , app );
 	}
 
-	void unsubscribe( EngineEventsApp app ) {
-		synchronized( events ) {
-			appMap.remove( app.appId );
-		}
+	synchronized void unsubscribe( EngineEventsApp app ) {
+		appMap.remove( app.appId );
 	}
 
-	public void unsubscribeAll() {
-		synchronized( events ) {
-			for( EngineEventsApp app : appMap.values() )
-				app.triggerSourceRemoved( this );
-			appMap.clear();
-		}
+	public synchronized void unsubscribeAll() {
+		for( EngineEventsApp app : appMap.values() )
+			app.triggerSourceRemoved( this );
+		appMap.clear();
 	}
 
 	protected void notify( int eventOwner , int eventType , Object data ) {
-		synchronized( events ) {
+		synchronized( this ) {
 			stateId++;
 			SourceEvent event = new SourceEvent( this , eventOwner , eventType , data , stateId );
 			for( EngineEventsApp app : appMap.values() )
@@ -48,7 +42,7 @@ abstract public class EngineEventsSource {
 		}
 	}
 
-	public int getStateId() {
+	public synchronized int getStateId() {
 		return( stateId );
 	}
 
@@ -57,7 +51,7 @@ abstract public class EngineEventsSource {
 	}
 	
 	public SourceEvent createCustomEvent( int eventOwner , int eventType , Object object ) {
-		synchronized( events ) {
+		synchronized( this ) {
 			stateId++;
 			SourceEvent event = new SourceEvent( this , eventOwner , eventType , object , stateId );
 			return( event );

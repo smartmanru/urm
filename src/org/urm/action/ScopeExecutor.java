@@ -41,6 +41,8 @@ public class ScopeExecutor implements EngineEventsListener {
 	
 	ActionBase action;
 	boolean async;
+	int asyncMethod;
+	Object asyncData;
 	CommandContext context;
 
 	boolean runUniqueHosts = false;
@@ -58,9 +60,23 @@ public class ScopeExecutor implements EngineEventsListener {
 	VarCATEGORY[] asyncCategories;
 	EngineEventsSubscription asyncSub;
 	
-	public ScopeExecutor( ActionBase action , boolean async ) {
+	public ScopeExecutor( ActionBase action ) {
+		this.action = action;
+		this.async = false;
+		this.asyncMethod = 0;
+		this.asyncData = null;
+		this.context = action.context;
+		this.eventsSource = action.eventSource;
+		runUniqueHosts = false;
+		runUniqueAccounts = false;
+		running = false;
+	}
+	
+	public ScopeExecutor( ActionBase action , boolean async , int asyncMethod , Object asyncData ) {
 		this.action = action;
 		this.async = async;
+		this.asyncMethod = asyncMethod;
+		this.asyncData = asyncData;
 		this.context = action.context;
 		this.eventsSource = action.eventSource;
 		runUniqueHosts = false;
@@ -79,17 +95,13 @@ public class ScopeExecutor implements EngineEventsListener {
 		}
 	}
 	
-	@Override
-	public void triggerSubscriptionRemoved( EngineEventsSubscription sub ) {
-	}
-	
 	public void stopExecution() {
 		running = false;
 	}
 	
 	public boolean runAsync() {
 		EngineEventsApp app = action.actionInit.getEventsApp();
-		asyncSub = app.subscribe( eventsSource , this );
+		asyncSub = app.subscribe( eventsSource , this , asyncMethod , asyncData );
 		if( asyncSub == null )
 			return( false );
 		

@@ -3,6 +3,8 @@ package org.urm.engine.events;
 import java.util.LinkedList;
 import java.util.List;
 
+// sync order: source -> app -> listener,subscription
+
 public class EngineEventsApp {
 
 	EngineEvents events;
@@ -19,42 +21,81 @@ public class EngineEventsApp {
 		subs = new LinkedList<EngineEventsSubscription>();
 	}
 
-	public synchronized void close() {
-		closed = true;
-		for( EngineEventsSubscription sub : subs ) {
-			EngineEventsSource source = sub.source;
-			if( isPrimarySubscription( sub ) )
-				source.unsubscribe( this );
+	public void close() {
+		List<EngineEventsSource> sources = new LinkedList<EngineEventsSource>(); 
+		synchronized( this ) {
+			closed = true;
+			
+			for( EngineEventsSubscription sub : subs ) {
+				EngineEventsSource source = sub.source;
+				if( sources.indexOf( source ) < 0 )
+					sources.add( source );
+			}
+			
+			subs.clear();
 		}
 		
-		subs.clear();
+		for( EngineEventsSource source : sources )
+			source.unsubscribe( this );
 	}
 
-	public synchronized EngineEventsSubscription subscribe( EngineEventsSource source , EngineEventsListener listener ) {
-		source.subscribe( this );
-		EngineEventsSubscription sub = new EngineEventsSubscription( this , source , listener );
-		subs.add( sub );
+	public EngineEventsSubscription subscribe( EngineEventsSource source , EngineEventsListener listener ) {
+		return( subscribe( source , listener , 0 , null ) );
+	}
+	
+	public EngineEventsSubscription subscribe( EngineEventsSource source , EngineEventsListener listener , int customType , Object customData ) {
+		EngineEventsSubscription sub = null;
+		synchronized( source ) {
+			synchronized( this ) {
+				if( closed )
+					return( null );
+				
+				sub = new EngineEventsSubscription( this , source , listener , customType , customData );
+				subs.add( sub );
+			}
+			
+			source.subscribe( this );
+		}
 		return( sub );
 	}
 
-	public synchronized void unsubscribe( EngineEventsListener listener ) {
-		List<EngineEventsSubscription> removed = new LinkedList<EngineEventsSubscription>();
-		for( EngineEventsSubscription sub : subs ) {
-			if( sub.listener == listener )
-				removed.add( sub );
-		}
-				
-		subs.removeAll( removed );
-	}
-
-	public synchronized void unsubscribe( EngineEventsSubscription sub ) {
-		subs.remove( sub );
-		for( EngineEventsSubscription subCheck : subs ) {
-			if( subCheck.source == sub.source )
+	public void unsubscribe( EngineEventsListener listener ) {
+		List<EngineEventsSource> sources = new LinkedList<EngineEventsSource>(); 
+		synchronized( this ) {
+			if( closed )
 				return;
+			
+			for( int k = subs.size() - 1; k >= 0; k-- ) {
+				EngineEventsSubscription sub = subs.get( k );
+				if( sub.listener == listener ) {
+					subs.remove( k );
+					
+					if( sources.indexOf( sub.source ) < 0 ) {
+						if( !checkSubscribed( sub.source ) )
+							sources.add( sub.source );
+					}
+				}
+			}
 		}
 		
-		sub.source.unsubscribe( this );
+		for( EngineEventsSource source : sources ) {
+			synchronized( source ) {
+				synchronized( this ) {
+					if( !checkSubscribed( source ) )
+						source.unsubscribe( this );
+				}
+			}
+		}
+	}
+
+	public void unsubscribe( EngineEventsSubscription sub ) {
+		synchronized( sub.source ) {
+			synchronized( this ) {
+				subs.remove( sub );
+				if( !checkSubscribed( sub.source ) )
+					sub.source.unsubscribe( this );
+			}
+		}
 	}
 	
 	public synchronized void notifyEvent( SourceEvent event ) {
@@ -65,26 +106,19 @@ public class EngineEventsApp {
 	}
 
 	public synchronized void triggerSourceRemoved( EngineEventsSource source ) {
-		for( EngineEventsSubscription sub : subs ) {
+		for( int k = subs.size() - 1; k >= 0; k-- ) { 
+			EngineEventsSubscription sub = subs.get( k );
 			if( sub.source == source )
-				sub.triggerSubscriptionRemoved();
+				subs.remove( k );
 		}
 	}
 
-	private boolean isPrimarySubscription( EngineEventsSubscription subCheck ) {
-		EngineEventsSource source = subCheck.source;
-		boolean first = true;
+	private boolean checkSubscribed( EngineEventsSource source ) {
 		for( EngineEventsSubscription sub : subs ) {
-			if( sub.source != source )
-				continue;
-			if( sub == subCheck ) {
-				if( first )
-					return( true );
-				return( false );
-			}
-			first = false;
+			if( sub.source == sub.source )
+				return( true );
 		}
 		return( false );
 	}
-
+	
 }

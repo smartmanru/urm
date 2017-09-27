@@ -31,6 +31,13 @@ import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 
 public class BuildPlan extends EngineEventsSource implements EngineEventsListener {
+
+	public static int METHOD_BUILD = 1;
+	public static int METHOD_GETDISTCONF = 2;
+	public static int METHOD_GETDISTDB = 3;
+	
+	public static int EVENT_ITEMFINISHED = 1000;
+	public static int EVENT_PLANFINISHED = 1001;
 	
 	List<BuildPlanSet> listSets;
 	Map<String,BuildPlanSet> mapSets;
@@ -40,9 +47,6 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	
 	EngineEventsApp eventsApp;
 
-	public static int EVENT_ITEMFINISHED = 1000;
-	public static int EVENT_PLANFINISHED = 1001;
-	
 	private BuildPlan( Dist dist , EngineEvents events , String id ) {
 		super( events , id );
 		this.dist = dist;
@@ -91,10 +95,6 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 					addBuildStatus( state.target.sourceProject , state.state );
 			}
 		}
-	}
-	
-	@Override
-	public void triggerSubscriptionRemoved( EngineEventsSubscription sub ) {
 	}
 	
 	public static BuildPlan create( ActionBase action , EngineEventsApp app , EngineEventsListener listener , Dist dist ) {
@@ -264,7 +264,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 			}
 			
 			if( run ) {
-				error = action.runNotifyMethod( eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_BUILD , args , options );
+				error = action.runNotifyMethod( METHOD_BUILD , null , eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_BUILD , args , options );
 				if( error != null )
 					return( false );
 			}
@@ -299,7 +299,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 			}
 			
 			if( run ) {
-				error = action.runNotifyMethod( eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options );
+				error = action.runNotifyMethod( METHOD_GETDISTCONF , null , eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options );
 				if( error != null )
 					return( false );
 			}
@@ -344,7 +344,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 			}
 			
 			if( run ) {
-				error = action.runNotifyMethod( eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options );
+				error = action.runNotifyMethod( METHOD_GETDISTDB , null , eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options );
 				if( error != null )
 					return( false );
 			}

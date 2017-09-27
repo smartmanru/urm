@@ -5,25 +5,25 @@ public class EngineEventsSubscription {
 	public EngineEventsApp app;
 	public EngineEventsSource source;
 	public EngineEventsListener listener;
+	public int customType;
+	public Object customData;
 	
 	private NotifyEvent first; 
 	private NotifyEvent last;
 	private boolean executing;
 	
-	public EngineEventsSubscription( EngineEventsApp app , EngineEventsSource source , EngineEventsListener listener ) {
+	public EngineEventsSubscription( EngineEventsApp app , EngineEventsSource source , EngineEventsListener listener , int customType , Object customData ) {
 		this.app = app;
 		this.source = source;
 		this.listener = listener;
+		this.customType = customType;
+		this.customData = customData;
 	}
 
 	public void triggerEvent( NotifyEvent event ) {
 		listener.triggerEvent( this , event.eventData );
 	}
 
-	public void triggerSubscriptionRemoved() {
-		listener.triggerSubscriptionRemoved( this );
-	}
-	
 	public synchronized EngineEventsState getState() {
 		return( source.getState() );
 	}
