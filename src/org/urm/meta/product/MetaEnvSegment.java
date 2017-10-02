@@ -29,7 +29,7 @@ public class MetaEnvSegment extends PropertyController {
 	public String BASELINE;
 	public boolean OFFLINE;
 	public String DESC;
-	public String SG;
+	public String DC;
 	
 	public MetaEnvDeployment deploy;
 	public MetaEnvStartInfo startInfo;
@@ -72,7 +72,7 @@ public class MetaEnvSegment extends PropertyController {
 	public void scatterProperties( ActionBase action ) throws Exception {
 		NAME = super.getStringPropertyRequired( action , PROPERTY_NAME );
 		DESC = super.getStringProperty( action , PROPERTY_DESC );
-		SG = super.getStringProperty( action , PROPERTY_DC );
+		DC = super.getStringProperty( action , PROPERTY_DC );
 		action.trace( "load properties of sg=" + NAME );
 		
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );

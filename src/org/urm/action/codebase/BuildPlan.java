@@ -264,7 +264,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 			}
 			
 			if( run ) {
-				error = action.runNotifyMethod( METHOD_BUILD , null , eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_BUILD , args , options );
+				error = action.runNotifyMethod( METHOD_BUILD , null , eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_BUILD , args , options , false );
 				if( error != null )
 					return( false );
 			}
@@ -299,7 +299,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 			}
 			
 			if( run ) {
-				error = action.runNotifyMethod( METHOD_GETDISTCONF , null , eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options );
+				error = action.runNotifyMethod( METHOD_GETDISTCONF , null , eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options , false );
 				if( error != null )
 					return( false );
 			}
@@ -344,7 +344,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 			}
 			
 			if( run ) {
-				error = action.runNotifyMethod( METHOD_GETDISTDB , null , eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options );
+				error = action.runNotifyMethod( METHOD_GETDISTDB , null , eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options , false );
 				if( error != null )
 					return( false );
 			}

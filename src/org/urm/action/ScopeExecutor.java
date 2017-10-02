@@ -904,7 +904,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	private SCOPESTATE runSingleHostInternal( ActionScopeSet set , String host , int port , VarOSTYPE OSTYPE , ScopeState stateAccount ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
-			Account account = action.getSingleHostAccount( set.sg.SG , host , port , OSTYPE );
+			Account account = action.getSingleHostAccount( set.sg.DC , host , port , OSTYPE );
 			String serverNodes = set.sg.getServerNodesByHost( action , host );
 			action.info( account.getPrintName() + ": serverNodes={" + serverNodes + "}" );
 			

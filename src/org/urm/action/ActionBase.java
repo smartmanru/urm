@@ -23,6 +23,7 @@ import org.urm.engine.blotter.EngineBlotter;
 import org.urm.engine.blotter.EngineBlotterSet;
 import org.urm.engine.blotter.EngineBlotter.BlotterType;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.schedule.EngineScheduler;
@@ -117,7 +118,6 @@ abstract public class ActionBase extends ActionCore {
 		super( base.engine , base , actionInfo );
 		
 		this.actionInit = base.actionInit;
-		this.parent = base;
 		
 		this.session = base.session;
 		this.executor = base.executor;
@@ -460,7 +460,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public Account getNodeAccount( MetaEnvServerNode node ) throws Exception {
-		return( Account.getDatacenterAccount( this , node.server.sg.SG , node.HOSTLOGIN , node.server.osType ) );
+		return( Account.getDatacenterAccount( this , node.server.sg.DC , node.HOSTLOGIN , node.server.osType ) );
 	}
 	
 	public Account getSingleHostAccount( String datacenter , String host , int port , VarOSTYPE OSTYPE ) throws Exception {
@@ -742,15 +742,15 @@ abstract public class ActionBase extends ActionCore {
 		}
 		if( object instanceof MetaEnvSegment ) {
 			MetaEnvSegment xo = ( MetaEnvSegment )object; 
-			return( getProductCacheObject( xo.meta.name + "-" + xo.SG + "-" + xo.env.ID ) );
+			return( getProductCacheObject( xo.meta.name + "-" + xo.DC + "-" + xo.env.ID ) );
 		}
 		if( object instanceof MetaEnvServer ) {
 			MetaEnvServer xo = ( MetaEnvServer )object; 
-			return( getProductCacheObject( xo.meta.name + "-" + xo.sg.SG + "-" + xo.sg.env.ID + "-" + xo.NAME ) );
+			return( getProductCacheObject( xo.meta.name + "-" + xo.sg.DC + "-" + xo.sg.env.ID + "-" + xo.NAME ) );
 		}
 		if( object instanceof MetaEnvServerNode ) {
 			MetaEnvServerNode xo = ( MetaEnvServerNode )object; 
-			return( getProductCacheObject( xo.meta.name + "-" + xo.server.sg.SG + "-" + xo.server.sg.env.ID + "-" + xo.server.NAME + "-" + xo.POS ) );
+			return( getProductCacheObject( xo.meta.name + "-" + xo.server.sg.DC + "-" + xo.server.sg.env.ID + "-" + xo.server.NAME + "-" + xo.POS ) );
 		}
 		return( null );
 	}
@@ -950,7 +950,7 @@ abstract public class ActionBase extends ActionCore {
 		return( engine.blotter.getBlotterSet( type ) );
 	}
 	
-	public RunError runNotifyMethod( int subMethod , Object subData , EngineEventsApp app , EngineEventsListener listener , Meta meta , MetaEnv env , MetaEnvSegment sg , String command , String method , String[] args , CommandOptions options ) {
+	public RunError runNotifyMethod( int subMethod , Object subData , EngineEventsApp app , EngineEventsListener listener , Meta meta , MetaEnv env , MetaEnvSegment sg , String command , String method , String[] args , CommandOptions options , boolean async ) {
 		try {
 			CommandExecutor executor = engine.getExecutor( command );
 			options.setMethod( command , method );
@@ -961,8 +961,19 @@ abstract public class ActionBase extends ActionCore {
 			action.context.sg = sg;
 			
 			app.subscribe( action.eventSource , listener , subMethod , subData );
-			if( !action.runSimpleServerAsync( SecurityAction.ACTION_EXECUTE , true ) )
-				return( action.getError() );
+			if( async ) {
+				if( !action.runSimpleServerAsync( SecurityAction.ACTION_EXECUTE , true ) )
+					return( action.getError() );
+			}
+			else {
+				RunError error = null;
+				if( !action.runSimpleServer( SecurityAction.ACTION_EXECUTE , true ) )
+					error = action.getError();
+				
+				EngineEvents events = engine.getEvents();
+				events.waitDelivered( action.eventSource );
+				return( error );
+			}
 		}
 		catch( Throwable e ) {
 			log( "method " + super.NAME , e );

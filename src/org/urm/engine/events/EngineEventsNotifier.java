@@ -46,7 +46,7 @@ public class EngineEventsNotifier extends EngineEventsSource {
 		try {
 			synchronized( tasks ) {
 				if( queue.isEmpty() )
-					tasks.wait();
+					tasks.wait( 30000 );
 
 				if( !running )
 					return;
@@ -97,6 +97,32 @@ public class EngineEventsNotifier extends EngineEventsSource {
 				return;
 			
 			queue.add( event );
+			tasks.notify();
+		}
+	}
+
+	public void waitDelivered( EngineEventsSource source ) {
+		synchronized( tasks ) {
+			if( !running )
+				return;
+			
+			boolean found = false;
+			for( NotifyEvent event : queue ) {
+				if( event.eventData.source == source ) {
+					found = true;
+					break;
+				}
+			}
+			
+			if( !found )
+				return;
+			
+			try {
+				tasks.wait( 30000 );
+			}
+			catch( Throwable e ) {
+			}
+			
 			tasks.notify();
 		}
 	}

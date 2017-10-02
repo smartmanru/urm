@@ -85,5 +85,9 @@ public class EngineEvents extends EngineObject {
 	public void notifyEvent( NotifyEvent event ) {
 		notifier.addEvent( event );
 	}
+
+	public void waitDelivered( EngineEventsSource source ) {
+		notifier.waitDelivered( source );
+	}
 	
 }

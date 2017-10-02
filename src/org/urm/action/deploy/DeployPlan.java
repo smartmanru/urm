@@ -177,7 +177,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 		}
 		
 		MetaEnvSegment sg = ( selectSg == null )? null : selectSg.sg;
-		error = action.runNotifyMethod( METHOD_REDIST , null , eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_REDIST , args , options );
+		error = action.runNotifyMethod( METHOD_REDIST , null , eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_REDIST , args , options , false );
 		boolean res = ( error != null )? false : true;
 		finishPlanRedist();
 		return( res );
@@ -201,7 +201,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 		}
 		
 		MetaEnvSegment sg = ( selectSg == null )? null : selectSg.sg;
-		error = action.runNotifyMethod( METHOD_DEPLOYDIST , null , eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_DEPLOYREDIST , args , options );
+		error = action.runNotifyMethod( METHOD_DEPLOYDIST , null , eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_DEPLOYREDIST , args , options , false );
 		boolean res = ( error != null )? false : true;
 		finishPlanDeploy();
 		return( res );
