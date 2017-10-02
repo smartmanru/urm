@@ -321,6 +321,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 			}
 		}
 		super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_PLANFINISHED , null );
+		super.waitDelivered();
 	}
 	
 	private boolean executeDatabaseInternal( ActionBase action , CommandOptions options ) {

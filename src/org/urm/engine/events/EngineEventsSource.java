@@ -46,6 +46,10 @@ abstract public class EngineEventsSource {
 		return( stateId );
 	}
 
+	public void waitDelivered() {
+		events.waitDelivered( this );
+	}
+	
 	public void notifyCustomEvent( int eventOwner , int eventType , Object object ) {
 		notify( eventOwner , eventType , object );
 	}
