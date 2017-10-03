@@ -37,8 +37,12 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	public static int METHOD_GETDISTCONF = 2;
 	public static int METHOD_GETDISTDB = 3;
 	
-	public static int EVENT_ITEMFINISHED = 1000;
-	public static int EVENT_ITEMSTARTED = 1001;
+	public static int EVENT_ITEMTAGSTARTED = 1000;
+	public static int EVENT_ITEMTAGFINISHED = 1001;
+	public static int EVENT_ITEMBUILDSTARTED = 1002;
+	public static int EVENT_ITEMBUILDFINISHED = 1003;
+	public static int EVENT_ITEMGETSTARTED = 1004;
+	public static int EVENT_ITEMGETFINISHED = 1005;
 	public static int EVENT_PLANFINISHED = 1100;
 	
 	List<BuildPlanSet> listSets;
@@ -448,14 +452,15 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 			return;
 		
 		if( start ) {
-			item.setBuildStart();
-			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMSTARTED , item );
+			item.setTagStart();
+			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMTAGSTARTED , item );
 			return;
 		}
 		
 		if( state != SCOPESTATE.RunSuccess ) {
+			item.setTagDone( false );
 			item.setBuildDone( false );
-			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMFINISHED , item );
+			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMTAGFINISHED , item );
 		}
 	}
 	
@@ -466,13 +471,13 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 		
 		if( start ) {
 			item.setGetStart();
-			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMSTARTED , item );
+			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMGETSTARTED , item );
 			return;
 		}
 		
 		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
 		item.setGetDone( success );
-		super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMFINISHED , item );
+		super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMGETFINISHED , item );
 	}
 	
 	private void addGetConfStatus( MetaDistrConfItem confItem , boolean start , SCOPESTATE state ) {
@@ -481,13 +486,13 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 			return;
 		
 		if( start ) {
-			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMSTARTED , item );
+			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMGETSTARTED , item );
 			return;
 		}
 		
 		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
 		item.setGetDone( success );
-		super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMFINISHED , item );
+		super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMGETFINISHED , item );
 	}
 	
 	private void addGetDBNormalStatus( MetaDistrDelivery delivery , boolean start , SCOPESTATE state ) {
@@ -497,13 +502,13 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 		
 		if( start ) {
 			item.setGetStart();
-			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMSTARTED , item );
+			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMGETSTARTED , item );
 			return;
 		}
 		
 		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
 		item.setGetDone( success );
-		super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMFINISHED , item );
+		super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMGETFINISHED , item );
 	}
 	
 	private void addGetDBCumulativeStatus( boolean start , SCOPESTATE state ) {
@@ -513,12 +518,12 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 				if( item != null ) {
 					if( start ) {
 						item.setGetStart();
-						super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMSTARTED , item );
+						super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMGETSTARTED , item );
 					}
 					else {
 						boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
 						item.setGetDone( success );
-						super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMFINISHED , item );
+						super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMGETFINISHED , item );
 					}
 				}
 			}
@@ -532,13 +537,13 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 		
 		if( start ) {
 			item.setBuildStart();
-			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMSTARTED , item );
+			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMBUILDSTARTED , item );
 			return;
 		}
 		
 		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
 		item.setBuildDone( success );
-		super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMFINISHED , item );
+		super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMBUILDFINISHED , item );
 	}
 	
 }

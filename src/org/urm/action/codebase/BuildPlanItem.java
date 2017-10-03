@@ -11,10 +11,13 @@ public class BuildPlanItem {
 	public String dbVersion;
 	
 	public boolean execute;
+	public boolean startTag;
 	public boolean startBuild;
 	public boolean startGet;
+	public boolean doneTag;
 	public boolean doneBuild;
 	public boolean doneGet;
+	public boolean failedTag;
 	public boolean failedBuild;
 	public boolean failedGet;
 	public boolean executeBuild;
@@ -57,12 +60,21 @@ public class BuildPlanItem {
 		executeGet = ( canGet && execute )? true : false;
 	}
 
+	public void setTagStart() {
+		startTag = true;
+	}
+	
 	public void setBuildStart() {
 		startBuild = true;
 	}
 	
 	public void setGetStart() {
 		startGet = true;
+	}
+	
+	public void setTagDone( boolean success ) {
+		doneTag = true;
+		failedTag = ( success )? false : true;
 	}
 	
 	public void setBuildDone( boolean success ) {
