@@ -6,7 +6,7 @@ import java.util.Map;
 abstract public class EngineEventsSource {
 
 	EngineEvents events;
-	String sourceId;
+	public String sourceId;
 
 	private Map<String,EngineEventsApp> appMap;
 	private int stateId = 0;
