@@ -11,6 +11,8 @@ public class BuildPlanItem {
 	public String dbVersion;
 	
 	public boolean execute;
+	public boolean startBuild;
+	public boolean startGet;
 	public boolean doneBuild;
 	public boolean doneGet;
 	public boolean failedBuild;
@@ -30,6 +32,8 @@ public class BuildPlanItem {
 		executeBuild = false;
 		executeGet = false;
 		
+		startBuild = false;
+		startGet = false;
 		doneBuild = false;
 		doneGet = false;
 		failedBuild = false;
@@ -53,6 +57,14 @@ public class BuildPlanItem {
 		executeGet = ( canGet && execute )? true : false;
 	}
 
+	public void setBuildStart() {
+		startBuild = true;
+	}
+	
+	public void setGetStart() {
+		startGet = true;
+	}
+	
 	public void setBuildDone( boolean success ) {
 		doneBuild = true;
 		failedBuild = ( success )? false : true;

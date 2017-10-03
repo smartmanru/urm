@@ -69,6 +69,15 @@ public class ScopeState extends ObjectState {
 	private void create( ActionCore action ) {
 		this.action = action;
 		this.state = SCOPESTATE.New;
+		
+		action.eventSource.startScopeItem( this );
+		
+		ActionCore notifyParent = action;
+		notifyParent = notifyParent.parent;
+		while( notifyParent != null ) {
+			notifyParent.eventSource.startScopeItem( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STARTCHILDSTATE , this );
+			notifyParent = notifyParent.parent;
+		}
 	}
 	
 	public void setActionStatus( boolean status ) {

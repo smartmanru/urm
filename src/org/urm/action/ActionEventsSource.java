@@ -28,7 +28,15 @@ public class ActionEventsSource extends EngineEventsSource {
 		super.notify( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_FINISHSTATE , state );
 	}
 	
+	public void startScopeItem( ScopeState state ) {
+		super.notify( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STARTSTATE , state );
+	}
+	
 	public void finishScopeItem( int eventOwner , int eventType , ScopeState state ) {
+		super.notify( eventOwner , eventType , state );
+	}
+
+	public void startScopeItem( int eventOwner , int eventType , ScopeState state ) {
 		super.notify( eventOwner , eventType , state );
 	}
 	

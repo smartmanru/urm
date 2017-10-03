@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ActionCore;
 import org.urm.action.conf.ActionGetConf;
 import org.urm.action.database.ActionGetDB;
 import org.urm.action.release.ActionGetCumulative;
@@ -37,13 +38,16 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	public static int METHOD_GETDISTDB = 3;
 	
 	public static int EVENT_ITEMFINISHED = 1000;
-	public static int EVENT_PLANFINISHED = 1001;
+	public static int EVENT_ITEMSTARTED = 1001;
+	public static int EVENT_PLANFINISHED = 1100;
 	
 	List<BuildPlanSet> listSets;
 	Map<String,BuildPlanSet> mapSets;
 	public Dist dist;
 	public BuildPlanSet selectSet;
 	public RunError error;
+	private volatile ActionCore actionCurrent;
+	private boolean stopping;
 	
 	EngineEventsApp eventsApp;
 
@@ -54,6 +58,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 		listSets = new LinkedList<BuildPlanSet>();
 		mapSets = new HashMap<String,BuildPlanSet>();
 		eventsApp = events.createApp( id );
+		stopping = false;
 	}
 	
 	@Override
@@ -63,36 +68,54 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	
 	@Override
 	public void triggerEvent( EngineEventsSubscription sub , SourceEvent event ) {
-		if( event.eventType == EngineEvents.EVENT_FINISHCHILDSTATE ) {
+		if( event.eventType == EngineEvents.EVENT_STARTSTATE ) {
 			ScopeState state = ( ScopeState )event.data;
+			boolean stop = false;
+			
+			synchronized( this ) {
+				if( stopping )
+					stop = true;
+				else
+					actionCurrent = state.action;
+			}
+			
+			if( stop )
+				state.action.cancelRun();
+		}
+	
+		if( event.eventType == EngineEvents.EVENT_FINISHCHILDSTATE ||
+			event.eventType == EngineEvents.EVENT_STARTCHILDSTATE ) {
+			ScopeState state = ( ScopeState )event.data;
+			boolean start = ( event.eventType == EngineEvents.EVENT_STARTCHILDSTATE )? true : false;
+			
 			if( state.action instanceof ActionSetTagOnBuildBranch ) {
 				if( state.type == STATETYPE.TypeTarget )
-					addSetTagStatus( state.target.sourceProject , state.state );
+					addSetTagStatus( state.target.sourceProject , start , state.state );
 			}
 			else
 			if( state.action instanceof ActionGetBinary ) {
 				if( state.type == STATETYPE.TypeTarget )
-					addGetBinaryStatus( state.target.sourceProject , state.state );
+					addGetBinaryStatus( state.target.sourceProject , start , state.state );
 			}
 			else
 			if( state.action instanceof ActionGetDB ) {
 				if( state.type == STATETYPE.TypeTarget )
-					addGetDBNormalStatus( state.target.dbDelivery , state.state );
+					addGetDBNormalStatus( state.target.dbDelivery , start , state.state );
 			}
 			else
 			if( state.action instanceof ActionGetConf ) {
 				if( state.type == STATETYPE.TypeTarget )
-					addGetConfStatus( state.target.confItem , state.state );
+					addGetConfStatus( state.target.confItem , start , state.state );
 			}
 			else
 			if( state.action instanceof ActionGetCumulative ) {
 				if( state.type == STATETYPE.TypeScope )
-					addGetDBCumulativeStatus( state.state );
+					addGetDBCumulativeStatus( start , state.state );
 			}
 			else
 			if( state.action instanceof ActionBuild ) {
 				if( state.type == STATETYPE.TypeTarget )
-					addBuildStatus( state.target.sourceProject , state.state );
+					addBuildStatus( state.target.sourceProject , start , state.state );
 			}
 		}
 	}
@@ -131,6 +154,20 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 		}
 	}
 
+	public void cancelRun() {
+		synchronized( this ) {
+			if( stopping )
+				return;
+			
+			stopping = true;
+		}
+		
+		if( actionCurrent != null ) {
+			actionCurrent.cancelRun();
+			actionCurrent = null;
+		}
+	}
+	
 	public void clearRun() {
 		error = null;
 		for( BuildPlanSet set : listSets )
@@ -405,10 +442,16 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 		return( null );
 	}
 	
-	private void addSetTagStatus( MetaSourceProject sourceProject , SCOPESTATE state ) {
+	private void addSetTagStatus( MetaSourceProject sourceProject , boolean start , SCOPESTATE state ) {
 		BuildPlanItem item = getItem( sourceProject );
 		if( item == null )
 			return;
+		
+		if( start ) {
+			item.setBuildStart();
+			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMSTARTED , item );
+			return;
+		}
 		
 		if( state != SCOPESTATE.RunSuccess ) {
 			item.setBuildDone( false );
@@ -416,53 +459,82 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 		}
 	}
 	
-	private void addGetBinaryStatus( MetaSourceProject sourceProject , SCOPESTATE state ) {
+	private void addGetBinaryStatus( MetaSourceProject sourceProject , boolean start , SCOPESTATE state ) {
 		BuildPlanItem item = getItem( sourceProject );
 		if( item == null )
 			return;
 		
+		if( start ) {
+			item.setGetStart();
+			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMSTARTED , item );
+			return;
+		}
+		
 		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
 		item.setGetDone( success );
 		super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMFINISHED , item );
 	}
 	
-	private void addGetConfStatus( MetaDistrConfItem confItem , SCOPESTATE state ) {
+	private void addGetConfStatus( MetaDistrConfItem confItem , boolean start , SCOPESTATE state ) {
 		BuildPlanItem item = getItem( confItem );
 		if( item == null )
 			return;
 		
-		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
-		item.setGetDone( success );
-		super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMFINISHED , item );
-	}
-	
-	private void addGetDBNormalStatus( MetaDistrDelivery delivery , SCOPESTATE state ) {
-		BuildPlanItem item = getItem( delivery , dist.release.RELEASEVER );
-		if( item == null )
+		if( start ) {
+			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMSTARTED , item );
 			return;
+		}
 		
 		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
 		item.setGetDone( success );
 		super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMFINISHED , item );
 	}
 	
-	private void addGetDBCumulativeStatus( SCOPESTATE state ) {
+	private void addGetDBNormalStatus( MetaDistrDelivery delivery , boolean start , SCOPESTATE state ) {
+		BuildPlanItem item = getItem( delivery , dist.release.RELEASEVER );
+		if( item == null )
+			return;
+		
+		if( start ) {
+			item.setGetStart();
+			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMSTARTED , item );
+			return;
+		}
+		
+		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
+		item.setGetDone( success );
+		super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMFINISHED , item );
+	}
+	
+	private void addGetDBCumulativeStatus( boolean start , SCOPESTATE state ) {
 		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
 			for( String version : dist.release.getCumulativeVersions() ) {
 				BuildPlanItem item = getItem( delivery.distDelivery , version );
 				if( item != null ) {
-					boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
-					item.setGetDone( success );
-					super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMFINISHED , item );
+					if( start ) {
+						item.setGetStart();
+						super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMSTARTED , item );
+					}
+					else {
+						boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
+						item.setGetDone( success );
+						super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMFINISHED , item );
+					}
 				}
 			}
 		}
 	}
 	
-	private void addBuildStatus( MetaSourceProject sourceProject , SCOPESTATE state ) {
+	private void addBuildStatus( MetaSourceProject sourceProject , boolean start , SCOPESTATE state ) {
 		BuildPlanItem item = getItem( sourceProject );
 		if( item == null )
 			return;
+		
+		if( start ) {
+			item.setBuildStart();
+			super.notify( EngineEvents.OWNER_ENGINEBUILDPLAN , EVENT_ITEMSTARTED , item );
+			return;
+		}
 		
 		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
 		item.setBuildDone( success );

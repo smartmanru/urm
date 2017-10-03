@@ -144,6 +144,7 @@ abstract public class ActionBase extends ActionCore {
 		fail( error );
 	}
 
+	@Override
 	public void stopExecution() {
 		if( scopeExecutor != null )
 			scopeExecutor.stopExecution();
@@ -961,26 +962,23 @@ abstract public class ActionBase extends ActionCore {
 			action.context.sg = sg;
 			
 			app.subscribe( action.eventSource , listener , subMethod , subData );
-			if( async ) {
-				if( !action.runSimpleServerAsync( SecurityAction.ACTION_EXECUTE , true ) )
-					return( action.getError() );
-			}
+			if( async )
+				action.runSimpleServerAsync( SecurityAction.ACTION_EXECUTE , true );
 			else {
-				RunError error = null;
-				if( !action.runSimpleServer( SecurityAction.ACTION_EXECUTE , true ) )
-					error = action.getError();
-				
+				action.runSimpleServer( SecurityAction.ACTION_EXECUTE , true );
 				EngineEvents events = engine.getEvents();
 				events.waitDelivered( action.eventSource );
-				return( error );
 			}
+			
+			if( action.isOK() )
+				return( null );
+			
+			return( action.getError() );
 		}
 		catch( Throwable e ) {
 			log( "method " + super.NAME , e );
-			return( new RunError( e , _Error.InternalError0 , "Internal Error" , new String[0] ) );
+			return( new RunError( _Error.InternalError0 , "Internal action error" , new String[0] ) );
 		}
-		
-		return( null );
 	}
 
 }

@@ -1,5 +1,8 @@
 package org.urm.action;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.RunContext;
@@ -8,7 +11,7 @@ import org.urm.engine.blotter.EngineBlotterActionItem;
 import org.urm.engine.blotter.EngineBlotterTreeItem;
 import org.urm.meta.Types.*;
 
-public class ActionCore {
+abstract public class ActionCore {
 
 	public ActionCore parent;
 	public Engine engine;
@@ -28,6 +31,11 @@ public class ActionCore {
 	private RunError progressError;
 	
 	public ActionEventsSource eventSource;
+
+	abstract public void stopExecution();
+	
+	private List<ActionCore> childsRunning;
+	private boolean stopping;
 	
 	protected ActionCore( Engine engine , ActionCore parent , String INFO ) {
 		this.engine = engine;
@@ -44,6 +52,8 @@ public class ActionCore {
 		progressCurrent = 0;
 		
 		eventSource = new ActionEventsSource( this );
+		childsRunning = new LinkedList<ActionCore>();
+		stopping = false;
 	}
 
 	public void setBlotterItem( EngineBlotterActionItem blotterItem , EngineBlotterTreeItem blotterTreeItem ) {
@@ -197,6 +207,34 @@ public class ActionCore {
 	public void exitUnexpectedState() throws Exception {
 		exit( _Error.InternalError0 , "unexpected state" , null );
 	}
+
+	public synchronized boolean startChild( ActionCore child ) {
+		if( stopping )
+			return( false );
+		
+		childsRunning.add( child );
+		return( true );
+	}
+	
+	public synchronized void stopChild( ActionCore child ) {
+		childsRunning.remove( child );
+	}
+	
+	public void cancelRun() {
+		ActionCore[] running = null;
+		synchronized( this ) {
+			if( stopping )
+				return;
+			
+			stopping = true;
+			running = childsRunning.toArray( new ActionCore[0] );
+		}
+		
+		stopExecution();
+		for( ActionCore action : running )
+			action.cancelRun();
+	}
+	
 
 }
 

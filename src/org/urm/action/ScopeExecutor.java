@@ -341,7 +341,8 @@ public class ScopeExecutor implements EngineEventsListener {
 	// implementation
 	private boolean runSimple() {
 		ActionScope scope = new ActionScope( action );
-		startExecutor( scope );
+		if( !startExecutor( scope ) )
+			return( false );
 
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
@@ -375,23 +376,27 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	private boolean runScope( ActionScope scope ) {
-		startExecutor( scope );
+		if( !startExecutor( scope ) )
+			return( false );
+		
 		SCOPESTATE ss = runAllInternal( scope );
 		return( finishExecutor( ss ) );
 	}
 	
 	private boolean runScopeSet( ActionScopeSet set ) {
-		startExecutor( set.scope );
+		if( !startExecutor( set.scope ) )
+			return( false );
+		
 		ScopeState stateSet = new ScopeState( stateFinal , set );
-		
 		SCOPESTATE res = runTargetSetInternal( set , stateSet );
-		
 		stateSet.setActionStatus( res );
 		return( finishExecutor( res ) );
 	}
 
 	private boolean runScopeTarget( ActionScopeTarget item ) {
-		startExecutor( item.set.scope );
+		if( !startExecutor( item.set.scope ) )
+			return( false );
+			
 		ScopeState stateSet = new ScopeState( stateFinal , item.set );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
@@ -428,9 +433,10 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	private boolean runScopeSetTargets( ActionScopeSet set , ActionScopeTarget[] targets ) {
-		startExecutor( set.scope );
-		ScopeState stateSet = new ScopeState( stateFinal , set );
+		if( !startExecutor( set.scope ) )
+			return( false );
 		
+		ScopeState stateSet = new ScopeState( stateFinal , set );
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			action.runBefore();
@@ -469,7 +475,8 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 
 	private boolean runCategories( ActionScope scope , VarCATEGORY[] categories ) {
-		startExecutor( scope );
+		if( !startExecutor( scope ) )
+			return( false );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
@@ -503,7 +510,8 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	private boolean runUniqueHosts( ActionScope scope ) {
-		startExecutor( scope );
+		if( !startExecutor( scope ) )
+			return( false );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
 		VarCATEGORY[] categories = new VarCATEGORY[] { VarCATEGORY.ENV };
@@ -540,7 +548,8 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	private boolean runUniqueAccounts( ActionScope scope ) {
-		startExecutor( scope );
+		if( !startExecutor( scope ) )
+			return( false );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
 		VarCATEGORY[] categories = new VarCATEGORY[] { VarCATEGORY.ENV };
@@ -1074,20 +1083,31 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( ssAction );
 	}
 
-	private void startExecutor( ActionScope scope ) {
-		running = true;
+	private boolean startExecutor( ActionScope scope ) {
 		try {
+			if( action.parent != null ) {
+				if( !action.parent.startChild( action ) )
+					return( false );
+			}
+				
+			running = true;
 			action.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STARTACTION , action );
 			stateFinal = new ScopeState( action , scope );
 			action.startExecutor( this , stateFinal );
+			return( true );
 		}
 		catch( Throwable e ) {
 			action.engine.log( "start action" , e );
 		}
+		
+		return( false );
 	}
 	
 	private boolean finishExecutor( SCOPESTATE ss ) {
 		try {
+			if( action.parent != null )
+				action.parent.stopChild( action );
+				
 			action.engine.shellPool.releaseActionPool( action );
 			stateFinal.setActionStatus( ss );
 	

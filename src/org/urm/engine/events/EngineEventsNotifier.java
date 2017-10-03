@@ -55,6 +55,7 @@ public class EngineEventsNotifier extends EngineEventsSource {
 					return;
 				
 				event = queue.remove( 0 );
+				tasks.notifyAll();
 			}
 		}
 		catch( Throwable e ) {

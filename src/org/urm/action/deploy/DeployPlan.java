@@ -103,6 +103,9 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 		app.subscribe( plan , listener );
 		return( plan );
 	}
+
+	public void cancelRun() {
+	}
 	
 	public void clearRun() {
 		error = null;
