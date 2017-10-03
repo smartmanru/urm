@@ -62,9 +62,9 @@ public class Product extends EngineObject {
 	}
 	
 	public boolean isOffline() {
-		if( system.isOffline() )
-			return( true );
-		return( OFFLINE );
+		if( OFFLINE )
+			return( false );
+		return( system.isOffline() );
 	}
 
 	public boolean isBroken( ActionBase action ) {

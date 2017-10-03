@@ -77,7 +77,7 @@ public class ActionBuild extends ActionBase {
 
 		BUILDDIR.ensureExists( this );
 		
-		super.startRedirect( "PROJECT BUILD LOG:" , logFile );
+		action.startRedirect( "PROJECT BUILD LOG:" , logFile );
 		info( "build: BUILDER=" + builder.builder.NAME + ", BUILDMODE=" + context.getBuildModeName() + ", PROJECT=" + builder.project.NAME + 
 				", REPOSITORY=" + builder.project.REPOSITORY + ", VCS=" + builder.project.getVCS( this ) + ", VCSPATH=" + builder.project.REPOPATH + 
 				", TAG=" + builder.TAG + ", VERSION=" + builder.APPVERSION );
@@ -89,7 +89,6 @@ public class ActionBuild extends ActionBase {
 			res = false;
 			super.fail1( _Error.ProjectBuildError1 , "Errors while building project=" + project.NAME , project.NAME );
 		}
-		super.stopRedirect();
 		
 		// check status
 		info( "ActionBuild: build finished for CATEGORY=" + Common.getEnumLower( target.CATEGORY ) + ", TAG=" + TAG + ", VERSION=" + version + ", BUILDSTATUS=" + BUILDSTATUS );
