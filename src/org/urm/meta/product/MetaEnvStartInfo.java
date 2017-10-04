@@ -85,5 +85,16 @@ public class MetaEnvStartInfo {
 		}
 		return( null );
 	}
+
+	public String[] getMissingServerNames() {
+		List<String> missing = new LinkedList<String>();
+		for( String serverName : sg.getServerNames() ) {
+			MetaEnvServer server = sg.findServer( serverName );
+			if( server.startGroup == null )
+				missing.add( serverName );
+		}
+		
+		return( missing.toArray( new String[0] ) );
+	}
 	
 }
