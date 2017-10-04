@@ -81,6 +81,9 @@ public class ActionBaseInstall extends ActionBase {
 		if( !startUpdate( info , runtime , vis ) )
 			return;
 			
+		if( info.isPackage() )
+			executeNodeLinuxPackage( server , node , info , redist , runtime );
+		else
 		if( info.isArchiveLink() )
 			executeNodeLinuxArchiveLink( server , node , info , redist , runtime );
 		else
@@ -102,6 +105,10 @@ public class ActionBaseInstall extends ActionBase {
 		}
 		
 		finishUpdate( info , redist , vis );
+	}
+
+	private void executeNodeLinuxPackage( MetaEnvServer server , MetaEnvServerNode node , EngineBaseItemData info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+		super.exitNotImplemented();
 	}
 	
 	private void executeNodeLinuxArchiveLink( MetaEnvServer server , MetaEnvServerNode node , EngineBaseItemData info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {

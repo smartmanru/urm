@@ -237,6 +237,7 @@ public class Types {
 	
 	public enum VarBASESRCTYPE {
 		UNKNOWN ,
+		PACKAGE ,
 		ARCHIVE_LINK ,
 		ARCHIVE_DIRECT ,
 		NODIST ,

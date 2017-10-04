@@ -13,6 +13,7 @@ import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.engine.EngineAuthResource;
 import org.urm.meta.engine.EngineBaseGroup;
 import org.urm.meta.engine.EngineBaseItem;
+import org.urm.meta.engine.EngineBaseItemData;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.EngineMirrorRepository;
@@ -456,6 +457,10 @@ public class EngineTransaction extends TransactionBase {
 		action.saveBase( this );
 	}
 
+	public void saveBaseItemData( EngineBaseItem item , EngineBaseItemData data ) throws Exception {
+		checkTransactionBase();
+	}
+	
 	public void disableMonitoring() throws Exception {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();

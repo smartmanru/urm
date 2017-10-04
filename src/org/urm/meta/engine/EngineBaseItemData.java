@@ -12,6 +12,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.BaseRepository;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.product.MetaEnvServerNode;
@@ -227,6 +228,12 @@ public class EngineBaseItemData extends PropertyController {
 		return( false );
 	}
 	
+	public boolean isPackage() {
+		if( type == VarBASESRCTYPE.PACKAGE )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isArchiveDirect() {
 		if( type == VarBASESRCTYPE.ARCHIVE_DIRECT )
 			return( true );
@@ -243,6 +250,21 @@ public class EngineBaseItemData extends PropertyController {
 	public void save( Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "name" , NAME );
 		Common.xmlSetElementAttr( doc , root , "version" , VERSION );
+	}
+
+	public void setOptions( EngineTransaction transaction , String name , String version , VarOSTYPE ostype , VarSERVERACCESSTYPE accessType , VarBASESRCTYPE srcType , VarBASESRCFORMAT srcFormat , String SRCFILE , String SRCSTOREDIR , String INSTALLPATH , String INSTALLLINK ) {
+		this.NAME = name;
+		this.VERSION = version;
+		
+		this.osType = ostype;
+		this.serverAccessType = accessType;
+		this.type = srcType;
+		this.srcFormat = srcFormat;
+		
+		this.SRCFILE = SRCFILE;
+		this.SRCSTOREDIR = SRCSTOREDIR;
+		this.INSTALLPATH = INSTALLPATH;
+		this.INSTALLLINK = INSTALLLINK;
 	}
 	
 }
