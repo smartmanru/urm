@@ -53,6 +53,7 @@ public class ActionEnvScopeMaker {
 				addScopeEnv( sg , dist );
 			else
 				addEnvServersScope( sg , null , dist );
+			return;
 		}
 			
 		if( sg == null )
