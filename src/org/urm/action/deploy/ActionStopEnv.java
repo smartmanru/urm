@@ -36,6 +36,17 @@ public class ActionStopEnv extends ActionBase {
 				ifexit( _Error.FailedGroupOperation0 , "failed group operation" , null );
 		}
 		
+		// if specific run handle servers not covered by start groups 
+		if( !set.setFull ) {
+			for( ActionScopeTarget target : targets ) {
+				if( target.envServer.startGroup == null ) {
+					ActionStopServer stopOne = new ActionStopServer( this , target.NAME , target );
+					if( !stopOne.runSimpleEnv( target.envServer.sg.env , SecurityAction.ACTION_DEPLOY , false ) )
+						ifexit( _Error.StopenvFailed0 , "unable to stop server" , null );
+				}
+			}
+		}
+		
 		return( SCOPESTATE.RunSuccess );
 	}
 

@@ -36,6 +36,17 @@ public class ActionStartEnv extends ActionBase {
 				ifexit( _Error.FailedGroupOperation0 , "failed group operation" , null );
 		}
 		
+		// if specific run handle servers not covered by start groups 
+		if( !set.setFull ) {
+			for( ActionScopeTarget target : targets ) {
+				if( target.envServer.startGroup == null ) {
+					ActionStartServer startOne = new ActionStartServer( this , target.NAME , target );
+					if( !startOne.runSimpleEnv( target.envServer.sg.env , SecurityAction.ACTION_DEPLOY , false ) )
+						ifexit( _Error.StartenvFailed0 , "unable to start server" , null );
+				}
+			}
+		}
+		
 		return( SCOPESTATE.RunSuccess );
 	}
 

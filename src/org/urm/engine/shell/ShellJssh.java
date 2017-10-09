@@ -69,7 +69,10 @@ public class ShellJssh {
 		action.debug( "connecting to account=" + hostLogin + " ..." );
 		this.account = account;
 		
-		jsession = jsch.getSession( account.USER , account.HOST , account.PORT );
+		String ADDRESS = account.IP;
+		if( ADDRESS.isEmpty() )
+			ADDRESS = account.HOST;
+		jsession = jsch.getSession( account.USER , ADDRESS , account.PORT );
 		
 		String keyFile = action.context.CTX_KEYNAME;
 		if( keyFile.isEmpty() ) {

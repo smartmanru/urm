@@ -110,6 +110,7 @@ public class Account {
 				action.exit2( _Error.MismatchedOsType2 , "Mismatched OS type: " + p1 + " != " + p2 , p1 , p2 );
 			}
 			
+			account.IP = hostAccount.host.IP;
 			account.AUTHRESOURCE = hostAccount.AUTHRES;
 		}
 		
