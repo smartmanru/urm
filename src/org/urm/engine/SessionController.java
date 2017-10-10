@@ -132,7 +132,7 @@ public class SessionController {
 		// execute
 		try {
 			engine.startAction( clientAction );
-			executor.runExecutor( clientAction , clientAction.commandAction );
+			executor.runExecutor( null , clientAction , clientAction.commandAction );
 		}
 		catch( Throwable e ) {
 			clientAction.handle( e );

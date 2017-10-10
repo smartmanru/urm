@@ -262,7 +262,7 @@ public class Engine {
 	private boolean runServerAction() throws Exception {
 		// execute
 		try {
-			serverExecutor.runExecutor( serverAction , serverAction.commandAction );
+			serverExecutor.runExecutor( null , serverAction , serverAction.commandAction );
 		}
 		catch( Throwable e ) {
 			serverAction.handle( e );

@@ -6,6 +6,7 @@ import org.urm.common.action.CommandMeta;
 import org.urm.common.meta.MonitorCommandMeta;
 import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
+import org.urm.engine.status.ScopeState;
 import org.urm.engine.action.CommandExecutor;
 
 public class MonitorCommandExecutor extends CommandExecutor {
@@ -23,8 +24,8 @@ public class MonitorCommandExecutor extends CommandExecutor {
 	}
 	
 	@Override
-	public boolean runExecutorImpl( ActionBase action , CommandMethod method ) {
-		boolean res = super.runMethod( action , method );
+	public boolean runExecutorImpl( ScopeState parentState , ActionBase action , CommandMethod method ) {
+		boolean res = super.runMethod( parentState , action , method );
 		return( res );
 	}
 

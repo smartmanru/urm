@@ -1094,7 +1094,7 @@ public class ScopeExecutor implements EngineEventsListener {
 				
 			running = true;
 			action.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STARTACTION , action );
-			stateFinal = new ScopeState( action , scope );
+			stateFinal = new ScopeState( parentState , action , scope );
 			action.startExecutor( this , stateFinal );
 			return( true );
 		}

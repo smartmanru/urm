@@ -6,6 +6,7 @@ import org.urm.common.action.CommandMeta;
 import org.urm.common.meta.XDocCommandMeta;
 import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
+import org.urm.engine.status.ScopeState;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.meta.product.Meta;
 
@@ -27,13 +28,13 @@ public class XDocCommandExecutor extends CommandExecutor {
 	}	
 
 	@Override
-	public boolean runExecutorImpl( ActionBase action , CommandMethod method ) {
-		boolean res = super.runMethod( action , method );
+	public boolean runExecutorImpl( ScopeState parentState , ActionBase action , CommandMethod method ) {
+		boolean res = super.runMethod( parentState , action , method );
 		return( res );
 	}
 
 	private class DesignDoc extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String CMD = getRequiredArg( action , 0 , "CMD" );
 		String OUTDIR = getRequiredArg( action , 1 , "OUTDIR" );
 		checkNoArgs( action , 2 );

@@ -11,6 +11,7 @@ import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.status.ScopeState;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.Types.*;
@@ -56,36 +57,36 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}	
 
 	@Override
-	public boolean runExecutorImpl( ActionBase action , CommandMethod method ) {
-		boolean res = super.runMethod( action , method );
+	public boolean runExecutorImpl( ScopeState parentState , ActionBase action , CommandMethod method ) {
+		boolean res = super.runMethod( parentState , action , method );
 		return( res );
 	}
 
 	private class CreateRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Date releaseDate = getDateArg( action , 1 );
 		ReleaseLifecycle lc = getLifecycleArg( action , 2 );
 		checkNoArgs( action , 3 );
 		Meta meta = action.getContextMeta();
-		impl.createRelease( action , meta , RELEASELABEL , releaseDate , lc );
+		impl.createRelease( parentState , action , meta , RELEASELABEL , releaseDate , lc );
 	}
 	}
 
 	private class ModifyRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Date releaseDate = getDateArg( action , 1 );
 		ReleaseLifecycle lc = getLifecycleArg( action , 2 );
 		checkNoArgs( action , 3 );
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
-		impl.modifyRelease( action , dist , releaseDate , lc );
+		impl.modifyRelease( parentState , action , dist , releaseDate , lc );
 	}
 	}
 
 	private class PhaseRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String CMD = getRequiredArg( action , 1 , "CMD" );
 		
@@ -94,14 +95,14 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		
 		if( CMD.equals( "next" ) ) {
 			checkNoArgs( action , 2 );
-			impl.nextPhase( action , dist );
+			impl.nextPhase( parentState , action , dist );
 		}
 		else
 		if( CMD.equals( "deadline" ) ) {
 			String PHASE = getRequiredArg( action , 2 , "PHASE" );
 			Date deadlineDate = getDateArg( action , 3 );
 			checkNoArgs( action , 4 );
-			impl.setPhaseDeadline( action , dist , PHASE , deadlineDate );
+			impl.setPhaseDeadline( parentState , action , dist , PHASE , deadlineDate );
 		}
 		else
 		if( CMD.equals( "days" ) ) {
@@ -111,7 +112,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 				super.wrongArgs( action );
 				
 			checkNoArgs( action , 4 );
-			impl.setPhaseDuration( action , dist , PHASE , duration );
+			impl.setPhaseDuration( parentState , action , dist , PHASE , duration );
 		}
 		else
 			super.wrongArgs( action );
@@ -119,7 +120,7 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 
 	private class ScheduleRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
@@ -132,98 +133,98 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		}
 		
 		checkNoArgs( action , 2 * nPhases + 2 );
-		impl.setSchedule( action , dist , dates );
+		impl.setSchedule( parentState , action , dist , dates );
 	}
 	}
 	
 	private class DeleteRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
 		Meta meta = action.getContextMeta();
-		impl.deleteRelease( action , meta , RELEASELABEL , action.isForced() );
+		impl.deleteRelease( parentState , action , meta , RELEASELABEL , action.isForced() );
 	}
 	}
 
 	private class CleanupRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
 		Meta meta = action.getContextMeta();
-		impl.cleanupRelease( action , meta , RELEASELABEL );
+		impl.cleanupRelease( parentState , action , meta , RELEASELABEL );
 	}
 	}
 
 	private class CopyRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASESRC = getRequiredArg( action , 0 , "RELEASESRC" );
 		String RELEASEDST = getRequiredArg( action , 1 , "RELEASEDST" );
 		Date releaseDate = getRequiredDateArg( action , 2 , "RELEASEDATE" );
 		ReleaseLifecycle lc = getLifecycleArg( action , 3 );
 		checkNoArgs( action , 4 );
 		Meta meta = action.getContextMeta();
-		impl.copyRelease( action , meta , RELEASESRC , RELEASEDST , releaseDate , lc );
+		impl.copyRelease( parentState , action , meta , RELEASESRC , RELEASEDST , releaseDate , lc );
 	}
 	}
 
 	private class FinishRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
 		Meta meta = action.getContextMeta();
-		impl.finishRelease( action , meta , RELEASELABEL );
+		impl.finishRelease( parentState , action , meta , RELEASELABEL );
 	}
 	}
 
 	private class CompleteRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
 		Meta meta = action.getContextMeta();
-		impl.completeRelease( action , meta , RELEASELABEL );
+		impl.completeRelease( parentState , action , meta , RELEASELABEL );
 	}
 	}
 
 	private class ReopenRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
 		Meta meta = action.getContextMeta();
-		impl.reopenRelease( action , meta , RELEASELABEL );
+		impl.reopenRelease( parentState , action , meta , RELEASELABEL );
 	}
 	}
 
 	private class MasterOperations extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String CMD = getRequiredArg( action , 0 , "CMD" );
 		Meta meta = action.getContextMeta();
 		if( CMD.equals( "create" ) ) {
 			String RELEASEVER = getRequiredArg( action , 1 , "RELEASEVER" );
 			checkNoArgs( action , 2 );
-			impl.createProdInitial( action , meta , RELEASEVER );
+			impl.createProdInitial( parentState , action , meta , RELEASEVER );
 		}
 		else
 		if( CMD.equals( "copy" ) ) {
 			String RELEASEDIR = getRequiredArg( action , 1 , "RELEASEDIR" );
 			checkNoArgs( action , 2 );
-			impl.createProdCopy( action , meta , RELEASEDIR );
+			impl.createProdCopy( parentState , action , meta , RELEASEDIR );
 		}
 		else
 		if( CMD.equals( "status" ) ) {
 			checkNoArgs( action , 1 );
-			impl.prodStatus( action , meta );
+			impl.prodStatus( parentState , action , meta );
 		}
 		else
 		if( CMD.equals( "add" ) ) {
 			String RELEASELABEL = getRequiredArg( action , 1 , "RELEASELABEL" );
 			checkNoArgs( action , 2 );
 			Dist dist = action.getReleaseDist( meta , RELEASELABEL );
-			impl.appendProd( action , dist );
+			impl.appendProd( parentState , action , dist );
 		}
 		else
 		if( CMD.equals( "drop" ) ) {
 			checkNoArgs( action , 1 );
-			impl.deleteProd( action , meta );
+			impl.deleteProd( parentState , action , meta );
 		}
 		else
 			super.wrongArgs( action );
@@ -231,114 +232,114 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 	}
 
 	private class ArchiveRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		Meta meta = action.getContextMeta();
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
-		impl.archiveRelease( action , dist );
+		impl.archiveRelease( parentState , action , dist );
 	}
 	}
 
 	private class TouchRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		Meta meta = action.getContextMeta();
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
-		impl.touchRelease( action , meta , RELEASELABEL );
+		impl.touchRelease( parentState , action , meta , RELEASELABEL );
 	}
 	}
 
 	private class StatusRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
 		Meta meta = action.getContextMeta();
-		impl.statusRelease( action , meta , RELEASELABEL );
+		impl.statusRelease( parentState , action , meta , RELEASELABEL );
 	}
 	}
 
 	private class AddReleaseBuildProjects extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String SET = getArg( action , 1 );
 		String[] elements = getArgList( action , 2 );
 		
 		Meta meta = action.getContextMeta();
-		impl.addReleaseBuildProjects( action , meta , RELEASELABEL , SET , elements );
+		impl.addReleaseBuildProjects( parentState , action , meta , RELEASELABEL , SET , elements );
 	}
 	}
 
 	private class ScopeSpec extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String SET = getArg( action , 1 );
 		String[] elements = getArgList( action , 2 );
 		
 		Meta meta = action.getContextMeta();
-		impl.setScopeSpecifics( action , meta , RELEASELABEL , SET , elements );
+		impl.setScopeSpecifics( parentState , action , meta , RELEASELABEL , SET , elements );
 	}
 	}
 
 	private class AddReleaseConfigItems extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String[] elements = getArgList( action , 1 );
 		
 		Meta meta = action.getContextMeta();
-		impl.addReleaseConfigItems( action , meta , RELEASELABEL , elements );
+		impl.addReleaseConfigItems( parentState , action , meta , RELEASELABEL , elements );
 	}
 	}
 
 	private class AddReleaseDatabaseItems extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String[] elements = getArgList( action , 1 );
 		
 		Meta meta = action.getContextMeta();
-		impl.addReleaseDatabaseItems( action , meta , RELEASELABEL , elements );
+		impl.addReleaseDatabaseItems( parentState , action , meta , RELEASELABEL , elements );
 	}
 	}
 
 	private class AddReleaseBuildItems extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String[] elements = getArgList( action , 1 );
 		
 		Meta meta = action.getContextMeta();
-		impl.addReleaseBuildItems( action , meta , RELEASELABEL , elements );
+		impl.addReleaseBuildItems( parentState , action , meta , RELEASELABEL , elements );
 	}
 	}
 
 	private class ScopeSet extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String TYPE = getRequiredArg( action , 1 , "SCOPETYPE" );
 		String[] elements = getArgList( action , 2 );
 		
 		Meta meta = action.getContextMeta();
 		if( TYPE.equals( "source" ) )
-			impl.setScope( action , meta , RELEASELABEL , true , elements );
+			impl.setScope( parentState , action , meta , RELEASELABEL , true , elements );
 		else
 		if( TYPE.equals( "delivery" ) )
-			impl.setScope( action , meta , RELEASELABEL , false , elements );
+			impl.setScope( parentState , action , meta , RELEASELABEL , false , elements );
 	}
 	}
 
 	private class BuildRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String SET = getArg( action , 1 );
 		String[] PROJECTS = getArgList( action , 2 );
 
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
-		impl.buildRelease( action , SET , PROJECTS , dist );
+		impl.buildRelease( parentState , action , SET , PROJECTS , dist );
 	}
 	}
 
 	private class GetRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		String SET = getArg( action , 1 );
 		String[] PROJECTS = getArgList( action , 2 );
@@ -348,57 +349,57 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 		
 		if( dist.release.isCumulative() ) {
 			if( SET.isEmpty() || SET.equals( "all" ) )
-				impl.getCumulativeRelease( action , dist );
+				impl.getCumulativeRelease( parentState , action , dist );
 			else
 				action.exit0( _Error.UnexpectedCumulativeParameters0 , "unexpected parameters to settle cumulative release" );
 		}
 		else
-			impl.getAllRelease( action , SET , PROJECTS , dist );
+			impl.getAllRelease( parentState , action , SET , PROJECTS , dist );
 	}
 	}
 
 	private class DescopeRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		
 		String SET = getRequiredArg( action , 1 , "SET" );
 		if( SET.equals( "all" ) ) {
-			impl.descopeAll( action , dist );
+			impl.descopeAll( parentState , action , dist );
 		}
 		else
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.CONFIG ) ) ) {
 			String[] COMPS = getArgList( action , 2 );
-			impl.descopeConfComps( action , dist , COMPS );
+			impl.descopeConfComps( parentState , action , dist , COMPS );
 		}
 		else
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.DB ) ) ) {
 			String[] ITEMS = getArgList( action , 2 );
-			impl.descopeDatabase( action , dist , ITEMS );
+			impl.descopeDatabase( parentState , action , dist , ITEMS );
 		}
 		else
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.MANUAL ) ) ) {
 			String[] ITEMS = getArgList( action , 2 );
-			impl.descopeManualItems( action , dist , ITEMS );
+			impl.descopeManualItems( parentState , action , dist , ITEMS );
 		}
 		else {
 			String PROJECT = getArg( action , 2 );
 			String[] ITEMS = getArgList( action , 3 );
-			impl.descopeBinary( action , dist , SET , PROJECT , ITEMS );
+			impl.descopeBinary( parentState , action , dist , SET , PROJECT , ITEMS );
 		}
 	}
 	}
 
 	private class ExecuteTickets extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		String METHOD = getRequiredArg( action , 1 , "METHOD" );
 		String[] args = getArgList( action , 2 );
 		
-		impl.executeTickets( action , dist , METHOD , args );
+		impl.executeTickets( parentState , action , dist , METHOD , args );
 	}
 	}
 

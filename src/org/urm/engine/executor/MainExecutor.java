@@ -11,6 +11,7 @@ import org.urm.common.action.CommandOptions;
 import org.urm.common.meta.MainCommandMeta;
 import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
+import org.urm.engine.status.ScopeState;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.Meta;
@@ -33,9 +34,9 @@ public class MainExecutor extends CommandExecutor {
 	}
 
 	@Override
-	public boolean runExecutorImpl( ActionBase action , CommandMethod method ) {
+	public boolean runExecutorImpl( ScopeState parentState , ActionBase action , CommandMethod method ) {
 		// log action and run 
-		boolean res = super.runMethod( action , method );
+		boolean res = super.runMethod( parentState , action , method );
 		return( res );
 	}
 	
@@ -81,7 +82,7 @@ public class MainExecutor extends CommandExecutor {
 		public Configure() {
 		}
 		
-		public void run( ActionBase action ) throws Exception {
+		public void run( ScopeState parentState , ActionBase action ) throws Exception {
 			String OSTYPE = getArg( action , 0 );
 			String USEENV = getArg( action , 1 );
 			String USESG = getArg( action , 2 );
@@ -93,39 +94,39 @@ public class MainExecutor extends CommandExecutor {
 				USESG = "";
 	
 			ActionConfigure ca = new ActionConfigure( action , null , OSTYPE , USEENV , USESG );
-			ca.runSimpleServer( null , SecurityAction.ACTION_CONFIGURE , false );
+			ca.runSimpleServer( parentState , SecurityAction.ACTION_CONFIGURE , false );
 		}
 	}
 
 	// save master to svn
 	private class SvnSave extends CommandMethod {
-		public void run( ActionBase action ) throws Exception {
+		public void run( ScopeState parentState , ActionBase action ) throws Exception {
 			Meta meta = action.getContextMeta();
 			ActionSave ca = new ActionSave( action , null , meta );
-			ca.runSimpleProduct( null , meta.name , SecurityAction.ACTION_CONFIGURE , false );
+			ca.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_CONFIGURE , false );
 		}
 	}
 
 	// server operation
 	private class ServerOp extends CommandMethod {
-		public void run( ActionBase action ) throws Exception {
+		public void run( ScopeState parentState , ActionBase action ) throws Exception {
 			String OP = getRequiredArg( action , 0 , "ACTION" );
 			ActionServer ca = new ActionServer( action , null , OP );
-			ca.runSimpleServer( null , SecurityAction.ACTION_CONFIGURE , false );
+			ca.runSimpleServer( parentState , SecurityAction.ACTION_CONFIGURE , false );
 		}
 	}
 
 	// server operation
 	private class WebSession extends CommandMethod {
-		public void run( ActionBase action ) throws Exception {
+		public void run( ScopeState parentState , ActionBase action ) throws Exception {
 			ActionWebSession ca = new ActionWebSession( action , null );
-			ca.runSimpleServer( null , SecurityAction.ACTION_CONFIGURE , true );
+			ca.runSimpleServer( parentState , SecurityAction.ACTION_CONFIGURE , true );
 		}
 	}
 
 	// server operation
 	private class Temporary extends CommandMethod {
-		public void run( ActionBase action ) throws Exception {
+		public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		}
 	}
 

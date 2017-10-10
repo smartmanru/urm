@@ -12,6 +12,7 @@ import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.status.ScopeState;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductBuildSettings;
@@ -54,8 +55,8 @@ public class CodebaseCommandExecutor extends CommandExecutor {
 	}
 
 	@Override
-	public boolean runExecutorImpl( ActionBase action , CommandMethod method ) {
-		boolean res = super.runMethod( action , method );
+	public boolean runExecutorImpl( ScopeState parentState , ActionBase action , CommandMethod method ) {
+		boolean res = super.runMethod( parentState , action , method );
 		return( res );
 	}
 
@@ -111,34 +112,34 @@ public class CodebaseCommandExecutor extends CommandExecutor {
 	
 	// script interface
 	private class Custom extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String SET = getArg( action , 0 );
 		String[] PROJECTS = getArgList( action , 1 );
 		Meta meta = action.getContextMeta();
-		impl.buildCustom( action , meta , SET , PROJECTS );
+		impl.buildCustom( parentState , action , meta , SET , PROJECTS );
 	}
 	}
 	
 	private class BuildAllRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		action.checkRequired( action.context.buildMode , "BUILDMODE" );
 		String SET = getArg( action , 0 );
 		String[] PROJECTS = getArgList( action , 1 );
 		Dist release = loadCommandRelease( action );
 		Meta meta = action.getContextMeta();
-		impl.buildRelease( action , meta , SET , PROJECTS , release );
+		impl.buildRelease( parentState , action , meta , SET , PROJECTS , release );
 	}
 	}
 	
 	private class CheckSet extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		Meta meta = action.getContextMeta();
-		impl.printActiveProperties( action , meta );
+		impl.printActiveProperties( parentState , action , meta );
 	}
 	}
 	
 	private class GetAll extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String SET = getArg( action , 0 );
 		String[] TARGETS = getArgList( action , 1 );
 		action.logAction();
@@ -164,150 +165,150 @@ public class CodebaseCommandExecutor extends CommandExecutor {
 			return;
 		}
 		
-		impl.getAll( action , scope , dist );
+		impl.getAll( parentState , action , scope , dist );
 	}
 	}
 	
 	private class GetAllRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		action.checkRequired( action.context.buildMode , "BUILDMODE" );
 		
 		String SET = getArg( action , 0 );
 		String[] TARGETS = getArgList( action , 1 );
 
 		Dist dist = loadCommandRelease( action );
-		impl.getAllRelease( action , SET , TARGETS , dist );
+		impl.getAllRelease( parentState , action , SET , TARGETS , dist );
 	}
 	}
 	
 	// implementation
 	private class BuildAllTags extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String TAG = getArg( action , 0 );
 		String SET = getArg( action , 1 );
 		String[] PROJECTS = getArgList( action , 2 );
 		Meta meta = action.getContextMeta();
-		impl.buildAllTags( action , meta , TAG , SET , PROJECTS , null );
+		impl.buildAllTags( parentState , action , meta , TAG , SET , PROJECTS , null );
 	}
 	}
 
 	private class CodebaseCheckout extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String CODIRNAME = getCODIR( action , 0 );
 		LocalFolder CODIR = action.artefactory.getAnyFolder( action , CODIRNAME );
 		ActionScope scope = getCodebaseScope( action , 1 ); 
-		impl.checkout( action , scope , CODIR );
+		impl.checkout( parentState , action , scope , CODIR );
 	}
 	}
 	
 	private class CodebaseCommit extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String CODIRNAME = getCODIR( action , 0 );
 		String MESSAGE = getRequiredArg( action , 1 , "MESSAGE" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
 		LocalFolder CODIR = action.artefactory.getAnyFolder( action , CODIRNAME );
-		impl.commit( action , scope , CODIR , MESSAGE );
+		impl.commit( parentState , action , scope , CODIR , MESSAGE );
 	}
 	}
 	
 	private class CodebaseCopyBranches extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String BRANCH1 = getRequiredArg( action , 0 , "BRANCH1" );
 		String BRANCH2 = getRequiredArg( action , 1 , "BRANCH2" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
-		impl.copyBranches( action , scope , BRANCH1 , BRANCH2 );
+		impl.copyBranches( parentState , action , scope , BRANCH1 , BRANCH2 );
 	}
 	}
 	
 	private class CodebaseCopyBranchToTag extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String BRANCH = getRequiredArg( action , 0 , "BRANCH" );
 		String TAG = getRequiredArg( action , 1 , "TAG" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
-		impl.copyBranchTag( action , scope , BRANCH , TAG );
+		impl.copyBranchTag( parentState , action , scope , BRANCH , TAG );
 	}
 	}
 	
 	private class CodebaseCopyNewTags extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String TAG1 = getRequiredArg( action , 0 , "TAG1" );
 		String TAG2 = getRequiredArg( action , 1 , "TAG2" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
-		impl.copyNewTags( action , scope , TAG1 , TAG2 );
+		impl.copyNewTags( parentState , action , scope , TAG1 , TAG2 );
 	}
 	}
 	
 	private class CodebaseCopyTags extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String TAG1 = getRequiredArg( action , 0 , "TAG1" );
 		String TAG2 = getRequiredArg( action , 1 , "TAG2" );
 		ActionScope scope = getCodebaseScope( action , 2 );
-		impl.copyTags( action , scope , TAG1 , TAG2 );
+		impl.copyTags( parentState , action , scope , TAG1 , TAG2 );
 	}
 	}
 	
 	private class CodebaseCopyTagToBranch extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String TAG1 = getRequiredArg( action , 0 , "TAG1" );
 		String BRANCH2 = getRequiredArg( action , 1 , "BRANCH2" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
-		impl.copyTagToBranch( action , scope , TAG1 , BRANCH2 );
+		impl.copyTagToBranch( parentState , action , scope , TAG1 , BRANCH2 );
 	}
 	}
 	
 	private class CodebaseDropTags extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String TAG1 = getRequiredArg( action , 0 , "TAG1" );
 		ActionScope scope = getCodebaseScope( action , 1 ); 
-		impl.dropTags( action , scope , TAG1 );
+		impl.dropTags( parentState , action , scope , TAG1 );
 	}
 	}
 	
 	private class CodebaseDropBranch extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String BRANCH1 = getRequiredArg( action , 0 , "BRANCH1" );
 		ActionScope scope = getCodebaseScope( action , 1 ); 
-		impl.dropBranch( action , scope , BRANCH1 );
+		impl.dropBranch( parentState , action , scope , BRANCH1 );
 	}
 	}
 	
 	private class CodebaseExport extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String CODIRNAME = getCODIR( action , 0 );
 		ActionScope scope = getCodebaseScope( action , 1 ); 
 		LocalFolder CODIR = action.artefactory.getAnyFolder( action , CODIRNAME );
-		impl.export( action , scope , CODIR , "" );
+		impl.export( parentState , action , scope , CODIR , "" );
 	}
 	}
 	
 	private class CodebaseRenameBranch extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String BRANCH1 = getRequiredArg( action , 0 , "BRANCH1" );
 		String BRANCH2 = getRequiredArg( action , 1 , "BRANCH2" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
-		impl.renameBranch( action , scope , BRANCH1 , BRANCH2 );
+		impl.renameBranch( parentState , action , scope , BRANCH1 , BRANCH2 );
 	}
 	}
 	
 	private class CodebaseRenameTags extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String TAG1 = getRequiredArg( action , 0 , "TAG1" );
 		String TAG2 = getRequiredArg( action , 1 , "TAG2" );
 		ActionScope scope = getCodebaseScope( action , 2 ); 
-		impl.renameTags( action , scope , TAG1 , TAG2 );
+		impl.renameTags( parentState , action , scope , TAG1 , TAG2 );
 	}
 	}
 	
 	private class CodebaseSetVersion extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String VERSION = getRequiredArg( action , 0 , "VERSION" );
 		ActionScope scope = getCodebaseScope( action , 1 );
-		impl.setVersion( action , scope , VERSION );
+		impl.setVersion( parentState , action , scope , VERSION );
 	}
 	}
 
 	private class ThirdpartyUploadDist extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		
 		Meta meta = action.getContextMeta();
@@ -315,12 +316,12 @@ public class CodebaseCommandExecutor extends CommandExecutor {
 		
 		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
 		ActionScopeTarget scopeProject = maker.addScopeReleaseProjectItemsTarget( "thirdparty" , null );
-		impl.thirdpartyUploadDist( action , scopeProject , dist );
+		impl.thirdpartyUploadDist( parentState , action , scopeProject , dist );
 	}
 	}
 
 	private class ThirdpartyUploadLib extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String GROUPID = getRequiredArg( action , 0 , "GROUPID" );
 		String FILE = getRequiredArg( action , 1 , "FILE" );
 		String ARTEFACTID = getArg( action , 2 );
@@ -328,7 +329,7 @@ public class CodebaseCommandExecutor extends CommandExecutor {
 		String CLASSIFIER = getArg( action , 4 );
 		
 		Meta meta = action.getContextMeta();
-		impl.thirdpartyUploadLib( action , meta , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
+		impl.thirdpartyUploadLib( parentState , action , meta , GROUPID , FILE , ARTEFACTID , VERSION , CLASSIFIER );
 	}
 	}
 	

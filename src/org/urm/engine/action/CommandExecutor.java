@@ -12,6 +12,7 @@ import org.urm.common.RunError;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.engine.Engine;
+import org.urm.engine.status.ScopeState;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
@@ -26,7 +27,7 @@ public abstract class CommandExecutor {
 	public Map<String,CommandMethod> actionsMap = new HashMap<String,CommandMethod>();
 	public List<CommandMethod> actionsList = new LinkedList<CommandMethod>();
 	
-	protected abstract boolean runExecutorImpl( ActionBase action , CommandMethod method );
+	protected abstract boolean runExecutorImpl( ScopeState parentState , ActionBase action , CommandMethod method );
 
 	public CommandExecutor( Engine engine , CommandMeta commandInfo ) {
 		this.engine = engine;
@@ -48,18 +49,18 @@ public abstract class CommandExecutor {
 		return( commandAction );
 	}
 
-	public boolean runExecutor( ActionBase action , CommandMethod method ) {
-		if( runExecutorImpl( action , method ) )
+	public boolean runExecutor( ScopeState parentState , ActionBase action , CommandMethod method ) {
+		if( runExecutorImpl( parentState , action , method ) )
 			return( true );
 		
 		return( false );
 	}
 	
-	public boolean runMethod( ActionBase action , CommandMethod method ) {
+	public boolean runMethod( ScopeState parentState , ActionBase action , CommandMethod method ) {
 		try {
 			action.debug( "execute " + method.getClass().getSimpleName() + " ..." );
 			action.debug( "context: " + action.context.getInfo() );
-			method.run( action );
+			method.run( parentState , action );
 		}
 		catch( Throwable e ) {
 			action.fail1( _Error.ActionException1 , "Exception in method=" + method.method.name + ": " + e.getMessage() , method.method.name );

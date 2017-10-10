@@ -28,8 +28,8 @@ public class ScopeState extends ObjectState {
 	public ActionScopeTargetItem item;
 	public Account account;
 	
-	public ScopeState( ActionCore action , ActionScope scope ) {
-		super( STATETYPE.TypeScope , null , scope );
+	public ScopeState( ScopeState parent , ActionCore action , ActionScope scope ) {
+		super( STATETYPE.TypeScope , parent , scope );
 		this.scope = scope;
 		create( action );
 	}
