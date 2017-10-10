@@ -29,7 +29,7 @@ public class EngineMonitoringProduct {
 		@Override
 		public void execute() throws Exception {
 			MonitorTop executor = new MonitorTop( targetAction );
-			executor.runMajorChecks( super.iteration );
+			executor.runMajorChecks( null , super.iteration );
 		}
 	};
 	
@@ -44,7 +44,7 @@ public class EngineMonitoringProduct {
 		@Override
 		public void execute() throws Exception {
 			MonitorTop executor = new MonitorTop( targetAction );
-			executor.runMinorChecks( super.iteration );
+			executor.runMinorChecks( null , super.iteration );
 		}
 	};
 	

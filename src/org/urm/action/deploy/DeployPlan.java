@@ -68,7 +68,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 	
 	@Override
 	public void triggerEvent( EngineEventsSubscription sub , SourceEvent event ) {
-		if( event.eventType == EngineEvents.EVENT_FINISHCHILDSTATE ) {
+		if( event.isEngineEvent( EngineEvents.EVENT_FINISHCHILDSTATE ) ) {
 			ScopeState state = ( ScopeState )event.data;
 			if( state.action instanceof ActionRedist ) {
 				if( state.type == STATETYPE.TypeTarget )
@@ -180,7 +180,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 		}
 		
 		MetaEnvSegment sg = ( selectSg == null )? null : selectSg.sg;
-		error = action.runNotifyMethod( METHOD_REDIST , null , eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_REDIST , args , options , false );
+		error = action.runNotifyMethod( null , METHOD_REDIST , null , eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_REDIST , args , options , false );
 		boolean res = ( error != null )? false : true;
 		finishPlanRedist();
 		return( res );
@@ -204,7 +204,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 		}
 		
 		MetaEnvSegment sg = ( selectSg == null )? null : selectSg.sg;
-		error = action.runNotifyMethod( METHOD_DEPLOYDIST , null , eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_DEPLOYREDIST , args , options , false );
+		error = action.runNotifyMethod( null , METHOD_DEPLOYDIST , null , eventsApp , this , env.meta , env , sg , DeployCommandMeta.NAME , DeployCommandMeta.METHOD_DEPLOYREDIST , args , options , false );
 		boolean res = ( error != null )? false : true;
 		finishPlanDeploy();
 		return( res );

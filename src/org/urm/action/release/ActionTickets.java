@@ -71,7 +71,7 @@ public class ActionTickets extends ActionBase {
 		
 		SCOPESTATE res = SCOPESTATE.RunSuccess;
 		try {
-			executeCommand();
+			executeCommand( state );
 			dist.saveReleaseXml( this );
 			if( distNew != null )
 				distNew.saveReleaseXml( this );
@@ -87,7 +87,7 @@ public class ActionTickets extends ActionBase {
 		return( res );
 	}
 
-	private void executeCommand() throws Exception {
+	private void executeCommand( ScopeState state ) throws Exception {
 		if( method.equals( METHOD_CREATESET ) ) {
 			if( args.length < 2 || args.length > 3 ) {
 				exitInvalidArgs();
@@ -153,7 +153,7 @@ public class ActionTickets extends ActionBase {
 			else
 				targetList = Common.split( targets , "," );
 			
-			executeAcceptSet( code , ticketList , targetList );
+			executeAcceptSet( state , code , ticketList , targetList );
 		}
 		else
 		if( method.equals( METHOD_CREATETICKET ) ) {
@@ -357,7 +357,7 @@ public class ActionTickets extends ActionBase {
 		dist.release.changes.dropSet( this , set , descope );
 	}
 	
-	private void executeAcceptSet( String code , String[] tickets , String[] targets ) throws Exception {
+	private void executeAcceptSet( ScopeState state , String code , String[] tickets , String[] targets ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , code );
 		
 		// change release scope
@@ -395,13 +395,13 @@ public class ActionTickets extends ActionBase {
 		
 		if( !scopeAdd.isEmpty() ) {
 			ActionBase runAction = new ActionAddScope( this , null , dist );
-			if( !runAction.runAll( scopeAdd , null , SecurityAction.ACTION_RELEASE , false ) )
+			if( !runAction.runAll( state , scopeAdd , null , SecurityAction.ACTION_RELEASE , false ) )
 				super.fail1( _Error.CannotExtendScope1 , "Cannot extend scope of release=" + dist.RELEASEDIR , dist.RELEASEDIR );
 		}
 		
 		if( !scopeRemove.isEmpty() ) {
 			ActionBase runAction = new ActionDescope( this , null , dist );
-			if( !runAction.runAll( scopeRemove , null , SecurityAction.ACTION_RELEASE , false ) )
+			if( !runAction.runAll( state , scopeRemove , null , SecurityAction.ACTION_RELEASE , false ) )
 				super.fail1( _Error.CannotReduceScope1 , "Cannot extend scope of release=" + dist.RELEASEDIR , dist.RELEASEDIR );
 		}
 		

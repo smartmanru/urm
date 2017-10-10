@@ -49,7 +49,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected void runBefore( ActionScope scope ) throws Exception {
+	@Override protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
 		tobeFolder = artefactory.getWorkFolder( this , "tobe" );
 		tobeConfigFolder = tobeFolder.getSubFolder( this , "config" );
 		tobeConfigFolder.ensureExists( this );
@@ -61,7 +61,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		else
 			configure = new ActionConfigure( this , null , dist , tobeConfigFolder );
 		configure.context.CTX_HIDDEN = true;
-		if( !configure.runAll( scope , context.env , SecurityAction.ACTION_DEPLOY , false ) )
+		if( !configure.runAll( state , scope , context.env , SecurityAction.ACTION_DEPLOY , false ) )
 			exit0( _Error.UnablePrepareConfiguration0 , "unable to prepare configuration files for comparison" );
 		
 		asisFolder = artefactory.getWorkFolder( this , "asis" );
@@ -72,7 +72,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		verifyOk = true;
 	}
 
-	@Override protected void runAfter( ActionScope scope ) throws Exception {
+	@Override protected void runAfter( ScopeState state , ActionScope scope ) throws Exception {
 		if( super.isFailed() )
 			error( "errors checking environment" );
 		else {

@@ -23,7 +23,7 @@ public class ActionSaveConfigs extends ActionBase {
 		super( action , stream , "Save environment configuration" );
 	}
 
-	@Override protected void runAfter( ActionScope scope ) throws Exception {
+	@Override protected void runAfter( ScopeState state , ActionScope scope ) throws Exception {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , scope.meta );
 		if( scope.isPartialEnv() == false && isForced() )
 			deleteOldConfServers( scope );

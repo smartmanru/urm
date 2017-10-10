@@ -84,7 +84,7 @@ public class ActionBuild extends ActionBase {
 
 		BUILDSTATUS = "SUCCESSFUL";
 		boolean res = true;
-		if( !action.runProductBuild( project.meta.name , SecurityAction.ACTION_CODEBASE , context.buildMode , false ) ) {
+		if( !action.runProductBuild( state , project.meta.name , SecurityAction.ACTION_CODEBASE , context.buildMode , false ) ) {
 			BUILDSTATUS = "FAILED";
 			res = false;
 			super.fail1( _Error.ProjectBuildError1 , "Errors while building project=" + project.NAME , project.NAME );

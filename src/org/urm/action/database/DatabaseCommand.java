@@ -27,21 +27,21 @@ public class DatabaseCommand {
 			node = server.getNode( action , nodePos );
 			
 		ActionInitDatabase ma = new ActionInitDatabase( action , null , server , node );
-		ma.runSimpleEnv( server.sg.env , SecurityAction.ACTION_DEPLOY , false );
+		ma.runSimpleEnv( null , server.sg.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void getReleaseScripts( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
 		LocalFolder downloadFolder = action.artefactory.getWorkFolder( action , "download" );
 		downloadFolder.recreateThis( action );
 		ActionGetDB ma = new ActionGetDB( action , null , dist , downloadFolder , action.context.CTX_DIST );
-		ma.runAll( scope , null , SecurityAction.ACTION_CODEBASE , false );
+		ma.runAll( null , scope , null , SecurityAction.ACTION_CODEBASE , false );
 	}
 
 	public void applyManual( ActionBase action , ActionScope scope , Dist dist , MetaEnvServer server ) throws Exception {
 		dist.openForUse( action );
 		
 		ActionApplyManual ma = new ActionApplyManual( action , null , dist , server );
-		ma.runAll( scope , server.sg.env , SecurityAction.ACTION_DEPLOY , false );
+		ma.runAll( null , scope , server.sg.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void applyAutomatic( ActionBase action , Dist dist , ReleaseDelivery delivery , String indexScope ) throws Exception {
@@ -66,7 +66,7 @@ public class DatabaseCommand {
 		maker.addScopeEnvDatabase( dist );
 		
 		ActionApplyAutomatic ma = new ActionApplyAutomatic( action , null , dist , delivery , indexScope );
-		ma.runAll( maker.getScope() , action.context.env , SecurityAction.ACTION_DEPLOY , false );
+		ma.runAll( null , maker.getScope() , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void manageRelease( ActionBase action , Meta meta , String RELEASEVER , MetaDistrDelivery delivery , String CMD , String indexScope ) throws Exception {
@@ -74,19 +74,19 @@ public class DatabaseCommand {
 		maker.addScopeEnvDatabase( null );
 		
 		ActionManageRegistry ma = new ActionManageRegistry( action , null , RELEASEVER , CMD , delivery , indexScope );
-		ma.runAll( maker.getScope() , action.context.env , SecurityAction.ACTION_DEPLOY , false );
+		ma.runAll( null , maker.getScope() , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void importDatabase( ActionBase action , String SERVER , String CMD , String SCHEMA ) throws Exception {
 		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
 		ActionImportDatabase ma = new ActionImportDatabase( action , null , server , CMD , SCHEMA );
-		ma.runSimpleEnv( action.context.env , SecurityAction.ACTION_DEPLOY , false );
+		ma.runSimpleEnv( null , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void exportDatabase( ActionBase action , String SERVER , String CMD , String SCHEMA ) throws Exception {
 		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
 		ActionExportDatabase ma = new ActionExportDatabase( action , null , server , CMD , SCHEMA );
-		ma.runSimpleEnv( action.context.env , SecurityAction.ACTION_SECURED , true );
+		ma.runSimpleEnv( null , action.context.env , SecurityAction.ACTION_SECURED , true );
 	}
 
 }

@@ -72,7 +72,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	
 	@Override
 	public void triggerEvent( EngineEventsSubscription sub , SourceEvent event ) {
-		if( event.eventType == EngineEvents.EVENT_STARTSTATE ) {
+		if( event.isEngineEvent( EngineEvents.EVENT_STARTSTATE ) ) {
 			ScopeState state = ( ScopeState )event.data;
 			boolean stop = false;
 			
@@ -87,10 +87,10 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 				state.action.cancelRun();
 		}
 	
-		if( event.eventType == EngineEvents.EVENT_FINISHCHILDSTATE ||
-			event.eventType == EngineEvents.EVENT_STARTCHILDSTATE ) {
+		if( event.isEngineEvent( EngineEvents.EVENT_FINISHCHILDSTATE ) ||
+			event.isEngineEvent( EngineEvents.EVENT_STARTCHILDSTATE ) ) {
 			ScopeState state = ( ScopeState )event.data;
-			boolean start = ( event.eventType == EngineEvents.EVENT_STARTCHILDSTATE )? true : false;
+			boolean start = ( event.isEngineEvent( EngineEvents.EVENT_STARTCHILDSTATE ) )? true : false;
 			
 			if( state.action instanceof ActionSetTagOnBuildBranch ) {
 				if( state.type == STATETYPE.TypeTarget )
@@ -305,7 +305,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 			}
 			
 			if( run ) {
-				error = action.runNotifyMethod( METHOD_BUILD , null , eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_BUILD , args , options , false );
+				error = action.runNotifyMethod( null , METHOD_BUILD , null , eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_BUILD , args , options , false );
 				if( error != null )
 					return( false );
 			}
@@ -340,7 +340,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 			}
 			
 			if( run ) {
-				error = action.runNotifyMethod( METHOD_GETDISTCONF , null , eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options , false );
+				error = action.runNotifyMethod( null , METHOD_GETDISTCONF , null , eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options , false );
 				if( error != null )
 					return( false );
 			}
@@ -386,7 +386,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 			}
 			
 			if( run ) {
-				error = action.runNotifyMethod( METHOD_GETDISTDB , null , eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options , false );
+				error = action.runNotifyMethod( null , METHOD_GETDISTDB , null , eventsApp , this , dist.meta , null , null , ReleaseCommandMeta.NAME , ReleaseCommandMeta.METHOD_GETDIST , args , options , false );
 				if( error != null )
 					return( false );
 			}

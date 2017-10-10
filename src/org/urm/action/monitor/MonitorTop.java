@@ -1,6 +1,7 @@
 package org.urm.action.monitor;
 
 import org.urm.engine.status.EngineStatus;
+import org.urm.engine.status.ScopeState;
 import org.urm.meta.product.Meta;
 
 public class MonitorTop {
@@ -13,21 +14,21 @@ public class MonitorTop {
 		this.meta = targetAction.info.meta;
 	}
 
-	public void runMajorChecks( int iteration ) throws Exception {
+	public void runMajorChecks( ScopeState state , int iteration ) throws Exception {
 		synchronized( targetAction ) {
 			updateTime();
 			targetAction.info( "product=" + meta.name + ": start major checks #" + iteration + ": " );
-			long timePassed = targetAction.executeOnceMajor();
+			long timePassed = targetAction.executeOnceMajor( state );
 			targetAction.info( "product=" + meta.name + ": major checks #" + iteration + " done in : " + timePassed + "ms" );
 			targetAction.createGraph();
 		}
 	}
 	
-	public void runMinorChecks( int iteration ) throws Exception {
+	public void runMinorChecks( ScopeState state , int iteration ) throws Exception {
 		synchronized( targetAction ) {
 			updateTime();
 			targetAction.info( "product=" + meta.name + ": start minor checks #" + iteration + ": " );
-			long timePassed = targetAction.executeOnceMinor();
+			long timePassed = targetAction.executeOnceMinor( state );
 			targetAction.info( "product=" + meta.name + ": minor checks #" + iteration + " done in : " + timePassed + "ms" );
 			targetAction.createGraph();
 		}

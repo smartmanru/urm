@@ -57,7 +57,7 @@ public class ActionConfigure extends ActionBase {
 		return( live );
 	}
 	
-	@Override protected void runBefore( ActionScope scope ) throws Exception {
+	@Override protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
 		baseFolder.recreateThis( this );
 		templateFolder = baseFolder.getSubFolder( this , "templates" );
 		info( "prepare configuraton files in " + baseFolder.folderPath + " ..." );

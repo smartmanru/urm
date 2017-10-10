@@ -11,7 +11,7 @@ public class XDocCommand {
 
 	public void createDesignDoc( ActionBase action , Meta meta , String CMD , String OUTDIR ) throws Exception {
 		ActionCreateDesignDoc ma = new ActionCreateDesignDoc( action , null , meta , CMD , OUTDIR );
-		ma.runSimpleProduct( meta.name , SecurityAction.ACTION_XDOC , false );
+		ma.runSimpleProduct( null , meta.name , SecurityAction.ACTION_XDOC , false );
 	}
 
 }

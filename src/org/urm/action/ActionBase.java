@@ -91,16 +91,16 @@ abstract public class ActionBase extends ActionCore {
 	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception { return( SCOPESTATE.NotRun ); };
 	protected SCOPESTATE executeScopeTargetItem( ScopeState state , ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception { return( SCOPESTATE.NotRun ); };
 	protected SCOPESTATE executeAccount( ScopeState state , ActionScopeSet set , Account account ) throws Exception { return( SCOPESTATE.NotRun ); };
-	protected void runBefore() throws Exception {};
-	protected void runAfter() throws Exception {};
-	protected void runBefore( ActionScope scope ) throws Exception {};
-	protected void runAfter( ActionScope scope ) throws Exception {};
-	protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {};
-	protected void runAfter( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {};
-	protected void runBefore( ActionScopeTarget target ) throws Exception {};
-	protected void runAfter( ActionScopeTarget target ) throws Exception {};
-	protected void runBefore( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
-	protected void runAfter( ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
+	protected void runBefore( ScopeState state ) throws Exception {};
+	protected void runAfter( ScopeState state ) throws Exception {};
+	protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {};
+	protected void runAfter( ScopeState state , ActionScope scope ) throws Exception {};
+	protected void runBefore( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {};
+	protected void runAfter( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {};
+	protected void runBefore( ScopeState state , ActionScopeTarget target ) throws Exception {};
+	protected void runAfter( ScopeState state , ActionScopeTarget target ) throws Exception {};
+	protected void runBefore( ScopeState state , ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
+	protected void runAfter( ScopeState state , ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {};
 	
 	public ActionBase( EngineSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , String actionInfo ) {
 		super( executor.engine , null , actionInfo );
@@ -299,137 +299,137 @@ abstract public class ActionBase extends ActionCore {
 		ifexit( errorCode , s , new String[] { param1 , param2 , param3 , param4 } );
 	}
 
-	public boolean runSimpleServer( SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , false );
+	public boolean runSimpleServer( ScopeState parentState , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runSimpleServer( sa , readOnly ) );
 	}
 
-	public boolean runSimpleServerAsync( SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , true );
+	public boolean runSimpleServerAsync( ScopeState parentState , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runSimpleServer( sa , readOnly ) );
 	}
 
-	public boolean runSimpleProduct( String productName , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , false );
+	public boolean runSimpleProduct( ScopeState parentState , String productName , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runSimpleProduct( productName , sa , readOnly ) );
 	}
 
-	public boolean runSimpleProductAsync( String productName , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , true );
+	public boolean runSimpleProductAsync( ScopeState parentState , String productName , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runSimpleProduct( productName , sa , readOnly ) );
 	}
 
-	public boolean runProductBuild( String productName , SecurityAction sa , VarBUILDMODE mode , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , false );
+	public boolean runProductBuild( ScopeState parentState , String productName , SecurityAction sa , VarBUILDMODE mode , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runProductBuild( productName , sa , mode , readOnly ) );
 	}
 	
-	public boolean runProductBuildAsync( String productName , SecurityAction sa , VarBUILDMODE mode , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , true );
+	public boolean runProductBuildAsync( ScopeState parentState , String productName , SecurityAction sa , VarBUILDMODE mode , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runProductBuild( productName , sa , mode , readOnly ) );
 	}
 	
-	public boolean runSimpleEnv( MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , false );
+	public boolean runSimpleEnv( ScopeState parentState , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runSimpleEnv( env , sa , readOnly ) );
 	}
 
-	public boolean runSimpleEnvAsync( MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , true );
+	public boolean runSimpleEnvAsync( ScopeState parentState , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runSimpleEnv( env , sa , readOnly ) );
 	}
 
-	public boolean runAll( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , false );
+	public boolean runAll( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runAll( scope , env , sa , readOnly ) );
 	}
 	
-	public boolean runAllAsync( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , true );
+	public boolean runAllAsync( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runAll( scope , env , sa , readOnly ) );
 	}
 	
-	public boolean runAll( ActionScopeSet set , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , false );
+	public boolean runAll( ScopeState parentState , ActionScopeSet set , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runAll( set , env , sa , readOnly ) );
 	}
 	
-	public boolean runAllAsync( ActionScopeSet set , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , true );
+	public boolean runAllAsync( ScopeState parentState , ActionScopeSet set , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runAll( set , env , sa , readOnly ) );
 	}
 	
-	public boolean runSingleTarget( ActionScopeTarget item , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , false );
+	public boolean runSingleTarget( ScopeState parentState , ActionScopeTarget item , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runSingleTarget( item , env , sa , readOnly ) );
 	}
 	
-	public boolean runSingleTargetAsync( ActionScopeTarget item , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , true );
+	public boolean runSingleTargetAsync( ScopeState parentState , ActionScopeTarget item , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runSingleTarget( item , env , sa , readOnly ) );
 	}
 	
-	public boolean runTargetList( ActionScopeSet set , ActionScopeTarget[] items , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , false );
+	public boolean runTargetList( ScopeState parentState , ActionScopeSet set , ActionScopeTarget[] items , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runTargetList( set , items , env , sa , readOnly ) );
 	}
 	
-	public boolean runTargetListAsync( ActionScopeSet set , ActionScopeTarget[] items , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , true );
+	public boolean runTargetListAsync( ScopeState parentState , ActionScopeSet set , ActionScopeTarget[] items , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runTargetList( set , items , env , sa , readOnly ) );
 	}
 	
-	public boolean runCategories( ActionScope scope , VarCATEGORY[] categories , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , false );
+	public boolean runCategories( ScopeState parentState , ActionScope scope , VarCATEGORY[] categories , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runCategories( scope , categories , sa , readOnly ) );
 	}
 	
-	public boolean runCategoriesAsync( ActionScope scope , VarCATEGORY[] categories , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , true );
+	public boolean runCategoriesAsync( ScopeState parentState , ActionScope scope , VarCATEGORY[] categories , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runCategories( scope , categories , sa , readOnly ) );
 	}
 	
-	public boolean runEnvUniqueHosts( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , false );
+	public boolean runEnvUniqueHosts( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runEnvUniqueHosts( scope , env , sa , readOnly ) );
 	}
 	
-	public boolean runEnvUniqueHostsAsync( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , true );
+	public boolean runEnvUniqueHostsAsync( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runEnvUniqueHosts( scope , env , sa , readOnly ) );
 	}
 	
-	public boolean runEnvUniqueAccounts( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , false );
+	public boolean runEnvUniqueAccounts( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runEnvUniqueAccounts( scope , env , sa , readOnly ) );
 	}
 	
-	public boolean runEnvUniqueAccountsAsync( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( this , true );
+	public boolean runEnvUniqueAccountsAsync( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runEnvUniqueAccounts( scope , env , sa , readOnly ) );
 	}
 	
-	protected boolean runCustomTarget( ScopeState state , ActionScopeTarget target ) {
-		return( scopeExecutor.runCustomTarget( target , state ) );
+	protected boolean runCustomTarget( ScopeState parentState , ActionScopeTarget target ) {
+		return( scopeExecutor.runCustomTarget( parentState , target ) );
 	}
 	
-	public boolean runEachBuildableProject( ActionScope scope , SecurityAction sa , boolean readOnly ) {
+	public boolean runEachBuildableProject( ScopeState parentState , ActionScope scope , SecurityAction sa , boolean readOnly ) {
 		VarCATEGORY[] categories = { VarCATEGORY.BUILDABLE };
-		return( runCategories( scope , categories , sa , readOnly ) );
+		return( runCategories( parentState , scope , categories , sa , readOnly ) );
 	}
 	
-	public boolean runEachSourceProject( ActionScope scope , SecurityAction sa , boolean readOnly ) {
+	public boolean runEachSourceProject( ScopeState parentState , ActionScope scope , SecurityAction sa , boolean readOnly ) {
 		VarCATEGORY[] categories = Types.getAllSourceCategories();
-		return( runCategories( scope , categories , sa , readOnly ) );
+		return( runCategories( parentState, scope , categories , sa , readOnly ) );
 	}
 	
-	public boolean runEachCategoryTarget( ActionScope scope , VarCATEGORY category , SecurityAction sa , boolean readOnly ) {
+	public boolean runEachCategoryTarget( ScopeState parentState , ActionScope scope , VarCATEGORY category , SecurityAction sa , boolean readOnly ) {
 		VarCATEGORY[] categories = new VarCATEGORY[] { category };
-		return( runCategories( scope , categories , sa , readOnly ) );
+		return( runCategories( parentState , scope , categories , sa , readOnly ) );
 	}
 	
-	public boolean runEachPrebuiltProject( String methodName , ActionScope scope , SecurityAction sa , boolean readOnly ) {
-		return( runEachCategoryTarget( scope , VarCATEGORY.PREBUILT , sa , readOnly ) );
+	public boolean runEachPrebuiltProject( ScopeState parentState , String methodName , ActionScope scope , SecurityAction sa , boolean readOnly ) {
+		return( runEachCategoryTarget( parentState , scope , VarCATEGORY.PREBUILT , sa , readOnly ) );
 	}
 
 	public ShellExecutor getShell( Account account ) throws Exception {
@@ -951,7 +951,7 @@ abstract public class ActionBase extends ActionCore {
 		return( engine.blotter.getBlotterSet( type ) );
 	}
 	
-	public RunError runNotifyMethod( int subMethod , Object subData , EngineEventsApp app , EngineEventsListener listener , Meta meta , MetaEnv env , MetaEnvSegment sg , String command , String method , String[] args , CommandOptions options , boolean async ) {
+	public RunError runNotifyMethod( ScopeState parentState , int subMethod , Object subData , EngineEventsApp app , EngineEventsListener listener , Meta meta , MetaEnv env , MetaEnvSegment sg , String command , String method , String[] args , CommandOptions options , boolean async ) {
 		try {
 			CommandExecutor executor = engine.getExecutor( command );
 			options.setMethod( command , method );
@@ -963,9 +963,9 @@ abstract public class ActionBase extends ActionCore {
 			
 			app.subscribe( action.eventSource , listener , subMethod , subData );
 			if( async )
-				action.runSimpleServerAsync( SecurityAction.ACTION_EXECUTE , true );
+				action.runSimpleServerAsync( parentState , SecurityAction.ACTION_EXECUTE , true );
 			else {
-				action.runSimpleServer( SecurityAction.ACTION_EXECUTE , true );
+				action.runSimpleServer( parentState , SecurityAction.ACTION_EXECUTE , true );
 				EngineEvents events = engine.getEvents();
 				events.waitDelivered( action.eventSource );
 			}

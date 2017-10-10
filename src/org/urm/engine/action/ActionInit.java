@@ -9,6 +9,7 @@ import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.schedule.EngineScheduler;
 import org.urm.engine.status.EngineStatus;
+import org.urm.engine.status.ScopeState;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
@@ -53,12 +54,12 @@ public class ActionInit extends ActionBase {
 	}
 
 	@Override
-	protected void runBefore() throws Exception {
+	protected void runBefore( ScopeState state ) throws Exception {
 		Common.exitUnexpected();
 	}
 	
 	@Override
-	protected void runBefore( ActionScope scope ) throws Exception {
+	protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
 		Common.exitUnexpected();
 	}
 

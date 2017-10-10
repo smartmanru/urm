@@ -34,7 +34,7 @@ public class ActionRedist extends ActionBase {
 		this.liveEnvFolder = liveEnvFolder;
 	}
 
-	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override protected void runBefore( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		infoAction( "execute sg=" + set.sg.NAME + ", releasedir=" + dist.RELEASEDIR + ", servers={" + set.getScopeInfo( this ) + "} ..." );
 	}
 	

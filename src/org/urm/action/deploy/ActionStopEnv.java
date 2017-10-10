@@ -19,20 +19,20 @@ public class ActionStopEnv extends ActionBase {
 		super( action , stream , "Stop environment" );
 	}
 
-	@Override protected void runBefore( ActionScope scope ) throws Exception {
+	@Override protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
 		infoAction( "stop environment (" + getMode() + ") ..." );
 		if( isExecute() )
-			ActionSendChatMsg.sendMsg( this , "[stopenv] stopping " + scope.getScopeInfo( this ) + " ..." , context.env , context.sg );
+			ActionSendChatMsg.sendMsg( state , this , "[stopenv] stopping " + scope.getScopeInfo( this ) + " ..." , context.env , context.sg );
 	}
 
-	@Override protected void runAfter( ActionScope scope ) throws Exception {
-		ActionSendChatMsg.sendMsg( this , "[stopenv] done." , context.env , context.sg );
+	@Override protected void runAfter( ScopeState state , ActionScope scope ) throws Exception {
+		ActionSendChatMsg.sendMsg( state , this , "[stopenv] done." , context.env , context.sg );
 		infoAction( "done." );
 	}
 	
 	@Override protected SCOPESTATE executeScopeSet( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		for( MetaEnvStartGroup group : set.sg.startInfo.getReverseGroupList() ) {
-			if( !stopServerGroup( set , group , targets ) )
+			if( !stopServerGroup( state , set , group , targets ) )
 				ifexit( _Error.FailedGroupOperation0 , "failed group operation" , null );
 		}
 		
@@ -41,7 +41,7 @@ public class ActionStopEnv extends ActionBase {
 			for( ActionScopeTarget target : targets ) {
 				if( target.envServer.startGroup == null ) {
 					ActionStopServer stopOne = new ActionStopServer( this , target.NAME , target );
-					if( !stopOne.runSimpleEnv( target.envServer.sg.env , SecurityAction.ACTION_DEPLOY , false ) )
+					if( !stopOne.runSimpleEnv( state , target.envServer.sg.env , SecurityAction.ACTION_DEPLOY , false ) )
 						ifexit( _Error.StopenvFailed0 , "unable to stop server" , null );
 				}
 			}
@@ -50,7 +50,7 @@ public class ActionStopEnv extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private boolean stopServerGroup( ActionScopeSet set , MetaEnvStartGroup group , ActionScopeTarget[] targets ) throws Exception {
+	private boolean stopServerGroup( ScopeState state , ActionScopeSet set , MetaEnvStartGroup group , ActionScopeTarget[] targets ) throws Exception {
 		List<ActionScopeTarget> servers = set.getGroupServers( this , group );
 		if( servers.isEmpty() ) {
 			debug( "no servers specified to stop in group=" + group.NAME );
@@ -60,7 +60,7 @@ public class ActionStopEnv extends ActionBase {
 		// execute servers in parallel within subprocess
 		infoAction( getMode() + " stop group=" + group.NAME + " servers=(" + ActionScope.getList( servers ) + ") ..." );
 
-		ActionSet actions = new ActionSet( this , "stop.sg" );
+		ActionSet actions = new ActionSet( state , this , "stop.sg" );
 		for( ActionScopeTarget target : servers ) {
 			if( !Common.checkListItem( targets , target ) )
 				continue;

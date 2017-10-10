@@ -39,6 +39,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		ASYNC_RUNUNIQUEACCOUNTS
 	};
 	
+	ScopeState parentState;
 	ActionBase action;
 	boolean async;
 	CommandContext context;
@@ -58,7 +59,8 @@ public class ScopeExecutor implements EngineEventsListener {
 	VarCATEGORY[] asyncCategories;
 	EngineEventsSubscription asyncSub;
 	
-	public ScopeExecutor( ActionBase action , boolean async ) {
+	public ScopeExecutor( ScopeState parentState , ActionBase action , boolean async ) {
+		this.parentState = parentState;
 		this.action = action;
 		this.async = async;
 		this.context = action.context;
@@ -70,7 +72,7 @@ public class ScopeExecutor implements EngineEventsListener {
 
 	@Override
 	public void triggerEvent( EngineEventsSubscription sub , SourceEvent event ) {
-		if( event.eventType == EngineEvents.EVENT_RUNASYNC )
+		if( event.isEngineEvent( EngineEvents.EVENT_RUNASYNC ) )
 			executeAsync();
 	}
 	
@@ -318,9 +320,9 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 
 	// sync only
-	public boolean runCustomTarget( ActionScopeTarget target , ScopeState state ) {
+	public boolean runCustomTarget( ScopeState parentState , ActionScopeTarget target ) {
 		try {
-			ScopeState stateTarget = new ScopeState( state , target );
+			ScopeState stateTarget = new ScopeState( parentState , target );
 			SCOPESTATE ssTarget = runSingleTargetInternal( target , stateTarget );
 			if( isRunDone( ssTarget ) ) {
 				stateTarget.setActionStatus( ssTarget );
@@ -347,7 +349,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			action.debug( action.NAME + ": run without scope" );
-			action.runBefore();
+			action.runBefore( stateFinal );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -365,7 +367,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		
 		try {
 			if( isRunDone( ss ) )
-				action.runAfter();
+				action.runAfter( stateFinal );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -401,7 +403,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
-			action.runBefore();
+			action.runBefore( stateSet );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -421,7 +423,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		
 		try {
 			if( isRunDone( ss ) )
-				action.runAfter();
+				action.runAfter( stateSet );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -439,7 +441,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		ScopeState stateSet = new ScopeState( stateFinal , set );
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
-			action.runBefore();
+			action.runBefore( stateSet );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -463,7 +465,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		
 		try {
 			if( isRunDone( ss ) )
-				action.runAfter();
+				action.runAfter( stateSet );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -481,7 +483,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			action.debug( action.NAME + ": run scope={" + scope.getScopeInfo( action , categories ) + "}" );
-			action.runBefore( scope );
+			action.runBefore( stateFinal , scope );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -499,7 +501,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		
 		try {
 			if( isRunDone( ss )  )
-				action.runAfter( scope );
+				action.runAfter( stateFinal , scope );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -517,7 +519,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		VarCATEGORY[] categories = new VarCATEGORY[] { VarCATEGORY.ENV };
 		try {
 			action.debug( action.NAME + ": run unique hosts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
-			action.runBefore( scope );
+			action.runBefore( stateFinal , scope );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -537,7 +539,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		
 		try {
 			if( isRunDone( ss ) )
-				action.runAfter( scope );
+				action.runAfter( stateFinal , scope );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -555,7 +557,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		VarCATEGORY[] categories = new VarCATEGORY[] { VarCATEGORY.ENV };
 		try {
 			action.debug( action.NAME + ": run unique accounts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
-			action.runBefore( scope );
+			action.runBefore( stateFinal , scope );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -575,7 +577,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		
 		try {
 			if( isRunDone( ss ) )
-				action.runAfter( scope );
+				action.runAfter( stateFinal , scope );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -607,7 +609,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		try {
 			// execute list as is
 			if( runBefore )
-				action.runBefore( set , items );
+				action.runBefore( stateSet , set , items );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -645,7 +647,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		try {
 			if( runBefore ) {
 				if( isRunDone( ss ) )
-					action.runAfter( set , items );
+					action.runAfter( stateSet , set , items );
 			}
 		}
 		catch( Throwable e ) {
@@ -664,7 +666,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			action.debug( action.NAME + ": execute scope set=" + set.NAME + all + " ..." );
 			
 			items = set.getTargets( action ).values().toArray( new ActionScopeTarget[0] ); 
-			action.runBefore( set , items );
+			action.runBefore( stateSet , set , items );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -685,7 +687,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		
 		try {
 			if( isRunDone( ss ) )
-				action.runAfter( set , items );
+				action.runAfter( stateSet , set , items );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -746,7 +748,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		try {
 			String all = ( scope.isFull() )? " (all)" : "";
 			action.debug( action.NAME + ": execute scope" + all + " ..." );
-			action.runBefore( scope );
+			action.runBefore( stateFinal , scope );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -767,7 +769,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		
 		try {
 			if( isRunDone( ss ) )
-				action.runAfter( scope );
+				action.runAfter( stateFinal , scope );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -782,7 +784,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		try {
 			String all = ( target.itemFull )? " (all)" : "";
 			action.debug( action.NAME + ": execute target=" + target.NAME + all + " ..." );
-			action.runBefore( target );
+			action.runBefore( stateTarget , target );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -803,7 +805,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		
 		try {
 			if( isRunDone( ss ) )
-				action.runAfter( target );
+				action.runAfter( stateTarget , target );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -851,7 +853,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			action.debug( action.NAME + ": run item=" + item.NAME );
-			action.runBefore( target , item );
+			action.runBefore( stateItem , target , item );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -872,7 +874,7 @@ public class ScopeExecutor implements EngineEventsListener {
 
 		try {
 			if( isRunDone( ss ) )
-				action.runAfter( target , item );
+				action.runAfter( stateItem , target , item );
 		}
 		catch( Throwable e ) {
 			action.handle( e );

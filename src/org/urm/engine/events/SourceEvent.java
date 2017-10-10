@@ -16,4 +16,22 @@ public class SourceEvent {
 		this.data = data;
 	}
 
+	public boolean isEngineEvent( int event ) {
+		if( eventOwner == EngineEvents.OWNER_ENGINE && eventType == event )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isBuildEvent( int event ) {
+		if( eventOwner == EngineEvents.OWNER_ENGINEBUILDPLAN && eventType == event )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isDeployEvent( int event ) {
+		if( eventOwner == EngineEvents.OWNER_ENGINEDEPLOYPLAN && eventType == event )
+			return( true );
+		return( false );
+	}
+	
 }

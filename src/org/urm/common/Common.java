@@ -211,6 +211,21 @@ public class Common {
 	public static String getList( String[] items ) {
 		return( getList( items , ", " ) );
 	}
+
+	public static String getList( Integer[] items , String delimiter ) {
+		String value = "";
+		if( items == null )
+			return( value );
+		
+		for( int k = 0; k < items.length; k++ ) {
+			if( k > 0 )
+				value += delimiter;
+			
+			value += items[ k ];
+		}
+		
+		return( value );
+	}
 	
 	public static String getList( String[] items , String delimiter ) {
 		String value = "";

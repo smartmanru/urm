@@ -19,20 +19,20 @@ public class ActionStartEnv extends ActionBase {
 		super( action , stream , "Start environment" );
 	}
 
-	@Override protected void runBefore( ActionScope scope ) throws Exception {
+	@Override protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
 		infoAction( "start environment (" + getMode() + ") ..." );
 		if( isExecute() )
-			ActionSendChatMsg.sendMsg( this , "[startenv] starting " + scope.getScopeInfo( this ) + " ..." , context.env , context.sg );
+			ActionSendChatMsg.sendMsg( state , this , "[startenv] starting " + scope.getScopeInfo( this ) + " ..." , context.env , context.sg );
 	}
 
-	@Override protected void runAfter( ActionScope scope ) throws Exception {
-		ActionSendChatMsg.sendMsg( this , "[startenv] done." , context.env , context.sg );
+	@Override protected void runAfter( ScopeState state , ActionScope scope ) throws Exception {
+		ActionSendChatMsg.sendMsg( state , this , "[startenv] done." , context.env , context.sg );
 		infoAction( "done." );
 	}
 	
 	@Override protected SCOPESTATE executeScopeSet( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		for( MetaEnvStartGroup group : set.sg.startInfo.getForwardGroupList() ) {
-			if( !startServerGroup( set , group , targets ) )
+			if( !startServerGroup( state , set , group , targets ) )
 				ifexit( _Error.FailedGroupOperation0 , "failed group operation" , null );
 		}
 		
@@ -41,7 +41,7 @@ public class ActionStartEnv extends ActionBase {
 			for( ActionScopeTarget target : targets ) {
 				if( target.envServer.startGroup == null ) {
 					ActionStartServer startOne = new ActionStartServer( this , target.NAME , target );
-					if( !startOne.runSimpleEnv( target.envServer.sg.env , SecurityAction.ACTION_DEPLOY , false ) )
+					if( !startOne.runSimpleEnv( state , target.envServer.sg.env , SecurityAction.ACTION_DEPLOY , false ) )
 						ifexit( _Error.StartenvFailed0 , "unable to start server" , null );
 				}
 			}
@@ -50,7 +50,7 @@ public class ActionStartEnv extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private boolean startServerGroup( ActionScopeSet set , MetaEnvStartGroup group , ActionScopeTarget[] targets ) throws Exception {
+	private boolean startServerGroup( ScopeState state , ActionScopeSet set , MetaEnvStartGroup group , ActionScopeTarget[] targets ) throws Exception {
 		List<ActionScopeTarget> servers = set.getGroupServers( this , group );
 		if( servers.isEmpty() ) {
 			debug( "no servers specified to start in group=" + group.NAME );
@@ -60,7 +60,7 @@ public class ActionStartEnv extends ActionBase {
 		// execute servers in parallel within subprocess
 		infoAction( getMode() + " start group=" + group.NAME + " servers=(" + ActionScope.getList( servers ) + ") ..." );
 
-		ActionSet actions = new ActionSet( this , "start.sg" );
+		ActionSet actions = new ActionSet( state , this , "start.sg" );
 		for( ActionScopeTarget target : servers ) {
 			if( !Common.checkListItem( targets , target ) )
 				continue;

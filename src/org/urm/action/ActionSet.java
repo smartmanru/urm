@@ -3,11 +3,13 @@ package org.urm.action;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.engine.status.ScopeState;
 import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.MetaEnv;
 
 public class ActionSet {
 
+	ScopeState parentState;
 	ActionBase owner;
 	String name;
 	
@@ -15,7 +17,8 @@ public class ActionSet {
 	public ThreadGroup threadGroup;
 	public int threadCount;
 	
-	public ActionSet( ActionBase owner , String name ) {
+	public ActionSet( ScopeState parentState , ActionBase owner , String name ) {
+		this.parentState = parentState;
 		this.owner = owner;
 		this.name = name;
 		
@@ -60,21 +63,21 @@ public class ActionSet {
 	public void runSimpleProduct( ActionBase action , String productName , SecurityAction sa , boolean readOnly ) throws Exception {
 		String threadName = "AT." + actions.size();
 		ActionSetItem item = new ActionSetItem( this , threadName );
-		item.createSimpleProduct( action , productName , sa , readOnly );
+		item.createSimpleProduct( parentState , action , productName , sa , readOnly );
 		startItem( item );
 	}
 
 	public void runSimpleEnv( ActionBase action , MetaEnv env , SecurityAction sa , boolean readOnly ) throws Exception {
 		String threadName = "AT." + actions.size();
 		ActionSetItem item = new ActionSetItem( this , threadName );
-		item.createSimpleEnv( action , env , sa , readOnly );
+		item.createSimpleEnv( parentState , action , env , sa , readOnly );
 		startItem( item );
 	}
 	
 	public void runScope( ActionBase action , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) throws Exception {
 		String threadName = "AT." + actions.size();
 		ActionSetItem item = new ActionSetItem( this , threadName );
-		item.createScope( action , scope , env , sa , readOnly );
+		item.createScope( parentState , action , scope , env , sa , readOnly );
 		startItem( item );
 	}
 

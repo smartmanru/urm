@@ -21,7 +21,6 @@ public class ActionEventsSource extends EngineEventsSource {
 
 	public void setRootState( ScopeState state ) {
 		rootState = new ActionEventsState( this , state );
-		super.notify( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STARTSTATE , state );
 	}
 	
 	public void finishScopeItem( ScopeState state ) {
@@ -42,14 +41,6 @@ public class ActionEventsSource extends EngineEventsSource {
 	
 	public void forwardState( int eventOwner , int eventType , ObjectState state ) {
 		super.notify( eventOwner , eventType , state );
-	}
-
-	public ScopeState findSetState( ActionScopeSet set ) {
-		return( rootState.scopeState.findSetState( set ) );
-	}
-
-	public ScopeState findTargetState( ActionScopeTarget target ) {
-		return( rootState.scopeState.findTargetState( target ) );
 	}
 
 	public void customEvent( int eventOwner , int eventType , Object data ) {

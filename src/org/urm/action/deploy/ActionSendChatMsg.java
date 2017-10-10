@@ -15,9 +15,9 @@ public class ActionSendChatMsg extends ActionBase {
 	MetaEnv env;
 	MetaEnvSegment sg;
 	
-	public static void sendMsg( ActionBase action , String msg , MetaEnv env , MetaEnvSegment sg ) throws Exception {
+	public static void sendMsg( ScopeState parentState , ActionBase action , String msg , MetaEnv env , MetaEnvSegment sg ) throws Exception {
 		ActionSendChatMsg ca = new ActionSendChatMsg( action , null , msg , env , sg );
-		ca.runSimpleEnv( env , SecurityAction.ACTION_DEPLOY , true );
+		ca.runSimpleEnv( parentState , env , SecurityAction.ACTION_DEPLOY , true );
 	}
 	
 	public ActionSendChatMsg( ActionBase action , String stream , String msg , MetaEnv env , MetaEnvSegment sg ) {

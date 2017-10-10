@@ -93,7 +93,7 @@ public class MainExecutor extends CommandExecutor {
 				USESG = "";
 	
 			ActionConfigure ca = new ActionConfigure( action , null , OSTYPE , USEENV , USESG );
-			ca.runSimpleServer( SecurityAction.ACTION_CONFIGURE , false );
+			ca.runSimpleServer( null , SecurityAction.ACTION_CONFIGURE , false );
 		}
 	}
 
@@ -102,7 +102,7 @@ public class MainExecutor extends CommandExecutor {
 		public void run( ActionBase action ) throws Exception {
 			Meta meta = action.getContextMeta();
 			ActionSave ca = new ActionSave( action , null , meta );
-			ca.runSimpleProduct( meta.name , SecurityAction.ACTION_CONFIGURE , false );
+			ca.runSimpleProduct( null , meta.name , SecurityAction.ACTION_CONFIGURE , false );
 		}
 	}
 
@@ -111,7 +111,7 @@ public class MainExecutor extends CommandExecutor {
 		public void run( ActionBase action ) throws Exception {
 			String OP = getRequiredArg( action , 0 , "ACTION" );
 			ActionServer ca = new ActionServer( action , null , OP );
-			ca.runSimpleServer( SecurityAction.ACTION_CONFIGURE , false );
+			ca.runSimpleServer( null , SecurityAction.ACTION_CONFIGURE , false );
 		}
 	}
 
@@ -119,7 +119,7 @@ public class MainExecutor extends CommandExecutor {
 	private class WebSession extends CommandMethod {
 		public void run( ActionBase action ) throws Exception {
 			ActionWebSession ca = new ActionWebSession( action , null );
-			ca.runSimpleServer( SecurityAction.ACTION_CONFIGURE , true );
+			ca.runSimpleServer( null , SecurityAction.ACTION_CONFIGURE , true );
 		}
 	}
 

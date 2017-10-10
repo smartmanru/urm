@@ -36,7 +36,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		this.indexScope = indexScope;
 	}
 
-	@Override protected void runBefore( ActionScope scope ) throws Exception {
+	@Override protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
 		logs = artefactory.getDatabaseLogStorage( this , scope.meta , dist.release.RELEASEVER );
 		info( "log to " + logs.logFolder.folderPath );
 	}

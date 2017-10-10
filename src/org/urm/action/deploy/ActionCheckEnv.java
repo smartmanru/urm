@@ -43,14 +43,14 @@ public class ActionCheckEnv extends ActionBase {
 		super( action , stream , "Check environment status" );
 	}
 
-	@Override protected void runBefore( ActionScope scope ) throws Exception {
+	@Override protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
 		// check all processes
 		infoAction( "check environment=" + context.env.ID + " ..." );
 		EngineStatus status = super.getServerStatus();
 		status.updateRunTime( this , scope.env );
 	}
 
-	@Override protected void runAfter( ActionScope scope ) throws Exception {
+	@Override protected void runAfter( ScopeState state , ActionScope scope ) throws Exception {
 		String value = "SUCCESSFUL";
 		if( !S_CHECKENV_TOTAL_SERVERS_FAILED.isEmpty() )
 			super.fail0( _Error.CheckenvFailed0 , "Checkenv failed" );
@@ -66,7 +66,7 @@ public class ActionCheckEnv extends ActionBase {
 		status.finishUpdate( this , scope.env );
 	}
 	
-	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override protected void runBefore( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		sgStatus = new SegmentStatus( set.sg );
 		sgCaptureIndex = super.logStartCapture();
 		info( "execute segment=" + set.sg.NAME + " ..." );
@@ -74,7 +74,7 @@ public class ActionCheckEnv extends ActionBase {
 		status.updateRunTime( this , set.sg );
 	}
 
-	@Override protected void runAfter( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override protected void runAfter( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		String F_STATUSOBJECT = set.sg.NAME;
 		if( !S_CHECKENV_TOTAL_SERVERS_FAILED.isEmpty() )
 			error( "## sg " + F_STATUSOBJECT + " check FAILED: issues on servers - {" + S_CHECKENV_TOTAL_SERVERS_FAILED + "}" );

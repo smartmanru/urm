@@ -3,6 +3,7 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionEnvScopeMaker;
 import org.urm.action.ActionScopeTarget;
+import org.urm.engine.status.ScopeState;
 import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
@@ -61,7 +62,7 @@ public class ServerCluster {
 		return( res );
 	}
 	
-	public boolean start( ActionBase action ) throws Exception {
+	public boolean start( ScopeState parentState , ActionBase action ) throws Exception {
 		boolean res = true;
 		
 		action.trace( "cluster start ..." );
@@ -92,7 +93,7 @@ public class ServerCluster {
 			ActionCheckEnv ca = new ActionCheckEnv( action , null );
 			ActionEnvScopeMaker maker = new ActionEnvScopeMaker( action , srv.sg.env );
 			ActionScopeTarget scope = maker.addScopeEnvServerNodes( srv , nodes ); 
-			if( !ca.runSingleTarget( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false ) ) {
+			if( !ca.runSingleTarget( parentState , scope , action.context.env , SecurityAction.ACTION_DEPLOY , false ) ) {
 				action.trace( "checkenv failed" );
 				res = false;
 			}

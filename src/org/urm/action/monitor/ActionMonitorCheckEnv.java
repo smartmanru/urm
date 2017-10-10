@@ -44,7 +44,7 @@ public class ActionMonitorCheckEnv extends ActionBase {
 		action.startRedirect( "checkenv log" , logRunning );
 
 		long timerStarted = System.currentTimeMillis();
-		if( !action.runAll( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false ) )
+		if( !action.runAll( state , scope , action.context.env , SecurityAction.ACTION_DEPLOY , false ) )
 			super.fail0( _Error.MonitorEnvFailed0 , "Checkenv monitoring failed" );
 		
 		timePassedMillis = System.currentTimeMillis() - timerStarted;  

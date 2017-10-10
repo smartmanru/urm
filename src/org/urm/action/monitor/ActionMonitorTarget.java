@@ -5,6 +5,7 @@ import org.urm.common.Common;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.status.EngineStatus;
 import org.urm.engine.status.NodeStatus;
+import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.SegmentStatus;
 import org.urm.engine.status.StatusSource;
 import org.urm.meta.engine.EngineAuth.SecurityAction;
@@ -30,11 +31,11 @@ public class ActionMonitorTarget extends ActionBase {
 		running = false;
 	}
 
-	public long executeOnceMajor() throws Exception {
+	public long executeOnceMajor( ScopeState state ) throws Exception {
 		ActionMonitorCheckEnv actionCheck = new ActionMonitorCheckEnv( this , null , info );
 		currentAction = actionCheck;
 		MetaEnv env = getEnv( target );
-		currentAction.runSimpleEnv( env , SecurityAction.ACTION_DEPLOY , false );
+		currentAction.runSimpleEnv( state , env , SecurityAction.ACTION_DEPLOY , false );
 		info.addCheckEnvData( this , actionCheck.timePassedMillis , actionCheck.isOK() );
 		Common.sleep( 1000 );
 		return( actionCheck.timePassedMillis );
@@ -77,7 +78,7 @@ public class ActionMonitorTarget extends ActionBase {
 		}
 	}
 
-	public long executeOnceMinor() throws Exception {
+	public long executeOnceMinor( ScopeState state ) throws Exception {
 		// system
 		int sgIndex = super.logStartCapture();
 		super.info( "Run fast segment checks, sg=" + info.target.SG + " ..." );
@@ -97,7 +98,7 @@ public class ActionMonitorTarget extends ActionBase {
 			if( !super.isServerOffline( server ) ) {
 				ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , target , null , server );
 				currentAction = action;
-				action.runSimpleEnv( server.sg.env , SecurityAction.ACTION_DEPLOY , false );
+				action.runSimpleEnv( state , server.sg.env , SecurityAction.ACTION_DEPLOY , false );
 				if( action.isFailed() )
 					ok = false;
 				
@@ -114,7 +115,7 @@ public class ActionMonitorTarget extends ActionBase {
 			
 			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , target , item , null );
 			currentAction = action;
-			action.runSimpleEnv( sg.env , SecurityAction.ACTION_DEPLOY , false );
+			action.runSimpleEnv( state , sg.env , SecurityAction.ACTION_DEPLOY , false );
 			if( action.isFailed() )
 				ok = false;
 		}
@@ -125,7 +126,7 @@ public class ActionMonitorTarget extends ActionBase {
 			
 			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , target , item , null );
 			currentAction = action;
-			action.runSimpleEnv( sg.env , SecurityAction.ACTION_DEPLOY , false );
+			action.runSimpleEnv( state , sg.env , SecurityAction.ACTION_DEPLOY , false );
 			if( action.isFailed() )
 				ok = false;
 		}
