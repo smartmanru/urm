@@ -71,27 +71,27 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 		if( event.isEngineEvent( EngineEvents.EVENT_FINISHCHILDSTATE ) ) {
 			ScopeState state = ( ScopeState )event.data;
 			if( state.action instanceof ActionRedist ) {
-				if( state.type == STATETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeScopeTarget )
 					addRedistStatus( state.target.envServer , state.state );
 			}
 			else
 			if( state.action instanceof ActionStopServer ) {
-				if( state.type == STATETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeScopeTarget )
 					addStopServerStatus( state.target.envServer , state.state );
 			}
 			else
 			if( state.action instanceof ActionRollout ) {
-				if( state.type == STATETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeScopeTarget )
 					addRolloutStatus( state.target.envServer , state.state );
 			}
 			else
 			if( state.action instanceof ActionStartServer ) {
-				if( state.type == STATETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeScopeTarget )
 					addStartServerStatus( state.target.envServer , state.state );
 			}
 			else
 			if( state.action instanceof ActionApplyAutomatic ) {
-				if( state.type == STATETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeScopeTarget )
 					addDatabaseApplyStatus( state.target.envServer , state.state );
 			}
 		}

@@ -93,22 +93,22 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 			boolean start = ( event.isEngineEvent( EngineEvents.EVENT_STARTCHILDSTATE ) )? true : false;
 			
 			if( state.action instanceof ActionSetTagOnBuildBranch ) {
-				if( state.type == STATETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeScopeTarget )
 					addSetTagStatus( state.target.sourceProject , start , state.state );
 			}
 			else
 			if( state.action instanceof ActionGetBinary ) {
-				if( state.type == STATETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeScopeTarget )
 					addGetBinaryStatus( state.target.sourceProject , start , state.state );
 			}
 			else
 			if( state.action instanceof ActionGetDB ) {
-				if( state.type == STATETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeScopeTarget )
 					addGetDBNormalStatus( state.target.dbDelivery , start , state.state );
 			}
 			else
 			if( state.action instanceof ActionGetConf ) {
-				if( state.type == STATETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeScopeTarget )
 					addGetConfStatus( state.target.confItem , start , state.state );
 			}
 			else
@@ -118,7 +118,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 			}
 			else
 			if( state.action instanceof ActionBuild ) {
-				if( state.type == STATETYPE.TypeTarget )
+				if( state.type == STATETYPE.TypeScopeTarget )
 					addBuildStatus( state.target.sourceProject , start , state.state );
 			}
 		}

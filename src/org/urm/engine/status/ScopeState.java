@@ -50,7 +50,7 @@ public class ScopeState extends ObjectState {
 	}
 
 	public ScopeState( ScopeState parent , ActionScopeTarget target ) {
-		super( STATETYPE.TypeTarget , parent , target );
+		super( STATETYPE.TypeScopeTarget , parent , target );
 		this.scope = target.set.scope;
 		this.set = target.set;
 		this.target = target;
@@ -58,7 +58,7 @@ public class ScopeState extends ObjectState {
 	}
 
 	public ScopeState( ScopeState parent , ActionScopeTargetItem item ) {
-		super( STATETYPE.TypeItem , parent , item );
+		super( STATETYPE.TypeScopeItem , parent , item );
 		this.scope = item.target.set.scope;
 		this.set = item.target.set;
 		this.target = item.target;
@@ -110,11 +110,11 @@ public class ScopeState extends ObjectState {
 	}
 
 	public ScopeState findTargetState( ActionScopeTarget target ) {
-		if( type == STATETYPE.TypeItem )
+		if( type == STATETYPE.TypeScopeItem )
 			return( ( ScopeState )parent );
 		if( type == STATETYPE.TypeAccount )
 			return( null );
-		if( type == STATETYPE.TypeTarget )
+		if( type == STATETYPE.TypeScopeTarget )
 			return( this );
 		ScopeState stateSet = findSetState( target.set );
 		if( stateSet == null )
@@ -128,11 +128,11 @@ public class ScopeState extends ObjectState {
 	}
 
 	public ScopeState findSetState( ActionScopeSet set ) {
-		if( type == STATETYPE.TypeItem )
+		if( type == STATETYPE.TypeScopeItem )
 			return( ( ScopeState )parent.parent );
 		if( type == STATETYPE.TypeAccount )
 			return( ( ScopeState )parent );
-		if( type == STATETYPE.TypeTarget )
+		if( type == STATETYPE.TypeScopeTarget )
 			return( ( ScopeState )parent );
 		if( type == STATETYPE.TypeSet )
 			return( this );
