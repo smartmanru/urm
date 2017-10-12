@@ -128,7 +128,7 @@ abstract public class ActionBase extends ActionCore {
 		this.shell = base.shell;
 		this.commandTimeout = base.commandTimeout;
 		
-		context = new CommandContext( base.context , stream );
+		context = new CommandContext( this , base.context , stream );
 	}
 
 	@Override
@@ -940,11 +940,6 @@ abstract public class ActionBase extends ActionCore {
 
 	public BaseRepository getBaseRepository() throws Exception {
 		return( artefactory.getBaseRepository( this ) );
-	}
-
-	public void createDedicatedContext() throws Exception {
-		CommandContext nc = new CommandContext( context , context.stream );
-		setContext( nc );
 	}
 
 	public EngineBlotterSet getBlotter( BlotterType type ) {

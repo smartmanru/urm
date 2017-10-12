@@ -327,6 +327,7 @@ public class Engine {
 		action.create( type , loader , commandAction , options.method , memoryOnly );
 		
 		action.setContext( context );
+		context.setAction( action );
 		context.update( action );
 		
 		action.setLogLevel( context.logLevelLimit );

@@ -66,6 +66,7 @@ public class CommandContext {
 	public Engine engine;
 	public CommandOptions options;
 	public EngineSession session;
+	public ActionBase action;
 
 	public Meta meta;
 	public MetaEnv env; 
@@ -165,13 +166,14 @@ public class CommandContext {
 		setLogLevel();
 	}
 
-	public CommandContext( CommandContext context , String stream ) {
+	public CommandContext( ActionBase action , CommandContext context , String stream ) {
 		if( stream == null || stream.isEmpty() )
 			this.stream = context.stream;
 		else
 			this.stream = stream;
 		
 		// copy all properties
+		this.action = action;
 		this.engine = context.engine;
 		this.session = context.session;
 		
@@ -261,6 +263,10 @@ public class CommandContext {
 	private void setLogStream() {
 		streamLog = ( call != null )? "[" + stream + "," + call.sessionContext.sessionId + "]" : "[" + stream + "]";
 	}
+
+	public void setAction( ActionInit action ) {
+		this.action = action;
+	}
 	
 	private void setLogLevel() {
 		logLevelLimit = CommandOutput.LOGLEVEL_INFO;
@@ -286,7 +292,7 @@ public class CommandContext {
 		update( action , env.meta );
 	}
 
-	public void update( ActionBase action ) throws Exception {
+	public void update( ActionInit action ) throws Exception {
 		Meta meta = ( session != null && session.product )? action.getContextMeta() : null;
 		update( action , meta );
 	}
@@ -384,7 +390,7 @@ public class CommandContext {
 		setLogLevel();
 	}
 
-	public void loadEnv( ActionBase action , boolean loadProps ) throws Exception {
+	public void loadEnv( ActionInit action , boolean loadProps ) throws Exception {
 		if( session.ENV.isEmpty() )
 			return;
 		
@@ -394,7 +400,7 @@ public class CommandContext {
 		loadEnv( action , session.ENV , useSG , loadProps );
 	}
 	
-	public void loadEnv( ActionBase action , String ENV , String SG , boolean loadProps ) throws Exception {
+	public void loadEnv( ActionInit action , String ENV , String SG , boolean loadProps ) throws Exception {
 		Meta meta = action.getContextMeta();
 		env = meta.getEnvData( action , ENV , loadProps );
 		
@@ -405,11 +411,6 @@ public class CommandContext {
 		
 		sg = env.getSG( action , SG );
 		update( action );
-	}
-	
-	public CommandContext getStreamContext( String stream ) {
-		CommandContext context = new CommandContext( this , stream );
-		return( context );
 	}
 	
 	public String getBuildModeName() {
@@ -522,6 +523,7 @@ public class CommandContext {
 
 	public void outExact( String s ) {
 		logCapture.outExact( s );
+		action.notifyLog( s );
 	}
 	
 }

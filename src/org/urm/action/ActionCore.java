@@ -9,6 +9,7 @@ import org.urm.common.RunContext;
 import org.urm.engine.Engine;
 import org.urm.engine.blotter.EngineBlotterActionItem;
 import org.urm.engine.blotter.EngineBlotterTreeItem;
+import org.urm.engine.events.EngineEvents;
 import org.urm.meta.Types.*;
 
 abstract public class ActionCore {
@@ -235,6 +236,13 @@ abstract public class ActionCore {
 			action.cancelRun();
 	}
 	
-
+	public void notifyLog( String s ) {
+		ActionCore notifyAction = this;
+		while( notifyAction != null ) {
+			notifyAction.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_ACTIONLOG , s );
+			notifyAction = notifyAction.parent;
+		}
+	}
+	
 }
 
