@@ -16,6 +16,12 @@ public class ActionSendChatMsg extends ActionBase {
 	MetaEnvSegment sg;
 	
 	public static void sendMsg( ScopeState parentState , ActionBase action , String msg , MetaEnv env , MetaEnvSegment sg ) throws Exception {
+		if( action.context.CTX_NOCHATMSG )
+			return;
+		
+		if( action.context.env.CHATROOMFILE.isEmpty() )
+			return;
+
 		ActionSendChatMsg ca = new ActionSendChatMsg( action , null , msg , env , sg );
 		ca.runSimpleEnv( parentState , env , SecurityAction.ACTION_DEPLOY , true );
 	}

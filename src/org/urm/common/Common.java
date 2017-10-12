@@ -272,6 +272,10 @@ public class Common {
 	public static String getTimeStamp( long timeMillis ) {
 		return( getTimeStamp( new Date( timeMillis ) ) );
 	}
+
+	public static String getTime() {
+		return( getTime( System.currentTimeMillis() ) );
+	}
 	
 	public static String getTime( long timeMillis ) {
         SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss" );
