@@ -322,7 +322,15 @@ public class MetaEnvSegment extends PropertyController {
 	}
 
 	public void setStartInfo( EngineTransaction transaction , MetaEnvStartInfo startInfo ) throws Exception {
+		ActionBase action = transaction.getAction();
 		this.startInfo = startInfo;
+		for( MetaEnvServer server : originalList )
+			server.setStartGroup( action , null );
+		
+		for( MetaEnvStartGroup group : startInfo.getForwardGroupList() ) {
+			for( MetaEnvServer server : group.getServers() )
+				server.setStartGroup( action , group );
+		}
 	}
 
 	public boolean isConfUsed( MetaDistrConfItem item ) {
