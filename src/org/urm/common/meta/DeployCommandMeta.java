@@ -35,8 +35,6 @@ public class DeployCommandMeta extends CommandMeta {
 	public static String METHOD_VERIFYDEPLOY = "verifydeploy";
 	public static String METHOD_WAITENV = "waitenv";
 	public static String METHOD_WAITWEB = "waitweb";
-	public static String METHOD_RELEASEHISTORY = "rhistory";
-	public static String METHOD_HISTORY = "history";
 	public static String METHOD_LOGIN = "login";
 	
 	public static String NAME = "deploy";
