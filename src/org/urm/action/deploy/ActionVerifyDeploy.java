@@ -364,7 +364,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		if( !runInfo.deployFinalName.equals( runtimeName ) ) {
 			info( "dist item=" + binaryItem.KEY + " is the same in location=" + location.DEPLOYPATH + 
 					", but name differs from expected (" + 
-					runInfo.deployFinalName + " != " + distInfo.fileName + ")" );
+					runInfo.deployFinalName + " != " + runtimeName + ")" );
 			return( true );
 		}
 		
