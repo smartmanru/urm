@@ -13,8 +13,8 @@ import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionStartServer extends ActionBase {
 	
-	ActionScopeTarget target;
-	MetaEnvServer server;
+	public ActionScopeTarget target;
+	public MetaEnvServer server;
 	
 	public ActionStartServer( ActionBase action , String stream , ActionScopeTarget target ) {
 		super( action , stream , "Start server=" + target.envServer.NAME );

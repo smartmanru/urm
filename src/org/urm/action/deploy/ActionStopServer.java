@@ -13,8 +13,8 @@ import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionStopServer extends ActionBase {
 	
-	ActionScopeTarget target;
-	MetaEnvServer server;
+	public ActionScopeTarget target;
+	public MetaEnvServer server;
 	
 	public ActionStopServer( ActionBase action , String stream , ActionScopeTarget target ) {
 		super( action , stream , "Stop server=" + target.envServer.NAME );

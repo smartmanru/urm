@@ -1093,7 +1093,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			}
 				
 			running = true;
-			action.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STARTACTION , action );
+			notifyStartAction( action );
 			stateFinal = new ScopeState( parentState , action , scope );
 			action.startExecutor( this , stateFinal );
 			return( true );
@@ -1119,7 +1119,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			
 			action.engine.blotter.stopAction( action , res );
 			running = false;
-			action.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_FINISHACTION , action );
+			notifyFinishAction( action );
 			return( res );
 		}
 		catch( Throwable e ) {
@@ -1132,6 +1132,26 @@ public class ScopeExecutor implements EngineEventsListener {
 	private void accessDenied( String msg ) {
 		action.error( msg );
 		action.fail0( _Error.AccessDenied0 , "Access denied" );
+	}
+
+	private void notifyStartAction( ActionCore action ) {
+		action.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STARTACTION , action );
+		
+		ActionCore actionParent = action;
+		while( actionParent.parent != null ) {
+			actionParent = actionParent.parent;
+			actionParent.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STARTCHILDACTION , action );
+		}
+	}
+
+	private void notifyFinishAction( ActionBase action ) {
+		action.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_FINISHACTION , action );
+		
+		ActionCore actionParent = action;
+		while( actionParent.parent != null ) {
+			actionParent = actionParent.parent;
+			actionParent.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_FINISHCHILDACTION , action );
+		}
 	}
 	
 }

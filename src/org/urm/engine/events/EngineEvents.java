@@ -25,6 +25,8 @@ public class EngineEvents extends EngineObject {
 	public static int EVENT_STATECHANGED = 11;
 	public static int EVENT_MONITORCHILDCHANGED = 12;
 	public static int EVENT_MONITORGRAPHCHANGED = 13;
+	public static int EVENT_STARTCHILDACTION = 20;
+	public static int EVENT_FINISHCHILDACTION = 21;
 	public static int EVENT_SEGMENT = 50;
 	public static int EVENT_SERVER = 51;
 	public static int EVENT_NODE = 52;
