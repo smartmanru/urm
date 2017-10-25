@@ -97,7 +97,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 
 		executeServer( target );
-		if( super.isFailed() )
+		if( !verifyOk )
 			return( SCOPESTATE.RunFail );
 		return( SCOPESTATE.RunSuccess );
 	}
