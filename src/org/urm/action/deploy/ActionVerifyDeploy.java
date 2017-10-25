@@ -97,8 +97,11 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 
 		executeServer( target );
-		if( !verifyOk )
+		if( !verifyOk ) {
+			super.fail1( _Error.VerifyDeployFailed1 , "verification of deployment failed, server=" + server.NAME , server.NAME );
 			return( SCOPESTATE.RunFail );
+		}
+		
 		return( SCOPESTATE.RunSuccess );
 	}
 	
