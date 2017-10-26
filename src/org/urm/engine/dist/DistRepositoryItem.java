@@ -74,9 +74,8 @@ public class DistRepositoryItem {
 			action.exit1( _Error.MissingRelease1 , "release does not exist at " + path , path );
 		}
 		
-		boolean prod = distFolder.folderName.equals( Dist.MASTER_DIR );
 		Dist dist = new Dist( repo.meta , repo );
-		dist.setFolder( distFolder , prod );
+		dist.setFolder( distFolder );
 		dist.load( action );
 		return( dist );
 	}
@@ -93,7 +92,7 @@ public class DistRepositoryItem {
 		}
 
 		Dist dist = new Dist( repo.meta , repo );
-		dist.setFolder( distFolder , false );
+		dist.setFolder( distFolder );
 		dist.create( action , distFolder.folderName , releaseDate , lc );
 		return( dist );
 	}
@@ -110,7 +109,7 @@ public class DistRepositoryItem {
 			distFolder.ensureExists( action );
 		
 		Dist dist = new Dist( repo.meta , repo );
-		dist.setFolder( distFolder , true );
+		dist.setFolder( distFolder );
 		dist.createProd( action , RELEASEVER );
 		distFolder.createFileFromString( action , DistRepository.RELEASEHISTORYFILE , getHistoryRecord( action , RELEASEVER , "add" ) );
 		return( dist );

@@ -45,16 +45,22 @@ public class ActionAppendProd extends ActionBase {
 		}
 		
 		Dist next = repo.getNextDist( this , infoProd );
-		if( next == null )
-			super.exitUnexpectedState();
-			
-		VersionInfo infoNext = VersionInfo.getDistVersion( this , next );
-		String nextVersion = infoNext.getFullVersion();
-		if( !nextVersion.equals( infoDist.getFullVersion() ) ) {
+		if( next == null ) {
 			if( !super.isForced() ) {
-				String name = infoNext.getReleaseName();
-				super.fail1( _Error.CannotSkipRelease1 , "Unable to skip available release=" + name + ", use -force to override" , name );
+				String name = infoProd.getReleaseName();
+				super.fail1( _Error.CannotFindMasterRelease1 , "Current master source release distributive not found, version=" + name + ", use -force to override" , name );
 				return( SCOPESTATE.RunFail );
+			}
+		}
+		else {
+			VersionInfo infoNext = VersionInfo.getDistVersion( this , next );
+			String nextVersion = infoNext.getFullVersion();
+			if( !nextVersion.equals( infoDist.getFullVersion() ) ) {
+				if( !super.isForced() ) {
+					String name = infoNext.getReleaseName();
+					super.fail1( _Error.CannotSkipRelease1 , "Unable to skip available release=" + name + ", use -force to override" , name );
+					return( SCOPESTATE.RunFail );
+				}
 			}
 		}
 		

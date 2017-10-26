@@ -98,7 +98,7 @@ public class Dist {
 		release.load( action , infoPath );
 	}
 
-	public void setFolder( RemoteFolder distFolder , boolean prod ) {
+	public void setFolder( RemoteFolder distFolder ) {
 		this.distFolder = distFolder;
 		this.RELEASEDIR = distFolder.folderName;
 				
@@ -421,10 +421,12 @@ public class Dist {
 		
 		openForDataChange( action );
 		
-		if( !release.changes.isCompleted() ) {
-			action.error( "release changes are not completed" );
-			state.ctlCloseDataChange( action );
-			return;
+		if( !release.MASTER ) {
+			if( !release.changes.isCompleted() ) {
+				action.error( "release changes are not completed" );
+				state.ctlCloseDataChange( action );
+				return;
+			}
 		}
 		
 		DistFinalizer finalizer = new DistFinalizer( action , this , distFolder , release );
@@ -1139,8 +1141,7 @@ public class Dist {
 			parent.removeFolder( action , newName );
 		
 		parent.moveFolderToFolder( action , RELEASEDIR , newName );
-		distFolder = parent.getSubFolder( action , newName );
-		RELEASEDIR = distFolder.folderName;
+		setFolder( parent.getSubFolder( action , newName ) );
 	}
 	
 }
