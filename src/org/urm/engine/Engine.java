@@ -193,7 +193,7 @@ public class Engine {
 		if( options == null )
 			return( null );
 		
-		ActionInit action = createRootAction( RootActionType.InteractiveSession , options , session , "web" , null , false , "Interactive session id=" + session.sessionId + ", user=" + session.getLoginAuth().USER );
+		ActionInit action = createRootAction( RootActionType.InteractiveSession , options , session , "web-" + session.sessionId , null , false , "Interactive session id=" + session.sessionId + ", user=" + session.getLoginAuth().USER );
 		startAction( action );
 		
 		return( action );
