@@ -3,6 +3,7 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.shell.ShellExecutor;
+import org.urm.engine.status.ScopeState;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.Types.*;
@@ -11,6 +12,7 @@ public class ServerProcess {
 
 	MetaEnvServer srv;
 	MetaEnvServerNode node;
+	ScopeState state;
 	
 	public VarPROCESSMODE mode;
 	public String pids;
@@ -20,7 +22,7 @@ public class ServerProcess {
 	public static int defaultStartServerTimeSecs = 60;
 	public static int defaultStopServerTimeSecs = 60;
 	
-	public ServerProcess( MetaEnvServer srv , MetaEnvServerNode node ) {
+	public ServerProcess( MetaEnvServer srv , MetaEnvServerNode node , ScopeState state ) {
 		this.srv = srv;
 		this.node = node;
 		this.mode = VarPROCESSMODE.UNKNOWN;

@@ -1,5 +1,8 @@
 package org.urm.engine.status;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.urm.action.ActionCore;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
@@ -7,6 +10,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.shell.Account;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class ScopeState extends ObjectState {
 
@@ -19,6 +23,9 @@ public class ScopeState extends ObjectState {
 		RunStopped
 	};
 	
+	public enum FACTVALUE {
+	};
+	
 	public ActionCore action;
 	public SCOPESTATE state;
 
@@ -27,6 +34,8 @@ public class ScopeState extends ObjectState {
 	public ActionScopeTarget target;
 	public ActionScopeTargetItem item;
 	public Account account;
+
+	public List<ScopeStateFact> facts;
 	
 	public ScopeState( ScopeState parent , ActionCore action , ActionScope scope ) {
 		super( STATETYPE.TypeScope , parent , scope );
@@ -66,10 +75,19 @@ public class ScopeState extends ObjectState {
 		create( parent.action );
 	}
 
+	public ScopeState( ScopeState parent , ActionScopeTarget target , MetaEnvServerNode node ) {
+		super( STATETYPE.TypeServerNode , parent , node );
+		this.scope = target.set.scope;
+		this.set = target.set;
+		this.target = target;
+		create( parent.action );
+	}
+
 	private void create( ActionCore action ) {
 		this.action = action;
 		this.state = SCOPESTATE.New;
 		
+		facts = new LinkedList<ScopeStateFact>(); 
 		action.eventSource.startScopeItem( this );
 		
 		ActionCore notifyParent = action;
@@ -142,6 +160,69 @@ public class ScopeState extends ObjectState {
 				return( childState );
 		}
 		return( null );
+	}
+
+	public void addFact( Enum<?> factType ) {
+		ScopeStateFact fact = new ScopeStateFact( this , type , new FactValue[0] );
+		addFact( fact );
+	}
+	
+	public synchronized void addFact( Enum<?> factType , FACTVALUE type1 , String arg1 ) {
+		ScopeStateFact fact = new ScopeStateFact( this , type , new FactValue[] { new FactValue( type1 , arg1 ) } );
+		addFact( fact );
+	}
+	
+	public synchronized void addFact( Enum<?> factType , FACTVALUE type1 , String arg1 , 
+			FACTVALUE type2 , String arg2 ) {
+		ScopeStateFact fact = new ScopeStateFact( this , type , new FactValue[] { new FactValue( type1 , arg1 ) ,
+				new FactValue( type2 , arg2 ) } );
+		addFact( fact );
+	}
+	
+	public synchronized void addFact( Enum<?> factType , FACTVALUE type1 , String arg1 , 
+			FACTVALUE type2 , String arg2 ,
+			FACTVALUE type3 , String arg3 ) {
+		ScopeStateFact fact = new ScopeStateFact( this , type , new FactValue[] { new FactValue( type1 , arg1 ) ,
+				new FactValue( type2 , arg2 ) ,
+				new FactValue( type3 , arg3 ) } );
+		addFact( fact );
+	}
+	
+	public synchronized void addFact( Enum<?> factType , FACTVALUE type1 , String arg1 , 
+			FACTVALUE type2 , String arg2 ,
+			FACTVALUE type3 , String arg3 ,
+			FACTVALUE type4 , String arg4 ) {
+		ScopeStateFact fact = new ScopeStateFact( this , type , new FactValue[] { new FactValue( type1 , arg1 ) ,
+				new FactValue( type2 , arg2 ) ,
+				new FactValue( type3 , arg3 ) ,
+				new FactValue( type4 , arg4 ) } );
+		addFact( fact );
+	}
+	
+	public synchronized void addFact( Enum<?> factType , FACTVALUE type1 , String arg1 , 
+			FACTVALUE type2 , String arg2 ,
+			FACTVALUE type3 , String arg3 ,
+			FACTVALUE type4 , String arg4 ,
+			FACTVALUE type5 , String arg5 ) {
+		ScopeStateFact fact = new ScopeStateFact( this , type , new FactValue[] { new FactValue( type1 , arg1 ) ,
+				new FactValue( type2 , arg2 ) ,
+				new FactValue( type3 , arg3 ) ,
+				new FactValue( type4 , arg4 ) ,
+				new FactValue( type5 , arg5 ) } );
+		addFact( fact );
+	}
+
+	public void addFact( ScopeStateFact fact ) {
+		facts.add( fact );
+		
+		action.eventSource.finishScopeItem( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_ADDFACT , this );
+		
+		ActionCore notifyParent = action;
+		notifyParent = notifyParent.parent;
+		while( notifyParent != null ) {
+			notifyParent.eventSource.finishScopeItem( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_ADDCHILDFACT , this );
+			notifyParent = notifyParent.parent;
+		}
 	}
 	
 }
