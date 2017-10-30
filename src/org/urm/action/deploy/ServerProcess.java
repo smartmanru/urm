@@ -100,11 +100,25 @@ public class ServerProcess {
 		return( false );
 	}
 
+	private ShellExecutor getShell( ActionBase action ) throws Exception {
+		try {
+			ShellExecutor shell = action.getShell( node );
+			return( shell );
+		}
+		catch( Throwable e ) {
+			mode = VarPROCESSMODE.UNREACHABLE;
+			state.addFact( mode );
+			return( null );
+		}
+	}
+	
 	private void gatherPacemakerStatus( ActionBase action ) throws Exception {
 		if( !srv.isLinux() )
 			action.exitNotImplemented();
 		
-		ShellExecutor shell = action.getShell( node );
+		ShellExecutor shell = getShell( action );
+		if( shell == null )
+			return;
 		
 		try {
 			cmdValue = shell.customGetValue( action , "crm_resource -W -r " + srv.SYSNAME + " 2>&1 | grep `hostname`" );
@@ -133,7 +147,9 @@ public class ServerProcess {
 		if( !srv.isLinux() )
 			action.exitNotImplemented();
 		
-		ShellExecutor shell = action.getShell( node );
+		ShellExecutor shell = getShell( action );
+		if( shell == null )
+			return;
 		
 		try {
 			cmdValue = shell.customGetValue( action , "docker inspect " + srv.SYSNAME + " | grep Status" );
@@ -164,12 +180,15 @@ public class ServerProcess {
 			mode = VarPROCESSMODE.ERRORS;
 		}
 		finally {
+			state.addFact( VarPROCESSMODE.UNKNOWN );
 			shell.release( action );
 		}
 	}
 	
 	private void gatherServiceStatus( ActionBase action ) throws Exception {
-		ShellExecutor shell = action.getShell( node );
+		ShellExecutor shell = getShell( action );
+		if( shell == null )
+			return;
 		
 		// linux operations
 		try {
@@ -179,20 +198,24 @@ public class ServerProcess {
 				String check = cmdValue.toUpperCase();
 				if( isStoppedStatus( action , check ) ) {
 					mode = VarPROCESSMODE.STOPPED;
+					state.addFact( mode );
 					return;
 				}
 				
 				if( isStartedStatus( action , check ) ) {
 					mode = VarPROCESSMODE.STARTED;
+					state.addFact( mode );
 					return;
 				}
 		
 				if( isStartingStatus( action , check ) ) {
 					mode = VarPROCESSMODE.STARTING;
+					state.addFact( mode );
 					return;
 				}
 				
 				mode = VarPROCESSMODE.ERRORS;
+				state.addFact( mode );
 				return;
 			}
 			
@@ -216,13 +239,17 @@ public class ServerProcess {
 			getPids( action );
 			
 			if( pids.isEmpty() ) {
-				mode = VarPROCESSMODE.STOPPED;
+				if( mode == VarPROCESSMODE.UNKNOWN )
+					mode = VarPROCESSMODE.STOPPED;
 				return;
 			}
 		}
 
 		// check process status
-		ShellExecutor shell = action.getShell( node );
+		ShellExecutor shell = getShell( action );
+		if( shell == null )
+			return;
+		
 		try {
 			if( srv.isLinux() )
 				cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "./server.status.sh " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
@@ -261,7 +288,10 @@ public class ServerProcess {
 		pids = "";
 		
 		// find program process
-		ShellExecutor shell = action.getShell( node );
+		ShellExecutor shell = getShell( action );
+		if( shell == null )
+			return;
+		
 		try {
 			// linux operations
 			if( srv.isLinux() ) {

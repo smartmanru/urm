@@ -201,7 +201,8 @@ public class Types {
 		STARTED ,
 		STARTING ,
 		ERRORS ,
-		STOPPED
+		STOPPED ,
+		UNREACHABLE
 	};
 
 	public enum VarCONFITEMTYPE {

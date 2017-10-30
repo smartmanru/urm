@@ -390,6 +390,9 @@ public class ActionCheckEnv extends ActionBase {
 		if( process.mode == VarPROCESSMODE.STOPPED )
 			error( node.HOSTLOGIN + ": status=stopped" );
 		else
+		if( process.mode == VarPROCESSMODE.UNREACHABLE )
+			error( node.HOSTLOGIN + ": status=unreachable" );
+		else
 			this.exitUnexpectedState();
 		return( false );
 	}

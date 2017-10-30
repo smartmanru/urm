@@ -55,7 +55,7 @@ public class NodeStatus extends Status {
 		}
 		
 		processFailed = true;
-		if( mode == VarPROCESSMODE.UNKNOWN )
+		if( mode == VarPROCESSMODE.UNKNOWN || mode == VarPROCESSMODE.UNREACHABLE )
 			mainState = OBJECT_STATE.STATE_UNABLE_GETSTATE;
 		else
 		if( mode == VarPROCESSMODE.ERRORS )
