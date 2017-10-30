@@ -27,11 +27,11 @@ public class ActionBaseInstall extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
-		executeServer( target );
+		executeServer( target , state );
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private void executeServer( ActionScopeTarget target ) throws Exception {
+	private void executeServer( ActionScopeTarget target , ScopeState state ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		MetaEnvServerBase base = server.basesw;
 		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
@@ -45,12 +45,13 @@ public class ActionBaseInstall extends ActionBase {
 
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
+			ScopeState nodeState = new ScopeState( state , item );
 			info( "install server=" + server.NAME + " node=" + node.POS + " ..." );
-			executeNode( server , node , base );
+			executeNode( server , node , nodeState , base );
 		}
 	}
 
-	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerBase base ) throws Exception {
+	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , ScopeState state , MetaEnvServerBase base ) throws Exception {
 		BaseRepository repo = artefactory.getBaseRepository( this );
 		EngineBaseItemData info = repo.getBaseInfo( this , base.ID , node , true );
 		if( info.serverAccessType != server.getServerAccessType() ) {
@@ -62,14 +63,14 @@ public class ActionBaseInstall extends ActionBase {
 		// install dependencies
 		for( String depBase : info.dependencies ) {
 			EngineBaseItemData depInfo = repo.getBaseInfo( this , depBase , node , false );
-			executeNodeInstall( server , node , depInfo );
+			executeNodeInstall( server , node , state , depInfo );
 		}
 
 		// install main
-		executeNodeInstall( server , node , info );
+		executeNodeInstall( server , node , state , info );
 	}
 
-	private void executeNodeInstall( MetaEnvServer server , MetaEnvServerNode node , EngineBaseItemData info ) throws Exception {
+	private void executeNodeInstall( MetaEnvServer server , MetaEnvServerNode node , ScopeState state , EngineBaseItemData info ) throws Exception {
 		if( !isExecute() )
 			return;
 
@@ -100,7 +101,7 @@ public class ActionBaseInstall extends ActionBase {
 		
 		// prepare
 		if( info.serverAccessType != null ) {
-			ServerProcess process = new ServerProcess( server , node );
+			ServerProcess process = new ServerProcess( server , node , state );
 			process.prepare( this );
 		}
 		

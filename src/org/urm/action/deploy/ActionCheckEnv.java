@@ -103,17 +103,17 @@ public class ActionCheckEnv extends ActionBase {
 			// execute server
 			info( "============================================ check server=" + target.envServer.NAME + " ..." );
 	
-			checkOneServer( target , target.envServer , true , "main" , serverStatus );
+			checkOneServer( target , state , target.envServer , true , "main" , serverStatus );
 			
 			// check associated if specific servers and not specific nodes 
 			if( set.setFull == false && target.itemFull == true ) {
 				if( target.envServer.nlbServer != null ) 
-					checkOneServer( target , target.envServer.nlbServer , false , "nlb" , serverStatus );
+					checkOneServer( target , state , target.envServer.nlbServer , false , "nlb" , serverStatus );
 				if( target.envServer.staticServer != null ) 
-					checkOneServer( target , target.envServer.staticServer , false , "static" , serverStatus );
+					checkOneServer( target , state , target.envServer.staticServer , false , "static" , serverStatus );
 				if( target.envServer.subordinateServers != null ) {
 					for( MetaEnvServer server : target.envServer.subordinateServers ) 
-						checkOneServer( target , server , false , "subordinate" , serverStatus );
+						checkOneServer( target , state , server , false , "subordinate" , serverStatus );
 				}
 			}
 		}
@@ -148,7 +148,7 @@ public class ActionCheckEnv extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private void checkOneServer( ActionScopeTarget target , MetaEnvServer server , boolean main , String role , ServerStatus serverStatus ) throws Exception {
+	private void checkOneServer( ActionScopeTarget target , ScopeState state , MetaEnvServer server , boolean main , String role , ServerStatus serverStatus ) throws Exception {
 		S_CHECKENV_SERVER_FAILED = false;
 		S_CHECKENV_SERVER_NODES_FAILED = "";
 		S_CHECKENV_SERVER_COMPS_FAILED = "";
@@ -175,8 +175,9 @@ public class ActionCheckEnv extends ActionBase {
 			
 			boolean someNodeAvailable = false;
 			for( ActionScopeTargetItem node : target.getItems( this ) ) {
+				ScopeState nodeState = new ScopeState( state , node );
 				status.updateRunTime( this , node.envServerNode );
-				checkOneServerNode( node , server , node.envServerNode , main , role , serverStatus );
+				checkOneServerNode( node , server , node.envServerNode , nodeState , main , role , serverStatus );
 				status.finishUpdate( this , node.envServerNode );
 				if( !S_CHECKENV_NODE_STOPPED )
 					someNodeAvailable = true;
@@ -185,13 +186,15 @@ public class ActionCheckEnv extends ActionBase {
 			S_CHECKENV_TARGET_NODES_FAILED = S_CHECKENV_SERVER_NODES_FAILED;
 			
 			if( target.itemFull && someNodeAvailable )
-				checkOneServerWhole( server , serverStatus );
+				checkOneServerWhole( server , state , serverStatus );
 			
 			S_CHECKENV_TARGET_COMPS_FAILED = S_CHECKENV_SERVER_COMPS_FAILED;
 		}
 		else {
-			for( MetaEnvServerNode node : server.getNodes() )
-				checkOneServerNode( null , server , node , false , role , serverStatus );
+			for( MetaEnvServerNode node : server.getNodes() ) {
+				ScopeState nodeState = new ScopeState( state , node );
+				checkOneServerNode( null , server , node , nodeState , false , role , serverStatus );
+			}
 		}
 		
 		// add server status to target
@@ -203,24 +206,24 @@ public class ActionCheckEnv extends ActionBase {
 			S_CHECKENV_TARGET_SERVERS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_TARGET_SERVERS_FAILED , server.NAME );
 	}
 
-	private void checkOneServerWhole( MetaEnvServer server , ServerStatus serverStatus ) throws Exception {
+	private void checkOneServerWhole( MetaEnvServer server , ScopeState state , ServerStatus serverStatus ) throws Exception {
 		debug( "check whole server ..." );
 		
 		boolean wholeOk = true;
 		
 		if( server.isWebUser() ) {
 			if( !server.WEBMAINURL.isEmpty() )
-				if( !checkOneServerWholeUrl( server.WEBMAINURL , "main web url" , null , serverStatus ) )
+				if( !checkOneServerWholeUrl( server.WEBMAINURL , "main web url" , state , null , serverStatus ) )
 					wholeOk = false;
 		}
 
 		if( server.isCallable() ) {
-			if( !checkOneServerWholeComps( server , serverStatus ) )
+			if( !checkOneServerWholeComps( server , state , serverStatus ) )
 				wholeOk = false;
 		}
 
 		if( server.isDatabase() ) {
-			if( !checkOneServerWholeDatabase( server , serverStatus ) )
+			if( !checkOneServerWholeDatabase( server , state , serverStatus ) )
 				wholeOk = false;
 		}
 		
@@ -230,7 +233,7 @@ public class ActionCheckEnv extends ActionBase {
 		S_CHECKENV_SERVER_FAILED = true;
 	}
 	
-	private boolean checkOneServerWholeUrl( String URL , String role , NodeStatus nodeStatus , ServerStatus serverStatus ) throws Exception {
+	private boolean checkOneServerWholeUrl( String URL , String role , ScopeState state , NodeStatus nodeStatus , ServerStatus serverStatus ) throws Exception {
 		super.trace( role + ": check url=" + URL + " ..." );
 		
 		boolean res = SimpleHttp.check( this , URL );
@@ -247,14 +250,14 @@ public class ActionCheckEnv extends ActionBase {
 		return( res );
 	}
 
-	private boolean checkOneServerWholeComps( MetaEnvServer server , ServerStatus serverStatus ) throws Exception {
+	private boolean checkOneServerWholeComps( MetaEnvServer server , ScopeState state , ServerStatus serverStatus ) throws Exception {
 		if( server.WEBSERVICEURL.isEmpty() )
 			return( true );
 		
-		return( checkOneServerWebServices( server , server.WEBSERVICEURL , null , serverStatus ) );
+		return( checkOneServerWebServices( server , state , server.WEBSERVICEURL , null , serverStatus ) );
 	}
 	
-	private boolean checkOneServerWebServices( MetaEnvServer server , String ACCESSPOINT , NodeStatus nodeStatus , ServerStatus serverStatus ) throws Exception {
+	private boolean checkOneServerWebServices( MetaEnvServer server , ScopeState state , String ACCESSPOINT , NodeStatus nodeStatus , ServerStatus serverStatus ) throws Exception {
 		if( !server.hasWebServices() )
 			return( true );
 		
@@ -266,7 +269,7 @@ public class ActionCheckEnv extends ActionBase {
 			
 			for( MetaDistrComponentWS ws : deployment.comp.getWebServices() ) {
 				String URL = ws.getURL( ACCESSPOINT ); 
-				if( !checkOneServerWholeUrl( URL , "web service" , nodeStatus , serverStatus ) ) {
+				if( !checkOneServerWholeUrl( URL , "web service" , state , nodeStatus , serverStatus ) ) {
 					ok = false;
 					S_CHECKENV_SERVER_COMPS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_SERVER_COMPS_FAILED , deployment.comp.NAME );
 				}
@@ -280,7 +283,7 @@ public class ActionCheckEnv extends ActionBase {
 		return( false );
 	}
 	
-	private boolean checkOneServerWholeDatabase( MetaEnvServer server , ServerStatus serverStatus ) throws Exception {
+	private boolean checkOneServerWholeDatabase( MetaEnvServer server , ScopeState state , ServerStatus serverStatus ) throws Exception {
 		DatabaseClient process = new DatabaseClient();
 		
 		boolean res = true;
@@ -293,7 +296,7 @@ public class ActionCheckEnv extends ActionBase {
 		return( res );
 	}
 	
-	private void checkOneServerNode( ActionScopeTargetItem item , MetaEnvServer server , MetaEnvServerNode node , boolean main , String role , ServerStatus serverStatus ) {
+	private void checkOneServerNode( ActionScopeTargetItem item , MetaEnvServer server , MetaEnvServerNode node , ScopeState state , boolean main , String role , ServerStatus serverStatus ) {
 		S_CHECKENV_NODE_FAILED = false;
 		S_CHECKENV_NODE_STOPPED = false;
 
@@ -307,8 +310,8 @@ public class ActionCheckEnv extends ActionBase {
 		info( "node " + node.POS + "=" + node.HOSTLOGIN );
 
 		try {
-			if( checkOneServerNodeStatus( server , node , nodeStatus ) ) {
-				if( !checkOneServerNodeComps( server , node , nodeStatus ) ) {
+			if( checkOneServerNodeStatus( server , node , state , nodeStatus ) ) {
+				if( !checkOneServerNodeComps( server , node , state , nodeStatus ) ) {
 					nodeStatus.setCompsFailed();
 					S_CHECKENV_NODE_FAILED = true;
 				}
@@ -321,7 +324,7 @@ public class ActionCheckEnv extends ActionBase {
 			// check proxy node
 			if( main && server.proxyServer != null ) { 
 				info( "check proxy node ..." );
-				if( !checkOneServerNodeStatus( server.proxyServer , node.getProxyNode( this ) , null ) ) {
+				if( !checkOneServerNodeStatus( server.proxyServer , node.getProxyNode( this ) , state , null ) ) {
 					S_CHECKENV_NODE_FAILED = true;
 					nodeStatus.setProxyFailed( server.proxyServer );
 				}
@@ -354,7 +357,7 @@ public class ActionCheckEnv extends ActionBase {
 			serverStatus.addRoleStatus( role , node , S_CHECKENV_NODE_FAILED );
 	}
 	
-	private boolean checkOneServerNodeStatus( MetaEnvServer server , MetaEnvServerNode node , NodeStatus mainState ) throws Exception {
+	private boolean checkOneServerNodeStatus( MetaEnvServer server , MetaEnvServerNode node , ScopeState state , NodeStatus mainState ) throws Exception {
 		if( server.isManual() ) {
 			debug( "skip check process for manual server=" + server.NAME );
 			if( mainState != null )
@@ -362,7 +365,7 @@ public class ActionCheckEnv extends ActionBase {
 			return( true );
 		}
 		
-		ServerProcess process = new ServerProcess( server , node );
+		ServerProcess process = new ServerProcess( server , node , state );
 		try {
 			process.gatherStatus( this );
 		}
@@ -391,9 +394,9 @@ public class ActionCheckEnv extends ActionBase {
 		return( false );
 	}
 	
-	private boolean checkOneServerNodeComps( MetaEnvServer server , MetaEnvServerNode node , NodeStatus state ) throws Exception {
+	private boolean checkOneServerNodeComps( MetaEnvServer server , MetaEnvServerNode node , ScopeState state , NodeStatus status ) throws Exception {
 		String ACCESSPOINT = node.getAccessPoint( this );
-		return( checkOneServerWebServices( server , ACCESSPOINT , state , null ) );
+		return( checkOneServerWebServices( server , state , ACCESSPOINT , status , null ) );
 	}
 	
 }

@@ -35,16 +35,16 @@ public class ActionStartServer extends ActionBase {
 		if( target.itemFull && server.subordinateServers != null && server.subordinateServers.length != 0 ) {
 			info( "start subordinate servers ..." );
 			for( MetaEnvServer sub : server.subordinateServers )
-				executeServerSingle( state , sub , null );
+				executeServerSingle( sub , state , null );
 		}
 		
 		// start main
 		info( "start main server ..." );
-		executeServerSingle( state , server , nodes );
+		executeServerSingle( server , state , nodes );
 
 		if( target.itemFull && server.proxyServer != null ) {
 			info( "start proxy server=" + server.proxyServer.NAME + " ..." );
-			executeServerSingle( state , server.proxyServer , null );
+			executeServerSingle( server.proxyServer , state , null );
 		}
 
 		return( SCOPESTATE.RunSuccess );
@@ -61,7 +61,7 @@ public class ActionStartServer extends ActionBase {
 		return( nodes.toArray( new MetaEnvServerNode[0] ) ); 
 	}
 	
-	private void executeServerSingle( ScopeState state , MetaEnvServer actionServer , List<ActionScopeTargetItem> targetNodes ) throws Exception {
+	private void executeServerSingle( MetaEnvServer actionServer , ScopeState state , List<ActionScopeTargetItem> targetNodes ) throws Exception {
 		MetaEnvServerNode[] nodes = getActionServerNodes( actionServer , targetNodes );
 		if( nodes.length == 0 ) {
 			debug( "server=" + actionServer.NAME + " has no nodes specified to start. Skipped." );
@@ -77,7 +77,7 @@ public class ActionStartServer extends ActionBase {
 		
 		if( actionServer.isStartable() ) {
 			ServerCluster cluster = new ServerCluster( actionServer , nodes );
-			if( !cluster.start( state , this ) ) {
+			if( !cluster.start( this , state ) ) {
 				trace( "server cluster failed" );
 				super.fail1( _Error.ServerClusterStartFailed1 , "server cluster start failed, server=" + actionServer.NAME , actionServer.NAME );
 			}

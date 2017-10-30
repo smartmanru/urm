@@ -28,7 +28,7 @@ public class ServerCluster {
 		boolean res = true;
 		long startMillis = System.currentTimeMillis();
 		for( MetaEnvServerNode node : nodes ) {
-			ScopeState state = new ScopeState( parentState , parentState.target , node );
+			ScopeState state = new ScopeState( parentState , node );
 			action.info( action.getMode() + " stop " + srv.getServerTypeName( action ) + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node , state ); 
@@ -55,7 +55,7 @@ public class ServerCluster {
 		
 		boolean res = true;
 		for( MetaEnvServerNode node : nodes ) {
-			ScopeState state = new ScopeState( parentState , parentState.target , node );
+			ScopeState state = new ScopeState( parentState , node );
 			action.debug( "wait for stop " + srv.getServerTypeName( action ) + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node , state ); 
@@ -75,7 +75,7 @@ public class ServerCluster {
 		
 		long startMillis = System.currentTimeMillis();
 		for( MetaEnvServerNode node : nodes ) {
-			ScopeState state = new ScopeState( parentState , parentState.target , node );
+			ScopeState state = new ScopeState( parentState , node );
 			action.info( action.getMode() + " start " + srv.getServerTypeName( action ) + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node , state ); 
@@ -114,7 +114,7 @@ public class ServerCluster {
 		
 		boolean res = true;
 		for( MetaEnvServerNode node : nodes ) {
-			ScopeState state = new ScopeState( parentState , parentState.target , node );
+			ScopeState state = new ScopeState( parentState , node );
 			action.debug( "wait for start " + srv.getServerTypeName( action ) + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node , state ); 

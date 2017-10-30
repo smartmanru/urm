@@ -75,11 +75,11 @@ public class ScopeState extends ObjectState {
 		create( parent.action );
 	}
 
-	public ScopeState( ScopeState parent , ActionScopeTarget target , MetaEnvServerNode node ) {
+	public ScopeState( ScopeState parent , MetaEnvServerNode node ) {
 		super( STATETYPE.TypeServerNode , parent , node );
-		this.scope = target.set.scope;
-		this.set = target.set;
-		this.target = target;
+		this.scope = null;
+		this.set = null;
+		this.target = null;
 		create( parent.action );
 	}
 

@@ -81,9 +81,32 @@ public class CommandOutput {
 		}
 	}
 
+	private boolean logDisabled( int logLevel ) {
+		if( logLevel < 0 ) {
+			if( logActionLevelLimit < 0 || logServerLevelLimit < 0 )
+				return( false );
+			return( true );
+		}
+		
+		if( logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
+			return( true );
+		return( false );
+	}
+
+	private boolean logActionDisabled( int logLevel ) {
+		if( logLevel < 0 ) {
+			if( logActionLevelLimit < 0 )
+				return( false );
+			return( true );
+		}
+		
+		if( logLevel > logActionLevelLimit )
+			return( true );
+		return( false );
+	}
+	
 	private void log( CommandContext context , int channel , String s , int logLevel ) {
-		if( logActionLevelLimit >= 0 && logServerLevelLimit >= 0 && 
-			logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
+		if( logDisabled( logLevel ) )
 			return;
 		
 		String prefix = null;
@@ -105,8 +128,7 @@ public class CommandOutput {
 		outExact( context , channel , ts + " " + context.streamLog );
 		
 		if( context.call != null ) {
-			if( logActionLevelLimit >= 0 &&  
-				logLevel > logActionLevelLimit )
+			if( logActionDisabled( logLevel ) )
 				return;
 		
 			context.call.addLog( ts );
@@ -114,15 +136,13 @@ public class CommandOutput {
 	}
 	
 	public synchronized void logExact( CommandContext context , int channel , String s , int logLevel ) {
-		if( logActionLevelLimit >= 0 && logServerLevelLimit >= 0 && 
-			logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
+		if( logDisabled( logLevel ) )
 			return;
 		
 		outExact( context , channel , s );
 		
 		if( context.call != null ) {
-			if( logActionLevelLimit >= 0 &&  
-				logLevel > logActionLevelLimit )
+			if( logActionDisabled( logLevel ) )
 				return;
 		
 			context.call.addLog( s );
@@ -133,8 +153,7 @@ public class CommandOutput {
 		if( context.call != null )
 			context.call.addLog( s );
 		
-		if( logActionLevelLimit >= 0 && logServerLevelLimit >= 0 && 
-			logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
+		if( logDisabled( logLevel ) )
 			return;
 		
 		outExact( context , channel , s );
@@ -143,7 +162,7 @@ public class CommandOutput {
 	public synchronized void log( CommandContext context , int channel , String prompt , Throwable e ) {
 		if( logActionLevelLimit < 0 || logServerLevelLimit < 0 ) {
 			synchronized( syncStatic ) {
-				System.out.println( "TRACEINTERNAL: " + prompt );
+				System.out.println( "INNER: " + prompt );
 				e.printStackTrace();
 				System.out.flush();
 			}
@@ -201,7 +220,7 @@ public class CommandOutput {
 
 	private synchronized void outExact( CommandContext context , int channel , String s ) {
 		if( logActionLevelLimit < 0 || logServerLevelLimit < 0 ) {
-			outExactStatic( "TRACEINTERNAL: line=" + s.replaceAll("\\p{C}", "?") );
+			outExactStatic( "INNER: line=" + s.replaceAll("\\p{C}", "?") );
 			return;
 		}
 		
