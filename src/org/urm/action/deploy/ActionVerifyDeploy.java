@@ -51,24 +51,35 @@ public class ActionVerifyDeploy extends ActionBase {
 
 	@Override protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
 		tobeFolder = artefactory.getWorkFolder( this , "tobe" );
-		tobeConfigFolder = tobeFolder.getSubFolder( this , "config" );
-		tobeConfigFolder.ensureExists( this );
-		tobeBinaryFolder = tobeFolder.getSubFolder( this , "binary" );
-		tobeBinaryFolder.ensureExists( this );
+		if( super.context.CTX_CONFDEPLOY ) {
+			tobeConfigFolder = tobeFolder.getSubFolder( this , "config" );
+			tobeConfigFolder.ensureExists( this );
+		}
+		if( super.context.CTX_DEPLOYBINARY ) {
+			tobeBinaryFolder = tobeFolder.getSubFolder( this , "binary" );
+			tobeBinaryFolder.ensureExists( this );
+		}
 		
-		if( dist.isMaster() )
-			configure = new ActionConfigure( this , null , tobeConfigFolder );
-		else
-			configure = new ActionConfigure( this , null , dist , tobeConfigFolder );
-		configure.context.CTX_HIDDEN = true;
-		if( !configure.runAll( state , scope , context.env , SecurityAction.ACTION_DEPLOY , false ) )
-			exit0( _Error.UnablePrepareConfiguration0 , "unable to prepare configuration files for comparison" );
+		if( super.context.CTX_CONFDEPLOY ) {
+			if( dist.isMaster() )
+				configure = new ActionConfigure( this , null , tobeConfigFolder );
+			else
+				configure = new ActionConfigure( this , null , dist , tobeConfigFolder );
+			configure.context.CTX_HIDDEN = true;
+			if( !configure.runAll( state , scope , context.env , SecurityAction.ACTION_DEPLOY , false ) )
+				exit0( _Error.UnablePrepareConfiguration0 , "unable to prepare configuration files for comparison" );
+		}
 		
 		asisFolder = artefactory.getWorkFolder( this , "asis" );
-		asisConfigFolder = asisFolder.getSubFolder( this , "config" );
-		asisConfigFolder.ensureExists( this );
-		asisBinaryFolder = asisFolder.getSubFolder( this , "binary" );
-		asisBinaryFolder.ensureExists( this );
+		
+		if( super.context.CTX_CONFDEPLOY ) {
+			asisConfigFolder = asisFolder.getSubFolder( this , "config" );
+			asisConfigFolder.ensureExists( this );
+		}
+		if( super.context.CTX_DEPLOYBINARY ) {
+			asisBinaryFolder = asisFolder.getSubFolder( this , "binary" );
+			asisBinaryFolder.ensureExists( this );
+		}
 		verifyOk = true;
 	}
 
@@ -190,39 +201,43 @@ public class ActionVerifyDeploy extends ActionBase {
 		redist.recreateTmpFolder( this );
 		
 		boolean verifyNode = true;
+		MetaDistr distr = dist.meta.getDistr( this );
 		
 		// binaries
-		MetaDistr distr = dist.meta.getDistr( this );
-		info( "verify binaries ..." );
-		for( MetaEnvServerLocation location : binaryLocations ) {
-			String[] items = location.getNodeBinaryItems( this , node );
-			for( String item : items ) {
-				MetaDistrBinaryItem binaryItem = distr.getBinaryItem( this , item );
-				if( !executeNodeBinary( server , node , location , binaryItem , tobeBinaryServerFolder , asisBinaryServerFolder ) )
-					verifyNode = false;
+		if( super.context.CTX_DEPLOYBINARY ) {
+			info( "verify binaries ..." );
+			for( MetaEnvServerLocation location : binaryLocations ) {
+				String[] items = location.getNodeBinaryItems( this , node );
+				for( String item : items ) {
+					MetaDistrBinaryItem binaryItem = distr.getBinaryItem( this , item );
+					if( !executeNodeBinary( server , node , location , binaryItem , tobeBinaryServerFolder , asisBinaryServerFolder ) )
+						verifyNode = false;
+				}
 			}
 		}
 	
 		// configuration
-		info( "verify configuration ..." );
-		for( MetaEnvServerLocation location : confLocations ) {
-			String[] items = location.getNodeConfItems( this , node );
-			for( String item : items ) {
-				MetaDistrConfItem confItem = distr.getConfItem( this , item );
-				executeNodeConf( server , node , location , confItem , asisConfigServerFolder );
+		if( super.context.CTX_CONFDEPLOY ) {
+			info( "verify configuration ..." );
+			for( MetaEnvServerLocation location : confLocations ) {
+				String[] items = location.getNodeConfItems( this , node );
+				for( String item : items ) {
+					MetaDistrConfItem confItem = distr.getConfItem( this , item );
+					executeNodeConf( server , node , location , confItem , asisConfigServerFolder );
+				}
 			}
-		}
 			
-		// compare configuration tobe and as is
-		if( confLocations.length > 0 ) {
-			String nodePrefix = "node" + node.POS + "-";
-			if( context.CTX_CHECK ) {
-				if( !showConfDiffs( server , node , tobeConfigServerFolder , asisConfigServerFolder , nodePrefix ) )
-					verifyNode = false;
-			}
-			else {
-				if( !checkConfDiffs( server , node , tobeConfigServerFolder , asisConfigServerFolder , nodePrefix ) )
-					verifyNode = false;
+			// compare configuration tobe and as is
+			if( confLocations.length > 0 ) {
+				String nodePrefix = "node" + node.POS + "-";
+				if( context.CTX_CHECK ) {
+					if( !showConfDiffs( server , node , tobeConfigServerFolder , asisConfigServerFolder , nodePrefix ) )
+						verifyNode = false;
+				}
+				else {
+					if( !checkConfDiffs( server , node , tobeConfigServerFolder , asisConfigServerFolder , nodePrefix ) )
+						verifyNode = false;
+				}
 			}
 		}
 		
