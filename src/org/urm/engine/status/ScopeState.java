@@ -163,18 +163,18 @@ public class ScopeState extends ObjectState {
 	}
 
 	public void addFact( Enum<?> factType ) {
-		ScopeStateFact fact = new ScopeStateFact( this , type , new FactValue[0] );
+		ScopeStateFact fact = new ScopeStateFact( this , factType , new FactValue[0] );
 		addFact( fact );
 	}
 	
 	public synchronized void addFact( Enum<?> factType , FACTVALUE type1 , String arg1 ) {
-		ScopeStateFact fact = new ScopeStateFact( this , type , new FactValue[] { new FactValue( type1 , arg1 ) } );
+		ScopeStateFact fact = new ScopeStateFact( this , factType , new FactValue[] { new FactValue( type1 , arg1 ) } );
 		addFact( fact );
 	}
 	
 	public synchronized void addFact( Enum<?> factType , FACTVALUE type1 , String arg1 , 
 			FACTVALUE type2 , String arg2 ) {
-		ScopeStateFact fact = new ScopeStateFact( this , type , new FactValue[] { new FactValue( type1 , arg1 ) ,
+		ScopeStateFact fact = new ScopeStateFact( this , factType , new FactValue[] { new FactValue( type1 , arg1 ) ,
 				new FactValue( type2 , arg2 ) } );
 		addFact( fact );
 	}
@@ -182,7 +182,7 @@ public class ScopeState extends ObjectState {
 	public synchronized void addFact( Enum<?> factType , FACTVALUE type1 , String arg1 , 
 			FACTVALUE type2 , String arg2 ,
 			FACTVALUE type3 , String arg3 ) {
-		ScopeStateFact fact = new ScopeStateFact( this , type , new FactValue[] { new FactValue( type1 , arg1 ) ,
+		ScopeStateFact fact = new ScopeStateFact( this , factType , new FactValue[] { new FactValue( type1 , arg1 ) ,
 				new FactValue( type2 , arg2 ) ,
 				new FactValue( type3 , arg3 ) } );
 		addFact( fact );
@@ -192,7 +192,7 @@ public class ScopeState extends ObjectState {
 			FACTVALUE type2 , String arg2 ,
 			FACTVALUE type3 , String arg3 ,
 			FACTVALUE type4 , String arg4 ) {
-		ScopeStateFact fact = new ScopeStateFact( this , type , new FactValue[] { new FactValue( type1 , arg1 ) ,
+		ScopeStateFact fact = new ScopeStateFact( this , factType , new FactValue[] { new FactValue( type1 , arg1 ) ,
 				new FactValue( type2 , arg2 ) ,
 				new FactValue( type3 , arg3 ) ,
 				new FactValue( type4 , arg4 ) } );
@@ -204,7 +204,7 @@ public class ScopeState extends ObjectState {
 			FACTVALUE type3 , String arg3 ,
 			FACTVALUE type4 , String arg4 ,
 			FACTVALUE type5 , String arg5 ) {
-		ScopeStateFact fact = new ScopeStateFact( this , type , new FactValue[] { new FactValue( type1 , arg1 ) ,
+		ScopeStateFact fact = new ScopeStateFact( this , factType , new FactValue[] { new FactValue( type1 , arg1 ) ,
 				new FactValue( type2 , arg2 ) ,
 				new FactValue( type3 , arg3 ) ,
 				new FactValue( type4 , arg4 ) ,
@@ -215,12 +215,12 @@ public class ScopeState extends ObjectState {
 	public void addFact( ScopeStateFact fact ) {
 		facts.add( fact );
 		
-		action.eventSource.finishScopeItem( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_ADDFACT , this );
+		action.eventSource.customEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_ADDFACT , fact );
 		
 		ActionCore notifyParent = action;
 		notifyParent = notifyParent.parent;
 		while( notifyParent != null ) {
-			notifyParent.eventSource.finishScopeItem( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_ADDCHILDFACT , this );
+			notifyParent.eventSource.customEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_ADDCHILDFACT , fact );
 			notifyParent = notifyParent.parent;
 		}
 	}

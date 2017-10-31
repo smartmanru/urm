@@ -25,6 +25,7 @@ public class ServerProcess {
 	public ServerProcess( MetaEnvServer srv , MetaEnvServerNode node , ScopeState state ) {
 		this.srv = srv;
 		this.node = node;
+		this.state = state;
 		this.mode = VarPROCESSMODE.UNKNOWN;
 		this.pids = "ignore";
 	}
@@ -180,7 +181,6 @@ public class ServerProcess {
 			mode = VarPROCESSMODE.ERRORS;
 		}
 		finally {
-			state.addFact( VarPROCESSMODE.UNKNOWN );
 			shell.release( action );
 		}
 	}
