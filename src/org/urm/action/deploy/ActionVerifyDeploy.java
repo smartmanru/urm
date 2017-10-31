@@ -171,13 +171,22 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 
 		// iterate by nodes
-		LocalFolder tobeConfigServerFolder = configure.getLiveFolder( server );
-		LocalFolder asisConfigServerFolder = asisConfigFolder.getSubFolder( this , server.NAME );
-		LocalFolder tobeBinaryServerFolder = tobeBinaryFolder.getSubFolder( this , server.NAME );
-		LocalFolder asisBinaryServerFolder = asisBinaryFolder.getSubFolder( this , server.NAME );
-		tobeConfigServerFolder.ensureExists( this );
-		asisConfigServerFolder.ensureExists( this );
+		LocalFolder tobeBinaryServerFolder = null;
+		LocalFolder asisBinaryServerFolder = null;
+		if( context.CTX_DEPLOYBINARY ) {
+			tobeBinaryServerFolder = tobeBinaryFolder.getSubFolder( this , server.NAME );
+			asisBinaryServerFolder = asisBinaryFolder.getSubFolder( this , server.NAME );
+		}
 
+		LocalFolder tobeConfigServerFolder = null;
+		LocalFolder asisConfigServerFolder = null;
+		if( context.CTX_CONFDEPLOY ) {
+			tobeConfigServerFolder = configure.getLiveFolder( server );
+			asisConfigServerFolder = asisConfigFolder.getSubFolder( this , server.NAME );
+			tobeConfigServerFolder.ensureExists( this );
+			asisConfigServerFolder.ensureExists( this );
+		}
+	
 		boolean verifyServer = true;
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
