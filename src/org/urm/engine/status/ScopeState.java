@@ -24,7 +24,8 @@ public class ScopeState extends ObjectState {
 	};
 	
 	public enum FACTVALUE {
-		PROCESSMODE
+		PROCESSMODE ,
+		PROCESSACTION
 	};
 	
 	public ActionCore action;

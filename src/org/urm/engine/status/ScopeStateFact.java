@@ -3,6 +3,7 @@ package org.urm.engine.status;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.action.deploy.ServerProcess.ProcessAction;
 import org.urm.engine.status.ScopeState.FACTVALUE;
 import org.urm.meta.Types.VarPROCESSMODE;
 
@@ -51,6 +52,16 @@ public class ScopeStateFact {
 		catch( Throwable e ) {
 		}
 		return( VarPROCESSMODE.UNKNOWN );
+	}
+	
+	public ProcessAction getProcessAction() {
+		String value = getValue( FACTVALUE.PROCESSACTION );
+		try {
+			return( ProcessAction.valueOf( value ) );
+		}
+		catch( Throwable e ) {
+		}
+		return( ProcessAction.UNKNOWN );
 	}
 	
 }
