@@ -4,12 +4,17 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.FACTVALUE;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.Types.*;
 
 public class ServerProcess {
 
+	public enum Facts {
+		PROCESSSTATE
+	};
+	
 	MetaEnvServer srv;
 	MetaEnvServerNode node;
 	ScopeState state;
@@ -63,6 +68,8 @@ public class ServerProcess {
 			gatherGenericStatus( action );
 		else
 			action.exitUnexpectedState();
+		
+		state.addFact( Facts.PROCESSSTATE , FACTVALUE.PROCESSMODE , mode.name() );
 	}
 
 	public boolean isStarted( ActionBase action ) throws Exception {
@@ -108,7 +115,6 @@ public class ServerProcess {
 		}
 		catch( Throwable e ) {
 			mode = VarPROCESSMODE.UNREACHABLE;
-			state.addFact( mode );
 			return( null );
 		}
 	}

@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.engine.status.ScopeState.FACTVALUE;
+import org.urm.meta.Types.VarPROCESSMODE;
 
 public class ScopeStateFact {
 
@@ -40,6 +41,16 @@ public class ScopeStateFact {
 				return( true );
 		}
 		return( false );
+	}
+
+	public VarPROCESSMODE getProcessMode() {
+		String value = getValue( FACTVALUE.PROCESSMODE );
+		try {
+			return( VarPROCESSMODE.valueOf( value ) );
+		}
+		catch( Throwable e ) {
+		}
+		return( VarPROCESSMODE.UNKNOWN );
 	}
 	
 }

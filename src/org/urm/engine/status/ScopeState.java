@@ -24,6 +24,7 @@ public class ScopeState extends ObjectState {
 	};
 	
 	public enum FACTVALUE {
+		PROCESSMODE
 	};
 	
 	public ActionCore action;
@@ -107,6 +108,8 @@ public class ScopeState extends ObjectState {
 	}
 	
 	public void setActionStatus( SCOPESTATE state ) {
+		stopChilds();
+		
 		this.state = state;
 		action.eventSource.finishScopeItem( this );
 		
@@ -118,6 +121,14 @@ public class ScopeState extends ObjectState {
 		}
 	}
 
+	private void stopChilds() {
+		for( ObjectState os : super.childs ) {
+			ScopeState state = ( ScopeState )os;
+			if( state.state == SCOPESTATE.New )
+				state.setActionStatus( SCOPESTATE.RunStopped );
+		}
+	}
+	
 	public void createItemScopeState( ActionScopeTargetItem item , SCOPESTATE state ) {
 		ScopeState stateTarget = findTargetState( item.target );
 		if( stateTarget == null )
