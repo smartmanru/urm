@@ -886,9 +886,9 @@ public class Types {
 		if( version == VarITEMVERSION.NONE || version == VarITEMVERSION.IGNORE )
 			value = basename + ext;
 		else if( version == VarITEMVERSION.MIDPOUND )
-			value = Common.getLiteral( basename ) + "##[0-9.]+" + Common.getLiteral( ext );
+			value = Common.getLiteral( basename ) + "##[0-9.]+.*" + Common.getLiteral( ext );
 		else if( version == VarITEMVERSION.MIDDASH )
-			value = basename + "-[0-9.]+" + ext;
+			value = basename + "-[0-9.]+.*" + ext;
 		else if( version == VarITEMVERSION.PREFIX )
 			value = "[0-9.]+-" + Common.getLiteral( basename + ext );
 		else
