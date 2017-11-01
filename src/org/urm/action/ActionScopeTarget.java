@@ -147,7 +147,7 @@ public class ActionScopeTarget {
 		if( CATEGORY == VarCATEGORY.DERIVED )
 			return( createProductDerivedDistItemTarget( setNew , derivedItem , specifiedExplicitly ) );
 		if( CATEGORY == VarCATEGORY.MANUAL )
-			return( createProductDerivedDistItemTarget( setNew , manualItem , specifiedExplicitly ) );
+			return( createProductManualDistItemTarget( setNew , manualItem , specifiedExplicitly ) );
 		if( Types.isSourceCategory( CATEGORY ) ) {
 			if( releaseTarget != null )
 				return( createReleaseSourceProjectTarget( setNew , releaseTarget , specifiedExplicitly ) );
