@@ -26,6 +26,7 @@ public class RunContext implements Serializable {
 	public String installPath;
 	public String workPath;
 	public String authPath;
+	public String dbPath;
 	
 	public String product;
 	public String buildMode;
@@ -41,6 +42,7 @@ public class RunContext implements Serializable {
 	public static String PROPERTY_INSTALL_PATH = "urm.installpath";
 	public static String PROPERTY_WORK_PATH = "urm.workpath";
 	public static String PROPERTY_AUTH_PATH = "urm.authpath";
+	public static String PROPERTY_DB_PATH = "urm.dbpath";
 	public static String PROPERTY_SERVER_CONFPATH = "server.conf";
 	public static String PROPERTY_SERVER_MASTERPATH = "server.master";
 	public static String PROPERTY_SERVER_PRODUCTSPATH = "server.products";
@@ -65,6 +67,7 @@ public class RunContext implements Serializable {
 		rc.installPath = installPath;
 		rc.workPath = workPath;
 		rc.authPath = authPath;
+		rc.dbPath = dbPath;
 		
 		rc.product = product;
 		rc.buildMode = buildMode;
@@ -117,6 +120,7 @@ public class RunContext implements Serializable {
 			installPath = getProperty( PROPERTY_INSTALL_PATH );
 			workPath = getProperty( PROPERTY_WORK_PATH );
 			authPath = getProperty( PROPERTY_AUTH_PATH );
+			dbPath = getProperty( PROPERTY_DB_PATH );
 			
 			hostName = getEnvRequired( "HOSTNAME" );
 			userName = getEnvRequired( "USER" );
@@ -128,6 +132,7 @@ public class RunContext implements Serializable {
 			installPath = Common.getLinuxPath( getProperty( PROPERTY_INSTALL_PATH ) );
 			workPath = Common.getLinuxPath( getProperty( PROPERTY_WORK_PATH ) );
 			authPath = Common.getLinuxPath( getProperty( PROPERTY_AUTH_PATH ) );
+			dbPath = Common.getLinuxPath( getProperty( PROPERTY_DB_PATH ) );
 			
 			hostName = getEnvRequired( "COMPUTERNAME" );
 			userName = getEnvRequired( "USERNAME" );

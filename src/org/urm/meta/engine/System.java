@@ -38,6 +38,10 @@ public class System extends EngineObject {
 		this.OFFLINE = true;
 	}
 	
+	public void setOffline( EngineTransaction transaction , boolean OFFLINE ) {
+		this.OFFLINE = OFFLINE;
+	}
+	
 	public System copy( EngineDirectory nd ) {
 		System r = new System( nd );
 		r.NAME = NAME;
@@ -93,7 +97,7 @@ public class System extends EngineObject {
 	public boolean isOffline() {
 		return( OFFLINE );
 	}
-	
+
 	public boolean isBroken( ActionBase action ) {
 		for( Product product : mapProducts.values() ) {
 			if( product.isBroken( action ) )

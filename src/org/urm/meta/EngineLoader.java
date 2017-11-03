@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.PropertySet;
 import org.urm.engine.Engine;
+import org.urm.engine.EngineDB;
 import org.urm.engine.EngineSession;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.action.ActionInit;
@@ -16,6 +17,7 @@ import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
+import org.urm.meta.engine.EngineMirrorRepository;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.Product;
@@ -37,6 +39,7 @@ public class EngineLoader {
 
 	public Engine engine;
 	
+	private EngineDB db;
 	private EngineSettings settings;
 	private EngineRegistry registry;
 	private EngineBase base;
@@ -49,6 +52,7 @@ public class EngineLoader {
 	public EngineLoader( Engine engine ) {
 		this.engine = engine;
 		
+		db = new EngineDB( this );
 		settings = new EngineSettings( this );
 		registry = new EngineRegistry( this ); 
 		base = new EngineBase( this ); 
@@ -57,9 +61,14 @@ public class EngineLoader {
 		mon = new EngineMonitoring( this ); 
 		productMeta = new HashMap<String,ProductMeta>();
 	}
-	
+
 	public void init() throws Exception {
-		loadRegistry();
+		db.init();
+		init( false );
+	}
+	
+	private void init( boolean savedb ) throws Exception {
+		loadRegistry( savedb );
 		loadBase();
 		loadInfrastructure();
 		loadReleaseLifecycles();
@@ -67,29 +76,6 @@ public class EngineLoader {
 		if( !engine.execrc.isStandalone() ) {
 			loadServerSettings();
 			loadMonitoring();
-		}
-	}
-	
-	public void reloadCore() throws Exception {
-		registry = new EngineRegistry( this ); 
-		base = new EngineBase( this ); 
-		settings = new EngineSettings( this );
-		infra = new EngineInfrastructure( this ); 
-		lifecycles = new EngineReleaseLifecycles( this ); 
-		mon = new EngineMonitoring( this ); 
-		init();
-	}
-
-	public void reloadProduct( String productName ) throws Exception {
-		ProductMeta storageNew = loadServerProduct( engine.serverAction , productName );
-		if( storageNew == null )
-			return;
-		
-		ProductMeta storage = productMeta.get( productName );
-		synchronized( this ) {
-			if( storage != null )
-				clearServerProduct( storage );
-			addServerProduct( storageNew );
 		}
 	}
 	
@@ -163,9 +149,9 @@ public class EngineLoader {
 		return( propertyFile );
 	}
 
-	private void loadRegistry() throws Exception {
-		String propertyFile = getServerRegistryFile();
-		registry.load( propertyFile , engine.execrc );
+	private void loadRegistry( boolean savedb ) throws Exception {
+		String registryFile = getServerRegistryFile();
+		registry.load( db , savedb , registryFile , engine.execrc );
 	}
 
 	private String getServerSettingsFile() {
@@ -315,7 +301,7 @@ public class EngineLoader {
 	public void loadServerProducts( ActionInit action ) {
 		clearServerProducts();
 		for( String name : registry.directory.getProducts() ) {
-			ProductMeta set = loadServerProduct( action , name );
+			ProductMeta set = loadServerProduct( action , name , false );
 			addServerProduct( set );
 		}
 	}
@@ -324,7 +310,7 @@ public class EngineLoader {
 		productMeta.put( set.name , set );
 	}
 	
-	private ProductMeta loadServerProduct( ActionInit action , String name ) {
+	private ProductMeta loadServerProduct( ActionInit action , String name , boolean savedb ) {
 		ProductMeta set = new ProductMeta( this , name );
 		set.setPrimary( true );
 		
@@ -473,6 +459,48 @@ public class EngineLoader {
 	
 	public void deleteProductMetadata( TransactionBase transaction , ProductMeta storage ) throws Exception {
 		productMeta.remove( storage.name );
+	}
+
+	public void rereadMirror( EngineMirrorRepository repo ) throws Exception {
+		if( repo.isServer() ) 
+			reloadCore();
+		else
+		if( repo.isProductMeta() )
+			reloadProduct( repo.PRODUCT );
+	}
+	
+	private void reloadCore() throws Exception {
+		engine.trace( "reload server core settings ..." );
+		
+		db.init();
+		db.clearServer();
+		
+		registry = new EngineRegistry( this ); 
+		base = new EngineBase( this ); 
+		settings = new EngineSettings( this );
+		infra = new EngineInfrastructure( this ); 
+		lifecycles = new EngineReleaseLifecycles( this ); 
+		mon = new EngineMonitoring( this );
+		
+		init( true );
+	}
+
+	private void reloadProduct( String productName ) throws Exception {
+		engine.trace( "reload settings, product=" + productName + " ..." );
+		
+		db.init();
+		db.clearProduct( productName );
+		
+		ProductMeta storageNew = loadServerProduct( engine.serverAction , productName , true );
+		if( storageNew == null )
+			return;
+		
+		ProductMeta storage = productMeta.get( productName );
+		synchronized( this ) {
+			if( storage != null )
+				clearServerProduct( storage );
+			addServerProduct( storageNew );
+		}
 	}
 	
 }

@@ -302,12 +302,7 @@ public class ActionInit extends ActionBase {
 		loader.releaseSessionProductMetadata( transaction.action , sessionMeta );
 	}
 
-	public void reloadCoreMetadata() throws Exception {
-		loader.reloadCore();
-	}
-	
 	public Meta reloadProductMetadata( String productName ) throws Exception {
-		loader.reloadProduct( productName );
 		return( loader.getSessionProductMetadata( this , productName , true ) );
 	}
 

@@ -7,6 +7,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.shell.Account;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineAuth;
@@ -62,6 +63,10 @@ public class EngineTransaction extends TransactionBase {
 	public void createMirrorRepository( EngineMirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
 		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , push );
+		if( !push ) {
+			EngineLoader loader = engine.getLoader( action );
+			loader.rereadMirror( repo );
+		}
 	}
 
 	public void pushMirror( EngineMirrorRepository repo ) throws Exception {
@@ -70,6 +75,8 @@ public class EngineTransaction extends TransactionBase {
 
 	public void refreshMirror( EngineMirrorRepository repo ) throws Exception {
 		repo.refreshMirror( this );
+		EngineLoader loader = engine.getLoader( action );
+		loader.rereadMirror( repo );
 	}
 
 	public void dropMirror( EngineMirrorRepository repo , boolean dropOnServer ) throws Exception {

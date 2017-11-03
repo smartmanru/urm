@@ -6,7 +6,9 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.db.SystemDB;
 import org.urm.engine.Engine;
+import org.urm.engine.EngineDB;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
@@ -36,20 +38,30 @@ public class EngineDirectory extends EngineObject {
 		return( "server-directory" );
 	}
 	
-	public void load( Node root ) throws Exception {
-		if( root == null )
-			return;
-		
-		Node[] items = ConfReader.xmlGetChildren( root , "system" );
-		if( items == null )
-			return;
-		
-		for( Node itemNode : items ) {
-			System item = new System( this );
-			item.load( itemNode );
-			mapSystems.put( item.NAME , item );
+	public void load( EngineDB db , boolean savedb , Node root ) throws Exception {
+		if( savedb ) {
+			if( root == null )
+				return;
 			
-			for( Product product : item.mapProducts.values() )
+			Node[] items = ConfReader.xmlGetChildren( root , "system" );
+			if( items == null )
+				return;
+			
+			for( Node itemNode : items ) {
+				System item = new System( this );
+				item.load( itemNode );
+				SystemDB.save( engine.serverAction , this , db , item );
+				mapSystems.put( item.NAME , item );
+			}
+		}
+		else {
+			System[] systems = SystemDB.load( engine.serverAction , this , db );
+			for( System system : systems )
+				mapSystems.put( system.NAME , system );
+		}
+		
+		for( System system : mapSystems.values() ) {
+			for( Product product : system.getProducts() )
 				mapProducts.put( product.NAME , product );
 		}
 	}
@@ -144,6 +156,7 @@ public class EngineDirectory extends EngineObject {
 	public void createProduct( EngineTransaction transaction , Product product ) throws Exception {
 		if( mapProducts.containsKey( product.NAME ) )
 			transaction.exit( _Error.DuplicateProduct1 , "product=" + product.NAME + " is not unique" , new String[] { product.NAME } );
+		
 		mapProducts.put( product.NAME , product );
 		product.system.addProduct( transaction , product );
 	}
