@@ -11,7 +11,7 @@ import org.urm.common.ConfReader;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineObject;
-import org.urm.meta.Types.VarRESOURCECATEGORY;
+import org.urm.meta.Types.EnumResourceCategory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -85,22 +85,22 @@ public class EngineResources extends EngineObject {
 		return( Common.getSortedKeys( resourceMap ) );
 	}
 	
-	public String[] getList( VarRESOURCECATEGORY rcCategory ) {
+	public String[] getList( EnumResourceCategory rcCategory ) {
 		List<String> list = new LinkedList<String>();
 		for( EngineAuthResource res : resourceMap.values() ) {
-			if( rcCategory == VarRESOURCECATEGORY.ANY )
+			if( rcCategory == EnumResourceCategory.ANY )
 				list.add( res.NAME );
 			else
-			if( rcCategory == VarRESOURCECATEGORY.SSH && res.isSshKey() )
+			if( rcCategory == EnumResourceCategory.SSH && res.isSshKey() )
 				list.add( res.NAME );
 			else
-			if( rcCategory == VarRESOURCECATEGORY.CREDENTIALS && res.isCredentials() )
+			if( rcCategory == EnumResourceCategory.CREDENTIALS && res.isCredentials() )
 				list.add( res.NAME );
 			else
-			if( ( rcCategory == VarRESOURCECATEGORY.SOURCE || rcCategory == VarRESOURCECATEGORY.NEXUS ) && res.isNexus() )
+			if( ( rcCategory == EnumResourceCategory.SOURCE || rcCategory == EnumResourceCategory.NEXUS ) && res.isNexus() )
 				list.add( res.NAME );
 			else
-			if( ( rcCategory == VarRESOURCECATEGORY.SOURCE || rcCategory == VarRESOURCECATEGORY.VCS ) && res.isVCS() )
+			if( ( rcCategory == EnumResourceCategory.SOURCE || rcCategory == EnumResourceCategory.VCS ) && res.isVCS() )
 				list.add( res.NAME );
 		}
 		return( Common.getSortedList( list ) );

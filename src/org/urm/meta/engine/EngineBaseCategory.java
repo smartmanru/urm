@@ -8,14 +8,14 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineObject;
-import org.urm.meta.engine.EngineBase.CATEGORY_TYPE;
+import org.urm.db.DBEnumTypes.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class EngineBaseCategory extends EngineObject {
 
-	public CATEGORY_TYPE type;
+	public DBEnumBaseCategoryType type;
 	public String ID;
 	public String NAME;
 
@@ -28,7 +28,7 @@ public class EngineBaseCategory extends EngineObject {
 		groupMap = new HashMap<String,EngineBaseGroup>();
 	}
 	
-	public EngineBaseCategory( EngineBase base , CATEGORY_TYPE type , String NAME ) {
+	public EngineBaseCategory( EngineBase base , DBEnumBaseCategoryType type , String NAME ) {
 		super( null );
 		this.base = base;
 		this.type = type;
@@ -56,7 +56,7 @@ public class EngineBaseCategory extends EngineObject {
 		if( root == null )
 			return;
 		
-		type = CATEGORY_TYPE.valueOf( ConfReader.getAttrValue( root , "type" ).toUpperCase() );
+		type = DBEnumBaseCategoryType.valueOf( ConfReader.getAttrValue( root , "type" ).toUpperCase() );
 		ID = ConfReader.getAttrValue( root , "id" );
 		NAME = ConfReader.getAttrValue( root , "name" );
 		

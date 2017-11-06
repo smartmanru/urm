@@ -4,7 +4,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineObject;
-import org.urm.meta.engine.EngineBase.CATEGORY_TYPE;
+import org.urm.db.DBEnumTypes.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -50,19 +50,19 @@ public class EngineBaseItem extends EngineObject {
 	}
 	
 	public boolean isHostBound() {
-		if( group.category.type == CATEGORY_TYPE.HOST )
+		if( group.category.type == DBEnumBaseCategoryType.HOST )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isAccountBound() {
-		if( group.category.type == CATEGORY_TYPE.ACCOUNT )
+		if( group.category.type == DBEnumBaseCategoryType.ACCOUNT )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isAppBound() {
-		if( group.category.type == CATEGORY_TYPE.APP )
+		if( group.category.type == DBEnumBaseCategoryType.APP )
 			return( true );
 		return( false );
 	}

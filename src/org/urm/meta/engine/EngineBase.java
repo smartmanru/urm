@@ -10,18 +10,13 @@ import org.urm.common.RunContext;
 import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
+import org.urm.db.DBEnumTypes.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class EngineBase extends EngineObject {
 
-	public enum CATEGORY_TYPE {
-		HOST ,
-		ACCOUNT ,
-		APP
-	};
-	
 	public EngineLoader loader;
 	
 	private Map<String,EngineBaseCategory> mapCategory;
@@ -57,12 +52,12 @@ public class EngineBase extends EngineObject {
 			}
 		}
 		
-		if( findCategory( CATEGORY_TYPE.HOST ) == null )
-			addCategory( new EngineBaseCategory( this , CATEGORY_TYPE.HOST , "Host-Bound" ) );
-		if( findCategory( CATEGORY_TYPE.ACCOUNT ) == null )
-			addCategory( new EngineBaseCategory( this , CATEGORY_TYPE.ACCOUNT , "Account-Bound" ) );
-		if( findCategory( CATEGORY_TYPE.APP ) == null )
-			addCategory( new EngineBaseCategory( this , CATEGORY_TYPE.APP , "Application-Bound" ) );
+		if( findCategory( DBEnumBaseCategoryType.HOST ) == null )
+			addCategory( new EngineBaseCategory( this , DBEnumBaseCategoryType.HOST , "Host-Bound" ) );
+		if( findCategory( DBEnumBaseCategoryType.ACCOUNT ) == null )
+			addCategory( new EngineBaseCategory( this , DBEnumBaseCategoryType.ACCOUNT , "Account-Bound" ) );
+		if( findCategory( DBEnumBaseCategoryType.APP ) == null )
+			addCategory( new EngineBaseCategory( this , DBEnumBaseCategoryType.APP , "Application-Bound" ) );
 	}
 	
 	public void save( ActionCore action , String path , RunContext execrc ) throws Exception {
@@ -93,7 +88,7 @@ public class EngineBase extends EngineObject {
 		addItem( item );
 	}
 	
-	public EngineBaseCategory findCategory( CATEGORY_TYPE type ) {
+	public EngineBaseCategory findCategory( DBEnumBaseCategoryType type ) {
 		return( findCategory( Common.getEnumLower( type ) ) );
 	}
 
@@ -101,7 +96,7 @@ public class EngineBase extends EngineObject {
 		return( mapCategory.get( id ) );
 	}
 
-	public EngineBaseGroup findGroup( CATEGORY_TYPE type , String groupName ) {
+	public EngineBaseGroup findGroup( DBEnumBaseCategoryType type , String groupName ) {
 		EngineBaseCategory ct = findCategory( type );
 		if( ct != null )
 			return( ct.findGroup( groupName ) );

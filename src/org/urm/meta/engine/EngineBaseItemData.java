@@ -12,6 +12,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.PropertyController;
 import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.BaseRepository;
 import org.urm.engine.storage.RemoteFolder;
@@ -31,7 +32,7 @@ public class EngineBaseItemData extends PropertyController {
 	public String NAME;
 	public String VERSION;
 	
-	public VarBASESRCTYPE type;
+	public DBEnumBaseSrcType type;
 	public VarBASESRCFORMAT srcFormat;
 	public String SRCFILE;
 	public String SRCSTOREDIR;
@@ -85,7 +86,7 @@ public class EngineBaseItemData extends PropertyController {
 		VERSION = super.getStringPropertyRequired( action , "version" );
 		
 		String TYPE = super.getStringPropertyRequired( action , "type" );
-		type = Types.getBaseSrcType( TYPE , false );
+		type = DBEnumBaseSrcType.getValue( TYPE , false );
 		adm = super.getBooleanProperty( action , "adminstall" );
 		
 		String OSTYPE = super.getStringPropertyRequired( action , "ostype" );
@@ -211,31 +212,31 @@ public class EngineBaseItemData extends PropertyController {
 	}
 
 	public boolean isNoDist() {
-		if( type == VarBASESRCTYPE.NODIST )
+		if( type == DBEnumBaseSrcType.NODIST )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isInstaller() {
-		if( type == VarBASESRCTYPE.INSTALLER )
+		if( type == DBEnumBaseSrcType.INSTALLER )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isArchiveLink() {
-		if( type == VarBASESRCTYPE.ARCHIVE_LINK )
+		if( type == DBEnumBaseSrcType.ARCHIVE_LINK )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isPackage() {
-		if( type == VarBASESRCTYPE.PACKAGE )
+		if( type == DBEnumBaseSrcType.PACKAGE )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isArchiveDirect() {
-		if( type == VarBASESRCTYPE.ARCHIVE_DIRECT )
+		if( type == DBEnumBaseSrcType.ARCHIVE_DIRECT )
 			return( true );
 		return( false );
 	}
@@ -252,7 +253,7 @@ public class EngineBaseItemData extends PropertyController {
 		Common.xmlSetElementAttr( doc , root , "version" , VERSION );
 	}
 
-	public void setOptions( EngineTransaction transaction , String name , String version , VarOSTYPE ostype , VarSERVERACCESSTYPE accessType , VarBASESRCTYPE srcType , VarBASESRCFORMAT srcFormat , String SRCFILE , String SRCSTOREDIR , String INSTALLPATH , String INSTALLLINK ) {
+	public void setOptions( EngineTransaction transaction , String name , String version , VarOSTYPE ostype , VarSERVERACCESSTYPE accessType , DBEnumBaseSrcType srcType , VarBASESRCFORMAT srcFormat , String SRCFILE , String SRCSTOREDIR , String INSTALLPATH , String INSTALLLINK ) {
 		this.NAME = name;
 		this.VERSION = version;
 		

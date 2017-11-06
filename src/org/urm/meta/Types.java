@@ -9,22 +9,13 @@ import org.w3c.dom.Node;
 
 public class Types {
 
-	public enum VarRESOURCECATEGORY {
+	public enum EnumResourceCategory {
 		ANY ,
 		VCS ,
 		SSH ,
 		CREDENTIALS ,
 		NEXUS ,
-		SOURCE
-	};
-	
-	public enum VarRESOURCETYPE {
-		UNKNOWN ,
-		CREDENTIALS ,
-		SSH ,
-		SVN ,
-		GIT ,
-		NEXUS
+		SOURCE;
 	};
 	
 	public enum VarELEMENTTYPE {
@@ -234,15 +225,6 @@ public class Types {
 		TARGZ ,
 		TAR ,
 		ZIP
-	};
-	
-	public enum VarBASESRCTYPE {
-		UNKNOWN ,
-		PACKAGE ,
-		ARCHIVE_LINK ,
-		ARCHIVE_DIRECT ,
-		NODIST ,
-		INSTALLER
 	};
 	
 	public enum VarBASESRCFORMAT {
@@ -576,28 +558,10 @@ public class Types {
 		return( value );
 	}
 	
-	public static VarBASESRCTYPE getBaseSrcType( String TYPE , boolean required ) throws Exception {
-		if( TYPE.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingBaseSrcType0 , "missing base srctype" );
-			return( VarBASESRCTYPE.UNKNOWN );
-		}
-		
-		VarBASESRCTYPE value = null;		
-		try {
-			value = VarBASESRCTYPE.valueOf( Common.xmlToEnumValue( TYPE ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidBaseSrcType1 , "invalid base srctype=" + TYPE , TYPE );
-		}
-		
-		return( value );
-	}
-
 	public static VarBASESRCFORMAT getBaseSrcFormat( String TYPE , boolean required ) throws Exception {
 		if( TYPE.isEmpty() ) {
 			if( required )
-				Common.exit0( _Error.MissingBaseSrcType0 , "missing base srcformat" );
+				Common.exit0( _Error.MissingBuilderTarget0 , "missing base srcformat" );
 			return( VarBASESRCFORMAT.UNKNOWN );
 		}
 		
@@ -912,12 +876,6 @@ public class Types {
 		values[2] = getVersionPattern( action , VarITEMVERSION.MIDDASH , basename , ext );
 		values[3] = getVersionPattern( action , VarITEMVERSION.PREFIX , basename , ext );
 		return( values );
-	}
-
-	public static boolean isResource( VarRESOURCETYPE rc ) {
-		if( rc == VarRESOURCETYPE.GIT || rc == VarRESOURCETYPE.NEXUS || rc == VarRESOURCETYPE.SVN )
-			return( true );
-		return( false );
 	}
 
 	public static boolean isPackageExtension( String ext ) {

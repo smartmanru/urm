@@ -19,8 +19,6 @@ public class _Error {
 	public static final int InvalidConfItemType1 = ErrorBase + 19;
 	public static final int MissingConfItemType0 = ErrorBase + 20;
 	public static final int InvalidItemVersionType1 = ErrorBase + 21;
-	public static final int InvalidBaseSrcType1 = ErrorBase + 23;
-	public static final int MissingBaseSrcType0 = ErrorBase + 24;
 	public static final int InvalidBaseSrcFormat1 = ErrorBase + 25;
 	public static final int InvalidDesignElementType1 = ErrorBase + 30;
 	public static final int MissingDesignElementType0 = ErrorBase + 31;

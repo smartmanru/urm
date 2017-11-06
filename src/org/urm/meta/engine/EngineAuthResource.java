@@ -11,7 +11,7 @@ import org.urm.engine.shell.EngineShellPool;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.meta.EngineObject;
-import org.urm.meta.Types.VarRESOURCETYPE;
+import org.urm.db.DBEnumTypes.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -26,7 +26,7 @@ public class EngineAuthResource extends EngineObject {
 	PropertySet properties;
 	
 	public String NAME;
-	public VarRESOURCETYPE rcType;
+	public DBEnumResourceType rcType;
 	public String BASEURL;
 	public String DESC;
 	public String AUTHKEY;
@@ -93,37 +93,37 @@ public class EngineAuthResource extends EngineObject {
 	}
 
 	public boolean isVCS() {
-		if( rcType == VarRESOURCETYPE.SVN || rcType == VarRESOURCETYPE.GIT )
+		if( rcType == DBEnumResourceType.SVN || rcType == DBEnumResourceType.GIT )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isSvn() {
-		if( rcType == VarRESOURCETYPE.SVN )
+		if( rcType == DBEnumResourceType.SVN )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isGit() {
-		if( rcType == VarRESOURCETYPE.GIT )
+		if( rcType == DBEnumResourceType.GIT )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isNexus() {
-		if( rcType == VarRESOURCETYPE.NEXUS )
+		if( rcType == DBEnumResourceType.NEXUS )
 			return( true );
 		return( false );
 	}
 
 	public boolean isSshKey() {
-		if( rcType == VarRESOURCETYPE.SSH )
+		if( rcType == DBEnumResourceType.SSH )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isCredentials() {
-		if( rcType == VarRESOURCETYPE.CREDENTIALS )
+		if( rcType == DBEnumResourceType.CREDENTIALS )
 			return( true );
 		return( false );
 	}
@@ -172,16 +172,16 @@ public class EngineAuthResource extends EngineObject {
 		createProperties();
 	}
 
-	public static VarRESOURCETYPE getResourceType( String TYPE , boolean required ) throws Exception {
+	public static DBEnumResourceType getResourceType( String TYPE , boolean required ) throws Exception {
 		if( TYPE.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingResourceType0 , "missing resource type" );
-			return( VarRESOURCETYPE.UNKNOWN );
+			return( DBEnumResourceType.UNKNOWN );
 		}
 		
-		VarRESOURCETYPE value = null;		
+		DBEnumResourceType value = null;		
 		try {
-			value = VarRESOURCETYPE.valueOf( Common.xmlToEnumValue( TYPE ) );
+			value = DBEnumResourceType.valueOf( Common.xmlToEnumValue( TYPE ) );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidResourceType1 , "invalid resource type=" + TYPE , TYPE );

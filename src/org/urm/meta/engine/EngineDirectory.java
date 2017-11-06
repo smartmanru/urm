@@ -6,7 +6,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.db.SystemDB;
+import org.urm.db.DBSystem;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineDB;
 import org.urm.engine.EngineTransaction;
@@ -50,12 +50,12 @@ public class EngineDirectory extends EngineObject {
 			for( Node itemNode : items ) {
 				System item = new System( this );
 				item.load( itemNode );
-				SystemDB.save( engine.serverAction , this , db , item );
+				DBSystem.save( engine.serverAction , this , db , item );
 				mapSystems.put( item.NAME , item );
 			}
 		}
 		else {
-			System[] systems = SystemDB.load( engine.serverAction , this , db );
+			System[] systems = DBSystem.load( engine.serverAction , this , db );
 			for( System system : systems )
 				mapSystems.put( system.NAME , system );
 		}
