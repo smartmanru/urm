@@ -11,7 +11,7 @@ import org.urm.engine.EngineDB;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.System;
 
-public class SystemDB {
+public class DBSystem {
 
 	public static void save( ActionBase action , EngineDirectory directory , EngineDB db , System system ) throws Exception {
 		Connection c = null;
