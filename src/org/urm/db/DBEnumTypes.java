@@ -24,7 +24,7 @@ public abstract class DBEnumTypes {
 		}
 		
 		private final int value;
-		@Override public int getValue() { return( value ); };
+		@Override public int code() { return( value ); };
 		private DBEnumResourceType( int value ) { this.value = value; };
 		public static DBEnumResourceType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumResourceType.class , value , required , UNKNOWN ) ); };
 		public static DBEnumResourceType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumResourceType.class , value , required , UNKNOWN ) ); };
@@ -36,7 +36,7 @@ public abstract class DBEnumTypes {
 		APP(3);
 
 		private final int value;
-		@Override public int getValue() { return( value ); };
+		@Override public int code() { return( value ); };
 		private DBEnumBaseCategoryType( int value ) { this.value = value; };
 		public static DBEnumBaseCategoryType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseCategoryType.class , value , required , null ) ); };
 		public static DBEnumBaseCategoryType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseCategoryType.class , value , required , null ) ); };
@@ -51,7 +51,7 @@ public abstract class DBEnumTypes {
 		INSTALLER(5);
 
 		private final int value;
-		@Override public int getValue() { return( value ); };
+		@Override public int code() { return( value ); };
 		private DBEnumBaseSrcType( int value ) { this.value = value; };
 		public static DBEnumBaseSrcType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseSrcType.class , value , required , null ) ); };
 		public static DBEnumBaseSrcType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseSrcType.class , value , required , null ) ); };
@@ -64,7 +64,7 @@ public abstract class DBEnumTypes {
 		SINGLEFILE(3);
 
 		private final int value;
-		@Override public int getValue() { return( value ); };
+		@Override public int code() { return( value ); };
 		private DBEnumBaseSrcFormatType( int value ) { this.value = value; };
 		public static DBEnumBaseSrcFormatType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseSrcFormatType.class , value , required , null ) ); };
 		public static DBEnumBaseSrcFormatType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseSrcFormatType.class , value , required , null ) ); };
@@ -79,13 +79,13 @@ public abstract class DBEnumTypes {
 		MANUAL(5);
 
 		private final int value;
-		@Override public int getValue() { return( value ); };
+		@Override public int code() { return( value ); };
 		private DBEnumServerAccessType( int value ) { this.value = value; };
 		public static DBEnumServerAccessType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumServerAccessType.class , value , required , null ) ); };
 		public static DBEnumServerAccessType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumServerAccessType.class , value , required , null ) ); };
 	};
 
-	public enum DBEnumPropertyType implements DBEnumInterface {
+	public enum DBEnumParamValueType implements DBEnumInterface {
 		UNKNOWN(0) ,
 		PROPERTY_STRING(1) ,
 		PROPERTY_NUMBER(2) ,
@@ -93,10 +93,10 @@ public abstract class DBEnumTypes {
 		PROPERTY_PATH(4);
 
 		private final int value;
-		@Override public int getValue() { return( value ); };
-		private DBEnumPropertyType( int value ) { this.value = value; };
-		public static DBEnumPropertyType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumPropertyType.class , value , required , null ) ); };
-		public static DBEnumPropertyType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumPropertyType.class , value , required , null ) ); };
+		@Override public int code() { return( value ); };
+		private DBEnumParamValueType( int value ) { this.value = value; };
+		public static DBEnumParamValueType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumParamValueType.class , value , required , null ) ); };
+		public static DBEnumParamValueType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumParamValueType.class , value , required , null ) ); };
 	};
 
 	//#################################################
@@ -105,7 +105,7 @@ public abstract class DBEnumTypes {
 			DBEnumBaseCategoryType.class , 
 			DBEnumBaseSrcFormatType.class ,
 			DBEnumBaseSrcType.class , 
-			DBEnumPropertyType.class ,
+			DBEnumParamValueType.class ,
 			DBEnumResourceType.class ,
 			DBEnumServerAccessType.class
 			}; 
@@ -121,7 +121,7 @@ public abstract class DBEnumTypes {
 		}
 		
     	for( T t : type.getEnumConstants() ) {
-    		if( t.getValue() == value )
+    		if( t.code() == value )
     			return( t );
     	}
     	
@@ -160,6 +160,8 @@ public abstract class DBEnumTypes {
     	connection.update( DBQueries.QUERY_ENUMS_DROP0 );
     	
 		int enumsId = DBNames.getEnumsId();
+    	connection.update( DBQueries.QUERY_NAMES_DROPPARENT1 , new String[] { "" + enumsId } );
+    	
     	for( Class<?> c : enums ) {
     		String name = getEnumName( c );
     		int enumId = DBNames.getNameIndex( connection , enumsId , name );
@@ -169,7 +171,7 @@ public abstract class DBEnumTypes {
     		
     		for( Object object : c.getEnumConstants() ) {
     			DBEnumInterface oi = ( DBEnumInterface )object;
-    			int elementValue = oi.getValue();
+    			int elementValue = oi.code();
     			Enum<?> ev = ( Enum<?> )object;
     			String elementName = ev.name().toLowerCase();
     			
@@ -255,7 +257,7 @@ public abstract class DBEnumTypes {
     		Map<Integer,String> items = data.get( category );
     		for( Object ei : c.getEnumConstants() ) {
     			DBEnumInterface oi = ( DBEnumInterface )ei;
-    			int key = oi.getValue();
+    			int key = oi.code();
     			if( !items.containsKey( key ) ) {
         			Enum<?> item = ( Enum<?> )ei;
         			String name = item.name().toLowerCase();
