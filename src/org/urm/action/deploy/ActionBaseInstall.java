@@ -5,6 +5,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -218,12 +219,12 @@ public class ActionBaseInstall extends ActionBase {
 	private void extractArchiveFromRedist( EngineBaseItemData info , String redistPath , String installPath , RuntimeStorage runtime ) throws Exception {
 		int timeout = setTimeoutUnlimited();
 
-		if( info.srcFormat == VarBASESRCFORMAT.TARGZ_SINGLEDIR ) {
+		if( info.srcFormat == DBEnumBaseSrcFormatType.TARGZ_SINGLEDIR ) {
 			runtime.extractBaseArchiveSingleDir( this , redistPath , info.SRCSTOREDIR , installPath , VarARCHIVETYPE.TARGZ );
 			debug( "runtime path: " + info.INSTALLPATH );
 		}
 
-		if( info.srcFormat == VarBASESRCFORMAT.ZIP_SINGLEDIR ) {
+		if( info.srcFormat == DBEnumBaseSrcFormatType.ZIP_SINGLEDIR ) {
 			runtime.extractBaseArchiveSingleDir( this , redistPath , info.SRCSTOREDIR , installPath , VarARCHIVETYPE.ZIP );
 			debug( "runtime path: " + info.INSTALLPATH );
 		}
@@ -244,7 +245,7 @@ public class ActionBaseInstall extends ActionBase {
 		LocalFolder workBase = getSystemFiles( info , redist.server , redist.node );
 		
 		// deploy
-		if( info.serverAccessType == VarSERVERACCESSTYPE.GENERIC )
+		if( info.serverAccessType == DBEnumServerAccessType.GENERIC )
 			runtime.createBinPath( this );
 		
 		runtime.restoreSysConfigs( this , redist , workBase );
@@ -256,14 +257,14 @@ public class ActionBaseInstall extends ActionBase {
 		
 		// copy system files from base
 		RemoteFolder baseMaster = info.getFolder( this );
-		if( info.serverAccessType == VarSERVERACCESSTYPE.SERVICE ) {
+		if( info.serverAccessType == DBEnumServerAccessType.SERVICE ) {
 			if( !server.isLinux() )
 				exitUnexpectedState();
 			
 			baseMaster.copyFileToLocalRename( this , workBase , "service" , server.SYSNAME );
 		}
 		else
-		if( info.serverAccessType == VarSERVERACCESSTYPE.GENERIC ) {
+		if( info.serverAccessType == DBEnumServerAccessType.GENERIC ) {
 			if( server.isLinux() )
 				baseMaster.copyFilesToLocal( this , workBase , "server.*.sh" );
 			else

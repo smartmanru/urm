@@ -2,7 +2,7 @@ package org.urm.meta.engine;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.PropertySet;
+import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineObject;
 
 public class EngineAuthContext extends EngineObject {

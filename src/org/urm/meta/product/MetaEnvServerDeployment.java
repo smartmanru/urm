@@ -2,8 +2,8 @@ package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.PropertyController;
 import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.PropertyController;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;

@@ -2,9 +2,10 @@ package org.urm.engine;
 
 import java.util.List;
 
-import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineLoader;
@@ -302,7 +303,7 @@ public class EngineTransaction extends TransactionBase {
 		sg.setProperties( this , props , system );
 	}
 	
-	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String sysname ) throws Exception {
+	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , VarOSTYPE osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
 		checkTransactionMetadata( sg.meta.getStorage( action ) );
 		MetaEnvServer server = new MetaEnvServer( sg.meta , sg );
 		server.createServer( action , name , desc , osType , runType , accessType , sysname );

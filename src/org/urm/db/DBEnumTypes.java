@@ -52,6 +52,50 @@ public abstract class DBEnumTypes {
 		public static DBEnumBaseSrcType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseSrcType.class , value , required , null ) ); };
 	};
 	
+	public enum DBEnumBaseSrcFormatType implements DBEnumInterface {
+		UNKNOWN(0) ,
+		TARGZ_SINGLEDIR(1) ,
+		ZIP_SINGLEDIR(2) ,
+		SINGLEFILE(3);
+
+		private final int value;
+		@Override public int getValue() { return( value ); };
+		private DBEnumBaseSrcFormatType( int value ) { this.value = value; };
+		public static DBEnumBaseSrcFormatType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseSrcFormatType.class , value , required , null ) ); };
+		public static DBEnumBaseSrcFormatType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseSrcFormatType.class , value , required , null ) ); };
+	};
+	
+	public enum DBEnumServerAccessType implements DBEnumInterface {
+		UNKNOWN(0) ,
+		SERVICE(1) ,
+		PACEMAKER(2) ,
+		DOCKER(3) ,
+		GENERIC(4) ,
+		MANUAL(5);
+
+		private final int value;
+		@Override public int getValue() { return( value ); };
+		private DBEnumServerAccessType( int value ) { this.value = value; };
+		public static DBEnumServerAccessType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumServerAccessType.class , value , required , null ) ); };
+		public static DBEnumServerAccessType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumServerAccessType.class , value , required , null ) ); };
+	};
+
+	public enum PropertyValueType implements DBEnumInterface {
+		UNKNOWN(0) ,
+		PROPERTY_STRING(1) ,
+		PROPERTY_NUMBER(2) ,
+		PROPERTY_BOOL(3) ,
+		PROPERTY_PATH(4);
+
+		private final int value;
+		@Override public int getValue() { return( value ); };
+		private PropertyValueType( int value ) { this.value = value; };
+		public static PropertyValueType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( PropertyValueType.class , value , required , null ) ); };
+		public static PropertyValueType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( PropertyValueType.class , value , required , null ) ); };
+	};
+
+	//#################################################
+	// implementation
     public static <T extends Enum<T> & DBEnumInterface> T getValue( Class<T> type , Integer value , boolean required , T unknownValue ) throws Exception {
 		if( value == 0 ) {
 			if( required )

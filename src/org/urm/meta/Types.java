@@ -118,15 +118,6 @@ public class Types {
 		DEVTRUNK
 	};
 	
-	public enum VarSERVERACCESSTYPE {
-		UNKNOWN ,
-		SERVICE ,
-		PACEMAKER ,
-		DOCKER ,
-		GENERIC ,
-		MANUAL
-	};
-
 	public enum VarSERVERRUNTYPE {
 		UNKNOWN ,
 		DATABASE ,
@@ -225,13 +216,6 @@ public class Types {
 		TARGZ ,
 		TAR ,
 		ZIP
-	};
-	
-	public enum VarBASESRCFORMAT {
-		UNKNOWN ,
-		TARGZ_SINGLEDIR ,
-		ZIP_SINGLEDIR ,
-		SINGLEFILE
 	};
 	
 	public enum VarLCTYPE {
@@ -337,24 +321,6 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidProjectType1 , "invalid project type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarSERVERACCESSTYPE getServerAccessType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingServerAccessType0 , "missing server access type" );
-			return( VarSERVERACCESSTYPE.UNKNOWN );
-		}
-		
-		VarSERVERACCESSTYPE value = null;
-		try {
-			value = VarSERVERACCESSTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidServerAccessType1 , "invalid server access type=" + ID , ID );
 		}
 		
 		return( value );
@@ -558,24 +524,6 @@ public class Types {
 		return( value );
 	}
 	
-	public static VarBASESRCFORMAT getBaseSrcFormat( String TYPE , boolean required ) throws Exception {
-		if( TYPE.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingBuilderTarget0 , "missing base srcformat" );
-			return( VarBASESRCFORMAT.UNKNOWN );
-		}
-		
-		VarBASESRCFORMAT value = null;		
-		try {
-			value = VarBASESRCFORMAT.valueOf( Common.xmlToEnumValue( TYPE ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidBaseSrcFormat1 , "invalid base srcformat=" + TYPE , TYPE );
-		}
-		
-		return( value );
-	}
-
 	public static VarITEMVERSION readItemVersionAttr( Node node , String attrName ) throws Exception {
 		String ID = ConfReader.getAttrValue( node , attrName , "default" );
 		return( getItemVersionType( ID ) );

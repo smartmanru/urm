@@ -7,11 +7,11 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.PropertySet;
-import org.urm.common.PropertyValue;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseTarget;
+import org.urm.engine.properties.PropertySet;
+import org.urm.engine.properties.PropertyValue;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.HiddenFiles;

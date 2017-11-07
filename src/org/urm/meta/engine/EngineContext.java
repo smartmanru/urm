@@ -1,8 +1,9 @@
 package org.urm.meta.engine;
 
-import org.urm.common.PropertySet;
+import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.PropertySet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -109,7 +110,7 @@ public class EngineContext {
 	public void load( Node root , RunContext execrc ) throws Exception {
 		this.execrc = execrc;
 
-		execrc.getProperties( execprops );
+		getExecProperties( execprops );
 		properties.loadFromNodeElements( root , false );
 		scatterSystemProperties();
 		properties.finishRawProperties();
@@ -161,6 +162,21 @@ public class EngineContext {
 	public void resolveServerProperties( EngineTransaction transaction ) throws Exception {
 		properties.resolveRawProperties();
 		scatterSystemProperties();
+	}
+	
+	public void getExecProperties( PropertySet set ) throws Exception {
+		RunContext rc = execrc;
+		set.setStringProperty( RunContext.PROPERTY_OS_TYPE , Common.getEnumLower( rc.osType ) );
+		set.setPathProperty( RunContext.PROPERTY_INSTALL_PATH , rc.installPath , null );
+		set.setPathProperty( RunContext.PROPERTY_WORK_PATH , rc.workPath , null );
+		set.setPathProperty( RunContext.PROPERTY_USER_HOME , rc.userHome , null );
+		set.setPathProperty( RunContext.PROPERTY_AUTH_PATH , rc.authPath , null );
+		set.setStringProperty( RunContext.PROPERTY_HOSTNAME , rc.hostName );
+		set.setPathProperty( RunContext.PROPERTY_SERVER_CONFPATH , rc.installPath + "/etc" , null );
+		set.setPathProperty( RunContext.PROPERTY_SERVER_MASTERPATH , rc.installPath + "/master" , null );
+		set.setPathProperty( RunContext.PROPERTY_SERVER_PRODUCTSPATH , rc.installPath + "/products" , null );
+		
+		set.resolveRawProperties();
 	}
 	
 }

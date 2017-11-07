@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.common.PropertySet;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.properties.PropertySet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
 import org.urm.engine.vcs.GenericVCS;

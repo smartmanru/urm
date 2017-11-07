@@ -8,14 +8,15 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.PropertyController;
-import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.dist.Release;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
+import org.urm.engine.properties.PropertyController;
+import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.EngineBaseItem;
@@ -34,7 +35,7 @@ public class MetaEnvServer extends PropertyController {
 	public String NAME = "";
 	public String DESC = "";
 	private VarSERVERRUNTYPE serverRunType;
-	private VarSERVERACCESSTYPE serverAccessType;
+	private DBEnumServerAccessType serverAccessType;
 	public VarOSTYPE osType;
 	
 	public String BASELINE = "";
@@ -161,7 +162,7 @@ public class MetaEnvServer extends PropertyController {
 		String SERVERRUNTYPE = super.getStringPropertyRequired( action , PROPERTY_SERVERRUNTYPE );
 		serverRunType = Types.getServerRunType( SERVERRUNTYPE , false );
 		String SERVERACCESSTYPE = super.getStringPropertyRequired( action , PROPERTY_SERVERACCESSTYPE );
-		serverAccessType = Types.getServerAccessType( SERVERACCESSTYPE , false );
+		serverAccessType = DBEnumServerAccessType.getValue( SERVERACCESSTYPE , false );
 		osType = Types.getOSType( super.getStringProperty( action , PROPERTY_OSTYPE , "linux" ) , false );
 		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE );
 		XDOC = super.getPathProperty( action , PROPERTY_XDOC , NAME + ".xml" );
@@ -218,7 +219,7 @@ public class MetaEnvServer extends PropertyController {
 		return( serverRunType );
 	}
 	
-	public VarSERVERACCESSTYPE getServerAccessType() {
+	public DBEnumServerAccessType getServerAccessType() {
 		return( serverAccessType );
 	}
 	
@@ -458,7 +459,7 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public boolean isConfigurable() {
-		if( serverAccessType == VarSERVERACCESSTYPE.MANUAL || serverAccessType == VarSERVERACCESSTYPE.UNKNOWN )
+		if( serverAccessType == DBEnumServerAccessType.MANUAL || serverAccessType == DBEnumServerAccessType.UNKNOWN )
 			return( false );
 		if( serverRunType == VarSERVERRUNTYPE.DATABASE || serverRunType == VarSERVERRUNTYPE.UNKNOWN ) 
 			return( false );
@@ -664,15 +665,15 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public boolean isService() {
-		return( serverAccessType == VarSERVERACCESSTYPE.SERVICE );
+		return( serverAccessType == DBEnumServerAccessType.SERVICE );
 	}
 
 	public boolean isDocker() {
-		return( serverAccessType == VarSERVERACCESSTYPE.DOCKER );
+		return( serverAccessType == DBEnumServerAccessType.DOCKER );
 	}
 
 	public boolean isPacemaker() {
-		return( serverAccessType == VarSERVERACCESSTYPE.PACEMAKER );
+		return( serverAccessType == DBEnumServerAccessType.PACEMAKER );
 	}
 
 	public boolean isCommand() {
@@ -680,11 +681,11 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public boolean isGeneric() {
-		return( serverAccessType == VarSERVERACCESSTYPE.GENERIC );
+		return( serverAccessType == DBEnumServerAccessType.GENERIC );
 	}
 
 	public boolean isManual() {
-		return( serverAccessType == VarSERVERACCESSTYPE.MANUAL );
+		return( serverAccessType == DBEnumServerAccessType.MANUAL );
 	}
 
 	public boolean isWebUser() {
@@ -704,7 +705,7 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public boolean isStartable() {
-		if( serverAccessType == VarSERVERACCESSTYPE.MANUAL )
+		if( serverAccessType == DBEnumServerAccessType.MANUAL )
 			return( false );
 		return( true );
 	}
@@ -728,7 +729,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 	
-	public void createServer( ActionBase action , String NAME , String DESC , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String sysname ) throws Exception {
+	public void createServer( ActionBase action , String NAME , String DESC , VarOSTYPE osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
 		if( !super.initCreateStarted( sg.getProperties() ) )
 			return;
 
@@ -746,7 +747,7 @@ public class MetaEnvServer extends PropertyController {
 		scatterProperties( action );
 	}
 
-	public void modifyServer( ActionBase action , String NAME , String DESC , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String sysname ) throws Exception {
+	public void modifyServer( ActionBase action , String NAME , String DESC , VarOSTYPE osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
 		super.setStringProperty( PROPERTY_NAME , NAME );
 		super.setStringProperty( PROPERTY_DESC , DESC );
 		super.setStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( osType ) );

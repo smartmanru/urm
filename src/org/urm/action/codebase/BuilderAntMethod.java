@@ -1,7 +1,7 @@
 package org.urm.action.codebase;
 
 import org.urm.action.ActionBase;
-import org.urm.common.PropertySet;
+import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;

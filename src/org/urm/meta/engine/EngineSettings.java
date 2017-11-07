@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.PropertySet;
 import org.urm.common.RunContext;
 import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.urm.meta.Types.*;

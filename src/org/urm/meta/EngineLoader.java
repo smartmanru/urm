@@ -5,12 +5,12 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.PropertySet;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineDB;
 import org.urm.engine.EngineSession;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.properties.PropertySet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.engine.EngineBase;
@@ -501,6 +501,10 @@ public class EngineLoader {
 				clearServerProduct( storage );
 			addServerProduct( storageNew );
 		}
+	}
+	
+	public void getExecProperties( PropertySet set ) throws Exception {
+		settings.serverContext.getExecProperties( set );
 	}
 	
 }

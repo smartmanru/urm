@@ -9,11 +9,11 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.PropertySet;
 import org.urm.engine.EngineSession;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.properties.PropertySet;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.EngineDirectory;
@@ -210,7 +210,7 @@ public class ProductMeta extends EngineObject {
 		if( action.isStandalone() ) {
 			execprops = new PropertySet( "execrc" , null );
 			try {
-				action.engine.execrc.getProperties( execprops );
+				loader.getExecProperties( execprops );
 			}
 			catch( Throwable e ) {
 				action.handle( e );

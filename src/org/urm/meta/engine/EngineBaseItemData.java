@@ -9,16 +9,15 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.PropertyController;
-import org.urm.common.PropertySet;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.db.DBEnumTypes.*;
 import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.PropertyController;
+import org.urm.engine.properties.PropertySet;
 import org.urm.engine.storage.BaseRepository;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.Types;
-import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -33,7 +32,7 @@ public class EngineBaseItemData extends PropertyController {
 	public String VERSION;
 	
 	public DBEnumBaseSrcType type;
-	public VarBASESRCFORMAT srcFormat;
+	public DBEnumBaseSrcFormatType srcFormat;
 	public String SRCFILE;
 	public String SRCSTOREDIR;
 	public String INSTALLPATH;
@@ -44,7 +43,7 @@ public class EngineBaseItemData extends PropertyController {
 	
 	public boolean adm;
 	public VarOSTYPE osType;
-	public VarSERVERACCESSTYPE serverAccessType;
+	public DBEnumServerAccessType serverAccessType;
 	public Charset charset;
 
 	public EngineBaseItemData( EngineBaseItem item , BaseRepository repo ) {
@@ -100,7 +99,7 @@ public class EngineBaseItemData extends PropertyController {
 		}
 		
 		String SERVERTYPE = super.getStringProperty( action , "server-accesstype" );
-		serverAccessType = Types.getServerAccessType( SERVERTYPE , false );
+		serverAccessType = DBEnumServerAccessType.getValue( SERVERTYPE , false );
 		
 		// type properties
 		if( isArchiveLink() )
@@ -181,7 +180,7 @@ public class EngineBaseItemData extends PropertyController {
 	}
 
 	private void scatterArchiveLink( ActionBase action ) throws Exception {
-		srcFormat = Types.getBaseSrcFormat( super.getStringPropertyRequired( action , "srcformat" ) , false );
+		srcFormat = DBEnumBaseSrcFormatType.getValue( super.getStringPropertyRequired( action , "srcformat" ) , false );
 		SRCFILE = super.getPathPropertyRequired( action , "srcfile" );
 		SRCSTOREDIR = super.getPathPropertyRequired( action , "srcstoreddir" );
 		INSTALLPATH = super.getPathPropertyRequired( action , "installpath" );
@@ -189,7 +188,7 @@ public class EngineBaseItemData extends PropertyController {
 	}
 	
 	private void scatterArchiveDirect( ActionBase action ) throws Exception {
-		srcFormat = Types.getBaseSrcFormat( super.getStringPropertyRequired( action , "srcformat" ) , false );
+		srcFormat = DBEnumBaseSrcFormatType.getValue( super.getStringPropertyRequired( action , "srcformat" ) , false );
 		SRCFILE = super.getPathPropertyRequired( action , "srcfile" );
 		SRCSTOREDIR = super.getPathPropertyRequired( action , "srcstoreddir" );
 		INSTALLPATH = super.getPathPropertyRequired( action , "installpath" );
@@ -199,7 +198,7 @@ public class EngineBaseItemData extends PropertyController {
 	}
 
 	private void scatterInstaller( ActionBase action ) throws Exception {
-		srcFormat = Types.getBaseSrcFormat( super.getStringPropertyRequired( action , "srcformat" ) , false );
+		srcFormat = DBEnumBaseSrcFormatType.getValue( super.getStringPropertyRequired( action , "srcformat" ) , false );
 		SRCFILE = super.getPathPropertyRequired( action , "srcfile" );
 	}
 
@@ -253,7 +252,7 @@ public class EngineBaseItemData extends PropertyController {
 		Common.xmlSetElementAttr( doc , root , "version" , VERSION );
 	}
 
-	public void setOptions( EngineTransaction transaction , String name , String version , VarOSTYPE ostype , VarSERVERACCESSTYPE accessType , DBEnumBaseSrcType srcType , VarBASESRCFORMAT srcFormat , String SRCFILE , String SRCSTOREDIR , String INSTALLPATH , String INSTALLLINK ) {
+	public void setOptions( EngineTransaction transaction , String name , String version , VarOSTYPE ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCSTOREDIR , String INSTALLPATH , String INSTALLLINK ) {
 		this.NAME = name;
 		this.VERSION = version;
 		
