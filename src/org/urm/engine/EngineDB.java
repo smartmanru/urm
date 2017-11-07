@@ -2,12 +2,15 @@ package org.urm.engine;
 
 import java.io.File;
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Properties;
 
 import org.postgresql.ds.PGConnectionPoolDataSource;
+import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.db.DBConnection;
+import org.urm.db.DBEnumTypes;
+import org.urm.db.DBNames;
 import org.urm.meta.EngineLoader;
 
 public class EngineDB {
@@ -48,12 +51,12 @@ public class EngineDB {
 		pool.setCurrentSchema( schema );
 		pool.setDefaultAutoCommit( false );
 			
-		Connection connection = null;
+		DBConnection connection = null;
 		try {
-			connection = pool.getConnection();
-			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery( "select * from urm_system where 1 = 2" );
-			rs.next();
+			loader.engine.trace( "connecting to " + host + ":" + port + "/" + db + "[" + schema + "] as user=" + user + " ..." );
+			connection = getConnection( loader.engine.serverAction );
+			loader.engine.trace( "checking client/server consistency ..." );
+			initData( connection );
 		}
 		finally {
 			if( connection != null )
@@ -61,15 +64,17 @@ public class EngineDB {
 		}
 	}
 
-	public Connection getConnection() throws Exception {
+	public DBConnection getConnection( ActionBase action ) throws Exception {
 		Connection connection = pool.getConnection();
 		connection.setAutoCommit( false );
-		return( connection );
+		DBConnection dbc = new DBConnection( loader.engine , action , connection );
+		dbc.init();
+		return( dbc );
 	}
 
-	public void releaseConnection( Connection connection ) throws Exception {
+	public void releaseConnection( DBConnection connection ) throws Exception {
 		if( connection != null )
-			connection.close();			
+			connection.close();
 	}
 
 	public void clearServer() {
@@ -90,6 +95,16 @@ public class EngineDB {
 
 	public String getBoolean( boolean value ) {
 		return( ( value )? "'Y'" : "'N'" );
+	}
+
+	public void initData( DBConnection connection ) throws Exception {
+		DBNames.load( connection );
+		
+		boolean dbUpdate = Common.getBooleanValue( System.getProperty( "dbupdate" ) );
+		if( dbUpdate )
+			DBEnumTypes.updateDatabase( loader.engine , connection );
+		else
+			DBEnumTypes.verifyDatabase( loader.engine , connection );
 	}
 	
 }

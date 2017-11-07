@@ -21,7 +21,7 @@ public class PropertyValue {
 	public PropertySet originSet;
 	public boolean required;
 	
-	private PropertyValueType type;
+	private DBEnumPropertyType type;
 	private String defaultValue;
 	private String originalValue;
 	private String finalValue;
@@ -55,7 +55,7 @@ public class PropertyValue {
 		this.origin = origin;
 		this.originSet = originSet;
 		this.required = false;
-		this.type = PropertyValueType.PROPERTY_STRING;
+		this.type = DBEnumPropertyType.PROPERTY_STRING;
 		this.resolved = true;
 		this.system = false;
 		this.missing = true;
@@ -128,7 +128,7 @@ public class PropertyValue {
 		return( true );
 	}
 	
-	public PropertyValueType getType() {
+	public DBEnumPropertyType getType() {
 		return( type );
 	}
 	
@@ -199,7 +199,7 @@ public class PropertyValue {
 		}
 		else {
 			nullvalue = false;
-			if( type == PropertyValueType.PROPERTY_PATH )
+			if( type == DBEnumPropertyType.PROPERTY_PATH )
 				value = Common.getLinuxPath( value );
 			originalValue = value;
 		}
@@ -213,9 +213,9 @@ public class PropertyValue {
 		this.required = true;
 	}
 	
-	public void setType( PropertyValueType type ) throws Exception {
+	public void setType( DBEnumPropertyType type ) throws Exception {
 		if( this.type != type ) {
-			if( this.type != PropertyValueType.PROPERTY_STRING )
+			if( this.type != DBEnumPropertyType.PROPERTY_STRING )
 				Common.exit1( _Error.PropertyMismatchedType1 , "property is of mismatched type name=" + property , property );
 			this.type = type;
 		}
@@ -243,12 +243,12 @@ public class PropertyValue {
 	}
 	
 	public void setString( String value ) throws Exception {
-		type = PropertyValueType.PROPERTY_STRING;
+		type = DBEnumPropertyType.PROPERTY_STRING;
 		setOriginalAndFinalValue( value );
 	}
 	
 	public void setNumber( String value ) throws Exception {
-		type = PropertyValueType.PROPERTY_NUMBER;
+		type = DBEnumPropertyType.PROPERTY_NUMBER;
 		setOriginalAndFinalValue( value );
 	}
 	
@@ -257,17 +257,17 @@ public class PropertyValue {
 	}
 
 	public void setBool( boolean value ) throws Exception {
-		type = PropertyValueType.PROPERTY_BOOL;
+		type = DBEnumPropertyType.PROPERTY_BOOL;
 		setOriginalAndFinalValue( Common.getBooleanValue( value ) );
 	}
 	
 	public void setBool( String value ) throws Exception {
-		type = PropertyValueType.PROPERTY_BOOL;
+		type = DBEnumPropertyType.PROPERTY_BOOL;
 		setOriginalAndFinalValue( value );
 	}
 	
 	public void setPath( String value , ShellExecutor shell ) throws Exception {
-		type = PropertyValueType.PROPERTY_PATH;
+		type = DBEnumPropertyType.PROPERTY_PATH;
 		if( value != null ) {
 			value = Common.getLinuxPath( value );
 		
@@ -334,7 +334,7 @@ public class PropertyValue {
 	}
 	
 	private void setFinalValueInternal( String value ) throws Exception {
-		if( type == PropertyValueType.PROPERTY_PATH ) {
+		if( type == DBEnumPropertyType.PROPERTY_PATH ) {
 			if( value != null )
 				value = Common.getLinuxPath( value );
 		}
@@ -353,7 +353,7 @@ public class PropertyValue {
 				return;
 			
 			if( resolved ) {
-				if( type == PropertyValueType.PROPERTY_NUMBER ) {
+				if( type == DBEnumPropertyType.PROPERTY_NUMBER ) {
 					try {
 						Integer.parseInt( value );
 					}
@@ -362,7 +362,7 @@ public class PropertyValue {
 					}
 				}
 				else
-				if( type == PropertyValueType.PROPERTY_BOOL ) {
+				if( type == DBEnumPropertyType.PROPERTY_BOOL ) {
 					try {
 						Common.getBooleanValue( value );
 					}
@@ -374,16 +374,16 @@ public class PropertyValue {
 		}
 	}
 
-	public static PropertyValueType getItemValueType( String TYPE , boolean required ) throws Exception {
+	public static DBEnumPropertyType getItemValueType( String TYPE , boolean required ) throws Exception {
 		if( TYPE.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingItemValueType0 , "missing item value type" );
-			return( PropertyValueType.UNKNOWN );
+			return( DBEnumPropertyType.UNKNOWN );
 		}
 		
-		PropertyValueType value = null;		
+		DBEnumPropertyType value = null;		
 		try {
-			value = PropertyValueType.valueOf( Common.xmlToEnumValue( TYPE ) );
+			value = DBEnumPropertyType.valueOf( Common.xmlToEnumValue( TYPE ) );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidItemValueType1 , "invalid item value type=" + TYPE , TYPE );

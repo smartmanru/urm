@@ -517,7 +517,12 @@ public class Engine {
 	}
 
 	public void log( String prompt , Throwable e ) {
-		serverAction.log( prompt , e );
+		if( serverAction != null )
+			serverAction.log( prompt , e );
+		else {
+			System.out.println( "engine (error): " + prompt );
+			e.printStackTrace();
+		}
 	}
 	
 	public void handle( Throwable e ) {
