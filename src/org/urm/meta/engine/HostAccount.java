@@ -5,6 +5,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.db.DBEnumTypes.DBEnumOSType;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineLoader;
@@ -86,7 +87,7 @@ public class HostAccount extends EngineObject {
 	}
 
 	public Account getHostAccount( ActionBase action ) throws Exception {
-		return( Account.getDatacenterAccount( action , host.network.datacenter.ID , ID , host.ID , host.PORT , host.osType ) );
+		return( Account.getDatacenterAccount( action , host.network.datacenter.ID , ID , host.ID , host.PORT , DBEnumOSType.getVarValue( host.osType ) ) );
 	}
 	
 }

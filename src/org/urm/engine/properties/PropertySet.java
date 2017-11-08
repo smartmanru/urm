@@ -275,13 +275,13 @@ public class PropertySet {
 		PropertyValue pv = new PropertyValue( prop , origin , null , null );
 		if( system )
 			pv.setSystem();
-		if( type == DBEnumParamValueType.PROPERTY_BOOL )
+		if( type == DBEnumParamValueType.BOOL )
 			pv.setBool( value );
 		else
-		if( type == DBEnumParamValueType.PROPERTY_NUMBER )
+		if( type == DBEnumParamValueType.NUMBER )
 			pv.setNumber( value );
 		else
-		if( type == DBEnumParamValueType.PROPERTY_PATH )
+		if( type == DBEnumParamValueType.PATH )
 			pv.setPath( value , target );
 		else
 			pv.setString( value );
@@ -431,7 +431,7 @@ public class PropertySet {
 		if( pv == null )
 			return( null );
 		String data = pv.getFinalValue();
-		if( pv.getType() != DBEnumParamValueType.PROPERTY_PATH )
+		if( pv.getType() != DBEnumParamValueType.PATH )
 			return( data );
 		return( account.getOSPath( data ) );
 	}
@@ -539,7 +539,7 @@ public class PropertySet {
 				Element element = Common.xmlCreatePropertyElement( doc , parent , pv.property , value );
 				if( custom ) {
 					Common.xmlSetElementAttr( doc , element , "desc" , pv.desc );
-					Common.xmlSetElementAttr( doc , element , "type" , Common.getEnumLower( DBEnumParamValueType.PROPERTY_STRING ) );
+					Common.xmlSetElementAttr( doc , element , "type" , Common.getEnumLower( DBEnumParamValueType.STRING ) );
 				}
 			}
 		}
@@ -558,7 +558,7 @@ public class PropertySet {
 				if( pv.isCustom() ) {
 					Element element = Common.xmlCreatePropertyElement( doc , parent , pv.property , value );
 					Common.xmlSetElementAttr( doc , element , "desc" , pv.desc );
-					Common.xmlSetElementAttr( doc , element , "type" , Common.getEnumLower( DBEnumParamValueType.PROPERTY_STRING ) );
+					Common.xmlSetElementAttr( doc , element , "type" , Common.getEnumLower( DBEnumParamValueType.STRING ) );
 				}
 			}
 		}
@@ -566,25 +566,25 @@ public class PropertySet {
 	
 	public int getSystemRequiredIntProperty( String prop ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , true , true );
-		pv.setType( DBEnumParamValueType.PROPERTY_NUMBER );
+		pv.setType( DBEnumParamValueType.NUMBER );
 		return( pv.getNumber() );
 	}
 
 	public String getSystemRequiredStringProperty( String prop ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , true , true );
-		pv.setType( DBEnumParamValueType.PROPERTY_STRING );
+		pv.setType( DBEnumParamValueType.STRING );
 		return( pv.getString() );
 	}
 
 	public String getSystemRequiredPathProperty( String prop , RunContext execrc ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , true , true );
-		pv.setType( DBEnumParamValueType.PROPERTY_PATH );
+		pv.setType( DBEnumParamValueType.PATH );
 		return( pv.getPath( execrc.isWindows() ) );
 	}
 	
 	public String getSystemPathExprProperty( String prop , RunContext execrc , String defaultExpr , boolean setRequired ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false , true );
-		pv.setType( DBEnumParamValueType.PROPERTY_PATH );
+		pv.setType( DBEnumParamValueType.PATH );
 		if( setRequired )
 			pv.setRequired();
 		if( pv.isFinalEmpty() ) {
@@ -596,7 +596,7 @@ public class PropertySet {
 	
 	public String getSystemPathProperty( String prop , RunContext execrc , String defaultValue , boolean setRequired ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false , true );
-		pv.setType( DBEnumParamValueType.PROPERTY_PATH );
+		pv.setType( DBEnumParamValueType.PATH );
 		if( setRequired )
 			pv.setRequired();
 		pv.setDefault( defaultValue );
@@ -613,7 +613,7 @@ public class PropertySet {
 	
 	public String getSystemStringExprProperty( String prop , String defaultExpr , boolean setRequired ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false , true );
-		pv.setType( DBEnumParamValueType.PROPERTY_STRING );
+		pv.setType( DBEnumParamValueType.STRING );
 		if( setRequired )
 			pv.setRequired();
 		if( pv.isFinalEmpty() ) {
@@ -629,7 +629,7 @@ public class PropertySet {
 
 	public String getSystemStringProperty( String prop , String defaultValue , boolean setRequired ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false , true );
-		pv.setType( DBEnumParamValueType.PROPERTY_STRING );
+		pv.setType( DBEnumParamValueType.STRING );
 		if( setRequired )
 			pv.setRequired();
 		pv.setDefault( defaultValue );
@@ -642,7 +642,7 @@ public class PropertySet {
 
 	public String getSystemTemplateProperty( String prop , String defaultValue , boolean setRequired ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false , false );
-		pv.setType( DBEnumParamValueType.PROPERTY_STRING );
+		pv.setType( DBEnumParamValueType.STRING );
 		if( setRequired )
 			pv.setRequired();
 		pv.setDefault( defaultValue );
@@ -652,7 +652,7 @@ public class PropertySet {
 
 	public int getSystemIntExprProperty( String prop , String defaultExpr , boolean setRequired ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false , true );
-		pv.setType( DBEnumParamValueType.PROPERTY_NUMBER );
+		pv.setType( DBEnumParamValueType.NUMBER );
 		if( setRequired )
 			pv.setRequired();
 		if( pv.isFinalEmpty() ) {
@@ -664,7 +664,7 @@ public class PropertySet {
 
 	public int getSystemIntProperty( String prop , int defaultValue , boolean setRequired ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false , true );
-		pv.setType( DBEnumParamValueType.PROPERTY_NUMBER );
+		pv.setType( DBEnumParamValueType.NUMBER );
 		if( setRequired )
 			pv.setRequired();
 		pv.setDefault( "" + defaultValue );
@@ -673,7 +673,7 @@ public class PropertySet {
 
 	public boolean getSystemBooleanExprProperty( String prop , String defaultExpr , boolean setRequired ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false , true );
-		pv.setType( DBEnumParamValueType.PROPERTY_BOOL );
+		pv.setType( DBEnumParamValueType.BOOL );
 		if( setRequired )
 			pv.setRequired();
 		if( pv.isFinalEmpty() ) {
@@ -689,7 +689,7 @@ public class PropertySet {
 	
 	public FLAG getSystemOptionProperty( String prop , Boolean defaultValue , boolean setRequired ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false , true );
-		pv.setType( DBEnumParamValueType.PROPERTY_BOOL );
+		pv.setType( DBEnumParamValueType.BOOL );
 		if( setRequired )
 			pv.setRequired();
 		if( defaultValue != null )
@@ -715,7 +715,7 @@ public class PropertySet {
 	
 	public boolean getSystemBooleanProperty( String prop , boolean defaultValue , boolean setRequired ) throws Exception {
 		PropertyValue pv = resolveSystemProperty( prop , false , true );
-		pv.setType( DBEnumParamValueType.PROPERTY_BOOL );
+		pv.setType( DBEnumParamValueType.BOOL );
 		if( setRequired )
 			pv.setRequired();
 		pv.setDefault( Common.getBooleanValue( defaultValue ) );
@@ -727,7 +727,7 @@ public class PropertySet {
 		ConfReader.addAttributes( node , attrs );
 		for( String prop : attrs.keySet() ) {
 			String value = attrs.get( prop );
-			createOriginalAndRawProperty( prop , value , custom , DBEnumParamValueType.PROPERTY_STRING , null );
+			createOriginalAndRawProperty( prop , value , custom , DBEnumParamValueType.STRING , null );
 		}
 	}
 	
@@ -741,7 +741,7 @@ public class PropertySet {
 			String value = ConfReader.getAttrValue( property , "value" );
 			
 			String desc = null;
-			DBEnumParamValueType type = DBEnumParamValueType.PROPERTY_STRING;
+			DBEnumParamValueType type = DBEnumParamValueType.STRING;
 			if( custom ) {
 				desc = ConfReader.getAttrValue( property , "desc" );
 				type = PropertyValue.getItemValueType( ConfReader.getAttrValue( property , "type" ) , false );
@@ -758,7 +758,7 @@ public class PropertySet {
 			
 			if( value.startsWith( "\"" ) && value.endsWith( "\"" ) )
 				value = value.substring( 1 , value.length() - 2 );
-			createOriginalAndRawProperty( prop , value , custom , DBEnumParamValueType.PROPERTY_STRING , null );
+			createOriginalAndRawProperty( prop , value , custom , DBEnumParamValueType.STRING , null );
 		}
 	}
 	
@@ -880,7 +880,7 @@ public class PropertySet {
 				PropertyValue pvVar = parent.getPropertyInternal( pv.property , useRaw , allowParent , allowUnresolved );
 				if( pvVar != null && !pvVar.isNull() ) {
 					pv.setFinalValue( pvVar.getFinalValue() );
-					if( finalValue && pv.getType() == DBEnumParamValueType.PROPERTY_PATH )
+					if( finalValue && pv.getType() == DBEnumParamValueType.PATH )
 						pv.setFinalValue( pv.getPath( finalValue , isWindows ) );
 					return;
 				}
@@ -920,7 +920,7 @@ public class PropertySet {
 				return;
 			
 			pv.setFinalValue( pvVar.getFinalValue() );
-			if( finalValue && pv.getType() == DBEnumParamValueType.PROPERTY_PATH )
+			if( finalValue && pv.getType() == DBEnumParamValueType.PATH )
 				pv.setFinalValue( pv.getPath( finalValue , isWindows ) );
 			return;
 		}
@@ -942,7 +942,7 @@ public class PropertySet {
 					res += "@" + var + "@";
 				else {
 					String s;
-					if( pvVar.getType() == DBEnumParamValueType.PROPERTY_PATH )
+					if( pvVar.getType() == DBEnumParamValueType.PATH )
 						s = pvVar.getPath( finalValue , isWindows );
 					else
 						s = pvVar.getFinalValue();
@@ -1051,7 +1051,7 @@ public class PropertySet {
 				return( null );
 			return( Common.getLinuxPath( defaultValue ) );
 		}
-		pv.setType( DBEnumParamValueType.PROPERTY_PATH );
+		pv.setType( DBEnumParamValueType.PATH );
 		pv.setDefault( defaultValue );
 		return( pv.getPath( false ) );
 	}
@@ -1060,7 +1060,7 @@ public class PropertySet {
 		PropertyValue pv = findPropertyInternal( name , null , system );
 		if( pv == null )
 			return( defaultValue );
-		pv.setType( DBEnumParamValueType.PROPERTY_STRING );
+		pv.setType( DBEnumParamValueType.STRING );
 		pv.setDefault( defaultValue );
 		return( pv.getString() );
 	}
@@ -1069,7 +1069,7 @@ public class PropertySet {
 		PropertyValue pv = findPropertyInternal( name , null , system );
 		if( pv == null )
 			return( defaultValue );
-		pv.setType( DBEnumParamValueType.PROPERTY_NUMBER );
+		pv.setType( DBEnumParamValueType.NUMBER );
 		pv.setDefault( "" + defaultValue );
 		return( pv.getNumber() );
 	}
@@ -1078,7 +1078,7 @@ public class PropertySet {
 		PropertyValue pv = findPropertyInternal( name , null , system );
 		if( pv == null )
 			return( defaultValue );
-		pv.setType( DBEnumParamValueType.PROPERTY_BOOL );
+		pv.setType( DBEnumParamValueType.BOOL );
 		pv.setDefault( Common.getBooleanValue( defaultValue ) );
 		return( pv.getFinalBool() );
 	}

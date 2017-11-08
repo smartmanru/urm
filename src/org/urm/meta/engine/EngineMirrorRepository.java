@@ -302,7 +302,16 @@ public class EngineMirrorRepository extends EngineObject {
 		if( RESOURCE.isEmpty() )
 			return;
 		
-		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , RESOURCE , "" , true );
+		// silently ignore if missing
+		ActionBase action = transaction.getAction();
+		EngineResources resources = action.getServerResources();
+		EngineAuthResource res = resources.findResource( RESOURCE );
+		if( res == null ) {
+			action.error( "missing mirror resource=" + RESOURCE + ", ignored on deletion" );
+			return;
+		}
+		
+		GenericVCS vcs = GenericVCS.getVCS( action , null , RESOURCE , "" , true );
 		MirrorCase mc = vcs.getMirror( this );
 		mc.dropMirror( dropOnServer );
 	}

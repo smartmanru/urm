@@ -42,7 +42,7 @@ public class EngineEventsTimer extends EngineEventsSource {
 		events.engine.executor.executeCycle( task );
 	}
 
-	public synchronized void stop() {
+	public void stop() {
 		events.engine.executor.stopTask( task );
 	}
 	

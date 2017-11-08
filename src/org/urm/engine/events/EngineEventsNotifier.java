@@ -45,6 +45,9 @@ public class EngineEventsNotifier extends EngineEventsSource {
 		NotifyEvent event = null;
 		try {
 			synchronized( tasks ) {
+				if( !running )
+					return;
+				
 				if( queue.isEmpty() )
 					tasks.wait( 30000 );
 
@@ -78,6 +81,7 @@ public class EngineEventsNotifier extends EngineEventsSource {
 		running = true;
 		for( int k = 0; k < NOTIFY_POOL; k++ ) {
 			ServerExecutorTaskNotify task = new ServerExecutorTaskNotify( k + 1 );
+			tasks.add( task );
 			events.engine.executor.executeCycle( task );
 		}
 	}
@@ -85,10 +89,14 @@ public class EngineEventsNotifier extends EngineEventsSource {
 	public void stop() {
 		synchronized( tasks ) {
 			running = false;
-			for( ServerExecutorTaskNotify task : tasks )
-				events.engine.executor.stopTask( task );
-			tasks.clear();
 			tasks.notifyAll();
+		}
+		
+		for( ServerExecutorTaskNotify task : tasks )
+			events.engine.executor.stopTask( task );
+		
+		synchronized( tasks ) {
+			tasks.clear();
 		}
 	}
 

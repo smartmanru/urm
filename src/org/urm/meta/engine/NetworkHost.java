@@ -9,13 +9,13 @@ import java.util.Map.Entry;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.urm.meta.Types;
 
 public class NetworkHost extends EngineObject {
 
@@ -25,7 +25,7 @@ public class NetworkHost extends EngineObject {
 	public String ID;
 	public String IP;
 	public int PORT;
-	public VarOSTYPE osType;
+	public DBEnumOSType osType;
 	public String DESC;
 	
 	public NetworkHost( Network network ) {
@@ -57,7 +57,7 @@ public class NetworkHost extends EngineObject {
 		IP = ConfReader.getAttrValue( root , "ip" );
 		PORT = ConfReader.getIntegerAttrValue( root , "port" , 22 );
 		String OSTYPE = ConfReader.getAttrValue( root , "ostype" );
-		osType = Types.getOSType( OSTYPE , false );
+		osType = DBEnumOSType.getValue( OSTYPE , false );
 		DESC = ConfReader.getAttrValue( root , "desc" );
 		
 		Node[] list = ConfReader.xmlGetChildren( root , "account" );
@@ -98,7 +98,7 @@ public class NetworkHost extends EngineObject {
 	}
 
 	public void createHost( EngineTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP , int PORT , String DESC ) throws Exception {
-		this.osType = osType;
+		this.osType = DBEnumOSType.getValue( osType );
 		this.ID = ( HOSTNAME.isEmpty() )? IP : HOSTNAME;
 		this.IP = IP;
 		this.PORT = PORT;
@@ -106,7 +106,7 @@ public class NetworkHost extends EngineObject {
 	}
 	
 	public void modifyHost( EngineTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP , int PORT , String DESC ) throws Exception {
-		this.osType = osType;
+		this.osType = DBEnumOSType.getValue( osType );
 		this.ID = ( HOSTNAME.isEmpty() )? IP : HOSTNAME;
 		this.IP = IP;
 		this.PORT = PORT;

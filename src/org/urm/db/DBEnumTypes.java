@@ -5,17 +5,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.Engine;
 
 public abstract class DBEnumTypes {
 
 	public enum DBEnumResourceType implements DBEnumInterface {
-		UNKNOWN(0) ,
-		CREDENTIALS(1) ,
-		SSH(2) ,
-		SVN(3) ,
-		GIT(4) ,
-		NEXUS(5);
+		UNKNOWN(0,null) ,
+		CREDENTIALS(1,null) ,
+		SSH(2,null) ,
+		SVN(3,null) ,
+		GIT(4,null) ,
+		NEXUS(5,null);
 		
 		public boolean isAuthResource() {
 			if( this == GIT || this == NEXUS || this == SVN )
@@ -24,79 +25,141 @@ public abstract class DBEnumTypes {
 		}
 		
 		private final int value;
+		private String[] synonyms;
 		@Override public int code() { return( value ); };
-		private DBEnumResourceType( int value ) { this.value = value; };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumResourceType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
 		public static DBEnumResourceType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumResourceType.class , value , required , UNKNOWN ) ); };
 		public static DBEnumResourceType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumResourceType.class , value , required , UNKNOWN ) ); };
 	}
 
 	public enum DBEnumBaseCategoryType implements DBEnumInterface {
-		HOST(1) ,
-		ACCOUNT(2) ,
-		APP(3);
+		HOST(1,null) ,
+		ACCOUNT(2,null) ,
+		APP(3,null);
 
 		private final int value;
+		private String[] synonyms;
 		@Override public int code() { return( value ); };
-		private DBEnumBaseCategoryType( int value ) { this.value = value; };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumBaseCategoryType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
 		public static DBEnumBaseCategoryType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseCategoryType.class , value , required , null ) ); };
 		public static DBEnumBaseCategoryType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseCategoryType.class , value , required , null ) ); };
 	};
 	
 	public enum DBEnumBaseSrcType implements DBEnumInterface {
-		UNKNOWN(0) ,
-		PACKAGE(1) ,
-		ARCHIVE_LINK(2) ,
-		ARCHIVE_DIRECT(3) ,
-		NODIST(4) ,
-		INSTALLER(5);
+		UNKNOWN(0,null) ,
+		PACKAGE(1,null) ,
+		ARCHIVE_LINK(2,null) ,
+		ARCHIVE_DIRECT(3,null) ,
+		NODIST(4,null) ,
+		INSTALLER(5,null);
 
 		private final int value;
+		private String[] synonyms;
 		@Override public int code() { return( value ); };
-		private DBEnumBaseSrcType( int value ) { this.value = value; };
-		public static DBEnumBaseSrcType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseSrcType.class , value , required , null ) ); };
-		public static DBEnumBaseSrcType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseSrcType.class , value , required , null ) ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumBaseSrcType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumBaseSrcType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseSrcType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumBaseSrcType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseSrcType.class , value , required , UNKNOWN ) ); };
 	};
 	
 	public enum DBEnumBaseSrcFormatType implements DBEnumInterface {
-		UNKNOWN(0) ,
-		TARGZ_SINGLEDIR(1) ,
-		ZIP_SINGLEDIR(2) ,
-		SINGLEFILE(3);
+		UNKNOWN(0,null) ,
+		TARGZ_SINGLEDIR(1,null) ,
+		ZIP_SINGLEDIR(2,null) ,
+		SINGLEFILE(3,null);
 
 		private final int value;
+		private String[] synonyms;
 		@Override public int code() { return( value ); };
-		private DBEnumBaseSrcFormatType( int value ) { this.value = value; };
-		public static DBEnumBaseSrcFormatType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseSrcFormatType.class , value , required , null ) ); };
-		public static DBEnumBaseSrcFormatType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseSrcFormatType.class , value , required , null ) ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumBaseSrcFormatType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumBaseSrcFormatType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseSrcFormatType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumBaseSrcFormatType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBaseSrcFormatType.class , value , required , UNKNOWN ) ); };
 	};
 	
 	public enum DBEnumServerAccessType implements DBEnumInterface {
-		UNKNOWN(0) ,
-		SERVICE(1) ,
-		PACEMAKER(2) ,
-		DOCKER(3) ,
-		GENERIC(4) ,
-		MANUAL(5);
+		UNKNOWN(0,null) ,
+		SERVICE(1,null) ,
+		PACEMAKER(2,null) ,
+		DOCKER(3,null) ,
+		GENERIC(4,null) ,
+		MANUAL(5,null);
 
 		private final int value;
+		private String[] synonyms;
 		@Override public int code() { return( value ); };
-		private DBEnumServerAccessType( int value ) { this.value = value; };
-		public static DBEnumServerAccessType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumServerAccessType.class , value , required , null ) ); };
-		public static DBEnumServerAccessType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumServerAccessType.class , value , required , null ) ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumServerAccessType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumServerAccessType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumServerAccessType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumServerAccessType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumServerAccessType.class , value , required , UNKNOWN ) ); };
 	};
 
 	public enum DBEnumParamValueType implements DBEnumInterface {
-		UNKNOWN(0) ,
-		PROPERTY_STRING(1) ,
-		PROPERTY_NUMBER(2) ,
-		PROPERTY_BOOL(3) ,
-		PROPERTY_PATH(4);
+		UNKNOWN(0,null) ,
+		STRING(1,null) ,
+		NUMBER(2,null) ,
+		BOOL(3,null) ,
+		PATH(4,null);
 
 		private final int value;
+		private String[] synonyms;
 		@Override public int code() { return( value ); };
-		private DBEnumParamValueType( int value ) { this.value = value; };
-		public static DBEnumParamValueType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumParamValueType.class , value , required , null ) ); };
-		public static DBEnumParamValueType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumParamValueType.class , value , required , null ) ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumParamValueType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumParamValueType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumParamValueType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumParamValueType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumParamValueType.class , value , required , UNKNOWN ) ); };
+	};
+
+	public enum DBEnumOSType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		LINUX(1,null) ,
+		WINDOWS(2,null);
+
+		public static VarOSTYPE getVarValue( DBEnumOSType ostype ) throws Exception {
+			if( ostype == null )
+				return( VarOSTYPE.UNKNOWN );
+			return( VarOSTYPE.valueOf( ostype.name() ) ); 
+		}
+		public static DBEnumOSType getValue( VarOSTYPE ostype ) throws Exception {
+			if( ostype == null )
+				return( DBEnumOSType.UNKNOWN );
+			return( getValue( ostype.name() , false ) ); 
+		}
+		
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumOSType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumOSType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumOSType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumOSType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumOSType.class , value , required , UNKNOWN ) ); };
+	};
+	
+	public enum DBEnumObjectType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		ENUM(1,null) ,
+		PARAM(2,null) ,
+		RESOURCE(3,null) ,
+		DATACENTER(10,null) ,
+		NETWORK(11,null) ,
+		HOST(12,null) ,
+		ACCOUNT(13,null) ,
+		BASE_CATEGORY(20,null) ,
+		BASE_GROUP(21,null) ,
+		BASE_ITEM(22,null) ,
+		SYSTEM(30,null) ,
+		PRODUCT(31,null) ,
+		SYSTEM_PARAM(32,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumObjectType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumObjectType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumObjectType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumObjectType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumObjectType.class , value , required , UNKNOWN ) ); };
 	};
 
 	//#################################################
@@ -107,7 +170,9 @@ public abstract class DBEnumTypes {
 			DBEnumBaseSrcType.class , 
 			DBEnumParamValueType.class ,
 			DBEnumResourceType.class ,
-			DBEnumServerAccessType.class
+			DBEnumServerAccessType.class ,
+			DBEnumOSType.class ,
+			DBEnumObjectType.class
 			}; 
 
 	private static String prefix = "DBEnum";
@@ -116,7 +181,7 @@ public abstract class DBEnumTypes {
 	private static <T extends Enum<T> & DBEnumInterface> T getValue( Class<T> type , Integer value , boolean required , T unknownValue ) throws Exception {
 		if( value == 0 ) {
 			if( required )
-				Common.exit1( _Error.MissingEnumIntType1 , "missing enum integer type value, enum=" + type.getName() , type.getName() );
+				Common.exit1( _Error.MissingEnumIntType1 , "missing enum integer type value, enum=" + type.getSimpleName() , type.getSimpleName() );
 			return( unknownValue );
 		}
 		
@@ -125,23 +190,23 @@ public abstract class DBEnumTypes {
     			return( t );
     	}
     	
-		Common.exit2( _Error.InvalidEnumIntType2 , "invalid enum item=" + value + ", enum=" + type.getName() , "" + value , type.getName() );
+		Common.exit2( _Error.InvalidEnumIntType2 , "invalid enum item=" + value + ", enum=" + type.getSimpleName() , "" + value , type.getSimpleName() );
 		return( null );
     }
 
     private static <T extends Enum<T> & DBEnumInterface> T getValue( Class<T> type , String value , boolean required , T unknownValue ) throws Exception {
 		if( value == null || value.isEmpty() ) {
 			if( required )
-				Common.exit1( _Error.MissingEnumStringType1 , "missing enum string type value, enum=" + type.getName() , type.getName() );
+				Common.exit1( _Error.MissingEnumStringType1 , "missing enum string type value, enum=" + type.getSimpleName() , type.getSimpleName() );
 			return( unknownValue );
 		}
 		
-    	for( T t : type.getEnumConstants() ) {
-    		if( value.equals( t.name() ) )
-    			return( t );
-    	}
+		@SuppressWarnings("unchecked")
+		T t = ( T )getEnumValue( type , value );
+		if( t != null )
+			return( t );
     	
-		Common.exit2( _Error.InvalidEnumStringType2 , "invalid enum item=" + value + ", enum=" + type.getName() , value , type.getName() );
+		Common.exit2( _Error.InvalidEnumStringType2 , "invalid enum item=" + value + ", enum=" + type.getSimpleName() , value , type.getSimpleName() );
 		return( null );
     }
 
@@ -164,7 +229,7 @@ public abstract class DBEnumTypes {
     	
     	for( Class<?> c : enums ) {
     		String name = getEnumName( c );
-    		int enumId = DBNames.getNameIndex( connection , enumsId , name );
+    		int enumId = DBNames.getNameIndex( connection , enumsId , name , DBEnumObjectType.ENUM );
     		
     		if( !connection.update( DBQueries.QUERY_ENUMS_ADD3 , new String[] { "0" , "" + enumId , name } ) )
     			Common.exitUnexpected();
@@ -191,13 +256,23 @@ public abstract class DBEnumTypes {
     	return( null );
     }
     
-    private static Enum<?> getEnumValue( Class<?> ec , String name ) {
-		for( Object ei : ec.getEnumConstants() ) {
-			Enum<?> item = ( Enum<?> )ei;
-			String ename = item.name().toLowerCase();
-			if( ename.equals( name ) )
-				return( item );
-		}
+    private static Enum<?> getEnumValue( Class<?> type , String value ) {
+		String valueCheck = value.toUpperCase();
+    	for( Object t : type.getEnumConstants() ) {
+    		Enum<?> et = ( Enum<?> )t;
+    		if( valueCheck.equals( et.name() ) )
+    			return( et );
+    		
+    		DBEnumInterface oi = ( DBEnumInterface )t;
+    		String[] synonyms = oi.synonyms();
+    		if( synonyms != null ) {
+    			for( String synonym : synonyms ) {
+    				if( valueCheck.equals( synonym ) )
+    					return( et );
+    			}
+    		}
+    	}
+    	
 		return( null );
     }
     

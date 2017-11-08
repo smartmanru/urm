@@ -61,6 +61,7 @@ public class EngineEvents extends EngineObject {
 	}
 
 	public void stop() throws Exception {
+		engine.trace( "stop events ..." );
 		notifier.stop();
 		timer.stop();
 	}

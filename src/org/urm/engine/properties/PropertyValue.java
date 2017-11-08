@@ -55,7 +55,7 @@ public class PropertyValue {
 		this.origin = origin;
 		this.originSet = originSet;
 		this.required = false;
-		this.type = DBEnumParamValueType.PROPERTY_STRING;
+		this.type = DBEnumParamValueType.STRING;
 		this.resolved = true;
 		this.system = false;
 		this.missing = true;
@@ -199,7 +199,7 @@ public class PropertyValue {
 		}
 		else {
 			nullvalue = false;
-			if( type == DBEnumParamValueType.PROPERTY_PATH )
+			if( type == DBEnumParamValueType.PATH )
 				value = Common.getLinuxPath( value );
 			originalValue = value;
 		}
@@ -215,7 +215,7 @@ public class PropertyValue {
 	
 	public void setType( DBEnumParamValueType type ) throws Exception {
 		if( this.type != type ) {
-			if( this.type != DBEnumParamValueType.PROPERTY_STRING )
+			if( this.type != DBEnumParamValueType.STRING )
 				Common.exit1( _Error.PropertyMismatchedType1 , "property is of mismatched type name=" + property , property );
 			this.type = type;
 		}
@@ -243,12 +243,12 @@ public class PropertyValue {
 	}
 	
 	public void setString( String value ) throws Exception {
-		type = DBEnumParamValueType.PROPERTY_STRING;
+		type = DBEnumParamValueType.STRING;
 		setOriginalAndFinalValue( value );
 	}
 	
 	public void setNumber( String value ) throws Exception {
-		type = DBEnumParamValueType.PROPERTY_NUMBER;
+		type = DBEnumParamValueType.NUMBER;
 		setOriginalAndFinalValue( value );
 	}
 	
@@ -257,17 +257,17 @@ public class PropertyValue {
 	}
 
 	public void setBool( boolean value ) throws Exception {
-		type = DBEnumParamValueType.PROPERTY_BOOL;
+		type = DBEnumParamValueType.BOOL;
 		setOriginalAndFinalValue( Common.getBooleanValue( value ) );
 	}
 	
 	public void setBool( String value ) throws Exception {
-		type = DBEnumParamValueType.PROPERTY_BOOL;
+		type = DBEnumParamValueType.BOOL;
 		setOriginalAndFinalValue( value );
 	}
 	
 	public void setPath( String value , ShellExecutor shell ) throws Exception {
-		type = DBEnumParamValueType.PROPERTY_PATH;
+		type = DBEnumParamValueType.PATH;
 		if( value != null ) {
 			value = Common.getLinuxPath( value );
 		
@@ -334,7 +334,7 @@ public class PropertyValue {
 	}
 	
 	private void setFinalValueInternal( String value ) throws Exception {
-		if( type == DBEnumParamValueType.PROPERTY_PATH ) {
+		if( type == DBEnumParamValueType.PATH ) {
 			if( value != null )
 				value = Common.getLinuxPath( value );
 		}
@@ -353,7 +353,7 @@ public class PropertyValue {
 				return;
 			
 			if( resolved ) {
-				if( type == DBEnumParamValueType.PROPERTY_NUMBER ) {
+				if( type == DBEnumParamValueType.NUMBER ) {
 					try {
 						Integer.parseInt( value );
 					}
@@ -362,7 +362,7 @@ public class PropertyValue {
 					}
 				}
 				else
-				if( type == DBEnumParamValueType.PROPERTY_BOOL ) {
+				if( type == DBEnumParamValueType.BOOL ) {
 					try {
 						Common.getBooleanValue( value );
 					}

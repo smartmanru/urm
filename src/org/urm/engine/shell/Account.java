@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.db.DBEnumTypes.DBEnumOSType;
 import org.urm.meta.engine.EngineAuthResource;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.HostAccount;
@@ -104,7 +105,7 @@ public class Account {
 				action.exit1( _Error.UnknownDatacenter1 , "Unable to access account, unknown datacenter=" + datacenter , datacenter );
 			
 			hostAccount = dc.getFinalAccount( action , user + "@" + host );
-			if( hostAccount.host.osType != osType ) {
+			if( hostAccount.host.osType != DBEnumOSType.getValue( osType ) ) {
 				String p1 = Common.getEnumLower( hostAccount.host.osType );
 				String p2 = Common.getEnumLower( osType );
 				action.exit2( _Error.MismatchedOsType2 , "Mismatched OS type: " + p1 + " != " + p2 , p1 , p2 );
@@ -173,7 +174,7 @@ public class Account {
 			action.exit1( _Error.UnknownDatacenter1 , "Unable to access account, unknown datacenter=" + datacenter , datacenter );
 		
 		HostAccount account = dc.getFinalAccount( action , hostLogin );
-		if( account.host.osType != osType ) {
+		if( account.host.osType != DBEnumOSType.getValue( osType ) ) {
 			String p1 = Common.getEnumLower( account.host.osType );
 			String p2 = Common.getEnumLower( osType );
 			action.exit2( _Error.MismatchedOsType2 , "Mismatched OS type: " + p1 + " != " + p2 , p1 , p2 );

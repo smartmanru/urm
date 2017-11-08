@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.db.DBEnumTypes.DBEnumObjectType;
 
 public abstract class DBNames {
 
@@ -40,13 +41,14 @@ public abstract class DBNames {
 		return( Integer.parseInt( value ) );
 	}
 	
-	public synchronized static int getNameIndex( DBConnection connection , int parent , String name ) throws Exception {
+	public synchronized static int getNameIndex( DBConnection connection , int parent , String name , DBEnumObjectType type ) throws Exception {
 		String key = parent + "::" + name;
 		Integer value = map.get( key );
 		if( value != null )
 			return( value );
 			
 		int valueSeq = getNextSequenceValue( connection );
+		connection.update( DBQueries.QUERY_NAMES_ADDITEM4 , new String[] { "" + parent , name , "" + valueSeq , "" + type.code() } );
 		map.put( key , valueSeq );
 		return( valueSeq );
 	}
