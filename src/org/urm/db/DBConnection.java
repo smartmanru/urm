@@ -10,8 +10,9 @@ import org.urm.engine.Engine;
 
 public class DBConnection {
 
-	private Engine engine;
-	private ActionBase action;
+	public Engine engine;
+	public ActionBase action;
+	
 	private Connection connection;
 	private Statement stmt;
 	

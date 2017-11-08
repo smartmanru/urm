@@ -17,9 +17,11 @@ public class System extends EngineObject {
 	public EngineDirectory directory;
 	public Map<String,Product> mapProducts;
 	
+	public int ID;
 	public String NAME;
 	public String DESC;
 	public boolean OFFLINE;
+	public int SV;
 	
 	public System( EngineDirectory directory ) {
 		super( directory );

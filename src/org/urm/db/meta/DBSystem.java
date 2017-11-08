@@ -4,53 +4,44 @@ import java.sql.ResultSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.action.ActionBase;
 import org.urm.db.DBConnection;
+import org.urm.db.DBEnumTypes.DBEnumObjectType;
+import org.urm.db.DBNames;
+import org.urm.db.DBQueries;
 import org.urm.engine.EngineDB;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.System;
 
 public class DBSystem {
 
-	public static void save( ActionBase action , EngineDirectory directory , EngineDB db , System system ) throws Exception {
-		DBConnection c = null;
-		try {
-			c = db.getConnection( action );
-			
-			c.update( "insert into urm_system ( name , xdesc , offline ) values ( " + 
-					db.getQuoted( system.NAME ) + ", " +
-					db.getQuoted( system.DESC ) + ", " +
-					db.getBoolean( system.OFFLINE ) + " )" );
-		}
-		catch( Throwable e ) {
-			action.log( "unable to save system" , e );
-			c.rollback();
-			throw new RuntimeException( "unable to save system" );
-		}
-		finally {
-			db.releaseConnection( c );
-		}
+	public static void insert( EngineTransaction transaction , System system ) throws Exception {
+		DBConnection c = transaction.connection;
+		system.ID = DBNames.getNameIndex( c , 0 , system.NAME , DBEnumObjectType.SYSTEM );
+		system.SV = transaction.SV;
+		c.update( DBQueries.UPDATE_SYSTEM_ADD5 , new String[] {
+				"" + system.ID , 
+				EngineDB.getString( system.NAME ) , 
+				EngineDB.getString( system.DESC ) ,
+				EngineDB.getBoolean( system.OFFLINE ) ,
+				"" + system.SV 
+				} );
 	}
 
-	public static System[] load( ActionBase action , EngineDirectory directory , EngineDB db ) throws Exception {
+	public static System[] load( EngineDirectory directory , DBConnection c ) throws Exception {
 		List<System> systems = new LinkedList<System>();
 		
-		DBConnection c = null;
-		try {
-			c = db.getConnection( action );
-			
-			ResultSet rs = c.query( "select name , xdesc , offline from urm_system");
-			while( rs.next() ) {
-				System system = new System( directory );
-				system.NAME = rs.getString( 1 );
-				system.DESC = rs.getString( 2 );
-				system.OFFLINE = db.getBoolean( rs.getString( 3 ) );
-				systems.add( system );
-			}
+		ResultSet rs = c.query( DBQueries.QUERY_SYSTEM_GETALL0 );
+		while( rs.next() ) {
+			System system = new System( directory );
+			system.ID = rs.getInt( 1 );
+			system.NAME = rs.getString( 2 );
+			system.DESC = rs.getString( 3 );
+			system.OFFLINE = rs.getBoolean( 4 );
+			system.SV = rs.getInt( 5 );
+			systems.add( system );
 		}
-		finally {
-			db.releaseConnection( c );
-		}
+		
 		return( systems.toArray( new System[0] ) );
 	}
 	

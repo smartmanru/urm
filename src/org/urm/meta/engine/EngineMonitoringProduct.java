@@ -64,7 +64,7 @@ public class EngineMonitoringProduct {
 		if( !monitoring.isEnabled() )
 			return;
 		
-		if( !meta.ENABLED )
+		if( meta == null || !meta.ENABLED )
 			return;
 		
 		if( action.isProductOffline( meta.meta ) )

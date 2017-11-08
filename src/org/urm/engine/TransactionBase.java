@@ -4,7 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.RunError;
+import org.urm.db.DBConnection;
+import org.urm.db.DBData;
 import org.urm.engine.action.ActionInit;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineAuth;
@@ -51,6 +54,11 @@ public class TransactionBase extends EngineObject {
 	public ActionInit action;
 	public RunError error;
 	
+	public DBConnection connection;
+	public int SV;
+	private boolean CHANGEDATABASE;
+	private boolean SERVERVERSIONUPDATE;
+	
 	public EngineInfrastructure infra;
 	public EngineReleaseLifecycles lifecycles;
 	public EngineBase base;
@@ -74,6 +82,10 @@ public class TransactionBase extends EngineObject {
 		super( null );
 		this.engine = engine;
 		this.action = action;
+		
+		CHANGEDATABASE = false;
+		SERVERVERSIONUPDATE = false;
+		SV = 0;
 		
 		settings = null;
 		infra = null;
@@ -382,6 +394,25 @@ public class TransactionBase extends EngineObject {
 		action.trace( s );
 	}
 	
+	public void changeDatabase() throws Exception {
+		if( CHANGEDATABASE )
+			return;
+		
+		CHANGEDATABASE = true;
+		EngineLoader loader = engine.getLoader( action );
+		EngineDB db = loader.getDatabase();
+		connection = db.getConnection( action );
+	}
+	
+	public void changeEngineDatabase() throws Exception {
+		changeDatabase();
+		if( SERVERVERSIONUPDATE )
+			return;
+		
+		SERVERVERSIONUPDATE = true;
+		SV = DBData.getCurrentServerVersion( connection ) + 1;
+	}
+	
 	public boolean changeInfrastructure( EngineInfrastructure sourceInfrastructure , Network network ) {
 		synchronized( engine ) {
 			try {
@@ -400,6 +431,7 @@ public class TransactionBase extends EngineObject {
 						return( false );
 				}
 				
+				changeEngineDatabase();
 				infra = sourceInfrastructure;
 				return( true );
 			}
@@ -444,6 +476,7 @@ public class TransactionBase extends EngineObject {
 				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
 					return( false );
 				
+				changeEngineDatabase();
 				lifecycles = sourceLifecycles;
 				return( true );
 			}
@@ -488,6 +521,7 @@ public class TransactionBase extends EngineObject {
 				if( !checkSecuritySpecial( sr ) )
 					return( false );
 				
+				changeEngineDatabase();
 				base = sourceBase;
 				return( true );
 			}
@@ -537,6 +571,7 @@ public class TransactionBase extends EngineObject {
 				else {
 					resourcesOld = action.getActiveResources();
 					if( sourceResources == resourcesOld ) {
+						changeEngineDatabase();
 						resources = sourceResources.copy();
 						if( resources != null ) {
 							trace( "transaction resources: source=" + sourceResources.objectId + ", copy=" + resources.objectId );
@@ -594,6 +629,7 @@ public class TransactionBase extends EngineObject {
 				else {
 					buildersOld = action.getActiveBuilders();
 					if( sourceBuilders == buildersOld ) {
+						changeEngineDatabase();
 						builders = sourceBuilders.copy();
 						if( builders != null ) {
 							trace( "transaction builders: source=" + sourceBuilders.objectId + ", copy=" + builders.objectId );
@@ -652,6 +688,7 @@ public class TransactionBase extends EngineObject {
 				else {
 					directoryOld = action.getActiveDirectory();
 					if( sourceDirectory == directoryOld ) {
+						changeEngineDatabase();
 						directory = sourceDirectory.copy();
 						if( directory != null ) {
 							trace( "transaction directory: source=" + sourceDirectory.objectId + ", copy=" + directory.objectId );
@@ -706,6 +743,7 @@ public class TransactionBase extends EngineObject {
 				
 				mirrorsOld = action.getActiveMirrors();
 				if( sourceMirrors == mirrorsOld ) {
+					changeEngineDatabase();
 					mirrors = sourceMirrors.copy();
 					if( mirrors != null ) {
 						trace( "transaction mirrors: source=" + sourceMirrors.objectId + ", copy=" + mirrors.objectId );
@@ -754,6 +792,7 @@ public class TransactionBase extends EngineObject {
 				if( !checkSecurityServerChange( SecurityAction.ACTION_MONITOR ) )
 					return( false );
 				
+				changeEngineDatabase();
 				return( true );
 			}
 			catch( Throwable e ) {
@@ -779,6 +818,7 @@ public class TransactionBase extends EngineObject {
 				
 				settingsOld = action.getActiveServerSettings();
 				if( sourceSettings == settingsOld ) {
+					changeEngineDatabase();
 					settings = sourceSettings.copy();
 					trace( "transaction server settings: source=" + sourceSettings.objectId + ", copy=" + settings.objectId );
 					if( settings != null )
@@ -939,6 +979,7 @@ public class TransactionBase extends EngineObject {
 
 	protected void checkTransactionMirrors( EngineMirrors sourceMirrors ) throws Exception {
 		checkTransaction();
+		changeEngineDatabase();
 		if( sourceMirrors == null || mirrors != sourceMirrors )
 			exit( _Error.TransactionMissingMirrorsChanges0 , "Missing mirrors changes" , null );
 	}

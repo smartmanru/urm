@@ -7,6 +7,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.Engine;
+import org.urm.engine.EngineDB;
 
 public abstract class DBEnumTypes {
 
@@ -222,16 +223,16 @@ public abstract class DBEnumTypes {
 	}
     
     public static void updateDatabase( Engine engine , DBConnection connection ) throws Exception {
-    	connection.update( DBQueries.QUERY_ENUMS_DROP0 );
+    	connection.update( DBQueries.UPDATE_ENUMS_DROP0 );
     	
 		int enumsId = DBNames.getEnumsId();
-    	connection.update( DBQueries.QUERY_NAMES_DROPPARENT1 , new String[] { "" + enumsId } );
+    	connection.update( DBQueries.UPDATE_NAMES_DROPPARENT1 , new String[] { "" + enumsId } );
     	
     	for( Class<?> c : enums ) {
     		String name = getEnumName( c );
     		int enumId = DBNames.getNameIndex( connection , enumsId , name , DBEnumObjectType.ENUM );
     		
-    		if( !connection.update( DBQueries.QUERY_ENUMS_ADD3 , new String[] { "0" , "" + enumId , name } ) )
+    		if( !connection.update( DBQueries.UPDATE_ENUMS_ADD3 , new String[] { "0" , "" + enumId , EngineDB.getString( name ) } ) )
     			Common.exitUnexpected();
     		
     		for( Object object : c.getEnumConstants() ) {
@@ -240,7 +241,7 @@ public abstract class DBEnumTypes {
     			Enum<?> ev = ( Enum<?> )object;
     			String elementName = ev.name().toLowerCase();
     			
-        		if( !connection.update( DBQueries.QUERY_ENUMS_ADD3 , new String[] { "" + enumId , "" + elementValue , elementName } ) )
+        		if( !connection.update( DBQueries.UPDATE_ENUMS_ADD3 , new String[] { "" + enumId , "" + elementValue , EngineDB.getString( elementName ) } ) )
         			Common.exitUnexpected();
     		}
     	}

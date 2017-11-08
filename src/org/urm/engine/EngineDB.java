@@ -89,12 +89,14 @@ public class EngineDB {
 		return( true );
 	}
 
-	public String getQuoted( String value ) {
+	public static String getString( String value ) {
+		if( value == null || value.isEmpty() )
+			return( "null" );
 		return( "'" + value + "'" );
 	}
 
-	public String getBoolean( boolean value ) {
-		return( ( value )? "'Y'" : "'N'" );
+	public static String getBoolean( boolean value ) {
+		return( ( value )? "'yes'" : "'no'" );
 	}
 
 	public void initData( DBConnection connection ) throws Exception {

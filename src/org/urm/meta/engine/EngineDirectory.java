@@ -6,9 +6,9 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.db.DBSystem;
+import org.urm.db.DBConnection;
+import org.urm.db.meta.DBSystem;
 import org.urm.engine.Engine;
-import org.urm.engine.EngineDB;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
@@ -38,7 +38,7 @@ public class EngineDirectory extends EngineObject {
 		return( "server-directory" );
 	}
 	
-	public void load( EngineDB db , boolean savedb , Node root ) throws Exception {
+	public void load( Node root , DBConnection c , boolean savedb , EngineTransaction transaction ) throws Exception {
 		if( savedb ) {
 			if( root == null )
 				return;
@@ -50,12 +50,12 @@ public class EngineDirectory extends EngineObject {
 			for( Node itemNode : items ) {
 				System item = new System( this );
 				item.load( itemNode );
-				DBSystem.save( engine.serverAction , this , db , item );
+				DBSystem.insert( transaction , item );
 				mapSystems.put( item.NAME , item );
 			}
 		}
 		else {
-			System[] systems = DBSystem.load( engine.serverAction , this , db );
+			System[] systems = DBSystem.load( this , c );
 			for( System system : systems )
 				mapSystems.put( system.NAME , system );
 		}

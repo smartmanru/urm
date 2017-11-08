@@ -5,9 +5,11 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.DBConnection;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineDB;
 import org.urm.engine.EngineSession;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;
@@ -68,14 +70,35 @@ public class EngineLoader {
 	}
 	
 	private void init( boolean savedb ) throws Exception {
-		loadRegistry( savedb );
-		loadBase();
-		loadInfrastructure();
-		loadReleaseLifecycles();
-		
-		if( !engine.execrc.isStandalone() ) {
-			loadServerSettings();
-			loadMonitoring();
+		EngineTransaction transaction = null;
+		try {
+			DBConnection connection = null;
+			if( savedb ) {
+				transaction = engine.createTransaction( engine.serverAction );
+				transaction.changeEngineDatabase();
+				connection = transaction.connection;
+			}
+			else
+				connection = db.getConnection( engine.serverAction );
+			
+			loadRegistry( connection , savedb , transaction );
+			loadBase();
+			loadInfrastructure();
+			loadReleaseLifecycles();
+			
+			if( !engine.execrc.isStandalone() ) {
+				loadServerSettings();
+				loadMonitoring();
+			}
+			
+			if( savedb )
+				transaction.commitTransaction();
+		}
+		catch( Throwable e ) {
+			engine.log( "init" , e );
+			if( savedb )
+				transaction.abortTransaction( false );
+			Common.exitUnexpected();
 		}
 	}
 	
@@ -149,9 +172,9 @@ public class EngineLoader {
 		return( propertyFile );
 	}
 
-	private void loadRegistry( boolean savedb ) throws Exception {
+	private void loadRegistry( DBConnection c , boolean savedb , EngineTransaction transaction ) throws Exception {
 		String registryFile = getServerRegistryFile();
-		registry.load( db , savedb , registryFile , engine.execrc );
+		registry.load( registryFile , engine.execrc , c , savedb , transaction );
 	}
 
 	private String getServerSettingsFile() {
@@ -428,6 +451,12 @@ public class EngineLoader {
 		}
 	}
 
+	public EngineDB getDatabase() {
+		synchronized( engine ) {
+			return( db );
+		}
+	}
+	
 	public void setServerSettings( TransactionBase transaction , EngineSettings settingsNew ) throws Exception {
 		String propertyFile = getServerSettingsFile();
 		settingsNew.save( propertyFile , engine.execrc );

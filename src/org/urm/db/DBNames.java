@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.db.DBEnumTypes.DBEnumObjectType;
+import org.urm.engine.EngineDB;
 
 public abstract class DBNames {
 
@@ -48,7 +49,7 @@ public abstract class DBNames {
 			return( value );
 			
 		int valueSeq = getNextSequenceValue( connection );
-		connection.update( DBQueries.QUERY_NAMES_ADDITEM4 , new String[] { "" + parent , name , "" + valueSeq , "" + type.code() } );
+		connection.update( DBQueries.UPDATE_NAMES_ADDITEM4 , new String[] { "" + parent , EngineDB.getString( name ) , "" + valueSeq , "" + type.code() } );
 		map.put( key , valueSeq );
 		return( valueSeq );
 	}
