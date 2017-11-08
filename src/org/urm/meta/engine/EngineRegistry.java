@@ -5,7 +5,6 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
-import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
@@ -36,7 +35,7 @@ public class EngineRegistry extends EngineObject {
 		return( "server-registry" );
 	}
 	
-	public void load( String propertyFile , RunContext execrc , DBConnection c , boolean savedb , EngineTransaction transaction  ) throws Exception {
+	public void load( String propertyFile , RunContext execrc , DBConnection c , boolean savedb ) throws Exception {
 		Document doc = ConfReader.readXmlFile( execrc , propertyFile );
 		Node root = doc.getDocumentElement();
 		
@@ -44,7 +43,7 @@ public class EngineRegistry extends EngineObject {
 		node = ConfReader.xmlGetFirstChild( root , "resources" );
 		resources.load( node );
 		node = ConfReader.xmlGetFirstChild( root , "directory" );
-		directory.load( node , c , savedb , transaction );
+		directory.load( node , c , savedb );
 		node = ConfReader.xmlGetFirstChild( root , "mirror" );
 		mirrors.load( node );
 		node = ConfReader.xmlGetFirstChild( root , "build" );

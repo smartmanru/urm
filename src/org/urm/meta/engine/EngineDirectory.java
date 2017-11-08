@@ -38,7 +38,7 @@ public class EngineDirectory extends EngineObject {
 		return( "server-directory" );
 	}
 	
-	public void load( Node root , DBConnection c , boolean savedb , EngineTransaction transaction ) throws Exception {
+	public void load( Node root , DBConnection c , boolean savedb ) throws Exception {
 		if( savedb ) {
 			if( root == null )
 				return;
@@ -50,12 +50,12 @@ public class EngineDirectory extends EngineObject {
 			for( Node itemNode : items ) {
 				System item = new System( this );
 				item.load( itemNode );
-				DBSystem.insert( transaction , item );
+				DBSystem.insert( c , registry.loader.SV , item );
 				mapSystems.put( item.NAME , item );
 			}
 		}
 		else {
-			System[] systems = DBSystem.load( this , c );
+			System[] systems = DBSystem.load( c , this );
 			for( System system : systems )
 				mapSystems.put( system.NAME , system );
 		}

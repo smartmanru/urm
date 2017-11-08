@@ -212,6 +212,14 @@ public class TransactionBase extends EngineObject {
 				handle( e , "unable to restore metadata" );
 			}
 			
+			try {
+				if( connection != null )
+					connection.close( false );
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to rollback database changes" );
+			}
+			
 			engine.abortTransaction( this );
 		}
 		
@@ -259,6 +267,9 @@ public class TransactionBase extends EngineObject {
 				res = saveMetadata();
 			
 			if( res ) {
+				if( connection != null )
+					connection.close( true );
+				
 				if( !engine.commitTransaction( this ) )
 					return( false );
 				

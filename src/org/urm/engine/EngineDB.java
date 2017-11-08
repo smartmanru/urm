@@ -60,7 +60,7 @@ public class EngineDB {
 		}
 		finally {
 			if( connection != null )
-				connection.close();			
+				connection.close( true );			
 		}
 	}
 
@@ -74,7 +74,7 @@ public class EngineDB {
 
 	public void releaseConnection( DBConnection connection ) throws Exception {
 		if( connection != null )
-			connection.close();
+			connection.close( true );
 	}
 
 	public void clearServer() {

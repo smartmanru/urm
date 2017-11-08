@@ -15,6 +15,8 @@ public class DBConnection {
 	
 	private Connection connection;
 	private Statement stmt;
+
+	static int FAST_TIMEOUT = 5;
 	
 	public DBConnection( Engine engine , ActionBase action , Connection connection ) {
 		this.engine = engine;
@@ -26,9 +28,13 @@ public class DBConnection {
 		stmt = connection.createStatement();
 	}
 	
-	public void close() {
+	public void close( boolean commit ) {
 		try {
-			connection.commit();
+			if( commit )
+				connection.commit();
+			else
+				connection.rollback();
+			
 			stmt.close();
 			stmt = null;
 			connection.close();
@@ -40,11 +46,19 @@ public class DBConnection {
 	}
 
 	public String queryValue( String query ) {
-		return( queryValue( query , null ) );
+		return( queryValue( query , null , FAST_TIMEOUT ) );
+	}
+	
+	public String queryValue( String query , int timeout ) {
+		return( queryValue( query , null , timeout ) );
 	}
 	
 	public String queryValue( String query , String[] args ) {
-		ResultSet set = query( query , args );
+		return( queryValue( query , args , FAST_TIMEOUT ) );
+	}
+	
+	public String queryValue( String query , String[] args , int timeout ) {
+		ResultSet set = query( query , args , timeout );
 		if( set == null )
 			return( null );
 
@@ -64,14 +78,23 @@ public class DBConnection {
 	}
 	
 	public ResultSet query( String query ) throws Exception {
-		return( query( query , null ) );
+		return( query( query , null , FAST_TIMEOUT ) );
 	}
 	
+	public ResultSet query( String query , int timeout ) throws Exception {
+		return( query( query , null , timeout ) );
+	}
+
 	public ResultSet query( String query , String[] args ) {
+		return( query( query , args , FAST_TIMEOUT ) );
+	}
+	
+	public ResultSet query( String query , String[] args , int timeout ) {
 		String queryDB = getFinalQuery( query , args );
 		trace( "read query=" + queryDB + " ..." );
 		ResultSet rs = null;
 		try {
+			stmt.setQueryTimeout( timeout );
 			rs = stmt.executeQuery( queryDB );
 		}
 		catch( Throwable e ) {
@@ -82,13 +105,22 @@ public class DBConnection {
 	}
 
 	public boolean update( String query ) {
-		return( update( query , null ) );
+		return( update( query , null , FAST_TIMEOUT ) );
 	}
 	
+	public boolean update( String query , int timeout ) {
+		return( update( query , null , timeout ) );
+	}
+
 	public boolean update( String query , String[] args ) {
+		return( update( query , args , FAST_TIMEOUT ) );
+	}	
+	
+	public boolean update( String query , String[] args , int timeout ) {
 		String queryDB = getFinalQuery( query , args );
 		trace( "update query=" + queryDB + " ..." );
 		try {
+			stmt.setQueryTimeout( timeout );
 			stmt.executeUpdate( queryDB );
 		}
 		catch( Throwable e ) {

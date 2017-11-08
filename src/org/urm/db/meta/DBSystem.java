@@ -9,16 +9,14 @@ import org.urm.db.DBEnumTypes.DBEnumObjectType;
 import org.urm.db.DBNames;
 import org.urm.db.DBQueries;
 import org.urm.engine.EngineDB;
-import org.urm.engine.EngineTransaction;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.System;
 
 public class DBSystem {
 
-	public static void insert( EngineTransaction transaction , System system ) throws Exception {
-		DBConnection c = transaction.connection;
+	public static void insert( DBConnection c , int SV , System system ) throws Exception {
 		system.ID = DBNames.getNameIndex( c , 0 , system.NAME , DBEnumObjectType.SYSTEM );
-		system.SV = transaction.SV;
+		system.SV = SV;
 		c.update( DBQueries.UPDATE_SYSTEM_ADD5 , new String[] {
 				"" + system.ID , 
 				EngineDB.getString( system.NAME ) , 
@@ -28,7 +26,7 @@ public class DBSystem {
 				} );
 	}
 
-	public static System[] load( EngineDirectory directory , DBConnection c ) throws Exception {
+	public static System[] load( DBConnection c , EngineDirectory directory ) throws Exception {
 		List<System> systems = new LinkedList<System>();
 		
 		ResultSet rs = c.query( DBQueries.QUERY_SYSTEM_GETALL0 );
