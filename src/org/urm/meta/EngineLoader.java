@@ -32,7 +32,6 @@ import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDesign;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.MetaSource;
@@ -308,11 +307,6 @@ public class EngineLoader {
 		return( storageFinal.loadSources( action , storageMeta ) );
 	}
 	
-	public MetaMonitoring loadMonitoring( ActionInit action , ProductMeta storageFinal ) throws Exception {
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
-		return( storageFinal.loadMonitoring( action , storageMeta ) );
-	}
-
 	public MetaEnv loadEnvData( ActionInit action , ProductMeta storageFinal , String envFile , boolean loadProps ) throws Exception {
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
 		MetaEnv env = storageFinal.loadEnvData( action , storageMeta , envFile );

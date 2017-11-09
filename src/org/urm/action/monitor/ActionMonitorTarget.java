@@ -9,17 +9,17 @@ import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.SegmentStatus;
 import org.urm.engine.status.StatusSource;
 import org.urm.meta.engine.EngineAuth.SecurityAction;
+import org.urm.meta.engine.ProductMonitoringItem;
+import org.urm.meta.engine.ProductMonitoringTarget;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaMonitoringItem;
-import org.urm.meta.product.MetaMonitoringTarget;
 
 public class ActionMonitorTarget extends ActionBase {
 	
 	public MonitorTargetInfo info;
-	public MetaMonitoringTarget target;
+	public ProductMonitoringTarget target;
 	
 	volatile boolean running;
 	volatile ActionBase currentAction;
@@ -41,7 +41,7 @@ public class ActionMonitorTarget extends ActionBase {
 		return( actionCheck.timePassedMillis );
 	}
 	
-	private MetaEnv getEnv( MetaMonitoringTarget target ) throws Exception {
+	private MetaEnv getEnv( ProductMonitoringTarget target ) throws Exception {
 		Meta meta = target.meta;
 		MetaEnv env = meta.getEnv( this , target.ENV );
 		return( env );
@@ -109,7 +109,7 @@ public class ActionMonitorTarget extends ActionBase {
 		}
 		
 		// direct
-		for( MetaMonitoringItem item : target.getUrlsList( this ) ) {
+		for( ProductMonitoringItem item : target.getUrlsList( this ) ) {
 			if( !running )
 				break;
 			
@@ -120,7 +120,7 @@ public class ActionMonitorTarget extends ActionBase {
 				ok = false;
 		}
 		
-		for( MetaMonitoringItem item : target.getWSList( this ) ) {
+		for( ProductMonitoringItem item : target.getWSList( this ) ) {
 			if( !running )
 				break;
 			

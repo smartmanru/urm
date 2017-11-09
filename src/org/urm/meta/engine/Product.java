@@ -15,6 +15,7 @@ public class Product extends EngineObject {
 	public EngineDirectory directory;
 	public System system;
 	
+	public int ID;
 	public String NAME;
 	public String DESC;
 	public String PATH;

@@ -24,7 +24,6 @@ import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDesign;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.MetaSource;
@@ -43,7 +42,6 @@ public class ProductMeta extends EngineObject {
 	private MetaDatabase database;
 	private MetaSource sources;
 	private MetaDistr distr;
-	private MetaMonitoring mon;
 
 	private DistRepository repo;
 	
@@ -140,11 +138,6 @@ public class ProductMeta extends EngineObject {
 		if( distr != null ) {
 			r.distr = distr.copy( action , r.meta , r.database );
 			if( r.distr.isLoadFailed() )
-				r.loadFailed = true;
-		}
-		if( mon != null ) {
-			r.mon = mon.copy( action , r.meta );
-			if( r.mon.isLoadFailed() )
 				r.loadFailed = true;
 		}
 		for( String envKey : envs.keySet() ) {
@@ -326,32 +319,6 @@ public class ProductMeta extends EngineObject {
 		return( sources );
 	}
 	
-	public synchronized MetaMonitoring loadMonitoring( ActionBase action , MetadataStorage storageMeta ) {
-		if( mon != null )
-			return( mon );
-		
-		MetaProductSettings settings = loadProduct( action , storageMeta );
-		mon = new MetaMonitoring( this , settings , meta );
-		
-		if( !loadFailed ) {
-			try {
-				// read
-				String file = storageMeta.getMonitoringConfFile( action );
-				action.debug( "read monitoring definition file " + file + "..." );
-				Document doc = action.readXmlFile( file );
-				Node root = doc.getDocumentElement();
-				mon.load( action , root );
-				if( mon.isLoadFailed() )
-					setLoadFailed( action , "invalid monitoring metadata, product=" + name );
-			}
-			catch( Throwable e ) {
-				setLoadFailed( action , e , "unable to load monitoring metadata, product=" + name );
-			}
-		}
-		
-		return( mon );
-	}
-	
 	public synchronized MetaEnv loadEnvData( ActionBase action , MetadataStorage storageMeta , String envName ) {
 		MetaEnv env = envs.get( envName );
 		if( env != null )
@@ -414,7 +381,6 @@ public class ProductMeta extends EngineObject {
 		loadDatabase( action , storageMeta );
 		loadSources( action , storageMeta );
 		loadDistr( action , storageMeta );
-		loadMonitoring( action , storageMeta );
 		
 		meta.setVersion( version );
 		meta.setProduct( product );
@@ -444,7 +410,6 @@ public class ProductMeta extends EngineObject {
 		createInitialDatabase( transaction );
 		createInitialSources( transaction );
 		createInitialDistr( transaction );
-		createInitialMonitoring( transaction );
 	}
 
 	private void createInitialVersion( TransactionBase transaction ) throws Exception {
@@ -481,11 +446,6 @@ public class ProductMeta extends EngineObject {
 		meta.setSources( sources );
 	}
 	
-	private void createInitialMonitoring( TransactionBase transaction ) throws Exception {
-		mon = new MetaMonitoring( this , product , meta );
-		mon.createMonitoring( transaction );
-	}
-
 	public void createInitialRepository( TransactionBase transaction , boolean forceClear ) throws Exception {
 		repo = DistRepository.createInitialRepository( transaction.action , meta , forceClear );
 	}
@@ -500,7 +460,6 @@ public class ProductMeta extends EngineObject {
 		saveDatabase( action , storageMeta );
 		saveSources( action , storageMeta );
 		saveDistr( action , storageMeta );
-		saveMonitoring( action , storageMeta );
 		
 		for( String envFile : envs.keySet() )
 			saveEnvData( action , storageMeta , envFile , envs.get( envFile ) );
@@ -536,12 +495,6 @@ public class ProductMeta extends EngineObject {
 		Document doc = Common.xmlCreateDoc( XML_ROOT_SOURCES );
 		sources.save( action , doc , doc.getDocumentElement() );
 		storageMeta.saveSourcesConfFile( action , doc );
-	}
-	
-	public void saveMonitoring( ActionBase action , MetadataStorage storageMeta ) throws Exception {
-		Document doc = Common.xmlCreateDoc( XML_ROOT_MONITORING );
-		mon.save( action , doc , doc.getDocumentElement() );
-		storageMeta.saveMonitoringConfFile( action , doc );
 	}
 	
 	public void saveEnvData( ActionBase action , MetadataStorage storageMeta , String envFile , MetaEnv env ) throws Exception {
@@ -584,10 +537,6 @@ public class ProductMeta extends EngineObject {
 	
 	public MetaSource getSources() {
 		return( sources );
-	}
-	
-	public MetaMonitoring getMonitoring() {
-		return( mon );
 	}
 	
 	public String[] getEnvironmentNames() {

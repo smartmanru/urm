@@ -40,6 +40,9 @@ public abstract class DBQueries {
 	public static String UPDATE_APP_DROP_SYSTEM0 = "delete from urm_system";
 
 	public static String UPDATE_CORE_DROP_RESOURCE0 = "delete from urm_resource";
+	public static String UPDATE_CORE_DROP_MIRROR0 = "delete from urm_mirror";
 	public static String UPDATE_CORE_DROP_COREPARAM0 = "delete from urm_core_param";
+	
+	public static String UPDATE_RELEASES_DROP_BUILDERS0 = "delete from urm_project_builder";
 	
 }

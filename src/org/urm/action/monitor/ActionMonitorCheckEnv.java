@@ -9,9 +9,9 @@ import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.engine.EngineAuth.SecurityAction;
+import org.urm.meta.engine.ProductMonitoringTarget;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaMonitoringTarget;
 
 public class ActionMonitorCheckEnv extends ActionBase {
 
@@ -27,7 +27,7 @@ public class ActionMonitorCheckEnv extends ActionBase {
 		ActionCheckEnv action = new ActionCheckEnv( this , null );
 
 		MonitoringStorage storage = info.storage;
-		MetaMonitoringTarget target = info.target;
+		ProductMonitoringTarget target = info.target;
 		
 		MetaEnv env = target.meta.getEnv( this , target.ENV );
 		MetaEnvSegment sg = env.getSG( this , target.SG );

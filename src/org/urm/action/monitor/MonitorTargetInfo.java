@@ -16,13 +16,13 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
+import org.urm.meta.engine.ProductMonitoringTarget;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaMonitoringTarget;
 
 public class MonitorTargetInfo {
 
 	public Meta meta;
-	public MetaMonitoringTarget target;
+	public ProductMonitoringTarget target;
 	public MonitoringStorage storage;
 	
 	public long timeLastMajor;
@@ -36,7 +36,7 @@ public class MonitorTargetInfo {
 	boolean rrdDbFail;
 	String F_RRDFILE;
 	
-	public MonitorTargetInfo( MetaMonitoringTarget target , MonitoringStorage storage ) {
+	public MonitorTargetInfo( ProductMonitoringTarget target , MonitoringStorage storage ) {
 		this.target = target;
 		this.meta = target.meta;
 		this.storage = storage;

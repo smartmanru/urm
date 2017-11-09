@@ -9,23 +9,23 @@ import org.urm.engine.status.NodeStatus;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ServerStatus;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.engine.ProductMonitoringItem;
+import org.urm.meta.engine.ProductMonitoringTarget;
 import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerDeployment;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.MetaMonitoringItem;
-import org.urm.meta.product.MetaMonitoringTarget;
 
 public class ActionMonitorCheckItem extends ActionBase {
 
-	MetaMonitoringTarget target;
-	public MetaMonitoringItem item;
+	ProductMonitoringTarget target;
+	public ProductMonitoringItem item;
 	public MetaEnvServer server;
 	
 	public ServerStatus serverStatus;
 	List<NodeStatus> nodeData;
 	
-	public ActionMonitorCheckItem( ActionBase action , String stream , MetaMonitoringTarget target , MetaMonitoringItem item , MetaEnvServer server ) {
+	public ActionMonitorCheckItem( ActionBase action , String stream , ProductMonitoringTarget target , ProductMonitoringItem item , MetaEnvServer server ) {
 		super( action , stream , "Monitoring, check item" );
 		this.target = target;
 		this.item = item;
@@ -158,7 +158,7 @@ public class ActionMonitorCheckItem extends ActionBase {
 	}
 
 	private boolean monitorServerItemsUrl( String URL ) throws Exception {
-		MetaMonitoringItem item = new MetaMonitoringItem( server.meta , target );
+		ProductMonitoringItem item = new ProductMonitoringItem( target );
 		item.setUrlItem( this , URL );
 		boolean res = monitorUrl( item.URL );
 		item.setMonitorStatus( res );
@@ -167,7 +167,7 @@ public class ActionMonitorCheckItem extends ActionBase {
 	}		
 
 	private boolean monitorNodeItemsUrl( NodeStatus nodeStatus , String URL ) throws Exception {
-		MetaMonitoringItem item = new MetaMonitoringItem( server.meta , target );
+		ProductMonitoringItem item = new ProductMonitoringItem( target );
 		item.setUrlItem( this , URL );
 		boolean res = monitorUrl( item.URL );
 		item.setMonitorStatus( res );

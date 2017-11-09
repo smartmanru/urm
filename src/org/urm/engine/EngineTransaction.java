@@ -24,6 +24,8 @@ import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.Network;
 import org.urm.meta.engine.NetworkHost;
 import org.urm.meta.engine.Product;
+import org.urm.meta.engine.ProductMonitoring;
+import org.urm.meta.engine.ProductMonitoringTarget;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.engine.ReleaseLifecyclePhase;
@@ -43,8 +45,6 @@ import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerDeployment;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaEnvStartInfo;
-import org.urm.meta.product.MetaMonitoring;
-import org.urm.meta.product.MetaMonitoringTarget;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
@@ -483,19 +483,19 @@ public class EngineTransaction extends TransactionBase {
 		action.saveMonitoring( this );
 	}
 
-	public void setMonitoringEnabled( MetaMonitoring mon ) throws Exception {
+	public void setMonitoringEnabled( ProductMonitoring mon ) throws Exception {
 		checkTransactionMetadata( mon.meta.getStorage( action ) );
 		mon.setMonitoringEnabled( this , true );
 	}
 	
-	public void setMonitoringDisabled( MetaMonitoring mon ) throws Exception {
+	public void setMonitoringDisabled( ProductMonitoring mon ) throws Exception {
 		checkTransactionMetadata( mon.meta.getStorage( action ) );
 		mon.setMonitoringEnabled( this , false );
 	}
 
-	public MetaMonitoringTarget modifyMonitoringTarget( MetaMonitoring monMeta , MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
+	public ProductMonitoringTarget modifyMonitoringTarget( ProductMonitoring monMeta , MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
 		checkTransactionMetadata( monMeta.meta.getStorage( action ) );
-		MetaMonitoringTarget target = monMeta.modifyTarget( this , sg , major , enabled , maxTime , schedule );
+		ProductMonitoringTarget target = monMeta.modifyTarget( this , sg , major , enabled , maxTime , schedule );
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.modifyTarget( this , target );
 		return( target );

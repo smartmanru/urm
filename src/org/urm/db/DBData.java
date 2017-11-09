@@ -27,11 +27,19 @@ public abstract class DBData {
 	}
 	
 	public static void dropEngineData( DBConnection c ) throws Exception {
+		dropEngineReleasesData( c );
 		dropEngineAuthData( c );
 		dropEngineInfraData( c );
 		dropEngineBaseData( c );
 		dropEngineAppData( c );
 		dropEngineCoreData( c );
+	}
+
+	public static void dropEngineReleasesData( DBConnection c ) throws Exception {
+		boolean res = true;
+		res = ( res )? c.update( DBQueries.UPDATE_RELEASES_DROP_BUILDERS0 ) : false;
+		if( !res )
+			Common.exitUnexpected();
 	}
 
 	public static void dropEngineAuthData( DBConnection c ) throws Exception {
@@ -78,6 +86,7 @@ public abstract class DBData {
 		boolean res = true;
 		res = ( res )? c.update( DBQueries.UPDATE_CORE_DROP_RESOURCE0 ) : false;
 		res = ( res )? c.update( DBQueries.UPDATE_CORE_DROP_COREPARAM0 ) : false;
+		res = ( res )? c.update( DBQueries.UPDATE_CORE_DROP_MIRROR0 ) : false;
 		if( !res )
 			Common.exitUnexpected();
 	}

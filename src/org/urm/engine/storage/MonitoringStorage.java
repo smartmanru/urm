@@ -2,30 +2,27 @@ package org.urm.engine.storage;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaMonitoring;
-import org.urm.meta.product.MetaMonitoringTarget;
+import org.urm.meta.engine.ProductMonitoring;
+import org.urm.meta.engine.ProductMonitoringTarget;
 
 public class MonitoringStorage {
 
 	public Artefactory artefactory;
-	public Meta meta;
 	LocalFolder workFolder;
-	MetaMonitoring mon;
+	ProductMonitoring mon;
 	
-	public MonitoringStorage( Artefactory artefactory , LocalFolder workFolder , MetaMonitoring mon ) {
+	public MonitoringStorage( Artefactory artefactory , LocalFolder workFolder , ProductMonitoring mon ) {
 		this.artefactory = artefactory;
 		this.workFolder = workFolder;
 		this.mon = mon;
-		this.meta = mon.meta;
 	}
 	
-	public LocalFolder getDataFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
+	public LocalFolder getDataFolder( ActionBase action , ProductMonitoringTarget target ) throws Exception {
 		String path = Common.getPath( mon.DIR_DATA , target.ENV );
 		return( artefactory.getAnyFolder( action , path ) );
 	}
 	
-	public LocalFolder getReportsFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
+	public LocalFolder getReportsFolder( ActionBase action , ProductMonitoringTarget target ) throws Exception {
 		String path = mon.DIR_REPORTS;
 		return( artefactory.getAnyFolder( action , path ) );
 	}
@@ -35,27 +32,27 @@ public class MonitoringStorage {
 		return( artefactory.getAnyFolder( action , path ) );
 	}
 	
-	public LocalFolder getLogsFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
+	public LocalFolder getLogsFolder( ActionBase action , ProductMonitoringTarget target ) throws Exception {
 		String path = Common.getPath( mon.DIR_LOGS , target.ENV );
 		return( artefactory.getAnyFolder( action , path ) );
 	}
 	
-	public String getHistoryImageFile( MetaMonitoringTarget target ) throws Exception {
+	public String getHistoryImageFile( ProductMonitoringTarget target ) throws Exception {
 		String file = "history." + target.ENV + "." + target.SG + ".png";
 		return( file );
 	}
 	
-	public String getRrdFile( MetaMonitoringTarget target ) throws Exception {
+	public String getRrdFile( ProductMonitoringTarget target ) throws Exception {
 		String file = "env." + target.SG + ".rrd";
 		return( file );
 	}
 	
-	public String getCheckEnvFile( MetaMonitoringTarget target ) throws Exception {
+	public String getCheckEnvFile( ProductMonitoringTarget target ) throws Exception {
 		String file = "checkenv." + target.SG + ".log";
 		return( file );
 	}
 	
-	public String getCheckEnvRunningFile( MetaMonitoringTarget target ) throws Exception {
+	public String getCheckEnvRunningFile( ProductMonitoringTarget target ) throws Exception {
 		String name = getCheckEnvFile( target );
 		return( name + ".running" );
 	}
@@ -68,7 +65,7 @@ public class MonitoringStorage {
 		return( "stopped.jpg" );
 	}
 	
-	public String getStatusReportFile( MetaMonitoringTarget target ) throws Exception {
+	public String getStatusReportFile( ProductMonitoringTarget target ) throws Exception {
 		String basename = "overall." + target.ENV + "." + target.SG + ".html";
 		return( basename );
 	}
