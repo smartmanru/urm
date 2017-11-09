@@ -49,9 +49,23 @@ public abstract class DBNames {
 			return( value );
 			
 		int valueSeq = getNextSequenceValue( connection );
-		connection.update( DBQueries.UPDATE_NAMES_ADDITEM4 , new String[] { "" + parent , EngineDB.getString( name ) , "" + valueSeq , "" + type.code() } );
+		if( !connection.update( DBQueries.UPDATE_NAMES_MERGEITEM4 , new String[] { "" + parent , EngineDB.getString( name ) , "" + valueSeq , "" + type.code() } ) )
+			Common.exitUnexpected();
+				
 		map.put( key , valueSeq );
 		return( valueSeq );
+	}
+	
+	public synchronized static void updateName( DBConnection connection , int parent , String name , int id , DBEnumObjectType type ) throws Exception {
+		String key = parent + "::" + name;
+		Integer value = map.get( key );
+		if( value == id )
+			return;
+		
+		if( !connection.update( DBQueries.UPDATE_NAMES_MERGEITEM4 , new String[] { "" + parent , EngineDB.getString( name ) , "" + id , "" + type.code() } ) )
+			Common.exitUnexpected();
+		
+		map.put( key , id );
 	}
 	
 }

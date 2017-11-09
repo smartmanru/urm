@@ -85,7 +85,7 @@ public abstract class GenericVCS {
 		if( !BUILDER.isEmpty() ) {
 			EngineBuilders builders = action.getServerBuilders();
 			ProjectBuilder builder = builders.getBuilder( BUILDER );
-			if( builder.remote ) {
+			if( builder.REMOTE ) {
 				Account account = builder.getRemoteAccount( action );
 				shell = action.getShell( account );
 			}

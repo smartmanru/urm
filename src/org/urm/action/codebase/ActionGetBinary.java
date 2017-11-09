@@ -72,9 +72,9 @@ public class ActionGetBinary extends ActionBase {
 		else
 		if( builder.isTargetNexus() ) {
 			if( scopeItem.sourceItem.itemSrcType == VarITEMSRCTYPE.STATICWAR )
-				downloadNexusItem( builder.TARGETNEXUS , "staticwar" , scopeProject , scopeItem );
+				downloadNexusItem( builder.TARGET_RESOURCE , "staticwar" , scopeProject , scopeItem );
 			else
-				downloadNexusItem( builder.TARGETNEXUS , "nexus" , scopeProject , scopeItem );
+				downloadNexusItem( builder.TARGET_RESOURCE , "nexus" , scopeProject , scopeItem );
 		}
 		else
 		if( builder.isTargetNuget() )
@@ -150,14 +150,14 @@ public class ActionGetBinary extends ActionBase {
 		if( scopeItem.sourceItem.isInternal() )
 			copyDistr = false;
 
-		NexusStorage nexusStorage = artefactory.getDefaultNugetStorage( this , builder.TARGETNEXUS , scopeProject.meta , downloadFolder );
+		NexusStorage nexusStorage = artefactory.getDefaultNugetStorage( this , builder.TARGET_RESOURCE , scopeProject.meta , downloadFolder );
 		NexusDownloadInfo BINARY = nexusStorage.downloadNuget( this , ARTEFACTID , BUILDVERSION , scopeItem.distItem );
 
 		String FILENAME = "";
 		String BASENAME = "";
 		String EXT = "";
 		if( builder.isTargetNuget() ) {
-			if( builder.TARGETNUGETPLATFORM.isEmpty() ) {
+			if( builder.TARGET_PLATFORM.isEmpty() ) {
 				FILENAME = BINARY.DOWNLOAD_FILENAME;
 				BASENAME = BINARY.BASENAME;
 				EXT = BINARY.EXT;

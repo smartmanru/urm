@@ -21,7 +21,7 @@ public class System extends EngineObject {
 	public String NAME;
 	public String DESC;
 	public boolean OFFLINE;
-	public int SV;
+	public int CV;
 	
 	public System( EngineDirectory directory ) {
 		super( directory );

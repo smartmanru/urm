@@ -88,7 +88,7 @@ public class NexusStorage {
 		
 		ProjectBuilder builder = action.getBuilder( item.project.getBuilder( action ) );
 		action.shell.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 
-				Common.getPath( "lib" , builder.TARGETNUGETPLATFORM , "*" ) );
+				Common.getPath( "lib" , builder.TARGET_PLATFORM , "*" ) );
 		action.shell.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 
 				Common.getPath( "content" , "*" ) );
 		
@@ -97,7 +97,7 @@ public class NexusStorage {
 		zip.ensureExists( action );
 		String zipLibPath = zip.getFilePath( action , item.ITEMBASENAME + ".zip" );
 		
-		tmp.createZipFromFolderContent( action , zipLibPath , Common.getPath( "lib" , builder.TARGETNUGETPLATFORM ) , "*" , "" );
+		tmp.createZipFromFolderContent( action , zipLibPath , Common.getPath( "lib" , builder.TARGET_PLATFORM ) , "*" , "" );
 		zip.copyDirContent( action , tmp.getSubFolder( action , "content" ) );
 		
 		// create final zip file

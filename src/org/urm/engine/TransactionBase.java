@@ -55,7 +55,7 @@ public class TransactionBase extends EngineObject {
 	public RunError error;
 	
 	public DBConnection connection;
-	public int SV;
+	public int CV;
 	private boolean CHANGEDATABASE;
 	private boolean SERVERVERSIONUPDATE;
 	
@@ -85,7 +85,7 @@ public class TransactionBase extends EngineObject {
 		
 		CHANGEDATABASE = false;
 		SERVERVERSIONUPDATE = false;
-		SV = 0;
+		CV = 0;
 		
 		settings = null;
 		infra = null;
@@ -421,7 +421,9 @@ public class TransactionBase extends EngineObject {
 			return;
 		
 		SERVERVERSIONUPDATE = true;
-		SV = DBData.getCurrentServerVersion( connection ) + 1;
+		CV = DBData.getCurrentEngineVersion( connection ) + 1;
+		CV = CV + 1;
+		DBData.setNextEngineVersion( connection , CV );
 	}
 	
 	public boolean changeInfrastructure( EngineInfrastructure sourceInfrastructure , Network network ) {

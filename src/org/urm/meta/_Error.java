@@ -48,10 +48,6 @@ public class _Error {
 	public static final int InvalidEnvType1 = ErrorBase + 86;
 	public static final int InvalidBuilderLanguage1 = ErrorBase + 87;
 	public static final int MissingBuilderLanguage0 = ErrorBase + 88;
-	public static final int InvalidBuilderType1 = ErrorBase + 89;
-	public static final int MissingBuilderType0 = ErrorBase + 90;
-	public static final int InvalidBuilderTarget1 = ErrorBase + 91;
-	public static final int MissingBuilderTarget0 = ErrorBase + 92;
 	public static final int InvalidProjectType1 = ErrorBase + 93;
 	public static final int MissingProjectType0 = ErrorBase + 94;
 	public static final int InvalidLCType1 = ErrorBase + 95;

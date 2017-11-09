@@ -86,7 +86,7 @@ public class SpecificPGU {
 		MetaDistrBinaryItem distItem = getWarItem( scopeProject.sourceProject , 0 );
 		
 		ProjectBuilder builder = action.getBuilder( scopeProject.sourceProject.getBuilder( action ) );
-		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , builder.TARGETNEXUS , meta , downloadFolder );
+		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , builder.TARGET_RESOURCE , meta , downloadFolder );
 		NexusDownloadInfo WAR = nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , distItem.DISTBASENAME , VERSION , "war" , "" , distItem );
 		NexusDownloadInfo STATIC = nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , distItem.DISTBASENAME , VERSION , "tar.gz" , "webstatic" , distItem );
 		nexusStorage.repackageStatic( action , scopeProject.sourceProject.NAME , VERSION , WAR.DOWNLOAD_FILENAME , STATIC.DOWNLOAD_FILENAME , VERSION_TAGNAME , distItem );
@@ -139,7 +139,7 @@ public class SpecificPGU {
 			action.info( "downloading core servicecall and storageservice from Nexus - to " + artefactory.workFolder.folderPath + " ..." );
 			
 			ProjectBuilder builder = action.getBuilder( servicecallItem.sourceProjectItem.project.getBuilder( action ) );
-			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , builder.TARGETNEXUS , meta , downloadFolder );
+			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , builder.TARGET_RESOURCE , meta , downloadFolder );
 			nexusStorage.downloadNexus( action , C_SERVICECALLGROUPID , "servicecall" , VERSION , SERVICECALL_EXT , "" , servicecallItem );
 			nexusStorage.downloadNexus( action , C_STORAGESERVICEGROUPID , "storageservice" , VERSION , STORAGESERVICE_EXT , "" , storageserviceItem );
 		}
@@ -175,7 +175,7 @@ public class SpecificPGU {
 		// create directory for libs and "cd" to it
 		LocalFolder libFolder = downloadFolder.getSubFolder( action , "pgu-services-lib" );
 		ProjectBuilder builder = action.getBuilder( servicecallItem.sourceProjectItem.project.getBuilder( action ) );
-		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , builder.TARGETNEXUS , meta , libFolder );
+		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , builder.TARGET_RESOURCE , meta , libFolder );
 
 		// download latest API libs - pfr, fed-common-util
 		if( meta.name.equals( "fedpgu" ) ) {
@@ -300,7 +300,7 @@ public class SpecificPGU {
 		String EXT = sourceItem.ITEMEXTENSION.substring( 1 );
 		
 		ProjectBuilder builder = action.getBuilder( sourceProject.getBuilder( action ) );
-		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , builder.TARGETNEXUS , meta , downloadFolder );
+		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , builder.TARGET_RESOURCE , meta , downloadFolder );
 		nexusStorage.downloadNexus( action , GROUPID , sourceItem.ITEMBASENAME , VERSION , EXT , "" , distItem );
 		if( copyDistr ) {
 			Dist releaseStorage = release;

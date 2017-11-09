@@ -76,7 +76,7 @@ public abstract class Builder {
 		if( builder.isWinBuild() )
 			projectBuilder = new BuilderWinbuildMethod( builder , project , storage , TAG , VERSION );
 		else {
-			String method = Common.getEnumLower( builder.builderMethod );
+			String method = Common.getEnumLower( builder.BUILDER_METHOD_TYPE );
 			action.exit2( _Error.UnknownBuilderMethod2 , "unknown builder method=" + method + " (builder=" + BUILDER + ")" , method , BUILDER );
 		}
 		
@@ -109,7 +109,7 @@ public abstract class Builder {
 	}
 	
 	public String getNexusPath( ActionBase action , MetaSourceProject project ) throws Exception {
-		EngineAuthResource res = action.getResource( builder.TARGETNEXUS );
+		EngineAuthResource res = action.getResource( builder.TARGET_RESOURCE );
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
 		return( res.BASEURL + "/content/repositories/" + build.CONFIG_NEXUS_REPO );
 	}

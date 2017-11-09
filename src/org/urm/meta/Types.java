@@ -41,21 +41,6 @@ public class Types {
 		PREBUILT_VCS
 	};
 	
-	public enum VarBUILDERTYPE {
-		UNKNOWN ,
-		GENERIC ,
-		ANT ,
-		MAVEN ,
-		GRADLE ,
-		MSBUILD
-	};
-	
-	public enum VarBUILDERTARGET {
-		UNKNOWN ,
-		LOCALPATH ,
-		NEXUS
-	};
-	
 	public enum VarCATEGORY {
 		UNKNOWN ,
 		PROJECT ,
@@ -575,42 +560,6 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDesignLinkType1 , "invalid design link type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-
-	public static VarBUILDERTYPE getBuilderType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingBuilderType0 , "missing builder type" );
-			return( VarBUILDERTYPE.UNKNOWN );
-		}
-		
-		VarBUILDERTYPE value = null;		
-		try {
-			value = VarBUILDERTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidBuilderType1 , "invalid builder type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-
-	public static VarBUILDERTARGET getBuilderTarget( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingBuilderTarget0 , "missing builder target" );
-			return( VarBUILDERTARGET.UNKNOWN );
-		}
-		
-		VarBUILDERTARGET value = null;		
-		try {
-			value = VarBUILDERTARGET.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidBuilderTarget1 , "invalid builder target=" + ID , ID );
 		}
 		
 		return( value );

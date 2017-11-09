@@ -2,6 +2,7 @@ package org.urm.meta.engine;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.PropertySet;
@@ -9,7 +10,6 @@ import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.meta.EngineObject;
 import org.urm.meta.Types;
-import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -23,20 +23,23 @@ public class ProjectBuilder extends EngineObject {
 
 	PropertySet properties;
 	
+	// fixed
+	public int ID;
 	public String NAME;
 	public String DESC;
-	public VarBUILDERTYPE builderMethod;
+	public DBEnumBuilderMethodType BUILDER_METHOD_TYPE;
 	public String VERSION;
-	public boolean remote;
-	public VarOSTYPE osType;
-	public String HOSTLOGIN;
-	public int port;
-	public String AUTHRESOURCE;
-	public VarBUILDERTARGET targetType;
-	public String TARGETLOCALPATH;
-	public String TARGETNEXUS;
-	public boolean targetNuget;
-	public String TARGETNUGETPLATFORM;
+	
+	public boolean REMOTE;
+	public VarOSTYPE REMOTE_OS_TYPE;
+	public String REMOTE_HOSTLOGIN;
+	public int REMOTE_PORT;
+	public String REMOTE_AUTHRESOURCE;
+	
+	public DBEnumBuilderTargetType BUILDER_TARGET_TYPE;
+	public String TARGET_RESOURCE;
+	public String TARGET_PATH;
+	public String TARGET_PLATFORM;
 	
 	public String GENERIC_COMMAND;
 	public String JAVA_JDKHOMEPATH;
@@ -60,9 +63,8 @@ public class ProjectBuilder extends EngineObject {
 	
 	public static String PROPERTY_TARGETTYPE = "target.type";
 	public static String PROPERTY_TARGETLOCALPATH = "target.localpath";
-	public static String PROPERTY_TARGETNEXUS = "target.nexus";
-	public static String PROPERTY_TARGETNUGET = "target.nuget";
-	public static String PROPERTY_TARGETNUGETPLATFORM = "target.nugetplatform";
+	public static String PROPERTY_TARGETRESOURCE = "target.resource";
+	public static String PROPERTY_TARGETPLATFORM = "target.platform";
 	
 	public static String PROPERTY_GENERIC_COMMAND = "generic.command";
 	public static String PROPERTY_JAVA_JDKHOMEPATH = "java.jdkhomepath";
@@ -112,32 +114,30 @@ public class ProjectBuilder extends EngineObject {
 	private void scatterSystemProperties() throws Exception {
 		NAME = properties.getSystemRequiredStringProperty( PROPERTY_NAME );
 		DESC = properties.getSystemStringProperty( PROPERTY_DESC );
-		builderMethod = Types.getBuilderType( properties.getSystemRequiredStringProperty( PROPERTY_BUILDERTYPE ) , true );
-		remote = properties.getSystemBooleanProperty( PROPERTY_REMOTE );
+		BUILDER_METHOD_TYPE = DBEnumBuilderMethodType.getValue( properties.getSystemRequiredStringProperty( PROPERTY_BUILDERTYPE ) , true );
+		REMOTE = properties.getSystemBooleanProperty( PROPERTY_REMOTE );
 		
-		HOSTLOGIN = "";
-		port = 0;
-		AUTHRESOURCE = "";
-		if( remote ) {
-			osType = Types.getOSType( properties.getSystemStringProperty( PROPERTY_OSTYPE ) , false );
-			HOSTLOGIN = properties.getSystemStringProperty( PROPERTY_HOSTLOGIN );
-			port = properties.getSystemIntProperty( PROPERTY_PORT , 22 , false );
-			AUTHRESOURCE = properties.getSystemStringProperty( PROPERTY_AUTHRESOURCE );
+		REMOTE_HOSTLOGIN = "";
+		REMOTE_PORT = 0;
+		REMOTE_AUTHRESOURCE = "";
+		if( REMOTE ) {
+			REMOTE_OS_TYPE = Types.getOSType( properties.getSystemStringProperty( PROPERTY_OSTYPE ) , false );
+			REMOTE_HOSTLOGIN = properties.getSystemStringProperty( PROPERTY_HOSTLOGIN );
+			REMOTE_PORT = properties.getSystemIntProperty( PROPERTY_PORT , 22 , false );
+			REMOTE_AUTHRESOURCE = properties.getSystemStringProperty( PROPERTY_AUTHRESOURCE );
 		}
 		
-		targetType = Types.getBuilderTarget( properties.getSystemStringProperty( PROPERTY_TARGETTYPE ) , false );
+		BUILDER_TARGET_TYPE = DBEnumBuilderTargetType.getValue( properties.getSystemStringProperty( PROPERTY_TARGETTYPE ) , false );
 		
-		TARGETLOCALPATH = "";
-		TARGETNEXUS = "";
-		targetNuget = false;
-		TARGETNUGETPLATFORM = "";
-		if( targetType == VarBUILDERTARGET.LOCALPATH )
-			TARGETLOCALPATH = properties.getSystemStringProperty( PROPERTY_TARGETLOCALPATH );
+		TARGET_PATH = "";
+		TARGET_RESOURCE = "";
+		TARGET_PLATFORM = "";
+		if( BUILDER_TARGET_TYPE == DBEnumBuilderTargetType.LOCALPATH )
+			TARGET_PATH = properties.getSystemStringProperty( PROPERTY_TARGETLOCALPATH );
 		else
-		if( targetType == VarBUILDERTARGET.NEXUS ) {
-			TARGETNEXUS = properties.getSystemStringProperty( PROPERTY_TARGETNEXUS );
-			targetNuget = properties.getSystemBooleanProperty( PROPERTY_TARGETNUGET );
-			TARGETNUGETPLATFORM = properties.getSystemStringProperty( PROPERTY_TARGETNUGETPLATFORM );
+		if( BUILDER_TARGET_TYPE == DBEnumBuilderTargetType.NEXUS ) {
+			TARGET_RESOURCE = properties.getSystemStringProperty( PROPERTY_TARGETRESOURCE );
+			TARGET_PLATFORM = properties.getSystemStringProperty( PROPERTY_TARGETPLATFORM );
 		}
 
 		GENERIC_COMMAND = "";
@@ -151,30 +151,30 @@ public class ProjectBuilder extends EngineObject {
 		MSBUILD_OPTIONS = "";
 		VERSION = "";
 		
-		if( builderMethod == VarBUILDERTYPE.GENERIC )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.GENERIC )
 			GENERIC_COMMAND = properties.getSystemTemplateProperty( PROPERTY_GENERIC_COMMAND );
 		else
-		if( builderMethod == VarBUILDERTYPE.ANT )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.ANT )
 			ANT_HOMEPATH = properties.getSystemStringProperty( PROPERTY_ANT_HOMEPATH );
 		else
-		if( builderMethod == VarBUILDERTYPE.MAVEN ) {
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.MAVEN ) {
 			MAVEN_HOMEPATH = properties.getSystemStringProperty( PROPERTY_MAVEN_HOMEPATH );
 			MAVEN_COMMAND = properties.getSystemTemplateProperty( PROPERTY_MAVEN_COMMAND );
 			MAVEN_OPTIONS = properties.getSystemTemplateProperty( PROPERTY_MAVEN_OPTIONS );
 		}
 		else
-		if( builderMethod == VarBUILDERTYPE.GRADLE )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.GRADLE )
 			GRADLE_HOMEPATH = properties.getSystemStringProperty( PROPERTY_GRADLE_HOMEPATH );
 		else
-		if( builderMethod == VarBUILDERTYPE.MSBUILD ) {
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.MSBUILD ) {
 			MSBUILD_HOMEPATH = properties.getSystemStringProperty( PROPERTY_MSBUILD_HOMEPATH );
 			MSBUILD_OPTIONS = properties.getSystemTemplateProperty( PROPERTY_MSBUILD_OPTIONS );
 		}
 		
-		if( builderMethod == VarBUILDERTYPE.ANT || builderMethod == VarBUILDERTYPE.MAVEN || builderMethod == VarBUILDERTYPE.GRADLE )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.ANT || BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.MAVEN || BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.GRADLE )
 			JAVA_JDKHOMEPATH = properties.getSystemStringProperty( PROPERTY_JAVA_JDKHOMEPATH );
 		
-		if( builderMethod == VarBUILDERTYPE.ANT || builderMethod == VarBUILDERTYPE.MAVEN || builderMethod == VarBUILDERTYPE.GRADLE || builderMethod == VarBUILDERTYPE.MSBUILD )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.ANT || BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.MAVEN || BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.GRADLE || BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.MSBUILD )
 			VERSION = properties.getSystemRequiredStringProperty( PROPERTY_VERSION );
 	}
 
@@ -183,93 +183,92 @@ public class ProjectBuilder extends EngineObject {
 		properties.setOriginalStringProperty( PROPERTY_NAME , NAME );
 		properties.setOriginalStringProperty( PROPERTY_DESC , DESC );
 		properties.setOriginalStringProperty( PROPERTY_VERSION , VERSION );
-		properties.setOriginalStringProperty( PROPERTY_BUILDERTYPE , Common.getEnumLower( builderMethod ) );
-		properties.setOriginalBooleanProperty( PROPERTY_REMOTE , remote );
-		if( remote ) {
-			properties.setOriginalStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( osType ) );
-			properties.setOriginalStringProperty( PROPERTY_HOSTLOGIN , HOSTLOGIN );
-			properties.setOriginalNumberProperty( PROPERTY_PORT , port );
-			properties.setOriginalStringProperty( PROPERTY_AUTHRESOURCE , AUTHRESOURCE );
+		properties.setOriginalStringProperty( PROPERTY_BUILDERTYPE , Common.getEnumLower( BUILDER_METHOD_TYPE ) );
+		properties.setOriginalBooleanProperty( PROPERTY_REMOTE , REMOTE );
+		if( REMOTE ) {
+			properties.setOriginalStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( REMOTE_OS_TYPE ) );
+			properties.setOriginalStringProperty( PROPERTY_HOSTLOGIN , REMOTE_HOSTLOGIN );
+			properties.setOriginalNumberProperty( PROPERTY_PORT , REMOTE_PORT );
+			properties.setOriginalStringProperty( PROPERTY_AUTHRESOURCE , REMOTE_AUTHRESOURCE );
 		}
 		
-		properties.setOriginalStringProperty( PROPERTY_TARGETTYPE , Common.getEnumLower( targetType ) );
-		if( targetType == VarBUILDERTARGET.LOCALPATH )
-			properties.setOriginalStringProperty( PROPERTY_TARGETLOCALPATH , TARGETLOCALPATH );
+		properties.setOriginalStringProperty( PROPERTY_TARGETTYPE , Common.getEnumLower( BUILDER_TARGET_TYPE ) );
+		if( BUILDER_TARGET_TYPE == DBEnumBuilderTargetType.LOCALPATH )
+			properties.setOriginalStringProperty( PROPERTY_TARGETLOCALPATH , TARGET_PATH );
 		else
-		if( targetType == VarBUILDERTARGET.NEXUS ) {
-			properties.setOriginalStringProperty( PROPERTY_TARGETNEXUS , TARGETNEXUS );
-			properties.setOriginalBooleanProperty( PROPERTY_TARGETNUGET , targetNuget );
-			properties.setOriginalStringProperty( PROPERTY_TARGETNUGETPLATFORM , TARGETNUGETPLATFORM );
+		if( BUILDER_TARGET_TYPE == DBEnumBuilderTargetType.NEXUS ) {
+			properties.setOriginalStringProperty( PROPERTY_TARGETRESOURCE , TARGET_RESOURCE );
+			properties.setOriginalStringProperty( PROPERTY_TARGETPLATFORM , TARGET_PLATFORM );
 		}
 		
-		if( builderMethod == VarBUILDERTYPE.GENERIC )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.GENERIC )
 			properties.setOriginalStringProperty( PROPERTY_GENERIC_COMMAND , GENERIC_COMMAND );
 		else
-		if( builderMethod == VarBUILDERTYPE.ANT )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.ANT )
 			properties.setOriginalStringProperty( PROPERTY_ANT_HOMEPATH , ANT_HOMEPATH );
 		else
-		if( builderMethod == VarBUILDERTYPE.MAVEN ) {
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.MAVEN ) {
 			properties.setOriginalStringProperty( PROPERTY_MAVEN_HOMEPATH , MAVEN_HOMEPATH );
 			properties.setOriginalStringProperty( PROPERTY_MAVEN_COMMAND , MAVEN_COMMAND );
 			properties.setOriginalStringProperty( PROPERTY_MAVEN_OPTIONS , MAVEN_OPTIONS );
 		}
 		else
-		if( builderMethod == VarBUILDERTYPE.GRADLE )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.GRADLE )
 			properties.setOriginalStringProperty( PROPERTY_GRADLE_HOMEPATH , GRADLE_HOMEPATH );
 		else
-		if( builderMethod == VarBUILDERTYPE.MSBUILD ) {
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.MSBUILD ) {
 			properties.setOriginalStringProperty( PROPERTY_MSBUILD_HOMEPATH , MSBUILD_HOMEPATH );
 			properties.setOriginalStringProperty( PROPERTY_MSBUILD_OPTIONS , MSBUILD_OPTIONS );
 		}
 
-		if( builderMethod == VarBUILDERTYPE.ANT || builderMethod == VarBUILDERTYPE.MAVEN || builderMethod == VarBUILDERTYPE.GRADLE )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.ANT || BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.MAVEN || BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.GRADLE )
 			properties.setOriginalStringProperty( PROPERTY_JAVA_JDKHOMEPATH , JAVA_JDKHOMEPATH );
 	}
 
 	public boolean isGeneric() {
-		if( builderMethod == VarBUILDERTYPE.GENERIC )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.GENERIC )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isAnt() {
-		if( builderMethod == VarBUILDERTYPE.ANT )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.ANT )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isMaven() {
-		if( builderMethod == VarBUILDERTYPE.MAVEN )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.MAVEN )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isGradle() {
-		if( builderMethod == VarBUILDERTYPE.GRADLE )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.GRADLE )
 			return( true );
 		return( false );
 	}
 
 	public boolean isWinBuild() {
-		if( builderMethod == VarBUILDERTYPE.MSBUILD )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.MSBUILD )
 			return( true );
 		return( false );
 	}
 
 	public boolean isTargetLocal() {
-		if( targetType == VarBUILDERTARGET.LOCALPATH )
+		if( BUILDER_TARGET_TYPE == DBEnumBuilderTargetType.LOCALPATH )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isTargetNexus() {
-		if( targetType == VarBUILDERTARGET.NEXUS )
+		if( BUILDER_TARGET_TYPE == DBEnumBuilderTargetType.NEXUS )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isTargetNuget() {
-		if( targetNuget )
+		if( BUILDER_TARGET_TYPE == DBEnumBuilderTargetType.NUGET )
 			return( true );
 		return( false );
 	}
@@ -278,47 +277,46 @@ public class ProjectBuilder extends EngineObject {
 		NAME = src.NAME;
 		DESC = src.DESC;
 		VERSION = src.VERSION;
-		builderMethod = src.builderMethod;
-		targetType = src.targetType;
-		remote = src.remote;
+		BUILDER_METHOD_TYPE = src.BUILDER_METHOD_TYPE;
+		BUILDER_TARGET_TYPE = src.BUILDER_TARGET_TYPE;
+		REMOTE = src.REMOTE;
 		
-		if( remote ) {
-			osType = src.osType;
-			HOSTLOGIN = src.HOSTLOGIN;
-			port = src.port;
-			AUTHRESOURCE = src.AUTHRESOURCE;
+		if( REMOTE ) {
+			REMOTE_OS_TYPE = src.REMOTE_OS_TYPE;
+			REMOTE_HOSTLOGIN = src.REMOTE_HOSTLOGIN;
+			REMOTE_PORT = src.REMOTE_PORT;
+			REMOTE_AUTHRESOURCE = src.REMOTE_AUTHRESOURCE;
 		}
 		else {
-			osType = VarOSTYPE.LINUX;
-			HOSTLOGIN = "";
-			AUTHRESOURCE = "";
+			REMOTE_OS_TYPE = VarOSTYPE.LINUX;
+			REMOTE_HOSTLOGIN = "";
+			REMOTE_AUTHRESOURCE = "";
 		}
 
-		if( targetType == VarBUILDERTARGET.LOCALPATH )
-			TARGETLOCALPATH = src.TARGETLOCALPATH;
+		if( BUILDER_TARGET_TYPE == DBEnumBuilderTargetType.LOCALPATH )
+			TARGET_PATH = src.TARGET_PATH;
 		else
-			TARGETLOCALPATH = "";
+			TARGET_PATH = "";
 		
-		if( targetType == VarBUILDERTARGET.NEXUS ) {
-			TARGETNEXUS = src.TARGETNEXUS;
-			targetNuget = src.targetNuget;
-			TARGETNUGETPLATFORM = src.TARGETNUGETPLATFORM;
+		if( BUILDER_TARGET_TYPE == DBEnumBuilderTargetType.NEXUS ||
+			BUILDER_TARGET_TYPE == DBEnumBuilderTargetType.NUGET ) {
+			TARGET_RESOURCE = src.TARGET_RESOURCE;
+			TARGET_PLATFORM = src.TARGET_PLATFORM;
 		}
 		else {
-			TARGETNEXUS = "";
-			targetNuget = false;
-			TARGETNUGETPLATFORM = "";
+			TARGET_RESOURCE = "";
+			TARGET_PLATFORM = "";
 		}
 
-		if( builderMethod == VarBUILDERTYPE.GENERIC )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.GENERIC )
 			GENERIC_COMMAND = src.GENERIC_COMMAND;
 
-		if( builderMethod == VarBUILDERTYPE.ANT )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.ANT )
 			ANT_HOMEPATH = src.ANT_HOMEPATH;
 		else
 			ANT_HOMEPATH = "";
 		
-		if( builderMethod == VarBUILDERTYPE.MAVEN ) {
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.MAVEN ) {
 			MAVEN_HOMEPATH = src.MAVEN_HOMEPATH;
 			MAVEN_COMMAND = src.MAVEN_COMMAND;
 			MAVEN_OPTIONS = src.MAVEN_OPTIONS;
@@ -329,12 +327,12 @@ public class ProjectBuilder extends EngineObject {
 			MAVEN_OPTIONS = "";
 		}
 
-		if( builderMethod == VarBUILDERTYPE.GRADLE )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.GRADLE )
 			GRADLE_HOMEPATH = src.GRADLE_HOMEPATH;
 		else
 			GRADLE_HOMEPATH = "";
 		
-		if( builderMethod == VarBUILDERTYPE.MSBUILD ) {
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.MSBUILD ) {
 			MSBUILD_HOMEPATH = src.MSBUILD_HOMEPATH;
 			MSBUILD_OPTIONS = src.MSBUILD_OPTIONS;
 		}
@@ -343,7 +341,7 @@ public class ProjectBuilder extends EngineObject {
 			MSBUILD_OPTIONS = "";
 		}
 
-		if( builderMethod == VarBUILDERTYPE.ANT || builderMethod == VarBUILDERTYPE.MAVEN || builderMethod == VarBUILDERTYPE.GRADLE )
+		if( BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.ANT || BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.MAVEN || BUILDER_METHOD_TYPE == DBEnumBuilderMethodType.GRADLE )
 			JAVA_JDKHOMEPATH = src.JAVA_JDKHOMEPATH;
 		else
 			JAVA_JDKHOMEPATH = "";
@@ -352,13 +350,13 @@ public class ProjectBuilder extends EngineObject {
 	}
 	
 	public Account getRemoteAccount( ActionBase action ) throws Exception {
-		if( !remote )
+		if( !REMOTE )
 			return( action.getLocalAccount() );
-		return( Account.getResourceAccount( action , AUTHRESOURCE , HOSTLOGIN , port , osType ) );
+		return( Account.getResourceAccount( action , REMOTE_AUTHRESOURCE , REMOTE_HOSTLOGIN , REMOTE_PORT , REMOTE_OS_TYPE ) );
 	}
 
 	public ShellExecutor createShell( ActionBase action , boolean dedicated ) throws Exception {
-		if( remote ) {
+		if( REMOTE ) {
 			Account account = getRemoteAccount( action );
 			if( dedicated )
 				return( action.createDedicatedRemoteShell( "builder" , account , true ) );

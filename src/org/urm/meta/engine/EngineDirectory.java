@@ -123,9 +123,10 @@ public class EngineDirectory extends EngineObject {
 		}
 	}
 
-	public void addSystem( EngineTransaction transaction , System system ) throws Exception {
+	public void addSystem( EngineTransaction t , System system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != null )
-			transaction.exit( _Error.DuplicateSystem1 , "system=" + system.NAME + " is not unique" , new String[] { system.NAME } );
+			t.exit( _Error.DuplicateSystem1 , "system=" + system.NAME + " is not unique" , new String[] { system.NAME } );
+		DBSystem.insert( t.connection , t.CV , system );
 		mapSystems.put( system.NAME , system );
 	}
 

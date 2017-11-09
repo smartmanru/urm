@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;
@@ -29,7 +30,7 @@ public class EngineMirrorRepository extends EngineObject {
 	PropertySet properties;
 	
 	public String NAME;
-	public String TYPE;
+	public DBEnumMirrorType TYPE;
 	public String PRODUCT;
 	public String PROJECT;
 	public String RESOURCE;
@@ -37,11 +38,6 @@ public class EngineMirrorRepository extends EngineObject {
 	public String RESOURCE_ROOT;
 	public String RESOURCE_DATA;
 	
-	public static String TYPE_SERVER = "server";
-	public static String TYPE_PROJECT = "project";
-	public static String TYPE_PRODUCT_META = "product.meta";
-	public static String TYPE_PRODUCT_DATA = "product.data";
-
 	public EngineMirrorRepository( EngineMirrors mirrors ) {
 		super( mirrors );
 		this.mirrors = mirrors;
@@ -66,19 +62,19 @@ public class EngineMirrorRepository extends EngineObject {
 	}
 	
 	public boolean isServer() {
-		return( TYPE.equals( TYPE_SERVER ) );
+		return( TYPE == DBEnumMirrorType.SERVER );
 	}
 	
 	public boolean isProject() {
-		return( TYPE.equals( TYPE_PROJECT ) );
+		return( TYPE == DBEnumMirrorType.PROJECT );
 	}
 	
 	public boolean isProductMeta() {
-		return( TYPE.equals( TYPE_PRODUCT_META ) );
+		return( TYPE == DBEnumMirrorType.PRODUCT_META );
 	}
 	
 	public boolean isProductData() {
-		return( TYPE.equals( TYPE_PRODUCT_DATA ) );
+		return( TYPE == DBEnumMirrorType.PRODUCT_DATA );
 	}
 	
 	public EngineMirrorRepository copy( EngineMirrors mirror ) throws Exception {
@@ -106,7 +102,7 @@ public class EngineMirrorRepository extends EngineObject {
 
 	private void scatterSystemProperties() throws Exception {
 		NAME = properties.getSystemRequiredStringProperty( "name" );
-		TYPE = properties.getSystemRequiredStringProperty( "type" );
+		TYPE = DBEnumMirrorType.getValue( properties.getSystemRequiredStringProperty( "type" ) , true );
 		PRODUCT = properties.getSystemStringProperty( "product" );
 		PROJECT = properties.getSystemStringProperty( "project" );
 		RESOURCE = properties.getSystemStringProperty( "resource" );
@@ -118,7 +114,7 @@ public class EngineMirrorRepository extends EngineObject {
 	public void createProperties() throws Exception {
 		properties = new PropertySet( "mirror" , null );
 		properties.setOriginalStringProperty( "name" , NAME );
-		properties.setOriginalStringProperty( "type" , TYPE );
+		properties.setOriginalStringProperty( "type" , TYPE.name().toLowerCase() );
 		properties.setOriginalStringProperty( "product" , PRODUCT );
 		properties.setOriginalStringProperty( "project" , PROJECT );
 		properties.setOriginalStringProperty( "resource" , RESOURCE );
@@ -180,18 +176,18 @@ public class EngineMirrorRepository extends EngineObject {
 
 	private Map<String,LocalFolder> getFolderMap( ActionInit action ) throws Exception {
 		Map<String,LocalFolder> map = new HashMap<String,LocalFolder>();
-		if( TYPE.equals( TYPE_SERVER ) ) {
+		if( TYPE == DBEnumMirrorType.SERVER ) {
 			LocalFolder serverSettings = action.getServerSettingsFolder();
 			map.put( "." , serverSettings );
 		}
 		else
-		if( TYPE.equals( TYPE_PRODUCT_META ) ) {
+		if( TYPE == DBEnumMirrorType.PRODUCT_META ) {
 			LocalFolder productSettings = action.getActiveProductHomeFolder( PRODUCT );
 			map.put( "etc" , productSettings.getSubFolder( action , "etc" ) );
 			map.put( "master" , productSettings.getSubFolder( action , "master" ) );
 		}
 		else
-		if( TYPE.equals( TYPE_PRODUCT_DATA ) ) {
+		if( TYPE == DBEnumMirrorType.PRODUCT_DATA ) {
 			Meta meta = action.getActiveProductMetadata( PRODUCT );
 			MetaProductSettings settings = meta.getProductSettings( action );
 			LocalFolder home = action.getServerHomeFolder();
@@ -237,7 +233,7 @@ public class EngineMirrorRepository extends EngineObject {
 	
 	void createProductMeta( EngineTransaction transaction , Product product , String name ) throws Exception {
 		NAME = name;
-		TYPE = TYPE_PRODUCT_META;
+		TYPE = DBEnumMirrorType.PRODUCT_META;
 		PRODUCT = product.NAME;
 		PROJECT = "";
 		RESOURCE = "";
@@ -249,7 +245,7 @@ public class EngineMirrorRepository extends EngineObject {
 	
 	void createProductData( EngineTransaction transaction , Product product , String name ) throws Exception {
 		NAME = name;
-		TYPE = TYPE_PRODUCT_DATA;
+		TYPE = DBEnumMirrorType.PRODUCT_DATA;
 		PRODUCT = product.NAME;
 		PROJECT = "";
 		RESOURCE = "";
@@ -261,7 +257,7 @@ public class EngineMirrorRepository extends EngineObject {
 	
 	void createProjectSource( EngineTransaction transaction , MetaSourceProject project , String name ) throws Exception {
 		NAME = name;
-		TYPE = TYPE_PROJECT;
+		TYPE = DBEnumMirrorType.PROJECT;
 		PRODUCT = project.meta.name;
 		PROJECT = project.NAME;
 		RESOURCE = project.RESOURCE;

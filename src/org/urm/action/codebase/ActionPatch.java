@@ -94,7 +94,7 @@ public class ActionPatch extends ActionBase {
 		LocalFolder codeFolder = builder.CODEPATH;
 		LocalFolder targetFolder = codeFolder;
 		if( item.project.isBuildable() )
-			targetFolder = codeFolder.getSubFolder( this , builder.builder.TARGETLOCALPATH );
+			targetFolder = codeFolder.getSubFolder( this , builder.builder.TARGET_PATH );
 		
 		if( item.isSourceDirectory() ) {
 			LocalFolder targetDirFolder = targetFolder.getSubFolder( this , item.ITEMPATH );

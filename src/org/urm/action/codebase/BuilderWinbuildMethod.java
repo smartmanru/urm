@@ -90,7 +90,7 @@ public class BuilderWinbuildMethod extends Builder {
 
 	private String getNugetSourcePath( ActionBase action ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
-		EngineAuthResource res = action.getResource( builder.TARGETNEXUS );
+		EngineAuthResource res = action.getResource( builder.TARGET_RESOURCE );
 		return( res.BASEURL + "/service/local/nuget/" + build.CONFIG_NEXUS_REPO + "-nuget/" );
 	}
 	

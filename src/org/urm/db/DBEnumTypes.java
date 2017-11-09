@@ -163,6 +163,53 @@ public abstract class DBEnumTypes {
 		public static DBEnumObjectType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumObjectType.class , value , required , UNKNOWN ) ); };
 	};
 
+	public enum DBEnumBuilderMethodType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		GENERIC(1,null) ,
+		ANT(2,null) ,
+		MAVEN(3,null) ,
+		GRADLE(4,null) ,
+		MSBUILD(5,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumBuilderMethodType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumBuilderMethodType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBuilderMethodType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumBuilderMethodType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBuilderMethodType.class , value , required , UNKNOWN ) ); };
+	};
+	
+	public enum DBEnumBuilderTargetType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		LOCALPATH(1,null) ,
+		NEXUS(2,null) ,
+		NUGET(3,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumBuilderTargetType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumBuilderTargetType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBuilderTargetType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumBuilderTargetType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumBuilderTargetType.class , value , required , UNKNOWN ) ); };
+	};
+	
+	public enum DBEnumMirrorType implements DBEnumInterface {
+		SERVER(1,null) ,
+		PROJECT(2,null) ,
+		PRODUCT_META(3,null) ,
+		PRODUCT_DATA(4,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumMirrorType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumMirrorType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumMirrorType.class , value , required , null ) ); };
+		public static DBEnumMirrorType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumMirrorType.class , value , required , null ) ); };
+	};
+	
 	//#################################################
 	// implementation
 	private static Class<?>[] enums = { 
@@ -173,7 +220,10 @@ public abstract class DBEnumTypes {
 			DBEnumResourceType.class ,
 			DBEnumServerAccessType.class ,
 			DBEnumOSType.class ,
-			DBEnumObjectType.class
+			DBEnumObjectType.class ,
+			DBEnumBuilderMethodType.class ,
+			DBEnumBuilderTargetType.class ,
+			DBEnumMirrorType.class
 			}; 
 
 	private static String prefix = "DBEnum";
@@ -259,6 +309,7 @@ public abstract class DBEnumTypes {
     
     private static Enum<?> getEnumValue( Class<?> type , String value ) {
 		String valueCheck = value.toUpperCase();
+		valueCheck = Common.replace( valueCheck , "." , "_" );
     	for( Object t : type.getEnumConstants() ) {
     		Enum<?> et = ( Enum<?> )t;
     		if( valueCheck.equals( et.name() ) )

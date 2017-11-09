@@ -118,13 +118,13 @@ public class DBConnection {
 	
 	public boolean update( String query , String[] args , int timeout ) {
 		String queryDB = getFinalQuery( query , args );
-		trace( "update query=" + queryDB + " ..." );
+		trace( "modify query=" + queryDB + " ..." );
 		try {
 			stmt.setQueryTimeout( timeout );
 			stmt.executeUpdate( queryDB );
 		}
 		catch( Throwable e ) {
-			log( "update query failed, statement=" + query , e );
+			log( "modify query failed, statement=" + query , e );
 			return( false );
 		}
 		return( true );

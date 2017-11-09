@@ -75,11 +75,11 @@ public class EngineLoader {
 		DBConnection connection = null;
 		try {
 			connection = db.getConnection( engine.serverAction );
-			SV = DBData.getCurrentServerVersion( connection );
+			SV = DBData.getCurrentEngineVersion( connection );
 			
 			if( savedb ) {
 				SV = SV + 1;
-				DBData.setNextServerVersion( connection , SV );
+				DBData.setNextEngineVersion( connection , SV );
 			}
 			
 			loadRegistry( connection , savedb );
@@ -532,7 +532,7 @@ public class EngineLoader {
 		DBConnection connection = null;
 		try {
 			connection = db.getConnection( engine.serverAction );
-			DBData.dropServerData( connection );
+			DBData.dropEngineData( connection );
 			connection.close( true );
 			engine.trace( "successfully deleted current server metadata, version=" + SV );
 		}
