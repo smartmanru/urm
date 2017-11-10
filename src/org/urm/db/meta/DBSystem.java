@@ -49,4 +49,11 @@ public class DBSystem {
 		return( systems.toArray( new System[0] ) );
 	}
 	
+	public static void delete( DBConnection c , int CV , System system ) throws Exception {
+		if( !c.update( DBQueries.UPDATE_SYSTEM_DELETEALLPARAMS2 , new String[] { "" + system.ID , "" + system.CV } ) )
+			Common.exitUnexpected();
+		if( !c.update( DBQueries.UPDATE_SYSTEM_DELETE2 , new String[] { "" + system.ID , "" + system.CV } ) )
+			Common.exitUnexpected();
+	}
+
 }

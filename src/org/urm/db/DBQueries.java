@@ -18,6 +18,8 @@ public abstract class DBQueries {
 	
 	public static String QUERY_SYSTEM_GETALL0 = "select id , name , xdesc , offline , cv from urm_system";
 	public static String UPDATE_SYSTEM_ADD5 = "insert into urm_system ( id , name , xdesc , offline , cv ) values ( @1@ , @2@ , @3@ , @4@ , @5@ )";
+	public static String UPDATE_SYSTEM_DELETE2 = "delete from urm_system where id = @1@";
+	public static String UPDATE_SYSTEM_DELETEALLPARAMS2 = "delete from urm_system_param where system = @1@";
 	
 	public static String UPDATE_AUTH_DROP_ACCESSPRODUCT0 = "delete from urm_auth_access_product";
 	public static String UPDATE_AUTH_DROP_ACCESSRESOURCE0 = "delete from urm_auth_access_resource";

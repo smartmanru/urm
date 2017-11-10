@@ -85,7 +85,9 @@ public class System extends EngineObject {
 		return( mapProducts.get( key ) );
 	}
 
-	public void modifySystem( EngineTransaction transaction ) throws Exception {
+	public void modifySystem( EngineTransaction transaction , String name , String desc ) throws Exception {
+		NAME = name;
+		DESC = desc;
 	}
 
 	public void addProduct( EngineTransaction transaction , Product product ) throws Exception {

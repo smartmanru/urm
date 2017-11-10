@@ -161,7 +161,7 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void modifySystem( System system ) throws Exception {
 		checkTransactionDirectory();
-		system.modifySystem( this );
+		directory.modifySystem( this , system );
 	}
 
 	public void deleteSystem( System system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {

@@ -130,10 +130,14 @@ public class EngineDirectory extends EngineObject {
 		mapSystems.put( system.NAME , system );
 	}
 
-	public void deleteSystem( EngineTransaction transaction , System system ) throws Exception {
+	public void modifySystem( EngineTransaction t , System system ) throws Exception {
+	}
+	
+	public void deleteSystem( EngineTransaction t , System system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != system )
-			transaction.exit( _Error.TransactionSystemOld1 , "system=" + system.NAME + " is unknown or mismatched" , new String[] { system.NAME } );
+			t.exit( _Error.TransactionSystemOld1 , "system=" + system.NAME + " is unknown or mismatched" , new String[] { system.NAME } );
 		
+		DBSystem.delete( t.connection , t.CV , system );
 		for( String productName : system.getProductNames() )
 			mapProducts.remove( productName );
 		
