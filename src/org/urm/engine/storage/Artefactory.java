@@ -9,10 +9,10 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.shell.Account;
 import org.urm.meta.ProductMeta;
-import org.urm.meta.engine.ProductMonitoring;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
@@ -96,7 +96,7 @@ public class Artefactory {
 		return( repo );
 	}
 	
-	public MonitoringStorage getMonitoringStorage( ActionBase action , ProductMonitoring mon ) throws Exception {
+	public MonitoringStorage getMonitoringStorage( ActionBase action , MetaMonitoring mon ) throws Exception {
 		return( new MonitoringStorage( this , workFolder , mon ) );
 	}
 

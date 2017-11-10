@@ -1,4 +1,4 @@
-package org.urm.meta.engine;
+package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
@@ -7,9 +7,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ProductMonitoringItem {
+public class MetaMonitoringItem {
 
-	ProductMonitoringTarget target;
+	protected Meta meta;
+	MetaMonitoringTarget target;
 	
 	public String NAME;
 
@@ -22,7 +23,8 @@ public class ProductMonitoringItem {
 
 	public boolean monitorStatus = false;
 	
-	public ProductMonitoringItem( ProductMonitoringTarget target ) {
+	public MetaMonitoringItem( Meta meta , MetaMonitoringTarget target ) {
+		this.meta = meta; 
 		this.target = target;
 	}
 
@@ -62,8 +64,8 @@ public class ProductMonitoringItem {
 		monitorWS = true;
 	}
 
-	public ProductMonitoringItem copy( ActionBase action , ProductMonitoringTarget target ) {
-		ProductMonitoringItem r = new ProductMonitoringItem( target );
+	public MetaMonitoringItem copy( ActionBase action , Meta meta , MetaMonitoringTarget target ) {
+		MetaMonitoringItem r = new MetaMonitoringItem( meta , target );
 		r.URL = URL;
 		r.WSDATA = WSDATA;
 		r.WSCHECK = WSCHECK;

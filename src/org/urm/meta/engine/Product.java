@@ -14,12 +14,14 @@ public class Product extends EngineObject {
 
 	public EngineDirectory directory;
 	public System system;
-	
+
 	public int ID;
 	public String NAME;
 	public String DESC;
 	public String PATH;
 	public boolean OFFLINE;
+	public boolean MONITORING_ENABLED;
+	int CV;
 
 	public Product( EngineDirectory directory , System system ) {
 		super( directory );
@@ -77,6 +79,10 @@ public class Product extends EngineObject {
 		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 		Common.xmlSetElementAttr( doc , root , "path" , PATH );
 		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( OFFLINE ) );
+	}
+
+	public void setMonitoringEnabled( EngineTransaction transaction , boolean enabled ) throws Exception {
+		MONITORING_ENABLED = enabled;
 	}
 
 }

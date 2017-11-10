@@ -27,6 +27,7 @@ public class Meta extends EngineObject {
 	private MetaDatabase database;
 	private MetaDistr distr;
 	private MetaSource sources;
+	private MetaMonitoring monitoring;
 	
 	static String[] configurableExtensions = {
 		"cmd" , "sh" , "xml" , "txt" , "properties" , "conf" , "config" , "xconf" , "groovy" , "sql" , "yml" 
@@ -62,6 +63,7 @@ public class Meta extends EngineObject {
 		database = null;
 		distr = null;
 		sources = null;
+		monitoring = null;
 		
 		this.storage = storage;
 		storage.addSessionMeta( this );
@@ -143,6 +145,12 @@ public class Meta extends EngineObject {
 		return( sources );
 	}
 
+	public synchronized MetaMonitoring getMonitoring( ActionBase action ) throws Exception {
+		if( monitoring == null )
+			monitoring = loader.loadMonitoring( action.actionInit , storage );
+		return( monitoring );
+	}
+	
 	public synchronized MetaDesign getDesignData( ActionBase action , String fileName ) throws Exception {
 		return( loader.loadDesignData( action.actionInit , storage , fileName ) );
 	}

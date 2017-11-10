@@ -1,4 +1,4 @@
-package org.urm.meta.engine;
+package org.urm.meta.product;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -8,20 +8,15 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.schedule.ScheduleProperties;
-import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.MonitoringStorage;
-import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ProductMonitoringTarget {
+public class MetaMonitoringTarget {
 
-	ProductMonitoring monitoring;
-	public Product product;
-	public Meta meta; 
+	public Meta meta;
+	public MetaMonitoring monitoring;
+	
 	public String NAME;
 	
 	public String ENV;
@@ -34,27 +29,26 @@ public class ProductMonitoringTarget {
 	public ScheduleProperties scheduleMinor;
 	public int maxTimeMinor;
 
-	private List<ProductMonitoringItem> listUrls;
-	private List<ProductMonitoringItem> listWS;
+	private List<MetaMonitoringItem> listUrls;
+	private List<MetaMonitoringItem> listWS;
 
-	public ProductMonitoringTarget( ProductMonitoring monitoring ) {
+	public MetaMonitoringTarget( Meta meta , MetaMonitoring monitoring ) {
+		this.meta = meta;
 		this.monitoring = monitoring;
-		this.meta = monitoring.meta;
-		this.product = monitoring.product;
-		listUrls = new LinkedList<ProductMonitoringItem>();
-		listWS = new LinkedList<ProductMonitoringItem>();
+		listUrls = new LinkedList<MetaMonitoringItem>();
+		listWS = new LinkedList<MetaMonitoringItem>();
 	}
 
-	public List<ProductMonitoringItem> getUrlsList( ActionBase action ) throws Exception {
+	public List<MetaMonitoringItem> getUrlsList( ActionBase action ) throws Exception {
 		return( listUrls );
 	}
 	
-	public List<ProductMonitoringItem> getWSList( ActionBase action ) throws Exception {
+	public List<MetaMonitoringItem> getWSList( ActionBase action ) throws Exception {
 		return( listWS );
 	}
 	
-	public ProductMonitoringTarget copy( ActionBase action , ProductMonitoring monitoring ) {
-		ProductMonitoringTarget r = new ProductMonitoringTarget( monitoring );
+	public MetaMonitoringTarget copy( ActionBase action , Meta meta , MetaMonitoring monitoring ) {
+		MetaMonitoringTarget r = new MetaMonitoringTarget( meta , monitoring );
 		r.NAME = NAME;
 		r.ENV = ENV;
 		r.SG = SG;
@@ -65,13 +59,13 @@ public class ProductMonitoringTarget {
 		r.scheduleMinor = scheduleMinor;
 		r.maxTimeMinor = maxTimeMinor;
 		
-		for( ProductMonitoringItem item : listUrls ) {
-			ProductMonitoringItem ritem = item.copy( action , r );
+		for( MetaMonitoringItem item : listUrls ) {
+			MetaMonitoringItem ritem = item.copy( action , meta , r );
 			r.listUrls.add( ritem );
 		}
 		
-		for( ProductMonitoringItem item : listWS ) {
-			ProductMonitoringItem ritem = item.copy( action , r );
+		for( MetaMonitoringItem item : listWS ) {
+			MetaMonitoringItem ritem = item.copy( action , meta , r );
 			r.listWS.add( ritem );
 		}
 		
@@ -98,7 +92,7 @@ public class ProductMonitoringTarget {
 	}
 
 	private void setName( ActionBase action ) throws Exception {
-		NAME = product.NAME + "::" + ENV + "::" + SG;
+		NAME = meta.name + "::" + ENV + "::" + SG;
 	}
 	
 	private void loadCheckUrls( ActionBase action , Node node ) throws Exception {
@@ -107,7 +101,7 @@ public class ProductMonitoringTarget {
 			return;
 		
 		for( Node checkNode : items ) {
-			ProductMonitoringItem item = new ProductMonitoringItem( this );
+			MetaMonitoringItem item = new MetaMonitoringItem( meta , this );
 			item.loadUrl( action , checkNode );
 			listUrls.add( item );
 		}
@@ -119,7 +113,7 @@ public class ProductMonitoringTarget {
 			return;
 		
 		for( Node checkNode : items ) {
-			ProductMonitoringItem item = new ProductMonitoringItem( this );
+			MetaMonitoringItem item = new MetaMonitoringItem( meta , this );
 			item.loadUrl( action , checkNode );
 			listWS.add( item );
 		}
@@ -135,27 +129,17 @@ public class ProductMonitoringTarget {
 		Common.xmlSetElementAttr( doc , root , "minor.maxtime" , "" + maxTimeMinor );
 		Common.xmlSetElementAttr( doc , root , "minor.schedule" , scheduleMinor.getScheduleData() );
 		
-		for( ProductMonitoringItem item : listUrls ) {
+		for( MetaMonitoringItem item : listUrls ) {
 			Element element = Common.xmlCreateElement( doc , root , "checkurl" );
 			item.save( action , doc , element );
 		}
 		
-		for( ProductMonitoringItem item : listWS ) {
+		for( MetaMonitoringItem item : listWS ) {
 			Element element = Common.xmlCreateElement( doc , root , "checkws" );
 			item.save( action , doc , element );
 		}
 	}
 	
-	public void createFolders( ActionBase action ) throws Exception {
-		MonitoringStorage storage = action.artefactory.getMonitoringStorage( action , monitoring );
-		LocalFolder folder = storage.getDataFolder( action , this );
-		folder.ensureExists( action );
-		folder = storage.getReportsFolder( action , this );
-		folder.ensureExists( action );
-		folder = storage.getLogsFolder( action , this );
-		folder.ensureExists( action );
-	}
-
 	public void createTarget( EngineTransaction transaction , MetaEnvSegment sg ) throws Exception {
 		this.ENV = sg.env.ID;
 		this.SG = sg.NAME;
