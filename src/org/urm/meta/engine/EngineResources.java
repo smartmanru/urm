@@ -21,14 +21,14 @@ public class EngineResources extends EngineObject {
 	public EngineRegistry registry;
 	public Engine engine;
 
-	Map<String,EngineAuthResource> resourceMap;
+	Map<String,AuthResource> resourceMap;
 
 	public EngineResources( EngineRegistry registry ) {
 		super( registry );
 		this.registry = registry;
 		this.engine = registry.loader.engine;
 		
-		resourceMap = new HashMap<String,EngineAuthResource>();
+		resourceMap = new HashMap<String,AuthResource>();
 	}
 
 	@Override
@@ -39,8 +39,8 @@ public class EngineResources extends EngineObject {
 	public EngineResources copy() throws Exception {
 		EngineResources r = new EngineResources( registry );
 		
-		for( EngineAuthResource res : resourceMap.values() ) {
-			EngineAuthResource rc = res.copy( r );
+		for( AuthResource res : resourceMap.values() ) {
+			AuthResource rc = res.copy( r );
 			r.resourceMap.put( rc.NAME , rc );
 		}
 		return( r );
@@ -55,7 +55,7 @@ public class EngineResources extends EngineObject {
 			return;
 		
 		for( Node node : list ) {
-			EngineAuthResource res = new EngineAuthResource( this );
+			AuthResource res = new AuthResource( this );
 			res.load( node );
 
 			resourceMap.put( res.NAME , res );
@@ -63,19 +63,19 @@ public class EngineResources extends EngineObject {
 	}
 
 	public void save( Document doc , Element root ) throws Exception {
-		for( EngineAuthResource res : resourceMap.values() ) {
+		for( AuthResource res : resourceMap.values() ) {
 			Element resElement = Common.xmlCreateElement( doc , root , "resource" );
 			res.save( doc , resElement );
 		}
 	}
 
-	public EngineAuthResource findResource( String name ) {
-		EngineAuthResource res = resourceMap.get( name );
+	public AuthResource findResource( String name ) {
+		AuthResource res = resourceMap.get( name );
 		return( res );
 	}
 
-	public EngineAuthResource getResource( String name ) throws Exception {
-		EngineAuthResource res = resourceMap.get( name );
+	public AuthResource getResource( String name ) throws Exception {
+		AuthResource res = resourceMap.get( name );
 		if( res == null )
 			Common.exit1( _Error.UnknownResource1 , "unknown resource=" + name , name );
 		return( res );
@@ -87,7 +87,7 @@ public class EngineResources extends EngineObject {
 	
 	public String[] getList( EnumResourceCategory rcCategory ) {
 		List<String> list = new LinkedList<String>();
-		for( EngineAuthResource res : resourceMap.values() ) {
+		for( AuthResource res : resourceMap.values() ) {
 			if( rcCategory == EnumResourceCategory.ANY )
 				list.add( res.NAME );
 			else
@@ -106,7 +106,7 @@ public class EngineResources extends EngineObject {
 		return( Common.getSortedList( list ) );
 	}
 	
-	public void createResource( EngineTransaction transaction , EngineAuthResource res ) throws Exception {
+	public void createResource( EngineTransaction transaction , AuthResource res ) throws Exception {
 		if( resourceMap.get( res.NAME ) != null )
 			transaction.exit( _Error.DuplicateResource1 , "resource already exists name=" + res.NAME , new String[] { res.NAME } );
 			
@@ -114,12 +114,12 @@ public class EngineResources extends EngineObject {
 		resourceMap.put( res.NAME , res );
 	}
 	
-	public void updateResource( EngineTransaction transaction , EngineAuthResource res , EngineAuthResource resNew ) throws Exception {
+	public void updateResource( EngineTransaction transaction , AuthResource res , AuthResource resNew ) throws Exception {
 		res.updateResource( transaction , resNew );
 		dropResourceMirrors( transaction , res );
 	}
 	
-	public void deleteResource( EngineTransaction transaction , EngineAuthResource res ) throws Exception {
+	public void deleteResource( EngineTransaction transaction , AuthResource res ) throws Exception {
 		if( resourceMap.get( res.NAME ) == null )
 			transaction.exit( _Error.UnknownResource1 , "unknown resource name=" + res.NAME , new String[] { res.NAME } );
 			
@@ -127,7 +127,7 @@ public class EngineResources extends EngineObject {
 		resourceMap.remove( res.NAME );
 	}
 
-	public void dropResourceMirrors( EngineTransaction transaction , EngineAuthResource res ) throws Exception {
+	public void dropResourceMirrors( EngineTransaction transaction , AuthResource res ) throws Exception {
 		if( !res.isVCS() )
 			return;
 		

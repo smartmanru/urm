@@ -19,14 +19,14 @@ public class EngineBase extends EngineObject {
 
 	public EngineLoader loader;
 	
-	private Map<String,EngineBaseCategory> mapCategory;
-	private Map<String,EngineBaseItem> mapItem;
+	private Map<String,BaseCategory> mapCategory;
+	private Map<String,BaseItem> mapItem;
 	
 	public EngineBase( EngineLoader loader ) {
 		super( null );
 		this.loader = loader;
-		mapCategory = new HashMap<String,EngineBaseCategory>(); 
-		mapItem = new HashMap<String,EngineBaseItem>(); 
+		mapCategory = new HashMap<String,BaseCategory>(); 
+		mapItem = new HashMap<String,BaseItem>(); 
 	}
 	
 	@Override
@@ -41,23 +41,23 @@ public class EngineBase extends EngineObject {
 		Node[] list = ConfReader.xmlGetChildren( root , "category" );
 		if( list != null ) {
 			for( Node node : list ) {
-				EngineBaseCategory category = new EngineBaseCategory( this );
+				BaseCategory category = new BaseCategory( this );
 				category.load( node );
 				addCategory( category );
 				
-				for( EngineBaseGroup group : category.groupMap.values() ) {
-					for( EngineBaseItem item : group.itemMap.values() )
+				for( BaseGroup group : category.groupMap.values() ) {
+					for( BaseItem item : group.itemMap.values() )
 						addItem( item );
 				}
 			}
 		}
 		
 		if( findCategory( DBEnumBaseCategoryType.HOST ) == null )
-			addCategory( new EngineBaseCategory( this , DBEnumBaseCategoryType.HOST , "Host-Bound" ) );
+			addCategory( new BaseCategory( this , DBEnumBaseCategoryType.HOST , "Host-Bound" ) );
 		if( findCategory( DBEnumBaseCategoryType.ACCOUNT ) == null )
-			addCategory( new EngineBaseCategory( this , DBEnumBaseCategoryType.ACCOUNT , "Account-Bound" ) );
+			addCategory( new BaseCategory( this , DBEnumBaseCategoryType.ACCOUNT , "Account-Bound" ) );
 		if( findCategory( DBEnumBaseCategoryType.APP ) == null )
-			addCategory( new EngineBaseCategory( this , DBEnumBaseCategoryType.APP , "Application-Bound" ) );
+			addCategory( new BaseCategory( this , DBEnumBaseCategoryType.APP , "Application-Bound" ) );
 	}
 	
 	public void save( ActionCore action , String path , RunContext execrc ) throws Exception {
@@ -65,7 +65,7 @@ public class EngineBase extends EngineObject {
 		Element root = doc.getDocumentElement();
 		
 		for( String id : Common.getSortedKeys( mapCategory ) ) {
-			EngineBaseCategory category = mapCategory.get( id );
+			BaseCategory category = mapCategory.get( id );
 			Element node = Common.xmlCreateElement( doc , root , "category" );
 			category.save( doc , node );
 		}
@@ -73,37 +73,37 @@ public class EngineBase extends EngineObject {
 		Common.xmlSaveDoc( doc , path );
 	}
 
-	public void addCategory( EngineBaseCategory category ) {
+	public void addCategory( BaseCategory category ) {
 		mapCategory.put( category.ID , category );
 	}
 
-	public void addItem( EngineBaseItem item ) {
+	public void addItem( BaseItem item ) {
 		mapItem.put( item.ID , item );
 	}
 
-	public void createItem( EngineTransaction transaction , EngineBaseItem item ) throws Exception {
+	public void createItem( EngineTransaction transaction , BaseItem item ) throws Exception {
 		if( mapItem.get( item.ID ) != null )
 			transaction.exit1( _Error.DuplicateBaseItem1 , "duplicate base item=" + item.ID , item.ID );
 		
 		addItem( item );
 	}
 	
-	public EngineBaseCategory findCategory( DBEnumBaseCategoryType type ) {
+	public BaseCategory findCategory( DBEnumBaseCategoryType type ) {
 		return( findCategory( Common.getEnumLower( type ) ) );
 	}
 
-	public EngineBaseCategory findCategory( String id ) {
+	public BaseCategory findCategory( String id ) {
 		return( mapCategory.get( id ) );
 	}
 
-	public EngineBaseGroup findGroup( DBEnumBaseCategoryType type , String groupName ) {
-		EngineBaseCategory ct = findCategory( type );
+	public BaseGroup findGroup( DBEnumBaseCategoryType type , String groupName ) {
+		BaseCategory ct = findCategory( type );
 		if( ct != null )
 			return( ct.findGroup( groupName ) );
 		return( null );
 	}
 	
-	public EngineBaseItem findBase( String id ) {
+	public BaseItem findBase( String id ) {
 		return( mapItem.get( id ) );
 	}
 

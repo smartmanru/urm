@@ -12,13 +12,13 @@ import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineAuth;
-import org.urm.meta.engine.EngineAuthResource;
-import org.urm.meta.engine.EngineBaseGroup;
-import org.urm.meta.engine.EngineBaseItem;
-import org.urm.meta.engine.EngineBaseItemData;
+import org.urm.meta.engine.AuthResource;
+import org.urm.meta.engine.BaseGroup;
+import org.urm.meta.engine.BaseItem;
+import org.urm.meta.engine.BaseItemData;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.HostAccount;
-import org.urm.meta.engine.EngineMirrorRepository;
+import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.Network;
@@ -61,7 +61,7 @@ public class EngineTransaction extends TransactionBase {
 	}
 
 	// transactional operations
-	public void createMirrorRepository( EngineMirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
+	public void createMirrorRepository( MirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
 		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , push );
 		if( !push ) {
@@ -70,39 +70,39 @@ public class EngineTransaction extends TransactionBase {
 		}
 	}
 
-	public void pushMirror( EngineMirrorRepository repo ) throws Exception {
+	public void pushMirror( MirrorRepository repo ) throws Exception {
 		repo.pushMirror( this );
 	}
 
-	public void refreshMirror( EngineMirrorRepository repo ) throws Exception {
+	public void refreshMirror( MirrorRepository repo ) throws Exception {
 		repo.refreshMirror( this );
 		EngineLoader loader = engine.getLoader( action );
 		loader.rereadMirror( repo );
 	}
 
-	public void dropMirror( EngineMirrorRepository repo , boolean dropOnServer ) throws Exception {
+	public void dropMirror( MirrorRepository repo , boolean dropOnServer ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
 		repo.dropMirror( this , dropOnServer );
 		repo.deleteObject();
 	}
 
-	public void createResource( EngineAuthResource res ) throws Exception {
+	public void createResource( AuthResource res ) throws Exception {
 		checkTransactionResources( res.resources );
 		resources.createResource( this , res );
 	}
 	
-	public void updateResource( EngineAuthResource res , EngineAuthResource resNew ) throws Exception {
+	public void updateResource( AuthResource res , AuthResource resNew ) throws Exception {
 		checkTransactionResources( res.resources );
 		resources.updateResource( this , res , resNew );
 	}
 	
-	public void deleteResource( EngineAuthResource res ) throws Exception {
+	public void deleteResource( AuthResource res ) throws Exception {
 		checkTransactionResources( res.resources );
 		resources.deleteResource( this , res );
 		res.deleteObject();
 	}
 
-	public void verifyResource( EngineAuthResource res ) throws Exception {
+	public void verifyResource( AuthResource res ) throws Exception {
 		checkTransactionResources( res.resources );
 		res.setVerified( this );
 	}
@@ -418,7 +418,7 @@ public class EngineTransaction extends TransactionBase {
 		account.host.createAccount( this , account );
 	}
 	
-	public void createHostAccount( Network network , Account account , EngineAuthResource resource ) throws Exception {
+	public void createHostAccount( Network network , Account account , AuthResource resource ) throws Exception {
 		checkTransactionInfrastructure();
 		NetworkHost host = network.createHost( this , account ); 
 		host.createAccount( this , account , resource );
@@ -434,38 +434,38 @@ public class EngineTransaction extends TransactionBase {
 		account.host.deleteAccount( this , account );
 	}
 	
-	public void createBaseGroup( EngineBaseGroup group ) throws Exception {
+	public void createBaseGroup( BaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.createGroup( this , group );
 		action.saveBase( this );
 	}
 
-	public void deleteBaseGroup( EngineBaseGroup group ) throws Exception {
+	public void deleteBaseGroup( BaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.deleteGroup( this , group );
 		action.saveBase( this );
 	}
 
-	public void modifyBaseGroup( EngineBaseGroup group ) throws Exception {
+	public void modifyBaseGroup( BaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.modifyGroup( this , group );
 		action.saveBase( this );
 	}
 
-	public void createBaseItem( EngineBaseItem item ) throws Exception {
+	public void createBaseItem( BaseItem item ) throws Exception {
 		checkTransactionBase();
 		item.group.category.base.createItem( this , item );
 		item.group.createItem( this , item );
 		action.saveBase( this );
 	}
 
-	public void deleteBaseItem( EngineBaseItem item ) throws Exception {
+	public void deleteBaseItem( BaseItem item ) throws Exception {
 		checkTransactionBase();
 		item.group.deleteItem( this , item );
 		action.saveBase( this );
 	}
 
-	public void saveBaseItemData( EngineBaseItem item , EngineBaseItemData data ) throws Exception {
+	public void saveBaseItemData( BaseItem item , BaseItemData data ) throws Exception {
 		checkTransactionBase();
 	}
 	

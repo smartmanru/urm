@@ -7,6 +7,9 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
+import org.urm.db.DBData;
+import org.urm.db.DBEnumTypes.DBEnumObjectType;
+import org.urm.db.DBNames;
 import org.urm.db.meta.DBSystem;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
@@ -131,6 +134,9 @@ public class EngineDirectory extends EngineObject {
 	}
 
 	public void modifySystem( EngineTransaction t , System system ) throws Exception {
+		if( Common.changeMapKey( mapSystems , system , system.NAME ) )
+			DBNames.updateName( t.connection , DBData.CORE_ID , system.NAME , system.ID , DBEnumObjectType.SYSTEM );
+		DBSystem.update( t.connection , t.CV , system );
 	}
 	
 	public void deleteSystem( EngineTransaction t , System system ) throws Exception {

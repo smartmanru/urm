@@ -8,7 +8,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.EngineCall;
 import org.urm.engine.action.CommandOutput;
-import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.AuthResource;
 
 public class ShellProcess {
 
@@ -43,24 +43,24 @@ public class ShellProcess {
 		return( executor.createProcess( action , this , null ) );
 	}
 
-	public boolean createRemoteWindowsProcessFromLinux( ActionBase action , EngineAuthResource auth ) throws Exception {
+	public boolean createRemoteWindowsProcessFromLinux( ActionBase action , AuthResource auth ) throws Exception {
 		if( action.context.CTX_TRACEINTERNAL )
 			action.trace( "create local sh process on behalf of " + shell.account.getPrintName() );
 		builder = new ProcessBuilder( "sh" );
 		return( executor.createProcess( action , this , auth ) );
 	}
 
-	public boolean createRemoteLinuxProcessFromWindows( ActionBase action , EngineAuthResource auth ) throws Exception {
+	public boolean createRemoteLinuxProcessFromWindows( ActionBase action , AuthResource auth ) throws Exception {
 		jssh = new ShellJssh( this , false );
 		return( executor.createProcess( action , this , auth ) );
 	}
 	
-	public boolean createRemoteLinuxProcessFromLinux( ActionBase action , EngineAuthResource auth ) throws Exception {
+	public boolean createRemoteLinuxProcessFromLinux( ActionBase action , AuthResource auth ) throws Exception {
 		jssh = new ShellJssh( this , false );
 		return( executor.createProcess( action , this , auth ) );
 	}
 	
-	public void start( ActionBase action , String rootPath , EngineAuthResource auth ) throws Exception {
+	public void start( ActionBase action , String rootPath , AuthResource auth ) throws Exception {
 		if( builder != null )
 			startBuilder( action , rootPath );
 		else
@@ -185,19 +185,19 @@ public class ShellProcess {
 		shell.startProcess( action , this , null , false , null );
 	}
 	
-	public void runRemoteInteractiveSshLinux( ActionBase action , String KEY , EngineAuthResource auth ) throws Exception {
+	public void runRemoteInteractiveSshLinux( ActionBase action , String KEY , AuthResource auth ) throws Exception {
 		jssh = new ShellJssh( this , true );
 		EngineCall call = action.context.call;
 		executeRemoteInteractive( action , call , auth );
 	}
 	
-	public void runRemoteInteractiveSshWindows( ActionBase action , String KEY , EngineAuthResource auth ) throws Exception {
+	public void runRemoteInteractiveSshWindows( ActionBase action , String KEY , AuthResource auth ) throws Exception {
 		jssh = new ShellJssh( this , true );
 		EngineCall call = action.context.call;
 		executeRemoteInteractive( action , call , auth );
 	}
 	
-	private void executeRemoteInteractive( ActionBase action , EngineCall call , EngineAuthResource auth ) throws Exception {
+	private void executeRemoteInteractive( ActionBase action , EngineCall call , AuthResource auth ) throws Exception {
 		if( builder != null )
 			builder.redirectErrorStream( true );
 		shell.startProcess( action , this , null , true , auth );

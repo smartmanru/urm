@@ -7,6 +7,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.blotter.EngineBlotterReleaseItem;
 import org.urm.engine.blotter.EngineBlotterSet;
@@ -14,8 +15,6 @@ import org.urm.engine.blotter.EngineBlotter.BlotterType;
 import org.urm.engine.dist.Release;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.meta.EngineObject;
-import org.urm.meta.Types;
-import org.urm.meta.Types.VarLCTYPE;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -25,7 +24,7 @@ public class ReleaseLifecycle extends EngineObject {
 
 	EngineReleaseLifecycles lifecycles;
 	
-	public VarLCTYPE lcType;
+	public DBEnumLifecycleType lcType;
 	public String ID;
 	public String DESC;
 	public boolean enabled;
@@ -86,7 +85,7 @@ public class ReleaseLifecycle extends EngineObject {
 		if( root == null )
 			return;
 		
-		lcType = Types.getLCType( ConfReader.getAttrValue( root , "type" ) , true );
+		lcType = DBEnumLifecycleType.getValue( ConfReader.getAttrValue( root , "type" ) , true );
 		ID = ConfReader.getAttrValue( root , "id" );
 		DESC = ConfReader.getAttrValue( root , "desc" );
 		enabled = ConfReader.getBooleanAttrValue( root , "enabled" , false );
@@ -210,15 +209,15 @@ public class ReleaseLifecycle extends EngineObject {
 	}
 
 	public boolean isMajor() {
-		return( lcType == VarLCTYPE.MAJOR );
+		return( lcType == DBEnumLifecycleType.MAJOR );
 	}
 
 	public boolean isMinor() {
-		return( lcType == VarLCTYPE.MINOR );
+		return( lcType == DBEnumLifecycleType.MINOR );
 	}
 
 	public boolean isUrgent() {
-		return( lcType == VarLCTYPE.URGENT );
+		return( lcType == DBEnumLifecycleType.URGENT );
 	}
 
 	public boolean isRegular() {

@@ -10,12 +10,12 @@ import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.blotter.EngineBlotterSet;
 import org.urm.engine.blotter.EngineBlotter.BlotterType;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
-import org.urm.meta.Types.VarLCTYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -84,7 +84,7 @@ public class EngineReleaseLifecycles extends EngineObject {
 		return( Common.getSortedKeys( lcMap ) );
 	}
 
-	public String[] getLifecycles( VarLCTYPE type , boolean enabledOnly ) {
+	public String[] getLifecycles( DBEnumLifecycleType type , boolean enabledOnly ) {
 		List<String> list = new LinkedList<String>();
 		for( String lcName : Common.getSortedKeys( lcMap ) ) {
 			ReleaseLifecycle lc = lcMap.get( lcName );

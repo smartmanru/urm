@@ -19,7 +19,7 @@ import org.urm.engine.properties.PropertyController;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.AccountReference;
-import org.urm.meta.engine.EngineBaseItem;
+import org.urm.meta.engine.BaseItem;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
@@ -763,7 +763,7 @@ public class MetaEnvServer extends PropertyController {
 		super.setSystemStringProperty( PROPERTY_BASELINE , baselineServer );
 	}
 	
-	public void setPlatform( EngineTransaction transaction , EngineBaseItem item ) throws Exception {
+	public void setPlatform( EngineTransaction transaction , BaseItem item ) throws Exception {
 		if( basesw == null ) {
 			basesw = new MetaEnvServerBase( meta , this );
 			basesw.createBase( transaction.action , item );

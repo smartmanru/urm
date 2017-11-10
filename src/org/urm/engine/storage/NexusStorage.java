@@ -3,7 +3,7 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.SimpleHttp;
-import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -28,7 +28,7 @@ public class NexusStorage {
 		this.meta = meta;
 	}
 
-	public static boolean verifyRepository( ActionBase action , String repository , EngineAuthResource res ) throws Exception {
+	public static boolean verifyRepository( ActionBase action , String repository , AuthResource res ) throws Exception {
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository + "/";
 		res.loadAuthData();
 		String user = res.ac.getUser( action );
@@ -37,7 +37,7 @@ public class NexusStorage {
 	}
 	
 	public NexusDownloadInfo downloadNexus( ActionBase action , String GROUPID , String ARTEFACTID , String VERSION , String PACKAGING , String CLASSIFIER , MetaDistrBinaryItem item ) throws Exception {
-		EngineAuthResource res = action.getResource( NEXUS_RESOURCE );
+		AuthResource res = action.getResource( NEXUS_RESOURCE );
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository;
 		String NAME = ARTEFACTID + "-" + VERSION;
 		if( !CLASSIFIER.isEmpty() )
@@ -66,7 +66,7 @@ public class NexusStorage {
 	}
 
 	public NexusDownloadInfo downloadNuget( ActionBase action , String ARTEFACTID , String VERSION , MetaDistrBinaryItem item ) throws Exception {
-		EngineAuthResource res = action.getResource( NEXUS_RESOURCE );
+		AuthResource res = action.getResource( NEXUS_RESOURCE );
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository;
 		String NAME = ARTEFACTID + "-" + VERSION + ".nupkg";
 

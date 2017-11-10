@@ -5,9 +5,9 @@ import org.urm.common.Common;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.EngineBuilders;
-import org.urm.meta.engine.EngineMirrorRepository;
+import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
@@ -17,17 +17,17 @@ public abstract class GenericVCS {
 	ActionBase action;
 	Meta meta;
 	
-	public EngineAuthResource res;
+	public AuthResource res;
 	ShellExecutor shell;
 	
-	protected GenericVCS( ActionBase action , Meta meta , EngineAuthResource res , ShellExecutor shell ) {
+	protected GenericVCS( ActionBase action , Meta meta , AuthResource res , ShellExecutor shell ) {
 		this.action = action;
 		this.meta = meta;
 		this.res = res;
 		this.shell = shell;
 	}
 	
-	public abstract MirrorCase getMirror( EngineMirrorRepository mirror ) throws Exception;
+	public abstract MirrorCase getMirror( MirrorRepository mirror ) throws Exception;
 	public abstract boolean verifyRepository( String repo , String pathToRepo );
 
 	public abstract String getMainBranch();
@@ -47,37 +47,37 @@ public abstract class GenericVCS {
 	public abstract boolean export( MetaSourceProject project , LocalFolder PATCHPATH , String branch , String tag , String singlefile ) throws Exception;
 	public abstract boolean setTag( MetaSourceProject project , String branch , String tag , String branchDate ) throws Exception;
 	
-	public abstract boolean exportRepositoryMasterPath( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String ITEMPATH , String name ) throws Exception;
-	public abstract boolean exportRepositoryTagPath( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String TAG , String ITEMPATH , String name ) throws Exception;
-	public abstract boolean isValidRepositoryMasterRootPath( EngineMirrorRepository mirror , String path ) throws Exception;
-	public abstract boolean isValidRepositoryMasterPath( EngineMirrorRepository mirror , String path ) throws Exception;
-	public abstract boolean isValidRepositoryTagPath( EngineMirrorRepository mirror , String TAG , String path ) throws Exception;
-	public abstract String getInfoMasterPath( EngineMirrorRepository mirror , String ITEMPATH ) throws Exception;
-	public abstract boolean createMasterFolder( EngineMirrorRepository mirror , String ITEMPATH , String commitMessage ) throws Exception;
-	public abstract boolean moveMasterFiles( EngineMirrorRepository mirror , String srcFolder , String dstFolder , String itemPath , String commitMessage ) throws Exception;
-	public abstract String[] listMasterItems( EngineMirrorRepository mirror , String masterFolder ) throws Exception;
-	public abstract void deleteMasterFolder( EngineMirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception;
-	public abstract void checkoutMasterFolder( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder ) throws Exception;
-	public abstract void importMasterFolder( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception;
-	public abstract void ensureMasterFolderExists( EngineMirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception;
-	public abstract boolean commitMasterFolder( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception;
-	public abstract void createMasterTag( EngineMirrorRepository mirror , String masterFolder , String TAG , String commitMessage ) throws Exception;
+	public abstract boolean exportRepositoryMasterPath( MirrorRepository mirror , LocalFolder PATCHPATH , String ITEMPATH , String name ) throws Exception;
+	public abstract boolean exportRepositoryTagPath( MirrorRepository mirror , LocalFolder PATCHPATH , String TAG , String ITEMPATH , String name ) throws Exception;
+	public abstract boolean isValidRepositoryMasterRootPath( MirrorRepository mirror , String path ) throws Exception;
+	public abstract boolean isValidRepositoryMasterPath( MirrorRepository mirror , String path ) throws Exception;
+	public abstract boolean isValidRepositoryTagPath( MirrorRepository mirror , String TAG , String path ) throws Exception;
+	public abstract String getInfoMasterPath( MirrorRepository mirror , String ITEMPATH ) throws Exception;
+	public abstract boolean createMasterFolder( MirrorRepository mirror , String ITEMPATH , String commitMessage ) throws Exception;
+	public abstract boolean moveMasterFiles( MirrorRepository mirror , String srcFolder , String dstFolder , String itemPath , String commitMessage ) throws Exception;
+	public abstract String[] listMasterItems( MirrorRepository mirror , String masterFolder ) throws Exception;
+	public abstract void deleteMasterFolder( MirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception;
+	public abstract void checkoutMasterFolder( MirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder ) throws Exception;
+	public abstract void importMasterFolder( MirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception;
+	public abstract void ensureMasterFolderExists( MirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception;
+	public abstract boolean commitMasterFolder( MirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception;
+	public abstract void createMasterTag( MirrorRepository mirror , String masterFolder , String TAG , String commitMessage ) throws Exception;
 	
-	public abstract void addFileToCommit( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception;
-	public abstract void deleteFileToCommit( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception;
-	public abstract void addDirToCommit( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
-	public abstract void deleteDirToCommit( EngineMirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
+	public abstract void addFileToCommit( MirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception;
+	public abstract void deleteFileToCommit( MirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception;
+	public abstract void addDirToCommit( MirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
+	public abstract void deleteDirToCommit( MirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
 	
 	public static GenericVCS getVCS( ActionBase action , Meta meta , String vcs ) throws Exception {
 		return( getVCS( action , meta , vcs , "" , false ) );
 	}
 	
-	public static GenericVCS getVCS( ActionBase action , EngineAuthResource res ) throws Exception {
+	public static GenericVCS getVCS( ActionBase action , AuthResource res ) throws Exception {
 		return( getVCS( action , null , res , action.shell ) );
 	}
 	
 	public static GenericVCS getVCS( ActionBase action , Meta meta , String vcs , String BUILDER , boolean noAuth ) throws Exception {
-		EngineAuthResource res = action.getResource( vcs );
+		AuthResource res = action.getResource( vcs );
 		if( !noAuth )
 			res.loadAuthData();
 		
@@ -94,7 +94,7 @@ public abstract class GenericVCS {
 		return( getVCS( action , meta , res , shell ) );
 	}
 
-	private static GenericVCS getVCS( ActionBase action , Meta meta , EngineAuthResource res , ShellExecutor shell ) throws Exception {
+	private static GenericVCS getVCS( ActionBase action , Meta meta , AuthResource res , ShellExecutor shell ) throws Exception {
 		res.loadAuthData();
 		if( res.isSvn() )
 			return( new SubversionVCS( action , meta , res , shell ) );
@@ -107,14 +107,14 @@ public abstract class GenericVCS {
 	}
 	
 	public static SubversionVCS getSvnDirect( ActionBase action , String resource ) throws Exception {
-		EngineAuthResource res = action.getResource( resource );
+		AuthResource res = action.getResource( resource );
 		if( !res.isSvn() )
 			action.exit1( _Error.NonSvnResource1 , "unexpected non-svn resource=" + resource , resource );
 		return( ( SubversionVCS )getVCS( action , null , resource ) );
 	}
 
 	public static GitVCS getGitDirect( ActionBase action , String resource ) throws Exception {
-		EngineAuthResource res = action.getResource( resource );
+		AuthResource res = action.getResource( resource );
 		if( !res.isGit() )
 			action.exit1( _Error.NonGitResource1 , "unexpected non-git resource=" + resource , resource );
 		return( ( GitVCS )getVCS( action , null , resource ) );

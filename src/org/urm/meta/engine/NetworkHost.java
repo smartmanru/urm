@@ -170,7 +170,7 @@ public class NetworkHost extends EngineObject {
 		return( false );
 	}
 
-	public HostAccount createAccount( EngineTransaction transaction , Account hostAccount , EngineAuthResource resource ) throws Exception {
+	public HostAccount createAccount( EngineTransaction transaction , Account hostAccount , AuthResource resource ) throws Exception {
 		HostAccount account = findAccount( hostAccount.USER );
 		if( account != null )
 			return( account );

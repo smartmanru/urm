@@ -8,7 +8,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.PropertyController;
-import org.urm.meta.engine.EngineBaseItem;
+import org.urm.meta.engine.BaseItem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -83,7 +83,7 @@ public class MetaEnvServerBase extends PropertyController {
 		super.initFinished();
 	}
 		
-	public void createBase( ActionBase action , EngineBaseItem item ) throws Exception {
+	public void createBase( ActionBase action , BaseItem item ) throws Exception {
 		if( !super.initCreateStarted( server.getProperties() ) )
 			return;
 
@@ -119,7 +119,7 @@ public class MetaEnvServerBase extends PropertyController {
 		}
 	}
 
-	public void setItem( EngineTransaction transaction , EngineBaseItem item ) throws Exception {
+	public void setItem( EngineTransaction transaction , BaseItem item ) throws Exception {
 		super.setSystemStringProperty( PROPERTY_ID , item.ID );
 		super.updateProperties( transaction );
 	}

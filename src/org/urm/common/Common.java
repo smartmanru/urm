@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -1027,4 +1028,20 @@ public class Common {
 		return( list );
 	}
 
+	public static <T> boolean changeMapKey( Map<String,T> map , T value , String newKey ) throws Exception {
+		for( Entry<String,?> entry : map.entrySet() ) {
+			if( entry.getValue() == value ) {
+				if( !newKey.equals( entry.getKey() ) ) {
+					map.remove( entry.getKey() );
+					map.put( newKey , value );
+					return( true );
+				}
+				
+				return( false );
+			}
+		}
+		exitUnexpected();
+		return( false );
+	}
+	
 }

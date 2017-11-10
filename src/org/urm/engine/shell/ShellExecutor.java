@@ -18,7 +18,7 @@ import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.meta.Types.VarSESSIONTYPE;
-import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.AuthResource;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
 
@@ -70,7 +70,7 @@ public abstract class ShellExecutor extends Shell {
 		return( executor );
 	}
 
-	public static ShellExecutor getRemoteShellExecutor( ActionBase action , int id , String name , EngineShellPool pool , Account account , EngineAuthResource auth , boolean dedicated ) throws Exception {
+	public static ShellExecutor getRemoteShellExecutor( ActionBase action , int id , String name , EngineShellPool pool , Account account , AuthResource auth , boolean dedicated ) throws Exception {
 		RedistStorage storage = action.artefactory.getRedistStorage( action , account );
 		Folder tmpFolder = storage.getRedistTmpFolder( action );
 
@@ -127,7 +127,7 @@ public abstract class ShellExecutor extends Shell {
 		}
 	}
 	
-	protected boolean createProcess( ActionBase action , ShellProcess process , EngineAuthResource auth ) throws Exception {
+	protected boolean createProcess( ActionBase action , ShellProcess process , AuthResource auth ) throws Exception {
 		if( isLocal() )
 			action.debug( "start shell=" + name + " at rootPath=" + rootPath + " (" + Common.getEnumLower( account.osType ) + ")" );
 		else

@@ -209,6 +209,35 @@ public abstract class DBEnumTypes {
 		public static DBEnumMirrorType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumMirrorType.class , value , required , null ) ); };
 		public static DBEnumMirrorType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumMirrorType.class , value , required , null ) ); };
 	};
+
+	public enum DBEnumLifecycleType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		MAJOR(1,null) ,
+		MINOR(2,null) ,
+		URGENT(3,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumLifecycleType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumLifecycleType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumLifecycleType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumLifecycleType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumLifecycleType.class , value , required , UNKNOWN ) ); };
+	};
+	
+	public enum DBEnumLifecycleStageType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		RELEASE(1,null) ,
+		DEPLOYMENT(2,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumLifecycleStageType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumLifecycleStageType getValue( Integer value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumLifecycleStageType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumLifecycleStageType getValue( String value , boolean required ) throws Exception { return( DBEnumTypes.getValue( DBEnumLifecycleStageType.class , value , required , UNKNOWN ) ); };
+	};
 	
 	//#################################################
 	// implementation
@@ -273,16 +302,16 @@ public abstract class DBEnumTypes {
 	}
     
     public static void updateDatabase( Engine engine , DBConnection connection ) throws Exception {
-    	connection.update( DBQueries.UPDATE_ENUMS_DROP0 );
+    	connection.update( DBQueries.MODIFY_ENUMS_DROP0 );
     	
 		int enumsId = DBNames.getEnumsId();
-    	connection.update( DBQueries.UPDATE_NAMES_DROPPARENT1 , new String[] { "" + enumsId } );
+    	connection.update( DBQueries.MODIFY_NAMES_DROPPARENT1 , new String[] { "" + enumsId } );
     	
     	for( Class<?> c : enums ) {
     		String name = getEnumName( c );
     		int enumId = DBNames.getNameIndex( connection , enumsId , name , DBEnumObjectType.ENUM );
     		
-    		if( !connection.update( DBQueries.UPDATE_ENUMS_ADD3 , new String[] { "0" , "" + enumId , EngineDB.getString( name ) } ) )
+    		if( !connection.update( DBQueries.MODIFY_ENUMS_ADD3 , new String[] { "0" , "" + enumId , EngineDB.getString( name ) } ) )
     			Common.exitUnexpected();
     		
     		for( Object object : c.getEnumConstants() ) {
@@ -291,7 +320,7 @@ public abstract class DBEnumTypes {
     			Enum<?> ev = ( Enum<?> )object;
     			String elementName = ev.name().toLowerCase();
     			
-        		if( !connection.update( DBQueries.UPDATE_ENUMS_ADD3 , new String[] { "" + enumId , "" + elementValue , EngineDB.getString( elementName ) } ) )
+        		if( !connection.update( DBQueries.MODIFY_ENUMS_ADD3 , new String[] { "" + enumId , "" + elementValue , EngineDB.getString( elementName ) } ) )
         			Common.exitUnexpected();
     		}
     	}

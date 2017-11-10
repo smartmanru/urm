@@ -5,13 +5,13 @@ import java.util.List;
 
 import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.EngineMirrorRepository;
+import org.urm.meta.engine.MirrorRepository;
 
 public class MirrorCaseSubversion extends MirrorCase {
 
 	SubversionVCS vcsSubversion;
 	
-	public MirrorCaseSubversion( SubversionVCS vcs , EngineMirrorRepository mirror , String BRANCH ) {
+	public MirrorCaseSubversion( SubversionVCS vcs , MirrorRepository mirror , String BRANCH ) {
 		super( vcs , mirror , BRANCH );
 		this.vcsSubversion = vcs;
 	}

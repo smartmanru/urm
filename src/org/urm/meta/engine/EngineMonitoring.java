@@ -32,7 +32,7 @@ public class EngineMonitoring extends EngineObject {
 	Engine engine;
 	EngineEvents events;
 
-	Map<String,EngineMonitoringProduct> mapProduct;
+	Map<String,MonitoringProduct> mapProduct;
 	boolean running;
 	
 	public PropertySet properties;
@@ -57,7 +57,7 @@ public class EngineMonitoring extends EngineObject {
 		this.engine = loader.engine;
 		this.events = engine.getEvents();
 		
-		mapProduct = new HashMap<String,EngineMonitoringProduct>();
+		mapProduct = new HashMap<String,MonitoringProduct>();
 		running = false;
 	}
 
@@ -117,12 +117,12 @@ public class EngineMonitoring extends EngineObject {
 	}
 
 	private void startAll( ActionBase action ) throws Exception {
-		for( EngineMonitoringProduct mon : mapProduct.values() )
+		for( MonitoringProduct mon : mapProduct.values() )
 			mon.start( action );
 	}
 	
 	private void stopAll( ActionBase action ) throws Exception {
-		for( EngineMonitoringProduct mon : mapProduct.values() )
+		for( MonitoringProduct mon : mapProduct.values() )
 			mon.stop( action );
 	}
 	
@@ -149,7 +149,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 
 	public void setProductMonitoringProperties( EngineTransaction transaction , Meta meta , PropertySet props ) throws Exception {
-		EngineMonitoringProduct mon = mapProduct.get( meta.name );
+		MonitoringProduct mon = mapProduct.get( meta.name );
 		if( mon == null )
 			return;
 		
@@ -166,7 +166,7 @@ public class EngineMonitoring extends EngineObject {
 	public synchronized void createProduct( ActionBase action , ProductMeta storage ) throws Exception {
 		MetaMonitoring meta = storage.getMonitoring();
 		Product product = action.getProduct( storage.name );
-		EngineMonitoringProduct mon = new EngineMonitoringProduct( this , product , meta );
+		MonitoringProduct mon = new MonitoringProduct( this , product , meta );
 		mapProduct.put( storage.name , mon );
 		mon.start( action );
 	}
@@ -177,7 +177,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 	
 	public synchronized void deleteProduct( ActionBase action , ProductMeta storage ) throws Exception {
-		EngineMonitoringProduct mon = mapProduct.get( storage.name );
+		MonitoringProduct mon = mapProduct.get( storage.name );
 		if( mon != null ) {
 			mon.stop( action );
 			mapProduct.remove( storage.name );
@@ -185,13 +185,13 @@ public class EngineMonitoring extends EngineObject {
 	}	
 	
 	public synchronized void startProduct( ActionBase action , String product ) throws Exception {
-		EngineMonitoringProduct mon = mapProduct.get( product );
+		MonitoringProduct mon = mapProduct.get( product );
 		if( mon != null )
 			mon.start( action );
 	}
 	
 	public synchronized void stopProduct( ActionBase action , String product ) throws Exception {
-		EngineMonitoringProduct mon = mapProduct.get( product );
+		MonitoringProduct mon = mapProduct.get( product );
 		if( mon != null )
 			mon.stop( action );
 	}
@@ -207,7 +207,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 	
 	public boolean isRunning( Product product ) {
-		EngineMonitoringProduct mon = mapProduct.get( product.NAME );
+		MonitoringProduct mon = mapProduct.get( product.NAME );
 		return( mon != null && isRunning( product.system ) && product.OFFLINE == false && product.MONITORING_ENABLED );
 	}
 	
@@ -218,7 +218,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 
 	public boolean isRunning( MetaEnvSegment sg ) {
-		EngineMonitoringProduct mon = mapProduct.get( sg.meta.name );
+		MonitoringProduct mon = mapProduct.get( sg.meta.name );
 		MetaMonitoringTarget target = mon.meta.findMonitoringTarget( sg );
 		return( target != null && isRunning( sg.env ) && sg.OFFLINE == false && ( target.enabledMajor || target.enabledMinor ) );
 	}	

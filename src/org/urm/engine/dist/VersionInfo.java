@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.meta.Types.VarLCTYPE;
+import org.urm.db.DBEnumTypes.*;
 
 public class VersionInfo {
 
@@ -167,26 +167,26 @@ public class VersionInfo {
 		return( (v1-1) + ".0.0.0" );
 	}
 
-	public VarLCTYPE getLifecycleType() {
+	public DBEnumLifecycleType getLifecycleType() {
 		if( v4 != 0 )
-			return( VarLCTYPE.URGENT );
+			return( DBEnumLifecycleType.URGENT );
 		if( v3 != 0 )
-			return( VarLCTYPE.MINOR );
-		return( VarLCTYPE.MAJOR );
+			return( DBEnumLifecycleType.MINOR );
+		return( DBEnumLifecycleType.MAJOR );
 	}
 	
-	public static VarLCTYPE getLifecycleType( String RELEASEVER ) {
+	public static DBEnumLifecycleType getLifecycleType( String RELEASEVER ) {
 		String[] items = Common.splitDotted( RELEASEVER );
 		if( items.length != 4 )
-			return( VarLCTYPE.UNKNOWN );
+			return( DBEnumLifecycleType.UNKNOWN );
 		
 		if( !items[3].equals( "0" ) )
-			return( VarLCTYPE.URGENT );
+			return( DBEnumLifecycleType.URGENT );
 		
 		if( !items[2].equals( "0" ) )
-			return( VarLCTYPE.MINOR );
+			return( DBEnumLifecycleType.MINOR );
 		
-		return( VarLCTYPE.MAJOR );
+		return( DBEnumLifecycleType.MAJOR );
 	}
 
 	public static String[] orderVersions( String[] list ) {

@@ -6,14 +6,14 @@ import java.util.List;
 import org.urm.common.Common;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.EngineAuthResource;
-import org.urm.meta.engine.EngineMirrorRepository;
+import org.urm.meta.engine.AuthResource;
+import org.urm.meta.engine.MirrorRepository;
 
 public class MirrorCaseGit extends MirrorCase {
 
 	GitVCS vcsGit;
 	
-	public MirrorCaseGit( GitVCS vcs , EngineMirrorRepository mirror , String BRANCH ) {
+	public MirrorCaseGit( GitVCS vcs , MirrorRepository mirror , String BRANCH ) {
 		super( vcs , mirror , BRANCH );
 		this.vcsGit = vcs;
 	}
@@ -202,7 +202,7 @@ public class MirrorCaseGit extends MirrorCase {
 	}
 	
 	private void setAccess( String OSPATH ) throws Exception {
-		EngineAuthResource res = vcs.res;
+		AuthResource res = vcs.res;
 		String user = "";
 		if( !res.ac.isAnonymous() )
 			user = res.ac.getUser( action );
@@ -316,7 +316,7 @@ public class MirrorCaseGit extends MirrorCase {
 			remotePath = Common.getPath( mirror.RESOURCE_ROOT , remotePath );
 
 		int status = 0;
-		EngineAuthResource res = vcs.res;
+		AuthResource res = vcs.res;
 		String url = res.BASEURL;
 		String OSPATH = "";
 		int timeout = action.setTimeoutUnlimited();

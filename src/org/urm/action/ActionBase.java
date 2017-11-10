@@ -41,14 +41,14 @@ import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.Types;
-import org.urm.meta.engine.EngineAuthResource;
-import org.urm.meta.engine.EngineAuthUser;
+import org.urm.meta.engine.AuthResource;
+import org.urm.meta.engine.AuthUser;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineContext;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
-import org.urm.meta.engine.EngineMirrorRepository;
+import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.Product;
@@ -156,7 +156,7 @@ abstract public class ActionBase extends ActionCore {
 		SessionSecurity security = session.getSecurity();
 		if( security == null )
 			return( "" );
-		EngineAuthUser user = security.getUser();
+		AuthUser user = security.getUser();
 		return( user.NAME );
 	}
 	
@@ -446,7 +446,7 @@ abstract public class ActionBase extends ActionCore {
 	
 	public ShellExecutor createDedicatedRemoteShell( String name , Account account , boolean setAction ) throws Exception {
 		EngineResources res = getServerResources();
-		EngineAuthResource ar = res.getResource( account.AUTHRESOURCE );
+		AuthResource ar = res.getResource( account.AUTHRESOURCE );
 		ar.loadAuthData();
 		return( engine.shellPool.createDedicatedRemoteShell( this , name , account , ar , setAction ) );
 	}
@@ -819,21 +819,21 @@ abstract public class ActionBase extends ActionCore {
 		return( product.getBuildSettings( this ) );
 	}
 
-	public EngineMirrorRepository getProjectMirror( MetaSourceProject project ) throws Exception {
+	public MirrorRepository getProjectMirror( MetaSourceProject project ) throws Exception {
 		EngineMirrors mirrors = getServerMirrors();
-		EngineMirrorRepository repo = mirrors.findProjectRepository( project );
+		MirrorRepository repo = mirrors.findProjectRepository( project );
 		return( repo );
 	}
 
-	public EngineMirrorRepository getMetaMirror( ProductMeta meta ) throws Exception {
+	public MirrorRepository getMetaMirror( ProductMeta meta ) throws Exception {
 		EngineMirrors mirrors = getServerMirrors();
-		EngineMirrorRepository repo = mirrors.findProductMetaRepository( meta );
+		MirrorRepository repo = mirrors.findProductMetaRepository( meta );
 		return( repo );
 	}
 
-	public EngineMirrorRepository getConfigurationMirror( ProductMeta meta ) throws Exception {
+	public MirrorRepository getConfigurationMirror( ProductMeta meta ) throws Exception {
 		EngineMirrors mirrors = getServerMirrors();
-		EngineMirrorRepository repo = mirrors.findProductDataRepository( meta );
+		MirrorRepository repo = mirrors.findProductDataRepository( meta );
 		if( repo == null )
 			exit0( _Error.MissingMirrorConfig0 , "Missing product configuration files mirror" );
 		
@@ -850,15 +850,15 @@ abstract public class ActionBase extends ActionCore {
 		return( engine.blotter );
 	}
 	
-	public EngineMirrorRepository getServerMirror() throws Exception {
+	public MirrorRepository getServerMirror() throws Exception {
 		EngineMirrors mirrors = getServerMirrors();
-		EngineMirrorRepository repo = mirrors.findServerRepository();
+		MirrorRepository repo = mirrors.findServerRepository();
 		return( repo );
 	}
 	
-	public EngineAuthResource getResource( String name ) throws Exception {
+	public AuthResource getResource( String name ) throws Exception {
 		EngineResources resources = getServerResources();
-		EngineAuthResource res = resources.getResource( name );
+		AuthResource res = resources.getResource( name );
 		return( res );
 	}
 	

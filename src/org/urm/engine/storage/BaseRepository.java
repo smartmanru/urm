@@ -3,8 +3,8 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.meta.engine.EngineBase;
-import org.urm.meta.engine.EngineBaseItem;
-import org.urm.meta.engine.EngineBaseItemData;
+import org.urm.meta.engine.BaseItem;
+import org.urm.meta.engine.BaseItemData;
 import org.urm.meta.engine.EngineContext;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.MetaEnvServerNode;
@@ -41,10 +41,10 @@ public class BaseRepository {
 		return( repoFolder.getSubFolder( action , BASEID ) );
 	}
 
-	public EngineBaseItemData getBaseInfo( ActionBase action , EngineBaseItem item ) throws Exception {
+	public BaseItemData getBaseInfo( ActionBase action , BaseItem item ) throws Exception {
 		String basePath = getBasePath( action , item.ID );
 		
-		EngineBaseItemData data = new EngineBaseItemData( item , this );
+		BaseItemData data = new BaseItemData( item , this );
 		if( repoFolder.checkFileExists( action , basePath ) ) {
 			String text = repoFolder.readFile( action , basePath );
 			Document xml = ConfReader.readXmlString( text );
@@ -60,18 +60,18 @@ public class BaseRepository {
 		return( data );
 	}
 	
-	public EngineBaseItemData getBaseInfo( ActionBase action , String ID , MetaEnvServerNode node , boolean primary ) throws Exception {
+	public BaseItemData getBaseInfo( ActionBase action , String ID , MetaEnvServerNode node , boolean primary ) throws Exception {
 		String basePath = getBasePath( action , ID );
 		String text = repoFolder.readFile( action , basePath );
 		Document xml = ConfReader.readXmlString( text );
 		
 		action.debug( "load base info id=" + ID + " ..." );
 		EngineBase base = action.getServerBase();
-		EngineBaseItem item = base.findBase( ID );
+		BaseItem item = base.findBase( ID );
 		if( item == null )
 			action.exit1( _Error.UnknownBaseId1 , "Unknown base ID=" + ID , ID );
 		
-		EngineBaseItemData data = new EngineBaseItemData( item , this , node );
+		BaseItemData data = new BaseItemData( item , this , node );
 		data.load( action , xml.getDocumentElement() );
 		return( data );
 	}

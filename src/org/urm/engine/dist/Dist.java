@@ -7,6 +7,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseScriptFile;
 import org.urm.common.Common;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.engine.blotter.EngineBlotter;
 import org.urm.engine.blotter.EngineBlotterReleaseItem;
 import org.urm.engine.blotter.EngineBlotterSet;
@@ -351,7 +352,7 @@ public class Dist {
 	}
 
 	public void changeReleaseDate( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
-		VarLCTYPE type = release.getLifecycleType();
+		DBEnumLifecycleType type = release.getLifecycleType();
 		ReleaseLifecycle lcset = getLifecycle( action , meta , lc , type );
 		release.setReleaseDate( action , releaseDate , lcset );
 	}
@@ -981,10 +982,10 @@ public class Dist {
 		}
 	}
 	
-	public static ReleaseLifecycle getLifecycle( ActionBase action , Meta meta , ReleaseLifecycle lc , VarLCTYPE type ) throws Exception {
+	public static ReleaseLifecycle getLifecycle( ActionBase action , Meta meta , ReleaseLifecycle lc , DBEnumLifecycleType type ) throws Exception {
 		MetaProductCoreSettings core = meta.getProductCoreSettings( action );
 		
-		if( type == VarLCTYPE.MAJOR ) {
+		if( type == DBEnumLifecycleType.MAJOR ) {
 			String expected = core.RELEASELC_MAJOR;
 			if( expected.isEmpty() ) {
 				if( lc != null )
@@ -1002,7 +1003,7 @@ public class Dist {
 			}
 		}
 		else
-		if( type == VarLCTYPE.MINOR ) {
+		if( type == DBEnumLifecycleType.MINOR ) {
 			String expected = core.RELEASELC_MINOR;
 			if( expected.isEmpty() ) {
 				if( lc != null )
@@ -1020,7 +1021,7 @@ public class Dist {
 			}
 		}
 		else
-		if( type == VarLCTYPE.URGENT ) {
+		if( type == DBEnumLifecycleType.URGENT ) {
 			String[] expected = core.RELEASELC_URGENT_LIST;
 			if( expected.length == 0 ) {
 				if( lc != null )

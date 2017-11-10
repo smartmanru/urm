@@ -27,6 +27,8 @@ public class System extends EngineObject {
 		super( directory );
 		this.directory = directory;
 		mapProducts = new HashMap<String,Product>();
+		ID = -1;
+		CV = 0;
 	}
 
 	@Override
@@ -46,9 +48,11 @@ public class System extends EngineObject {
 	
 	public System copy( EngineDirectory nd ) {
 		System r = new System( nd );
+		r.ID = ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.OFFLINE = OFFLINE;
+		r.CV = CV;
 		
 		for( Product product : mapProducts.values() ) {
 			Product rp = product.copy( nd , r );

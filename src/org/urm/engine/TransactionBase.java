@@ -11,12 +11,12 @@ import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineAuth;
-import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
-import org.urm.meta.engine.EngineMirrorRepository;
+import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.Network;
@@ -1062,7 +1062,7 @@ public class TransactionBase extends EngineObject {
 	}
 
 	// helpers
-	public EngineAuthResource getResource( EngineAuthResource resource ) throws Exception {
+	public AuthResource getResource( AuthResource resource ) throws Exception {
 		return( resources.getResource( resource.NAME ) );
 	}
 	
@@ -1201,7 +1201,7 @@ public class TransactionBase extends EngineObject {
 		return( sourceNew.getProjectSet( action , set.NAME ) );
 	}
 
-	public EngineMirrorRepository getMirrorRepository( EngineMirrorRepository repo ) throws Exception {
+	public MirrorRepository getMirrorRepository( MirrorRepository repo ) throws Exception {
 		return( mirrors.getRepository( repo.NAME ) );
 	}
 	

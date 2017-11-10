@@ -7,14 +7,14 @@ import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.EngineMirrorRepository;
+import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.MetaProductSettings;
 
 public abstract class MirrorCase {
 
 	GenericVCS vcs;
-	EngineMirrorRepository mirror;
+	MirrorRepository mirror;
 	String BRANCH;
 	
 	public Account account;
@@ -44,7 +44,7 @@ public abstract class MirrorCase {
 		action = vcs.action;
 	}
 
-	public MirrorCase( GenericVCS vcs , EngineMirrorRepository mirror , String BRANCH ) {
+	public MirrorCase( GenericVCS vcs , MirrorRepository mirror , String BRANCH ) {
 		this.vcs = vcs;
 		this.mirror = mirror;
 		this.BRANCH = BRANCH;

@@ -8,7 +8,7 @@ import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.db.DBEnumTypes.DBEnumOSType;
-import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.EngineInfrastructure;
@@ -338,7 +338,7 @@ public class Account {
 		PORT = host.PORT;
 	}
 
-	public EngineAuthResource getResource( ActionBase action ) throws Exception {
+	public AuthResource getResource( ActionBase action ) throws Exception {
 		if( AUTHRESOURCE.isEmpty() ) {
 			String hostLogin = getHostLogin();
 			EngineInfrastructure infra = action.getServerInfrastructure();
@@ -356,7 +356,7 @@ public class Account {
 			AUTHRESOURCE = hostAccount.AUTHRES;
 		}
 		
-		EngineAuthResource res = action.getResource( AUTHRESOURCE );
+		AuthResource res = action.getResource( AUTHRESOURCE );
 		return( res );
 	}
 	

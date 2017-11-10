@@ -19,11 +19,22 @@ public class DBSystem {
 	public static void insert( DBConnection c , int CV , System system ) throws Exception {
 		system.ID = DBNames.getNameIndex( c , DBData.CORE_ID , system.NAME , DBEnumObjectType.SYSTEM );
 		system.CV = CV;
-		if( !c.update( DBQueries.UPDATE_SYSTEM_ADD5 , new String[] {
+		if( !c.update( DBQueries.MODIFY_SYSTEM_ADD5 , new String[] {
 				"" + system.ID , 
 				EngineDB.getString( system.NAME ) , 
 				EngineDB.getString( system.DESC ) ,
 				EngineDB.getBoolean( system.OFFLINE ) ,
+				"" + system.CV 
+				} ) )
+			Common.exitUnexpected();
+	}
+
+	public static void update( DBConnection c , int CV , System system ) throws Exception {
+		system.CV = CV;
+		if( !c.update( DBQueries.MODIFY_SYSTEM_UPDATE4 , new String[] {
+				"" + system.ID , 
+				EngineDB.getString( system.NAME ) , 
+				EngineDB.getString( system.DESC ) ,
 				"" + system.CV 
 				} ) )
 			Common.exitUnexpected();
@@ -50,9 +61,9 @@ public class DBSystem {
 	}
 	
 	public static void delete( DBConnection c , int CV , System system ) throws Exception {
-		if( !c.update( DBQueries.UPDATE_SYSTEM_DELETEALLPARAMS2 , new String[] { "" + system.ID , "" + system.CV } ) )
+		if( !c.update( DBQueries.MODIFY_SYSTEM_DELETEALLPARAMS2 , new String[] { "" + system.ID , "" + system.CV } ) )
 			Common.exitUnexpected();
-		if( !c.update( DBQueries.UPDATE_SYSTEM_DELETE2 , new String[] { "" + system.ID , "" + system.CV } ) )
+		if( !c.update( DBQueries.MODIFY_SYSTEM_DELETE2 , new String[] { "" + system.ID , "" + system.CV } ) )
 			Common.exitUnexpected();
 	}
 

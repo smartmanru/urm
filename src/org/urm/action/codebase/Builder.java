@@ -9,7 +9,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
-import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
@@ -109,7 +109,7 @@ public abstract class Builder {
 	}
 	
 	public String getNexusPath( ActionBase action , MetaSourceProject project ) throws Exception {
-		EngineAuthResource res = action.getResource( builder.TARGET_RESOURCE );
+		AuthResource res = action.getResource( builder.TARGET_RESOURCE );
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
 		return( res.BASEURL + "/content/repositories/" + build.CONFIG_NEXUS_REPO );
 	}

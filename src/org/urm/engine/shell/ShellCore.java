@@ -10,7 +10,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.meta.Types.*;
-import org.urm.meta.engine.EngineAuthResource;
+import org.urm.meta.engine.AuthResource;
 
 abstract public class ShellCore {
 
@@ -145,7 +145,7 @@ abstract public class ShellCore {
 		running = false;
 	}
 
-	public boolean createProcess( ActionBase action , ShellProcess process , String rootPath , EngineAuthResource auth ) throws Exception {
+	public boolean createProcess( ActionBase action , ShellProcess process , String rootPath , AuthResource auth ) throws Exception {
 		executor.startProcess( action , process , rootPath , true , auth );
 		running = true;
 		

@@ -19,7 +19,7 @@ import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
-import org.urm.meta.engine.EngineMirrorRepository;
+import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.Product;
@@ -495,7 +495,7 @@ public class EngineLoader {
 		productMeta.remove( storage.name );
 	}
 
-	public void rereadMirror( EngineMirrorRepository repo ) throws Exception {
+	public void rereadMirror( MirrorRepository repo ) throws Exception {
 		if( repo.isServer() ) 
 			reloadCore();
 		else

@@ -203,19 +203,6 @@ public class Types {
 		ZIP
 	};
 	
-	public enum VarLCTYPE {
-		UNKNOWN ,
-		MAJOR ,
-		MINOR ,
-		URGENT
-	};
-
-	public enum VarLCSTAGE {
-		UNKNOWN ,
-		RELEASE ,
-		DEPLOYMENT
-	};
-
 	public enum VarTICKETSETSTATUS {
 		UNKNOWN ,
 		NEW ,
@@ -560,42 +547,6 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDesignLinkType1 , "invalid design link type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-
-	public static VarLCTYPE getLCType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingLCType0 , "missing lifecycle type" );
-			return( VarLCTYPE.UNKNOWN );
-		}
-		
-		VarLCTYPE value = null;
-		try {
-			value = VarLCTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidLCType1 , "invalid lifecycle type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarLCSTAGE getLCStage( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingLCStage0 , "missing lifecycle stage" );
-			return( VarLCSTAGE.UNKNOWN );
-		}
-		
-		VarLCSTAGE value = null;
-		try {
-			value = VarLCSTAGE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidLCStage1 , "invalid lifecycle stage=" + ID , ID );
 		}
 		
 		return( value );

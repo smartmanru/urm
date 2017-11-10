@@ -26,14 +26,14 @@ public class EngineMirrors extends EngineObject {
 	public EngineRegistry registry;
 	public Engine engine;
 
-	Map<String,EngineMirrorRepository> repoMap;
+	Map<String,MirrorRepository> repoMap;
 
 	public EngineMirrors( EngineRegistry registry ) {
 		super( registry );
 		this.registry = registry;
 		this.engine = registry.loader.engine;
 		
-		repoMap = new HashMap<String,EngineMirrorRepository>();
+		repoMap = new HashMap<String,MirrorRepository>();
 	}
 
 	@Override
@@ -44,44 +44,44 @@ public class EngineMirrors extends EngineObject {
 	public EngineMirrors copy() throws Exception {
 		EngineMirrors r = new EngineMirrors( registry );
 		
-		for( EngineMirrorRepository repo : repoMap.values() ) {
-			EngineMirrorRepository rc = repo.copy( r );
+		for( MirrorRepository repo : repoMap.values() ) {
+			MirrorRepository rc = repo.copy( r );
 			r.addRepository( rc );
 		}
 		return( r );
 	}
 	
-	public void addRepository( EngineMirrorRepository repo ) {
+	public void addRepository( MirrorRepository repo ) {
 		repoMap.put( repo.NAME , repo );
 	}
 	
-	public Map<String,EngineMirrorRepository> getRepositories() {
+	public Map<String,MirrorRepository> getRepositories() {
 		return( repoMap );
 	}
 	
-	public EngineMirrorRepository getRepository( String name ) {
+	public MirrorRepository getRepository( String name ) {
 		return( repoMap.get( name ) );
 	}
 	
-	private EngineMirrorRepository findRepository( String name ) {
+	private MirrorRepository findRepository( String name ) {
 		return( repoMap.get( name ) );
 	}
 	
-	public EngineMirrorRepository findServerRepository() {
+	public MirrorRepository findServerRepository() {
 		return( findRepository( "core" ) );
 	}
 
-	public EngineMirrorRepository findProjectRepository( MetaSourceProject project ) {
+	public MirrorRepository findProjectRepository( MetaSourceProject project ) {
 		String name = "project-" + project.meta.name + "-" + project.NAME;
 		return( findRepository( name ) );
 	}
 	
-	public EngineMirrorRepository findProductMetaRepository( ProductMeta meta ) {
+	public MirrorRepository findProductMetaRepository( ProductMeta meta ) {
 		String name = "product-" + meta.name + "-meta";
 		return( findRepository( name ) );
 	}
 	
-	public EngineMirrorRepository findProductDataRepository( ProductMeta meta ) {
+	public MirrorRepository findProductDataRepository( ProductMeta meta ) {
 		String name = "product-" + meta.name + "-data";
 		return( findRepository( name ) );
 	}
@@ -95,14 +95,14 @@ public class EngineMirrors extends EngineObject {
 			return;
 		
 		for( Node node : list ) {
-			EngineMirrorRepository repo = new EngineMirrorRepository( this );
+			MirrorRepository repo = new MirrorRepository( this );
 			repo.load( node );
 			addRepository( repo );
 		}
 	}
 
 	public void save( Document doc , Element root ) throws Exception {
-		for( EngineMirrorRepository repo : repoMap.values() ) {
+		for( MirrorRepository repo : repoMap.values() ) {
 			Element resElement = Common.xmlCreateElement( doc , root , "repository" );
 			repo.save( doc , resElement );
 		}
@@ -125,33 +125,33 @@ public class EngineMirrors extends EngineObject {
 		productfolder.ensureExists( action );
 		
 		// meta
-		EngineMirrorRepository meta = new EngineMirrorRepository( this );
+		MirrorRepository meta = new MirrorRepository( this );
 		String name = "product-" + product.NAME + "-meta";
  		meta.createProductMeta( transaction , product , name );
  		addRepository( meta );
  		
  		// conf
-		EngineMirrorRepository conf = new EngineMirrorRepository( this );
+		MirrorRepository conf = new MirrorRepository( this );
 		name = "product-" + product.NAME + "-data";
 		conf.createProductData( transaction , product , name );
  		addRepository( conf );
 	}
 
 	public void createProjectMirror( EngineTransaction transaction , MetaSourceProject project ) throws Exception {
-		EngineMirrorRepository repo = new EngineMirrorRepository( this );
+		MirrorRepository repo = new MirrorRepository( this );
 		String name = "project-" + project.meta.name + "-" + project.NAME;
 		repo.createProjectSource( transaction , project , name );
  		addRepository( repo );
 	}
 	
 	public void deleteProductResources( EngineTransaction transaction , Product product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-		List<EngineMirrorRepository> repos = new LinkedList<EngineMirrorRepository>();
-		for( EngineMirrorRepository repo : repoMap.values() ) {
+		List<MirrorRepository> repos = new LinkedList<MirrorRepository>();
+		for( MirrorRepository repo : repoMap.values() ) {
 			if( repo.PRODUCT.equals( product.NAME ) )
 				repos.add( repo );
 		}
 		
-		for( EngineMirrorRepository repo : repos ) {
+		for( MirrorRepository repo : repos ) {
 			repo.dropMirror( transaction , vcsDeleteFlag );
 			repoMap.remove( repo.NAME );
 		}
@@ -163,20 +163,20 @@ public class EngineMirrors extends EngineObject {
 	}
 	
 	public void deleteProjectMirror( EngineTransaction transaction , MetaSourceProject project ) throws Exception {
-		EngineMirrorRepository repoOld = findProjectRepository( project );
+		MirrorRepository repoOld = findProjectRepository( project );
 		if( repoOld != null ) {
 			repoOld.dropMirror( transaction , false );
 			repoMap.remove( repoOld.NAME );
 		}
 	}
 
-	public void dropResourceMirrors( EngineTransaction transaction , EngineAuthResource res ) throws Exception {
+	public void dropResourceMirrors( EngineTransaction transaction , AuthResource res ) throws Exception {
 		ActionBase action = transaction.getAction();
 		GenericVCS vcs = GenericVCS.getVCS( action , null , res.NAME );
 		MirrorCase mc = vcs.getMirror( null );
 		mc.removeResourceFolder();
 
-		for( EngineMirrorRepository repo : repoMap.values() ) {
+		for( MirrorRepository repo : repoMap.values() ) {
 			if( repo.RESOURCE.equals( res.NAME ) )
 				repo.clearMirror( transaction );
 		}

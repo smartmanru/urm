@@ -3,9 +3,8 @@ package org.urm.meta.engine;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.meta.EngineObject;
-import org.urm.meta.Types;
-import org.urm.meta.Types.VarLCSTAGE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -16,7 +15,7 @@ public class ReleaseLifecyclePhase extends EngineObject {
 	
 	public String ID;
 	public String DESC;
-	public VarLCSTAGE stage;
+	public DBEnumLifecycleStageType stage;
 	public int pos;
 	private int days;
 	
@@ -33,7 +32,7 @@ public class ReleaseLifecyclePhase extends EngineObject {
 	public void load( Node root ) throws Exception {
 		ID = ConfReader.getAttrValue( root , "id" );
 		DESC = ConfReader.getAttrValue( root , "desc" );
-		stage = Types.getLCStage( ConfReader.getAttrValue( root , "stage" ) , true );
+		stage = DBEnumLifecycleStageType.getValue( ConfReader.getAttrValue( root , "stage" ) , true );
 		pos = ConfReader.getIntegerAttrValue( root , "pos" , 0 );
 		days = ConfReader.getIntegerAttrValue( root , "days" , 0 );
 	}
@@ -56,7 +55,7 @@ public class ReleaseLifecyclePhase extends EngineObject {
 		return( r );
 	}
 
-	public void create( ActionBase action , String name , String desc , VarLCSTAGE stage , int pos , int days ) throws Exception {
+	public void create( ActionBase action , String name , String desc , DBEnumLifecycleStageType stage , int pos , int days ) throws Exception {
 		this.ID = name;
 		this.DESC = desc;
 		this.stage = stage;
@@ -65,13 +64,13 @@ public class ReleaseLifecyclePhase extends EngineObject {
 	}
 	
 	public boolean isRelease() {
-		if( stage == VarLCSTAGE.RELEASE )
+		if( stage == DBEnumLifecycleStageType.RELEASE )
 			return( true );
 		return( false );
 	}
 
 	public boolean isDeploy() {
-		if( stage == VarLCSTAGE.DEPLOYMENT )
+		if( stage == DBEnumLifecycleStageType.DEPLOYMENT )
 			return( true );
 		return( false );
 	}

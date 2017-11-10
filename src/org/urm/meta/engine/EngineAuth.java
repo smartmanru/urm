@@ -60,16 +60,16 @@ public class EngineAuth extends EngineObject {
 	
 	public static String MASTER_ADMIN = "admin";
 	
-	Map<String,EngineAuthUser> localUsers;
-	Map<String,EngineAuthGroup> groups;
-	EngineAuthLdap ldapSettings;
+	Map<String,AuthUser> localUsers;
+	Map<String,AuthGroup> groups;
+	AuthLdap ldapSettings;
 	
 	public EngineAuth( Engine engine ) {
 		super( null );
 		this.engine = engine;
-		localUsers = new HashMap<String,EngineAuthUser>();
-		groups = new HashMap<String,EngineAuthGroup>();
-		ldapSettings = new EngineAuthLdap( this ); 
+		localUsers = new HashMap<String,AuthUser>();
+		groups = new HashMap<String,AuthGroup>();
+		ldapSettings = new AuthLdap( this ); 
 	}
 	
 	@Override
@@ -95,7 +95,7 @@ public class EngineAuth extends EngineObject {
 		
 		File authUserFile = new File( authPath );
 		if( !authUserFile.isFile() ) {
-			EngineAuthContext ac = new EngineAuthContext( this );
+			AuthContext ac = new AuthContext( this );
 			ac.createInitialAdministrator();
 			saveAuthData( authKey , ac );
 		}
@@ -137,13 +137,13 @@ public class EngineAuth extends EngineObject {
 			return;
 		
 		for( Node node : list ) {
-			EngineAuthUser user = new EngineAuthUser( this );
+			AuthUser user = new AuthUser( this );
 			user.loadLocalUser( node );
 			addLocalUser( user );
 		}
 	}
 
-	private void addLocalUser( EngineAuthUser user ) {
+	private void addLocalUser( AuthUser user ) {
 		localUsers.put( user.NAME , user );
 	}
 	
@@ -158,13 +158,13 @@ public class EngineAuth extends EngineObject {
 			return;
 		
 		for( Node node : list ) {
-			EngineAuthGroup group = new EngineAuthGroup( this );
+			AuthGroup group = new AuthGroup( this );
 			group.loadGroup( node );
 			addGroup( group );
 		}
 	}
 
-	private void addGroup( EngineAuthGroup group ) {
+	private void addGroup( AuthGroup group ) {
 		groups.put( group.NAME , group );
 	}
 	
@@ -179,14 +179,14 @@ public class EngineAuth extends EngineObject {
 		
 		Element usersElement = Common.xmlCreateElement( doc , root , "localusers" );
 		for( String id : Common.getSortedKeys( localUsers ) ) {
-			EngineAuthUser user = localUsers.get( id );
+			AuthUser user = localUsers.get( id );
 			Element node = Common.xmlCreateElement( doc , usersElement , "user" );
 			user.save( doc , node );
 		}
 		
 		Element groupsElement = Common.xmlCreateElement( doc , root , "groups" );
 		for( String id : Common.getSortedKeys( groups ) ) {
-			EngineAuthGroup user = groups.get( id );
+			AuthGroup user = groups.get( id );
 			Element node = Common.xmlCreateElement( doc , groupsElement , "group" );
 			user.save( doc , node );
 		}
@@ -214,7 +214,7 @@ public class EngineAuth extends EngineObject {
 		return( group + "-" + name );
 	}
 	
-	public EngineAuthContext loadAuthData( String authKey ) throws Exception {
+	public AuthContext loadAuthData( String authKey ) throws Exception {
 		PropertySet props = new PropertySet( "authfile" , null );
 		String filePath = getAuthFile( authKey );
 		
@@ -223,22 +223,22 @@ public class EngineAuth extends EngineObject {
 			props.loadFromPropertyFile( filePath , engine.execrc , false );
 		props.finishRawProperties();
 		
-		EngineAuthContext ac = new EngineAuthContext( this );
+		AuthContext ac = new AuthContext( this );
 		ac.load( props );
 		return( ac );
 	}
 
-	public void saveAuthData( String authKey , EngineAuthContext ac ) throws Exception {
+	public void saveAuthData( String authKey , AuthContext ac ) throws Exception {
 		String filePath = getAuthFile( authKey );
 		ac.properties.saveToPropertyFile( filePath , engine.execrc , false , "auth file" );
 	}
 
 	public EngineSession connect( String username , String password , RunContext clientrc ) throws Exception {
-		EngineAuthUser user = getUser( username );
+		AuthUser user = getUser( username );
 		if( user == null )
 			return( null );
 		
-		EngineAuthContext ac = null;
+		AuthContext ac = null;
 		
 		if( user.local ) {
 			String authKey = getAuthKey( AUTH_GROUP_USER , username );
@@ -268,7 +268,7 @@ public class EngineAuth extends EngineObject {
 	}
 
 	public SessionSecurity createUserSecurity( String username ) throws Exception {
-		EngineAuthUser user = getUser( username );
+		AuthUser user = getUser( username );
 		if( user == null )
 			return( null );
 
@@ -299,20 +299,20 @@ public class EngineAuth extends EngineObject {
 		}
 	}
 
-	public EngineAuthUser getLocalUserData( String username ) {
+	public AuthUser getLocalUserData( String username ) {
 		return( localUsers.get( username ) );
 	}
 	
-	public EngineAuthLdap getLdapSettings() {
+	public AuthLdap getLdapSettings() {
 		return( ldapSettings );
 	}
 	
-	public void setLdapData( ActionBase action , EngineAuthLdap ldap ) throws Exception {
+	public void setLdapData( ActionBase action , AuthLdap ldap ) throws Exception {
 		ldapSettings = ldap;
 		save( action );
 	}
 	
-	public EngineAuthUser getLdapUserData( String username ) {
+	public AuthUser getLdapUserData( String username ) {
 		ActionBase action = engine.serverAction;
 		if( action == null )
 			return( null );
@@ -326,27 +326,27 @@ public class EngineAuth extends EngineObject {
 		return( null );
 	}
 
-	public EngineAuthUser getUser( String username ) throws Exception {
-		EngineAuthUser user = getLocalUserData( username );
+	public AuthUser getUser( String username ) throws Exception {
+		AuthUser user = getLocalUserData( username );
 		if( user == null )
 			user = getLdapUserData( username );
 		return( user );
 	}
 
-	public EngineAuthGroup createGroup( ActionBase action , String name ) throws Exception {
-		EngineAuthGroup group = new EngineAuthGroup( this );
+	public AuthGroup createGroup( ActionBase action , String name ) throws Exception {
+		AuthGroup group = new AuthGroup( this );
 		group.create( action , name );
 		addGroup( group );
 		return( group );
 	}
 
-	public void renameGroup( ActionBase action , EngineAuthGroup group , String name ) throws Exception {
+	public void renameGroup( ActionBase action , AuthGroup group , String name ) throws Exception {
 		groups.remove( group.NAME );
 		group.rename( action , name );
 		addGroup( group );
 	}
 
-	public void deleteGroup( ActionBase action , EngineAuthGroup group ) throws Exception {
+	public void deleteGroup( ActionBase action , AuthGroup group ) throws Exception {
 		groups.remove( group.NAME );
 		for( String user : group.getUsers( null ) )
 			engine.updatePermissions( action , user );
@@ -356,44 +356,44 @@ public class EngineAuth extends EngineObject {
 		return( Common.getSortedKeys( groups ) );
 	}
 
-	public EngineAuthGroup getGroup( String groupName ) {
+	public AuthGroup getGroup( String groupName ) {
 		return( groups.get( groupName ) );
 	}
 
-	public EngineAuthUser createLocalUser( ActionBase action , String name , String email , String full , boolean admin ) throws Exception {
-		EngineAuthUser user = new EngineAuthUser( this );
+	public AuthUser createLocalUser( ActionBase action , String name , String email , String full , boolean admin ) throws Exception {
+		AuthUser user = new AuthUser( this );
 		user.create( action , true , name , email , full , admin );
 		addLocalUser( user );
 		return( user );
 	}
 	
-	public void setUserData( ActionBase action , EngineAuthUser user , String email , String full , boolean admin ) throws Exception {
+	public void setUserData( ActionBase action , AuthUser user , String email , String full , boolean admin ) throws Exception {
 		user.setData( action , email , full , admin );
 	}
 
-	public void deleteUser( ActionBase action , EngineAuthUser user ) throws Exception {
+	public void deleteUser( ActionBase action , AuthUser user ) throws Exception {
 		localUsers.remove( user.NAME );
-		for( EngineAuthGroup group : groups.values() )
+		for( AuthGroup group : groups.values() )
 			group.deleteUser( action , user );
 		engine.updatePermissions( action , user.NAME );
 	}
 
-	public void setUserPassword( ActionBase action , EngineAuthUser user , String password ) throws Exception {
+	public void setUserPassword( ActionBase action , AuthUser user , String password ) throws Exception {
 		// create initial admin user
 		String authKey = getAuthKey( AUTH_GROUP_USER , user.NAME );
-		EngineAuthContext ac = loadAuthData( authKey );
+		AuthContext ac = loadAuthData( authKey );
 		ac.setUserPassword( password );
 		ac.createProperties();
 		saveAuthData( authKey , ac );
 	}
 
-	public EngineAuthGroup[] getUserGroups( EngineAuthUser user ) {
-		List<EngineAuthGroup> list = new LinkedList<EngineAuthGroup>();
-		for( EngineAuthGroup group : groups.values() ) {
+	public AuthGroup[] getUserGroups( AuthUser user ) {
+		List<AuthGroup> list = new LinkedList<AuthGroup>();
+		for( AuthGroup group : groups.values() ) {
 			if( group.hasUser( user ) )
 				list.add( group );
 		}
-		return( list.toArray( new EngineAuthGroup[0] ) );
+		return( list.toArray( new AuthGroup[0] ) );
 	}
 
 	public boolean checkAccessServerAction( ActionBase action , SecurityAction sa , boolean readOnly ) {
@@ -407,7 +407,7 @@ public class EngineAuth extends EngineObject {
 		if( sa == SecurityAction.ACTION_SECURED || sa == SecurityAction.ACTION_ADMIN )
 			return( false );
 
-		EngineAuthRoleSet roles = security.getBaseRoles();
+		AuthRoleSet roles = security.getBaseRoles();
 		
 		if( sa == SecurityAction.ACTION_MONITOR || sa == SecurityAction.ACTION_EXECUTE ) {
 			if( roles.isAny() )
@@ -478,7 +478,7 @@ public class EngineAuth extends EngineObject {
 		if( security.isAdmin() )
 			return( true );
 		
-		EngineAuthRoleSet roles = security.getProductRoles( productName );
+		AuthRoleSet roles = security.getProductRoles( productName );
 		VarENVTYPE envtype = ( env == null )? VarENVTYPE.UNKNOWN : env.envType;
 		
 		if( sa == SecurityAction.ACTION_SECURED ) {
@@ -578,7 +578,7 @@ public class EngineAuth extends EngineObject {
 		if( security.isAdmin() )
 			return( true );
 		
-		EngineAuthRoleSet roles = security.getNetworkRoles( networkName );
+		AuthRoleSet roles = security.getNetworkRoles( networkName );
 		if( configure ) {
 			if( roles.secInfra )
 				return( true );
@@ -604,15 +604,15 @@ public class EngineAuth extends EngineObject {
 		return( security.checkSpecial( sr ) );
 	}
 	
-	public void addGroupUsers( ActionBase action , EngineAuthGroup group , SourceType source , EngineAuthUser[] users ) throws Exception {
-		for( EngineAuthUser user : users ) {
+	public void addGroupUsers( ActionBase action , AuthGroup group , SourceType source , AuthUser[] users ) throws Exception {
+		for( AuthUser user : users ) {
 			group.addUser( action , source , user );
 			engine.updatePermissions( action , user.NAME );
 		}
 		save( action );
 	}
 	
-	public void removeGroupUsers( ActionBase action , EngineAuthGroup group , String[] users ) throws Exception {
+	public void removeGroupUsers( ActionBase action , AuthGroup group , String[] users ) throws Exception {
 		for( String user : users ) {
 			group.removeUser( action , user );
 			engine.updatePermissions( action , user );
@@ -620,7 +620,7 @@ public class EngineAuth extends EngineObject {
 		save( action );
 	}
 
-	public void setGroupPermissions( ActionBase action , EngineAuthGroup group , EngineAuthRoleSet roles , boolean allProd , String[] products , boolean allNet , String[] networks , SpecialRights[] special) throws Exception {
+	public void setGroupPermissions( ActionBase action , AuthGroup group , AuthRoleSet roles , boolean allProd , String[] products , boolean allNet , String[] networks , SpecialRights[] special) throws Exception {
 		group.setGroupPermissions( action , roles , allProd , products , allNet , networks , special );
 		for( String user : group.getUsers( null ) )
 			engine.updatePermissions( action , user );
@@ -630,7 +630,7 @@ public class EngineAuth extends EngineObject {
 	public synchronized void deleteProduct( EngineTransaction transaction , Product product ) throws Exception {
 		ActionBase action = transaction.getAction();
 		boolean authChanged = false;
-		for( EngineAuthGroup group : groups.values() ) {
+		for( AuthGroup group : groups.values() ) {
 			if( group.hasProduct( product.NAME ) ) {
 				authChanged = true;
 				group.removeProduct( action , product.NAME );
@@ -653,7 +653,7 @@ public class EngineAuth extends EngineObject {
 	public synchronized void deleteNetwork( EngineTransaction transaction , Network network ) throws Exception {
 		ActionBase action = transaction.getAction();
 		boolean authChanged = false;
-		for( EngineAuthGroup group : groups.values() ) {
+		for( AuthGroup group : groups.values() ) {
 			if( group.hasNetwork( network.ID ) ) {
 				authChanged = true;
 				group.removeNetwork( action , network.ID );
@@ -668,14 +668,14 @@ public class EngineAuth extends EngineObject {
 
 	public boolean checkLogin( String username , String password ) {
 		try {
-			EngineAuthUser user = getUser( username );
+			AuthUser user = getUser( username );
 			if( user == null ) {
 				engine.trace( "unsuccessful login: unknown user=" + username );
 				return( false );
 			}
 			
 			String authKey = getAuthKey( AUTH_GROUP_USER , username );
-			EngineAuthContext ac = loadAuthData( authKey );
+			AuthContext ac = loadAuthData( authKey );
 			if( !ac.PUBLICKEY.isEmpty() ) {
 		        String checkMessage = ClientAuth.getCheckMessage( username );
 				if( ClientAuth.verifySigned( checkMessage , password , ac.PUBLICKEY ) ) {
@@ -708,9 +708,9 @@ public class EngineAuth extends EngineObject {
 		return( false );
 	}
 
-	public EngineAuthResource getResource( String name ) throws Exception {
+	public AuthResource getResource( String name ) throws Exception {
 		EngineResources resources = engine.getResources();
-		EngineAuthResource res = resources.getResource( name );
+		AuthResource res = resources.getResource( name );
 		return( res );
 	}
 	
