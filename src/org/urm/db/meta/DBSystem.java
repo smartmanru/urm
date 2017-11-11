@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.DBData;
 import org.urm.db.DBEnumTypes.DBEnumObjectType;
@@ -12,10 +13,44 @@ import org.urm.db.DBNames;
 import org.urm.db.DBQueries;
 import org.urm.engine.EngineDB;
 import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.Product;
 import org.urm.meta.engine.System;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class DBSystem {
 
+	public static System load( EngineDirectory directory , Node node ) throws Exception {
+		System system = new System( directory ); 
+		system.NAME = ConfReader.getAttrValue( node , "name" );
+		system.DESC = ConfReader.getAttrValue( node , "desc" );
+		system.OFFLINE = ConfReader.getBooleanAttrValue( node , "offline" , true );
+		
+		Node[] items = ConfReader.xmlGetChildren( node , "product" );
+		if( items == null )
+			return( system );
+		
+		for( Node itemNode : items ) {
+			Product item = new Product( directory , system );
+			item.load( itemNode );
+			system.addProduct( item );
+		}
+		return( system );
+	}
+	
+	public static void save( System system , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "name" , system.NAME );
+		Common.xmlSetElementAttr( doc , root , "desc" , system.DESC );
+		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( system.OFFLINE ) );
+		
+		for( String productName : system.getProductNames() ) {
+			Product product = system.findProduct( productName );
+			Element elementProduct = Common.xmlCreateElement( doc , root , "product" );
+			product.save( doc , elementProduct );
+		}
+	}
+	
 	public static void insert( DBConnection c , int CV , System system ) throws Exception {
 		system.ID = DBNames.getNameIndex( c , DBData.CORE_ID , system.NAME , DBEnumObjectType.SYSTEM );
 		system.CV = CV;

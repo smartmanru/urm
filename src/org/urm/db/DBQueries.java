@@ -40,6 +40,7 @@ public abstract class DBQueries {
 
 	public static String MODIFY_APP_DROP_SYSTEMPARAM0 = "delete from urm_system_param";
 	public static String MODIFY_APP_DROP_PRODUCT0 = "delete from urm_product";
+	public static String MODIFY_APP_DROP_SYSTEMMETA0 = "delete from urm_system_meta";
 	public static String MODIFY_APP_DROP_SYSTEM0 = "delete from urm_system";
 
 	public static String MODIFY_CORE_DROP_RESOURCE0 = "delete from urm_resource";

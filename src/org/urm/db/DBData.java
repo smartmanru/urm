@@ -77,6 +77,7 @@ public abstract class DBData {
 		boolean res = true;
 		res = ( res )? c.update( DBQueries.MODIFY_APP_DROP_SYSTEMPARAM0 ) : false;
 		res = ( res )? c.update( DBQueries.MODIFY_APP_DROP_PRODUCT0 ) : false;
+		res = ( res )? c.update( DBQueries.MODIFY_APP_DROP_SYSTEMMETA0 ) : false;
 		res = ( res )? c.update( DBQueries.MODIFY_APP_DROP_SYSTEM0 ) : false;
 		if( !res )
 			Common.exitUnexpected();

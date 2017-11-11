@@ -25,14 +25,14 @@ public class PropertySet {
 	public PropertySet parent;
 	
 	private Map<String,PropertyValue> data;
-	private boolean failed;
+	private boolean resolved;
 	
 	public PropertySet( String set , PropertySet parent ) {
 		this.set = set;
 		this.parent = parent;
 		
 		data = new HashMap<String,PropertyValue>();
-		failed = false;
+		resolved = true;
 	}
 
 	public int count() {
@@ -45,7 +45,7 @@ public class PropertySet {
 			PropertyValue rv = new PropertyValue( value );
 			r.setProperty( rv );
 		}
-		r.failed = failed;
+		r.resolved = resolved;
 		return( r );
 	}
 	
@@ -58,7 +58,7 @@ public class PropertySet {
 			PropertyValue rv = new PropertyValue( value );
 			r.setProperty( rv );
 		}
-		r.failed = failed;
+		r.resolved = resolved;
 		return( r );
 	}
 	
@@ -168,6 +168,7 @@ public class PropertySet {
 	}
 	
 	public void removeProperty( String prop ) {
+		resolved = false;
 		data.remove( getKeyByProperty( prop ) );
 	}
 
@@ -194,6 +195,7 @@ public class PropertySet {
 	}
 	
 	private void copyPropertiesToRaw( PropertySet set , boolean withoutManual ) throws Exception {
+		resolved = false;
 		for( PropertyValue p : set.data.values() ) {
 			if( withoutManual && p.isManual() )
 				continue;
@@ -208,6 +210,7 @@ public class PropertySet {
 	}
 
 	public void copyCustomPropertiesToRaw( PropertySet set ) throws Exception {
+		resolved = false;
 		for( PropertyValue p : set.data.values() ) {
 			if( p.isCustom() )
 				createOriginalAndRawProperty( p.property , p.getOriginalValue() , true , p.getType() , p.desc );
@@ -215,11 +218,13 @@ public class PropertySet {
 	}
 
 	public void copyOriginalPropertiesToRaw() throws Exception {
+		resolved = false;
 		for( PropertyValue p : data.values() )
 			p.setFinalFromOriginalValue();
 	}
 
 	public void copyRunningPropertiesToRunning( PropertySet src ) throws Exception {
+		resolved = false;
 		for( PropertyValue p : src.data.values() ) {
 			if( !p.isResolved() )
 				continue;
@@ -240,6 +245,7 @@ public class PropertySet {
 
 	public boolean resolveRawProperties( boolean allowUnresolved ) throws Exception {
 		// resolve properties
+		resolved = false;
 		int unresolved = 0;
 		while( true ) {
 			int unresolvedCheck = 0;
@@ -254,8 +260,10 @@ public class PropertySet {
 					unresolvedCheck++;
 			}
 			
-			if( unresolvedCheck == 0 )
+			if( unresolvedCheck == 0 ) {
+				resolved = true;
 				return( true );
+			}
 			
 			if( unresolvedCheck == unresolved )
 				return( false );
@@ -265,6 +273,7 @@ public class PropertySet {
 	}
 
 	public void recalculateProperties() throws Exception {
+		resolved = false;
 		for( PropertyValue pv : data.values() )
 			pv.setFinalFromOriginalValue();
 		resolveRawProperties( true );
@@ -793,6 +802,7 @@ public class PropertySet {
 	}
 	
 	private void updateOriginalProperty( String prop , String value ) throws Exception {
+		resolved = false;
 		PropertyValue pv = getPropertyValue( prop );
 		if( pv == null ) {
 			pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , this , null );
@@ -814,6 +824,7 @@ public class PropertySet {
 	}
 	
 	private PropertyValue setProperty( PropertyValue pv ) {
+		resolved = false;
 		PropertyValue pvc = getPropertyValue( pv.property );
 		if( pvc != null ) {
 			pvc.setValue( pv );
@@ -865,6 +876,7 @@ public class PropertySet {
 	}
 	
 	public void createOriginalAndRawProperty( String prop , String value , boolean custom , DBEnumParamValueType type , String desc ) throws Exception {
+		resolved = false;
 		PropertyValueOrigin origin = ( custom )? PropertyValueOrigin.PROPERTY_CUSTOM : PropertyValueOrigin.PROPERTY_ORIGINAL;
 		PropertyValue pv = new PropertyValue( prop , origin , this , desc );
 		pv.setType( type );
@@ -1084,6 +1096,7 @@ public class PropertySet {
 	}
 
 	public void removeUserProperties() throws Exception {
+		resolved = false;
 		List<PropertyValue> items = new LinkedList<PropertyValue>();
 		for( PropertyValue pv : data.values() ) {
 			if( pv.isCustom() )
@@ -1100,6 +1113,7 @@ public class PropertySet {
 		
 		if( !pv.isCustom() )
 			Common.exit2( _Error.NotCustomProperty2 , "set=" + set + ": not a custom property=" + prop , set , prop );
+		resolved = false;
 		data.remove( getKeyByProperty( pv.property ) );
 	}
 
@@ -1112,6 +1126,7 @@ public class PropertySet {
 		if( pvNew != null && pvNew != pv )
 			Common.exit2( _Error.DuplicateProperty2 , "set=" + set + ": duplicate property=" + newName , set , newName );
 		
+		resolved = false;
 		data.remove( getKeyByProperty( prop ) );
 		pv.setName( newName );
 		data.put( getKeyByProperty( newName ) , pv );

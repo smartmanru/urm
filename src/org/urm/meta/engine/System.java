@@ -5,17 +5,12 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class System extends EngineObject {
 
 	public EngineDirectory directory;
-	public Map<String,Product> mapProducts;
+	private Map<String,Product> mapProducts;
 	
 	public int ID;
 	public String NAME;
@@ -36,13 +31,13 @@ public class System extends EngineObject {
 		return( NAME );
 	}
 	
-	public void createSystem( EngineTransaction transaction , String name , String desc ) {
+	public void createSystem( String name , String desc ) {
 		this.NAME = name;
 		this.DESC = desc;
 		this.OFFLINE = true;
 	}
 	
-	public void setOffline( EngineTransaction transaction , boolean OFFLINE ) {
+	public void setOffline( boolean OFFLINE ) {
 		this.OFFLINE = OFFLINE;
 	}
 	
@@ -61,22 +56,6 @@ public class System extends EngineObject {
 		return( r );
 	}
 	
-	public void load( Node node ) throws Exception {
-		NAME = ConfReader.getAttrValue( node , "name" );
-		DESC = ConfReader.getAttrValue( node , "desc" );
-		OFFLINE = ConfReader.getBooleanAttrValue( node , "offline" , true );
-		
-		Node[] items = ConfReader.xmlGetChildren( node , "product" );
-		if( items == null )
-			return;
-		
-		for( Node itemNode : items ) {
-			Product item = new Product( directory , this );
-			item.load( itemNode );
-			mapProducts.put( item.NAME , item );
-		}
-	}
-	
 	public String[] getProductNames() {
 		return( Common.getSortedKeys( mapProducts ) );
 	}
@@ -89,16 +68,16 @@ public class System extends EngineObject {
 		return( mapProducts.get( key ) );
 	}
 
-	public void modifySystem( EngineTransaction transaction , String name , String desc ) throws Exception {
+	public void modifySystem( String name , String desc ) throws Exception {
 		NAME = name;
 		DESC = desc;
 	}
 
-	public void addProduct( EngineTransaction transaction , Product product ) throws Exception {
+	public void addProduct( Product product ) throws Exception {
 		mapProducts.put( product.NAME , product );
 	}
 	
-	public void removeProduct( EngineTransaction transaction , Product product ) throws Exception {
+	public void removeProduct( Product product ) throws Exception {
 		mapProducts.remove( product.NAME );
 	}
 
@@ -114,16 +93,4 @@ public class System extends EngineObject {
 		return( false );
 	}
 
-	public void save( Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "name" , NAME );
-		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
-		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( OFFLINE ) );
-		
-		for( String productName : getProductNames() ) {
-			Product product = findProduct( productName );
-			Element elementProduct = Common.xmlCreateElement( doc , root , "product" );
-			product.save( doc , elementProduct );
-		}
-	}
-	
 }

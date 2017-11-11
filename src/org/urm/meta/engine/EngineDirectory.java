@@ -51,8 +51,7 @@ public class EngineDirectory extends EngineObject {
 				return;
 			
 			for( Node itemNode : items ) {
-				System item = new System( this );
-				item.load( itemNode );
+				System item = DBSystem.load( this , itemNode );
 				DBSystem.insert( c , registry.loader.SV , item );
 				mapSystems.put( item.NAME , item );
 			}
@@ -76,7 +75,7 @@ public class EngineDirectory extends EngineObject {
 			System rs = system.copy( r );
 			r.mapSystems.put( rs.NAME , rs );
 			
-			for( Product rp : rs.mapProducts.values() )
+			for( Product rp : rs.getProducts() )
 				r.mapProducts.put( rp.NAME , rp );
 		}
 
@@ -122,7 +121,7 @@ public class EngineDirectory extends EngineObject {
 		// directory 
 		for( System system : mapSystems.values() ) {
 			Element elementSystem = Common.xmlCreateElement( doc , root , "system" );
-			system.save( doc , elementSystem );
+			DBSystem.save( system , doc , elementSystem );
 		}
 	}
 
@@ -169,7 +168,7 @@ public class EngineDirectory extends EngineObject {
 			transaction.exit( _Error.DuplicateProduct1 , "product=" + product.NAME + " is not unique" , new String[] { product.NAME } );
 		
 		mapProducts.put( product.NAME , product );
-		product.system.addProduct( transaction , product );
+		product.system.addProduct( product );
 	}
 	
 	public void deleteProduct( EngineTransaction transaction , Product product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
@@ -177,7 +176,7 @@ public class EngineDirectory extends EngineObject {
 			transaction.exit( _Error.UnknownProduct1 , "product=" + product.NAME + " is unknown or mismatched" , new String[] { product.NAME } );
 		
 		mapProducts.remove( product.NAME );
-		product.system.removeProduct( transaction , product );
+		product.system.removeProduct( product );
 		
 		ActionBase action = transaction.getAction();
 		UrmStorage storage = action.artefactory.getUrmStorage();
