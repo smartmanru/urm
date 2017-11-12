@@ -7,7 +7,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
-import org.urm.db.core.DBEnumTypes.DBEnumObjectType;
+import org.urm.db.DBEnumTypes.DBEnumObjectType;
 import org.urm.engine.EngineDB;
 
 public abstract class DBNames {

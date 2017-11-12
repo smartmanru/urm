@@ -1,4 +1,4 @@
-package org.urm.db.core;
+package org.urm.db;
 
 import java.sql.ResultSet;
 import java.util.HashMap;
@@ -6,10 +6,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.db.DBConnection;
-import org.urm.db.DBEnumInterface;
-import org.urm.db.DBQueries;
-import org.urm.db._Error;
+import org.urm.db.core.DBNames;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineDB;
 

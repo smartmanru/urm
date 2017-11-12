@@ -10,7 +10,7 @@ import org.urm.common.RunContext;
 import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
-import org.urm.db.core.DBEnumTypes.*;
+import org.urm.db.DBEnumTypes.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

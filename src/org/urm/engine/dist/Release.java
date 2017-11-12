@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.db.core.DBEnumTypes.*;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.meta.Types;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;

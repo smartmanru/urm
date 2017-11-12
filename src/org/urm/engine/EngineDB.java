@@ -9,7 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
-import org.urm.db.core.DBEnumTypes;
+import org.urm.db.DBEnumTypes;
 import org.urm.db.core.DBNames;
 import org.urm.meta.EngineLoader;
 

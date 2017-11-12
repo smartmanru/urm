@@ -5,7 +5,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnumTypes.*;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;

@@ -14,7 +14,7 @@ import org.urm.client.ClientAuth;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
-import org.urm.db.core.DBEnumTypes.*;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
 import org.urm.engine.EngineTransaction;

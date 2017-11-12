@@ -3,7 +3,7 @@ package org.urm.engine;
 import java.util.List;
 
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.db.core.DBEnumTypes.*;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.ScheduleProperties;

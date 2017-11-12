@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.db.core.DBEnumTypes.*;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineObject;

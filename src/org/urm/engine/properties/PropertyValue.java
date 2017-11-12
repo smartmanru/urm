@@ -3,7 +3,7 @@ package org.urm.engine.properties;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common._Error;
-import org.urm.db.core.DBEnumTypes.*;
+import org.urm.db.DBEnumTypes.*;
 import org.urm.engine.shell.ShellExecutor;
 
 public class PropertyValue {
