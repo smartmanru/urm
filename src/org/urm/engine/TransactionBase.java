@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.urm.common.RunError;
 import org.urm.db.DBConnection;
-import org.urm.db.DBData;
+import org.urm.db.core.DBCoreData;
 import org.urm.engine.action.ActionInit;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
@@ -421,9 +421,9 @@ public class TransactionBase extends EngineObject {
 			return;
 		
 		SERVERVERSIONUPDATE = true;
-		CV = DBData.getCurrentEngineVersion( connection ) + 1;
+		CV = DBCoreData.getCurrentCoreVersion( connection ) + 1;
 		CV = CV + 1;
-		DBData.setNextEngineVersion( connection , CV );
+		DBCoreData.setNextCoreVersion( connection , CV );
 	}
 	
 	public boolean changeInfrastructure( EngineInfrastructure sourceInfrastructure , Network network ) {

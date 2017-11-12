@@ -8,11 +8,11 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.db.core.DBEnumTypes.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.PropertyController;
 import org.urm.meta.ProductMeta;
-import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -99,15 +99,15 @@ public class MetaSource extends PropertyController {
 		setMap.put( projectset.NAME , projectset );
 	}
 	
-	public MetaSourceProject[] getBuildProjects( ActionBase action , VarBUILDMODE buildMode ) {
+	public MetaSourceProject[] getBuildProjects( ActionBase action , DBEnumBuildModeType buildMode ) {
 		List<MetaSourceProject> all = getAllProjectList( action , true );
 		List<MetaSourceProject> list = new LinkedList<MetaSourceProject>(); 
 		for( MetaSourceProject project : all ) {
-			if( buildMode == VarBUILDMODE.BRANCH ) {
+			if( buildMode == DBEnumBuildModeType.BRANCH ) {
 				if( project.codebaseProd )
 					list.add( project );
 			}
-			else if( buildMode == VarBUILDMODE.MAJORBRANCH ) {
+			else if( buildMode == DBEnumBuildModeType.MAJORBRANCH ) {
 				if( project.codebaseProd )
 					list.add( project );
 			}

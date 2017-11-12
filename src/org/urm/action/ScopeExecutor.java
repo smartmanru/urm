@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.db.core.DBEnumTypes.*;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
@@ -153,7 +154,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( runSimple() );
 	}
 	
-	public boolean runProductBuild( String productName , SecurityAction sa , VarBUILDMODE mode , boolean readOnly ) {
+	public boolean runProductBuild( String productName , SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
 		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , productName , mode , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", build operation)" );

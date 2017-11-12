@@ -207,19 +207,8 @@ public class ProductMeta extends EngineObject {
 			return( product );
 		
 		PropertySet execprops = null;
-		if( action.isStandalone() ) {
-			execprops = new PropertySet( "execrc" , null );
-			try {
-				loader.getExecProperties( execprops );
-			}
-			catch( Throwable e ) {
-				action.handle( e );
-			}
-		}
-		else {
-			EngineSettings settings = action.getServerSettings();
-			execprops = settings.serverContext.execprops;
-		}
+		EngineSettings settings = action.getServerSettings();
+		execprops = settings.getExecProperties();
 		
 		product = new MetaProductSettings( this , meta , execprops );
 
@@ -454,7 +443,7 @@ public class ProductMeta extends EngineObject {
 	}
 	
 	private void createInitialProduct( TransactionBase transaction , EngineSettings settings ) throws Exception {
-		product = new MetaProductSettings( this , meta , settings.serverContext.execprops );
+		product = new MetaProductSettings( this , meta , settings.getExecProperties() );
 		
 		ProductContext productContext = new ProductContext( meta );
 		productContext.create( transaction.action , version );

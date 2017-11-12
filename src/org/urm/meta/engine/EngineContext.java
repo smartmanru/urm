@@ -1,18 +1,12 @@
 package org.urm.meta.engine;
 
-import org.urm.common.Common;
 import org.urm.common.RunContext;
-import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.PropertySet;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class EngineContext {
 
 	public EngineSettings settings;
 	public RunContext execrc;
-	public PropertySet execprops;
 	public PropertySet properties;
 
 	// properties
@@ -86,41 +80,18 @@ public class EngineContext {
 	public static String PROPERTY_CHAT_JABBER_CONFERENCESERVER = "chat.jabber.conferenceserver";
 	public static String PROPERTY_CHAT_ROCKET_RESOURCE = "chat.rocket.resource";
 	
-	private EngineContext() {
-	}
-	
-	public EngineContext( EngineSettings settings ) {
-		this.settings = settings;
-		this.execrc = null;
-		
-		execprops = new PropertySet( "execrc" , null );
-		properties = new PropertySet( "engine" , execprops );
+	public EngineContext( RunContext execrc , PropertySet properties ) {
+		this.execrc = execrc;
+		this.properties = properties;
 	}
 
-	public EngineContext copy() throws Exception {
-		EngineContext r = new EngineContext();
-		r.settings = settings;
-		r.execrc = execrc;
-		r.execprops = execprops.copy( null );
-		r.properties = properties.copy( r.execprops );
-		r.scatterSystemProperties();
+	public EngineContext copy( PropertySet properties ) throws Exception {
+		EngineContext r = new EngineContext( execrc , properties );
+		r.scatterProperties();
 		return( r );
 	}
 	
-	public void load( Node root , RunContext execrc ) throws Exception {
-		this.execrc = execrc;
-
-		getExecProperties( execprops );
-		properties.loadFromNodeElements( root , false );
-		scatterSystemProperties();
-		properties.finishRawProperties();
-	}
-
-	public void save( Document doc , Element root ) throws Exception {
-		properties.saveAsElements( doc , root , false );
-	}
-	
-	private void scatterSystemProperties() throws Exception {
+	public void scatterProperties() throws Exception {
 		CONNECTION_JMX_PORT = properties.getSystemIntProperty( PROPERTY_CONNECTION_JMX_PORT , 6000 , true );
 		CONNECTION_JMXWEB_PORT = properties.getSystemIntProperty( PROPERTY_CONNECTION_JMXWEB_PORT , 6001 , true );
 
@@ -155,28 +126,4 @@ public class EngineContext {
 		CHAT_ROCKET_RESOURCE = properties.getSystemStringProperty( PROPERTY_CHAT_ROCKET_RESOURCE , "" , false );
 	}
 
-	public void setServerProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
-		properties.updateProperties( props , true );
-	}
-
-	public void resolveServerProperties( EngineTransaction transaction ) throws Exception {
-		properties.resolveRawProperties();
-		scatterSystemProperties();
-	}
-	
-	public void getExecProperties( PropertySet set ) throws Exception {
-		RunContext rc = execrc;
-		set.setStringProperty( RunContext.PROPERTY_OS_TYPE , Common.getEnumLower( rc.osType ) );
-		set.setPathProperty( RunContext.PROPERTY_INSTALL_PATH , rc.installPath , null );
-		set.setPathProperty( RunContext.PROPERTY_WORK_PATH , rc.workPath , null );
-		set.setPathProperty( RunContext.PROPERTY_USER_HOME , rc.userHome , null );
-		set.setPathProperty( RunContext.PROPERTY_AUTH_PATH , rc.authPath , null );
-		set.setStringProperty( RunContext.PROPERTY_HOSTNAME , rc.hostName );
-		set.setPathProperty( RunContext.PROPERTY_SERVER_CONFPATH , rc.installPath + "/etc" , null );
-		set.setPathProperty( RunContext.PROPERTY_SERVER_MASTERPATH , rc.installPath + "/master" , null );
-		set.setPathProperty( RunContext.PROPERTY_SERVER_PRODUCTSPATH , rc.installPath + "/products" , null );
-		
-		set.resolveRawProperties();
-	}
-	
 }

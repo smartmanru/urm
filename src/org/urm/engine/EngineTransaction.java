@@ -3,7 +3,7 @@ package org.urm.engine;
 import java.util.List;
 
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.db.DBEnumTypes.*;
+import org.urm.db.core.DBEnumTypes.*;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.ScheduleProperties;
@@ -220,7 +220,7 @@ public class EngineTransaction extends TransactionBase {
 		settings.setProductBuildCommonDefaultsProperties( this , props );
 	}
 	
-	public void setServerProductBuildModeDefaultsProperties( VarBUILDMODE mode , PropertySet props ) throws Exception {
+	public void setServerProductBuildModeDefaultsProperties( DBEnumBuildModeType mode , PropertySet props ) throws Exception {
 		checkTransactionSettings();
 		settings.setProductBuildModeDefaultsProperties( this , mode , props );
 	}
@@ -237,7 +237,7 @@ public class EngineTransaction extends TransactionBase {
 		settings.setBuildCommonProperties( this , props );
 	}
 	
-	public void setProductBuildModeProperties( Meta meta , VarBUILDMODE mode , PropertySet props ) throws Exception {
+	public void setProductBuildModeProperties( Meta meta , DBEnumBuildModeType mode , PropertySet props ) throws Exception {
 		ProductMeta metadata = getTransactionMetadata( meta );
 		MetaProductSettings settings = metadata.getProductSettings();
 		settings.setBuildModeProperties( this , mode , props );

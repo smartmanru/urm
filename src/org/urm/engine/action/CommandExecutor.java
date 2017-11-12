@@ -11,6 +11,7 @@ import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
+import org.urm.db.core.DBEnumTypes.*;
 import org.urm.engine.Engine;
 import org.urm.engine.status.ScopeState;
 import org.urm.meta.EngineLoader;
@@ -106,10 +107,10 @@ public abstract class CommandExecutor {
 		return( CATEGORY );
 	}
 	
-	public VarBUILDMODE getRequiredBuildModeArg( ActionBase action , int pos ) throws Exception {
+	public DBEnumBuildModeType getRequiredBuildModeArg( ActionBase action , int pos ) throws Exception {
 		String value = getRequiredArg( action , pos , "BUILDMODE" );
-		VarBUILDMODE BUILDMODE = null;
-		for( VarBUILDMODE x : VarBUILDMODE.values() ) {
+		DBEnumBuildModeType BUILDMODE = null;
+		for( DBEnumBuildModeType x : DBEnumBuildModeType.values() ) {
 			if( value.equals( Common.getEnumLower( x ) ) ) {
 				BUILDMODE = x;
 				break;

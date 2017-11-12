@@ -14,6 +14,7 @@ import org.urm.client.ClientAuth;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
+import org.urm.db.core.DBEnumTypes.*;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
 import org.urm.engine.EngineTransaction;
@@ -439,7 +440,7 @@ public class EngineAuth extends EngineObject {
 		return( checkAccessProductAction( action , sa , meta.name , readOnly ) );
 	}
 	
-	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , VarBUILDMODE mode , boolean readOnly ) {
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , DBEnumBuildModeType mode , boolean readOnly ) {
 		return( checkAccessProductAction( action , sa , meta.name , null , mode , readOnly ) );
 	}
 	
@@ -461,7 +462,7 @@ public class EngineAuth extends EngineObject {
 		return( false );
 	}
 	
-	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , VarBUILDMODE mode , boolean readOnly ) {
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , DBEnumBuildModeType mode , boolean readOnly ) {
 		return( checkAccessProductAction( action , sa , productName , null , mode , readOnly ) );
 	}
 	
@@ -473,7 +474,7 @@ public class EngineAuth extends EngineObject {
 		return( checkAccessProductAction( action , sa , env.meta.name , env , null , readOnly ) );
 	}
 	
-	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , MetaEnv env , VarBUILDMODE mode , boolean readOnly ) {
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , MetaEnv env , DBEnumBuildModeType mode , boolean readOnly ) {
 		SessionSecurity security = action.actionInit.session.getSecurity();
 		if( security.isAdmin() )
 			return( true );
@@ -529,9 +530,9 @@ public class EngineAuth extends EngineObject {
 					return( true );
 			}
 			else {
-				if( roles.secDev && ( mode == VarBUILDMODE.DEVTRUNK || mode == VarBUILDMODE.DEVBRANCH ) )
+				if( roles.secDev && ( mode == DBEnumBuildModeType.DEVTRUNK || mode == DBEnumBuildModeType.DEVBRANCH ) )
 					return( true );
-				if( roles.secRel && ( mode == null || mode == VarBUILDMODE.UNKNOWN || mode == VarBUILDMODE.TRUNK || mode == VarBUILDMODE.BRANCH || mode == VarBUILDMODE.MAJORBRANCH ) )
+				if( roles.secRel && ( mode == null || mode == DBEnumBuildModeType.UNKNOWN || mode == DBEnumBuildModeType.TRUNK || mode == DBEnumBuildModeType.BRANCH || mode == DBEnumBuildModeType.MAJORBRANCH ) )
 					return( true );
 			}
 			return( false );

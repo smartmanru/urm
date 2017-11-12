@@ -13,7 +13,6 @@ public class _Error {
 	public static final int NoProductID = ErrorBase + 18;
 	public static final int InvalidDistributiveItemSource1 = ErrorBase + 14;
 	public static final int MissingDistributiveItemSource0 = ErrorBase + 15;
-	public static final int InvalidBuildMode1 = ErrorBase + 16;
 	public static final int InvalidDbmsType1 = ErrorBase + 17;
 	public static final int MissingDbmsType0 = ErrorBase + 18;
 	public static final int InvalidConfItemType1 = ErrorBase + 19;
@@ -41,7 +40,6 @@ public class _Error {
 	public static final int MissingServerAccessType0 = ErrorBase + 75;
 	public static final int MissingServerRunType0 = ErrorBase + 76;
 	public static final int MissingDistItemSource0 = ErrorBase + 77;
-	public static final int MissingBuildMode0 = ErrorBase + 78;
 	public static final int MissingDeployItemType0 = ErrorBase + 79;
 	public static final int InvalidDeployItemType1 = ErrorBase + 80;
 	public static final int MissingEnvType0 = ErrorBase + 85;

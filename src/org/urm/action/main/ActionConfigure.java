@@ -17,6 +17,7 @@ import org.urm.common.meta.CodebaseCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
 import org.urm.common.meta.MainCommandMeta;
+import org.urm.db.core.DBEnumTypes.*;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
@@ -26,7 +27,6 @@ import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.Types.*;
 
 public class ActionConfigure extends ActionBase {
 
@@ -319,8 +319,8 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		if( executor.name.equals( CodebaseCommandMeta.NAME ) ) {
-			for( VarBUILDMODE mode : VarBUILDMODE.values() ) {
-				if( mode == VarBUILDMODE.UNKNOWN )
+			for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
+				if( mode == DBEnumBuildModeType.UNKNOWN )
 					continue;
 				
 				configureBuildMode( meta , exeFolder , executor , mode , linux );
@@ -389,7 +389,7 @@ public class ActionConfigure extends ActionBase {
 		}
 	}
 	
-	private void configureBuildMode( Meta meta , LocalFolder ef , CommandMeta executor , VarBUILDMODE mode , boolean linux ) throws Exception {
+	private void configureBuildMode( Meta meta , LocalFolder ef , CommandMeta executor , DBEnumBuildModeType mode , boolean linux ) throws Exception {
 		LocalFolder efBuild = ef.getSubFolder( this , Common.getEnumLower( mode ) );
 		efBuild.ensureExists( this );
 		configureExecutorContextBuildMode( meta , efBuild , mode , linux );
@@ -453,7 +453,7 @@ public class ActionConfigure extends ActionBase {
 		saveExecutorContext( ef , linux , lines );
 	}
 	
-	private void configureExecutorContextBuildMode( Meta meta , LocalFolder ef , VarBUILDMODE mode , boolean linux ) throws Exception {
+	private void configureExecutorContextBuildMode( Meta meta , LocalFolder ef , DBEnumBuildModeType mode , boolean linux ) throws Exception {
 		List<String> lines = new LinkedList<String>();
 		addExecutorContextBase( meta , ef , linux , lines );
 		addExecutorContextItem( ef , linux , lines , "C_URM_VERSIONMODE" , Common.getEnumLower( mode ) );

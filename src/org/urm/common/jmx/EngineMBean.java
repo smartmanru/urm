@@ -48,7 +48,7 @@ public class EngineMBean implements DynamicMBean {
 		if( port <= 0 ) {
 			EngineLoader loader = engine.getLoader( action );
 			EngineSettings settings = loader.getServerSettings();
-			port = settings.serverContext.CONNECTION_JMX_PORT;
+			port = settings.context.CONNECTION_JMX_PORT;
 			if( port <= 0 )
 				port = RemoteCall.DEFAULT_SERVER_PORT;
 		}

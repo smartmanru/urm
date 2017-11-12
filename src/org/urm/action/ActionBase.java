@@ -10,6 +10,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.RunError;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.common.action.CommandOptions;
+import org.urm.db.core.DBEnumTypes.*;
 import org.urm.engine.EngineCache;
 import org.urm.engine.EngineCacheObject;
 import org.urm.engine.EngineSession;
@@ -319,12 +320,12 @@ abstract public class ActionBase extends ActionCore {
 		return( executor.runSimpleProduct( productName , sa , readOnly ) );
 	}
 
-	public boolean runProductBuild( ScopeState parentState , String productName , SecurityAction sa , VarBUILDMODE mode , boolean readOnly ) {
+	public boolean runProductBuild( ScopeState parentState , String productName , SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
 		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runProductBuild( productName , sa , mode , readOnly ) );
 	}
 	
-	public boolean runProductBuildAsync( ScopeState parentState , String productName , SecurityAction sa , VarBUILDMODE mode , boolean readOnly ) {
+	public boolean runProductBuildAsync( ScopeState parentState , String productName , SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
 		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runProductBuild( productName , sa , mode , readOnly ) );
 	}
@@ -509,8 +510,8 @@ abstract public class ActionBase extends ActionCore {
 			checkRequired( ( String )null , var );
 	}
 	
-	public void checkRequired( VarBUILDMODE value , String name ) throws Exception {
-		if( value == null || value == VarBUILDMODE.UNKNOWN )
+	public void checkRequired( DBEnumBuildModeType value , String name ) throws Exception {
+		if( value == null || value == DBEnumBuildModeType.UNKNOWN )
 			checkRequired( ( String )null , name );
 	}
 	
@@ -530,8 +531,8 @@ abstract public class ActionBase extends ActionCore {
 		info( "run: " + log );
 	}
 
-	public void setBuildMode( VarBUILDMODE value ) throws Exception {
-		if( value == VarBUILDMODE.UNKNOWN )
+	public void setBuildMode( DBEnumBuildModeType value ) throws Exception {
+		if( value == DBEnumBuildModeType.UNKNOWN )
 			super.exit0( _Error.MissingBuildMode0 , "Missing build mode" );
 		context.setBuildMode( value );
 	}

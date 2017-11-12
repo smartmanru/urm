@@ -94,15 +94,6 @@ public class Types {
 		CUSTOM
 	};
 	
-	public enum VarBUILDMODE {
-		UNKNOWN ,
-		BRANCH ,
-		MAJORBRANCH ,
-		TRUNK ,
-		DEVBRANCH ,
-		DEVTRUNK
-	};
-	
 	public enum VarSERVERRUNTYPE {
 		UNKNOWN ,
 		DATABASE ,
@@ -437,24 +428,6 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDeployItemType1 , "invalid deploy item type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarBUILDMODE getBuildMode( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingBuildMode0 , "missing build mode" );
-			return( VarBUILDMODE.UNKNOWN );
-		}
-		
-		VarBUILDMODE value = null;
-		try {
-			value = VarBUILDMODE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidBuildMode1 , "invalid build mode=" + ID , ID );
 		}
 		
 		return( value );

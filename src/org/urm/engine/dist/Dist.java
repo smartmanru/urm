@@ -7,7 +7,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseScriptFile;
 import org.urm.common.Common;
-import org.urm.db.DBEnumTypes.*;
+import org.urm.db.core.DBEnumTypes.*;
 import org.urm.engine.blotter.EngineBlotter;
 import org.urm.engine.blotter.EngineBlotterReleaseItem;
 import org.urm.engine.blotter.EngineBlotterSet;

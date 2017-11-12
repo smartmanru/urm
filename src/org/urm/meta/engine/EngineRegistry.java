@@ -5,6 +5,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
+import org.urm.engine.Engine;
 import org.urm.engine.TransactionBase;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
@@ -15,6 +16,8 @@ import org.w3c.dom.Node;
 public class EngineRegistry extends EngineObject {
 
 	public EngineLoader loader;
+	public Engine engine;
+	public RunContext execrc;
 	
 	public EngineMirrors mirrors;
 	public EngineResources resources;
@@ -24,6 +27,8 @@ public class EngineRegistry extends EngineObject {
 	public EngineRegistry( EngineLoader loader ) {
 		super( null );
 		this.loader = loader;
+		this.engine = loader.engine;
+		this.execrc = engine.execrc;
 		mirrors = new EngineMirrors( this ); 
 		resources = new EngineResources( this );
 		directory = new EngineDirectory( this );
@@ -35,7 +40,7 @@ public class EngineRegistry extends EngineObject {
 		return( "server-registry" );
 	}
 	
-	public void load( String propertyFile , RunContext execrc , DBConnection c , boolean savedb ) throws Exception {
+	public void load( String propertyFile , DBConnection c , boolean savedb ) throws Exception {
 		Document doc = ConfReader.readXmlFile( execrc , propertyFile );
 		Node root = doc.getDocumentElement();
 		

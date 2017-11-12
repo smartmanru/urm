@@ -10,7 +10,7 @@ import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
-import org.urm.db.DBEnumTypes.*;
+import org.urm.db.core.DBEnumTypes.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.blotter.EngineBlotterSet;
 import org.urm.engine.blotter.EngineBlotter.BlotterType;

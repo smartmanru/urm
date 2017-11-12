@@ -57,7 +57,7 @@ public abstract class MirrorCase {
 		String mirrorPath;
 		if( vcs.meta == null ) {
 			EngineSettings settings = action.getServerSettings();
-			mirrorPath = settings.serverContext.WORK_MIRRORPATH;
+			mirrorPath = settings.context.WORK_MIRRORPATH;
 		}
 		else {
 			MetaProductSettings product = vcs.meta.getProductSettings( action );

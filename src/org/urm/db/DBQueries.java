@@ -6,7 +6,7 @@ public abstract class DBQueries {
 	public static String QUERY_SEQ_GETNEXTVAL0 = "select nextval( 'urm_object_seq' )";
 
 	public static String QUERY_VERSIONS_GETVERSION1 = "select version from urm_object_version where id = @1@";
-	public static String MODIFY_VERSIONS_MERGEVERSION2 = "insert into urm_object_version ( id , version ) values( @1@ , @2@ ) on conflict (id) do update set version = excluded.version";
+	public static String MODIFY_VERSIONS_MERGEVERSION3 = "insert into urm_object_version ( id , version , object_version_type ) values( @1@ , @2@ , @3@ ) on conflict (id) do update set version = excluded.version , object_version_type = excluded.object_version_type";
 	
 	public static String QUERY_NAMES_GETALL0 = "select parent , name , id from urm_object_name";
 	public static String MODIFY_NAMES_DROPPARENT1 = "delete from urm_object_name where parent = @1@";

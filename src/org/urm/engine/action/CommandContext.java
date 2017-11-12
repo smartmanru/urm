@@ -10,6 +10,7 @@ import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.common.action.CommandOption.FLAG;
+import org.urm.db.core.DBEnumTypes.*;
 import org.urm.engine.EngineCall;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
@@ -18,8 +19,6 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.Types;
-import org.urm.meta.Types.*;
 
 public class CommandContext {
 
@@ -80,7 +79,7 @@ public class CommandContext {
 	
 	public Account account;
 	public String userHome;
-	public VarBUILDMODE buildMode = VarBUILDMODE.UNKNOWN;
+	public DBEnumBuildModeType buildMode = DBEnumBuildModeType.UNKNOWN;
 
 	// generic settings
 	public boolean CTX_TRACEINTERNAL;
@@ -146,7 +145,7 @@ public class CommandContext {
 	public String CTX_BUILDINFO = "";
 	public String CTX_HOSTUSER = "";
 	public String CTX_NEWKEY = "";
-	public VarBUILDMODE CTX_BUILDMODE = VarBUILDMODE.UNKNOWN;
+	public DBEnumBuildModeType CTX_BUILDMODE = DBEnumBuildModeType.UNKNOWN;
 	public String CTX_OLDRELEASE = "";
 	public String CTX_HOST = "";
 	public int CTX_PORT = -1;
@@ -381,7 +380,7 @@ public class CommandContext {
 		CTX_BUILDINFO = getParamValue( "OPT_BUILDINFO" );
 		CTX_HOSTUSER = getParamValue( "OPT_HOSTUSER" );
 		CTX_NEWKEY = getParamValue( "OPT_NEWKEY" );
-		CTX_BUILDMODE = Types.getBuildMode( getParamValue( "OPT_BUILDMODE" ) , false );
+		CTX_BUILDMODE = DBEnumBuildModeType.getValue( getParamValue( "OPT_BUILDMODE" ) , false );
 		CTX_OLDRELEASE = getParamValue( "OPT_COMPATIBILITY" );
 		CTX_PORT = getIntParamValue( "OPT_PORT" , -1 );
 		CTX_HOST = getParamValue( "OPT_HOST" );
@@ -435,7 +434,7 @@ public class CommandContext {
 		VarOSTYPE osType = ( session.execrc.isWindows() )? VarOSTYPE.WINDOWS : VarOSTYPE.LINUX;
 		this.account = Account.getLocalAccount( session.execrc.userName , session.execrc.hostName , osType );
 		this.userHome = session.execrc.userHome;
-		this.buildMode = ( session.clientrc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( session.clientrc.buildMode );
+		this.buildMode = ( session.clientrc.buildMode.isEmpty() )? DBEnumBuildModeType.UNKNOWN : DBEnumBuildModeType.valueOf( session.clientrc.buildMode );
 		
 		return( true );
 	}
@@ -444,7 +443,7 @@ public class CommandContext {
 		String contextInfo = "";
 		if( !session.productName.isEmpty() )
 			contextInfo = "product=" + session.productName;
-		if( buildMode != VarBUILDMODE.UNKNOWN )
+		if( buildMode != DBEnumBuildModeType.UNKNOWN )
 			contextInfo += ", buildMode=" + getBuildModeName();
 		if( !session.ENV.isEmpty() )
 			contextInfo += ", env=" + session.ENV;
@@ -453,8 +452,8 @@ public class CommandContext {
 		return( contextInfo );
 	}
 	
-	public void setBuildMode( VarBUILDMODE value ) throws Exception {
-		if( buildMode != VarBUILDMODE.UNKNOWN && buildMode != value ) {
+	public void setBuildMode( DBEnumBuildModeType value ) throws Exception {
+		if( buildMode != DBEnumBuildModeType.UNKNOWN && buildMode != value ) {
 			String name = getBuildModeName();
 			Common.exit1( _Error.ReleaseWrongBuildMode1 , "release is defined for " + name + " build mode, please use appropriate context" , name );
 		}

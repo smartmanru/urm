@@ -1,9 +1,12 @@
 package org.urm.engine.properties;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-import org.urm.action.ActionBase;
+import org.urm.common.RunContext;
+import org.urm.common.RunError;
 import org.urm.common._Error;
 import org.urm.common.action.CommandOption.FLAG;
 import org.urm.engine.EngineTransaction;
@@ -16,26 +19,33 @@ import org.w3c.dom.Node;
 public class ObjectProperties {
 
 	private String setName;
+	private ObjectProperties parent;
+	private RunContext execrc;
 	
 	private boolean loadFailed;
 	private boolean loadFinished;
 	private PropertySet properties;
+	private Map<String,String> loadErrors;
+	private RunError error;
 
-	private ObjectProperties parent;
 	private List<ObjectProperties> childs;
 	
-	public ObjectProperties( ObjectProperties parent , String name ) {
+	public ObjectProperties( String name , RunContext execrc ) {
 		this.setName = name;
+		this.execrc = execrc;
 		
 		loadFailed = false;
 		loadFinished = false;
 		childs = new LinkedList<ObjectProperties>();
-		
-		this.parent = parent;
-		if( parent != null )
-			parent.childs.add( this );
+		loadErrors = new HashMap<String,String>(); 
 	}
 
+	public ObjectProperties copy( ObjectProperties parent ) {
+		ObjectProperties r = new ObjectProperties( setName , execrc );
+		r.properties = r.properties.copy( parent.properties );
+		return( r );
+	}
+	
 	public PropertySet getProperties() {
 		return( properties );
 	}
@@ -43,8 +53,21 @@ public class ObjectProperties {
 	public ObjectProperties getParent() {
 		return( parent );
 	}
+
+	public void create( ObjectProperties parent ) throws Exception {
+		initCreateStarted( parent );
+		initFinished();
+	}
 	
-	protected boolean initCopyStarted( ObjectProperties src , PropertySet parent ) {
+	public void load( Node root , ObjectProperties parent ) throws Exception {
+		initCreateStarted( parent );
+		if( root != null )
+			loadFromNodeElements( root , false );
+		initFinished();
+		resolveRawProperties();
+	}
+	
+	boolean initCopyStarted( ObjectProperties src , PropertySet parent ) {
 		loadFailed = false;
 		loadFinished = false;
 		
@@ -54,13 +77,18 @@ public class ObjectProperties {
 		return( true );
 	}
 	
-	protected boolean initCreateStarted( PropertySet parent ) {
+	public boolean initCreateStarted( ObjectProperties parent ) {
 		loadFailed = false;
 		loadFinished = false;
 		
-		properties = new PropertySet( setName , parent );
+		PropertySet set = ( parent != null )? parent.properties : null;
+		properties = new PropertySet( setName , set );
 		
 		return( true );
+	}
+
+	public RunError getError() {
+		return( error );
 	}
 	
 	public boolean isLoadFailed() {
@@ -71,95 +99,94 @@ public class ObjectProperties {
 		return( loadFinished );
 	}
 	
-	protected void initFinished() {
+	public void initFinished() {
 		loadFinished = true;
 	}
 
-	protected void setLoadFailed( ActionBase action , String msg ) {
+	public void setLoadFailed( String property , String msg ) {
 		loadFailed = true;
-		action.fail0( _Error.PropertyLoadFailed0 , msg );
-		action.error( msg );
+		loadErrors.put( property , msg );
 	}
 	
-	protected String getPathProperty( ActionBase action , String prop ) throws Exception {
-		return( properties.getSystemPathProperty( prop , action.execrc , "" , false ) );
+	public String getPathProperty( String prop ) throws Exception {
+		return( properties.getSystemPathProperty( prop , execrc , "" , false ) );
 	}
 	
-	protected String getPathProperty( ActionBase action , String prop , String defaultValue ) throws Exception {
-		return( properties.getSystemPathProperty( prop , action.execrc , defaultValue , false ) );
+	public String getPathProperty( String prop , String defaultValue ) throws Exception {
+		return( properties.getSystemPathProperty( prop , execrc , defaultValue , false ) );
 	}
 	
-	protected String getPathPropertyRequired( ActionBase action , String prop ) throws Exception {
-		String value = properties.getSystemPathProperty( prop , action.execrc , "" , true );
+	public String getPathPropertyRequired( String prop ) throws Exception {
+		String value = properties.getSystemPathProperty( prop , execrc , "" , true );
 		if( value.isEmpty() )
-			setLoadFailed( action , "set=" + properties.set + ", property is not set: " + prop );
+			setLoadFailed( prop , "set=" + properties.set + ", property is not set: " + prop );
 		return( value );
 	}
 	
-	protected int getIntProperty( ActionBase action , String prop , int defaultValue ) throws Exception {
+	public int getIntProperty( String prop , int defaultValue ) throws Exception {
 		return( properties.getSystemIntProperty( prop , defaultValue , false ) );
 	}
 	
-	protected int getIntPropertyRequired( ActionBase action , String prop ) throws Exception {
+	public int getIntPropertyRequired( String prop ) throws Exception {
 		int value = properties.getSystemIntProperty( prop , 0 , true );
 		String sv = properties.getPropertyAny( prop );
 		if( sv == null || sv.isEmpty() )
-			setLoadFailed( action , "set=" + properties.set + ", property is not set: " + prop );
+			setLoadFailed( prop , "set=" + properties.set + ", property is not set: " + prop );
 		return( value );
 	}
 	
-	protected boolean getBooleanProperty( ActionBase action , String prop ) throws Exception {
-		return( getBooleanProperty( action , prop , false ) );
+	public boolean getBooleanProperty( String prop ) throws Exception {
+		return( getBooleanProperty( prop , false ) );
 	}
 	
-	protected boolean getBooleanProperty( ActionBase action , String prop , boolean defaultValue ) throws Exception {
+	public boolean getBooleanProperty( String prop , boolean defaultValue ) throws Exception {
 		return( properties.getSystemBooleanProperty( prop , defaultValue , false ) );
 	}
 	
-	protected FLAG getOptionProperty( ActionBase action , String prop ) throws Exception {
+	public FLAG getOptionProperty( String prop ) throws Exception {
 		return( properties.getSystemOptionProperty( prop , false ) );
 	}
 	
-	protected FLAG getOptionProperty( ActionBase action , String prop , Boolean defaultValue ) throws Exception {
+	public FLAG getOptionProperty( String prop , Boolean defaultValue ) throws Exception {
 		return( properties.getSystemOptionProperty( prop , defaultValue , false ) );
 	}
 	
-	protected String getStringProperty( ActionBase action , String prop ) throws Exception {
+	public String getStringProperty( String prop ) throws Exception {
 		return( properties.getSystemStringProperty( prop ) );
 	}
 	
-	protected String getUrlProperty( ActionBase action , String prop ) throws Exception {
+	public String getUrlProperty( String prop ) throws Exception {
 		return( properties.getSystemStringProperty( prop ) );
 	}
 	
-	public String getStringProperty( ActionBase action , String prop , String defaultValue ) throws Exception {
+	public String getStringProperty( String prop , String defaultValue ) throws Exception {
 		String value = properties.getSystemStringProperty( prop , defaultValue , false );
 		return( value );
 	}
 	
-	public String getStringPropertyRequired( ActionBase action , String prop ) throws Exception {
-		return( getStringPropertyRequired( action , prop , "" ) );
+	public String getStringPropertyRequired( String prop ) throws Exception {
+		return( getStringPropertyRequired( prop , "" ) );
 	}
 	
-	public String getStringPropertyRequired( ActionBase action , String prop , String defaultValue ) throws Exception {
+	public String getStringPropertyRequired( String prop , String defaultValue ) throws Exception {
 		String value = properties.getSystemStringProperty( prop , defaultValue , true );
 		if( value.isEmpty() )
-			setLoadFailed( action , "set=" + properties.set + ", property is not set: " + prop );
+			setLoadFailed( prop , "set=" + properties.set + ", property is not set: " + prop );
 		return( value );
 	}
 	
-	protected String getStringExprProperty( ActionBase action , String prop , String defaultExpr ) throws Exception {
+	public String getStringExprProperty( String prop , String defaultExpr ) throws Exception {
 		String value = properties.getSystemStringExprProperty( prop , defaultExpr , false );
 		if( value.isEmpty() )
-			setLoadFailed( action , "set=" + properties.set + ", property is not set: " + prop );
+			setLoadFailed( prop , "set=" + properties.set + ", property is not set: " + prop );
 		return( value );
 	}
 
-	protected String getVarExpr( String var ) {
+	public String getVarExpr( String var ) {
 		return( "@" + var + "@" );
 	}
 	
-	protected void finishProperties( ActionBase action ) throws Exception {
+	public void finishProperties() throws Exception {
 		properties.resolveRawProperties( true );
 		if( properties.isCorrect() ) {
 			properties.finishRawProperties();
@@ -168,46 +195,46 @@ public class ObjectProperties {
 		else {
 			for( PropertyValue p : properties.getAllProperties() ) {
 				if( !p.isCorrect() )
-					setLoadFailed( action , "set=" + properties.set + ", property is not correct: " + p.property );
+					setLoadFailed( p.property , "set=" + properties.set + ", property is not correct: " + p.property );
 			}
 			loadFailed = true;
 		}
 	}
 
-	protected void finishRawProperties() throws Exception {
+	public void finishRawProperties() throws Exception {
 		properties.finishRawProperties();
 		if( properties.isCorrect() )
 			loadFailed = false;
 	}
 	
-	protected void resolveRawProperties() throws Exception {
-		properties.resolveRawProperties();
+	public void resolveRawProperties() throws Exception {
+		properties.resolveRawProperties( true );
 		if( properties.isCorrect() )
 			loadFailed = false;
 	}
 	
-	protected void updateProperties( PropertySet props ) throws Exception {
+	public void updateProperties( PropertySet props ) throws Exception {
 		properties.updateProperties( props , true );
 		if( properties.isCorrect() )
 			loadFailed = false;
 	}
 	
-	protected void recalculateProperties() throws Exception {
+	public void recalculateProperties() throws Exception {
 		properties.recalculateProperties();
 		if( properties.isCorrect() )
 			loadFailed = false;
 	}
 	
-	protected void copyOriginalPropertiesToRaw( PropertySet src ) throws Exception {
+	public void copyOriginalPropertiesToRaw( PropertySet src ) throws Exception {
 		properties.copyOriginalPropertiesToRaw( src );
 	}
 	
-	protected void updateProperties( ActionBase action ) throws Exception {
+	public void updateProperties() throws Exception {
 		recalculateProperties();
-		finishProperties( action );
+		finishProperties();
 	}
 	
-	protected void updateProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
+	public void updateProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		if( !system )
 			properties.removeUserProperties();
 		properties.updateProperties( props , system );
@@ -281,31 +308,31 @@ public class ObjectProperties {
 		return( properties.getRunningProperties() );
 	}
 
-	public String getPropertyValue( ActionBase action , String var ) throws Exception {
+	public String getPropertyValue( String var ) throws Exception {
 		return( properties.getPropertyAny( var ) );
 	}
 
-	protected void loadFromNodeAttributes( ActionBase action , Node root , boolean custom ) {
+	public void loadFromNodeAttributes( Node root , boolean custom ) {
 		try {
 			properties.loadFromNodeAttributes( root , custom );
 		}
 		catch( Throwable e ) {
-			action.log( "loadFromNodeAttributes" , e );
 			loadFailed = true;
+			error = new RunError( e , _Error.UnexpectedState0 , "load from attributes" , null );
 		}
 	}
 
-	protected void loadFromNodeElements( ActionBase action , Node root , boolean custom ) {
+	public void loadFromNodeElements( Node root , boolean custom ) {
 		try {
 			properties.loadFromNodeElements( root , custom );
 		}
 		catch( Throwable e ) {
-			action.log( "loadFromNodeElements" , e );
 			loadFailed = true;
+			error = new RunError( e , _Error.UnexpectedState0 , "load from elements" , null );
 		}
 	}
 
-	protected void saveAsElements( Document doc , Element root , boolean custom ) throws Exception {
+	public void saveAsElements( Document doc , Element root , boolean custom ) throws Exception {
 		properties.saveAsElements( doc , root , custom );
 	}
 
@@ -317,14 +344,14 @@ public class ObjectProperties {
 		return( properties.getFinalProperty( name , account , allowParent , allowUnresolved ) );		
 	}
 
-	public void recalculateChildProperties( ActionBase action ) throws Exception {
+	public void recalculateChildProperties() throws Exception {
 		for( ObjectProperties child : childs )
-			child.parentPropertiesModified( action );
+			child.parentPropertiesModified();
 	}
 	
-	public void parentPropertiesModified( ActionBase action ) throws Exception {
+	public void parentPropertiesModified() throws Exception {
 		recalculateProperties();
-		recalculateChildProperties( action );
+		recalculateChildProperties();
 	}
 
 }

@@ -7,10 +7,10 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
-import org.urm.db.DBData;
-import org.urm.db.DBEnumTypes.DBEnumObjectType;
-import org.urm.db.DBNames;
-import org.urm.db.meta.DBSystem;
+import org.urm.db.core.DBCoreData;
+import org.urm.db.core.DBNames;
+import org.urm.db.core.DBSystem;
+import org.urm.db.core.DBEnumTypes.DBEnumObjectType;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.LocalFolder;
@@ -52,7 +52,7 @@ public class EngineDirectory extends EngineObject {
 			
 			for( Node itemNode : items ) {
 				System item = DBSystem.load( this , itemNode );
-				DBSystem.insert( c , registry.loader.SV , item );
+				DBSystem.insert( c , registry.loader.CV , item );
 				mapSystems.put( item.NAME , item );
 			}
 		}
@@ -134,7 +134,7 @@ public class EngineDirectory extends EngineObject {
 
 	public void modifySystem( EngineTransaction t , System system ) throws Exception {
 		if( Common.changeMapKey( mapSystems , system , system.NAME ) )
-			DBNames.updateName( t.connection , DBData.CORE_ID , system.NAME , system.ID , DBEnumObjectType.SYSTEM );
+			DBNames.updateName( t.connection , DBCoreData.CORE_ID , system.NAME , system.ID , DBEnumObjectType.SYSTEM );
 		DBSystem.update( t.connection , t.CV , system );
 	}
 	

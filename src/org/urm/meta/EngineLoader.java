@@ -6,7 +6,8 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
-import org.urm.db.DBData;
+import org.urm.db.core.DBCoreData;
+import org.urm.db.system.DBSystemData;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineDB;
 import org.urm.engine.EngineSession;
@@ -51,7 +52,7 @@ public class EngineLoader {
 	private ProductMeta offline;
 	private Map<String,ProductMeta> productMeta;
 
-	public int SV;
+	public int CV;
 	
 	public EngineLoader( Engine engine ) {
 		this.engine = engine;
@@ -75,33 +76,30 @@ public class EngineLoader {
 		DBConnection connection = null;
 		try {
 			connection = db.getConnection( engine.serverAction );
-			SV = DBData.getCurrentEngineVersion( connection );
+			CV = DBCoreData.getCurrentCoreVersion( connection );
 			
 			if( savedb ) {
-				SV = SV + 1;
-				DBData.setNextEngineVersion( connection , SV );
+				CV = CV + 1;
+				DBCoreData.setNextCoreVersion( connection , CV );
 			}
 			
+			loadServerSettings( connection , savedb );
 			loadRegistry( connection , savedb );
 			loadBase();
 			loadInfrastructure();
 			loadReleaseLifecycles();
-			
-			if( !engine.execrc.isStandalone() ) {
-				loadServerSettings();
-				loadMonitoring();
-			}
+			loadMonitoring();
 			
 			if( savedb ) {
 				connection.close( true );
-				engine.trace( "successfully saved server metadata version=" + SV );
+				engine.trace( "successfully saved server metadata version=" + CV );
 			}
 		}
 		catch( Throwable e ) {
 			engine.log( "init" , e );
 			if( savedb ) {
 				connection.close( false );
-				engine.trace( "unable to save server metadata version=" + SV );
+				engine.trace( "unable to save server metadata version=" + CV );
 			}
 			Common.exitUnexpected();
 		}
@@ -179,7 +177,7 @@ public class EngineLoader {
 
 	private void loadRegistry( DBConnection c , boolean savedb ) throws Exception {
 		String registryFile = getServerRegistryFile();
-		registry.load( registryFile , engine.execrc , c , savedb );
+		registry.load( registryFile , c , savedb );
 	}
 
 	private String getServerSettingsFile() {
@@ -188,9 +186,9 @@ public class EngineLoader {
 		return( propertyFile );
 	}
 	
-	public void loadServerSettings() throws Exception {
+	public void loadServerSettings( DBConnection c , boolean savedb ) throws Exception {
 		String propertyFile = getServerSettingsFile();
-		settings.load( propertyFile , engine.execrc );
+		settings.load( propertyFile , c , savedb );
 	}
 
 	public synchronized boolean isProductBroken( String productName ) {
@@ -532,14 +530,15 @@ public class EngineLoader {
 		DBConnection connection = null;
 		try {
 			connection = db.getConnection( engine.serverAction );
-			DBData.dropEngineData( connection );
+			DBSystemData.dropSystemData( connection );
+			DBCoreData.dropCoreData( connection );
 			connection.close( true );
-			engine.trace( "successfully deleted current server metadata, version=" + SV );
+			engine.trace( "successfully deleted current server metadata, version=" + CV );
 		}
 		catch( Throwable e ) {
 			engine.log( "init" , e );
 			connection.close( false );
-			engine.trace( "unable to delete current server metadata, version=" + SV );
+			engine.trace( "unable to delete current server metadata, version=" + CV );
 			Common.exitUnexpected();
 		}
 	}
@@ -560,10 +559,6 @@ public class EngineLoader {
 				clearServerProduct( storage );
 			addServerProduct( storageNew );
 		}
-	}
-	
-	public void getExecProperties( PropertySet set ) throws Exception {
-		settings.serverContext.getExecProperties( set );
 	}
 	
 }

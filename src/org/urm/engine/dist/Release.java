@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.db.DBEnumTypes.*;
+import org.urm.db.core.DBEnumTypes.*;
 import org.urm.meta.Types;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
@@ -34,7 +34,7 @@ public class Release {
 	
 	public boolean MASTER;
 	public boolean OBSOLETE;
-	public VarBUILDMODE BUILDMODE;
+	public DBEnumBuildModeType BUILDMODE;
 	public String COMPATIBILITY;
 	private boolean CUMULATIVE;
 	
@@ -174,7 +174,7 @@ public class Release {
 		
 		this.MASTER = true;
 		this.OBSOLETE = true;
-		this.BUILDMODE = VarBUILDMODE.UNKNOWN;
+		this.BUILDMODE = DBEnumBuildModeType.UNKNOWN;
 		this.COMPATIBILITY = "";
 		this.CUMULATIVE = true;
 
@@ -426,11 +426,11 @@ public class Release {
 		return( value );
 	}
 
-	private VarBUILDMODE getReleasePropertyBuildMode( ActionBase action , Node node , String name ) throws Exception {
+	private DBEnumBuildModeType getReleasePropertyBuildMode( ActionBase action , Node node , String name ) throws Exception {
 		String value = getReleaseProperty( action , node , name );
 		if( value.isEmpty() )
-			return( VarBUILDMODE.UNKNOWN );
-		return( VarBUILDMODE.valueOf( value.toUpperCase() ) );
+			return( DBEnumBuildModeType.UNKNOWN );
+		return( DBEnumBuildModeType.valueOf( value.toUpperCase() ) );
 	}
 	
 	private boolean getReleasePropertyBoolean( ActionBase action , Node node , String name , boolean defValue ) throws Exception {

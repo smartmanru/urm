@@ -7,6 +7,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.db.core.DBEnumTypes.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.PropertyController;
@@ -14,8 +15,6 @@ import org.urm.engine.properties.PropertySet;
 import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineSettings;
-import org.urm.meta.Types;
-import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -27,7 +26,7 @@ public class MetaProductSettings extends PropertyController {
 	public PropertySet execprops;
 	public MetaProductCoreSettings core;
 	public MetaProductBuildSettings buildCommon;
-	public Map<VarBUILDMODE,MetaProductBuildSettings> buildModes;
+	public Map<DBEnumBuildModeType,MetaProductBuildSettings> buildModes;
 	
 	public String CONFIG_REDISTWIN_PATH;
 	public String CONFIG_REDISTLINUX_PATH;
@@ -82,7 +81,7 @@ public class MetaProductSettings extends PropertyController {
 		this.execprops = execprops;
 		meta.setProduct( this );
 		core = new MetaProductCoreSettings( meta , this ); 
-		buildModes = new HashMap<VarBUILDMODE,MetaProductBuildSettings>();
+		buildModes = new HashMap<DBEnumBuildModeType,MetaProductBuildSettings>();
 	}
 
 	@Override
@@ -134,7 +133,7 @@ public class MetaProductSettings extends PropertyController {
 		
 		if( buildCommon != null )
 			r.buildCommon = buildCommon.copy( action , meta , r , r.getProperties() ); 
-		for( VarBUILDMODE mode : buildModes.keySet() ) {
+		for( DBEnumBuildModeType mode : buildModes.keySet() ) {
 			MetaProductBuildSettings modeSet = buildModes.get( mode );
 			r.buildModes.put( mode , modeSet.copy( action , meta , r , r.buildCommon.getProperties() ) );
 		}
@@ -157,8 +156,8 @@ public class MetaProductSettings extends PropertyController {
 		// build
 		buildCommon = new MetaProductBuildSettings( "build.common" , meta , this );
 		buildCommon.createSettings( transaction , settings.getDefaultProductBuildProperties() , super.getProperties() );
-		for( VarBUILDMODE mode : VarBUILDMODE.values() ) {
-			if( mode == VarBUILDMODE.UNKNOWN )
+		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
+			if( mode == DBEnumBuildModeType.UNKNOWN )
 				continue;
 			
 			String modeName = Common.getEnumLower( mode );
@@ -196,7 +195,7 @@ public class MetaProductSettings extends PropertyController {
 			if( items != null ) {
 				for( Node node : items ) {
 					String modeName = ConfReader.getAttrValue( node , "name" );
-					VarBUILDMODE mode = Types.getBuildMode( modeName , false );
+					DBEnumBuildModeType mode = DBEnumBuildModeType.getValue( modeName , false );
 					
 					MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "mode" , meta , this );
 					buildMode.load( action , node , buildCommon.getProperties() );
@@ -218,7 +217,7 @@ public class MetaProductSettings extends PropertyController {
 		Element buildElement = Common.xmlCreateElement( doc , root , "build" );
 		buildCommon.save( action , doc , buildElement );
 		
-		for( VarBUILDMODE mode : buildModes.keySet() ) {
+		for( DBEnumBuildModeType mode : buildModes.keySet() ) {
 			MetaProductBuildSettings buildMode = buildModes.get( mode );
 			Element buildModeElement = Common.xmlCreateElement( doc , buildElement , "mode" );
 			buildModeElement.setAttribute( "name" , Common.getEnumLower( mode ) );
@@ -247,7 +246,7 @@ public class MetaProductSettings extends PropertyController {
 		return( buildCommon );
 	}
 	
-	public MetaProductBuildSettings getBuildModeSettings( ActionBase action , VarBUILDMODE buildMode ) throws Exception {
+	public MetaProductBuildSettings getBuildModeSettings( ActionBase action , DBEnumBuildModeType buildMode ) throws Exception {
 		String mode = Common.getEnumLower( buildMode );
 		MetaProductBuildSettings settings = buildModes.get( buildMode );
 		if( settings == null )
@@ -256,7 +255,7 @@ public class MetaProductSettings extends PropertyController {
 	}
 	
 	public MetaProductBuildSettings getBuildSettings( ActionBase action ) throws Exception {
-		if( action.context.buildMode == VarBUILDMODE.UNKNOWN )
+		if( action.context.buildMode == DBEnumBuildModeType.UNKNOWN )
 			return( buildCommon );
 
 		return( getBuildModeSettings( action , action.context.buildMode ) );
@@ -270,7 +269,7 @@ public class MetaProductSettings extends PropertyController {
 		buildCommon.setProperties( transaction , props );
 	}
 	
-	public void setBuildModeProperties( EngineTransaction transaction , VarBUILDMODE mode , PropertySet props ) throws Exception {
+	public void setBuildModeProperties( EngineTransaction transaction , DBEnumBuildModeType mode , PropertySet props ) throws Exception {
 		MetaProductBuildSettings set = buildModes.get( mode );
 		if( set == null ) {
 			MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "mode" , meta , this );

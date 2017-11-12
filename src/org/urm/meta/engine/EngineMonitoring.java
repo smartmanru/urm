@@ -68,7 +68,7 @@ public class EngineMonitoring extends EngineObject {
 	
 	public void scatterProperties() throws Exception {
 		EngineSettings settings = loader.getServerSettings();
-		PropertySet src = settings.serverContext.properties;
+		PropertySet src = settings.context.properties;
 		
 		ENABLED = properties.getSystemBooleanProperty( PROPERTY_ENABLED , false , true );
 		RESOURCE_URL = properties.getSystemUrlExprProperty( PROPERTY_RESOURCE_URL , getProductExpr( src , EngineContext.PROPERTY_MON_RESURL ) , true );
@@ -85,7 +85,7 @@ public class EngineMonitoring extends EngineObject {
 	
 	public void load( String monFile , RunContext execrc ) throws Exception {
 		EngineSettings settings = loader.getServerSettings();
-		properties = new PropertySet( "defmon" , settings.serverContext.properties );
+		properties = new PropertySet( "defmon" , settings.context.properties );
 		Document doc = ConfReader.readXmlFile( execrc , monFile );
 		Node root = doc.getDocumentElement();
 		properties.loadFromNodeElements( root , false );
