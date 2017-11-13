@@ -76,7 +76,7 @@ public class HostAccount extends EngineObject {
 	public void getApplicationReferences( List<AccountReference> refs ) {
 		EngineLoader loader = host.network.datacenter.infra.loader;
 		EngineRegistry registry = loader.getRegistry();
-		for( String productName : registry.directory.getProducts() ) {
+		for( String productName : registry.directory.getProductNames() ) {
 			ProductMeta storage = loader.findProductStorage( productName );
 			storage.getApplicationReferences( this , refs );
 		}

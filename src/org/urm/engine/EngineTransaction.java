@@ -162,7 +162,7 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void createSystem( System system ) throws Exception {
 		checkTransactionDirectory();
-		directory.addSystem( this , system );
+		directory.createSystem( this , system );
 	}
 	
 	public void modifySystem( System system ) throws Exception {

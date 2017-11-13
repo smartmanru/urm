@@ -5,6 +5,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
+import org.urm.db.engine.DBEngineDirectory;
 import org.urm.engine.Engine;
 import org.urm.engine.TransactionBase;
 import org.urm.meta.EngineLoader;
@@ -40,15 +41,22 @@ public class EngineRegistry extends EngineObject {
 		return( "server-registry" );
 	}
 	
-	public void load( String propertyFile , DBConnection c , boolean savedb ) throws Exception {
+	public void load( String propertyFile , DBConnection c , boolean savedb , boolean withSystems ) throws Exception {
 		Document doc = ConfReader.readXmlFile( execrc , propertyFile );
 		Node root = doc.getDocumentElement();
 		
 		Node node;
+		if( withSystems ) {
+			node = ConfReader.xmlGetFirstChild( root , "directory" );
+			DBEngineDirectory.load( directory , root , c , savedb );
+		}
+		else {
+			node = ConfReader.xmlGetFirstChild( root , "directory" );
+			DBEngineDirectory.load( directory , root , c , false );
+		}
+		
 		node = ConfReader.xmlGetFirstChild( root , "resources" );
 		resources.load( node );
-		node = ConfReader.xmlGetFirstChild( root , "directory" );
-		directory.load( node , c , savedb );
 		node = ConfReader.xmlGetFirstChild( root , "mirror" );
 		mirrors.load( node );
 		node = ConfReader.xmlGetFirstChild( root , "build" );
@@ -63,7 +71,7 @@ public class EngineRegistry extends EngineObject {
 		node = Common.xmlCreateElement( doc , root , "resources" );
 		resources.save( doc , node );
 		node = Common.xmlCreateElement( doc , root , "directory" );
-		directory.save( doc , node );
+		DBEngineDirectory.save( directory , doc , node );
 		node = Common.xmlCreateElement( doc , root , "mirror" );
 		mirrors.save( doc , node );
 		node = Common.xmlCreateElement( doc , root , "build" );

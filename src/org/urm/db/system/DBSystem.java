@@ -10,7 +10,6 @@ import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.engine.EngineDB;
 import org.urm.meta.engine.EngineDirectory;
-import org.urm.meta.engine.Product;
 import org.urm.meta.engine.System;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -23,16 +22,6 @@ public abstract class DBSystem {
 		system.NAME = ConfReader.getAttrValue( node , "name" );
 		system.DESC = ConfReader.getAttrValue( node , "desc" );
 		system.OFFLINE = ConfReader.getBooleanAttrValue( node , "offline" , true );
-		
-		Node[] items = ConfReader.xmlGetChildren( node , "product" );
-		if( items == null )
-			return( system );
-		
-		for( Node itemNode : items ) {
-			Product item = new Product( directory , system );
-			item.load( itemNode );
-			system.addProduct( item );
-		}
 		return( system );
 	}
 
@@ -40,12 +29,6 @@ public abstract class DBSystem {
 		Common.xmlSetElementAttr( doc , root , "name" , system.NAME );
 		Common.xmlSetElementAttr( doc , root , "desc" , system.DESC );
 		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( system.OFFLINE ) );
-		
-		for( String productName : system.getProductNames() ) {
-			Product product = system.findProduct( productName );
-			Element elementProduct = Common.xmlCreateElement( doc , root , "product" );
-			product.save( doc , elementProduct );
-		}
 	}
 	
 	public static void insert( DBConnection c , int systemId , int SV , System system ) throws Exception {

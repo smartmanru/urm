@@ -97,7 +97,7 @@ public class ActionConfigure extends ActionBase {
 	
 	private void configureServer() throws Exception {
 		EngineDirectory directory = actionInit.getServerDirectory();
-		for( String name : directory.getProducts() ) {
+		for( String name : directory.getProductNames() ) {
 			if( USEPRODUCT.isEmpty() || USEPRODUCT.equals( name ) ) {
 				info( "configure product name=" + name + " ..." );
 				Meta meta = super.getProductMetadata( name );

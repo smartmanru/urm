@@ -1,6 +1,5 @@
 package org.urm.meta;
 
-import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +9,6 @@ import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
 import org.urm.db.DBVersions;
 import org.urm.db.core.DBCoreData;
-import org.urm.db.system.DBSystem;
 import org.urm.db.system.DBSystemData;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineDB;
@@ -55,7 +53,6 @@ public class EngineLoader {
 	private EngineMonitoring mon;
 	private ProductMeta offline;
 	
-	private Map<String,SystemMeta> systemMeta;
 	private Map<String,ProductMeta> productMeta;
 
 	public int CV;
@@ -71,16 +68,15 @@ public class EngineLoader {
 		infra = new EngineInfrastructure( this ); 
 		lifecycles = new EngineReleaseLifecycles( this ); 
 		mon = new EngineMonitoring( this ); 
-		systemMeta = new HashMap<String,SystemMeta>();
 		productMeta = new HashMap<String,ProductMeta>();
 	}
 
 	public void init() throws Exception {
 		db.init();
-		init( false );
+		init( false , true );
 	}
 	
-	private void init( boolean savedb ) throws Exception {
+	private void init( boolean savedb , boolean withSystems ) throws Exception {
 		DBConnection connection = null;
 		try {
 			connection = db.getConnection( engine.serverAction );
@@ -92,7 +88,7 @@ public class EngineLoader {
 			}
 			
 			loadServerSettings( connection , savedb );
-			loadRegistry( connection , savedb );
+			loadRegistry( connection , savedb , withSystems );
 			loadBase();
 			loadInfrastructure();
 			loadReleaseLifecycles();
@@ -183,9 +179,9 @@ public class EngineLoader {
 		return( propertyFile );
 	}
 
-	private void loadRegistry( DBConnection c , boolean savedb ) throws Exception {
+	private void loadRegistry( DBConnection c , boolean savedb , boolean withSystems ) throws Exception {
 		String registryFile = getServerRegistryFile();
-		registry.load( registryFile , c , savedb );
+		registry.load( registryFile , c , savedb , withSystems );
 	}
 
 	private String getServerSettingsFile() {
@@ -332,18 +328,9 @@ public class EngineLoader {
 		return( storageFinal.loadDesignData( action , storageMeta , fileName ) );
 	}
 
-	public void loadSystems( ActionInit action ) {
-		clearSystems();
-		for( ResultSet systems : DBSystem.getList() ) {
-			String name
-			SystemMeta system = loadSystem( action , name , false );
-			addSystem( system );
-		}
-	}
-
 	public void loadProducts( ActionInit action ) {
 		clearProducts();
-		for( String name : registry.directory.getProducts() ) {
+		for( String name : registry.directory.getProductNames() ) {
 			ProductMeta product = loadProduct( action , name , false );
 			addProduct( product );
 		}
@@ -353,10 +340,6 @@ public class EngineLoader {
 		productMeta.put( set.name , set );
 	}
 
-	private SystemMeta loadSystem( ActionInit action , String name , boolean savedb ) {
-		return( null );
-	}
-	
 	private ProductMeta loadProduct( ActionInit action , String name , boolean savedb ) {
 		ProductMeta set = new ProductMeta( this , name );
 		set.setPrimary( true );
@@ -375,17 +358,6 @@ public class EngineLoader {
 		}
 		
 		return( set );
-	}
-	
-	public void clearSystems() {
-		for( SystemMeta storage : systemMeta.values() )
-			clearSystem( storage );
-		productMeta.clear();
-	}
-	
-	private void clearSystem( SystemMeta storage ) {
-		storage.deleteObject();
-		systemMeta.clear();
 	}
 	
 	public void clearProducts() {
@@ -547,7 +519,7 @@ public class EngineLoader {
 		lifecycles = new EngineReleaseLifecycles( this ); 
 		mon = new EngineMonitoring( this );
 		
-		init( true );
+		init( true , includingSystems );
 	}
 
 	private void clearCore( boolean includingSystems ) throws Exception {

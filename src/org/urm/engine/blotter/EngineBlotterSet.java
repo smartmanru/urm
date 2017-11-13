@@ -56,7 +56,7 @@ public class EngineBlotterSet extends EngineEventsSource {
 
 	public synchronized void startReleaseSet( ActionInit action ) throws Exception {
 		EngineDirectory directory = action.getServerDirectory();
-		for( String productName : directory.getProducts() ) {
+		for( String productName : directory.getProductNames() ) {
 			Meta meta = action.getProductMetadata( productName );
 			ProductMeta storage = meta.getStorage( action );
 			DistRepository repo = storage.getDistRepository( action );

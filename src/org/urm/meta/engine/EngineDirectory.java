@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.db.DBConnection;
 import org.urm.db.DBNames;
 import org.urm.db.DBVersions;
 import org.urm.db.DBEnums.DBEnumObjectType;
@@ -16,9 +14,6 @@ import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.EngineObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class EngineDirectory extends EngineObject {
 
@@ -40,46 +35,16 @@ public class EngineDirectory extends EngineObject {
 	public String getName() {
 		return( "server-directory" );
 	}
-	
-	public void load( Node root , DBConnection c , boolean savedb ) throws Exception {
-		if( savedb ) {
-			if( root == null )
-				return;
-			
-			Node[] items = ConfReader.xmlGetChildren( root , "system" );
-			if( items == null )
-				return;
-			
-			for( Node itemNode : items ) {
-				System system = DBSystem.load( this , itemNode );
-				int systemId = DBNames.getNameIndex( c , DBVersions.CORE_ID , system.NAME , DBEnumObjectType.SYSTEM );
-				int SV = DBVersions.getCurrentVersion( c , systemId );
-				SV = SV + 1;
-				DBSystem.insert( c , systemId , SV , system );
-				mapSystems.put( system.NAME , system );
-			}
-		}
-		else {
-			System[] systems = DBSystem.load( c , this );
-			for( System system : systems )
-				mapSystems.put( system.NAME , system );
-		}
-		
-		for( System system : mapSystems.values() ) {
-			for( Product product : system.getProducts() )
-				mapProducts.put( product.NAME , product );
-		}
-	}
-	
+
 	public EngineDirectory copy() throws Exception {
 		EngineDirectory r = new EngineDirectory( registry );
 		
 		for( System system : mapSystems.values() ) {
 			System rs = system.copy( r );
-			r.mapSystems.put( rs.NAME , rs );
+			r.addSystem( rs );
 			
 			for( Product rp : rs.getProducts() )
-				r.mapProducts.put( rp.NAME , rp );
+				r.addProduct( rp );
 		}
 
 		return( r );
@@ -89,8 +54,16 @@ public class EngineDirectory extends EngineObject {
 		return( Common.getSortedKeys( mapSystems ) );
 	}
 
-	public String[] getProducts() {
+	public System[] getSystems() {
+		return( mapSystems.values().toArray( new System[0] ) );
+	}
+	
+	public String[] getProductNames() {
 		return( Common.getSortedKeys( mapProducts ) );
+	}
+	
+	public Product[] getProducts() {
+		return( mapProducts.values().toArray( new Product[0] ) );
 	}
 	
 	public String[] getSystemProducts( String systemName ) {
@@ -120,23 +93,23 @@ public class EngineDirectory extends EngineObject {
 		return( mapProducts.get( name ) );
 	}
 	
-	public void save( Document doc , Element root ) throws Exception {
-		// directory 
-		for( System system : mapSystems.values() ) {
-			Element elementSystem = Common.xmlCreateElement( doc , root , "system" );
-			DBSystem.save( system , doc , elementSystem );
-		}
-	}
-
-	public void addSystem( EngineTransaction t , System system ) throws Exception {
+	public void createSystem( EngineTransaction t , System system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != null )
 			t.exit( _Error.DuplicateSystem1 , "system=" + system.NAME + " is not unique" , new String[] { system.NAME } );
 		
 		int systemId = DBNames.getNameIndex( t.connection , DBVersions.CORE_ID , system.NAME , DBEnumObjectType.SYSTEM );
 		DBSystem.insert( t.connection , systemId , t.getNextSystemVersion( systemId ) , system );
-		mapSystems.put( system.NAME , system );
+		addSystem( system );
 	}
 
+	public void addSystem( System system ) throws Exception {
+		mapSystems.put( system.NAME , system );
+	}
+	
+	public void addProduct( Product product ) throws Exception {
+		mapProducts.put( product.NAME , product );
+	}
+	
 	public void modifySystem( EngineTransaction t , System system ) throws Exception {
 		if( Common.changeMapKey( mapSystems , system , system.NAME ) )
 			DBNames.updateName( t.connection , DBVersions.CORE_ID , system.NAME , system.ID , DBEnumObjectType.SYSTEM );
@@ -172,7 +145,7 @@ public class EngineDirectory extends EngineObject {
 		if( mapProducts.containsKey( product.NAME ) )
 			transaction.exit( _Error.DuplicateProduct1 , "product=" + product.NAME + " is not unique" , new String[] { product.NAME } );
 		
-		mapProducts.put( product.NAME , product );
+		addProduct( product );
 		product.system.addProduct( product );
 	}
 	

@@ -115,7 +115,6 @@ public class Engine {
 	public void runServer( ActionInit action ) throws Exception {
 		serverAction.debug( "load server configuration ..." );
 		auth.start( serverAction );
-		loader.loadSystems( serverAction );
 		loader.loadProducts( serverAction );
 		status.start( serverAction , loader );
 		blotter.start( serverAction );

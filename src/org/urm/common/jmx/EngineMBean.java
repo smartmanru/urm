@@ -143,7 +143,7 @@ public class EngineMBean implements DynamicMBean {
 			action.exit1( _Error.CannotFindDirectory1 , "cannot find directory: " + products.folderPath , products.folderPath );
 		
 		EngineDirectory directory = action.actionInit.getServerDirectory();
-		for( String name : directory.getProducts() )
+		for( String name : directory.getProductNames() )
 			addProduct( name );
 	}		
 	
