@@ -3,7 +3,7 @@ package org.urm.db.system;
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
-import org.urm.db.DBEnumTypes.DBEnumObjectVersionType;
+import org.urm.db.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBCoreData;
 
 public class DBSystemData {

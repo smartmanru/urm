@@ -11,7 +11,7 @@ import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
-import org.urm.db.DBEnumTypes.*;
+import org.urm.db.DBEnums.*;
 import org.urm.engine.Engine;
 import org.urm.engine.status.ScopeState;
 import org.urm.meta.EngineLoader;

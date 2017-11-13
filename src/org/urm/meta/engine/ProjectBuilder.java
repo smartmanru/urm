@@ -2,7 +2,7 @@ package org.urm.meta.engine;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.DBEnumTypes.*;
+import org.urm.db.DBEnums.*;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.PropertySet;

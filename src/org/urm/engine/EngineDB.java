@@ -9,8 +9,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
-import org.urm.db.DBEnumTypes;
-import org.urm.db.core.DBNames;
+import org.urm.db.DBEnums;
+import org.urm.db.DBNames;
 import org.urm.meta.EngineLoader;
 
 public class EngineDB {
@@ -77,9 +77,6 @@ public class EngineDB {
 			connection.close( true );
 	}
 
-	public void clearServer() {
-	}
-	
 	public void clearProduct( String productName ) {
 	}
 
@@ -104,9 +101,9 @@ public class EngineDB {
 		
 		boolean dbUpdate = Common.getBooleanValue( System.getProperty( "dbupdate" ) );
 		if( dbUpdate )
-			DBEnumTypes.updateDatabase( loader.engine , connection );
+			DBEnums.updateDatabase( loader.engine , connection );
 		else
-			DBEnumTypes.verifyDatabase( loader.engine , connection );
+			DBEnums.verifyDatabase( loader.engine , connection );
 	}
 	
 }

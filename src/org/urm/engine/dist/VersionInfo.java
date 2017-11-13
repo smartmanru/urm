@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.DBEnumTypes.*;
+import org.urm.db.DBEnums.*;
 
 public class VersionInfo {
 

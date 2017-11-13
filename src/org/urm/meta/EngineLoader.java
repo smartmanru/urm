@@ -506,8 +506,7 @@ public class EngineLoader {
 		
 		db.init();
 		
-		clearServer();
-		db.clearServer();
+		clearCore();
 
 		registry = new EngineRegistry( this ); 
 		base = new EngineBase( this ); 
@@ -519,7 +518,7 @@ public class EngineLoader {
 		init( true );
 	}
 
-	private void clearServer() throws Exception {
+	private void clearCore() throws Exception {
 		registry.deleteObject(); 
 		base.deleteObject(); 
 		settings.deleteObject();

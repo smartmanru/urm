@@ -3,7 +3,7 @@ package org.urm.db.core;
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
-import org.urm.db.DBEnumTypes.*;
+import org.urm.db.DBEnums.*;
 
 public abstract class DBCoreData {
 

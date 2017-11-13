@@ -10,7 +10,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.RunError;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.common.action.CommandOptions;
-import org.urm.db.DBEnumTypes.*;
+import org.urm.db.DBEnums.*;
 import org.urm.engine.EngineCache;
 import org.urm.engine.EngineCacheObject;
 import org.urm.engine.EngineSession;

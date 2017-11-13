@@ -5,7 +5,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.db.DBEnumTypes.DBEnumOSType;
+import org.urm.db.DBEnums.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineLoader;
