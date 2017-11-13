@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
 
 public class System extends EngineObject {
@@ -19,12 +20,16 @@ public class System extends EngineObject {
 	public boolean MATCHED;
 	public int SV;
 	
+	ObjectProperties parameters;
+	
 	public System( EngineDirectory directory ) {
 		super( directory );
 		this.directory = directory;
 		mapProducts = new HashMap<String,Product>();
 		ID = -1;
 		SV = 0;
+		
+		parameters = new ObjectProperties( "system" , directory.engine.execrc );
 	}
 
 	@Override
