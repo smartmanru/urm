@@ -1,13 +1,11 @@
-package org.urm.db.core;
+package org.urm.db;
 
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.db.DBConnection;
-import org.urm.db.DBQueries;
-import org.urm.db.DBEnumTypes.DBEnumObjectType;
+import org.urm.db.DBEnums.*;
 import org.urm.engine.EngineDB;
 
 public abstract class DBNames {
