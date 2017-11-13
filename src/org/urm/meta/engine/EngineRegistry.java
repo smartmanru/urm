@@ -48,11 +48,11 @@ public class EngineRegistry extends EngineObject {
 		Node node;
 		if( withSystems ) {
 			node = ConfReader.xmlGetFirstChild( root , "directory" );
-			DBEngineDirectory.load( directory , root , c , savedb );
+			DBEngineDirectory.load( directory , node , c , savedb );
 		}
 		else {
 			node = ConfReader.xmlGetFirstChild( root , "directory" );
-			DBEngineDirectory.load( directory , root , c , false );
+			DBEngineDirectory.load( directory , node , c , false );
 		}
 		
 		node = ConfReader.xmlGetFirstChild( root , "resources" );
