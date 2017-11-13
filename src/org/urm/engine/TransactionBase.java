@@ -5,7 +5,8 @@ import java.util.Map;
 
 import org.urm.common.RunError;
 import org.urm.db.DBConnection;
-import org.urm.db.core.DBCoreData;
+import org.urm.db.DBEnums.DBEnumObjectVersionType;
+import org.urm.db.DBVersions;
 import org.urm.engine.action.ActionInit;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
@@ -55,9 +56,10 @@ public class TransactionBase extends EngineObject {
 	public RunError error;
 	
 	public DBConnection connection;
-	public int CV;
 	private boolean CHANGEDATABASE;
 	private boolean SERVERVERSIONUPDATE;
+	public int CV;
+	public Map<Integer,Integer> systemVersions;
 	
 	public EngineInfrastructure infra;
 	public EngineReleaseLifecycles lifecycles;
@@ -98,7 +100,8 @@ public class TransactionBase extends EngineObject {
 		mirrors = null;
 		saveRegistry = false;
 		
-		productMeta = new HashMap<String,TransactionMetadata>(); 
+		productMeta = new HashMap<String,TransactionMetadata>();
+		systemVersions = new HashMap<Integer,Integer>(); 
 		engine.trace( "transaction created id=" + objectId );
 	}
 	
@@ -421,9 +424,9 @@ public class TransactionBase extends EngineObject {
 			return;
 		
 		SERVERVERSIONUPDATE = true;
-		CV = DBCoreData.getCurrentCoreVersion( connection ) + 1;
+		CV = DBVersions.getCurrentCoreVersion( connection ) + 1;
 		CV = CV + 1;
-		DBCoreData.setNextCoreVersion( connection , CV );
+		DBVersions.setNextCoreVersion( connection , CV );
 	}
 	
 	public boolean changeInfrastructure( EngineInfrastructure sourceInfrastructure , Network network ) {
@@ -1019,6 +1022,16 @@ public class TransactionBase extends EngineObject {
 	protected void checkTransactionMetadata( String productName ) throws Exception {
 		if( productMeta.get( productName ) == null )
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
+	}
+	
+	public int getNextSystemVersion( int id ) throws Exception {
+		Integer version = systemVersions.get( id );
+		int SV;
+		SV = ( version != null )? version : DBVersions.getCurrentVersion( connection , id ); 
+		SV = SV + 1;
+		DBVersions.setNextVersion( connection , id , SV , DBEnumObjectVersionType.SYSTEM );
+		systemVersions.put( id , SV );
+		return( SV );
 	}
 	
 	public EngineResources getTransactionResources() {

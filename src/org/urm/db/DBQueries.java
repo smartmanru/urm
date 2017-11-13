@@ -16,8 +16,8 @@ public abstract class DBQueries {
 	public static String MODIFY_ENUMS_DROP0 = "delete from urm_object_type";
 	public static String MODIFY_ENUMS_ADD3 = "insert into urm_object_type( category , item , name ) values ( @1@ , @2@ , @3@ )";
 	
-	public static String QUERY_SYSTEM_GETALL0 = "select id , name , xdesc , offline , cv from urm_system";
-	public static String MODIFY_SYSTEM_ADD5 = "insert into urm_system ( id , name , xdesc , offline , cv ) values ( @1@ , @2@ , @3@ , @4@ , @5@ )";
+	public static String QUERY_SYSTEM_GETALL0 = "select id , name , xdesc , offline , matched , sv from urm_system";
+	public static String MODIFY_SYSTEM_ADD6 = "insert into urm_system ( id , name , xdesc , offline , matched , cv ) values ( @1@ , @2@ , @3@ , @4@ , @5@ , @6@ )";
 	public static String MODIFY_SYSTEM_UPDATE4 = "update urm_system set name = @2@ , xdesc = @3@ , cv = @4@ where id = @1@";
 	public static String MODIFY_SYSTEM_DELETE2 = "delete from urm_system where id = @1@";
 	public static String MODIFY_SYSTEM_DELETEALLPARAMS2 = "delete from urm_system_param where system = @1@";
@@ -40,7 +40,6 @@ public abstract class DBQueries {
 
 	public static String MODIFY_APP_DROP_SYSTEMPARAM0 = "delete from urm_system_param";
 	public static String MODIFY_APP_DROP_PRODUCT0 = "delete from urm_product";
-	public static String MODIFY_APP_DROP_SYSTEMMETA0 = "delete from urm_system_meta";
 	public static String MODIFY_APP_DROP_SYSTEM0 = "delete from urm_system";
 
 	public static String MODIFY_CORE_DROP_RESOURCE0 = "delete from urm_resource";

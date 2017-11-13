@@ -16,14 +16,15 @@ public class System extends EngineObject {
 	public String NAME;
 	public String DESC;
 	public boolean OFFLINE;
-	public int CV;
+	public boolean MATCHED;
+	public int SV;
 	
 	public System( EngineDirectory directory ) {
 		super( directory );
 		this.directory = directory;
 		mapProducts = new HashMap<String,Product>();
 		ID = -1;
-		CV = 0;
+		SV = 0;
 	}
 
 	@Override
@@ -35,6 +36,7 @@ public class System extends EngineObject {
 		this.NAME = name;
 		this.DESC = desc;
 		this.OFFLINE = true;
+		this.MATCHED = true;
 	}
 	
 	public void setOffline( boolean OFFLINE ) {
@@ -47,7 +49,8 @@ public class System extends EngineObject {
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.OFFLINE = OFFLINE;
-		r.CV = CV;
+		r.MATCHED = MATCHED;
+		r.SV = SV;
 		
 		for( Product product : mapProducts.values() ) {
 			Product rp = product.copy( nd , r );

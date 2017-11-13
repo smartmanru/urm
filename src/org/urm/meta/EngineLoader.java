@@ -1,12 +1,16 @@
 package org.urm.meta;
 
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
+import org.urm.db.DBVersions;
 import org.urm.db.core.DBCoreData;
+import org.urm.db.system.DBSystem;
 import org.urm.db.system.DBSystemData;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineDB;
@@ -20,7 +24,6 @@ import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
-import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.Product;
@@ -41,6 +44,7 @@ import org.urm.meta.product.MetaSource;
 public class EngineLoader {
 
 	public Engine engine;
+	public RunContext execrc;
 	
 	private EngineDB db;
 	private EngineSettings settings;
@@ -50,12 +54,15 @@ public class EngineLoader {
 	private EngineReleaseLifecycles lifecycles;
 	private EngineMonitoring mon;
 	private ProductMeta offline;
+	
+	private Map<String,SystemMeta> systemMeta;
 	private Map<String,ProductMeta> productMeta;
 
 	public int CV;
 	
 	public EngineLoader( Engine engine ) {
 		this.engine = engine;
+		this.execrc = engine.execrc;
 		
 		db = new EngineDB( this );
 		settings = new EngineSettings( this );
@@ -64,6 +71,7 @@ public class EngineLoader {
 		infra = new EngineInfrastructure( this ); 
 		lifecycles = new EngineReleaseLifecycles( this ); 
 		mon = new EngineMonitoring( this ); 
+		systemMeta = new HashMap<String,SystemMeta>();
 		productMeta = new HashMap<String,ProductMeta>();
 	}
 
@@ -76,11 +84,11 @@ public class EngineLoader {
 		DBConnection connection = null;
 		try {
 			connection = db.getConnection( engine.serverAction );
-			CV = DBCoreData.getCurrentCoreVersion( connection );
+			CV = DBVersions.getCurrentCoreVersion( connection );
 			
 			if( savedb ) {
 				CV = CV + 1;
-				DBCoreData.setNextCoreVersion( connection , CV );
+				DBVersions.setNextCoreVersion( connection , CV );
 			}
 			
 			loadServerSettings( connection , savedb );
@@ -106,12 +114,12 @@ public class EngineLoader {
 	}
 	
 	public LocalFolder getServerHomeFolder( ActionInit action ) throws Exception {
-		LocalFolder folder = action.getLocalFolder( engine.execrc.installPath );
+		LocalFolder folder = action.getLocalFolder( execrc.installPath );
 		return( folder );
 	}
 
 	public LocalFolder getServerSettingsFolder( ActionInit action ) throws Exception {
-		String path = Common.getPath( engine.execrc.installPath , "etc" );
+		String path = Common.getPath( execrc.installPath , "etc" );
 		LocalFolder folder = action.getLocalFolder( path );
 		return( folder );
 	}
@@ -125,52 +133,52 @@ public class EngineLoader {
 		return( folder );
 	}
 
-	private String getServerBaseFile() throws Exception {
-		String path = Common.getPath( engine.execrc.installPath , "etc" );
+	private String getBaseFile() throws Exception {
+		String path = Common.getPath( execrc.installPath , "etc" );
 		String propertyFile = Common.getPath( path , "base.xml" );
 		return( propertyFile );
 	}
 
 	private void loadBase() throws Exception {
-		String baseFile = getServerBaseFile();
-		base.load( baseFile , engine.execrc );
+		String baseFile = getBaseFile();
+		base.load( baseFile , execrc );
 	}
 
-	private String getServerInfrastructureFile() throws Exception {
-		String path = Common.getPath( engine.execrc.installPath , "etc" );
+	private String getInfrastructureFile() throws Exception {
+		String path = Common.getPath( execrc.installPath , "etc" );
 		String propertyFile = Common.getPath( path , "networks.xml" );
 		return( propertyFile );
 	}
 
-	private String getServerReleaseLifecyclesFile() throws Exception {
-		String path = Common.getPath( engine.execrc.installPath , "etc" );
+	private String getReleaseLifecyclesFile() throws Exception {
+		String path = Common.getPath( execrc.installPath , "etc" );
 		String propertyFile = Common.getPath( path , "lifecycles.xml" );
 		return( propertyFile );
 	}
 
 	private void loadInfrastructure() throws Exception {
-		String infraFile = getServerInfrastructureFile();
-		infra.load( infraFile , engine.execrc );
+		String infraFile = getInfrastructureFile();
+		infra.load( infraFile , execrc );
 	}
 
 	private void loadReleaseLifecycles() throws Exception {
-		String lcFile = getServerReleaseLifecyclesFile();
-		lifecycles.load( lcFile , engine.execrc );
+		String lcFile = getReleaseLifecyclesFile();
+		lifecycles.load( lcFile , execrc );
 	}
 
-	private String getServerMonitoringFile() throws Exception {
-		String path = Common.getPath( engine.execrc.installPath , "etc" );
+	private String getMonitoringFile() throws Exception {
+		String path = Common.getPath( execrc.installPath , "etc" );
 		String propertyFile = Common.getPath( path , "monitoring.xml" );
 		return( propertyFile );
 	}
 
 	private void loadMonitoring() throws Exception {
-		String monFile = getServerMonitoringFile();
-		mon.load( monFile , engine.execrc );
+		String monFile = getMonitoringFile();
+		mon.load( monFile , execrc );
 	}
 
 	private String getServerRegistryFile() throws Exception {
-		String path = Common.getPath( engine.execrc.installPath , "etc" );
+		String path = Common.getPath( execrc.installPath , "etc" );
 		String propertyFile = Common.getPath( path , "registry.xml" );
 		return( propertyFile );
 	}
@@ -181,7 +189,7 @@ public class EngineLoader {
 	}
 
 	private String getServerSettingsFile() {
-		String path = Common.getPath( engine.execrc.installPath , "etc" );
+		String path = Common.getPath( execrc.installPath , "etc" );
 		String propertyFile = Common.getPath( path , "server.xml" );
 		return( propertyFile );
 	}
@@ -324,19 +332,32 @@ public class EngineLoader {
 		return( storageFinal.loadDesignData( action , storageMeta , fileName ) );
 	}
 
-	public void loadServerProducts( ActionInit action ) {
-		clearServerProducts();
-		for( String name : registry.directory.getProducts() ) {
-			ProductMeta set = loadServerProduct( action , name , false );
-			addServerProduct( set );
+	public void loadSystems( ActionInit action ) {
+		clearSystems();
+		for( ResultSet systems : DBSystem.getList() ) {
+			String name
+			SystemMeta system = loadSystem( action , name , false );
+			addSystem( system );
 		}
 	}
 
-	private void addServerProduct( ProductMeta set ) {
+	public void loadProducts( ActionInit action ) {
+		clearProducts();
+		for( String name : registry.directory.getProducts() ) {
+			ProductMeta product = loadProduct( action , name , false );
+			addProduct( product );
+		}
+	}
+
+	private void addProduct( ProductMeta set ) {
 		productMeta.put( set.name , set );
 	}
+
+	private SystemMeta loadSystem( ActionInit action , String name , boolean savedb ) {
+		return( null );
+	}
 	
-	private ProductMeta loadServerProduct( ActionInit action , String name , boolean savedb ) {
+	private ProductMeta loadProduct( ActionInit action , String name , boolean savedb ) {
 		ProductMeta set = new ProductMeta( this , name );
 		set.setPrimary( true );
 		
@@ -356,13 +377,24 @@ public class EngineLoader {
 		return( set );
 	}
 	
-	public void clearServerProducts() {
-		for( ProductMeta storage : productMeta.values() )
-			clearServerProduct( storage );
+	public void clearSystems() {
+		for( SystemMeta storage : systemMeta.values() )
+			clearSystem( storage );
 		productMeta.clear();
 	}
 	
-	private void clearServerProduct( ProductMeta storage ) {
+	private void clearSystem( SystemMeta storage ) {
+		storage.deleteObject();
+		systemMeta.clear();
+	}
+	
+	public void clearProducts() {
+		for( ProductMeta storage : productMeta.values() )
+			clearProduct( storage );
+		productMeta.clear();
+	}
+	
+	private void clearProduct( ProductMeta storage ) {
 		storage.setPrimary( false );
 		if( !storage.isReferencedBySessions() ) {
 			storage.meta.deleteObject();
@@ -379,7 +411,7 @@ public class EngineLoader {
 
 	public void saveRegistry( TransactionBase transaction ) throws Exception {
 		String propertyFile = getServerRegistryFile();
-		registry.save( transaction.getAction() , propertyFile , engine.execrc );
+		registry.save( transaction.getAction() , propertyFile , execrc );
 	}
 	
 	public void setResources( TransactionBase transaction , EngineResources resourcesNew ) throws Exception {
@@ -399,23 +431,23 @@ public class EngineLoader {
 	}
 
 	public void saveBase( TransactionBase transaction ) throws Exception {
-		String propertyFile = getServerBaseFile();
-		base.save( transaction.getAction() , propertyFile , engine.execrc );
+		String propertyFile = getBaseFile();
+		base.save( transaction.getAction() , propertyFile , execrc );
 	}
 
 	public void saveInfrastructure( TransactionBase transaction ) throws Exception {
-		String propertyFile = getServerInfrastructureFile();
-		infra.save( transaction.getAction() , propertyFile , engine.execrc );
+		String propertyFile = getInfrastructureFile();
+		infra.save( transaction.getAction() , propertyFile , execrc );
 	}
 
 	public void saveReleaseLifecycles( TransactionBase transaction ) throws Exception {
-		String propertyFile = getServerReleaseLifecyclesFile();
-		lifecycles.save( transaction.getAction() , propertyFile , engine.execrc );
+		String propertyFile = getReleaseLifecyclesFile();
+		lifecycles.save( transaction.getAction() , propertyFile , execrc );
 	}
 
 	public void saveMonitoring( TransactionBase transaction ) throws Exception {
-		String propertyFile = getServerMonitoringFile();
-		mon.save( transaction.getAction() , propertyFile , engine.execrc );
+		String propertyFile = getMonitoringFile();
+		mon.save( transaction.getAction() , propertyFile , execrc );
 	}
 
 	public EngineSettings getServerSettings() {
@@ -462,7 +494,7 @@ public class EngineLoader {
 	
 	public void setServerSettings( TransactionBase transaction , EngineSettings settingsNew ) throws Exception {
 		String propertyFile = getServerSettingsFile();
-		settingsNew.save( propertyFile , engine.execrc );
+		settingsNew.save( propertyFile , execrc );
 		settings = settingsNew;
 	}
 
@@ -493,20 +525,20 @@ public class EngineLoader {
 		productMeta.remove( storage.name );
 	}
 
-	public void rereadMirror( MirrorRepository repo ) throws Exception {
-		if( repo.isServer() ) 
-			reloadCore();
-		else
-		if( repo.isProductMeta() )
-			reloadProduct( repo.PRODUCT );
+	public void rereadEngineMirror( boolean includingSystems ) throws Exception {
+		reloadCore( includingSystems );
+	}
+
+	public void rereadProductMirror( String product , boolean includingEnvironments ) throws Exception {
+		reloadProduct( product , includingEnvironments );
 	}
 	
-	private void reloadCore() throws Exception {
+	private void reloadCore( boolean includingSystems ) throws Exception {
 		engine.trace( "reload server core settings ..." );
 		
 		db.init();
 		
-		clearCore();
+		clearCore( includingSystems );
 
 		registry = new EngineRegistry( this ); 
 		base = new EngineBase( this ); 
@@ -518,7 +550,7 @@ public class EngineLoader {
 		init( true );
 	}
 
-	private void clearCore() throws Exception {
+	private void clearCore( boolean includingSystems ) throws Exception {
 		registry.deleteObject(); 
 		base.deleteObject(); 
 		settings.deleteObject();
@@ -542,21 +574,21 @@ public class EngineLoader {
 		}
 	}
 	
-	private void reloadProduct( String productName ) throws Exception {
+	private void reloadProduct( String productName , boolean includingEnvironments ) throws Exception {
 		engine.trace( "reload settings, product=" + productName + " ..." );
 		
 		db.init();
 		db.clearProduct( productName );
 		
-		ProductMeta storageNew = loadServerProduct( engine.serverAction , productName , true );
+		ProductMeta storageNew = loadProduct( engine.serverAction , productName , true );
 		if( storageNew == null )
 			return;
 		
 		ProductMeta storage = productMeta.get( productName );
 		synchronized( this ) {
 			if( storage != null )
-				clearServerProduct( storage );
-			addServerProduct( storageNew );
+				clearProduct( storage );
+			addProduct( storageNew );
 		}
 	}
 	

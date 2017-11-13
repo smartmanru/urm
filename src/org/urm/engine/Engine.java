@@ -115,7 +115,8 @@ public class Engine {
 	public void runServer( ActionInit action ) throws Exception {
 		serverAction.debug( "load server configuration ..." );
 		auth.start( serverAction );
-		loader.loadServerProducts( serverAction );
+		loader.loadSystems( serverAction );
+		loader.loadProducts( serverAction );
 		status.start( serverAction , loader );
 		blotter.start( serverAction );
 		scheduler.start( serverAction );
@@ -153,7 +154,7 @@ public class Engine {
 		jmxController.stop();
 		sessionController.stop( serverAction );
 		jmxController = null;
-		loader.clearServerProducts();
+		loader.clearProducts();
 		blotter.clear();
 		cache.clear();
 		auth.stop( serverAction );

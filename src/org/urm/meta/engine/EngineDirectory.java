@@ -8,9 +8,9 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.DBNames;
+import org.urm.db.DBVersions;
 import org.urm.db.DBEnums.DBEnumObjectType;
-import org.urm.db.core.DBCoreData;
-import org.urm.db.core.DBSystem;
+import org.urm.db.system.DBSystem;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.LocalFolder;
@@ -51,9 +51,12 @@ public class EngineDirectory extends EngineObject {
 				return;
 			
 			for( Node itemNode : items ) {
-				System item = DBSystem.load( this , itemNode );
-				DBSystem.insert( c , registry.loader.CV , item );
-				mapSystems.put( item.NAME , item );
+				System system = DBSystem.load( this , itemNode );
+				int systemId = DBNames.getNameIndex( c , DBVersions.CORE_ID , system.NAME , DBEnumObjectType.SYSTEM );
+				int SV = DBVersions.getCurrentVersion( c , systemId );
+				SV = SV + 1;
+				DBSystem.insert( c , systemId , SV , system );
+				mapSystems.put( system.NAME , system );
 			}
 		}
 		else {
@@ -128,14 +131,16 @@ public class EngineDirectory extends EngineObject {
 	public void addSystem( EngineTransaction t , System system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != null )
 			t.exit( _Error.DuplicateSystem1 , "system=" + system.NAME + " is not unique" , new String[] { system.NAME } );
-		DBSystem.insert( t.connection , t.CV , system );
+		
+		int systemId = DBNames.getNameIndex( t.connection , DBVersions.CORE_ID , system.NAME , DBEnumObjectType.SYSTEM );
+		DBSystem.insert( t.connection , systemId , t.getNextSystemVersion( systemId ) , system );
 		mapSystems.put( system.NAME , system );
 	}
 
 	public void modifySystem( EngineTransaction t , System system ) throws Exception {
 		if( Common.changeMapKey( mapSystems , system , system.NAME ) )
-			DBNames.updateName( t.connection , DBCoreData.CORE_ID , system.NAME , system.ID , DBEnumObjectType.SYSTEM );
-		DBSystem.update( t.connection , t.CV , system );
+			DBNames.updateName( t.connection , DBVersions.CORE_ID , system.NAME , system.ID , DBEnumObjectType.SYSTEM );
+		DBSystem.update( t.connection , t.getNextSystemVersion( system.ID ) , system );
 	}
 	
 	public void deleteSystem( EngineTransaction t , System system ) throws Exception {
