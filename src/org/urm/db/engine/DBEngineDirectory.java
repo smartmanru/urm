@@ -26,18 +26,19 @@ public abstract class DBEngineDirectory {
 				return;
 			
 			for( Node itemNode : items ) {
-				System system = loadSystem( directory , itemNode , c );
+				System system = loadSystem( directory , itemNode );
+				matchSystem( directory , system , c , savedb );
+				
 				int systemId = DBNames.getNameIndex( c , DBVersions.CORE_ID , system.NAME , DBEnumObjectType.SYSTEM );
 				int SV = DBVersions.getCurrentVersion( c , systemId );
 				SV = SV + 1;
 				DBSystem.insert( c , systemId , SV , system );
-				directory.addSystem( system );
 			}
 		}
 		else {
 			System[] systems = DBSystem.load( c , directory );
 			for( System system : systems )
-				directory.addSystem( system );
+				matchSystem( directory , system , c , savedb );
 		}
 		
 		for( System system : directory.getSystems() ) {
@@ -54,7 +55,7 @@ public abstract class DBEngineDirectory {
 		}
 	}
 
-	private static System loadSystem( EngineDirectory directory , Node root , DBConnection c ) throws Exception {
+	private static System loadSystem( EngineDirectory directory , Node root ) throws Exception {
 		System system = DBSystem.load( directory , root );
 		Node[] items = ConfReader.xmlGetChildren( root , "product" );
 		if( items == null )
@@ -77,6 +78,11 @@ public abstract class DBEngineDirectory {
 			Element elementProduct = Common.xmlCreateElement( doc , root , "product" );
 			product.save( doc , elementProduct );
 		}
+	}
+
+	public static void matchSystem( EngineDirectory directory , System system , DBConnection c , boolean savedb ) throws Exception {
+		system.MATCHED = true;
+		directory.addSystem( system );
 	}
 	
 }

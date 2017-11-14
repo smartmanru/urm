@@ -18,7 +18,7 @@ import org.w3c.dom.Node;
 public abstract class DBSystem {
 
 	public static System load( EngineDirectory directory , Node node ) throws Exception {
-		System system = new System( directory ); 
+		System system = new System( directory );
 		system.NAME = ConfReader.getAttrValue( node , "name" );
 		system.DESC = ConfReader.getAttrValue( node , "desc" );
 		system.OFFLINE = ConfReader.getBooleanAttrValue( node , "offline" , true );

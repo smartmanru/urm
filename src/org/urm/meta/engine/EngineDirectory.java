@@ -22,6 +22,7 @@ public class EngineDirectory extends EngineObject {
 
 	private Map<String,System> mapSystems;
 	private Map<String,Product> mapProducts;
+	private Map<String,System> mapSystemsUnmatched;
 	
 	public EngineDirectory( EngineRegistry registry ) {
 		super( registry );
@@ -29,6 +30,7 @@ public class EngineDirectory extends EngineObject {
 		this.engine = registry.loader.engine;
 		mapSystems = new HashMap<String,System>();
 		mapProducts = new HashMap<String,Product>();
+		mapSystemsUnmatched = new HashMap<String,System>();
 	}
 
 	@Override
@@ -47,6 +49,11 @@ public class EngineDirectory extends EngineObject {
 				r.addProduct( rp );
 		}
 
+		for( System system : mapSystemsUnmatched.values() ) {
+			System rs = system.copy( r );
+			r.addSystem( rs );
+		}
+
 		return( r );
 	}
 	
@@ -54,8 +61,16 @@ public class EngineDirectory extends EngineObject {
 		return( Common.getSortedKeys( mapSystems ) );
 	}
 
+	public String[] getSystemNamesUnmatched() {
+		return( Common.getSortedKeys( mapSystemsUnmatched ) );
+	}
+
 	public System[] getSystems() {
 		return( mapSystems.values().toArray( new System[0] ) );
+	}
+	
+	public System[] getSystemsUnmatched() {
+		return( mapSystemsUnmatched.values().toArray( new System[0] ) );
 	}
 	
 	public String[] getProductNames() {
@@ -103,7 +118,10 @@ public class EngineDirectory extends EngineObject {
 	}
 
 	public void addSystem( System system ) throws Exception {
-		mapSystems.put( system.NAME , system );
+		if( system.MATCHED )
+			mapSystems.put( system.NAME , system );
+		else
+			mapSystemsUnmatched.put( system.NAME , system );
 	}
 	
 	public void addProduct( Product product ) throws Exception {
