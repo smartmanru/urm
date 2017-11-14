@@ -6,10 +6,10 @@ import org.urm.common.ConfReader;
 import org.urm.engine.EngineSession;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.dist.DistRepository;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.Types.*;
+import org.urm.meta.engine.EngineProducts;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -19,7 +19,7 @@ public class Meta extends EngineObject {
 	public String name;
 	public EngineSession session;
 	
-	private EngineLoader loader;
+	private EngineProducts products;
 	private ProductMeta storage;
 
 	private MetaProductVersion version;
@@ -44,7 +44,7 @@ public class Meta extends EngineObject {
 	public Meta( ProductMeta storage , EngineSession session ) {
 		super( null );
 		this.storage = storage;
-		this.loader = storage.loader;
+		this.products = storage.products;
 		this.session = session;
 		name = storage.name;
 	}
@@ -55,7 +55,7 @@ public class Meta extends EngineObject {
 	}
 	
 	public void replaceStorage( ActionBase action , ProductMeta storage ) throws Exception {
-		loader.releaseSessionProductMetadata( action , this , false );
+		products.releaseSessionProductMetadata( action , this , false );
 		
 		// clear old refs
 		version = null;
@@ -112,7 +112,7 @@ public class Meta extends EngineObject {
 
 	public synchronized MetaProductVersion getVersion( ActionBase action ) throws Exception {
 		if( version == null )
-			version = loader.loadVersion( action.actionInit , storage );
+			version = products.loadVersion( action.actionInit , storage );
 		return( version );
 	}
 
@@ -123,36 +123,36 @@ public class Meta extends EngineObject {
 	
 	public synchronized MetaProductSettings getProductSettings( ActionBase action ) throws Exception {
 		if( product == null )
-			product = loader.loadProduct( action.actionInit , storage );
+			product = products.loadProduct( action.actionInit , storage );
 		return( product );
 	}
 	
 	public synchronized MetaDatabase getDatabase( ActionBase action ) throws Exception {
 		if( database == null )
-			database = loader.loadDatabase( action.actionInit , storage );
+			database = products.loadDatabase( action.actionInit , storage );
 		return( database );
 	}
 
 	public synchronized MetaDistr getDistr( ActionBase action ) throws Exception {
 		if( distr == null )
-			distr = loader.loadDistr( action.actionInit , storage );
+			distr = products.loadDistr( action.actionInit , storage );
 		return( distr );
 	}
 
 	public synchronized MetaSource getSources( ActionBase action ) throws Exception {
 		if( sources == null )
-			sources = loader.loadSources( action.actionInit , storage );
+			sources = products.loadSources( action.actionInit , storage );
 		return( sources );
 	}
 
 	public synchronized MetaMonitoring getMonitoring( ActionBase action ) throws Exception {
 		if( monitoring == null )
-			monitoring = loader.loadMonitoring( action.actionInit , storage );
+			monitoring = products.loadMonitoring( action.actionInit , storage );
 		return( monitoring );
 	}
 	
 	public synchronized MetaDesign getDesignData( ActionBase action , String fileName ) throws Exception {
-		return( loader.loadDesignData( action.actionInit , storage , fileName ) );
+		return( products.loadDesignData( action.actionInit , storage , fileName ) );
 	}
 	
 	public String[] getEnvNames() {
@@ -168,7 +168,7 @@ public class Meta extends EngineObject {
 	}
 	
 	public synchronized MetaEnv getEnvData( ActionBase action , String envFile , boolean loadProps ) throws Exception {
-		return( loader.loadEnvData( action.actionInit , storage , envFile , loadProps ) );
+		return( products.loadEnvData( action.actionInit , storage , envFile , loadProps ) );
 	}
 	
 	public MetaEnv findEnv( String envId ) {

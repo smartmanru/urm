@@ -5,15 +5,18 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.DBConnection;
 import org.urm.db.DBNames;
 import org.urm.db.DBVersions;
 import org.urm.db.DBEnums.DBEnumObjectType;
+import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.system.DBSystem;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.EngineObject;
+import org.w3c.dom.Node;
 
 public class EngineDirectory extends EngineObject {
 
@@ -38,6 +41,13 @@ public class EngineDirectory extends EngineObject {
 		return( "server-directory" );
 	}
 
+	public void load( Node root , DBConnection c , boolean savedb , boolean withSystems ) throws Exception {
+		if( withSystems )
+			DBEngineDirectory.load( this , root , c , savedb );
+		else
+			DBEngineDirectory.load( this , root , c , false );
+	}
+	
 	public EngineDirectory copy() throws Exception {
 		EngineDirectory r = new EngineDirectory( registry );
 		

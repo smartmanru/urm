@@ -9,6 +9,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
@@ -17,6 +18,7 @@ import org.urm.engine.properties.PropertySet;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.Meta;
@@ -33,7 +35,8 @@ import org.w3c.dom.Node;
 
 public class ProductMeta extends EngineObject {
 
-	public EngineLoader loader;
+	public Engine engine;
+	public EngineProducts products;
 	public String name;
 	
 	public Meta meta;
@@ -64,13 +67,14 @@ public class ProductMeta extends EngineObject {
 	private Map<EngineSession,Meta> sessionMeta;
 	private boolean primary;
 	
-	public ProductMeta( EngineLoader loader , String name ) {
+	public ProductMeta( EngineProducts products , String name ) {
 		super( null );
-		this.loader = loader;
+		this.products = products;
+		this.engine = products.engine;
 		this.name = name;
 		
 		meta = new Meta( this , null );
-		loader.engine.trace( "new product storage meta object, id=" + meta.objectId + ", storage=" + objectId );
+		engine.trace( "new product storage meta object, id=" + meta.objectId + ", storage=" + objectId );
 		designFiles = new HashMap<String,MetaDesign>();
 		envs = new HashMap<String,MetaEnv>();
 		
@@ -115,7 +119,7 @@ public class ProductMeta extends EngineObject {
 	}
 	
 	public synchronized ProductMeta copy( ActionBase action ) throws Exception {
-		ProductMeta r = new ProductMeta( loader , name );
+		ProductMeta r = new ProductMeta( products , name );
 		
 		if( version != null ) {
 			r.version = version.copy( action , r.meta );

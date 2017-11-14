@@ -45,16 +45,8 @@ public class EngineRegistry extends EngineObject {
 		Document doc = ConfReader.readXmlFile( execrc , propertyFile );
 		Node root = doc.getDocumentElement();
 		
-		Node node;
-		if( withSystems ) {
-			node = ConfReader.xmlGetFirstChild( root , "directory" );
-			DBEngineDirectory.load( directory , node , c , savedb );
-		}
-		else {
-			node = ConfReader.xmlGetFirstChild( root , "directory" );
-			DBEngineDirectory.load( directory , node , c , false );
-		}
-		
+		Node node = ConfReader.xmlGetFirstChild( root , "directory" );
+		directory.load( root ,  c , savedb , withSystems );
 		node = ConfReader.xmlGetFirstChild( root , "resources" );
 		resources.load( node );
 		node = ConfReader.xmlGetFirstChild( root , "mirror" );

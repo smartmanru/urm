@@ -69,7 +69,7 @@ public class EngineTransaction extends TransactionBase {
 			if( repo.isServer() )
 				loader.rereadEngineMirror( true );
 			else
-				loader.rereadProductMirror( repo.PRODUCT , true );
+				loader.rereadProductMirror( action , repo.PRODUCT , true );
 		}
 	}
 
@@ -83,7 +83,7 @@ public class EngineTransaction extends TransactionBase {
 		if( repo.isServer() )
 			loader.rereadEngineMirror( true );
 		else
-			loader.rereadProductMirror( repo.PRODUCT , true );
+			loader.rereadProductMirror( action , repo.PRODUCT , true );
 	}
 
 	public void dropMirror( MirrorRepository repo , boolean dropOnServer ) throws Exception {

@@ -68,7 +68,7 @@ public class EngineSession extends EngineObject {
 		EngineLoader loader = controller.engine.getLoader( action );
 		for( String product : Common.getSortedKeys( productMeta ) ) {
 			Meta meta = productMeta.get( product );
-			loader.releaseSessionProductMetadata( action , meta );
+			loader.releaseSessionProductMetadata( action , meta , false );
 		}
 		
 		super.deleteObject();

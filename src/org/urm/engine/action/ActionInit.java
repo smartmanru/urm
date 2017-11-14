@@ -294,12 +294,11 @@ public class ActionInit extends ActionBase {
 	}
 
 	public Meta createProductMetadata( TransactionBase transaction , EngineDirectory directory , Product product ) throws Exception {
-		ProductMeta storage = loader.createProductMetadata( transaction , directory , product );
-		return( loader.createSessionProductMetadata( transaction.action , storage ) );
+		return( loader.createProductMetadata( transaction , directory , product ) );
 	}
 
 	public void releaseProductMetadata( TransactionBase transaction , Meta sessionMeta ) throws Exception {
-		loader.releaseSessionProductMetadata( transaction.action , sessionMeta );
+		loader.releaseSessionProductMetadata( transaction.action , sessionMeta , false );
 	}
 
 	public Meta reloadProductMetadata( String productName ) throws Exception {
