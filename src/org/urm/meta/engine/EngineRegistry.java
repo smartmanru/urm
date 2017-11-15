@@ -41,12 +41,18 @@ public class EngineRegistry extends EngineObject {
 		return( "server-registry" );
 	}
 	
-	public void load( String propertyFile , DBConnection c , boolean savedb , boolean withSystems ) throws Exception {
+	public void loadmixed( String propertyFile , DBConnection c , boolean importxml , boolean withSystems ) throws Exception {
 		Document doc = ConfReader.readXmlFile( execrc , propertyFile );
 		Node root = doc.getDocumentElement();
+		Node node;
 		
-		Node node = ConfReader.xmlGetFirstChild( root , "directory" );
-		directory.load( root ,  c , savedb , withSystems );
+		if( importxml == false || withSystems == false )
+			directory.loaddb( c );
+		else {
+			node = ConfReader.xmlGetFirstChild( root , "directory" );
+			directory.loadxml( node , c );
+		}
+		
 		node = ConfReader.xmlGetFirstChild( root , "resources" );
 		resources.load( node );
 		node = ConfReader.xmlGetFirstChild( root , "mirror" );
@@ -55,7 +61,7 @@ public class EngineRegistry extends EngineObject {
 		builders.load( node );
 	}
 	
-	public void save( ActionCore action , String path , RunContext execrc ) throws Exception {
+	public void savexml( ActionCore action , String path , RunContext execrc ) throws Exception {
 		Document doc = Common.xmlCreateDoc( "registry" );
 		Element root = doc.getDocumentElement();
 		
@@ -63,7 +69,7 @@ public class EngineRegistry extends EngineObject {
 		node = Common.xmlCreateElement( doc , root , "resources" );
 		resources.save( doc , node );
 		node = Common.xmlCreateElement( doc , root , "directory" );
-		DBEngineDirectory.save( directory , doc , node );
+		DBEngineDirectory.savexml( directory , doc , node );
 		node = Common.xmlCreateElement( doc , root , "mirror" );
 		mirrors.save( doc , node );
 		node = Common.xmlCreateElement( doc , root , "build" );

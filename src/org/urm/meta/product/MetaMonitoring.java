@@ -29,20 +29,12 @@ public class MetaMonitoring extends PropertyController {
 	public String DIR_REPORTS;
 	public String DIR_LOGS;
 	
-	public int MAJORINTERVAL;
-	public int MINORINTERVAL;
-	public int MINSILENT;
-
 	// properties
 	public static String PROPERTY_RESOURCE_URL = "resources.url";
 	public static String PROPERTY_DIR_RES = "resources.path";
 	public static String PROPERTY_DIR_DATA = "data.path";
 	public static String PROPERTY_DIR_REPORTS = "reports.path";
 	public static String PROPERTY_DIR_LOGS = "logs.path";
-	
-	public static String PROPERTY_MAJORINTERVAL = "major.interval";
-	public static String PROPERTY_MINORINTERVAL = "minor.interval";
-	public static String PROPERTY_MINSILENT = "silent.between";
 	
 	public MetaMonitoring( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
 		super( storage , settings , "monitoring" );
@@ -70,10 +62,6 @@ public class MetaMonitoring extends PropertyController {
 		DIR_DATA = super.getPathProperty( action , PROPERTY_DIR_DATA );
 		DIR_REPORTS = super.getPathProperty( action , PROPERTY_DIR_REPORTS );
 		DIR_LOGS = super.getPathProperty( action , PROPERTY_DIR_LOGS );
-		
-		MAJORINTERVAL = super.getIntProperty( action , PROPERTY_MAJORINTERVAL , 300 );
-		MINORINTERVAL = super.getIntProperty( action , PROPERTY_MINORINTERVAL , 60 );
-		MINSILENT = super.getIntProperty( action , PROPERTY_MINSILENT , 30 );
 	}
 	
 	public MetaMonitoring copy( ActionBase action , Meta meta ) throws Exception {

@@ -1,60 +1,58 @@
 package org.urm.meta.engine;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineObject;
 import org.urm.meta.product.Meta;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class Product extends EngineObject {
 
 	public EngineDirectory directory;
-	public System system;
+	public AppSystem system;
 
 	public int ID;
+	public int SYSTEM;
 	public String NAME;
 	public String DESC;
 	public String PATH;
 	public boolean OFFLINE;
 	public boolean MONITORING_ENABLED;
-	int CV;
+	public int SV;
 
-	public Product( EngineDirectory directory , System system ) {
+	public Product( EngineDirectory directory , AppSystem system ) {
 		super( directory );
 		this.directory = directory;
 		this.system = system;
+		this.SYSTEM = system.ID;
+		this.ID = -1;
+		this.SV = 0;
 	}
 	
 	@Override
 	public String getName() {
 		return( NAME );
 	}
-	
+
 	public void createProduct( EngineTransaction transaction , String newName , String newDesc , String newPath ) throws Exception {
+		SYSTEM = system.ID;
 		NAME = newName;
 		DESC = newDesc;
 		PATH = newPath;
 		OFFLINE = true;
+		MONITORING_ENABLED = true;
 	}
 
-	public Product copy( EngineDirectory nr , System rs ) {
+	public Product copy( EngineDirectory nr , AppSystem rs ) {
 		Product r = new Product( nr , rs );
+		r.ID = ID;
+		r.SYSTEM = SYSTEM;
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.PATH = PATH;
 		r.OFFLINE = OFFLINE;
+		r.MONITORING_ENABLED = MONITORING_ENABLED;
+		r.SV = SV;
 		return( r );
-	}
-	
-	public void load( Node node ) throws Exception {
-		NAME = ConfReader.getAttrValue( node , "name" );
-		DESC = ConfReader.getAttrValue( node , "desc" );
-		PATH = ConfReader.getAttrValue( node , "path" );
-		OFFLINE = ConfReader.getBooleanAttrValue( node , "offline" , true );
 	}
 	
 	public Meta getMeta( ActionBase action ) throws Exception {
@@ -74,13 +72,6 @@ public class Product extends EngineObject {
 		return( action.isProductBroken( NAME ) );
 	}
 	
-	public void save( Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "name" , NAME );
-		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
-		Common.xmlSetElementAttr( doc , root , "path" , PATH );
-		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( OFFLINE ) );
-	}
-
 	public void setMonitoringEnabled( EngineTransaction transaction , boolean enabled ) throws Exception {
 		MONITORING_ENABLED = enabled;
 	}

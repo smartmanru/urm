@@ -161,7 +161,7 @@ public class EngineLoader {
 
 	private void loadRegistry( DBConnection c , boolean savedb , boolean withSystems ) throws Exception {
 		String registryFile = getServerRegistryFile();
-		registry.load( registryFile , c , savedb , withSystems );
+		registry.loadmixed( registryFile , c , savedb , withSystems );
 	}
 
 	private String getServerSettingsFile() {
@@ -205,7 +205,7 @@ public class EngineLoader {
 	
 	public void saveRegistry( TransactionBase transaction ) throws Exception {
 		String propertyFile = getServerRegistryFile();
-		registry.save( transaction.getAction() , propertyFile , execrc );
+		registry.savexml( transaction.getAction() , propertyFile , execrc );
 	}
 	
 	public void setResources( TransactionBase transaction , EngineResources resourcesNew ) throws Exception {

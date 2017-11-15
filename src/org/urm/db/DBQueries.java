@@ -21,6 +21,9 @@ public abstract class DBQueries {
 	public static String MODIFY_SYSTEM_UPDATE4 = "update urm_system set name = @2@ , xdesc = @3@ , sv = @4@ where id = @1@";
 	public static String MODIFY_SYSTEM_DELETE2 = "delete from urm_system where id = @1@";
 	public static String MODIFY_SYSTEM_DELETEALLPARAMS2 = "delete from urm_system_param where system = @1@";
+
+	public static String QUERY_PRODUCT_GETALL0 = "select id , system , name , xdesc , path , offline , monitoring_enabled , sv from urm_product";
+	public static String MODIFY_PRODUCT_ADD8 = "insert into urm_product ( id , system , name , xdesc , path , offline , monitoring_enabled , sv ) values ( @1@ , @2@ , @3@ , @4@ , @5@ , @6@ , @7@ , @8@ )";
 	
 	public static String MODIFY_AUTH_DROP_ACCESSPRODUCT0 = "delete from urm_auth_access_product";
 	public static String MODIFY_AUTH_DROP_ACCESSRESOURCE0 = "delete from urm_auth_access_resource";

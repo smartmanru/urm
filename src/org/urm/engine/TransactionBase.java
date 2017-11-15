@@ -26,7 +26,7 @@ import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine.EngineReleaseLifecycles;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
-import org.urm.meta.engine.System;
+import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.engine.EngineAuth.SpecialRights;
 import org.urm.meta.product.Meta;
@@ -1083,7 +1083,7 @@ public class TransactionBase extends EngineObject {
 		return( builders.getBuilder( builder.NAME ) );
 	}
 	
-	public System getSystem( System system ) throws Exception {
+	public AppSystem getSystem( AppSystem system ) throws Exception {
 		return( directory.getSystem( system.NAME ) );
 	}
 	

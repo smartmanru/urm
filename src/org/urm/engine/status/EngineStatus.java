@@ -16,7 +16,7 @@ import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineRegistry;
 import org.urm.meta.engine.Product;
-import org.urm.meta.engine.System;
+import org.urm.meta.engine.AppSystem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
@@ -86,8 +86,8 @@ public class EngineStatus extends EngineObject {
 		if( object instanceof EngineDirectory )
 			return( getAppSource() );
 			
-		if( object instanceof System ) {
-			System system = ( System )object; 
+		if( object instanceof AppSystem ) {
+			AppSystem system = ( AppSystem )object; 
 			return( getGlobalSource( StatusType.SYSTEM , system.NAME ) );
 		}
 		
@@ -144,7 +144,7 @@ public class EngineStatus extends EngineObject {
 	public synchronized void setProductStatus( ActionBase action , Product product , OBJECT_STATE state ) {
 		StatusSource productSource = getObjectSource( product );
 		if( productSource != null && productSource.setFinalState( state ) ) {
-			System system = product.system;
+			AppSystem system = product.system;
 			recalculateSystem( system );
 		}
 	}
@@ -232,12 +232,12 @@ public class EngineStatus extends EngineObject {
 		createGlobalSource( StatusType.APP , directory , "app" , new AppStatus() );
 		
 		for( String systemName : directory.getSystemNames() ) {
-			System system = directory.findSystem( systemName );
+			AppSystem system = directory.findSystem( systemName );
 			startSystem( action , loader , system );
 		}
 	}
 	
-	private void startSystem( ActionBase action , EngineLoader loader , System system ) {
+	private void startSystem( ActionBase action , EngineLoader loader , AppSystem system ) {
 		action.trace( "start status tracking for system=" + system.NAME + " ..." );
 		createGlobalSource( StatusType.SYSTEM , system , system.NAME , new SystemStatus( system ) );
 		
@@ -283,7 +283,7 @@ public class EngineStatus extends EngineObject {
 		source.unsubscribeAll();
 	}
 	
-	private void recalculateSystem( System system ) {
+	private void recalculateSystem( AppSystem system ) {
 		StatusSource systemSource = getObjectSource( system );
 		if( systemSource == null )
 			return;
@@ -307,7 +307,7 @@ public class EngineStatus extends EngineObject {
 
 		OBJECT_STATE finalState = OBJECT_STATE.STATE_NODATA;
 		for( String systemName : directory.getSystemNames() ) {
-			System system = directory.findSystem( systemName );
+			AppSystem system = directory.findSystem( systemName );
 			StatusSource systemSource = getObjectSource( system );
 			if( systemSource != null )
 				finalState = StatusData.addState( finalState , systemSource.state.state );

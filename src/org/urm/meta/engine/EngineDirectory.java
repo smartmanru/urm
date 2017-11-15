@@ -23,17 +23,21 @@ public class EngineDirectory extends EngineObject {
 	public EngineRegistry registry;
 	public Engine engine;
 
-	private Map<String,System> mapSystems;
+	private Map<String,AppSystem> mapSystems;
 	private Map<String,Product> mapProducts;
-	private Map<String,System> mapSystemsUnmatched;
+	private Map<Integer,AppSystem> mapSystemsDB;
+	private Map<Integer,Product> mapProductsDB;
+	private Map<String,AppSystem> mapSystemsUnmatched;
 	
 	public EngineDirectory( EngineRegistry registry ) {
 		super( registry );
 		this.registry = registry;
 		this.engine = registry.loader.engine;
-		mapSystems = new HashMap<String,System>();
+		mapSystems = new HashMap<String,AppSystem>();
 		mapProducts = new HashMap<String,Product>();
-		mapSystemsUnmatched = new HashMap<String,System>();
+		mapSystemsDB = new HashMap<Integer,AppSystem>();
+		mapProductsDB = new HashMap<Integer,Product>();
+		mapSystemsUnmatched = new HashMap<String,AppSystem>();
 	}
 
 	@Override
@@ -41,26 +45,32 @@ public class EngineDirectory extends EngineObject {
 		return( "server-directory" );
 	}
 
-	public void load( Node root , DBConnection c , boolean savedb , boolean withSystems ) throws Exception {
-		if( withSystems )
-			DBEngineDirectory.load( this , root , c , savedb );
-		else
-			DBEngineDirectory.load( this , root , c , false );
+	public void loadxml( Node root , DBConnection c ) throws Exception {
+		DBEngineDirectory.loadxml( this , root , c );
+		DBEngineDirectory.resolvexml( this );
+		DBEngineDirectory.matchxml( this );
+		DBEngineDirectory.savedb( this , c );
+	}
+	
+	public void loaddb( DBConnection c ) throws Exception {
+		DBEngineDirectory.loaddb( this , c );
+		DBEngineDirectory.resolvedb( this );
+		DBEngineDirectory.matchdb( this , false );
 	}
 	
 	public EngineDirectory copy() throws Exception {
 		EngineDirectory r = new EngineDirectory( registry );
 		
-		for( System system : mapSystems.values() ) {
-			System rs = system.copy( r );
+		for( AppSystem system : mapSystems.values() ) {
+			AppSystem rs = system.copy( r );
 			r.addSystem( rs );
 			
 			for( Product rp : rs.getProducts() )
 				r.addProduct( rp );
 		}
 
-		for( System system : mapSystemsUnmatched.values() ) {
-			System rs = system.copy( r );
+		for( AppSystem system : mapSystemsUnmatched.values() ) {
+			AppSystem rs = system.copy( r );
 			r.addSystem( rs );
 		}
 
@@ -75,12 +85,12 @@ public class EngineDirectory extends EngineObject {
 		return( Common.getSortedKeys( mapSystemsUnmatched ) );
 	}
 
-	public System[] getSystems() {
-		return( mapSystems.values().toArray( new System[0] ) );
+	public AppSystem[] getSystems() {
+		return( mapSystems.values().toArray( new AppSystem[0] ) );
 	}
 	
-	public System[] getSystemsUnmatched() {
-		return( mapSystemsUnmatched.values().toArray( new System[0] ) );
+	public AppSystem[] getSystemsUnmatched() {
+		return( mapSystemsUnmatched.values().toArray( new AppSystem[0] ) );
 	}
 	
 	public String[] getProductNames() {
@@ -92,20 +102,24 @@ public class EngineDirectory extends EngineObject {
 	}
 	
 	public String[] getSystemProducts( String systemName ) {
-		System system = findSystem( systemName );
+		AppSystem system = findSystem( systemName );
 		if( system == null )
 			return( new String[0] );
 		return( system.getProductNames() );
 	}
 	
-	public System findSystem( System system ) {
+	public AppSystem findSystem( AppSystem system ) {
 		if( system == null )
 			return( null );
 		return( mapSystems.get( system.NAME ) );
 	}
 	
-	public System findSystem( String name ) {
+	public AppSystem findSystem( String name ) {
 		return( mapSystems.get( name ) );
+	}
+	
+	public AppSystem findSystem( int id ) {
+		return( mapSystemsDB.get( id ) );
 	}
 	
 	public Product findProduct( Product product ) {
@@ -118,7 +132,11 @@ public class EngineDirectory extends EngineObject {
 		return( mapProducts.get( name ) );
 	}
 	
-	public void createSystem( EngineTransaction t , System system ) throws Exception {
+	public Product findProduct( int id ) {
+		return( mapProductsDB.get( id ) );
+	}
+	
+	public void createSystem( EngineTransaction t , AppSystem system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != null )
 			t.exit( _Error.DuplicateSystem1 , "system=" + system.NAME + " is not unique" , new String[] { system.NAME } );
 		
@@ -127,24 +145,46 @@ public class EngineDirectory extends EngineObject {
 		addSystem( system );
 	}
 
-	public void addSystem( System system ) throws Exception {
-		if( system.MATCHED )
-			mapSystems.put( system.NAME , system );
-		else
-			mapSystemsUnmatched.put( system.NAME , system );
+	public void addSystem( AppSystem system ) throws Exception {
+		mapSystems.put( system.NAME , system );
+		if( system.ID > 0 )
+			mapSystemsDB.put( system.ID , system );
+	}
+	
+	public void addSystemUnmatched( AppSystem system ) throws Exception {
+		mapSystemsUnmatched.put( system.NAME , system );
+		if( system.ID > 0 )
+			mapSystemsDB.put( system.ID , system );
+	}
+	
+	public void setSystemMatched( AppSystem system ) throws Exception {
+		mapSystemsUnmatched.remove( system.NAME );
+		mapSystems.put( system.NAME , system );
+	}
+
+	public void setSystemUnmatched( AppSystem system ) throws Exception {
+		mapSystemsUnmatched.put( system.NAME , system );
+		mapSystems.remove( system.NAME );
+		mapSystemsDB.remove( system.ID );
+		for( Product product : system.getProducts() ) {
+			mapProducts.remove( product.NAME );
+			mapProductsDB.remove( product.ID );
+		}
 	}
 	
 	public void addProduct( Product product ) throws Exception {
 		mapProducts.put( product.NAME , product );
+		if( product.ID > 0 )
+			mapProductsDB.put( product.ID , product );
 	}
 	
-	public void modifySystem( EngineTransaction t , System system ) throws Exception {
+	public void modifySystem( EngineTransaction t , AppSystem system ) throws Exception {
 		if( Common.changeMapKey( mapSystems , system , system.NAME ) )
 			DBNames.updateName( t.connection , DBVersions.CORE_ID , system.NAME , system.ID , DBEnumObjectType.SYSTEM );
 		DBSystem.update( t.connection , t.getNextSystemVersion( system.ID ) , system );
 	}
 	
-	public void deleteSystem( EngineTransaction t , System system ) throws Exception {
+	public void deleteSystem( EngineTransaction t , AppSystem system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != system )
 			t.exit( _Error.TransactionSystemOld1 , "system=" + system.NAME + " is unknown or mismatched" , new String[] { system.NAME } );
 		
@@ -155,10 +195,17 @@ public class EngineDirectory extends EngineObject {
 		mapSystems.remove( system.NAME );
 	}
 
-	public System getSystem( String name ) throws Exception {
-		System system = findSystem( name );
+	public AppSystem getSystem( String name ) throws Exception {
+		AppSystem system = findSystem( name );
 		if( system == null )
 			Common.exit1( _Error.UnknownSystem1 , "unknown system=" + name , name );
+		return( system );
+	}
+
+	public AppSystem getSystem( int id ) throws Exception {
+		AppSystem system = findSystem( id );
+		if( system == null )
+			Common.exit1( _Error.UnknownSystem1 , "unknown system=" + id , "" + id );
 		return( system );
 	}
 
@@ -166,6 +213,13 @@ public class EngineDirectory extends EngineObject {
 		Product product = findProduct( name );
 		if( product == null )
 			Common.exit1( _Error.UnknownProduct1 , "unknown product=" + name , name );
+		return( product );
+	}
+
+	public Product getProduct( int id ) throws Exception {
+		Product product = findProduct( id );
+		if( product == null )
+			Common.exit1( _Error.UnknownProduct1 , "unknown product=" + id , "" + id );
 		return( product );
 	}
 

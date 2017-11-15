@@ -27,7 +27,7 @@ import org.urm.meta.engine.Product;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.engine.ReleaseLifecyclePhase;
-import org.urm.meta.engine.System;
+import org.urm.meta.engine.AppSystem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
@@ -160,17 +160,17 @@ public class EngineTransaction extends TransactionBase {
 		lc.changePhases( this , phases );
 	}
 	
-	public void createSystem( System system ) throws Exception {
+	public void createSystem( AppSystem system ) throws Exception {
 		checkTransactionDirectory();
 		directory.createSystem( this , system );
 	}
 	
-	public void modifySystem( System system ) throws Exception {
+	public void modifySystem( AppSystem system ) throws Exception {
 		checkTransactionDirectory();
 		directory.modifySystem( this , system );
 	}
 
-	public void deleteSystem( System system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+	public void deleteSystem( AppSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		checkTransactionDirectory();
 		
 		EngineMirrors mirrors = action.getServerMirrors();

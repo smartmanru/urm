@@ -104,7 +104,7 @@ public class EngineMonitoring extends EngineObject {
 		
 		EngineRegistry registry = loader.getRegistry();
 		for( String systemName : registry.directory.getSystemNames() ) {
-			System system = registry.directory.findSystem( systemName );
+			AppSystem system = registry.directory.findSystem( systemName );
 			createSystem( action , system );
 		}
 	}
@@ -126,7 +126,7 @@ public class EngineMonitoring extends EngineObject {
 			mon.stop( action );
 	}
 	
-	private void createSystem( ActionBase action , System system ) throws Exception {
+	private void createSystem( ActionBase action , AppSystem system ) throws Exception {
 		for( String productName : system.getProductNames() ) {
 			ProductMeta storage = loader.findProductStorage( productName );
 			createProduct( action , storage );
@@ -202,7 +202,7 @@ public class EngineMonitoring extends EngineObject {
 		return( false );
 	}
 
-	public boolean isRunning( System system ) {
+	public boolean isRunning( AppSystem system ) {
 		return( isEnabled() && system.OFFLINE == false );
 	}
 	

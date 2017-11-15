@@ -1,12 +1,12 @@
 package org.urm.engine.status;
 
-import org.urm.meta.engine.System;
+import org.urm.meta.engine.AppSystem;
 
 public class SystemStatus extends Status {
 
-	public System system;
+	public AppSystem system;
 	
-	public SystemStatus( System system ) {
+	public SystemStatus( AppSystem system ) {
 		super( STATETYPE.TypeSystem , null , system );
 		this.system = system;
 	}
