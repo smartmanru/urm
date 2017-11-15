@@ -3,12 +3,11 @@ package org.urm.meta.engine;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
 
-public class System extends EngineObject {
+public class AppSystem extends EngineObject {
 
 	public EngineDirectory directory;
 	private Map<String,Product> mapProducts;
@@ -22,7 +21,7 @@ public class System extends EngineObject {
 	
 	ObjectProperties parameters;
 	
-	public System( EngineDirectory directory ) {
+	public AppSystem( EngineDirectory directory ) {
 		super( directory );
 		this.directory = directory;
 		mapProducts = new HashMap<String,Product>();
@@ -48,8 +47,8 @@ public class System extends EngineObject {
 		this.OFFLINE = OFFLINE;
 	}
 	
-	public System copy( EngineDirectory nd ) {
-		System r = new System( nd );
+	public AppSystem copy( EngineDirectory nd ) {
+		AppSystem r = new AppSystem( nd );
 		r.ID = ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
@@ -93,12 +92,10 @@ public class System extends EngineObject {
 		return( OFFLINE );
 	}
 
-	public boolean isBroken( ActionBase action ) {
-		for( Product product : mapProducts.values() ) {
-			if( product.isBroken( action ) )
-				return( true );
-		}
-		return( false );
+	public boolean isBroken() {
+		if( MATCHED )
+			return( false );
+		return( true );
 	}
 
 }
