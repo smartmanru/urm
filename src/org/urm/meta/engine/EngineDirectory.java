@@ -27,17 +27,15 @@ public class EngineDirectory extends EngineObject {
 	private Map<String,Product> mapProducts;
 	private Map<Integer,AppSystem> mapSystemsDB;
 	private Map<Integer,Product> mapProductsDB;
-	private Map<String,AppSystem> mapSystemsUnmatched;
 	
 	public EngineDirectory( EngineRegistry registry ) {
 		super( registry );
 		this.registry = registry;
-		this.engine = registry.loader.engine;
+		this.engine = registry.engine;
 		mapSystems = new HashMap<String,AppSystem>();
 		mapProducts = new HashMap<String,Product>();
 		mapSystemsDB = new HashMap<Integer,AppSystem>();
 		mapProductsDB = new HashMap<Integer,Product>();
-		mapSystemsUnmatched = new HashMap<String,AppSystem>();
 	}
 
 	@Override
@@ -69,11 +67,6 @@ public class EngineDirectory extends EngineObject {
 				r.addProduct( rp );
 		}
 
-		for( AppSystem system : mapSystemsUnmatched.values() ) {
-			AppSystem rs = system.copy( r );
-			r.addSystem( rs );
-		}
-
 		return( r );
 	}
 	
@@ -81,16 +74,8 @@ public class EngineDirectory extends EngineObject {
 		return( Common.getSortedKeys( mapSystems ) );
 	}
 
-	public String[] getSystemNamesUnmatched() {
-		return( Common.getSortedKeys( mapSystemsUnmatched ) );
-	}
-
 	public AppSystem[] getSystems() {
 		return( mapSystems.values().toArray( new AppSystem[0] ) );
-	}
-	
-	public AppSystem[] getSystemsUnmatched() {
-		return( mapSystemsUnmatched.values().toArray( new AppSystem[0] ) );
 	}
 	
 	public String[] getProductNames() {
@@ -141,7 +126,7 @@ public class EngineDirectory extends EngineObject {
 			t.exit( _Error.DuplicateSystem1 , "system=" + system.NAME + " is not unique" , new String[] { system.NAME } );
 		
 		int systemId = DBNames.getNameIndex( t.connection , DBVersions.CORE_ID , system.NAME , DBEnumObjectType.SYSTEM );
-		DBSystem.insert( t.connection , systemId , t.getNextSystemVersion( systemId ) , system );
+		DBSystem.insert( t.connection , systemId , system );
 		addSystem( system );
 	}
 
@@ -151,25 +136,17 @@ public class EngineDirectory extends EngineObject {
 			mapSystemsDB.put( system.ID , system );
 	}
 	
-	public void addSystemUnmatched( AppSystem system ) throws Exception {
-		mapSystemsUnmatched.put( system.NAME , system );
-		if( system.ID > 0 )
-			mapSystemsDB.put( system.ID , system );
-	}
-	
-	public void setSystemMatched( AppSystem system ) throws Exception {
-		mapSystemsUnmatched.remove( system.NAME );
-		mapSystems.put( system.NAME , system );
-	}
-
-	public void setSystemUnmatched( AppSystem system ) throws Exception {
-		mapSystemsUnmatched.put( system.NAME , system );
+	public void unloadSystem( AppSystem system ) throws Exception {
 		mapSystems.remove( system.NAME );
 		mapSystemsDB.remove( system.ID );
-		for( Product product : system.getProducts() ) {
-			mapProducts.remove( product.NAME );
-			mapProductsDB.remove( product.ID );
-		}
+		for( Product product : system.getProducts() )
+			unloadProduct( product );
+	}
+	
+	public void unloadProduct( Product product ) throws Exception {
+		mapProducts.remove( product.NAME );
+		mapProductsDB.remove( product.ID );
+		product.system.removeProduct( product );
 	}
 	
 	public void addProduct( Product product ) throws Exception {
@@ -179,16 +156,17 @@ public class EngineDirectory extends EngineObject {
 	}
 	
 	public void modifySystem( EngineTransaction t , AppSystem system ) throws Exception {
+		registry.data.checkSystemNameBusy( system.NAME );
 		if( Common.changeMapKey( mapSystems , system , system.NAME ) )
 			DBNames.updateName( t.connection , DBVersions.CORE_ID , system.NAME , system.ID , DBEnumObjectType.SYSTEM );
-		DBSystem.update( t.connection , t.getNextSystemVersion( system.ID ) , system );
+		DBSystem.update( t.connection , system );
 	}
 	
 	public void deleteSystem( EngineTransaction t , AppSystem system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != system )
 			t.exit( _Error.TransactionSystemOld1 , "system=" + system.NAME + " is unknown or mismatched" , new String[] { system.NAME } );
 		
-		DBSystem.delete( t.connection , t.CV , system );
+		DBSystem.delete( t.connection , system );
 		for( String productName : system.getProductNames() )
 			mapProducts.remove( productName );
 		
@@ -226,6 +204,8 @@ public class EngineDirectory extends EngineObject {
 	public void createProduct( EngineTransaction transaction , Product product ) throws Exception {
 		if( mapProducts.containsKey( product.NAME ) )
 			transaction.exit( _Error.DuplicateProduct1 , "product=" + product.NAME + " is not unique" , new String[] { product.NAME } );
+		
+		registry.data.checkProductNameBusy( product.NAME );
 		
 		addProduct( product );
 		product.system.addProduct( product );

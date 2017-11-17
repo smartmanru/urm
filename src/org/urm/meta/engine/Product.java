@@ -69,7 +69,7 @@ public class Product extends EngineObject {
 	}
 
 	public boolean isBroken( ActionBase action ) {
-		return( action.isProductBroken( NAME ) );
+		return( false );
 	}
 	
 	public void setMonitoringEnabled( EngineTransaction transaction , boolean enabled ) throws Exception {

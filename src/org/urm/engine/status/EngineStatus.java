@@ -10,7 +10,7 @@ import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSubscription;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineDirectory;
@@ -62,9 +62,9 @@ public class EngineStatus extends EngineObject {
 	public void init() throws Exception {
 	}
 	
-	public synchronized void start( ActionBase action , EngineLoader loader ) {
+	public synchronized void start( ActionBase action , EngineData data ) {
 		action.trace( "start status tracking ..." );
-		startApp( action , loader );
+		startApp( action , data );
 	}
 	
 	public synchronized void stop( ActionBase action ) throws Exception {
@@ -224,8 +224,8 @@ public class EngineStatus extends EngineObject {
 		return( globalSources.get( type.name() + "-" + name ) );
 	}
 
-	private void startApp( ActionBase action , EngineLoader loader ) {
-		EngineRegistry registry = loader.getRegistry();
+	private void startApp( ActionBase action , EngineData data ) {
+		EngineRegistry registry = data.getRegistry();
 		EngineDirectory directory = registry.directory;
 		
 		action.trace( "start status tracking for applications ..." );
@@ -233,18 +233,18 @@ public class EngineStatus extends EngineObject {
 		
 		for( String systemName : directory.getSystemNames() ) {
 			AppSystem system = directory.findSystem( systemName );
-			startSystem( action , loader , system );
+			startSystem( action , data , system );
 		}
 	}
 	
-	private void startSystem( ActionBase action , EngineLoader loader , AppSystem system ) {
+	private void startSystem( ActionBase action , EngineData data , AppSystem system ) {
 		action.trace( "start status tracking for system=" + system.NAME + " ..." );
 		createGlobalSource( StatusType.SYSTEM , system , system.NAME , new SystemStatus( system ) );
 		
 		// start products
 		for( String productName : system.getProductNames() ) {
 			Product product = system.findProduct( productName );
-			ProductMeta storage = loader.findProductStorage( product.NAME );
+			ProductMeta storage = data.findProductStorage( product.NAME );
 			startProduct( action , product , storage );
 		}
 	}

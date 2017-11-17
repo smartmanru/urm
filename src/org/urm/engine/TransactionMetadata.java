@@ -40,7 +40,7 @@ public class TransactionMetadata {
 		String name = metadataOld.name;
 		try {
 			if( save )
-				transaction.action.setProductMetadata( transaction , metadataOld );
+				transaction.data.setProductMetadata( transaction , metadataOld );
 			
 			if( !deleteMetadata )
 				sessionMeta.replaceStorage( transaction.action , metadataOld );
@@ -90,14 +90,14 @@ public class TransactionMetadata {
 				return( true );
 
 			deleteProduct( metadataOld );
-			transaction.action.deleteProductMetadata( transaction , metadataOld );
+			transaction.data.deleteProductMetadata( transaction , metadataOld );
 			transaction.trace( "transaction product storage meta: delete=" + metadataOld.objectId );
 		}
 		else {
 			if( metadata == null )
 				return( true );
 				
-			transaction.action.setProductMetadata( transaction , metadata );
+			transaction.data.setProductMetadata( transaction , metadata );
 			sessionMeta.replaceStorage( transaction.action , metadata );
 			transaction.trace( "transaction product storage meta: save=" + metadata.objectId );
 			if( createMetadata )

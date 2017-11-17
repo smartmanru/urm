@@ -3,6 +3,7 @@ package org.urm.meta.engine;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
@@ -12,7 +13,7 @@ import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,7 +21,7 @@ import org.w3c.dom.Node;
 
 public class EngineSettings extends EngineObject {
 
-	public EngineLoader loader;
+	public EngineData data;
 	public Engine engine;
 	public RunContext execrc;
 	public EngineContext context;
@@ -31,10 +32,10 @@ public class EngineSettings extends EngineObject {
 	private ObjectProperties defaultProductBuildProperties;
 	private Map<DBEnumBuildModeType,ObjectProperties> mapBuildModeDefaults;
 	
-	public EngineSettings( EngineLoader loader ) {
+	public EngineSettings( EngineData data ) {
 		super( null );
-		this.loader = loader;
-		this.engine = loader.engine;
+		this.data = data;
+		this.engine = data.engine;
 		this.execrc = engine.execrc;
 		
 		mapBuildModeDefaults = new HashMap<DBEnumBuildModeType,ObjectProperties>();
@@ -61,6 +62,17 @@ public class EngineSettings extends EngineObject {
 		context.scatterProperties();
 	}
 
+	public void setData( ActionBase action , EngineSettings src ) throws Exception {
+		execrcProperties = src.execrcProperties;
+		engineProperties = src.engineProperties;
+		defaultProductProperties = src.defaultProductProperties;
+		defaultProductBuildProperties = src.defaultProductBuildProperties;
+		mapBuildModeDefaults = src.mapBuildModeDefaults;
+		
+		context = new EngineContext( execrc , engineProperties.getProperties() );
+		context.scatterProperties();
+	}
+	
 	private void loadEngineSettings( Node root , DBConnection c , boolean savedb ) throws Exception {
 		engineProperties = new ObjectProperties( "engine" , execrc );
 		engineProperties.load( root , execrcProperties );
@@ -116,7 +128,7 @@ public class EngineSettings extends EngineObject {
 	}
 
 	public EngineSettings copy() throws Exception {
-		EngineSettings r = new EngineSettings( loader );
+		EngineSettings r = new EngineSettings( data );
 		r.execrcProperties = execrcProperties;
 		r.engineProperties = engineProperties.copy( execrcProperties );
 		r.context = context.copy( r.engineProperties.getProperties() );

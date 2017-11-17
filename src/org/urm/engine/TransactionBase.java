@@ -5,9 +5,8 @@ import java.util.Map;
 
 import org.urm.common.RunError;
 import org.urm.db.DBConnection;
-import org.urm.db.DBEnums.DBEnumObjectVersionType;
-import org.urm.db.DBVersions;
 import org.urm.engine.action.ActionInit;
+import org.urm.meta.EngineData;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
@@ -54,12 +53,12 @@ public class TransactionBase extends EngineObject {
 	public Engine engine;
 	public ActionInit action;
 	public RunError error;
+	protected EngineData data;
+	protected EngineLoader loader;
 	
 	public DBConnection connection;
 	private boolean CHANGEDATABASE;
 	private boolean SERVERVERSIONUPDATE;
-	public int CV;
-	public Map<Integer,Integer> systemVersions;
 	
 	public EngineInfrastructure infra;
 	public EngineReleaseLifecycles lifecycles;
@@ -85,9 +84,11 @@ public class TransactionBase extends EngineObject {
 		this.engine = engine;
 		this.action = action;
 		
+		data = engine.getData();
+		loader = new EngineLoader( engine , data );
+		
 		CHANGEDATABASE = false;
 		SERVERVERSIONUPDATE = false;
-		CV = 0;
 		
 		settings = null;
 		infra = null;
@@ -101,7 +102,6 @@ public class TransactionBase extends EngineObject {
 		saveRegistry = false;
 		
 		productMeta = new HashMap<String,TransactionMetadata>();
-		systemVersions = new HashMap<Integer,Integer>(); 
 		engine.trace( "transaction created id=" + objectId );
 	}
 	
@@ -145,8 +145,9 @@ public class TransactionBase extends EngineObject {
 			
 			try {
 				if( settingsOld != null ) {
-					if( save )
-						action.setServerSettings( this , settingsOld );
+					if( save ) {
+						loader.setServerSettings( this , settingsOld );
+					}
 					settingsOld = null;
 				}
 			}
@@ -156,8 +157,9 @@ public class TransactionBase extends EngineObject {
 
 			try {
 				if( resourcesOld != null ) {
-					if( save )
-						action.setResources( this , resourcesOld );
+					if( save ) {
+						data.setResources( this , resourcesOld );
+					}
 					resourcesOld = null;
 				}
 			}
@@ -168,7 +170,7 @@ public class TransactionBase extends EngineObject {
 			try {
 				if( buildersOld != null ) {
 					if( save )
-						action.setBuilders( this , buildersOld );
+						data.setBuilders( this , buildersOld );
 					buildersOld = null;
 				}
 			}
@@ -179,7 +181,7 @@ public class TransactionBase extends EngineObject {
 			try {
 				if( directoryOld != null ) {
 					if( save )
-						action.setDirectory( this , directoryOld );
+						data.setDirectory( this , directoryOld );
 					directoryOld = null;
 				}
 			}
@@ -190,7 +192,7 @@ public class TransactionBase extends EngineObject {
 			try {
 				if( mirrorsOld != null ) {
 					if( save )
-						action.setMirrors( this , mirrorsOld );
+						data.setMirrors( this , mirrorsOld );
 					mirrorsOld = null;
 				}
 			}
@@ -199,8 +201,11 @@ public class TransactionBase extends EngineObject {
 			}
 			
 			try {
-				if( saveRegistry )
-					action.saveRegistry( this );
+				if( saveRegistry ) {
+					EngineData data = engine.getData();
+					EngineLoader loader = new EngineLoader( engine , data );
+					loader.saveRegistry( this );
+				}
 			}
 			catch( Throwable e ) {
 				handle( e , "unable to restore registry" );
@@ -252,8 +257,11 @@ public class TransactionBase extends EngineObject {
 			if( res )
 				res = saveMirrors();
 			try {
-				if( saveRegistry )
-					action.saveRegistry( this );
+				if( saveRegistry ) {
+					EngineData data = engine.getData();
+					EngineLoader loader = new EngineLoader( engine , data );
+					loader.saveRegistry( this );
+				}
 			}
 			catch( Throwable e ) {
 				handle( e , "unable to save registry" );
@@ -413,8 +421,8 @@ public class TransactionBase extends EngineObject {
 			return;
 		
 		CHANGEDATABASE = true;
-		EngineLoader loader = engine.getLoader( action );
-		EngineDB db = loader.getDatabase();
+		EngineData data = engine.getData();
+		EngineDB db = data.getDatabase();
 		connection = db.getConnection( action );
 	}
 	
@@ -424,9 +432,7 @@ public class TransactionBase extends EngineObject {
 			return;
 		
 		SERVERVERSIONUPDATE = true;
-		CV = DBVersions.getCurrentCoreVersion( connection ) + 1;
-		CV = CV + 1;
-		DBVersions.setNextCoreVersion( connection , CV );
+		connection.setNextCoreVersion();
 	}
 	
 	public boolean changeInfrastructure( EngineInfrastructure sourceInfrastructure , Network network ) {
@@ -468,7 +474,9 @@ public class TransactionBase extends EngineObject {
 			return( true );
 		
 		try {
-			action.saveInfrastructure( this );
+			EngineData data = engine.getData();
+			EngineLoader loader = new EngineLoader( engine , data );
+			loader.saveInfrastructure( this );
 			trace( "transaction server infrastructure: save done" );
 			return( true );
 		}
@@ -513,7 +521,9 @@ public class TransactionBase extends EngineObject {
 			return( true );
 		
 		try {
-			action.saveReleaseLifecycles( this );
+			EngineData data = engine.getData();
+			EngineLoader loader = new EngineLoader( engine , data );
+			loader.saveReleaseLifecycles( this );
 			trace( "transaction server release lifecycles: save done" );
 			return( true );
 		}
@@ -558,7 +568,9 @@ public class TransactionBase extends EngineObject {
 			return( true );
 		
 		try {
-			action.saveBase( this );
+			EngineData data = engine.getData();
+			EngineLoader loader = new EngineLoader( engine , data );
+			loader.saveBase( this );
 			trace( "transaction server base: save done" );
 			return( true );
 		}
@@ -616,7 +628,7 @@ public class TransactionBase extends EngineObject {
 		
 		saveRegistry = true;
 		try {
-			action.setResources( this , resources );
+			data.setResources( this , resources );
 			trace( "transaction resources: save=" + resources.objectId );
 			return( true );
 		}
@@ -674,7 +686,7 @@ public class TransactionBase extends EngineObject {
 		
 		saveRegistry = true;
 		try {
-			action.setBuilders( this , builders );
+			data.setBuilders( this , builders );
 			trace( "transaction builders: save=" + builders.objectId );
 			return( true );
 		}
@@ -733,7 +745,7 @@ public class TransactionBase extends EngineObject {
 		
 		saveRegistry = true;
 		try {
-			action.setDirectory( this , directory );
+			data.setDirectory( this , directory );
 			trace( "transaction directory: save=" + directory.objectId );
 			return( true );
 		}
@@ -787,7 +799,7 @@ public class TransactionBase extends EngineObject {
 		
 		saveRegistry = true;
 		try {
-			action.setMirrors( this , mirrors );
+			data.setMirrors( this , mirrors );
 			trace( "transaction mirrors: save=" + mirrors.objectId );
 			return( true );
 		}
@@ -860,7 +872,9 @@ public class TransactionBase extends EngineObject {
 			return( true );
 		
 		try {
-			action.setServerSettings( this , settings );
+			EngineData data = engine.getData();
+			EngineLoader loader = new EngineLoader( engine , data );
+			loader.setServerSettings( this , settings );
 			trace( "transaction server settings: save=" + settings.objectId );
 			return( true );
 		}
@@ -1024,16 +1038,6 @@ public class TransactionBase extends EngineObject {
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
 	}
 	
-	public int getNextSystemVersion( int id ) throws Exception {
-		Integer version = systemVersions.get( id );
-		int SV;
-		SV = ( version != null )? version : DBVersions.getCurrentVersion( connection , id ); 
-		SV = SV + 1;
-		DBVersions.setNextVersion( connection , id , SV , DBEnumObjectVersionType.SYSTEM );
-		systemVersions.put( id , SV );
-		return( SV );
-	}
-	
 	public EngineResources getTransactionResources() {
 		return( resources );
 	}
@@ -1130,7 +1134,7 @@ public class TransactionBase extends EngineObject {
 		return( tm.metadata );
 	}
 	
-	protected Meta createProductMetadata( EngineDirectory directory , Product product ) throws Exception {
+	protected Meta createProductMetadata( Product product ) throws Exception {
 		TransactionMetadata tm = productMeta.get( product.NAME );
 		if( tm != null )
 			action.exitUnexpectedState();
@@ -1138,7 +1142,7 @@ public class TransactionBase extends EngineObject {
 		if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
 			action.exitUnexpectedState();
 		
-		Meta meta = action.createProductMetadata( this , directory , product );
+		Meta meta = action.createProductMetadata( this , product );
 		tm = new TransactionMetadata( this );
 		tm.createProduct( meta );
 		addTransactionMeta( meta , tm );

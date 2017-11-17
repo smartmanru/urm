@@ -8,7 +8,6 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
@@ -24,14 +23,12 @@ import org.w3c.dom.Node;
 public class EngineMirrors extends EngineObject {
 
 	public EngineRegistry registry;
-	public Engine engine;
 
 	Map<String,MirrorRepository> repoMap;
 
 	public EngineMirrors( EngineRegistry registry ) {
 		super( registry );
 		this.registry = registry;
-		this.engine = registry.loader.engine;
 		
 		repoMap = new HashMap<String,MirrorRepository>();
 	}

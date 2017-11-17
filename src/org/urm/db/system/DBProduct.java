@@ -77,14 +77,12 @@ public abstract class DBProduct {
 
 	public static void savedb( EngineDirectory directory , Product product , DBConnection c ) throws Exception {
 		int productId = DBNames.getNameIndex( c , DBVersions.CORE_ID , product.NAME , DBEnumObjectType.PRODUCT );
-		int SV = product.system.SV;
-		SV = SV + 1;
-		insert( c , productId , SV , product );
+		insert( c , productId , product );
 	}		
 	
-	public static void insert( DBConnection c , int productId , int SV , Product product ) throws Exception {
+	public static void insert( DBConnection c , int productId , Product product ) throws Exception {
 		product.ID = productId;
-		product.SV = SV;
+		product.SV = c.getNextSystemVersion( product.system.ID );
 		if( !c.update( DBQueries.MODIFY_PRODUCT_ADD8 , new String[] {
 				"" + product.ID , 
 				"" + product.system.ID , 

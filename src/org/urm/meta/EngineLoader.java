@@ -4,7 +4,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
-import org.urm.db.DBVersions;
 import org.urm.db.core.DBCoreData;
 import org.urm.db.system.DBSystemData;
 import org.urm.engine.Engine;
@@ -12,88 +11,74 @@ import org.urm.engine.EngineDB;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.engine.EngineBase;
-import org.urm.meta.engine.EngineBuilders;
-import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
-import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.engine.EngineRegistry;
 import org.urm.meta.engine.EngineReleaseLifecycles;
-import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
-import org.urm.meta.engine.Product;
 import org.urm.meta.product.Meta;
 
 public class EngineLoader {
 
 	public Engine engine;
+	public EngineData data;
 	public RunContext execrc;
 	
-	private EngineDB db;
-	private EngineSettings settings;
-	private EngineRegistry registry;
-	private EngineBase base;
-	private EngineInfrastructure infra;
-	private EngineReleaseLifecycles lifecycles;
-	private EngineMonitoring mon;
-	private EngineProducts products;
+	private EngineMatcher matcher;
 
-	public int CV;
-	
-	public EngineLoader( Engine engine ) {
+	public EngineLoader( Engine engine , EngineData data ) {
 		this.engine = engine;
+		this.data = data;
 		this.execrc = engine.execrc;
 		
-		db = new EngineDB( this );
-		settings = new EngineSettings( this );
-		registry = new EngineRegistry( this ); 
-		base = new EngineBase( this ); 
-		infra = new EngineInfrastructure( this ); 
-		lifecycles = new EngineReleaseLifecycles( this ); 
-		mon = new EngineMonitoring( this ); 
-		products = new EngineProducts( this );
+		matcher = new EngineMatcher( this ); 
 	}
 
 	public void init() throws Exception {
-		db.init();
 		init( false , true );
 	}
 	
 	private void init( boolean savedb , boolean withSystems ) throws Exception {
+		EngineDB db = data.getDatabase();
 		DBConnection connection = null;
 		try {
 			connection = db.getConnection( engine.serverAction );
-			CV = DBVersions.getCurrentCoreVersion( connection );
 			
-			if( savedb ) {
-				CV = CV + 1;
-				DBVersions.setNextCoreVersion( connection , CV );
-			}
+			if( savedb )
+				connection.setNextCoreVersion();
 			
 			loadServerSettings( connection , savedb );
-			loadRegistry( connection , savedb , withSystems );
 			loadBase();
 			loadInfrastructure();
 			loadReleaseLifecycles();
 			loadMonitoring();
 			
+			loadRegistry( connection , savedb , withSystems );
+
 			if( savedb ) {
+				engine.trace( "successfully saved server metadata version=" + connection.getNextCoreVersion() );
 				connection.close( true );
-				engine.trace( "successfully saved server metadata version=" + CV );
 			}
 		}
 		catch( Throwable e ) {
 			engine.log( "init" , e );
 			if( savedb ) {
+				engine.trace( "unable to save server metadata version=" + connection.getNextCoreVersion() );
 				connection.close( false );
-				engine.trace( "unable to save server metadata version=" + CV );
 			}
 			Common.exitUnexpected();
 		}
 	}
 	
+	public EngineMatcher getMatcher() {
+		synchronized( engine ) {
+			return( matcher );
+		}
+	}
+
 	public LocalFolder getServerHomeFolder( ActionInit action ) throws Exception {
 		LocalFolder folder = action.getLocalFolder( execrc.installPath );
 		return( folder );
@@ -106,7 +91,10 @@ public class EngineLoader {
 	}
 
 	public LocalFolder getProductHomeFolder( ActionInit action , String productName ) throws Exception {
-		return( products.getProductHomeFolder( action , productName ) );
+		Meta meta = action.getActiveProductMetadata( productName );
+		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , meta );
+		LocalFolder folder = storageMeta.getHomeFolder( action );
+		return( folder );
 	}
 
 	private String getBaseFile() throws Exception {
@@ -117,6 +105,7 @@ public class EngineLoader {
 
 	private void loadBase() throws Exception {
 		String baseFile = getBaseFile();
+		EngineBase base = data.getServerBase();
 		base.load( baseFile , execrc );
 	}
 
@@ -134,11 +123,13 @@ public class EngineLoader {
 
 	private void loadInfrastructure() throws Exception {
 		String infraFile = getInfrastructureFile();
+		EngineInfrastructure infra = data.getInfrastructure();
 		infra.load( infraFile , execrc );
 	}
 
 	private void loadReleaseLifecycles() throws Exception {
 		String lcFile = getReleaseLifecyclesFile();
+		EngineReleaseLifecycles lifecycles = data.getReleaseLifecycles();
 		lifecycles.load( lcFile , execrc );
 	}
 
@@ -150,6 +141,7 @@ public class EngineLoader {
 
 	private void loadMonitoring() throws Exception {
 		String monFile = getMonitoringFile();
+		EngineMonitoring mon = data.getMonitoring();
 		mon.load( monFile , execrc );
 	}
 
@@ -161,6 +153,7 @@ public class EngineLoader {
 
 	private void loadRegistry( DBConnection c , boolean savedb , boolean withSystems ) throws Exception {
 		String registryFile = getServerRegistryFile();
+		EngineRegistry registry = data.getRegistry();
 		registry.loadmixed( registryFile , c , savedb , withSystems );
 	}
 
@@ -172,124 +165,55 @@ public class EngineLoader {
 	
 	public void loadServerSettings( DBConnection c , boolean savedb ) throws Exception {
 		String propertyFile = getServerSettingsFile();
+		EngineSettings settings = data.getServerSettings();
 		settings.load( propertyFile , c , savedb );
 	}
 
 	public void loadProducts( ActionBase action ) throws Exception {
+		EngineProducts products = data.getProducts();
 		products.loadProducts( action );
 	}
 
-	public void clearProducts() {
-		products.clearProducts();
-	}
-	
 	public boolean isProductBroken( String productName ) {
+		EngineProducts products = data.getProducts();
 		return( products.isProductBroken( productName ) );
 	}
 
-	public Meta findSessionProductMetadata( ActionBase action , String productName ) throws Exception {
-		return( products.findSessionProductMetadata( action , productName ) );
-	}
-	
-	public ProductMeta findProductStorage( String productName ) {
-		return( products.findProductStorage( productName ) );
-	}
-	
-	public Meta getSessionProductMetadata( ActionBase action , String productName , boolean primary ) throws Exception {
-		return( products.getSessionProductMetadata( action , productName , primary ) );
-	}
-
-	public void releaseSessionProductMetadata( ActionBase action , Meta meta , boolean deleteMeta ) throws Exception {
-		products.releaseSessionProductMetadata( action , meta , deleteMeta );
-	}
-	
 	public void saveRegistry( TransactionBase transaction ) throws Exception {
 		String propertyFile = getServerRegistryFile();
+		EngineRegistry registry = data.getRegistry();
 		registry.savexml( transaction.getAction() , propertyFile , execrc );
 	}
 	
-	public void setResources( TransactionBase transaction , EngineResources resourcesNew ) throws Exception {
-		registry.setResources( transaction , resourcesNew );
-	}
-
-	public void setBuilders( TransactionBase transaction , EngineBuilders buildersNew ) throws Exception {
-		registry.setBuilders( transaction , buildersNew );
-	}
-
-	public void setDirectory( TransactionBase transaction , EngineDirectory directoryNew ) throws Exception {
-		registry.setDirectory( transaction , directoryNew );
-	}
-
-	public void setMirrors( TransactionBase transaction , EngineMirrors mirrorsNew ) throws Exception {
-		registry.setMirrors( transaction , mirrorsNew );
-	}
-
 	public void saveBase( TransactionBase transaction ) throws Exception {
 		String propertyFile = getBaseFile();
+		EngineBase base = data.getServerBase();
 		base.save( transaction.getAction() , propertyFile , execrc );
 	}
 
 	public void saveInfrastructure( TransactionBase transaction ) throws Exception {
 		String propertyFile = getInfrastructureFile();
+		EngineInfrastructure infra = data.getInfrastructure();
 		infra.save( transaction.getAction() , propertyFile , execrc );
 	}
 
 	public void saveReleaseLifecycles( TransactionBase transaction ) throws Exception {
 		String propertyFile = getReleaseLifecyclesFile();
+		EngineReleaseLifecycles lifecycles = data.getReleaseLifecycles();
 		lifecycles.save( transaction.getAction() , propertyFile , execrc );
 	}
 
 	public void saveMonitoring( TransactionBase transaction ) throws Exception {
 		String propertyFile = getMonitoringFile();
+		EngineMonitoring mon = data.getMonitoring();
 		mon.save( transaction.getAction() , propertyFile , execrc );
 	}
 
-	public EngineSettings getServerSettings() {
-		synchronized( engine ) {
-			return( settings );
-		}
-	}
-
-	public EngineRegistry getRegistry() {
-		synchronized( engine ) {
-			return( registry );
-		}
-	}
-
-	public EngineInfrastructure getInfrastructure() {
-		synchronized( engine ) {
-			return( infra );
-		}
-	}
-
-	public EngineReleaseLifecycles getReleaseLifecycles() {
-		synchronized( engine ) {
-			return( lifecycles );
-		}
-	}
-
-	public EngineMonitoring getMonitoring() {
-		synchronized( engine ) {
-			return( mon );
-		}
-	}
-
-	public EngineBase getServerBase() {
-		synchronized( engine ) {
-			return( base );
-		}
-	}
-
-	public EngineDB getDatabase() {
-		synchronized( engine ) {
-			return( db );
-		}
-	}
-	
 	public void setServerSettings( TransactionBase transaction , EngineSettings settingsNew ) throws Exception {
 		String propertyFile = getServerSettingsFile();
 		settingsNew.save( propertyFile , execrc );
-		settings = settingsNew;
+		EngineSettings settings = data.getServerSettings();
+		settings.setData( transaction.getAction() , settingsNew );
 	}
 
 	public void rereadEngineMirror( boolean includingSystems ) throws Exception {
@@ -297,61 +221,41 @@ public class EngineLoader {
 	}
 
 	public void rereadProductMirror( ActionBase action , String product , boolean includingEnvironments ) throws Exception {
+		EngineProducts products = data.getProducts();
 		products.rereadProductMirror( action , product , includingEnvironments );
 	}
 	
 	private void reloadCore( boolean includingSystems ) throws Exception {
 		engine.trace( "reload server core settings ..." );
 		
-		db.init();
-		
-		clearCore( includingSystems );
+		if( includingSystems )
+			data.clearCoreWithSystems();
+		else
+			Common.exitUnexpected();
 
-		registry = new EngineRegistry( this ); 
-		base = new EngineBase( this ); 
-		settings = new EngineSettings( this );
-		infra = new EngineInfrastructure( this ); 
-		lifecycles = new EngineReleaseLifecycles( this ); 
-		mon = new EngineMonitoring( this );
-		
+		dropCoreData( includingSystems );
 		init( true , includingSystems );
 	}
 
-	private void clearCore( boolean includingSystems ) throws Exception {
-		registry.deleteObject(); 
-		base.deleteObject(); 
-		settings.deleteObject();
-		infra.deleteObject(); 
-		lifecycles.deleteObject(); 
-		mon.deleteObject();
-		
+	private void dropCoreData( boolean includingSystems ) throws Exception {
+		EngineDB db = data.getDatabase();
 		DBConnection connection = null;
 		try {
 			connection = db.getConnection( engine.serverAction );
-			DBSystemData.dropSystemData( connection );
+			if( includingSystems )
+				DBSystemData.dropSystemData( connection );
 			DBCoreData.dropCoreData( connection );
+			int CV = connection.getCurrentCoreVersion();
 			connection.close( true );
 			engine.trace( "successfully deleted current server metadata, version=" + CV );
 		}
 		catch( Throwable e ) {
 			engine.log( "init" , e );
+			int CV = connection.getCurrentCoreVersion();
 			connection.close( false );
 			engine.trace( "unable to delete current server metadata, version=" + CV );
 			Common.exitUnexpected();
 		}
 	}
 	
-	public void setProductMetadata( TransactionBase transaction , ProductMeta storageNew ) throws Exception {
-		products.setProductMetadata( transaction , storageNew );
-	}
-	
-	public void deleteProductMetadata( TransactionBase transaction , ProductMeta storage ) throws Exception {
-		products.deleteProductMetadata( transaction , storage );
-	}
-
-	public Meta createProductMetadata( TransactionBase transaction , EngineDirectory directory , Product product ) throws Exception {
-		ProductMeta storage = products.createProductMetadata( transaction , directory , product );
-		return( products.createSessionProductMetadata( transaction.action , storage ) );
-	}
-
 }

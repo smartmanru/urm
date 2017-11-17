@@ -8,7 +8,7 @@ import org.urm.db.DBConnection;
 import org.urm.db.engine.DBEngineDirectory;
 import org.urm.engine.Engine;
 import org.urm.engine.TransactionBase;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -16,7 +16,7 @@ import org.w3c.dom.Node;
 
 public class EngineRegistry extends EngineObject {
 
-	public EngineLoader loader;
+	public EngineData data;
 	public Engine engine;
 	public RunContext execrc;
 	
@@ -25,10 +25,10 @@ public class EngineRegistry extends EngineObject {
 	public EngineDirectory directory;
 	public EngineBuilders builders;
 
-	public EngineRegistry( EngineLoader loader ) {
+	public EngineRegistry( EngineData data ) {
 		super( null );
-		this.loader = loader;
-		this.engine = loader.engine;
+		this.data = data;
+		this.engine = data.engine;
 		this.execrc = engine.execrc;
 		mirrors = new EngineMirrors( this ); 
 		resources = new EngineResources( this );

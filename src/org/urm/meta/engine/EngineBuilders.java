@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
@@ -15,7 +14,6 @@ import org.w3c.dom.Node;
 public class EngineBuilders extends EngineObject {
 
 	public EngineRegistry registry;
-	public Engine engine;
 
 	public boolean registerBuild;
 	public String MAVEN_HOMEPATH;
@@ -30,7 +28,6 @@ public class EngineBuilders extends EngineObject {
 	public EngineBuilders( EngineRegistry registry ) {
 		super( registry );
 		this.registry = registry;
-		this.engine = registry.loader.engine;
 		
 		builderMap = new HashMap<String,ProjectBuilder>();
 	}

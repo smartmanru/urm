@@ -17,7 +17,6 @@ import org.urm.engine.dist.DistRepository;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.engine.AccountReference;
-import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.EngineSettings;
@@ -431,7 +430,7 @@ public class ProductMeta extends EngineObject {
 		}
 	}
 	
-	public synchronized void createInitial( TransactionBase transaction , EngineSettings settings , EngineDirectory directory ) throws Exception {
+	public synchronized void createInitial( TransactionBase transaction , EngineSettings settings ) throws Exception {
 		createInitialVersion( transaction );
 		createInitialProduct( transaction , settings );
 		createInitialDatabase( transaction );

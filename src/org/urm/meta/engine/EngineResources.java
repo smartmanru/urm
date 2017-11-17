@@ -8,7 +8,6 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineObject;
 import org.urm.meta.Types.EnumResourceCategory;
@@ -19,14 +18,12 @@ import org.w3c.dom.Node;
 public class EngineResources extends EngineObject {
 
 	public EngineRegistry registry;
-	public Engine engine;
-
+	
 	Map<String,AuthResource> resourceMap;
 
 	public EngineResources( EngineRegistry registry ) {
 		super( registry );
 		this.registry = registry;
-		this.engine = registry.loader.engine;
 		
 		resourceMap = new HashMap<String,AuthResource>();
 	}

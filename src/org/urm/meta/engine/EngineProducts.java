@@ -12,7 +12,7 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineData;
 import org.urm.meta.ProductMeta;
 import org.urm.meta._Error;
 import org.urm.meta.product.Meta;
@@ -28,26 +28,17 @@ import org.urm.meta.product.MetaSource;
 public class EngineProducts {
 
 	public Engine engine;
-	public EngineLoader loader;
+	public EngineData data;
 	
 	private ProductMeta offline;
 	private Map<String,ProductMeta> productMeta;
 	
-	public EngineProducts( EngineLoader loader ) {
-		this.loader = loader;
-		this.engine = loader.engine;
+	public EngineProducts( EngineData data ) {
+		this.data = data;
+		this.engine = data.engine;
 		productMeta = new HashMap<String,ProductMeta>();
 	}
 	
-	public LocalFolder getProductHomeFolder( ActionInit action , String productName ) throws Exception {
-		ProductMeta set = productMeta.get( productName );
-		if( set == null )
-			return( null );
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
-		LocalFolder folder = storageMeta.getHomeFolder( action );
-		return( folder );
-	}
-
 	public synchronized boolean isProductBroken( String productName ) {
 		ProductMeta storage = productMeta.get( productName );
 		if( storage == null )
@@ -182,7 +173,7 @@ public class EngineProducts {
 	private void reloadProduct( ActionBase action , String productName , boolean includingEnvironments ) throws Exception {
 		engine.trace( "reload settings, product=" + productName + " ..." );
 		
-		EngineDB db = loader.getDatabase();
+		EngineDB db = data.getDatabase();
 		db.clearProduct( productName );
 		
 		ProductMeta storageNew = loadProduct( engine.serverAction , productName , true );
@@ -197,12 +188,12 @@ public class EngineProducts {
 		}
 	}
 	
-	public ProductMeta createProductMetadata( TransactionBase transaction , EngineDirectory directoryNew , Product product ) throws Exception {
+	public ProductMeta createProductMetadata( TransactionBase transaction , Product product ) throws Exception {
 		ActionInit action = transaction.getAction();
 		
 		ProductMeta set = new ProductMeta( this , product.NAME );
 		EngineSettings settings = action.getServerSettings();
-		set.createInitial( transaction , settings , directoryNew );
+		set.createInitial( transaction , settings );
 		
 		return( set );
 	}
@@ -230,7 +221,7 @@ public class EngineProducts {
 	
 	public void loadProducts( ActionBase action ) {
 		clearProducts();
-		EngineRegistry registry = loader.getRegistry();
+		EngineRegistry registry = data.getRegistry();
 		for( String name : registry.directory.getProductNames() ) {
 			ProductMeta product = loadProduct( action , name , false );
 			addProduct( product );

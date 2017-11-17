@@ -22,7 +22,7 @@ import org.urm.engine.SessionController;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineData;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineSettings;
 
@@ -46,8 +46,8 @@ public class EngineMBean implements DynamicMBean {
 		action.debug( "start JMX server ..." );
 		int port = action.context.CTX_PORT;
 		if( port <= 0 ) {
-			EngineLoader loader = engine.getLoader( action );
-			EngineSettings settings = loader.getServerSettings();
+			EngineData data = engine.getData();
+			EngineSettings settings = data.getServerSettings();
 			port = settings.context.CONNECTION_JMX_PORT;
 			if( port <= 0 )
 				port = RemoteCall.DEFAULT_SERVER_PORT;

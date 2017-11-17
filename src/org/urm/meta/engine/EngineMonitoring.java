@@ -12,7 +12,7 @@ import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.properties.PropertySet;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.product.Meta;
@@ -28,7 +28,7 @@ import org.w3c.dom.Node;
 
 public class EngineMonitoring extends EngineObject {
 
-	EngineLoader loader;
+	EngineData data;
 	Engine engine;
 	EngineEvents events;
 
@@ -51,10 +51,10 @@ public class EngineMonitoring extends EngineObject {
 	public static String PROPERTY_DIR_REPORTS = "default.reports.path";
 	public static String PROPERTY_DIR_LOGS = "default.logs.path";
 	
-	public EngineMonitoring( EngineLoader loader ) {
+	public EngineMonitoring( EngineData data ) {
 		super( null );
-		this.loader = loader; 
-		this.engine = loader.engine;
+		this.data = data; 
+		this.engine = data.engine;
 		this.events = engine.getEvents();
 		
 		mapProduct = new HashMap<String,MonitoringProduct>();
@@ -67,7 +67,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 	
 	public void scatterProperties() throws Exception {
-		EngineSettings settings = loader.getServerSettings();
+		EngineSettings settings = data.getServerSettings();
 		PropertySet src = settings.context.properties;
 		
 		ENABLED = properties.getSystemBooleanProperty( PROPERTY_ENABLED , false , true );
@@ -84,7 +84,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 	
 	public void load( String monFile , RunContext execrc ) throws Exception {
-		EngineSettings settings = loader.getServerSettings();
+		EngineSettings settings = data.getServerSettings();
 		properties = new PropertySet( "defmon" , settings.context.properties );
 		Document doc = ConfReader.readXmlFile( execrc , monFile );
 		Node root = doc.getDocumentElement();
@@ -102,7 +102,7 @@ public class EngineMonitoring extends EngineObject {
 	public void start( ActionBase action ) throws Exception {
 		running = true;
 		
-		EngineRegistry registry = loader.getRegistry();
+		EngineRegistry registry = data.getRegistry();
 		for( String systemName : registry.directory.getSystemNames() ) {
 			AppSystem system = registry.directory.findSystem( systemName );
 			createSystem( action , system );
@@ -128,7 +128,7 @@ public class EngineMonitoring extends EngineObject {
 	
 	private void createSystem( ActionBase action , AppSystem system ) throws Exception {
 		for( String productName : system.getProductNames() ) {
-			ProductMeta storage = loader.findProductStorage( productName );
+			ProductMeta storage = data.findProductStorage( productName );
 			createProduct( action , storage );
 		}
 	}
@@ -212,7 +212,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 	
 	public boolean isRunning( MetaEnv env ) {
-		EngineRegistry registry = loader.getRegistry();
+		EngineRegistry registry = data.getRegistry();
 		Product product = registry.directory.findProduct( env.meta.name );
 		return( product != null && isRunning( product ) && env.OFFLINE == false );
 	}

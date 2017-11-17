@@ -95,17 +95,15 @@ public abstract class DBSystem {
 	
 	public static void savedb( EngineDirectory directory , AppSystem system , DBConnection c ) throws Exception {
 		int systemId = DBNames.getNameIndex( c , DBVersions.CORE_ID , system.NAME , DBEnumObjectType.SYSTEM );
-		int SV = DBVersions.getCurrentVersion( c , systemId );
-		SV = SV + 1;
-		DBSystem.insert( c , systemId , SV , system );
+		insert( c , systemId , system );
 		
 		for( Product product : system.getProducts() )
 			DBProduct.savedb( directory , product , c );
 	}
 	
-	public static void insert( DBConnection c , int systemId , int SV , AppSystem system ) throws Exception {
+	public static void insert( DBConnection c , int systemId , AppSystem system ) throws Exception {
 		system.ID = systemId;
-		system.SV = SV;
+		system.SV = c.getNextSystemVersion( systemId );
 		if( !c.update( DBQueries.MODIFY_SYSTEM_ADD6 , new String[] {
 				"" + system.ID , 
 				EngineDB.getString( system.NAME ) , 
@@ -117,8 +115,8 @@ public abstract class DBSystem {
 			Common.exitUnexpected();
 	}
 
-	public static void update( DBConnection c , int SV , AppSystem system ) throws Exception {
-		system.SV = SV;
+	public static void update( DBConnection c , AppSystem system ) throws Exception {
+		system.SV = c.getNextSystemVersion( system.ID );
 		if( !c.update( DBQueries.MODIFY_SYSTEM_UPDATE4 , new String[] {
 				"" + system.ID , 
 				EngineDB.getString( system.NAME ) , 
@@ -128,7 +126,8 @@ public abstract class DBSystem {
 			Common.exitUnexpected();
 	}
 
-	public static void delete( DBConnection c , int SV , AppSystem system ) throws Exception {
+	public static void delete( DBConnection c , AppSystem system ) throws Exception {
+		int SV = c.getNextSystemVersion( system.ID );
 		if( !c.update( DBQueries.MODIFY_SYSTEM_DELETEALLPARAMS2 , new String[] { "" + system.ID , "" + SV } ) )
 			Common.exitUnexpected();
 		if( !c.update( DBQueries.MODIFY_SYSTEM_DELETE2 , new String[] { "" + system.ID , "" + SV } ) )

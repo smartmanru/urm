@@ -35,11 +35,9 @@ import org.urm.engine.shell.EngineShellPool;
 import org.urm.engine.status.EngineStatus;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineData;
 import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.engine.EngineMonitoring;
-import org.urm.meta.engine.EngineRegistry;
-import org.urm.meta.engine.EngineResources;
 
 public class Engine {
 
@@ -59,7 +57,7 @@ public class Engine {
 	
 	private EngineAuth auth;
 	private EngineEvents events;
-	private EngineLoader loader;
+	private EngineData data;
 	private EngineScheduler scheduler;
 	private EngineStatus status;
 	public boolean running;
@@ -86,7 +84,7 @@ public class Engine {
 		auth = new EngineAuth( this );
 		events = new EngineEvents( this );
 		scheduler = new EngineScheduler( this ); 
-		loader = new EngineLoader( this );
+		data = new EngineData( this );
 		sessionController = new SessionController( this );
 		status = new EngineStatus( this );
 		blotter = new EngineBlotter( this );
@@ -100,7 +98,7 @@ public class Engine {
 		events.init();
 		scheduler.init();
 		status.init();
-		loader.init();
+		data.init();
 		sessionController.init();
 		blotter.init();
 		
@@ -115,14 +113,14 @@ public class Engine {
 	public void runServer( ActionInit action ) throws Exception {
 		serverAction.debug( "load server configuration ..." );
 		auth.start( serverAction );
-		loader.loadProducts( serverAction );
-		status.start( serverAction , loader );
+		data.loadProducts( serverAction );
+		status.start( serverAction , data );
 		blotter.start( serverAction );
 		scheduler.start( serverAction );
 		
 		sessionController.start( serverAction );
 		
-		EngineMonitoring mon = loader.getMonitoring();
+		EngineMonitoring mon = data.getMonitoring();
 		mon.start( serverAction );
 		events.start();
 		
@@ -146,14 +144,14 @@ public class Engine {
 		events.stop();
 		scheduler.stop();
 		
-		EngineMonitoring mon = loader.getMonitoring();
+		EngineMonitoring mon = data.getMonitoring();
 		mon.stop( serverAction );
 		shellPool.stop( serverAction );
 		
 		jmxController.stop();
 		sessionController.stop( serverAction );
 		jmxController = null;
-		loader.clearProducts();
+		data.unloadProducts();
 		blotter.clear();
 		cache.clear();
 		auth.stop( serverAction );
@@ -323,8 +321,8 @@ public class Engine {
 		CommandOutput output = new CommandOutput();
 		
 		Artefactory artefactory = createArtefactory( session , context , memoryOnly );
-		ActionInit action = new ActionInit( session , artefactory , actionExecutor , output , actionInfo );
-		action.create( type , loader , commandAction , options.method , memoryOnly );
+		ActionInit action = new ActionInit( this , session , artefactory , actionExecutor , output , actionInfo );
+		action.create( type , commandAction , options.method , memoryOnly );
 		
 		action.setContext( context );
 		context.setAction( action );
@@ -503,15 +501,10 @@ public class Engine {
 		return( cache );
 	}
 
-	public EngineLoader getLoader( ActionInit action ) {
-		return( loader );
+	public EngineData getData() {
+		return( data );
 	}
 
-	public EngineResources getResources() {
-		EngineRegistry registry = loader.getRegistry();
-		return( registry.resources );
-	}
-	
 	public void updatePermissions( ActionBase action , String user ) throws Exception {
 		sessionController.updatePermissions( action , user );
 	}

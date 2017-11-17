@@ -8,7 +8,6 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.shell.Account;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineAuth;
@@ -65,7 +64,6 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionMirrors( repo.mirrors );
 		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , push );
 		if( !push ) {
-			EngineLoader loader = engine.getLoader( action );
 			if( repo.isServer() )
 				loader.rereadEngineMirror( true );
 			else
@@ -79,7 +77,6 @@ public class EngineTransaction extends TransactionBase {
 
 	public void refreshMirror( MirrorRepository repo ) throws Exception {
 		repo.refreshMirror( this );
-		EngineLoader loader = engine.getLoader( action );
 		if( repo.isServer() )
 			loader.rereadEngineMirror( true );
 		else
@@ -189,7 +186,7 @@ public class EngineTransaction extends TransactionBase {
 		mirrors.addProductMirrors( this , product , forceClear );
 		
 		directory.createProduct( this , product );
-		Meta meta = super.createProductMetadata( directory , product );
+		Meta meta = super.createProductMetadata( product );
 		ProductMeta storage = meta.getStorage( action );
 		storage.createInitialRepository( this , forceClear );
 	}
@@ -443,32 +440,32 @@ public class EngineTransaction extends TransactionBase {
 	public void createBaseGroup( BaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.createGroup( this , group );
-		action.saveBase( this );
+		loader.saveBase( this );
 	}
 
 	public void deleteBaseGroup( BaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.deleteGroup( this , group );
-		action.saveBase( this );
+		loader.saveBase( this );
 	}
 
 	public void modifyBaseGroup( BaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.modifyGroup( this , group );
-		action.saveBase( this );
+		loader.saveBase( this );
 	}
 
 	public void createBaseItem( BaseItem item ) throws Exception {
 		checkTransactionBase();
 		item.group.category.base.createItem( this , item );
 		item.group.createItem( this , item );
-		action.saveBase( this );
+		loader.saveBase( this );
 	}
 
 	public void deleteBaseItem( BaseItem item ) throws Exception {
 		checkTransactionBase();
 		item.group.deleteItem( this , item );
-		action.saveBase( this );
+		loader.saveBase( this );
 	}
 
 	public void saveBaseItemData( BaseItem item , BaseItemData data ) throws Exception {
@@ -479,14 +476,14 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setEnabled( this , false );
-		action.saveMonitoring( this );
+		loader.saveMonitoring( this );
 	}
 	
 	public void enableMonitoring() throws Exception {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setEnabled( this , true );
-		action.saveMonitoring( this );
+		loader.saveMonitoring( this );
 	}
 
 	public void setMonitoringEnabled( Product product ) throws Exception {
@@ -511,7 +508,7 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setDefaultProperties( this , props );
-		action.saveMonitoring( this );
+		loader.saveMonitoring( this );
 	}
 
 	public void setProductMonitoringProperties( Meta meta , PropertySet props ) throws Exception {

@@ -3,6 +3,7 @@ package org.urm.engine.action;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.common.Common;
+import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.events.EngineEvents;
@@ -12,9 +13,7 @@ import org.urm.engine.status.EngineStatus;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.MetadataStorage;
-import org.urm.meta.EngineLoader;
-import org.urm.meta.ProductMeta;
+import org.urm.meta.EngineData;
 import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
@@ -42,15 +41,17 @@ public class ActionInit extends ActionBase {
 	public RootActionType type;
 	public CommandMethod commandAction;
 	public String actionName;
-	private EngineLoader loader;
+	private Engine engine;
+	private EngineData data;
 	
 	protected TransactionBase transaction;
 	private boolean memoryOnly;
 	private EngineEventsApp eventsApp;
 
-	public ActionInit( EngineSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , String actionInfo ) {
+	public ActionInit( Engine engine , EngineSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , String actionInfo ) {
 		super( session , artefactory , executor , output , actionInfo );
 		this.actionInit = this;
+		this.engine = engine;
 	}
 
 	@Override
@@ -63,14 +64,14 @@ public class ActionInit extends ActionBase {
 		Common.exitUnexpected();
 	}
 
-	public void create( RootActionType type , EngineLoader loader , CommandMethod commandAction , String actionName , boolean memoryOnly ) throws Exception {
+	public void create( RootActionType type , CommandMethod commandAction , String actionName , boolean memoryOnly ) throws Exception {
 		this.type = type;
 		this.commandAction = commandAction;
 		this.actionName = actionName;
-		this.loader = loader;
+		this.data = engine.getData();
 		this.memoryOnly = memoryOnly;
 		
-		EngineEvents events = loader.engine.getEvents();
+		EngineEvents events = data.engine.getEvents();
 		eventsApp = events.createApp( "session-" + super.session.sessionId );
 	}
 
@@ -86,7 +87,7 @@ public class ActionInit extends ActionBase {
 	}
 
 	public void close() {
-		EngineEvents events = loader.engine.getEvents();
+		EngineEvents events = data.engine.getEvents();
 		events.deleteApp( eventsApp );
 	}
 	
@@ -115,7 +116,7 @@ public class ActionInit extends ActionBase {
 			if( transaction.settings != null )
 				return( transaction.settings );
 		}
-		return( loader.getServerSettings() );
+		return( data.getServerSettings() );
 	}
 
 	public EngineContext getActiveServerContext() {
@@ -123,42 +124,14 @@ public class ActionInit extends ActionBase {
 		return( settings.getServerContext() );
 	}
 
-	public LocalFolder getServerHomeFolder() throws Exception {
-		return( loader.getServerHomeFolder( this ) );
-	}
-	
-	public LocalFolder getServerSettingsFolder() throws Exception {
-		return( loader.getServerSettingsFolder( this ) );
-	}
-	
-	public void setServerSettings( TransactionBase transaction , EngineSettings settings ) throws Exception {
-		loader.setServerSettings( transaction , settings );
-	}
-	
 	public EngineMirrors getActiveMirrors() {
 		if( transaction != null ) {
 			if( transaction.mirrors != null )
 				return( transaction.mirrors );
 		}
 		
-		EngineRegistry registry = loader.getRegistry();
+		EngineRegistry registry = data.getRegistry();
 		return( registry.mirrors );
-	}
-	
-	public void saveInfrastructure( TransactionBase transaction ) throws Exception {
-		loader.saveInfrastructure( transaction );
-	}
-	
-	public void saveReleaseLifecycles( TransactionBase transaction ) throws Exception {
-		loader.saveReleaseLifecycles( transaction );
-	}
-	
-	public void saveBase( TransactionBase transaction ) throws Exception {
-		loader.saveBase( transaction );
-	}
-	
-	public void saveMonitoring( TransactionBase transaction ) throws Exception {
-		loader.saveMonitoring( transaction );
 	}
 	
 	public EngineResources getActiveResources() {
@@ -167,26 +140,18 @@ public class ActionInit extends ActionBase {
 				return( transaction.resources );
 		}
 		
-		EngineRegistry registry = loader.getRegistry();
+		EngineRegistry registry = data.getRegistry();
 		return( registry.resources );
 	}
 
-	public void setResources( TransactionBase transaction , EngineResources resources ) throws Exception {
-		loader.setResources( transaction , resources );
-	}
-	
 	public EngineBuilders getActiveBuilders() {
 		if( transaction != null ) {
 			if( transaction.builders != null )
 				return( transaction.builders );
 		}
 		
-		EngineRegistry registry = loader.getRegistry();
+		EngineRegistry registry = data.getRegistry();
 		return( registry.builders );
-	}
-	
-	public void setBuilders( TransactionBase transaction , EngineBuilders builders ) throws Exception {
-		loader.setBuilders( transaction , builders );
 	}
 	
 	public EngineDirectory getActiveDirectory() {
@@ -195,12 +160,12 @@ public class ActionInit extends ActionBase {
 				return( transaction.directory );
 		}
 		
-		EngineRegistry registry = loader.getRegistry();
+		EngineRegistry registry = data.getRegistry();
 		return( registry.directory );
 	}
 	
 	public EngineInfrastructure getActiveInfrastructure() {
-		return( loader.getInfrastructure() );
+		return( data.getInfrastructure() );
 	}
 	
 	public EngineReleaseLifecycles getActiveReleaseLifecycles() {
@@ -208,27 +173,27 @@ public class ActionInit extends ActionBase {
 			if( transaction.lifecycles != null )
 				return( transaction.lifecycles );
 		}
-		return( loader.getReleaseLifecycles() );
+		return( data.getReleaseLifecycles() );
 	}
 	
 	public EngineMonitoring getActiveMonitoring() {
-		return( loader.getMonitoring() );
+		return( data.getMonitoring() );
 	}
 	
 	public EngineBase getServerBase() {
-		return( loader.getServerBase() );
+		return( data.getServerBase() );
 	}
 
 	public EngineReleaseLifecycles getServerReleaseLifecycles() {
-		return( loader.getReleaseLifecycles() );
+		return( data.getReleaseLifecycles() );
 	}
 	
 	public EngineInfrastructure getServerInfrastructure() {
-		return( loader.getInfrastructure() );
+		return( data.getInfrastructure() );
 	}
 	
 	public EngineMonitoring getServerMonitoring() {
-		return( loader.getMonitoring() );
+		return( data.getMonitoring() );
 	}
 	
 	public EngineAuth getServerAuth() {
@@ -243,66 +208,25 @@ public class ActionInit extends ActionBase {
 		return( engine.getScheduler() );
 	}
 	
-	public void setDirectory( TransactionBase transaction , EngineDirectory directory ) throws Exception {
-		loader.setDirectory( transaction , directory );
-	}
-
-	public void setMirrors( TransactionBase transaction , EngineMirrors mirrors ) throws Exception {
-		loader.setMirrors( transaction , mirrors );
-	}
-
-	public void saveRegistry( TransactionBase transaction ) throws Exception {
-		loader.saveRegistry( transaction );
-	}
-
 	public Meta getActiveProductMetadata( String productName ) throws Exception {
 		if( transaction != null ) {
 			Meta meta = transaction.findTransactionSessionProductMetadata( productName );
 			if( meta != null )
 				return( meta );
 		}
-		return( loader.getSessionProductMetadata( this , productName , false ) );
+		return( data.getSessionProductMetadata( this , productName , false ) );
 	}
 
-	public LocalFolder getActiveProductHomeFolder( String productName ) throws Exception {
-		if( transaction != null ) {
-			Meta meta = transaction.findTransactionSessionProductMetadata( productName );
-			if( meta != null ) {
-				MetadataStorage storageMeta = artefactory.getMetadataStorage( this , meta );
-				return( storageMeta.getHomeFolder( this ) );
-			}
-		}
-		return( loader.getProductHomeFolder( this , productName ) );
-	}
-	
-	public boolean isActiveProductBroken( String productName ) {
-		if( transaction != null ) {
-			Meta meta = transaction.findTransactionSessionProductMetadata( productName );
-			if( meta != null )
-				return( meta.isCorrect() );
-		}
-		
-		return( loader.isProductBroken( productName ) );
-	}
-	
-	public void setProductMetadata( TransactionBase transaction , ProductMeta storage ) throws Exception {
-		loader.setProductMetadata( transaction , storage );
-	}
-
-	public void deleteProductMetadata( TransactionBase transaction , ProductMeta storage ) throws Exception {
-		loader.deleteProductMetadata( transaction , storage );
-	}
-
-	public Meta createProductMetadata( TransactionBase transaction , EngineDirectory directory , Product product ) throws Exception {
-		return( loader.createProductMetadata( transaction , directory , product ) );
+	public Meta createProductMetadata( TransactionBase transaction , Product product ) throws Exception {
+		return( data.createProductMetadata( transaction , product ) );
 	}
 
 	public void releaseProductMetadata( TransactionBase transaction , Meta sessionMeta ) throws Exception {
-		loader.releaseSessionProductMetadata( transaction.action , sessionMeta , false );
+		data.releaseSessionProductMetadata( transaction.action , sessionMeta , false );
 	}
 
 	public Meta reloadProductMetadata( String productName ) throws Exception {
-		return( loader.getSessionProductMetadata( this , productName , true ) );
+		return( data.getSessionProductMetadata( this , productName , true ) );
 	}
 
 }

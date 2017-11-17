@@ -11,16 +11,16 @@ import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.DBEnums;
 import org.urm.db.DBNames;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineData;
 
 public class EngineDB {
 
-	EngineLoader loader;
+	public EngineData data;
 	
 	private PGConnectionPoolDataSource pool;
 	
-	public EngineDB( EngineLoader loader ) {
-		this.loader = loader;
+	public EngineDB( EngineData data ) {
+		this.data = data;
 	}
 	
 	public void init() throws Exception {
@@ -29,12 +29,12 @@ public class EngineDB {
 			pool = null;
 		}
 		
-		String jdbcProperties = loader.engine.execrc.dbPath;
+		String jdbcProperties = data.engine.execrc.dbPath;
 		File poolFile = new File( jdbcProperties );
 		if( !poolFile.isFile() )
 			throw new RuntimeException( "missing database configuration file=" + jdbcProperties );
 		
-		Properties props = ConfReader.readPropertyFile( loader.engine.execrc , jdbcProperties );
+		Properties props = ConfReader.readPropertyFile( data.engine.execrc , jdbcProperties );
 		String host = props.getProperty( "host" );
 		String port = props.getProperty( "port" );
 		String db = props.getProperty( "db" , "urmdb" );
@@ -53,9 +53,9 @@ public class EngineDB {
 			
 		DBConnection connection = null;
 		try {
-			loader.engine.trace( "connecting to " + host + ":" + port + "/" + db + "[" + schema + "] as user=" + user + " ..." );
-			connection = getConnection( loader.engine.serverAction );
-			loader.engine.trace( "checking client/server consistency ..." );
+			data.engine.trace( "connecting to " + host + ":" + port + "/" + db + "[" + schema + "] as user=" + user + " ..." );
+			connection = getConnection( data.engine.serverAction );
+			data.engine.trace( "checking client/server consistency ..." );
 			initData( connection );
 		}
 		finally {
@@ -67,7 +67,7 @@ public class EngineDB {
 	public DBConnection getConnection( ActionBase action ) throws Exception {
 		Connection connection = pool.getConnection();
 		connection.setAutoCommit( false );
-		DBConnection dbc = new DBConnection( loader.engine , action , connection );
+		DBConnection dbc = new DBConnection( data.engine , action , connection );
 		dbc.init();
 		return( dbc );
 	}
@@ -101,9 +101,9 @@ public class EngineDB {
 		
 		boolean dbUpdate = Common.getBooleanValue( System.getProperty( "dbupdate" ) );
 		if( dbUpdate )
-			DBEnums.updateDatabase( loader.engine , connection );
+			DBEnums.updateDatabase( data.engine , connection );
 		else
-			DBEnums.verifyDatabase( loader.engine , connection );
+			DBEnums.verifyDatabase( data.engine , connection );
 	}
 	
 }

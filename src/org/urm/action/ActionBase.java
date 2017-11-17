@@ -916,10 +916,6 @@ abstract public class ActionBase extends ActionCore {
 		return( isServerOffline( node.server ) );
 	}
 	
-	public boolean isProductBroken( String productName ) {
-		return( actionInit.isActiveProductBroken( productName ) );
-	}
-	
 	public String getContextRedistPath( Account account ) throws Exception {
 		if( account.isLinux() )
 			return( context.CTX_REDISTLINUX_PATH );

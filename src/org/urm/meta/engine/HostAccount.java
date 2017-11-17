@@ -8,7 +8,7 @@ import org.urm.common.ConfReader;
 import org.urm.db.DBEnums.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.w3c.dom.Document;
@@ -74,10 +74,10 @@ public class HostAccount extends EngineObject {
 	}
 
 	public void getApplicationReferences( List<AccountReference> refs ) {
-		EngineLoader loader = host.network.datacenter.infra.loader;
-		EngineRegistry registry = loader.getRegistry();
+		EngineData data = host.network.datacenter.infra.data;
+		EngineRegistry registry = data.getRegistry();
 		for( String productName : registry.directory.getProductNames() ) {
-			ProductMeta storage = loader.findProductStorage( productName );
+			ProductMeta storage = data.findProductStorage( productName );
 			storage.getApplicationReferences( this , refs );
 		}
 	}

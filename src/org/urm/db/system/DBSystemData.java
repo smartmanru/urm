@@ -3,19 +3,9 @@ package org.urm.db.system;
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
-import org.urm.db.DBVersions;
-import org.urm.db.DBEnums.DBEnumObjectVersionType;
 
 public class DBSystemData {
 
-	public static int getCurrentSystemVersion( DBConnection c , int systemId ) throws Exception {
-		return( DBVersions.getCurrentVersion( c , systemId ) );
-	}
-	
-	public static void setNextSystemVersion( DBConnection c , int systemId , int version ) throws Exception {
-		DBVersions.setNextVersion( c , systemId , version , DBEnumObjectVersionType.SYSTEM );
-	}
-	
 	public static void dropSystemData( DBConnection c ) throws Exception {
 		boolean res = true;
 		res = ( res )? c.update( DBQueries.MODIFY_APP_DROP_PRODUCT0 ) : false;

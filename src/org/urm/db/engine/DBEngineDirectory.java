@@ -24,7 +24,7 @@ public abstract class DBEngineDirectory {
 		
 		for( Node itemNode : items ) {
 			AppSystem system = DBSystem.loadxml( directory , itemNode );
-			directory.addSystemUnmatched( system );
+			directory.addSystem( system );
 			for( Product product : system.getProducts() )
 				directory.addProduct( product );
 		}
@@ -33,7 +33,7 @@ public abstract class DBEngineDirectory {
 	public static void loaddb( EngineDirectory directory , DBConnection c ) throws Exception {
 		AppSystem[] systems = DBSystem.loaddb( directory , c );
 		for( AppSystem system : systems )
-			directory.addSystemUnmatched( system );
+			directory.addSystem( system );
 		
 		Product[] products = DBProduct.loaddb( directory , c );
 		for( Product product : products ) {
@@ -43,36 +43,28 @@ public abstract class DBEngineDirectory {
 	}
 
 	public static void resolvexml( EngineDirectory directory ) throws Exception {
-		for( AppSystem system : directory.getSystemsUnmatched() )
+		for( AppSystem system : directory.getSystems() )
 			DBSystem.resolvexml( directory , system );
 	}
 
 	public static void resolvedb( EngineDirectory directory ) throws Exception {
-		for( AppSystem system : directory.getSystemsUnmatched() )
+		for( AppSystem system : directory.getSystems() )
 			DBSystem.resolvedb( directory , system );
 	}
 	
 	public static void matchxml( EngineDirectory directory ) throws Exception {
-		for( AppSystem system : directory.getSystemsUnmatched() )
+		for( AppSystem system : directory.getSystems() )
 			DBSystem.matchxml( directory , system );
 	}
 	
 	public static void matchdb( EngineDirectory directory , boolean update ) throws Exception {
-		for( AppSystem system : directory.getSystemsUnmatched() ) {
+		for( AppSystem system : directory.getSystems() ) {
 			DBSystem.matchdb( directory , system , update );
-			if( system.MATCHED )
-				directory.setSystemMatched( system );
-			else
-				directory.setSystemUnmatched( system );
 		}
 	}
 	
 	public static void savedb( EngineDirectory directory , DBConnection c ) throws Exception {
-		for( AppSystem system : directory.getSystemsUnmatched() ) {
-			if( system.MATCHED )
-				directory.setSystemMatched( system );
-			else
-				directory.setSystemUnmatched( system );
+		for( AppSystem system : directory.getSystems() ) {
 			DBSystem.savedb( directory , system , c );
 		}
 	}

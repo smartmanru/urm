@@ -14,7 +14,7 @@ import org.urm.common.action.CommandMethodMeta;
 import org.urm.db.DBEnums.*;
 import org.urm.engine.Engine;
 import org.urm.engine.status.ScopeState;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineData;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.urm.meta.engine.ReleaseLifecycle;
@@ -162,8 +162,8 @@ public abstract class CommandExecutor {
 		if( value.isEmpty() )
 			return( null );
 		
-		EngineLoader loader = engine.getLoader( action.actionInit );
-		EngineReleaseLifecycles lifecycles = loader.getReleaseLifecycles();
+		EngineData data = engine.getData();
+		EngineReleaseLifecycles lifecycles = data.getReleaseLifecycles();
 		return( lifecycles.getLifecycle( action , value ) );
 	}
 	
