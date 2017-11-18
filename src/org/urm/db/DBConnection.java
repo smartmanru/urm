@@ -1,3 +1,4 @@
+
 package org.urm.db;
 
 import java.sql.Connection;
@@ -43,6 +44,20 @@ public class DBConnection {
 	
 	public void close( boolean commit ) {
 		try {
+			save( commit );
+			
+			stmt.close();
+			stmt = null;
+			connection.close();
+			connection = null;
+		}
+		catch( Throwable e ) {
+			log( "close statement" , e );
+		}
+	}
+
+	public void save( boolean commit ) {
+		try {
 			currentCV = -1;
 			nextCV = -1;
 			currentVersions.clear();
@@ -52,11 +67,6 @@ public class DBConnection {
 				connection.commit();
 			else
 				connection.rollback();
-			
-			stmt.close();
-			stmt = null;
-			connection.close();
-			connection = null;
 		}
 		catch( Throwable e ) {
 			log( "close statement" , e );

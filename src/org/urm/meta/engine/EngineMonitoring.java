@@ -102,9 +102,9 @@ public class EngineMonitoring extends EngineObject {
 	public void start( ActionBase action ) throws Exception {
 		running = true;
 		
-		EngineRegistry registry = data.getRegistry();
-		for( String systemName : registry.directory.getSystemNames() ) {
-			AppSystem system = registry.directory.findSystem( systemName );
+		EngineDirectory directory = data.getDirectory();
+		for( String systemName : directory.getSystemNames() ) {
+			AppSystem system = directory.findSystem( systemName );
 			createSystem( action , system );
 		}
 	}
@@ -212,8 +212,8 @@ public class EngineMonitoring extends EngineObject {
 	}
 	
 	public boolean isRunning( MetaEnv env ) {
-		EngineRegistry registry = data.getRegistry();
-		Product product = registry.directory.findProduct( env.meta.name );
+		EngineDirectory directory = data.getDirectory();
+		Product product = directory.findProduct( env.meta.name );
 		return( product != null && isRunning( product ) && env.OFFLINE == false );
 	}
 

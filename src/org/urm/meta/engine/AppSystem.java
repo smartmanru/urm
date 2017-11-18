@@ -84,7 +84,7 @@ public class AppSystem extends EngineObject {
 		mapProducts.put( product.NAME , product );
 	}
 	
-	public void removeProduct( Product product ) throws Exception {
+	public void removeProduct( Product product ) {
 		mapProducts.remove( product.NAME );
 	}
 

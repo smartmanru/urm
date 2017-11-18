@@ -14,7 +14,6 @@ import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineDirectory;
-import org.urm.meta.engine.EngineRegistry;
 import org.urm.meta.engine.Product;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.product.Meta;
@@ -225,8 +224,7 @@ public class EngineStatus extends EngineObject {
 	}
 
 	private void startApp( ActionBase action , EngineData data ) {
-		EngineRegistry registry = data.getRegistry();
-		EngineDirectory directory = registry.directory;
+		EngineDirectory directory = data.getDirectory();
 		
 		action.trace( "start status tracking for applications ..." );
 		createGlobalSource( StatusType.APP , directory , "app" , new AppStatus() );

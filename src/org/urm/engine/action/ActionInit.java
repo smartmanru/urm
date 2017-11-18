@@ -160,8 +160,8 @@ public class ActionInit extends ActionBase {
 				return( transaction.directory );
 		}
 		
-		EngineRegistry registry = data.getRegistry();
-		return( registry.directory );
+		EngineDirectory directory = data.getDirectory();
+		return( directory );
 	}
 	
 	public EngineInfrastructure getActiveInfrastructure() {

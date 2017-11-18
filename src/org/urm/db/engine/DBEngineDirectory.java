@@ -5,6 +5,7 @@ import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.system.DBProduct;
 import org.urm.db.system.DBSystem;
+import org.urm.meta.EngineMatcher;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.Product;
 import org.urm.meta.engine.AppSystem;
@@ -52,14 +53,23 @@ public abstract class DBEngineDirectory {
 			DBSystem.resolvedb( directory , system );
 	}
 	
-	public static void matchxml( EngineDirectory directory ) throws Exception {
+	public static void matchxml( EngineDirectory directory , EngineMatcher matcher ) throws Exception {
 		for( AppSystem system : directory.getSystems() )
 			DBSystem.matchxml( directory , system );
 	}
 	
-	public static void matchdb( EngineDirectory directory , boolean update ) throws Exception {
+	public static void matchdb( EngineDirectory directory , EngineMatcher matcher , boolean update ) throws Exception {
 		for( AppSystem system : directory.getSystems() ) {
-			DBSystem.matchdb( directory , system , update );
+			if( update ) {
+				matcher.prepareMatch( system.ID );
+				DBSystem.matchdb( directory , matcher , system , true );
+			}
+			else
+			if( system.MATCHED )
+				DBSystem.matchdb( directory , matcher , system , false );
+				
+			if( !system.MATCHED )
+				directory.unloadSystem( system );
 		}
 	}
 	

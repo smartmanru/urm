@@ -2,9 +2,11 @@ package org.urm.meta;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBCoreData;
+import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.system.DBSystemData;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineDB;
@@ -13,6 +15,7 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.engine.EngineBase;
+import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.EngineProducts;
@@ -20,6 +23,9 @@ import org.urm.meta.engine.EngineRegistry;
 import org.urm.meta.engine.EngineReleaseLifecycles;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.Meta;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class EngineLoader {
 
@@ -33,8 +39,6 @@ public class EngineLoader {
 		this.engine = engine;
 		this.data = data;
 		this.execrc = engine.execrc;
-		
-		matcher = new EngineMatcher( this ); 
 	}
 
 	public void init() throws Exception {
@@ -46,6 +50,7 @@ public class EngineLoader {
 		DBConnection connection = null;
 		try {
 			connection = db.getConnection( engine.serverAction );
+			matcher = new EngineMatcher( this , connection ); 
 			
 			if( savedb )
 				connection.setNextCoreVersion();
@@ -151,10 +156,22 @@ public class EngineLoader {
 		return( propertyFile );
 	}
 
-	private void loadRegistry( DBConnection c , boolean savedb , boolean withSystems ) throws Exception {
+	private void loadRegistry( DBConnection c , boolean importxml , boolean withSystems ) throws Exception {
 		String registryFile = getServerRegistryFile();
 		EngineRegistry registry = data.getRegistry();
-		registry.loadmixed( registryFile , c , savedb , withSystems );
+		
+		Document doc = ConfReader.readXmlFile( execrc , registryFile );
+		Node root = doc.getDocumentElement();
+		registry.loadxml( matcher , root , c );
+		c.save( true );
+		
+		EngineDirectory directory = data.getDirectory();
+		if( importxml == false || withSystems == false )
+			directory.loaddb( matcher , c );
+		else {
+			Node node = ConfReader.xmlGetFirstChild( root , "directory" );
+			directory.loadxml( matcher , node , c );
+		}
 	}
 
 	private String getServerSettingsFile() {
@@ -181,8 +198,17 @@ public class EngineLoader {
 
 	public void saveRegistry( TransactionBase transaction ) throws Exception {
 		String propertyFile = getServerRegistryFile();
+		Document doc = Common.xmlCreateDoc( "registry" );
+		Element root = doc.getDocumentElement();
+		
 		EngineRegistry registry = data.getRegistry();
-		registry.savexml( transaction.getAction() , propertyFile , execrc );
+		registry.savexml( transaction.getAction() , doc , root , execrc );
+		
+		EngineDirectory directory = data.getDirectory();
+		Element node = Common.xmlCreateElement( doc , root , "directory" );
+		DBEngineDirectory.savexml( directory , doc , node );
+		
+		Common.xmlSaveDoc( doc , propertyFile );
 	}
 	
 	public void saveBase( TransactionBase transaction ) throws Exception {
@@ -229,7 +255,7 @@ public class EngineLoader {
 		engine.trace( "reload server core settings ..." );
 		
 		if( includingSystems )
-			data.clearCoreWithSystems();
+			data.unloadAll();
 		else
 			Common.exitUnexpected();
 

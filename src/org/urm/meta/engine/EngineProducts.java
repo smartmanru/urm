@@ -149,13 +149,13 @@ public class EngineProducts {
 		return( set );
 	}
 	
-	public void clearProducts() {
+	public void unloadProducts() {
 		for( ProductMeta storage : productMeta.values() )
-			clearProduct( storage );
+			unloadProduct( storage );
 		productMeta.clear();
 	}
 	
-	private void clearProduct( ProductMeta storage ) {
+	private void unloadProduct( ProductMeta storage ) {
 		storage.setPrimary( false );
 		if( !storage.isReferencedBySessions() ) {
 			storage.meta.deleteObject();
@@ -183,7 +183,7 @@ public class EngineProducts {
 		ProductMeta storage = productMeta.get( productName );
 		synchronized( this ) {
 			if( storage != null )
-				clearProduct( storage );
+				unloadProduct( storage );
 			addProduct( storageNew );
 		}
 	}
@@ -220,9 +220,9 @@ public class EngineProducts {
 	}
 	
 	public void loadProducts( ActionBase action ) {
-		clearProducts();
-		EngineRegistry registry = data.getRegistry();
-		for( String name : registry.directory.getProductNames() ) {
+		unloadProducts();
+		EngineDirectory directory = data.getDirectory();
+		for( String name : directory.getProductNames() ) {
 			ProductMeta product = loadProduct( action , name , false );
 			addProduct( product );
 		}

@@ -5,10 +5,10 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
-import org.urm.db.engine.DBEngineDirectory;
 import org.urm.engine.Engine;
 import org.urm.engine.TransactionBase;
 import org.urm.meta.EngineData;
+import org.urm.meta.EngineMatcher;
 import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,7 +22,6 @@ public class EngineRegistry extends EngineObject {
 	
 	public EngineMirrors mirrors;
 	public EngineResources resources;
-	public EngineDirectory directory;
 	public EngineBuilders builders;
 
 	public EngineRegistry( EngineData data ) {
@@ -32,7 +31,6 @@ public class EngineRegistry extends EngineObject {
 		this.execrc = engine.execrc;
 		mirrors = new EngineMirrors( this ); 
 		resources = new EngineResources( this );
-		directory = new EngineDirectory( this );
 		builders = new EngineBuilders( this ); 
 	}
 	
@@ -41,18 +39,8 @@ public class EngineRegistry extends EngineObject {
 		return( "server-registry" );
 	}
 	
-	public void loadmixed( String propertyFile , DBConnection c , boolean importxml , boolean withSystems ) throws Exception {
-		Document doc = ConfReader.readXmlFile( execrc , propertyFile );
-		Node root = doc.getDocumentElement();
+	public void loadxml( EngineMatcher matcher , Node root , DBConnection c ) throws Exception {
 		Node node;
-		
-		if( importxml == false || withSystems == false )
-			directory.loaddb( c );
-		else {
-			node = ConfReader.xmlGetFirstChild( root , "directory" );
-			directory.loadxml( node , c );
-		}
-		
 		node = ConfReader.xmlGetFirstChild( root , "resources" );
 		resources.load( node );
 		node = ConfReader.xmlGetFirstChild( root , "mirror" );
@@ -61,29 +49,18 @@ public class EngineRegistry extends EngineObject {
 		builders.load( node );
 	}
 	
-	public void savexml( ActionCore action , String path , RunContext execrc ) throws Exception {
-		Document doc = Common.xmlCreateDoc( "registry" );
-		Element root = doc.getDocumentElement();
-		
+	public void savexml( ActionCore action , Document doc , Element root , RunContext execrc ) throws Exception {
 		Element node;
 		node = Common.xmlCreateElement( doc , root , "resources" );
 		resources.save( doc , node );
-		node = Common.xmlCreateElement( doc , root , "directory" );
-		DBEngineDirectory.savexml( directory , doc , node );
 		node = Common.xmlCreateElement( doc , root , "mirror" );
 		mirrors.save( doc , node );
 		node = Common.xmlCreateElement( doc , root , "build" );
 		builders.save( doc , node );
-		
-		Common.xmlSaveDoc( doc , path );
 	}
 
 	public void setResources( TransactionBase transaction , EngineResources resourcesNew ) throws Exception {
 		resources = resourcesNew;
-	}
-	
-	public void setDirectory( TransactionBase transaction , EngineDirectory directoryNew ) throws Exception {
-		directory = directoryNew;
 	}
 	
 	public void setMirrors( TransactionBase transaction , EngineMirrors mirrorsNew ) throws Exception {

@@ -36,6 +36,7 @@ public class EngineData {
 	private EngineBase base;
 	private EngineInfrastructure infra;
 	private EngineReleaseLifecycles lifecycles;
+	private EngineDirectory directory;
 	private EngineMonitoring mon;
 	private EngineProducts products;
 
@@ -58,8 +59,9 @@ public class EngineData {
 		base = new EngineBase( this ); 
 		infra = new EngineInfrastructure( this ); 
 		lifecycles = new EngineReleaseLifecycles( this ); 
-		mon = new EngineMonitoring( this ); 
+		directory = new EngineDirectory( this );
 		products = new EngineProducts( this );
+		mon = new EngineMonitoring( this ); 
 	}
 
 	public void init() throws Exception {
@@ -74,10 +76,16 @@ public class EngineData {
 	}
 
 	public void unloadProducts() {
-		products.clearProducts();
+		products.unloadProducts();
 	}
 	
-	public void clearCoreWithSystems() throws Exception {
+	public void unloadDirectory() {
+		directory.unloadAll();
+	}
+	
+	public void unloadAll() throws Exception {
+		unloadProducts();
+		
 		settings.deleteObject();
 		registry.deleteObject(); 
 		base.deleteObject(); 
@@ -141,6 +149,12 @@ public class EngineData {
 		}
 	}
 
+	public EngineDirectory getDirectory() {
+		synchronized( engine ) {
+			return( directory );
+		}
+	}
+	
 	public EngineProducts getProducts() {
 		synchronized( engine ) {
 			return( products );
@@ -155,12 +169,12 @@ public class EngineData {
 		registry.setBuilders( transaction , buildersNew );
 	}
 
-	public void setDirectory( TransactionBase transaction , EngineDirectory directoryNew ) throws Exception {
-		registry.setDirectory( transaction , directoryNew );
-	}
-
 	public void setMirrors( TransactionBase transaction , EngineMirrors mirrorsNew ) throws Exception {
 		registry.setMirrors( transaction , mirrorsNew );
+	}
+
+	public void setDirectory( TransactionBase transaction , EngineDirectory directoryNew ) throws Exception {
+		directory = directoryNew;
 	}
 
 	public void setProductMetadata( TransactionBase transaction , ProductMeta storageNew ) throws Exception {

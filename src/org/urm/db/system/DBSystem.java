@@ -12,6 +12,7 @@ import org.urm.db.DBNames;
 import org.urm.db.DBQueries;
 import org.urm.db.DBVersions;
 import org.urm.engine.EngineDB;
+import org.urm.meta.EngineMatcher;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.Product;
@@ -76,9 +77,9 @@ public abstract class DBSystem {
 		system.MATCHED = true;
 	}
 	
-	public static void matchdb( EngineDirectory directory , AppSystem system , boolean update ) throws Exception {
+	public static void matchdb( EngineDirectory directory , EngineMatcher matcher , AppSystem system , boolean update ) throws Exception {
 		for( Product product : system.getProducts() )
-			DBProduct.matchdb( directory , product , update );
+			DBProduct.matchdb( directory , matcher , product , update );
 	}
 	
 	public static void savexml( EngineDirectory directory , AppSystem system , Document doc , Element root ) throws Exception {

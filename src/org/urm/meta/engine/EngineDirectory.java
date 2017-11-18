@@ -15,12 +15,14 @@ import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.EngineData;
+import org.urm.meta.EngineMatcher;
 import org.urm.meta.EngineObject;
 import org.w3c.dom.Node;
 
 public class EngineDirectory extends EngineObject {
 
-	public EngineRegistry registry;
+	public EngineData data;
 	public Engine engine;
 
 	private Map<String,AppSystem> mapSystems;
@@ -28,10 +30,10 @@ public class EngineDirectory extends EngineObject {
 	private Map<Integer,AppSystem> mapSystemsDB;
 	private Map<Integer,Product> mapProductsDB;
 	
-	public EngineDirectory( EngineRegistry registry ) {
-		super( registry );
-		this.registry = registry;
-		this.engine = registry.engine;
+	public EngineDirectory( EngineData data ) {
+		super( null );
+		this.data = data;
+		this.engine = data.engine;
 		mapSystems = new HashMap<String,AppSystem>();
 		mapProducts = new HashMap<String,Product>();
 		mapSystemsDB = new HashMap<Integer,AppSystem>();
@@ -43,21 +45,21 @@ public class EngineDirectory extends EngineObject {
 		return( "server-directory" );
 	}
 
-	public void loadxml( Node root , DBConnection c ) throws Exception {
+	public void loadxml( EngineMatcher matcher , Node root , DBConnection c ) throws Exception {
 		DBEngineDirectory.loadxml( this , root , c );
 		DBEngineDirectory.resolvexml( this );
-		DBEngineDirectory.matchxml( this );
+		DBEngineDirectory.matchxml( this , matcher );
 		DBEngineDirectory.savedb( this , c );
 	}
 	
-	public void loaddb( DBConnection c ) throws Exception {
+	public void loaddb( EngineMatcher matcher , DBConnection c ) throws Exception {
 		DBEngineDirectory.loaddb( this , c );
 		DBEngineDirectory.resolvedb( this );
-		DBEngineDirectory.matchdb( this , false );
+		DBEngineDirectory.matchdb( this , matcher , false );
 	}
 	
 	public EngineDirectory copy() throws Exception {
-		EngineDirectory r = new EngineDirectory( registry );
+		EngineDirectory r = new EngineDirectory( null );
 		
 		for( AppSystem system : mapSystems.values() ) {
 			AppSystem rs = system.copy( r );
@@ -135,15 +137,22 @@ public class EngineDirectory extends EngineObject {
 		if( system.ID > 0 )
 			mapSystemsDB.put( system.ID , system );
 	}
+
+	public void unloadAll() {
+		mapSystems.clear();
+		mapSystemsDB.clear();
+		mapProducts.clear();
+		mapProductsDB.clear();
+	}
 	
-	public void unloadSystem( AppSystem system ) throws Exception {
+	public void unloadSystem( AppSystem system ) {
 		mapSystems.remove( system.NAME );
 		mapSystemsDB.remove( system.ID );
 		for( Product product : system.getProducts() )
 			unloadProduct( product );
 	}
 	
-	public void unloadProduct( Product product ) throws Exception {
+	public void unloadProduct( Product product ) {
 		mapProducts.remove( product.NAME );
 		mapProductsDB.remove( product.ID );
 		product.system.removeProduct( product );
@@ -156,7 +165,7 @@ public class EngineDirectory extends EngineObject {
 	}
 	
 	public void modifySystem( EngineTransaction t , AppSystem system ) throws Exception {
-		registry.data.checkSystemNameBusy( system.NAME );
+		data.checkSystemNameBusy( system.NAME );
 		if( Common.changeMapKey( mapSystems , system , system.NAME ) )
 			DBNames.updateName( t.connection , DBVersions.CORE_ID , system.NAME , system.ID , DBEnumObjectType.SYSTEM );
 		DBSystem.update( t.connection , system );
@@ -205,7 +214,7 @@ public class EngineDirectory extends EngineObject {
 		if( mapProducts.containsKey( product.NAME ) )
 			transaction.exit( _Error.DuplicateProduct1 , "product=" + product.NAME + " is not unique" , new String[] { product.NAME } );
 		
-		registry.data.checkProductNameBusy( product.NAME );
+		data.checkProductNameBusy( product.NAME );
 		
 		addProduct( product );
 		product.system.addProduct( product );

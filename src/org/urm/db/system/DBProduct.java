@@ -12,6 +12,7 @@ import org.urm.db.DBQueries;
 import org.urm.db.DBVersions;
 import org.urm.db.DBEnums.DBEnumObjectType;
 import org.urm.engine.EngineDB;
+import org.urm.meta.EngineMatcher;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.Product;
@@ -65,7 +66,7 @@ public abstract class DBProduct {
 	public static void matchxml( EngineDirectory directory , Product product ) throws Exception {
 	}
 	
-	public static void matchdb( EngineDirectory directory , Product product , boolean update ) throws Exception {
+	public static void matchdb( EngineDirectory directory , EngineMatcher matcher , Product product , boolean update ) throws Exception {
 	}
 	
 	public static void savexml( EngineDirectory directory , Product product , Document doc , Element root ) throws Exception {
