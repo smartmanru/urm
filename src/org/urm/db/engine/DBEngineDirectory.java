@@ -54,8 +54,11 @@ public abstract class DBEngineDirectory {
 	}
 	
 	public static void matchxml( EngineDirectory directory , EngineMatcher matcher ) throws Exception {
-		for( AppSystem system : directory.getSystems() )
+		for( AppSystem system : directory.getSystems() ) {
 			DBSystem.matchxml( directory , system );
+			if( !system.MATCHED )
+				directory.unloadSystem( system );
+		}
 	}
 	
 	public static void matchdb( EngineDirectory directory , EngineMatcher matcher , boolean update ) throws Exception {
