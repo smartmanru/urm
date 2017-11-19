@@ -14,6 +14,7 @@ import org.urm.engine.TransactionBase;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
+import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
@@ -41,11 +42,13 @@ public class EngineLoader {
 		this.execrc = engine.execrc;
 	}
 
-	public void init() throws Exception {
-		init( false , true );
+	public void loadCore() throws Exception {
+		loadCore( false , true );
 	}
 	
-	private void init( boolean savedb , boolean withSystems ) throws Exception {
+	private void loadCore( boolean savedb , boolean withSystems ) throws Exception {
+		data.unloadAll();
+		
 		EngineDB db = data.getDatabase();
 		DBConnection connection = null;
 		try {
@@ -60,9 +63,12 @@ public class EngineLoader {
 			loadInfrastructure();
 			loadReleaseLifecycles();
 			loadMonitoring();
-			
-			loadRegistry( connection , savedb , withSystems );
+			loadRegistry();
+			connection.save( true );
 
+			loadDirectory( connection , savedb , withSystems );
+			connection.save( true );
+			
 			if( savedb ) {
 				engine.trace( "successfully saved server metadata version=" + connection.getNextCoreVersion() );
 				connection.close( true );
@@ -70,7 +76,7 @@ public class EngineLoader {
 		}
 		catch( Throwable e ) {
 			engine.log( "init" , e );
-			if( savedb ) {
+			if( connection != null && savedb ) {
 				engine.trace( "unable to save server metadata version=" + connection.getNextCoreVersion() );
 				connection.close( false );
 			}
@@ -156,44 +162,48 @@ public class EngineLoader {
 		return( propertyFile );
 	}
 
-	private void loadRegistry( DBConnection c , boolean importxml , boolean withSystems ) throws Exception {
+	private void loadRegistry() throws Exception {
 		String registryFile = getServerRegistryFile();
 		EngineRegistry registry = data.getRegistry();
 		
 		Document doc = ConfReader.readXmlFile( execrc , registryFile );
 		Node root = doc.getDocumentElement();
-		registry.loadxml( matcher , root , c );
-		c.save( true );
+		registry.loadxml( matcher , root );
+	}
+
+	private void loadDirectory( DBConnection c , boolean importxml , boolean withSystems ) throws Exception {
+		String registryFile = getServerRegistryFile();
+		Document doc = ConfReader.readXmlFile( execrc , registryFile );
+		Node root = doc.getDocumentElement();
 		
 		EngineDirectory directory = data.getDirectory();
-		if( importxml == false || withSystems == false )
-			directory.loaddb( matcher , c );
-		else {
+		if( importxml && withSystems ) {
 			Node node = ConfReader.xmlGetFirstChild( root , "directory" );
 			directory.loadxml( matcher , node , c );
 		}
+		else
+			directory.loaddb( matcher , c );
+		
+		for( AppSystem system : directory.getSystems() )
+			data.matchSystem( system );
 	}
-
+	
 	private String getServerSettingsFile() {
 		String path = Common.getPath( execrc.installPath , "etc" );
 		String propertyFile = Common.getPath( path , "server.xml" );
 		return( propertyFile );
 	}
 	
-	public void loadServerSettings( DBConnection c , boolean savedb ) throws Exception {
+	private void loadServerSettings( DBConnection c , boolean savedb ) throws Exception {
 		String propertyFile = getServerSettingsFile();
 		EngineSettings settings = data.getServerSettings();
-		settings.load( propertyFile , c , savedb );
+		settings.load( propertyFile , c , savedb , c.getCoreVersion() );
 	}
 
 	public void loadProducts( ActionBase action ) throws Exception {
+		data.unloadProducts();
 		EngineProducts products = data.getProducts();
 		products.loadProducts( action );
-	}
-
-	public boolean isProductBroken( String productName ) {
-		EngineProducts products = data.getProducts();
-		return( products.isProductBroken( productName ) );
 	}
 
 	public void saveRegistry( TransactionBase transaction ) throws Exception {
@@ -239,19 +249,15 @@ public class EngineLoader {
 		String propertyFile = getServerSettingsFile();
 		settingsNew.save( propertyFile , execrc );
 		EngineSettings settings = data.getServerSettings();
-		settings.setData( transaction.getAction() , settingsNew );
+		settings.setData( transaction.getAction() , settingsNew , transaction.connection.getCoreVersion() );
 	}
 
-	public void rereadEngineMirror( boolean includingSystems ) throws Exception {
-		reloadCore( includingSystems );
-	}
-
-	public void rereadProductMirror( ActionBase action , String product , boolean includingEnvironments ) throws Exception {
+	public void importProduct( ActionBase action , String product , boolean includingEnvironments ) throws Exception {
 		EngineProducts products = data.getProducts();
-		products.rereadProductMirror( action , product , includingEnvironments );
+		products.importProduct( action , product , includingEnvironments );
 	}
 	
-	private void reloadCore( boolean includingSystems ) throws Exception {
+	public void importCore( boolean includingSystems ) throws Exception {
 		engine.trace( "reload server core settings ..." );
 		
 		if( includingSystems )
@@ -260,7 +266,7 @@ public class EngineLoader {
 			Common.exitUnexpected();
 
 		dropCoreData( includingSystems );
-		init( true , includingSystems );
+		loadCore( true , includingSystems );
 	}
 
 	private void dropCoreData( boolean includingSystems ) throws Exception {

@@ -66,7 +66,7 @@ public abstract class DBProduct {
 	public static void matchxml( EngineDirectory directory , Product product ) throws Exception {
 	}
 	
-	public static void matchdb( EngineDirectory directory , EngineMatcher matcher , Product product , boolean update ) throws Exception {
+	public static void matchdb( EngineDirectory directory , EngineMatcher matcher , Product product ) throws Exception {
 	}
 	
 	public static void savexml( EngineDirectory directory , Product product , Document doc , Element root ) throws Exception {

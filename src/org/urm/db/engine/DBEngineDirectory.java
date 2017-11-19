@@ -53,26 +53,25 @@ public abstract class DBEngineDirectory {
 			DBSystem.resolvedb( directory , system );
 	}
 	
-	public static void matchxml( EngineDirectory directory , EngineMatcher matcher ) throws Exception {
+	public static void matchxml( EngineDirectory directory , EngineMatcher matcher , DBConnection c ) throws Exception {
 		for( AppSystem system : directory.getSystems() ) {
+			int systemId = DBSystem.getSystemIdByName( system.NAME , c );
+			matcher.prepareMatch( systemId , false , false );
 			DBSystem.matchxml( directory , system );
-			if( !system.MATCHED )
-				directory.unloadSystem( system );
 		}
 	}
 	
 	public static void matchdb( EngineDirectory directory , EngineMatcher matcher , boolean update ) throws Exception {
 		for( AppSystem system : directory.getSystems() ) {
 			if( update ) {
-				matcher.prepareMatch( system.ID );
-				DBSystem.matchdb( directory , matcher , system , true );
+				matcher.prepareMatch( system.ID , true , true );
+				DBSystem.matchdb( directory , matcher , system );
 			}
 			else
-			if( system.MATCHED )
-				DBSystem.matchdb( directory , matcher , system , false );
-				
-			if( !system.MATCHED )
-				directory.unloadSystem( system );
+			if( system.MATCHED ) {
+				matcher.prepareMatch( system.ID , false , true );
+				DBSystem.matchdb( directory , matcher , system );
+			}
 		}
 	}
 	

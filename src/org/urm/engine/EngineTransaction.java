@@ -65,9 +65,9 @@ public class EngineTransaction extends TransactionBase {
 		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , push );
 		if( !push ) {
 			if( repo.isServer() )
-				loader.rereadEngineMirror( true );
+				loader.importCore( true );
 			else
-				loader.rereadProductMirror( action , repo.PRODUCT , true );
+				loader.importProduct( action , repo.PRODUCT , true );
 		}
 	}
 
@@ -78,9 +78,9 @@ public class EngineTransaction extends TransactionBase {
 	public void refreshMirror( MirrorRepository repo ) throws Exception {
 		repo.refreshMirror( this );
 		if( repo.isServer() )
-			loader.rereadEngineMirror( true );
+			loader.importCore( true );
 		else
-			loader.rereadProductMirror( action , repo.PRODUCT , true );
+			loader.importProduct( action , repo.PRODUCT , true );
 	}
 
 	public void dropMirror( MirrorRepository repo , boolean dropOnServer ) throws Exception {

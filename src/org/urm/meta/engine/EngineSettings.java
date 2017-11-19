@@ -13,7 +13,7 @@ import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
-import org.urm.meta.EngineData;
+import org.urm.meta.EngineCore;
 import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,10 +21,11 @@ import org.w3c.dom.Node;
 
 public class EngineSettings extends EngineObject {
 
-	public EngineData data;
+	public EngineCore core;
 	public Engine engine;
 	public RunContext execrc;
 	public EngineContext context;
+	public int version;
 
 	private ObjectProperties execrcProperties;
 	private ObjectProperties engineProperties;
@@ -32,10 +33,10 @@ public class EngineSettings extends EngineObject {
 	private ObjectProperties defaultProductBuildProperties;
 	private Map<DBEnumBuildModeType,ObjectProperties> mapBuildModeDefaults;
 	
-	public EngineSettings( EngineData data ) {
+	public EngineSettings( EngineCore core ) {
 		super( null );
-		this.data = data;
-		this.engine = data.engine;
+		this.core = core;
+		this.engine = core.engine;
 		this.execrc = engine.execrc;
 		
 		mapBuildModeDefaults = new HashMap<DBEnumBuildModeType,ObjectProperties>();
@@ -46,7 +47,9 @@ public class EngineSettings extends EngineObject {
 		return( "server-settings" );
 	}
 	
-	public void load( String path , DBConnection c , boolean savedb ) throws Exception {
+	public void load( String path , DBConnection c , boolean savedb , int version ) throws Exception {
+		this.version = version;
+		
 		setExecProperties();
 		
 		Document doc = ConfReader.readXmlFile( execrc , path );
@@ -62,7 +65,9 @@ public class EngineSettings extends EngineObject {
 		context.scatterProperties();
 	}
 
-	public void setData( ActionBase action , EngineSettings src ) throws Exception {
+	public void setData( ActionBase action , EngineSettings src , int version ) throws Exception {
+		this.version = version;
+		
 		execrcProperties = src.execrcProperties;
 		engineProperties = src.engineProperties;
 		defaultProductProperties = src.defaultProductProperties;
@@ -102,6 +107,10 @@ public class EngineSettings extends EngineObject {
 		}
 	}
 	
+	public int getVersion() {
+		return( version );
+	}
+	
 	public EngineContext getServerContext() {
 		return( context );
 	}
@@ -128,7 +137,7 @@ public class EngineSettings extends EngineObject {
 	}
 
 	public EngineSettings copy() throws Exception {
-		EngineSettings r = new EngineSettings( data );
+		EngineSettings r = new EngineSettings( core );
 		r.execrcProperties = execrcProperties;
 		r.engineProperties = engineProperties.copy( execrcProperties );
 		r.context = context.copy( r.engineProperties.getProperties() );

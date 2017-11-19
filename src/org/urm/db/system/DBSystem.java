@@ -77,9 +77,9 @@ public abstract class DBSystem {
 		system.MATCHED = true;
 	}
 	
-	public static void matchdb( EngineDirectory directory , EngineMatcher matcher , AppSystem system , boolean update ) throws Exception {
+	public static void matchdb( EngineDirectory directory , EngineMatcher matcher , AppSystem system ) throws Exception {
 		for( Product product : system.getProducts() )
-			DBProduct.matchdb( directory , matcher , product , update );
+			DBProduct.matchdb( directory , matcher , product );
 	}
 	
 	public static void savexml( EngineDirectory directory , AppSystem system , Document doc , Element root ) throws Exception {
@@ -94,8 +94,12 @@ public abstract class DBSystem {
 		}
 	}
 	
+	public static int getSystemIdByName( String name , DBConnection c ) throws Exception {
+		return( DBNames.getNameIndex( c , DBVersions.CORE_ID , name , DBEnumObjectType.SYSTEM ) );
+	}
+	
 	public static void savedb( EngineDirectory directory , AppSystem system , DBConnection c ) throws Exception {
-		int systemId = DBNames.getNameIndex( c , DBVersions.CORE_ID , system.NAME , DBEnumObjectType.SYSTEM );
+		int systemId = getSystemIdByName( system.NAME , c );
 		insert( c , systemId , system );
 		
 		for( Product product : system.getProducts() )

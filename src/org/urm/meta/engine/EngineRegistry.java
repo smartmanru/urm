@@ -4,10 +4,9 @@ import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
-import org.urm.db.DBConnection;
 import org.urm.engine.Engine;
 import org.urm.engine.TransactionBase;
-import org.urm.meta.EngineData;
+import org.urm.meta.EngineCore;
 import org.urm.meta.EngineMatcher;
 import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
@@ -16,7 +15,7 @@ import org.w3c.dom.Node;
 
 public class EngineRegistry extends EngineObject {
 
-	public EngineData data;
+	public EngineCore core;
 	public Engine engine;
 	public RunContext execrc;
 	
@@ -24,10 +23,10 @@ public class EngineRegistry extends EngineObject {
 	public EngineResources resources;
 	public EngineBuilders builders;
 
-	public EngineRegistry( EngineData data ) {
+	public EngineRegistry( EngineCore core ) {
 		super( null );
-		this.data = data;
-		this.engine = data.engine;
+		this.core = core;
+		this.engine = core.engine;
 		this.execrc = engine.execrc;
 		mirrors = new EngineMirrors( this ); 
 		resources = new EngineResources( this );
@@ -39,7 +38,7 @@ public class EngineRegistry extends EngineObject {
 		return( "server-registry" );
 	}
 	
-	public void loadxml( EngineMatcher matcher , Node root , DBConnection c ) throws Exception {
+	public void loadxml( EngineMatcher matcher , Node root ) throws Exception {
 		Node node;
 		node = ConfReader.xmlGetFirstChild( root , "resources" );
 		resources.load( node );

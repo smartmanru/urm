@@ -60,7 +60,7 @@ public class EngineMirrors extends EngineObject {
 		return( repoMap.get( name ) );
 	}
 	
-	private MirrorRepository findRepository( String name ) {
+	public MirrorRepository findRepository( String name ) {
 		return( repoMap.get( name ) );
 	}
 	

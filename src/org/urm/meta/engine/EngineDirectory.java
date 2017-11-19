@@ -48,7 +48,7 @@ public class EngineDirectory extends EngineObject {
 	public void loadxml( EngineMatcher matcher , Node root , DBConnection c ) throws Exception {
 		DBEngineDirectory.loadxml( this , root , c );
 		DBEngineDirectory.resolvexml( this );
-		DBEngineDirectory.matchxml( this , matcher );
+		DBEngineDirectory.matchxml( this , matcher , c );
 		DBEngineDirectory.savedb( this , c );
 	}
 	

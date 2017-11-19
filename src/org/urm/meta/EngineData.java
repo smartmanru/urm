@@ -1,6 +1,8 @@
 package org.urm.meta;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
@@ -23,7 +25,6 @@ import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.Product;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaEnv;
 
 public class EngineData {
 
@@ -31,16 +32,12 @@ public class EngineData {
 	public RunContext execrc;
 	
 	private EngineDB db;
-	private EngineSettings settings;
-	private EngineRegistry registry;
-	private EngineBase base;
-	private EngineInfrastructure infra;
-	private EngineReleaseLifecycles lifecycles;
+	private EngineCore core; 
 	private EngineDirectory directory;
 	private EngineMonitoring mon;
 	private EngineProducts products;
 
-	private Map<String,Integer> mapSystemUnmatched;
+	private Map<String,UnmatchedSystem> mapSystemUnmatched;
 	private Map<String,Integer> mapProductUnmatched;
 	private Map<String,Integer> mapEnvUnmatched;
 	
@@ -50,15 +47,11 @@ public class EngineData {
 		
 		db = new EngineDB( this );
 		
-		mapSystemUnmatched = new HashMap<String,Integer>();
+		mapSystemUnmatched = new HashMap<String,UnmatchedSystem>();
 		mapProductUnmatched = new HashMap<String,Integer>();
 		mapEnvUnmatched = new HashMap<String,Integer>();
-		
-		settings = new EngineSettings( this );
-		registry = new EngineRegistry( this ); 
-		base = new EngineBase( this ); 
-		infra = new EngineInfrastructure( this ); 
-		lifecycles = new EngineReleaseLifecycles( this ); 
+
+		core = new EngineCore( this );
 		directory = new EngineDirectory( this );
 		products = new EngineProducts( this );
 		mon = new EngineMonitoring( this ); 
@@ -66,39 +59,41 @@ public class EngineData {
 
 	public void init() throws Exception {
 		db.init();
-		EngineLoader loader = new EngineLoader( engine , this );
-		loader.init();
-	}
-
-	public void loadProducts( ActionBase action ) throws Exception {
-		EngineLoader loader = new EngineLoader( engine , this );
-		loader.loadProducts( action );
 	}
 
 	public void unloadProducts() {
+		mapProductUnmatched.clear();
+		mapEnvUnmatched.clear();
 		products.unloadProducts();
 	}
 	
+	public void matchSystem( AppSystem system ) {
+		if( system.MATCHED )
+			mapSystemUnmatched.remove( system.NAME );
+		else {
+			UnmatchedSystem unmatched = new UnmatchedSystem( system );
+			mapSystemUnmatched.put( system.NAME , unmatched );
+			directory.unloadSystem( system );
+		}
+	}
+	
 	public void unloadDirectory() {
+		unloadProducts();
+		mapSystemUnmatched.clear();
 		directory.unloadAll();
 	}
 	
 	public void unloadAll() throws Exception {
-		unloadProducts();
+		unloadDirectory();
 		
-		settings.deleteObject();
-		registry.deleteObject(); 
-		base.deleteObject(); 
-		infra.deleteObject(); 
-		lifecycles.deleteObject(); 
+		core.recreateAll();
 		mon.deleteObject();
 		
-		settings = new EngineSettings( this );
-		registry = new EngineRegistry( this ); 
-		base = new EngineBase( this ); 
-		infra = new EngineInfrastructure( this ); 
-		lifecycles = new EngineReleaseLifecycles( this ); 
 		mon = new EngineMonitoring( this ); 
+	}
+	
+	public EngineCore getCore() {
+		return( core );
 	}
 	
 	public EngineDB getDatabase() {
@@ -109,31 +104,33 @@ public class EngineData {
 	
 	public EngineSettings getServerSettings() {
 		synchronized( engine ) {
-			return( settings );
+			return( core.getServerSettings() );
 		}
 	}
 
 	public EngineResources getResources() {
 		synchronized( engine ) {
+			EngineRegistry registry = core.getRegistry();
 			return( registry.resources );
 		}
 	}
 	
 	public EngineRegistry getRegistry() {
 		synchronized( engine ) {
+			EngineRegistry registry = core.getRegistry();
 			return( registry );
 		}
 	}
 
 	public EngineInfrastructure getInfrastructure() {
 		synchronized( engine ) {
-			return( infra );
+			return( core.getInfrastructure() );
 		}
 	}
 
 	public EngineReleaseLifecycles getReleaseLifecycles() {
 		synchronized( engine ) {
-			return( lifecycles );
+			return( core.getLifecycles() );
 		}
 	}
 
@@ -145,7 +142,7 @@ public class EngineData {
 
 	public EngineBase getServerBase() {
 		synchronized( engine ) {
-			return( base );
+			return( core.getBase() );
 		}
 	}
 
@@ -162,14 +159,17 @@ public class EngineData {
 	}
 	
 	public void setResources( TransactionBase transaction , EngineResources resourcesNew ) throws Exception {
+		EngineRegistry registry = core.getRegistry();
 		registry.setResources( transaction , resourcesNew );
 	}
 
 	public void setBuilders( TransactionBase transaction , EngineBuilders buildersNew ) throws Exception {
+		EngineRegistry registry = core.getRegistry();
 		registry.setBuilders( transaction , buildersNew );
 	}
 
 	public void setMirrors( TransactionBase transaction , EngineMirrors mirrorsNew ) throws Exception {
+		EngineRegistry registry = core.getRegistry();
 		registry.setMirrors( transaction , mirrorsNew );
 	}
 
@@ -206,18 +206,6 @@ public class EngineData {
 		products.releaseSessionProductMetadata( action , meta , deleteMeta );
 	}
 	
-	public void setSystemUnmatched( AppSystem system ) throws Exception {
-		mapSystemUnmatched.put( system.NAME , system.ID );
-	}
-	
-	public void setProductUnmatched( Product product ) throws Exception {
-		mapProductUnmatched.put( product.NAME , product.ID );
-	}
-	
-	public void setEnvUnmatched( MetaEnv env ) throws Exception {
-		mapEnvUnmatched.put( env.meta.name + "::" + env.ID , 0 );
-	}
-
 	public void checkSystemNameBusy( String name ) throws Exception {
 		if( mapSystemUnmatched.containsKey( name ) )
 			Common.exit1( _Error.DuplicateSystemNameUnmatched1 , "System with name=" + name + " + already exists, unmatched" , name );
@@ -232,5 +220,15 @@ public class EngineData {
 		if( mapEnvUnmatched.containsKey( product + "::" + name ) )
 			Common.exit2( _Error.DuplicateEnvNameUnmatched2 , "Environment with name=" + name + " + already exists in product=" + product + ", unmatched" , product , name );
 	}
-	
+
+	public UnmatchedSystem[] getSystemsUnmatched() {
+		List<UnmatchedSystem> list = new LinkedList<UnmatchedSystem>();
+		for( String name : Common.getSortedKeys( mapSystemUnmatched ) ) {
+			UnmatchedSystem system = mapSystemUnmatched.get( name );
+			list.add( system );
+		}
+		
+		return( list.toArray( new UnmatchedSystem[0] ) );
+	}
+
 }

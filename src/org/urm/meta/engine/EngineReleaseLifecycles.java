@@ -14,7 +14,7 @@ import org.urm.db.DBEnums.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.blotter.EngineBlotterSet;
 import org.urm.engine.blotter.EngineBlotter.BlotterType;
-import org.urm.meta.EngineData;
+import org.urm.meta.EngineCore;
 import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,13 +22,13 @@ import org.w3c.dom.Node;
 
 public class EngineReleaseLifecycles extends EngineObject {
 
-	public EngineData data;
+	public EngineCore core;
 	
 	private Map<String,ReleaseLifecycle> lcMap;
 	
-	public EngineReleaseLifecycles( EngineData data ) {
+	public EngineReleaseLifecycles( EngineCore core ) {
 		super( null );
-		this.data = data;
+		this.core = core;
 		lcMap = new HashMap<String,ReleaseLifecycle>(); 
 	}
 	
@@ -121,7 +121,7 @@ public class EngineReleaseLifecycles extends EngineObject {
 	}
 
 	public boolean isUsed( ReleaseLifecycle lc ) {
-		EngineBlotterSet blotter = data.engine.blotter.getBlotterSet( BlotterType.BLOTTER_RELEASE );
+		EngineBlotterSet blotter = core.engine.blotter.getBlotterSet( BlotterType.BLOTTER_RELEASE );
 		if( blotter.checkLifecycleUsed( lc.ID ) )
 			return( true );
 		return( false );

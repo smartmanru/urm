@@ -8,7 +8,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.engine.EngineTransaction;
-import org.urm.meta.EngineData;
+import org.urm.meta.EngineCore;
 import org.urm.meta.EngineObject;
 import org.urm.db.DBEnums.*;
 import org.w3c.dom.Document;
@@ -17,14 +17,14 @@ import org.w3c.dom.Node;
 
 public class EngineBase extends EngineObject {
 
-	public EngineData data;
+	public EngineCore core;
 	
 	private Map<String,BaseCategory> mapCategory;
 	private Map<String,BaseItem> mapItem;
 	
-	public EngineBase( EngineData data ) {
+	public EngineBase( EngineCore core ) {
 		super( null );
-		this.data = data;
+		this.core = core;
 		mapCategory = new HashMap<String,BaseCategory>(); 
 		mapItem = new HashMap<String,BaseItem>(); 
 	}

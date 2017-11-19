@@ -36,6 +36,7 @@ import org.urm.engine.status.EngineStatus;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.EngineData;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.engine.EngineMonitoring;
 
@@ -108,12 +109,18 @@ public class Engine {
 		monitorExecutor = MonitorCommandExecutor.createExecutor( this );
 		releaseExecutor = ReleaseCommandExecutor.createExecutor( this );
 		xdocExecutor = XDocCommandExecutor.createExecutor( this );
+		
+		EngineLoader loader = new EngineLoader( this , data );
+		loader.loadCore();
 	}
 	
 	public void runServer( ActionInit action ) throws Exception {
 		serverAction.debug( "load server configuration ..." );
 		auth.start( serverAction );
-		data.loadProducts( serverAction );
+		
+		EngineLoader loader = new EngineLoader( this , data );
+		loader.loadProducts( serverAction );
+		
 		status.start( serverAction , data );
 		blotter.start( serverAction );
 		scheduler.start( serverAction );

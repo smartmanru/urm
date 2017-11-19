@@ -17,7 +17,7 @@ public class EngineMatcher {
 		this.execrc = engine.execrc;
 	}
 
-	public void prepareMatch( int objectId ) throws Exception {
+	public void prepareMatch( int objectId , boolean update , boolean useOldMatch ) throws Exception {
 	}
 	
 }

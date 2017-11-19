@@ -170,7 +170,7 @@ public class EngineProducts {
 		props.resolveRawProperties();
 	}
 
-	private void reloadProduct( ActionBase action , String productName , boolean includingEnvironments ) throws Exception {
+	public void importProduct( ActionBase action , String productName , boolean includingEnvironments ) throws Exception {
 		engine.trace( "reload settings, product=" + productName + " ..." );
 		
 		EngineDB db = data.getDatabase();
@@ -180,8 +180,8 @@ public class EngineProducts {
 		if( storageNew == null )
 			return;
 		
-		ProductMeta storage = productMeta.get( productName );
 		synchronized( this ) {
+			ProductMeta storage = productMeta.get( productName );
 			if( storage != null )
 				unloadProduct( storage );
 			addProduct( storageNew );
@@ -215,10 +215,6 @@ public class EngineProducts {
 		productMeta.remove( storage.name );
 	}
 
-	public void rereadProductMirror( ActionBase action , String product , boolean includingEnvironments ) throws Exception {
-		reloadProduct( action , product , includingEnvironments );
-	}
-	
 	public void loadProducts( ActionBase action ) {
 		unloadProducts();
 		EngineDirectory directory = data.getDirectory();

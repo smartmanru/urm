@@ -9,7 +9,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.engine.EngineTransaction;
-import org.urm.meta.EngineData;
+import org.urm.meta.EngineCore;
 import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -17,13 +17,13 @@ import org.w3c.dom.Node;
 
 public class EngineInfrastructure extends EngineObject {
 
-	public EngineData data;
+	public EngineCore core;
 	
 	private Map<String,Datacenter> mapDatacenters;
 	
-	public EngineInfrastructure( EngineData data ) {
+	public EngineInfrastructure( EngineCore core ) {
 		super( null );
-		this.data = data;
+		this.core = core;
 		mapDatacenters = new HashMap<String,Datacenter>(); 
 	}
 	
