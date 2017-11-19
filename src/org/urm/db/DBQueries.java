@@ -14,7 +14,7 @@ public abstract class DBQueries {
 	
 	public static String QUERY_ENUMS_GETALL0 = "select category , item , name from urm_object_type order by category , item";
 	public static String MODIFY_ENUMS_DROP0 = "delete from urm_object_type";
-	public static String MODIFY_ENUMS_ADD3 = "insert into urm_object_type( category , item , name ) values ( @1@ , @2@ , @3@ )";
+	public static String MODIFY_ENUMS_ADD4 = "insert into urm_object_type( category , item , name , av ) values ( @1@ , @2@ , @3@ , @4@ )";
 	
 	public static String QUERY_SYSTEM_GETALL0 = "select id , name , xdesc , offline , matched , sv from urm_system";
 	public static String MODIFY_SYSTEM_ADD6 = "insert into urm_system ( id , name , xdesc , offline , matched , sv ) values ( @1@ , @2@ , @3@ , @4@ , @5@ , @6@ )";
@@ -47,7 +47,6 @@ public abstract class DBQueries {
 
 	public static String MODIFY_CORE_DROP_RESOURCE0 = "delete from urm_resource";
 	public static String MODIFY_CORE_DROP_MIRROR0 = "delete from urm_mirror";
-	public static String MODIFY_CORE_DROP_COREPARAM0 = "delete from urm_core_param";
 	
 	public static String MODIFY_RELEASES_DROP_BUILDERS0 = "delete from urm_project_builder";
 	

@@ -5,7 +5,12 @@ import org.urm.db.DBEnums.DBEnumObjectVersionType;
 
 public abstract class DBVersions {
 
-	public static int CORE_ID = 0;
+	public static int APP_ID = 0;
+	public static int CORE_ID = 1;
+	
+	public static int getCurrentAppVersion( DBConnection c ) throws Exception {
+		return( getCurrentVersion( c , APP_ID ) );
+	}
 	
 	public static int getCurrentCoreVersion( DBConnection c ) throws Exception {
 		return( getCurrentVersion( c , CORE_ID ) );
@@ -18,6 +23,10 @@ public abstract class DBVersions {
 		return( Integer.parseInt( value ) );
 	}
 
+	public static void setNextAppVersion( DBConnection c , int version ) throws Exception {
+		setNextVersion( c , APP_ID , version , DBEnumObjectVersionType.APP );
+	}
+	
 	public static void setNextCoreVersion( DBConnection c , int version ) throws Exception {
 		setNextVersion( c , CORE_ID , version , DBEnumObjectVersionType.CORE );
 	}

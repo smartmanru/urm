@@ -9,6 +9,7 @@ import org.urm.common.RunContext;
 import org.urm.common.RunError;
 import org.urm.common._Error;
 import org.urm.common.action.CommandOption.FLAG;
+import org.urm.db.DBEnums.DBEnumParamEntityType;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
@@ -18,6 +19,8 @@ import org.w3c.dom.Node;
 
 public class ObjectProperties {
 
+	public DBEnumParamEntityType type;
+	
 	private String setName;
 	private ObjectProperties parent;
 	private RunContext execrc;
@@ -30,7 +33,8 @@ public class ObjectProperties {
 
 	private List<ObjectProperties> childs;
 	
-	public ObjectProperties( String name , RunContext execrc ) {
+	public ObjectProperties( DBEnumParamEntityType type , String name , RunContext execrc ) {
+		this.type = type;
 		this.setName = name;
 		this.execrc = execrc;
 		
@@ -41,7 +45,7 @@ public class ObjectProperties {
 	}
 
 	public ObjectProperties copy( ObjectProperties parent ) {
-		ObjectProperties r = new ObjectProperties( setName , execrc );
+		ObjectProperties r = new ObjectProperties( type , setName , execrc );
 		r.properties = r.properties.copy( parent.properties );
 		return( r );
 	}

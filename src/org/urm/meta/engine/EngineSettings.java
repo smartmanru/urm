@@ -8,6 +8,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
+import org.urm.db.DBSettings;
 import org.urm.db.DBEnums.*;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
@@ -47,24 +48,28 @@ public class EngineSettings extends EngineObject {
 		return( "server-settings" );
 	}
 	
-	public void load( String path , DBConnection c , boolean savedb , int version ) throws Exception {
-		this.version = version;
-		
+	public void loadxml( Node root , DBConnection c ) throws Exception {
+		this.version = c.getNextCoreVersion();
 		setExecProperties();
 		
-		Document doc = ConfReader.readXmlFile( execrc , path );
-		if( doc == null )
-			Common.exit1( _Error.UnableReadEnginePropertyFile1 , "unable to read engine property file " + path , path );
-
-		Node root = doc.getDocumentElement();
-		
-		loadEngineSettings( root , c , savedb );
-		loadProductDefaults( root );
+		importEngineSettings( root , c );
+		importProductDefaults( root , c );
 		
 		context = new EngineContext( execrc , engineProperties.getProperties() );
 		context.scatterProperties();
 	}
 
+	public void loaddb( DBConnection c ) throws Exception {
+		this.version = c.getCurrentCoreVersion();
+		setExecProperties();
+		
+		loaddbEngineSettings( c );
+		loaddbProductDefaults( c );
+		
+		context = new EngineContext( execrc , engineProperties.getProperties() );
+		context.scatterProperties();
+	}
+	
 	public void setData( ActionBase action , EngineSettings src , int version ) throws Exception {
 		this.version = version;
 		
@@ -78,19 +83,24 @@ public class EngineSettings extends EngineObject {
 		context.scatterProperties();
 	}
 	
-	private void loadEngineSettings( Node root , DBConnection c , boolean savedb ) throws Exception {
-		engineProperties = new ObjectProperties( "engine" , execrc );
+	private void importEngineSettings( Node root , DBConnection c ) throws Exception {
+		engineProperties = new ObjectProperties( DBEnumParamEntityType.ENGINE , "engine" , execrc );
 		engineProperties.load( root , execrcProperties );
 	}
 	
-	private void loadProductDefaults( Node root ) throws Exception {
-		defaultProductProperties = new ObjectProperties( "product.primary" , execrc );
+	private void loaddbEngineSettings( DBConnection c ) throws Exception {
+		engineProperties = new ObjectProperties( DBEnumParamEntityType.ENGINE , "engine" , execrc );
+		DBSettings.loaddb( c , engineProperties , execrcProperties );
+	}
+	
+	private void importProductDefaults( Node root , DBConnection c ) throws Exception {
+		defaultProductProperties = new ObjectProperties( DBEnumParamEntityType.PDEF , "product.primary" , execrc );
 		
 		Node node = ConfReader.xmlGetFirstChild( root , "defaults" );
 		defaultProductProperties.load( node , engineProperties );
 		
 		Node build = ConfReader.xmlGetFirstChild( node , "build" );
-		defaultProductBuildProperties = new ObjectProperties( "build.common " , execrc );
+		defaultProductBuildProperties = new ObjectProperties( DBEnumParamEntityType.PDEFBUILD , "build.common" , execrc );
 		defaultProductBuildProperties.load( build , defaultProductProperties );
 		
 		// for build modes
@@ -99,11 +109,29 @@ public class EngineSettings extends EngineObject {
 			for( Node itemNode : items ) {
 				String MODE = ConfReader.getRequiredAttrValue( itemNode , "name" );
 				DBEnumBuildModeType mode = DBEnumBuildModeType.valueOf( MODE.toUpperCase() );
-				ObjectProperties properties = new ObjectProperties( "build." + MODE.toLowerCase() , execrc );
+				ObjectProperties properties = new ObjectProperties( DBEnumParamEntityType.PDEFBUILDMODE , "build." + MODE.toLowerCase() , execrc );
 	
 				properties.load( itemNode , defaultProductBuildProperties );
 				mapBuildModeDefaults.put( mode , properties );
 			}
+		}
+	}
+	
+	private void loaddbProductDefaults( DBConnection c ) throws Exception {
+		defaultProductProperties = new ObjectProperties( DBEnumParamEntityType.PDEF , "product.primary" , execrc );
+		DBSettings.loaddb( c , defaultProductProperties , engineProperties );
+		
+		defaultProductBuildProperties = new ObjectProperties( DBEnumParamEntityType.PDEFBUILD , "build.common" , execrc );
+		DBSettings.loaddb( c , defaultProductBuildProperties , defaultProductProperties );
+		
+		// for build modes
+		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
+			if( mode == DBEnumBuildModeType.UNKNOWN )
+				continue;
+			
+			ObjectProperties properties = new ObjectProperties( DBEnumParamEntityType.PDEFBUILDMODE , "build." + mode.name().toLowerCase() , execrc );
+			DBSettings.loaddb( c , properties , defaultProductBuildProperties );
+			mapBuildModeDefaults.put( mode , properties );
 		}
 	}
 	
@@ -138,6 +166,7 @@ public class EngineSettings extends EngineObject {
 
 	public EngineSettings copy() throws Exception {
 		EngineSettings r = new EngineSettings( core );
+		r.version = version;
 		r.execrcProperties = execrcProperties;
 		r.engineProperties = engineProperties.copy( execrcProperties );
 		r.context = context.copy( r.engineProperties.getProperties() );
@@ -196,7 +225,7 @@ public class EngineSettings extends EngineObject {
 	public void setProductBuildModeDefaultsProperties( EngineTransaction transaction , DBEnumBuildModeType mode , PropertySet props ) throws Exception {
 		ObjectProperties set = mapBuildModeDefaults.get( mode );
 		if( set == null ) {
-			set = new ObjectProperties( "build." + Common.getEnumLower( mode ) , execrc );
+			set = new ObjectProperties( DBEnumParamEntityType.PDEFBUILDMODE , "build." + Common.getEnumLower( mode ) , execrc );
 			set.create( defaultProductBuildProperties );
 			mapBuildModeDefaults.put( mode , set );
 		}
@@ -206,7 +235,7 @@ public class EngineSettings extends EngineObject {
 	}
 
 	public void setExecProperties() throws Exception {
-		execrcProperties = new ObjectProperties( "execrc" , execrc );
+		execrcProperties = new ObjectProperties( DBEnumParamEntityType.EXECRC , "execrc" , execrc );
 		execrcProperties.create( null );
 		PropertySet set = execrcProperties.getProperties();
 		

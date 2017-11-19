@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.db.DBEnums.DBEnumParamEntityType;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
 
@@ -28,7 +29,7 @@ public class AppSystem extends EngineObject {
 		ID = -1;
 		SV = 0;
 		
-		parameters = new ObjectProperties( "system" , directory.engine.execrc );
+		parameters = new ObjectProperties( DBEnumParamEntityType.SYSTEM , "system" , directory.engine.execrc );
 	}
 
 	@Override

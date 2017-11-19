@@ -55,7 +55,6 @@ public abstract class DBCoreData {
 	public static void dropCoreEngineData( DBConnection c ) throws Exception {
 		boolean res = true;
 		res = ( res )? c.update( DBQueries.MODIFY_CORE_DROP_RESOURCE0 ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_CORE_DROP_COREPARAM0 ) : false;
 		res = ( res )? c.update( DBQueries.MODIFY_CORE_DROP_MIRROR0 ) : false;
 		if( !res )
 			Common.exitUnexpected();

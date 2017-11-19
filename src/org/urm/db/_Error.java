@@ -15,5 +15,6 @@ public class _Error {
 	public static final int UnexpectedEnumItem2 = ErrorBase + 6;
 	public static final int MissingEnum1 = ErrorBase + 7;
 	public static final int MissingEnumItem2 = ErrorBase + 8;
+	public static final int InvalidEnum3 = ErrorBase + 9;
 	
 }

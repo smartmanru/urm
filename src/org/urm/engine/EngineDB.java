@@ -11,6 +11,7 @@ import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.DBEnums;
 import org.urm.db.DBNames;
+import org.urm.db.DBVersions;
 import org.urm.meta.EngineData;
 
 public class EngineDB {
@@ -18,6 +19,7 @@ public class EngineDB {
 	public EngineData data;
 	
 	private PGConnectionPoolDataSource pool;
+	public static int APP_VERSION = 100;
 	
 	public EngineDB( EngineData data ) {
 		this.data = data;
@@ -100,10 +102,16 @@ public class EngineDB {
 		DBNames.load( connection );
 		
 		boolean dbUpdate = Common.getBooleanValue( System.getProperty( "dbupdate" ) );
-		if( dbUpdate )
+		if( dbUpdate ) {
+			DBVersions.setNextAppVersion( connection , APP_VERSION );
 			DBEnums.updateDatabase( data.engine , connection );
-		else
+		}
+		else {
+			int version = DBVersions.getCurrentAppVersion( connection );
+			if( version != APP_VERSION )
+				Common.exitUnexpected();
 			DBEnums.verifyDatabase( data.engine , connection );
+		}
 	}
 	
 }

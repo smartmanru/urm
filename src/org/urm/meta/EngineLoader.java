@@ -23,6 +23,7 @@ import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.engine.EngineRegistry;
 import org.urm.meta.engine.EngineReleaseLifecycles;
 import org.urm.meta.engine.EngineSettings;
+import org.urm.meta.engine._Error;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -58,7 +59,7 @@ public class EngineLoader {
 			if( savedb )
 				connection.setNextCoreVersion();
 			
-			loadServerSettings( connection , savedb );
+			loadSettings( connection , savedb );
 			loadBase();
 			loadInfrastructure();
 			loadReleaseLifecycles();
@@ -194,10 +195,19 @@ public class EngineLoader {
 		return( propertyFile );
 	}
 	
-	private void loadServerSettings( DBConnection c , boolean savedb ) throws Exception {
+	private void loadSettings( DBConnection c , boolean importxml ) throws Exception {
 		String propertyFile = getServerSettingsFile();
+		Document doc = ConfReader.readXmlFile( execrc , propertyFile );
+		if( doc == null )
+			Common.exit1( _Error.UnableReadEnginePropertyFile1 , "unable to read engine property file " + propertyFile , propertyFile );
+		
+		Node root = doc.getDocumentElement();
+		
 		EngineSettings settings = data.getServerSettings();
-		settings.load( propertyFile , c , savedb , c.getCoreVersion() );
+		if( importxml )
+			settings.loadxml( root , c );
+		else
+			settings.loaddb( c );
 	}
 
 	public void loadProducts( ActionBase action ) throws Exception {

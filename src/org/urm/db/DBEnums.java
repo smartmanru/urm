@@ -257,10 +257,11 @@ public abstract class DBEnums {
 	};
 	
 	public enum DBEnumObjectVersionType implements DBEnumInterface {
-		CORE(1,null) ,
-		SYSTEM(2,null) ,
-		PRODUCT(3,null) ,
-		ENVIRONMENT(4,null);
+		APP(1,null) ,
+		CORE(2,null) ,
+		SYSTEM(3,null) ,
+		PRODUCT(4,null) ,
+		ENVIRONMENT(5,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -271,24 +272,42 @@ public abstract class DBEnums {
 		public static DBEnumObjectVersionType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumObjectVersionType.class , value , required , null ) ); };
 	};
 	
+	public enum DBEnumParamEntityType implements DBEnumInterface {
+		EXECRC(1,null) ,
+		ENGINE(2,null) ,
+		PDEF(3,null) ,
+		PDEFBUILD(4,null) ,
+		PDEFBUILDMODE(5,null) ,
+		SYSTEM(6,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumParamEntityType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumParamEntityType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamEntityType.class , value , required , null ) ); };
+		public static DBEnumParamEntityType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamEntityType.class , value , required , null ) ); };
+	};
+	
 	//#################################################
 	// implementation
-	private static Class<?>[] enums = { 
-		DBEnumObjectType.class ,
-		DBEnumObjectVersionType.class ,
-		DBEnumBaseCategoryType.class , 
-		DBEnumBaseSrcFormatType.class ,
-		DBEnumBaseSrcType.class , 
-		DBEnumParamValueType.class ,
-		DBEnumResourceType.class ,
-		DBEnumServerAccessType.class ,
-		DBEnumOSType.class ,
-		DBEnumBuilderMethodType.class ,
-		DBEnumBuilderTargetType.class ,
-		DBEnumMirrorType.class ,
-		DBEnumLifecycleType.class ,
-		DBEnumLifecycleStageType.class ,
-		DBEnumBuildModeType.class
+	private static DBEnumInfo[] enums = { 
+		new DBEnumInfo( DBEnumObjectType.class , 11 ) ,
+		new DBEnumInfo( DBEnumObjectVersionType.class , 12 ) ,
+		new DBEnumInfo( DBEnumBaseCategoryType.class , 13 ) , 
+		new DBEnumInfo( DBEnumBaseSrcFormatType.class , 14 ) ,
+		new DBEnumInfo( DBEnumBaseSrcType.class , 15 ) , 
+		new DBEnumInfo( DBEnumParamValueType.class , 16 ) ,
+		new DBEnumInfo( DBEnumResourceType.class , 17 ) ,
+		new DBEnumInfo( DBEnumServerAccessType.class , 18 ) ,
+		new DBEnumInfo( DBEnumOSType.class , 19 ) ,
+		new DBEnumInfo( DBEnumBuilderMethodType.class , 20 ) ,
+		new DBEnumInfo( DBEnumBuilderTargetType.class , 21 ) ,
+		new DBEnumInfo( DBEnumMirrorType.class , 22 ) ,
+		new DBEnumInfo( DBEnumLifecycleType.class , 23 ) ,
+		new DBEnumInfo( DBEnumLifecycleStageType.class , 24 ) ,
+		new DBEnumInfo( DBEnumBuildModeType.class , 25 ) ,
+		new DBEnumInfo( DBEnumParamEntityType.class , 26 )
 	}; 
 
 	private static String prefix = "DBEnum";
@@ -343,30 +362,30 @@ public abstract class DBEnums {
 		int enumsId = DBNames.getEnumsId();
     	connection.update( DBQueries.MODIFY_NAMES_DROPPARENT1 , new String[] { "" + enumsId } );
     	
-    	for( Class<?> c : enums ) {
-    		String name = getEnumName( c );
-    		int enumId = DBNames.getNameIndex( connection , enumsId , name , DBEnumObjectType.ENUM );
+    	for( DBEnumInfo e : enums ) {
+    		String name = getEnumName( e.enumClass );
+    		int enumId = e.enumID;
     		
-    		if( !connection.update( DBQueries.MODIFY_ENUMS_ADD3 , new String[] { "0" , "" + enumId , EngineDB.getString( name ) } ) )
+    		if( !connection.update( DBQueries.MODIFY_ENUMS_ADD4 , new String[] { "0" , "" + enumId , EngineDB.getString( name ) , "" + EngineDB.APP_VERSION } ) )
     			Common.exitUnexpected();
     		
-    		for( Object object : c.getEnumConstants() ) {
+    		for( Object object : e.enumClass.getEnumConstants() ) {
     			DBEnumInterface oi = ( DBEnumInterface )object;
     			int elementValue = oi.code();
     			Enum<?> ev = ( Enum<?> )object;
     			String elementName = ev.name().toLowerCase();
     			
-        		if( !connection.update( DBQueries.MODIFY_ENUMS_ADD3 , new String[] { "" + enumId , "" + elementValue , EngineDB.getString( elementName ) } ) )
+        		if( !connection.update( DBQueries.MODIFY_ENUMS_ADD4 , new String[] { "" + enumId , "" + elementValue , EngineDB.getString( elementName ) , "" + EngineDB.APP_VERSION } ) )
         			Common.exitUnexpected();
     		}
     	}
     }
     
     private static Class<?> getEnum( String name ) throws Exception {
-    	for( Class<?> c : enums ) {
-    		String ename = getEnumName( c );
+    	for( DBEnumInfo e : enums ) {
+    		String ename = getEnumName( e.enumClass );
     		if( ename.equals( name ) )
-    			return( c );
+    			return( e.enumClass );
     	}
     	
     	return( null );
@@ -440,14 +459,16 @@ public abstract class DBEnums {
     	}
     	
     	// check enums are in database
-    	for( Class<?> c : enums ) {
-    		String ename = getEnumName( c );
+    	for( DBEnumInfo e : enums ) {
+    		String ename = getEnumName( e.enumClass );
     		Integer category = elistName.get( ename );
     		if( category == null )
 		    	Common.exit1( _Error.MissingEnum1 , "Missing enum=" + ename , ename );
+    		if( e.enumID != category )
+    			Common.exit3( _Error.InvalidEnum3 , "Mismatched enum=" + ename + ", id=" + e.enumID + ", dbid=" + category.intValue() , ename , "" + e.enumID , "" + category.intValue() );
     		
     		Map<Integer,String> items = data.get( category );
-    		for( Object ei : c.getEnumConstants() ) {
+    		for( Object ei : e.enumClass.getEnumConstants() ) {
     			DBEnumInterface oi = ( DBEnumInterface )ei;
     			int key = oi.code();
     			if( !items.containsKey( key ) ) {
