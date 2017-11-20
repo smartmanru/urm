@@ -1,4 +1,4 @@
-package org.urm.db;
+package org.urm.db.core;
 
 public interface DBEnumInterface {
 

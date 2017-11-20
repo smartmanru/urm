@@ -1,11 +1,13 @@
-package org.urm.db;
+package org.urm.db.core;
 
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.db.DBEnums.*;
+import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.EngineDB;
 
 public abstract class DBNames {
@@ -29,8 +31,8 @@ public abstract class DBNames {
 			Common.exitUnexpected();
 		
 		while( rs.next() ) {
-			String key = rs.getInt( 1 ) + "::" + rs.getString( 2 );
-			int value = rs.getInt( 3 );
+			String key = rs.getInt( 1 ) + "::" + rs.getString( 2 ) + "::" + rs.getString( 3 );
+			int value = rs.getInt( 4 );
 			map.put( key ,  value );
 		}
 	}
@@ -43,13 +45,13 @@ public abstract class DBNames {
 	}
 	
 	public synchronized static int getNameIndex( DBConnection connection , int parent , String name , DBEnumObjectType type ) throws Exception {
-		String key = parent + "::" + name;
+		String key = parent + "::" + type.name() + "::" + name;
 		Integer value = map.get( key );
 		if( value != null )
 			return( value );
 			
 		int valueSeq = getNextSequenceValue( connection );
-		if( !connection.update( DBQueries.MODIFY_NAMES_MERGEITEM4 , new String[] { "" + parent , EngineDB.getString( name ) , "" + valueSeq , "" + type.code() } ) )
+		if( !connection.update( DBQueries.MODIFY_NAMES_MERGEITEM4 , new String[] { "" + parent , "" + type.code() , EngineDB.getString( name ) , "" + valueSeq } ) )
 			Common.exitUnexpected();
 				
 		map.put( key , valueSeq );
@@ -57,12 +59,12 @@ public abstract class DBNames {
 	}
 	
 	public synchronized static void updateName( DBConnection connection , int parent , String name , int id , DBEnumObjectType type ) throws Exception {
-		String key = parent + "::" + name;
+		String key = parent + "::" + type.name() + "::" + name;
 		Integer value = map.get( key );
 		if( value != null && value == id )
 			return;
 		
-		if( !connection.update( DBQueries.MODIFY_NAMES_MERGEITEM4 , new String[] { "" + parent , EngineDB.getString( name ) , "" + id , "" + type.code() } ) )
+		if( !connection.update( DBQueries.MODIFY_NAMES_MERGEITEM4 , new String[] { "" + parent , "" + type.code() , EngineDB.getString( name ) , "" + id } ) )
 			Common.exitUnexpected();
 		
 		map.put( key , id );

@@ -1,4 +1,4 @@
-package org.urm.db;
+package org.urm.db.core;
 
 import java.sql.ResultSet;
 import java.util.HashMap;
@@ -6,7 +6,9 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.Engine;
+import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
+import org.urm.db._Error;
 import org.urm.engine.EngineDB;
 
 public abstract class DBEnums {
@@ -151,8 +153,7 @@ public abstract class DBEnums {
 		BASE_GROUP(21,null) ,
 		BASE_ITEM(22,null) ,
 		SYSTEM(30,null) ,
-		PRODUCT(31,null) ,
-		SYSTEM_PARAM(32,null);
+		PRODUCT(31,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -378,7 +379,7 @@ public abstract class DBEnums {
 		return( nameDB );
 	}
     
-    public static void updateDatabase( Engine engine , DBConnection connection ) throws Exception {
+    public static void updateDatabase( DBConnection connection ) throws Exception {
     	connection.update( DBQueries.MODIFY_ENUMS_DROP0 );
     	
 		int enumsId = DBNames.getEnumsId();
@@ -434,7 +435,7 @@ public abstract class DBEnums {
 		return( null );
     }
     
-    public static void verifyDatabase( Engine engine , DBConnection connection ) throws Exception {
+    public static void verifyDatabase( DBConnection connection ) throws Exception {
     	ResultSet rs = connection.query( DBQueries.QUERY_ENUMS_GETALL0 );
     	if( rs == null )
     		Common.exitUnexpected();
