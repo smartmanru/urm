@@ -157,9 +157,9 @@ public class EngineTransaction extends TransactionBase {
 		lc.changePhases( this , phases );
 	}
 	
-	public void createSystem( AppSystem system ) throws Exception {
+	public AppSystem createSystem( String name , String desc ) throws Exception {
 		checkTransactionDirectory();
-		directory.createSystem( this , system );
+		return( directory.createSystem( this , name , desc ) );
 	}
 	
 	public void modifySystem( AppSystem system ) throws Exception {

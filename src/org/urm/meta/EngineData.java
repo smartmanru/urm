@@ -8,9 +8,14 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
+import org.urm.db.DBConnection;
+import org.urm.db.DBEnums;
+import org.urm.db.DBNames;
+import org.urm.db.DBVersions;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineDB;
 import org.urm.engine.TransactionBase;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
@@ -59,6 +64,17 @@ public class EngineData {
 
 	public void init() throws Exception {
 		db.init();
+		
+		DBConnection connection = null;
+		try {
+			engine.trace( "init, checking client/server consistency ..." );
+			connection = db.getConnection( null );
+			initData( connection );
+		}
+		finally {
+			if( connection != null )
+				connection.close( true );			
+		}
 	}
 
 	public void unloadProducts() {
@@ -104,7 +120,7 @@ public class EngineData {
 	
 	public EngineSettings getServerSettings() {
 		synchronized( engine ) {
-			return( core.getServerSettings() );
+			return( core.getSettings() );
 		}
 	}
 
@@ -140,6 +156,12 @@ public class EngineData {
 		}
 	}
 
+	public EngineEntities getEntities() {
+		synchronized( engine ) {
+			return( core.getEntities() );
+		}
+	}
+	
 	public EngineBase getServerBase() {
 		synchronized( engine ) {
 			return( core.getBase() );
@@ -231,4 +253,28 @@ public class EngineData {
 		return( list.toArray( new UnmatchedSystem[0] ) );
 	}
 
+	public void initData( DBConnection connection ) throws Exception {
+		DBNames.load( connection );
+		
+		boolean dbUpdate = Common.getBooleanValue( System.getProperty( "dbupdate" ) );
+		if( dbUpdate )
+			upgradeData( connection );
+		else
+			useData( connection );
+	}
+	
+	private void upgradeData( DBConnection connection ) throws Exception {
+		DBVersions.setNextAppVersion( connection , EngineDB.APP_VERSION );
+		DBEnums.updateDatabase( engine , connection );
+		core.upgradeData( connection );
+	}
+	
+	private void useData( DBConnection connection ) throws Exception {
+		int version = DBVersions.getCurrentAppVersion( connection );
+		if( version != EngineDB.APP_VERSION )
+			Common.exitUnexpected();
+		DBEnums.verifyDatabase( engine , connection );
+		core.useData( connection );
+	}
+	
 }

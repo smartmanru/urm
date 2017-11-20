@@ -1,6 +1,8 @@
 package org.urm.meta;
 
+import org.urm.db.DBConnection;
 import org.urm.engine.Engine;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.EngineRegistry;
@@ -12,6 +14,7 @@ public class EngineCore {
 	public Engine engine;
 	public EngineData data;
 	
+	private EngineEntities entities;
 	private EngineSettings settings;
 	private EngineRegistry registry;
 	private EngineBase base;
@@ -22,6 +25,7 @@ public class EngineCore {
 		this.data = data;
 		this.engine = data.engine;
 		
+		entities = new EngineEntities( this );
 		settings = new EngineSettings( this );
 		registry = new EngineRegistry( this ); 
 		base = new EngineBase( this ); 
@@ -29,6 +33,14 @@ public class EngineCore {
 		lifecycles = new EngineReleaseLifecycles( this ); 
 	}
 
+	public void upgradeData( DBConnection connection ) throws Exception {
+		entities.upgradeData( connection );
+	}
+	
+	public void useData( DBConnection connection ) throws Exception {
+		entities.useData( connection );
+	}
+	
 	public void recreateAll() {
 		settings.deleteObject();
 		registry.deleteObject(); 
@@ -43,7 +55,11 @@ public class EngineCore {
 		lifecycles = new EngineReleaseLifecycles( this ); 
 	}
 
-	public EngineSettings getServerSettings() {
+	public EngineEntities getEntities() {
+		return( entities );
+	}
+	
+	public EngineSettings getSettings() {
 		return( settings );
 	}
 

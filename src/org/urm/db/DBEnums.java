@@ -273,12 +273,16 @@ public abstract class DBEnums {
 	};
 	
 	public enum DBEnumParamEntityType implements DBEnumInterface {
-		EXECRC(1,null) ,
+		RC(1,null) ,
 		ENGINE(2,null) ,
-		PDEF(3,null) ,
-		PDEFBUILD(4,null) ,
-		PDEFBUILDMODE(5,null) ,
-		SYSTEM(6,null);
+		PRODUCT(3,null) ,
+		BUILD(4,null) ,
+		BASE(5,null) ,
+		SYSTEM(6,null) ,
+		ENVIRONMENT(7,null) ,
+		SEGMENT(8,null) ,
+		SERVER(9,null) ,
+		NODE(10,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -287,6 +291,23 @@ public abstract class DBEnums {
 		private DBEnumParamEntityType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
 		public static DBEnumParamEntityType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamEntityType.class , value , required , null ) ); };
 		public static DBEnumParamEntityType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamEntityType.class , value , required , null ) ); };
+	};
+	
+	public enum DBEnumParamRoleType implements DBEnumInterface {
+		PRIMARY(1,null) ,
+		BUILDMODE_BRANCH(2,null) ,
+		BUILDMODE_MAJORBRANCH(3,null) ,
+		BUILDMODE_TRUNK(4,null) ,
+		BUILDMODE_DEVBRANCH(5,null) ,
+		BUILDMODE_DEVTRUNK(6,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumParamRoleType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumParamRoleType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamRoleType.class , value , required , null ) ); };
+		public static DBEnumParamRoleType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamRoleType.class , value , required , null ) ); };
 	};
 	
 	//#################################################
@@ -307,7 +328,8 @@ public abstract class DBEnums {
 		new DBEnumInfo( DBEnumLifecycleType.class , 23 ) ,
 		new DBEnumInfo( DBEnumLifecycleStageType.class , 24 ) ,
 		new DBEnumInfo( DBEnumBuildModeType.class , 25 ) ,
-		new DBEnumInfo( DBEnumParamEntityType.class , 26 )
+		new DBEnumInfo( DBEnumParamEntityType.class , 26 ) ,
+		new DBEnumInfo( DBEnumParamRoleType.class , 27 )
 	}; 
 
 	private static String prefix = "DBEnum";

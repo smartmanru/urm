@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.db.DBEnums.DBEnumParamEntityType;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
 
@@ -22,14 +21,14 @@ public class AppSystem extends EngineObject {
 	
 	ObjectProperties parameters;
 	
-	public AppSystem( EngineDirectory directory ) {
+	public AppSystem( EngineDirectory directory , ObjectProperties parameters ) {
 		super( directory );
 		this.directory = directory;
+		this.parameters = parameters;
+		
 		mapProducts = new HashMap<String,Product>();
 		ID = -1;
 		SV = 0;
-		
-		parameters = new ObjectProperties( DBEnumParamEntityType.SYSTEM , "system" , directory.engine.execrc );
 	}
 
 	@Override
@@ -48,8 +47,8 @@ public class AppSystem extends EngineObject {
 		this.OFFLINE = OFFLINE;
 	}
 	
-	public AppSystem copy( EngineDirectory nd ) {
-		AppSystem r = new AppSystem( nd );
+	public AppSystem copy( EngineDirectory nd , ObjectProperties rparameters ) {
+		AppSystem r = new AppSystem( nd , rparameters );
 		r.ID = ID;
 		r.NAME = NAME;
 		r.DESC = DESC;

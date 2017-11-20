@@ -10,11 +10,15 @@ import org.urm.db.DBConnection;
 import org.urm.db.DBEnums.DBEnumObjectType;
 import org.urm.db.DBNames;
 import org.urm.db.DBQueries;
+import org.urm.db.DBSettings;
 import org.urm.db.DBVersions;
 import org.urm.engine.EngineDB;
+import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineMatcher;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.Product;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -23,10 +27,16 @@ import org.w3c.dom.Node;
 public abstract class DBSystem {
 
 	public static AppSystem loadxml( EngineDirectory directory , Node node ) throws Exception {
-		AppSystem system = new AppSystem( directory );
+		EngineEntities entities = directory.data.getEntities();
+		EngineSettings settings = directory.data.getServerSettings();
+		ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
+		
+		AppSystem system = new AppSystem( directory , props );
 		system.NAME = ConfReader.getAttrValue( node , "name" );
 		system.DESC = ConfReader.getAttrValue( node , "desc" );
 		system.OFFLINE = ConfReader.getBooleanAttrValue( node , "offline" , true );
+		
+		DBSettings.loadxml( node , props );
 		
 		Node[] items = ConfReader.xmlGetChildren( node , "product" );
 		if( items == null )
@@ -47,8 +57,12 @@ public abstract class DBSystem {
 		if( rs == null )
 			Common.exitUnexpected();
 		
+		EngineEntities entities = directory.data.getEntities();
+		EngineSettings settings = directory.data.getServerSettings();
 		while( rs.next() ) {
-			AppSystem system = new AppSystem( directory );
+			ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
+			
+			AppSystem system = new AppSystem( directory , props );
 			system.ID = rs.getInt( 1 );
 			system.NAME = rs.getString( 2 );
 			system.DESC = rs.getString( 3 );
@@ -56,6 +70,8 @@ public abstract class DBSystem {
 			system.MATCHED = rs.getBoolean( 5 );
 			system.SV = rs.getInt( 6 );
 			systems.add( system );
+			
+			DBSettings.loaddb( c , system.ID , props );
 		}
 		
 		return( systems.toArray( new AppSystem[0] ) );

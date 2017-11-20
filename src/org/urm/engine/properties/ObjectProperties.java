@@ -9,7 +9,7 @@ import org.urm.common.RunContext;
 import org.urm.common.RunError;
 import org.urm.common._Error;
 import org.urm.common.action.CommandOption.FLAG;
-import org.urm.db.DBEnums.DBEnumParamEntityType;
+import org.urm.db.DBEnums.DBEnumParamRoleType;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
@@ -19,7 +19,8 @@ import org.w3c.dom.Node;
 
 public class ObjectProperties {
 
-	public DBEnumParamEntityType type;
+	public DBEnumParamRoleType type;
+	public PropertyEntity[] entities;
 	
 	private String setName;
 	private ObjectProperties parent;
@@ -33,7 +34,7 @@ public class ObjectProperties {
 
 	private List<ObjectProperties> childs;
 	
-	public ObjectProperties( DBEnumParamEntityType type , String name , RunContext execrc ) {
+	public ObjectProperties( DBEnumParamRoleType type , String name , RunContext execrc ) {
 		this.type = type;
 		this.setName = name;
 		this.execrc = execrc;
@@ -41,7 +42,7 @@ public class ObjectProperties {
 		loadFailed = false;
 		loadFinished = false;
 		childs = new LinkedList<ObjectProperties>();
-		loadErrors = new HashMap<String,String>(); 
+		loadErrors = new HashMap<String,String>();
 	}
 
 	public ObjectProperties copy( ObjectProperties parent ) {
@@ -58,7 +59,7 @@ public class ObjectProperties {
 		return( parent );
 	}
 
-	public void create( ObjectProperties parent ) throws Exception {
+	public void create( ObjectProperties parent , PropertyEntity[] entities ) throws Exception {
 		initCreateStarted( parent );
 		initFinished();
 	}

@@ -13,6 +13,8 @@ import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.system.DBSystem;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.EngineData;
@@ -61,8 +63,10 @@ public class EngineDirectory extends EngineObject {
 	public EngineDirectory copy() throws Exception {
 		EngineDirectory r = new EngineDirectory( null );
 		
+		EngineSettings settings = data.getServerSettings();
 		for( AppSystem system : mapSystems.values() ) {
-			AppSystem rs = system.copy( r );
+			ObjectProperties rprops = system.parameters.copy( settings.getEngineProperties() );
+			AppSystem rs = system.copy( r , rprops );
 			r.addSystem( rs );
 			
 			for( Product rp : rs.getProducts() )
@@ -123,13 +127,19 @@ public class EngineDirectory extends EngineObject {
 		return( mapProductsDB.get( id ) );
 	}
 	
-	public void createSystem( EngineTransaction t , AppSystem system ) throws Exception {
-		if( mapSystems.get( system.NAME ) != null )
-			t.exit( _Error.DuplicateSystem1 , "system=" + system.NAME + " is not unique" , new String[] { system.NAME } );
+	public AppSystem createSystem( EngineTransaction t , String name , String desc ) throws Exception {
+		if( mapSystems.get( name ) != null )
+			t.exit( _Error.DuplicateSystem1 , "system=" + name + " is not unique" , new String[] { name } );
 		
-		int systemId = DBNames.getNameIndex( t.connection , DBVersions.CORE_ID , system.NAME , DBEnumObjectType.SYSTEM );
+		int systemId = DBNames.getNameIndex( t.connection , DBVersions.CORE_ID , name , DBEnumObjectType.SYSTEM );
+		EngineEntities entities = data.getEntities();
+		EngineSettings settings = data.getServerSettings(); 
+		ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
+		AppSystem system = new AppSystem( this , props );
+		
 		DBSystem.insert( t.connection , systemId , system );
 		addSystem( system );
+		return( system );
 	}
 
 	public void addSystem( AppSystem system ) throws Exception {

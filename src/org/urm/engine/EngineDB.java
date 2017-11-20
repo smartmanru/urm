@@ -6,12 +6,8 @@ import java.util.Properties;
 
 import org.postgresql.ds.PGConnectionPoolDataSource;
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
-import org.urm.db.DBEnums;
-import org.urm.db.DBNames;
-import org.urm.db.DBVersions;
 import org.urm.meta.EngineData;
 
 public class EngineDB {
@@ -52,13 +48,11 @@ public class EngineDB {
 		pool.setDatabaseName( db );
 		pool.setCurrentSchema( schema );
 		pool.setDefaultAutoCommit( false );
-			
+		
 		DBConnection connection = null;
 		try {
 			data.engine.trace( "connecting to " + host + ":" + port + "/" + db + "[" + schema + "] as user=" + user + " ..." );
 			connection = getConnection( data.engine.serverAction );
-			data.engine.trace( "checking client/server consistency ..." );
-			initData( connection );
 		}
 		finally {
 			if( connection != null )
@@ -98,20 +92,4 @@ public class EngineDB {
 		return( ( value )? "'yes'" : "'no'" );
 	}
 
-	public void initData( DBConnection connection ) throws Exception {
-		DBNames.load( connection );
-		
-		boolean dbUpdate = Common.getBooleanValue( System.getProperty( "dbupdate" ) );
-		if( dbUpdate ) {
-			DBVersions.setNextAppVersion( connection , APP_VERSION );
-			DBEnums.updateDatabase( data.engine , connection );
-		}
-		else {
-			int version = DBVersions.getCurrentAppVersion( connection );
-			if( version != APP_VERSION )
-				Common.exitUnexpected();
-			DBEnums.verifyDatabase( data.engine , connection );
-		}
-	}
-	
 }
