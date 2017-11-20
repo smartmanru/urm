@@ -10,7 +10,7 @@ import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.common.action.CommandOption.FLAG;
-import org.urm.db.DBEnums.*;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.EngineCall;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;

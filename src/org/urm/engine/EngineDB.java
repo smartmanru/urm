@@ -76,10 +76,16 @@ public class EngineDB {
 	public void clearProduct( String productName ) {
 	}
 
-	public boolean getBoolean( String value ) {
+	public static boolean getBoolean( String value ) {
 		if( value == null || value.equals( "Y" ) == false )
 			return( false );
 		return( true );
+	}
+
+	public static String getInteger( Integer value ) {
+		if( value == null )
+			return( "null" );
+		return( "" + value  );
 	}
 
 	public static String getString( String value ) {

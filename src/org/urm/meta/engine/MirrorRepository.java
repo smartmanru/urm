@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.db.DBEnums.*;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;

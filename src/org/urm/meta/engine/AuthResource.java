@@ -11,7 +11,7 @@ import org.urm.engine.shell.EngineShellPool;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.meta.EngineObject;
-import org.urm.db.DBEnums.*;
+import org.urm.db.core.DBEnums.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

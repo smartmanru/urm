@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.db.DBEnums.*;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;

@@ -9,9 +9,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
-import org.urm.db.DBEnums;
-import org.urm.db.DBNames;
-import org.urm.db.DBVersions;
+import org.urm.db.core.DBCoreData;
+import org.urm.db.core.DBNames;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineDB;
 import org.urm.engine.TransactionBase;
@@ -264,16 +263,12 @@ public class EngineData {
 	}
 	
 	private void upgradeData( DBConnection connection ) throws Exception {
-		DBVersions.setNextAppVersion( connection , EngineDB.APP_VERSION );
-		DBEnums.updateDatabase( engine , connection );
+		DBCoreData.upgradeData( connection );
 		core.upgradeData( connection );
 	}
 	
 	private void useData( DBConnection connection ) throws Exception {
-		int version = DBVersions.getCurrentAppVersion( connection );
-		if( version != EngineDB.APP_VERSION )
-			Common.exitUnexpected();
-		DBEnums.verifyDatabase( engine , connection );
+		DBCoreData.useData( connection );
 		core.useData( connection );
 	}
 	

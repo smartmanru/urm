@@ -9,7 +9,8 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.DBEnums.DBEnumObjectVersionType;
+import org.urm.db.core.DBVersions;
+import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.engine.Engine;
 
 public class DBConnection {

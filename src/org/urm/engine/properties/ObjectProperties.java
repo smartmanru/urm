@@ -9,7 +9,7 @@ import org.urm.common.RunContext;
 import org.urm.common.RunError;
 import org.urm.common._Error;
 import org.urm.common.action.CommandOption.FLAG;
-import org.urm.db.DBEnums.DBEnumParamRoleType;
+import org.urm.db.core.DBEnums.DBEnumParamRoleType;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
@@ -20,7 +20,6 @@ import org.w3c.dom.Node;
 public class ObjectProperties {
 
 	public DBEnumParamRoleType type;
-	public PropertyEntity[] entities;
 	
 	private String setName;
 	private ObjectProperties parent;
@@ -33,6 +32,7 @@ public class ObjectProperties {
 	private RunError error;
 
 	private List<ObjectProperties> childs;
+	private PropertyEntity[] entities;
 	
 	public ObjectProperties( DBEnumParamRoleType type , String name , RunContext execrc ) {
 		this.type = type;
@@ -51,6 +51,10 @@ public class ObjectProperties {
 		return( r );
 	}
 	
+	public PropertyEntity[] getEntities() {
+		return( entities );
+	}
+	
 	public PropertySet getProperties() {
 		return( properties );
 	}
@@ -60,6 +64,7 @@ public class ObjectProperties {
 	}
 
 	public void create( ObjectProperties parent , PropertyEntity[] entities ) throws Exception {
+		this.entities = entities;
 		initCreateStarted( parent );
 		initFinished();
 	}
