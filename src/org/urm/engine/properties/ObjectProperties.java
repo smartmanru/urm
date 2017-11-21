@@ -5,17 +5,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.RunError;
-import org.urm.common._Error;
-import org.urm.common.action.CommandOption.FLAG;
 import org.urm.db.core.DBEnums.DBEnumParamRoleType;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class ObjectProperties {
 
@@ -32,7 +28,7 @@ public class ObjectProperties {
 	private RunError error;
 
 	private List<ObjectProperties> childs;
-	private PropertyEntity[] entities;
+	private ObjectMeta meta;
 	
 	public ObjectProperties( DBEnumParamRoleType type , String name , RunContext execrc ) {
 		this.type = type;
@@ -43,6 +39,7 @@ public class ObjectProperties {
 		loadFinished = false;
 		childs = new LinkedList<ObjectProperties>();
 		loadErrors = new HashMap<String,String>();
+		meta = new ObjectMeta();
 	}
 
 	public ObjectProperties copy( ObjectProperties parent ) {
@@ -50,9 +47,34 @@ public class ObjectProperties {
 		r.properties = r.properties.copy( parent.properties );
 		return( r );
 	}
+
+	public void create( ObjectProperties parent , PropertyEntity entityFixed , PropertyEntity entityCustom ) throws Exception {
+		initCreateStarted( parent );
+		
+		meta.create( entityFixed , entityCustom );
+		for( EntityVar var : meta.getVars() ) {
+			PropertyValue value = properties.createRawProperty( var.NAME , var.isCustom() , var.PARAMVALUE_TYPE , var.DESC );
+			if( var.EXPR_DEF != null )
+				value.setDefault( var.EXPR_DEF );
+		}
+		
+		initFinished();
+	}
+
+	public void createCustom() throws Exception {
+		PropertyEntity entityCustom = meta.getCustomEntity();
+		if( entityCustom == null )
+			return;
+		
+		for( EntityVar var : entityCustom.getVars() ) {
+			PropertyValue value = properties.createRawProperty( var.NAME , var.isCustom() , var.PARAMVALUE_TYPE , var.DESC );
+			if( var.EXPR_DEF != null )
+				value.setDefault( var.EXPR_DEF );
+		}
+	}
 	
-	public PropertyEntity[] getEntities() {
-		return( entities );
+	public ObjectMeta getMeta() {
+		return( meta );
 	}
 	
 	public PropertySet getProperties() {
@@ -63,20 +85,6 @@ public class ObjectProperties {
 		return( parent );
 	}
 
-	public void create( ObjectProperties parent , PropertyEntity[] entities ) throws Exception {
-		this.entities = entities;
-		initCreateStarted( parent );
-		initFinished();
-	}
-	
-	public void load( Node root , ObjectProperties parent ) throws Exception {
-		initCreateStarted( parent );
-		if( root != null )
-			loadFromNodeElements( root , false );
-		initFinished();
-		resolveRawProperties();
-	}
-	
 	boolean initCopyStarted( ObjectProperties src , PropertySet parent ) {
 		loadFailed = false;
 		loadFinished = false;
@@ -119,81 +127,36 @@ public class ObjectProperties {
 	}
 	
 	public String getPathProperty( String prop ) throws Exception {
-		return( properties.getSystemPathProperty( prop , execrc , "" , false ) );
+		EntityVar var = meta.getVar( prop );
+		if( var.isApp() )
+			return( properties.getSystemPathExprProperty( var.NAME , execrc , var.EXPR_DEF , var.REQUIRED ) );
+		return( properties.getPathProperty( var.NAME , var.EXPR_DEF ) );
+		
 	}
 	
-	public String getPathProperty( String prop , String defaultValue ) throws Exception {
-		return( properties.getSystemPathProperty( prop , execrc , defaultValue , false ) );
-	}
-	
-	public String getPathPropertyRequired( String prop ) throws Exception {
-		String value = properties.getSystemPathProperty( prop , execrc , "" , true );
-		if( value.isEmpty() )
-			setLoadFailed( prop , "set=" + properties.set + ", property is not set: " + prop );
-		return( value );
-	}
-	
-	public int getIntProperty( String prop , int defaultValue ) throws Exception {
-		return( properties.getSystemIntProperty( prop , defaultValue , false ) );
-	}
-	
-	public int getIntPropertyRequired( String prop ) throws Exception {
-		int value = properties.getSystemIntProperty( prop , 0 , true );
-		String sv = properties.getPropertyAny( prop );
-		if( sv == null || sv.isEmpty() )
-			setLoadFailed( prop , "set=" + properties.set + ", property is not set: " + prop );
-		return( value );
+	public int getIntProperty( String prop ) throws Exception {
+		EntityVar var = meta.getVar( prop );
+		if( var.isApp() )
+			return( properties.getSystemIntExprProperty( var.NAME , var.EXPR_DEF , var.REQUIRED ) );
+		return( properties.getIntProperty( var.NAME , Integer.parseInt( var.EXPR_DEF ) ) );
 	}
 	
 	public boolean getBooleanProperty( String prop ) throws Exception {
-		return( getBooleanProperty( prop , false ) );
-	}
-	
-	public boolean getBooleanProperty( String prop , boolean defaultValue ) throws Exception {
-		return( properties.getSystemBooleanProperty( prop , defaultValue , false ) );
-	}
-	
-	public FLAG getOptionProperty( String prop ) throws Exception {
-		return( properties.getSystemOptionProperty( prop , false ) );
-	}
-	
-	public FLAG getOptionProperty( String prop , Boolean defaultValue ) throws Exception {
-		return( properties.getSystemOptionProperty( prop , defaultValue , false ) );
+		EntityVar var = meta.getVar( prop );
+		if( var.isApp() )
+			return( properties.getSystemBooleanExprProperty( var.NAME , var.EXPR_DEF , var.REQUIRED ) );
+		return( properties.getBooleanProperty( var.NAME , Common.getBooleanValue( var.EXPR_DEF ) ) );
 	}
 	
 	public String getStringProperty( String prop ) throws Exception {
-		return( properties.getSystemStringProperty( prop ) );
+		EntityVar var = meta.getVar( prop );
+		if( var.isApp() )
+			return( properties.getSystemStringExprProperty( var.NAME , var.EXPR_DEF , var.REQUIRED ) );
+		return( properties.getStringProperty( var.NAME , var.EXPR_DEF ) );
 	}
 	
 	public String getUrlProperty( String prop ) throws Exception {
-		return( properties.getSystemStringProperty( prop ) );
-	}
-	
-	public String getStringProperty( String prop , String defaultValue ) throws Exception {
-		String value = properties.getSystemStringProperty( prop , defaultValue , false );
-		return( value );
-	}
-	
-	public String getStringPropertyRequired( String prop ) throws Exception {
-		return( getStringPropertyRequired( prop , "" ) );
-	}
-	
-	public String getStringPropertyRequired( String prop , String defaultValue ) throws Exception {
-		String value = properties.getSystemStringProperty( prop , defaultValue , true );
-		if( value.isEmpty() )
-			setLoadFailed( prop , "set=" + properties.set + ", property is not set: " + prop );
-		return( value );
-	}
-	
-	public String getStringExprProperty( String prop , String defaultExpr ) throws Exception {
-		String value = properties.getSystemStringExprProperty( prop , defaultExpr , false );
-		if( value.isEmpty() )
-			setLoadFailed( prop , "set=" + properties.set + ", property is not set: " + prop );
-		return( value );
-	}
-
-	public String getVarExpr( String var ) {
-		return( "@" + var + "@" );
+		return( getStringProperty( prop ) );
 	}
 	
 	public void finishProperties() throws Exception {
@@ -246,7 +209,7 @@ public class ObjectProperties {
 	
 	public void updateProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		if( !system )
-			properties.removeUserProperties();
+			properties.removeCustomProperties();
 		properties.updateProperties( props , system );
 	}
 	
@@ -254,104 +217,72 @@ public class ObjectProperties {
 		properties.recalculateProperties();
 	}
 
+	public void setProperty( String prop , String value , ShellExecutor target ) throws Exception {
+		EntityVar var = meta.getVar( prop );
+		properties.setOriginalProperty( prop , var.PARAMVALUE_TYPE , value , var.isApp() , target );
+	}
+
 	public void setStringProperty( String prop , String value ) throws Exception {
-		properties.setOriginalStringProperty( prop , value );
-	}
-
-	public void setSystemStringProperty( String prop , String value ) throws Exception {
-		properties.setOriginalSystemStringProperty( prop , value );
-	}
-
-	public void setManualStringProperty( String prop , String value ) throws Exception {
-		properties.setManualStringProperty( prop , value );
-	}
-
-	public void setNumberProperty( String prop , int value ) throws Exception {
-		properties.setOriginalNumberProperty( prop , value );
-	}
-
-	public void setSystemNumberProperty( String prop , int value ) throws Exception {
-		properties.setOriginalSystemNumberProperty( prop , value );
-	}
-
-	public void setManualNumberProperty( String prop , int value ) throws Exception {
-		properties.setManualNumberProperty( prop , value );
-	}
-
-	public void setBooleanProperty( String prop , boolean value ) throws Exception {
-		properties.setOriginalBooleanProperty( prop , value );
-	}
-
-	public void setSystemBooleanProperty( String prop , boolean value ) throws Exception {
-		properties.setOriginalSystemBooleanProperty( prop , value );
-	}
-
-	public void setManualBooleanProperty( String prop , boolean value ) throws Exception {
-		properties.setManualBooleanProperty( prop , value );
-	}
-
-	public void setUrlProperty( String prop , String value ) throws Exception {
-		properties.setOriginalStringProperty( prop , value );
-	}
-
-	public void setSystemUrlProperty( String prop , String value ) throws Exception {
-		properties.setOriginalSystemStringProperty( prop , value );
-	}
-
-	public void setManualUrlProperty( String prop , String value ) throws Exception {
-		properties.setManualStringProperty( prop , value );
+		setProperty( prop , value , null );
 	}
 
 	public void setPathProperty( String prop , String value ) throws Exception {
-		properties.setOriginalPathProperty( prop , value );
+		setPathProperty( prop , value , null );
 	}
 
-	public void setSystemPathProperty( String prop , String value ) throws Exception {
-		properties.setOriginalSystemPathProperty( prop , value , null );
+	public void setPathProperty( String prop , String value , ShellExecutor target ) throws Exception {
+		setProperty( prop , value , target );
+	}
+
+	public void setIntProperty( String prop , int value ) throws Exception {
+		setProperty( prop , "" + value , null );
+	}
+
+	public void setBooleanProperty( String prop , boolean value ) throws Exception {
+		setProperty( prop , Common.getBooleanValue( value ) , null );
+	}
+
+	public void setUrlProperty( String prop , String value ) throws Exception {
+		setStringProperty( prop , value );
+	}
+
+	public void setManualStringProperty( String prop , String value ) throws Exception {
+		EntityVar var = meta.getVar( prop );
+		properties.setManualStringProperty( var.NAME , value );
+	}
+
+	public void setManualIntProperty( String prop , int value ) throws Exception {
+		EntityVar var = meta.getVar( prop );
+		properties.setManualNumberProperty( var.NAME , value );
+	}
+
+	public void setManualBooleanProperty( String prop , boolean value ) throws Exception {
+		EntityVar var = meta.getVar( prop );
+		properties.setManualBooleanProperty( var.NAME , value );
+	}
+
+	public void setManualUrlProperty( String prop , String value ) throws Exception {
+		EntityVar var = meta.getVar( prop );
+		properties.setManualStringProperty( var.NAME , value );
 	}
 
 	public void setManualPathProperty( String prop , String value , ShellExecutor shell ) throws Exception {
-		properties.setManualPathProperty( prop , value , shell );
+		EntityVar var = meta.getVar( prop );
+		properties.setManualPathProperty( var.NAME , value , shell );
 	}
 
 	public String[] getPropertyList() {
 		return( properties.getRunningProperties() );
 	}
 
-	public String getPropertyValue( String var ) throws Exception {
-		return( properties.getPropertyAny( var ) );
+	public String getPropertyValue( String prop ) throws Exception {
+		EntityVar var = meta.getVar( prop );
+		return( properties.getPropertyAny( var.NAME ) );
 	}
 
-	public void loadFromNodeAttributes( Node root , boolean custom ) {
-		try {
-			properties.loadFromNodeAttributes( root , custom );
-		}
-		catch( Throwable e ) {
-			loadFailed = true;
-			error = new RunError( e , _Error.UnexpectedState0 , "load from attributes" , null );
-		}
-	}
-
-	public void loadFromNodeElements( Node root , boolean custom ) {
-		try {
-			properties.loadFromNodeElements( root , custom );
-		}
-		catch( Throwable e ) {
-			loadFailed = true;
-			error = new RunError( e , _Error.UnexpectedState0 , "load from elements" , null );
-		}
-	}
-
-	public void saveAsElements( Document doc , Element root , boolean custom ) throws Exception {
-		properties.saveAsElements( doc , root , custom );
-	}
-
-	public void saveSplit( Document doc , Element root ) throws Exception {
-		properties.saveSplit( doc , root );
-	}
-
-	public String getFinalProperty( String name , Account account , boolean allowParent , boolean allowUnresolved ) throws Exception {
-		return( properties.getFinalProperty( name , account , allowParent , allowUnresolved ) );		
+	public String getFinalProperty( String prop , Account account , boolean allowParent , boolean allowUnresolved ) throws Exception {
+		EntityVar var = meta.getVar( prop );
+		return( properties.getFinalProperty( var.NAME , account , allowParent , allowUnresolved ) );		
 	}
 
 	public void recalculateChildProperties() throws Exception {
@@ -362,6 +293,12 @@ public class ObjectProperties {
 	public void parentPropertiesModified() throws Exception {
 		recalculateProperties();
 		recalculateChildProperties();
+	}
+
+	public String getOriginalPropertyValue( String prop ) throws Exception {
+		EntityVar var = meta.getVar( prop );
+		PropertyValue value = properties.getPropertyValue( var.NAME );
+		return( value.getOriginalValue() );
 	}
 
 }

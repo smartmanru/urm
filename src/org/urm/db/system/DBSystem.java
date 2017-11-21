@@ -36,7 +36,7 @@ public abstract class DBSystem {
 		system.DESC = ConfReader.getAttrValue( node , "desc" );
 		system.OFFLINE = ConfReader.getBooleanAttrValue( node , "offline" , true );
 		
-		DBSettings.loadxml( node , props );
+		DBSettings.loadxml( node , props , true , false );
 		
 		Node[] items = ConfReader.xmlGetChildren( node , "product" );
 		if( items == null )

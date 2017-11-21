@@ -5,6 +5,7 @@ import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineContext;
+import org.urm.db.engine.DBEngineSettings;
 import org.urm.engine.Engine;
 import org.urm.meta.EngineCore;
 
@@ -27,6 +28,8 @@ public class EngineEntities {
 	private PropertyEntity entityCustomRC;
 	private PropertyEntity entityAppEngine;
 	private PropertyEntity entityCustomEngine;
+	private PropertyEntity entityAppProduct;
+	private PropertyEntity entityAppProductBuild;
 	
 	public EngineEntities( EngineCore core ) {
 		this.core = core;
@@ -36,12 +39,16 @@ public class EngineEntities {
 	public void upgradeData( DBConnection connection ) throws Exception {
 		entityAppRC = DBEngineContext.upgradeEntityRC( connection );
 		entityAppEngine = DBEngineContext.upgradeEntityEngine( connection );
+		entityAppProduct = DBEngineSettings.upgradeEntityProduct( connection );
+		entityAppProductBuild = DBEngineSettings.upgradeEntityProductBuild( connection );
 		useCustom( connection );
 	}
 	
 	public void useData( DBConnection connection ) throws Exception {
 		entityAppRC = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.RC , false );
 		entityAppEngine = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.CORE_ID , DBEnumParamEntityType.ENGINE , false );
+		entityAppProduct = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.CORE_ID , DBEnumParamEntityType.PRODUCT , false );
+		entityAppProductBuild = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.CORE_ID , DBEnumParamEntityType.PRODUCTBUILD , false );
 		useCustom( connection );
 	}
 	
@@ -52,37 +59,25 @@ public class EngineEntities {
 	
 	public ObjectProperties createRunContextProps() throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.PRIMARY , nameRunContextSet , engine.execrc );
-		props.create( null , new PropertyEntity[] { 
-				entityAppRC , 
-				entityCustomRC 
-				} );
+		props.create( null , entityAppRC , entityCustomRC );
 		return( props );
 	}
 
 	public ObjectProperties createEngineProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.PRIMARY , nameEngineSet , engine.execrc );
-		props.create( parent , new PropertyEntity[] { 
-				entityAppEngine , 
-				entityCustomEngine 
-				} );
+		props.create( parent , entityAppEngine , entityCustomEngine ); 
 		return( props );
 	}
 
 	public ObjectProperties createDefaultProductProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.PRIMARY , nameDefaultProductSet , engine.execrc );
-		props.create( parent , new PropertyEntity[] { 
-				getFixedEntity( DBEnumParamEntityType.PRODUCT ) , 
-				getCustomEntity( DBEnumParamEntityType.PRODUCT ) 
-				} );
+		props.create( parent , entityAppProduct , null ); 
 		return( props );
 	}
 
 	public ObjectProperties createDefaultBuildCommonProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.PRIMARY , nameDefaultBuildSet , engine.execrc );
-		props.create( parent , new PropertyEntity[] { 
-				getFixedEntity( DBEnumParamEntityType.BUILD ) , 
-				getCustomEntity( DBEnumParamEntityType.BUILD ) 
-				} );
+		props.create( parent , entityAppProductBuild , null );
 		return( props );
 	}
 
@@ -114,31 +109,14 @@ public class EngineEntities {
 			set = nameDefaultBuildTrunkSet;
 		}
 		ObjectProperties props = new ObjectProperties( role , set , engine.execrc );
-		props.create( null , new PropertyEntity[] { 
-				getFixedEntity( DBEnumParamEntityType.BUILD ) , 
-				getCustomEntity( DBEnumParamEntityType.BUILD ) } );
+		props.create( null , entityAppProductBuild , null ); 
 		return( props );
 	}
 
 	public ObjectProperties createSystemProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.PRIMARY , "system" , engine.execrc );
-		props.create( parent , new PropertyEntity[] { 
-				getFixedEntity( DBEnumParamEntityType.SYSTEM ) ,
-				createEmptyCustomEntity( DBEnumParamEntityType.SYSTEM )
-				} );
+		props.create( parent , null , null );
 		return( props );
 	}
 
-	public PropertyEntity getFixedEntity( DBEnumParamEntityType type ) throws Exception {
-		return( null );
-	}
-	
-	public PropertyEntity getCustomEntity( DBEnumParamEntityType type ) throws Exception {
-		return( null );
-	}
-	
-	public PropertyEntity createEmptyCustomEntity( DBEnumParamEntityType type ) throws Exception {
-		return( null );
-	}
-	
 }

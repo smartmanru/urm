@@ -8,7 +8,7 @@ import org.urm.engine.shell.ShellExecutor;
 
 public class PropertyValue {
 	public enum PropertyValueOrigin {
-		PROPERTY_ORIGINAL ,
+		PROPERTY_APP ,
 		PROPERTY_MANUAL ,
 		PROPERTY_PARENT ,
 		PROPERTY_EXTRA ,

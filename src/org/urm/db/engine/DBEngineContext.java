@@ -20,6 +20,9 @@ public abstract class DBEngineContext {
 				EntityVar.metaPathAbsolute( RunContext.PROPERTY_USER_HOME , "Server User Home" , false , null ) ,
 				EntityVar.metaString( RunContext.PROPERTY_OS_TYPE , "Server Operating System" , true , null ) ,
 				EntityVar.metaPathAbsolute( RunContext.PROPERTY_INSTALL_PATH , "Server Install Path" , true , null ) ,
+				EntityVar.metaPathAbsolute( RunContext.PROPERTY_WORK_PATH , "Server Work Path" , false , null ) ,
+				EntityVar.metaPathAbsolute( RunContext.PROPERTY_AUTH_PATH , "Authorization Data Path" , false , null ) ,
+				EntityVar.metaPathAbsolute( RunContext.PROPERTY_DB_PATH , "Database Properties Path" , false , null ) ,
 				EntityVar.metaPathAbsolute( RunContext.PROPERTY_SERVER_CONFPATH , "Server Configuration Path" , false , null ) ,
 				EntityVar.metaPathAbsolute( RunContext.PROPERTY_SERVER_PRODUCTSPATH , "Products Home Path" , false , null ) ,
 		} ) );
@@ -40,7 +43,7 @@ public abstract class DBEngineContext {
 				EntityVar.metaPathAbsolute( EngineContext.PROPERTY_STAGING_LINUXPATH , "Linux Staging Directory" , true , "/redist" ) ,
 				EntityVar.metaPathAbsolute( EngineContext.PROPERTY_STAGING_WINPATH , "Windows Staging Directory" , true , "C:/redist" ) , 
 				EntityVar.metaPathAbsolute( EngineContext.PROPERTY_MON_RESPATH , "Monitoring Resources Path" , true , EntityVar.p( RunContext.PROPERTY_INSTALL_PATH ) + "/monitoring/resources" ) , 
-				EntityVar.metaPathAbsolute( EngineContext.PROPERTY_MON_RESURL , "Monitoring Resources URL" , false , null ) ,
+				EntityVar.metaString( EngineContext.PROPERTY_MON_RESURL , "Monitoring Resources URL" , false , null ) ,
 				EntityVar.metaPathAbsolute( EngineContext.PROPERTY_MON_DATAPATH , "Monitoring Database Path" , true , EntityVar.p( RunContext.PROPERTY_INSTALL_PATH ) + "/monitoring/data" )  ,
 				EntityVar.metaPathAbsolute( EngineContext.PROPERTY_MON_REPORTPATH , "Monitoring Reports Path" , true , EntityVar.p( RunContext.PROPERTY_INSTALL_PATH ) + "/monitoring/reports" ) , 
 				EntityVar.metaPathAbsolute( EngineContext.PROPERTY_MON_LOGPATH , "Monitoring Logs" , true , EntityVar.p( RunContext.PROPERTY_INSTALL_PATH ) + "/logs/monitoring" ) , 

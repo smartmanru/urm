@@ -14,7 +14,10 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.EntityVar;
+import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
+import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineCore;
 import org.urm.meta.EngineObject;
@@ -88,7 +91,7 @@ public class EngineSettings extends EngineObject {
 	private void importEngineSettings( Node root , DBConnection c ) throws Exception {
 		EngineEntities entities = core.getEntities();
 		engineProperties = entities.createEngineProps( execrcProperties );
-		DBSettings.loadxml( root , engineProperties );
+		DBSettings.loadxml( root , engineProperties , true , true );
 	}
 	
 	private void loaddbEngineSettings( DBConnection c ) throws Exception {
@@ -102,11 +105,11 @@ public class EngineSettings extends EngineObject {
 		
 		defaultProductProperties = entities.createDefaultProductProps( engineProperties );
 		Node node = ConfReader.xmlGetFirstChild( root , "defaults" );
-		DBSettings.loadxml( node , defaultProductProperties );
+		DBSettings.loadxml( node , defaultProductProperties , true , true );
 		
 		defaultProductBuildProperties = entities.createDefaultBuildCommonProps( defaultProductBuildProperties );
 		Node build = ConfReader.xmlGetFirstChild( node , "build" );
-		DBSettings.loadxml( build , defaultProductBuildProperties );
+		DBSettings.loadxml( build , defaultProductBuildProperties , true , true );
 		
 		// for build modes
 		Node[] items = ConfReader.xmlGetChildren( build , "mode" );
@@ -116,7 +119,7 @@ public class EngineSettings extends EngineObject {
 				DBEnumBuildModeType mode = DBEnumBuildModeType.valueOf( MODE.toUpperCase() );
 				ObjectProperties properties = entities.createDefaultBuildModeProps( defaultProductBuildProperties , mode );
 	
-				DBSettings.loadxml( itemNode , properties );
+				DBSettings.loadxml( itemNode , properties , false , true );
 				mapBuildModeDefaults.put( mode , properties );
 			}
 		}
@@ -199,20 +202,20 @@ public class EngineSettings extends EngineObject {
 		Element root = doc.getDocumentElement();
 
 		// properties
-		engineProperties.saveAsElements( doc , root , false );
+		DBSettings.savexml( doc , root , engineProperties , true , true );
 
 		// defaults
 		Element modeDefaults = Common.xmlCreateElement( doc , root , "defaults" );
-		defaultProductProperties.saveAsElements( doc , modeDefaults , false );
+		DBSettings.savexml( doc , modeDefaults , defaultProductProperties , false , true );
 		Element modeBuild = Common.xmlCreateElement( doc , modeDefaults , "build" );
-		defaultProductBuildProperties.saveAsElements( doc , modeBuild , false );
+		DBSettings.savexml( doc , modeBuild , defaultProductBuildProperties , false , true );
 		
 		// product defaults
 		for( DBEnumBuildModeType mode : mapBuildModeDefaults.keySet() ) {
 			ObjectProperties set = mapBuildModeDefaults.get( mode );
 			Element modeElement = Common.xmlCreateElement( doc , modeBuild , "mode" );
 			Common.xmlSetElementAttr( doc , modeElement , "name" , mode.toString().toLowerCase() );
-			set.saveAsElements( doc , modeElement , false );
+			DBSettings.savexml( doc , modeElement , set , false , true );
 		}
 		
 		Common.xmlSaveDoc( doc , path );
@@ -248,18 +251,29 @@ public class EngineSettings extends EngineObject {
 	public void setExecProperties() throws Exception {
 		EngineEntities entities = core.getEntities();
 		execrcProperties = entities.createRunContextProps();
-		PropertySet set = execrcProperties.getProperties();
 		
 		RunContext rc = execrc;
-		set.setStringProperty( RunContext.PROPERTY_OS_TYPE , Common.getEnumLower( rc.osType ) );
-		set.setPathProperty( RunContext.PROPERTY_INSTALL_PATH , rc.installPath , null );
-		set.setPathProperty( RunContext.PROPERTY_WORK_PATH , rc.workPath , null );
-		set.setPathProperty( RunContext.PROPERTY_USER_HOME , rc.userHome , null );
-		set.setPathProperty( RunContext.PROPERTY_AUTH_PATH , rc.authPath , null );
-		set.setStringProperty( RunContext.PROPERTY_HOSTNAME , rc.hostName );
-		set.setPathProperty( RunContext.PROPERTY_SERVER_CONFPATH , rc.installPath + "/etc" , null );
-		set.setPathProperty( RunContext.PROPERTY_SERVER_MASTERPATH , rc.installPath + "/master" , null );
-		set.setPathProperty( RunContext.PROPERTY_SERVER_PRODUCTSPATH , rc.installPath + "/products" , null );
+		execrcProperties.setStringProperty( RunContext.PROPERTY_HOSTNAME , rc.hostName );
+		execrcProperties.setPathProperty( RunContext.PROPERTY_USER_HOME , rc.userHome );
+		execrcProperties.setStringProperty( RunContext.PROPERTY_OS_TYPE , Common.getEnumLower( rc.osType ) );
+		execrcProperties.setPathProperty( RunContext.PROPERTY_INSTALL_PATH , rc.installPath );
+		execrcProperties.setPathProperty( RunContext.PROPERTY_WORK_PATH , rc.workPath );
+		execrcProperties.setPathProperty( RunContext.PROPERTY_AUTH_PATH , rc.authPath );
+		execrcProperties.setPathProperty( RunContext.PROPERTY_DB_PATH , rc.dbPath );
+		execrcProperties.setPathProperty( RunContext.PROPERTY_SERVER_CONFPATH , Common.getPath( rc.installPath , "etc" ) );
+		execrcProperties.setPathProperty( RunContext.PROPERTY_SERVER_PRODUCTSPATH , Common.getPath( rc.installPath , "products" ) );
+
+		// get custom properties from environment variables if any
+		ObjectMeta meta = execrcProperties.getMeta();
+		for( PropertyEntity entity : meta.getEntities() ) {
+			if( !entity.custom ) 
+				continue;
+			
+			for( EntityVar var : entity.getVars() ) {
+				String value = RunContext.getProperty( var.NAME );
+				execrcProperties.setStringProperty( var.NAME , value );
+			}
+		}
 		
 		execrcProperties.resolveRawProperties();
 	}

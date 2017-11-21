@@ -234,7 +234,7 @@ public abstract class PropertyController extends EngineObject {
 	
 	protected void updateProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		if( !system )
-			properties.removeUserProperties();
+			properties.removeCustomProperties();
 		properties.updateProperties( props , system );
 		if( system )
 			scatterProperties( transaction.action );

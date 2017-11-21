@@ -14,6 +14,7 @@ import org.urm.engine.properties.PropertyController;
 import org.urm.engine.properties.PropertySet;
 import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
+import org.urm.meta.engine.EngineContext;
 import org.urm.meta.engine.EngineSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -51,19 +52,20 @@ public class MetaProductSettings extends PropertyController {
 	public String CONFIG_CUSTOM_DEPLOY;
 	public String CONFIG_CUSTOM_DATABASE;
 	
-	// context
-	public static String PROPERTY_REDISTWIN_PATH = "redist.win.path";
-	public static String PROPERTY_REDISTLINUX_PATH = "redist.linux.path";
+	// engine overrides
+	public static String PROPERTY_REDISTWIN_PATH = EngineContext.PROPERTY_STAGING_WINPATH;
+	public static String PROPERTY_REDISTLINUX_PATH = EngineContext.PROPERTY_STAGING_LINUXPATH;
+	
+	// own properties
 	public static String PROPERTY_DISTR_PATH  = "distr.path";
 	public static String PROPERTY_DISTR_HOSTLOGIN = "distr.hostlogin";
 	public static String PROPERTY_UPGRADE_PATH = "upgrade.path";
 	public static String PROPERTY_BASE_PATH = "base.path";
 	public static String PROPERTY_MIRRORPATH = "mirror.path";
+	
 	public static String PROPERTY_ADM_TRACKER = "adm.tracker";
 	public static String PROPERTY_COMMIT_TRACKERLIST = "source.trackers";
-	public static String PROPERTY_META_MIRROR = "meta.mirror";
-	public static String PROPERTY_SOURCE_MIRROR = "conf.mirror";
-
+	
 	public static String PROPERTY_SOURCE_CHARSET = "release.charset";
 	public static String PROPERTY_SOURCE_RELEASEROOTDIR = "release.root";
 	public static String PROPERTY_SOURCE_CFG_ROOTDIR = "config.root";
@@ -107,8 +109,6 @@ public class MetaProductSettings extends PropertyController {
 		CONFIG_MIRRORPATH = super.getPathPropertyRequired( action , PROPERTY_MIRRORPATH );
 		CONFIG_ADM_TRACKER = super.getStringProperty( action , PROPERTY_ADM_TRACKER );
 		CONFIG_COMMIT_TRACKERLIST = super.getStringProperty( action , PROPERTY_COMMIT_TRACKERLIST );
-		CONFIG_META_MIRROR = super.getStringProperty( action , PROPERTY_META_MIRROR );
-		CONFIG_SOURCE_MIRROR = super.getStringProperty( action , PROPERTY_SOURCE_MIRROR );
 		
 		CONFIG_SOURCE_CHARSET = super.getStringProperty( action , PROPERTY_SOURCE_CHARSET );
 		CONFIG_SOURCE_RELEASEROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_RELEASEROOTDIR );

@@ -14,6 +14,7 @@ public class RunErrorClass {
 	public static int BaseEngineShell = 116000;
 	public static int BaseEngineStorage = 117000;
 	public static int BaseEngineVCS = 118000;
+	public static int BaseEngineProperties = 119000;
 	public static int BaseAction = 200000;
 	public static int BaseActionBuild = 201000;
 	public static int BaseActionConf = 202000;
@@ -28,6 +29,7 @@ public class RunErrorClass {
 	public static int BaseMetaProduct = 252000;
 	public static int BaseClient = 300000;
 	public static int BaseDB = 400000;
+	public static int BaseDBCore = 401000;
 	public static int BasePlugin = 800000;
 	
 	public static int InternalBase = 500;

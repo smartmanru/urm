@@ -44,7 +44,6 @@ public class RunContext implements Serializable {
 	public static String PROPERTY_AUTH_PATH = "urm.authpath";
 	public static String PROPERTY_DB_PATH = "urm.dbpath";
 	public static String PROPERTY_SERVER_CONFPATH = "server.conf";
-	public static String PROPERTY_SERVER_MASTERPATH = "server.master";
 	public static String PROPERTY_SERVER_PRODUCTSPATH = "server.products";
 	
 	public RunContext() {
@@ -156,7 +155,7 @@ public class RunContext implements Serializable {
 		return( value );
 	}
 	
-	private String getProperty( String name ) {
+	public static String getProperty( String name ) {
 		String value = System.getProperty( name );
 		if( value == null )
 			return( "" );

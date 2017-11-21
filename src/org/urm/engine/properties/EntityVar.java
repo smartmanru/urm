@@ -5,6 +5,8 @@ import org.urm.db.core.DBEnums.*;
 
 public class EntityVar {
 
+	public PropertyEntity entity;
+	
 	public int ID;
 	public DBEnumParamValueType PARAMVALUE_TYPE;
 	public DBEnumObjectType OBJECT_TYPE;
@@ -53,6 +55,22 @@ public class EntityVar {
 		return( var );
 	}
 
+	public void setEntity( PropertyEntity entity ) {
+		this.entity = entity;
+	}
+
+	public boolean isApp() {
+		if( entity.custom )
+			return( false );
+		return( true );
+	}
+	
+	public boolean isCustom() {
+		if( entity.custom )
+			return( true );
+		return( false );
+	}
+	
 	public static String p( String var ) {
 		return( "@" + var + "@" );
 	}

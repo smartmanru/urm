@@ -280,7 +280,7 @@ public class PropertySet {
 	}
 
 	public void setOriginalProperty( String prop , DBEnumParamValueType type , String value , boolean system , ShellExecutor target ) throws Exception {
-		PropertyValueOrigin origin = ( system )? PropertyValueOrigin.PROPERTY_ORIGINAL : PropertyValueOrigin.PROPERTY_CUSTOM;
+		PropertyValueOrigin origin = ( system )? PropertyValueOrigin.PROPERTY_APP : PropertyValueOrigin.PROPERTY_CUSTOM;
 		PropertyValue pv = new PropertyValue( prop , origin , null , null );
 		if( system )
 			pv.setSystem();
@@ -304,13 +304,13 @@ public class PropertySet {
 	}
 	
 	public PropertyValue setOriginalStringProperty( String prop , String value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_APP , null , null );
 		pv.setString( value );
 		return( setProperty( pv ) );
 	}
 
 	public PropertyValue setOriginalBooleanProperty( String prop , boolean value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_APP , null , null );
 		pv.setBool( value );
 		return( setProperty( pv ) );
 	}
@@ -322,7 +322,7 @@ public class PropertySet {
 	}
 	
 	public PropertyValue setOriginalBooleanProperty( String prop , FLAG value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_APP , null , null );
 		if( value != FLAG.DEFAULT )
 			pv.setBool( value == FLAG.YES );
 		return( setProperty( pv ) );
@@ -335,7 +335,7 @@ public class PropertySet {
 	}
 	
 	public PropertyValue setOriginalNumberProperty( String prop , int value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_APP , null , null );
 		pv.setNumber( value );
 		return( setProperty( pv ) );
 	}
@@ -351,7 +351,7 @@ public class PropertySet {
 	}
 
 	public PropertyValue setOriginalPathProperty( String prop , String value , ShellExecutor target ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_APP , null , null );
 		pv.setPath( value , target );
 		return( setProperty( pv ) );
 	}
@@ -387,26 +387,26 @@ public class PropertySet {
 	}
 	
 	public void setStringProperty( String prop , String value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_APP , null , null );
 		pv.setString( value );
 		setProperty( pv );
 	}
 
 	public void setBooleanProperty( String prop , boolean value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_APP , null , null );
 		pv.setBool( value );
 		setProperty( pv );
 	}
 
 	public void setBooleanProperty( String prop , FLAG value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_APP , null , null );
 		if( value != FLAG.DEFAULT )
 			pv.setBool( value == FLAG.YES );
 		setProperty( pv );
 	}
 
 	public void setNumberProperty( String prop , int value ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_APP , null , null );
 		pv.setNumber( value );
 		setProperty( pv );
 	}
@@ -416,7 +416,7 @@ public class PropertySet {
 	}
 
 	public void setPathProperty( String prop , String value , ShellExecutor target ) throws Exception {
-		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , null , null );
+		PropertyValue pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_APP , null , null );
 		pv.setPath( value , target );
 		setProperty( pv );
 	}
@@ -782,7 +782,7 @@ public class PropertySet {
 		}
 		
 		if( pv == null ) {
-			pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_ORIGINAL , this , null );
+			pv = new PropertyValue( prop , PropertyValue.PropertyValueOrigin.PROPERTY_APP , this , null );
 			setProperty( pv );
 		}
 			
@@ -805,7 +805,7 @@ public class PropertySet {
 		resolved = false;
 		PropertyValue pv = getPropertyValue( prop );
 		if( pv == null ) {
-			pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_ORIGINAL , this , null );
+			pv = new PropertyValue( prop , PropertyValueOrigin.PROPERTY_APP , this , null );
 			setProperty( pv );
 		}
 		
@@ -874,15 +874,24 @@ public class PropertySet {
 	private void recalculateProperty( PropertyValue pv ) throws Exception {
 		processValue( pv , false , false , true , true , true );
 	}
-	
-	public void createOriginalAndRawProperty( String prop , String value , boolean custom , DBEnumParamValueType type , String desc ) throws Exception {
-		resolved = false;
-		PropertyValueOrigin origin = ( custom )? PropertyValueOrigin.PROPERTY_CUSTOM : PropertyValueOrigin.PROPERTY_ORIGINAL;
-		PropertyValue pv = new PropertyValue( prop , origin , this , desc );
+
+	public PropertyValue createRawProperty( String prop , boolean custom , DBEnumParamValueType type , String desc ) throws Exception {
+		PropertyValue pv = data.get( prop );
+		if( pv != null )
+			return( pv );
+		
+		PropertyValueOrigin origin = ( custom )? PropertyValueOrigin.PROPERTY_CUSTOM : PropertyValueOrigin.PROPERTY_APP;
+		pv = new PropertyValue( prop , origin , this , desc );
 		pv.setType( type );
-		pv.setOriginalAndFinalValue( value );
 		if( !custom )
 			pv.setSystem();
+		
+		return( setProperty( pv ) );
+	}
+	
+	public void createOriginalAndRawProperty( String prop , String value , boolean custom , DBEnumParamValueType type , String desc ) throws Exception {
+		PropertyValue pv = createRawProperty( prop , custom , type , desc );
+		pv.setOriginalAndFinalValue( value );
 		setProperty( pv );
 	}
 
@@ -1095,7 +1104,7 @@ public class PropertySet {
 		return( pv.getFinalBool() );
 	}
 
-	public void removeUserProperties() throws Exception {
+	public void removeCustomProperties() throws Exception {
 		resolved = false;
 		List<PropertyValue> items = new LinkedList<PropertyValue>();
 		for( PropertyValue pv : data.values() ) {
@@ -1106,7 +1115,7 @@ public class PropertySet {
 			data.remove( getKeyByProperty( pv.property ) );
 	}
 
-	public void removeUserProperty( String prop ) throws Exception {
+	public void removeCustomProperty( String prop ) throws Exception {
 		PropertyValue pv = getPropertyValue( prop );
 		if( pv == null )
 			Common.exit2( _Error.UnknownProperty2 , "set=" + set + ": missing property=" + prop , set , prop );
@@ -1117,7 +1126,7 @@ public class PropertySet {
 		data.remove( getKeyByProperty( pv.property ) );
 	}
 
-	public void renameUserProperty( String prop , String newName ) throws Exception {
+	public void renameCustomProperty( String prop , String newName ) throws Exception {
 		PropertyValue pv = getPropertyValue( prop );
 		if( pv == null )
 			Common.exit2( _Error.UnknownProperty2 , "set=" + set + ": missing property=" + prop , set , prop );

@@ -277,7 +277,7 @@ public abstract class DBEnums {
 		RC(1,null) ,
 		ENGINE(2,null) ,
 		PRODUCT(3,null) ,
-		BUILD(4,null) ,
+		PRODUCTBUILD(4,null) ,
 		BASE(5,null) ,
 		SYSTEM(6,null) ,
 		ENVIRONMENT(7,null) ,
