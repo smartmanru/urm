@@ -11,6 +11,7 @@ import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBCoreData;
 import org.urm.db.core.DBNames;
+import org.urm.db.core.DBVersions;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineDB;
 import org.urm.engine.TransactionBase;
@@ -268,6 +269,10 @@ public class EngineData {
 	}
 	
 	private void useData( DBConnection connection ) throws Exception {
+		int version = DBVersions.getCurrentAppVersion( connection );
+		if( version != EngineDB.APP_VERSION )
+			Common.exit2( _Error.InvalidVersion2 , "Mismatched client/database, client version=" + EngineDB.APP_VERSION + ", database version=" + version , "" + EngineDB.APP_VERSION , "" + version );
+		
 		DBCoreData.useData( connection );
 		core.useData( connection );
 	}

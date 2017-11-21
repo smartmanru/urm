@@ -49,13 +49,14 @@ public abstract class DBSettings {
 	public static void addVar( DBConnection c , PropertyEntity entity , EntityVar var , int version ) throws Exception {
 		var.ID = DBNames.getNameIndex( c , entity.ownerId , var.NAME , DBEnumObjectType.PARAM );
 		var.VERSION = version;
-		if( !c.update( DBQueries.MODIFY_PARAM_ADD10 , new String[] {
+		if( !c.update( DBQueries.MODIFY_PARAM_ADD11 , new String[] {
 			EngineDB.getInteger( entity.ownerId ) ,
-			EngineDB.getInteger( entity.entityType.code() ) ,
+			EngineDB.getEnum( entity.entityType ) ,
 			EngineDB.getInteger( var.ID ) ,
 			EngineDB.getString( var.NAME ) ,
 			EngineDB.getString( var.DESC ) ,
-			EngineDB.getInteger( var.PARAMVALUE_TYPE.code() ) ,
+			EngineDB.getEnum( var.PARAMVALUE_TYPE ) ,
+			EngineDB.getEnum( var.OBJECT_TYPE ) ,
 			EngineDB.getBoolean( var.REQUIRED ) ,
 			EngineDB.getBoolean( entity.custom ) ,
 			EngineDB.getString( var.EXPR_DEF ) ,
@@ -66,7 +67,7 @@ public abstract class DBSettings {
 
 	public static PropertyEntity loaddbEntity( DBConnection c , DBEnumObjectVersionType ownerType , int ownerId , DBEnumParamEntityType entityType , boolean custom ) throws Exception {
 		PropertyEntity entity = new PropertyEntity( ownerType , ownerId , entityType , custom );
-		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETENTITYFIXEDPARAMS2 , new String[] { EngineDB.getInteger( ownerId ) , EngineDB.getInteger( entityType.code() ) } );
+		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETENTITYPARAMS3 , new String[] { EngineDB.getInteger( ownerId ) , EngineDB.getEnum( entityType ) , EngineDB.getBoolean( custom ) } );
 		if( rs == null )
 			Common.exitUnexpected();
 		
@@ -75,10 +76,11 @@ public abstract class DBSettings {
 					rs.getString( 2 ) , 
 					rs.getString( 3 ) , 
 					DBEnumParamValueType.getValue( rs.getInt( 4 ) , true ) , 
-					rs.getBoolean( 5 ) , 
-					rs.getString( 6 ) );
+					DBEnumObjectType.getValue( rs.getInt( 5 ) , true ) , 
+					rs.getBoolean( 6 ) , 
+					rs.getString( 7 ) );
 			var.ID = rs.getInt( 1 );
-			var.VERSION = rs.getInt( 7 );
+			var.VERSION = rs.getInt( 8 );
 			entity.addVar( var );
 		}
 		return( entity );

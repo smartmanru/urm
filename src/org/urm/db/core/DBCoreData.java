@@ -13,9 +13,6 @@ public abstract class DBCoreData {
 	}
 
 	public static void useData( DBConnection connection ) throws Exception {
-		int version = DBVersions.getCurrentAppVersion( connection );
-		if( version != EngineDB.APP_VERSION )
-			Common.exitUnexpected();
 		DBEnums.verifyDatabase( connection );
 	}
 	

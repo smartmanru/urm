@@ -24,7 +24,9 @@ public class EngineEntities {
 	public EngineCore core;
 
 	private PropertyEntity entityAppRC; 
-	private PropertyEntity entityCustomRC; 
+	private PropertyEntity entityCustomRC;
+	private PropertyEntity entityAppEngine;
+	private PropertyEntity entityCustomEngine;
 	
 	public EngineEntities( EngineCore core ) {
 		this.core = core;
@@ -33,16 +35,19 @@ public class EngineEntities {
 	
 	public void upgradeData( DBConnection connection ) throws Exception {
 		entityAppRC = DBEngineContext.upgradeEntityRC( connection );
+		entityAppEngine = DBEngineContext.upgradeEntityEngine( connection );
 		useCustom( connection );
 	}
 	
 	public void useData( DBConnection connection ) throws Exception {
 		entityAppRC = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.RC , false );
+		entityAppEngine = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.CORE_ID , DBEnumParamEntityType.ENGINE , false );
 		useCustom( connection );
 	}
 	
 	private void useCustom( DBConnection connection ) throws Exception {
 		entityCustomRC = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.RC , true );
+		entityCustomEngine = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.CORE_ID , DBEnumParamEntityType.ENGINE , true );
 	}
 	
 	public ObjectProperties createRunContextProps() throws Exception {
@@ -57,8 +62,8 @@ public class EngineEntities {
 	public ObjectProperties createEngineProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.PRIMARY , nameEngineSet , engine.execrc );
 		props.create( parent , new PropertyEntity[] { 
-				getFixedEntity( DBEnumParamEntityType.ENGINE ) , 
-				getCustomEntity( DBEnumParamEntityType.ENGINE ) 
+				entityAppEngine , 
+				entityCustomEngine 
 				} );
 		return( props );
 	}

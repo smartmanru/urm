@@ -16,8 +16,8 @@ public abstract class DBQueries {
 	public static String MODIFY_ENUMS_DROP0 = "delete from urm_object_type";
 	public static String MODIFY_ENUMS_ADD4 = "insert into urm_object_type( category , item , name , av ) values ( @1@ , @2@ , @3@ , @4@ )";
 	
-	public static String MODIFY_PARAM_ADD10 = "insert into urm_object_param( owner_object , paramentity_type , id , name , xdesc , paramvalue_type , required , custom , expr_def , version ) values ( @1@ , @2@ , @3@ , @4@ , @5@ , @6@ , @7@ , @8@ , @9@ , @10@ )";
-	public static String QUERY_PARAM_GETENTITYFIXEDPARAMS2 = "select id , name , xdesc , paramvalue_type , required , expr_def , version from urm_object_param where owner_object = @1@ and paramentity_type = @2@ and custom = 'no' order by name";
+	public static String MODIFY_PARAM_ADD11 = "insert into urm_object_param( owner_object , paramentity_type , id , name , xdesc , paramvalue_type , object_type , required , custom , expr_def , version ) values ( @1@ , @2@ , @3@ , @4@ , @5@ , @6@ , @7@ , @8@ , @9@ , @10@ , @11@ )";
+	public static String QUERY_PARAM_GETENTITYPARAMS3 = "select id , name , xdesc , paramvalue_type , object_type , required , expr_def , version from urm_object_param where owner_object = @1@ and paramentity_type = @2@ and custom = @3@ order by name";
 	
 	public static String QUERY_SYSTEM_GETALL0 = "select id , name , xdesc , offline , matched , sv from urm_system";
 	public static String MODIFY_SYSTEM_ADD6 = "insert into urm_system ( id , name , xdesc , offline , matched , sv ) values ( @1@ , @2@ , @3@ , @4@ , @5@ , @6@ )";

@@ -8,6 +8,7 @@ import org.postgresql.ds.PGConnectionPoolDataSource;
 import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
+import org.urm.db.core.DBEnumInterface;
 import org.urm.meta.EngineData;
 
 public class EngineDB {
@@ -85,7 +86,7 @@ public class EngineDB {
 	public static String getInteger( Integer value ) {
 		if( value == null )
 			return( "null" );
-		return( "" + value  );
+		return( "" + value );
 	}
 
 	public static String getString( String value ) {
@@ -96,6 +97,12 @@ public class EngineDB {
 
 	public static String getBoolean( boolean value ) {
 		return( ( value )? "'yes'" : "'no'" );
+	}
+
+	public static String getEnum( DBEnumInterface item ) {
+		if( item == null )
+			return( "null" );
+		return( "" + item.code() );
 	}
 
 }
