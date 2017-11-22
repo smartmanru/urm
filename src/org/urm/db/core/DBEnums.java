@@ -276,14 +276,20 @@ public abstract class DBEnums {
 	public enum DBEnumParamEntityType implements DBEnumInterface {
 		RC(1,null) ,
 		ENGINE(2,null) ,
-		PRODUCT(3,null) ,
+		PRODUCTDEFS(3,null) ,
 		PRODUCTBUILD(4,null) ,
 		BASE(5,null) ,
-		SYSTEM(6,null) ,
-		ENVIRONMENT(7,null) ,
-		SEGMENT(8,null) ,
-		SERVER(9,null) ,
-		NODE(10,null);
+		MONITORING(6,null) ,
+		SYSTEM(101,null) ,
+		ENVIRONMENT(102,null) ,
+		SEGMENT(103,null) ,
+		SERVER(104,null) ,
+		NODE(105,null) ,
+		RC_CUSTOM(201,null) ,
+		ENGINE_CUSTOM(202,null) ,
+		BASE_CUSTOM(203,null) ,
+		SYSTEM_CUSTOM(204,null) ,
+		PRODUCT_CUSTOM(205,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -295,12 +301,17 @@ public abstract class DBEnums {
 	};
 	
 	public enum DBEnumParamRoleType implements DBEnumInterface {
-		PRIMARY(1,null) ,
-		BUILDMODE_BRANCH(2,null) ,
-		BUILDMODE_MAJORBRANCH(3,null) ,
-		BUILDMODE_TRUNK(4,null) ,
-		BUILDMODE_DEVBRANCH(5,null) ,
-		BUILDMODE_DEVTRUNK(6,null);
+		RC(1,null) ,
+		ENGINE(2,null),
+		PRODUCTDEFS(3,null),
+		BUILDMODE_COMMON(10,null),
+		BUILDMODE_BRANCH(11,null) ,
+		BUILDMODE_MAJORBRANCH(12,null) ,
+		BUILDMODE_TRUNK(13,null) ,
+		BUILDMODE_DEVBRANCH(14,null) ,
+		BUILDMODE_DEVTRUNK(15,null) ,
+		MONITORING(20,null),
+		SYSTEM(100,null);
 
 		private final int value;
 		private String[] synonyms;

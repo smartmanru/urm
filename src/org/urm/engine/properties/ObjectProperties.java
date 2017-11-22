@@ -217,33 +217,34 @@ public class ObjectProperties {
 		properties.recalculateProperties();
 	}
 
-	public void setProperty( String prop , String value , ShellExecutor target ) throws Exception {
+	public void setProperty( String prop , String value ) throws Exception {
 		EntityVar var = meta.getVar( prop );
-		properties.setOriginalProperty( prop , var.PARAMVALUE_TYPE , value , var.isApp() , target );
+		properties.setOriginalProperty( var.NAME , var.PARAMVALUE_TYPE , value , var.isApp() , null );
 	}
 
+	public void setProperty( int propId , String value ) throws Exception {
+		EntityVar var = getVar( propId );
+		properties.setOriginalProperty( var.NAME , var.PARAMVALUE_TYPE , value , var.isApp() , null );
+	}
+	
 	public void setStringProperty( String prop , String value ) throws Exception {
-		setProperty( prop , value , null );
+		setProperty( prop , value );
 	}
 
 	public void setPathProperty( String prop , String value ) throws Exception {
-		setPathProperty( prop , value , null );
-	}
-
-	public void setPathProperty( String prop , String value , ShellExecutor target ) throws Exception {
-		setProperty( prop , value , target );
+		setProperty( prop , value );
 	}
 
 	public void setIntProperty( String prop , int value ) throws Exception {
-		setProperty( prop , "" + value , null );
+		setProperty( prop , "" + value );
 	}
 
 	public void setBooleanProperty( String prop , boolean value ) throws Exception {
-		setProperty( prop , Common.getBooleanValue( value ) , null );
+		setProperty( prop , Common.getBooleanValue( value ) );
 	}
 
 	public void setUrlProperty( String prop , String value ) throws Exception {
-		setStringProperty( prop , value );
+		setProperty( prop , value );
 	}
 
 	public void setManualStringProperty( String prop , String value ) throws Exception {
@@ -299,6 +300,48 @@ public class ObjectProperties {
 		EntityVar var = meta.getVar( prop );
 		PropertyValue value = properties.getPropertyValue( var.NAME );
 		return( value.getOriginalValue() );
+	}
+
+	public EntityVar getVar( int propId ) throws Exception {
+		EntityVar var = meta.findAppVar( propId );
+		if( var != null )
+			return( var );
+		
+		ObjectProperties hfind = this;
+		while( hfind != null ) {
+			var = meta.findCustomVar( propId );
+			if( var != null ) {
+				if( var.isApp() )
+					Common.exit1( _Error.UnexpectedCustomVar1 , "Unexpected builtin variable name=" + var.NAME  , "" + var.NAME );
+				return( var );
+			}
+			
+			hfind = hfind.parent;
+		}
+		
+		Common.exit1( _Error.UnknownVarId1 , "Unable to find variable id=" + propId , "" + propId );
+		return( null );
+	}
+
+	public EntityVar getVar( String prop ) throws Exception {
+		EntityVar var = meta.findAppVar( prop );
+		if( var != null )
+			return( var );
+		
+		ObjectProperties hfind = this;
+		while( hfind != null ) {
+			var = meta.findCustomVar( prop );
+			if( var != null ) {
+				if( var.isApp() )
+					Common.exit1( _Error.UnexpectedCustomVar1 , "Unexpected builtin variable name=" + var.NAME  , "" + var.NAME );
+				return( var );
+			}
+			
+			hfind = hfind.parent;
+		}
+		
+		Common.exit1( _Error.UnknownVarName1 , "Unable to find variable id=" + prop , "" + prop );
+		return( null );
 	}
 
 }

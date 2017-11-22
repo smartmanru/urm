@@ -16,12 +16,17 @@ public abstract class DBQueries {
 	public static String MODIFY_ENUMS_DROP0 = "delete from urm_object_type";
 	public static String MODIFY_ENUMS_ADD4 = "insert into urm_object_type( category , item , name , av ) values ( @1@ , @2@ , @3@ , @4@ )";
 	
-	public static String MODIFY_PARAM_ADD11 = "insert into urm_object_param( owner_object , paramentity_type , id , name , xdesc , paramvalue_type , object_type , required , custom , expr_def , version ) values ( @1@ , @2@ , @3@ , @4@ , @5@ , @6@ , @7@ , @8@ , @9@ , @10@ , @11@ )";
-	public static String QUERY_PARAM_GETENTITYPARAMS3 = "select id , name , xdesc , paramvalue_type , object_type , required , expr_def , version from urm_object_param where owner_object = @1@ and paramentity_type = @2@ and custom = @3@ order by name";
+	public static String MODIFY_PARAM_ADD11 = "insert into urm_object_param ( owner_object , paramentity_type , id , name , xdesc , paramvalue_type , object_type , required , custom , expr_def , version ) values ( @1@ , @2@ , @3@ , @4@ , @5@ , @6@ , @7@ , @8@ , @9@ , @10@ , @11@ )";
+	public static String MODIFY_PARAM_DROPENTITYPARAMS2 = "delete from urm_object_param where owner_object = @1@ and paramentity_type = @2@";
+	public static String MODIFY_PARAM_DROPENTITYVALUESS2 = "delete from urm_object_param_value where owner_object = @1@ and paramentity_type = @2@";
+	public static String QUERY_PARAM_GETENTITYPARAMS2 = "select id , name , xdesc , paramvalue_type , object_type , required , expr_def , version from urm_object_param where owner_object = @1@ and paramentity_type = @2@ order by name";
+	public static String QUERY_PARAM_GETOBJECTPARAMVALUES2 = "select paramentity_type , param , expr_value , version from urm_object_param_value where object = @1@ and paramrole_type = @2@";
+	public static String MODIFY_PARAM_DROPOBJECTPARAMVALUES2 = "delete from urm_object_param_value where object = @1@ and paramrole_type = @2@";
+	public static String MODIFY_PARAM_ADDOBJECTPARAMVALUE7  = "insert into urm_object_param_value ( object , paramrole_type , owner_object , paramentity_type , param , expr_value , version ) values ( @1@ , @2@ , @3@ , @4@ , @5@ , @6@ , @7@ )";
 	
 	public static String QUERY_SYSTEM_GETALL0 = "select id , name , xdesc , offline , matched , sv from urm_system";
 	public static String MODIFY_SYSTEM_ADD6 = "insert into urm_system ( id , name , xdesc , offline , matched , sv ) values ( @1@ , @2@ , @3@ , @4@ , @5@ , @6@ )";
-	public static String MODIFY_SYSTEM_UPDATE4 = "update urm_system set name = @2@ , xdesc = @3@ , sv = @4@ where id = @1@";
+	public static String MODIFY_SYSTEM_UPDATE5 = "update urm_system set name = @2@ , xdesc = @3@ , offline=@4@ , sv = @5@ where id = @1@";
 	public static String MODIFY_SYSTEM_DELETE2 = "delete from urm_system where id = @1@";
 	public static String MODIFY_SYSTEM_DELETEALLPARAMS2 = "delete from urm_system_param where system = @1@";
 

@@ -63,7 +63,7 @@ public class EngineLoader {
 			loadBase();
 			loadInfrastructure();
 			loadReleaseLifecycles();
-			loadMonitoring();
+			loadMonitoring( connection , savedb );
 			loadRegistry();
 			connection.save( true );
 
@@ -151,10 +151,16 @@ public class EngineLoader {
 		return( propertyFile );
 	}
 
-	private void loadMonitoring() throws Exception {
+	private void loadMonitoring( DBConnection c , boolean importxml ) throws Exception {
 		String monFile = getMonitoringFile();
+		Document doc = ConfReader.readXmlFile( execrc , monFile );
+		Node root = doc.getDocumentElement();
+		
 		EngineMonitoring mon = data.getMonitoring();
-		mon.load( monFile , execrc );
+		if( importxml )
+			mon.loadxml( root , c );
+		else
+			mon.loaddb( c );
 	}
 
 	private String getServerRegistryFile() throws Exception {
@@ -252,12 +258,19 @@ public class EngineLoader {
 	public void saveMonitoring( TransactionBase transaction ) throws Exception {
 		String propertyFile = getMonitoringFile();
 		EngineMonitoring mon = data.getMonitoring();
-		mon.save( transaction.getAction() , propertyFile , execrc );
+		Document doc = Common.xmlCreateDoc( "monitoring" );
+		Element root = doc.getDocumentElement();
+		mon.savexml( transaction , doc , root );
+		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
 	public void setServerSettings( TransactionBase transaction , EngineSettings settingsNew ) throws Exception {
 		String propertyFile = getServerSettingsFile();
-		settingsNew.save( propertyFile , execrc );
+		Document doc = Common.xmlCreateDoc( "server" );
+		Element root = doc.getDocumentElement();
+		settingsNew.savexml( transaction , doc , root );
+		Common.xmlSaveDoc( doc , propertyFile );
+		
 		EngineSettings settings = data.getServerSettings();
 		settings.setData( transaction.getAction() , settingsNew , transaction.connection.getCoreVersion() );
 	}

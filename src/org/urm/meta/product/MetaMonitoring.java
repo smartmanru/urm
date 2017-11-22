@@ -86,7 +86,7 @@ public class MetaMonitoring extends PropertyController {
 		
 		ActionBase action = transaction.getAction();
 		EngineMonitoring sm = action.getServerMonitoring();
-		PropertySet src = sm.properties;
+		PropertySet src = sm.properties.getProperties();
 		super.setSystemUrlProperty( PROPERTY_RESOURCE_URL , src.getExpressionByProperty( EngineMonitoring.PROPERTY_RESOURCE_URL ) );
 		super.setSystemPathProperty( PROPERTY_DIR_RES , src.getExpressionByProperty( EngineMonitoring.PROPERTY_RESOURCE_PATH ) );
 		super.setSystemPathProperty( PROPERTY_DIR_DATA , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_DATA ) );

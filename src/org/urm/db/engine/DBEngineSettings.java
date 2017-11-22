@@ -14,7 +14,7 @@ import org.urm.meta.product.MetaProductSettings;
 public abstract class DBEngineSettings {
 
 	public static PropertyEntity upgradeEntityProduct( DBConnection c ) throws Exception {
-		return( DBSettings.savedbEntity( c , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.PRODUCT , false , EngineDB.APP_VERSION , new EntityVar[] { 
+		return( DBSettings.savedbEntity( c , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.PRODUCTDEFS , false , EngineDB.APP_VERSION , new EntityVar[] { 
 				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_REDISTLINUX_PATH , "Linux Staging Area Path" , true , null ) ,
 				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_REDISTWIN_PATH , "Windows Staging Area Path" , true , null ) ,
 				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_DISTR_PATH , "Distributives Path" , true , null ) ,

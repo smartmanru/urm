@@ -4,13 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ActionCore;
-import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.common.RunContext;
+import org.urm.db.DBConnection;
+import org.urm.db.core.DBSettings;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
+import org.urm.engine.TransactionBase;
 import org.urm.engine.events.EngineEvents;
+import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
@@ -21,27 +22,11 @@ import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
-import org.urm.meta.product.MetaProductCoreSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class EngineMonitoring extends EngineObject {
-
-	EngineData data;
-	Engine engine;
-	EngineEvents events;
-
-	Map<String,MonitoringProduct> mapProduct;
-	boolean running;
-	
-	public PropertySet properties;
-	public boolean ENABLED;
-	public String DIR_DATA;
-	public String DIR_REPORTS;
-	public String DIR_RES;
-	public String DIR_LOGS;
-	public String RESOURCE_URL;
 
 	// properties
 	public static String PROPERTY_ENABLED = "monitoring.enabled";
@@ -50,6 +35,16 @@ public class EngineMonitoring extends EngineObject {
 	public static String PROPERTY_DIR_DATA = "default.data.path";
 	public static String PROPERTY_DIR_REPORTS = "default.reports.path";
 	public static String PROPERTY_DIR_LOGS = "default.logs.path";
+	
+	EngineData data;
+	Engine engine;
+	EngineEvents events;
+
+	Map<String,MonitoringProduct> mapProduct;
+	boolean running;
+	public boolean ENABLED;
+	
+	public ObjectProperties properties;
 	
 	public EngineMonitoring( EngineData data ) {
 		super( null );
@@ -66,39 +61,25 @@ public class EngineMonitoring extends EngineObject {
 		return( "server-monitoring" );
 	}
 	
-	public void scatterProperties() throws Exception {
+	public void loadxml( Node root , DBConnection c ) throws Exception {
 		EngineSettings settings = data.getServerSettings();
-		PropertySet src = settings.context.properties;
-		
-		ENABLED = properties.getSystemBooleanProperty( PROPERTY_ENABLED , false , true );
-		RESOURCE_URL = properties.getSystemUrlExprProperty( PROPERTY_RESOURCE_URL , getProductExpr( src , EngineContext.PROPERTY_MON_RESURL ) , true );
-		DIR_RES = properties.getSystemPathExprProperty( PROPERTY_RESOURCE_PATH , engine.execrc , getProductExpr( src , EngineContext.PROPERTY_MON_RESPATH ) , true );
-		DIR_DATA = properties.getSystemPathExprProperty( PROPERTY_DIR_DATA , engine.execrc , getProductExpr( src , EngineContext.PROPERTY_MON_DATAPATH ) , true );
-		DIR_REPORTS = properties.getSystemPathExprProperty( PROPERTY_DIR_REPORTS , engine.execrc , getProductExpr( src , EngineContext.PROPERTY_MON_REPORTPATH ) , true );
-		DIR_LOGS = properties.getSystemPathExprProperty( PROPERTY_DIR_LOGS , engine.execrc , getProductExpr( src , EngineContext.PROPERTY_MON_LOGPATH ) , true );
-	}
-
-	private String getProductExpr( PropertySet src , String prop ) {
-		String value = src.getExpressionByProperty( prop );
-		return( value + "/" + PropertySet.getRef( MetaProductCoreSettings.PROPERTY_PRODUCT_NAME ) );
-	}
-	
-	public void load( String monFile , RunContext execrc ) throws Exception {
-		EngineSettings settings = data.getServerSettings();
-		properties = new PropertySet( "defmon" , settings.context.properties );
-		Document doc = ConfReader.readXmlFile( execrc , monFile );
-		Node root = doc.getDocumentElement();
-		properties.loadFromNodeElements( root , false );
+		EngineEntities entities = data.getEntities();
+		properties = entities.createEngineMonitoringProps( settings.getEngineProperties() );
+		DBSettings.loadxml( root , properties , true );
 		scatterProperties();
 	}
 	
-	public void save( ActionCore action , String path , RunContext execrc ) throws Exception {
-		Document doc = Common.xmlCreateDoc( "monitoring" );
-		Element root = doc.getDocumentElement();
-		properties.saveAsElements( doc , root , false );
-		Common.xmlSaveDoc( doc , path );
+	public void savexml( TransactionBase transaction , Document doc , Element root ) throws Exception {
+		DBSettings.savexml( doc , root , properties , true );
 	}
 
+	public void loaddb( DBConnection c ) throws Exception {
+	}
+	
+	private void scatterProperties() throws Exception {
+		ENABLED = properties.getBooleanProperty( PROPERTY_ENABLED );
+	}
+	
 	public void start( ActionBase action ) throws Exception {
 		running = true;
 		
@@ -134,7 +115,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 
 	public void setEnabled( EngineTransaction transaction , boolean enabled ) throws Exception {
-		properties.setOriginalSystemBooleanProperty( PROPERTY_ENABLED , enabled );
+		properties.setBooleanProperty( PROPERTY_ENABLED , enabled );
 		ENABLED = enabled;
 		
 		if( enabled )
@@ -144,7 +125,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 
 	public void setDefaultProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
-		properties.updateProperties( props , true );
+		properties.updateProperties( transaction , props , true );
 		scatterProperties();
 	}
 

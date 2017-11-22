@@ -232,7 +232,7 @@ public class PropertyValue {
 	}
 
 	public void setDefault( String value ) {
-		defaultValue = value;
+		defaultValue = ( value == null )? "" : value;
 		if( finalValue.isEmpty() )
 			finalValue = defaultValue;
 		resolved = isFinal( finalValue );

@@ -45,7 +45,7 @@ public abstract class DBNames {
 	}
 	
 	public synchronized static int getNameIndex( DBConnection connection , int parent , String name , DBEnumObjectType type ) throws Exception {
-		String key = parent + "::" + type.name() + "::" + name;
+		String key = parent + "::" + type.code() + "::" + name;
 		Integer value = map.get( key );
 		if( value != null )
 			return( value );
@@ -59,7 +59,7 @@ public abstract class DBNames {
 	}
 	
 	public synchronized static void updateName( DBConnection connection , int parent , String name , int id , DBEnumObjectType type ) throws Exception {
-		String key = parent + "::" + type.name() + "::" + name;
+		String key = parent + "::" + type.code() + "::" + name;
 		Integer value = map.get( key );
 		if( value != null && value == id )
 			return;

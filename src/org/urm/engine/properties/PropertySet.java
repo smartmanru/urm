@@ -1142,8 +1142,4 @@ public class PropertySet {
 		recalculateProperties();
 	}
 	
-	public static String getRef( String name ) {
-		return( "@" + name + "@" );
-	}
-	
 }

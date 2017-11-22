@@ -12,6 +12,7 @@ public class ObjectMeta {
 	
 	PropertyEntity[] entities;
 	Map<String,EntityVar> varNames;
+	Map<Integer,EntityVar> varIds;
 	
 	ObjectMeta() {
 	}
@@ -25,14 +26,17 @@ public class ObjectMeta {
 		else
 			entities = new PropertyEntity[] { entityApp };
 		varNames = new HashMap<String,EntityVar>();
+		varIds = new HashMap<Integer,EntityVar>();
 		rebuild();
 	}
 	
 	public void rebuild() {
 		varNames.clear();
+		varIds.clear();
 		for( PropertyEntity entity : entities ) {
 			for( EntityVar var : entity.getVars() ) {
 				varNames.put( var.NAME , var );
+				varIds.put( var.ID , var );
 			}
 		}
 	}
@@ -66,6 +70,34 @@ public class ObjectMeta {
 		if( var == null )
 			Common.exit1( _Error.UnknownVar1 , "Unknown variable name=" + name , name );
 		return( var );
+	}
+	
+	public EntityVar findAppVar( int propId ) {
+		EntityVar var = varIds.get( propId );
+		if( var != null && var.isApp() )
+			return( var );
+		return( null );
+	}
+	
+	public EntityVar findCustomVar( int propId ) {
+		EntityVar var = varIds.get( propId );
+		if( var != null && var.isCustom() )
+			return( var );
+		return( null );
+	}
+	
+	public EntityVar findAppVar( String prop ) {
+		EntityVar var = varNames.get( prop );
+		if( var != null && var.isApp() )
+			return( var );
+		return( null );
+	}
+	
+	public EntityVar findCustomVar( String prop ) {
+		EntityVar var = varNames.get( prop );
+		if( var != null && var.isCustom() )
+			return( var );
+		return( null );
 	}
 	
 }

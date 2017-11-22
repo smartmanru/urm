@@ -11,10 +11,15 @@ import org.urm.db.core.DBNames;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
+import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.DBQueries;
 import org.urm.engine.EngineDB;
 import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.EntityVar;
+import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
+import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineMatcher;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineDirectory;
@@ -36,7 +41,7 @@ public abstract class DBSystem {
 		system.DESC = ConfReader.getAttrValue( node , "desc" );
 		system.OFFLINE = ConfReader.getBooleanAttrValue( node , "offline" , true );
 		
-		DBSettings.loadxml( node , props , true , false );
+		DBSettings.loadxml( node , props , false );
 		
 		Node[] items = ConfReader.xmlGetChildren( node , "product" );
 		if( items == null )
@@ -70,8 +75,10 @@ public abstract class DBSystem {
 			system.MATCHED = rs.getBoolean( 5 );
 			system.SV = rs.getInt( 6 );
 			systems.add( system );
-			
-			DBSettings.loaddb( c , system.ID , props );
+
+			ObjectMeta meta = props.getMeta();
+			DBSettings.loaddbEntity( c , meta.getCustomEntity() , system.ID );
+			DBSettings.loaddbValues( c , system.ID , props );
 		}
 		
 		return( systems.toArray( new AppSystem[0] ) );
@@ -117,6 +124,10 @@ public abstract class DBSystem {
 	public static void savedb( EngineDirectory directory , AppSystem system , DBConnection c ) throws Exception {
 		int systemId = getSystemIdByName( system.NAME , c );
 		insert( c , systemId , system );
+
+		ObjectProperties props = system.getParameters();
+		DBSettings.savedbEntityCustom( c , props , system.SV );
+		DBSettings.savedbValues( c , system.ID , props , system.SV );
 		
 		for( Product product : system.getProducts() )
 			DBProduct.savedb( directory , product , c );
@@ -126,23 +137,24 @@ public abstract class DBSystem {
 		system.ID = systemId;
 		system.SV = c.getNextSystemVersion( systemId );
 		if( !c.update( DBQueries.MODIFY_SYSTEM_ADD6 , new String[] {
-				"" + system.ID , 
+				EngineDB.getInteger( system.ID ) , 
 				EngineDB.getString( system.NAME ) , 
 				EngineDB.getString( system.DESC ) ,
 				EngineDB.getBoolean( system.OFFLINE ) ,
 				EngineDB.getBoolean( system.MATCHED ) ,
-				"" + system.SV 
+				EngineDB.getInteger( system.SV ) 
 				} ) )
 			Common.exitUnexpected();
 	}
 
 	public static void update( DBConnection c , AppSystem system ) throws Exception {
 		system.SV = c.getNextSystemVersion( system.ID );
-		if( !c.update( DBQueries.MODIFY_SYSTEM_UPDATE4 , new String[] {
-				"" + system.ID , 
+		if( !c.update( DBQueries.MODIFY_SYSTEM_UPDATE5 , new String[] {
+				EngineDB.getInteger( system.ID ) , 
 				EngineDB.getString( system.NAME ) , 
 				EngineDB.getString( system.DESC ) ,
-				"" + system.SV 
+				EngineDB.getBoolean( system.OFFLINE ) ,
+				EngineDB.getInteger( system.SV ) 
 				} ) )
 			Common.exitUnexpected();
 	}
@@ -153,6 +165,14 @@ public abstract class DBSystem {
 			Common.exitUnexpected();
 		if( !c.update( DBQueries.MODIFY_SYSTEM_DELETE2 , new String[] { "" + system.ID , "" + SV } ) )
 			Common.exitUnexpected();
+	}
+
+	public static PropertyEntity upgradeEntitySystem( DBConnection c ) throws Exception {
+		return( DBSettings.savedbEntity( c , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.SYSTEM , false , EngineDB.APP_VERSION , new EntityVar[] { 
+				EntityVar.metaString( AppSystem.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaString( AppSystem.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaBoolean( AppSystem.PROPERTY_OFFLINE , "Offline" , false , true )
+		} ) );
 	}
 
 }

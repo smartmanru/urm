@@ -1,13 +1,13 @@
 package org.urm.meta.engine;
 
 import org.urm.common.RunContext;
-import org.urm.engine.properties.PropertySet;
+import org.urm.engine.properties.ObjectProperties;
 
 public class EngineContext {
 
 	public EngineSettings settings;
 	public RunContext execrc;
-	public PropertySet properties;
+	public ObjectProperties properties;
 
 	// properties
 	public int CONNECTION_JMX_PORT;
@@ -64,6 +64,7 @@ public class EngineContext {
 	public static String PROPERTY_STAGING_LINUXPATH = "staging.linuxpath";
 	public static String PROPERTY_STAGING_WINPATH = "staging.winpath";
 	
+	public static String PROPERTY_MON_ENABLED = "monitoring.enabled";
 	public static String PROPERTY_MON_RESPATH = "mon.respath";
 	public static String PROPERTY_MON_RESURL = "mon.resurl";
 	public static String PROPERTY_MON_DATAPATH = "mon.datapath";
@@ -80,50 +81,50 @@ public class EngineContext {
 	public static String PROPERTY_CHAT_JABBER_CONFERENCESERVER = "chat.jabber.conferenceserver";
 	public static String PROPERTY_CHAT_ROCKET_RESOURCE = "chat.rocket.resource";
 	
-	public EngineContext( RunContext execrc , PropertySet properties ) {
+	public EngineContext( RunContext execrc , ObjectProperties properties ) {
 		this.execrc = execrc;
 		this.properties = properties;
 	}
 
-	public EngineContext copy( PropertySet properties ) throws Exception {
+	public EngineContext copy( ObjectProperties properties ) throws Exception {
 		EngineContext r = new EngineContext( execrc , properties );
 		r.scatterProperties();
 		return( r );
 	}
 	
 	public void scatterProperties() throws Exception {
-		CONNECTION_JMX_PORT = properties.getSystemIntProperty( PROPERTY_CONNECTION_JMX_PORT , 6000 , true );
-		CONNECTION_JMXWEB_PORT = properties.getSystemIntProperty( PROPERTY_CONNECTION_JMXWEB_PORT , 6001 , true );
+		CONNECTION_JMX_PORT = properties.getIntProperty( PROPERTY_CONNECTION_JMX_PORT );
+		CONNECTION_JMXWEB_PORT = properties.getIntProperty( PROPERTY_CONNECTION_JMXWEB_PORT );
 
-		DIST_ROOT = properties.getSystemPathProperty( PROPERTY_DIST_ROOT , execrc , execrc.installPath + "/dist" , false );
-		DIST_APPFOLDER = properties.getSystemPathProperty( PROPERTY_DIST_APPFOLDER , execrc , "systems" , false );
-		DIST_PLATFORMPATH = properties.getSystemPathProperty( PROPERTY_DIST_PLATFORMPATH , execrc , "platform" , false );
+		DIST_ROOT = properties.getPathProperty( PROPERTY_DIST_ROOT );
+		DIST_APPFOLDER = properties.getPathProperty( PROPERTY_DIST_APPFOLDER );
+		DIST_PLATFORMPATH = properties.getPathProperty( PROPERTY_DIST_PLATFORMPATH );
 
-		SECURE_CONFPATH = properties.getSystemPathProperty( PROPERTY_SECURE_CONFPATH , execrc , execrc.installPath + "/secured" , false );
+		SECURE_CONFPATH = properties.getPathProperty( PROPERTY_SECURE_CONFPATH );
 		
-		WORK_ARTEFACTS = properties.getSystemPathProperty( PROPERTY_WORK_ARTEFACTS , execrc , execrc.installPath + "/artefacts" , false );
-		WORK_MIRRORPATH = properties.getSystemPathProperty( PROPERTY_WORK_MIRRORPATH , execrc , execrc.installPath + "/mirror" , false );
-		WORK_BUILDLOGS = properties.getSystemPathProperty( PROPERTY_WORK_BUILDLOGS , execrc , execrc.installPath + "/logs/build" , false );
-		WORK_DEPLOYLOGS = properties.getSystemPathProperty( PROPERTY_WORK_DEPLOYLOGS , execrc , execrc.installPath + "/logs/deploy" , false );
+		WORK_ARTEFACTS = properties.getPathProperty( PROPERTY_WORK_ARTEFACTS );
+		WORK_MIRRORPATH = properties.getPathProperty( PROPERTY_WORK_MIRRORPATH );
+		WORK_BUILDLOGS = properties.getPathProperty( PROPERTY_WORK_BUILDLOGS );
+		WORK_DEPLOYLOGS = properties.getPathProperty( PROPERTY_WORK_DEPLOYLOGS );
 
-		STAGING_LINUXPATH = properties.getSystemPathProperty( PROPERTY_STAGING_LINUXPATH , execrc , "/redist" , false );
-		STAGING_WINPATH = properties.getSystemPathProperty( PROPERTY_STAGING_WINPATH , execrc , "C:/redist" , false );
+		STAGING_LINUXPATH = properties.getPathProperty( PROPERTY_STAGING_LINUXPATH );
+		STAGING_WINPATH = properties.getPathProperty( PROPERTY_STAGING_WINPATH );
 		
-		MON_RESPATH = properties.getSystemPathProperty( PROPERTY_MON_RESPATH , execrc , execrc.installPath + "/monitoring/resources" , false ); 
-		MON_RESURL = properties.getSystemStringProperty( PROPERTY_MON_RESURL , "" , false ); 
-		MON_DATAPATH = properties.getSystemPathProperty( PROPERTY_MON_DATAPATH , execrc , execrc.installPath + "/monitoring/data" , false );
-		MON_REPORTPATH = properties.getSystemPathProperty( PROPERTY_MON_REPORTPATH , execrc , execrc.installPath + "/monitoring/reports" , false );
-		MON_LOGPATH = properties.getSystemPathProperty( PROPERTY_MON_LOGPATH , execrc , execrc.installPath + "/logs/monitoring" , false );
+		MON_RESPATH = properties.getPathProperty( PROPERTY_MON_RESPATH ); 
+		MON_RESURL = properties.getStringProperty( PROPERTY_MON_RESURL ); 
+		MON_DATAPATH = properties.getPathProperty( PROPERTY_MON_DATAPATH );
+		MON_REPORTPATH = properties.getPathProperty( PROPERTY_MON_REPORTPATH );
+		MON_LOGPATH = properties.getPathProperty( PROPERTY_MON_LOGPATH );
 
-		SHELL_SILENTMAX = properties.getSystemIntProperty( PROPERTY_SHELL_SILENTMAX , 60000 , false );
-		SHELL_UNAVAILABLE_SKIPTIME = properties.getSystemIntProperty( PROPERTY_SHELL_UNAVAILABLE_SKIPTIME , 30000 , false );
-		SHELL_HOUSEKEEP_TIME = properties.getSystemIntProperty( PROPERTY_SHELL_HOUSEKEEP_TIME , 30000 , false );
+		SHELL_SILENTMAX = properties.getIntProperty( PROPERTY_SHELL_SILENTMAX );
+		SHELL_UNAVAILABLE_SKIPTIME = properties.getIntProperty( PROPERTY_SHELL_UNAVAILABLE_SKIPTIME );
+		SHELL_HOUSEKEEP_TIME = properties.getIntProperty( PROPERTY_SHELL_HOUSEKEEP_TIME );
 		
-		CHAT_USING = properties.getSystemBooleanProperty( PROPERTY_CHAT_USING , false , false );
-		CHAT_TYPE = properties.getSystemStringProperty( PROPERTY_CHAT_TYPE , "" , false );
-		CHAT_JABBER_RESOURCE = properties.getSystemStringProperty( PROPERTY_CHAT_JABBER_RESOURCE , "" , false );
-		CHAT_JABBER_CONFERENCESERVER = properties.getSystemStringProperty( PROPERTY_CHAT_JABBER_CONFERENCESERVER , "" , false );
-		CHAT_ROCKET_RESOURCE = properties.getSystemStringProperty( PROPERTY_CHAT_ROCKET_RESOURCE , "" , false );
+		CHAT_USING = properties.getBooleanProperty( PROPERTY_CHAT_USING );
+		CHAT_TYPE = properties.getStringProperty( PROPERTY_CHAT_TYPE );
+		CHAT_JABBER_RESOURCE = properties.getStringProperty( PROPERTY_CHAT_JABBER_RESOURCE );
+		CHAT_JABBER_CONFERENCESERVER = properties.getStringProperty( PROPERTY_CHAT_JABBER_CONFERENCESERVER );
+		CHAT_ROCKET_RESOURCE = properties.getStringProperty( PROPERTY_CHAT_ROCKET_RESOURCE );
 	}
 
 }

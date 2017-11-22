@@ -16,36 +16,50 @@ import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.engine.properties.PropertySet;
+import org.urm.engine.properties.PropertyValue;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public abstract class DBSettings {
 
-	public static void loaddb( DBConnection c , int objectId , ObjectProperties properties ) throws Exception {
+	public static void loaddbValues( DBConnection c , int objectId , ObjectProperties properties ) throws Exception {
+		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETOBJECTPARAMVALUES2 , new String[] { EngineDB.getInteger( objectId ) , EngineDB.getEnum( properties.type ) } );
+		if( rs == null )
+			Common.exitUnexpected();
+		
+		while( rs.next() ) {
+			int param = rs.getInt( 2 );
+			String exprValue = rs.getString( 3 );
+			properties.setProperty( param , exprValue );
+		}
+		rs.close();
 	}
 	
-	public static void loadxml( Node root , ObjectProperties properties , boolean valuesAreDefaults , boolean appAsProperties ) throws Exception {
+	public static void loadxml( Node root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		
 		// load attributes - app only
-		Map<String,String> attrs = ConfReader.getAttributes( root );
-		for( String prop : Common.getSortedKeys( attrs ) ) {
-			String value = attrs.get( prop );
-			loadxmlSetAttr( properties , prop , value );
+		if( !appAsProperties ) {
+			Map<String,String> attrs = ConfReader.getAttributes( root );
+			for( String prop : Common.getSortedKeys( attrs ) ) {
+				String value = attrs.get( prop );
+				loadxmlSetAttr( properties , prop , value );
+			}
 		}
 		
 		// load properties
 		Node[] items = ConfReader.xmlGetChildren( root , "property" );
 		if( items != null ) {
 			for( Node item : items )
-				loadxmlSetProperty( item , properties , valuesAreDefaults , appAsProperties );
+				loadxmlSetProperty( item , properties , appAsProperties );
 			
 			meta.rebuild();
 		}
 	}
 
-	public static void savexml( Document doc , Element root , ObjectProperties properties , boolean valuesAreDefaults , boolean appAsProperties ) throws Exception {
+	public static void savexml( Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
 	}
 	
 	private static void loadxmlSetAttr( ObjectProperties properties , String prop , String value ) throws Exception {
@@ -55,10 +69,10 @@ public abstract class DBSettings {
 		if( var == null )
 			Common.exit1( _Error.UnknownAppVar1 , "Attempt to override built-in variable=" + prop , prop );
 		
-		properties.setProperty( prop , value , null );
+		properties.setProperty( prop , value );
 	}
 	
-	private static void loadxmlSetProperty( Node item , ObjectProperties properties , boolean valuesAreDefaults , boolean appAsProperties ) throws Exception {
+	private static void loadxmlSetProperty( Node item , ObjectProperties properties , boolean appAsProperties ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity app = meta.getAppEntity();
 		PropertyEntity custom = meta.getCustomEntity();
@@ -69,7 +83,7 @@ public abstract class DBSettings {
 		EntityVar var = app.findVar( prop );
 		if( var != null && appAsProperties ) {
 			String value = ConfReader.getAttrValue( item , "value" );
-			properties.setProperty( prop , value , null );
+			properties.setProperty( prop , value );
 			return;
 		}
 
@@ -98,13 +112,11 @@ public abstract class DBSettings {
 
 		// custom properties cannot be defined
 		if( custom == null )
-			Common.exit1( _Error.UnexpectedCustom1 , "Custom variables are not expected here, variable==" + prop , prop );
+			Common.exit1( _Error.UnexpectedCustom1 , "Custom variables cannot be defined here, variable=" + prop , prop );
 		
-		// new property
+		// new custom property
 		String desc = ConfReader.getAttrValue( item , "desc" );
-		String def = null;
-		if( valuesAreDefaults )
-			def = ConfReader.getAttrValue( item , "value" );
+		String def = ConfReader.getAttrValue( item , "value" );
 			
 		var = EntityVar.metaString( prop , desc , false , def );
 		custom.addVar( var );
@@ -124,6 +136,17 @@ public abstract class DBSettings {
 	}
 	
 	public static PropertyEntity savedbEntity( DBConnection c , DBEnumObjectVersionType ownerType , int ownerId , DBEnumParamEntityType entityType , boolean custom , int version , EntityVar[] vars ) throws Exception {
+		if( !c.update( DBQueries.MODIFY_PARAM_DROPENTITYVALUESS2 , new String[] {
+				EngineDB.getInteger( ownerId ) ,
+				EngineDB.getEnum( entityType ) 
+				} ) )
+			Common.exitUnexpected();
+		if( !c.update( DBQueries.MODIFY_PARAM_DROPENTITYPARAMS2 , new String[] {
+				EngineDB.getInteger( ownerId ) ,
+				EngineDB.getEnum( entityType ) 
+				} ) )
+			Common.exitUnexpected();
+				
 		PropertyEntity entity = new PropertyEntity( ownerType , ownerId , entityType , custom );
 		for( EntityVar var : vars ) {
 			entity.addVar( var );
@@ -152,8 +175,14 @@ public abstract class DBSettings {
 	}
 
 	public static PropertyEntity loaddbEntity( DBConnection c , DBEnumObjectVersionType ownerType , int ownerId , DBEnumParamEntityType entityType , boolean custom ) throws Exception {
-		PropertyEntity entity = new PropertyEntity( ownerType , ownerId , entityType , custom );
-		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETENTITYPARAMS3 , new String[] { EngineDB.getInteger( ownerId ) , EngineDB.getEnum( entityType ) , EngineDB.getBoolean( custom ) } );
+		PropertyEntity entity = new PropertyEntity( ownerType , 0 , entityType , custom );
+		loaddbEntity( c , entity , ownerId );
+		return( entity );
+	}
+		
+	public static void loaddbEntity( DBConnection c , PropertyEntity entity , int ownerId ) throws Exception {
+		entity.ownerId = ownerId;
+		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETENTITYPARAMS2 , new String[] { EngineDB.getInteger( entity.ownerId ) , EngineDB.getEnum( entity.entityType ) } );
 		if( rs == null )
 			Common.exitUnexpected();
 		
@@ -169,7 +198,41 @@ public abstract class DBSettings {
 			var.VERSION = rs.getInt( 8 );
 			entity.addVar( var );
 		}
-		return( entity );
+		rs.close();
+	}
+	
+	public static void savedbValues( DBConnection c , int objectId , ObjectProperties properties , int version ) throws Exception {
+		if( !c.update( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUES2 , new String[] {
+				EngineDB.getInteger( objectId ) ,
+				EngineDB.getEnum( properties.type ) 
+				} ) )
+			Common.exitUnexpected();
+
+		PropertySet set = properties.getProperties();
+		for( PropertyValue value : set.getAllProperties() ) {
+			String data = value.getOriginalValue();
+			if( data == null || data.isEmpty() )
+				continue;
+			
+			EntityVar var = properties.getVar( value.property );
+			if( !c.update( DBQueries.MODIFY_PARAM_ADDOBJECTPARAMVALUE7 , new String[] {
+					EngineDB.getInteger( objectId ) ,
+					EngineDB.getEnum( properties.type ) ,
+					EngineDB.getInteger( var.entity.ownerId ) ,
+					EngineDB.getEnum( var.entity.entityType ) ,
+					EngineDB.getInteger( var.ID ) ,
+					EngineDB.getString( data ) ,
+					EngineDB.getInteger( version )
+					} ) )
+				Common.exitUnexpected();
+		}
+	}
+
+	public static void savedbEntityCustom( DBConnection c , ObjectProperties properties , int version ) throws Exception {
+		ObjectMeta meta = properties.getMeta();
+		PropertyEntity entity = meta.getCustomEntity();
+		if( entity != null )
+			savedbEntity( c , DBEnumObjectVersionType.CORE , DBVersions.CORE_ID , DBEnumParamEntityType.ENGINE_CUSTOM , true , version , entity.getVars() );
 	}
 	
 }

@@ -29,7 +29,7 @@ public abstract class DBEngineContext {
 	}
 
 	public static PropertyEntity upgradeEntityEngine( DBConnection c ) throws Exception {
-		return( DBSettings.savedbEntity( c , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.RC , false , EngineDB.APP_VERSION , new EntityVar[] { 
+		return( DBSettings.savedbEntity( c , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.ENGINE , false , EngineDB.APP_VERSION , new EntityVar[] { 
 				EntityVar.metaInteger( EngineContext.PROPERTY_CONNECTION_JMX_PORT , "Server Engine JMX Port" , true , 6000 ) ,
 				EntityVar.metaInteger( EngineContext.PROPERTY_CONNECTION_JMXWEB_PORT , "Server Engine JMX HTTP Port" , true , 6001 ) ,
 				EntityVar.metaPathAbsolute( EngineContext.PROPERTY_DIST_ROOT , "Central Distributive Repository Path" , true , EntityVar.p( RunContext.PROPERTY_INSTALL_PATH ) + "/dist" ) ,

@@ -9,6 +9,10 @@ import org.urm.meta.EngineObject;
 
 public class AppSystem extends EngineObject {
 
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_OFFLINE = "offline";
+	
 	public EngineDirectory directory;
 	private Map<String,Product> mapProducts;
 	
@@ -19,7 +23,7 @@ public class AppSystem extends EngineObject {
 	public boolean MATCHED;
 	public int SV;
 	
-	ObjectProperties parameters;
+	private ObjectProperties parameters;
 	
 	public AppSystem( EngineDirectory directory , ObjectProperties parameters ) {
 		super( directory );
@@ -36,15 +40,19 @@ public class AppSystem extends EngineObject {
 		return( NAME );
 	}
 	
-	public void createSystem( String name , String desc ) {
+	public void createSystem( String name , String desc ) throws Exception {
 		this.NAME = name;
 		this.DESC = desc;
 		this.OFFLINE = true;
 		this.MATCHED = true;
+		parameters.setStringProperty( PROPERTY_NAME , NAME );
+		parameters.setStringProperty( PROPERTY_DESC , DESC );
+		parameters.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 	}
 	
-	public void setOffline( boolean OFFLINE ) {
+	public void setOffline( boolean OFFLINE ) throws Exception {
 		this.OFFLINE = OFFLINE;
+		parameters.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 	}
 	
 	public AppSystem copy( EngineDirectory nd , ObjectProperties rparameters ) {
@@ -63,6 +71,10 @@ public class AppSystem extends EngineObject {
 		return( r );
 	}
 	
+	public ObjectProperties getParameters() {
+		return( parameters );
+	}
+	
 	public String[] getProductNames() {
 		return( Common.getSortedKeys( mapProducts ) );
 	}
@@ -78,6 +90,8 @@ public class AppSystem extends EngineObject {
 	public void modifySystem( String name , String desc ) throws Exception {
 		NAME = name;
 		DESC = desc;
+		parameters.setStringProperty( PROPERTY_NAME , NAME );
+		parameters.setStringProperty( PROPERTY_DESC , DESC );
 	}
 
 	public void addProduct( Product product ) throws Exception {

@@ -65,7 +65,8 @@ public class EngineDirectory extends EngineObject {
 		
 		EngineSettings settings = data.getServerSettings();
 		for( AppSystem system : mapSystems.values() ) {
-			ObjectProperties rprops = system.parameters.copy( settings.getEngineProperties() );
+			ObjectProperties props = system.getParameters();
+			ObjectProperties rprops = props.copy( settings.getEngineProperties() );
 			AppSystem rs = system.copy( r , rprops );
 			r.addSystem( rs );
 			

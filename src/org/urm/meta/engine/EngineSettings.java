@@ -13,6 +13,7 @@ import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
+import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectMeta;
@@ -60,7 +61,7 @@ public class EngineSettings extends EngineObject {
 		importEngineSettings( root , c );
 		importProductDefaults( root , c );
 		
-		context = new EngineContext( execrc , engineProperties.getProperties() );
+		context = new EngineContext( execrc , engineProperties );
 		context.scatterProperties();
 	}
 
@@ -71,7 +72,7 @@ public class EngineSettings extends EngineObject {
 		loaddbEngineSettings( c );
 		loaddbProductDefaults( c );
 		
-		context = new EngineContext( execrc , engineProperties.getProperties() );
+		context = new EngineContext( execrc , engineProperties );
 		context.scatterProperties();
 	}
 	
@@ -84,55 +85,37 @@ public class EngineSettings extends EngineObject {
 		defaultProductBuildProperties = src.defaultProductBuildProperties;
 		mapBuildModeDefaults = src.mapBuildModeDefaults;
 		
-		context = new EngineContext( execrc , engineProperties.getProperties() );
+		context = new EngineContext( execrc , engineProperties );
 		context.scatterProperties();
 	}
 	
 	private void importEngineSettings( Node root , DBConnection c ) throws Exception {
 		EngineEntities entities = core.getEntities();
 		engineProperties = entities.createEngineProps( execrcProperties );
-		DBSettings.loadxml( root , engineProperties , true , true );
+		DBSettings.loadxml( root , engineProperties , true );
+		
+		int version = c.getNextCoreVersion();
+		DBSettings.savedbEntityCustom( c , engineProperties , version );
+		DBSettings.savedbValues( c , DBVersions.CORE_ID , engineProperties , version );
 	}
 	
 	private void loaddbEngineSettings( DBConnection c ) throws Exception {
 		EngineEntities entities = core.getEntities();
 		engineProperties = entities.createEngineProps( execrcProperties );
-		DBSettings.loaddb( c , DBVersions.CORE_ID , engineProperties );
+		DBSettings.loaddbValues( c , DBVersions.CORE_ID , engineProperties );
 	}
 	
 	private void importProductDefaults( Node root , DBConnection c ) throws Exception {
 		EngineEntities entities = core.getEntities();
 		
+		// load from xml
 		defaultProductProperties = entities.createDefaultProductProps( engineProperties );
 		Node node = ConfReader.xmlGetFirstChild( root , "defaults" );
-		DBSettings.loadxml( node , defaultProductProperties , true , true );
+		DBSettings.loadxml( node , defaultProductProperties , true );
 		
 		defaultProductBuildProperties = entities.createDefaultBuildCommonProps( defaultProductBuildProperties );
 		Node build = ConfReader.xmlGetFirstChild( node , "build" );
-		DBSettings.loadxml( build , defaultProductBuildProperties , true , true );
-		
-		// for build modes
-		Node[] items = ConfReader.xmlGetChildren( build , "mode" );
-		if( items != null ) {
-			for( Node itemNode : items ) {
-				String MODE = ConfReader.getRequiredAttrValue( itemNode , "name" );
-				DBEnumBuildModeType mode = DBEnumBuildModeType.valueOf( MODE.toUpperCase() );
-				ObjectProperties properties = entities.createDefaultBuildModeProps( defaultProductBuildProperties , mode );
-	
-				DBSettings.loadxml( itemNode , properties , false , true );
-				mapBuildModeDefaults.put( mode , properties );
-			}
-		}
-	}
-	
-	private void loaddbProductDefaults( DBConnection c ) throws Exception {
-		EngineEntities entities = core.getEntities();
-		
-		defaultProductProperties = entities.createDefaultProductProps( engineProperties );
-		DBSettings.loaddb( c , DBVersions.CORE_ID , defaultProductProperties );
-		
-		defaultProductBuildProperties = entities.createDefaultBuildCommonProps( defaultProductBuildProperties );
-		DBSettings.loaddb( c , DBVersions.CORE_ID , defaultProductBuildProperties );
+		DBSettings.loadxml( build , defaultProductBuildProperties , true );
 		
 		// for build modes
 		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
@@ -140,7 +123,44 @@ public class EngineSettings extends EngineObject {
 				continue;
 			
 			ObjectProperties properties = entities.createDefaultBuildModeProps( defaultProductBuildProperties , mode );
-			DBSettings.loaddb( c , DBVersions.CORE_ID , properties );
+			mapBuildModeDefaults.put( mode , properties );
+		}
+			
+		Node[] items = ConfReader.xmlGetChildren( build , "mode" );
+		if( items != null ) {
+			for( Node itemNode : items ) {
+				String MODE = ConfReader.getRequiredAttrValue( itemNode , "name" );
+				DBEnumBuildModeType mode = DBEnumBuildModeType.valueOf( MODE.toUpperCase() );
+				ObjectProperties properties = mapBuildModeDefaults.get( mode );
+				DBSettings.loadxml( itemNode , properties , true );
+			}
+		}
+		
+		// save to database
+		int version = c.getNextCoreVersion();
+		DBSettings.savedbValues( c , DBVersions.CORE_ID , defaultProductProperties , version );
+		DBSettings.savedbValues( c , DBVersions.CORE_ID , defaultProductBuildProperties , version );
+		
+		for( ObjectProperties properties : mapBuildModeDefaults.values() )
+			DBSettings.savedbValues( c , DBVersions.CORE_ID , properties , version );
+	}
+	
+	private void loaddbProductDefaults( DBConnection c ) throws Exception {
+		EngineEntities entities = core.getEntities();
+		
+		defaultProductProperties = entities.createDefaultProductProps( engineProperties );
+		DBSettings.loaddbValues( c , DBVersions.CORE_ID , defaultProductProperties );
+		
+		defaultProductBuildProperties = entities.createDefaultBuildCommonProps( defaultProductBuildProperties );
+		DBSettings.loaddbValues( c , DBVersions.CORE_ID , defaultProductBuildProperties );
+		
+		// for build modes
+		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
+			if( mode == DBEnumBuildModeType.UNKNOWN )
+				continue;
+			
+			ObjectProperties properties = entities.createDefaultBuildModeProps( defaultProductBuildProperties , mode );
+			DBSettings.loaddbValues( c , DBVersions.CORE_ID , properties );
 			mapBuildModeDefaults.put( mode , properties );
 		}
 	}
@@ -183,7 +203,7 @@ public class EngineSettings extends EngineObject {
 		r.version = version;
 		r.execrcProperties = execrcProperties;
 		r.engineProperties = engineProperties.copy( execrcProperties );
-		r.context = context.copy( r.engineProperties.getProperties() );
+		r.context = context.copy( r.engineProperties );
 		
 		r.defaultProductProperties = defaultProductProperties.copy( r.engineProperties );
 		r.defaultProductBuildProperties = defaultProductBuildProperties.copy( r.defaultProductProperties );
@@ -197,28 +217,23 @@ public class EngineSettings extends EngineObject {
 		return( r );
 	}
 	
-	public void save( String path , RunContext execrc ) throws Exception {
-		Document doc = Common.xmlCreateDoc( "server" );
-		Element root = doc.getDocumentElement();
-
+	public void savexml( TransactionBase transaction , Document doc , Element root ) throws Exception {
 		// properties
-		DBSettings.savexml( doc , root , engineProperties , true , true );
+		DBSettings.savexml( doc , root , engineProperties , true );
 
 		// defaults
 		Element modeDefaults = Common.xmlCreateElement( doc , root , "defaults" );
-		DBSettings.savexml( doc , modeDefaults , defaultProductProperties , false , true );
+		DBSettings.savexml( doc , modeDefaults , defaultProductProperties , true );
 		Element modeBuild = Common.xmlCreateElement( doc , modeDefaults , "build" );
-		DBSettings.savexml( doc , modeBuild , defaultProductBuildProperties , false , true );
+		DBSettings.savexml( doc , modeBuild , defaultProductBuildProperties , true );
 		
 		// product defaults
 		for( DBEnumBuildModeType mode : mapBuildModeDefaults.keySet() ) {
 			ObjectProperties set = mapBuildModeDefaults.get( mode );
 			Element modeElement = Common.xmlCreateElement( doc , modeBuild , "mode" );
 			Common.xmlSetElementAttr( doc , modeElement , "name" , mode.toString().toLowerCase() );
-			DBSettings.savexml( doc , modeElement , set , false , true );
+			DBSettings.savexml( doc , modeElement , set , true );
 		}
-		
-		Common.xmlSaveDoc( doc , path );
 	}
 
 	public void setServerProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
