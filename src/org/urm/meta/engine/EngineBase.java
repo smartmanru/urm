@@ -29,7 +29,7 @@ public class EngineBase extends EngineObject {
 	}
 	
 	public void addCategory( BaseCategory category ) {
-		mapCategory.put( category.ID , category );
+		mapCategory.put( category.LABEL , category );
 	}
 
 	public void addItem( BaseItem item ) {

@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineCore;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,17 +47,12 @@ public class EngineInfrastructure extends EngineObject {
 		}
 	}
 	
-	public void save( ActionCore action , String path , RunContext execrc ) throws Exception {
-		Document doc = Common.xmlCreateDoc( "infrastructure" );
-		Element root = doc.getDocumentElement();
-		
+	public void save( EngineLoader loader , Document doc , Element root ) throws Exception {
 		for( String id : Common.getSortedKeys( mapDatacenters ) ) {
 			Datacenter datacenter = mapDatacenters.get( id );
 			Element node = Common.xmlCreateElement( doc , root , "datacenter" );
 			datacenter.save( doc , node );
 		}
-		
-		Common.xmlSaveDoc( doc , path );
 	}
 
 	public void addDatacenter( Datacenter datacenter ) {

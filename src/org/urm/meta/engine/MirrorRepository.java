@@ -178,16 +178,16 @@ public class MirrorRepository extends EngineObject {
 
 	private Map<String,LocalFolder> getFolderMap( ActionInit action ) throws Exception {
 		EngineData data = mirrors.registry.core.data;
-		EngineLoader loader = new EngineLoader( data.engine , data );
+		EngineLoader loader = new EngineLoader( data.engine , data , action );
 		
 		Map<String,LocalFolder> map = new HashMap<String,LocalFolder>();
 		if( TYPE == DBEnumMirrorType.SERVER ) {
-			LocalFolder serverSettings = loader.getServerSettingsFolder( action );
+			LocalFolder serverSettings = loader.getServerSettingsFolder();
 			map.put( "." , serverSettings );
 		}
 		else
 		if( TYPE == DBEnumMirrorType.PRODUCT_META ) {
-			LocalFolder productSettings = loader.getProductHomeFolder( action , PRODUCT );
+			LocalFolder productSettings = loader.getProductHomeFolder( PRODUCT );
 			map.put( "etc" , productSettings.getSubFolder( action , "etc" ) );
 			map.put( "master" , productSettings.getSubFolder( action , "master" ) );
 		}
@@ -195,7 +195,7 @@ public class MirrorRepository extends EngineObject {
 		if( TYPE == DBEnumMirrorType.PRODUCT_DATA ) {
 			Meta meta = action.getActiveProductMetadata( PRODUCT );
 			MetaProductSettings settings = meta.getProductSettings( action );
-			LocalFolder home = loader.getServerHomeFolder( action );
+			LocalFolder home = loader.getServerHomeFolder();
 			addFolderMapItem( action , map , SourceStorage.DATA_LIVE , home , settings.CONFIG_SOURCE_CFG_LIVEROOTDIR );
 			addFolderMapItem( action , map , SourceStorage.DATA_TEMPLATES , home , settings.CONFIG_SOURCE_CFG_ROOTDIR );
 			addFolderMapItem( action , map , SourceStorage.DATA_POSTREFRESH , home , settings.CONFIG_SOURCE_SQL_POSTREFRESH );

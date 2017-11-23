@@ -46,7 +46,7 @@ public class EngineDirectory extends EngineObject {
 	public EngineDirectory copy() throws Exception {
 		EngineDirectory r = new EngineDirectory( null );
 		
-		EngineSettings settings = data.getServerSettings();
+		EngineSettings settings = data.getEngineSettings();
 		for( AppSystem system : mapSystems.values() ) {
 			ObjectProperties props = system.getParameters();
 			ObjectProperties rprops = props.copy( settings.getEngineProperties() );
@@ -117,7 +117,7 @@ public class EngineDirectory extends EngineObject {
 		
 		int systemId = DBNames.getNameIndex( t.connection , DBVersions.CORE_ID , name , DBEnumObjectType.SYSTEM );
 		EngineEntities entities = data.getEntities();
-		EngineSettings settings = data.getServerSettings(); 
+		EngineSettings settings = data.getEngineSettings(); 
 		ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
 		AppSystem system = new AppSystem( this , props );
 		

@@ -18,6 +18,7 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.properties.PropertyValue;
+import org.urm.meta.EngineLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -29,7 +30,8 @@ public abstract class DBSettings {
 	public static String ATTR_VALUE = "value"; 
 	public static String ATTR_DESC = "desc"; 
 	
-	public static void loaddbValues( DBConnection c , int objectId , ObjectProperties properties , boolean saveApp ) throws Exception {
+	public static void loaddbValues( EngineLoader loader , int objectId , ObjectProperties properties , boolean saveApp ) throws Exception {
+		DBConnection c = loader.getConnection();
 		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETOBJECTPARAMVALUES2 , new String[] { EngineDB.getInteger( objectId ) , EngineDB.getEnum( properties.type ) } );
 		if( rs == null )
 			Common.exitUnexpected();
@@ -47,7 +49,7 @@ public abstract class DBSettings {
 		rs.close();
 	}
 	
-	public static void importxml( Node root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
+	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		
 		// load attributes - app only
@@ -55,7 +57,7 @@ public abstract class DBSettings {
 			Map<String,String> attrs = ConfReader.getAttributes( root );
 			for( String prop : Common.getSortedKeys( attrs ) ) {
 				String value = attrs.get( prop );
-				loadxmlSetAttr( properties , prop , value );
+				loadxmlSetAttr( loader , properties , prop , value );
 			}
 		}
 		
@@ -63,13 +65,13 @@ public abstract class DBSettings {
 		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_PROPERTY );
 		if( items != null ) {
 			for( Node item : items )
-				loadxmlSetProperty( item , properties , appAsProperties );
+				loadxmlSetProperty( loader , item , properties , appAsProperties );
 			
 			meta.rebuild();
 		}
 	}
 
-	public static void exportxml( Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
+	public static void exportxml( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
 		PropertySet set = properties.getProperties();
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity custom = meta.getCustomEntity();
@@ -81,9 +83,9 @@ public abstract class DBSettings {
 					continue;
 				
 				if( appAsProperties )
-					exportxmlSetProperty( doc , root , var , data , false );
+					exportxmlSetProperty( loader , doc , root , var , data , false );
 				else
-					exportxmlSetAttr( doc , root , var , data );
+					exportxmlSetAttr( loader , doc , root , var , data );
 			}
 			else {
 				boolean defineProp = ( var.isCustom() && var.entity == custom )? true : false;
@@ -96,22 +98,22 @@ public abstract class DBSettings {
 						continue;
 				}
 				
-				exportxmlSetProperty( doc , root , var , data , defineProp );
+				exportxmlSetProperty( loader , doc , root , var , data , defineProp );
 			}
 		}
 	}
 
-	private static void exportxmlSetAttr( Document doc , Element root , EntityVar var , String data ) throws Exception {
+	private static void exportxmlSetAttr( EngineLoader loader, Document doc , Element root , EntityVar var , String data ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , var.NAME , data );
 	}
 	
-	private static void exportxmlSetProperty( Document doc , Element root , EntityVar var , String data , boolean defineProp ) throws Exception {
+	private static void exportxmlSetProperty( EngineLoader loader , Document doc , Element root , EntityVar var , String data , boolean defineProp ) throws Exception {
 		Element property = Common.xmlCreatePropertyElement( doc , root , var.NAME , data );
 		if( defineProp )
 			Common.xmlSetElementAttr( doc , property , ATTR_DESC , var.DESC );
 	}
 	
-	private static void loadxmlSetAttr( ObjectProperties properties , String prop , String value ) throws Exception {
+	private static void loadxmlSetAttr( EngineLoader loader , ObjectProperties properties , String prop , String value ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity app = meta.getAppEntity();
 		EntityVar var = app.findVar( prop );
@@ -121,7 +123,7 @@ public abstract class DBSettings {
 		properties.setProperty( prop , value );
 	}
 	
-	private static void loadxmlSetProperty( Node item , ObjectProperties properties , boolean appAsProperties ) throws Exception {
+	private static void loadxmlSetProperty( EngineLoader loader , Node item , ObjectProperties properties , boolean appAsProperties ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity app = meta.getAppEntity();
 		PropertyEntity custom = meta.getCustomEntity();
@@ -223,13 +225,14 @@ public abstract class DBSettings {
 			Common.exitUnexpected();
 	}
 
-	public static PropertyEntity loaddbEntity( DBConnection c , DBEnumObjectVersionType ownerType , int ownerId , DBEnumParamEntityType entityType , boolean custom ) throws Exception {
+	public static PropertyEntity loaddbEntity( EngineLoader loader , DBEnumObjectVersionType ownerType , int ownerId , DBEnumParamEntityType entityType , boolean custom ) throws Exception {
 		PropertyEntity entity = new PropertyEntity( ownerType , 0 , entityType , custom );
-		loaddbEntity( c , entity , ownerId );
+		loaddbEntity( loader , entity , ownerId );
 		return( entity );
 	}
 		
-	public static void loaddbEntity( DBConnection c , PropertyEntity entity , int ownerId ) throws Exception {
+	public static void loaddbEntity( EngineLoader loader , PropertyEntity entity , int ownerId ) throws Exception {
+		DBConnection c = loader.getConnection();
 		entity.ownerId = ownerId;
 		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETENTITYPARAMS2 , new String[] { EngineDB.getInteger( entity.ownerId ) , EngineDB.getEnum( entity.entityType ) } );
 		if( rs == null )

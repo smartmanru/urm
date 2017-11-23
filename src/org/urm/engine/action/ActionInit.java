@@ -116,7 +116,7 @@ public class ActionInit extends ActionBase {
 			if( transaction.settings != null )
 				return( transaction.settings );
 		}
-		return( data.getServerSettings() );
+		return( data.getEngineSettings() );
 	}
 
 	public EngineContext getActiveServerContext() {

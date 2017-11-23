@@ -1,13 +1,9 @@
 package org.urm.meta.engine;
 
-import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
 import org.urm.db.core.DBEnums.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class BaseItem extends EngineObject {
 
@@ -15,9 +11,12 @@ public class BaseItem extends EngineObject {
 	public String ID;
 	public String DESC;
 	
-	public BaseItem( BaseGroup group ) {
+	public ObjectProperties parameters;
+	
+	public BaseItem( BaseGroup group , ObjectProperties parameters ) {
 		super( group );
 		this.group = group;
+		this.parameters = parameters;
 	}
 
 	@Override
@@ -35,34 +34,27 @@ public class BaseItem extends EngineObject {
 		this.DESC = DESC;
 	}
 	
-	public BaseItem copy( BaseGroup rgroup ) {
-		return( null );
+	public BaseItem copy( BaseGroup rgroup , ObjectProperties rparameters ) {
+		BaseItem ritem = new BaseItem( rgroup , rparameters );
+		ritem.ID = ID;
+		ritem.DESC = DESC;
+		return( ritem );
 	}
 
-	public void load( Node root ) throws Exception {
-		ID = ConfReader.getAttrValue( root , "id" );
-		DESC = ConfReader.getAttrValue( root , "desc" );
-	}
-	
-	public void save( Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "id" , ID );
-		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
-	}
-	
 	public boolean isHostBound() {
-		if( group.category.type == DBEnumBaseCategoryType.HOST )
+		if( group.category.TYPE == DBEnumBaseCategoryType.HOST )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isAccountBound() {
-		if( group.category.type == DBEnumBaseCategoryType.ACCOUNT )
+		if( group.category.TYPE == DBEnumBaseCategoryType.ACCOUNT )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isAppBound() {
-		if( group.category.type == DBEnumBaseCategoryType.APP )
+		if( group.category.TYPE == DBEnumBaseCategoryType.APP )
 			return( true );
 		return( false );
 	}

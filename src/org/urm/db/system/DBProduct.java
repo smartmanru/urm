@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
@@ -13,7 +12,7 @@ import org.urm.db.core.DBNames;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.engine.EngineDB;
-import org.urm.meta.EngineMatcher;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.Product;
@@ -23,7 +22,8 @@ import org.w3c.dom.Node;
 
 public abstract class DBProduct {
 
-	public static Product[] loaddb( EngineDirectory directory , DBConnection c ) throws Exception {
+	public static Product[] loaddb( EngineLoader loader , EngineDirectory directory ) throws Exception {
+		DBConnection c = loader.getConnection();
 		List<Product> products = new LinkedList<Product>();
 		
 		ResultSet rs = c.query( DBQueries.QUERY_PRODUCT_GETALL0 );
@@ -48,7 +48,7 @@ public abstract class DBProduct {
 		return( products.toArray( new Product[0] ) );
 	}
 	
-	public static Product loadxml( EngineDirectory directory , AppSystem system , Node node ) throws Exception {
+	public static Product loadxml( EngineLoader loader , EngineDirectory directory , AppSystem system , Node node ) throws Exception {
 		Product product = new Product( directory , system );
 		product.NAME = ConfReader.getAttrValue( node , "name" );
 		product.DESC = ConfReader.getAttrValue( node , "desc" );
@@ -58,26 +58,27 @@ public abstract class DBProduct {
 		return( product );
 	}
 	
-	public static void resolvexml( EngineDirectory directory , Product product ) throws Exception {
+	public static void resolvexml( EngineLoader loader , EngineDirectory directory , Product product ) throws Exception {
 	}
 	
-	public static void resolvedb( EngineDirectory directory , Product product ) throws Exception {
+	public static void resolvedb( EngineLoader loader , EngineDirectory directory , Product product ) throws Exception {
 	}
 	
-	public static void matchxml( EngineDirectory directory , Product product ) throws Exception {
+	public static void matchxml( EngineLoader loader , EngineDirectory directory , Product product ) throws Exception {
 	}
 	
-	public static void matchdb( EngineDirectory directory , EngineMatcher matcher , Product product ) throws Exception {
+	public static void matchdb( EngineLoader loader , EngineDirectory directory , Product product ) throws Exception {
 	}
 	
-	public static void exportxml( ActionBase action , EngineDirectory directory , Product product , Document doc , Element root ) throws Exception {
+	public static void exportxml( EngineLoader loader , EngineDirectory directory , Product product , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "name" , product.NAME );
 		Common.xmlSetElementAttr( doc , root , "desc" , product.DESC );
 		Common.xmlSetElementAttr( doc , root , "path" , product.PATH );
 		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( product.OFFLINE ) );
 	}
 
-	public static void savedb( EngineDirectory directory , Product product , DBConnection c ) throws Exception {
+	public static void importsavedb( EngineLoader loader , EngineDirectory directory , Product product ) throws Exception {
+		DBConnection c = loader.getConnection();
 		int productId = DBNames.getNameIndex( c , DBVersions.CORE_ID , product.NAME , DBEnumObjectType.PRODUCT );
 		insert( c , productId , product );
 	}		

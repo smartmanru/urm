@@ -1,13 +1,12 @@
 package org.urm.meta.engine;
 
-import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.engine.Engine;
 import org.urm.engine.TransactionBase;
 import org.urm.meta.EngineCore;
-import org.urm.meta.EngineMatcher;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -38,7 +37,7 @@ public class EngineRegistry extends EngineObject {
 		return( "server-registry" );
 	}
 	
-	public void loadxml( EngineMatcher matcher , Node root ) throws Exception {
+	public void loadxml( EngineLoader loader , Node root ) throws Exception {
 		Node node;
 		node = ConfReader.xmlGetFirstChild( root , "resources" );
 		resources.load( node );
@@ -48,7 +47,7 @@ public class EngineRegistry extends EngineObject {
 		builders.load( node );
 	}
 	
-	public void savexml( ActionCore action , Document doc , Element root , RunContext execrc ) throws Exception {
+	public void savexml( EngineLoader loader , Document doc , Element root ) throws Exception {
 		Element node;
 		node = Common.xmlCreateElement( doc , root , "resources" );
 		resources.save( doc , node );

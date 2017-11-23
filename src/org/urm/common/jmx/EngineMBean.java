@@ -47,7 +47,7 @@ public class EngineMBean implements DynamicMBean {
 		int port = action.context.CTX_PORT;
 		if( port <= 0 ) {
 			EngineData data = engine.getData();
-			EngineSettings settings = data.getServerSettings();
+			EngineSettings settings = data.getEngineSettings();
 			port = settings.context.CONNECTION_JMX_PORT;
 			if( port <= 0 )
 				port = RemoteCall.DEFAULT_SERVER_PORT;

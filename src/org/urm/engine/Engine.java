@@ -110,7 +110,7 @@ public class Engine {
 		releaseExecutor = ReleaseCommandExecutor.createExecutor( this );
 		xdocExecutor = XDocCommandExecutor.createExecutor( this );
 		
-		EngineLoader loader = new EngineLoader( this , data );
+		EngineLoader loader = new EngineLoader( this , data , serverAction );
 		loader.loadCore();
 	}
 	
@@ -118,8 +118,8 @@ public class Engine {
 		serverAction.debug( "load server configuration ..." );
 		auth.start( serverAction );
 		
-		EngineLoader loader = new EngineLoader( this , data );
-		loader.loadProducts( serverAction );
+		EngineLoader loader = new EngineLoader( this , data , serverAction );
+		loader.loadProducts();
 		
 		status.start( serverAction , data );
 		blotter.start( serverAction );

@@ -8,10 +8,6 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
-import org.urm.db.DBConnection;
-import org.urm.db.core.DBCoreData;
-import org.urm.db.core.DBNames;
-import org.urm.db.core.DBVersions;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineDB;
 import org.urm.engine.TransactionBase;
@@ -64,17 +60,8 @@ public class EngineData {
 
 	public void init() throws Exception {
 		db.init();
-		
-		DBConnection connection = null;
-		try {
-			engine.trace( "init, checking client/server consistency ..." );
-			connection = db.getConnection( null );
-			initData( connection );
-		}
-		finally {
-			if( connection != null )
-				connection.close( true );			
-		}
+		EngineLoader loader = new EngineLoader( engine , this , engine.serverAction );
+		loader.initData();
 	}
 
 	public void unloadProducts() {
@@ -83,7 +70,7 @@ public class EngineData {
 		products.unloadProducts();
 	}
 	
-	public void matchdoneSystem( AppSystem system ) {
+	public void matchdoneSystem( EngineLoader loader , AppSystem system ) {
 		if( system.MATCHED )
 			mapSystemUnmatched.remove( system.NAME );
 		else {
@@ -118,7 +105,7 @@ public class EngineData {
 		}
 	}
 	
-	public EngineSettings getServerSettings() {
+	public EngineSettings getEngineSettings() {
 		synchronized( engine ) {
 			return( core.getSettings() );
 		}
@@ -199,8 +186,8 @@ public class EngineData {
 		directory = directoryNew;
 	}
 
-	public void saveProductMetadata( ActionBase action , String productName ) throws Exception {
-		products.saveProductMetadata( action , productName );
+	public void saveProductMetadata( EngineLoader loader , String productName ) throws Exception {
+		products.saveProductMetadata( loader , productName );
 	}
 	
 	public void setProductMetadata( TransactionBase transaction , ProductMeta storageNew ) throws Exception {
@@ -257,28 +244,4 @@ public class EngineData {
 		return( list.toArray( new UnmatchedSystem[0] ) );
 	}
 
-	public void initData( DBConnection connection ) throws Exception {
-		DBNames.load( connection );
-		
-		boolean dbUpdate = Common.getBooleanValue( System.getProperty( "dbupdate" ) );
-		if( dbUpdate )
-			upgradeData( connection );
-		else
-			useData( connection );
-	}
-	
-	private void upgradeData( DBConnection connection ) throws Exception {
-		DBCoreData.upgradeData( connection );
-		core.upgradeData( connection );
-	}
-	
-	private void useData( DBConnection connection ) throws Exception {
-		int version = DBVersions.getCurrentAppVersion( connection );
-		if( version != EngineDB.APP_VERSION )
-			Common.exit2( _Error.InvalidVersion2 , "Mismatched client/database, client version=" + EngineDB.APP_VERSION + ", database version=" + version , "" + EngineDB.APP_VERSION , "" + version );
-		
-		DBCoreData.useData( connection );
-		core.useData( connection );
-	}
-	
 }

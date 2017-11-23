@@ -85,7 +85,7 @@ public class TransactionBase extends EngineObject {
 		this.action = action;
 		
 		data = engine.getData();
-		loader = new EngineLoader( engine , data );
+		loader = new EngineLoader( engine , data , action );
 		
 		CHANGEDATABASE = false;
 		SERVERVERSIONUPDATE = false;
@@ -146,7 +146,7 @@ public class TransactionBase extends EngineObject {
 			try {
 				if( settingsOld != null ) {
 					if( save ) {
-						loader.setSettings( this , settingsOld );
+						loader.setSettings( settingsOld );
 					}
 					settingsOld = null;
 				}
@@ -203,8 +203,8 @@ public class TransactionBase extends EngineObject {
 			try {
 				if( saveRegistry ) {
 					EngineData data = engine.getData();
-					EngineLoader loader = new EngineLoader( engine , data );
-					loader.saveRegistry( this );
+					EngineLoader loader = new EngineLoader( engine , data , action );
+					loader.saveRegistry();
 				}
 			}
 			catch( Throwable e ) {
@@ -259,8 +259,8 @@ public class TransactionBase extends EngineObject {
 			try {
 				if( saveRegistry ) {
 					EngineData data = engine.getData();
-					EngineLoader loader = new EngineLoader( engine , data );
-					loader.saveRegistry( this );
+					EngineLoader loader = new EngineLoader( engine , data , action );
+					loader.saveRegistry();
 				}
 			}
 			catch( Throwable e ) {
@@ -475,8 +475,8 @@ public class TransactionBase extends EngineObject {
 		
 		try {
 			EngineData data = engine.getData();
-			EngineLoader loader = new EngineLoader( engine , data );
-			loader.saveInfrastructure( this );
+			EngineLoader loader = new EngineLoader( engine , data , action );
+			loader.saveInfrastructure();
 			trace( "transaction server infrastructure: save done" );
 			return( true );
 		}
@@ -522,8 +522,8 @@ public class TransactionBase extends EngineObject {
 		
 		try {
 			EngineData data = engine.getData();
-			EngineLoader loader = new EngineLoader( engine , data );
-			loader.saveReleaseLifecycles( this );
+			EngineLoader loader = new EngineLoader( engine , data , action );
+			loader.saveReleaseLifecycles();
 			trace( "transaction server release lifecycles: save done" );
 			return( true );
 		}
@@ -569,8 +569,8 @@ public class TransactionBase extends EngineObject {
 		
 		try {
 			EngineData data = engine.getData();
-			EngineLoader loader = new EngineLoader( engine , data );
-			loader.commitBase( this );
+			EngineLoader loader = new EngineLoader( engine , data , action );
+			loader.commitBase();
 			trace( "transaction server base: save done" );
 			return( true );
 		}
@@ -873,8 +873,8 @@ public class TransactionBase extends EngineObject {
 		
 		try {
 			EngineData data = engine.getData();
-			EngineLoader loader = new EngineLoader( engine , data );
-			loader.setSettings( this , settings );
+			EngineLoader loader = new EngineLoader( engine , data , action );
+			loader.setSettings( settings );
 			trace( "transaction server settings: save=" + settings.objectId );
 			return( true );
 		}

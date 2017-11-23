@@ -4,17 +4,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
-import org.urm.engine.TransactionBase;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineData;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.product.Meta;
@@ -62,23 +61,23 @@ public class EngineMonitoring extends EngineObject {
 		return( "server-monitoring" );
 	}
 	
-	public void loadxml( Node root , DBConnection c ) throws Exception {
-		EngineSettings settings = data.getServerSettings();
+	public void loadxml( EngineLoader loader , Node root ) throws Exception {
+		EngineSettings settings = data.getEngineSettings();
 		EngineEntities entities = data.getEntities();
 		properties = entities.createEngineMonitoringProps( settings.getEngineProperties() );
-		DBSettings.importxml( root , properties , true );
+		DBSettings.importxml( loader , root , properties , true );
 		scatterProperties();
 	}
 	
-	public void savexml( TransactionBase transaction , Document doc , Element root ) throws Exception {
-		DBSettings.exportxml( doc , root , properties , true );
+	public void savexml( EngineLoader loader , Document doc , Element root ) throws Exception {
+		DBSettings.exportxml( loader , doc , root , properties , true );
 	}
 
-	public void loaddb( DBConnection c ) throws Exception {
-		EngineSettings settings = data.getServerSettings();
+	public void loaddb( EngineLoader loader ) throws Exception {
+		EngineSettings settings = data.getEngineSettings();
 		EngineEntities entities = data.getEntities();
 		properties = entities.createEngineMonitoringProps( settings.getEngineProperties() );
-		DBSettings.loaddbValues( c , DBVersions.CORE_ID , properties , true );
+		DBSettings.loaddbValues( loader , DBVersions.CORE_ID , properties , true );
 	}
 	
 	private void scatterProperties() throws Exception {

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ActionCore;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
@@ -15,6 +14,7 @@ import org.urm.engine.EngineTransaction;
 import org.urm.engine.blotter.EngineBlotterSet;
 import org.urm.engine.blotter.EngineBlotter.BlotterType;
 import org.urm.meta.EngineCore;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -52,17 +52,12 @@ public class EngineReleaseLifecycles extends EngineObject {
 		}
 	}
 	
-	public void save( ActionCore action , String path , RunContext execrc ) throws Exception {
-		Document doc = Common.xmlCreateDoc( "lifecycles" );
-		Element root = doc.getDocumentElement();
-		
+	public void save( EngineLoader loader , Document doc , Element root ) throws Exception {
 		for( String id : Common.getSortedKeys( lcMap ) ) {
 			ReleaseLifecycle lc = lcMap.get( id );
 			Element node = Common.xmlCreateElement( doc , root , "lifecycle" );
 			lc.save( doc , node );
 		}
-		
-		Common.xmlSaveDoc( doc , path );
 	}
 
 	public void addLifecycle( ReleaseLifecycle lc ) {

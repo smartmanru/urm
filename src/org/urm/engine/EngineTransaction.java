@@ -63,20 +63,20 @@ public class EngineTransaction extends TransactionBase {
 	public void createMirrorRepository( MirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
 		if( push )
-			loader.exportRepo( this , repo );
+			loader.exportRepo( repo );
 		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , push );
 		if( !push )
-			loader.importRepo( this , repo );
+			loader.importRepo( repo );
 	}
 
 	public void pushMirror( MirrorRepository repo ) throws Exception {
-		loader.exportRepo( this , repo );
+		loader.exportRepo( repo );
 		repo.pushMirror( this );
 	}
 
 	public void refreshMirror( MirrorRepository repo ) throws Exception {
 		repo.refreshMirror( this );
-		loader.importRepo( this , repo );
+		loader.importRepo( repo );
 	}
 
 	public void dropMirror( MirrorRepository repo , boolean dropOnServer ) throws Exception {
@@ -436,32 +436,32 @@ public class EngineTransaction extends TransactionBase {
 	public void createBaseGroup( BaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.createGroup( this , group );
-		loader.commitBase( this );
+		loader.commitBase();
 	}
 
 	public void deleteBaseGroup( BaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.deleteGroup( this , group );
-		loader.commitBase( this );
+		loader.commitBase();
 	}
 
 	public void modifyBaseGroup( BaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.modifyGroup( this , group );
-		loader.commitBase( this );
+		loader.commitBase();
 	}
 
 	public void createBaseItem( BaseItem item ) throws Exception {
 		checkTransactionBase();
 		item.group.category.base.createItem( this , item );
 		item.group.createItem( this , item );
-		loader.commitBase( this );
+		loader.commitBase();
 	}
 
 	public void deleteBaseItem( BaseItem item ) throws Exception {
 		checkTransactionBase();
 		item.group.deleteItem( this , item );
-		loader.commitBase( this );
+		loader.commitBase();
 	}
 
 	public void saveBaseItemData( BaseItem item , BaseItemData data ) throws Exception {
@@ -472,14 +472,14 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setEnabled( this , false );
-		loader.saveMonitoring( this );
+		loader.saveMonitoring();
 	}
 	
 	public void enableMonitoring() throws Exception {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setEnabled( this , true );
-		loader.saveMonitoring( this );
+		loader.saveMonitoring();
 	}
 
 	public void setMonitoringEnabled( Product product ) throws Exception {
@@ -504,7 +504,7 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setDefaultProperties( this , props );
-		loader.saveMonitoring( this );
+		loader.saveMonitoring();
 	}
 
 	public void setProductMonitoringProperties( Meta meta , PropertySet props ) throws Exception {

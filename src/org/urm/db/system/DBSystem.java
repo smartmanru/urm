@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
@@ -21,7 +20,7 @@ import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.EngineMatcher;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineSettings;
@@ -32,9 +31,9 @@ import org.w3c.dom.Node;
 
 public abstract class DBSystem {
 
-	public static AppSystem loadxml( EngineDirectory directory , Node node ) throws Exception {
-		EngineEntities entities = directory.data.getEntities();
-		EngineSettings settings = directory.data.getServerSettings();
+	public static AppSystem loadxml( EngineLoader loader , EngineDirectory directory , Node node ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		EngineSettings settings = loader.data.getEngineSettings();
 		ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
 		
 		AppSystem system = new AppSystem( directory , props );
@@ -42,29 +41,30 @@ public abstract class DBSystem {
 		system.DESC = ConfReader.getAttrValue( node , "desc" );
 		system.OFFLINE = ConfReader.getBooleanAttrValue( node , "offline" , true );
 		
-		DBSettings.importxml( node , props , false );
+		DBSettings.importxml( loader , node , props , false );
 		
 		Node[] items = ConfReader.xmlGetChildren( node , "product" );
 		if( items == null )
 			return( system );
 		
 		for( Node itemNode : items ) {
-			Product product = DBProduct.loadxml( directory , system , itemNode );
+			Product product = DBProduct.loadxml( loader , directory , system , itemNode );
 			system.addProduct( product );
 		}
 		
 		return( system );
 	}
 
-	public static AppSystem[] loaddb( EngineDirectory directory , DBConnection c ) throws Exception {
+	public static AppSystem[] loaddb( EngineLoader loader , EngineDirectory directory ) throws Exception {
+		DBConnection c = loader.getConnection();
 		List<AppSystem> systems = new LinkedList<AppSystem>();
 		
 		ResultSet rs = c.query( DBQueries.QUERY_SYSTEM_GETALL0 );
 		if( rs == null )
 			Common.exitUnexpected();
 		
-		EngineEntities entities = directory.data.getEntities();
-		EngineSettings settings = directory.data.getServerSettings();
+		EngineEntities entities = loader.getEntities();
+		EngineSettings settings = loader.data.getEngineSettings();
 		while( rs.next() ) {
 			ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
 			
@@ -82,35 +82,35 @@ public abstract class DBSystem {
 		for( AppSystem system : systems ) {
 			ObjectProperties props = system.getParameters();
 			ObjectMeta meta = props.getMeta();
-			DBSettings.loaddbEntity( c , meta.getCustomEntity() , system.ID );
-			DBSettings.loaddbValues( c , system.ID , props , false );
+			DBSettings.loaddbEntity( loader , meta.getCustomEntity() , system.ID );
+			DBSettings.loaddbValues( loader , system.ID , props , false );
 		}
 		
 		return( systems.toArray( new AppSystem[0] ) );
 	}
 	
-	public static void resolvexml( EngineDirectory directory , AppSystem system ) throws Exception {
+	public static void resolvexml( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
 		for( Product product : system.getProducts() )
-			DBProduct.resolvexml( directory , product );
+			DBProduct.resolvexml( loader , directory , product );
 	}
 
-	public static void resolvedb( EngineDirectory directory , AppSystem system ) throws Exception {
+	public static void resolvedb( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
 		for( Product product : system.getProducts() )
-			DBProduct.resolvedb( directory , product );
+			DBProduct.resolvedb( loader , directory , product );
 	}
 	
-	public static void matchxml( EngineDirectory directory , AppSystem system ) throws Exception {
+	public static void matchxml( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
 		for( Product product : system.getProducts() )
-			DBProduct.matchxml( directory , product );
+			DBProduct.matchxml( loader , directory , product );
 		system.MATCHED = true;
 	}
 	
-	public static void matchdb( EngineDirectory directory , EngineMatcher matcher , AppSystem system ) throws Exception {
+	public static void matchdb( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
 		for( Product product : system.getProducts() )
-			DBProduct.matchdb( directory , matcher , product );
+			DBProduct.matchdb( loader , directory , product );
 	}
 	
-	public static void exportxml( ActionBase action , EngineDirectory directory , AppSystem system , Document doc , Element root ) throws Exception {
+	public static void exportxml( EngineLoader loader , EngineDirectory directory , AppSystem system , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "name" , system.NAME );
 		Common.xmlSetElementAttr( doc , root , "desc" , system.DESC );
 		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( system.OFFLINE ) );
@@ -118,16 +118,17 @@ public abstract class DBSystem {
 		for( String productName : system.getProductNames() ) {
 			Product product = system.findProduct( productName );
 			Element elementProduct = Common.xmlCreateElement( doc , root , "product" );
-			DBProduct.exportxml( action , directory , product , doc , elementProduct );
+			DBProduct.exportxml( loader , directory , product , doc , elementProduct );
 		}
 	}
 	
-	public static int getSystemIdByName( String name , DBConnection c ) throws Exception {
+	public static int getSystemIdByName( DBConnection c , String name ) throws Exception {
 		return( DBNames.getNameIndex( c , DBVersions.CORE_ID , name , DBEnumObjectType.SYSTEM ) );
 	}
 	
-	public static void savedb( EngineDirectory directory , AppSystem system , DBConnection c ) throws Exception {
-		int systemId = getSystemIdByName( system.NAME , c );
+	public static void importsavedb( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
+		DBConnection c = loader.getConnection();
+		int systemId = getSystemIdByName( c , system.NAME );
 		insert( c , systemId , system );
 
 		ObjectProperties props = system.getParameters();
@@ -135,7 +136,7 @@ public abstract class DBSystem {
 		DBSettings.savedbValues( c , system.ID , props , false , system.SV );
 		
 		for( Product product : system.getProducts() )
-			DBProduct.savedb( directory , product , c );
+			DBProduct.importsavedb( loader , directory , product );
 	}
 	
 	public static void insert( DBConnection c , int systemId , AppSystem system ) throws Exception {
@@ -172,7 +173,8 @@ public abstract class DBSystem {
 			Common.exitUnexpected();
 	}
 
-	public static PropertyEntity upgradeEntitySystem( DBConnection c ) throws Exception {
+	public static PropertyEntity upgradeEntitySystem( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
 		return( DBSettings.savedbEntity( c , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.SYSTEM , false , EngineDB.APP_VERSION , new EntityVar[] { 
 				EntityVar.metaString( AppSystem.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaString( AppSystem.PROPERTY_DESC , "Description" , false , null ) ,

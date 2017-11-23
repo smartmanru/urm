@@ -1,6 +1,5 @@
 package org.urm.engine.properties;
 
-import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
@@ -10,6 +9,7 @@ import org.urm.db.engine.DBEngineSettings;
 import org.urm.db.system.DBSystem;
 import org.urm.engine.Engine;
 import org.urm.meta.EngineCore;
+import org.urm.meta.EngineLoader;
 
 public class EngineEntities {
 
@@ -42,29 +42,29 @@ public class EngineEntities {
 		this.engine = core.engine;
 	}
 	
-	public void upgradeData( DBConnection connection ) throws Exception {
-		entityAppRC = DBEngineContext.upgradeEntityRC( connection );
-		entityAppEngine = DBEngineContext.upgradeEntityEngine( connection );
-		entityAppProduct = DBEngineSettings.upgradeEntityProduct( connection );
-		entityAppProductBuild = DBEngineSettings.upgradeEntityProductBuild( connection );
-		entityAppEngineMonitoring = DBEngineMonitoring.upgradeEntityEngineMonitoring( connection );
-		entityAppSystem = DBSystem.upgradeEntitySystem( connection );
-		useCustom( connection );
+	public void upgradeData( EngineLoader loader ) throws Exception {
+		entityAppRC = DBEngineContext.upgradeEntityRC( loader );
+		entityAppEngine = DBEngineContext.upgradeEntityEngine( loader );
+		entityAppProduct = DBEngineSettings.upgradeEntityProduct( loader );
+		entityAppProductBuild = DBEngineSettings.upgradeEntityProductBuild( loader );
+		entityAppEngineMonitoring = DBEngineMonitoring.upgradeEntityEngineMonitoring( loader );
+		entityAppSystem = DBSystem.upgradeEntitySystem( loader );
+		useCustom( loader );
 	}
 	
-	public void useData( DBConnection connection ) throws Exception {
-		entityAppRC = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.RC , false );
-		entityAppEngine = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.ENGINE , false );
-		entityAppProduct = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.PRODUCTDEFS , false );
-		entityAppProductBuild = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.PRODUCTBUILD , false );
-		entityAppEngineMonitoring = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.MONITORING , false );
-		entityAppSystem = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.SYSTEM , false );
-		useCustom( connection );
+	public void useData( EngineLoader loader ) throws Exception {
+		entityAppRC = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.RC , false );
+		entityAppEngine = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.ENGINE , false );
+		entityAppProduct = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.PRODUCTDEFS , false );
+		entityAppProductBuild = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.PRODUCTBUILD , false );
+		entityAppEngineMonitoring = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.MONITORING , false );
+		entityAppSystem = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.SYSTEM , false );
+		useCustom( loader );
 	}
 	
-	private void useCustom( DBConnection connection ) throws Exception {
-		entityCustomRC = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.CORE_ID , DBEnumParamEntityType.RC_CUSTOM , true );
-		entityCustomEngine = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.CORE_ID , DBEnumParamEntityType.ENGINE_CUSTOM , true );
+	private void useCustom( EngineLoader loader ) throws Exception {
+		entityCustomRC = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.CORE_ID , DBEnumParamEntityType.RC_CUSTOM , true );
+		entityCustomEngine = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.CORE_ID , DBEnumParamEntityType.ENGINE_CUSTOM , true );
 	}
 	
 	public ObjectProperties createRunContextProps() throws Exception {

@@ -1,6 +1,5 @@
 package org.urm.meta;
 
-import org.urm.db.DBConnection;
 import org.urm.engine.Engine;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.meta.engine.EngineBase;
@@ -33,12 +32,12 @@ public class EngineCore {
 		lifecycles = new EngineReleaseLifecycles( this ); 
 	}
 
-	public void upgradeData( DBConnection connection ) throws Exception {
-		entities.upgradeData( connection );
+	public void upgradeData( EngineLoader loader ) throws Exception {
+		entities.upgradeData( loader );
 	}
 	
-	public void useData( DBConnection connection ) throws Exception {
-		entities.useData( connection );
+	public void useData( EngineLoader loader ) throws Exception {
+		entities.useData( loader );
 	}
 	
 	public void recreateAll() {

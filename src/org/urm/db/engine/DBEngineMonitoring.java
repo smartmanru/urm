@@ -8,13 +8,15 @@ import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.engine.EngineDB;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.EngineContext;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.product.MetaProductCoreSettings;
 
 public class DBEngineMonitoring {
 
-	public static PropertyEntity upgradeEntityEngineMonitoring( DBConnection c ) throws Exception {
+	public static PropertyEntity upgradeEntityEngineMonitoring( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
 		return( DBSettings.savedbEntity( c , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.MONITORING , false , EngineDB.APP_VERSION , new EntityVar[] { 
 				EntityVar.metaBoolean( EngineMonitoring.PROPERTY_ENABLED , "Instance Monitoring Enabled" , true , false ) ,
 				EntityVar.metaString( EngineMonitoring.PROPERTY_RESOURCE_URL , "Monitoring Resources URL" , true , getProductPath( EngineContext.PROPERTY_MON_RESURL ) ) ,

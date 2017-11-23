@@ -13,6 +13,7 @@ import org.urm.engine.properties.PropertySet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.EngineData;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductMeta;
 import org.urm.meta._Error;
 import org.urm.meta.product.Meta;
@@ -170,7 +171,7 @@ public class EngineProducts {
 		props.resolveRawProperties();
 	}
 
-	public void importProduct( ActionBase action , String productName , boolean includingEnvironments ) throws Exception {
+	public void importProduct( EngineLoader loader , String productName , boolean includingEnvironments ) throws Exception {
 		engine.trace( "reload settings, product=" + productName + " ..." );
 		
 		EngineDB db = data.getDatabase();
@@ -198,7 +199,8 @@ public class EngineProducts {
 		return( set );
 	}
 
-	public void saveProductMetadata( ActionBase action , String productName ) throws Exception {
+	public void saveProductMetadata( EngineLoader loader , String productName ) throws Exception {
+		ActionBase action = loader.getAction();
 		ProductMeta storage = productMeta.get( productName );
 		if( storage == null || storage.loadFailed )
 			action.exitUnexpectedState();
@@ -223,7 +225,8 @@ public class EngineProducts {
 		productMeta.remove( storage.name );
 	}
 
-	public void loadProducts( ActionBase action ) {
+	public void loadProducts( EngineLoader loader ) {
+		ActionBase action = loader.getAction();
 		unloadProducts();
 		EngineDirectory directory = data.getDirectory();
 		for( String name : directory.getProductNames() ) {

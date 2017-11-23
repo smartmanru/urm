@@ -2,19 +2,19 @@ package org.urm.db.engine;
 
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
-import org.urm.db.core.DBEnums.DBEnumObjectType;
-import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
-import org.urm.db.core.DBEnums.DBEnumParamEntityType;
+import org.urm.db.core.DBEnums.*;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.engine.EngineDB;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.EngineContext;
 
 public abstract class DBEngineContext {
 
-	public static PropertyEntity upgradeEntityRC( DBConnection c ) throws Exception {
+	public static PropertyEntity upgradeEntityRC( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
 		return( DBSettings.savedbEntity( c , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.RC , false , EngineDB.APP_VERSION , new EntityVar[] { 
 				EntityVar.metaString( RunContext.PROPERTY_HOSTNAME , "Server Host" , true , null ) ,
 				EntityVar.metaPathAbsolute( RunContext.PROPERTY_USER_HOME , "Server User Home" , false , null ) ,
@@ -28,7 +28,8 @@ public abstract class DBEngineContext {
 		} ) );
 	}
 
-	public static PropertyEntity upgradeEntityEngine( DBConnection c ) throws Exception {
+	public static PropertyEntity upgradeEntityEngine( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
 		return( DBSettings.savedbEntity( c , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.ENGINE , false , EngineDB.APP_VERSION , new EntityVar[] { 
 				EntityVar.metaInteger( EngineContext.PROPERTY_CONNECTION_JMX_PORT , "Server Engine JMX Port" , true , 6000 ) ,
 				EntityVar.metaInteger( EngineContext.PROPERTY_CONNECTION_JMXWEB_PORT , "Server Engine JMX HTTP Port" , true , 6001 ) ,

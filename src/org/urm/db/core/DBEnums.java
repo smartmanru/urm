@@ -10,6 +10,7 @@ import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db._Error;
 import org.urm.engine.EngineDB;
+import org.urm.meta.EngineLoader;
 
 public abstract class DBEnums {
 
@@ -446,8 +447,9 @@ public abstract class DBEnums {
 		return( null );
     }
     
-    public static void verifyDatabase( DBConnection connection ) throws Exception {
-    	ResultSet rs = connection.query( DBQueries.QUERY_ENUMS_GETALL0 );
+    public static void verifyDatabase( EngineLoader loader ) throws Exception {
+    	DBConnection c = loader.getConnection();
+    	ResultSet rs = c.query( DBQueries.QUERY_ENUMS_GETALL0 );
     	if( rs == null )
     		Common.exitUnexpected();
     	

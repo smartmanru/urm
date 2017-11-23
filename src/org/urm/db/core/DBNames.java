@@ -9,6 +9,7 @@ import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.EngineDB;
+import org.urm.meta.EngineLoader;
 
 public abstract class DBNames {
 
@@ -25,8 +26,9 @@ public abstract class DBNames {
 		return( FIXED_ID_ENUMS );
 	}
 
-	public static synchronized void load( DBConnection connection ) throws Exception {
-		ResultSet rs = connection.query( DBQueries.QUERY_NAMES_GETALL0 );
+	public static synchronized void loaddb( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		ResultSet rs = c.query( DBQueries.QUERY_NAMES_GETALL0 );
 		if( rs == null )
 			Common.exitUnexpected();
 		
@@ -37,34 +39,34 @@ public abstract class DBNames {
 		}
 	}
 	
-	public static int getNextSequenceValue( DBConnection connection ) throws Exception {
-		String value = connection.queryValue( DBQueries.QUERY_SEQ_GETNEXTVAL0 );
+	public static int getNextSequenceValue( DBConnection c ) throws Exception {
+		String value = c.queryValue( DBQueries.QUERY_SEQ_GETNEXTVAL0 );
 		if( value == null )
 			Common.exitUnexpected();
 		return( Integer.parseInt( value ) );
 	}
 	
-	public synchronized static int getNameIndex( DBConnection connection , int parent , String name , DBEnumObjectType type ) throws Exception {
+	public synchronized static int getNameIndex( DBConnection c , int parent , String name , DBEnumObjectType type ) throws Exception {
 		String key = parent + "::" + type.code() + "::" + name;
 		Integer value = map.get( key );
 		if( value != null )
 			return( value );
 			
-		int valueSeq = getNextSequenceValue( connection );
-		if( !connection.update( DBQueries.MODIFY_NAMES_MERGEITEM4 , new String[] { "" + parent , "" + type.code() , EngineDB.getString( name ) , "" + valueSeq } ) )
+		int valueSeq = getNextSequenceValue( c );
+		if( !c.update( DBQueries.MODIFY_NAMES_MERGEITEM4 , new String[] { "" + parent , "" + type.code() , EngineDB.getString( name ) , "" + valueSeq } ) )
 			Common.exitUnexpected();
 				
 		map.put( key , valueSeq );
 		return( valueSeq );
 	}
 	
-	public synchronized static void updateName( DBConnection connection , int parent , String name , int id , DBEnumObjectType type ) throws Exception {
+	public synchronized static void updateName( DBConnection c , int parent , String name , int id , DBEnumObjectType type ) throws Exception {
 		String key = parent + "::" + type.code() + "::" + name;
 		Integer value = map.get( key );
 		if( value != null && value == id )
 			return;
 		
-		if( !connection.update( DBQueries.MODIFY_NAMES_MERGEITEM4 , new String[] { "" + parent , "" + type.code() , EngineDB.getString( name ) , "" + id } ) )
+		if( !c.update( DBQueries.MODIFY_NAMES_MERGEITEM4 , new String[] { "" + parent , "" + type.code() , EngineDB.getString( name ) , "" + id } ) )
 			Common.exitUnexpected();
 		
 		map.put( key , id );

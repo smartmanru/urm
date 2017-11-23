@@ -65,6 +65,5 @@ public class _Error {
 	public static final int DuplicateSystemNameUnmatched1 = ErrorBase + 109;
 	public static final int DuplicateProductNameUnmatched1 = ErrorBase + 110;
 	public static final int DuplicateEnvNameUnmatched2 = ErrorBase + 110;
-	public static final int InvalidVersion2 = ErrorBase + 111;
 
 }

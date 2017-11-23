@@ -1,17 +1,15 @@
 package org.urm.meta;
 
 import org.urm.common.RunContext;
-import org.urm.db.DBConnection;
 import org.urm.engine.Engine;
 
 public class EngineMatcher {
 
 	public EngineLoader loader;
-	public DBConnection connection;
 	public Engine engine;
 	public RunContext execrc;
 
-	public EngineMatcher( EngineLoader loader , DBConnection connection ) {
+	public EngineMatcher( EngineLoader loader ) {
 		this.loader = loader;
 		this.engine = loader.engine;
 		this.execrc = engine.execrc;

@@ -5,21 +5,25 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class BaseGroup extends EngineObject {
 
-	public String ID;
+	public static String PROPERTY_NAME;
+	public static String PROPERTY_DESC;
+	
+	public int ID;
+	public String NAME;
 	public String DESC;
+	public int CV;
 
 	public BaseCategory category;
 	Map<String,BaseItem> itemMap;
 
+	public ObjectProperties parameters;
+	
 	public BaseGroup( BaseCategory category ) {
 		super( category );
 		this.category = category;
@@ -28,49 +32,22 @@ public class BaseGroup extends EngineObject {
 	
 	@Override
 	public String getName() {
-		return( ID );
+		return( NAME );
 	}
 	
-	public BaseGroup copy( BaseCategory rn ) throws Exception {
+	public BaseGroup copy( BaseCategory rn , ObjectProperties parent ) throws Exception {
 		BaseGroup r = new BaseGroup( rn );
 		
 		for( BaseItem item : itemMap.values() ) {
-			BaseItem ritem = item.copy( r );
+			ObjectProperties rparameters = item.parameters.copy( parent );
+			BaseItem ritem = item.copy( r , rparameters );
 			r.addItem( ritem );
 		}
 		return( r );
 	}
 	
-	public void load( Node root ) throws Exception {
-		if( root == null )
-			return;
-		
-		ID = ConfReader.getAttrValue( root , "id" );
-		DESC = ConfReader.getAttrValue( root , "desc" );
-		
-		Node[] list = ConfReader.xmlGetChildren( root , "item" );
-		if( list == null )
-			return;
-		
-		for( Node node : list ) {
-			BaseItem item = new BaseItem( this );
-			item.load( node );
-			addItem( item );
-		}
-	}
-
 	public void addItem( BaseItem item ) {
 		itemMap.put( item.ID , item );
-	}
-
-	public void save( Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "id" , ID );
-		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
-		
-		for( BaseItem item : itemMap.values() ) {
-			Element element = Common.xmlCreateElement( doc , root , "item" );
-			item.save( doc , element );
-		}
 	}
 
 	public String[] getItemNames() {
@@ -86,12 +63,12 @@ public class BaseGroup extends EngineObject {
 	}
 	
 	public void createGroup( EngineTransaction transaction , String ID , String DESC ) throws Exception {
-		this.ID = ID;
+		this.NAME = ID;
 		this.DESC = DESC;
 	}
 	
 	public void modifyGroup( EngineTransaction transaction , String ID , String DESC ) throws Exception {
-		this.ID = ID;
+		this.NAME = ID;
 		this.DESC = DESC;
 	}
 	

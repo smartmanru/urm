@@ -9,11 +9,11 @@ import org.urm.db.core.DBEnums.DBEnumBuildModeType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.engine.EngineDB;
-import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.EngineContext;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.MetaProductBuildSettings;
@@ -24,7 +24,8 @@ import org.w3c.dom.Node;
 
 public abstract class DBEngineSettings {
 
-	public static PropertyEntity upgradeEntityProduct( DBConnection c ) throws Exception {
+	public static PropertyEntity upgradeEntityProduct( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
 		return( DBSettings.savedbEntity( c , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.PRODUCTDEFS , false , EngineDB.APP_VERSION , new EntityVar[] { 
 				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_REDISTLINUX_PATH , "Linux Staging Area Path" , true , null ) ,
 				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_REDISTWIN_PATH , "Windows Staging Area Path" , true , null ) ,
@@ -46,7 +47,8 @@ public abstract class DBEngineSettings {
 		} ) );
 	}
 
-	public static PropertyEntity upgradeEntityProductBuild( DBConnection c ) throws Exception {
+	public static PropertyEntity upgradeEntityProductBuild( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
 		return( DBSettings.savedbEntity( c , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.PRODUCTBUILD , false , EngineDB.APP_VERSION , new EntityVar[] { 
 				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_LASTMAJOR , "Last Major Release" , false , null ) ,
 				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_NEXTMAJOR , "Next Major Release" , false , null ) ,
@@ -64,55 +66,59 @@ public abstract class DBEngineSettings {
 		} ) );
 	}
 
-	public static void importxml( EngineSettings settings , Node root , DBConnection c ) throws Exception {
+	public static void importxml( EngineLoader loader , EngineSettings settings , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
 		settings.version = c.getNextCoreVersion();
 		settings.setExecProperties();
 		
-		importEngineSettings( settings , root , c );
-		importProductDefaults( settings , root , c );
+		importEngineSettings( loader , settings , root );
+		importProductDefaults( loader , settings , root );
 		
 		settings.context = new EngineContext( settings.execrc , settings.engineProperties );
 		settings.context.scatterProperties();
 	}
 
-	public static void loaddb( EngineSettings settings , DBConnection c ) throws Exception {
+	public static void loaddb( EngineLoader loader , EngineSettings settings ) throws Exception {
+		DBConnection c = loader.getConnection();
 		settings.version = c.getCurrentCoreVersion();
 		settings.setExecProperties();
 		
-		loaddbEngineSettings( settings , c );
-		loaddbProductDefaults( settings , c );
+		loaddbEngineSettings( loader , settings );
+		loaddbProductDefaults( loader , settings );
 		
 		settings.context = new EngineContext( settings.execrc , settings.engineProperties );
 		settings.context.scatterProperties();
 	}
 	
-	private static void importEngineSettings( EngineSettings settings , Node root , DBConnection c ) throws Exception {
-		EngineEntities entities = settings.core.getEntities();
+	private static void importEngineSettings( EngineLoader loader , EngineSettings settings , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
 		settings.engineProperties = entities.createEngineProps( settings.execrcProperties );
-		DBSettings.importxml( root , settings.engineProperties , true );
+		DBSettings.importxml( loader , root , settings.engineProperties , true );
 		
 		int version = c.getNextCoreVersion();
 		DBSettings.savedbEntityCustom( c , settings.engineProperties , version );
 		DBSettings.savedbValues( c , DBVersions.CORE_ID , settings.engineProperties , true , version );
 	}
 	
-	private static void loaddbEngineSettings( EngineSettings settings , DBConnection c ) throws Exception {
-		EngineEntities entities = settings.core.getEntities();
+	private static void loaddbEngineSettings( EngineLoader loader , EngineSettings settings ) throws Exception {
+		EngineEntities entities = loader.getEntities();
 		settings.engineProperties = entities.createEngineProps( settings.execrcProperties );
-		DBSettings.loaddbValues( c , DBVersions.CORE_ID , settings.engineProperties , true );
+		DBSettings.loaddbValues( loader , DBVersions.CORE_ID , settings.engineProperties , true );
 	}
 	
-	private static void importProductDefaults( EngineSettings settings , Node root , DBConnection c ) throws Exception {
-		EngineEntities entities = settings.core.getEntities();
+	private static void importProductDefaults( EngineLoader loader , EngineSettings settings , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
 		
 		// load from xml
 		settings.defaultProductProperties = entities.createDefaultProductProps( settings.engineProperties );
 		Node node = ConfReader.xmlGetFirstChild( root , "defaults" );
-		DBSettings.importxml( node , settings.defaultProductProperties , true );
+		DBSettings.importxml( loader , node , settings.defaultProductProperties , true );
 		
 		settings.defaultProductBuildProperties = entities.createDefaultBuildCommonProps( settings.defaultProductBuildProperties );
 		Node build = ConfReader.xmlGetFirstChild( node , "build" );
-		DBSettings.importxml( build , settings.defaultProductBuildProperties , true );
+		DBSettings.importxml( loader , build , settings.defaultProductBuildProperties , true );
 		
 		// for build modes
 		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
@@ -129,7 +135,7 @@ public abstract class DBEngineSettings {
 				String MODE = ConfReader.getRequiredAttrValue( itemNode , "name" );
 				DBEnumBuildModeType mode = DBEnumBuildModeType.valueOf( MODE.toUpperCase() );
 				ObjectProperties properties = settings.getDefaultProductBuildObjectProperties( mode );
-				DBSettings.importxml( itemNode , properties , true );
+				DBSettings.importxml( loader , itemNode , properties , true );
 			}
 		}
 		
@@ -142,14 +148,14 @@ public abstract class DBEngineSettings {
 			DBSettings.savedbValues( c , DBVersions.CORE_ID , properties , true , version );
 	}
 	
-	private static void loaddbProductDefaults( EngineSettings settings , DBConnection c ) throws Exception {
-		EngineEntities entities = settings.core.getEntities();
+	private static void loaddbProductDefaults( EngineLoader loader , EngineSettings settings ) throws Exception {
+		EngineEntities entities = loader.getEntities();
 		
 		settings.defaultProductProperties = entities.createDefaultProductProps( settings.engineProperties );
-		DBSettings.loaddbValues( c , DBVersions.CORE_ID , settings.defaultProductProperties , true );
+		DBSettings.loaddbValues( loader , DBVersions.CORE_ID , settings.defaultProductProperties , true );
 		
 		settings.defaultProductBuildProperties = entities.createDefaultBuildCommonProps( settings.defaultProductBuildProperties );
-		DBSettings.loaddbValues( c , DBVersions.CORE_ID , settings.defaultProductBuildProperties , true );
+		DBSettings.loaddbValues( loader , DBVersions.CORE_ID , settings.defaultProductBuildProperties , true );
 		
 		// for build modes
 		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
@@ -157,20 +163,20 @@ public abstract class DBEngineSettings {
 				continue;
 			
 			ObjectProperties properties = entities.createDefaultBuildModeProps( settings.defaultProductBuildProperties , mode );
-			DBSettings.loaddbValues( c , DBVersions.CORE_ID , properties , true );
+			DBSettings.loaddbValues( loader , DBVersions.CORE_ID , properties , true );
 			settings.addBuildModeDefaults( mode , properties );
 		}
 	}
 	
-	public static void exportxml( EngineSettings settings , TransactionBase transaction , Document doc , Element root ) throws Exception {
+	public static void exportxml( EngineLoader loader , EngineSettings settings , Document doc , Element root ) throws Exception {
 		// properties
-		DBSettings.exportxml( doc , root , settings.engineProperties , true );
+		DBSettings.exportxml( loader , doc , root , settings.engineProperties , true );
 
 		// defaults
 		Element modeDefaults = Common.xmlCreateElement( doc , root , "defaults" );
-		DBSettings.exportxml( doc , modeDefaults , settings.defaultProductProperties , true );
+		DBSettings.exportxml( loader , doc , modeDefaults , settings.defaultProductProperties , true );
 		Element modeBuild = Common.xmlCreateElement( doc , modeDefaults , "build" );
-		DBSettings.exportxml( doc , modeBuild , settings.defaultProductBuildProperties , true );
+		DBSettings.exportxml( loader , doc , modeBuild , settings.defaultProductBuildProperties , true );
 		
 		// product defaults
 		DBEnumBuildModeType[] list = new DBEnumBuildModeType[] { DBEnumBuildModeType.DEVTRUNK , DBEnumBuildModeType.DEVBRANCH ,
@@ -179,7 +185,7 @@ public abstract class DBEngineSettings {
 			ObjectProperties set = settings.getDefaultProductBuildObjectProperties( mode );
 			Element modeElement = Common.xmlCreateElement( doc , modeBuild , "mode" );
 			Common.xmlSetElementAttr( doc , modeElement , "name" , mode.toString().toLowerCase() );
-			DBSettings.exportxml( doc , modeElement , set , true );
+			DBSettings.exportxml( loader , doc , modeElement , set , true );
 		}
 	}
 
