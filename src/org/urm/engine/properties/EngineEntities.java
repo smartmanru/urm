@@ -58,6 +58,7 @@ public class EngineEntities {
 		entityAppProduct = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.PRODUCTDEFS , false );
 		entityAppProductBuild = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.PRODUCTBUILD , false );
 		entityAppEngineMonitoring = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.MONITORING , false );
+		entityAppSystem = DBSettings.loaddbEntity( connection , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.SYSTEM , false );
 		useCustom( connection );
 	}
 	

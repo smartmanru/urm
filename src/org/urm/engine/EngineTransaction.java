@@ -62,25 +62,21 @@ public class EngineTransaction extends TransactionBase {
 	// transactional operations
 	public void createMirrorRepository( MirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
+		if( push )
+			loader.exportRepo( this , repo );
 		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , push );
-		if( !push ) {
-			if( repo.isServer() )
-				loader.importCore( true );
-			else
-				loader.importProduct( action , repo.PRODUCT , true );
-		}
+		if( !push )
+			loader.importRepo( this , repo );
 	}
 
 	public void pushMirror( MirrorRepository repo ) throws Exception {
+		loader.exportRepo( this , repo );
 		repo.pushMirror( this );
 	}
 
 	public void refreshMirror( MirrorRepository repo ) throws Exception {
 		repo.refreshMirror( this );
-		if( repo.isServer() )
-			loader.importCore( true );
-		else
-			loader.importProduct( action , repo.PRODUCT , true );
+		loader.importRepo( this , repo );
 	}
 
 	public void dropMirror( MirrorRepository repo , boolean dropOnServer ) throws Exception {
@@ -440,32 +436,32 @@ public class EngineTransaction extends TransactionBase {
 	public void createBaseGroup( BaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.createGroup( this , group );
-		loader.saveBase( this );
+		loader.commitBase( this );
 	}
 
 	public void deleteBaseGroup( BaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.deleteGroup( this , group );
-		loader.saveBase( this );
+		loader.commitBase( this );
 	}
 
 	public void modifyBaseGroup( BaseGroup group ) throws Exception {
 		checkTransactionBase();
 		group.category.modifyGroup( this , group );
-		loader.saveBase( this );
+		loader.commitBase( this );
 	}
 
 	public void createBaseItem( BaseItem item ) throws Exception {
 		checkTransactionBase();
 		item.group.category.base.createItem( this , item );
 		item.group.createItem( this , item );
-		loader.saveBase( this );
+		loader.commitBase( this );
 	}
 
 	public void deleteBaseItem( BaseItem item ) throws Exception {
 		checkTransactionBase();
 		item.group.deleteItem( this , item );
-		loader.saveBase( this );
+		loader.commitBase( this );
 	}
 
 	public void saveBaseItemData( BaseItem item , BaseItemData data ) throws Exception {

@@ -49,10 +49,10 @@ public abstract class DBQueries {
 	public static String MODIFY_BASE_DROP_GROUP0 = "delete from urm_base_group";
 	public static String MODIFY_BASE_DROP_CATEGORY0 = "delete from urm_base_category";
 
-	public static String MODIFY_APP_DROP_SYSTEMPARAMVALUE0 = "delete from urm_object_param_value where owner_object in ( select id from urm_system )";
-	public static String MODIFY_APP_DROP_SYSTEMPARAM0 = "delete from urm_object_param where owner_object in ( select id from urm_system )";
-	public static String MODIFY_APP_DROP_PRODUCT0 = "delete from urm_product";
-	public static String MODIFY_APP_DROP_SYSTEM0 = "delete from urm_system";
+	public static String MODIFY_APP_DROP_SYSTEMPARAMVALUES0 = "delete from urm_object_param_value where owner_object in ( select id from urm_system )";
+	public static String MODIFY_APP_DROP_SYSTEMPARAMS0 = "delete from urm_object_param where owner_object in ( select id from urm_system )";
+	public static String MODIFY_APP_DROP_SYSTEMPRODUCTS0 = "delete from urm_product";
+	public static String MODIFY_APP_DROP_SYSTEMS0 = "delete from urm_system";
 
 	public static String MODIFY_CORE_DROP_PARAMVALUE1 = "delete from urm_object_param_value where owner_object = @1@";
 	public static String MODIFY_CORE_DROP_PARAM1 = "delete from urm_object_param where owner_object = @1@";

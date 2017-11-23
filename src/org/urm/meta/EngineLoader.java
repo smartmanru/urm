@@ -6,10 +6,12 @@ import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBCoreData;
+import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.system.DBSystemData;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineDB;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.storage.LocalFolder;
@@ -23,6 +25,7 @@ import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.engine.EngineRegistry;
 import org.urm.meta.engine.EngineReleaseLifecycles;
 import org.urm.meta.engine.EngineSettings;
+import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine._Error;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
@@ -43,11 +46,57 @@ public class EngineLoader {
 		this.execrc = engine.execrc;
 	}
 
+	public void importRepo( EngineTransaction transaction , MirrorRepository repo ) throws Exception {
+		if( repo.isServer() )
+			importCore( transaction , true );
+		else
+			importProduct( transaction , repo.PRODUCT , true );
+	}
+	
+	public void exportRepo( EngineTransaction transaction , MirrorRepository repo ) throws Exception {
+		if( repo.isServer() )
+			exportCore( transaction , true );
+		else
+			exportProduct( transaction , repo.PRODUCT );
+	}
+	
 	public void loadCore() throws Exception {
 		loadCore( false , true );
 	}
 	
-	private void loadCore( boolean savedb , boolean withSystems ) throws Exception {
+	private void importCore( EngineTransaction transaction , boolean includingSystems ) throws Exception {
+		engine.trace( "import server core settings ..." );
+		
+		if( includingSystems )
+			data.unloadAll();
+		else
+			Common.exitUnexpected();
+
+		dropCoreData( includingSystems );
+		loadCore( true , includingSystems );
+	}
+
+	private void exportCore( TransactionBase transaction , boolean includingSystems ) throws Exception {
+		engine.trace( "export server core settings ..." );
+		exportxmlSettings( transaction );
+		exportxmlBase( transaction );
+		saveInfrastructure( transaction );
+		saveReleaseLifecycles( transaction );
+		saveMonitoring( transaction );
+		saveRegistry( transaction );
+	}
+
+	private void exportProduct( TransactionBase transaction , String productName ) throws Exception {
+		engine.trace( "export server core settings ..." );
+		data.saveProductMetadata( transaction.action , productName );
+	}
+
+	public void importProduct( EngineTransaction transaction , String product , boolean includingEnvironments ) throws Exception {
+		EngineProducts products = data.getProducts();
+		products.importProduct( transaction.action , product , includingEnvironments );
+	}
+	
+	private void loadCore( boolean importxml , boolean withSystems ) throws Exception {
 		data.unloadAll();
 		
 		EngineDB db = data.getDatabase();
@@ -55,29 +104,49 @@ public class EngineLoader {
 		try {
 			connection = db.getConnection( engine.serverAction );
 			matcher = new EngineMatcher( this , connection ); 
-			
-			if( savedb )
+
+			// core
+			if( importxml ) {
 				connection.setNextCoreVersion();
-			
-			loadSettings( connection , savedb );
-			loadBase();
-			loadInfrastructure();
-			loadReleaseLifecycles();
-			loadMonitoring( connection , savedb );
-			loadRegistry();
+				importxmlSettings( connection );
+				importxmlBase( connection );
+				loadInfrastructure();
+				loadReleaseLifecycles();
+				importxmlMonitoring( connection );
+				loadRegistry();
+			}
+			else {
+				loaddbSettings( connection );
+				loaddbBase( connection );
+				loadInfrastructure();
+				loadReleaseLifecycles();
+				loaddbMonitoring( connection );
+				loadRegistry();
+			}
+				
 			connection.save( true );
 
-			loadDirectory( connection , savedb , withSystems );
+			// systems
+			if( importxml ) {
+				if( withSystems )
+					importxmlDirectory( connection );
+				else
+					loaddbDirectory( connection );
+			}
+			else {
+				loaddbDirectory( connection );
+			}
+			
 			connection.save( true );
 			
-			if( savedb ) {
+			if( importxml ) {
 				engine.trace( "successfully saved server metadata version=" + connection.getNextCoreVersion() );
 				connection.close( true );
 			}
 		}
 		catch( Throwable e ) {
 			engine.log( "init" , e );
-			if( connection != null && savedb ) {
+			if( connection != null && importxml ) {
 				engine.trace( "unable to save server metadata version=" + connection.getNextCoreVersion() );
 				connection.close( false );
 			}
@@ -109,16 +178,16 @@ public class EngineLoader {
 		return( folder );
 	}
 
+	private String getServerSettingsFile() {
+		String path = Common.getPath( execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "server.xml" );
+		return( propertyFile );
+	}
+	
 	private String getBaseFile() throws Exception {
 		String path = Common.getPath( execrc.installPath , "etc" );
 		String propertyFile = Common.getPath( path , "base.xml" );
 		return( propertyFile );
-	}
-
-	private void loadBase() throws Exception {
-		String baseFile = getBaseFile();
-		EngineBase base = data.getServerBase();
-		base.load( baseFile , execrc );
 	}
 
 	private String getInfrastructureFile() throws Exception {
@@ -151,16 +220,18 @@ public class EngineLoader {
 		return( propertyFile );
 	}
 
-	private void loadMonitoring( DBConnection c , boolean importxml ) throws Exception {
+	private void loaddbMonitoring( DBConnection c ) throws Exception {
+		EngineMonitoring mon = data.getMonitoring();
+		mon.loaddb( c );
+	}
+
+	private void importxmlMonitoring( DBConnection c ) throws Exception {
 		String monFile = getMonitoringFile();
 		Document doc = ConfReader.readXmlFile( execrc , monFile );
 		Node root = doc.getDocumentElement();
 		
 		EngineMonitoring mon = data.getMonitoring();
-		if( importxml )
-			mon.loadxml( root , c );
-		else
-			mon.loaddb( c );
+		mon.loadxml( root , c );
 	}
 
 	private String getServerRegistryFile() throws Exception {
@@ -178,30 +249,38 @@ public class EngineLoader {
 		registry.loadxml( matcher , root );
 	}
 
-	private void loadDirectory( DBConnection c , boolean importxml , boolean withSystems ) throws Exception {
+	private void loaddbDirectory( DBConnection c ) throws Exception {
+		EngineDirectory directory = data.getDirectory();
+		DBEngineDirectory.loaddb( directory , matcher , c );
+		
+		for( AppSystem system : directory.getSystems() )
+			data.matchdoneSystem( system );
+	}
+	
+	private void importxmlDirectory( DBConnection c ) throws Exception {
 		String registryFile = getServerRegistryFile();
 		Document doc = ConfReader.readXmlFile( execrc , registryFile );
 		Node root = doc.getDocumentElement();
 		
 		EngineDirectory directory = data.getDirectory();
-		if( importxml && withSystems ) {
-			Node node = ConfReader.xmlGetFirstChild( root , "directory" );
-			directory.loadxml( matcher , node , c );
-		}
-		else
-			directory.loaddb( matcher , c );
+		Node node = ConfReader.xmlGetFirstChild( root , "directory" );
+		DBEngineDirectory.importxml( directory , matcher , node , c );
 		
+		// match systems to core
 		for( AppSystem system : directory.getSystems() )
-			data.matchSystem( system );
+			data.matchdoneSystem( system );
 	}
 	
-	private String getServerSettingsFile() {
-		String path = Common.getPath( execrc.installPath , "etc" );
-		String propertyFile = Common.getPath( path , "server.xml" );
-		return( propertyFile );
+	private void importxmlBase( DBConnection c ) throws Exception {
+		String baseFile = getBaseFile();
+		Document doc = ConfReader.readXmlFile( execrc , baseFile );
+		Node root = doc.getDocumentElement();
+		
+		EngineBase base = data.getServerBase();
+		DBEngineBase.importxml( base , root , c );
 	}
-	
-	private void loadSettings( DBConnection c , boolean importxml ) throws Exception {
+
+	private void importxmlSettings( DBConnection c ) throws Exception {
 		String propertyFile = getServerSettingsFile();
 		Document doc = ConfReader.readXmlFile( execrc , propertyFile );
 		if( doc == null )
@@ -210,10 +289,17 @@ public class EngineLoader {
 		Node root = doc.getDocumentElement();
 		
 		EngineSettings settings = data.getServerSettings();
-		if( importxml )
-			settings.loadxml( root , c );
-		else
-			settings.loaddb( c );
+		settings.importxml( root , c );
+	}
+
+	private void loaddbSettings( DBConnection c ) throws Exception {
+		EngineSettings settings = data.getServerSettings();
+		settings.loaddb( c );
+	}
+
+	private void loaddbBase( DBConnection c ) throws Exception {
+		EngineBase base = data.getServerBase();
+		settings.loaddb( c );
 	}
 
 	public void loadProducts( ActionBase action ) throws Exception {
@@ -232,15 +318,21 @@ public class EngineLoader {
 		
 		EngineDirectory directory = data.getDirectory();
 		Element node = Common.xmlCreateElement( doc , root , "directory" );
-		DBEngineDirectory.savexml( directory , doc , node );
+		DBEngineDirectory.exportxml( transaction.getAction() , directory , doc , node );
 		
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
+
+	public void commitBase( TransactionBase transaction ) throws Exception {
+	}
 	
-	public void saveBase( TransactionBase transaction ) throws Exception {
+	public void exportxmlBase( TransactionBase transaction ) throws Exception {
 		String propertyFile = getBaseFile();
 		EngineBase base = data.getServerBase();
-		base.save( transaction.getAction() , propertyFile , execrc );
+		Document doc = Common.xmlCreateDoc( "base" );
+		Element root = doc.getDocumentElement();
+		DBEngineBase.exportxml( transaction.getAction() , base , doc , root );
+		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
 	public void saveInfrastructure( TransactionBase transaction ) throws Exception {
@@ -264,32 +356,22 @@ public class EngineLoader {
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
-	public void setServerSettings( TransactionBase transaction , EngineSettings settingsNew ) throws Exception {
+	public void commitSettings( TransactionBase transaction ) throws Exception {
+	}	
+	
+	public void exportxmlSettings( TransactionBase transaction ) throws Exception {
+		EngineSettings settings = data.getServerSettings();
 		String propertyFile = getServerSettingsFile();
 		Document doc = Common.xmlCreateDoc( "server" );
 		Element root = doc.getDocumentElement();
-		settingsNew.savexml( transaction , doc , root );
+		settings.savexml( transaction , doc , root );
 		Common.xmlSaveDoc( doc , propertyFile );
-		
-		EngineSettings settings = data.getServerSettings();
-		settings.setData( transaction.getAction() , settingsNew , transaction.connection.getCoreVersion() );
-	}
-
-	public void importProduct( ActionBase action , String product , boolean includingEnvironments ) throws Exception {
-		EngineProducts products = data.getProducts();
-		products.importProduct( action , product , includingEnvironments );
 	}
 	
-	public void importCore( boolean includingSystems ) throws Exception {
-		engine.trace( "reload server core settings ..." );
-		
-		if( includingSystems )
-			data.unloadAll();
-		else
-			Common.exitUnexpected();
-
-		dropCoreData( includingSystems );
-		loadCore( true , includingSystems );
+	public void setSettings( TransactionBase transaction , EngineSettings settingsNew ) throws Exception {
+		EngineSettings settings = data.getServerSettings();
+		settings.setData( transaction.getAction() , settingsNew , transaction.connection.getCoreVersion() );
+		commitSettings( transaction );
 	}
 
 	private void dropCoreData( boolean includingSystems ) throws Exception {

@@ -227,6 +227,10 @@ public class ObjectProperties {
 		properties.setOriginalProperty( var.NAME , var.PARAMVALUE_TYPE , value , var.isApp() , null );
 	}
 	
+	public void setProperty( EntityVar var , String value ) throws Exception {
+		properties.setOriginalProperty( var.NAME , var.PARAMVALUE_TYPE , value , var.isApp() , null );
+	}
+	
 	public void setStringProperty( String prop , String value ) throws Exception {
 		setProperty( prop , value );
 	}

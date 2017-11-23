@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
@@ -41,7 +42,7 @@ public abstract class DBSystem {
 		system.DESC = ConfReader.getAttrValue( node , "desc" );
 		system.OFFLINE = ConfReader.getBooleanAttrValue( node , "offline" , true );
 		
-		DBSettings.loadxml( node , props , false );
+		DBSettings.importxml( node , props , false );
 		
 		Node[] items = ConfReader.xmlGetChildren( node , "product" );
 		if( items == null )
@@ -75,10 +76,14 @@ public abstract class DBSystem {
 			system.MATCHED = rs.getBoolean( 5 );
 			system.SV = rs.getInt( 6 );
 			systems.add( system );
+		}
+		rs.close();
 
+		for( AppSystem system : systems ) {
+			ObjectProperties props = system.getParameters();
 			ObjectMeta meta = props.getMeta();
 			DBSettings.loaddbEntity( c , meta.getCustomEntity() , system.ID );
-			DBSettings.loaddbValues( c , system.ID , props );
+			DBSettings.loaddbValues( c , system.ID , props , false );
 		}
 		
 		return( systems.toArray( new AppSystem[0] ) );
@@ -105,7 +110,7 @@ public abstract class DBSystem {
 			DBProduct.matchdb( directory , matcher , product );
 	}
 	
-	public static void savexml( EngineDirectory directory , AppSystem system , Document doc , Element root ) throws Exception {
+	public static void exportxml( ActionBase action , EngineDirectory directory , AppSystem system , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "name" , system.NAME );
 		Common.xmlSetElementAttr( doc , root , "desc" , system.DESC );
 		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( system.OFFLINE ) );
@@ -113,7 +118,7 @@ public abstract class DBSystem {
 		for( String productName : system.getProductNames() ) {
 			Product product = system.findProduct( productName );
 			Element elementProduct = Common.xmlCreateElement( doc , root , "product" );
-			DBProduct.savexml( directory , product , doc , elementProduct );
+			DBProduct.exportxml( action , directory , product , doc , elementProduct );
 		}
 	}
 	
@@ -127,7 +132,7 @@ public abstract class DBSystem {
 
 		ObjectProperties props = system.getParameters();
 		DBSettings.savedbEntityCustom( c , props , system.SV );
-		DBSettings.savedbValues( c , system.ID , props , system.SV );
+		DBSettings.savedbValues( c , system.ID , props , false , system.SV );
 		
 		for( Product product : system.getProducts() )
 			DBProduct.savedb( directory , product , c );

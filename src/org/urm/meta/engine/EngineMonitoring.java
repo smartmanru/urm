@@ -6,6 +6,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
+import org.urm.db.core.DBVersions;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
@@ -65,15 +66,19 @@ public class EngineMonitoring extends EngineObject {
 		EngineSettings settings = data.getServerSettings();
 		EngineEntities entities = data.getEntities();
 		properties = entities.createEngineMonitoringProps( settings.getEngineProperties() );
-		DBSettings.loadxml( root , properties , true );
+		DBSettings.importxml( root , properties , true );
 		scatterProperties();
 	}
 	
 	public void savexml( TransactionBase transaction , Document doc , Element root ) throws Exception {
-		DBSettings.savexml( doc , root , properties , true );
+		DBSettings.exportxml( doc , root , properties , true );
 	}
 
 	public void loaddb( DBConnection c ) throws Exception {
+		EngineSettings settings = data.getServerSettings();
+		EngineEntities entities = data.getEntities();
+		properties = entities.createEngineMonitoringProps( settings.getEngineProperties() );
+		DBSettings.loaddbValues( c , DBVersions.CORE_ID , properties , true );
 	}
 	
 	private void scatterProperties() throws Exception {

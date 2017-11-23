@@ -1,5 +1,6 @@
 package org.urm.db.engine;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
@@ -15,6 +16,19 @@ import org.w3c.dom.Node;
 
 public abstract class DBEngineDirectory {
 
+	public static void importxml( EngineDirectory directory , EngineMatcher matcher , Node root , DBConnection c ) throws Exception {
+		loadxml( directory , root , c );
+		resolvexml( directory );
+		matchxml( directory , matcher , c );
+		savedb( directory , c );
+	}
+	
+	public static void loaddb( EngineDirectory directory , EngineMatcher matcher , DBConnection c ) throws Exception {
+		loaddb( directory , c );
+		resolvedb( directory );
+		matchdb( directory , matcher , false );
+	}
+	
 	public static void loadxml( EngineDirectory directory , Node root , DBConnection c ) throws Exception {
 		if( root == null )
 			return;
@@ -81,11 +95,11 @@ public abstract class DBEngineDirectory {
 		}
 	}
 	
-	public static void savexml( EngineDirectory directory , Document doc , Element root ) throws Exception {
+	public static void exportxml( ActionBase action , EngineDirectory directory , Document doc , Element root ) throws Exception {
 		// directory 
 		for( AppSystem system : directory.getSystems() ) {
 			Element elementSystem = Common.xmlCreateElement( doc , root , "system" );
-			DBSystem.savexml( directory , system , doc , elementSystem );
+			DBSystem.exportxml( action , directory , system , doc , elementSystem );
 		}
 	}
 

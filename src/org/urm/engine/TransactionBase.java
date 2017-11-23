@@ -146,7 +146,7 @@ public class TransactionBase extends EngineObject {
 			try {
 				if( settingsOld != null ) {
 					if( save ) {
-						loader.setServerSettings( this , settingsOld );
+						loader.setSettings( this , settingsOld );
 					}
 					settingsOld = null;
 				}
@@ -570,7 +570,7 @@ public class TransactionBase extends EngineObject {
 		try {
 			EngineData data = engine.getData();
 			EngineLoader loader = new EngineLoader( engine , data );
-			loader.saveBase( this );
+			loader.commitBase( this );
 			trace( "transaction server base: save done" );
 			return( true );
 		}
@@ -874,7 +874,7 @@ public class TransactionBase extends EngineObject {
 		try {
 			EngineData data = engine.getData();
 			EngineLoader loader = new EngineLoader( engine , data );
-			loader.setServerSettings( this , settings );
+			loader.setSettings( this , settings );
 			trace( "transaction server settings: save=" + settings.objectId );
 			return( true );
 		}

@@ -21,6 +21,9 @@ public class ObjectMeta {
 		this.entityApp = entityApp;
 		this.entityCustom = entityCustom;
 		
+		if( entityApp == null )
+			Common.exitUnexpected();
+		
 		if( entityCustom != null )
 			entities = new PropertyEntity[] { entityApp , entityCustom };
 		else

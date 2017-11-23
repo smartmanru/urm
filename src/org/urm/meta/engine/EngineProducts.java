@@ -197,10 +197,18 @@ public class EngineProducts {
 		
 		return( set );
 	}
+
+	public void saveProductMetadata( ActionBase action , String productName ) throws Exception {
+		ProductMeta storage = productMeta.get( productName );
+		if( storage == null || storage.loadFailed )
+			action.exitUnexpectedState();
+
+		MetadataStorage ms = action.artefactory.getMetadataStorage( action , storage.meta );
+		storage.saveAll( action , ms );
+	}
 	
 	public void setProductMetadata( TransactionBase transaction , ProductMeta storageNew ) throws Exception {
 		ActionBase action = transaction.getAction();
-		
 		MetadataStorage ms = action.artefactory.getMetadataStorage( action , storageNew.meta );
 		storageNew.saveAll( action , ms );
 		

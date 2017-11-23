@@ -3,17 +3,11 @@ package org.urm.meta.engine;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.action.ActionCore;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.common.RunContext;
 import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineCore;
 import org.urm.meta.EngineObject;
 import org.urm.db.core.DBEnums.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class EngineBase extends EngineObject {
 
@@ -34,45 +28,6 @@ public class EngineBase extends EngineObject {
 		return( "server-base" );
 	}
 	
-	public void load( String baseFile , RunContext execrc ) throws Exception {
-		Document doc = ConfReader.readXmlFile( execrc , baseFile );
-		Node root = doc.getDocumentElement();
-		
-		Node[] list = ConfReader.xmlGetChildren( root , "category" );
-		if( list != null ) {
-			for( Node node : list ) {
-				BaseCategory category = new BaseCategory( this );
-				category.load( node );
-				addCategory( category );
-				
-				for( BaseGroup group : category.groupMap.values() ) {
-					for( BaseItem item : group.itemMap.values() )
-						addItem( item );
-				}
-			}
-		}
-		
-		if( findCategory( DBEnumBaseCategoryType.HOST ) == null )
-			addCategory( new BaseCategory( this , DBEnumBaseCategoryType.HOST , "Host-Bound" ) );
-		if( findCategory( DBEnumBaseCategoryType.ACCOUNT ) == null )
-			addCategory( new BaseCategory( this , DBEnumBaseCategoryType.ACCOUNT , "Account-Bound" ) );
-		if( findCategory( DBEnumBaseCategoryType.APP ) == null )
-			addCategory( new BaseCategory( this , DBEnumBaseCategoryType.APP , "Application-Bound" ) );
-	}
-	
-	public void save( ActionCore action , String path , RunContext execrc ) throws Exception {
-		Document doc = Common.xmlCreateDoc( "base" );
-		Element root = doc.getDocumentElement();
-		
-		for( String id : Common.getSortedKeys( mapCategory ) ) {
-			BaseCategory category = mapCategory.get( id );
-			Element node = Common.xmlCreateElement( doc , root , "category" );
-			category.save( doc , node );
-		}
-		
-		Common.xmlSaveDoc( doc , path );
-	}
-
 	public void addCategory( BaseCategory category ) {
 		mapCategory.put( category.ID , category );
 	}

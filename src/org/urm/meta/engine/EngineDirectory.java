@@ -5,11 +5,9 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.DBConnection;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
-import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.system.DBSystem;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
@@ -18,9 +16,7 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.EngineData;
-import org.urm.meta.EngineMatcher;
 import org.urm.meta.EngineObject;
-import org.w3c.dom.Node;
 
 public class EngineDirectory extends EngineObject {
 
@@ -47,19 +43,6 @@ public class EngineDirectory extends EngineObject {
 		return( "server-directory" );
 	}
 
-	public void loadxml( EngineMatcher matcher , Node root , DBConnection c ) throws Exception {
-		DBEngineDirectory.loadxml( this , root , c );
-		DBEngineDirectory.resolvexml( this );
-		DBEngineDirectory.matchxml( this , matcher , c );
-		DBEngineDirectory.savedb( this , c );
-	}
-	
-	public void loaddb( EngineMatcher matcher , DBConnection c ) throws Exception {
-		DBEngineDirectory.loaddb( this , c );
-		DBEngineDirectory.resolvedb( this );
-		DBEngineDirectory.matchdb( this , matcher , false );
-	}
-	
 	public EngineDirectory copy() throws Exception {
 		EngineDirectory r = new EngineDirectory( null );
 		

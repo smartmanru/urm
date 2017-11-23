@@ -24,7 +24,12 @@ import org.w3c.dom.Node;
 
 public abstract class DBSettings {
 
-	public static void loaddbValues( DBConnection c , int objectId , ObjectProperties properties ) throws Exception {
+	public static String ELEMENT_PROPERTY = "property"; 
+	public static String ATTR_NAME = "name"; 
+	public static String ATTR_VALUE = "value"; 
+	public static String ATTR_DESC = "desc"; 
+	
+	public static void loaddbValues( DBConnection c , int objectId , ObjectProperties properties , boolean saveApp ) throws Exception {
 		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETOBJECTPARAMVALUES2 , new String[] { EngineDB.getInteger( objectId ) , EngineDB.getEnum( properties.type ) } );
 		if( rs == null )
 			Common.exitUnexpected();
@@ -32,12 +37,17 @@ public abstract class DBSettings {
 		while( rs.next() ) {
 			int param = rs.getInt( 2 );
 			String exprValue = rs.getString( 3 );
-			properties.setProperty( param , exprValue );
+			
+			EntityVar var = properties.getVar( param );
+			if( saveApp == false && var.isApp() )
+				Common.exitUnexpected();
+			
+			properties.setProperty( var , exprValue );
 		}
 		rs.close();
 	}
 	
-	public static void loadxml( Node root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
+	public static void importxml( Node root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		
 		// load attributes - app only
@@ -50,7 +60,7 @@ public abstract class DBSettings {
 		}
 		
 		// load properties
-		Node[] items = ConfReader.xmlGetChildren( root , "property" );
+		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_PROPERTY );
 		if( items != null ) {
 			for( Node item : items )
 				loadxmlSetProperty( item , properties , appAsProperties );
@@ -59,7 +69,46 @@ public abstract class DBSettings {
 		}
 	}
 
-	public static void savexml( Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
+	public static void exportxml( Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
+		PropertySet set = properties.getProperties();
+		ObjectMeta meta = properties.getMeta();
+		PropertyEntity custom = meta.getCustomEntity();
+		for( PropertyValue value : set.getAllProperties() ) {
+			EntityVar var = properties.getVar( value.property );
+			if( var.isApp() ) {
+				String data = value.getOriginalValue();
+				if( data == null || data.isEmpty() )
+					continue;
+				
+				if( appAsProperties )
+					exportxmlSetProperty( doc , root , var , data , false );
+				else
+					exportxmlSetAttr( doc , root , var , data );
+			}
+			else {
+				boolean defineProp = ( var.isCustom() && var.entity == custom )? true : false;
+				String data = null;
+				if( defineProp )
+					data = value.getExpressionValue();
+				else {
+					data = value.getOriginalValue();
+					if( data == null || data.isEmpty() )
+						continue;
+				}
+				
+				exportxmlSetProperty( doc , root , var , data , defineProp );
+			}
+		}
+	}
+
+	private static void exportxmlSetAttr( Document doc , Element root , EntityVar var , String data ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , var.NAME , data );
+	}
+	
+	private static void exportxmlSetProperty( Document doc , Element root , EntityVar var , String data , boolean defineProp ) throws Exception {
+		Element property = Common.xmlCreatePropertyElement( doc , root , var.NAME , data );
+		if( defineProp )
+			Common.xmlSetElementAttr( doc , property , ATTR_DESC , var.DESC );
 	}
 	
 	private static void loadxmlSetAttr( ObjectProperties properties , String prop , String value ) throws Exception {
@@ -77,12 +126,12 @@ public abstract class DBSettings {
 		PropertyEntity app = meta.getAppEntity();
 		PropertyEntity custom = meta.getCustomEntity();
 		
-		String prop = ConfReader.getAttrValue( item , "name" );
+		String prop = ConfReader.getAttrValue( item , ATTR_NAME );
 		
 		// this.app - set app value
 		EntityVar var = app.findVar( prop );
 		if( var != null && appAsProperties ) {
-			String value = ConfReader.getAttrValue( item , "value" );
+			String value = ConfReader.getAttrValue( item , ATTR_VALUE );
 			properties.setProperty( prop , value );
 			return;
 		}
@@ -105,7 +154,7 @@ public abstract class DBSettings {
 		
 		// parent.custom - normal override, set value as manual
 		if( var != null && var.isCustom() ) {
-			String value = ConfReader.getAttrValue( item , "value" );
+			String value = ConfReader.getAttrValue( item , ATTR_VALUE );
 			properties.setManualStringProperty( prop , value );
 			return;
 		}
@@ -115,8 +164,8 @@ public abstract class DBSettings {
 			Common.exit1( _Error.UnexpectedCustom1 , "Custom variables cannot be defined here, variable=" + prop , prop );
 		
 		// new custom property
-		String desc = ConfReader.getAttrValue( item , "desc" );
-		String def = ConfReader.getAttrValue( item , "value" );
+		String desc = ConfReader.getAttrValue( item , ATTR_DESC );
+		String def = ConfReader.getAttrValue( item , ATTR_VALUE );
 			
 		var = EntityVar.metaString( prop , desc , false , def );
 		custom.addVar( var );
@@ -201,7 +250,7 @@ public abstract class DBSettings {
 		rs.close();
 	}
 	
-	public static void savedbValues( DBConnection c , int objectId , ObjectProperties properties , int version ) throws Exception {
+	public static void savedbValues( DBConnection c , int objectId , ObjectProperties properties , boolean saveApp , int version ) throws Exception {
 		if( !c.update( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUES2 , new String[] {
 				EngineDB.getInteger( objectId ) ,
 				EngineDB.getEnum( properties.type ) 
@@ -215,6 +264,9 @@ public abstract class DBSettings {
 				continue;
 			
 			EntityVar var = properties.getVar( value.property );
+			if( saveApp == false && var.isApp() )
+				continue;
+			
 			if( !c.update( DBQueries.MODIFY_PARAM_ADDOBJECTPARAMVALUE7 , new String[] {
 					EngineDB.getInteger( objectId ) ,
 					EngineDB.getEnum( properties.type ) ,

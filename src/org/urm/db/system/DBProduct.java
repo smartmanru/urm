@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
@@ -69,7 +70,7 @@ public abstract class DBProduct {
 	public static void matchdb( EngineDirectory directory , EngineMatcher matcher , Product product ) throws Exception {
 	}
 	
-	public static void savexml( EngineDirectory directory , Product product , Document doc , Element root ) throws Exception {
+	public static void exportxml( ActionBase action , EngineDirectory directory , Product product , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , "name" , product.NAME );
 		Common.xmlSetElementAttr( doc , root , "desc" , product.DESC );
 		Common.xmlSetElementAttr( doc , root , "path" , product.PATH );

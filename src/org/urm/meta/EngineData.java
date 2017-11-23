@@ -83,7 +83,7 @@ public class EngineData {
 		products.unloadProducts();
 	}
 	
-	public void matchSystem( AppSystem system ) {
+	public void matchdoneSystem( AppSystem system ) {
 		if( system.MATCHED )
 			mapSystemUnmatched.remove( system.NAME );
 		else {
@@ -199,6 +199,10 @@ public class EngineData {
 		directory = directoryNew;
 	}
 
+	public void saveProductMetadata( ActionBase action , String productName ) throws Exception {
+		products.saveProductMetadata( action , productName );
+	}
+	
 	public void setProductMetadata( TransactionBase transaction , ProductMeta storageNew ) throws Exception {
 		products.setProductMetadata( transaction , storageNew );
 	}
