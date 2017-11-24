@@ -1,15 +1,21 @@
 package org.urm.meta.engine;
 
-import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
 import org.urm.db.core.DBEnums.*;
 
 public class BaseItem extends EngineObject {
 
+	public static String PROPERTY_NAME = "id";
+	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_OFFLINE = "offline";
+	
 	public BaseGroup group;
-	public String ID;
+	public int ID;
+	public String NAME;
 	public String DESC;
+	public boolean OFFLINE;
+	public int CV;
 	
 	public ObjectProperties parameters;
 	
@@ -17,28 +23,36 @@ public class BaseItem extends EngineObject {
 		super( group );
 		this.group = group;
 		this.parameters = parameters;
+		ID = -1;
+		CV = 0;
 	}
 
 	@Override
 	public String getName() {
-		return( ID );
+		return( NAME );
 	}
 	
-	public void createBaseItem( EngineTransaction transaction , String ID , String DESC ) {
-		this.ID = ID;
-		this.DESC = DESC;
+	public void createBaseItem( String name , String desc ) throws Exception {
+		OFFLINE = false;
+		modifyBaseItem( name , desc );
 	}
 	
-	public void modifyBaseItem( EngineTransaction transaction , String ID , String DESC ) {
-		this.ID = ID;
-		this.DESC = DESC;
+	public void modifyBaseItem( String name , String desc ) throws Exception {
+		this.NAME = name;
+		this.DESC = desc;
+		parameters.setStringProperty( PROPERTY_NAME , NAME );
+		parameters.setStringProperty( PROPERTY_DESC , DESC );
+		parameters.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 	}
 	
 	public BaseItem copy( BaseGroup rgroup , ObjectProperties rparameters ) {
-		BaseItem ritem = new BaseItem( rgroup , rparameters );
-		ritem.ID = ID;
-		ritem.DESC = DESC;
-		return( ritem );
+		BaseItem r = new BaseItem( rgroup , rparameters );
+		r.ID = ID;
+		r.NAME = NAME;
+		r.DESC = DESC;
+		r.OFFLINE = OFFLINE;
+		r.CV = CV;
+		return( r );
 	}
 
 	public boolean isHostBound() {

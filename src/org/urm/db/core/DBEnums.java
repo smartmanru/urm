@@ -279,18 +279,19 @@ public abstract class DBEnums {
 		ENGINE(2,null) ,
 		PRODUCTDEFS(3,null) ,
 		PRODUCTBUILD(4,null) ,
-		BASE(5,null) ,
+		BASEITEM(5,null) ,
 		MONITORING(6,null) ,
 		SYSTEM(101,null) ,
-		ENVIRONMENT(102,null) ,
-		SEGMENT(103,null) ,
-		SERVER(104,null) ,
-		NODE(105,null) ,
+		PRODUCT(102,null) ,
+		ENVIRONMENT(103,null) ,
+		SEGMENT(104,null) ,
+		SERVER(105,null) ,
+		NODE(106,null) ,
 		RC_CUSTOM(201,null) ,
 		ENGINE_CUSTOM(202,null) ,
-		BASE_CUSTOM(203,null) ,
-		SYSTEM_CUSTOM(204,null) ,
-		PRODUCT_CUSTOM(205,null);
+		BASEITEM_CUSTOM(203,null) ,
+		SYSTEM_CUSTOM(301,null) ,
+		PRODUCT_CUSTOM(302,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -311,7 +312,8 @@ public abstract class DBEnums {
 		BUILDMODE_TRUNK(13,null) ,
 		BUILDMODE_DEVBRANCH(14,null) ,
 		BUILDMODE_DEVTRUNK(15,null) ,
-		MONITORING(20,null),
+		MONITORING(20,null) ,
+		BASEITEM(30,null) ,
 		SYSTEM(100,null);
 
 		private final int value;

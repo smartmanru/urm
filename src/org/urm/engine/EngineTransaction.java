@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.db.core.DBEnums.*;
+import org.urm.db.engine.DBEngineBase;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.ScheduleProperties;
@@ -433,34 +434,34 @@ public class EngineTransaction extends TransactionBase {
 		account.host.deleteAccount( this , account );
 	}
 	
-	public void createBaseGroup( BaseGroup group ) throws Exception {
+	public BaseGroup createBaseGroup( DBEnumBaseCategoryType type , String name , String desc ) throws Exception {
 		checkTransactionBase();
-		group.category.createGroup( this , group );
-		loader.commitBase();
+		return( DBEngineBase.createGroup( this , base , type , name , desc ) );
 	}
 
 	public void deleteBaseGroup( BaseGroup group ) throws Exception {
 		checkTransactionBase();
-		group.category.deleteGroup( this , group );
-		loader.commitBase();
+		DBEngineBase.deleteGroup( this , base , group );
 	}
 
-	public void modifyBaseGroup( BaseGroup group ) throws Exception {
+	public void modifyBaseGroup( BaseGroup group , String name , String desc ) throws Exception {
 		checkTransactionBase();
-		group.category.modifyGroup( this , group );
-		loader.commitBase();
+		DBEngineBase.modifyGroup( this , base , group , name , desc );
 	}
 
-	public void createBaseItem( BaseItem item ) throws Exception {
+	public BaseItem createBaseItem( BaseGroup group , String name , String desc ) throws Exception {
 		checkTransactionBase();
-		item.group.category.base.createItem( this , item );
-		item.group.createItem( this , item );
-		loader.commitBase();
+		return( DBEngineBase.createItem( this , base , group , name , desc ) );
+	}
+
+	public void modifyBaseItem( BaseItem item , String name , String desc ) throws Exception {
+		checkTransactionBase();
+		DBEngineBase.modifyItem( this , base , item , name , desc );
 	}
 
 	public void deleteBaseItem( BaseItem item ) throws Exception {
 		checkTransactionBase();
-		item.group.deleteItem( this , item );
+		DBEngineBase.deleteItem( this , base , item );
 		loader.commitBase();
 	}
 

@@ -168,7 +168,7 @@ public class EngineSettings extends EngineObject {
 		// get custom properties from environment variables if any
 		ObjectMeta meta = execrcProperties.getMeta();
 		for( PropertyEntity entity : meta.getEntities() ) {
-			if( !entity.custom ) 
+			if( !entity.CUSTOM ) 
 				continue;
 			
 			for( EntityVar var : entity.getVars() ) {

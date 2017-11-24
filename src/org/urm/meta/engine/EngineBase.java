@@ -33,12 +33,12 @@ public class EngineBase extends EngineObject {
 	}
 
 	public void addItem( BaseItem item ) {
-		mapItem.put( item.ID , item );
+		mapItem.put( item.NAME , item );
 	}
 
 	public void createItem( EngineTransaction transaction , BaseItem item ) throws Exception {
-		if( mapItem.get( item.ID ) != null )
-			transaction.exit1( _Error.DuplicateBaseItem1 , "duplicate base item=" + item.ID , item.ID );
+		if( mapItem.get( item.NAME ) != null )
+			transaction.exit1( _Error.DuplicateBaseItem1 , "duplicate base item=" + item.NAME , item.NAME );
 		
 		addItem( item );
 	}

@@ -49,7 +49,7 @@ public abstract class DBSettings {
 		rs.close();
 	}
 	
-	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
+	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , boolean appAsProperties , int objectId , boolean saveApp , int version ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		
 		// load attributes - app only
@@ -69,6 +69,11 @@ public abstract class DBSettings {
 			
 			meta.rebuild();
 		}
+
+		// save to database
+		DBConnection c = loader.getConnection();
+		savedbEntityCustom( c , properties , objectId , version );
+		savedbValues( c , objectId , properties , saveApp , version );
 	}
 
 	public static void exportxml( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
@@ -185,9 +190,28 @@ public abstract class DBSettings {
 		
 		return( findParentVar( properties , prop ) );
 	}
+
+	public static void dropObjectSettings( DBConnection c , int ownerId ) throws Exception {
+		if( !c.update( DBQueries.MODIFY_PARAM_DROPOWNERVALUES1 , new String[] {
+				EngineDB.getInteger( ownerId )
+				} ) )
+			Common.exitUnexpected();
+		if( !c.update( DBQueries.MODIFY_PARAM_DROPOWNERPARAMS1 , new String[] {
+				EngineDB.getInteger( ownerId )
+				} ) )
+			Common.exitUnexpected();
+		if( !c.update( DBQueries.MODIFY_PARAM_DROPOWNERENTITIES1 , new String[] {
+				EngineDB.getInteger( ownerId )
+				} ) )
+			Common.exitUnexpected();
+		if( !c.update( DBQueries.MODIFY_PARAM_DROPOBJECTVALUES1 , new String[] {
+				EngineDB.getInteger( ownerId )
+				} ) )
+			Common.exitUnexpected();
+	}
 	
-	public static PropertyEntity savedbEntity( DBConnection c , DBEnumObjectVersionType ownerType , int ownerId , DBEnumParamEntityType entityType , boolean custom , int version , EntityVar[] vars ) throws Exception {
-		if( !c.update( DBQueries.MODIFY_PARAM_DROPENTITYVALUESS2 , new String[] {
+	public static void dropdbEntity( DBConnection c , DBEnumParamEntityType entityType , int ownerId ) throws Exception {
+		if( !c.update( DBQueries.MODIFY_PARAM_DROPENTITYVALUES2 , new String[] {
 				EngineDB.getInteger( ownerId ) ,
 				EngineDB.getEnum( entityType ) 
 				} ) )
@@ -197,44 +221,68 @@ public abstract class DBSettings {
 				EngineDB.getEnum( entityType ) 
 				} ) )
 			Common.exitUnexpected();
+		if( !c.update( DBQueries.MODIFY_PARAM_DROPENTITY2 , new String[] {
+				EngineDB.getInteger( ownerId ) ,
+				EngineDB.getEnum( entityType ) 
+				} ) )
+			Common.exitUnexpected();
+	}
+	
+	public static PropertyEntity savedbEntity( DBConnection c , DBEnumParamEntityType entityType , DBEnumObjectVersionType ownerType , int ownerId , boolean custom , int version , boolean saveAppAsProps , String appTable , EntityVar[] vars ) throws Exception {
+		dropdbEntity( c , entityType , ownerId );
 				
-		PropertyEntity entity = new PropertyEntity( ownerType , ownerId , entityType , custom );
+		PropertyEntity entity = new PropertyEntity( ownerType , ownerId , entityType , custom , saveAppAsProps , appTable );
+		insertEntity( c , entity , version );
+		
 		for( EntityVar var : vars ) {
 			entity.addVar( var );
-			addVar( c , entity , var , version );
+			insertVar( c , entity , var , version );
 		}
 		return( entity );
 	}
 
-	public static void addVar( DBConnection c , PropertyEntity entity , EntityVar var , int version ) throws Exception {
-		var.ID = DBNames.getNameIndex( c , entity.ownerId , var.NAME , DBEnumObjectType.PARAM );
+	public static void insertEntity( DBConnection c , PropertyEntity entity , int version ) throws Exception {
+		entity.VERSION = version;
+		if( !c.update( DBQueries.MODIFY_PARAM_ADDENTITY7 , new String[] {
+			EngineDB.getInteger( entity.OWNER_OBJECT_ID ) ,
+			EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
+			EngineDB.getBoolean( entity.CUSTOM ) ,
+			EngineDB.getBoolean( entity.APP_PROPS ) ,
+			EngineDB.getString( entity.APP_TABLE ) ,
+			EngineDB.getEnum( entity.OWNER_OBJECT_TYPE ) ,
+			EngineDB.getInteger( version )
+			} ) )
+			Common.exitUnexpected();
+	}
+
+	public static void insertVar( DBConnection c , PropertyEntity entity , EntityVar var , int version ) throws Exception {
+		var.PARAM_ID = DBNames.getNameIndex( c , entity.OWNER_OBJECT_ID , var.NAME , DBEnumObjectType.PARAM );
 		var.VERSION = version;
-		if( !c.update( DBQueries.MODIFY_PARAM_ADD11 , new String[] {
-			EngineDB.getInteger( entity.ownerId ) ,
-			EngineDB.getEnum( entity.entityType ) ,
-			EngineDB.getInteger( var.ID ) ,
+		if( !c.update( DBQueries.MODIFY_PARAM_ADDPARAM10 , new String[] {
+			EngineDB.getInteger( entity.OWNER_OBJECT_ID ) ,
+			EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
+			EngineDB.getInteger( var.PARAM_ID ) ,
 			EngineDB.getString( var.NAME ) ,
 			EngineDB.getString( var.DESC ) ,
 			EngineDB.getEnum( var.PARAMVALUE_TYPE ) ,
 			EngineDB.getEnum( var.OBJECT_TYPE ) ,
 			EngineDB.getBoolean( var.REQUIRED ) ,
-			EngineDB.getBoolean( entity.custom ) ,
 			EngineDB.getString( var.EXPR_DEF ) ,
 			EngineDB.getInteger( version )
 			} ) )
 			Common.exitUnexpected();
 	}
 
-	public static PropertyEntity loaddbEntity( EngineLoader loader , DBEnumObjectVersionType ownerType , int ownerId , DBEnumParamEntityType entityType , boolean custom ) throws Exception {
-		PropertyEntity entity = new PropertyEntity( ownerType , 0 , entityType , custom );
+	public static PropertyEntity loaddbEntity( EngineLoader loader , DBEnumObjectVersionType ownerType , int ownerId , DBEnumParamEntityType entityType , boolean custom , boolean saveAppAsProps , String appTable ) throws Exception {
+		PropertyEntity entity = new PropertyEntity( ownerType , 0 , entityType , custom , saveAppAsProps , appTable );
 		loaddbEntity( loader , entity , ownerId );
 		return( entity );
 	}
 		
 	public static void loaddbEntity( EngineLoader loader , PropertyEntity entity , int ownerId ) throws Exception {
 		DBConnection c = loader.getConnection();
-		entity.ownerId = ownerId;
-		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETENTITYPARAMS2 , new String[] { EngineDB.getInteger( entity.ownerId ) , EngineDB.getEnum( entity.entityType ) } );
+		entity.OWNER_OBJECT_ID = ownerId;
+		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETENTITYPARAMS2 , new String[] { EngineDB.getInteger( entity.OWNER_OBJECT_ID ) , EngineDB.getEnum( entity.PARAMENTITY_TYPE ) } );
 		if( rs == null )
 			Common.exitUnexpected();
 		
@@ -246,13 +294,13 @@ public abstract class DBSettings {
 					DBEnumObjectType.getValue( rs.getInt( 5 ) , false ) , 
 					rs.getBoolean( 6 ) , 
 					rs.getString( 7 ) );
-			var.ID = rs.getInt( 1 );
+			var.PARAM_ID = rs.getInt( 1 );
 			var.VERSION = rs.getInt( 8 );
 			entity.addVar( var );
 		}
 		rs.close();
 	}
-	
+
 	public static void savedbValues( DBConnection c , int objectId , ObjectProperties properties , boolean saveApp , int version ) throws Exception {
 		if( !c.update( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUES2 , new String[] {
 				EngineDB.getInteger( objectId ) ,
@@ -273,9 +321,9 @@ public abstract class DBSettings {
 			if( !c.update( DBQueries.MODIFY_PARAM_ADDOBJECTPARAMVALUE7 , new String[] {
 					EngineDB.getInteger( objectId ) ,
 					EngineDB.getEnum( properties.type ) ,
-					EngineDB.getInteger( var.entity.ownerId ) ,
-					EngineDB.getEnum( var.entity.entityType ) ,
-					EngineDB.getInteger( var.ID ) ,
+					EngineDB.getInteger( var.entity.OWNER_OBJECT_ID ) ,
+					EngineDB.getEnum( var.entity.PARAMENTITY_TYPE ) ,
+					EngineDB.getInteger( var.PARAM_ID ) ,
 					EngineDB.getString( data ) ,
 					EngineDB.getInteger( version )
 					} ) )
@@ -283,11 +331,21 @@ public abstract class DBSettings {
 		}
 	}
 
-	public static void savedbEntityCustom( DBConnection c , ObjectProperties properties , int version ) throws Exception {
+	public static PropertyEntity createEntityCustom( DBEnumObjectVersionType ownerType , int ownerId , DBEnumParamEntityType entityType ) {
+		PropertyEntity entity = new PropertyEntity( ownerType , ownerId , entityType , true , false , null );
+		return( entity );
+	}
+	
+	public static void savedbEntityCustom( DBConnection c , ObjectProperties properties , int ownerId , int version ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
+		if( entity == null )
+			return;
+		
+		entity.OWNER_OBJECT_ID = ownerId;
 		if( entity != null )
-			savedbEntity( c , DBEnumObjectVersionType.CORE , DBVersions.CORE_ID , DBEnumParamEntityType.ENGINE_CUSTOM , true , version , entity.getVars() );
+			savedbEntity( c , entity.PARAMENTITY_TYPE , entity.OWNER_OBJECT_TYPE , entity.OWNER_OBJECT_ID , true , version , false , null , entity.getVars() );
+		meta.rebuild();
 	}
 	
 }

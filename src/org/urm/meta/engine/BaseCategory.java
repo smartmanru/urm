@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.urm.common.Common;
-import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
 import org.urm.db.core.DBEnums.*;
@@ -65,15 +64,15 @@ public class BaseCategory extends EngineObject {
 		return( groupMap.get( ID ) );
 	}
 	
-	public void createGroup( EngineTransaction transaction , BaseGroup group ) throws Exception {
+	public void createGroup( BaseGroup group ) throws Exception {
 		addGroup( group );
 	}
 	
-	public void deleteGroup( EngineTransaction transaction , BaseGroup group ) throws Exception {
+	public void deleteGroup( BaseGroup group ) throws Exception {
 		groupMap.remove( group );
 	}
 	
-	public void modifyGroup( EngineTransaction transaction , BaseGroup group ) {
+	public void modifyGroup( BaseGroup group ) {
 		String oldId = null;
 		for( Entry<String,BaseGroup> entry : groupMap.entrySet() ) {
 			if( entry.getValue() == group )
@@ -83,7 +82,7 @@ public class BaseCategory extends EngineObject {
 		addGroup( group );
 	}
 
-	public void deleteHost( EngineTransaction transaction ) throws Exception {
+	public void deleteHost() throws Exception {
 		super.deleteObject();
 	}
 

@@ -20,7 +20,6 @@ public abstract class DBEngineDirectory {
 		loadxml( loader , directory , root );
 		resolvexml( loader , directory );
 		matchxml( loader , directory );
-		importsavedb( loader , directory );
 	}
 	
 	public static void loaddb( EngineLoader loader , EngineDirectory directory ) throws Exception {
@@ -38,7 +37,7 @@ public abstract class DBEngineDirectory {
 			return;
 		
 		for( Node itemNode : items ) {
-			AppSystem system = DBSystem.loadxml( loader , directory , itemNode );
+			AppSystem system = DBSystem.importxml( loader , directory , itemNode );
 			directory.addSystem( system );
 			for( Product product : system.getProducts() )
 				directory.addProduct( product );
@@ -89,12 +88,6 @@ public abstract class DBEngineDirectory {
 				matcher.prepareMatch( system.ID , false , true );
 				DBSystem.matchdb( loader , directory , system );
 			}
-		}
-	}
-	
-	public static void importsavedb( EngineLoader loader , EngineDirectory directory ) throws Exception {
-		for( AppSystem system : directory.getSystems() ) {
-			DBSystem.importsavedb( loader , directory , system );
 		}
 	}
 	

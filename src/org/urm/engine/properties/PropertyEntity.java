@@ -8,19 +8,25 @@ import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 
 public class PropertyEntity {
 
-	public DBEnumObjectVersionType ownerType;
-	public int ownerId;
-	public DBEnumParamEntityType entityType;
-	public boolean custom;
+	public int OWNER_OBJECT_ID;
+	public DBEnumParamEntityType PARAMENTITY_TYPE;
+	public boolean CUSTOM;
+	public boolean APP_PROPS;
+	public String APP_TABLE;
+	public DBEnumObjectVersionType OWNER_OBJECT_TYPE;
+	public int VERSION;
 	
 	private Map<String,EntityVar> vars;
 	
-	public PropertyEntity( DBEnumObjectVersionType ownerType , int ownerId , DBEnumParamEntityType entityType , boolean custom ) {
-		this.ownerType = ownerType;
-		this.ownerId = ownerId;
-		this.entityType = entityType;
-		this.custom = custom;
-		vars = new HashMap<String,EntityVar>(); 
+	public PropertyEntity( DBEnumObjectVersionType ownerType , int ownerId , DBEnumParamEntityType entityType , boolean custom , boolean saveAppAsProps , String appTable ) {
+		this.OWNER_OBJECT_TYPE = ownerType;
+		this.OWNER_OBJECT_ID = ownerId;
+		this.PARAMENTITY_TYPE = entityType;
+		this.CUSTOM = custom;
+		this.APP_PROPS = saveAppAsProps;
+		this.APP_TABLE = appTable;
+		vars = new HashMap<String,EntityVar>();
+		VERSION = 0;
 	}
 	
 	public EntityVar[] getVars() {

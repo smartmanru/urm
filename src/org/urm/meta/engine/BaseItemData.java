@@ -203,11 +203,11 @@ public class BaseItemData extends PropertyController {
 	}
 
 	public String getItemPath( ActionBase action , String SRCFILE ) throws Exception {
-		return( repo.getBaseItemPath( action , item.ID , SRCFILE ) );
+		return( repo.getBaseItemPath( action , item.NAME , SRCFILE ) );
 	}
 
 	public RemoteFolder getFolder( ActionBase action ) throws Exception {
-		return( repo.getBaseFolder( action , item.ID ) );
+		return( repo.getBaseFolder( action , item.NAME ) );
 	}
 
 	public boolean isNoDist() {

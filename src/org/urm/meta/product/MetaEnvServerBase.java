@@ -87,7 +87,7 @@ public class MetaEnvServerBase extends PropertyController {
 		if( !super.initCreateStarted( server.getProperties() ) )
 			return;
 
-		super.setStringProperty( PROPERTY_ID , item.ID );
+		super.setStringProperty( PROPERTY_ID , item.NAME );
 		super.finishProperties( action );
 		super.initFinished();
 		
@@ -120,7 +120,7 @@ public class MetaEnvServerBase extends PropertyController {
 	}
 
 	public void setItem( EngineTransaction transaction , BaseItem item ) throws Exception {
-		super.setSystemStringProperty( PROPERTY_ID , item.ID );
+		super.setSystemStringProperty( PROPERTY_ID , item.NAME );
 		super.updateProperties( transaction );
 	}
 	

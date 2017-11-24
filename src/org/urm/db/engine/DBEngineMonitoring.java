@@ -17,7 +17,7 @@ public class DBEngineMonitoring {
 
 	public static PropertyEntity upgradeEntityEngineMonitoring( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		return( DBSettings.savedbEntity( c , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.MONITORING , false , EngineDB.APP_VERSION , new EntityVar[] { 
+		return( DBSettings.savedbEntity( c , DBEnumParamEntityType.MONITORING , DBEnumObjectVersionType.APP , DBVersions.APP_ID , false , EngineDB.APP_VERSION , true , null , new EntityVar[] { 
 				EntityVar.metaBoolean( EngineMonitoring.PROPERTY_ENABLED , "Instance Monitoring Enabled" , true , false ) ,
 				EntityVar.metaString( EngineMonitoring.PROPERTY_RESOURCE_URL , "Monitoring Resources URL" , true , getProductPath( EngineContext.PROPERTY_MON_RESURL ) ) ,
 				EntityVar.metaPathAbsolute( EngineMonitoring.PROPERTY_RESOURCE_PATH , "Monitoring Resources Path" , true , getProductPath( EngineContext.PROPERTY_MON_RESPATH ) ) ,
@@ -27,6 +27,10 @@ public class DBEngineMonitoring {
 		} ) );
 	}
 
+	public static PropertyEntity loaddbEntityEngineMonitoring( EngineLoader loader ) throws Exception {
+		return( DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.MONITORING , false , true , null ) );
+	}
+	
 	private static String getProductPath( String var ) {
 		return( EntityVar.p( var ) + "/" + EntityVar.p( MetaProductCoreSettings.PROPERTY_PRODUCT_NAME ) );
 	}

@@ -39,7 +39,7 @@ public class ObjectMeta {
 		for( PropertyEntity entity : entities ) {
 			for( EntityVar var : entity.getVars() ) {
 				varNames.put( var.NAME , var );
-				varIds.put( var.ID , var );
+				varIds.put( var.PARAM_ID , var );
 			}
 		}
 	}

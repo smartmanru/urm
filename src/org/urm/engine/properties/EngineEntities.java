@@ -1,8 +1,8 @@
 package org.urm.engine.properties;
 
 import org.urm.db.core.DBSettings;
-import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
+import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineContext;
 import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineSettings;
@@ -23,6 +23,7 @@ public class EngineEntities {
 	public static String nameDefaultBuildMajorBranchSet = "build.majorbranch.defaults";
 	public static String nameDefaultBuildTrunkSet = "build.trunk.defaults";
 	public static String nameEngineMonitoring = "defmon";
+	public static String nameBaseItem = "baseitem";
 	public static String nameSystem = "system";
 	
 	public Engine engine;
@@ -35,6 +36,7 @@ public class EngineEntities {
 	private PropertyEntity entityAppProduct;
 	private PropertyEntity entityAppProductBuild;
 	private PropertyEntity entityAppEngineMonitoring;
+	private PropertyEntity entityAppBaseItem;
 	private PropertyEntity entityAppSystem;
 	
 	public EngineEntities( EngineCore core ) {
@@ -48,23 +50,26 @@ public class EngineEntities {
 		entityAppProduct = DBEngineSettings.upgradeEntityProduct( loader );
 		entityAppProductBuild = DBEngineSettings.upgradeEntityProductBuild( loader );
 		entityAppEngineMonitoring = DBEngineMonitoring.upgradeEntityEngineMonitoring( loader );
+		entityAppBaseItem = DBEngineBase.upgradeEntityBaseItem( loader );
 		entityAppSystem = DBSystem.upgradeEntitySystem( loader );
 		useCustom( loader );
 	}
 	
 	public void useData( EngineLoader loader ) throws Exception {
-		entityAppRC = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.RC , false );
-		entityAppEngine = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.ENGINE , false );
-		entityAppProduct = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.PRODUCTDEFS , false );
-		entityAppProductBuild = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.PRODUCTBUILD , false );
-		entityAppEngineMonitoring = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.MONITORING , false );
-		entityAppSystem = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.SYSTEM , false );
+		entityAppRC = DBEngineContext.loaddbEntityRC( loader );
+		entityAppEngine = DBEngineContext.loaddbEntityEngine( loader );
+		entityAppProduct = DBEngineSettings.loaddbEntityProduct( loader );
+		entityAppProductBuild = DBEngineSettings.loaddbEntityProductBuild( loader );
+		entityAppEngineMonitoring = DBEngineMonitoring.loaddbEntityEngineMonitoring( loader );
+		entityAppBaseItem = DBEngineBase.loaddbEntityBaseItem( loader );
+		entityAppSystem = DBSystem.loaddbEntitySystem( loader );
+		
 		useCustom( loader );
 	}
 	
 	private void useCustom( EngineLoader loader ) throws Exception {
-		entityCustomRC = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.CORE_ID , DBEnumParamEntityType.RC_CUSTOM , true );
-		entityCustomEngine = DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.CORE_ID , DBEnumParamEntityType.ENGINE_CUSTOM , true );
+		entityCustomRC = DBEngineContext.loaddbEntityCustomRC( loader );
+		entityCustomEngine = DBEngineContext.loaddbEntityCustomEngine( loader );
 	}
 	
 	public ObjectProperties createRunContextProps() throws Exception {
@@ -129,9 +134,16 @@ public class EngineEntities {
 		return( props );
 	}
 
+	public ObjectProperties createBaseItemProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.BASEITEM , "baseitem" , engine.execrc );
+		PropertyEntity custom = DBSettings.createEntityCustom( DBEnumObjectVersionType.CORE , -1 , DBEnumParamEntityType.BASEITEM_CUSTOM );
+		props.create( parent , entityAppBaseItem , custom );
+		return( props );
+	}
+
 	public ObjectProperties createSystemProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.SYSTEM , "system" , engine.execrc );
-		PropertyEntity custom = new PropertyEntity( DBEnumObjectVersionType.SYSTEM , 0 , DBEnumParamEntityType.SYSTEM_CUSTOM , true );
+		PropertyEntity custom = DBSettings.createEntityCustom( DBEnumObjectVersionType.CORE , -1 , DBEnumParamEntityType.SYSTEM_CUSTOM );
 		props.create( parent , entityAppSystem , custom );
 		return( props );
 	}

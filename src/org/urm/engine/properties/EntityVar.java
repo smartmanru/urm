@@ -7,7 +7,7 @@ public class EntityVar {
 
 	public PropertyEntity entity;
 	
-	public int ID;
+	public int PARAM_ID;
 	public DBEnumParamValueType PARAMVALUE_TYPE;
 	public DBEnumObjectType OBJECT_TYPE;
 	public String NAME;
@@ -60,13 +60,13 @@ public class EntityVar {
 	}
 
 	public boolean isApp() {
-		if( entity.custom )
+		if( entity.CUSTOM )
 			return( false );
 		return( true );
 	}
 	
 	public boolean isCustom() {
-		if( entity.custom )
+		if( entity.CUSTOM )
 			return( true );
 		return( false );
 	}

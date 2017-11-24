@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.engine.Engine;
@@ -62,10 +63,13 @@ public class EngineMonitoring extends EngineObject {
 	}
 	
 	public void loadxml( EngineLoader loader , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
 		EngineSettings settings = data.getEngineSettings();
 		EngineEntities entities = data.getEntities();
 		properties = entities.createEngineMonitoringProps( settings.getEngineProperties() );
-		DBSettings.importxml( loader , root , properties , true );
+		
+		int version = c.getNextCoreVersion();
+		DBSettings.importxml( loader , root , properties , true , DBVersions.CORE_ID , true , version );
 		scatterProperties();
 	}
 	

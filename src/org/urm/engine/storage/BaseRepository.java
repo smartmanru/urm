@@ -42,18 +42,18 @@ public class BaseRepository {
 	}
 
 	public BaseItemData getBaseInfo( ActionBase action , BaseItem item ) throws Exception {
-		String basePath = getBasePath( action , item.ID );
+		String basePath = getBasePath( action , item.NAME );
 		
 		BaseItemData data = new BaseItemData( item , this );
 		if( repoFolder.checkFileExists( action , basePath ) ) {
 			String text = repoFolder.readFile( action , basePath );
 			Document xml = ConfReader.readXmlString( text );
 		
-			action.trace( "load base info id=" + item.ID + " ..." );
+			action.trace( "load base info id=" + item.NAME + " ..." );
 			data.load( action , xml.getDocumentElement() );
 		}
 		else {
-			action.trace( "new base info id=" + item.ID + " ..." );
+			action.trace( "new base info id=" + item.NAME + " ..." );
 			data.create( action );
 		}
 		

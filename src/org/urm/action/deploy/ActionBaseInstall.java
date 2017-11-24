@@ -160,23 +160,23 @@ public class ActionBaseInstall extends ActionBase {
 	}
 	
 	private boolean startUpdate( BaseItemData info , RuntimeStorage runtime , VersionInfoStorage vis ) throws Exception {
-		String STATUS = vis.getBaseStatus( this , info.item.ID );
+		String STATUS = vis.getBaseStatus( this , info.item.NAME );
 		if( STATUS.equals( "ok" ) ) {
 			if( !isForced() ) {
-				info( "skip updating base=" + info.item.ID + ". Already installed." );
+				info( "skip updating base=" + info.item.NAME + ". Already installed." );
 				return( false );
 			}
 		}
 
 		String dowhat = ( STATUS.isEmpty() )? "install" : "reinstall";
-		info( runtime.account.getPrintName() + ": " + dowhat + " base=" + info.item.ID + ", type=" + Common.getEnumLower( info.type ) + " ..." );
-		vis.setBaseStatus( this , info.item.ID , "upgrading" );
+		info( runtime.account.getPrintName() + ": " + dowhat + " base=" + info.item.NAME + ", type=" + Common.getEnumLower( info.type ) + " ..." );
+		vis.setBaseStatus( this , info.item.NAME , "upgrading" );
 		runtime.createRootPath( this );
 		return( true );
 	}
 
 	private void finishUpdate( BaseItemData info , RedistStorage redist , VersionInfoStorage vis ) throws Exception {
-		vis.setBaseStatus( this , info.item.ID , "ok" );
+		vis.setBaseStatus( this , info.item.NAME , "ok" );
 	}
 
 	private String copySourceToLocal( MetaEnvServer server , BaseItemData info ) throws Exception {

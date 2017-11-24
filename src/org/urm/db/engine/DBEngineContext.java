@@ -15,7 +15,7 @@ public abstract class DBEngineContext {
 
 	public static PropertyEntity upgradeEntityRC( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		return( DBSettings.savedbEntity( c , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.RC , false , EngineDB.APP_VERSION , new EntityVar[] { 
+		return( DBSettings.savedbEntity( c , DBEnumParamEntityType.RC , DBEnumObjectVersionType.APP , DBVersions.APP_ID , false , EngineDB.APP_VERSION , false , null , new EntityVar[] { 
 				EntityVar.metaString( RunContext.PROPERTY_HOSTNAME , "Server Host" , true , null ) ,
 				EntityVar.metaPathAbsolute( RunContext.PROPERTY_USER_HOME , "Server User Home" , false , null ) ,
 				EntityVar.metaString( RunContext.PROPERTY_OS_TYPE , "Server Operating System" , true , null ) ,
@@ -28,9 +28,17 @@ public abstract class DBEngineContext {
 		} ) );
 	}
 
+	public static PropertyEntity loaddbEntityRC( EngineLoader loader ) throws Exception {
+		return( DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.RC , false , false , null ) );
+	}
+	
+	public static PropertyEntity loaddbEntityCustomRC( EngineLoader loader ) throws Exception {
+		return( DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.CORE_ID , DBEnumParamEntityType.RC_CUSTOM , true , false , null ) );
+	}
+	
 	public static PropertyEntity upgradeEntityEngine( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		return( DBSettings.savedbEntity( c , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.ENGINE , false , EngineDB.APP_VERSION , new EntityVar[] { 
+		return( DBSettings.savedbEntity( c , DBEnumParamEntityType.ENGINE , DBEnumObjectVersionType.APP , DBVersions.APP_ID , false , EngineDB.APP_VERSION , true , null , new EntityVar[] { 
 				EntityVar.metaInteger( EngineContext.PROPERTY_CONNECTION_JMX_PORT , "Server Engine JMX Port" , true , 6000 ) ,
 				EntityVar.metaInteger( EngineContext.PROPERTY_CONNECTION_JMXWEB_PORT , "Server Engine JMX HTTP Port" , true , 6001 ) ,
 				EntityVar.metaPathAbsolute( EngineContext.PROPERTY_DIST_ROOT , "Central Distributive Repository Path" , true , EntityVar.p( RunContext.PROPERTY_INSTALL_PATH ) + "/dist" ) ,
@@ -59,4 +67,12 @@ public abstract class DBEngineContext {
 		} ) );
 	}
 
+	public static PropertyEntity loaddbEntityEngine( EngineLoader loader ) throws Exception {
+		return( DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.ENGINE , false , true , null ) );
+	}
+	
+	public static PropertyEntity loaddbEntityCustomEngine( EngineLoader loader ) throws Exception {
+		return( DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.CORE_ID , DBEnumParamEntityType.ENGINE_CUSTOM , true , false , null ) );
+	}
+	
 }

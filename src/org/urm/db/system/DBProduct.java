@@ -48,7 +48,7 @@ public abstract class DBProduct {
 		return( products.toArray( new Product[0] ) );
 	}
 	
-	public static Product loadxml( EngineLoader loader , EngineDirectory directory , AppSystem system , Node node ) throws Exception {
+	public static Product importxml( EngineLoader loader , EngineDirectory directory , AppSystem system , Node node ) throws Exception {
 		Product product = new Product( directory , system );
 		product.NAME = ConfReader.getAttrValue( node , "name" );
 		product.DESC = ConfReader.getAttrValue( node , "desc" );

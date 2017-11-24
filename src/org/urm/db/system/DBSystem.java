@@ -31,7 +31,10 @@ import org.w3c.dom.Node;
 
 public abstract class DBSystem {
 
-	public static AppSystem loadxml( EngineLoader loader , EngineDirectory directory , Node node ) throws Exception {
+	public static String TABLE_SYSTEM = "urm_system"; 
+	
+	public static AppSystem importxml( EngineLoader loader , EngineDirectory directory , Node node ) throws Exception {
+		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		EngineSettings settings = loader.data.getEngineSettings();
 		ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
@@ -40,15 +43,17 @@ public abstract class DBSystem {
 		system.NAME = ConfReader.getAttrValue( node , "name" );
 		system.DESC = ConfReader.getAttrValue( node , "desc" );
 		system.OFFLINE = ConfReader.getBooleanAttrValue( node , "offline" , true );
+		int systemId = getSystemIdByName( c , system.NAME );
+		insert( c , systemId , system );
 		
-		DBSettings.importxml( loader , node , props , false );
+		DBSettings.importxml( loader , node , props , false , system.ID , false , system.SV );
 		
 		Node[] items = ConfReader.xmlGetChildren( node , "product" );
 		if( items == null )
 			return( system );
 		
 		for( Node itemNode : items ) {
-			Product product = DBProduct.loadxml( loader , directory , system , itemNode );
+			Product product = DBProduct.importxml( loader , directory , system , itemNode );
 			system.addProduct( product );
 		}
 		
@@ -126,19 +131,6 @@ public abstract class DBSystem {
 		return( DBNames.getNameIndex( c , DBVersions.CORE_ID , name , DBEnumObjectType.SYSTEM ) );
 	}
 	
-	public static void importsavedb( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
-		DBConnection c = loader.getConnection();
-		int systemId = getSystemIdByName( c , system.NAME );
-		insert( c , systemId , system );
-
-		ObjectProperties props = system.getParameters();
-		DBSettings.savedbEntityCustom( c , props , system.SV );
-		DBSettings.savedbValues( c , system.ID , props , false , system.SV );
-		
-		for( Product product : system.getProducts() )
-			DBProduct.importsavedb( loader , directory , product );
-	}
-	
 	public static void insert( DBConnection c , int systemId , AppSystem system ) throws Exception {
 		system.ID = systemId;
 		system.SV = c.getNextSystemVersion( systemId );
@@ -167,19 +159,22 @@ public abstract class DBSystem {
 
 	public static void delete( DBConnection c , AppSystem system ) throws Exception {
 		int SV = c.getNextSystemVersion( system.ID );
-		if( !c.update( DBQueries.MODIFY_SYSTEM_DELETEALLPARAMS2 , new String[] { "" + system.ID , "" + SV } ) )
-			Common.exitUnexpected();
+		DBSettings.dropObjectSettings( c , system.ID );
 		if( !c.update( DBQueries.MODIFY_SYSTEM_DELETE2 , new String[] { "" + system.ID , "" + SV } ) )
 			Common.exitUnexpected();
 	}
 
 	public static PropertyEntity upgradeEntitySystem( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		return( DBSettings.savedbEntity( c , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.SYSTEM , false , EngineDB.APP_VERSION , new EntityVar[] { 
+		return( DBSettings.savedbEntity( c , DBEnumParamEntityType.SYSTEM , DBEnumObjectVersionType.APP , DBVersions.APP_ID , false , EngineDB.APP_VERSION , false , TABLE_SYSTEM , new EntityVar[] { 
 				EntityVar.metaString( AppSystem.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaString( AppSystem.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBoolean( AppSystem.PROPERTY_OFFLINE , "Offline" , false , true )
 		} ) );
 	}
 
+	public static PropertyEntity loaddbEntitySystem( EngineLoader loader ) throws Exception {
+		return( DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.SYSTEM , false , true , DBSystem.TABLE_SYSTEM ) );
+	}
+	
 }
