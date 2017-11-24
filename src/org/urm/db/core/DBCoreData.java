@@ -63,7 +63,6 @@ public abstract class DBCoreData {
 		res = ( res )? c.update( DBQueries.MODIFY_BASE_DROP_ITEMDEPS0 ) : false;
 		res = ( res )? c.update( DBQueries.MODIFY_BASE_DROP_ITEM0 ) : false;
 		res = ( res )? c.update( DBQueries.MODIFY_BASE_DROP_GROUP0 ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_BASE_DROP_CATEGORY0 ) : false;
 		if( !res )
 			Common.exitUnexpected();
 	}

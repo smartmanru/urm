@@ -204,7 +204,7 @@ public class TransactionBase extends EngineObject {
 				if( saveRegistry ) {
 					EngineData data = engine.getData();
 					EngineLoader loader = new EngineLoader( engine , data , action );
-					loader.saveRegistry();
+					loader.commitRegistry();
 				}
 			}
 			catch( Throwable e ) {
@@ -260,7 +260,7 @@ public class TransactionBase extends EngineObject {
 				if( saveRegistry ) {
 					EngineData data = engine.getData();
 					EngineLoader loader = new EngineLoader( engine , data , action );
-					loader.saveRegistry();
+					loader.commitRegistry();
 				}
 			}
 			catch( Throwable e ) {
@@ -476,7 +476,7 @@ public class TransactionBase extends EngineObject {
 		try {
 			EngineData data = engine.getData();
 			EngineLoader loader = new EngineLoader( engine , data , action );
-			loader.saveInfrastructure();
+			loader.commitInfrastructure();
 			trace( "transaction server infrastructure: save done" );
 			return( true );
 		}
@@ -523,7 +523,7 @@ public class TransactionBase extends EngineObject {
 		try {
 			EngineData data = engine.getData();
 			EngineLoader loader = new EngineLoader( engine , data , action );
-			loader.saveReleaseLifecycles();
+			loader.commitReleaseLifecycles();
 			trace( "transaction server release lifecycles: save done" );
 			return( true );
 		}

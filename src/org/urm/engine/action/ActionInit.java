@@ -71,8 +71,10 @@ public class ActionInit extends ActionBase {
 		this.data = engine.getData();
 		this.memoryOnly = memoryOnly;
 		
-		EngineEvents events = data.engine.getEvents();
-		eventsApp = events.createApp( "session-" + super.session.sessionId );
+		if( !memoryOnly ) {
+			EngineEvents events = data.engine.getEvents();
+			eventsApp = events.createApp( "session-" + super.session.sessionId );
+		}
 	}
 
 	public void tee() throws Exception {
@@ -87,8 +89,10 @@ public class ActionInit extends ActionBase {
 	}
 
 	public void close() {
-		EngineEvents events = data.engine.getEvents();
-		events.deleteApp( eventsApp );
+		if( eventsApp != null ) {
+			EngineEvents events = data.engine.getEvents();
+			events.deleteApp( eventsApp );
+		}
 	}
 	
 	public EngineEventsApp getEventsApp() {
@@ -181,7 +185,7 @@ public class ActionInit extends ActionBase {
 	}
 	
 	public EngineBase getServerBase() {
-		return( data.getServerBase() );
+		return( data.getEngineBase() );
 	}
 
 	public EngineReleaseLifecycles getServerReleaseLifecycles() {

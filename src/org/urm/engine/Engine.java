@@ -103,6 +103,7 @@ public class Engine {
 		sessionController.init();
 		blotter.init();
 		
+		serverExecutor = MainExecutor.createExecutor( this );
 		buildExecutor = CodebaseCommandExecutor.createExecutor( this );
 		databaseExecutor = DatabaseCommandExecutor.createExecutor( this );
 		deployExecutor = DeployCommandExecutor.createExecutor( this );
@@ -110,7 +111,9 @@ public class Engine {
 		releaseExecutor = ReleaseCommandExecutor.createExecutor( this );
 		xdocExecutor = XDocCommandExecutor.createExecutor( this );
 		
+		createTemporaryEngineAction();
 		EngineLoader loader = new EngineLoader( this , data , serverAction );
+		loader.initData();
 		loader.loadCore();
 	}
 	
@@ -141,8 +144,10 @@ public class Engine {
 	}
 	
 	public void stopServer() throws Exception {
-		if( !running )
+		if( !running ) {
+			stopTemporaryEngineAction();
 			return;
+		}
 		
 		serverAction.info( "stopping server ..." );
 		
@@ -164,6 +169,8 @@ public class Engine {
 		auth.stop( serverAction );
 		
 		running = false;
+		
+		createTemporaryEngineAction();
 	}
 
 	public boolean isRunning() {
@@ -172,7 +179,6 @@ public class Engine {
 	
 	public boolean prepareWeb() throws Exception {
 		// server run options
-		serverExecutor = MainExecutor.createExecutor( this );
 		CommandOptions options = serverExecutor.createOptionsStartServerByWeb( this );
 		if( options == null )
 			return( false );
@@ -203,9 +209,33 @@ public class Engine {
 		
 		return( action );
 	}
+
+	public void createTemporaryEngineAction() throws Exception {
+		SessionSecurity security = auth.createServerSecurity();
+		EngineSession session = sessionController.createSession( security , execrc , false );
+		CommandOptions options = serverExecutor.createOptionsTemporary( this , true );
+		
+		ActionInit action = createRootAction( RootActionType.Temporary , options , session , "init" , null , true , "Temporary engine action, session=" + session.sessionId );
+		startAction( action );
+		
+		serverSession = session;
+		serverAction = action;
+	}
+
+	public void stopTemporaryEngineAction() throws Exception {
+		if( serverAction != null ) {
+			finishAction( serverAction , false );
+			serverAction = null;
+		}
+		
+		if( serverSession != null ) {
+			sessionController.closeSession( serverSession );
+			serverSession = null;
+		}
+	}
 	
-	public ActionInit createTemporaryAction( String name , EngineSession session ) throws Exception {
-		CommandOptions options = serverExecutor.createOptionsTemporary( this );
+	public ActionInit createTemporaryClientAction( String name , EngineSession session ) throws Exception {
+		CommandOptions options = serverExecutor.createOptionsTemporary( this , false );
 		if( options == null )
 			return( null );
 		
@@ -224,21 +254,25 @@ public class Engine {
 		return( runServerAction() );
 	}
 	
-	public boolean prepareServerExecutor( CommandOptions options ) throws Exception {
+	private boolean prepareServerExecutor( CommandOptions options ) throws Exception {
 		// server action environment
 		SessionSecurity security = auth.createServerSecurity();
-		serverSession = sessionController.createSession( security , execrc , false );
-		serverSession.setServerLayout( options );
+		EngineSession session = sessionController.createSession( security , execrc , false );
+		session.setServerLayout( options );
 		
 		// create server action
-		serverAction = createRootAction( RootActionType.Core , options , serverSession , "server" , null , false , "Server instance" );
-		if( serverAction == null )
+		ActionInit action = createRootAction( RootActionType.Core , options , session , "server" , null , false , "Server instance" );
+		if( action == null )
 			return( false );
 
 		// run server action
 		running = true;
-		createPool();
-		startAction( serverAction );
+		createPool( action );
+		startAction( action );
+		
+		stopTemporaryEngineAction();
+		serverSession = session;
+		serverAction = action;
 		
 		return( true );
 	}
@@ -256,7 +290,7 @@ public class Engine {
 		if( serverAction == null )
 			return( false );
 
-		createPool();
+		createPool( serverAction );
 		if( !execrc.isStandalone() )
 			serverSession.setServerOfflineProductLayout( serverAction , options , execrc.product );
 		
@@ -339,16 +373,16 @@ public class Engine {
 		action.setTimeout( context.CTX_TIMEOUT );
 		
 		if( memoryOnly )
-			action.debug( "memory action created: actionId=" + action.ID + ", name=" + action.actionName );
+			trace( "memory action created: actionId=" + action.ID + ", name=" + action.actionName );
 		else
-			action.debug( "normal action created: actionId=" + action.ID + ", name=" + action.actionName + ", workfolder=" + action.artefactory.workFolder.folderPath );
+			action.debug( "normal action created: actionId=" + action.ID + ", name=" + action.actionName + ", workfolder=" + action.artefactory.workFolder.getLocalPath( action ) );
 		
 		return( action );
 	}
 	
-	public void createPool() throws Exception {
+	public void createPool( ActionInit action ) throws Exception {
 		shellPool = new EngineShellPool( this );
-		shellPool.start( serverAction );
+		shellPool.start( action );
 	}
 
 	public void killPool() throws Exception {

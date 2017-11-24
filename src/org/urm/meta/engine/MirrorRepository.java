@@ -182,7 +182,7 @@ public class MirrorRepository extends EngineObject {
 		
 		Map<String,LocalFolder> map = new HashMap<String,LocalFolder>();
 		if( TYPE == DBEnumMirrorType.SERVER ) {
-			LocalFolder serverSettings = loader.getServerSettingsFolder();
+			LocalFolder serverSettings = loader.getEngineSettingsFolder();
 			map.put( "." , serverSettings );
 		}
 		else
@@ -195,7 +195,7 @@ public class MirrorRepository extends EngineObject {
 		if( TYPE == DBEnumMirrorType.PRODUCT_DATA ) {
 			Meta meta = action.getActiveProductMetadata( PRODUCT );
 			MetaProductSettings settings = meta.getProductSettings( action );
-			LocalFolder home = loader.getServerHomeFolder();
+			LocalFolder home = loader.getEngineHomeFolder();
 			addFolderMapItem( action , map , SourceStorage.DATA_LIVE , home , settings.CONFIG_SOURCE_CFG_LIVEROOTDIR );
 			addFolderMapItem( action , map , SourceStorage.DATA_TEMPLATES , home , settings.CONFIG_SOURCE_CFG_ROOTDIR );
 			addFolderMapItem( action , map , SourceStorage.DATA_POSTREFRESH , home , settings.CONFIG_SOURCE_SQL_POSTREFRESH );

@@ -60,8 +60,6 @@ public class EngineData {
 
 	public void init() throws Exception {
 		db.init();
-		EngineLoader loader = new EngineLoader( engine , this , engine.serverAction );
-		loader.initData();
 	}
 
 	public void unloadProducts() {
@@ -149,7 +147,7 @@ public class EngineData {
 		}
 	}
 	
-	public EngineBase getServerBase() {
+	public EngineBase getEngineBase() {
 		synchronized( engine ) {
 			return( core.getBase() );
 		}

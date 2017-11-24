@@ -472,14 +472,14 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setEnabled( this , false );
-		loader.saveMonitoring();
+		loader.commitMonitoring();
 	}
 	
 	public void enableMonitoring() throws Exception {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setEnabled( this , true );
-		loader.saveMonitoring();
+		loader.commitMonitoring();
 	}
 
 	public void setMonitoringEnabled( Product product ) throws Exception {
@@ -504,7 +504,7 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setDefaultProperties( this , props );
-		loader.saveMonitoring();
+		loader.commitMonitoring();
 	}
 
 	public void setProductMonitoringProperties( Meta meta , PropertySet props ) throws Exception {

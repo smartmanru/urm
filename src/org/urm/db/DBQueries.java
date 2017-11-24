@@ -47,7 +47,6 @@ public abstract class DBQueries {
 	public static String MODIFY_BASE_DROP_ITEMDEPS0 = "delete from urm_base_item_deps";
 	public static String MODIFY_BASE_DROP_ITEM0 = "delete from urm_base_item";
 	public static String MODIFY_BASE_DROP_GROUP0 = "delete from urm_base_group";
-	public static String MODIFY_BASE_DROP_CATEGORY0 = "delete from urm_base_category";
 
 	public static String MODIFY_APP_DROP_SYSTEMPARAMVALUES0 = "delete from urm_object_param_value where owner_object in ( select id from urm_system )";
 	public static String MODIFY_APP_DROP_SYSTEMPARAMS0 = "delete from urm_object_param where owner_object in ( select id from urm_system )";

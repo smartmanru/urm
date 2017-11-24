@@ -72,12 +72,67 @@ public class EngineLoader {
 		return( action );
 	}
 	
+	public LocalFolder getEngineHomeFolder() throws Exception {
+		LocalFolder folder = action.getLocalFolder( execrc.installPath );
+		return( folder );
+	}
+
+	public LocalFolder getEngineSettingsFolder() throws Exception {
+		String path = Common.getPath( execrc.installPath , "etc" );
+		LocalFolder folder = action.getLocalFolder( path );
+		return( folder );
+	}
+
+	public LocalFolder getProductHomeFolder( String productName ) throws Exception {
+		Meta meta = action.actionInit.getActiveProductMetadata( productName );
+		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , meta );
+		LocalFolder folder = storageMeta.getHomeFolder( action );
+		return( folder );
+	}
+
+	private String getEngineSettingsFile() {
+		String path = Common.getPath( execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "server.xml" );
+		return( propertyFile );
+	}
+	
+	private String getBaseFile() throws Exception {
+		String path = Common.getPath( execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "base.xml" );
+		return( propertyFile );
+	}
+
+	private String getInfrastructureFile() throws Exception {
+		String path = Common.getPath( execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "networks.xml" );
+		return( propertyFile );
+	}
+
+	private String getReleaseLifecyclesFile() throws Exception {
+		String path = Common.getPath( execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "lifecycles.xml" );
+		return( propertyFile );
+	}
+
+	private String getMonitoringFile() throws Exception {
+		String path = Common.getPath( execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "monitoring.xml" );
+		return( propertyFile );
+	}
+
+	private String getRegistryFile() throws Exception {
+		String path = Common.getPath( execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "registry.xml" );
+		return( propertyFile );
+	}
+
 	public void initData() throws Exception {
 		try {
-			engine.trace( "init, checking client/server consistency ..." );
+			trace( "init, checking engine/database consistency ..." );
 			EngineDB db = data.getDatabase();
 			connection = db.getConnection( null );
 			
+			trace( "load names ..." );
 			DBNames.loaddb( this );
 			
 			boolean dbUpdate = Common.getBooleanValue( System.getProperty( "dbupdate" ) );
@@ -93,19 +148,18 @@ public class EngineLoader {
 		}
 	}
 	
-	public void initData( DBConnection connection ) throws Exception {
-	}
-	
 	private void upgradeData() throws Exception {
+		trace( "upgrade meta ..." );
 		DBCoreData.upgradeData( this );
 		EngineCore core = data.getCore();
 		core.upgradeData( this );
 	}
 	
 	private void useData() throws Exception {
+		trace( "load meta ..." );
 		int version = DBVersions.getCurrentAppVersion( connection );
 		if( version != EngineDB.APP_VERSION )
-			Common.exit2( _Error.InvalidVersion2 , "Mismatched client/database, client version=" + EngineDB.APP_VERSION + ", database version=" + version , "" + EngineDB.APP_VERSION , "" + version );
+			Common.exit2( _Error.InvalidVersion2 , "Mismatched engine/database, engine version=" + EngineDB.APP_VERSION + ", database version=" + version , "" + EngineDB.APP_VERSION , "" + version );
 		
 		DBCoreData.useData( this );
 		EngineCore core = data.getCore();
@@ -139,38 +193,33 @@ public class EngineLoader {
 	}
 	
 	private void importCore( boolean includingSystems ) throws Exception {
-		trace( "import server core settings ..." );
-		
-		if( includingSystems )
-			data.unloadAll();
-		else
-			Common.exitUnexpected();
-
 		dropCoreData( includingSystems );
 		loadCore( true , includingSystems );
 	}
 
 	private void exportCore( boolean includingSystems ) throws Exception {
-		trace( "export server core settings ..." );
+		trace( "export engine core data ..." );
 		exportxmlSettings();
 		exportxmlBase();
-		saveInfrastructure();
-		saveReleaseLifecycles();
-		saveMonitoring();
-		saveRegistry();
+		exportxmlInfrastructure();
+		exportxmlReleaseLifecycles();
+		exportxmlMonitoring();
+		exportxmlRegistry();
 	}
 
 	private void exportProduct( String productName ) throws Exception {
-		trace( "export server core settings ..." );
+		trace( "export engine product=" + productName + " data ..." );
 		data.saveProductMetadata( this , productName );
 	}
 
-	public void importProduct( String product , boolean includingEnvironments ) throws Exception {
+	public void importProduct( String productName , boolean includingEnvironments ) throws Exception {
+		trace( "import engine product=" + productName + " data ..." );
 		EngineProducts products = data.getProducts();
-		products.importProduct( this , product , includingEnvironments );
+		products.importProduct( this , productName , includingEnvironments );
 	}
 	
 	private void loadCore( boolean importxml , boolean withSystems ) throws Exception {
+		trace( "cleanup engine data ..." );
 		data.unloadAll();
 		
 		EngineDB db = data.getDatabase();
@@ -182,15 +231,19 @@ public class EngineLoader {
 			// core
 			if( importxml ) {
 				connection.setNextCoreVersion();
-				importxmlSettings();
+				trace( "create new engine core version=" + connection.getCoreVersion() + " ..." );
+				importxmlEngineSettings();
 				importxmlBase();
 				loadInfrastructure();
 				loadReleaseLifecycles();
 				importxmlMonitoring();
 				loadRegistry();
+				connection.save( true );
+				trace( "successfully completed import of engine core data" );
 			}
 			else {
-				loaddbSettings();
+				trace( "load engine core data, version=" + connection.getCoreVersion() + " ..." );
+				loaddbEngineSettings();
 				loaddbBase();
 				loadInfrastructure();
 				loadReleaseLifecycles();
@@ -198,12 +251,13 @@ public class EngineLoader {
 				loadRegistry();
 			}
 				
-			connection.save( true );
-
 			// systems
 			if( importxml ) {
-				if( withSystems )
+				if( withSystems ) {
 					importxmlDirectory();
+					connection.save( true );
+					trace( "successfully completed import of engine directory data" );
+				}
 				else
 					loaddbDirectory();
 			}
@@ -211,91 +265,43 @@ public class EngineLoader {
 				loaddbDirectory();
 			}
 			
-			connection.save( true );
-			
-			if( importxml ) {
-				trace( "successfully saved server metadata version=" + connection.getNextCoreVersion() );
-				connection.close( true );
-				connection = null;
-			}
+			connection = null;
 		}
 		catch( Throwable e ) {
 			log( "init" , e );
-			if( connection != null && importxml ) {
-				trace( "unable to save server metadata version=" + connection.getNextCoreVersion() );
-				connection.close( false );
-				connection = null;
-			}
+			if( importxml )
+				trace( "unable to import engine data" );
+			else
+				trace( "unable to load engine data" );
+			
+			connection.close( false );
+			connection = null;
 			Common.exitUnexpected();
 		}
 	}
 	
-	public LocalFolder getServerHomeFolder() throws Exception {
-		LocalFolder folder = action.getLocalFolder( execrc.installPath );
-		return( folder );
-	}
-
-	public LocalFolder getServerSettingsFolder() throws Exception {
-		String path = Common.getPath( execrc.installPath , "etc" );
-		LocalFolder folder = action.getLocalFolder( path );
-		return( folder );
-	}
-
-	public LocalFolder getProductHomeFolder( String productName ) throws Exception {
-		Meta meta = action.actionInit.getActiveProductMetadata( productName );
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , meta );
-		LocalFolder folder = storageMeta.getHomeFolder( action );
-		return( folder );
-	}
-
-	private String getServerSettingsFile() {
-		String path = Common.getPath( execrc.installPath , "etc" );
-		String propertyFile = Common.getPath( path , "server.xml" );
-		return( propertyFile );
-	}
-	
-	private String getBaseFile() throws Exception {
-		String path = Common.getPath( execrc.installPath , "etc" );
-		String propertyFile = Common.getPath( path , "base.xml" );
-		return( propertyFile );
-	}
-
-	private String getInfrastructureFile() throws Exception {
-		String path = Common.getPath( execrc.installPath , "etc" );
-		String propertyFile = Common.getPath( path , "networks.xml" );
-		return( propertyFile );
-	}
-
-	private String getReleaseLifecyclesFile() throws Exception {
-		String path = Common.getPath( execrc.installPath , "etc" );
-		String propertyFile = Common.getPath( path , "lifecycles.xml" );
-		return( propertyFile );
-	}
-
 	private void loadInfrastructure() throws Exception {
+		trace( "load engine infrastructure data ..." );
 		String infraFile = getInfrastructureFile();
 		EngineInfrastructure infra = data.getInfrastructure();
 		infra.load( infraFile , execrc );
 	}
 
 	private void loadReleaseLifecycles() throws Exception {
+		trace( "load engine lifecycles data ..." );
 		String lcFile = getReleaseLifecyclesFile();
 		EngineReleaseLifecycles lifecycles = data.getReleaseLifecycles();
 		lifecycles.load( lcFile , execrc );
 	}
 
-	private String getMonitoringFile() throws Exception {
-		String path = Common.getPath( execrc.installPath , "etc" );
-		String propertyFile = Common.getPath( path , "monitoring.xml" );
-		return( propertyFile );
-	}
-
 	private void loaddbMonitoring() throws Exception {
+		trace( "load engine monitoring data ..." );
 		EngineMonitoring mon = data.getMonitoring();
 		mon.loaddb( this );
 	}
 
 	private void importxmlMonitoring() throws Exception {
+		trace( "import engine infrastructure data ..." );
 		String monFile = getMonitoringFile();
 		Document doc = ConfReader.readXmlFile( execrc , monFile );
 		Node root = doc.getDocumentElement();
@@ -304,14 +310,9 @@ public class EngineLoader {
 		mon.loadxml( this , root );
 	}
 
-	private String getServerRegistryFile() throws Exception {
-		String path = Common.getPath( execrc.installPath , "etc" );
-		String propertyFile = Common.getPath( path , "registry.xml" );
-		return( propertyFile );
-	}
-
 	private void loadRegistry() throws Exception {
-		String registryFile = getServerRegistryFile();
+		trace( "load engine registry data ..." );
+		String registryFile = getRegistryFile();
 		EngineRegistry registry = data.getRegistry();
 		
 		Document doc = ConfReader.readXmlFile( execrc , registryFile );
@@ -320,6 +321,7 @@ public class EngineLoader {
 	}
 
 	private void loaddbDirectory() throws Exception {
+		trace( "load engine directory data ..." );
 		EngineDirectory directory = data.getDirectory();
 		DBEngineDirectory.loaddb( this , directory );
 		
@@ -328,7 +330,8 @@ public class EngineLoader {
 	}
 	
 	private void importxmlDirectory() throws Exception {
-		String registryFile = getServerRegistryFile();
+		trace( "import engine directory data ..." );
+		String registryFile = getRegistryFile();
 		Document doc = ConfReader.readXmlFile( execrc , registryFile );
 		Node root = doc.getDocumentElement();
 		
@@ -342,16 +345,18 @@ public class EngineLoader {
 	}
 	
 	private void importxmlBase() throws Exception {
+		trace( "import engine base data ..." );
 		String baseFile = getBaseFile();
 		Document doc = ConfReader.readXmlFile( execrc , baseFile );
 		Node root = doc.getDocumentElement();
 		
-		EngineBase base = data.getServerBase();
+		EngineBase base = data.getEngineBase();
 		DBEngineBase.importxml( this , base , root );
 	}
 
-	private void importxmlSettings() throws Exception {
-		String propertyFile = getServerSettingsFile();
+	private void importxmlEngineSettings() throws Exception {
+		trace( "load engine settings data ..." );
+		String propertyFile = getEngineSettingsFile();
 		Document doc = ConfReader.readXmlFile( execrc , propertyFile );
 		if( doc == null )
 			Common.exit1( _Error.UnableReadEnginePropertyFile1 , "unable to read engine property file " + propertyFile , propertyFile );
@@ -362,24 +367,32 @@ public class EngineLoader {
 		DBEngineSettings.importxml( this , settings , root );
 	}
 
-	private void loaddbSettings() throws Exception {
+	private void loaddbEngineSettings() throws Exception {
+		trace( "load engine settings data ..." );
 		EngineSettings settings = data.getEngineSettings();
 		DBEngineSettings.loaddb( this , settings );
 	}
 
 	private void loaddbBase() throws Exception {
-		EngineBase base = data.getServerBase();
+		trace( "load engine base data ..." );
+		EngineBase base = data.getEngineBase();
 		DBEngineBase.loaddb( this , base );
 	}
 
 	public void loadProducts() throws Exception {
+		trace( "load engine products data ..." );
 		data.unloadProducts();
 		EngineProducts products = data.getProducts();
 		products.loadProducts( this );
 	}
 
-	public void saveRegistry() throws Exception {
-		String propertyFile = getServerRegistryFile();
+	public void commitRegistry() throws Exception {
+		exportxmlRegistry();
+	}
+	
+	public void exportxmlRegistry() throws Exception {
+		trace( "export engine registry data ..." );
+		String propertyFile = getRegistryFile();
 		Document doc = Common.xmlCreateDoc( "registry" );
 		Element root = doc.getDocumentElement();
 		
@@ -397,15 +410,21 @@ public class EngineLoader {
 	}
 	
 	public void exportxmlBase() throws Exception {
+		trace( "export engine base data ..." );
 		String propertyFile = getBaseFile();
-		EngineBase base = data.getServerBase();
+		EngineBase base = data.getEngineBase();
 		Document doc = Common.xmlCreateDoc( "base" );
 		Element root = doc.getDocumentElement();
 		DBEngineBase.exportxml( this , base , doc , root );
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
-	public void saveInfrastructure() throws Exception {
+	public void exportxmlInfrastructure() throws Exception {
+		commitInfrastructure();
+	}
+	
+	public void commitInfrastructure() throws Exception {
+		trace( "export engine infrastructure data ..." );
 		String propertyFile = getInfrastructureFile();
 		EngineInfrastructure infra = data.getInfrastructure();
 		Document doc = Common.xmlCreateDoc( "infrastructure" );
@@ -414,7 +433,12 @@ public class EngineLoader {
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
-	public void saveReleaseLifecycles() throws Exception {
+	public void commitReleaseLifecycles() throws Exception {
+		exportxmlReleaseLifecycles();
+	}
+	
+	public void exportxmlReleaseLifecycles() throws Exception {
+		trace( "export engine lifecycles data ..." );
 		String propertyFile = getReleaseLifecyclesFile();
 		EngineReleaseLifecycles lifecycles = data.getReleaseLifecycles();
 		Document doc = Common.xmlCreateDoc( "lifecycles" );
@@ -423,7 +447,12 @@ public class EngineLoader {
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
-	public void saveMonitoring() throws Exception {
+	public void commitMonitoring() throws Exception {
+		exportxmlMonitoring();
+	}
+	
+	public void exportxmlMonitoring() throws Exception {
+		trace( "export engine monitoring data ..." );
 		String propertyFile = getMonitoringFile();
 		EngineMonitoring mon = data.getMonitoring();
 		Document doc = Common.xmlCreateDoc( "monitoring" );
@@ -436,15 +465,17 @@ public class EngineLoader {
 	}	
 	
 	public void exportxmlSettings() throws Exception {
+		trace( "export engine settings data ..." );
 		EngineSettings settings = data.getEngineSettings();
-		String propertyFile = getServerSettingsFile();
-		Document doc = Common.xmlCreateDoc( "server" );
+		String propertyFile = getEngineSettingsFile();
+		Document doc = Common.xmlCreateDoc( "engine" );
 		Element root = doc.getDocumentElement();
 		DBEngineSettings.exportxml( this , settings , doc , root );
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 	
 	public void setSettings( EngineSettings settingsNew ) throws Exception {
+		trace( "change engine settings data ..." );
 		EngineSettings settings = data.getEngineSettings();
 		settings.setData( action , settingsNew , connection.getCoreVersion() );
 		commitSettings();
@@ -454,20 +485,25 @@ public class EngineLoader {
 		EngineDB db = data.getDatabase();
 		try {
 			connection = db.getConnection( action );
-			if( includingSystems )
+			if( includingSystems ) {
+				trace( "drop engine directory data in database ..." );
 				DBSystemData.dropSystemData( this );
+				trace( "successfully dropped engine directory data" );
+			}
+			
+			trace( "drop engine core data in database ..." );
+			connection.setNextCoreVersion();
 			DBCoreData.dropCoreData( this );
-			int CV = connection.getCurrentCoreVersion();
+			int CV = connection.getCoreVersion();
 			connection.close( true );
 			connection = null;
-			trace( "successfully deleted current server metadata, version=" + CV );
+			trace( "successfully dropped engine core data, core version=" + CV );
 		}
 		catch( Throwable e ) {
 			log( "init" , e );
-			int CV = connection.getCurrentCoreVersion();
 			connection.close( false );
 			connection = null;
-			trace( "unable to delete current server metadata, version=" + CV );
+			trace( "unable to drop engine data" );
 			Common.exitUnexpected();
 		}
 	}
