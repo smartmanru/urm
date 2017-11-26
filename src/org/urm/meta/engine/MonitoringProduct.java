@@ -91,7 +91,7 @@ public class MonitoringProduct {
 		
 		MetaEnvSegment sg = targetAction.target.getSegment( action );
 		EngineScheduler scheduler = action.getServerScheduler();
-		String sgName = sg.meta.name + "-" + sg.env.ID + sg.NAME;
+		String sgName = sg.meta.name + "-" + sg.env.NAME + sg.NAME;
 		
 		String codeMajor = sgName + "-major";
 		ScheduleTask task = scheduler.findTask( ScheduleTaskCategory.MONITORING , codeMajor );
@@ -120,7 +120,7 @@ public class MonitoringProduct {
 		targetAction.start();
 		
 		EngineScheduler scheduler = action.getServerScheduler();
-		String sgName = sg.meta.name + "-" + sg.env.ID + sg.NAME;
+		String sgName = sg.meta.name + "-" + sg.env.NAME + sg.NAME;
 		
 		if( target.enabledMajor ) {
 			String codeMajor = sgName + "-major";

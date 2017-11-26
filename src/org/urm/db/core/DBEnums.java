@@ -14,6 +14,20 @@ import org.urm.meta.EngineLoader;
 
 public abstract class DBEnums {
 
+	public enum DBEnumOwnerStatusType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		ACTIVE(1,null) ,
+		DELETED(2,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumOwnerStatusType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumOwnerStatusType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumOwnerStatusType.class , value , required , null ) ); };
+		public static DBEnumOwnerStatusType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumOwnerStatusType.class , value , required , null ) ); };
+	}
+	
 	public enum DBEnumResourceType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		CREDENTIALS(1,null) ,
@@ -328,6 +342,7 @@ public abstract class DBEnums {
 	//#################################################
 	// implementation
 	private static DBEnumInfo[] enums = { 
+		new DBEnumInfo( DBEnumOwnerStatusType.class , 10 ) ,
 		new DBEnumInfo( DBEnumObjectType.class , 11 ) ,
 		new DBEnumInfo( DBEnumObjectVersionType.class , 12 ) ,
 		new DBEnumInfo( DBEnumBaseCategoryType.class , 13 ) , 

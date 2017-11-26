@@ -225,7 +225,7 @@ public class EngineStatusProduct extends EngineObject {
 	}
 
 	private void startEnvironmentSource( ActionBase action , MetaEnv env ) {
-		createProductSource( StatusType.ENVIRONMENT , env , env.ID , new EnvStatus( env ) );
+		createProductSource( StatusType.ENVIRONMENT , env , env.NAME , new EnvStatus( env ) );
 	}
 	
 	private void startSegment( ActionBase action , MetaEnvSegment sg ) {
@@ -237,7 +237,7 @@ public class EngineStatusProduct extends EngineObject {
 	}
 
 	private void startSegmentSource( ActionBase action , MetaEnvSegment sg ) {
-		createProductSource( StatusType.SEGMENT , sg , sg.env.ID + "-" + sg.NAME , new SegmentStatus( sg ) );
+		createProductSource( StatusType.SEGMENT , sg , sg.env.NAME + "-" + sg.NAME , new SegmentStatus( sg ) );
 	}
 	
 	private void startServer( ActionBase action , MetaEnvServer server ) {
@@ -249,7 +249,7 @@ public class EngineStatusProduct extends EngineObject {
 	}
 
 	private void startServerSource( ActionBase action , MetaEnvServer server ) {
-		createProductSource( StatusType.SERVER , server , server.sg.env.ID + "-" + server.sg.NAME + "-" + server.NAME , new ServerStatus( server ) );
+		createProductSource( StatusType.SERVER , server , server.sg.env.NAME + "-" + server.sg.NAME + "-" + server.NAME , new ServerStatus( server ) );
 	}
 	
 	private void startNode( ActionBase action , MetaEnvServerNode node ) {
@@ -257,7 +257,7 @@ public class EngineStatusProduct extends EngineObject {
 	}
 	
 	private void startNodeSource( ActionBase action , MetaEnvServerNode node ) {
-		createProductSource( StatusType.NODE , node , node.server.sg.env.ID + "-" + node.server.sg.NAME + "-" + node.server.NAME + "-" + node.POS , new NodeStatus( node ) );
+		createProductSource( StatusType.NODE , node , node.server.sg.env.NAME + "-" + node.server.sg.NAME + "-" + node.server.NAME + "-" + node.POS , new NodeStatus( node ) );
 	}
 	
 	private StatusSource createProductSource( StatusType type , EngineObject object , String name , Status status ) {
@@ -276,22 +276,22 @@ public class EngineStatusProduct extends EngineObject {
 		String name = null;
 		if( object instanceof MetaEnv ) {
 			MetaEnv env = ( MetaEnv )object;
-			name = env.ID;
+			name = env.NAME;
 		}
 		else
 		if( object instanceof MetaEnvSegment ) {
 			MetaEnvSegment sg = ( MetaEnvSegment )object;
-			name = sg.env.ID + "-" + sg.NAME;
+			name = sg.env.NAME + "-" + sg.NAME;
 		}
 		else
 		if( object instanceof MetaEnvServer ) {
 			MetaEnvServer server = ( MetaEnvServer )object;
-			name = server.sg.env.ID + "-" + server.sg.NAME + "-" + server.NAME;
+			name = server.sg.env.NAME + "-" + server.sg.NAME + "-" + server.NAME;
 		}
 		else
 		if( object instanceof MetaEnvServerNode ) {
 			MetaEnvServerNode node = ( MetaEnvServerNode )object;
-			name = node.server.sg.env.ID + "-" + node.server.sg.NAME + "-" + node.server.NAME + "-" + node.POS;
+			name = node.server.sg.env.NAME + "-" + node.server.sg.NAME + "-" + node.server.NAME + "-" + node.POS;
 		}
 		
 		StatusSource source = productSources.get( name );

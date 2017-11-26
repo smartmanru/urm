@@ -48,34 +48,57 @@ public abstract class DBSettings {
 		}
 		rs.close();
 	}
-	
+
 	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , boolean appAsProperties , int objectId , boolean saveApp , int version ) throws Exception {
+		importxml( loader , root , properties , appAsProperties );
+		savedb( loader , properties , objectId , saveApp , version );
+	}
+	
+	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		
 		// load attributes - app only
+		boolean ok = true;
 		if( !appAsProperties ) {
 			Map<String,String> attrs = ConfReader.getAttributes( root );
 			for( String prop : Common.getSortedKeys( attrs ) ) {
 				String value = attrs.get( prop );
-				loadxmlSetAttr( loader , properties , prop , value );
+				try {
+					loadxmlSetAttr( loader , properties , prop , value );
+				}
+				catch( Throwable e ) {
+					loader.trace( "attribute load error: " + e.getMessage() );
+					ok = false;
+				}
 			}
 		}
 		
 		// load properties
 		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_PROPERTY );
 		if( items != null ) {
-			for( Node item : items )
-				loadxmlSetProperty( loader , item , properties , appAsProperties );
+			for( Node item : items ) {
+				try {
+					loadxmlSetProperty( loader , item , properties , appAsProperties );
+				}
+				catch( Throwable e ) {
+					loader.trace( "property load error: " + e.getMessage() );
+					ok = false;
+				}
+			}
 			
 			meta.rebuild();
 		}
 
-		// save to database
+		if( !ok )
+			Common.exit1( _Error.SettingsImportErrors1 , "Errors on settings import, set type=" + properties.type.name() , "" + properties.type.name() );
+	}
+
+	public static void savedb( EngineLoader loader , ObjectProperties properties , int objectId , boolean saveApp , int version ) throws Exception {
 		DBConnection c = loader.getConnection();
 		savedbEntityCustom( c , properties , objectId , version );
 		savedbValues( c , objectId , properties , saveApp , version );
 	}
-
+	
 	public static void exportxml( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
 		PropertySet set = properties.getProperties();
 		ObjectMeta meta = properties.getMeta();

@@ -52,7 +52,7 @@ public class ActionImportDatabase extends ActionBase {
 	public ActionImportDatabase( ActionBase action , String stream , MetaEnvServer server , String CMD , String SCHEMA ) {
 		super( action , stream , "Import database, server=" + server.NAME );
 		this.server = server;
-		this.SPECFILE = "import-" + context.env.ID + "-" + server.sg.NAME + "-" + server.NAME + ".conf";
+		this.SPECFILE = "import-" + context.env.NAME + "-" + server.sg.NAME + "-" + server.NAME + ".conf";
 		this.CMD = CMD;
 		this.SCHEMA = SCHEMA;
 	}

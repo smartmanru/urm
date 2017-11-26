@@ -67,7 +67,7 @@ public class BaseRepository {
 		
 		action.debug( "load base info id=" + ID + " ..." );
 		EngineBase base = action.getServerBase();
-		BaseItem item = base.findBase( ID );
+		BaseItem item = base.findItem( ID );
 		if( item == null )
 			action.exit1( _Error.UnknownBaseId1 , "Unknown base ID=" + ID , ID );
 		

@@ -12,5 +12,7 @@ public class _Error {
 	public static final int SetSystemVarAsCustom1 = ErrorBase + 3;
 	public static final int UnknownAppVar1 = ErrorBase + 4;
 	public static final int UnexpectedCustom1 = ErrorBase + 5;
+	public static final int SettingsImportErrors1 = ErrorBase + 6;
+	public static final int UnexpectedNameNull1 = ErrorBase + 7;
 	
 }

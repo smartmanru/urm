@@ -740,19 +740,19 @@ abstract public class ActionBase extends ActionCore {
 		}
 		if( object instanceof MetaEnv ) {
 			MetaEnv xo = ( MetaEnv )object; 
-			return( getProductCacheObject( xo.meta.name + "-" + xo.ID ) );
+			return( getProductCacheObject( xo.meta.name + "-" + xo.NAME ) );
 		}
 		if( object instanceof MetaEnvSegment ) {
 			MetaEnvSegment xo = ( MetaEnvSegment )object; 
-			return( getProductCacheObject( xo.meta.name + "-" + xo.DC + "-" + xo.env.ID ) );
+			return( getProductCacheObject( xo.meta.name + "-" + xo.DC + "-" + xo.env.NAME ) );
 		}
 		if( object instanceof MetaEnvServer ) {
 			MetaEnvServer xo = ( MetaEnvServer )object; 
-			return( getProductCacheObject( xo.meta.name + "-" + xo.sg.DC + "-" + xo.sg.env.ID + "-" + xo.NAME ) );
+			return( getProductCacheObject( xo.meta.name + "-" + xo.sg.DC + "-" + xo.sg.env.NAME + "-" + xo.NAME ) );
 		}
 		if( object instanceof MetaEnvServerNode ) {
 			MetaEnvServerNode xo = ( MetaEnvServerNode )object; 
-			return( getProductCacheObject( xo.meta.name + "-" + xo.server.sg.DC + "-" + xo.server.sg.env.ID + "-" + xo.server.NAME + "-" + xo.POS ) );
+			return( getProductCacheObject( xo.meta.name + "-" + xo.server.sg.DC + "-" + xo.server.sg.env.NAME + "-" + xo.server.NAME + "-" + xo.POS ) );
 		}
 		return( null );
 	}

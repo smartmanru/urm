@@ -1,6 +1,7 @@
 package org.urm.engine.properties;
 
 import org.urm.common.Common;
+import org.urm.db.core.DBEnumInterface;
 import org.urm.db.core.DBEnums.*;
 
 public class EntityVar {
@@ -15,8 +16,16 @@ public class EntityVar {
 	public boolean REQUIRED;
 	public String EXPR_DEF;
 	public int VERSION;
-
+	public Class<?> enumClass;
+	
 	public EntityVar() {
+	}
+	
+	public static EntityVar metaEnum( String propertyKey , String propertyDesc , boolean required , DBEnumInterface defValue ) {
+		Enum<?> defEnumValue = ( Enum<?> )defValue;
+		EntityVar var = meta( propertyKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumObjectType.UNKNOWN , required , null );
+		var.enumClass = defEnumValue.getClass();
+		return( var );
 	}
 	
 	public static EntityVar metaString( String propertyKey , String propertyDesc , boolean required , String defValue ) {

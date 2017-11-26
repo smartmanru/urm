@@ -8,12 +8,38 @@ public class BaseItem extends EngineObject {
 
 	public static String PROPERTY_NAME = "id";
 	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_BASESRC_TYPE = "basesrc_type";
+	public static String PROPERTY_BASESRCFORMAT_TYPE = "basesrcformat_type";
+	public static String PROPERTY_OS_TYPE = "os_type";
+	public static String PROPERTY_SERVERACCESS_TYPE = "serveraccess_type";
+	public static String PROPERTY_BASENAME = "basename";
+	public static String PROPERTY_BASEVERSION = "baseversion";
+	public static String PROPERTY_SRCDIR = "srcdir";
+	public static String PROPERTY_SRCFILE = "srcfile";
+	public static String PROPERTY_SRCFILEDIR = "srcfiledir";
+	public static String PROPERTY_INSTALLSCRIPT = "installscript";
+	public static String PROPERTY_INSTALLPATH = "installpath";
+	public static String PROPERTY_INSTALLLINK = "installlink";
+	public static String PROPERTY_CHARSET = "charset";
 	public static String PROPERTY_OFFLINE = "offline";
 	
 	public BaseGroup group;
 	public int ID;
 	public String NAME;
 	public String DESC;
+	public DBEnumBaseSrcType BASESRC_TYPE;
+	public DBEnumBaseSrcFormatType BASESRCFORMAT_TYPE;
+	public DBEnumOSType OS_TYPE;
+	public DBEnumServerAccessType SERVERACCESS_TYPE;
+	public String BASENAME;
+	public String BASEVERSION;
+	public String SRCDIR;
+	public String SRCFILE;
+	public String SRCFILEDIR;
+	public String INSTALLSCRIPT;
+	public String INSTALLPATH;
+	public String INSTALLLINK;
+	public String CHARSET;
 	public boolean OFFLINE;
 	public int CV;
 	
@@ -71,6 +97,16 @@ public class BaseItem extends EngineObject {
 		if( group.category.TYPE == DBEnumBaseCategoryType.APP )
 			return( true );
 		return( false );
+	}
+
+	public boolean isValid() {
+		if( NAME.isEmpty() || 
+			BASESRC_TYPE == DBEnumBaseSrcType.UNKNOWN || 
+			BASESRCFORMAT_TYPE == DBEnumBaseSrcFormatType.UNKNOWN ||
+			OS_TYPE == DBEnumOSType.UNKNOWN ||
+			SERVERACCESS_TYPE == DBEnumServerAccessType.UNKNOWN )
+			return( false );
+		return( true );
 	}
 	
 }

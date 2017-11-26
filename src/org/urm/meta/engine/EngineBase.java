@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineCore;
 import org.urm.meta.EngineObject;
 import org.urm.db.core.DBEnums.*;
@@ -14,13 +13,19 @@ public class EngineBase extends EngineObject {
 	public EngineCore core;
 	
 	private Map<String,BaseCategory> mapCategory;
+	private Map<String,BaseGroup> mapGroup;
 	private Map<String,BaseItem> mapItem;
 	
 	public EngineBase( EngineCore core ) {
 		super( null );
 		this.core = core;
-		mapCategory = new HashMap<String,BaseCategory>(); 
-		mapItem = new HashMap<String,BaseItem>(); 
+		mapCategory = new HashMap<String,BaseCategory>();
+		mapGroup = new HashMap<String,BaseGroup>();
+		mapItem = new HashMap<String,BaseItem>();
+		
+		addCategory( new BaseCategory( this , DBEnumBaseCategoryType.HOST , "Host-Bound" ) );
+		addCategory( new BaseCategory( this , DBEnumBaseCategoryType.ACCOUNT , "Account-Bound" ) );
+		addCategory( new BaseCategory( this , DBEnumBaseCategoryType.APP , "Application-Bound" ) );
 	}
 	
 	@Override
@@ -28,38 +33,55 @@ public class EngineBase extends EngineObject {
 		return( "server-base" );
 	}
 	
-	public void addCategory( BaseCategory category ) {
+	private void addCategory( BaseCategory category ) {
 		mapCategory.put( category.LABEL , category );
 	}
 
-	public void addItem( BaseItem item ) {
-		mapItem.put( item.NAME , item );
-	}
-
-	public void createItem( EngineTransaction transaction , BaseItem item ) throws Exception {
-		if( mapItem.get( item.NAME ) != null )
-			transaction.exit1( _Error.DuplicateBaseItem1 , "duplicate base item=" + item.NAME , item.NAME );
-		
-		addItem( item );
+	public void addGroup( BaseGroup group ) {
+		mapGroup.put( group.NAME , group );
+		group.category.addGroup( group );
 	}
 	
+	public void addItem( BaseItem item ) {
+		mapItem.put( item.NAME , item );
+		item.group.addItem( item );
+	}
+
 	public BaseCategory findCategory( DBEnumBaseCategoryType type ) {
 		return( findCategory( Common.getEnumLower( type ) ) );
 	}
 
-	public BaseCategory findCategory( String id ) {
-		return( mapCategory.get( id ) );
-	}
-
-	public BaseGroup findGroup( DBEnumBaseCategoryType type , String groupName ) {
-		BaseCategory ct = findCategory( type );
-		if( ct != null )
-			return( ct.findGroup( groupName ) );
-		return( null );
+	public BaseCategory getCategory( DBEnumBaseCategoryType type ) throws Exception {
+		BaseCategory category = findCategory( type );
+		if( category == null )
+			Common.exitUnexpected();
+		return( category );
 	}
 	
-	public BaseItem findBase( String id ) {
-		return( mapItem.get( id ) );
+	public BaseCategory findCategory( String name ) {
+		return( mapCategory.get( name ) );
+	}
+
+	public BaseGroup findGroup( String groupName ) {
+		return( mapGroup.get( groupName ) );
+	}
+	
+	public BaseGroup getGroup( String groupName ) throws Exception {
+		BaseGroup group = mapGroup.get( groupName );
+		if( group == null )
+			Common.exit1( _Error.UnknownBaseGroup1 , "unknown base group=" + groupName , groupName );
+		return( group );
+	}
+	
+	public BaseItem findItem( String name ) {
+		return( mapItem.get( name ) );
+	}
+
+	public BaseItem getItem( String name ) throws Exception {
+		BaseItem item = mapItem.get( name );
+		if( item == null )
+			Common.exit1( _Error.UnknownBaseItem1 , "unknown base item=" + name , name );
+		return( item );
 	}
 
 	public String[] getCategories() {

@@ -47,6 +47,9 @@ public abstract class DBNames {
 	}
 	
 	public synchronized static int getNameIndex( DBConnection c , int parent , String name , DBEnumObjectType type ) throws Exception {
+		if( name == null || name.isEmpty() )
+			Common.exit1( _Error.UnexpectedNameNull1 , "Unexpected empty name, object type=" + type.name() , type.name() );
+			
 		String key = parent + "::" + type.code() + "::" + name;
 		Integer value = map.get( key );
 		if( value != null )

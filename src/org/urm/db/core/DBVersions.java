@@ -1,40 +1,54 @@
 package org.urm.db.core;
 
+import java.sql.ResultSet;
+
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
+import org.urm.db.core.DBEnums.DBEnumOwnerStatusType;
+import org.urm.engine.EngineDB;
+import org.urm.meta.OwnerObjectVersion;
 
 public abstract class DBVersions {
 
 	public static int APP_ID = 0;
 	public static int CORE_ID = 1;
 	
-	public static int getCurrentAppVersion( DBConnection c ) throws Exception {
-		return( getCurrentVersion( c , APP_ID ) );
-	}
-	
-	public static int getCurrentCoreVersion( DBConnection c ) throws Exception {
-		return( getCurrentVersion( c , CORE_ID ) );
-	}
-	
-	public static int getCurrentVersion( DBConnection c , int id ) throws Exception {
-		String value = c.queryValue( DBQueries.QUERY_VERSIONS_GETVERSION1 , new String[] { "" + id } );
-		if( value == null || value.isEmpty() )
-			return( 0 );
-		return( Integer.parseInt( value ) );
+	public static OwnerObjectVersion readObjectVersion( DBConnection c , int id , DBEnumObjectVersionType type ) throws Exception {
+		ResultSet rc = c.query( DBQueries.QUERY_VERSIONS_GETVERSION1 , new String[] { "" + id } );
+		if( rc == null )
+			Common.exitUnexpected();
+		
+		try {
+			OwnerObjectVersion version = new OwnerObjectVersion( id , type );
+			if( !rc.next() ) {
+				version.VERSION = 0;
+				version.OWNER_STATUS_TYPE = DBEnumOwnerStatusType.ACTIVE;
+				return( version );
+			}
+			
+			version.VERSION = rc.getInt( 2 );
+			version.LAST_IMPORT_ID = c.getNullInt( rc , 4 );
+			version.LAST_NAME = rc.getString( 5 );
+			version.OWNER_STATUS_TYPE = DBEnumOwnerStatusType.getValue( rc.getInt( 6 ) , true );
+			return( version );
+		}
+		finally {
+			rc.close();
+		}
 	}
 
-	public static void setNextAppVersion( DBConnection c , int version ) throws Exception {
-		setNextVersion( c , APP_ID , version , DBEnumObjectVersionType.APP );
-	}
-	
-	public static void setNextCoreVersion( DBConnection c , int version ) throws Exception {
-		setNextVersion( c , CORE_ID , version , DBEnumObjectVersionType.CORE );
-	}
-	
-	public static void setNextVersion( DBConnection c , int id , int version , DBEnumObjectVersionType type ) throws Exception {
-		if( !c.update( DBQueries.MODIFY_VERSIONS_MERGEVERSION3 , new String[] { "" + id , "" + version , "" + type.code() } ) )
+	public static void setNextVersion( DBConnection c , OwnerObjectVersion version , int value ) throws Exception {
+		version.VERSION = value;
+		if( !c.update( DBQueries.MODIFY_VERSIONS_MERGEVERSION6 , new String[] { 
+				EngineDB.getInteger( version.OWNER_OBJECT_ID ) , 
+				EngineDB.getInteger( version.VERSION ) , 
+				EngineDB.getEnum( version.OBJECT_VERSION_TYPE ) ,
+				EngineDB.getInteger( version.LAST_IMPORT_ID ) , 
+				EngineDB.getString( version.LAST_NAME ) , 
+				EngineDB.getEnum( version.OWNER_STATUS_TYPE )
+				} ) )
 			Common.exitUnexpected();
 	}
 

@@ -45,7 +45,7 @@ public class ActionCheckEnv extends ActionBase {
 
 	@Override protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
 		// check all processes
-		infoAction( "check environment=" + context.env.ID + " ..." );
+		infoAction( "check environment=" + context.env.NAME + " ..." );
 		EngineStatus status = super.getServerStatus();
 		status.updateRunTime( this , scope.env );
 	}

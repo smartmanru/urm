@@ -56,7 +56,7 @@ public class TransactionBase extends EngineObject {
 	protected EngineData data;
 	protected EngineLoader loader;
 	
-	public DBConnection connection;
+	private DBConnection connection;
 	private boolean CHANGEDATABASE;
 	private boolean SERVERVERSIONUPDATE;
 	
@@ -108,6 +108,10 @@ public class TransactionBase extends EngineObject {
 	@Override
 	public String getName() {
 		return( "server-transaction" );
+	}
+	
+	public DBConnection getConnection() {
+		return( connection );
 	}
 	
 	public boolean startTransaction() {
@@ -432,7 +436,8 @@ public class TransactionBase extends EngineObject {
 			return;
 		
 		SERVERVERSIONUPDATE = true;
-		connection.setNextCoreVersion();
+		int version = connection.getNextCoreVersion();
+		trace( "core version update, version=" + version );
 	}
 	
 	public boolean changeInfrastructure( EngineInfrastructure sourceInfrastructure , Network network ) {
@@ -1101,7 +1106,7 @@ public class TransactionBase extends EngineObject {
 
 	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
 		ProductMeta metadata = getTransactionMetadata( env.meta );
-		return( metadata.findEnvironment( env.ID ) );
+		return( metadata.findEnvironment( env.NAME ) );
 	}
 
 	public MetaEnvSegment getMetaEnvSegment( MetaEnvSegment sg ) throws Exception {

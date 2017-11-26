@@ -86,7 +86,7 @@ public class ConfBuilder {
 		if( live.checkFileExists( action , runScript ) ) {
 			action.info( "run " + runScript );
 			action.shell.custom( action , live.folderPath , "chmod 744 " + runScript + "; ./" + runScript + " " + 
-				server.sg.env.ID + " " + server.sg.NAME + " " + server.NAME + " " + node.POS );
+				server.sg.env.NAME + " " + server.sg.NAME + " " + server.NAME + " " + node.POS );
 		}
 		
 		// copy explicit environment directories

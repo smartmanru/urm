@@ -554,7 +554,7 @@ public class ProductMeta extends EngineObject {
 	}
 
 	public void addEnv( EngineTransaction transaction , MetaEnv env ) throws Exception {
-		String envFile = env.ID + ".xml";
+		String envFile = env.NAME + ".xml";
 		envs.put( envFile , env );
 	}
 
@@ -585,14 +585,14 @@ public class ProductMeta extends EngineObject {
 	public String[] getEnvironmentNames() {
 		List<String> names = new LinkedList<String>();
 		for( MetaEnv env : envs.values() )
-			names.add( env.ID );
+			names.add( env.NAME );
 		Collections.sort( names );
 		return( names.toArray( new String[0] ) );
 	}
 
 	public MetaEnv findEnvironment( String envId ) {
 		for( MetaEnv env : envs.values() ) {
-			if( env.ID.equals( envId ) )
+			if( env.NAME.equals( envId ) )
 				return( env );
 		}
 		return( null );
@@ -603,7 +603,7 @@ public class ProductMeta extends EngineObject {
 	}
 	
 	public void deleteEnv( EngineTransaction transaction , MetaEnv env ) throws Exception {
-		String envFile = env.ID + ".xml";
+		String envFile = env.NAME + ".xml";
 		envs.remove( envFile );
 		ActionBase action = transaction.getAction();
 		MetadataStorage storage = action.artefactory.getMetadataStorage( action , env.meta );

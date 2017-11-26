@@ -10,7 +10,7 @@ public abstract class DBCoreData {
 
 	public static void upgradeData( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		DBVersions.setNextAppVersion( c , EngineDB.APP_VERSION );
+		c.setAppVersion( EngineDB.APP_VERSION );
 		DBEnums.updateDatabase( c );
 	}
 

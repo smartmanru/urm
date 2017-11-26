@@ -285,7 +285,7 @@ public class ActionConfigure extends ActionBase {
 				String[] envFiles = ms.getEnvFiles( this );
 				for( String envFile : envFiles ) {
 					MetaEnv envx = meta.getEnvData( this , envFile , false );
-					if( envx.ID.equals( USEENV ) ) {
+					if( envx.NAME.equals( USEENV ) ) {
 						env = envx;
 						envs.put( envFile , envx );
 						break;
@@ -298,12 +298,12 @@ public class ActionConfigure extends ActionBase {
 				addAffected( linux , proxyPath , false );
 				
 				if( USESG.isEmpty() ) {
-					proxyPath = Common.getPath( proxyPath , env.ID );
+					proxyPath = Common.getPath( proxyPath , env.NAME );
 					addAffected( linux , proxyPath , true );
 				}
 				else {
 					sg = env.getSG( this , USESG );
-					proxyPath = Common.getPath( proxyPath , env.ID , USESG );
+					proxyPath = Common.getPath( proxyPath , env.NAME , USESG );
 					addAffected( linux , proxyPath , true );
 				}
 			}
@@ -336,7 +336,7 @@ public class ActionConfigure extends ActionBase {
 	}
 	
 	private void configureDeploymentEnv( Meta meta , LocalFolder ef , CommandMeta executor , String envFile , MetaEnv env , MetaEnvSegment sg , boolean linux , CommandMeta dbe ) throws Exception {
-		LocalFolder efEnv = ef.getSubFolder( this , env.ID );
+		LocalFolder efEnv = ef.getSubFolder( this , env.NAME );
 		efEnv.ensureExists( this );
 		
 		// env-level

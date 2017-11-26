@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.DBConnection;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
@@ -115,13 +116,14 @@ public class EngineDirectory extends EngineObject {
 		if( mapSystems.get( name ) != null )
 			t.exit( _Error.DuplicateSystem1 , "system=" + name + " is not unique" , new String[] { name } );
 		
-		int systemId = DBNames.getNameIndex( t.connection , DBVersions.CORE_ID , name , DBEnumObjectType.SYSTEM );
+		DBConnection c = t.getConnection();
+		int systemId = DBNames.getNameIndex( c , DBVersions.CORE_ID , name , DBEnumObjectType.SYSTEM );
 		EngineEntities entities = data.getEntities();
 		EngineSettings settings = data.getEngineSettings(); 
 		ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
 		AppSystem system = new AppSystem( this , props );
 		
-		DBSystem.insert( t.connection , systemId , system );
+		DBSystem.insert( c , systemId , system );
 		addSystem( system );
 		return( system );
 	}
@@ -159,17 +161,19 @@ public class EngineDirectory extends EngineObject {
 	}
 	
 	public void modifySystem( EngineTransaction t , AppSystem system ) throws Exception {
+		DBConnection c = t.getConnection();
 		data.checkSystemNameBusy( system.NAME );
 		if( Common.changeMapKey( mapSystems , system , system.NAME ) )
-			DBNames.updateName( t.connection , DBVersions.CORE_ID , system.NAME , system.ID , DBEnumObjectType.SYSTEM );
-		DBSystem.update( t.connection , system );
+			DBNames.updateName( c , DBVersions.CORE_ID , system.NAME , system.ID , DBEnumObjectType.SYSTEM );
+		DBSystem.update( c , system );
 	}
 	
 	public void deleteSystem( EngineTransaction t , AppSystem system ) throws Exception {
 		if( mapSystems.get( system.NAME ) != system )
 			t.exit( _Error.TransactionSystemOld1 , "system=" + system.NAME + " is unknown or mismatched" , new String[] { system.NAME } );
 		
-		DBSystem.delete( t.connection , system );
+		DBConnection c = t.getConnection();
+		DBSystem.delete( c , system );
 		for( String productName : system.getProductNames() )
 			mapProducts.remove( productName );
 		

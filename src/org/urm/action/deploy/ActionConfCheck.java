@@ -24,7 +24,7 @@ public class ActionConfCheck extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeScope( ScopeState state , ActionScope scope ) throws Exception {
-		info( "check configuration parameters in env=" + context.env.ID + " ..." );
+		info( "check configuration parameters in env=" + context.env.NAME + " ..." );
 		S_CONFCHECK_STATUS = true;
 
 		// read properties

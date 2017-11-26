@@ -141,7 +141,7 @@ public class MetaMonitoringTarget {
 	}
 	
 	public void createTarget( EngineTransaction transaction , MetaEnvSegment sg ) throws Exception {
-		this.ENV = sg.env.ID;
+		this.ENV = sg.env.NAME;
 		this.SG = sg.NAME;
 		setName( transaction.getAction() );
 		scheduleMajor = new ScheduleProperties();

@@ -229,7 +229,7 @@ public class DistRepository {
 	}
 	
 	public RemoteFolder getImportLogFolder( ActionBase action , String dataSet , MetaEnvServer server ) throws Exception {
-		String location = server.sg.env.ID + "-" + server.sg.NAME + "-" + server.NAME;
+		String location = server.sg.env.NAME + "-" + server.sg.NAME + "-" + server.NAME;
 		return( repoFolder.getSubFolder( action , "data/" + dataSet + "/log-import-" + location ) );
 	}
 	

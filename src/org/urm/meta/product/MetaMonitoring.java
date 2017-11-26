@@ -150,7 +150,7 @@ public class MetaMonitoring extends PropertyController {
 
 	public MetaMonitoringTarget findMonitoringTarget( MetaEnvSegment sg ) {
 		for( MetaMonitoringTarget target : mapTargets.values() ) {
-			if( target.ENV.equals( sg.env.ID ) && target.SG.equals( sg.NAME ) )
+			if( target.ENV.equals( sg.env.NAME ) && target.SG.equals( sg.NAME ) )
 				return( target );
 		}
 		return( null );

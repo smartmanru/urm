@@ -31,7 +31,8 @@ public class MetaEnv extends PropertyController {
 	
 	public boolean missingSecretProperties = false; 
 	
-	public String ID;
+	public int ID;
+	public String NAME;
 	public String BASELINE;
 	public boolean OFFLINE;
 	public EngineRef<MetaEnv> baselineEnvRef;
@@ -94,7 +95,7 @@ public class MetaEnv extends PropertyController {
 	
 	@Override
 	public String getName() {
-		return( ID );
+		return( NAME );
 	}
 	
 	@Override
@@ -106,8 +107,8 @@ public class MetaEnv extends PropertyController {
 	
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
-		ID = super.getStringPropertyRequired( action , PROPERTY_ID );
-		action.trace( "load properties of env=" + ID + " ..." );
+		NAME = super.getStringPropertyRequired( action , PROPERTY_ID );
+		action.trace( "load properties of env=" + NAME + " ..." );
 		
 		MetaProductSettings product = meta.getProductSettings( action );
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );
@@ -143,7 +144,7 @@ public class MetaEnv extends PropertyController {
 	}
 
 	public void createEnv( ActionBase action , String ID , VarENVTYPE envType ) throws Exception {
-		this.ID = ID;
+		this.NAME = ID;
 		this.envType = envType;
 		createProperties( action );
 	}
@@ -232,7 +233,7 @@ public class MetaEnv extends PropertyController {
 		if( !super.initCreateStarted( secretProperties ) )
 			return;
 
-		super.setStringProperty( PROPERTY_ID , ID );
+		super.setStringProperty( PROPERTY_ID , NAME );
 		super.setStringProperty( PROPERTY_ENVTYPE , Common.getEnumLower( envType ) );
 		super.finishProperties( action );
 		super.initFinished();

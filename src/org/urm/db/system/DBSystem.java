@@ -133,7 +133,7 @@ public abstract class DBSystem {
 	
 	public static void insert( DBConnection c , int systemId , AppSystem system ) throws Exception {
 		system.ID = systemId;
-		system.SV = c.getNextSystemVersion( systemId );
+		system.SV = c.getNextSystemVersion( system );
 		if( !c.update( DBQueries.MODIFY_SYSTEM_ADD6 , new String[] {
 				EngineDB.getInteger( system.ID ) , 
 				EngineDB.getString( system.NAME ) , 
@@ -146,7 +146,7 @@ public abstract class DBSystem {
 	}
 
 	public static void update( DBConnection c , AppSystem system ) throws Exception {
-		system.SV = c.getNextSystemVersion( system.ID );
+		system.SV = c.getNextSystemVersion( system );
 		if( !c.update( DBQueries.MODIFY_SYSTEM_UPDATE5 , new String[] {
 				EngineDB.getInteger( system.ID ) , 
 				EngineDB.getString( system.NAME ) , 
@@ -158,7 +158,7 @@ public abstract class DBSystem {
 	}
 
 	public static void delete( DBConnection c , AppSystem system ) throws Exception {
-		int SV = c.getNextSystemVersion( system.ID );
+		int SV = c.getNextSystemVersion( system , true );
 		DBSettings.dropObjectSettings( c , system.ID );
 		if( !c.update( DBQueries.MODIFY_SYSTEM_DELETE2 , new String[] { "" + system.ID , "" + SV } ) )
 			Common.exitUnexpected();

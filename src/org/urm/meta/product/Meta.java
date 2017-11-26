@@ -235,7 +235,7 @@ public class Meta extends EngineObject {
     public MetaEnv findMetaEnv( MetaEnv env ) {
     	if( env == null )
     		return( null );
-    	return( findEnv( env.ID ) );
+    	return( findEnv( env.NAME ) );
     }
     
     public MetaEnvSegment findMetaEnvSegment( MetaEnvSegment sg ) {

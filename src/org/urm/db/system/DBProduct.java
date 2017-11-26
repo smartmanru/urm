@@ -85,7 +85,7 @@ public abstract class DBProduct {
 	
 	public static void insert( DBConnection c , int productId , Product product ) throws Exception {
 		product.ID = productId;
-		product.SV = c.getNextSystemVersion( product.system.ID );
+		product.SV = c.getNextSystemVersion( product.system );
 		if( !c.update( DBQueries.MODIFY_PRODUCT_ADD8 , new String[] {
 				"" + product.ID , 
 				"" + product.system.ID , 

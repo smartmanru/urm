@@ -108,7 +108,7 @@ public class MetaEnvSegment extends PropertyController {
 	}
 	
 	public String getFullId( ActionBase action ) throws Exception {
-		return( env.ID + "-" + NAME );
+		return( env.NAME + "-" + NAME );
 	}
 	
 	public boolean hasBaseline( ActionBase action ) throws Exception {

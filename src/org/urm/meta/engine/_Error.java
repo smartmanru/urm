@@ -34,5 +34,7 @@ public class _Error {
 	public static final int UnknownLifecycle1 = ErrorBase + 45;
 	public static final int LifecycleWrongSettings1 = ErrorBase + 46;
 	public static final int InvalidVersion2 = ErrorBase + 47;
+	public static final int UnknownBaseGroup1 = ErrorBase + 48;
+	public static final int UnknownBaseItem1 = ErrorBase + 49;
 	
 }

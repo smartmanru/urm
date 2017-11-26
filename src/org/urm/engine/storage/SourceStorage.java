@@ -463,12 +463,12 @@ public class SourceStorage {
 	}
 
 	private String getDATALiveConfigSegmentPath( ActionBase action , MetaEnvSegment sg ) throws Exception {
-		String PATH = Common.getPath( DATA_LIVE , sg.env.ID , sg.NAME );
+		String PATH = Common.getPath( DATA_LIVE , sg.env.NAME , sg.NAME );
 		return( PATH );
 	}
 	
 	private String getDATALiveConfigEnvPath( ActionBase action , MetaEnv env ) throws Exception {
-		String PATH = Common.getPath( DATA_LIVE , env.ID );
+		String PATH = Common.getPath( DATA_LIVE , env.NAME );
 		return( PATH );
 	}
 	

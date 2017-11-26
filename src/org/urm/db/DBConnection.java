@@ -9,9 +9,14 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumOwnerStatusType;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.engine.Engine;
+import org.urm.meta.OwnerObjectVersion;
+import org.urm.meta.engine.AppSystem;
+import org.urm.meta.engine.Product;
+import org.urm.meta.product.MetaEnv;
 
 public class DBConnection {
 
@@ -23,20 +28,14 @@ public class DBConnection {
 
 	static int FAST_TIMEOUT = 5;
 
-	private int currentCV;
-	private int nextCV;
-	private Map<Integer,Integer> currentVersions;
-	private Map<Integer,Integer> nextVersions;
+	private Map<Integer,OwnerObjectVersion> versions;
 	
 	public DBConnection( Engine engine , ActionBase action , Connection connection ) {
 		this.engine = engine;
 		this.action = action;
 		this.connection = connection;
 		
-		currentCV = -1;
-		nextCV = -1;
-		currentVersions = new HashMap<Integer,Integer>();
-		nextVersions = new HashMap<Integer,Integer>();
+		versions = new HashMap<Integer,OwnerObjectVersion>();
 	}
 	
 	public void init() throws Exception {
@@ -59,10 +58,7 @@ public class DBConnection {
 
 	public void save( boolean commit ) {
 		try {
-			currentCV = -1;
-			nextCV = -1;
-			currentVersions.clear();
-			nextVersions.clear();
+			versions.clear();
 			
 			if( commit )
 				connection.commit();
@@ -162,8 +158,16 @@ public class DBConnection {
 	private String getFinalQuery( String query , String[] args ) {
 		String queryDB = query;
 		if( args != null ) {
+			if( queryDB.contains( "@values@" ) ) {
+				String list = "";
+				for( int k = 1; k <= args.length; k++ )
+					list = Common.addToList( list , args[ k - 1 ] , " , " );
+				queryDB = Common.replace( queryDB , "@values@" , list );
+			}
+		else {
 			for( int k = 1; k <= args.length; k++ )
 				queryDB = Common.replace( queryDB , "@" + k + "@" , args[ k - 1 ] );
+		}
 		}
 		return( queryDB );
 	}
@@ -182,114 +186,132 @@ public class DBConnection {
 			engine.log( p , e );
 	}
 
+	public synchronized OwnerObjectVersion getObjectVersion( int objectId , DBEnumObjectVersionType type ) throws Exception {
+		OwnerObjectVersion version = versions.get( objectId );
+		if( version != null )
+			return( version );
+		
+		version = DBVersions.readObjectVersion( this , objectId , type );
+		versions.put( objectId , version );
+		return( version );
+	}
+	
+	public synchronized int getCurrentObjectVersion( int objectId , DBEnumObjectVersionType type ) throws Exception {
+		OwnerObjectVersion version = getObjectVersion( objectId , type );
+		return( version.VERSION );
+	}
+	
+	public synchronized int getCurrentAppVersion() throws Exception {
+		return( getCurrentObjectVersion( DBVersions.APP_ID , DBEnumObjectVersionType.APP ) );
+	}
+	
+	public synchronized void setAppVersion( int value ) throws Exception {
+		OwnerObjectVersion version = getObjectVersion( DBVersions.APP_ID , DBEnumObjectVersionType.APP );
+		if( version.VERSION == 0 ) {
+			version.LAST_NAME = "app";
+			version.OWNER_STATUS_TYPE = DBEnumOwnerStatusType.ACTIVE;
+		}
+		DBVersions.setNextVersion( this , version , value );
+	}
+
 	public synchronized int getCurrentCoreVersion() throws Exception {
-		if( currentCV >= 0 )
-			return( currentCV );
-		currentCV = DBVersions.getCurrentCoreVersion( this );
-		return( currentCV );
+		return( getCurrentObjectVersion( DBVersions.CORE_ID , DBEnumObjectVersionType.CORE ) );
 	}
 	
 	public synchronized int getNextCoreVersion() throws Exception {
-		if( nextCV > 0 )
-			return( nextCV );
-		
-		nextCV = getCurrentCoreVersion() + 1;
-		DBVersions.setNextCoreVersion( this , nextCV );
-		return( nextCV );
+		OwnerObjectVersion version = getObjectVersion( DBVersions.CORE_ID , DBEnumObjectVersionType.CORE );
+		if( version.nextVersion < 0 ) {
+			if( version.VERSION == 0 ) {
+				version.LAST_NAME = "core";
+				version.OWNER_STATUS_TYPE = DBEnumOwnerStatusType.ACTIVE;
+			}
+			DBVersions.setNextVersion( this , version , version.VERSION + 1 );
+		}
+		return( version.nextVersion );
 	}
 	
 	public synchronized int getCoreVersion() throws Exception {
-		if( nextCV > 0 )
-			return( nextCV );
-		return( getCurrentCoreVersion() );
+		return( getLastObjectVersion( DBVersions.CORE_ID , DBEnumObjectVersionType.CORE ) );
 	}
 	
-	public synchronized void setNextCoreVersion() throws Exception {
-		getNextCoreVersion();
+	public synchronized int getLastObjectVersion( int objectId , DBEnumObjectVersionType type ) throws Exception {
+		OwnerObjectVersion version = getObjectVersion( objectId , type );
+		if( version.nextVersion > 0 )
+			return( version.nextVersion );
+		return( version.VERSION );
+	}
+	
+	public synchronized int getCurrentSystemVersion( int systemId ) throws Exception {
+		return( getCurrentObjectVersion( systemId , DBEnumObjectVersionType.SYSTEM ) );
 	}
 
-	public synchronized int getCurrentSystemVersion( int systemId ) throws Exception {
-		Integer current = currentVersions.get( systemId );
-		if( current != null )
-			return( current );
-		
-		current = DBVersions.getCurrentVersion( this , systemId );
-		currentVersions.put( systemId , current );
-		return( current );
+	public synchronized int getNextSystemVersion( AppSystem system ) throws Exception {
+		return( getNextSystemVersion( system , false ) );
 	}
 	
-	public synchronized int getNextSystemVersion( int systemId ) throws Exception {
-		Integer next = nextVersions.get( systemId );
-		if( next != null )
-			return( next );
-		
-		next = getCurrentSystemVersion( systemId ) + 1;
-		DBVersions.setNextVersion( this , systemId , next , DBEnumObjectVersionType.SYSTEM );
-		nextVersions.put( systemId , next );
-		return( next );
+	public synchronized int getNextSystemVersion( AppSystem system , boolean delete ) throws Exception {
+		OwnerObjectVersion version = getObjectVersion( system.ID , DBEnumObjectVersionType.SYSTEM );
+		if( version.nextVersion < 0 ) {
+			version.LAST_NAME = system.NAME;
+			version.OWNER_STATUS_TYPE = ( delete )? DBEnumOwnerStatusType.DELETED : DBEnumOwnerStatusType.ACTIVE;
+			DBVersions.setNextVersion( this , version , version.VERSION + 1 );
+		}
+		return( version.nextVersion );
 	}
 	
 	public synchronized int getSystemVersion( int systemId ) throws Exception {
-		Integer next = nextVersions.get( systemId );
-		if( next != null )
-			return( next );
-		return( getCurrentSystemVersion( systemId ) );
+		return( getLastObjectVersion( systemId , DBEnumObjectVersionType.SYSTEM ) );
 	}
 	
 	public synchronized int getCurrentProductVersion( int productId ) throws Exception {
-		Integer current = currentVersions.get( productId );
-		if( current != null )
-			return( current );
-		
-		current = DBVersions.getCurrentVersion( this , productId );
-		currentVersions.put( productId , current );
-		return( current );
+		return( getCurrentObjectVersion( productId , DBEnumObjectVersionType.PRODUCT ) );
 	}
 	
-	public synchronized int getNextProductVersion( int productId ) throws Exception {
-		Integer next = nextVersions.get( productId );
-		if( next != null )
-			return( next );
-		
-		next = getCurrentSystemVersion( productId ) + 1;
-		DBVersions.setNextVersion( this , productId , next , DBEnumObjectVersionType.PRODUCT );
-		nextVersions.put( productId , next );
-		return( next );
+	public synchronized int getNextProductVersion( Product product , boolean delete ) throws Exception {
+		OwnerObjectVersion version = getObjectVersion( product.ID , DBEnumObjectVersionType.PRODUCT );
+		if( version.nextVersion < 0 ) {
+			version.LAST_NAME = product.NAME;
+			version.OWNER_STATUS_TYPE = ( delete )? DBEnumOwnerStatusType.DELETED : DBEnumOwnerStatusType.ACTIVE;
+			DBVersions.setNextVersion( this , version , version.VERSION + 1 );
+		}
+		return( version.nextVersion );
+	}
+	
+	public synchronized int getNextProductVersion( Product product ) throws Exception {
+		return( getNextProductVersion( product , false ) );
 	}
 	
 	public synchronized int getProductVersion( int productId ) throws Exception {
-		Integer next = nextVersions.get( productId );
-		if( next != null )
-			return( next );
-		return( getCurrentProductVersion( productId ) );
+		return( getLastObjectVersion( productId , DBEnumObjectVersionType.PRODUCT ) );
 	}
 	
-	public synchronized int getCurrentEnvVersion( int envId ) throws Exception {
-		Integer current = currentVersions.get( envId );
-		if( current != null )
-			return( current );
-		
-		current = DBVersions.getCurrentVersion( this , envId );
-		currentVersions.put( envId , current );
-		return( current );
+	public synchronized int getCurrentEnvironmentVersion( int envId ) throws Exception {
+		return( getCurrentObjectVersion( envId , DBEnumObjectVersionType.ENVIRONMENT ) );
+	}
+
+	public synchronized int getNextEnvironmentVersion( MetaEnv env ) throws Exception {
+		return( getNextEnvironmentVersion( env , false ) );
 	}
 	
-	public synchronized int getNextEnvVersion( int envId ) throws Exception {
-		Integer next = nextVersions.get( envId );
-		if( next != null )
-			return( next );
-		
-		next = getCurrentSystemVersion( envId ) + 1;
-		DBVersions.setNextVersion( this , envId , next , DBEnumObjectVersionType.ENVIRONMENT );
-		nextVersions.put( envId , next );
-		return( next );
+	public synchronized int getNextEnvironmentVersion( MetaEnv env , boolean delete ) throws Exception {
+		OwnerObjectVersion version = getObjectVersion( env.ID , DBEnumObjectVersionType.ENVIRONMENT );
+		if( version.nextVersion < 0 ) {
+			version.LAST_NAME = env.NAME;
+			version.OWNER_STATUS_TYPE = ( delete )? DBEnumOwnerStatusType.DELETED : DBEnumOwnerStatusType.ACTIVE;
+			DBVersions.setNextVersion( this , version , version.VERSION + 1 );
+		}
+		return( version.nextVersion );
 	}
 	
-	public synchronized int getEnvVersion( int envId ) throws Exception {
-		Integer next = nextVersions.get( envId );
-		if( next != null )
-			return( next );
-		return( getCurrentProductVersion( envId ) );
+	public synchronized int getEnvironmentVersion( int envId ) throws Exception {
+		return( getLastObjectVersion( envId , DBEnumObjectVersionType.ENVIRONMENT ) );
+	}
+
+	public Integer getNullInt( ResultSet rc , int column ) throws Exception {
+		int value = rc.getInt( column );
+		if( value == 0 )
+			return( null );
+		return( value );
 	}
 	
 }

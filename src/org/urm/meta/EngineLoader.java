@@ -7,7 +7,6 @@ import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBCoreData;
 import org.urm.db.core.DBNames;
-import org.urm.db.core.DBVersions;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.engine.DBEngineSettings;
@@ -157,7 +156,7 @@ public class EngineLoader {
 	
 	private void useData() throws Exception {
 		trace( "load meta ..." );
-		int version = DBVersions.getCurrentAppVersion( connection );
+		int version = connection.getCurrentAppVersion();
 		if( version != EngineDB.APP_VERSION )
 			Common.exit2( _Error.InvalidVersion2 , "Mismatched engine/database, engine version=" + EngineDB.APP_VERSION + ", database version=" + version , "" + EngineDB.APP_VERSION , "" + version );
 		
@@ -230,8 +229,8 @@ public class EngineLoader {
 
 			// core
 			if( importxml ) {
-				connection.setNextCoreVersion();
-				trace( "create new engine core version=" + connection.getCoreVersion() + " ..." );
+				int version = connection.getNextCoreVersion();
+				trace( "create new engine core version=" + version + " ..." );
 				importxmlEngineSettings();
 				importxmlBase();
 				loadInfrastructure();
@@ -492,12 +491,11 @@ public class EngineLoader {
 			}
 			
 			trace( "drop engine core data in database ..." );
-			connection.setNextCoreVersion();
+			int version = connection.getNextCoreVersion();
 			DBCoreData.dropCoreData( this );
-			int CV = connection.getCoreVersion();
 			connection.close( true );
 			connection = null;
-			trace( "successfully dropped engine core data, core version=" + CV );
+			trace( "successfully dropped engine core data, core version=" + version );
 		}
 		catch( Throwable e ) {
 			log( "init" , e );
