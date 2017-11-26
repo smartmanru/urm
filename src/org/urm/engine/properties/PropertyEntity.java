@@ -29,6 +29,22 @@ public class PropertyEntity {
 		VERSION = 0;
 	}
 	
+	public PropertyEntity copy() {
+		PropertyEntity r = new PropertyEntity( 
+				this.OWNER_OBJECT_TYPE , 
+				this.OWNER_OBJECT_ID ,
+				this.PARAMENTITY_TYPE ,
+				this.CUSTOM ,
+				this.APP_PROPS ,
+				this.APP_TABLE );
+		r.VERSION = VERSION;
+		for( EntityVar var : vars.values() ) {
+			EntityVar rvar = var.copy();
+			r.addVar( rvar );
+		}
+		return( r );
+	}
+	
 	public EntityVar[] getVars() {
 		return( vars.values().toArray( new EntityVar[0] ) );
 	}

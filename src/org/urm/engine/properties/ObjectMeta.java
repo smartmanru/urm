@@ -15,6 +15,8 @@ public class ObjectMeta {
 	Map<Integer,EntityVar> varIds;
 	
 	ObjectMeta() {
+		varNames = new HashMap<String,EntityVar>();
+		varIds = new HashMap<Integer,EntityVar>();
 	}
 
 	public void create( PropertyEntity entityApp , PropertyEntity entityCustom ) throws Exception {
@@ -28,9 +30,20 @@ public class ObjectMeta {
 			entities = new PropertyEntity[] { entityApp , entityCustom };
 		else
 			entities = new PropertyEntity[] { entityApp };
-		varNames = new HashMap<String,EntityVar>();
-		varIds = new HashMap<Integer,EntityVar>();
 		rebuild();
+	}
+
+	public ObjectMeta copy() {
+		ObjectMeta r = new ObjectMeta();
+		r.entities = new PropertyEntity[ entities.length ];
+		r.entityApp = entityApp;
+		r.entities[ 0 ] = entityApp;
+		if( entityCustom != null ) {
+			r.entityCustom = entityCustom.copy();
+			r.entities[ 1 ] = r.entityCustom;
+		}
+		r.rebuild();
+		return( r );
 	}
 	
 	public void rebuild() {

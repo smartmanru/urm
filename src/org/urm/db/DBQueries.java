@@ -34,6 +34,7 @@ public abstract class DBQueries {
 	public static String MODIFY_SYSTEM_ADD6 = "insert into urm_system ( system_id , name , xdesc , offline , matched , sv ) values ( @values@ )";
 	public static String MODIFY_SYSTEM_UPDATE5 = "update urm_system set name = @2@ , xdesc = @3@ , offline=@4@ , sv = @5@ where system_id = @1@";
 	public static String MODIFY_SYSTEM_DELETE2 = "delete from urm_system where system_id = @1@";
+	public static String MODIFY_SYSTEM_MATCHED2 = "update urm_system set matched = @2@ where system_id = @1@";
 
 	public static String QUERY_PRODUCT_GETALL0 = "select product_id , system_id , name , xdesc , path , offline , monitoring_enabled , sv from urm_product";
 	public static String MODIFY_PRODUCT_ADD8 = "insert into urm_product ( product_id , system_id , name , xdesc , path , offline , monitoring_enabled , sv ) values ( @values@ )";

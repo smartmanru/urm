@@ -45,7 +45,7 @@ public class EngineDirectory extends EngineObject {
 	}
 
 	public EngineDirectory copy() throws Exception {
-		EngineDirectory r = new EngineDirectory( null );
+		EngineDirectory r = new EngineDirectory( data );
 		
 		EngineSettings settings = data.getEngineSettings();
 		for( AppSystem system : mapSystems.values() ) {
@@ -163,8 +163,10 @@ public class EngineDirectory extends EngineObject {
 	public void modifySystem( EngineTransaction t , AppSystem system ) throws Exception {
 		DBConnection c = t.getConnection();
 		data.checkSystemNameBusy( system.NAME );
-		if( Common.changeMapKey( mapSystems , system , system.NAME ) )
+		if( Common.changeMapKey( mapSystems , system , system.NAME ) ) {
 			DBNames.updateName( c , DBVersions.CORE_ID , system.NAME , system.ID , DBEnumObjectType.SYSTEM );
+			c.getNextSystemVersion( system );
+		}
 		DBSystem.update( c , system );
 	}
 	

@@ -16,19 +16,18 @@ import org.urm.engine.shell.ShellExecutor;
 public class ObjectProperties {
 
 	public DBEnumParamRoleType type;
-	
 	private String setName;
-	private ObjectProperties parent;
 	private RunContext execrc;
 	
+	private ObjectProperties parent;
 	private boolean loadFailed;
 	private boolean loadFinished;
-	private PropertySet properties;
 	private Map<String,String> loadErrors;
 	private RunError error;
+	private ObjectMeta meta;
+	private PropertySet properties;
 
 	private List<ObjectProperties> childs;
-	private ObjectMeta meta;
 	
 	public ObjectProperties( DBEnumParamRoleType type , String name , RunContext execrc ) {
 		this.type = type;
@@ -44,7 +43,13 @@ public class ObjectProperties {
 
 	public ObjectProperties copy( ObjectProperties parent ) {
 		ObjectProperties r = new ObjectProperties( type , setName , execrc );
-		r.properties = r.properties.copy( parent.properties );
+		r.parent = parent;
+		r.loadFailed = loadFailed;
+		r.loadFinished = loadFinished;
+		r.loadErrors.putAll( loadErrors );
+		r.error = error;
+		r.meta = meta.copy();
+		r.properties = properties.copy( parent.properties );
 		return( r );
 	}
 

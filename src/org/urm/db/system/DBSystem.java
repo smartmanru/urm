@@ -107,7 +107,21 @@ public abstract class DBSystem {
 	public static void matchxml( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
 		for( Product product : system.getProducts() )
 			DBProduct.matchxml( loader , directory , product );
+		
+		matchdone( loader , directory , system , true );
+	}
+
+	public static void matchdone( EngineLoader loader , EngineDirectory directory , AppSystem system , boolean done ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
 		system.MATCHED = true;
+		system.SV = c.getNextSystemVersion( system );
+		if( !c.update( DBQueries.MODIFY_SYSTEM_MATCHED2 , new String[] {
+				EngineDB.getInteger( system.ID ) , 
+				EngineDB.getBoolean( system.MATCHED ) ,
+				EngineDB.getInteger( system.SV ) 
+				} ) )
+			Common.exitUnexpected();
 	}
 	
 	public static void matchdb( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {

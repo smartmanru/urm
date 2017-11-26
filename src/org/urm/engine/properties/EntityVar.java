@@ -21,6 +21,20 @@ public class EntityVar {
 	public EntityVar() {
 	}
 	
+	public EntityVar copy() {
+		EntityVar r = new EntityVar();
+		r.PARAM_ID = PARAM_ID;
+		r.PARAMVALUE_TYPE = PARAMVALUE_TYPE;
+		r.OBJECT_TYPE = OBJECT_TYPE;
+		r.NAME = NAME;
+		r.DESC = DESC;
+		r.REQUIRED = REQUIRED;
+		r.EXPR_DEF = EXPR_DEF;
+		r.VERSION = VERSION;
+		r.enumClass = enumClass;
+		return( r );
+	}
+	
 	public static EntityVar metaEnum( String propertyKey , String propertyDesc , boolean required , DBEnumInterface defValue ) {
 		Enum<?> defEnumValue = ( Enum<?> )defValue;
 		EntityVar var = meta( propertyKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumObjectType.UNKNOWN , required , null );

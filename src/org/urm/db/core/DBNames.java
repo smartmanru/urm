@@ -64,6 +64,7 @@ public abstract class DBNames {
 	}
 	
 	public synchronized static void updateName( DBConnection c , int parent , String name , int id , DBEnumObjectType type ) throws Exception {
+		// update name
 		String key = parent + "::" + type.code() + "::" + name;
 		Integer value = map.get( key );
 		if( value != null && value == id )
