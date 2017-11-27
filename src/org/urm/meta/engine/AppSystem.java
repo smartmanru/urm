@@ -12,6 +12,7 @@ public class AppSystem extends EngineObject {
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
 	public static String PROPERTY_OFFLINE = "offline";
+	public static String PROPERTY_MATCHED = "matched";
 	
 	public EngineDirectory directory;
 	private Map<String,Product> mapProducts;

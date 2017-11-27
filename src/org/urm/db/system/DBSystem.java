@@ -150,13 +150,11 @@ public abstract class DBSystem {
 		system.ID = systemId;
 		system.SV = c.getNextSystemVersion( system );
 		EngineEntities entities = c.getEntities();
-		entities.insertSystem( c , new String[] {
-				EngineDB.getInteger( system.ID ) , 
+		entities.insertSystem( c , system.ID , system.SV , new String[] {
 				EngineDB.getString( system.NAME ) , 
 				EngineDB.getString( system.DESC ) ,
 				EngineDB.getBoolean( system.OFFLINE ) ,
-				EngineDB.getBoolean( system.MATCHED ) ,
-				EngineDB.getInteger( system.SV ) 
+				EngineDB.getBoolean( system.MATCHED )
 				} );
 	}
 
@@ -185,7 +183,8 @@ public abstract class DBSystem {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AppSystem.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( AppSystem.PROPERTY_DESC , "xdesc" , AppSystem.PROPERTY_DESC , "Description" , false , null ) ,
-				EntityVar.metaBoolean( AppSystem.PROPERTY_OFFLINE , "Offline" , false , true )
+				EntityVar.metaBoolean( AppSystem.PROPERTY_OFFLINE , "Offline" , false , true ) ,
+				EntityVar.metaBoolean( AppSystem.PROPERTY_MATCHED , "State of matched to core" , false , true )
 		} ) );
 	}
 

@@ -101,7 +101,8 @@ public class EntityVar {
 	
 	public static EntityVar meta( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , DBEnumParamValueType type , DBEnumObjectType objectType , boolean required , String defValue ) {
 		EntityVar var = new EntityVar();
-		var.NAME = propertyDatabaseKey;
+		var.NAME = propertyKey;
+		var.DBNAME = propertyDatabaseKey;
 		var.XMLNAME = propertyXmlKey;
 		var.DESC = propertyDesc;
 		var.PARAMVALUE_TYPE = type;

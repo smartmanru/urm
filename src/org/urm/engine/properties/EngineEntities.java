@@ -27,6 +27,12 @@ public class EngineEntities {
 	public static String nameEngineMonitoring = "defmon";
 	public static String nameBaseItem = "baseitem";
 	public static String nameSystem = "system";
+
+	public static String FIELD_VERSION_APP = "av"; 
+	public static String FIELD_VERSION_CORE = "cv"; 
+	public static String FIELD_VERSION_SYSTEM = "sv"; 
+	public static String FIELD_VERSION_PRODUCT = "pv"; 
+	public static String FIELD_VERSION_ENVIRONMENT = "ev"; 
 	
 	public Engine engine;
 	public EngineCore core;
@@ -150,8 +156,12 @@ public class EngineEntities {
 		return( props );
 	}
 
-	public void insertSystem( DBConnection c , String[] values ) throws Exception {
-		DBEngineEntities.insertAppObject( c , entityAppSystem , values );
+	public void insertSystem( DBConnection c , int id , int version , String[] values ) throws Exception {
+		DBEngineEntities.insertAppObject( c , entityAppSystem , id , version , values );
+	}
+	
+	public void updateSystem( DBConnection c , int id , int version , String[] values ) throws Exception {
+		DBEngineEntities.updateAppObject( c , entityAppSystem , id , version , values );
 	}
 	
 }
