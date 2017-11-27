@@ -13,6 +13,7 @@ import org.urm.db.core.DBEnums.DBEnumOwnerStatusType;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.engine.Engine;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.meta.OwnerObjectVersion;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.Product;
@@ -21,6 +22,7 @@ import org.urm.meta.product.MetaEnv;
 public class DBConnection {
 
 	public Engine engine;
+	public EngineEntities entities;
 	public ActionBase action;
 	
 	private Connection connection;
@@ -30,8 +32,9 @@ public class DBConnection {
 
 	private Map<Integer,OwnerObjectVersion> versions;
 	
-	public DBConnection( Engine engine , ActionBase action , Connection connection ) {
+	public DBConnection( Engine engine , EngineEntities entities , ActionBase action , Connection connection ) {
 		this.engine = engine;
+		this.entities = entities;
 		this.action = action;
 		this.connection = connection;
 		
@@ -70,6 +73,10 @@ public class DBConnection {
 		}
 	}
 
+	public EngineEntities getEntities() {
+		return( entities );
+	}
+	
 	public String queryValue( String query ) {
 		return( queryValue( query , null , FAST_TIMEOUT ) );
 	}

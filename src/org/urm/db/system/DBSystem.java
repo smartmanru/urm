@@ -31,7 +31,8 @@ import org.w3c.dom.Node;
 
 public abstract class DBSystem {
 
-	public static String TABLE_SYSTEM = "urm_system"; 
+	public static String TABLE_SYSTEM = "urm_system";
+	public static String FIELD_ID = "system_id";
 	
 	public static AppSystem importxml( EngineLoader loader , EngineDirectory directory , Node node ) throws Exception {
 		DBConnection c = loader.getConnection();
@@ -40,13 +41,13 @@ public abstract class DBSystem {
 		ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
 		
 		AppSystem system = new AppSystem( directory , props );
-		system.NAME = ConfReader.getAttrValue( node , "name" );
-		system.DESC = ConfReader.getAttrValue( node , "desc" );
-		system.OFFLINE = ConfReader.getBooleanAttrValue( node , "offline" , true );
+		system.NAME = ConfReader.getAttrValue( node , AppSystem.PROPERTY_NAME );
+		system.DESC = ConfReader.getAttrValue( node , AppSystem.PROPERTY_DESC );
+		system.OFFLINE = ConfReader.getBooleanAttrValue( node , AppSystem.PROPERTY_OFFLINE , true );
 		int systemId = getSystemIdByName( c , system.NAME );
 		insert( c , systemId , system );
 		
-		DBSettings.importxml( loader , node , props , false , system.ID , false , system.SV );
+		DBSettings.importxml( loader , node , props , system.ID , system.ID , false , system.SV );
 		
 		Node[] items = ConfReader.xmlGetChildren( node , "product" );
 		if( items == null )
@@ -148,15 +149,15 @@ public abstract class DBSystem {
 	public static void insert( DBConnection c , int systemId , AppSystem system ) throws Exception {
 		system.ID = systemId;
 		system.SV = c.getNextSystemVersion( system );
-		if( !c.update( DBQueries.MODIFY_SYSTEM_ADD6 , new String[] {
+		EngineEntities entities = c.getEntities();
+		entities.insertSystem( c , new String[] {
 				EngineDB.getInteger( system.ID ) , 
 				EngineDB.getString( system.NAME ) , 
 				EngineDB.getString( system.DESC ) ,
 				EngineDB.getBoolean( system.OFFLINE ) ,
 				EngineDB.getBoolean( system.MATCHED ) ,
 				EngineDB.getInteger( system.SV ) 
-				} ) )
-			Common.exitUnexpected();
+				} );
 	}
 
 	public static void update( DBConnection c , AppSystem system ) throws Exception {
@@ -180,7 +181,8 @@ public abstract class DBSystem {
 
 	public static PropertyEntity upgradeEntitySystem( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		return( DBSettings.savedbEntity( c , DBEnumParamEntityType.SYSTEM , DBEnumObjectVersionType.APP , DBVersions.APP_ID , false , EngineDB.APP_VERSION , false , TABLE_SYSTEM , new EntityVar[] { 
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.CORE , TABLE_SYSTEM , FIELD_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AppSystem.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaString( AppSystem.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBoolean( AppSystem.PROPERTY_OFFLINE , "Offline" , false , true )
@@ -188,7 +190,9 @@ public abstract class DBSystem {
 	}
 
 	public static PropertyEntity loaddbEntitySystem( EngineLoader loader ) throws Exception {
-		return( DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.SYSTEM , false , true , DBSystem.TABLE_SYSTEM ) );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.CORE , TABLE_SYSTEM , FIELD_ID );
+		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		return( entity );
 	}
 	
 }

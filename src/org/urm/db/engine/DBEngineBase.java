@@ -41,10 +41,12 @@ public abstract class DBEngineBase {
 	public static String PROPERTY_GROUP_DESC = "desc";
 	public static String PROPERTY_GROUP_OFFLINE = "offline";
 	public static String PROPERTY_TYPE = "type";
+	public static String FIELD_ID = "item_id";
 	
 	public static PropertyEntity upgradeEntityBaseItem( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		return( DBSettings.savedbEntity( c , DBEnumParamEntityType.BASEITEM , DBEnumObjectVersionType.APP , DBVersions.APP_ID , false , EngineDB.APP_VERSION , true , TABLE_BASEITEM , new EntityVar[] { 
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM , DBEnumObjectVersionType.CORE , TABLE_BASEITEM , FIELD_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( BaseItem.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaString( BaseItem.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaEnum( BaseItem.PROPERTY_BASESRC_TYPE , "Base item type" , false , DBEnumBaseSrcType.UNKNOWN ) ,
@@ -65,7 +67,9 @@ public abstract class DBEngineBase {
 	}
 
 	public static PropertyEntity loaddbEntityBaseItem( EngineLoader loader ) throws Exception {
-		return( DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.BASEITEM , false , true , DBEngineBase.TABLE_BASEITEM ) );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM , DBEnumObjectVersionType.CORE , TABLE_BASEITEM , FIELD_ID );
+		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		return( entity );
 	}
 	
 	public static void importxml( EngineLoader loader , EngineBase base , Node root ) throws Exception {
@@ -119,7 +123,7 @@ public abstract class DBEngineBase {
 		
 		ObjectProperties props = entities.createBaseItemProps( settings.getEngineProperties() ); 
 		BaseItem item = new BaseItem( group , props );
-		DBSettings.importxml( loader , root , props , false );
+		DBSettings.importxmlLoad( loader , root , props );
 		
 		item.NAME = props.getPropertyValue( BaseItem.PROPERTY_NAME );
 		item.DESC = props.getPropertyValue( BaseItem.PROPERTY_DESC );
@@ -141,7 +145,7 @@ public abstract class DBEngineBase {
 		
 		int baseId = getBaseItemIdByName( c , item.NAME );
 		insertItem( c , baseId , item );
-		DBSettings.savedb( loader , props , baseId , false , item.CV ); 
+		DBSettings.importxmlSave( loader , props , baseId , DBVersions.CORE_ID , false , item.CV ); 
 		
 		return( item );
 	}

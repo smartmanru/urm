@@ -64,7 +64,7 @@ public class EngineDB {
 	public DBConnection getConnection( ActionBase action ) throws Exception {
 		Connection connection = pool.getConnection();
 		connection.setAutoCommit( false );
-		DBConnection dbc = new DBConnection( data.engine , action , connection );
+		DBConnection dbc = new DBConnection( data.engine , data.getEntities() , action , connection );
 		dbc.init();
 		return( dbc );
 	}

@@ -157,9 +157,10 @@ public abstract class DBEnums {
 	
 	public enum DBEnumObjectType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
-		ENUM(1,null) ,
-		PARAM(2,null) ,
-		RESOURCE(3,null) ,
+		ROOT(1,null) ,
+		ENUM(2,null) ,
+		PARAM(3,null) ,
+		RESOURCE(4,null) ,
 		DATACENTER(10,null) ,
 		NETWORK(11,null) ,
 		HOST(12,null) ,

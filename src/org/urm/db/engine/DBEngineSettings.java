@@ -6,9 +6,9 @@ import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumBuildModeType;
+import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
-import org.urm.engine.EngineDB;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectProperties;
@@ -26,7 +26,8 @@ public abstract class DBEngineSettings {
 
 	public static PropertyEntity upgradeEntityProduct( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		return( DBSettings.savedbEntity( c , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.APP , DBVersions.APP_ID , false , EngineDB.APP_VERSION , true , null , new EntityVar[] { 
+		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.CORE );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_REDISTLINUX_PATH , "Linux Staging Area Path" , true , null ) ,
 				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_REDISTWIN_PATH , "Windows Staging Area Path" , true , null ) ,
 				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_DISTR_PATH , "Distributives Path" , true , null ) ,
@@ -48,12 +49,15 @@ public abstract class DBEngineSettings {
 	}
 
 	public static PropertyEntity loaddbEntityProduct( EngineLoader loader ) throws Exception {
-		return( DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.PRODUCTDEFS , false , true , null ) );
+		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.CORE );
+		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		return( entity );
 	}
 	
 	public static PropertyEntity upgradeEntityProductBuild( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		return( DBSettings.savedbEntity( c , DBEnumParamEntityType.PRODUCTBUILD , DBEnumObjectVersionType.APP , DBVersions.APP_ID , false , EngineDB.APP_VERSION , true , null , new EntityVar[] { 
+		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTBUILD , DBEnumObjectVersionType.CORE );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_LASTMAJOR , "Last Major Release" , false , null ) ,
 				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_NEXTMAJOR , "Next Major Release" , false , null ) ,
 				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_LASTMINOR , "Last Minor Release" , false , null ) ,
@@ -71,7 +75,9 @@ public abstract class DBEngineSettings {
 	}
 
 	public static PropertyEntity loaddbEntityProductBuild( EngineLoader loader ) throws Exception {
-		return( DBSettings.loaddbEntity( loader , DBEnumObjectVersionType.APP , DBVersions.APP_ID , DBEnumParamEntityType.PRODUCTBUILD , false , true , null ) );
+		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTBUILD , DBEnumObjectVersionType.CORE );
+		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		return( entity );
 	}
 	
 	public static void importxml( EngineLoader loader , EngineSettings settings , Node root ) throws Exception {
@@ -104,7 +110,7 @@ public abstract class DBEngineSettings {
 		int version = c.getNextCoreVersion();
 		
 		settings.engineProperties = entities.createEngineProps( settings.execrcProperties );
-		DBSettings.importxml( loader , root , settings.engineProperties , true , DBVersions.CORE_ID , true , version );
+		DBSettings.importxml( loader , root , settings.engineProperties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , version );
 	}
 	
 	private static void loaddbEngineSettings( EngineLoader loader , EngineSettings settings ) throws Exception {
@@ -121,11 +127,11 @@ public abstract class DBEngineSettings {
 		// load from xml
 		settings.defaultProductProperties = entities.createDefaultProductProps( settings.engineProperties );
 		Node node = ConfReader.xmlGetFirstChild( root , "defaults" );
-		DBSettings.importxml( loader , node , settings.defaultProductProperties , true , DBVersions.CORE_ID , true , version );
+		DBSettings.importxml( loader , node , settings.defaultProductProperties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , version );
 		
 		settings.defaultProductBuildProperties = entities.createDefaultBuildCommonProps( settings.defaultProductBuildProperties );
 		Node build = ConfReader.xmlGetFirstChild( node , "build" );
-		DBSettings.importxml( loader , build , settings.defaultProductBuildProperties , true , DBVersions.CORE_ID , true , version );
+		DBSettings.importxml( loader , build , settings.defaultProductBuildProperties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , version );
 		
 		// for build modes
 		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
@@ -142,7 +148,7 @@ public abstract class DBEngineSettings {
 				String MODE = ConfReader.getRequiredAttrValue( itemNode , "name" );
 				DBEnumBuildModeType mode = DBEnumBuildModeType.valueOf( MODE.toUpperCase() );
 				ObjectProperties properties = settings.getDefaultProductBuildObjectProperties( mode );
-				DBSettings.importxml( loader , itemNode , properties , true , DBVersions.CORE_ID , true , version );
+				DBSettings.importxml( loader , itemNode , properties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , version );
 			}
 		}
 	}

@@ -16,12 +16,12 @@ public abstract class DBQueries {
 	public static String MODIFY_ENUMS_DROP0 = "delete from urm_object_type";
 	public static String MODIFY_ENUMS_ADD4 = "insert into urm_object_type( category , item , name , av ) values ( @values@ )";
 	
-	public static String MODIFY_PARAM_ADDENTITY7 = "insert into urm_object_entity ( param_object_id , paramentity_type , custom , app_props , app_table , param_object_type , version ) values ( @values@ )";
-	public static String MODIFY_PARAM_ADDPARAM10 = "insert into urm_object_param ( param_object_id , paramentity_type , param_id , name , xdesc , paramvalue_type , object_type , required , expr_def , version ) values ( @values@ )";
+	public static String MODIFY_PARAM_ADDENTITY11 = "insert into urm_object_entity ( param_object_id , paramentity_type , custom , use_props , app_table , id_field , object_type , meta_object_id , meta_objectversion_type , data_objectversion_type,  version ) values ( @values@ )";
+	public static String MODIFY_PARAM_ADDPARAM11 = "insert into urm_object_param ( param_object_id , paramentity_type , param_id , name , xmlname , xdesc , paramvalue_type , object_type , required , expr_def , version ) values ( @values@ )";
 	public static String MODIFY_PARAM_DROPENTITY2 = "delete from urm_object_entity where param_object_id = @1@ and paramentity_type = @2@";
 	public static String MODIFY_PARAM_DROPENTITYPARAMS2 = "delete from urm_object_param where param_object_id = @1@ and paramentity_type = @2@";
 	public static String MODIFY_PARAM_DROPENTITYVALUES2 = "delete from urm_object_param_value where param_object_id = @1@ and paramentity_type = @2@";
-	public static String QUERY_PARAM_GETENTITYPARAMS2 = "select param_id , name , xdesc , paramvalue_type , object_type , required , expr_def , version from urm_object_param where param_object_id = @1@ and paramentity_type = @2@ order by name";
+	public static String QUERY_PARAM_GETENTITYPARAMS2 = "select param_id , name , xmlname , xdesc , paramvalue_type , object_type , required , expr_def , version from urm_object_param where param_object_id = @1@ and paramentity_type = @2@ order by name";
 	public static String QUERY_PARAM_GETOBJECTPARAMVALUES2 = "select paramentity_type , param_id , expr_value , version from urm_object_param_value where object_id = @1@ and paramrole_type = @2@";
 	public static String MODIFY_PARAM_DROPOBJECTPARAMVALUES2 = "delete from urm_object_param_value where object_id = @1@ and paramrole_type = @2@";
 	public static String MODIFY_PARAM_ADDOBJECTPARAMVALUE7  = "insert into urm_object_param_value ( object_id , paramrole_type , param_object_id , paramentity_type , param_id , expr_value , version ) values ( @values@ )";

@@ -1,9 +1,11 @@
 package org.urm.engine.properties;
 
-import org.urm.db.core.DBSettings;
+import org.urm.db.core.DBVersions;
+import org.urm.db.DBConnection;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineContext;
+import org.urm.db.engine.DBEngineEntities;
 import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineSettings;
 import org.urm.db.system.DBSystem;
@@ -136,16 +138,20 @@ public class EngineEntities {
 
 	public ObjectProperties createBaseItemProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.BASEITEM , "baseitem" , engine.execrc );
-		PropertyEntity custom = DBSettings.createEntityCustom( DBEnumObjectVersionType.CORE , -1 , DBEnumParamEntityType.BASEITEM_CUSTOM );
+		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM_CUSTOM , DBVersions.CORE_ID , DBEnumObjectVersionType.CORE );
 		props.create( parent , entityAppBaseItem , custom );
 		return( props );
 	}
 
 	public ObjectProperties createSystemProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.SYSTEM , "system" , engine.execrc );
-		PropertyEntity custom = DBSettings.createEntityCustom( DBEnumObjectVersionType.CORE , -1 , DBEnumParamEntityType.SYSTEM_CUSTOM );
+		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.SYSTEM , DBEnumParamEntityType.SYSTEM_CUSTOM , -1 , DBEnumObjectVersionType.SYSTEM );
 		props.create( parent , entityAppSystem , custom );
 		return( props );
 	}
 
+	public void insertSystem( DBConnection c , String[] values ) throws Exception {
+		DBEngineEntities.insertAppObject( c , entityAppSystem , values );
+	}
+	
 }
