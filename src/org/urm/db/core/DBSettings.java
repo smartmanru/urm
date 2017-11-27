@@ -19,7 +19,6 @@ import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.properties.PropertyValue;
 import org.urm.meta.EngineLoader;
-import org.urm.meta.OwnerObjectVersion;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -97,7 +96,7 @@ public abstract class DBSettings {
 
 	public static void importxmlSave( EngineLoader loader , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean saveApp , int version ) throws Exception {
 		DBConnection c = loader.getConnection();
-		savedbEntityCustom( c , properties , paramObjectId , metaObjectId );
+		savedbEntityCustom( c , properties , paramObjectId , metaObjectId , version );
 		savedbValues( c , paramObjectId , properties , saveApp , version );
 	}
 	
@@ -287,8 +286,8 @@ public abstract class DBSettings {
 			EngineDB.getBoolean( entity.CUSTOM ) ,
 			EngineDB.getBoolean( entity.USE_PROPS ) ,
 			EngineDB.getString( entity.APP_TABLE ) ,
-			EngineDB.getEnum( entity.OBJECT_TYPE ) ,
 			EngineDB.getString( entity.ID_FIELD ) ,
+			EngineDB.getEnum( entity.OBJECT_TYPE ) ,
 			EngineDB.getInteger( entity.META_OBJECT_ID ) ,
 			EngineDB.getEnum( entity.META_OBJECTVERSION_TYPE ) ,
 			EngineDB.getEnum( entity.DATA_OBJECTVERSION_TYPE ) ,
@@ -300,11 +299,12 @@ public abstract class DBSettings {
 	private static void insertVar( DBConnection c , PropertyEntity entity , EntityVar var , int version ) throws Exception {
 		var.PARAM_ID = DBNames.getNameIndex( c , entity.PARAM_OBJECT_ID , var.NAME , DBEnumObjectType.PARAM );
 		var.VERSION = version;
-		if( !c.update( DBQueries.MODIFY_PARAM_ADDPARAM11 , new String[] {
+		if( !c.update( DBQueries.MODIFY_PARAM_ADDPARAM12 , new String[] {
 			EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
 			EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 			EngineDB.getInteger( var.PARAM_ID ) ,
 			EngineDB.getString( var.NAME ) ,
+			EngineDB.getString( var.DBNAME ) ,
 			EngineDB.getString( var.XMLNAME ) ,
 			EngineDB.getString( var.DESC ) ,
 			EngineDB.getEnum( var.PARAMVALUE_TYPE ) ,
@@ -336,12 +336,13 @@ public abstract class DBSettings {
 					rs.getString( 2 ) , 
 					rs.getString( 3 ) ,
 					rs.getString( 4 ) , 
-					DBEnumParamValueType.getValue( rs.getInt( 5 ) , true ) , 
-					DBEnumObjectType.getValue( rs.getInt( 6 ) , false ) , 
-					rs.getBoolean( 7 ) , 
-					rs.getString( 8 ) );
+					rs.getString( 5 ) , 
+					DBEnumParamValueType.getValue( rs.getInt( 6 ) , true ) , 
+					DBEnumObjectType.getValue( rs.getInt( 7 ) , false ) , 
+					rs.getBoolean( 8 ) , 
+					rs.getString( 9 ) );
 			var.PARAM_ID = rs.getInt( 1 );
-			var.VERSION = rs.getInt( 9 );
+			var.VERSION = rs.getInt( 10 );
 			entity.addVar( var );
 		}
 		rs.close();
@@ -377,7 +378,7 @@ public abstract class DBSettings {
 		}
 	}
 
-	public static void savedbEntityCustom( DBConnection c , ObjectProperties properties , int paramObjectId , int metaObjectId ) throws Exception {
+	public static void savedbEntityCustom( DBConnection c , ObjectProperties properties , int paramObjectId , int metaObjectId , int version ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
 		if( entity == null )
@@ -385,23 +386,9 @@ public abstract class DBSettings {
 		
 		entity.PARAM_OBJECT_ID = paramObjectId;
 		entity.META_OBJECT_ID = metaObjectId;
-		int version = getCustomMetaVersion( c , properties );
 		savedbPropertyEntity( c , entity , entity.getVars() , version );
 		meta.rebuild();
 	}
 
-	public static int getAppMetaVersion( DBConnection c ) throws Exception {
-		return( EngineDB.APP_VERSION );
-	}
-	
-	public static int getCustomMetaVersion( DBConnection c , ObjectProperties props ) throws Exception {
-		ObjectMeta meta = props.getMeta();
-		PropertyEntity entity = meta.getAppEntity();
-		OwnerObjectVersion version = c.getObjectVersion( entity.META_OBJECT_ID , entity.META_OBJECTVERSION_TYPE );
-		if( version.nextVersion < 0 )
-			Common.exitUnexpected();
-		return( version.nextVersion );
-	}
-	
 }
 

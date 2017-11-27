@@ -181,16 +181,16 @@ public abstract class DBSystem {
 
 	public static PropertyEntity upgradeEntitySystem( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.CORE , TABLE_SYSTEM , FIELD_ID );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.SYSTEM , DBEnumParamEntityType.SYSTEM , DBEnumObjectVersionType.SYSTEM , TABLE_SYSTEM , FIELD_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AppSystem.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaString( AppSystem.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( AppSystem.PROPERTY_DESC , "xdesc" , AppSystem.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBoolean( AppSystem.PROPERTY_OFFLINE , "Offline" , false , true )
 		} ) );
 	}
 
 	public static PropertyEntity loaddbEntitySystem( EngineLoader loader ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.CORE , TABLE_SYSTEM , FIELD_ID );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.SYSTEM , DBEnumParamEntityType.SYSTEM , DBEnumObjectVersionType.SYSTEM , TABLE_SYSTEM , FIELD_ID );
 		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
 		return( entity );
 	}
