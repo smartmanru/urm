@@ -43,6 +43,14 @@ public class EntityVar {
 		return( metaEnumVar( propertyKey , propertyKey , propertyKey , propertyDesc , required , defValue ) ); 
 	}
 	
+	public static EntityVar metaEnumDatabaseOnly( String propertyKey , String propertyDesc , boolean required , DBEnumInterface defValue ) {
+		return( metaEnumVar( propertyKey , propertyKey , null , propertyDesc , required , defValue ) ); 
+	}
+	
+	public static EntityVar metaEnumXmlOnly( String propertyKey , String propertyDesc , boolean required , DBEnumInterface defValue ) {
+		return( metaEnumVar( propertyKey , null , propertyKey , propertyDesc , required , defValue ) ); 
+	}
+	
 	public static EntityVar metaEnumVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , DBEnumInterface defValue ) {
 		Enum<?> defEnumValue = ( Enum<?> )defValue;
 		EntityVar var = meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumObjectType.UNKNOWN , required , null );
@@ -54,12 +62,28 @@ public class EntityVar {
 		return( metaStringVar( propertyKey , propertyKey , propertyKey , propertyDesc , required , defValue ) ); 
 	}
 	
+	public static EntityVar metaStringDatabaseOnly( String propertyKey , String propertyDesc , boolean required , String defValue ) {
+		return( metaStringVar( propertyKey , propertyKey , null , propertyDesc , required , defValue ) ); 
+	}
+	
+	public static EntityVar metaStringXmlOnly( String propertyKey , String propertyDesc , boolean required , String defValue ) {
+		return( metaStringVar( propertyKey , null , propertyKey , propertyDesc , required , defValue ) ); 
+	}
+	
 	public static EntityVar metaStringVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , String defValue ) {
 		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.STRING , DBEnumObjectType.UNKNOWN , required , defValue ) );
 	}
 	
 	public static EntityVar metaInteger( String propertyKey , String propertyDesc , boolean required , Integer defValue ) {
 		return( metaIntegerVar( propertyKey , propertyKey , propertyKey , propertyDesc , required , defValue ) ); 
+	}
+	
+	public static EntityVar metaIntegerDatabaseOnly( String propertyKey , String propertyDesc , boolean required , Integer defValue ) {
+		return( metaIntegerVar( propertyKey , propertyKey , null , propertyDesc , required , defValue ) ); 
+	}
+	
+	public static EntityVar metaIntegerXmlOnly( String propertyKey , String propertyDesc , boolean required , Integer defValue ) {
+		return( metaIntegerVar( propertyKey , null , propertyKey , propertyDesc , required , defValue ) ); 
 	}
 	
 	public static EntityVar metaIntegerVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , Integer defValue ) {
@@ -71,12 +95,28 @@ public class EntityVar {
 		return( metaPathAbsoluteVar( propertyKey , propertyKey , propertyKey , propertyDesc , required , defValue ) ); 
 	}
 	
+	public static EntityVar metaPathAbsoluteDatabaseOnly( String propertyKey , String propertyDesc , boolean required , String defValue ) {
+		return( metaPathAbsoluteVar( propertyKey , propertyKey , null , propertyDesc , required , defValue ) ); 
+	}
+	
+	public static EntityVar metaPathAbsoluteXmlOnly( String propertyKey , String propertyDesc , boolean required , String defValue ) {
+		return( metaPathAbsoluteVar( propertyKey , null , propertyKey , propertyDesc , required , defValue ) ); 
+	}
+	
 	public static EntityVar metaPathAbsoluteVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , String defValue ) {
 		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.PATH , DBEnumObjectType.UNKNOWN , required , defValue ) );
 	}
 	
 	public static EntityVar metaPathRelative( String propertyKey , String propertyDesc , boolean required , String defValue ) {
 		return( metaPathRelativeVar( propertyKey , propertyKey , propertyKey , propertyDesc , required , defValue ) ); 
+	}
+	
+	public static EntityVar metaPathRelativeDatabaseOnly( String propertyKey , String propertyDesc , boolean required , String defValue ) {
+		return( metaPathRelativeVar( propertyKey , propertyKey , null , propertyDesc , required , defValue ) ); 
+	}
+	
+	public static EntityVar metaPathRelativeXmlOnly( String propertyKey , String propertyDesc , boolean required , String defValue ) {
+		return( metaPathRelativeVar( propertyKey , null , propertyKey , propertyDesc , required , defValue ) ); 
 	}
 	
 	public static EntityVar metaPathRelativeVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , String defValue ) {
@@ -87,12 +127,28 @@ public class EntityVar {
 		return( metaBooleanVar( propertyKey , propertyKey , propertyKey , propertyDesc , required , defValue ) ); 
 	}
 	
+	public static EntityVar metaBooleanDatabaseOnly( String propertyKey , String propertyDesc , boolean required , boolean defValue ) {
+		return( metaBooleanVar( propertyKey , propertyKey , null , propertyDesc , required , defValue ) ); 
+	}
+	
+	public static EntityVar metaBooleanXmlOnly( String propertyKey , String propertyDesc , boolean required , boolean defValue ) {
+		return( metaBooleanVar( propertyKey , null , propertyKey , propertyDesc , required , defValue ) ); 
+	}
+	
 	public static EntityVar metaBooleanVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , boolean defValue ) {
 		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.BOOL , DBEnumObjectType.UNKNOWN , required , Common.getBooleanValue( defValue ) ) );
 	}
 	
 	public static EntityVar metaObject( String propertyKey , String propertyDesc , DBEnumObjectType objectType , boolean required ) {
 		return( metaObjectVar( propertyKey , propertyKey , propertyKey , propertyDesc , objectType , required ) ); 
+	}
+	
+	public static EntityVar metaObjectDatabaseOnly( String propertyKey , String propertyDesc , DBEnumObjectType objectType , boolean required ) {
+		return( metaObjectVar( propertyKey , propertyKey , null , propertyDesc , objectType , required ) ); 
+	}
+	
+	public static EntityVar metaObjectXmlOnly( String propertyKey , String propertyDesc , DBEnumObjectType objectType , boolean required ) {
+		return( metaObjectVar( propertyKey , null , propertyKey , propertyDesc , objectType , required ) ); 
 	}
 	
 	public static EntityVar metaObjectVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , DBEnumObjectType objectType , boolean required ) {
@@ -130,6 +186,36 @@ public class EntityVar {
 	
 	public static String p( String var ) {
 		return( "@" + var + "@" );
+	}
+
+	public boolean isString() {
+		if( PARAMVALUE_TYPE == DBEnumParamValueType.STRING || PARAMVALUE_TYPE == DBEnumParamValueType.PATH )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isNumber() {
+		if( PARAMVALUE_TYPE == DBEnumParamValueType.NUMBER )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isBoolean() {
+		if( PARAMVALUE_TYPE == DBEnumParamValueType.BOOL )
+			return( true );
+		return( false );
+	}
+
+	public boolean isDatabaseOnly() {
+		if( DBNAME != null && XMLNAME == null )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isXmlOnly() {
+		if( XMLNAME != null && DBNAME == null )
+			return( true );
+		return( false );
 	}
 	
 }

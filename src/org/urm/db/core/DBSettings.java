@@ -11,6 +11,7 @@ import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.core.DBEnums.DBEnumParamValueType;
+import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.EngineDB;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectMeta;
@@ -97,7 +98,7 @@ public abstract class DBSettings {
 	public static void importxmlSave( EngineLoader loader , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean saveApp , int version ) throws Exception {
 		DBConnection c = loader.getConnection();
 		savedbEntityCustom( c , properties , paramObjectId , metaObjectId , version );
-		savedbValues( c , paramObjectId , properties , saveApp , version );
+		savedbPropertyValues( c , paramObjectId , properties , saveApp , version );
 	}
 	
 	public static void exportxml( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
@@ -142,14 +143,14 @@ public abstract class DBSettings {
 			Common.xmlSetElementAttr( doc , property , ATTR_DESC , var.DESC );
 	}
 	
-	private static void loadxmlSetAttr( EngineLoader loader , ObjectProperties properties , String prop , String value ) throws Exception {
+	private static void loadxmlSetAttr( EngineLoader loader , ObjectProperties properties , String xmlprop , String value ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity app = meta.getAppEntity();
-		EntityVar var = app.findVar( prop );
+		EntityVar var = app.findXmlVar( xmlprop );
 		if( var == null )
-			Common.exit1( _Error.UnknownAppVar1 , "Attempt to override built-in variable=" + prop , prop );
+			Common.exit1( _Error.UnknownAppVar1 , "Attempt to override built-in variable=" + xmlprop , xmlprop );
 		
-		properties.setProperty( prop , value );
+		properties.setProperty( var.NAME , value );
 	}
 	
 	private static void loadxmlSetProperty( EngineLoader loader , Node item , ObjectProperties properties , boolean appAsProperties ) throws Exception {
@@ -160,10 +161,10 @@ public abstract class DBSettings {
 		String prop = ConfReader.getAttrValue( item , ATTR_NAME );
 		
 		// this.app - set app value
-		EntityVar var = app.findVar( prop );
+		EntityVar var = app.findXmlVar( prop );
 		if( var != null && appAsProperties ) {
 			String value = ConfReader.getAttrValue( item , ATTR_VALUE );
-			properties.setProperty( prop , value );
+			properties.setProperty( var.NAME , value );
 			return;
 		}
 
@@ -173,13 +174,13 @@ public abstract class DBSettings {
 		
 		// this.custom - duplicate
 		if( custom != null ) {
-			var = custom.findVar( prop );
+			var = custom.findXmlVar( prop );
 			if( var != null )
 				Common.exit1( _Error.DuplicateCustomVar1 , "Duplicate custom variable=" + prop , prop );
 		}
 
 		// parent.app - override error
-		var = findParentVar( properties , prop );
+		var = findParentXmlVar( properties , prop );
 		if( var != null && var.isApp() ) 
 			Common.exit1( _Error.OverrideAppVar1 , "Attempt to override built-in variable=" + prop , prop );
 		
@@ -202,17 +203,17 @@ public abstract class DBSettings {
 		custom.addVar( var );
 	}		
 
-	private static EntityVar findParentVar( ObjectProperties properties , String prop ) {
+	private static EntityVar findParentXmlVar( ObjectProperties properties , String xmlprop ) {
 		properties = properties.getParent();
 		if( properties == null )
 			return( null );
 		
 		ObjectMeta meta = properties.getMeta();
-		EntityVar var = meta.findVar( prop );
+		EntityVar var = meta.findXmlVar( xmlprop );
 		if( var != null )
 			return( var );
 		
-		return( findParentVar( properties , prop ) );
+		return( findParentXmlVar( properties , xmlprop ) );
 	}
 
 	public static void dropObjectSettings( DBConnection c , int ownerId ) throws Exception {
@@ -348,7 +349,7 @@ public abstract class DBSettings {
 		rs.close();
 	}
 
-	public static void savedbValues( DBConnection c , int objectId , ObjectProperties properties , boolean saveApp , int version ) throws Exception {
+	public static void savedbPropertyValues( DBConnection c , int objectId , ObjectProperties properties , boolean saveApp , int version ) throws Exception {
 		if( !c.update( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUES2 , new String[] {
 				EngineDB.getInteger( objectId ) ,
 				EngineDB.getEnum( properties.type ) 
@@ -388,6 +389,39 @@ public abstract class DBSettings {
 		entity.META_OBJECT_ID = metaObjectId;
 		savedbPropertyEntity( c , entity , entity.getVars() , version );
 		meta.rebuild();
+	}
+
+	public static void savedbAppValues( DBConnection c , int objectId , ObjectProperties properties , int version , String[] dbonlyValues ) throws Exception {
+		ObjectMeta meta = properties.getMeta();
+		PropertyEntity entity = meta.getAppEntity();
+		EntityVar[] vars = entity.getDatabaseVars();
+		String[] values = new String[ vars.length ];
+
+		int dbonlyVarCount = entity.getDatabaseOnlyVarCount();
+		int valuesCount = ( dbonlyValues == null )? 0 : dbonlyValues.length;
+		if( dbonlyVarCount != valuesCount )
+			Common.exitUnexpected();
+			
+		int dbonlyPos = 0;
+		for( int k = 0; k < vars.length; k++ ) {
+			EntityVar var = vars[ k ];
+			String value = null;
+			if( var.isDatabaseOnly() )
+				value = dbonlyValues[ dbonlyPos++ ];
+			else
+				value = properties.getOriginalPropertyValue( var.NAME );
+			
+			if( var.isString() )
+				values[ k ] = EngineDB.getString( value );
+			else
+			if( var.isNumber() )
+				values[ k ] = EngineDB.getIntegerString( value );
+			else
+			if( var.isBoolean() )
+				values[ k ] = EngineDB.getBooleanString( value );
+		}
+
+		DBEngineEntities.insertAppObject( c , entity , objectId , version , values );
 	}
 
 }

@@ -11,6 +11,8 @@ import org.urm.db.core.DBEnums.*;
 
 public class BaseCategory extends EngineObject {
 
+	public static String PROPERTY_TYPE = "type";
+	
 	public DBEnumBaseCategoryType TYPE;
 	public String LABEL;
 	public String NAME;

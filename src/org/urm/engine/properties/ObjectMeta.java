@@ -116,4 +116,14 @@ public class ObjectMeta {
 		return( null );
 	}
 	
+	public EntityVar findXmlVar( String xmlprop ) {
+		for( PropertyEntity entity : entities ) {
+			EntityVar var = entity.findXmlVar( xmlprop );
+			if( var != null )
+				return( var );
+		}
+		
+		return( null );
+	}
+	
 }

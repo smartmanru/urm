@@ -179,7 +179,7 @@ public class EngineLoader {
 			exportProduct( repo.PRODUCT );
 	}
 	
-	public void loadCore() throws Exception {
+	public void initCore() throws Exception {
 		loadCore( false , true );
 	}
 	
@@ -192,6 +192,8 @@ public class EngineLoader {
 	}
 	
 	private void importCore( boolean includingSystems ) throws Exception {
+		trace( "cleanup engine data ..." );
+		data.unloadAll();
 		dropCoreData( includingSystems );
 		loadCore( true , includingSystems );
 	}
@@ -218,9 +220,6 @@ public class EngineLoader {
 	}
 	
 	private void loadCore( boolean importxml , boolean withSystems ) throws Exception {
-		trace( "cleanup engine data ..." );
-		data.unloadAll();
-		
 		EngineDB db = data.getDatabase();
 		try {
 			connection = db.getConnection( action );
@@ -233,7 +232,7 @@ public class EngineLoader {
 				trace( "create new engine core version=" + version + " ..." );
 				importxmlEngineSettings();
 				importxmlBase();
-				loadInfrastructure();
+				importxmlInfrastructure();
 				loadReleaseLifecycles();
 				importxmlMonitoring();
 				loadRegistry();
@@ -244,7 +243,7 @@ public class EngineLoader {
 				trace( "load engine core data, version=" + connection.getCoreVersion() + " ..." );
 				loaddbEngineSettings();
 				loaddbBase();
-				loadInfrastructure();
+				loaddbInfrastructure();
 				loadReleaseLifecycles();
 				loaddbMonitoring();
 				loadRegistry();
@@ -279,7 +278,49 @@ public class EngineLoader {
 		}
 	}
 	
-	private void loadInfrastructure() throws Exception {
+	private void importxmlEngineSettings() throws Exception {
+		trace( "import engine settings data ..." );
+		String propertyFile = getEngineSettingsFile();
+		Document doc = ConfReader.readXmlFile( execrc , propertyFile );
+		if( doc == null )
+			Common.exit1( _Error.UnableReadEnginePropertyFile1 , "unable to read engine property file " + propertyFile , propertyFile );
+		
+		Node root = doc.getDocumentElement();
+		
+		EngineSettings settings = data.getEngineSettings();
+		DBEngineSettings.importxml( this , settings , root );
+	}
+
+	private void loaddbEngineSettings() throws Exception {
+		trace( "load engine settings data ..." );
+		EngineSettings settings = data.getEngineSettings();
+		DBEngineSettings.loaddb( this , settings );
+	}
+
+	private void importxmlBase() throws Exception {
+		trace( "import engine base data ..." );
+		String baseFile = getBaseFile();
+		Document doc = ConfReader.readXmlFile( execrc , baseFile );
+		Node root = doc.getDocumentElement();
+		
+		EngineBase base = data.getEngineBase();
+		DBEngineBase.importxml( this , base , root );
+	}
+
+	private void loaddbBase() throws Exception {
+		trace( "load engine base data ..." );
+		EngineBase base = data.getEngineBase();
+		DBEngineBase.loaddb( this , base );
+	}
+
+	private void importxmlInfrastructure() throws Exception {
+		trace( "import engine infrastructure data ..." );
+		String infraFile = getInfrastructureFile();
+		EngineInfrastructure infra = data.getInfrastructure();
+		infra.load( infraFile , execrc );
+	}
+
+	private void loaddbInfrastructure() throws Exception {
 		trace( "load engine infrastructure data ..." );
 		String infraFile = getInfrastructureFile();
 		EngineInfrastructure infra = data.getInfrastructure();
@@ -343,41 +384,6 @@ public class EngineLoader {
 			data.matchdoneSystem( this , system );
 	}
 	
-	private void importxmlBase() throws Exception {
-		trace( "import engine base data ..." );
-		String baseFile = getBaseFile();
-		Document doc = ConfReader.readXmlFile( execrc , baseFile );
-		Node root = doc.getDocumentElement();
-		
-		EngineBase base = data.getEngineBase();
-		DBEngineBase.importxml( this , base , root );
-	}
-
-	private void importxmlEngineSettings() throws Exception {
-		trace( "load engine settings data ..." );
-		String propertyFile = getEngineSettingsFile();
-		Document doc = ConfReader.readXmlFile( execrc , propertyFile );
-		if( doc == null )
-			Common.exit1( _Error.UnableReadEnginePropertyFile1 , "unable to read engine property file " + propertyFile , propertyFile );
-		
-		Node root = doc.getDocumentElement();
-		
-		EngineSettings settings = data.getEngineSettings();
-		DBEngineSettings.importxml( this , settings , root );
-	}
-
-	private void loaddbEngineSettings() throws Exception {
-		trace( "load engine settings data ..." );
-		EngineSettings settings = data.getEngineSettings();
-		DBEngineSettings.loaddb( this , settings );
-	}
-
-	private void loaddbBase() throws Exception {
-		trace( "load engine base data ..." );
-		EngineBase base = data.getEngineBase();
-		DBEngineBase.loaddb( this , base );
-	}
-
 	public void loadProducts() throws Exception {
 		trace( "load engine products data ..." );
 		data.unloadProducts();

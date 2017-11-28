@@ -9,6 +9,11 @@ import org.urm.meta.EngineObject;
 
 public class BaseGroup extends EngineObject {
 
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_TYPE = "type";
+	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_OFFLINE = "offline";
+	
 	public int ID;
 	public String NAME;
 	public String DESC;

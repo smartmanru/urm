@@ -30,9 +30,6 @@ public abstract class DBQueries {
 	public static String MODIFY_PARAM_DROPOWNERENTITIES1 = "delete from urm_object_entity where param_object_id = @1@";
 	public static String MODIFY_PARAM_DROPOBJECTVALUES1 = "delete from urm_object_param_value where object_id = @1@";
 	
-	public static String QUERY_SYSTEM_GETALL0 = "select system_id , name , xdesc , offline , matched , sv from urm_system";
-	public static String MODIFY_SYSTEM_UPDATE5 = "update urm_system set name = @2@ , xdesc = @3@ , offline=@4@ , sv = @5@ where system_id = @1@";
-	public static String MODIFY_SYSTEM_DELETE2 = "delete from urm_system where system_id = @1@";
 	public static String MODIFY_SYSTEM_MATCHED2 = "update urm_system set matched = @2@ where system_id = @1@";
 
 	public static String QUERY_PRODUCT_GETALL0 = "select product_id , system_id , name , xdesc , path , offline , monitoring_enabled , sv from urm_product";
@@ -59,7 +56,6 @@ public abstract class DBQueries {
 	public static String MODIFY_APP_DROP_SYSTEMPARAMS0 = "delete from urm_object_param where param_object_id in ( select system_id from urm_system )";
 	public static String MODIFY_APP_DROP_SYSTEMENTITIES0 = "delete from urm_object_entity where param_object_id in ( select system_id from urm_system )";
 	public static String MODIFY_APP_DROP_SYSTEMPRODUCTS0 = "delete from urm_product";
-	public static String MODIFY_APP_DROP_SYSTEMS0 = "delete from urm_system";
 
 	public static String MODIFY_CORE_DROP_PARAMVALUE1 = "delete from urm_object_param_value where param_object_id = @1@";
 	public static String MODIFY_CORE_DROP_PARAM1 = "delete from urm_object_param where param_object_id = @1@";

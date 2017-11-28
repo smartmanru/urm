@@ -13,6 +13,7 @@ import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
+import org.urm.db.engine.DBEngineEntities;
 import org.urm.db.DBQueries;
 import org.urm.engine.EngineDB;
 import org.urm.engine.properties.EngineEntities;
@@ -65,11 +66,9 @@ public abstract class DBSystem {
 		DBConnection c = loader.getConnection();
 		List<AppSystem> systems = new LinkedList<AppSystem>();
 		
-		ResultSet rs = c.query( DBQueries.QUERY_SYSTEM_GETALL0 );
-		if( rs == null )
-			Common.exitUnexpected();
+		EngineEntities entities = c.getEntities();
+		ResultSet rs = DBEngineEntities.listAppObjects( c , entities.entityAppSystem );
 		
-		EngineEntities entities = loader.getEntities();
 		EngineSettings settings = loader.data.getEngineSettings();
 		while( rs.next() ) {
 			ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
@@ -150,7 +149,7 @@ public abstract class DBSystem {
 		system.ID = systemId;
 		system.SV = c.getNextSystemVersion( system );
 		EngineEntities entities = c.getEntities();
-		entities.insertSystem( c , system.ID , system.SV , new String[] {
+		DBEngineEntities.insertAppObject( c , entities.entityAppSystem , system.ID , system.SV , new String[] {
 				EngineDB.getString( system.NAME ) , 
 				EngineDB.getString( system.DESC ) ,
 				EngineDB.getBoolean( system.OFFLINE ) ,
@@ -160,21 +159,20 @@ public abstract class DBSystem {
 
 	public static void update( DBConnection c , AppSystem system ) throws Exception {
 		system.SV = c.getNextSystemVersion( system );
-		if( !c.update( DBQueries.MODIFY_SYSTEM_UPDATE5 , new String[] {
-				EngineDB.getInteger( system.ID ) , 
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.updateAppObject( c , entities.entityAppSystem , system.ID , system.SV , new String[] {
 				EngineDB.getString( system.NAME ) , 
 				EngineDB.getString( system.DESC ) ,
 				EngineDB.getBoolean( system.OFFLINE ) ,
-				EngineDB.getInteger( system.SV ) 
-				} ) )
-			Common.exitUnexpected();
+				EngineDB.getBoolean( system.MATCHED )
+				} );
 	}
 
 	public static void delete( DBConnection c , AppSystem system ) throws Exception {
 		int SV = c.getNextSystemVersion( system , true );
 		DBSettings.dropObjectSettings( c , system.ID );
-		if( !c.update( DBQueries.MODIFY_SYSTEM_DELETE2 , new String[] { "" + system.ID , "" + SV } ) )
-			Common.exitUnexpected();
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.deleteAppObject( c , entities.entityAppSystem , system.ID , SV );
 	}
 
 	public static PropertyEntity upgradeEntitySystem( EngineLoader loader ) throws Exception {

@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.db.core.DBVersions;
+import org.w3c.dom.Node;
+import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
@@ -28,6 +31,7 @@ public class PropertyEntity {
 	
 	private List<EntityVar> list;
 	private Map<String,EntityVar> map;
+	private Map<String,EntityVar> xmlmap;
 	
 	public PropertyEntity( int paramObjectId , DBEnumParamEntityType entityType , boolean custom , boolean saveAsProps , String appTable , DBEnumObjectType objectType , int metaObjectId , DBEnumObjectVersionType metaObjectVersionType , DBEnumObjectVersionType dataObjectVersionType , String idField ) {
 		this.PARAM_OBJECT_ID = paramObjectId;
@@ -43,6 +47,7 @@ public class PropertyEntity {
 		this.VERSION = 0;
 		list = new LinkedList<EntityVar>();
 		map = new HashMap<String,EntityVar>();
+		xmlmap = new HashMap<String,EntityVar>();
 	}
 
 	public static PropertyEntity getAppObjectEntity( DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType dataObjectVersionType , String appTable , String idField ) throws Exception {
@@ -94,9 +99,20 @@ public class PropertyEntity {
 		return( vars.toArray( new EntityVar[0] ) );
 	}
 	
+	public EntityVar[] getXmlVars() {
+		List<EntityVar> vars = new LinkedList<EntityVar>();
+		for( EntityVar var : list ) {
+			if( var.XMLNAME != null )
+				vars.add( var );
+		}
+		return( vars.toArray( new EntityVar[0] ) );
+	}
+	
 	public void addVar( EntityVar var ) {
 		list.add( var );
 		map.put( var.NAME , var );
+		if( var.XMLNAME != null )
+			xmlmap.put( var.XMLNAME , var );
 		var.setEntity( this );
 	}
 
@@ -107,6 +123,10 @@ public class PropertyEntity {
 
 	public EntityVar findVar( String name ) {
 		return( map.get( name ) );
+	}
+
+	public EntityVar findXmlVar( String xmlname ) {
+		return( xmlmap.get( xmlname ) );
 	}
 
 	public String getIdField() {
@@ -125,6 +145,29 @@ public class PropertyEntity {
 		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.ENVIRONMENT )
 			return( EngineEntities.FIELD_VERSION_ENVIRONMENT );
 		return( null );
+	}
+
+	public String getAttrValue( Node root , String prop ) throws Exception {
+		EntityVar var = findVar( prop );
+		if( var == null )
+			Common.exitUnexpected();
+		return( ConfReader.getAttrValue( root , var.XMLNAME ) );
+	}
+	
+	public boolean getBooleanAttrValue( Node root , String prop , boolean defValue ) throws Exception {
+		EntityVar var = findVar( prop );
+		if( var == null )
+			Common.exitUnexpected();
+		return( ConfReader.getBooleanAttrValue( root , var.XMLNAME , defValue ) );
+	}
+
+	public int getDatabaseOnlyVarCount() {
+		int n = 0;
+		for( EntityVar var : list ) {
+			if( var.DBNAME != null && var.XMLNAME == null )
+				n++;
+		}
+		return( n );
 	}
 	
 }

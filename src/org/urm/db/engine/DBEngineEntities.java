@@ -1,9 +1,13 @@
 package org.urm.db.engine;
 
+import java.sql.ResultSet;
+
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public abstract class DBEngineEntities {
 
@@ -14,24 +18,30 @@ public abstract class DBEngineEntities {
 
 		String[] valuesFinal = new String[ values.length + 2 ];
 		
-		String list = entity.getIdField();
 		valuesFinal[ 0 ] = "" + id;
+		for( int k = 0; k < vars.length; k++ )
+			valuesFinal[ k + 1 ] = values[ k ];
+		valuesFinal[ valuesFinal.length - 1 ] = "" + version;
+		
+		String query = "insert into " + entity.APP_TABLE + " ( ";
+		query += getFieldList( entity );
+		query += " ) values ( @values@ )";
+		
+		if( !c.update( query , valuesFinal ) )
+			Common.exitUnexpected();
+	}
+	
+	private static String getFieldList( PropertyEntity entity ) {
+		EntityVar[] vars = entity.getDatabaseVars();
+		String list = entity.getIdField();
 		for( int k = 0; k < vars.length; k++ ) {
 			EntityVar var = vars[ k ];
-			valuesFinal[ k + 1 ] = values[ k ];
 			list = Common.addToList( list , var.DBNAME , " , " );
 		}
 		
 		String fieldVersion = entity.getVersionField();
 		list = Common.addToList( list , fieldVersion , " , " );
-		valuesFinal[ valuesFinal.length - 1 ] = "" + version;
-		
-		String query = "insert into " + entity.APP_TABLE + " ( ";
-		query += list;
-		query += " ) values ( @values@ )";
-		
-		if( !c.update( query , valuesFinal ) )
-			Common.exitUnexpected();
+		return( list );
 	}
 	
 	public static void updateAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values ) throws Exception {
@@ -51,6 +61,40 @@ public abstract class DBEngineEntities {
 		
 		if( !c.update( query ) )
 			Common.exitUnexpected();
+	}
+
+	public static ResultSet listAppObjects( DBConnection c , PropertyEntity entity ) throws Exception {
+		String query = "select " + getFieldList( entity ) + " from " + entity.APP_TABLE; 
+		ResultSet rs = c.query( query );
+		if( rs == null )
+			Common.exitUnexpected();
+		
+		return( rs );
+	}
+
+	public static void deleteAppObject( DBConnection c , PropertyEntity entity , int id , int version ) throws Exception {
+		String query = "delete from " + entity.APP_TABLE + " where " + entity.getIdField() + " = " + id;
+		if( !c.update( query ) )
+			Common.exitUnexpected();
+	}
+	
+	public static void dropAppObjects( DBConnection c , PropertyEntity entity ) throws Exception {
+		String query = "delete from " + entity.APP_TABLE;
+		if( !c.update( query ) )
+			Common.exitUnexpected();
+	}
+	
+	public static void exportxmlAppObject( Document doc , Element root , PropertyEntity entity , String[] values ) throws Exception {
+		EntityVar[] vars = entity.getXmlVars();
+		if( vars.length != values.length )
+			Common.exitUnexpected();
+		
+		for( int k = 0; k < vars.length; k++ ) {
+			EntityVar var = vars[ k ];
+			String value = values[ k ];
+			if( value != null && value.isEmpty() )
+				Common.xmlSetElementAttr( doc , root , var.XMLNAME , value );
+		}
 	}
 	
 }

@@ -114,7 +114,7 @@ public class Engine {
 		createTemporaryEngineAction();
 		EngineLoader loader = new EngineLoader( this , data , serverAction );
 		loader.initData();
-		loader.loadCore();
+		loader.initCore();
 	}
 	
 	public void runServer( ActionInit action ) throws Exception {

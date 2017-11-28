@@ -6,7 +6,7 @@ import org.urm.db.core.DBEnums.*;
 
 public class BaseItem extends EngineObject {
 
-	public static String PROPERTY_NAME = "id";
+	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
 	public static String PROPERTY_BASESRC_TYPE = "basesrc_type";
 	public static String PROPERTY_BASESRCFORMAT_TYPE = "basesrcformat_type";

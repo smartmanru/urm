@@ -89,6 +89,18 @@ public class EngineDB {
 		return( "" + value );
 	}
 
+	public static String getBooleanString( String value ) {
+		if( value == null || value.isEmpty() )
+			return( "null" );
+		return( value );
+	}
+
+	public static String getIntegerString( String value ) {
+		if( value == null || value.isEmpty() )
+			return( "null" );
+		return( value );
+	}
+
 	public static String getString( String value ) {
 		if( value == null || value.isEmpty() )
 			return( "null" );

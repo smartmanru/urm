@@ -24,6 +24,11 @@ import org.w3c.dom.Node;
 
 public abstract class DBEngineSettings {
 
+	public static String ELEMENT_DEFAULTS = "defaults"; 
+	public static String ELEMENT_BUILD = "build"; 
+	public static String ELEMENT_MODE = "mode";
+	public static String MODE_ATTR_NAME = "name";
+	
 	public static PropertyEntity upgradeEntityProduct( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.CORE );
@@ -126,11 +131,11 @@ public abstract class DBEngineSettings {
 		
 		// load from xml
 		settings.defaultProductProperties = entities.createDefaultProductProps( settings.engineProperties );
-		Node node = ConfReader.xmlGetFirstChild( root , "defaults" );
+		Node node = ConfReader.xmlGetFirstChild( root , ELEMENT_DEFAULTS );
 		DBSettings.importxml( loader , node , settings.defaultProductProperties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , version );
 		
 		settings.defaultProductBuildProperties = entities.createDefaultBuildCommonProps( settings.defaultProductBuildProperties );
-		Node build = ConfReader.xmlGetFirstChild( node , "build" );
+		Node build = ConfReader.xmlGetFirstChild( node , ELEMENT_BUILD );
 		DBSettings.importxml( loader , build , settings.defaultProductBuildProperties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , version );
 		
 		// for build modes
@@ -142,10 +147,10 @@ public abstract class DBEngineSettings {
 			settings.addBuildModeDefaults( mode , properties );
 		}
 			
-		Node[] items = ConfReader.xmlGetChildren( build , "mode" );
+		Node[] items = ConfReader.xmlGetChildren( build , ELEMENT_MODE );
 		if( items != null ) {
 			for( Node itemNode : items ) {
-				String MODE = ConfReader.getRequiredAttrValue( itemNode , "name" );
+				String MODE = ConfReader.getRequiredAttrValue( itemNode , MODE_ATTR_NAME );
 				DBEnumBuildModeType mode = DBEnumBuildModeType.valueOf( MODE.toUpperCase() );
 				ObjectProperties properties = settings.getDefaultProductBuildObjectProperties( mode );
 				DBSettings.importxml( loader , itemNode , properties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , version );
@@ -178,9 +183,9 @@ public abstract class DBEngineSettings {
 		DBSettings.exportxml( loader , doc , root , settings.engineProperties , true );
 
 		// defaults
-		Element modeDefaults = Common.xmlCreateElement( doc , root , "defaults" );
+		Element modeDefaults = Common.xmlCreateElement( doc , root , ELEMENT_DEFAULTS );
 		DBSettings.exportxml( loader , doc , modeDefaults , settings.defaultProductProperties , true );
-		Element modeBuild = Common.xmlCreateElement( doc , modeDefaults , "build" );
+		Element modeBuild = Common.xmlCreateElement( doc , modeDefaults , ELEMENT_BUILD );
 		DBSettings.exportxml( loader , doc , modeBuild , settings.defaultProductBuildProperties , true );
 		
 		// product defaults
@@ -188,8 +193,8 @@ public abstract class DBEngineSettings {
 				DBEnumBuildModeType.TRUNK , DBEnumBuildModeType.BRANCH , DBEnumBuildModeType.MAJORBRANCH };
 		for( DBEnumBuildModeType mode : list ) {
 			ObjectProperties set = settings.getDefaultProductBuildObjectProperties( mode );
-			Element modeElement = Common.xmlCreateElement( doc , modeBuild , "mode" );
-			Common.xmlSetElementAttr( doc , modeElement , "name" , mode.toString().toLowerCase() );
+			Element modeElement = Common.xmlCreateElement( doc , modeBuild , ELEMENT_MODE );
+			Common.xmlSetElementAttr( doc , modeElement , MODE_ATTR_NAME , mode.toString().toLowerCase() );
 			DBSettings.exportxml( loader , doc , modeElement , set , true );
 		}
 	}
