@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBEnumInterface;
+import org.urm.db.core.DBEnums;
 import org.urm.meta.EngineData;
 
 public class EngineDB {
@@ -77,12 +78,6 @@ public class EngineDB {
 	public void clearProduct( String productName ) {
 	}
 
-	public static boolean getBoolean( String value ) {
-		if( value == null || value.equals( "Y" ) == false )
-			return( false );
-		return( true );
-	}
-
 	public static String getInteger( Integer value ) {
 		if( value == null )
 			return( "null" );
@@ -92,12 +87,18 @@ public class EngineDB {
 	public static String getBooleanString( String value ) {
 		if( value == null || value.isEmpty() )
 			return( "null" );
-		return( value );
+		return( "'" + value + "'" );
 	}
 
 	public static String getIntegerString( String value ) {
 		if( value == null || value.isEmpty() )
 			return( "null" );
+		return( value );
+	}
+
+	public static String getEnumString( String value ) {
+		if( value == null || value.isEmpty() )
+			return( "" + DBEnums.VALUE_UNKNOWN );
 		return( value );
 	}
 

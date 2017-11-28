@@ -14,6 +14,8 @@ import org.urm.meta.EngineLoader;
 
 public abstract class DBEnums {
 
+	public static int VALUE_UNKNOWN = 0; 
+	
 	public enum DBEnumOwnerStatusType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		ACTIVE(1,null) ,
@@ -399,7 +401,7 @@ public abstract class DBEnums {
 		return( null );
     }
 
-	private static String getEnumName( Class<?> c ) throws Exception {
+	public static String getEnumName( Class<?> c ) throws Exception {
 		String name = c.getSimpleName();
 		if( !name.startsWith( prefix ) )
 			Common.exitUnexpected();
@@ -435,7 +437,7 @@ public abstract class DBEnums {
     	}
     }
     
-    private static Class<?> getEnum( String name ) throws Exception {
+    public static Class<?> getEnum( String name ) throws Exception {
     	for( DBEnumInfo e : enums ) {
     		String ename = getEnumName( e.enumClass );
     		if( ename.equals( name ) )
@@ -445,7 +447,31 @@ public abstract class DBEnums {
     	return( null );
     }
     
-    private static Enum<?> getEnumValue( Class<?> type , String value ) {
+    public static int getEnumCode( Class<?> type , String value ) {
+		int code = DBEnums.VALUE_UNKNOWN;
+		if( !value.isEmpty() ) {
+			Enum<?> e = DBEnums.getEnumValue( type , value );
+			DBEnumInterface ei = ( DBEnumInterface )e;
+			code = ei.code();
+		}
+		return( code );
+    }
+    
+    public static String getEnumValue( Class<?> type , int code ) throws Exception {
+    	for( Object t : type.getEnumConstants() ) {
+    		DBEnumInterface oi = ( DBEnumInterface )t;
+    		int elementValue = oi.code();
+    		if( elementValue == code ) {
+        		Enum<?> ev = ( Enum<?> )t;
+        		return( ev.name().toLowerCase() );
+    		}
+    	}
+    	
+    	Common.exitUnexpected();
+		return( null );
+    }
+    
+    public static Enum<?> getEnumValue( Class<?> type , String value ) {
 		String valueCheck = value.toUpperCase();
 		valueCheck = Common.replace( valueCheck , "." , "_" );
     	for( Object t : type.getEnumConstants() ) {

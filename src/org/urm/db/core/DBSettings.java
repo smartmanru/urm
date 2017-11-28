@@ -112,6 +112,9 @@ public abstract class DBSettings {
 				if( data == null || data.isEmpty() )
 					continue;
 				
+				if( var.isEnum() )
+					data = "" + DBEnums.getEnumValue( var.enumClass , data );
+					
 				if( appAsProperties )
 					exportxmlSetProperty( loader , doc , root , var , data , false );
 				else
@@ -150,7 +153,24 @@ public abstract class DBSettings {
 		if( var == null )
 			Common.exit1( _Error.UnknownAppVar1 , "Attempt to override built-in variable=" + xmlprop , xmlprop );
 		
-		properties.setProperty( var.NAME , value );
+		setProperty( loader , properties , var , value , false );
+	}
+	
+	private static void setProperty( EngineLoader loader , ObjectProperties properties , EntityVar var , String value , boolean manual ) throws Exception {
+		if( var.isEnum() ) {
+			// convert enum name (xml value) to enum code
+			int code = DBEnums.getEnumCode(  var.enumClass , value );
+			if( manual )
+				properties.setManualIntProperty( var.NAME , code );
+			else
+				properties.setIntProperty( var.NAME , code );
+		}
+		else {
+			if( manual )
+				properties.setManualStringProperty( var.NAME , value );
+			else
+				properties.setStringProperty( var.NAME , value );
+		}
 	}
 	
 	private static void loadxmlSetProperty( EngineLoader loader , Node item , ObjectProperties properties , boolean appAsProperties ) throws Exception {
@@ -164,7 +184,7 @@ public abstract class DBSettings {
 		EntityVar var = app.findXmlVar( prop );
 		if( var != null && appAsProperties ) {
 			String value = ConfReader.getAttrValue( item , ATTR_VALUE );
-			properties.setProperty( var.NAME , value );
+			setProperty( loader , properties , var , value , false );
 			return;
 		}
 
@@ -187,7 +207,7 @@ public abstract class DBSettings {
 		// parent.custom - normal override, set value as manual
 		if( var != null && var.isCustom() ) {
 			String value = ConfReader.getAttrValue( item , ATTR_VALUE );
-			properties.setManualStringProperty( prop , value );
+			setProperty( loader , properties , var , value , true );
 			return;
 		}
 
@@ -195,11 +215,10 @@ public abstract class DBSettings {
 		if( custom == null )
 			Common.exit1( _Error.UnexpectedCustom1 , "Custom variables cannot be defined here, variable=" + prop , prop );
 		
-		// new custom property
+		// new custom string property
 		String desc = ConfReader.getAttrValue( item , ATTR_DESC );
 		String def = ConfReader.getAttrValue( item , ATTR_VALUE );
-			
-		var = EntityVar.metaString( prop , desc , false , def );
+		var = EntityVar.metaString( prop , desc , var.REQUIRED , def );
 		custom.addVar( var );
 	}		
 
@@ -300,7 +319,8 @@ public abstract class DBSettings {
 	private static void insertVar( DBConnection c , PropertyEntity entity , EntityVar var , int version ) throws Exception {
 		var.PARAM_ID = DBNames.getNameIndex( c , entity.PARAM_OBJECT_ID , var.NAME , DBEnumObjectType.PARAM );
 		var.VERSION = version;
-		if( !c.update( DBQueries.MODIFY_PARAM_ADDPARAM12 , new String[] {
+		String enumName = ( var.enumClass == null )? null : DBEnums.getEnumName( var.enumClass );
+		if( !c.update( DBQueries.MODIFY_PARAM_ADDPARAM13 , new String[] {
 			EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
 			EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 			EngineDB.getInteger( var.PARAM_ID ) ,
@@ -310,6 +330,7 @@ public abstract class DBSettings {
 			EngineDB.getString( var.DESC ) ,
 			EngineDB.getEnum( var.PARAMVALUE_TYPE ) ,
 			EngineDB.getEnum( var.OBJECT_TYPE ) ,
+			EngineDB.getString( enumName ) ,
 			EngineDB.getBoolean( var.REQUIRED ) ,
 			EngineDB.getString( var.EXPR_DEF ) ,
 			EngineDB.getInteger( version )
@@ -333,17 +354,20 @@ public abstract class DBSettings {
 			Common.exitUnexpected();
 		
 		while( rs.next() ) {
+			String enumName = rs.getString( 8 );
+			Class<?> enumClass = ( enumName == null || enumName.isEmpty() )? null : DBEnums.getEnum( enumName );					
 			EntityVar var = EntityVar.meta( 
 					rs.getString( 2 ) , 
 					rs.getString( 3 ) ,
 					rs.getString( 4 ) , 
 					rs.getString( 5 ) , 
 					DBEnumParamValueType.getValue( rs.getInt( 6 ) , true ) , 
-					DBEnumObjectType.getValue( rs.getInt( 7 ) , false ) , 
-					rs.getBoolean( 8 ) , 
-					rs.getString( 9 ) );
+					DBEnumObjectType.getValue( rs.getInt( 7 ) , false ) ,
+					rs.getBoolean( 9 ) , 
+					rs.getString( 10 ) ,
+					enumClass );
 			var.PARAM_ID = rs.getInt( 1 );
-			var.VERSION = rs.getInt( 10 );
+			var.VERSION = rs.getInt( 11 );
 			entity.addVar( var );
 		}
 		rs.close();
@@ -419,6 +443,11 @@ public abstract class DBSettings {
 			else
 			if( var.isBoolean() )
 				values[ k ] = EngineDB.getBooleanString( value );
+			else
+			if( var.isEnum() )
+				values[ k ] = EngineDB.getEnumString( value );
+			else
+				Common.exitUnexpected();
 		}
 
 		DBEngineEntities.insertAppObject( c , entity , objectId , version , values );

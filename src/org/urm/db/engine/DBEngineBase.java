@@ -147,24 +147,10 @@ public abstract class DBEngineBase {
 		ObjectProperties props = entities.createBaseItemProps( settings.getEngineProperties() ); 
 		BaseItem item = new BaseItem( group , props );
 		DBSettings.importxmlLoad( loader , root , props );
+		item.scatterProperties();
 		
-		item.NAME = props.getPropertyValue( BaseItem.PROPERTY_NAME );
-		item.DESC = props.getPropertyValue( BaseItem.PROPERTY_DESC );
-		item.BASESRC_TYPE = DBEnumBaseSrcType.getValue( props.getPropertyValue( BaseItem.PROPERTY_BASESRC_TYPE ) , false );
-		item.BASESRCFORMAT_TYPE = DBEnumBaseSrcFormatType.getValue( props.getPropertyValue( BaseItem.PROPERTY_BASESRCFORMAT_TYPE ) , false );
-		item.OS_TYPE = DBEnumOSType.getValue( props.getPropertyValue( BaseItem.PROPERTY_OS_TYPE ) , false );
-		item.SERVERACCESS_TYPE = DBEnumServerAccessType.getValue( props.getPropertyValue( BaseItem.PROPERTY_SERVERACCESS_TYPE ) , false );
-		item.BASENAME = props.getPropertyValue( BaseItem.PROPERTY_BASENAME );
-		item.BASEVERSION = props.getPropertyValue( BaseItem.PROPERTY_BASEVERSION );
-		item.SRCDIR = props.getPropertyValue( BaseItem.PROPERTY_SRCDIR );
-		item.SRCFILE = props.getPropertyValue( BaseItem.PROPERTY_SRCFILE );
-		item.SRCFILEDIR = props.getPropertyValue( BaseItem.PROPERTY_SRCFILEDIR );
-		item.INSTALLSCRIPT = props.getPropertyValue( BaseItem.PROPERTY_INSTALLSCRIPT );
-		item.INSTALLPATH = props.getPropertyValue( BaseItem.PROPERTY_INSTALLPATH );
-		item.INSTALLLINK = props.getPropertyValue( BaseItem.PROPERTY_INSTALLLINK );
-		item.CHARSET = props.getPropertyValue( BaseItem.PROPERTY_CHARSET );
 		if( !item.isValid() )
-			item.OFFLINE = true;
+			item.setOffline( true );
 		
 		int baseId = getBaseItemIdByName( c , item.NAME );
 		insertItem( c , baseId , item );
@@ -193,7 +179,7 @@ public abstract class DBEngineBase {
 	}
 	
 	public static void exportxmlItem( EngineLoader loader , BaseItem item , Document doc , Element root ) throws Exception {
-		DBSettings.exportxml( loader , doc , root , item.parameters , false );
+		DBSettings.exportxml( loader , doc , root , item.p , false );
 	}
 	
 	public static void exportxmlGroup( EngineLoader loader , BaseGroup group , Document doc , Element root ) throws Exception {
@@ -221,7 +207,7 @@ public abstract class DBEngineBase {
 	public static void insertItem( DBConnection c , int baseId , BaseItem item ) throws Exception {
 		item.ID = baseId;
 		item.CV = c.getNextCoreVersion();
-		DBSettings.savedbAppValues( c , item.ID , item.parameters , item.CV , new String[] {
+		DBSettings.savedbAppValues( c , item.ID , item.p , item.CV , new String[] {
 				EngineDB.getInteger( item.group.ID )
 		});
 	}

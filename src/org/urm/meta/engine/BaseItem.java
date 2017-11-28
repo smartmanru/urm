@@ -43,12 +43,12 @@ public class BaseItem extends EngineObject {
 	public boolean OFFLINE;
 	public int CV;
 	
-	public ObjectProperties parameters;
+	public ObjectProperties p;
 	
-	public BaseItem( BaseGroup group , ObjectProperties parameters ) {
+	public BaseItem( BaseGroup group , ObjectProperties p ) {
 		super( group );
 		this.group = group;
-		this.parameters = parameters;
+		this.p = p;
 		ID = -1;
 		CV = 0;
 	}
@@ -56,6 +56,24 @@ public class BaseItem extends EngineObject {
 	@Override
 	public String getName() {
 		return( NAME );
+	}
+	
+	public void scatterProperties() throws Exception {
+		NAME = p.getPropertyValue( BaseItem.PROPERTY_NAME );
+		DESC = p.getPropertyValue( BaseItem.PROPERTY_DESC );
+		BASESRC_TYPE = DBEnumBaseSrcType.getValue( p.getPropertyValue( BaseItem.PROPERTY_BASESRC_TYPE ) , false );
+		BASESRCFORMAT_TYPE = DBEnumBaseSrcFormatType.getValue( p.getPropertyValue( BaseItem.PROPERTY_BASESRCFORMAT_TYPE ) , false );
+		OS_TYPE = DBEnumOSType.getValue( p.getPropertyValue( BaseItem.PROPERTY_OS_TYPE ) , false );
+		SERVERACCESS_TYPE = DBEnumServerAccessType.getValue( p.getPropertyValue( BaseItem.PROPERTY_SERVERACCESS_TYPE ) , false );
+		BASENAME = p.getPropertyValue( BaseItem.PROPERTY_BASENAME );
+		BASEVERSION = p.getPropertyValue( BaseItem.PROPERTY_BASEVERSION );
+		SRCDIR = p.getPropertyValue( BaseItem.PROPERTY_SRCDIR );
+		SRCFILE = p.getPropertyValue( BaseItem.PROPERTY_SRCFILE );
+		SRCFILEDIR = p.getPropertyValue( BaseItem.PROPERTY_SRCFILEDIR );
+		INSTALLSCRIPT = p.getPropertyValue( BaseItem.PROPERTY_INSTALLSCRIPT );
+		INSTALLPATH = p.getPropertyValue( BaseItem.PROPERTY_INSTALLPATH );
+		INSTALLLINK = p.getPropertyValue( BaseItem.PROPERTY_INSTALLLINK );
+		CHARSET = p.getPropertyValue( BaseItem.PROPERTY_CHARSET );
 	}
 	
 	public void createBaseItem( String name , String desc ) throws Exception {
@@ -66,9 +84,13 @@ public class BaseItem extends EngineObject {
 	public void modifyBaseItem( String name , String desc ) throws Exception {
 		this.NAME = name;
 		this.DESC = desc;
-		parameters.setStringProperty( PROPERTY_NAME , NAME );
-		parameters.setStringProperty( PROPERTY_DESC , DESC );
-		parameters.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
+		p.setStringProperty( PROPERTY_NAME , NAME );
+		p.setStringProperty( PROPERTY_DESC , DESC );
+	}
+	
+	public void setOffline( boolean offline ) throws Exception {
+		this.OFFLINE = offline;
+		p.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 	}
 	
 	public BaseItem copy( BaseGroup rgroup , ObjectProperties rparameters ) {

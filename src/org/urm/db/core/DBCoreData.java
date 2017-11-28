@@ -3,7 +3,9 @@ package org.urm.db.core;
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
+import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.EngineDB;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.meta.EngineLoader;
 
 public abstract class DBCoreData {
@@ -59,10 +61,11 @@ public abstract class DBCoreData {
 	
 	public static void dropCoreBaseData( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
+		EngineEntities entities = c.getEntities();
 		boolean res = true;
 		res = ( res )? c.update( DBQueries.MODIFY_BASE_DROP_ITEMDEPS0 ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_BASE_DROP_ITEM0 ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_BASE_DROP_GROUP0 ) : false;
+		DBEngineEntities.dropAppObjects( c , entities.entityAppBaseItem );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppBaseGroup );
 		if( !res )
 			Common.exitUnexpected();
 	}
