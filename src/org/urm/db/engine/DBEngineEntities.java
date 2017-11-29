@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.engine.properties.EntityVar;
+import org.urm.engine.properties.ObjectMeta;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -66,9 +68,6 @@ public abstract class DBEngineEntities {
 	public static ResultSet listAppObjects( DBConnection c , PropertyEntity entity ) throws Exception {
 		String query = "select " + getFieldList( entity ) + " from " + entity.APP_TABLE; 
 		ResultSet rs = c.query( query );
-		if( rs == null )
-			Common.exitUnexpected();
-		
 		return( rs );
 	}
 
@@ -94,6 +93,33 @@ public abstract class DBEngineEntities {
 			String value = values[ k ];
 			if( value != null && value.isEmpty() )
 				Common.xmlSetElementAttr( doc , root , var.XMLNAME , value );
+		}
+	}
+	
+	public static void loaddbAppObject( ResultSet rs , ObjectProperties props ) throws Exception {
+		ObjectMeta meta = props.getMeta();
+		PropertyEntity entity = meta.getAppEntity();
+		
+		for( EntityVar var : entity.getVars() ) {
+			if( var.isDatabaseOnly() || var.isXmlOnly() )
+				continue;
+
+			if( var.isString() ) {
+				String value = rs.getString( var.databaseColumn );
+				props.setStringProperty( var.NAME , value );
+			}
+			else
+			if( var.isNumber() || var.isEnum() ) {
+				int value = rs.getInt( var.databaseColumn );
+				props.setIntProperty( var.NAME , value );
+			}
+			else
+			if( var.isBoolean() ) {
+				boolean value = rs.getBoolean( var.databaseColumn );
+				props.setBooleanProperty( var.NAME , value );
+			}
+			else
+				Common.exitUnexpected();
 		}
 	}
 	

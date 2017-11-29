@@ -34,20 +34,22 @@ public abstract class DBSettings {
 	public static void loaddbValues( EngineLoader loader , int objectId , ObjectProperties properties , boolean saveApp ) throws Exception {
 		DBConnection c = loader.getConnection();
 		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETOBJECTPARAMVALUES2 , new String[] { EngineDB.getInteger( objectId ) , EngineDB.getEnum( properties.type ) } );
-		if( rs == null )
-			Common.exitUnexpected();
-		
-		while( rs.next() ) {
-			int param = rs.getInt( 2 );
-			String exprValue = rs.getString( 3 );
-			
-			EntityVar var = properties.getVar( param );
-			if( saveApp == false && var.isApp() )
-				Common.exitUnexpected();
-			
-			properties.setProperty( var , exprValue );
+
+		try {
+			while( rs.next() ) {
+				int param = rs.getInt( 2 );
+				String exprValue = rs.getString( 3 );
+				
+				EntityVar var = properties.getVar( param );
+				if( saveApp == false && var.isApp() )
+					Common.exitUnexpected();
+				
+				properties.setProperty( var , exprValue );
+			}
 		}
-		rs.close();
+		finally {
+			c.closeQuery();
+		}
 	}
 
 	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean saveApp , int version ) throws Exception {
@@ -320,10 +322,11 @@ public abstract class DBSettings {
 		var.PARAM_ID = DBNames.getNameIndex( c , entity.PARAM_OBJECT_ID , var.NAME , DBEnumObjectType.PARAM );
 		var.VERSION = version;
 		String enumName = ( var.enumClass == null )? null : DBEnums.getEnumName( var.enumClass );
-		if( !c.update( DBQueries.MODIFY_PARAM_ADDPARAM13 , new String[] {
+		if( !c.update( DBQueries.MODIFY_PARAM_ADDPARAM14 , new String[] {
 			EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
 			EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 			EngineDB.getInteger( var.PARAM_ID ) ,
+			EngineDB.getInteger( var.ENTITYCOLUMN ) ,
 			EngineDB.getString( var.NAME ) ,
 			EngineDB.getString( var.DBNAME ) ,
 			EngineDB.getString( var.XMLNAME ) ,
@@ -350,27 +353,29 @@ public abstract class DBSettings {
 		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETENTITYPARAMS2 , new String[] { 
 				EngineDB.getInteger( entity.PARAM_OBJECT_ID ) , 
 				EngineDB.getEnum( entity.PARAMENTITY_TYPE ) } );
-		if( rs == null )
-			Common.exitUnexpected();
-		
-		while( rs.next() ) {
-			String enumName = rs.getString( 8 );
-			Class<?> enumClass = ( enumName == null || enumName.isEmpty() )? null : DBEnums.getEnum( enumName );					
-			EntityVar var = EntityVar.meta( 
-					rs.getString( 2 ) , 
-					rs.getString( 3 ) ,
-					rs.getString( 4 ) , 
-					rs.getString( 5 ) , 
-					DBEnumParamValueType.getValue( rs.getInt( 6 ) , true ) , 
-					DBEnumObjectType.getValue( rs.getInt( 7 ) , false ) ,
-					rs.getBoolean( 9 ) , 
-					rs.getString( 10 ) ,
-					enumClass );
-			var.PARAM_ID = rs.getInt( 1 );
-			var.VERSION = rs.getInt( 11 );
-			entity.addVar( var );
+
+		try {
+			while( rs.next() ) {
+				String enumName = rs.getString( 8 );
+				Class<?> enumClass = ( enumName == null || enumName.isEmpty() )? null : DBEnums.getEnum( enumName );					
+				EntityVar var = EntityVar.meta( 
+						rs.getString( 2 ) , 
+						rs.getString( 3 ) ,
+						rs.getString( 4 ) , 
+						rs.getString( 5 ) , 
+						DBEnumParamValueType.getValue( rs.getInt( 6 ) , true ) , 
+						DBEnumObjectType.getValue( rs.getInt( 7 ) , false ) ,
+						rs.getBoolean( 9 ) , 
+						rs.getString( 10 ) ,
+						enumClass );
+				var.PARAM_ID = rs.getInt( 1 );
+				var.VERSION = rs.getInt( 11 );
+				entity.addVar( var );
+			}
 		}
-		rs.close();
+		finally {
+			c.closeQuery();
+		}
 	}
 
 	public static void savedbPropertyValues( DBConnection c , int objectId , ObjectProperties properties , boolean saveApp , int version ) throws Exception {

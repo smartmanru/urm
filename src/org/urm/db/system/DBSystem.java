@@ -67,22 +67,27 @@ public abstract class DBSystem {
 		List<AppSystem> systems = new LinkedList<AppSystem>();
 		
 		EngineEntities entities = c.getEntities();
-		ResultSet rs = DBEngineEntities.listAppObjects( c , entities.entityAppSystem );
-		
+		PropertyEntity entity = entities.entityAppSystem;
 		EngineSettings settings = loader.data.getEngineSettings();
-		while( rs.next() ) {
-			ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
-			
-			AppSystem system = new AppSystem( directory , props );
-			system.ID = rs.getInt( 1 );
-			system.NAME = rs.getString( 2 );
-			system.DESC = rs.getString( 3 );
-			system.OFFLINE = rs.getBoolean( 4 );
-			system.MATCHED = rs.getBoolean( 5 );
-			system.SV = rs.getInt( 6 );
-			systems.add( system );
+		
+		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
+		try {
+			while( rs.next() ) {
+				ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
+				
+				AppSystem system = new AppSystem( directory , props );
+				system.ID = entity.getId( rs );
+				system.NAME = rs.getString( 2 );
+				system.DESC = rs.getString( 3 );
+				system.OFFLINE = rs.getBoolean( 4 );
+				system.MATCHED = rs.getBoolean( 5 );
+				system.SV = rs.getInt( 6 );
+				systems.add( system );
+			}
 		}
-		rs.close();
+		finally {
+			c.closeQuery();
+		}
 
 		for( AppSystem system : systems ) {
 			ObjectProperties props = system.getParameters();

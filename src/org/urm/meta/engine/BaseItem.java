@@ -61,10 +61,10 @@ public class BaseItem extends EngineObject {
 	public void scatterProperties() throws Exception {
 		NAME = p.getPropertyValue( BaseItem.PROPERTY_NAME );
 		DESC = p.getPropertyValue( BaseItem.PROPERTY_DESC );
-		BASESRC_TYPE = DBEnumBaseSrcType.getValue( p.getPropertyValue( BaseItem.PROPERTY_BASESRC_TYPE ) , false );
-		BASESRCFORMAT_TYPE = DBEnumBaseSrcFormatType.getValue( p.getPropertyValue( BaseItem.PROPERTY_BASESRCFORMAT_TYPE ) , false );
-		OS_TYPE = DBEnumOSType.getValue( p.getPropertyValue( BaseItem.PROPERTY_OS_TYPE ) , false );
-		SERVERACCESS_TYPE = DBEnumServerAccessType.getValue( p.getPropertyValue( BaseItem.PROPERTY_SERVERACCESS_TYPE ) , false );
+		BASESRC_TYPE = DBEnumBaseSrcType.getValue( p.getIntProperty( BaseItem.PROPERTY_BASESRC_TYPE ) , false );
+		BASESRCFORMAT_TYPE = DBEnumBaseSrcFormatType.getValue( p.getIntProperty( BaseItem.PROPERTY_BASESRCFORMAT_TYPE ) , false );
+		OS_TYPE = DBEnumOSType.getValue( p.getIntProperty( BaseItem.PROPERTY_OS_TYPE ) , false );
+		SERVERACCESS_TYPE = DBEnumServerAccessType.getValue( p.getIntProperty( BaseItem.PROPERTY_SERVERACCESS_TYPE ) , false );
 		BASENAME = p.getPropertyValue( BaseItem.PROPERTY_BASENAME );
 		BASEVERSION = p.getPropertyValue( BaseItem.PROPERTY_BASEVERSION );
 		SRCDIR = p.getPropertyValue( BaseItem.PROPERTY_SRCDIR );

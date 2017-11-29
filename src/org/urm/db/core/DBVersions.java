@@ -17,9 +17,6 @@ public abstract class DBVersions {
 	
 	public static OwnerObjectVersion readObjectVersion( DBConnection c , int id , DBEnumObjectVersionType type ) throws Exception {
 		ResultSet rc = c.query( DBQueries.QUERY_VERSIONS_GETVERSION1 , new String[] { "" + id } );
-		if( rc == null )
-			Common.exitUnexpected();
-		
 		try {
 			OwnerObjectVersion version = new OwnerObjectVersion( id , type );
 			if( !rc.next() ) {
@@ -35,7 +32,7 @@ public abstract class DBVersions {
 			return( version );
 		}
 		finally {
-			rc.close();
+			c.closeQuery();
 		}
 	}
 

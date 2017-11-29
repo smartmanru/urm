@@ -1,5 +1,6 @@
 package org.urm.engine.properties;
 
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class PropertyEntity {
 	public int VERSION;
 	
 	private List<EntityVar> list;
+	private List<EntityVar> dblist;
 	private Map<String,EntityVar> map;
 	private Map<String,EntityVar> xmlmap;
 	
@@ -46,6 +48,7 @@ public class PropertyEntity {
 		this.ID_FIELD = idField;
 		this.VERSION = 0;
 		list = new LinkedList<EntityVar>();
+		dblist = new LinkedList<EntityVar>();
 		map = new HashMap<String,EntityVar>();
 		xmlmap = new HashMap<String,EntityVar>();
 	}
@@ -91,12 +94,7 @@ public class PropertyEntity {
 	}
 	
 	public EntityVar[] getDatabaseVars() {
-		List<EntityVar> vars = new LinkedList<EntityVar>();
-		for( EntityVar var : list ) {
-			if( var.DBNAME != null )
-				vars.add( var );
-		}
-		return( vars.toArray( new EntityVar[0] ) );
+		return( dblist.toArray( new EntityVar[0] ) );
 	}
 	
 	public EntityVar[] getXmlVars() {
@@ -113,7 +111,15 @@ public class PropertyEntity {
 		map.put( var.NAME , var );
 		if( var.XMLNAME != null )
 			xmlmap.put( var.XMLNAME , var );
-		var.setEntity( this );
+		
+		int databaseColumn = 0;
+		if( var.DBNAME != null ) {
+			dblist.add( var );
+			databaseColumn = dblist.size() + 1;
+		}
+		
+		int entityColumn = list.size();
+		var.setEntity( this , entityColumn , databaseColumn );
 	}
 
 	public void clear() {
@@ -163,11 +169,50 @@ public class PropertyEntity {
 
 	public int getDatabaseOnlyVarCount() {
 		int n = 0;
-		for( EntityVar var : list ) {
-			if( var.DBNAME != null && var.XMLNAME == null )
+		for( EntityVar var : dblist ) {
+			if( var.XMLNAME == null )
 				n++;
 		}
 		return( n );
+	}
+
+	public int getDatabaseColumn( String prop ) throws Exception {
+		EntityVar var = findVar( prop );
+		if( var == null )
+			Common.exitUnexpected();
+		
+		if( var.isXmlOnly() )
+			Common.exitUnexpected();
+		
+		return( var.databaseColumn );
+	}
+
+	public String getString( ResultSet rs , String prop ) throws Exception {
+		int column = getDatabaseColumn( prop );
+		return( rs.getString( column ) );
+	}
+	
+	public int getInt( ResultSet rs , String prop ) throws Exception {
+		int column = getDatabaseColumn( prop );
+		return( rs.getInt( column ) );
+	}
+	
+	public int getEnum( ResultSet rs , String prop ) throws Exception {
+		int column = getDatabaseColumn( prop );
+		return( rs.getInt( column ) );
+	}
+	
+	public boolean getBoolean( ResultSet rs , String prop ) throws Exception {
+		int column = getDatabaseColumn( prop );
+		return( rs.getBoolean( column ) );
+	}
+
+	public int getId( ResultSet rs ) throws Exception {
+		return( rs.getInt( 1 ) );
+	}
+	
+	public int getVersion( ResultSet rs ) throws Exception {
+		return( rs.getInt( dblist.size() + 2 ) );
 	}
 	
 }

@@ -9,6 +9,7 @@ public class EntityVar {
 	public PropertyEntity entity;
 	
 	public int PARAM_ID;
+	public int ENTITYCOLUMN;
 	public String NAME;
 	public String DBNAME;
 	public String XMLNAME;
@@ -18,7 +19,9 @@ public class EntityVar {
 	public boolean REQUIRED;
 	public String EXPR_DEF;
 	public int VERSION;
+	
 	public Class<?> enumClass;
+	public int databaseColumn;
 	
 	public EntityVar() {
 	}
@@ -26,6 +29,7 @@ public class EntityVar {
 	public EntityVar copy() {
 		EntityVar r = new EntityVar();
 		r.PARAM_ID = PARAM_ID;
+		r.ENTITYCOLUMN = ENTITYCOLUMN;
 		r.NAME = NAME;
 		r.DBNAME = DBNAME;
 		r.XMLNAME = XMLNAME;
@@ -36,6 +40,7 @@ public class EntityVar {
 		r.EXPR_DEF = EXPR_DEF;
 		r.VERSION = VERSION;
 		r.enumClass = enumClass;
+		r.databaseColumn = databaseColumn;
 		return( r );
 	}
 
@@ -168,8 +173,10 @@ public class EntityVar {
 		return( var );
 	}
 
-	public void setEntity( PropertyEntity entity ) {
+	public void setEntity( PropertyEntity entity , int entityColumn , int databaseColumn ) {
 		this.entity = entity;
+		this.ENTITYCOLUMN = entityColumn;
+		this.databaseColumn = databaseColumn;
 	}
 
 	public boolean isApp() {

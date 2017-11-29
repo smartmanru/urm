@@ -495,49 +495,52 @@ public abstract class DBEnums {
     public static void verifyDatabase( EngineLoader loader ) throws Exception {
     	DBConnection c = loader.getConnection();
     	ResultSet rs = c.query( DBQueries.QUERY_ENUMS_GETALL0 );
-    	if( rs == null )
-    		Common.exitUnexpected();
-    	
+
     	Map<Integer,String> elistId = new HashMap<Integer,String>();
     	Map<String,Integer> elistName = new HashMap<String,Integer>();
     	Map<Integer,Map<Integer,String>> data = new HashMap<Integer,Map<Integer,String>>();
 
-    	// read and check db has in enums
-    	while( rs.next() ) {
-    		int category = rs.getInt( 1 );
-    		int item = rs.getInt( 2 );
-    		String name = rs.getString( 3 );
-    		if( category == 0 ) {
-    			Class<?> ec = getEnum( name );
-    			if( ec == null )
-    		    	Common.exit1( _Error.UnexpectedEnum1 , "Unexpected enum=" + name , name );
-
-    	    	elistId.put( item , name );
-    	    	elistName.put( name , item );
-    		}
-    		else {
-    			Map<Integer,String> items = data.get( category );
-    			if( items == null ) {
-    				items = new HashMap<Integer,String>();
-    				data.put( category , items );
-    			}
-    			
-    			items.put( item , name );
-    			
-    			// elist should be first
-    			String ename = elistId.get( category );
-    			if( ename == null )
-    		    	Common.exit1( _Error.UnexpectedEnum1 , "Unexpected enum=" + category , "" + category );
-    				
-    			Class<?> ec = getEnum( ename );
-    			if( ec == null )
-    		    	Common.exit1( _Error.UnexpectedEnum1 , "Unexpected enum=" + name , name );
-
-    			Enum<?> eitem = getEnumValue( ec , name );
-    			if( eitem == null )
-    				Common.exit2( _Error.UnexpectedEnumItem2 , "Unexpected enum=" + ename + ", item=" + name , ename , name );
-    		}
-    	}
+    	try {
+	    	// read and check db has in enums
+	    	while( rs.next() ) {
+	    		int category = rs.getInt( 1 );
+	    		int item = rs.getInt( 2 );
+	    		String name = rs.getString( 3 );
+	    		if( category == 0 ) {
+	    			Class<?> ec = getEnum( name );
+	    			if( ec == null )
+	    		    	Common.exit1( _Error.UnexpectedEnum1 , "Unexpected enum=" + name , name );
+	
+	    	    	elistId.put( item , name );
+	    	    	elistName.put( name , item );
+	    		}
+	    		else {
+	    			Map<Integer,String> items = data.get( category );
+	    			if( items == null ) {
+	    				items = new HashMap<Integer,String>();
+	    				data.put( category , items );
+	    			}
+	    			
+	    			items.put( item , name );
+	    			
+	    			// elist should be first
+	    			String ename = elistId.get( category );
+	    			if( ename == null )
+	    		    	Common.exit1( _Error.UnexpectedEnum1 , "Unexpected enum=" + category , "" + category );
+	    				
+	    			Class<?> ec = getEnum( ename );
+	    			if( ec == null )
+	    		    	Common.exit1( _Error.UnexpectedEnum1 , "Unexpected enum=" + name , name );
+	
+	    			Enum<?> eitem = getEnumValue( ec , name );
+	    			if( eitem == null )
+	    				Common.exit2( _Error.UnexpectedEnumItem2 , "Unexpected enum=" + ename + ", item=" + name , ename , name );
+	    		}
+	    	}
+		}
+		finally {
+			c.closeQuery();
+		}
     	
     	// check enums are in database
     	for( DBEnumInfo e : enums ) {

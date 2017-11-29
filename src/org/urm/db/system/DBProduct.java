@@ -27,22 +27,24 @@ public abstract class DBProduct {
 		List<Product> products = new LinkedList<Product>();
 		
 		ResultSet rs = c.query( DBQueries.QUERY_PRODUCT_GETALL0 );
-		if( rs == null )
-			Common.exitUnexpected();
-		
-		while( rs.next() ) {
-			int systemId = rs.getInt( 2 );
-			AppSystem system = directory.getSystem( systemId );
-			Product product = new Product( directory , system );
-			product.ID = rs.getInt( 1 );
-			product.SYSTEM = systemId;
-			product.NAME = rs.getString( 3 );
-			product.DESC = rs.getString( 4 );
-			product.PATH = rs.getString( 5 );
-			product.OFFLINE = rs.getBoolean( 6 );
-			product.MONITORING_ENABLED = rs.getBoolean( 7 );
-			product.SV = rs.getInt( 8 );
-			products.add( product );
+		try {
+			while( rs.next() ) {
+				int systemId = rs.getInt( 2 );
+				AppSystem system = directory.getSystem( systemId );
+				Product product = new Product( directory , system );
+				product.ID = rs.getInt( 1 );
+				product.SYSTEM = systemId;
+				product.NAME = rs.getString( 3 );
+				product.DESC = rs.getString( 4 );
+				product.PATH = rs.getString( 5 );
+				product.OFFLINE = rs.getBoolean( 6 );
+				product.MONITORING_ENABLED = rs.getBoolean( 7 );
+				product.SV = rs.getInt( 8 );
+				products.add( product );
+			}
+		}
+		finally {
+			c.closeQuery();
 		}
 		
 		return( products.toArray( new Product[0] ) );

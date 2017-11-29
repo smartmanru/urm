@@ -1,5 +1,7 @@
 package org.urm.db.engine;
 
+import java.sql.ResultSet;
+
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
@@ -43,6 +45,7 @@ public abstract class DBEngineBase {
 	public static String FIELD_GROUP_CATEGORY = "basecategory_type";
 	public static String FIELD_GROUP_DESC = "xdesc";
 	public static String FIELD_ITEM_ID = "item_id";
+	public static String FIELD_ITEM_GROUP_ID = "group_id";
 	public static String FIELD_ITEM_DESC = "xdesc";
 	
 	public static PropertyEntity upgradeEntityBaseGroup( EngineLoader loader ) throws Exception {
@@ -61,7 +64,7 @@ public abstract class DBEngineBase {
 		DBConnection c = loader.getConnection();
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM , DBEnumObjectVersionType.CORE , TABLE_BASEITEM , FIELD_ITEM_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaIntegerDatabaseOnly( FIELD_GROUP_ID , "Name" , true , null ) ,
+				EntityVar.metaIntegerDatabaseOnly( FIELD_ITEM_GROUP_ID , "Name" , true , null ) ,
 				EntityVar.metaStringVar( BaseItem.PROPERTY_NAME , BaseItem.PROPERTY_NAME , XMLPROP_ITEM_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( BaseItem.PROPERTY_DESC , FIELD_ITEM_DESC , BaseItem.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaEnum( BaseItem.PROPERTY_BASESRC_TYPE , "Base item type" , false , DBEnumBaseSrcType.UNKNOWN ) ,
@@ -176,6 +179,63 @@ public abstract class DBEngineBase {
 	}
 
 	public static void loaddb( EngineLoader loader , EngineBase base ) throws Exception {
+		loaddbGroups( loader , base );
+		loaddbItems( loader , base );
+	}
+
+	public static void loaddbGroups( EngineLoader loader , EngineBase base ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = c.getEntities();
+		PropertyEntity entity = entities.entityAppBaseGroup;
+		
+		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
+		try {
+			while( rs.next() ) {
+				DBEnumBaseCategoryType type = DBEnumBaseCategoryType.getValue( entity.getEnum( rs , FIELD_GROUP_CATEGORY ) , true );
+				BaseCategory category = base.getCategory( type );
+				
+				BaseGroup group = new BaseGroup( category );
+				group.ID = entity.getId( rs );
+				group.CV = entity.getVersion( rs );
+				group.NAME = entity.getString( rs , BaseGroup.PROPERTY_NAME );
+				group.DESC = entity.getString( rs , BaseGroup.PROPERTY_DESC );
+				group.OFFLINE = entity.getBoolean( rs , BaseGroup.PROPERTY_OFFLINE );
+						
+				base.addGroup( group );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+
+	public static void loaddbItems( EngineLoader loader , EngineBase base ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineSettings settings = loader.data.getEngineSettings();
+		ObjectProperties pe = settings.getEngineProperties();
+		EngineEntities entities = c.getEntities();
+		PropertyEntity entity = entities.entityAppBaseItem;
+		
+		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
+		try {
+			while( rs.next() ) {
+				int groupId = entity.getInt( rs , FIELD_ITEM_GROUP_ID );
+				BaseGroup group = base.getGroup( groupId );
+		
+				ObjectProperties p = entities.createBaseItemProps( pe );
+				DBEngineEntities.loaddbAppObject( rs , p );
+				
+				BaseItem item = new BaseItem( group , p );
+				item.ID = entity.getId( rs );
+				item.CV = entity.getVersion( rs );
+				item.scatterProperties();
+						
+				base.addItem( item );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
 	}
 	
 	public static void exportxmlItem( EngineLoader loader , BaseItem item , Document doc , Element root ) throws Exception {

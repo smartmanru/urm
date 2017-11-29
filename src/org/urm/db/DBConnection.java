@@ -27,6 +27,7 @@ public class DBConnection {
 	
 	private Connection connection;
 	private Statement stmt;
+	private ResultSet rs;
 
 	static int FAST_TIMEOUT = 5;
 
@@ -62,6 +63,7 @@ public class DBConnection {
 	public void save( boolean commit ) {
 		try {
 			versions.clear();
+			closeQuery();
 			
 			if( commit )
 				connection.commit();
@@ -77,19 +79,19 @@ public class DBConnection {
 		return( entities );
 	}
 	
-	public String queryValue( String query ) {
+	public String queryValue( String query ) throws Exception {
 		return( queryValue( query , null , FAST_TIMEOUT ) );
 	}
 	
-	public String queryValue( String query , int timeout ) {
+	public String queryValue( String query , int timeout ) throws Exception {
 		return( queryValue( query , null , timeout ) );
 	}
 	
-	public String queryValue( String query , String[] args ) {
+	public String queryValue( String query , String[] args ) throws Exception {
 		return( queryValue( query , args , FAST_TIMEOUT ) );
 	}
 	
-	public String queryValue( String query , String[] args , int timeout ) {
+	public String queryValue( String query , String[] args , int timeout ) throws Exception {
 		ResultSet set = query( query , args , timeout );
 		if( set == null )
 			return( null );
@@ -107,6 +109,9 @@ public class DBConnection {
 			log( "query value read failed" , e );
 			return( null );
 		}
+		finally {
+			closeQuery();
+		}
 	}
 	
 	public ResultSet query( String query ) throws Exception {
@@ -117,23 +122,38 @@ public class DBConnection {
 		return( query( query , null , timeout ) );
 	}
 
-	public ResultSet query( String query , String[] args ) {
+	public ResultSet query( String query , String[] args ) throws Exception {
 		return( query( query , args , FAST_TIMEOUT ) );
 	}
 	
-	public ResultSet query( String query , String[] args , int timeout ) {
+	public ResultSet query( String query , String[] args , int timeout ) throws Exception {
+		if( rs != null )
+			Common.exitUnexpected();
+			
 		String queryDB = getFinalQuery( query , args );
 		trace( "read query=" + queryDB + " ..." );
-		ResultSet rs = null;
+		rs = null;
 		try {
 			stmt.setQueryTimeout( timeout );
 			rs = stmt.executeQuery( queryDB );
 		}
 		catch( Throwable e ) {
 			log( "read query failed, statement=" + query , e );
-			return( null );
+			Common.exitUnexpected();
 		}
 		return( rs );
+	}
+	
+	public void closeQuery() {
+		try {
+			if( rs != null ) {
+				rs.close();
+				rs = null;
+			}
+		}
+		catch( Throwable e ) {
+			log( "close query failed" , e );
+		}
 	}
 
 	public boolean update( String query ) {

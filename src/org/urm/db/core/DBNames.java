@@ -29,13 +29,15 @@ public abstract class DBNames {
 	public static synchronized void loaddb( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
 		ResultSet rs = c.query( DBQueries.QUERY_NAMES_GETALL0 );
-		if( rs == null )
-			Common.exitUnexpected();
-		
-		while( rs.next() ) {
-			String key = rs.getInt( 1 ) + "::" + rs.getString( 2 ) + "::" + rs.getString( 3 );
-			int value = rs.getInt( 4 );
-			map.put( key ,  value );
+		try {
+			while( rs.next() ) {
+				String key = rs.getInt( 1 ) + "::" + rs.getString( 2 ) + "::" + rs.getString( 3 );
+				int value = rs.getInt( 4 );
+				map.put( key ,  value );
+			}
+		}
+		finally {
+			c.closeQuery();
 		}
 	}
 	
