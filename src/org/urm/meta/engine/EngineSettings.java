@@ -123,7 +123,7 @@ public class EngineSettings extends EngineObject {
 		return( r );
 	}
 	
-	public void setServerProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
+	public void setEngineProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
 		engineProperties.updateProperties( transaction , props , false );
 		engineProperties.resolveRawProperties();
 	}

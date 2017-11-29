@@ -55,8 +55,8 @@ public class ActionBaseInstall extends ActionBase {
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , ScopeState state , MetaEnvServerBase base ) throws Exception {
 		BaseRepository repo = artefactory.getBaseRepository( this );
 		BaseItemData info = repo.getBaseInfo( this , base.ID , node , true );
-		if( info.serverAccessType != server.getServerAccessType() ) {
-			String baseType = Common.getEnumLower( info.serverAccessType );
+		if( info.SERVERACCESS_TYPE != server.getServerAccessType() ) {
+			String baseType = Common.getEnumLower( info.SERVERACCESS_TYPE );
 			String serverType = Common.getEnumLower( server.getServerAccessType() );
 			exit2( _Error.BaseServerTypeMismatched2 , "base server type mismatched: " + baseType + " <> " + serverType , baseType , serverType );
 		}
@@ -101,7 +101,7 @@ public class ActionBaseInstall extends ActionBase {
 			exitUnexpectedState();
 		
 		// prepare
-		if( info.serverAccessType != null ) {
+		if( info.SERVERACCESS_TYPE != null ) {
 			ServerProcess process = new ServerProcess( server , node , state );
 			process.prepare( this );
 		}
@@ -169,7 +169,7 @@ public class ActionBaseInstall extends ActionBase {
 		}
 
 		String dowhat = ( STATUS.isEmpty() )? "install" : "reinstall";
-		info( runtime.account.getPrintName() + ": " + dowhat + " base=" + info.item.NAME + ", type=" + Common.getEnumLower( info.type ) + " ..." );
+		info( runtime.account.getPrintName() + ": " + dowhat + " base=" + info.item.NAME + ", type=" + Common.getEnumLower( info.BASESRC_TYPE ) + " ..." );
 		vis.setBaseStatus( this , info.item.NAME , "upgrading" );
 		runtime.createRootPath( this );
 		return( true );
@@ -219,12 +219,12 @@ public class ActionBaseInstall extends ActionBase {
 	private void extractArchiveFromRedist( BaseItemData info , String redistPath , String installPath , RuntimeStorage runtime ) throws Exception {
 		int timeout = setTimeoutUnlimited();
 
-		if( info.srcFormat == DBEnumBaseSrcFormatType.TARGZ_SINGLEDIR ) {
+		if( info.BASESRCFORMAT_TYPE == DBEnumBaseSrcFormatType.TARGZ_SINGLEDIR ) {
 			runtime.extractBaseArchiveSingleDir( this , redistPath , info.SRCSTOREDIR , installPath , VarARCHIVETYPE.TARGZ );
 			debug( "runtime path: " + info.INSTALLPATH );
 		}
 
-		if( info.srcFormat == DBEnumBaseSrcFormatType.ZIP_SINGLEDIR ) {
+		if( info.BASESRCFORMAT_TYPE == DBEnumBaseSrcFormatType.ZIP_SINGLEDIR ) {
 			runtime.extractBaseArchiveSingleDir( this , redistPath , info.SRCSTOREDIR , installPath , VarARCHIVETYPE.ZIP );
 			debug( "runtime path: " + info.INSTALLPATH );
 		}
@@ -239,13 +239,13 @@ public class ActionBaseInstall extends ActionBase {
 	}
 
 	private void copySystemFiles( BaseItemData info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
-		if( info.serverAccessType == null )
+		if( info.SERVERACCESS_TYPE == null )
 			return;
 		
 		LocalFolder workBase = getSystemFiles( info , redist.server , redist.node );
 		
 		// deploy
-		if( info.serverAccessType == DBEnumServerAccessType.GENERIC )
+		if( info.SERVERACCESS_TYPE == DBEnumServerAccessType.GENERIC )
 			runtime.createBinPath( this );
 		
 		runtime.restoreSysConfigs( this , redist , workBase );
@@ -257,21 +257,21 @@ public class ActionBaseInstall extends ActionBase {
 		
 		// copy system files from base
 		RemoteFolder baseMaster = info.getFolder( this );
-		if( info.serverAccessType == DBEnumServerAccessType.SERVICE ) {
+		if( info.SERVERACCESS_TYPE == DBEnumServerAccessType.SERVICE ) {
 			if( !server.isLinux() )
 				exitUnexpectedState();
 			
 			baseMaster.copyFileToLocalRename( this , workBase , "service" , server.SYSNAME );
 		}
 		else
-		if( info.serverAccessType == DBEnumServerAccessType.GENERIC ) {
+		if( info.SERVERACCESS_TYPE == DBEnumServerAccessType.GENERIC ) {
 			if( server.isLinux() )
 				baseMaster.copyFilesToLocal( this , workBase , "server.*.sh" );
 			else
 				baseMaster.copyFilesToLocal( this , workBase , "server.*.cmd" );
 		}
 		else {
-			String value = Common.getEnumLower( info.serverAccessType );
+			String value = Common.getEnumLower( info.SERVERACCESS_TYPE );
 			exit1( _Error.AccTypeNotForOperation1 , "access type (" + value + ") is not supported for operation" , value );
 		}
 		

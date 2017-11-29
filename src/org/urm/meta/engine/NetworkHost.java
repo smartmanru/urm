@@ -4,90 +4,69 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class NetworkHost extends EngineObject {
 
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_OSTYPE = "os_type";
+	public static String PROPERTY_IP = "ip";
+	public static String PROPERTY_PORT = "port";
+	
 	public Network network;
 	Map<String,HostAccount> accountMap;
 
-	public String ID;
+	public int ID;
+	public String NAME;
+	public String DESC;
+	public DBEnumOSType OS_TYPE;
 	public String IP;
 	public int PORT;
-	public DBEnumOSType osType;
-	public String DESC;
+	public int CV;
 	
 	public NetworkHost( Network network ) {
 		super( network );
 		this.network = network;
 		accountMap = new HashMap<String,HostAccount>();
+		ID = -1;
+		CV = 0;
 	}
 	
 	@Override
 	public String getName() {
-		return( ID );
+		return( NAME );
 	}
 	
 	public NetworkHost copy( Network rn ) throws Exception {
 		NetworkHost r = new NetworkHost( rn );
+		r.ID = ID;
+		r.NAME = NAME;
+		r.IP = IP;
+		r.PORT = PORT;
+		r.OS_TYPE = OS_TYPE;
+		r.DESC = DESC;
+		r.CV = CV;
 		
 		for( HostAccount account : accountMap.values() ) {
 			HostAccount raccount = account.copy( r );
-			r.addHostAccount( raccount );
+			r.addAccount( raccount );
 		}
 		return( r );
 	}
 	
-	public void load( Node root ) throws Exception {
-		if( root == null )
-			return;
-		
-		ID = ConfReader.getAttrValue( root , "id" );
-		IP = ConfReader.getAttrValue( root , "ip" );
-		PORT = ConfReader.getIntegerAttrValue( root , "port" , 22 );
-		String OSTYPE = ConfReader.getAttrValue( root , "ostype" );
-		osType = DBEnumOSType.getValue( OSTYPE , false );
-		DESC = ConfReader.getAttrValue( root , "desc" );
-		
-		Node[] list = ConfReader.xmlGetChildren( root , "account" );
-		if( list == null )
-			return;
-		
-		for( Node node : list ) {
-			HostAccount account = new HostAccount( this );
-			account.load( node );
-			addHostAccount( account );
-		}
-	}
-
-	private void addHostAccount( HostAccount account ) {
-		accountMap.put( account.ID , account );
+	public void addAccount( HostAccount account ) {
+		accountMap.put( account.NAME , account );
 	}
 	
-	public void save( Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "id" , ID );
-		Common.xmlSetElementAttr( doc , root , "ip" , IP );
-		Common.xmlSetElementAttr( doc , root , "port" , "" + PORT );
-		Common.xmlSetElementAttr( doc , root , "ostype" , Common.getEnumLower( osType ) );
-		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
-		
-		for( HostAccount account : accountMap.values() ) {
-			Element element = Common.xmlCreateElement( doc , root , "account" );
-			account.save( doc , element );
-		}
+	public void removeAccount( HostAccount account ) throws Exception {
+		accountMap.remove( account.NAME );
 	}
-
+	
 	public String[] getFinalAccounts() {
 		List<String> list = new LinkedList<String>();
 		for( HostAccount account : accountMap.values() ) {
@@ -97,20 +76,16 @@ public class NetworkHost extends EngineObject {
 		return( Common.getSortedList( list ) );
 	}
 
-	public void createHost( EngineTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP , int PORT , String DESC ) throws Exception {
-		this.osType = DBEnumOSType.getValue( osType );
-		this.ID = ( HOSTNAME.isEmpty() )? IP : HOSTNAME;
-		this.IP = IP;
-		this.PORT = PORT;
-		this.DESC = DESC;
+	public void createHost( String name , String desc , DBEnumOSType osType , String ip , int port ) throws Exception {
+		modifyHost( name , desc , osType , ip , port );
 	}
 	
-	public void modifyHost( EngineTransaction transaction  , VarOSTYPE osType , String HOSTNAME , String IP , int PORT , String DESC ) throws Exception {
-		this.osType = DBEnumOSType.getValue( osType );
-		this.ID = ( HOSTNAME.isEmpty() )? IP : HOSTNAME;
-		this.IP = IP;
-		this.PORT = PORT;
-		this.DESC = DESC;
+	public void modifyHost( String name , String desc , DBEnumOSType osType , String ip , int port ) throws Exception {
+		this.OS_TYPE = osType;
+		this.NAME = ( name.isEmpty() )? IP : name;
+		this.DESC = desc;
+		this.IP = ip;
+		this.PORT = port;
 	}
 
 	public String[] getAccounts() {
@@ -119,34 +94,20 @@ public class NetworkHost extends EngineObject {
 
 	public HostAccount findAccount( String accountUser ) {
 		for( HostAccount account : accountMap.values() ) {
-			if( account.ID.equals( accountUser ) )
+			if( account.NAME.equals( accountUser ) )
 				return( account );
 		}
 		return( null );
 	}
 	
-	public void createAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
-		addHostAccount( account );
-	}
-	
-	public void deleteAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
-		accountMap.remove( account.ID );
-	}
-	
-	public void modifyAccount( EngineTransaction transaction , HostAccount account ) {
-		String oldId = null;
-		for( Entry<String,HostAccount> entry : accountMap.entrySet() ) {
-			if( entry.getValue() == account )
-				oldId = entry.getKey();
-		}
-		accountMap.remove( oldId );
-		addHostAccount( account );
+	public void updateAccount( HostAccount account ) throws Exception {
+		Common.changeMapKey( accountMap , account , account.NAME );
 	}
 
 	public boolean isEqualsHost( String host ) {
 		if( host.isEmpty() )
 			return( false );
-		if( host.equals( ID ) )
+		if( host.equals( NAME ) )
 			return( true );
 		if( host.equals( IP ) )
 			return( true );
@@ -157,7 +118,7 @@ public class NetworkHost extends EngineObject {
 		if( finalAccount.isEmpty() )
 			return( null );
 		
-		Account account = Account.getDatacenterAccount( network.datacenter.ID , finalAccount );
+		Account account = Account.getDatacenterAccount( network.datacenter.NAME , finalAccount );
 		if( !isEqualsHost( account.HOST ) )
 			return( null );
 		
@@ -170,27 +131,15 @@ public class NetworkHost extends EngineObject {
 		return( false );
 	}
 
-	public HostAccount createAccount( EngineTransaction transaction , Account hostAccount , AuthResource resource ) throws Exception {
-		HostAccount account = findAccount( hostAccount.USER );
-		if( account != null )
-			return( account );
-				
-		account = new HostAccount( this );
-		boolean isAdmin = ( hostAccount.isLinux() && hostAccount.USER.equals( "root" ) )? true : false;
-		
-		String ACCRES = ( resource == null )? "" : resource.NAME;
-		account.createAccount( transaction , hostAccount.USER , isAdmin , ACCRES );
-		createAccount( transaction , account );
-		return( account );
-	}
-	
-	public void deleteHost( EngineTransaction transaction ) throws Exception {
-		super.deleteObject();
-	}
-
 	public void getApplicationReferences( List<AccountReference> refs ) {
 		for( HostAccount account : accountMap.values() )
 			account.getApplicationReferences( refs );
+	}
+
+	public boolean isEmpty() {
+		if( accountMap.isEmpty() )
+			return( true );
+		return( false );
 	}
 	
 }

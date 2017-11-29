@@ -13,7 +13,7 @@ public class BaseCategory extends EngineObject {
 
 	public static String PROPERTY_TYPE = "type";
 	
-	public DBEnumBaseCategoryType TYPE;
+	public DBEnumBaseCategoryType BASECATEGORY_TYPE;
 	public String LABEL;
 	public String NAME;
 
@@ -29,7 +29,7 @@ public class BaseCategory extends EngineObject {
 	public BaseCategory( EngineBase base , DBEnumBaseCategoryType type , String NAME ) {
 		super( null );
 		this.base = base;
-		this.TYPE = type;
+		this.BASECATEGORY_TYPE = type;
 		this.NAME = NAME;
 		this.LABEL = type.name().toLowerCase();
 		groupMap = new HashMap<String,BaseGroup>();
@@ -41,7 +41,7 @@ public class BaseCategory extends EngineObject {
 	}
 	
 	public BaseCategory copy( EngineBase rn , ObjectProperties parent ) throws Exception {
-		BaseCategory r = new BaseCategory( rn , TYPE , NAME );
+		BaseCategory r = new BaseCategory( rn , BASECATEGORY_TYPE , NAME );
 		
 		for( BaseGroup group : groupMap.values() ) {
 			BaseGroup rgroup = group.copy( r , parent );

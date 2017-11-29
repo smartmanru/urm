@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import org.postgresql.ds.PGConnectionPoolDataSource;
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBEnumInterface;
@@ -118,4 +119,20 @@ public class EngineDB {
 		return( "" + item.code() );
 	}
 
+	public static String getXmlString( String value ) {
+		return( value );
+	}
+	
+	public static String getXmlEnum( Enum<?> value ) {
+		return( value.name().toLowerCase() );
+	}
+	
+	public static String getXmlBoolean( boolean value ) {
+		return( Common.getBooleanValue( value ) );
+	}
+	
+	public static String getXmlInt( int value ) {
+		return( "" + value );
+	}
+	
 }

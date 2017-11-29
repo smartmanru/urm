@@ -47,10 +47,30 @@ public class EngineBase extends EngineObject {
 		group.category.addGroup( group );
 	}
 	
+	public void updateGroup( BaseGroup group ) throws Exception {
+		Common.changeMapKey( mapGroup , group , group.NAME );
+	}
+	
+	public void removeGroup( BaseGroup group ) {
+		mapGroup.remove( group.NAME );
+		mapGroupById.remove( group.ID );
+	}
+	
+	public void updateItem( BaseItem item ) throws Exception {
+		Common.changeMapKey( mapItem , item , item.NAME );
+		item.group.modifyItem( item );
+	}
+	
 	public void addItem( BaseItem item ) {
 		mapItem.put( item.NAME , item );
 		mapItemById.put( item.ID , item );
 		item.group.addItem( item );
+	}
+
+	public void removeItem( BaseItem item ) {
+		mapItem.remove( item.NAME );
+		mapItemById.remove( item.ID );
+		item.group.removeItem( item );
 	}
 
 	public BaseCategory findCategory( DBEnumBaseCategoryType type ) {

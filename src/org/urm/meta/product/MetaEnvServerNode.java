@@ -179,7 +179,7 @@ public class MetaEnvServerNode extends PropertyController {
 	
 	public boolean checkReferencedByHostAccount( HostAccount account ) {
 		Account ha = Account.getDatacenterAccount( server.sg.DC , HOSTLOGIN );
-		if( account.host.isEqualsHost( ha ) && account.ID.equals( ha.USER ) )
+		if( account.host.isEqualsHost( ha ) && account.NAME.equals( ha.USER ) )
 			return( true );
 
 		return( false );

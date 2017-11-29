@@ -160,6 +160,13 @@ public class PropertyEntity {
 		return( ConfReader.getAttrValue( root , var.XMLNAME ) );
 	}
 	
+	public int getIntAttrValue( Node root , String prop ) throws Exception {
+		EntityVar var = findVar( prop );
+		if( var == null )
+			Common.exitUnexpected();
+		return( ConfReader.getIntegerAttrValue( root , var.XMLNAME , 0 ) );
+	}
+	
 	public boolean getBooleanAttrValue( Node root , String prop , boolean defValue ) throws Exception {
 		EntityVar var = findVar( prop );
 		if( var == null )

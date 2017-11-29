@@ -2,18 +2,10 @@ package org.urm.meta.engine;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.common.RunContext;
-import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineCore;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class EngineInfrastructure extends EngineObject {
 
@@ -29,62 +21,70 @@ public class EngineInfrastructure extends EngineObject {
 	
 	@Override
 	public String getName() {
-		return( "server-infrastructure" );
+		return( "engine-infrastructure" );
 	}
 	
-	public void load( String infrastructureFile , RunContext execrc ) throws Exception {
-		Document doc = ConfReader.readXmlFile( execrc , infrastructureFile );
-		Node root = doc.getDocumentElement();
-		
-		Node[] list = ConfReader.xmlGetChildren( root , "datacenter" );
-		if( list == null )
-			return;
-		
-		for( Node node : list ) {
-			Datacenter datacenter = new Datacenter( this );
-			datacenter.load( node );
-			addDatacenter( datacenter );
-		}
-	}
-	
-	public void save( EngineLoader loader , Document doc , Element root ) throws Exception {
-		for( String id : Common.getSortedKeys( mapDatacenters ) ) {
-			Datacenter datacenter = mapDatacenters.get( id );
-			Element node = Common.xmlCreateElement( doc , root , "datacenter" );
-			datacenter.save( doc , node );
-		}
-	}
-
 	public void addDatacenter( Datacenter datacenter ) {
-		mapDatacenters.put( datacenter.ID , datacenter );
+		mapDatacenters.put( datacenter.NAME , datacenter );
 	}
 
-	public Datacenter findDatacenter( String id ) {
-		return( mapDatacenters.get( id ) );
+	public void addNetwork( Network network ) {
+		network.datacenter.addNetwork( network );
+	}
+
+	public void addHost( NetworkHost host ) {
+		host.network.addHost( host );
+	}
+
+	public void addAccount( HostAccount account ) {
+		account.host.addAccount( account );
+	}
+
+	public void updateDatacenter( Datacenter datacenter ) throws Exception {
+		Common.changeMapKey( mapDatacenters , datacenter , datacenter.NAME );
+	}
+	
+	public void updateNetwork( Network network ) throws Exception {
+		network.datacenter.updateNetwork( network );
+	}
+	
+	public Datacenter findDatacenter( String name ) {
+		return( mapDatacenters.get( name ) );
+	}
+
+	public Datacenter getDatacenter( String name ) throws Exception {
+		Datacenter datacenter = mapDatacenters.get( name );
+		if( datacenter == null )
+			Common.exit1( _Error.UnknownDatacenter1 , "Unknown datacenter=" + name , name );
+		return( datacenter );
 	}
 
 	public String[] getDatacenters() {
 		return( Common.getSortedKeys( mapDatacenters ) );
 	}
 
-	public void createDatacenter( EngineTransaction transaction , Datacenter datacenter ) throws Exception {
-		addDatacenter( datacenter );
-	}
-	
-	public void modifyDatacenter( EngineTransaction transaction , Datacenter datacenter ) throws Exception {
-		for( Entry<String,Datacenter> entry : mapDatacenters.entrySet() ) {
-			if( entry.getValue() == datacenter ) {
-				mapDatacenters.remove( entry.getKey() );
-				break;
-			}
-		}
-		
-		addDatacenter( datacenter );
-	}
-	
-	public void deleteDatacenter( EngineTransaction transaction , Datacenter datacenter ) throws Exception {
-		mapDatacenters.remove( datacenter.ID );
-		datacenter.deleteDatacenter( transaction );
+	public void removeDatacenter( Datacenter datacenter ) throws Exception {
+		mapDatacenters.remove( datacenter.NAME );
 	}
 
+	public void removeNetwork( Network network ) throws Exception {
+		network.datacenter.removeNetwork( network );
+	}
+
+	public void updateHost( NetworkHost host ) throws Exception {
+		host.network.updateHost( host );
+	}
+	
+	public void removeHost( NetworkHost host ) throws Exception {
+		host.network.removeHost( host );
+	}
+
+	public void updateAccount( HostAccount account ) throws Exception {
+		account.host.updateAccount( account );
+	}
+	
+	public void removeAccount( HostAccount account ) throws Exception {
+		account.host.removeAccount( account );
+	}
+	
 }

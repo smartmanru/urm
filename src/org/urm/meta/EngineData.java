@@ -116,6 +116,13 @@ public class EngineData {
 		}
 	}
 	
+	public EngineBuilders getBuilders() {
+		synchronized( engine ) {
+			EngineRegistry registry = core.getRegistry();
+			return( registry.builders );
+		}
+	}
+	
 	public EngineRegistry getRegistry() {
 		synchronized( engine ) {
 			EngineRegistry registry = core.getRegistry();
@@ -156,6 +163,13 @@ public class EngineData {
 	public EngineDirectory getDirectory() {
 		synchronized( engine ) {
 			return( directory );
+		}
+	}
+	
+	public EngineMirrors getMirrors() {
+		synchronized( engine ) {
+			EngineRegistry registry = core.getRegistry();
+			return( registry.mirrors );
 		}
 	}
 	

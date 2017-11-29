@@ -3,74 +3,64 @@ package org.urm.meta.engine;
 import java.util.List;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class HostAccount extends EngineObject {
 
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_ADMIN = "admin";
+	public static String PROPERTY_RESOURCE = "resource";
+	
 	public NetworkHost host;
 
-	public String ID;
-	public boolean isAdmin;
-	public String AUTHRES;
+	public int ID;
+	public String NAME;
+	public String DESC;
+	public boolean ADMIN;
+	public String RESOURCE;
+	public int CV;
 	
 	public HostAccount( NetworkHost host ) {
 		super( host );
 		this.host = host;
-		isAdmin = false;
+		ADMIN = false;
+		ID = -1;
+		CV = 0;
 	}
 	
 	@Override
 	public String getName() {
-		return( ID );
+		return( NAME );
 	}
 	
 	public HostAccount copy( NetworkHost rh ) throws Exception {
 		HostAccount r = new HostAccount( rh );
 		r.ID = ID;
-		r.isAdmin = isAdmin;
-		r.AUTHRES = AUTHRES;
+		r.NAME = NAME;
+		r.DESC = DESC;
+		r.ADMIN = ADMIN;
+		r.RESOURCE = RESOURCE;
+		r.CV = CV;
 		return( r );
 	}
 	
-	public void load( Node root ) throws Exception {
-		if( root == null )
-			return;
-		
-		ID = ConfReader.getAttrValue( root , "id" );
-		isAdmin = ConfReader.getBooleanAttrValue( root , "admin" , true );
-		AUTHRES = ConfReader.getAttrValue( root , "resource" );
-	}
-
-	public void save( Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "id" , ID );
-		Common.xmlSetElementAttr( doc , root , "admin" , Common.getBooleanValue( isAdmin ) );
-		Common.xmlSetElementAttr( doc , root , "resource" , AUTHRES );
-	}
-
 	public String getFinalAccount() {
-		return( ID + "@" + host.ID );
+		return( NAME + "@" + host.NAME );
 	}
 
-	public void createAccount( EngineTransaction transaction , String user , boolean isAdmin , String resource ) throws Exception {
-		this.ID = user;
-		this.isAdmin = isAdmin;
-		this.AUTHRES = resource;
+	public void createAccount( String user , boolean isAdmin , String resource ) throws Exception {
+		modifyAccount( user , isAdmin , resource );
 	}
 	
-	public void modifyAccount( EngineTransaction transaction , String user , boolean isAdmin , String resource ) throws Exception {
-		this.ID = user;
-		this.isAdmin = isAdmin;
-		this.AUTHRES = resource;
+	public void modifyAccount( String user , boolean isAdmin , String resource ) throws Exception {
+		this.NAME = user;
+		this.ADMIN = isAdmin;
+		this.RESOURCE = resource;
 	}
 
 	public void getApplicationReferences( List<AccountReference> refs ) {
@@ -82,12 +72,8 @@ public class HostAccount extends EngineObject {
 		}
 	}
 
-	public void deleteAccount( EngineTransaction transaction ) throws Exception {
-		super.deleteObject();
-	}
-
 	public Account getHostAccount( ActionBase action ) throws Exception {
-		return( Account.getDatacenterAccount( action , host.network.datacenter.ID , ID , host.ID , host.PORT , DBEnumOSType.getVarValue( host.osType ) ) );
+		return( Account.getDatacenterAccount( action , host.network.datacenter.NAME , NAME , host.NAME , host.PORT , DBEnumOSType.getVarValue( host.OS_TYPE ) ) );
 	}
 	
 }

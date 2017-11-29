@@ -128,8 +128,7 @@ public abstract class DBEngineBase {
 		group.NAME = entity.getAttrValue( root , BaseGroup.PROPERTY_NAME );
 		group.DESC = entity.getAttrValue( root , BaseGroup.PROPERTY_DESC );
 		group.OFFLINE = entity.getBooleanAttrValue( root , BaseGroup.PROPERTY_OFFLINE , true );
-		int groupId = getBaseGroupIdByName( c , group.NAME );
-		insertGroup( c , groupId , group );
+		modifyGroup( c , group , true );
 		
 		Node[] list = ConfReader.xmlGetChildren( root , ELEMENT_ITEM );
 		if( list != null ) {
@@ -155,21 +154,12 @@ public abstract class DBEngineBase {
 		if( !item.isValid() )
 			item.setOffline( true );
 		
-		int baseId = getBaseItemIdByName( c , item.NAME );
-		insertItem( c , baseId , item );
-		DBSettings.importxmlSave( loader , props , baseId , DBVersions.CORE_ID , false , item.CV ); 
+		modifyItem( c , item , true );
+		DBSettings.importxmlSave( loader , props , item.ID , DBVersions.CORE_ID , false , item.CV ); 
 		
 		return( item );
 	}
 
-	public static int getBaseGroupIdByName( DBConnection c , String name ) throws Exception {
-		return( DBNames.getNameIndex( c , DBVersions.CORE_ID , name , DBEnumObjectType.BASE_GROUP ) );
-	}
-	
-	public static int getBaseItemIdByName( DBConnection c , String name ) throws Exception {
-		return( DBNames.getNameIndex( c , DBVersions.CORE_ID , name , DBEnumObjectType.BASE_ITEM ) );
-	}
-	
 	public static void exportxml( EngineLoader loader , EngineBase base , Document doc , Element root ) throws Exception {
 		for( String id : base.getCategories() ) {
 			BaseCategory category = base.findCategory( id );
@@ -197,6 +187,7 @@ public abstract class DBEngineBase {
 				BaseGroup group = new BaseGroup( category );
 				group.ID = entity.getId( rs );
 				group.CV = entity.getVersion( rs );
+				
 				group.NAME = entity.getString( rs , BaseGroup.PROPERTY_NAME );
 				group.DESC = entity.getString( rs , BaseGroup.PROPERTY_DESC );
 				group.OFFLINE = entity.getBoolean( rs , BaseGroup.PROPERTY_OFFLINE );
@@ -245,8 +236,10 @@ public abstract class DBEngineBase {
 	public static void exportxmlGroup( EngineLoader loader , BaseGroup group , Document doc , Element root ) throws Exception {
 		EngineEntities entities = loader.getEntities();
 		DBEngineEntities.exportxmlAppObject( doc , root , entities.entityAppBaseGroup , new String[] {
-				group.NAME ,
-				group.DESC
+				EngineDB.getXmlEnum( group.category.BASECATEGORY_TYPE ) ,
+				EngineDB.getXmlString( group.NAME ) ,
+				EngineDB.getXmlString( group.DESC ) ,
+				EngineDB.getXmlBoolean( group.OFFLINE )
 		});
 		
 		for( BaseItem item : group.getItems() ) {
@@ -256,7 +249,7 @@ public abstract class DBEngineBase {
 	}
 
 	public static void exportxmlCategory( EngineLoader loader , BaseCategory category , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , BaseCategory.PROPERTY_TYPE , Common.getEnumLower( category.TYPE ) );
+		Common.xmlSetElementAttr( doc , root , BaseCategory.PROPERTY_TYPE , Common.getEnumLower( category.BASECATEGORY_TYPE ) );
 		
 		for( BaseGroup group : category.getGroups() ) {
 			Element element = Common.xmlCreateElement( doc , root , ELEMENT_GROUP );
@@ -264,24 +257,26 @@ public abstract class DBEngineBase {
 		}
 	}
 
-	public static void insertItem( DBConnection c , int baseId , BaseItem item ) throws Exception {
-		item.ID = baseId;
+	public static void modifyItem( DBConnection c , BaseItem item , boolean insert ) throws Exception {
+		if( insert )
+			item.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , item.NAME , DBEnumObjectType.BASE_ITEM );
 		item.CV = c.getNextCoreVersion();
-		DBSettings.savedbAppValues( c , item.ID , item.p , item.CV , new String[] {
+		DBSettings.modifyAppValues( c , item.ID , item.p , item.CV , new String[] {
 				EngineDB.getInteger( item.group.ID )
-		});
+		} , insert );
 	}
 
-	public static void insertGroup( DBConnection c , int groupId , BaseGroup group ) throws Exception {
-		group.ID = groupId;
+	private static void modifyGroup( DBConnection c , BaseGroup group , boolean insert ) throws Exception {
+		if( insert )
+			group.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , group.NAME , DBEnumObjectType.BASE_GROUP );
 		group.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
-		DBEngineEntities.insertAppObject( c , entities.entityAppBaseGroup , group.ID , group.CV , new String[] {
-				EngineDB.getEnum( group.category.TYPE ) ,
+		DBEngineEntities.modifyAppObject( c , entities.entityAppBaseGroup , group.ID , group.CV , new String[] {
+				EngineDB.getEnum( group.category.BASECATEGORY_TYPE ) ,
 				EngineDB.getString( group.NAME ) , 
 				EngineDB.getString( group.DESC ) ,
 				EngineDB.getBoolean( group.OFFLINE )
-				} );
+				} , insert );
 	}
 
 	public static BaseGroup createGroup( EngineTransaction transaction , EngineBase base , DBEnumBaseCategoryType type , String name , String desc ) throws Exception {
@@ -292,29 +287,72 @@ public abstract class DBEngineBase {
 		
 		BaseCategory category = base.getCategory( type );
 		BaseGroup group = new BaseGroup( category );
-		int groupId = DBNames.getNameIndex( c , type.code() , name , DBEnumObjectType.BASE_GROUP );
-		group.NAME = name;
-		group.DESC = desc;
-		insertGroup( c , groupId , group );
+		group.createGroup( name , desc );
+		modifyGroup( c , group , true );
 		
 		base.addGroup( group );
 		return( group );
 	}
 	
 	public static void deleteGroup( EngineTransaction transaction , EngineBase base , BaseGroup group ) throws Exception {
+		if( !group.isEmpty() )
+			transaction.exit0( _Error.GroupNotEmpty0 , "Group is not empty, unable to delete" );
+		
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.deleteAppObject( c , entities.entityAppBaseGroup , group.ID , c.getNextCoreVersion() );
+		base.removeGroup( group );
+		group.deleteObject();
 	}
 	
 	public static void modifyGroup( EngineTransaction transaction , EngineBase base , BaseGroup group , String name , String desc ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		group.modifyGroup( name , desc );
+		modifyGroup( c , group , false );
+		base.updateGroup( group );
 	}
 	
 	public static BaseItem createItem( EngineTransaction transaction , EngineBase base , BaseGroup group , String name , String desc ) throws Exception {
-		return( null );
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		EngineSettings settings = transaction.getSettings();
+		ObjectProperties pe = settings.getEngineProperties();
+		
+		if( base.findItem( name ) != null )
+			transaction.exitUnexpectedState();
+		
+		ObjectProperties p = entities.createBaseItemProps( pe );
+		BaseItem item = new BaseItem( group , p );
+		item.createBaseItem( name , desc );
+		modifyItem( c , item , true );
+		
+		base.addItem( item );
+		return( item );
 	}
 	
 	public static void modifyItem( EngineTransaction transaction , EngineBase base , BaseItem item , String name , String desc ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		item.modifyBaseItem( name , desc );
+		modifyItem( c , item , false );
+		base.updateItem( item );
+	}
+
+	public static void modifyItemData( EngineTransaction transaction , BaseItem item , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		item.modifyData( name , version , ostype , accessType , srcType , srcFormat , SRCFILE , SRCFILEDIR , INSTALLPATH , INSTALLLINK );
+		modifyItem( c , item , false );
 	}
 	
 	public static void deleteItem( EngineTransaction transaction , EngineBase base , BaseItem item ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		EngineEntities entities = c.getEntities();
+		DBSettings.dropObjectSettings( c , item.ID );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppBaseItem , item.ID , c.getNextCoreVersion() );
+		base.removeItem( item );
+		item.deleteObject();
 	}
 	
 }

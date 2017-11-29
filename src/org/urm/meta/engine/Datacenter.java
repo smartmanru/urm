@@ -3,24 +3,22 @@ package org.urm.meta.engine;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class Datacenter extends EngineObject {
 
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
+	
 	EngineInfrastructure infra;
 	
-	public String ID;
+	public int ID;
+	public String NAME;
 	public String DESC;
+	public int CV;
 	
 	Map<String,Network> mapNetworks;
 	
@@ -28,17 +26,21 @@ public class Datacenter extends EngineObject {
 		super( infra );
 		this.infra = infra;
 		mapNetworks = new HashMap<String,Network>();
+		ID = -1;
+		CV = 0;
 	}
 	
 	@Override
 	public String getName() {
-		return( ID );
+		return( NAME );
 	}
 	
 	public Datacenter copy() throws Exception {
 		Datacenter r = new Datacenter( infra );
 		r.ID = ID;
+		r.NAME = NAME;
 		r.DESC = DESC;
+		r.CV = CV;
 		
 		for( Network net : mapNetworks.values() ) {
 			Network rnet = net.copy( r );
@@ -47,38 +49,10 @@ public class Datacenter extends EngineObject {
 		return( r );
 	}
 	
-	private void addNetwork( Network net ) {
-		mapNetworks.put( net.ID , net );
+	public void addNetwork( Network net ) {
+		mapNetworks.put( net.NAME , net );
 	}
 	
-	public void load( Node root ) throws Exception {
-		if( root == null )
-			return;
-		
-		ID = ConfReader.getAttrValue( root , "id" );
-		DESC = ConfReader.getAttrValue( root , "desc" );
-		
-		Node[] list = ConfReader.xmlGetChildren( root , "network" );
-		if( list == null )
-			return;
-		
-		for( Node node : list ) {
-			Network net = new Network( this );
-			net.load( node );
-			addNetwork( net );
-		}
-	}
-
-	public void save( Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "id" , ID );
-		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
-		
-		for( Network host : mapNetworks.values() ) {
-			Element element = Common.xmlCreateElement( doc , root , "network" );
-			host.save( doc , element );
-		}
-	}
-
 	public Network findNetwork( String id ) {
 		return( mapNetworks.get( id ) );
 	}
@@ -91,38 +65,21 @@ public class Datacenter extends EngineObject {
 		return( mapNetworks.values().toArray( new Network[0] ) );
 	}
 	
-	public void createDatacenter( EngineTransaction transaction  , String ID , String DESC ) throws Exception {
-		this.ID = ID;
-		this.DESC = DESC;
+	public void createDatacenter( String name , String desc ) throws Exception {
+		modifyDatacenter( name , desc );
 	}
 
-	public void modifyDatacenter( EngineTransaction transaction  , String ID , String DESC ) throws Exception {
-		this.ID = ID;
-		this.DESC = DESC;
+	public void modifyDatacenter( String name , String desc ) throws Exception {
+		this.NAME = name;
+		this.DESC = desc;
 	}
 
-	public void deleteDatacenter( EngineTransaction transaction ) throws Exception {
-		super.deleteObject();
+	public void updateNetwork( Network network ) throws Exception {
+		Common.changeMapKey( mapNetworks , network , network.NAME );
 	}
 	
-	public void createNetwork( EngineTransaction transaction , Network network ) throws Exception {
-		addNetwork( network );
-	}
-	
-	public void modifyNetwork( EngineTransaction transaction , Network network ) throws Exception {
-		for( Entry<String,Network> entry : mapNetworks.entrySet() ) {
-			if( entry.getValue() == network ) {
-				mapNetworks.remove( entry.getKey() );
-				break;
-			}
-		}
-		
-		addNetwork( network );
-	}
-	
-	public void deleteNetwork( EngineTransaction transaction , Network network ) throws Exception {
-		mapNetworks.remove( network.ID );
-		network.deleteNetwork( transaction );
+	public void removeNetwork( Network network ) throws Exception {
+		mapNetworks.remove( network.NAME );
 	}
 
 	public NetworkHost findNetworkHost( String id ) {
@@ -138,7 +95,7 @@ public class Datacenter extends EngineObject {
 		if( hostLogin.isEmpty() )
 			return( null );
 		
-		Account account = Account.getDatacenterAccount( ID , hostLogin );
+		Account account = Account.getDatacenterAccount( NAME , hostLogin );
 		return( findNetworkByHost( account.HOST ) );
 	}
 
@@ -146,7 +103,7 @@ public class Datacenter extends EngineObject {
 		if( hostName.isEmpty() )
 			return( null );
 		
-		Account account = Account.getDatacenterAccount( ID , "ignore@" + hostName );
+		Account account = Account.getDatacenterAccount( NAME , "ignore@" + hostName );
 		if( account.isHostName() ) {
 			NetworkHost host = findNetworkHost( account.HOST );
 			if( host != null )
@@ -163,10 +120,10 @@ public class Datacenter extends EngineObject {
 		return( null );
 	}
 
-	public HostAccount getFinalAccount( ActionBase action , String hostLogin ) throws Exception {
+	public HostAccount getFinalAccount( String hostLogin ) throws Exception {
 		HostAccount account = findFinalAccount( hostLogin );
 		if( account == null )
-			action.exit1( _Error.UnknownHostAccount1 , "Unknown host account: " + hostLogin , hostLogin );
+			Common.exit1( _Error.UnknownHostAccount1 , "Unknown host account: " + hostLogin , hostLogin );
 		return( account );
 	}
 	
@@ -182,6 +139,12 @@ public class Datacenter extends EngineObject {
 	public void getApplicationReferences( List<AccountReference> refs ) {
 		for( Network network : mapNetworks.values() )
 			network.getApplicationReferences( refs );
+	}
+
+	public boolean isEmpty() {
+		if( mapNetworks.isEmpty() )
+			return( true );
+		return( false );
 	}
 	
 }

@@ -28,11 +28,11 @@ public class BaseItemData extends PropertyController {
 	public BaseRepository repo;
 	public MetaEnvServerNode serverNode;
 
-	public String NAME;
-	public String VERSION;
+	public String BASENAME;
+	public String BASEVERSION;
 	
-	public DBEnumBaseSrcType type;
-	public DBEnumBaseSrcFormatType srcFormat;
+	public DBEnumBaseSrcType BASESRC_TYPE;
+	public DBEnumBaseSrcFormatType BASESRCFORMAT_TYPE;
 	public String SRCFILE;
 	public String SRCSTOREDIR;
 	public String INSTALLPATH;
@@ -42,8 +42,8 @@ public class BaseItemData extends PropertyController {
 	public Map<String,String> compatibilityMap;
 	
 	public boolean adm;
-	public VarOSTYPE osType;
-	public DBEnumServerAccessType serverAccessType;
+	public VarOSTYPE OS_TYPE;
+	public DBEnumServerAccessType SERVERACCESS_TYPE;
 	public Charset charset;
 
 	public BaseItemData( BaseItem item , BaseRepository repo ) {
@@ -81,15 +81,15 @@ public class BaseItemData extends PropertyController {
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
 		// unified properties
-		NAME = super.getStringPropertyRequired( action , "name" );
-		VERSION = super.getStringPropertyRequired( action , "version" );
+		BASENAME = super.getStringPropertyRequired( action , "name" );
+		BASEVERSION = super.getStringPropertyRequired( action , "version" );
 		
 		String TYPE = super.getStringPropertyRequired( action , "type" );
-		type = DBEnumBaseSrcType.getValue( TYPE , false );
+		BASESRC_TYPE = DBEnumBaseSrcType.getValue( TYPE , false );
 		adm = super.getBooleanProperty( action , "adminstall" );
 		
 		String OSTYPE = super.getStringPropertyRequired( action , "ostype" );
-		osType = Types.getOSType( OSTYPE , false );
+		OS_TYPE = Types.getOSType( OSTYPE , false );
 
 		String CHARSET = super.getStringProperty( action , "charset" );
 		if( !CHARSET.isEmpty() ) {
@@ -99,7 +99,7 @@ public class BaseItemData extends PropertyController {
 		}
 		
 		String SERVERTYPE = super.getStringProperty( action , "server-accesstype" );
-		serverAccessType = DBEnumServerAccessType.getValue( SERVERTYPE , false );
+		SERVERACCESS_TYPE = DBEnumServerAccessType.getValue( SERVERTYPE , false );
 		
 		// type properties
 		if( isArchiveLink() )
@@ -119,8 +119,8 @@ public class BaseItemData extends PropertyController {
 
 	public void create( ActionBase action ) throws Exception {
 		super.initCreateStarted( null );
-		NAME = "";
-		VERSION = "";
+		BASENAME = "";
+		BASEVERSION = "";
 		
 		SRCFILE = "";
 		SRCSTOREDIR = "";
@@ -180,7 +180,7 @@ public class BaseItemData extends PropertyController {
 	}
 
 	private void scatterArchiveLink( ActionBase action ) throws Exception {
-		srcFormat = DBEnumBaseSrcFormatType.getValue( super.getStringPropertyRequired( action , "srcformat" ) , false );
+		BASESRCFORMAT_TYPE = DBEnumBaseSrcFormatType.getValue( super.getStringPropertyRequired( action , "srcformat" ) , false );
 		SRCFILE = super.getPathPropertyRequired( action , "srcfile" );
 		SRCSTOREDIR = super.getPathPropertyRequired( action , "srcstoreddir" );
 		INSTALLPATH = super.getPathPropertyRequired( action , "installpath" );
@@ -188,7 +188,7 @@ public class BaseItemData extends PropertyController {
 	}
 	
 	private void scatterArchiveDirect( ActionBase action ) throws Exception {
-		srcFormat = DBEnumBaseSrcFormatType.getValue( super.getStringPropertyRequired( action , "srcformat" ) , false );
+		BASESRCFORMAT_TYPE = DBEnumBaseSrcFormatType.getValue( super.getStringPropertyRequired( action , "srcformat" ) , false );
 		SRCFILE = super.getPathPropertyRequired( action , "srcfile" );
 		SRCSTOREDIR = super.getPathPropertyRequired( action , "srcstoreddir" );
 		INSTALLPATH = super.getPathPropertyRequired( action , "installpath" );
@@ -198,7 +198,7 @@ public class BaseItemData extends PropertyController {
 	}
 
 	private void scatterInstaller( ActionBase action ) throws Exception {
-		srcFormat = DBEnumBaseSrcFormatType.getValue( super.getStringPropertyRequired( action , "srcformat" ) , false );
+		BASESRCFORMAT_TYPE = DBEnumBaseSrcFormatType.getValue( super.getStringPropertyRequired( action , "srcformat" ) , false );
 		SRCFILE = super.getPathPropertyRequired( action , "srcfile" );
 	}
 
@@ -211,31 +211,31 @@ public class BaseItemData extends PropertyController {
 	}
 
 	public boolean isNoDist() {
-		if( type == DBEnumBaseSrcType.NODIST )
+		if( BASESRC_TYPE == DBEnumBaseSrcType.NODIST )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isInstaller() {
-		if( type == DBEnumBaseSrcType.INSTALLER )
+		if( BASESRC_TYPE == DBEnumBaseSrcType.INSTALLER )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isArchiveLink() {
-		if( type == DBEnumBaseSrcType.ARCHIVE_LINK )
+		if( BASESRC_TYPE == DBEnumBaseSrcType.ARCHIVE_LINK )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isPackage() {
-		if( type == DBEnumBaseSrcType.PACKAGE )
+		if( BASESRC_TYPE == DBEnumBaseSrcType.PACKAGE )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isArchiveDirect() {
-		if( type == DBEnumBaseSrcType.ARCHIVE_DIRECT )
+		if( BASESRC_TYPE == DBEnumBaseSrcType.ARCHIVE_DIRECT )
 			return( true );
 		return( false );
 	}
@@ -248,18 +248,18 @@ public class BaseItemData extends PropertyController {
 	}
 	
 	public void save( Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "name" , NAME );
-		Common.xmlSetElementAttr( doc , root , "version" , VERSION );
+		Common.xmlSetElementAttr( doc , root , "name" , BASENAME );
+		Common.xmlSetElementAttr( doc , root , "version" , BASEVERSION );
 	}
 
 	public void setOptions( EngineTransaction transaction , String name , String version , VarOSTYPE ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCSTOREDIR , String INSTALLPATH , String INSTALLLINK ) {
-		this.NAME = name;
-		this.VERSION = version;
+		this.BASENAME = name;
+		this.BASEVERSION = version;
 		
-		this.osType = ostype;
-		this.serverAccessType = accessType;
-		this.type = srcType;
-		this.srcFormat = srcFormat;
+		this.OS_TYPE = ostype;
+		this.SERVERACCESS_TYPE = accessType;
+		this.BASESRC_TYPE = srcType;
+		this.BASESRCFORMAT_TYPE = srcFormat;
 		
 		this.SRCFILE = SRCFILE;
 		this.SRCSTOREDIR = SRCSTOREDIR;

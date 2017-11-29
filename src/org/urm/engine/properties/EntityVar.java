@@ -225,8 +225,20 @@ public class EntityVar {
 		return( false );
 	}
 	
+	public boolean isDatabase() {
+		if( DBNAME != null )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isXmlOnly() {
 		if( XMLNAME != null && DBNAME == null )
+			return( true );
+		return( false );
+	}
+
+	public boolean isXml() {
+		if( XMLNAME != null )
 			return( true );
 		return( false );
 	}

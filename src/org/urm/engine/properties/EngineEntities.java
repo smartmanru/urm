@@ -5,6 +5,7 @@ import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineContext;
+import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineSettings;
 import org.urm.db.system.DBSystem;
@@ -46,6 +47,10 @@ public class EngineEntities {
 	public PropertyEntity entityAppBaseGroup;
 	public PropertyEntity entityAppBaseItem;
 	public PropertyEntity entityAppSystem;
+	public PropertyEntity entityAppDatacenter;
+	public PropertyEntity entityAppNetwork;
+	public PropertyEntity entityAppNetworkHost;
+	public PropertyEntity entityAppHostAccount;
 	
 	public EngineEntities( EngineCore core ) {
 		this.core = core;
@@ -61,6 +66,10 @@ public class EngineEntities {
 		entityAppBaseGroup = DBEngineBase.upgradeEntityBaseGroup( loader );
 		entityAppBaseItem = DBEngineBase.upgradeEntityBaseItem( loader );
 		entityAppSystem = DBSystem.upgradeEntitySystem( loader );
+		entityAppDatacenter = DBEngineInfrastructure.upgradeEntityDatacenter( loader );
+		entityAppNetwork = DBEngineInfrastructure.upgradeEntityNetwork( loader );
+		entityAppNetworkHost = DBEngineInfrastructure.upgradeEntityNetworkHost( loader );
+		entityAppHostAccount = DBEngineInfrastructure.upgradeEntityHostAccount( loader );
 		useCustom( loader );
 	}
 	
@@ -73,6 +82,10 @@ public class EngineEntities {
 		entityAppBaseGroup = DBEngineBase.loaddbEntityBaseGroup( loader );
 		entityAppBaseItem = DBEngineBase.loaddbEntityBaseItem( loader );
 		entityAppSystem = DBSystem.loaddbEntitySystem( loader );
+		entityAppDatacenter = DBEngineInfrastructure.loaddbEntityDatacenter( loader );
+		entityAppNetwork = DBEngineInfrastructure.loaddbEntityNetwork( loader );
+		entityAppNetworkHost = DBEngineInfrastructure.loaddbEntityNetworkHost( loader );
+		entityAppHostAccount = DBEngineInfrastructure.loaddbEntityHostAccount( loader );
 		
 		useCustom( loader );
 	}

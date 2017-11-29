@@ -57,7 +57,7 @@ public class AccountReference {
 			Product product = action.findProduct( productName );
 			String appKey = product.system.NAME + "-" + productName + "-" + ref.node.server.sg.env.NAME + "-" + 
 				ref.node.server.sg.NAME + "-" + ref.node.server.NAME + "-" + ref.node.POS;
-			String infraKey = ref.account.host.network.ID + "-" + ref.account.host.ID + "-" + ref.account.ID;
+			String infraKey = ref.account.host.network.NAME + "-" + ref.account.host.NAME + "-" + ref.account.NAME;
 			String key = ( infraFirst )? infraKey + "-" + appKey : appKey + "-" + infraKey;
 			initial.put( key , ref );
 		}

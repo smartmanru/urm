@@ -5,6 +5,7 @@ import java.util.List;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineBase;
+import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.ScheduleProperties;
@@ -15,7 +16,6 @@ import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.BaseGroup;
 import org.urm.meta.engine.BaseItem;
-import org.urm.meta.engine.BaseItemData;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.MirrorRepository;
@@ -60,7 +60,77 @@ public class EngineTransaction extends TransactionBase {
 		super( engine , action );
 	}
 
-	// transactional operations
+	// ################################################################################
+	// ################################################################################
+	// CONTENTS:
+	//		core:
+	//			SETTINGS
+	//			RESOURCES
+	//			BASE
+	//			INFRASTRUCTURE
+	//			MIRRORS
+	//			BUILDERS
+	//			LIFECYCLES
+	//		directory:
+	//			DIRECTORY
+	//			MONITORING
+	//		product:
+	//			PRODUCT
+	//			ENVIRONMENT
+	
+	// ################################################################################
+	// ################################################################################
+	// SETTINGS
+	
+	public void setEngineProperties( PropertySet props ) throws Exception {
+		checkTransactionSettings();
+		settings.setEngineProperties( this , props );
+	}
+	
+	public void setEngineProductDefaultsProperties( PropertySet props ) throws Exception {
+		checkTransactionSettings();
+		settings.setProductDefaultsProperties( this , props );
+	}
+	
+	public void setEngineProductBuildCommonDefaultsProperties( PropertySet props ) throws Exception {
+		checkTransactionSettings();
+		settings.setProductBuildCommonDefaultsProperties( this , props );
+	}
+	
+	public void setEngineProductBuildModeDefaultsProperties( DBEnumBuildModeType mode , PropertySet props ) throws Exception {
+		checkTransactionSettings();
+		settings.setProductBuildModeDefaultsProperties( this , mode , props );
+	}
+
+	// ################################################################################
+	// ################################################################################
+	// RESOURCES
+	
+	public void createResource( AuthResource res ) throws Exception {
+		checkTransactionResources( res.resources );
+		resources.createResource( this , res );
+	}
+	
+	public void updateResource( AuthResource res , AuthResource resNew ) throws Exception {
+		checkTransactionResources( res.resources );
+		resources.updateResource( this , res , resNew );
+	}
+	
+	public void deleteResource( AuthResource res ) throws Exception {
+		checkTransactionResources( res.resources );
+		resources.deleteResource( this , res );
+		res.deleteObject();
+	}
+
+	public void verifyResource( AuthResource res ) throws Exception {
+		checkTransactionResources( res.resources );
+		res.setVerified( this );
+	}
+	
+	// ################################################################################
+	// ################################################################################
+	// MIRRORS
+	
 	public void createMirrorRepository( MirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
 		if( push )
@@ -86,26 +156,76 @@ public class EngineTransaction extends TransactionBase {
 		repo.deleteObject();
 	}
 
-	public void createResource( AuthResource res ) throws Exception {
-		checkTransactionResources( res.resources );
-		resources.createResource( this , res );
-	}
-	
-	public void updateResource( AuthResource res , AuthResource resNew ) throws Exception {
-		checkTransactionResources( res.resources );
-		resources.updateResource( this , res , resNew );
-	}
-	
-	public void deleteResource( AuthResource res ) throws Exception {
-		checkTransactionResources( res.resources );
-		resources.deleteResource( this , res );
-		res.deleteObject();
+	public void createMirrorRepository( EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
+		checkTransactionMirrors( mirrors );
+		mirrors.createProjectMirror( this , project );
 	}
 
-	public void verifyResource( AuthResource res ) throws Exception {
-		checkTransactionResources( res.resources );
-		res.setVerified( this );
+	public void changeMirrorRepository( EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
+		checkTransactionMirrors( mirrors );
+		mirrors.changeProjectMirror( this , project );
 	}
+
+	public void deleteSourceProjectMirror( EngineMirrors mirrors , MetaSourceProject project , boolean leaveManual ) throws Exception {
+		checkTransactionMetadata( project.meta.getStorage( action ) );
+		checkTransactionMirrors( mirrors );
+		
+		Meta meta = project.meta;
+		MetaSource sources = project.set.sources;
+		MetaDistr distr = meta.getDistr( action );
+		for( MetaSourceProjectItem item : project.getItems() ) {
+			MetaDistrBinaryItem distItem = item.distItem;
+			if( leaveManual )
+				distr.changeBinaryItemProjectToManual( this , distItem );
+			else
+				distr.deleteBinaryItem( this , distItem );
+		}
+		sources.removeProject( this , project );
+		mirrors.deleteProjectMirror( this , project );
+	}
+
+	// ################################################################################
+	// ################################################################################
+	// BASE
+	
+	public BaseGroup createBaseGroup( DBEnumBaseCategoryType type , String name , String desc ) throws Exception {
+		checkTransactionBase();
+		return( DBEngineBase.createGroup( this , base , type , name , desc ) );
+	}
+
+	public void deleteBaseGroup( BaseGroup group ) throws Exception {
+		checkTransactionBase();
+		DBEngineBase.deleteGroup( this , base , group );
+	}
+
+	public void modifyBaseGroup( BaseGroup group , String name , String desc ) throws Exception {
+		checkTransactionBase();
+		DBEngineBase.modifyGroup( this , base , group , name , desc );
+	}
+
+	public BaseItem createBaseItem( BaseGroup group , String name , String desc ) throws Exception {
+		checkTransactionBase();
+		return( DBEngineBase.createItem( this , base , group , name , desc ) );
+	}
+
+	public void modifyBaseItem( BaseItem item , String name , String desc ) throws Exception {
+		checkTransactionBase();
+		DBEngineBase.modifyItem( this , base , item , name , desc );
+	}
+
+	public void deleteBaseItem( BaseItem item ) throws Exception {
+		checkTransactionBase();
+		DBEngineBase.deleteItem( this , base , item );
+	}
+
+	public void modifyBaseItemData( BaseItem item , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
+		checkTransactionBase();
+		DBEngineBase.modifyItemData( this , item , name , version , ostype , accessType , srcType , srcFormat , SRCFILE , SRCFILEDIR , INSTALLPATH , INSTALLLINK );
+	}
+	
+	// ################################################################################
+	// ################################################################################
+	// BUILDERS
 	
 	public ProjectBuilder createBuilder( ProjectBuilder builder ) throws Exception {
 		checkTransactionBuilders();
@@ -122,6 +242,10 @@ public class EngineTransaction extends TransactionBase {
 		builders.deleteBuilder( this , builder );
 		builder.deleteObject();
 	}
+	
+	// ################################################################################
+	// ################################################################################
+	// LIFECYCLES
 	
 	public ReleaseLifecycle createLifecycleType( ReleaseLifecycle lc ) throws Exception {
 		checkTransactionReleaseLifecycles();
@@ -153,6 +277,90 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionReleaseLifecycles();
 		lc.changePhases( this , phases );
 	}
+	
+	// ################################################################################
+	// ################################################################################
+	// INFRASTRUCTURE
+	
+	public Datacenter createDatacenter( String name , String desc ) throws Exception {
+		checkTransactionInfrastructure();
+		return( DBEngineInfrastructure.createDatacenter( this , infra , name , desc ) );
+	}
+
+	public void modifyDatacenter( Datacenter datacenter , String name , String desc ) throws Exception {
+		checkTransactionInfrastructure();
+		DBEngineInfrastructure.modifyDatacenter( this , infra , datacenter , name , desc );
+	}
+
+	public void deleteDatacenter( Datacenter datacenter ) throws Exception {
+		checkTransactionInfrastructure();
+		EngineAuth auth = action.getServerAuth();
+		auth.deleteDatacenter( this , datacenter );
+		DBEngineInfrastructure.deleteDatacenter( this , infra , datacenter );
+	}
+	
+	public Network createNetwork( Datacenter datacenter , String name , String desc , String mask ) throws Exception {
+		checkTransactionInfrastructure();
+		return( DBEngineInfrastructure.createNetwork( this , infra , datacenter , name , desc , mask ) );
+	}
+
+	public void modifyNetwork( Network network , String name , String desc , String mask ) throws Exception {
+		checkTransactionInfrastructure();
+		DBEngineInfrastructure.modifyNetwork( this , infra , network , name , desc , mask );
+	}
+
+	public void deleteNetwork( Network network ) throws Exception {
+		checkTransactionInfrastructure();
+		EngineAuth auth = action.getServerAuth();
+		auth.deleteNetwork( this , network );
+		DBEngineInfrastructure.deleteNetwork( this , infra , network );
+	}
+
+	public NetworkHost createNetworkHost( Network network , String name , String desc , DBEnumOSType osType , String ip , int port ) throws Exception {
+		checkTransactionInfrastructure();
+		return( DBEngineInfrastructure.createHost( this , infra , network , name , desc , osType , ip , port ) );
+	}
+	
+	public void modifyNetworkHost( NetworkHost host , String name , String desc , DBEnumOSType osType , String ip , int port ) throws Exception {
+		checkTransactionInfrastructure();
+		DBEngineInfrastructure.modifyHost( this , infra , host , name , desc , osType , ip , port );
+	}
+	
+	public void deleteNetworkHost( NetworkHost host ) throws Exception {
+		checkTransactionInfrastructure();
+		DBEngineInfrastructure.deleteHost( this , infra , host );
+	}
+	
+	public HostAccount createHostAccount( NetworkHost host , String user , boolean admin , String resource ) throws Exception {
+		checkTransactionInfrastructure();
+		return( DBEngineInfrastructure.createAccount( this , infra , host , user , admin , resource ) );
+	}
+	
+	public void modifyHostAccount( HostAccount account , String user , boolean admin , String resource , boolean refRename ) throws Exception {
+		checkTransactionInfrastructure();
+		DBEngineInfrastructure.modifyAccount( this , infra , account , user , admin , resource );
+	}
+	
+	public HostAccount createHostAccount( Network network , Account account , AuthResource resource ) throws Exception {
+		checkTransactionInfrastructure();
+		NetworkHost host = network.findHost( account );
+		if( host == null ) {
+			DBEnumOSType type = DBEnumOSType.getValue( account.osType.name() , true );
+			host = createNetworkHost( network , account.HOST , null , type , account.IP , account.PORT );
+		}
+		
+		String ACCRES = ( resource == null )? "" : resource.NAME;
+		return( createHostAccount( host , account.USER , account.isAdmin() , ACCRES ) );
+	}
+	
+	public void deleteHostAccount( HostAccount account ) throws Exception {
+		checkTransactionInfrastructure();
+		DBEngineInfrastructure.deleteAccount( this , infra , account );
+	}
+	
+	// ################################################################################
+	// ################################################################################
+	// DIRECTORY
 	
 	public AppSystem createSystem( String name , String desc ) throws Exception {
 		checkTransactionDirectory();
@@ -205,25 +413,44 @@ public class EngineTransaction extends TransactionBase {
 		product.deleteObject();
 	}
 
-	public void setServerProperties( PropertySet props ) throws Exception {
-		checkTransactionSettings();
-		settings.setServerProperties( this , props );
+	// ################################################################################
+	// ################################################################################
+	// MONITORING
+	
+	public void disableMonitoring() throws Exception {
+		checkTransactionMonitoring();
+		EngineMonitoring mon = action.getActiveMonitoring();
+		mon.setEnabled( this , false );
+		loader.commitMonitoring();
 	}
 	
-	public void setServerProductDefaultsProperties( PropertySet props ) throws Exception {
-		checkTransactionSettings();
-		settings.setProductDefaultsProperties( this , props );
+	public void enableMonitoring() throws Exception {
+		checkTransactionMonitoring();
+		EngineMonitoring mon = action.getActiveMonitoring();
+		mon.setEnabled( this , true );
+		loader.commitMonitoring();
+	}
+
+	public void setMonitoringEnabled( Product product ) throws Exception {
+		checkTransactionDirectory();
+		product.setMonitoringEnabled( this , true );
 	}
 	
-	public void setServerProductBuildCommonDefaultsProperties( PropertySet props ) throws Exception {
-		checkTransactionSettings();
-		settings.setProductBuildCommonDefaultsProperties( this , props );
+	public void setMonitoringDisabled( Product product ) throws Exception {
+		checkTransactionDirectory();
+		product.setMonitoringEnabled( this , false );
 	}
-	
-	public void setServerProductBuildModeDefaultsProperties( DBEnumBuildModeType mode , PropertySet props ) throws Exception {
-		checkTransactionSettings();
-		settings.setProductBuildModeDefaultsProperties( this , mode , props );
+
+	public void setDefaultMonitoringProperties( PropertySet props ) throws Exception {
+		checkTransactionMonitoring();
+		EngineMonitoring mon = action.getActiveMonitoring();
+		mon.setDefaultProperties( this , props );
+		loader.commitMonitoring();
 	}
+
+	// ################################################################################
+	// ################################################################################
+	// PRODUCT
 	
 	public void setProductProperties( Meta meta , PropertySet props , boolean system ) throws Exception {
 		ProductMeta metadata = getTransactionMetadata( meta );
@@ -256,272 +483,16 @@ public class EngineTransaction extends TransactionBase {
 		settings.recalculateChildProperties( action );
 		return( version );
 	}
-	
-	public MetaEnv createMetaEnv( Meta meta , String name , VarENVTYPE envType ) throws Exception {
-		ProductMeta metadata = getTransactionMetadata( meta );
-		MetaProductSettings settings = meta.getProductSettings( action );
-		MetaEnv env = new MetaEnv( metadata , settings , metadata.meta );
-		env.createEnv( action , name , envType );
-		metadata.addEnv( this , env );
-		return( env );
-	}
-	
-	public void deleteMetaEnv( MetaEnv env ) throws Exception {
-		ProductMeta metadata = getTransactionMetadata( env.meta );
-		metadata.deleteEnv( this , env );
-		env.deleteObject();
-	}
 
-	public void setMetaEnvProperties( MetaEnv env , PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( env.meta.getStorage( action ) );
-		env.setProperties( this , props , system );
+	public void setProductLifecycles( MetaProductCoreSettings core , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
+		checkTransactionMetadata( core.meta.getStorage( action ) );
+		core.setLifecycles( this , major , minor , urgentsAll , urgents );
 	}
 	
-	public void updateMetaEnv( MetaEnv env ) throws Exception {
-		checkTransactionMetadata( env.meta.getStorage( action ) );
-		env.updateProperties( this );
-	}
-	
-	public void updateMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage( action ) );
-		sg.updateProperties( this );
-	}
-	
-	public void createMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage( action ) );
-		sg.env.createSegment( this , sg );
-	}
-	
-	public void deleteMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage( action ) );
-		sg.env.deleteSegment( this , sg );
-		sg.deleteObject();
-	}
-
-	public void setMetaEnvSGProperties( MetaEnvSegment sg , PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage( action ) );
-		sg.setProperties( this , props , system );
-	}
-	
-	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , VarOSTYPE osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage( action ) );
-		MetaEnvServer server = new MetaEnvServer( sg.meta , sg );
-		server.createServer( action , name , desc , osType , runType , accessType , sysname );
-		sg.createServer( this , server );
-		return( server );
-	}
-	
-	public void modifyMetaEnvServer( MetaEnvServer server ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage( action ) );
-		server.sg.modifyServer( this , server );
-	}
-
-	public void deleteMetaEnvServer( MetaEnvServer server ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage( action ) );
-		server.sg.deleteServer( this , server );
-		server.deleteObject();
-	}
-
-	public void updateMetaEnvServer( MetaEnvServer server ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage( action ) );
-		server.updateProperties( this );
-	}
-
-	public void setMetaEnvServerProperties( MetaEnvServer server , PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage( action ) );
-		server.setProperties( this , props , system );
-	}
-	
-	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage( action ) );
-		MetaEnvServerNode node = new MetaEnvServerNode( server.meta , server , pos );
-		node.createNode( action , nodeType , account );
-		server.createNode( this , node );
-		return( node );
-	}
-	
-	public void modifyMetaEnvServerNode( MetaEnvServerNode node , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
-		checkTransactionMetadata( node.meta.getStorage( action ) );
-		node.updateProperties( this );
-		node.modifyNode( action , pos , nodeType , account );
-		node.server.modifyNode( this , node );
-	}
-
-	public void updateMetaEnvServerNodeSetOffline( MetaEnvServerNode node , boolean newStatus ) throws Exception {
-		node.setOffline( this , newStatus );
-	}
-	
-	public void deleteMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {
-		checkTransactionMetadata( node.meta.getStorage( action ) );
-		node.server.deleteNode( this , node );
-		node.deleteObject();
-	}
-
-	public void setMetaEnvServerNodeProperties( MetaEnvServerNode node , PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( node.meta.getStorage( action ) );
-		node.setProperties( this , props , system );
-	}
-	
-	public void createDatacenter( Datacenter datacenter ) throws Exception {
-		checkTransactionInfrastructure();
-		infra.createDatacenter( this , datacenter );
-	}
-
-	public void modifyDatacenter( Datacenter datacenter ) throws Exception {
-		checkTransactionInfrastructure();
-		infra.modifyDatacenter( this , datacenter );
-	}
-
-	public void deleteDatacenter( Datacenter datacenter ) throws Exception {
-		checkTransactionInfrastructure();
-		EngineAuth auth = action.getServerAuth();
-		auth.deleteDatacenter( this , datacenter );
-		infra.deleteDatacenter( this , datacenter );
-		datacenter.deleteObject();
-	}
-	
-	public void createNetwork( Datacenter datacenter , Network network ) throws Exception {
-		checkTransactionInfrastructure();
-		datacenter.createNetwork( this , network );
-	}
-
-	public void deleteNetwork( Network network ) throws Exception {
-		checkTransactionInfrastructure();
-		EngineAuth auth = action.getServerAuth();
-		auth.deleteNetwork( this , network );
-		network.datacenter.deleteNetwork( this , network );
-		network.deleteObject();
-	}
-
-	public void modifyNetwork( Network network ) throws Exception {
-		checkTransactionInfrastructure();
-		network.datacenter.modifyNetwork( this , network );
-	}
-
-	public void createNetworkHost( NetworkHost host ) throws Exception {
-		checkTransactionInfrastructure();
-		host.network.createHost( this , host );
-	}
-	
-	public void modifyNetworkHost( NetworkHost host , boolean renameReferences ) throws Exception {
-		checkTransactionInfrastructure();
-		host.network.modifyHost( this , host );
-	}
-	
-	public void deleteNetworkHost( NetworkHost host ) throws Exception {
-		checkTransactionInfrastructure();
-		host.network.deleteHost( this , host );
-	}
-	
-	public void createHostAccount( HostAccount account ) throws Exception {
-		checkTransactionInfrastructure();
-		account.host.createAccount( this , account );
-	}
-	
-	public void createHostAccount( Network network , Account account , AuthResource resource ) throws Exception {
-		checkTransactionInfrastructure();
-		NetworkHost host = network.createHost( this , account ); 
-		host.createAccount( this , account , resource );
-	}
-	
-	public void modifyHostAccount( HostAccount account , boolean renameReferences ) throws Exception {
-		checkTransactionInfrastructure();
-		account.host.modifyAccount( this , account );
-	}
-	
-	public void deleteHostAccount( HostAccount account ) throws Exception {
-		checkTransactionInfrastructure();
-		account.host.deleteAccount( this , account );
-	}
-	
-	public BaseGroup createBaseGroup( DBEnumBaseCategoryType type , String name , String desc ) throws Exception {
-		checkTransactionBase();
-		return( DBEngineBase.createGroup( this , base , type , name , desc ) );
-	}
-
-	public void deleteBaseGroup( BaseGroup group ) throws Exception {
-		checkTransactionBase();
-		DBEngineBase.deleteGroup( this , base , group );
-	}
-
-	public void modifyBaseGroup( BaseGroup group , String name , String desc ) throws Exception {
-		checkTransactionBase();
-		DBEngineBase.modifyGroup( this , base , group , name , desc );
-	}
-
-	public BaseItem createBaseItem( BaseGroup group , String name , String desc ) throws Exception {
-		checkTransactionBase();
-		return( DBEngineBase.createItem( this , base , group , name , desc ) );
-	}
-
-	public void modifyBaseItem( BaseItem item , String name , String desc ) throws Exception {
-		checkTransactionBase();
-		DBEngineBase.modifyItem( this , base , item , name , desc );
-	}
-
-	public void deleteBaseItem( BaseItem item ) throws Exception {
-		checkTransactionBase();
-		DBEngineBase.deleteItem( this , base , item );
-		loader.commitBase();
-	}
-
-	public void saveBaseItemData( BaseItem item , BaseItemData data ) throws Exception {
-		checkTransactionBase();
-	}
-	
-	public void disableMonitoring() throws Exception {
-		checkTransactionMonitoring();
-		EngineMonitoring mon = action.getActiveMonitoring();
-		mon.setEnabled( this , false );
-		loader.commitMonitoring();
-	}
-	
-	public void enableMonitoring() throws Exception {
-		checkTransactionMonitoring();
-		EngineMonitoring mon = action.getActiveMonitoring();
-		mon.setEnabled( this , true );
-		loader.commitMonitoring();
-	}
-
-	public void setMonitoringEnabled( Product product ) throws Exception {
-		checkTransactionDirectory();
-		product.setMonitoringEnabled( this , true );
-	}
-	
-	public void setMonitoringDisabled( Product product ) throws Exception {
-		checkTransactionDirectory();
-		product.setMonitoringEnabled( this , false );
-	}
-
-	public MetaMonitoringTarget modifyMonitoringTarget( MetaMonitoring monMeta , MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
-		checkTransactionMetadata( monMeta.meta.getStorage( action ) );
-		MetaMonitoringTarget target = monMeta.modifyTarget( this , sg , major , enabled , maxTime , schedule );
-		EngineMonitoring mon = action.getActiveMonitoring();
-		mon.modifyTarget( this , target );
-		return( target );
-	}
-
-	public void setDefaultMonitoringProperties( PropertySet props ) throws Exception {
-		checkTransactionMonitoring();
-		EngineMonitoring mon = action.getActiveMonitoring();
-		mon.setDefaultProperties( this , props );
-		loader.commitMonitoring();
-	}
-
 	public void setProductMonitoringProperties( Meta meta , PropertySet props ) throws Exception {
 		checkTransactionMetadata( meta.getStorage( action ) );
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setProductMonitoringProperties( this , meta , props );
-	}
-
-	public void setStartInfo( MetaEnvSegment sg , MetaEnvStartInfo startInfo ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage( action ) );
-		sg.setStartInfo( this , startInfo );
-	}
-
-	public void modifyServerDeployments( MetaEnvServer server , List<MetaEnvServerDeployment> deployments ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage( action ) );
-		server.setDeployments( this , deployments );
 	}
 
 	public void createDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
@@ -673,34 +644,6 @@ public class EngineTransaction extends TransactionBase {
 		set.reorderProjects( this );
 	}
 	
-	public void createMirrorRepository( EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
-		checkTransactionMirrors( mirrors );
-		mirrors.createProjectMirror( this , project );
-	}
-
-	public void changeMirrorRepository( EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
-		checkTransactionMirrors( mirrors );
-		mirrors.changeProjectMirror( this , project );
-	}
-
-	public void deleteSourceProject( EngineMirrors mirrors , MetaSourceProject project , boolean leaveManual ) throws Exception {
-		checkTransactionMetadata( project.meta.getStorage( action ) );
-		checkTransactionMirrors( mirrors );
-		
-		Meta meta = project.meta;
-		MetaSource sources = project.set.sources;
-		MetaDistr distr = meta.getDistr( action );
-		for( MetaSourceProjectItem item : project.getItems() ) {
-			MetaDistrBinaryItem distItem = item.distItem;
-			if( leaveManual )
-				distr.changeBinaryItemProjectToManual( this , distItem );
-			else
-				distr.deleteBinaryItem( this , distItem );
-		}
-		sources.removeProject( this , project );
-		mirrors.deleteProjectMirror( this , project );
-	}
-
 	public MetaSourceProjectItem createSourceProjectItem( MetaSourceProject project , String name ) throws Exception {
 		checkTransactionMetadata( project.meta.getStorage( action ) );
 		
@@ -725,9 +668,131 @@ public class EngineTransaction extends TransactionBase {
 		item.project.removeItem( this , item );
 	}
 
-	public void setProductLifecycles( MetaProductCoreSettings core , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
-		checkTransactionMetadata( core.meta.getStorage( action ) );
-		core.setLifecycles( this , major , minor , urgentsAll , urgents );
+	// ################################################################################
+	// ################################################################################
+	// ENVIRONMENT
+	
+	public MetaEnv createMetaEnv( Meta meta , String name , VarENVTYPE envType ) throws Exception {
+		ProductMeta metadata = getTransactionMetadata( meta );
+		MetaProductSettings settings = meta.getProductSettings( action );
+		MetaEnv env = new MetaEnv( metadata , settings , metadata.meta );
+		env.createEnv( action , name , envType );
+		metadata.addEnv( this , env );
+		return( env );
 	}
 	
+	public void deleteMetaEnv( MetaEnv env ) throws Exception {
+		ProductMeta metadata = getTransactionMetadata( env.meta );
+		metadata.deleteEnv( this , env );
+		env.deleteObject();
+	}
+
+	public void setMetaEnvProperties( MetaEnv env , PropertySet props , boolean system ) throws Exception {
+		checkTransactionMetadata( env.meta.getStorage( action ) );
+		env.setProperties( this , props , system );
+	}
+	
+	public void updateMetaEnv( MetaEnv env ) throws Exception {
+		checkTransactionMetadata( env.meta.getStorage( action ) );
+		env.updateProperties( this );
+	}
+	
+	public void updateMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
+		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		sg.updateProperties( this );
+	}
+	
+	public void createMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
+		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		sg.env.createSegment( this , sg );
+	}
+	
+	public void deleteMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
+		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		sg.env.deleteSegment( this , sg );
+		sg.deleteObject();
+	}
+
+	public void setMetaEnvSGProperties( MetaEnvSegment sg , PropertySet props , boolean system ) throws Exception {
+		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		sg.setProperties( this , props , system );
+	}
+	
+	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , VarOSTYPE osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
+		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		MetaEnvServer server = new MetaEnvServer( sg.meta , sg );
+		server.createServer( action , name , desc , osType , runType , accessType , sysname );
+		sg.createServer( this , server );
+		return( server );
+	}
+	
+	public void modifyMetaEnvServer( MetaEnvServer server ) throws Exception {
+		checkTransactionMetadata( server.meta.getStorage( action ) );
+		server.sg.modifyServer( this , server );
+	}
+
+	public void deleteMetaEnvServer( MetaEnvServer server ) throws Exception {
+		checkTransactionMetadata( server.meta.getStorage( action ) );
+		server.sg.deleteServer( this , server );
+		server.deleteObject();
+	}
+
+	public void updateMetaEnvServer( MetaEnvServer server ) throws Exception {
+		checkTransactionMetadata( server.meta.getStorage( action ) );
+		server.updateProperties( this );
+	}
+
+	public void setMetaEnvServerProperties( MetaEnvServer server , PropertySet props , boolean system ) throws Exception {
+		checkTransactionMetadata( server.meta.getStorage( action ) );
+		server.setProperties( this , props , system );
+	}
+	
+	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
+		checkTransactionMetadata( server.meta.getStorage( action ) );
+		MetaEnvServerNode node = new MetaEnvServerNode( server.meta , server , pos );
+		node.createNode( action , nodeType , account );
+		server.createNode( this , node );
+		return( node );
+	}
+	
+	public void modifyMetaEnvServerNode( MetaEnvServerNode node , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
+		checkTransactionMetadata( node.meta.getStorage( action ) );
+		node.updateProperties( this );
+		node.modifyNode( action , pos , nodeType , account );
+		node.server.modifyNode( this , node );
+	}
+
+	public void updateMetaEnvServerNodeSetOffline( MetaEnvServerNode node , boolean newStatus ) throws Exception {
+		node.setOffline( this , newStatus );
+	}
+	
+	public void deleteMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {
+		checkTransactionMetadata( node.meta.getStorage( action ) );
+		node.server.deleteNode( this , node );
+		node.deleteObject();
+	}
+
+	public void setMetaEnvServerNodeProperties( MetaEnvServerNode node , PropertySet props , boolean system ) throws Exception {
+		checkTransactionMetadata( node.meta.getStorage( action ) );
+		node.setProperties( this , props , system );
+	}
+	
+	public void setStartInfo( MetaEnvSegment sg , MetaEnvStartInfo startInfo ) throws Exception {
+		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		sg.setStartInfo( this , startInfo );
+	}
+
+	public void modifyServerDeployments( MetaEnvServer server , List<MetaEnvServerDeployment> deployments ) throws Exception {
+		checkTransactionMetadata( server.meta.getStorage( action ) );
+		server.setDeployments( this , deployments );
+	}
+
+	public MetaMonitoringTarget modifyMonitoringTarget( MetaMonitoring monMeta , MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
+		checkTransactionMetadata( monMeta.meta.getStorage( action ) );
+		MetaMonitoringTarget target = monMeta.modifyTarget( this , sg , major , enabled , maxTime , schedule );
+		EngineMonitoring mon = action.getActiveMonitoring();
+		mon.modifyTarget( this , target );
+		return( target );
+	}
+
 }

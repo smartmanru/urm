@@ -77,8 +77,8 @@ public class BaseItem extends EngineObject {
 	}
 	
 	public void createBaseItem( String name , String desc ) throws Exception {
-		OFFLINE = false;
 		modifyBaseItem( name , desc );
+		setOffline( true );
 	}
 	
 	public void modifyBaseItem( String name , String desc ) throws Exception {
@@ -104,19 +104,19 @@ public class BaseItem extends EngineObject {
 	}
 
 	public boolean isHostBound() {
-		if( group.category.TYPE == DBEnumBaseCategoryType.HOST )
+		if( group.category.BASECATEGORY_TYPE == DBEnumBaseCategoryType.HOST )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isAccountBound() {
-		if( group.category.TYPE == DBEnumBaseCategoryType.ACCOUNT )
+		if( group.category.BASECATEGORY_TYPE == DBEnumBaseCategoryType.ACCOUNT )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isAppBound() {
-		if( group.category.TYPE == DBEnumBaseCategoryType.APP )
+		if( group.category.BASECATEGORY_TYPE == DBEnumBaseCategoryType.APP )
 			return( true );
 		return( false );
 	}
@@ -129,6 +129,72 @@ public class BaseItem extends EngineObject {
 			SERVERACCESS_TYPE == DBEnumServerAccessType.UNKNOWN )
 			return( false );
 		return( true );
+	}
+	
+	public boolean isNoDist() {
+		if( BASESRC_TYPE == DBEnumBaseSrcType.NODIST )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isInstaller() {
+		if( BASESRC_TYPE == DBEnumBaseSrcType.INSTALLER )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isArchiveLink() {
+		if( BASESRC_TYPE == DBEnumBaseSrcType.ARCHIVE_LINK )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isPackage() {
+		if( BASESRC_TYPE == DBEnumBaseSrcType.PACKAGE )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isArchiveDirect() {
+		if( BASESRC_TYPE == DBEnumBaseSrcType.ARCHIVE_DIRECT )
+			return( true );
+		return( false );
+	}
+
+	public boolean isArchive() {
+		if( isArchiveLink() ||
+			isArchiveDirect() )
+			return( true );
+		return( false );
+	}
+	
+	public void modifyData( String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
+		this.BASENAME = name;
+		this.BASEVERSION = version;
+		
+		this.OS_TYPE = ostype;
+		this.SERVERACCESS_TYPE = accessType;
+		this.BASESRC_TYPE = srcType;
+		this.BASESRCFORMAT_TYPE = srcFormat;
+		
+		this.SRCFILE = SRCFILE;
+		this.SRCFILEDIR = SRCFILEDIR;
+		this.INSTALLPATH = INSTALLPATH;
+		this.INSTALLLINK = INSTALLLINK;
+		
+		p.setEnumProperty( BaseItem.PROPERTY_BASESRC_TYPE , BASESRC_TYPE );
+		p.setEnumProperty( BaseItem.PROPERTY_BASESRCFORMAT_TYPE , BASESRCFORMAT_TYPE );
+		p.setEnumProperty( BaseItem.PROPERTY_OS_TYPE , OS_TYPE );
+		p.setEnumProperty( BaseItem.PROPERTY_SERVERACCESS_TYPE , SERVERACCESS_TYPE );
+		p.setProperty( BaseItem.PROPERTY_BASENAME , BASENAME );
+		p.setProperty( BaseItem.PROPERTY_BASEVERSION , BASEVERSION );
+		p.setProperty( BaseItem.PROPERTY_SRCDIR , SRCDIR );
+		p.setProperty( BaseItem.PROPERTY_SRCFILE , SRCFILE );
+		p.setProperty( BaseItem.PROPERTY_SRCFILEDIR , SRCFILEDIR );
+		p.setProperty( BaseItem.PROPERTY_INSTALLSCRIPT , INSTALLSCRIPT );
+		p.setProperty( BaseItem.PROPERTY_INSTALLPATH , INSTALLPATH );
+		p.setProperty( BaseItem.PROPERTY_INSTALLLINK , INSTALLLINK );
+		p.setProperty( BaseItem.PROPERTY_CHARSET , CHARSET );
 	}
 	
 }

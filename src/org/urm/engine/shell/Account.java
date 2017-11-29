@@ -104,15 +104,15 @@ public class Account {
 			if( dc == null )
 				action.exit1( _Error.UnknownDatacenter1 , "Unable to access account, unknown datacenter=" + datacenter , datacenter );
 			
-			hostAccount = dc.getFinalAccount( action , user + "@" + host );
-			if( hostAccount.host.osType != DBEnumOSType.getValue( osType ) ) {
-				String p1 = Common.getEnumLower( hostAccount.host.osType );
+			hostAccount = dc.getFinalAccount( user + "@" + host );
+			if( hostAccount.host.OS_TYPE != DBEnumOSType.getValue( osType ) ) {
+				String p1 = Common.getEnumLower( hostAccount.host.OS_TYPE );
 				String p2 = Common.getEnumLower( osType );
 				action.exit2( _Error.MismatchedOsType2 , "Mismatched OS type: " + p1 + " != " + p2 , p1 , p2 );
 			}
 			
 			account.IP = hostAccount.host.IP;
-			account.AUTHRESOURCE = hostAccount.AUTHRES;
+			account.AUTHRESOURCE = hostAccount.RESOURCE;
 		}
 		
 		return( account );
@@ -173,9 +173,9 @@ public class Account {
 		if( dc == null )
 			action.exit1( _Error.UnknownDatacenter1 , "Unable to access account, unknown datacenter=" + datacenter , datacenter );
 		
-		HostAccount account = dc.getFinalAccount( action , hostLogin );
-		if( account.host.osType != DBEnumOSType.getValue( osType ) ) {
-			String p1 = Common.getEnumLower( account.host.osType );
+		HostAccount account = dc.getFinalAccount( hostLogin );
+		if( account.host.OS_TYPE != DBEnumOSType.getValue( osType ) ) {
+			String p1 = Common.getEnumLower( account.host.OS_TYPE );
 			String p2 = Common.getEnumLower( osType );
 			action.exit2( _Error.MismatchedOsType2 , "Mismatched OS type: " + p1 + " != " + p2 , p1 , p2 );
 		}
@@ -325,14 +325,14 @@ public class Account {
 
 	public void setHost( ActionBase action , NetworkHost host ) throws Exception {
 		if( isHostName() ) {
-			HOST = host.ID;
+			HOST = host.NAME;
 			IP = host.IP;
 		}
 		else {
 			if( !host.IP.isEmpty() )
 				HOST = IP = host.IP;
 			else
-				HOST = IP = host.ID;
+				HOST = IP = host.NAME;
 		}
 		
 		PORT = host.PORT;
@@ -349,11 +349,11 @@ public class Account {
 			if( dc == null )
 				action.exit1( _Error.UnknownDatacenter1 , "Unable to access resource, unknown datacenter=" + DATACENTER , DATACENTER );
 			
-			HostAccount hostAccount = dc.getFinalAccount( action , hostLogin );
-			if( hostAccount.AUTHRES.isEmpty() )
+			HostAccount hostAccount = dc.getFinalAccount( hostLogin );
+			if( hostAccount.RESOURCE.isEmpty() )
 				action.exit1( _Error.MissingAuthKey1 , "Missing auth resource to login to " + hostLogin , hostLogin );
 			
-			AUTHRESOURCE = hostAccount.AUTHRES;
+			AUTHRESOURCE = hostAccount.RESOURCE;
 		}
 		
 		AuthResource res = action.getResource( AUTHRESOURCE );
@@ -366,4 +366,9 @@ public class Account {
 		return( false );
 	}
 
+	public boolean isAdmin() {
+		if( osType == VarOSTYPE.LINUX && USER.equals( "root" ) )
+			return( true );
+		return( false );
+	}
 }

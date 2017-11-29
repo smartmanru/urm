@@ -36,5 +36,6 @@ public class _Error {
 	public static final int InvalidVersion2 = ErrorBase + 47;
 	public static final int UnknownBaseGroup1 = ErrorBase + 48;
 	public static final int UnknownBaseItem1 = ErrorBase + 49;
+	public static final int UnknownDatacenter1 = ErrorBase + 50;
 	
 }

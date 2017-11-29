@@ -8,6 +8,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.RunError;
+import org.urm.db.core.DBEnumInterface;
 import org.urm.db.core.DBEnums.DBEnumParamRoleType;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.shell.Account;
@@ -248,6 +249,11 @@ public class ObjectProperties {
 		setProperty( prop , "" + value );
 	}
 
+	public void setEnumProperty( String prop , Enum<?> value ) throws Exception {
+		DBEnumInterface e = ( DBEnumInterface )value;
+		setIntProperty( prop , e.code() );
+	}
+	
 	public void setBooleanProperty( String prop , boolean value ) throws Exception {
 		setProperty( prop , Common.getBooleanValue( value ) );
 	}

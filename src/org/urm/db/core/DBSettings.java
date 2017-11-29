@@ -109,13 +109,21 @@ public abstract class DBSettings {
 		PropertyEntity custom = meta.getCustomEntity();
 		for( PropertyValue value : set.getAllProperties() ) {
 			EntityVar var = properties.getVar( value.property );
+			if( !var.isXml() )
+				continue;
+			
 			if( var.isApp() ) {
 				String data = value.getOriginalValue();
 				if( data == null || data.isEmpty() )
 					continue;
 				
-				if( var.isEnum() )
-					data = "" + DBEnums.getEnumValue( var.enumClass , data );
+				if( var.isEnum() ) {
+					int ev = Integer.parseInt( data );
+					if( ev == DBEnums.VALUE_UNKNOWN )
+						continue;
+					
+					data = DBEnums.getEnumValue( var.enumClass , ev );
+				}
 					
 				if( appAsProperties )
 					exportxmlSetProperty( loader , doc , root , var , data , false );
@@ -139,11 +147,11 @@ public abstract class DBSettings {
 	}
 
 	private static void exportxmlSetAttr( EngineLoader loader, Document doc , Element root , EntityVar var , String data ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , var.NAME , data );
+		Common.xmlSetElementAttr( doc , root , var.XMLNAME , data );
 	}
 	
 	private static void exportxmlSetProperty( EngineLoader loader , Document doc , Element root , EntityVar var , String data , boolean defineProp ) throws Exception {
-		Element property = Common.xmlCreatePropertyElement( doc , root , var.NAME , data );
+		Element property = Common.xmlCreatePropertyElement( doc , root , var.XMLNAME , data );
 		if( defineProp )
 			Common.xmlSetElementAttr( doc , property , ATTR_DESC , var.DESC );
 	}
@@ -420,7 +428,7 @@ public abstract class DBSettings {
 		meta.rebuild();
 	}
 
-	public static void savedbAppValues( DBConnection c , int objectId , ObjectProperties properties , int version , String[] dbonlyValues ) throws Exception {
+	public static void modifyAppValues( DBConnection c , int objectId , ObjectProperties properties , int version , String[] dbonlyValues , boolean insert ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity entity = meta.getAppEntity();
 		EntityVar[] vars = entity.getDatabaseVars();
@@ -455,7 +463,7 @@ public abstract class DBSettings {
 				Common.exitUnexpected();
 		}
 
-		DBEngineEntities.insertAppObject( c , entity , objectId , version , values );
+		DBEngineEntities.modifyAppObject( c , entity , objectId , version , values , insert );
 	}
 
 }

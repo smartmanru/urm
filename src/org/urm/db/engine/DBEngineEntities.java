@@ -13,6 +13,13 @@ import org.w3c.dom.Element;
 
 public abstract class DBEngineEntities {
 
+	public static void modifyAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values , boolean insert ) throws Exception {
+		if( insert )
+			insertAppObject( c , entity , id , version , values );
+		else
+			updateAppObject( c , entity , id , version , values );
+	}
+	
 	public static void insertAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values ) throws Exception {
 		EntityVar[] vars = entity.getDatabaseVars();
 		if( vars.length != values.length )
@@ -51,10 +58,10 @@ public abstract class DBEngineEntities {
 		if( vars.length != values.length )
 			Common.exitUnexpected();
 		
-		String query = "update " + entity.APP_TABLE + " ( ";
+		String query = "update " + entity.APP_TABLE + " set ";
 		for( int k = 0; k < vars.length; k++ ) {
 			EntityVar var = vars[ k ];
-			query += "set " + var.DBNAME + " = " + values[ k ] + " , ";
+			query += var.DBNAME + " = " + values[ k ] + " , ";
 		}
 		
 		String fieldVersion = entity.getVersionField();
@@ -91,7 +98,7 @@ public abstract class DBEngineEntities {
 		for( int k = 0; k < vars.length; k++ ) {
 			EntityVar var = vars[ k ];
 			String value = values[ k ];
-			if( value != null && value.isEmpty() )
+			if( value != null && !value.isEmpty() )
 				Common.xmlSetElementAttr( doc , root , var.XMLNAME , value );
 		}
 	}

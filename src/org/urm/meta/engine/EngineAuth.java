@@ -568,11 +568,11 @@ public class EngineAuth extends EngineObject {
 	}
 
 	public boolean checkAccessNetworkAction( ActionBase action , SecurityAction sa , Network network ) {
-		return( checkAccessNetworkAction( action , sa , network.ID , false , false ) );
+		return( checkAccessNetworkAction( action , sa , network.NAME , false , false ) );
 	}
 	
 	public boolean checkAccessNetworkAction( ActionBase action , SecurityAction sa , Network network , boolean configure , boolean allocate ) {
-		return( checkAccessNetworkAction( action , sa , network.ID , configure , allocate ) );
+		return( checkAccessNetworkAction( action , sa , network.NAME , configure , allocate ) );
 	}
 	
 	public boolean checkAccessNetworkAction( ActionBase action , SecurityAction sa , String networkName , boolean configure , boolean allocate ) {
@@ -656,9 +656,9 @@ public class EngineAuth extends EngineObject {
 		ActionBase action = transaction.getAction();
 		boolean authChanged = false;
 		for( AuthGroup group : groups.values() ) {
-			if( group.hasNetwork( network.ID ) ) {
+			if( group.hasNetwork( network.NAME ) ) {
 				authChanged = true;
-				group.removeNetwork( action , network.ID );
+				group.removeNetwork( action , network.NAME );
 				for( String user : group.getUsers( null ) )
 					engine.updatePermissions( action , user );
 			}

@@ -10,6 +10,7 @@ import org.urm.meta.EngineData;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
+import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.EngineBase;
@@ -1047,26 +1048,72 @@ public class TransactionBase extends EngineObject {
 		return( resources );
 	}
 	
+	public EngineResources getResources() {
+		if( resources != null )
+			return( resources );
+		return( data.getResources() );
+	}
+	
 	public EngineBuilders getTransactionBuilders() {
 		return( builders );
+	}
+	
+	public EngineBuilders getBuilders() {
+		if( builders != null )
+			return( builders );
+		return( data.getBuilders() );
 	}
 	
 	public EngineReleaseLifecycles getTransactionLifecycles() {
 		return( lifecycles );
 	}
 	
+	public EngineReleaseLifecycles getLifecycles() {
+		if( lifecycles != null )
+			return( lifecycles );
+		return( data.getReleaseLifecycles() );
+	}
+	
 	public EngineDirectory getTransactionDirectory() {
 		return( directory );
+	}
+	
+	public EngineDirectory getDirectory() {
+		if( directory != null )
+			return( directory );
+		return( data.getDirectory() );
 	}
 	
 	public EngineMirrors getTransactionMirrors() {
 		return( mirrors );
 	}
 	
+	public EngineMirrors getMirrors() {
+		if( mirrors != null )
+			return( mirrors );
+		return( data.getMirrors() );
+	}
+	
 	public EngineSettings getTransactionSettings() {
 		return( settings );
 	}
 	
+	public EngineSettings getSettings() {
+		if( settings != null )
+			return( settings );
+		return( data.getEngineSettings() );
+	}
+	
+	public EngineInfrastructure getTransactionInfrastructure() {
+		return( infra );
+	}
+
+	public EngineInfrastructure getInfrastructure() {
+		if( infra != null )
+			return( infra );
+		return( data.getInfrastructure() );
+	}
+
 	public Meta findTransactionSessionProductMetadata( String productName ) {
 		TransactionMetadata tm = productMeta.get( productName );
 		if( tm == null )
@@ -1075,10 +1122,6 @@ public class TransactionBase extends EngineObject {
 		return( tm.sessionMeta );
 	}
 	
-	public EngineInfrastructure getTransactionInfrastructure() {
-		return( infra );
-	}
-
 	private void addTransactionMeta( Meta meta , TransactionMetadata tm ) {
 		productMeta.put( meta.name , tm );
 	}
@@ -1225,6 +1268,10 @@ public class TransactionBase extends EngineObject {
 
 	public MirrorRepository getMirrorRepository( MirrorRepository repo ) throws Exception {
 		return( mirrors.getRepository( repo.NAME ) );
+	}
+	
+	public Datacenter getDatacenter( Datacenter datacenter ) throws Exception {
+		return( infra.getDatacenter( datacenter.NAME ) );
 	}
 	
 	public void checkSecurityFailed() {

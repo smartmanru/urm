@@ -9,6 +9,7 @@ import org.urm.db.core.DBCoreData;
 import org.urm.db.core.DBNames;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineDirectory;
+import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.db.engine.DBEngineSettings;
 import org.urm.db.system.DBSystemData;
 import org.urm.engine.Engine;
@@ -316,15 +317,17 @@ public class EngineLoader {
 	private void importxmlInfrastructure() throws Exception {
 		trace( "import engine infrastructure data ..." );
 		String infraFile = getInfrastructureFile();
+		Document doc = ConfReader.readXmlFile( execrc , infraFile );
+		Node root = doc.getDocumentElement();
+		
 		EngineInfrastructure infra = data.getInfrastructure();
-		infra.load( infraFile , execrc );
+		DBEngineInfrastructure.importxml( this , infra , root );
 	}
 
 	private void loaddbInfrastructure() throws Exception {
 		trace( "load engine infrastructure data ..." );
-		String infraFile = getInfrastructureFile();
 		EngineInfrastructure infra = data.getInfrastructure();
-		infra.load( infraFile , execrc );
+		DBEngineInfrastructure.loaddb( this , infra );
 	}
 
 	private void loadReleaseLifecycles() throws Exception {
@@ -434,7 +437,7 @@ public class EngineLoader {
 		EngineInfrastructure infra = data.getInfrastructure();
 		Document doc = Common.xmlCreateDoc( "infrastructure" );
 		Element root = doc.getDocumentElement();
-		infra.save( this , doc , root );
+		DBEngineInfrastructure.exportxml( this , infra , doc , root );
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 

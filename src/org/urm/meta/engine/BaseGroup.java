@@ -29,6 +29,7 @@ public class BaseGroup extends EngineObject {
 		itemMap = new HashMap<String,BaseItem>();
 		ID = -1;
 		CV = 0;
+		OFFLINE = false;
 	}
 	
 	@Override
@@ -52,8 +53,18 @@ public class BaseGroup extends EngineObject {
 		return( r );
 	}
 	
+	public boolean isEmpty() {
+		if( itemMap.isEmpty() )
+			return( true );
+		return( false );
+	}
+	
 	public void addItem( BaseItem item ) {
 		itemMap.put( item.NAME , item );
+	}
+
+	public void removeItem( BaseItem item ) {
+		itemMap.remove( item.NAME );
 	}
 
 	public String[] getItemNames() {
@@ -64,18 +75,18 @@ public class BaseGroup extends EngineObject {
 		return( itemMap.values().toArray( new BaseItem[0] ) );
 	}
 
-	public BaseItem findItem( String ID ) {
-		return( itemMap.get( ID ) );
+	public BaseItem findItem( String name ) {
+		return( itemMap.get( name ) );
 	}
 	
-	public void createGroup( String ID , String DESC ) throws Exception {
+	public void createGroup( String name , String desc ) throws Exception {
 		OFFLINE = false;
-		modifyGroup( ID , DESC );
+		modifyGroup( name , desc );
 	}
 	
-	public void modifyGroup( String ID , String DESC ) throws Exception {
-		this.NAME = ID;
-		this.DESC = DESC;
+	public void modifyGroup( String name , String desc ) throws Exception {
+		this.NAME = name;
+		this.DESC = desc;
 	}
 	
 	public void createItem( BaseItem item ) throws Exception {
@@ -88,10 +99,6 @@ public class BaseGroup extends EngineObject {
 	
 	public void modifyItem( BaseItem item ) throws Exception {
 		Common.changeMapKey( itemMap , item , item.NAME );
-	}
-
-	public void deleteItem() throws Exception {
-		super.deleteObject();
 	}
 
 }
