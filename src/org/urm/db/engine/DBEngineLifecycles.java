@@ -161,10 +161,11 @@ public class DBEngineLifecycles {
 
 	private static void modifyPhase( DBConnection c , LifecyclePhase phase , boolean insert ) throws Exception {
 		if( insert )
-			phase.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , phase.NAME , DBEnumObjectType.LIFECYCLEPHASE );
+			phase.ID = DBNames.getNameIndex( c , phase.lc.ID , phase.NAME , DBEnumObjectType.LIFECYCLEPHASE );
 		phase.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppLifecyclePhase , phase.ID , phase.CV , new String[] {
+				EngineDB.getInteger( phase.lc.ID ) ,
 				EngineDB.getString( phase.NAME ) , 
 				EngineDB.getString( phase.DESC ) ,
 				EngineDB.getEnum( phase.LIFECYCLESTAGE_TYPE ) ,

@@ -186,7 +186,7 @@ public class DBEngineInfrastructure {
 		host.createHost( 
 				entity.importxmlStringAttr( root , NetworkHost.PROPERTY_NAME ) ,
 				entity.importxmlStringAttr( root , NetworkHost.PROPERTY_DESC ) ,
-				DBEnumOSType.getValue( entity.importxmlEnumAttr( root , NetworkHost.PROPERTY_DESC ) , true ) ,
+				DBEnumOSType.getValue( entity.importxmlEnumAttr( root , NetworkHost.PROPERTY_OSTYPE ) , true ) ,
 				entity.importxmlStringAttr( root , NetworkHost.PROPERTY_IP ) ,
 				entity.importxmlIntAttr( root , NetworkHost.PROPERTY_PORT ) );
 		modifyHost( c , host , true );

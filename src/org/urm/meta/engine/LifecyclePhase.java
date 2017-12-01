@@ -13,7 +13,7 @@ public class LifecyclePhase extends EngineObject {
 	public static String PROPERTY_START_DAY = "start_day";
 	public static String PROPERTY_DAYS = "days";
 	
-	ReleaseLifecycle lc;
+	public ReleaseLifecycle lc;
 	
 	public int ID;
 	public String NAME;
