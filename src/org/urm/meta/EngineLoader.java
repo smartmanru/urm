@@ -10,6 +10,7 @@ import org.urm.db.core.DBNames;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.engine.DBEngineInfrastructure;
+import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineSettings;
 import org.urm.db.system.DBSystemData;
 import org.urm.engine.Engine;
@@ -24,7 +25,7 @@ import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.engine.EngineRegistry;
-import org.urm.meta.engine.EngineReleaseLifecycles;
+import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine._Error;
@@ -203,10 +204,10 @@ public class EngineLoader {
 		trace( "export engine core data ..." );
 		exportxmlSettings();
 		exportxmlBase();
-		exportxmlInfrastructure();
 		exportxmlReleaseLifecycles();
 		exportxmlMonitoring();
 		exportxmlRegistry();
+		exportxmlInfrastructure();
 	}
 
 	private void exportProduct( String productName ) throws Exception {
@@ -233,10 +234,10 @@ public class EngineLoader {
 				trace( "create new engine core version=" + version + " ..." );
 				importxmlEngineSettings();
 				importxmlBase();
-				importxmlInfrastructure();
-				loadReleaseLifecycles();
+				importxmlReleaseLifecycles();
 				importxmlMonitoring();
 				loadRegistry();
+				importxmlInfrastructure();
 				connection.save( true );
 				trace( "successfully completed import of engine core data" );
 			}
@@ -244,10 +245,10 @@ public class EngineLoader {
 				trace( "load engine core data, version=" + connection.getCoreVersion() + " ..." );
 				loaddbEngineSettings();
 				loaddbBase();
-				loaddbInfrastructure();
-				loadReleaseLifecycles();
+				loaddbReleaseLifecycles();
 				loaddbMonitoring();
 				loadRegistry();
+				loaddbInfrastructure();
 			}
 				
 			// systems
@@ -330,17 +331,20 @@ public class EngineLoader {
 		DBEngineInfrastructure.loaddb( this , infra );
 	}
 
-	private void loadReleaseLifecycles() throws Exception {
-		trace( "load engine lifecycles data ..." );
+	private void importxmlReleaseLifecycles() throws Exception {
+		trace( "import engine lifecycles data ..." );
 		String lcFile = getReleaseLifecyclesFile();
-		EngineReleaseLifecycles lifecycles = data.getReleaseLifecycles();
-		lifecycles.load( lcFile , execrc );
+		Document doc = ConfReader.readXmlFile( execrc , lcFile );
+		Node root = doc.getDocumentElement();
+		
+		EngineLifecycles lifecycles = data.getReleaseLifecycles();
+		DBEngineLifecycles.importxml( this , lifecycles , root );
 	}
 
-	private void loaddbMonitoring() throws Exception {
-		trace( "load engine monitoring data ..." );
-		EngineMonitoring mon = data.getMonitoring();
-		mon.loaddb( this );
+	private void loaddbReleaseLifecycles() throws Exception {
+		trace( "load release lifecycles data ..." );
+		EngineLifecycles lifecycles = data.getReleaseLifecycles();
+		DBEngineLifecycles.loaddb( this , lifecycles );
 	}
 
 	private void importxmlMonitoring() throws Exception {
@@ -351,6 +355,12 @@ public class EngineLoader {
 		
 		EngineMonitoring mon = data.getMonitoring();
 		mon.loadxml( this , root );
+	}
+
+	private void loaddbMonitoring() throws Exception {
+		trace( "load engine monitoring data ..." );
+		EngineMonitoring mon = data.getMonitoring();
+		mon.loaddb( this );
 	}
 
 	private void loadRegistry() throws Exception {
@@ -448,10 +458,10 @@ public class EngineLoader {
 	public void exportxmlReleaseLifecycles() throws Exception {
 		trace( "export engine lifecycles data ..." );
 		String propertyFile = getReleaseLifecyclesFile();
-		EngineReleaseLifecycles lifecycles = data.getReleaseLifecycles();
+		EngineLifecycles lifecycles = data.getReleaseLifecycles();
 		Document doc = Common.xmlCreateDoc( "lifecycles" );
 		Element root = doc.getDocumentElement();
-		lifecycles.save( this , doc , root );
+		DBEngineLifecycles.exportxml( this , lifecycles , doc , root );
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
@@ -514,5 +524,5 @@ public class EngineLoader {
 			Common.exitUnexpected();
 		}
 	}
-	
+
 }

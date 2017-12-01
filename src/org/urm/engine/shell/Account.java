@@ -24,7 +24,7 @@ public class Account {
 	public String IP;
 	public int PORT;
 	public VarOSTYPE osType;
-	public String AUTHRESOURCE;
+	public Integer AUTHRESOURCE;
 
 	private String DATACENTER;
 	
@@ -39,7 +39,6 @@ public class Account {
 		
 		osType = execrc.osType;
 		DATACENTER = "";
-		AUTHRESOURCE = "";
 	}
 	
 	private Account( String user , String host , VarOSTYPE osType ) {
@@ -50,7 +49,6 @@ public class Account {
 		this.osType = osType;
 		IP = "";
 		DATACENTER = "";
-		AUTHRESOURCE = "";
 	}
 	
 	private Account( String user , String host , int port , VarOSTYPE osType ) {
@@ -60,7 +58,6 @@ public class Account {
 		this.osType = osType;
 		IP = "";
 		DATACENTER = "";
-		AUTHRESOURCE = "";
 	}
 	
 	public static Account getLocalAccount( String user , String host , VarOSTYPE osType ) {
@@ -112,18 +109,18 @@ public class Account {
 			}
 			
 			account.IP = hostAccount.host.IP;
-			account.AUTHRESOURCE = hostAccount.RESOURCE;
+			account.AUTHRESOURCE = hostAccount.RESOURCE_ID;
 		}
 		
 		return( account );
 	}
 	
-	public static Account getResourceAccount( ActionBase action , String resource , String user , String host , int port , VarOSTYPE osType ) throws Exception {
+	public static Account getResourceAccount( ActionBase action , AuthResource resource , String user , String host , int port , VarOSTYPE osType ) throws Exception {
 		if( host.isEmpty() || user.isEmpty() )
 			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
 		
 		Account account = new Account( user , host , port , osType );
-		account.AUTHRESOURCE = resource;
+		account.AUTHRESOURCE = AuthResource.getId( resource );
 		
 		if( action.isLocalRun() ||
 			host.equals( "local" ) || host.equals( "localhost" ) ||
@@ -141,7 +138,7 @@ public class Account {
 		return( getDatacenterAccount( action , datacenter , user , host , port , osType ) );
 	}
 
-	public static Account getResourceAccount( ActionBase action , String resource , String hostLogin , int port , VarOSTYPE osType ) throws Exception {
+	public static Account getResourceAccount( ActionBase action , AuthResource resource , String hostLogin , int port , VarOSTYPE osType ) throws Exception {
 		if( hostLogin.isEmpty() )
 			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
 		
@@ -339,7 +336,7 @@ public class Account {
 	}
 
 	public AuthResource getResource( ActionBase action ) throws Exception {
-		if( AUTHRESOURCE.isEmpty() ) {
+		if( AUTHRESOURCE == null ) {
 			String hostLogin = getHostLogin();
 			EngineInfrastructure infra = action.getServerInfrastructure();
 			if( DATACENTER.isEmpty() )
@@ -350,10 +347,10 @@ public class Account {
 				action.exit1( _Error.UnknownDatacenter1 , "Unable to access resource, unknown datacenter=" + DATACENTER , DATACENTER );
 			
 			HostAccount hostAccount = dc.getFinalAccount( hostLogin );
-			if( hostAccount.RESOURCE.isEmpty() )
+			if( hostAccount.RESOURCE_ID == null )
 				action.exit1( _Error.MissingAuthKey1 , "Missing auth resource to login to " + hostLogin , hostLogin );
 			
-			AUTHRESOURCE = hostAccount.RESOURCE;
+			AUTHRESOURCE = hostAccount.RESOURCE_ID;
 		}
 		
 		AuthResource res = action.getResource( AUTHRESOURCE );

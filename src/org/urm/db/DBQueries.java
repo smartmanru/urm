@@ -41,11 +41,6 @@ public abstract class DBQueries {
 	public static String MODIFY_AUTH_DROP_USER0 = "delete from urm_auth_user";
 	public static String MODIFY_AUTH_DROP_GROUP0 = "delete from urm_auth_group";
 	
-	public static String MODIFY_INFRA_DROP_ACCOUNT0 = "delete from urm_account";
-	public static String MODIFY_INFRA_DROP_HOST0 = "delete from urm_host";
-	public static String MODIFY_INFRA_DROP_NETWORK0 = "delete from urm_network";
-	public static String MODIFY_INFRA_DROP_DATACENTER0 = "delete from urm_datacenter";
-
 	public static String MODIFY_BASE_DROP_ITEMDEPS0 = "delete from urm_base_item_deps";
 
 	public static String MODIFY_APP_DROP_SYSTEMPARAMVALUES0 = "delete from urm_object_param_value where param_object_id in ( select system_id from urm_system )";
@@ -60,5 +55,7 @@ public abstract class DBQueries {
 	public static String MODIFY_CORE_DROP_MIRROR0 = "delete from urm_mirror";
 	
 	public static String MODIFY_RELEASES_DROP_BUILDERS0 = "delete from urm_project_builder";
+	
+	public static String MODIFY_LIFECYCLE_DROPPHASES1 = "delete from urm_lifecycle_phase where lifecycle_id = @1@";
 	
 }

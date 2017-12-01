@@ -18,7 +18,7 @@ import org.urm.meta.EngineData;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.urm.meta.engine.ReleaseLifecycle;
-import org.urm.meta.engine.EngineReleaseLifecycles;
+import org.urm.meta.engine.EngineLifecycles;
 
 public abstract class CommandExecutor {
 
@@ -163,8 +163,8 @@ public abstract class CommandExecutor {
 			return( null );
 		
 		EngineData data = engine.getData();
-		EngineReleaseLifecycles lifecycles = data.getReleaseLifecycles();
-		return( lifecycles.getLifecycle( action , value ) );
+		EngineLifecycles lifecycles = data.getReleaseLifecycles();
+		return( lifecycles.getLifecycle( value ) );
 	}
 	
 }

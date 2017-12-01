@@ -23,12 +23,13 @@ import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.Network;
 import org.urm.meta.engine.Product;
 import org.urm.meta.engine.ProjectBuilder;
-import org.urm.meta.engine.EngineReleaseLifecycles;
+import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.engine.EngineAuth.SpecialRights;
+import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -62,7 +63,7 @@ public class TransactionBase extends EngineObject {
 	private boolean SERVERVERSIONUPDATE;
 	
 	public EngineInfrastructure infra;
-	public EngineReleaseLifecycles lifecycles;
+	public EngineLifecycles lifecycles;
 	public EngineBase base;
 	
 	public EngineSettings settings;
@@ -494,7 +495,7 @@ public class TransactionBase extends EngineObject {
 		return( false );
 	}
 
-	public boolean changeReleaseLifecycles( EngineReleaseLifecycles sourceLifecycles ) {
+	public boolean changeReleaseLifecycles( EngineLifecycles sourceLifecycles ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -1064,11 +1065,11 @@ public class TransactionBase extends EngineObject {
 		return( data.getBuilders() );
 	}
 	
-	public EngineReleaseLifecycles getTransactionLifecycles() {
+	public EngineLifecycles getTransactionLifecycles() {
 		return( lifecycles );
 	}
 	
-	public EngineReleaseLifecycles getLifecycles() {
+	public EngineLifecycles getLifecycles() {
 		if( lifecycles != null )
 			return( lifecycles );
 		return( data.getReleaseLifecycles() );
@@ -1272,6 +1273,10 @@ public class TransactionBase extends EngineObject {
 	
 	public Datacenter getDatacenter( Datacenter datacenter ) throws Exception {
 		return( infra.getDatacenter( datacenter.NAME ) );
+	}
+	
+	public ReleaseLifecycle getLifecycle( ReleaseLifecycle lc ) throws Exception {
+		return( lifecycles.getLifecycle( lc.ID ) );
 	}
 	
 	public void checkSecurityFailed() {

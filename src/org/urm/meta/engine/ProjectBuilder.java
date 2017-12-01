@@ -352,7 +352,8 @@ public class ProjectBuilder extends EngineObject {
 	public Account getRemoteAccount( ActionBase action ) throws Exception {
 		if( !REMOTE )
 			return( action.getLocalAccount() );
-		return( Account.getResourceAccount( action , REMOTE_AUTHRESOURCE , REMOTE_HOSTLOGIN , REMOTE_PORT , REMOTE_OS_TYPE ) );
+		AuthResource rc = action.getResource( REMOTE_AUTHRESOURCE );
+		return( Account.getResourceAccount( action , rc , REMOTE_HOSTLOGIN , REMOTE_PORT , REMOTE_OS_TYPE ) );
 	}
 
 	public ShellExecutor createShell( ActionBase action , boolean dedicated ) throws Exception {

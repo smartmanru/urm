@@ -6,6 +6,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineInfrastructure;
+import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.ScheduleProperties;
@@ -26,7 +27,7 @@ import org.urm.meta.engine.NetworkHost;
 import org.urm.meta.engine.Product;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine.ReleaseLifecycle;
-import org.urm.meta.engine.ReleaseLifecyclePhase;
+import org.urm.meta.engine.LifecyclePhase;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -247,35 +248,35 @@ public class EngineTransaction extends TransactionBase {
 	// ################################################################################
 	// LIFECYCLES
 	
-	public ReleaseLifecycle createLifecycleType( ReleaseLifecycle lc ) throws Exception {
+	public ReleaseLifecycle createLifecycleType( String name , String desc , DBEnumLifecycleType type , boolean regular , int daysRelease , int daysDeploy , int shiftDays ) throws Exception {
 		checkTransactionReleaseLifecycles();
-		return( lifecycles.createLifecycle( this , lc ) );
+		return( DBEngineLifecycles.createLifecycle( this , lifecycles , name , desc , type , regular , daysRelease , daysDeploy , shiftDays ) );
 	}
 	
-	public void updateLifecycleType( ReleaseLifecycle lc , ReleaseLifecycle lcNew ) throws Exception {
+	public void modifyLifecycleType( ReleaseLifecycle lc , String name , String desc , DBEnumLifecycleType type , boolean regular , int daysRelease , int daysDeploy , int shiftDays ) throws Exception {
 		checkTransactionReleaseLifecycles();
-		lc.setLifecycleData( this , lcNew );
+		DBEngineLifecycles.modifyLifecycle( this , lifecycles , lc , name , desc , type , regular , daysRelease , daysDeploy , shiftDays );
 	}
 	
 	public void deleteLifecycleType( ReleaseLifecycle lc ) throws Exception {
 		checkTransactionReleaseLifecycles();
-		lifecycles.deleteLifecycle( this , lc );
+		DBEngineLifecycles.deleteLifecycle( this , lifecycles , lc );
 		lc.deleteObject();
 	}
 	
 	public ReleaseLifecycle copyLifecycleType( ReleaseLifecycle lc , String name , String desc ) throws Exception {
 		checkTransactionReleaseLifecycles();
-		return( lifecycles.copyLifecycle( this , lc , name , desc ) );
+		return( DBEngineLifecycles.copyLifecycle( this , lifecycles , lc , name , desc ) );
 	}
 	
 	public void enableLifecycleType( ReleaseLifecycle lc , boolean enable ) throws Exception {
 		checkTransactionReleaseLifecycles();
-		lc.enableLifecycle( this , enable );
+		DBEngineLifecycles.enableLifecycle( this , lifecycles , lc , enable );
 	}
 	
-	public void changeLifecyclePhases( ReleaseLifecycle lc , ReleaseLifecyclePhase[] phases ) throws Exception {
+	public void changeLifecyclePhases( ReleaseLifecycle lc , LifecyclePhase[] phases ) throws Exception {
 		checkTransactionReleaseLifecycles();
-		lc.changePhases( this , phases );
+		DBEngineLifecycles.changePhases( this , lifecycles , lc , phases );
 	}
 	
 	// ################################################################################
@@ -331,14 +332,14 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineInfrastructure.deleteHost( this , infra , host );
 	}
 	
-	public HostAccount createHostAccount( NetworkHost host , String user , boolean admin , String resource ) throws Exception {
+	public HostAccount createHostAccount( NetworkHost host , String user , String desc , boolean admin , Integer resourceId ) throws Exception {
 		checkTransactionInfrastructure();
-		return( DBEngineInfrastructure.createAccount( this , infra , host , user , admin , resource ) );
+		return( DBEngineInfrastructure.createAccount( this , infra , host , user , desc , admin , resourceId ) );
 	}
 	
-	public void modifyHostAccount( HostAccount account , String user , boolean admin , String resource , boolean refRename ) throws Exception {
+	public void modifyHostAccount( HostAccount account , String user , String desc , boolean admin , Integer resourceId , boolean refRename ) throws Exception {
 		checkTransactionInfrastructure();
-		DBEngineInfrastructure.modifyAccount( this , infra , account , user , admin , resource );
+		DBEngineInfrastructure.modifyAccount( this , infra , account , user , desc , admin , resourceId );
 	}
 	
 	public HostAccount createHostAccount( Network network , Account account , AuthResource resource ) throws Exception {
@@ -349,8 +350,7 @@ public class EngineTransaction extends TransactionBase {
 			host = createNetworkHost( network , account.HOST , null , type , account.IP , account.PORT );
 		}
 		
-		String ACCRES = ( resource == null )? "" : resource.NAME;
-		return( createHostAccount( host , account.USER , account.isAdmin() , ACCRES ) );
+		return( createHostAccount( host , account.USER , null , account.isAdmin() , resource.ID ) );
 	}
 	
 	public void deleteHostAccount( HostAccount account ) throws Exception {

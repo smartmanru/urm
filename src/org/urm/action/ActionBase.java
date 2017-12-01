@@ -54,7 +54,7 @@ import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.Product;
 import org.urm.meta.engine.ProjectBuilder;
-import org.urm.meta.engine.EngineReleaseLifecycles;
+import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.EngineAuth.SecurityAction;
@@ -797,7 +797,7 @@ abstract public class ActionBase extends ActionCore {
 		return( actionInit.getServerInfrastructure() );
 	}
 	
-	public EngineReleaseLifecycles getServerReleaseLifecycles() {
+	public EngineLifecycles getServerReleaseLifecycles() {
 		return( actionInit.getServerReleaseLifecycles() );
 	}
 	
@@ -860,6 +860,12 @@ abstract public class ActionBase extends ActionCore {
 	public AuthResource getResource( String name ) throws Exception {
 		EngineResources resources = getServerResources();
 		AuthResource res = resources.getResource( name );
+		return( res );
+	}
+	
+	public AuthResource getResource( Integer id ) throws Exception {
+		EngineResources resources = getServerResources();
+		AuthResource res = resources.getResource( id );
 		return( res );
 	}
 	

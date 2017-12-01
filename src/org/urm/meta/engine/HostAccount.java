@@ -22,7 +22,7 @@ public class HostAccount extends EngineObject {
 	public String NAME;
 	public String DESC;
 	public boolean ADMIN;
-	public String RESOURCE;
+	public Integer RESOURCE_ID;
 	public int CV;
 	
 	public HostAccount( NetworkHost host ) {
@@ -44,7 +44,7 @@ public class HostAccount extends EngineObject {
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.ADMIN = ADMIN;
-		r.RESOURCE = RESOURCE;
+		r.RESOURCE_ID = RESOURCE_ID;
 		r.CV = CV;
 		return( r );
 	}
@@ -53,14 +53,15 @@ public class HostAccount extends EngineObject {
 		return( NAME + "@" + host.NAME );
 	}
 
-	public void createAccount( String user , boolean isAdmin , String resource ) throws Exception {
-		modifyAccount( user , isAdmin , resource );
+	public void createAccount( String user , String desc , boolean isAdmin , Integer resource_id ) throws Exception {
+		modifyAccount( user , desc , isAdmin , resource_id );
 	}
 	
-	public void modifyAccount( String user , boolean isAdmin , String resource ) throws Exception {
+	public void modifyAccount( String user , String desc , boolean isAdmin , Integer resource_id ) throws Exception {
 		this.NAME = user;
+		this.DESC = desc;
 		this.ADMIN = isAdmin;
-		this.RESOURCE = resource;
+		this.RESOURCE_ID = resource_id;
 	}
 
 	public void getApplicationReferences( List<AccountReference> refs ) {

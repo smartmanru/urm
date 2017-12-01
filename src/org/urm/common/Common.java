@@ -1032,6 +1032,9 @@ public class Common {
 		for( Entry<String,?> entry : map.entrySet() ) {
 			if( entry.getValue() == value ) {
 				if( !newKey.equals( entry.getKey() ) ) {
+					if( map.containsKey( newKey ) )
+						exitUnexpected();
+					
 					map.remove( entry.getKey() );
 					map.put( newKey , value );
 					return( true );

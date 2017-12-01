@@ -76,7 +76,7 @@ public abstract class DBSystem {
 				ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
 				
 				AppSystem system = new AppSystem( directory , props );
-				system.ID = entity.getId( rs );
+				system.ID = entity.loaddbId( rs );
 				system.NAME = rs.getString( 2 );
 				system.DESC = rs.getString( 3 );
 				system.OFFLINE = rs.getBoolean( 4 );

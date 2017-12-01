@@ -125,9 +125,8 @@ public abstract class DBEngineBase {
 		PropertyEntity entity = entities.entityAppBaseGroup;
 		
 		BaseGroup group = new BaseGroup( category );
-		group.NAME = entity.getAttrValue( root , BaseGroup.PROPERTY_NAME );
-		group.DESC = entity.getAttrValue( root , BaseGroup.PROPERTY_DESC );
-		group.OFFLINE = entity.getBooleanAttrValue( root , BaseGroup.PROPERTY_OFFLINE , true );
+		group.createGroup( entity.importxmlStringAttr( root , BaseGroup.PROPERTY_NAME ) , entity.importxmlStringAttr( root , BaseGroup.PROPERTY_DESC ) );
+		group.setOffline( entity.importxmlBooleanAttr( root , BaseGroup.PROPERTY_OFFLINE , true ) );
 		modifyGroup( c , group , true );
 		
 		Node[] list = ConfReader.xmlGetChildren( root , ELEMENT_ITEM );
@@ -161,13 +160,44 @@ public abstract class DBEngineBase {
 	}
 
 	public static void exportxml( EngineLoader loader , EngineBase base , Document doc , Element root ) throws Exception {
-		for( String id : base.getCategories() ) {
+		for( String id : base.getCategoryNames() ) {
 			BaseCategory category = base.findCategory( id );
 			Element node = Common.xmlCreateElement( doc , root , ELEMENT_CATEGORY );
 			exportxmlCategory( loader , category , doc , node );
 		}
 	}
 
+	public static void exportxmlCategory( EngineLoader loader , BaseCategory category , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , BaseCategory.PROPERTY_TYPE , Common.getEnumLower( category.BASECATEGORY_TYPE ) );
+		
+		for( String name : category.getGroupNames() ) {
+			BaseGroup group = category.findGroup( name );
+			Element element = Common.xmlCreateElement( doc , root , ELEMENT_GROUP );
+			exportxmlGroup( loader , group , doc , element );
+		}
+	}
+
+	public static void exportxmlGroup( EngineLoader loader , BaseGroup group , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppBaseGroup;
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlEnum( group.category.BASECATEGORY_TYPE ) ,
+				entity.exportxmlString( group.NAME ) ,
+				entity.exportxmlString( group.DESC ) ,
+				entity.exportxmlBoolean( group.OFFLINE )
+		});
+		
+		for( String name : group.getItemNames() ) {
+			BaseItem item = group.findItem( name );
+			Element element = Common.xmlCreateElement( doc , root , ELEMENT_ITEM );
+			exportxmlItem( loader , item , doc , element );
+		}
+	}
+
+	public static void exportxmlItem( EngineLoader loader , BaseItem item , Document doc , Element root ) throws Exception {
+		DBSettings.exportxml( loader , doc , root , item.p , false );
+	}
+	
 	public static void loaddb( EngineLoader loader , EngineBase base ) throws Exception {
 		loaddbGroups( loader , base );
 		loaddbItems( loader , base );
@@ -181,16 +211,16 @@ public abstract class DBEngineBase {
 		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
 		try {
 			while( rs.next() ) {
-				DBEnumBaseCategoryType type = DBEnumBaseCategoryType.getValue( entity.getEnum( rs , FIELD_GROUP_CATEGORY ) , true );
+				DBEnumBaseCategoryType type = DBEnumBaseCategoryType.getValue( entity.loaddbEnum( rs , FIELD_GROUP_CATEGORY ) , true );
 				BaseCategory category = base.getCategory( type );
 				
 				BaseGroup group = new BaseGroup( category );
-				group.ID = entity.getId( rs );
-				group.CV = entity.getVersion( rs );
-				
-				group.NAME = entity.getString( rs , BaseGroup.PROPERTY_NAME );
-				group.DESC = entity.getString( rs , BaseGroup.PROPERTY_DESC );
-				group.OFFLINE = entity.getBoolean( rs , BaseGroup.PROPERTY_OFFLINE );
+				group.ID = entity.loaddbId( rs );
+				group.CV = entity.loaddbVersion( rs );
+				group.createGroup( 
+						entity.loaddbString( rs , BaseGroup.PROPERTY_NAME ) , 
+						entity.loaddbString( rs , BaseGroup.PROPERTY_DESC ) );
+				group.setOffline( entity.loaddbBoolean( rs , BaseGroup.PROPERTY_OFFLINE ) );
 						
 				base.addGroup( group );
 			}
@@ -210,15 +240,15 @@ public abstract class DBEngineBase {
 		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
 		try {
 			while( rs.next() ) {
-				int groupId = entity.getInt( rs , FIELD_ITEM_GROUP_ID );
+				int groupId = entity.loaddbInt( rs , FIELD_ITEM_GROUP_ID );
 				BaseGroup group = base.getGroup( groupId );
 		
 				ObjectProperties p = entities.createBaseItemProps( pe );
 				DBEngineEntities.loaddbAppObject( rs , p );
 				
 				BaseItem item = new BaseItem( group , p );
-				item.ID = entity.getId( rs );
-				item.CV = entity.getVersion( rs );
+				item.ID = entity.loaddbId( rs );
+				item.CV = entity.loaddbVersion( rs );
 				item.scatterProperties();
 						
 				base.addItem( item );
@@ -229,34 +259,6 @@ public abstract class DBEngineBase {
 		}
 	}
 	
-	public static void exportxmlItem( EngineLoader loader , BaseItem item , Document doc , Element root ) throws Exception {
-		DBSettings.exportxml( loader , doc , root , item.p , false );
-	}
-	
-	public static void exportxmlGroup( EngineLoader loader , BaseGroup group , Document doc , Element root ) throws Exception {
-		EngineEntities entities = loader.getEntities();
-		DBEngineEntities.exportxmlAppObject( doc , root , entities.entityAppBaseGroup , new String[] {
-				EngineDB.getXmlEnum( group.category.BASECATEGORY_TYPE ) ,
-				EngineDB.getXmlString( group.NAME ) ,
-				EngineDB.getXmlString( group.DESC ) ,
-				EngineDB.getXmlBoolean( group.OFFLINE )
-		});
-		
-		for( BaseItem item : group.getItems() ) {
-			Element element = Common.xmlCreateElement( doc , root , ELEMENT_ITEM );
-			exportxmlItem( loader , item , doc , element );
-		}
-	}
-
-	public static void exportxmlCategory( EngineLoader loader , BaseCategory category , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , BaseCategory.PROPERTY_TYPE , Common.getEnumLower( category.BASECATEGORY_TYPE ) );
-		
-		for( BaseGroup group : category.getGroups() ) {
-			Element element = Common.xmlCreateElement( doc , root , ELEMENT_GROUP );
-			exportxmlGroup( loader , group , doc , element );
-		}
-	}
-
 	public static void modifyItem( DBConnection c , BaseItem item , boolean insert ) throws Exception {
 		if( insert )
 			item.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , item.NAME , DBEnumObjectType.BASE_ITEM );

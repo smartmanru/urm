@@ -50,13 +50,11 @@ public abstract class DBCoreData {
 
 	public static void dropCoreInfraData( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		boolean res = true;
-		res = ( res )? c.update( DBQueries.MODIFY_INFRA_DROP_ACCOUNT0 ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_INFRA_DROP_HOST0 ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_INFRA_DROP_NETWORK0 ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_INFRA_DROP_DATACENTER0 ) : false;
-		if( !res )
-			Common.exitUnexpected();
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.dropAppObjects( c , entities.entityAppHostAccount );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppNetworkHost );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppNetwork );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppDatacenter );
 	}
 	
 	public static void dropCoreBaseData( EngineLoader loader ) throws Exception {

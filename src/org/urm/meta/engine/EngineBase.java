@@ -124,7 +124,7 @@ public class EngineBase extends EngineObject {
 		return( item );
 	}
 
-	public String[] getCategories() {
+	public String[] getCategoryNames() {
 		return( Common.getSortedKeys( mapCategory ) );
 	}
 

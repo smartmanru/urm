@@ -53,8 +53,8 @@ public class Datacenter extends EngineObject {
 		mapNetworks.put( net.NAME , net );
 	}
 	
-	public Network findNetwork( String id ) {
-		return( mapNetworks.get( id ) );
+	public Network findNetwork( String name) {
+		return( mapNetworks.get( name ) );
 	}
 	
 	public String[] getNetworkNames() {
@@ -82,9 +82,9 @@ public class Datacenter extends EngineObject {
 		mapNetworks.remove( network.NAME );
 	}
 
-	public NetworkHost findNetworkHost( String id ) {
+	public NetworkHost findNetworkHost( String name ) {
 		for( Network network : mapNetworks.values() ) {
-			NetworkHost host = network.findHost( id );
+			NetworkHost host = network.findHost( name );
 			if( host != null )
 				return( host );
 		}

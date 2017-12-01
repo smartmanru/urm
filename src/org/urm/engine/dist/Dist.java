@@ -20,7 +20,7 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.Types;
 import org.urm.meta.engine.ReleaseLifecycle;
-import org.urm.meta.engine.EngineReleaseLifecycles;
+import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
@@ -993,12 +993,12 @@ public class Dist {
 			}
 			else {
 				if( lc != null ) {
-					if( !expected.equals( lc.ID ) )
-						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.ID );
+					if( !expected.equals( lc.NAME ) )
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.NAME );
 					return( lc );
 				}
 				
-				EngineReleaseLifecycles lifecycles = action.getServerReleaseLifecycles();
+				EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
 				return( lifecycles.findLifecycle( expected ) );
 			}
 		}
@@ -1011,12 +1011,12 @@ public class Dist {
 			}
 			else {
 				if( lc != null ) {
-					if( !expected.equals( lc.ID ) )
-						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.ID );
+					if( !expected.equals( lc.NAME ) )
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.NAME );
 					return( lc );
 				}
 				
-				EngineReleaseLifecycles lifecycles = action.getServerReleaseLifecycles();
+				EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
 				return( lifecycles.findLifecycle( expected ) );
 			}
 		}
@@ -1029,8 +1029,8 @@ public class Dist {
 			}
 			else {
 				if( lc != null ) {
-					if( Common.getIndexOf( expected , lc.ID ) < 0 )
-						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.ID );
+					if( Common.getIndexOf( expected , lc.NAME ) < 0 )
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.NAME );
 					return( lc );
 				}
 				
@@ -1055,7 +1055,7 @@ public class Dist {
 					EngineBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
 					
 					if( item != null ) {
-						releaseDate = Common.addDays( item.repoItem.dist.release.schedule.releaseDate , lc.shiftDays );
+						releaseDate = Common.addDays( item.repoItem.dist.release.schedule.releaseDate , lc.SHIFT_DAYS );
 						return( releaseDate );
 					}
 				}

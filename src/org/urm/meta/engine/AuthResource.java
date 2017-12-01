@@ -25,6 +25,7 @@ public class AuthResource extends EngineObject {
 
 	PropertySet properties;
 	
+	public int ID;
 	public String NAME;
 	public DBEnumResourceType rcType;
 	public String BASEURL;
@@ -44,6 +45,12 @@ public class AuthResource extends EngineObject {
 	@Override
 	public String getName() {
 		return( NAME );
+	}
+
+	public static Integer getId( AuthResource resource ) {
+		if( resource == null )
+			return( null );
+		return( resource.ID );
 	}
 	
 	public AuthResource copy( EngineResources resources ) throws Exception {
@@ -205,7 +212,7 @@ public class AuthResource extends EngineObject {
 	public boolean sshVerify( ActionBase action , VarOSTYPE osType , String host , int port , String user ) {
 		try {
 			loadAuthData();
-			Account account = Account.getResourceAccount( action , NAME , user , host , port , osType );
+			Account account = Account.getResourceAccount( action , this , user , host , port , osType );
 			EngineShellPool pool = action.engine.shellPool;
 			ShellExecutor shell = pool.createDedicatedRemoteShell( action , action.context.stream , account , this , false );
 			
@@ -234,5 +241,5 @@ public class AuthResource extends EngineObject {
 		}
 		return( false );
 	}
-	
+
 }

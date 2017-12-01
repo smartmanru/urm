@@ -12,8 +12,8 @@ import org.urm.meta.OwnerObjectVersion;
 
 public abstract class DBVersions {
 
-	public static int APP_ID = 0;
-	public static int CORE_ID = 1;
+	public static int APP_ID = 1;
+	public static int CORE_ID = 2;
 	
 	public static OwnerObjectVersion readObjectVersion( DBConnection c , int id , DBEnumObjectVersionType type ) throws Exception {
 		ResultSet rc = c.query( DBQueries.QUERY_VERSIONS_GETVERSION1 , new String[] { "" + id } );

@@ -21,7 +21,7 @@ import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.engine.EngineRegistry;
-import org.urm.meta.engine.EngineReleaseLifecycles;
+import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.Product;
@@ -136,7 +136,7 @@ public class EngineData {
 		}
 	}
 
-	public EngineReleaseLifecycles getReleaseLifecycles() {
+	public EngineLifecycles getReleaseLifecycles() {
 		synchronized( engine ) {
 			return( core.getLifecycles() );
 		}

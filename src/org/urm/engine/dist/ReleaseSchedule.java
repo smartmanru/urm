@@ -8,8 +8,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.engine.ReleaseLifecycle;
-import org.urm.meta.engine.ReleaseLifecyclePhase;
-import org.urm.meta.engine.EngineReleaseLifecycles;
+import org.urm.meta.engine.LifecyclePhase;
+import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -163,16 +163,16 @@ public class ReleaseSchedule {
 	}
 	
 	public void createReleaseSchedule( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
-		this.LIFECYCLE = ( lc == null )? "" : lc.ID;
+		this.LIFECYCLE = ( lc == null )? "" : lc.NAME;
 		currentPhase = ( lc == null )? -1 : 0;
 		phases.clear();
 		
 		if( lc != null ) {
-			if( !lc.enabled )
-				action.exit1( _Error.DisabledLifecycle1 , "Release lifecycle " + lc.ID + " is currently disabled" , lc.ID );
+			if( !lc.ENABLED )
+				action.exit1( _Error.DisabledLifecycle1 , "Release lifecycle " + lc.NAME + " is currently disabled" , lc.NAME );
 			
 			int pos = 0;
-			for( ReleaseLifecyclePhase lcPhase : lc.getPhases() ) {
+			for( LifecyclePhase lcPhase : lc.getPhases() ) {
 				ReleaseSchedulePhase phase = new ReleaseSchedulePhase( meta , this );
 				phase.create( action , lcPhase , pos );
 				phases.add( phase );
@@ -242,7 +242,7 @@ public class ReleaseSchedule {
 		if( LIFECYCLE.isEmpty() )
 			return( null );
 		
-		EngineReleaseLifecycles lifecycles = action.getServerReleaseLifecycles();
+		EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
 		return( lifecycles.findLifecycle( LIFECYCLE ) );
 	}
 

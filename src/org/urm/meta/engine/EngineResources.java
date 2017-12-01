@@ -20,12 +20,14 @@ public class EngineResources extends EngineObject {
 	public EngineRegistry registry;
 	
 	Map<String,AuthResource> resourceMap;
+	Map<Integer,AuthResource> resourceMapById;
 
 	public EngineResources( EngineRegistry registry ) {
 		super( registry );
 		this.registry = registry;
 		
 		resourceMap = new HashMap<String,AuthResource>();
+		resourceMapById = new HashMap<Integer,AuthResource>();
 	}
 
 	@Override
@@ -38,7 +40,7 @@ public class EngineResources extends EngineObject {
 		
 		for( AuthResource res : resourceMap.values() ) {
 			AuthResource rc = res.copy( r );
-			r.resourceMap.put( rc.NAME , rc );
+			r.addResource( rc );
 		}
 		return( r );
 	}
@@ -66,8 +68,18 @@ public class EngineResources extends EngineObject {
 		}
 	}
 
+	public void addResource( AuthResource rc ) {
+		resourceMap.put( rc.NAME , rc );
+		resourceMapById.put( rc.ID , rc );
+	}
+	
 	public AuthResource findResource( String name ) {
 		AuthResource res = resourceMap.get( name );
+		return( res );
+	}
+
+	public AuthResource findResource( Integer id ) {
+		AuthResource res = resourceMapById.get( id );
 		return( res );
 	}
 
@@ -75,6 +87,13 @@ public class EngineResources extends EngineObject {
 		AuthResource res = resourceMap.get( name );
 		if( res == null )
 			Common.exit1( _Error.UnknownResource1 , "unknown resource=" + name , name );
+		return( res );
+	}
+
+	public AuthResource getResource( Integer id ) throws Exception {
+		AuthResource res = resourceMapById.get( id );
+		if( res == null )
+			Common.exit1( _Error.UnknownResource1 , "unknown resource=" + id , "" + id );
 		return( res );
 	}
 

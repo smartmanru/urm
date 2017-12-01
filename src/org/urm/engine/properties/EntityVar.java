@@ -156,7 +156,7 @@ public class EntityVar {
 	}
 	
 	public static EntityVar metaObjectVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , DBEnumObjectType objectType , boolean required ) {
-		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.STRING , objectType , required , null , null ) );
+		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , objectType , required , null , null ) );
 	}
 	
 	public static EntityVar meta( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , DBEnumParamValueType type , DBEnumObjectType objectType , boolean required , String defValue , Class<?> enumClass ) {
@@ -219,6 +219,12 @@ public class EntityVar {
 		return( false );
 	}
 
+	public boolean isObject() {
+		if( OBJECT_TYPE != DBEnumObjectType.UNKNOWN )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isDatabaseOnly() {
 		if( DBNAME != null && XMLNAME == null )
 			return( true );

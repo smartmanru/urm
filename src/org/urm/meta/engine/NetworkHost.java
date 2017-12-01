@@ -88,7 +88,7 @@ public class NetworkHost extends EngineObject {
 		this.PORT = port;
 	}
 
-	public String[] getAccounts() {
+	public String[] getAccountNames() {
 		return( Common.getSortedKeys( accountMap ) );
 	}
 

@@ -89,6 +89,10 @@ public class BaseGroup extends EngineObject {
 		this.DESC = desc;
 	}
 	
+	public void setOffline( boolean offline ) {
+		this.OFFLINE = offline;
+	}
+	
 	public void createItem( BaseItem item ) throws Exception {
 		addItem( item );
 	}

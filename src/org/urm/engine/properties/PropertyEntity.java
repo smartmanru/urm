@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.urm.db.core.DBEnums;
 import org.urm.db.core.DBVersions;
 import org.w3c.dom.Node;
 import org.urm.common.Common;
@@ -13,6 +14,10 @@ import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
+import org.urm.meta.EngineData;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.engine.AuthResource;
+import org.urm.meta.engine.EngineResources;
 
 public class PropertyEntity {
 
@@ -153,27 +158,55 @@ public class PropertyEntity {
 		return( null );
 	}
 
-	public String getAttrValue( Node root , String prop ) throws Exception {
+	public String importxmlStringAttr( Node root , String prop ) throws Exception {
 		EntityVar var = findVar( prop );
 		if( var == null )
 			Common.exitUnexpected();
 		return( ConfReader.getAttrValue( root , var.XMLNAME ) );
 	}
 	
-	public int getIntAttrValue( Node root , String prop ) throws Exception {
-		EntityVar var = findVar( prop );
-		if( var == null )
-			Common.exitUnexpected();
-		return( ConfReader.getIntegerAttrValue( root , var.XMLNAME , 0 ) );
-	}
-	
-	public boolean getBooleanAttrValue( Node root , String prop , boolean defValue ) throws Exception {
+	public boolean importxmlBooleanAttr( Node root , String prop , boolean defValue ) throws Exception {
 		EntityVar var = findVar( prop );
 		if( var == null )
 			Common.exitUnexpected();
 		return( ConfReader.getBooleanAttrValue( root , var.XMLNAME , defValue ) );
 	}
 
+	public int importxmlIntAttr( Node root , String prop ) throws Exception {
+		EntityVar var = findVar( prop );
+		if( var == null )
+			Common.exitUnexpected();
+		return( ConfReader.getIntegerAttrValue( root , var.XMLNAME , 0 ) );
+	}
+	
+	public int importxmlEnumAttr( Node root , String prop ) throws Exception {
+		EntityVar var = findVar( prop );
+		if( var == null )
+			Common.exitUnexpected();
+		String xmlvalue = ConfReader.getAttrValue( root , var.XMLNAME );
+		return( DBEnums.getEnumCode( var.enumClass ,  xmlvalue ) );
+	}
+	
+	public Integer importxmlObjectAttr( EngineLoader loader , Node root , String prop ) throws Exception {
+		EntityVar var = findVar( prop );
+		if( var == null )
+			Common.exitUnexpected();
+		
+		String value = ConfReader.getAttrValue( root , var.XMLNAME );
+		if( value.isEmpty() )
+			return( null );
+		
+		if( var.OBJECT_TYPE == DBEnumObjectType.RESOURCE ) {
+			EngineData data = loader.getData();
+			EngineResources resources = data.getResources();
+			AuthResource resource = resources.getResource( value );
+			return( resource.ID );
+		}
+		
+		Common.exitUnexpected();
+		return( null );
+	}
+	
 	public int getDatabaseOnlyVarCount() {
 		int n = 0;
 		for( EntityVar var : dblist ) {
@@ -194,32 +227,79 @@ public class PropertyEntity {
 		return( var.databaseColumn );
 	}
 
-	public String getString( ResultSet rs , String prop ) throws Exception {
+	public String loaddbString( ResultSet rs , String prop ) throws Exception {
 		int column = getDatabaseColumn( prop );
 		return( rs.getString( column ) );
 	}
 	
-	public int getInt( ResultSet rs , String prop ) throws Exception {
+	public int loaddbInt( ResultSet rs , String prop ) throws Exception {
 		int column = getDatabaseColumn( prop );
 		return( rs.getInt( column ) );
 	}
 	
-	public int getEnum( ResultSet rs , String prop ) throws Exception {
+	public int loaddbEnum( ResultSet rs , String prop ) throws Exception {
 		int column = getDatabaseColumn( prop );
 		return( rs.getInt( column ) );
 	}
 	
-	public boolean getBoolean( ResultSet rs , String prop ) throws Exception {
+	public boolean loaddbBoolean( ResultSet rs , String prop ) throws Exception {
 		int column = getDatabaseColumn( prop );
 		return( rs.getBoolean( column ) );
 	}
 
-	public int getId( ResultSet rs ) throws Exception {
+	public Integer loaddbObject( ResultSet rs , String prop ) throws Exception {
+		int column = getDatabaseColumn( prop );
+		int value = rs.getInt( column );
+		if( value == 0 )
+			return( null );
+		return( value );
+	}
+
+	public int loaddbId( ResultSet rs ) throws Exception {
 		return( rs.getInt( 1 ) );
 	}
 	
-	public int getVersion( ResultSet rs ) throws Exception {
+	public int loaddbVersion( ResultSet rs ) throws Exception {
 		return( rs.getInt( dblist.size() + 2 ) );
 	}
+	
+	public String exportxmlString( String value ) {
+		return( value );
+	}
+	
+	public String exportxmlEnum( Enum<?> value ) {
+		return( value.name().toLowerCase() );
+	}
+	
+	public String exportxmlBoolean( boolean value ) {
+		return( Common.getBooleanValue( value ) );
+	}
+	
+	public String exportxmlInt( int value ) {
+		return( "" + value );
+	}
+	
+	public String exportxmlObject( EngineLoader loader , String prop , Integer value ) throws Exception {
+		EntityVar var = findVar( prop );
+		if( var == null )
+			Common.exitUnexpected();
+		
+		if( !var.isObject() )
+			Common.exitUnexpected();
+		
+		if( value == null )
+			return( null );
+		
+		if( var.OBJECT_TYPE == DBEnumObjectType.RESOURCE ) {
+			EngineData data = loader.getData();
+			EngineResources resources = data.getResources();
+			AuthResource resource = resources.getResource( value );
+			return( resource.NAME );
+		}
+		
+		Common.exitUnexpected();
+		return( null );
+	}
+	
 	
 }

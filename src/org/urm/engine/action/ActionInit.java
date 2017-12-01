@@ -24,7 +24,7 @@ import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.Product;
 import org.urm.meta.engine.EngineRegistry;
-import org.urm.meta.engine.EngineReleaseLifecycles;
+import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.Meta;
@@ -172,7 +172,7 @@ public class ActionInit extends ActionBase {
 		return( data.getInfrastructure() );
 	}
 	
-	public EngineReleaseLifecycles getActiveReleaseLifecycles() {
+	public EngineLifecycles getActiveReleaseLifecycles() {
 		if( transaction != null ) {
 			if( transaction.lifecycles != null )
 				return( transaction.lifecycles );
@@ -188,7 +188,7 @@ public class ActionInit extends ActionBase {
 		return( data.getEngineBase() );
 	}
 
-	public EngineReleaseLifecycles getServerReleaseLifecycles() {
+	public EngineLifecycles getServerReleaseLifecycles() {
 		return( data.getReleaseLifecycles() );
 	}
 	

@@ -6,6 +6,7 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineContext;
 import org.urm.db.engine.DBEngineInfrastructure;
+import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineSettings;
 import org.urm.db.system.DBSystem;
@@ -51,6 +52,8 @@ public class EngineEntities {
 	public PropertyEntity entityAppNetwork;
 	public PropertyEntity entityAppNetworkHost;
 	public PropertyEntity entityAppHostAccount;
+	public PropertyEntity entityAppReleaseLifecycle;
+	public PropertyEntity entityAppLifecyclePhase;
 	
 	public EngineEntities( EngineCore core ) {
 		this.core = core;
@@ -70,6 +73,8 @@ public class EngineEntities {
 		entityAppNetwork = DBEngineInfrastructure.upgradeEntityNetwork( loader );
 		entityAppNetworkHost = DBEngineInfrastructure.upgradeEntityNetworkHost( loader );
 		entityAppHostAccount = DBEngineInfrastructure.upgradeEntityHostAccount( loader );
+		entityAppReleaseLifecycle = DBEngineLifecycles.upgradeEntityReleaseLifecycle( loader );
+		entityAppLifecyclePhase = DBEngineLifecycles.upgradeEntityLifecyclePhase( loader );
 		useCustom( loader );
 	}
 	
@@ -86,7 +91,8 @@ public class EngineEntities {
 		entityAppNetwork = DBEngineInfrastructure.loaddbEntityNetwork( loader );
 		entityAppNetworkHost = DBEngineInfrastructure.loaddbEntityNetworkHost( loader );
 		entityAppHostAccount = DBEngineInfrastructure.loaddbEntityHostAccount( loader );
-		
+		entityAppReleaseLifecycle = DBEngineLifecycles.loaddbEntityReleaseLifecycle( loader );
+		entityAppLifecyclePhase = DBEngineLifecycles.loaddbEntityLifecyclePhase( loader );
 		useCustom( loader );
 	}
 	

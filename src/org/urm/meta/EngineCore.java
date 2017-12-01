@@ -5,7 +5,7 @@ import org.urm.engine.properties.EngineEntities;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.EngineRegistry;
-import org.urm.meta.engine.EngineReleaseLifecycles;
+import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineSettings;
 
 public class EngineCore {
@@ -18,7 +18,7 @@ public class EngineCore {
 	private EngineRegistry registry;
 	private EngineBase base;
 	private EngineInfrastructure infra;
-	private EngineReleaseLifecycles lifecycles;
+	private EngineLifecycles lifecycles;
 
 	public EngineCore( EngineData data ) {
 		this.data = data;
@@ -29,7 +29,7 @@ public class EngineCore {
 		registry = new EngineRegistry( this ); 
 		base = new EngineBase( this ); 
 		infra = new EngineInfrastructure( this ); 
-		lifecycles = new EngineReleaseLifecycles( this ); 
+		lifecycles = new EngineLifecycles( this ); 
 	}
 
 	public void upgradeData( EngineLoader loader ) throws Exception {
@@ -51,7 +51,7 @@ public class EngineCore {
 		registry = new EngineRegistry( this ); 
 		base = new EngineBase( this ); 
 		infra = new EngineInfrastructure( this ); 
-		lifecycles = new EngineReleaseLifecycles( this ); 
+		lifecycles = new EngineLifecycles( this ); 
 	}
 
 	public EngineEntities getEntities() {
@@ -70,7 +70,7 @@ public class EngineCore {
 		return( infra );
 	}
 
-	public EngineReleaseLifecycles getLifecycles() {
+	public EngineLifecycles getLifecycles() {
 		return( lifecycles );
 	}
 

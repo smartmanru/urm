@@ -62,8 +62,8 @@ public class BaseCategory extends EngineObject {
 		return( groupMap.values().toArray( new BaseGroup[0] ) );
 	}
 
-	public BaseGroup findGroup( String ID ) {
-		return( groupMap.get( ID ) );
+	public BaseGroup findGroup( String name ) {
+		return( groupMap.get( name ) );
 	}
 	
 	public void createGroup( BaseGroup group ) throws Exception {
