@@ -33,6 +33,7 @@ public class DBEngineResources {
 	public static String TABLE_RESOURCE = "urm_resource";
 	public static String FIELD_RESOURCE_ID = "resource_id";
 	public static String FIELD_RESOURCE_DESC = "xdesc";
+	public static String XMLPROP_RESOURCE_TYPE = "resource_type";
 	
 	public static PropertyEntity upgradeEntityResource( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
@@ -40,7 +41,7 @@ public class DBEngineResources {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AuthResource.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( AuthResource.PROPERTY_DESC , FIELD_RESOURCE_DESC , AuthResource.PROPERTY_DESC , "Description" , false , null ) ,
-				EntityVar.metaEnum( AuthResource.PROPERTY_RESOURCE_TYPE , "Function type" , true , DBEnumResourceType.UNKNOWN ) ,
+				EntityVar.metaEnumVar( AuthResource.PROPERTY_RESOURCE_TYPE , XMLPROP_RESOURCE_TYPE , AuthResource.PROPERTY_RESOURCE_TYPE , "Function type" , true , DBEnumResourceType.UNKNOWN ) ,
 				EntityVar.metaString( AuthResource.PROPERTY_BASEURL , "Base URL" , false , null ) ,
 				EntityVar.metaBooleanDatabaseOnly( AuthResource.PROPERTY_VERIFIED , "Access verified" , false , false ) ,
 		} ) );
