@@ -65,7 +65,7 @@ public abstract class DBEngineContext {
 				EntityVar.metaInteger( EngineContext.PROPERTY_SHELL_SILENTMAX , "Silent Max (ms)" , true , 60000 ) ,
 				EntityVar.metaInteger( EngineContext.PROPERTY_SHELL_UNAVAILABLE_SKIPTIME , "Ignore Unavailable (ms)" , true , 30000 ) ,
 				EntityVar.metaBoolean( EngineContext.PROPERTY_CHAT_USING , "Using Notifications" , true , false ) ,
-				EntityVar.metaObject( EngineContext.PROPERTY_CHAT_TYPE , "Chat Type" , DBEnumObjectType.ENUM , false ) ,
+				EntityVar.metaEnum( EngineContext.PROPERTY_CHAT_TYPE , "Chat Type" , false , DBEnumChatType.UNKNOWN ) ,
 				EntityVar.metaObject( EngineContext.PROPERTY_CHAT_JABBER_RESOURCE , "Jabber Server Resource" , DBEnumObjectType.RESOURCE , false ) ,
 				EntityVar.metaString( EngineContext.PROPERTY_CHAT_JABBER_CONFERENCESERVER , "Jabber Conference Server" , false , null ) ,
 				EntityVar.metaObject( EngineContext.PROPERTY_CHAT_ROCKET_RESOURCE , "Rocket Server Resource" , DBEnumObjectType.RESOURCE , false )

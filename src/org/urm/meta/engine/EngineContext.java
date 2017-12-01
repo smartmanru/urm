@@ -1,6 +1,7 @@
 package org.urm.meta.engine;
 
 import org.urm.common.RunContext;
+import org.urm.db.core.DBEnums.DBEnumChatType;
 import org.urm.engine.properties.ObjectProperties;
 
 public class EngineContext {
@@ -39,12 +40,10 @@ public class EngineContext {
 	public int SHELL_HOUSEKEEP_TIME;
 
 	public boolean CHAT_USING;
-	public String CHAT_TYPE;
-	public static String CHAT_TYPE_JABBER = "jabber";
-	public static String CHAT_TYPE_ROCKET = "rocket";
-	public String CHAT_JABBER_RESOURCE;
+	public DBEnumChatType CHAT_TYPE;
+	public Integer CHAT_JABBER_RESOURCE;
 	public String CHAT_JABBER_CONFERENCESERVER;
-	public String CHAT_ROCKET_RESOURCE;
+	public Integer CHAT_ROCKET_RESOURCE;
 	
 	// xml field names
 	public static String PROPERTY_CONNECTION_JMX_PORT = "connection.jmx.port";
@@ -121,10 +120,10 @@ public class EngineContext {
 		SHELL_HOUSEKEEP_TIME = properties.getIntProperty( PROPERTY_SHELL_HOUSEKEEP_TIME );
 		
 		CHAT_USING = properties.getBooleanProperty( PROPERTY_CHAT_USING );
-		CHAT_TYPE = properties.getStringProperty( PROPERTY_CHAT_TYPE );
-		CHAT_JABBER_RESOURCE = properties.getStringProperty( PROPERTY_CHAT_JABBER_RESOURCE );
+		CHAT_TYPE = DBEnumChatType.getValue( properties.getEnumProperty( PROPERTY_CHAT_TYPE ) , false );
+		CHAT_JABBER_RESOURCE = properties.getObjectProperty( PROPERTY_CHAT_JABBER_RESOURCE );
 		CHAT_JABBER_CONFERENCESERVER = properties.getStringProperty( PROPERTY_CHAT_JABBER_CONFERENCESERVER );
-		CHAT_ROCKET_RESOURCE = properties.getStringProperty( PROPERTY_CHAT_ROCKET_RESOURCE );
+		CHAT_ROCKET_RESOURCE = properties.getObjectProperty( PROPERTY_CHAT_ROCKET_RESOURCE );
 	}
 
 }

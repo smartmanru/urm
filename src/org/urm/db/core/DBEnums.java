@@ -54,6 +54,7 @@ public abstract class DBEnums {
 	}
 
 	public enum DBEnumBaseCategoryType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
 		HOST(1,null) ,
 		ACCOUNT(2,null) ,
 		APP(3,null);
@@ -217,6 +218,7 @@ public abstract class DBEnums {
 	};
 	
 	public enum DBEnumMirrorType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
 		SERVER(1,null) ,
 		PROJECT(2,null) ,
 		PRODUCT_META(3,null) ,
@@ -278,6 +280,7 @@ public abstract class DBEnums {
 	};
 	
 	public enum DBEnumObjectVersionType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
 		APP(1,null) ,
 		CORE(2,null) ,
 		SYSTEM(3,null) ,
@@ -294,6 +297,7 @@ public abstract class DBEnums {
 	};
 	
 	public enum DBEnumParamEntityType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
 		RC(1,null) ,
 		ENGINE(2,null) ,
 		PRODUCTDEFS(3,null) ,
@@ -329,6 +333,7 @@ public abstract class DBEnums {
 	};
 	
 	public enum DBEnumParamRoleType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
 		RC(1,null) ,
 		ENGINE(2,null),
 		PRODUCTDEFS(3,null),
@@ -351,6 +356,22 @@ public abstract class DBEnums {
 		public static DBEnumParamRoleType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamRoleType.class , value , required , null ) ); };
 	};
 	
+	public enum DBEnumChatType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		JABBER(1,null) ,
+		ROCKET(2,null) ,
+		SKYPE(3,null) ,
+		TELEGRAM(4,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumChatType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumChatType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumChatType.class , value , required , null ) ); };
+		public static DBEnumChatType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumChatType.class , value , required , null ) ); };
+	};
+	
 	//#################################################
 	// implementation
 	private static DBEnumInfo[] enums = { 
@@ -371,7 +392,8 @@ public abstract class DBEnums {
 		new DBEnumInfo( DBEnumLifecycleStageType.class , 24 ) ,
 		new DBEnumInfo( DBEnumBuildModeType.class , 25 ) ,
 		new DBEnumInfo( DBEnumParamEntityType.class , 26 ) ,
-		new DBEnumInfo( DBEnumParamRoleType.class , 27 )
+		new DBEnumInfo( DBEnumParamRoleType.class , 27 ) ,
+		new DBEnumInfo( DBEnumChatType.class , 28 )
 	}; 
 
 	private static String prefix = "DBEnum";

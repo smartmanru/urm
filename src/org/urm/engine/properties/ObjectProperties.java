@@ -165,6 +165,25 @@ public class ObjectProperties {
 		return( getStringProperty( prop ) );
 	}
 	
+	public int getEnumProperty( String prop ) throws Exception {
+		EntityVar var = meta.getVar( prop );
+		if( var.isApp() )
+			return( properties.getSystemIntExprProperty( var.NAME , var.EXPR_DEF , var.REQUIRED ) );
+		return( properties.getIntProperty( var.NAME , Integer.parseInt( var.EXPR_DEF ) ) );
+	}
+	
+	public Integer getObjectProperty( String prop ) throws Exception {
+		EntityVar var = meta.getVar( prop );
+		int value = 0;
+		if( var.isApp() )
+			value = properties.getSystemIntExprProperty( var.NAME , var.EXPR_DEF , var.REQUIRED );
+		else
+			value = properties.getIntProperty( var.NAME , Integer.parseInt( var.EXPR_DEF ) );
+		if( value == 0 )
+			return( null );
+		return( value );
+	}
+	
 	public void finishProperties() throws Exception {
 		properties.resolveRawProperties( true );
 		if( properties.isCorrect() ) {

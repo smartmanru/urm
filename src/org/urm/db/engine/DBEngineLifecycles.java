@@ -34,7 +34,7 @@ public class DBEngineLifecycles {
 	public static String FIELD_LIFECYCLE_ID = "lifecycle_id";
 	public static String FIELD_LIFECYCLE_DESC = "xdesc";
 	public static String FIELD_LIFECYCLE_TYPE = "lifecycle_type";
-	public static String FIELD_PHASE_LIFECYCLE = "id";
+	public static String FIELD_PHASE_LIFECYCLE = "lifecycle_id";
 	public static String FIELD_PHASE_ID = "phase_id";
 	public static String FIELD_PHASE_DESC = "xdesc";
 	public static String FIELD_PHASE_STAGE = "lifecyclestage_type";
@@ -60,7 +60,7 @@ public class DBEngineLifecycles {
 		DBConnection c = loader.getConnection();
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.LIFECYCLEPHASE , DBEnumParamEntityType.LIFECYCLEPHASE , DBEnumObjectVersionType.CORE , TABLE_PHASE , FIELD_PHASE_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaIntegerDatabaseOnly( FIELD_PHASE_LIFECYCLE , "Liufecycle" , true , null ) ,
+				EntityVar.metaIntegerDatabaseOnly( FIELD_PHASE_LIFECYCLE , "Lifecycle" , true , null ) ,
 				EntityVar.metaStringVar( LifecyclePhase.PROPERTY_NAME , LifecyclePhase.PROPERTY_NAME , XMLPROP_PHASE_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( LifecyclePhase.PROPERTY_DESC , FIELD_PHASE_DESC , LifecyclePhase.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaEnumVar( LifecyclePhase.PROPERTY_STAGE , FIELD_PHASE_STAGE , LifecyclePhase.PROPERTY_STAGE , "Lifecycle stage" , false , DBEnumLifecycleStageType.UNKNOWN ) ,
