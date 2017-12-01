@@ -90,7 +90,7 @@ public abstract class DBEngineEntities {
 			Common.exitUnexpected();
 	}
 	
-	public static void exportxmlAppObject( Document doc , Element root , PropertyEntity entity , String[] values ) throws Exception {
+	public static void exportxmlAppObject( Document doc , Element root , PropertyEntity entity , String[] values , boolean attrs ) throws Exception {
 		EntityVar[] vars = entity.getXmlVars();
 		if( vars.length != values.length )
 			Common.exitUnexpected();
@@ -98,8 +98,12 @@ public abstract class DBEngineEntities {
 		for( int k = 0; k < vars.length; k++ ) {
 			EntityVar var = vars[ k ];
 			String value = values[ k ];
-			if( value != null && !value.isEmpty() )
-				Common.xmlSetElementAttr( doc , root , var.XMLNAME , value );
+			if( value != null && !value.isEmpty() ) {
+				if( attrs )
+					Common.xmlSetElementAttr( doc , root , var.XMLNAME , value );
+				else
+					Common.xmlCreatePropertyElement( doc , root , var.XMLNAME , value );
+			}
 		}
 	}
 	

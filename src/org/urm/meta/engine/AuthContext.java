@@ -139,5 +139,13 @@ public class AuthContext extends EngineObject {
 		METHOD = AuthContext.METHOD_USER;
 		PASSWORDSAVE = Common.getMD5( password );
 	}
+
+	public void setData( AuthContext acdata ) {
+		this.METHOD = acdata.METHOD;
+		this.USER = acdata.USER;
+		this.PASSWORDSAVE = acdata.PASSWORDSAVE;
+		this.PUBLICKEY = acdata.PUBLICKEY;
+		this.PRIVATEKEY = acdata.PRIVATEKEY;
+	}
 	
 }

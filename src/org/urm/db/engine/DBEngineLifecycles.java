@@ -196,7 +196,7 @@ public class DBEngineLifecycles {
 				entity.exportxmlInt( lc.DAYS_TO_RELEASE ) ,
 				entity.exportxmlInt( lc.DAYS_TO_DEPLOY ) ,
 				entity.exportxmlInt( lc.SHIFT_DAYS )
-		});
+		} , true );
 		
 		for( LifecyclePhase phase : lc.getPhases() ) {
 			Element element = Common.xmlCreateElement( doc , root , ELEMENT_PHASE );
@@ -215,7 +215,7 @@ public class DBEngineLifecycles {
 				entity.exportxmlBoolean( phase.UNLIMITED ) ,
 				entity.exportxmlBoolean( phase.START_DAY ) ,
 				entity.exportxmlInt( phase.DAYS )
-		});
+		} , true );
 	}
 
 	public static void loaddb( EngineLoader loader , EngineLifecycles lifecycles ) throws Exception {

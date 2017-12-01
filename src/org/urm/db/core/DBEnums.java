@@ -307,6 +307,7 @@ public abstract class DBEnums {
 		MONITORING(7,null) ,
 		LIFECYCLE(8,null) ,
 		LIFECYCLEPHASE(9,null) ,
+		RESOURCE(10,null) ,
 		DATACENTER(21,null) ,
 		NETWORK(22,null) ,
 		HOST(23,null) ,

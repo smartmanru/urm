@@ -165,6 +165,13 @@ public class PropertyEntity {
 		return( ConfReader.getAttrValue( root , var.XMLNAME ) );
 	}
 	
+	public String importxmlStringProperty( Node root , String prop ) throws Exception {
+		EntityVar var = findVar( prop );
+		if( var == null )
+			Common.exitUnexpected();
+		return( ConfReader.getPropertyValue( root , var.XMLNAME ) );
+	}
+	
 	public boolean importxmlBooleanAttr( Node root , String prop , boolean defValue ) throws Exception {
 		EntityVar var = findVar( prop );
 		if( var == null )
@@ -172,11 +179,25 @@ public class PropertyEntity {
 		return( ConfReader.getBooleanAttrValue( root , var.XMLNAME , defValue ) );
 	}
 
+	public boolean importxmlBooleanProperty( Node root , String prop , boolean defValue ) throws Exception {
+		EntityVar var = findVar( prop );
+		if( var == null )
+			Common.exitUnexpected();
+		return( ConfReader.getBooleanPropertyValue( root , var.XMLNAME , defValue ) );
+	}
+
 	public int importxmlIntAttr( Node root , String prop ) throws Exception {
 		EntityVar var = findVar( prop );
 		if( var == null )
 			Common.exitUnexpected();
 		return( ConfReader.getIntegerAttrValue( root , var.XMLNAME , 0 ) );
+	}
+	
+	public int importxmlIntProperty( Node root , String prop ) throws Exception {
+		EntityVar var = findVar( prop );
+		if( var == null )
+			Common.exitUnexpected();
+		return( ConfReader.getIntegerPropertyValue( root , var.XMLNAME , 0 ) );
 	}
 	
 	public int importxmlEnumAttr( Node root , String prop ) throws Exception {
@@ -187,12 +208,40 @@ public class PropertyEntity {
 		return( DBEnums.getEnumCode( var.enumClass ,  xmlvalue ) );
 	}
 	
+	public int importxmlEnumProperty( Node root , String prop ) throws Exception {
+		EntityVar var = findVar( prop );
+		if( var == null )
+			Common.exitUnexpected();
+		String xmlvalue = ConfReader.getPropertyValue( root , var.XMLNAME );
+		return( DBEnums.getEnumCode( var.enumClass ,  xmlvalue ) );
+	}
+	
 	public Integer importxmlObjectAttr( EngineLoader loader , Node root , String prop ) throws Exception {
 		EntityVar var = findVar( prop );
 		if( var == null )
 			Common.exitUnexpected();
 		
 		String value = ConfReader.getAttrValue( root , var.XMLNAME );
+		if( value.isEmpty() )
+			return( null );
+		
+		if( var.OBJECT_TYPE == DBEnumObjectType.RESOURCE ) {
+			EngineData data = loader.getData();
+			EngineResources resources = data.getResources();
+			AuthResource resource = resources.getResource( value );
+			return( resource.ID );
+		}
+		
+		Common.exitUnexpected();
+		return( null );
+	}
+	
+	public Integer importxmlObjectProperty( EngineLoader loader , Node root , String prop ) throws Exception {
+		EntityVar var = findVar( prop );
+		if( var == null )
+			Common.exitUnexpected();
+		
+		String value = ConfReader.getPropertyValue( root , var.XMLNAME );
 		if( value.isEmpty() )
 			return( null );
 		

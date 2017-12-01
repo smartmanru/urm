@@ -8,9 +8,12 @@ import org.urm.db.DBConnection;
 import org.urm.db.core.DBCoreData;
 import org.urm.db.core.DBNames;
 import org.urm.db.engine.DBEngineBase;
+import org.urm.db.engine.DBEngineBuilders;
 import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.db.engine.DBEngineLifecycles;
+import org.urm.db.engine.DBEngineMirrors;
+import org.urm.db.engine.DBEngineResources;
 import org.urm.db.engine.DBEngineSettings;
 import org.urm.db.system.DBSystemData;
 import org.urm.engine.Engine;
@@ -36,6 +39,10 @@ import org.w3c.dom.Node;
 
 public class EngineLoader {
 
+	public static String ELEMENT_RESOURCES = "resources";
+	public static String ELEMENT_MIRRORS = "mirror";
+	public static String ELEMENT_BUILDERS = "build";
+	
 	public Engine engine;
 	public EngineData data;
 	public RunContext execrc;
@@ -236,7 +243,7 @@ public class EngineLoader {
 				importxmlBase();
 				importxmlReleaseLifecycles();
 				importxmlMonitoring();
-				loadRegistry();
+				importxmlRegistry();
 				importxmlInfrastructure();
 				connection.save( true );
 				trace( "successfully completed import of engine core data" );
@@ -247,7 +254,7 @@ public class EngineLoader {
 				loaddbBase();
 				loaddbReleaseLifecycles();
 				loaddbMonitoring();
-				loadRegistry();
+				loaddbRegistry();
 				loaddbInfrastructure();
 			}
 				
@@ -354,7 +361,7 @@ public class EngineLoader {
 		Node root = doc.getDocumentElement();
 		
 		EngineMonitoring mon = data.getMonitoring();
-		mon.loadxml( this , root );
+		mon.importxml( this , root );
 	}
 
 	private void loaddbMonitoring() throws Exception {
@@ -363,14 +370,28 @@ public class EngineLoader {
 		mon.loaddb( this );
 	}
 
-	private void loadRegistry() throws Exception {
-		trace( "load engine registry data ..." );
+	private void importxmlRegistry() throws Exception {
+		trace( "import engine registry data ..." );
 		String registryFile = getRegistryFile();
-		EngineRegistry registry = data.getRegistry();
-		
 		Document doc = ConfReader.readXmlFile( execrc , registryFile );
 		Node root = doc.getDocumentElement();
-		registry.loadxml( this , root );
+		
+		EngineRegistry registry = data.getRegistry();
+		Node node;
+		node = ConfReader.xmlGetFirstChild( root , ELEMENT_RESOURCES );
+		DBEngineResources.importxml( this , registry.resources , node );
+		node = ConfReader.xmlGetFirstChild( root , ELEMENT_MIRRORS );
+		DBEngineMirrors.importxml( this , registry.mirrors , node );
+		node = ConfReader.xmlGetFirstChild( root , ELEMENT_BUILDERS );
+		DBEngineBuilders.importxml( this , registry.builders , node );
+	}
+
+	private void loaddbRegistry() throws Exception {
+		trace( "load engine registry data ..." );
+		EngineRegistry registry = data.getRegistry();
+		DBEngineResources.loaddb( this , registry.resources );
+		DBEngineMirrors.loaddb( this , registry.mirrors );
+		DBEngineBuilders.loaddb( this , registry.builders );
 	}
 
 	private void loaddbDirectory() throws Exception {
@@ -415,10 +436,16 @@ public class EngineLoader {
 		Element root = doc.getDocumentElement();
 		
 		EngineRegistry registry = data.getRegistry();
-		registry.savexml( this , doc , root );
+		Element node;
+		node = Common.xmlCreateElement( doc , root , ELEMENT_RESOURCES );
+		DBEngineResources.exportxml( this , registry.resources , doc , node );
+		node = Common.xmlCreateElement( doc , root , ELEMENT_MIRRORS );
+		DBEngineMirrors.exportxml( this , registry.mirrors , doc , node );
+		node = Common.xmlCreateElement( doc , root , ELEMENT_BUILDERS );
+		DBEngineBuilders.exportxml( this , registry.builders , doc , node );
 		
 		EngineDirectory directory = data.getDirectory();
-		Element node = Common.xmlCreateElement( doc , root , "directory" );
+		node = Common.xmlCreateElement( doc , root , "directory" );
 		DBEngineDirectory.exportxml( this , directory , doc , node );
 		
 		Common.xmlSaveDoc( doc , propertyFile );

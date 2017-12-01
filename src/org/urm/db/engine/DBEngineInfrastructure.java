@@ -285,7 +285,7 @@ public class DBEngineInfrastructure {
 		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
 				entity.exportxmlString( datacenter.NAME ) ,
 				entity.exportxmlString( datacenter.DESC )
-		});
+		} , true );
 		
 		for( String name : datacenter.getNetworkNames() ) {
 			Network network = datacenter.findNetwork( name );
@@ -301,7 +301,7 @@ public class DBEngineInfrastructure {
 				entity.exportxmlString( network.NAME ) ,
 				entity.exportxmlString( network.DESC ) ,
 				entity.exportxmlString( network.MASK )
-		});
+		} , true );
 		
 		for( String name : network.getHostNames() ) {
 			NetworkHost host = network.findHost( name );
@@ -319,7 +319,7 @@ public class DBEngineInfrastructure {
 				entity.exportxmlString( host.IP ) ,
 				entity.exportxmlInt( host.PORT ) ,
 				entity.exportxmlEnum( host.OS_TYPE )
-		});
+		} , true );
 		
 		for( String name : host.getAccountNames() ) {
 			HostAccount account = host.findAccount( name );
@@ -336,7 +336,7 @@ public class DBEngineInfrastructure {
 				entity.exportxmlString( account.DESC ) ,
 				entity.exportxmlBoolean( account.ADMIN ) ,
 				entity.exportxmlObject( loader , HostAccount.PROPERTY_RESOURCE , account.RESOURCE_ID )
-		});
+		} , true );
 	}
 
 	public static void loaddb( EngineLoader loader , EngineInfrastructure infra ) throws Exception {

@@ -185,7 +185,7 @@ public abstract class DBEngineBase {
 				entity.exportxmlString( group.NAME ) ,
 				entity.exportxmlString( group.DESC ) ,
 				entity.exportxmlBoolean( group.OFFLINE )
-		});
+		} , true );
 		
 		for( String name : group.getItemNames() ) {
 			BaseItem item = group.findItem( name );

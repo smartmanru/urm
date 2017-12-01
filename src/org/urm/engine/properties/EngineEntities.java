@@ -8,6 +8,7 @@ import org.urm.db.engine.DBEngineContext;
 import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMonitoring;
+import org.urm.db.engine.DBEngineResources;
 import org.urm.db.engine.DBEngineSettings;
 import org.urm.db.system.DBSystem;
 import org.urm.engine.Engine;
@@ -54,6 +55,7 @@ public class EngineEntities {
 	public PropertyEntity entityAppHostAccount;
 	public PropertyEntity entityAppReleaseLifecycle;
 	public PropertyEntity entityAppLifecyclePhase;
+	public PropertyEntity entityAppResource;
 	
 	public EngineEntities( EngineCore core ) {
 		this.core = core;
@@ -75,6 +77,7 @@ public class EngineEntities {
 		entityAppHostAccount = DBEngineInfrastructure.upgradeEntityHostAccount( loader );
 		entityAppReleaseLifecycle = DBEngineLifecycles.upgradeEntityReleaseLifecycle( loader );
 		entityAppLifecyclePhase = DBEngineLifecycles.upgradeEntityLifecyclePhase( loader );
+		entityAppResource = DBEngineResources.upgradeEntityResource( loader );
 		useCustom( loader );
 	}
 	
@@ -93,6 +96,7 @@ public class EngineEntities {
 		entityAppHostAccount = DBEngineInfrastructure.loaddbEntityHostAccount( loader );
 		entityAppReleaseLifecycle = DBEngineLifecycles.loaddbEntityReleaseLifecycle( loader );
 		entityAppLifecyclePhase = DBEngineLifecycles.loaddbEntityLifecyclePhase( loader );
+		entityAppResource = DBEngineResources.loaddbEntityResource( loader );
 		useCustom( loader );
 	}
 	

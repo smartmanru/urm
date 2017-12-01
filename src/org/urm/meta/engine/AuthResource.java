@@ -1,10 +1,7 @@
 package org.urm.meta.engine;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.shell.EngineShellPool;
@@ -12,34 +9,33 @@ import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.meta.EngineObject;
 import org.urm.db.core.DBEnums.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class AuthResource extends EngineObject {
 
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_RESOURCE_TYPE = "type";
+	public static String PROPERTY_BASEURL = "baseurl";
+	public static String PROPERTY_VERIFIED = "verified";
+	
 	public EngineResources resources;
 
-	private boolean loaded;
-	public boolean loadFailed;
-
-	PropertySet properties;
-	
 	public int ID;
 	public String NAME;
-	public DBEnumResourceType rcType;
-	public String BASEURL;
 	public String DESC;
-	public String AUTHKEY;
-	public boolean verified;
+	public DBEnumResourceType RESOURCE_TYPE;
+	public String BASEURL;
+	public boolean VERIFIED;
+	public int CV;
+	
 	public AuthContext ac;
 	
 	public AuthResource( EngineResources resources ) {
 		super( resources );
 		this.resources = resources;
-		loaded = false;
-		loadFailed = false;
-		verified = false;
+		ID = -1;
+		CV = 0;
+		VERIFIED = false;
 	}
 
 	@Override
@@ -55,146 +51,104 @@ public class AuthResource extends EngineObject {
 	
 	public AuthResource copy( EngineResources resources ) throws Exception {
 		AuthResource r = new AuthResource( resources );
-		r.properties = properties.copy( null );
-		r.scatterSystemProperties();
+		r.ID = ID;
+		r.NAME = NAME;
+		r.DESC = DESC;
+		r.RESOURCE_TYPE = RESOURCE_TYPE;
+		r.BASEURL = BASEURL;
+		r.VERIFIED = VERIFIED;
+		r.CV = CV;
+		
 		if( ac != null )
 			r.ac = ac.copy();
 		return( r );
 	}
 	
-	public void load( Node node ) throws Exception {
-		if( loaded )
-			return;
-
-		loaded = true;
-		properties = new PropertySet( "resource" , null );
-		properties.loadFromNodeElements( node , false );
-		
-		scatterSystemProperties();
-		properties.finishRawProperties();
-	}
-	
-	public void save( Document doc , Element root ) throws Exception {
-		properties.saveAsElements( doc , root , false );
-		saveAuthData();
-	}
-	
-	private void scatterSystemProperties() throws Exception {
-		NAME = properties.getSystemRequiredStringProperty( "name" );
-		String TYPE = properties.getSystemRequiredStringProperty( "type" );  
-		rcType = AuthResource.getResourceType( TYPE , false );
-		BASEURL = properties.getSystemStringProperty( "baseurl" );
-		DESC = properties.getSystemStringProperty( "desc" );
-		AUTHKEY = properties.getSystemStringProperty( "authkey" );
-		verified = properties.getSystemBooleanProperty( "verified" );
-	}
-
-	public void createProperties() throws Exception {
-		properties = new PropertySet( "resource" , null );
-		properties.setOriginalStringProperty( "name" , NAME );
-		properties.setOriginalStringProperty( "type" , Common.getEnumLower( rcType ) );
-		properties.setOriginalStringProperty( "baseurl" , BASEURL );
-		properties.setOriginalStringProperty( "desc" , DESC );
-		properties.setOriginalStringProperty( "authkey" , AUTHKEY );
-		properties.setOriginalBooleanProperty( "verified" , verified );
-	}
-
 	public boolean isVCS() {
-		if( rcType == DBEnumResourceType.SVN || rcType == DBEnumResourceType.GIT )
+		if( RESOURCE_TYPE == DBEnumResourceType.SVN || RESOURCE_TYPE == DBEnumResourceType.GIT )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isSvn() {
-		if( rcType == DBEnumResourceType.SVN )
+		if( RESOURCE_TYPE == DBEnumResourceType.SVN )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isGit() {
-		if( rcType == DBEnumResourceType.GIT )
+		if( RESOURCE_TYPE == DBEnumResourceType.GIT )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isNexus() {
-		if( rcType == DBEnumResourceType.NEXUS )
+		if( RESOURCE_TYPE == DBEnumResourceType.NEXUS )
 			return( true );
 		return( false );
 	}
 
 	public boolean isSshKey() {
-		if( rcType == DBEnumResourceType.SSH )
+		if( RESOURCE_TYPE == DBEnumResourceType.SSH )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isCredentials() {
-		if( rcType == DBEnumResourceType.CREDENTIALS )
+		if( RESOURCE_TYPE == DBEnumResourceType.CREDENTIALS )
 			return( true );
 		return( false );
 	}
+
+	public void createResource( String name , String desc , DBEnumResourceType type , String baseurl ) throws Exception {
+		modifyResource( name , desc , type , baseurl );
+	}
 	
-	public void updateResource( EngineTransaction transaction , AuthResource src ) throws Exception {
-		if( !NAME.equals( src.NAME ) )
-			transaction.exit( _Error.TransactionMismatchedResource1 , "mismatched resource name on change new name=" + src.NAME , new String[] { src.NAME } );
+	public void modifyResource( String name , String desc , DBEnumResourceType type , String baseurl ) throws Exception {
+		NAME = name;
+		DESC = desc;
 		
-		rcType = src.rcType;
-		BASEURL = src.BASEURL;
-		DESC = src.DESC;
-		verified = false;
-		createProperties();
+		if( type != RESOURCE_TYPE ||
+			baseurl.equals( BASEURL ) == false )
+			VERIFIED = false;
+			
+		RESOURCE_TYPE = type;
+		BASEURL = baseurl;
 		
-		if( src.ac != null && !src.ac.METHOD.isEmpty() ) {
-			EngineAuth auth = resources.registry.engine.getAuth();
-			ac = new AuthContext( auth );
-			ac.load( src.ac.properties );
-		}
+		ac = null;
 	}
 
-	public void setVerified( EngineTransaction transaction ) throws Exception {
-		verified = true;
-		createProperties();
+	public void setVerified( boolean verified ) throws Exception {
+		this.VERIFIED = verified;
+	}
+	
+	public void setAuthData( AuthContext acdata ) throws Exception {
+		EngineAuth auth = resources.registry.engine.getAuth();
+		String authKey = auth.getAuthKey( EngineAuth.AUTH_GROUP_RESOURCE , NAME );
+		ac = auth.loadAuthData( authKey );
+		ac.setData( acdata );
+		
+		this.VERIFIED = false;
 	}
 	
 	public void saveAuthData() throws Exception {
 		EngineAuth auth = resources.registry.engine.getAuth();
-		AUTHKEY = auth.getAuthKey( EngineAuth.AUTH_GROUP_RESOURCE , NAME );
-		properties.setOriginalStringProperty( "authkey" , AUTHKEY );
-		
-		if( ac != null && !ac.METHOD.isEmpty() )
-			auth.saveAuthData( AUTHKEY , ac ); 
+		if( ac != null ) {
+			String authKey = auth.getAuthKey( EngineAuth.AUTH_GROUP_RESOURCE , NAME );
+			auth.saveAuthData( authKey , ac );
+		}
 	}
 	
 	public void loadAuthData() throws Exception {
 		if( ac != null )
 			return;
+		
 		EngineAuth auth = resources.registry.engine.getAuth();
-		ac = auth.loadAuthData( AUTHKEY );
+		String authKey = auth.getAuthKey( EngineAuth.AUTH_GROUP_RESOURCE , NAME );
+		ac = auth.loadAuthData( authKey );
 	}
 
 	public void createResource() throws Exception {
-		EngineAuth auth = resources.registry.engine.getAuth();
-		AUTHKEY = auth.getAuthKey( EngineAuth.AUTH_GROUP_RESOURCE , NAME );
-		createProperties();
-	}
-
-	public static DBEnumResourceType getResourceType( String TYPE , boolean required ) throws Exception {
-		if( TYPE.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingResourceType0 , "missing resource type" );
-			return( DBEnumResourceType.UNKNOWN );
-		}
-		
-		DBEnumResourceType value = null;		
-		try {
-			value = DBEnumResourceType.valueOf( Common.xmlToEnumValue( TYPE ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidResourceType1 , "invalid resource type=" + TYPE , TYPE );
-		}
-		
-		return( value );
 	}
 
 	public boolean vcsVerify( ActionBase action , String repo , String repoPath ) {

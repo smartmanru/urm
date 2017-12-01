@@ -5,15 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.engine.EngineTransaction;
 import org.urm.meta.EngineObject;
 import org.urm.meta.Types.EnumResourceCategory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class EngineResources extends EngineObject {
 
@@ -45,32 +39,18 @@ public class EngineResources extends EngineObject {
 		return( r );
 	}
 	
-	public void load( Node root ) throws Exception {
-		if( root == null )
-			return;
-		
-		Node[] list = ConfReader.xmlGetChildren( root , "resource" );
-		if( list == null )
-			return;
-		
-		for( Node node : list ) {
-			AuthResource res = new AuthResource( this );
-			res.load( node );
-
-			resourceMap.put( res.NAME , res );
-		}
-	}
-
-	public void save( Document doc , Element root ) throws Exception {
-		for( AuthResource res : resourceMap.values() ) {
-			Element resElement = Common.xmlCreateElement( doc , root , "resource" );
-			res.save( doc , resElement );
-		}
-	}
-
 	public void addResource( AuthResource rc ) {
 		resourceMap.put( rc.NAME , rc );
 		resourceMapById.put( rc.ID , rc );
+	}
+
+	public void updateResource( AuthResource rc ) throws Exception {
+		Common.changeMapKey( resourceMap , rc , rc.NAME );
+	}
+	
+	public void removeResource( AuthResource rc ) throws Exception {
+		resourceMap.remove( rc.NAME );
+		resourceMapById.remove( rc.ID );
 	}
 	
 	public AuthResource findResource( String name ) {
@@ -97,11 +77,11 @@ public class EngineResources extends EngineObject {
 		return( res );
 	}
 
-	public String[] getList() {
+	public String[] getResourceNames() {
 		return( Common.getSortedKeys( resourceMap ) );
 	}
 	
-	public String[] getList( EnumResourceCategory rcCategory ) {
+	public String[] getResourceNames( EnumResourceCategory rcCategory ) {
 		List<String> list = new LinkedList<String>();
 		for( AuthResource res : resourceMap.values() ) {
 			if( rcCategory == EnumResourceCategory.ANY )
@@ -120,36 +100,6 @@ public class EngineResources extends EngineObject {
 				list.add( res.NAME );
 		}
 		return( Common.getSortedList( list ) );
-	}
-	
-	public void createResource( EngineTransaction transaction , AuthResource res ) throws Exception {
-		if( resourceMap.get( res.NAME ) != null )
-			transaction.exit( _Error.DuplicateResource1 , "resource already exists name=" + res.NAME , new String[] { res.NAME } );
-			
-		res.createResource();
-		resourceMap.put( res.NAME , res );
-	}
-	
-	public void updateResource( EngineTransaction transaction , AuthResource res , AuthResource resNew ) throws Exception {
-		res.updateResource( transaction , resNew );
-		dropResourceMirrors( transaction , res );
-	}
-	
-	public void deleteResource( EngineTransaction transaction , AuthResource res ) throws Exception {
-		if( resourceMap.get( res.NAME ) == null )
-			transaction.exit( _Error.UnknownResource1 , "unknown resource name=" + res.NAME , new String[] { res.NAME } );
-			
-		dropResourceMirrors( transaction , res );
-		resourceMap.remove( res.NAME );
-	}
-
-	public void dropResourceMirrors( EngineTransaction transaction , AuthResource res ) throws Exception {
-		if( !res.isVCS() )
-			return;
-		
-		ActionBase action = transaction.getAction();
-		EngineMirrors mirrors = action.getServerMirrors();
-		mirrors.dropResourceMirrors( transaction , res );
 	}
 	
 }

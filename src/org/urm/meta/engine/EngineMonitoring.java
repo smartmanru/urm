@@ -62,7 +62,7 @@ public class EngineMonitoring extends EngineObject {
 		return( "server-monitoring" );
 	}
 	
-	public void loadxml( EngineLoader loader , Node root ) throws Exception {
+	public void importxml( EngineLoader loader , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineSettings settings = data.getEngineSettings();
 		EngineEntities entities = data.getEntities();

@@ -7,6 +7,7 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.db.engine.DBEngineLifecycles;
+import org.urm.db.engine.DBEngineResources;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.ScheduleProperties;
@@ -107,25 +108,24 @@ public class EngineTransaction extends TransactionBase {
 	// ################################################################################
 	// RESOURCES
 	
-	public void createResource( AuthResource res ) throws Exception {
-		checkTransactionResources( res.resources );
-		resources.createResource( this , res );
+	public AuthResource createResource( AuthResource rcdata ) throws Exception {
+		checkTransactionResources( resources );
+		return( DBEngineResources.createResource( this , resources , rcdata ) );
 	}
 	
-	public void updateResource( AuthResource res , AuthResource resNew ) throws Exception {
-		checkTransactionResources( res.resources );
-		resources.updateResource( this , res , resNew );
+	public void updateResource( AuthResource rc , AuthResource rcdata ) throws Exception {
+		checkTransactionResources( rc.resources );
+		DBEngineResources.modifyResource( this , resources , rc , rcdata );
 	}
 	
-	public void deleteResource( AuthResource res ) throws Exception {
-		checkTransactionResources( res.resources );
-		resources.deleteResource( this , res );
-		res.deleteObject();
+	public void deleteResource( AuthResource rc ) throws Exception {
+		checkTransactionResources( rc.resources );
+		DBEngineResources.deleteResource( this , resources , rc );
 	}
 
-	public void verifyResource( AuthResource res ) throws Exception {
-		checkTransactionResources( res.resources );
-		res.setVerified( this );
+	public void verifyResource( AuthResource rc ) throws Exception {
+		checkTransactionResources( rc.resources );
+		DBEngineResources.verifyResource( this , resources , rc );
 	}
 	
 	// ################################################################################
