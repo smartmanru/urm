@@ -49,7 +49,10 @@ public class DBEngineMirrors {
 	public static String FIELD_MIRROR_ID = "mirror_id";
 	public static String FIELD_MIRROR_DESC = "xdesc";
 	public static String FIELD_MIRROR_TYPE = "mirror_type";
-	public static String FIELD_MIRROR_RESOURCE = "resource_id";
+	public static String FIELD_MIRROR_RESOURCE_ID = "resource_id";
+	public static String FIELD_MIRROR_RESOURCE_REPO = "resource_repo";
+	public static String FIELD_MIRROR_RESOURCE_ROOT = "resource_root";
+	public static String FIELD_MIRROR_RESOURCE_DATA = "resource_data";
 	
 	public static PropertyEntity upgradeEntityMirror( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
@@ -58,10 +61,10 @@ public class DBEngineMirrors {
 				EntityVar.metaString( MirrorRepository.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( MirrorRepository.PROPERTY_DESC , FIELD_MIRROR_DESC , MirrorRepository.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaEnumVar( MirrorRepository.PROPERTY_MIRROR_TYPE , FIELD_MIRROR_TYPE , MirrorRepository.PROPERTY_MIRROR_TYPE , "Function type" , true , DBEnumMirrorType.UNKNOWN ) ,
-				EntityVar.metaObjectVar( MirrorRepository.PROPERTY_RESOURCE , FIELD_MIRROR_RESOURCE , MirrorRepository.PROPERTY_RESOURCE , "Mirror resource" , DBEnumObjectType.RESOURCE , false ) ,
-				EntityVar.metaString( MirrorRepository.PROPERTY_RESOURCE_REPO , "Resource repository" , false , null ) ,
-				EntityVar.metaString( MirrorRepository.PROPERTY_RESOURCE_ROOT , "Repository root" , false , null ) ,
-				EntityVar.metaString( MirrorRepository.PROPERTY_RESOURCE_DATA , "Repository data path" , false , null )
+				EntityVar.metaObjectVar( MirrorRepository.PROPERTY_RESOURCE , FIELD_MIRROR_RESOURCE_ID , MirrorRepository.PROPERTY_RESOURCE , "Mirror resource" , DBEnumObjectType.RESOURCE , false ) ,
+				EntityVar.metaStringVar( MirrorRepository.PROPERTY_RESOURCE_REPO , FIELD_MIRROR_RESOURCE_REPO , MirrorRepository.PROPERTY_RESOURCE_REPO , "Resource repository" , false , null ) ,
+				EntityVar.metaStringVar( MirrorRepository.PROPERTY_RESOURCE_ROOT , FIELD_MIRROR_RESOURCE_ROOT , MirrorRepository.PROPERTY_RESOURCE_ROOT , "Repository root" , false , null ) ,
+				EntityVar.metaStringVar( MirrorRepository.PROPERTY_RESOURCE_DATA , FIELD_MIRROR_RESOURCE_DATA , MirrorRepository.PROPERTY_RESOURCE_DATA , "Repository data path" , false , null )
 		} ) );
 	}
 
@@ -144,7 +147,7 @@ public class DBEngineMirrors {
 	public static void loaddb( EngineLoader loader , EngineMirrors mirrors ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = c.getEntities();
-		PropertyEntity entity = entities.entityAppResource;
+		PropertyEntity entity = entities.entityAppMirror;
 		
 		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
 		try {

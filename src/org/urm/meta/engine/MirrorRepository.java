@@ -90,8 +90,8 @@ public class MirrorRepository extends EngineObject {
 	public void setMirror( Integer resourceId , String reponame , String reporoot , String dataroot ) throws Exception {
 		this.RESOURCE_ID = resourceId;
 		this.RESOURCE_REPO = reponame;
-		this.RESOURCE_ROOT = ( reporoot.isEmpty() )? "/" : reporoot;
-		this.RESOURCE_DATA = ( dataroot.isEmpty() )? "/" : dataroot;
+		this.RESOURCE_ROOT = ( reporoot != null && reporoot.isEmpty() )? "/" : reporoot;
+		this.RESOURCE_DATA = ( dataroot != null && dataroot.isEmpty() )? "/" : dataroot;
 	}
 	
 	public void clearMirror() throws Exception {

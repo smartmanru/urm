@@ -51,8 +51,6 @@ public abstract class DBQueries {
 	public static String MODIFY_CORE_DROP_PARAMVALUE1 = "delete from urm_object_param_value where param_object_id = @1@";
 	public static String MODIFY_CORE_DROP_PARAM1 = "delete from urm_object_param where param_object_id = @1@";
 	public static String MODIFY_CORE_DROP_ENTITY1 = "delete from urm_object_entity where param_object_id = @1@";
-	public static String MODIFY_CORE_DROP_RESOURCE0 = "delete from urm_resource";
-	public static String MODIFY_CORE_DROP_MIRROR0 = "delete from urm_mirror";
 	
 	public static String MODIFY_RELEASES_DROP_BUILDERS0 = "delete from urm_project_builder";
 	

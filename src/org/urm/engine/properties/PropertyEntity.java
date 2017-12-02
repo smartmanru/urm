@@ -242,7 +242,7 @@ public class PropertyEntity {
 			Common.exitUnexpected();
 		
 		String value = ConfReader.getPropertyValue( root , var.XMLNAME );
-		if( value.isEmpty() )
+		if( value == null || value.isEmpty() )
 			return( null );
 		
 		if( var.OBJECT_TYPE == DBEnumObjectType.RESOURCE ) {

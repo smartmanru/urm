@@ -73,11 +73,12 @@ public abstract class DBCoreData {
 
 	public static void dropCoreEngineData( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
+		EngineEntities entities = c.getEntities();
 		boolean res = true;
 		res = ( res )? c.update( DBQueries.MODIFY_CORE_DROP_PARAMVALUE1 , new String[] { "" + DBVersions.CORE_ID } ) : false;
 		res = ( res )? c.update( DBQueries.MODIFY_CORE_DROP_PARAM1 , new String[] { "" + DBVersions.CORE_ID } ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_CORE_DROP_RESOURCE0 ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_CORE_DROP_MIRROR0 ) : false;
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMirror );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppResource );
 		if( !res )
 			Common.exitUnexpected();
 	}
