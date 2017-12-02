@@ -27,7 +27,7 @@ public class BaseCategory extends EngineObject {
 	}
 	
 	public BaseCategory( EngineBase base , DBEnumBaseCategoryType type , String NAME ) {
-		super( null );
+		super( base );
 		this.base = base;
 		this.BASECATEGORY_TYPE = type;
 		this.NAME = NAME;

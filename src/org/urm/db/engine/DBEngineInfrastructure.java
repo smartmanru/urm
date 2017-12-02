@@ -411,7 +411,7 @@ public class DBEngineInfrastructure {
 				host.createHost( 
 						entity.loaddbString( rs , NetworkHost.PROPERTY_NAME ) , 
 						entity.loaddbString( rs , NetworkHost.PROPERTY_DESC ) ,
-						DBEnumOSType.getValue( entity.loaddbEnum( rs , NetworkHost.PROPERTY_DESC ) , true ) ,
+						DBEnumOSType.getValue( entity.loaddbEnum( rs , NetworkHost.PROPERTY_OSTYPE ) , true ) ,
 						entity.loaddbString( rs , NetworkHost.PROPERTY_IP ) ,
 						entity.loaddbInt( rs , NetworkHost.PROPERTY_PORT ) );
 				infra.addHost( host );

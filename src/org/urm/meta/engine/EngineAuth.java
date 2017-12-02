@@ -104,11 +104,9 @@ public class EngineAuth extends EngineObject {
 	}
 
 	public void start( ActionInit action ) throws Exception {
-		ldapSettings.start( action );
 	}
 	
 	public void stop( ActionInit action ) throws Exception {
-		ldapSettings.stop( action );
 	}
 	
 	private String getAuthFile() {

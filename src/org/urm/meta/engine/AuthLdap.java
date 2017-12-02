@@ -42,9 +42,12 @@ public class AuthLdap {
 	private final SearchControls SEARCH_CONTROLS = new SearchControls(); // NOTE: Not a thread-safe class
 	private String USER_FILTER;
 	public String PROVIDER_URL;
+
+	boolean ldapStarted;
 	
 	public AuthLdap( EngineAuth auth ) {
 		this.auth = auth;
+		ldapStarted = false;
 		setNotUse();
 	}
 
@@ -155,9 +158,11 @@ public class AuthLdap {
 
 	public void start( ActionInit action ) throws Exception {
 		create();
+		ldapStarted = true;
 	}
 	
 	public void stop( ActionInit action ) throws Exception {
+		ldapStarted = false;
 	}
 	
 	private String getUserFilter( boolean allUsers , String userFilter ) {
@@ -259,6 +264,9 @@ public class AuthLdap {
 	public AuthUser getLdapUserData( ActionBase action , String username ) throws Exception {
 		if( !ldapUse )
 			return( null );
+		
+		if( !ldapStarted )
+			start( action.actionInit );
 		
 		SearchResult res = findUser( username );
 		AuthUser user = new AuthUser( auth );

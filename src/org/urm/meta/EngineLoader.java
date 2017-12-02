@@ -144,14 +144,19 @@ public class EngineLoader {
 			DBNames.loaddb( this );
 			
 			boolean dbUpdate = Common.getBooleanValue( System.getProperty( "dbupdate" ) );
-			if( dbUpdate )
+			if( dbUpdate ) {
 				upgradeData();
+				connection.close( true );
+				connection = null;
+				importCore( true );
+				data.unloadAll();
+			}
 			else
 				useData();
 		}
 		finally {
 			if( connection != null )
-				connection.close( true );
+				connection.close( false );
 			connection = null;
 		}
 	}
@@ -161,6 +166,7 @@ public class EngineLoader {
 		DBCoreData.upgradeData( this );
 		EngineCore core = data.getCore();
 		core.upgradeData( this );
+		connection.save( true );
 	}
 	
 	private void useData() throws Exception {
