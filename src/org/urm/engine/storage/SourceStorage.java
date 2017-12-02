@@ -42,7 +42,7 @@ public class SourceStorage {
 	}
 	
 	private GenericVCS getMirrorVCS( ActionBase action , MirrorRepository mirror ) throws Exception {
-		return( GenericVCS.getVCS( action , meta , mirror.getResource( action ) ) );
+		return( GenericVCS.getVCS( action , meta , mirror.RESOURCE_ID ) );
 	}
 	
 	public void downloadThirdpartyItemFromVCS( ActionBase action , String ITEMPATH , String FOLDER ) throws Exception {
@@ -170,7 +170,7 @@ public class SourceStorage {
 	public void moveReleaseDatabaseFilesToErrors( ActionBase action , String errorFolder , Dist distStorage , MetaDistrDelivery dbDelivery , String movePath , String message ) throws Exception {
 		ProductMeta storage = meta.getStorage( action );
 		MirrorRepository mirror = action.getConfigurationMirror( storage );
-		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.getResource( action ) );
+		GenericVCS vcs = GenericVCS.getVCS( action , meta , mirror.RESOURCE_ID );
 		String SRCPATH = getDATAReleaseDBSourcePath( action , distStorage , dbDelivery );
 		String ERRORPATH = getDATAReleaseErrorsPath( action , distStorage , dbDelivery , errorFolder );
 		

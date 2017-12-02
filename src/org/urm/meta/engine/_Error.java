@@ -39,5 +39,6 @@ public class _Error {
 	public static final int UnknownDatacenter1 = ErrorBase + 50;
 	public static final int UnknownNetwork1 = ErrorBase + 51;
 	public static final int UnknownHost1 = ErrorBase + 52;
+	public static final int UnknownMirrorRepository1 = ErrorBase + 53;
 	
 }

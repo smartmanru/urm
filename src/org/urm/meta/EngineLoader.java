@@ -31,6 +31,7 @@ import org.urm.meta.engine.EngineRegistry;
 import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.MirrorRepository;
+import org.urm.meta.engine.Product;
 import org.urm.meta.engine._Error;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
@@ -184,14 +185,14 @@ public class EngineLoader {
 		if( repo.isServer() )
 			importCore( true );
 		else
-			importProduct( repo.PRODUCT , true );
+			importProduct( repo.productId , true );
 	}
 	
 	public void exportRepo( MirrorRepository repo ) throws Exception {
 		if( repo.isServer() )
 			exportCore( true );
 		else
-			exportProduct( repo.PRODUCT );
+			exportProduct( repo.productId );
 	}
 	
 	public void initCore() throws Exception {
@@ -223,15 +224,21 @@ public class EngineLoader {
 		exportxmlInfrastructure();
 	}
 
-	private void exportProduct( String productName ) throws Exception {
-		trace( "export engine product=" + productName + " data ..." );
-		data.saveProductMetadata( this , productName );
+	private void exportProduct( Integer productId ) throws Exception {
+		EngineDirectory directory = data.getDirectory();
+		Product product = directory.getProduct( productId );
+		
+		trace( "export engine product=" + product.NAME + " data ..." );
+		data.saveProductMetadata( this , product.NAME );
 	}
 
-	public void importProduct( String productName , boolean includingEnvironments ) throws Exception {
-		trace( "import engine product=" + productName + " data ..." );
+	public void importProduct( Integer productId , boolean includingEnvironments ) throws Exception {
+		EngineDirectory directory = data.getDirectory();
+		Product product = directory.getProduct( productId );
+		
+		trace( "import engine product=" + product.NAME + " data ..." );
 		EngineProducts products = data.getProducts();
-		products.importProduct( this , productName , includingEnvironments );
+		products.importProduct( this , product.NAME , includingEnvironments );
 	}
 	
 	private void loadCore( boolean importxml , boolean withSystems ) throws Exception {

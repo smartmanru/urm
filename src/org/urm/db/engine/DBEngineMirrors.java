@@ -1,20 +1,410 @@
 package org.urm.db.engine;
 
+import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.urm.action.ActionBase;
+import org.urm.common.Common;
+import org.urm.common.ConfReader;
+import org.urm.db.DBConnection;
+import org.urm.db.core.DBNames;
+import org.urm.db.core.DBSettings;
+import org.urm.db.core.DBVersions;
+import org.urm.db.core.DBEnums.DBEnumMirrorType;
+import org.urm.db.core.DBEnums.DBEnumObjectType;
+import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
+import org.urm.engine.EngineDB;
+import org.urm.engine.EngineTransaction;
+import org.urm.engine.action.ActionInit;
+import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.EntityVar;
+import org.urm.engine.properties.PropertyEntity;
+import org.urm.engine.storage.LocalFolder;
+import org.urm.engine.storage.SourceStorage;
+import org.urm.engine.storage.UrmStorage;
+import org.urm.engine.vcs.GenericVCS;
+import org.urm.engine.vcs.MirrorCase;
+import org.urm.meta.EngineData;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.EngineMirrors;
+import org.urm.meta.engine.MirrorRepository;
+import org.urm.meta.engine.Product;
+import org.urm.meta.engine._Error;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaSourceProject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class DBEngineMirrors {
 
-	public static void importxml( EngineLoader loader , EngineMirrors mirrors , Node node ) throws Exception {
+	public static String ELEMENT_MIRROR = "repository";
+	public static String TABLE_MIRROR = "urm_mirror";
+	public static String FIELD_MIRROR_ID = "mirror_id";
+	public static String FIELD_MIRROR_DESC = "xdesc";
+	public static String FIELD_MIRROR_TYPE = "mirror_type";
+	public static String FIELD_MIRROR_RESOURCE = "resource_id";
+	
+	public static PropertyEntity upgradeEntityMirror( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.MIRROR , DBEnumParamEntityType.MIRROR , DBEnumObjectVersionType.CORE , TABLE_MIRROR , FIELD_MIRROR_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaString( MirrorRepository.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( MirrorRepository.PROPERTY_DESC , FIELD_MIRROR_DESC , MirrorRepository.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaEnumVar( MirrorRepository.PROPERTY_MIRROR_TYPE , FIELD_MIRROR_TYPE , MirrorRepository.PROPERTY_MIRROR_TYPE , "Function type" , true , DBEnumMirrorType.UNKNOWN ) ,
+				EntityVar.metaObjectVar( MirrorRepository.PROPERTY_RESOURCE , FIELD_MIRROR_RESOURCE , MirrorRepository.PROPERTY_RESOURCE , "Mirror resource" , DBEnumObjectType.RESOURCE , false ) ,
+				EntityVar.metaString( MirrorRepository.PROPERTY_RESOURCE_REPO , "Resource repository" , false , null ) ,
+				EntityVar.metaString( MirrorRepository.PROPERTY_RESOURCE_ROOT , "Repository root" , false , null ) ,
+				EntityVar.metaString( MirrorRepository.PROPERTY_RESOURCE_DATA , "Repository data path" , false , null )
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityMirror( EngineLoader loader ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.MIRROR , DBEnumParamEntityType.MIRROR , DBEnumObjectVersionType.CORE , TABLE_MIRROR , FIELD_MIRROR_ID );
+		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		return( entity );
 	}
 	
-	public static void loaddb( EngineLoader loader , EngineMirrors mirrors ) throws Exception {
+	
+	public static void importxml( EngineLoader loader , EngineMirrors mirrors , Node root ) throws Exception {
+		Node[] list = ConfReader.xmlGetChildren( root , ELEMENT_MIRROR );
+		if( list != null ) {
+			for( Node node : list ) {
+				MirrorRepository repo = importxmlRepository( loader , mirrors , node );
+				mirrors.addRepository( repo );
+			}
+		}
 	}
 	
+	private static MirrorRepository importxmlRepository( EngineLoader loader , EngineMirrors mirrors , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMirror;
+		
+		MirrorRepository repo = new MirrorRepository( mirrors );
+		repo.createRepository(
+				entity.importxmlStringProperty( root , MirrorRepository.PROPERTY_NAME ) ,
+				entity.importxmlStringProperty( root , MirrorRepository.PROPERTY_DESC ) ,
+				DBEnumMirrorType.getValue( entity.importxmlEnumProperty( root , MirrorRepository.PROPERTY_MIRROR_TYPE ) , true ) );
+		repo.setMirror(
+				entity.importxmlObjectProperty( loader , root , MirrorRepository.PROPERTY_RESOURCE ) ,
+				entity.importxmlStringProperty( root , MirrorRepository.PROPERTY_RESOURCE_REPO ) ,
+				entity.importxmlStringProperty( root , MirrorRepository.PROPERTY_RESOURCE_ROOT ) ,
+				entity.importxmlStringProperty( root , MirrorRepository.PROPERTY_RESOURCE_DATA )
+				);
+		modifyRepository( c , repo , true );
+		
+		return( repo );
+	}
+	
+	private static void modifyRepository( DBConnection c , MirrorRepository repo , boolean insert ) throws Exception {
+		if( insert )
+			repo.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , repo.NAME , DBEnumObjectType.MIRROR );
+		repo.CV = c.getNextCoreVersion();
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.modifyAppObject( c , entities.entityAppMirror , repo.ID , repo.CV , new String[] {
+				EngineDB.getString( repo.NAME ) , 
+				EngineDB.getString( repo.DESC ) ,
+				EngineDB.getEnum( repo.MIRROR_TYPE ) ,
+				EngineDB.getObject( repo.RESOURCE_ID ) ,
+				EngineDB.getString( repo.RESOURCE_REPO ) ,
+				EngineDB.getString( repo.RESOURCE_ROOT ) ,
+				EngineDB.getString( repo.RESOURCE_DATA )
+				} , insert );
+	}
+
 	public static void exportxml( EngineLoader loader , EngineMirrors mirrors , Document doc , Element root ) throws Exception {
+		for( String name : mirrors.getRepositoryNames() ) {
+			MirrorRepository repo = mirrors.findRepository( name );
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_MIRROR );
+			exportxmlRepository( loader , repo , doc , node );
+		}
+	}
+	
+	public static void exportxmlRepository( EngineLoader loader , MirrorRepository repo , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMirror;
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlString( repo.NAME ) ,
+				entity.exportxmlString( repo.DESC ) ,
+				entity.exportxmlEnum( repo.MIRROR_TYPE ) ,
+				entity.exportxmlObject( loader , MirrorRepository.PROPERTY_RESOURCE , repo.RESOURCE_ID ) ,
+				entity.exportxmlString( repo.RESOURCE_REPO ) ,
+				entity.exportxmlString( repo.RESOURCE_ROOT ) ,
+				entity.exportxmlString( repo.RESOURCE_DATA )
+		} , false );
+	}
+
+	public static void loaddb( EngineLoader loader , EngineMirrors mirrors ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = c.getEntities();
+		PropertyEntity entity = entities.entityAppResource;
+		
+		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
+		try {
+			while( rs.next() ) {
+				MirrorRepository repo = new MirrorRepository( mirrors );
+				repo.ID = entity.loaddbId( rs );
+				repo.CV = entity.loaddbVersion( rs );
+				repo.createRepository( 
+						entity.loaddbString( rs , MirrorRepository.PROPERTY_NAME ) , 
+						entity.loaddbString( rs , MirrorRepository.PROPERTY_DESC ) ,
+						DBEnumMirrorType.getValue( entity.loaddbEnum( rs , MirrorRepository.PROPERTY_MIRROR_TYPE ) , true ) );
+				repo.setMirror(
+						entity.loaddbObject( rs , MirrorRepository.PROPERTY_RESOURCE ) ,
+						entity.loaddbString( rs , MirrorRepository.PROPERTY_RESOURCE_REPO ) ,
+						entity.loaddbString( rs , MirrorRepository.PROPERTY_RESOURCE_ROOT ) ,
+						entity.loaddbString( rs , MirrorRepository.PROPERTY_RESOURCE_DATA )
+						);
+				mirrors.addRepository( repo );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+
+	public static void addProductMirrors( EngineTransaction transaction , EngineMirrors mirrors , Product product , boolean forceClear ) throws Exception {
+		ActionBase action = transaction.getAction();
+		UrmStorage storage = action.artefactory.getUrmStorage();
+
+		LocalFolder products = storage.getServerProductsFolder( action );
+		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
+		if( productfolder.checkExists( action ) )  {
+			if( !forceClear ) {
+				String path = action.getLocalPath( productfolder.folderPath );
+				action.exit1( _Error.ProductPathAlreadyExists1 , "Product path already exists - " + path , path );
+			}
+			productfolder.removeThis( action );
+		}
+			
+		productfolder.ensureExists( action );
+		
+		// meta
+		MirrorRepository meta = new MirrorRepository( mirrors );
+		String name = "product-" + product.NAME + "-meta";
+		meta.createRepository( name , null , DBEnumMirrorType.PRODUCT_META );
+		mirrors.addRepository( meta );
+ 		
+ 		// conf
+		MirrorRepository conf = new MirrorRepository( mirrors );
+		name = "product-" + product.NAME + "-data";
+		conf.createRepository( name , null , DBEnumMirrorType.PRODUCT_DATA );
+		mirrors.addRepository( conf );
+	}
+
+	public static void createProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
+		MirrorRepository repo = new MirrorRepository( mirrors );
+		String name = "project-" + project.meta.name + "-" + project.NAME;
+		repo.createRepository( name , null , DBEnumMirrorType.PROJECT );
+		mirrors.addRepository( repo );
+	}
+	
+	public static void deleteProductResources( EngineTransaction transaction , EngineMirrors mirrors , Product product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+		List<MirrorRepository> repos = new LinkedList<MirrorRepository>();
+		for( String name : mirrors.getRepositoryNames() ) {
+			MirrorRepository repo = mirrors.findRepository( name );
+			if( repo.productId == null )
+				continue;
+			
+			if( product.ID == repo.productId )
+				repos.add( repo );
+		}
+		
+		for( MirrorRepository repo : repos ) {
+			dropMirror( transaction , mirrors , repo , vcsDeleteFlag );
+			mirrors.removeRepository( repo );
+		}
+	}
+
+	public static void changeProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
+		deleteProjectMirror( transaction , mirrors , project );
+		createProjectMirror( transaction , mirrors , project );
+	}
+	
+	public static void deleteProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
+		MirrorRepository repoOld = mirrors.findProjectRepository( project );
+		if( repoOld != null ) {
+			dropMirror( transaction , mirrors , repoOld , false );
+			mirrors.removeRepository( repoOld );
+		}
+	}
+
+	public static void dropResourceMirrors( EngineTransaction transaction , EngineMirrors mirrors , AuthResource res ) throws Exception {
+		ActionBase action = transaction.getAction();
+		GenericVCS vcs = GenericVCS.getVCS( action , null , res.ID );
+		MirrorCase mc = vcs.getMirror( null );
+		mc.removeResourceFolder();
+
+		for( String name : mirrors.getRepositoryNames() ) {
+			MirrorRepository repo = mirrors.findRepository( name );
+			if( repo.RESOURCE_ID == res.ID )
+				repo.clearMirror();
+		}
+	}
+
+	private static void createServerMirror( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo , boolean push ) throws Exception {
+		// reject already published
+		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
+		createMirrorInternal( transaction , mirrors , repo , push );
+	}
+
+	private static void createProductMetaMirror( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo , boolean push ) throws Exception {
+		// reject already published
+		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
+		createMirrorInternal( transaction , mirrors , repo , push );
+	}
+
+	private static void createProductDataMirror( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo , boolean push ) throws Exception {
+		// reject already published
+		// server: test target, remove mirror work/repo, create mirror work/repo, publish target
+		createMirrorInternal( transaction , mirrors , repo , push );
+	}
+
+	private static void createMirrorInternal( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo , boolean push ) throws Exception {
+		ActionInit action = transaction.getAction();
+		GenericVCS vcs = GenericVCS.getVCS( action , null , repo.RESOURCE_ID );
+		
+		Map<String,LocalFolder> map = getFolderMap( action , mirrors , repo );
+		
+		MirrorCase mc = vcs.getMirror( repo );
+		if( push )
+			mc.createEmptyMirrorOnServer();
+		else
+			mc.useMirror();
+		
+		for( String mirrorFolder : map.keySet() ) {
+			LocalFolder folder = map.get( mirrorFolder );
+			folder.ensureExists( action );
+			if( push )
+				mc.syncFolderToVcs( mirrorFolder , folder );
+			else
+				mc.syncVcsToFolder( mirrorFolder , folder );
+		}
+		
+		if( push )
+			mc.pushMirror();
+	}
+	
+	public static void createRepository( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo , Integer resourceId , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
+		repo.setMirror( resourceId , reponame , reporoot , dataroot );
+		
+		try {
+			if( repo.isServer() )
+				createServerMirror( transaction , mirrors , repo , push );
+			else
+			if( repo.isProductMeta() )
+				createProductMetaMirror( transaction , mirrors , repo , push );
+			else
+			if( repo.isProductData() )
+				createProductDataMirror( transaction , mirrors , repo , push );
+		}
+		catch( Throwable e ) {
+			repo.clearMirror();
+			transaction.handle0( e , _Error.UnablePublishRepository0 , "Unable to create mirror repository" );
+		}
+	}
+	
+	private static Map<String,LocalFolder> getFolderMap( ActionInit action , EngineMirrors mirrors , MirrorRepository repo ) throws Exception {
+		EngineData data = mirrors.registry.core.data;
+		EngineLoader loader = new EngineLoader( data.engine , data , action );
+		
+		Map<String,LocalFolder> map = new HashMap<String,LocalFolder>();
+		if( repo.MIRROR_TYPE == DBEnumMirrorType.SERVER ) {
+			LocalFolder serverSettings = loader.getEngineSettingsFolder();
+			map.put( "." , serverSettings );
+		}
+		else
+		if( repo.MIRROR_TYPE == DBEnumMirrorType.PRODUCT_META ) {
+			Product product = action.getProduct( repo.productId );
+			LocalFolder productSettings = loader.getProductHomeFolder( product.NAME );
+			map.put( "etc" , productSettings.getSubFolder( action , "etc" ) );
+			map.put( "master" , productSettings.getSubFolder( action , "master" ) );
+		}
+		else
+		if( repo.MIRROR_TYPE == DBEnumMirrorType.PRODUCT_DATA ) {
+			Product product = action.getProduct( repo.productId );
+			Meta meta = action.getActiveProductMetadata( product.NAME );
+			MetaProductSettings settings = meta.getProductSettings( action );
+			LocalFolder home = loader.getEngineHomeFolder();
+			addFolderMapItem( action , map , SourceStorage.DATA_LIVE , home , settings.CONFIG_SOURCE_CFG_LIVEROOTDIR );
+			addFolderMapItem( action , map , SourceStorage.DATA_TEMPLATES , home , settings.CONFIG_SOURCE_CFG_ROOTDIR );
+			addFolderMapItem( action , map , SourceStorage.DATA_POSTREFRESH , home , settings.CONFIG_SOURCE_SQL_POSTREFRESH );
+			addFolderMapItem( action , map , SourceStorage.DATA_CHANGES , home , settings.CONFIG_SOURCE_RELEASEROOTDIR );
+		}
+		
+		return( map );
+	}
+
+	private static void addFolderMapItem( ActionInit action , Map<String,LocalFolder> map , String key , LocalFolder home , String subPath ) throws Exception {
+		if( subPath.isEmpty() )
+			action.exit1( _Error.MissingDataPath1 , "Missing product data path parameter: " + key , key );
+		map.put( key , home.getSubFolder( action , subPath ) );
+	}
+
+	public static void dropMirror( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo , boolean dropOnServer ) throws Exception {
+		if( !repo.isActive() )
+			return;
+		
+		dropMirrorInternal( transaction , mirrors , repo , dropOnServer );
+		repo.clearMirror();
+		repo.deleteObject();
+	}
+	
+	private static void dropMirrorInternal( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo , boolean dropOnServer ) throws Exception {
+		if( repo.isProject() && dropOnServer )
+			transaction.exitUnexpectedState();
+		
+		// silently ignore if missing
+		ActionBase action = transaction.getAction();
+		GenericVCS vcs = GenericVCS.getVCS( action , null , repo.RESOURCE_ID , "" , true );
+		MirrorCase mc = vcs.getMirror( repo );
+		mc.dropMirror( dropOnServer );
+	}
+
+	public static void pushMirror( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo ) throws Exception {
+		pushMirrorInternal( transaction , mirrors , repo );
+	}
+
+	private static void pushMirrorInternal( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo ) throws Exception {
+		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , repo.RESOURCE_ID );
+		MirrorCase mc = vcs.getMirror( repo );
+		mc.useMirror();
+		
+		ActionInit action = transaction.getAction();
+		
+		Map<String,LocalFolder> map = getFolderMap( action , mirrors , repo );
+		for( String mirrorFolder : map.keySet() ) {
+			LocalFolder folder = map.get( mirrorFolder );
+			folder.ensureExists( action );
+			mc.syncFolderToVcs( mirrorFolder , folder );
+		}
+		
+		mc.pushMirror();
+	}
+	
+	public static void refreshMirror( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo ) throws Exception {
+		refreshMirrorInternal( transaction , mirrors , repo );
+	}
+
+	private static void refreshMirrorInternal( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo ) throws Exception {
+		ActionInit action = transaction.getAction();
+		GenericVCS vcs = GenericVCS.getVCS( transaction.getAction() , null , repo.RESOURCE_ID );
+		MirrorCase mc = vcs.getMirror( repo );
+		mc.useMirror();
+		
+		Map<String,LocalFolder> map = getFolderMap( action , mirrors , repo );
+		for( String mirrorFolder : map.keySet() ) {
+			LocalFolder folder = map.get( mirrorFolder );
+			folder.ensureExists( action );
+			mc.syncVcsToFolder( mirrorFolder , folder );
+		}
 	}
 	
 }

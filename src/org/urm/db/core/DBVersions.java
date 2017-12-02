@@ -42,7 +42,7 @@ public abstract class DBVersions {
 				EngineDB.getInteger( version.OWNER_OBJECT_ID ) , 
 				EngineDB.getInteger( version.nextVersion ) , 
 				EngineDB.getEnum( version.OBJECT_VERSION_TYPE ) ,
-				EngineDB.getInteger( version.LAST_IMPORT_ID ) , 
+				EngineDB.getObject( version.LAST_IMPORT_ID ) , 
 				EngineDB.getString( version.LAST_NAME ) , 
 				EngineDB.getEnum( version.OWNER_STATUS_TYPE )
 				} ) )

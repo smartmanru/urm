@@ -65,7 +65,7 @@ public class ActionSave extends ActionBase {
 		FileSet set = pfMaster.getFileSet( this );
 		
 		MirrorRepository mirror = super.getMetaMirror( meta.getStorage( this ) );
-		vcs = GenericVCS.getSvnDirect( this , mirror.getResource( this ) );
+		vcs = GenericVCS.getSvnDirect( this , mirror.RESOURCE_ID );
 		if( vcs.checkVersioned( mirror , pfMaster.folderPath ) ) {
 			List<String> filesNotInSvn = vcs.getFilesNotInSvn( mirror , pfMaster );
 			executeDir( set , lines , filesNotInSvn );

@@ -810,6 +810,11 @@ abstract public class ActionBase extends ActionCore {
 		return( directory.getProduct( name ) );
 	}
 	
+	public Product getProduct( int id ) throws Exception {
+		EngineDirectory directory = getServerDirectory();
+		return( directory.getProduct( id ) );
+	}
+	
 	public Product findProduct( String name ) {
 		EngineDirectory directory = getServerDirectory();
 		return( directory.findProduct( name ) );

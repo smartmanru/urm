@@ -68,16 +68,16 @@ public abstract class GenericVCS {
 	public abstract void addDirToCommit( MirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
 	public abstract void deleteDirToCommit( MirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
 	
-	public static GenericVCS getVCS( ActionBase action , Meta meta , String vcs ) throws Exception {
-		return( getVCS( action , meta , vcs , "" , false ) );
+	public static GenericVCS getVCS( ActionBase action , Meta meta , Integer resourceId ) throws Exception {
+		return( getVCS( action , meta , resourceId , "" , false ) );
 	}
 	
 	public static GenericVCS getVCS( ActionBase action , AuthResource res ) throws Exception {
 		return( getVCS( action , null , res , action.shell ) );
 	}
 	
-	public static GenericVCS getVCS( ActionBase action , Meta meta , String vcs , String BUILDER , boolean noAuth ) throws Exception {
-		AuthResource res = action.getResource( vcs );
+	public static GenericVCS getVCS( ActionBase action , Meta meta , Integer resourceId , String BUILDER , boolean noAuth ) throws Exception {
+		AuthResource res = action.getResource( resourceId );
 		if( !noAuth )
 			res.loadAuthData();
 		
@@ -106,18 +106,18 @@ public abstract class GenericVCS {
 		return( null );
 	}
 	
-	public static SubversionVCS getSvnDirect( ActionBase action , String resource ) throws Exception {
-		AuthResource res = action.getResource( resource );
+	public static SubversionVCS getSvnDirect( ActionBase action , Integer resourceId ) throws Exception {
+		AuthResource res = action.getResource( resourceId );
 		if( !res.isSvn() )
-			action.exit1( _Error.NonSvnResource1 , "unexpected non-svn resource=" + resource , resource );
-		return( ( SubversionVCS )getVCS( action , null , resource ) );
+			action.exit1( _Error.NonSvnResource1 , "unexpected non-svn resource=" + res.NAME , res.NAME );
+		return( ( SubversionVCS )getVCS( action , null , resourceId ) );
 	}
 
-	public static GitVCS getGitDirect( ActionBase action , String resource ) throws Exception {
-		AuthResource res = action.getResource( resource );
-		if( !res.isGit() )
-			action.exit1( _Error.NonGitResource1 , "unexpected non-git resource=" + resource , resource );
-		return( ( GitVCS )getVCS( action , null , resource ) );
+	public static GitVCS getGitDirect( ActionBase action , Integer resourceId ) throws Exception {
+		AuthResource res = action.getResource( resourceId );
+		if( !res.isSvn() )
+			action.exit1( _Error.NonSvnResource1 , "unexpected non-svn resource=" + res.NAME , res.NAME );
+		return( ( GitVCS )getVCS( action , null , resourceId ) );
 	}
 
 }

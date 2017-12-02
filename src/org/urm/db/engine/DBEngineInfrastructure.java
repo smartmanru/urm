@@ -267,7 +267,7 @@ public class DBEngineInfrastructure {
 				EngineDB.getString( account.NAME ) , 
 				EngineDB.getString( account.DESC ) ,
 				EngineDB.getBoolean( account.ADMIN ) ,
-				EngineDB.getInteger( account.RESOURCE_ID )
+				EngineDB.getObject( account.RESOURCE_ID )
 				} , insert );
 	}
 

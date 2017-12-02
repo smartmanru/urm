@@ -202,7 +202,7 @@ public class DBEngineResources {
 		
 		ActionBase action = transaction.getAction();
 		EngineMirrors mirrors = action.getServerMirrors();
-		mirrors.dropResourceMirrors( transaction , rc );
+		DBEngineMirrors.dropResourceMirrors( transaction , mirrors , rc );
 	}
 	
 }

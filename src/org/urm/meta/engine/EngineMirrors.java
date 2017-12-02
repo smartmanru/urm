@@ -1,36 +1,26 @@
 package org.urm.meta.engine;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.UrmStorage;
-import org.urm.engine.vcs.GenericVCS;
-import org.urm.engine.vcs.MirrorCase;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.product.MetaSourceProject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class EngineMirrors extends EngineObject {
 
 	public EngineRegistry registry;
 
 	Map<String,MirrorRepository> repoMap;
+	Map<Integer,MirrorRepository> repoMapById;
 
 	public EngineMirrors( EngineRegistry registry ) {
 		super( registry );
 		this.registry = registry;
 		
 		repoMap = new HashMap<String,MirrorRepository>();
+		repoMapById = new HashMap<Integer,MirrorRepository>();
 	}
 
 	@Override
@@ -50,14 +40,30 @@ public class EngineMirrors extends EngineObject {
 	
 	public void addRepository( MirrorRepository repo ) {
 		repoMap.put( repo.NAME , repo );
+		repoMapById.put( repo.ID , repo );
 	}
 	
-	public Map<String,MirrorRepository> getRepositories() {
-		return( repoMap );
+	public void removeRepository( MirrorRepository repo ) {
+		repoMap.remove( repo.NAME );
+		repoMapById.remove( repo.ID );
 	}
 	
-	public MirrorRepository getRepository( String name ) {
-		return( repoMap.get( name ) );
+	public String[] getRepositoryNames() {
+		return( Common.getSortedKeys( repoMap ) );
+	}
+	
+	public MirrorRepository getRepository( String name ) throws Exception {
+		MirrorRepository repo = repoMap.get( name );
+		if( repo == null )
+			Common.exit1( _Error.UnknownMirrorRepository1 , "Unknown mirror repository name=" + name , name );
+		return( repo );
+	}
+	
+	public MirrorRepository getRepository( int mirrorId ) throws Exception {
+		MirrorRepository repo = repoMapById.get( mirrorId );
+		if( repo == null )
+			Common.exit1( _Error.UnknownMirrorRepository1 , "Unknown mirror repository id=" + mirrorId , "" + mirrorId );
+		return( repo );
 	}
 	
 	public MirrorRepository findRepository( String name ) {
@@ -83,100 +89,4 @@ public class EngineMirrors extends EngineObject {
 		return( findRepository( name ) );
 	}
 	
-	public void load( Node root ) throws Exception {
-		if( root == null )
-			return;
-		
-		Node[] list = ConfReader.xmlGetChildren( root , "repository" );
-		if( list == null )
-			return;
-		
-		for( Node node : list ) {
-			MirrorRepository repo = new MirrorRepository( this );
-			repo.load( node );
-			addRepository( repo );
-		}
-	}
-
-	public void save( Document doc , Element root ) throws Exception {
-		for( MirrorRepository repo : repoMap.values() ) {
-			Element resElement = Common.xmlCreateElement( doc , root , "repository" );
-			repo.save( doc , resElement );
-		}
-	}
-
-	public void addProductMirrors( EngineTransaction transaction , Product product , boolean forceClear ) throws Exception {
-		ActionBase action = transaction.getAction();
-		UrmStorage storage = action.artefactory.getUrmStorage();
-
-		LocalFolder products = storage.getServerProductsFolder( action );
-		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
-		if( productfolder.checkExists( action ) )  {
-			if( !forceClear ) {
-				String path = action.getLocalPath( productfolder.folderPath );
-				action.exit1( _Error.ProductPathAlreadyExists1 , "Product path already exists - " + path , path );
-			}
-			productfolder.removeThis( action );
-		}
-			
-		productfolder.ensureExists( action );
-		
-		// meta
-		MirrorRepository meta = new MirrorRepository( this );
-		String name = "product-" + product.NAME + "-meta";
- 		meta.createProductMeta( transaction , product , name );
- 		addRepository( meta );
- 		
- 		// conf
-		MirrorRepository conf = new MirrorRepository( this );
-		name = "product-" + product.NAME + "-data";
-		conf.createProductData( transaction , product , name );
- 		addRepository( conf );
-	}
-
-	public void createProjectMirror( EngineTransaction transaction , MetaSourceProject project ) throws Exception {
-		MirrorRepository repo = new MirrorRepository( this );
-		String name = "project-" + project.meta.name + "-" + project.NAME;
-		repo.createProjectSource( transaction , project , name );
- 		addRepository( repo );
-	}
-	
-	public void deleteProductResources( EngineTransaction transaction , Product product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-		List<MirrorRepository> repos = new LinkedList<MirrorRepository>();
-		for( MirrorRepository repo : repoMap.values() ) {
-			if( repo.PRODUCT.equals( product.NAME ) )
-				repos.add( repo );
-		}
-		
-		for( MirrorRepository repo : repos ) {
-			repo.dropMirror( transaction , vcsDeleteFlag );
-			repoMap.remove( repo.NAME );
-		}
-	}
-
-	public void changeProjectMirror( EngineTransaction transaction , MetaSourceProject project ) throws Exception {
-		deleteProjectMirror( transaction , project );
-		createProjectMirror( transaction , project );
-	}
-	
-	public void deleteProjectMirror( EngineTransaction transaction , MetaSourceProject project ) throws Exception {
-		MirrorRepository repoOld = findProjectRepository( project );
-		if( repoOld != null ) {
-			repoOld.dropMirror( transaction , false );
-			repoMap.remove( repoOld.NAME );
-		}
-	}
-
-	public void dropResourceMirrors( EngineTransaction transaction , AuthResource res ) throws Exception {
-		ActionBase action = transaction.getAction();
-		GenericVCS vcs = GenericVCS.getVCS( action , null , res.NAME );
-		MirrorCase mc = vcs.getMirror( null );
-		mc.removeResourceFolder();
-
-		for( MirrorRepository repo : repoMap.values() ) {
-			if( repo.RESOURCE.equals( res.NAME ) )
-				repo.clearMirror( transaction );
-		}
-	}
-
 }

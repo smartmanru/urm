@@ -78,7 +78,11 @@ public class EngineDB {
 	public void clearProduct( String productName ) {
 	}
 
-	public static String getInteger( Integer value ) {
+	public static String getInteger( int value ) {
+		return( "" + value );
+	}
+
+	public static String getObject( Integer value ) {
 		if( value == null )
 			return( "null" );
 		return( "" + value );

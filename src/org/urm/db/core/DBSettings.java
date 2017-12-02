@@ -33,7 +33,9 @@ public abstract class DBSettings {
 	
 	public static void loaddbValues( EngineLoader loader , int objectId , ObjectProperties properties , boolean saveApp ) throws Exception {
 		DBConnection c = loader.getConnection();
-		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETOBJECTPARAMVALUES2 , new String[] { EngineDB.getInteger( objectId ) , EngineDB.getEnum( properties.type ) } );
+		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETOBJECTPARAMVALUES2 , new String[] { 
+				EngineDB.getInteger( objectId ) , 
+				EngineDB.getEnum( properties.type ) } );
 
 		try {
 			while( rs.next() ) {

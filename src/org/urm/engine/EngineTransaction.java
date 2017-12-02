@@ -7,6 +7,7 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.db.engine.DBEngineLifecycles;
+import org.urm.db.engine.DBEngineMirrors;
 import org.urm.db.engine.DBEngineResources;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;
@@ -132,39 +133,38 @@ public class EngineTransaction extends TransactionBase {
 	// ################################################################################
 	// MIRRORS
 	
-	public void createMirrorRepository( MirrorRepository repo , String resource , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
+	public void createMirrorRepository( MirrorRepository repo , Integer resourceId , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
 		if( push )
 			loader.exportRepo( repo );
-		repo.createMirrorRepository( this , resource , reponame  , reporoot , dataroot , push );
+		DBEngineMirrors.createRepository( this , mirrors , repo , resourceId , reponame  , reporoot , dataroot , push );
 		if( !push )
 			loader.importRepo( repo );
 	}
 
 	public void pushMirror( MirrorRepository repo ) throws Exception {
 		loader.exportRepo( repo );
-		repo.pushMirror( this );
+		DBEngineMirrors.pushMirror( this , mirrors , repo );
 	}
 
 	public void refreshMirror( MirrorRepository repo ) throws Exception {
-		repo.refreshMirror( this );
+		DBEngineMirrors.refreshMirror( this , mirrors , repo );
 		loader.importRepo( repo );
 	}
 
 	public void dropMirror( MirrorRepository repo , boolean dropOnServer ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
-		repo.dropMirror( this , dropOnServer );
-		repo.deleteObject();
+		DBEngineMirrors.dropMirror( this , mirrors , repo , dropOnServer );
 	}
 
 	public void createMirrorRepository( EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
 		checkTransactionMirrors( mirrors );
-		mirrors.createProjectMirror( this , project );
+		DBEngineMirrors.createProjectMirror( this , mirrors , project );
 	}
 
 	public void changeMirrorRepository( EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
 		checkTransactionMirrors( mirrors );
-		mirrors.changeProjectMirror( this , project );
+		DBEngineMirrors.changeProjectMirror( this , mirrors , project );
 	}
 
 	public void deleteSourceProjectMirror( EngineMirrors mirrors , MetaSourceProject project , boolean leaveManual ) throws Exception {
@@ -182,7 +182,7 @@ public class EngineTransaction extends TransactionBase {
 				distr.deleteBinaryItem( this , distItem );
 		}
 		sources.removeProject( this , project );
-		mirrors.deleteProjectMirror( this , project );
+		DBEngineMirrors.deleteProjectMirror( this , mirrors , project );
 	}
 
 	// ################################################################################
@@ -378,7 +378,7 @@ public class EngineTransaction extends TransactionBase {
 		EngineMirrors mirrors = action.getServerMirrors();
 		for( String productName : system.getProductNames() ) {
 			Product product = system.findProduct( productName );
-			mirrors.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+			DBEngineMirrors.deleteProductResources( this , mirrors , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		}
 		directory.deleteSystem( this , system );
 		system.deleteObject();
@@ -388,7 +388,7 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionDirectory();
 		
 		EngineMirrors mirrors = action.getServerMirrors();
-		mirrors.addProductMirrors( this , product , forceClear );
+		DBEngineMirrors.addProductMirrors( this , mirrors , product , forceClear );
 		
 		directory.createProduct( this , product );
 		Meta meta = super.createProductMetadata( product );
@@ -406,7 +406,7 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionMirrors( mirrors );
 		checkTransactionMetadata( product.NAME );
 		
-		mirrors.deleteProductResources( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+		DBEngineMirrors.deleteProductResources( this , mirrors , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		EngineAuth auth = action.getServerAuth();
 		auth.deleteProduct( this , product );
 		directory.deleteProduct( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );

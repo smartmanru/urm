@@ -22,30 +22,47 @@ public class MetaSourceProject {
 	public Meta meta;
 	public MetaSourceProjectSet set;
 	
-	public int POS = 0;
-	public String NAME = "";
-	public String DESC = "";
+	public int POS;
+	public String NAME;
+	public String DESC;
 	public VarPROJECTTYPE type;
-	public String RESOURCE = "";
-	public String REPOSITORY = "";
-	public boolean codebaseProd = false;
-	public String BUILDGROUP = "";
-	public String REPOPATH = "";
-	public String CODEPATH = "";
-	public String TRACKER = "";
-	public String BRANCH = "";
-	public String BUILDER = "";
-	public String BUILDER_ADDOPTIONS = "";
+	public boolean codebaseProd;
+	public String BUILDGROUP;
+	public String TRACKER;
+	public String BRANCH;
+	public String BUILDER;
+	public String BUILDER_ADDOPTIONS;
+	public Integer MIRROR_ID;
 
-	List<MetaSourceProjectItem> itemList = new LinkedList<MetaSourceProjectItem>();
-	Map<String,MetaSourceProjectItem> itemMap = new HashMap<String,MetaSourceProjectItem>();
-
+	public String RESOURCE;
+	public String REPOSITORY;
+	public String REPOPATH;
+	public String CODEPATH;
+	
 	public boolean CUSTOMBUILD;
 	public boolean CUSTOMGET;
-	
+
+	List<MetaSourceProjectItem> itemList;
+	Map<String,MetaSourceProjectItem> itemMap;
+
 	public MetaSourceProject( Meta meta , MetaSourceProjectSet set ) {
 		this.meta = meta;
 		this.set = set;
+		POS = 0;
+		NAME = "";
+		DESC = "";
+		REPOSITORY = "";
+		codebaseProd = false;
+		BUILDGROUP = "";
+		REPOPATH = "";
+		CODEPATH = "";
+		TRACKER = "";
+		BRANCH = "";
+		BUILDER = "";
+		BUILDER_ADDOPTIONS = "";
+		
+		itemList = new LinkedList<MetaSourceProjectItem>();
+		itemMap = new HashMap<String,MetaSourceProjectItem>();
 	}
 	
 	public void createProject( EngineTransaction transaction , String name , int POS ) throws Exception {
@@ -69,11 +86,6 @@ public class MetaSourceProject {
 			REPOSITORY = NAME;
 
 		BUILDGROUP = ConfReader.getAttrValue( node , "group" );
-		RESOURCE = ConfReader.getRequiredAttrValue( node , "resource" );
-		if( !RESOURCE.isEmpty() ) {
-			REPOPATH = ConfReader.getAttrValue( node , "repopath" );
-			CODEPATH = ConfReader.getAttrValue( node , "codepath" );
-		}
 		
 		type = Types.getProjectType( ConfReader.getAttrValue( node , "type" ) , true );
 		if( type == VarPROJECTTYPE.BUILDABLE ) {
