@@ -109,7 +109,7 @@ public abstract class Builder {
 	}
 	
 	public String getNexusPath( ActionBase action , MetaSourceProject project ) throws Exception {
-		AuthResource res = action.getResource( builder.TARGET_RESOURCE );
+		AuthResource res = action.getResource( builder.TARGET_RESOURCE_ID );
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
 		return( res.BASEURL + "/content/repositories/" + build.CONFIG_NEXUS_REPO );
 	}

@@ -6,7 +6,6 @@ import org.urm.common.Common;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.engine.AuthResource;
-import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductBuildSettings;
 
@@ -35,21 +34,10 @@ public class ActionUploadLibItem extends ActionBase {
 			super.exitUnexpectedState();
 		
 		// set environment
-		EngineBuilders builders = super.getServerBuilders();
 		MetaProductBuildSettings build = getBuildSettings( meta );
 		String BUILD_MSETTINGS="--settings=" + shell.getLocalPath( build.CONFIG_MAVEN_CFGFILE );
-		String BUILD_JAVA_HOME = shell.getLocalPath( builders.JAVA_HOMEPATH );
-		String BUILD_MAVEN_HOME = shell.getLocalPath( builders.MAVEN_HOMEPATH );
 		String BUILD_FILE = shell.getLocalPath( FILE );
-
-		shell.export( this , "JAVA_HOME" , BUILD_JAVA_HOME );
-		shell.export( this , "M2_HOME" , BUILD_MAVEN_HOME );
-		shell.export( this , "M2" , shell.getLocalPath( shell.getVariable( "M2_HOME" ) + "/bin" ) );
-		shell.export( this , "PATH" , shell.getLocalPath( shell.getVariable( "JAVA_HOME" ) + "/bin" ) + shell.getPathBreak() +
-				shell.getVariable( "M2" ) + shell.getPathBreak() +
-				shell.getVariable( "PATH" ) );
-		shell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
-
+		
 		// upload
 		if( GROUPID.isEmpty() || FILE.isEmpty() )
 			exitUnexpectedState();
@@ -87,7 +75,7 @@ public class ActionUploadLibItem extends ActionBase {
 			F_CLASSIFIER = "-Dclassifier=" + CLASSIFIER;
 
 		String CMD;
-		AuthResource res = getResource( scopeProject.sourceProject.RESOURCE );
+		AuthResource res = getResource( scopeProject.sourceProject.RESOURCE_ID );
 		if( F_EXTENSION.equals( "pom" ) ) {
 	        CMD = "mvn -e deploy:deploy-file " + BUILD_MSETTINGS + 
 	        	" -DupdateReleaseInfo=true -DuniqueVersion=false -DrepositoryId=nexus" + 

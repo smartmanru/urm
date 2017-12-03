@@ -149,6 +149,8 @@ public abstract class DBEnums {
 			return( getValue( ostype.name() , false ) ); 
 		}
 		
+		public boolean isLinux() { return( value == LINUX.value ); };
+		public boolean isWindows() { return( value == WINDOWS.value ); };
 		private final int value;
 		private String[] synonyms;
 		@Override public int code() { return( value ); };
@@ -167,6 +169,8 @@ public abstract class DBEnums {
 		LIFECYCLE(5,null) ,
 		LIFECYCLEPHASE(6,null) ,
 		MIRROR(7,null) ,
+		BUILDER(8,null) ,
+		BUILDREG(9,null) ,
 		DATACENTER(10,null) ,
 		NETWORK(11,null) ,
 		HOST(12,null) ,
@@ -310,6 +314,8 @@ public abstract class DBEnums {
 		LIFECYCLEPHASE(19,null) ,
 		RESOURCE(20,null) ,
 		MIRROR(21,null) ,
+		BUILDER(22,null) ,
+		BUILDREG(23,null) ,
 		DATACENTER(31,null) ,
 		NETWORK(32,null) ,
 		HOST(33,null) ,

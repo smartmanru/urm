@@ -33,7 +33,7 @@ public class BuilderGradleMethod extends Builder {
 
 		// set java and gradle environment
 		String BUILD_JAVA_HOME = builder.JAVA_JDKHOMEPATH;
-		String BUILD_GRADLE_HOME = builder.GRADLE_HOMEPATH; 
+		String BUILD_GRADLE_HOME = builder.BUILDER_HOMEPATH; 
 		String MODULE_ADDITIONAL_OPTIONS = super.getVarString( action , props , project.BUILDER_ADDOPTIONS );
 
 		ShellExecutor session = action.shell;

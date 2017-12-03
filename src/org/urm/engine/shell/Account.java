@@ -6,7 +6,6 @@ import java.net.InetAddress;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
-import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.db.core.DBEnums.DBEnumOSType;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.Datacenter;
@@ -23,8 +22,8 @@ public class Account {
 	public String HOST;
 	public String IP;
 	public int PORT;
-	public VarOSTYPE osType;
-	public Integer AUTHRESOURCE;
+	public DBEnumOSType osType;
+	public Integer AUTHRESOURCE_ID;
 
 	private String DATACENTER;
 	
@@ -37,11 +36,16 @@ public class Account {
 		PORT = 0;
 		IP = "";
 		
-		osType = execrc.osType;
+		try {
+			osType = DBEnumOSType.getValue( execrc.osType );
+		}
+		catch( Throwable e ) {
+			osType = DBEnumOSType.UNKNOWN;
+		}
 		DATACENTER = "";
 	}
 	
-	private Account( String user , String host , VarOSTYPE osType ) {
+	private Account( String user , String host , DBEnumOSType osType ) {
 		this.USER = user;
 		this.HOST = host;
 		this.PORT = 22;
@@ -51,7 +55,7 @@ public class Account {
 		DATACENTER = "";
 	}
 	
-	private Account( String user , String host , int port , VarOSTYPE osType ) {
+	private Account( String user , String host , int port , DBEnumOSType osType ) {
 		this.USER = user;
 		this.HOST = host;
 		this.PORT = port;
@@ -60,7 +64,7 @@ public class Account {
 		DATACENTER = "";
 	}
 	
-	public static Account getLocalAccount( String user , String host , VarOSTYPE osType ) {
+	public static Account getLocalAccount( String user , String host , DBEnumOSType osType ) {
 		return( new Account( user , host , osType ) );
 	}
 	
@@ -69,14 +73,14 @@ public class Account {
 	}
 	
 	public boolean isWindows() {
-		return( osType == VarOSTYPE.WINDOWS );
+		return( osType == DBEnumOSType.WINDOWS );
 	}
 	
 	public boolean isLinux() {
-		return( osType == VarOSTYPE.LINUX );
+		return( osType == DBEnumOSType.LINUX );
 	}
 	
-	public static Account getDatacenterAccount( ActionBase action , String datacenter , String user , String host , int port , VarOSTYPE osType ) throws Exception {
+	public static Account getDatacenterAccount( ActionBase action , String datacenter , String user , String host , int port , DBEnumOSType osType ) throws Exception {
 		if( host.isEmpty() || user.isEmpty() )
 			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
 
@@ -102,25 +106,25 @@ public class Account {
 				action.exit1( _Error.UnknownDatacenter1 , "Unable to access account, unknown datacenter=" + datacenter , datacenter );
 			
 			hostAccount = dc.getFinalAccount( user + "@" + host );
-			if( hostAccount.host.OS_TYPE != DBEnumOSType.getValue( osType ) ) {
+			if( hostAccount.host.OS_TYPE != osType ) {
 				String p1 = Common.getEnumLower( hostAccount.host.OS_TYPE );
 				String p2 = Common.getEnumLower( osType );
 				action.exit2( _Error.MismatchedOsType2 , "Mismatched OS type: " + p1 + " != " + p2 , p1 , p2 );
 			}
 			
 			account.IP = hostAccount.host.IP;
-			account.AUTHRESOURCE = hostAccount.RESOURCE_ID;
+			account.AUTHRESOURCE_ID = hostAccount.RESOURCE_ID;
 		}
 		
 		return( account );
 	}
 	
-	public static Account getResourceAccount( ActionBase action , AuthResource resource , String user , String host , int port , VarOSTYPE osType ) throws Exception {
+	public static Account getResourceAccount( ActionBase action , AuthResource resource , String user , String host , int port , DBEnumOSType osType ) throws Exception {
 		if( host.isEmpty() || user.isEmpty() )
 			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
 		
 		Account account = new Account( user , host , port , osType );
-		account.AUTHRESOURCE = AuthResource.getId( resource );
+		account.AUTHRESOURCE_ID = AuthResource.getId( resource );
 		
 		if( action.isLocalRun() ||
 			host.equals( "local" ) || host.equals( "localhost" ) ||
@@ -132,13 +136,13 @@ public class Account {
 		return( account );
 	}
 	
-	public static Account getDatacenterAccount( ActionBase action , String datacenter , String hostLogin , int port , VarOSTYPE osType ) throws Exception {
+	public static Account getDatacenterAccount( ActionBase action , String datacenter , String hostLogin , int port , DBEnumOSType osType ) throws Exception {
 		String user = Common.getPartBeforeFirst( hostLogin , "@" );
 		String host = Common.getPartAfterLast( hostLogin , "@" );
 		return( getDatacenterAccount( action , datacenter , user , host , port , osType ) );
 	}
 
-	public static Account getResourceAccount( ActionBase action , AuthResource resource , String hostLogin , int port , VarOSTYPE osType ) throws Exception {
+	public static Account getResourceAccount( ActionBase action , AuthResource resource , String hostLogin , int port , DBEnumOSType osType ) throws Exception {
 		if( hostLogin.isEmpty() )
 			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
 		
@@ -151,7 +155,7 @@ public class Account {
 		return( getResourceAccount( action , resource , user , host , port , osType ) );
 	}
 	
-	public static Account getDatacenterAccount( ActionBase action , String datacenter , String hostLogin , VarOSTYPE osType ) throws Exception {
+	public static Account getDatacenterAccount( ActionBase action , String datacenter , String hostLogin , DBEnumOSType osType ) throws Exception {
 		if( hostLogin.isEmpty() )
 			action.exit0( _Error.MissingAccountDetails0 , "account details are not provided" );
 		
@@ -171,7 +175,7 @@ public class Account {
 			action.exit1( _Error.UnknownDatacenter1 , "Unable to access account, unknown datacenter=" + datacenter , datacenter );
 		
 		HostAccount account = dc.getFinalAccount( hostLogin );
-		if( account.host.OS_TYPE != DBEnumOSType.getValue( osType ) ) {
+		if( account.host.OS_TYPE != osType ) {
 			String p1 = Common.getEnumLower( account.host.OS_TYPE );
 			String p2 = Common.getEnumLower( osType );
 			action.exit2( _Error.MismatchedOsType2 , "Mismatched OS type: " + p1 + " != " + p2 , p1 , p2 );
@@ -183,13 +187,13 @@ public class Account {
 	public static Account getDatacenterAccount( String datacenter , String hostLogin ) {
 		String user = Common.getPartBeforeFirst( hostLogin , "@" );
 		String host = Common.getPartAfterLast( hostLogin , "@" );
-		Account account = new Account( user , host , 0 , VarOSTYPE.UNKNOWN );
+		Account account = new Account( user , host , 0 , DBEnumOSType.UNKNOWN );
 		account.DATACENTER = datacenter;
 		return( account );
 	}
 
 	public static Account getDatacenterAccount( String datacenter , String user , String host ) {
-		Account account = new Account( user , host , 0 , VarOSTYPE.UNKNOWN );
+		Account account = new Account( user , host , 0 , DBEnumOSType.UNKNOWN );
 		account.DATACENTER = datacenter;
 		return( account );
 	}
@@ -336,7 +340,7 @@ public class Account {
 	}
 
 	public AuthResource getResource( ActionBase action ) throws Exception {
-		if( AUTHRESOURCE == null ) {
+		if( AUTHRESOURCE_ID == null ) {
 			String hostLogin = getHostLogin();
 			EngineInfrastructure infra = action.getServerInfrastructure();
 			if( DATACENTER.isEmpty() )
@@ -350,10 +354,10 @@ public class Account {
 			if( hostAccount.RESOURCE_ID == null )
 				action.exit1( _Error.MissingAuthKey1 , "Missing auth resource to login to " + hostLogin , hostLogin );
 			
-			AUTHRESOURCE = hostAccount.RESOURCE_ID;
+			AUTHRESOURCE_ID = hostAccount.RESOURCE_ID;
 		}
 		
-		AuthResource res = action.getResource( AUTHRESOURCE );
+		AuthResource res = action.getResource( AUTHRESOURCE_ID );
 		return( res );
 	}
 	
@@ -364,7 +368,7 @@ public class Account {
 	}
 
 	public boolean isAdmin() {
-		if( osType == VarOSTYPE.LINUX && USER.equals( "root" ) )
+		if( osType == DBEnumOSType.LINUX && USER.equals( "root" ) )
 			return( true );
 		return( false );
 	}

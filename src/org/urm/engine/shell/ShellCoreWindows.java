@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.meta.Types.*;
@@ -22,7 +22,7 @@ public class ShellCoreWindows extends ShellCore {
 	String cmdAnd;
 
 	public ShellCoreWindows( ShellExecutor executor , VarSESSIONTYPE sessionType , Folder tmpFolder , boolean local ) {
-		super( executor , VarOSTYPE.WINDOWS , sessionType , tmpFolder , local );
+		super( executor , DBEnumOSType.WINDOWS , sessionType , tmpFolder , local );
 		cmdAnd = "&&";
 	}
 

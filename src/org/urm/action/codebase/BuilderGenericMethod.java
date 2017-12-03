@@ -27,7 +27,7 @@ public class BuilderGenericMethod extends Builder {
 		PropertySet props = super.createProperties( action , project );
 
 		// set environment
-		String GENERIC_CMD = super.getVarString( action , props , builder.GENERIC_COMMAND );
+		String GENERIC_CMD = super.getVarString( action , props , builder.BUILDER_COMMAND );
 		String GENERIC_OPTIONS = super.getVarString( action , props , project.BUILDER_ADDOPTIONS );
 		GENERIC_CMD += " " + GENERIC_OPTIONS;
 

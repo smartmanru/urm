@@ -15,12 +15,12 @@ public class NexusStorage {
 	Artefactory artefactory;
 	public LocalFolder artefactoryFolder;
 	Meta meta;
-	String NEXUS_RESOURCE;
+	Integer NEXUS_RESOURCE;
 	String repository;
 	
 	String authFile = "~/.auth/nexus.http.txt"; 
 	
-	public NexusStorage( Artefactory artefactory , Meta meta , LocalFolder artefactoryFolder , String NEXUS_RESOURCE , String repository ) {
+	public NexusStorage( Artefactory artefactory , Meta meta , LocalFolder artefactoryFolder , Integer NEXUS_RESOURCE , String repository ) {
 		this.artefactory = artefactory;
 		this.artefactoryFolder = artefactoryFolder;
 		this.NEXUS_RESOURCE = NEXUS_RESOURCE;

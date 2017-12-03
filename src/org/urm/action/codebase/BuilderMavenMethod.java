@@ -110,7 +110,7 @@ public class BuilderMavenMethod extends Builder {
 
 		// set environment
 		String BUILD_JAVA_HOME = builder.JAVA_JDKHOMEPATH;
-		String BUILD_MAVEN_HOME = builder.MAVEN_HOMEPATH; 
+		String BUILD_MAVEN_HOME = builder.BUILDER_HOMEPATH; 
 		String MAVEN_CMD = "mvn -B " + MODULE_ADDITIONAL_OPTIONS + " clean " + 
 				MODULE_MAVEN_CMD + " " + MODULE_ALT_REPO + " " + MODULE_MSETTINGS + " -Dmaven.test.skip=true";
 

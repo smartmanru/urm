@@ -2,7 +2,7 @@ package org.urm.engine.storage;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.db.core.DBEnums.*;
 import org.urm.meta.engine.Product;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.Types.*;
@@ -46,7 +46,7 @@ public class UrmStorage {
 		return( false );
 	}
 	
-	private String getDatabaseSpecificFolder( ActionBase action , VarDBMSTYPE dbtype , VarOSTYPE ostype , boolean remoteRun ) throws Exception {
+	private String getDatabaseSpecificFolder( ActionBase action , VarDBMSTYPE dbtype , DBEnumOSType ostype , boolean remoteRun ) throws Exception {
 		String dbFolder = "";
 		if( dbtype == VarDBMSTYPE.ORACLE )
 			dbFolder = "oracle";
@@ -60,13 +60,13 @@ public class UrmStorage {
 			action.exitUnexpectedState();
 		
 		if( !remoteRun )
-			ostype = action.execrc.osType;
+			ostype = DBEnumOSType.getValue( action.execrc.osType );
 		
 		String osFolder = "";
-		if( ostype == VarOSTYPE.LINUX )
+		if( ostype.isLinux() )
 			osFolder = "linux";
 		else
-		if( ostype == VarOSTYPE.WINDOWS )
+		if( ostype.isWindows() )
 			osFolder = "windows";
 		else
 			action.exitUnexpectedState();

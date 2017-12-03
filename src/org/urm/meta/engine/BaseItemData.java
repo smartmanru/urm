@@ -9,7 +9,6 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.PropertyController;
@@ -17,7 +16,6 @@ import org.urm.engine.properties.PropertySet;
 import org.urm.engine.storage.BaseRepository;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.Types;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -42,7 +40,7 @@ public class BaseItemData extends PropertyController {
 	public Map<String,String> compatibilityMap;
 	
 	public boolean adm;
-	public VarOSTYPE OS_TYPE;
+	public DBEnumOSType OS_TYPE;
 	public DBEnumServerAccessType SERVERACCESS_TYPE;
 	public Charset charset;
 
@@ -89,7 +87,7 @@ public class BaseItemData extends PropertyController {
 		adm = super.getBooleanProperty( action , "adminstall" );
 		
 		String OSTYPE = super.getStringPropertyRequired( action , "ostype" );
-		OS_TYPE = Types.getOSType( OSTYPE , false );
+		OS_TYPE = DBEnumOSType.getValue( OSTYPE , false );
 
 		String CHARSET = super.getStringProperty( action , "charset" );
 		if( !CHARSET.isEmpty() ) {
@@ -252,7 +250,7 @@ public class BaseItemData extends PropertyController {
 		Common.xmlSetElementAttr( doc , root , "version" , BASEVERSION );
 	}
 
-	public void setOptions( EngineTransaction transaction , String name , String version , VarOSTYPE ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCSTOREDIR , String INSTALLPATH , String INSTALLLINK ) {
+	public void setOptions( EngineTransaction transaction , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCSTOREDIR , String INSTALLPATH , String INSTALLLINK ) {
 		this.BASENAME = name;
 		this.BASEVERSION = version;
 		

@@ -9,7 +9,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.shell.Account;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.EngineContext;
@@ -284,12 +284,12 @@ public class DistRepository {
 				
 			if( action.context.env != null ) {
 				if( !action.isLocalRun() )
-					account = Account.getDatacenterAccount( action , "" , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+					account = Account.getDatacenterAccount( action , "" , action.context.env.DISTR_HOSTLOGIN , DBEnumOSType.LINUX );
 			}
 			else {
 				if( !action.isLocalRun() ) {
 					MetaProductSettings product = meta.getProductSettings( action );
-					account = Account.getDatacenterAccount( action , "" , product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+					account = Account.getDatacenterAccount( action , "" , product.CONFIG_DISTR_HOSTLOGIN , DBEnumOSType.LINUX );
 				}
 			}
 		}

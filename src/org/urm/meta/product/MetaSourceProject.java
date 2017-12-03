@@ -34,7 +34,7 @@ public class MetaSourceProject {
 	public String BUILDER_ADDOPTIONS;
 	public Integer MIRROR_ID;
 
-	public String RESOURCE;
+	public Integer RESOURCE_ID;
 	public String REPOSITORY;
 	public String REPOPATH;
 	public String CODEPATH;
@@ -138,8 +138,9 @@ public class MetaSourceProject {
 		Common.xmlSetElementAttr( doc , root , "repository" , REPOSITORY );
 		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( type ) );
 		Common.xmlSetElementAttr( doc , root , "group" , BUILDGROUP );
-		if( !RESOURCE.isEmpty() ) {
-			Common.xmlSetElementAttr( doc , root , "resource" , RESOURCE );
+		if( RESOURCE_ID != null ) {
+			AuthResource rc = action.getResource( RESOURCE_ID );
+			Common.xmlSetElementAttr( doc , root , "resource" , rc.NAME );
 			Common.xmlSetElementAttr( doc , root , "repopath" , REPOPATH );
 			Common.xmlSetElementAttr( doc , root , "codepath" , CODEPATH );
 		}
@@ -176,7 +177,7 @@ public class MetaSourceProject {
 		r.BRANCH = BRANCH;
 		r.BUILDER = BUILDER;
 		r.BUILDER_ADDOPTIONS = BUILDER_ADDOPTIONS;
-		r.RESOURCE = RESOURCE;
+		r.RESOURCE_ID = RESOURCE_ID;
 		r.REPOPATH = REPOPATH;
 		r.CODEPATH = CODEPATH;
 		
@@ -203,17 +204,17 @@ public class MetaSourceProject {
 		return( false );
 	}
 	
-	public String getVCS( ActionBase action ) {
-		return( RESOURCE );
+	public Integer getVCS( ActionBase action ) {
+		return( RESOURCE_ID );
 	}
 	
 	public boolean isGitVCS( ActionBase action ) throws Exception {
-		AuthResource res = action.getResource( RESOURCE );
+		AuthResource res = action.getResource( RESOURCE_ID );
 		return( res.isGit() );
 	}
 	
 	public boolean isSvnVCS( ActionBase action ) throws Exception {
-		AuthResource res = action.getResource( RESOURCE );
+		AuthResource res = action.getResource( RESOURCE_ID );
 		return( res.isSvn() );
 	}
 
@@ -263,7 +264,7 @@ public class MetaSourceProject {
 		return( Common.getSortedKeys( itemMap ) );
 	}
 
-	public void setProjectData( EngineTransaction transaction , String desc , boolean prod , String group , VarPROJECTTYPE type , String resource , String repoName , String repoPath , String codePath , String branch ) throws Exception {
+	public void setProjectData( EngineTransaction transaction , String desc , boolean prod , String group , VarPROJECTTYPE type , Integer resourceId , String repoName , String repoPath , String codePath , String branch ) throws Exception {
 		this.DESC = desc;
 		this.BUILDGROUP = group;
 		this.type = type;
@@ -272,7 +273,7 @@ public class MetaSourceProject {
 		this.BUILDER = "";
 		this.BUILDER_ADDOPTIONS = "";
 		
-		this.RESOURCE = resource;
+		this.RESOURCE_ID = resourceId;
 		this.REPOSITORY = repoName;
 		this.REPOPATH = repoPath;
 		this.CODEPATH = codePath;

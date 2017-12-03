@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
@@ -416,7 +415,7 @@ public class CommandContext {
 		return( Common.getEnumLower( buildMode ) );
 	}
 	
-	public boolean setRunContext() {
+	public boolean setRunContext() throws Exception {
 		if( session == null )
 			return( true );
 		
@@ -431,8 +430,9 @@ public class CommandContext {
 			return( false );
 		}
 
-		VarOSTYPE osType = ( session.execrc.isWindows() )? VarOSTYPE.WINDOWS : VarOSTYPE.LINUX;
+		DBEnumOSType osType = DBEnumOSType.getValue( session.execrc.osType );
 		this.account = Account.getLocalAccount( session.execrc.userName , session.execrc.hostName , osType );
+		
 		this.userHome = session.execrc.userHome;
 		this.buildMode = ( session.clientrc.buildMode.isEmpty() )? DBEnumBuildModeType.UNKNOWN : DBEnumBuildModeType.valueOf( session.clientrc.buildMode );
 		

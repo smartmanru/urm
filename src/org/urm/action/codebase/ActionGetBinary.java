@@ -72,9 +72,9 @@ public class ActionGetBinary extends ActionBase {
 		else
 		if( builder.isTargetNexus() ) {
 			if( scopeItem.sourceItem.itemSrcType == VarITEMSRCTYPE.STATICWAR )
-				downloadNexusItem( builder.TARGET_RESOURCE , "staticwar" , scopeProject , scopeItem );
+				downloadNexusItem( builder.TARGET_RESOURCE_ID , "staticwar" , scopeProject , scopeItem );
 			else
-				downloadNexusItem( builder.TARGET_RESOURCE , "nexus" , scopeProject , scopeItem );
+				downloadNexusItem( builder.TARGET_RESOURCE_ID , "nexus" , scopeProject , scopeItem );
 		}
 		else
 		if( builder.isTargetNuget() )
@@ -83,7 +83,7 @@ public class ActionGetBinary extends ActionBase {
 			exitUnexpectedState();
 	}
 
-	private void downloadNexusItem( String nexusResource , String type , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
+	private void downloadNexusItem( Integer nexusResource , String type , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
 		String ARTEFACTID = scopeItem.sourceItem.ITEMBASENAME;
 		String EXT = scopeItem.sourceItem.ITEMEXTENSION; 
 		
@@ -150,7 +150,7 @@ public class ActionGetBinary extends ActionBase {
 		if( scopeItem.sourceItem.isInternal() )
 			copyDistr = false;
 
-		NexusStorage nexusStorage = artefactory.getDefaultNugetStorage( this , builder.TARGET_RESOURCE , scopeProject.meta , downloadFolder );
+		NexusStorage nexusStorage = artefactory.getDefaultNugetStorage( this , builder.TARGET_RESOURCE_ID , scopeProject.meta , downloadFolder );
 		NexusDownloadInfo BINARY = nexusStorage.downloadNuget( this , ARTEFACTID , BUILDVERSION , scopeItem.distItem );
 
 		String FILENAME = "";
@@ -204,7 +204,7 @@ public class ActionGetBinary extends ActionBase {
 		}
 		else
 		if( scopeProject.sourceProject.isPrebuiltNexus() ) {
-			downloadNexusItem( scopeProject.sourceProject.RESOURCE , "thirdparty" , scopeProject , scopeItem );
+			downloadNexusItem( scopeProject.sourceProject.RESOURCE_ID , "thirdparty" , scopeProject , scopeItem );
 		}
 		else
 			exitUnexpectedState();

@@ -28,7 +28,7 @@ public class ActionSetVersion extends ActionBase {
 		shell.export( this , "JAVA_HOME" , JAVA_HOME );
 		shell.export( this , "PATH" , "$JAVA_HOME/bin:$PATH" );
 
-		String MAVEN_HOME = builder.MAVEN_HOMEPATH;
+		String MAVEN_HOME = builder.BUILDER_HOMEPATH;
 		String MAVEN_CMD = "mvn versions:set -DnewVersion=" + BUILDVERSION;
 
 		shell.export( this , "M2_HOME" , MAVEN_HOME );

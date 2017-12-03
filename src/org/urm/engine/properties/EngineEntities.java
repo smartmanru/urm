@@ -4,6 +4,7 @@ import org.urm.db.core.DBVersions;
 
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineBase;
+import org.urm.db.engine.DBEngineBuilders;
 import org.urm.db.engine.DBEngineContext;
 import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.db.engine.DBEngineLifecycles;
@@ -58,6 +59,7 @@ public class EngineEntities {
 	public PropertyEntity entityAppLifecyclePhase;
 	public PropertyEntity entityAppResource;
 	public PropertyEntity entityAppMirror;
+	public PropertyEntity entityAppProjectBuilder;
 	
 	public EngineEntities( EngineCore core ) {
 		this.core = core;
@@ -81,6 +83,7 @@ public class EngineEntities {
 		entityAppLifecyclePhase = DBEngineLifecycles.upgradeEntityLifecyclePhase( loader );
 		entityAppResource = DBEngineResources.upgradeEntityResource( loader );
 		entityAppMirror = DBEngineMirrors.upgradeEntityMirror( loader );
+		entityAppProjectBuilder = DBEngineBuilders.upgradeEntityBuilder( loader );
 		useCustom( loader );
 	}
 	
@@ -101,6 +104,7 @@ public class EngineEntities {
 		entityAppLifecyclePhase = DBEngineLifecycles.loaddbEntityLifecyclePhase( loader );
 		entityAppResource = DBEngineResources.loaddbEntityResource( loader );
 		entityAppMirror = DBEngineMirrors.loaddbEntityMirror( loader );
+		entityAppProjectBuilder = DBEngineBuilders.loaddbEntityBuilder( loader );
 		useCustom( loader );
 	}
 	

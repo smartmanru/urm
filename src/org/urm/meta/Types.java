@@ -3,7 +3,6 @@ package org.urm.meta;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.w3c.dom.Node;
 
@@ -233,24 +232,6 @@ public class Types {
 		NUPKG ,
 		RPM ,
 		DEB
-	}
-	
-	public static VarOSTYPE getOSType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingOSType0 , "missing operating system type" );
-			return( VarOSTYPE.UNKNOWN );
-		}
-		
-		VarOSTYPE value = null;
-		try {
-			value = VarOSTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidOSType1 , "invalid OS type=" + ID , ID );
-		}
-		
-		return( value );
 	}
 	
 	public static VarCATEGORY getCategory( String ID , boolean required ) throws Exception {

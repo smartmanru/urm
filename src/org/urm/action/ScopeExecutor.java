@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.events.EngineEvents;
@@ -913,7 +912,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( ss );
 	}
 	
-	private SCOPESTATE runSingleHostInternal( ActionScopeSet set , String host , int port , VarOSTYPE OSTYPE , ScopeState stateAccount ) {
+	private SCOPESTATE runSingleHostInternal( ActionScopeSet set , String host , int port , DBEnumOSType OSTYPE , ScopeState stateAccount ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			Account account = action.getSingleHostAccount( set.sg.DC , host , port , OSTYPE );

@@ -2,9 +2,9 @@ package org.urm.engine;
 
 import java.util.List;
 
-import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineBase;
+import org.urm.db.engine.DBEngineBuilders;
 import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMirrors;
@@ -230,18 +230,17 @@ public class EngineTransaction extends TransactionBase {
 	
 	public ProjectBuilder createBuilder( ProjectBuilder builder ) throws Exception {
 		checkTransactionBuilders();
-		return( builders.createBuilder( this , builder ) );
+		return( DBEngineBuilders.createBuilder( this , builders , builder ) );
 	}
 	
-	public void updateBuilder( ProjectBuilder builder , ProjectBuilder builderNew ) throws Exception {
+	public void modifyBuilder( ProjectBuilder builder , ProjectBuilder builderNew ) throws Exception {
 		checkTransactionBuilders();
-		builder.setBuilderData( this , builderNew );
+		DBEngineBuilders.modifyBuilder( this , builders , builder , builderNew );
 	}
 	
 	public void deleteBuilder( ProjectBuilder builder ) throws Exception {
 		checkTransactionBuilders();
-		builders.deleteBuilder( this , builder );
-		builder.deleteObject();
+		DBEngineBuilders.deleteBuilder( this , builders , builder );
 	}
 	
 	// ################################################################################
@@ -718,7 +717,7 @@ public class EngineTransaction extends TransactionBase {
 		sg.setProperties( this , props , system );
 	}
 	
-	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , VarOSTYPE osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
+	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
 		checkTransactionMetadata( sg.meta.getStorage( action ) );
 		MetaEnvServer server = new MetaEnvServer( sg.meta , sg );
 		server.createServer( action , name , desc , osType , runType , accessType , sysname );

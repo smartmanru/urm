@@ -28,11 +28,11 @@ public class BuilderWinbuildMethod extends Builder {
 	
 	@Override public boolean runBuild( ActionBase action ) throws Exception {
 		// msbuilder params
-		String MSBUILD_PATH = builder.MSBUILD_HOMEPATH + "\\Bin\\msbuild.exe";
+		String MSBUILD_PATH = builder.BUILDER_HOMEPATH + "\\Bin\\msbuild.exe";
 		PropertySet props = super.createProperties( action , project );
 		
 		String NUGET_PATH = getNugetSourcePath( action );
-		String MSBUILD_OPTIONS = builder.MSBUILD_OPTIONS;
+		String MSBUILD_OPTIONS = builder.BUILDER_OPTIONS;
 		if( action.context.CTX_SHOWALL )
 			MSBUILD_OPTIONS += " /verbosity:detailed";
 		String MODULE_ADDITIONAL_OPTIONS = super.getVarString( action , props , project.BUILDER_ADDOPTIONS );
@@ -90,7 +90,7 @@ public class BuilderWinbuildMethod extends Builder {
 
 	private String getNugetSourcePath( ActionBase action ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
-		AuthResource res = action.getResource( builder.TARGET_RESOURCE );
+		AuthResource res = action.getResource( builder.TARGET_RESOURCE_ID );
 		return( res.BASEURL + "/service/local/nuget/" + build.CONFIG_NEXUS_REPO + "-nuget/" );
 	}
 	

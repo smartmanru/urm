@@ -3,7 +3,6 @@ package org.urm.meta.engine;
 import java.util.List;
 
 import org.urm.action.ActionBase;
-import org.urm.db.core.DBEnums.*;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
@@ -74,7 +73,7 @@ public class HostAccount extends EngineObject {
 	}
 
 	public Account getHostAccount( ActionBase action ) throws Exception {
-		return( Account.getDatacenterAccount( action , host.network.datacenter.NAME , NAME , host.NAME , host.PORT , DBEnumOSType.getVarValue( host.OS_TYPE ) ) );
+		return( Account.getDatacenterAccount( action , host.network.datacenter.NAME , NAME , host.NAME , host.PORT , host.OS_TYPE ) );
 	}
 	
 }

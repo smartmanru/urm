@@ -6,8 +6,6 @@ import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.EngineBuilders;
-import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProjectItem;
 
 public class ActionPatch extends ActionBase {
@@ -32,12 +30,6 @@ public class ActionPatch extends ActionBase {
 		
 		if( !executeGetArtefacts() )
 			return( SCOPESTATE.RunFail );
-		
-		// update build data
-		if( builder.builder.builders.registerBuild ) {
-			if( !uploadBuildStatus() )
-				return( SCOPESTATE.RunFail );
-		}
 		
 		// remove directory if build was successful
 		if( !context.CTX_SHOWALL ) {
@@ -141,47 +133,4 @@ public class ActionPatch extends ActionBase {
 		return( true );
 	}
 	
-	private boolean uploadBuildStatus() throws Exception {
-		EngineBuilders builders = super.getServerBuilders();
-		MetaProductBuildSettings build = getBuildSettings( builder.project.meta );
-		
-		String UPLOAD_PROJECT_NAME = builder.project.NAME;
-		String UPLOAD_MSETTINGS="--settings=" + localShell.getLocalPath( build.CONFIG_MAVEN_CFGFILE );
-		String UPLOAD_JAVA_HOME = localShell.getLocalPath( builders.JAVA_HOMEPATH );
-		String UPLOAD_MAVEN_HOME = localShell.getLocalPath( builders.MAVEN_HOMEPATH );
-
-		localShell.export( this , "JAVA_HOME" , UPLOAD_JAVA_HOME );
-		localShell.export( this , "M2_HOME" , UPLOAD_MAVEN_HOME );
-		localShell.export( this , "M2" , localShell.getLocalPath( shell.getVariable( "M2_HOME" ) + "/bin" ) );
-		localShell.export( this , "PATH" , localShell.getLocalPath( shell.getVariable( "JAVA_HOME" ) + "/bin" ) + localShell.getPathBreak() +
-				localShell.getVariable( "M2" ) + localShell.getPathBreak() +
-				localShell.getVariable( "PATH" ) );
-		localShell.export( this , "MAVEN_OPTS" , Common.getQuoted( "-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled" ) );
-
-		// upload versioninfo
-		String logPath = localShell.getLocalPath( logDir.getFilePath( this , logFile ) );
-		String FILENAME = localShell.getLocalPath( logPath + "-versioninfo.txt" );
-		Common.createFileFromString( super.execrc , FILENAME , builder.TAG );
-		int timeout = setTimeoutUnlimited();
-		int status = localShell.customGetStatusNormal( this , "mvn deploy:deploy-file -B " +
-				UPLOAD_MSETTINGS + " " +
-			"-Durl=" + builder.getNexusPath( this , builder.project ) + " " +
-			"-DuniqueVersion=false " +
-			"-Dversion=" + builder.APPVERSION + " " +
-			"-DgroupId=release " +
-			"-DartifactId=" + UPLOAD_PROJECT_NAME + " " +
-			"-Dfile=" + FILENAME + " " +
-			"-Dpackaging=txt " +
-			"-Dclassifier=version " +
-			"-DgeneratePom=true " +
-			"-DrepositoryId=nexus2" );
-		setTimeout( timeout );
-
-		if( status != 0 ) {
-			exit0( _Error.UnableRegisterBuildStatus0 , "uploadBuildStatus: unable to register build status" );
-			return( false );
-		}
-		
-		return( true );
-	}
 }

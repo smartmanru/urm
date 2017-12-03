@@ -8,7 +8,6 @@ import org.urm.action.main.ActionMethod;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunError;
-import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.common.action.CommandOptions;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.EngineCache;
@@ -447,7 +446,7 @@ abstract public class ActionBase extends ActionCore {
 	
 	public ShellExecutor createDedicatedRemoteShell( String name , Account account , boolean setAction ) throws Exception {
 		EngineResources res = getServerResources();
-		AuthResource ar = res.getResource( account.AUTHRESOURCE );
+		AuthResource ar = res.getResource( account.AUTHRESOURCE_ID );
 		ar.loadAuthData();
 		return( engine.shellPool.createDedicatedRemoteShell( this , name , account , ar , setAction ) );
 	}
@@ -465,7 +464,7 @@ abstract public class ActionBase extends ActionCore {
 		return( Account.getDatacenterAccount( this , node.server.sg.DC , node.HOSTLOGIN , node.server.osType ) );
 	}
 	
-	public Account getSingleHostAccount( String datacenter , String host , int port , VarOSTYPE OSTYPE ) throws Exception {
+	public Account getSingleHostAccount( String datacenter , String host , int port , DBEnumOSType OSTYPE ) throws Exception {
 		String user = context.CTX_HOSTUSER;
 		if( user.isEmpty() )
 			user = "root";

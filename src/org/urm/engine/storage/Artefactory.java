@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.db.core.DBEnums.DBEnumOSType;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.shell.Account;
@@ -60,7 +60,7 @@ public class Artefactory {
 		return( getArtefactFolder( action , action.shell.account.osType , meta , "" ) );
 	}
 	
-	public LocalFolder getArtefactFolder( ActionBase action , VarOSTYPE osType , Meta meta , String FOLDER ) throws Exception {
+	public LocalFolder getArtefactFolder( ActionBase action , DBEnumOSType osType , Meta meta , String FOLDER ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		if( build.CONFIG_ARTEFACTDIR.isEmpty() )
 			action.exit0( _Error.MissingArtefactDir0 , "Missing artefact directory in product build configuration" );
@@ -69,7 +69,7 @@ public class Artefactory {
 		
 		MetaProductSettings settings = meta.getProductSettings( action );
 		String artefactDir = Common.getPath( build.CONFIG_ARTEFACTDIR , build.CONFIG_APPVERSION , FOLDER );
-		String redistPath = ( osType == VarOSTYPE.WINDOWS )? settings.CONFIG_REDISTWIN_PATH : settings.CONFIG_REDISTLINUX_PATH;
+		String redistPath = ( osType.isWindows() )? settings.CONFIG_REDISTWIN_PATH : settings.CONFIG_REDISTLINUX_PATH;
 		String finalPath = Common.getPath( redistPath , artefactDir );
 		
 		LocalFolder folder = getAnyFolder( action , finalPath );
@@ -100,37 +100,37 @@ public class Artefactory {
 		return( new MonitoringStorage( this , workFolder , mon ) );
 	}
 
-	public NexusStorage getNexusStorage( ActionBase action , String NEXUS_RESOURCE , Meta meta , String repository ) throws Exception {
+	public NexusStorage getNexusStorage( ActionBase action , Integer NEXUS_RESOURCE , Meta meta , String repository ) throws Exception {
 		action.checkRequired( repository , "repository" );
 		return( new NexusStorage( this , meta , workFolder , NEXUS_RESOURCE , repository ) );
 	}
 
-	public NexusStorage getNexusStorage( ActionBase action , String NEXUS_RESOURCE , Meta meta , String repository , LocalFolder folder ) throws Exception {
+	public NexusStorage getNexusStorage( ActionBase action , Integer NEXUS_RESOURCE , Meta meta , String repository , LocalFolder folder ) throws Exception {
 		action.checkRequired( repository , "repository" );
 		return( new NexusStorage( this , meta , folder , NEXUS_RESOURCE , repository ) );
 	}
 
-	public NexusStorage getDefaultNexusStorage( ActionBase action , String NEXUS_RESOURCE , Meta meta ) throws Exception {
+	public NexusStorage getDefaultNexusStorage( ActionBase action , Integer NEXUS_RESOURCE , Meta meta ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		return( new NexusStorage( this , meta , workFolder , NEXUS_RESOURCE , build.CONFIG_NEXUS_REPO ) );
 	}
 	
-	public NexusStorage getDefaultNexusStorage( ActionBase action , String NEXUS_RESOURCE , Meta meta , LocalFolder folder ) throws Exception {
+	public NexusStorage getDefaultNexusStorage( ActionBase action , Integer NEXUS_RESOURCE , Meta meta , LocalFolder folder ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		return( new NexusStorage( this , meta , folder , NEXUS_RESOURCE , build.CONFIG_NEXUS_REPO ) );
 	}
 	
-	public NexusStorage getDefaultNugetStorage( ActionBase action , String NEXUS_RESOURCE , Meta meta , LocalFolder folder ) throws Exception {
+	public NexusStorage getDefaultNugetStorage( ActionBase action , Integer NEXUS_RESOURCE , Meta meta , LocalFolder folder ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		return( new NexusStorage( this , meta , folder , NEXUS_RESOURCE , build.CONFIG_NEXUS_REPO + "-nuget" ) );
 	}
 	
-	public NexusStorage getThirdpartyNexusStorage( ActionBase action , String NEXUS_RESOURCE , Meta meta ) throws Exception {
+	public NexusStorage getThirdpartyNexusStorage( ActionBase action , Integer NEXUS_RESOURCE , Meta meta ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		return( new NexusStorage( this , meta , workFolder , NEXUS_RESOURCE , build.CONFIG_NEXUS_REPO_THIRDPARTY ) );
 	}
 	
-	public NexusStorage getThirdpartyNexusStorage( ActionBase action , String NEXUS_RESOURCE , Meta meta , LocalFolder folder ) throws Exception {
+	public NexusStorage getThirdpartyNexusStorage( ActionBase action , Integer NEXUS_RESOURCE , Meta meta , LocalFolder folder ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		return( new NexusStorage( this , meta , folder , NEXUS_RESOURCE , build.CONFIG_NEXUS_REPO_THIRDPARTY ) );
 	}

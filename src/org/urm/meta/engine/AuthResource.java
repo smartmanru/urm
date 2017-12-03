@@ -1,7 +1,6 @@
 package org.urm.meta.engine;
 
 import org.urm.action.ActionBase;
-import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.shell.EngineShellPool;
@@ -163,7 +162,7 @@ public class AuthResource extends EngineObject {
 		return( false );
 	}
 	
-	public boolean sshVerify( ActionBase action , VarOSTYPE osType , String host , int port , String user ) {
+	public boolean sshVerify( ActionBase action , DBEnumOSType osType , String host , int port , String user ) {
 		try {
 			loadAuthData();
 			Account account = Account.getResourceAccount( action , this , user , host , port , osType );
