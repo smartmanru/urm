@@ -488,7 +488,7 @@ public abstract class DBEnums {
     
     public static int getEnumCode( Class<?> type , String value ) {
 		int code = DBEnums.VALUE_UNKNOWN;
-		if( !value.isEmpty() ) {
+		if( value != null && !value.isEmpty() ) {
 			Enum<?> e = DBEnums.getEnumValue( type , value );
 			DBEnumInterface ei = ( DBEnumInterface )e;
 			code = ei.code();

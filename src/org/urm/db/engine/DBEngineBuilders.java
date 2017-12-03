@@ -24,7 +24,7 @@ import org.w3c.dom.Node;
 public class DBEngineBuilders {
 
 	public static String ELEMENT_BUILDER = "builder";
-	public static String TABLE_BUILDER = "urm_builder";
+	public static String TABLE_BUILDER = "urm_project_builder";
 	public static String FIELD_BUILDER_ID = "builder_id";
 	public static String FIELD_BUILDER_DESC = "xdesc";
 	public static String FIELD_BUILDER_METHOD = "buildermethod_type";
@@ -34,8 +34,8 @@ public class DBEngineBuilders {
 	public static String FIELD_BUILDER_TARGET_PLATFORM = "target_platform";
 	public static String FIELD_BUILDER_COMMAND = "builder_command";
 	public static String FIELD_BUILDER_HOMEPATH = "builder_homepath";
-	public static String FIELD_BUILDER_OPTIONS = "builder_homepath";
-	public static String FIELD_BUILDER_JDKPATH = "builder_jdkpath";
+	public static String FIELD_BUILDER_OPTIONS = "builder_options";
+	public static String FIELD_BUILDER_JDKPATH = "java_jdkhomepath";
 	public static String FIELD_BUILDER_REMOTEOSTYPE = "remote_os_type";
 	public static String FIELD_BUILDER_REMOTEHOSTLOGIN = "remote_hostlogin";
 	public static String FIELD_BUILDER_REMOTEPORT = "remote_port";
@@ -58,7 +58,7 @@ public class DBEngineBuilders {
 				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_TARGETPATH , FIELD_BUILDER_TARGET_PATH , ProjectBuilder.PROPERTY_TARGETPATH , "Target path" , false , null ) ,
 				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_TARGETPLATFORM , FIELD_BUILDER_TARGET_PLATFORM , ProjectBuilder.PROPERTY_TARGETPLATFORM , "Target platform" , false , null ) ,
 				EntityVar.metaBoolean( ProjectBuilder.PROPERTY_REMOTE , "Remote build" , false , false ) ,
-				EntityVar.metaEnumVar( ProjectBuilder.PROPERTY_REMOTEOSTYPE , FIELD_BUILDER_REMOTEOSTYPE , ProjectBuilder.PROPERTY_REMOTEOSTYPE , "Remote host OS type" , false , null ) ,
+				EntityVar.metaEnumVar( ProjectBuilder.PROPERTY_REMOTEOSTYPE , FIELD_BUILDER_REMOTEOSTYPE , ProjectBuilder.PROPERTY_REMOTEOSTYPE , "Remote host OS type" , false , DBEnumOSType.UNKNOWN ) ,
 				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_REMOTEHOSTLOGIN , FIELD_BUILDER_REMOTEHOSTLOGIN , ProjectBuilder.PROPERTY_REMOTEHOSTLOGIN , "Remote host login" , false , null ) ,
 				EntityVar.metaIntegerVar( ProjectBuilder.PROPERTY_REMOTEPORT , FIELD_BUILDER_REMOTEPORT , ProjectBuilder.PROPERTY_REMOTEPORT , "Remote access port" , false , 22 ) ,
 				EntityVar.metaObjectVar( ProjectBuilder.PROPERTY_REMOTEAUTHRESOURCE , FIELD_BUILDER_REMOTEAUTHRESOURCE , ProjectBuilder.PROPERTY_REMOTEAUTHRESOURCE , "Target resource" , DBEnumObjectType.RESOURCE , false ) ,
@@ -84,7 +84,7 @@ public class DBEngineBuilders {
 	private static ProjectBuilder importxmlBuilder( EngineLoader loader , EngineBuilders builders , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
-		PropertyEntity entity = entities.entityAppResource;
+		PropertyEntity entity = entities.entityAppProjectBuilder;
 		
 		ProjectBuilder builder = new ProjectBuilder( builders );
 		builder.createBuilder(
@@ -107,7 +107,7 @@ public class DBEngineBuilders {
 				);
 		builder.setRemoteData(
 				entity.importxmlBooleanProperty( root , ProjectBuilder.PROPERTY_REMOTE , false ) ,
-				DBEnumOSType.getValue( entity.importxmlEnumProperty( root , ProjectBuilder.PROPERTY_REMOTEOSTYPE ) , true ) ,
+				DBEnumOSType.getValue( entity.importxmlEnumProperty( root , ProjectBuilder.PROPERTY_REMOTEOSTYPE ) , false ) ,
 				entity.importxmlStringProperty( root , ProjectBuilder.PROPERTY_REMOTEHOSTLOGIN ) ,
 				entity.importxmlIntProperty( root , ProjectBuilder.PROPERTY_REMOTEPORT ) ,
 				entity.importxmlObjectProperty( loader , root , ProjectBuilder.PROPERTY_REMOTEAUTHRESOURCE )
@@ -122,7 +122,7 @@ public class DBEngineBuilders {
 			builder.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , builder.NAME , DBEnumObjectType.BUILDER );
 		builder.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
-		DBEngineEntities.modifyAppObject( c , entities.entityAppResource , builder.ID , builder.CV , new String[] {
+		DBEngineEntities.modifyAppObject( c , entities.entityAppProjectBuilder , builder.ID , builder.CV , new String[] {
 				EngineDB.getString( builder.NAME ) ,
 				EngineDB.getString( builder.DESC ) ,
 				EngineDB.getString( builder.VERSION ) ,
@@ -206,7 +206,7 @@ public class DBEngineBuilders {
 						);
 				builder.setRemoteData(
 						entity.loaddbBoolean( rs , ProjectBuilder.PROPERTY_REMOTE ) ,
-						DBEnumOSType.getValue( entity.loaddbEnum( rs , ProjectBuilder.PROPERTY_REMOTEOSTYPE ) , true ) ,
+						DBEnumOSType.getValue( entity.loaddbEnum( rs , ProjectBuilder.PROPERTY_REMOTEOSTYPE ) , false ) ,
 						entity.loaddbString( rs , ProjectBuilder.PROPERTY_REMOTEHOSTLOGIN ) ,
 						entity.loaddbInt( rs , ProjectBuilder.PROPERTY_REMOTEPORT ) ,
 						entity.loaddbObject( rs , ProjectBuilder.PROPERTY_REMOTEAUTHRESOURCE )

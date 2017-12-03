@@ -44,19 +44,22 @@ public class EntityVar {
 		return( r );
 	}
 
-	public static EntityVar metaEnum( String propertyKey , String propertyDesc , boolean required , DBEnumInterface defValue ) {
+	public static EntityVar metaEnum( String propertyKey , String propertyDesc , boolean required , DBEnumInterface defValue ) throws Exception {
 		return( metaEnumVar( propertyKey , propertyKey , propertyKey , propertyDesc , required , defValue ) ); 
 	}
 	
-	public static EntityVar metaEnumDatabaseOnly( String propertyKey , String propertyDesc , boolean required , DBEnumInterface defValue ) {
+	public static EntityVar metaEnumDatabaseOnly( String propertyKey , String propertyDesc , boolean required , DBEnumInterface defValue ) throws Exception {
 		return( metaEnumVar( propertyKey , propertyKey , null , propertyDesc , required , defValue ) ); 
 	}
 	
-	public static EntityVar metaEnumXmlOnly( String propertyKey , String propertyDesc , boolean required , DBEnumInterface defValue ) {
+	public static EntityVar metaEnumXmlOnly( String propertyKey , String propertyDesc , boolean required , DBEnumInterface defValue ) throws Exception {
 		return( metaEnumVar( propertyKey , null , propertyKey , propertyDesc , required , defValue ) ); 
 	}
 	
-	public static EntityVar metaEnumVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , DBEnumInterface defValue ) {
+	public static EntityVar metaEnumVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , DBEnumInterface defValue ) throws Exception {
+		if( defValue == null )
+			Common.exitUnexpected();
+		
 		Enum<?> defEnumValue = ( Enum<?> )defValue;
 		EntityVar var = meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumObjectType.UNKNOWN , required , null , defEnumValue.getClass() );
 		return( var );
