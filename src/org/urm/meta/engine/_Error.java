@@ -11,7 +11,6 @@ public class _Error {
 	public static final int UnknownResource1 = ErrorBase + 4;
 	public static final int BuilderAlreadyExists1 = ErrorBase + 5;
 	public static final int TransactionResourceOld1 = ErrorBase + 6;
-	public static final int DuplicateSystem1 = ErrorBase + 7;
 	public static final int TransactionSystemOld1 = ErrorBase + 8;
 	public static final int UnknownSystem1 = ErrorBase + 9;
 	public static final int UnknownProduct1 = ErrorBase + 10;

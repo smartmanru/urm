@@ -3,7 +3,7 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.meta.engine.Product;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.Types.*;
 
@@ -106,7 +106,7 @@ public class UrmStorage {
 			return( artefactory.getAnyFolder( action , dir ) );
 		}
 		
-		Product product = action.findProduct( productName );
+		AppProduct product = action.findProduct( productName );
 		if( product == null )
 			action.exitUnexpectedState();
 		

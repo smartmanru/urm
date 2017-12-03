@@ -30,7 +30,7 @@ public abstract class DBQueries {
 	public static String MODIFY_PARAM_DROPOWNERENTITIES1 = "delete from urm_object_entity where param_object_id = @1@";
 	public static String MODIFY_PARAM_DROPOBJECTVALUES1 = "delete from urm_object_param_value where object_id = @1@";
 	
-	public static String MODIFY_SYSTEM_MATCHED2 = "update urm_system set matched = @2@ where system_id = @1@";
+	public static String MODIFY_SYSTEM_MATCHED3 = "update urm_system set matched = @2@ , sv = @3@ where system_id = @1@";
 
 	public static String QUERY_PRODUCT_GETALL0 = "select product_id , system_id , name , xdesc , path , offline , monitoring_enabled , sv from urm_product";
 	public static String MODIFY_PRODUCT_ADD8 = "insert into urm_product ( product_id , system_id , name , xdesc , path , offline , monitoring_enabled , sv ) values ( @values@ )";

@@ -21,7 +21,6 @@ import org.urm.engine.EngineDB;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
-import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
@@ -31,7 +30,7 @@ import org.urm.meta.engine.EngineRegistry;
 import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.MirrorRepository;
-import org.urm.meta.engine.Product;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine._Error;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
@@ -226,7 +225,7 @@ public class EngineLoader {
 
 	private void exportProduct( Integer productId ) throws Exception {
 		EngineDirectory directory = data.getDirectory();
-		Product product = directory.getProduct( productId );
+		AppProduct product = directory.getProduct( productId );
 		
 		trace( "export engine product=" + product.NAME + " data ..." );
 		data.saveProductMetadata( this , product.NAME );
@@ -234,7 +233,7 @@ public class EngineLoader {
 
 	public void importProduct( Integer productId , boolean includingEnvironments ) throws Exception {
 		EngineDirectory directory = data.getDirectory();
-		Product product = directory.getProduct( productId );
+		AppProduct product = directory.getProduct( productId );
 		
 		trace( "import engine product=" + product.NAME + " data ..." );
 		EngineProducts products = data.getProducts();
@@ -411,9 +410,6 @@ public class EngineLoader {
 		trace( "load engine directory data ..." );
 		EngineDirectory directory = data.getDirectory();
 		DBEngineDirectory.loaddb( this , directory );
-		
-		for( AppSystem system : directory.getSystems() )
-			data.matchdoneSystem( this , system );
 	}
 	
 	private void importxmlDirectory() throws Exception {
@@ -425,10 +421,6 @@ public class EngineLoader {
 		EngineDirectory directory = data.getDirectory();
 		Node node = ConfReader.xmlGetFirstChild( root , "directory" );
 		DBEngineDirectory.importxml( this , directory , node );
-		
-		// match systems to core
-		for( AppSystem system : directory.getSystems() )
-			data.matchdoneSystem( this , system );
 	}
 	
 	public void loadProducts() throws Exception {

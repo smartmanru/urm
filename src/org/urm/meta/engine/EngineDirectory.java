@@ -3,19 +3,9 @@ package org.urm.meta.engine;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.DBConnection;
-import org.urm.db.core.DBNames;
-import org.urm.db.core.DBVersions;
-import org.urm.db.core.DBEnums.DBEnumObjectType;
-import org.urm.db.system.DBSystem;
 import org.urm.engine.Engine;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 
@@ -25,18 +15,18 @@ public class EngineDirectory extends EngineObject {
 	public Engine engine;
 
 	private Map<String,AppSystem> mapSystems;
-	private Map<String,Product> mapProducts;
-	private Map<Integer,AppSystem> mapSystemsDB;
-	private Map<Integer,Product> mapProductsDB;
+	private Map<String,AppProduct> mapProducts;
+	private Map<Integer,AppSystem> mapSystemsById;
+	private Map<Integer,AppProduct> mapProductsById;
 	
 	public EngineDirectory( EngineData data ) {
 		super( null );
 		this.data = data;
 		this.engine = data.engine;
 		mapSystems = new HashMap<String,AppSystem>();
-		mapProducts = new HashMap<String,Product>();
-		mapSystemsDB = new HashMap<Integer,AppSystem>();
-		mapProductsDB = new HashMap<Integer,Product>();
+		mapProducts = new HashMap<String,AppProduct>();
+		mapSystemsById = new HashMap<Integer,AppSystem>();
+		mapProductsById = new HashMap<Integer,AppProduct>();
 	}
 
 	@Override
@@ -54,7 +44,7 @@ public class EngineDirectory extends EngineObject {
 			AppSystem rs = system.copy( r , rprops );
 			r.addSystem( rs );
 			
-			for( Product rp : rs.getProducts() )
+			for( AppProduct rp : rs.getProducts() )
 				r.addProduct( rp );
 		}
 
@@ -73,8 +63,8 @@ public class EngineDirectory extends EngineObject {
 		return( Common.getSortedKeys( mapProducts ) );
 	}
 	
-	public Product[] getProducts() {
-		return( mapProducts.values().toArray( new Product[0] ) );
+	public AppProduct[] getProducts() {
+		return( mapProducts.values().toArray( new AppProduct[0] ) );
 	}
 	
 	public String[] getSystemProducts( String systemName ) {
@@ -95,93 +85,72 @@ public class EngineDirectory extends EngineObject {
 	}
 	
 	public AppSystem findSystem( int id ) {
-		return( mapSystemsDB.get( id ) );
+		return( mapSystemsById.get( id ) );
 	}
 	
-	public Product findProduct( Product product ) {
+	public AppProduct findProduct( AppProduct product ) {
 		if( product == null )
 			return( null );
 		return( mapProducts.get( product.NAME ) );
 	}
 	
-	public Product findProduct( String name ) {
+	public AppProduct findProduct( String name ) {
 		return( mapProducts.get( name ) );
 	}
 	
-	public Product findProduct( int id ) {
-		return( mapProductsDB.get( id ) );
+	public AppProduct findProduct( int id ) {
+		return( mapProductsById.get( id ) );
 	}
 	
-	public AppSystem createSystem( EngineTransaction t , String name , String desc ) throws Exception {
-		if( mapSystems.get( name ) != null )
-			t.exit( _Error.DuplicateSystem1 , "system=" + name + " is not unique" , new String[] { name } );
-		
-		DBConnection c = t.getConnection();
-		int systemId = DBNames.getNameIndex( c , DBVersions.CORE_ID , name , DBEnumObjectType.SYSTEM );
-		EngineEntities entities = data.getEntities();
-		EngineSettings settings = data.getEngineSettings(); 
-		ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
-		AppSystem system = new AppSystem( this , props );
-		
-		DBSystem.insert( c , systemId , system );
-		addSystem( system );
-		return( system );
-	}
-
 	public void addSystem( AppSystem system ) throws Exception {
 		mapSystems.put( system.NAME , system );
 		if( system.ID > 0 )
-			mapSystemsDB.put( system.ID , system );
+			mapSystemsById.put( system.ID , system );
 	}
 
 	public void unloadAll() {
 		mapSystems.clear();
-		mapSystemsDB.clear();
+		mapSystemsById.clear();
 		mapProducts.clear();
-		mapProductsDB.clear();
+		mapProductsById.clear();
 	}
 	
 	public void unloadSystem( AppSystem system ) {
 		mapSystems.remove( system.NAME );
-		mapSystemsDB.remove( system.ID );
-		for( Product product : system.getProducts() )
+		mapSystemsById.remove( system.ID );
+		for( AppProduct product : system.getProducts() )
 			unloadProduct( product );
 	}
 	
-	public void unloadProduct( Product product ) {
+	public void unloadProduct( AppProduct product ) {
 		mapProducts.remove( product.NAME );
-		mapProductsDB.remove( product.ID );
+		mapProductsById.remove( product.ID );
 		product.system.removeProduct( product );
 	}
 	
-	public void addProduct( Product product ) throws Exception {
+	public void addProduct( AppProduct product ) throws Exception {
 		mapProducts.put( product.NAME , product );
-		if( product.ID > 0 )
-			mapProductsDB.put( product.ID , product );
+		mapProductsById.put( product.ID , product );
+		product.system.addProduct( product );
 	}
 	
-	public void modifySystem( EngineTransaction t , AppSystem system ) throws Exception {
-		DBConnection c = t.getConnection();
-		data.checkSystemNameBusy( system.NAME );
-		if( Common.changeMapKey( mapSystems , system , system.NAME ) ) {
-			DBNames.updateName( c , DBVersions.CORE_ID , system.NAME , system.ID , DBEnumObjectType.SYSTEM );
-			c.getNextSystemVersion( system );
-		}
-		DBSystem.update( c , system );
+	public void updateSystem( AppSystem system ) throws Exception {
+		Common.changeMapKey( mapSystems , system , system.NAME );
 	}
 	
-	public void deleteSystem( EngineTransaction t , AppSystem system ) throws Exception {
-		if( mapSystems.get( system.NAME ) != system )
-			t.exit( _Error.TransactionSystemOld1 , "system=" + system.NAME + " is unknown or mismatched" , new String[] { system.NAME } );
-		
-		DBConnection c = t.getConnection();
-		DBSystem.delete( c , system );
-		for( String productName : system.getProductNames() )
-			mapProducts.remove( productName );
-		
-		mapSystems.remove( system.NAME );
+	public void updateProduct( AppProduct product ) throws Exception {
+		Common.changeMapKey( mapProducts , product , product.NAME );
+		product.system.updateProduct( product );
 	}
 
+	public void removeSystem( AppSystem system ) {
+		unloadSystem( system );
+	}
+	
+	public void removeProduct( AppProduct product ) throws Exception {
+		unloadProduct( product );
+	}
+	
 	public AppSystem getSystem( String name ) throws Exception {
 		AppSystem system = findSystem( name );
 		if( system == null )
@@ -196,42 +165,18 @@ public class EngineDirectory extends EngineObject {
 		return( system );
 	}
 
-	public Product getProduct( String name ) throws Exception {
-		Product product = findProduct( name );
+	public AppProduct getProduct( String name ) throws Exception {
+		AppProduct product = findProduct( name );
 		if( product == null )
 			Common.exit1( _Error.UnknownProduct1 , "unknown product=" + name , name );
 		return( product );
 	}
 
-	public Product getProduct( int id ) throws Exception {
-		Product product = findProduct( id );
+	public AppProduct getProduct( int id ) throws Exception {
+		AppProduct product = findProduct( id );
 		if( product == null )
 			Common.exit1( _Error.UnknownProduct1 , "unknown product=" + id , "" + id );
 		return( product );
-	}
-
-	public void createProduct( EngineTransaction transaction , Product product ) throws Exception {
-		if( mapProducts.containsKey( product.NAME ) )
-			transaction.exit( _Error.DuplicateProduct1 , "product=" + product.NAME + " is not unique" , new String[] { product.NAME } );
-		
-		data.checkProductNameBusy( product.NAME );
-		
-		addProduct( product );
-		product.system.addProduct( product );
-	}
-	
-	public void deleteProduct( EngineTransaction transaction , Product product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-		if( mapProducts.get( product.NAME ) != product )
-			transaction.exit( _Error.UnknownProduct1 , "product=" + product.NAME + " is unknown or mismatched" , new String[] { product.NAME } );
-		
-		mapProducts.remove( product.NAME );
-		product.system.removeProduct( product );
-		
-		ActionBase action = transaction.getAction();
-		UrmStorage storage = action.artefactory.getUrmStorage();
-		LocalFolder products = storage.getServerProductsFolder( action );
-		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
-		productfolder.removeThis( action );
 	}
 
 }

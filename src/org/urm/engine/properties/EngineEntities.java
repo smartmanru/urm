@@ -6,13 +6,13 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineBuilders;
 import org.urm.db.engine.DBEngineContext;
+import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMirrors;
 import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
 import org.urm.db.engine.DBEngineSettings;
-import org.urm.db.system.DBSystem;
 import org.urm.engine.Engine;
 import org.urm.meta.EngineCore;
 import org.urm.meta.EngineLoader;
@@ -45,12 +45,14 @@ public class EngineEntities {
 	public PropertyEntity entityCustomRC;
 	public PropertyEntity entityAppEngine;
 	public PropertyEntity entityCustomEngine;
-	public PropertyEntity entityAppProduct;
+	public PropertyEntity entityAppProductSettings;
 	public PropertyEntity entityAppProductBuild;
 	public PropertyEntity entityAppEngineMonitoring;
 	public PropertyEntity entityAppBaseGroup;
 	public PropertyEntity entityAppBaseItem;
-	public PropertyEntity entityAppSystem;
+	public PropertyEntity entityAppDirectorySystem;
+	public PropertyEntity entityCustomDirectorySystem;
+	public PropertyEntity entityAppDirectoryProduct;
 	public PropertyEntity entityAppDatacenter;
 	public PropertyEntity entityAppNetwork;
 	public PropertyEntity entityAppNetworkHost;
@@ -69,12 +71,13 @@ public class EngineEntities {
 	public void upgradeData( EngineLoader loader ) throws Exception {
 		entityAppRC = DBEngineContext.upgradeEntityRC( loader );
 		entityAppEngine = DBEngineContext.upgradeEntityEngine( loader );
-		entityAppProduct = DBEngineSettings.upgradeEntityProduct( loader );
+		entityAppProductSettings = DBEngineSettings.upgradeEntityProduct( loader );
 		entityAppProductBuild = DBEngineSettings.upgradeEntityProductBuild( loader );
 		entityAppEngineMonitoring = DBEngineMonitoring.upgradeEntityEngineMonitoring( loader );
 		entityAppBaseGroup = DBEngineBase.upgradeEntityBaseGroup( loader );
 		entityAppBaseItem = DBEngineBase.upgradeEntityBaseItem( loader );
-		entityAppSystem = DBSystem.upgradeEntitySystem( loader );
+		entityAppDirectorySystem = DBEngineDirectory.upgradeEntityDirectorySystem( loader );
+		entityAppDirectoryProduct = DBEngineDirectory.upgradeEntityDirectoryProduct( loader );
 		entityAppDatacenter = DBEngineInfrastructure.upgradeEntityDatacenter( loader );
 		entityAppNetwork = DBEngineInfrastructure.upgradeEntityNetwork( loader );
 		entityAppNetworkHost = DBEngineInfrastructure.upgradeEntityNetworkHost( loader );
@@ -90,12 +93,13 @@ public class EngineEntities {
 	public void useData( EngineLoader loader ) throws Exception {
 		entityAppRC = DBEngineContext.loaddbEntityRC( loader );
 		entityAppEngine = DBEngineContext.loaddbEntityEngine( loader );
-		entityAppProduct = DBEngineSettings.loaddbEntityProduct( loader );
+		entityAppProductSettings = DBEngineSettings.loaddbEntityProduct( loader );
 		entityAppProductBuild = DBEngineSettings.loaddbEntityProductBuild( loader );
 		entityAppEngineMonitoring = DBEngineMonitoring.loaddbEntityEngineMonitoring( loader );
 		entityAppBaseGroup = DBEngineBase.loaddbEntityBaseGroup( loader );
 		entityAppBaseItem = DBEngineBase.loaddbEntityBaseItem( loader );
-		entityAppSystem = DBSystem.loaddbEntitySystem( loader );
+		entityAppDirectorySystem = DBEngineDirectory.loaddbEntityDirectorySystem( loader );
+		entityAppDirectoryProduct = DBEngineDirectory.loaddbEntityDirectoryProduct( loader );
 		entityAppDatacenter = DBEngineInfrastructure.loaddbEntityDatacenter( loader );
 		entityAppNetwork = DBEngineInfrastructure.loaddbEntityNetwork( loader );
 		entityAppNetworkHost = DBEngineInfrastructure.loaddbEntityNetworkHost( loader );
@@ -127,7 +131,7 @@ public class EngineEntities {
 
 	public ObjectProperties createDefaultProductProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.PRODUCTDEFS , nameDefaultProductSet , engine.execrc );
-		props.create( parent , entityAppProduct , null ); 
+		props.create( parent , entityAppProductSettings , null ); 
 		return( props );
 	}
 
@@ -184,8 +188,8 @@ public class EngineEntities {
 
 	public ObjectProperties createSystemProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.SYSTEM , nameSystem , engine.execrc );
-		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.SYSTEM , DBEnumParamEntityType.SYSTEM_CUSTOM , -1 , DBEnumObjectVersionType.SYSTEM );
-		props.create( parent , entityAppSystem , custom );
+		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.SYSTEM_CUSTOM , -1 , DBEnumObjectVersionType.SYSTEM );
+		props.create( parent , entityAppDirectorySystem , custom );
 		return( props );
 	}
 

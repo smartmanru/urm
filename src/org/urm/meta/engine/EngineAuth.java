@@ -431,7 +431,7 @@ public class EngineAuth extends EngineObject {
 		return( false );
 	}
 
-	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Product product , boolean readOnly ) {
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , boolean readOnly ) {
 		return( checkAccessProductAction( action , sa , product.NAME , readOnly ) );
 	}
 	
@@ -627,7 +627,7 @@ public class EngineAuth extends EngineObject {
 		save( action );
 	}
 	
-	public synchronized void deleteProduct( EngineTransaction transaction , Product product ) throws Exception {
+	public synchronized void deleteProduct( EngineTransaction transaction , AppProduct product ) throws Exception {
 		ActionBase action = transaction.getAction();
 		boolean authChanged = false;
 		for( AuthGroup group : groups.values() ) {

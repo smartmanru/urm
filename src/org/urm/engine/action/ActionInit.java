@@ -22,7 +22,7 @@ import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
-import org.urm.meta.engine.Product;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineRegistry;
 import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineResources;
@@ -221,7 +221,7 @@ public class ActionInit extends ActionBase {
 		return( data.getSessionProductMetadata( this , productName , false ) );
 	}
 
-	public Meta createProductMetadata( TransactionBase transaction , Product product ) throws Exception {
+	public Meta createProductMetadata( TransactionBase transaction , AppProduct product ) throws Exception {
 		return( data.createProductMetadata( transaction , product ) );
 	}
 

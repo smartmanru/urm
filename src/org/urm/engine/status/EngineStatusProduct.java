@@ -9,7 +9,7 @@ import org.urm.engine.status.EngineStatus.StatusType;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
-import org.urm.meta.engine.Product;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
@@ -20,12 +20,12 @@ public class EngineStatusProduct extends EngineObject {
 
 	EngineStatus engineStatus;
 	EngineEvents events;
-	Product product;
+	AppProduct product;
 	Meta meta;
 	
 	private Map<EngineObject,StatusSource> productSources;
 	
-	public EngineStatusProduct( EngineStatus engineStatus , Product product , Meta meta ) {
+	public EngineStatusProduct( EngineStatus engineStatus , AppProduct product , Meta meta ) {
 		super( engineStatus );
 		this.product = product;
 		this.meta = meta;

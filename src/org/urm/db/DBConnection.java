@@ -16,7 +16,7 @@ import org.urm.engine.Engine;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.meta.OwnerObjectVersion;
 import org.urm.meta.engine.AppSystem;
-import org.urm.meta.engine.Product;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.MetaEnv;
 
 public class DBConnection {
@@ -294,7 +294,7 @@ public class DBConnection {
 		return( getCurrentObjectVersion( productId , DBEnumObjectVersionType.PRODUCT ) );
 	}
 	
-	public synchronized int getNextProductVersion( Product product , boolean delete ) throws Exception {
+	public synchronized int getNextProductVersion( AppProduct product , boolean delete ) throws Exception {
 		OwnerObjectVersion version = getObjectVersion( product.ID , DBEnumObjectVersionType.PRODUCT );
 		if( version.nextVersion < 0 ) {
 			version.LAST_NAME = product.NAME;
@@ -304,7 +304,7 @@ public class DBConnection {
 		return( version.nextVersion );
 	}
 	
-	public synchronized int getNextProductVersion( Product product ) throws Exception {
+	public synchronized int getNextProductVersion( AppProduct product ) throws Exception {
 		return( getNextProductVersion( product , false ) );
 	}
 	

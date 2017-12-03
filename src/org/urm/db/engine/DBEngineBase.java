@@ -125,7 +125,10 @@ public abstract class DBEngineBase {
 		PropertyEntity entity = entities.entityAppBaseGroup;
 		
 		BaseGroup group = new BaseGroup( category );
-		group.createGroup( entity.importxmlStringAttr( root , BaseGroup.PROPERTY_NAME ) , entity.importxmlStringAttr( root , BaseGroup.PROPERTY_DESC ) );
+		group.createGroup( 
+				entity.importxmlStringAttr( root , BaseGroup.PROPERTY_NAME ) , 
+				entity.importxmlStringAttr( root , BaseGroup.PROPERTY_DESC ) 
+				);
 		group.setOffline( entity.importxmlBooleanAttr( root , BaseGroup.PROPERTY_OFFLINE , true ) );
 		modifyGroup( c , group , true );
 		

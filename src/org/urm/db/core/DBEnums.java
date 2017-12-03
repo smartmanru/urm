@@ -178,8 +178,8 @@ public abstract class DBEnums {
 		BASE_CATEGORY(20,null) ,
 		BASE_GROUP(21,null) ,
 		BASE_ITEM(22,null) ,
-		SYSTEM(30,null) ,
-		PRODUCT(31,null);
+		APPSYSTEM(30,null) ,
+		APPPRODUCT(31,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -320,17 +320,18 @@ public abstract class DBEnums {
 		NETWORK(32,null) ,
 		HOST(33,null) ,
 		ACCOUNT(34,null) ,
-		SYSTEM(101,null) ,
-		PRODUCT(102,null) ,
-		ENVIRONMENT(103,null) ,
-		SEGMENT(104,null) ,
-		SERVER(105,null) ,
-		NODE(106,null) ,
-		RC_CUSTOM(201,null) ,
-		ENGINE_CUSTOM(202,null) ,
-		BASEITEM_CUSTOM(203,null) ,
-		SYSTEM_CUSTOM(301,null) ,
-		PRODUCT_CUSTOM(302,null);
+		APPSYSTEM(41,null) ,
+		APPPRODUCT(42,null) ,
+		PRODUCT(50,null) ,
+		ENVIRONMENT(51,null) ,
+		SEGMENT(52,null) ,
+		SERVER(53,null) ,
+		NODE(54,null) ,
+		RC_CUSTOM(111,null) ,
+		ENGINE_CUSTOM(112,null) ,
+		BASEITEM_CUSTOM(116,null) ,
+		SYSTEM_CUSTOM(141,null) ,
+		PRODUCT_CUSTOM(150,null);
 
 		private final int value;
 		private String[] synonyms;

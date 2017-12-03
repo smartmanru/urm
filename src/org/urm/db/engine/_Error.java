@@ -12,5 +12,8 @@ public class _Error {
 	public static final int NetworkNotEmpty0 = ErrorBase + 3;
 	public static final int HostNotEmpty0 = ErrorBase + 4;
 	public static final int DuplicateBuilder1 = ErrorBase + 5;
+	public static final int DuplicateSystem1 = ErrorBase + 6;
+	public static final int SystemNotEmpty0 = ErrorBase + 7;
+	public static final int UnknownProduct1 = ErrorBase + 8;
 	
 }

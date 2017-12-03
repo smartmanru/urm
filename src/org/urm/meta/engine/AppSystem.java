@@ -15,7 +15,7 @@ public class AppSystem extends EngineObject {
 	public static String PROPERTY_MATCHED = "matched";
 	
 	public EngineDirectory directory;
-	private Map<String,Product> mapProducts;
+	private Map<String,AppProduct> mapProducts;
 	
 	public int ID;
 	public String NAME;
@@ -31,7 +31,7 @@ public class AppSystem extends EngineObject {
 		this.directory = directory;
 		this.parameters = parameters;
 		
-		mapProducts = new HashMap<String,Product>();
+		mapProducts = new HashMap<String,AppProduct>();
 		ID = -1;
 		SV = 0;
 	}
@@ -51,9 +51,14 @@ public class AppSystem extends EngineObject {
 		parameters.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 	}
 	
-	public void setOffline( boolean OFFLINE ) throws Exception {
-		this.OFFLINE = OFFLINE;
+	public void setOffline( boolean offline ) throws Exception {
+		this.OFFLINE = offline;
 		parameters.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
+	}
+	
+	public void setMatched( boolean matched ) throws Exception {
+		this.MATCHED = matched;
+		parameters.setBooleanProperty( PROPERTY_MATCHED , MATCHED );
 	}
 	
 	public AppSystem copy( EngineDirectory nd , ObjectProperties rparameters ) {
@@ -65,9 +70,9 @@ public class AppSystem extends EngineObject {
 		r.MATCHED = MATCHED;
 		r.SV = SV;
 		
-		for( Product product : mapProducts.values() ) {
-			Product rp = product.copy( nd , r );
-			r.mapProducts.put( rp.NAME , rp );
+		for( AppProduct product : mapProducts.values() ) {
+			AppProduct rp = product.copy( nd , r );
+			r.addProduct( rp );
 		}
 		return( r );
 	}
@@ -80,11 +85,11 @@ public class AppSystem extends EngineObject {
 		return( Common.getSortedKeys( mapProducts ) );
 	}
 
-	public Product[] getProducts() {
-		return( mapProducts.values().toArray( new Product[0] ) );
+	public AppProduct[] getProducts() {
+		return( mapProducts.values().toArray( new AppProduct[0] ) );
 	}
 
-	public Product findProduct( String key ) {
+	public AppProduct findProduct( String key ) {
 		return( mapProducts.get( key ) );
 	}
 
@@ -95,11 +100,15 @@ public class AppSystem extends EngineObject {
 		parameters.setStringProperty( PROPERTY_DESC , DESC );
 	}
 
-	public void addProduct( Product product ) throws Exception {
+	public void addProduct( AppProduct product ) {
 		mapProducts.put( product.NAME , product );
 	}
 	
-	public void removeProduct( Product product ) {
+	public void updateProduct( AppProduct product ) throws Exception {
+		Common.changeMapKey( mapProducts , product , product.NAME );
+	}
+	
+	public void removeProduct( AppProduct product ) {
 		mapProducts.remove( product.NAME );
 	}
 
@@ -113,4 +122,10 @@ public class AppSystem extends EngineObject {
 		return( true );
 	}
 
+	public boolean isEmpty() {
+		if( mapProducts.isEmpty() )
+			return( true );
+		return( false );
+	}
+	
 }

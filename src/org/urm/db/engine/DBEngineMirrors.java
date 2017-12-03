@@ -33,7 +33,7 @@ import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.MirrorRepository;
-import org.urm.meta.engine.Product;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine._Error;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
@@ -173,7 +173,7 @@ public class DBEngineMirrors {
 		}
 	}
 
-	public static void addProductMirrors( EngineTransaction transaction , EngineMirrors mirrors , Product product , boolean forceClear ) throws Exception {
+	public static void addProductMirrors( EngineTransaction transaction , EngineMirrors mirrors , AppProduct product , boolean forceClear ) throws Exception {
 		ActionBase action = transaction.getAction();
 		UrmStorage storage = action.artefactory.getUrmStorage();
 
@@ -209,7 +209,7 @@ public class DBEngineMirrors {
 		mirrors.addRepository( repo );
 	}
 	
-	public static void deleteProductResources( EngineTransaction transaction , EngineMirrors mirrors , Product product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+	public static void deleteProductResources( EngineTransaction transaction , EngineMirrors mirrors , AppProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		List<MirrorRepository> repos = new LinkedList<MirrorRepository>();
 		for( String name : mirrors.getRepositoryNames() ) {
 			MirrorRepository repo = mirrors.findRepository( name );
@@ -325,14 +325,14 @@ public class DBEngineMirrors {
 		}
 		else
 		if( repo.MIRROR_TYPE == DBEnumMirrorType.PRODUCT_META ) {
-			Product product = action.getProduct( repo.productId );
+			AppProduct product = action.getProduct( repo.productId );
 			LocalFolder productSettings = loader.getProductHomeFolder( product.NAME );
 			map.put( "etc" , productSettings.getSubFolder( action , "etc" ) );
 			map.put( "master" , productSettings.getSubFolder( action , "master" ) );
 		}
 		else
 		if( repo.MIRROR_TYPE == DBEnumMirrorType.PRODUCT_DATA ) {
-			Product product = action.getProduct( repo.productId );
+			AppProduct product = action.getProduct( repo.productId );
 			Meta meta = action.getActiveProductMetadata( product.NAME );
 			MetaProductSettings settings = meta.getProductSettings( action );
 			LocalFolder home = loader.getEngineHomeFolder();

@@ -24,7 +24,7 @@ import org.urm.meta.engine.EngineRegistry;
 import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
-import org.urm.meta.engine.Product;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 
 public class EngineData {
@@ -210,7 +210,7 @@ public class EngineData {
 		products.deleteProductMetadata( transaction , storage );
 	}
 
-	public Meta createProductMetadata( TransactionBase transaction , Product product ) throws Exception {
+	public Meta createProductMetadata( TransactionBase transaction , AppProduct product ) throws Exception {
 		ProductMeta storage = products.createProductMetadata( transaction , product );
 		return( products.createSessionProductMetadata( transaction.action , storage ) );
 	}

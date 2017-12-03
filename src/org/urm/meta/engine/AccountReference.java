@@ -54,7 +54,7 @@ public class AccountReference {
 		Map<String,AccountReference> initial = new HashMap<String,AccountReference>();
 		for( AccountReference ref : refs ) {
 			String productName = ref.node.server.sg.env.meta.name;
-			Product product = action.findProduct( productName );
+			AppProduct product = action.findProduct( productName );
 			String appKey = product.system.NAME + "-" + productName + "-" + ref.node.server.sg.env.NAME + "-" + 
 				ref.node.server.sg.NAME + "-" + ref.node.server.NAME + "-" + ref.node.POS;
 			String infraKey = ref.account.host.network.NAME + "-" + ref.account.host.NAME + "-" + ref.account.NAME;

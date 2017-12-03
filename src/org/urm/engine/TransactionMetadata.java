@@ -3,7 +3,7 @@ package org.urm.engine;
 import org.urm.engine.status.EngineStatus;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineMonitoring;
-import org.urm.meta.engine.Product;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 
 public class TransactionMetadata {
@@ -117,7 +117,7 @@ public class TransactionMetadata {
 	}
 
 	private void createProduct( ProductMeta metadata ) throws Exception {
-		Product product = transaction.action.findProduct( metadata.name );
+		AppProduct product = transaction.action.findProduct( metadata.name );
 		
 		EngineStatus status = transaction.action.getServerStatus();
 		status.createProduct( transaction.action , product , metadata );

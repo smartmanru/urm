@@ -189,7 +189,7 @@ public class EngineProducts {
 		}
 	}
 	
-	public ProductMeta createProductMetadata( TransactionBase transaction , Product product ) throws Exception {
+	public ProductMeta createProductMetadata( TransactionBase transaction , AppProduct product ) throws Exception {
 		ActionInit action = transaction.getAction();
 		
 		ProductMeta set = new ProductMeta( this , product.NAME );

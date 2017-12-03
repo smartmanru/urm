@@ -5,6 +5,7 @@ import java.util.List;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineBuilders;
+import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMirrors;
@@ -26,7 +27,7 @@ import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.Network;
 import org.urm.meta.engine.NetworkHost;
-import org.urm.meta.engine.Product;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.engine.LifecyclePhase;
@@ -363,12 +364,17 @@ public class EngineTransaction extends TransactionBase {
 	
 	public AppSystem createSystem( String name , String desc ) throws Exception {
 		checkTransactionDirectory();
-		return( directory.createSystem( this , name , desc ) );
+		return( DBEngineDirectory.createSystem( this , directory , name , desc ) );
 	}
 	
-	public void modifySystem( AppSystem system ) throws Exception {
+	public void modifySystem( AppSystem system , String name , String desc ) throws Exception {
 		checkTransactionDirectory();
-		directory.modifySystem( this , system );
+		DBEngineDirectory.modifySystem( this , directory , system , name , desc );
+	}
+
+	public void setSystemOffline( AppSystem system , boolean offline ) throws Exception {
+		checkTransactionDirectory();
+		DBEngineDirectory.setSystemOffline( this , directory , system , offline );
 	}
 
 	public void deleteSystem( AppSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
@@ -376,31 +382,48 @@ public class EngineTransaction extends TransactionBase {
 		
 		EngineMirrors mirrors = action.getServerMirrors();
 		for( String productName : system.getProductNames() ) {
-			Product product = system.findProduct( productName );
+			AppProduct product = system.findProduct( productName );
 			DBEngineMirrors.deleteProductResources( this , mirrors , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		}
-		directory.deleteSystem( this , system );
-		system.deleteObject();
+		
+		DBEngineDirectory.deleteSystem( this , directory , system );
 	}
 	
-	public void createProduct( Product product , boolean forceClear ) throws Exception {
+	public AppProduct createProduct( AppSystem system , String name , String desc , String path , boolean forceClear ) throws Exception {
 		checkTransactionDirectory();
+		AppProduct product = DBEngineDirectory.createProduct( this , directory , system , name , desc , path );
 		
 		EngineMirrors mirrors = action.getServerMirrors();
 		DBEngineMirrors.addProductMirrors( this , mirrors , product , forceClear );
 		
-		directory.createProduct( this , product );
 		Meta meta = super.createProductMetadata( product );
 		ProductMeta storage = meta.getStorage( action );
 		storage.createInitialRepository( this , forceClear );
+		
+		return( product );
 	}
 	
-	public void modifyProduct( Product product ) throws Exception {
+	public void modifyProduct( AppProduct product , String name , String desc , String path ) throws Exception {
 		checkTransactionDirectory();
-		product.modifyProduct( this );
+		DBEngineDirectory.modifyProduct( this , directory , product , name , desc , path );
 	}
 
-	public void deleteProduct( EngineMirrors mirrors , Product product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+	public void setMonitoringEnabled( AppProduct product ) throws Exception {
+		checkTransactionDirectory();
+		DBEngineDirectory.setMonitoringEnabled( this , directory , product , true );
+	}
+	
+	public void setMonitoringDisabled( AppProduct product ) throws Exception {
+		checkTransactionDirectory();
+		DBEngineDirectory.setMonitoringEnabled( this , directory , product , false );
+	}
+
+	public void setProductOffline( AppProduct product , boolean offline ) throws Exception {
+		checkTransactionDirectory();
+		DBEngineDirectory.setProductOffline( this , directory , product , offline );
+	}
+
+	public void deleteProduct( EngineMirrors mirrors , AppProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		checkTransactionDirectory();
 		checkTransactionMirrors( mirrors );
 		checkTransactionMetadata( product.NAME );
@@ -408,8 +431,7 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineMirrors.deleteProductResources( this , mirrors , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		EngineAuth auth = action.getServerAuth();
 		auth.deleteProduct( this , product );
-		directory.deleteProduct( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
-		product.deleteObject();
+		DBEngineDirectory.deleteProduct( this , directory , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 	}
 
 	// ################################################################################
@@ -428,16 +450,6 @@ public class EngineTransaction extends TransactionBase {
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setEnabled( this , true );
 		loader.commitMonitoring();
-	}
-
-	public void setMonitoringEnabled( Product product ) throws Exception {
-		checkTransactionDirectory();
-		product.setMonitoringEnabled( this , true );
-	}
-	
-	public void setMonitoringDisabled( Product product ) throws Exception {
-		checkTransactionDirectory();
-		product.setMonitoringEnabled( this , false );
 	}
 
 	public void setDefaultMonitoringProperties( PropertySet props ) throws Exception {

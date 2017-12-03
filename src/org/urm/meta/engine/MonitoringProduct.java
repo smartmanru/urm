@@ -50,12 +50,12 @@ public class MonitoringProduct {
 	};
 	
 	EngineMonitoring monitoring;
-	Product product;
+	AppProduct product;
 	MetaMonitoring meta;
 	Engine engine;
 	Map<String,ActionMonitorTarget> targets;
 	
-	public MonitoringProduct( EngineMonitoring monitoring , Product product , MetaMonitoring meta ) {
+	public MonitoringProduct( EngineMonitoring monitoring , AppProduct product , MetaMonitoring meta ) {
 		this.monitoring = monitoring;
 		this.product = product;
 		this.meta = meta;

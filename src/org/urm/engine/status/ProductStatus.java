@@ -1,12 +1,12 @@
 package org.urm.engine.status;
 
-import org.urm.meta.engine.Product;
+import org.urm.meta.engine.AppProduct;
 
 public class ProductStatus extends Status {
 
-	public Product product;
+	public AppProduct product;
 	
-	public ProductStatus( Product product ) {
+	public ProductStatus( AppProduct product ) {
 		super( STATETYPE.TypeProduct , null , product );
 		this.product = product;
 	}

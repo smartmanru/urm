@@ -11,13 +11,10 @@ import org.urm.db.core.DBNames;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
-import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
-import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.db.DBQueries;
 import org.urm.engine.EngineDB;
 import org.urm.engine.properties.EngineEntities;
-import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
@@ -25,63 +22,60 @@ import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineSettings;
-import org.urm.meta.engine.Product;
+import org.urm.meta.engine.AppProduct;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public abstract class DBSystem {
 
-	public static String TABLE_SYSTEM = "urm_system";
-	public static String FIELD_ID = "system_id";
-	
-	public static AppSystem importxml( EngineLoader loader , EngineDirectory directory , Node node ) throws Exception {
+	public static AppSystem importxmlSystem( EngineLoader loader , EngineDirectory directory , Node node ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		EngineSettings settings = loader.data.getEngineSettings();
 		ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
 		
 		AppSystem system = new AppSystem( directory , props );
-		system.NAME = ConfReader.getAttrValue( node , AppSystem.PROPERTY_NAME );
-		system.DESC = ConfReader.getAttrValue( node , AppSystem.PROPERTY_DESC );
-		system.OFFLINE = ConfReader.getBooleanAttrValue( node , AppSystem.PROPERTY_OFFLINE , true );
-		int systemId = getSystemIdByName( c , system.NAME );
-		insert( c , systemId , system );
-		
+		system.createSystem(
+				ConfReader.getAttrValue( node , AppSystem.PROPERTY_NAME ) ,
+				ConfReader.getAttrValue( node , AppSystem.PROPERTY_DESC ) 
+				);
+		system.setOffline( ConfReader.getBooleanAttrValue( node , AppSystem.PROPERTY_OFFLINE , true ) );
+		modifySystem( c , system , true );
 		DBSettings.importxml( loader , node , props , system.ID , system.ID , false , system.SV );
-		
-		Node[] items = ConfReader.xmlGetChildren( node , "product" );
-		if( items == null )
-			return( system );
-		
-		for( Node itemNode : items ) {
-			Product product = DBProduct.importxml( loader , directory , system , itemNode );
-			system.addProduct( product );
-		}
 		
 		return( system );
 	}
 
+	public static void exportxml( EngineLoader loader , EngineDirectory directory , AppSystem system , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "name" , system.NAME );
+		Common.xmlSetElementAttr( doc , root , "desc" , system.DESC );
+		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( system.OFFLINE ) );
+	}
+	
 	public static AppSystem[] loaddb( EngineLoader loader , EngineDirectory directory ) throws Exception {
 		DBConnection c = loader.getConnection();
 		List<AppSystem> systems = new LinkedList<AppSystem>();
 		
 		EngineEntities entities = c.getEntities();
-		PropertyEntity entity = entities.entityAppSystem;
+		PropertyEntity entity = entities.entityAppDirectorySystem;
 		EngineSettings settings = loader.data.getEngineSettings();
+		ObjectProperties engineProps = settings.getEngineProperties();
 		
 		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
 		try {
 			while( rs.next() ) {
-				ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
+				ObjectProperties props = entities.createSystemProps( engineProps );
 				
 				AppSystem system = new AppSystem( directory , props );
 				system.ID = entity.loaddbId( rs );
-				system.NAME = rs.getString( 2 );
-				system.DESC = rs.getString( 3 );
-				system.OFFLINE = rs.getBoolean( 4 );
-				system.MATCHED = rs.getBoolean( 5 );
-				system.SV = rs.getInt( 6 );
+				system.SV = entity.loaddbVersion( rs );
+				system.createSystem(
+						entity.loaddbString( rs , AppSystem.PROPERTY_NAME ) , 
+						entity.loaddbString( rs , AppSystem.PROPERTY_DESC ) 
+						);
+				system.setOffline( entity.loaddbBoolean( rs , AppSystem.PROPERTY_OFFLINE ) );
+				system.setMatched( entity.loaddbBoolean( rs , AppSystem.PROPERTY_MATCHED ) );
 				systems.add( system );
 			}
 		}
@@ -92,6 +86,7 @@ public abstract class DBSystem {
 		for( AppSystem system : systems ) {
 			ObjectProperties props = system.getParameters();
 			ObjectMeta meta = props.getMeta();
+			
 			DBSettings.loaddbEntity( loader , meta.getCustomEntity() , system.ID );
 			DBSettings.loaddbValues( loader , system.ID , props , false );
 		}
@@ -99,29 +94,19 @@ public abstract class DBSystem {
 		return( systems.toArray( new AppSystem[0] ) );
 	}
 	
-	public static void resolvexml( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
-		for( Product product : system.getProducts() )
-			DBProduct.resolvexml( loader , directory , product );
-	}
-
-	public static void resolvedb( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
-		for( Product product : system.getProducts() )
-			DBProduct.resolvedb( loader , directory , product );
-	}
-	
-	public static void matchxml( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
-		for( Product product : system.getProducts() )
+	public static void matchxmlSystem( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
+		for( AppProduct product : system.getProducts() )
 			DBProduct.matchxml( loader , directory , product );
 		
 		matchdone( loader , directory , system , true );
 	}
 
-	public static void matchdone( EngineLoader loader , EngineDirectory directory , AppSystem system , boolean done ) throws Exception {
+	private static void matchdone( EngineLoader loader , EngineDirectory directory , AppSystem system , boolean done ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
 		system.MATCHED = true;
 		system.SV = c.getNextSystemVersion( system );
-		if( !c.update( DBQueries.MODIFY_SYSTEM_MATCHED2 , new String[] {
+		if( !c.update( DBQueries.MODIFY_SYSTEM_MATCHED3 , new String[] {
 				EngineDB.getInteger( system.ID ) , 
 				EngineDB.getBoolean( system.MATCHED ) ,
 				EngineDB.getInteger( system.SV ) 
@@ -130,71 +115,31 @@ public abstract class DBSystem {
 	}
 	
 	public static void matchdb( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
-		for( Product product : system.getProducts() )
+		for( AppProduct product : system.getProducts() )
 			DBProduct.matchdb( loader , directory , product );
 	}
 	
-	public static void exportxml( EngineLoader loader , EngineDirectory directory , AppSystem system , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "name" , system.NAME );
-		Common.xmlSetElementAttr( doc , root , "desc" , system.DESC );
-		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( system.OFFLINE ) );
+	public static void modifySystem( DBConnection c , AppSystem system , boolean insert ) throws Exception {
+		if( insert )
+			system.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , system.NAME , DBEnumObjectType.APPSYSTEM );
+		else
+			DBNames.updateName( c , DBVersions.CORE_ID , system.NAME , system.ID , DBEnumObjectType.APPSYSTEM );
 		
-		for( String productName : system.getProductNames() ) {
-			Product product = system.findProduct( productName );
-			Element elementProduct = Common.xmlCreateElement( doc , root , "product" );
-			DBProduct.exportxml( loader , directory , product , doc , elementProduct );
-		}
-	}
-	
-	public static int getSystemIdByName( DBConnection c , String name ) throws Exception {
-		return( DBNames.getNameIndex( c , DBVersions.CORE_ID , name , DBEnumObjectType.SYSTEM ) );
-	}
-	
-	public static void insert( DBConnection c , int systemId , AppSystem system ) throws Exception {
-		system.ID = systemId;
 		system.SV = c.getNextSystemVersion( system );
 		EngineEntities entities = c.getEntities();
-		DBEngineEntities.insertAppObject( c , entities.entityAppSystem , system.ID , system.SV , new String[] {
+		DBEngineEntities.insertAppObject( c , entities.entityAppDirectorySystem , system.ID , system.SV , new String[] {
 				EngineDB.getString( system.NAME ) , 
 				EngineDB.getString( system.DESC ) ,
 				EngineDB.getBoolean( system.OFFLINE ) ,
 				EngineDB.getBoolean( system.MATCHED )
 				} );
 	}
-
-	public static void update( DBConnection c , AppSystem system ) throws Exception {
-		system.SV = c.getNextSystemVersion( system );
-		EngineEntities entities = c.getEntities();
-		DBEngineEntities.updateAppObject( c , entities.entityAppSystem , system.ID , system.SV , new String[] {
-				EngineDB.getString( system.NAME ) , 
-				EngineDB.getString( system.DESC ) ,
-				EngineDB.getBoolean( system.OFFLINE ) ,
-				EngineDB.getBoolean( system.MATCHED )
-				} );
-	}
-
+	
 	public static void delete( DBConnection c , AppSystem system ) throws Exception {
 		int SV = c.getNextSystemVersion( system , true );
 		DBSettings.dropObjectSettings( c , system.ID );
 		EngineEntities entities = c.getEntities();
-		DBEngineEntities.deleteAppObject( c , entities.entityAppSystem , system.ID , SV );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppDirectorySystem , system.ID , SV );
 	}
 
-	public static PropertyEntity upgradeEntitySystem( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.SYSTEM , DBEnumParamEntityType.SYSTEM , DBEnumObjectVersionType.SYSTEM , TABLE_SYSTEM , FIELD_ID );
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaString( AppSystem.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( AppSystem.PROPERTY_DESC , "xdesc" , AppSystem.PROPERTY_DESC , "Description" , false , null ) ,
-				EntityVar.metaBoolean( AppSystem.PROPERTY_OFFLINE , "Offline" , false , true ) ,
-				EntityVar.metaBoolean( AppSystem.PROPERTY_MATCHED , "State of matched to core" , false , true )
-		} ) );
-	}
-
-	public static PropertyEntity loaddbEntitySystem( EngineLoader loader ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.SYSTEM , DBEnumParamEntityType.SYSTEM , DBEnumObjectVersionType.SYSTEM , TABLE_SYSTEM , FIELD_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
-		return( entity );
-	}
-	
 }

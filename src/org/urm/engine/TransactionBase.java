@@ -21,7 +21,7 @@ import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.Network;
-import org.urm.meta.engine.Product;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineResources;
@@ -1140,7 +1140,7 @@ public class TransactionBase extends EngineObject {
 		return( directory.getSystem( system.NAME ) );
 	}
 	
-	public Product getProduct( Product product ) throws Exception {
+	public AppProduct getProduct( AppProduct product ) throws Exception {
 		return( directory.getProduct( product.NAME ) );
 	}
 	
@@ -1183,7 +1183,7 @@ public class TransactionBase extends EngineObject {
 		return( tm.metadata );
 	}
 	
-	protected Meta createProductMetadata( Product product ) throws Exception {
+	protected Meta createProductMetadata( AppProduct product ) throws Exception {
 		TransactionMetadata tm = productMeta.get( product.NAME );
 		if( tm != null )
 			action.exitUnexpectedState();

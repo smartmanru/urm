@@ -154,7 +154,7 @@ public class EngineMonitoring extends EngineObject {
 
 	public synchronized void createProduct( ActionBase action , ProductMeta storage ) throws Exception {
 		MetaMonitoring meta = storage.getMonitoring();
-		Product product = action.getProduct( storage.name );
+		AppProduct product = action.getProduct( storage.name );
 		MonitoringProduct mon = new MonitoringProduct( this , product , meta );
 		mapProduct.put( storage.name , mon );
 		mon.start( action );
@@ -195,14 +195,14 @@ public class EngineMonitoring extends EngineObject {
 		return( isEnabled() && system.OFFLINE == false );
 	}
 	
-	public boolean isRunning( Product product ) {
+	public boolean isRunning( AppProduct product ) {
 		MonitoringProduct mon = mapProduct.get( product.NAME );
 		return( mon != null && isRunning( product.system ) && product.OFFLINE == false && product.MONITORING_ENABLED );
 	}
 	
 	public boolean isRunning( MetaEnv env ) {
 		EngineDirectory directory = data.getDirectory();
-		Product product = directory.findProduct( env.meta.name );
+		AppProduct product = directory.findProduct( env.meta.name );
 		return( product != null && isRunning( product ) && env.OFFLINE == false );
 	}
 

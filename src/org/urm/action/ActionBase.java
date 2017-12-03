@@ -51,7 +51,7 @@ import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
-import org.urm.meta.engine.Product;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineResources;
@@ -729,8 +729,8 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public EngineCacheObject getCacheObject( EngineObject object ) {
-		if( object instanceof Product ) {
-			Product xo = ( Product )object; 
+		if( object instanceof AppProduct ) {
+			AppProduct xo = ( AppProduct )object; 
 			return( getProductCacheObject( xo.NAME ) );
 		}
 		if( object instanceof Meta ) {
@@ -804,17 +804,17 @@ abstract public class ActionBase extends ActionCore {
 		return( actionInit.getServerMonitoring() );
 	}
 	
-	public Product getProduct( String name ) throws Exception {
+	public AppProduct getProduct( String name ) throws Exception {
 		EngineDirectory directory = getServerDirectory();
 		return( directory.getProduct( name ) );
 	}
 	
-	public Product getProduct( int id ) throws Exception {
+	public AppProduct getProduct( int id ) throws Exception {
 		EngineDirectory directory = getServerDirectory();
 		return( directory.getProduct( id ) );
 	}
 	
-	public Product findProduct( String name ) {
+	public AppProduct findProduct( String name ) {
 		EngineDirectory directory = getServerDirectory();
 		return( directory.findProduct( name ) );
 	}
@@ -891,7 +891,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public boolean isProductOffline( String productName ) {
-		Product product = findProduct( productName );
+		AppProduct product = findProduct( productName );
 		if( product == null )
 			return( true );
 		

@@ -14,7 +14,7 @@ import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineDirectory;
-import org.urm.meta.engine.Product;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
@@ -90,8 +90,8 @@ public class EngineStatus extends EngineObject {
 			return( getGlobalSource( StatusType.SYSTEM , system.NAME ) );
 		}
 		
-		if( object instanceof Product ) {
-			Product product = ( Product )object; 
+		if( object instanceof AppProduct ) {
+			AppProduct product = ( AppProduct )object; 
 			return( getGlobalSource( StatusType.PRODUCT , product.NAME ) );
 		}
 		
@@ -126,7 +126,7 @@ public class EngineStatus extends EngineObject {
 		return( productStatus.getProductSource( object ) );
 	}
 	
-	public synchronized StatusSource getObjectSource( Product product ) {
+	public synchronized StatusSource getObjectSource( AppProduct product ) {
 		return( getGlobalSource( StatusType.PRODUCT , product.NAME ) );
 	}
 
@@ -140,7 +140,7 @@ public class EngineStatus extends EngineObject {
 		return( false );
 	}
 
-	public synchronized void setProductStatus( ActionBase action , Product product , OBJECT_STATE state ) {
+	public synchronized void setProductStatus( ActionBase action , AppProduct product , OBJECT_STATE state ) {
 		StatusSource productSource = getObjectSource( product );
 		if( productSource != null && productSource.setFinalState( state ) ) {
 			AppSystem system = product.system;
@@ -192,7 +192,7 @@ public class EngineStatus extends EngineObject {
 		return( app.subscribe( source , listener ) );
 	}
 
-	public synchronized void createProduct( ActionBase action , Product product , ProductMeta storage ) {
+	public synchronized void createProduct( ActionBase action , AppProduct product , ProductMeta storage ) {
 		startProduct( action , product , storage );
 	}
 
@@ -241,13 +241,13 @@ public class EngineStatus extends EngineObject {
 		
 		// start products
 		for( String productName : system.getProductNames() ) {
-			Product product = system.findProduct( productName );
+			AppProduct product = system.findProduct( productName );
 			ProductMeta storage = data.findProductStorage( product.NAME );
 			startProduct( action , product , storage );
 		}
 	}
 	
-	private void startProduct( ActionBase action , Product product , ProductMeta storage ) {
+	private void startProduct( ActionBase action , AppProduct product , ProductMeta storage ) {
 		if( storage == null || storage.loadFailed ) {
 			action.trace( "ignore status for non-healthy product=" + product.NAME );
 			return;
@@ -288,7 +288,7 @@ public class EngineStatus extends EngineObject {
 
 		OBJECT_STATE finalState = OBJECT_STATE.STATE_NODATA;
 		for( String productName : system.getProductNames() ) {
-			Product product = system.findProduct( productName );
+			AppProduct product = system.findProduct( productName );
 			StatusSource productSource = getObjectSource( product );
 			if( productSource != null )
 				finalState = StatusData.addState( finalState , productSource.state.state );
@@ -323,7 +323,7 @@ public class EngineStatus extends EngineObject {
 		if( source != null ) {
 			source.updateRunTime();
 			
-			Product product = productStatus.product;
+			AppProduct product = productStatus.product;
 			source = getGlobalSource( StatusType.PRODUCT , product.NAME );
 			if( source != null ) {
 				source.updateRunTime();
@@ -377,7 +377,7 @@ public class EngineStatus extends EngineObject {
 		if( source != null ) {
 			source.finishUpdate();
 			
-			Product product = productStatus.product;
+			AppProduct product = productStatus.product;
 			source = getGlobalSource( StatusType.PRODUCT , product.NAME );
 			if( source != null ) {
 				source.finishUpdate();
