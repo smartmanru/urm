@@ -41,6 +41,7 @@ public abstract class DBEngineDirectory {
 	public static String FIELD_PRODUCT_SYSTEM_ID = "system_id";
 	public static String FIELD_PRODUCT_ID = "product_id";
 	public static String FIELD_PRODUCT_DESC = "xdesc";
+	public static String FIELD_PRODUCT_MONITORING_ENABLED = "monitoring_enabled";
 	
 	public static PropertyEntity upgradeEntityDirectorySystem( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
@@ -62,7 +63,7 @@ public abstract class DBEngineDirectory {
 				EntityVar.metaStringVar( AppProduct.PROPERTY_DESC , FIELD_PRODUCT_DESC , AppProduct.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaString( AppProduct.PROPERTY_PATH , "Path" , true , null ) ,
 				EntityVar.metaBoolean( AppProduct.PROPERTY_OFFLINE , "Offline" , false , true ) ,
-				EntityVar.metaBoolean( AppProduct.PROPERTY_MONITORING_ENABLED , "Monitoring enabled" , false , false ) ,
+				EntityVar.metaBooleanVar( AppProduct.PROPERTY_MONITORING_ENABLED , FIELD_PRODUCT_MONITORING_ENABLED , AppProduct.PROPERTY_MONITORING_ENABLED , "Monitoring enabled" , false , false ) ,
 		} ) );
 	}
 
