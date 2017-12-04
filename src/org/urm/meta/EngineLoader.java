@@ -64,9 +64,9 @@ public class EngineLoader {
 	public EngineLoader( Engine engine , EngineData data , ActionBase action ) {
 		this.engine = engine;
 		this.data = data;
+		this.action = action;
 		this.execrc = engine.execrc;
 		this.entities = data.getEntities();
-		this.action = action;
 	}
 
 	public EngineEntities getEntities() {
@@ -173,7 +173,7 @@ public class EngineLoader {
 		try {
 			trace( "init, checking engine/database consistency ..." );
 			EngineDB db = data.getDatabase();
-			connection = db.getConnection( null );
+			connection = db.getConnection( action );
 			
 			trace( "load names ..." );
 			DBNames.loaddb( this );

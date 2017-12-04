@@ -99,7 +99,6 @@ public class Engine {
 		events.init();
 		scheduler.init();
 		status.init();
-		data.init();
 		sessionController.init();
 		blotter.init();
 		
@@ -112,6 +111,8 @@ public class Engine {
 		xdocExecutor = XDocCommandExecutor.createExecutor( this );
 		
 		createTemporaryEngineAction();
+		data.init();
+		
 		EngineLoader loader = createLoader( serverAction );
 		loader.initData();
 		loader.initCore();
