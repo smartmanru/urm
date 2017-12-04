@@ -9,8 +9,8 @@ import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
-import org.urm.db.system.DBProduct;
-import org.urm.db.system.DBSystem;
+import org.urm.db.system.DBAppProduct;
+import org.urm.db.system.DBAppSystem;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
@@ -96,7 +96,7 @@ public abstract class DBEngineDirectory {
 	}
 	
 	private static AppSystem importxmlSystem( EngineLoader loader , EngineDirectory directory , Node root ) throws Exception {
-		AppSystem system = DBSystem.importxmlSystem( loader , directory , root );
+		AppSystem system = DBAppSystem.importxmlSystem( loader , directory , root );
 		
 		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_PRODUCT );
 		if( items != null ) {
@@ -109,7 +109,7 @@ public abstract class DBEngineDirectory {
 	}
 
 	private static AppProduct importxmlProduct( EngineLoader loader , EngineDirectory directory , AppSystem system , Node root ) throws Exception {
-		AppProduct product = DBProduct.importxmlProduct( loader , directory , system , root );
+		AppProduct product = DBAppProduct.importxmlProduct( loader , directory , system , root );
 		return( product );
 	}
 
@@ -123,7 +123,7 @@ public abstract class DBEngineDirectory {
 	}
 
 	private static void exportxmlSystem( EngineLoader loader , EngineDirectory directory , AppSystem system , Document doc , Element root ) throws Exception {
-		DBSystem.exportxml( loader , directory , system , doc , root );
+		DBAppSystem.exportxml( loader , directory , system , doc , root );
 		
 		for( String productName : system.getProductNames() ) {
 			AppProduct product = system.findProduct( productName );
@@ -133,7 +133,7 @@ public abstract class DBEngineDirectory {
 	}
 	
 	private static void exportxmlProduct( EngineLoader loader , EngineDirectory directory , AppProduct product , Document doc , Element root ) throws Exception {
-		DBProduct.exportxmlProduct( loader , product , doc , root );
+		DBAppProduct.exportxmlProduct( loader , product , doc , root );
 	}
 	
 	public static void loaddb( EngineLoader loader , EngineDirectory directory ) throws Exception {
@@ -145,13 +145,13 @@ public abstract class DBEngineDirectory {
 	}
 	
 	private static void loaddbSystems( EngineLoader loader , EngineDirectory directory ) throws Exception {
-		AppSystem[] systems = DBSystem.loaddb( loader , directory );
+		AppSystem[] systems = DBAppSystem.loaddb( loader , directory );
 		for( AppSystem system : systems )
 			directory.addSystem( system );
 	}
 	
 	private static void loaddbProducts( EngineLoader loader , EngineDirectory directory ) throws Exception {
-		AppProduct[] products = DBProduct.loaddb( loader , directory );
+		AppProduct[] products = DBAppProduct.loaddb( loader , directory );
 		for( AppProduct product : products )
 			directory.addProduct( product );
 	}
@@ -162,7 +162,7 @@ public abstract class DBEngineDirectory {
 		
 		for( AppSystem system : directory.getSystems() ) {
 			matcher.prepareMatch( system.ID , false , false );
-			DBSystem.matchxmlSystem( loader , directory , system );
+			DBAppSystem.matchxmlSystem( loader , directory , system );
 			
 			data.matchdoneSystem( loader , system );
 		}
@@ -175,12 +175,12 @@ public abstract class DBEngineDirectory {
 		for( AppSystem system : directory.getSystems() ) {
 			if( update ) {
 				matcher.prepareMatch( system.ID , true , true );
-				DBSystem.matchdb( loader , directory , system );
+				DBAppSystem.matchdb( loader , directory , system );
 			}
 			else
 			if( system.MATCHED ) {
 				matcher.prepareMatch( system.ID , false , true );
-				DBSystem.matchdb( loader , directory , system );
+				DBAppSystem.matchdb( loader , directory , system );
 			}
 			
 			data.matchdoneSystem( loader , system );
@@ -200,7 +200,7 @@ public abstract class DBEngineDirectory {
 		ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
 		AppSystem system = new AppSystem( directory , props );
 		system.createSystem( name , desc );
-		DBSystem.modifySystem( c , system , true );
+		DBAppSystem.modifySystem( c , system , true );
 		
 		directory.addSystem( system );
 		return( system );
@@ -209,14 +209,14 @@ public abstract class DBEngineDirectory {
 	public static void modifySystem( EngineTransaction transaction , EngineDirectory directory , AppSystem system , String name , String desc ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		system.modifySystem( name , desc );
-		DBSystem.modifySystem( c , system , false );
+		DBAppSystem.modifySystem( c , system , false );
 		directory.updateSystem( system );
 	}
 	
 	public static void setSystemOffline( EngineTransaction transaction , EngineDirectory directory , AppSystem system , boolean offline ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		system.setOffline( offline );
-		DBSystem.modifySystem( c , system , false );
+		DBAppSystem.modifySystem( c , system , false );
 	}
 	
 	public static void deleteSystem( EngineTransaction transaction , EngineDirectory directory , AppSystem system ) throws Exception {
@@ -239,7 +239,7 @@ public abstract class DBEngineDirectory {
 		
 		AppProduct product = new AppProduct( directory , system );
 		product.createProduct( name , desc , path );
-		DBProduct.modifyProduct( c , product , true );
+		DBAppProduct.modifyProduct( c , product , true );
 		
 		directory.addProduct( product );
 		return( product );
@@ -248,20 +248,20 @@ public abstract class DBEngineDirectory {
 	public static void modifyProduct( EngineTransaction transaction , EngineDirectory directory , AppProduct product , String name , String desc , String path ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		product.modifyProduct( name , desc , path );
-		DBProduct.modifyProduct( c , product , false );
+		DBAppProduct.modifyProduct( c , product , false );
 		directory.updateProduct( product );
 	}
 	
 	public static void setProductOffline( EngineTransaction transaction , EngineDirectory directory , AppProduct product , boolean offline ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		product.setOffline( offline );
-		DBProduct.modifyProduct( c , product , false );
+		DBAppProduct.modifyProduct( c , product , false );
 	}
 	
 	public static void setMonitoringEnabled( EngineTransaction transaction , EngineDirectory directory , AppProduct product , boolean enabled ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		product.setMonitoringEnabled( enabled );
-		DBProduct.modifyProduct( c , product , false );
+		DBAppProduct.modifyProduct( c , product , false );
 	}
 	
 	public static void deleteProduct( EngineTransaction transaction , EngineDirectory directory , AppProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {

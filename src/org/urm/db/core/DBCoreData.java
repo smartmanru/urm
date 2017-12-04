@@ -31,12 +31,9 @@ public abstract class DBCoreData {
 	public static void dropCoreReleasesData( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = c.getEntities();
-		boolean res = true;
-		res = ( res )? c.update( DBQueries.MODIFY_RELEASES_DROP_BUILDERS0 ) : false;
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProjectBuilder );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppLifecyclePhase );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseLifecycle );
-		if( !res )
-			Common.exitUnexpected();
 	}
 
 	public static void dropCoreAuthData( EngineLoader loader ) throws Exception {
@@ -82,6 +79,5 @@ public abstract class DBCoreData {
 		if( !res )
 			Common.exitUnexpected();
 	}
-	
 	
 }
