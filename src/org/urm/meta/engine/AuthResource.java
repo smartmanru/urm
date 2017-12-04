@@ -122,7 +122,7 @@ public class AuthResource extends EngineObject {
 	}
 	
 	public void setAuthData( AuthContext acdata ) throws Exception {
-		EngineAuth auth = resources.registry.engine.getAuth();
+		EngineAuth auth = resources.engine.getAuth();
 		String authKey = auth.getAuthKey( EngineAuth.AUTH_GROUP_RESOURCE , NAME );
 		ac = auth.loadAuthData( authKey );
 		ac.setData( acdata );
@@ -131,7 +131,7 @@ public class AuthResource extends EngineObject {
 	}
 	
 	public void saveAuthData() throws Exception {
-		EngineAuth auth = resources.registry.engine.getAuth();
+		EngineAuth auth = resources.engine.getAuth();
 		if( ac != null ) {
 			String authKey = auth.getAuthKey( EngineAuth.AUTH_GROUP_RESOURCE , NAME );
 			auth.saveAuthData( authKey , ac );
@@ -142,7 +142,7 @@ public class AuthResource extends EngineObject {
 		if( ac != null )
 			return;
 		
-		EngineAuth auth = resources.registry.engine.getAuth();
+		EngineAuth auth = resources.engine.getAuth();
 		String authKey = auth.getAuthKey( EngineAuth.AUTH_GROUP_RESOURCE , NAME );
 		ac = auth.loadAuthData( authKey );
 	}

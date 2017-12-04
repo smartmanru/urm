@@ -157,15 +157,16 @@ public abstract class DBEngineDirectory {
 
 	public static void match( EngineLoader loader , EngineDirectory directory , boolean update ) throws Exception {
 		EngineMatcher matcher = loader.getMatcher();
+		matcher.prepareMatchDirectory();
 		
 		for( AppSystem system : directory.getSystems() ) {
 			if( update ) {
-				matcher.prepareMatch( system.ID , true , true );
+				matcher.prepareMatchSystem( system , true , true );
 				DBAppSystem.matchdb( loader , directory , system );
 			}
 			else
 			if( system.MATCHED ) {
-				matcher.prepareMatch( system.ID , false , true );
+				matcher.prepareMatchSystem( system , false , true );
 				DBAppSystem.matchdb( loader , directory , system );
 			}
 			

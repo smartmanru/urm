@@ -13,6 +13,7 @@ import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMirrors;
+import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
 import org.urm.db.engine.DBEngineSettings;
 import org.urm.db.system.DBSystemData;
@@ -33,7 +34,6 @@ import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine._Error;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
@@ -45,6 +45,7 @@ public class EngineLoader {
 	public static String ELEMENT_RESOURCES = "resources";
 	public static String ELEMENT_MIRRORS = "mirror";
 	public static String ELEMENT_BUILDERS = "build";
+	public static String ELEMENT_DIRECTORY = "directory";
 	
 	public Engine engine;
 	private EngineData data;
@@ -60,6 +61,10 @@ public class EngineLoader {
 	private EngineBuilders buildersNew;
 	private EngineDirectory directoryNew;
 	private EngineMirrors mirrorsNew;
+	private EngineBase baseNew;
+	private EngineInfrastructure infraNew;
+	private EngineLifecycles lifecyclesNew;
+	private EngineMonitoring monitoringNew;
 	
 	public EngineLoader( Engine engine , EngineData data , ActionBase action ) {
 		this.engine = engine;
@@ -71,6 +76,10 @@ public class EngineLoader {
 
 	public EngineEntities getEntities() {
 		return( entities );
+	}
+	
+	public EngineDB getDatabase() {
+		return( data.getDatabase() );
 	}
 	
 	public EngineSettings getSettings() {
@@ -320,6 +329,7 @@ public class EngineLoader {
 			}
 			
 			connection = null;
+			setData();
 		}
 		catch( Throwable e ) {
 			log( "init" , e );
@@ -333,6 +343,27 @@ public class EngineLoader {
 			Common.exitUnexpected();
 		}
 	}
+
+	private void setData() {
+		if( settingsNew != null )
+			data.setSettings( settingsNew );
+		if( resourcesNew != null )
+			data.setResources( resourcesNew );
+		if( buildersNew != null )
+			data.setBuilders( buildersNew );
+		if( directoryNew != null )
+			data.setDirectory( directoryNew );
+		if( mirrorsNew != null )
+			data.setMirrors( mirrorsNew );
+		if( baseNew != null )
+			data.setBase( baseNew );
+		if( infraNew != null )
+			data.setInfrastructure( infraNew );
+		if( lifecyclesNew != null )
+			data.setLifecycles( lifecyclesNew );
+		if( monitoringNew != null )
+			data.setMonitoring( monitoringNew );
+	}
 	
 	private void importxmlEngineSettings() throws Exception {
 		trace( "import engine settings data ..." );
@@ -343,14 +374,14 @@ public class EngineLoader {
 		
 		Node root = doc.getDocumentElement();
 		
-		EngineSettings settings = data.getEngineSettings();
-		DBEngineSettings.importxml( this , settings , root );
+		settingsNew = new EngineSettings( engine );
+		DBEngineSettings.importxml( this , settingsNew , root );
 	}
 
 	private void loaddbEngineSettings() throws Exception {
 		trace( "load engine settings data ..." );
-		EngineSettings settings = data.getEngineSettings();
-		DBEngineSettings.loaddb( this , settings );
+		settingsNew = new EngineSettings( engine );
+		DBEngineSettings.loaddb( this , settingsNew );
 	}
 
 	private void importxmlBase() throws Exception {
@@ -359,14 +390,14 @@ public class EngineLoader {
 		Document doc = ConfReader.readXmlFile( execrc , baseFile );
 		Node root = doc.getDocumentElement();
 		
-		EngineBase base = data.getEngineBase();
-		DBEngineBase.importxml( this , base , root );
+		baseNew = new EngineBase( engine );
+		DBEngineBase.importxml( this , baseNew , root );
 	}
 
 	private void loaddbBase() throws Exception {
 		trace( "load engine base data ..." );
-		EngineBase base = data.getEngineBase();
-		DBEngineBase.loaddb( this , base );
+		baseNew = new EngineBase( engine );
+		DBEngineBase.loaddb( this , baseNew );
 	}
 
 	private void importxmlInfrastructure() throws Exception {
@@ -375,14 +406,14 @@ public class EngineLoader {
 		Document doc = ConfReader.readXmlFile( execrc , infraFile );
 		Node root = doc.getDocumentElement();
 		
-		EngineInfrastructure infra = data.getInfrastructure();
-		DBEngineInfrastructure.importxml( this , infra , root );
+		infraNew = new EngineInfrastructure( engine );
+		DBEngineInfrastructure.importxml( this , infraNew , root );
 	}
 
 	private void loaddbInfrastructure() throws Exception {
 		trace( "load engine infrastructure data ..." );
-		EngineInfrastructure infra = data.getInfrastructure();
-		DBEngineInfrastructure.loaddb( this , infra );
+		infraNew = new EngineInfrastructure( engine );
+		DBEngineInfrastructure.loaddb( this , infraNew );
 	}
 
 	private void importxmlReleaseLifecycles() throws Exception {
@@ -391,14 +422,14 @@ public class EngineLoader {
 		Document doc = ConfReader.readXmlFile( execrc , lcFile );
 		Node root = doc.getDocumentElement();
 		
-		EngineLifecycles lifecycles = data.getReleaseLifecycles();
-		DBEngineLifecycles.importxml( this , lifecycles , root );
+		lifecyclesNew = new EngineLifecycles( engine );
+		DBEngineLifecycles.importxml( this , lifecyclesNew , root );
 	}
 
 	private void loaddbReleaseLifecycles() throws Exception {
 		trace( "load release lifecycles data ..." );
-		EngineLifecycles lifecycles = data.getReleaseLifecycles();
-		DBEngineLifecycles.loaddb( this , lifecycles );
+		lifecyclesNew = new EngineLifecycles( engine );
+		DBEngineLifecycles.loaddb( this , lifecyclesNew );
 	}
 
 	private void importxmlMonitoring() throws Exception {
@@ -407,14 +438,14 @@ public class EngineLoader {
 		Document doc = ConfReader.readXmlFile( execrc , monFile );
 		Node root = doc.getDocumentElement();
 		
-		EngineMonitoring mon = data.getMonitoring();
-		mon.importxml( this , root );
+		monitoringNew = new EngineMonitoring( engine );
+		DBEngineMonitoring.importxml( this , monitoringNew , root );
 	}
 
 	private void loaddbMonitoring() throws Exception {
 		trace( "load engine monitoring data ..." );
-		EngineMonitoring mon = data.getMonitoring();
-		mon.loaddb( this );
+		monitoringNew = new EngineMonitoring( engine );
+		DBEngineMonitoring.loaddb( this , monitoringNew );
 	}
 
 	private void importxmlRegistry() throws Exception {
@@ -425,24 +456,30 @@ public class EngineLoader {
 		
 		Node node;
 		node = ConfReader.xmlGetFirstChild( root , ELEMENT_RESOURCES );
-		DBEngineResources.importxml( this , data.getResources() , node );
+		resourcesNew = new EngineResources( engine ); 
+		DBEngineResources.importxml( this , resourcesNew , node );
 		node = ConfReader.xmlGetFirstChild( root , ELEMENT_MIRRORS );
-		DBEngineMirrors.importxml( this , data.getMirrors() , node );
+		mirrorsNew = new EngineMirrors( engine );
+		DBEngineMirrors.importxml( this , mirrorsNew , node );
 		node = ConfReader.xmlGetFirstChild( root , ELEMENT_BUILDERS );
-		DBEngineBuilders.importxml( this , data.getBuilders() , node );
+		buildersNew = new EngineBuilders( engine );
+		DBEngineBuilders.importxml( this , buildersNew , node );
 	}
 
 	private void loaddbRegistry() throws Exception {
 		trace( "load engine registry data ..." );
-		DBEngineResources.loaddb( this , data.getResources() );
-		DBEngineMirrors.loaddb( this , data.getMirrors() );
-		DBEngineBuilders.loaddb( this , data.getBuilders() );
+		resourcesNew = new EngineResources( engine ); 
+		DBEngineResources.loaddb( this , resourcesNew );
+		mirrorsNew = new EngineMirrors( engine );
+		DBEngineMirrors.loaddb( this , mirrorsNew );
+		buildersNew = new EngineBuilders( engine );
+		DBEngineBuilders.loaddb( this , buildersNew );
 	}
 
 	private void loaddbDirectory() throws Exception {
 		trace( "load engine directory data ..." );
-		EngineDirectory directory = data.getDirectory();
-		DBEngineDirectory.loaddb( this , directory );
+		directoryNew = new EngineDirectory( engine );
+		DBEngineDirectory.loaddb( this , directoryNew );
 	}
 	
 	private void importxmlDirectory() throws Exception {
@@ -451,9 +488,9 @@ public class EngineLoader {
 		Document doc = ConfReader.readXmlFile( execrc , registryFile );
 		Node root = doc.getDocumentElement();
 		
-		EngineDirectory directory = data.getDirectory();
-		Node node = ConfReader.xmlGetFirstChild( root , "directory" );
-		DBEngineDirectory.importxml( this , directory , node );
+		directoryNew = new EngineDirectory( engine );
+		Node node = ConfReader.xmlGetFirstChild( root , ELEMENT_DIRECTORY );
+		DBEngineDirectory.importxml( this , directoryNew , node );
 	}
 	
 	public void loadProducts() throws Exception {
@@ -484,9 +521,6 @@ public class EngineLoader {
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
-	public void commitBase() throws Exception {
-	}
-	
 	public void exportxmlBase() throws Exception {
 		trace( "export engine base data ..." );
 		String propertyFile = getBaseFile();
@@ -498,10 +532,6 @@ public class EngineLoader {
 	}
 
 	public void exportxmlInfrastructure() throws Exception {
-		commitInfrastructure();
-	}
-	
-	public void commitInfrastructure() throws Exception {
 		trace( "export engine infrastructure data ..." );
 		String propertyFile = getInfrastructureFile();
 		EngineInfrastructure infra = data.getInfrastructure();
@@ -511,10 +541,6 @@ public class EngineLoader {
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
-	public void commitReleaseLifecycles() throws Exception {
-		exportxmlReleaseLifecycles();
-	}
-	
 	public void exportxmlReleaseLifecycles() throws Exception {
 		trace( "export engine lifecycles data ..." );
 		String propertyFile = getReleaseLifecyclesFile();
@@ -535,7 +561,7 @@ public class EngineLoader {
 		EngineMonitoring mon = data.getMonitoring();
 		Document doc = Common.xmlCreateDoc( "monitoring" );
 		Element root = doc.getDocumentElement();
-		mon.savexml( this , doc , root );
+		DBEngineMonitoring.savexml( this , mon , doc , root );
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
@@ -581,11 +607,4 @@ public class EngineLoader {
 		}
 	}
 
-	public void addSystem( AppSystem system , boolean matched ) {
-		EngineDirectory directory = data.getDirectory();
-		if( matched )
-			directory.addSystem( system );
-		
-	}
-	
 }

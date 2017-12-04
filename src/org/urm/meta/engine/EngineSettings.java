@@ -15,12 +15,11 @@ import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.properties.PropertySet;
-import org.urm.meta.EngineCore;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 
 public class EngineSettings extends EngineObject {
 
-	public EngineCore core;
 	public Engine engine;
 	public RunContext execrc;
 	public EngineContext context;
@@ -32,10 +31,9 @@ public class EngineSettings extends EngineObject {
 	public ObjectProperties defaultProductBuildProperties;
 	private Map<DBEnumBuildModeType,ObjectProperties> mapBuildModeDefaults;
 	
-	public EngineSettings( EngineCore core ) {
+	public EngineSettings( Engine engine ) {
 		super( null );
-		this.core = core;
-		this.engine = core.engine;
+		this.engine = engine;
 		this.execrc = engine.execrc;
 		
 		mapBuildModeDefaults = new HashMap<DBEnumBuildModeType,ObjectProperties>();
@@ -105,7 +103,7 @@ public class EngineSettings extends EngineObject {
 	}
 
 	public EngineSettings copy() throws Exception {
-		EngineSettings r = new EngineSettings( core );
+		EngineSettings r = new EngineSettings( engine );
 		r.version = version;
 		r.execrcProperties = execrcProperties;
 		r.engineProperties = engineProperties.copy( execrcProperties );
@@ -141,7 +139,7 @@ public class EngineSettings extends EngineObject {
 	public void setProductBuildModeDefaultsProperties( EngineTransaction transaction , DBEnumBuildModeType mode , PropertySet props ) throws Exception {
 		ObjectProperties set = mapBuildModeDefaults.get( mode );
 		if( set == null ) {
-			EngineEntities entities = core.getEntities();
+			EngineEntities entities = transaction.getEntities();
 			set = entities.createDefaultBuildModeProps( defaultProductBuildProperties , mode );
 			mapBuildModeDefaults.put( mode , set );
 		}
@@ -150,8 +148,8 @@ public class EngineSettings extends EngineObject {
 		set.resolveRawProperties();
 	}
 
-	public void setExecProperties() throws Exception {
-		EngineEntities entities = core.getEntities();
+	public void setExecProperties( EngineLoader loader ) throws Exception {
+		EngineEntities entities = loader.getEntities();
 		execrcProperties = entities.createRunContextProps();
 		
 		RunContext rc = execrc;

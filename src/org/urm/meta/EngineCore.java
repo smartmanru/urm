@@ -1,7 +1,6 @@
 package org.urm.meta;
 
 import org.urm.engine.Engine;
-import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineInfrastructure;
@@ -23,12 +22,8 @@ public class EngineCore {
 	public EngineCore( Engine engine ) {
 		this.engine = engine;
 		
-		entities = new EngineEntities( this );
-		settings = new EngineSettings( this );
-		registry = new EngineRegistry( this ); 
-		base = new EngineBase( this ); 
-		infra = new EngineInfrastructure( engine , this ); 
-		lifecycles = new EngineLifecycles( this ); 
+		entities = new EngineEntities( engine );
+		registry = new EngineRegistry( engine ); 
 	}
 
 	public void upgradeData( EngineLoader loader ) throws Exception {
@@ -39,18 +34,28 @@ public class EngineCore {
 		entities.useData( loader );
 	}
 	
-	public void recreateAll() {
-		settings.deleteObject();
-		registry.deleteObject(); 
-		base.deleteObject(); 
-		infra.deleteObject(); 
-		lifecycles.deleteObject();
-
-		settings = new EngineSettings( this );
-		registry = new EngineRegistry( this ); 
-		base = new EngineBase( this ); 
-		infra = new EngineInfrastructure( engine , this ); 
-		lifecycles = new EngineLifecycles( this ); 
+	public void unloadAll() {
+		if( settings != null ) {
+			settings.deleteObject();
+			settings = null;
+		}
+		
+		registry.unloadAll();
+		
+		if( base != null ) {
+			base.deleteObject();
+			base = null;
+		}
+		
+		if( infra != null ) {
+			infra.deleteObject();
+			infra = null;
+		}
+		
+		if( lifecycles != null ) {
+			lifecycles.deleteObject();
+			lifecycles = null;
+		}
 	}
 
 	public EngineEntities getEntities() {
@@ -77,8 +82,20 @@ public class EngineCore {
 		return( base );
 	}
 	
-	public void setSettings( TransactionBase transaction , EngineSettings settingsNew ) {
+	public void setSettings( EngineSettings settingsNew ) {
 		this.settings = settingsNew;
+	}
+	
+	public void setBase( EngineBase baseNew ) {
+		this.base = baseNew;
+	}
+	
+	public void setInfrastructure( EngineInfrastructure infraNew ) {
+		this.infra = infraNew;
+	}
+	
+	public void setLifecycles( EngineLifecycles lifecyclesNew ) {
+		this.lifecycles = lifecyclesNew;
 	}
 	
 }

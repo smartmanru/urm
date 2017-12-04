@@ -4,27 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.db.DBConnection;
-import org.urm.db.core.DBSettings;
-import org.urm.db.core.DBVersions;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
-import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
-import org.urm.meta.EngineData;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
-import org.urm.meta.ProductMeta;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class EngineMonitoring extends EngineObject {
 
@@ -36,7 +26,6 @@ public class EngineMonitoring extends EngineObject {
 	public static String PROPERTY_DIR_REPORTS = "default.reports.path";
 	public static String PROPERTY_DIR_LOGS = "default.logs.path";
 	
-	private EngineData data;
 	private Engine engine;
 
 	Map<String,MonitoringProduct> mapProduct;
@@ -45,10 +34,9 @@ public class EngineMonitoring extends EngineObject {
 	
 	public ObjectProperties properties;
 	
-	public EngineMonitoring( EngineData data ) {
+	public EngineMonitoring( Engine engine ) {
 		super( null );
-		this.data = data; 
-		this.engine = data.engine;
+		this.engine = engine;
 		
 		mapProduct = new HashMap<String,MonitoringProduct>();
 		running = false;
@@ -59,36 +47,15 @@ public class EngineMonitoring extends EngineObject {
 		return( "server-monitoring" );
 	}
 	
-	public void importxml( EngineLoader loader , Node root ) throws Exception {
-		DBConnection c = loader.getConnection();
-		EngineSettings settings = data.getEngineSettings();
-		EngineEntities entities = data.getEntities();
-		properties = entities.createEngineMonitoringProps( settings.getEngineProperties() );
-		
-		int version = c.getNextCoreVersion();
-		DBSettings.importxml( loader , root , properties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , version );
-		scatterProperties();
-	}
-	
-	public void savexml( EngineLoader loader , Document doc , Element root ) throws Exception {
-		DBSettings.exportxml( loader , doc , root , properties , true );
-	}
-
-	public void loaddb( EngineLoader loader ) throws Exception {
-		EngineSettings settings = data.getEngineSettings();
-		EngineEntities entities = data.getEntities();
-		properties = entities.createEngineMonitoringProps( settings.getEngineProperties() );
-		DBSettings.loaddbValues( loader , DBVersions.CORE_ID , properties , true );
-	}
-	
-	private void scatterProperties() throws Exception {
-		ENABLED = properties.getBooleanProperty( PROPERTY_ENABLED );
+	public void setProperties( ObjectProperties properties ) throws Exception {
+		this.properties = properties;
+		this.ENABLED = properties.getBooleanProperty( PROPERTY_ENABLED );
 	}
 	
 	public void start( ActionBase action ) throws Exception {
 		running = true;
 		
-		EngineDirectory directory = data.getDirectory();
+		EngineDirectory directory = action.getServerDirectory();
 		for( String systemName : directory.getSystemNames() ) {
 			AppSystem system = directory.findSystem( systemName );
 			createSystem( action , system );
@@ -113,10 +80,8 @@ public class EngineMonitoring extends EngineObject {
 	}
 	
 	private void createSystem( ActionBase action , AppSystem system ) throws Exception {
-		for( String productName : system.getProductNames() ) {
-			ProductMeta storage = data.findProductStorage( productName );
-			createProduct( action , storage );
-		}
+		for( String productName : system.getProductNames() )
+			createProduct( action , productName );
 	}
 
 	public void setEnabled( EngineTransaction transaction , boolean enabled ) throws Exception {
@@ -131,7 +96,7 @@ public class EngineMonitoring extends EngineObject {
 
 	public void setDefaultProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
 		properties.updateProperties( transaction , props , true );
-		scatterProperties();
+		ENABLED = properties.getBooleanProperty( PROPERTY_ENABLED );
 	}
 
 	public void setProductMonitoringProperties( EngineTransaction transaction , Meta meta , PropertySet props ) throws Exception {
@@ -149,24 +114,25 @@ public class EngineMonitoring extends EngineObject {
 	public void modifyTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {
 	}
 
-	public synchronized void createProduct( ActionBase action , ProductMeta storage ) throws Exception {
-		MetaMonitoring meta = storage.getMonitoring();
-		AppProduct product = action.getProduct( storage.name );
-		MonitoringProduct mon = new MonitoringProduct( this , product , meta );
-		mapProduct.put( storage.name , mon );
-		mon.start( action );
+	public synchronized void createProduct( ActionBase action , String productName ) throws Exception {
+		Meta meta = action.getProductMetadata( productName );
+		MetaMonitoring mon = meta.getMonitoring( action );
+		AppProduct product = action.getProduct( meta.name );
+		MonitoringProduct mp = new MonitoringProduct( this , product , mon );
+		mapProduct.put( meta.name , mp );
+		mp.start( action );
 	}
 	
-	public synchronized void modifyProduct( ActionBase action , ProductMeta storageOld , ProductMeta storageNew ) throws Exception {
-		deleteProduct( action , storageOld );
-		createProduct( action , storageNew );
+	public synchronized void modifyProduct( ActionBase action , String productName ) throws Exception {
+		deleteProduct( action , productName );
+		createProduct( action , productName );
 	}
 	
-	public synchronized void deleteProduct( ActionBase action , ProductMeta storage ) throws Exception {
-		MonitoringProduct mon = mapProduct.get( storage.name );
+	public synchronized void deleteProduct( ActionBase action , String productName ) throws Exception {
+		MonitoringProduct mon = mapProduct.get( productName );
 		if( mon != null ) {
 			mon.stop( action );
-			mapProduct.remove( storage.name );
+			mapProduct.remove( productName );
 		}
 	}	
 	
@@ -198,7 +164,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 	
 	public boolean isRunning( MetaEnv env ) {
-		EngineDirectory directory = data.getDirectory();
+		EngineDirectory directory = engine.serverAction.getServerDirectory();
 		AppProduct product = directory.findProduct( env.meta.name );
 		return( product != null && isRunning( product ) && env.OFFLINE == false );
 	}

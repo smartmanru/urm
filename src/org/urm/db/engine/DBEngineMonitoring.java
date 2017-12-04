@@ -6,12 +6,18 @@ import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.EngineContext;
 import org.urm.meta.engine.EngineMonitoring;
+import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class DBEngineMonitoring {
 
@@ -36,6 +42,30 @@ public class DBEngineMonitoring {
 	
 	private static String getProductPath( String var ) {
 		return( EntityVar.p( var ) + "/" + EntityVar.p( MetaProductCoreSettings.PROPERTY_PRODUCT_NAME ) );
+	}
+	
+	public static void importxml( EngineLoader loader , EngineMonitoring mon , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineSettings settings = loader.getSettings();
+		EngineEntities entities = loader.getEntities();
+		ObjectProperties properties = entities.createEngineMonitoringProps( settings.getEngineProperties() );
+		
+		int version = c.getNextCoreVersion();
+		DBSettings.importxml( loader , root , properties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , version );
+		mon.setProperties( properties );
+	}
+	
+	public static void savexml( EngineLoader loader , EngineMonitoring mon , Document doc , Element root ) throws Exception {
+		ObjectProperties properties = mon.properties;
+		DBSettings.exportxml( loader , doc , root , properties , true );
+	}
+
+	public static void loaddb( EngineLoader loader , EngineMonitoring mon ) throws Exception {
+		EngineSettings settings = loader.getSettings();
+		EngineEntities entities = loader.getEntities();
+		ObjectProperties properties = entities.createEngineMonitoringProps( settings.getEngineProperties() );
+		DBSettings.loaddbValues( loader , DBVersions.CORE_ID , properties , true );
+		mon.setProperties( properties );
 	}
 	
 }

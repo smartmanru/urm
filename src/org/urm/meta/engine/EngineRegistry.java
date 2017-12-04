@@ -2,44 +2,47 @@ package org.urm.meta.engine;
 
 import org.urm.common.RunContext;
 import org.urm.engine.Engine;
-import org.urm.engine.TransactionBase;
-import org.urm.meta.EngineCore;
-import org.urm.meta.EngineObject;
 
-public class EngineRegistry extends EngineObject {
+public class EngineRegistry {
 
-	public EngineCore core;
 	public Engine engine;
 	public RunContext execrc;
 	
 	public EngineResources resources;
-	public EngineBuilders builders;
 	public EngineMirrors mirrors;
+	public EngineBuilders builders;
 
-	public EngineRegistry( EngineCore core ) {
-		super( null );
-		this.core = core;
-		this.engine = core.engine;
+	public EngineRegistry( Engine engine ) {
+		this.engine = engine;
 		this.execrc = engine.execrc;
-		mirrors = new EngineMirrors( this ); 
-		resources = new EngineResources( this );
-		builders = new EngineBuilders( this ); 
 	}
 	
-	@Override
-	public String getName() {
-		return( "server-registry" );
+	public void unloadAll() {
+		if( builders != null ) {
+			builders.deleteObject();
+			builders = null;
+		}
+		
+		if( mirrors != null ) {
+			mirrors.deleteObject();
+			mirrors = null;
+		}
+
+		if( resources != null ) {
+			resources.deleteObject();
+			resources = null;
+		}
 	}
 	
-	public void setResources( TransactionBase transaction , EngineResources resourcesNew ) {
+	public void setResources( EngineResources resourcesNew ) {
 		resources = resourcesNew;
 	}
 	
-	public void setMirrors( TransactionBase transaction , EngineMirrors mirrorsNew ) {
+	public void setMirrors( EngineMirrors mirrorsNew ) {
 		mirrors = mirrorsNew;
 	}
 	
-	public void setBuilders( TransactionBase transaction , EngineBuilders buildersNew ) {
+	public void setBuilders( EngineBuilders buildersNew ) {
 		builders = buildersNew;
 	}
 	

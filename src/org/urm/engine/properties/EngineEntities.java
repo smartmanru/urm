@@ -14,7 +14,6 @@ import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
 import org.urm.db.engine.DBEngineSettings;
 import org.urm.engine.Engine;
-import org.urm.meta.EngineCore;
 import org.urm.meta.EngineLoader;
 
 public class EngineEntities {
@@ -39,7 +38,6 @@ public class EngineEntities {
 	public static String FIELD_VERSION_ENVIRONMENT = "ev"; 
 	
 	public Engine engine;
-	public EngineCore core;
 
 	public PropertyEntity entityAppRC; 
 	public PropertyEntity entityCustomRC;
@@ -63,9 +61,8 @@ public class EngineEntities {
 	public PropertyEntity entityAppMirror;
 	public PropertyEntity entityAppProjectBuilder;
 	
-	public EngineEntities( EngineCore core ) {
-		this.core = core;
-		this.engine = core.engine;
+	public EngineEntities( Engine engine ) {
+		this.engine = engine;
 	}
 	
 	public void upgradeData( EngineLoader loader ) throws Exception {

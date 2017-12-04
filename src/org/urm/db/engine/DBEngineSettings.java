@@ -88,7 +88,7 @@ public abstract class DBEngineSettings {
 	public static void importxml( EngineLoader loader , EngineSettings settings , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
 		settings.version = c.getNextCoreVersion();
-		settings.setExecProperties();
+		settings.setExecProperties( loader );
 		
 		importEngineSettings( loader , settings , root );
 		importProductDefaults( loader , settings , root );
@@ -100,7 +100,7 @@ public abstract class DBEngineSettings {
 	public static void loaddb( EngineLoader loader , EngineSettings settings ) throws Exception {
 		DBConnection c = loader.getConnection();
 		settings.version = c.getCurrentCoreVersion();
-		settings.setExecProperties();
+		settings.setExecProperties( loader );
 		
 		loaddbEngineSettings( loader , settings );
 		loaddbProductDefaults( loader , settings );

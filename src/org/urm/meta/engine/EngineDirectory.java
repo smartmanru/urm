@@ -7,14 +7,13 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.engine.Engine;
+import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.UnmatchedSystem;
 
 public class EngineDirectory extends EngineObject {
 
-	private EngineData data;
 	public Engine engine;
 
 	private Map<String,AppSystem> mapSystems;
@@ -26,10 +25,9 @@ public class EngineDirectory extends EngineObject {
 	private Map<String,Integer> mapProductUnmatched;
 	private Map<String,Integer> mapEnvUnmatched;
 	
-	public EngineDirectory( EngineData data ) {
+	public EngineDirectory( Engine engine ) {
 		super( null );
-		this.data = data;
-		this.engine = data.engine;
+		this.engine = engine;
 		mapSystems = new HashMap<String,AppSystem>();
 		mapProducts = new HashMap<String,AppProduct>();
 		mapSystemsById = new HashMap<Integer,AppSystem>();
@@ -45,10 +43,10 @@ public class EngineDirectory extends EngineObject {
 		return( "server-directory" );
 	}
 
-	public EngineDirectory copy() throws Exception {
-		EngineDirectory r = new EngineDirectory( data );
+	public EngineDirectory copy( TransactionBase transaction ) throws Exception {
+		EngineDirectory r = new EngineDirectory( engine );
 		
-		EngineSettings settings = data.getEngineSettings();
+		EngineSettings settings = transaction.getSettings();
 		for( AppSystem system : mapSystems.values() ) {
 			ObjectProperties props = system.getParameters();
 			ObjectProperties rprops = props.copy( settings.getEngineProperties() );
@@ -133,6 +131,11 @@ public class EngineDirectory extends EngineObject {
 		mapSystemsById.remove( system.ID );
 		for( AppProduct product : system.getProducts() )
 			unloadProduct( product );
+	}
+
+	public void addUnmatchedSystem( AppSystem system ) {
+		UnmatchedSystem unmatched = new UnmatchedSystem( system );  
+		mapSystemUnmatched.put( system.NAME , unmatched );
 	}
 	
 	public void unloadProduct( AppProduct product ) {

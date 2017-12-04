@@ -4,13 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.meta.EngineCore;
 import org.urm.meta.EngineObject;
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.Engine;
 
 public class EngineBase extends EngineObject {
 
-	public EngineCore core;
+	public Engine engine;
 	
 	private Map<String,BaseCategory> mapCategory;
 	private Map<String,BaseGroup> mapGroup;
@@ -18,9 +18,9 @@ public class EngineBase extends EngineObject {
 	private Map<String,BaseItem> mapItem;
 	private Map<Integer,BaseItem> mapItemById;
 	
-	public EngineBase( EngineCore core ) {
+	public EngineBase( Engine engine ) {
 		super( null );
-		this.core = core;
+		this.engine = engine;
 		mapCategory = new HashMap<String,BaseCategory>();
 		mapGroup = new HashMap<String,BaseGroup>();
 		mapGroupById = new HashMap<Integer,BaseGroup>();

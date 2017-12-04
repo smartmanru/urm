@@ -4,20 +4,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.engine.Engine;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.product.MetaSourceProject;
 
 public class EngineMirrors extends EngineObject {
 
-	public EngineRegistry registry;
+	public Engine engine;
 
 	Map<String,MirrorRepository> repoMap;
 	Map<Integer,MirrorRepository> repoMapById;
 
-	public EngineMirrors( EngineRegistry registry ) {
-		super( registry );
-		this.registry = registry;
+	public EngineMirrors( Engine engine ) {
+		super( null );
+		this.engine = engine;
 		
 		repoMap = new HashMap<String,MirrorRepository>();
 		repoMapById = new HashMap<Integer,MirrorRepository>();
@@ -29,7 +30,7 @@ public class EngineMirrors extends EngineObject {
 	}
 	
 	public EngineMirrors copy() throws Exception {
-		EngineMirrors r = new EngineMirrors( registry );
+		EngineMirrors r = new EngineMirrors( engine );
 		
 		for( MirrorRepository repo : repoMap.values() ) {
 			MirrorRepository rc = repo.copy( r );
@@ -87,6 +88,11 @@ public class EngineMirrors extends EngineObject {
 	public MirrorRepository findProductDataRepository( ProductMeta meta ) {
 		String name = "product-" + meta.name + "-data";
 		return( findRepository( name ) );
+	}
+
+	public void clearProductReferences() {
+		for( MirrorRepository repo : repoMap.values() )
+			repo.setProduct( null );
 	}
 	
 }

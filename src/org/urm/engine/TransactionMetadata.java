@@ -123,7 +123,7 @@ public class TransactionMetadata {
 		status.createProduct( transaction.action , product , metadata );
 		
 		EngineMonitoring mon = transaction.action.getServerMonitoring();
-		mon.createProduct( transaction.action , metadata );
+		mon.createProduct( transaction.action , metadata.name );
 	}
 	
 	private void deleteProduct( ProductMeta metadata ) throws Exception {
@@ -131,7 +131,7 @@ public class TransactionMetadata {
 		status.deleteProduct( transaction.action , metadata );
 		
 		EngineMonitoring mon = transaction.action.getServerMonitoring();
-		mon.deleteProduct( transaction.action , metadata );
+		mon.deleteProduct( transaction.action , metadata.name );
 	}
 	
 	private void modifyProduct( ProductMeta metadataOld , ProductMeta metadataNew ) throws Exception {
@@ -139,7 +139,7 @@ public class TransactionMetadata {
 		status.modifyProduct( transaction.action , metadataOld , metadataNew );
 		
 		EngineMonitoring mon = transaction.action.getServerMonitoring();
-		mon.modifyProduct( transaction.action , metadataOld , metadataNew );
+		mon.modifyProduct( transaction.action , metadata.name );
 	}
 	
 }

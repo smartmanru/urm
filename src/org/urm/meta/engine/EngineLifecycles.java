@@ -8,20 +8,20 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.blotter.EngineBlotterSet;
+import org.urm.engine.Engine;
 import org.urm.engine.blotter.EngineBlotter.BlotterType;
-import org.urm.meta.EngineCore;
 import org.urm.meta.EngineObject;
 
 public class EngineLifecycles extends EngineObject {
 
-	public EngineCore core;
+	public Engine engine;
 	
 	private Map<String,ReleaseLifecycle> lcMap;
 	private Map<Integer,ReleaseLifecycle> lcMapById;
 	
-	public EngineLifecycles( EngineCore core ) {
+	public EngineLifecycles( Engine engine ) {
 		super( null );
-		this.core = core;
+		this.engine = engine;
 		lcMap = new HashMap<String,ReleaseLifecycle>(); 
 		lcMapById = new HashMap<Integer,ReleaseLifecycle>();
 	}
@@ -89,7 +89,7 @@ public class EngineLifecycles extends EngineObject {
 	}
 
 	public boolean isUsed( ReleaseLifecycle lc ) {
-		EngineBlotterSet blotter = core.engine.blotter.getBlotterSet( BlotterType.BLOTTER_RELEASE );
+		EngineBlotterSet blotter = engine.blotter.getBlotterSet( BlotterType.BLOTTER_RELEASE );
 		if( blotter.checkLifecycleUsed( lc.NAME ) )
 			return( true );
 		return( false );

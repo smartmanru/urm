@@ -12,7 +12,6 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
-import org.urm.meta.EngineData;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductMeta;
 import org.urm.meta._Error;
@@ -29,14 +28,12 @@ import org.urm.meta.product.MetaSource;
 public class EngineProducts {
 
 	public Engine engine;
-	private EngineData data;
 	
 	private ProductMeta offline;
 	private Map<String,ProductMeta> productMeta;
 	
-	public EngineProducts( EngineData data ) {
-		this.data = data;
-		this.engine = data.engine;
+	public EngineProducts( Engine engine ) {
+		this.engine = engine;
 		productMeta = new HashMap<String,ProductMeta>();
 	}
 	
@@ -174,7 +171,7 @@ public class EngineProducts {
 	public void importProduct( EngineLoader loader , String productName , boolean includingEnvironments ) throws Exception {
 		engine.trace( "reload settings, product=" + productName + " ..." );
 		
-		EngineDB db = data.getDatabase();
+		EngineDB db = loader.getDatabase();
 		db.clearProduct( productName );
 		
 		ProductMeta storageNew = loadProduct( engine.serverAction , productName , true );
@@ -228,7 +225,7 @@ public class EngineProducts {
 	public void loadProducts( EngineLoader loader ) {
 		ActionBase action = loader.getAction();
 		unloadProducts();
-		EngineDirectory directory = data.getDirectory();
+		EngineDirectory directory = loader.getDirectory();
 		for( String name : directory.getProductNames() ) {
 			ProductMeta product = loadProduct( action , name , false );
 			addProduct( product );

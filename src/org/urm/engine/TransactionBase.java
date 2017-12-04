@@ -132,15 +132,15 @@ public class TransactionBase extends EngineObject {
 				action.clearTransaction();
 				
 				if( settingsNew != null )
-					data.setSettings( this , settingsNew );
+					data.setSettings( settingsNew );
 				if( resourcesNew != null )
-					data.setResources( this , resourcesNew );
+					data.setResources( resourcesNew );
 				if( buildersNew != null )
-					data.setBuilders( this , buildersNew );
+					data.setBuilders( buildersNew );
 				if( directoryNew != null )
-					data.setDirectory( this , directoryNew );
+					data.setDirectory( directoryNew );
 				if( mirrorsNew != null )
-					data.setMirrors( this , mirrorsNew );
+					data.setMirrors( mirrorsNew );
 				return( true );
 			}
 
@@ -513,7 +513,7 @@ public class TransactionBase extends EngineObject {
 					directoryOld = action.getActiveDirectory();
 					if( sourceDirectory == directoryOld ) {
 						changeEngineDatabase();
-						directoryNew = sourceDirectory.copy();
+						directoryNew = sourceDirectory.copy( this );
 						if( directoryNew != null ) {
 							trace( "transaction directory: source=" + sourceDirectory.objectId + ", copy=" + directoryNew.objectId );
 							return( true );

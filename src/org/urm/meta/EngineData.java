@@ -26,21 +26,19 @@ public class EngineData {
 	public RunContext execrc;
 	
 	private EngineDB db;
-	private EngineCore core; 
-	private EngineDirectory directory;
-	private EngineMonitoring mon;
 	private EngineProducts products;
 
+	private EngineCore core; 
+	private EngineDirectory directory;
+	private EngineMonitoring monitoring;
+	
 	public EngineData( Engine engine ) {
 		this.engine = engine;
 		this.execrc = engine.execrc;
 		
 		db = new EngineDB( engine );
-		
 		core = new EngineCore( engine );
-		directory = new EngineDirectory( this );
-		products = new EngineProducts( this );
-		mon = new EngineMonitoring( this ); 
+		products = new EngineProducts( engine ); 
 	}
 
 	public void init() throws Exception {
@@ -48,22 +46,28 @@ public class EngineData {
 	}
 
 	public void unloadProducts() {
-		directory.unloadProducts();
+		if( directory != null )
+			directory.unloadProducts();
 		products.unloadProducts();
 	}
 	
 	public void unloadDirectory() {
-		directory.unloadAll();
+		if( directory != null ) {
+			directory.unloadAll();
+			directory.deleteObject();
+			directory = null;
+		}
 		products.unloadProducts();
 	}
 	
 	public void unloadAll() throws Exception {
 		unloadDirectory();
 		
-		core.recreateAll();
-		mon.deleteObject();
-		
-		mon = new EngineMonitoring( this ); 
+		core.unloadAll();
+		if( monitoring != null ) {
+			monitoring.deleteObject();
+			monitoring = null;
+		}
 	}
 	
 	public EngineCore getCore() {
@@ -110,7 +114,7 @@ public class EngineData {
 
 	public EngineMonitoring getMonitoring() {
 		synchronized( engine ) {
-			return( mon );
+			return( monitoring );
 		}
 	}
 
@@ -145,27 +149,43 @@ public class EngineData {
 		}
 	}
 	
-	public void setSettings( TransactionBase transaction , EngineSettings settingsNew ) {
-		core.setSettings( transaction , settingsNew );
+	public void setSettings( EngineSettings settingsNew ) {
+		core.setSettings( settingsNew );
 	}
 
-	public void setResources( TransactionBase transaction , EngineResources resourcesNew ) {
+	public void setBase( EngineBase baseNew ) {
+		core.setBase( baseNew );
+	}
+
+	public void setInfrastructure( EngineInfrastructure infraNew ) {
+		core.setInfrastructure( infraNew );
+	}
+
+	public void setLifecycles( EngineLifecycles lifecyclesNew ) {
+		core.setLifecycles( lifecyclesNew );
+	}
+
+	public void setResources( EngineResources resourcesNew ) {
 		EngineRegistry registry = core.getRegistry();
-		registry.setResources( transaction , resourcesNew );
+		registry.setResources( resourcesNew );
 	}
 
-	public void setBuilders( TransactionBase transaction , EngineBuilders buildersNew ) {
+	public void setBuilders( EngineBuilders buildersNew ) {
 		EngineRegistry registry = core.getRegistry();
-		registry.setBuilders( transaction , buildersNew );
+		registry.setBuilders( buildersNew );
 	}
 
-	public void setMirrors( TransactionBase transaction , EngineMirrors mirrorsNew ) {
+	public void setMirrors( EngineMirrors mirrorsNew ) {
 		EngineRegistry registry = core.getRegistry();
-		registry.setMirrors( transaction , mirrorsNew );
+		registry.setMirrors( mirrorsNew );
 	}
 
-	public void setDirectory( TransactionBase transaction , EngineDirectory directoryNew ) {
+	public void setDirectory( EngineDirectory directoryNew ) {
 		directory = directoryNew;
+	}
+
+	public void setMonitoring( EngineMonitoring monitoringNew ) {
+		monitoring = monitoringNew;
 	}
 
 	public void saveProductMetadata( EngineLoader loader , String productName ) throws Exception {

@@ -4,17 +4,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.engine.Engine;
 import org.urm.meta.EngineObject;
 
 public class EngineBuilders extends EngineObject {
 
-	public EngineRegistry registry;
+	public Engine engine;
 
 	Map<String,ProjectBuilder> builderMap;
 
-	public EngineBuilders( EngineRegistry registry ) {
-		super( registry );
-		this.registry = registry;
+	public EngineBuilders( Engine engine ) {
+		super( null );
+		this.engine = engine;
 		
 		builderMap = new HashMap<String,ProjectBuilder>();
 	}
@@ -25,7 +26,7 @@ public class EngineBuilders extends EngineObject {
 	}
 	
 	public EngineBuilders copy() throws Exception {
-		EngineBuilders r = new EngineBuilders( registry );
+		EngineBuilders r = new EngineBuilders( engine );
 
 		for( ProjectBuilder res : builderMap.values() ) {
 			ProjectBuilder rc = res.copy( r );

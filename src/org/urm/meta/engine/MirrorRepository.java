@@ -101,4 +101,8 @@ public class MirrorRepository extends EngineObject {
 		RESOURCE_DATA = "";
 	}
 	
+	public void setProduct( Integer productId ) {
+		this.productId = productId;
+	}
+	
 }

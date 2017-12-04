@@ -6,19 +6,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.engine.Engine;
 import org.urm.meta.EngineObject;
 import org.urm.meta.Types.EnumResourceCategory;
 
 public class EngineResources extends EngineObject {
 
-	public EngineRegistry registry;
+	public Engine engine;
 	
 	Map<String,AuthResource> resourceMap;
 	Map<Integer,AuthResource> resourceMapById;
 
-	public EngineResources( EngineRegistry registry ) {
-		super( registry );
-		this.registry = registry;
+	public EngineResources( Engine engine ) {
+		super( null );
+		this.engine = engine;
 		
 		resourceMap = new HashMap<String,AuthResource>();
 		resourceMapById = new HashMap<Integer,AuthResource>();
@@ -30,7 +31,7 @@ public class EngineResources extends EngineObject {
 	}
 	
 	public EngineResources copy() throws Exception {
-		EngineResources r = new EngineResources( registry );
+		EngineResources r = new EngineResources( engine );
 		
 		for( AuthResource res : resourceMap.values() ) {
 			AuthResource rc = res.copy( r );
