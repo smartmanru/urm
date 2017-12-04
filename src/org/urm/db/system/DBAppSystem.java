@@ -117,9 +117,9 @@ public abstract class DBAppSystem {
 		DBEngineEntities.deleteAppObject( c , entities.entityAppDirectorySystem , system.ID , SV );
 	}
 
-	public static void matchxmlSystem( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
+	public static void matchSystem( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
 		for( AppProduct product : system.getProducts() )
-			DBAppProduct.matchxml( loader , directory , product );
+			DBAppProduct.match( loader , directory , product );
 		
 		matchdone( loader , directory , system , true );
 	}
@@ -135,11 +135,6 @@ public abstract class DBAppSystem {
 				EngineDB.getInteger( system.SV ) 
 				} ) )
 			Common.exitUnexpected();
-	}
-	
-	public static void matchdb( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
-		for( AppProduct product : system.getProducts() )
-			DBAppProduct.matchdb( loader , directory , product );
 	}
 	
 }

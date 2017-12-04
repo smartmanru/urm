@@ -162,12 +162,12 @@ public abstract class DBEngineDirectory {
 		for( AppSystem system : directory.getSystems() ) {
 			if( update ) {
 				matcher.prepareMatchSystem( system , true , true );
-				DBAppSystem.matchdb( loader , directory , system );
+				DBAppSystem.matchSystem( loader , directory , system );
 			}
 			else
 			if( system.MATCHED ) {
 				matcher.prepareMatchSystem( system , false , true );
-				DBAppSystem.matchdb( loader , directory , system );
+				DBAppSystem.matchSystem( loader , directory , system );
 			}
 			
 			matcher.doneSystem( system );

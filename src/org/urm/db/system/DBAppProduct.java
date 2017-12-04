@@ -16,6 +16,8 @@ import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.EngineMirrors;
+import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.AppProduct;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -102,10 +104,15 @@ public abstract class DBAppProduct {
 				} , insert );
 	}
 
-	public static void matchxml( EngineLoader loader , EngineDirectory directory , AppProduct product ) throws Exception {
-	}
-	
-	public static void matchdb( EngineLoader loader , EngineDirectory directory , AppProduct product ) throws Exception {
+	public static void match( EngineLoader loader , EngineDirectory directory , AppProduct product ) throws Exception {
+		// match to mirrors
+		EngineMirrors mirrors = loader.getMirrors();
+		MirrorRepository repo = mirrors.findProductMetaRepository( product.NAME );
+		if( repo != null )
+			repo.setProduct( product.ID );
+		repo = mirrors.findProductDataRepository( product.NAME );
+		if( repo != null )
+			repo.setProduct( product.ID );
 	}
 	
 }

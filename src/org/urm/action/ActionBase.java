@@ -837,13 +837,13 @@ abstract public class ActionBase extends ActionCore {
 
 	public MirrorRepository getMetaMirror( ProductMeta meta ) throws Exception {
 		EngineMirrors mirrors = getServerMirrors();
-		MirrorRepository repo = mirrors.findProductMetaRepository( meta );
+		MirrorRepository repo = mirrors.findProductMetaRepository( meta.name );
 		return( repo );
 	}
 
 	public MirrorRepository getConfigurationMirror( ProductMeta meta ) throws Exception {
 		EngineMirrors mirrors = getServerMirrors();
-		MirrorRepository repo = mirrors.findProductDataRepository( meta );
+		MirrorRepository repo = mirrors.findProductDataRepository( meta.name );
 		if( repo == null )
 			exit0( _Error.MissingMirrorConfig0 , "Missing product configuration files mirror" );
 		

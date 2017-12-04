@@ -6,7 +6,6 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.engine.Engine;
 import org.urm.meta.EngineObject;
-import org.urm.meta.ProductMeta;
 import org.urm.meta.product.MetaSourceProject;
 
 public class EngineMirrors extends EngineObject {
@@ -80,13 +79,13 @@ public class EngineMirrors extends EngineObject {
 		return( findRepository( name ) );
 	}
 	
-	public MirrorRepository findProductMetaRepository( ProductMeta meta ) {
-		String name = "product-" + meta.name + "-meta";
+	public MirrorRepository findProductMetaRepository( String productName ) {
+		String name = "product-" + productName + "-meta";
 		return( findRepository( name ) );
 	}
 	
-	public MirrorRepository findProductDataRepository( ProductMeta meta ) {
-		String name = "product-" + meta.name + "-data";
+	public MirrorRepository findProductDataRepository( String productName ) {
+		String name = "product-" + productName + "-data";
 		return( findRepository( name ) );
 	}
 
