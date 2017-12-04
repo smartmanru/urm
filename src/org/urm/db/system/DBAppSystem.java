@@ -27,7 +27,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public abstract class DBSystem {
+public abstract class DBAppSystem {
 
 	public static AppSystem importxmlSystem( EngineLoader loader , EngineDirectory directory , Node node ) throws Exception {
 		DBConnection c = loader.getConnection();
@@ -94,31 +94,6 @@ public abstract class DBSystem {
 		return( systems.toArray( new AppSystem[0] ) );
 	}
 	
-	public static void matchxmlSystem( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
-		for( AppProduct product : system.getProducts() )
-			DBProduct.matchxml( loader , directory , product );
-		
-		matchdone( loader , directory , system , true );
-	}
-
-	private static void matchdone( EngineLoader loader , EngineDirectory directory , AppSystem system , boolean done ) throws Exception {
-		DBConnection c = loader.getConnection();
-		
-		system.MATCHED = true;
-		system.SV = c.getNextSystemVersion( system );
-		if( !c.update( DBQueries.MODIFY_SYSTEM_MATCHED3 , new String[] {
-				EngineDB.getInteger( system.ID ) , 
-				EngineDB.getBoolean( system.MATCHED ) ,
-				EngineDB.getInteger( system.SV ) 
-				} ) )
-			Common.exitUnexpected();
-	}
-	
-	public static void matchdb( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
-		for( AppProduct product : system.getProducts() )
-			DBProduct.matchdb( loader , directory , product );
-	}
-	
 	public static void modifySystem( DBConnection c , AppSystem system , boolean insert ) throws Exception {
 		if( insert )
 			system.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , system.NAME , DBEnumObjectType.APPSYSTEM );
@@ -142,4 +117,29 @@ public abstract class DBSystem {
 		DBEngineEntities.deleteAppObject( c , entities.entityAppDirectorySystem , system.ID , SV );
 	}
 
+	public static void matchxmlSystem( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
+		for( AppProduct product : system.getProducts() )
+			DBAppProduct.matchxml( loader , directory , product );
+		
+		matchdone( loader , directory , system , true );
+	}
+
+	private static void matchdone( EngineLoader loader , EngineDirectory directory , AppSystem system , boolean done ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
+		system.MATCHED = true;
+		system.SV = c.getNextSystemVersion( system );
+		if( !c.update( DBQueries.MODIFY_SYSTEM_MATCHED3 , new String[] {
+				EngineDB.getInteger( system.ID ) , 
+				EngineDB.getBoolean( system.MATCHED ) ,
+				EngineDB.getInteger( system.SV ) 
+				} ) )
+			Common.exitUnexpected();
+	}
+	
+	public static void matchdb( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
+		for( AppProduct product : system.getProducts() )
+			DBAppProduct.matchdb( loader , directory , product );
+	}
+	
 }

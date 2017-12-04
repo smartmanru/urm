@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBVersions;
@@ -22,7 +21,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public abstract class DBProduct {
+public abstract class DBAppProduct {
 
 	public static AppProduct importxmlProduct( EngineLoader loader , EngineDirectory directory , AppSystem system , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
@@ -87,25 +86,26 @@ public abstract class DBProduct {
 		return( products.toArray( new AppProduct[0] ) );
 	}
 	
+	public static void modifyProduct( DBConnection c , AppProduct product , boolean insert ) throws Exception {
+		if( insert )
+			product.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , product.NAME , DBEnumObjectType.APPPRODUCT );
+		product.SV = c.getNextSystemVersion( product.system );
+		EngineEntities entities = c.getEntities();
+		PropertyEntity entity = entities.entityAppDirectoryProduct;
+		DBEngineEntities.modifyAppObject( c , entity , product.ID , product.SV , new String[] {
+				EngineDB.getObject( product.system.ID ) ,
+				EngineDB.getString( product.NAME ) , 
+				EngineDB.getString( product.DESC ) , 
+				EngineDB.getString( product.PATH ) ,
+				EngineDB.getBoolean( product.OFFLINE ) ,
+				EngineDB.getBoolean( product.MONITORING_ENABLED )
+				} , insert );
+	}
+
 	public static void matchxml( EngineLoader loader , EngineDirectory directory , AppProduct product ) throws Exception {
 	}
 	
 	public static void matchdb( EngineLoader loader , EngineDirectory directory , AppProduct product ) throws Exception {
 	}
 	
-	public static void modifyProduct( DBConnection c , AppProduct product , boolean insert ) throws Exception {
-		if( insert )
-			product.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , product.NAME , DBEnumObjectType.APPPRODUCT );
-		product.SV = c.getNextSystemVersion( product.system );
-		EngineEntities entities = c.getEntities();
-		DBEngineEntities.modifyAppObject( c , entities.entityAppBaseGroup , product.ID , product.SV , new String[] {
-				EngineDB.getObject( product.system.ID ) ,
-				EngineDB.getString( product.DESC ) , 
-				EngineDB.getString( product.PATH ) ,
-				EngineDB.getBoolean( product.OFFLINE ) ,
-				EngineDB.getBoolean( product.MONITORING_ENABLED )
-				} , insert );
-			Common.exitUnexpected();
-	}
-
 }
