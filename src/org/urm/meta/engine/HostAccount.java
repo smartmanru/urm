@@ -4,9 +4,8 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.shell.Account;
-import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
-import org.urm.meta.ProductMeta;
+import org.urm.meta.product.Meta;
 
 public class HostAccount extends EngineObject {
 
@@ -63,12 +62,11 @@ public class HostAccount extends EngineObject {
 		this.RESOURCE_ID = resource_id;
 	}
 
-	public void getApplicationReferences( List<AccountReference> refs ) {
-		EngineData data = host.network.datacenter.infra.core.data;
-		EngineDirectory directory = data.getDirectory();
+	public void getApplicationReferences( ActionBase action , List<AccountReference> refs ) {
+		EngineDirectory directory = action.getServerDirectory();
 		for( String productName : directory.getProductNames() ) {
-			ProductMeta storage = data.findProductStorage( productName );
-			storage.getApplicationReferences( this , refs );
+			Meta meta = action.findProductMetadata( productName );
+			meta.getApplicationReferences( this , refs );
 		}
 	}
 

@@ -22,15 +22,18 @@ import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.engine.EngineBase;
+import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.EngineProducts;
-import org.urm.meta.engine.EngineRegistry;
+import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineLifecycles;
+import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine._Error;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
@@ -44,7 +47,7 @@ public class EngineLoader {
 	public static String ELEMENT_BUILDERS = "build";
 	
 	public Engine engine;
-	public EngineData data;
+	private EngineData data;
 	public RunContext execrc;
 	
 	private EngineEntities entities;
@@ -52,6 +55,12 @@ public class EngineLoader {
 	private DBConnection connection;
 	private ActionBase action;
 
+	private EngineSettings settingsNew;
+	private EngineResources resourcesNew;
+	private EngineBuilders buildersNew;
+	private EngineDirectory directoryNew;
+	private EngineMirrors mirrorsNew;
+	
 	public EngineLoader( Engine engine , EngineData data , ActionBase action ) {
 		this.engine = engine;
 		this.data = data;
@@ -60,12 +69,38 @@ public class EngineLoader {
 		this.action = action;
 	}
 
-	public EngineData getData() {
-		return( data );
-	}
-	
 	public EngineEntities getEntities() {
 		return( entities );
+	}
+	
+	public EngineSettings getSettings() {
+		if( settingsNew != null )
+			return( settingsNew );
+		return( data.getEngineSettings() );
+	}
+
+	public EngineResources getResources() {
+		if( resourcesNew != null )
+			return( resourcesNew );
+		return( data.getResources() );
+	}
+
+	public EngineBuilders getBuilders() {
+		if( buildersNew != null )
+			return( buildersNew );
+		return( data.getBuilders() );
+	}
+
+	public EngineDirectory getDirectory() {
+		if( directoryNew != null )
+			return( directoryNew );
+		return( data.getDirectory() );
+	}
+
+	public EngineMirrors getMirrors() {
+		if( mirrorsNew != null )
+			return( mirrorsNew );
+		return( data.getMirrors() );
 	}
 	
 	public EngineMatcher getMatcher() {
@@ -388,22 +423,20 @@ public class EngineLoader {
 		Document doc = ConfReader.readXmlFile( execrc , registryFile );
 		Node root = doc.getDocumentElement();
 		
-		EngineRegistry registry = data.getRegistry();
 		Node node;
 		node = ConfReader.xmlGetFirstChild( root , ELEMENT_RESOURCES );
-		DBEngineResources.importxml( this , registry.resources , node );
+		DBEngineResources.importxml( this , data.getResources() , node );
 		node = ConfReader.xmlGetFirstChild( root , ELEMENT_MIRRORS );
-		DBEngineMirrors.importxml( this , registry.mirrors , node );
+		DBEngineMirrors.importxml( this , data.getMirrors() , node );
 		node = ConfReader.xmlGetFirstChild( root , ELEMENT_BUILDERS );
-		DBEngineBuilders.importxml( this , registry.builders , node );
+		DBEngineBuilders.importxml( this , data.getBuilders() , node );
 	}
 
 	private void loaddbRegistry() throws Exception {
 		trace( "load engine registry data ..." );
-		EngineRegistry registry = data.getRegistry();
-		DBEngineResources.loaddb( this , registry.resources );
-		DBEngineMirrors.loaddb( this , registry.mirrors );
-		DBEngineBuilders.loaddb( this , registry.builders );
+		DBEngineResources.loaddb( this , data.getResources() );
+		DBEngineMirrors.loaddb( this , data.getMirrors() );
+		DBEngineBuilders.loaddb( this , data.getBuilders() );
 	}
 
 	private void loaddbDirectory() throws Exception {
@@ -430,24 +463,19 @@ public class EngineLoader {
 		products.loadProducts( this );
 	}
 
-	public void commitRegistry() throws Exception {
-		exportxmlRegistry();
-	}
-	
 	public void exportxmlRegistry() throws Exception {
 		trace( "export engine registry data ..." );
 		String propertyFile = getRegistryFile();
 		Document doc = Common.xmlCreateDoc( "registry" );
 		Element root = doc.getDocumentElement();
 		
-		EngineRegistry registry = data.getRegistry();
 		Element node;
 		node = Common.xmlCreateElement( doc , root , ELEMENT_RESOURCES );
-		DBEngineResources.exportxml( this , registry.resources , doc , node );
+		DBEngineResources.exportxml( this , data.getResources() , doc , node );
 		node = Common.xmlCreateElement( doc , root , ELEMENT_MIRRORS );
-		DBEngineMirrors.exportxml( this , registry.mirrors , doc , node );
+		DBEngineMirrors.exportxml( this , data.getMirrors() , doc , node );
 		node = Common.xmlCreateElement( doc , root , ELEMENT_BUILDERS );
-		DBEngineBuilders.exportxml( this , registry.builders , doc , node );
+		DBEngineBuilders.exportxml( this , data.getBuilders() , doc , node );
 		
 		EngineDirectory directory = data.getDirectory();
 		node = Common.xmlCreateElement( doc , root , "directory" );
@@ -511,9 +539,6 @@ public class EngineLoader {
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
-	public void commitSettings() throws Exception {
-	}	
-	
 	public void exportxmlSettings() throws Exception {
 		trace( "export engine settings data ..." );
 		EngineSettings settings = data.getEngineSettings();
@@ -528,7 +553,6 @@ public class EngineLoader {
 		trace( "change engine settings data ..." );
 		EngineSettings settings = data.getEngineSettings();
 		settings.setData( action , settingsNew , connection.getCoreVersion() );
-		commitSettings();
 	}
 
 	private void dropCoreData( boolean includingSystems ) throws Exception {
@@ -557,4 +581,11 @@ public class EngineLoader {
 		}
 	}
 
+	public void addSystem( AppSystem system , boolean matched ) {
+		EngineDirectory directory = data.getDirectory();
+		if( matched )
+			directory.addSystem( system );
+		
+	}
+	
 }

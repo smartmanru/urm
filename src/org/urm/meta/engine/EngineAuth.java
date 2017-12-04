@@ -22,7 +22,6 @@ import org.urm.engine.SessionSecurity;
 import org.urm.engine._Error;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;
-import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.product.Meta;
 import org.urm.meta.Types.*;
@@ -708,9 +707,8 @@ public class EngineAuth extends EngineObject {
 		return( false );
 	}
 
-	public AuthResource getResource( String name ) throws Exception {
-		EngineData data = engine.getData();
-		EngineResources resources = data.getResources();
+	public AuthResource getResource( ActionBase action , String name ) throws Exception {
+		EngineResources resources = action.getServerResources();
 		AuthResource res = resources.getResource( name );
 		return( res );
 	}

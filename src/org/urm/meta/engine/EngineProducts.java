@@ -29,7 +29,7 @@ import org.urm.meta.product.MetaSource;
 public class EngineProducts {
 
 	public Engine engine;
-	public EngineData data;
+	private EngineData data;
 	
 	private ProductMeta offline;
 	private Map<String,ProductMeta> productMeta;

@@ -28,7 +28,6 @@ import org.urm.engine.storage.SourceStorage;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.engine.vcs.MirrorCase;
-import org.urm.meta.EngineData;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.EngineMirrors;
@@ -315,8 +314,7 @@ public class DBEngineMirrors {
 	}
 	
 	private static Map<String,LocalFolder> getFolderMap( ActionInit action , EngineMirrors mirrors , MirrorRepository repo ) throws Exception {
-		EngineData data = mirrors.registry.core.data;
-		EngineLoader loader = new EngineLoader( data.engine , data , action );
+		EngineLoader loader = action.engine.createLoader( action );
 		
 		Map<String,LocalFolder> map = new HashMap<String,LocalFolder>();
 		if( repo.MIRROR_TYPE == DBEnumMirrorType.SERVER ) {

@@ -10,17 +10,16 @@ import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBEnumInterface;
 import org.urm.db.core.DBEnums;
-import org.urm.meta.EngineData;
 
 public class EngineDB {
 
-	public EngineData data;
+	private Engine engine;
 	
 	private PGConnectionPoolDataSource pool;
 	public static int APP_VERSION = 100;
 	
-	public EngineDB( EngineData data ) {
-		this.data = data;
+	public EngineDB( Engine engine ) {
+		this.engine = engine;
 	}
 	
 	public void init() throws Exception {
@@ -29,12 +28,12 @@ public class EngineDB {
 			pool = null;
 		}
 		
-		String jdbcProperties = data.engine.execrc.dbPath;
+		String jdbcProperties = engine.execrc.dbPath;
 		File poolFile = new File( jdbcProperties );
 		if( !poolFile.isFile() )
 			throw new RuntimeException( "missing database configuration file=" + jdbcProperties );
 		
-		Properties props = ConfReader.readPropertyFile( data.engine.execrc , jdbcProperties );
+		Properties props = ConfReader.readPropertyFile( engine.execrc , jdbcProperties );
 		String host = props.getProperty( "host" );
 		String port = props.getProperty( "port" );
 		String db = props.getProperty( "db" , "urmdb" );
@@ -53,8 +52,8 @@ public class EngineDB {
 		
 		DBConnection connection = null;
 		try {
-			data.engine.trace( "connecting to " + host + ":" + port + "/" + db + "[" + schema + "] as user=" + user + " ..." );
-			connection = getConnection( data.engine.serverAction );
+			engine.trace( "connecting to " + host + ":" + port + "/" + db + "[" + schema + "] as user=" + user + " ..." );
+			connection = getConnection( engine.serverAction );
 		}
 		finally {
 			if( connection != null )
@@ -65,7 +64,7 @@ public class EngineDB {
 	public DBConnection getConnection( ActionBase action ) throws Exception {
 		Connection connection = pool.getConnection();
 		connection.setAutoCommit( false );
-		DBConnection dbc = new DBConnection( data.engine , data.getEntities() , action , connection );
+		DBConnection dbc = new DBConnection( engine , action.getServerEntities() , action , connection );
 		dbc.init();
 		return( dbc );
 	}

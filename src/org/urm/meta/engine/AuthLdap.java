@@ -114,7 +114,7 @@ public class AuthLdap {
 		}
 	}
 
-	public void create() throws Exception {
+	private void create( ActionInit action ) throws Exception {
 		if( !ldapUse )
 			return;
 		
@@ -144,7 +144,7 @@ public class AuthLdap {
 		if( ldapUserRes.isEmpty() )
 			return;
 		
-		AuthResource res = auth.getResource( ldapUserRes );
+		AuthResource res = auth.getResource( action , ldapUserRes );
 		res.loadAuthData();
 		if( !res.ac.isCommon() )
 			return;
@@ -157,7 +157,7 @@ public class AuthLdap {
 	}
 
 	public void start( ActionInit action ) throws Exception {
-		create();
+		create( action );
 		ldapStarted = true;
 	}
 	

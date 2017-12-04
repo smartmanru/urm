@@ -25,6 +25,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.EngineScheduler;
 import org.urm.engine.shell.Account;
@@ -756,6 +757,10 @@ abstract public class ActionBase extends ActionCore {
 		return( null );
 	}
 	
+	public EngineEntities getServerEntities() {
+		return( actionInit.getActiveEntities() );
+	}
+	
 	public EngineResources getServerResources() {
 		return( actionInit.getActiveResources() );
 	}
@@ -884,6 +889,10 @@ abstract public class ActionBase extends ActionCore {
 
 	public Meta getProductMetadata( String productName ) throws Exception {
 		return( actionInit.getActiveProductMetadata( productName ) );
+	}
+
+	public Meta findProductMetadata( String productName ) {
+		return( actionInit.findProductMetadata( productName ) );
 	}
 
 	public boolean isProductOffline( Meta meta ) {

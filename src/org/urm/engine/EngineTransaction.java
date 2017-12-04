@@ -14,9 +14,15 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.shell.Account;
+import org.urm.meta.EngineData;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineAuth;
+import org.urm.meta.engine.EngineBase;
+import org.urm.meta.engine.EngineBuilders;
+import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.BaseGroup;
 import org.urm.meta.engine.BaseItem;
@@ -25,6 +31,9 @@ import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
+import org.urm.meta.engine.EngineLifecycles;
+import org.urm.meta.engine.EngineResources;
+import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.Network;
 import org.urm.meta.engine.NetworkHost;
 import org.urm.meta.engine.AppProduct;
@@ -60,8 +69,8 @@ import org.urm.meta.Types.*;
 
 public class EngineTransaction extends TransactionBase {
 
-	public EngineTransaction( Engine engine , ActionInit action ) {
-		super( engine , action );
+	public EngineTransaction( Engine engine , EngineData data , ActionInit action ) {
+		super( engine , data , action );
 	}
 
 	// ################################################################################
@@ -88,21 +97,25 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void setEngineProperties( PropertySet props ) throws Exception {
 		checkTransactionSettings();
+		EngineSettings settings = super.getTransactionSettings();
 		settings.setEngineProperties( this , props );
 	}
 	
 	public void setEngineProductDefaultsProperties( PropertySet props ) throws Exception {
 		checkTransactionSettings();
+		EngineSettings settings = super.getTransactionSettings();
 		settings.setProductDefaultsProperties( this , props );
 	}
 	
 	public void setEngineProductBuildCommonDefaultsProperties( PropertySet props ) throws Exception {
 		checkTransactionSettings();
+		EngineSettings settings = super.getTransactionSettings();
 		settings.setProductBuildCommonDefaultsProperties( this , props );
 	}
 	
 	public void setEngineProductBuildModeDefaultsProperties( DBEnumBuildModeType mode , PropertySet props ) throws Exception {
 		checkTransactionSettings();
+		EngineSettings settings = super.getTransactionSettings();
 		settings.setProductBuildModeDefaultsProperties( this , mode , props );
 	}
 
@@ -110,24 +123,24 @@ public class EngineTransaction extends TransactionBase {
 	// ################################################################################
 	// RESOURCES
 	
-	public AuthResource createResource( AuthResource rcdata ) throws Exception {
+	public AuthResource createResource( EngineResources resources , AuthResource rcdata ) throws Exception {
 		checkTransactionResources( resources );
 		return( DBEngineResources.createResource( this , resources , rcdata ) );
 	}
 	
 	public void updateResource( AuthResource rc , AuthResource rcdata ) throws Exception {
 		checkTransactionResources( rc.resources );
-		DBEngineResources.modifyResource( this , resources , rc , rcdata );
+		DBEngineResources.modifyResource( this , rc.resources , rc , rcdata );
 	}
 	
 	public void deleteResource( AuthResource rc ) throws Exception {
 		checkTransactionResources( rc.resources );
-		DBEngineResources.deleteResource( this , resources , rc );
+		DBEngineResources.deleteResource( this , rc.resources , rc );
 	}
 
 	public void verifyResource( AuthResource rc ) throws Exception {
 		checkTransactionResources( rc.resources );
-		DBEngineResources.verifyResource( this , resources , rc );
+		DBEngineResources.verifyResource( this , rc.resources , rc );
 	}
 	
 	// ################################################################################
@@ -136,26 +149,29 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void createMirrorRepository( MirrorRepository repo , Integer resourceId , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
+		EngineLoader loader = engine.createLoader( action );
 		if( push )
 			loader.exportRepo( repo );
-		DBEngineMirrors.createRepository( this , mirrors , repo , resourceId , reponame  , reporoot , dataroot , push );
+		DBEngineMirrors.createRepository( this , repo.mirrors , repo , resourceId , reponame  , reporoot , dataroot , push );
 		if( !push )
 			loader.importRepo( repo );
 	}
 
 	public void pushMirror( MirrorRepository repo ) throws Exception {
+		EngineLoader loader = engine.createLoader( action );
 		loader.exportRepo( repo );
-		DBEngineMirrors.pushMirror( this , mirrors , repo );
+		DBEngineMirrors.pushMirror( this , repo.mirrors , repo );
 	}
 
 	public void refreshMirror( MirrorRepository repo ) throws Exception {
-		DBEngineMirrors.refreshMirror( this , mirrors , repo );
+		DBEngineMirrors.refreshMirror( this , repo.mirrors , repo );
+		EngineLoader loader = engine.createLoader( action );
 		loader.importRepo( repo );
 	}
 
 	public void dropMirror( MirrorRepository repo , boolean dropOnServer ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
-		DBEngineMirrors.dropMirror( this , mirrors , repo , dropOnServer );
+		DBEngineMirrors.dropMirror( this , repo.mirrors , repo , dropOnServer );
 	}
 
 	public void createMirrorRepository( EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
@@ -192,31 +208,37 @@ public class EngineTransaction extends TransactionBase {
 	
 	public BaseGroup createBaseGroup( DBEnumBaseCategoryType type , String name , String desc ) throws Exception {
 		checkTransactionBase();
+		EngineBase base = super.getTransactionBase();
 		return( DBEngineBase.createGroup( this , base , type , name , desc ) );
 	}
 
 	public void deleteBaseGroup( BaseGroup group ) throws Exception {
 		checkTransactionBase();
+		EngineBase base = super.getTransactionBase();
 		DBEngineBase.deleteGroup( this , base , group );
 	}
 
 	public void modifyBaseGroup( BaseGroup group , String name , String desc ) throws Exception {
 		checkTransactionBase();
+		EngineBase base = super.getTransactionBase();
 		DBEngineBase.modifyGroup( this , base , group , name , desc );
 	}
 
 	public BaseItem createBaseItem( BaseGroup group , String name , String desc ) throws Exception {
 		checkTransactionBase();
+		EngineBase base = super.getTransactionBase();
 		return( DBEngineBase.createItem( this , base , group , name , desc ) );
 	}
 
 	public void modifyBaseItem( BaseItem item , String name , String desc ) throws Exception {
 		checkTransactionBase();
+		EngineBase base = super.getTransactionBase();
 		DBEngineBase.modifyItem( this , base , item , name , desc );
 	}
 
 	public void deleteBaseItem( BaseItem item ) throws Exception {
 		checkTransactionBase();
+		EngineBase base = super.getTransactionBase();
 		DBEngineBase.deleteItem( this , base , item );
 	}
 
@@ -229,19 +251,19 @@ public class EngineTransaction extends TransactionBase {
 	// ################################################################################
 	// BUILDERS
 	
-	public ProjectBuilder createBuilder( ProjectBuilder builder ) throws Exception {
-		checkTransactionBuilders();
+	public ProjectBuilder createBuilder( EngineBuilders builders , ProjectBuilder builder ) throws Exception {
+		checkTransactionBuilders( builders );
 		return( DBEngineBuilders.createBuilder( this , builders , builder ) );
 	}
 	
 	public void modifyBuilder( ProjectBuilder builder , ProjectBuilder builderNew ) throws Exception {
-		checkTransactionBuilders();
-		DBEngineBuilders.modifyBuilder( this , builders , builder , builderNew );
+		checkTransactionBuilders( builder.builders );
+		DBEngineBuilders.modifyBuilder( this , builder.builders , builder , builderNew );
 	}
 	
 	public void deleteBuilder( ProjectBuilder builder ) throws Exception {
-		checkTransactionBuilders();
-		DBEngineBuilders.deleteBuilder( this , builders , builder );
+		checkTransactionBuilders( builder.builders );
+		DBEngineBuilders.deleteBuilder( this , builder.builders , builder );
 	}
 	
 	// ################################################################################
@@ -250,32 +272,37 @@ public class EngineTransaction extends TransactionBase {
 	
 	public ReleaseLifecycle createLifecycleType( String name , String desc , DBEnumLifecycleType type , boolean regular , int daysRelease , int daysDeploy , int shiftDays ) throws Exception {
 		checkTransactionReleaseLifecycles();
+		EngineLifecycles lifecycles = super.getTransactionLifecycles();
 		return( DBEngineLifecycles.createLifecycle( this , lifecycles , name , desc , type , regular , daysRelease , daysDeploy , shiftDays ) );
 	}
 	
 	public void modifyLifecycleType( ReleaseLifecycle lc , String name , String desc , DBEnumLifecycleType type , boolean regular , int daysRelease , int daysDeploy , int shiftDays ) throws Exception {
 		checkTransactionReleaseLifecycles();
+		EngineLifecycles lifecycles = super.getTransactionLifecycles();
 		DBEngineLifecycles.modifyLifecycle( this , lifecycles , lc , name , desc , type , regular , daysRelease , daysDeploy , shiftDays );
 	}
 	
 	public void deleteLifecycleType( ReleaseLifecycle lc ) throws Exception {
 		checkTransactionReleaseLifecycles();
+		EngineLifecycles lifecycles = super.getTransactionLifecycles();
 		DBEngineLifecycles.deleteLifecycle( this , lifecycles , lc );
-		lc.deleteObject();
 	}
 	
 	public ReleaseLifecycle copyLifecycleType( ReleaseLifecycle lc , String name , String desc ) throws Exception {
 		checkTransactionReleaseLifecycles();
+		EngineLifecycles lifecycles = super.getTransactionLifecycles();
 		return( DBEngineLifecycles.copyLifecycle( this , lifecycles , lc , name , desc ) );
 	}
 	
 	public void enableLifecycleType( ReleaseLifecycle lc , boolean enable ) throws Exception {
 		checkTransactionReleaseLifecycles();
+		EngineLifecycles lifecycles = super.getTransactionLifecycles();
 		DBEngineLifecycles.enableLifecycle( this , lifecycles , lc , enable );
 	}
 	
 	public void changeLifecyclePhases( ReleaseLifecycle lc , LifecyclePhase[] phases ) throws Exception {
 		checkTransactionReleaseLifecycles();
+		EngineLifecycles lifecycles = super.getTransactionLifecycles();
 		DBEngineLifecycles.changePhases( this , lifecycles , lc , phases );
 	}
 	
@@ -285,11 +312,13 @@ public class EngineTransaction extends TransactionBase {
 	
 	public Datacenter createDatacenter( String name , String desc ) throws Exception {
 		checkTransactionInfrastructure();
+		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		return( DBEngineInfrastructure.createDatacenter( this , infra , name , desc ) );
 	}
 
 	public void modifyDatacenter( Datacenter datacenter , String name , String desc ) throws Exception {
 		checkTransactionInfrastructure();
+		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.modifyDatacenter( this , infra , datacenter , name , desc );
 	}
 
@@ -297,16 +326,19 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionInfrastructure();
 		EngineAuth auth = action.getServerAuth();
 		auth.deleteDatacenter( this , datacenter );
+		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.deleteDatacenter( this , infra , datacenter );
 	}
 	
 	public Network createNetwork( Datacenter datacenter , String name , String desc , String mask ) throws Exception {
 		checkTransactionInfrastructure();
+		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		return( DBEngineInfrastructure.createNetwork( this , infra , datacenter , name , desc , mask ) );
 	}
 
 	public void modifyNetwork( Network network , String name , String desc , String mask ) throws Exception {
 		checkTransactionInfrastructure();
+		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.modifyNetwork( this , infra , network , name , desc , mask );
 	}
 
@@ -314,31 +346,37 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionInfrastructure();
 		EngineAuth auth = action.getServerAuth();
 		auth.deleteNetwork( this , network );
+		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.deleteNetwork( this , infra , network );
 	}
 
 	public NetworkHost createNetworkHost( Network network , String name , String desc , DBEnumOSType osType , String ip , int port ) throws Exception {
 		checkTransactionInfrastructure();
+		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		return( DBEngineInfrastructure.createHost( this , infra , network , name , desc , osType , ip , port ) );
 	}
 	
 	public void modifyNetworkHost( NetworkHost host , String name , String desc , DBEnumOSType osType , String ip , int port ) throws Exception {
 		checkTransactionInfrastructure();
+		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.modifyHost( this , infra , host , name , desc , osType , ip , port );
 	}
 	
 	public void deleteNetworkHost( NetworkHost host ) throws Exception {
 		checkTransactionInfrastructure();
+		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.deleteHost( this , infra , host );
 	}
 	
 	public HostAccount createHostAccount( NetworkHost host , String user , String desc , boolean admin , Integer resourceId ) throws Exception {
 		checkTransactionInfrastructure();
+		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		return( DBEngineInfrastructure.createAccount( this , infra , host , user , desc , admin , resourceId ) );
 	}
 	
 	public void modifyHostAccount( HostAccount account , String user , String desc , boolean admin , Integer resourceId , boolean refRename ) throws Exception {
 		checkTransactionInfrastructure();
+		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.modifyAccount( this , infra , account , user , desc , admin , resourceId );
 	}
 	
@@ -355,6 +393,7 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void deleteHostAccount( HostAccount account ) throws Exception {
 		checkTransactionInfrastructure();
+		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.deleteAccount( this , infra , account );
 	}
 	
@@ -362,23 +401,23 @@ public class EngineTransaction extends TransactionBase {
 	// ################################################################################
 	// DIRECTORY
 	
-	public AppSystem createSystem( String name , String desc ) throws Exception {
-		checkTransactionDirectory();
+	public AppSystem createSystem( EngineDirectory directory , String name , String desc ) throws Exception {
+		checkTransactionDirectory( directory );
 		return( DBEngineDirectory.createSystem( this , directory , name , desc ) );
 	}
 	
 	public void modifySystem( AppSystem system , String name , String desc ) throws Exception {
-		checkTransactionDirectory();
-		DBEngineDirectory.modifySystem( this , directory , system , name , desc );
+		checkTransactionDirectory( system.directory );
+		DBEngineDirectory.modifySystem( this , system.directory , system , name , desc );
 	}
 
 	public void setSystemOffline( AppSystem system , boolean offline ) throws Exception {
-		checkTransactionDirectory();
-		DBEngineDirectory.setSystemOffline( this , directory , system , offline );
+		checkTransactionDirectory( system.directory );
+		DBEngineDirectory.setSystemOffline( this , system.directory , system , offline );
 	}
 
 	public void deleteSystem( AppSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-		checkTransactionDirectory();
+		checkTransactionDirectory( system.directory );
 		
 		EngineMirrors mirrors = action.getServerMirrors();
 		for( String productName : system.getProductNames() ) {
@@ -386,12 +425,12 @@ public class EngineTransaction extends TransactionBase {
 			DBEngineMirrors.deleteProductResources( this , mirrors , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		}
 		
-		DBEngineDirectory.deleteSystem( this , directory , system );
+		DBEngineDirectory.deleteSystem( this , system.directory , system );
 	}
 	
 	public AppProduct createProduct( AppSystem system , String name , String desc , String path , boolean forceClear ) throws Exception {
-		checkTransactionDirectory();
-		AppProduct product = DBEngineDirectory.createProduct( this , directory , system , name , desc , path );
+		checkTransactionDirectory( system.directory );
+		AppProduct product = DBEngineDirectory.createProduct( this , system.directory , system , name , desc , path );
 		
 		EngineMirrors mirrors = action.getServerMirrors();
 		DBEngineMirrors.addProductMirrors( this , mirrors , product , forceClear );
@@ -404,34 +443,34 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void modifyProduct( AppProduct product , String name , String desc , String path ) throws Exception {
-		checkTransactionDirectory();
-		DBEngineDirectory.modifyProduct( this , directory , product , name , desc , path );
+		checkTransactionDirectory( product.directory );
+		DBEngineDirectory.modifyProduct( this , product.directory , product , name , desc , path );
 	}
 
 	public void setMonitoringEnabled( AppProduct product ) throws Exception {
-		checkTransactionDirectory();
-		DBEngineDirectory.setMonitoringEnabled( this , directory , product , true );
+		checkTransactionDirectory( product.directory );
+		DBEngineDirectory.setMonitoringEnabled( this , product.directory , product , true );
 	}
 	
 	public void setMonitoringDisabled( AppProduct product ) throws Exception {
-		checkTransactionDirectory();
-		DBEngineDirectory.setMonitoringEnabled( this , directory , product , false );
+		checkTransactionDirectory( product.directory );
+		DBEngineDirectory.setMonitoringEnabled( this , product.directory , product , false );
 	}
 
 	public void setProductOffline( AppProduct product , boolean offline ) throws Exception {
-		checkTransactionDirectory();
-		DBEngineDirectory.setProductOffline( this , directory , product , offline );
+		checkTransactionDirectory( product.directory );
+		DBEngineDirectory.setProductOffline( this , product.directory , product , offline );
 	}
 
 	public void deleteProduct( EngineMirrors mirrors , AppProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-		checkTransactionDirectory();
+		checkTransactionDirectory( product.directory );
 		checkTransactionMirrors( mirrors );
 		checkTransactionMetadata( product.NAME );
 		
 		DBEngineMirrors.deleteProductResources( this , mirrors , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		EngineAuth auth = action.getServerAuth();
 		auth.deleteProduct( this , product );
-		DBEngineDirectory.deleteProduct( this , directory , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+		DBEngineDirectory.deleteProduct( this , product.directory , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 	}
 
 	// ################################################################################
@@ -442,6 +481,7 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setEnabled( this , false );
+		EngineLoader loader = engine.createLoader( action );
 		loader.commitMonitoring();
 	}
 	
@@ -449,6 +489,7 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setEnabled( this , true );
+		EngineLoader loader = engine.createLoader( action );
 		loader.commitMonitoring();
 	}
 
@@ -456,6 +497,7 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setDefaultProperties( this , props );
+		EngineLoader loader = engine.createLoader( action );
 		loader.commitMonitoring();
 	}
 

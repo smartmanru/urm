@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineObject;
@@ -136,9 +137,9 @@ public class Datacenter extends EngineObject {
 		return( null );
 	}
 	
-	public void getApplicationReferences( List<AccountReference> refs ) {
+	public void getApplicationReferences( ActionBase action , List<AccountReference> refs ) {
 		for( Network network : mapNetworks.values() )
-			network.getApplicationReferences( refs );
+			network.getApplicationReferences( action , refs );
 	}
 
 	public boolean isEmpty() {

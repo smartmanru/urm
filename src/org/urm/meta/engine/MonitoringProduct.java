@@ -7,7 +7,6 @@ import org.urm.action.ActionBase;
 import org.urm.action.monitor.ActionMonitorTarget;
 import org.urm.action.monitor.MonitorTargetInfo;
 import org.urm.action.monitor.MonitorTop;
-import org.urm.engine.Engine;
 import org.urm.engine.schedule.EngineScheduler;
 import org.urm.engine.schedule.EngineScheduler.ScheduleTaskCategory;
 import org.urm.engine.schedule.ScheduleTask;
@@ -52,14 +51,12 @@ public class MonitoringProduct {
 	EngineMonitoring monitoring;
 	AppProduct product;
 	MetaMonitoring meta;
-	Engine engine;
 	Map<String,ActionMonitorTarget> targets;
 	
 	public MonitoringProduct( EngineMonitoring monitoring , AppProduct product , MetaMonitoring meta ) {
 		this.monitoring = monitoring;
 		this.product = product;
 		this.meta = meta;
-		this.engine = monitoring.engine;
 		targets = new HashMap<String,ActionMonitorTarget>();
 	}
 	

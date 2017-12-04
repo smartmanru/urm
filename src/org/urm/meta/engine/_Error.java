@@ -12,8 +12,6 @@ public class _Error {
 	public static final int BuilderAlreadyExists1 = ErrorBase + 5;
 	public static final int TransactionResourceOld1 = ErrorBase + 6;
 	public static final int TransactionSystemOld1 = ErrorBase + 8;
-	public static final int UnknownSystem1 = ErrorBase + 9;
-	public static final int UnknownProduct1 = ErrorBase + 10;
 	public static final int DuplicateProduct1 = ErrorBase + 11;
 	public static final int UnablePublishRepository0 = ErrorBase + 16;
 	public static final int TransactionBuilderOld1 = ErrorBase + 19;
@@ -39,5 +37,10 @@ public class _Error {
 	public static final int UnknownNetwork1 = ErrorBase + 51;
 	public static final int UnknownHost1 = ErrorBase + 52;
 	public static final int UnknownMirrorRepository1 = ErrorBase + 53;
+	public static final int DuplicateSystemNameUnmatched1 = ErrorBase + 54;
+	public static final int DuplicateProductNameUnmatched1 = ErrorBase + 55;
+	public static final int DuplicateEnvNameUnmatched2 = ErrorBase + 56;
+	public static final int UnknownSystem1 = ErrorBase + 57;
+	public static final int UnknownProduct1 = ErrorBase + 58;
 	
 }

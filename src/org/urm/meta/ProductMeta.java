@@ -16,7 +16,6 @@ import org.urm.engine.TransactionBase;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.storage.MetadataStorage;
-import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.EngineSettings;
@@ -609,11 +608,6 @@ public class ProductMeta extends EngineObject {
 		MetadataStorage storage = action.artefactory.getMetadataStorage( action , env.meta );
 		storage.deleteEnvConfFile( action , envFile );
 		env.deleteObject();
-	}
-
-	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
-		for( MetaEnv env : envs.values() )
-			env.getApplicationReferences( account , refs );
 	}
 
 	public void deleteHostAccount( EngineTransaction transaction , HostAccount account ) throws Exception {

@@ -8,7 +8,6 @@ import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
 import org.urm.engine.action.ActionInit;
-import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AuthContext;
 import org.urm.meta.product.Meta;
@@ -65,10 +64,9 @@ public class EngineSession extends EngineObject {
 		closed = true;
 		
 		ActionInit action = controller.engine.serverAction;
-		EngineData data = controller.engine.getData();
 		for( String product : Common.getSortedKeys( productMeta ) ) {
 			Meta meta = productMeta.get( product );
-			data.releaseSessionProductMetadata( action , meta , false );
+			controller.releaseSessionProductMetadata( action , meta , false );
 		}
 		
 		super.deleteObject();

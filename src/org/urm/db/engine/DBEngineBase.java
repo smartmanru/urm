@@ -146,7 +146,7 @@ public abstract class DBEngineBase {
 	private static BaseItem importxmlItem( EngineLoader loader , EngineBase base , BaseGroup group , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
-		EngineSettings settings = loader.getData().getEngineSettings();
+		EngineSettings settings = loader.getSettings();
 		
 		ObjectProperties props = entities.createBaseItemProps( settings.getEngineProperties() ); 
 		BaseItem item = new BaseItem( group , props );
@@ -235,7 +235,7 @@ public abstract class DBEngineBase {
 
 	public static void loaddbItems( EngineLoader loader , EngineBase base ) throws Exception {
 		DBConnection c = loader.getConnection();
-		EngineSettings settings = loader.data.getEngineSettings();
+		EngineSettings settings = loader.getSettings();
 		ObjectProperties pe = settings.getEngineProperties();
 		EngineEntities entities = c.getEntities();
 		PropertyEntity entity = entities.entityAppBaseItem;

@@ -18,7 +18,6 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
-import org.urm.meta.EngineData;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineMatcher;
 import org.urm.meta.engine.AppProduct;
@@ -92,7 +91,7 @@ public abstract class DBEngineDirectory {
 		}
 		
 		// match systems to engine
-		matchxml( loader , directory );
+		match( loader , directory , true );
 	}
 	
 	private static AppSystem importxmlSystem( EngineLoader loader , EngineDirectory directory , Node root ) throws Exception {
@@ -141,7 +140,7 @@ public abstract class DBEngineDirectory {
 		loaddbProducts( loader , directory );
 		
 		// match systems to engine
-		matchdb( loader , directory , false );
+		match( loader , directory , false );
 	}
 	
 	private static void loaddbSystems( EngineLoader loader , EngineDirectory directory ) throws Exception {
@@ -156,21 +155,8 @@ public abstract class DBEngineDirectory {
 			directory.addProduct( product );
 	}
 
-	private static void matchxml( EngineLoader loader , EngineDirectory directory ) throws Exception {
+	public static void match( EngineLoader loader , EngineDirectory directory , boolean update ) throws Exception {
 		EngineMatcher matcher = loader.getMatcher();
-		EngineData data = loader.getData();
-		
-		for( AppSystem system : directory.getSystems() ) {
-			matcher.prepareMatch( system.ID , false , false );
-			DBAppSystem.matchxmlSystem( loader , directory , system );
-			
-			data.matchdoneSystem( loader , system );
-		}
-	}
-	
-	public static void matchdb( EngineLoader loader , EngineDirectory directory , boolean update ) throws Exception {
-		EngineMatcher matcher = loader.getMatcher();
-		EngineData data = loader.getData();
 		
 		for( AppSystem system : directory.getSystems() ) {
 			if( update ) {
@@ -183,7 +169,7 @@ public abstract class DBEngineDirectory {
 				DBAppSystem.matchdb( loader , directory , system );
 			}
 			
-			data.matchdoneSystem( loader , system );
+			matcher.doneSystem( system );
 		}
 	}
 	
@@ -193,9 +179,8 @@ public abstract class DBEngineDirectory {
 		if( directory.findProduct( name ) != null )
 			transaction.exit1( _Error.DuplicateSystem1 , "system=" + name + " is not unique" , name );
 		
-		EngineData data = directory.data;
-		EngineEntities entities = data.getEntities();
-		EngineSettings settings = data.getEngineSettings(); 
+		EngineEntities entities = transaction.getEntities();
+		EngineSettings settings = transaction.getSettings(); 
 		
 		ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
 		AppSystem system = new AppSystem( directory , props );

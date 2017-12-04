@@ -12,12 +12,15 @@ import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandOptions;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.ActionInit.RootActionType;
+import org.urm.meta.EngineData;
 import org.urm.meta.engine.AuthUser;
+import org.urm.meta.product.Meta;
 import org.urm.engine.action.CommandExecutor;
 
 public class SessionController {
 
 	Engine engine;
+	private EngineData data;
 	
 	boolean running = false;
 	boolean stop = false;
@@ -31,8 +34,9 @@ public class SessionController {
 	
 	int sessionSequence = 0;
 	
-	public SessionController( Engine engine ) {
+	public SessionController( Engine engine , EngineData data ) {
 		this.engine = engine;
+		this.data = data;
 	
 		sessions = new HashMap<Integer,EngineSession>(); 
 		calls = new HashMap<String,EngineCall>();
@@ -252,7 +256,10 @@ public class SessionController {
 					security.setPermissions();
 			}
 		}
-		
+	}
+
+	public void releaseSessionProductMetadata( ActionInit action , Meta meta , boolean deleteMeta ) throws Exception {
+		data.releaseSessionProductMetadata( action , meta , deleteMeta );
 	}
 	
 }

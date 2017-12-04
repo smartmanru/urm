@@ -6,8 +6,8 @@ import java.util.Map;
 import org.urm.common.RunError;
 import org.urm.db.DBConnection;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.meta.EngineData;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.Datacenter;
@@ -55,53 +55,40 @@ public class TransactionBase extends EngineObject {
 	public Engine engine;
 	public ActionInit action;
 	public RunError error;
-	protected EngineData data;
-	protected EngineLoader loader;
+	private EngineData data;
 	
 	private DBConnection connection;
 	private boolean CHANGEDATABASE;
 	private boolean SERVERVERSIONUPDATE;
 	
-	public EngineInfrastructure infra;
-	public EngineLifecycles lifecycles;
-	public EngineBase base;
+	// changed without copy
+	protected EngineInfrastructure infraChange;
+	protected EngineBase baseChange;
+	protected EngineLifecycles lifecyclesChange;
 	
-	public EngineSettings settings;
-	public EngineResources resources;
-	public EngineBuilders builders;
-	public EngineDirectory directory;
-	public EngineMirrors mirrors;
+	// changed as full copy
+	protected EngineSettings settingsNew;
+	protected EngineResources resourcesNew;
+	protected EngineBuilders buildersNew;
+	protected EngineDirectory directoryNew;
+	protected EngineMirrors mirrorsNew;
 
-	protected EngineSettings settingsOld;
-	protected EngineResources resourcesOld;
-	protected EngineBuilders buildersOld;
-	protected EngineDirectory directoryOld;
-	protected EngineMirrors mirrorsOld;
-	private boolean saveRegistry;
-
+	private EngineSettings settingsOld;
+	private EngineResources resourcesOld;
+	private EngineBuilders buildersOld;
+	private EngineDirectory directoryOld;
+	private EngineMirrors mirrorsOld;
+	
 	private Map<String,TransactionMetadata> productMeta;
 	
-	public TransactionBase( Engine engine , ActionInit action ) {
+	public TransactionBase( Engine engine , EngineData data , ActionInit action ) {
 		super( null );
 		this.engine = engine;
+		this.data = data;
 		this.action = action;
-		
-		data = engine.getData();
-		loader = new EngineLoader( engine , data , action );
 		
 		CHANGEDATABASE = false;
 		SERVERVERSIONUPDATE = false;
-		
-		settings = null;
-		infra = null;
-		lifecycles = null;
-		base = null;
-		
-		resources = null;
-		builders = null;
-		directory = null;
-		mirrors = null;
-		saveRegistry = false;
 		
 		productMeta = new HashMap<String,TransactionMetadata>();
 		engine.trace( "transaction created id=" + objectId );
@@ -122,129 +109,10 @@ public class TransactionBase extends EngineObject {
 				return( false );
 		
 			action.setTransaction( this );
-			settings = null;
-			infra = null;
-			lifecycles = null;
-			base = null;
-
-			resources = null;
-			builders = null;
-			directory = null;
-			mirrors = null;
-			
-			settingsOld = null;
-			
-			resourcesOld = null;
-			buildersOld = null;
-			directoryOld = null;
-			mirrorsOld = null;
-			saveRegistry = false;
-			
 			return( true );
 		}
 	}
 
-	public void abortTransaction( boolean save ) {
-		synchronized( engine ) {
-			if( !continueTransaction() )
-				return;
-			
-			try {
-				if( settingsOld != null ) {
-					if( save ) {
-						loader.setSettings( settingsOld );
-					}
-					settingsOld = null;
-				}
-			}
-			catch( Throwable e ) {
-				handle( e , "unable to restore settings" );
-			}
-
-			try {
-				if( resourcesOld != null ) {
-					if( save ) {
-						data.setResources( this , resourcesOld );
-					}
-					resourcesOld = null;
-				}
-			}
-			catch( Throwable e ) {
-				handle( e , "unable to restore resources" );
-			}
-			
-			try {
-				if( buildersOld != null ) {
-					if( save )
-						data.setBuilders( this , buildersOld );
-					buildersOld = null;
-				}
-			}
-			catch( Throwable e ) {
-				handle( e , "unable to restore resources" );
-			}
-			
-			try {
-				if( directoryOld != null ) {
-					if( save )
-						data.setDirectory( this , directoryOld );
-					directoryOld = null;
-				}
-			}
-			catch( Throwable e ) {
-				handle( e , "unable to restore directory" );
-			}
-			
-			try {
-				if( mirrorsOld != null ) {
-					if( save )
-						data.setMirrors( this , mirrorsOld );
-					mirrorsOld = null;
-				}
-			}
-			catch( Throwable e ) {
-				handle( e , "unable to restore mirrors" );
-			}
-			
-			try {
-				if( saveRegistry ) {
-					EngineData data = engine.getData();
-					EngineLoader loader = new EngineLoader( engine , data , action );
-					loader.commitRegistry();
-				}
-			}
-			catch( Throwable e ) {
-				handle( e , "unable to restore registry" );
-			}
-			
-			try {
-				for( TransactionMetadata meta : productMeta.values() )
-					meta.abortTransaction( save );
-				productMeta.clear();
-			}
-			catch( Throwable e ) {
-				handle( e , "unable to restore metadata" );
-			}
-			
-			try {
-				if( connection != null )
-					connection.close( false );
-			}
-			catch( Throwable e ) {
-				handle( e , "unable to rollback database changes" );
-			}
-			
-			engine.abortTransaction( this );
-		}
-		
-		saveRegistry = false;
-		action.clearTransaction();
-	}
-
-	public ActionInit getAction() throws Exception {
-		return( action );
-	}
-	
 	public boolean commitTransaction() {
 		synchronized( engine ) {
 			if( !continueTransaction() )
@@ -252,36 +120,7 @@ public class TransactionBase extends EngineObject {
 
 			boolean res = true;
 			if( res )
-				res = saveSettings();
-			
-			if( res )
-				res = saveResources();
-			if( res )
-				res = saveBuilders();
-			if( res )
-				res = saveDirectory();
-			if( res )
-				res = saveMirrors();
-			try {
-				if( saveRegistry ) {
-					EngineData data = engine.getData();
-					EngineLoader loader = new EngineLoader( engine , data , action );
-					loader.commitRegistry();
-				}
-			}
-			catch( Throwable e ) {
-				handle( e , "unable to save registry" );
-			}
-			
-			if( res )
-				res = saveInfrastructure();
-			if( res )
-				res = saveReleaseLifecycles();
-			if( res )
-				res = saveBase();
-			
-			if( res )
-				res = saveMetadata();
+				res = saveProducts();
 			
 			if( res ) {
 				if( connection != null )
@@ -291,12 +130,71 @@ public class TransactionBase extends EngineObject {
 					return( false );
 				
 				action.clearTransaction();
+				
+				if( settingsNew != null )
+					data.setSettings( this , settingsNew );
+				if( resourcesNew != null )
+					data.setResources( this , resourcesNew );
+				if( buildersNew != null )
+					data.setBuilders( this , buildersNew );
+				if( directoryNew != null )
+					data.setDirectory( this , directoryNew );
+				if( mirrorsNew != null )
+					data.setMirrors( this , mirrorsNew );
 				return( true );
 			}
 
 			abortTransaction( true );
 			return( false );
 		}
+	}
+	
+	public void abortTransaction( boolean save ) {
+		synchronized( engine ) {
+			if( !continueTransaction() )
+				return;
+			
+			try {
+				if( connection != null ) {
+					connection.close( false );
+					connection = null;
+				}
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to rollback database changes" );
+			}
+			
+			infraChange = null;
+			lifecyclesChange = null;
+			baseChange = null;
+			
+			settingsNew = null;
+			resourcesNew = null;
+			buildersNew = null;
+			directoryNew = null;
+			mirrorsNew = null;
+
+			abortProducts( save );
+			
+			engine.abortTransaction( this );
+		}
+		
+		action.clearTransaction();
+	}
+
+	private void abortProducts( boolean save ) {
+		try {
+			for( TransactionMetadata meta : productMeta.values() )
+				meta.abortTransaction( save );
+			productMeta.clear();
+		}
+		catch( Throwable e ) {
+			handle( e , "unable to restore metadata" );
+		}
+	}
+	
+	public ActionInit getAction() throws Exception {
+		return( action );
 	}
 	
 	public boolean continueTransaction() {
@@ -427,7 +325,6 @@ public class TransactionBase extends EngineObject {
 			return;
 		
 		CHANGEDATABASE = true;
-		EngineData data = engine.getData();
 		EngineDB db = data.getDatabase();
 		connection = db.getConnection( action );
 	}
@@ -448,7 +345,7 @@ public class TransactionBase extends EngineObject {
 				if( !continueTransaction() )
 					return( false );
 					
-				if( infra != null )
+				if( infraChange != null )
 					return( true );
 
 				if( network == null ) {
@@ -461,7 +358,7 @@ public class TransactionBase extends EngineObject {
 				}
 				
 				changeEngineDatabase();
-				infra = sourceInfrastructure;
+				infraChange = sourceInfrastructure;
 				return( true );
 			}
 			catch( Throwable e ) {
@@ -473,42 +370,20 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
-	private boolean saveInfrastructure() {
-		if( !continueTransaction() )
-			return( false );
-		
-		if( infra == null )
-			return( true );
-		
-		try {
-			EngineData data = engine.getData();
-			EngineLoader loader = new EngineLoader( engine , data , action );
-			loader.commitInfrastructure();
-			trace( "transaction server infrastructure: save done" );
-			return( true );
-		}
-		catch( Throwable e ) {
-			handle( e , "unable to save infrastructure" );
-		}
-
-		abortTransaction( true );
-		return( false );
-	}
-
 	public boolean changeReleaseLifecycles( EngineLifecycles sourceLifecycles ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
 					return( false );
 					
-				if( lifecycles != null )
+				if( lifecyclesChange != null )
 					return( true );
 
 				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
 					return( false );
 				
 				changeEngineDatabase();
-				lifecycles = sourceLifecycles;
+				lifecyclesChange = sourceLifecycles;
 				return( true );
 			}
 			catch( Throwable e ) {
@@ -520,42 +395,20 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
-	private boolean saveReleaseLifecycles() {
-		if( !continueTransaction() )
-			return( false );
-		
-		if( lifecycles == null )
-			return( true );
-		
-		try {
-			EngineData data = engine.getData();
-			EngineLoader loader = new EngineLoader( engine , data , action );
-			loader.commitReleaseLifecycles();
-			trace( "transaction server release lifecycles: save done" );
-			return( true );
-		}
-		catch( Throwable e ) {
-			handle( e , "unable to save release lifecycles" );
-		}
-
-		abortTransaction( true );
-		return( false );
-	}
-
 	public boolean changeBase( EngineBase sourceBase , SpecialRights sr ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
 					return( false );
 					
-				if( base != null )
+				if( baseChange != null )
 					return( true );
 				
 				if( !checkSecuritySpecial( sr ) )
 					return( false );
 				
 				changeEngineDatabase();
-				base = sourceBase;
+				baseChange = sourceBase;
 				return( true );
 			}
 			catch( Throwable e ) {
@@ -567,35 +420,13 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
-	private boolean saveBase() {
-		if( !continueTransaction() )
-			return( false );
-		
-		if( base == null )
-			return( true );
-		
-		try {
-			EngineData data = engine.getData();
-			EngineLoader loader = new EngineLoader( engine , data , action );
-			loader.commitBase();
-			trace( "transaction server base: save done" );
-			return( true );
-		}
-		catch( Throwable e ) {
-			handle( e , "unable to save base data" );
-		}
-
-		abortTransaction( true );
-		return( false );
-	}
-
 	public boolean changeResources( EngineResources sourceResources ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
 					return( false );
 					
-				if( resources != null )
+				if( resourcesNew != null )
 					return( true );
 				
 				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
@@ -607,9 +438,9 @@ public class TransactionBase extends EngineObject {
 					resourcesOld = action.getActiveResources();
 					if( sourceResources == resourcesOld ) {
 						changeEngineDatabase();
-						resources = sourceResources.copy();
-						if( resources != null ) {
-							trace( "transaction resources: source=" + sourceResources.objectId + ", copy=" + resources.objectId );
+						resourcesNew = sourceResources.copy();
+						if( resourcesNew != null ) {
+							trace( "transaction resources: source=" + sourceResources.objectId + ", copy=" + resourcesNew.objectId );
 							return( true );
 						}
 					}
@@ -626,34 +457,13 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
-	private boolean saveResources() {
-		if( !continueTransaction() )
-			return( false );
-		
-		if( resources == null )
-			return( true );
-		
-		saveRegistry = true;
-		try {
-			data.setResources( this , resources );
-			trace( "transaction resources: save=" + resources.objectId );
-			return( true );
-		}
-		catch( Throwable e ) {
-			handle( e , "unable to save resources" );
-		}
-
-		abortTransaction( true );
-		return( false );
-	}
-
 	public boolean changeBuilders( EngineBuilders sourceBuilders ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
 					return( false );
 					
-				if( builders != null )
+				if( buildersNew != null )
 					return( true );
 				
 				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
@@ -665,9 +475,9 @@ public class TransactionBase extends EngineObject {
 					buildersOld = action.getActiveBuilders();
 					if( sourceBuilders == buildersOld ) {
 						changeEngineDatabase();
-						builders = sourceBuilders.copy();
-						if( builders != null ) {
-							trace( "transaction builders: source=" + sourceBuilders.objectId + ", copy=" + builders.objectId );
+						buildersNew = sourceBuilders.copy();
+						if( buildersNew != null ) {
+							trace( "transaction builders: source=" + sourceBuilders.objectId + ", copy=" + buildersNew.objectId );
 							return( true );
 						}
 					}
@@ -684,34 +494,13 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
-	private boolean saveBuilders() {
-		if( !continueTransaction() )
-			return( false );
-		
-		if( builders == null )
-			return( true );
-		
-		saveRegistry = true;
-		try {
-			data.setBuilders( this , builders );
-			trace( "transaction builders: save=" + builders.objectId );
-			return( true );
-		}
-		catch( Throwable e ) {
-			handle( e , "unable to save builders" );
-		}
-
-		abortTransaction( true );
-		return( false );
-	}
-
 	public boolean changeDirectory( EngineDirectory sourceDirectory , boolean critical ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
 					return( false );
 					
-				if( directory != null )
+				if( directoryNew != null )
 					return( true );
 				
 				SecurityAction mode = ( critical )? SecurityAction.ACTION_ADMIN : SecurityAction.ACTION_CONFIGURE;
@@ -724,9 +513,9 @@ public class TransactionBase extends EngineObject {
 					directoryOld = action.getActiveDirectory();
 					if( sourceDirectory == directoryOld ) {
 						changeEngineDatabase();
-						directory = sourceDirectory.copy();
-						if( directory != null ) {
-							trace( "transaction directory: source=" + sourceDirectory.objectId + ", copy=" + directory.objectId );
+						directoryNew = sourceDirectory.copy();
+						if( directoryNew != null ) {
+							trace( "transaction directory: source=" + sourceDirectory.objectId + ", copy=" + directoryNew.objectId );
 							return( true );
 						}
 					}
@@ -743,34 +532,13 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
-	private boolean saveDirectory() {
-		if( !continueTransaction() )
-			return( false );
-		
-		if( directory == null )
-			return( true );
-		
-		saveRegistry = true;
-		try {
-			data.setDirectory( this , directory );
-			trace( "transaction directory: save=" + directory.objectId );
-			return( true );
-		}
-		catch( Throwable e ) {
-			handle( e , "unable to save directory" );
-		}
-
-		abortTransaction( true );
-		return( false );
-	}
-
 	public boolean changeMirrors( EngineMirrors sourceMirrors ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
 					return( false );
 					
-				if( mirrors != null )
+				if( mirrorsNew != null )
 					return( true );
 				
 				if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
@@ -779,9 +547,9 @@ public class TransactionBase extends EngineObject {
 				mirrorsOld = action.getActiveMirrors();
 				if( sourceMirrors == mirrorsOld ) {
 					changeEngineDatabase();
-					mirrors = sourceMirrors.copy();
-					if( mirrors != null ) {
-						trace( "transaction mirrors: source=" + sourceMirrors.objectId + ", copy=" + mirrors.objectId );
+					mirrorsNew = sourceMirrors.copy();
+					if( mirrorsNew != null ) {
+						trace( "transaction mirrors: source=" + sourceMirrors.objectId + ", copy=" + mirrorsNew.objectId );
 						return( true );
 					}
 				}
@@ -795,27 +563,6 @@ public class TransactionBase extends EngineObject {
 			abortTransaction( false );
 			return( false );
 		}
-	}
-
-	private boolean saveMirrors() {
-		if( !continueTransaction() )
-			return( false );
-		
-		if( mirrors == null )
-			return( true );
-		
-		saveRegistry = true;
-		try {
-			data.setMirrors( this , mirrors );
-			trace( "transaction mirrors: save=" + mirrors.objectId );
-			return( true );
-		}
-		catch( Throwable e ) {
-			handle( e , "unable to save mirrors" );
-		}
-
-		abortTransaction( true );
-		return( false );
 	}
 
 	public boolean changeMonitoring( EngineMonitoring sourceMonitoring ) {
@@ -845,7 +592,7 @@ public class TransactionBase extends EngineObject {
 				if( !continueTransaction() )
 					return( false );
 					
-				if( settings != null )
+				if( settingsNew != null )
 					return( true );
 				
 				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
@@ -854,9 +601,9 @@ public class TransactionBase extends EngineObject {
 				settingsOld = action.getActiveServerSettings();
 				if( sourceSettings == settingsOld ) {
 					changeEngineDatabase();
-					settings = sourceSettings.copy();
-					trace( "transaction server settings: source=" + sourceSettings.objectId + ", copy=" + settings.objectId );
-					if( settings != null )
+					settingsNew = sourceSettings.copy();
+					trace( "transaction server settings: source=" + sourceSettings.objectId + ", copy=" + settingsNew.objectId );
+					if( settingsNew != null )
 						return( true );
 				}
 				else
@@ -869,28 +616,6 @@ public class TransactionBase extends EngineObject {
 			abortTransaction( false );
 			return( false );
 		}
-	}
-
-	private boolean saveSettings() {
-		if( !continueTransaction() )
-			return( false );
-		
-		if( settings == null )
-			return( true );
-		
-		try {
-			EngineData data = engine.getData();
-			EngineLoader loader = new EngineLoader( engine , data , action );
-			loader.setSettings( settings );
-			trace( "transaction server settings: save=" + settings.objectId );
-			return( true );
-		}
-		catch( Throwable e ) {
-			handle( e , "unable to save settings" );
-		}
-
-		abortTransaction( true );
-		return( false );
 	}
 
 	public boolean changeMetadata( Meta meta , MetaEnv env ) {
@@ -949,7 +674,7 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
-	private boolean saveMetadata() {
+	private boolean saveProducts() {
 		if( !continueTransaction() )
 			return( false );
 
@@ -980,50 +705,50 @@ public class TransactionBase extends EngineObject {
 
 	protected void checkTransactionInfrastructure() throws Exception {
 		checkTransaction();
-		if( infra == null )
+		if( infraChange == null )
 			exit( _Error.TransactionMissingInfrastructureChanges0 , "Missing infrastructure changes" , null );
 	}
 
 	protected void checkTransactionReleaseLifecycles() throws Exception {
 		checkTransaction();
-		if( lifecycles == null )
+		if( lifecyclesChange == null )
 			exit( _Error.TransactionMissingReleaseLifecyclesChanges0 , "Missing release lifecycles changes" , null );
 	}
 
 	protected void checkTransactionBase() throws Exception {
 		checkTransaction();
-		if( base == null )
+		if( baseChange == null )
 			exit( _Error.TransactionMissingBaseChanges0 , "Missing base changes" , null );
 	}
 
 	protected void checkTransactionResources( EngineResources sourceResources ) throws Exception {
 		checkTransaction();
-		if( resources == null || resources != sourceResources )
+		if( resourcesNew == null || resourcesNew != sourceResources )
 			exit( _Error.TransactionMissingResourceChanges0 , "Missing resources changes" , null );
 	}
 
-	protected void checkTransactionBuilders() throws Exception {
+	protected void checkTransactionBuilders( EngineBuilders builders ) throws Exception {
 		checkTransaction();
-		if( builders == null )
+		if( buildersNew == null || buildersNew != builders )
 			exit( _Error.TransactionMissingBuildersChanges0 , "Missing builders changes" , null );
 	}
 
-	protected void checkTransactionDirectory() throws Exception {
+	protected void checkTransactionDirectory( EngineDirectory directory ) throws Exception {
 		checkTransaction();
-		if( directory == null )
+		if( directoryNew == null || directoryNew != directory )
 			exit( _Error.TransactionMissingDirectoryChanges0 , "Missing directory changes" , null );
 	}
 
 	protected void checkTransactionMirrors( EngineMirrors sourceMirrors ) throws Exception {
 		checkTransaction();
 		changeEngineDatabase();
-		if( sourceMirrors == null || mirrors != sourceMirrors )
+		if( sourceMirrors == null || mirrorsNew != sourceMirrors )
 			exit( _Error.TransactionMissingMirrorsChanges0 , "Missing mirrors changes" , null );
 	}
 
 	protected void checkTransactionSettings() throws Exception {
 		checkTransaction();
-		if( settings == null )
+		if( settingsNew == null )
 			exit( _Error.TransactionMissingSettingsChanges0 , "Missing settings changes" , null );
 	}
 
@@ -1044,74 +769,88 @@ public class TransactionBase extends EngineObject {
 		if( productMeta.get( productName ) == null )
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
 	}
+
+	public EngineEntities getEntities() {
+		return( data.getEntities() );
+	}
 	
 	public EngineResources getTransactionResources() {
-		return( resources );
+		return( resourcesNew );
 	}
 	
 	public EngineResources getResources() {
-		if( resources != null )
-			return( resources );
+		if( resourcesNew != null )
+			return( resourcesNew );
 		return( data.getResources() );
 	}
 	
 	public EngineBuilders getTransactionBuilders() {
-		return( builders );
+		return( buildersNew );
 	}
 	
 	public EngineBuilders getBuilders() {
-		if( builders != null )
-			return( builders );
+		if( buildersNew != null )
+			return( buildersNew );
 		return( data.getBuilders() );
 	}
 	
 	public EngineLifecycles getTransactionLifecycles() {
-		return( lifecycles );
+		return( lifecyclesChange );
 	}
 	
 	public EngineLifecycles getLifecycles() {
-		if( lifecycles != null )
-			return( lifecycles );
+		if( lifecyclesChange != null )
+			return( lifecyclesChange );
 		return( data.getReleaseLifecycles() );
 	}
 	
 	public EngineDirectory getTransactionDirectory() {
-		return( directory );
+		return( directoryNew );
 	}
 	
 	public EngineDirectory getDirectory() {
-		if( directory != null )
-			return( directory );
+		if( directoryNew != null )
+			return( directoryNew );
 		return( data.getDirectory() );
 	}
 	
 	public EngineMirrors getTransactionMirrors() {
-		return( mirrors );
+		return( mirrorsNew );
 	}
 	
 	public EngineMirrors getMirrors() {
-		if( mirrors != null )
-			return( mirrors );
+		if( mirrorsNew != null )
+			return( mirrorsNew );
 		return( data.getMirrors() );
 	}
 	
 	public EngineSettings getTransactionSettings() {
-		return( settings );
+		return( settingsNew );
 	}
 	
 	public EngineSettings getSettings() {
-		if( settings != null )
-			return( settings );
+		if( settingsNew != null )
+			return( settingsNew );
 		return( data.getEngineSettings() );
 	}
 	
+	public EngineBase getTransactionBase() {
+		return( baseChange );
+	}
+
+	public EngineBase getEngineBase() {
+		if( baseChange != null )
+			return( baseChange );
+		return( data.getEngineBase() );
+	}
+
 	public EngineInfrastructure getTransactionInfrastructure() {
-		return( infra );
+		return( infraChange );
 	}
 
 	public EngineInfrastructure getInfrastructure() {
-		if( infra != null )
-			return( infra );
+		if( infraChange != null )
+			return( infraChange );
 		return( data.getInfrastructure() );
 	}
 
@@ -1129,19 +868,19 @@ public class TransactionBase extends EngineObject {
 
 	// helpers
 	public AuthResource getResource( AuthResource resource ) throws Exception {
-		return( resources.getResource( resource.NAME ) );
+		return( resourcesNew.getResource( resource.NAME ) );
 	}
 	
 	public ProjectBuilder getBuilder( ProjectBuilder builder ) throws Exception {
-		return( builders.getBuilder( builder.NAME ) );
+		return( buildersNew.getBuilder( builder.NAME ) );
 	}
 	
 	public AppSystem getSystem( AppSystem system ) throws Exception {
-		return( directory.getSystem( system.NAME ) );
+		return( directoryNew.getSystem( system.NAME ) );
 	}
 	
 	public AppProduct getProduct( AppProduct product ) throws Exception {
-		return( directory.getProduct( product.NAME ) );
+		return( directoryNew.getProduct( product.NAME ) );
 	}
 	
 	public Meta getMeta( Meta meta ) throws Exception {
@@ -1268,15 +1007,15 @@ public class TransactionBase extends EngineObject {
 	}
 
 	public MirrorRepository getMirrorRepository( MirrorRepository repo ) throws Exception {
-		return( mirrors.getRepository( repo.NAME ) );
+		return( mirrorsNew.getRepository( repo.NAME ) );
 	}
 	
 	public Datacenter getDatacenter( Datacenter datacenter ) throws Exception {
-		return( infra.getDatacenter( datacenter.NAME ) );
+		return( infraChange.getDatacenter( datacenter.NAME ) );
 	}
 	
 	public ReleaseLifecycle getLifecycle( ReleaseLifecycle lc ) throws Exception {
-		return( lifecycles.getLifecycle( lc.ID ) );
+		return( lifecyclesChange.getLifecycle( lc.ID ) );
 	}
 	
 	public void checkSecurityFailed() {
@@ -1319,4 +1058,12 @@ public class TransactionBase extends EngineObject {
 		return( false );
 	}
 
+	public void setProductMetadata( ProductMeta metadata ) throws Exception {
+		data.setProductMetadata( this , metadata );
+	}
+	
+	public void deleteProductMetadata( ProductMeta metadata ) throws Exception {
+		data.deleteProductMetadata( this , metadata );
+	}
+	
 }

@@ -1,6 +1,7 @@
 package org.urm.meta;
 
 import org.urm.engine.Engine;
+import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineInfrastructure;
@@ -11,7 +12,6 @@ import org.urm.meta.engine.EngineSettings;
 public class EngineCore {
 
 	public Engine engine;
-	public EngineData data;
 	
 	private EngineEntities entities;
 	private EngineSettings settings;
@@ -20,15 +20,14 @@ public class EngineCore {
 	private EngineInfrastructure infra;
 	private EngineLifecycles lifecycles;
 
-	public EngineCore( EngineData data ) {
-		this.data = data;
-		this.engine = data.engine;
+	public EngineCore( Engine engine ) {
+		this.engine = engine;
 		
 		entities = new EngineEntities( this );
 		settings = new EngineSettings( this );
 		registry = new EngineRegistry( this ); 
 		base = new EngineBase( this ); 
-		infra = new EngineInfrastructure( this ); 
+		infra = new EngineInfrastructure( engine , this ); 
 		lifecycles = new EngineLifecycles( this ); 
 	}
 
@@ -50,7 +49,7 @@ public class EngineCore {
 		settings = new EngineSettings( this );
 		registry = new EngineRegistry( this ); 
 		base = new EngineBase( this ); 
-		infra = new EngineInfrastructure( this ); 
+		infra = new EngineInfrastructure( engine , this ); 
 		lifecycles = new EngineLifecycles( this ); 
 	}
 
@@ -76,6 +75,10 @@ public class EngineCore {
 
 	public EngineBase getBase() {
 		return( base );
+	}
+	
+	public void setSettings( TransactionBase transaction , EngineSettings settingsNew ) {
+		this.settings = settingsNew;
 	}
 	
 }

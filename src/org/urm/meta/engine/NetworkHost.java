@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.shell.Account;
@@ -131,9 +132,9 @@ public class NetworkHost extends EngineObject {
 		return( false );
 	}
 
-	public void getApplicationReferences( List<AccountReference> refs ) {
+	public void getApplicationReferences( ActionBase action , List<AccountReference> refs ) {
 		for( HostAccount account : accountMap.values() )
-			account.getApplicationReferences( refs );
+			account.getApplicationReferences( action , refs );
 	}
 
 	public boolean isEmpty() {

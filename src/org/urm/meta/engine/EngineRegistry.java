@@ -31,15 +31,15 @@ public class EngineRegistry extends EngineObject {
 		return( "server-registry" );
 	}
 	
-	public void setResources( TransactionBase transaction , EngineResources resourcesNew ) throws Exception {
+	public void setResources( TransactionBase transaction , EngineResources resourcesNew ) {
 		resources = resourcesNew;
 	}
 	
-	public void setMirrors( TransactionBase transaction , EngineMirrors mirrorsNew ) throws Exception {
+	public void setMirrors( TransactionBase transaction , EngineMirrors mirrorsNew ) {
 		mirrors = mirrorsNew;
 	}
 	
-	public void setBuilders( TransactionBase transaction , EngineBuilders buildersNew ) throws Exception {
+	public void setBuilders( TransactionBase transaction , EngineBuilders buildersNew ) {
 		builders = buildersNew;
 	}
 	

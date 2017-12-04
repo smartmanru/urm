@@ -1,18 +1,11 @@
 package org.urm.meta;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineDB;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.EngineEntities;
-import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineDirectory;
@@ -38,21 +31,13 @@ public class EngineData {
 	private EngineMonitoring mon;
 	private EngineProducts products;
 
-	private Map<String,UnmatchedSystem> mapSystemUnmatched;
-	private Map<String,Integer> mapProductUnmatched;
-	private Map<String,Integer> mapEnvUnmatched;
-	
 	public EngineData( Engine engine ) {
 		this.engine = engine;
 		this.execrc = engine.execrc;
 		
-		db = new EngineDB( this );
+		db = new EngineDB( engine );
 		
-		mapSystemUnmatched = new HashMap<String,UnmatchedSystem>();
-		mapProductUnmatched = new HashMap<String,Integer>();
-		mapEnvUnmatched = new HashMap<String,Integer>();
-
-		core = new EngineCore( this );
+		core = new EngineCore( engine );
 		directory = new EngineDirectory( this );
 		products = new EngineProducts( this );
 		mon = new EngineMonitoring( this ); 
@@ -63,25 +48,13 @@ public class EngineData {
 	}
 
 	public void unloadProducts() {
-		mapProductUnmatched.clear();
-		mapEnvUnmatched.clear();
+		directory.unloadProducts();
 		products.unloadProducts();
 	}
 	
-	public void matchdoneSystem( EngineLoader loader , AppSystem system ) {
-		if( system.MATCHED )
-			mapSystemUnmatched.remove( system.NAME );
-		else {
-			UnmatchedSystem unmatched = new UnmatchedSystem( system );
-			mapSystemUnmatched.put( system.NAME , unmatched );
-			directory.unloadSystem( system );
-		}
-	}
-	
 	public void unloadDirectory() {
-		unloadProducts();
-		mapSystemUnmatched.clear();
 		directory.unloadAll();
+		products.unloadProducts();
 	}
 	
 	public void unloadAll() throws Exception {
@@ -123,13 +96,6 @@ public class EngineData {
 		}
 	}
 	
-	public EngineRegistry getRegistry() {
-		synchronized( engine ) {
-			EngineRegistry registry = core.getRegistry();
-			return( registry );
-		}
-	}
-
 	public EngineInfrastructure getInfrastructure() {
 		synchronized( engine ) {
 			return( core.getInfrastructure() );
@@ -179,22 +145,26 @@ public class EngineData {
 		}
 	}
 	
-	public void setResources( TransactionBase transaction , EngineResources resourcesNew ) throws Exception {
+	public void setSettings( TransactionBase transaction , EngineSettings settingsNew ) {
+		core.setSettings( transaction , settingsNew );
+	}
+
+	public void setResources( TransactionBase transaction , EngineResources resourcesNew ) {
 		EngineRegistry registry = core.getRegistry();
 		registry.setResources( transaction , resourcesNew );
 	}
 
-	public void setBuilders( TransactionBase transaction , EngineBuilders buildersNew ) throws Exception {
+	public void setBuilders( TransactionBase transaction , EngineBuilders buildersNew ) {
 		EngineRegistry registry = core.getRegistry();
 		registry.setBuilders( transaction , buildersNew );
 	}
 
-	public void setMirrors( TransactionBase transaction , EngineMirrors mirrorsNew ) throws Exception {
+	public void setMirrors( TransactionBase transaction , EngineMirrors mirrorsNew ) {
 		EngineRegistry registry = core.getRegistry();
 		registry.setMirrors( transaction , mirrorsNew );
 	}
 
-	public void setDirectory( TransactionBase transaction , EngineDirectory directoryNew ) throws Exception {
+	public void setDirectory( TransactionBase transaction , EngineDirectory directoryNew ) {
 		directory = directoryNew;
 	}
 
@@ -231,29 +201,4 @@ public class EngineData {
 		products.releaseSessionProductMetadata( action , meta , deleteMeta );
 	}
 	
-	public void checkSystemNameBusy( String name ) throws Exception {
-		if( mapSystemUnmatched.containsKey( name ) )
-			Common.exit1( _Error.DuplicateSystemNameUnmatched1 , "System with name=" + name + " + already exists, unmatched" , name );
-	}
-	
-	public void checkProductNameBusy( String name ) throws Exception {
-		if( mapProductUnmatched.containsKey( name ) )
-			Common.exit1( _Error.DuplicateProductNameUnmatched1 , "Product with name=" + name + " + already exists, unmatched" , name );
-	}
-	
-	public void checkEnvNameBusy( String product , String name ) throws Exception {
-		if( mapEnvUnmatched.containsKey( product + "::" + name ) )
-			Common.exit2( _Error.DuplicateEnvNameUnmatched2 , "Environment with name=" + name + " + already exists in product=" + product + ", unmatched" , product , name );
-	}
-
-	public UnmatchedSystem[] getSystemsUnmatched() {
-		List<UnmatchedSystem> list = new LinkedList<UnmatchedSystem>();
-		for( String name : Common.getSortedKeys( mapSystemUnmatched ) ) {
-			UnmatchedSystem system = mapSystemUnmatched.get( name );
-			list.add( system );
-		}
-		
-		return( list.toArray( new UnmatchedSystem[0] ) );
-	}
-
 }

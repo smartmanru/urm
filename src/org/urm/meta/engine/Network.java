@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineObject;
@@ -164,9 +165,9 @@ public class Network extends EngineObject {
 		Common.changeMapKey( hostMap , host , host.NAME );
 	}
 
-	public void getApplicationReferences( List<AccountReference> refs ) {
+	public void getApplicationReferences( ActionBase action , List<AccountReference> refs ) {
 		for( NetworkHost host : hostMap.values() )
-			host.getApplicationReferences( refs );
+			host.getApplicationReferences( action , refs );
 	}
 
 	public boolean isEmpty() {

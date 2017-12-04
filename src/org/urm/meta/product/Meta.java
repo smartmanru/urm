@@ -1,5 +1,7 @@
 package org.urm.meta.product;
 
+import java.util.List;
+
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
@@ -9,7 +11,9 @@ import org.urm.engine.dist.DistRepository;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.Types.*;
+import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.EngineProducts;
+import org.urm.meta.engine.HostAccount;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -291,6 +295,11 @@ public class Meta extends EngineObject {
 			for( MetaEnvSegment sg : env.getSegments() )
 				for( MetaEnvServer server : sg.getServers() )
 					server.reflectDeleteSchema( transaction , schema );
+	}
+
+	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
+		for( MetaEnv env : storage.getEnvironments() )
+			env.getApplicationReferences( account , refs );
 	}
 
 }

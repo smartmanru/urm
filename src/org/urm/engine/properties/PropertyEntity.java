@@ -14,7 +14,6 @@ import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
-import org.urm.meta.EngineData;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.EngineResources;
@@ -226,8 +225,7 @@ public class PropertyEntity {
 			return( null );
 		
 		if( var.OBJECT_TYPE == DBEnumObjectType.RESOURCE ) {
-			EngineData data = loader.getData();
-			EngineResources resources = data.getResources();
+			EngineResources resources = loader.getResources();
 			AuthResource resource = resources.getResource( value );
 			return( resource.ID );
 		}
@@ -246,8 +244,7 @@ public class PropertyEntity {
 			return( null );
 		
 		if( var.OBJECT_TYPE == DBEnumObjectType.RESOURCE ) {
-			EngineData data = loader.getData();
-			EngineResources resources = data.getResources();
+			EngineResources resources = loader.getResources();
 			AuthResource resource = resources.getResource( value );
 			return( resource.ID );
 		}
@@ -340,8 +337,7 @@ public class PropertyEntity {
 			return( null );
 		
 		if( var.OBJECT_TYPE == DBEnumObjectType.RESOURCE ) {
-			EngineData data = loader.getData();
-			EngineResources resources = data.getResources();
+			EngineResources resources = loader.getResources();
 			AuthResource resource = resources.getResource( value );
 			return( resource.NAME );
 		}

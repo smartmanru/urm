@@ -82,11 +82,11 @@ public class Engine {
 		houseKeeping = new EngineHouseKeeping( this );
 		cache = new EngineCache( this ); 
 
+		data = new EngineData( this );
 		auth = new EngineAuth( this );
 		events = new EngineEvents( this );
 		scheduler = new EngineScheduler( this ); 
-		data = new EngineData( this );
-		sessionController = new SessionController( this );
+		sessionController = new SessionController( this , data );
 		status = new EngineStatus( this );
 		blotter = new EngineBlotter( this );
 		
@@ -112,16 +112,21 @@ public class Engine {
 		xdocExecutor = XDocCommandExecutor.createExecutor( this );
 		
 		createTemporaryEngineAction();
-		EngineLoader loader = new EngineLoader( this , data , serverAction );
+		EngineLoader loader = createLoader( serverAction );
 		loader.initData();
 		loader.initCore();
+	}
+	
+	public EngineLoader createLoader( ActionBase action ) {
+		EngineLoader loader = new EngineLoader( this , data , action );
+		return( loader );
 	}
 	
 	public void runServer( ActionInit action ) throws Exception {
 		serverAction.debug( "load server configuration ..." );
 		auth.start( serverAction );
 		
-		EngineLoader loader = new EngineLoader( this , data , serverAction );
+		EngineLoader loader = createLoader( serverAction );
 		loader.loadProducts();
 		
 		status.start( serverAction , data );
@@ -362,7 +367,7 @@ public class Engine {
 		CommandOutput output = new CommandOutput();
 		
 		Artefactory artefactory = createArtefactory( session , context , memoryOnly );
-		ActionInit action = new ActionInit( this , session , artefactory , actionExecutor , output , actionInfo );
+		ActionInit action = new ActionInit( this , data , session , artefactory , actionExecutor , output , actionInfo );
 		action.create( type , commandAction , options.method , memoryOnly );
 		
 		action.setContext( context );
@@ -475,7 +480,7 @@ public class Engine {
 		if( action == null )
 			return( null );
 		
-		EngineTransaction transaction = new EngineTransaction( this , action );
+		EngineTransaction transaction = new EngineTransaction( this , data , action );
 		return( transaction );
 	}
 	
@@ -540,10 +545,6 @@ public class Engine {
 
 	public EngineCache getCache() {
 		return( cache );
-	}
-
-	public EngineData getData() {
-		return( data );
 	}
 
 	public void updatePermissions( ActionBase action , String user ) throws Exception {

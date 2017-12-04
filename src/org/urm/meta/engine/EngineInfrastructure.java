@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.engine.Engine;
 import org.urm.meta.EngineCore;
 import org.urm.meta.EngineObject;
 
 public class EngineInfrastructure extends EngineObject {
 
+	public Engine engine;
 	public EngineCore core;
 	
 	private Map<String,Datacenter> mapDatacenters;
@@ -16,8 +18,9 @@ public class EngineInfrastructure extends EngineObject {
 	private Map<Integer,Network> mapNetworksById;
 	private Map<Integer,NetworkHost> mapHostsById;
 	
-	public EngineInfrastructure( EngineCore core ) {
+	public EngineInfrastructure( Engine engine , EngineCore core ) {
 		super( null );
+		this.engine = engine;
 		this.core = core;
 		mapDatacenters = new HashMap<String,Datacenter>(); 
 		mapDatacentersById = new HashMap<Integer,Datacenter>();

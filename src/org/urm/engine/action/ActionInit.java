@@ -8,6 +8,7 @@ import org.urm.engine.EngineSession;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.schedule.EngineScheduler;
 import org.urm.engine.status.EngineStatus;
 import org.urm.engine.status.ScopeState;
@@ -23,7 +24,6 @@ import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.EngineRegistry;
 import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
@@ -41,17 +41,18 @@ public class ActionInit extends ActionBase {
 	public RootActionType type;
 	public CommandMethod commandAction;
 	public String actionName;
-	private Engine engine;
+	public Engine engine;
 	private EngineData data;
 	
 	protected TransactionBase transaction;
 	private boolean memoryOnly;
 	private EngineEventsApp eventsApp;
 
-	public ActionInit( Engine engine , EngineSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , String actionInfo ) {
+	public ActionInit( Engine engine , EngineData data , EngineSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , String actionInfo ) {
 		super( session , artefactory , executor , output , actionInfo );
-		this.actionInit = this;
 		this.engine = engine;
+		this.data = data;
+		this.actionInit = this;
 	}
 
 	@Override
@@ -68,7 +69,6 @@ public class ActionInit extends ActionBase {
 		this.type = type;
 		this.commandAction = commandAction;
 		this.actionName = actionName;
-		this.data = engine.getData();
 		this.memoryOnly = memoryOnly;
 		
 		if( !memoryOnly ) {
@@ -115,11 +115,15 @@ public class ActionInit extends ActionBase {
 		this.session = null;
 	}
 	
+	public EngineEntities getActiveEntities() {
+		if( transaction != null )
+			transaction.getEntities();
+		return( data.getEntities() );
+	}
+	
 	public EngineSettings getActiveServerSettings() {
-		if( transaction != null ) {
-			if( transaction.settings != null )
-				return( transaction.settings );
-		}
+		if( transaction != null )
+			transaction.getSettings();
 		return( data.getEngineSettings() );
 	}
 
@@ -129,54 +133,38 @@ public class ActionInit extends ActionBase {
 	}
 
 	public EngineMirrors getActiveMirrors() {
-		if( transaction != null ) {
-			if( transaction.mirrors != null )
-				return( transaction.mirrors );
-		}
-		
-		EngineRegistry registry = data.getRegistry();
-		return( registry.mirrors );
+		if( transaction != null )
+			return( transaction.getMirrors() );
+		return( data.getMirrors() );
 	}
 	
 	public EngineResources getActiveResources() {
-		if( transaction != null ) {
-			if( transaction.resources != null )
-				return( transaction.resources );
-		}
-		
-		EngineRegistry registry = data.getRegistry();
-		return( registry.resources );
+		if( transaction != null )
+			return( transaction.getResources() );
+		return( data.getResources() );
 	}
 
 	public EngineBuilders getActiveBuilders() {
-		if( transaction != null ) {
-			if( transaction.builders != null )
-				return( transaction.builders );
-		}
-		
-		EngineRegistry registry = data.getRegistry();
-		return( registry.builders );
+		if( transaction != null )
+			return( transaction.getBuilders() );
+		return( data.getBuilders() );
 	}
 	
 	public EngineDirectory getActiveDirectory() {
-		if( transaction != null ) {
-			if( transaction.directory != null )
-				return( transaction.directory );
-		}
-		
-		EngineDirectory directory = data.getDirectory();
-		return( directory );
+		if( transaction != null )
+			return( transaction.getDirectory() );
+		return( data.getDirectory() );
 	}
 	
 	public EngineInfrastructure getActiveInfrastructure() {
+		if( transaction != null )
+			return( transaction.getInfrastructure() );
 		return( data.getInfrastructure() );
 	}
 	
 	public EngineLifecycles getActiveReleaseLifecycles() {
-		if( transaction != null ) {
-			if( transaction.lifecycles != null )
-				return( transaction.lifecycles );
-		}
+		if( transaction != null )
+			return( transaction.getLifecycles() );
 		return( data.getReleaseLifecycles() );
 	}
 	

@@ -32,7 +32,7 @@ public abstract class DBAppSystem {
 	public static AppSystem importxmlSystem( EngineLoader loader , EngineDirectory directory , Node node ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
-		EngineSettings settings = loader.data.getEngineSettings();
+		EngineSettings settings = loader.getSettings();
 		ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
 		
 		AppSystem system = new AppSystem( directory , props );
@@ -59,7 +59,7 @@ public abstract class DBAppSystem {
 		
 		EngineEntities entities = c.getEntities();
 		PropertyEntity entity = entities.entityAppDirectorySystem;
-		EngineSettings settings = loader.data.getEngineSettings();
+		EngineSettings settings = loader.getSettings();
 		ObjectProperties engineProps = settings.getEngineProperties();
 		
 		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );

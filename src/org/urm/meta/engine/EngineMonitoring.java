@@ -9,7 +9,6 @@ import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
-import org.urm.engine.events.EngineEvents;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
@@ -37,9 +36,8 @@ public class EngineMonitoring extends EngineObject {
 	public static String PROPERTY_DIR_REPORTS = "default.reports.path";
 	public static String PROPERTY_DIR_LOGS = "default.logs.path";
 	
-	EngineData data;
-	Engine engine;
-	EngineEvents events;
+	private EngineData data;
+	private Engine engine;
 
 	Map<String,MonitoringProduct> mapProduct;
 	boolean running;
@@ -51,7 +49,6 @@ public class EngineMonitoring extends EngineObject {
 		super( null );
 		this.data = data; 
 		this.engine = data.engine;
-		this.events = engine.getEvents();
 		
 		mapProduct = new HashMap<String,MonitoringProduct>();
 		running = false;
