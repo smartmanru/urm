@@ -178,7 +178,7 @@ public class EngineLoader {
 		return( propertyFile );
 	}
 
-	public void initData() throws Exception {
+	public void initMeta() throws Exception {
 		try {
 			trace( "init, checking engine/database consistency ..." );
 			EngineDB db = data.getDatabase();
@@ -189,14 +189,14 @@ public class EngineLoader {
 			
 			boolean dbUpdate = Common.getBooleanValue( System.getProperty( "dbupdate" ) );
 			if( dbUpdate ) {
-				upgradeData();
+				upgradeMeta();
 				connection.close( true );
 				connection = null;
 				importCore( true );
 				data.unloadAll();
 			}
 			else
-				useData();
+				useMeta();
 		}
 		finally {
 			if( connection != null )
@@ -205,7 +205,7 @@ public class EngineLoader {
 		}
 	}
 	
-	private void upgradeData() throws Exception {
+	private void upgradeMeta() throws Exception {
 		trace( "upgrade meta ..." );
 		DBCoreData.upgradeData( this );
 		EngineCore core = data.getCore();
@@ -213,7 +213,7 @@ public class EngineLoader {
 		connection.save( true );
 	}
 	
-	private void useData() throws Exception {
+	private void useMeta() throws Exception {
 		trace( "load meta ..." );
 		int version = connection.getCurrentAppVersion();
 		if( version != EngineDB.APP_VERSION )
@@ -222,6 +222,9 @@ public class EngineLoader {
 		DBCoreData.useData( this );
 		EngineCore core = data.getCore();
 		core.useData( this );
+	}
+
+	public void initAuth() {
 	}
 	
 	public void importRepo( MirrorRepository repo ) throws Exception {

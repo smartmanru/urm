@@ -113,9 +113,14 @@ public class Engine {
 		createTemporaryEngineAction();
 		data.init();
 		
-		EngineLoader loader = createLoader( serverAction );
-		loader.initData();
+		EngineLoader loader = createLoader();
+		loader.initMeta();
+		loader.initAuth();
 		loader.initCore();
+	}
+	
+	public EngineLoader createLoader() {
+		return( createLoader( serverAction ) );
 	}
 	
 	public EngineLoader createLoader( ActionBase action ) {
@@ -127,7 +132,7 @@ public class Engine {
 		serverAction.debug( "load server configuration ..." );
 		auth.start( serverAction );
 		
-		EngineLoader loader = createLoader( serverAction );
+		EngineLoader loader = createLoader();
 		loader.loadProducts();
 		
 		status.start( serverAction , data );

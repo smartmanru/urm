@@ -22,6 +22,7 @@ import org.urm.engine.SessionSecurity;
 import org.urm.engine._Error;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.PropertySet;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.urm.meta.product.Meta;
 import org.urm.meta.Types.*;
@@ -79,10 +80,9 @@ public class EngineAuth extends EngineObject {
 	}
 	
 	public void init() throws Exception {
-		// read users
-		String authFile = getAuthFile();
-		load( authFile , engine.execrc );
+	}
 
+	public void start( ActionInit action ) throws Exception {
 		if( !localUsers.containsKey( MASTER_ADMIN ) )
 			Common.exit0( _Error.MissingAdminUser0 , "Missing master administrator user (" + MASTER_ADMIN + ")" );
 			
@@ -100,9 +100,6 @@ public class EngineAuth extends EngineObject {
 			ac.createInitialAdministrator();
 			saveAuthData( authKey , ac );
 		}
-	}
-
-	public void start( ActionInit action ) throws Exception {
 	}
 	
 	public void stop( ActionInit action ) throws Exception {
