@@ -152,7 +152,7 @@ public abstract class DBEngineDirectory {
 	private static void loaddbProducts( EngineLoader loader , EngineDirectory directory ) throws Exception {
 		AppProduct[] products = DBAppProduct.loaddb( loader , directory );
 		for( AppProduct product : products )
-			directory.addProduct( product );
+			directory.addUnmatchedProduct( product );
 	}
 
 	public static void match( EngineLoader loader , EngineDirectory directory , boolean update ) throws Exception {
@@ -206,7 +206,7 @@ public abstract class DBEngineDirectory {
 	}
 	
 	public static void deleteSystem( EngineTransaction transaction , EngineDirectory directory , AppSystem system ) throws Exception {
-		if( !system.isEmpty() )
+		if( !directory.isSystemEmpty( system ) )
 			transaction.exit0( _Error.SystemNotEmpty0 , "System is not empty, unable to delete" );
 		
 		DBConnection c = transaction.getConnection();

@@ -1,8 +1,6 @@
 package org.urm.meta.engine;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
@@ -10,7 +8,6 @@ import org.urm.engine.Engine;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
-import org.urm.meta.UnmatchedSystem;
 
 public class EngineDirectory extends EngineObject {
 
@@ -21,21 +18,20 @@ public class EngineDirectory extends EngineObject {
 	private Map<Integer,AppSystem> mapSystemsById;
 	private Map<Integer,AppProduct> mapProductsById;
 	
-	private Map<String,UnmatchedSystem> mapSystemUnmatched;
-	private Map<String,Integer> mapProductUnmatched;
-	private Map<String,Integer> mapEnvUnmatched;
+	private Map<Integer,AppSystem> mapSystemUnmatched;
+	private Map<Integer,AppProduct> mapProductUnmatched;
 	
 	public EngineDirectory( Engine engine ) {
 		super( null );
 		this.engine = engine;
+		
 		mapSystems = new HashMap<String,AppSystem>();
 		mapProducts = new HashMap<String,AppProduct>();
 		mapSystemsById = new HashMap<Integer,AppSystem>();
 		mapProductsById = new HashMap<Integer,AppProduct>();
 		
-		mapSystemUnmatched = new HashMap<String,UnmatchedSystem>();
-		mapProductUnmatched = new HashMap<String,Integer>();
-		mapEnvUnmatched = new HashMap<String,Integer>();
+		mapSystemUnmatched = new HashMap<Integer,AppSystem>();
+		mapProductUnmatched = new HashMap<Integer,AppProduct>();
 	}
 
 	@Override
@@ -46,20 +42,38 @@ public class EngineDirectory extends EngineObject {
 	public EngineDirectory copy( TransactionBase transaction ) throws Exception {
 		EngineDirectory r = new EngineDirectory( engine );
 		
-		EngineSettings settings = transaction.getSettings();
 		for( AppSystem system : mapSystems.values() ) {
-			ObjectProperties props = system.getParameters();
-			ObjectProperties rprops = props.copy( settings.getEngineProperties() );
-			AppSystem rs = system.copy( r , rprops );
+			AppSystem rs = r.copySystem( transaction , system );
 			r.addSystem( rs );
-			
-			for( AppProduct rp : rs.getProducts() )
-				r.addProduct( rp );
+		}
+
+		for( AppSystem system : mapSystemUnmatched.values() ) {
+			AppSystem rs = r.copySystem( transaction , system );
+			r.addUnmatchedSystem( rs );
+		}
+
+		for( AppProduct product : mapProductUnmatched.values() ) {
+			AppSystem rs = r.findSystem( product.system );
+			AppProduct rp = product.copy( r , rs );
+			r.addUnmatchedProduct( rp );
 		}
 
 		return( r );
 	}
-	
+
+	private AppSystem copySystem( TransactionBase transaction , AppSystem system ) throws Exception {
+		EngineSettings settings = transaction.getSettings();
+		ObjectProperties props = system.getParameters();
+		ObjectProperties rprops = props.copy( settings.getEngineProperties() );
+		AppSystem rs = system.copy( this , rprops );
+		addSystem( rs );
+		
+		for( AppProduct rp : rs.getProducts() )
+			addProduct( rp );
+		
+		return( rs );
+	}
+
 	public String[] getSystemNames() {
 		return( Common.getSortedKeys( mapSystems ) );
 	}
@@ -76,7 +90,7 @@ public class EngineDirectory extends EngineObject {
 		return( mapProducts.values().toArray( new AppProduct[0] ) );
 	}
 	
-	public String[] getSystemProducts( String systemName ) {
+	public String[] getSystemProductNames( String systemName ) {
 		AppSystem system = findSystem( systemName );
 		if( system == null )
 			return( new String[0] );
@@ -86,61 +100,100 @@ public class EngineDirectory extends EngineObject {
 	public AppSystem findSystem( AppSystem system ) {
 		if( system == null )
 			return( null );
-		return( mapSystems.get( system.NAME ) );
+		return( findSystem( system.ID ) );
 	}
 	
 	public AppSystem findSystem( String name ) {
-		return( mapSystems.get( name ) );
+		AppSystem system = mapSystems.get( name );
+		if( system != null )
+			return( system );
+		
+		for( AppSystem find : mapSystemUnmatched.values() ) {
+			if( name.equals( find.NAME ) )
+				return( find );
+		}
+		return( null );
 	}
 	
 	public AppSystem findSystem( int id ) {
-		return( mapSystemsById.get( id ) );
+		AppSystem find = mapSystemsById.get( id );
+		if( find != null )
+			return( find );
+		return( mapSystemUnmatched.get( id ) );
 	}
 	
 	public AppProduct findProduct( AppProduct product ) {
 		if( product == null )
 			return( null );
-		return( mapProducts.get( product.NAME ) );
+		return( findProduct( product.ID ) );
 	}
 	
 	public AppProduct findProduct( String name ) {
-		return( mapProducts.get( name ) );
+		AppProduct product = mapProducts.get( name );
+		if( product != null )
+			return( product );
+		
+		for( AppProduct find : mapProductUnmatched.values() ) {
+			if( name.equals( find.NAME ) )
+				return( find );
+		}
+		return( null );
 	}
 	
 	public AppProduct findProduct( int id ) {
-		return( mapProductsById.get( id ) );
+		AppProduct find = mapProducts.get( id );
+		if( find != null )
+			return( find );
+		return( mapProductUnmatched.get( id ) );
 	}
 	
-	public void addSystem( AppSystem system ) {
+	public void addSystem( AppSystem system ) throws Exception {
+		if( !system.MATCHED )
+			Common.exitUnexpected();
+		
 		mapSystems.put( system.NAME , system );
 		if( system.ID > 0 )
 			mapSystemsById.put( system.ID , system );
 	}
 
-	public void unloadAll() {
+	public void removeAll() {
 		mapSystems.clear();
 		mapSystemsById.clear();
+		mapSystemUnmatched.clear();
+		
 		mapProducts.clear();
 		mapProductsById.clear();
 		mapProductUnmatched.clear();
-		mapEnvUnmatched.clear();
 	}
 	
-	public void unloadSystem( AppSystem system ) {
+	public void removeSystem( AppSystem system ) {
 		mapSystems.remove( system.NAME );
 		mapSystemsById.remove( system.ID );
+		mapSystemUnmatched.remove( system.ID );
+		
 		for( AppProduct product : system.getProducts() )
-			unloadProduct( product );
+			removeProduct( product );
+		
+		for( AppProduct product : mapProductUnmatched.values().toArray( new AppProduct[0] ) ) {
+			if( product.system.ID == system.ID )
+				removeProduct( product );
+		}
 	}
 
-	public void addUnmatchedSystem( AppSystem system ) {
-		UnmatchedSystem unmatched = new UnmatchedSystem( system );  
-		mapSystemUnmatched.put( system.NAME , unmatched );
+	public void addUnmatchedSystem( AppSystem system ) throws Exception {
+		if( system.MATCHED )
+			Common.exitUnexpected();
+		mapSystemUnmatched.put( system.ID , system );
 	}
 	
-	public void unloadProduct( AppProduct product ) {
+	public void addUnmatchedProduct( AppProduct product ) {
+		mapProductUnmatched.put( product.ID , product );
+	}
+	
+	public void removeProduct( AppProduct product ) {
 		mapProducts.remove( product.NAME );
 		mapProductsById.remove( product.ID );
+		mapProductUnmatched.remove( product.ID );
 		product.system.removeProduct( product );
 	}
 	
@@ -159,14 +212,6 @@ public class EngineDirectory extends EngineObject {
 		product.system.updateProduct( product );
 	}
 
-	public void removeSystem( AppSystem system ) {
-		unloadSystem( system );
-	}
-	
-	public void removeProduct( AppProduct product ) throws Exception {
-		unloadProduct( product );
-	}
-	
 	public AppSystem getSystem( String name ) throws Exception {
 		AppSystem system = findSystem( name );
 		if( system == null )
@@ -195,34 +240,50 @@ public class EngineDirectory extends EngineObject {
 		return( product );
 	}
 
-	public void unloadProducts() {
-		mapProductUnmatched.clear();
-		mapEnvUnmatched.clear();
-	}	
-	
 	public void checkSystemNameBusy( String name ) throws Exception {
-		if( mapSystemUnmatched.containsKey( name ) )
+		if( findSystem( name ) != null )
 			Common.exit1( _Error.DuplicateSystemNameUnmatched1 , "System with name=" + name + " + already exists, unmatched" , name );
 	}
 	
 	public void checkProductNameBusy( String name ) throws Exception {
-		if( mapProductUnmatched.containsKey( name ) )
+		if( findProduct( name ) != null )
 			Common.exit1( _Error.DuplicateProductNameUnmatched1 , "Product with name=" + name + " + already exists, unmatched" , name );
 	}
 	
-	public void checkEnvNameBusy( String product , String name ) throws Exception {
-		if( mapEnvUnmatched.containsKey( product + "::" + name ) )
-			Common.exit2( _Error.DuplicateEnvNameUnmatched2 , "Environment with name=" + name + " + already exists in product=" + product + ", unmatched" , product , name );
+	public String[] getAllSystemNames() {
+		Map<String,AppSystem> map = new HashMap<String,AppSystem>();
+		map.putAll( mapSystems );
+		
+		for( AppSystem system : mapSystemUnmatched.values() )
+			map.put( system.NAME , system );
+		
+		return( Common.getSortedKeys( map ) );
 	}
 
-	public UnmatchedSystem[] getSystemsUnmatched() {
-		List<UnmatchedSystem> list = new LinkedList<UnmatchedSystem>();
-		for( String name : Common.getSortedKeys( mapSystemUnmatched ) ) {
-			UnmatchedSystem system = mapSystemUnmatched.get( name );
-			list.add( system );
+	public String[] getAllProductNames( AppSystem system ) {
+		Map<String,AppProduct> map = new HashMap<String,AppProduct>();
+		for( AppProduct product : mapProducts.values() ) {
+			if( system == null || product.system.ID == system.ID )
+				map.put( product.NAME , product );
 		}
 		
-		return( list.toArray( new UnmatchedSystem[0] ) );
+		for( AppProduct product : mapProductUnmatched.values() ) {
+			if( system == null || product.system.ID == system.ID )
+				map.put( product.NAME , product );
+		}
+		
+		return( Common.getSortedKeys( map ) );
 	}
 
+	public boolean isSystemEmpty( AppSystem system ) {
+		if( !system.isEmpty() )
+			return( false );
+		
+		for( AppProduct product : mapProductUnmatched.values() ) {
+			if( product.system.ID == system.ID )
+				return( false );
+		}
+		return( true );
+	}
+	
 }

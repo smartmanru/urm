@@ -2,6 +2,7 @@ package org.urm.meta.engine;
 
 import org.urm.action.ActionBase;
 import org.urm.meta.EngineObject;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.product.Meta;
 
 public class AppProduct extends EngineObject {
@@ -22,6 +23,8 @@ public class AppProduct extends EngineObject {
 	public boolean OFFLINE;
 	public boolean MONITORING_ENABLED;
 	public int SV;
+	
+	private ProductMeta productMeta;
 
 	public AppProduct( EngineDirectory directory , AppSystem system ) {
 		super( directory );
@@ -49,7 +52,20 @@ public class AppProduct extends EngineObject {
 	}
 	
 	public Meta getMeta( ActionBase action ) throws Exception {
+		if( productMeta == null )
+			action.exitUnexpectedState();
+		
 		return( action.getProductMetadata( NAME ) );
+	}
+
+	public void setMatched( ProductMeta meta ) {
+		this.productMeta = meta;
+	}
+	
+	public boolean isMatched() {
+		if( productMeta != null )
+			return( true );
+		return( false );
 	}
 	
 	public void createProduct( String name , String desc , String path ) throws Exception {

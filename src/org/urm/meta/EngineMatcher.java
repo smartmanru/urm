@@ -26,13 +26,10 @@ public class EngineMatcher {
 	public void prepareMatchSystem( AppSystem system , boolean update , boolean useOldMatch ) throws Exception {
 	}
 	
-	public void doneSystem( AppSystem system ) {
+	public void doneSystem( AppSystem system ) throws Exception {
 		EngineDirectory directory = loader.getDirectory();
-		if( !system.MATCHED ) {
-			directory.unloadSystem( system );
+		if( !system.MATCHED )
 			directory.addUnmatchedSystem( system );
-		}
-		
 	}
 	
 }

@@ -133,6 +133,25 @@ public abstract class DBEnums {
 		public static DBEnumParamValueType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamValueType.class , value , required , UNKNOWN ) ); };
 	};
 
+	public enum DBEnumParamValueSubtype implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		DEFAULT(1,null) ,
+		PATHABSOLUTE(1,null) ,
+		PATHABSOLUTEWINDOWS(2,null) ,
+		PATHABSOLUTELINUX(3,null) ,
+		PATHRELATIVE(4,null) ,
+		PATHRELATIVEWINDOWS(5,null) ,
+		PATHRELATIVELINUX(6,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumParamValueSubtype( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumParamValueSubtype getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamValueSubtype.class , value , required , UNKNOWN ) ); };
+		public static DBEnumParamValueSubtype getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamValueSubtype.class , value , required , UNKNOWN ) ); };
+	};
+
 	public enum DBEnumOSType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		LINUX(1,null) ,
@@ -179,7 +198,8 @@ public abstract class DBEnums {
 		BASE_GROUP(21,null) ,
 		BASE_ITEM(22,null) ,
 		APPSYSTEM(30,null) ,
-		APPPRODUCT(31,null);
+		APPPRODUCT(31,null) ,
+		DBSCHEMA(50,null);
 
 		private final int value;
 		private String[] synonyms;

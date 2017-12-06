@@ -7,10 +7,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
-import org.urm.db.core.DBEnums.DBEnumObjectType;
-import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
-import org.urm.db.core.DBEnums.DBEnumParamEntityType;
-import org.urm.db.core.DBEnums.DBEnumParamValueType;
+import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.EngineDB;
 import org.urm.engine.properties.EntityVar;
@@ -332,7 +329,7 @@ public abstract class DBSettings {
 		var.PARAM_ID = DBNames.getNameIndex( c , entity.PARAM_OBJECT_ID , var.NAME , DBEnumObjectType.PARAM );
 		var.VERSION = version;
 		String enumName = ( var.enumClass == null )? null : DBEnums.getEnumName( var.enumClass );
-		if( !c.update( DBQueries.MODIFY_PARAM_ADDPARAM14 , new String[] {
+		if( !c.update( DBQueries.MODIFY_PARAM_ADDPARAM15 , new String[] {
 			EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
 			EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 			EngineDB.getInteger( var.PARAM_ID ) ,
@@ -342,6 +339,7 @@ public abstract class DBSettings {
 			EngineDB.getString( var.XMLNAME ) ,
 			EngineDB.getString( var.DESC ) ,
 			EngineDB.getEnum( var.PARAMVALUE_TYPE ) ,
+			EngineDB.getEnum( var.PARAMVALUE_SUBTYPE ) ,
 			EngineDB.getEnum( var.OBJECT_TYPE ) ,
 			EngineDB.getString( enumName ) ,
 			EngineDB.getBoolean( var.REQUIRED ) ,
@@ -366,7 +364,7 @@ public abstract class DBSettings {
 
 		try {
 			while( rs.next() ) {
-				String enumName = rs.getString( 8 );
+				String enumName = rs.getString( 9 );
 				Class<?> enumClass = ( enumName == null || enumName.isEmpty() )? null : DBEnums.getEnum( enumName );					
 				EntityVar var = EntityVar.meta( 
 						rs.getString( 2 ) , 
@@ -374,9 +372,10 @@ public abstract class DBSettings {
 						rs.getString( 4 ) , 
 						rs.getString( 5 ) , 
 						DBEnumParamValueType.getValue( rs.getInt( 6 ) , true ) , 
-						DBEnumObjectType.getValue( rs.getInt( 7 ) , false ) ,
-						rs.getBoolean( 9 ) , 
-						rs.getString( 10 ) ,
+						DBEnumParamValueSubtype.getValue( rs.getInt( 7 ) , true ) ,
+						DBEnumObjectType.getValue( rs.getInt( 8 ) , false ) ,
+						rs.getBoolean( 10 ) , 
+						rs.getString( 11 ) ,
 						enumClass );
 				var.PARAM_ID = rs.getInt( 1 );
 				var.VERSION = rs.getInt( 11 );

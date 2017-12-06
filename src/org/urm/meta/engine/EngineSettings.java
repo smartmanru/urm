@@ -69,8 +69,8 @@ public class EngineSettings extends EngineObject {
 		return( context );
 	}
 
-	public PropertySet getExecProperties() {
-		return( execrcProperties.getProperties() );
+	public ObjectProperties getExecProperties() {
+		return( execrcProperties );
 	}
 	
 	public ObjectProperties getEngineProperties() {

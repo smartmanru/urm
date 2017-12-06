@@ -14,7 +14,7 @@ import org.urm.engine.EngineSession;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.dist.DistRepository;
-import org.urm.engine.properties.PropertySet;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.engine.HostAccount;
@@ -208,11 +208,10 @@ public class ProductMeta extends EngineObject {
 		if( product != null )
 			return( product );
 		
-		PropertySet execprops = null;
 		EngineSettings settings = action.getServerSettings();
-		execprops = settings.getExecProperties();
+		ObjectProperties execprops = settings.getExecProperties();
 		
-		product = new MetaProductSettings( this , meta , execprops );
+		product = new MetaProductSettings( this , meta , execprops.getProperties() );
 
 		if( !loadFailed ) {
 			try {
@@ -445,7 +444,8 @@ public class ProductMeta extends EngineObject {
 	}
 	
 	private void createInitialProduct( TransactionBase transaction , EngineSettings settings ) throws Exception {
-		product = new MetaProductSettings( this , meta , settings.getExecProperties() );
+		ObjectProperties execprops = settings.getExecProperties();
+		product = new MetaProductSettings( this , meta , execprops.getProperties() );
 		
 		ProductContext productContext = new ProductContext( meta );
 		productContext.create( transaction.action , version );

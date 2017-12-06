@@ -91,6 +91,10 @@ public class ObjectProperties {
 		return( parent );
 	}
 
+	public String getName() {
+		return( setName );
+	}
+	
 	boolean initCopyStarted( ObjectProperties src , PropertySet parent ) {
 		loadFailed = false;
 		loadFinished = false;
@@ -378,4 +382,30 @@ public class ObjectProperties {
 		return( null );
 	}
 
+	public int getDepth() {
+		int depth = 0;
+		ObjectProperties ps = parent;
+		while( ps != null ) {
+			depth++;
+			ps = ps.parent;
+		}
+		return( depth );
+	}
+
+	public void removeProperty( String prop ) {
+		properties.removeProperty( prop );
+	}
+
+	public PropertyValue getFinalValue( String value , boolean isWindows , boolean allowParent , boolean allowUnresolved ) throws Exception {
+		return( properties.getFinalPropertyValue( value , isWindows , allowParent , allowUnresolved ) );
+	}
+
+	public PropertyValue getProperty( String prop ) {
+		return( properties.getPropertyValue( prop ) );
+	}
+	
+	public PropertyValue getProperty( String prop , boolean allowParent , boolean allowUnresolved ) throws Exception {
+		return( properties.getFinalProperty( prop , allowParent , allowUnresolved ) );
+	}
+	
 }

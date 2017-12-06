@@ -116,12 +116,6 @@ public class AppSystem extends EngineObject {
 		return( OFFLINE );
 	}
 
-	public boolean isBroken() {
-		if( MATCHED )
-			return( false );
-		return( true );
-	}
-
 	public boolean isEmpty() {
 		if( mapProducts.isEmpty() )
 			return( true );

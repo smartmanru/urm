@@ -46,14 +46,12 @@ public class EngineData {
 	}
 
 	public void unloadProducts() {
-		if( directory != null )
-			directory.unloadProducts();
 		products.unloadProducts();
 	}
 	
 	public void unloadDirectory() {
 		if( directory != null ) {
-			directory.unloadAll();
+			directory.removeAll();
 			directory.deleteObject();
 			directory = null;
 		}
