@@ -381,6 +381,7 @@ public abstract class DBEnums {
 		BUILDMODE_DEVTRUNK(15,null) ,
 		MONITORING(20,null) ,
 		BASEITEM(30,null) ,
+		LDAP(50,null) ,
 		SYSTEM(100,null);
 
 		private final int value;
@@ -481,9 +482,6 @@ public abstract class DBEnums {
     public static void updateDatabase( DBConnection connection ) throws Exception {
     	connection.update( DBQueries.MODIFY_ENUMS_DROP0 );
     	
-		int enumsId = DBNames.getEnumsId();
-    	connection.update( DBQueries.MODIFY_NAMES_DROPPARENT1 , new String[] { "" + enumsId } );
-    	
     	for( DBEnumInfo e : enums ) {
     		String name = getEnumName( e.enumClass );
     		int enumId = e.enumID;
@@ -538,8 +536,7 @@ public abstract class DBEnums {
     }
     
     public static Enum<?> getEnumValue( Class<?> type , String value ) {
-		String valueCheck = value.toUpperCase();
-		valueCheck = Common.replace( valueCheck , "." , "_" );
+		String valueCheck = Common.xmlToEnumValue( value );
     	for( Object t : type.getEnumConstants() ) {
     		Enum<?> et = ( Enum<?> )t;
     		if( valueCheck.equals( et.name() ) )

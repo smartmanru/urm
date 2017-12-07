@@ -26,12 +26,12 @@ public class EngineCore {
 		registry = new EngineRegistry( engine ); 
 	}
 
-	public void upgradeData( EngineLoader loader ) throws Exception {
-		entities.upgradeData( loader );
+	public void upgradeMeta( EngineLoader loader ) throws Exception {
+		entities.upgradeMeta( loader );
 	}
 	
-	public void useData( EngineLoader loader ) throws Exception {
-		entities.useData( loader );
+	public void useMeta( EngineLoader loader ) throws Exception {
+		entities.useMeta( loader );
 	}
 	
 	public void unloadAll() {

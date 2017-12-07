@@ -11,13 +11,13 @@ import org.urm.meta.EngineLoader;
 
 public abstract class DBEngineData {
 
-	public static void upgradeData( EngineLoader loader ) throws Exception {
+	public static void upgradeMeta( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
 		c.setAppVersion( EngineDB.APP_VERSION );
 		DBEnums.updateDatabase( c );
 	}
 
-	public static void useData( EngineLoader loader ) throws Exception {
+	public static void useMeta( EngineLoader loader ) throws Exception {
 		DBEnums.verifyDatabase( loader );
 	}
 	
@@ -30,12 +30,14 @@ public abstract class DBEngineData {
 
 	public static void dropAuthData( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
+		EngineEntities entities = c.getEntities();
 		boolean res = true;
 		res = ( res )? c.update( DBQueries.MODIFY_AUTH_DROP_ACCESSPRODUCT0 ) : false;
 		res = ( res )? c.update( DBQueries.MODIFY_AUTH_DROP_ACCESSRESOURCE0 ) : false;
 		res = ( res )? c.update( DBQueries.MODIFY_AUTH_DROP_ACCESSNETWORK0 ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_AUTH_DROP_USER0 ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_AUTH_DROP_GROUP0 ) : false;
+		res = ( res )? c.update( DBQueries.MODIFY_AUTH_DROP_GROUPUSERS0 ) : false;
+		DBEngineEntities.dropAppObjects( c , entities.entityAppAuthUser );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppAuthGroup );
 		if( !res )
 			Common.exitUnexpected();
 	}

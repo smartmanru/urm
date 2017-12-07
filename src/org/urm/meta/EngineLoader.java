@@ -219,9 +219,9 @@ public class EngineLoader {
 	
 	private void upgradeMeta() throws Exception {
 		trace( "upgrade meta ..." );
-		DBEngineData.upgradeData( this );
+		DBEngineData.upgradeMeta( this );
 		EngineCore core = data.getCore();
-		core.upgradeData( this );
+		core.upgradeMeta( this );
 		connection.save( true );
 	}
 	
@@ -231,9 +231,9 @@ public class EngineLoader {
 		if( version != EngineDB.APP_VERSION )
 			Common.exit2( _Error.InvalidVersion2 , "Mismatched engine/database, engine version=" + EngineDB.APP_VERSION + ", database version=" + version , "" + EngineDB.APP_VERSION , "" + version );
 		
-		DBEngineData.useData( this );
+		DBEngineData.useMeta( this );
 		EngineCore core = data.getCore();
-		core.useData( this );
+		core.useMeta( this );
 	}
 
 	public void importRepo( MirrorRepository repo ) throws Exception {
@@ -279,6 +279,7 @@ public class EngineLoader {
 	private void importCore( boolean includingSystems ) throws Exception {
 		trace( "cleanup engine data ..." );
 		data.unloadAll();
+		dropAuthData();
 		dropCoreData( includingSystems );
 		loadCore( true , includingSystems );
 	}

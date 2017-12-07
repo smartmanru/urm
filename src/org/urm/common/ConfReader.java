@@ -200,7 +200,7 @@ public class ConfReader {
     	
     	String[] names = new String[ nodes.length ];
     	for( int k = 0; k < nodes.length; k++ )
-    		names[ k ] = getAttrValue( node , "name" );
+    		names[ k ] = getAttrValue( nodes[ k ] , "name" );
     	return( names );
     }
     

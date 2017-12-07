@@ -31,6 +31,7 @@ public class SessionSecurity {
 		this.auth = auth;
 		server = false;
 		secBase = new AuthRoleSet();
+		secResourceAny = new AuthRoleSet();
 		secProductAny = new AuthRoleSet();
 		secNetworkAny = new AuthRoleSet();
 		secResource = new HashMap<Integer,AuthRoleSet>();

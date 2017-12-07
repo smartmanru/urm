@@ -9,7 +9,6 @@ public abstract class DBQueries {
 	public static String MODIFY_VERSIONS_MERGEVERSION6 = "insert into urm_object_version ( owner_object_id , version , objectversion_type , last_import_id , last_name , ownerstatus_type ) values( @values@ ) on conflict (owner_object_id) do update set version = excluded.version , objectversion_type = excluded.objectversion_type , last_import_id = excluded.last_import_id , last_name = excluded.last_name , ownerstatus_type = excluded.ownerstatus_type";
 	
 	public static String QUERY_NAMES_GETALL0 = "select parent , object_type , name , object_id from urm_object_name";
-	public static String MODIFY_NAMES_DROPPARENT1 = "delete from urm_object_name where parent = @1@";
 	public static String MODIFY_NAMES_MERGEITEM4 = "insert into urm_object_name ( parent , object_type , name , object_id ) values ( @values@ ) on conflict (parent,object_type,name) do update set object_id = excluded.object_id";
 	
 	public static String QUERY_ENUMS_GETALL0 = "select category , item , name from urm_object_type order by category , item";
@@ -35,6 +34,7 @@ public abstract class DBQueries {
 	public static String MODIFY_AUTH_DROP_ACCESSPRODUCT0 = "delete from urm_auth_access_product";
 	public static String MODIFY_AUTH_DROP_ACCESSRESOURCE0 = "delete from urm_auth_access_resource";
 	public static String MODIFY_AUTH_DROP_ACCESSNETWORK0 = "delete from urm_auth_access_network";
+	public static String MODIFY_AUTH_DROP_GROUPUSERS0 = "delete from urm_auth_groupuser";
 	public static String MODIFY_AUTH_DROP_USER0 = "delete from urm_auth_user";
 	public static String MODIFY_AUTH_DROP_GROUP0 = "delete from urm_auth_group";
 	
@@ -59,13 +59,16 @@ public abstract class DBQueries {
 	public static String MODIFY_AUTH_DROPGROUP_PRODUCTACCESS1 = "delete from urm_auth_access_product where group_id = @1@";
 	public static String MODIFY_AUTH_DROPGROUP_USERS1 = "delete from urm_auth_groupuser where group_id = @1@";
 	public static String MODIFY_AUTH_DROPUSER_GROUPS1 = "delete from urm_auth_groupuser where user_id = @1@";
-	public static String MODIFY_AUTH_GROUPUSER_ADD2 = "insert into urm_auth_groupuser ( group_id , user_id ) values ( @values@ )";
+	public static String MODIFY_AUTH_GROUPUSER_ADD3 = "insert into urm_auth_groupuser ( group_id , user_id , uv ) values ( @values@ )";
 	public static String MODIFY_AUTH_GROUPUSER_DROP2 = "delete from urm_auth_groupuser where group_id = @1@ and user_id = @2@";
-	public static String MODIFY_AUTH_GROUPACCESS_ADDRESOURCE2 = "insert into urm_auth_access_resource ( group_id , resource_id ) values ( @values@ )";
-	public static String MODIFY_AUTH_GROUPACCESS_ADDPRODUCT2 = "insert into urm_auth_access_product ( group_id , product_id ) values ( @values@ )";
-	public static String MODIFY_AUTH_GROUPACCESS_ADDNETWORK2 = "insert into urm_auth_access_NETWORK ( group_id , network_id ) values ( @values@ )";
+	public static String MODIFY_AUTH_GROUPACCESS_ADDRESOURCE3 = "insert into urm_auth_access_resource ( group_id , resource_id , uv ) values ( @values@ )";
+	public static String MODIFY_AUTH_GROUPACCESS_ADDPRODUCT3 = "insert into urm_auth_access_product ( group_id , product_id , uv ) values ( @values@ )";
+	public static String MODIFY_AUTH_GROUPACCESS_ADDNETWORK3 = "insert into urm_auth_access_network ( group_id , network_id , uv ) values ( @values@ )";
 	public static String MODIFY_AUTH_GROUPACCESS_DROPRESOURCES1 = "delete from urm_auth_access_resource where group_id = @1@";
 	public static String MODIFY_AUTH_GROUPACCESS_DROPPRODUCTS1 = "delete from urm_auth_access_product where group_id = @1@";
 	public static String MODIFY_AUTH_GROUPACCESS_DROPNETWORKS1 = "delete from urm_auth_access_network where group_id = @1@";
+	public static String QUERY_AUTH_GROUPACCESS_RESOURCES0 = "select group_id , resource_id , uv from urm_auth_access_resource";
+	public static String QUERY_AUTH_GROUPACCESS_PRODUCTS0 = "select group_id , product_id , uv from urm_auth_access_product";
+	public static String QUERY_AUTH_GROUPACCESS_NETWORKS0 = "select group_id , network_id , uv from urm_auth_access_network";
 	
 }

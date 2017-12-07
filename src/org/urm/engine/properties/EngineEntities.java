@@ -31,6 +31,7 @@ public class EngineEntities {
 	public static String nameEngineMonitoring = "defmon";
 	public static String nameBaseItem = "baseitem";
 	public static String nameSystem = "system";
+	public static String nameLdap = "ldap";
 
 	public static String FIELD_VERSION_APP = "av"; 
 	public static String FIELD_VERSION_CORE = "cv"; 
@@ -70,7 +71,7 @@ public class EngineEntities {
 		this.engine = engine;
 	}
 	
-	public void upgradeData( EngineLoader loader ) throws Exception {
+	public void upgradeMeta( EngineLoader loader ) throws Exception {
 		entityAppRC = DBEngineContext.upgradeEntityRC( loader );
 		entityAppEngine = DBEngineContext.upgradeEntityEngine( loader );
 		entityAppProductSettings = DBEngineSettings.upgradeEntityProduct( loader );
@@ -95,7 +96,7 @@ public class EngineEntities {
 		useCustom( loader );
 	}
 	
-	public void useData( EngineLoader loader ) throws Exception {
+	public void useMeta( EngineLoader loader ) throws Exception {
 		entityAppRC = DBEngineContext.loaddbEntityRC( loader );
 		entityAppEngine = DBEngineContext.loaddbEntityEngine( loader );
 		entityAppProductSettings = DBEngineSettings.loaddbEntityProduct( loader );
@@ -198,6 +199,12 @@ public class EngineEntities {
 		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.SYSTEM , nameSystem , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.SYSTEM_CUSTOM , -1 , DBEnumObjectVersionType.SYSTEM );
 		props.create( parent , entityAppDirectorySystem , custom );
+		return( props );
+	}
+
+	public ObjectProperties createLdapProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.LDAP , nameLdap , engine.execrc );
+		props.create( parent , entityAppLDAPSettings , null );
 		return( props );
 	}
 
