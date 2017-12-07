@@ -319,7 +319,18 @@ public class EngineAuth extends EngineObject {
 	public AuthUser getUser( String username ) throws Exception {
 		AuthUser user = findLocalUser( username );
 		if( user == null )
-			user = getLdapUser( username );
+			user = findLdapUser( username );
+		if( user == null )
+			Common.exit1( _Error.UnknownUser1 , "Unknown user=" + username , username );
+		return( user );
+	}
+
+	public AuthUser getUser( int userId ) throws Exception {
+		AuthUser user = findLocalUser( userId );
+		if( user == null )
+			user = findLdapUser( userId );
+		if( user == null )
+			Common.exit1( _Error.UnknownUser1 , "Unknown user=" + userId , "" + userId );
 		return( user );
 	}
 

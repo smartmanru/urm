@@ -50,7 +50,9 @@ public class ObjectProperties {
 		r.loadErrors.putAll( loadErrors );
 		r.error = error;
 		r.meta = meta.copy();
-		r.properties = properties.copy( parent.properties );
+		
+		PropertySet parentSet = ( parent == null )? null : parent.properties;
+		r.properties = properties.copy( parentSet );
 		return( r );
 	}
 

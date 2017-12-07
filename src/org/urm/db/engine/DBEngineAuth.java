@@ -121,19 +121,19 @@ public class DBEngineAuth {
 
 	public static PropertyEntity loaddbEntityLDAPSettings( EngineLoader loader ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppAttrsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.LDAPSETTINGS , DBEnumObjectVersionType.AUTH );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.AUTH_ID );
+		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
 		return( entity );
 	}
 	
 	public static PropertyEntity loaddbEntityAuthUser( EngineLoader loader ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_USER , DBEnumParamEntityType.AUTHUSER , DBEnumObjectVersionType.AUTH , TABLE_USER , FIELD_USER_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.AUTH_ID );
+		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
 		return( entity );
 	}
 	
 	public static PropertyEntity loaddbEntityAuthGroup( EngineLoader loader ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_GROUP , DBEnumParamEntityType.AUTHGROUP , DBEnumObjectVersionType.AUTH , TABLE_GROUP , FIELD_GROUP_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.AUTH_ID );
+		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
 		return( entity );
 	}
 	
@@ -478,6 +478,7 @@ public class DBEngineAuth {
 		loaddbGroupsAccessResources( loader , auth );
 		loaddbGroupsAccessProducts( loader , auth );
 		loaddbGroupsAccessNetworks( loader , auth );
+		loaddbGroupsUsers( loader , auth );
 	}	
 
 	private static void loaddbGroupsAccessResources( EngineLoader loader , EngineAuth auth ) throws Exception {
@@ -547,6 +548,27 @@ public class DBEngineAuth {
 			}
 		}
 		return( sr );
+	}
+	
+	private static void loaddbGroupsUsers( EngineLoader loader , EngineAuth auth ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
+		ResultSet rs = c.query( DBQueries.QUERY_AUTH_GROUPUSERS0 );
+		try {
+			while( rs.next() ) {
+				int groupId = rs.getInt( 1 );
+				int userId = rs.getInt( 2 );
+				AuthGroup group = auth.getGroup( groupId );
+				AuthUser user = auth.getUser( userId );
+				if( user.LOCAL )
+					group.addLocalUser( userId );
+				else
+					group.addLdapUser( userId );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
 	}
 	
 	public static void exportxml( EngineLoader loader , EngineAuth auth , Document doc , Element root ) throws Exception {
