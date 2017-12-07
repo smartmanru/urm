@@ -3,6 +3,9 @@ package org.urm.engine.properties;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnumInterface;
 import org.urm.db.core.DBEnums.*;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.engine.AuthResource;
+import org.urm.meta.engine.EngineResources;
 
 public class EntityVar {
 
@@ -286,6 +289,34 @@ public class EntityVar {
 				return( true );
 		}
 		return( false );
+	}
+	
+	public Integer importxmlObjectValue( EngineLoader loader , String value ) throws Exception {
+		if( value.isEmpty() )
+			return( null );
+		
+		if( OBJECT_TYPE == DBEnumObjectType.RESOURCE ) {
+			EngineResources resources = loader.getResources();
+			AuthResource resource = resources.getResource( value );
+			return( resource.ID );
+		}
+		
+		Common.exitUnexpected();
+		return( null );
+	}
+
+	public String exportxmlObjectValue( EngineLoader loader , Integer value ) throws Exception {
+		if( value == null )
+			return( null );
+		
+		if( OBJECT_TYPE == DBEnumObjectType.RESOURCE ) {
+			EngineResources resources = loader.getResources();
+			AuthResource resource = resources.getResource( value );
+			return( resource.NAME );
+		}
+		
+		Common.exitUnexpected();
+		return( null );
 	}
 	
 }

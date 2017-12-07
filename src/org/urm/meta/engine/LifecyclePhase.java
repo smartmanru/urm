@@ -8,9 +8,9 @@ public class LifecyclePhase extends EngineObject {
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
 	public static String PROPERTY_STAGE = "stage";
-	public static String PROPERTY_STAGE_POS = "stage_pos";
+	public static String PROPERTY_STAGE_POS = "pos";
 	public static String PROPERTY_UNLIMITED = "unlimited";
-	public static String PROPERTY_START_DAY = "start_day";
+	public static String PROPERTY_START_DAY = "startday";
 	public static String PROPERTY_DAYS = "days";
 	
 	public ReleaseLifecycle lc;

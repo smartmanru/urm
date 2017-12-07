@@ -152,7 +152,7 @@ public class DBEngineAuth {
 		ObjectProperties ops = entities.createLdapProps( settings.getEngineProperties() );
 		Node ldap = ConfReader.xmlGetFirstChild( root , ELEMENT_LDAP );
 		if( ldap != null )
-			DBSettings.importxml( loader , root , ops , DBVersions.AUTH_ID , DBVersions.AUTH_ID , true , version );
+			DBSettings.importxml( loader , ldap , ops , DBVersions.AUTH_ID , DBVersions.AUTH_ID , true , version );
 		
 		auth.setLdapSettings( ops );
 	}
@@ -232,15 +232,17 @@ public class DBEngineAuth {
 			String[] productNames = ConfReader.xmlGetNamedElements( permissions , ELEMENT_PERMISSIONS_PRODUCT );
 			String[] networkNames = ConfReader.xmlGetNamedElements( permissions , ELEMENT_PERMISSIONS_NETWORK );
 			String[] specialNames = ConfReader.xmlGetNamedElements( permissions , ELEMENT_PERMISSIONS_SPECIAL );
+			
+			boolean anyResources = ConfReader.getBooleanAttrValue( permissions , XMLPROP_ANY_RESOURCES , false );
+			boolean anyProducts = ConfReader.getBooleanAttrValue( permissions , XMLPROP_ANY_PRODUCTS , false );
+			boolean anyNetworks = ConfReader.getBooleanAttrValue( permissions , XMLPROP_ANY_NETWORKS , false );
+			
 			AuthRoleSet roles = new AuthRoleSet();
-			roles.secDev = ConfReader.getBooleanAttrValue( root , XMLPROP_ROLEDEV , false );
-			roles.secRel = ConfReader.getBooleanAttrValue( root , XMLPROP_ROLEREL , false );
-			roles.secTest = ConfReader.getBooleanAttrValue( root , XMLPROP_ROLETEST , false );
-			roles.secOpr = ConfReader.getBooleanAttrValue( root , XMLPROP_ROLEOPR , false );
-			roles.secInfra = ConfReader.getBooleanAttrValue( root , XMLPROP_ROLEINFRA , false );
-			boolean anyResources = ConfReader.getBooleanAttrValue( root , XMLPROP_ANY_RESOURCES , false );
-			boolean anyProducts = ConfReader.getBooleanAttrValue( root , XMLPROP_ANY_PRODUCTS , false );
-			boolean anyNetworks = ConfReader.getBooleanAttrValue( root , XMLPROP_ANY_NETWORKS , false );
+			roles.secDev = ConfReader.getBooleanAttrValue( permissions , XMLPROP_ROLEDEV , false );
+			roles.secRel = ConfReader.getBooleanAttrValue( permissions , XMLPROP_ROLEREL , false );
+			roles.secTest = ConfReader.getBooleanAttrValue( permissions , XMLPROP_ROLETEST , false );
+			roles.secOpr = ConfReader.getBooleanAttrValue( permissions , XMLPROP_ROLEOPR , false );
+			roles.secInfra = ConfReader.getBooleanAttrValue( permissions , XMLPROP_ROLEINFRA , false );
 			
 			// resolve
 			Integer[] resourcesList = resolveResources( loader.getResources() , resourceNames );

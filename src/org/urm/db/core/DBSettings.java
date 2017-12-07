@@ -67,7 +67,7 @@ public abstract class DBSettings {
 			for( String prop : Common.getSortedKeys( attrs ) ) {
 				String value = attrs.get( prop );
 				try {
-					loadxmlSetAttr( loader , properties , prop , value );
+					importxmlSetAttr( loader , properties , prop , value );
 				}
 				catch( Throwable e ) {
 					loader.trace( "attribute load error: " + e.getMessage() );
@@ -81,7 +81,7 @@ public abstract class DBSettings {
 		if( items != null ) {
 			for( Node item : items ) {
 				try {
-					loadxmlSetProperty( loader , item , properties , app.USE_PROPS );
+					importxmlSetProperty( loader , item , properties , app.USE_PROPS );
 				}
 				catch( Throwable e ) {
 					loader.trace( "property load error: " + e.getMessage() );
@@ -123,6 +123,11 @@ public abstract class DBSettings {
 					
 					data = DBEnums.getEnumValue( var.enumClass , ev );
 				}
+				else
+				if( var.isObject() ) {
+					int ev = Integer.parseInt( data );
+					data = var.exportxmlObjectValue( loader , ev );
+				}
 					
 				if( appAsProperties )
 					exportxmlSetProperty( loader , doc , root , var , data , false );
@@ -155,17 +160,17 @@ public abstract class DBSettings {
 			Common.xmlSetElementAttr( doc , property , ATTR_DESC , var.DESC );
 	}
 	
-	private static void loadxmlSetAttr( EngineLoader loader , ObjectProperties properties , String xmlprop , String value ) throws Exception {
+	private static void importxmlSetAttr( EngineLoader loader , ObjectProperties properties , String xmlprop , String value ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity app = meta.getAppEntity();
 		EntityVar var = app.findXmlVar( xmlprop );
 		if( var == null )
 			Common.exit1( _Error.UnknownAppVar1 , "Attempt to override built-in variable=" + xmlprop , xmlprop );
 		
-		setProperty( loader , properties , var , value , false );
+		importxmlSetProperty( loader , properties , var , value , false );
 	}
 	
-	private static void setProperty( EngineLoader loader , ObjectProperties properties , EntityVar var , String value , boolean manual ) throws Exception {
+	private static void importxmlSetProperty( EngineLoader loader , ObjectProperties properties , EntityVar var , String value , boolean manual ) throws Exception {
 		if( var.isEnum() ) {
 			// convert enum name (xml value) to enum code
 			int code = DBEnums.getEnumCode(  var.enumClass , value );
@@ -173,6 +178,14 @@ public abstract class DBSettings {
 				properties.setManualIntProperty( var.NAME , code );
 			else
 				properties.setIntProperty( var.NAME , code );
+		}
+		else
+		if( var.isObject() ) {
+			int id = var.importxmlObjectValue( loader , value );
+			if( manual )
+				properties.setManualIntProperty( var.NAME , id );
+			else
+				properties.setIntProperty( var.NAME , id );
 		}
 		else {
 			if( manual )
@@ -182,7 +195,7 @@ public abstract class DBSettings {
 		}
 	}
 	
-	private static void loadxmlSetProperty( EngineLoader loader , Node item , ObjectProperties properties , boolean appAsProperties ) throws Exception {
+	private static void importxmlSetProperty( EngineLoader loader , Node item , ObjectProperties properties , boolean appAsProperties ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity app = meta.getAppEntity();
 		PropertyEntity custom = meta.getCustomEntity();
@@ -193,7 +206,7 @@ public abstract class DBSettings {
 		EntityVar var = app.findXmlVar( prop );
 		if( var != null && appAsProperties ) {
 			String value = ConfReader.getAttrValue( item , ATTR_VALUE );
-			setProperty( loader , properties , var , value , false );
+			importxmlSetProperty( loader , properties , var , value , false );
 			return;
 		}
 
@@ -216,7 +229,7 @@ public abstract class DBSettings {
 		// parent.custom - normal override, set value as manual
 		if( var != null && var.isCustom() ) {
 			String value = ConfReader.getAttrValue( item , ATTR_VALUE );
-			setProperty( loader , properties , var , value , true );
+			importxmlSetProperty( loader , properties , var , value , true );
 			return;
 		}
 
@@ -378,7 +391,7 @@ public abstract class DBSettings {
 						rs.getString( 11 ) ,
 						enumClass );
 				var.PARAM_ID = rs.getInt( 1 );
-				var.VERSION = rs.getInt( 11 );
+				var.VERSION = rs.getInt( 12 );
 				entity.addVar( var );
 			}
 		}

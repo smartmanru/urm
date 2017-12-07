@@ -228,17 +228,7 @@ public class PropertyEntity {
 			Common.exitUnexpected();
 		
 		String value = ConfReader.getAttrValue( root , var.XMLNAME );
-		if( value.isEmpty() )
-			return( null );
-		
-		if( var.OBJECT_TYPE == DBEnumObjectType.RESOURCE ) {
-			EngineResources resources = loader.getResources();
-			AuthResource resource = resources.getResource( value );
-			return( resource.ID );
-		}
-		
-		Common.exitUnexpected();
-		return( null );
+		return( var.importxmlObjectValue( loader , value ) );
 	}
 	
 	public Integer importxmlObjectProperty( EngineLoader loader , Node root , String prop ) throws Exception {
@@ -282,7 +272,10 @@ public class PropertyEntity {
 
 	public String loaddbString( ResultSet rs , String prop ) throws Exception {
 		int column = getDatabaseColumn( prop );
-		return( rs.getString( column ) );
+		String value = rs.getString( column );
+		if( value == null )
+			return( "" );
+		return( value );
 	}
 	
 	public int loaddbInt( ResultSet rs , String prop ) throws Exception {
@@ -339,18 +332,8 @@ public class PropertyEntity {
 		
 		if( !var.isObject() )
 			Common.exitUnexpected();
-		
-		if( value == null )
-			return( null );
-		
-		if( var.OBJECT_TYPE == DBEnumObjectType.RESOURCE ) {
-			EngineResources resources = loader.getResources();
-			AuthResource resource = resources.getResource( value );
-			return( resource.NAME );
-		}
-		
-		Common.exitUnexpected();
-		return( null );
+
+		return( var.exportxmlObjectValue( loader , value ) );
 	}
 	
 	

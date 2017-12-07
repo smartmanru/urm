@@ -34,12 +34,18 @@ public class DBEngineLifecycles {
 	public static String FIELD_LIFECYCLE_ID = "lifecycle_id";
 	public static String FIELD_LIFECYCLE_DESC = "xdesc";
 	public static String FIELD_LIFECYCLE_TYPE = "lifecycle_type";
+	public static String FIELD_LIFECYCLE_RELEASEDAYS = "days_to_release";
+	public static String FIELD_LIFECYCLE_DEPLOYDAYS = "days_to_deploy";
+	public static String FIELD_LIFECYCLE_SHIFTDAYS = "shift_days";
 	public static String FIELD_PHASE_LIFECYCLE = "lifecycle_id";
 	public static String FIELD_PHASE_ID = "phase_id";
 	public static String FIELD_PHASE_DESC = "xdesc";
 	public static String FIELD_PHASE_STAGE = "lifecyclestage_type";
+	public static String FIELD_PHASE_STAGE_POS = "stage_pos";
+	public static String FIELD_PHASE_STAGE_STARTDAY = "start_day";
 	public static String XMLPROP_LIFECYCLE_NAME = "id";
 	public static String XMLPROP_PHASE_NAME = "id";
+	
 	
 	public static PropertyEntity upgradeEntityReleaseLifecycle( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
@@ -50,9 +56,9 @@ public class DBEngineLifecycles {
 				EntityVar.metaEnumVar( ReleaseLifecycle.PROPERTY_TYPE , FIELD_LIFECYCLE_TYPE , ReleaseLifecycle.PROPERTY_TYPE , "Type" , false , DBEnumLifecycleType.UNKNOWN ) ,
 				EntityVar.metaBoolean( ReleaseLifecycle.PROPERTY_ENABLED , "Enabled" , false , false ) ,
 				EntityVar.metaBoolean( ReleaseLifecycle.PROPERTY_REGULAR , "Regular" , false , false ) ,
-				EntityVar.metaInteger( ReleaseLifecycle.PROPERTY_DAYS_TO_RELEASE , "Days to release" , false , 0 ) ,
-				EntityVar.metaInteger( ReleaseLifecycle.PROPERTY_DAYS_TO_DEPLOY , "Days_to_deploy" , false , 0 ) ,
-				EntityVar.metaInteger( ReleaseLifecycle.PROPERTY_SHIFT_DAYS , "Shift days" , false , 0 ) ,
+				EntityVar.metaIntegerVar( ReleaseLifecycle.PROPERTY_DAYS_TO_RELEASE , FIELD_LIFECYCLE_RELEASEDAYS , ReleaseLifecycle.PROPERTY_DAYS_TO_RELEASE , "Days to release" , false , 0 ) ,
+				EntityVar.metaIntegerVar( ReleaseLifecycle.PROPERTY_DAYS_TO_DEPLOY , FIELD_LIFECYCLE_DEPLOYDAYS , ReleaseLifecycle.PROPERTY_DAYS_TO_DEPLOY , "Days_to_deploy" , false , 0 ) ,
+				EntityVar.metaIntegerVar( ReleaseLifecycle.PROPERTY_SHIFT_DAYS , FIELD_LIFECYCLE_SHIFTDAYS , ReleaseLifecycle.PROPERTY_SHIFT_DAYS , "Shift days" , false , 0 ) ,
 		} ) );
 	}
 
@@ -64,9 +70,9 @@ public class DBEngineLifecycles {
 				EntityVar.metaStringVar( LifecyclePhase.PROPERTY_NAME , LifecyclePhase.PROPERTY_NAME , XMLPROP_PHASE_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( LifecyclePhase.PROPERTY_DESC , FIELD_PHASE_DESC , LifecyclePhase.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaEnumVar( LifecyclePhase.PROPERTY_STAGE , FIELD_PHASE_STAGE , LifecyclePhase.PROPERTY_STAGE , "Lifecycle stage" , false , DBEnumLifecycleStageType.UNKNOWN ) ,
-				EntityVar.metaInteger( LifecyclePhase.PROPERTY_STAGE_POS , "Stage position" , false , 0 ) ,
+				EntityVar.metaIntegerVar( LifecyclePhase.PROPERTY_STAGE_POS , FIELD_PHASE_STAGE_POS , LifecyclePhase.PROPERTY_STAGE_POS , "Stage position" , false , 0 ) ,
 				EntityVar.metaBoolean( LifecyclePhase.PROPERTY_UNLIMITED , "Unlimited duration" , false , false ) ,
-				EntityVar.metaBoolean( LifecyclePhase.PROPERTY_START_DAY , "Start new day" , false , false ) ,
+				EntityVar.metaBooleanVar( LifecyclePhase.PROPERTY_START_DAY , FIELD_PHASE_STAGE_STARTDAY , LifecyclePhase.PROPERTY_START_DAY , "Start new day" , false , true ) ,
 				EntityVar.metaInteger( LifecyclePhase.PROPERTY_DAYS , "Number of days" , false , 0 )
 		} ) );
 	}

@@ -24,9 +24,9 @@ public class ReleaseLifecycle extends EngineObject {
 	public static String PROPERTY_TYPE = "type";
 	public static String PROPERTY_ENABLED = "enabled";
 	public static String PROPERTY_REGULAR = "regular";
-	public static String PROPERTY_DAYS_TO_RELEASE = "days_to_release";
-	public static String PROPERTY_DAYS_TO_DEPLOY = "days_to_deploy";
-	public static String PROPERTY_SHIFT_DAYS = "shift_days";
+	public static String PROPERTY_DAYS_TO_RELEASE = "releasedays";
+	public static String PROPERTY_DAYS_TO_DEPLOY = "deploydays";
+	public static String PROPERTY_SHIFT_DAYS = "shiftdays";
 	
 	EngineLifecycles lifecycles;
 	

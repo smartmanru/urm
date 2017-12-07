@@ -489,8 +489,9 @@ public class EngineLoader {
 	}
 
 	private void importxmlReleaseLifecycles() throws Exception {
-		trace( "import engine lifecycles data ..." );
 		String lcFile = getReleaseLifecyclesFile();
+		
+		trace( "import engine lifecycles data from " + lcFile + " ..." );
 		Document doc = ConfReader.readXmlFile( execrc , lcFile );
 		Node root = doc.getDocumentElement();
 		

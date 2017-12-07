@@ -78,6 +78,15 @@ public class AuthLdap {
 			userDisplayNameAttr = props.getStringProperty( PROPERTY_NAMEATTR );
 			userEmailAttr = props.getStringProperty( PROPERTY_EMAILATTR );
 			userPasswordAttr = props.getStringProperty( PROPERTY_PASSWORDATTR );
+			
+			this.PROVIDER_URL = "ldap://" + ldapHost + ":";
+			if( ldapPort > 0 )
+				this.PROVIDER_URL += ldapPort;
+			else
+				this.PROVIDER_URL += "389";
+			
+			if( !userDN.isEmpty() )
+				this.PROVIDER_URL += "/" + userDN;
 		}
 		else
 			setNotUse();
@@ -99,6 +108,7 @@ public class AuthLdap {
 		userDisplayNameAttr = "";
 		userEmailAttr = "";
 		userPasswordAttr = "";
+		PROVIDER_URL = null;
 	}
 
 	public static void setServerData( ObjectProperties ops , String host , int port , Integer resource ) throws Exception {
@@ -124,15 +134,6 @@ public class AuthLdap {
 		// The LDAP server's address
 		if( ldapHost.isEmpty() )
 			return;
-		
-		this.PROVIDER_URL = "ldap://" + ldapHost + ":";
-		if( ldapPort > 0 )
-			this.PROVIDER_URL += ldapPort;
-		else
-			this.PROVIDER_URL += "389";
-		
-		if( !userDN.isEmpty() )
-			this.PROVIDER_URL += "/" + userDN;
 		
 		// Filter to find user's record; note that {} is replaced by the user-supplied ID
 		this.USER_FILTER = getUserFilter( false , userFilter );
