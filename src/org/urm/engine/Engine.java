@@ -115,8 +115,9 @@ public class Engine {
 		
 		EngineLoader loader = createLoader();
 		loader.initMeta();
-		loader.initAuth();
 		loader.initCore();
+		loader.initAuth( auth );
+		auth.start( serverAction );
 	}
 	
 	public EngineLoader createLoader() {
@@ -130,7 +131,6 @@ public class Engine {
 	
 	public void runServer( ActionInit action ) throws Exception {
 		serverAction.debug( "load server configuration ..." );
-		auth.start( serverAction );
 		
 		EngineLoader loader = createLoader();
 		loader.loadProducts();

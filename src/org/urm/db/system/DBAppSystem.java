@@ -117,17 +117,17 @@ public abstract class DBAppSystem {
 		DBEngineEntities.deleteAppObject( c , entities.entityAppDirectorySystem , system.ID , SV );
 	}
 
-	public static void matchSystem( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
+	public static void matchSystem( EngineLoader loader , EngineDirectory directory , AppSystem system , boolean update ) throws Exception {
 		for( AppProduct product : system.getProducts() )
 			DBAppProduct.match( loader , directory , product );
 		
-		matchdone( loader , directory , system , true );
+		if( update )
+			matchdone( loader , directory , system );
 	}
 
-	private static void matchdone( EngineLoader loader , EngineDirectory directory , AppSystem system , boolean done ) throws Exception {
+	private static void matchdone( EngineLoader loader , EngineDirectory directory , AppSystem system ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
-		system.MATCHED = true;
 		system.SV = c.getNextSystemVersion( system );
 		if( !c.update( DBQueries.MODIFY_SYSTEM_MATCHED3 , new String[] {
 				EngineDB.getInteger( system.ID ) , 

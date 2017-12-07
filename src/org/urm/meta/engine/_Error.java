@@ -42,5 +42,9 @@ public class _Error {
 	public static final int DuplicateEnvNameUnmatched2 = ErrorBase + 56;
 	public static final int UnknownSystem1 = ErrorBase + 57;
 	public static final int UnknownProduct1 = ErrorBase + 58;
+	public static final int MissingAdminUser0 = ErrorBase + 59;
+	public static final int UnknownLocalUser1 = ErrorBase + 60;
+	public static final int UnknownLdapUser1 = ErrorBase + 61;
+	public static final int UnknownGroup1 = ErrorBase + 62;
 	
 }

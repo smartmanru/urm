@@ -9,27 +9,20 @@ import java.util.Map;
 import javax.naming.directory.SearchResult;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ActionCore;
 import org.urm.client.ClientAuth;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
-import org.urm.engine.EngineTransaction;
 import org.urm.engine.SessionSecurity;
-import org.urm.engine._Error;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.urm.meta.product.Meta;
 import org.urm.meta.Types.*;
 import org.urm.meta.product.MetaEnv;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class EngineAuth extends EngineObject {
 
@@ -62,15 +55,23 @@ public class EngineAuth extends EngineObject {
 	
 	public static String MASTER_ADMIN = "admin";
 	
-	Map<String,AuthUser> localUsers;
+	Map<String,AuthUser> mapLocalUsers;
+	Map<Integer,AuthUser> mapLocalUsersById;
+	Map<String,AuthUser> mapLdapUsers;
+	Map<Integer,AuthUser> mapLdapUsersById;
 	Map<String,AuthGroup> groups;
+	Map<Integer,AuthGroup> groupsById;
 	AuthLdap ldapSettings;
 	
 	public EngineAuth( Engine engine ) {
 		super( null );
 		this.engine = engine;
-		localUsers = new HashMap<String,AuthUser>();
+		mapLocalUsers = new HashMap<String,AuthUser>();
+		mapLocalUsersById = new HashMap<Integer,AuthUser>();
+		mapLdapUsers = new HashMap<String,AuthUser>();
+		mapLdapUsersById = new HashMap<Integer,AuthUser>();
 		groups = new HashMap<String,AuthGroup>();
+		groupsById = new HashMap<Integer,AuthGroup>();
 		ldapSettings = new AuthLdap( this ); 
 	}
 	
@@ -83,7 +84,7 @@ public class EngineAuth extends EngineObject {
 	}
 
 	public void start( ActionInit action ) throws Exception {
-		if( !localUsers.containsKey( MASTER_ADMIN ) )
+		if( !mapLocalUsers.containsKey( MASTER_ADMIN ) )
 			Common.exit0( _Error.MissingAdminUser0 , "Missing master administrator user (" + MASTER_ADMIN + ")" );
 			
 		// create initial admin user
@@ -105,94 +106,48 @@ public class EngineAuth extends EngineObject {
 	public void stop( ActionInit action ) throws Exception {
 	}
 	
-	private String getAuthFile() {
-		String path = Common.getPath( engine.execrc.installPath , "etc" );
-		String authFile = Common.getPath( path , "auth.xml" );
-		return( authFile );
+	public void addLocalUser( AuthUser user ) {
+		mapLocalUsers.put( user.NAME , user );
+		mapLocalUsersById.put( user.ID , user );
 	}
 	
-	public void load( String userFile , RunContext execrc ) throws Exception {
-		Document doc = ConfReader.readXmlFile( execrc , userFile );
-		Node root = doc.getDocumentElement();
-		readLocalUsers( root );
-		readGroups( root );
+	public void removeLocalUser( AuthUser user ) {
+		mapLocalUsers.remove( user.NAME );
+		mapLocalUsersById.remove( user.ID );
 		
-		Node ldap = ConfReader.xmlGetFirstChild( root , "ldap" );
-		if( ldap != null )
-			ldapSettings.load( ldap );
-	}
-	
-	private void readLocalUsers( Node root ) throws Exception {
-		localUsers.clear();
-		Node userList = ConfReader.xmlGetFirstChild( root , "localusers" );
-		if( userList == null )
-			return;
-		
-		Node[] list = ConfReader.xmlGetChildren( userList , "user" );
-		if( list == null )
-			return;
-		
-		for( Node node : list ) {
-			AuthUser user = new AuthUser( this );
-			user.loadLocalUser( node );
-			addLocalUser( user );
+		for( AuthGroup group : getGroups() ) {
+			if( group.hasUser( user ) )
+				group.removeUser( user.ID );
 		}
 	}
-
-	private void addLocalUser( AuthUser user ) {
-		localUsers.put( user.NAME , user );
+	
+	public void updateUser( AuthUser user ) throws Exception {
+		Common.changeMapKey( mapLocalUsers , user , user.NAME );
 	}
 	
-	private void readGroups( Node root ) throws Exception {
-		groups.clear();
-		Node groupList = ConfReader.xmlGetFirstChild( root , "groups" );
-		if( groupList == null )
-			return;
-		
-		Node[] list = ConfReader.xmlGetChildren( groupList , "group" );
-		if( list == null )
-			return;
-		
-		for( Node node : list ) {
-			AuthGroup group = new AuthGroup( this );
-			group.loadGroup( node );
-			addGroup( group );
-		}
+	public void addLdapUser( AuthUser user ) {
+		mapLdapUsers.put( user.NAME , user );
+		mapLdapUsersById.put( user.ID , user );
 	}
-
-	private void addGroup( AuthGroup group ) {
+	
+	public void addGroup( AuthGroup group ) {
 		groups.put( group.NAME , group );
+		groupsById.put( group.ID , group );
 	}
 	
-	public void save( ActionBase action ) throws Exception {
-		String authFile = getAuthFile();
-		save( action , authFile , engine.execrc );
+	public void removeGroup( AuthGroup group ) {
+		groups.remove( group.NAME );
+		groupsById.remove( group.ID );
 	}
 	
-	private void save( ActionCore action , String path , RunContext execrc ) throws Exception {
-		Document doc = Common.xmlCreateDoc( "auth" );
-		Element root = doc.getDocumentElement();
-		
-		Element usersElement = Common.xmlCreateElement( doc , root , "localusers" );
-		for( String id : Common.getSortedKeys( localUsers ) ) {
-			AuthUser user = localUsers.get( id );
-			Element node = Common.xmlCreateElement( doc , usersElement , "user" );
-			user.save( doc , node );
-		}
-		
-		Element groupsElement = Common.xmlCreateElement( doc , root , "groups" );
-		for( String id : Common.getSortedKeys( groups ) ) {
-			AuthGroup user = groups.get( id );
-			Element node = Common.xmlCreateElement( doc , groupsElement , "group" );
-			user.save( doc , node );
-		}
-		
-		Element ldapElement = Common.xmlCreateElement( doc , root , "ldap" );
-		ldapSettings.save( doc , ldapElement );
-		
-		Common.xmlSaveDoc( doc , path );
+	public void updateGroup( AuthGroup group ) throws Exception {
+		Common.changeMapKey( groups , group , group.NAME );
 	}
-
+	
+	public AuthGroup[] getGroups() {
+		return( groups.values().toArray( new AuthGroup[0] ) );
+	}
+	
 	private String getAuthDir() {
 		String authPath = engine.execrc.authPath;
 		if( authPath.isEmpty() )
@@ -236,7 +191,7 @@ public class EngineAuth extends EngineObject {
 		
 		AuthContext ac = null;
 		
-		if( user.local ) {
+		if( user.LOCAL ) {
 			String authKey = getAuthKey( AUTH_GROUP_USER , username );
 			ac = loadAuthData( authKey );
 				
@@ -282,11 +237,15 @@ public class EngineAuth extends EngineObject {
 		return( security );
 	}
 	
-	public String[] getLocalUserList() {
-		return( Common.getSortedKeys( localUsers ) );
+	public String[] getLocalUserNames() {
+		return( Common.getSortedKeys( mapLocalUsers ) );
 	}
 	
-	public String[] getLdapUserList() {
+	public String[] getLdapUserNames() {
+		return( Common.getSortedKeys( mapLdapUsers ) );
+	}
+	
+	public String[] getLdapFullUserList() {
 		try {
 			return( ldapSettings.getUserList() );
 		}
@@ -295,20 +254,55 @@ public class EngineAuth extends EngineObject {
 		}
 	}
 
-	public AuthUser getLocalUserData( String username ) {
-		return( localUsers.get( username ) );
+	public AuthUser findLocalUser( String username ) {
+		return( mapLocalUsers.get( username ) );
 	}
 	
-	public AuthLdap getLdapSettings() {
+	public AuthUser findLocalUser( Integer userId ) {
+		return( mapLocalUsersById.get( userId ) );
+	}
+	
+	public AuthUser getLocalUser( String username ) throws Exception {
+		AuthUser user = mapLocalUsers.get( username );
+		if( user == null )
+			Common.exit1( _Error.UnknownLocalUser1 , "Unknown local user=" + username , username );
+		return( user );
+	}
+	
+	public AuthUser getLocalUser( Integer userId ) throws Exception {
+		AuthUser user = mapLocalUsersById.get( userId );
+		if( user == null )
+			Common.exit1( _Error.UnknownLocalUser1 , "Unknown local user=" + userId , "" + userId );
+		return( user );
+	}
+	
+	public AuthUser findLdapUser( String username ) {
+		return( mapLdapUsers.get( username ) );
+	}
+	
+	public AuthUser findLdapUser( Integer userId ) {
+		return( mapLdapUsersById.get( userId ) );
+	}
+	
+	public AuthUser getLdapUser( String username ) throws Exception {
+		AuthUser user = mapLdapUsers.get( username );
+		if( user == null )
+			Common.exit1( _Error.UnknownLdapUser1 , "Unknown LDAP user=" + username , username );
+		return( user );
+	}
+	
+	public AuthUser getLdapUser( Integer userId ) throws Exception {
+		AuthUser user = mapLdapUsersById.get( userId );
+		if( user == null )
+			Common.exit1( _Error.UnknownLdapUser1 , "Unknown LDAP user=" + userId , "" + userId );
+		return( user );
+	}
+	
+	public AuthLdap getAuthLdap() {
 		return( ldapSettings );
 	}
 	
-	public void setLdapData( ActionBase action , AuthLdap ldap ) throws Exception {
-		ldapSettings = ldap;
-		save( action );
-	}
-	
-	public AuthUser getLdapUserData( String username ) {
+	public AuthLdapUser getLdapUserData( String username ) {
 		ActionBase action = engine.serverAction;
 		if( action == null )
 			return( null );
@@ -323,58 +317,53 @@ public class EngineAuth extends EngineObject {
 	}
 
 	public AuthUser getUser( String username ) throws Exception {
-		AuthUser user = getLocalUserData( username );
+		AuthUser user = findLocalUser( username );
 		if( user == null )
-			user = getLdapUserData( username );
+			user = getLdapUser( username );
 		return( user );
-	}
-
-	public AuthGroup createGroup( ActionBase action , String name ) throws Exception {
-		AuthGroup group = new AuthGroup( this );
-		group.create( action , name );
-		addGroup( group );
-		return( group );
-	}
-
-	public void renameGroup( ActionBase action , AuthGroup group , String name ) throws Exception {
-		groups.remove( group.NAME );
-		group.rename( action , name );
-		addGroup( group );
-	}
-
-	public void deleteGroup( ActionBase action , AuthGroup group ) throws Exception {
-		groups.remove( group.NAME );
-		for( String user : group.getUsers( null ) )
-			engine.updatePermissions( action , user );
 	}
 
 	public String[] getGroupNames() {
 		return( Common.getSortedKeys( groups ) );
 	}
 
-	public AuthGroup getGroup( String groupName ) {
+	public AuthGroup findGroup( String groupName ) {
 		return( groups.get( groupName ) );
 	}
 
-	public AuthUser createLocalUser( ActionBase action , String name , String email , String full , boolean admin ) throws Exception {
-		AuthUser user = new AuthUser( this );
-		user.create( action , true , name , email , full , admin );
-		addLocalUser( user );
-		return( user );
-	}
-	
-	public void setUserData( ActionBase action , AuthUser user , String email , String full , boolean admin ) throws Exception {
-		user.setData( action , email , full , admin );
+	public AuthGroup findGroup( int groupId ) {
+		return( groups.get( groupId ) );
 	}
 
-	public void deleteUser( ActionBase action , AuthUser user ) throws Exception {
-		localUsers.remove( user.NAME );
-		for( AuthGroup group : groups.values() )
-			group.deleteUser( action , user );
-		engine.updatePermissions( action , user.NAME );
+	public AuthUser findUser( int userId ) {
+		AuthUser user = mapLocalUsersById.get( userId );
+		if( user != null )
+			return( user );
+		return( mapLdapUsersById.get( userId ) );
 	}
 
-	public void setUserPassword( ActionBase action , AuthUser user , String password ) throws Exception {
+	public AuthUser findUser( String name ) {
+		AuthUser user = mapLocalUsers.get( name );
+		if( user != null )
+			return( user );
+		return( mapLdapUsers.get( name ) );
+	}
+
+	public AuthGroup getGroup( String groupName ) throws Exception {
+		AuthGroup group = groups.get( groupName );
+		if( group == null )
+			Common.exit1( _Error.UnknownGroup1 , "Unknown local group=" + groupName , groupName );
+		return( group );
+	}
+
+	public AuthGroup getGroup( Integer groupId ) throws Exception {
+		AuthGroup group = groupsById.get( groupId );
+		if( group == null )
+			Common.exit1( _Error.UnknownGroup1 , "Unknown local group=" + groupId , "" + groupId );
+		return( group );
+	}
+
+	public void setUserPassword( AuthUser user , String password ) throws Exception {
 		// create initial admin user
 		String authKey = getAuthKey( AUTH_GROUP_USER , user.NAME );
 		AuthContext ac = loadAuthData( authKey );
@@ -600,68 +589,6 @@ public class EngineAuth extends EngineObject {
 		return( security.checkSpecial( sr ) );
 	}
 	
-	public void addGroupUsers( ActionBase action , AuthGroup group , SourceType source , AuthUser[] users ) throws Exception {
-		for( AuthUser user : users ) {
-			group.addUser( action , source , user );
-			engine.updatePermissions( action , user.NAME );
-		}
-		save( action );
-	}
-	
-	public void removeGroupUsers( ActionBase action , AuthGroup group , String[] users ) throws Exception {
-		for( String user : users ) {
-			group.removeUser( action , user );
-			engine.updatePermissions( action , user );
-		}
-		save( action );
-	}
-
-	public void setGroupPermissions( ActionBase action , AuthGroup group , AuthRoleSet roles , boolean allProd , String[] products , boolean allNet , String[] networks , SpecialRights[] special) throws Exception {
-		group.setGroupPermissions( action , roles , allProd , products , allNet , networks , special );
-		for( String user : group.getUsers( null ) )
-			engine.updatePermissions( action , user );
-		save( action );
-	}
-	
-	public synchronized void deleteProduct( EngineTransaction transaction , AppProduct product ) throws Exception {
-		ActionBase action = transaction.getAction();
-		boolean authChanged = false;
-		for( AuthGroup group : groups.values() ) {
-			if( group.hasProduct( product.NAME ) ) {
-				authChanged = true;
-				group.removeProduct( action , product.NAME );
-				for( String user : group.getUsers( null ) )
-					engine.updatePermissions( action , user );
-			}
-		}
-		
-		if( authChanged )
-			save( action );
-	}
-
-	public synchronized void deleteDatacenter( EngineTransaction transaction , Datacenter datacenter ) throws Exception {
-		for( String networkName : datacenter.getNetworkNames() ) {
-			Network network = datacenter.findNetwork( networkName );
-			deleteNetwork( transaction , network );
-		}
-	}
-	
-	public synchronized void deleteNetwork( EngineTransaction transaction , Network network ) throws Exception {
-		ActionBase action = transaction.getAction();
-		boolean authChanged = false;
-		for( AuthGroup group : groups.values() ) {
-			if( group.hasNetwork( network.NAME ) ) {
-				authChanged = true;
-				group.removeNetwork( action , network.NAME );
-				for( String user : group.getUsers( null ) )
-					engine.updatePermissions( action , user );
-			}
-		}
-		
-		if( authChanged )
-			save( action );
-	}
-
 	public boolean checkLogin( String username , String password ) {
 		try {
 			AuthUser user = getUser( username );
@@ -704,10 +631,22 @@ public class EngineAuth extends EngineObject {
 		return( false );
 	}
 
-	public AuthResource getResource( ActionBase action , String name ) throws Exception {
-		EngineResources resources = action.getServerResources();
-		AuthResource res = resources.getResource( name );
-		return( res );
+	public void unloadAll() throws Exception {
+		mapLocalUsers.clear();
+		mapLocalUsersById.clear();
+		mapLdapUsers.clear();
+		mapLdapUsersById.clear();
+		groups.clear();
+		groupsById.clear();
+		ldapSettings = new AuthLdap( this ); 
+	}
+
+	public void setLdapSettings( ObjectProperties props ) throws Exception {
+		ldapSettings.setLdapSettings( props );
+	}
+	
+	public ObjectProperties getLdapSettings() {
+		return( ldapSettings.getLdapSettings() );
 	}
 	
 }

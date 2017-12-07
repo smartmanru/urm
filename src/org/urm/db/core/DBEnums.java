@@ -194,6 +194,8 @@ public abstract class DBEnums {
 		NETWORK(11,null) ,
 		HOST(12,null) ,
 		ACCOUNT(13,null) ,
+		AUTH_GROUP(15,null) ,
+		AUTH_USER(16,null) ,
 		BASE_CATEGORY(20,null) ,
 		BASE_GROUP(21,null) ,
 		BASE_ITEM(22,null) ,
@@ -308,9 +310,10 @@ public abstract class DBEnums {
 		UNKNOWN(0,null) ,
 		APP(1,null) ,
 		CORE(2,null) ,
-		SYSTEM(3,null) ,
-		PRODUCT(4,null) ,
-		ENVIRONMENT(5,null);
+		AUTH(3,null) ,
+		SYSTEM(4,null) ,
+		PRODUCT(5,null) ,
+		ENVIRONMENT(6,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -336,10 +339,13 @@ public abstract class DBEnums {
 		MIRROR(21,null) ,
 		BUILDER(22,null) ,
 		BUILDREG(23,null) ,
+		LDAPSETTINGS(24,null) ,
 		DATACENTER(31,null) ,
 		NETWORK(32,null) ,
 		HOST(33,null) ,
 		ACCOUNT(34,null) ,
+		AUTHGROUP(35,null) ,
+		AUTHUSER(36,null) ,
 		APPSYSTEM(41,null) ,
 		APPPRODUCT(42,null) ,
 		PRODUCT(50,null) ,

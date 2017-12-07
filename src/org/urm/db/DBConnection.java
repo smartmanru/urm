@@ -21,6 +21,8 @@ import org.urm.meta.product.MetaEnv;
 
 public class DBConnection {
 
+	static int FAST_TIMEOUT = 5;
+
 	public Engine engine;
 	public EngineEntities entities;
 	public ActionBase action;
@@ -29,8 +31,7 @@ public class DBConnection {
 	private Statement stmt;
 	private ResultSet rs;
 
-	static int FAST_TIMEOUT = 5;
-
+	private boolean pendingUpdates;
 	private Map<Integer,OwnerObjectVersion> versions;
 	
 	public DBConnection( Engine engine , EngineEntities entities , ActionBase action , Connection connection ) {
@@ -40,20 +41,24 @@ public class DBConnection {
 		this.connection = connection;
 		
 		versions = new HashMap<Integer,OwnerObjectVersion>();
+		pendingUpdates = false;
 	}
 	
 	public void init() throws Exception {
+		action.trace( "connection created" );
 		stmt = connection.createStatement();
 	}
 	
 	public void close( boolean commit ) {
 		try {
-			save( commit );
+			if( pendingUpdates )
+				save( commit );
 			
 			stmt.close();
 			stmt = null;
 			connection.close();
 			connection = null;
+			action.trace( "connection closed" );
 		}
 		catch( Throwable e ) {
 			log( "close statement" , e );
@@ -65,14 +70,20 @@ public class DBConnection {
 			versions.clear();
 			closeQuery();
 			
-			if( commit )
+			if( commit ) {
 				connection.commit();
-			else
+				action.trace( "commit transaction" );
+			}
+			else {
 				connection.rollback();
+				action.trace( "rollback transaction" );
+			}
 		}
 		catch( Throwable e ) {
 			log( "close statement" , e );
 		}
+		
+		pendingUpdates = false;
 	}
 
 	public EngineEntities getEntities() {
@@ -172,6 +183,7 @@ public class DBConnection {
 		String queryDB = getFinalQuery( query , args );
 		trace( "modify query=" + queryDB + " ..." );
 		try {
+			pendingUpdates = true;
 			stmt.setQueryTimeout( timeout );
 			stmt.executeUpdate( queryDB );
 		}
@@ -228,6 +240,13 @@ public class DBConnection {
 		return( version.VERSION );
 	}
 	
+	public synchronized int getLastObjectVersion( int objectId , DBEnumObjectVersionType type ) throws Exception {
+		OwnerObjectVersion version = getObjectVersion( objectId , type );
+		if( version.nextVersion > 0 )
+			return( version.nextVersion );
+		return( version.VERSION );
+	}
+	
 	public synchronized int getCurrentAppVersion() throws Exception {
 		return( getCurrentObjectVersion( DBVersions.APP_ID , DBEnumObjectVersionType.APP ) );
 	}
@@ -261,11 +280,24 @@ public class DBConnection {
 		return( getLastObjectVersion( DBVersions.CORE_ID , DBEnumObjectVersionType.CORE ) );
 	}
 	
-	public synchronized int getLastObjectVersion( int objectId , DBEnumObjectVersionType type ) throws Exception {
-		OwnerObjectVersion version = getObjectVersion( objectId , type );
-		if( version.nextVersion > 0 )
-			return( version.nextVersion );
-		return( version.VERSION );
+	public synchronized int getCurrentAuthVersion() throws Exception {
+		return( getCurrentObjectVersion( DBVersions.AUTH_ID , DBEnumObjectVersionType.AUTH ) );
+	}
+	
+	public synchronized int getNextAuthVersion() throws Exception {
+		OwnerObjectVersion version = getObjectVersion( DBVersions.AUTH_ID , DBEnumObjectVersionType.AUTH );
+		if( version.nextVersion < 0 ) {
+			if( version.VERSION == 0 ) {
+				version.LAST_NAME = "auth";
+				version.OWNER_STATUS_TYPE = DBEnumOwnerStatusType.ACTIVE;
+			}
+			DBVersions.setNextVersion( this , version , version.VERSION + 1 );
+		}
+		return( version.nextVersion );
+	}
+	
+	public synchronized int getAuthVersion() throws Exception {
+		return( getLastObjectVersion( DBVersions.AUTH_ID , DBEnumObjectVersionType.AUTH ) );
 	}
 	
 	public synchronized int getCurrentSystemVersion( int systemId ) throws Exception {

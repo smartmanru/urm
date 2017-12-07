@@ -3,6 +3,7 @@ package org.urm.engine;
 import java.util.List;
 
 import org.urm.db.core.DBEnums.*;
+import org.urm.db.engine.DBEngineAuth;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineBuilders;
 import org.urm.db.engine.DBEngineDirectory;
@@ -11,6 +12,7 @@ import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMirrors;
 import org.urm.db.engine.DBEngineResources;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.shell.Account;
@@ -18,6 +20,9 @@ import org.urm.meta.EngineData;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
+import org.urm.meta.engine.AuthGroup;
+import org.urm.meta.engine.AuthRoleSet;
+import org.urm.meta.engine.AuthUser;
 import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
@@ -41,6 +46,7 @@ import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.engine.LifecyclePhase;
 import org.urm.meta.engine.AppSystem;
+import org.urm.meta.engine.EngineAuth.SpecialRights;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
@@ -87,6 +93,8 @@ public class EngineTransaction extends TransactionBase {
 	//		directory:
 	//			DIRECTORY
 	//			MONITORING
+	//		auth:
+	//			AUTH
 	//		product:
 	//			PRODUCT
 	//			ENVIRONMENT
@@ -135,6 +143,8 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void deleteResource( AuthResource rc ) throws Exception {
 		checkTransactionResources( rc.resources );
+		EngineAuth auth = action.getServerAuth();
+		DBEngineAuth.deleteResourceAccess( this , auth , rc );
 		DBEngineResources.deleteResource( this , rc.resources , rc );
 	}
 
@@ -325,7 +335,7 @@ public class EngineTransaction extends TransactionBase {
 	public void deleteDatacenter( Datacenter datacenter ) throws Exception {
 		checkTransactionInfrastructure();
 		EngineAuth auth = action.getServerAuth();
-		auth.deleteDatacenter( this , datacenter );
+		DBEngineAuth.deleteDatacenterAccess( this , auth , datacenter );
 		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.deleteDatacenter( this , infra , datacenter );
 	}
@@ -345,7 +355,7 @@ public class EngineTransaction extends TransactionBase {
 	public void deleteNetwork( Network network ) throws Exception {
 		checkTransactionInfrastructure();
 		EngineAuth auth = action.getServerAuth();
-		auth.deleteNetwork( this , network );
+		DBEngineAuth.deleteNetworkAccess( this , auth , network );
 		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.deleteNetwork( this , infra , network );
 	}
@@ -469,10 +479,86 @@ public class EngineTransaction extends TransactionBase {
 		
 		DBEngineMirrors.deleteProductResources( this , mirrors , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		EngineAuth auth = action.getServerAuth();
-		auth.deleteProduct( this , product );
+		DBEngineAuth.deleteProductAccess( this , auth , product );
 		DBEngineDirectory.deleteProduct( this , product.directory , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 	}
 
+	// ################################################################################
+	// ################################################################################
+	// AUTH
+	
+	public void disableLdap() throws Exception {
+		checkTransactionAuth();
+		EngineAuth auth = action.getServerAuth();
+		DBEngineAuth.disableLdap( this , auth );
+	}
+	
+	public void enableLdap( ObjectProperties ops ) throws Exception {
+		checkTransactionAuth();
+		EngineAuth auth = action.getServerAuth();
+		DBEngineAuth.enableLdap( this , auth , ops );
+	}
+	
+	public AuthGroup createAuthGroup( String name , String desc ) throws Exception {
+		checkTransactionAuth();
+		EngineAuth auth = action.getServerAuth();
+		return( DBEngineAuth.createGroup( this , auth , name , desc ) );
+	}
+	
+	public void modifyAuthGroup( AuthGroup group , String name , String desc ) throws Exception {
+		checkTransactionAuth();
+		EngineAuth auth = action.getServerAuth();
+		DBEngineAuth.modifyGroup( this , auth , group , name , desc );
+	}
+	
+	public void deleteAuthGroup( AuthGroup group ) throws Exception {
+		checkTransactionAuth();
+		EngineAuth auth = action.getServerAuth();
+		DBEngineAuth.deleteGroup( this , auth , group );
+	}
+	
+	public AuthUser createAuthLocalUser( String name , String desc , String full , String email , boolean admin ) throws Exception {
+		checkTransactionAuth();
+		EngineAuth auth = action.getServerAuth();
+		return( DBEngineAuth.createLocalUser( this , auth , name , desc , full , email , admin ) );
+	}
+	
+	public void modifyAuthLocalUser( AuthUser user , String name , String desc , String full , String email , boolean admin ) throws Exception {
+		checkTransactionAuth();
+		EngineAuth auth = action.getServerAuth();
+		DBEngineAuth.modifyLocalUser( this , auth , user , name , desc , full , email , admin );
+	}
+	
+	public void deleteAuthLocalUser( AuthUser user ) throws Exception {
+		checkTransactionAuth();
+		EngineAuth auth = action.getServerAuth();
+		DBEngineAuth.deleteLocalUser( this , auth , user );
+	}
+	
+	public void addGroupLocalUsers( AuthGroup group , String[] users ) throws Exception {
+		checkTransactionAuth();
+		EngineAuth auth = action.getServerAuth();
+		DBEngineAuth.addGroupLocalUsers( this , auth , group , users );
+	}
+	
+	public void addGroupLdapUsers( AuthGroup group , String[] users ) throws Exception {
+		checkTransactionAuth();
+		EngineAuth auth = action.getServerAuth();
+		DBEngineAuth.addGroupLdapUsers( this , auth , group , users );
+	}
+	
+	public void deleteGroupUsers( AuthGroup group , String[] users ) throws Exception {
+		checkTransactionAuth();
+		EngineAuth auth = action.getServerAuth();
+		DBEngineAuth.deleteGroupUsers( this , auth , group , users );
+	}
+	
+	public void setGroupPermissions( AuthGroup group , AuthRoleSet roles , boolean allResources , String[] resources , boolean allProd , String[] products , boolean allNet , String[] networks , SpecialRights[] special ) throws Exception {
+		checkTransactionAuth();
+		EngineAuth auth = action.getServerAuth();
+		DBEngineAuth.setGroupPermissions( this , auth , group , roles , allResources , resources , allProd , products , allNet , networks , special );
+	}
+	
 	// ################################################################################
 	// ################################################################################
 	// MONITORING

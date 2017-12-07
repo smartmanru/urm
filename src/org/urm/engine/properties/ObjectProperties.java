@@ -264,6 +264,11 @@ public class ObjectProperties {
 		setProperty( prop , value );
 	}
 
+	public void setObjectProperty( String prop , Integer value ) throws Exception {
+		int pv = ( value == null )? 0 : value;
+		setProperty( prop , "" + pv );
+	}
+
 	public void setPathProperty( String prop , String value ) throws Exception {
 		setProperty( prop , value );
 	}

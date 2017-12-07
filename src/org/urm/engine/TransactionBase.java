@@ -62,6 +62,7 @@ public class TransactionBase extends EngineObject {
 	private boolean SERVERVERSIONUPDATE;
 	
 	// changed without copy
+	protected EngineAuth authChange;
 	protected EngineInfrastructure infraChange;
 	protected EngineBase baseChange;
 	protected EngineLifecycles lifecyclesChange;
@@ -164,6 +165,7 @@ public class TransactionBase extends EngineObject {
 				handle( e , "unable to rollback database changes" );
 			}
 			
+			authChange = null;
 			infraChange = null;
 			lifecyclesChange = null;
 			baseChange = null;
@@ -339,6 +341,31 @@ public class TransactionBase extends EngineObject {
 		trace( "core version update, version=" + version );
 	}
 	
+	public boolean changeAuth( EngineAuth sourceAuth ) {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+					
+				if( authChange != null )
+					return( true );
+
+				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
+					return( false );
+				
+				changeEngineDatabase();
+				authChange = sourceAuth;
+				return( true );
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to change infrastructure" );
+			}
+			
+			abortTransaction( false );
+			return( false );
+		}
+	}
+
 	public boolean changeInfrastructure( EngineInfrastructure sourceInfrastructure , Network network ) {
 		synchronized( engine ) {
 			try {
@@ -701,6 +728,12 @@ public class TransactionBase extends EngineObject {
 	protected void checkTransaction() throws Exception {
 		if( !continueTransaction() )
 			exit( _Error.TransactionAborted0 , "Transaction is aborted" , null );
+	}
+
+	protected void checkTransactionAuth() throws Exception {
+		checkTransaction();
+		if( authChange == null )
+			exit( _Error.TransactionMissingAuthChanges0 , "Missing auth changes" , null );
 	}
 
 	protected void checkTransactionInfrastructure() throws Exception {

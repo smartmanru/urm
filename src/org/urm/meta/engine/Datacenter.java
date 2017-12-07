@@ -22,11 +22,13 @@ public class Datacenter extends EngineObject {
 	public int CV;
 	
 	Map<String,Network> mapNetworks;
+	Map<Integer,Network> mapNetworksById;
 	
 	public Datacenter( EngineInfrastructure infra ) {
 		super( infra );
 		this.infra = infra;
 		mapNetworks = new HashMap<String,Network>();
+		mapNetworksById = new HashMap<Integer,Network>();
 		ID = -1;
 		CV = 0;
 	}
@@ -52,10 +54,15 @@ public class Datacenter extends EngineObject {
 	
 	public void addNetwork( Network net ) {
 		mapNetworks.put( net.NAME , net );
+		mapNetworksById.put( net.ID , net );
 	}
 	
-	public Network findNetwork( String name) {
+	public Network findNetwork( String name ) {
 		return( mapNetworks.get( name ) );
+	}
+	
+	public Network findNetwork( Integer id ) {
+		return( mapNetworksById.get( id ) );
 	}
 	
 	public String[] getNetworkNames() {

@@ -15,20 +15,29 @@ import javax.naming.directory.SearchResult;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.engine.action.ActionInit;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import org.urm.engine.properties.ObjectProperties;
 
 public class AuthLdap {
 
+	public static String PROPERTY_LDAPUSE = "useldap";
+	public static String PROPERTY_HOST = "host";
+	public static String PROPERTY_PORT = "port";
+	public static String PROPERTY_LOGIN_RESOURCE = "resource";
+	public static String PROPERTY_USERDN = "userdn";
+	public static String PROPERTY_USERCLASS = "userclass";
+	public static String PROPERTY_USERFILTER = "userfilter";
+	public static String PROPERTY_NAMEATTR = "nameattr";
+	public static String PROPERTY_DISPLAYNAMEATTR = "displaynameattr";
+	public static String PROPERTY_EMAILATTR = "emailattr";
+	public static String PROPERTY_PASSWORDATTR = "passwordattr";
+	
 	EngineAuth auth;
 	
 	public boolean ldapUse;
 	public String ldapHost;
 	public int ldapPort;
-	public String ldapUserRes;
+	public Integer ldapUserRes;
 	public String userDN;
 	public String userClass;
 	public String userFilter;
@@ -44,6 +53,8 @@ public class AuthLdap {
 	public String PROVIDER_URL;
 
 	boolean ldapStarted;
+
+	ObjectProperties props;
 	
 	public AuthLdap( EngineAuth auth ) {
 		this.auth = auth;
@@ -51,11 +62,36 @@ public class AuthLdap {
 		setNotUse();
 	}
 
+	public void setLdapSettings( ObjectProperties props ) throws Exception {
+		stop();
+		this.props = props;
+		
+		ldapUse = props.getBooleanProperty( PROPERTY_LDAPUSE );
+		if( ldapUse ) {
+			ldapHost = props.getStringProperty( PROPERTY_HOST );
+			ldapPort = props.getIntProperty( PROPERTY_PORT );
+			ldapUserRes = props.getObjectProperty( PROPERTY_LOGIN_RESOURCE );
+			userDN = props.getStringProperty( PROPERTY_USERDN );
+			userClass = props.getStringProperty( PROPERTY_USERCLASS );
+			userFilter = props.getStringProperty( PROPERTY_USERFILTER );
+			userNameAttr = props.getStringProperty( PROPERTY_DISPLAYNAMEATTR );
+			userDisplayNameAttr = props.getStringProperty( PROPERTY_NAMEATTR );
+			userEmailAttr = props.getStringProperty( PROPERTY_EMAILATTR );
+			userPasswordAttr = props.getStringProperty( PROPERTY_PASSWORDATTR );
+		}
+		else
+			setNotUse();
+	}
+
+	public ObjectProperties getLdapSettings() {
+		return( props );
+	}
+	
 	public void setNotUse() {
 		ldapUse = false;
 		ldapPort = 0;
 		ldapHost = "";
-		ldapUserRes = "";
+		ldapUserRes = null;
 		userDN = "";
 		userClass = "";
 		userFilter = "";
@@ -65,55 +101,22 @@ public class AuthLdap {
 		userPasswordAttr = "";
 	}
 
-	public void setServer( String host , int port , String res ) {
-		ldapUse = true;
-		ldapPort = port;
-		ldapHost = host;
-		ldapUserRes = res;
+	public static void setServerData( ObjectProperties ops , String host , int port , Integer resource ) throws Exception {
+		ops.setIntProperty( PROPERTY_PORT , port );
+		ops.setStringProperty( PROPERTY_HOST, host );
+		ops.setObjectProperty( PROPERTY_LOGIN_RESOURCE , resource );
 	}
 
-	public void setUserData( String userDN , String userClass , String userFilter , String userNameAttr , String userDisplayNameAttr , String userEmailAttr , String userPasswordAttr ) {
-		this.userDN = userDN;
-		this.userClass = userClass;
-		this.userFilter = userFilter;
-		this.userNameAttr = userNameAttr;
-		this.userDisplayNameAttr = userDisplayNameAttr;
-		this.userEmailAttr = userEmailAttr;
-		this.userPasswordAttr = userPasswordAttr;
+	public static void setUserData( ObjectProperties ops , String userDN , String userClass , String userFilter , String userNameAttr , String userDisplayNameAttr , String userEmailAttr , String userPasswordAttr ) throws Exception {
+		ops.setStringProperty( PROPERTY_USERDN , userDN );
+		ops.setStringProperty( PROPERTY_USERCLASS , userClass );
+		ops.setStringProperty( PROPERTY_USERFILTER , userFilter );
+		ops.setStringProperty( PROPERTY_NAMEATTR , userNameAttr );
+		ops.setStringProperty( PROPERTY_DISPLAYNAMEATTR , userDisplayNameAttr );
+		ops.setStringProperty( PROPERTY_EMAILATTR , userEmailAttr );
+		ops.setStringProperty( PROPERTY_PASSWORDATTR , userPasswordAttr );
 	}
 	
-	public void load( Node root ) throws Exception {
-		ldapUse = ConfReader.getBooleanAttrValue( root , "useldap" , false );
-		if( ldapUse ) {
-			ldapHost = ConfReader.getAttrValue( root , "host" );
-			ldapPort = ConfReader.getIntegerAttrValue( root , "port" , 0 );
-			ldapUserRes = ConfReader.getAttrValue( root , "resource" );
-			userDN = ConfReader.getAttrValue( root , "userdn" );
-			userClass = ConfReader.getAttrValue( root , "userclass" );
-			userFilter = ConfReader.getAttrValue( root , "userfilter" );
-			userNameAttr = ConfReader.getAttrValue( root , "nameattr" );
-			userDisplayNameAttr = ConfReader.getAttrValue( root , "displaynameattr" );
-			userEmailAttr = ConfReader.getAttrValue( root , "emailattr" );
-			userPasswordAttr = ConfReader.getAttrValue( root , "passwordattr" );
-		}
-	}
-	
-	public void save( Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "useldap" , Common.getBooleanValue( ldapUse ) );
-		if( ldapUse ) {
-			Common.xmlSetElementAttr( doc , root , "host" , ldapHost );
-			Common.xmlSetElementAttr( doc , root , "port" , "" + ldapPort );
-			Common.xmlSetElementAttr( doc , root , "resource" , ldapUserRes );
-			Common.xmlSetElementAttr( doc , root , "userdn" , userDN );
-			Common.xmlSetElementAttr( doc , root , "userclass" , userClass );
-			Common.xmlSetElementAttr( doc , root , "userfilter" , userFilter );
-			Common.xmlSetElementAttr( doc , root , "nameattr" , userNameAttr );
-			Common.xmlSetElementAttr( doc , root , "displaynameattr" , userDisplayNameAttr );
-			Common.xmlSetElementAttr( doc , root , "emailattr" , userEmailAttr );
-			Common.xmlSetElementAttr( doc , root , "passwordattr" , userPasswordAttr );
-		}
-	}
-
 	private void create( ActionInit action ) throws Exception {
 		if( !ldapUse )
 			return;
@@ -141,10 +144,11 @@ public class AuthLdap {
 		// "simple" if a read-only search account is required; "none" if anonymous
 		LDAP_ENV.put( Context.SECURITY_AUTHENTICATION , "simple" );
 		// The read-only account's DN, if not anonymous.  e.g. "uid=admin,ou=system"
-		if( ldapUserRes.isEmpty() )
+		if( ldapUserRes == null )
 			return;
 		
-		AuthResource res = auth.getResource( action , ldapUserRes );
+		EngineResources resources = action.getServerResources();
+		AuthResource res = resources.getResource( ldapUserRes );
 		res.loadAuthData();
 		if( !res.ac.isCommon() )
 			return;
@@ -161,8 +165,10 @@ public class AuthLdap {
 		ldapStarted = true;
 	}
 	
-	public void stop( ActionInit action ) throws Exception {
+	public void stop() {
 		ldapStarted = false;
+		USER_FILTER = null;
+		LDAP_ENV.clear();
 	}
 	
 	private String getUserFilter( boolean allUsers , String userFilter ) {
@@ -261,7 +267,7 @@ public class AuthLdap {
 		return( obj.toString() );
 	}
 	
-	public AuthUser getLdapUserData( ActionBase action , String username ) throws Exception {
+	public AuthLdapUser getLdapUserData( ActionBase action , String username ) throws Exception {
 		if( !ldapUse )
 			return( null );
 		
@@ -269,8 +275,7 @@ public class AuthLdap {
 			start( action.actionInit );
 		
 		SearchResult res = findUser( username );
-		AuthUser user = new AuthUser( auth );
-		user.create( action , false , username , getAttr( res , userEmailAttr ) , getAttr( res , userDisplayNameAttr ) , false );
+		AuthLdapUser user = new AuthLdapUser( username , getAttr( res , userEmailAttr ) , getAttr( res , userDisplayNameAttr ) );
 		return( user );
 	}
 

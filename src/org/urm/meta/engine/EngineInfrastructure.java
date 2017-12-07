@@ -13,6 +13,7 @@ public class EngineInfrastructure extends EngineObject {
 	
 	private Map<String,Datacenter> mapDatacenters;
 	private Map<Integer,Datacenter> mapDatacentersById;
+	private Map<String,Network> mapNetworks;
 	private Map<Integer,Network> mapNetworksById;
 	private Map<Integer,NetworkHost> mapHostsById;
 	
@@ -21,6 +22,7 @@ public class EngineInfrastructure extends EngineObject {
 		this.engine = engine;
 		mapDatacenters = new HashMap<String,Datacenter>(); 
 		mapDatacentersById = new HashMap<Integer,Datacenter>();
+		mapNetworks = new HashMap<String,Network>();
 		mapNetworksById = new HashMap<Integer,Network>();
 		mapHostsById = new HashMap<Integer,NetworkHost>();
 	}
@@ -37,6 +39,7 @@ public class EngineInfrastructure extends EngineObject {
 
 	public void addNetwork( Network network ) {
 		network.datacenter.addNetwork( network );
+		mapNetworks.put( network.NAME , network );
 		mapNetworksById.put( network.ID , network );
 	}
 
@@ -54,11 +57,20 @@ public class EngineInfrastructure extends EngineObject {
 	}
 	
 	public void updateNetwork( Network network ) throws Exception {
+		Common.changeMapKey( mapNetworks , network , network.NAME );
 		network.datacenter.updateNetwork( network );
 	}
 	
 	public Datacenter findDatacenter( String name ) {
 		return( mapDatacenters.get( name ) );
+	}
+
+	public Network findNetwork( String name ) {
+		return( mapNetworks.get( name ) );
+	}
+
+	public Network findNetwork( int id ) {
+		return( mapNetworksById.get( id ) );
 	}
 
 	public Datacenter getDatacenter( String name ) throws Exception {
@@ -82,6 +94,13 @@ public class EngineInfrastructure extends EngineObject {
 		return( network );
 	}
 
+	public Network getNetwork( String name ) throws Exception {
+		Network network = mapNetworks.get( name );
+		if( network == null )
+			Common.exit1( _Error.UnknownNetwork1 , "Unknown network=" + name , "" + name );
+		return( network );
+	}
+
 	public NetworkHost getHost( int id ) throws Exception {
 		NetworkHost host = mapHostsById.get( id );
 		if( host == null )
@@ -100,6 +119,7 @@ public class EngineInfrastructure extends EngineObject {
 
 	public void removeNetwork( Network network ) throws Exception {
 		network.datacenter.removeNetwork( network );
+		mapNetworks.remove( network.NAME );
 		mapNetworksById.remove( network.ID );
 	}
 

@@ -192,6 +192,17 @@ public class ConfReader {
         }
         return( null );
     }
+
+    public static String[] xmlGetNamedElements( Node node , String element ) throws Exception {
+    	Node[] nodes = xmlGetChildren( node , element );
+    	if( nodes == null )
+    		return( new String[0] );
+    	
+    	String[] names = new String[ nodes.length ];
+    	for( int k = 0; k < nodes.length; k++ )
+    		names[ k ] = getAttrValue( node , "name" );
+    	return( names );
+    }
     
     public static String xmlGetPathNodeText( Node node , String path ) throws Exception {
         node = xmlGetPathNode( node , path );

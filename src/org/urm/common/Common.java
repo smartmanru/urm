@@ -446,6 +446,13 @@ public class Common {
 		return( el );
 	}
 
+	public static Element xmlCreateNamedElement( Document doc , Element parent , String element , String name ) throws Exception {
+		Element el = doc.createElement( element );
+		parent.appendChild( el );
+		xmlSetNameAttr( doc , el , name );
+		return( el );
+	}
+
 	public static Element xmlCreateBooleanPropertyElement( Document doc , Element parent , String propName , boolean propValue ) throws Exception {
 		String value = getBooleanValue( propValue );
 		return( xmlCreatePropertyElement( doc , parent , propName , value ) );
@@ -461,6 +468,16 @@ public class Common {
 
 	public static void xmlSetElementAttr( Document doc , Element element , String attrName , String value ) throws Exception {
 		Attr attr = doc.createAttribute( attrName );
+		attr.setValue( value );
+		element.setAttributeNode( attr );
+	}
+
+	public static void xmlSetElementBooleanAttr( Document doc , Element element , String attrName , boolean value ) throws Exception {
+		xmlSetElementAttr( doc , element , attrName , Common.getBooleanValue( value ) );
+	}
+	
+	public static void xmlSetNameAttr( Document doc , Element element , String value ) throws Exception {
+		Attr attr = doc.createAttribute( "name" );
 		attr.setValue( value );
 		element.setAttributeNode( attr );
 	}

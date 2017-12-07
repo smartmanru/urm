@@ -67,6 +67,11 @@ public class PropertyEntity {
 		return( entity );
 	}
 	
+	public static PropertyEntity getAppAttrsEntity( DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType dataObjectVersionType ) throws Exception {
+		PropertyEntity entity = new PropertyEntity( DBVersions.APP_ID , entityType , false , false , null , objectType , DBVersions.APP_ID , DBEnumObjectVersionType.APP , dataObjectVersionType , null );
+		return( entity );
+	}
+	
 	public static PropertyEntity getCustomEntity( int paramObjectId , DBEnumObjectType objectType , DBEnumParamEntityType entityType , int metaObjectId , DBEnumObjectVersionType dataObjectVersionType ) throws Exception {
 		PropertyEntity entity = new PropertyEntity( paramObjectId , entityType , true , true , null , objectType , metaObjectId , dataObjectVersionType , dataObjectVersionType , null );
 		return( entity );
@@ -154,6 +159,8 @@ public class PropertyEntity {
 			return( EngineEntities.FIELD_VERSION_PRODUCT );
 		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.ENVIRONMENT )
 			return( EngineEntities.FIELD_VERSION_ENVIRONMENT );
+		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.AUTH )
+			return( EngineEntities.FIELD_VERSION_AUTH );
 		return( null );
 	}
 

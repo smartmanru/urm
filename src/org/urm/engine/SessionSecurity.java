@@ -19,10 +19,12 @@ public class SessionSecurity {
 	private AuthContext ac;
 
 	AuthRoleSet secBase;
+	AuthRoleSet secResourceAny;
 	AuthRoleSet secProductAny;
 	AuthRoleSet secNetworkAny;
-	Map<String,AuthRoleSet> secProduct;
-	Map<String,AuthRoleSet> secNetwork;
+	Map<Integer,AuthRoleSet> secResource;
+	Map<Integer,AuthRoleSet> secProduct;
+	Map<Integer,AuthRoleSet> secNetwork;
 	Map<SpecialRights,Integer> secSpecial;
 	
 	public SessionSecurity( EngineAuth auth ) {
@@ -31,8 +33,9 @@ public class SessionSecurity {
 		secBase = new AuthRoleSet();
 		secProductAny = new AuthRoleSet();
 		secNetworkAny = new AuthRoleSet();
-		secProduct = new HashMap<String,AuthRoleSet>();
-		secNetwork = new HashMap<String,AuthRoleSet>();
+		secResource = new HashMap<Integer,AuthRoleSet>();
+		secProduct = new HashMap<Integer,AuthRoleSet>();
+		secNetwork = new HashMap<Integer,AuthRoleSet>();
 		secSpecial = new HashMap<SpecialRights,Integer>(); 
 	}
 
@@ -69,8 +72,10 @@ public class SessionSecurity {
 			return;
 		
 		secBase.clear();
+		secResourceAny.clear();
 		secProductAny.clear();
 		secNetworkAny.clear();
+		secResource.clear();
 		secProduct.clear();
 		secNetwork.clear();
 		secSpecial.clear();
@@ -79,14 +84,28 @@ public class SessionSecurity {
 			if( group.hasUser( user ) ) {
 				secBase.add( group.roles );
 				
+				if( group.anyResources )
+					secResourceAny.add( group.roles );
+				else {
+					for( int resourceId : group.getPermissionResources() ) {
+						AuthRoleSet roles = secResource.get( resourceId );
+						if( roles == null ) {
+							roles = new AuthRoleSet( group.roles );
+							secResource.put( resourceId , roles );
+						}
+						else
+							roles.add( group.roles );
+					}
+				}
+				
 				if( group.anyProducts )
 					secProductAny.add( group.roles );
 				else {
-					for( String product : group.getPermissionProducts() ) {
-						AuthRoleSet roles = secProduct.get( product );
+					for( int productId : group.getPermissionProducts() ) {
+						AuthRoleSet roles = secProduct.get( productId );
 						if( roles == null ) {
 							roles = new AuthRoleSet( group.roles );
-							secProduct.put( product , roles );
+							secProduct.put( productId , roles );
 						}
 						else
 							roles.add( group.roles );
@@ -96,11 +115,11 @@ public class SessionSecurity {
 				if( group.anyNetworks )
 					secNetworkAny.add( group.roles );
 				else {
-					for( String network : group.getPermissionNetworks() ) {
-						AuthRoleSet roles = secNetwork.get( network );
+					for( Integer networkId : group.getPermissionNetworks() ) {
+						AuthRoleSet roles = secNetwork.get( networkId );
 						if( roles == null ) {
 							roles = new AuthRoleSet( group.roles );
-							secNetwork.put( network , roles );
+							secNetwork.put( networkId , roles );
 						}
 						else
 							roles.add( group.roles );
@@ -117,6 +136,14 @@ public class SessionSecurity {
 		return( new AuthRoleSet( secBase ) );
 	}
 
+	public synchronized AuthRoleSet getResourceRoles( String resourceName ) {
+		AuthRoleSet set = new AuthRoleSet( secResourceAny );
+		AuthRoleSet roles = secProduct.get( resourceName );
+		if( roles != null )
+			set.add( roles );
+		return( set );
+	}
+	
 	public synchronized AuthRoleSet getProductRoles( String productName ) {
 		AuthRoleSet set = new AuthRoleSet( secProductAny );
 		AuthRoleSet roles = secProduct.get( productName );

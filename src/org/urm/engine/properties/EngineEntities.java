@@ -3,6 +3,7 @@ package org.urm.engine.properties;
 import org.urm.db.core.DBVersions;
 
 import org.urm.db.core.DBEnums.*;
+import org.urm.db.engine.DBEngineAuth;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineBuilders;
 import org.urm.db.engine.DBEngineContext;
@@ -36,6 +37,7 @@ public class EngineEntities {
 	public static String FIELD_VERSION_SYSTEM = "sv"; 
 	public static String FIELD_VERSION_PRODUCT = "pv"; 
 	public static String FIELD_VERSION_ENVIRONMENT = "ev"; 
+	public static String FIELD_VERSION_AUTH = "uv"; 
 	
 	public Engine engine;
 
@@ -60,6 +62,9 @@ public class EngineEntities {
 	public PropertyEntity entityAppResource;
 	public PropertyEntity entityAppMirror;
 	public PropertyEntity entityAppProjectBuilder;
+	public PropertyEntity entityAppLDAPSettings;
+	public PropertyEntity entityAppAuthUser;
+	public PropertyEntity entityAppAuthGroup;
 	
 	public EngineEntities( Engine engine ) {
 		this.engine = engine;
@@ -84,6 +89,9 @@ public class EngineEntities {
 		entityAppResource = DBEngineResources.upgradeEntityResource( loader );
 		entityAppMirror = DBEngineMirrors.upgradeEntityMirror( loader );
 		entityAppProjectBuilder = DBEngineBuilders.upgradeEntityBuilder( loader );
+		entityAppLDAPSettings = DBEngineAuth.upgradeEntityLDAPSettings( loader );
+		entityAppAuthUser = DBEngineAuth.upgradeEntityAuthUser( loader );
+		entityAppAuthGroup = DBEngineAuth.upgradeEntityAuthGroup( loader );
 		useCustom( loader );
 	}
 	
@@ -106,6 +114,9 @@ public class EngineEntities {
 		entityAppResource = DBEngineResources.loaddbEntityResource( loader );
 		entityAppMirror = DBEngineMirrors.loaddbEntityMirror( loader );
 		entityAppProjectBuilder = DBEngineBuilders.loaddbEntityBuilder( loader );
+		entityAppLDAPSettings = DBEngineAuth.loaddbEntityLDAPSettings( loader );
+		entityAppAuthUser = DBEngineAuth.loaddbEntityAuthUser( loader );
+		entityAppAuthGroup = DBEngineAuth.loaddbEntityAuthGroup( loader );
 		useCustom( loader );
 	}
 	
