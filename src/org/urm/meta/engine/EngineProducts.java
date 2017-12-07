@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
+import org.urm.db.engine.DBEngineDirectory;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineDB;
 import org.urm.engine.EngineSession;
@@ -123,8 +125,18 @@ public class EngineProducts {
 		return( storage );
 	}
 
-	private void addProduct( ProductMeta set ) {
+	private boolean addProduct( EngineLoader loader , ProductMeta set ) {
+		EngineDirectory directory = loader.getDirectory();
+		AppProduct product = directory.findProduct( set.name );
+		
+		if( !DBEngineDirectory.matchProduct( loader , directory , product , set , false ) ) {
+			set.meta.deleteObject();
+			set.deleteObject();
+			return( false );
+		}
+		
 		productMeta.put( set.name , set );
+		return( true );
 	}
 
 	private ProductMeta loadProduct( ActionBase action , String name , boolean savedb ) {
@@ -182,7 +194,9 @@ public class EngineProducts {
 			ProductMeta storage = productMeta.get( productName );
 			if( storage != null )
 				unloadProduct( storage );
-			addProduct( storageNew );
+			
+			if( !addProduct( loader , storageNew ) )
+				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + productName , productName );
 		}
 	}
 	
@@ -226,9 +240,9 @@ public class EngineProducts {
 		ActionBase action = loader.getAction();
 		unloadProducts();
 		EngineDirectory directory = loader.getDirectory();
-		for( String name : directory.getProductNames() ) {
+		for( String name : directory.getAllProductNames( null ) ) {
 			ProductMeta product = loadProduct( action , name , false );
-			addProduct( product );
+			addProduct( loader , product );
 		}
 	}
 

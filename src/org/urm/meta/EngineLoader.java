@@ -144,7 +144,13 @@ public class EngineLoader {
 	}
 
 	public LocalFolder getProductHomeFolder( String productName ) throws Exception {
-		Meta meta = action.actionInit.getActiveProductMetadata( productName );
+		Meta meta = action.actionInit.findActiveProductMetadata( productName );
+		if( meta == null ) {
+			String path = Common.getPath( execrc.installPath , "products/" + productName );
+			LocalFolder folder = new LocalFolder( path , execrc.isWindows() );
+			return( folder );
+		}
+		
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , meta );
 		LocalFolder folder = storageMeta.getHomeFolder( action );
 		return( folder );
@@ -237,10 +243,29 @@ public class EngineLoader {
 	}
 
 	public void importRepo( MirrorRepository repo ) throws Exception {
-		if( repo.isServer() )
-			importCore( true );
-		else
-			importProduct( repo.productId , true );
+		EngineDB db = data.getDatabase();
+		try {
+			connection = db.getConnection( action );
+			matcher = new EngineMatcher( this );
+			entities = data.getEntities();
+			
+			if( repo.isServer() )
+				importCore( true );
+			else
+				importProduct( repo.productId , true );
+			
+			connection.close( true );
+			connection = null;
+			setData();
+		}
+		catch( Throwable e ) {
+			log( "import repository" , e );
+			trace( "unable to import repository" );
+			
+			connection.close( false );
+			connection = null;
+			Common.exitUnexpected();
+		}
 	}
 	
 	public void exportRepo( MirrorRepository repo ) throws Exception {
@@ -567,10 +592,29 @@ public class EngineLoader {
 	}
 	
 	public void loadProducts() throws Exception {
-		trace( "load engine products data ..." );
-		data.unloadProducts();
-		EngineProducts products = data.getProducts();
-		products.loadProducts( this );
+		EngineDB db = data.getDatabase();
+		try {
+			connection = db.getConnection( action );
+			matcher = new EngineMatcher( this );
+			entities = data.getEntities();
+
+			trace( "load engine products data ..." );
+			data.unloadProducts();
+			EngineProducts products = data.getProducts();
+			products.loadProducts( this );
+			
+			connection.close( true );
+			connection = null;
+			setData();
+		}
+		catch( Throwable e ) {
+			log( "init" , e );
+			trace( "unable to load products data" );
+			
+			connection.close( false );
+			connection = null;
+			Common.exitUnexpected();
+		}
 	}
 
 	private void importxmlAuth( EngineAuth auth ) throws Exception {

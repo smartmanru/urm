@@ -151,6 +151,7 @@ public class EngineDirectory extends EngineObject {
 		if( !system.MATCHED )
 			Common.exitUnexpected();
 		
+		mapSystemUnmatched.remove( system.ID );
 		mapSystems.put( system.NAME , system );
 		if( system.ID > 0 )
 			mapSystemsById.put( system.ID , system );
@@ -181,8 +182,6 @@ public class EngineDirectory extends EngineObject {
 	}
 
 	public void addUnmatchedSystem( AppSystem system ) throws Exception {
-		if( system.MATCHED )
-			Common.exitUnexpected();
 		mapSystemUnmatched.put( system.ID , system );
 	}
 	
@@ -197,7 +196,8 @@ public class EngineDirectory extends EngineObject {
 		product.system.removeProduct( product );
 	}
 	
-	public void addProduct( AppProduct product ) throws Exception {
+	public void addProduct( AppProduct product ) {
+		mapProductUnmatched.remove( product.ID );
 		mapProducts.put( product.NAME , product );
 		mapProductsById.put( product.ID , product );
 		product.system.addProduct( product );

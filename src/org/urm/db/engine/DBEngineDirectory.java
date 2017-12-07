@@ -20,6 +20,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineMatcher;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.AppSystem;
@@ -86,12 +87,12 @@ public abstract class DBEngineDirectory {
 		if( items != null ) {
 			for( Node itemNode : items ) {
 				AppSystem system = importxmlSystem( loader , directory , itemNode );
-				directory.addSystem( system );
+				directory.addUnmatchedSystem( system );
 			}
 		}
 		
 		// match systems to engine
-		match( loader , directory , true );
+		matchSystems( loader , directory , true );
 	}
 	
 	private static AppSystem importxmlSystem( EngineLoader loader , EngineDirectory directory , Node root ) throws Exception {
@@ -101,7 +102,7 @@ public abstract class DBEngineDirectory {
 		if( items != null ) {
 			for( Node itemNode : items ) {
 				AppProduct product = importxmlProduct( loader , directory , system , itemNode );
-				directory.addProduct( product );
+				directory.addUnmatchedProduct( product );
 			}
 		}
 		return( system );
@@ -140,13 +141,13 @@ public abstract class DBEngineDirectory {
 		loaddbProducts( loader , directory );
 		
 		// match systems to engine
-		match( loader , directory , false );
+		matchSystems( loader , directory , false );
 	}
 	
 	private static void loaddbSystems( EngineLoader loader , EngineDirectory directory ) throws Exception {
 		AppSystem[] systems = DBAppSystem.loaddb( loader , directory );
 		for( AppSystem system : systems )
-			directory.addSystem( system );
+			directory.addUnmatchedSystem( system );
 	}
 	
 	private static void loaddbProducts( EngineLoader loader , EngineDirectory directory ) throws Exception {
@@ -155,11 +156,20 @@ public abstract class DBEngineDirectory {
 			directory.addUnmatchedProduct( product );
 	}
 
-	public static void match( EngineLoader loader , EngineDirectory directory , boolean update ) throws Exception {
+	public static void matchSystems( EngineLoader loader , EngineDirectory directory , boolean update ) {
 		EngineMatcher matcher = loader.getMatcher();
 		matcher.prepareMatchDirectory();
 		
-		for( AppSystem system : directory.getSystems() ) {
+		for( String name : directory.getAllSystemNames() ) {
+			AppSystem system = directory.findSystem( name );
+			matchSystem( loader , directory , system , update );
+		}
+	}
+	
+	public static void matchSystem( EngineLoader loader , EngineDirectory directory , AppSystem system , boolean update ) {
+		EngineMatcher matcher = loader.getMatcher();
+		
+		try {
 			if( update ) {
 				matcher.prepareMatchSystem( system , true , true );
 				DBAppSystem.matchSystem( loader , directory , system , update );
@@ -172,6 +182,32 @@ public abstract class DBEngineDirectory {
 			
 			matcher.doneSystem( system );
 		}
+		catch( Throwable e ) {
+			loader.log( "match problem " , e );
+			return;
+		}
+	}
+	
+	public static boolean matchProduct( EngineLoader loader , EngineDirectory directory , AppProduct product , ProductMeta set , boolean update ) {
+		// match to mirrors
+		EngineMatcher matcher = loader.getMatcher();
+		matcher.matchProductMirrors( product );
+		
+		// product meta
+		if( set.loadFailed )
+			return( false );
+
+		try {
+			matcher.prepareMatchProduct( product , false , false );
+			DBAppProduct.match( loader , directory , product );
+			matcher.doneProduct( product );
+		}
+		catch( Throwable e ) {
+			loader.log( "match problem " , e );
+			return( false );
+		}
+		
+		return( true );
 	}
 	
 	public static AppSystem createSystem( EngineTransaction transaction , EngineDirectory directory , String name , String desc ) throws Exception {

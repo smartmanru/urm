@@ -22,7 +22,6 @@ import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineSettings;
-import org.urm.meta.engine.AppProduct;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -118,9 +117,6 @@ public abstract class DBAppSystem {
 	}
 
 	public static void matchSystem( EngineLoader loader , EngineDirectory directory , AppSystem system , boolean update ) throws Exception {
-		for( AppProduct product : system.getProducts() )
-			DBAppProduct.match( loader , directory , product );
-		
 		if( update )
 			matchdone( loader , directory , system );
 	}
