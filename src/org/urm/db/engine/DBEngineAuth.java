@@ -1,0 +1,776 @@
+package org.urm.db.engine;
+
+import org.urm.action.ActionBase;
+import org.urm.common.Common;
+import org.urm.common.ConfReader;
+import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
+import org.urm.db.core.DBNames;
+import org.urm.db.core.DBSettings;
+import org.urm.db.core.DBVersions;
+import org.urm.db.core.DBEnums.DBEnumObjectType;
+import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
+import org.urm.engine.Engine;
+import org.urm.engine.EngineDB;
+import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.EntityVar;
+import org.urm.engine.properties.ObjectProperties;
+import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.AuthGroup;
+import org.urm.meta.engine.AuthLdap;
+import org.urm.meta.engine.AuthResource;
+import org.urm.meta.engine.AuthRoleSet;
+import org.urm.meta.engine.AuthUser;
+import org.urm.meta.engine.Datacenter;
+import org.urm.meta.engine.EngineAuth;
+import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.EngineInfrastructure;
+import org.urm.meta.engine.EngineAuth.SourceType;
+import org.urm.meta.engine.EngineAuth.SpecialRights;
+import org.urm.meta.engine.EngineResources;
+import org.urm.meta.engine.EngineSettings;
+import org.urm.meta.engine.Network;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+public class DBEngineAuth {
+
+	public static String ELEMENT_LDAP = "ldap";
+	public static String ELEMENT_LOCALUSERS = "localusers";
+	public static String ELEMENT_LOCALUSER = "user";
+	public static String ELEMENT_GROUP_LOCALUSER = "localuser";
+	public static String ELEMENT_GROUP_LDAPUSER = "ldapuser";
+	public static String ELEMENT_GROUPS = "groups";
+	public static String ELEMENT_GROUP = "group";
+	public static String ELEMENT_PERMISSIONS = "permissions";
+	public static String ELEMENT_PERMISSIONS_RESOURCE = "resource";
+	public static String ELEMENT_PERMISSIONS_PRODUCT = "product";
+	public static String ELEMENT_PERMISSIONS_NETWORK = "network";
+	public static String ELEMENT_PERMISSIONS_SPECIAL = "special";
+	public static String TABLE_GROUP = "urm_auth_group";
+	public static String TABLE_USER = "urm_auth_user";
+	public static String FIELD_GROUP_ID = "group_id";
+	public static String FIELD_GROUP_DESC = "xdesc";
+	public static String FIELD_USER_ID = "user_id";
+	public static String FIELD_USER_DESC = "xdesc";
+	public static String XMLPROP_ROLEDEV = "devacc";
+	public static String XMLPROP_ROLEREL = "relacc";
+	public static String XMLPROP_ROLETEST = "testacc";
+	public static String XMLPROP_ROLEOPR = "opracc";
+	public static String XMLPROP_ROLEINFRA = "infacc";
+	public static String XMLPROP_ANY_RESOURCES = "anyresource";
+	public static String XMLPROP_ANY_PRODUCTS = "anyproduct";
+	public static String XMLPROP_ANY_NETWORKS = "anynetwork";
+	
+	public static PropertyEntity upgradeEntityLDAPSettings( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppAttrsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.LDAPSETTINGS , DBEnumObjectVersionType.AUTH );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaBoolean( AuthLdap.PROPERTY_LDAPUSE , "Use LDAP Authentification" , true , false ) ,
+				EntityVar.metaString( AuthLdap.PROPERTY_HOST , "LDAP Server Host" , false , null ) ,
+				EntityVar.metaInteger( AuthLdap.PROPERTY_PORT , "LDAP Server Port" , true , 6000 ) ,
+				EntityVar.metaObject( AuthLdap.PROPERTY_LOGIN_RESOURCE , "Login Resource" , DBEnumObjectType.RESOURCE , false ) ,
+				EntityVar.metaString( AuthLdap.PROPERTY_USERDN , "Search Base" , false , null ) ,
+				EntityVar.metaString( AuthLdap.PROPERTY_USERCLASS , "Object Class" , false , null ) ,
+				EntityVar.metaString( AuthLdap.PROPERTY_USERFILTER , "User Filter" , false , null ) ,
+				EntityVar.metaString( AuthLdap.PROPERTY_NAMEATTR , "User Identity" , false , null ) ,
+				EntityVar.metaString( AuthLdap.PROPERTY_DISPLAYNAMEATTR , "Display Name" , false , null ) ,
+				EntityVar.metaString( AuthLdap.PROPERTY_EMAILATTR , "User Email" , false , null ) ,
+				EntityVar.metaString( AuthLdap.PROPERTY_PASSWORDATTR , "Password" , false , null )
+		} ) );
+	}
+
+	public static PropertyEntity upgradeEntityAuthUser( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_USER , DBEnumParamEntityType.AUTHUSER , DBEnumObjectVersionType.AUTH , TABLE_USER , FIELD_USER_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaString( AuthUser.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( AuthUser.PROPERTY_DESC , FIELD_USER_DESC , AuthUser.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaString( AuthUser.PROPERTY_FULLNAME , "" , true , null ) ,
+				EntityVar.metaString( AuthUser.PROPERTY_EMAIL , "" , true , null ) ,
+				EntityVar.metaBoolean( AuthUser.PROPERTY_ADMIN , "" , true , false ) ,
+				EntityVar.metaBooleanDatabaseOnly( AuthUser.PROPERTY_LOCAL , "" , true , false )
+		} ) );
+	}
+
+	public static PropertyEntity upgradeEntityAuthGroup( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_GROUP , DBEnumParamEntityType.AUTHGROUP , DBEnumObjectVersionType.AUTH , TABLE_GROUP , FIELD_GROUP_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaString( AuthGroup.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( AuthGroup.PROPERTY_DESC , FIELD_GROUP_DESC , AuthGroup.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ANY_RESOURCES , "" , true , false ) ,
+				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ANY_PRODUCTS , "" , true , false ) ,
+				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ANY_NETWORKS , "" , true , false ) ,
+				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ROLEDEV , "" , true , false ) ,
+				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ROLEREL , "" , true , false ) ,
+				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ROLETEST , "" , true , false ) ,
+				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ROLEOPR , "" , true , false ) ,
+				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ROLEINFRA , "" , true , false ) ,
+				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_SPECIAL_BASEADM , "" , true , false ) ,
+				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_SPECIAL_BASEITEMS , "" , true , false )
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityLDAPSettings( EngineLoader loader ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppAttrsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.LDAPSETTINGS , DBEnumObjectVersionType.AUTH );
+		DBSettings.loaddbEntity( loader , entity , DBVersions.AUTH_ID );
+		return( entity );
+	}
+	
+	public static PropertyEntity loaddbEntityAuthUser( EngineLoader loader ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_USER , DBEnumParamEntityType.AUTHUSER , DBEnumObjectVersionType.AUTH , TABLE_USER , FIELD_USER_ID );
+		DBSettings.loaddbEntity( loader , entity , DBVersions.AUTH_ID );
+		return( entity );
+	}
+	
+	public static PropertyEntity loaddbEntityAuthGroup( EngineLoader loader ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_GROUP , DBEnumParamEntityType.AUTHGROUP , DBEnumObjectVersionType.AUTH , TABLE_GROUP , FIELD_GROUP_ID );
+		DBSettings.loaddbEntity( loader , entity , DBVersions.AUTH_ID );
+		return( entity );
+	}
+	
+	public static void importxml( EngineLoader loader , EngineAuth auth , Node root ) throws Exception {
+		importxmlLDAPSettings( loader , auth , root );
+		importxmlLocalUsers( loader , auth , root );
+		importxmlGroups( loader , auth , root );
+	}
+	
+	public static void importxmlLDAPSettings( EngineLoader loader , EngineAuth auth , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		EngineSettings settings = loader.getSettings();
+		
+		int version = c.getNextAuthVersion();
+		ObjectProperties ops = entities.createEngineProps( settings.getEngineProperties() );
+		Node ldap = ConfReader.xmlGetFirstChild( root , ELEMENT_LDAP );
+		if( ldap != null )
+			DBSettings.importxml( loader , root , ops , DBVersions.AUTH_ID , DBVersions.AUTH_ID , true , version );
+		
+		auth.setLdapSettings( ops );
+	}
+
+	public static void importxmlLocalUsers( EngineLoader loader , EngineAuth auth , Node root ) throws Exception {
+		Node users = ConfReader.xmlGetFirstChild( root , ELEMENT_LOCALUSERS );
+		if( users == null )
+			return;
+		
+		Node[] list = ConfReader.xmlGetChildren( users , ELEMENT_LOCALUSER );
+		if( list != null ) {
+			for( Node node : list ) {
+				AuthUser user = importxmlLocalUser( loader , auth , node );
+				auth.addLocalUser( user );
+			}
+		}
+	}
+	
+	public static void importxmlGroups( EngineLoader loader , EngineAuth auth , Node root ) throws Exception {
+		Node groups = ConfReader.xmlGetFirstChild( root , ELEMENT_GROUPS );
+		if( groups == null )
+			return;
+		
+		Node[] list = ConfReader.xmlGetChildren( groups , ELEMENT_GROUP );
+		if( list != null ) {
+			for( Node node : list ) {
+				AuthGroup group = importxmlGroup( loader , auth , node );
+				auth.addGroup( group );
+			}
+		}
+	}
+	
+	private static AuthUser importxmlLocalUser( EngineLoader loader , EngineAuth auth , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppAuthUser;
+		
+		AuthUser user = new AuthUser( auth );
+		user.createUser(
+				entity.importxmlStringAttr( root , AuthUser.PROPERTY_NAME ) ,
+				entity.importxmlStringAttr( root , AuthUser.PROPERTY_DESC ) ,
+				entity.importxmlStringAttr( root , AuthUser.PROPERTY_FULLNAME ) ,
+				entity.importxmlStringAttr( root , AuthUser.PROPERTY_EMAIL ) ,
+				entity.importxmlBooleanAttr( root , AuthUser.PROPERTY_ADMIN , false ) ,
+				true
+				);
+		
+		modifyUser( c , user , true );
+		
+		return( user );
+	}
+
+	private static AuthGroup importxmlGroup( EngineLoader loader , EngineAuth auth , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppAuthGroup;
+		
+		AuthGroup group = new AuthGroup( auth );
+		group.createGroup(
+				entity.importxmlStringAttr( root , AuthGroup.PROPERTY_NAME ) ,
+				entity.importxmlStringAttr( root , AuthGroup.PROPERTY_DESC )
+				);
+
+		for( String userName : ConfReader.xmlGetNamedElements( root , ELEMENT_GROUP_LOCALUSER ) ) {
+			AuthUser user = auth.findLocalUser( userName );
+			group.addLocalUser( user.ID );
+		}
+		
+		for( String userName : ConfReader.xmlGetNamedElements( root , ELEMENT_GROUP_LDAPUSER ) ) {
+			AuthUser user = importxmlLdapUser( loader , auth , userName );
+			group.addLocalUser( user.ID );
+		}
+		
+		Node permissions = ConfReader.xmlGetFirstChild( root , ELEMENT_PERMISSIONS );
+		if( permissions != null ) {
+			String[] resourceNames = ConfReader.xmlGetNamedElements( permissions , ELEMENT_PERMISSIONS_RESOURCE );
+			String[] productNames = ConfReader.xmlGetNamedElements( permissions , ELEMENT_PERMISSIONS_PRODUCT );
+			String[] networkNames = ConfReader.xmlGetNamedElements( permissions , ELEMENT_PERMISSIONS_NETWORK );
+			String[] specialNames = ConfReader.xmlGetNamedElements( permissions , ELEMENT_PERMISSIONS_SPECIAL );
+			AuthRoleSet roles = new AuthRoleSet();
+			roles.secDev = ConfReader.getBooleanAttrValue( root , XMLPROP_ROLEDEV , false );
+			roles.secRel = ConfReader.getBooleanAttrValue( root , XMLPROP_ROLEREL , false );
+			roles.secTest = ConfReader.getBooleanAttrValue( root , XMLPROP_ROLETEST , false );
+			roles.secOpr = ConfReader.getBooleanAttrValue( root , XMLPROP_ROLEOPR , false );
+			roles.secInfra = ConfReader.getBooleanAttrValue( root , XMLPROP_ROLEINFRA , false );
+			boolean anyResources = ConfReader.getBooleanAttrValue( root , XMLPROP_ANY_RESOURCES , false );
+			boolean anyProducts = ConfReader.getBooleanAttrValue( root , XMLPROP_ANY_PRODUCTS , false );
+			boolean anyNetworks = ConfReader.getBooleanAttrValue( root , XMLPROP_ANY_NETWORKS , false );
+			
+			// resolve
+			Integer[] resourcesList = resolveResources( loader.getResources() , resourceNames );
+			Integer[] productList = resolveProducts( loader.getDirectory() , productNames );
+			Integer[] networkList = resolveNetworks( loader.getInfrastructure() , networkNames );
+			SpecialRights[] specialList = resolveSpecialRights( specialNames );
+			
+			group.setGroupPermissions( roles , anyResources , resourcesList , anyProducts , productList , anyNetworks , networkList , specialList );
+		}
+		
+		modifyGroup( c , group , true );
+
+		for( Integer resource : group.getPermissionResources() )
+			modifyGroupResources( c , group , resource , true );
+		for( Integer product : group.getPermissionProducts() )
+			modifyGroupProducts( c , group , product , true );
+		for( Integer network : group.getPermissionNetworks() )
+			modifyGroupNetworks( c , group , network , true );
+		
+		for( String name : group.getUsers( null ) ) {
+			AuthUser user = auth.getUser( name ); 
+			modifyGroupUser( c , group , user , true );
+		}
+		
+		return( group );
+	}
+
+	private static AuthUser importxmlLdapUser( EngineLoader loader , EngineAuth auth , String userName ) throws Exception {
+		AuthUser user = auth.findLdapUser( userName );
+		if( user != null )
+			return( user );
+		
+		DBConnection c = loader.getConnection();
+		return( createLdapUser( c , auth , userName ) );
+	}
+	
+	private static void modifyUser( DBConnection c , AuthUser user , boolean insert ) throws Exception {
+		if( insert )
+			user.ID = DBNames.getNameIndex( c , DBVersions.AUTH_ID , user.NAME , DBEnumObjectType.AUTH_USER );
+		user.UV = c.getNextAuthVersion();
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.modifyAppObject( c , entities.entityAppAuthUser , user.ID , user.UV , new String[] {
+				EngineDB.getString( user.NAME ) , 
+				EngineDB.getString( user.DESC ) ,
+				EngineDB.getString( user.FULLNAME ) ,
+				EngineDB.getString( user.EMAIL ) ,
+				EngineDB.getBoolean( user.ADMIN ) ,
+				EngineDB.getBoolean( user.LOCAL )
+				} , insert );
+	}
+
+	private static void modifyGroup( DBConnection c , AuthGroup group , boolean insert ) throws Exception {
+		if( insert )
+			group.ID = DBNames.getNameIndex( c , DBVersions.AUTH_ID , group.NAME , DBEnumObjectType.AUTH_GROUP );
+		group.UV = c.getNextAuthVersion();
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.modifyAppObject( c , entities.entityAppAuthGroup , group.ID , group.UV , new String[] {
+				EngineDB.getString( group.NAME ) , 
+				EngineDB.getString( group.DESC ) ,
+				EngineDB.getBoolean( group.anyResources ) ,
+				EngineDB.getBoolean( group.anyProducts ) ,
+				EngineDB.getBoolean( group.anyNetworks ) ,
+				EngineDB.getBoolean( group.roles.secDev ) ,
+				EngineDB.getBoolean( group.roles.secRel ) ,
+				EngineDB.getBoolean( group.roles.secTest ) ,
+				EngineDB.getBoolean( group.roles.secOpr ) ,
+				EngineDB.getBoolean( group.roles.secInfra ) ,
+				EngineDB.getBoolean( group.checkSpecialPermission( SpecialRights.SPECIAL_BASEADM ) ) ,
+				EngineDB.getBoolean( group.checkSpecialPermission( SpecialRights.SPECIAL_BASEITEMS ) )
+				} , insert );
+	}
+
+	private static void modifyGroupUser( DBConnection c , AuthGroup group , AuthUser user , boolean insert ) throws Exception {
+		String query = ( insert )? DBQueries.MODIFY_AUTH_GROUPUSER_ADD2 : DBQueries.MODIFY_AUTH_GROUPUSER_DROP2;
+		if( !c.update( query , new String[] {
+				EngineDB.getInteger( group.ID ) ,
+				EngineDB.getInteger( user.ID )
+				}))
+				Common.exitUnexpected();
+	}
+	
+	private static void modifyGroupResources( DBConnection c , AuthGroup group , Integer resource , boolean insert ) throws Exception {
+		if( insert ) {
+			if( !c.update( DBQueries.MODIFY_AUTH_GROUPACCESS_ADDRESOURCE2 , new String[] {
+					EngineDB.getInteger( group.ID ) ,
+					EngineDB.getInteger( resource )
+					}))
+				Common.exitUnexpected();
+		}
+		else {
+			if( !c.update( DBQueries.MODIFY_AUTH_GROUPACCESS_DROPRESOURCES1 , new String[] {
+					EngineDB.getInteger( group.ID )
+					}))
+				Common.exitUnexpected();
+		}
+	}
+	
+	private static void modifyGroupProducts( DBConnection c , AuthGroup group , Integer product , boolean insert ) throws Exception {
+		if( insert ) {
+			if( !c.update( DBQueries.MODIFY_AUTH_GROUPACCESS_ADDPRODUCT2 , new String[] {
+					EngineDB.getInteger( group.ID ) ,
+					EngineDB.getInteger( product )
+					}))
+				Common.exitUnexpected();
+		}
+		else {
+			if( !c.update( DBQueries.MODIFY_AUTH_GROUPACCESS_DROPPRODUCTS1 , new String[] {
+					EngineDB.getInteger( group.ID )
+					}))
+				Common.exitUnexpected();
+		}
+	}
+	
+	private static void modifyGroupNetworks( DBConnection c , AuthGroup group , Integer network , boolean insert ) throws Exception {
+		if( insert ) {
+			if( !c.update( DBQueries.MODIFY_AUTH_GROUPACCESS_ADDNETWORK2 , new String[] {
+					EngineDB.getInteger( group.ID ) ,
+					EngineDB.getInteger( network )
+					}))
+				Common.exitUnexpected();
+		}
+		else {
+			if( !c.update( DBQueries.MODIFY_AUTH_GROUPACCESS_DROPNETWORKS1 , new String[] {
+					EngineDB.getInteger( group.ID )
+					}))
+				Common.exitUnexpected();
+		}
+	}
+	
+	public static void loaddb( EngineLoader loader , EngineAuth auth ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		EngineSettings settings = loader.getSettings();
+		
+		ObjectProperties ops = entities.createEngineProps( settings.getEngineProperties() );
+		DBSettings.loaddbValues( loader , DBVersions.AUTH_ID , ops , true );
+		
+		auth.setLdapSettings( ops );
+	}
+	
+	public static void exportxml( EngineLoader loader , EngineAuth auth , Document doc , Element root ) throws Exception {
+		ObjectProperties ops = auth.getLdapSettings();
+		Element node = Common.xmlCreateElement( doc , root , ELEMENT_LDAP );
+		DBSettings.exportxml( loader , doc , node , ops , false );
+		
+		node = Common.xmlCreateElement( doc , root , ELEMENT_LOCALUSERS );
+		exportxmlLocalUsers( loader , auth , doc , node );
+
+		node = Common.xmlCreateElement( doc , root , ELEMENT_GROUPS );
+		exportxmlGroups( loader , auth , doc , node );
+	}
+
+	public static void exportxmlLocalUsers( EngineLoader loader , EngineAuth auth , Document doc , Element root ) throws Exception {
+		for( String name : auth.getLocalUserNames() ) {
+			AuthUser user = auth.findLocalUser( name );
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_LOCALUSER );
+			exportxmlLocalUser( loader , auth , user , doc , node );
+		}
+	}
+
+	public static void exportxmlLocalUser( EngineLoader loader , EngineAuth auth , AuthUser user , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppAuthUser;
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlString( user.NAME ) , 
+				entity.exportxmlString( user.DESC ) ,
+				entity.exportxmlString( user.FULLNAME ) ,
+				entity.exportxmlString( user.EMAIL ) ,
+				entity.exportxmlBoolean( user.ADMIN ) ,
+				entity.exportxmlBoolean( user.LOCAL )
+		} , true );
+	}
+
+	public static void exportxmlGroups( EngineLoader loader , EngineAuth auth , Document doc , Element root ) throws Exception {
+		for( String name : auth.getGroupNames() ) {
+			AuthGroup group = auth.findGroup( name );
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_GROUP );
+			exportxmlGroup( loader , auth , group , doc , node );
+		}
+	}
+
+	public static void exportxmlGroup( EngineLoader loader , EngineAuth auth , AuthGroup group , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppAuthGroup;
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlString( group.NAME ) , 
+				entity.exportxmlString( group.DESC )
+		} , true );
+		
+		Element node = Common.xmlCreateElement( doc , root , ELEMENT_PERMISSIONS );
+		exportxmlGroupPermissions( loader , auth , group , doc , node );
+		
+		for( String name : group.getUsers( SourceType.SOURCE_LOCAL ) ) {
+			node = Common.xmlCreateElement( doc , root , ELEMENT_GROUP_LOCALUSER );
+			Common.xmlSetNameAttr( doc , node , name );
+		}
+		
+		for( String name : group.getUsers( SourceType.SOURCE_LDAP ) ) {
+			node = Common.xmlCreateElement( doc , root , ELEMENT_GROUP_LDAPUSER );
+			Common.xmlSetNameAttr( doc , node , name );
+		}
+	}
+
+	public static void exportxmlGroupPermissions( EngineLoader loader , EngineAuth auth , AuthGroup group , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementBooleanAttr( doc , root , XMLPROP_ANY_RESOURCES , group.anyResources );
+		Common.xmlSetElementBooleanAttr( doc , root , XMLPROP_ANY_NETWORKS , group.anyNetworks );
+		Common.xmlSetElementBooleanAttr( doc , root , XMLPROP_ANY_PRODUCTS , group.anyProducts );
+		Common.xmlSetElementBooleanAttr( doc , root , XMLPROP_ROLEDEV , group.roles.secDev );
+		Common.xmlSetElementBooleanAttr( doc , root , XMLPROP_ROLEREL , group.roles.secRel );
+		Common.xmlSetElementBooleanAttr( doc , root , XMLPROP_ROLETEST , group.roles.secTest );
+		Common.xmlSetElementBooleanAttr( doc , root , XMLPROP_ROLEOPR , group.roles.secOpr );
+		Common.xmlSetElementBooleanAttr( doc , root , XMLPROP_ROLEINFRA , group.roles.secInfra );
+		
+		EngineResources resources = loader.getResources();
+		for( Integer item : group.getPermissionResources() ) {
+			AuthResource resource = resources.getResource( item );
+			Common.xmlCreateNamedElement( doc , root , ELEMENT_PERMISSIONS_RESOURCE , resource.NAME );
+		}
+		
+		EngineDirectory directory = loader.getDirectory();
+		for( Integer item : group.getPermissionProducts() ) {
+			AppProduct product = directory.getProduct( item );
+			Common.xmlCreateNamedElement( doc , root , ELEMENT_PERMISSIONS_PRODUCT , product.NAME );
+		}
+		
+		EngineInfrastructure infra = loader.getInfrastructure();
+		for( Integer item : group.getPermissionNetworks() ) {
+			Network network = infra.getNetwork( item );
+			Common.xmlCreateNamedElement( doc , root , ELEMENT_PERMISSIONS_NETWORK , network.NAME );
+		}
+		
+		for( SpecialRights r : group.getPermissionSpecial() )
+			Common.xmlCreateNamedElement( doc , root , ELEMENT_PERMISSIONS_SPECIAL , Common.getEnumLower( r ) );
+	}
+
+	private static Integer[] resolveResources( EngineResources resources , String[] names ) throws Exception {
+		if( names == null )
+			return( new Integer[0] );
+		
+		Integer[] resourcesList = new Integer[ names.length ];
+		for( int k = 0; k < names.length; k++ ) {
+			AuthResource rc = resources.getResource( names[ k ] );
+			resourcesList[ k ] = rc.ID;
+		}
+		return( resourcesList );
+	}
+	
+	private static Integer[] resolveProducts( EngineDirectory directory , String[] names ) throws Exception {
+		if( names == null )
+			return( new Integer[0] );
+		
+		Integer[] productList = new Integer[ names.length ];
+		for( int k = 0; k < names.length; k++ ) {
+			AppProduct product = directory.getProduct( names[ k ] );
+			productList[ k ] = product.ID;
+		}
+		return( productList );
+	}
+	
+	private static Integer[] resolveNetworks( EngineInfrastructure infra , String[] names ) throws Exception {
+		if( names == null )
+			return( new Integer[0] );
+		
+		Integer[] networkList = new Integer[ names.length ];
+		for( int k = 0; k < names.length; k++ ) {
+			Network network = infra.getNetwork( names[ k ] );
+			networkList[ k ] = network.ID;
+		}
+		return( networkList );
+	}
+	
+	private static SpecialRights[] resolveSpecialRights( String[] names ) throws Exception {
+		if( names == null )
+			return( new SpecialRights[0] );
+		
+		SpecialRights[] specialList = new SpecialRights[ names.length ];
+		for( int k = 0; k < names.length; k++ )
+			specialList[ k ] = SpecialRights.valueOf( names[ k ] );
+		return( specialList );
+	}
+	
+	public static void deleteDatacenterAccess( EngineTransaction transaction , EngineAuth auth , Datacenter datacenter ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		if( !c.update( DBQueries.MODIFY_AUTH_DROP_DATACENTERACCESS1 , new String[] {
+			EngineDB.getInteger( datacenter.ID )
+			}))
+			Common.exitUnexpected();
+		
+		for( AuthGroup group : auth.getGroups() )
+			deleteDatacenterAccess( transaction , auth , datacenter , group );
+	}
+
+	private static void deleteDatacenterAccess( EngineTransaction transaction , EngineAuth auth , Datacenter datacenter , AuthGroup group ) throws Exception {
+		for( Integer networkId : group.getPermissionNetworks() ) {
+			if( datacenter.findNetwork( networkId ) != null )
+				group.removeNetwork( networkId );
+		}
+	}
+	
+	public static void deleteNetworkAccess( EngineTransaction transaction , EngineAuth auth , Network network ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		if( !c.update( DBQueries.MODIFY_AUTH_DROP_NETWORKACCESS1 , new String[] {
+			EngineDB.getInteger( network.ID )
+			}))
+			Common.exitUnexpected();
+		
+		for( AuthGroup group : auth.getGroups() ) {
+			for( Integer networkId : group.getPermissionNetworks() ) {
+				if( networkId == network.ID )
+					group.removeNetwork( networkId );
+			}			
+		}
+	}
+
+	public static void deleteProductAccess( EngineTransaction transaction , EngineAuth auth , AppProduct product ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		if( !c.update( DBQueries.MODIFY_AUTH_DROP_PRODUCTACCESS1 , new String[] {
+			EngineDB.getInteger( product.ID )
+			}))
+			Common.exitUnexpected();
+		
+		for( AuthGroup group : auth.getGroups() ) {
+			for( Integer productId : group.getPermissionProducts() ) {
+				if( productId == product.ID )
+					group.removeProduct( productId );
+			}			
+		}
+	}
+
+	public static void deleteResourceAccess( EngineTransaction transaction , EngineAuth auth , AuthResource resource ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		if( !c.update( DBQueries.MODIFY_AUTH_DROP_RESOURCEACCESS1 , new String[] {
+			EngineDB.getInteger( resource.ID )
+			}))
+			Common.exitUnexpected();
+		
+		for( AuthGroup group : auth.getGroups() ) {
+			for( Integer resourceId : group.getPermissionResources() ) {
+				if( resourceId == resource.ID )
+					group.removeResource( resourceId );
+			}			
+		}
+	}
+
+	public static void disableLdap( EngineTransaction transaction , EngineAuth auth ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		AuthLdap ldap = auth.getAuthLdap();
+		ldap.setNotUse();
+		
+		int version = c.getNextAuthVersion();
+		DBSettings.savedbPropertyValues( c , DBVersions.AUTH_ID , ldap.getLdapSettings() , true , version );
+	}
+	
+	public static void enableLdap( EngineTransaction transaction , EngineAuth auth , ObjectProperties ops ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		AuthLdap ldap = auth.getAuthLdap();
+		ldap.setLdapSettings( ops );
+		
+		int version = c.getNextAuthVersion();
+		DBSettings.savedbPropertyValues( c , DBVersions.AUTH_ID , ldap.getLdapSettings() , true , version );
+		
+		ldap.start( transaction.getAction() );
+	}
+	
+	public static AuthGroup createGroup( EngineTransaction transaction , EngineAuth auth , String name , String desc ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		AuthGroup group = new AuthGroup( auth );
+		group.createGroup( name , desc );
+		modifyGroup( c , group , true );
+		auth.addGroup( group );
+		return( group );
+	}
+
+	public static void modifyGroup( EngineTransaction transaction , EngineAuth auth , AuthGroup group , String name , String desc ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		group.modifyGroup( name , desc );
+		modifyGroup( c , group , false );
+		
+		auth.updateGroup( group );
+	}
+
+	public static void deleteGroup( EngineTransaction transaction , EngineAuth auth , AuthGroup group ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		
+		if( !c.update( DBQueries.MODIFY_AUTH_DROPGROUP_RESOURCEACCESS1 , new String[] {
+				EngineDB.getInteger( group.ID )
+				}))
+				Common.exitUnexpected();
+		if( !c.update( DBQueries.MODIFY_AUTH_DROPGROUP_PRODUCTACCESS1 , new String[] {
+				EngineDB.getInteger( group.ID )
+				}))
+				Common.exitUnexpected();
+		if( !c.update( DBQueries.MODIFY_AUTH_DROPGROUP_NETWORKACCESS1 , new String[] {
+				EngineDB.getInteger( group.ID )
+				}))
+				Common.exitUnexpected();
+		if( !c.update( DBQueries.MODIFY_AUTH_DROPGROUP_USERS1 , new String[] {
+				EngineDB.getInteger( group.ID )
+				}))
+				Common.exitUnexpected();
+		DBEngineEntities.deleteAppObject( c , entities.entityAppAuthGroup , group.ID , c.getNextAuthVersion() );
+		auth.removeGroup( group );
+
+		// change effective user permissions 
+		Engine engine = transaction.engine;
+		ActionBase action = transaction.getAction();
+		for( String user : group.getUsers( null ) )
+			engine.updatePermissions( action , user );
+	}
+
+	private static AuthUser createLdapUser( DBConnection c , EngineAuth auth , String name ) throws Exception {
+		AuthUser user = new AuthUser( auth );
+		user.createUser(
+				name ,
+				null ,
+				null ,
+				null ,
+				false ,
+				false
+				);
+		
+		modifyUser( c , user , true );
+		auth.addLdapUser( user );
+	
+		return( user );
+	}
+	
+	public static AuthUser createLocalUser( EngineTransaction transaction , EngineAuth auth , String name , String desc , String full , String email , boolean admin ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		AuthUser user = new AuthUser( auth );
+		user.createUser( name , desc , full , email , admin , true );
+		modifyUser( c , user , true );
+		auth.addLocalUser( user );
+		return( user );
+	}
+	
+	public static void modifyLocalUser( EngineTransaction transaction , EngineAuth auth , AuthUser user , String name , String desc , String full , String email , boolean admin ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		user.modifyUser( name , desc , full , email , admin , true );
+		modifyUser( c , user , false );
+		
+		auth.updateUser( user );
+	}
+	
+	public static void deleteLocalUser( EngineTransaction transaction , EngineAuth auth , AuthUser user ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		
+		if( !c.update( DBQueries.MODIFY_AUTH_DROPUSER_GROUPS1 , new String[] {
+				EngineDB.getInteger( user.ID )
+				}))
+				Common.exitUnexpected();
+		DBEngineEntities.deleteAppObject( c , entities.entityAppAuthUser , user.ID , c.getNextAuthVersion() );
+		auth.removeLocalUser( user );
+		
+		Engine engine = transaction.engine;
+		ActionBase action = transaction.getAction();
+		engine.updatePermissions( action , user.NAME );
+	}
+
+	public static void addGroupLocalUsers( EngineTransaction transaction , EngineAuth auth , AuthGroup group , String[] users ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		Engine engine = transaction.engine;
+		ActionBase action = transaction.getAction();
+		
+		for( String name : users ) {
+			AuthUser user = auth.getLocalUser( name );
+			modifyGroupUser( c , group , user , true );
+			group.addLocalUser( user.ID );
+			engine.updatePermissions( action , user.NAME );
+		}
+	}
+	
+	public static void addGroupLdapUsers( EngineTransaction transaction , EngineAuth auth , AuthGroup group , String[] users ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		Engine engine = transaction.engine;
+		ActionBase action = transaction.getAction();
+		
+		for( String name : users ) {
+			AuthUser user = auth.findLdapUser( name );
+			if( user == null )
+				user = createLdapUser( c , auth , name );
+				
+			modifyGroupUser( c , group , user , true );
+			group.addLdapUser( user.ID );
+			engine.updatePermissions( action , user.NAME );
+		}
+	}
+	
+	public static void deleteGroupUsers( EngineTransaction transaction , EngineAuth auth , AuthGroup group , String[] users ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		Engine engine = transaction.engine;
+		ActionBase action = transaction.getAction();
+		
+		for( String name : users ) {
+			AuthUser user = auth.getUser( name );
+			if( group.hasUser( user ) ) {
+				modifyGroupUser( c , group , user , false );
+				group.removeUser( user );
+				engine.updatePermissions( action , name );
+			}
+		}
+	}
+
+	public static void setGroupPermissions( EngineTransaction transaction , EngineAuth auth , AuthGroup group , AuthRoleSet roles , boolean allResources , String[] resources , boolean allProd , String[] products , boolean allNet , String[] networks , SpecialRights[] specials ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		Engine engine = transaction.engine;
+		ActionBase action = transaction.getAction();
+		
+		Integer[] resourcesList = resolveResources( transaction.getResources() , resources );
+		Integer[] productList = resolveProducts( transaction.getDirectory() , products );
+		Integer[] networkList = resolveNetworks( transaction.getInfrastructure() , networks );
+		
+		group.setGroupPermissions( roles , allResources , resourcesList , allProd , productList , allNet , networkList , specials );
+		modifyGroup( c , group , false );
+		
+		modifyGroupResources( c , group , null , false );
+		modifyGroupProducts( c , group , null , false );
+		modifyGroupNetworks( c , group , null , false );
+		for( Integer resource : group.getPermissionResources() )
+			modifyGroupResources( c , group , resource , true );
+		for( Integer product : group.getPermissionProducts() )
+			modifyGroupProducts( c , group , product , true );
+		for( Integer network : group.getPermissionNetworks() )
+			modifyGroupNetworks( c , group , network , true );
+		
+		for( String user : group.getUsers( null ) )
+			engine.updatePermissions( action , user );
+	}
+	
+}
