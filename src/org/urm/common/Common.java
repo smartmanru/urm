@@ -1063,5 +1063,15 @@ public class Common {
 		exitUnexpected();
 		return( false );
 	}
+
+	public static boolean equalsIntegers( Integer v1 , Integer v2 ) {
+		if( v1 == null && v2 == null )
+			return( true );
+		if( v1 == null || v2 == null )
+			return( false );
+		if( v1.intValue() == v2.intValue() )
+			return( true );
+		return( false );
+	}
 	
 }
