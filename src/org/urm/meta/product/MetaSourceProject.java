@@ -194,6 +194,9 @@ public class MetaSourceProject {
 		
 		r.CUSTOMBUILD = CUSTOMBUILD;
 		r.CUSTOMGET = CUSTOMGET;
+		
+		r.mirrorId = mirrorId;
+		
 		return( r );
 	}
 
