@@ -127,7 +127,7 @@ public class BuilderMavenMethod extends Builder {
 		// set environment
 		String BUILD_JAVA_HOME = builder.JAVA_JDKHOMEPATH;
 		String BUILD_MAVEN_HOME = builder.BUILDER_HOMEPATH; 
-		String MAVEN_CMD = "mvn -B " + MODULE_ADDITIONAL_OPTIONS + " " + mavenCMD + nexusSettings + " -Dmaven.test.skip=true";
+		String MAVEN_CMD = "mvn -B " + MODULE_ADDITIONAL_OPTIONS + " " + mavenCMD + nexusSettings;
 
 		ShellExecutor session = action.shell;
 		session.export( action , "JAVA_HOME" , session.getLocalPath( BUILD_JAVA_HOME ) );
