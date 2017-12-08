@@ -60,8 +60,10 @@ public class EngineMatcher {
 		
 		for( MetaSourceProject project : sources.getAllProjectList( false ) ) {
 			MirrorRepository repo = mirrors.findProjectRepository( project );
-			if( repo != null )
+			if( repo != null ) {
 				repo.setProductProject( product.ID , 0 );
+				project.setMirror( repo.ID );
+			}
 		}
 	}
 	

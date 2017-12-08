@@ -32,7 +32,6 @@ public class MetaSourceProject {
 	public String BRANCH;
 	public String BUILDER;
 	public String BUILDER_ADDOPTIONS;
-	public Integer MIRROR_ID;
 
 	public Integer RESOURCE_ID;
 	public String REPOSITORY;
@@ -42,6 +41,8 @@ public class MetaSourceProject {
 	public boolean CUSTOMBUILD;
 	public boolean CUSTOMGET;
 
+	public Integer mirrorId;
+	
 	List<MetaSourceProjectItem> itemList;
 	Map<String,MetaSourceProjectItem> itemMap;
 
@@ -63,6 +64,10 @@ public class MetaSourceProject {
 		
 		itemList = new LinkedList<MetaSourceProjectItem>();
 		itemMap = new HashMap<String,MetaSourceProjectItem>();
+	}
+	
+	public void setMirror( int mirrorId ) {
+		this.mirrorId = mirrorId;
 	}
 	
 	public void createProject( EngineTransaction transaction , String name , int POS ) throws Exception {
