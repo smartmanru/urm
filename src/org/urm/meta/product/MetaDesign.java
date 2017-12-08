@@ -39,7 +39,7 @@ public class MetaDesign extends EngineObject {
 	}
 	
 	public MetaDesign copy( ActionBase action , Meta meta ) throws Exception {
-		MetaDesign r = new MetaDesign( meta.getStorage( action ) , meta );
+		MetaDesign r = new MetaDesign( meta.getStorage() , meta );
 		r.fullProd = fullProd;
 		for( MetaDesignElement element : elements.values() ) {
 			MetaDesignElement relement = element.copy( action , meta , r );

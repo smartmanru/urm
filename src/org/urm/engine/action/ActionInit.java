@@ -23,7 +23,6 @@ import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
@@ -216,10 +215,6 @@ public class ActionInit extends ActionBase {
 				return( meta );
 		}
 		return( data.findSessionProductMetadata( this , productName ) );
-	}
-
-	public Meta createProductMetadata( TransactionBase transaction , AppProduct product ) throws Exception {
-		return( data.createProductMetadata( transaction , product ) );
 	}
 
 	public void releaseProductMetadata( TransactionBase transaction , Meta sessionMeta ) throws Exception {

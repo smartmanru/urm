@@ -195,7 +195,7 @@ public class EngineTransaction extends TransactionBase {
 	}
 
 	public void deleteSourceProjectMirror( EngineMirrors mirrors , MetaSourceProject project , boolean leaveManual ) throws Exception {
-		checkTransactionMetadata( project.meta.getStorage( action ) );
+		checkTransactionMetadata( project.meta.getStorage() );
 		checkTransactionMirrors( mirrors );
 		
 		Meta meta = project.meta;
@@ -446,7 +446,7 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineMirrors.addProductMirrors( this , mirrors , product , forceClear );
 		
 		Meta meta = super.createProductMetadata( product );
-		ProductMeta storage = meta.getStorage( action );
+		ProductMeta storage = meta.getStorage();
 		storage.createInitialRepository( this , forceClear );
 		
 		return( product );
@@ -624,33 +624,33 @@ public class EngineTransaction extends TransactionBase {
 	}
 
 	public void setProductLifecycles( MetaProductCoreSettings core , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
-		checkTransactionMetadata( core.meta.getStorage( action ) );
+		checkTransactionMetadata( core.meta.getStorage() );
 		core.setLifecycles( this , major , minor , urgentsAll , urgents );
 	}
 	
 	public void setProductMonitoringProperties( Meta meta , PropertySet props ) throws Exception {
-		checkTransactionMetadata( meta.getStorage( action ) );
+		checkTransactionMetadata( meta.getStorage() );
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setProductMonitoringProperties( this , meta , props );
 	}
 
 	public void createDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
-		checkTransactionMetadata( delivery.meta.getStorage( action ) );
+		checkTransactionMetadata( delivery.meta.getStorage() );
 		delivery.dist.createDelivery( this , delivery );
 	}
 	
 	public void modifyDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
-		checkTransactionMetadata( delivery.meta.getStorage( action ) );
+		checkTransactionMetadata( delivery.meta.getStorage() );
 		delivery.dist.modifyDelivery( this , delivery );
 	}
 	
 	public void deleteDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
-		checkTransactionMetadata( delivery.meta.getStorage( action ) );
+		checkTransactionMetadata( delivery.meta.getStorage() );
 		delivery.dist.deleteDelivery( this , delivery );
 	}
 	
 	public MetaDistrBinaryItem createDistrBinaryItem( MetaDistrDelivery delivery , String key ) throws Exception {
-		checkTransactionMetadata( delivery.meta.getStorage( action ) );
+		checkTransactionMetadata( delivery.meta.getStorage() );
 		MetaDistrBinaryItem item = new MetaDistrBinaryItem( delivery.meta , delivery );
 		item.createBinaryItem( this , key );
 		delivery.dist.createDistrBinaryItem( this , delivery , item );
@@ -658,107 +658,107 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void modifyDistrBinaryItem( MetaDistrBinaryItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage( action ) );
+		checkTransactionMetadata( item.meta.getStorage() );
 		item.delivery.modifyBinaryItem( this , item );
 	}
 
 	public void deleteDistrBinaryItem( MetaDistrBinaryItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage( action ) );
+		checkTransactionMetadata( item.meta.getStorage() );
 		item.delivery.dist.deleteBinaryItem( this , item );
 	}
 	
 	public void createDistrConfItem( MetaDistrDelivery delivery , MetaDistrConfItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage( action ) );
+		checkTransactionMetadata( item.meta.getStorage() );
 		delivery.dist.createDistrConfItem( this , delivery , item );
 	}
 	
 	public void modifyDistrConfItem( MetaDistrConfItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage( action ) );
+		checkTransactionMetadata( item.meta.getStorage() );
 		item.delivery.modifyConfItem( this , item );
 	}
 
 	public void deleteDistrConfItem( MetaDistrConfItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage( action ) );
+		checkTransactionMetadata( item.meta.getStorage() );
 		item.delivery.dist.deleteConfItem( this , item );
 	}
 	
 	public void createDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
-		checkTransactionMetadata( schema.meta.getStorage( action ) );
+		checkTransactionMetadata( schema.meta.getStorage() );
 		schema.database.createDatabaseSchema( this , schema );
 	}
 	
 	public void modifyDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
-		checkTransactionMetadata( schema.meta.getStorage( action ) );
+		checkTransactionMetadata( schema.meta.getStorage() );
 		schema.database.modifyDatabaseSchema( this , schema );
 	}
 
 	public void deleteDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
-		checkTransactionMetadata( schema.meta.getStorage( action ) );
+		checkTransactionMetadata( schema.meta.getStorage() );
 		schema.database.deleteDatabaseSchema( this , schema );
 	}
 	
 	public void createDistrComponent( MetaDistrComponent item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage( action ) );
+		checkTransactionMetadata( item.meta.getStorage() );
 		item.dist.createDistrComponent( this , item );
 	}
 	
 	public void modifyDistrComponent( MetaDistrComponent item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage( action ) );
+		checkTransactionMetadata( item.meta.getStorage() );
 		item.dist.modifyDistrComponent( this , item );
 	}
 
 	public void deleteDistrComponent( MetaDistrComponent item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage( action ) );
+		checkTransactionMetadata( item.meta.getStorage() );
 		item.dist.deleteDistrComponent( this , item );
 	}
 	
 	public void createDistrComponentItem( MetaDistrComponent comp , MetaDistrComponentItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage( action ) );
+		checkTransactionMetadata( item.meta.getStorage() );
 		item.comp.createItem( this , item );
 	}
 	
 	public void modifyDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage( action ) );
+		checkTransactionMetadata( item.meta.getStorage() );
 		item.comp.modifyItem( this , item );
 	}
 
 	public void deleteDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage( action ) );
+		checkTransactionMetadata( item.meta.getStorage() );
 		item.comp.deleteItem( this , item );
 	}
 
 	public void createDistrComponentService( MetaDistrComponent comp , MetaDistrComponentWS service ) throws Exception {
-		checkTransactionMetadata( service.meta.getStorage( action ) );
+		checkTransactionMetadata( service.meta.getStorage() );
 		service.comp.createWebService( this , service );
 	}
 	
 	public void modifyDistrComponentService( MetaDistrComponentWS service ) throws Exception {
-		checkTransactionMetadata( service.meta.getStorage( action ) );
+		checkTransactionMetadata( service.meta.getStorage() );
 		service.comp.modifyWebService( this , service );
 	}
 
 	public void deleteDistrComponentService( MetaDistrComponentWS service ) throws Exception {
-		checkTransactionMetadata( service.meta.getStorage( action ) );
+		checkTransactionMetadata( service.meta.getStorage() );
 		service.comp.deleteWebService( this , service );
 	}
 
 	public void setDeliveryDatabaseAll( MetaDistrDelivery delivery ) throws Exception {
-		checkTransactionMetadata( delivery.meta.getStorage( action ) );
+		checkTransactionMetadata( delivery.meta.getStorage() );
 		delivery.setDatabaseAll( this );
 	}
 
 	public void setDeliveryDatabaseSet( MetaDistrDelivery delivery , MetaDatabaseSchema[] set ) throws Exception {
-		checkTransactionMetadata( delivery.meta.getStorage( action ) );
+		checkTransactionMetadata( delivery.meta.getStorage() );
 		delivery.setDatabaseSet( this , set );
 	}
 
 	public MetaSourceProjectSet createSourceProjectSet( MetaSource sources , String name ) throws Exception {
-		checkTransactionMetadata( sources.meta.getStorage( action ) );
+		checkTransactionMetadata( sources.meta.getStorage() );
 		return( sources.createProjectSet( this , name ) );
 	}
 
 	public void changeProjectSet( MetaSourceProject project , MetaSourceProjectSet setNew ) throws Exception {
-		checkTransactionMetadata( project.meta.getStorage( action ) );
+		checkTransactionMetadata( project.meta.getStorage() );
 		MetaSourceProjectSet setOld = project.set;
 		project.changeProjectSet( this , setNew );
 		setOld.removeProject( this , project );
@@ -769,22 +769,22 @@ public class EngineTransaction extends TransactionBase {
 	}
 
 	public MetaSourceProject createSourceProject( MetaSourceProjectSet set , String name , int POS ) throws Exception {
-		checkTransactionMetadata( set.meta.getStorage( action ) );
+		checkTransactionMetadata( set.meta.getStorage() );
 		return( set.sources.createProject( this , set , name , POS ) );
 	}
 
 	public void changeProjectOrder( MetaSourceProject project , int POS ) throws Exception {
-		checkTransactionMetadata( project.meta.getStorage( action ) );
+		checkTransactionMetadata( project.meta.getStorage() );
 		project.set.changeProjectOrder( this , project , POS );
 	}
 
 	public void changeProjectSetOrder( MetaSourceProjectSet set ) throws Exception {
-		checkTransactionMetadata( set.meta.getStorage( action ) );
+		checkTransactionMetadata( set.meta.getStorage() );
 		set.reorderProjects( this );
 	}
 	
 	public MetaSourceProjectItem createSourceProjectItem( MetaSourceProject project , String name ) throws Exception {
-		checkTransactionMetadata( project.meta.getStorage( action ) );
+		checkTransactionMetadata( project.meta.getStorage() );
 		
 		MetaSourceProjectItem item = new MetaSourceProjectItem( project.meta , project );
 		item.createItem( this , name );
@@ -793,7 +793,7 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void deleteSourceProjectItem( MetaSourceProjectItem item , boolean leaveManual ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage( action ) );
+		checkTransactionMetadata( item.meta.getStorage() );
 		
 		MetaDistrBinaryItem distItem = item.distItem;
 		if( distItem != null ) {
@@ -827,38 +827,38 @@ public class EngineTransaction extends TransactionBase {
 	}
 
 	public void setMetaEnvProperties( MetaEnv env , PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( env.meta.getStorage( action ) );
+		checkTransactionMetadata( env.meta.getStorage() );
 		env.setProperties( this , props , system );
 	}
 	
 	public void updateMetaEnv( MetaEnv env ) throws Exception {
-		checkTransactionMetadata( env.meta.getStorage( action ) );
+		checkTransactionMetadata( env.meta.getStorage() );
 		env.updateProperties( this );
 	}
 	
 	public void updateMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		checkTransactionMetadata( sg.meta.getStorage() );
 		sg.updateProperties( this );
 	}
 	
 	public void createMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		checkTransactionMetadata( sg.meta.getStorage() );
 		sg.env.createSegment( this , sg );
 	}
 	
 	public void deleteMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		checkTransactionMetadata( sg.meta.getStorage() );
 		sg.env.deleteSegment( this , sg );
 		sg.deleteObject();
 	}
 
 	public void setMetaEnvSGProperties( MetaEnvSegment sg , PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		checkTransactionMetadata( sg.meta.getStorage() );
 		sg.setProperties( this , props , system );
 	}
 	
 	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		checkTransactionMetadata( sg.meta.getStorage() );
 		MetaEnvServer server = new MetaEnvServer( sg.meta , sg );
 		server.createServer( action , name , desc , osType , runType , accessType , sysname );
 		sg.createServer( this , server );
@@ -866,28 +866,28 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void modifyMetaEnvServer( MetaEnvServer server ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage( action ) );
+		checkTransactionMetadata( server.meta.getStorage() );
 		server.sg.modifyServer( this , server );
 	}
 
 	public void deleteMetaEnvServer( MetaEnvServer server ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage( action ) );
+		checkTransactionMetadata( server.meta.getStorage() );
 		server.sg.deleteServer( this , server );
 		server.deleteObject();
 	}
 
 	public void updateMetaEnvServer( MetaEnvServer server ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage( action ) );
+		checkTransactionMetadata( server.meta.getStorage() );
 		server.updateProperties( this );
 	}
 
 	public void setMetaEnvServerProperties( MetaEnvServer server , PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage( action ) );
+		checkTransactionMetadata( server.meta.getStorage() );
 		server.setProperties( this , props , system );
 	}
 	
 	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage( action ) );
+		checkTransactionMetadata( server.meta.getStorage() );
 		MetaEnvServerNode node = new MetaEnvServerNode( server.meta , server , pos );
 		node.createNode( action , nodeType , account );
 		server.createNode( this , node );
@@ -895,7 +895,7 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void modifyMetaEnvServerNode( MetaEnvServerNode node , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
-		checkTransactionMetadata( node.meta.getStorage( action ) );
+		checkTransactionMetadata( node.meta.getStorage() );
 		node.updateProperties( this );
 		node.modifyNode( action , pos , nodeType , account );
 		node.server.modifyNode( this , node );
@@ -906,28 +906,28 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void deleteMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {
-		checkTransactionMetadata( node.meta.getStorage( action ) );
+		checkTransactionMetadata( node.meta.getStorage() );
 		node.server.deleteNode( this , node );
 		node.deleteObject();
 	}
 
 	public void setMetaEnvServerNodeProperties( MetaEnvServerNode node , PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( node.meta.getStorage( action ) );
+		checkTransactionMetadata( node.meta.getStorage() );
 		node.setProperties( this , props , system );
 	}
 	
 	public void setStartInfo( MetaEnvSegment sg , MetaEnvStartInfo startInfo ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage( action ) );
+		checkTransactionMetadata( sg.meta.getStorage() );
 		sg.setStartInfo( this , startInfo );
 	}
 
 	public void modifyServerDeployments( MetaEnvServer server , List<MetaEnvServerDeployment> deployments ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage( action ) );
+		checkTransactionMetadata( server.meta.getStorage() );
 		server.setDeployments( this , deployments );
 	}
 
 	public MetaMonitoringTarget modifyMonitoringTarget( MetaMonitoring monMeta , MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
-		checkTransactionMetadata( monMeta.meta.getStorage( action ) );
+		checkTransactionMetadata( monMeta.meta.getStorage() );
 		MetaMonitoringTarget target = monMeta.modifyTarget( this , sg , major , enabled , maxTime , schedule );
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.modifyTarget( this , target );

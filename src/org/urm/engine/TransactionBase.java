@@ -963,7 +963,8 @@ public class TransactionBase extends EngineObject {
 		if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
 			action.exitUnexpectedState();
 		
-		Meta meta = action.createProductMetadata( this , product );
+		EngineSettings settings = getSettings();
+		Meta meta = data.createProductMetadata( this , settings , product );
 		tm = new TransactionMetadata( this );
 		tm.createProduct( meta );
 		addTransactionMeta( meta , tm );

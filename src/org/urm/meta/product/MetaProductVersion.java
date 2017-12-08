@@ -72,7 +72,7 @@ public class MetaProductVersion extends PropertyController {
 	}
 	
 	public MetaProductVersion copy( ActionBase action , Meta meta ) throws Exception {
-		MetaProductVersion r = new MetaProductVersion( meta.getStorage( action ) , meta );
+		MetaProductVersion r = new MetaProductVersion( meta.getStorage() , meta );
 		r.initCopyStarted( this , null );
 		r.scatterProperties( action );
 		r.initFinished();

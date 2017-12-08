@@ -119,10 +119,10 @@ public abstract class DBEnums {
 
 	public enum DBEnumParamValueType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
-		STRING(1,null) ,
-		NUMBER(2,null) ,
-		BOOL(3,null) ,
-		PATH(4,null);
+		STRING(1,new String[] {"PROPERTY_STRING"}) ,
+		NUMBER(2,new String[] {"PROPERTY_NUMBER"}) ,
+		BOOL(3,new String[] {"PROPERTY_BOOL"}) ,
+		PATH(4,new String[] {"PROPERTY_PATH"});
 
 		private final int value;
 		private String[] synonyms;

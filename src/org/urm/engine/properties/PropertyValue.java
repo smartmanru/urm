@@ -383,7 +383,7 @@ public class PropertyValue {
 		
 		DBEnumParamValueType value = null;		
 		try {
-			value = DBEnumParamValueType.valueOf( Common.xmlToEnumValue( TYPE ) );
+			value = DBEnumParamValueType.getValue( Common.xmlToEnumValue( TYPE ) , true );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidItemValueType1 , "invalid item value type=" + TYPE , TYPE );

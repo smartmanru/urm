@@ -97,17 +97,8 @@ public class ObjectProperties {
 		return( setName );
 	}
 	
-	boolean initCopyStarted( ObjectProperties src , PropertySet parent ) {
-		loadFailed = false;
-		loadFinished = false;
-		
-		if( src.properties != null )
-			properties = src.properties.copy( parent );
-		
-		return( true );
-	}
-	
-	public boolean initCreateStarted( ObjectProperties parent ) {
+	private boolean initCreateStarted( ObjectProperties parent ) {
+		this.parent = parent; 
 		loadFailed = false;
 		loadFinished = false;
 		

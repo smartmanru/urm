@@ -24,7 +24,7 @@ public class MetaProductSettings extends PropertyController {
 
 	protected Meta meta;
 
-	public PropertySet execprops;
+	public PropertySet systemProps;
 	public MetaProductCoreSettings core;
 	public MetaProductBuildSettings buildCommon;
 	public Map<DBEnumBuildModeType,MetaProductBuildSettings> buildModes;
@@ -80,7 +80,7 @@ public class MetaProductSettings extends PropertyController {
 		super( storage , null , "product" );
 		
 		this.meta = meta;
-		this.execprops = execprops;
+		this.systemProps = execprops;
 		meta.setProduct( this );
 		core = new MetaProductCoreSettings( meta , this ); 
 		buildModes = new HashMap<DBEnumBuildModeType,MetaProductBuildSettings>();
@@ -127,8 +127,8 @@ public class MetaProductSettings extends PropertyController {
 	}
 
 	public MetaProductSettings copy( ActionBase action , Meta meta ) throws Exception {
-		MetaProductSettings r = new MetaProductSettings( meta.getStorage( action ) , meta , execprops );
-		r.initCopyStarted( this , execprops );
+		MetaProductSettings r = new MetaProductSettings( meta.getStorage() , meta , systemProps );
+		r.initCopyStarted( this , systemProps );
 		r.core = core.copy( action , meta , r );
 		
 		if( buildCommon != null )
@@ -145,7 +145,7 @@ public class MetaProductSettings extends PropertyController {
 	}
 
 	public void createSettings( TransactionBase transaction , EngineSettings settings , ProductContext productContext ) throws Exception {
-		if( !super.initCreateStarted( execprops ) )
+		if( !super.initCreateStarted( systemProps ) )
 			return;
 
 		// create initial
@@ -176,7 +176,7 @@ public class MetaProductSettings extends PropertyController {
 	}
 	
 	public void load( ActionBase action , ProductContext productContext , Node root ) throws Exception {
-		if( !initCreateStarted( execprops ) )
+		if( !initCreateStarted( systemProps ) )
 			return;
 
 		core.load( action , productContext , root );

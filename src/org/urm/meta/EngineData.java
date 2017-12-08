@@ -198,8 +198,8 @@ public class EngineData {
 		products.deleteProductMetadata( transaction , storage );
 	}
 
-	public Meta createProductMetadata( TransactionBase transaction , AppProduct product ) throws Exception {
-		ProductMeta storage = products.createProductMetadata( transaction , product );
+	public Meta createProductMetadata( TransactionBase transaction , EngineSettings settings , AppProduct product ) throws Exception {
+		ProductMeta storage = products.createProductMetadata( transaction , settings , product );
 		return( products.createSessionProductMetadata( transaction.action , storage ) );
 	}
 

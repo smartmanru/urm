@@ -899,7 +899,7 @@ public class PropertySet {
 		if( pv.isNull() ) {
 			if( allowParent && parent != null ) {
 				PropertyValue pvVar = parent.getPropertyInternal( pv.property , useRaw , allowParent , allowUnresolved );
-				if( pvVar != null && !pvVar.isNull() ) {
+				if( pvVar != null ) {
 					pv.setFinalValue( pvVar.getFinalValue() );
 					if( finalValue && pv.getType() == DBEnumParamValueType.PATH )
 						pv.setFinalValue( pv.getPath( finalValue , isWindows ) );

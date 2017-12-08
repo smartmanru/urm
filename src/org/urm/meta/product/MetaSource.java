@@ -51,7 +51,7 @@ public class MetaSource extends PropertyController {
 	
 	public MetaSource copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductSettings product = meta.getProductSettings( action );
-		MetaSource r = new MetaSource( meta.getStorage( action ) , product , meta );
+		MetaSource r = new MetaSource( meta.getStorage() , product , meta );
 		r.initCopyStarted( this , product.getProperties() );
 		for( MetaSourceProjectSet set : setMap.values() ) {
 			MetaSourceProjectSet rset = set.copy( action , meta , r );
@@ -100,7 +100,7 @@ public class MetaSource extends PropertyController {
 	}
 	
 	public MetaSourceProject[] getBuildProjects( ActionBase action , DBEnumBuildModeType buildMode ) {
-		List<MetaSourceProject> all = getAllProjectList( action , true );
+		List<MetaSourceProject> all = getAllProjectList( true );
 		List<MetaSourceProject> list = new LinkedList<MetaSourceProject>(); 
 		for( MetaSourceProject project : all ) {
 			if( buildMode == DBEnumBuildModeType.BRANCH ) {
@@ -120,7 +120,7 @@ public class MetaSource extends PropertyController {
 		return( setMap.values().toArray( new MetaSourceProjectSet[0] ) );
 	}
 	
-	public List<MetaSourceProject> getAllProjectList( ActionBase action , boolean buildable ) {
+	public List<MetaSourceProject> getAllProjectList( boolean buildable ) {
 		List<MetaSourceProject> plist = new LinkedList<MetaSourceProject>();
 		for( MetaSourceProjectSet pset : setMap.values() ) {
 			for( MetaSourceProject project : pset.getProjects() ) {

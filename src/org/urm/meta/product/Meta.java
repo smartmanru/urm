@@ -8,6 +8,7 @@ import org.urm.common.ConfReader;
 import org.urm.engine.EngineSession;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.dist.DistRepository;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.Types.*;
@@ -110,13 +111,13 @@ public class Meta extends EngineObject {
 		this.sources = sources;
 	}
 
-	public synchronized ProductMeta getStorage( ActionBase action ) throws Exception {
+	public synchronized ProductMeta getStorage() {
 		return( storage );
 	}
 
 	public synchronized MetaProductVersion getVersion( ActionBase action ) throws Exception {
 		if( version == null )
-			version = products.loadVersion( action.actionInit , storage );
+			version = storage.getVersion();
 		return( version );
 	}
 
@@ -127,36 +128,37 @@ public class Meta extends EngineObject {
 	
 	public synchronized MetaProductSettings getProductSettings( ActionBase action ) throws Exception {
 		if( product == null )
-			product = products.loadProduct( action.actionInit , storage );
+			product = storage.getProductSettings();
 		return( product );
 	}
 	
 	public synchronized MetaDatabase getDatabase( ActionBase action ) throws Exception {
 		if( database == null )
-			database = products.loadDatabase( action.actionInit , storage );
+			database = storage.getDatabase();
 		return( database );
 	}
 
 	public synchronized MetaDistr getDistr( ActionBase action ) throws Exception {
 		if( distr == null )
-			distr = products.loadDistr( action.actionInit , storage );
+			distr = storage.getDistr();
 		return( distr );
 	}
 
 	public synchronized MetaSource getSources( ActionBase action ) throws Exception {
 		if( sources == null )
-			sources = products.loadSources( action.actionInit , storage );
+			sources = storage.getSources();
 		return( sources );
 	}
 
 	public synchronized MetaMonitoring getMonitoring( ActionBase action ) throws Exception {
 		if( monitoring == null )
-			monitoring = products.loadMonitoring( action.actionInit , storage );
+			monitoring = storage.getMonitoring();
 		return( monitoring );
 	}
 	
 	public synchronized MetaDesign getDesignData( ActionBase action , String fileName ) throws Exception {
-		return( products.loadDesignData( action.actionInit , storage , fileName ) );
+		EngineLoader loader = action.engine.createLoader();
+		return( products.loadDesignData( loader , storage , fileName ) );
 	}
 	
 	public String[] getEnvNames() {
@@ -171,8 +173,8 @@ public class Meta extends EngineObject {
 		return( storage.getDistRepository() );
 	}
 	
-	public synchronized MetaEnv getEnvData( ActionBase action , String envFile , boolean loadProps ) throws Exception {
-		return( products.loadEnvData( action.actionInit , storage , envFile , loadProps ) );
+	public synchronized MetaEnv getEnvData( ActionBase action , String envName , boolean loadProps ) throws Exception {
+		return( storage.findEnvironment( envName ) );
 	}
 	
 	public MetaEnv findEnv( String envId ) {
@@ -180,7 +182,6 @@ public class Meta extends EngineObject {
 	}
 	
 	public synchronized MetaEnv getEnv( ActionBase action , String envId ) throws Exception {
-		getStorage( action );
 		return( storage.findEnvironment( envId ) );
 	}
 	

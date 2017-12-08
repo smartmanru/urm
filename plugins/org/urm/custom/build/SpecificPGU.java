@@ -208,7 +208,7 @@ public class SpecificPGU {
 
 		action.debug( "copy libs to servicecall and storageservice from pgu-services-lib and servicecall-prod-libs ..." );
 		MetaSource sources = meta.getSources( action );
-		List<MetaSourceProject> list = sources.getAllProjectList( action , true );
+		List<MetaSourceProject> list = sources.getAllProjectList( true );
 		Dist releaseStorage = release;
 		
 		for( MetaSourceProject sourceProject : list ) {

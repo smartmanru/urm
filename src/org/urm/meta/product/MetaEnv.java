@@ -151,7 +151,7 @@ public class MetaEnv extends PropertyController {
 
 	public MetaEnv copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductSettings product = meta.getProductSettings( action );
-		MetaEnv r = new MetaEnv( meta.getStorage( action ) , product , meta );
+		MetaEnv r = new MetaEnv( meta.getStorage() , product , meta );
 		r.initCopyStarted( this , product.getProperties() );
 		
 		for( MetaEnvSegment sg : originalList ) {

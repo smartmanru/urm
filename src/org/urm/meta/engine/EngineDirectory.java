@@ -141,7 +141,7 @@ public class EngineDirectory extends EngineObject {
 	}
 	
 	public AppProduct findProduct( int id ) {
-		AppProduct find = mapProducts.get( id );
+		AppProduct find = mapProductsById.get( id );
 		if( find != null )
 			return( find );
 		return( mapProductUnmatched.get( id ) );

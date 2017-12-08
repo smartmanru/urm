@@ -86,7 +86,7 @@ public class Artefactory {
 	}
 	
 	public DistRepository getDistRepository( ActionBase action , Meta meta ) throws Exception {
-		ProductMeta storage = meta.getStorage( action );
+		ProductMeta storage = meta.getStorage();
 		DistRepository repo = storage.getDistRepository( action );
 		return( repo );
 	}

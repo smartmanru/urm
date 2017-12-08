@@ -16,6 +16,9 @@ import org.urm.engine.TransactionBase;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.storage.MetadataStorage;
+import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.AppSystem;
+import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.EngineSettings;
@@ -40,7 +43,7 @@ public class ProductMeta extends EngineObject {
 	public Meta meta;
 	
 	private MetaProductVersion version;
-	private MetaProductSettings product;
+	private MetaProductSettings productSettings;
 	private MetaDatabase database;
 	private MetaSource sources;
 	private MetaDistr distr;
@@ -124,9 +127,9 @@ public class ProductMeta extends EngineObject {
 			if( r.version.isLoadFailed() )
 				r.loadFailed = true;
 		}
-		if( product != null ) {
-			r.product = product.copy( action , r.meta );
-			if( r.product.isLoadFailed() )
+		if( productSettings != null ) {
+			r.productSettings = productSettings.copy( action , r.meta );
+			if( r.productSettings.isLoadFailed() )
 				r.loadFailed = true;
 		}
 		if( database != null ) {
@@ -178,14 +181,15 @@ public class ProductMeta extends EngineObject {
 		action.handle( e );
 		action.error( msg );
 	}
-	
-	public synchronized MetaProductVersion loadVersion( ActionBase action , MetadataStorage storageMeta ) {
+
+	public synchronized MetaProductVersion loadVersion( EngineLoader loader , MetadataStorage storageMeta ) {
 		if( version != null )
 			return( version );
 		
 		version = new MetaProductVersion( this , meta );
 
 		if( !loadFailed ) {
+			ActionBase action = loader.getAction();
 			try {
 				// read
 				String file = storageMeta.getVersionConfFile( action );
@@ -204,17 +208,19 @@ public class ProductMeta extends EngineObject {
 		return( version );
 	}
 
-	public synchronized MetaProductSettings loadProduct( ActionBase action , MetadataStorage storageMeta ) {
-		if( product != null )
-			return( product );
+	public synchronized MetaProductSettings loadProduct( EngineLoader loader , MetadataStorage storageMeta ) {
+		if( productSettings != null )
+			return( productSettings );
 		
-		EngineSettings settings = action.getServerSettings();
-		ObjectProperties execprops = settings.getExecProperties();
-		
-		product = new MetaProductSettings( this , meta , execprops.getProperties() );
-
 		if( !loadFailed ) {
+			ActionBase action = loader.getAction();
 			try {
+				EngineDirectory directory = loader.getDirectory();
+				AppProduct product = directory.getProduct( meta.name );
+				AppSystem system = product.system;
+				ObjectProperties systemProps = system.getParameters();
+				productSettings = new MetaProductSettings( this , meta , systemProps.getProperties() );
+
 				ProductContext productContext = new ProductContext( meta );
 				productContext.create( action , version );
 				
@@ -223,8 +229,8 @@ public class ProductMeta extends EngineObject {
 				action.debug( "read product definition file " + file + "..." );
 				Document doc = ConfReader.readXmlFile( action.session.execrc , file );
 				Node root = doc.getDocumentElement();
-				product.load( action , productContext , root );
-				if( product.isLoadFailed() )
+				productSettings.load( action , productContext , root );
+				if( productSettings.isLoadFailed() )
 					setLoadFailed( action , "invalid settings metadata, product=" + name );
 			}
 			catch( Throwable e ) {
@@ -232,17 +238,18 @@ public class ProductMeta extends EngineObject {
 			}
 		}
 		
-		return( product );
+		return( productSettings );
 	}
 	
-	public synchronized MetaDatabase loadDatabase( ActionBase action , MetadataStorage storageMeta ) {
+	public synchronized MetaDatabase loadDatabase( EngineLoader loader , MetadataStorage storageMeta ) {
 		if( database != null )
 			return( database );
 		
-		MetaProductSettings settings = loadProduct( action , storageMeta );
+		MetaProductSettings settings = loadProduct( loader , storageMeta );
 		database = new MetaDatabase( this , settings , meta );
 		
 		if( !loadFailed ) {
+			ActionBase action = loader.getAction();
 			try {
 				// read
 				String file = storageMeta.getDatabaseConfFile( action );
@@ -261,16 +268,17 @@ public class ProductMeta extends EngineObject {
 		return( database );
 	}
 	
-	public synchronized MetaDistr loadDistr( ActionBase action , MetadataStorage storageMeta ) {
+	public synchronized MetaDistr loadDistr( EngineLoader loader , MetadataStorage storageMeta ) {
 		if( distr != null )
 			return( distr );
 		
-		MetaProductSettings settings = loadProduct( action , storageMeta );
-		MetaDatabase db = loadDatabase( action , storageMeta );
+		MetaProductSettings settings = loadProduct( loader , storageMeta );
+		MetaDatabase db = loadDatabase( loader , storageMeta );
 		distr = new MetaDistr( this , settings , meta );
 		meta.setDistr( distr );
 		
 		if( !loadFailed ) {
+			ActionBase action = loader.getAction();
 			try {
 				// read
 				String file = storageMeta.getDistrConfFile( action );
@@ -289,15 +297,16 @@ public class ProductMeta extends EngineObject {
 		return( distr );
 	}
 
-	public synchronized MetaSource loadSources( ActionBase action , MetadataStorage storageMeta ) {
+	public synchronized MetaSource loadSources( EngineLoader loader , MetadataStorage storageMeta ) {
 		if( sources != null )
 			return( sources );
 		
-		MetaProductSettings settings = loadProduct( action , storageMeta );
+		MetaProductSettings settings = loadProduct( loader , storageMeta );
 		sources = new MetaSource( this , settings , meta );
 		meta.setSources( sources );
 		
 		if( !loadFailed ) {
+			ActionBase action = loader.getAction();
 			try {
 				// read
 				String file = storageMeta.getSourcesConfFile( action );
@@ -316,14 +325,15 @@ public class ProductMeta extends EngineObject {
 		return( sources );
 	}
 	
-	public synchronized MetaMonitoring loadMonitoring( ActionBase action , MetadataStorage storageMeta ) {
+	public synchronized MetaMonitoring loadMonitoring( EngineLoader loader , MetadataStorage storageMeta ) {
 		if( mon != null )
 			return( mon );
 		
-		MetaProductSettings settings = loadProduct( action , storageMeta );
+		MetaProductSettings settings = loadProduct( loader , storageMeta );
 		mon = new MetaMonitoring( this , settings , meta );
 		
 		if( !loadFailed ) {
+			ActionBase action = loader.getAction();
 			try {
 				// read
 				String file = storageMeta.getMonitoringConfFile( action );
@@ -342,16 +352,17 @@ public class ProductMeta extends EngineObject {
 		return( mon );
 	}
 	
-	public synchronized MetaEnv loadEnvData( ActionBase action , MetadataStorage storageMeta , String envName ) {
+	public synchronized MetaEnv loadEnvData( EngineLoader loader , MetadataStorage storageMeta , String envName ) {
 		MetaEnv env = envs.get( envName );
 		if( env != null )
 			return( env );
 		
-		MetaProductSettings settings = loadProduct( action , storageMeta );
+		MetaProductSettings settings = loadProduct( loader , storageMeta );
 		env = new MetaEnv( this , settings , meta );
 		envs.put( envName , env );
 
 		if( !loadFailed ) {
+			ActionBase action = loader.getAction();
 			try {
 				// read
 				String file = storageMeta.getEnvConfFile( action , envName );
@@ -370,7 +381,7 @@ public class ProductMeta extends EngineObject {
 		return( env );
 	}
 	
-	public synchronized MetaDesign loadDesignData( ActionBase action , MetadataStorage storageMeta , String fileName ) {
+	public synchronized MetaDesign loadDesignData( EngineLoader loader , MetadataStorage storageMeta , String fileName ) {
 		MetaDesign design = designFiles.get( fileName );
 		if( design != null )
 			return( design );
@@ -378,6 +389,7 @@ public class ProductMeta extends EngineObject {
 		design = new MetaDesign( this , meta );
 		
 		if( !loadFailed ) {
+			ActionBase action = loader.getAction();
 			try {
 				// read
 				String filePath = storageMeta.getDesignFile( action , fileName );
@@ -398,16 +410,18 @@ public class ProductMeta extends EngineObject {
 		return( design );
 	}
 
-	public synchronized void loadAll( ActionBase action , MetadataStorage storageMeta ) {
-		loadVersion( action , storageMeta );
-		loadProduct( action , storageMeta );
-		loadDatabase( action , storageMeta );
-		loadSources( action , storageMeta );
-		loadDistr( action , storageMeta );
-		loadMonitoring( action , storageMeta );
+	public synchronized void loadAll( EngineLoader loader , MetadataStorage storageMeta ) {
+		ActionBase action = loader.getAction();
+		
+		loadVersion( loader , storageMeta );
+		loadProduct( loader , storageMeta );
+		loadDatabase( loader , storageMeta );
+		loadSources( loader , storageMeta );
+		loadDistr( loader , storageMeta );
+		loadMonitoring( loader , storageMeta );
 		
 		meta.setVersion( version );
-		meta.setProduct( product );
+		meta.setProduct( productSettings );
 		meta.setDatabase( database );
 		meta.setDistr( distr );
 		meta.setSources( sources );
@@ -417,9 +431,9 @@ public class ProductMeta extends EngineObject {
 		
 		try {
 			for( String envFile : storageMeta.getEnvFiles( action ) )
-				loadEnvData( action , storageMeta , envFile );
+				loadEnvData( loader , storageMeta , envFile );
 			for( String designFile : storageMeta.getDesignFiles( action ) )
-				loadDesignData( action , storageMeta , designFile );
+				loadDesignData( loader , storageMeta , designFile );
 			
 			repo = DistRepository.loadDistRepository( action , meta );
 		}
@@ -428,9 +442,9 @@ public class ProductMeta extends EngineObject {
 		}
 	}
 	
-	public synchronized void createInitial( TransactionBase transaction , EngineSettings settings ) throws Exception {
+	public synchronized void createInitial( TransactionBase transaction , EngineSettings settings , AppProduct product ) throws Exception {
 		createInitialVersion( transaction );
-		createInitialProduct( transaction , settings );
+		createInitialProduct( transaction , settings , product );
 		createInitialDatabase( transaction );
 		createInitialSources( transaction );
 		createInitialDistr( transaction );
@@ -443,37 +457,37 @@ public class ProductMeta extends EngineObject {
 		meta.setVersion( version );
 	}
 	
-	private void createInitialProduct( TransactionBase transaction , EngineSettings settings ) throws Exception {
-		ObjectProperties execprops = settings.getExecProperties();
-		product = new MetaProductSettings( this , meta , execprops.getProperties() );
+	private void createInitialProduct( TransactionBase transaction , EngineSettings settings , AppProduct product ) throws Exception {
+		ObjectProperties systemProps = product.system.getParameters();
+		productSettings = new MetaProductSettings( this , meta , systemProps.getProperties() );
 		
 		ProductContext productContext = new ProductContext( meta );
 		productContext.create( transaction.action , version );
 		
-		product.createSettings( transaction , settings , productContext );
-		meta.setProduct( product );
+		productSettings.createSettings( transaction , settings , productContext );
+		meta.setProduct( productSettings );
 	}
 	
 	private void createInitialDatabase( TransactionBase transaction ) throws Exception {
-		database = new MetaDatabase( this , product , meta );
+		database = new MetaDatabase( this , productSettings , meta );
 		database.createDatabase( transaction );
 		meta.setDatabase( database );
 	}
 	
 	private void createInitialDistr( TransactionBase transaction ) throws Exception {
-		distr = new MetaDistr( this , product , meta );
+		distr = new MetaDistr( this , productSettings , meta );
 		distr.createDistr( transaction );
 		meta.setDistr( distr );
 	}
 	
 	private void createInitialSources( TransactionBase transaction ) throws Exception {
-		sources = new MetaSource( this , product , meta );
+		sources = new MetaSource( this , productSettings , meta );
 		sources.createSources( transaction );
 		meta.setSources( sources );
 	}
 	
 	private void createInitialMonitoring( TransactionBase transaction ) throws Exception {
-		mon = new MetaMonitoring( this , product , meta );
+		mon = new MetaMonitoring( this , productSettings , meta );
 		mon.createMonitoring( transaction );
 	}
 
@@ -507,7 +521,7 @@ public class ProductMeta extends EngineObject {
 	
 	public void saveProduct( ActionBase action , MetadataStorage storageMeta ) throws Exception {
 		Document doc = Common.xmlCreateDoc( XML_ROOT_PRODUCT );
-		product.save( action , doc , doc.getDocumentElement() );
+		productSettings.save( action , doc , doc.getDocumentElement() );
 		storageMeta.saveProductConfFile( action , doc );
 	}
 	
@@ -562,7 +576,7 @@ public class ProductMeta extends EngineObject {
 	}
 	
 	public MetaProductSettings getProductSettings() {
-		return( product );
+		return( productSettings );
 	}
 	
 	public MetaDatabase getDatabase() {

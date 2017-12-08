@@ -50,7 +50,7 @@ public class MetaDatabase extends PropertyController {
 	
 	public MetaDatabase copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductSettings product = meta.getProductSettings( action );
-		MetaDatabase r = new MetaDatabase( meta.getStorage( action ) , product , meta );
+		MetaDatabase r = new MetaDatabase( meta.getStorage() , product , meta );
 		r.initCopyStarted( this , product.getProperties() );
 		
 		r.admin = admin.copy( action , meta , r );

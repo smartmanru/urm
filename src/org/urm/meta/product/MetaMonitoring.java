@@ -66,7 +66,7 @@ public class MetaMonitoring extends PropertyController {
 	
 	public MetaMonitoring copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductSettings product = meta.getProductSettings( action );
-		MetaMonitoring r = new MetaMonitoring( meta.getStorage( action ) , product , meta );
+		MetaMonitoring r = new MetaMonitoring( meta.getStorage() , product , meta );
 		r.initCopyStarted( this , product.getProperties() );
 		
 		for( MetaMonitoringTarget target : mapTargets.values() ) {

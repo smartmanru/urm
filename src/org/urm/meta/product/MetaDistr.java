@@ -54,7 +54,7 @@ public class MetaDistr extends PropertyController {
 	
 	public MetaDistr copy( ActionBase action , Meta meta , MetaDatabase rdb ) throws Exception {
 		MetaProductSettings product = meta.getProductSettings( action );
-		MetaDistr r = new MetaDistr( meta.getStorage( action ) , product , meta );
+		MetaDistr r = new MetaDistr( meta.getStorage() , product , meta );
 		r.initCopyStarted( this , product.getProperties() );
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
 			MetaDistrDelivery rd = delivery.copy( action , meta , r , rdb );

@@ -2,6 +2,7 @@ package org.urm.engine;
 
 import org.urm.engine.status.EngineStatus;
 import org.urm.meta.ProductMeta;
+import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
@@ -30,7 +31,7 @@ public class TransactionMetadata {
 	public void createProduct( Meta sessionMeta ) throws Exception {
 		this.sessionMeta = sessionMeta;
 		createMetadata = true;
-		metadata = sessionMeta.getStorage( transaction.getAction() );
+		metadata = sessionMeta.getStorage();
 	}
 
 	public void abortTransaction( boolean save ) {
@@ -57,7 +58,7 @@ public class TransactionMetadata {
 	}
 
 	public boolean changeProduct( Meta meta ) throws Exception {
-		ProductMeta sourceMetadata = meta.getStorage( transaction.action );
+		ProductMeta sourceMetadata = meta.getStorage();
 		if( sourceMetadata.isPrimary() ) {
 			metadataOld = sourceMetadata;
 			metadata = sourceMetadata.copy( transaction.action );
@@ -73,7 +74,7 @@ public class TransactionMetadata {
 	}
 
 	public boolean deleteProduct( Meta meta ) throws Exception {
-		ProductMeta sourceMetadata = meta.getStorage( transaction.action );
+		ProductMeta sourceMetadata = meta.getStorage();
 		if( sourceMetadata.isPrimary() ) {
 			deleteMetadata = true;
 			metadataOld = sourceMetadata;
@@ -85,11 +86,14 @@ public class TransactionMetadata {
 	}
 
 	public boolean saveProduct() throws Exception {
+		EngineDirectory directory = transaction.getDirectory();
+		AppProduct product = directory.getProduct( metadata.name );
+		
 		if( deleteMetadata ) {
 			if( metadataOld == null )
 				return( true );
 
-			deleteProduct( metadataOld );
+			deleteProduct( product , metadataOld );
 			transaction.deleteProductMetadata( metadataOld );
 			transaction.trace( "transaction product storage meta: delete=" + metadataOld.objectId );
 		}
@@ -101,9 +105,9 @@ public class TransactionMetadata {
 			sessionMeta.replaceStorage( transaction.action , metadata );
 			transaction.trace( "transaction product storage meta: save=" + metadata.objectId );
 			if( createMetadata )
-				createProduct( metadata );
+				createProduct( product , metadata );
 			else
-				modifyProduct( metadataOld , metadata );
+				modifyProduct( product , metadataOld , metadata );
 		}
 		
 		return( true );
@@ -116,9 +120,7 @@ public class TransactionMetadata {
 			transaction.exit1( _Error.InternalTransactionError1 , "Internal error: invalid transaction metadata" , "invalid transaction metadata" );
 	}
 
-	private void createProduct( ProductMeta metadata ) throws Exception {
-		AppProduct product = transaction.action.findProduct( metadata.name );
-		
+	private void createProduct( AppProduct product , ProductMeta metadata ) throws Exception {
 		EngineStatus status = transaction.action.getServerStatus();
 		status.createProduct( transaction.action , product , metadata );
 		
@@ -126,7 +128,7 @@ public class TransactionMetadata {
 		mon.createProduct( transaction.action , metadata.name );
 	}
 	
-	private void deleteProduct( ProductMeta metadata ) throws Exception {
+	private void deleteProduct( AppProduct product , ProductMeta metadata ) throws Exception {
 		EngineStatus status = transaction.action.getServerStatus();
 		status.deleteProduct( transaction.action , metadata );
 		
@@ -134,7 +136,8 @@ public class TransactionMetadata {
 		mon.deleteProduct( transaction.action , metadata.name );
 	}
 	
-	private void modifyProduct( ProductMeta metadataOld , ProductMeta metadataNew ) throws Exception {
+	private void modifyProduct( AppProduct product , ProductMeta metadataOld , ProductMeta metadataNew ) throws Exception {
+		product.setMatched( metadataNew );
 		EngineStatus status = transaction.action.getServerStatus();
 		status.modifyProduct( transaction.action , metadataOld , metadataNew );
 		

@@ -26,6 +26,7 @@ public class MirrorRepository extends EngineObject {
 	public int CV;
 
 	public Integer productId;
+	public Integer projectId;
 	
 	public MirrorRepository( EngineMirrors mirrors ) {
 		super( mirrors );
@@ -103,6 +104,11 @@ public class MirrorRepository extends EngineObject {
 	
 	public void setProduct( Integer productId ) {
 		this.productId = productId;
+	}
+	
+	public void setProductProject( Integer productId , Integer projectId ) {
+		this.productId = productId;
+		this.projectId = projectId;
 	}
 	
 }

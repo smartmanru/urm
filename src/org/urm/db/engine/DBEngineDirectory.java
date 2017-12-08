@@ -200,7 +200,9 @@ public abstract class DBEngineDirectory {
 		try {
 			matcher.prepareMatchProduct( product , false , false );
 			DBAppProduct.match( loader , directory , product );
-			matcher.doneProduct( product );
+			
+			matcher.matchProjectMirrors( product , set.getSources() );
+			matcher.doneProduct( product , set );
 		}
 		catch( Throwable e ) {
 			loader.log( "match problem " , e );
