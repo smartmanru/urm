@@ -97,22 +97,37 @@ public class BuilderMavenMethod extends Builder {
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
 		PropertySet props = super.createProperties( action , project );
 
-		String NEXUS_PATH = getNexusPath( action , project );
-		String MODULE_ALT_REPO = "-DaltDeploymentRepository=nexus2::default::" + NEXUS_PATH;
-		String MODULE_MSETTINGS = "--settings=" + build.CONFIG_MAVEN_CFGFILE;
-		String MODULE_MAVEN_CMD = "deploy";
+		String mavenCMD = builder.BUILDER_COMMAND;
+		
+		String nexusSettings = "";
+		String info = "";
+		if( builder.isTargetNexus() ) {
+			String NEXUS_PATH = getNexusPath( action , project );
+			String MODULE_ALT_REPO = "-DaltDeploymentRepository=nexus2::default::" + NEXUS_PATH;
+			String MODULE_MSETTINGS = "--settings=" + build.CONFIG_MAVEN_CFGFILE;
+			if( mavenCMD.isEmpty() )
+				mavenCMD = "clean deploy";
+			
+			nexusSettings = " " + MODULE_ALT_REPO + " " + MODULE_MSETTINGS;
+			info = "using maven to nexus path " + NEXUS_PATH;
+		}
+		else {
+			if( mavenCMD.isEmpty() )
+				mavenCMD = "clean install";
+			
+			info = "using local maven build";
+		}
+		
 		String MODULE_ADDITIONAL_OPTIONS = super.getVarString( action , props , project.BUILDER_ADDOPTIONS );
 		if( action.context.CTX_SHOWALL )
 			MODULE_ADDITIONAL_OPTIONS += " -X";
 
-		action.info( "build PATCHPATH=" + CODEPATH.folderPath + ", options=" + MODULE_ADDITIONAL_OPTIONS + ", cmd=" + MODULE_MAVEN_CMD + 
-				" using maven to nexus path " + NEXUS_PATH + "..." );
+		action.info( "build PATCHPATH=" + CODEPATH.folderPath + ", options=" + MODULE_ADDITIONAL_OPTIONS + ", cmd=" + mavenCMD + " " + info );
 
 		// set environment
 		String BUILD_JAVA_HOME = builder.JAVA_JDKHOMEPATH;
 		String BUILD_MAVEN_HOME = builder.BUILDER_HOMEPATH; 
-		String MAVEN_CMD = "mvn -B " + MODULE_ADDITIONAL_OPTIONS + " clean " + 
-				MODULE_MAVEN_CMD + " " + MODULE_ALT_REPO + " " + MODULE_MSETTINGS + " -Dmaven.test.skip=true";
+		String MAVEN_CMD = "mvn -B " + MODULE_ADDITIONAL_OPTIONS + " " + mavenCMD + nexusSettings + " -Dmaven.test.skip=true";
 
 		ShellExecutor session = action.shell;
 		session.export( action , "JAVA_HOME" , session.getLocalPath( BUILD_JAVA_HOME ) );
