@@ -243,7 +243,7 @@ public class DBEngineBuilders {
 		builder.setMethodData( bdata.BUILDER_METHOD_TYPE , bdata.BUILDER_COMMAND , bdata.BUILDER_HOMEPATH , bdata.BUILDER_OPTIONS , bdata.JAVA_JDKHOMEPATH );
 		builder.setTargetData( bdata.BUILDER_TARGET_TYPE , bdata.TARGET_RESOURCE_ID , bdata.TARGET_PATH , bdata.TARGET_PLATFORM );
 		builder.setRemoteData( bdata.REMOTE , bdata.REMOTE_OS_TYPE , bdata.REMOTE_HOSTLOGIN , bdata.REMOTE_PORT , bdata.REMOTE_AUTH_RESOURCE_ID );
-		modifyBuilder( c , builder , true );
+		modifyBuilder( c , builder , false );
 		
 		builders.updateBuilder( builder );
 	}
