@@ -127,24 +127,47 @@ public class TransactionBase extends EngineObject {
 				res = saveProducts();
 			
 			if( res ) {
-				if( connection != null )
+				if( connection != null ) {
 					connection.close( true );
+					connection = null;
+				}
 				
 				if( !engine.commitTransaction( this ) )
 					return( false );
 				
 				action.clearTransaction();
 				
-				if( settingsNew != null )
+				if( settingsNew != null ) {
 					data.setSettings( settingsNew );
-				if( resourcesNew != null )
+					settingsOld.deleteObject();
+					settingsOld = null;
+				}
+				
+				if( resourcesNew != null ) {
 					data.setResources( resourcesNew );
-				if( buildersNew != null )
+					resourcesOld.deleteObject();
+					resourcesOld = null;
+				}
+				
+				if( buildersNew != null ) {
 					data.setBuilders( buildersNew );
-				if( directoryNew != null )
+					buildersOld.deleteObject();
+					buildersOld = null;
+				}
+				
+				if( directoryNew != null ) {
 					data.setDirectory( directoryNew );
-				if( mirrorsNew != null )
+					directoryOld.deleteObject();
+					directoryOld = null;
+				}
+				
+				if( mirrorsNew != null ) {
 					data.setMirrors( mirrorsNew );
+					engine.trace( "remove old mirrors object, id=" + mirrorsOld.objectId );
+					mirrorsOld.deleteObject();
+					mirrorsOld = null;
+				}
+				
 				return( true );
 			}
 
@@ -173,11 +196,31 @@ public class TransactionBase extends EngineObject {
 			lifecyclesChange = null;
 			baseChange = null;
 			
-			settingsNew = null;
-			resourcesNew = null;
-			buildersNew = null;
-			directoryNew = null;
-			mirrorsNew = null;
+			if( settingsNew != null ) {
+				settingsNew.deleteObject();
+				settingsNew = null;
+			}
+			
+			if( resourcesNew != null ) {
+				resourcesNew.deleteObject();
+				resourcesNew = null;
+			}
+			
+			if( buildersNew != null ) {
+				buildersNew.deleteObject();
+				buildersNew = null;
+			}
+			
+			if( directoryNew != null ) {
+				directoryNew.deleteObject();
+				directoryNew = null;
+			}
+			
+			if( mirrorsNew != null ) {
+				engine.trace( "remove new mirrors object, id=" + mirrorsNew.objectId );
+				mirrorsNew.deleteObject();
+				mirrorsNew = null;
+			}
 
 			abortProducts( save );
 			
@@ -325,7 +368,7 @@ public class TransactionBase extends EngineObject {
 		action.trace( s );
 	}
 	
-	private void changeDatabase() throws Exception {
+	public void changeDatabase() throws Exception {
 		if( CHANGEDATABASE )
 			return;
 		

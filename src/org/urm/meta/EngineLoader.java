@@ -149,6 +149,9 @@ public class EngineLoader {
 	}
 	
 	private void closeConnection( boolean commit ) throws Exception {
+		if( commit )
+			setData();
+
 		if( connection != null ) {
 			if( transaction == null )
 				connection.close( commit );
@@ -159,6 +162,9 @@ public class EngineLoader {
 	}
 
 	private void saveConnection( boolean commit ) throws Exception {
+		if( commit )
+			setData();
+
 		if( connection != null )
 			connection.save( commit );
 	}
@@ -286,13 +292,15 @@ public class EngineLoader {
 			matcher = new EngineMatcher( this );
 			entities = data.getEntities();
 			
-			if( repo.isServer() )
+			if( repo.isServer() ) {
 				importEngine();
-			else
+				saveConnection( true );
+				loadProducts();
+			}
+			else {
 				importProduct( repo.productId , true );
-
-			closeConnection( true );
-			setData();
+				closeConnection( true );
+			}
 		}
 		catch( Throwable e ) {
 			log( "import repository" , e );
@@ -437,7 +445,6 @@ public class EngineLoader {
 			}
 			
 			closeConnection( true );
-			setData();
 		}
 		catch( Throwable e ) {
 			log( "init" , e );
@@ -452,24 +459,50 @@ public class EngineLoader {
 	}
 
 	private void setData() {
-		if( settingsNew != null )
+		if( settingsNew != null ) {
 			data.setSettings( settingsNew );
-		if( resourcesNew != null )
+			settingsNew = null;
+		}
+		
+		if( resourcesNew != null ) {
 			data.setResources( resourcesNew );
-		if( buildersNew != null )
+			resourcesNew = null;
+		}
+		
+		if( buildersNew != null ) {
 			data.setBuilders( buildersNew );
-		if( directoryNew != null )
+			buildersNew = null;
+		}
+		
+		if( directoryNew != null ) {
 			data.setDirectory( directoryNew );
-		if( mirrorsNew != null )
+			directoryNew = null;
+		}
+		
+		if( mirrorsNew != null ) {
 			data.setMirrors( mirrorsNew );
-		if( baseNew != null )
+			mirrorsNew = null;
+		}
+		
+		if( baseNew != null ) {
 			data.setBase( baseNew );
-		if( infraNew != null )
+			baseNew = null;
+		}
+		
+		if( infraNew != null ) {
 			data.setInfrastructure( infraNew );
-		if( lifecyclesNew != null )
+			infraNew = null;
+		}
+		
+		if( lifecyclesNew != null ) {
 			data.setLifecycles( lifecyclesNew );
-		if( monitoringNew != null )
+			lifecyclesNew = null;
+		}
+		
+		if( monitoringNew != null ) {
 			data.setMonitoring( monitoringNew );
+			monitoringNew = null;
+		}
 	}
 	
 	private void loadAuth( EngineAuth auth , boolean importxml ) throws Exception {
@@ -492,7 +525,6 @@ public class EngineLoader {
 			}
 
 			closeConnection( true );
-			setData();
 		}
 		catch( Throwable e ) {
 			log( "init" , e );
@@ -647,7 +679,6 @@ public class EngineLoader {
 			products.loadProducts( this );
 
 			closeConnection( true );
-			setData();
 		}
 		catch( Throwable e ) {
 			log( "init" , e );

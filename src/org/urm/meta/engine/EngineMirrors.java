@@ -21,6 +21,7 @@ public class EngineMirrors extends EngineObject {
 		
 		repoMap = new HashMap<String,MirrorRepository>();
 		repoMapById = new HashMap<Integer,MirrorRepository>();
+		engine.trace( "new mirrors object, id=" + super.objectId );
 	}
 
 	@Override
@@ -35,6 +36,7 @@ public class EngineMirrors extends EngineObject {
 			MirrorRepository rc = repo.copy( r );
 			r.addRepository( rc );
 		}
+		engine.trace( "copy mirrors object, id=" + super.objectId + " to id=" + r.objectId );
 		return( r );
 	}
 	
