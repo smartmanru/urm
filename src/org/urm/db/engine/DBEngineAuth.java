@@ -599,8 +599,7 @@ public class DBEngineAuth {
 				entity.exportxmlString( user.DESC ) ,
 				entity.exportxmlString( user.FULLNAME ) ,
 				entity.exportxmlString( user.EMAIL ) ,
-				entity.exportxmlBoolean( user.ADMIN ) ,
-				entity.exportxmlBoolean( user.LOCAL )
+				entity.exportxmlBoolean( user.ADMIN )
 		} , true );
 	}
 
