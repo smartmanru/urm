@@ -5,6 +5,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
+import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
 import org.urm.db.engine.DBEngineAuth;
 import org.urm.db.engine.DBEngineBase;
@@ -19,7 +20,7 @@ import org.urm.db.engine.DBEngineResources;
 import org.urm.db.engine.DBEngineSettings;
 import org.urm.db.system.DBSystemData;
 import org.urm.engine.Engine;
-import org.urm.engine.EngineDB;
+import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
@@ -56,6 +57,7 @@ public class EngineLoader {
 	private EngineEntities entities;
 	private EngineMatcher matcher;
 	private DBConnection connection;
+	private TransactionBase transaction;
 	private ActionBase action;
 
 	private EngineSettings settingsNew;
@@ -72,6 +74,15 @@ public class EngineLoader {
 		this.engine = engine;
 		this.data = data;
 		this.action = action;
+		this.execrc = engine.execrc;
+		this.entities = data.getEntities();
+	}
+
+	public EngineLoader( Engine engine , EngineData data , TransactionBase transaction ) {
+		this.engine = engine;
+		this.data = data;
+		this.transaction = transaction;
+		this.action = transaction.action;
 		this.execrc = engine.execrc;
 		this.entities = data.getEntities();
 	}
@@ -124,8 +135,32 @@ public class EngineLoader {
 		return( matcher );
 	}
 	
-	public DBConnection getConnection() {
+	public DBConnection getConnection() throws Exception {
+		if( connection == null ) {
+			if( transaction != null )
+				connection = transaction.getConnection();
+			else {
+				EngineDB db = data.getDatabase();
+				connection = db.getConnection( action );
+			}
+		}
+			
 		return( connection );
+	}
+	
+	private void closeConnection( boolean commit ) throws Exception {
+		if( connection != null ) {
+			if( transaction == null )
+				connection.close( commit );
+			else
+				connection.save( commit );
+			connection = null;
+		}
+	}
+
+	private void saveConnection( boolean commit ) throws Exception {
+		if( connection != null )
+			connection.save( commit );
 	}
 	
 	public ActionBase getAction() {
@@ -198,28 +233,30 @@ public class EngineLoader {
 		return( propertyFile );
 	}
 
+	public static boolean getInitialUpdateState() {
+		return( Common.getBooleanValue( System.getProperty( "dbupdate" ) ) );
+	}
+
+	public static void setInitialUpdateState() {
+		System.setProperty( "dbupdate" , Common.getBooleanValue( true ) );
+	}
+	
 	public void initMeta() throws Exception {
 		try {
 			trace( "init, checking engine/database consistency ..." );
-			EngineDB db = data.getDatabase();
-			connection = db.getConnection( action );
-			
 			trace( "load names ..." );
 			DBNames.loaddb( this );
 			
-			boolean dbUpdate = Common.getBooleanValue( System.getProperty( "dbupdate" ) );
+			boolean dbUpdate = getInitialUpdateState();
 			if( dbUpdate ) {
 				upgradeMeta();
-				connection.close( true );
-				connection = null;
+				closeConnection( true );
 			}
 			else
 				useMeta();
 		}
 		finally {
-			if( connection != null )
-				connection.close( false );
-			connection = null;
+			closeConnection( false );
 		}
 	}
 	
@@ -228,11 +265,12 @@ public class EngineLoader {
 		DBEngineData.upgradeMeta( this );
 		EngineCore core = data.getCore();
 		core.upgradeMeta( this );
-		connection.save( true );
+		saveConnection( true );
 	}
 	
 	private void useMeta() throws Exception {
 		trace( "load meta ..." );
+		getConnection();
 		int version = connection.getCurrentAppVersion();
 		if( version != EngineDB.APP_VERSION )
 			Common.exit2( _Error.InvalidVersion2 , "Mismatched engine/database, engine version=" + EngineDB.APP_VERSION + ", database version=" + version , "" + EngineDB.APP_VERSION , "" + version );
@@ -243,40 +281,37 @@ public class EngineLoader {
 	}
 
 	public void importRepo( MirrorRepository repo ) throws Exception {
-		EngineDB db = data.getDatabase();
 		try {
-			connection = db.getConnection( action );
+			getConnection();
 			matcher = new EngineMatcher( this );
 			entities = data.getEntities();
 			
 			if( repo.isServer() )
-				importCore( true );
+				importEngine();
 			else
 				importProduct( repo.productId , true );
-			
-			connection.close( true );
-			connection = null;
+
+			closeConnection( true );
 			setData();
 		}
 		catch( Throwable e ) {
 			log( "import repository" , e );
 			trace( "unable to import repository" );
 			
-			connection.close( false );
-			connection = null;
+			closeConnection( false );
 			Common.exitUnexpected();
 		}
 	}
 	
 	public void exportRepo( MirrorRepository repo ) throws Exception {
 		if( repo.isServer() )
-			exportCore( true );
+			exportEngine();
 		else
 			exportProduct( repo.productId );
 	}
 	
 	public void initCore() throws Exception {
-		boolean dbUpdate = Common.getBooleanValue( System.getProperty( "dbupdate" ) );
+		boolean dbUpdate = getInitialUpdateState();
 		if( dbUpdate )
 			importCore( true );
 		
@@ -285,7 +320,7 @@ public class EngineLoader {
 	}
 	
 	public void initAuth( EngineAuth auth ) throws Exception {
-		boolean dbUpdate = Common.getBooleanValue( System.getProperty( "dbupdate" ) );
+		boolean dbUpdate = getInitialUpdateState();
 		if( dbUpdate )
 			importAuth( auth );
 		
@@ -299,6 +334,11 @@ public class EngineLoader {
 
 	public void log( String p , Throwable e ) {
 		action.log( p ,  e );
+	}
+	
+	private void importEngine() throws Exception {
+		importCore( true );
+		importAuth( engine.getAuth() );
 	}
 	
 	private void importCore( boolean includingSystems ) throws Exception {
@@ -316,6 +356,11 @@ public class EngineLoader {
 		loadAuth( auth , true );
 	}
 
+	private void exportEngine() throws Exception {
+		exportCore( true );
+		exportAuth( engine.getAuth() );
+	}
+	
 	private void exportCore( boolean includingSystems ) throws Exception {
 		trace( "export engine core data ..." );
 		exportxmlSettings();
@@ -326,6 +371,11 @@ public class EngineLoader {
 		exportxmlInfrastructure();
 	}
 
+	private void exportAuth( EngineAuth auth ) throws Exception {
+		trace( "export engine auth data ..." );
+		exportxmlAuth( auth );
+	}
+	
 	private void exportProduct( Integer productId ) throws Exception {
 		EngineDirectory directory = data.getDirectory();
 		AppProduct product = directory.getProduct( productId );
@@ -344,9 +394,8 @@ public class EngineLoader {
 	}
 	
 	private void loadCore( boolean importxml , boolean withSystems ) throws Exception {
-		EngineDB db = data.getDatabase();
 		try {
-			connection = db.getConnection( action );
+			getConnection();
 			matcher = new EngineMatcher( this );
 			entities = data.getEntities();
 
@@ -360,7 +409,7 @@ public class EngineLoader {
 				importxmlMonitoring();
 				importxmlRegistry();
 				importxmlInfrastructure();
-				connection.save( true );
+				saveConnection( true );
 				trace( "successfully completed import of engine core data" );
 			}
 			else {
@@ -377,7 +426,7 @@ public class EngineLoader {
 			if( importxml ) {
 				if( withSystems ) {
 					importxmlDirectory();
-					connection.save( true );
+					saveConnection( true );
 					trace( "successfully completed import of engine directory data" );
 				}
 				else
@@ -387,8 +436,7 @@ public class EngineLoader {
 				loaddbDirectory();
 			}
 			
-			connection.close( true );
-			connection = null;
+			closeConnection( true );
 			setData();
 		}
 		catch( Throwable e ) {
@@ -398,8 +446,7 @@ public class EngineLoader {
 			else
 				trace( "unable to load engine data" );
 			
-			connection.close( false );
-			connection = null;
+			closeConnection( false );
 			Common.exitUnexpected();
 		}
 	}
@@ -426,9 +473,8 @@ public class EngineLoader {
 	}
 	
 	private void loadAuth( EngineAuth auth , boolean importxml ) throws Exception {
-		EngineDB db = data.getDatabase();
 		try {
-			connection = db.getConnection( action );
+			getConnection();
 			matcher = new EngineMatcher( this );
 			entities = data.getEntities();
 
@@ -437,16 +483,15 @@ public class EngineLoader {
 				int version = connection.getNextAuthVersion();
 				trace( "create new engine auth version=" + version + " ..." );
 				importxmlAuth( auth );
-				connection.save( true );
+				saveConnection( true );
 				trace( "successfully completed import of engine auth data" );
 			}
 			else {
 				trace( "load engine auth data, version=" + connection.getAuthVersion() + " ..." );
 				loaddbAuth( auth );
 			}
-			
-			connection.close( true );
-			connection = null;
+
+			closeConnection( true );
 			setData();
 		}
 		catch( Throwable e ) {
@@ -456,8 +501,7 @@ public class EngineLoader {
 			else
 				trace( "unable to load engine auth data" );
 			
-			connection.close( false );
-			connection = null;
+			closeConnection( false );
 			Common.exitUnexpected();
 		}
 	}
@@ -592,9 +636,8 @@ public class EngineLoader {
 	}
 	
 	public void loadProducts() throws Exception {
-		EngineDB db = data.getDatabase();
 		try {
-			connection = db.getConnection( action );
+			getConnection();
 			matcher = new EngineMatcher( this );
 			entities = data.getEntities();
 
@@ -602,17 +645,15 @@ public class EngineLoader {
 			data.unloadProducts();
 			EngineProducts products = data.getProducts();
 			products.loadProducts( this );
-			
-			connection.close( true );
-			connection = null;
+
+			closeConnection( true );
 			setData();
 		}
 		catch( Throwable e ) {
 			log( "init" , e );
 			trace( "unable to load products data" );
 			
-			connection.close( false );
-			connection = null;
+			closeConnection( false );
 			Common.exitUnexpected();
 		}
 	}
@@ -631,7 +672,7 @@ public class EngineLoader {
 		DBEngineAuth.loaddb( this , auth );
 	}
 
-	public void exportxmlRegistry() throws Exception {
+	private void exportxmlRegistry() throws Exception {
 		trace( "export engine registry data ..." );
 		String propertyFile = getRegistryFile();
 		Document doc = Common.xmlCreateDoc( "registry" );
@@ -652,7 +693,7 @@ public class EngineLoader {
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
-	public void exportxmlBase() throws Exception {
+	private void exportxmlBase() throws Exception {
 		trace( "export engine base data ..." );
 		String propertyFile = getBaseFile();
 		EngineBase base = data.getEngineBase();
@@ -662,7 +703,7 @@ public class EngineLoader {
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
-	public void exportxmlInfrastructure() throws Exception {
+	private void exportxmlInfrastructure() throws Exception {
 		trace( "export engine infrastructure data ..." );
 		String propertyFile = getInfrastructureFile();
 		EngineInfrastructure infra = data.getInfrastructure();
@@ -672,7 +713,7 @@ public class EngineLoader {
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
-	public void exportxmlReleaseLifecycles() throws Exception {
+	private void exportxmlReleaseLifecycles() throws Exception {
 		trace( "export engine lifecycles data ..." );
 		String propertyFile = getReleaseLifecyclesFile();
 		EngineLifecycles lifecycles = data.getReleaseLifecycles();
@@ -686,7 +727,7 @@ public class EngineLoader {
 		exportxmlMonitoring();
 	}
 	
-	public void exportxmlMonitoring() throws Exception {
+	private void exportxmlMonitoring() throws Exception {
 		trace( "export engine monitoring data ..." );
 		String propertyFile = getMonitoringFile();
 		EngineMonitoring mon = data.getMonitoring();
@@ -696,7 +737,7 @@ public class EngineLoader {
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
-	public void exportxmlSettings() throws Exception {
+	private void exportxmlSettings() throws Exception {
 		trace( "export engine settings data ..." );
 		EngineSettings settings = data.getEngineSettings();
 		String propertyFile = getEngineSettingsFile();
@@ -706,16 +747,25 @@ public class EngineLoader {
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 	
+	private void exportxmlAuth( EngineAuth auth ) throws Exception {
+		trace( "export engine auth data ..." );
+		String authFile = getAuthFile();
+		Document doc = Common.xmlCreateDoc( "auth" );
+		Element root = doc.getDocumentElement();
+		DBEngineAuth.exportxml( this , auth , doc , root );
+		Common.xmlSaveDoc( doc , authFile );
+	}
+
 	public void setSettings( EngineSettings settingsNew ) throws Exception {
 		trace( "change engine settings data ..." );
 		EngineSettings settings = data.getEngineSettings();
+		getConnection();
 		settings.setData( action , settingsNew , connection.getCoreVersion() );
 	}
 
 	private void dropCoreData( boolean includingSystems ) throws Exception {
-		EngineDB db = data.getDatabase();
 		try {
-			connection = db.getConnection( action );
+			getConnection();
 			if( includingSystems ) {
 				trace( "drop engine directory data in database ..." );
 				DBSystemData.dropSystemData( this );
@@ -725,35 +775,30 @@ public class EngineLoader {
 			trace( "drop engine core data in database ..." );
 			int version = connection.getNextCoreVersion();
 			DBEngineData.dropCoreData( this );
-			connection.close( true );
-			connection = null;
+			closeConnection( true );
 			trace( "successfully dropped engine core data, core version=" + version );
 		}
 		catch( Throwable e ) {
 			log( "init" , e );
-			connection.close( false );
-			connection = null;
+			closeConnection( false );
 			trace( "unable to drop engine core data" );
 			Common.exitUnexpected();
 		}
 	}
 
 	private void dropAuthData() throws Exception {
-		EngineDB db = data.getDatabase();
 		try {
-			connection = db.getConnection( action );
+			getConnection();
 			
 			trace( "drop auth data in database ..." );
 			int version = connection.getNextAuthVersion();
 			DBEngineData.dropAuthData( this );
-			connection.close( true );
-			connection = null;
+			closeConnection( true );
 			trace( "successfully dropped engine auth data, auth version=" + version );
 		}
 		catch( Throwable e ) {
 			log( "init" , e );
-			connection.close( false );
-			connection = null;
+			closeConnection( false );
 			trace( "unable to drop engine auth data" );
 			Common.exitUnexpected();
 		}

@@ -8,8 +8,8 @@ import org.urm.common.Common;
 import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
+import org.urm.db.EngineDB;
 import org.urm.db._Error;
-import org.urm.engine.EngineDB;
 import org.urm.meta.EngineLoader;
 
 public abstract class DBEnums {

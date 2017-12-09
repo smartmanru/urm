@@ -159,7 +159,7 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void createMirrorRepository( MirrorRepository repo , Integer resourceId , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
-		EngineLoader loader = engine.createLoader( action );
+		EngineLoader loader = engine.createLoader( this );
 		if( push )
 			loader.exportRepo( repo );
 		DBEngineMirrors.createRepository( this , repo.mirrors , repo , resourceId , reponame  , reporoot , dataroot , push );
@@ -168,14 +168,14 @@ public class EngineTransaction extends TransactionBase {
 	}
 
 	public void pushMirror( MirrorRepository repo ) throws Exception {
-		EngineLoader loader = engine.createLoader( action );
+		EngineLoader loader = engine.createLoader( this );
 		loader.exportRepo( repo );
 		DBEngineMirrors.pushMirror( this , repo.mirrors , repo );
 	}
 
 	public void refreshMirror( MirrorRepository repo ) throws Exception {
 		DBEngineMirrors.refreshMirror( this , repo.mirrors , repo );
-		EngineLoader loader = engine.createLoader( action );
+		EngineLoader loader = engine.createLoader( this );
 		loader.importRepo( repo );
 	}
 
@@ -567,7 +567,7 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setEnabled( this , false );
-		EngineLoader loader = engine.createLoader( action );
+		EngineLoader loader = engine.createLoader( this );
 		loader.commitMonitoring();
 	}
 	
@@ -575,7 +575,7 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setEnabled( this , true );
-		EngineLoader loader = engine.createLoader( action );
+		EngineLoader loader = engine.createLoader( this );
 		loader.commitMonitoring();
 	}
 
@@ -583,7 +583,7 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setDefaultProperties( this , props );
-		EngineLoader loader = engine.createLoader( action );
+		EngineLoader loader = engine.createLoader( this );
 		loader.commitMonitoring();
 	}
 

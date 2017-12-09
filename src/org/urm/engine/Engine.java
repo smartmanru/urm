@@ -129,6 +129,11 @@ public class Engine {
 		return( loader );
 	}
 	
+	public EngineLoader createLoader( TransactionBase transaction ) {
+		EngineLoader loader = new EngineLoader( this , data , transaction );
+		return( loader );
+	}
+	
 	public void runServer( ActionInit action ) throws Exception {
 		serverAction.debug( "load server configuration ..." );
 		
