@@ -280,4 +280,13 @@ public class MetaProductSettings extends PropertyController {
 		set.setProperties( transaction , props );
 	}
 
+	public String getTargetPath( DBEnumOSType osType , String artefactDir ) {
+		if( Common.isAbsolutePath( artefactDir ) )
+			return( artefactDir );
+		
+		String redistPath = ( osType.isWindows() )? CONFIG_REDISTWIN_PATH : CONFIG_REDISTLINUX_PATH;
+		String finalPath = Common.getPath( redistPath , artefactDir );
+		return( finalPath );
+	}
+	
 }
