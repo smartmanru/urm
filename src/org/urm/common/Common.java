@@ -36,6 +36,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.urm.action.ActionBase;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -1072,6 +1073,18 @@ public class Common {
 		if( v1.intValue() == v2.intValue() )
 			return( true );
 		return( false );
+	}
+	
+	public static String getGrepMask( ActionBase action , String baseName , boolean addDotSlash , String EXT ) throws Exception {
+		if( addDotSlash )
+			return( "./" + baseName + EXT + 
+					"|./.*[0-9]-" + baseName + EXT + 
+					"|./" + baseName + "-[0-9].*" + EXT +
+					"|./" + baseName + "##[0-9].*" + EXT );
+		return( baseName + EXT + 
+				"|.*[0-9]-" + baseName + EXT + 
+				"|" + baseName + "-[0-9].*" + EXT +
+				"|" + baseName + "##[0-9].*" + EXT );
 	}
 	
 }

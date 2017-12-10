@@ -240,41 +240,40 @@ public class ActionGetBinary extends ActionBase {
 		}
 		
 		if( item.isSourceBasic() || item.isSourcePackage() ) {
-			String file = item.ITEMBASENAME + item.ITEMEXTENSION;
-			copyFile( item , remoteShell , redistPath , downloadFolder , file , item.ITEMEXTENSION );
+			copyFile( item , remoteShell , redistPath , downloadFolder , item.ITEMBASENAME , item.ITEMEXTENSION );
 			return;
 		}
 			
 		if( item.isSourceStaticWar() ) {
-			String file = item.ITEMBASENAME + item.ITEMEXTENSION;
-			copyFile( item , remoteShell , redistPath , downloadFolder , file , item.ITEMEXTENSION );
+			copyFile( item , remoteShell , redistPath , downloadFolder , item.ITEMBASENAME , item.ITEMEXTENSION );
 			
-			file = item.ITEMBASENAME + item.ITEMSTATICEXTENSION;
-			copyFile( item , remoteShell , redistPath , downloadFolder , file , item.ITEMSTATICEXTENSION );
+			copyFile( item , remoteShell , redistPath , downloadFolder , item.ITEMBASENAME , item.ITEMSTATICEXTENSION );
 			return;
 		}
 
 		super.exitUnexpectedState();
 	}
 
-	private void copyFile( MetaSourceProjectItem item , ShellExecutor remoteShell , String srcFolder , LocalFolder downloadFolder , String file , String EXT ) throws Exception {
-		if( !remoteShell.checkFileExists( this , srcFolder , file ) ) {
+	private void copyFile( MetaSourceProjectItem item , ShellExecutor remoteShell , String srcFolder , LocalFolder downloadFolder , String basename , String ext ) throws Exception {
+		String srcname = remoteShell.findVersionedFile( this , srcFolder , basename , ext );
+		if( srcname.isEmpty() ) {
 			String dir = remoteShell.getLocalPath( srcFolder );
-			super.exit2( _Error.MissingProjectItemFile2 , "Missing project item file=" + file + ", dir=" + dir , file , dir );
+			super.exit2( _Error.MissingProjectItemFile2 , "Missing project item file=" + basename + ext + ", dir=" + dir , basename + ext , dir );
 		}
 		
 		String DISTFOLDER = item.distItem.delivery.FOLDER;
 		LocalFolder downloadDirFolder = downloadFolder.getSubFolder( this , DISTFOLDER );
 		downloadDirFolder.ensureExists( this );
 		
-		String filePath = downloadDirFolder.getFilePath( this , file );
-		shell.copyFileTargetToLocalFile( this , remoteShell.account , Common.getPath( srcFolder , file ) , filePath );
-		shell.createMD5( this , filePath );
+		String srcPath = Common.getPath( srcFolder , srcname );
+		String dstPath = downloadDirFolder.getFilePath( this , srcname );
+		shell.copyFileTargetToLocalFile( this , remoteShell.account , srcPath , dstPath );
+		shell.createMD5( this , dstPath );
 		
 		boolean copyDistr = context.CTX_DIST;
 		if( copyDistr ) {
 			Dist releaseStorage = targetRelease;
-			releaseStorage.copyVFileToDistr( this , item.distItem , downloadDirFolder , file , 
+			releaseStorage.copyVFileToDistr( this , item.distItem , downloadDirFolder , srcname , 
 				item.distItem.DISTBASENAME , item.distItem.EXT );
 		}
 	}

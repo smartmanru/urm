@@ -1305,4 +1305,17 @@ public abstract class ShellExecutor extends Shell {
 		return( folder.folderPath );
 	}
 	
+	public String findVersionedFile( ActionBase action , String folderPath , String basename , String ext ) throws Exception {
+		boolean addDotSlash = ( isWindows() )? false : true;
+		String filePath = findOneTopWithGrep( action , folderPath , "*" + basename + "*" + ext , Common.getGrepMask( action , basename , addDotSlash , ext ) );
+
+		// ensure correct file
+		if( filePath.isEmpty() ) {
+			action.trace( "findBinarySourceItemFile: file " + basename + ext + " not found in " + folderPath );
+			return( "" );
+		}
+
+		return( Common.getBaseName( filePath ) );
+	}
+
 }
