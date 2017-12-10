@@ -104,17 +104,14 @@ public class ActionPatch extends ActionBase {
 		
 		if( item.isSourceBasic() || item.isSourcePackage() ) {
 			LocalFolder targetDirFolder = targetFolder.getSubFolder( this , item.ITEMPATH );
-			String file = item.ITEMBASENAME + item.ITEMEXTENSION;
-			return( copyFile( targetDirFolder , downloadFolder , file ) );
+			return( copyFile( targetDirFolder , downloadFolder , item.ITEMBASENAME , item.ITEMEXTENSION ) );
 		}
 			
 		if( item.isSourceStaticWar() ) {
 			LocalFolder targetDirFolder = targetFolder.getSubFolder( this , item.ITEMPATH );
-			String file = item.ITEMBASENAME + item.ITEMEXTENSION;
-			if( !copyFile( targetDirFolder , downloadFolder , file ) )
+			if( !copyFile( targetDirFolder , downloadFolder , item.ITEMBASENAME , item.ITEMEXTENSION ) )
 				return( false );
-			file = item.ITEMBASENAME + item.ITEMSTATICEXTENSION;
-			if( !copyFile( targetDirFolder , downloadFolder , file ) )
+			if( !copyFile( targetDirFolder , downloadFolder , item.ITEMBASENAME , item.ITEMSTATICEXTENSION ) )
 				return( false );
 			return( true );
 		}
@@ -123,13 +120,15 @@ public class ActionPatch extends ActionBase {
 		return( false );
 	}
 
-	private boolean copyFile( LocalFolder codeDirFolder , LocalFolder downloadFolder , String file ) throws Exception {
-		if( !shell.checkFileExists( this , codeDirFolder.folderPath , file ) ) {
-			super.fail2( _Error.MissingProjectItemFile2 , "Missing project item file=" + file + ", dir=" + codeDirFolder.folderPath , file , codeDirFolder.folderPath );
+	private boolean copyFile( LocalFolder codeDirFolder , LocalFolder downloadFolder , String basename , String ext ) throws Exception {
+		String srcname = shell.findVersionedFile( this , codeDirFolder.folderPath , basename , ext );
+		String srcfile = basename + ext;
+		if( srcname.isEmpty() ) {
+			super.fail2( _Error.MissingProjectItemFile2 , "Missing project item file=" + srcfile + ", dir=" + codeDirFolder.folderPath , srcfile , codeDirFolder.folderPath );
 			return( false );
 		}
 		
-		shell.copyFile( this , codeDirFolder.getFilePath( this , file ) , downloadFolder.getFilePath( this , file ) );
+		shell.copyFile( this , codeDirFolder.getFilePath( this , srcname ) , downloadFolder.getFilePath( this , srcname ) );
 		return( true );
 	}
 	
