@@ -203,14 +203,18 @@ public class DBEngineMirrors {
 		DBConnection c = transaction.getConnection();
 		
 		MirrorRepository repo = new MirrorRepository( mirrors );
-		repo.createRepository(
-				name ,
-				desc ,
-				type );
+		repo.createRepository( name , desc , type );
 		modifyRepository( c , repo , true );
 		
 		return( repo );
 	}
+	
+	private static void setMirrorRepository( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo , Integer resourceId , String reponame , String reporoot , String dataroot ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		repo.setMirror( resourceId , reponame , reporoot , dataroot );
+		modifyRepository( c , repo , false );
+	} 
 	
 	public static void createProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
 		MirrorRepository repo = new MirrorRepository( mirrors );
@@ -306,7 +310,7 @@ public class DBEngineMirrors {
 	}
 	
 	public static void createRepository( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo , Integer resourceId , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
-		repo.setMirror( resourceId , reponame , reporoot , dataroot );
+		setMirrorRepository( transaction , mirrors , repo , resourceId , reponame , reporoot , dataroot );
 		
 		try {
 			if( repo.isServer() )
