@@ -21,21 +21,21 @@ public class RemoteFolder extends Folder {
 		return( session );
 	}
 	
-	public void copyVFileFromLocal( ActionBase action , LocalFolder localFolder , String FNAME , String FOLDER , String BASENAME , String EXT ) throws Exception {
+	public void copyVFileFromLocal( ActionBase action , LocalFolder localFolder , String SNAME , String DFOLDER , String DNAME , String DBASENAME , String DEXT ) throws Exception {
 		String srcDir = localFolder.folderPath;
-		String dstDir = Common.getPath( folderPath , FOLDER );
+		String dstDir = Common.getPath( folderPath , DFOLDER );
 
 		ShellExecutor session = getSession( action );
 		if( !session.checkDirExists( action , dstDir ) )
 			action.exit1( _Error.MissingTargetDirectory1 , "target directory " + dstDir + " does not exist" , dstDir );
 			
-		if( !BASENAME.isEmpty() )
-			deleteVOld( action , session , FOLDER , BASENAME , EXT );
+		if( !DBASENAME.isEmpty() )
+			deleteVOld( action , session , DFOLDER , DBASENAME , DEXT );
 		
-		String finalName = Common.getPath( srcDir , FNAME );
+		String srcPath = Common.getPath( srcDir , SNAME );
 		
-		action.shell.copyFileLocalToTarget( action , account , finalName , dstDir );
-		action.shell.copyFileLocalToTarget( action , account , finalName + ".md5" , dstDir );
+		action.shell.copyFileLocalToTargetRename( action , account , srcPath , dstDir , DNAME );
+		action.shell.copyFileLocalToTargetRename( action , account , srcPath + ".md5" , dstDir , DNAME );
 	}
 
 	public void deleteVOld( ActionBase action , ShellExecutor session , String FOLDER , String BASENAME , String EXT ) throws Exception {

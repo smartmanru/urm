@@ -157,13 +157,14 @@ public class Dist {
 		distFolder.copyDirFromLocal( action , sourceFolder , parentFolder );
 	}
 	
-	public void copyVFileToDistr( ActionBase action , MetaDistrBinaryItem distItem , LocalFolder sourceFolder , String FNAME , String BASENAME , String EXT ) throws Exception {
+	public void copyVFileToDistr( ActionBase action , MetaDistrBinaryItem distItem , LocalFolder sourceFolder , String SNAME , String DBASENAME , String DEXT ) throws Exception {
 		if( !openedForChange )
 			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
 		
 		state.checkDistDataChangeEnabled( action );
-		String folder = getReleaseBinaryFolder( action , distItem );
-		distFolder.copyVFileFromLocal( action , sourceFolder , FNAME , folder , BASENAME , EXT );
+		String dstfolder = getReleaseBinaryFolder( action , distItem );
+		String dstname = DBASENAME + DEXT;
+		distFolder.copyVFileFromLocal( action , sourceFolder , SNAME , dstfolder , dstname , DBASENAME , DEXT );
 	}
 
 	public void copyDatabaseFilesToDistr( ActionBase action , MetaDistrDelivery dbDelivery , LocalFolder srcPrepared ) throws Exception {

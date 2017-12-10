@@ -118,8 +118,8 @@ public class ActionGetBinary extends ActionBase {
 			
 			if( copyDistr ) {
 				Dist releaseStorage = targetRelease;
-				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , WAR.DOWNLOAD_FILENAME , WAR.BASENAME, WAR.EXT );
-				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , WAR.DOWNLOAD_FILENAME , STATIC.BASENAME, WAR.EXT );
+				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , WAR.DOWNLOAD_FILENAME , scopeItem.distItem.DISTBASENAME , scopeItem.distItem.EXT );
+				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , STATIC.DOWNLOAD_FILENAME , scopeItem.distItem.DISTBASENAME , scopeItem.distItem.WAR_STATICEXT );
 			}
 		}
 		else 
