@@ -75,6 +75,8 @@ public class MirrorRepository extends EngineObject {
 		r.RESOURCE_ROOT = RESOURCE_ROOT;
 		r.RESOURCE_DATA = RESOURCE_DATA;
 		r.CV = CV;
+		r.productId = productId;
+		r.projectId = projectId;
 		return( r );
 	}
 	

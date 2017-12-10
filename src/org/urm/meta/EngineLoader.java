@@ -314,8 +314,11 @@ public class EngineLoader {
 	public void exportRepo( MirrorRepository repo ) throws Exception {
 		if( repo.isServer() )
 			exportEngine();
-		else
+		else {
+			if( repo.productId == null )
+				Common.exitUnexpected();
 			exportProduct( repo.productId );
+		}
 	}
 	
 	public void initCore() throws Exception {
