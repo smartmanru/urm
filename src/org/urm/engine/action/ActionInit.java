@@ -218,7 +218,7 @@ public class ActionInit extends ActionBase {
 	}
 
 	public void releaseProductMetadata( TransactionBase transaction , Meta sessionMeta ) throws Exception {
-		data.releaseSessionProductMetadata( transaction.action , sessionMeta , false );
+		data.releaseSessionProductMetadata( transaction.action , sessionMeta );
 	}
 
 	public Meta reloadProductMetadata( String productName ) throws Exception {

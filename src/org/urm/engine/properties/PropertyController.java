@@ -102,7 +102,6 @@ public abstract class PropertyController extends EngineObject {
 	protected void setLoadFailed( ActionBase action , String msg ) {
 		loadFailed = true;
 		action.fail0( _Error.PropertyLoadFailed0 , msg );
-		action.error( msg );
 	}
 	
 	protected String getPathProperty( ActionBase action , String prop ) throws Exception {

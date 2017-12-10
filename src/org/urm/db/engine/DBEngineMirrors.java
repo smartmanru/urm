@@ -172,7 +172,7 @@ public class DBEngineMirrors {
 		}
 	}
 
-	public static void addProductMirrors( EngineTransaction transaction , EngineMirrors mirrors , AppProduct product , boolean forceClear ) throws Exception {
+	public static void createProductMirrors( EngineTransaction transaction , EngineMirrors mirrors , AppProduct product , boolean forceClear ) throws Exception {
 		ActionBase action = transaction.getAction();
 		UrmStorage storage = action.artefactory.getUrmStorage();
 
@@ -189,18 +189,29 @@ public class DBEngineMirrors {
 		productfolder.ensureExists( action );
 		
 		// meta
-		MirrorRepository meta = new MirrorRepository( mirrors );
 		String name = "product-" + product.NAME + "-meta";
-		meta.createRepository( name , null , DBEnumMirrorType.PRODUCT_META );
+		MirrorRepository meta = createRepository( transaction , mirrors , name , "standard meta repository" , DBEnumMirrorType.PRODUCT_META );
 		mirrors.addRepository( meta );
  		
- 		// conf
-		MirrorRepository conf = new MirrorRepository( mirrors );
+ 		// data
 		name = "product-" + product.NAME + "-data";
-		conf.createRepository( name , null , DBEnumMirrorType.PRODUCT_DATA );
-		mirrors.addRepository( conf );
+		MirrorRepository data = createRepository( transaction , mirrors , name , "standard data repository" , DBEnumMirrorType.PRODUCT_DATA );
+		mirrors.addRepository( data );
 	}
 
+	private static MirrorRepository createRepository( EngineTransaction transaction , EngineMirrors mirrors , String name , String desc , DBEnumMirrorType type ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MirrorRepository repo = new MirrorRepository( mirrors );
+		repo.createRepository(
+				name ,
+				desc ,
+				type );
+		modifyRepository( c , repo , true );
+		
+		return( repo );
+	}
+	
 	public static void createProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
 		MirrorRepository repo = new MirrorRepository( mirrors );
 		String name = "project-" + project.meta.name + "-" + project.NAME;

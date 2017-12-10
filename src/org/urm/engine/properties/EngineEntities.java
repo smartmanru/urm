@@ -74,7 +74,7 @@ public class EngineEntities {
 	public void upgradeMeta( EngineLoader loader ) throws Exception {
 		entityAppRC = DBEngineContext.upgradeEntityRC( loader );
 		entityAppEngine = DBEngineContext.upgradeEntityEngine( loader );
-		entityAppProductSettings = DBEngineSettings.upgradeEntityProduct( loader );
+		entityAppProductSettings = DBEngineSettings.upgradeEntityProductSettings( loader );
 		entityAppProductBuild = DBEngineSettings.upgradeEntityProductBuild( loader );
 		entityAppEngineMonitoring = DBEngineMonitoring.upgradeEntityEngineMonitoring( loader );
 		entityAppBaseGroup = DBEngineBase.upgradeEntityBaseGroup( loader );
@@ -99,7 +99,7 @@ public class EngineEntities {
 	public void useMeta( EngineLoader loader ) throws Exception {
 		entityAppRC = DBEngineContext.loaddbEntityRC( loader );
 		entityAppEngine = DBEngineContext.loaddbEntityEngine( loader );
-		entityAppProductSettings = DBEngineSettings.loaddbEntityProduct( loader );
+		entityAppProductSettings = DBEngineSettings.loaddbEntityProductSettings( loader );
 		entityAppProductBuild = DBEngineSettings.loaddbEntityProductBuild( loader );
 		entityAppEngineMonitoring = DBEngineMonitoring.loaddbEntityEngineMonitoring( loader );
 		entityAppBaseGroup = DBEngineBase.loaddbEntityBaseGroup( loader );

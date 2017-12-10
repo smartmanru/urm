@@ -215,8 +215,8 @@ public class EngineData {
 		return( products.getSessionProductMetadata( action , productName , primary ) );
 	}
 
-	public void releaseSessionProductMetadata( ActionBase action , Meta meta , boolean deleteMeta ) throws Exception {
-		products.releaseSessionProductMetadata( action , meta , deleteMeta );
+	public void releaseSessionProductMetadata( ActionBase action , Meta meta ) throws Exception {
+		products.releaseSessionProductMetadata( action , meta );
 	}
 	
 }

@@ -60,18 +60,23 @@ public class EngineSession extends EngineObject {
 		return( "server-session" );
 	}
 	
+	public void trace( String s ) {
+		controller.engine.trace( s + " [" + "session" + sessionId + "]" );
+	}
+	
 	public void close() throws Exception {
 		closed = true;
-		
-		ActionInit action = controller.engine.serverAction;
-		for( String product : Common.getSortedKeys( productMeta ) ) {
-			Meta meta = productMeta.get( product );
-			controller.releaseSessionProductMetadata( action , meta , false );
-		}
-		
+		releaseMeta( controller.engine.serverAction );
 		super.deleteObject();
 	}
 
+	public void releaseMeta( ActionInit action ) throws Exception {
+		for( String product : Common.getSortedKeys( productMeta ) ) {
+			Meta meta = productMeta.get( product );
+			controller.releaseSessionProductMetadata( action , meta );
+		}
+	}
+	
 	public boolean isClosed() {
 		return( closed );
 	}

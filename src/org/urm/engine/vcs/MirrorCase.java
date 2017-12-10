@@ -176,8 +176,10 @@ public abstract class MirrorCase {
 				continue;
 			
 			sfolder.copyFile( action , sset.dirPath , sf , dstFolder , sf );
-			if( !mset.findFileByName( sf ) )
+			if( !mset.findFileByName( sf ) ) {
+				action.trace( "mset=" + mset.dirPath + ", sf=" + sf );
 				vcs.addFileToCommit( mirror , mfolder , mset.dirPath , sf );
+			}
 		}
 
 		// delete from mirror

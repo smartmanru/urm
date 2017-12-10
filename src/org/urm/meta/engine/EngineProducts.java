@@ -96,7 +96,7 @@ public class EngineProducts {
 		return( meta );
 	}
 
-	public synchronized void releaseSessionProductMetadata( ActionBase action , Meta meta , boolean deleteMeta ) throws Exception {
+	public synchronized void releaseSessionProductMetadata( ActionBase action , Meta meta ) throws Exception {
 		EngineSession session = action.session;
 		session.releaseProductMeta( meta );
 		ProductMeta storage = meta.getStorage();
@@ -129,6 +129,7 @@ public class EngineProducts {
 		AppProduct product = directory.findProduct( set.name );
 		
 		if( !DBEngineDirectory.matchProduct( loader , directory , product , set , false ) ) {
+			loader.trace( "match failed for product=" + product.NAME );
 			set.meta.deleteObject();
 			set.deleteObject();
 			return( false );

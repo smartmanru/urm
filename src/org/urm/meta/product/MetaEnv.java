@@ -91,6 +91,7 @@ public class MetaEnv extends PropertyController {
 		originalList = new LinkedList<MetaEnvSegment>();
 		sgMap = new HashMap<String,MetaEnvSegment>();
 		baselineEnvRef = new EngineRef<MetaEnv>();
+		meta.trace( "new meta env object, id=" + super.objectId );
 	}
 	
 	@Override
@@ -161,6 +162,7 @@ public class MetaEnv extends PropertyController {
 		
 		r.scatterProperties( action );
 		r.initFinished();
+		meta.trace( "copy meta env object, id=" + super.objectId + " to new object id=" + r.objectId );
 		return( r );
 	}
 

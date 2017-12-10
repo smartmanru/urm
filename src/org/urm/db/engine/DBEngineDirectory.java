@@ -191,7 +191,8 @@ public abstract class DBEngineDirectory {
 	public static boolean matchProduct( EngineLoader loader , EngineDirectory directory , AppProduct product , ProductMeta set , boolean update ) {
 		// match to mirrors
 		EngineMatcher matcher = loader.getMatcher();
-		matcher.matchProductMirrors( product );
+		if( !matcher.matchProductMirrors( product ) )
+			return( false );
 		
 		// product meta
 		if( set.loadFailed )
@@ -201,7 +202,9 @@ public abstract class DBEngineDirectory {
 			matcher.prepareMatchProduct( product , false , false );
 			DBAppProduct.match( loader , directory , product );
 			
-			matcher.matchProjectMirrors( product , set.getSources() );
+			if( !matcher.matchProjectMirrors( product , set.getSources() ) )
+				return( false );
+			
 			matcher.doneProduct( product , set );
 		}
 		catch( Throwable e ) {

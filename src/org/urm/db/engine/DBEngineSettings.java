@@ -30,7 +30,7 @@ public abstract class DBEngineSettings {
 	public static String ELEMENT_MODE = "mode";
 	public static String MODE_ATTR_NAME = "name";
 	
-	public static PropertyEntity upgradeEntityProduct( EngineLoader loader ) throws Exception {
+	public static PropertyEntity upgradeEntityProductSettings( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.CORE );
 		DBEnumOSType ostype = DBEnumOSType.getValue( loader.execrc.osType );
@@ -55,7 +55,7 @@ public abstract class DBEngineSettings {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityProduct( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityProductSettings( EngineLoader loader ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.CORE );
 		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
 		return( entity );

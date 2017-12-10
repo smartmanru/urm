@@ -68,7 +68,7 @@ public class SessionController {
 		return( running );
 	}
 	
-	public void waitFinished( ActionBase serverAction ) throws Exception {
+	public void waitFinished( ActionInit action ) throws Exception {
 		synchronized( this ) {
 			started = true;
 			notifyAll();
@@ -79,7 +79,11 @@ public class SessionController {
 			running = false;
 		}
 		
-		waitAllActions( serverAction );
+		waitAllActions( action );
+		
+		// release all meta
+		for( EngineSession session : sessions.values() )
+			session.releaseMeta( action );
 	}
 
 	public ActionInit createRemoteAction( ActionBase serverAction , EngineCall call , CommandMethodMeta method , ActionData data ) throws Exception {
@@ -258,8 +262,8 @@ public class SessionController {
 		}
 	}
 
-	public void releaseSessionProductMetadata( ActionInit action , Meta meta , boolean deleteMeta ) throws Exception {
-		data.releaseSessionProductMetadata( action , meta , deleteMeta );
+	public void releaseSessionProductMetadata( ActionInit action , Meta meta ) throws Exception {
+		data.releaseSessionProductMetadata( action , meta );
 	}
 	
 }

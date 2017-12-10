@@ -443,7 +443,8 @@ public class EngineTransaction extends TransactionBase {
 		AppProduct product = DBEngineDirectory.createProduct( this , system.directory , system , name , desc , path );
 		
 		EngineMirrors mirrors = action.getServerMirrors();
-		DBEngineMirrors.addProductMirrors( this , mirrors , product , forceClear );
+		changeMirrors( mirrors );
+		DBEngineMirrors.createProductMirrors( this , mirrors , product , forceClear );
 		
 		Meta meta = super.createProductMetadata( product );
 		ProductMeta storage = meta.getStorage();

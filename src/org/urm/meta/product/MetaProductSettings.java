@@ -109,12 +109,12 @@ public class MetaProductSettings extends PropertyController {
 		CONFIG_MIRRORPATH = super.getPathPropertyRequired( action , PROPERTY_MIRRORPATH );
 		CONFIG_ADM_TRACKER = super.getStringProperty( action , PROPERTY_ADM_TRACKER );
 		CONFIG_COMMIT_TRACKERLIST = super.getStringProperty( action , PROPERTY_COMMIT_TRACKERLIST );
+		CONFIG_SOURCE_RELEASEROOTDIR = super.getPathProperty( action , PROPERTY_SOURCE_RELEASEROOTDIR );
+		CONFIG_SOURCE_CFG_ROOTDIR = super.getPathProperty( action , PROPERTY_SOURCE_CFG_ROOTDIR );
+		CONFIG_SOURCE_CFG_LIVEROOTDIR = super.getPathProperty( action , PROPERTY_SOURCE_CFG_LIVEROOTDIR );
+		CONFIG_SOURCE_SQL_POSTREFRESH = super.getPathProperty( action , PROPERTY_SOURCE_SQL_POSTREFRESH );
 		
 		CONFIG_SOURCE_CHARSET = super.getStringProperty( action , PROPERTY_SOURCE_CHARSET );
-		CONFIG_SOURCE_RELEASEROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_RELEASEROOTDIR );
-		CONFIG_SOURCE_CFG_ROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_CFG_ROOTDIR );
-		CONFIG_SOURCE_CFG_LIVEROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_CFG_LIVEROOTDIR );
-		CONFIG_SOURCE_SQL_POSTREFRESH = super.getStringProperty( action , PROPERTY_SOURCE_SQL_POSTREFRESH );
 		if( !CONFIG_SOURCE_CHARSET.isEmpty() ) {
 			charset = Charset.availableCharsets().get( CONFIG_SOURCE_CHARSET.toUpperCase() );
 			if( charset == null )

@@ -85,10 +85,10 @@ public class MetaProductBuildSettings extends PropertyController {
 		CONFIG_APPVERSION = super.getStringProperty( action , PROPERTY_APPVERSION );
 		CONFIG_LOGPATH = super.getPathProperty( action , PROPERTY_LOGPATH );
 		
-		CONFIG_ARTEFACTDIR = super.getStringProperty( action , PROPERTY_ARTEFACTDIR );
+		CONFIG_ARTEFACTDIR = super.getPathProperty( action , PROPERTY_ARTEFACTDIR );
 		CONFIG_NEXUS_REPO = super.getStringProperty( action , PROPERTY_NEXUS_REPO );
 		CONFIG_NEXUS_REPO_THIRDPARTY = super.getStringProperty( action , PROPERTY_NEXUS_REPO_THIRDPARTY );
-		CONFIG_MAVEN_CFGFILE = super.getStringProperty( action , PROPERTY_MAVEN_CFGFILE );
+		CONFIG_MAVEN_CFGFILE = super.getPathProperty( action , PROPERTY_MAVEN_CFGFILE );
 
 		CONFIG_BRANCHNAME = super.getStringProperty( action , PROPERTY_BRANCHNAME );
 		CONFIG_RELEASE_GROUPFOLDER = super.getStringProperty( action , PROPERTY_RELEASE_GROUPFOLDER );

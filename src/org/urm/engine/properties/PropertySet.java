@@ -11,7 +11,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.common._Error;
 import org.urm.common.action.CommandOption.FLAG;
-import org.urm.db.core.DBEnums.*;
+import org.urm.db.core.DBEnums.DBEnumParamValueType;
 import org.urm.engine.properties.PropertyValue.PropertyValueOrigin;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
@@ -201,7 +201,8 @@ public class PropertySet {
 				continue;
 			
 			PropertyValue pv = new PropertyValue( p.property , PropertyValue.PropertyValueOrigin.PROPERTY_EXTRA , set , p.desc );
-			pv.setOriginalAndFinalValue( p.getOriginalValue() );
+			if( !p.isNull() )
+				pv.setOriginalAndFinalValue( p.getOriginalValue() );
 			pv.setType( p.getType() );
 			if( p.isSystem() )
 				pv.setSystem();

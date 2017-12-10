@@ -45,17 +45,32 @@ public class EngineMatcher {
 		product.setMatched( set );
 	}
 
-	public void matchProductMirrors( AppProduct product ) {
+	public boolean matchProductMirrors( AppProduct product ) {
+		boolean ok = true;
+		
 		EngineMirrors mirrors = loader.getMirrors();
 		MirrorRepository repo = mirrors.findProductMetaRepository( product.NAME );
 		if( repo != null )
 			repo.setProduct( product.ID );
+		else {
+			loader.trace( "missing mirror product meta repository" );
+			ok = false;
+		}
+		
 		repo = mirrors.findProductDataRepository( product.NAME );
 		if( repo != null )
 			repo.setProduct( product.ID );
+		else {
+			loader.trace( "missing mirror product data repository" );
+			ok = false;
+		}
+		
+		return( ok );
 	}
 	
-	public void matchProjectMirrors( AppProduct product , MetaSource sources ) {
+	public boolean matchProjectMirrors( AppProduct product , MetaSource sources ) {
+		boolean ok = true;
+		
 		EngineMirrors mirrors = loader.getMirrors();
 		
 		for( MetaSourceProject project : sources.getAllProjectList( false ) ) {
@@ -64,7 +79,13 @@ public class EngineMatcher {
 				repo.setProductProject( product.ID , 0 );
 				project.setMirror( repo.ID );
 			}
+			else {
+				loader.trace( "missing mirror product project=" + project.NAME + " repository" );
+				ok = false;
+			}
 		}
+		
+		return( ok );
 	}
 	
 }

@@ -58,9 +58,13 @@ public class Meta extends EngineObject {
 	public String getName() {
 		return( name );
 	}
+
+	public void trace( String s ) {
+		products.engine.trace( s );
+	}
 	
 	public void replaceStorage( ActionBase action , ProductMeta storage ) throws Exception {
-		products.releaseSessionProductMetadata( action , this , false );
+		products.releaseSessionProductMetadata( action , this );
 		
 		// clear old refs
 		version = null;
