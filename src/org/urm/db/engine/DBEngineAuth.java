@@ -282,6 +282,9 @@ public class DBEngineAuth {
 	private static void modifyUser( DBConnection c , AuthUser user , boolean insert ) throws Exception {
 		if( insert )
 			user.ID = DBNames.getNameIndex( c , DBVersions.AUTH_ID , user.NAME , DBEnumObjectType.AUTH_USER );
+		else
+			DBNames.updateName( c , DBVersions.AUTH_ID , user.NAME , user.ID , DBEnumObjectType.AUTH_USER );
+		
 		user.UV = c.getNextAuthVersion();
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppAuthUser , user.ID , user.UV , new String[] {
@@ -297,6 +300,9 @@ public class DBEngineAuth {
 	private static void modifyGroup( DBConnection c , AuthGroup group , boolean insert ) throws Exception {
 		if( insert )
 			group.ID = DBNames.getNameIndex( c , DBVersions.AUTH_ID , group.NAME , DBEnumObjectType.AUTH_GROUP );
+		else
+			DBNames.updateName( c , DBVersions.AUTH_ID , group.NAME , group.ID , DBEnumObjectType.AUTH_GROUP );
+		
 		group.UV = c.getNextAuthVersion();
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppAuthGroup , group.ID , group.UV , new String[] {

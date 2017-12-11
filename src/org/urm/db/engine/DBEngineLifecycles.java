@@ -9,6 +9,7 @@ import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.DBEnumLifecycleStageType;
 import org.urm.db.core.DBEnums.DBEnumLifecycleType;
+import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
@@ -151,6 +152,9 @@ public class DBEngineLifecycles {
 	private static void modifyLifecycle( DBConnection c , ReleaseLifecycle lc , boolean insert ) throws Exception {
 		if( insert )
 			lc.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , lc.NAME , DBEnumObjectType.LIFECYCLE );
+		else
+			DBNames.updateName( c , DBVersions.CORE_ID , lc.NAME , lc.ID , DBEnumObjectType.LIFECYCLE );
+		
 		lc.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppReleaseLifecycle , lc.ID , lc.CV , new String[] {
@@ -168,6 +172,9 @@ public class DBEngineLifecycles {
 	private static void modifyPhase( DBConnection c , LifecyclePhase phase , boolean insert ) throws Exception {
 		if( insert )
 			phase.ID = DBNames.getNameIndex( c , phase.lc.ID , phase.NAME , DBEnumObjectType.LIFECYCLEPHASE );
+		else
+			DBNames.updateName( c , phase.lc.ID , phase.NAME , phase.ID , DBEnumObjectType.LIFECYCLEPHASE );
+		
 		phase.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppLifecyclePhase , phase.ID , phase.CV , new String[] {

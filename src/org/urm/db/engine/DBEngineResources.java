@@ -83,6 +83,9 @@ public class DBEngineResources {
 	private static void modifyResource( DBConnection c , AuthResource rc , boolean insert ) throws Exception {
 		if( insert )
 			rc.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , rc.NAME , DBEnumObjectType.RESOURCE );
+		else
+			DBNames.updateName( c , DBVersions.CORE_ID , rc.NAME , rc.ID , DBEnumObjectType.RESOURCE );
+		
 		rc.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppResource , rc.ID , rc.CV , new String[] {

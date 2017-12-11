@@ -101,12 +101,12 @@ public abstract class DBAppSystem {
 		
 		system.SV = c.getNextSystemVersion( system );
 		EngineEntities entities = c.getEntities();
-		DBEngineEntities.insertAppObject( c , entities.entityAppDirectorySystem , system.ID , system.SV , new String[] {
+		DBEngineEntities.modifyAppObject( c , entities.entityAppDirectorySystem , system.ID , system.SV , new String[] {
 				EngineDB.getString( system.NAME ) , 
 				EngineDB.getString( system.DESC ) ,
 				EngineDB.getBoolean( system.OFFLINE ) ,
 				EngineDB.getBoolean( system.MATCHED )
-				} );
+				} , insert );
 	}
 	
 	public static void delete( DBConnection c , AppSystem system ) throws Exception {

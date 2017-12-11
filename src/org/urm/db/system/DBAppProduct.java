@@ -89,6 +89,9 @@ public abstract class DBAppProduct {
 	public static void modifyProduct( DBConnection c , AppProduct product , boolean insert ) throws Exception {
 		if( insert )
 			product.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , product.NAME , DBEnumObjectType.APPPRODUCT );
+		else
+			DBNames.updateName( c , DBVersions.CORE_ID , product.NAME , product.ID , DBEnumObjectType.APPPRODUCT );
+			
 		product.SV = c.getNextSystemVersion( product.system );
 		EngineEntities entities = c.getEntities();
 		PropertyEntity entity = entities.entityAppDirectoryProduct;

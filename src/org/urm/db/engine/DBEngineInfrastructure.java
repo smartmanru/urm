@@ -7,6 +7,7 @@ import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.DBEnumOSType;
+import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
@@ -221,6 +222,9 @@ public class DBEngineInfrastructure {
 	private static void modifyDatacenter( DBConnection c , Datacenter datacenter , boolean insert ) throws Exception {
 		if( insert )
 			datacenter.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , datacenter.NAME , DBEnumObjectType.DATACENTER );
+		else
+			DBNames.updateName( c , DBVersions.CORE_ID , datacenter.NAME , datacenter.ID , DBEnumObjectType.DATACENTER );
+		
 		datacenter.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppDatacenter , datacenter.ID , datacenter.CV , new String[] {
@@ -232,6 +236,9 @@ public class DBEngineInfrastructure {
 	private static void modifyNetwork( DBConnection c , Network network , boolean insert ) throws Exception {
 		if( insert )
 			network.ID = DBNames.getNameIndex( c , network.datacenter.ID , network.NAME , DBEnumObjectType.NETWORK );
+		else
+			DBNames.updateName( c , network.datacenter.ID , network.NAME , network.ID , DBEnumObjectType.NETWORK );
+		
 		network.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppNetwork , network.ID , network.CV , new String[] {
@@ -245,6 +252,9 @@ public class DBEngineInfrastructure {
 	private static void modifyHost( DBConnection c , NetworkHost host , boolean insert ) throws Exception {
 		if( insert )
 			host.ID = DBNames.getNameIndex( c , host.network.ID , host.NAME , DBEnumObjectType.HOST );
+		else
+			DBNames.updateName( c , host.network.ID , host.NAME , host.ID , DBEnumObjectType.HOST );
+		
 		host.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppNetworkHost , host.ID , host.CV , new String[] {
@@ -260,6 +270,9 @@ public class DBEngineInfrastructure {
 	private static void modifyAccount( DBConnection c , HostAccount account , boolean insert ) throws Exception {
 		if( insert )
 			account.ID = DBNames.getNameIndex( c , account.host.ID , account.NAME , DBEnumObjectType.ACCOUNT );
+		else
+			DBNames.updateName( c , account.host.ID , account.NAME , account.ID , DBEnumObjectType.ACCOUNT );
+		
 		account.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppHostAccount , account.ID , account.CV , new String[] {

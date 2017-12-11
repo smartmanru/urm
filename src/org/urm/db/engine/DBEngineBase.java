@@ -265,6 +265,9 @@ public abstract class DBEngineBase {
 	public static void modifyItem( DBConnection c , BaseItem item , boolean insert ) throws Exception {
 		if( insert )
 			item.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , item.NAME , DBEnumObjectType.BASE_ITEM );
+		else
+			DBNames.updateName( c , DBVersions.CORE_ID , item.NAME , item.ID , DBEnumObjectType.BASE_ITEM );
+		
 		item.CV = c.getNextCoreVersion();
 		DBSettings.modifyAppValues( c , item.ID , item.p , item.CV , new String[] {
 				EngineDB.getInteger( item.group.ID )
@@ -274,6 +277,9 @@ public abstract class DBEngineBase {
 	private static void modifyGroup( DBConnection c , BaseGroup group , boolean insert ) throws Exception {
 		if( insert )
 			group.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , group.NAME , DBEnumObjectType.BASE_GROUP );
+		else
+			DBNames.updateName( c , DBVersions.CORE_ID , group.NAME , group.ID , DBEnumObjectType.BASE_GROUP );
+		
 		group.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppBaseGroup , group.ID , group.CV , new String[] {
