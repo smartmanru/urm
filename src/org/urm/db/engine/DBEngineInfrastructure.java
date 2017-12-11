@@ -441,7 +441,7 @@ public class DBEngineInfrastructure {
 						entity.loaddbString( rs , HostAccount.PROPERTY_DESC ) ,
 						entity.loaddbBoolean( rs , HostAccount.PROPERTY_ADMIN ) ,
 						entity.loaddbObject( rs , HostAccount.PROPERTY_RESOURCE ) );
-				infra.addHost( host );
+				infra.addAccount( account );
 			}
 		}
 		finally {
