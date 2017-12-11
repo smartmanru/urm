@@ -4,7 +4,7 @@ import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.OptionsMeta;
 import org.urm.common.action.CommandMethodMeta.ACTION_ACCESS;
-import org.urm.meta.engine.EngineAuth.SecurityAction;
+import org.urm.common.action.CommandMethodMeta.SecurityAction;
 
 public class MainCommandMeta extends CommandMeta {
 

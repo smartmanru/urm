@@ -12,6 +12,7 @@ import org.urm.action.ActionBase;
 import org.urm.client.ClientAuth;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
+import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
@@ -26,18 +27,6 @@ import org.urm.meta.product.MetaEnv;
 
 public class EngineAuth extends EngineObject {
 
-	public enum SecurityAction {
-		ACTION_SECURED ,
-		ACTION_CONFIGURE ,
-		ACTION_CODEBASE ,
-		ACTION_RELEASE ,
-		ACTION_DEPLOY ,
-		ACTION_MONITOR ,
-		ACTION_XDOC ,
-		ACTION_ADMIN ,
-		ACTION_EXECUTE
-	};
-	
 	public enum SourceType {
 		SOURCE_LOCAL ,
 		SOURCE_LDAP

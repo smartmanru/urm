@@ -11,6 +11,7 @@ import org.urm.action.conf.ActionGetConf;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.action.database.ActionGetDB;
 import org.urm.common.Common;
+import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.status.ScopeState;
@@ -19,7 +20,6 @@ import org.urm.engine.storage.LogStorage;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.Types.*;
-import org.urm.meta.engine.EngineAuth.SecurityAction;
 
 public class CodebaseCommand {
 	

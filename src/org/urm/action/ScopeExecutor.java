@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.events.EngineEvents;
@@ -24,7 +25,6 @@ import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.Types.*;
 import org.urm.meta.engine.EngineAuth;
-import org.urm.meta.engine.EngineAuth.SecurityAction;
 
 public class ScopeExecutor implements EngineEventsListener {
 

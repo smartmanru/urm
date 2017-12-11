@@ -7,10 +7,10 @@ import org.urm.action.ActionProductScopeMaker;
 import org.urm.action.ActionReleaseScopeMaker;
 import org.urm.action.ActionScope;
 import org.urm.action.codebase.CodebaseCommand;
+import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.status.ScopeState;
 import org.urm.meta.engine.ReleaseLifecycle;
-import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.Types.*;
 

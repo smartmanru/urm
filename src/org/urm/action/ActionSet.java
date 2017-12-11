@@ -3,8 +3,8 @@ package org.urm.action;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.status.ScopeState;
-import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.MetaEnv;
 
 public class ActionSet {

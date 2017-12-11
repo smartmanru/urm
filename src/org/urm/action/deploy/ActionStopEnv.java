@@ -8,9 +8,9 @@ import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionSet;
 import org.urm.common.Common;
+import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.product.MetaEnvStartGroup;
 
 public class ActionStopEnv extends ActionBase {

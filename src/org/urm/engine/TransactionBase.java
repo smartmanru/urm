@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.RunError;
+import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.engine.action.ActionInit;
@@ -31,7 +32,6 @@ import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.AppSystem;
-import org.urm.meta.engine.EngineAuth.SecurityAction;
 import org.urm.meta.engine.EngineAuth.SpecialRights;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;

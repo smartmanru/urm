@@ -2,10 +2,21 @@ package org.urm.common.action;
 
 import org.urm.common.Common;
 import org.urm.common.RunContext;
-import org.urm.meta.engine.EngineAuth.SecurityAction;
 
 public class CommandMethodMeta {
 
+	public enum SecurityAction {
+		ACTION_SECURED ,
+		ACTION_CONFIGURE ,
+		ACTION_CODEBASE ,
+		ACTION_RELEASE ,
+		ACTION_DEPLOY ,
+		ACTION_MONITOR ,
+		ACTION_XDOC ,
+		ACTION_ADMIN ,
+		ACTION_EXECUTE
+	};
+	
 	public enum ACTION_TYPE {
 		INFO ,
 		NORMAL ,
