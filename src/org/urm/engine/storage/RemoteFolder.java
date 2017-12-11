@@ -35,7 +35,7 @@ public class RemoteFolder extends Folder {
 		String srcPath = Common.getPath( srcDir , SNAME );
 		
 		action.shell.copyFileLocalToTargetRename( action , account , srcPath , dstDir , DNAME );
-		action.shell.copyFileLocalToTargetRename( action , account , srcPath + ".md5" , dstDir , DNAME );
+		action.shell.copyFileLocalToTargetRename( action , account , srcPath + ".md5" , dstDir , DNAME + ".md5" );
 	}
 
 	public void deleteVOld( ActionBase action , ShellExecutor session , String FOLDER , String BASENAME , String EXT ) throws Exception {
