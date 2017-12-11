@@ -349,13 +349,13 @@ public class SubversionVCS extends GenericVCS {
 	
 	@Override 
 	public boolean isValidRepositoryMasterRootPath( MirrorRepository mirror , String path ) throws Exception {
-		String fullPath = Common.getPath( getRepositoryRootPath( mirror ) , path ); 
+		String fullPath = Common.getPath( getRepositoryRootPath( mirror ) , "trunk" , path ); 
 		return( checkSvnPathExists( fullPath ) );
 	}
 	
 	@Override 
 	public boolean isValidRepositoryMasterPath( MirrorRepository mirror , String path ) throws Exception {
-		String fullPath = Common.getPath( getRepositoryPath( mirror ) , path ); 
+		String fullPath = Common.getPath( getRepositoryPath( mirror ) , "trunk" , path ); 
 		return( checkSvnPathExists( fullPath ) );
 	}
 	
@@ -374,7 +374,7 @@ public class SubversionVCS extends GenericVCS {
 		if( !PATCHFOLDER.checkExists( action ) )
 			action.exit1( _Error.MissingLocalDirectory1 , "exportRepositoryMasterPath: local directory " + PATCHFOLDER.folderPath + " does not exist" , PATCHFOLDER.folderPath );
 
-		String CO_PATH = Common.getPath( getRepositoryPath( mirror ) , ITEMPATH );
+		String CO_PATH = Common.getPath( getRepositoryPath( mirror ) , "trunk" , ITEMPATH );
 		if( name.isEmpty() )
 			name = Common.getBaseName( ITEMPATH );
 		
