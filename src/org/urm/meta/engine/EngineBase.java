@@ -52,6 +52,7 @@ public class EngineBase extends EngineObject {
 	}
 	
 	public void removeGroup( BaseGroup group ) {
+		group.category.removeGroup( group );
 		mapGroup.remove( group.NAME );
 		mapGroupById.remove( group.ID );
 	}

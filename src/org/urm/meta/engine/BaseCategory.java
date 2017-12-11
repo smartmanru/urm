@@ -66,11 +66,11 @@ public class BaseCategory extends EngineObject {
 		return( groupMap.get( name ) );
 	}
 	
-	public void createGroup( BaseGroup group ) throws Exception {
+	public void createGroup( BaseGroup group ) {
 		addGroup( group );
 	}
 	
-	public void deleteGroup( BaseGroup group ) throws Exception {
+	public void removeGroup( BaseGroup group ) {
 		groupMap.remove( group );
 	}
 	
@@ -82,10 +82,6 @@ public class BaseCategory extends EngineObject {
 		}
 		groupMap.remove( oldId );
 		addGroup( group );
-	}
-
-	public void deleteHost() throws Exception {
-		super.deleteObject();
 	}
 
 }

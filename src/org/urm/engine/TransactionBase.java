@@ -11,6 +11,9 @@ import org.urm.engine.properties.EngineEntities;
 import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
+import org.urm.meta.engine.BaseCategory;
+import org.urm.meta.engine.BaseGroup;
+import org.urm.meta.engine.BaseItem;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.engine.AuthResource;
@@ -1106,6 +1109,18 @@ public class TransactionBase extends EngineObject {
 	
 	public ReleaseLifecycle getLifecycle( ReleaseLifecycle lc ) throws Exception {
 		return( lifecyclesChange.getLifecycle( lc.ID ) );
+	}
+	
+	public BaseCategory getBaseCategory( BaseCategory category ) throws Exception {
+		return( baseChange.getCategory( category.BASECATEGORY_TYPE ) );
+	}
+	
+	public BaseGroup getBaseGroup( BaseGroup group ) throws Exception {
+		return( baseChange.getGroup( group.ID ) );
+	}
+	
+	public BaseItem getBaseItem( BaseItem item ) throws Exception {
+		return( baseChange.getItem( item.ID ) );
 	}
 	
 	public void checkSecurityFailed() {
