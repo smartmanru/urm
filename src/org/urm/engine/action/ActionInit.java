@@ -208,7 +208,7 @@ public class ActionInit extends ActionBase {
 		return( data.getSessionProductMetadata( this , productName , false ) );
 	}
 
-	public Meta findActiveProductMetadata( String productName ) throws Exception {
+	public Meta findActiveProductMetadata( String productName ) {
 		if( transaction != null ) {
 			Meta meta = transaction.findTransactionSessionProductMetadata( productName );
 			if( meta != null )

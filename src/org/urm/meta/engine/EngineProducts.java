@@ -47,7 +47,7 @@ public class EngineProducts {
 		return( false );
 	}
 
-	public synchronized Meta findSessionProductMetadata( ActionBase action , String productName ) throws Exception {
+	public synchronized Meta findSessionProductMetadata( ActionBase action , String productName ) {
 		EngineSession session = action.session;
 		Meta meta = session.findMeta( productName );
 		if( meta != null )

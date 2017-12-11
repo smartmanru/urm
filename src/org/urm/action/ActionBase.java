@@ -892,7 +892,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public Meta findProductMetadata( String productName ) {
-		return( actionInit.findProductMetadata( productName ) );
+		return( actionInit.findActiveProductMetadata( productName ) );
 	}
 
 	public boolean isProductOffline( Meta meta ) {

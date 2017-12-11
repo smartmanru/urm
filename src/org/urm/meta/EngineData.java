@@ -203,7 +203,7 @@ public class EngineData {
 		return( products.createSessionProductMetadata( transaction.action , storage ) );
 	}
 
-	public Meta findSessionProductMetadata( ActionBase action , String productName ) throws Exception {
+	public Meta findSessionProductMetadata( ActionBase action , String productName ) {
 		return( products.findSessionProductMetadata( action , productName ) );
 	}
 	
