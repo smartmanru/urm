@@ -48,6 +48,7 @@ public class AppProduct extends EngineObject {
 		r.OFFLINE = OFFLINE;
 		r.MONITORING_ENABLED = MONITORING_ENABLED;
 		r.SV = SV;
+		r.productMeta = productMeta;
 		return( r );
 	}
 	
