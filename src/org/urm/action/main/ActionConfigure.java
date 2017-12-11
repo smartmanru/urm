@@ -274,10 +274,10 @@ public class ActionConfigure extends ActionBase {
 			MetaEnvSegment sg = null;
 			if( USEENV.isEmpty() ) {
 				addAffected( linux , proxyPath , true );
-				String[] envFiles = ms.getEnvFiles( this );
-				for( String envFile : envFiles ) {
-					MetaEnv env = meta.getEnvData( this , envFile , false );
-					envs.put( envFile , env );
+				String[] envNames = meta.getEnvNames();
+				for( String envName : envNames ) {
+					MetaEnv env = meta.getEnvData( this , envName , false );
+					envs.put( envName , env );
 				}
 			}
 			else {
