@@ -9,6 +9,7 @@ import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
@@ -78,6 +79,8 @@ public class TransactionBase extends EngineObject {
 	protected EngineBuilders buildersNew;
 	protected EngineDirectory directoryNew;
 	protected EngineMirrors mirrorsNew;
+	
+	protected PropertyEntity entityNew;
 
 	private EngineSettings settingsOld;
 	private EngineResources resourcesOld;
@@ -139,6 +142,10 @@ public class TransactionBase extends EngineObject {
 					return( false );
 				
 				action.clearTransaction();
+				
+				if( entityNew != null ) {
+					data.updateEntity( entityNew );
+				}
 				
 				if( settingsNew != null ) {
 					data.setSettings( settingsNew );

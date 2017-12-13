@@ -2,6 +2,7 @@ package org.urm.meta;
 
 import org.urm.engine.Engine;
 import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.EngineRegistry;
@@ -97,5 +98,9 @@ public class EngineCore {
 	public void setLifecycles( EngineLifecycles lifecyclesNew ) {
 		this.lifecycles = lifecyclesNew;
 	}
-	
+
+	public void updateEntity( PropertyEntity entity ) {
+		entities.updateEntity( entity );
+	}
+
 }

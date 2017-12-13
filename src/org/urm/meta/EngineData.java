@@ -6,6 +6,7 @@ import org.urm.db.EngineDB;
 import org.urm.engine.Engine;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineDirectory;
@@ -145,6 +146,10 @@ public class EngineData {
 		synchronized( engine ) {
 			return( products );
 		}
+	}
+
+	public void updateEntity( PropertyEntity entity ) {
+		core.updateEntity( entity );
 	}
 	
 	public void setSettings( EngineSettings settingsNew ) {

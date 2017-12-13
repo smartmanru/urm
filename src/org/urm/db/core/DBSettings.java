@@ -10,6 +10,7 @@ import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
@@ -17,6 +18,8 @@ import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.properties.PropertyValue;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.engine.AppSystem;
+import org.urm.meta.engine.EngineDirectory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -480,5 +483,25 @@ public abstract class DBSettings {
 		DBEngineEntities.modifyAppObject( c , entity , objectId , version , values , insert );
 	}
 
+	public static EntityVar createCustomProperty( EngineTransaction transaction , PropertyEntity entity , EntityVar var ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		int version = 0;
+		if( entity.META_OBJECTVERSION_TYPE == DBEnumObjectVersionType.CORE )
+			version = c.getNextCoreVersion();
+		else
+		if( entity.META_OBJECTVERSION_TYPE == DBEnumObjectVersionType.SYSTEM ) {
+			EngineDirectory directory = transaction.getTransactionDirectory();
+			AppSystem system = directory.getSystem( entity.META_OBJECT_ID );
+			version = c.getNextSystemVersion( system );
+		}
+		else
+			transaction.exitUnexpectedState();
+		
+		insertVar( c , entity , var , version );
+		entity.addVar( var );
+		return( var );
+	}
+	
 }
 

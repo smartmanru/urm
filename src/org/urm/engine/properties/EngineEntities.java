@@ -52,7 +52,6 @@ public class EngineEntities {
 	public PropertyEntity entityAppBaseGroup;
 	public PropertyEntity entityAppBaseItem;
 	public PropertyEntity entityAppDirectorySystem;
-	public PropertyEntity entityCustomDirectorySystem;
 	public PropertyEntity entityAppDirectoryProduct;
 	public PropertyEntity entityAppDatacenter;
 	public PropertyEntity entityAppNetwork;
@@ -93,7 +92,9 @@ public class EngineEntities {
 		entityAppLDAPSettings = DBEngineAuth.upgradeEntityLDAPSettings( loader );
 		entityAppAuthUser = DBEngineAuth.upgradeEntityAuthUser( loader );
 		entityAppAuthGroup = DBEngineAuth.upgradeEntityAuthGroup( loader );
-		useCustom( loader );
+		
+		entityCustomRC = DBEngineContext.createEntityCustomRC( loader );
+		entityCustomEngine = DBEngineContext.createEntityCustomEngine( loader );
 	}
 	
 	public void useMeta( EngineLoader loader ) throws Exception {
@@ -118,12 +119,17 @@ public class EngineEntities {
 		entityAppLDAPSettings = DBEngineAuth.loaddbEntityLDAPSettings( loader );
 		entityAppAuthUser = DBEngineAuth.loaddbEntityAuthUser( loader );
 		entityAppAuthGroup = DBEngineAuth.loaddbEntityAuthGroup( loader );
-		useCustom( loader );
-	}
-	
-	private void useCustom( EngineLoader loader ) throws Exception {
+		
 		entityCustomRC = DBEngineContext.loaddbEntityCustomRC( loader );
 		entityCustomEngine = DBEngineContext.loaddbEntityCustomEngine( loader );
+	}
+
+	public void updateEntity( PropertyEntity entity ) {
+		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.RC_CUSTOM )
+			entityCustomRC = entity;
+		else
+		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.ENGINE_CUSTOM )
+			entityCustomEngine = entity;
 	}
 	
 	public ObjectProperties createRunContextProps() throws Exception {

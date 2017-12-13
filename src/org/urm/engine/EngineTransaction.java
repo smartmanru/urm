@@ -7,12 +7,17 @@ import org.urm.db.engine.DBEngineAuth;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineBuilders;
 import org.urm.db.engine.DBEngineDirectory;
+import org.urm.db.engine.DBEngineEntities;
 import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMirrors;
 import org.urm.db.engine.DBEngineResources;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.EntityVar;
+import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
+import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.shell.Account;
@@ -127,6 +132,33 @@ public class EngineTransaction extends TransactionBase {
 		settings.setProductBuildModeDefaultsProperties( this , mode , props );
 	}
 
+	public EntityVar createCustomProperty( int ownerId , ObjectProperties ops , String name , String desc , String defvalue ) throws Exception {
+		ObjectMeta meta = ops.getMeta();
+		PropertyEntity entity = meta.getCustomEntity();
+		
+		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.RC_CUSTOM || 
+			entity.PARAMENTITY_TYPE == DBEnumParamEntityType.ENGINE_CUSTOM ) {
+			checkTransactionSettings();
+		}
+		else
+		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.SYSTEM_CUSTOM ) {
+			checkTransactionDirectory( directoryNew );
+		}
+		else
+		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.PRODUCT_CUSTOM ) {
+			EngineDirectory directory = getDirectory();
+			AppProduct product = directory.getProduct( ownerId );
+			checkTransactionMetadata( product.NAME );
+		}
+		else
+			exitUnexpectedState();
+		
+		EngineEntities entities = getEntities();
+		EntityVar var = DBEngineEntities.createCustomProperty( this , entities , ownerId , ops , name , desc , defvalue );
+		entityNew = entity;
+		return( var );
+	}
+	
 	// ################################################################################
 	// ################################################################################
 	// RESOURCES

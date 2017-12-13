@@ -98,6 +98,10 @@ public class PropertyEntity {
 		return( r );
 	}
 	
+	public String[] getVarNames() {
+		return( Common.getSortedKeys( map ) );
+	}
+	
 	public EntityVar[] getVars() {
 		return( list.toArray( new EntityVar[0] ) );
 	}

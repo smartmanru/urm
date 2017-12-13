@@ -4,6 +4,9 @@ import java.sql.ResultSet;
 
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
+import org.urm.db.core.DBSettings;
+import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
@@ -132,6 +135,19 @@ public abstract class DBEngineEntities {
 			else
 				Common.exitUnexpected();
 		}
+	}
+
+	public static EntityVar createCustomProperty( EngineTransaction transaction , EngineEntities entities , int ownerId , ObjectProperties ops , String name , String desc , String defvalue ) throws Exception {
+		ObjectMeta meta = ops.getMeta();
+		PropertyEntity entity = meta.getCustomEntity();
+		if( entity.META_OBJECT_ID != ownerId )
+			transaction.exitUnexpectedState();
+			
+		EntityVar var = EntityVar.metaString( name , desc , false , defvalue );
+		DBSettings.createCustomProperty( transaction , entity , var );
+		meta.rebuild();
+		
+		return( var );
 	}
 	
 }
