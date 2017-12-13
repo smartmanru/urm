@@ -310,7 +310,7 @@ public abstract class DBEnums {
 		UNKNOWN(0,null) ,
 		APP(1,null) ,
 		CORE(2,null) ,
-		AUTH(3,null) ,
+		LOCAL(3,null) ,
 		SYSTEM(4,null) ,
 		PRODUCT(5,null) ,
 		ENVIRONMENT(6,null);

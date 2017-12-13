@@ -37,13 +37,13 @@ public abstract class DBEngineContext {
 	
 	public static PropertyEntity createEntityCustomRC( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.CORE_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.RC_CUSTOM , DBVersions.CORE_ID , DBEnumObjectVersionType.CORE );
+		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.LOCAL_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.RC_CUSTOM , DBVersions.LOCAL_ID , DBEnumObjectVersionType.LOCAL );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[0] ) ); 
 	}
 
 	public static PropertyEntity loaddbEntityCustomRC( EngineLoader loader ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.CORE_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.RC_CUSTOM , DBVersions.CORE_ID , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.LOCAL_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.RC_CUSTOM , DBVersions.LOCAL_ID , DBEnumObjectVersionType.LOCAL );
+		DBSettings.loaddbEntity( loader , entity , DBVersions.LOCAL_ID );
 		return( entity );
 	}
 	

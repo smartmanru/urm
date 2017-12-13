@@ -281,11 +281,11 @@ public class DBConnection {
 	}
 	
 	public synchronized int getCurrentAuthVersion() throws Exception {
-		return( getCurrentObjectVersion( DBVersions.AUTH_ID , DBEnumObjectVersionType.AUTH ) );
+		return( getCurrentObjectVersion( DBVersions.LOCAL_ID , DBEnumObjectVersionType.LOCAL ) );
 	}
 	
 	public synchronized int getNextAuthVersion() throws Exception {
-		OwnerObjectVersion version = getObjectVersion( DBVersions.AUTH_ID , DBEnumObjectVersionType.AUTH );
+		OwnerObjectVersion version = getObjectVersion( DBVersions.LOCAL_ID , DBEnumObjectVersionType.LOCAL );
 		if( version.nextVersion < 0 ) {
 			if( version.VERSION == 0 ) {
 				version.LAST_NAME = "auth";
@@ -297,7 +297,7 @@ public class DBConnection {
 	}
 	
 	public synchronized int getAuthVersion() throws Exception {
-		return( getLastObjectVersion( DBVersions.AUTH_ID , DBEnumObjectVersionType.AUTH ) );
+		return( getLastObjectVersion( DBVersions.LOCAL_ID , DBEnumObjectVersionType.LOCAL ) );
 	}
 	
 	public synchronized int getCurrentSystemVersion( int systemId ) throws Exception {

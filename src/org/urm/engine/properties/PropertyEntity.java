@@ -163,7 +163,7 @@ public class PropertyEntity {
 			return( EngineEntities.FIELD_VERSION_PRODUCT );
 		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.ENVIRONMENT )
 			return( EngineEntities.FIELD_VERSION_ENVIRONMENT );
-		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.AUTH )
+		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.LOCAL )
 			return( EngineEntities.FIELD_VERSION_AUTH );
 		return( null );
 	}

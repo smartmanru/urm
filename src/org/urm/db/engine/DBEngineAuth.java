@@ -71,7 +71,7 @@ public class DBEngineAuth {
 	
 	public static PropertyEntity upgradeEntityLDAPSettings( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppAttrsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.LDAPSETTINGS , DBEnumObjectVersionType.AUTH );
+		PropertyEntity entity = PropertyEntity.getAppAttrsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.LDAPSETTINGS , DBEnumObjectVersionType.LOCAL );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaBoolean( AuthLdap.PROPERTY_LDAPUSE , "Use LDAP Authentification" , true , false ) ,
 				EntityVar.metaString( AuthLdap.PROPERTY_HOST , "LDAP Server Host" , false , null ) ,
@@ -89,7 +89,7 @@ public class DBEngineAuth {
 
 	public static PropertyEntity upgradeEntityAuthUser( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_USER , DBEnumParamEntityType.AUTHUSER , DBEnumObjectVersionType.AUTH , TABLE_USER , FIELD_USER_ID );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_USER , DBEnumParamEntityType.AUTHUSER , DBEnumObjectVersionType.LOCAL , TABLE_USER , FIELD_USER_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AuthUser.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( AuthUser.PROPERTY_DESC , FIELD_USER_DESC , AuthUser.PROPERTY_DESC , "Description" , false , null ) ,
@@ -102,7 +102,7 @@ public class DBEngineAuth {
 
 	public static PropertyEntity upgradeEntityAuthGroup( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_GROUP , DBEnumParamEntityType.AUTHGROUP , DBEnumObjectVersionType.AUTH , TABLE_GROUP , FIELD_GROUP_ID );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_GROUP , DBEnumParamEntityType.AUTHGROUP , DBEnumObjectVersionType.LOCAL , TABLE_GROUP , FIELD_GROUP_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AuthGroup.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( AuthGroup.PROPERTY_DESC , FIELD_GROUP_DESC , AuthGroup.PROPERTY_DESC , "Description" , false , null ) ,
@@ -120,19 +120,19 @@ public class DBEngineAuth {
 	}
 
 	public static PropertyEntity loaddbEntityLDAPSettings( EngineLoader loader ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppAttrsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.LDAPSETTINGS , DBEnumObjectVersionType.AUTH );
+		PropertyEntity entity = PropertyEntity.getAppAttrsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.LDAPSETTINGS , DBEnumObjectVersionType.LOCAL );
 		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
 		return( entity );
 	}
 	
 	public static PropertyEntity loaddbEntityAuthUser( EngineLoader loader ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_USER , DBEnumParamEntityType.AUTHUSER , DBEnumObjectVersionType.AUTH , TABLE_USER , FIELD_USER_ID );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_USER , DBEnumParamEntityType.AUTHUSER , DBEnumObjectVersionType.LOCAL , TABLE_USER , FIELD_USER_ID );
 		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
 		return( entity );
 	}
 	
 	public static PropertyEntity loaddbEntityAuthGroup( EngineLoader loader ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_GROUP , DBEnumParamEntityType.AUTHGROUP , DBEnumObjectVersionType.AUTH , TABLE_GROUP , FIELD_GROUP_ID );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_GROUP , DBEnumParamEntityType.AUTHGROUP , DBEnumObjectVersionType.LOCAL , TABLE_GROUP , FIELD_GROUP_ID );
 		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
 		return( entity );
 	}
@@ -152,7 +152,7 @@ public class DBEngineAuth {
 		ObjectProperties ops = entities.createLdapProps( settings.getEngineProperties() );
 		Node ldap = ConfReader.xmlGetFirstChild( root , ELEMENT_LDAP );
 		if( ldap != null )
-			DBSettings.importxml( loader , ldap , ops , DBVersions.AUTH_ID , DBVersions.AUTH_ID , true , version );
+			DBSettings.importxml( loader , ldap , ops , DBVersions.LOCAL_ID , DBVersions.LOCAL_ID , true , version );
 		
 		auth.setLdapSettings( ops );
 	}
@@ -281,9 +281,9 @@ public class DBEngineAuth {
 	
 	private static void modifyUser( DBConnection c , AuthUser user , boolean insert ) throws Exception {
 		if( insert )
-			user.ID = DBNames.getNameIndex( c , DBVersions.AUTH_ID , user.NAME , DBEnumObjectType.AUTH_USER );
+			user.ID = DBNames.getNameIndex( c , DBVersions.LOCAL_ID , user.NAME , DBEnumObjectType.AUTH_USER );
 		else
-			DBNames.updateName( c , DBVersions.AUTH_ID , user.NAME , user.ID , DBEnumObjectType.AUTH_USER );
+			DBNames.updateName( c , DBVersions.LOCAL_ID , user.NAME , user.ID , DBEnumObjectType.AUTH_USER );
 		
 		user.UV = c.getNextAuthVersion();
 		EngineEntities entities = c.getEntities();
@@ -299,9 +299,9 @@ public class DBEngineAuth {
 
 	private static void modifyGroup( DBConnection c , AuthGroup group , boolean insert ) throws Exception {
 		if( insert )
-			group.ID = DBNames.getNameIndex( c , DBVersions.AUTH_ID , group.NAME , DBEnumObjectType.AUTH_GROUP );
+			group.ID = DBNames.getNameIndex( c , DBVersions.LOCAL_ID , group.NAME , DBEnumObjectType.AUTH_GROUP );
 		else
-			DBNames.updateName( c , DBVersions.AUTH_ID , group.NAME , group.ID , DBEnumObjectType.AUTH_GROUP );
+			DBNames.updateName( c , DBVersions.LOCAL_ID , group.NAME , group.ID , DBEnumObjectType.AUTH_GROUP );
 		
 		group.UV = c.getNextAuthVersion();
 		EngineEntities entities = c.getEntities();
@@ -395,7 +395,7 @@ public class DBEngineAuth {
 		EngineSettings settings = loader.getSettings();
 		
 		ObjectProperties ops = entities.createLdapProps( settings.getEngineProperties() );
-		DBSettings.loaddbValues( loader , DBVersions.AUTH_ID , ops , true );
+		DBSettings.loaddbValues( loader , DBVersions.LOCAL_ID , ops , true );
 		auth.setLdapSettings( ops );
 		
 		loaddbUsers( loader , auth );
@@ -786,7 +786,7 @@ public class DBEngineAuth {
 		ldap.setNotUse();
 		
 		int version = c.getNextAuthVersion();
-		DBSettings.savedbPropertyValues( c , DBVersions.AUTH_ID , ldap.getLdapSettings() , true , version );
+		DBSettings.savedbPropertyValues( c , DBVersions.LOCAL_ID , ldap.getLdapSettings() , true , version );
 	}
 	
 	public static void enableLdap( EngineTransaction transaction , EngineAuth auth , ObjectProperties ops ) throws Exception {
@@ -795,7 +795,7 @@ public class DBEngineAuth {
 		ldap.setLdapSettings( ops );
 		
 		int version = c.getNextAuthVersion();
-		DBSettings.savedbPropertyValues( c , DBVersions.AUTH_ID , ldap.getLdapSettings() , true , version );
+		DBSettings.savedbPropertyValues( c , DBVersions.LOCAL_ID , ldap.getLdapSettings() , true , version );
 		
 		ldap.start( transaction.getAction() );
 	}
