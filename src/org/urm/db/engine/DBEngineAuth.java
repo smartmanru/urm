@@ -148,7 +148,7 @@ public class DBEngineAuth {
 		EngineEntities entities = loader.getEntities();
 		EngineSettings settings = loader.getSettings();
 		
-		int version = c.getNextAuthVersion();
+		int version = c.getNextLocalVersion();
 		ObjectProperties ops = entities.createLdapProps( settings.getEngineProperties() );
 		Node ldap = ConfReader.xmlGetFirstChild( root , ELEMENT_LDAP );
 		if( ldap != null )
@@ -285,7 +285,7 @@ public class DBEngineAuth {
 		else
 			DBNames.updateName( c , DBVersions.LOCAL_ID , user.NAME , user.ID , DBEnumObjectType.AUTH_USER );
 		
-		user.UV = c.getNextAuthVersion();
+		user.UV = c.getNextLocalVersion();
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppAuthUser , user.ID , user.UV , new String[] {
 				EngineDB.getString( user.NAME ) , 
@@ -303,7 +303,7 @@ public class DBEngineAuth {
 		else
 			DBNames.updateName( c , DBVersions.LOCAL_ID , group.NAME , group.ID , DBEnumObjectType.AUTH_GROUP );
 		
-		group.UV = c.getNextAuthVersion();
+		group.UV = c.getNextLocalVersion();
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppAuthGroup , group.ID , group.UV , new String[] {
 				EngineDB.getString( group.NAME ) , 
@@ -326,7 +326,7 @@ public class DBEngineAuth {
 			if( !c.update( DBQueries.MODIFY_AUTH_GROUPUSER_ADD3 , new String[] {
 					EngineDB.getInteger( group.ID ) ,
 					EngineDB.getInteger( user.ID ) ,
-					EngineDB.getInteger( c.getNextAuthVersion() )
+					EngineDB.getInteger( c.getNextLocalVersion() )
 					}))
 					Common.exitUnexpected();
 		}
@@ -344,7 +344,7 @@ public class DBEngineAuth {
 			if( !c.update( DBQueries.MODIFY_AUTH_GROUPACCESS_ADDRESOURCE3 , new String[] {
 					EngineDB.getInteger( group.ID ) ,
 					EngineDB.getInteger( resource ) ,
-					EngineDB.getInteger( c.getNextAuthVersion() )
+					EngineDB.getInteger( c.getNextLocalVersion() )
 					}))
 				Common.exitUnexpected();
 		}
@@ -361,7 +361,7 @@ public class DBEngineAuth {
 			if( !c.update( DBQueries.MODIFY_AUTH_GROUPACCESS_ADDPRODUCT3 , new String[] {
 					EngineDB.getInteger( group.ID ) ,
 					EngineDB.getInteger( product ) ,
-					EngineDB.getInteger( c.getNextAuthVersion() )
+					EngineDB.getInteger( c.getNextLocalVersion() )
 					}))
 				Common.exitUnexpected();
 		}
@@ -378,7 +378,7 @@ public class DBEngineAuth {
 			if( !c.update( DBQueries.MODIFY_AUTH_GROUPACCESS_ADDNETWORK3 , new String[] {
 					EngineDB.getInteger( group.ID ) ,
 					EngineDB.getInteger( network ) ,
-					EngineDB.getInteger( c.getNextAuthVersion() )
+					EngineDB.getInteger( c.getNextLocalVersion() )
 					}))
 				Common.exitUnexpected();
 		}
@@ -785,7 +785,7 @@ public class DBEngineAuth {
 		AuthLdap ldap = auth.getAuthLdap();
 		ldap.setNotUse();
 		
-		int version = c.getNextAuthVersion();
+		int version = c.getNextLocalVersion();
 		DBSettings.savedbPropertyValues( c , DBVersions.LOCAL_ID , ldap.getLdapSettings() , true , version );
 	}
 	
@@ -794,7 +794,7 @@ public class DBEngineAuth {
 		AuthLdap ldap = auth.getAuthLdap();
 		ldap.setLdapSettings( ops );
 		
-		int version = c.getNextAuthVersion();
+		int version = c.getNextLocalVersion();
 		DBSettings.savedbPropertyValues( c , DBVersions.LOCAL_ID , ldap.getLdapSettings() , true , version );
 		
 		ldap.start( transaction.getAction() );
@@ -839,7 +839,7 @@ public class DBEngineAuth {
 				EngineDB.getInteger( group.ID )
 				}))
 				Common.exitUnexpected();
-		DBEngineEntities.deleteAppObject( c , entities.entityAppAuthGroup , group.ID , c.getNextAuthVersion() );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppAuthGroup , group.ID , c.getNextLocalVersion() );
 		auth.removeGroup( group );
 
 		// change effective user permissions 
@@ -893,7 +893,7 @@ public class DBEngineAuth {
 				EngineDB.getInteger( user.ID )
 				}))
 				Common.exitUnexpected();
-		DBEngineEntities.deleteAppObject( c , entities.entityAppAuthUser , user.ID , c.getNextAuthVersion() );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppAuthUser , user.ID , c.getNextLocalVersion() );
 		auth.removeLocalUser( user );
 		
 		Engine engine = transaction.engine;

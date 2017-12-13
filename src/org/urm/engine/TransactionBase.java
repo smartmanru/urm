@@ -403,7 +403,7 @@ public class TransactionBase extends EngineObject {
 			return;
 		
 		CHANGEDATABASEAUTH = true;
-		int version = connection.getNextAuthVersion();
+		int version = connection.getNextLocalVersion();
 		trace( "auth update, new version=" + version );
 	}
 	

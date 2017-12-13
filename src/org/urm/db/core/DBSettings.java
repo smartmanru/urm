@@ -487,6 +487,9 @@ public abstract class DBSettings {
 		DBConnection c = transaction.getConnection();
 		
 		int version = 0;
+		if( entity.META_OBJECTVERSION_TYPE == DBEnumObjectVersionType.LOCAL )
+			version = c.getNextLocalVersion();
+		else
 		if( entity.META_OBJECTVERSION_TYPE == DBEnumObjectVersionType.CORE )
 			version = c.getNextCoreVersion();
 		else

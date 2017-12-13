@@ -518,14 +518,14 @@ public class EngineLoader {
 
 			// core
 			if( importxml ) {
-				int version = connection.getNextAuthVersion();
+				int version = connection.getNextLocalVersion();
 				trace( "create new engine auth version=" + version + " ..." );
 				importxmlAuth( auth );
 				saveConnection( true );
 				trace( "successfully completed import of engine auth data" );
 			}
 			else {
-				trace( "load engine auth data, version=" + connection.getAuthVersion() + " ..." );
+				trace( "load engine auth data, version=" + connection.getLocalVersion() + " ..." );
 				loaddbAuth( auth );
 			}
 
@@ -827,7 +827,7 @@ public class EngineLoader {
 			getConnection();
 			
 			trace( "drop auth data in database ..." );
-			int version = connection.getNextAuthVersion();
+			int version = connection.getNextLocalVersion();
 			DBEngineData.dropAuthData( this );
 			closeConnection( true );
 			trace( "successfully dropped engine auth data, auth version=" + version );

@@ -280,11 +280,11 @@ public class DBConnection {
 		return( getLastObjectVersion( DBVersions.CORE_ID , DBEnumObjectVersionType.CORE ) );
 	}
 	
-	public synchronized int getCurrentAuthVersion() throws Exception {
+	public synchronized int getCurrentLocalVersion() throws Exception {
 		return( getCurrentObjectVersion( DBVersions.LOCAL_ID , DBEnumObjectVersionType.LOCAL ) );
 	}
 	
-	public synchronized int getNextAuthVersion() throws Exception {
+	public synchronized int getNextLocalVersion() throws Exception {
 		OwnerObjectVersion version = getObjectVersion( DBVersions.LOCAL_ID , DBEnumObjectVersionType.LOCAL );
 		if( version.nextVersion < 0 ) {
 			if( version.VERSION == 0 ) {
@@ -296,7 +296,7 @@ public class DBConnection {
 		return( version.nextVersion );
 	}
 	
-	public synchronized int getAuthVersion() throws Exception {
+	public synchronized int getLocalVersion() throws Exception {
 		return( getLastObjectVersion( DBVersions.LOCAL_ID , DBEnumObjectVersionType.LOCAL ) );
 	}
 	
