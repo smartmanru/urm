@@ -280,6 +280,8 @@ public class EngineLoader {
 		int version = connection.getCurrentAppVersion();
 		if( version != EngineDB.APP_VERSION )
 			Common.exit2( _Error.InvalidVersion2 , "Mismatched engine/database, engine version=" + EngineDB.APP_VERSION + ", database version=" + version , "" + EngineDB.APP_VERSION , "" + version );
+		else
+			trace( "using database version=" + version );
 		
 		DBEngineData.useMeta( this );
 		EngineCore core = data.getCore();
