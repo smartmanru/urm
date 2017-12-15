@@ -64,9 +64,9 @@ public class DistRepository {
 		return( rrepo );
 	}
 
-	public static DistRepository loadDistRepository( ActionBase action , Meta meta ) throws Exception {
+	public static DistRepository loadDistRepository( ActionBase action , Meta meta , boolean importxml ) throws Exception {
 		DistRepository repo = new DistRepository( meta );
-		repo.open( action );
+		repo.open( action , importxml );
 		return( repo );
 	}
 
@@ -76,10 +76,15 @@ public class DistRepository {
 		return( repo );
 	}
 
-	private void open( ActionBase action ) throws Exception {
+	private void open( ActionBase action , boolean importxml ) throws Exception {
 		repoFolder = getDistFolder( action );
 		
 		if( !repoFolder.checkExists( action ) ) {
+			if( importxml ) {
+				create( action , false );
+				return;
+			}
+			
 			String path = repoFolder.getLocalPath( action );
 			action.exit1( _Error.MissingReleaseRepository1 , "missing release repository at " + path , path );
 		}
@@ -106,7 +111,7 @@ public class DistRepository {
 			action.exit1( _Error.MissingReleaseRepositoryParent1 , "unable to create release repository, missing parent path=" + path , path );
 		}
 			
-		repoFolder.recreateThis( action );
+		repoFolder.ensureExists( action );
 		readRepositoryFile( action );
 	}
 

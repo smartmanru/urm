@@ -240,6 +240,11 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineMirrors.deleteProjectMirror( this , mirrors , project );
 	}
 
+	public void createDetachedMirror( EngineMirrors mirrors , DBEnumMirrorType type , String product , String project ) throws Exception {
+		checkTransactionMirrors( mirrors );
+		DBEngineMirrors.createDetachedMirror( this , mirrors , type , product , project );
+	}
+	
 	// ################################################################################
 	// ################################################################################
 	// BASE

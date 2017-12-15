@@ -348,14 +348,8 @@ public class SubversionVCS extends GenericVCS {
 	}
 	
 	@Override 
-	public boolean isValidRepositoryMasterRootPath( MirrorRepository mirror , String path ) throws Exception {
-		String fullPath = Common.getPath( getRepositoryRootPath( mirror ) , "trunk" , path ); 
-		return( checkSvnPathExists( fullPath ) );
-	}
-	
-	@Override 
 	public boolean isValidRepositoryMasterPath( MirrorRepository mirror , String path ) throws Exception {
-		String fullPath = Common.getPath( getRepositoryPath( mirror ) , "trunk" , path ); 
+		String fullPath = Common.getPath( getRepositoryPath( mirror ) , path ); 
 		return( checkSvnPathExists( fullPath ) );
 	}
 	
@@ -535,6 +529,11 @@ public class SubversionVCS extends GenericVCS {
 	}
 	
 	// implementation
+	public boolean isValidRepositoryMasterRootPath( MirrorRepository mirror , String path ) throws Exception {
+		String fullPath = Common.getPath( getRepositoryRootPath( mirror ) , path ); 
+		return( checkSvnPathExists( fullPath ) );
+	}
+	
 	private boolean checkSvnPathExists( String path ) throws Exception {
 		int status = shell.customGetStatus( action , "svn info " + SVNAUTH + " " + path + " > " + shell.getOSDevNull() );
 		if( status != 0 )

@@ -180,7 +180,7 @@ public class MirrorCaseSubversion extends MirrorCase {
 		if( repo.checkExists( action ) )
 			return;
 		
-		if( !vcs.isValidRepositoryMasterRootPath( mirror , "/" ) )
+		if( !vcsSubversion.isValidRepositoryMasterRootPath( mirror , "/" ) )
 			action.exit0( _Error.UnableCheckRepositoryPath0 , "Unable to find repository" );
 
 		repo.ensureExists( action );

@@ -38,20 +38,6 @@ public abstract class PropertyController extends EngineObject {
 		create( parent , name );
 	}
 
-	@Override
-	public void deleteObject() {
-		deleteObjectDown();
-		if( propertyParent != null )
-			propertyParent.propertyChilds.remove( this );
-		super.deleteObject();
-	}
-
-	@Override
-	public void deleteObjectDown() {
-		for( PropertyController child : propertyChilds )
-			child.deleteObjectDown();
-	}
-	
 	private void create( PropertyController parent , String name ) {
 		this.setName = name;
 		

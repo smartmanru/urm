@@ -226,6 +226,21 @@ public class DBEngineMirrors {
 		mirrors.addRepository( repo );
 	}
 	
+	public static void createDetachedMirror( EngineTransaction transaction , EngineMirrors mirrors , DBEnumMirrorType type , String product , String project ) throws Exception {
+		MirrorRepository repo = new MirrorRepository( mirrors );
+		String name = "";
+		if( type == DBEnumMirrorType.PRODUCT_META )
+			name = "product-" + product + "-meta";
+		else
+		if( type == DBEnumMirrorType.PRODUCT_DATA )
+			name = "product-" + product + "-data";
+		else
+		if( type == DBEnumMirrorType.PROJECT )
+			name = "project-" + product + "-" + project;
+		repo.createRepository( name , null , type );
+		mirrors.addRepository( repo );
+	}
+	
 	public static void deleteProductResources( EngineTransaction transaction , EngineMirrors mirrors , AppProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		List<MirrorRepository> repos = new LinkedList<MirrorRepository>();
 		for( String name : mirrors.getRepositoryNames() ) {

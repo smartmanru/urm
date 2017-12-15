@@ -280,22 +280,6 @@ public class GitVCS extends GenericVCS {
 	}
 	
 	@Override 
-	public boolean isValidRepositoryMasterRootPath( MirrorRepository mirror , String path ) throws Exception {
-		MirrorCaseGit mc = getMasterMirrorCase( mirror );
-		mc.refreshRepository();
-		
-		int status;
-		String OSPATH = mc.getBareOSPath();
-		String OSPATHDIR = shell.getOSPath( action , path );
-		status = shell.customGetStatus( action , "git -C " + OSPATH + " cat-file -e master:" + OSPATHDIR );
-		
-		if( status == 0 )
-			return( true );
-		
-		return( false );
-	}
-
-	@Override 
 	public boolean isValidRepositoryMasterPath( MirrorRepository mirror , String path ) throws Exception {
 		MirrorCaseGit mc = getMasterMirrorCase( mirror );
 		mc.refreshRepository();

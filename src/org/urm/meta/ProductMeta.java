@@ -410,7 +410,7 @@ public class ProductMeta extends EngineObject {
 		return( design );
 	}
 
-	public synchronized void loadAll( EngineLoader loader , MetadataStorage storageMeta ) {
+	public synchronized void loadAll( EngineLoader loader , MetadataStorage storageMeta , boolean importxml ) {
 		ActionBase action = loader.getAction();
 		
 		loadVersion( loader , storageMeta );
@@ -435,7 +435,7 @@ public class ProductMeta extends EngineObject {
 			for( String designFile : storageMeta.getDesignFiles( action ) )
 				loadDesignData( loader , storageMeta , designFile );
 			
-			repo = DistRepository.loadDistRepository( action , meta );
+			repo = DistRepository.loadDistRepository( action , meta , importxml );
 		}
 		catch( Throwable e ) {
 			setLoadFailed( action , e , "unable to load metadata, product=" + name );

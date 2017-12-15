@@ -139,7 +139,7 @@ public class EngineProducts {
 		return( true );
 	}
 
-	private ProductMeta loadProduct( EngineLoader loader , String name , boolean savedb ) {
+	private ProductMeta loadProduct( EngineLoader loader , String name , boolean importxml ) {
 		ProductMeta set = new ProductMeta( this , name );
 		set.setPrimary( true );
 		
@@ -148,7 +148,7 @@ public class EngineProducts {
 			MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
 			LocalFolder folder = storageMeta.getMetaFolder( action );
 			if( folder.checkExists( action ) )
-				set.loadAll( loader , storageMeta );
+				set.loadAll( loader , storageMeta , importxml );
 			else
 				set.setLoadFailed( action , "metadata folder is missing, product=" + name );
 		}
