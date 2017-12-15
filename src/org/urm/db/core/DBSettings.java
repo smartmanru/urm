@@ -365,6 +365,48 @@ public abstract class DBSettings {
 			Common.exitUnexpected();
 	}
 
+	private static void updateVar( DBConnection c , PropertyEntity entity , EntityVar var , int version ) throws Exception {
+		DBNames.updateName( c , entity.PARAM_OBJECT_ID , var.NAME , var.PARAM_ID , DBEnumObjectType.PARAM );
+		var.VERSION = version;
+		String enumName = ( var.enumClass == null )? null : DBEnums.getEnumName( var.enumClass );
+		if( !c.update( DBQueries.MODIFY_PARAM_UPDATEPARAM15 , new String[] {
+				EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
+				EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
+				EngineDB.getInteger( var.PARAM_ID ) ,
+				EngineDB.getInteger( var.ENTITYCOLUMN ) ,
+				EngineDB.getString( var.NAME ) ,
+				EngineDB.getString( var.DBNAME ) ,
+				EngineDB.getString( var.XMLNAME ) ,
+				EngineDB.getString( var.DESC ) ,
+				EngineDB.getEnum( var.PARAMVALUE_TYPE ) ,
+				EngineDB.getEnum( var.PARAMVALUE_SUBTYPE ) ,
+				EngineDB.getEnum( var.OBJECT_TYPE ) ,
+				EngineDB.getString( enumName ) ,
+				EngineDB.getBoolean( var.REQUIRED ) ,
+				EngineDB.getString( var.EXPR_DEF ) ,
+				EngineDB.getInteger( version )
+				} ) )
+				Common.exitUnexpected();
+	}
+
+	private static void deleteVar( DBConnection c , EntityVar var , int version ) throws Exception {
+		var.VERSION = version;
+		if( !c.update( DBQueries.MODIFY_PARAM_DROPPARAMVALUES1 , new String[] {
+				EngineDB.getInteger( var.PARAM_ID ) 
+				} ) )
+			Common.exitUnexpected();
+		if( !c.update( DBQueries.MODIFY_PARAM_DROPPARAM1 , new String[] {
+				EngineDB.getInteger( var.PARAM_ID ) 
+				} ) )
+			Common.exitUnexpected();
+		if( !c.update( DBQueries.MODIFY_PARAM_DECREMENTENTITYINDEX3 , new String[] {
+				EngineDB.getInteger( var.entity.PARAM_OBJECT_ID ) ,
+				EngineDB.getEnum( var.entity.PARAMENTITY_TYPE ) ,
+				EngineDB.getInteger( var.ENTITYCOLUMN )
+				} ) )
+			Common.exitUnexpected();
+	}
+	
 	public static PropertyEntity loaddbAppPropsEntity( EngineLoader loader , int paramObjectId , DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType dataVersionType ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( objectType , entityType , dataVersionType );
 		loaddbEntity( loader , entity , paramObjectId );
@@ -486,6 +528,31 @@ public abstract class DBSettings {
 	public static EntityVar createCustomProperty( EngineTransaction transaction , PropertyEntity entity , EntityVar var ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
+		int version = getEntityVersion( transaction , entity );
+		entity.addVar( var );
+		insertVar( c , entity , var , version );
+		return( var );
+	}
+	
+	public static void modifyCustomProperty( EngineTransaction transaction , EntityVar var ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		int version = getEntityVersion( transaction , var.entity );
+		updateVar( c , var.entity , var , version );
+		var.entity.updateVar( var );
+	}
+
+	public static void deleteCustomProperty( EngineTransaction transaction , EntityVar var ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		int version = getEntityVersion( transaction , var.entity );
+		deleteVar( c , var , version );
+		var.entity.removeVar( var );
+	}
+
+	private static int getEntityVersion( EngineTransaction transaction , PropertyEntity entity ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
 		int version = 0;
 		if( entity.META_OBJECTVERSION_TYPE == DBEnumObjectVersionType.LOCAL )
 			version = c.getNextLocalVersion();
@@ -500,11 +567,8 @@ public abstract class DBSettings {
 		}
 		else
 			transaction.exitUnexpectedState();
-		
-		insertVar( c , entity , var , version );
-		entity.addVar( var );
-		return( var );
+		return( version );
 	}
-	
+
 }
 

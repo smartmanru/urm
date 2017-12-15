@@ -48,6 +48,18 @@ public class EntityVar {
 		return( r );
 	}
 
+	public void modifyCustom( String name , String desc , String defvalue ) {
+		this.NAME = name;
+		this.DESC = desc;
+		this.EXPR_DEF = ( defvalue == null )? "" : defvalue;
+	}
+	
+	public boolean isDefaultEmpty() {
+		if( EXPR_DEF.isEmpty() )
+			return( true );
+		return( false );
+	}
+	
 	public static EntityVar metaEnum( String propertyKey , String propertyDesc , boolean required , DBEnumInterface defValue ) throws Exception {
 		return( metaEnumVar( propertyKey , propertyKey , propertyKey , propertyDesc , required , defValue ) ); 
 	}
@@ -188,7 +200,7 @@ public class EntityVar {
 		var.PARAMVALUE_SUBTYPE = subtype;
 		var.OBJECT_TYPE = objectType;
 		var.REQUIRED = required;
-		var.EXPR_DEF = defValue;
+		var.EXPR_DEF = ( defValue == null )? "" : defValue;
 		var.enumClass = enumClass;
 		return( var );
 	}

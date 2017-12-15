@@ -1,6 +1,5 @@
 package org.urm.engine.properties;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +22,6 @@ public class ObjectProperties {
 	private ObjectProperties parent;
 	private boolean loadFailed;
 	private boolean loadFinished;
-	private Map<String,String> loadErrors;
 	private RunError error;
 	private ObjectMeta meta;
 	private PropertySet properties;
@@ -38,7 +36,6 @@ public class ObjectProperties {
 		loadFailed = false;
 		loadFinished = false;
 		childs = new LinkedList<ObjectProperties>();
-		loadErrors = new HashMap<String,String>();
 		meta = new ObjectMeta();
 	}
 
@@ -47,7 +44,6 @@ public class ObjectProperties {
 		r.parent = parent;
 		r.loadFailed = loadFailed;
 		r.loadFinished = loadFinished;
-		r.loadErrors.putAll( loadErrors );
 		r.error = error;
 		r.meta = meta.copy();
 		
@@ -60,11 +56,8 @@ public class ObjectProperties {
 		initCreateStarted( parent );
 		
 		meta.create( entityFixed , entityCustom );
-		for( EntityVar var : meta.getVars() ) {
-			PropertyValue value = properties.createRawProperty( var.NAME , var.isCustom() , var.PARAMVALUE_TYPE , var.DESC );
-			if( var.EXPR_DEF != null )
-				value.setDefault( var.EXPR_DEF );
-		}
+		for( EntityVar var : meta.getVars() )
+			createProperty( var );
 		
 		initFinished();
 	}
@@ -74,11 +67,15 @@ public class ObjectProperties {
 		if( entityCustom == null )
 			return;
 		
-		for( EntityVar var : entityCustom.getVars() ) {
-			PropertyValue value = properties.createRawProperty( var.NAME , var.isCustom() , var.PARAMVALUE_TYPE , var.DESC );
-			if( var.EXPR_DEF != null )
-				value.setDefault( var.EXPR_DEF );
-		}
+		for( EntityVar var : entityCustom.getVars() )
+			createProperty( var );
+	}
+
+	public PropertyValue createProperty( EntityVar var ) throws Exception {
+		PropertyValue value = properties.createRawProperty( var.NAME , var.isCustom() , var.PARAMVALUE_TYPE , var.DESC );
+		if( !var.isDefaultEmpty() )
+			value.setDefault( var.EXPR_DEF );
+		return( value );
 	}
 	
 	public ObjectMeta getMeta() {
@@ -124,11 +121,6 @@ public class ObjectProperties {
 		loadFinished = true;
 	}
 
-	public void setLoadFailed( String property , String msg ) {
-		loadFailed = true;
-		loadErrors.put( property , msg );
-	}
-	
 	public String getPathProperty( String prop ) throws Exception {
 		EntityVar var = meta.getVar( prop );
 		if( var.isApp() )
@@ -181,7 +173,7 @@ public class ObjectProperties {
 		return( value );
 	}
 	
-	public void finishProperties() throws Exception {
+	public void finishProperties( Map<String,String> loadErrors ) throws Exception {
 		properties.resolveRawProperties( true );
 		if( properties.isCorrect() ) {
 			properties.finishRawProperties();
@@ -189,8 +181,10 @@ public class ObjectProperties {
 		}
 		else {
 			for( PropertyValue p : properties.getAllProperties() ) {
-				if( !p.isCorrect() )
-					setLoadFailed( p.property , "set=" + properties.set + ", property is not correct: " + p.property );
+				if( !p.isCorrect() ) {
+					loadFailed = true;
+					loadErrors.put( p.property , "set=" + properties.set + ", property is not correct: " + p.property );
+				}
 			}
 			loadFailed = true;
 		}
@@ -222,11 +216,6 @@ public class ObjectProperties {
 	
 	public void copyOriginalPropertiesToRaw( PropertySet src ) throws Exception {
 		properties.copyOriginalPropertiesToRaw( src );
-	}
-	
-	public void updateProperties() throws Exception {
-		recalculateProperties();
-		finishProperties();
 	}
 	
 	public void updateProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {

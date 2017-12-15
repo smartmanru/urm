@@ -140,6 +140,34 @@ public class PropertyEntity {
 		map.clear();
 	}
 
+	public void removeVar( EntityVar var ) throws Exception {
+		int index = list.indexOf( var );
+		if( index < 0 )
+			Common.exitUnexpected();
+		
+		list.remove( var );
+		map.remove( var.NAME );
+		if( var.XMLNAME != null )
+			xmlmap.remove( var.XMLNAME );
+		
+		if( var.DBNAME != null )
+			dblist.remove( var );
+		
+		// decrement column indexes
+		for( int k = index; k < list.size(); k++ ) {
+			var = list.get( k );
+			int newEntityColumn = var.ENTITYCOLUMN - 1;
+			int newDatabaseColumn = ( var.XMLNAME == null )? var.databaseColumn : var.databaseColumn - 1;
+			var.setEntity( this , newEntityColumn , newDatabaseColumn );
+		}
+	}
+	
+	public void updateVar( EntityVar var ) throws Exception {
+		Common.changeMapKey( map , var , var.NAME );
+		if( var.XMLNAME != null )
+			Common.changeMapKey( xmlmap , var , var.XMLNAME );
+	}
+	
 	public EntityVar findVar( String name ) {
 		return( map.get( name ) );
 	}

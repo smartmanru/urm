@@ -81,10 +81,21 @@ public class ObjectMeta {
 		return( varNames.get( name ) );
 	}
 	
+	public EntityVar findVar( int propId ) {
+		return( varIds.get( propId ) );
+	}
+	
 	public EntityVar getVar( String name ) throws Exception {
 		EntityVar var = varNames.get( name );
 		if( var == null )
 			Common.exit1( _Error.UnknownVar1 , "Unknown variable name=" + name , name );
+		return( var );
+	}
+	
+	public EntityVar getVar( int propId ) throws Exception {
+		EntityVar var = varIds.get( propId );
+		if( var == null )
+			Common.exit1( _Error.UnknownVar1 , "Unknown variable name=" + propId , "" + propId );
 		return( var );
 	}
 	

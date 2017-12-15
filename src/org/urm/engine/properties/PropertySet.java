@@ -1127,7 +1127,7 @@ public class PropertySet {
 		data.remove( getKeyByProperty( pv.property ) );
 	}
 
-	public void renameCustomProperty( String prop , String newName ) throws Exception {
+	public PropertyValue renameCustomProperty( String prop , String newName ) throws Exception {
 		PropertyValue pv = getPropertyValue( prop );
 		if( pv == null )
 			Common.exit2( _Error.UnknownProperty2 , "set=" + set + ": missing property=" + prop , set , prop );
@@ -1141,6 +1141,7 @@ public class PropertySet {
 		pv.setName( newName );
 		data.put( getKeyByProperty( newName ) , pv );
 		recalculateProperties();
+		return( pv );
 	}
 	
 }

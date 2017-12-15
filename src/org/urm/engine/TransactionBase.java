@@ -7,8 +7,11 @@ import org.urm.common.RunError;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.ObjectMeta;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
@@ -869,6 +872,28 @@ public class TransactionBase extends EngineObject {
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
 	}
 
+	protected void checkTransactionCustomProperty( int ownerId , ObjectProperties ops ) throws Exception {
+		ObjectMeta meta = ops.getMeta();
+		PropertyEntity entity = meta.getCustomEntity();
+		
+		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.RC_CUSTOM || 
+				entity.PARAMENTITY_TYPE == DBEnumParamEntityType.ENGINE_CUSTOM ) {
+				checkTransactionSettings();
+			}
+			else
+			if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.SYSTEM_CUSTOM ) {
+				checkTransactionDirectory( directoryNew );
+			}
+			else
+			if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.PRODUCT_CUSTOM ) {
+				EngineDirectory directory = getDirectory();
+				AppProduct product = directory.getProduct( ownerId );
+				checkTransactionMetadata( product.NAME );
+			}
+			else
+				exitUnexpectedState();
+	}
+	
 	public EngineEntities getEntities() {
 		return( data.getEntities() );
 	}

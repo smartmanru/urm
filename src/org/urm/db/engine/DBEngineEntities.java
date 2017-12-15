@@ -11,6 +11,8 @@ import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.engine.properties.PropertySet;
+import org.urm.engine.properties.PropertyValue;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -142,12 +144,58 @@ public abstract class DBEngineEntities {
 		PropertyEntity entity = meta.getCustomEntity();
 		if( entity.META_OBJECT_ID != ownerId )
 			transaction.exitUnexpectedState();
-			
+
+		// check unique
+		if( entity.findVar( name ) != null )
+			Common.exitUnexpected();
+		
 		EntityVar var = EntityVar.metaString( name , desc , false , defvalue );
 		DBSettings.createCustomProperty( transaction , entity , var );
 		meta.rebuild();
 		
+		ops.createProperty( var );
 		return( var );
+	}
+	
+	public static EntityVar modifyCustomProperty( EngineTransaction transaction , EngineEntities entities , int ownerId , ObjectProperties ops , int paramId , String name , String desc , String defvalue ) throws Exception {
+		ObjectMeta meta = ops.getMeta();
+		PropertyEntity entity = meta.getCustomEntity();
+		if( entity.META_OBJECT_ID != ownerId )
+			transaction.exitUnexpectedState();
+			
+		// check unique
+		EntityVar var = meta.getVar( paramId );
+		EntityVar check = meta.findVar( name );
+		if( check != null && check != var )
+			Common.exitUnexpected();
+		
+		String originalName = var.NAME;
+		var.modifyCustom( name , desc , defvalue );
+		DBSettings.modifyCustomProperty( transaction , var );
+
+		PropertySet set = ops.getProperties();
+		PropertyValue pv = set.renameCustomProperty( originalName , name );
+		pv.setDefault( defvalue );
+		
+		meta.rebuild();
+		ops.recalculateProperties();
+		
+		return( var );
+	}
+	
+	public static void deleteCustomProperty( EngineTransaction transaction , EngineEntities entities , int ownerId , ObjectProperties ops , int paramId ) throws Exception {
+		ObjectMeta meta = ops.getMeta();
+		PropertyEntity entity = meta.getCustomEntity();
+		if( entity.META_OBJECT_ID != ownerId )
+			transaction.exitUnexpectedState();
+		
+		EntityVar var = meta.getVar( paramId );
+		DBSettings.deleteCustomProperty( transaction , var );
+		PropertySet set = ops.getProperties();
+		set.removeCustomProperty( var.NAME );
+		
+		meta.rebuild();
+		ops.recalculateProperties();
 	}
 	
 }

@@ -171,7 +171,8 @@ public class EngineSettings extends EngineObject {
 			
 			for( EntityVar var : entity.getVars() ) {
 				String value = RunContext.getProperty( var.NAME );
-				execrcProperties.setStringProperty( var.NAME , value );
+				if( !value.isEmpty() )
+					execrcProperties.setStringProperty( var.NAME , value );
 			}
 		}
 		

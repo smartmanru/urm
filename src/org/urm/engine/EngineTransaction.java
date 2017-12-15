@@ -17,7 +17,6 @@ import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.shell.Account;
@@ -133,30 +132,27 @@ public class EngineTransaction extends TransactionBase {
 	}
 
 	public EntityVar createCustomProperty( int ownerId , ObjectProperties ops , String name , String desc , String defvalue ) throws Exception {
-		ObjectMeta meta = ops.getMeta();
-		PropertyEntity entity = meta.getCustomEntity();
-		
-		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.RC_CUSTOM || 
-			entity.PARAMENTITY_TYPE == DBEnumParamEntityType.ENGINE_CUSTOM ) {
-			checkTransactionSettings();
-		}
-		else
-		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.SYSTEM_CUSTOM ) {
-			checkTransactionDirectory( directoryNew );
-		}
-		else
-		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.PRODUCT_CUSTOM ) {
-			EngineDirectory directory = getDirectory();
-			AppProduct product = directory.getProduct( ownerId );
-			checkTransactionMetadata( product.NAME );
-		}
-		else
-			exitUnexpectedState();
-		
+		checkTransactionCustomProperty( ownerId , ops );
 		EngineEntities entities = getEntities();
 		EntityVar var = DBEngineEntities.createCustomProperty( this , entities , ownerId , ops , name , desc , defvalue );
-		entityNew = entity;
+		entityNew = var.entity;
 		return( var );
+	}
+	
+	public EntityVar modifyCustomProperty( int ownerId , ObjectProperties ops , int paramId , String name , String desc , String defvalue ) throws Exception {
+		checkTransactionCustomProperty( ownerId , ops );
+		EngineEntities entities = getEntities();
+		EntityVar var = DBEngineEntities.modifyCustomProperty( this , entities , ownerId , ops , paramId , name , desc , defvalue );
+		entityNew = var.entity;
+		return( var );
+	}
+	
+	public void deleteCustomProperty( int ownerId , ObjectProperties ops , int paramId ) throws Exception {
+		checkTransactionCustomProperty( ownerId , ops );
+		EngineEntities entities = getEntities();
+		DBEngineEntities.deleteCustomProperty( this , entities , ownerId , ops , paramId );
+		ObjectMeta meta = ops.getMeta();
+		entityNew = meta.getCustomEntity();
 	}
 	
 	// ################################################################################
