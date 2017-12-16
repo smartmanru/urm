@@ -220,13 +220,18 @@ public class DBEngineMirrors {
 	} 
 	
 	public static void createProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
 		MirrorRepository repo = new MirrorRepository( mirrors );
 		String name = "project-" + project.meta.name + "-" + project.NAME;
 		repo.createRepository( name , null , DBEnumMirrorType.PROJECT );
+		modifyRepository( c , repo , false );
 		mirrors.addRepository( repo );
 	}
 	
 	public static void createDetachedMirror( EngineTransaction transaction , EngineMirrors mirrors , DBEnumMirrorType type , String product , String project ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
 		MirrorRepository repo = new MirrorRepository( mirrors );
 		String name = "";
 		if( type == DBEnumMirrorType.PRODUCT_META )
@@ -238,6 +243,7 @@ public class DBEngineMirrors {
 		if( type == DBEnumMirrorType.PROJECT )
 			name = "project-" + product + "-" + project;
 		repo.createRepository( name , null , type );
+		modifyRepository( c , repo , false );
 		mirrors.addRepository( repo );
 	}
 	
@@ -253,8 +259,8 @@ public class DBEngineMirrors {
 		}
 		
 		for( MirrorRepository repo : repos ) {
-			dropMirror( transaction , mirrors , repo , vcsDeleteFlag );
-			mirrors.removeRepository( repo );
+			dropMirrorWorkspace( transaction , mirrors , repo , vcsDeleteFlag );
+			dropRepository( transaction , mirrors , repo );
 		}
 	}
 
@@ -266,12 +272,14 @@ public class DBEngineMirrors {
 	public static void deleteProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
 		MirrorRepository repoOld = mirrors.findProjectRepository( project );
 		if( repoOld != null ) {
-			dropMirror( transaction , mirrors , repoOld , false );
-			mirrors.removeRepository( repoOld );
+			dropMirrorWorkspace( transaction , mirrors , repoOld , false );
+			dropRepository( transaction , mirrors , repoOld );
 		}
 	}
 
 	public static void dropResourceMirrors( EngineTransaction transaction , EngineMirrors mirrors , AuthResource res ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
 		ActionBase action = transaction.getAction();
 		GenericVCS vcs = GenericVCS.getVCS( action , null , res.ID );
 		MirrorCase mc = vcs.getMirror( null );
@@ -279,8 +287,10 @@ public class DBEngineMirrors {
 
 		for( String name : mirrors.getRepositoryNames() ) {
 			MirrorRepository repo = mirrors.findRepository( name );
-			if( repo.RESOURCE_ID == res.ID )
+			if( repo.RESOURCE_ID == res.ID ) {
 				repo.clearMirror();
+				modifyRepository( c , repo , false );
+			}
 		}
 	}
 
@@ -382,13 +392,19 @@ public class DBEngineMirrors {
 		map.put( key , home.getSubFolder( action , subPath ) );
 	}
 
-	public static void dropMirror( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo , boolean dropOnServer ) throws Exception {
+	public static void dropMirrorWorkspace( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo , boolean dropOnServer ) throws Exception {
 		if( !repo.isActive() )
 			return;
 		
 		dropMirrorInternal( transaction , mirrors , repo , dropOnServer );
 		repo.clearMirror();
-		repo.deleteObject();
+	}
+	
+	public static void dropDetachedMirror( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo ) throws Exception {
+		if( repo.isActive() )
+			dropMirrorInternal( transaction , mirrors , repo , false );
+		
+		dropRepository( transaction , mirrors , repo );
 	}
 	
 	private static void dropMirrorInternal( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo , boolean dropOnServer ) throws Exception {
@@ -439,6 +455,15 @@ public class DBEngineMirrors {
 			folder.ensureExists( action );
 			mc.syncVcsToFolder( mirrorFolder , folder );
 		}
+	}
+
+	private static void dropRepository( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMirror , repo.ID , c.getNextCoreVersion() );
+		
+		mirrors.removeRepository( repo );
+		repo.deleteObject();
 	}
 	
 }

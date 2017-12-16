@@ -207,9 +207,14 @@ public class EngineTransaction extends TransactionBase {
 		loader.importRepo( repo );
 	}
 
-	public void dropMirror( MirrorRepository repo , boolean dropOnServer ) throws Exception {
+	public void dropMirrorWorkspace( MirrorRepository repo , boolean dropOnServer ) throws Exception {
 		checkTransactionMirrors( repo.mirrors );
-		DBEngineMirrors.dropMirror( this , repo.mirrors , repo , dropOnServer );
+		DBEngineMirrors.dropMirrorWorkspace( this , repo.mirrors , repo , dropOnServer );
+	}
+
+	public void deleteDetachedMirror( MirrorRepository repo ) throws Exception {
+		checkTransactionMirrors( repo.mirrors );
+		DBEngineMirrors.dropDetachedMirror( this , repo.mirrors , repo );
 	}
 
 	public void createMirrorRepository( EngineMirrors mirrors , MetaSourceProject project ) throws Exception {

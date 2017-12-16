@@ -375,6 +375,10 @@ public class Common {
 			return( path1 );
 		if( path1.equals( "/" ) )
 			return( "/" + path2 );
+		if( path1.endsWith( "/" ) )
+			return( path1 + path2 );
+		if( path2.startsWith( "/" ) )
+			return( path1 + path2 );
 		return( path1 + "/" + path2 );
 	}
 	
