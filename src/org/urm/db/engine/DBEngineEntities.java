@@ -19,6 +19,9 @@ import org.w3c.dom.Element;
 public abstract class DBEngineEntities {
 
 	public static void modifyAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values , boolean insert ) throws Exception {
+		if( id <= 0 || version <= 0 )
+			Common.exitUnexpected();
+		
 		if( insert )
 			insertAppObject( c , entity , id , version , values );
 		else
@@ -26,6 +29,9 @@ public abstract class DBEngineEntities {
 	}
 	
 	public static void insertAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values ) throws Exception {
+		if( id <= 0 || version <= 0 )
+			Common.exitUnexpected();
+		
 		EntityVar[] vars = entity.getDatabaseVars();
 		if( vars.length != values.length )
 			Common.exitUnexpected();
@@ -59,6 +65,9 @@ public abstract class DBEngineEntities {
 	}
 	
 	public static void updateAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values ) throws Exception {
+		if( id <= 0 || version <= 0 )
+			Common.exitUnexpected();
+		
 		EntityVar[] vars = entity.getDatabaseVars();
 		if( vars.length != values.length )
 			Common.exitUnexpected();
@@ -84,6 +93,9 @@ public abstract class DBEngineEntities {
 	}
 
 	public static void deleteAppObject( DBConnection c , PropertyEntity entity , int id , int version ) throws Exception {
+		if( id <= 0 || version <= 0 )
+			Common.exitUnexpected();
+		
 		String query = "delete from " + entity.APP_TABLE + " where " + entity.getIdField() + " = " + id;
 		if( !c.update( query ) )
 			Common.exitUnexpected();

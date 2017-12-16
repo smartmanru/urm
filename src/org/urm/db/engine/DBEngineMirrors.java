@@ -225,7 +225,7 @@ public class DBEngineMirrors {
 		MirrorRepository repo = new MirrorRepository( mirrors );
 		String name = "project-" + project.meta.name + "-" + project.NAME;
 		repo.createRepository( name , null , DBEnumMirrorType.PROJECT );
-		modifyRepository( c , repo , false );
+		modifyRepository( c , repo , true );
 		mirrors.addRepository( repo );
 	}
 	
@@ -243,7 +243,7 @@ public class DBEngineMirrors {
 		if( type == DBEnumMirrorType.PROJECT )
 			name = "project-" + product + "-" + project;
 		repo.createRepository( name , null , type );
-		modifyRepository( c , repo , false );
+		modifyRepository( c , repo , true );
 		mirrors.addRepository( repo );
 	}
 	

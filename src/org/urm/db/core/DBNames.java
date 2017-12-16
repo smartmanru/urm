@@ -54,7 +54,7 @@ public abstract class DBNames {
 			
 		String key = parent + "::" + type.code() + "::" + name;
 		Integer value = map.get( key );
-		if( value != null )
+		if( value != null && value > 0 )
 			return( value );
 			
 		int valueSeq = getNextSequenceValue( c );
