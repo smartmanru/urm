@@ -94,7 +94,7 @@ public abstract class DBEngineContext {
 
 	public static PropertyEntity loaddbEntityCustomEngine( EngineLoader loader ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.CORE_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.ENGINE_CUSTOM , DBVersions.CORE_ID , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbEntity( loader , entity , DBVersions.CORE_ID );
 		return( entity );
 	}
 	
