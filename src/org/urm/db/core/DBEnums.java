@@ -373,6 +373,7 @@ public abstract class DBEnums {
 		UNKNOWN(0,null) ,
 		RC(1,null) ,
 		ENGINE(2,null),
+		PRODUCTCTX(4,null),
 		PRODUCTDEFS(3,null),
 		BUILDMODE_COMMON(10,null),
 		BUILDMODE_BRANCH(11,null) ,
@@ -500,6 +501,26 @@ public abstract class DBEnums {
         			Common.exitUnexpected();
     		}
     	}
+    }
+    
+    public static void addEnumItem( DBConnection connection , DBEnumInterface oi ) throws Exception {
+    	Enum<?> ei = ( Enum<?> )oi;
+    	Class<?> ec = ei.getClass();
+    	
+    	DBEnumInfo ef = null;
+    	for( DBEnumInfo e : enums ) {
+    		if( e.enumClass == ec ) {
+    			ef = e;
+    			break;
+    		}
+    	}
+    	
+    	if( ef == null )
+    		Common.exitUnexpected();
+    	
+    	String elementName = ei.name().toLowerCase();
+    	if( !connection.modify( DBQueries.MODIFY_ENUMS_ADD4 , new String[] { "" + ef.enumID , "" + oi.code() , EngineDB.getString( elementName ) , "" + EngineDB.APP_VERSION } ) )
+			Common.exitUnexpected();
     }
     
     public static Class<?> getEnum( String name ) throws Exception {

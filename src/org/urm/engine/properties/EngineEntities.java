@@ -32,6 +32,7 @@ public class EngineEntities {
 	public static String nameBaseItem = "baseitem";
 	public static String nameSystem = "system";
 	public static String nameLdap = "ldap";
+	public static String nameProductContext = "ctx";
 
 	public static String FIELD_VERSION_APP = "av"; 
 	public static String FIELD_VERSION_CORE = "cv"; 
@@ -217,4 +218,10 @@ public class EngineEntities {
 		return( props );
 	}
 
+	public ObjectProperties createProductContextProps() throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.PRODUCTCTX , nameProductContext , engine.execrc );
+		props.create( null , entityAppLDAPSettings , null );
+		return( props );
+	}
+	
 }
