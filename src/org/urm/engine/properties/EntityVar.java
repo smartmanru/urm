@@ -193,8 +193,8 @@ public class EntityVar {
 	public static EntityVar meta( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , DBEnumParamValueType type , DBEnumParamValueSubtype subtype , DBEnumObjectType objectType , boolean required , String defValue , Class<?> enumClass ) {
 		EntityVar var = new EntityVar();
 		var.NAME = propertyKey;
-		var.DBNAME = Common.nonull( propertyDatabaseKey );
-		var.XMLNAME = Common.nonull( propertyXmlKey );
+		var.DBNAME = propertyDatabaseKey;
+		var.XMLNAME = propertyXmlKey;
 		var.DESC = Common.nonull( propertyDesc );
 		var.PARAMVALUE_TYPE = type;
 		var.PARAMVALUE_SUBTYPE = subtype;
