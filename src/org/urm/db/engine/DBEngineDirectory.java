@@ -228,6 +228,7 @@ public abstract class DBEngineDirectory {
 		AppSystem system = new AppSystem( directory , props );
 		system.createSystem( name , desc );
 		DBAppSystem.modifySystem( c , system , true );
+		DBSettings.savedbEntityCustom( c , props , system.ID , system.ID , system.SV );
 		
 		directory.addSystem( system );
 		return( system );

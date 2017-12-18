@@ -220,7 +220,7 @@ public class EngineEntities {
 
 	public ObjectProperties createProductContextProps() throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.PRODUCTCTX , nameProductContext , engine.execrc );
-		props.create( null , entityAppLDAPSettings , null );
+		props.create( null , entityAppProductContext , null );
 		return( props );
 	}
 	
