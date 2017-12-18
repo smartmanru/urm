@@ -350,7 +350,7 @@ public class DBEngineLifecycles {
 	public static void enableLifecycle( EngineTransaction transaction , EngineLifecycles lifecycles , ReleaseLifecycle lc , boolean enabled ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		lc.setEnabled( enabled );
-		modifyLifecycle( c , lc , true );
+		modifyLifecycle( c , lc , false );
 	}
 	
 	public static void changePhases( EngineTransaction transaction , EngineLifecycles lifecycles , ReleaseLifecycle lc , LifecyclePhase[] phases ) throws Exception {
