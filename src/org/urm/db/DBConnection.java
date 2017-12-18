@@ -167,19 +167,19 @@ public class DBConnection {
 		}
 	}
 
-	public boolean update( String query ) {
-		return( update( query , null , FAST_TIMEOUT ) );
+	public boolean modify( String query ) {
+		return( modify( query , null , FAST_TIMEOUT ) );
 	}
 	
-	public boolean update( String query , int timeout ) {
-		return( update( query , null , timeout ) );
+	public boolean modify( String query , int timeout ) {
+		return( modify( query , null , timeout ) );
 	}
 
-	public boolean update( String query , String[] args ) {
-		return( update( query , args , FAST_TIMEOUT ) );
+	public boolean modify( String query , String[] args ) {
+		return( modify( query , args , FAST_TIMEOUT ) );
 	}	
 	
-	public boolean update( String query , String[] args , int timeout ) {
+	public boolean modify( String query , String[] args , int timeout ) {
 		String queryDB = getFinalQuery( query , args );
 		trace( "modify query=" + queryDB + " ..." );
 		try {

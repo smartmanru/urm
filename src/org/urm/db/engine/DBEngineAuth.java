@@ -323,7 +323,7 @@ public class DBEngineAuth {
 
 	private static void modifyGroupUser( DBConnection c , AuthGroup group , AuthUser user , boolean insert ) throws Exception {
 		if( insert ) {
-			if( !c.update( DBQueries.MODIFY_AUTH_GROUPUSER_ADD3 , new String[] {
+			if( !c.modify( DBQueries.MODIFY_AUTH_GROUPUSER_ADD3 , new String[] {
 					EngineDB.getInteger( group.ID ) ,
 					EngineDB.getInteger( user.ID ) ,
 					EngineDB.getInteger( c.getNextLocalVersion() )
@@ -331,7 +331,7 @@ public class DBEngineAuth {
 					Common.exitUnexpected();
 		}
 		else {
-			if( !c.update( DBQueries.MODIFY_AUTH_GROUPUSER_DROP2 , new String[] {
+			if( !c.modify( DBQueries.MODIFY_AUTH_GROUPUSER_DROP2 , new String[] {
 					EngineDB.getInteger( group.ID ) ,
 					EngineDB.getInteger( user.ID )
 					}))
@@ -341,7 +341,7 @@ public class DBEngineAuth {
 	
 	private static void modifyGroupResources( DBConnection c , AuthGroup group , Integer resource , boolean insert ) throws Exception {
 		if( insert ) {
-			if( !c.update( DBQueries.MODIFY_AUTH_GROUPACCESS_ADDRESOURCE3 , new String[] {
+			if( !c.modify( DBQueries.MODIFY_AUTH_GROUPACCESS_ADDRESOURCE3 , new String[] {
 					EngineDB.getInteger( group.ID ) ,
 					EngineDB.getInteger( resource ) ,
 					EngineDB.getInteger( c.getNextLocalVersion() )
@@ -349,7 +349,7 @@ public class DBEngineAuth {
 				Common.exitUnexpected();
 		}
 		else {
-			if( !c.update( DBQueries.MODIFY_AUTH_GROUPACCESS_DROPRESOURCES1 , new String[] {
+			if( !c.modify( DBQueries.MODIFY_AUTH_GROUPACCESS_DROPRESOURCES1 , new String[] {
 					EngineDB.getInteger( group.ID )
 					}))
 				Common.exitUnexpected();
@@ -358,7 +358,7 @@ public class DBEngineAuth {
 	
 	private static void modifyGroupProducts( DBConnection c , AuthGroup group , Integer product , boolean insert ) throws Exception {
 		if( insert ) {
-			if( !c.update( DBQueries.MODIFY_AUTH_GROUPACCESS_ADDPRODUCT3 , new String[] {
+			if( !c.modify( DBQueries.MODIFY_AUTH_GROUPACCESS_ADDPRODUCT3 , new String[] {
 					EngineDB.getInteger( group.ID ) ,
 					EngineDB.getInteger( product ) ,
 					EngineDB.getInteger( c.getNextLocalVersion() )
@@ -366,7 +366,7 @@ public class DBEngineAuth {
 				Common.exitUnexpected();
 		}
 		else {
-			if( !c.update( DBQueries.MODIFY_AUTH_GROUPACCESS_DROPPRODUCTS1 , new String[] {
+			if( !c.modify( DBQueries.MODIFY_AUTH_GROUPACCESS_DROPPRODUCTS1 , new String[] {
 					EngineDB.getInteger( group.ID )
 					}))
 				Common.exitUnexpected();
@@ -375,7 +375,7 @@ public class DBEngineAuth {
 	
 	private static void modifyGroupNetworks( DBConnection c , AuthGroup group , Integer network , boolean insert ) throws Exception {
 		if( insert ) {
-			if( !c.update( DBQueries.MODIFY_AUTH_GROUPACCESS_ADDNETWORK3 , new String[] {
+			if( !c.modify( DBQueries.MODIFY_AUTH_GROUPACCESS_ADDNETWORK3 , new String[] {
 					EngineDB.getInteger( group.ID ) ,
 					EngineDB.getInteger( network ) ,
 					EngineDB.getInteger( c.getNextLocalVersion() )
@@ -383,7 +383,7 @@ public class DBEngineAuth {
 				Common.exitUnexpected();
 		}
 		else {
-			if( !c.update( DBQueries.MODIFY_AUTH_GROUPACCESS_DROPNETWORKS1 , new String[] {
+			if( !c.modify( DBQueries.MODIFY_AUTH_GROUPACCESS_DROPNETWORKS1 , new String[] {
 					EngineDB.getInteger( group.ID )
 					}))
 				Common.exitUnexpected();
@@ -719,7 +719,7 @@ public class DBEngineAuth {
 	
 	public static void deleteDatacenterAccess( EngineTransaction transaction , EngineAuth auth , Datacenter datacenter ) throws Exception {
 		DBConnection c = transaction.getConnection();
-		if( !c.update( DBQueries.MODIFY_AUTH_DROP_DATACENTERACCESS1 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_AUTH_DROP_DATACENTERACCESS1 , new String[] {
 			EngineDB.getInteger( datacenter.ID )
 			}))
 			Common.exitUnexpected();
@@ -737,7 +737,7 @@ public class DBEngineAuth {
 	
 	public static void deleteNetworkAccess( EngineTransaction transaction , EngineAuth auth , Network network ) throws Exception {
 		DBConnection c = transaction.getConnection();
-		if( !c.update( DBQueries.MODIFY_AUTH_DROP_NETWORKACCESS1 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_AUTH_DROP_NETWORKACCESS1 , new String[] {
 			EngineDB.getInteger( network.ID )
 			}))
 			Common.exitUnexpected();
@@ -752,7 +752,7 @@ public class DBEngineAuth {
 
 	public static void deleteProductAccess( EngineTransaction transaction , EngineAuth auth , AppProduct product ) throws Exception {
 		DBConnection c = transaction.getConnection();
-		if( !c.update( DBQueries.MODIFY_AUTH_DROP_PRODUCTACCESS1 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_AUTH_DROP_PRODUCTACCESS1 , new String[] {
 			EngineDB.getInteger( product.ID )
 			}))
 			Common.exitUnexpected();
@@ -767,7 +767,7 @@ public class DBEngineAuth {
 
 	public static void deleteResourceAccess( EngineTransaction transaction , EngineAuth auth , AuthResource resource ) throws Exception {
 		DBConnection c = transaction.getConnection();
-		if( !c.update( DBQueries.MODIFY_AUTH_DROP_RESOURCEACCESS1 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_AUTH_DROP_RESOURCEACCESS1 , new String[] {
 			EngineDB.getInteger( resource.ID )
 			}))
 			Common.exitUnexpected();
@@ -823,19 +823,19 @@ public class DBEngineAuth {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
 		
-		if( !c.update( DBQueries.MODIFY_AUTH_DROPGROUP_RESOURCEACCESS1 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_AUTH_DROPGROUP_RESOURCEACCESS1 , new String[] {
 				EngineDB.getInteger( group.ID )
 				}))
 				Common.exitUnexpected();
-		if( !c.update( DBQueries.MODIFY_AUTH_DROPGROUP_PRODUCTACCESS1 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_AUTH_DROPGROUP_PRODUCTACCESS1 , new String[] {
 				EngineDB.getInteger( group.ID )
 				}))
 				Common.exitUnexpected();
-		if( !c.update( DBQueries.MODIFY_AUTH_DROPGROUP_NETWORKACCESS1 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_AUTH_DROPGROUP_NETWORKACCESS1 , new String[] {
 				EngineDB.getInteger( group.ID )
 				}))
 				Common.exitUnexpected();
-		if( !c.update( DBQueries.MODIFY_AUTH_DROPGROUP_USERS1 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_AUTH_DROPGROUP_USERS1 , new String[] {
 				EngineDB.getInteger( group.ID )
 				}))
 				Common.exitUnexpected();
@@ -889,7 +889,7 @@ public class DBEngineAuth {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
 		
-		if( !c.update( DBQueries.MODIFY_AUTH_DROPUSER_GROUPS1 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_AUTH_DROPUSER_GROUPS1 , new String[] {
 				EngineDB.getInteger( user.ID )
 				}))
 				Common.exitUnexpected();

@@ -261,19 +261,19 @@ public abstract class DBSettings {
 	}
 
 	public static void dropObjectSettings( DBConnection c , int ownerId ) throws Exception {
-		if( !c.update( DBQueries.MODIFY_PARAM_DROPOWNERVALUES1 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_DROPOWNERVALUES1 , new String[] {
 				EngineDB.getInteger( ownerId )
 				} ) )
 			Common.exitUnexpected();
-		if( !c.update( DBQueries.MODIFY_PARAM_DROPOWNERPARAMS1 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_DROPOWNERPARAMS1 , new String[] {
 				EngineDB.getInteger( ownerId )
 				} ) )
 			Common.exitUnexpected();
-		if( !c.update( DBQueries.MODIFY_PARAM_DROPOWNERENTITIES1 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_DROPOWNERENTITIES1 , new String[] {
 				EngineDB.getInteger( ownerId )
 				} ) )
 			Common.exitUnexpected();
-		if( !c.update( DBQueries.MODIFY_PARAM_DROPOBJECTVALUES1 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTVALUES1 , new String[] {
 				EngineDB.getInteger( ownerId )
 				} ) )
 			Common.exitUnexpected();
@@ -283,17 +283,17 @@ public abstract class DBSettings {
 		int paramObjectId = entity.PARAM_OBJECT_ID;
 		DBEnumParamEntityType entityType = entity.PARAMENTITY_TYPE;
 		
-		if( !c.update( DBQueries.MODIFY_PARAM_DROPENTITYVALUES2 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_DROPENTITYVALUES2 , new String[] {
 				EngineDB.getInteger( paramObjectId ) ,
 				EngineDB.getEnum( entityType ) 
 				} ) )
 			Common.exitUnexpected();
-		if( !c.update( DBQueries.MODIFY_PARAM_DROPENTITYPARAMS2 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_DROPENTITYPARAMS2 , new String[] {
 				EngineDB.getInteger( paramObjectId ) ,
 				EngineDB.getEnum( entityType ) 
 				} ) )
 			Common.exitUnexpected();
-		if( !c.update( DBQueries.MODIFY_PARAM_DROPENTITY2 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_DROPENTITY2 , new String[] {
 				EngineDB.getInteger( paramObjectId ) ,
 				EngineDB.getEnum( entityType ) 
 				} ) )
@@ -325,7 +325,7 @@ public abstract class DBSettings {
 
 	private static void insertEntity( DBConnection c , PropertyEntity entity , int version ) throws Exception {
 		entity.VERSION = version;
-		if( !c.update( DBQueries.MODIFY_PARAM_ADDENTITY11 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_ADDENTITY11 , new String[] {
 			EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
 			EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 			EngineDB.getBoolean( entity.CUSTOM ) ,
@@ -345,7 +345,7 @@ public abstract class DBSettings {
 		var.PARAM_ID = DBNames.getNameIndex( c , entity.PARAM_OBJECT_ID , var.NAME , DBEnumObjectType.PARAM );
 		var.VERSION = version;
 		String enumName = ( var.enumClass == null )? null : DBEnums.getEnumName( var.enumClass );
-		if( !c.update( DBQueries.MODIFY_PARAM_ADDPARAM15 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_ADDPARAM15 , new String[] {
 			EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
 			EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 			EngineDB.getInteger( var.PARAM_ID ) ,
@@ -369,7 +369,7 @@ public abstract class DBSettings {
 		DBNames.updateName( c , entity.PARAM_OBJECT_ID , var.NAME , var.PARAM_ID , DBEnumObjectType.PARAM );
 		var.VERSION = version;
 		String enumName = ( var.enumClass == null )? null : DBEnums.getEnumName( var.enumClass );
-		if( !c.update( DBQueries.MODIFY_PARAM_UPDATEPARAM15 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_UPDATEPARAM15 , new String[] {
 				EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
 				EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 				EngineDB.getInteger( var.PARAM_ID ) ,
@@ -391,15 +391,15 @@ public abstract class DBSettings {
 
 	private static void deleteVar( DBConnection c , EntityVar var , int version ) throws Exception {
 		var.VERSION = version;
-		if( !c.update( DBQueries.MODIFY_PARAM_DROPPARAMVALUES1 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_DROPPARAMVALUES1 , new String[] {
 				EngineDB.getInteger( var.PARAM_ID ) 
 				} ) )
 			Common.exitUnexpected();
-		if( !c.update( DBQueries.MODIFY_PARAM_DROPPARAM1 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_DROPPARAM1 , new String[] {
 				EngineDB.getInteger( var.PARAM_ID ) 
 				} ) )
 			Common.exitUnexpected();
-		if( !c.update( DBQueries.MODIFY_PARAM_DECREMENTENTITYINDEX3 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_DECREMENTENTITYINDEX3 , new String[] {
 				EngineDB.getInteger( var.entity.PARAM_OBJECT_ID ) ,
 				EngineDB.getEnum( var.entity.PARAMENTITY_TYPE ) ,
 				EngineDB.getInteger( var.ENTITYCOLUMN )
@@ -416,6 +416,9 @@ public abstract class DBSettings {
 	public static void loaddbEntity( EngineLoader loader , PropertyEntity entity , int paramObjectId ) throws Exception {
 		DBConnection c = loader.getConnection();
 		entity.PARAM_OBJECT_ID = paramObjectId;
+		entity.META_OBJECT_ID = ( entity.CUSTOM )? entity.PARAM_OBJECT_ID : DBVersions.APP_ID;
+		entity.VERSION = verifyEntity( c , entity );
+		
 		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETENTITYPARAMS2 , new String[] { 
 				EngineDB.getInteger( entity.PARAM_OBJECT_ID ) , 
 				EngineDB.getEnum( entity.PARAMENTITY_TYPE ) } );
@@ -447,7 +450,7 @@ public abstract class DBSettings {
 
 	public static void savedbPropertyValues( DBConnection c , int objectId , ObjectProperties properties , boolean saveApp , boolean saveCustom , int version ) throws Exception {
 		if( saveApp && saveCustom ) {
-			if( !c.update( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUES2 , new String[] {
+			if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUES2 , new String[] {
 					EngineDB.getInteger( objectId ) ,
 					EngineDB.getEnum( properties.type ) 
 					} ) )
@@ -455,14 +458,14 @@ public abstract class DBSettings {
 		}
 		else {
 			if( saveApp ) {
-				if( !c.update( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUESAPP2 , new String[] {
+				if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUESAPP2 , new String[] {
 						EngineDB.getInteger( objectId ) ,
 						EngineDB.getEnum( properties.type ) 
 						} ) )
 					Common.exitUnexpected();
 			}
 			if( saveCustom ) {
-				if( !c.update( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUESCUSTOM2 , new String[] {
+				if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUESCUSTOM2 , new String[] {
 					EngineDB.getInteger( objectId ) ,
 					EngineDB.getEnum( properties.type ) 
 					} ) )
@@ -482,7 +485,7 @@ public abstract class DBSettings {
 			if( saveCustom == false && var.isCustom() )
 				continue;
 			
-			if( !c.update( DBQueries.MODIFY_PARAM_ADDOBJECTPARAMVALUE7 , new String[] {
+			if( !c.modify( DBQueries.MODIFY_PARAM_ADDOBJECTPARAMVALUE7 , new String[] {
 					EngineDB.getInteger( objectId ) ,
 					EngineDB.getEnum( properties.type ) ,
 					EngineDB.getInteger( var.entity.PARAM_OBJECT_ID ) ,
@@ -602,6 +605,43 @@ public abstract class DBSettings {
 		
 		int version = c.getNextCoreVersion();
 		savedbPropertyValues( c , objectId , ops , true , false , version );
+	}
+
+	private static int verifyEntity( DBConnection c , PropertyEntity entity ) throws Exception {
+		ResultSet rc = c.query( DBQueries.QUERY_PARAM_ENTITY2 , new String[] {
+				EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
+				EngineDB.getEnum( entity.PARAMENTITY_TYPE ) 
+			} );
+		
+		if( rc == null )
+			Common.exitUnexpected();
+		
+		try {
+			if( rc.next() == false )
+				Common.exitUnexpected();
+				
+			if( rc.getBoolean( 1 ) != entity.CUSTOM )
+				Common.exitUnexpected();
+			if( rc.getBoolean( 2 ) != entity.USE_PROPS )
+				Common.exitUnexpected();
+			if( !Common.equalsStrings( rc.getString( 3 ) , entity.APP_TABLE ) )
+				Common.exitUnexpected();
+			if( !Common.equalsStrings( rc.getString( 4 ) , entity.ID_FIELD ) )
+				Common.exitUnexpected();
+			if( rc.getInt( 5 ) != entity.OBJECT_TYPE.code() )
+				Common.exitUnexpected();
+			if( rc.getInt( 6 ) != entity.META_OBJECT_ID )
+				Common.exitUnexpected();
+			if( rc.getInt( 7 ) != entity.META_OBJECTVERSION_TYPE.code() )
+				Common.exitUnexpected();
+			if( rc.getInt( 8 ) != entity.DATA_OBJECTVERSION_TYPE.code() )
+				Common.exitUnexpected();
+		
+			return( rc.getInt( 9 ) );
+		}
+		finally {
+			c.closeQuery();
+		}
 	}
 	
 }

@@ -81,6 +81,10 @@ public class EngineSettings extends EngineObject {
 		return( defaultProductProperties.getProperties() );
 	}
 
+	public ObjectProperties getDefaultProductSettigns() {
+		return( defaultProductProperties );
+	}
+
 	public PropertySet getDefaultProductBuildProperties() {
 		return( defaultProductBuildProperties.getProperties() );
 	}

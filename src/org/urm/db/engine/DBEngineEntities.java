@@ -47,7 +47,7 @@ public abstract class DBEngineEntities {
 		query += getFieldList( entity );
 		query += " ) values ( @values@ )";
 		
-		if( !c.update( query , valuesFinal ) )
+		if( !c.modify( query , valuesFinal ) )
 			Common.exitUnexpected();
 	}
 	
@@ -82,7 +82,7 @@ public abstract class DBEngineEntities {
 		query += fieldVersion + " = " + version;
 		query += " where " + entity.getIdField() + " = " + id;
 		
-		if( !c.update( query ) )
+		if( !c.modify( query ) )
 			Common.exitUnexpected();
 	}
 
@@ -97,13 +97,13 @@ public abstract class DBEngineEntities {
 			Common.exitUnexpected();
 		
 		String query = "delete from " + entity.APP_TABLE + " where " + entity.getIdField() + " = " + id;
-		if( !c.update( query ) )
+		if( !c.modify( query ) )
 			Common.exitUnexpected();
 	}
 	
 	public static void dropAppObjects( DBConnection c , PropertyEntity entity ) throws Exception {
 		String query = "delete from " + entity.APP_TABLE;
-		if( !c.update( query ) )
+		if( !c.modify( query ) )
 			Common.exitUnexpected();
 	}
 	

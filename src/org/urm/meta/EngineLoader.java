@@ -19,6 +19,7 @@ import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
 import org.urm.db.engine.DBEngineSettings;
 import org.urm.db.system.DBSystemData;
+import org.urm.db.upgrade.DBUpgrade;
 import org.urm.engine.Engine;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.EngineEntities;
@@ -239,6 +240,10 @@ public class EngineLoader {
 		return( propertyFile );
 	}
 
+	public static boolean getVersionUpgradeState() {
+		return( Common.getBooleanValue( System.getProperty( "autoupgrade" ) ) );
+	}
+
 	public static boolean getInitialUpdateState() {
 		return( Common.getBooleanValue( System.getProperty( "dbupdate" ) ) );
 	}
@@ -278,8 +283,12 @@ public class EngineLoader {
 		trace( "load meta ..." );
 		getConnection();
 		int version = connection.getCurrentAppVersion();
-		if( version != EngineDB.APP_VERSION )
-			Common.exit2( _Error.InvalidVersion2 , "Mismatched engine/database, engine version=" + EngineDB.APP_VERSION + ", database version=" + version , "" + EngineDB.APP_VERSION , "" + version );
+		if( version != EngineDB.APP_VERSION ) {
+			if( getVersionUpgradeState() )
+				DBUpgrade.upgrade( this , EngineDB.APP_VERSION , version );
+			else
+				Common.exit2( _Error.InvalidVersion2 , "Mismatched engine/database, engine version=" + EngineDB.APP_VERSION + ", database version=" + version , "" + EngineDB.APP_VERSION , "" + version );
+		}
 		else
 			trace( "using database version=" + version );
 		

@@ -125,7 +125,7 @@ public abstract class DBAppSystem {
 		DBConnection c = loader.getConnection();
 		
 		system.SV = c.getNextSystemVersion( system );
-		if( !c.update( DBQueries.MODIFY_SYSTEM_MATCHED3 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_SYSTEM_MATCHED3 , new String[] {
 				EngineDB.getInteger( system.ID ) , 
 				EngineDB.getBoolean( system.MATCHED ) ,
 				EngineDB.getInteger( system.SV ) 

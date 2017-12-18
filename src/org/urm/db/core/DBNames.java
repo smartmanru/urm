@@ -58,7 +58,7 @@ public abstract class DBNames {
 			return( value );
 			
 		int valueSeq = getNextSequenceValue( c );
-		if( !c.update( DBQueries.MODIFY_NAMES_MERGEITEM4 , new String[] { "" + parent , "" + type.code() , EngineDB.getString( name ) , "" + valueSeq } ) )
+		if( !c.modify( DBQueries.MODIFY_NAMES_MERGEITEM4 , new String[] { "" + parent , "" + type.code() , EngineDB.getString( name ) , "" + valueSeq } ) )
 			Common.exitUnexpected();
 				
 		map.put( key , valueSeq );
@@ -72,7 +72,7 @@ public abstract class DBNames {
 		if( value != null && value == id )
 			return;
 		
-		if( !c.update( DBQueries.MODIFY_NAMES_MERGEITEM4 , new String[] { "" + parent , "" + type.code() , EngineDB.getString( name ) , "" + id } ) )
+		if( !c.modify( DBQueries.MODIFY_NAMES_MERGEITEM4 , new String[] { "" + parent , "" + type.code() , EngineDB.getString( name ) , "" + id } ) )
 			Common.exitUnexpected();
 		
 		map.put( key , id );

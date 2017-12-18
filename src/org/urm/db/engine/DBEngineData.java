@@ -32,10 +32,10 @@ public abstract class DBEngineData {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = c.getEntities();
 		boolean res = true;
-		res = ( res )? c.update( DBQueries.MODIFY_AUTH_DROP_ACCESSPRODUCT0 ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_AUTH_DROP_ACCESSRESOURCE0 ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_AUTH_DROP_ACCESSNETWORK0 ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_AUTH_DROP_GROUPUSERS0 ) : false;
+		res = ( res )? c.modify( DBQueries.MODIFY_AUTH_DROP_ACCESSPRODUCT0 ) : false;
+		res = ( res )? c.modify( DBQueries.MODIFY_AUTH_DROP_ACCESSRESOURCE0 ) : false;
+		res = ( res )? c.modify( DBQueries.MODIFY_AUTH_DROP_ACCESSNETWORK0 ) : false;
+		res = ( res )? c.modify( DBQueries.MODIFY_AUTH_DROP_GROUPUSERS0 ) : false;
 		DBEngineEntities.dropAppObjects( c , entities.entityAppAuthUser );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppAuthGroup );
 		if( !res )
@@ -63,7 +63,7 @@ public abstract class DBEngineData {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = c.getEntities();
 		boolean res = true;
-		res = ( res )? c.update( DBQueries.MODIFY_BASE_DROP_ITEMDEPS0 ) : false;
+		res = ( res )? c.modify( DBQueries.MODIFY_BASE_DROP_ITEMDEPS0 ) : false;
 		DBEngineEntities.dropAppObjects( c , entities.entityAppBaseItem );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppBaseGroup );
 		if( !res )
@@ -74,8 +74,8 @@ public abstract class DBEngineData {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = c.getEntities();
 		boolean res = true;
-		res = ( res )? c.update( DBQueries.MODIFY_CORE_DROP_PARAMVALUE1 , new String[] { "" + DBVersions.CORE_ID } ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_CORE_DROP_PARAM1 , new String[] { "" + DBVersions.CORE_ID } ) : false;
+		res = ( res )? c.modify( DBQueries.MODIFY_CORE_DROP_PARAMVALUE1 , new String[] { "" + DBVersions.CORE_ID } ) : false;
+		res = ( res )? c.modify( DBQueries.MODIFY_CORE_DROP_PARAM1 , new String[] { "" + DBVersions.CORE_ID } ) : false;
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMirror );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppResource );
 		if( !res )

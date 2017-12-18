@@ -1079,6 +1079,20 @@ public class Common {
 		return( false );
 	}
 	
+	public static boolean equalsStrings( String v1 , String v2 ) {
+		if( v1 == null && v2 == null )
+			return( true );
+		if( v1 == null && v2.isEmpty() )
+			return( true );
+		if( v2 == null && v1.isEmpty() )
+			return( true );
+		if( v1 == null || v2 == null )
+			return( false );
+		if( v1.equals( v2 ) )
+			return( true );
+		return( false );
+	}
+	
 	public static String getGrepMask( ActionBase action , String baseName , boolean addDotSlash , String EXT ) throws Exception {
 		if( addDotSlash )
 			return( "./" + baseName + EXT + 

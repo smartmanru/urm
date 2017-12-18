@@ -328,6 +328,7 @@ public abstract class DBEnums {
 		UNKNOWN(0,null) ,
 		RC(11,null) ,
 		ENGINE(12,null) ,
+		PRODUCTCTX(61,null) ,
 		PRODUCTDEFS(13,null) ,
 		PRODUCTBUILD(14,null) ,
 		BASEGROUP(15,null) ,
@@ -480,13 +481,13 @@ public abstract class DBEnums {
 	}
     
     public static void updateDatabase( DBConnection connection ) throws Exception {
-    	connection.update( DBQueries.MODIFY_ENUMS_DROP0 );
+    	connection.modify( DBQueries.MODIFY_ENUMS_DROP0 );
     	
     	for( DBEnumInfo e : enums ) {
     		String name = getEnumName( e.enumClass );
     		int enumId = e.enumID;
     		
-    		if( !connection.update( DBQueries.MODIFY_ENUMS_ADD4 , new String[] { "0" , "" + enumId , EngineDB.getString( name ) , "" + EngineDB.APP_VERSION } ) )
+    		if( !connection.modify( DBQueries.MODIFY_ENUMS_ADD4 , new String[] { "0" , "" + enumId , EngineDB.getString( name ) , "" + EngineDB.APP_VERSION } ) )
     			Common.exitUnexpected();
     		
     		for( Object object : e.enumClass.getEnumConstants() ) {
@@ -495,7 +496,7 @@ public abstract class DBEnums {
     			Enum<?> ev = ( Enum<?> )object;
     			String elementName = ev.name().toLowerCase();
     			
-        		if( !connection.update( DBQueries.MODIFY_ENUMS_ADD4 , new String[] { "" + enumId , "" + elementValue , EngineDB.getString( elementName ) , "" + EngineDB.APP_VERSION } ) )
+        		if( !connection.modify( DBQueries.MODIFY_ENUMS_ADD4 , new String[] { "" + enumId , "" + elementValue , EngineDB.getString( elementName ) , "" + EngineDB.APP_VERSION } ) )
         			Common.exitUnexpected();
     		}
     	}

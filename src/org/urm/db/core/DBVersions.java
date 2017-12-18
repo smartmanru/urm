@@ -39,7 +39,7 @@ public abstract class DBVersions {
 
 	public static void setNextVersion( DBConnection c , OwnerObjectVersion version , int value ) throws Exception {
 		version.nextVersion = value;
-		if( !c.update( DBQueries.MODIFY_VERSIONS_MERGEVERSION6 , new String[] { 
+		if( !c.modify( DBQueries.MODIFY_VERSIONS_MERGEVERSION6 , new String[] { 
 				EngineDB.getInteger( version.OWNER_OBJECT_ID ) , 
 				EngineDB.getInteger( version.nextVersion ) , 
 				EngineDB.getEnum( version.OBJECT_VERSION_TYPE ) ,

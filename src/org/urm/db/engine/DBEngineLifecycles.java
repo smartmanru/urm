@@ -363,7 +363,7 @@ public class DBEngineLifecycles {
 		}
 		lc.setPhases( phasesNew );
 		
-		if( !c.update( DBQueries.MODIFY_LIFECYCLE_DROPPHASES1 , new String[] { 
+		if( !c.modify( DBQueries.MODIFY_LIFECYCLE_DROPPHASES1 , new String[] { 
 				EngineDB.getInteger( lc.ID )
 			} ))
 			transaction.exitUnexpectedState();

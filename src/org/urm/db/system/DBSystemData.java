@@ -13,8 +13,8 @@ public class DBSystemData {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = c.getEntities();
 		boolean res = true;
-		res = ( res )? c.update( DBQueries.MODIFY_APP_DROP_SYSTEMPARAMVALUES0 ) : false;
-		res = ( res )? c.update( DBQueries.MODIFY_APP_DROP_SYSTEMPARAMS0 ) : false;
+		res = ( res )? c.modify( DBQueries.MODIFY_APP_DROP_SYSTEMPARAMVALUES0 ) : false;
+		res = ( res )? c.modify( DBQueries.MODIFY_APP_DROP_SYSTEMPARAMS0 ) : false;
 		DBEngineEntities.dropAppObjects( c , entities.entityAppDirectoryProduct );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppDirectorySystem );
 		if( !res )

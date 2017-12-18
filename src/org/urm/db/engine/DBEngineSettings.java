@@ -18,6 +18,7 @@ import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.EngineContext;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -29,6 +30,28 @@ public abstract class DBEngineSettings {
 	public static String ELEMENT_BUILD = "build"; 
 	public static String ELEMENT_MODE = "mode";
 	public static String MODE_ATTR_NAME = "name";
+	
+	public static PropertyEntity upgradeEntityProductContext( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.APPPRODUCT , DBEnumParamEntityType.PRODUCTCTX , DBEnumObjectVersionType.PRODUCT );
+		DBEnumOSType ostype = DBEnumOSType.getValue( loader.execrc.osType );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaString( MetaProductCoreSettings.PROPERTY_PRODUCT_NAME , "Product Name" , true , null ) ,
+				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_PRODUCT_HOME , "Product Home" , true , null , ostype ) ,
+				EntityVar.metaInteger( MetaProductCoreSettings.PROPERTY_VERSION_BRANCH_MAJOR , "Version Major Number" , false , null ) ,
+				EntityVar.metaInteger( MetaProductCoreSettings.PROPERTY_VERSION_BRANCH_MINOR , "Version Minor Number" , false , null ) ,
+				EntityVar.metaInteger( MetaProductCoreSettings.PROPERTY_VERSION_BRANCH_NEXTMAJOR , "Next Major Number" , false , null ) ,
+				EntityVar.metaInteger( MetaProductCoreSettings.PROPERTY_VERSION_BRANCH_NEXTMINOR , "Next Minor Number" , false , null ) ,
+				EntityVar.metaInteger( MetaProductCoreSettings.PROPERTY_LASTPRODTAG , "Last Tag Number" , false , null ) ,
+				EntityVar.metaInteger( MetaProductCoreSettings.PROPERTY_NEXTPRODTAG , "Next Tag Number" , false , null )
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityProductContext( EngineLoader loader ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.APPPRODUCT , DBEnumParamEntityType.PRODUCTCTX , DBEnumObjectVersionType.PRODUCT );
+		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		return( entity );
+	}
 	
 	public static PropertyEntity upgradeEntityProductSettings( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
