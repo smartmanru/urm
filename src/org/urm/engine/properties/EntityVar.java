@@ -50,8 +50,8 @@ public class EntityVar {
 
 	public void modifyCustom( String name , String desc , String defvalue ) {
 		this.NAME = name;
-		this.DESC = desc;
-		this.EXPR_DEF = ( defvalue == null )? "" : defvalue;
+		this.DESC = Common.nonull( desc );
+		this.EXPR_DEF = Common.nonull( defvalue );
 	}
 	
 	public boolean isDefaultEmpty() {
@@ -193,14 +193,14 @@ public class EntityVar {
 	public static EntityVar meta( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , DBEnumParamValueType type , DBEnumParamValueSubtype subtype , DBEnumObjectType objectType , boolean required , String defValue , Class<?> enumClass ) {
 		EntityVar var = new EntityVar();
 		var.NAME = propertyKey;
-		var.DBNAME = propertyDatabaseKey;
-		var.XMLNAME = propertyXmlKey;
-		var.DESC = propertyDesc;
+		var.DBNAME = Common.nonull( propertyDatabaseKey );
+		var.XMLNAME = Common.nonull( propertyXmlKey );
+		var.DESC = Common.nonull( propertyDesc );
 		var.PARAMVALUE_TYPE = type;
 		var.PARAMVALUE_SUBTYPE = subtype;
 		var.OBJECT_TYPE = objectType;
 		var.REQUIRED = required;
-		var.EXPR_DEF = ( defValue == null )? "" : defValue;
+		var.EXPR_DEF = Common.nonull( defValue );
 		var.enumClass = enumClass;
 		return( var );
 	}
