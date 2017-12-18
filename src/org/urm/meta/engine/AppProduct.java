@@ -1,6 +1,7 @@
 package org.urm.meta.engine;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.product.Meta;
@@ -77,7 +78,7 @@ public class AppProduct extends EngineObject {
 
 	public void modifyProduct( String name , String desc , String path ) throws Exception {
 		this.NAME = name;
-		this.DESC = desc;
+		this.DESC = Common.nonull( desc );
 		this.PATH = path;
 	}
 	

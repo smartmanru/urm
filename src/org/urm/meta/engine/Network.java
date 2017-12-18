@@ -87,8 +87,8 @@ public class Network extends EngineObject {
 
 	public void modifyNetwork( String name , String desc , String mask ) throws Exception {
 		this.NAME = name;
-		this.DESC = desc;
-		this.MASK = mask;
+		this.DESC = Common.nonull( desc );
+		this.MASK = Common.nonull( mask );
 	}
 
 	public String[] getFinalAccounts() {

@@ -79,7 +79,7 @@ public class Datacenter extends EngineObject {
 
 	public void modifyDatacenter( String name , String desc ) throws Exception {
 		this.NAME = name;
-		this.DESC = desc;
+		this.DESC = Common.nonull( desc );
 	}
 
 	public void updateNetwork( Network network ) throws Exception {

@@ -2,6 +2,7 @@ package org.urm.meta.engine;
 
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
+import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 
 public class BaseItem extends EngineObject {
@@ -83,7 +84,7 @@ public class BaseItem extends EngineObject {
 	
 	public void modifyBaseItem( String name , String desc ) throws Exception {
 		this.NAME = name;
-		this.DESC = desc;
+		this.DESC = Common.nonull( desc );
 		p.setStringProperty( PROPERTY_NAME , NAME );
 		p.setStringProperty( PROPERTY_DESC , DESC );
 	}
@@ -169,18 +170,18 @@ public class BaseItem extends EngineObject {
 	}
 	
 	public void modifyData( String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
-		this.BASENAME = name;
-		this.BASEVERSION = version;
+		this.BASENAME = Common.nonull( name );
+		this.BASEVERSION = Common.nonull( version );
 		
 		this.OS_TYPE = ostype;
 		this.SERVERACCESS_TYPE = accessType;
 		this.BASESRC_TYPE = srcType;
 		this.BASESRCFORMAT_TYPE = srcFormat;
 		
-		this.SRCFILE = SRCFILE;
-		this.SRCFILEDIR = SRCFILEDIR;
-		this.INSTALLPATH = INSTALLPATH;
-		this.INSTALLLINK = INSTALLLINK;
+		this.SRCFILE = Common.nonull( SRCFILE );
+		this.SRCFILEDIR = Common.nonull( SRCFILEDIR );
+		this.INSTALLPATH = Common.nonull( INSTALLPATH );
+		this.INSTALLLINK = Common.nonull( INSTALLLINK );
 		
 		p.setEnumProperty( BaseItem.PROPERTY_BASESRC_TYPE , BASESRC_TYPE );
 		p.setEnumProperty( BaseItem.PROPERTY_BASESRCFORMAT_TYPE , BASESRCFORMAT_TYPE );

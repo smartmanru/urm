@@ -42,15 +42,19 @@ public class AppSystem extends EngineObject {
 	}
 	
 	public void createSystem( String name , String desc ) throws Exception {
-		this.NAME = name;
-		this.DESC = desc;
+		modifySystem( name , desc );
 		this.OFFLINE = true;
 		this.MATCHED = true;
-		parameters.setStringProperty( PROPERTY_NAME , NAME );
-		parameters.setStringProperty( PROPERTY_DESC , DESC );
 		parameters.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 	}
 	
+	public void modifySystem( String name , String desc ) throws Exception {
+		NAME = name;
+		DESC = Common.nonull( desc );
+		parameters.setStringProperty( PROPERTY_NAME , NAME );
+		parameters.setStringProperty( PROPERTY_DESC , DESC );
+	}
+
 	public void setOffline( boolean offline ) throws Exception {
 		this.OFFLINE = offline;
 		parameters.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
@@ -91,13 +95,6 @@ public class AppSystem extends EngineObject {
 
 	public AppProduct findProduct( String key ) {
 		return( mapProducts.get( key ) );
-	}
-
-	public void modifySystem( String name , String desc ) throws Exception {
-		NAME = name;
-		DESC = desc;
-		parameters.setStringProperty( PROPERTY_NAME , NAME );
-		parameters.setStringProperty( PROPERTY_DESC , DESC );
 	}
 
 	public void addProduct( AppProduct product ) {

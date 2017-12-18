@@ -1,5 +1,7 @@
 package org.urm.meta.engine;
 
+import org.urm.common.Common;
+
 public class AuthLdapUser {
 
 	public String name;
@@ -8,8 +10,8 @@ public class AuthLdapUser {
 	
 	public AuthLdapUser( String name , String email , String displayName ) {
 		this.name = name;
-		this.email = email;
-		this.displayName = displayName;
+		this.email = Common.nonull( email );
+		this.displayName = Common.nonull( displayName );
 	}
 	
 }

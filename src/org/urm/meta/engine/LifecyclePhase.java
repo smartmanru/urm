@@ -1,5 +1,6 @@
 package org.urm.meta.engine;
 
+import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.meta.EngineObject;
 
@@ -55,7 +56,7 @@ public class LifecyclePhase extends EngineObject {
 	
 	public void modifyPhase( String name , String desc , DBEnumLifecycleStageType stage , int pos , boolean unlimited , boolean startDay , int days ) throws Exception {
 		this.NAME = name;
-		this.DESC = desc;
+		this.DESC = Common.nonull( desc );
 		this.LIFECYCLESTAGE_TYPE = stage;
 		this.STAGE_POS = pos;
 		this.UNLIMITED = unlimited;

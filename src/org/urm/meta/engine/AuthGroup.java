@@ -59,7 +59,7 @@ public class AuthGroup {
 	
 	public void modifyGroup( String name , String desc ) {
 		this.NAME = name;
-		this.DESC = desc;
+		this.DESC = Common.nonull( desc );
 	}
 	
 	public boolean hasResource( Integer resource ) {

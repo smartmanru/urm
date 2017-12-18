@@ -1,5 +1,6 @@
 package org.urm.meta.engine;
 
+import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.meta.EngineObject;
 
@@ -86,15 +87,15 @@ public class MirrorRepository extends EngineObject {
 	
 	public void modifyRepository( String name , String desc , DBEnumMirrorType type ) throws Exception {
 		this.NAME = name;
-		this.DESC = desc;
+		this.DESC = Common.nonull( desc );
 		this.MIRROR_TYPE = type;
 	}
 	
 	public void setMirror( Integer resourceId , String reponame , String reporoot , String dataroot ) throws Exception {
 		this.RESOURCE_ID = resourceId;
-		this.RESOURCE_REPO = reponame;
-		this.RESOURCE_ROOT = ( reporoot != null && reporoot.isEmpty() )? "/" : reporoot;
-		this.RESOURCE_DATA = ( dataroot != null && dataroot.isEmpty() )? "/" : dataroot;
+		this.RESOURCE_REPO = Common.nonull( reponame );
+		this.RESOURCE_ROOT = ( reporoot != null && reporoot.isEmpty() )? "/" : Common.nonull( reporoot );
+		this.RESOURCE_DATA = ( dataroot != null && dataroot.isEmpty() )? "/" : Common.nonull( dataroot );
 	}
 	
 	public void clearMirror() throws Exception {

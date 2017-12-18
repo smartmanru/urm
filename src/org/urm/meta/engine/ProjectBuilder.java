@@ -1,6 +1,7 @@
 package org.urm.meta.engine;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
@@ -152,29 +153,29 @@ public class ProjectBuilder extends EngineObject {
 		
 	public void modifyBuilder( String name , String desc , String version ) {
 		this.NAME = name;
-		this.DESC = desc;
-		this.VERSION = version;
+		this.DESC = Common.nonull( desc );
+		this.VERSION = Common.nonull( version );
 	}
 
 	public void setMethodData( DBEnumBuilderMethodType type , String command , String home , String options , String jdkpath ) {
 		this.BUILDER_METHOD_TYPE = type;
-		this.BUILDER_COMMAND = command;
-		this.BUILDER_HOMEPATH = home;
-		this.BUILDER_OPTIONS = options;
-		this.JAVA_JDKHOMEPATH = jdkpath;
+		this.BUILDER_COMMAND = Common.nonull( command );
+		this.BUILDER_HOMEPATH = Common.nonull( home );
+		this.BUILDER_OPTIONS = Common.nonull( options );
+		this.JAVA_JDKHOMEPATH = Common.nonull( jdkpath );
 	}
 	
 	public void setTargetData( DBEnumBuilderTargetType type , Integer resourceId , String targetpath , String platform ) {
 		this.BUILDER_TARGET_TYPE = type;
 		this.TARGET_RESOURCE_ID = resourceId; 
-		this.TARGET_PATH = targetpath;
-		this.TARGET_PLATFORM = platform;
+		this.TARGET_PATH = Common.nonull( targetpath );
+		this.TARGET_PLATFORM = Common.nonull( platform );
 	}
 	
 	public void setRemoteData( boolean remote , DBEnumOSType osType , String hostLogin , int port , Integer resourceId ) {
 		this.REMOTE = remote;
 		this.REMOTE_OS_TYPE = osType;
-		this.REMOTE_HOSTLOGIN = hostLogin;
+		this.REMOTE_HOSTLOGIN = Common.nonull( hostLogin );
 		this.REMOTE_PORT = port;
 		this.REMOTE_AUTH_RESOURCE_ID = resourceId;
 	}

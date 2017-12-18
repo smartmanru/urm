@@ -135,7 +135,7 @@ public class ReleaseLifecycle extends EngineObject {
 	
 	public void modifyLifecycle( String name , String desc , DBEnumLifecycleType type ) throws Exception {
 		this.NAME = name;
-		this.DESC = desc;
+		this.DESC = Common.nonull( desc );
 		this.LIFECYCLE_TYPE = type;
 	}
 	

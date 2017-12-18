@@ -7,6 +7,7 @@ import org.urm.engine.shell.EngineShellPool;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.meta.EngineObject;
+import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 
 public class AuthResource extends EngineObject {
@@ -105,14 +106,14 @@ public class AuthResource extends EngineObject {
 	
 	public void modifyResource( String name , String desc , DBEnumResourceType type , String baseurl ) throws Exception {
 		NAME = name;
-		DESC = desc;
+		DESC = Common.nonull( desc );
 		
 		if( type != RESOURCE_TYPE ||
 			baseurl.equals( BASEURL ) == false )
 			VERIFIED = false;
 			
 		RESOURCE_TYPE = type;
-		BASEURL = baseurl;
+		BASEURL = Common.nonull( baseurl );
 		
 		ac = null;
 	}

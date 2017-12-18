@@ -83,9 +83,9 @@ public class NetworkHost extends EngineObject {
 	
 	public void modifyHost( String name , String desc , DBEnumOSType osType , String ip , int port ) throws Exception {
 		this.OS_TYPE = osType;
-		this.NAME = ( name.isEmpty() )? IP : name;
-		this.DESC = desc;
-		this.IP = ip;
+		this.NAME = ( name == null || name.isEmpty() )? Common.nonull( ip ) : name;
+		this.DESC = Common.nonull( desc );
+		this.IP = Common.nonull( ip );
 		this.PORT = port;
 	}
 

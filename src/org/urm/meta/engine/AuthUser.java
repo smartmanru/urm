@@ -1,5 +1,7 @@
 package org.urm.meta.engine;
 
+import org.urm.common.Common;
+
 public class AuthUser {
 
 	public static String PROPERTY_NAME = "name";
@@ -31,8 +33,8 @@ public class AuthUser {
 	public void modifyUser( String name , String desc , String full , String email , boolean admin , boolean local ) {
 		this.LOCAL = local;
 		this.NAME = name;
-		this.EMAIL = email;
-		this.FULLNAME = full;
+		this.EMAIL = Common.nonull( email );
+		this.FULLNAME = Common.nonull( full );
 		this.ADMIN = admin;
 	}
 	

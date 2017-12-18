@@ -3,6 +3,7 @@ package org.urm.meta.engine;
 import java.util.List;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineObject;
 import org.urm.meta.product.Meta;
@@ -57,7 +58,7 @@ public class HostAccount extends EngineObject {
 	
 	public void modifyAccount( String user , String desc , boolean isAdmin , Integer resource_id ) throws Exception {
 		this.NAME = user;
-		this.DESC = desc;
+		this.DESC = Common.nonull( desc );
 		this.ADMIN = isAdmin;
 		this.RESOURCE_ID = resource_id;
 	}

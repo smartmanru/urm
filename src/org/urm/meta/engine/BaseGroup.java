@@ -86,7 +86,7 @@ public class BaseGroup extends EngineObject {
 	
 	public void modifyGroup( String name , String desc ) throws Exception {
 		this.NAME = name;
-		this.DESC = desc;
+		this.DESC = Common.nonull( desc );
 	}
 	
 	public void setOffline( boolean offline ) {

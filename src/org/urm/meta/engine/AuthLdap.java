@@ -173,7 +173,7 @@ public class AuthLdap {
 	}
 	
 	private String getUserFilter( boolean allUsers , String userFilter ) {
-		String filter = userFilter;
+		String filter = Common.nonull( userFilter );
 		if( filter.isEmpty() ) {
 			if( userClass.isEmpty() ) {
 				if( allUsers )
