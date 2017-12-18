@@ -102,7 +102,7 @@ public abstract class DBSettings {
 	public static void importxmlSave( EngineLoader loader , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean saveApp , int version ) throws Exception {
 		DBConnection c = loader.getConnection();
 		savedbEntityCustom( c , properties , paramObjectId , metaObjectId , version );
-		savedbPropertyValues( c , paramObjectId , properties , saveApp , version );
+		savedbPropertyValues( c , paramObjectId , properties , saveApp , true , version );
 	}
 	
 	public static void exportxml( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
@@ -430,7 +430,7 @@ public abstract class DBSettings {
 						rs.getString( 4 ) , 
 						rs.getString( 5 ) , 
 						DBEnumParamValueType.getValue( rs.getInt( 6 ) , true ) , 
-						DBEnumParamValueSubtype.getValue( rs.getInt( 7 ) , true ) ,
+						DBEnumParamValueSubtype.getValue( rs.getInt( 7 ) , false ) ,
 						DBEnumObjectType.getValue( rs.getInt( 8 ) , false ) ,
 						rs.getBoolean( 10 ) , 
 						rs.getString( 11 ) ,
@@ -445,12 +445,30 @@ public abstract class DBSettings {
 		}
 	}
 
-	public static void savedbPropertyValues( DBConnection c , int objectId , ObjectProperties properties , boolean saveApp , int version ) throws Exception {
-		if( !c.update( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUES2 , new String[] {
-				EngineDB.getInteger( objectId ) ,
-				EngineDB.getEnum( properties.type ) 
-				} ) )
-			Common.exitUnexpected();
+	public static void savedbPropertyValues( DBConnection c , int objectId , ObjectProperties properties , boolean saveApp , boolean saveCustom , int version ) throws Exception {
+		if( saveApp && saveCustom ) {
+			if( !c.update( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUES2 , new String[] {
+					EngineDB.getInteger( objectId ) ,
+					EngineDB.getEnum( properties.type ) 
+					} ) )
+				Common.exitUnexpected();
+		}
+		else {
+			if( saveApp ) {
+				if( !c.update( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUESAPP2 , new String[] {
+						EngineDB.getInteger( objectId ) ,
+						EngineDB.getEnum( properties.type ) 
+						} ) )
+					Common.exitUnexpected();
+			}
+			if( saveCustom ) {
+				if( !c.update( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUESCUSTOM2 , new String[] {
+					EngineDB.getInteger( objectId ) ,
+					EngineDB.getEnum( properties.type ) 
+					} ) )
+				Common.exitUnexpected();
+			}
+		}
 
 		PropertySet set = properties.getProperties();
 		for( PropertyValue value : set.getAllProperties() ) {
@@ -460,6 +478,8 @@ public abstract class DBSettings {
 			
 			EntityVar var = properties.getVar( value.property );
 			if( saveApp == false && var.isApp() )
+				continue;
+			if( saveCustom == false && var.isCustom() )
 				continue;
 			
 			if( !c.update( DBQueries.MODIFY_PARAM_ADDOBJECTPARAMVALUE7 , new String[] {
@@ -570,5 +590,12 @@ public abstract class DBSettings {
 		return( version );
 	}
 
+	public static void modifyCustomValues( EngineTransaction transaction , ObjectProperties ops ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		int version = c.getNextCoreVersion();
+		savedbPropertyValues( c , DBVersions.CORE_ID , ops , false , true , version );
+	}
+	
 }
 

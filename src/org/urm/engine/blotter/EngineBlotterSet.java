@@ -279,13 +279,4 @@ public class EngineBlotterSet extends EngineEventsSource {
 		return( null );
 	}
 
-	public boolean checkLifecycleUsed( String LC ) {
-		for( EngineBlotterItem item : items.values() ) {
-			EngineBlotterReleaseItem releaseItem = ( EngineBlotterReleaseItem )item;
-			if( LC.equals( releaseItem.repoItem.dist.release.schedule.LIFECYCLE ) )
-				return( true );
-		}
-		return( false );
-	}
-
 }

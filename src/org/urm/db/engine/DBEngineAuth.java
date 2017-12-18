@@ -786,7 +786,7 @@ public class DBEngineAuth {
 		ldap.setNotUse();
 		
 		int version = c.getNextLocalVersion();
-		DBSettings.savedbPropertyValues( c , DBVersions.LOCAL_ID , ldap.getLdapSettings() , true , version );
+		DBSettings.savedbPropertyValues( c , DBVersions.LOCAL_ID , ldap.getLdapSettings() , true , false , version );
 	}
 	
 	public static void enableLdap( EngineTransaction transaction , EngineAuth auth , ObjectProperties ops ) throws Exception {
@@ -795,7 +795,7 @@ public class DBEngineAuth {
 		ldap.setLdapSettings( ops );
 		
 		int version = c.getNextLocalVersion();
-		DBSettings.savedbPropertyValues( c , DBVersions.LOCAL_ID , ldap.getLdapSettings() , true , version );
+		DBSettings.savedbPropertyValues( c , DBVersions.LOCAL_ID , ldap.getLdapSettings() , true , false , version );
 		
 		ldap.start( transaction.getAction() );
 	}

@@ -7,9 +7,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.blotter.EngineBlotterSet;
 import org.urm.engine.Engine;
-import org.urm.engine.blotter.EngineBlotter.BlotterType;
 import org.urm.meta.EngineObject;
 
 public class EngineLifecycles extends EngineObject {
@@ -88,11 +86,4 @@ public class EngineLifecycles extends EngineObject {
 		lcMapById.remove( lc.ID );
 	}
 
-	public boolean isUsed( ReleaseLifecycle lc ) {
-		EngineBlotterSet blotter = engine.blotter.getBlotterSet( BlotterType.BLOTTER_RELEASE );
-		if( blotter.checkLifecycleUsed( lc.NAME ) )
-			return( true );
-		return( false );
-	}
-	
 }

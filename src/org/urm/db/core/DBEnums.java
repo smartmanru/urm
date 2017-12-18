@@ -439,7 +439,7 @@ public abstract class DBEnums {
 	private static <T extends Enum<T> & DBEnumInterface> T getValue( Class<T> type , Integer value , boolean required , T unknownValue ) throws Exception {
 		if( value == 0 ) {
 			if( required )
-				Common.exit1( _Error.MissingEnumIntType1 , "missing enum integer type value, enum=" + type.getSimpleName() , type.getSimpleName() );
+				Common.exit1( _Error.MissingEnumIntType1 , "missing required enum integer type value, enum=" + type.getSimpleName() , type.getSimpleName() );
 			return( unknownValue );
 		}
 		
@@ -455,7 +455,7 @@ public abstract class DBEnums {
     private static <T extends Enum<T> & DBEnumInterface> T getValue( Class<T> type , String value , boolean required , T unknownValue ) throws Exception {
 		if( value == null || value.isEmpty() ) {
 			if( required )
-				Common.exit1( _Error.MissingEnumStringType1 , "missing enum string type value, enum=" + type.getSimpleName() , type.getSimpleName() );
+				Common.exit1( _Error.MissingEnumStringType1 , "missing required enum string type value, enum=" + type.getSimpleName() , type.getSimpleName() );
 			return( unknownValue );
 		}
 		
