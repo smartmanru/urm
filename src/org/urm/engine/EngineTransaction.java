@@ -3,6 +3,7 @@ package org.urm.engine;
 import java.util.List;
 
 import org.urm.db.core.DBSettings;
+import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineAuth;
 import org.urm.db.engine.DBEngineBase;
@@ -159,7 +160,13 @@ public class EngineTransaction extends TransactionBase {
 	public void updateCustomEngineProperties( EngineSettings settings ) throws Exception {
 		checkTransactionSettings();
 		ObjectProperties ops = settings.getEngineProperties();
-		DBSettings.modifyCustomValues( this , ops );
+		DBSettings.modifyCustomValues( this , DBVersions.CORE_ID , ops );
+	}
+	
+	public void updateAppEngineProperties( EngineSettings settings ) throws Exception {
+		checkTransactionSettings();
+		ObjectProperties ops = settings.getEngineProperties();
+		DBSettings.modifyAppValues( this , DBVersions.CORE_ID , ops );
 	}
 	
 	// ################################################################################

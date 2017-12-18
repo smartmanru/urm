@@ -590,11 +590,18 @@ public abstract class DBSettings {
 		return( version );
 	}
 
-	public static void modifyCustomValues( EngineTransaction transaction , ObjectProperties ops ) throws Exception {
+	public static void modifyCustomValues( EngineTransaction transaction , int objectId , ObjectProperties ops ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		int version = c.getNextCoreVersion();
-		savedbPropertyValues( c , DBVersions.CORE_ID , ops , false , true , version );
+		savedbPropertyValues( c , objectId , ops , false , true , version );
+	}
+	
+	public static void modifyAppValues( EngineTransaction transaction , int objectId , ObjectProperties ops ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		int version = c.getNextCoreVersion();
+		savedbPropertyValues( c , objectId , ops , true , false , version );
 	}
 	
 }

@@ -303,9 +303,21 @@ public class ObjectProperties {
 
 	public String getPropertyValue( String prop ) throws Exception {
 		EntityVar var = meta.getVar( prop );
-		return( properties.getPropertyAny( var.NAME ) );
+		String value = properties.getPropertyAny( var.NAME );
+		return( getPropertyValue( var , value ) );
 	}
 
+	public static String getPropertyValue( EntityVar var , String value ) throws Exception {
+		if( var.isPath() ) {
+			if( var.isLinuxPath() )
+				value = Common.getLinuxPath( value );
+			else
+			if( var.isWindowsPath() )
+				value = Common.getWinPath( value );
+		}
+		return( value );
+	}
+	
 	public String getFinalProperty( String prop , Account account , boolean allowParent , boolean allowUnresolved ) throws Exception {
 		EntityVar var = meta.getVar( prop );
 		return( properties.getFinalProperty( var.NAME , account , allowParent , allowUnresolved ) );		
