@@ -10,7 +10,8 @@ public class DBUpgrade {
 		return( 
 			new DBUpgradeSet[] {
 				new DBUpgradeSet_102() ,
-				new DBUpgradeSet_103() 
+				new DBUpgradeSet_103() ,
+				new DBUpgradeSet_104()
 				} );
 	};
 	
