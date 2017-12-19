@@ -130,11 +130,6 @@ public class EngineSettings extends EngineObject {
 		engineProperties.resolveRawProperties();
 	}
 
-	public void setProductDefaultsProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
-		defaultProductProperties.updateProperties( transaction , props , true );
-		defaultProductProperties.resolveRawProperties();
-	}
-
 	public void setProductBuildCommonDefaultsProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
 		defaultProductBuildProperties.updateProperties( transaction , props , true );
 		defaultProductBuildProperties.resolveRawProperties();

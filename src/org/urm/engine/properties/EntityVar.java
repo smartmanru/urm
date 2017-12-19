@@ -336,5 +336,14 @@ public class EntityVar {
 		Common.exitUnexpected();
 		return( null );
 	}
+
+	public boolean isEnginePath() {
+		if( isPath() ) {
+			if( PARAMVALUE_SUBTYPE == DBEnumParamValueSubType.PATHABSOLUTEENGINE || 
+				PARAMVALUE_SUBTYPE == DBEnumParamValueSubType.PATHRELATIVEENGINE )
+				return( true );
+		}
+		return( false );
+	}
 	
 }

@@ -37,6 +37,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.urm.action.ActionBase;
+import org.urm.common.RunContext.VarOSTYPE;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -1103,6 +1104,14 @@ public class Common {
 				"|.*[0-9]-" + baseName + EXT + 
 				"|" + baseName + "-[0-9].*" + EXT +
 				"|" + baseName + "##[0-9].*" + EXT );
+	}
+
+	public static String getOSPath( VarOSTYPE ostype , String path ) {
+		if( ostype == VarOSTYPE.LINUX )
+			return( getLinuxPath( path ) );
+		if( ostype == VarOSTYPE.WINDOWS )
+			return( getWinPath( path ) );
+		return( path );
 	}
 	
 }
