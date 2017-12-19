@@ -15,17 +15,16 @@ public abstract class DBEngineContext {
 	public static PropertyEntity upgradeEntityRC( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.RC , DBEnumObjectVersionType.CORE );
-		DBEnumOSType ostype = DBEnumOSType.getValue( loader.execrc.osType );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( RunContext.PROPERTY_HOSTNAME , "Server Host" , true , null ) ,
-				EntityVar.metaPathAbsolute( RunContext.PROPERTY_USER_HOME , "Server User Home" , false , null , ostype ) ,
+				EntityVar.metaPathAbsolute( RunContext.PROPERTY_USER_HOME , "Server User Home" , false , null , null ) ,
 				EntityVar.metaString( RunContext.PROPERTY_OS_TYPE , "Server Operating System" , true , null ) ,
-				EntityVar.metaPathAbsolute( RunContext.PROPERTY_INSTALL_PATH , "Server Install Path" , true , null , ostype ) ,
-				EntityVar.metaPathAbsolute( RunContext.PROPERTY_WORK_PATH , "Server Work Path" , false , null , ostype ) ,
-				EntityVar.metaPathAbsolute( RunContext.PROPERTY_AUTH_PATH , "Authorization Data Path" , false , null , ostype ) ,
-				EntityVar.metaPathAbsolute( RunContext.PROPERTY_DB_PATH , "Database Properties Path" , false , null , ostype ) ,
-				EntityVar.metaPathAbsolute( RunContext.PROPERTY_SERVER_CONFPATH , "Server Configuration Path" , false , null , ostype ) ,
-				EntityVar.metaPathAbsolute( RunContext.PROPERTY_SERVER_PRODUCTSPATH , "Products Home Path" , false , null , ostype ) ,
+				EntityVar.metaPathAbsolute( RunContext.PROPERTY_INSTALL_PATH , "Server Install Path" , true , null , null ) ,
+				EntityVar.metaPathAbsolute( RunContext.PROPERTY_WORK_PATH , "Server Work Path" , false , null , null ) ,
+				EntityVar.metaPathAbsolute( RunContext.PROPERTY_AUTH_PATH , "Authorization Data Path" , false , null , null ) ,
+				EntityVar.metaPathAbsolute( RunContext.PROPERTY_DB_PATH , "Database Properties Path" , false , null , null ) ,
+				EntityVar.metaPathAbsolute( RunContext.PROPERTY_SERVER_CONFPATH , "Server Configuration Path" , false , null , null ) ,
+				EntityVar.metaPathAbsolute( RunContext.PROPERTY_SERVER_PRODUCTSPATH , "Products Home Path" , false , null , null ) ,
 		} ) );
 	}
 

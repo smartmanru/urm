@@ -17,7 +17,7 @@ public class EntityVar {
 	public String DBNAME;
 	public String XMLNAME;
 	public DBEnumParamValueType PARAMVALUE_TYPE;
-	public DBEnumParamValueSubtype PARAMVALUE_SUBTYPE;
+	public DBEnumParamValueSubType PARAMVALUE_SUBTYPE;
 	public DBEnumObjectType OBJECT_TYPE;
 	public String DESC;
 	public boolean REQUIRED;
@@ -77,7 +77,7 @@ public class EntityVar {
 			Common.exitUnexpected();
 		
 		Enum<?> defEnumValue = ( Enum<?> )defValue;
-		EntityVar var = meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubtype.DEFAULT , DBEnumObjectType.UNKNOWN , required , null , defEnumValue.getClass() );
+		EntityVar var = meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubType.DEFAULT , DBEnumObjectType.UNKNOWN , required , null , defEnumValue.getClass() );
 		return( var );
 	}
 	
@@ -94,7 +94,7 @@ public class EntityVar {
 	}
 	
 	public static EntityVar metaStringVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , String defValue ) {
-		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.STRING , DBEnumParamValueSubtype.DEFAULT , DBEnumObjectType.UNKNOWN , required , defValue , null ) );
+		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.STRING , DBEnumParamValueSubType.DEFAULT , DBEnumObjectType.UNKNOWN , required , defValue , null ) );
 	}
 	
 	public static EntityVar metaInteger( String propertyKey , String propertyDesc , boolean required , Integer defValue ) {
@@ -111,7 +111,7 @@ public class EntityVar {
 	
 	public static EntityVar metaIntegerVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , Integer defValue ) {
 		String value = ( defValue == null )? null : "" + defValue;
-		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubtype.DEFAULT , DBEnumObjectType.UNKNOWN , required , value , null ) );
+		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubType.DEFAULT , DBEnumObjectType.UNKNOWN , required , value , null ) );
 	}
 	
 	public static EntityVar metaPathAbsolute( String propertyKey , String propertyDesc , boolean required , String defValue , DBEnumOSType ostype ) {
@@ -127,12 +127,15 @@ public class EntityVar {
 	}
 	
 	public static EntityVar metaPathAbsoluteVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , String defValue , DBEnumOSType ostype ) {
-		DBEnumParamValueSubtype subtype = DBEnumParamValueSubtype.PATHABSOLUTE;
+		DBEnumParamValueSubType subtype = DBEnumParamValueSubType.PATHABSOLUTE;
+		if( ostype == null || ostype == DBEnumOSType.UNKNOWN )
+			subtype = DBEnumParamValueSubType.PATHABSOLUTEENGINE;
+		else
 		if( ostype.isLinux() )
-			subtype = DBEnumParamValueSubtype.PATHABSOLUTELINUX;
+			subtype = DBEnumParamValueSubType.PATHABSOLUTELINUX;
 		else
 		if( ostype.isWindows() )
-			subtype = DBEnumParamValueSubtype.PATHABSOLUTEWINDOWS;
+			subtype = DBEnumParamValueSubType.PATHABSOLUTEWINDOWS;
 		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.PATH , subtype , DBEnumObjectType.UNKNOWN , required , defValue , null ) );
 	}
 	
@@ -149,12 +152,15 @@ public class EntityVar {
 	}
 	
 	public static EntityVar metaPathRelativeVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , String defValue , DBEnumOSType ostype ) {
-		DBEnumParamValueSubtype subtype = DBEnumParamValueSubtype.PATHRELATIVE;
+		DBEnumParamValueSubType subtype = DBEnumParamValueSubType.PATHRELATIVE;
+		if( ostype == null || ostype == DBEnumOSType.UNKNOWN )
+			subtype = DBEnumParamValueSubType.PATHRELATIVEENGINE;
+		else
 		if( ostype.isLinux() )
-			subtype = DBEnumParamValueSubtype.PATHRELATIVELINUX;
+			subtype = DBEnumParamValueSubType.PATHRELATIVELINUX;
 		else
 		if( ostype.isWindows() )
-			subtype = DBEnumParamValueSubtype.PATHRELATIVEWINDOWS;
+			subtype = DBEnumParamValueSubType.PATHRELATIVEWINDOWS;
 		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.PATH , subtype , DBEnumObjectType.UNKNOWN , required , defValue , null ) );
 	}
 	
@@ -171,7 +177,7 @@ public class EntityVar {
 	}
 	
 	public static EntityVar metaBooleanVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , boolean defValue ) {
-		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.BOOL , DBEnumParamValueSubtype.DEFAULT , DBEnumObjectType.UNKNOWN , required , Common.getBooleanValue( defValue ) , null ) );
+		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.BOOL , DBEnumParamValueSubType.DEFAULT , DBEnumObjectType.UNKNOWN , required , Common.getBooleanValue( defValue ) , null ) );
 	}
 	
 	public static EntityVar metaObject( String propertyKey , String propertyDesc , DBEnumObjectType objectType , boolean required ) {
@@ -187,10 +193,10 @@ public class EntityVar {
 	}
 	
 	public static EntityVar metaObjectVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , DBEnumObjectType objectType , boolean required ) {
-		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubtype.DEFAULT , objectType , required , null , null ) );
+		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubType.DEFAULT , objectType , required , null , null ) );
 	}
 	
-	public static EntityVar meta( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , DBEnumParamValueType type , DBEnumParamValueSubtype subtype , DBEnumObjectType objectType , boolean required , String defValue , Class<?> enumClass ) {
+	public static EntityVar meta( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , DBEnumObjectType objectType , boolean required , String defValue , Class<?> enumClass ) {
 		EntityVar var = new EntityVar();
 		var.NAME = propertyKey;
 		var.DBNAME = propertyDatabaseKey;
@@ -289,7 +295,7 @@ public class EntityVar {
 
 	public boolean isLinuxPath() {
 		if( PARAMVALUE_TYPE == DBEnumParamValueType.PATH ) {
-			if( PARAMVALUE_SUBTYPE == DBEnumParamValueSubtype.PATHABSOLUTELINUX || PARAMVALUE_SUBTYPE == DBEnumParamValueSubtype.PATHRELATIVELINUX )
+			if( PARAMVALUE_SUBTYPE == DBEnumParamValueSubType.PATHABSOLUTELINUX || PARAMVALUE_SUBTYPE == DBEnumParamValueSubType.PATHRELATIVELINUX )
 				return( true );
 		}
 		return( false );
@@ -297,7 +303,7 @@ public class EntityVar {
 	
 	public boolean isWindowsPath() {
 		if( PARAMVALUE_TYPE == DBEnumParamValueType.PATH ) {
-			if( PARAMVALUE_SUBTYPE == DBEnumParamValueSubtype.PATHABSOLUTEWINDOWS || PARAMVALUE_SUBTYPE == DBEnumParamValueSubtype.PATHRELATIVEWINDOWS )
+			if( PARAMVALUE_SUBTYPE == DBEnumParamValueSubType.PATHABSOLUTEWINDOWS || PARAMVALUE_SUBTYPE == DBEnumParamValueSubType.PATHRELATIVEWINDOWS )
 				return( true );
 		}
 		return( false );

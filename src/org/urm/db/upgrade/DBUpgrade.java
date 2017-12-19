@@ -6,8 +6,12 @@ import org.urm.meta.EngineLoader;
 
 public class DBUpgrade {
 
-	private static DBUpgradeSet[] upgrades = new DBUpgradeSet[] {
-			new DBUpgradeSet_102()
+	private static DBUpgradeSet[] getUpgrades() {
+		return( 
+			new DBUpgradeSet[] {
+				new DBUpgradeSet_102() ,
+				new DBUpgradeSet_103() 
+				} );
 	};
 	
 	public static void upgrade( EngineLoader loader , int appVersion , int dbVersion ) throws Exception {
@@ -16,6 +20,8 @@ public class DBUpgrade {
 		
 		int indexFrom = -1;
 		int indexTo = -1;
+		
+		DBUpgradeSet[] upgrades = getUpgrades();
 		for( int k = 0; k < upgrades.length; k++ ) {
 			DBUpgradeSet u = upgrades[ k ];
 			if( u.versionFrom == dbVersion )
@@ -52,7 +58,7 @@ public class DBUpgrade {
 			return( true );
 		}
 		catch( Throwable e ) {
-			loader.trace( "unable to upgrade" );
+			loader.log( "unable to upgrade" , e );
 			c.save( false );
 			return( false );
 		}

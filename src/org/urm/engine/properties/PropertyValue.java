@@ -102,7 +102,7 @@ public class PropertyValue {
 		return( false );
 	}
 	
-	public boolean isOriginalEmpty() {
+	public boolean isSourceEmpty() {
 		if( originalValue.isEmpty() && defaultValue.isEmpty() )
 			return( true );
 		return( false );

@@ -133,23 +133,25 @@ public abstract class DBEnums {
 		public static DBEnumParamValueType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamValueType.class , value , required , UNKNOWN ) ); };
 	};
 
-	public enum DBEnumParamValueSubtype implements DBEnumInterface {
+	public enum DBEnumParamValueSubType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		DEFAULT(1,null) ,
-		PATHABSOLUTE(1,null) ,
+		PATHABSOLUTE(20,null) ,
 		PATHABSOLUTEWINDOWS(2,null) ,
 		PATHABSOLUTELINUX(3,null) ,
 		PATHRELATIVE(4,null) ,
 		PATHRELATIVEWINDOWS(5,null) ,
-		PATHRELATIVELINUX(6,null);
+		PATHRELATIVELINUX(6,null) ,
+		PATHABSOLUTEENGINE(10,null) ,
+		PATHRELATIVEENGINE(11,null);
 
 		private final int value;
 		private String[] synonyms;
 		@Override public int code() { return( value ); };
 		@Override public String[] synonyms() { return( synonyms ); };
-		private DBEnumParamValueSubtype( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
-		public static DBEnumParamValueSubtype getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamValueSubtype.class , value , required , UNKNOWN ) ); };
-		public static DBEnumParamValueSubtype getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamValueSubtype.class , value , required , UNKNOWN ) ); };
+		private DBEnumParamValueSubType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumParamValueSubType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamValueSubType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumParamValueSubType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamValueSubType.class , value , required , UNKNOWN ) ); };
 	};
 
 	public enum DBEnumOSType implements DBEnumInterface {
@@ -432,7 +434,8 @@ public abstract class DBEnums {
 		new DBEnumInfo( DBEnumBuildModeType.class , 525 ) ,
 		new DBEnumInfo( DBEnumParamEntityType.class , 526 ) ,
 		new DBEnumInfo( DBEnumParamRoleType.class , 527 ) ,
-		new DBEnumInfo( DBEnumChatType.class , 528 )
+		new DBEnumInfo( DBEnumChatType.class , 528 ) ,
+		new DBEnumInfo( DBEnumParamValueSubType.class , 529 )
 	}; 
 
 	private static String prefix = "DBEnum";
@@ -484,23 +487,36 @@ public abstract class DBEnums {
     public static void updateDatabase( DBConnection connection ) throws Exception {
     	connection.modify( DBQueries.MODIFY_ENUMS_DROP0 );
     	
+    	for( DBEnumInfo e : enums )
+    		addEnum( connection , e.enumClass );
+    }
+
+    public static void addEnum( DBConnection connection , Class<?> ec ) throws Exception {
+    	DBEnumInfo ef = null;
     	for( DBEnumInfo e : enums ) {
-    		String name = getEnumName( e.enumClass );
-    		int enumId = e.enumID;
-    		
-    		if( !connection.modify( DBQueries.MODIFY_ENUMS_ADD4 , new String[] { "0" , "" + enumId , EngineDB.getString( name ) , "" + EngineDB.APP_VERSION } ) )
-    			Common.exitUnexpected();
-    		
-    		for( Object object : e.enumClass.getEnumConstants() ) {
-    			DBEnumInterface oi = ( DBEnumInterface )object;
-    			int elementValue = oi.code();
-    			Enum<?> ev = ( Enum<?> )object;
-    			String elementName = ev.name().toLowerCase();
-    			
-        		if( !connection.modify( DBQueries.MODIFY_ENUMS_ADD4 , new String[] { "" + enumId , "" + elementValue , EngineDB.getString( elementName ) , "" + EngineDB.APP_VERSION } ) )
-        			Common.exitUnexpected();
+    		if( e.enumClass == ec ) {
+    			ef = e;
+    			break;
     		}
     	}
+    	
+    	if( ef == null )
+    		Common.exitUnexpected();
+    	
+		String name = getEnumName( ec );
+		int enumId = ef.enumID;
+		if( !connection.modify( DBQueries.MODIFY_ENUMS_ADD4 , new String[] { "0" , "" + enumId , EngineDB.getString( name ) , "" + EngineDB.APP_VERSION } ) )
+			Common.exitUnexpected();
+		
+		for( Object object : ec.getEnumConstants() ) {
+			DBEnumInterface oi = ( DBEnumInterface )object;
+			int elementValue = oi.code();
+			Enum<?> ev = ( Enum<?> )object;
+			String elementName = ev.name().toLowerCase();
+			
+    		if( !connection.modify( DBQueries.MODIFY_ENUMS_ADD4 , new String[] { "" + enumId , "" + elementValue , EngineDB.getString( elementName ) , "" + EngineDB.APP_VERSION } ) )
+    			Common.exitUnexpected();
+		}
     }
     
     public static void addEnumItem( DBConnection connection , DBEnumInterface oi ) throws Exception {

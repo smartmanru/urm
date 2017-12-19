@@ -778,7 +778,7 @@ public class PropertySet {
 		if( required ) {
 			if( pv == null )
 				Common.exit2( _Error.MissingRequiredProperty2 , "set=" + set + ": missing required property=" + prop , set , prop );
-			if( pv.isOriginalEmpty() )
+			if( pv.isSourceEmpty() )
 				Common.exit2( _Error.EmptyRequiredProperty2 , "set=" + set + ": empty required property=" + prop , set , prop );
 		}
 		
@@ -1008,7 +1008,7 @@ public class PropertySet {
 		if( pv == null )
 			pv = getRunningByProperty( name );
 		
-		if( pv == null || pv.isOriginalEmpty() ) {
+		if( pv == null || pv.isSourceEmpty() ) {
 			if( parent != null ) {
 				// parent var
 				if( !allowParent ) {
@@ -1061,7 +1061,7 @@ public class PropertySet {
 		PropertyValue pv = getPropertyInternal( name , false , true , false );
 		if( pv == null )
 			Common.exit2( _Error.MissingRequiredProperty2 , "set=" + set + ": missing property=" + name , set , name );
-		if( pv.isOriginalEmpty() )
+		if( pv.isSourceEmpty() )
 			Common.exit2( _Error.EmptyRequiredProperty2 , "set=" + set + ": missing property=" + name , set , name );
 		return( pv );
 	}

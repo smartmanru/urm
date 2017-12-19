@@ -433,7 +433,7 @@ public abstract class DBSettings {
 						rs.getString( 4 ) , 
 						rs.getString( 5 ) , 
 						DBEnumParamValueType.getValue( rs.getInt( 6 ) , true ) , 
-						DBEnumParamValueSubtype.getValue( rs.getInt( 7 ) , false ) ,
+						DBEnumParamValueSubType.getValue( rs.getInt( 7 ) , false ) ,
 						DBEnumObjectType.getValue( rs.getInt( 8 ) , false ) ,
 						rs.getBoolean( 10 ) , 
 						rs.getString( 11 ) ,

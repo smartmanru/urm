@@ -34,10 +34,9 @@ public abstract class DBEngineSettings {
 	public static PropertyEntity upgradeEntityProductContext( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.APPPRODUCT , DBEnumParamEntityType.PRODUCTCTX , DBEnumObjectVersionType.PRODUCT );
-		DBEnumOSType ostype = DBEnumOSType.getValue( loader.execrc.osType );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( MetaProductCoreSettings.PROPERTY_PRODUCT_NAME , "Product Name" , true , null ) ,
-				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_PRODUCT_HOME , "Product Home" , true , null , ostype ) ,
+				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_PRODUCT_HOME , "Product Home" , true , null , null ) ,
 				EntityVar.metaInteger( MetaProductCoreSettings.PROPERTY_VERSION_BRANCH_MAJOR , "Version Major Number" , false , null ) ,
 				EntityVar.metaInteger( MetaProductCoreSettings.PROPERTY_VERSION_BRANCH_MINOR , "Version Minor Number" , false , null ) ,
 				EntityVar.metaInteger( MetaProductCoreSettings.PROPERTY_VERSION_BRANCH_NEXTMAJOR , "Next Major Number" , false , null ) ,
@@ -56,22 +55,21 @@ public abstract class DBEngineSettings {
 	public static PropertyEntity upgradeEntityProductSettings( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.CORE );
-		DBEnumOSType ostype = DBEnumOSType.getValue( loader.execrc.osType );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_REDISTLINUX_PATH , "Linux Staging Area Path" , true , null , DBEnumOSType.LINUX ) ,
 				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_REDISTWIN_PATH , "Windows Staging Area Path" , true , null , DBEnumOSType.WINDOWS ) ,
-				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_DISTR_PATH , "Distributives Path" , true , null , ostype ) ,
+				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_DISTR_PATH , "Distributives Path" , true , null , null ) ,
 				EntityVar.metaString( MetaProductSettings.PROPERTY_DISTR_HOSTLOGIN , "Distributives host@login" , false , null ) ,
-				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_UPGRADE_PATH , "Upgrade Scripts Path" , false , null , ostype ) ,
-				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_BASE_PATH , "Platform Software Path" , false , null , ostype ) ,
-				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_MIRRORPATH , "Mirror Repositories" , false , null , ostype ) ,
+				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_UPGRADE_PATH , "Upgrade Scripts Path" , false , null , null ) ,
+				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_BASE_PATH , "Platform Software Path" , false , null , null ) ,
+				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_MIRRORPATH , "Mirror Repositories" , false , null , null ) ,
 				EntityVar.metaString( MetaProductSettings.PROPERTY_ADM_TRACKER , "Codebase Control Tracker" , false , null ) ,
 				EntityVar.metaString( MetaProductSettings.PROPERTY_COMMIT_TRACKERLIST , "Source Task Trackers" , false , null ) ,
 				EntityVar.metaString( MetaProductSettings.PROPERTY_SOURCE_CHARSET , "Release Source Charset" , false , null ) ,
-				EntityVar.metaPathRelative( MetaProductSettings.PROPERTY_SOURCE_RELEASEROOTDIR , "Release Source Root" , false , null , ostype ) ,
-				EntityVar.metaPathRelative( MetaProductSettings.PROPERTY_SOURCE_CFG_ROOTDIR , "Configuration Root" , false , null , ostype ) ,
-				EntityVar.metaPathRelative( MetaProductSettings.PROPERTY_SOURCE_CFG_LIVEROOTDIR , "Configuration Live" , false , null , ostype ) ,
-				EntityVar.metaPathRelative( MetaProductSettings.PROPERTY_SOURCE_SQL_POSTREFRESH , "Database PostRefresh" , false , null , ostype ) ,
+				EntityVar.metaPathRelative( MetaProductSettings.PROPERTY_SOURCE_RELEASEROOTDIR , "Release Source Root" , false , null , null ) ,
+				EntityVar.metaPathRelative( MetaProductSettings.PROPERTY_SOURCE_CFG_ROOTDIR , "Configuration Root" , false , null , null ) ,
+				EntityVar.metaPathRelative( MetaProductSettings.PROPERTY_SOURCE_CFG_LIVEROOTDIR , "Configuration Live" , false , null , null ) ,
+				EntityVar.metaPathRelative( MetaProductSettings.PROPERTY_SOURCE_SQL_POSTREFRESH , "Database PostRefresh" , false , null , null ) ,
 				EntityVar.metaString( MetaProductSettings.PROPERTY_CUSTOM_BUILD , "Custom Builder Plugin" , false , null ) ,
 				EntityVar.metaString( MetaProductSettings.PROPERTY_CUSTOM_DEPLOY , "Custom Deployer Plugin" , false , null ) ,
 				EntityVar.metaString( MetaProductSettings.PROPERTY_CUSTOM_DATABASE , "Custom Database Plugin" , false , null )
@@ -87,7 +85,6 @@ public abstract class DBEngineSettings {
 	public static PropertyEntity upgradeEntityProductBuild( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTBUILD , DBEnumObjectVersionType.CORE );
-		DBEnumOSType ostype = DBEnumOSType.getValue( loader.execrc.osType );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_LASTMAJOR , "Last Major Release" , false , null ) ,
 				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_NEXTMAJOR , "Next Major Release" , false , null ) ,
@@ -97,11 +94,11 @@ public abstract class DBEngineSettings {
 				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_APPVERSION , "Artefacts Version" , false , null ) ,
 				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_BRANCHNAME , "Source Branch Name" , false , null ) ,
 				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_GROUPFOLDER , "Release Source Group" , false , null ) ,
-				EntityVar.metaPathAbsolute( MetaProductBuildSettings.PROPERTY_ARTEFACTDIR , "Artefacts Directory" , false , null , ostype ) ,
-				EntityVar.metaPathRelative( MetaProductBuildSettings.PROPERTY_LOGPATH , "Build Log Path" , false , null , ostype ) ,
+				EntityVar.metaPathAbsolute( MetaProductBuildSettings.PROPERTY_ARTEFACTDIR , "Artefacts Directory" , false , null , null ) ,
+				EntityVar.metaPathRelative( MetaProductBuildSettings.PROPERTY_LOGPATH , "Build Log Path" , false , null , null ) ,
 				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_NEXUS_REPO , "Nexus Repository" , false , null ) ,
 				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_NEXUS_REPO_THIRDPARTY , "Nexus Thirdparty Repository" , false , null ) ,
-				EntityVar.metaPathAbsolute( MetaProductBuildSettings.PROPERTY_MAVEN_CFGFILE , "Maven Settings" , false , null , ostype )
+				EntityVar.metaPathAbsolute( MetaProductBuildSettings.PROPERTY_MAVEN_CFGFILE , "Maven Settings" , false , null , null )
 		} ) );
 	}
 
