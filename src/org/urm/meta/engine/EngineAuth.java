@@ -189,7 +189,7 @@ public class EngineAuth extends EngineObject {
 				return( null );
 		}
 		else {
-			SearchResult res = ldapSettings.verifyLogin( username , password );
+			SearchResult res = ldapSettings.verifyLogin( engine.serverAction , username , password );
 			if( res == null )
 				return( null );
 			
@@ -234,9 +234,9 @@ public class EngineAuth extends EngineObject {
 		return( Common.getSortedKeys( mapLdapUsers ) );
 	}
 	
-	public String[] getLdapFullUserList() {
+	public String[] getLdapFullUserList( ActionBase action ) {
 		try {
-			return( ldapSettings.getUserList() );
+			return( ldapSettings.getUserList( action ) );
 		}
 		catch( Throwable e ) {
 			return( new String[0] );

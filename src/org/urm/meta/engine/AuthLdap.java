@@ -53,12 +53,14 @@ public class AuthLdap {
 	public String PROVIDER_URL;
 
 	boolean ldapStarted;
+	boolean ldapFailed;
 
 	ObjectProperties props;
 	
 	public AuthLdap( EngineAuth auth ) {
 		this.auth = auth;
 		ldapStarted = false;
+		ldapFailed = false;
 		setNotUse();
 	}
 
@@ -97,6 +99,9 @@ public class AuthLdap {
 	}
 	
 	public void setNotUse() {
+		ldapStarted = false;
+		ldapFailed = false;
+		
 		ldapUse = false;
 		ldapPort = 0;
 		ldapHost = "";
@@ -164,10 +169,12 @@ public class AuthLdap {
 	public void start( ActionInit action ) throws Exception {
 		create( action );
 		ldapStarted = true;
+		ldapFailed = false;
 	}
 	
 	public void stop() {
 		ldapStarted = false;
+		ldapFailed = false;
 		USER_FILTER = null;
 		LDAP_ENV.clear();
 	}
@@ -223,13 +230,13 @@ public class AuthLdap {
 		return( ac );
 	}
 	
-	public SearchResult verifyLogin( String username , String password ) {
+	public SearchResult verifyLogin( ActionBase action , String username , String password ) {
 		try {
 			SearchResult user = findUser( username );
 			if( user == null )
 				return( null );
 			
-			if( !verifyLogin( user , password ) )
+			if( !verifyLogin( action , user , password ) )
 				return( null );
 			return( user );
 		}
@@ -239,7 +246,10 @@ public class AuthLdap {
 		return( null );
 	}
 	
-	public boolean verifyLogin( SearchResult user , String password ) {
+	public boolean verifyLogin( ActionBase action , SearchResult user , String password ) {
+		if( !startUse( action ) )
+			return( false );
+		
 		String dn = user.getNameInNamespace();
 		Hashtable<String,String> env = new Hashtable<>( LDAP_ENV );
 		env.put( Context.SECURITY_AUTHENTICATION , "simple" );
@@ -267,20 +277,39 @@ public class AuthLdap {
 			return( null );
 		return( obj.toString() );
 	}
+
+	private boolean startUse( ActionBase action ) {
+		if( !ldapUse )
+			return( false );
+		
+		try {
+			if( !ldapStarted ) {
+				if( ldapFailed )
+					return( false );
+				
+				start( action.actionInit );
+			}
+			return( true );
+		}
+		catch( Throwable e ) {
+			action.log( "start using LDAP" , e );
+			return( false );
+		}
+	}
 	
 	public AuthLdapUser getLdapUserData( ActionBase action , String username ) throws Exception {
-		if( !ldapUse )
+		if( !startUse( action ) )
 			return( null );
-		
-		if( !ldapStarted )
-			start( action.actionInit );
 		
 		SearchResult res = findUser( username );
 		AuthLdapUser user = new AuthLdapUser( username , getAttr( res , userEmailAttr ) , getAttr( res , userDisplayNameAttr ) );
 		return( user );
 	}
 
-	public String[] getUserList() throws Exception {
+	public String[] getUserList( ActionBase action ) throws Exception {
+		if( !startUse( action ) )
+			return( null );
+		
 		String dnFilter = getUserFilter( true , "" );
 		DirContext ctx = new InitialDirContext( LDAP_ENV );
 
