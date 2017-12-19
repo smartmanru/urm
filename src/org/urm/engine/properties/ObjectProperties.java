@@ -307,7 +307,12 @@ public class ObjectProperties {
 		return( getPropertyValue( var , value ) );
 	}
 
-	public static String getPropertyValue( EntityVar var , String value ) throws Exception {
+	public String getPropertyValue( EntityVar var ) throws Exception {
+		String value = properties.getPropertyAny( var.NAME );
+		return( getPropertyValue( var , value ) );
+	}
+	
+	public static String getPropertyValue( EntityVar var , String value ) {
 		if( var.isPath() ) {
 			if( var.isLinuxPath() )
 				value = Common.getLinuxPath( value );
@@ -335,6 +340,11 @@ public class ObjectProperties {
 
 	public String getOriginalPropertyValue( String prop ) throws Exception {
 		EntityVar var = meta.getVar( prop );
+		PropertyValue value = properties.getPropertyValue( var.NAME );
+		return( value.getOriginalValue() );
+	}
+
+	public String getOriginalPropertyValue( EntityVar var ) {
 		PropertyValue value = properties.getPropertyValue( var.NAME );
 		return( value.getOriginalValue() );
 	}
