@@ -293,6 +293,7 @@ public class AuthLdap {
 		}
 		catch( Throwable e ) {
 			action.log( "start using LDAP" , e );
+			ldapFailed = true;
 			return( false );
 		}
 	}
@@ -308,7 +309,7 @@ public class AuthLdap {
 
 	public String[] getUserList( ActionBase action ) throws Exception {
 		if( !startUse( action ) )
-			return( null );
+			return( new String[0] );
 		
 		String dnFilter = getUserFilter( true , "" );
 		DirContext ctx = new InitialDirContext( LDAP_ENV );
