@@ -170,6 +170,8 @@ public class EngineAuth extends EngineObject {
 
 	public void saveAuthData( String authKey , AuthContext ac ) throws Exception {
 		String filePath = getAuthFile( authKey );
+		engine.trace( "save auth file: " + filePath );
+		ac.createProperties();
 		ac.properties.saveToPropertyFile( filePath , engine.execrc , false , "auth file" );
 	}
 
