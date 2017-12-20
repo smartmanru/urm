@@ -187,7 +187,7 @@ public abstract class DBEngineSettings {
 		settings.defaultProductProperties = entities.createDefaultProductProps( settings.engineProperties );
 		DBSettings.loaddbValues( loader , DBVersions.CORE_ID , settings.defaultProductProperties , true );
 		
-		settings.defaultProductBuildProperties = entities.createDefaultBuildCommonProps( settings.defaultProductBuildProperties );
+		settings.defaultProductBuildProperties = entities.createDefaultBuildCommonProps( settings.defaultProductProperties );
 		DBSettings.loaddbValues( loader , DBVersions.CORE_ID , settings.defaultProductBuildProperties , true );
 		
 		// for build modes

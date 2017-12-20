@@ -89,6 +89,10 @@ public class EngineSettings extends EngineObject {
 		return( defaultProductBuildProperties.getProperties() );
 	}
 
+	public ObjectProperties getDefaultProductBuildSettings() {
+		return( defaultProductBuildProperties );
+	}
+
 	public ObjectProperties getDefaultProductBuildObjectProperties( DBEnumBuildModeType mode ) {
 		return( mapBuildModeDefaults.get( mode ) );
 	}
@@ -130,11 +134,6 @@ public class EngineSettings extends EngineObject {
 		engineProperties.resolveRawProperties();
 	}
 
-	public void setProductBuildCommonDefaultsProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
-		defaultProductBuildProperties.updateProperties( transaction , props , true );
-		defaultProductBuildProperties.resolveRawProperties();
-	}
-	
 	public void setProductBuildModeDefaultsProperties( EngineTransaction transaction , DBEnumBuildModeType mode , PropertySet props ) throws Exception {
 		ObjectProperties set = mapBuildModeDefaults.get( mode );
 		if( set == null ) {

@@ -115,12 +115,6 @@ public class EngineTransaction extends TransactionBase {
 		settings.setEngineProperties( this , props );
 	}
 	
-	public void setEngineProductBuildCommonDefaultsProperties( PropertySet props ) throws Exception {
-		checkTransactionSettings();
-		EngineSettings settings = super.getTransactionSettings();
-		settings.setProductBuildCommonDefaultsProperties( this , props );
-	}
-	
 	public void setEngineProductBuildModeDefaultsProperties( DBEnumBuildModeType mode , PropertySet props ) throws Exception {
 		checkTransactionSettings();
 		EngineSettings settings = super.getTransactionSettings();
@@ -166,6 +160,18 @@ public class EngineTransaction extends TransactionBase {
 	public void updateProductDefaultProperties( EngineSettings settings ) throws Exception {
 		checkTransactionSettings();
 		ObjectProperties ops = settings.getDefaultProductSettigns();
+		DBSettings.modifyAppValues( this , DBVersions.CORE_ID , ops );
+	}
+	
+	public void updateProductDefaultBuildCommonProperties( EngineSettings settings ) throws Exception {
+		checkTransactionSettings();
+		ObjectProperties ops = settings.getDefaultProductBuildSettings();
+		DBSettings.modifyAppValues( this , DBVersions.CORE_ID , ops );
+	}
+	
+	public void updateProductDefaultBuildModeProperties( EngineSettings settings , DBEnumBuildModeType mode ) throws Exception {
+		checkTransactionSettings();
+		ObjectProperties ops = settings.getDefaultProductBuildObjectProperties( mode );
 		DBSettings.modifyAppValues( this , DBVersions.CORE_ID , ops );
 	}
 	

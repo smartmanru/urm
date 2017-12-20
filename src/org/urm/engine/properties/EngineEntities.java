@@ -194,7 +194,7 @@ public class EngineEntities {
 			set = nameDefaultBuildTrunkSet;
 		}
 		ObjectProperties props = new ObjectProperties( role , set , engine.execrc );
-		props.create( null , entityAppProductBuild , null ); 
+		props.create( parent , entityAppProductBuild , null ); 
 		return( props );
 	}
 
