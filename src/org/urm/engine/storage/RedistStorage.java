@@ -31,7 +31,7 @@ public class RedistStorage extends ServerStorage {
 
 	public void recreateTmpFolder( ActionBase action ) throws Exception {
 		RemoteFolder tmp = getRedistTmpFolder( action );
-		tmp.recreateThis( action );
+		tmp.ensureExists( action );
 	}
 	
 	public boolean getSysConfigs( ActionBase action , LocalFolder dstFolder ) throws Exception {

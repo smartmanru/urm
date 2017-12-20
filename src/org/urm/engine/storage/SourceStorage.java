@@ -334,10 +334,11 @@ public class SourceStorage {
 		coFolder.removeThis( action );
 		
 		vcs.checkoutMasterFolder( mirror , coFolder , PATH );
-		coFolder.prepareFolderForLinux( action , "" );
+		if( !coFolder.windows )
+			coFolder.prepareFolderForLinux( action , "" );
 
 		FileSet tobeFiles = folder.getFileSet( action );
-		FileSet coFiles = coFolder.getFileSet( action ); 
+		FileSet coFiles = coFolder.getFileSet( action , vcs.getSpecialDirectoryRegExp() ); 
 		
 		// copy tobe files over co files and prepare for changes
 		coFolder.copyDirContent( action , folder );

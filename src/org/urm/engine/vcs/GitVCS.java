@@ -29,6 +29,10 @@ public class GitVCS extends GenericVCS {
 		return( MASTERBRANCH );
 	}
 	
+	@Override public String getSpecialDirectoryRegExp() {
+		return( "[.]git" );
+	}
+	
 	@Override
 	public boolean ignoreDir( String name ) {
 		if( name.equals( ".git" ) )

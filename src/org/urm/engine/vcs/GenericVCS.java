@@ -31,6 +31,7 @@ public abstract class GenericVCS {
 	public abstract boolean verifyRepository( String repo , String pathToRepo );
 
 	public abstract String getMainBranch();
+	public abstract String getSpecialDirectoryRegExp();
 	public abstract boolean ignoreDir( String name );
 	public abstract boolean ignoreFile( String name );
 	
