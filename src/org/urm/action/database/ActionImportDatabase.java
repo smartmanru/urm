@@ -172,7 +172,7 @@ public class ActionImportDatabase extends ActionBase {
 		List<String> conf = new LinkedList<String>();
 		String EXECUTEMAPPING = "";
 		for( MetaDatabaseSchema schema : serverSchemas.values() )
-			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.SCHEMA + "=" + schema.DBNAME );
+			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.SCHEMA + "=" + server.getSchemaDBName( schema ) );
 		
 		conf.add( "CONF_MAPPING=" + Common.getQuoted( EXECUTEMAPPING ) );
 		if( NFS ) {

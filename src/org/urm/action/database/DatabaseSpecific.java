@@ -15,6 +15,7 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductSettings;
@@ -49,13 +50,15 @@ public class DatabaseSpecific {
 	}
 
 	public String getAdmUser( ActionBase action ) throws Exception {
-		return( server.admSchema.DBUSER );
+		if( server.admSchema == null )
+			action.exitUnexpectedState();
+		return( server.getSchemaDBUser( server.admSchema ) );
 	}
 	
 	public String getAdmSchema( ActionBase action ) throws Exception {
 		if( server.admSchema == null )
-			return( "" );
-		return( server.admSchema.DBNAME );
+			action.exitUnexpectedState();
+		return( server.getSchemaDBName( server.admSchema ) );
 	}
 	
 	public boolean checkConnect( ActionBase action , String dbschema , String user , String password ) throws Exception {
@@ -481,4 +484,12 @@ public class DatabaseSpecific {
 	public void addComment( ActionBase action , String comment , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 
+	public String getSchemaDBName( MetaDatabaseSchema schema ) {
+		return( server.getSchemaDBName( schema ) );
+	}
+	
+	public String getSchemaDBUser( MetaDatabaseSchema schema ) {
+		return( server.getSchemaDBUser( schema ) );
+	}
+	
 }

@@ -930,5 +930,37 @@ public class MetaEnvServer extends PropertyController {
 		}
 		return( false );
 	}
+
+	public String getSchemaDBName( MetaDatabaseSchema schema ) {
+		for( MetaEnvServerDeployment d : deployments ) {
+			if( d.isDatabase() ) {
+				if( d.schema == schema )
+					return( d.DBNAME );
+			}
+			else {
+				MetaDistrComponentItem item = d.comp.findSchemaItem( schema.SCHEMA );
+				if( item != null )
+					return( schema.DBNAME );
+			}
+		}
+		
+		return( null );
+	}
+	
+	public String getSchemaDBUser( MetaDatabaseSchema schema ) {
+		for( MetaEnvServerDeployment d : deployments ) {
+			if( d.isDatabase() ) {
+				if( d.schema == schema )
+					return( d.DBUSER );
+			}
+			else {
+				MetaDistrComponentItem item = d.comp.findSchemaItem( schema.SCHEMA );
+				if( item != null )
+					return( schema.DBUSER );
+			}
+		}
+		
+		return( null );
+	}
 	
 }

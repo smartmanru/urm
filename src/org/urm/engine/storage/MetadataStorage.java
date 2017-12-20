@@ -162,12 +162,13 @@ public class MetadataStorage {
 			MetaDatabaseSchema schema = serverSchemas.get( SN );
 			Map<String,String> tables = tableSet.get( SN );
 			
+			String dbschema = server.getSchemaDBName( schema );
 			if( tables.containsKey( "*" ) ) {
-				data.add( new String[] { Common.getSQLQuoted( schema.DBNAME ) , Common.getSQLQuoted( "*" ) } );
+				data.add( new String[] { Common.getSQLQuoted( dbschema ) , Common.getSQLQuoted( "*" ) } );
 			}
 			else {
 				for( String s : tables.keySet() ) {
-					data.add( new String[] { Common.getSQLQuoted( schema.DBNAME ) , Common.getSQLQuoted( s ) } );
+					data.add( new String[] { Common.getSQLQuoted( dbschema ) , Common.getSQLQuoted( s ) } );
 				}
 			}
 		}
@@ -186,13 +187,14 @@ public class MetadataStorage {
 		for( String SN : tableSet.keySet() ) {
 			MetaDatabaseSchema schema = serverSchemas.get( SN );
 			Map<String,String> tables = tableSet.get( SN );
-			
+
+			String dbschema = server.getSchemaDBName( schema );
 			if( tables.containsKey( "*" ) ) {
-				conf.add( schema.DBNAME + "/*" );
+				conf.add( dbschema + "/*" );
 			}
 			else {
 				for( String s : tables.keySet() ) {
-					conf.add( schema.DBNAME + "/" + s );
+					conf.add( dbschema + "/" + s );
 				}
 			}
 		}
