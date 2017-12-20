@@ -129,11 +129,6 @@ public class EngineSettings extends EngineObject {
 		return( r );
 	}
 	
-	public void setEngineProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
-		engineProperties.updateProperties( transaction , props , false );
-		engineProperties.resolveRawProperties();
-	}
-
 	public void setProductBuildModeDefaultsProperties( EngineTransaction transaction , DBEnumBuildModeType mode , PropertySet props ) throws Exception {
 		ObjectProperties set = mapBuildModeDefaults.get( mode );
 		if( set == null ) {

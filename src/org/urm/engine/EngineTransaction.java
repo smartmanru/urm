@@ -109,12 +109,6 @@ public class EngineTransaction extends TransactionBase {
 	// ################################################################################
 	// SETTINGS
 	
-	public void setEngineProperties( PropertySet props ) throws Exception {
-		checkTransactionSettings();
-		EngineSettings settings = super.getTransactionSettings();
-		settings.setEngineProperties( this , props );
-	}
-	
 	public void setEngineProductBuildModeDefaultsProperties( DBEnumBuildModeType mode , PropertySet props ) throws Exception {
 		checkTransactionSettings();
 		EngineSettings settings = super.getTransactionSettings();
