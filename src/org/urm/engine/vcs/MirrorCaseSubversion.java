@@ -63,7 +63,7 @@ public class MirrorCaseSubversion extends MirrorCase {
 		try {
 			String branchName = getBranch();
 			String branchPath = getComponentBranchPath( branchName );
-			if( checkValidServerBranch() ) {
+			if( checkValidServerBranch( branchName ) ) {
 				vcsSubversion.checkoutMasterFolder( mirror , branch , branchPath );
 				if( !checkBranchEmpty() ) {
 					String OSPATH = shell.getLocalPath( mirror.RESOURCE_DATA );
@@ -93,7 +93,7 @@ public class MirrorCaseSubversion extends MirrorCase {
 		}
 		
 		String branchName = getBranch();
-		if( !checkValidServerBranch() )
+		if( !checkValidServerBranch( branchName ) )
 			action.exit1( _Error.MissingRepoBranch1 , "Missing repository branch=" + branchName , branchName );
 		
 		String path = getComponentBranchPath( branchName );
@@ -141,11 +141,6 @@ public class MirrorCaseSubversion extends MirrorCase {
 		super.syncVcsToFolderContent( mirrorFolder , folder );
 	}
 	
-	public boolean checkValidServerBranch() throws Exception {
-		String branch = getBranch();
-		return( checkValidServerBranch( branch ) );
-	}
-	
 	public boolean checkBranchEmpty() throws Exception {
 		LocalFolder branchFolder = getBranchFolder();
 		List<String> dirs = new LinkedList<String>();
@@ -172,7 +167,8 @@ public class MirrorCaseSubversion extends MirrorCase {
 	
 	public boolean checkValidServerBranch( String branch ) throws Exception {
 		String path = getComponentBranchPath( branch );
-		return( vcsSubversion.isValidRepositoryMasterPath( mirror , path ) );
+		path = Common.getPath( mirror.RESOURCE_DATA , path );
+		return( vcsSubversion.isValidRepositoryMasterRootPath( mirror , path ) );
 	}
 	
 	private void useRepositoryMirror() throws Exception {

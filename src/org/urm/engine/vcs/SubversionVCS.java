@@ -529,7 +529,7 @@ public class SubversionVCS extends GenericVCS {
 	
 	// implementation
 	private String getMasterRepositoryPath( MirrorRepository mirror , String path ) {
-		return( Common.getPath( getRepositoryPath( mirror ) , "trunk" , path ) );
+		return( Common.getPath( getRepositoryPath( mirror ) , path ) );
 	}
 	
 	private String getTagRepositoryPath( MirrorRepository mirror , String TAG , String path ) {
