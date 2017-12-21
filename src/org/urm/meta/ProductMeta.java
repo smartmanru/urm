@@ -26,6 +26,7 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDesign;
 import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductSettings;
@@ -49,6 +50,7 @@ public class ProductMeta extends EngineObject {
 	private MetaUnits units;
 	private MetaDatabase database;
 	private MetaSource sources;
+	private MetaDocs docs;
 	private MetaDistr distr;
 	private MetaMonitoring mon;
 
@@ -150,8 +152,13 @@ public class ProductMeta extends EngineObject {
 			if( r.sources.isLoadFailed() )
 				r.loadFailed = true;
 		}
+		if( docs != null ) {
+			r.docs = docs.copy( action , r.meta );
+			if( r.docs.isLoadFailed() )
+				r.loadFailed = true;
+		}
 		if( distr != null ) {
-			r.distr = distr.copy( action , r.meta , r.database );
+			r.distr = distr.copy( action , r.meta , r.database , r.docs );
 			if( r.distr.isLoadFailed() )
 				r.loadFailed = true;
 		}
@@ -305,12 +312,42 @@ public class ProductMeta extends EngineObject {
 		return( database );
 	}
 	
+	public synchronized MetaDocs loadDocs( EngineLoader loader , MetadataStorage storageMeta ) {
+		if( docs != null )
+			return( docs );
+		
+		MetaProductSettings settings = loadProduct( loader , storageMeta );
+		docs = new MetaDocs( this , settings , meta );
+		
+		if( !loadFailed ) {
+			ActionBase action = loader.getAction();
+			try {
+				// read
+				String file = storageMeta.getProductConfFile( action );
+				action.debug( "read units definition file " + file + "..." );
+				Document doc = action.readXmlFile( file );
+				Node root = doc.getDocumentElement();
+				Node node = ConfReader.xmlGetFirstChild( root , "documentation" );
+				docs.load( action , node );
+				
+				if( docs.isLoadFailed() )
+					setLoadFailed( action , "invalid documentation metadata, product=" + name );
+			}
+			catch( Throwable e ) {
+				setLoadFailed( action , e , "unable to load documentation metadata, product=" + name );
+			}
+		}
+		
+		return( docs );
+	}
+	
 	public synchronized MetaDistr loadDistr( EngineLoader loader , MetadataStorage storageMeta ) {
 		if( distr != null )
 			return( distr );
 		
 		MetaProductSettings settings = loadProduct( loader , storageMeta );
 		MetaDatabase db = loadDatabase( loader , storageMeta );
+		MetaDocs docs = loadDocs( loader , storageMeta );
 		distr = new MetaDistr( this , settings , meta );
 		meta.setDistr( distr );
 		
@@ -322,7 +359,7 @@ public class ProductMeta extends EngineObject {
 				action.debug( "read distributive definition file " + file + "..." );
 				Document doc = action.readXmlFile( file );
 				Node root = doc.getDocumentElement();
-				distr.load( action , db , root );
+				distr.load( action , db , docs , root );
 				if( distr.isLoadFailed() )
 					setLoadFailed( action , "invalid distributive metadata, product=" + name );
 			}
@@ -455,6 +492,7 @@ public class ProductMeta extends EngineObject {
 		loadUnits( loader , storageMeta );
 		loadDatabase( loader , storageMeta );
 		loadSources( loader , storageMeta );
+		loadDocs( loader , storageMeta );
 		loadDistr( loader , storageMeta );
 		loadMonitoring( loader , storageMeta );
 		
@@ -462,6 +500,7 @@ public class ProductMeta extends EngineObject {
 		meta.setProduct( productSettings );
 		meta.setUnits( units );
 		meta.setDatabase( database );
+		meta.setDocs( docs );
 		meta.setDistr( distr );
 		meta.setSources( sources );
 		
@@ -487,6 +526,7 @@ public class ProductMeta extends EngineObject {
 		createInitialUnits( transaction );
 		createInitialDatabase( transaction );
 		createInitialSources( transaction );
+		createInitialDocs( transaction );
 		createInitialDistr( transaction );
 		createInitialMonitoring( transaction );
 	}
@@ -518,6 +558,12 @@ public class ProductMeta extends EngineObject {
 		database = new MetaDatabase( this , productSettings , meta );
 		database.createDatabase( transaction );
 		meta.setDatabase( database );
+	}
+	
+	private void createInitialDocs( TransactionBase transaction ) throws Exception {
+		docs = new MetaDocs( this , productSettings , meta );
+		docs.createDocs( transaction );
+		meta.setDocs( docs );
 	}
 	
 	private void createInitialDistr( TransactionBase transaction ) throws Exception {
@@ -569,8 +615,13 @@ public class ProductMeta extends EngineObject {
 		Document doc = Common.xmlCreateDoc( XML_ROOT_PRODUCT );
 		Element root = doc.getDocumentElement();
 		productSettings.save( action , doc , root );
+		
 		Element node = Common.xmlCreateElement( doc , root , "units" );
 		units.save( action , doc , node );
+		
+		node = Common.xmlCreateElement( doc , root , "documentation" );
+		docs.save( action , doc , node );
+		
 		storageMeta.saveProductConfFile( action , doc );
 	}
 	
@@ -634,6 +685,10 @@ public class ProductMeta extends EngineObject {
 	
 	public MetaDatabase getDatabase() {
 		return( database );
+	}
+	
+	public MetaDocs getDocs() {
+		return( docs );
 	}
 	
 	public MetaDistr getDistr() {

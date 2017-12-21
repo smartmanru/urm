@@ -113,7 +113,7 @@ public class MetaUnits extends PropertyController {
 	public MetaProductUnit getUnit( ActionBase action , String name ) throws Exception {
 		MetaProductUnit unit = mapUnits.get( name );
 		if( unit == null )
-			action.exit1( _Error.UnknownSchema1 , "unknown schema=" + name , name );
+			action.exit1( _Error.UnknownUnit1 , "unknown unit=" + name , name );
 		return( unit );
 	}
 

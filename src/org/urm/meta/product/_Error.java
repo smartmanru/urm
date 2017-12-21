@@ -53,7 +53,9 @@ public class _Error {
 	public static final int UnknownCompConfItem1 = ErrorBase + 82;
 	public static final int UnknownCompSchemaItem1 = ErrorBase + 83;
 	public static final int UnknownSourceProjectItem1 = ErrorBase + 84;
-	public static final int UnknownCompWebService1 = ErrorBase + 84;
-	public static final int UnknownUnit1 = ErrorBase + 85;
+	public static final int UnknownCompWebService1 = ErrorBase + 85;
+	public static final int UnknownUnit1 = ErrorBase + 86;
+	public static final int UnknownDoc1 = ErrorBase + 87;
+	public static final int UnknownDeliveryDoc1 = ErrorBase + 88;
 
 }

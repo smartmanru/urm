@@ -20,6 +20,7 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDesign;
 import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductSettings;
@@ -255,6 +256,12 @@ public class EngineProducts {
 		return( storageFinal.loadProduct( loader , storageMeta ) );
 	}
 
+	public MetaDocs loadDocs( EngineLoader loader , ProductMeta storageFinal ) throws Exception {
+		ActionBase action = loader.getAction();
+		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
+		return( storageFinal.loadDocs( loader , storageMeta ) );
+	}
+	
 	public MetaDistr loadDistr( EngineLoader loader , ProductMeta storageFinal ) throws Exception {
 		ActionBase action = loader.getAction();
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );

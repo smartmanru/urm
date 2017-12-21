@@ -71,6 +71,7 @@ import org.urm.meta.product.MetaEnvStartInfo;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
 import org.urm.meta.product.MetaProductCoreSettings;
+import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaProductVersion;
@@ -741,6 +742,11 @@ public class EngineTransaction extends TransactionBase {
 		unit.units.createUnit( this , unit );
 	}
 	
+	public void createProductDoc( MetaProductDoc doc ) throws Exception {
+		checkTransactionMetadata( doc.meta.getStorage() );
+		doc.docs.createDoc( this , doc );
+	}
+	
 	public void createDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
 		checkTransactionMetadata( schema.meta.getStorage() );
 		schema.database.createDatabaseSchema( this , schema );
@@ -751,6 +757,11 @@ public class EngineTransaction extends TransactionBase {
 		unit.units.modifyUnit( this , unit );
 	}
 	
+	public void modifyProductDoc( MetaProductDoc doc ) throws Exception {
+		checkTransactionMetadata( doc.meta.getStorage() );
+		doc.docs.modifyDoc( this , doc );
+	}
+	
 	public void modifyDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
 		checkTransactionMetadata( schema.meta.getStorage() );
 		schema.database.modifyDatabaseSchema( this , schema );
@@ -759,6 +770,11 @@ public class EngineTransaction extends TransactionBase {
 	public void deleteProductUnit( MetaProductUnit unit ) throws Exception {
 		checkTransactionMetadata( unit.meta.getStorage() );
 		unit.units.deleteUnit( this , unit );
+	}
+	
+	public void deleteProductDoc( MetaProductDoc doc ) throws Exception {
+		checkTransactionMetadata( doc.meta.getStorage() );
+		doc.docs.deleteDoc( this , doc );
 	}
 	
 	public void deleteDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {

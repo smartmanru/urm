@@ -31,6 +31,7 @@ public class Meta extends EngineObject {
 	private MetaProductSettings product;
 	private MetaUnits units;
 	private MetaDatabase database;
+	private MetaDocs docs;
 	private MetaDistr distr;
 	private MetaSource sources;
 	private MetaMonitoring monitoring;
@@ -72,6 +73,7 @@ public class Meta extends EngineObject {
 		product = null;
 		units = null;
 		database = null;
+		docs = null;
 		distr = null;
 		sources = null;
 		monitoring = null;
@@ -107,6 +109,10 @@ public class Meta extends EngineObject {
 	
 	public void setUnits( MetaUnits units ) {
 		this.units = units;
+	}
+	
+	public void setDocs( MetaDocs docs ) {
+		this.docs = docs;
 	}
 	
 	public void setDistr( MetaDistr distr ) {
@@ -152,6 +158,12 @@ public class Meta extends EngineObject {
 		if( database == null )
 			database = storage.getDatabase();
 		return( database );
+	}
+
+	public synchronized MetaDocs getDocs( ActionBase action ) throws Exception {
+		if( docs == null )
+			docs = storage.getDocs();
+		return( docs );
 	}
 
 	public synchronized MetaDistr getDistr( ActionBase action ) throws Exception {

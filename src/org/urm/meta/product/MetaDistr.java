@@ -52,12 +52,12 @@ public class MetaDistr extends PropertyController {
 	public void scatterProperties( ActionBase action ) throws Exception {
 	}
 	
-	public MetaDistr copy( ActionBase action , Meta meta , MetaDatabase rdb ) throws Exception {
+	public MetaDistr copy( ActionBase action , Meta meta , MetaDatabase rdb , MetaDocs rdocs ) throws Exception {
 		MetaProductSettings product = meta.getProductSettings( action );
 		MetaDistr r = new MetaDistr( meta.getStorage() , product , meta );
 		r.initCopyStarted( this , product.getProperties() );
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
-			MetaDistrDelivery rd = delivery.copy( action , meta , r , rdb );
+			MetaDistrDelivery rd = delivery.copy( action , meta , r , rdb , rdocs );
 			r.mapDeliveries.put( rd.NAME , rd );
 		}
 		
@@ -90,18 +90,18 @@ public class MetaDistr extends PropertyController {
 		super.initFinished();
 	}
 	
-	public void load( ActionBase action , MetaDatabase db , Node root ) throws Exception {
+	public void load( ActionBase action , MetaDatabase db , MetaDocs docs , Node root ) throws Exception {
 		MetaProductSettings product = meta.getProductSettings( action );
 		if( !super.initCreateStarted( product.getProperties() ) )
 			return;
 
-		loadDeliveries( action , db , ConfReader.xmlGetPathNode( root , "deliveries" ) );
+		loadDeliveries( action , db , docs , ConfReader.xmlGetPathNode( root , "deliveries" ) );
 		loadComponents( action , ConfReader.xmlGetPathNode( root , "components" ) );
 		
 		super.initFinished();
 	}
 	
-	public void loadDeliveries( ActionBase action , MetaDatabase db , Node node ) throws Exception {
+	public void loadDeliveries( ActionBase action , MetaDatabase db , MetaDocs docs , Node node ) throws Exception {
 		if( node == null )
 			return;
 		
@@ -110,7 +110,7 @@ public class MetaDistr extends PropertyController {
 			return;
 		
 		for( Node deliveryNode : items ) {
-			MetaDistrDelivery item = new MetaDistrDelivery( meta , this , db );
+			MetaDistrDelivery item = new MetaDistrDelivery( meta , this , db , docs );
 			item.load( action , deliveryNode );
 			mapDeliveries.put( item.NAME , item );
 			for( MetaDistrBinaryItem binaryItem : item.getBinaryItems() )
@@ -345,6 +345,13 @@ public class MetaDistr extends PropertyController {
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
 			if( delivery.UNIT.equals( unit.NAME ) )
 				delivery.clearUnit( transaction );
+		}
+	}	
+	
+	public void deleteDocument( EngineTransaction transaction , MetaProductDoc doc ) throws Exception {
+		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
+			if( delivery.findDoc( doc.NAME ) != null )
+				delivery.deleteDoc( transaction , doc );
 		}
 	}	
 	
