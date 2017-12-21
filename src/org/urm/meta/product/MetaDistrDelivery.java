@@ -22,6 +22,7 @@ public class MetaDistrDelivery {
 	public String FOLDER;
 	public String DESC;
 	public boolean allSchemas;
+	public String UNIT;
 
 	private Map<String,MetaDistrBinaryItem> mapBinaryItems;
 	private Map<String,MetaDistrConfItem> mapConfComps;
@@ -37,16 +38,18 @@ public class MetaDistrDelivery {
 		allSchemas = false;
 	}
 
-	public void createDelivery( EngineTransaction transaction , String NAME , String FOLDER , String DESC ) {
+	public void createDelivery( EngineTransaction transaction , String NAME , String FOLDER , String DESC , String UNIT ) {
 		this.NAME = NAME;
 		this.FOLDER = FOLDER;
 		this.DESC = DESC;
+		this.UNIT = UNIT;
 	}
 	
-	public void modifyDelivery( EngineTransaction transaction , String NAME , String FOLDER , String DESC ) {
+	public void modifyDelivery( EngineTransaction transaction , String NAME , String FOLDER , String DESC , String UNIT ) {
 		this.NAME = NAME;
 		this.FOLDER = FOLDER;
 		this.DESC = DESC;
+		this.UNIT = UNIT;
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
@@ -54,6 +57,7 @@ public class MetaDistrDelivery {
 		FOLDER = ConfReader.getAttrValue( node , "folder" , NAME );
 		DESC = ConfReader.getAttrValue( node , "desc" );
 		allSchemas = ConfReader.getBooleanAttrValue( node , "dball" , false );
+		UNIT = ConfReader.getAttrValue( node , "unit" );
 		
 		loadBinaryItems( action , node );
 		loadConfigurationComponents( action , node );
@@ -66,6 +70,7 @@ public class MetaDistrDelivery {
 		Common.xmlSetElementAttr( doc , root , "folder" , FOLDER );
 		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 		Common.xmlSetElementAttr( doc , root , "dball" , Common.getBooleanValue( allSchemas ) );
+		Common.xmlSetElementAttr( doc , root , "unit" , UNIT );
 		
 		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
 			Element itemElement = Common.xmlCreateElement( doc , root , "distitem" );
@@ -128,6 +133,7 @@ public class MetaDistrDelivery {
 		r.FOLDER = FOLDER;
 		r.DESC = DESC;
 		r.allSchemas = allSchemas;
+		r.UNIT = UNIT;
 		
 		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
 			MetaDistrBinaryItem ritem = item.copy( action , meta , r );
@@ -319,4 +325,8 @@ public class MetaDistrDelivery {
 			mapDatabaseSchema.put( schema.SCHEMA , schema );
 	}
 	
+	public void clearUnit( EngineTransaction transaction ) throws Exception {
+		UNIT = "";
+	}
+
 }

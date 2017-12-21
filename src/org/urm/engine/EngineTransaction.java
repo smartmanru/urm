@@ -72,6 +72,7 @@ import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
@@ -735,9 +736,19 @@ public class EngineTransaction extends TransactionBase {
 		item.delivery.dist.deleteConfItem( this , item );
 	}
 	
+	public void createProductUnit( MetaProductUnit unit ) throws Exception {
+		checkTransactionMetadata( unit.meta.getStorage() );
+		unit.units.createUnit( this , unit );
+	}
+	
 	public void createDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
 		checkTransactionMetadata( schema.meta.getStorage() );
 		schema.database.createDatabaseSchema( this , schema );
+	}
+	
+	public void modifyProductUnit( MetaProductUnit unit ) throws Exception {
+		checkTransactionMetadata( unit.meta.getStorage() );
+		unit.units.modifyUnit( this , unit );
 	}
 	
 	public void modifyDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
@@ -745,6 +756,11 @@ public class EngineTransaction extends TransactionBase {
 		schema.database.modifyDatabaseSchema( this , schema );
 	}
 
+	public void deleteProductUnit( MetaProductUnit unit ) throws Exception {
+		checkTransactionMetadata( unit.meta.getStorage() );
+		unit.units.deleteUnit( this , unit );
+	}
+	
 	public void deleteDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
 		checkTransactionMetadata( schema.meta.getStorage() );
 		schema.database.deleteDatabaseSchema( this , schema );

@@ -220,4 +220,11 @@ public class MetaSource extends PropertyController {
 		return( true );
 	}
 	
+	public void deleteUnit( EngineTransaction transaction , MetaProductUnit unit ) throws Exception {
+		for( MetaSourceProject project : projectMap.values() ) {
+			if( project.UNIT.equals( unit.NAME ) )
+				project.clearUnit( transaction );
+		}
+	}	
+	
 }

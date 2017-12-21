@@ -122,7 +122,7 @@ public abstract class Builder {
 		propsGenerated.setManualStringProperty( PROPERTY_PROJECTNAME , project.NAME );
 		propsGenerated.setManualStringProperty( PROPERTY_PROJECTDESC , project.DESC );
 		propsGenerated.setManualStringProperty( PROPERTY_REPOSITORY , project.REPOSITORY );
-		propsGenerated.setManualStringProperty( PROPERTY_BUILDGROUP , project.BUILDGROUP );
+		propsGenerated.setManualStringProperty( PROPERTY_BUILDGROUP , project.UNIT );
 		propsGenerated.setManualStringProperty( PROPERTY_GROUPPOS , "" + project.POS );
 		propsGenerated.setManualStringProperty( PROPERTY_REPOPATH , project.REPOPATH );
 		propsGenerated.setManualStringProperty( PROPERTY_CODEPATH , project.CODEPATH );

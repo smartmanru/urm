@@ -52,10 +52,12 @@ import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.product.MetaUnits;
 import org.urm.meta.Types.*;
 
 public class TransactionBase extends EngineObject {
@@ -1089,6 +1091,12 @@ public class TransactionBase extends EngineObject {
 		Meta meta = getTransactionProductMetadata( schema.meta.name );
 		MetaDatabase database = meta.getDatabase( action );
 		return( database.getSchema( action , schema.SCHEMA ) );
+	}
+
+	public MetaProductUnit getProductUnit( MetaProductUnit unit ) throws Exception {
+		Meta meta = getTransactionProductMetadata( unit.meta.name );
+		MetaUnits units = meta.getUnits( action );
+		return( units.getUnit( action , unit.NAME ) );
 	}
 
 	public MetaDistrComponent getDistrComponent( MetaDistrComponent comp ) throws Exception {

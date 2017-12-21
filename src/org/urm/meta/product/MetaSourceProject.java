@@ -27,7 +27,7 @@ public class MetaSourceProject {
 	public String DESC;
 	public VarPROJECTTYPE type;
 	public boolean codebaseProd;
-	public String BUILDGROUP;
+	public String UNIT;
 	public String TRACKER;
 	public String BRANCH;
 	public String BUILDER;
@@ -54,7 +54,7 @@ public class MetaSourceProject {
 		DESC = "";
 		REPOSITORY = "";
 		codebaseProd = false;
-		BUILDGROUP = "";
+		UNIT = "";
 		REPOPATH = "";
 		CODEPATH = "";
 		TRACKER = "";
@@ -90,7 +90,7 @@ public class MetaSourceProject {
 		if( REPOSITORY.isEmpty() )
 			REPOSITORY = NAME;
 
-		BUILDGROUP = ConfReader.getAttrValue( node , "group" );
+		UNIT = ConfReader.getAttrValue( node , "unit" );
 		
 		type = Types.getProjectType( ConfReader.getAttrValue( node , "type" ) , true );
 		if( type == VarPROJECTTYPE.BUILDABLE ) {
@@ -142,7 +142,7 @@ public class MetaSourceProject {
 		// read item attrs
 		Common.xmlSetElementAttr( doc , root , "repository" , REPOSITORY );
 		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( type ) );
-		Common.xmlSetElementAttr( doc , root , "group" , BUILDGROUP );
+		Common.xmlSetElementAttr( doc , root , "unit" , UNIT );
 		if( RESOURCE_ID != null ) {
 			AuthResource rc = action.getResource( RESOURCE_ID );
 			Common.xmlSetElementAttr( doc , root , "resource" , rc.NAME );
@@ -177,7 +177,7 @@ public class MetaSourceProject {
 
 		// read item attrs
 		r.REPOSITORY = REPOSITORY;
-		r.BUILDGROUP = BUILDGROUP;
+		r.UNIT = UNIT;
 		r.TRACKER = TRACKER;
 		r.BRANCH = BRANCH;
 		r.BUILDER = BUILDER;
@@ -272,9 +272,9 @@ public class MetaSourceProject {
 		return( Common.getSortedKeys( itemMap ) );
 	}
 
-	public void setProjectData( EngineTransaction transaction , String desc , boolean prod , String group , VarPROJECTTYPE type , Integer resourceId , String repoName , String repoPath , String codePath , String branch ) throws Exception {
+	public void setProjectData( EngineTransaction transaction , String desc , boolean prod , String unit , VarPROJECTTYPE type , Integer resourceId , String repoName , String repoPath , String codePath , String branch ) throws Exception {
 		this.DESC = desc;
-		this.BUILDGROUP = group;
+		this.UNIT = unit;
 		this.type = type;
 		this.codebaseProd = prod;
 		
@@ -314,4 +314,8 @@ public class MetaSourceProject {
 		return( false );
 	}
 	
+	public void clearUnit( EngineTransaction transaction ) throws Exception {
+		UNIT = "";
+	}
+
 }

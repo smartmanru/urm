@@ -31,7 +31,9 @@ import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaUnits;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class ProductMeta extends EngineObject {
@@ -44,6 +46,7 @@ public class ProductMeta extends EngineObject {
 	
 	private MetaProductVersion version;
 	private MetaProductSettings productSettings;
+	private MetaUnits units;
 	private MetaDatabase database;
 	private MetaSource sources;
 	private MetaDistr distr;
@@ -130,6 +133,11 @@ public class ProductMeta extends EngineObject {
 		if( productSettings != null ) {
 			r.productSettings = productSettings.copy( action , r.meta );
 			if( r.productSettings.isLoadFailed() )
+				r.loadFailed = true;
+		}
+		if( units != null ) {
+			r.units = units.copy( action , r.meta );
+			if( r.units.isLoadFailed() )
 				r.loadFailed = true;
 		}
 		if( database != null ) {
@@ -239,6 +247,35 @@ public class ProductMeta extends EngineObject {
 		}
 		
 		return( productSettings );
+	}
+	
+	public synchronized MetaUnits loadUnits( EngineLoader loader , MetadataStorage storageMeta ) {
+		if( units != null )
+			return( units );
+		
+		MetaProductSettings settings = loadProduct( loader , storageMeta );
+		units = new MetaUnits( this , settings , meta );
+		
+		if( !loadFailed ) {
+			ActionBase action = loader.getAction();
+			try {
+				// read
+				String file = storageMeta.getProductConfFile( action );
+				action.debug( "read units definition file " + file + "..." );
+				Document doc = action.readXmlFile( file );
+				Node root = doc.getDocumentElement();
+				Node node = ConfReader.xmlGetFirstChild( root , "units" );
+				units.load( action , node );
+				
+				if( units.isLoadFailed() )
+					setLoadFailed( action , "invalid units metadata, product=" + name );
+			}
+			catch( Throwable e ) {
+				setLoadFailed( action , e , "unable to load units metadata, product=" + name );
+			}
+		}
+		
+		return( units );
 	}
 	
 	public synchronized MetaDatabase loadDatabase( EngineLoader loader , MetadataStorage storageMeta ) {
@@ -415,6 +452,7 @@ public class ProductMeta extends EngineObject {
 		
 		loadVersion( loader , storageMeta );
 		loadProduct( loader , storageMeta );
+		loadUnits( loader , storageMeta );
 		loadDatabase( loader , storageMeta );
 		loadSources( loader , storageMeta );
 		loadDistr( loader , storageMeta );
@@ -422,6 +460,7 @@ public class ProductMeta extends EngineObject {
 		
 		meta.setVersion( version );
 		meta.setProduct( productSettings );
+		meta.setUnits( units );
 		meta.setDatabase( database );
 		meta.setDistr( distr );
 		meta.setSources( sources );
@@ -445,6 +484,7 @@ public class ProductMeta extends EngineObject {
 	public synchronized void createInitial( TransactionBase transaction , EngineSettings settings , AppProduct product ) throws Exception {
 		createInitialVersion( transaction );
 		createInitialProduct( transaction , settings , product );
+		createInitialUnits( transaction );
 		createInitialDatabase( transaction );
 		createInitialSources( transaction );
 		createInitialDistr( transaction );
@@ -466,6 +506,12 @@ public class ProductMeta extends EngineObject {
 		
 		productSettings.createSettings( transaction , settings , productContext );
 		meta.setProduct( productSettings );
+	}
+	
+	private void createInitialUnits( TransactionBase transaction ) throws Exception {
+		units = new MetaUnits( this , productSettings , meta );
+		units.createUnits( transaction );
+		meta.setUnits( units );
 	}
 	
 	private void createInitialDatabase( TransactionBase transaction ) throws Exception {
@@ -521,7 +567,10 @@ public class ProductMeta extends EngineObject {
 	
 	public void saveProduct( ActionBase action , MetadataStorage storageMeta ) throws Exception {
 		Document doc = Common.xmlCreateDoc( XML_ROOT_PRODUCT );
-		productSettings.save( action , doc , doc.getDocumentElement() );
+		Element root = doc.getDocumentElement();
+		productSettings.save( action , doc , root );
+		Element node = Common.xmlCreateElement( doc , root , "units" );
+		units.save( action , doc , node );
 		storageMeta.saveProductConfFile( action , doc );
 	}
 	
@@ -577,6 +626,10 @@ public class ProductMeta extends EngineObject {
 	
 	public MetaProductSettings getProductSettings() {
 		return( productSettings );
+	}
+	
+	public MetaUnits getUnits() {
+		return( units );
 	}
 	
 	public MetaDatabase getDatabase() {

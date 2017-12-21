@@ -25,6 +25,7 @@ import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaUnits;
 
 public class EngineProducts {
 
@@ -258,6 +259,12 @@ public class EngineProducts {
 		ActionBase action = loader.getAction();
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
 		return( storageFinal.loadDistr( loader , storageMeta ) );
+	}
+	
+	public MetaUnits loadUnits( EngineLoader loader , ProductMeta storageFinal ) throws Exception {
+		ActionBase action = loader.getAction();
+		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
+		return( storageFinal.loadUnits( loader , storageMeta ) );
 	}
 	
 	public MetaDatabase loadDatabase( EngineLoader loader , ProductMeta storageFinal ) throws Exception {

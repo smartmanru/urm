@@ -340,5 +340,12 @@ public class MetaDistr extends PropertyController {
 	public void deleteDistrComponent( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
 		mapComps.remove( item.NAME );
 	}
+
+	public void deleteUnit( EngineTransaction transaction , MetaProductUnit unit ) throws Exception {
+		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
+			if( delivery.UNIT.equals( unit.NAME ) )
+				delivery.clearUnit( transaction );
+		}
+	}	
 	
 }

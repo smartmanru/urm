@@ -29,6 +29,7 @@ public class Meta extends EngineObject {
 
 	private MetaProductVersion version;
 	private MetaProductSettings product;
+	private MetaUnits units;
 	private MetaDatabase database;
 	private MetaDistr distr;
 	private MetaSource sources;
@@ -69,6 +70,7 @@ public class Meta extends EngineObject {
 		// clear old refs
 		version = null;
 		product = null;
+		units = null;
 		database = null;
 		distr = null;
 		sources = null;
@@ -101,6 +103,10 @@ public class Meta extends EngineObject {
 	
 	public void setProduct( MetaProductSettings product ) {
 		this.product = product;
+	}
+	
+	public void setUnits( MetaUnits units ) {
+		this.units = units;
 	}
 	
 	public void setDistr( MetaDistr distr ) {
@@ -136,6 +142,12 @@ public class Meta extends EngineObject {
 		return( product );
 	}
 	
+	public synchronized MetaUnits getUnits( ActionBase action ) throws Exception {
+		if( units == null )
+			units = storage.getUnits();
+		return( units );
+	}
+
 	public synchronized MetaDatabase getDatabase( ActionBase action ) throws Exception {
 		if( database == null )
 			database = storage.getDatabase();
