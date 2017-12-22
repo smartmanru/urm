@@ -837,6 +837,11 @@ public class EngineTransaction extends TransactionBase {
 		delivery.setDatabaseSet( this , set );
 	}
 
+	public void setDeliveryDocumentationSet( MetaDistrDelivery delivery , MetaProductDoc[] set ) throws Exception {
+		checkTransactionMetadata( delivery.meta.getStorage() );
+		delivery.setDocSet( this , set );
+	}
+
 	public MetaSourceProjectSet createSourceProjectSet( MetaSource sources , String name ) throws Exception {
 		checkTransactionMetadata( sources.meta.getStorage() );
 		return( sources.createProjectSet( this , name ) );
