@@ -79,8 +79,7 @@ public class ActionBuild extends ActionBase {
 		
 		action.startRedirect( "PROJECT BUILD LOG:" , logFile );
 		info( "build: BUILDER=" + builder.builder.NAME + ", BUILDMODE=" + context.getBuildModeName() + ", PROJECT=" + builder.project.NAME + 
-				", REPOSITORY=" + builder.project.REPOSITORY + ", VCS=" + builder.project.getVCS( this ) + ", VCSPATH=" + builder.project.REPOPATH + 
-				", TAG=" + builder.TAG + ", VERSION=" + builder.APPVERSION );
+				", REPOSITORY=" + builder.project.REPOSITORY + ", TAG=" + builder.TAG + ", VERSION=" + builder.APPVERSION );
 
 		BUILDSTATUS = "SUCCESSFUL";
 		boolean res = true;
