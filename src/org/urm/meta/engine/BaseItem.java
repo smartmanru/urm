@@ -1,5 +1,8 @@
 package org.urm.meta.engine;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
 import org.urm.common.Common;
@@ -46,12 +49,18 @@ public class BaseItem extends EngineObject {
 	
 	public ObjectProperties p;
 	
+	Map<String,BaseItem> depsDraft;
+	Map<Integer,BaseItem> depsById;
+	
 	public BaseItem( BaseGroup group , ObjectProperties p ) {
 		super( group );
 		this.group = group;
 		this.p = p;
 		ID = -1;
 		CV = 0;
+		
+		depsDraft = new HashMap<String,BaseItem>();
+		depsById = new HashMap<Integer,BaseItem>(); 
 	}
 
 	@Override
@@ -196,6 +205,49 @@ public class BaseItem extends EngineObject {
 		p.setProperty( BaseItem.PROPERTY_INSTALLPATH , INSTALLPATH );
 		p.setProperty( BaseItem.PROPERTY_INSTALLLINK , INSTALLLINK );
 		p.setProperty( BaseItem.PROPERTY_CHARSET , CHARSET );
+	}
+	
+	public String[] getDepItemNames() {
+		Map<String,BaseItem> map = new HashMap<String,BaseItem>();
+		for( BaseItem item : depsById.values() )
+			map.put( item.NAME , item );
+		return( Common.getSortedKeys( map ) );
+	}
+
+	public String[] getDepItemDraftNames() {
+		return( Common.getSortedKeys( depsDraft ) );
+	}
+
+	public void addDepItem( BaseItem dep ) {
+		depsById.put( dep.ID , dep );
+	}
+	
+	public void deleteDepItem( BaseItem dep ) {
+		depsById.remove( dep.ID );
+	}
+	
+	public void clearDrafts() {
+		depsDraft.clear();
+	}
+	
+	public BaseItem findDepItem( String depName ) {
+		for( BaseItem item : depsById.values() ) {
+			if( depName.equals( item.NAME ) )
+				return( item );
+		}
+		return( null );
+	}
+	
+	public void addDepDraft( String depName ) {
+		depsDraft.put( depName , null );
+	}
+	
+	public boolean checkDependencyItem( String depName ) {
+		for( BaseItem item : depsById.values() ) {
+			if( depName.equals( item.NAME ) )
+				return( true );
+		}
+		return( false );
 	}
 	
 }

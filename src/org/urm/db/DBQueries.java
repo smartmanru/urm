@@ -46,6 +46,9 @@ public abstract class DBQueries {
 	public static String MODIFY_AUTH_DROP_GROUP0 = "delete from urm_auth_group";
 	
 	public static String MODIFY_BASE_DROP_ITEMDEPS0 = "delete from urm_base_item_deps";
+	public static String MODIFY_BASE_ADDDEPITEM3 = "insert into urm_base_item_deps ( item_id , dep_item_id , cv ) values ( @values@ )";
+	public static String MODIFY_BASE_DELETEDEPITEM2 = "delete from urm_base_item_deps where item_id = @1@ and dep_item_id = @2@";
+	public static String QUERY_BASE_ITEMDEPS0 = "select item_id , dep_item_id , cv from urm_base_item_deps";
 
 	public static String MODIFY_APP_DROP_SYSTEMPARAMVALUES0 = "delete from urm_object_param_value where param_object_id in ( select system_id from urm_system )";
 	public static String MODIFY_APP_DROP_SYSTEMPARAMS0 = "delete from urm_object_param where param_object_id in ( select system_id from urm_system )";

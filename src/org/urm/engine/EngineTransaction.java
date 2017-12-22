@@ -310,7 +310,19 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionBase();
 		DBEngineBase.modifyItemData( this , item , name , version , ostype , accessType , srcType , srcFormat , SRCFILE , SRCFILEDIR , INSTALLPATH , INSTALLLINK );
 	}
-	
+
+	public void addBaseItemDependency( BaseItem item , BaseItem dep ) throws Exception {
+		checkTransactionBase();
+		EngineBase base = super.getTransactionBase();
+		DBEngineBase.addItemDependency( this , base , item , dep );
+	}
+
+	public void deleteBaseItemDependency( BaseItem item , BaseItem dep ) throws Exception {
+		checkTransactionBase();
+		EngineBase base = super.getTransactionBase();
+		DBEngineBase.deleteItemDependency( this , base , item , dep );
+	}
+
 	// ################################################################################
 	// ################################################################################
 	// BUILDERS

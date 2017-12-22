@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.DBEnumBaseCategoryType;
 import org.urm.db.core.DBEnums.DBEnumBaseSrcFormatType;
@@ -39,8 +40,10 @@ public abstract class DBEngineBase {
 	public static String ELEMENT_CATEGORY = "category";
 	public static String ELEMENT_GROUP = "group";
 	public static String ELEMENT_ITEM = "item";
+	public static String ELEMENT_DEPITEM = "dependency";
 	public static String XMLPROP_GROUP_NAME = "id";
 	public static String XMLPROP_ITEM_NAME = "id";
+	public static String XMLPROP_ITEM_DEPNAME = "name";
 	public static String FIELD_GROUP_ID = "group_id";
 	public static String FIELD_GROUP_CATEGORY = "basecategory_type";
 	public static String FIELD_GROUP_DESC = "xdesc";
@@ -102,6 +105,9 @@ public abstract class DBEngineBase {
 			for( Node node : list )
 				importxmlCategory( loader , base , node );
 		}
+		
+		for( BaseItem item : base.getItems() )
+			importxmlItemResolve( loader , base , item );
 	}
 	
 	private static BaseCategory importxmlCategory( EngineLoader loader , EngineBase base , Node root ) throws Exception {
@@ -159,9 +165,29 @@ public abstract class DBEngineBase {
 		modifyItem( c , item , true );
 		DBSettings.importxmlSave( loader , props , item.ID , DBVersions.CORE_ID , false , item.CV ); 
 		
+		Node[] list = ConfReader.xmlGetChildren( root , ELEMENT_DEPITEM );
+		if( list != null ) {
+			for( Node node : list ) {
+				String name = ConfReader.getAttrValue( node , XMLPROP_ITEM_DEPNAME );
+				item.addDepDraft( name );
+			}
+		}
+		
 		return( item );
 	}
 
+	private static void importxmlItemResolve( EngineLoader loader , EngineBase base , BaseItem item ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
+		int version = item.CV;
+		for( String name : item.getDepItemDraftNames() ) {
+			BaseItem dep = base.getItem( name );
+			addItemDependency( c , item , dep , version );
+		}
+		
+		item.clearDrafts();
+	}
+	
 	public static void exportxml( EngineLoader loader , EngineBase base , Document doc , Element root ) throws Exception {
 		for( String id : base.getCategoryNames() ) {
 			BaseCategory category = base.findCategory( id );
@@ -199,11 +225,22 @@ public abstract class DBEngineBase {
 
 	public static void exportxmlItem( EngineLoader loader , BaseItem item , Document doc , Element root ) throws Exception {
 		DBSettings.exportxml( loader , doc , root , item.p , false );
+		
+		for( String name : item.getDepItemNames() ) {
+			BaseItem dep = item.findDepItem( name );
+			Element element = Common.xmlCreateElement( doc , root , ELEMENT_DEPITEM );
+			exportxmlDepItem( loader , item , dep , doc , element );
+		}
+	}
+
+	public static void exportxmlDepItem( EngineLoader loader , BaseItem item , BaseItem dep , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , XMLPROP_ITEM_DEPNAME , dep.NAME );
 	}
 	
 	public static void loaddb( EngineLoader loader , EngineBase base ) throws Exception {
 		loaddbGroups( loader , base );
 		loaddbItems( loader , base );
+		loaddbItemDeps( loader , base );
 	}
 
 	public static void loaddbGroups( EngineLoader loader , EngineBase base ) throws Exception {
@@ -262,6 +299,25 @@ public abstract class DBEngineBase {
 		}
 	}
 	
+	public static void loaddbItemDeps( EngineLoader loader , EngineBase base ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
+		ResultSet rs = c.query( DBQueries.QUERY_BASE_ITEMDEPS0 );
+		try {
+			while( rs.next() ) {
+				int itemId = rs.getInt( 1 );
+				int depId = rs.getInt( 2 );
+				
+				BaseItem item = base.getItem( itemId );
+				BaseItem dep = base.getItem( depId );
+				item.addDepItem( dep );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+	
 	public static void modifyItem( DBConnection c , BaseItem item , boolean insert ) throws Exception {
 		if( insert )
 			item.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , item.NAME , DBEnumObjectType.BASE_ITEM );
@@ -290,6 +346,17 @@ public abstract class DBEngineBase {
 				} , insert );
 	}
 
+	private static void addItemDependency( DBConnection c , BaseItem item , BaseItem dep , int version ) throws Exception {
+		if( !c.modify( DBQueries.MODIFY_BASE_ADDDEPITEM3 , new String[] { 
+				EngineDB.getInteger( item.ID ) , 
+				EngineDB.getInteger( dep.ID ) ,
+				EngineDB.getInteger( version )
+				} ) )
+			Common.exitUnexpected();
+		
+		item.addDepItem( dep );
+	}
+	
 	public static BaseGroup createGroup( EngineTransaction transaction , EngineBase base , DBEnumBaseCategoryType type , String name , String desc ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
@@ -364,6 +431,23 @@ public abstract class DBEngineBase {
 		DBEngineEntities.deleteAppObject( c , entities.entityAppBaseItem , item.ID , c.getNextCoreVersion() );
 		base.removeItem( item );
 		item.deleteObject();
+	}
+	
+	public static void addItemDependency( EngineTransaction transaction , EngineBase base , BaseItem item , BaseItem dep ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		int version = c.getNextCoreVersion();
+		addItemDependency( c , item , dep , version );
+	}
+	
+	public static void deleteItemDependency( EngineTransaction transaction , EngineBase base , BaseItem item , BaseItem dep ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		if( !c.modify( DBQueries.MODIFY_BASE_DELETEDEPITEM2 , new String[] { 
+				EngineDB.getInteger( item.ID ) , 
+				EngineDB.getInteger( dep.ID )
+				} ) )
+			Common.exitUnexpected();
+		item.deleteDepItem( dep );
 	}
 	
 }

@@ -107,6 +107,10 @@ public class EngineBase extends EngineObject {
 		return( group );
 	}
 	
+	public BaseItem[] getItems() {
+		return( mapItem.values().toArray( new BaseItem[0] ) );
+	}
+	
 	public BaseItem findItem( String name ) {
 		return( mapItem.get( name ) );
 	}
