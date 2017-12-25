@@ -49,6 +49,7 @@ import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaDocs;
+import org.urm.meta.product.MetaDump;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
@@ -1016,7 +1017,7 @@ public class TransactionBase extends EngineObject {
 	}
 
 	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
-		ProductMeta metadata = getTransactionMetadata( env.meta );
+		ProductMeta metadata = getTransactionProductMetadata( env.meta );
 		return( metadata.findEnvironment( env.NAME ) );
 	}
 
@@ -1043,7 +1044,7 @@ public class TransactionBase extends EngineObject {
 		return( meta );
 	}
 
-	public ProductMeta getTransactionMetadata( Meta meta ) throws Exception {
+	public ProductMeta getTransactionProductMetadata( Meta meta ) throws Exception {
 		TransactionMetadata tm = productMeta.get( meta.name );
 		if( tm == null )
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
@@ -1066,7 +1067,11 @@ public class TransactionBase extends EngineObject {
 		return( meta );
 	}
 
-	public Meta getTransactionProductMetadata( String productName ) throws Exception {
+	public Meta getTransactionMetadata( Meta meta ) throws Exception {
+		return( getTransactionMetadata( meta.name ) );
+	}
+
+	public Meta getTransactionMetadata( String productName ) throws Exception {
 		TransactionMetadata tm = productMeta.get( productName );
 		if( tm == null )
 			action.exitUnexpectedState();
@@ -1074,7 +1079,7 @@ public class TransactionBase extends EngineObject {
 	}
 
 	public MetaDistrDelivery getDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
-		Meta meta = getTransactionProductMetadata( delivery.meta.name );
+		Meta meta = getTransactionMetadata( delivery.meta.name );
 		MetaDistr distr = meta.getDistr( action );
 		return( distr.getDelivery( action , delivery.NAME ) );
 	}
@@ -1090,25 +1095,25 @@ public class TransactionBase extends EngineObject {
 	}
 
 	public MetaDatabaseSchema getDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
-		Meta meta = getTransactionProductMetadata( schema.meta.name );
+		Meta meta = getTransactionMetadata( schema.meta.name );
 		MetaDatabase database = meta.getDatabase( action );
 		return( database.getSchema( action , schema.SCHEMA ) );
 	}
 
 	public MetaProductUnit getProductUnit( MetaProductUnit unit ) throws Exception {
-		Meta meta = getTransactionProductMetadata( unit.meta.name );
+		Meta meta = getTransactionMetadata( unit.meta.name );
 		MetaUnits units = meta.getUnits( action );
 		return( units.getUnit( action , unit.NAME ) );
 	}
 
 	public MetaProductDoc getProductDoc( MetaProductDoc doc ) throws Exception {
-		Meta meta = getTransactionProductMetadata( doc.meta.name );
+		Meta meta = getTransactionMetadata( doc.meta.name );
 		MetaDocs docs = meta.getDocs( action );
 		return( docs.getDoc( action , doc.NAME ) );
 	}
 
 	public MetaDistrComponent getDistrComponent( MetaDistrComponent comp ) throws Exception {
-		Meta meta = getTransactionProductMetadata( comp.meta.name );
+		Meta meta = getTransactionMetadata( comp.meta.name );
 		MetaDistr distr = meta.getDistr( action );
 		return( distr.getComponent( action , comp.NAME ) );
 	}
@@ -1136,13 +1141,13 @@ public class TransactionBase extends EngineObject {
 	}
 	
 	public MetaSourceProject getSourceProject( MetaSourceProject project ) throws Exception {
-		Meta metaNew = getTransactionProductMetadata( project.meta.name );
+		Meta metaNew = getTransactionMetadata( project.meta.name );
 		MetaSource sourceNew = metaNew.getSources( action );
 		return( sourceNew.getProject( action , project.NAME ) );
 	}
 	
 	public MetaSourceProjectSet getSourceProjectSet( MetaSourceProjectSet set ) throws Exception {
-		Meta metaNew = getTransactionProductMetadata( set.meta.name );
+		Meta metaNew = getTransactionMetadata( set.meta.name );
 		MetaSource sourceNew = metaNew.getSources( action );
 		return( sourceNew.getProjectSet( action , set.NAME ) );
 	}
@@ -1169,6 +1174,14 @@ public class TransactionBase extends EngineObject {
 	
 	public BaseItem getBaseItem( BaseItem item ) throws Exception {
 		return( baseChange.getItem( item.ID ) );
+	}
+
+	public MetaDump getDump( MetaDump dump ) throws Exception {
+		Meta meta = getTransactionMetadata( dump.meta );
+		MetaDatabase db = meta.getDatabase( action );
+		if( dump.EXPORT )
+			return( db.findExportDump( dump.NAME ) );
+		return( db.findImportDump( dump.NAME ) );
 	}
 	
 	public void checkSecurityFailed() {

@@ -18,6 +18,7 @@ public class EngineScheduler extends EngineObject {
 	};
 	
 	public enum ScheduleTaskType {
+		NOW ,
 		SPECIFIC ,
 		WEEKLY ,
 		DAILY ,

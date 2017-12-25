@@ -3,7 +3,6 @@ package org.urm.action.database;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.urm.action.ActionBase;
 import org.urm.action.conf.ConfBuilder;
@@ -19,14 +18,16 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.SourceStorage;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaDump;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaProductSettings;
 
 public class ActionImportDatabase extends ActionBase {
 
 	MetaEnvServer server;
-	String SPECFILE;
+	String TASK;
 	String CMD;
 	String SCHEMA;
 
@@ -35,7 +36,6 @@ public class ActionImportDatabase extends ActionBase {
 	DatabaseClient client;
 
 	String DATASET;
-	String TABLESETFILE;
 	String DUMPDIR;
 	String REMOTE_SETDBENV;
 	String DATABASE_DATAPUMPDIR;
@@ -44,15 +44,17 @@ public class ActionImportDatabase extends ActionBase {
 
 	Map<String,MetaDatabaseSchema> serverSchemas;
 	Map<String,Map<String,String>> tableSet;
+	MetaDump dump;
+	
 	LocalFolder workFolder;
 	RemoteFolder importScriptsFolder;
 	RemoteFolder importLogFolder;
 	RemoteFolder importDataFolder;
 	
-	public ActionImportDatabase( ActionBase action , String stream , MetaEnvServer server , String CMD , String SCHEMA ) {
+	public ActionImportDatabase( ActionBase action , String stream , MetaEnvServer server , String TASK , String CMD , String SCHEMA ) {
 		super( action , stream , "Import database, server=" + server.NAME );
 		this.server = server;
-		this.SPECFILE = "import-" + context.env.NAME + "-" + server.sg.NAME + "-" + server.NAME + ".conf";
+		this.TASK = TASK;
 		this.CMD = CMD;
 		this.SCHEMA = SCHEMA;
 	}
@@ -76,19 +78,17 @@ public class ActionImportDatabase extends ActionBase {
 	}
 	
 	private void loadImportSettings() throws Exception {
-		MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta ); 
-		String specPath = ms.getDatapumpFile( this , SPECFILE );
+		MetaDatabase db = server.meta.getDatabase( this );
+		dump = db.findExportDump( TASK );
+		if( dump == null )
+			exit1( _Error.UnknownImportTask1 , "import task " + TASK + " is not found in product database configuraton" , TASK );
 		
-		info( "reading import specification file " + specPath + " ..." );
-		Properties props = readPropertyFile( specPath );
-		
-		DATASET = props.getProperty( "CONFIG_DATASET" , "" );
-		TABLESETFILE = props.getProperty( "CONFIG_TABLESETFILE" , "" );
-		DUMPDIR = props.getProperty( "CONFIG_LOADDIR" , "" );
-		REMOTE_SETDBENV = props.getProperty( "CONFIG_REMOTE_SETDBENV" , "" );
-		DATABASE_DATAPUMPDIR = props.getProperty( "CONFIG_DATABASE_DATAPUMPDIR" , "" );
-		POSTREFRESH = props.getProperty( "CONFIG_POSTREFRESH" , "" );
-		NFS = Common.getBooleanValue( props.getProperty( "CONFIG_NFS" ) ); 
+		DATASET = dump.DATASET;
+		DUMPDIR = dump.DUMPDIR;
+		REMOTE_SETDBENV = dump.REMOTE_SETDBENV;
+		DATABASE_DATAPUMPDIR = dump.DATABASE_DATAPUMPDIR;
+		POSTREFRESH = dump.POSTREFRESH;
+		NFS = dump.NFS; 
 
 		serverSchemas = server.getSchemaSet( this );
 		if( !SCHEMA.isEmpty() )
@@ -96,7 +96,7 @@ public class ActionImportDatabase extends ActionBase {
 				exit1( _Error.UnknownServerSchema1 , "schema " + SCHEMA + " is not part of server datasets" , SCHEMA );
 
 		// load tableset
-		tableSet = ms.readDatapumpFile( this , TABLESETFILE , SCHEMA );
+		tableSet = dump.getTableSets( SCHEMA );
 	}
 
 	private void checkSource() throws Exception {

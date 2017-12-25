@@ -34,9 +34,9 @@ public class DatabaseCommandMeta extends CommandMeta {
 		cmdOpts = "OPT_SG, OPT_DBPASSWORD, OPT_DB";
 		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_MANAGE , ACTION_ACCESS.ENV , false , SecurityAction.ACTION_DEPLOY , false , "manage accounting information" , cmdOpts , "<RELEASELABEL> <status|correct|rollback|drop> [{all|<indexes>}]" ) );
 		cmdOpts = "OPT_SG, OPT_DBPASSWORD";
-		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_IMPORT , ACTION_ACCESS.ENV , false , SecurityAction.ACTION_DEPLOY , false , "import specified in etc/datapump/file dump to database" , cmdOpts , "<server> {all|meta|data} [schema]" ) );
+		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_IMPORT , ACTION_ACCESS.ENV , false , SecurityAction.ACTION_DEPLOY , false , "import specified in etc/datapump/file dump to database" , cmdOpts , "<task> <server> {all|meta|data} [schema]" ) );
 		cmdOpts = "OPT_SG, OPT_DBPASSWORD";
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_EXPORT , ACTION_ACCESS.ENV , true , SecurityAction.ACTION_DEPLOY , false , "export specified in etc/datapump/file dump from database" , cmdOpts , "<server> {all|meta|data [schema]}" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_EXPORT , ACTION_ACCESS.ENV , true , SecurityAction.ACTION_DEPLOY , false , "export specified in etc/datapump/file dump from database" , cmdOpts , "<task> <server> {all|meta|data [schema]}" ) );
 	}
 	
 }

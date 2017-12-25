@@ -1,7 +1,6 @@
 package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
-import org.urm.action.database.DatabaseSpecific;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
@@ -21,8 +20,6 @@ public class MetaDatabaseSchema {
 	public String DBNAME;
 	public String DBUSER;
 	public String DESC;
-	
-	public DatabaseSpecific specific;
 	
 	public MetaDatabaseSchema( Meta meta , MetaDatabase database ) {
 		this.meta = meta;
@@ -50,8 +47,6 @@ public class MetaDatabaseSchema {
 		DBNAME = ConfReader.getAttrValue( node , "dbname" , SCHEMA );
 		DBUSER = ConfReader.getAttrValue( node , "dbuser" , SCHEMA );
 		DESC = ConfReader.getAttrValue( node , "desc" );
-		
-		specific = new DatabaseSpecific( meta , dbmsType );
 	}
 
 	public MetaDatabaseSchema copy( ActionBase action , Meta meta , MetaDatabase database ) throws Exception {
@@ -62,7 +57,6 @@ public class MetaDatabaseSchema {
 		r.DBNAME = DBNAME;
 		r.DBUSER = DBUSER;
 		r.DESC = DESC;
-		r.specific = new DatabaseSpecific( meta , dbmsType );
 		return( r );
 	}
 

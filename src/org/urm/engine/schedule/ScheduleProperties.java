@@ -17,14 +17,18 @@ public class ScheduleProperties {
 	public long betweenInterval;
 
 	public ScheduleProperties() {
-		this.scheduleType = ScheduleTaskType.DAILY;
+		this.scheduleType = ScheduleTaskType.NOW;
 		this.specificDateTime = null;
 		this.regularFromEnd = false;
 		this.regularInterval = 0;
 		this.betweenInterval = 0;
 	}
+
+	public void createNow( ActionBase action ) {
+		createSpecific( action , new Date() );
+	}
 	
-	public void createSpecific( ActionBase action , Date specificDateTime ) throws Exception {
+	public void createSpecific( ActionBase action , Date specificDateTime ) {
 		this.scheduleType = ScheduleTaskType.SPECIFIC;
 		this.specificDateTime = specificDateTime;
 		this.regularFromEnd = false;
@@ -32,7 +36,7 @@ public class ScheduleProperties {
 		this.betweenInterval = 0;
 	}
 	
-	public void createWeekly( ActionBase action , long intervalFromBeginning ) throws Exception {
+	public void createWeekly( ActionBase action , long intervalFromBeginning ) {
 		this.scheduleType = ScheduleTaskType.WEEKLY;
 		this.specificDateTime = null;
 		this.regularFromEnd = false;
@@ -40,7 +44,7 @@ public class ScheduleProperties {
 		this.betweenInterval = 0;
 	}
 	
-	public void createDaily( ActionBase action , long intervalFromBeginning ) throws Exception {
+	public void createDaily( ActionBase action , long intervalFromBeginning ) {
 		this.scheduleType = ScheduleTaskType.DAILY;
 		this.specificDateTime = null;
 		this.regularFromEnd = false;
@@ -74,6 +78,9 @@ public class ScheduleProperties {
 
 	public Date getFirstStart() {
 		Date currentDate = new Date();
+		if( scheduleType == ScheduleTaskType.NOW )
+			return( new Date() );
+		
 		if( scheduleType == ScheduleTaskType.SPECIFIC ) {
 			if( specificDateTime.before( currentDate ) )
 				return( null );
@@ -116,7 +123,8 @@ public class ScheduleProperties {
 	}
 	
 	public Date getNextStart( Date dateStart , Date dateEnd ) {
-		if( scheduleType == ScheduleTaskType.SPECIFIC )
+		if( scheduleType == ScheduleTaskType.NOW ||
+			scheduleType == ScheduleTaskType.SPECIFIC )
 			return( null );
 		
 		if( scheduleType == ScheduleTaskType.WEEKLY ||
@@ -184,6 +192,10 @@ public class ScheduleProperties {
 				String data = pair[1];
 				if( var.equals( "type" ) ) {
 					scheduleTypeValue = ScheduleTaskType.valueOf( data.toUpperCase() );
+				}
+				else
+				if( var.equals( "none" ) ) {
+					specificDateTimeValue = null;
 				}
 				else
 				if( var.equals( "specific" ) ) {

@@ -78,15 +78,15 @@ public class DatabaseCommand {
 		ma.runAll( parentState , maker.getScope() , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
-	public void importDatabase( ScopeState parentState , ActionBase action , String SERVER , String CMD , String SCHEMA ) throws Exception {
+	public void importDatabase( ScopeState parentState , ActionBase action , String SERVER , String TASK , String CMD , String SCHEMA ) throws Exception {
 		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
-		ActionImportDatabase ma = new ActionImportDatabase( action , null , server , CMD , SCHEMA );
+		ActionImportDatabase ma = new ActionImportDatabase( action , null , server , TASK , CMD , SCHEMA );
 		ma.runSimpleEnv( parentState , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
-	public void exportDatabase( ScopeState parentState , ActionBase action , String SERVER , String CMD , String SCHEMA ) throws Exception {
+	public void exportDatabase( ScopeState parentState , ActionBase action , String SERVER , String TASK , String CMD , String SCHEMA ) throws Exception {
 		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
-		ActionExportDatabase ma = new ActionExportDatabase( action , null , server , CMD , SCHEMA );
+		ActionExportDatabase ma = new ActionExportDatabase( action , null , server , TASK , CMD , SCHEMA );
 		ma.runSimpleEnv( parentState , action.context.env , SecurityAction.ACTION_SECURED , true );
 	}
 

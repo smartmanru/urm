@@ -54,6 +54,7 @@ import org.urm.meta.engine.LifecyclePhase;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineAuth.SpecialRights;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -62,6 +63,7 @@ import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaDump;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
@@ -659,25 +661,25 @@ public class EngineTransaction extends TransactionBase {
 	// PRODUCT
 	
 	public void setProductProperties( Meta meta , PropertySet props , boolean system ) throws Exception {
-		ProductMeta metadata = getTransactionMetadata( meta );
+		ProductMeta metadata = getTransactionProductMetadata( meta );
 		MetaProductSettings settings = metadata.getProductSettings();
 		settings.setProperties( this , props , system );
 	}
 	
 	public void setProductBuildCommonProperties( Meta meta , PropertySet props ) throws Exception {
-		ProductMeta metadata = getTransactionMetadata( meta );
+		ProductMeta metadata = getTransactionProductMetadata( meta );
 		MetaProductSettings settings = metadata.getProductSettings();
 		settings.setBuildCommonProperties( this , props );
 	}
 	
 	public void setProductBuildModeProperties( Meta meta , DBEnumBuildModeType mode , PropertySet props ) throws Exception {
-		ProductMeta metadata = getTransactionMetadata( meta );
+		ProductMeta metadata = getTransactionProductMetadata( meta );
 		MetaProductSettings settings = metadata.getProductSettings();
 		settings.setBuildModeProperties( this , mode , props );
 	}
 
 	public MetaProductVersion updateProductVersion( Meta meta , int majorFirstNumber , int majorSecondNumber , int majorNextFirstNumber , int majorNextSecondNumber , int lastProdTag , int nextProdTag ) throws Exception {
-		ProductMeta metadata = getTransactionMetadata( meta );
+		ProductMeta metadata = getTransactionProductMetadata( meta );
 		MetaProductVersion version = metadata.getVersion();
 		version.updateVersion( this , majorFirstNumber , majorSecondNumber , majorNextFirstNumber , majorNextSecondNumber , lastProdTag , nextProdTag );
 		
@@ -914,7 +916,7 @@ public class EngineTransaction extends TransactionBase {
 	// ENVIRONMENT
 	
 	public MetaEnv createMetaEnv( Meta meta , String name , VarENVTYPE envType ) throws Exception {
-		ProductMeta metadata = getTransactionMetadata( meta );
+		ProductMeta metadata = getTransactionProductMetadata( meta );
 		MetaProductSettings settings = meta.getProductSettings( action );
 		MetaEnv env = new MetaEnv( metadata , settings , metadata.meta );
 		env.createEnv( action , name , envType );
@@ -923,7 +925,7 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void deleteMetaEnv( MetaEnv env ) throws Exception {
-		ProductMeta metadata = getTransactionMetadata( env.meta );
+		ProductMeta metadata = getTransactionProductMetadata( env.meta );
 		metadata.deleteEnv( this , env );
 		env.deleteObject();
 	}
@@ -1034,6 +1036,49 @@ public class EngineTransaction extends TransactionBase {
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.modifyTarget( this , target );
 		return( target );
+	}
+
+	public MetaDump createDump( MetaDatabase db , boolean export , String name , String desc , MetaEnvServer server , boolean standby , String setdbenv , String dataset , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
+		checkTransactionMetadata( db.meta.getStorage() );
+		MetaDump dump = new MetaDump( db.meta , db );
+		dump.create( name , desc , export );
+		dump.setTarget( server , standby , setdbenv );
+		dump.setFiles( dataset , dumpdir , datapumpdir , nfs , postRefresh );
+		db.createDump( this , dump );
+		return( dump );
+	}
+	
+	public void modifyDump( MetaDump dump , String name , String desc , MetaEnvServer server , boolean standby , String setdbenv , String dataset , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
+		checkTransactionMetadata( dump.database.meta.getStorage() );
+		dump.modify( name , desc );
+		dump.setTarget( server , standby , setdbenv );
+		dump.setFiles( dataset , dumpdir , datapumpdir , nfs , postRefresh );
+		dump.database.updateDump( dump );
+	}
+	
+	public void deleteDump( MetaDump dump ) throws Exception {
+		checkTransactionMetadata( dump.database.meta.getStorage() );
+		dump.database.deleteDump( this , dump );
+	}
+
+	public void createDumpTables( MetaDump dump , String schema , String tables ) throws Exception {
+		checkTransactionMetadata( dump.database.meta.getStorage() );
+		dump.addTables( schema , tables );
+	}
+	
+	public void deleteDumpTables( MetaDump dump , int index ) throws Exception {
+		checkTransactionMetadata( dump.database.meta.getStorage() );
+		dump.deleteTables( index );
+	}
+
+	public void setDumpOnline( MetaDump dump , boolean online ) throws Exception {
+		checkTransactionMetadata( dump.database.meta.getStorage() );
+		dump.setOnline( online );
+	}
+
+	public void setDumpSchedule( MetaDump dump , ScheduleProperties schedule ) throws Exception {
+		checkTransactionMetadata( dump.database.meta.getStorage() );
+		dump.setSchedule( schedule );
 	}
 
 }

@@ -3,7 +3,6 @@ package org.urm.action.database;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
@@ -16,19 +15,20 @@ import org.urm.engine.storage.MetadataStorage;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaDump;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionExportDatabase extends ActionBase {
 
 	MetaEnvServer server;
-	String SPECFILE;
+	String TASK;
 	String CMD;
 	String SCHEMA;
 
 	String DATASET;
-	String TABLESETFILE;
 	String DUMPDIR;
 	String REMOTE_SETDBENV;
 	String DATABASE_DATAPUMPDIR;
@@ -37,6 +37,7 @@ public class ActionExportDatabase extends ActionBase {
 	
 	Map<String,MetaDatabaseSchema> serverSchemas;
 	Map<String,Map<String,String>> tableSet;
+	MetaDump dump;
 
 	DistRepository repository;
 	RemoteFolder distDataFolder;
@@ -46,10 +47,10 @@ public class ActionExportDatabase extends ActionBase {
 	RemoteFolder exportDataFolder;
 	DatabaseClient client;
 
-	public ActionExportDatabase( ActionBase action , String stream , MetaEnvServer server , String CMD , String SCHEMA ) {
+	public ActionExportDatabase( ActionBase action , String stream , MetaEnvServer server , String TASK , String CMD , String SCHEMA ) {
 		super( action , stream , "Export database, server=" + server.NAME );
 		this.server = server;
-		this.SPECFILE = "export-" + context.env.NAME + "-" + server.sg.NAME + "-" + server.NAME + ".conf";
+		this.TASK = TASK;
 		this.CMD = CMD;
 		this.SCHEMA = SCHEMA;
 	}
@@ -75,19 +76,17 @@ public class ActionExportDatabase extends ActionBase {
 	}
 
 	private void loadExportSettings() throws Exception {
-		MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta ); 
-		String specPath = ms.getDatapumpFile( this , SPECFILE );
+		MetaDatabase db = server.meta.getDatabase( this );
+		dump = db.findExportDump( TASK );
+		if( dump == null )
+			exit1( _Error.UnknownExportTask1 , "export task " + TASK + " is not found in product database configuraton" , TASK );
 		
-		info( "reading export specification file " + specPath + " ..." );
-		Properties props = readPropertyFile( specPath );
-		
-		DATASET = props.getProperty( "CONFIG_DATASET" );
-		TABLESETFILE = props.getProperty( "CONFIG_TABLESETFILE" );
-		DUMPDIR = props.getProperty( "CONFIG_DATADIR" , "" );
-		REMOTE_SETDBENV = props.getProperty( "CONFIG_REMOTE_SETDBENV" , "" );
-		DATABASE_DATAPUMPDIR = props.getProperty( "CONFIG_DATABASE_DATAPUMPDIR" , "" );
-		STANDBY = Common.getBooleanValue( props.getProperty( "CONFIG_STANDBY" ) ); 
-		NFS = Common.getBooleanValue( props.getProperty( "CONFIG_NFS" ) ); 
+		DATASET = dump.DATASET;
+		DUMPDIR = dump.DUMPDIR;
+		REMOTE_SETDBENV = dump.REMOTE_SETDBENV;
+		DATABASE_DATAPUMPDIR = dump.DATABASE_DATAPUMPDIR;
+		STANDBY = dump.STANDBY; 
+		NFS = dump.NFS; 
 
 		serverSchemas = server.getSchemaSet( this );
 		if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
@@ -95,7 +94,7 @@ public class ActionExportDatabase extends ActionBase {
 				exit1( _Error.UnknownServerSchema1 , "schema " + SCHEMA + " is not part of server datasets" , SCHEMA );
 
 		// load tableset
-		tableSet = ms.readDatapumpFile( this , TABLESETFILE , SCHEMA );
+		tableSet = dump.getTableSets( SCHEMA );
 	}
 
 	private void prepareDestination() throws Exception {
