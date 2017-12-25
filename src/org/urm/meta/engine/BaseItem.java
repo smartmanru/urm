@@ -214,6 +214,10 @@ public class BaseItem extends EngineObject {
 		return( Common.getSortedKeys( map ) );
 	}
 
+	public BaseItem[] getDepItems() {
+		return( depsById.values().toArray( new BaseItem[0] ) );
+	}
+
 	public String[] getDepItemDraftNames() {
 		return( Common.getSortedKeys( depsDraft ) );
 	}
