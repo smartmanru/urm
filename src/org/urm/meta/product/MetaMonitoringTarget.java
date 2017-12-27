@@ -124,10 +124,12 @@ public class MetaMonitoringTarget {
 		Common.xmlSetElementAttr( doc , root , "segment" , SG );
 		Common.xmlSetElementAttr( doc , root , "major.enabled" , Common.getBooleanValue( enabledMajor ) );
 		Common.xmlSetElementAttr( doc , root , "major.maxtime" , "" + maxTimeMajor );
-		Common.xmlSetElementAttr( doc , root , "major.schedule" , scheduleMajor.getScheduleData() );
+		if( scheduleMajor != null )
+			Common.xmlSetElementAttr( doc , root , "major.schedule" , scheduleMajor.getScheduleData() );
 		Common.xmlSetElementAttr( doc , root , "minor.enabled" , Common.getBooleanValue( enabledMinor ) );
 		Common.xmlSetElementAttr( doc , root , "minor.maxtime" , "" + maxTimeMinor );
-		Common.xmlSetElementAttr( doc , root , "minor.schedule" , scheduleMinor.getScheduleData() );
+		if( scheduleMinor != null )
+			Common.xmlSetElementAttr( doc , root , "minor.schedule" , scheduleMinor.getScheduleData() );
 		
 		for( MetaMonitoringItem item : listUrls ) {
 			Element element = Common.xmlCreateElement( doc , root , "checkurl" );

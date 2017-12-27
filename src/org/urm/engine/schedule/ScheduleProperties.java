@@ -105,18 +105,20 @@ public class ScheduleProperties {
 		
 		if( scheduleType == ScheduleTaskType.DAILY ) {
 			long timeMillis = currentDate.getTime();
-			currentDate.setTime( timeMillis - ( timeMillis % ( 24 * 60 * 60 * 1000L ) ) + regularInterval );
-			if( currentDate.before( currentDate ) )
-				currentDate.setTime( currentDate.getTime() + 24 * 60 * 60 * 1000L );
-			return( currentDate );
+			Date startDate = new Date();
+			startDate.setTime( timeMillis - ( timeMillis % ( 24 * 60 * 60 * 1000L ) ) + regularInterval );
+			if( startDate.before( currentDate ) )
+				startDate.setTime( startDate.getTime() + 24 * 60 * 60 * 1000L );
+			return( startDate );
 		}
 		
 		if( scheduleType == ScheduleTaskType.HOURLY ) {
 			long timeMillis = currentDate.getTime();
-			currentDate.setTime( timeMillis - ( timeMillis % ( 60 * 60 * 1000L ) ) + regularInterval );
-			if( currentDate.before( currentDate ) )
-				currentDate.setTime( currentDate.getTime() + 60 * 60 * 1000L );
-			return( currentDate );
+			Date startDate = new Date();
+			startDate.setTime( timeMillis - ( timeMillis % ( 60 * 60 * 1000L ) ) + regularInterval );
+			if( startDate.before( currentDate ) )
+				startDate.setTime( startDate.getTime() + 60 * 60 * 1000L );
+			return( startDate );
 		}
 		
 		if( scheduleType == ScheduleTaskType.INTERVAL )
