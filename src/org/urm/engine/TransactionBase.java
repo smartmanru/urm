@@ -957,6 +957,10 @@ public class TransactionBase extends EngineObject {
 		return( settingsNew );
 	}
 	
+	public EngineMonitoring getMonitoring() {
+		return( data.getMonitoring() );
+	}
+	
 	public EngineSettings getSettings() {
 		if( settingsNew != null )
 			return( settingsNew );

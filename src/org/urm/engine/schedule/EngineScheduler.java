@@ -110,13 +110,11 @@ public class EngineScheduler extends EngineObject {
 		if( set == null )
 			return;
 
-		Date currentDate = new Date(); 
 		Date firstRun = task.schedule.getFirstStart();
-		if( firstRun.before( currentDate ) )
+		if( firstRun == null )
 			return;
 		
 		set.addTask( task );
-		
 		synchronized( this ) {
 			addTaskToQueue( task , firstRun );
 		}

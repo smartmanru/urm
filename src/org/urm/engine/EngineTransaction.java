@@ -529,11 +529,15 @@ public class EngineTransaction extends TransactionBase {
 	public void setMonitoringEnabled( AppProduct product ) throws Exception {
 		checkTransactionDirectory( product.directory );
 		DBEngineDirectory.setMonitoringEnabled( this , product.directory , product , true );
+		EngineMonitoring sm = super.getMonitoring();
+		sm.startProduct( action , product.NAME );
 	}
 	
 	public void setMonitoringDisabled( AppProduct product ) throws Exception {
 		checkTransactionDirectory( product.directory );
 		DBEngineDirectory.setMonitoringEnabled( this , product.directory , product , false );
+		EngineMonitoring sm = super.getMonitoring();
+		sm.stopProduct( action , product.NAME );
 	}
 
 	public void setProductOffline( AppProduct product , boolean offline ) throws Exception {

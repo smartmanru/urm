@@ -15,6 +15,7 @@ public class ScheduleProperties {
 	public boolean regularFromEnd;
 	public long regularInterval;
 	public long betweenInterval;
+	public boolean now;
 
 	public ScheduleProperties() {
 		this.scheduleType = ScheduleTaskType.NOW;
@@ -22,10 +23,12 @@ public class ScheduleProperties {
 		this.regularFromEnd = false;
 		this.regularInterval = 0;
 		this.betweenInterval = 0;
+		this.now = false;
 	}
 
 	public void createNow( ActionBase action ) {
 		createSpecific( action , new Date() );
+		now = true;
 	}
 	
 	public void createSpecific( ActionBase action , Date specificDateTime ) {
@@ -78,7 +81,7 @@ public class ScheduleProperties {
 
 	public Date getFirstStart() {
 		Date currentDate = new Date();
-		if( scheduleType == ScheduleTaskType.NOW )
+		if( now || scheduleType == ScheduleTaskType.NOW )
 			return( new Date() );
 		
 		if( scheduleType == ScheduleTaskType.SPECIFIC ) {

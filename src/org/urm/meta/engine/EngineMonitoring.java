@@ -137,6 +137,9 @@ public class EngineMonitoring extends EngineObject {
 	}	
 	
 	public synchronized void startProduct( ActionBase action , String product ) throws Exception {
+		if( !ENABLED )
+			return;
+		
 		MonitoringProduct mon = mapProduct.get( product );
 		if( mon != null )
 			mon.start( action );
