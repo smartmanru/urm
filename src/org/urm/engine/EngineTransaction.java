@@ -13,6 +13,7 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMirrors;
+import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.EngineEntities;
@@ -526,20 +527,6 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineDirectory.modifyProduct( this , product.directory , product , name , desc , path );
 	}
 
-	public void setMonitoringEnabled( AppProduct product ) throws Exception {
-		checkTransactionDirectory( product.directory );
-		DBEngineDirectory.setMonitoringEnabled( this , product.directory , product , true );
-		EngineMonitoring sm = super.getMonitoring();
-		sm.startProduct( action , product.NAME );
-	}
-	
-	public void setMonitoringDisabled( AppProduct product ) throws Exception {
-		checkTransactionDirectory( product.directory );
-		DBEngineDirectory.setMonitoringEnabled( this , product.directory , product , false );
-		EngineMonitoring sm = super.getMonitoring();
-		sm.stopProduct( action , product.NAME );
-	}
-
 	public void setProductOffline( AppProduct product , boolean offline ) throws Exception {
 		checkTransactionDirectory( product.directory );
 		DBEngineDirectory.setProductOffline( this , product.directory , product , offline );
@@ -554,6 +541,55 @@ public class EngineTransaction extends TransactionBase {
 		EngineAuth auth = action.getServerAuth();
 		DBEngineAuth.deleteProductAccess( this , auth , product );
 		DBEngineDirectory.deleteProduct( this , product.directory , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+	}
+
+	// ################################################################################
+	// ################################################################################
+	// MONITORING
+	
+	public void disableMonitoring() throws Exception {
+		checkTransactionMonitoring();
+		EngineMonitoring mon = action.getActiveMonitoring();
+		DBEngineMonitoring.enableMonitoring( this , mon , false );
+	}
+	
+	public void enableMonitoring() throws Exception {
+		checkTransactionMonitoring();
+		EngineMonitoring mon = action.getActiveMonitoring();
+		DBEngineMonitoring.enableMonitoring( this , mon , true );
+	}
+
+	public void setMonitoringProperties( EngineMonitoring mon ) throws Exception {
+		checkTransactionMonitoring();
+		DBEngineMonitoring.setProperties( this , mon );
+	}
+
+	public void setMonitoringEnabled( AppProduct product ) throws Exception {
+		checkTransactionDirectory( product.directory );
+		DBEngineDirectory.setMonitoringEnabled( this , product.directory , product , true );
+		EngineMonitoring mon = super.getMonitoring();
+		mon.setProductEnabled( action , product );
+	}
+	
+	public void setMonitoringDisabled( AppProduct product ) throws Exception {
+		checkTransactionDirectory( product.directory );
+		DBEngineDirectory.setMonitoringEnabled( this , product.directory , product , false );
+		EngineMonitoring mon = super.getMonitoring();
+		mon.setProductDisabled( action , product );
+	}
+
+	public void setProductMonitoringProperties( Meta meta , PropertySet props ) throws Exception {
+		checkTransactionMetadata( meta.getStorage() );
+		EngineMonitoring mon = action.getActiveMonitoring();
+		mon.setProductMonitoringProperties( this , meta , props );
+	}
+
+	public MetaMonitoringTarget modifyMonitoringTarget( MetaMonitoring monMeta , MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
+		checkTransactionMetadata( monMeta.meta.getStorage() );
+		MetaMonitoringTarget target = monMeta.modifyTarget( this , sg , major , enabled , maxTime , schedule );
+		EngineMonitoring mon = action.getActiveMonitoring();
+		mon.modifyTarget( this , target );
+		return( target );
 	}
 
 	// ################################################################################
@@ -634,34 +670,6 @@ public class EngineTransaction extends TransactionBase {
 	
 	// ################################################################################
 	// ################################################################################
-	// MONITORING
-	
-	public void disableMonitoring() throws Exception {
-		checkTransactionMonitoring();
-		EngineMonitoring mon = action.getActiveMonitoring();
-		mon.setEnabled( this , false );
-		EngineLoader loader = engine.createLoader( this );
-		loader.commitMonitoring();
-	}
-	
-	public void enableMonitoring() throws Exception {
-		checkTransactionMonitoring();
-		EngineMonitoring mon = action.getActiveMonitoring();
-		mon.setEnabled( this , true );
-		EngineLoader loader = engine.createLoader( this );
-		loader.commitMonitoring();
-	}
-
-	public void setDefaultMonitoringProperties( PropertySet props ) throws Exception {
-		checkTransactionMonitoring();
-		EngineMonitoring mon = action.getActiveMonitoring();
-		mon.setDefaultProperties( this , props );
-		EngineLoader loader = engine.createLoader( this );
-		loader.commitMonitoring();
-	}
-
-	// ################################################################################
-	// ################################################################################
 	// PRODUCT
 	
 	public void setProductProperties( Meta meta , PropertySet props , boolean system ) throws Exception {
@@ -701,12 +709,6 @@ public class EngineTransaction extends TransactionBase {
 		core.setLifecycles( this , major , minor , urgentsAll , urgents );
 	}
 	
-	public void setProductMonitoringProperties( Meta meta , PropertySet props ) throws Exception {
-		checkTransactionMetadata( meta.getStorage() );
-		EngineMonitoring mon = action.getActiveMonitoring();
-		mon.setProductMonitoringProperties( this , meta , props );
-	}
-
 	public void createDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
 		checkTransactionMetadata( delivery.meta.getStorage() );
 		delivery.dist.createDelivery( this , delivery );
@@ -1032,14 +1034,6 @@ public class EngineTransaction extends TransactionBase {
 	public void modifyServerDeployments( MetaEnvServer server , List<MetaEnvServerDeployment> deployments ) throws Exception {
 		checkTransactionMetadata( server.meta.getStorage() );
 		server.setDeployments( this , deployments );
-	}
-
-	public MetaMonitoringTarget modifyMonitoringTarget( MetaMonitoring monMeta , MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
-		checkTransactionMetadata( monMeta.meta.getStorage() );
-		MetaMonitoringTarget target = monMeta.modifyTarget( this , sg , major , enabled , maxTime , schedule );
-		EngineMonitoring mon = action.getActiveMonitoring();
-		mon.modifyTarget( this , target );
-		return( target );
 	}
 
 	public MetaDump createDump( MetaDatabase db , boolean export , String name , String desc , MetaEnvServer server , boolean standby , String setdbenv , String dataset , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {

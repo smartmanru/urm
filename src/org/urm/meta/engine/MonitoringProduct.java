@@ -49,13 +49,13 @@ public class MonitoringProduct {
 	};
 	
 	EngineMonitoring monitoring;
-	AppProduct product;
+	Integer productId;
 	MetaMonitoring meta;
 	Map<String,ActionMonitorTarget> targets;
 	
 	public MonitoringProduct( EngineMonitoring monitoring , AppProduct product , MetaMonitoring meta ) {
 		this.monitoring = monitoring;
-		this.product = product;
+		this.productId = product.ID;
 		this.meta = meta;
 		targets = new HashMap<String,ActionMonitorTarget>();
 	}
@@ -63,7 +63,9 @@ public class MonitoringProduct {
 	public synchronized void start( ActionBase action ) throws Exception {
 		if( !monitoring.isEnabled() )
 			return;
-		
+
+		EngineDirectory directory = action.getServerDirectory();
+		AppProduct product = directory.getProduct( productId );
 		if( meta == null || !product.MONITORING_ENABLED )
 			return;
 		
@@ -161,7 +163,7 @@ public class MonitoringProduct {
 			return( true );
 		}
 		catch( Throwable e ) {
-			action.log( "create monitoring folders failed, product=" + product.NAME , e );
+			action.log( "create monitoring folders failed, product=" + meta.meta.name , e );
 			return( false );
 		}
 	}

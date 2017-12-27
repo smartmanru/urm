@@ -768,10 +768,6 @@ public class EngineLoader {
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
-	public void commitMonitoring() throws Exception {
-		exportxmlMonitoring();
-	}
-	
 	private void exportxmlMonitoring() throws Exception {
 		trace( "export engine monitoring data ..." );
 		String propertyFile = getMonitoringFile();

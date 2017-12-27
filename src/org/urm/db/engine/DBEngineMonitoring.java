@@ -4,6 +4,7 @@ import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectProperties;
@@ -65,5 +66,18 @@ public class DBEngineMonitoring {
 		DBSettings.loaddbValues( loader , DBVersions.CORE_ID , properties , true );
 		mon.setProperties( properties );
 	}
-	
+
+	public static void enableMonitoring( EngineTransaction transaction , EngineMonitoring mon , boolean enable ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		mon.setEnabled( transaction , enable );
+		int version = c.getNextCoreVersion();
+		DBSettings.savedbPropertyValues( c , DBVersions.CORE_ID , mon.properties , true , false , version );
+	}
+
+	public static void setProperties( EngineTransaction transaction , EngineMonitoring mon ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		int version = c.getNextCoreVersion();
+		DBSettings.savedbPropertyValues( c , DBVersions.CORE_ID , mon.properties , true , false , version );
+	}
+
 }

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.Engine;
+import org.urm.engine.TransactionBase;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
@@ -192,24 +193,24 @@ public class EngineStatus extends EngineObject {
 		return( app.subscribe( source , listener ) );
 	}
 
-	public synchronized void createProduct( ActionBase action , AppProduct product , ProductMeta storage ) {
-		startProduct( action , product , storage );
+	public synchronized void createProduct( TransactionBase transaction , AppProduct product , ProductMeta storage ) {
+		startProduct( transaction.getAction() , product , storage );
 	}
 
-	public void modifyProduct( ActionBase action , ProductMeta storageOld , ProductMeta storageNew ) {
+	public void modifyProduct( TransactionBase transaction , ProductMeta storageOld , ProductMeta storageNew ) throws Exception {
 		EngineStatusProduct productStatus = products.get( storageOld.name );
 		if( productStatus == null )
 			return;
 		
-		productStatus.modifyProduct( action , storageOld , storageNew );
+		productStatus.modifyProduct( transaction , storageOld , storageNew );
 	}
 	
-	public synchronized void deleteProduct( ActionBase action , ProductMeta storage ) {
+	public synchronized void deleteProduct( TransactionBase transaction , ProductMeta storage ) {
 		EngineStatusProduct productStatus = products.get( storage.name );
 		if( productStatus == null )
 			return;
 		
-		productStatus.stop( action );
+		productStatus.stop( transaction.getAction() );
 		products.remove( storage.name );
 		
 		deleteGlobalSource( StatusType.PRODUCT , storage.name );

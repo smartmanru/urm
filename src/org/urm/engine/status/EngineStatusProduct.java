@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.engine.TransactionBase;
 import org.urm.engine.events.EngineEvents;
 import org.urm.engine.status.EngineStatus.StatusType;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
@@ -102,7 +103,11 @@ public class EngineStatusProduct extends EngineObject {
 			processServerNodeItems( action , nodeSource , node , status );
 	}
 	
-	public void modifyProduct( ActionBase action , ProductMeta storageOld , ProductMeta storage ) {
+	public void modifyProduct( TransactionBase transaction , ProductMeta storageOld , ProductMeta storage ) throws Exception {
+		ActionBase action = transaction.getAction();
+		product = transaction.getProduct( product );
+		meta = transaction.getMeta( product );
+		
 		for( String envName : storage.getEnvironmentNames() ) {
 			MetaEnv envNew = storage.findEnvironment( envName );
 			MetaEnv envOld = storageOld.findEnvironment( envName );

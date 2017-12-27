@@ -122,27 +122,25 @@ public class TransactionMetadata {
 
 	private void createProduct( AppProduct product , ProductMeta metadata ) throws Exception {
 		EngineStatus status = transaction.action.getServerStatus();
-		status.createProduct( transaction.action , product , metadata );
-		
+		status.createProduct( transaction , product , metadata );
 		EngineMonitoring mon = transaction.action.getServerMonitoring();
-		mon.createProduct( transaction.action , metadata.name );
+		mon.transactionCommitCreateProduct( transaction , product );
 	}
 	
 	private void deleteProduct( AppProduct product , ProductMeta metadata ) throws Exception {
 		EngineStatus status = transaction.action.getServerStatus();
-		status.deleteProduct( transaction.action , metadata );
-		
+		status.deleteProduct( transaction , metadata );
 		EngineMonitoring mon = transaction.action.getServerMonitoring();
-		mon.deleteProduct( transaction.action , metadata.name );
+		mon.transactionCommitDeleteProduct( transaction , product );
 	}
 	
 	private void modifyProduct( AppProduct product , ProductMeta metadataOld , ProductMeta metadataNew ) throws Exception {
 		product.setMatched( metadataNew );
 		EngineStatus status = transaction.action.getServerStatus();
-		status.modifyProduct( transaction.action , metadataOld , metadataNew );
+		status.modifyProduct( transaction , metadataOld , metadataNew );
 		
 		EngineMonitoring mon = transaction.action.getServerMonitoring();
-		mon.modifyProduct( transaction.action , metadata.name );
+		mon.transactionCommitModifyProduct( transaction , product );
 	}
 	
 }

@@ -259,7 +259,7 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
-	public ActionInit getAction() throws Exception {
+	public ActionInit getAction() {
 		return( action );
 	}
 	
@@ -1009,15 +1009,25 @@ public class TransactionBase extends EngineObject {
 	}
 	
 	public AppSystem getSystem( AppSystem system ) throws Exception {
-		return( directoryNew.getSystem( system.NAME ) );
+		if( directoryNew != null )
+			return( directoryNew.getSystem( system.NAME ) );
+		EngineDirectory directory = data.getDirectory();
+		return( directory.getSystem( system.NAME ) );
 	}
 	
 	public AppProduct getProduct( AppProduct product ) throws Exception {
-		return( directoryNew.getProduct( product.NAME ) );
+		if( directoryNew != null )
+			return( directoryNew.getProduct( product.NAME ) );
+		EngineDirectory directory = data.getDirectory();
+		return( directory.getProduct( product.ID ) );
 	}
 	
 	public Meta getMeta( Meta meta ) throws Exception {
 		return( action.getActiveProductMetadata( meta.name ) );
+	}
+
+	public Meta getMeta( AppProduct product ) throws Exception {
+		return( action.getActiveProductMetadata( product.NAME ) );
 	}
 
 	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
