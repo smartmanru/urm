@@ -42,7 +42,7 @@ public class ConfDiffSet {
 		this.confComps = confComps;
 	}
 	
-	public boolean isDifferent( ActionBase action ) throws Exception {
+	public boolean isDifferent() {
 		return( diffs.size() > 0 );
 	}
 	

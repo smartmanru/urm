@@ -271,7 +271,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		else
 			diff.calculate( this , null );
 		
-		if( diff.isDifferent( this ) ) {
+		if( diff.isDifferent() ) {
 			verifyNode = false;
 			String diffFile = asisServerFolder.getFilePath( this , "confdiff.txt" );
 			diff.save( this , diffFile );
@@ -453,7 +453,7 @@ public class ActionVerifyDeploy extends ActionBase {
 				ConfDiffSet diff = new ConfDiffSet( server.meta , releaseSet , prodSet , "" , false );
 				diff.calculate( this , null );
 				
-				if( diff.isDifferent( this ) ) {
+				if( diff.isDifferent() ) {
 					diff.save( this , diffFile );
 					isdiff = true;
 				}
