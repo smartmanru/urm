@@ -66,7 +66,7 @@ public class ServerStorage {
 		if( path == null )
 			return( null );
 		
-		path = Common.getPath( path , "tmp" );
+		path = Common.getPath( path , "tmp" , account.USER );
 		RemoteFolder rf = new RemoteFolder( account , path );
 		return( rf );
 	}

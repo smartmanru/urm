@@ -166,7 +166,7 @@ public class MetaDump {
 	}
 
 	public void addTables( String schema , String set ) {
-		tables.add( schema + ":" + tables );
+		tables.add( schema + ":" + set );
 	}
 	
 	public void deleteTables( int index ) {
