@@ -545,6 +545,12 @@ public class SubversionVCS extends GenericVCS {
 		String fullPath = Common.getPath( getRepositoryRootPath( mirror ) , path ); 
 		return( checkSvnPathExists( fullPath ) );
 	}
+
+	public void checkoutMasterRootFolder( MirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder ) throws Exception {
+		String fullPath = Common.getPath( getRepositoryRootPath( mirror ) , masterFolder );
+		String ospath = action.getOSPath( PATCHPATH.folderPath );
+		shell.customCheckStatus( action , "svn co " + SVNAUTH + " " + fullPath + " " + ospath );
+	}
 	
 	private boolean checkSvnPathExists( String path ) throws Exception {
 		int status = shell.customGetStatus( action , "svn info " + SVNAUTH + " " + path + " > " + shell.getOSDevNull() );

@@ -64,7 +64,7 @@ public class MirrorCaseSubversion extends MirrorCase {
 			String branchName = getBranch();
 			String branchPath = getComponentBranchPath( branchName );
 			if( checkValidServerBranch( branchName ) ) {
-				vcsSubversion.checkoutMasterFolder( mirror , branch , branchPath );
+				vcsSubversion.checkoutMasterRootFolder( mirror , branch , branchPath );
 				if( !checkBranchEmpty() ) {
 					String OSPATH = shell.getLocalPath( mirror.RESOURCE_DATA );
 					action.exit1( _Error.MirrorDirectoryNotEmpty1 , "Target mirror folder is not empty - " + OSPATH , OSPATH );
@@ -72,7 +72,7 @@ public class MirrorCaseSubversion extends MirrorCase {
 			}
 			else {
 				vcsSubversion.createMasterFolder( mirror , branchPath , "create component branch" );
-				vcsSubversion.checkoutMasterFolder( mirror , branch , branchPath );
+				vcsSubversion.checkoutMasterRootFolder( mirror , branch , branchPath );
 			}
 			res = true;
 		}
@@ -97,7 +97,7 @@ public class MirrorCaseSubversion extends MirrorCase {
 			action.exit1( _Error.MissingRepoBranch1 , "Missing repository branch=" + branchName , branchName );
 		
 		String path = getComponentBranchPath( branchName );
-		vcsSubversion.checkoutMasterFolder( mirror , branch , path );
+		vcsSubversion.checkoutMasterRootFolder( mirror , branch , path );
 	}
 	
 	@Override
