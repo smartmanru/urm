@@ -126,6 +126,10 @@ public class ActionExportDatabase extends ActionBase {
 		exportFolder.recreateThis( this );
 		exportScriptsFolder.ensureExists( this );
 		exportScriptsFolder.copyDirContentFromLocal( this , urmScripts , "" );
+		if( server.isLinux() ) {
+			ShellExecutor shell = exportScriptsFolder.getSession( this );
+			shell.custom( this , exportScriptsFolder.folderPath , "chmod 744 *.sh" );
+		}
 		
 		exportLogFolder = exportFolder.getSubFolder( this , "log" );
 		exportLogFolder.ensureExists( this );

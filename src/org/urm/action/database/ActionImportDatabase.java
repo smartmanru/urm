@@ -152,6 +152,10 @@ public class ActionImportDatabase extends ActionBase {
 		importFolder.recreateThis( this );
 		importScriptsFolder.ensureExists( this );
 		importScriptsFolder.copyDirContentFromLocal( this , urmScripts , "" );
+		if( server.isLinux() ) {
+			ShellExecutor shell = importScriptsFolder.getSession( this );
+			shell.custom( this , importScriptsFolder.folderPath , "chmod 744 *.sh" );
+		}
 		
 		importLogFolder = importFolder.getSubFolder( this , "log" );
 		importLogFolder.ensureExists( this );
