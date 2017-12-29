@@ -68,8 +68,11 @@ public class ActionImportDatabase extends ActionBase {
 			exit0( _Error.UnableConnectAdmin0 , "unable to connect to administrative db" );
 		
 		checkSource();
+		info( "make target scripts ..." );
 		makeTargetScripts();
+		info( "make target configuration ..." );
 		makeTargetConfig();
+		info( "run ..." );
 		runAll();
 		
 		info( "import has been finished, dumps are loaded from " + distDataFolder.folderPath );

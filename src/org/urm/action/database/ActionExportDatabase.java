@@ -67,9 +67,13 @@ public class ActionExportDatabase extends ActionBase {
 		if( !client.checkConnect( this , server , node ) )
 			exit0( _Error.UnableConnectAdmin0 , "unable to connect to administrative db" );
 		
+		info( "prepare destination ..." );
 		prepareDestination();
+		info( "make target scripts ..." );
 		makeTargetScripts();
+		info( "make target configuration ..." );
 		makeTargetConfig();
+		info( "run ..." );
 		runAll();
 		
 		return( SCOPESTATE.RunSuccess );
