@@ -151,6 +151,8 @@ public class ActionExportDatabase extends ActionBase {
 		for( MetaDatabaseSchema schema : serverSchemas.values() )
 			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.SCHEMA + "=" + server.getSchemaDBName( schema ) );
 		
+		if( !REMOTE_SETDBENV.isEmpty() )
+			conf.add( "CONF_SETENV=" + REMOTE_SETDBENV );
 		conf.add( "CONF_MAPPING=" + Common.getQuoted( EXECUTEMAPPING ) );
 		conf.add( "CONF_STANDBY=" + Common.getBooleanValue( STANDBY ) );
 		if( NFS ) {

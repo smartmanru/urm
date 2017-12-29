@@ -2,6 +2,10 @@
 
 . ./run.conf
 
+if [ "$CONF_SETENV" != "" ]; then
+	. $CONF_SETENV
+fi
+
 S_DATADIR=
 S_LOGDIR=
 
