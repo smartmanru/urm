@@ -11,6 +11,11 @@ fi
 S_DATADIR=
 S_LOGDIR=
 
+XPORT=
+if [ "$CONF_DBPORT" != "" ]; then
+	XPORT=" -p $CONF_DBPORT"
+fi
+
 function f_execute_one() {
 	local P_SCHEMA=$1
 	local P_DBNAME=$2
@@ -22,14 +27,14 @@ function f_execute_one() {
 	F_LOG=$S_LOGDIR/meta-$P_SCHEMA.dump.log
 
 	echo "# drop schema=$P_SCHEMA using run-import-drop.sql ..." > $F_LOG
-	psql -d $P_DBNAME < run-import-drop.sql >> $F_LOG 2>&1
+	psql $XPORT -d $P_DBNAME -f run-import-drop.sql >> $F_LOG 2>&1
 	F_STATUS=$?
 	if [ "$F_STATUS" != "0" ]; then
 		echo drop schema failed with status=$F_STATUS. Exiting
 		exit 1
 	fi
 
-	local F_CMD="pg_restore -v -s -j 4 -d $P_DBNAME $S_DATADIR/meta-$P_SCHEMA.dump"
+	local F_CMD="pg_restore -v -s -j 4 $XPORT -d $P_DBNAME $S_DATADIR/meta-$P_SCHEMA.dump"
 	echo "# load dump: $F_CMD ..." >> $F_LOG
 	$F_CMD >> $F_LOG 2>&1
 	F_STATUS=$?
@@ -49,7 +54,7 @@ function f_execute_roles() {
 		exit 1
 	fi
 
-	local F_CMD="psql -f $F_DATA"
+	local F_CMD="psql $XPORT -f $F_DATA"
 	echo "run: $F_CMD ..."
 	$F_CMD > $F_LOG 2>&1
 	F_STATUS=$?

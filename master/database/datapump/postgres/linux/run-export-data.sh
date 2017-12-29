@@ -11,6 +11,11 @@ fi
 S_DATADIR=
 S_LOGDIR=
 
+XPORT=
+if [ "$CONF_DBPORT" != "" ]; then
+	XPORT=" -p $CONF_DBPORT"
+fi
+
 function f_execute_db() {
 	local P_DBNAME=$1
 
@@ -42,10 +47,10 @@ function f_execute_db() {
 		( 	echo "select pg_is_xlog_replay_paused();"
 			echo "select pg_xlog_replay_pause();"
 			echo "select pg_is_xlog_replay_paused();"
-		) | psql
+		) | psql $XPORT
 	fi
 
-	F_CMD="pg_dump -v -b -f $S_DATADIR/data-$P_SCHEMA-all.dump -F c $F_TABLEFILTER $P_DBNAME"
+	F_CMD="pg_dump -v -b $XPORT -f $S_DATADIR/data-$P_SCHEMA-all.dump -F c $F_TABLEFILTER $P_DBNAME"
 	echo "run: $F_CMD ..."
 	$F_CMD > $S_LOGDIR/data-$P_SCHEMA-all.dump.log 2>&1
 	F_STATUS=$?
@@ -57,7 +62,7 @@ function f_execute_db() {
 			echo "select pg_is_xlog_replay_paused();"
 			echo "select pg_xlog_replay_resume();"
 			echo "select pg_is_xlog_replay_paused();"
-		) | psql
+		) | psql $XPORT
 	fi
 
 	if [ "$F_STATUS" != "0" ]; then

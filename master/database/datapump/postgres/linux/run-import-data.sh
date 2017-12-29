@@ -11,6 +11,11 @@ fi
 S_DATADIR=
 S_LOGDIR=
 
+XPORT=
+if [ "$CONF_DBPORT" != "" ]; then
+	XPORT=" -p $CONF_DBPORT"
+fi
+
 function f_execute_db() {
 	local P_DBNAME=$1
 
@@ -36,7 +41,7 @@ function f_execute_db() {
 		echo load all schema tables ...
 	fi
 
-	F_CMD="pg_restore -v -a -j 4 --disable-triggers -d $P_DBNAME $F_TABLEFILTER $S_DATADIR/data-$P_SCHEMA-all.dump"
+	F_CMD="pg_restore -v -a -j 4 --disable-triggers $XPORT -d $P_DBNAME $F_TABLEFILTER $S_DATADIR/data-$P_SCHEMA-all.dump"
 	echo "run: $F_CMD ..."
 	$F_CMD > $S_LOGDIR/data-$P_SCHEMA-all.dump.log 2>&1
 	F_STATUS=$?
