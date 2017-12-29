@@ -75,8 +75,8 @@ public class UrmStorage {
 		return( folder );
 	}
 
-	private LocalFolder getDatabaseFolder( ActionBase action , MetaEnvServer server , String parentPath ) throws Exception {
-		String folderPath = getDatabaseSpecificFolder( action , server.dbType , server.osType , false );
+	private LocalFolder getDatabaseFolder( ActionBase action , MetaEnvServer server , String parentPath , boolean remoteRun ) throws Exception {
+		String folderPath = getDatabaseSpecificFolder( action , server.dbType , server.osType , remoteRun );
 		
 		LocalFolder folder = getInstallFolder( action , Common.getPath( parentPath , folderPath ) );
 		if( !folder.checkExists( action ) ) {
@@ -89,15 +89,15 @@ public class UrmStorage {
 	}
 	
 	public LocalFolder getDatabaseInitScripts( ActionBase action , MetaEnvServer server ) throws Exception {
-		return( getDatabaseFolder( action , server , "database/init" ) ); 
+		return( getDatabaseFolder( action , server , "database/init" , false ) ); 
 	}
 	
 	public LocalFolder getDatabaseSqlScripts( ActionBase action , MetaEnvServer server ) throws Exception {
-		return( getDatabaseFolder( action , server , "database/sql" ) ); 
+		return( getDatabaseFolder( action , server , "database/sql" , false ) ); 
 	}
 	
 	public LocalFolder getDatabaseDatapumpScripts( ActionBase action , MetaEnvServer server ) throws Exception {
-		return( getDatabaseFolder( action , server , "database/datapump" ) ); 
+		return( getDatabaseFolder( action , server , "database/datapump" , true ) ); 
 	}
 	
 	public LocalFolder getProductHome( ActionBase action , String productName ) throws Exception {

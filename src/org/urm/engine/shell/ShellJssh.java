@@ -217,11 +217,14 @@ public class ShellJssh {
 		return( res );
 	}
 
-	public boolean scpDirContentLocalToRemote( ActionBase action , String srcDirPath , String dstDir ) throws Exception {
+	public boolean scpDirContentLocalToRemote( ActionBase action , String srcDirPath , String baseDstDir ) throws Exception {
 		scpConnect( action );
 		
 		boolean res = false;
 		try {
+			LocalFolder srcDirFolder = action.getLocalFolder( srcDirPath );
+			RemoteFolder dstFolder = action.getRemoteFolder( account , baseDstDir );
+			executeScpDirContentLocalToRemote( action , srcDirFolder , dstFolder );
 	    }
 		finally {
 			kill( action );
