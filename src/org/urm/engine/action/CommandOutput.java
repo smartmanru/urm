@@ -54,6 +54,7 @@ public class CommandOutput {
 
 	public static Object syncStatic = new Object(); 
 	
+	public static int LOGLEVEL_EXACT = -2; 
 	public static int LOGLEVEL_INTERNAL = -1;
 	public static int LOGLEVEL_ERROR = 0;
 	public static int LOGLEVEL_INFO = 1;
@@ -83,6 +84,8 @@ public class CommandOutput {
 
 	private boolean logDisabled( int logLevel ) {
 		if( logLevel < 0 ) {
+			if( logLevel == LOGLEVEL_EXACT )
+				return( false );
 			if( logActionLevelLimit < 0 || logServerLevelLimit < 0 )
 				return( false );
 			return( true );
@@ -95,6 +98,8 @@ public class CommandOutput {
 
 	private boolean logActionDisabled( int logLevel ) {
 		if( logLevel < 0 ) {
+			if( logLevel == LOGLEVEL_EXACT )
+				return( false );
 			if( logActionLevelLimit < 0 )
 				return( false );
 			return( true );

@@ -54,7 +54,7 @@ public class ClientAuth {
 		
 	};
 	
-	ClientEngine client;
+	ClientEngineConsole client;
 	
 	public static String signatureData = "Fa0LSuhEyLbZDdBqGPDjTTDyUP9kiX34234$#34234"; 
 	
@@ -67,7 +67,7 @@ public class ClientAuth {
 	public String authUser;
 	public String authPassword;
 
-	public ClientAuth( ClientEngine client ) {
+	public ClientAuth( ClientEngineConsole client ) {
 		this.client = client;
 	}
 	

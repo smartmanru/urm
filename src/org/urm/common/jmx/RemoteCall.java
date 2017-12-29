@@ -12,6 +12,7 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.urm.client.ClientAuth;
+import org.urm.client.ClientEngine;
 import org.urm.common.RunContext;
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
@@ -31,6 +32,7 @@ public class RemoteCall implements NotificationListener {
 	
 	public static int DEFAULT_SERVER_PORT = 8800;
 
+	ClientEngine client;
 	CommandOptions options;
 	
 	public String URL;
@@ -52,7 +54,8 @@ public class RemoteCall implements NotificationListener {
 	private int timeout;
 	private long tsEvent = 0;
 	
-	public RemoteCall( CommandOptions options ) {
+	public RemoteCall( ClientEngine client , CommandOptions options ) {
+		this.client = client;
 		this.options = options;
 		
 		String var = OptionsMeta.OPT_TRACE;
@@ -70,7 +73,7 @@ public class RemoteCall implements NotificationListener {
 	}
 	
 	private synchronized void println( String s ) {
-		System.out.println( s );
+		client.println( s );
 	}
 	
 	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo , ClientAuth auth ) throws Exception {
@@ -150,8 +153,8 @@ public class RemoteCall implements NotificationListener {
 					new String[] { String.class.getName() , ActionData.class.getName() , String.class.getName() , String.class.getName() , String.class.getName() } );
 		}
 		catch( Throwable e ) {
-			System.out.println( "unable to call operation: " + name );
-			e.printStackTrace();
+			println( "unable to call operation: " + name );
+			client.output( e );
 			return( false );
 		}
 
@@ -280,7 +283,7 @@ public class RemoteCall implements NotificationListener {
 			}
 			catch( Throwable e ) {
 				if( trace )
-					e.printStackTrace();
+					client.output( e );
 			}
 			
 			synchronized( this ) {
