@@ -167,7 +167,6 @@ public class MirrorCaseSubversion extends MirrorCase {
 	
 	public boolean checkValidServerBranch( String branch ) throws Exception {
 		String path = getComponentBranchPath( branch );
-		path = Common.getPath( mirror.RESOURCE_DATA , path );
 		return( vcsSubversion.isValidRepositoryMasterRootPath( mirror , path ) );
 	}
 	
