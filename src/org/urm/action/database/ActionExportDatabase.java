@@ -122,7 +122,7 @@ public class ActionExportDatabase extends ActionBase {
 				exit0( _Error.ExportAlreadyRunning0 , "unable to start because export is already running" );
 		}
 		
-		info( "copy execution part to " + redist.folderPath + " ..." );
+		info( "copy execution part from " + urmScripts.getLocalPath( this ) + " to " + redist.folderPath + " ..." );
 		exportFolder.recreateThis( this );
 		exportScriptsFolder.ensureExists( this );
 		exportScriptsFolder.copyDirContentFromLocal( this , urmScripts , "" );
