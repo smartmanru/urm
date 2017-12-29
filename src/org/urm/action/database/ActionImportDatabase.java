@@ -148,7 +148,7 @@ public class ActionImportDatabase extends ActionBase {
 				exit0( _Error.ImportAlreadyRunning0 , "unable to start because import is already running" );
 		}
 		
-		info( "copy execution part to " + redist.folderPath + " ..." );
+		info( "copy execution part from " + urmScripts.getLocalPath( this ) + " to " + redist.folderPath + " ..." );
 		importFolder.recreateThis( this );
 		importScriptsFolder.ensureExists( this );
 		importScriptsFolder.copyDirContentFromLocal( this , urmScripts , "" );
