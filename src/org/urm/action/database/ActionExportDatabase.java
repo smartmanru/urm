@@ -151,15 +151,18 @@ public class ActionExportDatabase extends ActionBase {
 		for( MetaDatabaseSchema schema : serverSchemas.values() )
 			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.SCHEMA + "=" + server.getSchemaDBName( schema ) );
 		
+		DatabaseSpecific specific = client.specific;
 		if( !REMOTE_SETDBENV.isEmpty() )
-			conf.add( "CONF_SETENV=" + REMOTE_SETDBENV );
-		conf.add( "CONF_MAPPING=" + Common.getQuoted( EXECUTEMAPPING ) );
-		conf.add( "CONF_STANDBY=" + Common.getBooleanValue( STANDBY ) );
+			specific.addSpecificLine( this , conf , "CONF_SETENV" , REMOTE_SETDBENV );
+		specific.addSpecificLine( this , conf , "CONF_MAPPING" , Common.getQuoted( EXECUTEMAPPING ) );
+		specific.addSpecificLine( this , conf , "CONF_STANDBY" , Common.getBooleanValue( STANDBY ) );
 		if( NFS ) {
-			conf.add( "CONF_NFS=" + Common.getBooleanValue( NFS ) );
-			conf.add( "CONF_NFSDATA=" + distDataFolder.folderPath );
-			conf.add( "CONF_NFSLOG=" + distLogFolder.folderPath );
+			specific.addSpecificLine( this , conf , "CONF_NFS" , Common.getBooleanValue( NFS ) );
+			specific.addSpecificLine( this , conf , "CONF_NFSDATA" , distDataFolder.folderPath );
+			specific.addSpecificLine( this , conf , "CONF_NFSLOG" , distLogFolder.folderPath );
 		}
+		
+		specific.addSpecificConf( this , conf );
 		
 		Common.createFileFromStringList( execrc , confFile , conf );
 		exportScriptsFolder.copyFileFromLocal( this , confFile );
@@ -221,7 +224,7 @@ public class ActionExportDatabase extends ActionBase {
 		Common.sleep( 1000 );
 		String value = checkStatus( exportScriptsFolder );
 		if( value.equals( "RUNNING" ) == false && value.equals( "FINISHED" ) == false ) {
-			info( "export has not been started (status=" + value + "), save logs ..." );
+			error( "export has not been started (status=" + value + "), save logs ..." );
 			
 			String logFileName = cmd + "-" + SN + "run.sh.log";
 			exportScriptsFolder.copyFileToLocalRename( this , workFolder , "run.sh.log" , logFileName );

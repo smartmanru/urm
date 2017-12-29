@@ -181,12 +181,15 @@ public class ActionImportDatabase extends ActionBase {
 		for( MetaDatabaseSchema schema : serverSchemas.values() )
 			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.SCHEMA + "=" + server.getSchemaDBName( schema ) );
 		
-		conf.add( "CONF_MAPPING=" + Common.getQuoted( EXECUTEMAPPING ) );
+		DatabaseSpecific specific = client.specific;
+		specific.addSpecificLine( this , conf , "CONF_MAPPING" , Common.getQuoted( EXECUTEMAPPING ) );
 		if( NFS ) {
-			conf.add( "CONF_NFS=" + Common.getBooleanValue( NFS ) );
-			conf.add( "CONF_NFSDATA=" + distDataFolder.folderPath );
-			conf.add( "CONF_NFSLOG=" + distLogFolder.folderPath );
+			specific.addSpecificLine( this , conf , "CONF_NFS" , Common.getBooleanValue( NFS ) );
+			specific.addSpecificLine( this , conf , "CONF_NFSDATA" , distDataFolder.folderPath );
+			specific.addSpecificLine( this , conf , "CONF_NFSLOG" , distLogFolder.folderPath );
 		}
+		
+		specific.addSpecificConf( this , conf );
 		
 		Common.createFileFromStringList( execrc , confFile , conf );
 		importScriptsFolder.copyFileFromLocal( this , confFile );
@@ -250,7 +253,7 @@ public class ActionImportDatabase extends ActionBase {
 		Common.sleep( 1000 );
 		String value = checkStatus( importScriptsFolder );
 		if( value.equals( "RUNNING" ) == false && value.equals( "FINISHED" ) == false ) {
-			info( "import has not been started (status=" + value + "), save logs ..." );
+			error( "import has not been started (status=" + value + "), save logs ..." );
 			
 			importScriptsFolder.copyFileToLocalRename( this , workFolder , "run.sh.log" , cmd + "-" + SN + "run.sh.log" );
 			copyLogs( false , cmd , SN );
