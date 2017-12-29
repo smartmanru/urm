@@ -165,8 +165,11 @@ public class ServerStorage {
 		String path = action.getContextRedistPath( account );
 		if( path == null )
 			return( null );
-		
-		path = Common.getPath( path , server.NAME + "-node" + node.POS );
+
+		if( node != null )
+			path = Common.getPath( path , server.NAME + "-node" + node.POS );
+		else
+			path = Common.getPath( path , account.USER + "-account" );
 		return( path );
 	}
 
