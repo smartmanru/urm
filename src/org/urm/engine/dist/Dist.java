@@ -7,10 +7,11 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseScriptFile;
 import org.urm.common.Common;
-import org.urm.engine.ServerBlotterReleaseItem;
-import org.urm.engine.ServerBlotterSet;
-import org.urm.engine.ServerBlotter;
-import org.urm.engine.ServerBlotter.BlotterType;
+import org.urm.db.core.DBEnums.*;
+import org.urm.engine.blotter.EngineBlotter;
+import org.urm.engine.blotter.EngineBlotterReleaseItem;
+import org.urm.engine.blotter.EngineBlotterSet;
+import org.urm.engine.blotter.EngineBlotter.BlotterType;
 import org.urm.engine.dist.DistState.DISTSTATE;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
@@ -18,8 +19,8 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.Types;
-import org.urm.meta.engine.ServerReleaseLifecycle;
-import org.urm.meta.engine.ServerReleaseLifecycles;
+import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
@@ -98,7 +99,7 @@ public class Dist {
 		release.load( action , infoPath );
 	}
 
-	public void setFolder( RemoteFolder distFolder , boolean prod ) {
+	public void setFolder( RemoteFolder distFolder ) {
 		this.distFolder = distFolder;
 		this.RELEASEDIR = distFolder.folderName;
 				
@@ -156,13 +157,14 @@ public class Dist {
 		distFolder.copyDirFromLocal( action , sourceFolder , parentFolder );
 	}
 	
-	public void copyVFileToDistr( ActionBase action , MetaDistrBinaryItem distItem , LocalFolder sourceFolder , String FNAME , String BASENAME , String EXT ) throws Exception {
+	public void copyVFileToDistr( ActionBase action , MetaDistrBinaryItem distItem , LocalFolder sourceFolder , String SNAME , String DBASENAME , String DEXT ) throws Exception {
 		if( !openedForChange )
 			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
 		
 		state.checkDistDataChangeEnabled( action );
-		String folder = getReleaseBinaryFolder( action , distItem );
-		distFolder.copyVFileFromLocal( action , sourceFolder , FNAME , folder , BASENAME , EXT );
+		String dstfolder = getReleaseBinaryFolder( action , distItem );
+		String dstname = DBASENAME + DEXT;
+		distFolder.copyVFileFromLocal( action , sourceFolder , SNAME , dstfolder , dstname , DBASENAME , DEXT );
 	}
 
 	public void copyDatabaseFilesToDistr( ActionBase action , MetaDistrDelivery dbDelivery , LocalFolder srcPrepared ) throws Exception {
@@ -338,7 +340,7 @@ public class Dist {
 	}
 	
 	// top-level control
-	public void create( ActionBase action , String RELEASEDIR , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	public void create( ActionBase action , String RELEASEDIR , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		this.RELEASEDIR = RELEASEDIR;
 		VersionInfo info = VersionInfo.getReleaseVersion( action , RELEASEDIR );
 		lc = getLifecycle( action , meta , lc , info.getLifecycleType() );
@@ -350,9 +352,9 @@ public class Dist {
 		load( action );
 	}
 
-	public void changeReleaseDate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
-		VarLCTYPE type = release.getLifecycleType();
-		ServerReleaseLifecycle lcset = getLifecycle( action , meta , lc , type );
+	public void changeReleaseDate( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
+		DBEnumLifecycleType type = release.getLifecycleType();
+		ReleaseLifecycle lcset = getLifecycle( action , meta , lc , type );
 		release.setReleaseDate( action , releaseDate , lcset );
 	}
 	
@@ -421,10 +423,12 @@ public class Dist {
 		
 		openForDataChange( action );
 		
-		if( !release.changes.isCompleted() ) {
-			action.error( "release changes are not completed" );
-			state.ctlCloseDataChange( action );
-			return;
+		if( !release.MASTER ) {
+			if( !release.changes.isCompleted() ) {
+				action.error( "release changes are not completed" );
+				state.ctlCloseDataChange( action );
+				return;
+			}
 		}
 		
 		DistFinalizer finalizer = new DistFinalizer( action , this , distFolder , release );
@@ -979,10 +983,10 @@ public class Dist {
 		}
 	}
 	
-	public static ServerReleaseLifecycle getLifecycle( ActionBase action , Meta meta , ServerReleaseLifecycle lc , VarLCTYPE type ) throws Exception {
+	public static ReleaseLifecycle getLifecycle( ActionBase action , Meta meta , ReleaseLifecycle lc , DBEnumLifecycleType type ) throws Exception {
 		MetaProductCoreSettings core = meta.getProductCoreSettings( action );
 		
-		if( type == VarLCTYPE.MAJOR ) {
+		if( type == DBEnumLifecycleType.MAJOR ) {
 			String expected = core.RELEASELC_MAJOR;
 			if( expected.isEmpty() ) {
 				if( lc != null )
@@ -990,17 +994,17 @@ public class Dist {
 			}
 			else {
 				if( lc != null ) {
-					if( !expected.equals( lc.ID ) )
-						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.ID );
+					if( !expected.equals( lc.NAME ) )
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.NAME );
 					return( lc );
 				}
 				
-				ServerReleaseLifecycles lifecycles = action.getServerReleaseLifecycles();
+				EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
 				return( lifecycles.findLifecycle( expected ) );
 			}
 		}
 		else
-		if( type == VarLCTYPE.MINOR ) {
+		if( type == DBEnumLifecycleType.MINOR ) {
 			String expected = core.RELEASELC_MINOR;
 			if( expected.isEmpty() ) {
 				if( lc != null )
@@ -1008,17 +1012,17 @@ public class Dist {
 			}
 			else {
 				if( lc != null ) {
-					if( !expected.equals( lc.ID ) )
-						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.ID );
+					if( !expected.equals( lc.NAME ) )
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.NAME );
 					return( lc );
 				}
 				
-				ServerReleaseLifecycles lifecycles = action.getServerReleaseLifecycles();
+				EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
 				return( lifecycles.findLifecycle( expected ) );
 			}
 		}
 		else
-		if( type == VarLCTYPE.URGENT ) {
+		if( type == DBEnumLifecycleType.URGENT ) {
 			String[] expected = core.RELEASELC_URGENT_LIST;
 			if( expected.length == 0 ) {
 				if( lc != null )
@@ -1026,8 +1030,8 @@ public class Dist {
 			}
 			else {
 				if( lc != null ) {
-					if( Common.getIndexOf( expected , lc.ID ) < 0 )
-						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.ID );
+					if( Common.getIndexOf( expected , lc.NAME ) < 0 )
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.NAME );
 					return( lc );
 				}
 				
@@ -1038,7 +1042,7 @@ public class Dist {
 		return( null );
 	}
 	
-	private Date getReleaseDate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	private Date getReleaseDate( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		if( releaseDate != null )
 			return( releaseDate );
 		
@@ -1048,11 +1052,11 @@ public class Dist {
 				String prevReleaseVer = info.getPreviousVersion();
 				
 				if( !prevReleaseVer.isEmpty() ) {
-					ServerBlotterSet blotter = action.getBlotter( BlotterType.BLOTTER_RELEASE );
-					ServerBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
+					EngineBlotterSet blotter = action.getBlotter( BlotterType.BLOTTER_RELEASE );
+					EngineBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
 					
 					if( item != null ) {
-						releaseDate = Common.addDays( item.repoItem.dist.release.schedule.releaseDate , lc.shiftDays );
+						releaseDate = Common.addDays( item.repoItem.dist.release.schedule.releaseDate , lc.SHIFT_DAYS );
 						return( releaseDate );
 					}
 				}
@@ -1065,7 +1069,7 @@ public class Dist {
 	}
 
 	public void finishStatus( ActionBase action ) throws Exception {
-		ServerBlotter blotter = action.getServerBlotter();
+		EngineBlotter blotter = action.getServerBlotter();
 		blotter.runDistStatus( action , meta , this );
 	}
 	
@@ -1139,8 +1143,7 @@ public class Dist {
 			parent.removeFolder( action , newName );
 		
 		parent.moveFolderToFolder( action , RELEASEDIR , newName );
-		distFolder = parent.getSubFolder( action , newName );
-		RELEASEDIR = distFolder.folderName;
+		setFolder( parent.getSubFolder( action , newName ) );
 	}
 	
 }

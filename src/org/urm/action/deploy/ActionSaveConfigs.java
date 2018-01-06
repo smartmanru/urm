@@ -5,9 +5,9 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.SourceStorage;
@@ -23,7 +23,7 @@ public class ActionSaveConfigs extends ActionBase {
 		super( action , stream , "Save environment configuration" );
 	}
 
-	@Override protected void runAfter( ActionScope scope ) throws Exception {
+	@Override protected void runAfter( ScopeState state , ActionScope scope ) throws Exception {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , scope.meta );
 		if( scope.isPartialEnv() == false && isForced() )
 			deleteOldConfServers( scope );

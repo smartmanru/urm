@@ -3,7 +3,7 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -22,13 +22,13 @@ public class MetaDistrComponentWS {
 		this.comp = comp;
 	}
 
-	public void createComponentService( ServerTransaction transaction ) throws Exception {
+	public void createComponentService( EngineTransaction transaction ) throws Exception {
 		NAME = "";
 		URL = "";
 		OBSOLETE = false;
 	}
 	
-	public void setServiceData( ServerTransaction transaction , String NAME , String URL ) throws Exception {
+	public void setServiceData( EngineTransaction transaction , String NAME , String URL ) throws Exception {
 		this.NAME = NAME;
 		this.URL = URL;
 	}

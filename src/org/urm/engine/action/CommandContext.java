@@ -5,21 +5,19 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.common.action.CommandOption.FLAG;
-import org.urm.engine.ServerCall;
-import org.urm.engine.ServerEngine;
-import org.urm.engine.ServerSession;
+import org.urm.db.core.DBEnums.*;
+import org.urm.engine.EngineCall;
+import org.urm.engine.Engine;
+import org.urm.engine.EngineSession;
 import org.urm.engine.shell.Account;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.Types;
-import org.urm.meta.Types.*;
 
 public class CommandContext {
 
@@ -63,15 +61,16 @@ public class CommandContext {
 		
 	};
 	
-	public ServerEngine engine;
+	public Engine engine;
 	public CommandOptions options;
-	public ServerSession session;
+	public EngineSession session;
+	public ActionBase action;
 
 	public Meta meta;
 	public MetaEnv env; 
 	public MetaEnvSegment sg;
 	
-	public ServerCall call;
+	public EngineCall call;
 	public String stream;
 	public String streamLog;
 	public int logLevelLimit;
@@ -79,7 +78,7 @@ public class CommandContext {
 	
 	public Account account;
 	public String userHome;
-	public VarBUILDMODE buildMode = VarBUILDMODE.UNKNOWN;
+	public DBEnumBuildModeType buildMode = DBEnumBuildModeType.UNKNOWN;
 
 	// generic settings
 	public boolean CTX_TRACEINTERNAL;
@@ -145,12 +144,12 @@ public class CommandContext {
 	public String CTX_BUILDINFO = "";
 	public String CTX_HOSTUSER = "";
 	public String CTX_NEWKEY = "";
-	public VarBUILDMODE CTX_BUILDMODE = VarBUILDMODE.UNKNOWN;
+	public DBEnumBuildModeType CTX_BUILDMODE = DBEnumBuildModeType.UNKNOWN;
 	public String CTX_OLDRELEASE = "";
 	public String CTX_HOST = "";
 	public int CTX_PORT = -1;
 
-	public CommandContext( ServerEngine engine , ServerSession session , CommandOptions options , String stream , ServerCall call ) {
+	public CommandContext( Engine engine , EngineSession session , CommandOptions options , String stream , EngineCall call ) {
 		this.engine = engine;
 		this.session = session;
 		
@@ -165,13 +164,14 @@ public class CommandContext {
 		setLogLevel();
 	}
 
-	public CommandContext( CommandContext context , String stream ) {
+	public CommandContext( ActionBase action , CommandContext context , String stream ) {
 		if( stream == null || stream.isEmpty() )
 			this.stream = context.stream;
 		else
 			this.stream = stream;
 		
 		// copy all properties
+		this.action = action;
 		this.engine = context.engine;
 		this.session = context.session;
 		
@@ -261,6 +261,10 @@ public class CommandContext {
 	private void setLogStream() {
 		streamLog = ( call != null )? "[" + stream + "," + call.sessionContext.sessionId + "]" : "[" + stream + "]";
 	}
+
+	public void setAction( ActionInit action ) {
+		this.action = action;
+	}
 	
 	private void setLogLevel() {
 		logLevelLimit = CommandOutput.LOGLEVEL_INFO;
@@ -286,7 +290,7 @@ public class CommandContext {
 		update( action , env.meta );
 	}
 
-	public void update( ActionBase action ) throws Exception {
+	public void update( ActionInit action ) throws Exception {
 		Meta meta = ( session != null && session.product )? action.getContextMeta() : null;
 		update( action , meta );
 	}
@@ -375,7 +379,7 @@ public class CommandContext {
 		CTX_BUILDINFO = getParamValue( "OPT_BUILDINFO" );
 		CTX_HOSTUSER = getParamValue( "OPT_HOSTUSER" );
 		CTX_NEWKEY = getParamValue( "OPT_NEWKEY" );
-		CTX_BUILDMODE = Types.getBuildMode( getParamValue( "OPT_BUILDMODE" ) , false );
+		CTX_BUILDMODE = DBEnumBuildModeType.getValue( getParamValue( "OPT_BUILDMODE" ) , false );
 		CTX_OLDRELEASE = getParamValue( "OPT_COMPATIBILITY" );
 		CTX_PORT = getIntParamValue( "OPT_PORT" , -1 );
 		CTX_HOST = getParamValue( "OPT_HOST" );
@@ -384,7 +388,7 @@ public class CommandContext {
 		setLogLevel();
 	}
 
-	public void loadEnv( ActionBase action , boolean loadProps ) throws Exception {
+	public void loadEnv( ActionInit action , boolean loadProps ) throws Exception {
 		if( session.ENV.isEmpty() )
 			return;
 		
@@ -394,7 +398,7 @@ public class CommandContext {
 		loadEnv( action , session.ENV , useSG , loadProps );
 	}
 	
-	public void loadEnv( ActionBase action , String ENV , String SG , boolean loadProps ) throws Exception {
+	public void loadEnv( ActionInit action , String ENV , String SG , boolean loadProps ) throws Exception {
 		Meta meta = action.getContextMeta();
 		env = meta.getEnvData( action , ENV , loadProps );
 		
@@ -407,16 +411,11 @@ public class CommandContext {
 		update( action );
 	}
 	
-	public CommandContext getStreamContext( String stream ) {
-		CommandContext context = new CommandContext( this , stream );
-		return( context );
-	}
-	
 	public String getBuildModeName() {
 		return( Common.getEnumLower( buildMode ) );
 	}
 	
-	public boolean setRunContext() {
+	public boolean setRunContext() throws Exception {
 		if( session == null )
 			return( true );
 		
@@ -431,10 +430,11 @@ public class CommandContext {
 			return( false );
 		}
 
-		VarOSTYPE osType = ( session.execrc.isWindows() )? VarOSTYPE.WINDOWS : VarOSTYPE.LINUX;
+		DBEnumOSType osType = DBEnumOSType.getValue( session.execrc.osType );
 		this.account = Account.getLocalAccount( session.execrc.userName , session.execrc.hostName , osType );
+		
 		this.userHome = session.execrc.userHome;
-		this.buildMode = ( session.clientrc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( session.clientrc.buildMode );
+		this.buildMode = ( session.clientrc.buildMode.isEmpty() )? DBEnumBuildModeType.UNKNOWN : DBEnumBuildModeType.valueOf( session.clientrc.buildMode );
 		
 		return( true );
 	}
@@ -443,7 +443,7 @@ public class CommandContext {
 		String contextInfo = "";
 		if( !session.productName.isEmpty() )
 			contextInfo = "product=" + session.productName;
-		if( buildMode != VarBUILDMODE.UNKNOWN )
+		if( buildMode != DBEnumBuildModeType.UNKNOWN )
 			contextInfo += ", buildMode=" + getBuildModeName();
 		if( !session.ENV.isEmpty() )
 			contextInfo += ", env=" + session.ENV;
@@ -452,8 +452,8 @@ public class CommandContext {
 		return( contextInfo );
 	}
 	
-	public void setBuildMode( VarBUILDMODE value ) throws Exception {
-		if( buildMode != VarBUILDMODE.UNKNOWN && buildMode != value ) {
+	public void setBuildMode( DBEnumBuildModeType value ) throws Exception {
+		if( buildMode != DBEnumBuildModeType.UNKNOWN && buildMode != value ) {
 			String name = getBuildModeName();
 			Common.exit1( _Error.ReleaseWrongBuildMode1 , "release is defined for " + name + " build mode, please use appropriate context" , name );
 		}
@@ -522,6 +522,7 @@ public class CommandContext {
 
 	public void outExact( String s ) {
 		logCapture.outExact( s );
+		action.notifyLog( s );
 	}
 	
 }

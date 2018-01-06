@@ -9,11 +9,11 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.shell.Account;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.engine.ServerContext;
-import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.EngineContext;
+import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaProductSettings;
@@ -64,9 +64,9 @@ public class DistRepository {
 		return( rrepo );
 	}
 
-	public static DistRepository loadDistRepository( ActionBase action , Meta meta ) throws Exception {
+	public static DistRepository loadDistRepository( ActionBase action , Meta meta , boolean importxml ) throws Exception {
 		DistRepository repo = new DistRepository( meta );
-		repo.open( action );
+		repo.open( action , importxml );
 		return( repo );
 	}
 
@@ -76,10 +76,15 @@ public class DistRepository {
 		return( repo );
 	}
 
-	private void open( ActionBase action ) throws Exception {
+	private void open( ActionBase action , boolean importxml ) throws Exception {
 		repoFolder = getDistFolder( action );
 		
 		if( !repoFolder.checkExists( action ) ) {
+			if( importxml ) {
+				create( action , false );
+				return;
+			}
+			
 			String path = repoFolder.getLocalPath( action );
 			action.exit1( _Error.MissingReleaseRepository1 , "missing release repository at " + path , path );
 		}
@@ -106,7 +111,7 @@ public class DistRepository {
 			action.exit1( _Error.MissingReleaseRepositoryParent1 , "unable to create release repository, missing parent path=" + path , path );
 		}
 			
-		repoFolder.recreateThis( action );
+		repoFolder.ensureExists( action );
 		readRepositoryFile( action );
 	}
 
@@ -229,7 +234,7 @@ public class DistRepository {
 	}
 	
 	public RemoteFolder getImportLogFolder( ActionBase action , String dataSet , MetaEnvServer server ) throws Exception {
-		String location = server.sg.env.ID + "-" + server.sg.NAME + "-" + server.NAME;
+		String location = server.sg.env.NAME + "-" + server.sg.NAME + "-" + server.NAME;
 		return( repoFolder.getSubFolder( action , "data/" + dataSet + "/log-import-" + location ) );
 	}
 	
@@ -246,7 +251,7 @@ public class DistRepository {
 		return( dist );
 	}
 
-	public synchronized Dist createDist( ActionBase action , String RELEASELABEL , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	public synchronized Dist createDist( ActionBase action , String RELEASELABEL , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		DistLabelInfo info = getLabelInfo( action , RELEASELABEL );
 		Dist dist = findDist( action , info );
 		if( dist != null ) {
@@ -284,18 +289,18 @@ public class DistRepository {
 				
 			if( action.context.env != null ) {
 				if( !action.isLocalRun() )
-					account = Account.getDatacenterAccount( action , "" , action.context.env.DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+					account = Account.getDatacenterAccount( action , "" , action.context.env.DISTR_HOSTLOGIN , DBEnumOSType.LINUX );
 			}
 			else {
 				if( !action.isLocalRun() ) {
 					MetaProductSettings product = meta.getProductSettings( action );
-					account = Account.getDatacenterAccount( action , "" , product.CONFIG_DISTR_HOSTLOGIN , VarOSTYPE.LINUX );
+					account = Account.getDatacenterAccount( action , "" , product.CONFIG_DISTR_HOSTLOGIN , DBEnumOSType.LINUX );
 				}
 			}
 		}
 		else {
 			if( distPath.isEmpty() ) {
-				ServerContext sc = action.getServerContext();
+				EngineContext sc = action.getServerContext();
 				distPath = sc.DIST_ROOT;
 				distPath = Common.getPath( distPath , meta.name );
 			}

@@ -4,10 +4,10 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 

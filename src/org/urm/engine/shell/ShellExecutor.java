@@ -18,7 +18,7 @@ import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.meta.Types.VarSESSIONTYPE;
-import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.AuthResource;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
 
@@ -38,7 +38,7 @@ public abstract class ShellExecutor extends Shell {
 	abstract public boolean start( ActionBase action ) throws Exception;
 
 	// construction and administration
-	protected ShellExecutor( int id , String name , ShellPool pool , Account account , String rootPath , Folder tmpFolder , boolean dedicated ) {
+	protected ShellExecutor( int id , String name , EngineShellPool pool , Account account , String rootPath , Folder tmpFolder , boolean dedicated ) {
 		super( id , name , pool , account );
 		this.rootPath = rootPath;
 		this.tmpFolder = tmpFolder;
@@ -64,13 +64,13 @@ public abstract class ShellExecutor extends Shell {
 		return( false );
 	}
 	
-	public static ShellExecutor getLocalShellExecutor( ActionBase action , int id , String name , ShellPool pool , String rootPath , Folder tmpFolder , boolean dedicated ) throws Exception {
+	public static ShellExecutor getLocalShellExecutor( ActionBase action , int id , String name , EngineShellPool pool , String rootPath , Folder tmpFolder , boolean dedicated ) throws Exception {
 		ShellExecutor executor = new LocalShellExecutor( id , name , pool , rootPath , tmpFolder , dedicated );
 		executor.coreHidden = ShellCore.createShellCore( action, executor , action.context.account.osType , true );
 		return( executor );
 	}
 
-	public static ShellExecutor getRemoteShellExecutor( ActionBase action , int id , String name , ShellPool pool , Account account , ServerAuthResource auth , boolean dedicated ) throws Exception {
+	public static ShellExecutor getRemoteShellExecutor( ActionBase action , int id , String name , EngineShellPool pool , Account account , AuthResource auth , boolean dedicated ) throws Exception {
 		RedistStorage storage = action.artefactory.getRedistStorage( action , account );
 		Folder tmpFolder = storage.getRedistTmpFolder( action );
 
@@ -127,7 +127,7 @@ public abstract class ShellExecutor extends Shell {
 		}
 	}
 	
-	protected boolean createProcess( ActionBase action , ShellProcess process , ServerAuthResource auth ) throws Exception {
+	protected boolean createProcess( ActionBase action , ShellProcess process , AuthResource auth ) throws Exception {
 		if( isLocal() )
 			action.debug( "start shell=" + name + " at rootPath=" + rootPath + " (" + Common.getEnumLower( account.osType ) + ")" );
 		else
@@ -1305,4 +1305,17 @@ public abstract class ShellExecutor extends Shell {
 		return( folder.folderPath );
 	}
 	
+	public String findVersionedFile( ActionBase action , String folderPath , String basename , String ext ) throws Exception {
+		boolean addDotSlash = ( isWindows() )? false : true;
+		String filePath = findOneTopWithGrep( action , folderPath , "*" + basename + "*" + ext , Common.getGrepMask( action , basename , addDotSlash , ext ) );
+
+		// ensure correct file
+		if( filePath.isEmpty() ) {
+			action.trace( "findBinarySourceItemFile: file " + basename + ext + " not found in " + folderPath );
+			return( "" );
+		}
+
+		return( Common.getBaseName( filePath ) );
+	}
+
 }

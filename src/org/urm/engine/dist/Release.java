@@ -8,8 +8,9 @@ import java.util.Map.Entry;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.db.core.DBEnums.*;
 import org.urm.meta.Types;
-import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -33,7 +34,7 @@ public class Release {
 	
 	public boolean MASTER;
 	public boolean OBSOLETE;
-	public VarBUILDMODE BUILDMODE;
+	public DBEnumBuildModeType BUILDMODE;
 	public String COMPATIBILITY;
 	private boolean CUMULATIVE;
 	
@@ -173,7 +174,7 @@ public class Release {
 		
 		this.MASTER = true;
 		this.OBSOLETE = true;
-		this.BUILDMODE = VarBUILDMODE.UNKNOWN;
+		this.BUILDMODE = DBEnumBuildModeType.UNKNOWN;
 		this.COMPATIBILITY = "";
 		this.CUMULATIVE = true;
 
@@ -225,7 +226,7 @@ public class Release {
 		this.RELEASEVER = RELEASEVER;
 	}
 	
-	public void setReleaseDate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	public void setReleaseDate( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		if( lc == null )
 			schedule.changeReleaseSchedule( action , releaseDate );
 		else
@@ -247,7 +248,7 @@ public class Release {
 		}
 	}
 	
-	public void createNormal( ActionBase action , String RELEASEVER , Date releaseDate , ServerReleaseLifecycle lc , String RELEASEFILEPATH ) throws Exception {
+	public void createNormal( ActionBase action , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc , String RELEASEFILEPATH ) throws Exception {
 		this.RELEASEVER = DistLabelInfo.normalizeReleaseVer( action , RELEASEVER );
 		this.MASTER = false;
 		this.CUMULATIVE = action.context.CTX_CUMULATIVE;
@@ -425,11 +426,11 @@ public class Release {
 		return( value );
 	}
 
-	private VarBUILDMODE getReleasePropertyBuildMode( ActionBase action , Node node , String name ) throws Exception {
+	private DBEnumBuildModeType getReleasePropertyBuildMode( ActionBase action , Node node , String name ) throws Exception {
 		String value = getReleaseProperty( action , node , name );
 		if( value.isEmpty() )
-			return( VarBUILDMODE.UNKNOWN );
-		return( VarBUILDMODE.valueOf( value.toUpperCase() ) );
+			return( DBEnumBuildModeType.UNKNOWN );
+		return( DBEnumBuildModeType.valueOf( value.toUpperCase() ) );
 	}
 	
 	private boolean getReleasePropertyBoolean( ActionBase action , Node node , String name , boolean defValue ) throws Exception {
@@ -980,9 +981,9 @@ public class Release {
 		}
 	}
 
-	public VarLCTYPE getLifecycleType() {
+	public DBEnumLifecycleType getLifecycleType() {
 		if( MASTER )
-			return( VarLCTYPE.MAJOR );
+			return( DBEnumLifecycleType.MAJOR );
 		return( VersionInfo.getLifecycleType( RELEASEVER ) );
 	}
 

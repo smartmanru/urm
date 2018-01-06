@@ -8,25 +8,25 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.jmx.RemoteCall;
-import org.urm.common.meta.BuildCommandMeta;
+import org.urm.common.meta.CodebaseCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
 import org.urm.common.meta.MainCommandMeta;
+import org.urm.db.core.DBEnums.*;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.engine.storage.UrmStorage;
-import org.urm.meta.engine.ServerDirectory;
+import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.Types.*;
 
 public class ActionConfigure extends ActionBase {
 
@@ -46,7 +46,7 @@ public class ActionConfigure extends ActionBase {
 	String sgMasterFolderRel;
 	String envDbMasterFolderRel;
 	String sgDbMasterFolderRel;
-	String buildMasterFolderRel;
+	String codebaseMasterFolderRel;
 
 	public ActionConfigure( ActionBase action , String stream , String OSTYPE , String USEENV , String USESG ) {
 		super( action , stream , "Create proxy files" );
@@ -76,7 +76,7 @@ public class ActionConfigure extends ActionBase {
 		sgMasterFolderRel = "../../..";
 		envDbMasterFolderRel = "../../..";
 		sgDbMasterFolderRel = "../../../..";
-		buildMasterFolderRel = "../..";
+		codebaseMasterFolderRel = "../..";
 
 		// set execution context
 		configureDefault();
@@ -96,8 +96,8 @@ public class ActionConfigure extends ActionBase {
 	}
 	
 	private void configureServer() throws Exception {
-		ServerDirectory directory = actionInit.getServerDirectory();
-		for( String name : directory.getProducts() ) {
+		EngineDirectory directory = actionInit.getServerDirectory();
+		for( String name : directory.getProductNames() ) {
 			if( USEPRODUCT.isEmpty() || USEPRODUCT.equals( name ) ) {
 				info( "configure product name=" + name + " ..." );
 				Meta meta = super.getProductMetadata( name );
@@ -189,22 +189,22 @@ public class ActionConfigure extends ActionBase {
 	}
 	
 	private void configureProductDefault( Meta meta ) throws Exception {
-		LocalFolder pfBuild = pfMaster.getSubFolder( this , BuildCommandMeta.NAME );
+		LocalFolder pfCodebase = pfMaster.getSubFolder( this , CodebaseCommandMeta.NAME );
 		LocalFolder pfDeploy = pfMaster.getSubFolder( this , DeployCommandMeta.NAME );
 		
-		boolean buildUnix = false;
-		boolean buildWindows = false;
+		boolean codebaseUnix = false;
+		boolean codebaseWindows = false;
 		boolean deployUnix = false;
 		boolean deployWindows = false;
 		
 		if( runLinux )
-			buildUnix = deployUnix = true;
+			codebaseUnix = deployUnix = true;
 		else {
 			if( deleteOld == false ) {
 				if( isLocalLinux() ) {
-					if( pfBuild.checkExists( this ) )
-						if( pfBuild.findFiles( this , "*.sh" ).length > 0 )
-							buildUnix = true;
+					if( pfCodebase.checkExists( this ) )
+						if( pfCodebase.findFiles( this , "*.sh" ).length > 0 )
+							codebaseUnix = true;
 					if( pfDeploy.checkExists( this ) )
 						if( pfDeploy.findFiles( this , "*.sh" ).length > 0 )
 							deployUnix = true;
@@ -213,13 +213,13 @@ public class ActionConfigure extends ActionBase {
 		}
 
 		if( runWindows )
-			buildWindows = deployWindows = true;
+			codebaseWindows = deployWindows = true;
 		else {
 			if( deleteOld == false ) {
 				if( isLocalWindows() ) {
-					if( pfBuild.checkExists( this ) )
-						if( pfBuild.findFiles( this , "*.cmd" ).length > 0 )
-							buildWindows = true;
+					if( pfCodebase.checkExists( this ) )
+						if( pfCodebase.findFiles( this , "*.cmd" ).length > 0 )
+							codebaseWindows = true;
 					if( pfDeploy.checkExists( this ) )
 						if( pfDeploy.findFiles( this , "*.cmd" ).length > 0 )
 							deployWindows = true;
@@ -227,16 +227,16 @@ public class ActionConfigure extends ActionBase {
 			}
 		}
 		
-		if( buildUnix || deployUnix )
-			configureProductAll( meta , buildUnix , deployUnix , true );
-		if( buildWindows || deployWindows )
-			configureProductAll( meta , buildWindows , deployWindows , false );
+		if( codebaseUnix || deployUnix )
+			configureProductAll( meta , codebaseUnix , deployUnix , true );
+		if( codebaseWindows || deployWindows )
+			configureProductAll( meta , codebaseWindows , deployWindows , false );
 	}
 	
-	private void configureProductAll( Meta meta , boolean build , boolean deploy , boolean linux ) throws Exception {
+	private void configureProductAll( Meta meta , boolean codebase , boolean deploy , boolean linux ) throws Exception {
 		CommandBuilder builder = new CommandBuilder( context.session.clientrc , context.session.execrc , engine.optionsMeta );
 		
-		CommandMeta[] executors = builder.getExecutors( build , deploy );
+		CommandMeta[] executors = builder.getExecutors( codebase , deploy );
 		CommandMeta dbe = null;
 		for( CommandMeta executor : executors ) {
 			if( executor.name.equals( DatabaseCommandMeta.NAME ) ) {
@@ -274,10 +274,10 @@ public class ActionConfigure extends ActionBase {
 			MetaEnvSegment sg = null;
 			if( USEENV.isEmpty() ) {
 				addAffected( linux , proxyPath , true );
-				String[] envFiles = ms.getEnvFiles( this );
-				for( String envFile : envFiles ) {
-					MetaEnv env = meta.getEnvData( this , envFile , false );
-					envs.put( envFile , env );
+				String[] envNames = meta.getEnvNames();
+				for( String envName : envNames ) {
+					MetaEnv env = meta.getEnvData( this , envName , false );
+					envs.put( envName , env );
 				}
 			}
 			else {
@@ -285,7 +285,7 @@ public class ActionConfigure extends ActionBase {
 				String[] envFiles = ms.getEnvFiles( this );
 				for( String envFile : envFiles ) {
 					MetaEnv envx = meta.getEnvData( this , envFile , false );
-					if( envx.ID.equals( USEENV ) ) {
+					if( envx.NAME.equals( USEENV ) ) {
 						env = envx;
 						envs.put( envFile , envx );
 						break;
@@ -298,12 +298,12 @@ public class ActionConfigure extends ActionBase {
 				addAffected( linux , proxyPath , false );
 				
 				if( USESG.isEmpty() ) {
-					proxyPath = Common.getPath( proxyPath , env.ID );
+					proxyPath = Common.getPath( proxyPath , env.NAME );
 					addAffected( linux , proxyPath , true );
 				}
 				else {
 					sg = env.getSG( this , USESG );
-					proxyPath = Common.getPath( proxyPath , env.ID , USESG );
+					proxyPath = Common.getPath( proxyPath , env.NAME , USESG );
 					addAffected( linux , proxyPath , true );
 				}
 			}
@@ -318,9 +318,9 @@ public class ActionConfigure extends ActionBase {
 			addAffected( linux , proxyPath , true );
 		}
 		
-		if( executor.name.equals( BuildCommandMeta.NAME ) ) {
-			for( VarBUILDMODE mode : VarBUILDMODE.values() ) {
-				if( mode == VarBUILDMODE.UNKNOWN )
+		if( executor.name.equals( CodebaseCommandMeta.NAME ) ) {
+			for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
+				if( mode == DBEnumBuildModeType.UNKNOWN )
 					continue;
 				
 				configureBuildMode( meta , exeFolder , executor , mode , linux );
@@ -336,7 +336,7 @@ public class ActionConfigure extends ActionBase {
 	}
 	
 	private void configureDeploymentEnv( Meta meta , LocalFolder ef , CommandMeta executor , String envFile , MetaEnv env , MetaEnvSegment sg , boolean linux , CommandMeta dbe ) throws Exception {
-		LocalFolder efEnv = ef.getSubFolder( this , env.ID );
+		LocalFolder efEnv = ef.getSubFolder( this , env.NAME );
 		efEnv.ensureExists( this );
 		
 		// env-level
@@ -389,7 +389,7 @@ public class ActionConfigure extends ActionBase {
 		}
 	}
 	
-	private void configureBuildMode( Meta meta , LocalFolder ef , CommandMeta executor , VarBUILDMODE mode , boolean linux ) throws Exception {
+	private void configureBuildMode( Meta meta , LocalFolder ef , CommandMeta executor , DBEnumBuildModeType mode , boolean linux ) throws Exception {
 		LocalFolder efBuild = ef.getSubFolder( this , Common.getEnumLower( mode ) );
 		efBuild.ensureExists( this );
 		configureExecutorContextBuildMode( meta , efBuild , mode , linux );
@@ -397,7 +397,7 @@ public class ActionConfigure extends ActionBase {
 		// env-level wrappers
 		for( CommandMethodMeta cmdAction : executor.actionsList ) {
 			if( !cmdAction.top )
-				configureExecutorWrapper( efBuild , executor , cmdAction.name , linux , buildMasterFolderRel , null );
+				configureExecutorWrapper( efBuild , executor , cmdAction.name , linux , codebaseMasterFolderRel , null );
 		}
 	}
 
@@ -453,7 +453,7 @@ public class ActionConfigure extends ActionBase {
 		saveExecutorContext( ef , linux , lines );
 	}
 	
-	private void configureExecutorContextBuildMode( Meta meta , LocalFolder ef , VarBUILDMODE mode , boolean linux ) throws Exception {
+	private void configureExecutorContextBuildMode( Meta meta , LocalFolder ef , DBEnumBuildModeType mode , boolean linux ) throws Exception {
 		List<String> lines = new LinkedList<String>();
 		addExecutorContextBase( meta , ef , linux , lines );
 		addExecutorContextItem( ef , linux , lines , "C_URM_VERSIONMODE" , Common.getEnumLower( mode ) );

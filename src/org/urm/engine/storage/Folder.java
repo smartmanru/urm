@@ -430,7 +430,7 @@ public abstract class Folder {
 			deployBasename = item.DEPLOYBASENAME;
 		
 		boolean addDotSlash = ( windows )? false : true;
-		String filePath = findOneTopWithGrep( action , "*" + deployBasename + "*" + item.EXT , item.getGrepMask( action , deployBasename , addDotSlash ) );
+		String filePath = findOneTopWithGrep( action , "*" + deployBasename + "*" + item.EXT , Common.getGrepMask( action , deployBasename , addDotSlash , item.EXT ) );
 
 		// ensure correct file
 		if( filePath.isEmpty() ) {

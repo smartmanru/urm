@@ -11,24 +11,25 @@ import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
-import org.urm.engine.ServerEngine;
-import org.urm.meta.ServerLoader;
+import org.urm.db.core.DBEnums.*;
+import org.urm.engine.Engine;
+import org.urm.engine.status.ScopeState;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
-import org.urm.meta.engine.ServerReleaseLifecycle;
-import org.urm.meta.engine.ServerReleaseLifecycles;
+import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.engine.EngineLifecycles;
 
 public abstract class CommandExecutor {
 
-	public ServerEngine engine;
+	public Engine engine;
 	public CommandMeta commandInfo;
 		
 	public Map<String,CommandMethod> actionsMap = new HashMap<String,CommandMethod>();
 	public List<CommandMethod> actionsList = new LinkedList<CommandMethod>();
 	
-	protected abstract boolean runExecutorImpl( ActionBase action , CommandMethod method );
+	protected abstract boolean runExecutorImpl( ScopeState parentState , ActionBase action , CommandMethod method );
 
-	public CommandExecutor( ServerEngine engine , CommandMeta commandInfo ) {
+	public CommandExecutor( Engine engine , CommandMeta commandInfo ) {
 		this.engine = engine;
 		this.commandInfo = commandInfo;
 	}
@@ -48,18 +49,18 @@ public abstract class CommandExecutor {
 		return( commandAction );
 	}
 
-	public boolean runExecutor( ActionBase action , CommandMethod method ) {
-		if( runExecutorImpl( action , method ) )
+	public boolean runExecutor( ScopeState parentState , ActionBase action , CommandMethod method ) {
+		if( runExecutorImpl( parentState , action , method ) )
 			return( true );
 		
 		return( false );
 	}
 	
-	public boolean runMethod( ActionBase action , CommandMethod method ) {
+	public boolean runMethod( ScopeState parentState , ActionBase action , CommandMethod method ) {
 		try {
 			action.debug( "execute " + method.getClass().getSimpleName() + " ..." );
 			action.debug( "context: " + action.context.getInfo() );
-			method.run( action );
+			method.run( parentState , action );
 		}
 		catch( Throwable e ) {
 			action.fail1( _Error.ActionException1 , "Exception in method=" + method.method.name + ": " + e.getMessage() , method.method.name );
@@ -78,14 +79,6 @@ public abstract class CommandExecutor {
 		}
 		
 		return( true );
-	}
-	
-	public void setActionContext( ActionInit action , CommandContext context ) throws Exception {
-		// load initial properties
-		action.setLogLevel( context.logLevelLimit );
-		
-		// create shell pool
-		action.setTimeout( context.CTX_TIMEOUT );
 	}
 	
 	public void checkRequired( ActionBase action , String value , String name ) throws Exception {
@@ -113,10 +106,10 @@ public abstract class CommandExecutor {
 		return( CATEGORY );
 	}
 	
-	public VarBUILDMODE getRequiredBuildModeArg( ActionBase action , int pos ) throws Exception {
+	public DBEnumBuildModeType getRequiredBuildModeArg( ActionBase action , int pos ) throws Exception {
 		String value = getRequiredArg( action , pos , "BUILDMODE" );
-		VarBUILDMODE BUILDMODE = null;
-		for( VarBUILDMODE x : VarBUILDMODE.values() ) {
+		DBEnumBuildModeType BUILDMODE = null;
+		for( DBEnumBuildModeType x : DBEnumBuildModeType.values() ) {
 			if( value.equals( Common.getEnumLower( x ) ) ) {
 				BUILDMODE = x;
 				break;
@@ -163,14 +156,13 @@ public abstract class CommandExecutor {
 		return( action.context.options.getDateArg( pos ) );
 	}
 
-	public ServerReleaseLifecycle getLifecycleArg( ActionBase action , int pos ) throws Exception {
+	public ReleaseLifecycle getLifecycleArg( ActionBase action , int pos ) throws Exception {
 		String value = getArg( action , pos );
 		if( value.isEmpty() )
 			return( null );
 		
-		ServerLoader loader = engine.getLoader( action.actionInit );
-		ServerReleaseLifecycles lifecycles = loader.getReleaseLifecycles();
-		return( lifecycles.getLifecycle( action , value ) );
+		EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
+		return( lifecycles.getLifecycle( value ) );
 	}
 	
 }

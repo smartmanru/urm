@@ -3,7 +3,7 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -27,28 +27,28 @@ public class MetaDistrComponentItem {
 		this.comp = comp;
 	}
 
-	public void createComponentItem( ServerTransaction transaction ) throws Exception {
+	public void createComponentItem( EngineTransaction transaction ) throws Exception {
 		this.type = VarCOMPITEMTYPE.UNKNOWN;
 		this.NAME = "";
 		this.OBSOLETE = false;
 		this.DEPLOYNAME = "";
 	}
 
-	public void setBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem binaryItem , String DEPLOYNAME ) throws Exception {
+	public void setBinaryItem( EngineTransaction transaction , MetaDistrBinaryItem binaryItem , String DEPLOYNAME ) throws Exception {
 		this.type = VarCOMPITEMTYPE.BINARY;
 		this.binaryItem = binaryItem;
 		this.NAME = binaryItem.KEY;
 		this.DEPLOYNAME = DEPLOYNAME;
 	}
 	
-	public void setConfItem( ServerTransaction transaction , MetaDistrConfItem confItem ) throws Exception {
+	public void setConfItem( EngineTransaction transaction , MetaDistrConfItem confItem ) throws Exception {
 		this.type = VarCOMPITEMTYPE.CONF;
 		this.confItem = confItem;
 		this.NAME = confItem.KEY;
 		this.DEPLOYNAME = "";
 	}
 	
-	public void setSchema( ServerTransaction transaction , MetaDatabaseSchema schema , String DEPLOYNAME ) throws Exception {
+	public void setSchema( EngineTransaction transaction , MetaDatabaseSchema schema , String DEPLOYNAME ) throws Exception {
 		this.type = VarCOMPITEMTYPE.SCHEMA;
 		this.schema = schema;
 		this.NAME = schema.SCHEMA;

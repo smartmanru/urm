@@ -7,14 +7,14 @@ import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.ServerMirrorRepository;
-import org.urm.meta.engine.ServerSettings;
+import org.urm.meta.engine.MirrorRepository;
+import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.MetaProductSettings;
 
 public abstract class MirrorCase {
 
 	GenericVCS vcs;
-	ServerMirrorRepository mirror;
+	MirrorRepository mirror;
 	String BRANCH;
 	
 	public Account account;
@@ -44,7 +44,7 @@ public abstract class MirrorCase {
 		action = vcs.action;
 	}
 
-	public MirrorCase( GenericVCS vcs , ServerMirrorRepository mirror , String BRANCH ) {
+	public MirrorCase( GenericVCS vcs , MirrorRepository mirror , String BRANCH ) {
 		this.vcs = vcs;
 		this.mirror = mirror;
 		this.BRANCH = BRANCH;
@@ -56,8 +56,8 @@ public abstract class MirrorCase {
 	public LocalFolder getBaseFolder() throws Exception {
 		String mirrorPath;
 		if( vcs.meta == null ) {
-			ServerSettings settings = action.getServerSettings();
-			mirrorPath = settings.serverContext.WORK_MIRRORPATH;
+			EngineSettings settings = action.getServerSettings();
+			mirrorPath = settings.context.WORK_MIRRORPATH;
 		}
 		else {
 			MetaProductSettings product = vcs.meta.getProductSettings( action );
@@ -176,8 +176,10 @@ public abstract class MirrorCase {
 				continue;
 			
 			sfolder.copyFile( action , sset.dirPath , sf , dstFolder , sf );
-			if( !mset.findFileByName( sf ) )
+			if( !mset.findFileByName( sf ) ) {
+				action.trace( "mset=" + mset.dirPath + ", sf=" + sf );
 				vcs.addFileToCommit( mirror , mfolder , mset.dirPath , sf );
+			}
 		}
 
 		// delete from mirror

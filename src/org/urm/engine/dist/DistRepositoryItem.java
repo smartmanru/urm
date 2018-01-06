@@ -9,7 +9,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.dist.DistRepository.DistOperation;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.ReleaseLifecycle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -74,9 +74,8 @@ public class DistRepositoryItem {
 			action.exit1( _Error.MissingRelease1 , "release does not exist at " + path , path );
 		}
 		
-		boolean prod = distFolder.folderName.equals( Dist.MASTER_DIR );
 		Dist dist = new Dist( repo.meta , repo );
-		dist.setFolder( distFolder , prod );
+		dist.setFolder( distFolder );
 		dist.load( action );
 		return( dist );
 	}
@@ -86,14 +85,14 @@ public class DistRepositoryItem {
 		RELEASEDIR = dist.RELEASEDIR;
 	}
 	
-	public static Dist createDist( ActionBase action , DistRepository repo , RemoteFolder distFolder , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	public static Dist createDist( ActionBase action , DistRepository repo , RemoteFolder distFolder , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		if( distFolder.checkExists( action ) ) {
 			String path = distFolder.folderPath;
 			action.ifexit( _Error.ReleaseAlreadyExists1 , "distributive already exists at " + path , new String[] { path } );
 		}
 
 		Dist dist = new Dist( repo.meta , repo );
-		dist.setFolder( distFolder , false );
+		dist.setFolder( distFolder );
 		dist.create( action , distFolder.folderName , releaseDate , lc );
 		return( dist );
 	}
@@ -110,7 +109,7 @@ public class DistRepositoryItem {
 			distFolder.ensureExists( action );
 		
 		Dist dist = new Dist( repo.meta , repo );
-		dist.setFolder( distFolder , true );
+		dist.setFolder( distFolder );
 		dist.createProd( action , RELEASEVER );
 		distFolder.createFileFromString( action , DistRepository.RELEASEHISTORYFILE , getHistoryRecord( action , RELEASEVER , "add" ) );
 		return( dist );

@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.common.RunContext;
-import org.urm.common.meta.BuildCommandMeta;
+import org.urm.common.meta.CodebaseCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
 import org.urm.common.meta.MainCommandMeta;
@@ -52,8 +52,8 @@ public class CommandBuilder {
 		CommandMeta commandInfo = null;
 		if( cmd.equals( MainCommandMeta.NAME ) )
 			commandInfo = new MainCommandMeta( optionsMeta );
-		else if( cmd.equals( BuildCommandMeta.NAME ) )
-			commandInfo = new BuildCommandMeta( optionsMeta );
+		else if( cmd.equals( CodebaseCommandMeta.NAME ) )
+			commandInfo = new CodebaseCommandMeta( optionsMeta );
 		else if( cmd.equals( DeployCommandMeta.NAME ) )
 			commandInfo = new DeployCommandMeta( optionsMeta );
 		else if( cmd.equals( DatabaseCommandMeta.NAME ) )
@@ -67,7 +67,7 @@ public class CommandBuilder {
 		else
 			out( "Unexpected URM args - unknown command executor=" + cmd + " (expected one of " + 
 					MainCommandMeta.NAME + "/" + 
-					BuildCommandMeta.NAME + "/" + 
+					CodebaseCommandMeta.NAME + "/" + 
 					DeployCommandMeta.NAME + "/" + 
 					DatabaseCommandMeta.NAME + "/" + 
 					MonitorCommandMeta.NAME + "/" + 
@@ -95,7 +95,7 @@ public class CommandBuilder {
 	public CommandMeta[] getExecutors( boolean build , boolean deploy ) {
 		List<CommandMeta> list = new LinkedList<CommandMeta>();
 		if( build )
-			list.add( new BuildCommandMeta( optionsMeta ) );
+			list.add( new CodebaseCommandMeta( optionsMeta ) );
 		if( deploy ) {
 			list.add( new DeployCommandMeta( optionsMeta ) );
 			list.add( new MonitorCommandMeta( optionsMeta ) );

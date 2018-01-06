@@ -85,7 +85,7 @@ public class ShellOutputWaiter {
 
 	protected void skipUpTo( ActionBase action , BufferedReader textreader , char endChar ) throws Exception {
 		if( action.context.CTX_TRACEINTERNAL )
-			System.out.print( "TRACEINTERNAL: skipUpTo part=" );
+			System.out.print( "INNER: skipUpTo part=" );
 
 		char[] c = new char[1];
 		while( true ) {

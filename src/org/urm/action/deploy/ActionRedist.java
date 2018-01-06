@@ -4,12 +4,12 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.VersionInfo;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileInfo;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStateInfo;
@@ -34,7 +34,7 @@ public class ActionRedist extends ActionBase {
 		this.liveEnvFolder = liveEnvFolder;
 	}
 
-	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override protected void runBefore( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		infoAction( "execute sg=" + set.sg.NAME + ", releasedir=" + dist.RELEASEDIR + ", servers={" + set.getScopeInfo( this ) + "} ..." );
 	}
 	

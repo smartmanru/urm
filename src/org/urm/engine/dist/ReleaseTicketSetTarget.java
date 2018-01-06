@@ -210,7 +210,7 @@ public class ReleaseTicketSetTarget {
 	}
 	
 	public boolean isEqualTo( MetaSourceProjectItem item ) {
-		if( isBinary() && ITEM.equals( item.distItem.KEY ) )
+		if( isBinary() && item.distItem != null && ITEM.equals( item.distItem.KEY ) )
 			return( true );
 		return( false );
 	}

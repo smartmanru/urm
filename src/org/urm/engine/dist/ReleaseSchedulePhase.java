@@ -6,7 +6,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.meta.Types.VarNAMETYPE;
-import org.urm.meta.engine.ServerReleaseLifecyclePhase;
+import org.urm.meta.engine.LifecyclePhase;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -97,9 +97,9 @@ public class ReleaseSchedulePhase {
 			Common.xmlSetElementAttr( doc , root , Release.PROPERTY_FINISHDATE , Common.getDateValue( finishDate ) );
 	}
 	
-	public void create( ActionBase action , ServerReleaseLifecyclePhase lcPhase , int pos ) throws Exception {
+	public void create( ActionBase action , LifecyclePhase lcPhase , int pos ) throws Exception {
 		this.pos = pos;
-		this.name = lcPhase.ID;
+		this.name = lcPhase.NAME;
 		
 		this.unlimited = lcPhase.isUnlimited();
 		this.days = lcPhase.getDuration();

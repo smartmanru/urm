@@ -442,14 +442,15 @@ public class DatabasePrepare {
 		String schemaName = Common.getListItem( P_SCRIPT , "-" , 1 );
 		MetaDatabaseSchema schema = database.getSchema( action , schemaName );
 		
-		if( !schema.specific.validateScriptContent( action , scriptFolder , P_SCRIPT ) ) {
+		DatabaseSpecific specific = new DatabaseSpecific( meta , schema.dbmsType );
+		if( !specific.validateScriptContent( action , scriptFolder , P_SCRIPT ) ) {
 			S_ERROR_MSG = "invalid script content";
 			return( false );
 		}
 		
 		// check if regional
 		if( P_ALIGNEDSET.dirName.equals( REGIONAL_FOLDER ) ) {
-			String S_SPECIFIC_COMMENT = schema.specific.getComments( action , "REGIONS " , scriptFolder , P_SCRIPT ); 
+			String S_SPECIFIC_COMMENT = specific.getComments( action , "REGIONS " , scriptFolder , P_SCRIPT ); 
 			if( S_SPECIFIC_COMMENT.isEmpty() ) {
 				S_ERROR_MSG = "script should have REGIONS header property - " + P_SCRIPT;
 				return( false );

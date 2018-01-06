@@ -3,7 +3,6 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.action.deploy.ServerDeployment;
 import org.urm.common.Common;
-import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
@@ -310,7 +309,7 @@ public class RuntimeStorage extends ServerStorage {
 		if( !server.isService() )
 			action.exitUnexpectedState();
 		
-		if( server.osType == VarOSTYPE.LINUX ) {
+		if( server.osType.isLinux() ) {
 			RemoteFolder runtimeDir = new RemoteFolder( action.getNodeAccount( node ) , servicePath );
 			if( !runtimeDir.checkFileExists( action , "service" ) )
 				action.exit1( _Error.MissingLiveServiceFile1 , "unable to find service file in " + runtimeDir.folderPath , runtimeDir.folderPath );

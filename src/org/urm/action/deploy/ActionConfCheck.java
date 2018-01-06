@@ -4,9 +4,9 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
@@ -24,7 +24,7 @@ public class ActionConfCheck extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeScope( ScopeState state , ActionScope scope ) throws Exception {
-		info( "check configuration parameters in env=" + context.env.ID + " ..." );
+		info( "check configuration parameters in env=" + context.env.NAME + " ..." );
 		S_CONFCHECK_STATUS = true;
 
 		// read properties

@@ -11,7 +11,7 @@ import org.urm.common.Common;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.meta.engine.ReleaseLifecycle;
 
 public class DistState {
 
@@ -188,7 +188,7 @@ public class DistState {
 		}
 	}
 
-	public void ctlCreate( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	public void ctlCreate( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		// create release.xml, create status file, set closed dirty state
 		// check current status
 		ctlLoadReleaseState( action );
@@ -420,7 +420,7 @@ public class DistState {
         }		
 	}
 
-	public void createMetaFile( ActionBase action , Date releaseDate , ServerReleaseLifecycle lc ) throws Exception {
+	public void createMetaFile( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		// create empty release.xml
 		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
 		String RELEASEDIR = distFolder.folderName;

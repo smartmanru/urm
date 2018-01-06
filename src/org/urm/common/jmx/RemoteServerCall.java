@@ -1,16 +1,16 @@
 package org.urm.common.jmx;
 
 import org.urm.common.action.ActionData;
-import org.urm.engine.ServerCall;
-import org.urm.engine.ServerEngine;
-import org.urm.engine.ServerSession;
+import org.urm.engine.EngineCall;
+import org.urm.engine.Engine;
+import org.urm.engine.EngineSession;
 
-public class RemoteServerCall extends ServerCall {
+public class RemoteServerCall extends EngineCall {
 
-	public ServerCommandMBean command;
+	public EngineCommandMBean command;
 	public String clientId;
 	
-	public RemoteServerCall( ServerEngine engine , ServerSession sessionContext , String clientId , ServerCommandMBean command , String actionName , ActionData data ) {
+	public RemoteServerCall( Engine engine , EngineSession sessionContext , String clientId , EngineCommandMBean command , String actionName , ActionData data ) {
 		super( engine , sessionContext , command.meta , actionName , data );
 		this.command = command;
 		this.clientId = clientId;

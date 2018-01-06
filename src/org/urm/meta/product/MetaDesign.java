@@ -6,13 +6,13 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.ServerObject;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.EngineObject;
+import org.urm.meta.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaDesign extends ServerObject {
+public class MetaDesign extends EngineObject {
 
 	private boolean loaded;
 	public boolean loadFailed;
@@ -23,7 +23,7 @@ public class MetaDesign extends ServerObject {
 	public Map<String,MetaDesignElement> elements;
 	public boolean fullProd;
 	
-	public MetaDesign( ServerProductMeta storage , Meta meta ) {
+	public MetaDesign( ProductMeta storage , Meta meta ) {
 		super( storage );
 		this.meta = meta;
 		loaded = false;
@@ -39,7 +39,7 @@ public class MetaDesign extends ServerObject {
 	}
 	
 	public MetaDesign copy( ActionBase action , Meta meta ) throws Exception {
-		MetaDesign r = new MetaDesign( meta.getStorage( action ) , meta );
+		MetaDesign r = new MetaDesign( meta.getStorage() , meta );
 		r.fullProd = fullProd;
 		for( MetaDesignElement element : elements.values() ) {
 			MetaDesignElement relement = element.copy( action , meta , r );

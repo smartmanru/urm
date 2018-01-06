@@ -3,14 +3,37 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.shell.ShellExecutor;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.FACTVALUE;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.Types.*;
 
 public class ServerProcess {
 
+	public enum Facts {
+		PROCESSSTATE ,
+		PROCESSACTION
+	};
+	
+	public enum ProcessAction {
+		UNKNOWN ,
+		ALREADYSTARTED ,
+		ALREADYSTOPPED ,
+		PROCESSSTOP ,
+		PROCESSKILL ,
+		PROCESSSTART ,
+		UNABLETOSTART ,
+		UNABLETOSTOP ,
+		KILLED ,
+		UNABLETOKILL ,
+		STARTED ,
+		STOPPED
+	};
+	
 	MetaEnvServer srv;
 	MetaEnvServerNode node;
+	ScopeState state;
 	
 	public VarPROCESSMODE mode;
 	public String pids;
@@ -20,9 +43,10 @@ public class ServerProcess {
 	public static int defaultStartServerTimeSecs = 60;
 	public static int defaultStopServerTimeSecs = 60;
 	
-	public ServerProcess( MetaEnvServer srv , MetaEnvServerNode node ) {
+	public ServerProcess( MetaEnvServer srv , MetaEnvServerNode node , ScopeState state ) {
 		this.srv = srv;
 		this.node = node;
+		this.state = state;
 		this.mode = VarPROCESSMODE.UNKNOWN;
 		this.pids = "ignore";
 	}
@@ -60,6 +84,8 @@ public class ServerProcess {
 			gatherGenericStatus( action );
 		else
 			action.exitUnexpectedState();
+		
+		state.addFact( Facts.PROCESSSTATE , FACTVALUE.PROCESSMODE , mode.name() );
 	}
 
 	public boolean isStarted( ActionBase action ) throws Exception {
@@ -98,11 +124,24 @@ public class ServerProcess {
 		return( false );
 	}
 
+	private ShellExecutor getShell( ActionBase action ) throws Exception {
+		try {
+			ShellExecutor shell = action.getShell( node );
+			return( shell );
+		}
+		catch( Throwable e ) {
+			mode = VarPROCESSMODE.UNREACHABLE;
+			return( null );
+		}
+	}
+	
 	private void gatherPacemakerStatus( ActionBase action ) throws Exception {
 		if( !srv.isLinux() )
 			action.exitNotImplemented();
 		
-		ShellExecutor shell = action.getShell( node );
+		ShellExecutor shell = getShell( action );
+		if( shell == null )
+			return;
 		
 		try {
 			cmdValue = shell.customGetValue( action , "crm_resource -W -r " + srv.SYSNAME + " 2>&1 | grep `hostname`" );
@@ -131,7 +170,9 @@ public class ServerProcess {
 		if( !srv.isLinux() )
 			action.exitNotImplemented();
 		
-		ShellExecutor shell = action.getShell( node );
+		ShellExecutor shell = getShell( action );
+		if( shell == null )
+			return;
 		
 		try {
 			cmdValue = shell.customGetValue( action , "docker inspect " + srv.SYSNAME + " | grep Status" );
@@ -167,7 +208,9 @@ public class ServerProcess {
 	}
 	
 	private void gatherServiceStatus( ActionBase action ) throws Exception {
-		ShellExecutor shell = action.getShell( node );
+		ShellExecutor shell = getShell( action );
+		if( shell == null )
+			return;
 		
 		// linux operations
 		try {
@@ -177,20 +220,24 @@ public class ServerProcess {
 				String check = cmdValue.toUpperCase();
 				if( isStoppedStatus( action , check ) ) {
 					mode = VarPROCESSMODE.STOPPED;
+					state.addFact( mode );
 					return;
 				}
 				
 				if( isStartedStatus( action , check ) ) {
 					mode = VarPROCESSMODE.STARTED;
+					state.addFact( mode );
 					return;
 				}
 		
 				if( isStartingStatus( action , check ) ) {
 					mode = VarPROCESSMODE.STARTING;
+					state.addFact( mode );
 					return;
 				}
 				
 				mode = VarPROCESSMODE.ERRORS;
+				state.addFact( mode );
 				return;
 			}
 			
@@ -214,13 +261,17 @@ public class ServerProcess {
 			getPids( action );
 			
 			if( pids.isEmpty() ) {
-				mode = VarPROCESSMODE.STOPPED;
+				if( mode == VarPROCESSMODE.UNKNOWN )
+					mode = VarPROCESSMODE.STOPPED;
 				return;
 			}
 		}
 
 		// check process status
-		ShellExecutor shell = action.getShell( node );
+		ShellExecutor shell = getShell( action );
+		if( shell == null )
+			return;
+		
 		try {
 			if( srv.isLinux() )
 				cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "./server.status.sh " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
@@ -259,7 +310,10 @@ public class ServerProcess {
 		pids = "";
 		
 		// find program process
-		ShellExecutor shell = action.getShell( node );
+		ShellExecutor shell = getShell( action );
+		if( shell == null )
+			return;
+		
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
@@ -311,12 +365,14 @@ public class ServerProcess {
 
 		if( mode == VarPROCESSMODE.STOPPED ) {
 			action.debug( node.HOSTLOGIN + ": pacemaker resource=" + srv.SYSNAME + " already stopped" );
+			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
 			return( true );
 		}
 
 		ShellExecutor shell = action.getShell( node );
 		try {
 			shell.customCritical( action , "crm_resource -r " + srv.SYSNAME + " --host `hostname` --ban --quiet" );
+			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTOP.name() );
 			return( true );
 		}
 		finally {
@@ -333,12 +389,14 @@ public class ServerProcess {
 
 		if( mode == VarPROCESSMODE.STOPPED ) {
 			action.debug( node.HOSTLOGIN + ": docker resource=" + srv.SYSNAME + " already stopped" );
+			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
 			return( true );
 		}
 
 		ShellExecutor shell = action.getShell( node );
 		try {
 			shell.customCritical( action , "docker stop " + srv.SYSNAME );
+			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTOP.name() );
 			return( true );
 		}
 		finally {
@@ -352,6 +410,7 @@ public class ServerProcess {
 
 		if( mode == VarPROCESSMODE.STOPPED ) {
 			action.debug( node.HOSTLOGIN + ": service=" + srv.SYSNAME + " already stopped" );
+			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
 			return( true );
 		}
 
@@ -360,6 +419,7 @@ public class ServerProcess {
 			// linux operations
 			if( srv.isLinux() ) {
 				shell.customCritical( action , "service " + srv.SYSNAME + " stop > /dev/null 2>&1" );
+				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTOP.name() );
 				return( true );
 			}
 			
@@ -383,6 +443,7 @@ public class ServerProcess {
 			gatherStatus( action );
 			if( mode == VarPROCESSMODE.STOPPED ) {
 				action.debug( node.HOSTLOGIN + ": server already stopped" );
+				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
 				return( true );
 			}
 		}
@@ -390,6 +451,7 @@ public class ServerProcess {
 			getPids( action );
 			if( pids.isEmpty() ) {
 				action.debug( node.HOSTLOGIN + ": server already stopped" );
+				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
 				return( true );
 			}
 		}
@@ -402,6 +464,7 @@ public class ServerProcess {
 			if( srv.isLinux() ) {
 				shell.customCritical( action , F_FULLBINPATH , "./server.stop.sh " + srv.NAME + " " +
 						Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
+				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTOP.name() );
 				shell.checkErrors( action );
 				return( true );
 			}
@@ -410,6 +473,7 @@ public class ServerProcess {
 			if( srv.isWindows() ) {
 				shell.customCritical( action , F_FULLBINPATH , "call server.stop.cmd " + srv.NAME + " " +
 						Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS );
+				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTOP.name() );
 				shell.checkErrors( action );
 				return( true );
 			}
@@ -478,6 +542,7 @@ public class ServerProcess {
 		    
 			if( System.currentTimeMillis() > stopMillis ) {
 				action.error( node.HOSTLOGIN + ": failed to stop generic server=" + srv.NAME + " within " + stoptime + " seconds. Killing ..." );
+				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTOP.name() );
 				
 				// enforced stop
 				killServer( action );
@@ -485,10 +550,12 @@ public class ServerProcess {
 				
 				if( pids.isEmpty() ) {
 					action.info( node.HOSTLOGIN + ": server successfully killed" );
+					state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.KILLED.name() );
 					return( true );
 				}
 				
 				action.info( node.HOSTLOGIN + ": generic server=" + srv.NAME + " - unable to kill" );
+				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOKILL.name() );
 				return( false );
 			}
 			
@@ -497,6 +564,7 @@ public class ServerProcess {
 		}
 	
 		action.info( node.HOSTLOGIN + ": generic server=" + srv.NAME + " successfully stopped" );
+		state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.STOPPED.name() );
 		return( true );
 	}
 
@@ -512,6 +580,7 @@ public class ServerProcess {
 		while( mode != VarPROCESSMODE.STOPPED ) {
 			if( System.currentTimeMillis() > stopMillis ) {
 				action.error( node.HOSTLOGIN + ": failed to stop " + title + " within " + stoptime + " seconds" );
+				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTOP.name() );
 				return( false );
 			}
 						
@@ -523,6 +592,7 @@ public class ServerProcess {
 		}
 
 		action.info( node.HOSTLOGIN + " " + title + " successfully stopped" );
+		state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.STOPPED.name() );
 		return( true );
 	}
 	
@@ -532,6 +602,7 @@ public class ServerProcess {
 			// linux operations
 			if( srv.isLinux() ) {
 				shell.customCritical( action , "kill -9 " + pids );
+				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSKILL.name() );
 				return;
 			}
 			
@@ -578,17 +649,20 @@ public class ServerProcess {
 
 		if( mode == VarPROCESSMODE.STARTED ) {
 			action.debug( node.HOSTLOGIN + ": pacemaker resource=" + srv.SYSNAME + " already started" );
+			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTARTED.name() );
 			return( true );
 		}
 
 		if( mode != VarPROCESSMODE.STOPPED ) {
 			action.error( node.HOSTLOGIN + ": pacemaker resource=" + srv.SYSNAME + " is in unexpected state" );
+			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
 			return( false );
 		}
 
 		ShellExecutor shell = action.getShell( node );
 		try {
 			shell.customCritical( action , "crm_resource -r " + srv.SYSNAME + " --host `hostname` --clear --quiet" );
+			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTART.name() );
 			return( true );
 		}
 		finally {
@@ -605,17 +679,20 @@ public class ServerProcess {
 
 		if( mode == VarPROCESSMODE.STARTED ) {
 			action.debug( node.HOSTLOGIN + ": docker resource=" + srv.SYSNAME + " already started" );
+			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTARTED.name() );
 			return( true );
 		}
 
 		if( mode != VarPROCESSMODE.STOPPED ) {
 			action.error( node.HOSTLOGIN + ": docker resource=" + srv.SYSNAME + " is in unexpected state" );
+			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTARTED.name() );
 			return( false );
 		}
 
 		ShellExecutor shell = action.getShell( node );
 		try {
 			shell.customCritical( action , "docker start " + srv.SYSNAME );
+			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTART.name() );
 			return( true );
 		}
 		finally {
@@ -629,11 +706,13 @@ public class ServerProcess {
 
 		if( mode == VarPROCESSMODE.STARTED ) {
 			action.debug( node.HOSTLOGIN + ": service=" + srv.SYSNAME + " already started" );
+			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTARTED.name() );
 			return( true );
 		}
 
 		if( mode != VarPROCESSMODE.STOPPED ) {
 			action.error( node.HOSTLOGIN + ": service=" + srv.SYSNAME + " is in unexpected state" );
+			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
 			return( false );
 		}
 
@@ -642,6 +721,7 @@ public class ServerProcess {
 			// linux operations
 			if( srv.isLinux() ) {
 				shell.customCritical( action , "service " + srv.SYSNAME + " start > /dev/null 2>&1" );
+				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTART.name() );
 				return( true );
 			}
 			
@@ -665,11 +745,13 @@ public class ServerProcess {
 
 		if( mode == VarPROCESSMODE.STARTED ) {
 			action.debug( node.HOSTLOGIN + ": server=" + srv.NAME + " already started (pids=" + pids + ")" );
+			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTARTED.name() );
 			return( true );
 		}
 
 		if( mode != VarPROCESSMODE.STOPPED ) {
 			action.error( node.HOSTLOGIN + ": server=" + srv.NAME + " is in unexpected state (pids=" + pids + ")" );
+			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
 			return( false );
 		}
 		
@@ -682,6 +764,7 @@ public class ServerProcess {
 				shell.customCritical( action , F_FULLBINPATH , "./server.start.sh " + srv.NAME + " " +
 					action.context.CTX_EXTRAARGS + " > /dev/null" );
 				shell.checkErrors( action );
+				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTART.name() );
 				return( true );
 			}
 			
@@ -753,16 +836,19 @@ public class ServerProcess {
 		    
 			if( System.currentTimeMillis() > stopMillis ) {
 				action.error( node.HOSTLOGIN + ": failed to start " + title + " within " + starttime + " seconds" );
+				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
 				return( false );
 			}
 
 			if( mode == VarPROCESSMODE.STOPPED && System.currentTimeMillis() > startTimeoutMillis ) {
 				action.info( node.HOSTLOGIN + ": failed to start " + title + " - process launch timeout is " + defaultStartProcessTimeSecs + " seconds" );
+				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
 				return( false );
 			}
 
 			if( mode != VarPROCESSMODE.STOPPED && mode != VarPROCESSMODE.STARTING ) {
 				action.info( node.HOSTLOGIN + ": failed to start " + title + " - process is in unexpected state (" + cmdValue + ")" );
+				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
 				return( false );
 			}
 			

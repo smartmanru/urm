@@ -3,18 +3,18 @@ package org.urm.action.release;
 import java.util.Date;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
-import org.urm.meta.engine.ServerReleaseLifecycle;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.engine.ReleaseLifecycle;
 
 public class ActionModifyRelease extends ActionBase {
 
 	public Dist dist;
 	public Date releaseDate;
-	public ServerReleaseLifecycle lc;
+	public ReleaseLifecycle lc;
 	
-	public ActionModifyRelease( ActionBase action , String stream , Dist release , Date releaseDate , ServerReleaseLifecycle lc ) {
+	public ActionModifyRelease( ActionBase action , String stream , Dist release , Date releaseDate , ReleaseLifecycle lc ) {
 		super( action , stream , "Change properties of release=" + release.RELEASEDIR );
 		this.dist = release;
 		this.releaseDate = releaseDate;

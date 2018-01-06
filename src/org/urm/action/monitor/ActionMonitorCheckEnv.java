@@ -3,31 +3,31 @@ package org.urm.action.monitor;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionEnvScopeMaker;
 import org.urm.action.ActionScope;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.deploy.ActionCheckEnv;
+import org.urm.common.action.CommandMethodMeta.SecurityAction;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaMonitoringTarget;
 
 public class ActionMonitorCheckEnv extends ActionBase {
 
-	public MonitoringStorage storage;
-	public MetaMonitoringTarget target;
-	
+	MonitorTargetInfo info;
 	public long timePassedMillis;
 	
-	public ActionMonitorCheckEnv( ActionBase action , String stream , MonitoringStorage storage , MetaMonitoringTarget target ) {
+	public ActionMonitorCheckEnv( ActionBase action , String stream , MonitorTargetInfo info ) {
 		super( action , stream , "Monitoring, check environment" );
-		this.storage = storage;
-		this.target = target;
+		this.info = info; 
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		ActionCheckEnv action = new ActionCheckEnv( this , null );
+
+		MonitoringStorage storage = info.storage;
+		MetaMonitoringTarget target = info.target;
 		
 		MetaEnv env = target.meta.getEnv( this , target.ENV );
 		MetaEnvSegment sg = env.getSG( this , target.SG );
@@ -44,7 +44,7 @@ public class ActionMonitorCheckEnv extends ActionBase {
 		action.startRedirect( "checkenv log" , logRunning );
 
 		long timerStarted = System.currentTimeMillis();
-		if( !action.runAll( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false ) )
+		if( !action.runAll( state , scope , action.context.env , SecurityAction.ACTION_DEPLOY , false ) )
 			super.fail0( _Error.MonitorEnvFailed0 , "Checkenv monitoring failed" );
 		
 		timePassedMillis = System.currentTimeMillis() - timerStarted;  

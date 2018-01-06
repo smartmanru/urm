@@ -6,16 +6,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.meta.Types.*;
-import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.AuthResource;
 
 abstract public class ShellCore {
 
 	public boolean local;
-	public VarOSTYPE osType;
+	public DBEnumOSType osType;
 	public VarSESSIONTYPE sessionType;
 	public Folder tmpFolder;
 	protected ShellExecutor executor;
@@ -97,11 +97,11 @@ abstract public class ShellCore {
 	abstract public Date cmdGetFileChangeTime( ActionBase action , String filePath ) throws Exception;
 	abstract public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception;
 	
-	public static ShellCore createShellCore( ActionBase action , ShellExecutor executor , VarOSTYPE osType , boolean local ) throws Exception {
+	public static ShellCore createShellCore( ActionBase action , ShellExecutor executor , DBEnumOSType osType , boolean local ) throws Exception {
 		ShellCore core = null;
 		
 		VarSESSIONTYPE sessionType = null;
-		if( osType == VarOSTYPE.LINUX ) {
+		if( osType.isLinux() ) {
 			if( action.isLocalWindows() ) {
 				if( local )
 					action.exitUnexpectedState();
@@ -113,7 +113,7 @@ abstract public class ShellCore {
 			core = new ShellCoreUnix( executor , sessionType , executor.tmpFolder , local );
 		}
 		else
-		if( osType == VarOSTYPE.WINDOWS ) {
+		if( osType.isWindows() ) {
 			if( action.isLocalWindows() ) {
 				if( !local )
 					action.exitUnexpectedState();
@@ -133,7 +133,7 @@ abstract public class ShellCore {
 		return( core );
 	}
 	
-	protected ShellCore( ShellExecutor executor , VarOSTYPE osType , VarSESSIONTYPE sessionType , Folder tmpFolder , boolean local ) {
+	protected ShellCore( ShellExecutor executor , DBEnumOSType osType , VarSESSIONTYPE sessionType , Folder tmpFolder , boolean local ) {
 		this.local = local;
 		this.executor = executor;
 		this.osType = osType;
@@ -145,7 +145,7 @@ abstract public class ShellCore {
 		running = false;
 	}
 
-	public boolean createProcess( ActionBase action , ShellProcess process , String rootPath , ServerAuthResource auth ) throws Exception {
+	public boolean createProcess( ActionBase action , ShellProcess process , String rootPath , AuthResource auth ) throws Exception {
 		executor.startProcess( action , process , rootPath , true , auth );
 		running = true;
 		

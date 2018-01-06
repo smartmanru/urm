@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.AuthResource;
 
 abstract public class Shell {
 
@@ -19,7 +19,7 @@ abstract public class Shell {
 	
 	public int id;
 	public String name;
-	public ShellPool pool;
+	public EngineShellPool pool;
 	public Account account;
 	public String rootPath;
 
@@ -39,7 +39,7 @@ abstract public class Shell {
 	
 	ShellOutputWaiter wc;
 	
-	public Shell( int id , String name , ShellPool pool , Account account ) {
+	public Shell( int id , String name , EngineShellPool pool , Account account ) {
 		this.id = id;
 		this.name = name;
 		this.pool = pool;
@@ -48,7 +48,7 @@ abstract public class Shell {
 		tsCreated = System.currentTimeMillis();
 	}
 
-	public void startProcess( ActionBase action , ShellProcess process , String rootPath , boolean redirect , ServerAuthResource auth ) throws Exception {
+	public void startProcess( ActionBase action , ShellProcess process , String rootPath , boolean redirect , AuthResource auth ) throws Exception {
 		this.rootPath = rootPath;
 		this.process = process;
 		

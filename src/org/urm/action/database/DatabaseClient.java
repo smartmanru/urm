@@ -137,73 +137,82 @@ public class DatabaseClient {
 	}
 
 	public String readCellValue( ActionBase action , MetaDatabaseSchema schema , String table , String column , String ansiCondition ) throws Exception {
-		String password = getUserPassword( action , schema.DBUSER );
-		return( specific.readCellValue( action , schema.DBNAME , schema.DBUSER , password , table , column , ansiCondition ) );
+		String dbuser = specific.getSchemaDBUser( schema );
+		String password = getUserPassword( action , dbuser );
+		return( specific.readCellValue( action , specific.getSchemaDBName( schema ) , dbuser , password , table , column , ansiCondition ) );
 	}
 
 	public List<String[]> readTableData( ActionBase action , MetaDatabaseSchema schema , String table , String ansiCondition , String[] columns ) throws Exception {
 		List<String[]> list = new LinkedList<String[]>();
-		String password = getUserPassword( action , schema.DBUSER );
-		specific.readTableData( action , schema.DBNAME , schema.DBUSER , password , table , ansiCondition , columns , list );
+		String dbuser = specific.getSchemaDBUser( schema );
+		String password = getUserPassword( action , dbuser );
+		specific.readTableData( action , specific.getSchemaDBName( schema ) , dbuser , password , table , ansiCondition , columns , list );
 		return( list );
 	}
 
 	public List<String[]> readSelectData( ActionBase action , MetaDatabaseSchema schema , String select ) throws Exception {
 		List<String[]> list = new LinkedList<String[]>();
-		String password = getUserPassword( action , schema.DBUSER );
-		specific.readSelectData( action , schema.DBNAME , schema.DBUSER , password , select , list );
+		String dbuser = specific.getSchemaDBUser( schema );
+		String password = getUserPassword( action , dbuser );
+		specific.readSelectData( action , specific.getSchemaDBName( schema ) , dbuser , password , select , list );
 		return( list );
 	}
 
 	public void createTableData( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] columntypes , List<String[]> data ) throws Exception {
-		String password = getUserPassword( action , schema.DBUSER );
+		String dbuser = specific.getSchemaDBUser( schema );
+		String password = getUserPassword( action , dbuser );
 		
 		if( !action.isExecute() )
 			return;
 		
-		specific.createTableData( action , schema.DBNAME , schema.DBUSER , password , table , columns , columntypes , data );
+		specific.createTableData( action , specific.getSchemaDBName( schema ) , specific.getSchemaDBUser( schema ) , password , table , columns , columntypes , data );
 	}
 
 	public void writeTableData( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , List<String[]> data , boolean commit ) throws Exception {
-		String password = getUserPassword( action , schema.DBUSER );
+		String dbuser = specific.getSchemaDBUser( schema );
+		String password = getUserPassword( action , dbuser );
 		if( !action.isExecute() )
 			return;
 		
-		specific.writeTableData( action , schema.DBNAME , schema.DBUSER , password , table , columns , data , commit );
+		specific.writeTableData( action , specific.getSchemaDBName( schema ) , dbuser , password , table , columns , data , commit );
 	}
 
 	public boolean insertRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values , boolean commit ) throws Exception {
-		String password = getUserPassword( action , schema.DBUSER );
+		String dbuser = specific.getSchemaDBUser( schema );
+		String password = getUserPassword( action , dbuser );
 		if( !action.isExecute() )
 			return( true );
 		
-		return( specific.insertRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values , commit ) );
+		return( specific.insertRow( action , specific.getSchemaDBName( schema ) , dbuser , password , table , columns , values , commit ) );
 	}
 	
 	public boolean updateRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values , String ansiCondition , boolean commit ) throws Exception {
-		String password = getUserPassword( action , schema.DBUSER );
+		String dbuser = specific.getSchemaDBUser( schema );
+		String password = getUserPassword( action , dbuser );
 		if( !action.isExecute() )
 			return( true );
 		
-		return( specific.updateRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values , ansiCondition , commit ) );
+		return( specific.updateRow( action , specific.getSchemaDBName( schema ) , dbuser , password , table , columns , values , ansiCondition , commit ) );
 	}
 
 	public boolean deleteRows( ActionBase action , MetaDatabaseSchema schema , String table , String ansiCondition , boolean commit ) throws Exception {
-		String password = getUserPassword( action , schema.DBUSER );
+		String dbuser = specific.getSchemaDBUser( schema );
+		String password = getUserPassword( action , dbuser );
 		if( !action.isExecute() )
 			return( true );
 		
-		return( specific.deleteRows( action , schema.DBNAME , schema.DBUSER , password , table , ansiCondition , commit ) );
+		return( specific.deleteRows( action , specific.getSchemaDBName( schema ) , dbuser , password , table , ansiCondition , commit ) );
 	}
 	
 	public boolean applyScript( ActionBase action , MetaDatabaseSchema schema , LocalFolder scriptFolder , String scriptFile , LocalFolder outFolder , String outFile ) throws Exception {
-		String password = getUserPassword( action , schema.DBUSER );
+		String dbuser = specific.getSchemaDBUser( schema );
+		String password = getUserPassword( action , dbuser );
 		String file = scriptFolder.getFilePath( action , scriptFile );
 		String log = outFolder.getFilePath( action , outFile );
 		if( !action.isExecute() )
 			return( true );
 		
-		return( specific.applyScript( action , schema.DBNAME , schema.DBUSER , password , file , log ) );
+		return( specific.applyScript( action , specific.getSchemaDBName( schema ) , dbuser , password , file , log ) );
 	}
 	
 	public boolean applyAdmScript( ActionBase action , LocalFolder scriptFolder , String scriptFile , LocalFolder outFolder , String outFile ) throws Exception {

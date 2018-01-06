@@ -1,10 +1,9 @@
 package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
-import org.urm.action.database.DatabaseSpecific;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
@@ -22,14 +21,12 @@ public class MetaDatabaseSchema {
 	public String DBUSER;
 	public String DESC;
 	
-	public DatabaseSpecific specific;
-	
 	public MetaDatabaseSchema( Meta meta , MetaDatabase database ) {
 		this.meta = meta;
 		this.database = database;
 	}
 	
-	public void createSchema( ServerTransaction transaction , String SCHEMA ) throws Exception {
+	public void createSchema( EngineTransaction transaction , String SCHEMA ) throws Exception {
 		this.SCHEMA = SCHEMA;
 		dbmsType = VarDBMSTYPE.UNKNOWN;
 		DBNAME = "";
@@ -37,7 +34,7 @@ public class MetaDatabaseSchema {
 		DESC = "";
 	}
 
-	public void setData( ServerTransaction transaction , String desc , VarDBMSTYPE dbType , String dbName , String dbUser ) throws Exception {
+	public void setData( EngineTransaction transaction , String desc , VarDBMSTYPE dbType , String dbName , String dbUser ) throws Exception {
 		this.DESC = desc;
 		this.dbmsType = dbType;
 		this.DBNAME = dbName;
@@ -50,8 +47,6 @@ public class MetaDatabaseSchema {
 		DBNAME = ConfReader.getAttrValue( node , "dbname" , SCHEMA );
 		DBUSER = ConfReader.getAttrValue( node , "dbuser" , SCHEMA );
 		DESC = ConfReader.getAttrValue( node , "desc" );
-		
-		specific = new DatabaseSpecific( meta , dbmsType );
 	}
 
 	public MetaDatabaseSchema copy( ActionBase action , Meta meta , MetaDatabase database ) throws Exception {
@@ -62,7 +57,6 @@ public class MetaDatabaseSchema {
 		r.DBNAME = DBNAME;
 		r.DBUSER = DBUSER;
 		r.DESC = DESC;
-		r.specific = new DatabaseSpecific( meta , dbmsType );
 		return( r );
 	}
 

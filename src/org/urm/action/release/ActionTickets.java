@@ -7,18 +7,18 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionProductScopeMaker;
 import org.urm.action.ActionScope;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
+import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.ReleaseTicket;
 import org.urm.engine.dist.ReleaseTicketSet;
 import org.urm.engine.dist.ReleaseTicketSetTarget;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.Types;
 import org.urm.meta.Types.VarTICKETSETTARGETTYPE;
 import org.urm.meta.Types.VarTICKETTYPE;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSource;
@@ -71,7 +71,7 @@ public class ActionTickets extends ActionBase {
 		
 		SCOPESTATE res = SCOPESTATE.RunSuccess;
 		try {
-			executeCommand();
+			executeCommand( state );
 			dist.saveReleaseXml( this );
 			if( distNew != null )
 				distNew.saveReleaseXml( this );
@@ -87,7 +87,7 @@ public class ActionTickets extends ActionBase {
 		return( res );
 	}
 
-	private void executeCommand() throws Exception {
+	private void executeCommand( ScopeState state ) throws Exception {
 		if( method.equals( METHOD_CREATESET ) ) {
 			if( args.length < 2 || args.length > 3 ) {
 				exitInvalidArgs();
@@ -153,7 +153,7 @@ public class ActionTickets extends ActionBase {
 			else
 				targetList = Common.split( targets , "," );
 			
-			executeAcceptSet( code , ticketList , targetList );
+			executeAcceptSet( state , code , ticketList , targetList );
 		}
 		else
 		if( method.equals( METHOD_CREATETICKET ) ) {
@@ -357,7 +357,7 @@ public class ActionTickets extends ActionBase {
 		dist.release.changes.dropSet( this , set , descope );
 	}
 	
-	private void executeAcceptSet( String code , String[] tickets , String[] targets ) throws Exception {
+	private void executeAcceptSet( ScopeState state , String code , String[] tickets , String[] targets ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , code );
 		
 		// change release scope
@@ -382,34 +382,26 @@ public class ActionTickets extends ActionBase {
 		// add to scope
 		for( ReleaseTicketSetTarget target : targetList ) {
 			if( target.isDescoped() )
-				executeAcceptTargetScope( target , scopeDescope , true );
+				executeAcceptTargetScope( target , scopeDescope );
 			else
-				executeAcceptTargetScope( target , scopeNew , true );
-		}
-
-		// remove from scope
-		for( ReleaseTicketSetTarget target : targetList ) {
-			if( target.isDescoped() )
-				executeAcceptTargetScope( target , scopeNew , false );
-			else
-				executeAcceptTargetScope( target , scopeDescope , false );
+				executeAcceptTargetScope( target , scopeNew );
 		}
 
 		// execute change scope
 		ActionScope scopeAdd = new ActionScope( this , dist.meta );
 		scopeAdd.createMinus( this , scopeNew.getScope() , scopeDescope.getScope() );
 		ActionScope scopeRemove = new ActionScope( this , dist.meta );
-		scopeAdd.createMinus( this , scopeNew.getScope() , scopeDescope.getScope() );
+		scopeRemove.createMinus( this , scopeDescope.getScope() , scopeNew.getScope() );
 		
 		if( !scopeAdd.isEmpty() ) {
 			ActionBase runAction = new ActionAddScope( this , null , dist );
-			if( !runAction.runAll( scopeAdd , null , SecurityAction.ACTION_RELEASE , false ) )
+			if( !runAction.runAll( state , scopeAdd , null , SecurityAction.ACTION_RELEASE , false ) )
 				super.fail1( _Error.CannotExtendScope1 , "Cannot extend scope of release=" + dist.RELEASEDIR , dist.RELEASEDIR );
 		}
 		
 		if( !scopeRemove.isEmpty() ) {
 			ActionBase runAction = new ActionDescope( this , null , dist );
-			if( !runAction.runAll( scopeRemove , null , SecurityAction.ACTION_RELEASE , false ) )
+			if( !runAction.runAll( state , scopeRemove , null , SecurityAction.ACTION_RELEASE , false ) )
 				super.fail1( _Error.CannotReduceScope1 , "Cannot extend scope of release=" + dist.RELEASEDIR , dist.RELEASEDIR );
 		}
 		
@@ -434,7 +426,7 @@ public class ActionTickets extends ActionBase {
 		}
 	}
 	
-	private void executeAcceptTargetScope( ReleaseTicketSetTarget target , ActionProductScopeMaker maker , boolean add ) throws Exception {
+	private void executeAcceptTargetScope( ReleaseTicketSetTarget target , ActionProductScopeMaker maker ) throws Exception {
 		if( target.isProjectSet() ) {
 			maker.addScopeProductSet( target.ITEM , new String[] { "all" } );
 		}

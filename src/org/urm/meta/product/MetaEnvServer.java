@@ -8,18 +8,18 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.PropertyController;
-import org.urm.common.PropertySet;
-import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.engine.ServerTransaction;
+import org.urm.db.core.DBEnums.*;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.dist.Release;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
+import org.urm.engine.properties.PropertyController;
+import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.Account;
-import org.urm.meta.engine.ServerAccountReference;
-import org.urm.meta.engine.ServerBaseItem;
-import org.urm.meta.engine.ServerHostAccount;
+import org.urm.meta.engine.AccountReference;
+import org.urm.meta.engine.BaseItem;
+import org.urm.meta.engine.HostAccount;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
@@ -34,8 +34,8 @@ public class MetaEnvServer extends PropertyController {
 	public String NAME = "";
 	public String DESC = "";
 	private VarSERVERRUNTYPE serverRunType;
-	private VarSERVERACCESSTYPE serverAccessType;
-	public VarOSTYPE osType;
+	private DBEnumServerAccessType serverAccessType;
+	public DBEnumOSType osType;
 	
 	public String BASELINE = "";
 	public String XDOC = "";
@@ -161,8 +161,8 @@ public class MetaEnvServer extends PropertyController {
 		String SERVERRUNTYPE = super.getStringPropertyRequired( action , PROPERTY_SERVERRUNTYPE );
 		serverRunType = Types.getServerRunType( SERVERRUNTYPE , false );
 		String SERVERACCESSTYPE = super.getStringPropertyRequired( action , PROPERTY_SERVERACCESSTYPE );
-		serverAccessType = Types.getServerAccessType( SERVERACCESSTYPE , false );
-		osType = Types.getOSType( super.getStringProperty( action , PROPERTY_OSTYPE , "linux" ) , false );
+		serverAccessType = DBEnumServerAccessType.getValue( SERVERACCESSTYPE , false );
+		osType = DBEnumOSType.getValue( super.getStringProperty( action , PROPERTY_OSTYPE , "linux" ) , false );
 		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE );
 		XDOC = super.getPathProperty( action , PROPERTY_XDOC , NAME + ".xml" );
 		SYSNAME = super.getStringProperty( action , PROPERTY_SYSNAME );
@@ -218,7 +218,7 @@ public class MetaEnvServer extends PropertyController {
 		return( serverRunType );
 	}
 	
-	public VarSERVERACCESSTYPE getServerAccessType() {
+	public DBEnumServerAccessType getServerAccessType() {
 		return( serverAccessType );
 	}
 	
@@ -458,7 +458,7 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public boolean isConfigurable() {
-		if( serverAccessType == VarSERVERACCESSTYPE.MANUAL || serverAccessType == VarSERVERACCESSTYPE.UNKNOWN )
+		if( serverAccessType == DBEnumServerAccessType.MANUAL || serverAccessType == DBEnumServerAccessType.UNKNOWN )
 			return( false );
 		if( serverRunType == VarSERVERRUNTYPE.DATABASE || serverRunType == VarSERVERRUNTYPE.UNKNOWN ) 
 			return( false );
@@ -652,11 +652,11 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public boolean isWindows() {
-		return( osType == VarOSTYPE.WINDOWS );
+		return( osType == DBEnumOSType.WINDOWS );
 	}
 
 	public boolean isLinux() {
-		return( osType == VarOSTYPE.LINUX );
+		return( osType == DBEnumOSType.LINUX );
 	}
 
 	public boolean isDatabase() {
@@ -664,15 +664,15 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public boolean isService() {
-		return( serverAccessType == VarSERVERACCESSTYPE.SERVICE );
+		return( serverAccessType == DBEnumServerAccessType.SERVICE );
 	}
 
 	public boolean isDocker() {
-		return( serverAccessType == VarSERVERACCESSTYPE.DOCKER );
+		return( serverAccessType == DBEnumServerAccessType.DOCKER );
 	}
 
 	public boolean isPacemaker() {
-		return( serverAccessType == VarSERVERACCESSTYPE.PACEMAKER );
+		return( serverAccessType == DBEnumServerAccessType.PACEMAKER );
 	}
 
 	public boolean isCommand() {
@@ -680,11 +680,11 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public boolean isGeneric() {
-		return( serverAccessType == VarSERVERACCESSTYPE.GENERIC );
+		return( serverAccessType == DBEnumServerAccessType.GENERIC );
 	}
 
 	public boolean isManual() {
-		return( serverAccessType == VarSERVERACCESSTYPE.MANUAL );
+		return( serverAccessType == DBEnumServerAccessType.MANUAL );
 	}
 
 	public boolean isWebUser() {
@@ -704,15 +704,11 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public boolean isStartable() {
-		if( serverAccessType == VarSERVERACCESSTYPE.MANUAL )
+		if( serverAccessType == DBEnumServerAccessType.MANUAL )
 			return( false );
 		return( true );
 	}
 
-	public boolean isOffline() {
-		return( OFFLINE );
-	}
-	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		super.saveSplit( doc , root );
 		
@@ -732,7 +728,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 	
-	public void createServer( ActionBase action , String NAME , String DESC , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String sysname ) throws Exception {
+	public void createServer( ActionBase action , String NAME , String DESC , DBEnumOSType osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
 		if( !super.initCreateStarted( sg.getProperties() ) )
 			return;
 
@@ -750,7 +746,7 @@ public class MetaEnvServer extends PropertyController {
 		scatterProperties( action );
 	}
 
-	public void modifyServer( ActionBase action , String NAME , String DESC , VarOSTYPE osType , VarSERVERRUNTYPE runType , VarSERVERACCESSTYPE accessType , String sysname ) throws Exception {
+	public void modifyServer( ActionBase action , String NAME , String DESC , DBEnumOSType osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
 		super.setStringProperty( PROPERTY_NAME , NAME );
 		super.setStringProperty( PROPERTY_DESC , DESC );
 		super.setStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( osType ) );
@@ -762,11 +758,11 @@ public class MetaEnvServer extends PropertyController {
 		scatterProperties( action );
 	}
 
-	public void setBaseline( ServerTransaction transaction , String baselineServer ) throws Exception {
+	public void setBaseline( EngineTransaction transaction , String baselineServer ) throws Exception {
 		super.setSystemStringProperty( PROPERTY_BASELINE , baselineServer );
 	}
 	
-	public void setPlatform( ServerTransaction transaction , ServerBaseItem item ) throws Exception {
+	public void setPlatform( EngineTransaction transaction , BaseItem item ) throws Exception {
 		if( basesw == null ) {
 			basesw = new MetaEnvServerBase( meta , this );
 			basesw.createBase( transaction.action , item );
@@ -775,7 +771,7 @@ public class MetaEnvServer extends PropertyController {
 			basesw.setItem( transaction , item );
 	}
 	
-	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
+	public void setOffline( EngineTransaction transaction , boolean offline ) throws Exception {
 		// check props
 		if( !offline ) {
 			ActionBase action = transaction.getAction();
@@ -790,11 +786,11 @@ public class MetaEnvServer extends PropertyController {
 		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
 	}
 
-	public void createNode( ServerTransaction transaction , MetaEnvServerNode node ) {
+	public void createNode( EngineTransaction transaction , MetaEnvServerNode node ) {
 		addNode( transaction , node );
 	}
 	
-	private void addNode( ServerTransaction transaction , MetaEnvServerNode node ) {
+	private void addNode( EngineTransaction transaction , MetaEnvServerNode node ) {
 		int index = nodes.size();
 		if( node.POS > 0 )
 			index = node.POS - 1;
@@ -814,7 +810,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 	
-	public void deleteNode( ServerTransaction transaction , MetaEnvServerNode node ) {
+	public void deleteNode( EngineTransaction transaction , MetaEnvServerNode node ) {
 		int index = nodes.indexOf( node );
 		if( index < 0 )
 			return;
@@ -827,7 +823,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 
-	public void modifyNode( ServerTransaction transaction , MetaEnvServerNode node ) {
+	public void modifyNode( EngineTransaction transaction , MetaEnvServerNode node ) {
 		int index = nodes.indexOf( node );
 		if( index < 0 )
 			return;
@@ -839,21 +835,21 @@ public class MetaEnvServer extends PropertyController {
 		addNode( transaction , node );
 	}
 
-	public void getApplicationReferences( ServerHostAccount account , List<ServerAccountReference> refs ) {
+	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
 		for( MetaEnvServerNode node : nodes )
 			node.getApplicationReferences( account , refs );
 	}
 
-	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+	public void deleteHostAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
 		super.deleteObject();
 	}
 	
-	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
+	public void setProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		super.updateProperties( transaction , props , system );
 		scatterProperties( transaction.getAction() );
 	}
 
-	public void setDeployments( ServerTransaction transaction , List<MetaEnvServerDeployment> deploymentsNew ) throws Exception {
+	public void setDeployments( EngineTransaction transaction , List<MetaEnvServerDeployment> deploymentsNew ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments )
 			deployment.deleteObject();
 		deployments.clear();
@@ -863,7 +859,7 @@ public class MetaEnvServer extends PropertyController {
 			addDeployment( deployment );
 	}
 
-	public void reflectDeleteBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+	public void reflectDeleteBinaryItem( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.isBinaryItem() && deployment.binaryItem == item ) {
 				deployMap.remove( deployment.getName() );
@@ -873,7 +869,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 	
-	public void reflectDeleteConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+	public void reflectDeleteConfItem( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.isConfItem() && deployment.confItem == item ) {
 				deployMap.remove( deployment.getName() );
@@ -883,7 +879,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 	
-	public void reflectDeleteComponent( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
+	public void reflectDeleteComponent( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.isComponent() && deployment.comp == item ) {
 				deployMap.remove( deployment.getName() );
@@ -893,7 +889,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 	}
 	
-	public void reflectDeleteSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+	public void reflectDeleteSchema( EngineTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.isDatabase() && deployment.schema == schema ) {
 				deployMap.remove( deployment.getName() );
@@ -933,6 +929,38 @@ public class MetaEnvServer extends PropertyController {
 			}
 		}
 		return( false );
+	}
+
+	public String getSchemaDBName( MetaDatabaseSchema schema ) {
+		for( MetaEnvServerDeployment d : deployments ) {
+			if( d.isDatabase() ) {
+				if( d.schema == schema )
+					return( d.DBNAME );
+			}
+			else {
+				MetaDistrComponentItem item = d.comp.findSchemaItem( schema.SCHEMA );
+				if( item != null )
+					return( schema.DBNAME );
+			}
+		}
+		
+		return( null );
+	}
+	
+	public String getSchemaDBUser( MetaDatabaseSchema schema ) {
+		for( MetaEnvServerDeployment d : deployments ) {
+			if( d.isDatabase() ) {
+				if( d.schema == schema )
+					return( d.DBUSER );
+			}
+			else {
+				MetaDistrComponentItem item = d.comp.findSchemaItem( schema.SCHEMA );
+				if( item != null )
+					return( schema.DBUSER );
+			}
+		}
+		
+		return( null );
 	}
 	
 }

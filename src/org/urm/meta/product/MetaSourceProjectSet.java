@@ -9,7 +9,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -43,7 +43,7 @@ public class MetaSourceProjectSet {
 		return( r );
 	}
 	
-	public void create( ServerTransaction transaction , String name ) throws Exception {
+	public void create( EngineTransaction transaction , String name ) throws Exception {
 		NAME = name;
 	}
 	
@@ -111,12 +111,12 @@ public class MetaSourceProjectSet {
 		map.put( project.NAME , project );
 	}
 	
-	public void removeProject( ServerTransaction transaction , MetaSourceProject project ) throws Exception {
+	public void removeProject( EngineTransaction transaction , MetaSourceProject project ) throws Exception {
 		map.remove( project.NAME );
 		reorderProjects();
 	}
 	
-	public void addProject( ServerTransaction transaction , MetaSourceProject project ) throws Exception {
+	public void addProject( EngineTransaction transaction , MetaSourceProject project ) throws Exception {
 		for( MetaSourceProject p : orderedList ) {
 			if( p.POS >= project.POS )
 				p.setOrder( transaction , p.POS + 1 );
@@ -126,7 +126,7 @@ public class MetaSourceProjectSet {
 		reorderProjects();
 	}
 
-	public void changeProjectOrder( ServerTransaction transaction , MetaSourceProject project , int POS ) throws Exception {
+	public void changeProjectOrder( EngineTransaction transaction , MetaSourceProject project , int POS ) throws Exception {
 		for( MetaSourceProject p : orderedList ) {
 			if( p.POS >= POS )
 				p.setOrder( transaction , p.POS + 1 );
@@ -136,7 +136,7 @@ public class MetaSourceProjectSet {
 		reorderProjects();
 	}
 
-	public void reorderProjects( ServerTransaction transaction ) throws Exception {
+	public void reorderProjects( EngineTransaction transaction ) throws Exception {
 		reorderProjects();
 	}
 	

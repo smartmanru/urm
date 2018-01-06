@@ -37,7 +37,7 @@ public class Main {
 		if( !execrc.isMain() )
 			Common.exit0( _Error.MainExecutorExpected0 , "only main executor id expected" );
 
-		ServerEngine engine = new ServerEngine( execrc );
+		Engine engine = new Engine( execrc );
 		engine.init();
 		MainExecutor serverExecutor = MainExecutor.createExecutor( engine );
 		

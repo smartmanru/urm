@@ -6,12 +6,13 @@ import org.urm.action.ActionScope;
 import org.urm.action.database.DatabaseCommand;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
-import org.urm.engine.ServerEngine;
+import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.ReleaseDelivery;
+import org.urm.engine.status.ScopeState;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrDelivery;
@@ -28,12 +29,12 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	
 	String propertyBasedMethods;
 	
-	public static DatabaseCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
+	public static DatabaseCommandExecutor createExecutor( Engine engine ) throws Exception {
 		DatabaseCommandMeta commandInfo = new DatabaseCommandMeta( engine.optionsMeta );
 		return( new DatabaseCommandExecutor( engine , commandInfo ) );
 	}
 		
-	private DatabaseCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+	private DatabaseCommandExecutor( Engine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		super.defineAction( new InitDB() , "initdb" );
@@ -49,9 +50,9 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	}
 	
 	@Override
-	public boolean runExecutorImpl( ActionBase action , CommandMethod method ) {
+	public boolean runExecutorImpl( ScopeState parentState , ActionBase action , CommandMethod method ) {
 		// log action and run 
-		boolean res = super.runMethod( action , method );
+		boolean res = super.runMethod( parentState , action , method );
 		return( res );
 	}
 
@@ -63,7 +64,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	}
 	
 	private class GetReleaseScripts extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
@@ -72,32 +73,32 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
 		maker.addScopeReleaseCategory( VarCATEGORY.DB , DELIVERIES );
 		ActionScope scope = maker.getScope();
-		impl.getReleaseScripts( action , scope , dist );
+		impl.getReleaseScripts( parentState , action , scope , dist );
 	}
 	}
 	
 	private class InitDB extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String SERVER = getRequiredArg( action , 0 , "SERVER" );
 		int node = getIntArg( action , 1 , -1 );
-		impl.initDatabase( action , SERVER , node );
+		impl.initDatabase( parentState , action , SERVER , node );
 	}
 	}
 
 	private class ApplyManual extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		String SERVER = getRequiredArg( action , 1 , "DBSERVER" );
 		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
 		ActionScope scope = getIndexScope( action , dist , 2 );
-		impl.applyManual( action , scope , dist , server );
+		impl.applyManual( parentState , action , scope , dist , server );
 	}
 	}
 
 	private class ApplyAutomatic extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
@@ -113,12 +114,12 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 			checkNoArgs( action , 3 );
 		}
 		
-		impl.applyAutomatic( action , dist , delivery , indexScope );
+		impl.applyAutomatic( parentState , action , dist , delivery , indexScope );
 	}
 	}
 
 	private class ManageRelease extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
 		DistRepository repo = action.artefactory.getDistRepository( action , meta );
@@ -138,25 +139,27 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 			checkNoArgs( action , 4 );
 		}
 		
-		impl.manageRelease( action , meta , RELEASEVER , delivery , CMD , indexScope );
+		impl.manageRelease( parentState , action , meta , RELEASEVER , delivery , CMD , indexScope );
 	}
 	}
 	
 	private class ImportDB extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
-		String SERVER = getRequiredArg( action , 0 , "SERVER" );
-		String CMD = getRequiredArg( action , 1 , "CMD" );
-		String SCHEMA = getArg( action , 2 );
-		impl.importDatabase( action , SERVER , CMD , SCHEMA );
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
+		String TASK = getRequiredArg( action , 0 , "TASK" );
+		String SERVER = getRequiredArg( action , 1 , "SERVER" );
+		String CMD = getRequiredArg( action , 2 , "CMD" );
+		String SCHEMA = getArg( action , 3 );
+		impl.importDatabase( parentState , action , SERVER , TASK , CMD , SCHEMA );
 	}
 	}
 	
 	private class ExportDB extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
-		String SERVER = getRequiredArg( action , 0 , "SERVER" );
-		String CMD = getRequiredArg( action , 1 , "CMD" );
-		String SCHEMA = getArg( action , 2 );
-		impl.exportDatabase( action , SERVER , CMD , SCHEMA );
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
+		String TASK = getRequiredArg( action , 0 , "TASK" );
+		String SERVER = getRequiredArg( action , 1 , "SERVER" );
+		String CMD = getRequiredArg( action , 2 , "CMD" );
+		String SCHEMA = getArg( action , 3 );
+		impl.exportDatabase( parentState , action , SERVER , TASK , CMD , SCHEMA );
 	}
 	}
 	

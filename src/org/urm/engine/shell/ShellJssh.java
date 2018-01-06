@@ -10,7 +10,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.AuthResource;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -43,13 +43,13 @@ public class ShellJssh {
 		jsch = new JSch();
 	}
 	
-	private ServerAuthResource getAuthResource( ActionBase action , Account account ) throws Exception {
-		ServerAuthResource res = account.getResource( action );
+	private AuthResource getAuthResource( ActionBase action , Account account ) throws Exception {
+		AuthResource res = account.getResource( action );
 		res.loadAuthData();
 		return( res );
 	}
 	
-	public void startJsshProcess( ActionBase action , String rootPath , ServerAuthResource res ) throws Exception {
+	public void startJsshProcess( ActionBase action , String rootPath , AuthResource res ) throws Exception {
 		Account account = process.shell.account;
 		if( res == null )
 			res = getAuthResource( action , account );
@@ -59,17 +59,20 @@ public class ShellJssh {
 		action.debug( "jssh shell=" + process.shell.name + " - successfully connected" );		
 	}
 
-	private void startJsshInternal( ActionBase action , Account account , ServerAuthResource res ) throws Exception {
+	private void startJsshInternal( ActionBase action , Account account , AuthResource res ) throws Exception {
 		startJsshSession( action , account , res );
 		startJsshCommandChannel( action );
 	}
 	
-	private void startJsshSession( ActionBase action , Account account , ServerAuthResource res ) throws Exception {
+	private void startJsshSession( ActionBase action , Account account , AuthResource res ) throws Exception {
 		String hostLogin = account.getHostLogin();
 		action.debug( "connecting to account=" + hostLogin + " ..." );
 		this.account = account;
 		
-		jsession = jsch.getSession( account.USER , account.HOST , account.PORT );
+		String ADDRESS = account.IP;
+		if( ADDRESS.isEmpty() )
+			ADDRESS = account.HOST;
+		jsession = jsch.getSession( account.USER , ADDRESS , account.PORT );
 		
 		String keyFile = action.context.CTX_KEYNAME;
 		if( keyFile.isEmpty() ) {
@@ -214,11 +217,14 @@ public class ShellJssh {
 		return( res );
 	}
 
-	public boolean scpDirContentLocalToRemote( ActionBase action , String srcDirPath , String dstDir ) throws Exception {
+	public boolean scpDirContentLocalToRemote( ActionBase action , String srcDirPath , String baseDstDir ) throws Exception {
 		scpConnect( action );
 		
 		boolean res = false;
 		try {
+			LocalFolder srcDirFolder = action.getLocalFolder( srcDirPath );
+			RemoteFolder dstFolder = action.getRemoteFolder( account , baseDstDir );
+			executeScpDirContentLocalToRemote( action , srcDirFolder , dstFolder );
 	    }
 		finally {
 			kill( action );
@@ -317,7 +323,7 @@ public class ShellJssh {
 	}
 
 	private void scpConnect( ActionBase action ) throws Exception {
-		ServerAuthResource res = getAuthResource( action , account );
+		AuthResource res = getAuthResource( action , account );
 		startJsshSession( action , account , res );
 		startJsshScpChannel( action );
 	}

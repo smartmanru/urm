@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="master/lib/jsch-0.1.54.jar" sourcepath="master/lib/jsch-0.1.54.zip"/>
 	<classpathentry kind="lib" path="master/lib/rrd4j-3.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="master/lib/postgresql-42.1.4.jre7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

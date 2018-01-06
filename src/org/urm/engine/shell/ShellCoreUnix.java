@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.meta.Types.*;
@@ -21,7 +21,7 @@ public class ShellCoreUnix extends ShellCore {
 	String osTypeVersion;
 	
 	public ShellCoreUnix( ShellExecutor executor , VarSESSIONTYPE sessionType , Folder tmpFolder , boolean local ) {
-		super( executor , VarOSTYPE.LINUX , sessionType , tmpFolder , local );
+		super( executor , DBEnumOSType.LINUX , sessionType , tmpFolder , local );
 	}
 
 	@Override 

@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDesign;

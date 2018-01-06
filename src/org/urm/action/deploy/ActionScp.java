@@ -2,10 +2,10 @@ package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 
 public class ActionScp extends ActionBase {
 

@@ -2,8 +2,8 @@ package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.PropertyController;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.PropertyController;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
@@ -27,10 +27,14 @@ public class MetaEnvServerDeployment extends PropertyController {
 	
 	public VarDEPLOYMODE deployMode = VarDEPLOYMODE.UNKNOWN;
 	public String DEPLOYPATH = "";
+	public String DBNAME = "";
+	public String DBUSER = "";
 	public VarNODETYPE nodeType = VarNODETYPE.UNKNOWN;
 	
 	public static String PROPERTY_DEPLOYMODE = "deploymode";
 	public static String PROPERTY_DEPLOYPATH = "deploypath";
+	public static String PROPERTY_DBNAME = "dbname";
+	public static String PROPERTY_DBUSER = "dbuser";
 	public static String PROPERTY_NODETYPE = "nodetype";
 	public static String PROPERTY_COMPONENT = "component";
 	public static String PROPERTY_DISTITEM = "distitem";
@@ -57,6 +61,9 @@ public class MetaEnvServerDeployment extends PropertyController {
 			value = "cold";
 		deployMode = Types.getDeployMode( value , false );
 		DEPLOYPATH = super.getStringProperty( action , PROPERTY_DEPLOYPATH );
+		DBNAME = super.getStringProperty( action , PROPERTY_DBNAME );
+		DBUSER = super.getStringProperty( action , PROPERTY_DBUSER );
+		
 		value = super.getStringProperty( action , PROPERTY_NODETYPE );
 		nodeType = Types.getNodeType( value , VarNODETYPE.SELF );
 		
@@ -81,6 +88,11 @@ public class MetaEnvServerDeployment extends PropertyController {
 		SCHEMA = super.getStringProperty( action , PROPERTY_SCHEMA );
 		if( !SCHEMA.isEmpty() ) {
 			itemType = VarDEPLOYITEMTYPE.SCHEMA;
+			
+			if( DBNAME.isEmpty() )
+				DBNAME = SCHEMA;
+			if( DBUSER.isEmpty() )
+				DBUSER = DBNAME;
 			return;
 		}
 		
@@ -111,7 +123,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 			schema = database.getSchema( action , SCHEMA );
 	}
 	
-	public void create( ServerTransaction transaction , VarDEPLOYITEMTYPE itemType , String itemName , VarNODETYPE nodeType , VarDEPLOYMODE deployMode , String deployPath ) throws Exception {
+	public void create( EngineTransaction transaction , VarDEPLOYITEMTYPE itemType , String itemName , VarNODETYPE nodeType , VarDEPLOYMODE deployMode , String deployPath , String dbName , String dbUser ) throws Exception {
 		if( !super.initCreateStarted( server.getProperties() ) )
 			transaction.exitUnexpectedState();
 
@@ -129,8 +141,11 @@ public class MetaEnvServerDeployment extends PropertyController {
 		if( itemType == VarDEPLOYITEMTYPE.CONF )
 			super.setSystemStringProperty( PROPERTY_CONFITEM , itemName );
 		else
-		if( itemType == VarDEPLOYITEMTYPE.SCHEMA )
+		if( itemType == VarDEPLOYITEMTYPE.SCHEMA ) {
 			super.setSystemStringProperty( PROPERTY_SCHEMA , itemName );
+			super.setSystemStringProperty( PROPERTY_DBNAME , dbName );
+			super.setSystemStringProperty( PROPERTY_DBUSER , dbUser );
+		}
 
 		scatterProperties( action );
 		resolveLinks( action );

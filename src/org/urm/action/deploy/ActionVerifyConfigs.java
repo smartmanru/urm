@@ -1,14 +1,17 @@
 package org.urm.action.deploy;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.action.conf.ConfDiffSet;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
@@ -23,10 +26,13 @@ public class ActionVerifyConfigs extends ActionBase {
 
 	String timestamp;
 	String confVersion;
+
+	private Map<MetaEnvServerNode,ConfDiffSet> nodeDiffs;
 	
 	public ActionVerifyConfigs( ActionBase action , String stream ) {
 		super( action , stream , "Verify environment configuration" );
 		timestamp = Common.getNameTimeStamp();
+		nodeDiffs = new HashMap<MetaEnvServerNode,ConfDiffSet>(); 
 	}
 
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
@@ -213,7 +219,7 @@ public class ActionVerifyConfigs extends ActionBase {
 		return( ok );
 	}
 
-	private boolean showConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix , boolean comps ) throws Exception {
+	private synchronized boolean showConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix , boolean comps ) throws Exception {
 		boolean verifyNode = true;
 		
 		FileSet releaseSet = tobeServerFolder.getFileSet( this );
@@ -222,8 +228,9 @@ public class ActionVerifyConfigs extends ActionBase {
 		debug( "calculate diff between: " + tobeServerFolder.folderPath + " and " + asisServerFolder.folderPath + " ..." );
 		ConfDiffSet diff = new ConfDiffSet( server.meta , releaseSet , prodSet , nodePrefix , comps );
 		diff.calculate( this , null );
+		nodeDiffs.put( node , diff );
 		
-		if( diff.isDifferent( this ) ) {
+		if( diff.isDifferent() ) {
 			verifyNode = false;
 			String diffFile = asisServerFolder.getFilePath( this , "confdiff.txt" );
 			diff.save( this , diffFile );
@@ -239,6 +246,10 @@ public class ActionVerifyConfigs extends ActionBase {
 			debug( "node configuration is matched" );
 		
 		return( verifyNode );
+	}
+
+	public synchronized ConfDiffSet getNodeDiff( MetaEnvServerNode node ) {
+		return( nodeDiffs.get( node ) );
 	}
 	
 }

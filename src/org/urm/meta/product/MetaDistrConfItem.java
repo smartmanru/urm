@@ -3,7 +3,7 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
@@ -30,7 +30,7 @@ public class MetaDistrConfItem {
 		this.delivery = delivery;
 	}
 
-	public void createConfItem( ServerTransaction transaction , String key ) throws Exception {
+	public void createConfItem( EngineTransaction transaction , String key ) throws Exception {
 		this.KEY = key;
 		this.itemType = VarCONFITEMTYPE.DIR;
 		this.FILES = "";
@@ -42,20 +42,20 @@ public class MetaDistrConfItem {
 		this.CREATEDIR = false;
 	}
 
-	public void setCommonData( ServerTransaction transaction , String itemSecured , String itemExclude , String itemExtList , boolean itemCreateDir ) throws Exception {
+	public void setCommonData( EngineTransaction transaction , String itemSecured , String itemExclude , String itemExtList , boolean itemCreateDir ) throws Exception {
 		this.SECURED = itemSecured;
 		this.EXCLUDE = itemExclude;
 		this.EXTCONF = itemExtList;
 		this.CREATEDIR = itemCreateDir;
 	}
 	
-	public void setDirData( ServerTransaction transaction ) throws Exception {
+	public void setDirData( EngineTransaction transaction ) throws Exception {
 		this.itemType = VarCONFITEMTYPE.DIR;
 		this.FILES = "";
 		this.TEMPLATES = "";
 	}
 
-	public void setFilesData( ServerTransaction transaction , String itemFiles , String itemTemplates ) throws Exception {
+	public void setFilesData( EngineTransaction transaction , String itemFiles , String itemTemplates ) throws Exception {
 		this.itemType = VarCONFITEMTYPE.FILES;
 		this.FILES = itemFiles;
 		this.TEMPLATES = itemTemplates;

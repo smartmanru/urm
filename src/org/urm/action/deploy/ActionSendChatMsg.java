@@ -1,10 +1,10 @@
 package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.common.action.CommandMethodMeta.SecurityAction;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaProductCoreSettings;
@@ -15,9 +15,15 @@ public class ActionSendChatMsg extends ActionBase {
 	MetaEnv env;
 	MetaEnvSegment sg;
 	
-	public static void sendMsg( ActionBase action , String msg , MetaEnv env , MetaEnvSegment sg ) throws Exception {
+	public static void sendMsg( ScopeState parentState , ActionBase action , String msg , MetaEnv env , MetaEnvSegment sg ) throws Exception {
+		if( action.context.CTX_NOCHATMSG )
+			return;
+		
+		if( action.context.env.CHATROOMFILE.isEmpty() )
+			return;
+
 		ActionSendChatMsg ca = new ActionSendChatMsg( action , null , msg , env , sg );
-		ca.runSimpleEnv( env , SecurityAction.ACTION_DEPLOY , true );
+		ca.runSimpleEnv( parentState , env , SecurityAction.ACTION_DEPLOY , true );
 	}
 	
 	public ActionSendChatMsg( ActionBase action , String stream , String msg , MetaEnv env , MetaEnvSegment sg ) {

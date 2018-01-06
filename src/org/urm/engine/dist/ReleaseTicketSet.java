@@ -385,6 +385,8 @@ public class ReleaseTicketSet {
 		for( ReleaseTicketSetTarget target : targets ) {
 			if( !target.isActive() )
 				continue;
+			if( target.descoped && target.accepted )
+				continue;
 			if( target.isEqualTo( set ) )
 				return( true );
 		}
@@ -394,6 +396,8 @@ public class ReleaseTicketSet {
 	public boolean references( MetaSourceProject project ) {
 		for( ReleaseTicketSetTarget target : targets ) {
 			if( !target.isActive() )
+				continue;
+			if( target.descoped && target.accepted )
 				continue;
 			if( target.isEqualTo( project ) )
 				return( true );
@@ -405,6 +409,8 @@ public class ReleaseTicketSet {
 		for( ReleaseTicketSetTarget target : targets ) {
 			if( !target.isActive() )
 				continue;
+			if( target.descoped && target.accepted )
+				continue;
 			if( target.isEqualTo( item ) )
 				return( true );
 		}
@@ -414,6 +420,8 @@ public class ReleaseTicketSet {
 	public boolean references( MetaDistrBinaryItem item ) {
 		for( ReleaseTicketSetTarget target : targets ) {
 			if( !target.isActive() )
+				continue;
+			if( target.descoped && target.accepted )
 				continue;
 			if( target.references( item ) )
 				return( true );
@@ -425,6 +433,8 @@ public class ReleaseTicketSet {
 		for( ReleaseTicketSetTarget target : targets ) {
 			if( !target.isActive() )
 				continue;
+			if( target.descoped && target.accepted )
+				continue;
 			if( target.references( item ) )
 				return( true );
 		}
@@ -434,6 +444,8 @@ public class ReleaseTicketSet {
 	public boolean references( MetaDistrDelivery delivery , MetaDatabaseSchema item ) {
 		for( ReleaseTicketSetTarget target : targets ) {
 			if( !target.isActive() )
+				continue;
+			if( target.descoped && target.accepted )
 				continue;
 			if( target.references( delivery , item ) )
 				return( true );

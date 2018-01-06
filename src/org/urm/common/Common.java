@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -35,6 +36,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.urm.action.ActionBase;
+import org.urm.common.RunContext.VarOSTYPE;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -211,6 +214,21 @@ public class Common {
 	public static String getList( String[] items ) {
 		return( getList( items , ", " ) );
 	}
+
+	public static String getList( Integer[] items , String delimiter ) {
+		String value = "";
+		if( items == null )
+			return( value );
+		
+		for( int k = 0; k < items.length; k++ ) {
+			if( k > 0 )
+				value += delimiter;
+			
+			value += items[ k ];
+		}
+		
+		return( value );
+	}
 	
 	public static String getList( String[] items , String delimiter ) {
 		String value = "";
@@ -256,6 +274,10 @@ public class Common {
 	
 	public static String getTimeStamp( long timeMillis ) {
 		return( getTimeStamp( new Date( timeMillis ) ) );
+	}
+
+	public static String getTime() {
+		return( getTime( System.currentTimeMillis() ) );
 	}
 	
 	public static String getTime( long timeMillis ) {
@@ -354,6 +376,10 @@ public class Common {
 			return( path1 );
 		if( path1.equals( "/" ) )
 			return( "/" + path2 );
+		if( path1.endsWith( "/" ) )
+			return( path1 + path2 );
+		if( path2.startsWith( "/" ) )
+			return( path1 + path2 );
 		return( path1 + "/" + path2 );
 	}
 	
@@ -426,6 +452,13 @@ public class Common {
 		return( el );
 	}
 
+	public static Element xmlCreateNamedElement( Document doc , Element parent , String element , String name ) throws Exception {
+		Element el = doc.createElement( element );
+		parent.appendChild( el );
+		xmlSetNameAttr( doc , el , name );
+		return( el );
+	}
+
 	public static Element xmlCreateBooleanPropertyElement( Document doc , Element parent , String propName , boolean propValue ) throws Exception {
 		String value = getBooleanValue( propValue );
 		return( xmlCreatePropertyElement( doc , parent , propName , value ) );
@@ -441,6 +474,16 @@ public class Common {
 
 	public static void xmlSetElementAttr( Document doc , Element element , String attrName , String value ) throws Exception {
 		Attr attr = doc.createAttribute( attrName );
+		attr.setValue( value );
+		element.setAttributeNode( attr );
+	}
+
+	public static void xmlSetElementBooleanAttr( Document doc , Element element , String attrName , boolean value ) throws Exception {
+		xmlSetElementAttr( doc , element , attrName , Common.getBooleanValue( value ) );
+	}
+	
+	public static void xmlSetNameAttr( Document doc , Element element , String value ) throws Exception {
+		Attr attr = doc.createAttribute( "name" );
 		attr.setValue( value );
 		element.setAttributeNode( attr );
 	}
@@ -1006,6 +1049,69 @@ public class Common {
 		for( int k = 0; k < list2.length; k++ )
 			list[ list1.length + k ] = list2[ k ];
 		return( list );
+	}
+
+	public static <T> boolean changeMapKey( Map<String,T> map , T value , String newKey ) throws Exception {
+		for( Entry<String,?> entry : map.entrySet() ) {
+			if( entry.getValue() == value ) {
+				if( !newKey.equals( entry.getKey() ) ) {
+					if( map.containsKey( newKey ) )
+						exitUnexpected();
+					
+					map.remove( entry.getKey() );
+					map.put( newKey , value );
+					return( true );
+				}
+				
+				return( false );
+			}
+		}
+		exitUnexpected();
+		return( false );
+	}
+
+	public static boolean equalsIntegers( Integer v1 , Integer v2 ) {
+		if( v1 == null && v2 == null )
+			return( true );
+		if( v1 == null || v2 == null )
+			return( false );
+		if( v1.intValue() == v2.intValue() )
+			return( true );
+		return( false );
+	}
+	
+	public static boolean equalsStrings( String v1 , String v2 ) {
+		if( v1 == null && v2 == null )
+			return( true );
+		if( v1 == null && v2.isEmpty() )
+			return( true );
+		if( v2 == null && v1.isEmpty() )
+			return( true );
+		if( v1 == null || v2 == null )
+			return( false );
+		if( v1.equals( v2 ) )
+			return( true );
+		return( false );
+	}
+	
+	public static String getGrepMask( ActionBase action , String baseName , boolean addDotSlash , String EXT ) throws Exception {
+		if( addDotSlash )
+			return( "./" + baseName + EXT + 
+					"|./.*[0-9]-" + baseName + EXT + 
+					"|./" + baseName + "-[0-9].*" + EXT +
+					"|./" + baseName + "##[0-9].*" + EXT );
+		return( baseName + EXT + 
+				"|.*[0-9]-" + baseName + EXT + 
+				"|" + baseName + "-[0-9].*" + EXT +
+				"|" + baseName + "##[0-9].*" + EXT );
+	}
+
+	public static String getOSPath( VarOSTYPE ostype , String path ) {
+		if( ostype == VarOSTYPE.LINUX )
+			return( getLinuxPath( path ) );
+		if( ostype == VarOSTYPE.WINDOWS )
+			return( getWinPath( path ) );
+		return( path );
 	}
 	
 }

@@ -1,6 +1,7 @@
 package org.urm.action;
 
-import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.common.action.CommandMethodMeta.SecurityAction;
+import org.urm.engine.status.ScopeState;
 import org.urm.meta.product.MetaEnv;
 
 public class ActionSetItem implements Runnable {
@@ -17,6 +18,7 @@ public class ActionSetItem implements Runnable {
 	boolean runScope = false;
 	
 	public ActionBase action;
+	public ScopeState parentState;
 	ActionScope scope;
 	
 	String productName;
@@ -29,24 +31,27 @@ public class ActionSetItem implements Runnable {
 		this.threadName = threadName;
 	}
 
-	public void createSimpleProduct( ActionBase action , String productName , SecurityAction sa , boolean readOnly ) throws Exception {
+	public void createSimpleProduct( ScopeState parentState , ActionBase action , String productName , SecurityAction sa , boolean readOnly ) throws Exception {
 		runSimpleProduct = true;
+		this.parentState = parentState;
 		this.action = action;
 		this.productName = productName;
 		this.sa = sa;
 		this.readOnly = readOnly;
 	}
 
-	public void createSimpleEnv( ActionBase action , MetaEnv env , SecurityAction sa , boolean readOnly ) throws Exception {
+	public void createSimpleEnv( ScopeState parentState , ActionBase action , MetaEnv env , SecurityAction sa , boolean readOnly ) throws Exception {
 		runSimpleEnv = true;
+		this.parentState = parentState;
 		this.action = action;
 		this.env = env;
 		this.sa = sa;
 		this.readOnly = readOnly;
 	}
 
-	public void createScope( ActionBase action , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) throws Exception {
+	public void createScope( ScopeState parentState , ActionBase action , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) throws Exception {
 		runScope = true;
+		this.parentState = parentState;
 		this.action = action;
 		this.scope = scope;
 		this.env = env;
@@ -82,17 +87,17 @@ public class ActionSetItem implements Runnable {
 
     private void execute() throws Exception {
     	if( runSimpleProduct ) {
-    		if( !action.runSimpleProduct( productName , sa , readOnly ) )
+    		if( !action.runSimpleProduct( parentState , productName , sa , readOnly ) )
     			failed = true;
     	}
     	else
     	if( runSimpleEnv ) {
-    		if( !action.runSimpleEnv( env , sa , readOnly ) )
+    		if( !action.runSimpleEnv( parentState , env , sa , readOnly ) )
     			failed = true;
     	}
     	else
     	if( runScope ) {
-    		if( !action.runAll( scope , env , sa , readOnly ) )
+    		if( !action.runAll( parentState , scope , env , sa , readOnly ) )
     			failed = true;
     	}
     	else

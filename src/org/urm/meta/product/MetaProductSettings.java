@@ -7,15 +7,15 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.PropertyController;
-import org.urm.common.PropertySet;
-import org.urm.engine.ServerTransaction;
+import org.urm.db.core.DBEnums.*;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
-import org.urm.meta.ServerProductContext;
-import org.urm.meta.ServerProductMeta;
-import org.urm.meta.engine.ServerSettings;
-import org.urm.meta.Types;
-import org.urm.meta.Types.*;
+import org.urm.engine.properties.PropertyController;
+import org.urm.engine.properties.PropertySet;
+import org.urm.meta.ProductContext;
+import org.urm.meta.ProductMeta;
+import org.urm.meta.engine.EngineContext;
+import org.urm.meta.engine.EngineSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -24,10 +24,10 @@ public class MetaProductSettings extends PropertyController {
 
 	protected Meta meta;
 
-	public PropertySet execprops;
+	public PropertySet systemProps;
 	public MetaProductCoreSettings core;
 	public MetaProductBuildSettings buildCommon;
-	public Map<VarBUILDMODE,MetaProductBuildSettings> buildModes;
+	public Map<DBEnumBuildModeType,MetaProductBuildSettings> buildModes;
 	
 	public String CONFIG_REDISTWIN_PATH;
 	public String CONFIG_REDISTLINUX_PATH;
@@ -52,19 +52,20 @@ public class MetaProductSettings extends PropertyController {
 	public String CONFIG_CUSTOM_DEPLOY;
 	public String CONFIG_CUSTOM_DATABASE;
 	
-	// context
-	public static String PROPERTY_REDISTWIN_PATH = "redist.win.path";
-	public static String PROPERTY_REDISTLINUX_PATH = "redist.linux.path";
+	// engine overrides
+	public static String PROPERTY_REDISTWIN_PATH = EngineContext.PROPERTY_STAGING_WINPATH;
+	public static String PROPERTY_REDISTLINUX_PATH = EngineContext.PROPERTY_STAGING_LINUXPATH;
+	
+	// own properties
 	public static String PROPERTY_DISTR_PATH  = "distr.path";
 	public static String PROPERTY_DISTR_HOSTLOGIN = "distr.hostlogin";
 	public static String PROPERTY_UPGRADE_PATH = "upgrade.path";
 	public static String PROPERTY_BASE_PATH = "base.path";
 	public static String PROPERTY_MIRRORPATH = "mirror.path";
+	
 	public static String PROPERTY_ADM_TRACKER = "adm.tracker";
 	public static String PROPERTY_COMMIT_TRACKERLIST = "source.trackers";
-	public static String PROPERTY_META_MIRROR = "meta.mirror";
-	public static String PROPERTY_SOURCE_MIRROR = "conf.mirror";
-
+	
 	public static String PROPERTY_SOURCE_CHARSET = "release.charset";
 	public static String PROPERTY_SOURCE_RELEASEROOTDIR = "release.root";
 	public static String PROPERTY_SOURCE_CFG_ROOTDIR = "config.root";
@@ -75,14 +76,14 @@ public class MetaProductSettings extends PropertyController {
 	public static String PROPERTY_CUSTOM_DEPLOY = "custom.deploy";
 	public static String PROPERTY_CUSTOM_DATABASE = "custom.database";
 	
-	public MetaProductSettings( ServerProductMeta storage , Meta meta , PropertySet execprops ) {
+	public MetaProductSettings( ProductMeta storage , Meta meta , PropertySet execprops ) {
 		super( storage , null , "product" );
 		
 		this.meta = meta;
-		this.execprops = execprops;
+		this.systemProps = execprops;
 		meta.setProduct( this );
 		core = new MetaProductCoreSettings( meta , this ); 
-		buildModes = new HashMap<VarBUILDMODE,MetaProductBuildSettings>();
+		buildModes = new HashMap<DBEnumBuildModeType,MetaProductBuildSettings>();
 	}
 
 	@Override
@@ -108,14 +109,12 @@ public class MetaProductSettings extends PropertyController {
 		CONFIG_MIRRORPATH = super.getPathPropertyRequired( action , PROPERTY_MIRRORPATH );
 		CONFIG_ADM_TRACKER = super.getStringProperty( action , PROPERTY_ADM_TRACKER );
 		CONFIG_COMMIT_TRACKERLIST = super.getStringProperty( action , PROPERTY_COMMIT_TRACKERLIST );
-		CONFIG_META_MIRROR = super.getStringProperty( action , PROPERTY_META_MIRROR );
-		CONFIG_SOURCE_MIRROR = super.getStringProperty( action , PROPERTY_SOURCE_MIRROR );
+		CONFIG_SOURCE_RELEASEROOTDIR = super.getPathProperty( action , PROPERTY_SOURCE_RELEASEROOTDIR );
+		CONFIG_SOURCE_CFG_ROOTDIR = super.getPathProperty( action , PROPERTY_SOURCE_CFG_ROOTDIR );
+		CONFIG_SOURCE_CFG_LIVEROOTDIR = super.getPathProperty( action , PROPERTY_SOURCE_CFG_LIVEROOTDIR );
+		CONFIG_SOURCE_SQL_POSTREFRESH = super.getPathProperty( action , PROPERTY_SOURCE_SQL_POSTREFRESH );
 		
 		CONFIG_SOURCE_CHARSET = super.getStringProperty( action , PROPERTY_SOURCE_CHARSET );
-		CONFIG_SOURCE_RELEASEROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_RELEASEROOTDIR );
-		CONFIG_SOURCE_CFG_ROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_CFG_ROOTDIR );
-		CONFIG_SOURCE_CFG_LIVEROOTDIR = super.getStringProperty( action , PROPERTY_SOURCE_CFG_LIVEROOTDIR );
-		CONFIG_SOURCE_SQL_POSTREFRESH = super.getStringProperty( action , PROPERTY_SOURCE_SQL_POSTREFRESH );
 		if( !CONFIG_SOURCE_CHARSET.isEmpty() ) {
 			charset = Charset.availableCharsets().get( CONFIG_SOURCE_CHARSET.toUpperCase() );
 			if( charset == null )
@@ -128,13 +127,13 @@ public class MetaProductSettings extends PropertyController {
 	}
 
 	public MetaProductSettings copy( ActionBase action , Meta meta ) throws Exception {
-		MetaProductSettings r = new MetaProductSettings( meta.getStorage( action ) , meta , execprops );
-		r.initCopyStarted( this , execprops );
+		MetaProductSettings r = new MetaProductSettings( meta.getStorage() , meta , systemProps );
+		r.initCopyStarted( this , systemProps );
 		r.core = core.copy( action , meta , r );
 		
 		if( buildCommon != null )
 			r.buildCommon = buildCommon.copy( action , meta , r , r.getProperties() ); 
-		for( VarBUILDMODE mode : buildModes.keySet() ) {
+		for( DBEnumBuildModeType mode : buildModes.keySet() ) {
 			MetaProductBuildSettings modeSet = buildModes.get( mode );
 			r.buildModes.put( mode , modeSet.copy( action , meta , r , r.buildCommon.getProperties() ) );
 		}
@@ -145,8 +144,8 @@ public class MetaProductSettings extends PropertyController {
 		return( r );
 	}
 
-	public void createSettings( TransactionBase transaction , ServerSettings settings , ServerProductContext productContext ) throws Exception {
-		if( !super.initCreateStarted( execprops ) )
+	public void createSettings( TransactionBase transaction , EngineSettings settings , ProductContext productContext ) throws Exception {
+		if( !super.initCreateStarted( systemProps ) )
 			return;
 
 		// create initial
@@ -157,8 +156,8 @@ public class MetaProductSettings extends PropertyController {
 		// build
 		buildCommon = new MetaProductBuildSettings( "build.common" , meta , this );
 		buildCommon.createSettings( transaction , settings.getDefaultProductBuildProperties() , super.getProperties() );
-		for( VarBUILDMODE mode : VarBUILDMODE.values() ) {
-			if( mode == VarBUILDMODE.UNKNOWN )
+		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
+			if( mode == DBEnumBuildModeType.UNKNOWN )
 				continue;
 			
 			String modeName = Common.getEnumLower( mode );
@@ -171,13 +170,13 @@ public class MetaProductSettings extends PropertyController {
 		super.initFinished();
 	}
 
-	public void updateSettings( TransactionBase transaction , ServerProductContext productContext ) throws Exception {
+	public void updateSettings( TransactionBase transaction , ProductContext productContext ) throws Exception {
 		core.setContextProperties( transaction.action , productContext );
 		super.updateProperties( transaction.action );
 	}
 	
-	public void load( ActionBase action , ServerProductContext productContext , Node root ) throws Exception {
-		if( !initCreateStarted( execprops ) )
+	public void load( ActionBase action , ProductContext productContext , Node root ) throws Exception {
+		if( !initCreateStarted( systemProps ) )
 			return;
 
 		core.load( action , productContext , root );
@@ -196,7 +195,7 @@ public class MetaProductSettings extends PropertyController {
 			if( items != null ) {
 				for( Node node : items ) {
 					String modeName = ConfReader.getAttrValue( node , "name" );
-					VarBUILDMODE mode = Types.getBuildMode( modeName , false );
+					DBEnumBuildModeType mode = DBEnumBuildModeType.getValue( modeName , false );
 					
 					MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "mode" , meta , this );
 					buildMode.load( action , node , buildCommon.getProperties() );
@@ -218,7 +217,7 @@ public class MetaProductSettings extends PropertyController {
 		Element buildElement = Common.xmlCreateElement( doc , root , "build" );
 		buildCommon.save( action , doc , buildElement );
 		
-		for( VarBUILDMODE mode : buildModes.keySet() ) {
+		for( DBEnumBuildModeType mode : buildModes.keySet() ) {
 			MetaProductBuildSettings buildMode = buildModes.get( mode );
 			Element buildModeElement = Common.xmlCreateElement( doc , buildElement , "mode" );
 			buildModeElement.setAttribute( "name" , Common.getEnumLower( mode ) );
@@ -247,7 +246,7 @@ public class MetaProductSettings extends PropertyController {
 		return( buildCommon );
 	}
 	
-	public MetaProductBuildSettings getBuildModeSettings( ActionBase action , VarBUILDMODE buildMode ) throws Exception {
+	public MetaProductBuildSettings getBuildModeSettings( ActionBase action , DBEnumBuildModeType buildMode ) throws Exception {
 		String mode = Common.getEnumLower( buildMode );
 		MetaProductBuildSettings settings = buildModes.get( buildMode );
 		if( settings == null )
@@ -256,21 +255,21 @@ public class MetaProductSettings extends PropertyController {
 	}
 	
 	public MetaProductBuildSettings getBuildSettings( ActionBase action ) throws Exception {
-		if( action.context.buildMode == VarBUILDMODE.UNKNOWN )
+		if( action.context.buildMode == DBEnumBuildModeType.UNKNOWN )
 			return( buildCommon );
 
 		return( getBuildModeSettings( action , action.context.buildMode ) );
 	}
     
-	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
+	public void setProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		super.updateProperties( transaction , props , system );
 	}
 
-	public void setBuildCommonProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+	public void setBuildCommonProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
 		buildCommon.setProperties( transaction , props );
 	}
 	
-	public void setBuildModeProperties( ServerTransaction transaction , VarBUILDMODE mode , PropertySet props ) throws Exception {
+	public void setBuildModeProperties( EngineTransaction transaction , DBEnumBuildModeType mode , PropertySet props ) throws Exception {
 		MetaProductBuildSettings set = buildModes.get( mode );
 		if( set == null ) {
 			MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "mode" , meta , this );
@@ -281,4 +280,13 @@ public class MetaProductSettings extends PropertyController {
 		set.setProperties( transaction , props );
 	}
 
+	public String getTargetPath( DBEnumOSType osType , String artefactDir ) {
+		if( Common.isAbsolutePath( artefactDir ) )
+			return( artefactDir );
+		
+		String redistPath = ( osType.isWindows() )? CONFIG_REDISTWIN_PATH : CONFIG_REDISTLINUX_PATH;
+		String finalPath = Common.getPath( redistPath , artefactDir );
+		return( finalPath );
+	}
+	
 }

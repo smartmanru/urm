@@ -8,11 +8,11 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
 import org.urm.meta.product.MetaDistrComponentItem;
@@ -57,7 +57,7 @@ public class ActionConfigure extends ActionBase {
 		return( live );
 	}
 	
-	@Override protected void runBefore( ActionScope scope ) throws Exception {
+	@Override protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
 		baseFolder.recreateThis( this );
 		templateFolder = baseFolder.getSubFolder( this , "templates" );
 		info( "prepare configuraton files in " + baseFolder.folderPath + " ..." );

@@ -6,7 +6,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -17,36 +17,45 @@ public class MetaDistrDelivery {
 	public Meta meta;
 	public MetaDistr dist;
 	public MetaDatabase db;
+	public MetaDocs docs;
 	
 	public String NAME;
 	public String FOLDER;
 	public String DESC;
 	public boolean allSchemas;
+	public String UNIT;
+	public boolean allDocs;
 
 	private Map<String,MetaDistrBinaryItem> mapBinaryItems;
 	private Map<String,MetaDistrConfItem> mapConfComps;
 	private Map<String,MetaDatabaseSchema> mapDatabaseSchema;
+	private Map<String,MetaProductDoc> mapDocuments;
 	
-	public MetaDistrDelivery( Meta meta , MetaDistr dist , MetaDatabase db ) {
+	public MetaDistrDelivery( Meta meta , MetaDistr dist , MetaDatabase db , MetaDocs docs ) {
 		this.meta = meta;
 		this.dist = dist;
 		this.db = db;
+		this.docs = docs;
 		mapBinaryItems = new HashMap<String,MetaDistrBinaryItem>();
 		mapConfComps = new HashMap<String,MetaDistrConfItem>();
 		mapDatabaseSchema = new HashMap<String,MetaDatabaseSchema>();
+		mapDocuments = new HashMap<String,MetaProductDoc>();
 		allSchemas = false;
+		allDocs = false;
 	}
 
-	public void createDelivery( ServerTransaction transaction , String NAME , String FOLDER , String DESC ) {
+	public void createDelivery( EngineTransaction transaction , String NAME , String FOLDER , String DESC , String UNIT ) {
 		this.NAME = NAME;
 		this.FOLDER = FOLDER;
 		this.DESC = DESC;
+		this.UNIT = UNIT;
 	}
 	
-	public void modifyDelivery( ServerTransaction transaction , String NAME , String FOLDER , String DESC ) {
+	public void modifyDelivery( EngineTransaction transaction , String NAME , String FOLDER , String DESC , String UNIT ) {
 		this.NAME = NAME;
 		this.FOLDER = FOLDER;
 		this.DESC = DESC;
+		this.UNIT = UNIT;
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
@@ -54,11 +63,15 @@ public class MetaDistrDelivery {
 		FOLDER = ConfReader.getAttrValue( node , "folder" , NAME );
 		DESC = ConfReader.getAttrValue( node , "desc" );
 		allSchemas = ConfReader.getBooleanAttrValue( node , "dball" , false );
+		UNIT = ConfReader.getAttrValue( node , "unit" );
+		allDocs = ConfReader.getBooleanAttrValue( node , "docall" , false );
 		
 		loadBinaryItems( action , node );
 		loadConfigurationComponents( action , node );
 		if( !allSchemas )
 			loadDatabaseItems( action , node );
+		if( !allDocs )
+			loadProductDocuments( action , node );
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
@@ -66,6 +79,8 @@ public class MetaDistrDelivery {
 		Common.xmlSetElementAttr( doc , root , "folder" , FOLDER );
 		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
 		Common.xmlSetElementAttr( doc , root , "dball" , Common.getBooleanValue( allSchemas ) );
+		Common.xmlSetElementAttr( doc , root , "unit" , UNIT );
+		Common.xmlSetElementAttr( doc , root , "docall" , Common.getBooleanValue( allDocs ) );
 		
 		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
 			Element itemElement = Common.xmlCreateElement( doc , root , "distitem" );
@@ -81,6 +96,13 @@ public class MetaDistrDelivery {
 			for( MetaDatabaseSchema item : mapDatabaseSchema.values() ) {
 				Element itemElement = Common.xmlCreateElement( doc , root , "database" );
 				Common.xmlSetElementAttr( doc , itemElement , "schema" , item.SCHEMA );
+			}
+		}
+		
+		if( !allDocs ) {
+			for( MetaProductDoc item : mapDocuments.values() ) {
+				Element itemElement = Common.xmlCreateElement( doc , root , "document" );
+				Common.xmlSetElementAttr( doc , itemElement , "name" , item.NAME );
 			}
 		}
 	}
@@ -114,20 +136,33 @@ public class MetaDistrDelivery {
 		if( items == null )
 			return;
 		
-		MetaDatabase database = meta.getDatabase( action );
 		for( Node item : items ) {
 			String schemaName = ConfReader.getAttrValue( item , "schema" );
-			MetaDatabaseSchema schema = database.getSchema( action , schemaName );
+			MetaDatabaseSchema schema = db.getSchema( action , schemaName );
 			mapDatabaseSchema.put( schemaName , schema );
 		}
 	}
 
-	public MetaDistrDelivery copy( ActionBase action , Meta meta , MetaDistr distr , MetaDatabase db ) throws Exception {
-		MetaDistrDelivery r = new MetaDistrDelivery( meta , distr , db );
+	private void loadProductDocuments( ActionBase action , Node node ) throws Exception {
+		Node[] items = ConfReader.xmlGetChildren( node , "document" );
+		if( items == null )
+			return;
+		
+		for( Node item : items ) {
+			String docName = ConfReader.getAttrValue( item , "name" );
+			MetaProductDoc doc = docs.getDoc( action , docName );
+			mapDocuments.put( docName , doc );
+		}
+	}
+
+	public MetaDistrDelivery copy( ActionBase action , Meta meta , MetaDistr distr , MetaDatabase rdb , MetaDocs rdocs ) throws Exception {
+		MetaDistrDelivery r = new MetaDistrDelivery( meta , distr , rdb , rdocs );
 		r.NAME = NAME;
 		r.FOLDER = FOLDER;
 		r.DESC = DESC;
 		r.allSchemas = allSchemas;
+		r.UNIT = UNIT;
+		r.allDocs = allDocs;
 		
 		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
 			MetaDistrBinaryItem ritem = item.copy( action , meta , r );
@@ -139,17 +174,21 @@ public class MetaDistrDelivery {
 			r.mapConfComps.put( ritem.KEY , ritem );
 		}
 			
-		MetaDatabase rdatabase = meta.getDatabase( action ); 
 		for( MetaDatabaseSchema item : mapDatabaseSchema.values() ) {
-			MetaDatabaseSchema ritem = rdatabase.getSchema( action , item.SCHEMA );
+			MetaDatabaseSchema ritem = rdb.getSchema( action , item.SCHEMA );
 			r.mapDatabaseSchema.put( ritem.SCHEMA , ritem );
+		}
+			
+		for( MetaProductDoc item : mapDocuments.values() ) {
+			MetaProductDoc ritem = rdocs.getDoc( action , item.NAME );
+			r.mapDocuments.put( ritem.NAME , ritem );
 		}
 			
 		return( r );
 	}
 
 	public boolean isEmpty() {
-		if( mapBinaryItems.isEmpty() && mapConfComps.isEmpty() && mapDatabaseSchema.isEmpty() )
+		if( mapBinaryItems.isEmpty() && mapConfComps.isEmpty() && mapDatabaseSchema.isEmpty() && mapDocuments.isEmpty() )
 			return( true );
 		return( false );
 	}
@@ -193,6 +232,23 @@ public class MetaDistrDelivery {
 		return( item );
 	}
 
+	public MetaProductDoc findDoc( String NAME ) {
+		if( allDocs )
+			return( docs.findDoc( NAME ) );
+			
+		return( mapDocuments.get( NAME ) );
+	}
+	
+	public MetaProductDoc getDoc( ActionBase action , String NAME ) throws Exception {
+		if( allDocs )
+			return( docs.getDoc( action , NAME ) );
+			
+		MetaProductDoc item = mapDocuments.get( NAME );
+		if( item == null )
+			action.exit1( _Error.UnknownDeliveryDoc1 , "unknown delivery doc=" + NAME , NAME );
+		return( item );
+	}
+
 	public String[] getBinaryItemNames() {
 		return( Common.getSortedKeys( mapBinaryItems ) );
 	}
@@ -223,6 +279,20 @@ public class MetaDistrDelivery {
 		return( mapDatabaseSchema.values().toArray( new MetaDatabaseSchema[0] ) );
 	}
 
+	public String[] getDocNames() {
+		if( allDocs )
+			return( docs.getDocNames() );
+		
+		return( Common.getSortedKeys( mapDocuments ) );
+	}
+	
+	public MetaProductDoc[] getDocs() {
+		if( allSchemas )
+			return( docs.getDocList() );
+			
+		return( mapDocuments.values().toArray( new MetaProductDoc[0] ) );
+	}
+
 	public boolean hasBinaryItems() {
 		if( mapBinaryItems.isEmpty() )
 			return( false );
@@ -241,21 +311,21 @@ public class MetaDistrDelivery {
 		return( true );
 	}
 
-	public void deleteAllItems( ServerTransaction transaction ) throws Exception {
+	public void deleteAllItems( EngineTransaction transaction ) throws Exception {
 		for( MetaDistrBinaryItem item : mapBinaryItems.values() )
 			deleteBinaryItemInternal( transaction , item );
 		for( MetaDistrConfItem item : mapConfComps.values() )
 			deleteConfItemInternal( transaction , item );
 	}
 
-	public void createBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+	public void createBinaryItem( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		mapBinaryItems.put( item.KEY , item );
 	}
 	
-	public void modifyBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+	public void modifyBinaryItem( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 	}
 	
-	public void moveItemToThis( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+	public void moveItemToThis( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		if( item.delivery == this )
 			return;
 			
@@ -264,12 +334,12 @@ public class MetaDistrDelivery {
 		item.setDelivery( transaction , this );
 	}
 
-	public void deleteBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+	public void deleteBinaryItem( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		deleteBinaryItemInternal( transaction , item );
 		mapBinaryItems.remove( item.KEY );
 	}
 
-	private void deleteBinaryItemInternal( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+	private void deleteBinaryItemInternal( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		for( MetaDistrComponent comp : dist.getComponents() ) {
 			MetaDistrComponentItem compItem = comp.findBinaryItem( item.KEY );
 			if( compItem != null )
@@ -278,19 +348,19 @@ public class MetaDistrDelivery {
 		meta.deleteBinaryItemFromEnvironments( transaction , item );
 	}
 	
-	public void createConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+	public void createConfItem( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
 		mapConfComps.put( item.KEY , item );
 	}
 	
-	public void modifyConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+	public void modifyConfItem( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
 	}
 
-	public void deleteConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+	public void deleteConfItem( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
 		deleteConfItemInternal( transaction , item );
 		mapConfComps.remove( item.KEY );
 	}
 	
-	private void deleteConfItemInternal( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+	private void deleteConfItemInternal( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
 		for( MetaDistrComponent comp : dist.getComponents() ) {
 			MetaDistrComponentItem compItem = comp.findConfItem( item.KEY );
 			if( compItem != null )
@@ -299,19 +369,19 @@ public class MetaDistrDelivery {
 		meta.deleteConfItemFromEnvironments( transaction , item );
 	}
 
-	public void deleteSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+	public void deleteSchema( EngineTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
 		if( allSchemas )
 			return;
 		
 		mapDatabaseSchema.remove( schema.SCHEMA );
 	}
 
-	public void setDatabaseAll( ServerTransaction transaction ) throws Exception {
+	public void setDatabaseAll( EngineTransaction transaction ) throws Exception {
 		allSchemas = true;
 		mapDatabaseSchema.clear();
 	}
 	
-	public void setDatabaseSet( ServerTransaction transaction , MetaDatabaseSchema[] set ) throws Exception {
+	public void setDatabaseSet( EngineTransaction transaction , MetaDatabaseSchema[] set ) throws Exception {
 		allSchemas = false;
 			
 		mapDatabaseSchema.clear();
@@ -319,4 +389,28 @@ public class MetaDistrDelivery {
 			mapDatabaseSchema.put( schema.SCHEMA , schema );
 	}
 	
+	public void deleteDoc( EngineTransaction transaction , MetaProductDoc doc ) throws Exception {
+		if( allDocs )
+			return;
+		
+		mapDocuments.remove( doc.NAME );
+	}
+
+	public void setDocAll( EngineTransaction transaction ) throws Exception {
+		allDocs = true;
+		mapDocuments.clear();
+	}
+	
+	public void setDocSet( EngineTransaction transaction , MetaProductDoc[] set ) throws Exception {
+		allDocs = false;
+			
+		mapDocuments.clear();
+		for( MetaProductDoc doc : set )
+			mapDocuments.put( doc.NAME , doc );
+	}
+	
+	public void clearUnit( EngineTransaction transaction ) throws Exception {
+		UNIT = "";
+	}
+
 }

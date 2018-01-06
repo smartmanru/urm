@@ -46,5 +46,7 @@ public class _Error {
 	public static final int ApplyFailed0 = ErrorBase + 37;
 	public static final int PostRefreshApplyFailed1 = ErrorBase + 38;
 	public static final int MissingAdmSchema1 = ErrorBase + 39;
+	public static final int UnknownExportTask1 = ErrorBase + 40;
+	public static final int UnknownImportTask1 = ErrorBase + 41;
 	
 }

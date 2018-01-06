@@ -1,9 +1,9 @@
 package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
-import org.urm.common.PropertyController;
 import org.urm.engine.TransactionBase;
-import org.urm.meta.ServerProductMeta;
+import org.urm.engine.properties.PropertyController;
+import org.urm.meta.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -26,7 +26,7 @@ public class MetaProductVersion extends PropertyController {
 	public static String PROPERTY_PROD_LASTTAG = "prod.lasttag";
 	public static String PROPERTY_PROD_NEXTTAG = "prod.nexttag";
 	
-	public MetaProductVersion( ServerProductMeta storage , Meta meta ) {
+	public MetaProductVersion( ProductMeta storage , Meta meta ) {
 		super( storage , null , "version" );
 		
 		this.meta = meta;
@@ -72,7 +72,7 @@ public class MetaProductVersion extends PropertyController {
 	}
 	
 	public MetaProductVersion copy( ActionBase action , Meta meta ) throws Exception {
-		MetaProductVersion r = new MetaProductVersion( meta.getStorage( action ) , meta );
+		MetaProductVersion r = new MetaProductVersion( meta.getStorage() , meta );
 		r.initCopyStarted( this , null );
 		r.scatterProperties( action );
 		r.initFinished();

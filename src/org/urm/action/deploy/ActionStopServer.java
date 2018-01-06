@@ -6,15 +6,15 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionStopServer extends ActionBase {
 	
-	ActionScopeTarget target;
-	MetaEnvServer server;
+	public ActionScopeTarget target;
+	public MetaEnvServer server;
 	
 	public ActionStopServer( ActionBase action , String stream , ActionScopeTarget target ) {
 		super( action , stream , "Stop server=" + target.envServer.NAME );
@@ -34,18 +34,18 @@ public class ActionStopServer extends ActionBase {
 		// stop proxy if any
 		if( target.itemFull && server.proxyServer != null ) {
 			info( "stop proxy server=" + server.proxyServer.NAME + " ..." );
-			executeServerSingle( server.proxyServer , null );
+			executeServerSingle( server.proxyServer , state , null );
 		}
 
 		// stop main
 		info( "stop main server ..." );
-		executeServerSingle( server , nodes );
+		executeServerSingle( server , state , nodes );
 
 		// then stop childs
 		if( target.itemFull && server.subordinateServers != null && server.subordinateServers.length > 0 ) {
 			info( "stop subordinate servers ..." );
 			for( MetaEnvServer sub : server.subordinateServers )
-				executeServerSingle( sub , null );
+				executeServerSingle( sub , state , null );
 		}
 		
 		return( SCOPESTATE.RunSuccess );
@@ -62,7 +62,7 @@ public class ActionStopServer extends ActionBase {
 		return( nodes.toArray( new MetaEnvServerNode[0] ) ); 
 	}
 	
-	public void executeServerSingle( MetaEnvServer actionServer , List<ActionScopeTargetItem> targetNodes ) throws Exception {
+	public void executeServerSingle( MetaEnvServer actionServer , ScopeState state , List<ActionScopeTargetItem> targetNodes ) throws Exception {
 		MetaEnvServerNode[] nodes = getActionServerNodes( actionServer , targetNodes );
 		if( nodes.length == 0 ) {
 			debug( "server=" + actionServer.NAME + " has no nodes specified to stop. Skipped." );
@@ -78,7 +78,7 @@ public class ActionStopServer extends ActionBase {
 		
 		if( actionServer.isStartable() ) {
 			ServerCluster cluster = new ServerCluster( actionServer , nodes );
-			if( !cluster.stop( this ) )
+			if( !cluster.stop( this , state ) )
 				super.fail1( _Error.ServerClusterStopFailed1 , "server cluster stop failed, server=" + actionServer.NAME , actionServer.NAME );
 		}
 		else

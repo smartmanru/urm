@@ -3,15 +3,14 @@ package org.urm.action.database;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.shell.ShellExecutor;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
@@ -19,14 +18,16 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.SourceStorage;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaDump;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaProductSettings;
 
 public class ActionImportDatabase extends ActionBase {
 
 	MetaEnvServer server;
-	String SPECFILE;
+	String TASK;
 	String CMD;
 	String SCHEMA;
 
@@ -35,7 +36,6 @@ public class ActionImportDatabase extends ActionBase {
 	DatabaseClient client;
 
 	String DATASET;
-	String TABLESETFILE;
 	String DUMPDIR;
 	String REMOTE_SETDBENV;
 	String DATABASE_DATAPUMPDIR;
@@ -44,15 +44,17 @@ public class ActionImportDatabase extends ActionBase {
 
 	Map<String,MetaDatabaseSchema> serverSchemas;
 	Map<String,Map<String,String>> tableSet;
+	MetaDump dump;
+	
 	LocalFolder workFolder;
 	RemoteFolder importScriptsFolder;
 	RemoteFolder importLogFolder;
 	RemoteFolder importDataFolder;
 	
-	public ActionImportDatabase( ActionBase action , String stream , MetaEnvServer server , String CMD , String SCHEMA ) {
+	public ActionImportDatabase( ActionBase action , String stream , MetaEnvServer server , String TASK , String CMD , String SCHEMA ) {
 		super( action , stream , "Import database, server=" + server.NAME );
 		this.server = server;
-		this.SPECFILE = "import-" + context.env.ID + "-" + server.sg.NAME + "-" + server.NAME + ".conf";
+		this.TASK = TASK;
 		this.CMD = CMD;
 		this.SCHEMA = SCHEMA;
 	}
@@ -66,8 +68,11 @@ public class ActionImportDatabase extends ActionBase {
 			exit0( _Error.UnableConnectAdmin0 , "unable to connect to administrative db" );
 		
 		checkSource();
+		info( "make target scripts ..." );
 		makeTargetScripts();
+		info( "make target configuration ..." );
 		makeTargetConfig();
+		info( "run ..." );
 		runAll();
 		
 		info( "import has been finished, dumps are loaded from " + distDataFolder.folderPath );
@@ -76,19 +81,17 @@ public class ActionImportDatabase extends ActionBase {
 	}
 	
 	private void loadImportSettings() throws Exception {
-		MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta ); 
-		String specPath = ms.getDatapumpFile( this , SPECFILE );
+		MetaDatabase db = server.meta.getDatabase( this );
+		dump = db.findExportDump( TASK );
+		if( dump == null )
+			exit1( _Error.UnknownImportTask1 , "import task " + TASK + " is not found in product database configuraton" , TASK );
 		
-		info( "reading import specification file " + specPath + " ..." );
-		Properties props = readPropertyFile( specPath );
-		
-		DATASET = props.getProperty( "CONFIG_DATASET" , "" );
-		TABLESETFILE = props.getProperty( "CONFIG_TABLESETFILE" , "" );
-		DUMPDIR = props.getProperty( "CONFIG_LOADDIR" , "" );
-		REMOTE_SETDBENV = props.getProperty( "CONFIG_REMOTE_SETDBENV" , "" );
-		DATABASE_DATAPUMPDIR = props.getProperty( "CONFIG_DATABASE_DATAPUMPDIR" , "" );
-		POSTREFRESH = props.getProperty( "CONFIG_POSTREFRESH" , "" );
-		NFS = Common.getBooleanValue( props.getProperty( "CONFIG_NFS" ) ); 
+		DATASET = dump.DATASET;
+		DUMPDIR = dump.DUMPDIR;
+		REMOTE_SETDBENV = dump.REMOTE_SETDBENV;
+		DATABASE_DATAPUMPDIR = dump.DATABASE_DATAPUMPDIR;
+		POSTREFRESH = dump.POSTREFRESH;
+		NFS = dump.NFS; 
 
 		serverSchemas = server.getSchemaSet( this );
 		if( !SCHEMA.isEmpty() )
@@ -96,7 +99,7 @@ public class ActionImportDatabase extends ActionBase {
 				exit1( _Error.UnknownServerSchema1 , "schema " + SCHEMA + " is not part of server datasets" , SCHEMA );
 
 		// load tableset
-		tableSet = ms.readDatapumpFile( this , TABLESETFILE , SCHEMA );
+		tableSet = dump.getTableSets( SCHEMA );
 	}
 
 	private void checkSource() throws Exception {
@@ -148,10 +151,14 @@ public class ActionImportDatabase extends ActionBase {
 				exit0( _Error.ImportAlreadyRunning0 , "unable to start because import is already running" );
 		}
 		
-		info( "copy execution part to " + redist.folderPath + " ..." );
+		info( "copy execution part from " + urmScripts.getLocalPath( this ) + " to " + redist.folderPath + " ..." );
 		importFolder.recreateThis( this );
 		importScriptsFolder.ensureExists( this );
 		importScriptsFolder.copyDirContentFromLocal( this , urmScripts , "" );
+		if( server.isLinux() ) {
+			ShellExecutor shell = importScriptsFolder.getSession( this );
+			shell.custom( this , importScriptsFolder.folderPath , "chmod 744 *.sh" );
+		}
 		
 		importLogFolder = importFolder.getSubFolder( this , "log" );
 		importLogFolder.ensureExists( this );
@@ -172,14 +179,17 @@ public class ActionImportDatabase extends ActionBase {
 		List<String> conf = new LinkedList<String>();
 		String EXECUTEMAPPING = "";
 		for( MetaDatabaseSchema schema : serverSchemas.values() )
-			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.SCHEMA + "=" + schema.DBNAME );
+			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.SCHEMA + "=" + server.getSchemaDBName( schema ) );
 		
-		conf.add( "CONF_MAPPING=" + Common.getQuoted( EXECUTEMAPPING ) );
+		DatabaseSpecific specific = client.specific;
+		specific.addSpecificLine( this , conf , "CONF_MAPPING" , Common.getQuoted( EXECUTEMAPPING ) );
 		if( NFS ) {
-			conf.add( "CONF_NFS=" + Common.getBooleanValue( NFS ) );
-			conf.add( "CONF_NFSDATA=" + distDataFolder.folderPath );
-			conf.add( "CONF_NFSLOG=" + distLogFolder.folderPath );
+			specific.addSpecificLine( this , conf , "CONF_NFS" , Common.getBooleanValue( NFS ) );
+			specific.addSpecificLine( this , conf , "CONF_NFSDATA" , distDataFolder.folderPath );
+			specific.addSpecificLine( this , conf , "CONF_NFSLOG" , distLogFolder.folderPath );
 		}
+		
+		specific.addSpecificConf( this , conf );
 		
 		Common.createFileFromStringList( execrc , confFile , conf );
 		importScriptsFolder.copyFileFromLocal( this , confFile );
@@ -243,7 +253,7 @@ public class ActionImportDatabase extends ActionBase {
 		Common.sleep( 1000 );
 		String value = checkStatus( importScriptsFolder );
 		if( value.equals( "RUNNING" ) == false && value.equals( "FINISHED" ) == false ) {
-			info( "import has not been started (status=" + value + "), save logs ..." );
+			error( "import has not been started (status=" + value + "), save logs ..." );
 			
 			importScriptsFolder.copyFileToLocalRename( this , workFolder , "run.sh.log" , cmd + "-" + SN + "run.sh.log" );
 			copyLogs( false , cmd , SN );

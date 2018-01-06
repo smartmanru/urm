@@ -1,19 +1,23 @@
 package org.urm.action;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.RunContext;
-import org.urm.engine.ServerBlotterActionItem;
-import org.urm.engine.ServerBlotterTreeItem;
-import org.urm.engine.ServerEngine;
+import org.urm.engine.Engine;
+import org.urm.engine.blotter.EngineBlotterActionItem;
+import org.urm.engine.blotter.EngineBlotterTreeItem;
+import org.urm.engine.events.EngineEvents;
 import org.urm.meta.Types.*;
 
-public class ActionCore {
+abstract public class ActionCore {
 
 	public ActionCore parent;
-	public ServerEngine engine;
-	public ServerBlotterActionItem blotterRootItem;
-	public ServerBlotterTreeItem blotterTreeItem;
+	public Engine engine;
+	public EngineBlotterActionItem blotterRootItem;
+	public EngineBlotterTreeItem blotterTreeItem;
 	public RunContext execrc;
 	
 	private static int instanceSequence = 0;
@@ -28,8 +32,13 @@ public class ActionCore {
 	private RunError progressError;
 	
 	public ActionEventsSource eventSource;
+
+	abstract public void stopExecution();
 	
-	protected ActionCore( ServerEngine engine , ActionCore parent , String INFO ) {
+	private List<ActionCore> childsRunning;
+	private boolean stopping;
+	
+	protected ActionCore( Engine engine , ActionCore parent , String INFO ) {
 		this.engine = engine;
 		this.parent = parent;
 		this.execrc = engine.execrc;
@@ -44,9 +53,11 @@ public class ActionCore {
 		progressCurrent = 0;
 		
 		eventSource = new ActionEventsSource( this );
+		childsRunning = new LinkedList<ActionCore>();
+		stopping = false;
 	}
 
-	public void setBlotterItem( ServerBlotterActionItem blotterItem , ServerBlotterTreeItem blotterTreeItem ) {
+	public void setBlotterItem( EngineBlotterActionItem blotterItem , EngineBlotterTreeItem blotterTreeItem ) {
 		this.blotterRootItem = blotterItem;
 		this.blotterTreeItem = blotterTreeItem;
 	}
@@ -198,5 +209,40 @@ public class ActionCore {
 		exit( _Error.InternalError0 , "unexpected state" , null );
 	}
 
+	public synchronized boolean startChild( ActionCore child ) {
+		if( stopping )
+			return( false );
+		
+		childsRunning.add( child );
+		return( true );
+	}
+	
+	public synchronized void stopChild( ActionCore child ) {
+		childsRunning.remove( child );
+	}
+	
+	public void cancelRun() {
+		ActionCore[] running = null;
+		synchronized( this ) {
+			if( stopping )
+				return;
+			
+			stopping = true;
+			running = childsRunning.toArray( new ActionCore[0] );
+		}
+		
+		stopExecution();
+		for( ActionCore action : running )
+			action.cancelRun();
+	}
+	
+	public void notifyLog( String s ) {
+		ActionCore notifyAction = this;
+		while( notifyAction != null ) {
+			notifyAction.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_ACTIONLOG , s );
+			notifyAction = notifyAction.parent;
+		}
+	}
+	
 }
 

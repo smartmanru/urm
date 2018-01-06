@@ -3,7 +3,7 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.storage.FileInfo;
@@ -45,7 +45,7 @@ public class MetaDistrBinaryItem {
 		this.delivery = delivery; 
 	}
 
-	public void createBinaryItem( ServerTransaction transaction , String key ) throws Exception {
+	public void createBinaryItem( EngineTransaction transaction , String key ) throws Exception {
 		this.KEY = key;
 		EXT = "";
 		SRCPROJECTITEM = "";
@@ -63,11 +63,11 @@ public class MetaDistrBinaryItem {
 		CUSTOMDEPLOY = false;
 	}
 	
-	public void setDelivery( ServerTransaction transaction , MetaDistrDelivery deliveryNew ) throws Exception {
+	public void setDelivery( EngineTransaction transaction , MetaDistrDelivery deliveryNew ) throws Exception {
 		this.delivery = deliveryNew; 
 	}
 	
-	public void changeProjectToManual( ServerTransaction transaction ) throws Exception {
+	public void changeProjectToManual( EngineTransaction transaction ) throws Exception {
 		if( distItemOrigin != VarDISTITEMORIGIN.BUILD )
 			transaction.exitUnexpectedState();
 			
@@ -234,18 +234,6 @@ public class MetaDistrBinaryItem {
 		this.sourceProjectItem = sourceItem;
 	}
 
-	public String getGrepMask( ActionBase action , String baseName , boolean addDotSlash ) throws Exception {
-		if( addDotSlash )
-			return( "./" + baseName + EXT + 
-					"|./.*[0-9]-" + baseName + EXT + 
-					"|./" + baseName + "-[0-9].*" + EXT +
-					"|./" + baseName + "##[0-9].*" + EXT );
-		return( baseName + EXT + 
-				"|.*[0-9]-" + baseName + EXT + 
-				"|" + baseName + "-[0-9].*" + EXT +
-				"|" + baseName + "##[0-9].*" + EXT );
-	}
-	
 	public String getBaseFile( ActionBase action ) throws Exception {
 		return( DISTBASENAME + EXT );
 	}
@@ -336,7 +324,7 @@ public class MetaDistrBinaryItem {
 		return( null );
 	}
 	
-	public void setDistData( ServerTransaction transaction , VarDISTITEMTYPE itemType , String basename , String ext , String archiveFiles , String archiveExclude ) throws Exception {
+	public void setDistData( EngineTransaction transaction , VarDISTITEMTYPE itemType , String basename , String ext , String archiveFiles , String archiveExclude ) throws Exception {
 		this.distItemType = itemType;
 		this.DISTBASENAME = basename;
 		this.EXT = ext;
@@ -346,14 +334,14 @@ public class MetaDistrBinaryItem {
 			this.DISTBASENAME = KEY;
 	}
 
-	public void setDeployData( ServerTransaction transaction , String deployname , VarITEMVERSION versionType ) throws Exception {
+	public void setDeployData( EngineTransaction transaction , String deployname , VarITEMVERSION versionType ) throws Exception {
 		this.DEPLOYBASENAME = deployname;
 		this.deployVersion = versionType;
 		if( this.DEPLOYBASENAME.isEmpty() )
 			this.DEPLOYBASENAME = DISTBASENAME;
 	}
 
-	public void setBuildOrigin( ServerTransaction transaction , MetaSourceProjectItem itemSrc ) throws Exception {
+	public void setBuildOrigin( EngineTransaction transaction , MetaSourceProjectItem itemSrc ) throws Exception {
 		this.distItemOrigin = VarDISTITEMORIGIN.BUILD;
 		this.SRCPROJECTITEM = itemSrc.ITEMNAME;
 		this.sourceProjectItem = itemSrc;
@@ -363,7 +351,7 @@ public class MetaDistrBinaryItem {
 		itemSrc.setDistItem( transaction.getAction() , this );
 	}
 
-	public void setDistOrigin( ServerTransaction transaction , MetaDistrBinaryItem itemSrc , String srcPath ) throws Exception {
+	public void setDistOrigin( EngineTransaction transaction , MetaDistrBinaryItem itemSrc , String srcPath ) throws Exception {
 		this.distItemOrigin = VarDISTITEMORIGIN.DERIVED;
 		this.SRCPROJECTITEM = "";
 		this.sourceProjectItem = null;
@@ -372,7 +360,7 @@ public class MetaDistrBinaryItem {
 		this.SRCITEMPATH = srcPath;
 	}
 	
-	public void setManualOrigin( ServerTransaction transaction ) throws Exception {
+	public void setManualOrigin( EngineTransaction transaction ) throws Exception {
 		this.distItemOrigin = VarDISTITEMORIGIN.MANUAL;
 		this.SRCPROJECTITEM = "";
 		this.sourceProjectItem = null;

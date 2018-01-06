@@ -3,32 +3,32 @@ package org.urm.action.database;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.shell.ShellExecutor;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaDump;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionExportDatabase extends ActionBase {
 
 	MetaEnvServer server;
-	String SPECFILE;
+	String TASK;
 	String CMD;
 	String SCHEMA;
 
 	String DATASET;
-	String TABLESETFILE;
 	String DUMPDIR;
 	String REMOTE_SETDBENV;
 	String DATABASE_DATAPUMPDIR;
@@ -37,6 +37,7 @@ public class ActionExportDatabase extends ActionBase {
 	
 	Map<String,MetaDatabaseSchema> serverSchemas;
 	Map<String,Map<String,String>> tableSet;
+	MetaDump dump;
 
 	DistRepository repository;
 	RemoteFolder distDataFolder;
@@ -46,10 +47,10 @@ public class ActionExportDatabase extends ActionBase {
 	RemoteFolder exportDataFolder;
 	DatabaseClient client;
 
-	public ActionExportDatabase( ActionBase action , String stream , MetaEnvServer server , String CMD , String SCHEMA ) {
+	public ActionExportDatabase( ActionBase action , String stream , MetaEnvServer server , String TASK , String CMD , String SCHEMA ) {
 		super( action , stream , "Export database, server=" + server.NAME );
 		this.server = server;
-		this.SPECFILE = "export-" + context.env.ID + "-" + server.sg.NAME + "-" + server.NAME + ".conf";
+		this.TASK = TASK;
 		this.CMD = CMD;
 		this.SCHEMA = SCHEMA;
 	}
@@ -66,28 +67,30 @@ public class ActionExportDatabase extends ActionBase {
 		if( !client.checkConnect( this , server , node ) )
 			exit0( _Error.UnableConnectAdmin0 , "unable to connect to administrative db" );
 		
+		info( "prepare destination ..." );
 		prepareDestination();
+		info( "make target scripts ..." );
 		makeTargetScripts();
+		info( "make target configuration ..." );
 		makeTargetConfig();
+		info( "run ..." );
 		runAll();
 		
 		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void loadExportSettings() throws Exception {
-		MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta ); 
-		String specPath = ms.getDatapumpFile( this , SPECFILE );
+		MetaDatabase db = server.meta.getDatabase( this );
+		dump = db.findExportDump( TASK );
+		if( dump == null )
+			exit1( _Error.UnknownExportTask1 , "export task " + TASK + " is not found in product database configuraton" , TASK );
 		
-		info( "reading export specification file " + specPath + " ..." );
-		Properties props = readPropertyFile( specPath );
-		
-		DATASET = props.getProperty( "CONFIG_DATASET" );
-		TABLESETFILE = props.getProperty( "CONFIG_TABLESETFILE" );
-		DUMPDIR = props.getProperty( "CONFIG_DATADIR" , "" );
-		REMOTE_SETDBENV = props.getProperty( "CONFIG_REMOTE_SETDBENV" , "" );
-		DATABASE_DATAPUMPDIR = props.getProperty( "CONFIG_DATABASE_DATAPUMPDIR" , "" );
-		STANDBY = Common.getBooleanValue( props.getProperty( "CONFIG_STANDBY" ) ); 
-		NFS = Common.getBooleanValue( props.getProperty( "CONFIG_NFS" ) ); 
+		DATASET = dump.DATASET;
+		DUMPDIR = dump.DUMPDIR;
+		REMOTE_SETDBENV = dump.REMOTE_SETDBENV;
+		DATABASE_DATAPUMPDIR = dump.DATABASE_DATAPUMPDIR;
+		STANDBY = dump.STANDBY; 
+		NFS = dump.NFS; 
 
 		serverSchemas = server.getSchemaSet( this );
 		if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
@@ -95,7 +98,7 @@ public class ActionExportDatabase extends ActionBase {
 				exit1( _Error.UnknownServerSchema1 , "schema " + SCHEMA + " is not part of server datasets" , SCHEMA );
 
 		// load tableset
-		tableSet = ms.readDatapumpFile( this , TABLESETFILE , SCHEMA );
+		tableSet = dump.getTableSets( SCHEMA );
 	}
 
 	private void prepareDestination() throws Exception {
@@ -123,10 +126,14 @@ public class ActionExportDatabase extends ActionBase {
 				exit0( _Error.ExportAlreadyRunning0 , "unable to start because export is already running" );
 		}
 		
-		info( "copy execution part to " + redist.folderPath + " ..." );
+		info( "copy execution part from " + urmScripts.getLocalPath( this ) + " to " + redist.folderPath + " ..." );
 		exportFolder.recreateThis( this );
 		exportScriptsFolder.ensureExists( this );
 		exportScriptsFolder.copyDirContentFromLocal( this , urmScripts , "" );
+		if( server.isLinux() ) {
+			ShellExecutor shell = exportScriptsFolder.getSession( this );
+			shell.custom( this , exportScriptsFolder.folderPath , "chmod 744 *.sh" );
+		}
 		
 		exportLogFolder = exportFolder.getSubFolder( this , "log" );
 		exportLogFolder.ensureExists( this );
@@ -142,15 +149,20 @@ public class ActionExportDatabase extends ActionBase {
 		List<String> conf = new LinkedList<String>();
 		String EXECUTEMAPPING = "";
 		for( MetaDatabaseSchema schema : serverSchemas.values() )
-			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.SCHEMA + "=" + schema.DBNAME );
+			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.SCHEMA + "=" + server.getSchemaDBName( schema ) );
 		
-		conf.add( "CONF_MAPPING=" + Common.getQuoted( EXECUTEMAPPING ) );
-		conf.add( "CONF_STANDBY=" + Common.getBooleanValue( STANDBY ) );
+		DatabaseSpecific specific = client.specific;
+		if( !REMOTE_SETDBENV.isEmpty() )
+			specific.addSpecificLine( this , conf , "CONF_SETENV" , REMOTE_SETDBENV );
+		specific.addSpecificLine( this , conf , "CONF_MAPPING" , Common.getQuoted( EXECUTEMAPPING ) );
+		specific.addSpecificLine( this , conf , "CONF_STANDBY" , Common.getBooleanValue( STANDBY ) );
 		if( NFS ) {
-			conf.add( "CONF_NFS=" + Common.getBooleanValue( NFS ) );
-			conf.add( "CONF_NFSDATA=" + distDataFolder.folderPath );
-			conf.add( "CONF_NFSLOG=" + distLogFolder.folderPath );
+			specific.addSpecificLine( this , conf , "CONF_NFS" , Common.getBooleanValue( NFS ) );
+			specific.addSpecificLine( this , conf , "CONF_NFSDATA" , distDataFolder.folderPath );
+			specific.addSpecificLine( this , conf , "CONF_NFSLOG" , distLogFolder.folderPath );
 		}
+		
+		specific.addSpecificConf( this , conf );
 		
 		Common.createFileFromStringList( execrc , confFile , conf );
 		exportScriptsFolder.copyFileFromLocal( this , confFile );
@@ -212,7 +224,7 @@ public class ActionExportDatabase extends ActionBase {
 		Common.sleep( 1000 );
 		String value = checkStatus( exportScriptsFolder );
 		if( value.equals( "RUNNING" ) == false && value.equals( "FINISHED" ) == false ) {
-			info( "export has not been started (status=" + value + "), save logs ..." );
+			error( "export has not been started (status=" + value + "), save logs ..." );
 			
 			String logFileName = cmd + "-" + SN + "run.sh.log";
 			exportScriptsFolder.copyFileToLocalRename( this , workFolder , "run.sh.log" , logFileName );

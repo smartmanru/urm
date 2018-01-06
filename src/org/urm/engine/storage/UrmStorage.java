@@ -2,9 +2,8 @@ package org.urm.engine.storage;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.RunContext.VarOSTYPE;
-import org.urm.meta.engine.ServerDirectory;
-import org.urm.meta.engine.ServerProduct;
+import org.urm.db.core.DBEnums.*;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.Types.*;
 
@@ -47,7 +46,7 @@ public class UrmStorage {
 		return( false );
 	}
 	
-	private String getDatabaseSpecificFolder( ActionBase action , VarDBMSTYPE dbtype , VarOSTYPE ostype , boolean remoteRun ) throws Exception {
+	private String getDatabaseSpecificFolder( ActionBase action , VarDBMSTYPE dbtype , DBEnumOSType ostype , boolean remoteRun ) throws Exception {
 		String dbFolder = "";
 		if( dbtype == VarDBMSTYPE.ORACLE )
 			dbFolder = "oracle";
@@ -61,13 +60,13 @@ public class UrmStorage {
 			action.exitUnexpectedState();
 		
 		if( !remoteRun )
-			ostype = action.execrc.osType;
+			ostype = DBEnumOSType.getValue( action.execrc.osType );
 		
 		String osFolder = "";
-		if( ostype == VarOSTYPE.LINUX )
+		if( ostype.isLinux() )
 			osFolder = "linux";
 		else
-		if( ostype == VarOSTYPE.WINDOWS )
+		if( ostype.isWindows() )
 			osFolder = "windows";
 		else
 			action.exitUnexpectedState();
@@ -76,8 +75,8 @@ public class UrmStorage {
 		return( folder );
 	}
 
-	private LocalFolder getDatabaseFolder( ActionBase action , MetaEnvServer server , String parentPath ) throws Exception {
-		String folderPath = getDatabaseSpecificFolder( action , server.dbType , server.osType , false );
+	private LocalFolder getDatabaseFolder( ActionBase action , MetaEnvServer server , String parentPath , boolean remoteRun ) throws Exception {
+		String folderPath = getDatabaseSpecificFolder( action , server.dbType , server.osType , remoteRun );
 		
 		LocalFolder folder = getInstallFolder( action , Common.getPath( parentPath , folderPath ) );
 		if( !folder.checkExists( action ) ) {
@@ -90,15 +89,15 @@ public class UrmStorage {
 	}
 	
 	public LocalFolder getDatabaseInitScripts( ActionBase action , MetaEnvServer server ) throws Exception {
-		return( getDatabaseFolder( action , server , "database/init" ) ); 
+		return( getDatabaseFolder( action , server , "database/init" , false ) ); 
 	}
 	
 	public LocalFolder getDatabaseSqlScripts( ActionBase action , MetaEnvServer server ) throws Exception {
-		return( getDatabaseFolder( action , server , "database/sql" ) ); 
+		return( getDatabaseFolder( action , server , "database/sql" , false ) ); 
 	}
 	
 	public LocalFolder getDatabaseDatapumpScripts( ActionBase action , MetaEnvServer server ) throws Exception {
-		return( getDatabaseFolder( action , server , "database/datapump" ) ); 
+		return( getDatabaseFolder( action , server , "database/datapump" , true ) ); 
 	}
 	
 	public LocalFolder getProductHome( ActionBase action , String productName ) throws Exception {
@@ -107,8 +106,7 @@ public class UrmStorage {
 			return( artefactory.getAnyFolder( action , dir ) );
 		}
 		
-		ServerDirectory directory = action.getServerDirectory();
-		ServerProduct product = directory.findProduct( productName );
+		AppProduct product = action.findProduct( productName );
 		if( product == null )
 			action.exitUnexpectedState();
 		

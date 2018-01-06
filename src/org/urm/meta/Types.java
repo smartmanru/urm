@@ -3,28 +3,18 @@ package org.urm.meta;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.w3c.dom.Node;
 
 public class Types {
 
-	public enum VarRESOURCECATEGORY {
+	public enum EnumResourceCategory {
 		ANY ,
 		VCS ,
 		SSH ,
 		CREDENTIALS ,
 		NEXUS ,
-		SOURCE
-	};
-	
-	public enum VarRESOURCETYPE {
-		UNKNOWN ,
-		CREDENTIALS ,
-		SSH ,
-		SVN ,
-		GIT ,
-		NEXUS
+		SOURCE;
 	};
 	
 	public enum VarELEMENTTYPE {
@@ -48,21 +38,6 @@ public class Types {
 		BUILDABLE ,
 		PREBUILT_NEXUS ,
 		PREBUILT_VCS
-	};
-	
-	public enum VarBUILDERTYPE {
-		UNKNOWN ,
-		GENERIC ,
-		ANT ,
-		MAVEN ,
-		GRADLE ,
-		MSBUILD
-	};
-	
-	public enum VarBUILDERTARGET {
-		UNKNOWN ,
-		LOCALPATH ,
-		NEXUS
 	};
 	
 	public enum VarCATEGORY {
@@ -118,24 +93,6 @@ public class Types {
 		CUSTOM
 	};
 	
-	public enum VarBUILDMODE {
-		UNKNOWN ,
-		BRANCH ,
-		MAJORBRANCH ,
-		TRUNK ,
-		DEVBRANCH ,
-		DEVTRUNK
-	};
-	
-	public enum VarSERVERACCESSTYPE {
-		UNKNOWN ,
-		SERVICE ,
-		PACEMAKER ,
-		DOCKER ,
-		GENERIC ,
-		MANUAL
-	};
-
 	public enum VarSERVERRUNTYPE {
 		UNKNOWN ,
 		DATABASE ,
@@ -201,7 +158,8 @@ public class Types {
 		STARTED ,
 		STARTING ,
 		ERRORS ,
-		STOPPED
+		STOPPED ,
+		UNREACHABLE
 	};
 
 	public enum VarCONFITEMTYPE {
@@ -235,34 +193,6 @@ public class Types {
 		ZIP
 	};
 	
-	public enum VarBASESRCTYPE {
-		UNKNOWN ,
-		ARCHIVE_LINK ,
-		ARCHIVE_DIRECT ,
-		NODIST ,
-		INSTALLER
-	};
-	
-	public enum VarBASESRCFORMAT {
-		UNKNOWN ,
-		TARGZ_SINGLEDIR ,
-		ZIP_SINGLEDIR ,
-		SINGLEFILE
-	};
-	
-	public enum VarLCTYPE {
-		UNKNOWN ,
-		MAJOR ,
-		MINOR ,
-		URGENT
-	};
-
-	public enum VarLCSTAGE {
-		UNKNOWN ,
-		RELEASE ,
-		DEPLOYMENT
-	};
-
 	public enum VarTICKETSETSTATUS {
 		UNKNOWN ,
 		NEW ,
@@ -304,24 +234,6 @@ public class Types {
 		DEB
 	}
 	
-	public static VarOSTYPE getOSType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingOSType0 , "missing operating system type" );
-			return( VarOSTYPE.UNKNOWN );
-		}
-		
-		VarOSTYPE value = null;
-		try {
-			value = VarOSTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidOSType1 , "invalid OS type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
 	public static VarCATEGORY getCategory( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
@@ -353,24 +265,6 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidProjectType1 , "invalid project type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarSERVERACCESSTYPE getServerAccessType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingServerAccessType0 , "missing server access type" );
-			return( VarSERVERACCESSTYPE.UNKNOWN );
-		}
-		
-		VarSERVERACCESSTYPE value = null;
-		try {
-			value = VarSERVERACCESSTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidServerAccessType1 , "invalid server access type=" + ID , ID );
 		}
 		
 		return( value );
@@ -520,24 +414,6 @@ public class Types {
 		return( value );
 	}
 	
-	public static VarBUILDMODE getBuildMode( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingBuildMode0 , "missing build mode" );
-			return( VarBUILDMODE.UNKNOWN );
-		}
-		
-		VarBUILDMODE value = null;
-		try {
-			value = VarBUILDMODE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidBuildMode1 , "invalid build mode=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
 	public static VarDBMSTYPE getDbmsType( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
@@ -574,42 +450,6 @@ public class Types {
 		return( value );
 	}
 	
-	public static VarBASESRCTYPE getBaseSrcType( String TYPE , boolean required ) throws Exception {
-		if( TYPE.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingBaseSrcType0 , "missing base srctype" );
-			return( VarBASESRCTYPE.UNKNOWN );
-		}
-		
-		VarBASESRCTYPE value = null;		
-		try {
-			value = VarBASESRCTYPE.valueOf( Common.xmlToEnumValue( TYPE ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidBaseSrcType1 , "invalid base srctype=" + TYPE , TYPE );
-		}
-		
-		return( value );
-	}
-
-	public static VarBASESRCFORMAT getBaseSrcFormat( String TYPE , boolean required ) throws Exception {
-		if( TYPE.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingBaseSrcType0 , "missing base srcformat" );
-			return( VarBASESRCFORMAT.UNKNOWN );
-		}
-		
-		VarBASESRCFORMAT value = null;		
-		try {
-			value = VarBASESRCFORMAT.valueOf( Common.xmlToEnumValue( TYPE ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidBaseSrcFormat1 , "invalid base srcformat=" + TYPE , TYPE );
-		}
-		
-		return( value );
-	}
-
 	public static VarITEMVERSION readItemVersionAttr( Node node , String attrName ) throws Exception {
 		String ID = ConfReader.getAttrValue( node , attrName , "default" );
 		return( getItemVersionType( ID ) );
@@ -661,78 +501,6 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDesignLinkType1 , "invalid design link type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-
-	public static VarBUILDERTYPE getBuilderType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingBuilderType0 , "missing builder type" );
-			return( VarBUILDERTYPE.UNKNOWN );
-		}
-		
-		VarBUILDERTYPE value = null;		
-		try {
-			value = VarBUILDERTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidBuilderType1 , "invalid builder type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-
-	public static VarBUILDERTARGET getBuilderTarget( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingBuilderTarget0 , "missing builder target" );
-			return( VarBUILDERTARGET.UNKNOWN );
-		}
-		
-		VarBUILDERTARGET value = null;		
-		try {
-			value = VarBUILDERTARGET.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidBuilderTarget1 , "invalid builder target=" + ID , ID );
-		}
-		
-		return( value );
-	}
-
-	public static VarLCTYPE getLCType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingLCType0 , "missing lifecycle type" );
-			return( VarLCTYPE.UNKNOWN );
-		}
-		
-		VarLCTYPE value = null;
-		try {
-			value = VarLCTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidLCType1 , "invalid lifecycle type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarLCSTAGE getLCStage( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingLCStage0 , "missing lifecycle stage" );
-			return( VarLCSTAGE.UNKNOWN );
-		}
-		
-		VarLCSTAGE value = null;
-		try {
-			value = VarLCSTAGE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidLCStage1 , "invalid lifecycle stage=" + ID , ID );
 		}
 		
 		return( value );
@@ -884,9 +652,9 @@ public class Types {
 		if( version == VarITEMVERSION.NONE || version == VarITEMVERSION.IGNORE )
 			value = basename + ext;
 		else if( version == VarITEMVERSION.MIDPOUND )
-			value = Common.getLiteral( basename ) + "##[0-9.]+" + Common.getLiteral( ext );
+			value = Common.getLiteral( basename ) + "##[0-9.]+.*" + Common.getLiteral( ext );
 		else if( version == VarITEMVERSION.MIDDASH )
-			value = basename + "-[0-9.]+" + ext;
+			value = basename + "-[0-9.]+.*" + ext;
 		else if( version == VarITEMVERSION.PREFIX )
 			value = "[0-9.]+-" + Common.getLiteral( basename + ext );
 		else
@@ -910,12 +678,6 @@ public class Types {
 		values[2] = getVersionPattern( action , VarITEMVERSION.MIDDASH , basename , ext );
 		values[3] = getVersionPattern( action , VarITEMVERSION.PREFIX , basename , ext );
 		return( values );
-	}
-
-	public static boolean isResource( VarRESOURCETYPE rc ) {
-		if( rc == VarRESOURCETYPE.GIT || rc == VarRESOURCETYPE.NEXUS || rc == VarRESOURCETYPE.SVN )
-			return( true );
-		return( false );
 	}
 
 	public static boolean isPackageExtension( String ext ) {

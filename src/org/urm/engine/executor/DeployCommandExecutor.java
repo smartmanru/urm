@@ -7,10 +7,11 @@ import org.urm.action.deploy.DeployCommand;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
-import org.urm.engine.ServerEngine;
+import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.status.ScopeState;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
@@ -23,12 +24,12 @@ public class DeployCommandExecutor extends CommandExecutor {
 	
 	String propertyBasedMethods;
 	
-	public static DeployCommandExecutor createExecutor( ServerEngine engine ) throws Exception {
+	public static DeployCommandExecutor createExecutor( Engine engine ) throws Exception {
 		DeployCommandMeta commandInfo = new DeployCommandMeta( engine.optionsMeta );
 		return( new DeployCommandExecutor( engine , commandInfo ) );
 	}
 		
-	private DeployCommandExecutor( ServerEngine engine , CommandMeta commandInfo ) throws Exception {
+	private DeployCommandExecutor( Engine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		super.defineAction( new BaseOps() , DeployCommandMeta.METHOD_BASE );
@@ -65,9 +66,9 @@ public class DeployCommandExecutor extends CommandExecutor {
 	}
 	
 	@Override
-	public boolean runExecutorImpl( ActionBase action , CommandMethod method ) {
+	public boolean runExecutorImpl( ScopeState parentState , ActionBase action , CommandMethod method ) {
 		// log action and run 
-		boolean res = super.runMethod( action , method );
+		boolean res = super.runMethod( parentState , action , method );
 		return( res );
 	}
 
@@ -94,97 +95,98 @@ public class DeployCommandExecutor extends CommandExecutor {
 	private ActionScope getServerScope( ActionBase action , int posFrom , Dist dist ) throws Exception {
 		ActionEnvScopeMaker maker = new ActionEnvScopeMaker( action , action.context.env );
 		
-		String s = getArg( action , posFrom + 1 );
-		if( s.matches( "[0-9]+" ) ) {
-			String SERVER = getArg( action , posFrom );
-			String[] NODES = getArgList( action , posFrom + 1 );
-			if( action.context.sg == null ) {
-				if( !SERVER.isEmpty() )
-					action.exit0( _Error.MissingSegmentName0, "Segment name is required to use specific server" );
-				maker.addScopeEnv( null , dist );
-			}
-			else
-				maker.addScopeEnvServerNodes( action.context.sg , SERVER , NODES , dist );
+		String SERVER = getArg( action , posFrom );
+		if( action.context.sg == null ) {
+			if( !SERVER.equals( "all" ) )
+				action.exit0( _Error.MissingSegmentName0, "Segment option is required to use specific server" );
+			maker.addScopeEnv( null , dist );
 		}
 		else {
-			String[] SERVERS = getArgList( action , posFrom );
-			maker.addScopeEnvServers( action.context.sg , SERVERS , dist );
+			String s = getArg( action , posFrom + 1 );
+			if( s.matches( "[0-9]+" ) ) {
+				String[] NODES = getArgList( action , posFrom + 1 );
+				maker.addScopeEnvServerNodes( action.context.sg , SERVER , NODES , dist );
+			}
+			else {
+				String[] SERVERS = getArgList( action , posFrom );
+				maker.addScopeEnvServers( action.context.sg , SERVERS , dist );
+			}
 		}
 
 		return( maker.getScope() );
 	}
 	
 	private class BaseOps extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String CMD = getRequiredArg( action , 0 , "CMD" );
 		ActionScope scope = getServerScope( action , 1 );
-		if( CMD.equals( "install" ) )
-			impl.baseInstall( action , scope );
+		if( CMD.equals( DeployCommandMeta.BASEOPS_INSTALL ) )
+			impl.baseInstall( parentState , action , scope );
 		else
-		if( CMD.equals( "list" ) )
-			impl.baseList( action , scope );
+		if( CMD.equals( DeployCommandMeta.BASEOPS_LIST ) )
+			impl.baseList( parentState , action , scope );
 		else
-		if( CMD.equals( "clear" ) )
-			impl.baseClear( action , scope );
+		if( CMD.equals( DeployCommandMeta.BASEOPS_CLEAR ) )
+			impl.baseClear( parentState , action , scope );
 		else
 			action.exitUnexpectedState();
 	}
 	}
 
 	private class CheckEnv extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
-		impl.checkEnv( action , scope );
+		impl.checkEnv( parentState , action , scope );
 	}
 	}
 
 	private class ConfCheck extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
-		impl.confCheck( action , scope );
+		impl.confCheck( parentState , action , scope );
 	}
 	}
 
 	private class Configure extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
-		impl.configure( action , scope );
+		impl.configure( parentState , action , scope );
 	}
 	}
 
 	private class DeployRedist extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		Dist dist = getDist( action );
 		ActionScope scope = getServerScope( action , 1 );
-		impl.deployRedist( action , scope , dist );
+		impl.deployRedist( parentState , action , scope , dist );
 	}
 	}
 
 	private class DropRedist extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String releaseDir = getRequiredArg( action , 0 , "release" );
 		ActionScope scope = getServerScope( action , 1 );
-		impl.dropRedist( action , scope , releaseDir );
+		impl.dropRedist( parentState , action , scope , releaseDir );
 	}
 	}
 
 	private class GetDeployInfo extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
-		impl.getDeployInfo( action , scope );
+		impl.getDeployInfo( parentState , action , scope );
 	}
 	}
 
 	private class GetRedistInfo extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		Dist dist = getDist( action );
 		ActionScope scope = getServerScope( action , 1 );
-		impl.getRedistInfo( action , scope , dist );
+		impl.getRedistInfo( parentState , action , scope , dist );
 	}
 	}
 
 	private class Hosts extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String CMD = getRequiredArg( action , 0 , "COMMAND" );
 		String VALUE = getRequiredArg( action , 1 , "COMMAND" );
 		
@@ -209,152 +211,152 @@ public class DeployCommandExecutor extends CommandExecutor {
 			action.exit1( _Error.InvalidHostsCommand1 , "Hosts: invalid command=" + CMD , CMD );
 		
 		ActionScope scope = getServerScope( action , 2 );
-		impl.changeHosts( action , scope , CMD , F_HOST_NAME , F_HOST_IP );
+		impl.changeHosts( parentState , action , scope , CMD , F_HOST_NAME , F_HOST_IP );
 	}
 	}
 
 	private class Key extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String CMD = getRequiredArg( action , 0 , "COMMAND" );
 		ActionScope scope = getServerScope( action , 1 );
-		impl.changeKeys( action , scope , CMD );
+		impl.changeKeys( parentState , action , scope , CMD );
 	}
 	}
 
 	private class Login extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String SERVER = getRequiredArg( action , 0 , "SERVER" );
 		String NODE = getArg( action , 1 );
-		impl.login( action , action.context.sg , SERVER , NODE );
+		impl.login( parentState , action , action.context.sg , SERVER , NODE );
 	}
 	}
 
 	private class Redist extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		Dist dist = getDist( action );
 		ActionScope scope = getServerScope( action , 1 );
-		impl.redist( action , scope , dist );
+		impl.redist( parentState , action , scope , dist );
 	}
 	}
 
 	private class RestartEnv extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
-		impl.restartEnv( action , scope );
+		impl.restartEnv( parentState , action , scope );
 	}
 	}
 
 	private class Rollback extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		Dist dist = getDist( action );
 		ActionScope scope = getServerScope( action , 1 );
-		impl.rollback( action , scope , dist );
+		impl.rollback( parentState , action , scope , dist );
 	}
 	}
 
 	private class Rollout extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		Dist dist = getDist( action );
 		ActionScope scope = getServerScope( action , 1 );
-		impl.rollout( action , scope , dist );
+		impl.rollout( parentState , action , scope , dist );
 	}
 	}
 
 	private class RunCmd extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String CMD = getRequiredArg( action , 0 , "COMMAND" );
 		ActionScope scope = getServerScope( action , 1 );
-		impl.runCmd( action , scope , CMD );
+		impl.runCmd( parentState , action , scope , CMD );
 	}
 	}
 
 	private class Scp extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String SRCINFO = getRequiredArg( action , 0 , "SRCINFO" );
 		String DSTPATH = getRequiredArg( action , 1 , "DSTPATH" );
 		ActionScope scope = getServerScope( action , 2 );
-		impl.scp( action , scope , SRCINFO , DSTPATH );
+		impl.scp( parentState , action , scope , SRCINFO , DSTPATH );
 	}
 	}
 
 	private class List extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		action.context.CTX_ALL = true;
 		ActionScope scope = getServerScope( action );
-		impl.list( action , scope );
+		impl.list( parentState , action , scope );
 	}
 	}
 
 	private class SendChatMsg extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String msg = getRequiredArg( action , 0 , "MSG" );
-		impl.sendMsg( action , msg );
+		impl.sendMsg( parentState , action , msg );
 	}
 	}
 
 	private class StartEnv extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
-		impl.startEnv( action , scope );
+		impl.startEnv( parentState , action , scope );
 	}
 	}
 
 	private class StopEnv extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
-		impl.stopEnv( action , scope );
+		impl.stopEnv( parentState , action , scope );
 	}
 	}
 
 	private class VerifyConfigs extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
-		impl.verifyConfigs( action , scope );
+		impl.verifyConfigs( parentState , action , scope );
 	}
 	}
 
 	private class RestoreConfigs extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
-		impl.restoreConfigs( action , scope );
+		impl.restoreConfigs( parentState , action , scope );
 	}
 	}
 
 	private class SaveConfigs extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
-		impl.saveConfigs( action , scope );
+		impl.saveConfigs( parentState , action , scope );
 	}
 	}
 
 	private class UpgradeEnv extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String PATCHID = getRequiredArg( action , 0 , "PATCHID" );
 		ActionScope scope = getServerScope( action , 1 );
-		impl.upgradeEnv( action , PATCHID , scope );
+		impl.upgradeEnv( parentState , action , PATCHID , scope );
 	}
 	}
 
 	private class VerifyDeploy extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		Dist dist = getDist( action );
 		ActionScope scope = getServerScope( action , 1 );
-		impl.verifyDeploy( action , scope , dist );
+		impl.verifyDeploy( parentState , action , scope , dist );
 	}
 	}
 
 	private class WaitEnv extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
-		impl.waitEnv( action , scope );
+		impl.waitEnv( parentState , action , scope );
 	}
 	}
 
 	private class WaitWeb extends CommandMethod {
-	public void run( ActionBase action ) throws Exception {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String SERVER = getRequiredArg( action , 0 , "SERVER" );
 		String NODE = getArg( action , 1 );
-		impl.waitWeb( action , SERVER , NODE );
+		impl.waitWeb( parentState , action , SERVER , NODE );
 	}
 	}
 	

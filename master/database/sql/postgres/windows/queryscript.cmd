@@ -1,0 +1,17 @@
+@echo off
+rem params:
+rem URMDB_USER
+rem URMDB_PWD
+rem URMDB_DBHOST
+rem URMDB_DBPORT
+rem URMDB_DBNAME
+
+P_SQLFILE=$1
+P_LOGFILE=$2
+
+set PGPASSWORD="$URMDB_PWD"
+if NOT "%XPORT%" == "" (
+	set "XPORT= -p %XPORT%"
+)
+
+psql -A -q -t -d $URMDB_DBNAME -h $URMDB_DBHOST $XPORT -U $URMDB_USER -f $P_SQLFILE > $P_LOGFILE 2>&1

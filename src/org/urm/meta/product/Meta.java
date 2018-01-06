@@ -1,30 +1,37 @@
 package org.urm.meta.product;
 
+import java.util.List;
+
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerSession;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineSession;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.dist.DistRepository;
-import org.urm.meta.ServerLoader;
-import org.urm.meta.ServerObject;
-import org.urm.meta.ServerProductMeta;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineObject;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.Types.*;
+import org.urm.meta.engine.AccountReference;
+import org.urm.meta.engine.EngineProducts;
+import org.urm.meta.engine.HostAccount;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class Meta extends ServerObject {
+public class Meta extends EngineObject {
 
 	public String name;
-	public ServerSession session;
+	public EngineSession session;
 	
-	private ServerLoader loader;
-	private ServerProductMeta storage;
+	private EngineProducts products;
+	private ProductMeta storage;
 
 	private MetaProductVersion version;
 	private MetaProductSettings product;
+	private MetaUnits units;
 	private MetaDatabase database;
+	private MetaDocs docs;
 	private MetaDistr distr;
 	private MetaSource sources;
 	private MetaMonitoring monitoring;
@@ -41,10 +48,10 @@ public class Meta extends ServerObject {
 
 	public static String PROPERTY_NAME = "name";
 	
-	public Meta( ServerProductMeta storage , ServerSession session ) {
+	public Meta( ProductMeta storage , EngineSession session ) {
 		super( null );
 		this.storage = storage;
-		this.loader = storage.loader;
+		this.products = storage.products;
 		this.session = session;
 		name = storage.name;
 	}
@@ -53,14 +60,20 @@ public class Meta extends ServerObject {
 	public String getName() {
 		return( name );
 	}
+
+	public void trace( String s ) {
+		products.engine.trace( s );
+	}
 	
-	public void replaceStorage( ActionBase action , ServerProductMeta storage ) throws Exception {
-		loader.releaseSessionProductMetadata( action , this , false );
+	public void replaceStorage( ActionBase action , ProductMeta storage ) throws Exception {
+		products.releaseSessionProductMetadata( action , this );
 		
 		// clear old refs
 		version = null;
 		product = null;
+		units = null;
 		database = null;
+		docs = null;
 		distr = null;
 		sources = null;
 		monitoring = null;
@@ -94,6 +107,14 @@ public class Meta extends ServerObject {
 		this.product = product;
 	}
 	
+	public void setUnits( MetaUnits units ) {
+		this.units = units;
+	}
+	
+	public void setDocs( MetaDocs docs ) {
+		this.docs = docs;
+	}
+	
 	public void setDistr( MetaDistr distr ) {
 		this.distr = distr;
 	}
@@ -106,13 +127,13 @@ public class Meta extends ServerObject {
 		this.sources = sources;
 	}
 
-	public synchronized ServerProductMeta getStorage( ActionBase action ) throws Exception {
+	public synchronized ProductMeta getStorage() {
 		return( storage );
 	}
 
 	public synchronized MetaProductVersion getVersion( ActionBase action ) throws Exception {
 		if( version == null )
-			version = loader.loadVersion( action.actionInit , storage );
+			version = storage.getVersion();
 		return( version );
 	}
 
@@ -123,36 +144,49 @@ public class Meta extends ServerObject {
 	
 	public synchronized MetaProductSettings getProductSettings( ActionBase action ) throws Exception {
 		if( product == null )
-			product = loader.loadProduct( action.actionInit , storage );
+			product = storage.getProductSettings();
 		return( product );
 	}
 	
+	public synchronized MetaUnits getUnits( ActionBase action ) throws Exception {
+		if( units == null )
+			units = storage.getUnits();
+		return( units );
+	}
+
 	public synchronized MetaDatabase getDatabase( ActionBase action ) throws Exception {
 		if( database == null )
-			database = loader.loadDatabase( action.actionInit , storage );
+			database = storage.getDatabase();
 		return( database );
+	}
+
+	public synchronized MetaDocs getDocs( ActionBase action ) throws Exception {
+		if( docs == null )
+			docs = storage.getDocs();
+		return( docs );
 	}
 
 	public synchronized MetaDistr getDistr( ActionBase action ) throws Exception {
 		if( distr == null )
-			distr = loader.loadDistr( action.actionInit , storage );
+			distr = storage.getDistr();
 		return( distr );
 	}
 
 	public synchronized MetaSource getSources( ActionBase action ) throws Exception {
 		if( sources == null )
-			sources = loader.loadSources( action.actionInit , storage );
+			sources = storage.getSources();
 		return( sources );
 	}
 
 	public synchronized MetaMonitoring getMonitoring( ActionBase action ) throws Exception {
 		if( monitoring == null )
-			monitoring = loader.loadMonitoring( action.actionInit , storage );
+			monitoring = storage.getMonitoring();
 		return( monitoring );
 	}
 	
 	public synchronized MetaDesign getDesignData( ActionBase action , String fileName ) throws Exception {
-		return( loader.loadDesignData( action.actionInit , storage , fileName ) );
+		EngineLoader loader = action.engine.createLoader();
+		return( products.loadDesignData( loader , storage , fileName ) );
 	}
 	
 	public String[] getEnvNames() {
@@ -167,8 +201,8 @@ public class Meta extends ServerObject {
 		return( storage.getDistRepository() );
 	}
 	
-	public synchronized MetaEnv getEnvData( ActionBase action , String envFile , boolean loadProps ) throws Exception {
-		return( loader.loadEnvData( action.actionInit , storage , envFile , loadProps ) );
+	public synchronized MetaEnv getEnvData( ActionBase action , String envName , boolean loadProps ) throws Exception {
+		return( storage.findEnvironment( envName ) );
 	}
 	
 	public MetaEnv findEnv( String envId ) {
@@ -176,7 +210,6 @@ public class Meta extends ServerObject {
 	}
 	
 	public synchronized MetaEnv getEnv( ActionBase action , String envId ) throws Exception {
-		getStorage( action );
 		return( storage.findEnvironment( envId ) );
 	}
 	
@@ -235,7 +268,7 @@ public class Meta extends ServerObject {
     public MetaEnv findMetaEnv( MetaEnv env ) {
     	if( env == null )
     		return( null );
-    	return( findEnv( env.ID ) );
+    	return( findEnv( env.NAME ) );
     }
     
     public MetaEnvSegment findMetaEnvSegment( MetaEnvSegment sg ) {
@@ -265,32 +298,37 @@ public class Meta extends ServerObject {
     	return( server.findNode( node.POS ) );
     }
 
-	public void deleteBinaryItemFromEnvironments( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+	public void deleteBinaryItemFromEnvironments( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
 			for( MetaEnvSegment sg : env.getSegments() )
 				for( MetaEnvServer server : sg.getServers() )
 					server.reflectDeleteBinaryItem( transaction , item );
 	}
 
-	public void deleteConfItemFromEnvironments( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+	public void deleteConfItemFromEnvironments( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
 			for( MetaEnvSegment sg : env.getSegments() )
 				for( MetaEnvServer server : sg.getServers() )
 					server.reflectDeleteConfItem( transaction , item );
 	}
 
-	public void deleteComponentFromEnvironments( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
+	public void deleteComponentFromEnvironments( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
 			for( MetaEnvSegment sg : env.getSegments() )
 				for( MetaEnvServer server : sg.getServers() )
 					server.reflectDeleteComponent( transaction , item );
 	}
 
-	public void deleteDatabaseSchemaFromEnvironments( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+	public void deleteDatabaseSchemaFromEnvironments( EngineTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
 		for( MetaEnv env : storage.getEnvironments() )
 			for( MetaEnvSegment sg : env.getSegments() )
 				for( MetaEnvServer server : sg.getServers() )
 					server.reflectDeleteSchema( transaction , schema );
+	}
+
+	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
+		for( MetaEnv env : storage.getEnvironments() )
+			env.getApplicationReferences( account , refs );
 	}
 
 }

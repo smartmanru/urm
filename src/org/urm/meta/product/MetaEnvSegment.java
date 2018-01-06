@@ -9,13 +9,13 @@ import java.util.Map.Entry;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.PropertyController;
-import org.urm.common.PropertySet;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.dist.Release;
+import org.urm.engine.properties.PropertyController;
+import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.Account;
-import org.urm.meta.engine.ServerAccountReference;
-import org.urm.meta.engine.ServerHostAccount;
+import org.urm.meta.engine.AccountReference;
+import org.urm.meta.engine.HostAccount;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -29,7 +29,7 @@ public class MetaEnvSegment extends PropertyController {
 	public String BASELINE;
 	public boolean OFFLINE;
 	public String DESC;
-	public String SG;
+	public String DC;
 	
 	public MetaEnvDeployment deploy;
 	public MetaEnvStartInfo startInfo;
@@ -72,7 +72,7 @@ public class MetaEnvSegment extends PropertyController {
 	public void scatterProperties( ActionBase action ) throws Exception {
 		NAME = super.getStringPropertyRequired( action , PROPERTY_NAME );
 		DESC = super.getStringProperty( action , PROPERTY_DESC );
-		SG = super.getStringProperty( action , PROPERTY_DC );
+		DC = super.getStringProperty( action , PROPERTY_DC );
 		action.trace( "load properties of sg=" + NAME );
 		
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );
@@ -102,13 +102,13 @@ public class MetaEnvSegment extends PropertyController {
 		return( r );
 	}
 
-	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
+	public void setProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		super.updateProperties( transaction , props , system );
 		scatterProperties( transaction.getAction() );
 	}
 	
 	public String getFullId( ActionBase action ) throws Exception {
-		return( env.ID + "-" + NAME );
+		return( env.NAME + "-" + NAME );
 	}
 	
 	public boolean hasBaseline( ActionBase action ) throws Exception {
@@ -274,11 +274,11 @@ public class MetaEnvSegment extends PropertyController {
 		scatterProperties( action );
 	}
 
-	public void createServer( ServerTransaction transaction , MetaEnvServer server ) {
+	public void createServer( EngineTransaction transaction , MetaEnvServer server ) {
 		addServer( server );
 	}
 	
-	public void modifyServer( ServerTransaction transaction , MetaEnvServer server ) {
+	public void modifyServer( EngineTransaction transaction , MetaEnvServer server ) {
 		for( Entry<String,MetaEnvServer> entry : serverMap.entrySet() ) {
 			if( entry.getValue() == server ) {
 				serverMap.remove( entry.getKey() );
@@ -290,7 +290,7 @@ public class MetaEnvSegment extends PropertyController {
 		addServer( server );
 	}
 	
-	public void deleteServer( ServerTransaction transaction , MetaEnvServer server ) {
+	public void deleteServer( EngineTransaction transaction , MetaEnvServer server ) {
 		int index = originalList.indexOf( server );
 		if( index < 0 )
 			return;
@@ -300,33 +300,37 @@ public class MetaEnvSegment extends PropertyController {
 		startInfo.removeServer( transaction , server );
 	}
 	
-	public void setBaseline( ServerTransaction transaction , String baselineSG ) throws Exception {
+	public void setBaseline( EngineTransaction transaction , String baselineSG ) throws Exception {
 		super.setSystemStringProperty( PROPERTY_BASELINE , baselineSG );
 	}
 	
-	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
+	public void setOffline( EngineTransaction transaction , boolean offline ) throws Exception {
 		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
 	}
 	
-	public boolean isOffline() {
-		return( OFFLINE );
-	}
-
 	public boolean isBroken() {
 		return( super.isLoadFailed() );
 	}
 
-	public void getApplicationReferences( ServerHostAccount account , List<ServerAccountReference> refs ) {
+	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
 		for( MetaEnvServer server : originalList )
 			server.getApplicationReferences( account , refs );
 	}
 
-	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+	public void deleteHostAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
 		super.deleteObject();
 	}
 
-	public void setStartInfo( ServerTransaction transaction , MetaEnvStartInfo startInfo ) throws Exception {
+	public void setStartInfo( EngineTransaction transaction , MetaEnvStartInfo startInfo ) throws Exception {
+		ActionBase action = transaction.getAction();
 		this.startInfo = startInfo;
+		for( MetaEnvServer server : originalList )
+			server.setStartGroup( action , null );
+		
+		for( MetaEnvStartGroup group : startInfo.getForwardGroupList() ) {
+			for( MetaEnvServer server : group.getServers() )
+				server.setStartGroup( action , group );
+		}
 	}
 
 	public boolean isConfUsed( MetaDistrConfItem item ) {

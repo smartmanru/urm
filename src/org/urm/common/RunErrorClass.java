@@ -14,6 +14,7 @@ public class RunErrorClass {
 	public static int BaseEngineShell = 116000;
 	public static int BaseEngineStorage = 117000;
 	public static int BaseEngineVCS = 118000;
+	public static int BaseEngineProperties = 119000;
 	public static int BaseAction = 200000;
 	public static int BaseActionBuild = 201000;
 	public static int BaseActionConf = 202000;
@@ -27,6 +28,9 @@ public class RunErrorClass {
 	public static int BaseMetaEngine = 251000;
 	public static int BaseMetaProduct = 252000;
 	public static int BaseClient = 300000;
+	public static int BaseDB = 400000;
+	public static int BaseDBCore = 401000;
+	public static int BaseDBEngine = 402000;
 	public static int BasePlugin = 800000;
 	
 	public static int InternalBase = 500;
@@ -35,32 +39,36 @@ public class RunErrorClass {
 	public int groupValue;
 	
 	public static RunErrorClass[] errorClasses = { 
-		new RunErrorClass( "Common" , 100000 ) ,
-		new RunErrorClass( "CommonAction" , 101000 ) ,
-		new RunErrorClass( "CommonJmx" , 102000 ) ,
-		new RunErrorClass( "CommonMeta" , 103000 ) ,
-		new RunErrorClass( "Engine" , 110000 ) ,
-		new RunErrorClass( "EngineAction" , 111000 ) ,
-		new RunErrorClass( "EngineCustom" , 112000 ) ,
-		new RunErrorClass( "EngineDist" , 113000 ) ,
-		new RunErrorClass( "EngineExecutor" , 114000 ) ,
-		new RunErrorClass( "EngineShell" , 116000 ) ,
-		new RunErrorClass( "EngineStorage" , 117000 ) ,
-		new RunErrorClass( "EngineVCS" , 118000 ) ,
-		new RunErrorClass( "Action" , 200000 ) ,
-		new RunErrorClass( "ActionBuild" , 2010 ) ,
-		new RunErrorClass( "ActionConf" , 202000 ) ,
-		new RunErrorClass( "ActionDatabase" , 203000 ) ,
-		new RunErrorClass( "ActionDeploy" , 204000 ) ,
-		new RunErrorClass( "ActionMain" , 205000 ) ,
-		new RunErrorClass( "ActionMonitor" , 206000 ) ,
-		new RunErrorClass( "ActionRelease" , 207000 ) ,
-		new RunErrorClass( "ActionXDoc" , 208000 ) ,
-		new RunErrorClass( "MetaCommon" , 250000 ) ,
-		new RunErrorClass( "MetaEngine" , 251000 ) ,
-		new RunErrorClass( "MetaProduct" , 252000 ) ,
-		new RunErrorClass( "Client" , 300000 ) ,
-		new RunErrorClass( "Plugin" , 800000 )
+		new RunErrorClass( "Common" , BaseCommon ) ,
+		new RunErrorClass( "CommonAction" , BaseCommonAction ) ,
+		new RunErrorClass( "CommonJmx" , BaseCommonJmx ) ,
+		new RunErrorClass( "CommonMeta" , BaseCommonMeta ) ,
+		new RunErrorClass( "Engine" , BaseEngine ) ,
+		new RunErrorClass( "EngineAction" , BaseEngineAction ) ,
+		new RunErrorClass( "EngineCustom" , BaseEngineCustom ) ,
+		new RunErrorClass( "EngineDist" , BaseEngineDist ) ,
+		new RunErrorClass( "EngineExecutor" , BaseEngineExecutor ) ,
+		new RunErrorClass( "EngineShell" , BaseEngineShell ) ,
+		new RunErrorClass( "EngineStorage" , BaseEngineStorage ) ,
+		new RunErrorClass( "EngineVCS" , BaseEngineVCS ) ,
+		new RunErrorClass( "EngineProperties" , BaseEngineProperties ) ,
+		new RunErrorClass( "Action" , BaseAction ) ,
+		new RunErrorClass( "ActionBuild" , BaseActionBuild ) ,
+		new RunErrorClass( "ActionConf" , BaseActionConf ) ,
+		new RunErrorClass( "ActionDatabase" , BaseActionDatabase ) ,
+		new RunErrorClass( "ActionDeploy" , BaseActionDeploy ) ,
+		new RunErrorClass( "ActionMain" , BaseActionMain ) ,
+		new RunErrorClass( "ActionMonitor" , BaseActionMonitor ) ,
+		new RunErrorClass( "ActionRelease" , BaseActionRelease ) ,
+		new RunErrorClass( "ActionXDoc" , BaseActionXDoc ) ,
+		new RunErrorClass( "MetaCommon" , BaseMetaCommon ) ,
+		new RunErrorClass( "MetaEngine" , BaseMetaEngine ) ,
+		new RunErrorClass( "MetaProduct" , BaseMetaProduct ) ,
+		new RunErrorClass( "Client" , BaseClient ) ,
+		new RunErrorClass( "Database" , BaseDB ) ,
+		new RunErrorClass( "DatabaseCore" , BaseDBCore ) ,
+		new RunErrorClass( "DatabaseEngine" , BaseDBEngine ) ,
+		new RunErrorClass( "Plugin" , BasePlugin )
 	};
 	
 	public RunErrorClass( String groupName , int groupValue ) {

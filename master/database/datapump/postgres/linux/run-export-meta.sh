@@ -2,8 +2,17 @@
 
 . ./run.conf
 
+if [ "$CONF_SETENV" != "" ]; then
+	. $CONF_SETENV
+fi
+
 S_DATADIR=
 S_LOGDIR=
+
+XPORT=
+if [ "$CONF_DBPORT" != "" ]; then
+	XPORT=" -p $CONF_DBPORT"
+fi
 
 function f_execute_one() {
 	local P_SCHEMA=$1
@@ -11,7 +20,7 @@ function f_execute_one() {
 
 	echo dump meta schema=$P_SCHEMA dbname=$P_DBNAME ...
 
-	F_CMD="pg_dump -v -s -f $S_DATADIR/meta-$P_SCHEMA.dump -F c $P_DBNAME"
+	F_CMD="pg_dump -v -s $XPORT -f $S_DATADIR/meta-$P_SCHEMA.dump -F c $P_DBNAME"
 	echo "run: $F_CMD ..."
 	$F_CMD > $S_LOGDIR/meta-$P_SCHEMA.dump.log 2>&1
 	F_STATUS=$?
@@ -23,7 +32,7 @@ function f_execute_one() {
 }
 
 function f_execute_roles() {
-	local F_CMD="pg_dumpall --roles-only"
+	local F_CMD="pg_dumpall $XPORT --roles-only"
 	echo "run: $F_CMD ..."
 	( $F_CMD > $S_DATADIR/meta-roles.dump ) > $S_LOGDIR/meta-roles.dump.log 2>&1
 	F_STATUS=$?

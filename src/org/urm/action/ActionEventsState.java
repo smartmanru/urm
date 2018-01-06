@@ -1,8 +1,9 @@
 package org.urm.action;
 
-import org.urm.engine.ServerEventsState;
+import org.urm.engine.events.EngineEventsState;
+import org.urm.engine.status.ScopeState;
 
-public class ActionEventsState extends ServerEventsState {
+public class ActionEventsState extends EngineEventsState {
 
 	public ActionEventsSource actionSource;
 	public ScopeState scopeState;

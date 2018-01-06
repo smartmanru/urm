@@ -9,11 +9,11 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.meta.Types.*;
-import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.AuthResource;
 
 public class ShellCoreWindows extends ShellCore {
 
@@ -22,12 +22,12 @@ public class ShellCoreWindows extends ShellCore {
 	String cmdAnd;
 
 	public ShellCoreWindows( ShellExecutor executor , VarSESSIONTYPE sessionType , Folder tmpFolder , boolean local ) {
-		super( executor , VarOSTYPE.WINDOWS , sessionType , tmpFolder , local );
+		super( executor , DBEnumOSType.WINDOWS , sessionType , tmpFolder , local );
 		cmdAnd = "&&";
 	}
 
 	@Override 
-	public boolean createProcess( ActionBase action , ShellProcess process , String rootPath , ServerAuthResource auth ) throws Exception {
+	public boolean createProcess( ActionBase action , ShellProcess process , String rootPath , AuthResource auth ) throws Exception {
 		if( rootPath == null )
 			action.exitUnexpectedState();
 		

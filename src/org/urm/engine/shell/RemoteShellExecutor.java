@@ -2,13 +2,13 @@ package org.urm.engine.shell;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.storage.Folder;
-import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.AuthResource;
 
 public class RemoteShellExecutor extends ShellExecutor {
 	
-	ServerAuthResource auth;
+	AuthResource auth;
 	
-	public RemoteShellExecutor( int id , String name , ShellPool pool , Account account , Folder tmpFolder , ServerAuthResource auth , boolean dedicated ) {
+	public RemoteShellExecutor( int id , String name , EngineShellPool pool , Account account , Folder tmpFolder , AuthResource auth , boolean dedicated ) {
 		super( id , name , pool , account , "" , tmpFolder , dedicated );
 		this.auth = auth;
 	}

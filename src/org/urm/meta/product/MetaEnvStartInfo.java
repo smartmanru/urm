@@ -8,7 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -72,7 +72,7 @@ public class MetaEnvStartInfo {
 		}
 	}
 
-	public void removeServer( ServerTransaction transaction , MetaEnvServer server ) {
+	public void removeServer( EngineTransaction transaction , MetaEnvServer server ) {
 		if( server.startGroup != null )
 			server.startGroup.removeServer( transaction , server );
 	}
@@ -84,6 +84,17 @@ public class MetaEnvStartInfo {
 				return( group );
 		}
 		return( null );
+	}
+
+	public String[] getMissingServerNames() {
+		List<String> missing = new LinkedList<String>();
+		for( String serverName : sg.getServerNames() ) {
+			MetaEnvServer server = sg.findServer( serverName );
+			if( server.startGroup == null )
+				missing.add( serverName );
+		}
+		
+		return( missing.toArray( new String[0] ) );
 	}
 	
 }

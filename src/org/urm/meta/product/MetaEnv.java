@@ -8,15 +8,15 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.common.PropertyController;
-import org.urm.common.PropertySet;
 import org.urm.common.action.CommandOption.FLAG;
-import org.urm.engine.ServerTransaction;
+import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.PropertyController;
+import org.urm.engine.properties.PropertySet;
 import org.urm.engine.storage.HiddenFiles;
-import org.urm.meta.ServerProductMeta;
-import org.urm.meta.ServerRef;
-import org.urm.meta.engine.ServerAccountReference;
-import org.urm.meta.engine.ServerHostAccount;
+import org.urm.meta.ProductMeta;
+import org.urm.meta.EngineRef;
+import org.urm.meta.engine.AccountReference;
+import org.urm.meta.engine.HostAccount;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
@@ -31,10 +31,11 @@ public class MetaEnv extends PropertyController {
 	
 	public boolean missingSecretProperties = false; 
 	
-	public String ID;
+	public int ID;
+	public String NAME;
 	public String BASELINE;
 	public boolean OFFLINE;
-	public ServerRef<MetaEnv> baselineEnvRef;
+	public EngineRef<MetaEnv> baselineEnvRef;
 	public String REDISTWIN_PATH;
 	public String REDISTLINUX_PATH;
 	public boolean DISTR_USELOCAL;
@@ -84,17 +85,18 @@ public class MetaEnv extends PropertyController {
 
 	public static String ELEMENT_SEGMENT = "segment";
 	
-	public MetaEnv( ServerProductMeta storage , MetaProductSettings settings , Meta meta ) {
+	public MetaEnv( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
 		super( storage , settings , "env" );
 		this.meta = meta;
 		originalList = new LinkedList<MetaEnvSegment>();
 		sgMap = new HashMap<String,MetaEnvSegment>();
-		baselineEnvRef = new ServerRef<MetaEnv>();
+		baselineEnvRef = new EngineRef<MetaEnv>();
+		meta.trace( "new meta env object, id=" + super.objectId );
 	}
 	
 	@Override
 	public String getName() {
-		return( ID );
+		return( NAME );
 	}
 	
 	@Override
@@ -106,8 +108,8 @@ public class MetaEnv extends PropertyController {
 	
 	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
-		ID = super.getStringPropertyRequired( action , PROPERTY_ID );
-		action.trace( "load properties of env=" + ID + " ..." );
+		NAME = super.getStringPropertyRequired( action , PROPERTY_ID );
+		action.trace( "load properties of env=" + NAME + " ..." );
 		
 		MetaProductSettings product = meta.getProductSettings( action );
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );
@@ -143,14 +145,14 @@ public class MetaEnv extends PropertyController {
 	}
 
 	public void createEnv( ActionBase action , String ID , VarENVTYPE envType ) throws Exception {
-		this.ID = ID;
+		this.NAME = ID;
 		this.envType = envType;
 		createProperties( action );
 	}
 
 	public MetaEnv copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductSettings product = meta.getProductSettings( action );
-		MetaEnv r = new MetaEnv( meta.getStorage( action ) , product , meta );
+		MetaEnv r = new MetaEnv( meta.getStorage() , product , meta );
 		r.initCopyStarted( this , product.getProperties() );
 		
 		for( MetaEnvSegment sg : originalList ) {
@@ -160,6 +162,7 @@ public class MetaEnv extends PropertyController {
 		
 		r.scatterProperties( action );
 		r.initFinished();
+		meta.trace( "copy meta env object, id=" + super.objectId + " to new object id=" + r.objectId );
 		return( r );
 	}
 
@@ -232,7 +235,7 @@ public class MetaEnv extends PropertyController {
 		if( !super.initCreateStarted( secretProperties ) )
 			return;
 
-		super.setStringProperty( PROPERTY_ID , ID );
+		super.setStringProperty( PROPERTY_ID , NAME );
 		super.setStringProperty( PROPERTY_ENVTYPE , Common.getEnumLower( envType ) );
 		super.finishProperties( action );
 		super.initFinished();
@@ -302,11 +305,11 @@ public class MetaEnv extends PropertyController {
 		}
 	}
 	
-	public void createSegment( ServerTransaction transaction , MetaEnvSegment sg ) {
+	public void createSegment( EngineTransaction transaction , MetaEnvSegment sg ) {
 		addSG( sg );
 	}
 	
-	public void deleteSegment( ServerTransaction transaction , MetaEnvSegment sg ) {
+	public void deleteSegment( EngineTransaction transaction , MetaEnvSegment sg ) {
 		int index = originalList.indexOf( sg );
 		if( index < 0 )
 			return;
@@ -315,33 +318,29 @@ public class MetaEnv extends PropertyController {
 		sgMap.remove( sg.NAME );
 	}
 	
-	public void setProperties( ServerTransaction transaction , PropertySet props , boolean system ) throws Exception {
+	public void setProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
 		super.updateProperties( transaction , props , system );
 		scatterProperties( transaction.getAction() );
 	}
 	
-	public void setBaseline( ServerTransaction transaction , String baselineEnv ) throws Exception {
+	public void setBaseline( EngineTransaction transaction , String baselineEnv ) throws Exception {
 		super.setSystemStringProperty( PROPERTY_BASELINE , baselineEnv );
 	}
 	
-	public void setOffline( ServerTransaction transaction , boolean offline ) throws Exception {
+	public void setOffline( EngineTransaction transaction , boolean offline ) throws Exception {
 		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
 	}
 	
-	public boolean isOffline() {
-		return( OFFLINE );
-	}
-
 	public boolean isBroken() {
 		return( super.isLoadFailed() );
 	}
 
-	public void getApplicationReferences( ServerHostAccount account , List<ServerAccountReference> refs ) {
+	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
 		for( MetaEnvSegment sg : originalList )
 			sg.getApplicationReferences( account , refs );
 	}
 
-	public void deleteHostAccount( ServerTransaction transaction , ServerHostAccount account ) throws Exception {
+	public void deleteHostAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
 		for( MetaEnvSegment sg : originalList )
 			sg.deleteHostAccount( transaction , account );
 	}

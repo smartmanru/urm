@@ -3,17 +3,17 @@ package org.urm.action.main;
 import java.util.List;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.common.meta.MainCommandMeta;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.engine.vcs.SubversionVCS;
-import org.urm.meta.engine.ServerDirectory;
-import org.urm.meta.engine.ServerMirrorRepository;
+import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.product.Meta;
 
 public class ActionSave extends ActionBase {
@@ -47,8 +47,8 @@ public class ActionSave extends ActionBase {
 		saveProduct( pf , false );
 		
 		UrmStorage urm = artefactory.getUrmStorage();
-		ServerDirectory directory = actionInit.getServerDirectory();
-		for( String name : directory.getProducts() ) {
+		EngineDirectory directory = actionInit.getServerDirectory();
+		for( String name : directory.getProductNames() ) {
 			info( "save product=" + name + " ..." );
 			
 			LocalFolder folder = urm.getProductHome( this , meta.name );
@@ -64,8 +64,8 @@ public class ActionSave extends ActionBase {
 		List<String> lines = readFileLines( masterPath );
 		FileSet set = pfMaster.getFileSet( this );
 		
-		ServerMirrorRepository mirror = super.getMetaMirror( meta.getStorage( this ) );
-		vcs = GenericVCS.getSvnDirect( this , mirror.getResource( this ) );
+		MirrorRepository mirror = super.getMetaMirror( meta.getStorage() );
+		vcs = GenericVCS.getSvnDirect( this , mirror.RESOURCE_ID );
 		if( vcs.checkVersioned( mirror , pfMaster.folderPath ) ) {
 			List<String> filesNotInSvn = vcs.getFilesNotInSvn( mirror , pfMaster );
 			executeDir( set , lines , filesNotInSvn );
@@ -78,7 +78,7 @@ public class ActionSave extends ActionBase {
 	}
 	
 	private void executeDir( FileSet set , List<String> lines , List<String> filesNotInSvn ) throws Exception {
-		ServerMirrorRepository mirror = super.getServerMirror();
+		MirrorRepository mirror = super.getServerMirror();
 		for( FileSet dir : set.getAllDirs() ) {
 			// check dir in lines
 			boolean dirInLines = false;

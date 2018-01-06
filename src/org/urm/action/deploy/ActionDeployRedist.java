@@ -7,13 +7,13 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
+import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.VersionInfo;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.RedistStorage;
-import org.urm.meta.engine.ServerAuth.SecurityAction;
 
 public class ActionDeployRedist extends ActionBase {
 
@@ -26,7 +26,7 @@ public class ActionDeployRedist extends ActionBase {
 		this.dist = dist;
 	}
 
-	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override protected void runBefore( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		infoAction( "execute sg=" + set.sg.NAME + ", releasedir=" + dist.RELEASEDIR + ", servers={" + set.getScopeInfo( this ) + "} ..." );
 	}
 	
@@ -36,15 +36,15 @@ public class ActionDeployRedist extends ActionBase {
 			return( SCOPESTATE.NotRun );
 		}
 		
-		if( !stopServers( set ) ) {
+		if( !stopServers( state , set ) ) {
 			ifexit( _Error.UnableStopServers0 , "unable to stop servers" , null );
 		}
 		
-		if( !rolloutServers( set ) ) {
+		if( !rolloutServers( state , set ) ) {
 			ifexit( _Error.UnableRolloutRelease0 , "unable to rollout release" , null );
 		}
 	
-		if( !startServers( set ) ) {
+		if( !startServers( state , set ) ) {
 			exit0( _Error.UnableStartAfterSeployment0 , "unable to start servers after deployment" );
 		}
 
@@ -82,19 +82,19 @@ public class ActionDeployRedist extends ActionBase {
 		return( true );
 	}
 
-	private boolean stopServers( ActionScopeSet set ) throws Exception {
+	private boolean stopServers( ScopeState parentState , ActionScopeSet set ) throws Exception {
 		ActionStopEnv ca = new ActionStopEnv( this , null );
-		return( ca.runTargetList( set , affectedTargets , set.sg.env , SecurityAction.ACTION_DEPLOY , false ) );
+		return( ca.runTargetList( parentState , set , affectedTargets , set.sg.env , SecurityAction.ACTION_DEPLOY , false ) );
 	}
 	
-	private boolean rolloutServers( ActionScopeSet set ) throws Exception {
+	private boolean rolloutServers( ScopeState parentState , ActionScopeSet set ) throws Exception {
 		ActionRollout ca = new ActionRollout( this , null , dist );
-		return( ca.runTargetList( set , affectedTargets , set.sg.env , SecurityAction.ACTION_DEPLOY , false ) );
+		return( ca.runTargetList( parentState , set , affectedTargets , set.sg.env , SecurityAction.ACTION_DEPLOY , false ) );
 	}
 	
-	private boolean startServers( ActionScopeSet set ) throws Exception {
+	private boolean startServers( ScopeState parentState , ActionScopeSet set ) throws Exception {
 		ActionStartEnv ca = new ActionStartEnv( this , null );
-		return( ca.runTargetList( set , affectedTargets , set.sg.env , SecurityAction.ACTION_DEPLOY , false ) );
+		return( ca.runTargetList( parentState , set , affectedTargets , set.sg.env , SecurityAction.ACTION_DEPLOY , false ) );
 	}
 	
 }

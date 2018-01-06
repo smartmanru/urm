@@ -4,20 +4,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ScopeState;
-import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.SimpleHttp;
+import org.urm.engine.status.NodeStatus;
+import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ServerStatus;
+import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerDeployment;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringItem;
 import org.urm.meta.product.MetaMonitoringTarget;
 
 public class ActionMonitorCheckItem extends ActionBase {
 
-	public MetaMonitoring mon;
 	MetaMonitoringTarget target;
 	public MetaMonitoringItem item;
 	public MetaEnvServer server;
@@ -25,9 +25,8 @@ public class ActionMonitorCheckItem extends ActionBase {
 	public ServerStatus serverStatus;
 	List<NodeStatus> nodeData;
 	
-	public ActionMonitorCheckItem( ActionBase action , String stream , MetaMonitoring mon , MetaMonitoringTarget target , MetaMonitoringItem item , MetaEnvServer server ) {
+	public ActionMonitorCheckItem( ActionBase action , String stream , MetaMonitoringTarget target , MetaMonitoringItem item , MetaEnvServer server ) {
 		super( action , stream , "Monitoring, check item" );
-		this.mon = mon;
 		this.target = target;
 		this.item = item;
 		this.server = server;
@@ -77,10 +76,10 @@ public class ActionMonitorCheckItem extends ActionBase {
 
 	private void monitorServerItems() throws Exception {
 		int serverIndex = super.logStartCapture();
-		serverStatus = new ServerStatus( this , server );
+		serverStatus = new ServerStatus( server );
 		info( "Run fast server checks, server=" + server.NAME + " ..." );
 		boolean res = monitorServerItems( null );
-		serverStatus.setActionStatus( res );
+		serverStatus.setItemsStatus( res );
 		
 		if( res )
 			info( "Fast server checks successfully finished" );
@@ -90,7 +89,7 @@ public class ActionMonitorCheckItem extends ActionBase {
 		serverStatus.setLog( log );
 		
 		for( MetaEnvServerNode node : server.getNodes() ) {
-			NodeStatus nodeStatus = new NodeStatus( this , node );
+			NodeStatus nodeStatus = new NodeStatus( node );
 			nodeData.add( nodeStatus );
 			
 			int nodeIndex = super.logStartCapture();

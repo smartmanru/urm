@@ -15,6 +15,7 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductSettings;
@@ -49,13 +50,15 @@ public class DatabaseSpecific {
 	}
 
 	public String getAdmUser( ActionBase action ) throws Exception {
-		return( server.admSchema.DBUSER );
+		if( server.admSchema == null )
+			action.exitUnexpectedState();
+		return( server.getSchemaDBUser( server.admSchema ) );
 	}
 	
 	public String getAdmSchema( ActionBase action ) throws Exception {
 		if( server.admSchema == null )
-			return( "" );
-		return( server.admSchema.DBNAME );
+			action.exitUnexpectedState();
+		return( server.getSchemaDBName( server.admSchema ) );
 	}
 	
 	public boolean checkConnect( ActionBase action , String dbschema , String user , String password ) throws Exception {
@@ -422,32 +425,44 @@ public class DatabaseSpecific {
 		List<String> lines = new LinkedList<String>();
 		String name = null;
 		
-		Account account = action.getNodeAccount( node );
-		String DBHOST = ( account.isLocal() )? "localhost" : server.DBMSADDR;
-		MetaProductSettings settings = server.meta.getProductSettings( action );
-		if( action.isLocalLinux() ) {
-			lines.add( "export URMDB_USER=" + user );
-			lines.add( "export URMDB_PWD=" + password );
-			lines.add( "export URMDB_DBHOST=" + DBHOST );
-			lines.add( "export URMDB_DBNAME=" + dbschema );
-			lines.add( "export URMDB_CHARSET=" + settings.charset.name() );
+		addSpecificLine( action , lines , "CONF_DBNAME" , dbschema );
+		addSpecificLine( action , lines , "CONF_USER" , user );
+		addSpecificLine( action , lines , "CONF_PWD" , password );
+		addSpecificConf( action , lines );
+		
+		if( action.isLocalLinux() )
 			name = "urmdb." + key + ".sh"; 
-		}
 		else
-		if( action.isLocalWindows() ) {
-			lines.add( "set URMDB_USER=" + user );
-			lines.add( "set URMDB_PWD=" + password );
-			lines.add( "set URMDB_DBHOST=" + DBHOST );
-			lines.add( "set URMDB_DBNAME=" + dbschema );
-			lines.add( "set URMDB_CHARSET=" + settings.charset.name() );
+		if( action.isLocalWindows() )
 			name = "urmdb." + key + ".cmd"; 
-		}
 		else
 			action.exitUnexpectedState();
 		
 		String file = work.getFilePath( action , name );
 		Common.createFileFromStringList( action.execrc , file , lines );
 		return( file );
+	}
+	
+	public void addSpecificConf( ActionBase action , List<String> lines ) throws Exception {
+		Account account = action.getNodeAccount( node );
+		String DBMSADDR = ( account.isLocal() )? "localhost" : server.DBMSADDR;
+		MetaProductSettings settings = server.meta.getProductSettings( action );
+		addSpecificLine( action , lines , "CONF_DBADDR" , DBMSADDR );
+		if( DBMSADDR.contains( ":" ) ) {
+			addSpecificLine( action , lines , "CONF_DBHOST" , Common.getPartBeforeLast( DBMSADDR , ":" ) );
+			addSpecificLine( action , lines , "CONF_DBPORT" , Common.getPartAfterLast( DBMSADDR , ":" ) );
+		}
+		else
+			addSpecificLine( action , lines , "CONF_DBHOST" , DBMSADDR );
+		
+		addSpecificLine( action , lines , "CONF_CHARSET" , settings.charset.name() );
+	}
+	
+	public void addSpecificLine( ActionBase action , List<String> lines , String var , String value ) {
+		if( action.isLocalLinux() )
+			lines.add( "export " + var + "=" + value );
+		else
+			lines.add( "set " + var + "=" + value );
 	}
 
 	private int runScriptCmd( ActionBase action , String ctxFile , String cmd , String params ) throws Exception {
@@ -481,4 +496,12 @@ public class DatabaseSpecific {
 	public void addComment( ActionBase action , String comment , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 
+	public String getSchemaDBName( MetaDatabaseSchema schema ) {
+		return( server.getSchemaDBName( schema ) );
+	}
+	
+	public String getSchemaDBUser( MetaDatabaseSchema schema ) {
+		return( server.getSchemaDBUser( schema ) );
+	}
+	
 }
