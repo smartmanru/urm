@@ -25,7 +25,9 @@ public class ScopeState extends ObjectState {
 	
 	public enum FACTVALUE {
 		PROCESSMODE ,
-		PROCESSACTION
+		PROCESSACTION ,
+		BASEITEM ,
+		VERSION
 	};
 	
 	public ActionCore action;
@@ -36,6 +38,7 @@ public class ScopeState extends ObjectState {
 	public ActionScopeTarget target;
 	public ActionScopeTargetItem item;
 	public Account account;
+	public ActionScopeTargetItem[] nodes;
 
 	public List<ScopeStateFact> facts;
 	
@@ -52,11 +55,12 @@ public class ScopeState extends ObjectState {
 		create( parent.action );
 	}
 
-	public ScopeState( ScopeState parent , Account account ) {
+	public ScopeState( ScopeState parent , Account account , ActionScopeTargetItem[] nodes ) {
 		super( STATETYPE.TypeAccount , parent , account );
 		this.scope = parent.scope;
 		this.set = parent.set;
 		this.account = account;
+		this.nodes = nodes;
 		create( parent.action );
 	}
 

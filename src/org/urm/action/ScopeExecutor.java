@@ -591,13 +591,15 @@ public class ScopeExecutor implements EngineEventsListener {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			if( runUniqueHosts ) {
-				Account[] hosts = set.getUniqueHosts( action , items );
-				return( runHostListInternal( set , hosts , stateSet ) );
+				Map<Account,ActionScopeTargetItem[]> map = new HashMap<Account,ActionScopeTargetItem[]>();
+				Account[] hosts = set.getUniqueHosts( action , items , map );
+				return( runHostListInternal( set , hosts , map , stateSet ) );
 			}
 			
 			if( runUniqueAccounts ) {
-				Account[] accounts = set.getUniqueAccounts( action , items );
-				return( runAccountListInternal( set , accounts , stateSet ) );
+				Map<Account,ActionScopeTargetItem[]> map = new HashMap<Account,ActionScopeTargetItem[]>();
+				Account[] accounts = set.getUniqueAccounts( action , items , map );
+				return( runAccountListInternal( set , accounts , map , stateSet ) );
 			}
 		}
 		catch( Throwable e ) {
@@ -884,14 +886,15 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( ss );
 	}
 	
-	private SCOPESTATE runHostListInternal( ActionScopeSet set , Account[] hosts , ScopeState stateSet ) {
+	private SCOPESTATE runHostListInternal( ActionScopeSet set , Account[] hosts , Map<Account,ActionScopeTargetItem[]> map , ScopeState stateSet ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			for( Account host : hosts ) {
 				if( !running )
 					break;
 					
-				ScopeState stateAccount = new ScopeState( stateSet , host );
+				ActionScopeTargetItem[] items = map.get( host );
+				ScopeState stateAccount = new ScopeState( stateSet , host , items );
 				SCOPESTATE ssAccount = runSingleHostInternal( set , host.HOST , host.PORT , host.osType , stateAccount );
 				ss = addChildState( ss , ssAccount );
 				
@@ -929,14 +932,15 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( ss );
 	}
 
-	private SCOPESTATE runAccountListInternal( ActionScopeSet set , Account[] accounts , ScopeState stateSet ) {
+	private SCOPESTATE runAccountListInternal( ActionScopeSet set , Account[] accounts , Map<Account,ActionScopeTargetItem[]> map , ScopeState stateSet ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			for( Account account : accounts ) {
 				if( !running )
 					break;
 					
-				ScopeState stateAccount = new ScopeState( stateSet , account );
+				ActionScopeTargetItem[] items = map.get( account );
+				ScopeState stateAccount = new ScopeState( stateSet , account , items );
 				SCOPESTATE ssAccount = runSingleAccountInternal( set , account , stateAccount );
 				ss = addChildState( ss , ssAccount );
 				

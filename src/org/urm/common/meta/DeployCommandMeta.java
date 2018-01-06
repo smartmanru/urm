@@ -40,6 +40,10 @@ public class DeployCommandMeta extends CommandMeta {
 	public static String NAME = "deploy";
 	public static String DESC = "manage environments and deploy releases";
 	
+	public static String BASEOPS_LIST = "list";
+	public static String BASEOPS_INSTALL = "install";
+	public static String BASEOPS_CLEAR = "clear";
+	
 	public DeployCommandMeta( OptionsMeta options ) {
 		super( options , NAME , DESC );
 		

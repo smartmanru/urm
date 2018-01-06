@@ -16,7 +16,6 @@ import org.urm.engine.shell.Account;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaEnvStartGroup;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
@@ -194,36 +193,69 @@ public class ActionScopeSet {
 		return( target );
 	}
 	
-	public Account[] getUniqueHosts( ActionBase action , ActionScopeTarget[] targets ) throws Exception {
-		Map<String,Account> map = new HashMap<String,Account>(); 
+	public Account[] getUniqueHosts( ActionBase action , ActionScopeTarget[] targets , Map<Account,ActionScopeTargetItem[]> data ) throws Exception {
+		Map<String,Account> map = new HashMap<String,Account>();
+		Map<String,List<ActionScopeTargetItem>> items = new HashMap<String,List<ActionScopeTargetItem>>();
 		for( ActionScopeTarget target : targets ) {
 			for( ActionScopeTargetItem item : target.getItems( action ) ) {
 				Account account = action.getNodeAccount( item.envServerNode );
-				map.put( account.HOST , action.getNodeAccount( item.envServerNode ) );
+				map.put( account.HOST , account );
+				
+				List<ActionScopeTargetItem> list = items.get( account.HOST );
+				if( list == null ) {
+					list = new LinkedList<ActionScopeTargetItem>();
+					items.put( account.HOST , list );
+				}
+				
+				list.add( item );
 			}
 		}
 		
 		String[] keys = Common.getSortedKeys( map );
 		Account[] accounts = new Account[ keys.length ];
 		
-		for( int k = 0; k < keys.length; k++ )
-			accounts[ k ] = map.get( keys[ k ] );
+		for( int k = 0; k < keys.length; k++ ) {
+			Account account = map.get( keys[ k ] );
+			accounts[ k ] = account;
+			
+			List<ActionScopeTargetItem> list = items.get( account.HOST );
+			data.put( account , list.toArray( new ActionScopeTargetItem[0] ) );
+		}
 		
 		return( accounts );
 	}
 	
-	public Account[] getUniqueAccounts( ActionBase action , ActionScopeTarget[] targets ) throws Exception {
-		Map<String,MetaEnvServerNode> map = new HashMap<String,MetaEnvServerNode>(); 
+	public Account[] getUniqueAccounts( ActionBase action , ActionScopeTarget[] targets , Map<Account,ActionScopeTargetItem[]> data ) throws Exception {
+		Map<String,Account> map = new HashMap<String,Account>();
+		Map<String,List<ActionScopeTargetItem>> items = new HashMap<String,List<ActionScopeTargetItem>>();
 		for( ActionScopeTarget target : targets ) {
-			for( ActionScopeTargetItem item : target.getItems( action ) )
-				map.put( item.envServerNode.HOSTLOGIN , item.envServerNode );
+			for( ActionScopeTargetItem item : target.getItems( action ) ) {
+				Account account = action.getNodeAccount( item.envServerNode );
+				String hostLogin = account.getHostLogin();
+				map.put( hostLogin , account );
+				
+				List<ActionScopeTargetItem> list = items.get( hostLogin );
+				if( list == null ) {
+					list = new LinkedList<ActionScopeTargetItem>();
+					items.put( hostLogin , list );
+				}
+				
+				list.add( item );
+			}
 		}
 		
-		String[] hostLogins = Common.getSortedKeys( map );
-		Account[] accounts = new Account[ hostLogins.length ];
+		String[] keys = Common.getSortedKeys( map );
+		Account[] accounts = new Account[ keys.length ];
 		
-		for( int k = 0; k < hostLogins.length; k++ )
-			accounts[ k ] = action.getNodeAccount( map.get( hostLogins[ k ] ) );
+		for( int k = 0; k < keys.length; k++ ) {
+			Account account = map.get( keys[ k ] );
+			accounts[ k ] = account;
+			
+			String hostLogin = account.getHostLogin();
+			List<ActionScopeTargetItem> list = items.get( hostLogin );
+			data.put( account , list.toArray( new ActionScopeTargetItem[0] ) );
+		}
+		
 		return( accounts );
 	}
 
