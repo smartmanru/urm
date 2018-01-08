@@ -67,25 +67,27 @@ public class ServerProcess {
 		return( srv.isPacemaker() );
 	}
 
-	public void gatherStatus( ActionBase action ) throws Exception {
+	public boolean gatherStatus( ActionBase action ) throws Exception {
 		action.debug( node.HOSTLOGIN + ": check status srv=" + srv.NAME + " ..." );
 		
 		mode = VarPROCESSMODE.UNKNOWN;
+		boolean res = false;
 		if( isService( action ) )
-			gatherServiceStatus( action );
+			res = gatherServiceStatus( action );
 		else
 		if( isPacemaker( action ) )
-			gatherPacemakerStatus( action );
+			res = gatherPacemakerStatus( action );
 		else
 		if( isDocker( action ) )
-			gatherDockerStatus( action );
+			res = gatherDockerStatus( action );
 		else
 		if( isGeneric( action ) )
-			gatherGenericStatus( action );
+			res = gatherGenericStatus( action );
 		else
 			action.exitUnexpectedState();
 		
 		state.addFact( Facts.PROCESSSTATE , FACTVALUE.PROCESSMODE , mode.name() );
+		return( res );
 	}
 
 	public boolean isStarted( ActionBase action ) throws Exception {
@@ -131,29 +133,30 @@ public class ServerProcess {
 		}
 		catch( Throwable e ) {
 			mode = VarPROCESSMODE.UNREACHABLE;
+			action.error( node.HOSTLOGIN + ": account is unreachable" );
 			return( null );
 		}
 	}
 	
-	private void gatherPacemakerStatus( ActionBase action ) throws Exception {
+	private boolean gatherPacemakerStatus( ActionBase action ) throws Exception {
 		if( !srv.isLinux() )
 			action.exitNotImplemented();
 		
 		ShellExecutor shell = getShell( action );
 		if( shell == null )
-			return;
+			return( false );
 		
 		try {
 			cmdValue = shell.customGetValue( action , "crm_resource -W -r " + srv.SYSNAME + " 2>&1 | grep `hostname`" );
 			String check = cmdValue.toUpperCase();
 			if( isStoppedStatus( action , check ) ) {
 				mode = VarPROCESSMODE.STOPPED;
-				return;
+				return( true );
 			}
 			
 			if( isStartedStatus( action , check ) ) {
 				mode = VarPROCESSMODE.STARTED;
-				return;
+				return( true );
 			}
 			
 			if( check.indexOf( "not found" ) >= 0 )
@@ -164,15 +167,17 @@ public class ServerProcess {
 		finally {
 			shell.release( action );
 		}
+		
+		return( true );
 	}
 	
-	private void gatherDockerStatus( ActionBase action ) throws Exception {
+	private boolean gatherDockerStatus( ActionBase action ) throws Exception {
 		if( !srv.isLinux() )
 			action.exitNotImplemented();
 		
 		ShellExecutor shell = getShell( action );
 		if( shell == null )
-			return;
+			return( false );
 		
 		try {
 			cmdValue = shell.customGetValue( action , "docker inspect " + srv.SYSNAME + " | grep Status" );
@@ -180,7 +185,7 @@ public class ServerProcess {
 			if( !cmdValue.startsWith( Common.getQuoted( "Status" ) + ":" ) ) {
 				mode = VarPROCESSMODE.ERRORS;
 				action.error( "unknown docker resource: " + srv.SYSNAME );
-				return;
+				return( true );
 			}
 			
 			String check = Common.getListItem( cmdValue , ":" , 1 );
@@ -189,12 +194,12 @@ public class ServerProcess {
 			
 			if( isStoppedStatus( action , check ) ) {
 				mode = VarPROCESSMODE.STOPPED;
-				return;
+				return( true );
 			}
 			
 			if( isStartedStatus( action , check ) ) {
 				mode = VarPROCESSMODE.STARTED;
-				return;
+				return( true );
 			}
 			
 			if( check.indexOf( "not found" ) >= 0 )
@@ -205,12 +210,14 @@ public class ServerProcess {
 		finally {
 			shell.release( action );
 		}
+		
+		return( true );
 	}
 	
-	private void gatherServiceStatus( ActionBase action ) throws Exception {
+	private boolean gatherServiceStatus( ActionBase action ) throws Exception {
 		ShellExecutor shell = getShell( action );
 		if( shell == null )
-			return;
+			return( false );
 		
 		// linux operations
 		try {
@@ -221,30 +228,30 @@ public class ServerProcess {
 				if( isStoppedStatus( action , check ) ) {
 					mode = VarPROCESSMODE.STOPPED;
 					state.addFact( mode );
-					return;
+					return( true );
 				}
 				
 				if( isStartedStatus( action , check ) ) {
 					mode = VarPROCESSMODE.STARTED;
 					state.addFact( mode );
-					return;
+					return( true );
 				}
 		
 				if( isStartingStatus( action , check ) ) {
 					mode = VarPROCESSMODE.STARTING;
 					state.addFact( mode );
-					return;
+					return( true );
 				}
 				
 				mode = VarPROCESSMODE.ERRORS;
 				state.addFact( mode );
-				return;
+				return( true );
 			}
 			
 			// windows operations
 			if( srv.isWindows() ) {
 				action.exitNotImplemented();
-				return;
+				return( false );
 			}
 			
 			action.exitUnexpectedState();
@@ -252,25 +259,28 @@ public class ServerProcess {
 		finally {
 			shell.release( action );
 		}
+		
+		return( false );
 	}
 
-	private void gatherGenericStatus( ActionBase action ) throws Exception {
+	private boolean gatherGenericStatus( ActionBase action ) throws Exception {
 		mode = VarPROCESSMODE.UNKNOWN;
 		
 		if( !srv.NOPIDS ) {
-			getPids( action );
+			if( !getPids( action ) )
+				return( false );
 			
 			if( pids.isEmpty() ) {
 				if( mode == VarPROCESSMODE.UNKNOWN )
 					mode = VarPROCESSMODE.STOPPED;
-				return;
+				return( true );
 			}
 		}
 
 		// check process status
 		ShellExecutor shell = getShell( action );
 		if( shell == null )
-			return;
+			return( false );
 		
 		try {
 			if( srv.isLinux() )
@@ -288,31 +298,32 @@ public class ServerProcess {
 		String check = cmdValue.toUpperCase();
 		if( isStartingStatus( action , check ) ) {
 			mode = VarPROCESSMODE.STARTING;
-			return;
+			return( true );
 		}
 		
 		if( srv.NOPIDS ) {
 			if( isStoppedStatus( action , check  ) ) {
 				mode = VarPROCESSMODE.STOPPED;
-				return;
+				return( true );
 			}
 		}
 		
 		if( isStartedStatus( action , check ) ) {
 			mode = VarPROCESSMODE.STARTED;
-			return;
+			return( true );
 		}
 		
 		mode = VarPROCESSMODE.ERRORS;
+		return( true );
 	}
 
-	private void getPids( ActionBase action ) throws Exception {
+	private boolean getPids( ActionBase action ) throws Exception {
 		pids = "";
 		
 		// find program process
 		ShellExecutor shell = getShell( action );
 		if( shell == null )
-			return;
+			return( false );
 		
 		try {
 			// linux operations
@@ -320,13 +331,13 @@ public class ServerProcess {
 				String value = shell.customGetValue( action , "pgrep -f \"Dprogram.name=" + srv.NAME + " \"" );
 				if( !value.isEmpty() )
 					pids = value.replace( '\n' ,  ' ' );
-				return;
+				return( true );
 			}
 			
 			// windows operations
 			if( srv.isWindows() ) {
 				action.exitNotImplemented();
-				return;
+				return( false );
 			}
 			
 			action.exitUnexpectedState();
@@ -334,6 +345,8 @@ public class ServerProcess {
 		finally {
 			shell.release( action );
 		}
+		
+		return( false );
 	}
 
 	public boolean stop( ActionBase action ) throws Exception {
@@ -361,7 +374,8 @@ public class ServerProcess {
 			action.exitNotImplemented();
 			
 		// check status
-		gatherStatus( action );
+		if( !gatherStatus( action ) )
+			return( false );
 
 		if( mode == VarPROCESSMODE.STOPPED ) {
 			action.debug( node.HOSTLOGIN + ": pacemaker resource=" + srv.SYSNAME + " already stopped" );
@@ -385,7 +399,8 @@ public class ServerProcess {
 			action.exitNotImplemented();
 			
 		// check status
-		gatherStatus( action );
+		if( !gatherStatus( action ) )
+			return( false );
 
 		if( mode == VarPROCESSMODE.STOPPED ) {
 			action.debug( node.HOSTLOGIN + ": docker resource=" + srv.SYSNAME + " already stopped" );
@@ -406,7 +421,8 @@ public class ServerProcess {
 	
 	private boolean stopService( ActionBase action ) throws Exception {
 		// check status
-		gatherStatus( action );
+		if( !gatherStatus( action ) )
+			return( false );
 
 		if( mode == VarPROCESSMODE.STOPPED ) {
 			action.debug( node.HOSTLOGIN + ": service=" + srv.SYSNAME + " already stopped" );
@@ -440,7 +456,9 @@ public class ServerProcess {
 	private boolean stopGeneric( ActionBase action ) throws Exception {
 		// check status
 		if( srv.NOPIDS ) {
-			gatherStatus( action );
+			if( !gatherStatus( action ) )
+				return( false );
+			
 			if( mode == VarPROCESSMODE.STOPPED ) {
 				action.debug( node.HOSTLOGIN + ": server already stopped" );
 				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
@@ -448,7 +466,9 @@ public class ServerProcess {
 			}
 		}
 		else {
-			getPids( action );
+			if( !getPids( action ) )
+				return( false );
+			
 			if( pids.isEmpty() ) {
 				action.debug( node.HOSTLOGIN + ": server already stopped" );
 				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
@@ -530,7 +550,8 @@ public class ServerProcess {
 		long stopMillis = startMillis + stoptime * 1000;
 		
 		mode = VarPROCESSMODE.UNKNOWN;
-		getPids( action );
+		if( !getPids( action ) )
+			return( false );
 		
 		while( true ) {
 			if( pids.isEmpty() )
@@ -585,7 +606,9 @@ public class ServerProcess {
 			}
 						
 			// check stopped
-			gatherStatus( action );
+			if( !gatherStatus( action ) )
+				return( false );
+			
 		    synchronized( this ) {
 		    	Thread.sleep( 1000 );
 		    }
@@ -645,7 +668,8 @@ public class ServerProcess {
 			action.exitNotImplemented();
 			
 		// check status
-		gatherStatus( action );
+		if( !gatherStatus( action ) )
+			return( false );
 
 		if( mode == VarPROCESSMODE.STARTED ) {
 			action.debug( node.HOSTLOGIN + ": pacemaker resource=" + srv.SYSNAME + " already started" );
@@ -675,7 +699,8 @@ public class ServerProcess {
 			action.exitNotImplemented();
 			
 		// check status
-		gatherStatus( action );
+		if( !gatherStatus( action ) )
+			return( false );
 
 		if( mode == VarPROCESSMODE.STARTED ) {
 			action.debug( node.HOSTLOGIN + ": docker resource=" + srv.SYSNAME + " already started" );
@@ -702,7 +727,8 @@ public class ServerProcess {
 	
 	private boolean startService( ActionBase action ) throws Exception {
 		// check status
-		gatherStatus( action );
+		if( !gatherStatus( action ) )
+			return( false );
 
 		if( mode == VarPROCESSMODE.STARTED ) {
 			action.debug( node.HOSTLOGIN + ": service=" + srv.SYSNAME + " already started" );
@@ -741,7 +767,8 @@ public class ServerProcess {
 	
 	private boolean startGeneric( ActionBase action ) throws Exception {
 		// check status
-		gatherStatus( action );
+		if( !gatherStatus( action ) )
+			return( false );
 
 		if( mode == VarPROCESSMODE.STARTED ) {
 			action.debug( node.HOSTLOGIN + ": server=" + srv.NAME + " already started (pids=" + pids + ")" );
@@ -830,7 +857,9 @@ public class ServerProcess {
 		long stopMillis = startMillis + starttime * 1000;
 		long startTimeoutMillis = startMillis + defaultStartProcessTimeSecs * 1000;
 				
-		gatherStatus( action );
+		if( !gatherStatus( action ) )
+			return( false );
+		
 		while( mode != VarPROCESSMODE.STARTED ) {
 			Common.sleep( 1000 );
 		    
@@ -853,7 +882,8 @@ public class ServerProcess {
 			}
 			
 			// check stopped
-			gatherStatus( action );
+			if( !gatherStatus( action ) )
+				return( false );
 		}
 
 		action.info( node.HOSTLOGIN + " " + title + " successfully started" );
