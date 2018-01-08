@@ -20,6 +20,8 @@ import com.jcraft.jsch.Session;
 
 public class ShellJssh {
 
+	public static int CONNECT_TIMEOUT = 5000;
+	
 	ShellProcess process;
 	boolean interactive;
 	Account account;
@@ -112,7 +114,7 @@ public class ShellJssh {
 		jsession.setConfig( "StrictHostKeyChecking" , "no" );
 		
 		try {
-			jsession.connect( 30000 );
+			jsession.connect( CONNECT_TIMEOUT );
 		}
 		catch( Throwable e ) {
 			action.log( "ssh connect" , e );
