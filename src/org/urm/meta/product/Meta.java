@@ -8,7 +8,6 @@ import org.urm.common.ConfReader;
 import org.urm.engine.EngineSession;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.dist.DistRepository;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.Types.*;
@@ -83,12 +82,6 @@ public class Meta extends EngineObject {
 		session.addProductMeta( this );
 	}
 
-	public boolean isCorrect() {
-		if( storage.loadFailed )
-			return( false );
-		return( true );
-	}
-	
 	private static String createConfigurableExtensions() {
 		String configurableExtensionsFindOptions = "";
 		for( int k = 0; k < configurableExtensions.length; k++ ) {
@@ -144,7 +137,7 @@ public class Meta extends EngineObject {
 	
 	public synchronized MetaProductSettings getProductSettings( ActionBase action ) throws Exception {
 		if( product == null )
-			product = storage.getProductSettings();
+			product = storage.getSettings();
 		return( product );
 	}
 	
@@ -184,9 +177,8 @@ public class Meta extends EngineObject {
 		return( monitoring );
 	}
 	
-	public synchronized MetaDesignDiagram getDesignData( ActionBase action , String fileName ) throws Exception {
-		EngineLoader loader = action.engine.createLoader();
-		return( products.loadDesignData( loader , storage , fileName ) );
+	public synchronized MetaDesignDiagram getDesignData( ActionBase action , String diagramName ) throws Exception {
+		return( storage.findDiagram( diagramName ) );
 	}
 	
 	public String[] getEnvNames() {

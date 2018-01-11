@@ -191,10 +191,6 @@ public class EngineData {
 		monitoring = monitoringNew;
 	}
 
-	public void saveProductMetadata( EngineLoader loader , String productName ) throws Exception {
-		products.saveProductMetadata( loader , productName );
-	}
-	
 	public void setProductMetadata( TransactionBase transaction , ProductMeta storageNew ) throws Exception {
 		products.setProductMetadata( transaction , storageNew );
 	}

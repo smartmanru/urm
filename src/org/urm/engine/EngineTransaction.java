@@ -674,19 +674,19 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void setProductProperties( Meta meta , PropertySet props , boolean system ) throws Exception {
 		ProductMeta metadata = getTransactionProductMetadata( meta );
-		MetaProductSettings settings = metadata.getProductSettings();
+		MetaProductSettings settings = metadata.getSettings();
 		settings.setProperties( this , props , system );
 	}
 	
 	public void setProductBuildCommonProperties( Meta meta , PropertySet props ) throws Exception {
 		ProductMeta metadata = getTransactionProductMetadata( meta );
-		MetaProductSettings settings = metadata.getProductSettings();
+		MetaProductSettings settings = metadata.getSettings();
 		settings.setBuildCommonProperties( this , props );
 	}
 	
 	public void setProductBuildModeProperties( Meta meta , DBEnumBuildModeType mode , PropertySet props ) throws Exception {
 		ProductMeta metadata = getTransactionProductMetadata( meta );
-		MetaProductSettings settings = metadata.getProductSettings();
+		MetaProductSettings settings = metadata.getSettings();
 		settings.setBuildModeProperties( this , mode , props );
 	}
 
@@ -926,7 +926,7 @@ public class EngineTransaction extends TransactionBase {
 		MetaProductSettings settings = meta.getProductSettings( action );
 		MetaEnv env = new MetaEnv( metadata , settings , metadata.meta );
 		env.createEnv( action , name , envType );
-		metadata.addEnv( this , env );
+		metadata.addEnv( env );
 		return( env );
 	}
 	

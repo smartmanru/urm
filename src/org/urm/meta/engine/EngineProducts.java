@@ -4,29 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
-import org.urm.db.EngineDB;
-import org.urm.db.engine.DBEngineDirectory;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.PropertySet;
-import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductMeta;
 import org.urm.meta._Error;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaDatabase;
-import org.urm.meta.product.MetaDesignDiagram;
-import org.urm.meta.product.MetaDistr;
-import org.urm.meta.product.MetaDocs;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaMonitoring;
-import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.product.MetaProductVersion;
-import org.urm.meta.product.MetaSource;
-import org.urm.meta.product.MetaUnits;
 
 public class EngineProducts {
 
@@ -40,11 +25,19 @@ public class EngineProducts {
 		productMeta = new HashMap<String,ProductMeta>();
 	}
 	
+	public ProductMeta createPrimaryMeta( String name ) {
+		ProductMeta set = new ProductMeta( this , name );
+		set.setPrimary( true );
+		return( set );
+	}
+	
+	public void addProduct( ProductMeta set ) {
+		productMeta.put( set.name , set );
+	}
+	
 	public synchronized boolean isProductBroken( String productName ) {
 		ProductMeta storage = productMeta.get( productName );
 		if( storage == null )
-			return( true );
-		if( storage.loadFailed )
 			return( true );
 		return( false );
 	}
@@ -126,49 +119,13 @@ public class EngineProducts {
 		return( storage );
 	}
 
-	private boolean addProduct( EngineLoader loader , ProductMeta set ) {
-		EngineDirectory directory = loader.getDirectory();
-		AppProduct product = directory.findProduct( set.name );
-		
-		if( !DBEngineDirectory.matchProduct( loader , directory , product , set , false ) ) {
-			loader.trace( "match failed for product=" + product.NAME );
-			set.meta.deleteObject();
-			set.deleteObject();
-			return( false );
-		}
-		
-		productMeta.put( set.name , set );
-		return( true );
-	}
-
-	private ProductMeta loadProduct( EngineLoader loader , String name , boolean importxml ) {
-		ProductMeta set = new ProductMeta( this , name );
-		set.setPrimary( true );
-		
-		ActionBase action = loader.getAction();
-		try {
-			MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
-			LocalFolder folder = storageMeta.getMetaFolder( action );
-			if( folder.checkExists( action ) )
-				set.loadAll( loader , storageMeta , importxml );
-			else
-				set.setLoadFailed( action , "metadata folder is missing, product=" + name );
-		}
-		catch( Throwable e ) {
-			action.handle( e );
-			action.error( "unable to load metadata, product=" + name );
-		}
-		
-		return( set );
-	}
-	
 	public void unloadProducts() {
 		for( ProductMeta storage : productMeta.values() )
 			unloadProduct( storage );
 		productMeta.clear();
 	}
 	
-	private void unloadProduct( ProductMeta storage ) {
+	public void unloadProduct( ProductMeta storage ) {
 		storage.setPrimary( false );
 		if( !storage.isReferencedBySessions() ) {
 			storage.meta.deleteObject();
@@ -183,46 +140,15 @@ public class EngineProducts {
 		props.resolveRawProperties();
 	}
 
-	public void importProduct( EngineLoader loader , String productName , boolean includingEnvironments ) throws Exception {
-		engine.trace( "reload settings, product=" + productName + " ..." );
-		
-		EngineDB db = loader.getDatabase();
-		db.clearProduct( productName );
-		
-		ProductMeta storageNew = loadProduct( loader , productName , true );
-		if( storageNew == null )
-			return;
-		
-		synchronized( this ) {
-			ProductMeta storage = productMeta.get( productName );
-			if( storage != null )
-				unloadProduct( storage );
-			
-			if( !addProduct( loader , storageNew ) )
-				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + productName , productName );
-		}
-	}
-	
 	public ProductMeta createProductMetadata( TransactionBase transaction , EngineSettings settings , AppProduct product ) throws Exception {
 		ProductMeta set = new ProductMeta( this , product.NAME );
 		set.createInitial( transaction , settings , product );
 		return( set );
 	}
 
-	public void saveProductMetadata( EngineLoader loader , String productName ) throws Exception {
-		ActionBase action = loader.getAction();
-		ProductMeta storage = productMeta.get( productName );
-		if( storage == null || storage.loadFailed )
-			action.exitUnexpectedState();
-
-		MetadataStorage ms = action.artefactory.getMetadataStorage( action , storage.meta );
-		storage.saveAll( action , ms );
-	}
-	
 	public void setProductMetadata( TransactionBase transaction , ProductMeta storageNew ) throws Exception {
-		ActionBase action = transaction.getAction();
-		MetadataStorage ms = action.artefactory.getMetadataStorage( action , storageNew.meta );
-		storageNew.saveAll( action , ms );
+		EngineLoader loader = engine.createLoader();
+		loader.saveProductMetadata( storageNew );
 		
 		ProductMeta storageOld = productMeta.get( storageNew.name );
 		if( storageOld != null )
@@ -233,78 +159,6 @@ public class EngineProducts {
 	
 	public void deleteProductMetadata( TransactionBase transaction , ProductMeta storage ) throws Exception {
 		productMeta.remove( storage.name );
-	}
-
-	public void loadProducts( EngineLoader loader ) {
-		unloadProducts();
-		EngineDirectory directory = loader.getDirectory();
-		for( String name : directory.getAllProductNames( null ) ) {
-			ProductMeta product = loadProduct( loader , name , false );
-			addProduct( loader , product );
-		}
-	}
-
-	public MetaProductVersion loadVersion( EngineLoader loader , ProductMeta storageFinal ) throws Exception {
-		ActionBase action = loader.getAction();
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
-		return( storageFinal.loadVersion( loader , storageMeta ) );
-	}
-
-	public MetaProductSettings loadProduct( EngineLoader loader , ProductMeta storageFinal ) throws Exception {
-		ActionBase action = loader.getAction();
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
-		return( storageFinal.loadProduct( loader , storageMeta ) );
-	}
-
-	public MetaDocs loadDocs( EngineLoader loader , ProductMeta storageFinal ) throws Exception {
-		ActionBase action = loader.getAction();
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
-		return( storageFinal.loadDocs( loader , storageMeta ) );
-	}
-	
-	public MetaDistr loadDistr( EngineLoader loader , ProductMeta storageFinal ) throws Exception {
-		ActionBase action = loader.getAction();
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
-		return( storageFinal.loadDistr( loader , storageMeta ) );
-	}
-	
-	public MetaUnits loadUnits( EngineLoader loader , ProductMeta storageFinal ) throws Exception {
-		ActionBase action = loader.getAction();
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
-		return( storageFinal.loadUnits( loader , storageMeta ) );
-	}
-	
-	public MetaDatabase loadDatabase( EngineLoader loader , ProductMeta storageFinal ) throws Exception {
-		ActionBase action = loader.getAction();
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
-		return( storageFinal.loadDatabase( loader , storageMeta ) );
-	}
-	
-	public MetaSource loadSources( EngineLoader loader , ProductMeta storageFinal ) throws Exception {
-		ActionBase action = loader.getAction();
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
-		return( storageFinal.loadSources( loader , storageMeta ) );
-	}
-	
-	public MetaMonitoring loadMonitoring( EngineLoader loader , ProductMeta storageFinal ) throws Exception {
-		ActionBase action = loader.getAction();
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
-		return( storageFinal.loadMonitoring( loader , storageMeta ) );
-	}
-
-	public MetaEnv loadEnvData( EngineLoader loader , ProductMeta storageFinal , String envFile , boolean loadProps ) throws Exception {
-		ActionBase action = loader.getAction();
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
-		MetaEnv env = storageFinal.loadEnvData( loader , storageMeta , envFile );
-		if( loadProps && env.missingSecretProperties )
-			action.exit0( _Error.MissingSecretProperties0 , "operation is unavailable - secret properties are missing" );
-		return( env );
-	}
-	
-	public MetaDesignDiagram loadDesignData( EngineLoader loader , ProductMeta storageFinal , String fileName ) throws Exception {
-		ActionBase action = loader.getAction();
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
-		return( storageFinal.loadDesignData( loader , storageMeta , fileName ) );
 	}
 
 }

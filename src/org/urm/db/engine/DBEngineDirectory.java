@@ -195,9 +195,6 @@ public abstract class DBEngineDirectory {
 			return( false );
 		
 		// product meta
-		if( set.loadFailed )
-			return( false );
-
 		try {
 			matcher.prepareMatchProduct( product , false , false );
 			DBAppProduct.match( loader , directory , product );

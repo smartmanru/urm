@@ -62,5 +62,17 @@ public class _Error {
 	public static final int MissingTicketType0 = ErrorBase + 106;
 	public static final int InvalidPackageExtension1 = ErrorBase + 107;
 	public static final int MissingPackageExtension0 = ErrorBase + 108;
+	public static final int UnableLoadProductVersion1 = ErrorBase + 109;
+	public static final int UnableLoadProductSettings1 = ErrorBase + 110;
+	public static final int UnableLoadProductUnits1 = ErrorBase + 111;
+	public static final int UnableLoadProductDatabase1 = ErrorBase + 112;
+	public static final int UnableLoadProductSources1 = ErrorBase + 113;
+	public static final int UnableLoadProductDocs1 = ErrorBase + 114;
+	public static final int UnableLoadProductDistr1 = ErrorBase + 115;
+	public static final int UnableLoadProductMonitoring1 = ErrorBase + 116;
+	public static final int UnableLoadProductEnvironment2 = ErrorBase + 117;
+	public static final int UnableLoadProductDiagram2 = ErrorBase + 118;
+	public static final int UnableLoadProductMeta1 = ErrorBase + 119;
+	public static final int UnableLoadProductReleases1 = ErrorBase + 120;
 
 }

@@ -249,7 +249,7 @@ public class EngineStatus extends EngineObject {
 	}
 	
 	private void startProduct( ActionBase action , AppProduct product , ProductMeta storage ) {
-		if( storage == null || storage.loadFailed ) {
+		if( storage == null ) {
 			action.trace( "ignore status for non-healthy product=" + product.NAME );
 			return;
 		}
