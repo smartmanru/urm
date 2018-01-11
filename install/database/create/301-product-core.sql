@@ -1,4 +1,4 @@
-﻿
+
 CREATE TABLE main.urm_product_meta (
                 meta_id INTEGER NOT NULL,
                 product_id INTEGER NOT NULL,

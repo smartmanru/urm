@@ -11,7 +11,8 @@ public class DBUpgrade {
 			new DBUpgradeSet[] {
 				new DBUpgradeSet_102() ,
 				new DBUpgradeSet_103() ,
-				new DBUpgradeSet_104()
+				new DBUpgradeSet_104() ,
+				new DBUpgradeSet_110()
 				} );
 	};
 	
@@ -64,5 +65,5 @@ public class DBUpgrade {
 			return( false );
 		}
 	}
-	
+
 }

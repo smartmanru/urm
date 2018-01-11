@@ -11,7 +11,7 @@ import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaDesign;
+import org.urm.meta.product.MetaDesignDiagram;
 import org.urm.meta.product.MetaDesignElement;
 import org.urm.meta.product.MetaDesignLink;
 import org.urm.meta.product.MetaEnv;
@@ -37,7 +37,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		
 		MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
 		for( String designFile : ms.getDesignFiles( this ) ) {
-			MetaDesign design = meta.getDesignData( this , designFile );
+			MetaDesignDiagram design = meta.getDesignData( this , designFile );
 			
 			String designBase = Common.getPath( OUTDIR , Common.getPartBeforeLast( designFile , ".xml" ) );
 			createDesignDocs( design , designBase );
@@ -46,7 +46,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 		
-	private void createDesignDocs( MetaDesign design , String designBase ) throws Exception {
+	private void createDesignDocs( MetaDesignDiagram design , String designBase ) throws Exception {
 		verifyConfiguration( design );
 		
 		String dotFile = designBase + ".dot";
@@ -85,7 +85,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		}
 	}
 	
-	private void verifyConfiguration( MetaDesign design ) throws Exception {
+	private void verifyConfiguration( MetaDesignDiagram design ) throws Exception {
 		Map<String,List<MetaEnvServer>> designServers = new HashMap<String,List<MetaEnvServer>>();
 		
 		// verify all design servers are mentioned in prod environment
@@ -109,7 +109,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		}
 	}
 
-	private void createDot( MetaDesign design , String fileName ) throws Exception {
+	private void createDot( MetaDesignDiagram design , String fileName ) throws Exception {
 		List<String> lines = new LinkedList<String>();
 		
 		createDotHeading( lines );

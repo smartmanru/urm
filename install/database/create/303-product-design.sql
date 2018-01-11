@@ -1,4 +1,4 @@
-﻿
+
 CREATE TABLE main.urm_design_diagram (
                 diagram_id INTEGER NOT NULL,
                 meta_id INTEGER NOT NULL,

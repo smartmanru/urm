@@ -184,7 +184,7 @@ public class Meta extends EngineObject {
 		return( monitoring );
 	}
 	
-	public synchronized MetaDesign getDesignData( ActionBase action , String fileName ) throws Exception {
+	public synchronized MetaDesignDiagram getDesignData( ActionBase action , String fileName ) throws Exception {
 		EngineLoader loader = action.engine.createLoader();
 		return( products.loadDesignData( loader , storage , fileName ) );
 	}

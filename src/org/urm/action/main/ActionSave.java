@@ -29,7 +29,7 @@ public class ActionSave extends ActionBase {
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder pf = urm.getInstallFolder( this );
+		LocalFolder pf = urm.getServerFolder( this );
 		LocalFolder pfProducts = urm.getServerProductsFolder( this );
 		if( pfProducts.checkExists( this ) ) {
 			context.session.setServerLayout( context.options );

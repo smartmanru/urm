@@ -863,7 +863,9 @@ public class Common {
 		int length = s.length();
 		int indexFrom = 0;
 		for( ; indexFrom < length; indexFrom++ ) {
-			if( s.charAt( indexFrom ) != trimChar )
+			char x = s.charAt( indexFrom );
+			int v = Character.getNumericValue( x );
+			if( x != trimChar )
 				break;
 		}
 		
@@ -872,7 +874,7 @@ public class Common {
 		
 		int indexTo = length - 1;
 		for( ; indexTo > 0; indexTo-- ) {
-			if( s.charAt( indexFrom ) != trimChar )
+			if( s.charAt( indexTo ) != trimChar )
 				break;
 		}
 		

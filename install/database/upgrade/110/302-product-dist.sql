@@ -1,4 +1,4 @@
-﻿
+
 CREATE TABLE main.urm_dist_comp (
                 comp_id INTEGER NOT NULL,
                 meta_id INTEGER NOT NULL,

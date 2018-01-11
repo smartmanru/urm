@@ -12,7 +12,7 @@ import org.w3c.dom.Node;
 public class MetaDesignLink {
 
 	protected Meta meta;
-	MetaDesign design;
+	MetaDesignDiagram design;
 	MetaDesignElement element;
 	
 	public String TARGET;
@@ -20,7 +20,7 @@ public class MetaDesignLink {
 	public String TEXT;
 	private VarLINKTYPE linkType;
 	
-	public MetaDesignLink( Meta meta , MetaDesign design , MetaDesignElement element ) {
+	public MetaDesignLink( Meta meta , MetaDesignDiagram design , MetaDesignElement element ) {
 		this.meta = meta;
 		this.design = design;
 		this.element = element;

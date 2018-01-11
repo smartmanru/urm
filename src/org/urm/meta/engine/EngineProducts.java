@@ -18,7 +18,7 @@ import org.urm.meta.ProductMeta;
 import org.urm.meta._Error;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
-import org.urm.meta.product.MetaDesign;
+import org.urm.meta.product.MetaDesignDiagram;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaEnv;
@@ -301,7 +301,7 @@ public class EngineProducts {
 		return( env );
 	}
 	
-	public MetaDesign loadDesignData( EngineLoader loader , ProductMeta storageFinal , String fileName ) throws Exception {
+	public MetaDesignDiagram loadDesignData( EngineLoader loader , ProductMeta storageFinal , String fileName ) throws Exception {
 		ActionBase action = loader.getAction();
 		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , storageFinal.meta );
 		return( storageFinal.loadDesignData( loader , storageMeta , fileName ) );

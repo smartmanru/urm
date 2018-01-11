@@ -1,5 +1,6 @@
 package org.urm.engine.storage;
 
+import java.io.File;
 import java.util.List;
 
 import org.urm.action.ActionBase;
@@ -12,10 +13,26 @@ public class LocalFolder extends Folder {
 		super( folderPath , false , windows );
 	}
 
-	@Override public ShellExecutor getSession( ActionBase action ) throws Exception {
+	@Override 
+	public ShellExecutor getSession( ActionBase action ) throws Exception {
 		return( action.shell );
 	}
 	
+	@Override
+	public boolean checkExists( ActionBase action ) throws Exception {
+		String path = super.getLocalPath( action );
+		File file = new File( path );
+		return( file.isDirectory() );
+	}
+
+	@Override
+	public boolean checkFileExists( ActionBase action , String filename ) throws Exception {
+		String path = super.getLocalFilePath( action , filename );
+		File file = new File( path );
+		return( file.isFile() );
+	}
+	
+	@Override
 	public LocalFolder getSubFolder( ActionBase action , String folder ) throws Exception {
 		if( folder.isEmpty() || folder.equals( "/" ) || folder.equals( "." ) )
 			return( this );
@@ -23,11 +40,13 @@ public class LocalFolder extends Folder {
 		return( new LocalFolder( newPath , windows ) );
 	}
 	
+	@Override
 	public LocalFolder getParentFolder( ActionBase action ) throws Exception {
 		String BASEDIR = Common.getDirName( folderPath );
 		return( new LocalFolder( BASEDIR , windows ) );
 	}
 	
+	@Override
 	public String readFile( ActionBase action , String FILENAME ) throws Exception {
 		String filePath = getFilePath( action , FILENAME );
 		return( action.readFile( filePath ) );
@@ -79,6 +98,12 @@ public class LocalFolder extends Folder {
 		if( folderPath.equals( folder.folderPath ) )
 			return( true );
 		return( false );
+	}
+
+	public String[] listFilesSorted() throws Exception {
+		String path = ( windows )? Common.getWinPath( folderPath ) : Common.getLinuxPath( folderPath );
+		File folder = new File( path );
+		return( Common.getSortedList( folder.list() ) );
 	}
 	
 }

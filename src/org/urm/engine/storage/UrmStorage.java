@@ -11,6 +11,7 @@ public class UrmStorage {
 
 	public Artefactory artefactory;
 
+	public static String INSTALL_FOLDER = "install";
 	public static String PRODUCTS_FOLDER = "products";
 	public static String SERVER_SETTINGS_FILE = "server.xml";
 	public static String VERSION_SETTINGS_FILE = "version.xml";
@@ -31,7 +32,7 @@ public class UrmStorage {
 	}
 
 	public boolean isServerMode( ActionBase action ) throws Exception {
-		LocalFolder folder = getInstallFolder( action );
+		LocalFolder folder = getServerFolder( action );
 		if( folder.checkFileExists( action , Common.getPath( ETC_PATH , SERVER_SETTINGS_FILE ) ) )
 			return( true );
 		
@@ -39,7 +40,7 @@ public class UrmStorage {
 	}
 	
 	public boolean isStandaloneMode( ActionBase action ) throws Exception {
-		LocalFolder folder = getInstallFolder( action );
+		LocalFolder folder = getServerFolder( action );
 		if( folder.checkFileExists( action , Common.getPath( ETC_PATH , PRODUCT_SETTINGS_FILE ) ) )
 			return( true );
 		
@@ -144,12 +145,17 @@ public class UrmStorage {
 		return( getInstallFolder( action , ETC_PATH ) );
 	}
 	
-	public LocalFolder getInstallFolder( ActionBase action ) throws Exception {
+	public LocalFolder getServerFolder( ActionBase action ) throws Exception {
 		return( artefactory.getAnyFolder( action , action.context.session.execrc.installPath ) );
 	}
 
+	public LocalFolder getServerInstallFolder( ActionBase action ) throws Exception {
+		LocalFolder folder = getServerFolder( action );
+		return( folder.getSubFolder( action , INSTALL_FOLDER ) );
+	}
+	
 	public LocalFolder getServerProductsFolder( ActionBase action ) throws Exception {
-		LocalFolder folder = getInstallFolder( action );
+		LocalFolder folder = getServerFolder( action );
 		return( folder.getSubFolder( action , PRODUCTS_FOLDER ) );
 	}
 	

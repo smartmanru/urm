@@ -15,7 +15,7 @@ import org.w3c.dom.Node;
 public class MetaDesignElement {
 	
 	protected Meta meta;
-	MetaDesign design;
+	MetaDesignDiagram design;
 	MetaDesignElement group;
 	public Map<String,MetaDesignLink> links;
 	public Map<String,MetaDesignElement> childs;
@@ -26,7 +26,7 @@ public class MetaDesignElement {
 	public String FUNCTION;
 	private VarELEMENTTYPE elementType;
 	
-	public MetaDesignElement( Meta meta , MetaDesign design , MetaDesignElement group ) {
+	public MetaDesignElement( Meta meta , MetaDesignDiagram design , MetaDesignElement group ) {
 		this.meta = meta;
 		this.design = design;
 		this.group = group;
@@ -98,11 +98,11 @@ public class MetaDesignElement {
 		design.addSubGraphItem( action , this , child );
 	}
 	
-	public MetaDesignElement copy( ActionBase action , Meta meta , MetaDesign design ) throws Exception {
+	public MetaDesignElement copy( ActionBase action , Meta meta , MetaDesignDiagram design ) throws Exception {
 		return( copy( action , meta , design , null ) );
 	}
 	
-	public MetaDesignElement copy( ActionBase action , Meta meta , MetaDesign design , MetaDesignElement group ) throws Exception {
+	public MetaDesignElement copy( ActionBase action , Meta meta , MetaDesignDiagram design , MetaDesignElement group ) throws Exception {
 		MetaDesignElement r = new MetaDesignElement( meta , design , group );
 		
 		r.NAME = NAME;

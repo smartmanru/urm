@@ -24,7 +24,7 @@ import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
-import org.urm.meta.product.MetaDesign;
+import org.urm.meta.product.MetaDesignDiagram;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaEnv;
@@ -57,7 +57,7 @@ public class ProductMeta extends EngineObject {
 	private DistRepository repo;
 	
 	private Map<String,MetaEnv> envs;
-	private Map<String,MetaDesign> designFiles;
+	private Map<String,MetaDesignDiagram> designFiles;
 	
 	public static String XML_ROOT_VERSION = "version";
 	public static String XML_ROOT_PRODUCT = "product";
@@ -81,7 +81,7 @@ public class ProductMeta extends EngineObject {
 		
 		meta = new Meta( this , null );
 		engine.trace( "new product storage meta object, id=" + meta.objectId + ", storage=" + objectId );
-		designFiles = new HashMap<String,MetaDesign>();
+		designFiles = new HashMap<String,MetaDesignDiagram>();
 		envs = new HashMap<String,MetaEnv>();
 		
 		loadFailed = false;
@@ -175,8 +175,8 @@ public class ProductMeta extends EngineObject {
 				r.loadFailed = true;
 		}
 		for( String designFile : designFiles.keySet() ) {
-			MetaDesign design = designFiles.get( designFile );
-			MetaDesign rd = design.copy( action , r.meta );
+			MetaDesignDiagram design = designFiles.get( designFile );
+			MetaDesignDiagram rd = design.copy( action , r.meta );
 			r.designFiles.put( designFile , rd );
 			if( rd.loadFailed )
 				r.loadFailed = true;
@@ -455,12 +455,12 @@ public class ProductMeta extends EngineObject {
 		return( env );
 	}
 	
-	public synchronized MetaDesign loadDesignData( EngineLoader loader , MetadataStorage storageMeta , String fileName ) {
-		MetaDesign design = designFiles.get( fileName );
+	public synchronized MetaDesignDiagram loadDesignData( EngineLoader loader , MetadataStorage storageMeta , String fileName ) {
+		MetaDesignDiagram design = designFiles.get( fileName );
 		if( design != null )
 			return( design );
 		
-		design = new MetaDesign( this , meta );
+		design = new MetaDesignDiagram( this , meta );
 		
 		if( !loadFailed ) {
 			ActionBase action = loader.getAction();
@@ -655,7 +655,7 @@ public class ProductMeta extends EngineObject {
 		storageMeta.saveEnvConfFile( action , doc , envFile );
 	}
 	
-	public void saveDesignData( ActionBase action , MetadataStorage storageMeta , String designFile , MetaDesign design ) throws Exception {
+	public void saveDesignData( ActionBase action , MetadataStorage storageMeta , String designFile , MetaDesignDiagram design ) throws Exception {
 		Document doc = Common.xmlCreateDoc( XML_ROOT_DESIGN );
 		design.save( action , doc , doc.getDocumentElement() );
 		storageMeta.saveEnvConfFile( action , doc , designFile );
