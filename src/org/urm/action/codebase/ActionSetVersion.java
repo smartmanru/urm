@@ -65,7 +65,7 @@ public class ActionSetVersion extends ActionBase {
 		// set version
 		createDedicatedShell( "build"  );
 		updateVersion( scopeProject , PATCHPATH.buildFolder );
-		MetaProductSettings product = scopeProject.meta.getProductSettings( this );
+		MetaProductSettings product = scopeProject.meta.getProductSettings();
 		vcs.commit( scopeProject.sourceProject , BRANCH , PATCHPATH.buildFolder , product.CONFIG_ADM_TRACKER + "-0000: set version " + BUILDVERSION );
 		return( SCOPESTATE.RunSuccess );
 	}

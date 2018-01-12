@@ -29,7 +29,7 @@ public class ActionMonitorCheckEnv extends ActionBase {
 		MonitoringStorage storage = info.storage;
 		MetaMonitoringTarget target = info.target;
 		
-		MetaEnv env = target.meta.getEnv( this , target.ENV );
+		MetaEnv env = target.meta.findEnv( target.ENV );
 		MetaEnvSegment sg = env.getSG( this , target.SG );
 		action.context.update( action , env , sg );
 		action.context.CTX_FORCE = true;

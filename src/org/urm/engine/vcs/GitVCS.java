@@ -90,7 +90,7 @@ public class GitVCS extends GenericVCS {
 			return( false );
 		}
 
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		repo.copyMirrorBranchFromBranch( BRANCH1 , BRANCH2 , product.CONFIG_ADM_TRACKER + "-0000: create branch " + BRANCH2 + " from " + BRANCH1 );
 		repo.pushRepository();
 		return( true );
@@ -111,7 +111,7 @@ public class GitVCS extends GenericVCS {
 			return( false );
 		}
 
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		repo.copyMirrorBranchFromBranch( BRANCH1 , BRANCH2 , product.CONFIG_ADM_TRACKER + "-0000: rename branch " + BRANCH1 + " to " + BRANCH2 );
 		repo.dropMirrorBranch( BRANCH1 );
 		repo.pushRepository();
@@ -133,7 +133,7 @@ public class GitVCS extends GenericVCS {
 			return( false );
 		}
 
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		repo.copyMirrorTagFromTag( TAG1 , TAG2 , product.CONFIG_ADM_TRACKER + "-0000: create tag from " + TAG1 );
 		repo.pushRepository();
 		return( true );
@@ -155,7 +155,7 @@ public class GitVCS extends GenericVCS {
 			repo.pushMirror();
 		}
 
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		repo.copyMirrorTagFromTag( TAG1 , TAG2 , product.CONFIG_ADM_TRACKER + "-0000: create tag " + TAG2 + " from " + TAG1 );
 		repo.pushRepository();
 		return( true );
@@ -177,7 +177,7 @@ public class GitVCS extends GenericVCS {
 			repo.pushRepository();
 		}
 
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		repo.copyMirrorTagFromTag( TAG1 , TAG2 , product.CONFIG_ADM_TRACKER + "-0000: rename tag " + TAG1 + " to " + TAG2 );
 		repo.dropMirrorTag( TAG1 );
 		repo.pushRepository();
@@ -199,7 +199,7 @@ public class GitVCS extends GenericVCS {
 			return( false );
 		}
 
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		repo.copyMirrorBranchFromTag( TAG1 , BRANCH2 , product.CONFIG_ADM_TRACKER + "-0000: create branch " + BRANCH2 + " from " + TAG1 );
 		repo.pushRepository();
 		return( true );
@@ -271,7 +271,7 @@ public class GitVCS extends GenericVCS {
 			return( false );
 		}
 		
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		repo.setMirrorTag( CO_BRANCH , TAG , product.CONFIG_ADM_TRACKER + "-0000: create tag" , BRANCHDATE );
 		repo.pushRepository();
 		return( true );

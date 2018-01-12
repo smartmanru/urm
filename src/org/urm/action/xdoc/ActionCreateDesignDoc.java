@@ -37,7 +37,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		
 		MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
 		for( String designFile : ms.getDesignFiles( this ) ) {
-			MetaDesignDiagram design = meta.getDesignData( this , designFile );
+			MetaDesignDiagram design = meta.findDiagram( designFile );
 			
 			String designBase = Common.getPath( OUTDIR , Common.getPartBeforeLast( designFile , ".xml" ) );
 			createDesignDocs( design , designBase );
@@ -67,7 +67,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
 		String[] files = ms.getEnvFiles( this );
 		for( String envFile : files ) {
-			MetaEnv env = meta.getEnvData( this , envFile , false );
+			MetaEnv env = meta.findEnv( envFile );
 			if( !env.isProd() )
 				continue;
 			

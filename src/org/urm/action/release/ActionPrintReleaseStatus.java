@@ -43,7 +43,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		FileSet files = dist.getFiles( this );
 		String hashStatus = dist.checkHash( this )? "OK" : "not matched";
 		
-		MetaProductSettings product = dist.meta.getProductSettings( this );
+		MetaProductSettings product = dist.meta.getProductSettings();
 		info( "RELEASE " + dist.RELEASEDIR + " STATUS:" );
 		info( "\tlocation: " + product.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
 		info( "\tversion: " + release.RELEASEVER );
@@ -104,7 +104,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		}
 		else {
 			info( "DELIVERIES:" );
-			MetaDistr distr = dist.meta.getDistr( this );
+			MetaDistr distr = dist.meta.getDistr();
 			for( String s : distr.getDeliveryNames() ) {
 				MetaDistrDelivery delivery = distr.findDelivery( s );
 				info( "\tdelivery=" + s + " (folder=" + delivery.FOLDER + ")" + ":" );
@@ -271,7 +271,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		if( masterItem == null ) {
 			String folder = Common.getPath( distItem.delivery.FOLDER , Dist.BINARY_FOLDER );
 			status = ( info.found )? "OK (" + Common.getPath( folder , info.fileName ) + ", new)" : 
-				"missing (" + Common.getPath( folder , distItem.getBaseFile( this ) ) + ")";
+				"missing (" + Common.getPath( folder , distItem.getBaseFile() ) + ")";
 		}
 		else {
 			if( masterItem.FOLDER.equals( distItem.delivery.FOLDER ) ) { 
@@ -283,14 +283,14 @@ public class ActionPrintReleaseStatus extends ActionBase {
 						status = "OK (" + Common.getPath( folder , info.fileName ) + ", " + masterItem.RELEASE + ")";
 				}
 				else					
-					status = "missing (" + Common.getPath( folder , distItem.getBaseFile( this ) ) + ")";
+					status = "missing (" + Common.getPath( folder , distItem.getBaseFile() ) + ")";
 			}
 			else {
 				String folder = Common.getPath( distItem.delivery.FOLDER , Dist.BINARY_FOLDER );
 				if( info.found )
 					status = "OK (" + Common.getPath( folder , info.fileName ) + ", moved)";
 				else
-					status = "missing (" + Common.getPath( folder , distItem.getBaseFile( this ) ) + ", obsolete)";
+					status = "missing (" + Common.getPath( folder , distItem.getBaseFile() ) + ", obsolete)";
 			}
 		}
 		

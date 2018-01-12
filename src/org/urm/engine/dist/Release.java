@@ -460,7 +460,7 @@ public class Release {
 	}
 
 	public ReleaseTarget findBuildProject( ActionBase action , String name ) throws Exception {
-		MetaSource sources = meta.getSources( action ); 
+		MetaSource sources = meta.getSources(); 
 		MetaSourceProject sourceProject = sources.getProject( action , name );
 		ReleaseDistSet set = sourceSetMap.get( sourceProject.set.NAME );
 		if( set == null )
@@ -624,7 +624,7 @@ public class Release {
 	}
 
 	public void addSourceAll( ActionBase action ) throws Exception {
-		MetaSource sources = meta.getSources( action ); 
+		MetaSource sources = meta.getSources(); 
 		for( MetaSourceProjectSet sourceSet : sources.getSets() )
 			addSourceSet( action , sourceSet , true );
 	}

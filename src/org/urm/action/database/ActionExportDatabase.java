@@ -80,7 +80,7 @@ public class ActionExportDatabase extends ActionBase {
 	}
 
 	private void loadExportSettings() throws Exception {
-		MetaDatabase db = server.meta.getDatabase( this );
+		MetaDatabase db = server.meta.getDatabase();
 		dump = db.findExportDump( TASK );
 		if( dump == null )
 			exit1( _Error.UnknownExportTask1 , "export task " + TASK + " is not found in product database configuraton" , TASK );

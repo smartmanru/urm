@@ -27,7 +27,7 @@ public class Meta extends EngineObject {
 	private ProductMeta storage;
 
 	private MetaProductVersion version;
-	private MetaProductSettings product;
+	private MetaProductSettings settings;
 	private MetaUnits units;
 	private MetaDatabase database;
 	private MetaDocs docs;
@@ -69,7 +69,7 @@ public class Meta extends EngineObject {
 		
 		// clear old refs
 		version = null;
-		product = null;
+		settings = null;
 		units = null;
 		database = null;
 		docs = null;
@@ -97,7 +97,7 @@ public class Meta extends EngineObject {
 	}
 	
 	public void setProduct( MetaProductSettings product ) {
-		this.product = product;
+		this.settings = product;
 	}
 	
 	public void setUnits( MetaUnits units ) {
@@ -124,60 +124,60 @@ public class Meta extends EngineObject {
 		return( storage );
 	}
 
-	public synchronized MetaProductVersion getVersion( ActionBase action ) throws Exception {
+	public synchronized MetaProductVersion getVersion() {
 		if( version == null )
 			version = storage.getVersion();
 		return( version );
 	}
 
-	public synchronized MetaProductCoreSettings getProductCoreSettings( ActionBase action ) throws Exception {
-		MetaProductSettings settings = getProductSettings( action );
+	public synchronized MetaProductCoreSettings getProductCoreSettings() {
+		MetaProductSettings settings = getProductSettings();
 		return( settings.core );
 	}
 	
-	public synchronized MetaProductSettings getProductSettings( ActionBase action ) throws Exception {
-		if( product == null )
-			product = storage.getSettings();
-		return( product );
+	public synchronized MetaProductSettings getProductSettings() {
+		if( settings == null )
+			settings = storage.getSettings();
+		return( settings );
 	}
 	
-	public synchronized MetaUnits getUnits( ActionBase action ) throws Exception {
+	public synchronized MetaUnits getUnits() {
 		if( units == null )
 			units = storage.getUnits();
 		return( units );
 	}
 
-	public synchronized MetaDatabase getDatabase( ActionBase action ) throws Exception {
+	public synchronized MetaDatabase getDatabase() {
 		if( database == null )
 			database = storage.getDatabase();
 		return( database );
 	}
 
-	public synchronized MetaDocs getDocs( ActionBase action ) throws Exception {
+	public synchronized MetaDocs getDocs() {
 		if( docs == null )
 			docs = storage.getDocs();
 		return( docs );
 	}
 
-	public synchronized MetaDistr getDistr( ActionBase action ) throws Exception {
+	public synchronized MetaDistr getDistr() {
 		if( distr == null )
 			distr = storage.getDistr();
 		return( distr );
 	}
 
-	public synchronized MetaSource getSources( ActionBase action ) throws Exception {
+	public synchronized MetaSource getSources() {
 		if( sources == null )
 			sources = storage.getSources();
 		return( sources );
 	}
 
-	public synchronized MetaMonitoring getMonitoring( ActionBase action ) throws Exception {
+	public synchronized MetaMonitoring getMonitoring() {
 		if( monitoring == null )
 			monitoring = storage.getMonitoring();
 		return( monitoring );
 	}
 	
-	public synchronized MetaDesignDiagram getDesignData( ActionBase action , String diagramName ) throws Exception {
+	public synchronized MetaDesignDiagram findDiagram( String diagramName ) {
 		return( storage.findDiagram( diagramName ) );
 	}
 	
@@ -193,16 +193,8 @@ public class Meta extends EngineObject {
 		return( storage.getDistRepository() );
 	}
 	
-	public synchronized MetaEnv getEnvData( ActionBase action , String envName , boolean loadProps ) throws Exception {
+	public MetaEnv findEnv( String envName ) {
 		return( storage.findEnvironment( envName ) );
-	}
-	
-	public MetaEnv findEnv( String envId ) {
-		return( storage.findEnvironment( envId ) );
-	}
-	
-	public synchronized MetaEnv getEnv( ActionBase action , String envId ) throws Exception {
-		return( storage.findEnvironment( envId ) );
 	}
 	
 	public static String getConfigurableExtensionsFindOptions( ActionBase action ) throws Exception {

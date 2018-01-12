@@ -51,8 +51,8 @@ public class DatabasePrepare {
 		this.dstFolder = dst;
 		
 		meta = distStorage.meta;
-		distr = meta.getDistr( action );
-		database = meta.getDatabase( action );
+		distr = meta.getDistr();
+		database = meta.getDatabase();
 		errorFolder = "db-" + Common.getNameTimeStamp();
 		
 		S_CHECK_FAILED = false;

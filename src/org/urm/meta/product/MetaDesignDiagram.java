@@ -12,18 +12,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaDesign extends EngineObject {
+public class MetaDesignDiagram extends EngineObject {
 
 	private boolean loaded;
 	public boolean loadFailed;
 
+	public String NAME;
+	
 	protected Meta meta;
 	public Map<String,MetaDesignElement> childs;
 	public Map<String,MetaDesignElement> groups;
 	public Map<String,MetaDesignElement> elements;
 	public boolean fullProd;
 	
-	public MetaDesign( ProductMeta storage , Meta meta ) {
+	public MetaDesignDiagram( ProductMeta storage , Meta meta ) {
 		super( storage );
 		this.meta = meta;
 		loaded = false;
@@ -38,8 +40,8 @@ public class MetaDesign extends EngineObject {
 		return( "meta-design" );
 	}
 	
-	public MetaDesign copy( ActionBase action , Meta meta ) throws Exception {
-		MetaDesign r = new MetaDesign( meta.getStorage() , meta );
+	public MetaDesignDiagram copy( ActionBase action , Meta meta ) throws Exception {
+		MetaDesignDiagram r = new MetaDesignDiagram( meta.getStorage() , meta );
 		r.fullProd = fullProd;
 		for( MetaDesignElement element : elements.values() ) {
 			MetaDesignElement relement = element.copy( action , meta , r );

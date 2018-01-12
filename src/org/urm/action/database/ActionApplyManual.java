@@ -63,7 +63,7 @@ public class ActionApplyManual extends ActionBase {
 		
 		// configure
 		ConfBuilder builder = new ConfBuilder( this , target.meta );
-		MetaProductSettings settings = target.meta.getProductSettings( this );
+		MetaProductSettings settings = target.meta.getProductSettings();
 		builder.configureFile( logReleaseExecute , file , server , null , settings.charset );
 	}
 	

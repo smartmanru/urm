@@ -375,7 +375,7 @@ public class DBEngineMirrors {
 		if( repo.MIRROR_TYPE == DBEnumMirrorType.PRODUCT_DATA ) {
 			AppProduct product = action.getProduct( repo.productId );
 			Meta meta = action.getActiveProductMetadata( product.NAME );
-			MetaProductSettings settings = meta.getProductSettings( action );
+			MetaProductSettings settings = meta.getProductSettings();
 			LocalFolder home = loader.getEngineHomeFolder();
 			addFolderMapItem( action , map , SourceStorage.DATA_LIVE , home , settings.CONFIG_SOURCE_CFG_LIVEROOTDIR );
 			addFolderMapItem( action , map , SourceStorage.DATA_TEMPLATES , home , settings.CONFIG_SOURCE_CFG_ROOTDIR );

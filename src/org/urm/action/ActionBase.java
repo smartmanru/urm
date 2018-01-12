@@ -825,7 +825,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public MetaProductBuildSettings getBuildSettings( Meta meta ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( this );
+		MetaProductSettings product = meta.getProductSettings();
 		return( product.getBuildSettings( this ) );
 	}
 
@@ -935,14 +935,14 @@ abstract public class ActionBase extends ActionCore {
 		return( isServerOffline( node.server ) );
 	}
 	
-	public String getContextRedistPath( Account account ) throws Exception {
+	public String getContextRedistPath( Account account ) {
 		if( account.isLinux() )
 			return( context.CTX_REDISTLINUX_PATH );
 		return( context.CTX_REDISTWIN_PATH );
 	}
 	
-	public String getProductRedistPath( MetaEnvServer server ) throws Exception {
-		MetaProductSettings product = server.meta.getProductSettings( this );
+	public String getProductRedistPath( MetaEnvServer server ) {
+		MetaProductSettings product = server.meta.getProductSettings();
 		if( server.isLinux() )
 			return( product.CONFIG_REDISTLINUX_PATH );
 		return( product.CONFIG_REDISTWIN_PATH );

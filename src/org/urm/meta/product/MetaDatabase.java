@@ -8,13 +8,12 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
-import org.urm.engine.properties.PropertyController;
 import org.urm.meta.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaDatabase extends PropertyController {
+public class MetaDatabase {
 
 	public Meta meta;
 
@@ -26,8 +25,6 @@ public class MetaDatabase extends PropertyController {
 	public String ALIGNEDMAPPING;
 	
 	public MetaDatabase( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
-		super( storage , settings , "database" );
-		
 		this.meta = meta;
 		meta.setDatabase( this );
 		admin = new MetaDatabaseAdministration( meta , this );
@@ -36,26 +33,9 @@ public class MetaDatabase extends PropertyController {
 		mapImport = new HashMap<String,MetaDump>();
 	}
 
-	@Override
-	public String getName() {
-		return( "meta-database" );
-	}
-	
-	@Override
-	public boolean isValid() {
-		if( super.isLoadFailed() )
-			return( false );
-		return( true );
-	}
-	
-	@Override
-	public void scatterProperties( ActionBase action ) throws Exception {
-	}
-	
 	public MetaDatabase copy( ActionBase action , Meta rmeta ) throws Exception {
-		MetaProductSettings product = rmeta.getProductSettings( action );
+		MetaProductSettings product = rmeta.getProductSettings();
 		MetaDatabase r = new MetaDatabase( rmeta.getStorage() , product , rmeta );
-		r.initCopyStarted( this , product.getProperties() );
 		
 		r.admin = admin.copy( action , rmeta , r );
 		for( MetaDatabaseSchema schema : mapSchema.values() ) {
@@ -72,23 +52,13 @@ public class MetaDatabase extends PropertyController {
 			r.mapImport.put( rdump.NAME , rdump );
 		}
 		
-		r.initFinished();
 		return( r );
 	}
 	
 	public void createDatabase( TransactionBase transaction ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( transaction.action );
-		if( !initCreateStarted( product.getProperties() ) )
-			return;
-
-		initFinished();
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
-		if( !initCreateStarted( product.getProperties() ) )
-			return;
-
 		if( !loadAdministration( action , root ) )
 			return;
 		
@@ -96,7 +66,6 @@ public class MetaDatabase extends PropertyController {
 		Node dumps = ConfReader.xmlGetFirstChild( root , "dumps" );
 		if( dumps != null )
 			loadDumpSet( action , dumps );
-		initFinished();
 	}
 
 	private boolean loadAdministration( ActionBase action , Node node ) throws Exception {
@@ -202,7 +171,6 @@ public class MetaDatabase extends PropertyController {
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		super.saveAsElements( doc , root , false );
 		saveAdministration( action , doc , root );
 		saveSchemaSet( action , doc , root );
 		
@@ -219,7 +187,7 @@ public class MetaDatabase extends PropertyController {
 	
 	public void deleteDatabaseSchema( EngineTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
 		meta.deleteDatabaseSchemaFromEnvironments( transaction , schema );
-		MetaDistr distr = schema.meta.getDistr( transaction.getAction() );
+		MetaDistr distr = schema.meta.getDistr();
 		distr.deleteDatabaseSchema( transaction , schema );
 		mapSchema.remove( schema.SCHEMA );
 	}

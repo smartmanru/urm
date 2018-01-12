@@ -66,7 +66,7 @@ public class MetaDistrComponentItem {
 			r.confItem = comp.dist.findConfItem( confItem.KEY );
 		else
 		if( schema != null ) {
-			MetaDatabase database = r.meta.getDatabase( action );
+			MetaDatabase database = r.meta.getDatabase();
 			r.schema = database.getSchema( action , schema.SCHEMA );
 		}
 		r.OBSOLETE = OBSOLETE;
@@ -98,7 +98,7 @@ public class MetaDistrComponentItem {
 	public void loadSchema( ActionBase action , Node node ) throws Exception {
 		NAME = ConfReader.getRequiredAttrValue( node , "name" );
 		
-		MetaDatabase database = meta.getDatabase( action );
+		MetaDatabase database = meta.getDatabase();
 		type = VarCOMPITEMTYPE.SCHEMA;
 		schema = database.getSchema( action , NAME );
 		DEPLOYNAME = ConfReader.getAttrValue( node , "deployname" );

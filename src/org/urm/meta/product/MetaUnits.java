@@ -45,7 +45,7 @@ public class MetaUnits extends PropertyController {
 	}
 	
 	public MetaUnits copy( ActionBase action , Meta meta ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		MetaUnits r = new MetaUnits( meta.getStorage() , product , meta );
 		r.initCopyStarted( this , product.getProperties() );
 		
@@ -58,7 +58,7 @@ public class MetaUnits extends PropertyController {
 	}
 	
 	public void createUnits( TransactionBase transaction ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( transaction.action );
+		MetaProductSettings product = meta.getProductSettings();
 		if( !initCreateStarted( product.getProperties() ) )
 			return;
 
@@ -66,7 +66,7 @@ public class MetaUnits extends PropertyController {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		if( !initCreateStarted( product.getProperties() ) )
 			return;
 
@@ -130,9 +130,9 @@ public class MetaUnits extends PropertyController {
 	}
 	
 	public void deleteUnit( EngineTransaction transaction , MetaProductUnit unit ) throws Exception {
-		MetaDistr distr = unit.meta.getDistr( transaction.getAction() );
+		MetaDistr distr = unit.meta.getDistr();
 		distr.deleteUnit( transaction , unit );
-		MetaSource sources = unit.meta.getSources( transaction.getAction() );
+		MetaSource sources = unit.meta.getSources();
 		sources.deleteUnit( transaction , unit );
 		mapUnits.remove( unit.NAME );
 	}

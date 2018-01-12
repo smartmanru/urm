@@ -81,7 +81,7 @@ public class ActionImportDatabase extends ActionBase {
 	}
 	
 	private void loadImportSettings() throws Exception {
-		MetaDatabase db = server.meta.getDatabase( this );
+		MetaDatabase db = server.meta.getDatabase();
 		dump = db.findExportDump( TASK );
 		if( dump == null )
 			exit1( _Error.UnknownImportTask1 , "import task " + TASK + " is not found in product database configuraton" , TASK );
@@ -374,7 +374,7 @@ public class ActionImportDatabase extends ActionBase {
 		
 		// configure
 		ConfBuilder builder = new ConfBuilder( this , server.meta );
-		MetaProductSettings settings = server.meta.getProductSettings( this );
+		MetaProductSettings settings = server.meta.getProductSettings();
 		builder.configureFolder( this , folder , server , null , settings.charset );
 		
 		// apply

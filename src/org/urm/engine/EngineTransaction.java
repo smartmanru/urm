@@ -252,7 +252,7 @@ public class EngineTransaction extends TransactionBase {
 		
 		Meta meta = project.meta;
 		MetaSource sources = project.set.sources;
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		for( MetaSourceProjectItem item : project.getItems() ) {
 			MetaDistrBinaryItem distItem = item.distItem;
 			if( leaveManual )
@@ -697,7 +697,7 @@ public class EngineTransaction extends TransactionBase {
 		
 		ProductContext context = new ProductContext( meta );
 		context.create( action , version );
-		MetaProductSettings settings = meta.getProductSettings( action );
+		MetaProductSettings settings = meta.getProductSettings();
 		settings.updateSettings( this , context );
 		
 		settings.recalculateChildProperties( action );
@@ -923,7 +923,7 @@ public class EngineTransaction extends TransactionBase {
 	
 	public MetaEnv createMetaEnv( Meta meta , String name , VarENVTYPE envType ) throws Exception {
 		ProductMeta metadata = getTransactionProductMetadata( meta );
-		MetaProductSettings settings = meta.getProductSettings( action );
+		MetaProductSettings settings = meta.getProductSettings();
 		MetaEnv env = new MetaEnv( metadata , settings , metadata.meta );
 		env.createEnv( action , name , envType );
 		metadata.addEnv( env );

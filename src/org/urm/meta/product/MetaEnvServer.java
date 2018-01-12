@@ -202,7 +202,7 @@ public class MetaEnvServer extends PropertyController {
 			REGIONS = super.getStringProperty( action , PROPERTY_REGIONS );
 			ADMSCHEMA = super.getStringProperty( action , PROPERTY_ADMSCHEMA );
 			
-			MetaDatabase database = meta.getDatabase( action );
+			MetaDatabase database = meta.getDatabase();
 			if( !ADMSCHEMA.isEmpty() )
 				admSchema = database.getSchema( action , ADMSCHEMA );
 		}
@@ -295,7 +295,7 @@ public class MetaEnvServer extends PropertyController {
 		
 		// verify aligned
 		if( isDatabase() ) {
-			MetaDatabase database = meta.getDatabase( action );
+			MetaDatabase database = meta.getDatabase();
 			for( String id : Common.splitSpaced( ALIGNED ) )
 				database.checkAligned( action , id );
 		}

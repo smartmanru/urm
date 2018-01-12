@@ -38,7 +38,7 @@ public class ReleaseTargetItem {
 		
 		nx.sourceItem = ( sourceItem == null )? null : nt.sourceProject.getItem( action , sourceItem.ITEMNAME );
 		nx.distItem = ( distItem == null )? null : sourceItem.distItem;
-		MetaDatabase ndb = nt.meta.getDatabase( action );
+		MetaDatabase ndb = nt.meta.getDatabase();
 		nx.schema = ( schema == null )? null : ndb.getSchema( action , schema.SCHEMA );
 		nx.NAME = NAME;
 		nx.BUILDVERSION = BUILDVERSION;
@@ -93,7 +93,7 @@ public class ReleaseTargetItem {
 	public void loadSourceItem( ActionBase action , Node node ) throws Exception {
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		BUILDVERSION = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDVERSION );
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		this.distItem = distr.getBinaryItem( action , NAME );
 		this.sourceItem = target.sourceProject.getItem( action , distItem.sourceProjectItem.ITEMNAME );
 	}
@@ -101,7 +101,7 @@ public class ReleaseTargetItem {
 	public void loadDatabaseItem( ActionBase action , Node node ) throws Exception {
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		BUILDVERSION = "";
-		MetaDatabase db = meta.getDatabase( action );
+		MetaDatabase db = meta.getDatabase();
 		this.schema = db.getSchema( action , NAME );
 	}
 	

@@ -194,7 +194,7 @@ public class ActionReleaseScopeMaker {
 	}
 	
 	private void addReleaseDistItemsScope( String ITEMS[] , boolean specifiedExplicitly ) throws Exception {
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		for( String itemName : ITEMS ) {
 			MetaDistrBinaryItem item = distr.getBinaryItem( action , itemName );
 			if( item.sourceProjectItem == null )
@@ -241,7 +241,7 @@ public class ActionReleaseScopeMaker {
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.DERIVED ) ) )
 			addReleaseDerivedItems( TARGETS );
 		else {
-			MetaSource sources = meta.getSources( action );
+			MetaSource sources = meta.getSources();
 			MetaSourceProjectSet set = sources.getProjectSet( action , SET );
 			if( dist.release.addSourceSet( action , set , false ) ) {
 				ReleaseDistSet rset = dist.release.getSourceSet( action , SET );  

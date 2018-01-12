@@ -43,7 +43,7 @@ public class ActionMonitorTarget extends ActionBase {
 	
 	private MetaEnv getEnv( MetaMonitoringTarget target ) throws Exception {
 		Meta meta = target.meta;
-		MetaEnv env = meta.getEnv( this , target.ENV );
+		MetaEnv env = meta.findEnv( target.ENV );
 		return( env );
 	}
 	

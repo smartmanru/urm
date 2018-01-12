@@ -211,12 +211,12 @@ public class MetaDistrBinaryItem {
 	
 	public void resolveReferences( ActionBase action ) throws Exception {
 		if( distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
-			MetaDistr distr = meta.getDistr( action );
+			MetaDistr distr = meta.getDistr();
 			srcDistItem = distr.getBinaryItem( action , SRCDISTITEM );
 		}
 		else
 		if( distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
-			MetaSource sources = meta.getSources( action );
+			MetaSource sources = meta.getSources();
 			sourceProjectItem = sources.getProjectItem( action , SRCPROJECTITEM );
 			sourceProjectItem.setDistItem( action , this );
 		}
@@ -234,7 +234,7 @@ public class MetaDistrBinaryItem {
 		this.sourceProjectItem = sourceItem;
 	}
 
-	public String getBaseFile( ActionBase action ) throws Exception {
+	public String getBaseFile() {
 		return( DISTBASENAME + EXT );
 	}
 

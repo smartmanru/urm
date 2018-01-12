@@ -107,7 +107,7 @@ public class ActionRedist extends ActionBase {
 		info( "redist configuration to server=" + server.NAME + " node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
 		
 		// by deployment location and conf component
-		MetaDistr distr = server.meta.getDistr( this );
+		MetaDistr distr = server.meta.getDistr();
 		for( MetaEnvServerLocation location : locations ) { 
 			String[] items = location.getNodeConfItems( this , node );
 			if( items.length == 0 ) {
@@ -163,7 +163,7 @@ public class ActionRedist extends ActionBase {
 		RedistStateInfo stateInfo = redist.getStateInfo( this , location.DEPLOYPATH , CONTENTTYPE );
 
 		debug( node.HOSTLOGIN + ": redist content=" + Common.getEnumLower( CONTENTTYPE ) + ": items - " + Common.getListSet( items ) + " ..." );
-		MetaDistr distr = server.meta.getDistr( this );
+		MetaDistr distr = server.meta.getDistr();
 		for( String key : items ) {
 			MetaDistrBinaryItem binaryItem = distr.getBinaryItem( this , key );
 			String deployBaseName = location.getDeployName( this , key );

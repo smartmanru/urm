@@ -44,7 +44,7 @@ public class ActionSendChatMsg extends ActionBase {
 		if( sg != null )
 			msg += " (sg=" + sg.NAME + ")"; 
 		
-		MetaProductCoreSettings product = context.env.meta.getProductCoreSettings( this );
+		MetaProductCoreSettings product = context.env.meta.getProductCoreSettings();
 		String filePath = Common.getPath( product.CONFIG_PRODUCTHOME , env.CHATROOMFILE ); 
 		shell.appendFileWithString( this , filePath , msg );
 		trace( "ActionSendChatMsg: msg sent to " + filePath );

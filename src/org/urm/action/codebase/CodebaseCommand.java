@@ -119,7 +119,7 @@ public class CodebaseCommand {
 	}
 	
 	public void printActiveProperties( ScopeState parentState , ActionBase action , Meta meta ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		Map<String,String> exports = product.getExportProperties( action );
 		if( !exports.isEmpty() ) {
 			action.info( "----------------");

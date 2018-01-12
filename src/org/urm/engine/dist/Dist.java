@@ -361,7 +361,7 @@ public class Dist {
 	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {
 		this.RELEASEDIR = MASTER_DIR;
 		state.ctlCreateProd( action , RELEASEVER );
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
 			if( delivery.hasBinaryItems() ) {
 				String folder = getDeliveryBinaryFolder( action , delivery );
@@ -628,35 +628,42 @@ public class Dist {
 		return( folder );
 	}
 
-	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 , boolean getTimestamp ) throws Exception {
+	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 , boolean getTimestamp ) {
 		DistItemInfo info = new DistItemInfo( item );
-		if( item.isDerivedItem() ) {
-			DistItemInfo infosrc = getDistItemInfo( action , item.srcDistItem , false , true );
-			info.subPath = infosrc.subPath;
-			info.fileName = infosrc.fileName;
-			info.found = infosrc.found;
-			info.timestamp = infosrc.timestamp;
-		}
-		else {
-			info.subPath = getReleaseBinaryFolder( action , item );
-			info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );
-			info.found = ( info.fileName.isEmpty() )? false : true;
+		
+		try {
+			if( item.isDerivedItem() ) {
+				DistItemInfo infosrc = getDistItemInfo( action , item.srcDistItem , false , true );
+				info.subPath = infosrc.subPath;
+				info.fileName = infosrc.fileName;
+				info.found = infosrc.found;
+				info.timestamp = infosrc.timestamp;
+			}
+			else {
+				info.subPath = getReleaseBinaryFolder( action , item );
+				info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );
+				info.found = ( info.fileName.isEmpty() )? false : true;
+				
+				if( info.found && getTimestamp ) {
+					RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
+					info.timestamp = fileFolder.getFileChangeTime( action , info.fileName );
+				}
+			}
 			
-			if( info.found && getTimestamp ) {
+			if( info.found && getMD5 ) {
 				RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
-				info.timestamp = fileFolder.getFileChangeTime( action , info.fileName );
+				if( item.isDerivedItem() )
+					info.md5value = fileFolder.getArchivePartMD5( action , info.fileName , item.SRCITEMPATH , item.srcDistItem.EXT );
+				else
+				if( item.isArchive() )
+					info.md5value = fileFolder.getArchiveContentMD5( action , info.fileName , item.EXT );
+				else
+					info.md5value = fileFolder.getFileMD5( action , info.fileName );
 			}
 		}
-		
-		if( info.found && getMD5 ) {
-			RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
-			if( item.isDerivedItem() )
-				info.md5value = fileFolder.getArchivePartMD5( action , info.fileName , item.SRCITEMPATH , item.srcDistItem.EXT );
-			else
-			if( item.isArchive() )
-				info.md5value = fileFolder.getArchiveContentMD5( action , info.fileName , item.EXT );
-			else
-				info.md5value = fileFolder.getFileMD5( action , info.fileName );
+		catch( Throwable e ) {
+			action.log( "get binary distitem info item=" + item.KEY , e );
+			info.found = false;
 		}
 		
 		return( info );
@@ -670,11 +677,19 @@ public class Dist {
 		return( value );
 	}
 	
-	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrConfItem item ) throws Exception {
+	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrConfItem item ) {
 		DistItemInfo info = new DistItemInfo( item );
-		info.subPath = getReleaseConfCompParentFolder( action , item );
-		info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );
-		info.found = ( info.fileName.isEmpty() )? false : true;
+
+		try {
+			info.subPath = getReleaseConfCompParentFolder( action , item );
+			info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );
+			info.found = ( info.fileName.isEmpty() )? false : true;
+		}
+		catch( Throwable e ) {
+			action.log( "get configuration distitem info item=" + item.KEY , e );
+			info.found = false;
+		}
+		
 		return( info );
 	}
 
@@ -872,7 +887,7 @@ public class Dist {
 	
 	public MetaDistrConfItem[] getLocationConfItems( ActionBase action , MetaEnvServerLocation[] locations ) throws Exception {
 		Map<String,MetaDistrConfItem> confs = new HashMap<String,MetaDistrConfItem>(); 
-		MetaDistr distr = meta.getDistr( action ); 
+		MetaDistr distr = meta.getDistr(); 
 		for( MetaEnvServerLocation location : locations ) {
 			String[] items = location.getConfItems( action );
 			for( String item : items ) {
@@ -984,7 +999,7 @@ public class Dist {
 	}
 	
 	public static ReleaseLifecycle getLifecycle( ActionBase action , Meta meta , ReleaseLifecycle lc , DBEnumLifecycleType type ) throws Exception {
-		MetaProductCoreSettings core = meta.getProductCoreSettings( action );
+		MetaProductCoreSettings core = meta.getProductCoreSettings();
 		
 		if( type == DBEnumLifecycleType.MAJOR ) {
 			String expected = core.RELEASELC_MAJOR;

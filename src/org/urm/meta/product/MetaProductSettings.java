@@ -15,6 +15,7 @@ import org.urm.engine.properties.PropertySet;
 import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineContext;
+import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.EngineSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -48,6 +49,12 @@ public class MetaProductSettings extends PropertyController {
 	public String CONFIG_SOURCE_CFG_LIVEROOTDIR;
 	public String CONFIG_SOURCE_SQL_POSTREFRESH;
 	
+	public String MONITORING_RESOURCE_URL;
+	public String MONITORING_DIR_RES;
+	public String MONITORING_DIR_DATA;
+	public String MONITORING_DIR_REPORTS;
+	public String MONITORING_DIR_LOGS;
+	
 	public String CONFIG_CUSTOM_BUILD;
 	public String CONFIG_CUSTOM_DEPLOY;
 	public String CONFIG_CUSTOM_DATABASE;
@@ -71,6 +78,12 @@ public class MetaProductSettings extends PropertyController {
 	public static String PROPERTY_SOURCE_CFG_ROOTDIR = "config.root";
 	public static String PROPERTY_SOURCE_CFG_LIVEROOTDIR = "config.live";
 	public static String PROPERTY_SOURCE_SQL_POSTREFRESH = "config.postrefresh";
+	
+	public static String PROPERTY_MONITORING_RESOURCE_URL = "resources.url";
+	public static String PROPERTY_MONITORING_DIR_RES = "resources.path";
+	public static String PROPERTY_MONITORING_DIR_DATA = "data.path";
+	public static String PROPERTY_MONITORING_DIR_REPORTS = "reports.path";
+	public static String PROPERTY_MONITORING_DIR_LOGS = "logs.path";
 	
 	public static String PROPERTY_CUSTOM_BUILD = "custom.build";
 	public static String PROPERTY_CUSTOM_DEPLOY = "custom.deploy";
@@ -120,6 +133,12 @@ public class MetaProductSettings extends PropertyController {
 			if( charset == null )
 				action.exit1( _Error.UnknownDatabaseFilesCharset1 , "unknown database files charset=" + CONFIG_SOURCE_CHARSET , CONFIG_SOURCE_CHARSET );
 		}
+	
+		MONITORING_RESOURCE_URL = super.getStringProperty( action , PROPERTY_MONITORING_RESOURCE_URL );
+		MONITORING_DIR_RES = super.getPathProperty( action , PROPERTY_MONITORING_DIR_RES );
+		MONITORING_DIR_DATA = super.getPathProperty( action , PROPERTY_MONITORING_DIR_DATA );
+		MONITORING_DIR_REPORTS = super.getPathProperty( action , PROPERTY_MONITORING_DIR_REPORTS );
+		MONITORING_DIR_LOGS = super.getPathProperty( action , PROPERTY_MONITORING_DIR_LOGS );
 		
 		CONFIG_CUSTOM_BUILD = super.getStringProperty( action , PROPERTY_CUSTOM_BUILD );
 		CONFIG_CUSTOM_DEPLOY = super.getStringProperty( action , PROPERTY_CUSTOM_DEPLOY );
@@ -150,6 +169,17 @@ public class MetaProductSettings extends PropertyController {
 
 		// create initial
 		core.create( transaction.action , productContext );
+		
+		// monitoring
+		ActionBase action = transaction.getAction();
+		EngineMonitoring sm = action.getServerMonitoring();
+		PropertySet src = sm.properties.getProperties();
+		super.setSystemUrlProperty( PROPERTY_MONITORING_RESOURCE_URL , src.getExpressionByProperty( EngineMonitoring.PROPERTY_RESOURCE_URL ) );
+		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_RES , src.getExpressionByProperty( EngineMonitoring.PROPERTY_RESOURCE_PATH ) );
+		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_DATA , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_DATA ) );
+		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_REPORTS , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_REPORTS ) );
+		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_LOGS , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_LOGS ) );
+		
 		super.copyOriginalPropertiesToRaw( settings.getDefaultProductProperties() );
 		super.updateProperties( transaction.action );
 		
@@ -166,7 +196,7 @@ public class MetaProductSettings extends PropertyController {
 			buildMode.createSettings( transaction , set , buildCommon.getProperties() );
 			buildModes.put( mode , buildMode );
 		}
-		
+
 		super.initFinished();
 	}
 
@@ -287,6 +317,30 @@ public class MetaProductSettings extends PropertyController {
 		String redistPath = ( osType.isWindows() )? CONFIG_REDISTWIN_PATH : CONFIG_REDISTLINUX_PATH;
 		String finalPath = Common.getPath( redistPath , artefactDir );
 		return( finalPath );
+	}
+
+	public void setMonitoringProperties( EngineTransaction transaction , PropertySet src ) throws Exception {
+		super.setSystemUrlProperty( PROPERTY_MONITORING_RESOURCE_URL , src.getExpressionByProperty( PROPERTY_MONITORING_RESOURCE_URL ) );
+		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_RES , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_RES ) );
+		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_DATA , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_DATA ) );
+		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_REPORTS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_REPORTS ) );
+		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_LOGS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_LOGS ) );
+		
+		ActionBase action = transaction.getAction();
+		MONITORING_RESOURCE_URL = super.getStringProperty( action , PROPERTY_MONITORING_RESOURCE_URL );
+		MONITORING_DIR_RES = super.getPathProperty( action , PROPERTY_MONITORING_DIR_RES );
+		MONITORING_DIR_DATA = super.getPathProperty( action , PROPERTY_MONITORING_DIR_DATA );
+		MONITORING_DIR_REPORTS = super.getPathProperty( action , PROPERTY_MONITORING_DIR_REPORTS );
+		MONITORING_DIR_LOGS = super.getPathProperty( action , PROPERTY_MONITORING_DIR_LOGS );
+	}
+
+	public boolean isValidMonitoringSettings() {
+		if( MONITORING_DIR_RES.isEmpty() || 
+			MONITORING_DIR_DATA.isEmpty() || 
+			MONITORING_DIR_REPORTS.isEmpty() || 
+			MONITORING_DIR_LOGS.isEmpty() )
+			return( false );
+		return( true );
 	}
 	
 }

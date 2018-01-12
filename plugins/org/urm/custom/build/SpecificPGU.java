@@ -60,7 +60,7 @@ public class SpecificPGU {
 	}
 	
 	public String getPguServiceCallExt() throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		String custom = product.getPropertyValue( action , "CUSTOM_SERVICECALL_EXT" );
 		if( custom != null && !custom.isEmpty() )
 			return( custom );
@@ -69,7 +69,7 @@ public class SpecificPGU {
 	}
 	
 	public String getPguStorageServiceExt() throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		String custom = product.getPropertyValue( action , "CUSTOM_STORAGESERVICE_EXT" );
 		if( custom != null && !custom.isEmpty() )
 			return( custom );
@@ -115,7 +115,7 @@ public class SpecificPGU {
 		downloadFolder.removeFolder( action , "pgu-services-lib" );
 		downloadFolder.removeFolder( action , "servicecall-prod-libs" );
 
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		servicecallItem = distr.getBinaryItem( action , C_ITEMSERVICECALL );
 		storageserviceItem = distr.getBinaryItem( action , C_ITEMSTORAGESERVICE );
 		
@@ -207,7 +207,7 @@ public class SpecificPGU {
 		}
 
 		action.debug( "copy libs to servicecall and storageservice from pgu-services-lib and servicecall-prod-libs ..." );
-		MetaSource sources = meta.getSources( action );
+		MetaSource sources = meta.getSources();
 		List<MetaSourceProject> list = sources.getAllProjectList( true );
 		Dist releaseStorage = release;
 		
@@ -291,7 +291,7 @@ public class SpecificPGU {
 	}
 	
 	private void getAllWarAppDownloadDeps( boolean copyDistr , Dist release ) throws Exception {
-		MetaSource sources = meta.getSources( action );
+		MetaSource sources = meta.getSources();
 		MetaSourceProject sourceProject = sources.getProject( action , "pgu-portal" );
 		MetaSourceProjectItem sourceItem = sourceProject.getItem( action , "pgu-dependencies" );
 		MetaDistrBinaryItem distItem = sourceItem.distItem;
@@ -341,7 +341,7 @@ public class SpecificPGU {
 
 	public String getWarMRId( ActionBase action , String P_WAR ) throws Exception {
 		// get war from distributive info
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		MetaDistrBinaryItem item = distr.getBinaryItem( action , P_WAR );
 
 		String S_WAR_MRID = item.WAR_MRID;
@@ -353,7 +353,7 @@ public class SpecificPGU {
 
 	public boolean checkWarMRId( ActionBase action , String P_WAR ) throws Exception {
 		// get war from distributive info
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		MetaDistrBinaryItem item = distr.findBinaryItem( P_WAR );
 		if( item == null )
 			return( false );

@@ -304,7 +304,7 @@ public class CommandContext {
 		String value;
 		
 		// generic
-		MetaProductSettings product = ( isproduct )? meta.getProductSettings( action ) : null; 
+		MetaProductSettings product = ( isproduct )? meta.getProductSettings() : null; 
 		CTX_TRACEINTERNAL = ( getFlagValue( "OPT_TRACE" ) && getFlagValue( "OPT_SHOWALL" ) )? true : false;
 		CTX_TRACE = getFlagValue( "OPT_TRACE" );
 		CTX_SHOWONLY = combineValue( "OPT_SHOWONLY" , ( isenv )? env.SHOWONLY : null , def );
@@ -400,7 +400,7 @@ public class CommandContext {
 	
 	public void loadEnv( ActionInit action , String ENV , String SG , boolean loadProps ) throws Exception {
 		Meta meta = action.getContextMeta();
-		env = meta.getEnvData( action , ENV , loadProps );
+		env = meta.findEnv( ENV );
 		
 		if( SG == null || SG.isEmpty() ) {
 			sg = null;

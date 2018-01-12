@@ -51,7 +51,7 @@ public class ReleaseDistSet {
 		nx.BUILDTAG = BUILDTAG;
 		nx.BUILDVERSION = BUILDVERSION;
 		if( set != null ) {
-			MetaSource nsources = nr.meta.getSources( action );
+			MetaSource nsources = nr.meta.getSources();
 			nx.set = nsources.getProjectSet( action , set.NAME );
 		}
 		
@@ -122,7 +122,7 @@ public class ReleaseDistSet {
 	
 	private void loadBinary( ActionBase action , Node node ) throws Exception {
 		String SET = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		MetaSource sources = meta.getSources( action ); 
+		MetaSource sources = meta.getSources(); 
 		set = sources.getProjectSet( action , SET );
 		NAME = set.NAME;
 		
@@ -302,19 +302,19 @@ public class ReleaseDistSet {
 	}
 
 	public void addAllConfItems( ActionBase action ) throws Exception {
-		MetaDistr distr = meta.getDistr( action ); 
+		MetaDistr distr = meta.getDistr(); 
 		for( MetaDistrConfItem comp : distr.getConfItems() )
 			addConfItem( action , comp , true );
 	}
 
 	public void addAllDatabaseItems( ActionBase action ) throws Exception {
-		MetaDistr distr = meta.getDistr( action ); 
+		MetaDistr distr = meta.getDistr(); 
 		for( MetaDistrDelivery delivery : distr.getDatabaseDeliveries() )
 			addDatabaseDelivery( action , delivery , true );
 	}
 
 	public void addAllManualItems( ActionBase action ) throws Exception {
-		MetaDistr distr = meta.getDistr( action ); 
+		MetaDistr distr = meta.getDistr(); 
 		for( MetaDistrBinaryItem item : distr.getBinaryItems() ) {
 			if( item.distItemOrigin == VarDISTITEMORIGIN.MANUAL )
 				addManualItem( action , item );
@@ -322,7 +322,7 @@ public class ReleaseDistSet {
 	}
 
 	public void addAllDerivedItems( ActionBase action ) throws Exception {
-		MetaDistr distr = meta.getDistr( action ); 
+		MetaDistr distr = meta.getDistr(); 
 		for( MetaDistrBinaryItem item : distr.getBinaryItems() ) {
 			if( item.distItemOrigin == VarDISTITEMORIGIN.DERIVED )
 				addDerivedItem( action , item );

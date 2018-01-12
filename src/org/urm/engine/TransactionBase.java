@@ -1094,7 +1094,7 @@ public class TransactionBase extends EngineObject {
 
 	public MetaDistrDelivery getDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
 		Meta meta = getTransactionMetadata( delivery.meta.name );
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		return( distr.getDelivery( action , delivery.NAME ) );
 	}
 
@@ -1110,25 +1110,25 @@ public class TransactionBase extends EngineObject {
 
 	public MetaDatabaseSchema getDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
 		Meta meta = getTransactionMetadata( schema.meta.name );
-		MetaDatabase database = meta.getDatabase( action );
+		MetaDatabase database = meta.getDatabase();
 		return( database.getSchema( action , schema.SCHEMA ) );
 	}
 
 	public MetaProductUnit getProductUnit( MetaProductUnit unit ) throws Exception {
 		Meta meta = getTransactionMetadata( unit.meta.name );
-		MetaUnits units = meta.getUnits( action );
+		MetaUnits units = meta.getUnits();
 		return( units.getUnit( action , unit.NAME ) );
 	}
 
 	public MetaProductDoc getProductDoc( MetaProductDoc doc ) throws Exception {
 		Meta meta = getTransactionMetadata( doc.meta.name );
-		MetaDocs docs = meta.getDocs( action );
+		MetaDocs docs = meta.getDocs();
 		return( docs.getDoc( action , doc.NAME ) );
 	}
 
 	public MetaDistrComponent getDistrComponent( MetaDistrComponent comp ) throws Exception {
 		Meta meta = getTransactionMetadata( comp.meta.name );
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		return( distr.getComponent( action , comp.NAME ) );
 	}
 
@@ -1156,13 +1156,13 @@ public class TransactionBase extends EngineObject {
 	
 	public MetaSourceProject getSourceProject( MetaSourceProject project ) throws Exception {
 		Meta metaNew = getTransactionMetadata( project.meta.name );
-		MetaSource sourceNew = metaNew.getSources( action );
+		MetaSource sourceNew = metaNew.getSources();
 		return( sourceNew.getProject( action , project.NAME ) );
 	}
 	
 	public MetaSourceProjectSet getSourceProjectSet( MetaSourceProjectSet set ) throws Exception {
 		Meta metaNew = getTransactionMetadata( set.meta.name );
-		MetaSource sourceNew = metaNew.getSources( action );
+		MetaSource sourceNew = metaNew.getSources();
 		return( sourceNew.getProjectSet( action , set.NAME ) );
 	}
 
@@ -1192,7 +1192,7 @@ public class TransactionBase extends EngineObject {
 
 	public MetaDump getDump( MetaDump dump ) throws Exception {
 		Meta meta = getTransactionMetadata( dump.meta );
-		MetaDatabase db = meta.getDatabase( action );
+		MetaDatabase db = meta.getDatabase();
 		if( dump.EXPORT )
 			return( db.findExportDump( dump.NAME ) );
 		return( db.findImportDump( dump.NAME ) );

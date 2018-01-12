@@ -210,7 +210,7 @@ public class ActionScopeTarget {
 			return;
 		}
 		
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		for( String itemName : ITEMS ) {
 			MetaDistrBinaryItem item = distr.getBinaryItem( action , itemName );
 			if( item.sourceProjectItem == null )

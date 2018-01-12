@@ -11,13 +11,12 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
-import org.urm.engine.properties.PropertyController;
 import org.urm.meta.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaDistr extends PropertyController {
+public class MetaDistr {
 
 	protected Meta meta;
 	private Map<String,MetaDistrDelivery> mapDeliveries;
@@ -26,7 +25,6 @@ public class MetaDistr extends PropertyController {
 	private Map<String,MetaDistrComponent> mapComps;
 	
 	public MetaDistr( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
-		super( storage , settings , "distr" );
 		this.meta = meta;
 		meta.setDistr( this );
 		
@@ -36,26 +34,9 @@ public class MetaDistr extends PropertyController {
 		mapComps = new HashMap<String,MetaDistrComponent>();
 	}
 	
-	@Override
-	public String getName() {
-		return( "meta-distr" );
-	}
-	
-	@Override
-	public boolean isValid() {
-		if( super.isLoadFailed() )
-			return( false );
-		return( true );
-	}
-	
-	@Override
-	public void scatterProperties( ActionBase action ) throws Exception {
-	}
-	
 	public MetaDistr copy( ActionBase action , Meta meta , MetaDatabase rdb , MetaDocs rdocs ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		MetaDistr r = new MetaDistr( meta.getStorage() , product , meta );
-		r.initCopyStarted( this , product.getProperties() );
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
 			MetaDistrDelivery rd = delivery.copy( action , meta , r , rdb , rdocs );
 			r.mapDeliveries.put( rd.NAME , rd );
@@ -79,26 +60,15 @@ public class MetaDistr extends PropertyController {
 		}
 		
 		r.resolveReferences( action );
-		r.initFinished();
 		return( r );
 	}
 	
 	public void createDistr( TransactionBase transaction ) throws Exception {
-		if( !super.initCreateStarted( null ) )
-			return;
-		
-		super.initFinished();
 	}
 	
 	public void load( ActionBase action , MetaDatabase db , MetaDocs docs , Node root ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
-		if( !super.initCreateStarted( product.getProperties() ) )
-			return;
-
 		loadDeliveries( action , db , docs , ConfReader.xmlGetPathNode( root , "deliveries" ) );
 		loadComponents( action , ConfReader.xmlGetPathNode( root , "components" ) );
-		
-		super.initFinished();
 	}
 	
 	public void loadDeliveries( ActionBase action , MetaDatabase db , MetaDocs docs , Node node ) throws Exception {
@@ -144,7 +114,6 @@ public class MetaDistr extends PropertyController {
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		super.saveAsElements( doc , root , false );
 		Element deliveries = Common.xmlCreateElement( doc , root , "deliveries" );
 		saveDeliveries( action , doc , deliveries );
 		Element components = Common.xmlCreateElement( doc , root , "components" );

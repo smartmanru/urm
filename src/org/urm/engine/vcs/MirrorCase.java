@@ -60,7 +60,7 @@ public abstract class MirrorCase {
 			mirrorPath = settings.context.WORK_MIRRORPATH;
 		}
 		else {
-			MetaProductSettings product = vcs.meta.getProductSettings( action );
+			MetaProductSettings product = vcs.meta.getProductSettings();
 			mirrorPath = product.CONFIG_MIRRORPATH;
 		}
 		

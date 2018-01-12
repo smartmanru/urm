@@ -5,6 +5,7 @@ import org.urm.common.Common;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
+import org.urm.meta.product.MetaProductSettings;
 
 public class MonitoringStorage {
 
@@ -21,23 +22,32 @@ public class MonitoringStorage {
 	}
 	
 	public LocalFolder getDataFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
-		String path = Common.getPath( mon.DIR_DATA , target.ENV );
+		MetaProductSettings settings = meta.getProductSettings();
+		String path = Common.getPath( settings.MONITORING_DIR_DATA , target.ENV );
 		return( artefactory.getAnyFolder( action , path ) );
 	}
 	
 	public LocalFolder getReportsFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
-		String path = mon.DIR_REPORTS;
+		MetaProductSettings settings = meta.getProductSettings();
+		String path = settings.MONITORING_DIR_REPORTS;
 		return( artefactory.getAnyFolder( action , path ) );
 	}
 
 	public LocalFolder getResourceFolder( ActionBase action ) throws Exception {
-		String path = mon.DIR_RES;
+		MetaProductSettings settings = meta.getProductSettings();
+		String path = settings.MONITORING_DIR_RES;
 		return( artefactory.getAnyFolder( action , path ) );
 	}
 	
 	public LocalFolder getLogsFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
-		String path = Common.getPath( mon.DIR_LOGS , target.ENV );
+		MetaProductSettings settings = meta.getProductSettings();
+		String path = Common.getPath( settings.MONITORING_DIR_LOGS , target.ENV );
 		return( artefactory.getAnyFolder( action , path ) );
+	}
+
+	public String getMonitoringUrl() {
+		MetaProductSettings settings = meta.getProductSettings();
+		return( settings.MONITORING_RESOURCE_URL );
 	}
 	
 	public String getHistoryImageFile( MetaMonitoringTarget target ) throws Exception {
@@ -77,7 +87,4 @@ public class MonitoringStorage {
 		return( "imageonly.html" );
 	}
 
-	public String getMonitoringUrl() {
-		return( mon.RESOURCE_URL );
-	}
 }

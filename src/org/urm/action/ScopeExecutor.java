@@ -1004,7 +1004,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	private ActionScopeSet[] getOrderedSets( ActionScope scope ) throws Exception {
 		List<ActionScopeSet> list = new LinkedList<ActionScopeSet>();
 		if( scope.meta != null ) {
-			MetaSource sources = scope.meta.getSources( action ); 
+			MetaSource sources = scope.meta.getSources(); 
 			for( String sourceSetName : sources.getSetNames() ) {
 				ActionScopeSet set = scope.findSet( action , VarCATEGORY.PROJECT , sourceSetName );
 				if( set != null )

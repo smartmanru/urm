@@ -432,7 +432,7 @@ public class ActionTickets extends ActionBase {
 		}
 		else
 		if( target.isProject() ) {
-			MetaSource sources = dist.meta.getSources( this );
+			MetaSource sources = dist.meta.getSources();
 			MetaSourceProject project = sources.getProject( this , target.ITEM );
 			maker.addScopeProductSet( project.set.NAME , new String[] { target.ITEM } );
 		}
@@ -452,7 +452,7 @@ public class ActionTickets extends ActionBase {
 		}
 		else
 		if( target.isDelivery() ) {
-			MetaDistr distr = dist.meta.getDistr( this );
+			MetaDistr distr = dist.meta.getDistr();
 			MetaDistrDelivery delivery = distr.findDelivery( target.ITEM );
 			if( target.isDeliveryBinaries() ) {
 				maker.addScopeProductDistItems( delivery.getBinaryItemNames() );
@@ -527,21 +527,21 @@ public class ActionTickets extends ActionBase {
 	
 	private void executeCreateSetTarget( String setCode , String element , String[] items ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
-		MetaSource sources = dist.meta.getSources( this );
+		MetaSource sources = dist.meta.getSources();
 		MetaSourceProjectSet projectSet = sources.getProjectSet( this , element );
 		set.createTarget( this , projectSet );
 	}
 	
 	private void executeCreateProjectTarget( String setCode , String element , String[] items ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
-		MetaSource sources = dist.meta.getSources( this );
+		MetaSource sources = dist.meta.getSources();
 		MetaSourceProject project = sources.getProject( this , element );
 		set.createTarget( this , project , items );
 	}
 	
 	private void executeCreateDeliveryTarget( String setCode , String deliveryName , String type , String[] items ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
-		MetaDistr distr = dist.meta.getDistr( this );
+		MetaDistr distr = dist.meta.getDistr();
 		MetaDistrDelivery delivery = distr.getDelivery( this , deliveryName );
 		if( type.equals( TARGET_DELIVERYBINARY ) )
 			set.createTarget( this , delivery , VarTICKETSETTARGETTYPE.DISTITEM , items );

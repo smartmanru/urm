@@ -64,7 +64,7 @@ public class ReleaseTarget {
 		nx.BUILDVERSION = BUILDVERSION;
 		
 		nx.sourceProject = ( sourceProject == null )? null : ns.set.getProject( action , sourceProject.NAME );
-		MetaDistr ndistr = ns.meta.getDistr( action );
+		MetaDistr ndistr = ns.meta.getDistr();
 		nx.distConfItem = ( distConfItem == null )? null : ndistr.getConfItem( action , distConfItem.KEY );
 		nx.distDatabaseDelivery = ( distDatabaseDelivery == null )? null : ndistr.getDelivery( action , distDatabaseDelivery.NAME );
 		nx.distManualItem = ( distManualItem == null )? null : ndistr.getBinaryItem( action , distManualItem.KEY );
@@ -104,7 +104,7 @@ public class ReleaseTarget {
 		BUILDVERSION = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDVERSION , BUILDVERSION );
 		
 		// find in sources
-		MetaSource sources = meta.getSources( action ); 
+		MetaSource sources = meta.getSources(); 
 		sourceProject = sources.getProject( action , name ); 
 		NAME = sourceProject.NAME;
 		
@@ -126,7 +126,7 @@ public class ReleaseTarget {
 
 	private void loadConfiguration( ActionBase action , Node node ) throws Exception {
 		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		MetaDistr distr = meta.getDistr( action ); 
+		MetaDistr distr = meta.getDistr(); 
 		distConfItem = distr.getConfItem( action , name );
 		this.NAME = name;
 		
@@ -135,7 +135,7 @@ public class ReleaseTarget {
 	
 	private void loadDatabase( ActionBase action , Node node ) throws Exception {
 		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		MetaDistr distr = meta.getDistr( action ); 
+		MetaDistr distr = meta.getDistr(); 
 		distDatabaseDelivery = distr.getDelivery( action , name );
 		this.NAME = name;
 
@@ -158,7 +158,7 @@ public class ReleaseTarget {
 
 	private void loadManual( ActionBase action , Node node ) throws Exception {
 		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		MetaDistr distr = meta.getDistr( action ); 
+		MetaDistr distr = meta.getDistr(); 
 		distManualItem = distr.getBinaryItem( action , name );
 		this.NAME = name;
 		
@@ -167,7 +167,7 @@ public class ReleaseTarget {
 
 	private void loadDerived( ActionBase action , Node node ) throws Exception {
 		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		MetaDistr distr = meta.getDistr( action ); 
+		MetaDistr distr = meta.getDistr(); 
 		distDerivedItem = distr.getBinaryItem( action , name );
 		this.NAME = name;
 		
@@ -330,7 +330,7 @@ public class ReleaseTarget {
 			return( new ReleaseTargetItem[0] );
 		
 		List<ReleaseTargetItem> list = new LinkedList<ReleaseTargetItem>();
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		for( MetaDistrBinaryItem distItem : distr.getBinaryItems() ) {
 			if( distItem.sourceProjectItem == projectitem ) {
 				ReleaseTargetItem item = new ReleaseTargetItem( meta , this );

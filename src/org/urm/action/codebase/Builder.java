@@ -115,7 +115,7 @@ public abstract class Builder {
 	}
 
 	public PropertySet createProperties( ActionBase action , MetaSourceProject project ) throws Exception {
-		MetaProductSettings product = project.meta.getProductSettings( action );
+		MetaProductSettings product = project.meta.getProductSettings();
 		MetaProductBuildSettings settings = product.getBuildSettings( action );
 		PropertySet props = settings.getProperties();
 		PropertySet propsGenerated = new PropertySet( "build" , props );

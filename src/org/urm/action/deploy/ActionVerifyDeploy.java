@@ -210,7 +210,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		redist.recreateTmpFolder( this );
 		
 		boolean verifyNode = true;
-		MetaDistr distr = dist.meta.getDistr( this );
+		MetaDistr distr = dist.meta.getDistr();
 		
 		// binaries
 		if( super.context.CTX_DEPLOYBINARY ) {

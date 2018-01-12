@@ -37,7 +37,7 @@ public class DistFinalizer {
 		FileSet fs = new FileSet( null );
 		
 		if( dist.isMaster() ) {
-			MetaDistr distr = dist.meta.getDistr( action );
+			MetaDistr distr = dist.meta.getDistr();
 			for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
 				for( MetaDistrBinaryItem item : delivery.getBinaryItems() )
 					createExpectedMasterDeliveryItem( action , fsd , fs , delivery , item );
@@ -66,14 +66,14 @@ public class DistFinalizer {
 	
 	private void createExpectedProjectDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTargetItem item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryBinaryFolder( action , delivery.distDelivery ) );
-		String file = ( item.DISTFILE.isEmpty() )? item.distItem.getBaseFile( action ) : item.DISTFILE; 
+		String file = ( item.DISTFILE.isEmpty() )? item.distItem.getBaseFile() : item.DISTFILE; 
 		dir.addFile( file );
 		dir.addFile( file + ".md5" );
 	}
 	
 	private void createExpectedManualDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTarget item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryBinaryFolder( action , delivery.distDelivery ) );
-		String file = ( item.DISTFILE.isEmpty() )? item.distManualItem.getBaseFile( action ) : item.DISTFILE;  
+		String file = ( item.DISTFILE.isEmpty() )? item.distManualItem.getBaseFile() : item.DISTFILE;  
 		dir.addFile( file );
 		dir.addFile( file + ".md5" );
 	}
@@ -87,7 +87,7 @@ public class DistFinalizer {
 		String folder = dist.getDeliveryBinaryFolder( action , delivery );
 		String file = fsd.findDistItem( action , item , folder );
 		if( file == null )
-			file = item.getBaseFile( action );
+			file = item.getBaseFile();
 		
 		FileSet dir = fs.createDir( folder );
 		dir.addFile( file );
@@ -101,7 +101,7 @@ public class DistFinalizer {
 			FileSet dirFilesDist = fsd.findDirByName( dir );
 			MetaDistrDelivery delivery = null;
 			if( dist.isMaster() ) {
-				MetaDistr distr = dist.meta.getDistr( action );
+				MetaDistr distr = dist.meta.getDistr();
 				delivery = distr.findDeliveryByFolder( dir );
 			}
 			else {
@@ -329,7 +329,7 @@ public class DistFinalizer {
 	}
 	
 	private boolean finishDistMaster( ActionBase action ) throws Exception {
-		MetaDistr distr = dist.meta.getDistr( action ); 
+		MetaDistr distr = dist.meta.getDistr(); 
 		ReleaseMaster master = dist.release.master;
 		for( ReleaseMasterItem item : master.getMasterItems() ) {
 			if( distr.findBinaryItem( item.KEY ) == null )
@@ -354,7 +354,7 @@ public class DistFinalizer {
 		DistItemInfo info = dist.getDistItemInfo( action , distItem , true , false );
 		if( !info.found ) {
 			String folder = Common.getPath( distItem.delivery.FOLDER , Dist.BINARY_FOLDER );
-			action.error( distItem.KEY + " - item not found (" + Common.getPath( folder , distItem.getBaseFile( action ) ) + ")" );
+			action.error( distItem.KEY + " - item not found (" + Common.getPath( folder , distItem.getBaseFile() ) + ")" );
 			return( false );
 		}
 		

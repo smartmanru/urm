@@ -232,8 +232,6 @@ public class ProductMeta extends EngineObject {
 	}
 
 	public void setDatabase( MetaDatabase database ) throws Exception {
-		if( this.database != null )
-			this.database.deleteObject();
 		this.database = database;
 	}
 
@@ -244,20 +242,14 @@ public class ProductMeta extends EngineObject {
 	}
 
 	public void setDocs( MetaDocs docs ) throws Exception {
-		if( this.docs != null )
-			this.docs.deleteObject();
 		this.docs = docs;
 	}
 
 	public void setDistr( MetaDistr distr ) throws Exception {
-		if( this.distr != null )
-			this.distr.deleteObject();
 		this.distr = distr;
 	}
 
 	public void setMonitoring( MetaMonitoring mon ) throws Exception {
-		if( this.mon != null )
-			this.mon.deleteObject();
 		this.mon = mon;
 	}
 

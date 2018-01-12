@@ -293,7 +293,7 @@ public class DistRepository {
 			}
 			else {
 				if( !action.isLocalRun() ) {
-					MetaProductSettings product = meta.getProductSettings( action );
+					MetaProductSettings product = meta.getProductSettings();
 					account = Account.getDatacenterAccount( action , "" , product.CONFIG_DISTR_HOSTLOGIN , DBEnumOSType.LINUX );
 				}
 			}

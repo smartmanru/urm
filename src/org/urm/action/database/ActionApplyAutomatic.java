@@ -148,7 +148,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		scriptFolder.copyFiles( this , file , logReleaseExecute );
 		
 		ConfBuilder builder = new ConfBuilder( this , server.meta );
-		MetaProductSettings settings = server.meta.getProductSettings( this );
+		MetaProductSettings settings = server.meta.getProductSettings();
 		builder.configureFile( logReleaseExecute , file , server , null , settings.charset );
 		
 		if( !dsf.REGIONALINDEX.equals( "RR" ) )
@@ -183,7 +183,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		DatabaseScriptFile dsf = new DatabaseScriptFile();
 		dsf.setDistFile( this , file );
 		
-		MetaDatabase database = server.meta.getDatabase( this );
+		MetaDatabase database = server.meta.getDatabase();
 		MetaDatabaseSchema schema = database.getSchema( this , dsf.SRCSCHEMA );
 		if( !schemaSet.containsKey( schema.SCHEMA ) ) {
 			trace( "script " + file + " is filtered by schema" );
@@ -241,7 +241,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		DatabaseScriptFile dsf = new DatabaseScriptFile();
 		dsf.setDistFile( this , file );
 		String schemaName = dsf.SRCSCHEMA;
-		MetaDatabase database = server.meta.getDatabase( this );
+		MetaDatabase database = server.meta.getDatabase();
 		MetaDatabaseSchema schema = database.getSchema( this , schemaName );
 		if( !client.applyScript( this , schema , logReleaseExecute , file , logReleaseExecute , log ) ) {
 			ifexit( _Error.ErrorApplyingScript1 , "error applying script " + file + ", see logs" , new String[] { file } );

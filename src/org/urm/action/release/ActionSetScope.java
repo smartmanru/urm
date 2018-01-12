@@ -52,7 +52,7 @@ public class ActionSetScope extends ActionBase {
 	}
 
 	private boolean executeBySource() throws Exception {
-		MetaSource source = dist.meta.getSources( this );
+		MetaSource source = dist.meta.getSources();
 		
 		// add new
 		dist.reloadCheckOpenedForDataChange( this );
@@ -132,8 +132,8 @@ public class ActionSetScope extends ActionBase {
 	}
 
 	private boolean executeByDelivery() throws Exception {
-		MetaDistr distr = dist.meta.getDistr( this );
-		MetaSource source = dist.meta.getSources( this );
+		MetaDistr distr = dist.meta.getDistr();
+		MetaSource source = dist.meta.getSources();
 		
 		// add new 
 		dist.reloadCheckOpenedForDataChange( this );

@@ -111,7 +111,7 @@ public class MetaEnv extends PropertyController {
 		NAME = super.getStringPropertyRequired( action , PROPERTY_ID );
 		action.trace( "load properties of env=" + NAME + " ..." );
 		
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );
 		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE , true );
 		REDISTWIN_PATH = super.getPathProperty( action , PROPERTY_REDISTWIN_PATH , product.CONFIG_REDISTWIN_PATH );
@@ -151,7 +151,7 @@ public class MetaEnv extends PropertyController {
 	}
 
 	public MetaEnv copy( ActionBase action , Meta meta ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		MetaEnv r = new MetaEnv( meta.getStorage() , product , meta );
 		r.initCopyStarted( this , product.getProperties() );
 		
@@ -185,7 +185,7 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		secretProperties = new PropertySet( "secret" , product.getProperties() );
 		if( !super.initCreateStarted( secretProperties ) )
 			return;
@@ -230,7 +230,7 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	private void createProperties( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		secretProperties = new PropertySet( "secret" , product.getProperties() );
 		if( !super.initCreateStarted( secretProperties ) )
 			return;
@@ -261,7 +261,7 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	private void resolveLinks( ActionBase action ) throws Exception {
-		baselineEnvRef.set( meta.getEnv( action , BASELINE ) );
+		baselineEnvRef.set( meta.findEnv( BASELINE ) );
 		for( MetaEnvSegment sg : originalList )
 			sg.resolveLinks( action );
 	}

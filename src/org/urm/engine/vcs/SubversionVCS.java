@@ -126,7 +126,7 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + branch1Path + " " + branch2Path + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: copy branch" ) );
 		return( true );
 	}
@@ -156,7 +156,7 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		shell.customCheckStatus( action , "svn rename " + SVNAUTH + " " + branch1Path + " " + branch2Path + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: rename branch" ) );
 		return( true );
 	}
@@ -178,7 +178,7 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: copy tag" ) );
 		return( true );
 	}
@@ -194,7 +194,7 @@ public class SubversionVCS extends GenericVCS {
 		}
 
 		// check destination status
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		String tag2Path = Common.getPath( projectPath , "tags" , TAG2 );
 		if( checkSvnPathExists( tag2Path ) ) {
 			action.info( "drop already existing new tag ..." );
@@ -217,7 +217,7 @@ public class SubversionVCS extends GenericVCS {
 
 		// check destination status
 		String tag2Path = Common.getPath( projectPath , "tags" , TAG2 );
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		if( checkSvnPathExists( tag2Path ) ) {
 			action.info( "drop already existing new tag ..." );
 			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tag2Path + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: drop tag before svn rename" ) );
@@ -247,7 +247,7 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + branch2Path + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: copy tag to branch" ) );
 		return( true );
 	}
@@ -262,7 +262,7 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 		
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tagPath + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: drop tag" ) );
 		return( true );
 	}
@@ -280,7 +280,7 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 		
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + branchPath + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: drop branch" ) );
 		return( true );
 	}
@@ -335,7 +335,7 @@ public class SubversionVCS extends GenericVCS {
 		}
 		
 		String tagPath = Common.getPath( projectPath , "tags" , TAG );
-		MetaProductSettings product = meta.getProductSettings( action );
+		MetaProductSettings product = meta.getProductSettings();
 		if( checkSvnPathExists( tagPath ) ) {
 			action.info( "drop already existing tag ..." );
 			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tagPath + " -m " + Common.getQuoted( product.CONFIG_ADM_TRACKER + "-0000: drop tag before svn rename" ) );

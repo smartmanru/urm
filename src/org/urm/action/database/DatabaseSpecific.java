@@ -133,7 +133,7 @@ public class DatabaseSpecific {
 			return( false );
 		}
 		
-		MetaProductSettings settings = server.meta.getProductSettings( action );
+		MetaProductSettings settings = server.meta.getProductSettings();
 		List<String> data = action.readFileLines( fileLog , settings.charset );
 		String[] lines = data.toArray( new String[0] );
 		String[] errors = Common.grep( lines , "^ERROR" );
@@ -161,7 +161,7 @@ public class DatabaseSpecific {
 		if( status != 0 )
 			action.exit1( _Error.ScriptApplyError1 , "error: (see logs)" , file );
 
-		MetaProductSettings settings = server.meta.getProductSettings( action );
+		MetaProductSettings settings = server.meta.getProductSettings();
 		List<String> data = action.readFileLines( fileLog , settings.charset );
 		String[] lines = data.toArray( new String[0] );
 		for( int k = 0; k < lines.length; k++ )
@@ -446,7 +446,7 @@ public class DatabaseSpecific {
 	public void addSpecificConf( ActionBase action , List<String> lines ) throws Exception {
 		Account account = action.getNodeAccount( node );
 		String DBMSADDR = ( account.isLocal() )? "localhost" : server.DBMSADDR;
-		MetaProductSettings settings = server.meta.getProductSettings( action );
+		MetaProductSettings settings = server.meta.getProductSettings();
 		addSpecificLine( action , lines , "CONF_DBADDR" , DBMSADDR );
 		if( DBMSADDR.contains( ":" ) ) {
 			addSpecificLine( action , lines , "CONF_DBHOST" , Common.getPartBeforeLast( DBMSADDR , ":" ) );

@@ -67,7 +67,7 @@ public class Artefactory {
 		if( build.CONFIG_APPVERSION.isEmpty() )
 			action.exit0( _Error.MissingAppVersion0 , "Missing application version in product build configuration" );
 		
-		MetaProductSettings settings = meta.getProductSettings( action );
+		MetaProductSettings settings = meta.getProductSettings();
 		String artefactDir = Common.getPath( build.CONFIG_ARTEFACTDIR , build.CONFIG_APPVERSION , FOLDER );
 		String finalPath = settings.getTargetPath( osType , artefactDir );
 		

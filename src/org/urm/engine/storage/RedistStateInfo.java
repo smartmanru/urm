@@ -99,7 +99,7 @@ public class RedistStateInfo {
 	
 	private FileInfo createFileInfo( ActionBase action , VarCONTENTTYPE CONTENTTYPE , String verName , String verInfo ) throws Exception {
 		String baseitem = verName;
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		if( Types.isBinaryContent( CONTENTTYPE ) ) {
 			MetaDistrBinaryItem item = distr.getBinaryItem( action , baseitem );
 			FileInfo info = new FileInfo();

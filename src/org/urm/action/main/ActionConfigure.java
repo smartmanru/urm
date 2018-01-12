@@ -276,7 +276,7 @@ public class ActionConfigure extends ActionBase {
 				addAffected( linux , proxyPath , true );
 				String[] envNames = meta.getEnvNames();
 				for( String envName : envNames ) {
-					MetaEnv env = meta.getEnvData( this , envName , false );
+					MetaEnv env = meta.findEnv( envName );
 					envs.put( envName , env );
 				}
 			}
@@ -284,7 +284,7 @@ public class ActionConfigure extends ActionBase {
 				MetaEnv env = null;
 				String[] envFiles = ms.getEnvFiles( this );
 				for( String envFile : envFiles ) {
-					MetaEnv envx = meta.getEnvData( this , envFile , false );
+					MetaEnv envx = meta.findEnv( envFile );
 					if( envx.NAME.equals( USEENV ) ) {
 						env = envx;
 						envs.put( envFile , envx );
