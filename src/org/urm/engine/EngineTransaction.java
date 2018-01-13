@@ -73,8 +73,8 @@ import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaEnvStartInfo;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
-import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductDoc;
+import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaProductVersion;
@@ -695,18 +695,19 @@ public class EngineTransaction extends TransactionBase {
 		MetaProductVersion version = metadata.getVersion();
 		version.updateVersion( this , majorFirstNumber , majorSecondNumber , majorNextFirstNumber , majorNextSecondNumber , lastProdTag , nextProdTag );
 		
-		ProductContext context = new ProductContext( meta );
+		EngineDirectory directory = super.getDirectory();
+		AppProduct product = directory.getProduct( meta.name );
+		ProductContext context = new ProductContext( meta , product );
 		context.create( action , version );
 		MetaProductSettings settings = meta.getProductSettings();
 		settings.updateSettings( this , context );
 		
-		settings.recalculateChildProperties( action );
 		return( version );
 	}
 
-	public void setProductLifecycles( MetaProductCoreSettings core , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
-		checkTransactionMetadata( core.meta.getStorage() );
-		core.setLifecycles( this , major , minor , urgentsAll , urgents );
+	public void setProductLifecycles( MetaProductPolicy policy , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
+		checkTransactionMetadata( policy.meta.getStorage() );
+		policy.setLifecycles( this , major , minor , urgentsAll , urgents );
 	}
 	
 	public void createDistrDelivery( MetaDistrDelivery delivery ) throws Exception {

@@ -13,7 +13,7 @@ import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.EngineContext;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.EngineSettings;
-import org.urm.meta.product.MetaProductCoreSettings;
+import org.urm.meta.product.MetaProductSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -33,14 +33,14 @@ public class DBEngineMonitoring {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityEngineMonitoring( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityEngineMonitoring( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.MONITORING , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
 		return( entity );
 	}
 	
 	private static String getProductPath( String var ) {
-		return( EntityVar.p( var ) + "/" + EntityVar.p( MetaProductCoreSettings.PROPERTY_PRODUCT_NAME ) );
+		return( EntityVar.p( var ) + "/" + EntityVar.p( MetaProductSettings.PROPERTY_PRODUCT_NAME ) );
 	}
 	
 	public static void importxml( EngineLoader loader , EngineMonitoring mon , Node root ) throws Exception {

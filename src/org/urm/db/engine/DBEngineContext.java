@@ -28,9 +28,9 @@ public abstract class DBEngineContext {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityRC( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityRC( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.RC , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
 		return( entity );
 	}
 	
@@ -40,9 +40,9 @@ public abstract class DBEngineContext {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[0] ) ); 
 	}
 
-	public static PropertyEntity loaddbEntityCustomRC( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityCustomRC( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.LOCAL_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.RC_CUSTOM , DBVersions.LOCAL_ID , DBEnumObjectVersionType.LOCAL );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.LOCAL_ID );
+		DBSettings.loaddbEntity( c , entity , DBVersions.LOCAL_ID );
 		return( entity );
 	}
 	
@@ -78,9 +78,9 @@ public abstract class DBEngineContext {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityEngine( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityEngine( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.ENGINE , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
 		return( entity );
 	}
 	
@@ -90,9 +90,9 @@ public abstract class DBEngineContext {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[0] ) ); 
 	}
 
-	public static PropertyEntity loaddbEntityCustomEngine( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityCustomEngine( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.CORE_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.ENGINE_CUSTOM , DBVersions.CORE_ID , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.CORE_ID );
+		DBSettings.loaddbEntity( c , entity , DBVersions.CORE_ID );
 		return( entity );
 	}
 	

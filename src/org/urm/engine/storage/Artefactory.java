@@ -14,7 +14,7 @@ import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductBuildSettings;
-import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaSourceProject;
 
 public class Artefactory {
@@ -67,9 +67,9 @@ public class Artefactory {
 		if( build.CONFIG_APPVERSION.isEmpty() )
 			action.exit0( _Error.MissingAppVersion0 , "Missing application version in product build configuration" );
 		
-		MetaProductSettings settings = meta.getProductSettings();
+		MetaProductCoreSettings core = meta.getProductCoreSettings();
 		String artefactDir = Common.getPath( build.CONFIG_ARTEFACTDIR , build.CONFIG_APPVERSION , FOLDER );
-		String finalPath = settings.getTargetPath( osType , artefactDir );
+		String finalPath = core.getTargetPath( osType , artefactDir );
 		
 		LocalFolder folder = getAnyFolder( action , finalPath );
 		folder.ensureExists( action );

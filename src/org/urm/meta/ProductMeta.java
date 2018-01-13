@@ -13,7 +13,6 @@ import org.urm.engine.EngineSession;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.dist.DistRepository;
-import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineProducts;
@@ -26,6 +25,7 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaMonitoring;
+import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.MetaSource;
@@ -41,6 +41,7 @@ public class ProductMeta extends EngineObject {
 	
 	private MetaProductVersion version;
 	private MetaProductSettings settings;
+	private MetaProductPolicy policy;
 	private MetaUnits units;
 	private MetaDatabase database;
 	private MetaSource sources;
@@ -82,7 +83,10 @@ public class ProductMeta extends EngineObject {
 		if( version != null )
 			r.version = version.copy( action , r.meta );
 		if( settings != null )
-			r.settings = settings.copy( action , r.meta );
+			r.settings = settings.copy( action , r.meta , null );
+		if( policy != null )
+			r.policy = policy.copy( action , r.meta );
+		
 		if( units != null )
 			r.units = units.copy( action , r.meta );
 		if( database != null )
@@ -144,7 +148,8 @@ public class ProductMeta extends EngineObject {
 	
 	public synchronized void createInitial( TransactionBase transaction , EngineSettings settings , AppProduct product ) throws Exception {
 		createInitialVersion( transaction );
-		createInitialProduct( transaction , settings , product );
+		createInitialCore( transaction , settings , product );
+		createInitialPolicy( transaction );
 		createInitialUnits( transaction );
 		createInitialDatabase( transaction );
 		createInitialSources( transaction );
@@ -159,15 +164,20 @@ public class ProductMeta extends EngineObject {
 		meta.setVersion( version );
 	}
 	
-	private void createInitialProduct( TransactionBase transaction , EngineSettings engineSettings , AppProduct product ) throws Exception {
-		ObjectProperties systemProps = product.system.getParameters();
-		settings = new MetaProductSettings( this , meta , systemProps.getProperties() );
+	private void createInitialCore( TransactionBase transaction , EngineSettings engineSettings , AppProduct product ) throws Exception {
+		settings = new MetaProductSettings( this , meta );
 		
-		ProductContext productContext = new ProductContext( meta );
+		ProductContext productContext = new ProductContext( meta , product );
 		productContext.create( transaction.action , version );
 		
 		settings.createSettings( transaction , engineSettings , productContext );
-		meta.setProduct( settings );
+		meta.setSettings( settings );
+	}
+	
+	private void createInitialPolicy( TransactionBase transaction ) throws Exception {
+		policy = new MetaProductPolicy( this , meta );
+		policy.createPolicy( transaction );
+		meta.setPolicy( policy );
 	}
 	
 	private void createInitialUnits( TransactionBase transaction ) throws Exception {
@@ -214,20 +224,18 @@ public class ProductMeta extends EngineObject {
 	}
 	
 	public void setVersion( MetaProductVersion version ) throws Exception {
-		if( this.version != null )
-			this.version.deleteObject();
 		this.version = version;
 	}
 
 	public void setSettings( MetaProductSettings settings ) throws Exception {
-		if( this.settings != null )
-			this.settings.deleteObject();
 		this.settings = settings;
 	}
 
+	public void setPolicy( MetaProductPolicy policy ) throws Exception {
+		this.policy = policy;
+	}
+
 	public void setUnits( MetaUnits units ) throws Exception {
-		if( this.units != null )
-			this.units.deleteObject();
 		this.units = units;
 	}
 
@@ -236,8 +244,6 @@ public class ProductMeta extends EngineObject {
 	}
 
 	public void setSources( MetaSource sources ) throws Exception {
-		if( this.sources != null )
-			this.sources.deleteObject();
 		this.sources = sources;
 	}
 
@@ -271,6 +277,10 @@ public class ProductMeta extends EngineObject {
 	
 	public MetaProductSettings getSettings() {
 		return( settings );
+	}
+	
+	public MetaProductPolicy getPolicy() {
+		return( policy );
 	}
 	
 	public MetaUnits getUnits() {

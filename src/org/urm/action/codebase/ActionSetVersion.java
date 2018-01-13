@@ -8,6 +8,7 @@ import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.engine.ProjectBuilder;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 
 public class ActionSetVersion extends ActionBase {
@@ -65,8 +66,11 @@ public class ActionSetVersion extends ActionBase {
 		// set version
 		createDedicatedShell( "build"  );
 		updateVersion( scopeProject , PATCHPATH.buildFolder );
+		
 		MetaProductSettings product = scopeProject.meta.getProductSettings();
-		vcs.commit( scopeProject.sourceProject , BRANCH , PATCHPATH.buildFolder , product.CONFIG_ADM_TRACKER + "-0000: set version " + BUILDVERSION );
+		MetaProductCoreSettings core =  product.getCoreSettings();
+		
+		vcs.commit( scopeProject.sourceProject , BRANCH , PATCHPATH.buildFolder , core.CONFIG_ADM_TRACKER + "-0000: set version " + BUILDVERSION );
 		return( SCOPESTATE.RunSuccess );
 	}
 }

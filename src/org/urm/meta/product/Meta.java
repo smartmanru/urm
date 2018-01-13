@@ -20,6 +20,7 @@ import org.w3c.dom.Node;
 
 public class Meta extends EngineObject {
 
+	public int ID;
 	public String name;
 	public EngineSession session;
 	
@@ -28,6 +29,7 @@ public class Meta extends EngineObject {
 
 	private MetaProductVersion version;
 	private MetaProductSettings settings;
+	private MetaProductPolicy policy;
 	private MetaUnits units;
 	private MetaDatabase database;
 	private MetaDocs docs;
@@ -70,6 +72,7 @@ public class Meta extends EngineObject {
 		// clear old refs
 		version = null;
 		settings = null;
+		policy = null;
 		units = null;
 		database = null;
 		docs = null;
@@ -96,8 +99,12 @@ public class Meta extends EngineObject {
 		this.version = version;
 	}
 	
-	public void setProduct( MetaProductSettings product ) {
-		this.settings = product;
+	public void setSettings( MetaProductSettings settings ) {
+		this.settings = settings;
+	}
+	
+	public void setPolicy( MetaProductPolicy policy ) {
+		this.policy = policy;
 	}
 	
 	public void setUnits( MetaUnits units ) {
@@ -128,6 +135,12 @@ public class Meta extends EngineObject {
 		if( version == null )
 			version = storage.getVersion();
 		return( version );
+	}
+
+	public synchronized MetaProductPolicy getPolicy() {
+		if( policy == null )
+			policy = storage.getPolicy();
+		return( policy );
 	}
 
 	public synchronized MetaProductCoreSettings getProductCoreSettings() {

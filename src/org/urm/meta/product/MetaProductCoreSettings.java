@@ -1,143 +1,181 @@
 package org.urm.meta.product;
 
+import java.nio.charset.Charset;
+
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
+import org.urm.db.core.DBEnums.DBEnumOSType;
 import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.ObjectProperties;
+import org.urm.engine.properties.PropertySet;
 import org.urm.meta.ProductContext;
+import org.urm.meta.engine.EngineContext;
+import org.urm.meta.engine.EngineMonitoring;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaProductCoreSettings {
 
+	// engine overrides
+	public static String PROPERTY_REDISTWIN_PATH = EngineContext.PROPERTY_STAGING_WINPATH;
+	public static String PROPERTY_REDISTLINUX_PATH = EngineContext.PROPERTY_STAGING_LINUXPATH;
+	
+	// own properties
+	public static String PROPERTY_DISTR_PATH  = "distr.path";
+	public static String PROPERTY_DISTR_HOSTLOGIN = "distr.hostlogin";
+	public static String PROPERTY_UPGRADE_PATH = "upgrade.path";
+	public static String PROPERTY_BASE_PATH = "base.path";
+	public static String PROPERTY_MIRRORPATH = "mirror.path";
+	
+	public static String PROPERTY_ADM_TRACKER = "adm.tracker";
+	public static String PROPERTY_COMMIT_TRACKERLIST = "source.trackers";
+	
+	public static String PROPERTY_SOURCE_CHARSET = "release.charset";
+	public static String PROPERTY_SOURCE_RELEASEROOTDIR = "release.root";
+	public static String PROPERTY_SOURCE_CFG_ROOTDIR = "config.root";
+	public static String PROPERTY_SOURCE_CFG_LIVEROOTDIR = "config.live";
+	public static String PROPERTY_SOURCE_SQL_POSTREFRESH = "config.postrefresh";
+	
+	public static String PROPERTY_MONITORING_RESOURCE_URL = "resources.url";
+	public static String PROPERTY_MONITORING_DIR_RES = "resources.path";
+	public static String PROPERTY_MONITORING_DIR_DATA = "data.path";
+	public static String PROPERTY_MONITORING_DIR_REPORTS = "reports.path";
+	public static String PROPERTY_MONITORING_DIR_LOGS = "logs.path";
+	
+	public static String PROPERTY_CUSTOM_BUILD = "custom.build";
+	public static String PROPERTY_CUSTOM_DEPLOY = "custom.deploy";
+	public static String PROPERTY_CUSTOM_DATABASE = "custom.database";
+
 	public Meta meta;
 	public MetaProductSettings settings;
+	private ObjectProperties ops;
 	
-	public String CONFIG_PRODUCT;
-	public String CONFIG_PRODUCTHOME;
-	public int CONFIG_LASTPRODTAG;
-	public int CONFIG_NEXTPRODTAG;
-	public int CONFIG_VERSION_BRANCH_MAJOR;
-	public int CONFIG_VERSION_BRANCH_MINOR;
-	public int CONFIG_VERSION_BRANCH_NEXTMAJOR;
-	public int CONFIG_VERSION_BRANCH_NEXTMINOR;
-
-	public String RELEASELC_MAJOR;
-	public String RELEASELC_MINOR;
-	public boolean releaseLCUrgentAll;
-	public String[] RELEASELC_URGENT_LIST;
+	public String CONFIG_REDISTWIN_PATH;
+	public String CONFIG_REDISTLINUX_PATH;
+	public String CONFIG_DISTR_PATH;
+	public String CONFIG_DISTR_HOSTLOGIN;
+	public String CONFIG_UPGRADE_PATH;
+	public String CONFIG_BASE_PATH;
+	public String CONFIG_MIRRORPATH;
+	public String CONFIG_ADM_TRACKER;
+	public String CONFIG_COMMIT_TRACKERLIST;
+	public String CONFIG_META_MIRROR;
+	public String CONFIG_SOURCE_MIRROR;
 	
-	public static String PROPERTY_PRODUCT_NAME = "product";
-	public static String PROPERTY_PRODUCT_HOME = "product.home";
-	public static String PROPERTY_LASTPRODTAG = MetaProductVersion.PROPERTY_PROD_LASTTAG;
-	public static String PROPERTY_NEXTPRODTAG = MetaProductVersion.PROPERTY_PROD_NEXTTAG;
-	public static String PROPERTY_VERSION_BRANCH_MAJOR = MetaProductVersion.PROPERTY_MAJOR_FIRST;
-	public static String PROPERTY_VERSION_BRANCH_MINOR = MetaProductVersion.PROPERTY_MAJOR_LAST;
-	public static String PROPERTY_VERSION_BRANCH_NEXTMAJOR = MetaProductVersion.PROPERTY_NEXT_MAJOR_FIRST;
-	public static String PROPERTY_VERSION_BRANCH_NEXTMINOR = MetaProductVersion.PROPERTY_NEXT_MAJOR_LAST;
+	public String CONFIG_SOURCE_CHARSET;
+	public Charset charset;
+	public String CONFIG_SOURCE_RELEASEROOTDIR;
+	public String CONFIG_SOURCE_CFG_ROOTDIR;
+	public String CONFIG_SOURCE_CFG_LIVEROOTDIR;
+	public String CONFIG_SOURCE_SQL_POSTREFRESH;
 	
-	public static String PROPERTY_RELEASELC_MAJOR = "minor";
-	public static String PROPERTY_RELEASELC_MINOR = "major";
-	public static String PROPERTY_RELEASELC_URGENTANY = "urgentany";
-	public static String PROPERTY_RELEASELC_URGENTS = "urgentset";
-
+	public String MONITORING_RESOURCE_URL;
+	public String MONITORING_DIR_RES;
+	public String MONITORING_DIR_DATA;
+	public String MONITORING_DIR_REPORTS;
+	public String MONITORING_DIR_LOGS;
+	
+	public String CONFIG_CUSTOM_BUILD;
+	public String CONFIG_CUSTOM_DEPLOY;
+	public String CONFIG_CUSTOM_DATABASE;
+	
 	public MetaProductCoreSettings( Meta meta , MetaProductSettings settings ) {
 		this.meta = meta;
 		this.settings = settings;
-		releaseLCUrgentAll = false;
 	}
 
-	public MetaProductCoreSettings copy( ActionBase action , Meta meta , MetaProductSettings rsettings ) throws Exception {
-		MetaProductCoreSettings r = new MetaProductCoreSettings( meta , rsettings );
-
-		// context
-		r.CONFIG_PRODUCT = CONFIG_PRODUCT;
-		r.CONFIG_PRODUCTHOME = CONFIG_PRODUCTHOME;
-		
-		r.CONFIG_LASTPRODTAG = CONFIG_LASTPRODTAG;
-		r.CONFIG_NEXTPRODTAG = CONFIG_NEXTPRODTAG;
-		r.CONFIG_VERSION_BRANCH_MAJOR = CONFIG_VERSION_BRANCH_MAJOR;
-		r.CONFIG_VERSION_BRANCH_MINOR = CONFIG_VERSION_BRANCH_MINOR;
-		r.CONFIG_VERSION_BRANCH_NEXTMAJOR = CONFIG_VERSION_BRANCH_NEXTMAJOR;
-		r.CONFIG_VERSION_BRANCH_NEXTMINOR = CONFIG_VERSION_BRANCH_NEXTMINOR;
-
-		// stored
-		r.RELEASELC_MAJOR = RELEASELC_MAJOR;
-		r.RELEASELC_MINOR = RELEASELC_MINOR;
-		r.releaseLCUrgentAll = releaseLCUrgentAll;
-		r.RELEASELC_URGENT_LIST = RELEASELC_URGENT_LIST.clone();
-		
+	public MetaProductCoreSettings copy( ActionBase action , Meta rmeta , MetaProductSettings rsettings ) throws Exception {
+		MetaProductCoreSettings r = new MetaProductCoreSettings( rmeta , rsettings );
+		r.ops = ops.copy( rsettings.getProperties() );
+		r.scatterProperties( action );
 		return( r );
+	}
+	
+	public void scatterProperties( ActionBase action ) throws Exception {
+		CONFIG_REDISTWIN_PATH = ops.getPathProperty( PROPERTY_REDISTWIN_PATH );
+		CONFIG_REDISTLINUX_PATH = ops.getPathProperty( PROPERTY_REDISTLINUX_PATH );
+		CONFIG_DISTR_PATH = ops.getPathProperty( PROPERTY_DISTR_PATH );
+		CONFIG_DISTR_HOSTLOGIN = ops.getStringProperty( PROPERTY_DISTR_HOSTLOGIN );
+		CONFIG_UPGRADE_PATH = ops.getPathProperty( PROPERTY_UPGRADE_PATH );
+		CONFIG_BASE_PATH = ops.getPathProperty( PROPERTY_BASE_PATH );
+		CONFIG_MIRRORPATH = ops.getPathProperty( PROPERTY_MIRRORPATH );
+		CONFIG_ADM_TRACKER = ops.getStringProperty( PROPERTY_ADM_TRACKER );
+		CONFIG_COMMIT_TRACKERLIST = ops.getStringProperty( PROPERTY_COMMIT_TRACKERLIST );
+		CONFIG_SOURCE_RELEASEROOTDIR = ops.getPathProperty( PROPERTY_SOURCE_RELEASEROOTDIR );
+		CONFIG_SOURCE_CFG_ROOTDIR = ops.getPathProperty( PROPERTY_SOURCE_CFG_ROOTDIR );
+		CONFIG_SOURCE_CFG_LIVEROOTDIR = ops.getPathProperty( PROPERTY_SOURCE_CFG_LIVEROOTDIR );
+		CONFIG_SOURCE_SQL_POSTREFRESH = ops.getPathProperty( PROPERTY_SOURCE_SQL_POSTREFRESH );
+		
+		CONFIG_SOURCE_CHARSET = ops.getStringProperty( PROPERTY_SOURCE_CHARSET );
+		if( !CONFIG_SOURCE_CHARSET.isEmpty() ) {
+			charset = Charset.availableCharsets().get( CONFIG_SOURCE_CHARSET.toUpperCase() );
+			if( charset == null )
+				action.exit1( _Error.UnknownDatabaseFilesCharset1 , "unknown database files charset=" + CONFIG_SOURCE_CHARSET , CONFIG_SOURCE_CHARSET );
+		}
+	
+		MONITORING_RESOURCE_URL = ops.getStringProperty( PROPERTY_MONITORING_RESOURCE_URL );
+		MONITORING_DIR_RES = ops.getPathProperty( PROPERTY_MONITORING_DIR_RES );
+		MONITORING_DIR_DATA = ops.getPathProperty( PROPERTY_MONITORING_DIR_DATA );
+		MONITORING_DIR_REPORTS = ops.getPathProperty( PROPERTY_MONITORING_DIR_REPORTS );
+		MONITORING_DIR_LOGS = ops.getPathProperty( PROPERTY_MONITORING_DIR_LOGS );
+		
+		CONFIG_CUSTOM_BUILD = ops.getStringProperty( PROPERTY_CUSTOM_BUILD );
+		CONFIG_CUSTOM_DEPLOY = ops.getStringProperty( PROPERTY_CUSTOM_DEPLOY );
+		CONFIG_CUSTOM_DATABASE = ops.getStringProperty( PROPERTY_CUSTOM_DATABASE );
 	}
 
 	public void load( ActionBase action , ProductContext productContext , Node root ) throws Exception {
-		setContextProperties( action , productContext );
-		
-		Node core = ConfReader.xmlGetFirstChild( root , "core" );
-		if( core == null ) {
-			RELEASELC_MAJOR = "";
-			RELEASELC_MINOR = "";
-			releaseLCUrgentAll = false;
-			RELEASELC_URGENT_LIST = new String[0];
-			return;
-		}
-		
-		RELEASELC_MAJOR = ConfReader.getPropertyValue( core , PROPERTY_RELEASELC_MAJOR , "" );
-		RELEASELC_MINOR = ConfReader.getPropertyValue( core , PROPERTY_RELEASELC_MINOR , "" );
-		releaseLCUrgentAll = ConfReader.getBooleanPropertyValue( core , PROPERTY_RELEASELC_URGENTANY , false );
-		String URGENTS = "";
-		if( !releaseLCUrgentAll )
-			URGENTS = ConfReader.getPropertyValue( core , PROPERTY_RELEASELC_URGENTS , "" );
-		RELEASELC_URGENT_LIST = Common.splitSpaced( URGENTS );
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Element core = Common.xmlCreateElement( doc , root , "core" );
-		Common.xmlCreatePropertyElement( doc , core , PROPERTY_RELEASELC_MAJOR , RELEASELC_MAJOR );
-		Common.xmlCreatePropertyElement( doc , core , PROPERTY_RELEASELC_MINOR , RELEASELC_MINOR );
-		Common.xmlCreateBooleanPropertyElement( doc , core , PROPERTY_RELEASELC_URGENTANY , releaseLCUrgentAll );
-		Common.xmlCreatePropertyElement( doc , core , PROPERTY_RELEASELC_URGENTS , Common.getList( RELEASELC_URGENT_LIST ) );
 	}
 	
-	public void create( ActionBase action , ProductContext productContext ) throws Exception {
-		setContextProperties( action , productContext );
+	public void create( ActionBase action ) throws Exception {
+		EngineEntities entities = action.getServerEntities();
+		ops = entities.createMetaCoreSettingsProps();
 		
-		RELEASELC_MAJOR = "";
-		RELEASELC_MINOR = "";
-		RELEASELC_URGENT_LIST = new String[0];
+		// monitoring
+		EngineMonitoring sm = action.getServerMonitoring();
+		PropertySet src = sm.properties.getProperties();
+		ops.setUrlProperty( PROPERTY_MONITORING_RESOURCE_URL , src.getExpressionByProperty( EngineMonitoring.PROPERTY_RESOURCE_URL ) );
+		ops.setPathProperty( PROPERTY_MONITORING_DIR_RES , src.getExpressionByProperty( EngineMonitoring.PROPERTY_RESOURCE_PATH ) );
+		ops.setPathProperty( PROPERTY_MONITORING_DIR_DATA , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_DATA ) );
+		ops.setPathProperty( PROPERTY_MONITORING_DIR_REPORTS , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_REPORTS ) );
+		ops.setPathProperty( PROPERTY_MONITORING_DIR_LOGS , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_LOGS ) );
 	}
 	
-	public void setContextProperties( ActionBase action , ProductContext productContext ) throws Exception {
-		CONFIG_PRODUCT = productContext.CONFIG_PRODUCT;
-		CONFIG_PRODUCTHOME = productContext.CONFIG_PRODUCTHOME;
+	public void setMonitoringProperties( EngineTransaction transaction , PropertySet src ) throws Exception {
+		ops.setUrlProperty( PROPERTY_MONITORING_RESOURCE_URL , src.getExpressionByProperty( PROPERTY_MONITORING_RESOURCE_URL ) );
+		ops.setPathProperty( PROPERTY_MONITORING_DIR_RES , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_RES ) );
+		ops.setPathProperty( PROPERTY_MONITORING_DIR_DATA , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_DATA ) );
+		ops.setPathProperty( PROPERTY_MONITORING_DIR_REPORTS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_REPORTS ) );
+		ops.setPathProperty( PROPERTY_MONITORING_DIR_LOGS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_LOGS ) );
 		
-		CONFIG_LASTPRODTAG = productContext.CONFIG_LASTPRODTAG;
-		CONFIG_NEXTPRODTAG = productContext.CONFIG_NEXTPRODTAG;
-		CONFIG_VERSION_BRANCH_MAJOR = productContext.CONFIG_VERSION_BRANCH_MAJOR;
-		CONFIG_VERSION_BRANCH_MINOR = productContext.CONFIG_VERSION_BRANCH_MINOR;
-		CONFIG_VERSION_BRANCH_NEXTMAJOR = productContext.CONFIG_VERSION_BRANCH_NEXTMAJOR;
-		CONFIG_VERSION_BRANCH_NEXTMINOR = productContext.CONFIG_VERSION_BRANCH_NEXTMINOR;
-		
-		settings.setManualStringProperty( PROPERTY_PRODUCT_NAME , CONFIG_PRODUCT );
-		settings.setManualPathProperty( PROPERTY_PRODUCT_HOME , CONFIG_PRODUCTHOME , action.shell );
-		
-		settings.setManualNumberProperty( MetaProductVersion.PROPERTY_MAJOR_FIRST , CONFIG_VERSION_BRANCH_MAJOR );
-		settings.setManualNumberProperty( MetaProductVersion.PROPERTY_MAJOR_LAST , CONFIG_VERSION_BRANCH_MINOR );
-		settings.setManualNumberProperty( MetaProductVersion.PROPERTY_NEXT_MAJOR_FIRST , CONFIG_VERSION_BRANCH_NEXTMAJOR );
-		settings.setManualNumberProperty( MetaProductVersion.PROPERTY_NEXT_MAJOR_LAST , CONFIG_VERSION_BRANCH_NEXTMINOR );
-		settings.setManualNumberProperty( MetaProductVersion.PROPERTY_PROD_LASTTAG , CONFIG_LASTPRODTAG );
-		settings.setManualNumberProperty( MetaProductVersion.PROPERTY_PROD_NEXTTAG , CONFIG_NEXTPRODTAG );
+		MONITORING_RESOURCE_URL = ops.getStringProperty( PROPERTY_MONITORING_RESOURCE_URL );
+		MONITORING_DIR_RES = ops.getPathProperty( PROPERTY_MONITORING_DIR_RES );
+		MONITORING_DIR_DATA = ops.getPathProperty( PROPERTY_MONITORING_DIR_DATA );
+		MONITORING_DIR_REPORTS = ops.getPathProperty( PROPERTY_MONITORING_DIR_REPORTS );
+		MONITORING_DIR_LOGS = ops.getPathProperty( PROPERTY_MONITORING_DIR_LOGS );
+	}
+
+	public boolean isValidMonitoringSettings() {
+		if( MONITORING_DIR_RES.isEmpty() || 
+			MONITORING_DIR_DATA.isEmpty() || 
+			MONITORING_DIR_REPORTS.isEmpty() || 
+			MONITORING_DIR_LOGS.isEmpty() )
+			return( false );
+		return( true );
 	}
 	
-	public void setLifecycles( EngineTransaction transaction , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
-		RELEASELC_MAJOR = major;
-		RELEASELC_MINOR = minor;
-		releaseLCUrgentAll = urgentsAll;
-		if( !urgentsAll )
-			RELEASELC_URGENT_LIST = urgents.clone();
-		else
-			RELEASELC_URGENT_LIST = new String[0];
+	public String getTargetPath( DBEnumOSType osType , String artefactDir ) {
+		if( Common.isAbsolutePath( artefactDir ) )
+			return( artefactDir );
+		
+		String redistPath = ( osType.isWindows() )? CONFIG_REDISTWIN_PATH : CONFIG_REDISTLINUX_PATH;
+		String finalPath = Common.getPath( redistPath , artefactDir );
+		return( finalPath );
 	}
-	
+
 }

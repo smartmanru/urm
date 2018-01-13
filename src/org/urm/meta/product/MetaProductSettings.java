@@ -1,6 +1,5 @@
 package org.urm.meta.product;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,217 +9,157 @@ import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
-import org.urm.engine.properties.PropertyController;
+import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
-import org.urm.meta.engine.EngineContext;
-import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.EngineSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaProductSettings extends PropertyController {
+public class MetaProductSettings {
 
-	protected Meta meta;
+	public static String PROPERTY_LAST_MAJOR_FIRST = "major.first";
+	public static String PROPERTY_LAST_MAJOR_SECOND = "major.last";
+	public static String PROPERTY_NEXT_MAJOR_FIRST = "next.major.first";
+	public static String PROPERTY_NEXT_MAJOR_SECOND = "next.major.last";
+	public static String PROPERTY_LAST_MINOR_FIRST = "prod.lasttag";
+	public static String PROPERTY_LAST_MINOR_SECOND = "prod.lasturgent";
+	public static String PROPERTY_NEXT_MINOR_FIRST = "prod.nexttag";
+	public static String PROPERTY_NEXT_MINOR_SECOND = "prod.nexturgent";
+	
+	public static String PROPERTY_PRODUCT_NAME = "product";
+	public static String PROPERTY_PRODUCT_HOME = "product.home";
+	
+	public Meta meta;
+	public MetaProductSettings settings;
+	
+	public String CONFIG_PRODUCT;
+	public String CONFIG_PRODUCTHOME;
+	public int CONFIG_LASTPRODTAG;
+	public int CONFIG_NEXTPRODTAG;
+	public int CONFIG_VERSION_BRANCH_MAJOR;
+	public int CONFIG_VERSION_BRANCH_MINOR;
+	public int CONFIG_VERSION_BRANCH_NEXTMAJOR;
+	public int CONFIG_VERSION_BRANCH_NEXTMINOR;
 
-	public PropertySet systemProps;
+	// context and custom product properties
+	private ObjectProperties ops;
+	
+	// detailed product properties
 	public MetaProductCoreSettings core;
 	public MetaProductBuildSettings buildCommon;
 	public Map<DBEnumBuildModeType,MetaProductBuildSettings> buildModes;
 	
-	public String CONFIG_REDISTWIN_PATH;
-	public String CONFIG_REDISTLINUX_PATH;
-	public String CONFIG_DISTR_PATH;
-	public String CONFIG_DISTR_HOSTLOGIN;
-	public String CONFIG_UPGRADE_PATH;
-	public String CONFIG_BASE_PATH;
-	public String CONFIG_MIRRORPATH;
-	public String CONFIG_ADM_TRACKER;
-	public String CONFIG_COMMIT_TRACKERLIST;
-	public String CONFIG_META_MIRROR;
-	public String CONFIG_SOURCE_MIRROR;
-	
-	public String CONFIG_SOURCE_CHARSET;
-	public Charset charset;
-	public String CONFIG_SOURCE_RELEASEROOTDIR;
-	public String CONFIG_SOURCE_CFG_ROOTDIR;
-	public String CONFIG_SOURCE_CFG_LIVEROOTDIR;
-	public String CONFIG_SOURCE_SQL_POSTREFRESH;
-	
-	public String MONITORING_RESOURCE_URL;
-	public String MONITORING_DIR_RES;
-	public String MONITORING_DIR_DATA;
-	public String MONITORING_DIR_REPORTS;
-	public String MONITORING_DIR_LOGS;
-	
-	public String CONFIG_CUSTOM_BUILD;
-	public String CONFIG_CUSTOM_DEPLOY;
-	public String CONFIG_CUSTOM_DATABASE;
-	
-	// engine overrides
-	public static String PROPERTY_REDISTWIN_PATH = EngineContext.PROPERTY_STAGING_WINPATH;
-	public static String PROPERTY_REDISTLINUX_PATH = EngineContext.PROPERTY_STAGING_LINUXPATH;
-	
-	// own properties
-	public static String PROPERTY_DISTR_PATH  = "distr.path";
-	public static String PROPERTY_DISTR_HOSTLOGIN = "distr.hostlogin";
-	public static String PROPERTY_UPGRADE_PATH = "upgrade.path";
-	public static String PROPERTY_BASE_PATH = "base.path";
-	public static String PROPERTY_MIRRORPATH = "mirror.path";
-	
-	public static String PROPERTY_ADM_TRACKER = "adm.tracker";
-	public static String PROPERTY_COMMIT_TRACKERLIST = "source.trackers";
-	
-	public static String PROPERTY_SOURCE_CHARSET = "release.charset";
-	public static String PROPERTY_SOURCE_RELEASEROOTDIR = "release.root";
-	public static String PROPERTY_SOURCE_CFG_ROOTDIR = "config.root";
-	public static String PROPERTY_SOURCE_CFG_LIVEROOTDIR = "config.live";
-	public static String PROPERTY_SOURCE_SQL_POSTREFRESH = "config.postrefresh";
-	
-	public static String PROPERTY_MONITORING_RESOURCE_URL = "resources.url";
-	public static String PROPERTY_MONITORING_DIR_RES = "resources.path";
-	public static String PROPERTY_MONITORING_DIR_DATA = "data.path";
-	public static String PROPERTY_MONITORING_DIR_REPORTS = "reports.path";
-	public static String PROPERTY_MONITORING_DIR_LOGS = "logs.path";
-	
-	public static String PROPERTY_CUSTOM_BUILD = "custom.build";
-	public static String PROPERTY_CUSTOM_DEPLOY = "custom.deploy";
-	public static String PROPERTY_CUSTOM_DATABASE = "custom.database";
-	
-	public MetaProductSettings( ProductMeta storage , Meta meta , PropertySet execprops ) {
-		super( storage , null , "product" );
-		
+	public MetaProductSettings( ProductMeta storage , Meta meta ) {
 		this.meta = meta;
-		this.systemProps = execprops;
-		meta.setProduct( this );
+		meta.setSettings( this );
 		core = new MetaProductCoreSettings( meta , this ); 
 		buildModes = new HashMap<DBEnumBuildModeType,MetaProductBuildSettings>();
 	}
 
-	@Override
-	public String getName() {
-		return( "meta-settings" );
-	}
-	
-	@Override
-	public boolean isValid() {
-		if( super.isLoadFailed() || buildCommon == null )
-			return( false );
-		return( true );
-	}
-	
-	@Override
-	public void scatterProperties( ActionBase action ) throws Exception {
-		CONFIG_REDISTWIN_PATH = super.getPathPropertyRequired( action , PROPERTY_REDISTWIN_PATH );
-		CONFIG_REDISTLINUX_PATH = super.getPathPropertyRequired( action , PROPERTY_REDISTLINUX_PATH );
-		CONFIG_DISTR_PATH = super.getPathPropertyRequired( action , PROPERTY_DISTR_PATH );
-		CONFIG_DISTR_HOSTLOGIN = super.getStringProperty( action , PROPERTY_DISTR_HOSTLOGIN );
-		CONFIG_UPGRADE_PATH = super.getPathPropertyRequired( action , PROPERTY_UPGRADE_PATH );
-		CONFIG_BASE_PATH = super.getPathPropertyRequired( action , PROPERTY_BASE_PATH );
-		CONFIG_MIRRORPATH = super.getPathPropertyRequired( action , PROPERTY_MIRRORPATH );
-		CONFIG_ADM_TRACKER = super.getStringProperty( action , PROPERTY_ADM_TRACKER );
-		CONFIG_COMMIT_TRACKERLIST = super.getStringProperty( action , PROPERTY_COMMIT_TRACKERLIST );
-		CONFIG_SOURCE_RELEASEROOTDIR = super.getPathProperty( action , PROPERTY_SOURCE_RELEASEROOTDIR );
-		CONFIG_SOURCE_CFG_ROOTDIR = super.getPathProperty( action , PROPERTY_SOURCE_CFG_ROOTDIR );
-		CONFIG_SOURCE_CFG_LIVEROOTDIR = super.getPathProperty( action , PROPERTY_SOURCE_CFG_LIVEROOTDIR );
-		CONFIG_SOURCE_SQL_POSTREFRESH = super.getPathProperty( action , PROPERTY_SOURCE_SQL_POSTREFRESH );
+	public MetaProductSettings copy( ActionBase action , Meta rmeta , ObjectProperties parent ) throws Exception {
+		MetaProductSettings r = new MetaProductSettings( rmeta.getStorage() , rmeta );
 		
-		CONFIG_SOURCE_CHARSET = super.getStringProperty( action , PROPERTY_SOURCE_CHARSET );
-		if( !CONFIG_SOURCE_CHARSET.isEmpty() ) {
-			charset = Charset.availableCharsets().get( CONFIG_SOURCE_CHARSET.toUpperCase() );
-			if( charset == null )
-				action.exit1( _Error.UnknownDatabaseFilesCharset1 , "unknown database files charset=" + CONFIG_SOURCE_CHARSET , CONFIG_SOURCE_CHARSET );
-		}
-	
-		MONITORING_RESOURCE_URL = super.getStringProperty( action , PROPERTY_MONITORING_RESOURCE_URL );
-		MONITORING_DIR_RES = super.getPathProperty( action , PROPERTY_MONITORING_DIR_RES );
-		MONITORING_DIR_DATA = super.getPathProperty( action , PROPERTY_MONITORING_DIR_DATA );
-		MONITORING_DIR_REPORTS = super.getPathProperty( action , PROPERTY_MONITORING_DIR_REPORTS );
-		MONITORING_DIR_LOGS = super.getPathProperty( action , PROPERTY_MONITORING_DIR_LOGS );
+		// context
+		r.CONFIG_PRODUCT = CONFIG_PRODUCT;
+		r.CONFIG_PRODUCTHOME = CONFIG_PRODUCTHOME;
 		
-		CONFIG_CUSTOM_BUILD = super.getStringProperty( action , PROPERTY_CUSTOM_BUILD );
-		CONFIG_CUSTOM_DEPLOY = super.getStringProperty( action , PROPERTY_CUSTOM_DEPLOY );
-		CONFIG_CUSTOM_DATABASE = super.getStringProperty( action , PROPERTY_CUSTOM_DATABASE );
-	}
+		r.CONFIG_LASTPRODTAG = CONFIG_LASTPRODTAG;
+		r.CONFIG_NEXTPRODTAG = CONFIG_NEXTPRODTAG;
+		r.CONFIG_VERSION_BRANCH_MAJOR = CONFIG_VERSION_BRANCH_MAJOR;
+		r.CONFIG_VERSION_BRANCH_MINOR = CONFIG_VERSION_BRANCH_MINOR;
+		r.CONFIG_VERSION_BRANCH_NEXTMAJOR = CONFIG_VERSION_BRANCH_NEXTMAJOR;
+		r.CONFIG_VERSION_BRANCH_NEXTMINOR = CONFIG_VERSION_BRANCH_NEXTMINOR;
 
-	public MetaProductSettings copy( ActionBase action , Meta meta ) throws Exception {
-		MetaProductSettings r = new MetaProductSettings( meta.getStorage() , meta , systemProps );
-		r.initCopyStarted( this , systemProps );
-		r.core = core.copy( action , meta , r );
+		r.ops = ops.copy( parent );
+		r.core = core.copy( action , rmeta , r );
 		
 		if( buildCommon != null )
-			r.buildCommon = buildCommon.copy( action , meta , r , r.getProperties() ); 
+			r.buildCommon = buildCommon.copy( action , rmeta , r , r.getProperties() ); 
 		for( DBEnumBuildModeType mode : buildModes.keySet() ) {
 			MetaProductBuildSettings modeSet = buildModes.get( mode );
-			r.buildModes.put( mode , modeSet.copy( action , meta , r , r.buildCommon.getProperties() ) );
+			r.buildModes.put( mode , modeSet.copy( action , rmeta , r , r.buildCommon.getProperties() ) );
 		}
-
-		r.updateProperties( action );
-		r.initFinished();
 
 		return( r );
 	}
 
+	public ObjectProperties getProperties() {
+		return( ops );
+	}
+	
 	public void createSettings( TransactionBase transaction , EngineSettings settings , ProductContext productContext ) throws Exception {
-		if( !super.initCreateStarted( systemProps ) )
-			return;
-
+		ActionBase action = transaction.action;
+		EngineEntities entities = action.getServerEntities();
+		ops = entities.createMetaProps( meta , null );
+				
+		setContextProperties( transaction.action , productContext );
+		
 		// create initial
-		core.create( transaction.action , productContext );
+		core.create( transaction.action );
 		
-		// monitoring
-		ActionBase action = transaction.getAction();
-		EngineMonitoring sm = action.getServerMonitoring();
-		PropertySet src = sm.properties.getProperties();
-		super.setSystemUrlProperty( PROPERTY_MONITORING_RESOURCE_URL , src.getExpressionByProperty( EngineMonitoring.PROPERTY_RESOURCE_URL ) );
-		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_RES , src.getExpressionByProperty( EngineMonitoring.PROPERTY_RESOURCE_PATH ) );
-		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_DATA , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_DATA ) );
-		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_REPORTS , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_REPORTS ) );
-		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_LOGS , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_LOGS ) );
-		
-		super.copyOriginalPropertiesToRaw( settings.getDefaultProductProperties() );
-		super.updateProperties( transaction.action );
+		ops.copyOriginalPropertiesToRaw( settings.getDefaultProductProperties() );
+		ops.recalculateProperties();
 		
 		// build
 		buildCommon = new MetaProductBuildSettings( "build.common" , meta , this );
-		buildCommon.createSettings( transaction , settings.getDefaultProductBuildProperties() , super.getProperties() );
+		buildCommon.createSettings( transaction , settings.getDefaultProductBuildProperties() , ops );
 		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
 			if( mode == DBEnumBuildModeType.UNKNOWN )
 				continue;
 			
 			String modeName = Common.getEnumLower( mode );
 			MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "build." + modeName , meta , this );
-			PropertySet set = settings.getDefaultProductBuildProperties( mode );
+			ObjectProperties set = settings.getDefaultProductBuildObjectProperties( mode );
 			buildMode.createSettings( transaction , set , buildCommon.getProperties() );
 			buildModes.put( mode , buildMode );
 		}
-
-		super.initFinished();
 	}
 
+	public void setContextProperties( ActionBase action , ProductContext productContext ) throws Exception {
+		CONFIG_PRODUCT = productContext.CONFIG_PRODUCT;
+		CONFIG_PRODUCTHOME = productContext.CONFIG_PRODUCTHOME;
+		
+		CONFIG_LASTPRODTAG = productContext.CONFIG_LASTPRODTAG;
+		CONFIG_NEXTPRODTAG = productContext.CONFIG_NEXTPRODTAG;
+		CONFIG_VERSION_BRANCH_MAJOR = productContext.CONFIG_VERSION_BRANCH_MAJOR;
+		CONFIG_VERSION_BRANCH_MINOR = productContext.CONFIG_VERSION_BRANCH_MINOR;
+		CONFIG_VERSION_BRANCH_NEXTMAJOR = productContext.CONFIG_VERSION_BRANCH_NEXTMAJOR;
+		CONFIG_VERSION_BRANCH_NEXTMINOR = productContext.CONFIG_VERSION_BRANCH_NEXTMINOR;
+		
+		ops.setManualStringProperty( PROPERTY_PRODUCT_NAME , CONFIG_PRODUCT );
+		ops.setManualPathProperty( PROPERTY_PRODUCT_HOME , CONFIG_PRODUCTHOME , action.shell );
+		
+		ops.setManualIntProperty( PROPERTY_LAST_MAJOR_FIRST , CONFIG_VERSION_BRANCH_MAJOR );
+		ops.setManualIntProperty( PROPERTY_LAST_MAJOR_SECOND , CONFIG_VERSION_BRANCH_MINOR );
+		ops.setManualIntProperty( PROPERTY_NEXT_MAJOR_FIRST , CONFIG_VERSION_BRANCH_NEXTMAJOR );
+		ops.setManualIntProperty( PROPERTY_NEXT_MAJOR_SECOND , CONFIG_VERSION_BRANCH_NEXTMINOR );
+		ops.setManualIntProperty( PROPERTY_LAST_MINOR_FIRST , CONFIG_LASTPRODTAG );
+		ops.setManualIntProperty( PROPERTY_NEXT_MINOR_FIRST , CONFIG_NEXTPRODTAG );
+	}
+	
 	public void updateSettings( TransactionBase transaction , ProductContext productContext ) throws Exception {
-		core.setContextProperties( transaction.action , productContext );
-		super.updateProperties( transaction.action );
+		setContextProperties( transaction.action , productContext );
+		ops.recalculateProperties();
+		ops.recalculateChildProperties();
 	}
 	
 	public void load( ActionBase action , ProductContext productContext , Node root ) throws Exception {
-		if( !initCreateStarted( systemProps ) )
-			return;
-
 		core.load( action , productContext , root );
 		
-		super.loadFromNodeElements( action , root , false );
-		Node custom = ConfReader.xmlGetFirstChild( root , "custom" );
-		if( custom != null )
-			super.loadFromNodeElements( action , custom , true );
-		super.updateProperties( action );
+		//ops.loadFromNodeElements( action , root , false );
+		//Node custom = ConfReader.xmlGetFirstChild( root , "custom" );
+		//if( custom != null )
+		//	ops.loadFromNodeElements( action , custom , true );
+		ops.recalculateProperties();
 
 		buildCommon = new MetaProductBuildSettings( "build" , meta , this );
 		Node build = ConfReader.xmlGetFirstChild( root , "build" );
 		if( build != null ) {
-			buildCommon.load( action , build , super.getProperties() );
+			buildCommon.load( action , build , ops );
 			Node[] items = ConfReader.xmlGetChildren( build , "mode" );
 			if( items != null ) {
 				for( Node node : items ) {
@@ -233,16 +172,14 @@ public class MetaProductSettings extends PropertyController {
 				}
 			}
 		}
-		
-		initFinished();
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		core.save( action , doc , root );
+		Element coreElement = Common.xmlCreateElement( doc , root , "core" );
+		core.save( action , doc , coreElement );
 		
-		super.saveAsElements( doc , root , false );
-		Element customElement = Common.xmlCreateElement( doc , root , "custom" );
-		super.saveAsElements( doc , customElement , true );
+		//Element customElement = Common.xmlCreateElement( doc , root , "custom" );
+		// ops.saveAsElements( doc , customElement , true );
 		
 		Element buildElement = Common.xmlCreateElement( doc , root , "build" );
 		buildCommon.save( action , doc , buildElement );
@@ -260,10 +197,9 @@ public class MetaProductSettings extends PropertyController {
 		Map<String,String> map = new HashMap<String,String>();
 		String prefix = "export.";
 		
-		for( String var : super.getPropertyList() ) {
-			String name = ( String )var;
+		for( String name : ops.getPropertyList() ) {
 			if( name.startsWith( prefix ) ) {
-				String value = super.getFinalProperty( name , action.shell.account , true , false );
+				String value = ops.getFinalProperty( name , action.shell.account , true , false );
 				if( value != null )
 					map.put( name.substring( prefix.length() ) , value );
 			}
@@ -272,6 +208,10 @@ public class MetaProductSettings extends PropertyController {
 		return( map );
 	}
 
+	public MetaProductCoreSettings getCoreSettings() {
+		return( core );
+	}
+	
 	public MetaProductBuildSettings getBuildCommonSettings( ActionBase action ) throws Exception {
 		return( buildCommon );
 	}
@@ -292,7 +232,7 @@ public class MetaProductSettings extends PropertyController {
 	}
     
 	public void setProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
-		super.updateProperties( transaction , props , system );
+		ops.updateProperties( transaction , props , system );
 	}
 
 	public void setBuildCommonProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
@@ -310,37 +250,4 @@ public class MetaProductSettings extends PropertyController {
 		set.setProperties( transaction , props );
 	}
 
-	public String getTargetPath( DBEnumOSType osType , String artefactDir ) {
-		if( Common.isAbsolutePath( artefactDir ) )
-			return( artefactDir );
-		
-		String redistPath = ( osType.isWindows() )? CONFIG_REDISTWIN_PATH : CONFIG_REDISTLINUX_PATH;
-		String finalPath = Common.getPath( redistPath , artefactDir );
-		return( finalPath );
-	}
-
-	public void setMonitoringProperties( EngineTransaction transaction , PropertySet src ) throws Exception {
-		super.setSystemUrlProperty( PROPERTY_MONITORING_RESOURCE_URL , src.getExpressionByProperty( PROPERTY_MONITORING_RESOURCE_URL ) );
-		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_RES , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_RES ) );
-		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_DATA , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_DATA ) );
-		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_REPORTS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_REPORTS ) );
-		super.setSystemPathProperty( PROPERTY_MONITORING_DIR_LOGS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_LOGS ) );
-		
-		ActionBase action = transaction.getAction();
-		MONITORING_RESOURCE_URL = super.getStringProperty( action , PROPERTY_MONITORING_RESOURCE_URL );
-		MONITORING_DIR_RES = super.getPathProperty( action , PROPERTY_MONITORING_DIR_RES );
-		MONITORING_DIR_DATA = super.getPathProperty( action , PROPERTY_MONITORING_DIR_DATA );
-		MONITORING_DIR_REPORTS = super.getPathProperty( action , PROPERTY_MONITORING_DIR_REPORTS );
-		MONITORING_DIR_LOGS = super.getPathProperty( action , PROPERTY_MONITORING_DIR_LOGS );
-	}
-
-	public boolean isValidMonitoringSettings() {
-		if( MONITORING_DIR_RES.isEmpty() || 
-			MONITORING_DIR_DATA.isEmpty() || 
-			MONITORING_DIR_REPORTS.isEmpty() || 
-			MONITORING_DIR_LOGS.isEmpty() )
-			return( false );
-		return( true );
-	}
-	
 }

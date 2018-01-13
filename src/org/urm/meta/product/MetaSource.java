@@ -11,13 +11,12 @@ import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
-import org.urm.engine.properties.PropertyController;
 import org.urm.meta.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaSource extends PropertyController {
+public class MetaSource {
 
 	public Meta meta;
 	
@@ -25,7 +24,6 @@ public class MetaSource extends PropertyController {
 	private Map<String,MetaSourceProject> projectMap;
 	
 	public MetaSource( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
-		super( storage , settings , "source" );
 		this.meta = meta;
 		meta.setSources( this );
 		
@@ -33,26 +31,9 @@ public class MetaSource extends PropertyController {
 		projectMap = new HashMap<String,MetaSourceProject>();
 	}
 	
-	@Override
-	public String getName() {
-		return( "meta-source" );
-	}
-	
-	@Override
-	public boolean isValid() {
-		if( super.isLoadFailed() )
-			return( false );
-		return( true );
-	}
-	
-	@Override
-	public void scatterProperties( ActionBase action ) throws Exception {
-	}
-	
 	public MetaSource copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductSettings product = meta.getProductSettings();
 		MetaSource r = new MetaSource( meta.getStorage() , product , meta );
-		r.initCopyStarted( this , product.getProperties() );
 		for( MetaSourceProjectSet set : setMap.values() ) {
 			MetaSourceProjectSet rset = set.copy( action , meta , r );
 			r.addProjectSet( rset );
@@ -63,23 +44,13 @@ public class MetaSource extends PropertyController {
 			MetaSourceProject rp = rset.getProject( action , project.NAME );
 			r.projectMap.put( rp.NAME , rp );
 		}
-		r.initFinished();
 		return( r );
 	}
 	
 	public void createSources( TransactionBase transaction ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings();
-		if( !initCreateStarted( product.getProperties() ) )
-			return;
-
-		initFinished();
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings();
-		if( !super.initCreateStarted( product.getProperties() ) )
-			return;
-
 		Node[] sets = ConfReader.xmlGetChildren( root , "projectset" );
 		if( sets == null )
 			return;
@@ -91,8 +62,6 @@ public class MetaSource extends PropertyController {
 			for( MetaSourceProject project : projectset.getProjects() )
 				projectMap.put( project.NAME , project );
 		}
-		
-		super.initFinished();
 	}
 
 	private void addProjectSet( MetaSourceProjectSet projectset ) {
@@ -167,7 +136,7 @@ public class MetaSource extends PropertyController {
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		super.saveAsElements( doc , root , false );
+		//super.saveAsElements( doc , root , false );
 		for( MetaSourceProjectSet set : setMap.values() ) {
 			Element setElement = Common.xmlCreateElement( doc , root , "projectset" );
 			set.save( action , doc , setElement );

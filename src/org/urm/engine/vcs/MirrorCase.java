@@ -9,7 +9,7 @@ import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.EngineSettings;
-import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 
 public abstract class MirrorCase {
 
@@ -60,8 +60,8 @@ public abstract class MirrorCase {
 			mirrorPath = settings.context.WORK_MIRRORPATH;
 		}
 		else {
-			MetaProductSettings product = vcs.meta.getProductSettings();
-			mirrorPath = product.CONFIG_MIRRORPATH;
+			MetaProductCoreSettings core = vcs.meta.getProductCoreSettings();
+			mirrorPath = core.CONFIG_MIRRORPATH;
 		}
 		
 		if( mirrorPath.isEmpty() )

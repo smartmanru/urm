@@ -2,6 +2,7 @@ package org.urm.action.codebase;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
@@ -117,7 +118,8 @@ public abstract class Builder {
 	public PropertySet createProperties( ActionBase action , MetaSourceProject project ) throws Exception {
 		MetaProductSettings product = project.meta.getProductSettings();
 		MetaProductBuildSettings settings = product.getBuildSettings( action );
-		PropertySet props = settings.getProperties();
+		ObjectProperties ops = settings.getProperties();
+		PropertySet props = ops.getProperties();
 		PropertySet propsGenerated = new PropertySet( "build" , props );
 		propsGenerated.setManualStringProperty( PROPERTY_PROJECTNAME , project.NAME );
 		propsGenerated.setManualStringProperty( PROPERTY_PROJECTDESC , project.DESC );

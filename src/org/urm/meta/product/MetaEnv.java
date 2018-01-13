@@ -86,7 +86,7 @@ public class MetaEnv extends PropertyController {
 	public static String ELEMENT_SEGMENT = "segment";
 	
 	public MetaEnv( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
-		super( storage , settings , "env" );
+		super( storage , null , "env" );
 		this.meta = meta;
 		originalList = new LinkedList<MetaEnvSegment>();
 		sgMap = new HashMap<String,MetaEnvSegment>();
@@ -111,19 +111,19 @@ public class MetaEnv extends PropertyController {
 		NAME = super.getStringPropertyRequired( action , PROPERTY_ID );
 		action.trace( "load properties of env=" + NAME + " ..." );
 		
-		MetaProductSettings product = meta.getProductSettings();
+		MetaProductCoreSettings core = meta.getProductCoreSettings();
 		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );
 		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE , true );
-		REDISTWIN_PATH = super.getPathProperty( action , PROPERTY_REDISTWIN_PATH , product.CONFIG_REDISTWIN_PATH );
-		REDISTLINUX_PATH = super.getPathProperty( action , PROPERTY_REDISTLINUX_PATH , product.CONFIG_REDISTLINUX_PATH );
+		REDISTWIN_PATH = super.getPathProperty( action , PROPERTY_REDISTWIN_PATH , core.CONFIG_REDISTWIN_PATH );
+		REDISTLINUX_PATH = super.getPathProperty( action , PROPERTY_REDISTLINUX_PATH , core.CONFIG_REDISTLINUX_PATH );
 		DISTR_USELOCAL = super.getBooleanProperty( action , PROPERTY_DISTR_USELOCAL , true );
 		if( DISTR_USELOCAL )
 			DISTR_HOSTLOGIN = action.context.account.getFullName();
 		else
-			DISTR_HOSTLOGIN = super.getStringProperty( action , PROPERTY_DISTR_HOSTLOGIN , product.CONFIG_DISTR_HOSTLOGIN );
+			DISTR_HOSTLOGIN = super.getStringProperty( action , PROPERTY_DISTR_HOSTLOGIN , core.CONFIG_DISTR_HOSTLOGIN );
 		
-		DISTR_PATH = super.getPathProperty( action , PROPERTY_DISTR_PATH , product.CONFIG_DISTR_PATH );
-		UPGRADE_PATH = super.getPathProperty( action , PROPERTY_UPGRADE_PATH , product.CONFIG_UPGRADE_PATH );
+		DISTR_PATH = super.getPathProperty( action , PROPERTY_DISTR_PATH , core.CONFIG_DISTR_PATH );
+		UPGRADE_PATH = super.getPathProperty( action , PROPERTY_UPGRADE_PATH , core.CONFIG_UPGRADE_PATH );
 		CONF_SECRETFILESPATH = super.getPathProperty( action , PROPERTY_CONF_SECRETFILESPATH );
 		CHATROOMFILE = super.getPathProperty( action , PROPERTY_CHATROOMFILE );
 		KEYFILE = super.getPathProperty( action , PROPERTY_KEYFILE );
@@ -153,7 +153,7 @@ public class MetaEnv extends PropertyController {
 	public MetaEnv copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductSettings product = meta.getProductSettings();
 		MetaEnv r = new MetaEnv( meta.getStorage() , product , meta );
-		r.initCopyStarted( this , product.getProperties() );
+		r.initCopyStarted( this , null );
 		
 		for( MetaEnvSegment sg : originalList ) {
 			MetaEnvSegment rsg = sg.copy( action , meta , r );
@@ -185,8 +185,7 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings();
-		secretProperties = new PropertySet( "secret" , product.getProperties() );
+		secretProperties = new PropertySet( "secret" , null );
 		if( !super.initCreateStarted( secretProperties ) )
 			return;
 
@@ -230,8 +229,7 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	private void createProperties( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings();
-		secretProperties = new PropertySet( "secret" , product.getProperties() );
+		secretProperties = new PropertySet( "secret" , null );
 		if( !super.initCreateStarted( secretProperties ) )
 			return;
 

@@ -203,7 +203,8 @@ public abstract class DBEnums {
 		BASE_ITEM(22,null) ,
 		APPSYSTEM(30,null) ,
 		APPPRODUCT(31,null) ,
-		DBSCHEMA(50,null);
+		DBSCHEMA(50,null) ,
+		META(101,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -360,7 +361,8 @@ public abstract class DBEnums {
 		ENGINE_CUSTOM(112,null) ,
 		BASEITEM_CUSTOM(116,null) ,
 		SYSTEM_CUSTOM(141,null) ,
-		PRODUCT_CUSTOM(150,null);
+		PRODUCT_CUSTOM(150,null) ,
+		PRODUCT_CORESETTINGS(203,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -386,7 +388,8 @@ public abstract class DBEnums {
 		MONITORING(20,null) ,
 		BASEITEM(30,null) ,
 		LDAP(50,null) ,
-		SYSTEM(100,null);
+		SYSTEM(100,null) ,
+		DEFAULT(200,null);
 
 		private final int value;
 		private String[] synonyms;

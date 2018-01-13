@@ -18,6 +18,7 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.Types.*;
 
@@ -134,7 +135,8 @@ public class DatabaseSpecific {
 		}
 		
 		MetaProductSettings settings = server.meta.getProductSettings();
-		List<String> data = action.readFileLines( fileLog , settings.charset );
+		MetaProductCoreSettings core = settings.getCoreSettings();
+		List<String> data = action.readFileLines( fileLog , core.charset );
 		String[] lines = data.toArray( new String[0] );
 		String[] errors = Common.grep( lines , "^ERROR" );
 		if( errors.length > 0 ) {
@@ -162,7 +164,8 @@ public class DatabaseSpecific {
 			action.exit1( _Error.ScriptApplyError1 , "error: (see logs)" , file );
 
 		MetaProductSettings settings = server.meta.getProductSettings();
-		List<String> data = action.readFileLines( fileLog , settings.charset );
+		MetaProductCoreSettings core = settings.getCoreSettings();
+		List<String> data = action.readFileLines( fileLog , core.charset );
 		String[] lines = data.toArray( new String[0] );
 		for( int k = 0; k < lines.length; k++ )
 			lines[ k ] = lines[ k ].trim();
@@ -454,8 +457,9 @@ public class DatabaseSpecific {
 		}
 		else
 			addSpecificLine( action , lines , "CONF_DBHOST" , DBMSADDR );
-		
-		addSpecificLine( action , lines , "CONF_CHARSET" , settings.charset.name() );
+
+		MetaProductCoreSettings core = settings.getCoreSettings();
+		addSpecificLine( action , lines , "CONF_CHARSET" , core.charset.name() );
 	}
 	
 	public void addSpecificLine( ActionBase action , List<String> lines , String var , String value ) {

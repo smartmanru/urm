@@ -9,8 +9,6 @@ public class DBUpgrade {
 	private static DBUpgradeSet[] getUpgrades() {
 		return( 
 			new DBUpgradeSet[] {
-				new DBUpgradeSet_102() ,
-				new DBUpgradeSet_103() ,
 				new DBUpgradeSet_104() ,
 				new DBUpgradeSet_110()
 				} );
@@ -37,21 +35,23 @@ public class DBUpgrade {
 		if( indexTo < 0 )
 			Common.exitUnexpected();
 		
+		DBConnection c = loader.getConnection(); 
 		for( int k = indexFrom; k <= indexTo; k++ ) {
 			DBUpgradeSet u = upgrades[ k ];
-			if( !upgradeSet( loader , u ) )
+			if( !upgradeSet( loader , u , dbVersion ) )
 				Common.exitUnexpected();
+			
+			dbVersion = c.getCurrentAppVersion();
 		}
 		loader.trace( "upgrade database successfully finished" );
 	}
 	
-	private static boolean upgradeSet( EngineLoader loader , DBUpgradeSet u ) throws Exception {
+	private static boolean upgradeSet( EngineLoader loader , DBUpgradeSet u , int dbVersion ) throws Exception {
 		DBConnection c = loader.getConnection(); 
 		loader.trace( "upgrade database from version=" + u.versionFrom + " to version=" + u.versionTo + " ..." );
 		
 		try {
-			int versionFrom = c.getCurrentAppVersion();
-			if( versionFrom != u.versionFrom )
+			if( dbVersion != u.versionFrom )
 				Common.exitUnexpected();
 				
 			u.upgrade( loader );

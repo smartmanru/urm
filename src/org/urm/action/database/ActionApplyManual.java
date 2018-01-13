@@ -10,6 +10,7 @@ import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.LogStorage;
 import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 
 public class ActionApplyManual extends ActionBase {
@@ -64,7 +65,8 @@ public class ActionApplyManual extends ActionBase {
 		// configure
 		ConfBuilder builder = new ConfBuilder( this , target.meta );
 		MetaProductSettings settings = target.meta.getProductSettings();
-		builder.configureFile( logReleaseExecute , file , server , null , settings.charset );
+		MetaProductCoreSettings core = settings.getCoreSettings();
+		builder.configureFile( logReleaseExecute , file , server , null , core.charset );
 	}
 	
 }

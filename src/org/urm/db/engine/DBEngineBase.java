@@ -87,15 +87,15 @@ public abstract class DBEngineBase {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityBaseGroup( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityBaseGroup( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BASE_GROUP , DBEnumParamEntityType.BASEGROUP , DBEnumObjectVersionType.CORE , TABLE_BASEGROUP , FIELD_GROUP_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
 		return( entity );
 	}
 	
-	public static PropertyEntity loaddbEntityBaseItem( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityBaseItem( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM , DBEnumObjectVersionType.CORE , TABLE_BASEITEM , FIELD_ITEM_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
 		return( entity );
 	}
 	

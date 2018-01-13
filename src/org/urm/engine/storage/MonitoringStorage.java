@@ -5,7 +5,7 @@ import org.urm.common.Common;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
-import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 
 public class MonitoringStorage {
 
@@ -22,32 +22,32 @@ public class MonitoringStorage {
 	}
 	
 	public LocalFolder getDataFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
-		MetaProductSettings settings = meta.getProductSettings();
-		String path = Common.getPath( settings.MONITORING_DIR_DATA , target.ENV );
+		MetaProductCoreSettings core = meta.getProductCoreSettings();
+		String path = Common.getPath( core.MONITORING_DIR_DATA , target.ENV );
 		return( artefactory.getAnyFolder( action , path ) );
 	}
 	
 	public LocalFolder getReportsFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
-		MetaProductSettings settings = meta.getProductSettings();
-		String path = settings.MONITORING_DIR_REPORTS;
+		MetaProductCoreSettings core = meta.getProductCoreSettings();
+		String path = core.MONITORING_DIR_REPORTS;
 		return( artefactory.getAnyFolder( action , path ) );
 	}
 
 	public LocalFolder getResourceFolder( ActionBase action ) throws Exception {
-		MetaProductSettings settings = meta.getProductSettings();
-		String path = settings.MONITORING_DIR_RES;
+		MetaProductCoreSettings core = meta.getProductCoreSettings();
+		String path = core.MONITORING_DIR_RES;
 		return( artefactory.getAnyFolder( action , path ) );
 	}
 	
 	public LocalFolder getLogsFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
-		MetaProductSettings settings = meta.getProductSettings();
-		String path = Common.getPath( settings.MONITORING_DIR_LOGS , target.ENV );
+		MetaProductCoreSettings core = meta.getProductCoreSettings();
+		String path = Common.getPath( core.MONITORING_DIR_LOGS , target.ENV );
 		return( artefactory.getAnyFolder( action , path ) );
 	}
 
 	public String getMonitoringUrl() {
-		MetaProductSettings settings = meta.getProductSettings();
-		return( settings.MONITORING_RESOURCE_URL );
+		MetaProductCoreSettings core = meta.getProductCoreSettings();
+		return( core.MONITORING_RESOURCE_URL );
 	}
 	
 	public String getHistoryImageFile( MetaMonitoringTarget target ) throws Exception {

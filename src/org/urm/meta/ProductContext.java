@@ -3,12 +3,14 @@ package org.urm.meta;
 import org.urm.action.ActionBase;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductVersion;
 
 public class ProductContext {
 
-	Meta meta;
+	public Meta meta;
+	public AppProduct product;
 	
 	public String CONFIG_PRODUCT;
 	public String CONFIG_PRODUCTHOME;
@@ -20,8 +22,9 @@ public class ProductContext {
 	public int CONFIG_VERSION_BRANCH_NEXTMAJOR;
 	public int CONFIG_VERSION_BRANCH_NEXTMINOR;
 
-	public ProductContext( Meta meta ) {
+	public ProductContext( Meta meta , AppProduct product ) {
 		this.meta = meta;
+		this.product = product;
 	}
 
 	public void create( ActionBase action , MetaProductVersion version ) throws Exception {
@@ -41,8 +44,8 @@ public class ProductContext {
 		CONFIG_PRODUCTHOME = folder.folderPath;
 		CONFIG_LASTPRODTAG = version.lastProdTag;
 		CONFIG_NEXTPRODTAG = version.nextProdTag;
-		CONFIG_VERSION_BRANCH_MAJOR = version.majorFirstNumber;
-		CONFIG_VERSION_BRANCH_MINOR = version.majorSecondNumber;
+		CONFIG_VERSION_BRANCH_MAJOR = version.majorLastFirstNumber;
+		CONFIG_VERSION_BRANCH_MINOR = version.majorLastSecondNumber;
 		CONFIG_VERSION_BRANCH_NEXTMAJOR = version.majorNextFirstNumber;
 		CONFIG_VERSION_BRANCH_NEXTMINOR = version.majorNextSecondNumber;
 	}

@@ -40,10 +40,16 @@ public class MetadataStorage {
 		return( folder.getFilePath( action , UrmStorage.VERSION_SETTINGS_FILE ) );
 	}
 	
-	public String getProductConfFile( ActionBase action ) throws Exception {
+	public String getCoreConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.name );
-		return( folder.getFilePath( action , UrmStorage.PRODUCT_SETTINGS_FILE ) );
+		return( folder.getFilePath( action , UrmStorage.CORE_SETTINGS_FILE ) );
+	}
+	
+	public String getPolicyConfFile( ActionBase action ) throws Exception {
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.name );
+		return( folder.getFilePath( action , UrmStorage.POLICY_SETTINGS_FILE ) );
 	}
 	
 	public String getDatabaseConfFile( ActionBase action ) throws Exception {
@@ -214,8 +220,13 @@ public class MetadataStorage {
 		saveFile( action , doc , filePath );
 	}
 	
-	public void saveProductConfFile( ActionBase action , Document doc ) throws Exception {
-		String filePath = getProductConfFile( action );
+	public void saveCoreConfFile( ActionBase action , Document doc ) throws Exception {
+		String filePath = getCoreConfFile( action );
+		saveFile( action , doc , filePath );
+	}
+	
+	public void savePolicyConfFile( ActionBase action , Document doc ) throws Exception {
+		String filePath = getPolicyConfFile( action );
 		saveFile( action , doc , filePath );
 	}
 	

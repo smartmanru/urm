@@ -28,7 +28,7 @@ import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaEnvServerLocation;
-import org.urm.meta.product.MetaProductCoreSettings;
+import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
@@ -999,10 +999,10 @@ public class Dist {
 	}
 	
 	public static ReleaseLifecycle getLifecycle( ActionBase action , Meta meta , ReleaseLifecycle lc , DBEnumLifecycleType type ) throws Exception {
-		MetaProductCoreSettings core = meta.getProductCoreSettings();
+		MetaProductPolicy policy = meta.getPolicy();
 		
 		if( type == DBEnumLifecycleType.MAJOR ) {
-			String expected = core.RELEASELC_MAJOR;
+			String expected = policy.RELEASELC_MAJOR;
 			if( expected.isEmpty() ) {
 				if( lc != null )
 					return( lc );
@@ -1020,7 +1020,7 @@ public class Dist {
 		}
 		else
 		if( type == DBEnumLifecycleType.MINOR ) {
-			String expected = core.RELEASELC_MINOR;
+			String expected = policy.RELEASELC_MINOR;
 			if( expected.isEmpty() ) {
 				if( lc != null )
 					return( lc );
@@ -1038,7 +1038,7 @@ public class Dist {
 		}
 		else
 		if( type == DBEnumLifecycleType.URGENT ) {
-			String[] expected = core.RELEASELC_URGENT_LIST;
+			String[] expected = policy.RELEASELC_URGENT_LIST;
 			if( expected.length == 0 ) {
 				if( lc != null )
 					return( lc );

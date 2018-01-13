@@ -8,11 +8,9 @@ import org.urm.db.EngineDB;
 import org.urm.db.engine.DBEngineDirectory;
 import org.urm.engine.Engine;
 import org.urm.engine.dist.DistRepository;
-import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.product.MetaDatabase;
@@ -21,6 +19,7 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaMonitoring;
+import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.MetaSource;
@@ -32,7 +31,8 @@ import org.w3c.dom.Node;
 public class EngineLoaderProducts {
 
 	public static String XML_ROOT_VERSION = "version";
-	public static String XML_ROOT_PRODUCT = "product";
+	public static String XML_ROOT_SETTINGS = "product";
+	public static String XML_ROOT_POLICY = "product";
 	public static String XML_ROOT_DISTR = "distributive";
 	public static String XML_ROOT_DATABASE = "database";
 	public static String XML_ROOT_SOURCES = "sources";
@@ -149,6 +149,7 @@ public class EngineLoaderProducts {
 		try {
 			loadVersion( set , storageMeta );
 			loadSettings( set , storageMeta );
+			loadPolicy( set , storageMeta );
 			loadUnits( set , storageMeta );
 			loadDatabase( set , storageMeta );
 			loadSources( set , storageMeta );
@@ -177,9 +178,9 @@ public class EngineLoaderProducts {
 			// read
 			String file = storageMeta.getVersionConfFile( action );
 			action.debug( "read product version file " + file + "..." );
-			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
-			Node root = doc.getDocumentElement();
-			version.load( action , root );
+			//Document doc = ConfReader.readXmlFile( action.session.execrc , file );
+			//Node root = doc.getDocumentElement();
+			//version.load( action , root );
 		}
 		catch( Throwable e ) {
 			setLoadFailed( action , _Error.UnableLoadProductVersion1 , e , "unable to load version metadata, product=" + set.name , set.name );
@@ -189,19 +190,17 @@ public class EngineLoaderProducts {
 	public void loadSettings( ProductMeta set , MetadataStorage storageMeta ) throws Exception {
 		EngineDirectory directory = loader.getDirectory();
 		AppProduct product = directory.getProduct( set.name );
-		AppSystem system = product.system;
-		ObjectProperties systemProps = system.getParameters();
 		
-		MetaProductSettings settings = new MetaProductSettings( set , set.meta , systemProps.getProperties() );
+		MetaProductSettings settings = new MetaProductSettings( set , set.meta );
 		set.setSettings( settings );
 
 		ActionBase action = loader.getAction();
 		try {
-			ProductContext productContext = new ProductContext( set.meta );
+			ProductContext productContext = new ProductContext( set.meta , product );
 			productContext.create( action , set.getVersion() );
 			
 			// read
-			String file = storageMeta.getProductConfFile( action );
+			String file = storageMeta.getCoreConfFile( action );
 			action.debug( "read product definition file " + file + "..." );
 			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
 			Node root = doc.getDocumentElement();
@@ -212,6 +211,24 @@ public class EngineLoaderProducts {
 		}
 	}
 	
+	public void loadPolicy( ProductMeta set , MetadataStorage storageMeta ) throws Exception {
+		MetaProductPolicy policy = new MetaProductPolicy( set , set.meta );
+		set.setPolicy( policy );
+
+		ActionBase action = loader.getAction();
+		try {
+			// read
+			String file = storageMeta.getPolicyConfFile( action );
+			action.debug( "read product policy file " + file + "..." );
+			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
+			Node root = doc.getDocumentElement();
+			policy.load( action , root );
+		}
+		catch( Throwable e ) {
+			setLoadFailed( action , _Error.UnableLoadProductVersion1 , e , "unable to load version metadata, product=" + set.name , set.name );
+		}
+	}
+
 	public void loadUnits( ProductMeta set , MetadataStorage storageMeta ) throws Exception {
 		MetaProductSettings settings = set.getSettings();
 		
@@ -221,7 +238,7 @@ public class EngineLoaderProducts {
 		ActionBase action = loader.getAction();
 		try {
 			// read
-			String file = storageMeta.getProductConfFile( action );
+			String file = storageMeta.getCoreConfFile( action );
 			action.debug( "read units definition file " + file + "..." );
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
@@ -280,7 +297,7 @@ public class EngineLoaderProducts {
 		ActionBase action = loader.getAction();
 		try {
 			// read
-			String file = storageMeta.getProductConfFile( action );
+			String file = storageMeta.getCoreConfFile( action );
 			action.debug( "read units definition file " + file + "..." );
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
@@ -405,14 +422,14 @@ public class EngineLoaderProducts {
 	public void saveVersion( ProductMeta set , MetadataStorage storageMeta ) throws Exception {
 		ActionBase action = loader.getAction();
 		Document doc = Common.xmlCreateDoc( XML_ROOT_VERSION );
-		MetaProductVersion version = set.getVersion();
-		version.save( action , doc , doc.getDocumentElement() );
+		//MetaProductVersion version = set.getVersion();
+		//version.save( action , doc , doc.getDocumentElement() );
 		storageMeta.saveVersionConfFile( action , doc );
 	}
 	
 	public void saveProduct( ProductMeta set , MetadataStorage storageMeta ) throws Exception {
 		ActionBase action = loader.getAction();
-		Document doc = Common.xmlCreateDoc( XML_ROOT_PRODUCT );
+		Document doc = Common.xmlCreateDoc( XML_ROOT_SETTINGS );
 		Element root = doc.getDocumentElement();
 		MetaProductSettings settings = set.getSettings();
 		settings.save( action , doc , root );
@@ -425,7 +442,7 @@ public class EngineLoaderProducts {
 		MetaDocs docs = set.getDocs();
 		docs.save( action , doc , node );
 		
-		storageMeta.saveProductConfFile( action , doc );
+		storageMeta.saveCoreConfFile( action , doc );
 	}
 	
 	public void saveDatabase( ProductMeta set , MetadataStorage storageMeta ) throws Exception {

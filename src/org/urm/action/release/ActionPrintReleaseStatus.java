@@ -23,6 +23,7 @@ import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.Types.*;
 
@@ -43,9 +44,10 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		FileSet files = dist.getFiles( this );
 		String hashStatus = dist.checkHash( this )? "OK" : "not matched";
 		
-		MetaProductSettings product = dist.meta.getProductSettings();
+		MetaProductSettings settings = dist.meta.getProductSettings();
+		MetaProductCoreSettings core = settings.getCoreSettings();
 		info( "RELEASE " + dist.RELEASEDIR + " STATUS:" );
-		info( "\tlocation: " + product.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
+		info( "\tlocation: " + core.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
 		info( "\tversion: " + release.RELEASEVER );
 		info( "\tstate: " + dist.getState().name() );
 		info( "\tsignature: " + hashStatus );

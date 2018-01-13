@@ -67,15 +67,15 @@ public abstract class DBEngineDirectory {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityDirectorySystem( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityDirectorySystem( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.APPSYSTEM , DBEnumObjectVersionType.SYSTEM , TABLE_SYSTEM , FIELD_SYSTEM_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
 		return( entity );
 	}
 	
-	public static PropertyEntity loaddbEntityDirectoryProduct( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityDirectoryProduct( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPPRODUCT , DBEnumParamEntityType.APPPRODUCT , DBEnumObjectVersionType.SYSTEM , TABLE_PRODUCT , FIELD_PRODUCT_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
 		return( entity );
 	}
 	

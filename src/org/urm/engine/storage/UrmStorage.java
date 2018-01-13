@@ -15,7 +15,8 @@ public class UrmStorage {
 	public static String PRODUCTS_FOLDER = "products";
 	public static String SERVER_SETTINGS_FILE = "server.xml";
 	public static String VERSION_SETTINGS_FILE = "version.xml";
-	public static String PRODUCT_SETTINGS_FILE = "product.xml";
+	public static String CORE_SETTINGS_FILE = "product.xml";
+	public static String POLICY_SETTINGS_FILE = "policy.xml";
 	public static String SOURCE_SETTINGS_FILE = "source.xml";
 	public static String DISTR_SETTINGS_FILE = "distr.xml";
 	public static String DATABASE_SETTINGS_FILE = "database.xml";
@@ -41,7 +42,7 @@ public class UrmStorage {
 	
 	public boolean isStandaloneMode( ActionBase action ) throws Exception {
 		LocalFolder folder = getServerFolder( action );
-		if( folder.checkFileExists( action , Common.getPath( ETC_PATH , PRODUCT_SETTINGS_FILE ) ) )
+		if( folder.checkFileExists( action , Common.getPath( ETC_PATH , CORE_SETTINGS_FILE ) ) )
 			return( true );
 		
 		return( false );

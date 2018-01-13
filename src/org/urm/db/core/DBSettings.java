@@ -407,14 +407,19 @@ public abstract class DBSettings {
 			Common.exitUnexpected();
 	}
 	
-	public static PropertyEntity loaddbAppPropsEntity( EngineLoader loader , int paramObjectId , DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType dataVersionType ) throws Exception {
+	public static PropertyEntity loaddbAppPropsEntity( DBConnection c , int paramObjectId , DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType dataVersionType ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( objectType , entityType , dataVersionType );
-		loaddbEntity( loader , entity , paramObjectId );
+		loaddbEntity( c , entity , paramObjectId );
 		return( entity );
 	}
 		
-	public static void loaddbEntity( EngineLoader loader , PropertyEntity entity , int paramObjectId ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static PropertyEntity loaddbCustomPropsEntity( DBConnection c , int ownerId , DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType versionType ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getCustomEntity( ownerId , objectType , entityType , ownerId , versionType );
+		DBSettings.loaddbEntity( c , entity , ownerId );
+		return( entity );
+	}
+	
+	public static void loaddbEntity( DBConnection c , PropertyEntity entity , int paramObjectId ) throws Exception {
 		entity.PARAM_OBJECT_ID = paramObjectId;
 		entity.META_OBJECT_ID = ( entity.CUSTOM )? entity.PARAM_OBJECT_ID : DBVersions.APP_ID;
 		entity.VERSION = verifyEntity( c , entity );

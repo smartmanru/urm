@@ -5,7 +5,7 @@ import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrBinaryItem;
-import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.w3c.dom.Node;
 
@@ -22,22 +22,22 @@ public class CommandCustom {
 	}
 
 	public boolean isCustomBuild( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings(); 
-		if( product.CONFIG_CUSTOM_BUILD.isEmpty() )
+		MetaProductCoreSettings core = meta.getProductCoreSettings(); 
+		if( core.CONFIG_CUSTOM_BUILD.isEmpty() )
 			return( false );
 		return( true );
 	}
 	
 	public boolean isCustomDeploy( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings();
-		if( product.CONFIG_CUSTOM_DEPLOY.isEmpty() )
+		MetaProductCoreSettings core = meta.getProductCoreSettings();
+		if( core.CONFIG_CUSTOM_DEPLOY.isEmpty() )
 			return( false );
 		return( true );
 	}
 	
 	public boolean isCustomDatabase( ActionBase action ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings();
-		if( product.CONFIG_CUSTOM_DATABASE.isEmpty() )
+		MetaProductCoreSettings core = meta.getProductCoreSettings();
+		if( core.CONFIG_CUSTOM_DATABASE.isEmpty() )
 			return( false );
 		return( true );
 	}
@@ -71,8 +71,8 @@ public class CommandCustom {
 		if( customBuild != null )
 			return;
 		
-		MetaProductSettings product = meta.getProductSettings(); 
-		String className = product.CONFIG_CUSTOM_BUILD;
+		MetaProductCoreSettings core = meta.getProductCoreSettings(); 
+		String className = core.CONFIG_CUSTOM_BUILD;
 		if( className.isEmpty() )
 			action.exit0( _Error.CustomBuildNotSet0 , "custom build class is not set (CONFIG_CUSTOM_BUILD" );
 		
@@ -93,8 +93,8 @@ public class CommandCustom {
 		if( customDeploy != null )
 			return;
 		
-		MetaProductSettings product = meta.getProductSettings(); 
-		String className = product.CONFIG_CUSTOM_DEPLOY;
+		MetaProductCoreSettings core = meta.getProductCoreSettings(); 
+		String className = core.CONFIG_CUSTOM_DEPLOY;
 		if( className.isEmpty() )
 			action.exit0( _Error.CustomDeployNotSet0 , "custom deploy class is not set (CONFIG_CUSTOM_DEPLOY" );
 		
@@ -115,8 +115,8 @@ public class CommandCustom {
 		if( customDatabase != null )
 			return;
 		
-		MetaProductSettings product = meta.getProductSettings(); 
-		String className = product.CONFIG_CUSTOM_DATABASE;
+		MetaProductCoreSettings core = meta.getProductCoreSettings(); 
+		String className = core.CONFIG_CUSTOM_DATABASE;
 		if( className.isEmpty() )
 			action.exit0( _Error.CustomDatabaseNotSet0 , "custom database class is not set (CONFIG_CUSTOM_DATABASE" );
 		

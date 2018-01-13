@@ -177,6 +177,13 @@ public class EngineLoader {
 		return( Common.getBooleanValue( System.getProperty( "dbupdate" ) ) );
 	}
 
+	public static int getOverridenDatabaseVersion() {
+		String version = System.getProperty( "dbversion" );
+		if( version == null || version.isEmpty() )
+			return( -1 );
+		return( Integer.parseInt( version ) );
+	}
+
 	public static void setInitialUpdateState() {
 		System.setProperty( "dbupdate" , Common.getBooleanValue( true ) );
 	}
@@ -211,7 +218,10 @@ public class EngineLoader {
 	private void useMeta() throws Exception {
 		trace( "load meta ..." );
 		getConnection();
-		int version = connection.getCurrentAppVersion();
+		int version = getOverridenDatabaseVersion();
+		if( version < 0 )
+			version = connection.getCurrentAppVersion();
+		
 		if( version != EngineDB.APP_VERSION ) {
 			if( getVersionUpgradeState() )
 				DBUpgrade.upgrade( this , EngineDB.APP_VERSION , version );

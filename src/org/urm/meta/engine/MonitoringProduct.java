@@ -15,7 +15,7 @@ import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
-import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 
 public class MonitoringProduct {
 
@@ -142,18 +142,18 @@ public class MonitoringProduct {
 	}
 	
 	private boolean createFolders( ActionBase action ) {
-		MetaProductSettings settings = meta.meta.getProductSettings();
-		if( !settings.isValidMonitoringSettings() ) {
+		MetaProductCoreSettings core = meta.meta.getProductCoreSettings();
+		if( !core.isValidMonitoringSettings() ) {
 			action.error( "monitoring is forced off because monitoring folders are not ready, check settings" );
 			return( false );
 		}
 		
 		try {
-			LocalFolder folder = action.getLocalFolder( settings.MONITORING_DIR_DATA );
+			LocalFolder folder = action.getLocalFolder( core.MONITORING_DIR_DATA );
 			folder.ensureExists( action );
-			folder = action.getLocalFolder( settings.MONITORING_DIR_REPORTS );
+			folder = action.getLocalFolder( core.MONITORING_DIR_REPORTS );
 			folder.ensureExists( action );
-			folder = action.getLocalFolder( settings.MONITORING_DIR_LOGS );
+			folder = action.getLocalFolder( core.MONITORING_DIR_LOGS );
 			folder.ensureExists( action );
 			
 			for( MetaMonitoringTarget target : meta.getTargets() )

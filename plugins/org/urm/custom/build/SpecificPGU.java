@@ -8,6 +8,7 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.NexusDownloadInfo;
@@ -60,8 +61,9 @@ public class SpecificPGU {
 	}
 	
 	public String getPguServiceCallExt() throws Exception {
-		MetaProductSettings product = meta.getProductSettings();
-		String custom = product.getPropertyValue( action , "CUSTOM_SERVICECALL_EXT" );
+		MetaProductSettings settings = meta.getProductSettings();
+		ObjectProperties ops = settings.getProperties();
+		String custom = ops.getStringProperty( "CUSTOM_SERVICECALL_EXT" );
 		if( custom != null && !custom.isEmpty() )
 			return( custom );
 		
@@ -69,8 +71,9 @@ public class SpecificPGU {
 	}
 	
 	public String getPguStorageServiceExt() throws Exception {
-		MetaProductSettings product = meta.getProductSettings();
-		String custom = product.getPropertyValue( action , "CUSTOM_STORAGESERVICE_EXT" );
+		MetaProductSettings settings = meta.getProductSettings();
+		ObjectProperties ops = settings.getProperties();
+		String custom = ops.getStringProperty( "CUSTOM_STORAGESERVICE_EXT" );
 		if( custom != null && !custom.isEmpty() )
 			return( custom );
 		

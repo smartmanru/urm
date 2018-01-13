@@ -65,9 +65,9 @@ public class DBEngineBuilders {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityBuilder( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityBuilder( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BUILDER , DBEnumParamEntityType.BUILDER , DBEnumObjectVersionType.CORE , TABLE_BUILDER , FIELD_BUILDER_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
 		return( entity );
 	}
 	

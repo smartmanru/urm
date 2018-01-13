@@ -18,6 +18,7 @@ import org.urm.engine.storage.LogStorage;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 
 public class ActionApplyAutomatic extends ActionBase {
@@ -149,7 +150,8 @@ public class ActionApplyAutomatic extends ActionBase {
 		
 		ConfBuilder builder = new ConfBuilder( this , server.meta );
 		MetaProductSettings settings = server.meta.getProductSettings();
-		builder.configureFile( logReleaseExecute , file , server , null , settings.charset );
+		MetaProductCoreSettings core = settings.getCoreSettings();
+		builder.configureFile( logReleaseExecute , file , server , null , core.charset );
 		
 		if( !dsf.REGIONALINDEX.equals( "RR" ) )
 			return;

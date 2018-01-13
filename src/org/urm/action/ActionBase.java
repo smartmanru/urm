@@ -27,6 +27,7 @@ import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.EngineScheduler;
 import org.urm.engine.shell.Account;
@@ -64,6 +65,7 @@ import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.Types.*;
@@ -713,6 +715,10 @@ abstract public class ActionBase extends ActionCore {
     	return( Meta.getNameAttr( this , node , nameType ) );
     }
 
+	public void printValues( ObjectProperties ops ) throws Exception {
+		printValues( ops.getProperties() );
+	}
+    
 	public void printValues( PropertySet props ) throws Exception {
 		for( String prop : props.getRunningKeys() ) {
 			String value = props.getPropertyAny( prop );
@@ -943,9 +949,10 @@ abstract public class ActionBase extends ActionCore {
 	
 	public String getProductRedistPath( MetaEnvServer server ) {
 		MetaProductSettings product = server.meta.getProductSettings();
+		MetaProductCoreSettings core = product.getCoreSettings();
 		if( server.isLinux() )
-			return( product.CONFIG_REDISTLINUX_PATH );
-		return( product.CONFIG_REDISTWIN_PATH );
+			return( core.CONFIG_REDISTLINUX_PATH );
+		return( core.CONFIG_REDISTWIN_PATH );
 	}
 	
 	public String getEnvRedistPath( MetaEnvServer server ) throws Exception {

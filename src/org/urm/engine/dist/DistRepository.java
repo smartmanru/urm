@@ -16,7 +16,7 @@ import org.urm.meta.engine.EngineContext;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -293,8 +293,8 @@ public class DistRepository {
 			}
 			else {
 				if( !action.isLocalRun() ) {
-					MetaProductSettings product = meta.getProductSettings();
-					account = Account.getDatacenterAccount( action , "" , product.CONFIG_DISTR_HOSTLOGIN , DBEnumOSType.LINUX );
+					MetaProductCoreSettings core = meta.getProductCoreSettings();
+					account = Account.getDatacenterAccount( action , "" , core.CONFIG_DISTR_HOSTLOGIN , DBEnumOSType.LINUX );
 				}
 			}
 		}

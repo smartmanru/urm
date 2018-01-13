@@ -16,7 +16,7 @@ import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaMonitoringTarget;
-import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 
 public class EngineMonitoring extends EngineObject {
 
@@ -127,8 +127,8 @@ public class EngineMonitoring extends EngineObject {
 		ActionBase action = transaction.getAction();
 		
 		stopProduct( action , product );
-		MetaProductSettings settings = meta.getProductSettings();
-		settings.setMonitoringProperties( transaction , props );
+		MetaProductCoreSettings core = meta.getProductCoreSettings();
+		core.setMonitoringProperties( transaction , props );
 	}
 	
 	public void modifyTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {

@@ -35,6 +35,7 @@ import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine._Error;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.w3c.dom.Document;
@@ -67,9 +68,9 @@ public class DBEngineMirrors {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMirror( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityMirror( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.MIRROR , DBEnumParamEntityType.MIRROR , DBEnumObjectVersionType.CORE , TABLE_MIRROR , FIELD_MIRROR_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
 		return( entity );
 	}
 	
@@ -376,11 +377,12 @@ public class DBEngineMirrors {
 			AppProduct product = action.getProduct( repo.productId );
 			Meta meta = action.getActiveProductMetadata( product.NAME );
 			MetaProductSettings settings = meta.getProductSettings();
+			MetaProductCoreSettings core = settings.getCoreSettings();
 			LocalFolder home = loader.getEngineHomeFolder();
-			addFolderMapItem( action , map , SourceStorage.DATA_LIVE , home , settings.CONFIG_SOURCE_CFG_LIVEROOTDIR );
-			addFolderMapItem( action , map , SourceStorage.DATA_TEMPLATES , home , settings.CONFIG_SOURCE_CFG_ROOTDIR );
-			addFolderMapItem( action , map , SourceStorage.DATA_POSTREFRESH , home , settings.CONFIG_SOURCE_SQL_POSTREFRESH );
-			addFolderMapItem( action , map , SourceStorage.DATA_CHANGES , home , settings.CONFIG_SOURCE_RELEASEROOTDIR );
+			addFolderMapItem( action , map , SourceStorage.DATA_LIVE , home , core.CONFIG_SOURCE_CFG_LIVEROOTDIR );
+			addFolderMapItem( action , map , SourceStorage.DATA_TEMPLATES , home , core.CONFIG_SOURCE_CFG_ROOTDIR );
+			addFolderMapItem( action , map , SourceStorage.DATA_POSTREFRESH , home , core.CONFIG_SOURCE_SQL_POSTREFRESH );
+			addFolderMapItem( action , map , SourceStorage.DATA_CHANGES , home , core.CONFIG_SOURCE_RELEASEROOTDIR );
 		}
 		
 		return( map );
