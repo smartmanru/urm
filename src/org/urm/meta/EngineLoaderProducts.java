@@ -6,6 +6,7 @@ import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
 import org.urm.db.EngineDB;
 import org.urm.db.engine.DBEngineDirectory;
+import org.urm.db.product.DBMeta;
 import org.urm.engine.Engine;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.storage.LocalFolder;
@@ -68,6 +69,15 @@ public class EngineLoaderProducts {
 		return( true );
 	}
 
+	private boolean matchProductMirrors( AppProduct product ) {
+		// match to mirrors
+		EngineMatcher matcher = loader.getMatcher();
+		if( !matcher.matchProductMirrors( product ) )
+			return( false );
+
+		return( true );
+	}
+	
 	private ProductMeta loadProduct( String name , boolean importxml ) {
 		EngineProducts products = data.getProducts();
 		ProductMeta set = products.createPrimaryMeta( name );
@@ -96,6 +106,11 @@ public class EngineLoaderProducts {
 		EngineProducts products = data.getProducts();
 		engine.trace( "reload settings, product=" + productName + " ..." );
 		
+		EngineDirectory directory = loader.getDirectory();
+		AppProduct product = directory.findProduct( productName );
+		if( !matchProductMirrors( product ) )
+			return;
+		
 		EngineDB db = loader.getDatabase();
 		db.clearProduct( productName );
 		
@@ -123,16 +138,38 @@ public class EngineLoaderProducts {
 		saveAll( storage );
 	}
 	
-	public void loadProducts() {
+	public void loadProducts() throws Exception {
 		data.unloadProducts();
+		
+		ProductContext[] products = DBMeta.getProducts( loader );
+		
 		EngineDirectory directory = loader.getDirectory();
 		for( String name : directory.getAllProductNames( null ) ) {
+			AppProduct product = directory.findProduct( name );
+			
+			if( !matchProductMirrors( product ) )
+				continue;
+			
+			ProductContext context = findContext( product , products );
+			if( context == null || context.MATCHED == false )
+				continue;
+			
 			ProductMeta storage = loadProduct( name , false );
 			if( storage != null )
 				addProduct( storage );
 		}
 	}
 
+	private ProductContext findContext( AppProduct product , ProductContext[] products ) {
+		for( ProductContext context : products ) {
+			if( context.MATCHED && context.PRODUCT_ID == product.ID )
+				return( context );
+			if( context.MATCHED == false && context.NAME.equals( product.NAME ) )
+				return( context );
+		}
+		return( null );
+	}
+	
 	private void setLoadFailed( ActionBase action , int error , Throwable e , String msg , String product ) throws Exception {
 		loader.log( msg ,  e );
 		Common.exit1( error , msg , product );
@@ -196,7 +233,7 @@ public class EngineLoaderProducts {
 
 		ActionBase action = loader.getAction();
 		try {
-			ProductContext productContext = new ProductContext( set.meta , product );
+			ProductContext productContext = new ProductContext( product );
 			productContext.create( action , set.getVersion() );
 			
 			// read

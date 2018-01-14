@@ -1,8 +1,9 @@
 
 CREATE TABLE main.urm_product_meta (
                 meta_id INTEGER NOT NULL,
-                product_id INTEGER NOT NULL,
-                name VARCHAR(30) NOT NULL,
+                product_id INTEGER,
+                name VARCHAR(30),
+                matched BOOLEAN NOT NULL,
                 last_major1 INTEGER NOT NULL,
                 last_major2 INTEGER NOT NULL,
                 last_minor1 INTEGER NOT NULL,

@@ -17,12 +17,15 @@ public class DBUpgradeSet_110 extends DBUpgradeSet {
 	@Override
 	public void upgrade( EngineLoader loader ) throws Exception {
 		super.applyScripts( loader , 110 );
+		/*
 		DBConnection c = loader.getConnection();
 		DBEnums.addEnumItem( c , DBEnumParamRoleType.DEFAULT );
 		DBEnums.addEnumItem( c , DBEnumObjectType.META );
 		DBEnums.addEnumItem( c , DBEnumParamEntityType.PRODUCT_CORESETTINGS );
 		DBProductData.upgradeEntityMeta( loader );
 		DBProductData.upgradeEntityMetaCoreSettings( loader );
+		*/
+		DBProductData.upgradeEntityMeta( loader );
 	}
 	
 }

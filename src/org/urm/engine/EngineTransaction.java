@@ -697,7 +697,7 @@ public class EngineTransaction extends TransactionBase {
 		
 		EngineDirectory directory = super.getDirectory();
 		AppProduct product = directory.getProduct( meta.name );
-		ProductContext context = new ProductContext( meta , product );
+		ProductContext context = new ProductContext( product );
 		context.create( action , version );
 		MetaProductSettings settings = meta.getProductSettings();
 		settings.updateSettings( this , context );

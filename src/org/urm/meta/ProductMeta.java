@@ -167,7 +167,7 @@ public class ProductMeta extends EngineObject {
 	private void createInitialCore( TransactionBase transaction , EngineSettings engineSettings , AppProduct product ) throws Exception {
 		settings = new MetaProductSettings( this , meta );
 		
-		ProductContext productContext = new ProductContext( meta , product );
+		ProductContext productContext = new ProductContext( product );
 		productContext.create( transaction.action , version );
 		
 		settings.createSettings( transaction , engineSettings , productContext );

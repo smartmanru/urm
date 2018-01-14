@@ -53,6 +53,7 @@ public abstract class DBQueries {
 	public static String MODIFY_APP_DROP_SYSTEMPARAMVALUES0 = "delete from urm_object_param_value where param_object_id in ( select system_id from urm_system )";
 	public static String MODIFY_APP_DROP_SYSTEMPARAMS0 = "delete from urm_object_param where param_object_id in ( select system_id from urm_system )";
 	public static String MODIFY_APP_DROP_SYSTEMENTITIES0 = "delete from urm_object_entity where param_object_id in ( select system_id from urm_system )";
+	public static String MODIFY_APP_UNMATCHPRODUCTS0 = "update urm_product_meta set product_id = null , name = product.name , matched = 'no' from ( select product_id , name from urm_product ) as product where matched = 'yes' and urm_product_meta.product_id = product.product_id";
 
 	public static String MODIFY_CORE_DROP_PARAMVALUE1 = "delete from urm_object_param_value where param_object_id = @1@";
 	public static String MODIFY_CORE_DROP_PARAM1 = "delete from urm_object_param where param_object_id = @1@";

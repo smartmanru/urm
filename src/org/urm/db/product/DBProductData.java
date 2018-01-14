@@ -16,6 +16,7 @@ public class DBProductData {
 	public static String FIELD_META_ID = "meta_id";
 	public static String FIELD_META_PRODUCT_ID = "product_id";
 	public static String FIELD_META_PRODUCT_NAME = "name";
+	public static String FIELD_META_PRODUCT_MATCHED = "matched";
 	public static String FIELD_META_LAST_MAJOR1 = "last_major1";
 	public static String FIELD_META_LAST_MAJOR2 = "last_major2";
 	public static String FIELD_META_LAST_MINOR1 = "last_minor1";
@@ -31,6 +32,7 @@ public class DBProductData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_PRODUCT_ID , "Application product id" , false , null ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_NAME , "Application product name" , false , null ) ,
+				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_MATCHED , "Product match status" , false , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MAJOR1 , "Major last version, first number" , true , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MAJOR2 , "Major last version, last number" , true , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MAJOR1 , "Major next version, first number" , true , null ) ,
@@ -89,5 +91,5 @@ public class DBProductData {
 	
 	public static void dropProductCoreData( EngineLoader loader ) throws Exception {
 	}
-	
+
 }
