@@ -370,7 +370,7 @@ public class ActionCheckEnv extends ActionBase {
 			process.gatherStatus( this );
 		}
 		catch( Throwable e ) {
-			mainState.setUnknown( e.getMessage() );
+			mainState.setUnknown( e.toString() );
 			handle( e );
 			return( false );
 		}

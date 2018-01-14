@@ -506,7 +506,7 @@ public class Engine {
 				if( serverAction != null )
 					serverAction.handle( e );
 				else
-					System.out.println( e.getMessage() );
+					System.out.println( e.toString() );
 			}
 		}
 		

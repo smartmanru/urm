@@ -91,7 +91,7 @@ public class EngineMBean implements DynamicMBean {
 			engine.stopServer();
 		}
 		catch( Throwable e ) {
-			return( "failed: " + e.getMessage() );
+			return( "failed: " + e.toString() );
 		}
 		
 		return( "ok" );
@@ -196,7 +196,7 @@ public class EngineMBean implements DynamicMBean {
 			return( null );
 		}
 		catch( Throwable e ) {
-			action.error( e.getMessage() );
+			action.error( e.toString() );
 		}
 
 		String value = "" + sessionId;

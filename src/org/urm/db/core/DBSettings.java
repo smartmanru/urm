@@ -73,7 +73,7 @@ public abstract class DBSettings {
 					importxmlSetAttr( loader , properties , prop , value );
 				}
 				catch( Throwable e ) {
-					loader.trace( "attribute load error: " + e.getMessage() );
+					loader.trace( "attribute load error: " + e.toString() );
 					ok = false;
 				}
 			}
@@ -87,7 +87,7 @@ public abstract class DBSettings {
 					importxmlSetProperty( loader , item , properties , app.USE_PROPS );
 				}
 				catch( Throwable e ) {
-					loader.trace( "property load error: " + e.getMessage() );
+					loader.trace( "property load error: " + e.toString() );
 					ok = false;
 				}
 			}
@@ -243,7 +243,7 @@ public abstract class DBSettings {
 		// new custom string property
 		String desc = ConfReader.getAttrValue( item , ATTR_DESC );
 		String def = ConfReader.getAttrValue( item , ATTR_VALUE );
-		var = EntityVar.metaString( prop , desc , var.REQUIRED , def );
+		var = EntityVar.metaString( prop , desc , false , def );
 		custom.addVar( var );
 	}		
 

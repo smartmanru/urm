@@ -1,6 +1,8 @@
 package org.urm.engine.storage;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.urm.action.ActionBase;
@@ -67,10 +69,9 @@ public class LocalFolder extends Folder {
 	}
 	
 	public void copyFile( ActionBase action , String srcFolder , String fileName , LocalFolder dstFolder , String newName ) throws Exception {
-		String srcFilePath = Common.getPath( folderPath , srcFolder , fileName );
-		String dstFilePath = Common.getPath( dstFolder.folderPath , newName );
-		ShellExecutor session = getSession( action ); 
-		session.copyFile( action , srcFilePath , dstFilePath );
+		String srcFilePath = action.getLocalPath( Common.getPath( folderPath , srcFolder , fileName ) );
+		String dstFilePath = action.getLocalPath( Common.getPath( dstFolder.folderPath , newName ) );
+		Files.copy( new File( srcFilePath ).toPath() , new File( dstFilePath ).toPath() , StandardCopyOption.REPLACE_EXISTING );
 	}
 
 	public void copyFolder( ActionBase action , String srcFolder , LocalFolder dstFolder ) throws Exception {
