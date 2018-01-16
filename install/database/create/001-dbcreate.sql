@@ -1,7 +1,7 @@
 -- run under urm user
 
 -- recreate schema
-DROP SCHEMA main CASCADE;
+DROP SCHEMA IF EXISTS main CASCADE;
 
 CREATE SCHEMA main;
 
