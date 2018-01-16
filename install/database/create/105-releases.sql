@@ -1,4 +1,4 @@
-﻿
+
 CREATE TABLE main.urm_release_lifecycle (
                 lifecycle_id INTEGER NOT NULL,
                 name VARCHAR(64) NOT NULL,

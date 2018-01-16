@@ -1,4 +1,4 @@
-﻿
+
 CREATE TABLE main.urm_auth_user (
                 user_id INTEGER NOT NULL,
                 name VARCHAR(30) NOT NULL,

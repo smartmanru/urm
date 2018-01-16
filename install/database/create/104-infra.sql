@@ -1,4 +1,4 @@
-﻿
+
 CREATE TABLE main.urm_datacenter (
                 datacenter_id INTEGER NOT NULL,
                 name VARCHAR(30) NOT NULL,

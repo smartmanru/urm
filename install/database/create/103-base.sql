@@ -1,4 +1,4 @@
-﻿
+
 CREATE TABLE main.urm_base_group (
                 group_id INTEGER NOT NULL,
                 basecategory_type INTEGER NOT NULL,

@@ -1,4 +1,4 @@
-﻿
+
 CREATE TABLE main.urm_object_entity (
                 param_object_id INTEGER NOT NULL,
                 paramentity_type INTEGER NOT NULL,

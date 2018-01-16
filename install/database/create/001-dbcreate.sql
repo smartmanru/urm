@@ -1,4 +1,4 @@
-﻿-- run under urm user
+-- run under urm user
 
 -- recreate schema
 DROP SCHEMA main CASCADE;
