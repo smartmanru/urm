@@ -5,7 +5,6 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
-import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
@@ -69,13 +68,13 @@ public abstract class DBEngineDirectory {
 
 	public static PropertyEntity loaddbEntityDirectorySystem( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.APPSYSTEM , DBEnumObjectVersionType.SYSTEM , TABLE_SYSTEM , FIELD_SYSTEM_ID );
-		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	
 	public static PropertyEntity loaddbEntityDirectoryProduct( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPPRODUCT , DBEnumParamEntityType.APPPRODUCT , DBEnumObjectVersionType.SYSTEM , TABLE_PRODUCT , FIELD_PRODUCT_ID );
-		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	

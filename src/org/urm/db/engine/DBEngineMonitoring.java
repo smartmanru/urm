@@ -35,7 +35,7 @@ public class DBEngineMonitoring {
 
 	public static PropertyEntity loaddbEntityEngineMonitoring( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.MONITORING , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	

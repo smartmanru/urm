@@ -2,13 +2,13 @@ package org.urm.db.product;
 
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
-import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.product.MetaProductSettings;
 
 public class DBProductData {
 
@@ -35,10 +35,10 @@ public class DBProductData {
 				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_MATCHED , "Product match status" , false , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MAJOR1 , "Major last version, first number" , true , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MAJOR2 , "Major last version, last number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MAJOR1 , "Major next version, first number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MAJOR2 , "Major next version, last number" , true , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MINOR1 , "Minor last version, first number" , true , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MINOR2 , "Minor last version, last number" , true , null ) ,
+				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MAJOR1 , "Major next version, first number" , true , null ) ,
+				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MAJOR2 , "Major next version, last number" , true , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MINOR1 , "Minor next version, first number" , true , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MINOR2 , "Minor next version, second number" , true , null ) ,
 		} ) );
@@ -46,30 +46,28 @@ public class DBProductData {
 
 	public static PropertyEntity loaddbEntityMeta( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT , DBEnumObjectVersionType.PRODUCT , TABLE_META , FIELD_META_ID );
-		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
-	
-	public static PropertyEntity upgradeEntityMetaCoreSettings( EngineLoader loader ) throws Exception {
+
+	public static PropertyEntity upgradeEntityVersion( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_CORESETTINGS , DBEnumObjectVersionType.PRODUCT );
+		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_VERSION , DBEnumObjectVersionType.PRODUCT );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_PRODUCT_ID , "Application product id" , false , null ) ,
-				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_NAME , "Application product name" , false , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MAJOR1 , "Major last version, first number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MAJOR2 , "Major last version, last number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MAJOR1 , "Major next version, first number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MAJOR2 , "Major next version, last number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MINOR1 , "Minor last version, first number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MINOR2 , "Minor last version, last number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MINOR1 , "Minor next version, first number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MINOR2 , "Minor next version, second number" , true , null ) ,
+				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_LAST_MAJOR_FIRST , "Major last version, first number" , true , null ) ,
+				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_LAST_MAJOR_SECOND , "Major last version, last number" , true , null ) ,
+				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_LAST_MINOR_FIRST , "Minor last version, first number" , true , null ) ,
+				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_LAST_MINOR_SECOND , "Minor last version, last number" , true , null ) ,
+				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_NEXT_MAJOR_FIRST , "Major next version, first number" , true , null ) ,
+				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_NEXT_MAJOR_SECOND , "Major next version, last number" , true , null ) ,
+				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_NEXT_MINOR_FIRST , "Minor next version, first number" , true , null ) ,
+				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_NEXT_MINOR_SECOND , "Minor next version, second number" , true , null ) ,
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMetaCoreSettings( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_CORESETTINGS , DBEnumObjectVersionType.PRODUCT );
-		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
+	public static PropertyEntity loaddbEntityVersion( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_VERSION , DBEnumObjectVersionType.PRODUCT );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	

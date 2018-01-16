@@ -42,10 +42,12 @@ public class EngineLoaderProducts {
 				continue;
 			
 			ProductContext context = findContext( product , products );
-			if( context == null || context.MATCHED == false )
+			if( context == null || context.MATCHED == false ) {
+				trace( "skip load product name=" + name );
 				continue;
+			}
 			
-			ProductMeta storage = loadProduct( name , false );
+			ProductMeta storage = loadProduct( product , false );
 			if( storage != null )
 				addProduct( storage );
 		}
@@ -65,14 +67,14 @@ public class EngineLoaderProducts {
 		EngineDirectory directory = loader.getDirectory();
 		AppProduct product = directory.findProduct( productName );
 		if( !matchProductMirrors( product ) )
-			return;
+			Common.exit1( _Error.InvalidProductMirros1 , "Invalid product mirror repositories, product=" + productName , productName );
 		
 		EngineDB db = loader.getDatabase();
 		db.clearProduct( productName );
 		
-		ProductMeta storageNew = loadProduct( productName , true );
+		ProductMeta storageNew = loadProduct( product , true );
 		if( storageNew == null )
-			return;
+			Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + productName , productName );
 
 		synchronized( products ) {
 			ProductMeta storage = products.findProductStorage( productName );
@@ -136,9 +138,9 @@ public class EngineLoaderProducts {
 		return( true );
 	}
 	
-	private ProductMeta loadProduct( String name , boolean importxml ) {
+	private ProductMeta loadProduct( AppProduct product , boolean importxml ) {
 		EngineProducts products = data.getProducts();
-		ProductMeta set = products.createPrimaryMeta( name );
+		ProductMeta set = products.createPrimaryMeta( product );
 		
 		ActionBase action = loader.getAction();
 		try {
@@ -155,7 +157,7 @@ public class EngineLoaderProducts {
 		}
 		catch( Throwable e ) {
 			action.handle( e );
-			action.error( "unable to load metadata, product=" + name );
+			action.error( "unable to load metadata, product=" + product.NAME );
 			set.meta.deleteObject();
 			set.deleteObject();
 			return( null );

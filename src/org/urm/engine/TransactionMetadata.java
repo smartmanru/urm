@@ -58,17 +58,17 @@ public class TransactionMetadata {
 	}
 
 	public boolean changeProduct( Meta meta ) throws Exception {
-		ProductMeta sourceMetadata = meta.getStorage();
-		if( sourceMetadata.isPrimary() ) {
-			metadataOld = sourceMetadata;
-			metadata = sourceMetadata.copy( transaction.action );
+		ProductMeta storage = meta.getStorage();
+		if( storage.isPrimary() ) {
+			metadataOld = storage;
+			metadata = storage.copy( transaction.action , storage.products , storage.product );
 			sessionMeta = transaction.action.getProductMetadata( meta.name );
-			transaction.trace( "transaction product storage meta: source=" + sourceMetadata.objectId + ", copy=" + metadata.objectId );
+			transaction.trace( "transaction product storage meta: source=" + storage.objectId + ", copy=" + metadata.objectId );
 			if( metadata != null )
 				return( true );
 		}
 		else
-			transaction.error( "Unable to change old metadata, id=" + sourceMetadata.objectId );
+			transaction.error( "Unable to change old metadata, id=" + storage.objectId );
 		
 		return( false );
 	}

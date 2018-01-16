@@ -95,6 +95,12 @@ public class EngineLoaderCore {
 		return( data.getInfrastructure() );
 	}
 
+	public EngineMonitoring getMonitoring() {
+		if( infraNew != null )
+			return( monitoringNew );
+		return( data.getMonitoring() );
+	}
+
 	public void exportEngine() throws Exception {
 		exportCore( true );
 		exportAuth( engine.getAuth() );

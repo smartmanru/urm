@@ -25,7 +25,6 @@ import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineData;
 import org.urm.meta.EngineLoader;
-import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.AuthGroup;
 import org.urm.meta.engine.AuthRoleSet;
@@ -675,32 +674,28 @@ public class EngineTransaction extends TransactionBase {
 	public void setProductProperties( Meta meta , PropertySet props , boolean system ) throws Exception {
 		ProductMeta metadata = getTransactionProductMetadata( meta );
 		MetaProductSettings settings = metadata.getSettings();
-		settings.setProperties( this , props , system );
+		settings.setProperties( props , system );
 	}
 	
 	public void setProductBuildCommonProperties( Meta meta , PropertySet props ) throws Exception {
 		ProductMeta metadata = getTransactionProductMetadata( meta );
 		MetaProductSettings settings = metadata.getSettings();
-		settings.setBuildCommonProperties( this , props );
+		settings.setBuildCommonProperties( props );
 	}
 	
 	public void setProductBuildModeProperties( Meta meta , DBEnumBuildModeType mode , PropertySet props ) throws Exception {
 		ProductMeta metadata = getTransactionProductMetadata( meta );
 		MetaProductSettings settings = metadata.getSettings();
-		settings.setBuildModeProperties( this , mode , props );
+		settings.setBuildModeProperties( mode , props );
 	}
 
-	public MetaProductVersion updateProductVersion( Meta meta , int majorFirstNumber , int majorSecondNumber , int majorNextFirstNumber , int majorNextSecondNumber , int lastProdTag , int nextProdTag ) throws Exception {
+	public MetaProductVersion updateProductVersion( Meta meta , int majorFirstNumber , int majorSecondNumber , int lastProdTag , int lastUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int nextUrgentTag ) throws Exception {
 		ProductMeta metadata = getTransactionProductMetadata( meta );
 		MetaProductVersion version = metadata.getVersion();
-		version.updateVersion( this , majorFirstNumber , majorSecondNumber , majorNextFirstNumber , majorNextSecondNumber , lastProdTag , nextProdTag );
+		version.updateVersion( majorFirstNumber , majorSecondNumber , lastProdTag , lastUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , nextUrgentTag );
 		
-		EngineDirectory directory = super.getDirectory();
-		AppProduct product = directory.getProduct( meta.name );
-		ProductContext context = new ProductContext( product );
-		context.create( action , version );
 		MetaProductSettings settings = meta.getProductSettings();
-		settings.updateSettings( this , context );
+		settings.updateSettings( version );
 		
 		return( version );
 	}

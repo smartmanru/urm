@@ -73,7 +73,7 @@ public class EngineEntities {
 	public PropertyEntity entityAppAuthUser;
 	public PropertyEntity entityAppAuthGroup;
 	public PropertyEntity entityAppMeta;
-	public PropertyEntity entityAppMetaCoreSettings;
+	public PropertyEntity entityAppMetaVersion;
 	
 	public EngineEntities( Engine engine ) {
 		this.engine = engine;
@@ -103,7 +103,7 @@ public class EngineEntities {
 		entityAppAuthUser = DBEngineAuth.upgradeEntityAuthUser( loader );
 		entityAppAuthGroup = DBEngineAuth.upgradeEntityAuthGroup( loader );
 		entityAppMeta = DBProductData.upgradeEntityMeta( loader );
-		entityAppMetaCoreSettings = DBProductData.upgradeEntityMetaCoreSettings( loader );
+		entityAppMetaVersion = DBProductData.upgradeEntityVersion( loader );
 		
 		entityCustomRC = DBEngineContext.createEntityCustomRC( loader );
 		entityCustomEngine = DBEngineContext.createEntityCustomEngine( loader );
@@ -134,7 +134,7 @@ public class EngineEntities {
 		entityAppAuthUser = DBEngineAuth.loaddbEntityAuthUser( c );
 		entityAppAuthGroup = DBEngineAuth.loaddbEntityAuthGroup( c );
 		entityAppMeta = DBProductData.loaddbEntityMeta( c );
-		entityAppMetaCoreSettings = DBProductData.loaddbEntityMetaCoreSettings( c );
+		entityAppMetaVersion = DBProductData.loaddbEntityVersion( c );
 		
 		entityCustomRC = DBEngineContext.loaddbEntityCustomRC( c );
 		entityCustomEngine = DBEngineContext.loaddbEntityCustomEngine( c );
@@ -236,12 +236,6 @@ public class EngineEntities {
 		return( props );
 	}
 	
-	public ObjectProperties createMetaCoreSettingsProps() throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.DEFAULT , nameMetaCoreSettings , engine.execrc );
-		props.create( null , entityAppProductContext , null );
-		return( props );
-	}
-
 	public ObjectProperties createMetaProps( Meta meta , ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.DEFAULT , nameMeta , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_CUSTOM , -1 , DBEnumObjectVersionType.PRODUCT ); 
@@ -249,6 +243,12 @@ public class EngineEntities {
 		return( props );
 	}
 	
+	public ObjectProperties createMetaCoreSettingsProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.DEFAULT , nameMetaCoreSettings , engine.execrc );
+		props.create( parent , entityAppProductContext , null );
+		return( props );
+	}
+
 	public ObjectProperties createMetaBuildCommonProps( Meta meta , ObjectProperties parent ) throws Exception {
 		return( createDefaultBuildCommonProps( parent ) );
 	}

@@ -2,19 +2,12 @@ package org.urm.meta.product;
 
 import java.nio.charset.Charset;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumOSType;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
-import org.urm.meta.ProductContext;
 import org.urm.meta.engine.EngineContext;
 import org.urm.meta.engine.EngineMonitoring;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class MetaProductCoreSettings {
 
@@ -86,14 +79,15 @@ public class MetaProductCoreSettings {
 		this.settings = settings;
 	}
 
-	public MetaProductCoreSettings copy( ActionBase action , Meta rmeta , MetaProductSettings rsettings ) throws Exception {
+	public MetaProductCoreSettings copy( Meta rmeta , MetaProductSettings rsettings ) throws Exception {
 		MetaProductCoreSettings r = new MetaProductCoreSettings( rmeta , rsettings );
 		r.ops = ops.copy( rsettings.getProperties() );
-		r.scatterProperties( action );
+		r.scatterPrimaryProperties();
+		r.scatterMonitoringProperties();
 		return( r );
 	}
 	
-	public void scatterProperties( ActionBase action ) throws Exception {
+	private void scatterPrimaryProperties() throws Exception {
 		CONFIG_REDISTWIN_PATH = ops.getPathProperty( PROPERTY_REDISTWIN_PATH );
 		CONFIG_REDISTLINUX_PATH = ops.getPathProperty( PROPERTY_REDISTLINUX_PATH );
 		CONFIG_DISTR_PATH = ops.getPathProperty( PROPERTY_DISTR_PATH );
@@ -112,52 +106,37 @@ public class MetaProductCoreSettings {
 		if( !CONFIG_SOURCE_CHARSET.isEmpty() ) {
 			charset = Charset.availableCharsets().get( CONFIG_SOURCE_CHARSET.toUpperCase() );
 			if( charset == null )
-				action.exit1( _Error.UnknownDatabaseFilesCharset1 , "unknown database files charset=" + CONFIG_SOURCE_CHARSET , CONFIG_SOURCE_CHARSET );
+				Common.exit1( _Error.UnknownDatabaseFilesCharset1 , "unknown database files charset=" + CONFIG_SOURCE_CHARSET , CONFIG_SOURCE_CHARSET );
 		}
 	
-		MONITORING_RESOURCE_URL = ops.getStringProperty( PROPERTY_MONITORING_RESOURCE_URL );
-		MONITORING_DIR_RES = ops.getPathProperty( PROPERTY_MONITORING_DIR_RES );
-		MONITORING_DIR_DATA = ops.getPathProperty( PROPERTY_MONITORING_DIR_DATA );
-		MONITORING_DIR_REPORTS = ops.getPathProperty( PROPERTY_MONITORING_DIR_REPORTS );
-		MONITORING_DIR_LOGS = ops.getPathProperty( PROPERTY_MONITORING_DIR_LOGS );
-		
 		CONFIG_CUSTOM_BUILD = ops.getStringProperty( PROPERTY_CUSTOM_BUILD );
 		CONFIG_CUSTOM_DEPLOY = ops.getStringProperty( PROPERTY_CUSTOM_DEPLOY );
 		CONFIG_CUSTOM_DATABASE = ops.getStringProperty( PROPERTY_CUSTOM_DATABASE );
 	}
 
-	public void load( ActionBase action , ProductContext productContext , Node root ) throws Exception {
-	}
-
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-	}
-	
-	public void create( ActionBase action ) throws Exception {
-		EngineEntities entities = action.getServerEntities();
-		ops = entities.createMetaCoreSettingsProps();
-		
-		// monitoring
-		EngineMonitoring sm = action.getServerMonitoring();
-		PropertySet src = sm.properties.getProperties();
-		ops.setUrlProperty( PROPERTY_MONITORING_RESOURCE_URL , src.getExpressionByProperty( EngineMonitoring.PROPERTY_RESOURCE_URL ) );
-		ops.setPathProperty( PROPERTY_MONITORING_DIR_RES , src.getExpressionByProperty( EngineMonitoring.PROPERTY_RESOURCE_PATH ) );
-		ops.setPathProperty( PROPERTY_MONITORING_DIR_DATA , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_DATA ) );
-		ops.setPathProperty( PROPERTY_MONITORING_DIR_REPORTS , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_REPORTS ) );
-		ops.setPathProperty( PROPERTY_MONITORING_DIR_LOGS , src.getExpressionByProperty( EngineMonitoring.PROPERTY_DIR_LOGS ) );
-	}
-	
-	public void setMonitoringProperties( EngineTransaction transaction , PropertySet src ) throws Exception {
-		ops.setUrlProperty( PROPERTY_MONITORING_RESOURCE_URL , src.getExpressionByProperty( PROPERTY_MONITORING_RESOURCE_URL ) );
-		ops.setPathProperty( PROPERTY_MONITORING_DIR_RES , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_RES ) );
-		ops.setPathProperty( PROPERTY_MONITORING_DIR_DATA , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_DATA ) );
-		ops.setPathProperty( PROPERTY_MONITORING_DIR_REPORTS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_REPORTS ) );
-		ops.setPathProperty( PROPERTY_MONITORING_DIR_LOGS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_LOGS ) );
-		
+	private void scatterMonitoringProperties() throws Exception {
 		MONITORING_RESOURCE_URL = ops.getStringProperty( PROPERTY_MONITORING_RESOURCE_URL );
 		MONITORING_DIR_RES = ops.getPathProperty( PROPERTY_MONITORING_DIR_RES );
 		MONITORING_DIR_DATA = ops.getPathProperty( PROPERTY_MONITORING_DIR_DATA );
 		MONITORING_DIR_REPORTS = ops.getPathProperty( PROPERTY_MONITORING_DIR_REPORTS );
 		MONITORING_DIR_LOGS = ops.getPathProperty( PROPERTY_MONITORING_DIR_LOGS );
+	}
+	
+	public void createSettings( ObjectProperties ops , EngineMonitoring sm ) throws Exception {
+		this.ops = ops;
+		scatterPrimaryProperties();
+		
+		PropertySet src = sm.properties.getProperties();
+		setMonitoringProperties( src );
+	}
+	
+	public void setMonitoringProperties( PropertySet src ) throws Exception {
+		ops.setUrlProperty( PROPERTY_MONITORING_RESOURCE_URL , src.getExpressionByProperty( PROPERTY_MONITORING_RESOURCE_URL ) );
+		ops.setPathProperty( PROPERTY_MONITORING_DIR_RES , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_RES ) );
+		ops.setPathProperty( PROPERTY_MONITORING_DIR_DATA , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_DATA ) );
+		ops.setPathProperty( PROPERTY_MONITORING_DIR_REPORTS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_REPORTS ) );
+		ops.setPathProperty( PROPERTY_MONITORING_DIR_LOGS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_LOGS ) );
+		scatterMonitoringProperties();
 	}
 
 	public boolean isValidMonitoringSettings() {

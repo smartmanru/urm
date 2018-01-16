@@ -137,7 +137,7 @@ public class EngineSettings extends EngineObject {
 			mapBuildModeDefaults.put( mode , set );
 		}
 		
-		set.updateProperties( transaction , props , true );
+		set.updateProperties( props , true );
 		set.resolveRawProperties();
 	}
 

@@ -35,9 +35,13 @@ public class ProductMeta extends EngineObject {
 
 	public Engine engine;
 	public EngineProducts products;
+	public AppProduct product;
 	public String name;
 	
 	public Meta meta;
+	public int ID;
+	public int PV;
+	public boolean MATCHED;
 	
 	private MetaProductVersion version;
 	private MetaProductSettings settings;
@@ -57,13 +61,17 @@ public class ProductMeta extends EngineObject {
 	private Map<EngineSession,Meta> sessionMeta;
 	private boolean primary;
 	
-	public ProductMeta( EngineProducts products , String name ) {
+	public ProductMeta( EngineProducts products , AppProduct product ) {
 		super( null );
 		this.products = products;
 		this.engine = products.engine;
-		this.name = name;
+		this.product = product;
+		this.name = product.NAME;
 		
 		meta = new Meta( this , null );
+		ID = -1;
+		PV = -1;
+		MATCHED = false;
 		engine.trace( "new product storage meta object, id=" + meta.objectId + ", storage=" + objectId );
 		diagrams = new HashMap<String,MetaDesignDiagram>();
 		envs = new HashMap<String,MetaEnv>();
@@ -77,13 +85,15 @@ public class ProductMeta extends EngineObject {
 		return( name );
 	}
 	
-	public synchronized ProductMeta copy( ActionBase action ) throws Exception {
-		ProductMeta r = new ProductMeta( products , name );
+	public synchronized ProductMeta copy( ActionBase action , EngineProducts rproducts , AppProduct rproduct ) throws Exception {
+		ProductMeta r = new ProductMeta( products , rproduct );
 		
-		if( version != null )
-			r.version = version.copy( action , r.meta );
-		if( settings != null )
-			r.settings = settings.copy( action , r.meta , null );
+		r.ID = ID;
+		r.PV = PV;
+		r.MATCHED = MATCHED;
+		
+		r.version = version.copy( r.meta );
+		r.settings = settings.copy( r.meta , null );
 		if( policy != null )
 			r.policy = policy.copy( action , r.meta );
 		
@@ -116,10 +126,6 @@ public class ProductMeta extends EngineObject {
 		return( r );
 	}
 
-	public DistRepository getDistRepository( ActionBase action ) {
-		return( repo );
-	}
-	
 	public void setPrimary( boolean primary ) {
 		this.primary = primary;
 	}
@@ -160,17 +166,17 @@ public class ProductMeta extends EngineObject {
 
 	private void createInitialVersion( TransactionBase transaction ) throws Exception {
 		version = new MetaProductVersion( this , meta );
-		version.createVersion( transaction , 1 , 0 , 1 , 1 , 1 , 2 );
+		version.createVersion( 1 , 0 , 0 , 0 , 1 , 1 , 1 , 1 );
 		meta.setVersion( version );
 	}
 	
 	private void createInitialCore( TransactionBase transaction , EngineSettings engineSettings , AppProduct product ) throws Exception {
 		settings = new MetaProductSettings( this , meta );
 		
-		ProductContext productContext = new ProductContext( product );
-		productContext.create( transaction.action , version );
+		//ProductContext productContext = new ProductContext( product );
+		//productContext.create( version );
 		
-		settings.createSettings( transaction , engineSettings , productContext );
+		//settings.createSettings( transaction , engineSettings , productContext );
 		meta.setSettings( settings );
 	}
 	

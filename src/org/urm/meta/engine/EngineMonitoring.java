@@ -116,7 +116,7 @@ public class EngineMonitoring extends EngineObject {
 	
 	public void modifyProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
 		stopAll( transaction.getAction() );
-		properties.updateProperties( transaction , props , true );
+		properties.updateProperties( props , true );
 		ENABLED = properties.getBooleanProperty( PROPERTY_ENABLED );
 		startAll( transaction.getAction() );
 	}
@@ -128,7 +128,7 @@ public class EngineMonitoring extends EngineObject {
 		
 		stopProduct( action , product );
 		MetaProductCoreSettings core = meta.getProductCoreSettings();
-		core.setMonitoringProperties( transaction , props );
+		core.setMonitoringProperties( props );
 	}
 	
 	public void modifyTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {

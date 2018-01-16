@@ -1,13 +1,7 @@
 package org.urm.meta.product;
 
-import org.urm.action.ActionBase;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class MetaProductBuildSettings {
 
@@ -67,7 +61,7 @@ public class MetaProductBuildSettings {
 		return( ops );
 	}
 	
-	public void scatterProperties( ActionBase action ) throws Exception {
+	public void scatterProperties() throws Exception {
 		CONFIG_RELEASE_LASTMAJOR = ops.getStringProperty( PROPERTY_RELEASE_LASTMAJOR );
 		CONFIG_RELEASE_NEXTMAJOR = ops.getStringProperty( PROPERTY_RELEASE_NEXTMAJOR );
 		CONFIG_RELEASE_LASTMINOR = ops.getStringProperty( PROPERTY_RELEASE_LASTMINOR );
@@ -85,29 +79,21 @@ public class MetaProductBuildSettings {
 		CONFIG_RELEASE_GROUPFOLDER = ops.getStringProperty( PROPERTY_RELEASE_GROUPFOLDER );
 	}
 
-	public void createSettings( TransactionBase transaction , ObjectProperties src , ObjectProperties parent ) throws Exception {
-		if( src != null )
-			ops.copyOriginalPropertiesToRaw( src.getProperties() );
-		
-		ops.updateProperties( transaction );
+	public void createSettings( ObjectProperties ops ) throws Exception {
+		this.ops = ops;
+		ops.updateProperties();
 		ops.initFinished();
 	}
 	
-	public MetaProductBuildSettings copy( ActionBase action , Meta meta , MetaProductSettings product , ObjectProperties rparent ) throws Exception {
+	public MetaProductBuildSettings copy( Meta meta , MetaProductSettings product , ObjectProperties rparent ) throws Exception {
 		MetaProductBuildSettings r = new MetaProductBuildSettings( name , meta , product );
 		r.ops = ops.copy( rparent );
-		r.scatterProperties( action );
+		r.scatterProperties();
 		return( r );
 	}
 	
-	public void load( ActionBase action , Node root , ObjectProperties parent ) throws Exception {
-	}
-
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-	}
-
-	public void setProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
-		ops.updateProperties( transaction , props , true );
+	public void setProperties( PropertySet props ) throws Exception {
+		ops.updateProperties( props , true );
 	}
 
 }

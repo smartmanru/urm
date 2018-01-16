@@ -92,6 +92,20 @@ public abstract class DBEngineEntities {
 		return( rs );
 	}
 
+	public static ResultSet listSingleAppObject( DBConnection c , PropertyEntity entity , int id ) throws Exception {
+		String query = "select " + getFieldList( entity ) + " from " + entity.APP_TABLE + " where " + entity.ID_FIELD + " = " + id; 
+		ResultSet rs = c.query( query );
+		if( rs == null )
+			return( null );
+		
+		if( !rs.next() ) {
+			c.closeQuery();
+			Common.exitUnexpected();
+		}
+		
+		return( rs );
+	}
+
 	public static void deleteAppObject( DBConnection c , PropertyEntity entity , int id , int version ) throws Exception {
 		if( id <= 0 || version <= 0 )
 			Common.exitUnexpected();

@@ -101,25 +101,25 @@ public class DBEngineInfrastructure {
 
 	public static PropertyEntity loaddbEntityDatacenter( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.DATACENTER , DBEnumParamEntityType.DATACENTER , DBEnumObjectVersionType.CORE , TABLE_DATACENTER , FIELD_DATACENTER_ID );
-		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	
 	public static PropertyEntity loaddbEntityNetwork( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.NETWORK , DBEnumParamEntityType.NETWORK , DBEnumObjectVersionType.CORE , TABLE_NETWORK , FIELD_NETWORK_ID );
-		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	
 	public static PropertyEntity loaddbEntityNetworkHost( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.HOST , DBEnumParamEntityType.HOST , DBEnumObjectVersionType.CORE , TABLE_HOST , FIELD_HOST_ID );
-		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	
 	public static PropertyEntity loaddbEntityHostAccount( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ACCOUNT , DBEnumParamEntityType.ACCOUNT , DBEnumObjectVersionType.CORE , TABLE_ACCOUNT , FIELD_ACCOUNT_ID );
-		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	

@@ -25,8 +25,8 @@ public class EngineProducts {
 		productMeta = new HashMap<String,ProductMeta>();
 	}
 	
-	public ProductMeta createPrimaryMeta( String name ) {
-		ProductMeta set = new ProductMeta( this , name );
+	public ProductMeta createPrimaryMeta( AppProduct product ) {
+		ProductMeta set = new ProductMeta( this , product );
 		set.setPrimary( true );
 		return( set );
 	}
@@ -107,8 +107,9 @@ public class EngineProducts {
 	
 	private ProductMeta getMetaStorage( ActionBase action , EngineSession session , String productName ) throws Exception {
 		if( session.offline ) {
+			AppProduct product = action.getProduct( session.productName );
 			if( offline == null )
-				offline = new ProductMeta( this , session.productName );
+				offline = new ProductMeta( this , product );
 			return( offline );
 		}
 		
@@ -141,7 +142,7 @@ public class EngineProducts {
 	}
 
 	public ProductMeta createProductMetadata( TransactionBase transaction , EngineSettings settings , AppProduct product ) throws Exception {
-		ProductMeta set = new ProductMeta( this , product.NAME );
+		ProductMeta set = new ProductMeta( this , product );
 		set.createInitial( transaction , settings , product );
 		return( set );
 	}

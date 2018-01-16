@@ -9,7 +9,6 @@ import org.urm.common.RunContext;
 import org.urm.common.RunError;
 import org.urm.db.core.DBEnumInterface;
 import org.urm.db.core.DBEnums.DBEnumParamRoleType;
-import org.urm.engine.TransactionBase;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 
@@ -218,13 +217,13 @@ public class ObjectProperties {
 		properties.copyOriginalPropertiesToRaw( src );
 	}
 	
-	public void updateProperties( TransactionBase transaction , PropertySet props , boolean system ) throws Exception {
+	public void updateProperties( PropertySet props , boolean system ) throws Exception {
 		if( !system )
 			properties.removeCustomProperties();
 		properties.updateProperties( props , system );
 	}
 	
-	public void updateProperties( TransactionBase transaction ) throws Exception {
+	public void updateProperties() throws Exception {
 		properties.recalculateProperties();
 	}
 

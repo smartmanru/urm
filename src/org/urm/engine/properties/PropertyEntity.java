@@ -137,7 +137,9 @@ public class PropertyEntity {
 
 	public void clear() {
 		list.clear();
+		dblist.clear();
 		map.clear();
+		xmlmap.clear();
 	}
 
 	public void removeVar( EntityVar var ) throws Exception {
@@ -225,17 +227,25 @@ public class PropertyEntity {
 	}
 
 	public int importxmlIntAttr( Node root , String prop ) throws Exception {
+		return( importxmlIntAttr( root , prop , 0 ) );
+	}
+	
+	public int importxmlIntAttr( Node root , String prop , int defaultValue ) throws Exception {
 		EntityVar var = findVar( prop );
 		if( var == null )
 			Common.exitUnexpected();
-		return( ConfReader.getIntegerAttrValue( root , var.XMLNAME , 0 ) );
+		return( ConfReader.getIntegerAttrValue( root , var.XMLNAME , defaultValue ) );
 	}
 	
 	public int importxmlIntProperty( Node root , String prop ) throws Exception {
+		return( importxmlIntProperty( root , prop , 0 ) );
+	}
+	
+	public int importxmlIntProperty( Node root , String prop , int defaultValue ) throws Exception {
 		EntityVar var = findVar( prop );
 		if( var == null )
 			Common.exitUnexpected();
-		return( ConfReader.getIntegerPropertyValue( root , var.XMLNAME , 0 ) );
+		return( ConfReader.getIntegerPropertyValue( root , var.XMLNAME , defaultValue ) );
 	}
 	
 	public int importxmlEnumAttr( Node root , String prop ) throws Exception {

@@ -1,7 +1,6 @@
 package org.urm.meta.product;
 
-import org.urm.action.ActionBase;
-import org.urm.engine.TransactionBase;
+import org.urm.common.Common;
 import org.urm.meta.ProductMeta;
 
 public class MetaProductVersion {
@@ -34,16 +33,14 @@ public class MetaProductVersion {
 	public boolean isValid() {
 		if( ( majorLastFirstNumber > majorNextFirstNumber ) || 
 			( majorLastFirstNumber == majorNextFirstNumber && majorLastSecondNumber >= majorNextSecondNumber ) ||
-			( lastProdTag >= nextProdTag ) )
+			( lastProdTag >= nextProdTag ) ||
+			( lastUrgentTag >= nextUrgentTag ) )
 			return( false );
 		
 		return( true );
 	}
 	
-	public void scatterProperties( ActionBase action ) throws Exception {
-	}
-	
-	public MetaProductVersion copy( ActionBase action , Meta meta ) throws Exception {
+	public MetaProductVersion copy( Meta meta ) {
 		MetaProductVersion r = new MetaProductVersion( meta.getStorage() , meta );
 		r.majorLastFirstNumber = majorLastFirstNumber;
 		r.majorLastSecondNumber = majorLastSecondNumber;
@@ -57,22 +54,22 @@ public class MetaProductVersion {
 		return( r );
 	}
 	
-	public void createVersion( TransactionBase transaction , int majorFirstNumber , int majorSecondNumber , int majorNextFirstNumber , int majorNextSecondNumber , int lastProdTag , int nextProdTag ) throws Exception {
-		updateVersion( transaction , majorFirstNumber , majorSecondNumber , majorNextFirstNumber , majorNextSecondNumber , lastProdTag , nextProdTag );
+	public void createVersion( int majorFirstNumber , int majorSecondNumber , int lastProdTag , int lastUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int nextUrgentTag ) throws Exception {
+		updateVersion( majorFirstNumber , majorSecondNumber , lastProdTag , nextUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , lastUrgentTag );
 	}
 
-	public void updateVersion( TransactionBase transaction , int majorLastFirstNumber , int majorLastSecondNumber , int majorNextFirstNumber , int majorNextSecondNumber , int lastProdTag , int nextProdTag ) throws Exception {
+	public void updateVersion( int majorLastFirstNumber , int majorLastSecondNumber , int lastProdTag , int nextUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int lastUrgentTag ) throws Exception {
 		this.majorLastFirstNumber = majorLastFirstNumber;
 		this.majorLastSecondNumber = majorLastSecondNumber;
 		this.majorNextFirstNumber = majorNextFirstNumber;
 		this.majorNextSecondNumber = majorNextSecondNumber;
 		this.lastProdTag = lastProdTag;
 		this.nextProdTag = nextProdTag;
-		this.lastUrgentTag = 0;
-		this.nextUrgentTag = 0;
+		this.lastUrgentTag = lastUrgentTag;
+		this.nextUrgentTag = nextUrgentTag;
 		
 		if( !isValid() )
-			transaction.exit0( _Error.InconsistentVersionAttributes0 , "Inconsistent version attributes" );
+			Common.exit0( _Error.InconsistentVersionAttributes0 , "Inconsistent version attributes" );
 	}
 	
 }

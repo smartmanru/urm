@@ -362,7 +362,7 @@ public abstract class DBEnums {
 		BASEITEM_CUSTOM(116,null) ,
 		SYSTEM_CUSTOM(141,null) ,
 		PRODUCT_CUSTOM(150,null) ,
-		PRODUCT_CORESETTINGS(203,null);
+		PRODUCT_VERSION(151,null);
 
 		private final int value;
 		private String[] synonyms;

@@ -48,7 +48,7 @@ public abstract class DBEngineSettings {
 
 	public static PropertyEntity loaddbEntityProductContext( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.APPPRODUCT , DBEnumParamEntityType.PRODUCTCTX , DBEnumObjectVersionType.PRODUCT );
-		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	
@@ -78,7 +78,7 @@ public abstract class DBEngineSettings {
 
 	public static PropertyEntity loaddbEntityProductSettings( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	
@@ -104,7 +104,7 @@ public abstract class DBEngineSettings {
 
 	public static PropertyEntity loaddbEntityProductBuild( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTBUILD , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	

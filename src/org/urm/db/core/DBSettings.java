@@ -31,7 +31,7 @@ public abstract class DBSettings {
 	public static String ATTR_VALUE = "value"; 
 	public static String ATTR_DESC = "desc"; 
 	
-	public static void loaddbValues( EngineLoader loader , int objectId , ObjectProperties properties , boolean saveApp ) throws Exception {
+	public static void loaddbValues( EngineLoader loader , int objectId , ObjectProperties properties , boolean loadApp ) throws Exception {
 		DBConnection c = loader.getConnection();
 		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETOBJECTPARAMVALUES2 , new String[] { 
 				EngineDB.getInteger( objectId ) , 
@@ -43,7 +43,7 @@ public abstract class DBSettings {
 				String exprValue = rs.getString( 3 );
 				
 				EntityVar var = properties.getVar( param );
-				if( saveApp == false && var.isApp() )
+				if( loadApp == false && var.isApp() )
 					Common.exitUnexpected();
 				
 				properties.setProperty( var , exprValue );
@@ -54,14 +54,18 @@ public abstract class DBSettings {
 		}
 	}
 
-	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean saveApp , int version ) throws Exception {
+	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean importApp , int version ) throws Exception {
 		importxmlLoad( loader , root , properties );
-		importxmlSave( loader , properties , paramObjectId , metaObjectId , saveApp , version );
+		importxmlSave( loader , properties , paramObjectId , metaObjectId , importApp , version );
 	}
 	
 	public static void importxmlLoad( EngineLoader loader , Node root , ObjectProperties properties ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity app = meta.getAppEntity();
+		PropertyEntity custom = meta.getCustomEntity();
+		if( custom != null )
+			custom.clear();
+		meta.rebuild();
 		
 		// load attributes - app only
 		boolean ok = true;
@@ -207,18 +211,20 @@ public abstract class DBSettings {
 		
 		// this.app - set app value
 		EntityVar var = app.findXmlVar( prop );
-		if( var != null && appAsProperties ) {
-			String value = ConfReader.getAttrValue( item , ATTR_VALUE );
-			importxmlSetProperty( loader , properties , var , value , false );
-			return;
+		if( var != null ) {
+			// this.app as custom
+			if( appAsProperties == false )
+				Common.exit1( _Error.SetSystemVarAsCustom1 , "Attempt to set built-in variable=" + prop + " as custom variable" , prop );
+				
+			if( appAsProperties ) {
+				String value = ConfReader.getAttrValue( item , ATTR_VALUE );
+				importxmlSetProperty( loader , properties , var , value , false );
+				return;
+			}
 		}
-
-		// this.app as custom
-		if( var != null && appAsProperties == false )
-			Common.exit1( _Error.SetSystemVarAsCustom1 , "Attempt to set built-in variable=" + prop + " as custom variable" , prop );
 		
-		// this.custom - duplicate
 		if( custom != null ) {
+			// this.custom - duplicate
 			var = custom.findXmlVar( prop );
 			if( var != null )
 				Common.exit1( _Error.DuplicateCustomVar1 , "Duplicate custom variable=" + prop , prop );
@@ -407,16 +413,14 @@ public abstract class DBSettings {
 			Common.exitUnexpected();
 	}
 	
-	public static PropertyEntity loaddbAppPropsEntity( DBConnection c , int paramObjectId , DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType dataVersionType ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( objectType , entityType , dataVersionType );
-		loaddbEntity( c , entity , paramObjectId );
-		return( entity );
-	}
-		
 	public static PropertyEntity loaddbCustomPropsEntity( DBConnection c , int ownerId , DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType versionType ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getCustomEntity( ownerId , objectType , entityType , ownerId , versionType );
 		DBSettings.loaddbEntity( c , entity , ownerId );
 		return( entity );
+	}
+
+	public static void loaddbAppEntity( DBConnection c , PropertyEntity entity ) throws Exception {
+		loaddbEntity( c , entity , DBVersions.APP_ID );
 	}
 	
 	public static void loaddbEntity( DBConnection c , PropertyEntity entity , int paramObjectId ) throws Exception {

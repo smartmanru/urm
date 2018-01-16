@@ -18,6 +18,7 @@ import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
+import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineSettings;
@@ -94,6 +95,10 @@ public class EngineLoader {
 	
 	public EngineInfrastructure getInfrastructure() {
 		return( ldc.getInfrastructure() );
+	}
+
+	public EngineMonitoring getMonitoring() {
+		return( ldc.getMonitoring() );
 	}
 
 	public EngineMatcher getMatcher() {
@@ -190,11 +195,14 @@ public class EngineLoader {
 	
 	public void initMeta() throws Exception {
 		try {
+			boolean dbUpdate = getInitialUpdateState();
+			if( dbUpdate )
+				recreateDatabase();
+			
 			trace( "init, checking engine/database consistency ..." );
 			trace( "load names ..." );
 			DBNames.loaddb( this );
 			
-			boolean dbUpdate = getInitialUpdateState();
 			if( dbUpdate ) {
 				upgradeMeta();
 				closeConnection( true );
@@ -205,6 +213,11 @@ public class EngineLoader {
 		finally {
 			closeConnection( false );
 		}
+	}
+
+	private void recreateDatabase() throws Exception {
+		trace( "recreate database ..." );
+		DBUpgrade.applyScripts( this , "database/create" );
 	}
 	
 	private void upgradeMeta() throws Exception {

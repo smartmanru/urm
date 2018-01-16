@@ -30,7 +30,7 @@ public abstract class DBEngineContext {
 
 	public static PropertyEntity loaddbEntityRC( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.RC , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	
@@ -80,7 +80,7 @@ public abstract class DBEngineContext {
 
 	public static PropertyEntity loaddbEntityEngine( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.ENGINE , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	

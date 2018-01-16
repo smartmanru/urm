@@ -49,7 +49,7 @@ public class DBEngineResources {
 
 	public static PropertyEntity loaddbEntityResource( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RESOURCE , DBEnumParamEntityType.RESOURCE , DBEnumObjectVersionType.CORE , TABLE_RESOURCE , FIELD_RESOURCE_ID );
-		DBSettings.loaddbEntity( c , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	

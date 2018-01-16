@@ -1,13 +1,11 @@
 package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaProductSettings;
 
 public class ActionSendChatMsg extends ActionBase {
 
@@ -44,10 +42,10 @@ public class ActionSendChatMsg extends ActionBase {
 		if( sg != null )
 			msg += " (sg=" + sg.NAME + ")"; 
 		
-		MetaProductSettings core = context.env.meta.getProductSettings();
-		String filePath = Common.getPath( core.CONFIG_PRODUCTHOME , env.CHATROOMFILE ); 
-		shell.appendFileWithString( this , filePath , msg );
-		trace( "ActionSendChatMsg: msg sent to " + filePath );
+		//MetaProductSettings core = context.env.meta.getProductSettings();
+		//String filePath = Common.getPath( core.CONFIG_PRODUCTHOME , env.CHATROOMFILE ); 
+		//shell.appendFileWithString( this , filePath , msg );
+		//trace( "ActionSendChatMsg: msg sent to " + filePath );
 		return( SCOPESTATE.RunSuccess );
 	}
 	
