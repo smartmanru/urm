@@ -132,7 +132,7 @@ public class DBProductData {
 		return( entity );
 	}
 
-	public static PropertyEntity upgradeEntityVersion( EngineLoader loader ) throws Exception {
+	public static PropertyEntity upgradeEntityMetaVersion( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_VERSION , DBEnumObjectVersionType.PRODUCT );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
@@ -147,8 +147,26 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityVersion( DBConnection c ) throws Exception {
+	public static PropertyEntity loaddbEntityMetaVersion( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_VERSION , DBEnumObjectVersionType.PRODUCT );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity upgradeEntityMetaMonitoring( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_MONITORING , DBEnumObjectVersionType.PRODUCT );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaString( MetaProductCoreSettings.PROPERTY_MONITORING_RESOURCE_URL , "Monitoring Resources URL" , true , null ) ,
+				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_RES , "Monitoring Resources Path" , true , null , null ) ,
+				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_DATA , "Monitoring Database Path" , true , null , null ) ,
+				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_REPORTS , "Monitoring Reports Path" , true , null , null ) ,
+				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_LOGS , "Monitoring Logs" , true , null , null )
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityMetaMonitoring( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_MONITORING , DBEnumObjectVersionType.PRODUCT );
 		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}

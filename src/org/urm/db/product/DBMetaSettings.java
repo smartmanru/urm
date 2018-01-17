@@ -50,10 +50,10 @@ public class DBMetaSettings {
 		if( coreNode == null )
 			Common.exitUnexpected();
 		ObjectProperties opsCore = entities.createMetaCoreSettingsProps( opsContext );
-		ObjectProperties opsMon = entities.createMetaMonitoringProps( opsCore );
 		DBSettings.importxml( loader , coreNode , opsCore , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
 		opsCore.recalculateProperties();
 
+		ObjectProperties opsMon = entities.createMetaMonitoringProps( opsCore );
 		settings.createCoreSettings( opsCore , opsMon , loader.getMonitoring() );
 
 		// build settings

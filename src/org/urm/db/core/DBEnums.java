@@ -362,7 +362,8 @@ public abstract class DBEnums {
 		BASEITEM_CUSTOM(116,null) ,
 		SYSTEM_CUSTOM(141,null) ,
 		PRODUCT_CUSTOM(150,null) ,
-		PRODUCT_VERSION(151,null);
+		PRODUCT_VERSION(151,null) ,
+		PRODUCT_MONITORING(152,null);
 
 		private final int value;
 		private String[] synonyms;

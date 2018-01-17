@@ -66,6 +66,7 @@ public class EngineEntities {
 	public PropertyEntity entityAppAuthGroup;
 	public PropertyEntity entityAppMeta;
 	public PropertyEntity entityAppMetaVersion;
+	public PropertyEntity entityAppMetaMonitoring;
 	
 	public EngineEntities( Engine engine ) {
 		this.engine = engine;
@@ -95,7 +96,8 @@ public class EngineEntities {
 		entityAppAuthUser = DBEngineAuth.upgradeEntityAuthUser( loader );
 		entityAppAuthGroup = DBEngineAuth.upgradeEntityAuthGroup( loader );
 		entityAppMeta = DBProductData.upgradeEntityMeta( loader );
-		entityAppMetaVersion = DBProductData.upgradeEntityVersion( loader );
+		entityAppMetaVersion = DBProductData.upgradeEntityMetaVersion( loader );
+		entityAppMetaMonitoring = DBProductData.upgradeEntityMetaMonitoring( loader );
 		
 		entityCustomRC = DBEngineContext.createEntityCustomRC( loader );
 		entityCustomEngine = DBEngineContext.createEntityCustomEngine( loader );
@@ -126,7 +128,8 @@ public class EngineEntities {
 		entityAppAuthUser = DBEngineAuth.loaddbEntityAuthUser( c );
 		entityAppAuthGroup = DBEngineAuth.loaddbEntityAuthGroup( c );
 		entityAppMeta = DBProductData.loaddbEntityMeta( c );
-		entityAppMetaVersion = DBProductData.loaddbEntityVersion( c );
+		entityAppMetaVersion = DBProductData.loaddbEntityMetaVersion( c );
+		entityAppMetaMonitoring = DBProductData.loaddbEntityMetaMonitoring( c );
 		
 		entityCustomRC = DBEngineContext.loaddbEntityCustomRC( c );
 		entityCustomEngine = DBEngineContext.loaddbEntityCustomEngine( c );
@@ -261,7 +264,7 @@ public class EngineEntities {
 
 	public ObjectProperties createMetaMonitoringProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.DEFAULT , nameMetaMonitoringSettings , engine.execrc );
-		props.create( parent , entityAppEngineMonitoring , null );
+		props.create( parent , entityAppMetaMonitoring , null );
 		return( props );
 	}
 
