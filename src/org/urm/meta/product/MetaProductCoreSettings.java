@@ -44,6 +44,7 @@ public class MetaProductCoreSettings {
 	public Meta meta;
 	public MetaProductSettings settings;
 	private ObjectProperties ops;
+	private ObjectProperties mon;
 	
 	public String CONFIG_REDISTWIN_PATH;
 	public String CONFIG_REDISTLINUX_PATH;
@@ -82,6 +83,7 @@ public class MetaProductCoreSettings {
 	public MetaProductCoreSettings copy( Meta rmeta , MetaProductSettings rsettings ) throws Exception {
 		MetaProductCoreSettings r = new MetaProductCoreSettings( rmeta , rsettings );
 		r.ops = ops.copy( rsettings.getProperties() );
+		r.mon = mon.copy( r.ops );
 		r.scatterPrimaryProperties();
 		r.scatterMonitoringProperties();
 		return( r );
@@ -115,15 +117,16 @@ public class MetaProductCoreSettings {
 	}
 
 	private void scatterMonitoringProperties() throws Exception {
-		MONITORING_RESOURCE_URL = ops.getStringProperty( PROPERTY_MONITORING_RESOURCE_URL );
-		MONITORING_DIR_RES = ops.getPathProperty( PROPERTY_MONITORING_DIR_RES );
-		MONITORING_DIR_DATA = ops.getPathProperty( PROPERTY_MONITORING_DIR_DATA );
-		MONITORING_DIR_REPORTS = ops.getPathProperty( PROPERTY_MONITORING_DIR_REPORTS );
-		MONITORING_DIR_LOGS = ops.getPathProperty( PROPERTY_MONITORING_DIR_LOGS );
+		MONITORING_RESOURCE_URL = mon.getStringProperty( PROPERTY_MONITORING_RESOURCE_URL );
+		MONITORING_DIR_RES = mon.getPathProperty( PROPERTY_MONITORING_DIR_RES );
+		MONITORING_DIR_DATA = mon.getPathProperty( PROPERTY_MONITORING_DIR_DATA );
+		MONITORING_DIR_REPORTS = mon.getPathProperty( PROPERTY_MONITORING_DIR_REPORTS );
+		MONITORING_DIR_LOGS = mon.getPathProperty( PROPERTY_MONITORING_DIR_LOGS );
 	}
 	
-	public void createSettings( ObjectProperties ops , EngineMonitoring sm ) throws Exception {
+	public void createSettings( ObjectProperties ops , ObjectProperties mon , EngineMonitoring sm ) throws Exception {
 		this.ops = ops;
+		this.mon = mon;
 		scatterPrimaryProperties();
 		
 		PropertySet src = sm.properties.getProperties();
@@ -131,11 +134,11 @@ public class MetaProductCoreSettings {
 	}
 	
 	public void setMonitoringProperties( PropertySet src ) throws Exception {
-		ops.setUrlProperty( PROPERTY_MONITORING_RESOURCE_URL , src.getExpressionByProperty( PROPERTY_MONITORING_RESOURCE_URL ) );
-		ops.setPathProperty( PROPERTY_MONITORING_DIR_RES , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_RES ) );
-		ops.setPathProperty( PROPERTY_MONITORING_DIR_DATA , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_DATA ) );
-		ops.setPathProperty( PROPERTY_MONITORING_DIR_REPORTS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_REPORTS ) );
-		ops.setPathProperty( PROPERTY_MONITORING_DIR_LOGS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_LOGS ) );
+		mon.setUrlProperty( PROPERTY_MONITORING_RESOURCE_URL , src.getExpressionByProperty( PROPERTY_MONITORING_RESOURCE_URL ) );
+		mon.setPathProperty( PROPERTY_MONITORING_DIR_RES , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_RES ) );
+		mon.setPathProperty( PROPERTY_MONITORING_DIR_DATA , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_DATA ) );
+		mon.setPathProperty( PROPERTY_MONITORING_DIR_REPORTS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_REPORTS ) );
+		mon.setPathProperty( PROPERTY_MONITORING_DIR_LOGS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_LOGS ) );
 		scatterMonitoringProperties();
 	}
 

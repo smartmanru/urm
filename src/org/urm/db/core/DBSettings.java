@@ -133,6 +133,11 @@ public abstract class DBSettings {
 		PropertySet set = properties.getProperties();
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity custom = meta.getCustomEntity();
+		
+		Element nodeCustom = null;
+		if( custom != null )
+			nodeCustom = Common.xmlCreateElement( doc , root , ELEMENT_CUSTOM );
+		
 		for( PropertyValue value : set.getAllProperties() ) {
 			EntityVar var = properties.getVar( value.property );
 			if( !var.isXml() )
@@ -172,7 +177,7 @@ public abstract class DBSettings {
 						continue;
 				}
 				
-				exportxmlSetProperty( loader , doc , root , var , data , defineProp );
+				exportxmlSetProperty( loader , doc , nodeCustom , var , data , defineProp );
 			}
 		}
 	}

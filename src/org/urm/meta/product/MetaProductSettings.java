@@ -81,8 +81,8 @@ public class MetaProductSettings {
 		}
 	}
 
-	public void createCoreSettings( ObjectProperties opsCore , EngineMonitoring sm ) throws Exception {
-		core.createSettings( opsCore , sm );
+	public void createCoreSettings( ObjectProperties opsCore , ObjectProperties opsMon , EngineMonitoring sm ) throws Exception {
+		core.createSettings( opsCore , opsMon , sm );
 	}
 	
 	public void createBuildCommonSettings( ObjectProperties opsBuild ) throws Exception {

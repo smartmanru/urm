@@ -36,6 +36,7 @@ public class EngineEntities {
 	public static String nameProductContext = "ctx";
 	public static String nameMeta = "meta";
 	public static String nameMetaCoreSettings = "core";
+	public static String nameMetaMonitoringSettings = "mon";
 
 	public Engine engine;
 
@@ -255,6 +256,12 @@ public class EngineEntities {
 	public ObjectProperties createMetaCoreSettingsProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.DEFAULT , nameMetaCoreSettings , engine.execrc );
 		props.create( parent , entityAppProductSettings , null );
+		return( props );
+	}
+
+	public ObjectProperties createMetaMonitoringProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.DEFAULT , nameMetaMonitoringSettings , engine.execrc );
+		props.create( parent , entityAppEngineMonitoring , null );
 		return( props );
 	}
 

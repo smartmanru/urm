@@ -45,15 +45,16 @@ public class DBMetaSettings {
 		opsContext.recalculateProperties();
 		settings.createSettings( opsContext , productContext );
 		
-		// core application settings
+		// core and monitoring settings
 		Node coreNode = ConfReader.xmlGetFirstChild( root , "core" );
 		if( coreNode == null )
 			Common.exitUnexpected();
 		ObjectProperties opsCore = entities.createMetaCoreSettingsProps( opsContext );
+		ObjectProperties opsMon = entities.createMetaMonitoringProps( opsCore );
 		DBSettings.importxml( loader , coreNode , opsCore , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
 		opsCore.recalculateProperties();
 
-		settings.createCoreSettings( opsCore , loader.getMonitoring() );
+		settings.createCoreSettings( opsCore , opsMon , loader.getMonitoring() );
 
 		// build settings
 		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( opsCore );

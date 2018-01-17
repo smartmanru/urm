@@ -119,7 +119,8 @@ public abstract class DBEngineSettings {
 	
 	public static void exportxml( EngineLoader loader , EngineSettings settings , Document doc , Element root ) throws Exception {
 		// properties
-		DBSettings.exportxml( loader , doc , root , settings.engineProperties , true );
+		Element core = Common.xmlCreateElement( doc , root , ELEMENT_CORE );
+		DBSettings.exportxml( loader , doc , core , settings.engineProperties , true );
 
 		// defaults
 		Element modeDefaults = Common.xmlCreateElement( doc , root , ELEMENT_DEFAULTS );
