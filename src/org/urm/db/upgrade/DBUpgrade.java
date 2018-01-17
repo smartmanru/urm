@@ -15,8 +15,6 @@ public class DBUpgrade {
 	private static DBUpgradeSet[] getUpgrades() {
 		return( 
 			new DBUpgradeSet[] {
-				new DBUpgradeSet_104() ,
-				new DBUpgradeSet_110()
 				} );
 	};
 	
