@@ -386,9 +386,7 @@ public abstract class DBEnums {
 		BUILDMODE_DEVBRANCH(14,null) ,
 		BUILDMODE_DEVTRUNK(15,null) ,
 		MONITORING(20,null) ,
-		BASEITEM(30,null) ,
 		LDAP(50,null) ,
-		SYSTEM(100,null) ,
 		DEFAULT(200,null);
 
 		private final int value;

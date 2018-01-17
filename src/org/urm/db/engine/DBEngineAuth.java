@@ -152,7 +152,7 @@ public class DBEngineAuth {
 		ObjectProperties ops = entities.createLdapProps( settings.getEngineProperties() );
 		Node ldap = ConfReader.xmlGetFirstChild( root , ELEMENT_LDAP );
 		if( ldap != null )
-			DBSettings.importxml( loader , ldap , ops , DBVersions.LOCAL_ID , DBVersions.LOCAL_ID , true , version );
+			DBSettings.importxml( loader , ldap , ops , DBVersions.LOCAL_ID , DBVersions.LOCAL_ID , true , false , version );
 		
 		auth.setLdapSettings( ops );
 	}

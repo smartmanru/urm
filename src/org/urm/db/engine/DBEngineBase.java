@@ -156,14 +156,14 @@ public abstract class DBEngineBase {
 		
 		ObjectProperties props = entities.createBaseItemProps( settings.getEngineProperties() ); 
 		BaseItem item = new BaseItem( group , props );
-		DBSettings.importxmlLoad( loader , root , props );
+		DBSettings.importxmlLoad( loader , root , props , true , false );
 		item.scatterProperties();
 		
 		if( !item.isValid() )
 			item.setOffline( true );
 		
 		modifyItem( c , item , true );
-		DBSettings.importxmlSave( loader , props , item.ID , DBVersions.CORE_ID , false , item.CV ); 
+		DBSettings.importxmlSave( loader , props , item.ID , DBVersions.CORE_ID , true , false , item.CV ); 
 		
 		Node[] list = ConfReader.xmlGetChildren( root , ELEMENT_DEPITEM );
 		if( list != null ) {

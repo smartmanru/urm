@@ -8,13 +8,17 @@ import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.RunError;
 import org.urm.db.core.DBEnumInterface;
+import org.urm.db.core.DBEnums.DBEnumObjectType;
+import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamRoleType;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 
 public class ObjectProperties {
 
-	public DBEnumParamRoleType type;
+	public DBEnumObjectType objectType;				// owner object type
+	public DBEnumObjectVersionType versionType;		// type of module object, owning entity data
+	public DBEnumParamRoleType roleType;
 	private String setName;
 	private RunContext execrc;
 	
@@ -27,8 +31,10 @@ public class ObjectProperties {
 
 	private List<ObjectProperties> childs;
 	
-	public ObjectProperties( DBEnumParamRoleType type , String name , RunContext execrc ) {
-		this.type = type;
+	public ObjectProperties( DBEnumObjectType objectType , DBEnumObjectVersionType versionType , DBEnumParamRoleType roleType , String name , RunContext execrc ) {
+		this.objectType = objectType;
+		this.versionType = versionType;
+		this.roleType = roleType;
 		this.setName = name;
 		this.execrc = execrc;
 		
@@ -39,7 +45,7 @@ public class ObjectProperties {
 	}
 
 	public ObjectProperties copy( ObjectProperties parent ) {
-		ObjectProperties r = new ObjectProperties( type , setName , execrc );
+		ObjectProperties r = new ObjectProperties( objectType , versionType , roleType , setName , execrc );
 		r.parent = parent;
 		r.loadFailed = loadFailed;
 		r.loadFinished = loadFinished;

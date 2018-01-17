@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
+import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBSettings;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
@@ -17,6 +18,29 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public abstract class DBEngineEntities {
+
+	public static String FIELD_VERSION_APP = "av"; 
+	public static String FIELD_VERSION_CORE = "cv"; 
+	public static String FIELD_VERSION_SYSTEM = "sv"; 
+	public static String FIELD_VERSION_PRODUCT = "pv"; 
+	public static String FIELD_VERSION_ENVIRONMENT = "ev"; 
+	public static String FIELD_VERSION_AUTH = "uv"; 
+	
+	public static String getVersionField( DBEnumObjectVersionType versionType ) {
+		if( versionType == DBEnumObjectVersionType.APP )
+			return( FIELD_VERSION_APP );
+		if( versionType == DBEnumObjectVersionType.CORE )
+			return( FIELD_VERSION_CORE );
+		if( versionType == DBEnumObjectVersionType.SYSTEM )
+			return( FIELD_VERSION_SYSTEM );
+		if( versionType == DBEnumObjectVersionType.PRODUCT )
+			return( FIELD_VERSION_PRODUCT );
+		if( versionType == DBEnumObjectVersionType.ENVIRONMENT )
+			return( FIELD_VERSION_ENVIRONMENT );
+		if( versionType == DBEnumObjectVersionType.LOCAL )
+			return( FIELD_VERSION_AUTH );
+		return( null );
+	}
 
 	public static void modifyAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values , boolean insert ) throws Exception {
 		if( id <= 0 || version <= 0 )
@@ -59,7 +83,7 @@ public abstract class DBEngineEntities {
 			list = Common.addToList( list , var.DBNAME , " , " );
 		}
 		
-		String fieldVersion = entity.getVersionField();
+		String fieldVersion = getVersionField( entity.DATA_OBJECTVERSION_TYPE );
 		list = Common.addToList( list , fieldVersion , " , " );
 		return( list );
 	}
@@ -78,7 +102,7 @@ public abstract class DBEngineEntities {
 			query += var.DBNAME + " = " + values[ k ] + " , ";
 		}
 		
-		String fieldVersion = entity.getVersionField();
+		String fieldVersion = getVersionField( entity.DATA_OBJECTVERSION_TYPE );
 		query += fieldVersion + " = " + version;
 		query += " where " + entity.getIdField() + " = " + id;
 		

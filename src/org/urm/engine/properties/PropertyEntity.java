@@ -30,7 +30,7 @@ public class PropertyEntity {
 																// app module meta: APP (change only with app version upgrade) 
 																// custom module meta: specific module object   
 	public DBEnumObjectVersionType META_OBJECTVERSION_TYPE;		// type of module object, owning entity meta
-	public DBEnumObjectVersionType DATA_OBJECTVERSION_TYPE;		// type of module object, owning entity data
+	public DBEnumObjectVersionType DATA_OBJECTVERSION_TYPE;		// type of module object, owning entity data (can be different for different objects)
 	public String ID_FIELD;										// object identifier table field 
 	public int VERSION;
 	
@@ -182,22 +182,6 @@ public class PropertyEntity {
 		return( ID_FIELD );
 	}
 	
-	public String getVersionField() {
-		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.APP )
-			return( EngineEntities.FIELD_VERSION_APP );
-		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.CORE )
-			return( EngineEntities.FIELD_VERSION_CORE );
-		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.SYSTEM )
-			return( EngineEntities.FIELD_VERSION_SYSTEM );
-		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.PRODUCT )
-			return( EngineEntities.FIELD_VERSION_PRODUCT );
-		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.ENVIRONMENT )
-			return( EngineEntities.FIELD_VERSION_ENVIRONMENT );
-		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.LOCAL )
-			return( EngineEntities.FIELD_VERSION_AUTH );
-		return( null );
-	}
-
 	public String importxmlStringAttr( Node root , String prop ) throws Exception {
 		EntityVar var = findVar( prop );
 		if( var == null )

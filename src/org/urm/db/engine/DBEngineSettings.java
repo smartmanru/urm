@@ -3,110 +3,25 @@ package org.urm.db.engine;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
-import org.urm.db.core.DBEnums.DBEnumOSType;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumBuildModeType;
-import org.urm.db.core.DBEnums.DBEnumObjectType;
-import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
-import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.engine.properties.EngineEntities;
-import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.EngineContext;
 import org.urm.meta.engine.EngineSettings;
-import org.urm.meta.product.MetaProductBuildSettings;
-import org.urm.meta.product.MetaProductCoreSettings;
-import org.urm.meta.product.MetaProductSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public abstract class DBEngineSettings {
 
+	public static String ELEMENT_CORE = "core";
 	public static String ELEMENT_DEFAULTS = "defaults"; 
 	public static String ELEMENT_BUILD = "build"; 
 	public static String ELEMENT_MODE = "mode";
 	public static String MODE_ATTR_NAME = "name";
-	
-	public static PropertyEntity upgradeEntityProductContext( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.APPPRODUCT , DBEnumParamEntityType.PRODUCTCTX , DBEnumObjectVersionType.PRODUCT );
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaString( MetaProductSettings.PROPERTY_PRODUCT_NAME , "Product Name" , true , null ) ,
-				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_PRODUCT_HOME , "Product Home" , true , null , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_LAST_MAJOR_FIRST , "Version Major Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_LAST_MAJOR_SECOND , "Version Minor Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_NEXT_MAJOR_FIRST , "Next Major Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_NEXT_MAJOR_SECOND , "Next Minor Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_LAST_MINOR_FIRST , "Last Tag Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_LAST_MINOR_SECOND , "Next Tag Number" , false , null )
-		} ) );
-	}
-
-	public static PropertyEntity loaddbEntityProductContext( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.APPPRODUCT , DBEnumParamEntityType.PRODUCTCTX , DBEnumObjectVersionType.PRODUCT );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityProductSettings( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.CORE );
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_REDISTLINUX_PATH , "Linux Staging Area Path" , true , null , DBEnumOSType.LINUX ) ,
-				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_REDISTWIN_PATH , "Windows Staging Area Path" , true , null , DBEnumOSType.WINDOWS ) ,
-				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_DISTR_PATH , "Distributives Path" , true , null , null ) ,
-				EntityVar.metaString( MetaProductCoreSettings.PROPERTY_DISTR_HOSTLOGIN , "Distributives host@login" , false , null ) ,
-				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_UPGRADE_PATH , "Upgrade Scripts Path" , false , null , null ) ,
-				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_BASE_PATH , "Platform Software Path" , false , null , null ) ,
-				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_MIRRORPATH , "Mirror Repositories" , false , null , null ) ,
-				EntityVar.metaString( MetaProductCoreSettings.PROPERTY_ADM_TRACKER , "Codebase Control Tracker" , false , null ) ,
-				EntityVar.metaString( MetaProductCoreSettings.PROPERTY_COMMIT_TRACKERLIST , "Source Task Trackers" , false , null ) ,
-				EntityVar.metaString( MetaProductCoreSettings.PROPERTY_SOURCE_CHARSET , "Release Source Charset" , false , null ) ,
-				EntityVar.metaPathRelative( MetaProductCoreSettings.PROPERTY_SOURCE_RELEASEROOTDIR , "Release Source Root" , false , null , null ) ,
-				EntityVar.metaPathRelative( MetaProductCoreSettings.PROPERTY_SOURCE_CFG_ROOTDIR , "Configuration Root" , false , null , null ) ,
-				EntityVar.metaPathRelative( MetaProductCoreSettings.PROPERTY_SOURCE_CFG_LIVEROOTDIR , "Configuration Live" , false , null , null ) ,
-				EntityVar.metaPathRelative( MetaProductCoreSettings.PROPERTY_SOURCE_SQL_POSTREFRESH , "Database PostRefresh" , false , null , null ) ,
-				EntityVar.metaString( MetaProductCoreSettings.PROPERTY_CUSTOM_BUILD , "Custom Builder Plugin" , false , null ) ,
-				EntityVar.metaString( MetaProductCoreSettings.PROPERTY_CUSTOM_DEPLOY , "Custom Deployer Plugin" , false , null ) ,
-				EntityVar.metaString( MetaProductCoreSettings.PROPERTY_CUSTOM_DATABASE , "Custom Database Plugin" , false , null )
-		} ) );
-	}
-
-	public static PropertyEntity loaddbEntityProductSettings( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityProductBuild( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTBUILD , DBEnumObjectVersionType.CORE );
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_LASTMAJOR , "Last Major Release" , false , null ) ,
-				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_NEXTMAJOR , "Next Major Release" , false , null ) ,
-				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_LASTMINOR , "Last Minor Release" , false , null ) ,
-				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_NEXTMINOR , "Next Minor Release" , false , null ) ,
-				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_VERSION , "Release Build Version" , false , null ) ,
-				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_APPVERSION , "Artefacts Version" , false , null ) ,
-				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_BRANCHNAME , "Source Branch Name" , false , null ) ,
-				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_GROUPFOLDER , "Release Source Group" , false , null ) ,
-				EntityVar.metaPathAbsolute( MetaProductBuildSettings.PROPERTY_ARTEFACTDIR , "Artefacts Directory" , false , null , null ) ,
-				EntityVar.metaPathRelative( MetaProductBuildSettings.PROPERTY_LOGPATH , "Build Log Path" , false , null , null ) ,
-				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_NEXUS_REPO , "Nexus Repository" , false , null ) ,
-				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_NEXUS_REPO_THIRDPARTY , "Nexus Thirdparty Repository" , false , null ) ,
-				EntityVar.metaPathAbsolute( MetaProductBuildSettings.PROPERTY_MAVEN_CFGFILE , "Maven Settings" , false , null , null )
-		} ) );
-	}
-
-	public static PropertyEntity loaddbEntityProductBuild( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.PRODUCTBUILD , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
 	
 	public static void importxml( EngineLoader loader , EngineSettings settings , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
@@ -138,7 +53,8 @@ public abstract class DBEngineSettings {
 		int version = c.getNextCoreVersion();
 		
 		settings.engineProperties = entities.createEngineProps( settings.execrcProperties );
-		DBSettings.importxml( loader , root , settings.engineProperties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , version );
+		Node nodeCore = ConfReader.xmlGetFirstChild( root , ELEMENT_CORE );
+		DBSettings.importxml( loader , nodeCore , settings.engineProperties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , true , version );
 	}
 	
 	private static void loaddbEngineSettings( EngineLoader loader , EngineSettings settings ) throws Exception {
@@ -155,11 +71,11 @@ public abstract class DBEngineSettings {
 		// load from xml
 		settings.defaultProductProperties = entities.createDefaultProductProps( settings.engineProperties );
 		Node node = ConfReader.xmlGetFirstChild( root , ELEMENT_DEFAULTS );
-		DBSettings.importxml( loader , node , settings.defaultProductProperties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , version );
+		DBSettings.importxml( loader , node , settings.defaultProductProperties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , false , version );
 		
 		settings.defaultProductBuildProperties = entities.createDefaultBuildCommonProps( settings.defaultProductBuildProperties );
 		Node build = ConfReader.xmlGetFirstChild( node , ELEMENT_BUILD );
-		DBSettings.importxml( loader , build , settings.defaultProductBuildProperties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , version );
+		DBSettings.importxml( loader , build , settings.defaultProductBuildProperties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , false , version );
 		
 		// for build modes
 		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
@@ -176,7 +92,7 @@ public abstract class DBEngineSettings {
 				String MODE = ConfReader.getRequiredAttrValue( itemNode , MODE_ATTR_NAME );
 				DBEnumBuildModeType mode = DBEnumBuildModeType.valueOf( MODE.toUpperCase() );
 				ObjectProperties properties = settings.getDefaultProductBuildObjectProperties( mode );
-				DBSettings.importxml( loader , itemNode , properties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , version );
+				DBSettings.importxml( loader , itemNode , properties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , false , version );
 			}
 		}
 	}

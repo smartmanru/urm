@@ -14,11 +14,9 @@ import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMirrors;
 import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
-import org.urm.db.engine.DBEngineSettings;
 import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
 import org.urm.meta.EngineLoader;
-import org.urm.meta.product.Meta;
 
 public class EngineEntities {
 
@@ -39,13 +37,6 @@ public class EngineEntities {
 	public static String nameMeta = "meta";
 	public static String nameMetaCoreSettings = "core";
 
-	public static String FIELD_VERSION_APP = "av"; 
-	public static String FIELD_VERSION_CORE = "cv"; 
-	public static String FIELD_VERSION_SYSTEM = "sv"; 
-	public static String FIELD_VERSION_PRODUCT = "pv"; 
-	public static String FIELD_VERSION_ENVIRONMENT = "ev"; 
-	public static String FIELD_VERSION_AUTH = "uv"; 
-	
 	public Engine engine;
 
 	public PropertyEntity entityAppRC; 
@@ -82,9 +73,9 @@ public class EngineEntities {
 	public void upgradeMeta( EngineLoader loader ) throws Exception {
 		entityAppRC = DBEngineContext.upgradeEntityRC( loader );
 		entityAppEngine = DBEngineContext.upgradeEntityEngine( loader );
-		entityAppProductContext = DBEngineSettings.upgradeEntityProductContext( loader );
-		entityAppProductSettings = DBEngineSettings.upgradeEntityProductSettings( loader );
-		entityAppProductBuild = DBEngineSettings.upgradeEntityProductBuild( loader );
+		entityAppProductContext = DBProductData.upgradeEntityProductContext( loader );
+		entityAppProductSettings = DBProductData.upgradeEntityProductSettings( loader );
+		entityAppProductBuild = DBProductData.upgradeEntityProductBuild( loader );
 		entityAppEngineMonitoring = DBEngineMonitoring.upgradeEntityEngineMonitoring( loader );
 		entityAppBaseGroup = DBEngineBase.upgradeEntityBaseGroup( loader );
 		entityAppBaseItem = DBEngineBase.upgradeEntityBaseItem( loader );
@@ -113,9 +104,9 @@ public class EngineEntities {
 		DBConnection c = loader.getConnection();
 		entityAppRC = DBEngineContext.loaddbEntityRC( c );
 		entityAppEngine = DBEngineContext.loaddbEntityEngine( c );
-		entityAppProductContext = DBEngineSettings.loaddbEntityProductContext( c );
-		entityAppProductSettings = DBEngineSettings.loaddbEntityProductSettings( c );
-		entityAppProductBuild = DBEngineSettings.loaddbEntityProductBuild( c );
+		entityAppProductContext = DBProductData.loaddbEntityProductContext( c );
+		entityAppProductSettings = DBProductData.loaddbEntityProductSettings( c );
+		entityAppProductBuild = DBProductData.loaddbEntityProductBuild( c );
 		entityAppEngineMonitoring = DBEngineMonitoring.loaddbEntityEngineMonitoring( c );
 		entityAppBaseGroup = DBEngineBase.loaddbEntityBaseGroup( c );
 		entityAppBaseItem = DBEngineBase.loaddbEntityBaseItem( c );
@@ -149,36 +140,48 @@ public class EngineEntities {
 	}
 	
 	public ObjectProperties createRunContextProps() throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.RC , nameRunContextSet , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.RC , nameRunContextSet , engine.execrc );
 		props.create( null , entityAppRC , entityCustomRC );
 		return( props );
 	}
 
 	public ObjectProperties createEngineProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.ENGINE , nameEngineSettings , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.ENGINE , nameEngineSettings , engine.execrc );
 		props.create( parent , entityAppEngine , entityCustomEngine ); 
 		return( props );
 	}
 
 	public ObjectProperties createDefaultProductProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.PRODUCTDEFS , nameProductSet , engine.execrc );
+		return( createProductProps( parent , DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE ) );
+	}
+	
+	public ObjectProperties createProductProps( ObjectProperties parent , DBEnumObjectType objectType , DBEnumObjectVersionType versionType ) throws Exception {
+		ObjectProperties props = new ObjectProperties( objectType , versionType , DBEnumParamRoleType.PRODUCTDEFS , nameProductSet , engine.execrc );
 		props.create( parent , entityAppProductSettings , null ); 
 		return( props );
 	}
 
-	public ObjectProperties createDefaultBuildCommonProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.BUILDMODE_COMMON , nameBuildSet , engine.execrc );
-		props.create( parent , entityAppProductBuild , null );
-		return( props );
-	}
-
 	public ObjectProperties createEngineMonitoringProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.MONITORING , nameEngineMonitoring , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.MONITORING , nameEngineMonitoring , engine.execrc );
 		props.create( parent , entityAppEngineMonitoring , null ); 
 		return( props );
 	}
 
+	public ObjectProperties createDefaultBuildCommonProps( ObjectProperties parent ) throws Exception {
+		return( createBuildCommonProps( parent , DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE ) );
+	}
+	
+	public ObjectProperties createBuildCommonProps( ObjectProperties parent , DBEnumObjectType objectType , DBEnumObjectVersionType versionType ) throws Exception {
+		ObjectProperties props = new ObjectProperties( objectType , versionType , DBEnumParamRoleType.BUILDMODE_COMMON , nameBuildSet , engine.execrc );
+		props.create( parent , entityAppProductBuild , null );
+		return( props );
+	}
+
 	public ObjectProperties createDefaultBuildModeProps( ObjectProperties parent , DBEnumBuildModeType mode ) throws Exception {
+		return( createBuildModeProps( parent , DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , mode ) );
+	}
+	
+	public ObjectProperties createBuildModeProps( ObjectProperties parent , DBEnumObjectType objectType , DBEnumObjectVersionType versionType , DBEnumBuildModeType mode ) throws Exception {
 		DBEnumParamRoleType role = null;
 		String set = null;
 		if( mode == DBEnumBuildModeType.BRANCH ) {
@@ -205,56 +208,62 @@ public class EngineEntities {
 			role = DBEnumParamRoleType.BUILDMODE_TRUNK;
 			set = nameBuildTrunkSet;
 		}
-		ObjectProperties props = new ObjectProperties( role , set , engine.execrc );
+		ObjectProperties props = new ObjectProperties( objectType , versionType , role , set , engine.execrc );
 		props.create( parent , entityAppProductBuild , null ); 
 		return( props );
 	}
 
 	public ObjectProperties createBaseItemProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.BASEITEM , nameBaseItem , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.DEFAULT , nameBaseItem , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM_CUSTOM , DBVersions.CORE_ID , DBEnumObjectVersionType.CORE );
 		props.create( parent , entityAppBaseItem , custom );
 		return( props );
 	}
 
 	public ObjectProperties createSystemProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.SYSTEM , nameSystem , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.DEFAULT , nameSystem , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.SYSTEM_CUSTOM , -1 , DBEnumObjectVersionType.SYSTEM );
 		props.create( parent , entityAppDirectorySystem , custom );
 		return( props );
 	}
 
 	public ObjectProperties createLdapProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.LDAP , nameLdap , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.LDAP , nameLdap , engine.execrc );
 		props.create( parent , entityAppLDAPSettings , null );
 		return( props );
 	}
 
-	public ObjectProperties createProductContextProps() throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.PRODUCTCTX , nameProductContext , engine.execrc );
+	public ObjectProperties createDefaultProductContextProps() throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.PRODUCTCTX , nameProductContext , engine.execrc );
 		props.create( null , entityAppProductContext , null );
 		return( props );
 	}
 	
-	public ObjectProperties createMetaProps( Meta meta , ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.DEFAULT , nameMeta , engine.execrc );
+	public ObjectProperties createMetaContextProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.PRODUCTCTX , nameProductContext , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_CUSTOM , -1 , DBEnumObjectVersionType.PRODUCT ); 
-		props.create( parent , entityAppMeta , custom );
+		props.create( parent , entityAppProductContext , custom );
+		return( props );
+	}
+
+	public ObjectProperties createMetaProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.DEFAULT , nameMeta , engine.execrc );
+		props.create( parent , entityAppMeta , null );
 		return( props );
 	}
 	
 	public ObjectProperties createMetaCoreSettingsProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.DEFAULT , nameMetaCoreSettings , engine.execrc );
-		props.create( parent , entityAppProductContext , null );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.DEFAULT , nameMetaCoreSettings , engine.execrc );
+		props.create( parent , entityAppProductSettings , null );
 		return( props );
 	}
 
-	public ObjectProperties createMetaBuildCommonProps( Meta meta , ObjectProperties parent ) throws Exception {
-		return( createDefaultBuildCommonProps( parent ) );
+	public ObjectProperties createMetaBuildCommonProps( ObjectProperties parent ) throws Exception {
+		return( createBuildCommonProps( parent , DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT ) );
 	}
 
-	public ObjectProperties createMetaBuildModeProps( Meta meta , ObjectProperties parent , DBEnumBuildModeType mode ) throws Exception {
-		return( createDefaultBuildModeProps( parent , mode ) );
+	public ObjectProperties createMetaBuildModeProps( ObjectProperties parent , DBEnumBuildModeType mode ) throws Exception {
+		return( createBuildModeProps( parent , DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , mode ) );
 	}
 	
 }

@@ -50,7 +50,7 @@ public class DBEngineMonitoring {
 		ObjectProperties properties = entities.createEngineMonitoringProps( settings.getEngineProperties() );
 		
 		int version = c.getNextCoreVersion();
-		DBSettings.importxml( loader , root , properties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , version );
+		DBSettings.importxml( loader , root , properties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , false , version );
 		mon.setProperties( properties );
 	}
 	

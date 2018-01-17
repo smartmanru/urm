@@ -30,7 +30,7 @@ public class MetaProductSettings {
 	public MetaProductSettings settings;
 	
 	// context and custom product properties
-	public ObjectProperties ops;
+	public ObjectProperties ctx;
 	
 	// detailed product properties
 	public MetaProductCoreSettings core;
@@ -48,7 +48,7 @@ public class MetaProductSettings {
 		MetaProductSettings r = new MetaProductSettings( rmeta.getStorage() , rmeta );
 		
 		// context
-		r.ops = ops.copy( parent );
+		r.ctx = ctx.copy( parent );
 		r.core = core.copy( rmeta , r );
 		
 		if( buildCommon != null )
@@ -62,11 +62,11 @@ public class MetaProductSettings {
 	}
 
 	public ObjectProperties getProperties() {
-		return( ops );
+		return( ctx );
 	}
 	
-	public void createSettings( ObjectProperties ops , ProductContext context ) throws Exception {
-		this.ops = ops;
+	public void createSettings( ObjectProperties ctx , ProductContext context ) throws Exception {
+		this.ctx = ctx;
 		setContextProperties( context );
 		
 		// build
@@ -95,31 +95,28 @@ public class MetaProductSettings {
 	}
 
 	public void setContextProperties( ProductContext context ) throws Exception {
-		ops.setManualStringProperty( PROPERTY_PRODUCT_NAME , meta.name );
-		ops.setManualPathProperty( PROPERTY_PRODUCT_HOME , context.home.folderPath , null );
+		ctx.setStringProperty( PROPERTY_PRODUCT_NAME , meta.name );
+		ctx.setPathProperty( PROPERTY_PRODUCT_HOME , context.home.folderPath );
 		
 		MetaProductVersion version = meta.getVersion();
 		updateVersion( version );
-		
-		ops.copyOriginalPropertiesToRaw( context.settings.getDefaultProductProperties() );
-		ops.recalculateProperties();
 	}
 	
 	private void updateVersion( MetaProductVersion version ) throws Exception {
-		ops.setManualIntProperty( PROPERTY_LAST_MAJOR_FIRST , version.majorLastFirstNumber );
-		ops.setManualIntProperty( PROPERTY_LAST_MAJOR_SECOND , version.majorLastSecondNumber );
-		ops.setManualIntProperty( PROPERTY_NEXT_MAJOR_FIRST , version.majorNextFirstNumber );
-		ops.setManualIntProperty( PROPERTY_NEXT_MAJOR_SECOND , version.majorNextSecondNumber );
-		ops.setManualIntProperty( PROPERTY_LAST_MINOR_FIRST , version.lastProdTag );
-		ops.setManualIntProperty( PROPERTY_NEXT_MINOR_FIRST , version.nextProdTag );
-		ops.setManualIntProperty( PROPERTY_LAST_MINOR_SECOND , version.lastUrgentTag );
-		ops.setManualIntProperty( PROPERTY_NEXT_MINOR_SECOND , version.nextUrgentTag );
+		ctx.setIntProperty( PROPERTY_LAST_MAJOR_FIRST , version.majorLastFirstNumber );
+		ctx.setIntProperty( PROPERTY_LAST_MAJOR_SECOND , version.majorLastSecondNumber );
+		ctx.setIntProperty( PROPERTY_NEXT_MAJOR_FIRST , version.majorNextFirstNumber );
+		ctx.setIntProperty( PROPERTY_NEXT_MAJOR_SECOND , version.majorNextSecondNumber );
+		ctx.setIntProperty( PROPERTY_LAST_MINOR_FIRST , version.lastProdTag );
+		ctx.setIntProperty( PROPERTY_NEXT_MINOR_FIRST , version.nextProdTag );
+		ctx.setIntProperty( PROPERTY_LAST_MINOR_SECOND , version.lastUrgentTag );
+		ctx.setIntProperty( PROPERTY_NEXT_MINOR_SECOND , version.nextUrgentTag );
 	}
 	
 	public void updateSettings( MetaProductVersion version ) throws Exception {
 		updateVersion( version );
-		ops.recalculateProperties();
-		ops.recalculateChildProperties();
+		ctx.recalculateProperties();
+		ctx.recalculateChildProperties();
 	}
 	
 	public Map<String,String> getExportProperties( ActionBase action ) throws Exception {
@@ -127,9 +124,9 @@ public class MetaProductSettings {
 		Map<String,String> map = new HashMap<String,String>();
 		String prefix = "export.";
 		
-		for( String name : ops.getPropertyList() ) {
+		for( String name : ctx.getPropertyList() ) {
 			if( name.startsWith( prefix ) ) {
-				String value = ops.getFinalProperty( name , action.shell.account , true , false );
+				String value = ctx.getFinalProperty( name , action.shell.account , true , false );
 				if( value != null )
 					map.put( name.substring( prefix.length() ) , value );
 			}
@@ -162,7 +159,7 @@ public class MetaProductSettings {
 	}
     
 	public void setProperties( PropertySet props , boolean system ) throws Exception {
-		ops.updateProperties( props , system );
+		ctx.updateProperties( props , system );
 	}
 
 	public void setBuildCommonProperties( PropertySet props ) throws Exception {

@@ -102,7 +102,7 @@ public class DBUpgrade {
 			if( op.isEmpty() )
 				continue;
 			
-			if( !c.modify( op ) )
+			if( !c.modify( op , 0 ) )
 				Common.exitUnexpected();
 		}
 	}

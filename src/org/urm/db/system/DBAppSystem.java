@@ -41,7 +41,7 @@ public abstract class DBAppSystem {
 				);
 		system.setOffline( ConfReader.getBooleanAttrValue( node , AppSystem.PROPERTY_OFFLINE , true ) );
 		modifySystem( c , system , true );
-		DBSettings.importxml( loader , node , props , system.ID , system.ID , false , system.SV );
+		DBSettings.importxml( loader , node , props , system.ID , system.ID , false , true , system.SV );
 		
 		return( system );
 	}

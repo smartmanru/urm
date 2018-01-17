@@ -14,6 +14,7 @@ import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.AppSystem;
 import org.urm.meta.product.MetaProductSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,6 +22,8 @@ import org.w3c.dom.Node;
 
 public class DBMetaSettings {
 
+	public static String ELEMENT_CUSTOM = "custom";
+	
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
 		ActionBase action = loader.getAction();
 		AppProduct product = storage.product;
@@ -30,32 +33,34 @@ public class DBMetaSettings {
 		storage.setSettings( settings );
 
 		// context and custom settings
-		ObjectProperties ops = entities.createMetaProps( storage.meta , null );
+		AppSystem system = product.system;
+		ObjectProperties opsContext = entities.createMetaContextProps( system.getParameters() );
 		UrmStorage urm = action.artefactory.getUrmStorage();
 		LocalFolder folder = urm.getProductHome( action , storage.name );
 		ProductContext productContext = new ProductContext( product , false );
 		productContext.create( loader.getSettings() , folder );
-		settings.createSettings( ops , productContext );
 		
-		Node customNode = ConfReader.xmlGetFirstChild( root , "custom" );
-		if( customNode == null )
-			Common.exitUnexpected();
-		DBSettings.importxml( loader , customNode , ops , storage.ID , DBVersions.CORE_ID , false , storage.PV );
+		Node customNode = ConfReader.xmlGetFirstChild( root , ELEMENT_CUSTOM );
+		DBSettings.importxml( loader , customNode , opsContext , storage.ID , DBVersions.CORE_ID , false , true , storage.PV );
+		opsContext.recalculateProperties();
+		settings.createSettings( opsContext , productContext );
 		
 		// core application settings
-		ObjectProperties opsCore = entities.createMetaCoreSettingsProps( ops );
-		DBSettings.importxml( loader , root , opsCore , storage.ID , DBVersions.CORE_ID , true , storage.PV );
-
-		settings.createCoreSettings( opsCore , loader.getMonitoring() );
-		ops.recalculateProperties();
+		Node coreNode = ConfReader.xmlGetFirstChild( root , "core" );
+		if( coreNode == null )
+			Common.exitUnexpected();
+		ObjectProperties opsCore = entities.createMetaCoreSettingsProps( opsContext );
+		DBSettings.importxml( loader , coreNode , opsCore , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
 		opsCore.recalculateProperties();
 
+		settings.createCoreSettings( opsCore , loader.getMonitoring() );
+
 		// build settings
-		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( storage.meta , opsCore );
+		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( opsCore );
 		Node buildNode = ConfReader.xmlGetFirstChild( root , "build" );
 		if( buildNode == null )
 			Common.exitUnexpected();
-		DBSettings.importxml( loader , buildNode , opsBuildCommon , storage.ID , DBVersions.CORE_ID , true , storage.PV );
+		DBSettings.importxml( loader , buildNode , opsBuildCommon , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
 		
 		settings.createBuildCommonSettings( opsBuildCommon );
 		
@@ -64,8 +69,8 @@ public class DBMetaSettings {
 			for( Node node : items ) {
 				String modeName = ConfReader.getAttrValue( node , "name" );
 				DBEnumBuildModeType mode = DBEnumBuildModeType.getValue( modeName , false );
-				ObjectProperties opsBuildMode = entities.createMetaBuildCommonProps( storage.meta , opsBuildCommon );
-				DBSettings.importxml( loader , buildNode , opsBuildMode , storage.ID , DBVersions.CORE_ID , true , storage.PV );
+				ObjectProperties opsBuildMode = entities.createMetaBuildCommonProps( opsBuildCommon );
+				DBSettings.importxml( loader , buildNode , opsBuildMode , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
 				
 				settings.createBuildModeSettings( mode , opsBuildMode );
 			}
