@@ -74,9 +74,6 @@ public class EngineDB {
 			connection.close( true );
 	}
 
-	public void clearProduct( String productName ) {
-	}
-
 	public static String getInteger( int value ) {
 		return( "" + value );
 	}

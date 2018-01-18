@@ -28,6 +28,7 @@ COMMENT ON TABLE main.urm_dist_delivery IS 'Product distributive delivery';
 CREATE TABLE main.urm_dist_docitem (
                 delivery_id INTEGER NOT NULL,
                 doc_id INTEGER NOT NULL,
+                meta_id INTEGER NOT NULL,
                 pv INTEGER NOT NULL,
                 CONSTRAINT urm_dist_docitem_pk PRIMARY KEY (delivery_id, doc_id)
 );
@@ -36,6 +37,7 @@ COMMENT ON TABLE main.urm_dist_docitem IS 'Product distributive delivery documen
 
 CREATE TABLE main.urm_dist_confitem (
                 confitem_id INTEGER NOT NULL,
+                meta_id INTEGER NOT NULL,
                 delivery_id INTEGER NOT NULL,
                 name VARCHAR(30) NOT NULL,
                 xdesc VARCHAR,
@@ -54,6 +56,7 @@ COMMENT ON TABLE main.urm_dist_confitem IS 'Product distributive configuration i
 CREATE TABLE main.urm_dist_schemaitem (
                 delivery_id INTEGER NOT NULL,
                 schema_id INTEGER NOT NULL,
+                meta_id INTEGER NOT NULL,
                 pv INTEGER NOT NULL,
                 CONSTRAINT urm_dist_schemaitem_pk PRIMARY KEY (delivery_id, schema_id)
 );
@@ -62,6 +65,7 @@ COMMENT ON TABLE main.urm_dist_schemaitem IS 'Product distributive schema';
 
 CREATE TABLE main.urm_dist_binaryitem (
                 binary_id INTEGER NOT NULL,
+                meta_id INTEGER NOT NULL,
                 delivery_id INTEGER NOT NULL,
                 name VARCHAR(30) NOT NULL,
                 xdesc VARCHAR,
@@ -88,6 +92,7 @@ COMMENT ON TABLE main.urm_dist_binaryitem IS 'Product distributive binary item';
 
 CREATE TABLE main.urm_dist_compitem (
                 compitem_id INTEGER NOT NULL,
+                meta_id INTEGER NOT NULL,
                 comp_id INTEGER NOT NULL,
                 compitem_type INTEGER NOT NULL,
                 binary_id INTEGER,

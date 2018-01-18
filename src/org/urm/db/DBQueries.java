@@ -82,5 +82,7 @@ public abstract class DBQueries {
 	public static String QUERY_AUTH_GROUPACCESS_PRODUCTS0 = "select group_id , product_id , uv from urm_auth_access_product";
 	public static String QUERY_AUTH_GROUPACCESS_NETWORKS0 = "select group_id , network_id , uv from urm_auth_access_network";
 	public static String QUERY_AUTH_GROUPUSERS0 = "select group_id , user_id , uv from urm_auth_groupuser";
+
+	public static String MODIFY_PRODUCT_CLEARITEMGROUPLINK = "delete from urm_design_itemgrouplink where src_dgitem_id in ( select ";
 	
 }

@@ -6,6 +6,7 @@ import org.urm.common.RunContext;
 import org.urm.db.EngineDB;
 import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.product.DBMeta;
+import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.storage.LocalFolder;
@@ -68,9 +69,8 @@ public class EngineLoaderProducts {
 		AppProduct product = directory.findProduct( productName );
 		if( !matchProductMirrors( product ) )
 			Common.exit1( _Error.InvalidProductMirros1 , "Invalid product mirror repositories, product=" + productName , productName );
-		
-		EngineDB db = loader.getDatabase();
-		db.clearProduct( productName );
+
+		DBProductData.dropProductData( loader );
 		
 		ProductMeta storageNew = loadProduct( product , true );
 		if( storageNew == null )
