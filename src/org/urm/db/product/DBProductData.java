@@ -1,6 +1,9 @@
 package org.urm.db.product;
 
+import org.urm.common.Common;
 import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
+import org.urm.db.EngineDB;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBEnums.DBEnumOSType;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
@@ -9,6 +12,7 @@ import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
@@ -171,15 +175,45 @@ public class DBProductData {
 		return( entity );
 	}
 	
-	public static void dropProductData( EngineLoader loader ) throws Exception {
-		dropProductDesignData( loader );
-		dropProductCoreData( loader );
+	public static void dropProductData( EngineLoader loader , ProductMeta storage ) throws Exception {
+		dropProductDistData( loader , storage );
+		dropProductCoreData( loader , storage );
 	}
 
-	public static void dropProductDesignData( EngineLoader loader ) throws Exception {
+	public static void dropProductDistData( EngineLoader loader , ProductMeta storage ) throws Exception {
+		DBConnection c = loader.getConnection();
+		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTCOMPITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTBINARYITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTSCHEMAITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTCONFITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTDOCITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTDELIVERY1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTCOMP1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
 	}
 	
-	public static void dropProductCoreData( EngineLoader loader ) throws Exception {
+	public static void dropProductCoreData( EngineLoader loader , ProductMeta storage ) throws Exception {
+		DBConnection c = loader.getConnection();
+		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_SOURCEITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_SOURCEPROJECT1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_UNIT1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_SCHEMA1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_SOURCESET1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DOC1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_META1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
 	}
 
 }

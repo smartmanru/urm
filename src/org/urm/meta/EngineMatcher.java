@@ -42,7 +42,7 @@ public class EngineMatcher {
 	public void doneProduct( AppProduct product , ProductMeta set ) throws Exception {
 		EngineDirectory directory = loader.getDirectory();
 		directory.addProduct( product );
-		product.setMatched( set );
+		product.setStorage( set );
 	}
 
 	public boolean matchProductMirrors( AppProduct product ) {

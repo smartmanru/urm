@@ -3,7 +3,6 @@ package org.urm.meta;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
-import org.urm.db.EngineDB;
 import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBProductData;
@@ -30,6 +29,13 @@ public class EngineLoaderProducts {
 	public RunContext execrc;
 	public Engine engine;
 
+	public EngineLoaderProducts( EngineLoader loader , EngineData data ) {
+		this.loader = loader;
+		this.data = data;
+		this.execrc = loader.execrc;
+		this.engine = loader.engine;
+	}
+	
 	public void loadProducts() throws Exception {
 		data.unloadProducts();
 		
@@ -44,21 +50,22 @@ public class EngineLoaderProducts {
 			
 			ProductContext context = findContext( product , products );
 			if( context == null || context.MATCHED == false ) {
+				skipProduct( product , context );
 				trace( "skip load product name=" + name );
 				continue;
 			}
 			
-			ProductMeta storage = loadProduct( product , false );
+			ProductMeta storage = loadProduct( product , context , false );
 			if( storage != null )
 				addProduct( storage );
 		}
 	}
 
-	public EngineLoaderProducts( EngineLoader loader , EngineData data ) {
-		this.loader = loader;
-		this.data = data;
-		this.execrc = loader.execrc;
-		this.engine = loader.engine;
+	public void skipProduct( AppProduct product , ProductContext context ) throws Exception {
+		EngineProducts products = data.getProducts();
+		ProductMeta storage = new ProductMeta( products , product );
+		storage.setContext( context );
+		product.setStorage( storage );
 	}
 	
 	public void importProduct( String productName , boolean includingEnvironments ) throws Exception {
@@ -70,14 +77,15 @@ public class EngineLoaderProducts {
 		if( !matchProductMirrors( product ) )
 			Common.exit1( _Error.InvalidProductMirros1 , "Invalid product mirror repositories, product=" + productName , productName );
 
-		DBProductData.dropProductData( loader );
+		ProductMeta storage = product.storage;
+		if( storage != null )
+			DBProductData.dropProductData( loader , storage );
 		
-		ProductMeta storageNew = loadProduct( product , true );
-		if( storageNew == null )
-			Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + productName , productName );
-
 		synchronized( products ) {
-			ProductMeta storage = products.findProductStorage( productName );
+			ProductMeta storageNew = loadProduct( product , true );
+			if( storageNew == null )
+				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + productName , productName );
+
 			if( storage != null )
 				products.unloadProduct( storage );
 			
@@ -116,11 +124,10 @@ public class EngineLoaderProducts {
 	private boolean addProduct( ProductMeta set ) {
 		EngineDirectory directory = loader.getDirectory();
 		AppProduct product = directory.findProduct( set.name );
+		product.setStorage( set );
 		
 		if( !DBEngineDirectory.matchProduct( loader , directory , product , set , false ) ) {
 			trace( "match failed for product=" + product.NAME );
-			set.meta.deleteObject();
-			set.deleteObject();
 			return( false );
 		}
 		
@@ -138,7 +145,7 @@ public class EngineLoaderProducts {
 		return( true );
 	}
 	
-	private ProductMeta loadProduct( AppProduct product , boolean importxml ) {
+	private ProductMeta loadProduct( AppProduct product , ProductContext context , boolean importxml ) {
 		EngineProducts products = data.getProducts();
 		ProductMeta set = products.createPrimaryMeta( product );
 		

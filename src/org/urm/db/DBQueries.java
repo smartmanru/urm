@@ -83,6 +83,20 @@ public abstract class DBQueries {
 	public static String QUERY_AUTH_GROUPACCESS_NETWORKS0 = "select group_id , network_id , uv from urm_auth_access_network";
 	public static String QUERY_AUTH_GROUPUSERS0 = "select group_id , user_id , uv from urm_auth_groupuser";
 
-	public static String MODIFY_PRODUCT_CLEARITEMGROUPLINK = "delete from urm_design_itemgrouplink where src_dgitem_id in ( select ";
+	public static String MODIFY_META_DELETEALL_SOURCEITEM1 = "delete from urm_source_item where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_SOURCEPROJECT1 = "delete from urm_source_project where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_UNIT1 = "delete from urm_product_unit where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_SCHEMA1 = "delete from urm_product_schema where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_SOURCESET1 = "delete from urm_source_set where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_DOC1 = "delete from urm_product_doc where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_META1 = "delete from urm_product_meta where meta_id = @1@";
+	
+	public static String MODIFY_META_DELETEALL_DISTCOMPITEM1 = "delete from urm_dist_compitem where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_DISTBINARYITEM1 = "delete from urm_dist_binaryitem where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_DISTSCHEMAITEM1 = "delete from urm_dist_schemaitem where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_DISTCONFITEM1 = "delete from urm_dist_confitem where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_DISTDOCITEM1 = "delete from urm_dist_docitem where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_DISTDELIVERY1 = "delete from urm_dist_delivery where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_DISTCOMP1 = "delete from urm_dist_comp where meta_id = @1@";
 	
 }

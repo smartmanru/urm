@@ -126,6 +126,12 @@ public class ProductMeta extends EngineObject {
 		return( r );
 	}
 
+	public void setContext( ProductContext context ) {
+		this.ID = context.ID;
+		this.MATCHED = context.MATCHED;
+		this.PV = context.PV;
+	}
+	
 	public void setPrimary( boolean primary ) {
 		this.primary = primary;
 	}

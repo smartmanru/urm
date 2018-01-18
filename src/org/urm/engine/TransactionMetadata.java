@@ -135,7 +135,7 @@ public class TransactionMetadata {
 	}
 	
 	private void modifyProduct( AppProduct product , ProductMeta metadataOld , ProductMeta metadataNew ) throws Exception {
-		product.setMatched( metadataNew );
+		product.setStorage( metadataNew );
 		EngineStatus status = transaction.action.getServerStatus();
 		status.modifyProduct( transaction , metadataOld , metadataNew );
 		
