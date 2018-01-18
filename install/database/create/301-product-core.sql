@@ -68,6 +68,7 @@ COMMENT ON TABLE main.urm_product_unit IS 'Product unit';
 
 CREATE TABLE main.urm_source_project (
                 project_id INTEGER NOT NULL,
+                meta_id INTEGER NOT NULL,
                 srcset_id INTEGER NOT NULL,
                 name VARCHAR(30) NOT NULL,
                 xdesc VARCHAR,
@@ -88,6 +89,7 @@ COMMENT ON TABLE main.urm_source_project IS 'Product source project';
 
 CREATE TABLE main.urm_source_item (
                 srcitem_id INTEGER NOT NULL,
+                meta_id INTEGER NOT NULL,
                 project_id INTEGER NOT NULL,
                 name VARCHAR(30) NOT NULL,
                 xdesc VARCHAR,
