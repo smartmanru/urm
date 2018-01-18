@@ -15,6 +15,7 @@ COMMENT ON TABLE main.urm_design_diagram IS 'Product design diagram';
 
 CREATE TABLE main.urm_design_group (
                 dggroup_id INTEGER NOT NULL,
+                meta_id INTEGER NOT NULL,
                 diagram_id INTEGER NOT NULL,
                 name VARCHAR(30) NOT NULL,
                 xdesc VARCHAR NOT NULL,
@@ -28,6 +29,7 @@ COMMENT ON TABLE main.urm_design_group IS 'Product design diagram group of eleme
 CREATE TABLE main.urm_design_grouplink (
                 src_dggroup_id INTEGER NOT NULL,
                 dst_dggroup_id INTEGER NOT NULL,
+                meta_id INTEGER NOT NULL,
                 xinfo VARCHAR(64),
                 dglink_type INTEGER NOT NULL,
                 pv INTEGER NOT NULL,
@@ -38,6 +40,7 @@ COMMENT ON TABLE main.urm_design_grouplink IS 'Design diagram group-to-group lin
 
 CREATE TABLE main.urm_design_item (
                 dgitem_id INTEGER NOT NULL,
+                meta_id INTEGER NOT NULL,
                 diagram_id INTEGER NOT NULL,
                 dggroup_id INTEGER,
                 name VARCHAR(64) NOT NULL,
@@ -52,6 +55,7 @@ COMMENT ON TABLE main.urm_design_item IS 'Diagram design element';
 CREATE TABLE main.urm_design_itemgrouplink (
                 src_dgitem_id INTEGER NOT NULL,
                 dst_dggroup_id INTEGER NOT NULL,
+                meta_id INTEGER NOT NULL,
                 xinfo VARCHAR(64),
                 dglink_type INTEGER NOT NULL,
                 pv INTEGER NOT NULL,
@@ -63,6 +67,7 @@ COMMENT ON TABLE main.urm_design_itemgrouplink IS 'Design diagram item-to-group 
 CREATE TABLE main.urm_design_groupitemlink (
                 src_dggroup_id INTEGER NOT NULL,
                 dst_dgitem_id INTEGER NOT NULL,
+                meta_id INTEGER NOT NULL,
                 xinfo VARCHAR(64),
                 dglink_type INTEGER NOT NULL,
                 pv INTEGER NOT NULL,
@@ -74,6 +79,7 @@ COMMENT ON TABLE main.urm_design_groupitemlink IS 'Design diagram group-to-item 
 CREATE TABLE main.urm_design_itemlink (
                 src_dgitem_id INTEGER NOT NULL,
                 dst_dgitem_id INTEGER NOT NULL,
+                meta_id INTEGER NOT NULL,
                 xinfo VARCHAR(64),
                 dglink_type INTEGER NOT NULL,
                 pv INTEGER NOT NULL,
