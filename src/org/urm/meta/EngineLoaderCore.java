@@ -1,5 +1,6 @@
 package org.urm.meta;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunContext;
@@ -15,9 +16,11 @@ import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
 import org.urm.db.engine.DBEngineSettings;
 import org.urm.engine.Engine;
+import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
+import org.urm.meta.engine.EngineContext;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.EngineLifecycles;
@@ -449,6 +452,14 @@ public class EngineLoaderCore {
 		importxmlRegistry();
 		importxmlInfrastructure();
 		loader.saveConnection( true );
+		
+		// create distributive folder
+		EngineSettings settings = loader.getSettings();
+		EngineContext sc = settings.getServerContext();
+		ActionBase action = loader.getAction();
+		LocalFolder folder = action.getLocalFolder( sc.DIST_ROOT );
+		folder.ensureExists( action );
+		
 		trace( "successfully completed import of engine core data" );
 	}
 

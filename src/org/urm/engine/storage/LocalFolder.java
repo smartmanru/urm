@@ -28,6 +28,14 @@ public class LocalFolder extends Folder {
 	}
 
 	@Override
+	public void ensureExists( ActionBase action ) throws Exception {
+		String path = super.getLocalPath( action );
+		File file = new File( path );
+		if( !file.isDirectory() )
+			file.mkdirs();
+	}
+	
+	@Override
 	public boolean checkFileExists( ActionBase action , String filename ) throws Exception {
 		String path = super.getLocalFilePath( action , filename );
 		File file = new File( path );
