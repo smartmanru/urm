@@ -702,7 +702,7 @@ public class EngineTransaction extends TransactionBase {
 
 	public void setProductLifecycles( MetaProductPolicy policy , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
 		checkTransactionMetadata( policy.meta.getStorage() );
-		policy.setLifecycles( this , major , minor , urgentsAll , urgents );
+		policy.setLifecycles( major , minor , urgentsAll , urgents );
 	}
 	
 	public void createDistrDelivery( MetaDistrDelivery delivery ) throws Exception {

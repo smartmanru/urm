@@ -18,6 +18,17 @@ CREATE TABLE main.urm_product_meta (
 COMMENT ON TABLE main.urm_product_meta IS 'Product';
 
 
+CREATE TABLE main.urm_product_lifecycle (
+                meta_id INTEGER NOT NULL,
+                lc_index INTEGER NOT NULL,
+                lifecycle_id INTEGER,
+                lifecycle_name VARCHAR(64),
+                pv INTEGER NOT NULL,
+                CONSTRAINT urm_product_lifecycle_pk PRIMARY KEY (meta_id, lc_index)
+);
+COMMENT ON TABLE main.urm_product_lifecycle IS 'Product lifecycle';
+
+
 CREATE TABLE main.urm_product_doc (
                 doc_id INTEGER NOT NULL,
                 meta_id INTEGER NOT NULL,
@@ -128,6 +139,13 @@ ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
 ALTER TABLE main.urm_product_doc ADD CONSTRAINT urm_product_doc_fk
+FOREIGN KEY (meta_id)
+REFERENCES main.urm_product_meta (meta_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE main.urm_product_lifecycle ADD CONSTRAINT urm_product_meta_lifecycle_fk
 FOREIGN KEY (meta_id)
 REFERENCES main.urm_product_meta (meta_id)
 ON DELETE NO ACTION

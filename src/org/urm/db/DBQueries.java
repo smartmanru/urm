@@ -89,6 +89,7 @@ public abstract class DBQueries {
 	public static String MODIFY_META_DELETEALL_SCHEMA1 = "delete from urm_product_schema where meta_id = @1@";
 	public static String MODIFY_META_DELETEALL_SOURCESET1 = "delete from urm_source_set where meta_id = @1@";
 	public static String MODIFY_META_DELETEALL_DOC1 = "delete from urm_product_doc where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_LIFECYCLE1 = "delete from urm_product_lifecycle where meta_id = @1@";
 	public static String MODIFY_META_DELETEALL_META1 = "delete from urm_product_meta where meta_id = @1@";
 	
 	public static String MODIFY_META_DELETEALL_DISTCOMPITEM1 = "delete from urm_dist_compitem where meta_id = @1@";

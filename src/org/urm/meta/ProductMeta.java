@@ -94,8 +94,7 @@ public class ProductMeta extends EngineObject {
 		
 		r.version = version.copy( r.meta );
 		r.settings = settings.copy( r.meta , null );
-		if( policy != null )
-			r.policy = policy.copy( action , r.meta );
+		r.policy = policy.copy( r.meta );
 		
 		if( units != null )
 			r.units = units.copy( action , r.meta );
@@ -130,6 +129,12 @@ public class ProductMeta extends EngineObject {
 		this.ID = context.ID;
 		this.MATCHED = context.MATCHED;
 		this.PV = context.PV;
+	}
+	
+	public boolean isExists() {
+		if( ID > 0 )
+			return( true );
+		return( false );
 	}
 	
 	public void setPrimary( boolean primary ) {
@@ -188,7 +193,7 @@ public class ProductMeta extends EngineObject {
 	
 	private void createInitialPolicy( TransactionBase transaction ) throws Exception {
 		policy = new MetaProductPolicy( this , meta );
-		policy.createPolicy( transaction );
+		//policy.createPolicy( transaction );
 		meta.setPolicy( policy );
 	}
 	

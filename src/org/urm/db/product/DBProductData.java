@@ -212,6 +212,8 @@ public class DBProductData {
 			Common.exitUnexpected();
 		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DOC1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
 			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_LIFECYCLE1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
 		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_META1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
 			Common.exitUnexpected();
 	}

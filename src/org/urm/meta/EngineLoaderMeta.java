@@ -5,13 +5,13 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBMetaSettings;
+import org.urm.db.product.DBProductPolicy;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaMonitoring;
-import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.MetaSource;
@@ -51,7 +51,7 @@ public class EngineLoaderMeta {
 		saveMonitoring( ms );
 	}
 	
-	public void loaddbAll() throws Exception {
+	public void loaddbAll( ProductContext context ) throws Exception {
 		loaddbMeta();
 		loaddbSettings();
 		loaddbPolicy();
@@ -63,9 +63,9 @@ public class EngineLoaderMeta {
 		loaddbMonitoring();
 	}
 
-	public void importxmlAll( MetadataStorage storageMeta ) throws Exception {
+	public void importxmlAll( MetadataStorage storageMeta , ProductContext context ) throws Exception {
 		importxmlMeta( storageMeta );
-		importxmlSettings( storageMeta );
+		importxmlSettings( storageMeta , context );
 		importxmlPolicy( storageMeta );
 		importxmlUnits( storageMeta );
 		importxlDatabase( storageMeta );
@@ -178,7 +178,7 @@ public class EngineLoaderMeta {
 		}
 	}
 
-	private void importxmlSettings( MetadataStorage storageMeta ) throws Exception {
+	private void importxmlSettings( MetadataStorage storageMeta , ProductContext context ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -187,7 +187,7 @@ public class EngineLoaderMeta {
 			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
 			Node root = doc.getDocumentElement();
 
-			DBMetaSettings.importxml( loader , set , root );
+			DBMetaSettings.importxml( loader , set , context , root );
 		}
 		catch( Throwable e ) {
 			setLoadFailed( action , _Error.UnableLoadProductSettings1 , e , "unable to import settings metadata, product=" + set.name , set.name );
@@ -195,9 +195,6 @@ public class EngineLoaderMeta {
 	}
 	
 	private void importxmlPolicy( MetadataStorage storageMeta ) throws Exception {
-		MetaProductPolicy policy = new MetaProductPolicy( set , set.meta );
-		set.setPolicy( policy );
-
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -205,7 +202,8 @@ public class EngineLoaderMeta {
 			action.debug( "read product policy file " + file + "..." );
 			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
 			Node root = doc.getDocumentElement();
-			policy.load( action , root );
+			
+			DBProductPolicy.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
 			setLoadFailed( action , _Error.UnableLoadProductVersion1 , e , "unable to import version metadata, product=" + set.name , set.name );

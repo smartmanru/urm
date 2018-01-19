@@ -10,6 +10,7 @@ import org.urm.engine.Engine;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
+import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineProducts;
@@ -55,16 +56,15 @@ public class EngineLoaderProducts {
 				continue;
 			}
 			
-			ProductMeta storage = loadProduct( product , context , false );
-			if( storage != null )
-				addProduct( storage );
+			loadProduct( product , context , false );
 		}
 	}
 
 	public void skipProduct( AppProduct product , ProductContext context ) throws Exception {
 		EngineProducts products = data.getProducts();
 		ProductMeta storage = new ProductMeta( products , product );
-		storage.setContext( context );
+		if( context != null )
+			storage.setContext( context );
 		product.setStorage( storage );
 	}
 	
@@ -78,18 +78,19 @@ public class EngineLoaderProducts {
 			Common.exit1( _Error.InvalidProductMirros1 , "Invalid product mirror repositories, product=" + productName , productName );
 
 		ProductMeta storage = product.storage;
-		if( storage != null )
+		if( storage.isExists() )
 			DBProductData.dropProductData( loader , storage );
 		
 		synchronized( products ) {
-			ProductMeta storageNew = loadProduct( product , true );
+			ProductContext context = new ProductContext( product , false );
+			ProductMeta storageNew = loadProduct( product , context , true );
 			if( storageNew == null )
 				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + productName , productName );
 
 			if( storage != null )
 				products.unloadProduct( storage );
 			
-			if( !addProduct( storageNew ) )
+			if( !storageNew.MATCHED )
 				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + productName , productName );
 		}
 	}
@@ -122,15 +123,6 @@ public class EngineLoaderProducts {
 	}
 	
 	private boolean addProduct( ProductMeta set ) {
-		EngineDirectory directory = loader.getDirectory();
-		AppProduct product = directory.findProduct( set.name );
-		product.setStorage( set );
-		
-		if( !DBEngineDirectory.matchProduct( loader , directory , product , set , false ) ) {
-			trace( "match failed for product=" + product.NAME );
-			return( false );
-		}
-		
 		EngineProducts products = data.getProducts();
 		products.addProduct( set );
 		return( true );
@@ -151,13 +143,28 @@ public class EngineLoaderProducts {
 		
 		ActionBase action = loader.getAction();
 		try {
-			MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
-			LocalFolder folder = storageMeta.getMetaFolder( action );
-			if( folder.checkExists( action ) ) {
+			UrmStorage urm = action.artefactory.getUrmStorage();
+			LocalFolder meta = urm.getProductCoreMetadataFolder( action , product.NAME );
+			
+			if( meta.checkExists( action ) ) {
+				LocalFolder home = urm.getProductCoreMetadataFolder( action , product.NAME );
+				context.create( loader.getSettings() , home );
+				
+				MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
 				if( importxml )
-					importxmlAll( set , storageMeta );
+					importxmlAll( set , storageMeta , context );
 				else
-					loaddbAll( set );
+					loaddbAll( set , context );
+
+				EngineDirectory directory = loader.getDirectory();
+				boolean update = importxml;
+				if( !DBEngineDirectory.matchProduct( loader , directory , product , set , update ) )
+					trace( "match failed for product=" + product.NAME );
+				else
+					trace( "successfully matched product=" + product.NAME );
+				
+				addProduct( set );
+				product.setStorage( set );
 			}
 			else
 				Common.exitUnexpected();
@@ -175,9 +182,9 @@ public class EngineLoaderProducts {
 	
 	private ProductContext findContext( AppProduct product , ProductContext[] products ) {
 		for( ProductContext context : products ) {
-			if( context.MATCHED && context.PRODUCT_ID == product.ID )
+			if( context.PRODUCT_ID == product.ID )
 				return( context );
-			if( context.MATCHED == false && context.NAME.equals( product.NAME ) )
+			if( context.NAME.equals( product.NAME ) )
 				return( context );
 		}
 		return( null );
@@ -193,12 +200,12 @@ public class EngineLoaderProducts {
 		Common.exit2( error , msg , product , item );
 	}
 	
-	private void importxmlAll( ProductMeta set , MetadataStorage storageMeta ) throws Exception {
+	private void importxmlAll( ProductMeta set , MetadataStorage storageMeta , ProductContext context ) throws Exception {
 		ActionBase action = loader.getAction();
 		
 		try {
 			EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
-			ldm.importxmlAll( storageMeta );
+			ldm.importxmlAll( storageMeta , context );
 		
 			for( String envFile : storageMeta.getEnvFiles( action ) )
 				loadEnvData( set , storageMeta , envFile );
@@ -212,12 +219,12 @@ public class EngineLoaderProducts {
 		}
 	}
 	
-	private void loaddbAll( ProductMeta set ) throws Exception {
+	private void loaddbAll( ProductMeta set , ProductContext context ) throws Exception {
 		ActionBase action = loader.getAction();
 		
 		try {
 			EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
-			ldm.loaddbAll();
+			ldm.loaddbAll( context );
 		}
 		catch( Throwable e ) {
 			setLoadFailed( action , _Error.UnableLoadProductMeta1 , e , "unable to load metadata, product=" + set.name , set.name );

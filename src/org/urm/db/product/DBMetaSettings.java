@@ -8,8 +8,6 @@ import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumBuildModeType;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
@@ -24,8 +22,7 @@ public class DBMetaSettings {
 
 	public static String ELEMENT_CUSTOM = "custom";
 	
-	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
-		ActionBase action = loader.getAction();
+	public static void importxml( EngineLoader loader , ProductMeta storage , ProductContext context , Node root ) throws Exception {
 		AppProduct product = storage.product;
 		EngineEntities entities = loader.getEntities();
 		
@@ -35,15 +32,10 @@ public class DBMetaSettings {
 		// context and custom settings
 		AppSystem system = product.system;
 		ObjectProperties opsContext = entities.createMetaContextProps( system.getParameters() );
-		UrmStorage urm = action.artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductHome( action , storage.name );
-		ProductContext productContext = new ProductContext( product , false );
-		productContext.create( loader.getSettings() , folder );
-		
 		Node customNode = ConfReader.xmlGetFirstChild( root , ELEMENT_CUSTOM );
 		DBSettings.importxml( loader , customNode , opsContext , storage.ID , DBVersions.CORE_ID , false , true , storage.PV );
 		opsContext.recalculateProperties();
-		settings.createSettings( opsContext , productContext );
+		settings.createSettings( opsContext , context );
 		
 		// core and monitoring settings
 		Node coreNode = ConfReader.xmlGetFirstChild( root , "core" );
