@@ -138,7 +138,7 @@ public class Engine {
 		serverAction.debug( "load server configuration ..." );
 		
 		EngineLoader loader = createLoader();
-		loader.loadProducts();
+		loader.loadProducts( false );
 		
 		status.start( serverAction , data );
 		blotter.start( serverAction );

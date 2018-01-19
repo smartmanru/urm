@@ -16,10 +16,12 @@ import org.urm.meta.ProductMeta;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductUnit;
 
 public class DBProductData {
 
 	public static String TABLE_META = "urm_product_meta";
+	public static String TABLE_UNIT = "urm_product_unit";
 	public static String FIELD_META_ID = "meta_id";
 	public static String FIELD_META_PRODUCT_ID = "product_fkid";
 	public static String FIELD_META_PRODUCT_NAME = "product_fkname";
@@ -32,6 +34,8 @@ public class DBProductData {
 	public static String FIELD_META_NEXT_MAJOR2 = "next_major2";
 	public static String FIELD_META_NEXT_MINOR1 = "next_minor1";
 	public static String FIELD_META_NEXT_MINOR2 = "next_minor2";
+	public static String FIELD_UNIT_ID = "unit_id";
+	public static String FIELD_UNIT_DESC = "xdesc";
 	
 	public static PropertyEntity upgradeEntityProductSettings( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
@@ -171,6 +175,22 @@ public class DBProductData {
 
 	public static PropertyEntity loaddbEntityMetaMonitoring( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_MONITORING , DBEnumObjectVersionType.PRODUCT );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+
+	public static PropertyEntity upgradeEntityMetaUnit( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_UNIT , DBEnumParamEntityType.PRODUCT_UNIT , DBEnumObjectVersionType.PRODUCT , TABLE_UNIT , FIELD_UNIT_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
+				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
+				EntityVar.metaString( MetaProductUnit.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( MetaProductUnit.PROPERTY_DESC , FIELD_UNIT_DESC , MetaProductUnit.PROPERTY_DESC , "Description" , false , null ) ,
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityMetaUnit( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_UNIT , DBEnumParamEntityType.PRODUCT_UNIT , DBEnumObjectVersionType.PRODUCT , TABLE_UNIT , FIELD_UNIT_ID );
 		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}

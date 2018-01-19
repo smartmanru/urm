@@ -58,7 +58,7 @@ public abstract class DBQueries {
 	public static String MODIFY_CORE_DROP_PARAMVALUE1 = "delete from urm_object_param_value where param_object_id = @1@";
 	public static String MODIFY_CORE_DROP_PARAM1 = "delete from urm_object_param where param_object_id = @1@";
 	public static String MODIFY_CORE_DROP_ENTITY1 = "delete from urm_object_entity where param_object_id = @1@";
-	public static String MODIFY_CORE_UNMATCHPRODUCTLCS0 = "update urm_product_lifecycle set lifecycle_fkid = null , lifecycle_fkname = lifecycle.name , matched = 'no' from ( select lifecycle_id , name from urm_release_lifecycle ) as lifecycle where lifecycle_fkid is not null and urm_product_lifecycle.lifecycle_fkid = lifecycle.lifecycle_id";
+	public static String MODIFY_CORE_UNMATCHPRODUCTLCS0 = "update urm_product_lifecycle set lifecycle_fkid = null , lifecycle_fkname = lifecycle.name from ( select lifecycle_id , name from urm_release_lifecycle ) as lifecycle where lifecycle_fkid is not null and urm_product_lifecycle.lifecycle_fkid = lifecycle.lifecycle_id";
 	
 	public static String MODIFY_LIFECYCLE_DROPPHASES1 = "delete from urm_lifecycle_phase where lifecycle_id = @1@";
 
@@ -101,6 +101,8 @@ public abstract class DBQueries {
 	public static String MODIFY_META_DELETEALL_DISTDELIVERY1 = "delete from urm_dist_delivery where meta_id = @1@";
 	public static String MODIFY_META_DELETEALL_DISTCOMP1 = "delete from urm_dist_comp where meta_id = @1@";
 
+	public static String MODIFY_META_SETSTATUS2 = "update urm_product_meta set matched = @2@ where meta_id = @1@";
+	
 	public static String MODIFY_METALC_ADD5 = "insert into urm_product_lifecycle ( meta_id , lc_index , lifecycle_fkid , lifecycle_fkname , pv ) values ( @values@ )";
 	public static String MODIFY_METALC_DELETEALL1 = "delete from urm_product_lifecycle where meta_id = @1@";
 	

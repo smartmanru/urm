@@ -261,7 +261,7 @@ public class EngineLoader {
 			if( repo.isServer() ) {
 				importEngine();
 				saveConnection( true );
-				loadProducts();
+				loadProducts( true );
 			}
 			else {
 				importProduct( repo.productId , true );
@@ -326,15 +326,15 @@ public class EngineLoader {
 		AppProduct product = directory.getProduct( productId );
 		
 		trace( "import engine product=" + product.NAME + " data ..." );
-		ldp.importProduct( product.NAME , includingEnvironments );
+		ldp.importProduct( product , includingEnvironments );
 	}
 	
-	public void loadProducts() throws Exception {
+	public void loadProducts( boolean update ) throws Exception {
 		try {
 			startLoad();
 
 			trace( "load engine products data ..." );
-			ldp.loadProducts();
+			ldp.loadProducts( update );
 
 			closeConnection( true );
 		}

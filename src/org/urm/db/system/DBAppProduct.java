@@ -14,6 +14,7 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.AppProduct;
@@ -105,7 +106,7 @@ public abstract class DBAppProduct {
 				} , insert );
 	}
 
-	public static void match( EngineLoader loader , EngineDirectory directory , AppProduct product ) throws Exception {
+	public static void match( EngineLoader loader , AppProduct product , ProductMeta set ) throws Exception {
 	}
 	
 }

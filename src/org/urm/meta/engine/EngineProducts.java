@@ -9,6 +9,7 @@ import org.urm.engine.EngineSession;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
 import org.urm.meta._Error;
 import org.urm.meta.product.Meta;
@@ -25,7 +26,7 @@ public class EngineProducts {
 		productMeta = new HashMap<String,ProductMeta>();
 	}
 	
-	public ProductMeta createPrimaryMeta( AppProduct product ) {
+	public ProductMeta createPrimaryMeta( AppProduct product , ProductContext context ) {
 		ProductMeta set = new ProductMeta( this , product );
 		set.setPrimary( true );
 		return( set );

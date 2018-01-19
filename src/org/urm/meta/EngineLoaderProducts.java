@@ -37,7 +37,7 @@ public class EngineLoaderProducts {
 		this.engine = loader.engine;
 	}
 	
-	public void loadProducts() throws Exception {
+	public void loadProducts( boolean update ) throws Exception {
 		data.unloadProducts();
 		
 		ProductContext[] products = DBMeta.getProducts( loader );
@@ -50,13 +50,13 @@ public class EngineLoaderProducts {
 				continue;
 			
 			ProductContext context = findContext( product , products );
-			if( context == null || context.MATCHED == false ) {
+			if( context == null || ( update == false && context.MATCHED == false ) ) {
 				skipProduct( product , context );
 				trace( "skip load product name=" + name );
 				continue;
 			}
 			
-			loadProduct( product , context , false );
+			loadProduct( product , context , false , update );
 		}
 	}
 
@@ -68,14 +68,12 @@ public class EngineLoaderProducts {
 		product.setStorage( storage );
 	}
 	
-	public void importProduct( String productName , boolean includingEnvironments ) throws Exception {
+	public void importProduct( AppProduct product , boolean includingEnvironments ) throws Exception {
 		EngineProducts products = data.getProducts();
-		trace( "reload settings, product=" + productName + " ..." );
+		trace( "reload settings, product=" + product.NAME + " ..." );
 		
-		EngineDirectory directory = loader.getDirectory();
-		AppProduct product = directory.findProduct( productName );
 		if( !matchProductMirrors( product ) )
-			Common.exit1( _Error.InvalidProductMirros1 , "Invalid product mirror repositories, product=" + productName , productName );
+			Common.exit1( _Error.InvalidProductMirros1 , "Invalid product mirror repositories, product=" + product.NAME , product.NAME );
 
 		ProductMeta storage = product.storage;
 		if( storage.isExists() )
@@ -83,15 +81,15 @@ public class EngineLoaderProducts {
 		
 		synchronized( products ) {
 			ProductContext context = new ProductContext( product , false );
-			ProductMeta storageNew = loadProduct( product , context , true );
+			ProductMeta storageNew = loadProduct( product , context , true , true );
 			if( storageNew == null )
-				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + productName , productName );
+				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + product.NAME , product.NAME );
 
 			if( storage != null )
 				products.unloadProduct( storage );
 			
 			if( !storageNew.MATCHED )
-				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + productName , productName );
+				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + product.NAME , product.NAME );
 		}
 	}
 	
@@ -137,9 +135,9 @@ public class EngineLoaderProducts {
 		return( true );
 	}
 	
-	private ProductMeta loadProduct( AppProduct product , ProductContext context , boolean importxml ) {
+	private ProductMeta loadProduct( AppProduct product , ProductContext context , boolean importxml , boolean update ) {
 		EngineProducts products = data.getProducts();
-		ProductMeta set = products.createPrimaryMeta( product );
+		ProductMeta set = products.createPrimaryMeta( product , context );
 		
 		ActionBase action = loader.getAction();
 		try {
@@ -149,6 +147,7 @@ public class EngineLoaderProducts {
 			if( meta.checkExists( action ) ) {
 				LocalFolder home = urm.getProductCoreMetadataFolder( action , product.NAME );
 				context.create( loader.getSettings() , home );
+				set.setContext( context );
 				
 				MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
 				if( importxml )
@@ -156,15 +155,13 @@ public class EngineLoaderProducts {
 				else
 					loaddbAll( set , context );
 
-				EngineDirectory directory = loader.getDirectory();
-				boolean update = importxml;
-				if( !DBEngineDirectory.matchProduct( loader , directory , product , set , update ) )
+				if( !DBEngineDirectory.matchProduct( loader , product , set , update ) )
 					trace( "match failed for product=" + product.NAME );
 				else
 					trace( "successfully matched product=" + product.NAME );
 				
-				addProduct( set );
 				product.setStorage( set );
+				addProduct( set );
 			}
 			else
 				Common.exitUnexpected();

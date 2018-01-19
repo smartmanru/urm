@@ -28,7 +28,7 @@ import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaUnits;
 
 public class ProductMeta extends EngineObject {
@@ -48,7 +48,7 @@ public class ProductMeta extends EngineObject {
 	private MetaProductPolicy policy;
 	private MetaUnits units;
 	private MetaDatabase database;
-	private MetaSource sources;
+	private MetaSources sources;
 	private MetaDocs docs;
 	private MetaDistr distr;
 	private MetaMonitoring mon;
@@ -95,9 +95,8 @@ public class ProductMeta extends EngineObject {
 		r.version = version.copy( r.meta );
 		r.settings = settings.copy( r.meta , null );
 		r.policy = policy.copy( r.meta );
-		
-		if( units != null )
-			r.units = units.copy( action , r.meta );
+		r.units = units.copy( r.meta );
+			
 		if( database != null )
 			r.database = database.copy( action , r.meta );
 		if( sources != null )
@@ -125,6 +124,10 @@ public class ProductMeta extends EngineObject {
 		return( r );
 	}
 
+	public void setMatched( boolean matched ) {
+		this.MATCHED = matched;
+	}
+	
 	public void setContext( ProductContext context ) {
 		this.ID = context.ID;
 		this.MATCHED = context.MATCHED;
@@ -198,8 +201,8 @@ public class ProductMeta extends EngineObject {
 	}
 	
 	private void createInitialUnits( TransactionBase transaction ) throws Exception {
-		units = new MetaUnits( this , settings , meta );
-		units.createUnits( transaction );
+		//units = new MetaUnits( this , settings , meta );
+		//units.createUnits( transaction );
 		meta.setUnits( units );
 	}
 	
@@ -222,7 +225,7 @@ public class ProductMeta extends EngineObject {
 	}
 	
 	private void createInitialSources( TransactionBase transaction ) throws Exception {
-		sources = new MetaSource( this , settings , meta );
+		sources = new MetaSources( this , settings , meta );
 		sources.createSources( transaction );
 		meta.setSources( sources );
 	}
@@ -260,7 +263,7 @@ public class ProductMeta extends EngineObject {
 		this.database = database;
 	}
 
-	public void setSources( MetaSource sources ) throws Exception {
+	public void setSources( MetaSources sources ) throws Exception {
 		this.sources = sources;
 	}
 
@@ -316,7 +319,7 @@ public class ProductMeta extends EngineObject {
 		return( distr );
 	}
 	
-	public MetaSource getSources() {
+	public MetaSources getSources() {
 		return( sources );
 	}
 	

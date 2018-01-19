@@ -18,7 +18,7 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.Types.*;
@@ -210,7 +210,7 @@ public class SpecificPGU {
 		}
 
 		action.debug( "copy libs to servicecall and storageservice from pgu-services-lib and servicecall-prod-libs ..." );
-		MetaSource sources = meta.getSources();
+		MetaSources sources = meta.getSources();
 		List<MetaSourceProject> list = sources.getAllProjectList( true );
 		Dist releaseStorage = release;
 		
@@ -294,7 +294,7 @@ public class SpecificPGU {
 	}
 	
 	private void getAllWarAppDownloadDeps( boolean copyDistr , Dist release ) throws Exception {
-		MetaSource sources = meta.getSources();
+		MetaSources sources = meta.getSources();
 		MetaSourceProject sourceProject = sources.getProject( action , "pgu-portal" );
 		MetaSourceProjectItem sourceItem = sourceProject.getItem( action , "pgu-dependencies" );
 		MetaDistrBinaryItem distItem = sourceItem.distItem;

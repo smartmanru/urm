@@ -33,7 +33,7 @@ public class Meta extends EngineObject {
 	private MetaDatabase database;
 	private MetaDocs docs;
 	private MetaDistr distr;
-	private MetaSource sources;
+	private MetaSources sources;
 	private MetaMonitoring monitoring;
 	
 	static String[] configurableExtensions = {
@@ -122,7 +122,7 @@ public class Meta extends EngineObject {
 		this.database = database;
 	}
 	
-	public void setSources( MetaSource sources ) {
+	public void setSources( MetaSources sources ) {
 		this.sources = sources;
 	}
 
@@ -177,7 +177,7 @@ public class Meta extends EngineObject {
 		return( distr );
 	}
 
-	public synchronized MetaSource getSources() {
+	public synchronized MetaSources getSources() {
 		if( sources == null )
 			sources = storage.getSources();
 		return( sources );

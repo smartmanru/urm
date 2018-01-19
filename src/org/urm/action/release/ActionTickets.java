@@ -21,7 +21,7 @@ import org.urm.meta.Types.VarTICKETSETTARGETTYPE;
 import org.urm.meta.Types.VarTICKETTYPE;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 
@@ -432,7 +432,7 @@ public class ActionTickets extends ActionBase {
 		}
 		else
 		if( target.isProject() ) {
-			MetaSource sources = dist.meta.getSources();
+			MetaSources sources = dist.meta.getSources();
 			MetaSourceProject project = sources.getProject( this , target.ITEM );
 			maker.addScopeProductSet( project.set.NAME , new String[] { target.ITEM } );
 		}
@@ -527,14 +527,14 @@ public class ActionTickets extends ActionBase {
 	
 	private void executeCreateSetTarget( String setCode , String element , String[] items ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
-		MetaSource sources = dist.meta.getSources();
+		MetaSources sources = dist.meta.getSources();
 		MetaSourceProjectSet projectSet = sources.getProjectSet( this , element );
 		set.createTarget( this , projectSet );
 	}
 	
 	private void executeCreateProjectTarget( String setCode , String element , String[] items ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
-		MetaSource sources = dist.meta.getSources();
+		MetaSources sources = dist.meta.getSources();
 		MetaSourceProject project = sources.getProject( this , element );
 		set.createTarget( this , project , items );
 	}

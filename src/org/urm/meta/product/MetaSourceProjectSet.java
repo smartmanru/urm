@@ -18,14 +18,14 @@ import org.w3c.dom.Node;
 public class MetaSourceProjectSet {
 
 	public Meta meta;
-	public MetaSource sources;
+	public MetaSources sources;
 
 	public String NAME;
 
 	private List<MetaSourceProject> orderedList;
 	private Map<String,MetaSourceProject> map;
 	
-	public MetaSourceProjectSet( Meta meta , MetaSource sources ) {
+	public MetaSourceProjectSet( Meta meta , MetaSources sources ) {
 		this.meta = meta;
 		this.sources = sources;
 		
@@ -33,7 +33,7 @@ public class MetaSourceProjectSet {
 		map = new HashMap<String, MetaSourceProject>();
 	}
 	
-	public MetaSourceProjectSet copy( ActionBase action , Meta meta , MetaSource sources ) throws Exception {
+	public MetaSourceProjectSet copy( ActionBase action , Meta meta , MetaSources sources ) throws Exception {
 		MetaSourceProjectSet r = new MetaSourceProjectSet( meta , sources );
 		r.NAME = NAME;
 		for( MetaSourceProject project : orderedList ) {

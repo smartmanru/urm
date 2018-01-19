@@ -216,7 +216,7 @@ public class MetaDistrBinaryItem {
 		}
 		else
 		if( distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
-			MetaSource sources = meta.getSources();
+			MetaSources sources = meta.getSources();
 			sourceProjectItem = sources.getProjectItem( action , SRCPROJECTITEM );
 			sourceProjectItem.setDistItem( action , this );
 		}

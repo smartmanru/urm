@@ -10,7 +10,7 @@ import org.urm.meta.Types.VarDISTITEMORIGIN;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProjectSet;
 
 public class ActionReleaseScopeMaker {
@@ -241,7 +241,7 @@ public class ActionReleaseScopeMaker {
 		if( SET.equals( Common.getEnumLower( VarCATEGORY.DERIVED ) ) )
 			addReleaseDerivedItems( TARGETS );
 		else {
-			MetaSource sources = meta.getSources();
+			MetaSources sources = meta.getSources();
 			MetaSourceProjectSet set = sources.getProjectSet( action , SET );
 			if( dist.release.addSourceSet( action , set , false ) ) {
 				ReleaseDistSet rset = dist.release.getSourceSet( action , SET );  

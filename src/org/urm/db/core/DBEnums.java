@@ -204,7 +204,8 @@ public abstract class DBEnums {
 		APPSYSTEM(30,null) ,
 		APPPRODUCT(31,null) ,
 		DBSCHEMA(50,null) ,
-		META(101,null);
+		META(101,null) ,
+		META_UNIT(102,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -363,7 +364,8 @@ public abstract class DBEnums {
 		SYSTEM_CUSTOM(141,null) ,
 		PRODUCT_CUSTOM(150,null) ,
 		PRODUCT_VERSION(151,null) ,
-		PRODUCT_MONITORING(152,null);
+		PRODUCT_MONITORING(152,null) ,
+		PRODUCT_UNIT(153,null);
 
 		private final int value;
 		private String[] synonyms;

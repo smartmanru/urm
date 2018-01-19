@@ -21,7 +21,7 @@ import org.urm.meta.Types;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.Types.*;
 import org.urm.meta.engine.EngineAuth;
@@ -1004,7 +1004,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	private ActionScopeSet[] getOrderedSets( ActionScope scope ) throws Exception {
 		List<ActionScopeSet> list = new LinkedList<ActionScopeSet>();
 		if( scope.meta != null ) {
-			MetaSource sources = scope.meta.getSources(); 
+			MetaSources sources = scope.meta.getSources(); 
 			for( String sourceSetName : sources.getSetNames() ) {
 				ActionScopeSet set = scope.findSet( action , VarCATEGORY.PROJECT , sourceSetName );
 				if( set != null )

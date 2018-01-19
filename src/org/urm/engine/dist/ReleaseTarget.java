@@ -16,7 +16,7 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.Types.*;
@@ -104,7 +104,7 @@ public class ReleaseTarget {
 		BUILDVERSION = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDVERSION , BUILDVERSION );
 		
 		// find in sources
-		MetaSource sources = meta.getSources(); 
+		MetaSources sources = meta.getSources(); 
 		sourceProject = sources.getProject( action , name ); 
 		NAME = sourceProject.NAME;
 		

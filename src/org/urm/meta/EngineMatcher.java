@@ -1,13 +1,14 @@
 package org.urm.meta;
 
 import org.urm.common.RunContext;
+import org.urm.db.product.DBMeta;
 import org.urm.engine.Engine;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.MirrorRepository;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 
 public class EngineMatcher {
@@ -68,7 +69,7 @@ public class EngineMatcher {
 		return( ok );
 	}
 	
-	public boolean matchProjectMirrors( AppProduct product , MetaSource sources ) {
+	public boolean matchProjectMirrors( AppProduct product , MetaSources sources ) {
 		boolean ok = true;
 		
 		EngineMirrors mirrors = loader.getMirrors();
@@ -86,6 +87,19 @@ public class EngineMatcher {
 		}
 		
 		return( ok );
+	}
+
+	public void matchProductUpdateStatus( AppProduct product , ProductMeta set , boolean update , boolean matched ) {
+		if( matched != set.MATCHED ) {
+			try {
+				if( update )
+					DBMeta.setMatched( loader , set , matched );
+				set.setMatched( matched );
+			}
+			catch( Throwable e ) {
+				loader.log( "update match status" , e );
+			}
+		}
 	}
 	
 }

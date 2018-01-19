@@ -8,7 +8,7 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 
@@ -124,7 +124,7 @@ public class ActionProductScopeMaker {
 		if( set.equals( Common.getEnumLower( VarCATEGORY.DERIVED ) ) )
 			addDerivedItems( TARGETS );
 		else {
-			MetaSource sources = meta.getSources();
+			MetaSources sources = meta.getSources();
 			MetaSourceProjectSet pset = sources.getProjectSet( action , set );  
 			addSourceProjects( pset , TARGETS );
 		}
@@ -157,7 +157,7 @@ public class ActionProductScopeMaker {
 	}
 	
 	private void addAllSourceProjects() throws Exception {
-		MetaSource sources = meta.getSources();
+		MetaSources sources = meta.getSources();
 		for( MetaSourceProjectSet pset : sources.getSets() ) {
 			ActionScopeSet sset = scope.makeProjectScopeSet( action , pset );
 			addProductSourceProjects( sset , null );
@@ -317,7 +317,7 @@ public class ActionProductScopeMaker {
 			return;
 		}
 		
-		MetaSource sources = meta.getSources();
+		MetaSources sources = meta.getSources();
 		for( String name : PROJECTS ) {
 			MetaSourceProject sourceProject = sources.getProject( action , name );
 			addProductSourceProject( set , sourceProject , true , true );

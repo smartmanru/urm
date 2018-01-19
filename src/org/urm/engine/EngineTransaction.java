@@ -15,7 +15,8 @@ import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMirrors;
 import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
-import org.urm.db.product.DBProductPolicy;
+import org.urm.db.product.DBMetaPolicy;
+import org.urm.db.product.DBMetaUnits;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
@@ -78,10 +79,11 @@ import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaProductVersion;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.product.MetaUnits;
 import org.urm.meta.Types.*;
 
 public class EngineTransaction extends TransactionBase {
@@ -251,7 +253,7 @@ public class EngineTransaction extends TransactionBase {
 		checkTransactionMirrors( mirrors );
 		
 		Meta meta = project.meta;
-		MetaSource sources = project.set.sources;
+		MetaSources sources = project.set.sources;
 		MetaDistr distr = meta.getDistr();
 		for( MetaSourceProjectItem item : project.getItems() ) {
 			MetaDistrBinaryItem distItem = item.distItem;
@@ -704,7 +706,7 @@ public class EngineTransaction extends TransactionBase {
 	public void setProductLifecycles( MetaProductPolicy policy , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
 		ProductMeta storage = policy.meta.getStorage();
 		checkTransactionMetadata( storage );
-		DBProductPolicy.setProductLifecycles( this , storage , policy , major , minor , urgentsAll , urgents );
+		DBMetaPolicy.setProductLifecycles( this , storage , policy , major , minor , urgentsAll , urgents );
 	}
 	
 	public void createDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
@@ -755,9 +757,10 @@ public class EngineTransaction extends TransactionBase {
 		item.delivery.dist.deleteConfItem( this , item );
 	}
 	
-	public void createProductUnit( MetaProductUnit unit ) throws Exception {
-		checkTransactionMetadata( unit.meta.getStorage() );
-		unit.units.createUnit( this , unit );
+	public MetaProductUnit createProductUnit( MetaUnits units , String name , String desc ) throws Exception {
+		ProductMeta storage = units.meta.getStorage();
+		checkTransactionMetadata( storage );
+		return( DBMetaUnits.createUnit( this , storage , units , name , desc ) );
 	}
 	
 	public void createProductDoc( MetaProductDoc doc ) throws Exception {
@@ -770,9 +773,10 @@ public class EngineTransaction extends TransactionBase {
 		schema.database.createDatabaseSchema( this , schema );
 	}
 	
-	public void modifyProductUnit( MetaProductUnit unit ) throws Exception {
-		checkTransactionMetadata( unit.meta.getStorage() );
-		unit.units.modifyUnit( this , unit );
+	public void modifyProductUnit( MetaProductUnit unit , String name , String desc ) throws Exception {
+		ProductMeta storage = unit.meta.getStorage();
+		checkTransactionMetadata( storage );
+		DBMetaUnits.createUnit( this , storage , unit.units , name , desc );
 	}
 	
 	public void modifyProductDoc( MetaProductDoc doc ) throws Exception {
@@ -786,8 +790,9 @@ public class EngineTransaction extends TransactionBase {
 	}
 
 	public void deleteProductUnit( MetaProductUnit unit ) throws Exception {
-		checkTransactionMetadata( unit.meta.getStorage() );
-		unit.units.deleteUnit( this , unit );
+		ProductMeta storage = unit.meta.getStorage();
+		checkTransactionMetadata( storage );
+		DBMetaUnits.deleteUnit( this , storage , unit.units , unit );
 	}
 	
 	public void deleteProductDoc( MetaProductDoc doc ) throws Exception {
@@ -860,7 +865,7 @@ public class EngineTransaction extends TransactionBase {
 		delivery.setDocSet( this , set );
 	}
 
-	public MetaSourceProjectSet createSourceProjectSet( MetaSource sources , String name ) throws Exception {
+	public MetaSourceProjectSet createSourceProjectSet( MetaSources sources , String name ) throws Exception {
 		checkTransactionMetadata( sources.meta.getStorage() );
 		return( sources.createProjectSet( this , name ) );
 	}

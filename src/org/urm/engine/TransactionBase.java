@@ -56,7 +56,7 @@ import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaProductUnit;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
@@ -1117,7 +1117,7 @@ public class TransactionBase extends EngineObject {
 	public MetaProductUnit getProductUnit( MetaProductUnit unit ) throws Exception {
 		Meta meta = getTransactionMetadata( unit.meta.name );
 		MetaUnits units = meta.getUnits();
-		return( units.getUnit( action , unit.NAME ) );
+		return( units.getUnit( unit.NAME ) );
 	}
 
 	public MetaProductDoc getProductDoc( MetaProductDoc doc ) throws Exception {
@@ -1156,13 +1156,13 @@ public class TransactionBase extends EngineObject {
 	
 	public MetaSourceProject getSourceProject( MetaSourceProject project ) throws Exception {
 		Meta metaNew = getTransactionMetadata( project.meta.name );
-		MetaSource sourceNew = metaNew.getSources();
+		MetaSources sourceNew = metaNew.getSources();
 		return( sourceNew.getProject( action , project.NAME ) );
 	}
 	
 	public MetaSourceProjectSet getSourceProjectSet( MetaSourceProjectSet set ) throws Exception {
 		Meta metaNew = getTransactionMetadata( set.meta.name );
-		MetaSource sourceNew = metaNew.getSources();
+		MetaSources sourceNew = metaNew.getSources();
 		return( sourceNew.getProjectSet( action , set.NAME ) );
 	}
 

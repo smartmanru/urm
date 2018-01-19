@@ -5,7 +5,8 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBMetaSettings;
-import org.urm.db.product.DBProductPolicy;
+import org.urm.db.product.DBMetaPolicy;
+import org.urm.db.product.DBMetaUnits;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
@@ -14,8 +15,7 @@ import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
-import org.urm.meta.product.MetaSource;
-import org.urm.meta.product.MetaUnits;
+import org.urm.meta.product.MetaSources;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -91,8 +91,8 @@ public class EngineLoaderMeta {
 		//settings.save( action , doc , root );
 		
 		Element node = Common.xmlCreateElement( doc , root , "units" );
-		MetaUnits units = set.getUnits();
-		units.save( action , doc , node );
+		//MetaUnits units = set.getUnits();
+		//units.save( action , doc , node );
 		
 		node = Common.xmlCreateElement( doc , root , "documentation" );
 		MetaDocs docs = set.getDocs();
@@ -120,7 +120,7 @@ public class EngineLoaderMeta {
 	private void saveSources( MetadataStorage storageMeta ) throws Exception {
 		ActionBase action = loader.getAction();
 		Document doc = Common.xmlCreateDoc( XML_ROOT_SOURCES );
-		MetaSource sources = set.getSources();
+		MetaSources sources = set.getSources();
 		sources.save( action , doc , doc.getDocumentElement() );
 		storageMeta.saveSourcesConfFile( action , doc );
 	}
@@ -203,7 +203,7 @@ public class EngineLoaderMeta {
 			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
 			Node root = doc.getDocumentElement();
 			
-			DBProductPolicy.importxml( loader , set , root );
+			DBMetaPolicy.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
 			setLoadFailed( action , _Error.UnableLoadProductVersion1 , e , "unable to import version metadata, product=" + set.name , set.name );
@@ -211,11 +211,6 @@ public class EngineLoaderMeta {
 	}
 
 	private void importxmlUnits( MetadataStorage storageMeta ) throws Exception {
-		MetaProductSettings settings = set.getSettings();
-		
-		MetaUnits units = new MetaUnits( set , settings , set.meta );
-		set.setUnits( units );
-		
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -224,7 +219,8 @@ public class EngineLoaderMeta {
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
 			Node node = ConfReader.xmlGetFirstChild( root , "units" );
-			units.load( action , node );
+			
+			DBMetaUnits.importxml( loader , set , node );
 		}
 		catch( Throwable e ) {
 			setLoadFailed( action , _Error.UnableLoadProductUnits1 , e , "unable to import units metadata, product=" + set.name , set.name );
@@ -253,7 +249,7 @@ public class EngineLoaderMeta {
 	
 	private void importxmlSources( MetadataStorage storageMeta ) throws Exception {
 		MetaProductSettings settings = set.getSettings();
-		MetaSource sources = new MetaSource( set , settings , set.meta );
+		MetaSources sources = new MetaSources( set , settings , set.meta );
 		set.setSources( sources );
 		
 		ActionBase action = loader.getAction();

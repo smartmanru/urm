@@ -13,7 +13,7 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.Types.*;
@@ -51,7 +51,7 @@ public class ReleaseDistSet {
 		nx.BUILDTAG = BUILDTAG;
 		nx.BUILDVERSION = BUILDVERSION;
 		if( set != null ) {
-			MetaSource nsources = nr.meta.getSources();
+			MetaSources nsources = nr.meta.getSources();
 			nx.set = nsources.getProjectSet( action , set.NAME );
 		}
 		
@@ -122,7 +122,7 @@ public class ReleaseDistSet {
 	
 	private void loadBinary( ActionBase action , Node node ) throws Exception {
 		String SET = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		MetaSource sources = meta.getSources(); 
+		MetaSources sources = meta.getSources(); 
 		set = sources.getProjectSet( action , SET );
 		NAME = set.NAME;
 		

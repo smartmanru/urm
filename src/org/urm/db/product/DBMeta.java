@@ -4,7 +4,9 @@ import java.sql.ResultSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.common.Common;
 import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBVersions;
@@ -116,6 +118,15 @@ public class DBMeta {
 		finally {
 			c.closeQuery();
 		}
+	}
+
+	public static void setMatched( EngineLoader loader , ProductMeta set , boolean matched ) throws Exception {
+		DBConnection c = loader.getConnection();
+		if( !c.modify( DBQueries.MODIFY_META_SETSTATUS2 , new String[] { 
+				EngineDB.getInteger( set.ID ) ,
+				EngineDB.getBoolean( matched )
+				} ) )
+			Common.exitUnexpected();
 	}
 	
 }

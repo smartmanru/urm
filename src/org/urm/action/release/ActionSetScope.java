@@ -20,7 +20,7 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
@@ -52,7 +52,7 @@ public class ActionSetScope extends ActionBase {
 	}
 
 	private boolean executeBySource() throws Exception {
-		MetaSource source = dist.meta.getSources();
+		MetaSources source = dist.meta.getSources();
 		
 		// add new
 		dist.reloadCheckOpenedForDataChange( this );
@@ -133,7 +133,7 @@ public class ActionSetScope extends ActionBase {
 
 	private boolean executeByDelivery() throws Exception {
 		MetaDistr distr = dist.meta.getDistr();
-		MetaSource source = dist.meta.getSources();
+		MetaSources source = dist.meta.getSources();
 		
 		// add new 
 		dist.reloadCheckOpenedForDataChange( this );
