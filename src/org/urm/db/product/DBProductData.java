@@ -21,8 +21,8 @@ public class DBProductData {
 
 	public static String TABLE_META = "urm_product_meta";
 	public static String FIELD_META_ID = "meta_id";
-	public static String FIELD_META_PRODUCT_ID = "product_id";
-	public static String FIELD_META_PRODUCT_NAME = "name";
+	public static String FIELD_META_PRODUCT_ID = "product_fkid";
+	public static String FIELD_META_PRODUCT_NAME = "product_fkname";
 	public static String FIELD_META_PRODUCT_MATCHED = "matched";
 	public static String FIELD_META_LAST_MAJOR1 = "last_major1";
 	public static String FIELD_META_LAST_MAJOR2 = "last_major2";

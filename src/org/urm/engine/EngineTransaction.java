@@ -15,6 +15,7 @@ import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMirrors;
 import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
+import org.urm.db.product.DBProductPolicy;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
@@ -701,8 +702,9 @@ public class EngineTransaction extends TransactionBase {
 	}
 
 	public void setProductLifecycles( MetaProductPolicy policy , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
-		checkTransactionMetadata( policy.meta.getStorage() );
-		policy.setLifecycles( major , minor , urgentsAll , urgents );
+		ProductMeta storage = policy.meta.getStorage();
+		checkTransactionMetadata( storage );
+		DBProductPolicy.setProductLifecycles( this , storage , policy , major , minor , urgentsAll , urgents );
 	}
 	
 	public void createDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
@@ -921,6 +923,7 @@ public class EngineTransaction extends TransactionBase {
 		ProductMeta metadata = getTransactionProductMetadata( meta );
 		MetaProductSettings settings = meta.getProductSettings();
 		MetaEnv env = new MetaEnv( metadata , settings , metadata.meta );
+		action.trace( "create meta env object, id=" + env.objectId );
 		env.createEnv( action , name , envType );
 		metadata.addEnv( env );
 		return( env );

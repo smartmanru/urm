@@ -45,6 +45,8 @@ public abstract class DBEngineData {
 	private static void dropCoreReleasesData( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = c.getEntities();
+		if( !c.modify( DBQueries.MODIFY_CORE_UNMATCHPRODUCTLCS0 ) )
+			Common.exitUnexpected();
 		DBEngineEntities.dropAppObjects( c , entities.entityAppProjectBuilder );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppLifecyclePhase );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseLifecycle );

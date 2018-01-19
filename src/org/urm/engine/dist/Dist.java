@@ -18,6 +18,7 @@ import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
+import org.urm.meta.MatchItem;
 import org.urm.meta.Types;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.engine.EngineLifecycles;
@@ -1002,52 +1003,54 @@ public class Dist {
 		MetaProductPolicy policy = meta.getPolicy();
 		
 		if( type == DBEnumLifecycleType.MAJOR ) {
-			String expected = policy.RELEASELC_MAJOR;
-			if( expected.isEmpty() ) {
+			Integer expected = policy.LC_MAJOR.FKID;
+			if( expected == null ) {
 				if( lc != null )
 					return( lc );
 			}
 			else {
 				if( lc != null ) {
-					if( !expected.equals( lc.NAME ) )
+					if( expected != lc.ID )
 						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.NAME );
 					return( lc );
 				}
 				
 				EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
-				return( lifecycles.findLifecycle( expected ) );
+				return( lifecycles.getLifecycle( expected ) );
 			}
 		}
 		else
 		if( type == DBEnumLifecycleType.MINOR ) {
-			String expected = policy.RELEASELC_MINOR;
-			if( expected.isEmpty() ) {
+			Integer expected = policy.LC_MAJOR.FKID;
+			if( expected == null ) {
 				if( lc != null )
 					return( lc );
 			}
 			else {
 				if( lc != null ) {
-					if( !expected.equals( lc.NAME ) )
+					if( expected != lc.ID )
 						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.NAME );
 					return( lc );
 				}
 				
 				EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
-				return( lifecycles.findLifecycle( expected ) );
+				return( lifecycles.getLifecycle( expected ) );
 			}
 		}
 		else
 		if( type == DBEnumLifecycleType.URGENT ) {
-			String[] expected = policy.RELEASELC_URGENT_LIST;
+			MatchItem[] expected = policy.LC_URGENT_LIST;
 			if( expected.length == 0 ) {
 				if( lc != null )
 					return( lc );
 			}
 			else {
 				if( lc != null ) {
-					if( Common.getIndexOf( expected , lc.NAME ) < 0 )
-						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.NAME );
-					return( lc );
+					for( int k = 0; k < expected.length; k++ ) {
+						if( expected[ k ].FKID == lc.ID )
+							return( lc );
+					}
+					action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.NAME );
 				}
 				
 				action.exit0( _Error.MissingReleasecycleType0 , "Missing release cycle type" );

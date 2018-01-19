@@ -234,6 +234,7 @@ public class EngineLoaderProducts {
 	private void loadEnvData( ProductMeta set , MetadataStorage storageMeta , String envName ) throws Exception {
 		MetaProductSettings settings = set.getSettings();
 		MetaEnv env = new MetaEnv( set , settings , set.meta );
+		loader.trace( "load meta env object, id=" + env.objectId );
 
 		ActionBase action = loader.getAction();
 		try {

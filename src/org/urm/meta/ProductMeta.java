@@ -39,7 +39,7 @@ public class ProductMeta extends EngineObject {
 	public String name;
 	
 	public Meta meta;
-	public int ID;
+	public Integer ID;
 	public int PV;
 	public boolean MATCHED;
 	
@@ -69,7 +69,7 @@ public class ProductMeta extends EngineObject {
 		this.name = product.NAME;
 		
 		meta = new Meta( this , null );
-		ID = -1;
+		ID = null;
 		PV = -1;
 		MATCHED = false;
 		engine.trace( "new product storage meta object, id=" + meta.objectId + ", storage=" + objectId );
@@ -132,7 +132,7 @@ public class ProductMeta extends EngineObject {
 	}
 	
 	public boolean isExists() {
-		if( ID > 0 )
+		if( ID != null )
 			return( true );
 		return( false );
 	}

@@ -104,6 +104,12 @@ public class EngineLoaderCore {
 		return( data.getMonitoring() );
 	}
 
+	public EngineLifecycles getLifecycles() {
+		if( lifecyclesNew != null )
+			return( lifecyclesNew );
+		return( data.getReleaseLifecycles() );
+	}
+
 	public void exportEngine() throws Exception {
 		exportCore( true );
 		exportAuth( engine.getAuth() );

@@ -1,8 +1,8 @@
 
 CREATE TABLE main.urm_product_meta (
                 meta_id INTEGER NOT NULL,
-                product_id INTEGER,
-                name VARCHAR(30),
+                product_fkid INTEGER,
+                product_fkname VARCHAR(30),
                 matched BOOLEAN NOT NULL,
                 last_major1 INTEGER NOT NULL,
                 last_major2 INTEGER NOT NULL,
@@ -21,8 +21,8 @@ COMMENT ON TABLE main.urm_product_meta IS 'Product';
 CREATE TABLE main.urm_product_lifecycle (
                 meta_id INTEGER NOT NULL,
                 lc_index INTEGER NOT NULL,
-                lifecycle_id INTEGER,
-                lifecycle_name VARCHAR(64),
+                lifecycle_fkid INTEGER,
+                lifecycle_fkname VARCHAR(64),
                 pv INTEGER NOT NULL,
                 CONSTRAINT urm_product_lifecycle_pk PRIMARY KEY (meta_id, lc_index)
 );

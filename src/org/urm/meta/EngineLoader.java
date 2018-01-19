@@ -18,6 +18,7 @@ import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
+import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineMirrors;
@@ -99,6 +100,10 @@ public class EngineLoader {
 
 	public EngineMonitoring getMonitoring() {
 		return( ldc.getMonitoring() );
+	}
+
+	public EngineLifecycles getLifecycles() {
+		return( ldc.getLifecycles() );
 	}
 
 	public EngineMatcher getMatcher() {

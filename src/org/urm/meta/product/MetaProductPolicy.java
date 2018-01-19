@@ -1,43 +1,70 @@
 package org.urm.meta.product;
 
+import org.urm.action.ActionBase;
+import org.urm.common.Common;
+import org.urm.meta.MatchItem;
 import org.urm.meta.ProductMeta;
+import org.urm.meta.engine.EngineLifecycles;
+import org.urm.meta.engine.ReleaseLifecycle;
 
 public class MetaProductPolicy {
 
+	public static String PROPERTY_RELEASELC_MAJOR = "minor";
+	public static String PROPERTY_RELEASELC_MINOR = "major";
+	public static String PROPERTY_RELEASELC_URGENTANY = "urgentany";
+	public static String PROPERTY_RELEASELC_URGENTS = "urgentset";
+
 	public Meta meta;
 	
-	public String RELEASELC_MAJOR;
-	public String RELEASELC_MINOR;
-	public boolean releaseLCUrgentAll;
-	public String[] RELEASELC_URGENT_LIST;
+	public MatchItem LC_MAJOR;
+	public MatchItem LC_MINOR;
+	public boolean LCUrgentAll;
+	public MatchItem[] LC_URGENT_LIST;
 	
 	public MetaProductPolicy( ProductMeta storage , Meta meta ) {
-		releaseLCUrgentAll = false;
-		RELEASELC_MAJOR = "";
-		RELEASELC_MINOR = "";
-		RELEASELC_URGENT_LIST = new String[0];
+		LCUrgentAll = false;
+		LC_URGENT_LIST = new MatchItem[0];
 	}
 
 	public MetaProductPolicy copy( Meta rmeta ) throws Exception {
 		MetaProductPolicy r = new MetaProductPolicy( rmeta.getStorage() , rmeta );
 		
 		// stored
-		r.RELEASELC_MAJOR = RELEASELC_MAJOR;
-		r.RELEASELC_MINOR = RELEASELC_MINOR;
-		r.releaseLCUrgentAll = releaseLCUrgentAll;
-		r.RELEASELC_URGENT_LIST = RELEASELC_URGENT_LIST.clone();
+		r.LC_MAJOR = LC_MAJOR;
+		r.LC_MINOR = LC_MINOR;
+		r.LCUrgentAll = LCUrgentAll;
+		r.LC_URGENT_LIST = LC_URGENT_LIST.clone();
 		
 		return( r );
 	}
 
-	public void setLifecycles( String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
-		RELEASELC_MAJOR = major;
-		RELEASELC_MINOR = minor;
-		releaseLCUrgentAll = urgentsAll;
-		if( !urgentsAll )
-			RELEASELC_URGENT_LIST = urgents.clone();
-		else
-			RELEASELC_URGENT_LIST = new String[0];
+	public void setLifecycles( MatchItem major , MatchItem minor , boolean urgentsAll , MatchItem[] urgents ) throws Exception {
+		LC_MAJOR = major;
+		LC_MINOR = minor;
+		
+		LCUrgentAll = urgentsAll;
+		LC_URGENT_LIST = urgents.clone();
+	}
+
+	public String getMajorName( ActionBase action ) throws Exception {
+		return( getLifecycleName( action , LC_MAJOR ) );
+	}
+
+	public String getMinorName( ActionBase action ) throws Exception {
+		return( getLifecycleName( action , LC_MINOR ) );
+	}
+
+	public String[] getUrgentNames( ActionBase action ) throws Exception {
+		String[] names = new String[ LC_URGENT_LIST.length ];
+		for( int k = 0; k < names.length; k++ )
+			names[ k ] = getLifecycleName( action , LC_URGENT_LIST[ k ] );
+		return( Common.getSortedList( names ) );
 	}
 	
+	public String getLifecycleName( ActionBase action , MatchItem item ) throws Exception {
+		EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
+		ReleaseLifecycle lc = lifecycles.getLifecycle( item.FKID );
+		return( lc.NAME );
+	}
+
 }

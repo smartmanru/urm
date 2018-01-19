@@ -7,7 +7,7 @@ import org.urm.meta.engine.EngineSettings;
 public class ProductContext {
 
 	public AppProduct product;
-	public int ID;
+	public Integer ID;
 	public String NAME;
 	public Integer PRODUCT_ID;
 	public boolean MATCHED;

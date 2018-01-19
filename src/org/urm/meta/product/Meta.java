@@ -20,7 +20,6 @@ import org.w3c.dom.Node;
 
 public class Meta extends EngineObject {
 
-	public int ID;
 	public String name;
 	public EngineSession session;
 	
@@ -62,8 +61,8 @@ public class Meta extends EngineObject {
 		return( name );
 	}
 
-	public void trace( String s ) {
-		products.engine.trace( s );
+	public int getId() {
+		return( storage.ID );
 	}
 	
 	public void replaceStorage( ActionBase action , ProductMeta storage ) throws Exception {
