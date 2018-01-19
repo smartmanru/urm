@@ -16,7 +16,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class DBProductPolicy {
+public class DBMetaPolicy {
 
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
 		MetaProductPolicy policy = new MetaProductPolicy( storage , storage.meta );

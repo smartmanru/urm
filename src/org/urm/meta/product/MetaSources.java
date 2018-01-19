@@ -16,14 +16,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaSource {
+public class MetaSources {
 
 	public Meta meta;
 	
 	private Map<String,MetaSourceProjectSet> setMap;
 	private Map<String,MetaSourceProject> projectMap;
 	
-	public MetaSource( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
+	public MetaSources( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
 		this.meta = meta;
 		meta.setSources( this );
 		
@@ -31,9 +31,9 @@ public class MetaSource {
 		projectMap = new HashMap<String,MetaSourceProject>();
 	}
 	
-	public MetaSource copy( ActionBase action , Meta meta ) throws Exception {
+	public MetaSources copy( ActionBase action , Meta meta ) throws Exception {
 		MetaProductSettings product = meta.getProductSettings();
-		MetaSource r = new MetaSource( meta.getStorage() , product , meta );
+		MetaSources r = new MetaSources( meta.getStorage() , product , meta );
 		for( MetaSourceProjectSet set : setMap.values() ) {
 			MetaSourceProjectSet rset = set.copy( action , meta , r );
 			r.addProjectSet( rset );
