@@ -93,10 +93,13 @@ public class DBMetaUnits {
 		} , true );
 	}
 
-	public static void loaddb( EngineLoader loader , ProductMeta storage , MetaUnits units ) throws Exception {
+	public static void loaddb( EngineLoader loader , ProductMeta storage ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = c.getEntities();
 		PropertyEntity entity = entities.entityAppMetaUnit;
+
+		MetaUnits units = new MetaUnits( storage , storage.meta );
+		storage.setUnits( units );
 		
 		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
 		try {

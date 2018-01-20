@@ -440,9 +440,9 @@ public class DatabasePrepare {
 	private boolean checkSql( ActionBase action , FileSet P_ALIGNEDSET , String P_SCRIPT ) throws Exception {
 		LocalFolder scriptFolder = srcFolder.getSubFolder( action , P_ALIGNEDSET.dirPath );
 		String schemaName = Common.getListItem( P_SCRIPT , "-" , 1 );
-		MetaDatabaseSchema schema = database.getSchema( action , schemaName );
+		MetaDatabaseSchema schema = database.getSchema( schemaName );
 		
-		DatabaseSpecific specific = new DatabaseSpecific( meta , schema.dbmsType );
+		DatabaseSpecific specific = new DatabaseSpecific( meta , schema.DBMS_TYPE );
 		if( !specific.validateScriptContent( action , scriptFolder , P_SCRIPT ) ) {
 			S_ERROR_MSG = "invalid script content";
 			return( false );

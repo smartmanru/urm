@@ -289,11 +289,11 @@ public class MetaDistr {
 	
 	public void deleteDatabaseSchema( EngineTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
-			if( delivery.findSchema( schema.SCHEMA ) != null )
+			if( delivery.findSchema( schema.NAME ) != null )
 				delivery.deleteSchema( transaction , schema );
 		}
 		for( MetaDistrComponent comp : getComponents() ) {
-			MetaDistrComponentItem compItem = comp.findSchemaItem( schema.SCHEMA );
+			MetaDistrComponentItem compItem = comp.findSchemaItem( schema.NAME );
 			if( compItem != null )
 				comp.removeCompItem( transaction , compItem );
 		}

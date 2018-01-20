@@ -231,7 +231,7 @@ public class ActionScopeTarget {
 		
 		MetaDatabase db = dbDelivery.db;
 		for( String itemName : ITEMS ) {
-			MetaDatabaseSchema item = db.getSchema( action , itemName );
+			MetaDatabaseSchema item = db.getSchema( itemName );
 			addDatabaseSchema( action , item , true );
 		}
 	}

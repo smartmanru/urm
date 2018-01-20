@@ -119,13 +119,6 @@ public class Types {
 		COPYONLY
 	};
 	
-	public enum VarDBMSTYPE {
-		UNKNOWN ,
-		ORACLE ,
-		POSTGRESQL ,
-		FIREBIRD
-	};
-
 	public enum VarSESSIONTYPE {
 		UNKNOWN ,
 		UNIXLOCAL ,
@@ -409,24 +402,6 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDeployItemType1 , "invalid deploy item type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarDBMSTYPE getDbmsType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingDbmsType0 , "missing DBMS type" );
-			return( VarDBMSTYPE.UNKNOWN );
-		}
-		
-		VarDBMSTYPE value = null;		
-		try {
-			value = VarDBMSTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidDbmsType1 , "invalid dbmstype=" + ID , ID );
 		}
 		
 		return( value );

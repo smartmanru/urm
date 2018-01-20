@@ -15,6 +15,7 @@ import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMirrors;
 import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
+import org.urm.db.product.DBMetaDatabase;
 import org.urm.db.product.DBMetaPolicy;
 import org.urm.db.product.DBMetaUnits;
 import org.urm.engine.action.ActionInit;
@@ -768,9 +769,10 @@ public class EngineTransaction extends TransactionBase {
 		doc.docs.createDoc( this , doc );
 	}
 	
-	public void createDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
-		checkTransactionMetadata( schema.meta.getStorage() );
-		schema.database.createDatabaseSchema( this , schema );
+	public MetaDatabaseSchema createDatabaseSchema( MetaDatabase database , String name , String desc , DBEnumDbmsType type , String dbname , String dbuser ) throws Exception {
+		ProductMeta storage = database.meta.getStorage();
+		checkTransactionMetadata( storage );
+		return( DBMetaDatabase.createSchema( this , storage , database , name , desc , type , dbname , dbuser ) );
 	}
 	
 	public void modifyProductUnit( MetaProductUnit unit , String name , String desc ) throws Exception {
@@ -784,9 +786,10 @@ public class EngineTransaction extends TransactionBase {
 		doc.docs.modifyDoc( this , doc );
 	}
 	
-	public void modifyDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
-		checkTransactionMetadata( schema.meta.getStorage() );
-		schema.database.modifyDatabaseSchema( this , schema );
+	public void modifyDatabaseSchema( MetaDatabaseSchema schema , String name , String desc , DBEnumDbmsType type , String dbname , String dbuser ) throws Exception {
+		ProductMeta storage = schema.meta.getStorage();
+		checkTransactionMetadata( storage );
+		DBMetaDatabase.modifySchema( this , storage , schema.database , schema , name , desc , type , dbname , dbuser );
 	}
 
 	public void deleteProductUnit( MetaProductUnit unit ) throws Exception {
@@ -801,8 +804,9 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void deleteDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
-		checkTransactionMetadata( schema.meta.getStorage() );
-		schema.database.deleteDatabaseSchema( this , schema );
+		ProductMeta storage = schema.meta.getStorage();
+		checkTransactionMetadata( storage );
+		DBMetaDatabase.deleteSchema( this , storage , schema.database , schema );
 	}
 	
 	public void createDistrComponent( MetaDistrComponent item ) throws Exception {
@@ -1046,7 +1050,7 @@ public class EngineTransaction extends TransactionBase {
 		dump.create( name , desc , export );
 		dump.setTarget( server , standby , setdbenv );
 		dump.setFiles( dataset , dumpdir , datapumpdir , nfs , postRefresh );
-		db.createDump( this , dump );
+		//db.createDump( this , dump );
 		return( dump );
 	}
 	
@@ -1060,7 +1064,7 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void deleteDump( MetaDump dump ) throws Exception {
 		checkTransactionMetadata( dump.database.meta.getStorage() );
-		dump.database.deleteDump( this , dump );
+		//dump.database.deleteDump( this , dump );
 	}
 
 	public void createDumpTables( MetaDump dump , String schema , String tables ) throws Exception {

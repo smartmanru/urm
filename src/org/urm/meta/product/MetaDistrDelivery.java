@@ -95,7 +95,7 @@ public class MetaDistrDelivery {
 		if( !allSchemas ) {
 			for( MetaDatabaseSchema item : mapDatabaseSchema.values() ) {
 				Element itemElement = Common.xmlCreateElement( doc , root , "database" );
-				Common.xmlSetElementAttr( doc , itemElement , "schema" , item.SCHEMA );
+				Common.xmlSetElementAttr( doc , itemElement , "schema" , item.NAME );
 			}
 		}
 		
@@ -138,7 +138,7 @@ public class MetaDistrDelivery {
 		
 		for( Node item : items ) {
 			String schemaName = ConfReader.getAttrValue( item , "schema" );
-			MetaDatabaseSchema schema = db.getSchema( action , schemaName );
+			MetaDatabaseSchema schema = db.getSchema( schemaName );
 			mapDatabaseSchema.put( schemaName , schema );
 		}
 	}
@@ -175,8 +175,8 @@ public class MetaDistrDelivery {
 		}
 			
 		for( MetaDatabaseSchema item : mapDatabaseSchema.values() ) {
-			MetaDatabaseSchema ritem = rdb.getSchema( action , item.SCHEMA );
-			r.mapDatabaseSchema.put( ritem.SCHEMA , ritem );
+			MetaDatabaseSchema ritem = rdb.getSchema( item.NAME );
+			r.mapDatabaseSchema.put( ritem.NAME , ritem );
 		}
 			
 		for( MetaProductDoc item : mapDocuments.values() ) {
@@ -224,7 +224,7 @@ public class MetaDistrDelivery {
 	
 	public MetaDatabaseSchema getSchema( ActionBase action , String NAME ) throws Exception {
 		if( allSchemas )
-			return( db.getSchema( action , NAME ) );
+			return( db.getSchema( NAME ) );
 			
 		MetaDatabaseSchema item = mapDatabaseSchema.get( NAME );
 		if( item == null )
@@ -345,7 +345,7 @@ public class MetaDistrDelivery {
 			if( compItem != null )
 				comp.removeCompItem( transaction , compItem );
 		}
-		meta.deleteBinaryItemFromEnvironments( transaction , item );
+		meta.getStorage().deleteBinaryItemFromEnvironments( transaction , item );
 	}
 	
 	public void createConfItem( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
@@ -366,14 +366,14 @@ public class MetaDistrDelivery {
 			if( compItem != null )
 				comp.removeCompItem( transaction , compItem );
 		}
-		meta.deleteConfItemFromEnvironments( transaction , item );
+		meta.getStorage().deleteConfItemFromEnvironments( transaction , item );
 	}
 
 	public void deleteSchema( EngineTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
 		if( allSchemas )
 			return;
 		
-		mapDatabaseSchema.remove( schema.SCHEMA );
+		mapDatabaseSchema.remove( schema.NAME );
 	}
 
 	public void setDatabaseAll( EngineTransaction transaction ) throws Exception {
@@ -386,7 +386,7 @@ public class MetaDistrDelivery {
 			
 		mapDatabaseSchema.clear();
 		for( MetaDatabaseSchema schema : set )
-			mapDatabaseSchema.put( schema.SCHEMA , schema );
+			mapDatabaseSchema.put( schema.NAME , schema );
 	}
 	
 	public void deleteDoc( EngineTransaction transaction , MetaProductDoc doc ) throws Exception {

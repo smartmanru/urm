@@ -205,7 +205,8 @@ public abstract class DBEnums {
 		APPPRODUCT(31,null) ,
 		DBSCHEMA(50,null) ,
 		META(101,null) ,
-		META_UNIT(102,null);
+		META_UNIT(102,null) ,
+		META_SCHEMA(103,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -310,6 +311,21 @@ public abstract class DBEnums {
 		public static DBEnumBuildModeType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumBuildModeType.class , value , required , UNKNOWN ) ); };
 	};
 	
+	public enum DBEnumDbmsType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		ORACLE(1,null) ,
+		POSTGRESQL(2,null) ,
+		FIREBIRD(3,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumDbmsType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumDbmsType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDbmsType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumDbmsType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDbmsType.class , value , required , UNKNOWN ) ); };
+	};
+	
 	public enum DBEnumObjectVersionType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		APP(1,null) ,
@@ -365,7 +381,8 @@ public abstract class DBEnums {
 		PRODUCT_CUSTOM(150,null) ,
 		PRODUCT_VERSION(151,null) ,
 		PRODUCT_MONITORING(152,null) ,
-		PRODUCT_UNIT(153,null);
+		PRODUCT_UNIT(153,null) ,
+		PRODUCT_SCHEMA(154,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -553,10 +570,12 @@ public abstract class DBEnums {
     	return( null );
     }
     
-    public static int getEnumCode( Class<?> type , String value ) {
+    public static int getEnumCode( Class<?> type , String value ) throws Exception {
 		int code = DBEnums.VALUE_UNKNOWN;
 		if( value != null && !value.isEmpty() ) {
 			Enum<?> e = DBEnums.getEnumValue( type , value );
+			if( e == null )
+				Common.exit2( _Error.InvalidEnumStringType2 , "invalid enum item=" + value + ", enum=" + type.getSimpleName() , value , type.getSimpleName() );
 			DBEnumInterface ei = ( DBEnumInterface )e;
 			code = ei.code();
 		}

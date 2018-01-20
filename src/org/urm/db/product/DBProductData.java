@@ -4,7 +4,9 @@ import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
+import org.urm.db.core.DBEnums.DBEnumDbmsType;
 import org.urm.db.core.DBSettings;
+import org.urm.db.core.DBEnums.DBEnumLifecycleType;
 import org.urm.db.core.DBEnums.DBEnumOSType;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
@@ -13,6 +15,7 @@ import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductMeta;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
@@ -22,6 +25,7 @@ public class DBProductData {
 
 	public static String TABLE_META = "urm_product_meta";
 	public static String TABLE_UNIT = "urm_product_unit";
+	public static String TABLE_SCHEMA = "urm_product_schema";
 	public static String FIELD_META_ID = "meta_id";
 	public static String FIELD_META_PRODUCT_ID = "product_fkid";
 	public static String FIELD_META_PRODUCT_NAME = "product_fkname";
@@ -36,6 +40,9 @@ public class DBProductData {
 	public static String FIELD_META_NEXT_MINOR2 = "next_minor2";
 	public static String FIELD_UNIT_ID = "unit_id";
 	public static String FIELD_UNIT_DESC = "xdesc";
+	public static String FIELD_SCHEMA_ID = "schema_id";
+	public static String FIELD_SCHEMA_DESC = "xdesc";
+	public static String FIELD_SCHEMA_DBTYPE = "dbms_type";
 	
 	public static PropertyEntity upgradeEntityProductSettings( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
@@ -191,6 +198,25 @@ public class DBProductData {
 
 	public static PropertyEntity loaddbEntityMetaUnit( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_UNIT , DBEnumParamEntityType.PRODUCT_UNIT , DBEnumObjectVersionType.PRODUCT , TABLE_UNIT , FIELD_UNIT_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity upgradeEntityMetaSchema( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SCHEMA , DBEnumParamEntityType.PRODUCT_SCHEMA , DBEnumObjectVersionType.PRODUCT , TABLE_SCHEMA , FIELD_SCHEMA_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
+				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
+				EntityVar.metaString( MetaDatabaseSchema.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( MetaDatabaseSchema.PROPERTY_DESC , FIELD_SCHEMA_DESC , MetaDatabaseSchema.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaEnumVar( MetaDatabaseSchema.PROPERTY_DBTYPE , FIELD_SCHEMA_DBTYPE , MetaDatabaseSchema.PROPERTY_DBTYPE , "Database software type" , true , DBEnumDbmsType.UNKNOWN ) ,
+				EntityVar.metaString( MetaDatabaseSchema.PROPERTY_DBNAME , "Default database name" , false , null ) ,
+				EntityVar.metaString( MetaDatabaseSchema.PROPERTY_DBUSER , "Default database user" , false , null )
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityMetaSchema( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SCHEMA , DBEnumParamEntityType.PRODUCT_SCHEMA , DBEnumObjectVersionType.PRODUCT , TABLE_SCHEMA , FIELD_SCHEMA_ID );
 		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}

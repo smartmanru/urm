@@ -55,7 +55,7 @@ public class ActionScopeTargetItem {
 		ActionScopeTargetItem ti = new ActionScopeTargetItem( target ); 
 		ti.schema = schema;
 		ti.specifiedExplicitly = specifiedExplicitly;
-		ti.NAME = schema.SCHEMA;
+		ti.NAME = schema.NAME;
 		return( ti );
 	}
 	

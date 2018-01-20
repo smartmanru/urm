@@ -262,7 +262,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		MetaDatabaseSchema schema = item.schema;
 		boolean found = DatabaseScriptFile.checkDistHasSchemaFiles( files , schema );
 		String status = ( found )? "found" : "missing";
-		info( "\tschema=" + schema.SCHEMA + ": " + status + Common.getCommentIfAny( specifics ) );
+		info( "\tschema=" + schema.NAME + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printProdBinaryStatus( Dist dist , FileSet files , MetaDistrBinaryItem distItem ) throws Exception {

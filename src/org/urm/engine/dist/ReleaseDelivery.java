@@ -86,8 +86,8 @@ public class ReleaseDelivery {
 		}
 		else
 		if( item.schema != null ) {
-			action.debug( "add delivery schema item: " + distDelivery.NAME + "::" + item.schema.SCHEMA );
-			schemaItems.put( item.schema.SCHEMA , item );
+			action.debug( "add delivery schema item: " + distDelivery.NAME + "::" + item.schema.NAME );
+			schemaItems.put( item.schema.NAME , item );
 		}
 	}
 
@@ -98,8 +98,8 @@ public class ReleaseDelivery {
 		}
 		else
 		if( item.schema != null ) {
-			action.debug( "remove delivery schema item: " + distDelivery.NAME + "::" + item.schema.SCHEMA );
-			schemaItems.remove( item.schema.SCHEMA );
+			action.debug( "remove delivery schema item: " + distDelivery.NAME + "::" + item.schema.NAME );
+			schemaItems.remove( item.schema.NAME );
 		}
 	}
 

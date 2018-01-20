@@ -358,7 +358,7 @@ public class ReleaseTarget {
 	}
 	
 	public ReleaseTargetItem findDatabaseSchema( MetaDatabaseSchema schema ) {
-		return( itemMap.get( schema.SCHEMA ) );
+		return( itemMap.get( schema.NAME ) );
 	}
 	
 	public ReleaseTargetItem findProjectItem( MetaSourceProjectItem item ) {

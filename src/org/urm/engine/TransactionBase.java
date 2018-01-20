@@ -1111,7 +1111,7 @@ public class TransactionBase extends EngineObject {
 	public MetaDatabaseSchema getDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
 		Meta meta = getTransactionMetadata( schema.meta.name );
 		MetaDatabase database = meta.getDatabase();
-		return( database.getSchema( action , schema.SCHEMA ) );
+		return( database.getSchema( schema.NAME ) );
 	}
 
 	public MetaProductUnit getProductUnit( MetaProductUnit unit ) throws Exception {

@@ -6,7 +6,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineSession;
-import org.urm.engine.EngineTransaction;
 import org.urm.engine.dist.DistRepository;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
@@ -293,34 +292,6 @@ public class Meta extends EngineObject {
     		return( null );
     	return( server.findNode( node.POS ) );
     }
-
-	public void deleteBinaryItemFromEnvironments( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
-		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvSegment sg : env.getSegments() )
-				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteBinaryItem( transaction , item );
-	}
-
-	public void deleteConfItemFromEnvironments( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
-		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvSegment sg : env.getSegments() )
-				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteConfItem( transaction , item );
-	}
-
-	public void deleteComponentFromEnvironments( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
-		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvSegment sg : env.getSegments() )
-				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteComponent( transaction , item );
-	}
-
-	public void deleteDatabaseSchemaFromEnvironments( EngineTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
-		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvSegment sg : env.getSegments() )
-				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteSchema( transaction , schema );
-	}
 
 	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
 		for( MetaEnv env : storage.getEnvironments() )

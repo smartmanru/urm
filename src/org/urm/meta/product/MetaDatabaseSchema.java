@@ -1,71 +1,56 @@
 package org.urm.meta.product;
 
-import org.urm.action.ActionBase;
-import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.engine.EngineTransaction;
-import org.urm.meta.Types;
-import org.urm.meta.Types.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import org.urm.db.core.DBEnums.*;
 
 public class MetaDatabaseSchema {
 
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_DBTYPE = "dbtype";
+	public static String PROPERTY_DBNAME = "dbname";
+	public static String PROPERTY_DBUSER = "dbuser";
+	
 	public Meta meta;
 	public MetaDatabase database;
 
-	public String SCHEMA;
-	public VarDBMSTYPE dbmsType;
-	public String DBNAME;
-	public String DBUSER;
+	public int ID;
+	public String NAME;
 	public String DESC;
+	public DBEnumDbmsType DBMS_TYPE;
+	public String DBNAMEDEF;
+	public String DBUSERDEF;
+	public int PV;
 	
 	public MetaDatabaseSchema( Meta meta , MetaDatabase database ) {
 		this.meta = meta;
 		this.database = database;
+		ID = -1;
+		PV = -1;
 	}
 	
-	public void createSchema( EngineTransaction transaction , String SCHEMA ) throws Exception {
-		this.SCHEMA = SCHEMA;
-		dbmsType = VarDBMSTYPE.UNKNOWN;
-		DBNAME = "";
-		DBUSER = "";
-		DESC = "";
-	}
-
-	public void setData( EngineTransaction transaction , String desc , VarDBMSTYPE dbType , String dbName , String dbUser ) throws Exception {
-		this.DESC = desc;
-		this.dbmsType = dbType;
-		this.DBNAME = dbName;
-		this.DBUSER = dbUser;
-	}
-	
-	public void load( ActionBase action , Node node ) throws Exception {
-		SCHEMA = action.getNameAttr( node , VarNAMETYPE.ALPHANUM );
-		dbmsType = Types.getDbmsType( ConfReader.getAttrValue( node , "dbtype" ) , false );
-		DBNAME = ConfReader.getAttrValue( node , "dbname" , SCHEMA );
-		DBUSER = ConfReader.getAttrValue( node , "dbuser" , SCHEMA );
-		DESC = ConfReader.getAttrValue( node , "desc" );
-	}
-
-	public MetaDatabaseSchema copy( ActionBase action , Meta meta , MetaDatabase database ) throws Exception {
+	public MetaDatabaseSchema copy( Meta meta , MetaDatabase database ) throws Exception {
 		MetaDatabaseSchema r = new MetaDatabaseSchema( meta , database );
-		
-		r.SCHEMA = SCHEMA;
-		r.dbmsType = dbmsType;
-		r.DBNAME = DBNAME;
-		r.DBUSER = DBUSER;
+
+		r.ID = ID;
+		r.NAME = NAME;
+		r.DBMS_TYPE = DBMS_TYPE;
+		r.DBNAMEDEF = DBNAMEDEF;
+		r.DBUSERDEF = DBUSERDEF;
 		r.DESC = DESC;
+		r.PV = PV;
 		return( r );
 	}
 
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "name" , SCHEMA );
-		Common.xmlSetElementAttr( doc , root , "dbtype" , Common.getEnumLower( dbmsType ) );
-		Common.xmlSetElementAttr( doc , root , "dbname" , DBNAME );
-		Common.xmlSetElementAttr( doc , root , "dbuser" , DBUSER );
-		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
+	public void createSchema( String name , String desc , DBEnumDbmsType type , String dbname , String dbuser ) throws Exception {
+		modifySchema( name , desc , type , dbname , dbuser );
 	}
 	
+	public void modifySchema( String name , String desc , DBEnumDbmsType type , String dbname , String dbuser ) throws Exception {
+		this.NAME = name;
+		this.DESC = desc;
+		this.DBMS_TYPE = type;
+		this.DBNAMEDEF = dbname;
+		this.DBUSERDEF = dbuser;
+	}
+
 }

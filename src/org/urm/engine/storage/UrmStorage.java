@@ -5,7 +5,6 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.Types.*;
 
 public class UrmStorage {
 
@@ -48,15 +47,15 @@ public class UrmStorage {
 		return( false );
 	}
 	
-	private String getDatabaseSpecificFolder( ActionBase action , VarDBMSTYPE dbtype , DBEnumOSType ostype , boolean remoteRun ) throws Exception {
+	private String getDatabaseSpecificFolder( ActionBase action , DBEnumDbmsType dbtype , DBEnumOSType ostype , boolean remoteRun ) throws Exception {
 		String dbFolder = "";
-		if( dbtype == VarDBMSTYPE.ORACLE )
+		if( dbtype == DBEnumDbmsType.ORACLE )
 			dbFolder = "oracle";
 		else
-		if( dbtype == VarDBMSTYPE.POSTGRESQL )
+		if( dbtype == DBEnumDbmsType.POSTGRESQL )
 			dbFolder = "postgres";
 		else
-		if( dbtype == VarDBMSTYPE.FIREBIRD )
+		if( dbtype == DBEnumDbmsType.FIREBIRD )
 			dbFolder = "firebird";
 		else
 			action.exitUnexpectedState();

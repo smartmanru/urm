@@ -68,6 +68,7 @@ public class EngineEntities {
 	public PropertyEntity entityAppMetaVersion;
 	public PropertyEntity entityAppMetaMonitoring;
 	public PropertyEntity entityAppMetaUnit;
+	public PropertyEntity entityAppMetaSchema;
 	
 	public EngineEntities( Engine engine ) {
 		this.engine = engine;
@@ -100,6 +101,7 @@ public class EngineEntities {
 		entityAppMetaVersion = DBProductData.upgradeEntityMetaVersion( loader );
 		entityAppMetaMonitoring = DBProductData.upgradeEntityMetaMonitoring( loader );
 		entityAppMetaUnit = DBProductData.upgradeEntityMetaUnit( loader );
+		entityAppMetaSchema = DBProductData.upgradeEntityMetaSchema( loader );
 		
 		entityCustomRC = DBEngineContext.createEntityCustomRC( loader );
 		entityCustomEngine = DBEngineContext.createEntityCustomEngine( loader );
@@ -133,6 +135,7 @@ public class EngineEntities {
 		entityAppMetaVersion = DBProductData.loaddbEntityMetaVersion( c );
 		entityAppMetaMonitoring = DBProductData.loaddbEntityMetaMonitoring( c );
 		entityAppMetaUnit = DBProductData.loaddbEntityMetaUnit( c );
+		entityAppMetaSchema = DBProductData.loaddbEntityMetaSchema( c );
 		
 		entityCustomRC = DBEngineContext.loaddbEntityCustomRC( c );
 		entityCustomEngine = DBEngineContext.loaddbEntityCustomEngine( c );

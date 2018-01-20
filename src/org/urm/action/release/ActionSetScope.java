@@ -233,7 +233,7 @@ public class ActionSetScope extends ActionBase {
 			}
 			
 			for( ReleaseTargetItem item : delivery.getDatabaseItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.SCHEMA.toString() , item.schema.SCHEMA } , "/" ) );
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.SCHEMA.toString() , item.schema.NAME } , "/" ) );
 				if( checkItem == null ) {
 					dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
 					continue;
@@ -266,7 +266,7 @@ public class ActionSetScope extends ActionBase {
 			return( false );
 		
 		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() )
-			check.put( Common.getList( new String[] { delivery.NAME , VarDEPLOYITEMTYPE.SCHEMA.toString() , schema.SCHEMA } , "/" ) , "database" );
+			check.put( Common.getList( new String[] { delivery.NAME , VarDEPLOYITEMTYPE.SCHEMA.toString() , schema.NAME } , "/" ) , "database" );
 		return( true );
 	}
 	

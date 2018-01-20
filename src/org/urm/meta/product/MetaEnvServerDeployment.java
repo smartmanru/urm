@@ -120,7 +120,7 @@ public class MetaEnvServerDeployment extends PropertyController {
 		
 		MetaDatabase database = meta.getDatabase(); 
 		if( !SCHEMA.isEmpty() )
-			schema = database.getSchema( action , SCHEMA );
+			schema = database.getSchema( SCHEMA );
 	}
 	
 	public void create( EngineTransaction transaction , VarDEPLOYITEMTYPE itemType , String itemName , VarNODETYPE nodeType , VarDEPLOYMODE deployMode , String deployPath , String dbName , String dbUser ) throws Exception {

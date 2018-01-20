@@ -51,7 +51,7 @@ public class MetaDistrComponentItem {
 	public void setSchema( EngineTransaction transaction , MetaDatabaseSchema schema , String DEPLOYNAME ) throws Exception {
 		this.type = VarCOMPITEMTYPE.SCHEMA;
 		this.schema = schema;
-		this.NAME = schema.SCHEMA;
+		this.NAME = schema.NAME;
 		this.DEPLOYNAME = DEPLOYNAME;
 	}
 	
@@ -67,7 +67,7 @@ public class MetaDistrComponentItem {
 		else
 		if( schema != null ) {
 			MetaDatabase database = r.meta.getDatabase();
-			r.schema = database.getSchema( action , schema.SCHEMA );
+			r.schema = database.getSchema( schema.NAME );
 		}
 		r.OBSOLETE = OBSOLETE;
 		r.DEPLOYNAME = DEPLOYNAME;
@@ -100,7 +100,7 @@ public class MetaDistrComponentItem {
 		
 		MetaDatabase database = meta.getDatabase();
 		type = VarCOMPITEMTYPE.SCHEMA;
-		schema = database.getSchema( action , NAME );
+		schema = database.getSchema( NAME );
 		DEPLOYNAME = ConfReader.getAttrValue( node , "deployname" );
 	}
 

@@ -39,7 +39,7 @@ public class ReleaseTargetItem {
 		nx.sourceItem = ( sourceItem == null )? null : nt.sourceProject.getItem( action , sourceItem.ITEMNAME );
 		nx.distItem = ( distItem == null )? null : sourceItem.distItem;
 		MetaDatabase ndb = nt.meta.getDatabase();
-		nx.schema = ( schema == null )? null : ndb.getSchema( action , schema.SCHEMA );
+		nx.schema = ( schema == null )? null : ndb.getSchema( schema.NAME );
 		nx.NAME = NAME;
 		nx.BUILDVERSION = BUILDVERSION;
 		
@@ -66,7 +66,7 @@ public class ReleaseTargetItem {
 		if( isBinary() )
 			return( target.NAME + ":" + distItem.KEY );
 		if( isDatabase() )
-			return( target.NAME + ":" + schema.SCHEMA );
+			return( target.NAME + ":" + schema.NAME );
 		return( null );
 	}
 	
@@ -102,7 +102,7 @@ public class ReleaseTargetItem {
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		BUILDVERSION = "";
 		MetaDatabase db = meta.getDatabase();
-		this.schema = db.getSchema( action , NAME );
+		this.schema = db.getSchema( NAME );
 	}
 	
 	public void createFromDistrItem( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
@@ -114,7 +114,7 @@ public class ReleaseTargetItem {
 	
 	public void createFromSchema( ActionBase action , MetaDatabaseSchema schema ) throws Exception {
 		this.schema = schema;
-		NAME = schema.SCHEMA;
+		NAME = schema.NAME;
 		BUILDVERSION = "";
 	}
 	

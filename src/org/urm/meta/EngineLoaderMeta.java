@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.product.DBMeta;
+import org.urm.db.product.DBMetaDatabase;
 import org.urm.db.product.DBMetaSettings;
 import org.urm.db.product.DBMetaPolicy;
 import org.urm.db.product.DBMetaUnits;
@@ -68,7 +69,7 @@ public class EngineLoaderMeta {
 		importxmlSettings( storageMeta , context );
 		importxmlPolicy( storageMeta );
 		importxmlUnits( storageMeta );
-		importxlDatabase( storageMeta );
+		importxmlDatabase( storageMeta );
 		importxmlSources( storageMeta );
 		importxmlDocs( storageMeta );
 		importxmlDistr( storageMeta );
@@ -104,8 +105,8 @@ public class EngineLoaderMeta {
 	private void saveDatabase( MetadataStorage storageMeta ) throws Exception {
 		ActionBase action = loader.getAction();
 		Document doc = Common.xmlCreateDoc( XML_ROOT_DATABASE );
-		MetaDatabase database = set.getDatabase();
-		database.save( action , doc , doc.getDocumentElement() );
+		//MetaDatabase database = set.getDatabase();
+		//database.save( action , doc , doc.getDocumentElement() );
 		storageMeta.saveDatabaseConfFile( action , doc );
 	}
 	
@@ -227,12 +228,7 @@ public class EngineLoaderMeta {
 		}
 	}
 	
-	private void importxlDatabase( MetadataStorage storageMeta ) throws Exception {
-		MetaProductSettings settings = set.getSettings();
-		
-		MetaDatabase database = new MetaDatabase( set , settings , set.meta );
-		set.setDatabase( database );
-		
+	private void importxmlDatabase( MetadataStorage storageMeta ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -240,7 +236,8 @@ public class EngineLoaderMeta {
 			action.debug( "read database definition file " + file + "..." );
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
-			database.load( action , root );
+			
+			DBMetaDatabase.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
 			setLoadFailed( action , _Error.UnableLoadProductDatabase1 , e , "unable to import database metadata, product=" + set.name , set.name );

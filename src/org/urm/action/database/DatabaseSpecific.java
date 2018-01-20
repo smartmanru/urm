@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Folder;
@@ -20,12 +21,11 @@ import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.Types.*;
 
 public class DatabaseSpecific {
 
 	Meta meta;
-	VarDBMSTYPE dbmsType;
+	DBEnumDbmsType dbmsType;
 	MetaEnvServer server;
 	MetaEnvServerNode node;
 
@@ -38,7 +38,7 @@ public class DatabaseSpecific {
 		this.meta = meta;
 	}
 	
-	public DatabaseSpecific( Meta meta , VarDBMSTYPE dbmsType ) {
+	public DatabaseSpecific( Meta meta , DBEnumDbmsType dbmsType ) {
 		this.meta = meta;
 		this.dbmsType = dbmsType; 
 	}
@@ -178,10 +178,10 @@ public class DatabaseSpecific {
 	}
 
 	public String getTableName( ActionBase action , String dbschema , String table ) throws Exception {
-		if( server.dbType == VarDBMSTYPE.ORACLE )
+		if( server.dbType == DBEnumDbmsType.ORACLE )
 			return( dbschema + "." + table );
-		if( server.dbType == VarDBMSTYPE.FIREBIRD ||
-			server.dbType == VarDBMSTYPE.POSTGRESQL )
+		if( server.dbType == DBEnumDbmsType.FIREBIRD ||
+			server.dbType == DBEnumDbmsType.POSTGRESQL )
 			return( table );
 		
 		action.exitUnexpectedState();
@@ -312,7 +312,7 @@ public class DatabaseSpecific {
 	}
 
 	private void beginTransaction( ActionBase action , List<String> lines ) throws Exception {
-		if( server.dbType == VarDBMSTYPE.POSTGRESQL )
+		if( server.dbType == DBEnumDbmsType.POSTGRESQL )
 			lines.add( "begin;" );
 	}
 	
@@ -405,13 +405,13 @@ public class DatabaseSpecific {
 	}
 	
 	private String getTimestampValue( ActionBase action ) throws Exception {
-		if( server.dbType == VarDBMSTYPE.POSTGRESQL )
+		if( server.dbType == DBEnumDbmsType.POSTGRESQL )
 			return( "now()" );
 		else
-		if( server.dbType == VarDBMSTYPE.ORACLE )
+		if( server.dbType == DBEnumDbmsType.ORACLE )
 			return( "SYSDATE" );
 		else
-		if( server.dbType == VarDBMSTYPE.FIREBIRD )
+		if( server.dbType == DBEnumDbmsType.FIREBIRD )
 			return( "CURRENT_TIMESTAMP" );
 		
 		action.exitUnexpectedState();

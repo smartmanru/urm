@@ -237,7 +237,7 @@ public class PropertyEntity {
 		if( var == null )
 			Common.exitUnexpected();
 		String xmlvalue = ConfReader.getAttrValue( root , var.XMLNAME );
-		return( DBEnums.getEnumCode( var.enumClass ,  xmlvalue ) );
+		return( DBEnums.getEnumCode( var.enumClass , xmlvalue ) );
 	}
 	
 	public int importxmlEnumProperty( Node root , String prop ) throws Exception {
@@ -245,7 +245,7 @@ public class PropertyEntity {
 		if( var == null )
 			Common.exitUnexpected();
 		String xmlvalue = ConfReader.getPropertyValue( root , var.XMLNAME );
-		return( DBEnums.getEnumCode( var.enumClass ,  xmlvalue ) );
+		return( DBEnums.getEnumCode( var.enumClass , xmlvalue ) );
 	}
 	
 	public Integer importxmlObjectAttr( EngineLoader loader , Node root , String prop ) throws Exception {

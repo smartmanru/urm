@@ -20,10 +20,16 @@ import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDesignDiagram;
 import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrComponent;
+import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvSegment;
+import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.product.MetaProductSettings;
@@ -96,9 +102,8 @@ public class ProductMeta extends EngineObject {
 		r.settings = settings.copy( r.meta , null );
 		r.policy = policy.copy( r.meta );
 		r.units = units.copy( r.meta );
-			
-		if( database != null )
-			r.database = database.copy( action , r.meta );
+		r.database = database.copy( r.meta );
+		
 		if( sources != null )
 			r.sources = sources.copy( action , r.meta );
 		if( docs != null )
@@ -207,8 +212,8 @@ public class ProductMeta extends EngineObject {
 	}
 	
 	private void createInitialDatabase( TransactionBase transaction ) throws Exception {
-		database = new MetaDatabase( this , settings , meta );
-		database.createDatabase( transaction );
+		database = new MetaDatabase( this , meta );
+		//database.createDatabase( transaction );
 		meta.setDatabase( database );
 	}
 	
@@ -371,6 +376,34 @@ public class ProductMeta extends EngineObject {
 	public void deleteHostAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
 		for( MetaEnv env : envs.values() )
 			env.deleteHostAccount( transaction , account );
+	}
+
+	public void deleteBinaryItemFromEnvironments( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+		for( MetaEnv env : getEnvironments() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
+					server.reflectDeleteBinaryItem( transaction , item );
+	}
+
+	public void deleteConfItemFromEnvironments( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
+		for( MetaEnv env : getEnvironments() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
+					server.reflectDeleteConfItem( transaction , item );
+	}
+
+	public void deleteComponentFromEnvironments( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
+		for( MetaEnv env : getEnvironments() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
+					server.reflectDeleteComponent( transaction , item );
+	}
+
+	public void deleteDatabaseSchemaFromEnvironments( EngineTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+		for( MetaEnv env : getEnvironments() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
+					server.reflectDeleteSchema( transaction , schema );
 	}
 
 }

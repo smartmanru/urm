@@ -63,7 +63,7 @@ public class MetaDistrComponent {
 		
 		for( MetaDistrComponentItem item : mapSchemaItems.values() ) {
 			MetaDistrComponentItem ritem = item.copy( action , meta , r );
-			r.mapSchemaItems.put( ritem.schema.SCHEMA , ritem );
+			r.mapSchemaItems.put( ritem.schema.NAME , ritem );
 		}
 
 		for( MetaDistrComponentWS item : mapWS.values() ) {
@@ -102,7 +102,7 @@ public class MetaDistrComponent {
 			for( Node itemNode : items ) {
 				MetaDistrComponentItem item = new MetaDistrComponentItem( meta , this );
 				item.loadSchema( action , itemNode );
-				mapSchemaItems.put( item.schema.SCHEMA , item );
+				mapSchemaItems.put( item.schema.NAME , item );
 			}
 		}
 		
@@ -241,7 +241,7 @@ public class MetaDistrComponent {
 			mapConfItems.remove( item.confItem.KEY );
 		else
 		if( item.schema != null )
-			mapSchemaItems.remove( item.schema.SCHEMA );
+			mapSchemaItems.remove( item.schema.NAME );
 	}
 
 	public void createItem( EngineTransaction transaction , MetaDistrComponentItem item ) throws Exception {

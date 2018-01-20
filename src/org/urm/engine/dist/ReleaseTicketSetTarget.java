@@ -100,7 +100,7 @@ public class ReleaseTicketSetTarget {
 	
 	public void create( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) {
 		this.type = VarTICKETSETTARGETTYPE.SCHEMA;
-		ITEM = delivery.NAME + ":" + schema.SCHEMA;
+		ITEM = delivery.NAME + ":" + schema.NAME;
 		accepted = false;
 		descoped = false;
 	}
@@ -265,7 +265,7 @@ public class ReleaseTicketSetTarget {
 		if( isDatabase() ) {
 			String deliveryName = getDatabaseDelivery();
 			String schemaName = getDatabaseSchema();
-			if( deliveryName.equals( delivery.NAME ) && schemaName.equals( item.SCHEMA ) )
+			if( deliveryName.equals( delivery.NAME ) && schemaName.equals( item.NAME ) )
 				return( true );
 			return( false );
 		}

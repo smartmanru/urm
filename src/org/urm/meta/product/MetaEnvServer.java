@@ -66,7 +66,7 @@ public class MetaEnvServer extends PropertyController {
 	public String LOGFILEPATH = "";
 	public boolean NOPIDS = false;
 
-	public VarDBMSTYPE dbType;
+	public DBEnumDbmsType dbType;
 	public String DBMSADDR = "";
 	public String ADMSCHEMA = "";
 	public MetaDatabaseSchema admSchema;
@@ -196,7 +196,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 		
 		if( isDatabase() ) {
-			dbType = Types.getDbmsType( super.getStringProperty( action , PROPERTY_DBMSTYPE ) , false );
+			dbType = DBEnumDbmsType.getValue( super.getStringProperty( action , PROPERTY_DBMSTYPE ) , true );
 			DBMSADDR = super.getStringProperty( action , PROPERTY_DBMSADDR );
 			ALIGNED = super.getStringProperty( action , PROPERTY_ALIGNED );
 			REGIONS = super.getStringProperty( action , PROPERTY_REGIONS );
@@ -204,7 +204,7 @@ public class MetaEnvServer extends PropertyController {
 			
 			MetaDatabase database = meta.getDatabase();
 			if( !ADMSCHEMA.isEmpty() )
-				admSchema = database.getSchema( action , ADMSCHEMA );
+				admSchema = database.getSchema( ADMSCHEMA );
 		}
 
 		super.finishRawProperties();
@@ -297,7 +297,7 @@ public class MetaEnvServer extends PropertyController {
 		if( isDatabase() ) {
 			MetaDatabase database = meta.getDatabase();
 			for( String id : Common.splitSpaced( ALIGNED ) )
-				database.checkAligned( action , id );
+				database.checkAligned( id );
 		}
 		
 		if( basesw != null )
@@ -618,11 +618,11 @@ public class MetaEnvServer extends PropertyController {
 		Map<String,MetaDatabaseSchema> schemaMap = new HashMap<String,MetaDatabaseSchema>();
 		for( MetaEnvServerDeployment item : deployments ) {
 			if( item.isDatabase() )
-				schemaMap.put( item.schema.SCHEMA , item.schema );
+				schemaMap.put( item.schema.NAME , item.schema );
 			else
 			if( item.isComponent() ) {
 				for( MetaDistrComponentItem compItem : item.comp.getSchemaItems() )
-					schemaMap.put( compItem.schema.SCHEMA , compItem.schema );
+					schemaMap.put( compItem.schema.NAME , compItem.schema );
 			}
 		}
 		return( schemaMap );
@@ -938,9 +938,9 @@ public class MetaEnvServer extends PropertyController {
 					return( d.DBNAME );
 			}
 			else {
-				MetaDistrComponentItem item = d.comp.findSchemaItem( schema.SCHEMA );
+				MetaDistrComponentItem item = d.comp.findSchemaItem( schema.NAME );
 				if( item != null )
-					return( schema.DBNAME );
+					return( schema.DBNAMEDEF );
 			}
 		}
 		
@@ -954,9 +954,9 @@ public class MetaEnvServer extends PropertyController {
 					return( d.DBUSER );
 			}
 			else {
-				MetaDistrComponentItem item = d.comp.findSchemaItem( schema.SCHEMA );
+				MetaDistrComponentItem item = d.comp.findSchemaItem( schema.NAME );
 				if( item != null )
-					return( schema.DBUSER );
+					return( schema.DBUSERDEF );
 			}
 		}
 		
