@@ -7,6 +7,7 @@ import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBMetaDatabase;
 import org.urm.db.product.DBMetaSettings;
 import org.urm.db.product.DBMetaPolicy;
+import org.urm.db.product.DBMetaSources;
 import org.urm.db.product.DBMetaUnits;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.product.Meta;
@@ -245,10 +246,6 @@ public class EngineLoaderMeta {
 	}
 	
 	private void importxmlSources( MetadataStorage storageMeta ) throws Exception {
-		MetaProductSettings settings = set.getSettings();
-		MetaSources sources = new MetaSources( set , settings , set.meta );
-		set.setSources( sources );
-		
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -256,7 +253,8 @@ public class EngineLoaderMeta {
 			action.debug( "read source definition file " + file + "..." );
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
-			sources.load( action , root );
+			
+			DBMetaSources.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
 			setLoadFailed( action , _Error.UnableLoadProductSources1 , e , "unable to import source metadata, product=" + set.name , set.name );

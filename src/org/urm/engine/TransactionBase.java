@@ -1151,7 +1151,7 @@ public class TransactionBase extends EngineObject {
 
 	public MetaSourceProjectItem getSourceProjectItem( MetaSourceProjectItem item ) throws Exception {
 		MetaSourceProject project = getSourceProject( item.project );
-		return( project.getItem( action , item.ITEMNAME ) );
+		return( project.getItem( action , item.NAME ) );
 	}
 	
 	public MetaSourceProject getSourceProject( MetaSourceProject project ) throws Exception {

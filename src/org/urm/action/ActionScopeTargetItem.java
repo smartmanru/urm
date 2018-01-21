@@ -47,7 +47,7 @@ public class ActionScopeTargetItem {
 		ti.distItem = distItem;
 		ti.sourceItem = sourceItem;
 		ti.specifiedExplicitly = specifiedExplicitly;
-		ti.NAME = sourceItem.ITEMNAME;
+		ti.NAME = sourceItem.NAME;
 		return( ti );
 	}
 	
@@ -98,7 +98,7 @@ public class ActionScopeTargetItem {
 		}
 		
 		if( BUILDVERSION.isEmpty() )
-			BUILDVERSION = sourceItem.ITEMVERSION;
+			BUILDVERSION = sourceItem.FIXED_VERSION;
 		
 		if( BUILDVERSION.isEmpty() ) {
 			MetaProductBuildSettings build = action.getBuildSettings( meta );

@@ -122,7 +122,7 @@ public class ActionSetScope extends ActionBase {
 					continue;
 				
 				for( ReleaseTargetItem item : target.getItems() ) {
-					String checkItem = check.get( Common.concat( Common.concat( set.set.NAME , target.sourceProject.NAME , "/" ) , item.sourceItem.ITEMNAME , "/" ) );
+					String checkItem = check.get( Common.concat( Common.concat( set.set.NAME , target.sourceProject.NAME , "/" ) , item.sourceItem.NAME , "/" ) );
 					if( checkItem == null )
 						dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
 				}

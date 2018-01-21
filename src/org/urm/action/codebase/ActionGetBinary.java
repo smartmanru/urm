@@ -59,19 +59,19 @@ public class ActionGetBinary extends ActionBase {
 	private void downloadBuiltItem( ProjectBuilder builder , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
 		MetaSourceProjectItem item = scopeItem.sourceItem;
 		if( item.isInternal() ) {
-			debug( "skip internal project item " + scopeItem.sourceItem.ITEMNAME + " ..." );
+			debug( "skip internal project item " + scopeItem.sourceItem.NAME + " ..." );
 			return;
 		}
 		
 		// get dist item details
-		info( "get project item " + scopeItem.sourceItem.ITEMNAME + " ..." );
+		info( "get project item " + scopeItem.sourceItem.NAME + " ..." );
 
 		// compare with release information
 		if( builder.isTargetLocal() )
 			downloadBuiltLocalItem( builder , scopeProject , scopeItem );
 		else
 		if( builder.isTargetNexus() ) {
-			if( scopeItem.sourceItem.itemSrcType == VarITEMSRCTYPE.STATICWAR )
+			if( scopeItem.sourceItem.SOURCEITEM_TYPE == VarITEMSRCTYPE.STATICWAR )
 				downloadNexusItem( builder.TARGET_RESOURCE_ID , "staticwar" , scopeProject , scopeItem );
 			else
 				downloadNexusItem( builder.TARGET_RESOURCE_ID , "nexus" , scopeProject , scopeItem );
@@ -84,14 +84,14 @@ public class ActionGetBinary extends ActionBase {
 	}
 
 	private void downloadNexusItem( Integer nexusResource , String type , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
-		String ARTEFACTID = scopeItem.sourceItem.ITEMBASENAME;
-		String EXT = scopeItem.sourceItem.ITEMEXTENSION; 
+		String ARTEFACTID = scopeItem.sourceItem.BASENAME;
+		String EXT = scopeItem.sourceItem.EXT; 
 		
 		String CLASSIFIER = "";
 		String PACKAGING = "";
 
 		// get source item details
-		String GROUPID = scopeItem.sourceItem.ITEMPATH.replace( '/' , '.' );
+		String GROUPID = scopeItem.sourceItem.PATH.replace( '/' , '.' );
 		
 		if( EXT.isEmpty() ) {
 			CLASSIFIER = "webstatic";
@@ -144,7 +144,7 @@ public class ActionGetBinary extends ActionBase {
 	}
 
 	private void downloadNugetItem( ProjectBuilder builder , ActionScopeTarget scopeProject , ActionScopeTargetItem scopeItem ) throws Exception {
-		String ARTEFACTID = scopeItem.sourceItem.ITEMPATH;
+		String ARTEFACTID = scopeItem.sourceItem.PATH;
 		String BUILDVERSION = scopeItem.getProjectItemBuildVersion( this );
 		boolean copyDistr = context.CTX_DIST;
 		if( scopeItem.sourceItem.isInternal() )
@@ -166,7 +166,7 @@ public class ActionGetBinary extends ActionBase {
 				// repack given item
 				FILENAME = nexusStorage.repackageNugetPlatform( this , BINARY , scopeItem.sourceItem );
 				BASENAME = scopeItem.distItem.DISTBASENAME;
-				EXT = scopeItem.sourceItem.ITEMEXTENSION;
+				EXT = scopeItem.sourceItem.EXT;
 			}
 		}
 		
@@ -191,7 +191,7 @@ public class ActionGetBinary extends ActionBase {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , scopeProject.meta , downloadFolder );
 		
 		if( scopeProject.sourceProject.isPrebuiltVCS() ) {
-			String ITEMPATH = scopeItem.sourceItem.ITEMPATH;
+			String ITEMPATH = scopeItem.sourceItem.PATH;
 			String DISTFOLDER = scopeItem.distItem.delivery.FOLDER;
 			ITEMPATH = Common.replace( ITEMPATH , "@BUILDVERSION@" , BUILDVERSION ); 
 			sourceStorage.downloadThirdpartyItemFromVCS( this , ITEMPATH , DISTFOLDER );
@@ -224,13 +224,13 @@ public class ActionGetBinary extends ActionBase {
 
 		redistPath = remoteShell.getArtefactPath( this , item.meta , "" );
 		if( item.isSourceDirectory() ) {
-			String remoteDir = Common.getPath( redistPath , item.ITEMBASENAME );
+			String remoteDir = Common.getPath( redistPath , item.BASENAME );
 			if( !remoteShell.checkDirExists( this , remoteDir ) ) {
 				String dir = remoteShell.getLocalPath( remoteDir );
 				super.exit1( _Error.MissingProjectItemDirectory1 , "Missing project item directory: " + dir , dir );
 			}
 			
-			LocalFolder downloadDirFolder = downloadFolder.getSubFolder( this , item.ITEMBASENAME );
+			LocalFolder downloadDirFolder = downloadFolder.getSubFolder( this , item.BASENAME );
 			downloadDirFolder.recreateThis( this );
 			remoteShell.copyDirContentTargetToLocal( this , account , remoteDir , downloadDirFolder.folderPath );
 			
@@ -240,14 +240,14 @@ public class ActionGetBinary extends ActionBase {
 		}
 		
 		if( item.isSourceBasic() || item.isSourcePackage() ) {
-			copyFile( item , remoteShell , redistPath , downloadFolder , item.ITEMBASENAME , item.ITEMEXTENSION );
+			copyFile( item , remoteShell , redistPath , downloadFolder , item.BASENAME , item.EXT );
 			return;
 		}
 			
 		if( item.isSourceStaticWar() ) {
-			copyFile( item , remoteShell , redistPath , downloadFolder , item.ITEMBASENAME , item.ITEMEXTENSION );
+			copyFile( item , remoteShell , redistPath , downloadFolder , item.BASENAME , item.EXT );
 			
-			copyFile( item , remoteShell , redistPath , downloadFolder , item.ITEMBASENAME , item.ITEMSTATICEXTENSION );
+			copyFile( item , remoteShell , redistPath , downloadFolder , item.BASENAME , item.STATICEXT );
 			return;
 		}
 

@@ -362,7 +362,7 @@ public class ReleaseTarget {
 	}
 	
 	public ReleaseTargetItem findProjectItem( MetaSourceProjectItem item ) {
-		return( itemMap.get( item.ITEMNAME ) );
+		return( itemMap.get( item.NAME ) );
 	}
 	
 	public ReleaseTargetItem findDistItem( MetaDistrBinaryItem item ) {

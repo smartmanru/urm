@@ -17,10 +17,16 @@ import org.w3c.dom.Node;
 
 public class MetaSourceProjectSet {
 
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
+	
 	public Meta meta;
 	public MetaSources sources;
 
+	public int ID;
 	public String NAME;
+	public String DESC;
+	public int PV;
 
 	private List<MetaSourceProject> orderedList;
 	private Map<String,MetaSourceProject> map;
@@ -118,8 +124,8 @@ public class MetaSourceProjectSet {
 	
 	public void addProject( EngineTransaction transaction , MetaSourceProject project ) throws Exception {
 		for( MetaSourceProject p : orderedList ) {
-			if( p.POS >= project.POS )
-				p.setOrder( transaction , p.POS + 1 );
+			if( p.PROJECT_POS >= project.PROJECT_POS )
+				p.setOrder( transaction , p.PROJECT_POS + 1 );
 		}
 			
 		map.put( project.NAME , project );
@@ -128,8 +134,8 @@ public class MetaSourceProjectSet {
 
 	public void changeProjectOrder( EngineTransaction transaction , MetaSourceProject project , int POS ) throws Exception {
 		for( MetaSourceProject p : orderedList ) {
-			if( p.POS >= POS )
-				p.setOrder( transaction , p.POS + 1 );
+			if( p.PROJECT_POS >= POS )
+				p.setOrder( transaction , p.PROJECT_POS + 1 );
 		}
 			
 		project.setOrder( transaction , POS );
@@ -143,7 +149,7 @@ public class MetaSourceProjectSet {
 	private void reorderProjects() {
 		List<String> order = new LinkedList<String>();
 		for( MetaSourceProject project : map.values() ) {
-			String key = Common.getZeroPadded( project.POS , 10 ) + "#" + project.NAME;
+			String key = Common.getZeroPadded( project.PROJECT_POS , 10 ) + "#" + project.NAME;
 			order.add( key );
 		}
 		
@@ -154,7 +160,7 @@ public class MetaSourceProjectSet {
 		for( String key : order ) {
 			String projectName = Common.getPartAfterFirst( key , "#" );
 			MetaSourceProject project = map.get( projectName );
-			project.POS = POS++;
+			project.PROJECT_POS = POS++;
 			orderedList.add( project );
 		}
 	}

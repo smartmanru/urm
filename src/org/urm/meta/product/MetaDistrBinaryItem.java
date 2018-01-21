@@ -343,7 +343,7 @@ public class MetaDistrBinaryItem {
 
 	public void setBuildOrigin( EngineTransaction transaction , MetaSourceProjectItem itemSrc ) throws Exception {
 		this.distItemOrigin = VarDISTITEMORIGIN.BUILD;
-		this.SRCPROJECTITEM = itemSrc.ITEMNAME;
+		this.SRCPROJECTITEM = itemSrc.NAME;
 		this.sourceProjectItem = itemSrc;
 		this.SRCDISTITEM = "";
 		this.srcDistItem = null;
@@ -376,13 +376,13 @@ public class MetaDistrBinaryItem {
 			return( "(archive)" );
 		
 		if( deployVersion == VarITEMVERSION.IGNORE ) {
-			if( sourceProjectItem != null && sourceProjectItem.ITEMVERSION.isEmpty() == false )
-				value += "-" + sourceProjectItem.ITEMVERSION;
+			if( sourceProjectItem != null && sourceProjectItem.FIXED_VERSION.isEmpty() == false )
+				value += "-" + sourceProjectItem.FIXED_VERSION;
 		}
 		else {
 			String version = "1.0";
-			if( sourceProjectItem != null && sourceProjectItem.ITEMVERSION.isEmpty() == false )
-				version = sourceProjectItem.ITEMVERSION;
+			if( sourceProjectItem != null && sourceProjectItem.FIXED_VERSION.isEmpty() == false )
+				version = sourceProjectItem.FIXED_VERSION;
 			
 			if( deployVersion == VarITEMVERSION.MIDDASH )
 				value += "-" + version;

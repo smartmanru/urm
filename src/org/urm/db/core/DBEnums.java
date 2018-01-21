@@ -206,7 +206,10 @@ public abstract class DBEnums {
 		DBSCHEMA(50,null) ,
 		META(101,null) ,
 		META_UNIT(102,null) ,
-		META_SCHEMA(103,null);
+		META_SCHEMA(103,null) ,
+		META_SOURCESET(104,null) ,
+		META_SOURCEPROJECT(105,null) ,
+		META_SOURCEITEM(106,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -326,6 +329,38 @@ public abstract class DBEnums {
 		public static DBEnumDbmsType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDbmsType.class , value , required , UNKNOWN ) ); };
 	};
 	
+	public enum DBEnumProjectType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		BUILDABLE(1,null) ,
+		PREBUILT_NEXUS(2,null) ,
+		PREBUILT_VCS(3,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumProjectType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumProjectType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumProjectType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumProjectType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumProjectType.class , value , required , UNKNOWN ) ); };
+	};
+	
+	public enum DBEnumSourceItemType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		BASIC(1,null) ,
+		DIRECTORY(2,null) ,
+		STATICWAR(3,null) ,
+		PACKAGE(4,null) ,
+		CUSTOM(5,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumSourceItemType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumSourceItemType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumSourceItemType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumSourceItemType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumSourceItemType.class , value , required , UNKNOWN ) ); };
+	};
+	
 	public enum DBEnumObjectVersionType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		APP(1,null) ,
@@ -382,7 +417,10 @@ public abstract class DBEnums {
 		PRODUCT_VERSION(151,null) ,
 		PRODUCT_MONITORING(152,null) ,
 		PRODUCT_UNIT(153,null) ,
-		PRODUCT_SCHEMA(154,null);
+		PRODUCT_SCHEMA(154,null) ,
+		PRODUCT_SOURCESET(155,null) ,
+		PRODUCT_SOURCEPROJECT(156,null) ,
+		PRODUCT_SOURCEITEM(157,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -456,7 +494,10 @@ public abstract class DBEnums {
 		new DBEnumInfo( DBEnumParamEntityType.class , 526 ) ,
 		new DBEnumInfo( DBEnumParamRoleType.class , 527 ) ,
 		new DBEnumInfo( DBEnumChatType.class , 528 ) ,
-		new DBEnumInfo( DBEnumParamValueSubType.class , 529 )
+		new DBEnumInfo( DBEnumParamValueSubType.class , 529 ) ,
+		new DBEnumInfo( DBEnumDbmsType.class , 530 ) ,
+		new DBEnumInfo( DBEnumProjectType.class , 531 ) ,
+		new DBEnumInfo( DBEnumSourceItemType.class , 532 )
 	}; 
 
 	private static String prefix = "DBEnum";

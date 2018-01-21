@@ -1,31 +1,38 @@
 package org.urm.db.product;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
-import org.urm.db.core.DBEnums.DBEnumDbmsType;
+import org.urm.db.core.DBEnums.*;
 import org.urm.db.core.DBSettings;
-import org.urm.db.core.DBEnums.DBEnumLifecycleType;
-import org.urm.db.core.DBEnums.DBEnumOSType;
-import org.urm.db.core.DBEnums.DBEnumObjectType;
-import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
-import org.urm.db.core.DBEnums.DBEnumParamEntityType;
+import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductMeta;
+import org.urm.meta.Types;
+import org.urm.meta.Types.VarNAMETYPE;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductUnit;
+import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectItem;
+import org.urm.meta.product.MetaSourceProjectSet;
+import org.w3c.dom.Node;
 
 public class DBProductData {
 
 	public static String TABLE_META = "urm_product_meta";
 	public static String TABLE_UNIT = "urm_product_unit";
 	public static String TABLE_SCHEMA = "urm_product_schema";
+	public static String TABLE_SOURCESET = "urm_source_set";
+	public static String TABLE_SOURCEPROJECT = "urm_source_project";
+	public static String TABLE_SOURCEITEM = "urm_source_item";
 	public static String FIELD_META_ID = "meta_id";
 	public static String FIELD_META_PRODUCT_ID = "product_fkid";
 	public static String FIELD_META_PRODUCT_NAME = "product_fkname";
@@ -43,6 +50,30 @@ public class DBProductData {
 	public static String FIELD_SCHEMA_ID = "schema_id";
 	public static String FIELD_SCHEMA_DESC = "xdesc";
 	public static String FIELD_SCHEMA_DBTYPE = "dbms_type";
+	public static String FIELD_SOURCESET_ID = "srcset_id";
+	public static String FIELD_SOURCESET_DESC = "xdesc";
+	public static String FIELD_SOURCEPROJECT_ID = "project_id";
+	public static String FIELD_SOURCEPROJECT_DESC = "xdesc";
+	public static String FIELD_SOURCEPROJECT_SET_ID = "srcset_id";
+	public static String FIELD_SOURCEPROJECT_POS = "project_pos";
+	public static String FIELD_SOURCEPROJECT_TYPE = "project_type";
+	public static String FIELD_SOURCEPROJECT_PROD = "codebase_prod";
+	public static String FIELD_SOURCEPROJECT_UNIT_ID = "unit_id";
+	public static String FIELD_SOURCEPROJECT_BUILDER_ID = "builder_id";
+	public static String FIELD_SOURCEPROJECT_MIRROR_ID = "mirror_id";
+	public static String FIELD_SOURCEPROJECT_MIRRORRES = "mirror_fkresource";
+	public static String FIELD_SOURCEPROJECT_MIRRORREPO = "mirror_fkrepository";
+	public static String FIELD_SOURCEPROJECT_MIRRORPATH = "mirror_fkrepopath";
+	public static String FIELD_SOURCEPROJECT_MIRRORDATA = "mirror_fkrepodata";
+	public static String FIELD_SOURCEITEM_ID = "srcitem_id";
+	public static String FIELD_SOURCEITEM_DESC = "xdesc";
+	public static String FIELD_SOURCEITEM_PROJECT_ID = "project_id";
+	public static String FIELD_SOURCEITEM_TYPE = "sourceitem_type";
+	public static String FIELD_SOURCEITEM_EXT = "ext";
+	public static String FIELD_SOURCEITEM_STATICEXT = "staticext";
+	public static String FIELD_SOURCEITEM_PATH = "artefact_path";
+	public static String FIELD_SOURCEITEM_VERSION = "fixed_version";
+	public static String FIELD_SOURCEITEM_NODIST = "nodist";
 	
 	public static PropertyEntity upgradeEntityProductSettings( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
@@ -221,6 +252,122 @@ public class DBProductData {
 		return( entity );
 	}
 	
+	public static PropertyEntity upgradeEntityMetaSourceSet( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCESET , DBEnumParamEntityType.PRODUCT_SOURCESET , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCESET , FIELD_SOURCESET_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
+				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
+				EntityVar.metaString( MetaSourceProjectSet.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( MetaSourceProjectSet.PROPERTY_DESC , FIELD_SOURCESET_DESC , MetaSourceProjectSet.PROPERTY_DESC , "Description" , false , null ) ,
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityMetaSourceSet( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCESET , DBEnumParamEntityType.PRODUCT_SOURCESET , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCESET , FIELD_SOURCESET_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity upgradeEntityMetaSourceProject( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCEPROJECT , DBEnumParamEntityType.PRODUCT_SOURCEPROJECT , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCESET , FIELD_SOURCEPROJECT_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
+				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
+				EntityVar.metaIntegerDatabaseOnly( FIELD_SOURCEPROJECT_SET_ID , "Source set" , true , null ) ,
+				EntityVar.metaString( MetaSourceProject.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_DESC , FIELD_SOURCEPROJECT_DESC , MetaSourceProject.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaIntegerVar( MetaSourceProject.PROPERTY_PROJECTPOS , FIELD_SOURCEPROJECT_POS , MetaSourceProject.PROPERTY_PROJECTPOS , "Source set" , true , null ) ,
+				EntityVar.metaEnumVar( MetaSourceProject.PROPERTY_PROJECTTYPE , FIELD_SOURCEPROJECT_TYPE , MetaSourceProject.PROPERTY_PROJECTTYPE , "Source project type" , true , DBEnumProjectType.UNKNOWN ) ,
+				EntityVar.metaBooleanVar( MetaSourceProject.PROPERTY_PROD , FIELD_SOURCEPROJECT_PROD , MetaSourceProject.PROPERTY_PROD , "Use in production build" , true , false ) ,
+				EntityVar.metaIntegerDatabaseOnly( FIELD_SOURCEPROJECT_UNIT_ID , "Source project unit" , false , null ) ,
+				EntityVar.metaString( MetaSourceProject.PROPERTY_TRACKER , "Ticket management project name" , false , null ) ,
+				EntityVar.metaString( MetaSourceProject.PROPERTY_BRANCH , "Default production branch" , false , null ) ,
+				EntityVar.metaIntegerDatabaseOnly( FIELD_SOURCEPROJECT_BUILDER_ID , "Source project builder" , false , null ) ,
+				EntityVar.metaString( MetaSourceProject.PROPERTY_BUILDER_OPTIONS , "Additional build options" , false , null ) ,
+				EntityVar.metaIntegerDatabaseOnly( FIELD_SOURCEPROJECT_MIRROR_ID , "Source project mirror id" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_MIRRORRES , FIELD_SOURCEPROJECT_MIRRORRES , MetaSourceProject.PROPERTY_MIRRORRES , "Respository resource" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_MIRRORREPO , FIELD_SOURCEPROJECT_MIRRORREPO , MetaSourceProject.PROPERTY_MIRRORREPO , "Respository name" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_MIRRORPATH , FIELD_SOURCEPROJECT_MIRRORPATH , MetaSourceProject.PROPERTY_MIRRORPATH , "Path to respository" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_MIRRORDATA , FIELD_SOURCEPROJECT_MIRRORDATA , MetaSourceProject.PROPERTY_MIRRORDATA , "Respository path to data" , false , null ) ,
+				EntityVar.metaBoolean( MetaSourceProject.PROPERTY_CUSTOM_BUILD , "Build using custom plugin" , false , false ) ,
+				EntityVar.metaBoolean( MetaSourceProject.PROPERTY_CUSTOM_GET , "Get artefacts using custom plugin" , false , false )
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityMetaSourceProject( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCEPROJECT , DBEnumParamEntityType.PRODUCT_SOURCEPROJECT , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCESET , FIELD_SOURCEPROJECT_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity upgradeEntityMetaSourceItem( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCEITEM , DBEnumParamEntityType.PRODUCT_SOURCEITEM , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCEITEM , FIELD_SOURCEITEM_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
+				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
+				EntityVar.metaIntegerDatabaseOnly( FIELD_SOURCEITEM_PROJECT_ID , "Source project" , true , null ) ,
+				EntityVar.metaString( MetaSourceProjectItem.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_DESC , FIELD_SOURCEITEM_DESC , MetaSourceProjectItem.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaEnumVar( MetaSourceProjectItem.PROPERTY_SRCTYPE , FIELD_SOURCEITEM_TYPE , MetaSourceProjectItem.PROPERTY_SRCTYPE , "Source project item type" , true , DBEnumProjectType.UNKNOWN ) ,
+				EntityVar.metaString( MetaSourceProjectItem.PROPERTY_BASENAME , "Source item basename" , true , null ) ,
+				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_EXT , FIELD_SOURCEITEM_EXT , MetaSourceProjectItem.PROPERTY_EXT , "Item extension" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_STATICEXT , FIELD_SOURCEITEM_STATICEXT , MetaSourceProjectItem.PROPERTY_STATICEXT , "Item static extension" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_PATH , FIELD_SOURCEITEM_PATH , MetaSourceProjectItem.PROPERTY_PATH , "Item artefact path" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_VERSION , FIELD_SOURCEITEM_VERSION , MetaSourceProjectItem.PROPERTY_VERSION , "Item artefact fixed version" , false , null ) ,
+				EntityVar.metaBooleanVar( MetaSourceProjectItem.PROPERTY_NODIST , FIELD_SOURCEITEM_NODIST , MetaSourceProjectItem.PROPERTY_NODIST , "Internal item flag" , false , false )
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityMetaSourceItem( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCEITEM , DBEnumParamEntityType.PRODUCT_SOURCEITEM , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCEITEM , FIELD_SOURCEITEM_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public void load( ActionBase action , Node node ) throws Exception {
+		PROJECT_POS = ConfReader.getIntegerAttrValue( node , "order" , 0 );
+		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
+		DESC = ConfReader.getAttrValue( node , "desc" );
+		CODEBASE_PROD = ConfReader.getBooleanAttrValue( node , "prod" , false );
+
+		// read item attrs
+		REPOSITORY = ConfReader.getAttrValue( node , "repository" );
+		if( REPOSITORY.isEmpty() )
+			REPOSITORY = NAME;
+
+		UNIT = ConfReader.getAttrValue( node , "unit" );
+		
+		PROJECT_TYPE = Types.getProjectType( ConfReader.getAttrValue( node , "type" ) , true );
+		if( PROJECT_TYPE == VarPROJECTTYPE.BUILDABLE ) {
+			TRACKER = ConfReader.getAttrValue( node , "jira" );
+			BRANCH = ConfReader.getAttrValue( node , "branch" );
+			BUILDER = ConfReader.getAttrValue( node , "builder" );
+			BUILDER_ADDOPTIONS = ConfReader.getAttrValue( node , "builder.addoptions" );
+			
+			if( BRANCH.isEmpty() )
+				BRANCH = NAME + "-prod";
+		}
+		
+		// read project items
+		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
+		if( items != null ) {
+			for( Node item : items ) {
+				MetaSourceProjectItem srcItem = new MetaSourceProjectItem( meta , this );
+				srcItem.load( action , item );
+				addItem( srcItem );
+			}
+		}
+		
+		// resolve references
+		CUSTOMBUILD = ConfReader.getBooleanAttrValue( node , "custombuild" , false );
+		CUSTOMGET = ConfReader.getBooleanAttrValue( node , "customget" , false );
+		
+		if( CUSTOMBUILD || CUSTOMGET ) {
+			CommandCustom custom = new CommandCustom( meta );
+			custom.parseProject( action , this , node );
+		}
+	}
+
 	public static void dropProductData( EngineLoader loader , ProductMeta storage ) throws Exception {
 		dropProductDistData( loader , storage );
 		dropProductCoreData( loader , storage );

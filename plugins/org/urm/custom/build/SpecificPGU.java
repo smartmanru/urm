@@ -299,15 +299,15 @@ public class SpecificPGU {
 		MetaSourceProjectItem sourceItem = sourceProject.getItem( action , "pgu-dependencies" );
 		MetaDistrBinaryItem distItem = sourceItem.distItem;
 		
-		String GROUPID = sourceItem.ITEMPATH.replace( '/' , '.' );
-		String EXT = sourceItem.ITEMEXTENSION.substring( 1 );
+		String GROUPID = sourceItem.PATH.replace( '/' , '.' );
+		String EXT = sourceItem.EXT.substring( 1 );
 		
 		ProjectBuilder builder = action.getBuilder( sourceProject.getBuilder( action ) );
 		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , builder.TARGET_RESOURCE_ID , meta , downloadFolder );
-		nexusStorage.downloadNexus( action , GROUPID , sourceItem.ITEMBASENAME , VERSION , EXT , "" , distItem );
+		nexusStorage.downloadNexus( action , GROUPID , sourceItem.BASENAME , VERSION , EXT , "" , distItem );
 		if( copyDistr ) {
 			Dist releaseStorage = release;
-			releaseStorage.copyVFileToDistr( action , distItem , downloadFolder , sourceItem.ITEMBASENAME + "-" + VERSION + "." + EXT , sourceItem.ITEMBASENAME , EXT );
+			releaseStorage.copyVFileToDistr( action , distItem , downloadFolder , sourceItem.BASENAME + "-" + VERSION + "." + EXT , sourceItem.BASENAME , EXT );
 		}
 	}
 

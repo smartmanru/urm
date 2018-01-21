@@ -8,8 +8,10 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.db.core.DBEnums.DBEnumProjectType;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.custom.CommandCustom;
+import org.urm.meta.MatchItem;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.urm.meta.engine.AuthResource;
@@ -19,29 +21,43 @@ import org.w3c.dom.Node;
 
 public class MetaSourceProject {
 
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_PROJECTPOS = "order";
+	public static String PROPERTY_PROJECTTYPE = "type";
+	public static String PROPERTY_PROD = "prod";
+	public static String PROPERTY_TRACKER = "tracker";
+	public static String PROPERTY_BRANCH = "branch";
+	public static String PROPERTY_BUILDER_OPTIONS = "builder_options";
+	public static String PROPERTY_MIRRORRES = "resource";
+	public static String PROPERTY_MIRRORREPO = "repository";
+	public static String PROPERTY_MIRRORPATH = "repopath";
+	public static String PROPERTY_MIRRORDATA = "repodata";
+	public static String PROPERTY_CUSTOM_BUILD = "custom_build";
+	public static String PROPERTY_CUSTOM_GET = "custom_get";
+	
 	public Meta meta;
 	public MetaSourceProjectSet set;
 	
-	public int POS;
+	public int ID;
 	public String NAME;
 	public String DESC;
-	public VarPROJECTTYPE type;
-	public boolean codebaseProd;
-	public String UNIT;
+	public int PROJECT_POS;
+	public DBEnumProjectType PROJECT_TYPE;
+	public boolean CODEBASE_PROD;
+	public Integer UNIT_ID;
 	public String TRACKER;
 	public String BRANCH;
-	public String BUILDER;
+	public MatchItem BUILDER;
+	public MatchItem MIRROR;
+	public String MIRROR_RESOURCE;
+	public String MIRROR_REPOSITORY;
+	public String MIRROR_REPOPATH;
+	public String MIRROR_CODEPATH;
 	public String BUILDER_ADDOPTIONS;
-
-	public Integer RESOURCE_ID;
-	public String REPOSITORY;
-	public String REPOPATH;
-	public String CODEPATH;
-	
 	public boolean CUSTOMBUILD;
 	public boolean CUSTOMGET;
-
-	public Integer mirrorId;
+	public int PV;
 	
 	List<MetaSourceProjectItem> itemList;
 	Map<String,MetaSourceProjectItem> itemMap;
@@ -49,18 +65,8 @@ public class MetaSourceProject {
 	public MetaSourceProject( Meta meta , MetaSourceProjectSet set ) {
 		this.meta = meta;
 		this.set = set;
-		POS = 0;
-		NAME = "";
-		DESC = "";
-		REPOSITORY = "";
-		codebaseProd = false;
-		UNIT = "";
-		REPOPATH = "";
-		CODEPATH = "";
-		TRACKER = "";
-		BRANCH = "";
-		BUILDER = "";
-		BUILDER_ADDOPTIONS = "";
+		ID = -1;
+		PV = -1;
 		
 		itemList = new LinkedList<MetaSourceProjectItem>();
 		itemMap = new HashMap<String,MetaSourceProjectItem>();
@@ -72,76 +78,32 @@ public class MetaSourceProject {
 	
 	public void createProject( EngineTransaction transaction , String name , int POS ) throws Exception {
 		this.NAME = name;
-		this.POS = POS;
+		this.PROJECT_POS = POS;
 	}
 	
 	public void addItem( EngineTransaction transaction , MetaSourceProjectItem item ) throws Exception {
 		addItem( item );
 	}
 	
-	public void load( ActionBase action , Node node ) throws Exception {
-		POS = ConfReader.getIntegerAttrValue( node , "order" , 0 );
-		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
-		DESC = ConfReader.getAttrValue( node , "desc" );
-		codebaseProd = ConfReader.getBooleanAttrValue( node , "prod" , false );
-
-		// read item attrs
-		REPOSITORY = ConfReader.getAttrValue( node , "repository" );
-		if( REPOSITORY.isEmpty() )
-			REPOSITORY = NAME;
-
-		UNIT = ConfReader.getAttrValue( node , "unit" );
-		
-		type = Types.getProjectType( ConfReader.getAttrValue( node , "type" ) , true );
-		if( type == VarPROJECTTYPE.BUILDABLE ) {
-			TRACKER = ConfReader.getAttrValue( node , "jira" );
-			BRANCH = ConfReader.getAttrValue( node , "branch" );
-			BUILDER = ConfReader.getAttrValue( node , "builder" );
-			BUILDER_ADDOPTIONS = ConfReader.getAttrValue( node , "builder.addoptions" );
-			
-			if( BRANCH.isEmpty() )
-				BRANCH = NAME + "-prod";
-		}
-		
-		// read project items
-		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
-		if( items != null ) {
-			for( Node item : items ) {
-				MetaSourceProjectItem srcItem = new MetaSourceProjectItem( meta , this );
-				srcItem.load( action , item );
-				addItem( srcItem );
-			}
-		}
-		
-		// resolve references
-		CUSTOMBUILD = ConfReader.getBooleanAttrValue( node , "custombuild" , false );
-		CUSTOMGET = ConfReader.getBooleanAttrValue( node , "customget" , false );
-		
-		if( CUSTOMBUILD || CUSTOMGET ) {
-			CommandCustom custom = new CommandCustom( meta );
-			custom.parseProject( action , this , node );
-		}
-	}
-
 	private void addItem( MetaSourceProjectItem srcItem ) {
 		itemList.add( srcItem );
-		itemMap.put( srcItem.ITEMNAME , srcItem );
+		itemMap.put( srcItem.NAME , srcItem );
 	}
 	
 	private void removeItem( MetaSourceProjectItem srcItem ) {
 		itemList.remove( srcItem );
-		itemMap.remove( srcItem.ITEMNAME );
+		itemMap.remove( srcItem.NAME );
 	}
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "order" , "" + POS );
+		Common.xmlSetElementAttr( doc , root , "order" , "" + PROJECT_POS );
 		Common.xmlSetElementAttr( doc , root , "name" , NAME );
 		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
-		Common.xmlSetElementAttr( doc , root , "prod" , Common.getBooleanValue( codebaseProd ) );
+		Common.xmlSetElementAttr( doc , root , "prod" , Common.getBooleanValue( CODEBASE_PROD ) );
 
 		// read item attrs
 		Common.xmlSetElementAttr( doc , root , "repository" , REPOSITORY );
-		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( type ) );
+		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( PROJECT_TYPE ) );
 		Common.xmlSetElementAttr( doc , root , "unit" , UNIT );
 		if( RESOURCE_ID != null ) {
 			AuthResource rc = action.getResource( RESOURCE_ID );
@@ -150,7 +112,7 @@ public class MetaSourceProject {
 			Common.xmlSetElementAttr( doc , root , "codepath" , CODEPATH );
 		}
 		
-		if( type == VarPROJECTTYPE.BUILDABLE ) {
+		if( PROJECT_TYPE == VarPROJECTTYPE.BUILDABLE ) {
 			Common.xmlSetElementAttr( doc , root , "jira" , TRACKER );
 			Common.xmlSetElementAttr( doc , root , "branch" , BRANCH );
 			Common.xmlSetElementAttr( doc , root , "builder" , BUILDER );
@@ -169,11 +131,11 @@ public class MetaSourceProject {
 	
 	public MetaSourceProject copy( ActionBase action , Meta meta , MetaSourceProjectSet set ) throws Exception {
 		MetaSourceProject r = new MetaSourceProject( meta , set );
-		r.POS = POS;
+		r.PROJECT_POS = PROJECT_POS;
 		r.NAME = NAME;
 		r.DESC = DESC;
-		r.type = type;
-		r.codebaseProd = codebaseProd;
+		r.PROJECT_TYPE = PROJECT_TYPE;
+		r.CODEBASE_PROD = CODEBASE_PROD;
 
 		// read item attrs
 		r.REPOSITORY = REPOSITORY;
@@ -201,13 +163,13 @@ public class MetaSourceProject {
 	}
 
 	public boolean isPrebuiltNexus() {
-		if( type == VarPROJECTTYPE.PREBUILT_NEXUS )
+		if( PROJECT_TYPE == VarPROJECTTYPE.PREBUILT_NEXUS )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isPrebuiltVCS() {
-		if( type == VarPROJECTTYPE.PREBUILT_VCS )
+		if( PROJECT_TYPE == VarPROJECTTYPE.PREBUILT_VCS )
 			return( true );
 		return( false );
 	}
@@ -227,7 +189,7 @@ public class MetaSourceProject {
 	}
 
 	public boolean isBuildable() {
-		if( type == VarPROJECTTYPE.BUILDABLE )
+		if( PROJECT_TYPE == VarPROJECTTYPE.BUILDABLE )
 			return( true );
 		return( false );
 	}
@@ -275,8 +237,8 @@ public class MetaSourceProject {
 	public void setProjectData( EngineTransaction transaction , String desc , boolean prod , String unit , VarPROJECTTYPE type , Integer resourceId , String repoName , String repoPath , String codePath , String branch ) throws Exception {
 		this.DESC = desc;
 		this.UNIT = unit;
-		this.type = type;
-		this.codebaseProd = prod;
+		this.PROJECT_TYPE = type;
+		this.CODEBASE_PROD = prod;
 		
 		this.BUILDER = "";
 		this.BUILDER_ADDOPTIONS = "";
@@ -295,7 +257,7 @@ public class MetaSourceProject {
 	}
 
 	public void setOrder( EngineTransaction transaction , int POS ) throws Exception {
-		this.POS = POS;
+		this.PROJECT_POS = POS;
 	}
 
 	public void changeProjectSet( EngineTransaction transaction , MetaSourceProjectSet setNew ) throws Exception {

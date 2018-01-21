@@ -69,6 +69,9 @@ public class EngineEntities {
 	public PropertyEntity entityAppMetaMonitoring;
 	public PropertyEntity entityAppMetaUnit;
 	public PropertyEntity entityAppMetaSchema;
+	public PropertyEntity entityAppMetaSourceSet;
+	public PropertyEntity entityAppMetaSourceProject;
+	public PropertyEntity entityAppMetaSourceItem;
 	
 	public EngineEntities( Engine engine ) {
 		this.engine = engine;
@@ -102,6 +105,9 @@ public class EngineEntities {
 		entityAppMetaMonitoring = DBProductData.upgradeEntityMetaMonitoring( loader );
 		entityAppMetaUnit = DBProductData.upgradeEntityMetaUnit( loader );
 		entityAppMetaSchema = DBProductData.upgradeEntityMetaSchema( loader );
+		entityAppMetaSourceSet = DBProductData.upgradeEntityMetaSourceSet( loader );
+		entityAppMetaSourceProject = DBProductData.upgradeEntityMetaSourceProject( loader );
+		entityAppMetaSourceItem = DBProductData.upgradeEntityMetaSourceItem( loader );
 		
 		entityCustomRC = DBEngineContext.createEntityCustomRC( loader );
 		entityCustomEngine = DBEngineContext.createEntityCustomEngine( loader );
@@ -136,6 +142,9 @@ public class EngineEntities {
 		entityAppMetaMonitoring = DBProductData.loaddbEntityMetaMonitoring( c );
 		entityAppMetaUnit = DBProductData.loaddbEntityMetaUnit( c );
 		entityAppMetaSchema = DBProductData.loaddbEntityMetaSchema( c );
+		entityAppMetaSourceSet = DBProductData.loaddbEntityMetaSourceSet( c );
+		entityAppMetaSourceProject = DBProductData.loaddbEntityMetaSourceProject( c );
+		entityAppMetaSourceItem = DBProductData.loaddbEntityMetaSourceItem( c );
 		
 		entityCustomRC = DBEngineContext.loaddbEntityCustomRC( c );
 		entityCustomEngine = DBEngineContext.loaddbEntityCustomEngine( c );

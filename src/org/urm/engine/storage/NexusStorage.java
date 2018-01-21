@@ -95,13 +95,13 @@ public class NexusStorage {
 		// copy to final zip dir
 		LocalFolder zip = tmp.getSubFolder( action , "final" );
 		zip.ensureExists( action );
-		String zipLibPath = zip.getFilePath( action , item.ITEMBASENAME + ".zip" );
+		String zipLibPath = zip.getFilePath( action , item.BASENAME + ".zip" );
 		
 		tmp.createZipFromFolderContent( action , zipLibPath , Common.getPath( "lib" , builder.TARGET_PLATFORM ) , "*" , "" );
 		zip.copyDirContent( action , tmp.getSubFolder( action , "content" ) );
 		
 		// create final zip file
-		String FILENAME = item.ITEMBASENAME + item.ITEMEXTENSION;
+		String FILENAME = item.BASENAME + item.EXT;
 		String finalFile = artefactoryFolder.getFilePath( action , FILENAME );
 		zip.createZipFromContent( action , finalFile , "*" , "" );
 		action.shell.createMD5( action , finalFile );

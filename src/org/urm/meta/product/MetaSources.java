@@ -23,7 +23,7 @@ public class MetaSources {
 	private Map<String,MetaSourceProjectSet> setMap;
 	private Map<String,MetaSourceProject> projectMap;
 	
-	public MetaSources( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
+	public MetaSources( ProductMeta storage , Meta meta ) {
 		this.meta = meta;
 		meta.setSources( this );
 		
@@ -31,39 +31,21 @@ public class MetaSources {
 		projectMap = new HashMap<String,MetaSourceProject>();
 	}
 	
-	public MetaSources copy( ActionBase action , Meta meta ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings();
-		MetaSources r = new MetaSources( meta.getStorage() , product , meta );
+	public MetaSources copy( Meta rmeta ) throws Exception {
+		MetaSources r = new MetaSources( rmeta.getStorage() , rmeta );
 		for( MetaSourceProjectSet set : setMap.values() ) {
-			MetaSourceProjectSet rset = set.copy( action , meta , r );
+			MetaSourceProjectSet rset = set.copy( rmeta , r );
 			r.addProjectSet( rset );
 		}
 
 		for( MetaSourceProject project : projectMap.values() ) {
 			MetaSourceProjectSet rset = r.setMap.get( project.set.NAME );
-			MetaSourceProject rp = rset.getProject( action , project.NAME );
+			MetaSourceProject rp = rset.getProject( project.NAME );
 			r.projectMap.put( rp.NAME , rp );
 		}
 		return( r );
 	}
 	
-	public void createSources( TransactionBase transaction ) throws Exception {
-	}
-	
-	public void load( ActionBase action , Node root ) throws Exception {
-		Node[] sets = ConfReader.xmlGetChildren( root , "projectset" );
-		if( sets == null )
-			return;
-		
-		for( Node node : sets ) {
-			MetaSourceProjectSet projectset = new MetaSourceProjectSet( meta , this );
-			projectset.load( action , node );
-			addProjectSet( projectset );
-			for( MetaSourceProject project : projectset.getProjects() )
-				projectMap.put( project.NAME , project );
-		}
-	}
-
 	private void addProjectSet( MetaSourceProjectSet projectset ) {
 		setMap.put( projectset.NAME , projectset );
 	}
@@ -73,11 +55,11 @@ public class MetaSources {
 		List<MetaSourceProject> list = new LinkedList<MetaSourceProject>(); 
 		for( MetaSourceProject project : all ) {
 			if( buildMode == DBEnumBuildModeType.BRANCH ) {
-				if( project.codebaseProd )
+				if( project.CODEBASE_PROD )
 					list.add( project );
 			}
 			else if( buildMode == DBEnumBuildModeType.MAJORBRANCH ) {
-				if( project.codebaseProd )
+				if( project.CODEBASE_PROD )
 					list.add( project );
 			}
 		}

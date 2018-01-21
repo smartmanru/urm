@@ -36,7 +36,7 @@ public class ReleaseTargetItem {
 	public ReleaseTargetItem copy( ActionBase action , Release nr , ReleaseDistSet ns , ReleaseTarget nt ) throws Exception {
 		ReleaseTargetItem nx = new ReleaseTargetItem( nt.meta , nt );
 		
-		nx.sourceItem = ( sourceItem == null )? null : nt.sourceProject.getItem( action , sourceItem.ITEMNAME );
+		nx.sourceItem = ( sourceItem == null )? null : nt.sourceProject.getItem( action , sourceItem.NAME );
 		nx.distItem = ( distItem == null )? null : sourceItem.distItem;
 		MetaDatabase ndb = nt.meta.getDatabase();
 		nx.schema = ( schema == null )? null : ndb.getSchema( schema.NAME );
@@ -95,7 +95,7 @@ public class ReleaseTargetItem {
 		BUILDVERSION = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDVERSION );
 		MetaDistr distr = meta.getDistr();
 		this.distItem = distr.getBinaryItem( action , NAME );
-		this.sourceItem = target.sourceProject.getItem( action , distItem.sourceProjectItem.ITEMNAME );
+		this.sourceItem = target.sourceProject.getItem( action , distItem.sourceProjectItem.NAME );
 	}
 	
 	public void loadDatabaseItem( ActionBase action , Node node ) throws Exception {
@@ -107,7 +107,7 @@ public class ReleaseTargetItem {
 	
 	public void createFromDistrItem( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
 		this.distItem = distItem;
-		this.sourceItem = target.sourceProject.getItem( action , distItem.sourceProjectItem.ITEMNAME );
+		this.sourceItem = target.sourceProject.getItem( action , distItem.sourceProjectItem.NAME );
 		NAME = distItem.KEY;
 		BUILDVERSION = "";
 	}

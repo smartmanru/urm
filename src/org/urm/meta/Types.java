@@ -33,13 +33,6 @@ public class Types {
 		MSG
 	};
 	
-	public enum VarPROJECTTYPE {
-		UNKNOWN ,
-		BUILDABLE ,
-		PREBUILT_NEXUS ,
-		PREBUILT_VCS
-	};
-	
 	public enum VarCATEGORY {
 		UNKNOWN ,
 		PROJECT ,
@@ -82,15 +75,6 @@ public class Types {
 		MIDDASH ,
 		MIDPOUND ,
 		PREFIX
-	};
-	
-	public enum VarITEMSRCTYPE {
-		UNKNOWN ,
-		BASIC ,
-		DIRECTORY ,
-		STATICWAR ,
-		PACKAGE ,
-		CUSTOM
 	};
 	
 	public enum VarSERVERRUNTYPE {
@@ -245,24 +229,6 @@ public class Types {
 		return( value );
 	}
 	
-	public static VarPROJECTTYPE getProjectType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingProjectType0 , "missing project type" );
-			return( VarPROJECTTYPE.UNKNOWN );
-		}
-		
-		VarPROJECTTYPE value = null;
-		try {
-			value = VarPROJECTTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidProjectType1 , "invalid project type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
 	public static VarSERVERRUNTYPE getServerRunType( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
@@ -309,24 +275,6 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDeployType1 , "invalid deploytype=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarITEMSRCTYPE getItemSrcType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingSourceItemType0 , "missing source item type" );
-			return( VarITEMSRCTYPE.UNKNOWN );
-		}
-		
-		VarITEMSRCTYPE value = null;
-		try {
-			value = VarITEMSRCTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidSourceItemType1 , "invalid source item type=" + ID , ID );
 		}
 		
 		return( value );

@@ -535,11 +535,11 @@ public class Dist {
 	}
 
 	public boolean addProjectItem( ActionBase action , MetaSourceProject project , MetaSourceProjectItem item ) throws Exception {
-		action.debug( "release - add project=" + project.NAME + ", item=" + item.ITEMNAME );
+		action.debug( "release - add project=" + project.NAME + ", item=" + item.NAME );
 		
 		// ignore internal items
 		if( item.isInternal() ) {
-			action.info( "item=" + item.ITEMNAME + " is internal. Skipped.");
+			action.info( "item=" + item.NAME + " is internal. Skipped.");
 			return( true );
 		}
 		
