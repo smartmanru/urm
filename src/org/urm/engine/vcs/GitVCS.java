@@ -243,7 +243,8 @@ public class GitVCS extends GenericVCS {
 		repo.refreshRepository();
 		
 		boolean res;
-		String FILEPATH = project.CODEPATH;
+		MirrorRepository mirror = repo.getRepository();
+		String FILEPATH = mirror.RESOURCE_DATA;
 		String FILEBASE = "";
 		if( !FILENAME.isEmpty() ) {
 			FILEPATH = Common.getPath( FILEPATH , Common.getDirName( FILENAME ) );

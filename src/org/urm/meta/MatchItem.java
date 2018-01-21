@@ -23,5 +23,16 @@ public class MatchItem {
 		FKNAME = name;
 		MATCHED = ( id == null )? false : true;
 	}
+
+	public MatchItem copy() {
+		MatchItem r = new MatchItem( FKID , FKNAME );
+		return( r );
+	}
+
+	public void match( Integer id ) {
+		FKID = id;
+		FKNAME = "";
+		MATCHED = true;
+	}
 	
 }

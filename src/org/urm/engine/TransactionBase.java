@@ -415,6 +415,14 @@ public class TransactionBase extends EngineObject {
 		trace( "auth update, new version=" + version );
 	}
 	
+	public EngineAuth changeAuth() throws Exception {
+		if( authChange == null ) {
+			if( !changeAuth( getAuth() ) )
+				exitUnexpectedState();
+		}
+		return( authChange );
+	}
+	
 	public boolean changeAuth( EngineAuth sourceAuth ) {
 		synchronized( engine ) {
 			try {
@@ -440,6 +448,14 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineInfrastructure changeInfrastructure( Network network ) throws Exception {
+		if( authChange == null ) {
+			if( !changeInfrastructure( getInfrastructure() , network ) )
+				exitUnexpectedState();
+		}
+		return( infraChange );
+	}
+	
 	public boolean changeInfrastructure( EngineInfrastructure sourceInfrastructure , Network network ) {
 		synchronized( engine ) {
 			try {
@@ -471,6 +487,14 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineLifecycles changeReleaseLifecycles() throws Exception {
+		if( lifecyclesChange == null ) {
+			if( !changeReleaseLifecycles( getLifecycles() ) )
+				exitUnexpectedState();
+		}
+		return( lifecyclesChange );
+	}
+	
 	public boolean changeReleaseLifecycles( EngineLifecycles sourceLifecycles ) {
 		synchronized( engine ) {
 			try {
@@ -496,6 +520,14 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineBase changeBase( SpecialRights sr ) throws Exception {
+		if( baseChange == null ) {
+			if( !changeBase( getEngineBase() , sr ) )
+				exitUnexpectedState();
+		}
+		return( baseChange );
+	}
+	
 	public boolean changeBase( EngineBase sourceBase , SpecialRights sr ) {
 		synchronized( engine ) {
 			try {
@@ -521,6 +553,14 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineResources changeResources() throws Exception {
+		if( resourcesNew == null ) {
+			if( !changeResources( getResources() ) )
+				exitUnexpectedState();
+		}
+		return( resourcesNew );
+	}
+	
 	public boolean changeResources( EngineResources sourceResources ) {
 		synchronized( engine ) {
 			try {
@@ -558,6 +598,14 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineBuilders changeBuilders() throws Exception {
+		if( buildersNew == null ) {
+			if( !changeBuilders( getBuilders() ) )
+				exitUnexpectedState();
+		}
+		return( buildersNew );
+	}
+	
 	public boolean changeBuilders( EngineBuilders sourceBuilders ) {
 		synchronized( engine ) {
 			try {
@@ -595,6 +643,14 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineDirectory changeDirectory( boolean critical ) throws Exception {
+		if( directoryNew == null ) {
+			if( !changeDirectory( getDirectory() , critical ) )
+				exitUnexpectedState();
+		}
+		return( directoryNew );
+	}
+	
 	public boolean changeDirectory( EngineDirectory sourceDirectory , boolean critical ) {
 		synchronized( engine ) {
 			try {
@@ -633,6 +689,14 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineMirrors changeMirrors() throws Exception {
+		if( mirrorsNew == null ) {
+			if( !changeMirrors( getMirrors() ) )
+				exitUnexpectedState();
+		}
+		return( mirrorsNew );
+	}
+	
 	public boolean changeMirrors( EngineMirrors sourceMirrors ) {
 		synchronized( engine ) {
 			try {
@@ -666,6 +730,15 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineMonitoring changeMonitoring() throws Exception {
+		EngineMonitoring monitoring = getMonitoring();
+		if( !CHANGEDATABASE ) {
+			if( !changeMonitoring( monitoring ) )
+				exitUnexpectedState();
+		}
+		return( monitoring );
+	}
+	
 	public boolean changeMonitoring( EngineMonitoring sourceMonitoring ) {
 		synchronized( engine ) {
 			try {
@@ -685,6 +758,14 @@ public class TransactionBase extends EngineObject {
 			abortTransaction( false );
 			return( false );
 		}
+	}
+	
+	public EngineSettings changeSettings() throws Exception {
+		if( settingsNew == null ) {
+			if( !changeSettings( getSettings() ) )
+				exitUnexpectedState();
+		}
+		return( settingsNew );
 	}
 	
 	public boolean changeSettings( EngineSettings sourceSettings ) {
@@ -947,6 +1028,12 @@ public class TransactionBase extends EngineObject {
 		return( mirrorsNew );
 	}
 	
+	public EngineAuth getAuth() {
+		if( authChange != null )
+			return( authChange );
+		return( engine.getAuth() );
+	}
+	
 	public EngineMirrors getMirrors() {
 		if( mirrorsNew != null )
 			return( mirrorsNew );
@@ -1151,19 +1238,19 @@ public class TransactionBase extends EngineObject {
 
 	public MetaSourceProjectItem getSourceProjectItem( MetaSourceProjectItem item ) throws Exception {
 		MetaSourceProject project = getSourceProject( item.project );
-		return( project.getItem( action , item.NAME ) );
+		return( project.getItem( item.NAME ) );
 	}
 	
 	public MetaSourceProject getSourceProject( MetaSourceProject project ) throws Exception {
 		Meta metaNew = getTransactionMetadata( project.meta.name );
 		MetaSources sourceNew = metaNew.getSources();
-		return( sourceNew.getProject( action , project.NAME ) );
+		return( sourceNew.getProject( project.NAME ) );
 	}
 	
 	public MetaSourceProjectSet getSourceProjectSet( MetaSourceProjectSet set ) throws Exception {
 		Meta metaNew = getTransactionMetadata( set.meta.name );
 		MetaSources sourceNew = metaNew.getSources();
-		return( sourceNew.getProjectSet( action , set.NAME ) );
+		return( sourceNew.getProjectSet( set.NAME ) );
 	}
 
 	public MirrorRepository getMirrorRepository( MirrorRepository repo ) throws Exception {

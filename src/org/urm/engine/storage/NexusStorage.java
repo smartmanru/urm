@@ -86,7 +86,7 @@ public class NexusStorage {
 		LocalFolder tmp = artefactoryFolder.getSubFolder( action , "tmp" );
 		tmp.ensureExists( action );
 		
-		ProjectBuilder builder = action.getBuilder( item.project.getBuilder( action ) );
+		ProjectBuilder builder = item.project.getBuilder( action );
 		action.shell.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 
 				Common.getPath( "lib" , builder.TARGET_PLATFORM , "*" ) );
 		action.shell.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 

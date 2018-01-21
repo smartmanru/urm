@@ -216,7 +216,7 @@ public class ActionScopeTarget {
 			if( item.sourceProjectItem == null )
 				action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + itemName , itemName );
 			
-			MetaSourceProjectItem projectItem = sourceProject.getItem( action , itemName );
+			MetaSourceProjectItem projectItem = sourceProject.getItem( itemName );
 			addProjectItem( action , projectItem , true );
 		}
 	}
@@ -246,7 +246,7 @@ public class ActionScopeTarget {
 		
 		MetaSourceProject project = releaseTarget.sourceProject;
 		for( String itemName : ITEMS ) {
-			MetaSourceProjectItem item = project.getItem( action , itemName );
+			MetaSourceProjectItem item = project.getItem( itemName );
 			
 			ReleaseTargetItem releaseItem = releaseTarget.findProjectItem( item );
 			if( releaseItem != null )

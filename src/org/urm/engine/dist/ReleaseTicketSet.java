@@ -334,7 +334,7 @@ public class ReleaseTicketSet {
 		}
 		else {
 			for( String item : items ) {
-				MetaSourceProjectItem projectItem = project.getItem( action , item );
+				MetaSourceProjectItem projectItem = project.getItem( item );
 				if( projectItem.distItem == null )
 					continue;
 				

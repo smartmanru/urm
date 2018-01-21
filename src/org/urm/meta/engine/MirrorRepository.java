@@ -1,5 +1,6 @@
 package org.urm.meta.engine;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.meta.EngineObject;
@@ -112,6 +113,11 @@ public class MirrorRepository extends EngineObject {
 	public void setProductProject( Integer productId , Integer projectId ) {
 		this.productId = productId;
 		this.projectId = projectId;
+	}
+	
+	public AuthResource getResource( ActionBase action ) throws Exception {
+		AuthResource res = action.getResource( RESOURCE_ID );
+		return( res );
 	}
 	
 }

@@ -17,6 +17,7 @@ import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
 import org.urm.db.product.DBMetaDatabase;
 import org.urm.db.product.DBMetaPolicy;
+import org.urm.db.product.DBMetaSources;
 import org.urm.db.product.DBMetaUnits;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.EngineEntities;
@@ -239,18 +240,9 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineMirrors.dropDetachedMirror( this , repo.mirrors , repo );
 	}
 
-	public void createMirrorRepository( EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
-		checkTransactionMirrors( mirrors );
-		DBEngineMirrors.createProjectMirror( this , mirrors , project );
-	}
-
-	public void changeMirrorRepository( EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
-		checkTransactionMirrors( mirrors );
-		DBEngineMirrors.changeProjectMirror( this , mirrors , project );
-	}
-
 	public void deleteSourceProjectMirror( EngineMirrors mirrors , MetaSourceProject project , boolean leaveManual ) throws Exception {
-		checkTransactionMetadata( project.meta.getStorage() );
+		ProductMeta storage = project.meta.getStorage();
+		checkTransactionMetadata( storage );
 		checkTransactionMirrors( mirrors );
 		
 		Meta meta = project.meta;
@@ -263,7 +255,8 @@ public class EngineTransaction extends TransactionBase {
 			else
 				distr.deleteBinaryItem( this , distItem );
 		}
-		sources.removeProject( this , project );
+		
+		DBMetaSources.deleteProject( this , storage , sources , project );
 		DBEngineMirrors.deleteProjectMirror( this , mirrors , project );
 	}
 
@@ -799,7 +792,8 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void deleteProductDoc( MetaProductDoc doc ) throws Exception {
-		checkTransactionMetadata( doc.meta.getStorage() );
+		ProductMeta storage = doc.meta.getStorage();
+		checkTransactionMetadata( storage );
 		doc.docs.deleteDoc( this , doc );
 	}
 	
@@ -810,107 +804,162 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void createDistrComponent( MetaDistrComponent item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage() );
+		ProductMeta storage = item.meta.getStorage();
+		checkTransactionMetadata( storage );
 		item.dist.createDistrComponent( this , item );
 	}
 	
 	public void modifyDistrComponent( MetaDistrComponent item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage() );
+		ProductMeta storage = item.meta.getStorage();
+		checkTransactionMetadata( storage );
 		item.dist.modifyDistrComponent( this , item );
 	}
 
 	public void deleteDistrComponent( MetaDistrComponent item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage() );
+		ProductMeta storage = item.meta.getStorage();
+		checkTransactionMetadata( storage );
 		item.dist.deleteDistrComponent( this , item );
 	}
 	
 	public void createDistrComponentItem( MetaDistrComponent comp , MetaDistrComponentItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage() );
+		ProductMeta storage = item.meta.getStorage();
+		checkTransactionMetadata( storage );
 		item.comp.createItem( this , item );
 	}
 	
 	public void modifyDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage() );
+		ProductMeta storage = item.meta.getStorage();
+		checkTransactionMetadata( storage );
 		item.comp.modifyItem( this , item );
 	}
 
 	public void deleteDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage() );
+		ProductMeta storage = item.meta.getStorage();
+		checkTransactionMetadata( storage );
 		item.comp.deleteItem( this , item );
 	}
 
 	public void createDistrComponentService( MetaDistrComponent comp , MetaDistrComponentWS service ) throws Exception {
-		checkTransactionMetadata( service.meta.getStorage() );
+		ProductMeta storage = comp.meta.getStorage();
+		checkTransactionMetadata( storage );
 		service.comp.createWebService( this , service );
 	}
 	
 	public void modifyDistrComponentService( MetaDistrComponentWS service ) throws Exception {
-		checkTransactionMetadata( service.meta.getStorage() );
+		ProductMeta storage = service.meta.getStorage();
+		checkTransactionMetadata( storage );
 		service.comp.modifyWebService( this , service );
 	}
 
 	public void deleteDistrComponentService( MetaDistrComponentWS service ) throws Exception {
-		checkTransactionMetadata( service.meta.getStorage() );
+		ProductMeta storage = service.meta.getStorage();
+		checkTransactionMetadata( storage );
 		service.comp.deleteWebService( this , service );
 	}
 
 	public void setDeliveryDatabaseAll( MetaDistrDelivery delivery ) throws Exception {
-		checkTransactionMetadata( delivery.meta.getStorage() );
+		ProductMeta storage = delivery.meta.getStorage();
+		checkTransactionMetadata( storage );
 		delivery.setDatabaseAll( this );
 	}
 
 	public void setDeliveryDatabaseSet( MetaDistrDelivery delivery , MetaDatabaseSchema[] set ) throws Exception {
-		checkTransactionMetadata( delivery.meta.getStorage() );
+		ProductMeta storage = delivery.meta.getStorage();
+		checkTransactionMetadata( storage );
 		delivery.setDatabaseSet( this , set );
 	}
 
 	public void setDeliveryDocumentationSet( MetaDistrDelivery delivery , MetaProductDoc[] set ) throws Exception {
-		checkTransactionMetadata( delivery.meta.getStorage() );
+		ProductMeta storage = delivery.meta.getStorage();
+		checkTransactionMetadata( storage );
 		delivery.setDocSet( this , set );
 	}
 
-	public MetaSourceProjectSet createSourceProjectSet( MetaSources sources , String name ) throws Exception {
-		checkTransactionMetadata( sources.meta.getStorage() );
-		return( sources.createProjectSet( this , name ) );
+	public MetaSourceProjectSet createSourceProjectSet( MetaSources sources , String name , String desc ) throws Exception {
+		ProductMeta storage = sources.meta.getStorage();
+		checkTransactionMetadata( storage );
+		return( DBMetaSources.createProjectSet( this , storage , sources , name , desc ) );
 	}
 
-	public void changeProjectSet( MetaSourceProject project , MetaSourceProjectSet setNew ) throws Exception {
-		checkTransactionMetadata( project.meta.getStorage() );
-		MetaSourceProjectSet setOld = project.set;
-		project.changeProjectSet( this , setNew );
-		setOld.removeProject( this , project );
-		setNew.addProject( this , project );
+	public MetaSourceProject createSourceProject( MetaSourceProjectSet set , 
+			String name , String desc , int pos , Integer unit , boolean prod , 
+			DBEnumProjectType type , String tracker , Integer repoRes , String repoName , String repoPath , String codePath ,
+			Integer builder , String addOptions , String branch ,
+			boolean customBuild , boolean customGet ) throws Exception {
+		ProductMeta storage = set.meta.getStorage();
+		checkTransactionMetadata( storage );
 		
-		if( setOld.isEmpty() )
-			setOld.sources.removeProjectSet( this , setOld );
+		MetaSources sources = storage.getSources();
+		return( DBMetaSources.createProject( this , storage , sources , set , 
+				name , desc , pos , unit , prod , 
+				type , tracker , repoRes , repoName , repoPath , codePath ,
+				builder , addOptions , branch ,
+				customBuild , customGet ) );
 	}
 
-	public MetaSourceProject createSourceProject( MetaSourceProjectSet set , String name , int POS ) throws Exception {
-		checkTransactionMetadata( set.meta.getStorage() );
-		return( set.sources.createProject( this , set , name , POS ) );
+	public void changeProjectSet( MetaSourceProject project , MetaSourceProjectSet setNew , int posNew ) throws Exception {
+		ProductMeta storage = project.meta.getStorage();
+		checkTransactionMetadata( storage );
+		
+		MetaSources sources = storage.getSources();
+		DBMetaSources.changeProjectSet( this , storage , sources , project , setNew , posNew );
 	}
 
-	public void changeProjectOrder( MetaSourceProject project , int POS ) throws Exception {
-		checkTransactionMetadata( project.meta.getStorage() );
-		project.set.changeProjectOrder( this , project , POS );
+	public void changeProjectOrder( MetaSourceProject project , int pos ) throws Exception {
+		ProductMeta storage = project.meta.getStorage();
+		checkTransactionMetadata( storage );
+		
+		MetaSources sources = storage.getSources();
+		DBMetaSources.changeProjectOrder( this , storage , sources , project , pos );
 	}
 
-	public void changeProjectSetOrder( MetaSourceProjectSet set ) throws Exception {
-		checkTransactionMetadata( set.meta.getStorage() );
-		set.reorderProjects( this );
+	public void modifySourceProject( MetaSourceProject project , 
+			String name , String desc , int pos , Integer unit , boolean prod , 
+			DBEnumProjectType type , String tracker , Integer repoRes , String repoName , String repoPath , String codePath ,
+			Integer builder , String addOptions , String branch ,
+			boolean customBuild , boolean customGet ) throws Exception {
+		ProductMeta storage = project.meta.getStorage();
+		checkTransactionMetadata( storage );
+		
+		MetaSources sources = storage.getSources();
+		DBMetaSources.modifyProject( this , storage , sources , project , 
+				name , desc , pos , unit , prod , 
+				type , tracker , repoRes , repoName , repoPath , codePath ,
+				builder , addOptions , branch ,
+				customBuild , customGet );
+	}
+
+	public void changeProjectSetOrder( MetaSourceProjectSet set , String[] namesOrdered ) throws Exception {
+		ProductMeta storage = set.meta.getStorage();
+		checkTransactionMetadata( storage );
+		
+		MetaSources sources = storage.getSources();
+		DBMetaSources.modifySetOrder( this , storage , sources , set , namesOrdered );
 	}
 	
-	public MetaSourceProjectItem createSourceProjectItem( MetaSourceProject project , String name ) throws Exception {
-		checkTransactionMetadata( project.meta.getStorage() );
+	public MetaSourceProjectItem createSourceProjectItem( MetaSourceProject project , 
+			String name , String desc ,  
+			DBEnumSourceItemType srcType , String basename , String ext , String staticext , String path , String version , boolean internal ) throws Exception {
+		ProductMeta storage = project.meta.getStorage();
+		checkTransactionMetadata( storage );
 		
-		MetaSourceProjectItem item = new MetaSourceProjectItem( project.meta , project );
-		item.createItem( this , name );
-		project.addItem( this , item );
-		return( item );
+		MetaSources sources = storage.getSources();
+		return( DBMetaSources.createProjectItem ( this , storage , sources , project , name , desc , srcType , basename , ext , staticext , path , version , internal ) );
+	}
+	
+	public void modifySourceProjectItem( MetaSourceProjectItem item , 
+			String name , String desc ,  
+			DBEnumSourceItemType srcType , String basename , String ext , String staticext , String path , String version , boolean internal ) throws Exception {
+		ProductMeta storage = item.meta.getStorage();
+		checkTransactionMetadata( storage );
+		
+		MetaSources sources = storage.getSources();
+		DBMetaSources.modifyProjectItem ( this , storage , sources , item , name , desc , srcType , basename , ext , staticext , path , version , internal );
 	}
 	
 	public void deleteSourceProjectItem( MetaSourceProjectItem item , boolean leaveManual ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage() );
+		ProductMeta storage = item.meta.getStorage();
+		checkTransactionMetadata( storage );
 		
 		MetaDistrBinaryItem distItem = item.distItem;
 		if( distItem != null ) {
@@ -921,7 +970,8 @@ public class EngineTransaction extends TransactionBase {
 				distr.deleteBinaryItem( this , distItem );
 		}
 		
-		item.project.removeItem( this , item );
+		MetaSources sources = storage.getSources();
+		DBMetaSources.deleteProjectItem( this , storage , sources , item );
 	}
 
 	// ################################################################################

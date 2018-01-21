@@ -433,7 +433,7 @@ public class ActionTickets extends ActionBase {
 		else
 		if( target.isProject() ) {
 			MetaSources sources = dist.meta.getSources();
-			MetaSourceProject project = sources.getProject( this , target.ITEM );
+			MetaSourceProject project = sources.getProject( target.ITEM );
 			maker.addScopeProductSet( project.set.NAME , new String[] { target.ITEM } );
 		}
 		else
@@ -528,14 +528,14 @@ public class ActionTickets extends ActionBase {
 	private void executeCreateSetTarget( String setCode , String element , String[] items ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
 		MetaSources sources = dist.meta.getSources();
-		MetaSourceProjectSet projectSet = sources.getProjectSet( this , element );
+		MetaSourceProjectSet projectSet = sources.getProjectSet( element );
 		set.createTarget( this , projectSet );
 	}
 	
 	private void executeCreateProjectTarget( String setCode , String element , String[] items ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
 		MetaSources sources = dist.meta.getSources();
-		MetaSourceProject project = sources.getProject( this , element );
+		MetaSourceProject project = sources.getProject( element );
 		set.createTarget( this , project , items );
 	}
 	

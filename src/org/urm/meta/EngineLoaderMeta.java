@@ -17,7 +17,6 @@ import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
-import org.urm.meta.product.MetaSources;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -122,8 +121,8 @@ public class EngineLoaderMeta {
 	private void saveSources( MetadataStorage storageMeta ) throws Exception {
 		ActionBase action = loader.getAction();
 		Document doc = Common.xmlCreateDoc( XML_ROOT_SOURCES );
-		MetaSources sources = set.getSources();
-		sources.save( action , doc , doc.getDocumentElement() );
+		//MetaSources sources = set.getSources();
+		//sources.save( action , doc , doc.getDocumentElement() );
 		storageMeta.saveSourcesConfFile( action , doc );
 	}
 	

@@ -11,11 +11,13 @@ public class MetaUnits {
 	public Meta meta;
 	
 	private Map<String,MetaProductUnit> mapUnits;
+	private Map<Integer,MetaProductUnit> mapUnitsById;
 	
 	public MetaUnits( ProductMeta storage , Meta meta ) {
 		this.meta = meta;
 		meta.setUnits( this );
 		mapUnits = new HashMap<String,MetaProductUnit>();
+		mapUnitsById = new HashMap<Integer,MetaProductUnit>();
 	}
 	
 	public MetaUnits copy( Meta meta ) throws Exception {
@@ -30,10 +32,12 @@ public class MetaUnits {
 	
 	public void addUnit( MetaProductUnit unit ) {
 		mapUnits.put( unit.NAME , unit );
+		mapUnitsById.put( unit.ID , unit );
 	}
 
 	public void removeUnit( MetaProductUnit unit ) {
 		mapUnits.remove( unit.NAME );
+		mapUnitsById.remove( unit.ID );
 	}
 
 	public void updateUnit( MetaProductUnit unit ) throws Exception {
@@ -60,6 +64,13 @@ public class MetaUnits {
 		MetaProductUnit unit = mapUnits.get( name );
 		if( unit == null )
 			Common.exit1( _Error.UnknownUnit1 , "unknown unit=" + name , name );
+		return( unit );
+	}
+
+	public MetaProductUnit getUnit( int id ) throws Exception {
+		MetaProductUnit unit = mapUnitsById.get( id );
+		if( unit == null )
+			Common.exit1( _Error.UnknownUnit1 , "unknown unit=" + id , "" + id );
 		return( unit );
 	}
 

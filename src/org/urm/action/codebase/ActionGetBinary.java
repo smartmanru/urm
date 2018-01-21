@@ -15,7 +15,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.NexusDownloadInfo;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.storage.SourceStorage;
-import org.urm.meta.Types.*;
+import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaSourceProjectItem;
 
@@ -71,7 +71,7 @@ public class ActionGetBinary extends ActionBase {
 			downloadBuiltLocalItem( builder , scopeProject , scopeItem );
 		else
 		if( builder.isTargetNexus() ) {
-			if( scopeItem.sourceItem.SOURCEITEM_TYPE == VarITEMSRCTYPE.STATICWAR )
+			if( scopeItem.sourceItem.isSourceStaticWar() )
 				downloadNexusItem( builder.TARGET_RESOURCE_ID , "staticwar" , scopeProject , scopeItem );
 			else
 				downloadNexusItem( builder.TARGET_RESOURCE_ID , "nexus" , scopeProject , scopeItem );
@@ -204,7 +204,8 @@ public class ActionGetBinary extends ActionBase {
 		}
 		else
 		if( scopeProject.sourceProject.isPrebuiltNexus() ) {
-			downloadNexusItem( scopeProject.sourceProject.RESOURCE_ID , "thirdparty" , scopeProject , scopeItem );
+			MirrorRepository mirror = scopeProject.sourceProject.getMirror( this );
+			downloadNexusItem( mirror.RESOURCE_ID , "thirdparty" , scopeProject , scopeItem );
 		}
 		else
 			exitUnexpectedState();

@@ -461,7 +461,7 @@ public class Release {
 
 	public ReleaseTarget findBuildProject( ActionBase action , String name ) throws Exception {
 		MetaSources sources = meta.getSources(); 
-		MetaSourceProject sourceProject = sources.getProject( action , name );
+		MetaSourceProject sourceProject = sources.getProject( name );
 		ReleaseDistSet set = sourceSetMap.get( sourceProject.set.NAME );
 		if( set == null )
 			return( null );

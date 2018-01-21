@@ -1,16 +1,6 @@
 package org.urm.meta.product;
 
-import org.urm.action.ActionBase;
-import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.db.core.DBEnums.DBEnumSourceItemType;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.TransactionBase;
-import org.urm.meta.Types;
-import org.urm.meta.Types.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import org.urm.db.core.DBEnums.*;
 
 public class MetaSourceProjectItem {
 
@@ -33,7 +23,7 @@ public class MetaSourceProjectItem {
 	public String STATICEXT;
 	public String PATH;
 	public String FIXED_VERSION;
-	public boolean NODIST;
+	public boolean INTERNAL;
 	public int PV;
 	
 	public MetaDistrBinaryItem distItem;
@@ -46,75 +36,50 @@ public class MetaSourceProjectItem {
 		this.project = project;
 	}
 	
-	public void createItem( EngineTransaction transaction , String name ) throws Exception {
-		this.NAME = name;
-		SOURCEITEM_TYPE = VarITEMSRCTYPE.UNKNOWN;
-		BASENAME = "";
-		EXT = "";
-		FIXED_VERSION = "";
-		STATICEXT = "";
-		PATH = "";
-		NODIST = true;
-	}
-	
-	public void load( ActionBase action , Node node ) throws Exception {
-		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+	public MetaSourceProjectItem copy( Meta rmeta , MetaSourceProject rproject ) throws Exception {
+		MetaSourceProjectItem r = new MetaSourceProjectItem( rmeta , rproject );
 		
-		SOURCEITEM_TYPE = Types.getItemSrcType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
-		BASENAME = ConfReader.getAttrValue( node , "basename" );
-		if( BASENAME.isEmpty() )
-			BASENAME = NAME;
-
-		EXT = ConfReader.getAttrValue( node , "extension" );
-		FIXED_VERSION = ConfReader.getAttrValue( node , "version" );
-		PATH = ConfReader.getAttrValue( node , "itempath" );
-		
-		STATICEXT = "";
-		STATICEXT = "";
-		if( SOURCEITEM_TYPE == VarITEMSRCTYPE.STATICWAR ) {
-			STATICEXT = ConfReader.getAttrValue( node , "staticextension" );
-			if( STATICEXT.isEmpty() )
-				STATICEXT="-webstatic.tar.gz";
-		}
-		
-		NODIST = ConfReader.getBooleanAttrValue( node , "internal" , false );
-	}
-
-	public void setDistItem( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
-		this.distItem = distItem;
-		this.NODIST = ( distItem == null )? true : false;
-	}
-	
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "name" , NAME );
-		
-		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( SOURCEITEM_TYPE ) );
-		Common.xmlSetElementAttr( doc , root , "basename" , BASENAME );
-		Common.xmlSetElementAttr( doc , root , "extension" , EXT );
-		Common.xmlSetElementAttr( doc , root , "version" , FIXED_VERSION );
-		Common.xmlSetElementAttr( doc , root , "itempath" , PATH );
-		Common.xmlSetElementAttr( doc , root , "internal" , Common.getBooleanValue( NODIST ) );
-
-		Common.xmlSetElementAttr( doc , root , "staticextension" , STATICEXT );
-	}
-	
-	public MetaSourceProjectItem copy( ActionBase action , Meta meta , MetaSourceProject project ) throws Exception {
-		MetaSourceProjectItem r = new MetaSourceProjectItem( meta , project );
+		r.ID = ID;
 		r.NAME = NAME;
-		
+		r.DESC = DESC;
 		r.SOURCEITEM_TYPE = SOURCEITEM_TYPE;
 		r.BASENAME = BASENAME;
 		r.EXT = EXT;
-		r.FIXED_VERSION = FIXED_VERSION;
-		r.PATH = PATH;
 		r.STATICEXT = STATICEXT;
-		r.NODIST = NODIST;
+		r.PATH = PATH;
+		r.FIXED_VERSION = FIXED_VERSION;
+		r.INTERNAL = INTERNAL;
+		r.PV = PV;
 		
 		return( r );
 	}
 	
+	public void createItem( String name , String desc ) throws Exception {
+		modifyItem( name , desc );
+	}
+	
+	public void modifyItem( String name , String desc ) throws Exception {
+		this.NAME = name;
+		this.DESC = desc;
+	}
+	
+	public void setSourceData( DBEnumSourceItemType srcType , String basename , String ext , String staticext , String path , String version , boolean internal ) throws Exception {
+		this.SOURCEITEM_TYPE = srcType;
+		this.BASENAME = basename;
+		this.EXT = ext;
+		this.STATICEXT = staticext;
+		this.PATH = path;
+		this.FIXED_VERSION = version;
+		this.INTERNAL = internal;
+	}
+	
+	public void setDistItem( MetaDistrBinaryItem distItem ) throws Exception {
+		this.distItem = distItem;
+		this.INTERNAL = ( distItem == null )? true : false;
+	}
+	
 	public boolean isInternal() {
-		if( NODIST )
+		if( INTERNAL )
 			return( true );
 		return( false );
 	}
@@ -126,51 +91,41 @@ public class MetaSourceProjectItem {
 	}
 	
 	public boolean isSourceDirectory() {
-		if( SOURCEITEM_TYPE == VarITEMSRCTYPE.DIRECTORY )
+		if( SOURCEITEM_TYPE == DBEnumSourceItemType.DIRECTORY )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isSourceBasic() {
-		if( SOURCEITEM_TYPE == VarITEMSRCTYPE.BASIC )
+		if( SOURCEITEM_TYPE == DBEnumSourceItemType.BASIC )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isSourcePackage() {
-		if( SOURCEITEM_TYPE == VarITEMSRCTYPE.PACKAGE )
+		if( SOURCEITEM_TYPE == DBEnumSourceItemType.PACKAGE )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isSourceStaticWar() {
-		if( SOURCEITEM_TYPE == VarITEMSRCTYPE.STATICWAR )
+		if( SOURCEITEM_TYPE == DBEnumSourceItemType.STATICWAR )
 			return( true );
 		return( false );
 	}
 	
-	public void setSourceData( TransactionBase transaction , VarITEMSRCTYPE srcType , String artefactName , String ext , String path , String version , boolean dist ) throws Exception {
-		SOURCEITEM_TYPE = srcType;
-		BASENAME = ( artefactName.isEmpty() )? NAME : artefactName;
-		EXT = ( srcType == VarITEMSRCTYPE.STATICWAR )? ".war" : ext;
-		FIXED_VERSION = version;
-		PATH = path;
-		STATICEXT = ( srcType == VarITEMSRCTYPE.STATICWAR )? ext : "";
-		NODIST = ( dist )? false : true;
-	}
-	
 	public String getArtefactSampleFile() {
 		String value = BASENAME;
-		if( SOURCEITEM_TYPE == VarITEMSRCTYPE.BASIC || SOURCEITEM_TYPE == VarITEMSRCTYPE.PACKAGE || SOURCEITEM_TYPE == VarITEMSRCTYPE.CUSTOM ) {
+		if( SOURCEITEM_TYPE == DBEnumSourceItemType.BASIC || SOURCEITEM_TYPE == DBEnumSourceItemType.PACKAGE || SOURCEITEM_TYPE == DBEnumSourceItemType.CUSTOM ) {
 			if( !FIXED_VERSION.isEmpty() )
 				value += "-" + FIXED_VERSION;
 			value += EXT;
 		}
 		else
-		if( SOURCEITEM_TYPE == VarITEMSRCTYPE.DIRECTORY )
+		if( SOURCEITEM_TYPE == DBEnumSourceItemType.DIRECTORY )
 			value = BASENAME;
 		else
-		if( SOURCEITEM_TYPE == VarITEMSRCTYPE.STATICWAR )
+		if( SOURCEITEM_TYPE == DBEnumSourceItemType.STATICWAR )
 			value = BASENAME + EXT + "/" + BASENAME + STATICEXT;
 		return( value );
 	}

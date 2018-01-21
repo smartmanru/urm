@@ -11,13 +11,15 @@ public class EngineBuilders extends EngineObject {
 
 	public Engine engine;
 
-	Map<String,ProjectBuilder> builderMap;
+	private Map<String,ProjectBuilder> builderMap;
+	private Map<Integer,ProjectBuilder> builderMapById;
 
 	public EngineBuilders( Engine engine ) {
 		super( null );
 		this.engine = engine;
 		
 		builderMap = new HashMap<String,ProjectBuilder>();
+		builderMapById = new HashMap<Integer,ProjectBuilder>();
 	}
 
 	@Override
@@ -37,10 +39,12 @@ public class EngineBuilders extends EngineObject {
 
 	public void addBuilder( ProjectBuilder builder ) {
 		builderMap.put( builder.NAME , builder );
+		builderMapById.put( builder.ID , builder );
 	}
 	
 	public void removeBuilder( ProjectBuilder builder ) {
 		builderMap.remove( builder.NAME );
+		builderMapById.remove( builder.ID );
 	}
 	
 	public void updateBuilder( ProjectBuilder builder ) throws Exception {
@@ -56,6 +60,13 @@ public class EngineBuilders extends EngineObject {
 		ProjectBuilder builder = builderMap.get( name );
 		if( builder == null )
 			Common.exit1( _Error.UnknownBuilder1 , "unknown builder=" + name , name );
+		return( builder );
+	}
+
+	public ProjectBuilder getBuilder( Integer id ) throws Exception {
+		ProjectBuilder builder = builderMapById.get( id );
+		if( builder == null )
+			Common.exit1( _Error.UnknownBuilder1 , "unknown builder=" + id , "" + id );
 		return( builder );
 	}
 

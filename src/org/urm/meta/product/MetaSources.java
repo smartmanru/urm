@@ -5,30 +5,27 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.TransactionBase;
 import org.urm.meta.ProductMeta;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class MetaSources {
 
 	public Meta meta;
 	
 	private Map<String,MetaSourceProjectSet> setMap;
+	private Map<Integer,MetaSourceProjectSet> setMapById;
 	private Map<String,MetaSourceProject> projectMap;
+	private Map<Integer,MetaSourceProject> projectMapById;
 	
 	public MetaSources( ProductMeta storage , Meta meta ) {
 		this.meta = meta;
 		meta.setSources( this );
 		
 		setMap = new HashMap<String,MetaSourceProjectSet>();
+		setMapById = new HashMap<Integer,MetaSourceProjectSet>();
 		projectMap = new HashMap<String,MetaSourceProject>();
+		projectMapById = new HashMap<Integer,MetaSourceProject>();
 	}
 	
 	public MetaSources copy( Meta rmeta ) throws Exception {
@@ -41,16 +38,46 @@ public class MetaSources {
 		for( MetaSourceProject project : projectMap.values() ) {
 			MetaSourceProjectSet rset = r.setMap.get( project.set.NAME );
 			MetaSourceProject rp = rset.getProject( project.NAME );
-			r.projectMap.put( rp.NAME , rp );
+			r.addProject( rset , rp );
 		}
 		return( r );
 	}
 	
-	private void addProjectSet( MetaSourceProjectSet projectset ) {
+	public void addProjectSet( MetaSourceProjectSet projectset ) {
 		setMap.put( projectset.NAME , projectset );
+		setMapById.put( projectset.ID , projectset );
 	}
 	
-	public MetaSourceProject[] getBuildProjects( ActionBase action , DBEnumBuildModeType buildMode ) {
+	public void addProject( MetaSourceProjectSet set , MetaSourceProject project ) throws Exception {
+		set.addProject( project );
+		projectMap.put( project.NAME , project );
+		projectMapById.put( project.ID , project );
+	}
+
+	public void updateProject( MetaSourceProject project ) throws Exception {
+		Common.changeMapKey( projectMap , project , project.NAME );
+		project.set.updateProject( project );
+	}
+	
+	public void updateProjectItem( MetaSourceProjectItem item ) throws Exception {
+		item.project.updateItem( item );
+	}
+	
+	public void addProjectItem( MetaSourceProject project , MetaSourceProjectItem item ) throws Exception {
+		project.addItem( item );
+	}
+	
+	public void removeProject( MetaSourceProject project ) throws Exception {
+		project.set.removeProject( project );
+		projectMap.remove( project.NAME );
+		projectMapById.remove( project.ID );
+	}
+
+	public void removeProjectItem( MetaSourceProjectItem item ) throws Exception {
+		item.project.removeItem( item );
+	}
+
+	public MetaSourceProject[] getBuildProjects( DBEnumBuildModeType buildMode ) {
 		List<MetaSourceProject> all = getAllProjectList( true );
 		List<MetaSourceProject> list = new LinkedList<MetaSourceProject>(); 
 		for( MetaSourceProject project : all ) {
@@ -96,10 +123,18 @@ public class MetaSources {
 		return( set );
 	}
 	
-	public MetaSourceProjectSet getProjectSet( ActionBase action , String name ) throws Exception {
+	public MetaSourceProjectSet getProjectSet( String name ) throws Exception {
 		MetaSourceProjectSet set = setMap.get( name );
 		if( set == null )
-			action.exit1( _Error.UnknownSourceSet1 , "unknown source set=" + name , name );
+			Common.exit1( _Error.UnknownSourceSet1 , "unknown source set=" + name , name );
+		
+		return( set );
+	}
+
+	public MetaSourceProjectSet getProjectSet( int id ) throws Exception {
+		MetaSourceProjectSet set = setMapById.get( id );
+		if( set == null )
+			Common.exit1( _Error.UnknownSourceSet1 , "unknown source set=" + id , "" + id );
 		
 		return( set );
 	}
@@ -109,60 +144,44 @@ public class MetaSources {
 		return( project );
 	}
 	
-	public MetaSourceProject getProject( ActionBase action , String name ) throws Exception {
+	public MetaSourceProject getProject( String name ) throws Exception {
 		MetaSourceProject project = projectMap.get( name );
 		if( project == null )
-			action.exit1( _Error.UnknownSourceProject1 , "unknown source project=" + name , name );
+			Common.exit1( _Error.UnknownSourceProject1 , "unknown source project=" + name , name );
 		
 		return( project );
 	}
 
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		//super.saveAsElements( doc , root , false );
-		for( MetaSourceProjectSet set : setMap.values() ) {
-			Element setElement = Common.xmlCreateElement( doc , root , "projectset" );
-			set.save( action , doc , setElement );
-		}
+	public MetaSourceProject getProject( int id ) throws Exception {
+		MetaSourceProject project = projectMapById.get( id );
+		if( project == null )
+			Common.exit1( _Error.UnknownSourceProject1 , "unknown source project=" + id , "" + id );
+		
+		return( project );
 	}
 
 	public String[] getProjectNames() {
 		return( Common.getSortedKeys( projectMap ) );
 	}
 
-	public MetaSourceProjectItem getProjectItem( ActionBase action , String name ) throws Exception {
+	public MetaSourceProjectItem getProjectItem( String name ) throws Exception {
 		for( MetaSourceProject project : projectMap.values() ) {
 			MetaSourceProjectItem item = project.findItem( name );
 			if( item != null )
 				return( item );
 		}
-		action.exit1( _Error.UnknownSourceProjectItem1 , "unknown source project item=" + name , name );
+		Common.exit1( _Error.UnknownSourceProjectItem1 , "unknown source project item=" + name , name );
 		return( null );
 	}
 
-	public MetaSourceProjectSet createProjectSet( EngineTransaction transaction , String name ) throws Exception {
-		MetaSourceProjectSet set = new MetaSourceProjectSet( meta , this );
-		set.create( transaction , name );
-		addProjectSet( set );
-		return( set );
-	}
-
-	public MetaSourceProject createProject( EngineTransaction transaction , MetaSourceProjectSet set , String name , int POS ) throws Exception {
-		MetaSourceProject project = new MetaSourceProject( set.meta , set );
-		project.createProject( transaction , name , POS );
-		set.addProject( transaction , project );
-		projectMap.put( project.NAME , project );
-		return( project );
-	}
-
-	public void removeProjectSet( EngineTransaction transaction , MetaSourceProjectSet set ) throws Exception {
-		for( MetaSourceProject project : set.getProjects() )
+	public void removeProjectSet( MetaSourceProjectSet set ) throws Exception {
+		for( MetaSourceProject project : set.getProjects() ) {
 			projectMap.remove( project.NAME );
+			projectMapById.remove( project.ID );
+		}
+		
 		setMap.remove( set.NAME );
-	}
-
-	public void removeProject( EngineTransaction transaction , MetaSourceProject project ) throws Exception {
-		project.set.removeProject( transaction , project );
-		projectMap.remove( project.NAME );
+		setMapById.remove( set.ID );
 	}
 
 	public boolean hasProjects() {
@@ -170,12 +189,5 @@ public class MetaSources {
 			return( false );
 		return( true );
 	}
-	
-	public void deleteUnit( EngineTransaction transaction , MetaProductUnit unit ) throws Exception {
-		for( MetaSourceProject project : projectMap.values() ) {
-			if( project.UNIT.equals( unit.NAME ) )
-				project.clearUnit( transaction );
-		}
-	}	
 	
 }

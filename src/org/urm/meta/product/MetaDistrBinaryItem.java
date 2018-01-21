@@ -217,8 +217,8 @@ public class MetaDistrBinaryItem {
 		else
 		if( distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
 			MetaSources sources = meta.getSources();
-			sourceProjectItem = sources.getProjectItem( action , SRCPROJECTITEM );
-			sourceProjectItem.setDistItem( action , this );
+			sourceProjectItem = sources.getProjectItem( SRCPROJECTITEM );
+			sourceProjectItem.setDistItem( this );
 		}
 	}
 	
@@ -348,7 +348,7 @@ public class MetaDistrBinaryItem {
 		this.SRCDISTITEM = "";
 		this.srcDistItem = null;
 		this.SRCITEMPATH = "";
-		itemSrc.setDistItem( transaction.getAction() , this );
+		itemSrc.setDistItem( this );
 	}
 
 	public void setDistOrigin( EngineTransaction transaction , MetaDistrBinaryItem itemSrc , String srcPath ) throws Exception {

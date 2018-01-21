@@ -103,9 +103,8 @@ public class ProductMeta extends EngineObject {
 		r.policy = policy.copy( r.meta );
 		r.units = units.copy( r.meta );
 		r.database = database.copy( r.meta );
+		r.sources = sources.copy( r.meta );
 		
-		if( sources != null )
-			r.sources = sources.copy( action , r.meta );
 		if( docs != null )
 			r.docs = docs.copy( action , r.meta );
 		if( distr != null )
@@ -230,8 +229,8 @@ public class ProductMeta extends EngineObject {
 	}
 	
 	private void createInitialSources( TransactionBase transaction ) throws Exception {
-		sources = new MetaSources( this , settings , meta );
-		sources.createSources( transaction );
+		sources = new MetaSources( this , meta );
+		//sources.createSources( transaction );
 		meta.setSources( sources );
 	}
 	

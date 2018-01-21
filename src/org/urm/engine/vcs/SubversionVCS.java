@@ -298,8 +298,9 @@ public class SubversionVCS extends GenericVCS {
 				CO_PATH = Common.getPath( projectPath , "branches" , BRANCH );
 		}
 		
-		if( !project.CODEPATH.isEmpty() )
-			CO_PATH = Common.getPath( CO_PATH , project.CODEPATH );
+		MirrorRepository mirror = project.getMirror( action ); 
+		if( !mirror.RESOURCE_DATA.isEmpty() )
+			CO_PATH = Common.getPath( CO_PATH , mirror.RESOURCE_DATA );
 		
 		if( !FILENAME.isEmpty() )
 			CO_PATH = Common.getPath( CO_PATH , FILENAME );
@@ -574,7 +575,8 @@ public class SubversionVCS extends GenericVCS {
 	}
 
 	public String getProjectPath( MetaSourceProject project ) throws Exception {
-		return( Common.getPath( SVNPATH , project.REPOPATH , project.REPOSITORY ) );
+		MirrorRepository mirror = project.getMirror( action );
+		return( Common.getPath( SVNPATH , mirror.RESOURCE_ROOT , mirror.RESOURCE_REPO ) );
 	}
 	
 	public boolean checkVersioned( MirrorRepository mirror , String path ) throws Exception {

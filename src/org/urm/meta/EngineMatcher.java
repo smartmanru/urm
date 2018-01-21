@@ -1,12 +1,17 @@
 package org.urm.meta;
 
 import org.urm.common.RunContext;
+import org.urm.db.DBConnection;
+import org.urm.db.engine.DBEngineMirrors;
 import org.urm.db.product.DBMeta;
+import org.urm.db.product.DBMetaSources;
 import org.urm.engine.Engine;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
+import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineMirrors;
+import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
@@ -69,7 +74,7 @@ public class EngineMatcher {
 		return( ok );
 	}
 	
-	public boolean matchProjectMirrors( AppProduct product , MetaSources sources ) {
+	public boolean matchProjectMirrors( AppProduct product , MetaSources sources , boolean update ) throws Exception {
 		boolean ok = true;
 		
 		EngineMirrors mirrors = loader.getMirrors();
@@ -77,8 +82,25 @@ public class EngineMatcher {
 		for( MetaSourceProject project : sources.getAllProjectList( false ) ) {
 			MirrorRepository repo = mirrors.findProjectRepository( project );
 			if( repo != null ) {
-				repo.setProductProject( product.ID , 0 );
-				project.setMirror( repo.ID );
+				project.setMirror( repo );
+				repo.setProductProject( product.ID , project.ID );
+				
+				if( update ) {
+					EngineResources resources = loader.getResources();
+					AuthResource res = resources.findResource( project.MIRROR_RESOURCE );
+					if( res == null ) {
+						loader.trace( "missing expected resource, project=" + project.NAME + ", resource=" + project.MIRROR_RESOURCE );
+						return( false );
+					}
+					
+					repo.setMirror( res.ID , project.MIRROR_REPOSITORY , project.MIRROR_REPOPATH , project.MIRROR_CODEPATH );
+					
+					DBConnection c = loader.getConnection();
+					DBEngineMirrors.modifyRepository( c , repo , false );
+					
+					ProductMeta storage = sources.meta.getStorage();
+					DBMetaSources.modifyProject( c , storage , project , false );
+				}
 			}
 			else {
 				loader.trace( "missing mirror product project=" + project.NAME + " repository" );

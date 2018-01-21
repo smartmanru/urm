@@ -76,8 +76,12 @@ public class EngineMirrors extends EngineObject {
 		return( findRepository( "core" ) );
 	}
 
+	public String getProjectRepositoryMirroName( MetaSourceProject project ) {
+		return( "project-" + project.meta.name + "-" + project.NAME );
+	}
+	
 	public MirrorRepository findProjectRepository( MetaSourceProject project ) {
-		String name = "project-" + project.meta.name + "-" + project.NAME;
+		String name = getProjectRepositoryMirroName( project );
 		return( findRepository( name ) );
 	}
 	

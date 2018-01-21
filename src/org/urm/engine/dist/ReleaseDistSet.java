@@ -52,7 +52,7 @@ public class ReleaseDistSet {
 		nx.BUILDVERSION = BUILDVERSION;
 		if( set != null ) {
 			MetaSources nsources = nr.meta.getSources();
-			nx.set = nsources.getProjectSet( action , set.NAME );
+			nx.set = nsources.getProjectSet( set.NAME );
 		}
 		
 		for( Entry<String,ReleaseTarget> entry : map.entrySet() ) {
@@ -123,7 +123,7 @@ public class ReleaseDistSet {
 	private void loadBinary( ActionBase action , Node node ) throws Exception {
 		String SET = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		MetaSources sources = meta.getSources(); 
-		set = sources.getProjectSet( action , SET );
+		set = sources.getProjectSet( SET );
 		NAME = set.NAME;
 		
 		BUILDBRANCH = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDBRANCH );

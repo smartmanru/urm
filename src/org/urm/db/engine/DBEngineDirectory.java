@@ -196,7 +196,7 @@ public abstract class DBEngineDirectory {
 			matcher.prepareMatchProduct( product , false , false );
 			DBAppProduct.match( loader , product , set );
 			
-			if( !matcher.matchProjectMirrors( product , set.getSources() ) ) {
+			if( !matcher.matchProjectMirrors( product , set.getSources() , update ) ) {
 				matcher.matchProductUpdateStatus( product , set , update , false );
 				return( false );
 			}

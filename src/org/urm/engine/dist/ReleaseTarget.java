@@ -63,7 +63,7 @@ public class ReleaseTarget {
 		nx.BUILDTAG = BUILDTAG; 
 		nx.BUILDVERSION = BUILDVERSION;
 		
-		nx.sourceProject = ( sourceProject == null )? null : ns.set.getProject( action , sourceProject.NAME );
+		nx.sourceProject = ( sourceProject == null )? null : ns.set.getProject( sourceProject.NAME );
 		MetaDistr ndistr = ns.meta.getDistr();
 		nx.distConfItem = ( distConfItem == null )? null : ndistr.getConfItem( action , distConfItem.KEY );
 		nx.distDatabaseDelivery = ( distDatabaseDelivery == null )? null : ndistr.getDelivery( action , distDatabaseDelivery.NAME );
@@ -105,7 +105,7 @@ public class ReleaseTarget {
 		
 		// find in sources
 		MetaSources sources = meta.getSources(); 
-		sourceProject = sources.getProject( action , name ); 
+		sourceProject = sources.getProject( name ); 
 		NAME = sourceProject.NAME;
 		
 		Node[] items = ConfReader.xmlGetChildren( node , Release.ELEMENT_DISTITEM );

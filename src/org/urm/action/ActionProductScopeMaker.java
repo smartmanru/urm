@@ -125,7 +125,7 @@ public class ActionProductScopeMaker {
 			addDerivedItems( TARGETS );
 		else {
 			MetaSources sources = meta.getSources();
-			MetaSourceProjectSet pset = sources.getProjectSet( action , set );  
+			MetaSourceProjectSet pset = sources.getProjectSet( set );  
 			addSourceProjects( pset , TARGETS );
 		}
 	}
@@ -319,7 +319,7 @@ public class ActionProductScopeMaker {
 		
 		MetaSources sources = meta.getSources();
 		for( String name : PROJECTS ) {
-			MetaSourceProject sourceProject = sources.getProject( action , name );
+			MetaSourceProject sourceProject = sources.getProject( name );
 			addProductSourceProject( set , sourceProject , true , true );
 		}
 	}

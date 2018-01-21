@@ -1,20 +1,15 @@
 package org.urm.db.product;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.core.DBSettings;
-import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductMeta;
-import org.urm.meta.Types;
-import org.urm.meta.Types.VarNAMETYPE;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
@@ -23,7 +18,6 @@ import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
-import org.w3c.dom.Node;
 
 public class DBProductData {
 
@@ -59,8 +53,10 @@ public class DBProductData {
 	public static String FIELD_SOURCEPROJECT_TYPE = "project_type";
 	public static String FIELD_SOURCEPROJECT_PROD = "codebase_prod";
 	public static String FIELD_SOURCEPROJECT_UNIT_ID = "unit_id";
-	public static String FIELD_SOURCEPROJECT_BUILDER_ID = "builder_id";
-	public static String FIELD_SOURCEPROJECT_MIRROR_ID = "mirror_id";
+	public static String FIELD_SOURCEPROJECT_BUILDER_ID = "builder_fkid";
+	public static String FIELD_SOURCEPROJECT_BUILDER_NAME = "builder_fkname";
+	public static String FIELD_SOURCEPROJECT_BUILDOPTIONS = "builder_options";
+	public static String FIELD_SOURCEPROJECT_MIRROR_ID = "mirror_fkid";
 	public static String FIELD_SOURCEPROJECT_MIRRORRES = "mirror_fkresource";
 	public static String FIELD_SOURCEPROJECT_MIRRORREPO = "mirror_fkrepository";
 	public static String FIELD_SOURCEPROJECT_MIRRORPATH = "mirror_fkrepopath";
@@ -279,11 +275,13 @@ public class DBProductData {
 				EntityVar.metaIntegerVar( MetaSourceProject.PROPERTY_PROJECTPOS , FIELD_SOURCEPROJECT_POS , MetaSourceProject.PROPERTY_PROJECTPOS , "Source set" , true , null ) ,
 				EntityVar.metaEnumVar( MetaSourceProject.PROPERTY_PROJECTTYPE , FIELD_SOURCEPROJECT_TYPE , MetaSourceProject.PROPERTY_PROJECTTYPE , "Source project type" , true , DBEnumProjectType.UNKNOWN ) ,
 				EntityVar.metaBooleanVar( MetaSourceProject.PROPERTY_PROD , FIELD_SOURCEPROJECT_PROD , MetaSourceProject.PROPERTY_PROD , "Use in production build" , true , false ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_SOURCEPROJECT_UNIT_ID , "Source project unit" , false , null ) ,
+				EntityVar.metaStringXmlOnly( MetaSourceProject.PROPERTY_UNIT , "Source project unit name" , false , null ) ,
+				EntityVar.metaIntegerDatabaseOnly( FIELD_SOURCEPROJECT_UNIT_ID , "Source project unit id" , false , null ) ,
 				EntityVar.metaString( MetaSourceProject.PROPERTY_TRACKER , "Ticket management project name" , false , null ) ,
 				EntityVar.metaString( MetaSourceProject.PROPERTY_BRANCH , "Default production branch" , false , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_SOURCEPROJECT_BUILDER_ID , "Source project builder" , false , null ) ,
-				EntityVar.metaString( MetaSourceProject.PROPERTY_BUILDER_OPTIONS , "Additional build options" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_BUILDER_NAME , FIELD_SOURCEPROJECT_BUILDER_NAME , MetaSourceProject.PROPERTY_BUILDER_NAME , "Source project builder name" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_BUILDER_OPTIONS , FIELD_SOURCEPROJECT_BUILDOPTIONS , MetaSourceProject.PROPERTY_BUILDER_OPTIONS , "Additional build options" , false , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_SOURCEPROJECT_MIRROR_ID , "Source project mirror id" , false , null ) ,
 				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_MIRRORRES , FIELD_SOURCEPROJECT_MIRRORRES , MetaSourceProject.PROPERTY_MIRRORRES , "Respository resource" , false , null ) ,
 				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_MIRRORREPO , FIELD_SOURCEPROJECT_MIRRORREPO , MetaSourceProject.PROPERTY_MIRRORREPO , "Respository name" , false , null ) ,
@@ -324,50 +322,6 @@ public class DBProductData {
 		return( entity );
 	}
 	
-	public void load( ActionBase action , Node node ) throws Exception {
-		PROJECT_POS = ConfReader.getIntegerAttrValue( node , "order" , 0 );
-		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
-		DESC = ConfReader.getAttrValue( node , "desc" );
-		CODEBASE_PROD = ConfReader.getBooleanAttrValue( node , "prod" , false );
-
-		// read item attrs
-		REPOSITORY = ConfReader.getAttrValue( node , "repository" );
-		if( REPOSITORY.isEmpty() )
-			REPOSITORY = NAME;
-
-		UNIT = ConfReader.getAttrValue( node , "unit" );
-		
-		PROJECT_TYPE = Types.getProjectType( ConfReader.getAttrValue( node , "type" ) , true );
-		if( PROJECT_TYPE == VarPROJECTTYPE.BUILDABLE ) {
-			TRACKER = ConfReader.getAttrValue( node , "jira" );
-			BRANCH = ConfReader.getAttrValue( node , "branch" );
-			BUILDER = ConfReader.getAttrValue( node , "builder" );
-			BUILDER_ADDOPTIONS = ConfReader.getAttrValue( node , "builder.addoptions" );
-			
-			if( BRANCH.isEmpty() )
-				BRANCH = NAME + "-prod";
-		}
-		
-		// read project items
-		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
-		if( items != null ) {
-			for( Node item : items ) {
-				MetaSourceProjectItem srcItem = new MetaSourceProjectItem( meta , this );
-				srcItem.load( action , item );
-				addItem( srcItem );
-			}
-		}
-		
-		// resolve references
-		CUSTOMBUILD = ConfReader.getBooleanAttrValue( node , "custombuild" , false );
-		CUSTOMGET = ConfReader.getBooleanAttrValue( node , "customget" , false );
-		
-		if( CUSTOMBUILD || CUSTOMGET ) {
-			CommandCustom custom = new CommandCustom( meta );
-			custom.parseProject( action , this , node );
-		}
-	}
-
 	public static void dropProductData( EngineLoader loader , ProductMeta storage ) throws Exception {
 		dropProductDistData( loader , storage );
 		dropProductCoreData( loader , storage );

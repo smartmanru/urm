@@ -242,7 +242,7 @@ public class ActionReleaseScopeMaker {
 			addReleaseDerivedItems( TARGETS );
 		else {
 			MetaSources sources = meta.getSources();
-			MetaSourceProjectSet set = sources.getProjectSet( action , SET );
+			MetaSourceProjectSet set = sources.getProjectSet( SET );
 			if( dist.release.addSourceSet( action , set , false ) ) {
 				ReleaseDistSet rset = dist.release.getSourceSet( action , SET );  
 				addReleaseSourceProjects( rset , TARGETS );

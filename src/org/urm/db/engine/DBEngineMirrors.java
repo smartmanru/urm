@@ -106,7 +106,7 @@ public class DBEngineMirrors {
 		return( repo );
 	}
 	
-	private static void modifyRepository( DBConnection c , MirrorRepository repo , boolean insert ) throws Exception {
+	public static void modifyRepository( DBConnection c , MirrorRepository repo , boolean insert ) throws Exception {
 		if( insert )
 			repo.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , repo.NAME , DBEnumObjectType.MIRROR );
 		else
@@ -220,14 +220,16 @@ public class DBEngineMirrors {
 		modifyRepository( c , repo , false );
 	} 
 	
-	public static void createProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
+	public static MirrorRepository createProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project , Integer repoRes , String repoName , String repoPath , String codePath ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		MirrorRepository repo = new MirrorRepository( mirrors );
 		String name = "project-" + project.meta.name + "-" + project.NAME;
 		repo.createRepository( name , null , DBEnumMirrorType.PROJECT );
+		repo.setMirror( repoRes , repoName , repoPath , codePath );
 		modifyRepository( c , repo , true );
 		mirrors.addRepository( repo );
+		return( repo );
 	}
 	
 	public static void createDetachedMirror( EngineTransaction transaction , EngineMirrors mirrors , DBEnumMirrorType type , String product , String project ) throws Exception {
@@ -265,9 +267,9 @@ public class DBEngineMirrors {
 		}
 	}
 
-	public static void changeProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
+	public static void changeProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project , Integer repoRes , String repoName , String repoPath , String codePath ) throws Exception {
 		deleteProjectMirror( transaction , mirrors , project );
-		createProjectMirror( transaction , mirrors , project );
+		createProjectMirror( transaction , mirrors , project , repoRes , repoName , repoPath , codePath );
 	}
 	
 	public static void deleteProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project ) throws Exception {

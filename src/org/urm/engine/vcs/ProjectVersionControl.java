@@ -1,10 +1,8 @@
 package org.urm.engine.vcs;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.product.MetaSourceProject;
 
@@ -19,12 +17,7 @@ public class ProjectVersionControl {
 	}
 	
 	private GenericVCS getVCS( MetaSourceProject project ) throws Exception {
-		EngineMirrors mirrors = action.getServerMirrors();
-		
-		if( project.mirrorId == null )
-			Common.exitUnexpected();
-		
-		MirrorRepository repo = mirrors.getRepository( project.mirrorId );
+		MirrorRepository repo = project.getMirror( action );
 		return( GenericVCS.getVCS( action , project.meta , repo.RESOURCE_ID ) );
 	}
 

@@ -75,25 +75,25 @@ public class ActionSetScope extends ActionBase {
 			check.put( path , "all" );
 			String[] els = Common.split( path , "/" );
 			if( els.length == 1 ) {
-				MetaSourceProjectSet set = source.getProjectSet( this , els[0] );
+				MetaSourceProjectSet set = source.getProjectSet( els[0] );
 				if( !dist.addAllSource( this , set ) )
 					return( false );
 				continue;
 			}
 			if( els.length == 2 ) {
-				MetaSourceProjectSet set = source.getProjectSet( this , els[0] );
+				MetaSourceProjectSet set = source.getProjectSet( els[0] );
 				check.put( els[0] , "set" );
-				MetaSourceProject project = set.getProject( this , els[1] );
+				MetaSourceProject project = set.getProject( els[1] );
 				if( !dist.addProjectAllItems( this , project ) )
 					return( false );
 				continue;
 			}
 			if( els.length == 3 ) {
-				MetaSourceProjectSet set = source.getProjectSet( this , els[0] );
+				MetaSourceProjectSet set = source.getProjectSet( els[0] );
 				check.put( els[0] , "set" );
-				MetaSourceProject project = set.getProject( this , els[1] );
+				MetaSourceProject project = set.getProject( els[1] );
 				check.put( Common.concat( els[0] , els[1] , "/" ) , "project" );
-				MetaSourceProjectItem item = project.getItem( this , els[2] );
+				MetaSourceProjectItem item = project.getItem( els[2] );
 				if( !dist.addProjectItem( this , project , item ) )
 					return( false );
 				continue;

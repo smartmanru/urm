@@ -116,6 +116,12 @@ public abstract class DBEngineEntities {
 		return( rs );
 	}
 
+	public static ResultSet listAppObjectsFiltered( DBConnection c , PropertyEntity entity , String filter , String[] args ) throws Exception {
+		String query = "select " + getFieldList( entity ) + " from " + entity.APP_TABLE + " " + filter; 
+		ResultSet rs = c.query( query , args );
+		return( rs );
+	}
+	
 	public static ResultSet listSingleAppObject( DBConnection c , PropertyEntity entity , int id ) throws Exception {
 		String query = "select " + getFieldList( entity ) + " from " + entity.APP_TABLE + " where " + entity.ID_FIELD + " = " + id; 
 		ResultSet rs = c.query( query );

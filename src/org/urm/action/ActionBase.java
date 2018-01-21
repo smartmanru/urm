@@ -42,6 +42,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.Types;
 import org.urm.meta.engine.AuthResource;
@@ -856,10 +857,14 @@ abstract public class ActionBase extends ActionCore {
 		return( repo );
 	}
 
-	public ProjectBuilder getBuilder( String name ) throws Exception {
+	public ProjectBuilder getBuilder( MatchItem match ) throws Exception {
+		if( match == null )
+			return( null );
+		
 		EngineBuilders builders = getServerBuilders();
-		ProjectBuilder builder = builders.getBuilder( name );
-		return( builder );
+		if( match.FKID != null )
+			return( builders.getBuilder( match.FKID ) );
+		return( builders.getBuilder( match.FKNAME ) );
 	}
 
 	public EngineBlotter getServerBlotter() throws Exception {
