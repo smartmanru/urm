@@ -78,7 +78,7 @@ public class DBProductData {
 	public static String FIELD_DOC_DESC = "xdesc";
 	public static String FIELD_DOC_EXT = "ext";
 	public static String FIELD_POLICY_ID = "meta_id";
-	public static String FIELD_POLICY_LCURGENTALL = "lcurgent_all";
+	public static String FIELD_POLICY_LCURGENTALL = "lcurgent_any";
 	
 	public static PropertyEntity upgradeEntityProductSettings( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
