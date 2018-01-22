@@ -130,13 +130,21 @@ public abstract class DBSettings {
 	}
 	
 	public static void exportxml( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
-		PropertySet set = properties.getProperties();
+		exportxmlEntity( loader , doc , root , properties , appAsProperties , true );
+		
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity custom = meta.getCustomEntity();
 		
-		Element nodeCustom = null;
-		if( custom != null )
-			nodeCustom = Common.xmlCreateElement( doc , root , ELEMENT_CUSTOM );
+		if( custom != null ) {
+			Element nodeCustom = Common.xmlCreateElement( doc , root , ELEMENT_CUSTOM );
+			exportxmlEntity( loader , doc , nodeCustom , properties , appAsProperties , false );
+		}
+	}
+		
+	public static void exportxmlEntity( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties , boolean exportApp ) throws Exception {
+		ObjectMeta meta = properties.getMeta();
+		PropertyEntity custom = meta.getCustomEntity();
+		PropertySet set = properties.getProperties();
 		
 		for( PropertyValue value : set.getAllProperties() ) {
 			EntityVar var = properties.getVar( value.property );
@@ -144,40 +152,44 @@ public abstract class DBSettings {
 				continue;
 			
 			if( var.isApp() ) {
-				String data = value.getOriginalValue();
-				if( data == null || data.isEmpty() )
-					continue;
-				
-				if( var.isEnum() ) {
-					int ev = Integer.parseInt( data );
-					if( ev == DBEnums.VALUE_UNKNOWN )
-						continue;
-					
-					data = DBEnums.getEnumValue( var.enumClass , ev );
-				}
-				else
-				if( var.isObject() ) {
-					int ev = Integer.parseInt( data );
-					data = var.exportxmlObjectValue( loader , ev );
-				}
-					
-				if( appAsProperties )
-					exportxmlSetProperty( loader , doc , root , var , data , false );
-				else
-					exportxmlSetAttr( loader , doc , root , var , data );
-			}
-			else {
-				boolean defineProp = ( var.isCustom() && var.entity == custom )? true : false;
-				String data = null;
-				if( defineProp )
-					data = value.getExpressionValue();
-				else {
-					data = value.getOriginalValue();
+				if( exportApp ) {
+					String data = value.getOriginalValue();
 					if( data == null || data.isEmpty() )
 						continue;
+					
+					if( var.isEnum() ) {
+						int ev = Integer.parseInt( data );
+						if( ev == DBEnums.VALUE_UNKNOWN )
+							continue;
+						
+						data = DBEnums.getEnumValue( var.enumClass , ev );
+					}
+					else
+					if( var.isObject() ) {
+						int ev = Integer.parseInt( data );
+						data = var.exportxmlObjectValue( loader , ev );
+					}
+						
+					if( appAsProperties )
+						exportxmlSetProperty( loader , doc , root , var , data , false );
+					else
+						exportxmlSetAttr( loader , doc , root , var , data );
 				}
-				
-				exportxmlSetProperty( loader , doc , nodeCustom , var , data , defineProp );
+			}
+			else {
+				if( !exportApp ) {
+					boolean defineProp = ( var.isCustom() && var.entity == custom )? true : false;
+					String data = null;
+					if( defineProp )
+						data = value.getExpressionValue();
+					else {
+						data = value.getOriginalValue();
+						if( data == null || data.isEmpty() )
+							continue;
+					}
+					
+					exportxmlSetProperty( loader , doc , root , var , data , defineProp );
+				}
 			}
 		}
 	}

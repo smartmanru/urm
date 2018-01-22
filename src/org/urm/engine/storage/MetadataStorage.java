@@ -46,6 +46,12 @@ public class MetadataStorage {
 		return( folder.getFilePath( action , UrmStorage.CORE_SETTINGS_FILE ) );
 	}
 	
+	public String getUnitsFile( ActionBase action ) throws Exception {
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.name );
+		return( folder.getFilePath( action , UrmStorage.UNITS_FILE ) );
+	}
+	
 	public String getDocumentationFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.name );

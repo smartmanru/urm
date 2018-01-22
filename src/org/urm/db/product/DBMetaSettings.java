@@ -14,12 +14,18 @@ import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
+import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductSettings;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class DBMetaSettings {
 
 	public static String ELEMENT_CUSTOM = "custom";
+	public static String ELEMENT_CORE = "core";
+	public static String ELEMENT_BUILD = "build";
+	public static String ELEMENT_MODE = "mode";
 	
 	public static void importxml( EngineLoader loader , ProductMeta storage , ProductContext context , Node root ) throws Exception {
 		AppProduct product = storage.product;
@@ -37,7 +43,7 @@ public class DBMetaSettings {
 		settings.createSettings( opsContext , context );
 		
 		// core and monitoring settings
-		Node coreNode = ConfReader.xmlGetFirstChild( root , "core" );
+		Node coreNode = ConfReader.xmlGetFirstChild( root , ELEMENT_CORE );
 		if( coreNode == null )
 			Common.exitUnexpected();
 		ObjectProperties opsCore = entities.createMetaCoreSettingsProps( opsContext );
@@ -49,14 +55,14 @@ public class DBMetaSettings {
 
 		// build settings
 		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( opsCore );
-		Node buildNode = ConfReader.xmlGetFirstChild( root , "build" );
+		Node buildNode = ConfReader.xmlGetFirstChild( root , ELEMENT_BUILD );
 		if( buildNode == null )
 			Common.exitUnexpected();
 		DBSettings.importxml( loader , buildNode , opsBuildCommon , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
 		
 		settings.createBuildCommonSettings( opsBuildCommon );
 		
-		Node[] items = ConfReader.xmlGetChildren( buildNode , "mode" );
+		Node[] items = ConfReader.xmlGetChildren( buildNode , ELEMENT_MODE );
 		if( items != null ) {
 			for( Node node : items ) {
 				String modeName = ConfReader.getAttrValue( node , "name" );
@@ -110,4 +116,30 @@ public class DBMetaSettings {
 		}
 	}
 
+	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
+		MetaProductSettings settings = storage.getSettings();
+
+		// custom settings
+		DBSettings.exportxmlEntity( loader , doc , root , settings.ctx , false , false );
+		
+		// core settings
+		Element coreNode = Common.xmlCreateElement( doc , root , ELEMENT_CORE );
+		DBSettings.exportxmlEntity( loader , doc , coreNode , settings.core.ops , false , false );
+
+		// build settings
+		Element coreBuild = Common.xmlCreateElement( doc , root , ELEMENT_BUILD );
+		DBSettings.exportxmlEntity( loader , doc , coreNode , settings.buildCommon.ops , false , false );
+		
+		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
+			if( mode == DBEnumBuildModeType.UNKNOWN )
+				continue;
+			
+			Element coreMode = Common.xmlCreateElement( doc , coreBuild , ELEMENT_BUILD );
+			Common.xmlSetNameAttr( doc , coreMode , Common.getEnumLower( mode ) );
+			
+			MetaProductBuildSettings buildMode = settings.getBuildModeSettings( mode );
+			DBSettings.exportxmlEntity( loader , doc , coreMode , buildMode.ops , false , false );
+		}
+	}
+	
 }

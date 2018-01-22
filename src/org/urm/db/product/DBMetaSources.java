@@ -80,7 +80,7 @@ public class DBMetaSources {
 		else
 			DBNames.updateName( c , storage.ID , set.NAME , set.ID , DBEnumObjectType.META_SOURCESET );
 		
-		set.PV = c.getNextProductVersion( storage.product );
+		set.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaSourceSet , set.ID , set.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -173,7 +173,7 @@ public class DBMetaSources {
 		else
 			DBNames.updateName( c , storage.ID , project.NAME , project.ID , DBEnumObjectType.META_SOURCEPROJECT );
 		
-		project.PV = c.getNextProductVersion( storage.product );
+		project.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaSourceProject , project.ID , project.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -230,7 +230,7 @@ public class DBMetaSources {
 		else
 			DBNames.updateName( c , item.project.ID , item.NAME , item.ID , DBEnumObjectType.META_SOURCEITEM );
 		
-		item.PV = c.getNextProductVersion( storage.product );
+		item.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaSourceItem , item.ID , item.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -247,7 +247,9 @@ public class DBMetaSources {
 				} , insert );
 	}
 	
-	public static void exportxml( EngineLoader loader , ProductMeta storage , MetaSources sources , Document doc , Element root ) throws Exception {
+	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
+		MetaSources sources = storage.getSources();
+		
 		for( String name : sources.getSetNames() ) {
 			MetaSourceProjectSet set = sources.findProjectSet( name );
 			Element node = Common.xmlCreateElement( doc , root , ELEMENT_SET );
@@ -572,7 +574,7 @@ public class DBMetaSources {
 			EngineEntities entities = c.getEntities();
 			PropertyEntity entity = entities.entityAppMetaSourceSet;
 			
-			int version = c.getNextProductVersion( storage.product );
+			int version = c.getNextProductVersion( storage );
 			DBEngineEntities.deleteAppObject( c , entity , setOld.ID , version );
 			sources.removeProjectSet( setOld );
 		}
@@ -677,7 +679,7 @@ public class DBMetaSources {
 		EngineEntities entities = c.getEntities();
 		PropertyEntity entity = entities.entityAppMetaSourceItem;
 		
-		int version = c.getNextProductVersion( storage.product );
+		int version = c.getNextProductVersion( storage );
 		DBEngineEntities.deleteAppObject( c , entity , item.ID , version );
 		sources.removeProjectItem( item );
 	}

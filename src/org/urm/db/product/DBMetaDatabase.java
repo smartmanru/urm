@@ -72,7 +72,7 @@ public class DBMetaDatabase {
 		else
 			DBNames.updateName( c , storage.ID , schema.NAME , schema.ID , DBEnumObjectType.META_SCHEMA );
 		
-		schema.PV = c.getNextProductVersion( storage.product );
+		schema.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaSchema , schema.ID , schema.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -84,7 +84,9 @@ public class DBMetaDatabase {
 				} , insert );
 	}
 
-	public static void exportxml( EngineLoader loader , ProductMeta storage , MetaDatabase database , Document doc , Element root ) throws Exception {
+	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
+		MetaDatabase database = storage.getDatabase();
+		
 		exportxmlAdministration( loader , storage , database , doc , root );
 		exportxmlSchemaSet( loader , storage , database , doc , root );
 	}
@@ -174,7 +176,7 @@ public class DBMetaDatabase {
 		MetaDistr distr = schema.meta.getDistr();
 		DBMetaDistr.deleteDatabaseSchema( transaction , storage , distr , schema );
 		
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaSchema , schema.ID , c.getNextProductVersion( storage.product ) );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaSchema , schema.ID , c.getNextProductVersion( storage ) );
 		database.removeSchema( schema );
 	}
 

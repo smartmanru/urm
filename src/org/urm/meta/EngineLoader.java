@@ -318,7 +318,7 @@ public class EngineLoader {
 		AppProduct product = directory.getProduct( productId );
 		
 		trace( "export engine product=" + product.NAME + " data ..." );
-		ldp.saveProductMetadata( product.NAME );
+		ldp.exportProductMetadata( product );
 	}
 
 	public void importProduct( Integer productId , boolean includingEnvironments ) throws Exception {

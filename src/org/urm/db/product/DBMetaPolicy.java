@@ -89,7 +89,7 @@ public class DBMetaPolicy {
 	}
 
 	private static void modifyPolicy( DBConnection c , ProductMeta storage , MetaProductPolicy policy , boolean insert ) throws Exception {
-		policy.PV = c.getNextProductVersion( storage.product );
+		policy.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaPolicy , storage.ID , policy.PV , new String[] {
 				EngineDB.getBoolean( policy.LCUrgentAll )
@@ -102,12 +102,14 @@ public class DBMetaPolicy {
 				EngineDB.getInteger( index ) ,
 				EngineDB.getInteger( item.FKID ) ,
 				EngineDB.getString( item.FKNAME ) ,
-				EngineDB.getInteger( c.getNextProductVersion( storage.product ) )
+				EngineDB.getInteger( c.getNextProductVersion( storage ) )
 				} ) )
 			Common.exitUnexpected();
 	}
 
-	public static void exportxml( EngineLoader loader , ProductMeta storage , MetaProductPolicy policy , Document doc , Element root ) throws Exception {
+	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
+		MetaProductPolicy policy = storage.getPolicy();
+		
 		EngineLifecycles lifecycles = loader.getLifecycles();
 		if( policy.LC_MAJOR != null ) {
 			ReleaseLifecycle lc = lifecycles.getLifecycle( policy.LC_MAJOR.FKID );

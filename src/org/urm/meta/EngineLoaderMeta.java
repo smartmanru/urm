@@ -20,6 +20,7 @@ import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class EngineLoaderMeta {
@@ -49,10 +50,25 @@ public class EngineLoaderMeta {
 		saveMonitoring( ms );
 	}
 	
+	public void exportAll( MetadataStorage ms ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
+		trace( "export engine product data, name=" + set.name + ", version=" + c.getCurrentProductVersion( set ) + " ..." );
+		exportxmlMeta( ms );
+		exportxmlSettings( ms );
+		exportxmlPolicy( ms );
+		exportxmlUnits( ms );
+		exportxmlDatabase( ms );
+		exportxmlSources( ms );
+		exportxmlDocs( ms );
+		exportxmlDistr( ms );
+		exportxmlMonitoring( ms );
+	}
+	
 	public void loaddbAll( ProductContext context ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
-		trace( "load engine product data, name=" + context.product.NAME + ", version=" + c.getCurrentProductVersion( context.product.ID ) + " ..." );
+		trace( "load engine product data, name=" + set.name + ", version=" + c.getCurrentProductVersion( set ) + " ..." );
 		loaddbMeta();
 		loaddbSettings( context );
 		loaddbPolicy();
@@ -64,32 +80,32 @@ public class EngineLoaderMeta {
 		loaddbMonitoring();
 	}
 
-	public void importxmlAll( MetadataStorage storageMeta , ProductContext context ) throws Exception {
-		importxmlMeta( storageMeta );
-		importxmlSettings( storageMeta , context );
-		importxmlPolicy( storageMeta );
-		importxmlUnits( storageMeta );
-		importxmlDatabase( storageMeta );
-		importxmlSources( storageMeta );
-		importxmlDocs( storageMeta );
-		importxmlDistr( storageMeta );
-		importxmlMonitoring( storageMeta );
+	public void importxmlAll( MetadataStorage ms , ProductContext context ) throws Exception {
+		importxmlMeta( ms );
+		importxmlSettings( ms , context );
+		importxmlPolicy( ms );
+		importxmlUnits( ms );
+		importxmlDatabase( ms );
+		importxmlSources( ms );
+		importxmlDocs( ms );
+		importxmlDistr( ms );
+		importxmlMonitoring( ms );
 	}
 	
-	private void saveDistr( MetadataStorage storageMeta ) throws Exception {
+	private void saveDistr( MetadataStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		Document doc = Common.xmlCreateDoc( XML_ROOT_DISTR );
 		MetaDistr distr = set.getDistr();
 		distr.save( action , doc , doc.getDocumentElement() );
-		storageMeta.saveDistrConfFile( action , doc );
+		ms.saveDistrConfFile( action , doc );
 	}
 	
-	private void saveMonitoring( MetadataStorage storageMeta ) throws Exception {
+	private void saveMonitoring( MetadataStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		Document doc = Common.xmlCreateDoc( XML_ROOT_MONITORING );
 		MetaMonitoring mon = set.getMonitoring();
 		mon.save( action , doc , doc.getDocumentElement() );
-		storageMeta.saveMonitoringConfFile( action , doc );
+		ms.saveMonitoringConfFile( action , doc );
 	}
 	
 	private void loaddbMeta() throws Exception {
@@ -133,11 +149,11 @@ public class EngineLoaderMeta {
 	private void loaddbMonitoring() throws Exception {
 	}
 	
-	private void importxmlMeta( MetadataStorage storageMeta ) throws Exception {
+	private void importxmlMeta( MetadataStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
-			String file = storageMeta.getVersionConfFile( action );
+			String file = ms.getVersionConfFile( action );
 			action.debug( "read product version file " + file + "..." );
 			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
 			Node root = doc.getDocumentElement();
@@ -149,12 +165,23 @@ public class EngineLoaderMeta {
 		}
 	}
 
-	private void importxmlSettings( MetadataStorage storageMeta , ProductContext context ) throws Exception {
+	private void exportxmlMeta( MetadataStorage ms ) throws Exception {
+		ActionBase action = loader.getAction();
+		String file = ms.getVersionConfFile( action );
+		action.debug( "export product version file " + file + "..." );
+		Document doc = Common.xmlCreateDoc( "version" );
+		Element root = doc.getDocumentElement();
+
+		DBMeta.exportxml( loader , set , doc , root );
+		Common.xmlSaveDoc( doc , file );
+	}
+
+	private void importxmlSettings( MetadataStorage ms , ProductContext context ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
-			String file = storageMeta.getCoreConfFile( action );
-			action.debug( "read product definition file " + file + "..." );
+			String file = ms.getCoreConfFile( action );
+			action.debug( "read product settings file " + file + "..." );
 			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
 			Node root = doc.getDocumentElement();
 
@@ -165,11 +192,22 @@ public class EngineLoaderMeta {
 		}
 	}
 	
-	private void importxmlPolicy( MetadataStorage storageMeta ) throws Exception {
+	private void exportxmlSettings( MetadataStorage ms ) throws Exception {
+		ActionBase action = loader.getAction();
+		String file = ms.getCoreConfFile( action );
+		action.debug( "export product settings file " + file + "..." );
+		Document doc = Common.xmlCreateDoc( "settings" );
+		Element root = doc.getDocumentElement();
+
+		DBMetaSettings.exportxml( loader , set , doc , root );
+		Common.xmlSaveDoc( doc , file );
+	}
+	
+	private void importxmlPolicy( MetadataStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
-			String file = storageMeta.getPolicyConfFile( action );
+			String file = ms.getPolicyConfFile( action );
 			action.debug( "read product policy file " + file + "..." );
 			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
 			Node root = doc.getDocumentElement();
@@ -181,28 +219,49 @@ public class EngineLoaderMeta {
 		}
 	}
 
-	private void importxmlUnits( MetadataStorage storageMeta ) throws Exception {
+	private void exportxmlPolicy( MetadataStorage ms ) throws Exception {
+		ActionBase action = loader.getAction();
+		String file = ms.getPolicyConfFile( action );
+		action.debug( "read product policy file " + file + "..." );
+		Document doc = Common.xmlCreateDoc( "policy" );
+		Element root = doc.getDocumentElement();
+		
+		DBMetaPolicy.exportxml( loader , set , doc , root );
+		Common.xmlSaveDoc( doc , file );
+	}
+
+	private void importxmlUnits( MetadataStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
-			String file = storageMeta.getCoreConfFile( action );
+			String file = ms.getUnitsFile( action );
 			action.debug( "read units definition file " + file + "..." );
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
-			Node node = ConfReader.xmlGetFirstChild( root , "units" );
 			
-			DBMetaUnits.importxml( loader , set , node );
+			DBMetaUnits.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
 			setLoadFailed( action , _Error.UnableLoadProductUnits1 , e , "unable to import units metadata, product=" + set.name , set.name );
 		}
 	}
 	
-	private void importxmlDatabase( MetadataStorage storageMeta ) throws Exception {
+	private void exportxmlUnits( MetadataStorage ms ) throws Exception {
+		ActionBase action = loader.getAction();
+		String file = ms.getUnitsFile( action );
+		action.debug( "read units definition file " + file + "..." );
+		Document doc = Common.xmlCreateDoc( "units" );
+		Element root = doc.getDocumentElement();
+		
+		DBMetaUnits.exportxml( loader , set , doc , root );
+		Common.xmlSaveDoc( doc , file );
+	}
+	
+	private void importxmlDatabase( MetadataStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
-			String file = storageMeta.getDatabaseConfFile( action );
+			String file = ms.getDatabaseConfFile( action );
 			action.debug( "read database definition file " + file + "..." );
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
@@ -214,11 +273,22 @@ public class EngineLoaderMeta {
 		}
 	}
 	
-	private void importxmlSources( MetadataStorage storageMeta ) throws Exception {
+	private void exportxmlDatabase( MetadataStorage ms ) throws Exception {
+		ActionBase action = loader.getAction();
+		String file = ms.getDatabaseConfFile( action );
+		action.debug( "read database definition file " + file + "..." );
+		Document doc = Common.xmlCreateDoc( "database" );
+		Element root = doc.getDocumentElement();
+		
+		DBMetaDatabase.exportxml( loader , set , doc , root );
+		Common.xmlSaveDoc( doc , file );
+	}
+	
+	private void importxmlSources( MetadataStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
-			String file = storageMeta.getSourcesConfFile( action );
+			String file = ms.getSourcesConfFile( action );
 			action.debug( "read source definition file " + file + "..." );
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
@@ -230,11 +300,22 @@ public class EngineLoaderMeta {
 		}
 	}
 	
-	private void importxmlDocs( MetadataStorage storageMeta ) throws Exception {
+	private void exportxmlSources( MetadataStorage ms ) throws Exception {
+		ActionBase action = loader.getAction();
+		String file = ms.getSourcesConfFile( action );
+		action.debug( "read source definition file " + file + "..." );
+		Document doc = Common.xmlCreateDoc( "sources" );
+		Element root = doc.getDocumentElement();
+		
+		DBMetaSources.exportxml( loader , set , doc , root );
+		Common.xmlSaveDoc( doc , file );
+	}
+	
+	private void importxmlDocs( MetadataStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
-			String file = storageMeta.getDocumentationFile( action );
+			String file = ms.getDocumentationFile( action );
 			action.debug( "read units definition file " + file + "..." );
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
@@ -246,7 +327,18 @@ public class EngineLoaderMeta {
 		}
 	}
 	
-	private void importxmlDistr( MetadataStorage storageMeta ) throws Exception {
+	private void exportxmlDocs( MetadataStorage ms ) throws Exception {
+		ActionBase action = loader.getAction();
+		String file = ms.getDocumentationFile( action );
+		action.debug( "read units definition file " + file + "..." );
+		Document doc = Common.xmlCreateDoc( "docs" );
+		Element root = doc.getDocumentElement();
+		
+		DBMetaDocs.exportxml( loader , set , doc , root );
+		Common.xmlSaveDoc( doc , file );
+	}
+	
+	private void importxmlDistr( MetadataStorage ms ) throws Exception {
 		MetaProductSettings settings = set.getSettings();
 		MetaDatabase db = set.getDatabase();
 		MetaDocs docs = set.getDocs();
@@ -256,7 +348,7 @@ public class EngineLoaderMeta {
 		ActionBase action = loader.getAction();
 		try {
 			// read
-			String file = storageMeta.getDistrConfFile( action );
+			String file = ms.getDistrConfFile( action );
 			action.debug( "read distributive definition file " + file + "..." );
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
@@ -267,7 +359,10 @@ public class EngineLoaderMeta {
 		}
 	}
 
-	private void importxmlMonitoring( MetadataStorage storageMeta ) throws Exception {
+	private void exportxmlDistr( MetadataStorage ms ) throws Exception {
+	}
+	
+	private void importxmlMonitoring( MetadataStorage ms ) throws Exception {
 		MetaProductSettings settings = set.getSettings();
 		MetaMonitoring mon = new MetaMonitoring( set , settings , set.meta );
 		set.setMonitoring( mon );
@@ -275,7 +370,7 @@ public class EngineLoaderMeta {
 		ActionBase action = loader.getAction();
 		try {
 			// read
-			String file = storageMeta.getMonitoringConfFile( action );
+			String file = ms.getMonitoringConfFile( action );
 			action.debug( "read monitoring definition file " + file + "..." );
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
@@ -284,6 +379,9 @@ public class EngineLoaderMeta {
 		catch( Throwable e ) {
 			setLoadFailed( action , _Error.UnableLoadProductMonitoring1 , e , "unable to import monitoring metadata, product=" + set.name , set.name );
 		}
+	}
+
+	private void exportxmlMonitoring( MetadataStorage ms ) throws Exception {
 	}
 	
 	public void trace( String s ) {

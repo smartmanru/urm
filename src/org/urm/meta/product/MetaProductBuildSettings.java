@@ -49,7 +49,7 @@ public class MetaProductBuildSettings {
 	public String CONFIG_BRANCHNAME;
 	public String CONFIG_RELEASE_GROUPFOLDER;
 
-	private ObjectProperties ops;
+	public ObjectProperties ops;
 	
 	public MetaProductBuildSettings( String name , Meta meta , MetaProductSettings settings ) {
 		this.name = name;

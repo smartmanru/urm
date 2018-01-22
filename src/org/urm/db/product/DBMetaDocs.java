@@ -67,7 +67,7 @@ public class DBMetaDocs {
 		else
 			DBNames.updateName( c , storage.ID , doc.NAME , doc.ID , DBEnumObjectType.META_DOC );
 		
-		doc.PV = c.getNextProductVersion( storage.product );
+		doc.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaDoc , doc.ID , doc.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -78,7 +78,9 @@ public class DBMetaDocs {
 				} , insert );
 	}
 	
-	public static void exportxml( EngineLoader loader , ProductMeta storage , MetaDocs docs , Document doc , Element root ) throws Exception {
+	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
+		MetaDocs docs = storage.getDocs();
+		
 		for( String name : docs.getDocNames() ) {
 			MetaProductDoc pdoc = docs.findDoc( name );
 			Element node = Common.xmlCreateElement( doc , root , ELEMENT_DOCUMENT );
@@ -157,7 +159,7 @@ public class DBMetaDocs {
 		MetaDistr distr = storage.getDistr();
 		DBMetaDistr.deleteDocument( transaction , storage , distr , doc );
 		
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDoc , doc.ID , c.getNextProductVersion( storage.product ) );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDoc , doc.ID , c.getNextProductVersion( storage ) );
 		docs.removeDoc( doc );
 	}
 	

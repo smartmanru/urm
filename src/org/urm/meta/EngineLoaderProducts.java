@@ -104,12 +104,38 @@ public class EngineLoaderProducts {
 		saveAll( storage );
 	}
 	
+	public void exportProductMetadata( AppProduct product ) throws Exception {
+		EngineProducts products = data.getProducts();
+		ProductMeta storage = products.findProductStorage( product.NAME );
+		if( storage == null )
+			Common.exitUnexpected();
+
+		exportAll( storage );
+	}
+	
 	public void saveAll( ProductMeta set ) throws Exception {
 		ActionBase action = loader.getAction();
 		MetadataStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
 		
 		EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
 		ldm.saveAll( ms );
+		
+		for( String envName : set.getEnvironmentNames() ) {
+			MetaEnv env = set.findEnvironment( envName );
+			saveEnvData( set , ms , env );
+		}
+		for( String diagramName : set.getDiagramNames() ) {
+			MetaDesignDiagram diagram = set.findDiagram( diagramName );
+			saveDesignData( set , ms , diagram );
+		}
+	}
+	
+	public void exportAll( ProductMeta set ) throws Exception {
+		ActionBase action = loader.getAction();
+		MetadataStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
+		
+		EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
+		ldm.exportAll( ms );
 		
 		for( String envName : set.getEnvironmentNames() ) {
 			MetaEnv env = set.findEnvironment( envName );

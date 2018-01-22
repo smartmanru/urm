@@ -19,6 +19,8 @@ import org.urm.meta.ProductContext;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class DBMeta {
@@ -70,6 +72,23 @@ public class DBMeta {
 		
 		modifyMeta( c , storage , version , true );
 	}
+
+	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaVersion;
+		
+		MetaProductVersion version = storage.getVersion();
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlInt( version.majorLastFirstNumber ) , 
+				entity.exportxmlInt( version.majorLastSecondNumber) , 
+				entity.exportxmlInt( version.lastProdTag ) , 
+				entity.exportxmlInt( version.lastUrgentTag ) , 
+				entity.exportxmlInt( version.majorNextFirstNumber ) , 
+				entity.exportxmlInt( version.majorNextSecondNumber ) , 
+				entity.exportxmlInt( version.nextProdTag ) , 
+				entity.exportxmlInt( version.nextUrgentTag ) 
+		} , true );
+	}
 	
 	private static void modifyMeta( DBConnection c , ProductMeta storage , MetaProductVersion version , boolean insert ) throws Exception {
 		if( insert )
@@ -77,7 +96,7 @@ public class DBMeta {
 		else
 			DBNames.updateName( c , DBVersions.CORE_ID , storage.name , storage.ID , DBEnumObjectType.META );
 		
-		storage.PV = c.getNextProductVersion( storage.product );
+		storage.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMeta , storage.ID , storage.PV , new String[] {
 				EngineDB.getInteger( storage.product.ID ) ,

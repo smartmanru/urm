@@ -66,7 +66,7 @@ public class DBMetaUnits {
 		else
 			DBNames.updateName( c , storage.ID , unit.NAME , unit.ID , DBEnumObjectType.META_UNIT );
 		
-		unit.PV = c.getNextProductVersion( storage.product );
+		unit.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaUnit , unit.ID , unit.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -75,7 +75,9 @@ public class DBMetaUnits {
 				} , insert );
 	}
 	
-	public static void exportxml( EngineLoader loader , ProductMeta storage , MetaUnits units , Document doc , Element root ) throws Exception {
+	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
+		MetaUnits units = storage.getUnits();
+		
 		for( String name : units.getUnitNames() ) {
 			MetaProductUnit unit = units.findUnit( name );
 			Element node = Common.xmlCreateElement( doc , root , ELEMENT_UNIT );
@@ -150,7 +152,7 @@ public class DBMetaUnits {
 		MetaSources sources = storage.getSources();
 		DBMetaSources.deleteUnit( transaction , storage , sources , unit );
 		
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaUnit , unit.ID , c.getNextProductVersion( storage.product ) );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaUnit , unit.ID , c.getNextProductVersion( storage ) );
 		units.removeUnit( unit );
 	}
 	

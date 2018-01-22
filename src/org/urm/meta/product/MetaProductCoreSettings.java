@@ -43,8 +43,8 @@ public class MetaProductCoreSettings {
 
 	public Meta meta;
 	public MetaProductSettings settings;
-	private ObjectProperties ops;
-	private ObjectProperties mon;
+	public ObjectProperties ops;
+	public ObjectProperties mon;
 	
 	public String CONFIG_REDISTWIN_PATH;
 	public String CONFIG_REDISTLINUX_PATH;

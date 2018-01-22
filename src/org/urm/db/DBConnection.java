@@ -15,8 +15,8 @@ import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.engine.Engine;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.meta.OwnerObjectVersion;
+import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.AppSystem;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.MetaEnv;
 
 public class DBConnection {
@@ -322,26 +322,26 @@ public class DBConnection {
 		return( getLastObjectVersion( systemId , DBEnumObjectVersionType.SYSTEM ) );
 	}
 	
-	public synchronized int getCurrentProductVersion( int productId ) throws Exception {
-		return( getCurrentObjectVersion( productId , DBEnumObjectVersionType.PRODUCT ) );
+	public synchronized int getCurrentProductVersion( ProductMeta storage ) throws Exception {
+		return( getCurrentObjectVersion( storage.ID , DBEnumObjectVersionType.PRODUCT ) );
 	}
 	
-	public synchronized int getNextProductVersion( AppProduct product , boolean delete ) throws Exception {
-		OwnerObjectVersion version = getObjectVersion( product.ID , DBEnumObjectVersionType.PRODUCT );
+	public synchronized int getNextProductVersion( ProductMeta storage , boolean delete ) throws Exception {
+		OwnerObjectVersion version = getObjectVersion( storage.ID , DBEnumObjectVersionType.PRODUCT );
 		if( version.nextVersion < 0 ) {
-			version.LAST_NAME = product.NAME;
+			version.LAST_NAME = storage.name;
 			version.OWNER_STATUS_TYPE = ( delete )? DBEnumOwnerStatusType.DELETED : DBEnumOwnerStatusType.ACTIVE;
 			DBVersions.setNextVersion( this , version , version.VERSION + 1 );
 		}
 		return( version.nextVersion );
 	}
 	
-	public synchronized int getNextProductVersion( AppProduct product ) throws Exception {
-		return( getNextProductVersion( product , false ) );
+	public synchronized int getNextProductVersion( ProductMeta storage ) throws Exception {
+		return( getNextProductVersion( storage , false ) );
 	}
 	
-	public synchronized int getProductVersion( int productId ) throws Exception {
-		return( getLastObjectVersion( productId , DBEnumObjectVersionType.PRODUCT ) );
+	public synchronized int getProductVersion( ProductMeta storage ) throws Exception {
+		return( getLastObjectVersion( storage.ID , DBEnumObjectVersionType.PRODUCT ) );
 	}
 	
 	public synchronized int getCurrentEnvironmentVersion( int envId ) throws Exception {
