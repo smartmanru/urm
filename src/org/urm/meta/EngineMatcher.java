@@ -82,24 +82,32 @@ public class EngineMatcher {
 		for( MetaSourceProject project : sources.getAllProjectList( false ) ) {
 			MirrorRepository repo = mirrors.findProjectRepository( project );
 			if( repo != null ) {
-				project.setMirror( repo );
-				repo.setProductProject( product.ID , project.ID );
-				
 				if( update ) {
-					EngineResources resources = loader.getResources();
-					AuthResource res = resources.findResource( project.MIRROR_RESOURCE );
-					if( res == null ) {
-						loader.trace( "missing expected resource, project=" + project.NAME + ", resource=" + project.MIRROR_RESOURCE );
-						return( false );
+					Integer resId = repo.RESOURCE_ID;
+					if( !project.MIRROR_RESOURCE.isEmpty() ) {
+						EngineResources resources = loader.getResources();
+						AuthResource res = resources.findResource( project.MIRROR_RESOURCE );
+						if( res == null ) {
+							loader.trace( "missing expected resource, project=" + project.NAME + ", resource=" + project.MIRROR_RESOURCE );
+							return( false );
+						}
+						
+						resId = res.ID;
 					}
 					
-					repo.setMirror( res.ID , project.MIRROR_REPOSITORY , project.MIRROR_REPOPATH , project.MIRROR_CODEPATH );
+					repo.setProductProject( product.ID , project.ID );
+					repo.setMirror( resId , project.MIRROR_REPOSITORY , project.MIRROR_REPOPATH , project.MIRROR_CODEPATH );
+					project.setMirror( repo );
 					
 					DBConnection c = loader.getConnection();
 					DBEngineMirrors.modifyRepository( c , repo , false );
 					
 					ProductMeta storage = sources.meta.getStorage();
 					DBMetaSources.modifyProject( c , storage , project , false );
+				}
+				else {
+					repo.setProductProject( product.ID , project.ID );
+					project.setMirror( repo );
 				}
 			}
 			else {

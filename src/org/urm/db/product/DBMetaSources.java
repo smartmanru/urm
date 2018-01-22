@@ -63,9 +63,9 @@ public class DBMetaSources {
 				);
 		modifyProjectSet( c , storage , set , true );
 		
-		Node[] sets = ConfReader.xmlGetChildren( root , ELEMENT_PROJECT );
-		if( sets != null ) {
-			for( Node node : sets ) {
+		Node[] projects = ConfReader.xmlGetChildren( root , ELEMENT_PROJECT );
+		if( projects != null ) {
+			for( Node node : projects ) {
 				MetaSourceProject project = importxmlProject( loader , storage , sources , set , node );
 				sources.addProject( set , project );
 			}
@@ -156,9 +156,9 @@ public class DBMetaSources {
 		
 		modifyProject( c , storage , project , true );
 		
-		Node[] sets = ConfReader.xmlGetChildren( root , ELEMENT_ITEM );
-		if( sets != null ) {
-			for( Node node : sets ) {
+		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_ITEM );
+		if( items != null ) {
+			for( Node node : items ) {
 				MetaSourceProjectItem item = importxmlProjectItem( loader , storage , sources , project , node );
 				sources.addProjectItem( project , item );
 			}
