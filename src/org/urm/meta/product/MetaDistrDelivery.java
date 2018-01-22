@@ -150,7 +150,7 @@ public class MetaDistrDelivery {
 		
 		for( Node item : items ) {
 			String docName = ConfReader.getAttrValue( item , "name" );
-			MetaProductDoc doc = docs.getDoc( action , docName );
+			MetaProductDoc doc = docs.getDoc( docName );
 			mapDocuments.put( docName , doc );
 		}
 	}
@@ -180,7 +180,7 @@ public class MetaDistrDelivery {
 		}
 			
 		for( MetaProductDoc item : mapDocuments.values() ) {
-			MetaProductDoc ritem = rdocs.getDoc( action , item.NAME );
+			MetaProductDoc ritem = rdocs.getDoc( item.NAME );
 			r.mapDocuments.put( ritem.NAME , ritem );
 		}
 			
@@ -241,7 +241,7 @@ public class MetaDistrDelivery {
 	
 	public MetaProductDoc getDoc( ActionBase action , String NAME ) throws Exception {
 		if( allDocs )
-			return( docs.getDoc( action , NAME ) );
+			return( docs.getDoc( NAME ) );
 			
 		MetaProductDoc item = mapDocuments.get( NAME );
 		if( item == null )

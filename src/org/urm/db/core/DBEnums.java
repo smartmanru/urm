@@ -209,7 +209,9 @@ public abstract class DBEnums {
 		META_SCHEMA(103,null) ,
 		META_SOURCESET(104,null) ,
 		META_SOURCEPROJECT(105,null) ,
-		META_SOURCEITEM(106,null);
+		META_SOURCEITEM(106,null) ,
+		META_DOC(107,null) ,
+		META_POLICY(108,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -420,7 +422,9 @@ public abstract class DBEnums {
 		PRODUCT_SCHEMA(154,null) ,
 		PRODUCT_SOURCESET(155,null) ,
 		PRODUCT_SOURCEPROJECT(156,null) ,
-		PRODUCT_SOURCEITEM(157,null);
+		PRODUCT_SOURCEITEM(157,null) ,
+		PRODUCT_DOC(158,null) ,
+		PRODUCT_POLICY(159,null);
 
 		private final int value;
 		private String[] synonyms;

@@ -20,6 +20,7 @@ public class MetaProductPolicy {
 	public MatchItem LC_MINOR;
 	public boolean LCUrgentAll;
 	public MatchItem[] LC_URGENT_LIST;
+	public int PV;
 	
 	public MetaProductPolicy( ProductMeta storage , Meta meta ) {
 		LCUrgentAll = false;
@@ -38,11 +39,13 @@ public class MetaProductPolicy {
 		return( r );
 	}
 
-	public void setLifecycles( MatchItem major , MatchItem minor , boolean urgentsAll , MatchItem[] urgents ) throws Exception {
+	public void setAttrs( boolean urgentsAll ) {
+		LCUrgentAll = urgentsAll;
+	}
+	
+	public void setLifecycles( MatchItem major , MatchItem minor , MatchItem[] urgents ) throws Exception {
 		LC_MAJOR = major;
 		LC_MINOR = minor;
-		
-		LCUrgentAll = urgentsAll;
 		LC_URGENT_LIST = urgents.clone();
 	}
 

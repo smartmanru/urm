@@ -16,6 +16,7 @@ import org.urm.db.engine.DBEngineMirrors;
 import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
 import org.urm.db.product.DBMetaDatabase;
+import org.urm.db.product.DBMetaDocs;
 import org.urm.db.product.DBMetaPolicy;
 import org.urm.db.product.DBMetaSources;
 import org.urm.db.product.DBMetaUnits;
@@ -67,6 +68,7 @@ import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaDump;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
@@ -757,9 +759,16 @@ public class EngineTransaction extends TransactionBase {
 		return( DBMetaUnits.createUnit( this , storage , units , name , desc ) );
 	}
 	
-	public void createProductDoc( MetaProductDoc doc ) throws Exception {
-		checkTransactionMetadata( doc.meta.getStorage() );
-		doc.docs.createDoc( this , doc );
+	public MetaProductDoc createProductDoc( MetaDocs docs , String name , String desc , String ext , boolean unitbound ) throws Exception {
+		ProductMeta storage = docs.meta.getStorage();
+		checkTransactionMetadata( storage );
+		return( DBMetaDocs.createDoc( this , storage , docs , name , desc , ext , unitbound ) );
+	}
+	
+	public void modifyProductDoc( MetaProductDoc doc , String name , String desc , String ext , boolean unitbound ) throws Exception {
+		ProductMeta storage = doc.meta.getStorage();
+		checkTransactionMetadata( storage );
+		DBMetaDocs.modifyDoc( this , storage , doc.docs , doc , name , desc , ext , unitbound );
 	}
 	
 	public MetaDatabaseSchema createDatabaseSchema( MetaDatabase database , String name , String desc , DBEnumDbmsType type , String dbname , String dbuser ) throws Exception {
@@ -771,12 +780,7 @@ public class EngineTransaction extends TransactionBase {
 	public void modifyProductUnit( MetaProductUnit unit , String name , String desc ) throws Exception {
 		ProductMeta storage = unit.meta.getStorage();
 		checkTransactionMetadata( storage );
-		DBMetaUnits.createUnit( this , storage , unit.units , name , desc );
-	}
-	
-	public void modifyProductDoc( MetaProductDoc doc ) throws Exception {
-		checkTransactionMetadata( doc.meta.getStorage() );
-		doc.docs.modifyDoc( this , doc );
+		DBMetaUnits.modifyUnit( this , storage , unit.units , unit , name , desc );
 	}
 	
 	public void modifyDatabaseSchema( MetaDatabaseSchema schema , String name , String desc , DBEnumDbmsType type , String dbname , String dbuser ) throws Exception {
@@ -794,7 +798,7 @@ public class EngineTransaction extends TransactionBase {
 	public void deleteProductDoc( MetaProductDoc doc ) throws Exception {
 		ProductMeta storage = doc.meta.getStorage();
 		checkTransactionMetadata( storage );
-		doc.docs.deleteDoc( this , doc );
+		DBMetaDocs.deleteDoc( this , storage , doc.docs , doc );
 	}
 	
 	public void deleteDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {

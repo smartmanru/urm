@@ -1,64 +1,49 @@
 package org.urm.meta.product;
 
-import org.urm.action.ActionBase;
-import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.engine.EngineTransaction;
-import org.urm.meta.Types.VarNAMETYPE;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
 public class MetaProductDoc {
 
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_EXT = "extension";
+	public static String PROPERTY_UNITBOUND = "unitbound";
+	
 	public Meta meta;
 	public MetaDocs docs;
 
+	public int ID;
 	public String NAME;
 	public String DESC;
 	public String EXT;
 	public boolean UNITBOUND;
+	public int PV;
 
 	public MetaProductDoc( Meta meta , MetaDocs docs ) {
 		this.meta = meta;
 		this.docs = docs;
+		ID = -1;
+		PV = -1;
 	}
 	
-	public void createDoc( EngineTransaction transaction , String NAME , String EXT , String DESC , boolean UNITBOUND ) throws Exception {
-		this.NAME = NAME;
-		this.EXT = EXT;
-		this.DESC = DESC;
-		this.UNITBOUND = UNITBOUND;
-	}
-
-	public void setData( EngineTransaction transaction , String EXT , String DESC , boolean UNITBOUND ) throws Exception {
-		this.EXT = EXT;
-		this.DESC = DESC;
-		this.UNITBOUND = UNITBOUND;
-	}
-	
-	public void load( ActionBase action , Node node ) throws Exception {
-		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUM );
-		EXT = ConfReader.getAttrValue( node , "ext" );
-		DESC = ConfReader.getAttrValue( node , "desc" );
-		UNITBOUND = ConfReader.getBooleanAttrValue( node , "unitbound" , false );
-	}
-
-	public MetaProductDoc copy( ActionBase action , Meta meta , MetaDocs docs ) throws Exception {
-		MetaProductDoc r = new MetaProductDoc( meta , docs );
-		
+	public MetaProductDoc copy( Meta rmeta , MetaDocs rdocs ) throws Exception {
+		MetaProductDoc r = new MetaProductDoc( rmeta , rdocs );
+		r.ID = ID;
 		r.NAME = NAME;
 		r.EXT = EXT;
 		r.DESC = DESC;
 		r.UNITBOUND = UNITBOUND;
+		r.PV = PV;
 		return( r );
 	}
 
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "name" , NAME );
-		Common.xmlSetElementAttr( doc , root , "ext" , EXT );
-		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
-		Common.xmlSetElementBooleanAttr( doc , root , "unitbound" , UNITBOUND );
+	public void createDoc( String name , String ext , String desc , boolean unitbound ) throws Exception {
+		modifyDoc( name , ext , desc , unitbound );
 	}
 	
+	public void modifyDoc( String name , String ext , String desc , boolean unitbound ) throws Exception {
+		this.NAME = name;
+		this.EXT = ext;
+		this.DESC = desc;
+		this.UNITBOUND = unitbound;
+	}
+
 }

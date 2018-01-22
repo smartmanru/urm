@@ -104,9 +104,8 @@ public class ProductMeta extends EngineObject {
 		r.units = units.copy( r.meta );
 		r.database = database.copy( r.meta );
 		r.sources = sources.copy( r.meta );
+		r.docs = docs.copy( r.meta );
 		
-		if( docs != null )
-			r.docs = docs.copy( action , r.meta );
 		if( distr != null )
 			r.distr = distr.copy( action , r.meta , r.database , r.docs );
 		if( mon != null )
@@ -217,8 +216,8 @@ public class ProductMeta extends EngineObject {
 	}
 	
 	private void createInitialDocs( TransactionBase transaction ) throws Exception {
-		docs = new MetaDocs( this , settings , meta );
-		docs.createDocs( transaction );
+		docs = new MetaDocs( this , meta );
+		// docs.createDocs( transaction );
 		meta.setDocs( docs );
 	}
 	

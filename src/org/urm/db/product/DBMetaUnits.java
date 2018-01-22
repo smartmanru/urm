@@ -14,7 +14,6 @@ import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductMeta;
-import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaSources;
@@ -53,8 +52,8 @@ public class DBMetaUnits {
 		
 		MetaProductUnit unit = new MetaProductUnit( storage.meta , units );
 		unit.createUnit( 
-				entity.importxmlStringAttr( root , ReleaseLifecycle.PROPERTY_NAME ) ,
-				entity.importxmlStringAttr( root , ReleaseLifecycle.PROPERTY_DESC )
+				entity.importxmlStringAttr( root , MetaProductUnit.PROPERTY_NAME ) ,
+				entity.importxmlStringAttr( root , MetaProductUnit.PROPERTY_DESC )
 				);
 		
 		modifyUnit( c , storage , unit , true );
@@ -133,7 +132,7 @@ public class DBMetaUnits {
 		return( unit );
 	}
 	
-	public static void modifyLifecycle( EngineTransaction transaction , ProductMeta storage , MetaUnits units , MetaProductUnit unit , String name , String desc ) throws Exception {
+	public static void modifyUnit( EngineTransaction transaction , ProductMeta storage , MetaUnits units , MetaProductUnit unit , String name , String desc ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		unit.modifyUnit( name , desc );

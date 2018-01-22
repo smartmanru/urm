@@ -1210,7 +1210,7 @@ public class TransactionBase extends EngineObject {
 	public MetaProductDoc getProductDoc( MetaProductDoc doc ) throws Exception {
 		Meta meta = getTransactionMetadata( doc.meta.name );
 		MetaDocs docs = meta.getDocs();
-		return( docs.getDoc( action , doc.NAME ) );
+		return( docs.getDoc( doc.NAME ) );
 	}
 
 	public MetaDistrComponent getDistrComponent( MetaDistrComponent comp ) throws Exception {

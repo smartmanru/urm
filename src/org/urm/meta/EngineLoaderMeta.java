@@ -3,8 +3,10 @@ package org.urm.meta;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.db.DBConnection;
 import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBMetaDatabase;
+import org.urm.db.product.DBMetaDocs;
 import org.urm.db.product.DBMetaSettings;
 import org.urm.db.product.DBMetaPolicy;
 import org.urm.db.product.DBMetaSources;
@@ -18,7 +20,6 @@ import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class EngineLoaderMeta {
@@ -53,8 +54,11 @@ public class EngineLoaderMeta {
 	}
 	
 	public void loaddbAll( ProductContext context ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
+		trace( "load engine product data, name=" + context.product.NAME + ", version=" + c.getCurrentProductVersion( context.product.ID ) + " ..." );
 		loaddbMeta();
-		loaddbSettings();
+		loaddbSettings( context );
 		loaddbPolicy();
 		loaddbUnits();
 		loaddbDatabase();
@@ -87,17 +91,17 @@ public class EngineLoaderMeta {
 	private void saveProduct( MetadataStorage storageMeta ) throws Exception {
 		ActionBase action = loader.getAction();
 		Document doc = Common.xmlCreateDoc( XML_ROOT_SETTINGS );
-		Element root = doc.getDocumentElement();
+		//Element root = doc.getDocumentElement();
 		//MetaProductSettings settings = set.getSettings();
 		//settings.save( action , doc , root );
 		
-		Element node = Common.xmlCreateElement( doc , root , "units" );
+		//Element node = Common.xmlCreateElement( doc , root , "units" );
 		//MetaUnits units = set.getUnits();
 		//units.save( action , doc , node );
 		
-		node = Common.xmlCreateElement( doc , root , "documentation" );
-		MetaDocs docs = set.getDocs();
-		docs.save( action , doc , node );
+		//node = Common.xmlCreateElement( doc , root , "documentation" );
+		//MetaDocs docs = set.getDocs();
+		//docs.save( action , doc , node );
 		
 		storageMeta.saveCoreConfFile( action , doc );
 	}
@@ -135,14 +139,18 @@ public class EngineLoaderMeta {
 	}
 	
 	private void loaddbMeta() throws Exception {
-		trace( "load engine settings data ..." );
+		trace( "load product meta data ..." );
 		DBMeta.loaddb( loader , set );
 	}
 
-	private void loaddbSettings() throws Exception {
+	private void loaddbSettings( ProductContext context ) throws Exception {
+		trace( "load product settings data ..." );
+		DBMetaSettings.loaddb( loader , set , context );
 	}
 	
 	private void loaddbPolicy() throws Exception {
+		trace( "load product policy data ..." );
+		DBMetaPolicy.loaddb( loader , set );
 	}
 	
 	private void loaddbUnits() throws Exception {
@@ -261,19 +269,15 @@ public class EngineLoaderMeta {
 	}
 	
 	private void importxmlDocs( MetadataStorage storageMeta ) throws Exception {
-		MetaProductSettings settings = set.getSettings();
-		MetaDocs docs = new MetaDocs( set , settings , set.meta );
-		set.setDocs( docs );
-		
 		ActionBase action = loader.getAction();
 		try {
 			// read
-			String file = storageMeta.getCoreConfFile( action );
+			String file = storageMeta.getDocumentationFile( action );
 			action.debug( "read units definition file " + file + "..." );
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
-			Node node = ConfReader.xmlGetFirstChild( root , "documentation" );
-			docs.load( action , node );
+			
+			DBMetaDocs.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
 			setLoadFailed( action , _Error.UnableLoadProductDocs1 , e , "unable to import documentation metadata, product=" + set.name , set.name );
