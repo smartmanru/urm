@@ -45,10 +45,6 @@ public class EngineLoaderMeta {
 	}
 
 	public void saveAll( MetadataStorage ms ) throws Exception {
-		saveMeta( ms );
-		saveProduct( ms );
-		saveDatabase( ms );
-		saveSources( ms );
 		saveDistr( ms );
 		saveMonitoring( ms );
 	}
@@ -80,54 +76,12 @@ public class EngineLoaderMeta {
 		importxmlMonitoring( storageMeta );
 	}
 	
-	private void saveMeta( MetadataStorage storageMeta ) throws Exception {
-		ActionBase action = loader.getAction();
-		Document doc = Common.xmlCreateDoc( XML_ROOT_VERSION );
-		//MetaProductVersion version = set.getVersion();
-		//version.save( action , doc , doc.getDocumentElement() );
-		storageMeta.saveVersionConfFile( action , doc );
-	}
-	
-	private void saveProduct( MetadataStorage storageMeta ) throws Exception {
-		ActionBase action = loader.getAction();
-		Document doc = Common.xmlCreateDoc( XML_ROOT_SETTINGS );
-		//Element root = doc.getDocumentElement();
-		//MetaProductSettings settings = set.getSettings();
-		//settings.save( action , doc , root );
-		
-		//Element node = Common.xmlCreateElement( doc , root , "units" );
-		//MetaUnits units = set.getUnits();
-		//units.save( action , doc , node );
-		
-		//node = Common.xmlCreateElement( doc , root , "documentation" );
-		//MetaDocs docs = set.getDocs();
-		//docs.save( action , doc , node );
-		
-		storageMeta.saveCoreConfFile( action , doc );
-	}
-	
-	private void saveDatabase( MetadataStorage storageMeta ) throws Exception {
-		ActionBase action = loader.getAction();
-		Document doc = Common.xmlCreateDoc( XML_ROOT_DATABASE );
-		//MetaDatabase database = set.getDatabase();
-		//database.save( action , doc , doc.getDocumentElement() );
-		storageMeta.saveDatabaseConfFile( action , doc );
-	}
-	
 	private void saveDistr( MetadataStorage storageMeta ) throws Exception {
 		ActionBase action = loader.getAction();
 		Document doc = Common.xmlCreateDoc( XML_ROOT_DISTR );
 		MetaDistr distr = set.getDistr();
 		distr.save( action , doc , doc.getDocumentElement() );
 		storageMeta.saveDistrConfFile( action , doc );
-	}
-	
-	private void saveSources( MetadataStorage storageMeta ) throws Exception {
-		ActionBase action = loader.getAction();
-		Document doc = Common.xmlCreateDoc( XML_ROOT_SOURCES );
-		//MetaSources sources = set.getSources();
-		//sources.save( action , doc , doc.getDocumentElement() );
-		storageMeta.saveSourcesConfFile( action , doc );
 	}
 	
 	private void saveMonitoring( MetadataStorage storageMeta ) throws Exception {
@@ -154,15 +108,23 @@ public class EngineLoaderMeta {
 	}
 	
 	private void loaddbUnits() throws Exception {
+		trace( "load product units data ..." );
+		DBMetaUnits.loaddb( loader , set );
 	}
 	
 	private void loaddbDatabase() throws Exception {
+		trace( "load product database data ..." );
+		DBMetaDatabase.loaddb( loader , set );
 	}
 	
 	private void loaddbSources() throws Exception {
+		trace( "load product source data ..." );
+		DBMetaSources.loaddb( loader , set );
 	}
 	
 	private void loaddbDocs() throws Exception {
+		trace( "load product documentation data ..." );
+		DBMetaDocs.loaddb( loader , set );
 	}
 	
 	private void loaddbDistr() throws Exception {

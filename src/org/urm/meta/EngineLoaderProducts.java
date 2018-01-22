@@ -56,6 +56,7 @@ public class EngineLoaderProducts {
 				continue;
 			}
 			
+			context.setProduct( product );
 			loadProduct( product , context , false , update );
 		}
 	}

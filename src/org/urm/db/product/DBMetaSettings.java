@@ -32,7 +32,7 @@ public class DBMetaSettings {
 		AppSystem system = product.system;
 		ObjectProperties opsContext = entities.createMetaContextProps( system.getParameters() );
 		Node customNode = ConfReader.xmlGetFirstChild( root , ELEMENT_CUSTOM );
-		DBSettings.importxml( loader , customNode , opsContext , storage.ID , DBVersions.CORE_ID , false , true , storage.PV );
+		DBSettings.importxml( loader , customNode , opsContext , storage.ID , storage.ID , false , true , storage.PV );
 		opsContext.recalculateProperties();
 		settings.createSettings( opsContext , context );
 		

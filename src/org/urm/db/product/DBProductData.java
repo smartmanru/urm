@@ -358,7 +358,7 @@ public class DBProductData {
 	}
 
 	public static PropertyEntity loaddbEntityMetaDoc( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCEITEM , DBEnumParamEntityType.PRODUCT_SOURCEITEM , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCEITEM , FIELD_SOURCEITEM_ID );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DOC , DBEnumParamEntityType.PRODUCT_DOC , DBEnumObjectVersionType.PRODUCT , TABLE_DOC , FIELD_DOC_ID );
 		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}

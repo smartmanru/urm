@@ -35,5 +35,9 @@ public class ProductContext {
 		this.settings = settings;
 		this.home = home;
 	}
+
+	public void setProduct( AppProduct product ) {
+		this.product = product;
+	}
 	
 }

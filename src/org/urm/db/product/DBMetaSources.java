@@ -392,7 +392,7 @@ public class DBMetaSources {
 						entity.loaddbString( rs , MetaSourceProject.PROPERTY_NAME ) , 
 						entity.loaddbString( rs , MetaSourceProject.PROPERTY_DESC ) ,
 						entity.loaddbInt( rs , MetaSourceProject.PROPERTY_PROJECTPOS ) ,
-						entity.loaddbObject( rs , MetaSourceProject.PROPERTY_UNIT ) ,
+						entity.loaddbObject( rs , DBProductData.FIELD_SOURCEPROJECT_UNIT_ID ) ,
 						entity.loaddbBoolean( rs , MetaSourceProject.PROPERTY_PROD )
 						);
 				
