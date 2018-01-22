@@ -18,6 +18,15 @@ CREATE TABLE main.urm_product_meta (
 COMMENT ON TABLE main.urm_product_meta IS 'Product';
 
 
+CREATE TABLE main.urm_product_policy (
+                meta_id INTEGER NOT NULL,
+                lcurgent_any BOOLEAN NOT NULL,
+                pv INTEGER NOT NULL,
+                CONSTRAINT urm_product_policy_pk PRIMARY KEY (meta_id)
+);
+COMMENT ON TABLE main.urm_product_policy IS 'Product policy';
+
+
 CREATE TABLE main.urm_product_lifecycle (
                 meta_id INTEGER NOT NULL,
                 lc_index INTEGER NOT NULL,
@@ -152,9 +161,16 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE main.urm_product_lifecycle ADD CONSTRAINT urm_product_meta_lifecycle_fk
+ALTER TABLE main.urm_product_policy ADD CONSTRAINT urm_product_meta_urm_product_policy_fk
 FOREIGN KEY (meta_id)
 REFERENCES main.urm_product_meta (meta_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE main.urm_product_lifecycle ADD CONSTRAINT urm_product_policy_urm_product_lifecycle_fk
+FOREIGN KEY (meta_id)
+REFERENCES main.urm_product_policy (meta_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
