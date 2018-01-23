@@ -9,7 +9,6 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
-import org.urm.db._Error;
 import org.urm.meta.EngineLoader;
 
 public abstract class DBEnums {
@@ -211,7 +210,12 @@ public abstract class DBEnums {
 		META_SOURCEPROJECT(105,null) ,
 		META_SOURCEITEM(106,null) ,
 		META_DOC(107,null) ,
-		META_POLICY(108,null);
+		META_POLICY(108,null) ,
+		META_DIST_DELIVERY(151,null) ,
+		META_DIST_BINARYITEM(152,null) ,
+		META_DIST_CONFITEM(153,null) ,
+		META_DIST_COMPONENT(154,null) ,
+		META_DIST_COMPITEM(155,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -363,6 +367,110 @@ public abstract class DBEnums {
 		public static DBEnumSourceItemType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumSourceItemType.class , value , required , UNKNOWN ) ); };
 	};
 	
+	public enum DBEnumDistItemType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		BINARY(1,null) ,
+		PACKAGE(2,null) ,
+		STATICWAR(3,null) ,
+		ARCHIVE_DIRECT(4,null) ,	// deploydir = archive/content
+		ARCHIVE_CHILD(5,null) ,		// deploydir/archivename = archive/archivename/fullcontent
+		ARCHIVE_SUBDIR(6,null);		// deploydir/archivename = archive/fullcontent
+
+	    public boolean isArchive() {
+			if( this == ARCHIVE_CHILD || 
+				this == ARCHIVE_DIRECT || 
+				this == ARCHIVE_SUBDIR )
+				return( true );
+			return( false );
+	    }
+		
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumDistItemType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumDistItemType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDistItemType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumDistItemType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDistItemType.class , value , required , UNKNOWN ) ); };
+	};
+	
+	public enum DBEnumDeployVersionType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		NONE(1,null) ,
+		IGNORE(2,null) ,
+		MIDDASH(3,null) ,
+		MIDPOUND(4,null) ,
+		PREFIX(5,null);
+
+		public String getVersionPattern( String basename , String ext ) throws Exception {
+			String value = "";
+			if( this == NONE || this == IGNORE )
+				value = basename + ext;
+			else if( this == MIDPOUND )
+				value = Common.getLiteral( basename ) + "##[0-9.]+.*" + Common.getLiteral( ext );
+			else if( this == MIDDASH )
+				value = basename + "-[0-9.]+.*" + ext;
+			else if( this == PREFIX )
+				value = "[0-9.]+-" + Common.getLiteral( basename + ext );
+			else
+				Common.exitUnexpected();
+			
+			return( value );
+		}
+		
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumDeployVersionType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumDeployVersionType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDeployVersionType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumDeployVersionType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDeployVersionType.class , value , required , UNKNOWN ) ); };
+	};
+	
+	public enum DBEnumItemOriginType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		MANUAL(1,null) ,
+		DERIVED(2,null) ,
+		BUILD(3,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumItemOriginType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumItemOriginType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumItemOriginType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumItemOriginType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumItemOriginType.class , value , required , UNKNOWN ) ); };
+	};
+	
+	public enum DBEnumConfItemType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		FILES(1,null) ,
+		DIR(2,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumConfItemType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumConfItemType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumConfItemType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumConfItemType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumConfItemType.class , value , required , UNKNOWN ) ); };
+	};
+	
+	public enum DBEnumCompItemType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		BINARY(1,null) ,
+		CONF(2,null) ,
+		SCHEMA(3,null) ,
+		WSDL(4,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumCompItemType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumCompItemType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumCompItemType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumCompItemType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumCompItemType.class , value , required , UNKNOWN ) ); };
+	};
+	
 	public enum DBEnumObjectVersionType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		APP(1,null) ,
@@ -424,7 +532,12 @@ public abstract class DBEnums {
 		PRODUCT_SOURCEPROJECT(156,null) ,
 		PRODUCT_SOURCEITEM(157,null) ,
 		PRODUCT_DOC(158,null) ,
-		PRODUCT_POLICY(159,null);
+		PRODUCT_POLICY(159,null) ,
+		PRODUCT_DIST_DELIVERY(201,null) ,
+		PRODUCT_DIST_BINARYITEM(202,null) ,
+		PRODUCT_DIST_CONFITEM(203,null) ,
+		PRODUCT_DIST_COMPONENT(204,null) ,
+		PRODUCT_DIST_COMPITEM(205,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -501,7 +614,12 @@ public abstract class DBEnums {
 		new DBEnumInfo( DBEnumParamValueSubType.class , 529 ) ,
 		new DBEnumInfo( DBEnumDbmsType.class , 530 ) ,
 		new DBEnumInfo( DBEnumProjectType.class , 531 ) ,
-		new DBEnumInfo( DBEnumSourceItemType.class , 532 )
+		new DBEnumInfo( DBEnumSourceItemType.class , 532 ) ,
+		new DBEnumInfo( DBEnumDistItemType.class , 533 ) ,
+		new DBEnumInfo( DBEnumDeployVersionType.class , 534 ) ,
+		new DBEnumInfo( DBEnumItemOriginType.class , 535 ) ,
+		new DBEnumInfo( DBEnumConfItemType.class , 536 ) ,
+		new DBEnumInfo( DBEnumCompItemType.class , 537 )
 	}; 
 
 	private static String prefix = "DBEnum";

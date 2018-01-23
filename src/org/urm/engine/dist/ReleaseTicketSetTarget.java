@@ -79,14 +79,14 @@ public class ReleaseTicketSetTarget {
 	
 	public void create( ActionBase action , MetaDistrBinaryItem item ) {
 		type = VarTICKETSETTARGETTYPE.DISTITEM;
-		ITEM = item.KEY;
+		ITEM = item.NAME;
 		accepted = false;
 		descoped = false;
 	}
 	
 	public void create( ActionBase action , MetaDistrConfItem item ) {
 		type = VarTICKETSETTARGETTYPE.CONFITEM;
-		ITEM = item.KEY;
+		ITEM = item.NAME;
 		accepted = false;
 		descoped = false;
 	}
@@ -210,7 +210,7 @@ public class ReleaseTicketSetTarget {
 	}
 	
 	public boolean isEqualTo( MetaSourceProjectItem item ) {
-		if( isBinary() && item.distItem != null && ITEM.equals( item.distItem.KEY ) )
+		if( isBinary() && item.distItem != null && ITEM.equals( item.distItem.NAME ) )
 			return( true );
 		return( false );
 	}
@@ -231,7 +231,7 @@ public class ReleaseTicketSetTarget {
 		}
 		
 		if( isBinary() ) {
-			if( ITEM.equals( item.KEY ) )
+			if( ITEM.equals( item.NAME ) )
 				return( true );
 			return( false );
 		}
@@ -247,7 +247,7 @@ public class ReleaseTicketSetTarget {
 
 	public boolean references( MetaDistrConfItem item ) {
 		if( isConfiguration() ) {
-			if( ITEM.equals( item.KEY ) )
+			if( ITEM.equals( item.NAME ) )
 				return( true );
 			return( false );
 		}

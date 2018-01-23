@@ -9,7 +9,7 @@ import org.urm.engine.status.NodeStatus;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ServerStatus;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.product.MetaDistrComponentWS;
+import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerDeployment;
 import org.urm.meta.product.MetaEnvServerNode;
@@ -113,7 +113,7 @@ public class ActionMonitorCheckItem extends ActionBase {
 		if( server.isWebApp() && !server.WEBSERVICEURL.isEmpty() ) {
 			for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
 				if( deployment.comp != null ) {
-					for( MetaDistrComponentWS ws : deployment.comp.getWebServices() ) {
+					for( MetaDistrComponentItem ws : deployment.comp.getWebServices() ) {
 						if( !monitorServerItemsWebApp( nodeStatus , ws ) )
 							res = false;
 					}
@@ -139,7 +139,7 @@ public class ActionMonitorCheckItem extends ActionBase {
 		return( res );
 	}		
 
-	private boolean monitorServerItemsWebApp( NodeStatus nodeStatus , MetaDistrComponentWS ws ) throws Exception {
+	private boolean monitorServerItemsWebApp( NodeStatus nodeStatus , MetaDistrComponentItem ws ) throws Exception {
 		boolean res = true; 
 		if( nodeStatus == null ) { 
 			if( !server.WEBSERVICEURL.isEmpty() ) {

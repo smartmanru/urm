@@ -132,10 +132,10 @@ public class SourceStorage {
 	
 		ProductMeta storage = meta.getStorage();
 		MirrorRepository mirror = action.getConfigurationMirror( storage );
-		if( !vcs.exportRepositoryMasterPath( mirror , dstFolder , ITEMPATH , distrComp.KEY ) )
+		if( !vcs.exportRepositoryMasterPath( mirror , dstFolder , ITEMPATH , distrComp.NAME ) )
 			action.exit2( _Error.UnableExportMirror2 , "unable to export from mirror=" + mirror.NAME + ", ITEMPATH=" + ITEMPATH , mirror.NAME , ITEMPATH );
 		
-		dstFolder.prepareFolderForLinux( action , distrComp.KEY );
+		dstFolder.prepareFolderForLinux( action , distrComp.NAME );
 		return( true );
 	}
 	
@@ -206,7 +206,7 @@ public class SourceStorage {
 	}
 	
 	public String getConfFolderRelPath( ActionBase action , MetaDistrConfItem distrComp ) throws Exception {
-		String PATH = Common.getPath( distrComp.delivery.FOLDER , SourceStorage.CONFIG_FOLDER , distrComp.KEY );
+		String PATH = Common.getPath( distrComp.delivery.FOLDER , SourceStorage.CONFIG_FOLDER , distrComp.NAME );
 		return( PATH );
 	}
 	
@@ -382,7 +382,7 @@ public class SourceStorage {
 	}
 
 	public String getConfItemLiveName( ActionBase action , MetaEnvServerNode node , MetaDistrConfItem confItem ) throws Exception {
-		return( "node" + node.POS + "-" + confItem.KEY );
+		return( "node" + node.POS + "-" + confItem.NAME );
 	}
 
 	public String getSysConfItemLiveName( ActionBase action , MetaEnvServerNode node ) throws Exception {
@@ -392,7 +392,7 @@ public class SourceStorage {
 	public void exportTemplates( ActionBase action , LocalFolder parent , MetaEnvServer server ) throws Exception {
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
 			if( deployment.confItem != null ) {
-				exportTemplateConfigItem( action , server.sg , deployment.confItem.KEY , action.context.CTX_TAG , parent );
+				exportTemplateConfigItem( action , server.sg , deployment.confItem.NAME , action.context.CTX_TAG , parent );
 				continue;
 			}
 				
@@ -402,14 +402,14 @@ public class SourceStorage {
 			
 			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems() ) {
 				if( compItem.confItem != null )
-					exportTemplateConfigItem( action , server.sg , compItem.confItem.KEY , action.context.CTX_TAG , parent );
+					exportTemplateConfigItem( action , server.sg , compItem.confItem.NAME , action.context.CTX_TAG , parent );
 			}
 		}
 	}
 
 	public void exportTemplates( ActionBase action , MetaEnvSegment sg , LocalFolder parent , MetaDistrConfItem[] items ) throws Exception {
 		for( MetaDistrConfItem item : items )
-			exportTemplateConfigItem( action , sg , item.KEY , "" , parent );
+			exportTemplateConfigItem( action , sg , item.NAME , "" , parent );
 	}
 		
 	public void exportPostRefresh( ActionBase action , String name , LocalFolder folder ) throws Exception {
@@ -459,7 +459,7 @@ public class SourceStorage {
 	}
 
 	private String getDATAProductConfigSourcePath( ActionBase action , MetaDistrConfItem distrComp ) throws Exception {
-		String PATH = Common.getPath( DATA_TEMPLATES , distrComp.KEY );
+		String PATH = Common.getPath( DATA_TEMPLATES , distrComp.NAME );
 		return( PATH );
 	}
 

@@ -1,106 +1,88 @@
 package org.urm.meta.product;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.engine.EngineTransaction;
-import org.urm.meta.Types;
-import org.urm.meta.Types.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import org.urm.db.core.DBEnums.DBEnumConfItemType;
 
 public class MetaDistrConfItem {
 
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_TYPE = "type";
+	public static String PROPERTY_FILES = "files";
+	public static String PROPERTY_TEMPLATES = "templates";
+	public static String PROPERTY_SECURED = "secured";
+	public static String PROPERTY_EXCLUDE = "exclude";
+	public static String PROPERTY_EXTCONF = "extconf";
+	
 	public Meta meta;
 	public MetaDistrDelivery delivery;
 
-	public String KEY;
-	public VarCONFITEMTYPE itemType;
+	public int ID;
+	public String NAME;
+	public String DESC;
+	public DBEnumConfItemType CONFITEM_TYPE;
 	public String FILES;
 	public String TEMPLATES;
 	public String SECURED;
 	public String EXCLUDE;
 	public String EXTCONF;
-	public boolean OBSOLETE;
-	public boolean CREATEDIR;
+	public int PV;
 	
 	public MetaDistrConfItem( Meta meta , MetaDistrDelivery delivery ) {
 		this.meta = meta;
 		this.delivery = delivery;
 	}
 
-	public void createConfItem( EngineTransaction transaction , String key ) throws Exception {
-		this.KEY = key;
-		this.itemType = VarCONFITEMTYPE.DIR;
-		this.FILES = "";
-		this.TEMPLATES = "";
-		this.SECURED = "";
-		this.EXCLUDE = "";
-		this.EXTCONF = "";
-		this.OBSOLETE = false;
-		this.CREATEDIR = false;
+	public MetaDistrConfItem copy( Meta rmeta , MetaDistrDelivery rdelivery ) throws Exception {
+		MetaDistrConfItem r = new MetaDistrConfItem( rmeta , rdelivery );
+		r.ID = ID;
+		r.NAME = NAME;
+		r.DESC = DESC;
+		r.CONFITEM_TYPE = CONFITEM_TYPE;
+		r.FILES = FILES;
+		r.TEMPLATES = TEMPLATES;
+		r.SECURED = SECURED;
+		r.EXCLUDE = EXCLUDE;
+		r.EXTCONF = EXTCONF;
+		r.PV = PV;
+		return( r );
+	}
+	
+	public void createConfItem( String name , String desc , DBEnumConfItemType type , String files , String templates , String secured , String exclude , String extconf ) throws Exception {
+		modifyConfItem( name , desc , type , files , templates , secured , exclude , extconf );
+	}
+	
+	public void modifyConfItem( String name , String desc , DBEnumConfItemType type , String files , String templates , String secured , String exclude , String extconf ) throws Exception {
+		this.NAME = name;
+		this.DESC = desc;
+		this.CONFITEM_TYPE = type;
+		this.FILES = files;
+		this.TEMPLATES = templates;
+		this.SECURED = secured;
+		this.EXCLUDE = exclude;
+		this.EXTCONF = extconf;
 	}
 
-	public void setCommonData( EngineTransaction transaction , String itemSecured , String itemExclude , String itemExtList , boolean itemCreateDir ) throws Exception {
+	public void setCommonData( String itemSecured , String itemExclude , String itemExtList ) throws Exception {
 		this.SECURED = itemSecured;
 		this.EXCLUDE = itemExclude;
 		this.EXTCONF = itemExtList;
-		this.CREATEDIR = itemCreateDir;
 	}
 	
-	public void setDirData( EngineTransaction transaction ) throws Exception {
-		this.itemType = VarCONFITEMTYPE.DIR;
+	public void setDirData() throws Exception {
+		this.CONFITEM_TYPE = DBEnumConfItemType.DIR;
 		this.FILES = "";
 		this.TEMPLATES = "";
 	}
 
-	public void setFilesData( EngineTransaction transaction , String itemFiles , String itemTemplates ) throws Exception {
-		this.itemType = VarCONFITEMTYPE.FILES;
+	public void setFilesData( String itemFiles , String itemTemplates ) throws Exception {
+		this.CONFITEM_TYPE = DBEnumConfItemType.FILES;
 		this.FILES = itemFiles;
 		this.TEMPLATES = itemTemplates;
 	}
 	
-	public void load( ActionBase action , Node node ) throws Exception {
-		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
-		itemType = Types.getConfItemType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
-		FILES = ConfReader.getAttrValue( node , "files" );
-		SECURED = ConfReader.getAttrValue( node , "secured" );
-		EXCLUDE = ConfReader.getAttrValue( node , "exclude" );
-		TEMPLATES = ConfReader.getAttrValue( node , "templates" );
-		EXTCONF = ConfReader.getAttrValue( node , "extconf" );
-		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
-		CREATEDIR = ConfReader.getBooleanAttrValue( node , "createdir" , false );
-	}
-
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "name" , KEY );
-		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( itemType ) );
-		Common.xmlSetElementAttr( doc , root , "files" , FILES );
-		Common.xmlSetElementAttr( doc , root , "secured" , SECURED );
-		Common.xmlSetElementAttr( doc , root , "exclude" , EXCLUDE );
-		Common.xmlSetElementAttr( doc , root , "templates" , TEMPLATES );
-		Common.xmlSetElementAttr( doc , root , "extconf" , EXTCONF );
-		Common.xmlSetElementAttr( doc , root , "obsolete" , Common.getBooleanValue( OBSOLETE ) );
-		Common.xmlSetElementAttr( doc , root , "createdir" , Common.getBooleanValue( CREATEDIR ) );
-	}
-	
-	public MetaDistrConfItem copy( ActionBase action , Meta meta , MetaDistrDelivery delivery ) throws Exception {
-		MetaDistrConfItem r = new MetaDistrConfItem( meta , delivery );
-		r.KEY = KEY;
-		r.itemType = itemType;
-		r.FILES = FILES;
-		r.SECURED = SECURED;
-		r.EXCLUDE = EXCLUDE;
-		r.TEMPLATES = TEMPLATES;
-		r.EXTCONF = EXTCONF;
-		r.OBSOLETE = OBSOLETE;
-		r.CREATEDIR = CREATEDIR;
-		return( r );
-	}
-	
-	public String getLiveIncludeFiles( ActionBase action ) throws Exception {
-		if( itemType == VarCONFITEMTYPE.DIR )
+	public String getLiveIncludeFiles() {
+		if( CONFITEM_TYPE == DBEnumConfItemType.DIR )
 			return( "*" );
 			
 		if( !FILES.isEmpty() )
@@ -116,11 +98,11 @@ public class MetaDistrConfItem {
 		return( F_INCLUDE );
 	}
 
-	public String getLiveExcludeFiles( ActionBase action ) throws Exception {
+	public String getLiveExcludeFiles() {
 		return( EXCLUDE );
 	}
 
-	public String getTemplateIncludeFiles( ActionBase action ) throws Exception {
+	public String getTemplateIncludeFiles() {
 		if( !TEMPLATES.isEmpty() )
 			return( TEMPLATES );
 		
@@ -130,7 +112,7 @@ public class MetaDistrConfItem {
 		return( FILES );
 	}
 
-	public String getTemplateExcludeFiles( ActionBase action ) throws Exception {
+	public String getTemplateExcludeFiles() {
 		if( SECURED.isEmpty() )
 			return( EXCLUDE );
 		

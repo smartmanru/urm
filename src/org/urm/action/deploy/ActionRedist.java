@@ -5,6 +5,7 @@ import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumItemOriginType;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.VersionInfo;
@@ -116,7 +117,7 @@ public class ActionRedist extends ActionBase {
 			}
 			
 			for( String item : items ) {
-				MetaDistrConfItem conf = distr.getConfItem( this , item );
+				MetaDistrConfItem conf = distr.getConfItem( item );
 				executeNodeConfigComp( server , node , location , conf , liveFolder );
 			}
 		}
@@ -150,7 +151,7 @@ public class ActionRedist extends ActionBase {
 		info( "redist location=" + location.DEPLOYPATH + " deploytype=" + Common.getEnumLower( location.DEPLOYTYPE ) +
 				" items=" + Common.getListSet( items ) + " contenttype=" + Common.getEnumLower( C_REDIST_DIRTYPE ) + " ..." );
 
-		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+		VersionInfo version = VersionInfo.getDistVersion( dist ); 
 		redist.createLocation( this , version , location , C_REDIST_DIRTYPE );
 
 		debug( "transfer items - " + Common.getListSet( items ) + " ..." );
@@ -165,7 +166,7 @@ public class ActionRedist extends ActionBase {
 		debug( node.HOSTLOGIN + ": redist content=" + Common.getEnumLower( CONTENTTYPE ) + ": items - " + Common.getListSet( items ) + " ..." );
 		MetaDistr distr = server.meta.getDistr();
 		for( String key : items ) {
-			MetaDistrBinaryItem binaryItem = distr.getBinaryItem( this , key );
+			MetaDistrBinaryItem binaryItem = distr.getBinaryItem( key );
 			String deployBaseName = location.getDeployName( this , key );
 			transferFile( server , node , redist , location , binaryItem , stateInfo , deployBaseName );
 		}
@@ -173,31 +174,31 @@ public class ActionRedist extends ActionBase {
 
 	private boolean transferFile( MetaEnvServer server , MetaEnvServerNode node , RedistStorage redist , MetaEnvServerLocation location , MetaDistrBinaryItem binaryItem , RedistStateInfo stateInfo , String deployBaseName ) throws Exception {
 		if( !dist.checkIfReleaseItem( this , binaryItem ) ) {
-			trace( "binary item=" + binaryItem.KEY + " is not in release. Skipped." );
+			trace( "binary item=" + binaryItem.NAME + " is not in release. Skipped." );
 			return( false );
 		}
 		
-		if( binaryItem.distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
+		if( binaryItem.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
 			String fileName = dist.getBinaryDistItemFile( this , binaryItem.srcDistItem );
 			if( fileName.isEmpty() ) {
-				trace( "source of binary item=" + binaryItem.KEY + " is not found. Skipped." );
+				trace( "source of binary item=" + binaryItem.NAME + " is not found. Skipped." );
 				return( false );
 			}
 			
-			debug( "source of distributive item=" + binaryItem.KEY + " found in distributive, file=" + fileName );
+			debug( "source of distributive item=" + binaryItem.NAME + " found in distributive, file=" + fileName );
 			String fileExtracted = extractEmbeddedFile( binaryItem , fileName );
-			VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+			VersionInfo version = VersionInfo.getDistVersion( dist ); 
 			return( redist.copyReleaseFile( this , binaryItem , location , fileExtracted , deployBaseName , version , stateInfo ) );
 		}
 		else 
-		if( binaryItem.distItemOrigin == VarDISTITEMORIGIN.BUILD || binaryItem.distItemOrigin == VarDISTITEMORIGIN.MANUAL || binaryItem.distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
+		if( binaryItem.ITEMORIGIN_TYPE == DBEnumItemOriginType.BUILD || binaryItem.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL || binaryItem.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
 			String fileName = dist.getBinaryDistItemFile( this , binaryItem );
 			if( fileName.isEmpty() ) {
-				trace( "binary item=" + binaryItem.KEY + " is not found. Skipped." );
+				trace( "binary item=" + binaryItem.NAME + " is not found. Skipped." );
 				return( false );
 			}
 	
-			debug( "distributive item=" + binaryItem.KEY + " found in distributive, file=" + fileName );
+			debug( "distributive item=" + binaryItem.NAME + " found in distributive, file=" + fileName );
 			return( redist.copyReleaseFile( this , binaryItem , dist , location , fileName , deployBaseName , stateInfo ) );
 		}
 		else
@@ -217,24 +218,24 @@ public class ActionRedist extends ActionBase {
 	}
 	
 	private boolean executeNodeConfigComp( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder liveFolder ) throws Exception {
-		ReleaseTarget target = dist.release.findConfComponent( this , confItem.KEY );
+		ReleaseTarget target = dist.release.findConfComponent( this , confItem.NAME );
 		
 		// not in release
 		if( target == null ) {
-			trace( "non-release component=" + confItem.KEY );
+			trace( "non-release component=" + confItem.NAME );
 			return( false );
 		}
 		
 		boolean F_PARTIAL = ( target.ALL )? false : true; 
 
-		debug( "redist configuraton component=" + confItem.KEY + " (partial=" + F_PARTIAL + ") ..." );
+		debug( "redist configuraton component=" + confItem.NAME + " (partial=" + F_PARTIAL + ") ..." );
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , server.meta );
 		String name = sourceStorage.getConfItemLiveName( this , node , confItem );
 		LocalFolder confFolder = liveFolder.getSubFolder( this , name );
 		
 		// not in distributive
 		if( !confFolder.checkExists( this ) ) {
-			trace( "missing release component=" + confItem.KEY );
+			trace( "missing release component=" + confItem.NAME );
 			return( false );
 		}
 		
@@ -252,7 +253,7 @@ public class ActionRedist extends ActionBase {
 	private void executeNodeBackup( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		debug( node.HOSTLOGIN + ": save backup ..." );
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+		VersionInfo version = VersionInfo.getDistVersion( dist ); 
 		ServerDeployment deployment = redist.getDeployment( this , version );
 		
 		// backup binary items

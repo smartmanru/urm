@@ -1,12 +1,12 @@
 package org.urm.action;
 
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseDistSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.meta.Types.VarCATEGORY;
-import org.urm.meta.Types.VarDISTITEMORIGIN;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -196,15 +196,15 @@ public class ActionReleaseScopeMaker {
 	private void addReleaseDistItemsScope( String ITEMS[] , boolean specifiedExplicitly ) throws Exception {
 		MetaDistr distr = meta.getDistr();
 		for( String itemName : ITEMS ) {
-			MetaDistrBinaryItem item = distr.getBinaryItem( action , itemName );
+			MetaDistrBinaryItem item = distr.getBinaryItem( itemName );
 			if( item.sourceProjectItem == null )
 				action.exit1( _Error.UnknownDistributiveItem1 ,"unknown distributive item=" + itemName , itemName );
 			
 			ActionScopeSet sset = null;
-			if( item.distItemOrigin == VarDISTITEMORIGIN.MANUAL )
+			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL )
 				sset = scope.makeReleaseCategoryScopeSet( action , dist , VarCATEGORY.MANUAL );
 			else
-			if( item.distItemOrigin == VarDISTITEMORIGIN.DERIVED )
+			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED )
 				sset = scope.makeReleaseCategoryScopeSet( action , dist , VarCATEGORY.DERIVED );
 			else {
 				ReleaseDistSet rset = dist.release.getSourceSet( action , item.sourceProjectItem.project.set.NAME );

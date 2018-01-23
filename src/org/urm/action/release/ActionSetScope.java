@@ -161,13 +161,13 @@ public class ActionSetScope extends ActionBase {
 			check.put( path , "all" );
 			String[] els = Common.split( path , "/" );
 			if( els.length == 1 ) {
-				MetaDistrDelivery delivery = distr.getDelivery( this , els[0] );
+				MetaDistrDelivery delivery = distr.getDelivery( els[0] );
 				if( !addAllDelivery( check , delivery ) )
 					return( false );
 				continue;
 			}
 			if( els.length == 2 ) {
-				MetaDistrDelivery delivery = distr.getDelivery( this , els[0] );
+				MetaDistrDelivery delivery = distr.getDelivery( els[0] );
 				check.put( els[0] , "delivery" );
 				
 				VarDEPLOYITEMTYPE type = Types.getDeployItemType( els[1] , true );
@@ -177,24 +177,24 @@ public class ActionSetScope extends ActionBase {
 				}
 			}
 			if( els.length == 3 ) {
-				MetaDistrDelivery delivery = distr.getDelivery( this , els[0] );
+				MetaDistrDelivery delivery = distr.getDelivery( els[0] );
 				check.put( els[0] , "delivery" );
 				VarDEPLOYITEMTYPE type = Types.getDeployItemType( els[1] , true );
 				
 				if( type == VarDEPLOYITEMTYPE.BINARY ) {
-					MetaDistrBinaryItem item = delivery.getBinaryItem( this , els[2] );
+					MetaDistrBinaryItem item = delivery.getBinaryItem( els[2] );
 					if( !dist.addBinaryItem( this , item ) )
 						return( false );
 				}
 				else
 				if( type == VarDEPLOYITEMTYPE.CONF ) {
-					MetaDistrConfItem item = delivery.getConfItem( this , els[2] );
+					MetaDistrConfItem item = delivery.getConfItem( els[2] );
 					if( !dist.addConfItem( this , item ) )
 						return( false );
 				}
 				else
 				if( type == VarDEPLOYITEMTYPE.SCHEMA ) {
-					MetaDatabaseSchema schema = delivery.getSchema( this , els[2] );
+					MetaDatabaseSchema schema = delivery.getSchema( els[2] );
 					if( !dist.addDatabaseDeliverySchema( this , delivery , schema ) )
 						return( false );
 				}
@@ -204,28 +204,28 @@ public class ActionSetScope extends ActionBase {
 		// descope missing
 		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
 			for( ReleaseTargetItem item : delivery.getProjectItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.BINARY.toString() , item.distItem.KEY } , "/" ) );
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.BINARY.toString() , item.distItem.NAME } , "/" ) );
 				if( checkItem == null ) {
 					dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
 					continue;
 				}
 			}
 			for( ReleaseTarget item : delivery.getManualItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.BINARY.toString() , item.distManualItem.KEY } , "/" ) );
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.BINARY.toString() , item.distManualItem.NAME } , "/" ) );
 				if( checkItem == null ) {
 					dist.descopeTarget( this , item );
 					continue;
 				}
 			}
 			for( ReleaseTarget item : delivery.getDerivedItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.BINARY.toString() , item.distDerivedItem.KEY } , "/" ) );
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.BINARY.toString() , item.distDerivedItem.NAME } , "/" ) );
 				if( checkItem == null ) {
 					dist.descopeTarget( this , item );
 					continue;
 				}
 			}
 			for( ReleaseTarget item : delivery.getConfItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.CONF.toString() , item.distConfItem.KEY } , "/" ) );
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.CONF.toString() , item.distConfItem.NAME } , "/" ) );
 				if( checkItem == null ) {
 					dist.descopeTarget( this , item );
 					continue;
@@ -247,12 +247,12 @@ public class ActionSetScope extends ActionBase {
 		for( MetaDistrBinaryItem binaryItem : delivery.getBinaryItems() ) {
 			if( !dist.addBinaryItem( this , binaryItem ) )
 				return( false );
-			check.put( Common.getList( new String[] { delivery.NAME , VarDEPLOYITEMTYPE.BINARY.toString() , binaryItem.KEY } , "/" ) , "binary" );
+			check.put( Common.getList( new String[] { delivery.NAME , VarDEPLOYITEMTYPE.BINARY.toString() , binaryItem.NAME } , "/" ) , "binary" );
 		}
 		for( MetaDistrConfItem confItem : delivery.getConfItems() ) {
 			if( !dist.addConfItem( this , confItem ) )
 				return( false );
-			check.put( Common.getList( new String[] { delivery.NAME , VarDEPLOYITEMTYPE.CONF.toString() , confItem.KEY } , "/" ) , "conf" );
+			check.put( Common.getList( new String[] { delivery.NAME , VarDEPLOYITEMTYPE.CONF.toString() , confItem.NAME } , "/" ) , "conf" );
 		}
 		if( delivery.hasDatabaseItems() ) {
 			if( !addDeliveryAllSchemes( check , delivery ) )

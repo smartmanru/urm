@@ -150,7 +150,7 @@ public class ActionSaveConfigs extends ActionBase {
 
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		if( !redist.getConfigItem( this , folder , confItem , LOCATION ) ) {
-			ifexit( _Error.UnableGetApplicationConf1 , "unable to get configuration item=" + confItem.KEY , new String[] { confItem.KEY } );
+			ifexit( _Error.UnableGetApplicationConf1 , "unable to get configuration item=" + confItem.NAME , new String[] { confItem.NAME } );
 			return;
 		}
 		

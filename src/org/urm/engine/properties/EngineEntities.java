@@ -74,6 +74,11 @@ public class EngineEntities {
 	public PropertyEntity entityAppMetaSourceItem;
 	public PropertyEntity entityAppMetaDoc;
 	public PropertyEntity entityAppMetaPolicy;
+	public PropertyEntity entityAppMetaDistrDelivery;
+	public PropertyEntity entityAppMetaDistrBinaryItem;
+	public PropertyEntity entityAppMetaDistrConfItem;
+	public PropertyEntity entityAppMetaDistrComponent;
+	public PropertyEntity entityAppMetaDistrCompItem;
 	
 	public EngineEntities( Engine engine ) {
 		this.engine = engine;
@@ -112,6 +117,11 @@ public class EngineEntities {
 		entityAppMetaSourceItem = DBProductData.upgradeEntityMetaSourceItem( loader );
 		entityAppMetaDoc = DBProductData.upgradeEntityMetaDoc( loader );
 		entityAppMetaPolicy = DBProductData.upgradeEntityMetaPolicy( loader );
+		entityAppMetaDistrDelivery = DBProductData.upgradeEntityMetaDistrDelivery( loader );
+		entityAppMetaDistrBinaryItem = DBProductData.upgradeEntityMetaDistrBinaryItem( loader );
+		entityAppMetaDistrConfItem = DBProductData.upgradeEntityMetaDistrConfItem( loader );
+		entityAppMetaDistrComponent = DBProductData.upgradeEntityMetaDistrComponent( loader );
+		entityAppMetaDistrCompItem = DBProductData.upgradeEntityMetaDistrCompItem( loader );
 		
 		entityCustomRC = DBEngineContext.createEntityCustomRC( loader );
 		entityCustomEngine = DBEngineContext.createEntityCustomEngine( loader );
@@ -151,6 +161,11 @@ public class EngineEntities {
 		entityAppMetaSourceItem = DBProductData.loaddbEntityMetaSourceItem( c );
 		entityAppMetaDoc = DBProductData.loaddbEntityMetaDoc( c );
 		entityAppMetaPolicy = DBProductData.loaddbEntityMetaPolicy( c );
+		entityAppMetaDistrDelivery = DBProductData.loaddbEntityMetaDistrDelivery( c );
+		entityAppMetaDistrBinaryItem = DBProductData.loaddbEntityMetaDistrBinaryItem( c );
+		entityAppMetaDistrConfItem = DBProductData.loaddbEntityMetaDistrConfItem( c );
+		entityAppMetaDistrComponent = DBProductData.loaddbEntityMetaDistrComponent( c );
+		entityAppMetaDistrCompItem = DBProductData.loaddbEntityMetaDistrCompItem( c );
 		
 		entityCustomRC = DBEngineContext.loaddbEntityCustomRC( c );
 		entityCustomEngine = DBEngineContext.loaddbEntityCustomEngine( c );

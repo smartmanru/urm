@@ -78,17 +78,17 @@ public class ActionConfigure extends ActionBase {
 		if( dist == null ) {
 			// download configuration templates
 			SourceStorage sourceStorage = artefactory.getSourceStorage( this , conf.meta );
-			sourceStorage.exportTemplateConfigItem( this , null , conf.KEY , "" , templateFolder );
+			sourceStorage.exportTemplateConfigItem( this , null , conf.NAME , "" , templateFolder );
 			return;
 		}
 		
 		// copy from release
-		if( dist.release.findCategoryTarget( this , VarCATEGORY.CONFIG , conf.KEY ) != null ) {
-			LocalFolder folder = templateFolder.getSubFolder( this , conf.KEY );
+		if( dist.release.findCategoryTarget( this , VarCATEGORY.CONFIG , conf.NAME ) != null ) {
+			LocalFolder folder = templateFolder.getSubFolder( this , conf.NAME );
 			if( folder.checkExists( this ) )
 				dist.copyDistConfToFolder( this , conf , folder );
 			else
-				super.debug( "missing configuration component=" + conf.KEY );
+				super.debug( "missing configuration component=" + conf.NAME );
 		}
 	}
 	
@@ -127,7 +127,7 @@ public class ActionConfigure extends ActionBase {
 	}
 	
 	private void executeNodeConf( LocalFolder parent , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String name ) throws Exception {
-		LocalFolder template = templateFolder.getSubFolder( this , confItem.KEY );
+		LocalFolder template = templateFolder.getSubFolder( this , confItem.NAME );
 		if( !template.checkExists( this ) ) {
 			if( dist == null )
 				this.exitUnexpectedState();
@@ -135,7 +135,7 @@ public class ActionConfigure extends ActionBase {
 			return;
 		}
 		
-		info( "server=" + server.NAME + ", node" + node.POS + ": prepare configuraton item=" + confItem.KEY );
+		info( "server=" + server.NAME + ", node" + node.POS + ": prepare configuraton item=" + confItem.NAME );
 		LocalFolder live = parent.getSubFolder( this , name );
 		live.recreateThis( this );
 		

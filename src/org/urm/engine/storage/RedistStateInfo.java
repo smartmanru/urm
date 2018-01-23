@@ -101,14 +101,14 @@ public class RedistStateInfo {
 		String baseitem = verName;
 		MetaDistr distr = meta.getDistr();
 		if( Types.isBinaryContent( CONTENTTYPE ) ) {
-			MetaDistrBinaryItem item = distr.getBinaryItem( action , baseitem );
+			MetaDistrBinaryItem item = distr.getBinaryItem( baseitem );
 			FileInfo info = new FileInfo();
 			info.set( action , item , verInfo );
 			return( info );
 		}
 		
 		if( Types.isConfContent( CONTENTTYPE ) ) {
-			MetaDistrConfItem item = distr.getConfItem( action , baseitem );
+			MetaDistrConfItem item = distr.getConfItem( baseitem );
 			FileInfo info = new FileInfo();
 			info.set( action , item , verInfo );
 			return( info );
@@ -123,22 +123,22 @@ public class RedistStateInfo {
 			return( true );
 
 		// get current state if any
-		FileInfo info = verData.get( item.KEY );
+		FileInfo info = verData.get( item.NAME );
 		if( info == null ) {
-			action.debug( "redist item=" + item.KEY + " - nothing found in live" );
+			action.debug( "redist item=" + item.NAME + " - nothing found in live" );
 			return( true );
 		}
 		
 		// check deploy name changed
 		if( !info.deployBaseName.equals( deployBaseName ) ) {
-			action.debug( "redist item=" + item.KEY + " - deploy basename has been changed" );
+			action.debug( "redist item=" + item.NAME + " - deploy basename has been changed" );
 			return( true );
 		}
 		
 		// check md5
 		String ms5value = dist.getDistItemMD5( action , item , fileName );
 		if( !ms5value.equals( info.md5value ) ) {
-			action.debug( "redist item=" + item.KEY + " - md5 differs (" + info.md5value + "/" + ms5value + ")" );
+			action.debug( "redist item=" + item.NAME + " - md5 differs (" + info.md5value + "/" + ms5value + ")" );
 			return( true );
 		}
 
@@ -146,15 +146,15 @@ public class RedistStateInfo {
 		if( !info.deployFinalName.equals( deployFinalName ) ) {
 			// check version change ignored
 			if( action.context.CTX_IGNOREVERSION ) {
-				action.debug( "redist item=" + item.KEY + " - skip deploy, version change only" );
+				action.debug( "redist item=" + item.NAME + " - skip deploy, version change only" );
 				return( false );
 			}
 
-			action.debug( "redist item=" + item.KEY + " - deploy version has been changed" );
+			action.debug( "redist item=" + item.NAME + " - deploy version has been changed" );
 			return( true );
 		}
 		
-		action.debug( "redist item=" + item.KEY + " - skip deploy, no changes" );
+		action.debug( "redist item=" + item.NAME + " - skip deploy, no changes" );
 		return( false );
 	}
 
@@ -163,22 +163,22 @@ public class RedistStateInfo {
 			return( true );
 
 		// get current state if any
-		FileInfo info = verData.get( item.KEY );
+		FileInfo info = verData.get( item.NAME );
 		if( info == null ) {
-			action.debug( "redist item=" + item.KEY + " - nothing found in live" );
+			action.debug( "redist item=" + item.NAME + " - nothing found in live" );
 			return( true );
 		}
 		
 		// check deploy name changed
 		if( info.deployBaseName == null || info.deployBaseName.equals( deployBaseName ) == false ) {
-			action.debug( "redist item=" + item.KEY + " - deploy basename has been changed" );
+			action.debug( "redist item=" + item.NAME + " - deploy basename has been changed" );
 			return( true );
 		}
 		
 		// check md5
 		String ms5value = action.shell.getMD5( action , filePath );
 		if( info.md5value == null || ms5value.equals( info.md5value ) == false ) {
-			action.debug( "redist item=" + item.KEY + " - md5 differs (" + info.md5value + "/" + ms5value + ")" );
+			action.debug( "redist item=" + item.NAME + " - md5 differs (" + info.md5value + "/" + ms5value + ")" );
 			return( true );
 		}
 
@@ -186,15 +186,15 @@ public class RedistStateInfo {
 		if( info.deployFinalName == null || info.deployFinalName.equals( deployFinalName ) == false ) {
 			// check version change ignored
 			if( action.context.CTX_IGNOREVERSION ) {
-				action.debug( "redist item=" + item.KEY + " - only deploy version changed. Skipped." );
+				action.debug( "redist item=" + item.NAME + " - only deploy version changed. Skipped." );
 				return( false );
 			}
 
-			action.debug( "redist item=" + item.KEY + " - deploy name has been changed" );
+			action.debug( "redist item=" + item.NAME + " - deploy name has been changed" );
 			return( true );
 		}
 		
-		action.debug( "redist item=" + item.KEY + " - no changes. Skipped." );
+		action.debug( "redist item=" + item.NAME + " - no changes. Skipped." );
 		return( false );
 	}
 

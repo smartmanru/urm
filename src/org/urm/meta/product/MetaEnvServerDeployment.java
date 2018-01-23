@@ -112,11 +112,11 @@ public class MetaEnvServerDeployment extends PropertyController {
 	public void resolveLinks( ActionBase action ) throws Exception {
 		MetaDistr distr = meta.getDistr(); 
 		if( !COMP.isEmpty() )
-			comp = distr.getComponent( action , COMP );
+			comp = distr.getComponent( COMP );
 		if( !DISTITEM.isEmpty() )
-			binaryItem = distr.getBinaryItem( action , DISTITEM );
+			binaryItem = distr.getBinaryItem( DISTITEM );
 		if( !CONFITEM.isEmpty() )
-			confItem = distr.getConfItem( action , CONFITEM );
+			confItem = distr.getConfItem( CONFITEM );
 		
 		MetaDatabase database = meta.getDatabase(); 
 		if( !SCHEMA.isEmpty() )

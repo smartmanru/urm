@@ -7,7 +7,7 @@ import org.urm.common.RunError;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
-import org.urm.db.core.DBEnums.DBEnumParamEntityType;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectMeta;
@@ -45,7 +45,6 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
-import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaDocs;
@@ -61,7 +60,6 @@ import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.product.MetaUnits;
-import org.urm.meta.Types.*;
 
 public class TransactionBase extends EngineObject {
 
@@ -1182,17 +1180,17 @@ public class TransactionBase extends EngineObject {
 	public MetaDistrDelivery getDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
 		Meta meta = getTransactionMetadata( delivery.meta.name );
 		MetaDistr distr = meta.getDistr();
-		return( distr.getDelivery( action , delivery.NAME ) );
+		return( distr.getDelivery( delivery.NAME ) );
 	}
 
 	public MetaDistrBinaryItem getDistrBinaryItem( MetaDistrBinaryItem item ) throws Exception {
 		MetaDistrDelivery delivery = getDistrDelivery( item.delivery );
-		return( delivery.getBinaryItem( action , item.KEY ) );
+		return( delivery.getBinaryItem( item.NAME ) );
 	}
 	
 	public MetaDistrConfItem getDistrConfItem( MetaDistrConfItem item ) throws Exception {
 		MetaDistrDelivery delivery = getDistrDelivery( item.delivery );
-		return( delivery.getConfItem( action , item.KEY ) );
+		return( delivery.getConfItem( item.NAME ) );
 	}
 
 	public MetaDatabaseSchema getDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
@@ -1216,24 +1214,21 @@ public class TransactionBase extends EngineObject {
 	public MetaDistrComponent getDistrComponent( MetaDistrComponent comp ) throws Exception {
 		Meta meta = getTransactionMetadata( comp.meta.name );
 		MetaDistr distr = meta.getDistr();
-		return( distr.getComponent( action , comp.NAME ) );
+		return( distr.getComponent( comp.NAME ) );
 	}
 
 	public MetaDistrComponentItem getDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
 		MetaDistrComponent comp = getDistrComponent( item.comp );
-		if( item.type == VarCOMPITEMTYPE.BINARY )
-			return( comp.getBinaryItem( action , item.NAME ) );
-		if( item.type == VarCOMPITEMTYPE.CONF )
-			return( comp.getConfItem( action , item.NAME ) );
-		if( item.type == VarCOMPITEMTYPE.SCHEMA )
-			return( comp.getSchemaItem( action , item.NAME ) );
+		if( item.COMPITEM_TYPE == DBEnumCompItemType.BINARY )
+			return( comp.getBinaryItem( item.binaryItem.NAME ) );
+		if( item.COMPITEM_TYPE == DBEnumCompItemType.CONF )
+			return( comp.getConfItem( item.confItem.NAME ) );
+		if( item.COMPITEM_TYPE == DBEnumCompItemType.SCHEMA )
+			return( comp.getSchemaItem( item.schema.NAME ) );
+		if( item.COMPITEM_TYPE == DBEnumCompItemType.WSDL )
+			return( comp.getWebService( item.WSDL_REQUEST ) );
 		action.exitUnexpectedState();
 		return( null );
-	}
-
-	public MetaDistrComponentWS getDistrComponentService( MetaDistrComponentWS service ) throws Exception {
-		MetaDistrComponent comp = getDistrComponent( service.comp );
-		return( comp.getWebService( action , service.NAME ) );
 	}
 
 	public MetaSourceProjectItem getSourceProjectItem( MetaSourceProjectItem item ) throws Exception {

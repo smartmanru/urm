@@ -44,7 +44,7 @@ public class ActionRollback extends ActionBase {
 		debug( "get deployment data ..." );
 		int k = 0;
 		boolean hasDeployments = false;
-		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+		VersionInfo version = VersionInfo.getDistVersion( dist ); 
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
@@ -78,7 +78,7 @@ public class ActionRollback extends ActionBase {
 		redist.recreateTmpFolder( this );
 		
 		RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
-		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+		VersionInfo version = VersionInfo.getDistVersion( dist ); 
 		runtime.rollback( this , version , deployment );
 	}
 	

@@ -106,10 +106,10 @@ public class ReleaseMaster {
 	}
 
 	public void addMasterItem( ActionBase action , Release src , MetaDistrBinaryItem distItem , DistItemInfo info ) throws Exception {
-		ReleaseMasterItem item = mapItem.get( distItem.KEY );
+		ReleaseMasterItem item = mapItem.get( distItem.NAME );
 		if( item == null ) {
 			item = new ReleaseMasterItem( meta , this );
-			mapItem.put( distItem.KEY , item );
+			mapItem.put( distItem.NAME , item );
 		}
 		
 		if( src != null )
@@ -127,7 +127,7 @@ public class ReleaseMaster {
 	}
 	
 	public ReleaseMasterItem findMasterItem( MetaDistrBinaryItem distItem ) {
-		return( mapItem.get( distItem.KEY ) );
+		return( mapItem.get( distItem.NAME ) );
 	}
 	
 	public void addMasterHistory( ActionBase action , String RELEASEVER ) throws Exception {

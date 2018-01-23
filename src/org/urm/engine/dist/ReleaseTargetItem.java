@@ -64,7 +64,7 @@ public class ReleaseTargetItem {
 	
 	public String getId() {
 		if( isBinary() )
-			return( target.NAME + ":" + distItem.KEY );
+			return( target.NAME + ":" + distItem.NAME );
 		if( isDatabase() )
 			return( target.NAME + ":" + schema.NAME );
 		return( null );
@@ -94,7 +94,7 @@ public class ReleaseTargetItem {
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		BUILDVERSION = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDVERSION );
 		MetaDistr distr = meta.getDistr();
-		this.distItem = distr.getBinaryItem( action , NAME );
+		this.distItem = distr.getBinaryItem( NAME );
 		this.sourceItem = target.sourceProject.getItem( distItem.sourceProjectItem.NAME );
 	}
 	
@@ -108,7 +108,7 @@ public class ReleaseTargetItem {
 	public void createFromDistrItem( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
 		this.distItem = distItem;
 		this.sourceItem = target.sourceProject.getItem( distItem.sourceProjectItem.NAME );
-		NAME = distItem.KEY;
+		NAME = distItem.NAME;
 		BUILDVERSION = "";
 	}
 	

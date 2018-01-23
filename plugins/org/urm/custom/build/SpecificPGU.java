@@ -90,8 +90,8 @@ public class SpecificPGU {
 		
 		ProjectBuilder builder = scopeProject.sourceProject.getBuilder( action );
 		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , builder.TARGET_RESOURCE_ID , meta , downloadFolder );
-		NexusDownloadInfo WAR = nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , distItem.DISTBASENAME , VERSION , "war" , "" , distItem );
-		NexusDownloadInfo STATIC = nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , distItem.DISTBASENAME , VERSION , "tar.gz" , "webstatic" , distItem );
+		NexusDownloadInfo WAR = nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , distItem.BASENAME_DIST , VERSION , "war" , "" , distItem );
+		NexusDownloadInfo STATIC = nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , distItem.BASENAME_DIST , VERSION , "tar.gz" , "webstatic" , distItem );
 		nexusStorage.repackageStatic( action , scopeProject.sourceProject.NAME , VERSION , WAR.DOWNLOAD_FILENAME , STATIC.DOWNLOAD_FILENAME , VERSION_TAGNAME , distItem );
 
 		if( copyDistr ) {
@@ -119,8 +119,8 @@ public class SpecificPGU {
 		downloadFolder.removeFolder( action , "servicecall-prod-libs" );
 
 		MetaDistr distr = meta.getDistr();
-		servicecallItem = distr.getBinaryItem( action , C_ITEMSERVICECALL );
-		storageserviceItem = distr.getBinaryItem( action , C_ITEMSTORAGESERVICE );
+		servicecallItem = distr.getBinaryItem( C_ITEMSERVICECALL );
+		storageserviceItem = distr.getBinaryItem( C_ITEMSTORAGESERVICE );
 		
 		getAllWarAppDownloadCore();
 	
@@ -193,7 +193,7 @@ public class SpecificPGU {
 		
 		for( ActionScopeTarget scopeProject : projects.values() ) {
 			MetaDistrBinaryItem distItem = getWarItem( scopeProject.sourceProject , 1 );
-			String LIB = distItem.KEY;
+			String LIB = distItem.NAME;
 			nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , LIB , VERSION , "jar" , "" , servicecallItem );
 		}
 	}
@@ -221,7 +221,7 @@ public class SpecificPGU {
 	
 	private void getAllWarAppGetProjectLib( MetaSourceProject sourceProject , Dist release ) throws Exception {
 		MetaDistrBinaryItem libItem = getWarItem( sourceProject , 1 );
-		String lib = libItem.KEY + "-" + VERSION + ".jar";
+		String lib = libItem.NAME + "-" + VERSION + ".jar";
 
 		boolean RELEASED_TO_PROD = false;
 		if( USE_PROD_DISTR ) {
@@ -232,7 +232,7 @@ public class SpecificPGU {
 		// check if $lib exists in $P_DISTR_DSTDIR/$P_PROJECT ...
 		boolean copyFromProd = false;
 		if( USE_PROD_DISTR == true && RELEASED_TO_PROD == true )
-			if( !release.checkFileExists( action , libItem.KEY + "*war" ) )
+			if( !release.checkFileExists( action , libItem.NAME + "*war" ) )
 				copyFromProd = true;
 		
 		if( copyFromProd ) {
@@ -344,10 +344,7 @@ public class SpecificPGU {
 
 	public String getWarMRId( ActionBase action , String P_WAR ) throws Exception {
 		// get war from distributive info
-		MetaDistr distr = meta.getDistr();
-		MetaDistrBinaryItem item = distr.getBinaryItem( action , P_WAR );
-
-		String S_WAR_MRID = item.WAR_MRID;
+		String S_WAR_MRID = "";
 		if( S_WAR_MRID.isEmpty() )
 			S_WAR_MRID = "00";
 		

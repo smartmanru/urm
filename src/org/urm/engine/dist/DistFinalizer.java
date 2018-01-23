@@ -61,7 +61,7 @@ public class DistFinalizer {
 	
 	private void createExpectedConfDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTarget item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryConfFolder( action , delivery.distDelivery ) );
-		dir.createDir( item.distConfItem.KEY );
+		dir.createDir( item.distConfItem.NAME );
 	}
 	
 	private void createExpectedProjectDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTargetItem item ) throws Exception {
@@ -354,7 +354,7 @@ public class DistFinalizer {
 		DistItemInfo info = dist.getDistItemInfo( action , distItem , true , false );
 		if( !info.found ) {
 			String folder = Common.getPath( distItem.delivery.FOLDER , Dist.BINARY_FOLDER );
-			action.error( distItem.KEY + " - item not found (" + Common.getPath( folder , distItem.getBaseFile() ) + ")" );
+			action.error( distItem.NAME + " - item not found (" + Common.getPath( folder , distItem.getBaseFile() ) + ")" );
 			return( false );
 		}
 		

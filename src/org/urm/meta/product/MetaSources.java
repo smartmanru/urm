@@ -17,6 +17,7 @@ public class MetaSources {
 	private Map<Integer,MetaSourceProjectSet> setMapById;
 	private Map<String,MetaSourceProject> projectMap;
 	private Map<Integer,MetaSourceProject> projectMapById;
+	private Map<Integer,MetaSourceProjectItem> itemMapById;
 	
 	public MetaSources( ProductMeta storage , Meta meta ) {
 		this.meta = meta;
@@ -26,6 +27,7 @@ public class MetaSources {
 		setMapById = new HashMap<Integer,MetaSourceProjectSet>();
 		projectMap = new HashMap<String,MetaSourceProject>();
 		projectMapById = new HashMap<Integer,MetaSourceProject>();
+		itemMapById = new HashMap<Integer,MetaSourceProjectItem>();
 	}
 	
 	public MetaSources copy( Meta rmeta ) throws Exception {
@@ -40,6 +42,13 @@ public class MetaSources {
 			MetaSourceProject rp = rset.getProject( project.NAME );
 			r.addProject( rset , rp );
 		}
+		
+		for( MetaSourceProjectItem item : itemMapById.values() ) {
+			MetaSourceProject rp = r.getProject( item.project.ID );
+			MetaSourceProjectItem ritem = rp.getItem( item.NAME );
+			addProjectItem( ritem );
+		}
+		
 		return( r );
 	}
 	
@@ -65,15 +74,32 @@ public class MetaSources {
 	
 	public void addProjectItem( MetaSourceProject project , MetaSourceProjectItem item ) throws Exception {
 		project.addItem( item );
+		addProjectItem( item );
 	}
 	
-	public void removeProject( MetaSourceProject project ) throws Exception {
-		project.set.removeProject( project );
-		projectMap.remove( project.NAME );
-		projectMapById.remove( project.ID );
+	public void addProjectItem( MetaSourceProjectItem item ) throws Exception {
+		itemMapById.put( item.ID , item );
 	}
 
-	public void removeProjectItem( MetaSourceProjectItem item ) throws Exception {
+	public void removeProject( MetaSourceProjectSet set , MetaSourceProject project ) throws Exception {
+		project.set.removeProject( project );
+		removeProject( project );
+	}
+	
+	private void removeProject( MetaSourceProject project ) throws Exception {
+		projectMap.remove( project.NAME );
+		projectMapById.remove( project.ID );
+		
+		for( MetaSourceProjectItem item : project.getItems() )
+			removeProjectItem( item );
+	}
+
+	public void removeProjectItem( MetaSourceProject project , MetaSourceProjectItem item ) throws Exception {
+		item.project.removeItem( item );
+		removeProjectItem( item );
+	}
+
+	private void removeProjectItem( MetaSourceProjectItem item ) throws Exception {
 		item.project.removeItem( item );
 	}
 
@@ -174,11 +200,18 @@ public class MetaSources {
 		return( null );
 	}
 
+	public MetaSourceProjectItem getProjectItem( Integer id ) throws Exception {
+		MetaSourceProjectItem item = itemMapById.get( id );
+		if( item != null )
+			return( item );
+		
+		Common.exit1( _Error.UnknownSourceProjectItem1 , "unknown source project item=" + id , "" + id );
+		return( null );
+	}
+
 	public void removeProjectSet( MetaSourceProjectSet set ) throws Exception {
-		for( MetaSourceProject project : set.getProjects() ) {
-			projectMap.remove( project.NAME );
-			projectMapById.remove( project.ID );
-		}
+		for( MetaSourceProject project : set.getProjects() )
+			removeProject( project );
 		
 		setMap.remove( set.NAME );
 		setMapById.remove( set.ID );

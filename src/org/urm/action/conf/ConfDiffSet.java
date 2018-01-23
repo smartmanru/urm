@@ -97,7 +97,7 @@ public class ConfDiffSet {
 
 			MetaDistrConfItem comp = null;
 			if( confComps )
-				comp = distr.getConfItem( action , topName );
+				comp = distr.getConfItem( topName );
 			
 			if( !topMatched.containsKey( topName ) )
 				topMatched.put( topName , comp );
@@ -180,7 +180,7 @@ public class ConfDiffSet {
 					topName = Common.getPartAfterFirst( topName , dirPrefix );
 				
 				if( confComps )
-					comp = distr.getConfItem( action , topName );
+					comp = distr.getConfItem( topName );
 				fileMatched.put( key , comp );
 			}
 		}

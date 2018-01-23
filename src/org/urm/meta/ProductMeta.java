@@ -105,9 +105,8 @@ public class ProductMeta extends EngineObject {
 		r.database = database.copy( r.meta );
 		r.sources = sources.copy( r.meta );
 		r.docs = docs.copy( r.meta );
+		r.distr = distr.copy( r.meta );
 		
-		if( distr != null )
-			r.distr = distr.copy( action , r.meta , r.database , r.docs );
 		if( mon != null )
 			r.mon = mon.copy( action , r.meta );
 		
@@ -222,8 +221,8 @@ public class ProductMeta extends EngineObject {
 	}
 	
 	private void createInitialDistr( TransactionBase transaction ) throws Exception {
-		distr = new MetaDistr( this , settings , meta );
-		distr.createDistr( transaction );
+		distr = new MetaDistr( this , meta );
+		//distr.createDistr( transaction );
 		meta.setDistr( distr );
 	}
 	

@@ -6,6 +6,7 @@ import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBMetaDatabase;
+import org.urm.db.product.DBMetaDistr;
 import org.urm.db.product.DBMetaDocs;
 import org.urm.db.product.DBMetaSettings;
 import org.urm.db.product.DBMetaPolicy;
@@ -13,9 +14,6 @@ import org.urm.db.product.DBMetaSources;
 import org.urm.db.product.DBMetaUnits;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaDatabase;
-import org.urm.meta.product.MetaDistr;
-import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
@@ -46,7 +44,6 @@ public class EngineLoaderMeta {
 	}
 
 	public void saveAll( MetadataStorage ms ) throws Exception {
-		saveDistr( ms );
 		saveMonitoring( ms );
 	}
 	
@@ -90,14 +87,6 @@ public class EngineLoaderMeta {
 		importxmlDocs( ms );
 		importxmlDistr( ms );
 		importxmlMonitoring( ms );
-	}
-	
-	private void saveDistr( MetadataStorage ms ) throws Exception {
-		ActionBase action = loader.getAction();
-		Document doc = Common.xmlCreateDoc( XML_ROOT_DISTR );
-		MetaDistr distr = set.getDistr();
-		distr.save( action , doc , doc.getDocumentElement() );
-		ms.saveDistrConfFile( action , doc );
 	}
 	
 	private void saveMonitoring( MetadataStorage ms ) throws Exception {
@@ -222,7 +211,7 @@ public class EngineLoaderMeta {
 	private void exportxmlPolicy( MetadataStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		String file = ms.getPolicyConfFile( action );
-		action.debug( "read product policy file " + file + "..." );
+		action.debug( "export product policy file " + file + "..." );
 		Document doc = Common.xmlCreateDoc( "policy" );
 		Element root = doc.getDocumentElement();
 		
@@ -249,7 +238,7 @@ public class EngineLoaderMeta {
 	private void exportxmlUnits( MetadataStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		String file = ms.getUnitsFile( action );
-		action.debug( "read units definition file " + file + "..." );
+		action.debug( "export units definition file " + file + "..." );
 		Document doc = Common.xmlCreateDoc( "units" );
 		Element root = doc.getDocumentElement();
 		
@@ -276,7 +265,7 @@ public class EngineLoaderMeta {
 	private void exportxmlDatabase( MetadataStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		String file = ms.getDatabaseConfFile( action );
-		action.debug( "read database definition file " + file + "..." );
+		action.debug( "export database definition file " + file + "..." );
 		Document doc = Common.xmlCreateDoc( "database" );
 		Element root = doc.getDocumentElement();
 		
@@ -303,7 +292,7 @@ public class EngineLoaderMeta {
 	private void exportxmlSources( MetadataStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		String file = ms.getSourcesConfFile( action );
-		action.debug( "read source definition file " + file + "..." );
+		action.debug( "export source definition file " + file + "..." );
 		Document doc = Common.xmlCreateDoc( "sources" );
 		Element root = doc.getDocumentElement();
 		
@@ -330,7 +319,7 @@ public class EngineLoaderMeta {
 	private void exportxmlDocs( MetadataStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		String file = ms.getDocumentationFile( action );
-		action.debug( "read units definition file " + file + "..." );
+		action.debug( "export units definition file " + file + "..." );
 		Document doc = Common.xmlCreateDoc( "docs" );
 		Element root = doc.getDocumentElement();
 		
@@ -339,12 +328,6 @@ public class EngineLoaderMeta {
 	}
 	
 	private void importxmlDistr( MetadataStorage ms ) throws Exception {
-		MetaProductSettings settings = set.getSettings();
-		MetaDatabase db = set.getDatabase();
-		MetaDocs docs = set.getDocs();
-		MetaDistr distr = new MetaDistr( set , settings , set.meta );
-		set.setDistr( distr );
-		
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -352,7 +335,8 @@ public class EngineLoaderMeta {
 			action.debug( "read distributive definition file " + file + "..." );
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
-			distr.load( action , db , docs , root );
+			
+			DBMetaDistr.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
 			setLoadFailed( action , _Error.UnableLoadProductDistr1 , e , "unable to import distributive metadata, product=" + set.name , set.name );
@@ -360,6 +344,14 @@ public class EngineLoaderMeta {
 	}
 
 	private void exportxmlDistr( MetadataStorage ms ) throws Exception {
+		ActionBase action = loader.getAction();
+		String file = ms.getDistrConfFile( action );
+		action.debug( "export distributive definition file " + file + "..." );
+		Document doc = Common.xmlCreateDoc( "distr" );
+		Element root = doc.getDocumentElement();
+		
+		DBMetaDistr.exportxml( loader , set , doc , root );
+		Common.xmlSaveDoc( doc , file );
 	}
 	
 	private void importxmlMonitoring( MetadataStorage ms ) throws Exception {

@@ -898,7 +898,7 @@ public class Release {
 		if( set.ALL )
 			return( true );
 
-		ReleaseTarget target = set.findTarget( item.KEY );
+		ReleaseTarget target = set.findTarget( item.NAME );
 		if( target != null ) {
 			if( !target.ALL )
 				target.setAll( action , action.context.CTX_REPLACE );
@@ -911,14 +911,14 @@ public class Release {
 	}
 
 	public boolean addManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		if( item.distItemOrigin != VarDISTITEMORIGIN.MANUAL )
-			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item.KEY , item.KEY );
+		if( item.ITEMORIGIN_TYPE != DBEnumItemOriginType.MANUAL )
+			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item.NAME , item.NAME );
 			
 		ReleaseDistSet set = getCategorySet( action , VarCATEGORY.MANUAL );
 		if( set.ALL )
 			return( true );
 
-		ReleaseTarget target = set.findTarget( item.KEY );
+		ReleaseTarget target = set.findTarget( item.NAME );
 		if( target != null )
 			return( true );
 		
@@ -928,14 +928,14 @@ public class Release {
 	}
 
 	public boolean addDerivedItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		if( item.distItemOrigin != VarDISTITEMORIGIN.DERIVED )
-			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item.KEY , item.KEY );
+		if( item.ITEMORIGIN_TYPE != DBEnumItemOriginType.DERIVED )
+			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item.NAME , item.NAME );
 			
 		ReleaseDistSet set = getCategorySet( action , VarCATEGORY.DERIVED );
 		if( set.ALL )
 			return( true );
 
-		ReleaseTarget target = set.findTarget( item.KEY );
+		ReleaseTarget target = set.findTarget( item.NAME );
 		if( target != null )
 			return( true );
 		

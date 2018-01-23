@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.db.core.DBEnums.*;
 import org.urm.meta.Types;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
@@ -316,7 +317,7 @@ public class ReleaseDistSet {
 	public void addAllManualItems( ActionBase action ) throws Exception {
 		MetaDistr distr = meta.getDistr(); 
 		for( MetaDistrBinaryItem item : distr.getBinaryItems() ) {
-			if( item.distItemOrigin == VarDISTITEMORIGIN.MANUAL )
+			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL )
 				addManualItem( action , item );
 		}
 	}
@@ -324,7 +325,7 @@ public class ReleaseDistSet {
 	public void addAllDerivedItems( ActionBase action ) throws Exception {
 		MetaDistr distr = meta.getDistr(); 
 		for( MetaDistrBinaryItem item : distr.getBinaryItems() ) {
-			if( item.distItemOrigin == VarDISTITEMORIGIN.DERIVED )
+			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED )
 				addDerivedItem( action , item );
 		}
 	}

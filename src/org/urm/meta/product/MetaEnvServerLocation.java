@@ -56,11 +56,11 @@ public class MetaEnvServerLocation {
 	
 	public void addBinaryItem( ActionBase action , MetaEnvServerDeployment deployment , MetaDistrBinaryItem binaryItem , String deployName ) throws Exception {
 		if( deployName.isEmpty() )
-			deployName = binaryItem.DEPLOYBASENAME;
+			deployName = binaryItem.BASENAME_DEPLOY;
 
 		BinaryDeploymentPair pair = new BinaryDeploymentPair( deployment , binaryItem );
 		binaryItems.add( pair );
-		deployNameMap.put( binaryItem.KEY , deployName );
+		deployNameMap.put( binaryItem.NAME , deployName );
 		
 		if( !deployments.contains( deployment ) )
 			deployments.add( deployment );
@@ -109,8 +109,8 @@ public class MetaEnvServerLocation {
 		Map<String, MetaDistrBinaryItem> items = new HashMap<String, MetaDistrBinaryItem>();
 		for( BinaryDeploymentPair pair : binaryItems ) {
 			if( node == null || checkNodeDeployment( action , node , pair.deployment ) ) {
-				if( !items.containsKey( pair.item.KEY ) )
-					items.put( pair.item.KEY , pair.item );
+				if( !items.containsKey( pair.item.NAME ) )
+					items.put( pair.item.NAME , pair.item );
 			}
 		}
 		return( Common.getSortedKeys( items ) );
@@ -120,8 +120,8 @@ public class MetaEnvServerLocation {
 		Map<String, MetaDistrConfItem> items = new HashMap<String, MetaDistrConfItem>();
 		for( ConfDeploymentPair pair : confItems ) {
 			if( node == null || checkNodeDeployment( action , node , pair.deployment ) ) {
-				if( !items.containsKey( pair.item.KEY ) )
-					items.put( pair.item.KEY , pair.item );
+				if( !items.containsKey( pair.item.NAME ) )
+					items.put( pair.item.NAME , pair.item );
 			}
 		}
 		return( Common.getSortedKeys( items ) );

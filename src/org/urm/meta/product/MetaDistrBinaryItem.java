@@ -2,293 +2,210 @@ package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.custom.CommandCustom;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.storage.FileInfo;
-import org.urm.meta.Types;
 import org.urm.meta.Types.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class MetaDistrBinaryItem {
 
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_DISTITEMTYPE = "type";
+	public static String PROPERTY_DISTNAME = "distname";
+	public static String PROPERTY_DEPLOYNAME = "deployname";
+	public static String PROPERTY_EXT = "extension";
+	public static String PROPERTY_DEPLOYVERSION = "deployversion";
+	public static String PROPERTY_ITEMORIGIN = "source";
+	public static String PROPERTY_SRCITEM_NAME = "srcitem";
+	public static String PROPERTY_SRCDISTITEM_NAME = "srcdistitem";
+	public static String PROPERTY_SRCITEMPATH = "srcpath";
+	public static String PROPERTY_ARCHIVEFILES = "files";
+	public static String PROPERTY_ARCHIVEEXCLUDE = "exclude";
+	public static String PROPERTY_WARCONTEXT = "context";
+	public static String PROPERTY_CUSTOMGET = "custom_get";
+	public static String PROPERTY_CUSTOMDEPLOY = "custom_deploy";
+	
 	public Meta meta;
 	public MetaDistrDelivery delivery;
 	
-	public String KEY;
+	public int ID;
+	public String NAME;
+	public String DESC;
+	public DBEnumDistItemType DISTITEM_TYPE;
+	public String BASENAME_DIST;
+	public String BASENAME_DEPLOY;
 	public String EXT;
-	public VarDISTITEMTYPE distItemType;
-	public VarDISTITEMORIGIN distItemOrigin;
-	public String SRCPROJECTITEM;
-	public MetaSourceProjectItem sourceProjectItem;
-	public String SRCDISTITEM;
-	public MetaDistrBinaryItem srcDistItem;
-	public String SRCITEMPATH; 
-	public String DISTBASENAME;
-	public String DEPLOYBASENAME;
-	public VarITEMVERSION deployVersion;
-	public String FILES;
-	public String EXCLUDE;
-	
-	public String WAR_MRID;
-	public String WAR_CONTEXT;
+	public DBEnumDeployVersionType DEPLOYVERSION_TYPE;
+	public DBEnumItemOriginType ITEMORIGIN_TYPE;
+	public Integer SRCITEM_ID;
+	public Integer SRC_BINARY_ID;
+	public String SRC_ITEMPATH; 
+	public String ARCHIVE_FILES;
+	public String ARCHIVE_EXCLUDE;
 	public String WAR_STATICEXT;
-	public String BUILDINFO;
-	
-	public boolean CUSTOMDEPLOY;
+	public String WAR_CONTEXT;
+	public boolean CUSTOM_GET;
+	public boolean CUSTOM_DEPLOY;
+	public int PV;
+
+	public MetaSourceProjectItem sourceProjectItem;
+	public MetaDistrBinaryItem srcDistItem;
 	
 	public MetaDistrBinaryItem( Meta meta , MetaDistrDelivery delivery ) {
 		this.meta = meta;
-		this.delivery = delivery; 
+		this.delivery = delivery;
+		ID = -1;
+		PV = -1;
 	}
 
-	public void createBinaryItem( EngineTransaction transaction , String key ) throws Exception {
-		this.KEY = key;
-		EXT = "";
-		SRCPROJECTITEM = "";
-		SRCDISTITEM = "";
-		SRCITEMPATH = "";
-		DISTBASENAME = "";
-		DEPLOYBASENAME = "";
-		FILES = "";
-		EXCLUDE = "";
+	public MetaDistrBinaryItem copy( Meta rmeta , MetaDistrDelivery rdelivery ) throws Exception {
+		MetaDistrBinaryItem r = new MetaDistrBinaryItem( rmeta , rdelivery );
 		
-		WAR_MRID = "";
-		WAR_CONTEXT = "";
-		WAR_STATICEXT = "";
-		BUILDINFO = "";
-		CUSTOMDEPLOY = false;
-	}
-	
-	public void setDelivery( EngineTransaction transaction , MetaDistrDelivery deliveryNew ) throws Exception {
-		this.delivery = deliveryNew; 
-	}
-	
-	public void changeProjectToManual( EngineTransaction transaction ) throws Exception {
-		if( distItemOrigin != VarDISTITEMORIGIN.BUILD )
-			transaction.exitUnexpectedState();
-			
-		sourceProjectItem = null;
-		SRCPROJECTITEM = "";
-		distItemOrigin = VarDISTITEMORIGIN.MANUAL;
-	}
-	
-	public void load( ActionBase action , Node node ) throws Exception {
-		KEY = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
-	
-		// read attrs
-		distItemType = Types.getItemDistType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
-		distItemOrigin = Types.getItemDistOrigin( ConfReader.getRequiredAttrValue( node , "source" ) , false );
-		if( distItemOrigin == VarDISTITEMORIGIN.BUILD )
-			SRCPROJECTITEM = ConfReader.getAttrValue( node , "srcitem" );
-		
-		if( distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
-			SRCDISTITEM = ConfReader.getAttrValue( node , "srcitem" );
-			SRCITEMPATH = ConfReader.getAttrValue( node , "srcpath" );
-		}
-		
-		DISTBASENAME = ConfReader.getAttrValue( node , "distname" , KEY );
-		DEPLOYBASENAME = ConfReader.getAttrValue( node , "deployname" , DISTBASENAME );
-		deployVersion = Types.readItemVersionAttr( node , "deployversion" );
-		BUILDINFO = ConfReader.getAttrValue( node , "buildinfo" );
-
-		// binary item
-		if( distItemType == VarDISTITEMTYPE.BINARY ||
-			distItemType == VarDISTITEMTYPE.PACKAGE ) {
-			EXT = ConfReader.getRequiredAttrValue( node , "extension" );
-		}
-		else
-		// war item and static
-		if( distItemType == VarDISTITEMTYPE.STATICWAR ) {
-			EXT = ".war";
-	
-			WAR_MRID = ConfReader.getAttrValue( node , "mrid" );
-			WAR_CONTEXT = ConfReader.getAttrValue( node , "context" , DEPLOYBASENAME );
-			WAR_STATICEXT = ConfReader.getAttrValue( node , "extension" , "-webstatic.tar.gz" );
-		}
-		else
-		// archive item
-		if( isArchive() ) {
-			EXT = ConfReader.getAttrValue( node , "extension" , ".tar.gz" );
-			FILES = ConfReader.getAttrValue( node , "files" , "*" );
-			EXCLUDE = ConfReader.getAttrValue( node , "exclude" );
-		}
-		else
-		// nupkg item
-		if( distItemType == VarDISTITEMTYPE.PACKAGE ) {
-			EXT = ConfReader.getRequiredAttrValue( node , "extension" );
-		}
-		else {
-			String distType = Common.getEnumLower( distItemType );
-			action.exit2( _Error.UnknownDistributiveItemType2 , "distribution item " + KEY + " has unknown type=" + distType , KEY , distType );
-		}
-		
-		CUSTOMDEPLOY = ConfReader.getBooleanAttrValue( node , "customdeploy" , false );
-		if( CUSTOMDEPLOY ) {
-			CommandCustom custom = new CommandCustom( meta );
-			custom.parseDistItem( action , this , node );
-		}
-	}
-
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "name" , KEY );
-		
-		// read attrs
-		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( distItemType ) );
-		Common.xmlSetElementAttr( doc , root , "source" , Common.getEnumLower( distItemOrigin ) );
-		
-		if( distItemOrigin == VarDISTITEMORIGIN.BUILD )
-			Common.xmlSetElementAttr( doc , root , "srcitem" , SRCPROJECTITEM );
-		
-		if( distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
-			Common.xmlSetElementAttr( doc , root , "srcitem" , SRCDISTITEM );
-			Common.xmlSetElementAttr( doc , root , "srcpath" , SRCITEMPATH );
-		}
-		
-		Common.xmlSetElementAttr( doc , root , "distname" , DISTBASENAME );
-		Common.xmlSetElementAttr( doc , root , "deployname" , DEPLOYBASENAME );
-		Common.xmlSetElementAttr( doc , root , "deployversion" , Common.getEnumLower( deployVersion ) );
-		Common.xmlSetElementAttr( doc , root , "buildinfo" , BUILDINFO );
-
-		// binary item
-		if( distItemType == VarDISTITEMTYPE.BINARY || 
-			distItemType == VarDISTITEMTYPE.PACKAGE ) {
-			Common.xmlSetElementAttr( doc , root , "extension" , EXT );
-		}
-		else
-		// war item and static
-		if( distItemType == VarDISTITEMTYPE.STATICWAR ) {
-			EXT = ".war";
-	
-			Common.xmlSetElementAttr( doc , root , "mrid" , WAR_MRID );
-			Common.xmlSetElementAttr( doc , root , "context" , WAR_CONTEXT );
-			Common.xmlSetElementAttr( doc , root , "extension" , WAR_STATICEXT );
-		}
-		else
-		// archive item
-		if( isArchive() ) {
-			Common.xmlSetElementAttr( doc , root , "extension" , EXT );
-			Common.xmlSetElementAttr( doc , root , "files" , FILES );
-			Common.xmlSetElementAttr( doc , root , "exclude" , EXCLUDE );
-		}
-		else
-		// nupkg item
-		if( distItemType == VarDISTITEMTYPE.PACKAGE ) {
-			Common.xmlSetElementAttr( doc , root , "extension" , EXT );
-		}
-		
-		Common.xmlSetElementAttr( doc , root , "customdeploy" , Common.getBooleanValue( CUSTOMDEPLOY ) );
-	}
-	
-	public MetaDistrBinaryItem copy( ActionBase action , Meta meta , MetaDistrDelivery delivery ) throws Exception {
-		MetaDistrBinaryItem r = new MetaDistrBinaryItem( meta , delivery );
-		
-		r.KEY = KEY;
+		r.ID = ID;
+		r.NAME = NAME;
+		r.DESC = DESC;
+		r.DISTITEM_TYPE = DISTITEM_TYPE;
+		r.BASENAME_DIST = BASENAME_DIST;
+		r.BASENAME_DEPLOY = BASENAME_DEPLOY;
 		r.EXT = EXT;
-		r.distItemType = distItemType;
-		r.distItemOrigin = distItemOrigin;
-		r.SRCPROJECTITEM = SRCPROJECTITEM;
-		r.SRCDISTITEM = SRCDISTITEM;
-		
-		r.SRCITEMPATH = SRCITEMPATH; 
-		r.DISTBASENAME = DISTBASENAME;
-		r.DEPLOYBASENAME = DEPLOYBASENAME;
-		r.deployVersion = deployVersion;
-		r.WAR_MRID = WAR_MRID;
-		r.WAR_CONTEXT = WAR_CONTEXT;
+		r.DEPLOYVERSION_TYPE = DEPLOYVERSION_TYPE;
+		r.ITEMORIGIN_TYPE = ITEMORIGIN_TYPE;
+		r.SRCITEM_ID = SRCITEM_ID;
+		r.SRC_BINARY_ID = SRC_BINARY_ID;
+		r.SRC_ITEMPATH = SRC_ITEMPATH; 
+		r.ARCHIVE_FILES = ARCHIVE_FILES;
+		r.ARCHIVE_EXCLUDE = ARCHIVE_EXCLUDE;
 		r.WAR_STATICEXT = WAR_STATICEXT;
-		r.BUILDINFO = BUILDINFO;
-		r.FILES = FILES;
-		r.EXCLUDE = EXCLUDE;
-		
-		r.CUSTOMDEPLOY = CUSTOMDEPLOY;
+		r.WAR_CONTEXT = WAR_CONTEXT;
+		r.CUSTOM_GET = CUSTOM_GET;
+		r.CUSTOM_DEPLOY = CUSTOM_DEPLOY;
+		r.PV = PV;
 		
 		return( r );
 	}
 	
-	public void resolveReferences( ActionBase action ) throws Exception {
-		if( distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
+	public void resolveReferences() throws Exception {
+		srcDistItem = null;
+		if( ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
 			MetaDistr distr = meta.getDistr();
-			srcDistItem = distr.getBinaryItem( action , SRCDISTITEM );
+			if( SRC_BINARY_ID == null )
+				Common.exitUnexpected();
+			srcDistItem = distr.getBinaryItem( SRC_BINARY_ID );
 		}
 		else
-		if( distItemOrigin == VarDISTITEMORIGIN.BUILD ) {
+		if( ITEMORIGIN_TYPE == DBEnumItemOriginType.BUILD ) {
 			MetaSources sources = meta.getSources();
-			sourceProjectItem = sources.getProjectItem( SRCPROJECTITEM );
+			if( SRCITEM_ID == null )
+				Common.exitUnexpected();
+			sourceProjectItem = sources.getProjectItem( SRCITEM_ID );
 			sourceProjectItem.setDistItem( this );
 		}
 	}
 	
+	public void createBinaryItem( String name , String desc , DBEnumDistItemType itemType , String distName , String deployName , String ext , DBEnumDeployVersionType versionType , String staticExt , String warContext , String files , String exclude ) throws Exception {
+		modifyBinaryItem( name , desc , itemType , distName , deployName , ext , versionType , staticExt , warContext , files , exclude );
+	}
+	
+	public void modifyBinaryItem( String name , String desc , DBEnumDistItemType itemType , String distName , String deployName , String ext , DBEnumDeployVersionType versionType , String staticExt , String warContext , String files , String exclude ) throws Exception {
+		this.NAME = name;
+		this.DESC = desc;
+		this.DISTITEM_TYPE = itemType;
+		this.BASENAME_DIST = distName;
+		this.BASENAME_DEPLOY = deployName;
+		this.EXT = ext;
+		this.WAR_STATICEXT = staticExt;
+		this.WAR_CONTEXT = warContext;
+		this.ARCHIVE_FILES = files;
+		this.ARCHIVE_EXCLUDE = exclude;
+	}
+	
+	public void setSource( DBEnumItemOriginType originType , Integer srcId , Integer srcBinaryId , String itemPath ) {
+		this.ITEMORIGIN_TYPE = originType;
+		this.SRCITEM_ID = srcId;
+		this.SRC_BINARY_ID = srcBinaryId;
+		this.SRC_ITEMPATH = itemPath; 
+	}
+	
+	public void setCustom( boolean customGet , boolean customDeploy ) throws Exception {
+		this.CUSTOM_GET = customGet; 
+		this.CUSTOM_DEPLOY = customDeploy; 
+	}
+	
+	public void setDelivery( MetaDistrDelivery deliveryNew ) throws Exception {
+		this.delivery = deliveryNew; 
+	}
+	
+	public void changeProjectToManual() throws Exception {
+		if( ITEMORIGIN_TYPE != DBEnumItemOriginType.BUILD )
+			Common.exitUnexpected();
+			
+		sourceProjectItem = null;
+		SRCITEM_ID = null;
+		ITEMORIGIN_TYPE = DBEnumItemOriginType.MANUAL;
+	}
+	
 	public boolean isArchive() {
-		if( distItemType == VarDISTITEMTYPE.ARCHIVE_CHILD || 
-			distItemType == VarDISTITEMTYPE.ARCHIVE_DIRECT || 
-			distItemType == VarDISTITEMTYPE.ARCHIVE_SUBDIR )
+		if( DISTITEM_TYPE.isArchive() )
 			return( true );
 		return( false );
 	}
 	
-	public void setSource( ActionBase action , MetaSourceProjectItem sourceItem ) throws Exception {
-		this.sourceProjectItem = sourceItem;
-	}
-
 	public String getBaseFile() {
-		return( DISTBASENAME + EXT );
+		return( BASENAME_DIST + EXT );
 	}
 
-	public VarITEMVERSION getVersionType( ActionBase action , String deployBaseName , String fileName ) throws Exception {
-		String baseName = ( deployBaseName.isEmpty() )? DEPLOYBASENAME : deployBaseName;
+	public DBEnumDeployVersionType getVersionType( String deployBaseName , String fileName ) throws Exception {
+		String baseName = ( deployBaseName.isEmpty() )? BASENAME_DEPLOY : deployBaseName;
 		if( fileName.matches( baseName + EXT ) )
-			return( VarITEMVERSION.NONE );
+			return( DBEnumDeployVersionType.NONE );
 		
 		if( fileName.matches( ".*[0-9]-" + baseName + EXT ) )
-			return( VarITEMVERSION.PREFIX );
+			return( DBEnumDeployVersionType.PREFIX );
 		
 		if( fileName.matches( baseName + "-[0-9].*" + EXT ) )
-			return( VarITEMVERSION.MIDDASH );
+			return( DBEnumDeployVersionType.MIDDASH );
 		
 		if( fileName.matches( baseName + "##[0-9].*" + EXT ) )
-			return( VarITEMVERSION.MIDPOUND );
+			return( DBEnumDeployVersionType.MIDPOUND );
 		
-		return( VarITEMVERSION.UNKNOWN );
+		return( DBEnumDeployVersionType.UNKNOWN );
 	}
 
-	public FileInfo getFileInfo( ActionBase action , String runtimeFile , String specificDeployName , String md5value ) throws Exception {
-		VarITEMVERSION vtype = getVersionType( action , specificDeployName , runtimeFile );
-		if( vtype == VarITEMVERSION.UNKNOWN )
-			action.exit2( _Error.UnableGetFileVersionType2 , "unable to get version type of file=" + runtimeFile + ", deployName=" + specificDeployName , runtimeFile , specificDeployName );
+	public FileInfo getFileInfo( String runtimeFile , String specificDeployName , String md5value ) throws Exception {
+		DBEnumDeployVersionType vtype = getVersionType( specificDeployName , runtimeFile );
+		if( vtype == DBEnumDeployVersionType.UNKNOWN )
+			Common.exit2( _Error.UnableGetFileVersionType2 , "unable to get version type of file=" + runtimeFile + ", deployName=" + specificDeployName , runtimeFile , specificDeployName );
 		
 		String name = Common.getPartBeforeLast( runtimeFile , EXT );
 				
-		if( vtype == VarITEMVERSION.NONE ) {
+		if( vtype == DBEnumDeployVersionType.NONE ) {
 			String deployNameNoVersion = name;
 			return( new FileInfo( this , null , md5value , deployNameNoVersion , runtimeFile ) );
 		}
 		
-		if( vtype == VarITEMVERSION.PREFIX ) {
+		if( vtype == DBEnumDeployVersionType.PREFIX ) {
 			String fileVersion = Common.getPartBeforeFirst( name , "-" );
-			VersionInfo version = VersionInfo.getFileVersion( action , fileVersion );
+			VersionInfo version = VersionInfo.getFileVersion( fileVersion );
 			String deployNameNoVersion = Common.getPartAfterFirst( name , "-" );
 			return( new FileInfo( this , version , md5value , deployNameNoVersion , runtimeFile ) );
 		}
 		
-		if( vtype == VarITEMVERSION.MIDDASH ) {
+		if( vtype == DBEnumDeployVersionType.MIDDASH ) {
 			String fileVersion = Common.getPartAfterLast( name , "-" );
-			VersionInfo version = VersionInfo.getFileVersion( action , fileVersion );
+			VersionInfo version = VersionInfo.getFileVersion( fileVersion );
 			String deployNameNoVersion = Common.getPartBeforeLast( name , "-" );
 			return( new FileInfo( this , version , md5value , deployNameNoVersion , runtimeFile ) );
 		}
 		
-		if( vtype == VarITEMVERSION.MIDPOUND ) {
+		if( vtype == DBEnumDeployVersionType.MIDPOUND ) {
 			String fileVersion = Common.getPartAfterLast( name , "##" );
-			VersionInfo version = VersionInfo.getFileVersion( action , fileVersion );
+			VersionInfo version = VersionInfo.getFileVersion( fileVersion );
 			String deployNameNoVersion = Common.getPartBeforeLast( name , "##" );
 			return( new FileInfo( this , version , md5value , deployNameNoVersion , runtimeFile ) );
 		}
 		
-		action.exitUnexpectedState();
+		Common.exitUnexpected();
 		return( null );
 	}
 
@@ -299,13 +216,13 @@ public class MetaDistrBinaryItem {
 	}
 
 	public boolean isManualItem() {
-		if( distItemOrigin == VarDISTITEMORIGIN.MANUAL )
+		if( ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isProjectItem() {
-		if( distItemOrigin == VarDISTITEMORIGIN.BUILD )
+		if( ITEMORIGIN_TYPE == DBEnumItemOriginType.BUILD )
 			return( true );
 		return( false );
 	}
@@ -324,58 +241,49 @@ public class MetaDistrBinaryItem {
 		return( null );
 	}
 	
-	public void setDistData( EngineTransaction transaction , VarDISTITEMTYPE itemType , String basename , String ext , String archiveFiles , String archiveExclude ) throws Exception {
-		this.distItemType = itemType;
-		this.DISTBASENAME = basename;
+	public void setDistData( DBEnumDistItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ) throws Exception {
+		this.DISTITEM_TYPE = itemType;
+		this.BASENAME_DIST = basename;
 		this.EXT = ext;
-		this.FILES = archiveFiles;
-		this.EXCLUDE = archiveExclude;
-		if( this.DISTBASENAME.isEmpty() )
-			this.DISTBASENAME = KEY;
+		this.ARCHIVE_FILES = archiveFiles;
+		this.ARCHIVE_EXCLUDE = archiveExclude;
+		if( this.BASENAME_DIST.isEmpty() )
+			this.BASENAME_DIST = NAME;
 	}
 
-	public void setDeployData( EngineTransaction transaction , String deployname , VarITEMVERSION versionType ) throws Exception {
-		this.DEPLOYBASENAME = deployname;
-		this.deployVersion = versionType;
-		if( this.DEPLOYBASENAME.isEmpty() )
-			this.DEPLOYBASENAME = DISTBASENAME;
+	public void setDeployData( String deployname , DBEnumDeployVersionType versionType ) throws Exception {
+		this.BASENAME_DEPLOY = deployname;
+		this.DEPLOYVERSION_TYPE = versionType;
+		if( this.BASENAME_DEPLOY.isEmpty() )
+			this.BASENAME_DEPLOY = BASENAME_DIST;
 	}
 
-	public void setBuildOrigin( EngineTransaction transaction , MetaSourceProjectItem itemSrc ) throws Exception {
-		this.distItemOrigin = VarDISTITEMORIGIN.BUILD;
-		this.SRCPROJECTITEM = itemSrc.NAME;
-		this.sourceProjectItem = itemSrc;
-		this.SRCDISTITEM = "";
+	public void setBuildOrigin( MetaSourceProjectItem sourceItem ) throws Exception {
+		this.sourceProjectItem = sourceItem;
 		this.srcDistItem = null;
-		this.SRCITEMPATH = "";
-		itemSrc.setDistItem( this );
+		setSource( DBEnumItemOriginType.BUILD , sourceItem.ID , null , "" );
+		sourceItem.setDistItem( this );
 	}
 
-	public void setDistOrigin( EngineTransaction transaction , MetaDistrBinaryItem itemSrc , String srcPath ) throws Exception {
-		this.distItemOrigin = VarDISTITEMORIGIN.DERIVED;
-		this.SRCPROJECTITEM = "";
+	public void setDistOrigin( MetaDistrBinaryItem itemSrc , String srcPath ) throws Exception {
 		this.sourceProjectItem = null;
-		this.SRCDISTITEM = itemSrc.KEY;
 		this.srcDistItem = itemSrc;
-		this.SRCITEMPATH = srcPath;
+		setSource( DBEnumItemOriginType.DERIVED , null , itemSrc.ID , srcPath );
 	}
 	
-	public void setManualOrigin( EngineTransaction transaction ) throws Exception {
-		this.distItemOrigin = VarDISTITEMORIGIN.MANUAL;
-		this.SRCPROJECTITEM = "";
+	public void setManualOrigin() throws Exception {
 		this.sourceProjectItem = null;
-		this.SRCDISTITEM = "";
 		this.srcDistItem = null;
-		this.SRCITEMPATH = "";
+		setSource( DBEnumItemOriginType.MANUAL , null , null , "" );
 	}
 
 	public String getDeploySampleFile() {
-		String value = DEPLOYBASENAME;
+		String value = BASENAME_DEPLOY;
 		
 		if( isArchive() )
 			return( "(archive)" );
 		
-		if( deployVersion == VarITEMVERSION.IGNORE ) {
+		if( DEPLOYVERSION_TYPE == DBEnumDeployVersionType.IGNORE ) {
 			if( sourceProjectItem != null && sourceProjectItem.FIXED_VERSION.isEmpty() == false )
 				value += "-" + sourceProjectItem.FIXED_VERSION;
 		}
@@ -384,13 +292,13 @@ public class MetaDistrBinaryItem {
 			if( sourceProjectItem != null && sourceProjectItem.FIXED_VERSION.isEmpty() == false )
 				version = sourceProjectItem.FIXED_VERSION;
 			
-			if( deployVersion == VarITEMVERSION.MIDDASH )
+			if( DEPLOYVERSION_TYPE == DBEnumDeployVersionType.MIDDASH )
 				value += "-" + version;
 			else
-			if( deployVersion == VarITEMVERSION.MIDPOUND )
+			if( DEPLOYVERSION_TYPE == DBEnumDeployVersionType.MIDPOUND )
 				value += "##" + version;
 			else
-			if( deployVersion == VarITEMVERSION.PREFIX )
+			if( DEPLOYVERSION_TYPE == DBEnumDeployVersionType.PREFIX )
 				value = version + "-" + value;
 		}
 		
@@ -398,4 +306,22 @@ public class MetaDistrBinaryItem {
 		return( value );
 	}
 	
+	public String[] getVersionPatterns() throws Exception {
+		String basename = BASENAME_DIST;
+		String ext = EXT;
+		
+		if( DEPLOYVERSION_TYPE == DBEnumDeployVersionType.IGNORE ) {
+			String[] values = new String[1];
+			values[0] = DEPLOYVERSION_TYPE.getVersionPattern( basename , ext );
+			return( values );
+		}
+
+		String[] values = new String[4];
+		values[0] = DBEnumDeployVersionType.NONE.getVersionPattern( basename , ext );
+		values[1] = DBEnumDeployVersionType.MIDPOUND.getVersionPattern( basename , ext );
+		values[2] = DBEnumDeployVersionType.MIDDASH.getVersionPattern( basename , ext );
+		values[3] = DBEnumDeployVersionType.PREFIX.getVersionPattern( basename , ext );
+		return( values );
+	}
+
 }

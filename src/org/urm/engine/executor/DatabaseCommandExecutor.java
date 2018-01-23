@@ -134,7 +134,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 			checkNoArgs( action , 3 );
 		else {
 			MetaDistr distr = meta.getDistr();
-			delivery = distr.getDelivery( action , DELIVERY );
+			delivery = distr.getDelivery( DELIVERY );
 			indexScope = getRequiredArg( action , 3 , "mask" );
 			checkNoArgs( action , 4 );
 		}

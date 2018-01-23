@@ -89,7 +89,7 @@ public class ActionScopeTarget {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 
 		target.confItem = confItem;
-		target.NAME = confItem.KEY;
+		target.NAME = confItem.NAME;
 		target.itemFull = true;
 		target.specifiedExplicitly = specifiedExplicitly;
 		return( target );
@@ -99,7 +99,7 @@ public class ActionScopeTarget {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 
 		target.manualItem = manualItem;
-		target.NAME = manualItem.KEY;
+		target.NAME = manualItem.NAME;
 		target.itemFull = true;
 		target.specifiedExplicitly = specifiedExplicitly;
 		return( target );
@@ -109,7 +109,7 @@ public class ActionScopeTarget {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 
 		target.derivedItem = derivedItem;
-		target.NAME = derivedItem.KEY;
+		target.NAME = derivedItem.NAME;
 		target.itemFull = true;
 		target.specifiedExplicitly = specifiedExplicitly;
 		return( target );
@@ -172,7 +172,7 @@ public class ActionScopeTarget {
 			else {
 				String itemlist = "";
 				for( ActionScopeTargetItem item : items )
-					itemlist = Common.concat( itemlist , item.distItem.KEY , "," );
+					itemlist = Common.concat( itemlist , item.distItem.NAME , "," );
 				scope += itemlist;
 			}
 			return( scope );
@@ -212,7 +212,7 @@ public class ActionScopeTarget {
 		
 		MetaDistr distr = meta.getDistr();
 		for( String itemName : ITEMS ) {
-			MetaDistrBinaryItem item = distr.getBinaryItem( action , itemName );
+			MetaDistrBinaryItem item = distr.getBinaryItem( itemName );
 			if( item.sourceProjectItem == null )
 				action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + itemName , itemName );
 			
@@ -266,7 +266,7 @@ public class ActionScopeTarget {
 		
 		MetaDistrDelivery delivery = releaseTarget.distDatabaseDelivery;
 		for( String itemName : ITEMS ) {
-			MetaDatabaseSchema item = delivery.getSchema( action , itemName );
+			MetaDatabaseSchema item = delivery.getSchema( itemName );
 			
 			ReleaseTargetItem releaseItem = releaseTarget.findDatabaseSchema( item );
 			if( releaseItem != null )

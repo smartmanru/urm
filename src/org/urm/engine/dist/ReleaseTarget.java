@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.db.core.DBEnums.*;
 import org.urm.meta.Types;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -65,10 +66,10 @@ public class ReleaseTarget {
 		
 		nx.sourceProject = ( sourceProject == null )? null : ns.set.getProject( sourceProject.NAME );
 		MetaDistr ndistr = ns.meta.getDistr();
-		nx.distConfItem = ( distConfItem == null )? null : ndistr.getConfItem( action , distConfItem.KEY );
-		nx.distDatabaseDelivery = ( distDatabaseDelivery == null )? null : ndistr.getDelivery( action , distDatabaseDelivery.NAME );
-		nx.distManualItem = ( distManualItem == null )? null : ndistr.getBinaryItem( action , distManualItem.KEY );
-		nx.distDerivedItem = ( distDerivedItem == null )? null : ndistr.getBinaryItem( action , distDerivedItem.KEY );
+		nx.distConfItem = ( distConfItem == null )? null : ndistr.getConfItem( distConfItem.NAME );
+		nx.distDatabaseDelivery = ( distDatabaseDelivery == null )? null : ndistr.getDelivery( distDatabaseDelivery.NAME );
+		nx.distManualItem = ( distManualItem == null )? null : ndistr.getBinaryItem( distManualItem.NAME );
+		nx.distDerivedItem = ( distDerivedItem == null )? null : ndistr.getBinaryItem( distDerivedItem.NAME );
 
 		for( Entry<String,ReleaseTargetItem> entry : itemMap.entrySet() ) {
 			ReleaseTargetItem item = entry.getValue().copy( action , nr , ns , nx );
@@ -127,7 +128,7 @@ public class ReleaseTarget {
 	private void loadConfiguration( ActionBase action , Node node ) throws Exception {
 		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		MetaDistr distr = meta.getDistr(); 
-		distConfItem = distr.getConfItem( action , name );
+		distConfItem = distr.getConfItem( name );
 		this.NAME = name;
 		
 		ALL = ( ConfReader.getBooleanAttrValue( node , Release.PROPERTY_PARTIAL , true ) )? false : true;
@@ -136,7 +137,7 @@ public class ReleaseTarget {
 	private void loadDatabase( ActionBase action , Node node ) throws Exception {
 		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		MetaDistr distr = meta.getDistr(); 
-		distDatabaseDelivery = distr.getDelivery( action , name );
+		distDatabaseDelivery = distr.getDelivery( name );
 		this.NAME = name;
 
 		// add database
@@ -159,7 +160,7 @@ public class ReleaseTarget {
 	private void loadManual( ActionBase action , Node node ) throws Exception {
 		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		MetaDistr distr = meta.getDistr(); 
-		distManualItem = distr.getBinaryItem( action , name );
+		distManualItem = distr.getBinaryItem( name );
 		this.NAME = name;
 		
 		ALL = true;
@@ -168,7 +169,7 @@ public class ReleaseTarget {
 	private void loadDerived( ActionBase action , Node node ) throws Exception {
 		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		MetaDistr distr = meta.getDistr(); 
-		distDerivedItem = distr.getBinaryItem( action , name );
+		distDerivedItem = distr.getBinaryItem( name );
 		this.NAME = name;
 		
 		ALL = true;
@@ -270,7 +271,7 @@ public class ReleaseTarget {
 		this.distConfItem = item;
 		this.CATEGORY = VarCATEGORY.CONFIG;
 		this.ALL = allFiles;
-		this.NAME = item.KEY;
+		this.NAME = item.NAME;
 	}
 	
 	public void createFromDatabaseDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allSchemes ) throws Exception {
@@ -284,23 +285,23 @@ public class ReleaseTarget {
 	}
 	
 	public void createFromManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		if( item.distItemOrigin != VarDISTITEMORIGIN.MANUAL )
-			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item.KEY , item.KEY );
+		if( item.ITEMORIGIN_TYPE != DBEnumItemOriginType.MANUAL )
+			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item.NAME , item.NAME );
 		
 		this.distManualItem = item;
 		this.CATEGORY = VarCATEGORY.MANUAL;
 		this.ALL = true;
-		this.NAME = item.KEY;
+		this.NAME = item.NAME;
 	}
 	
 	public void createFromDerivedItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		if( item.distItemOrigin != VarDISTITEMORIGIN.DERIVED )
-			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item.KEY , item.KEY );
+		if( item.ITEMORIGIN_TYPE != DBEnumItemOriginType.DERIVED )
+			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item.NAME , item.NAME );
 		
 		this.distDerivedItem = item;
 		this.CATEGORY = VarCATEGORY.DERIVED;
 		this.ALL = true;
-		this.NAME = item.KEY;
+		this.NAME = item.NAME;
 	}
 	
 	public void setAll( ActionBase action , boolean ALL ) throws Exception {
@@ -372,7 +373,7 @@ public class ReleaseTarget {
 			return( null );
 		}
 			
-		return( itemMap.get( item.KEY ) );
+		return( itemMap.get( item.NAME ) );
 	}
 	
 	public void addAllSourceItems( ActionBase action ) throws Exception {
@@ -498,7 +499,7 @@ public class ReleaseTarget {
 	
 	public Element createXmlConfig( ActionBase action , Document doc , Element parent ) throws Exception {
 		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_CONFITEM );
-		Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , distConfItem.KEY );
+		Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , distConfItem.NAME );
 		String partial = Common.getBooleanValue( !ALL ); 
 		Common.xmlSetElementAttr( doc , element , Release.PROPERTY_PARTIAL , partial );
 		return( element );
@@ -523,13 +524,13 @@ public class ReleaseTarget {
 
 	public Element createXmlManual( ActionBase action , Document doc , Element parent ) throws Exception {
 		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_DISTITEM );
-		Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , distManualItem.KEY );
+		Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , distManualItem.NAME );
 		return( element );
 	}
 
 	public Element createXmlDerived( ActionBase action , Document doc , Element parent ) throws Exception {
 		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_DISTITEM );
-		Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , distDerivedItem.KEY );
+		Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , distDerivedItem.NAME );
 		return( element );
 	}
 

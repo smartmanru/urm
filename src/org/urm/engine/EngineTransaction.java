@@ -5,21 +5,8 @@ import java.util.List;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
-import org.urm.db.engine.DBEngineAuth;
-import org.urm.db.engine.DBEngineBase;
-import org.urm.db.engine.DBEngineBuilders;
-import org.urm.db.engine.DBEngineDirectory;
-import org.urm.db.engine.DBEngineEntities;
-import org.urm.db.engine.DBEngineInfrastructure;
-import org.urm.db.engine.DBEngineLifecycles;
-import org.urm.db.engine.DBEngineMirrors;
-import org.urm.db.engine.DBEngineMonitoring;
-import org.urm.db.engine.DBEngineResources;
-import org.urm.db.product.DBMetaDatabase;
-import org.urm.db.product.DBMetaDocs;
-import org.urm.db.product.DBMetaPolicy;
-import org.urm.db.product.DBMetaSources;
-import org.urm.db.product.DBMetaUnits;
+import org.urm.db.engine.*;
+import org.urm.db.product.*;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
@@ -31,63 +18,9 @@ import org.urm.engine.shell.Account;
 import org.urm.meta.EngineData;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductMeta;
-import org.urm.meta.engine.AuthGroup;
-import org.urm.meta.engine.AuthRoleSet;
-import org.urm.meta.engine.AuthUser;
-import org.urm.meta.engine.EngineAuth;
-import org.urm.meta.engine.EngineBase;
-import org.urm.meta.engine.EngineBuilders;
-import org.urm.meta.engine.EngineDirectory;
-import org.urm.meta.engine.EngineInfrastructure;
-import org.urm.meta.engine.AuthResource;
-import org.urm.meta.engine.BaseGroup;
-import org.urm.meta.engine.BaseItem;
-import org.urm.meta.engine.Datacenter;
-import org.urm.meta.engine.HostAccount;
-import org.urm.meta.engine.MirrorRepository;
-import org.urm.meta.engine.EngineMirrors;
-import org.urm.meta.engine.EngineMonitoring;
-import org.urm.meta.engine.EngineLifecycles;
-import org.urm.meta.engine.EngineResources;
-import org.urm.meta.engine.EngineSettings;
-import org.urm.meta.engine.Network;
-import org.urm.meta.engine.NetworkHost;
-import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.ProjectBuilder;
-import org.urm.meta.engine.ReleaseLifecycle;
-import org.urm.meta.engine.LifecyclePhase;
-import org.urm.meta.engine.AppSystem;
+import org.urm.meta.engine.*;
 import org.urm.meta.engine.EngineAuth.SpecialRights;
-import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaDatabase;
-import org.urm.meta.product.MetaDatabaseSchema;
-import org.urm.meta.product.MetaDistr;
-import org.urm.meta.product.MetaDistrBinaryItem;
-import org.urm.meta.product.MetaDistrComponent;
-import org.urm.meta.product.MetaDistrComponentItem;
-import org.urm.meta.product.MetaDistrComponentWS;
-import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.product.MetaDocs;
-import org.urm.meta.product.MetaDump;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerDeployment;
-import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.MetaEnvStartInfo;
-import org.urm.meta.product.MetaMonitoring;
-import org.urm.meta.product.MetaMonitoringTarget;
-import org.urm.meta.product.MetaProductDoc;
-import org.urm.meta.product.MetaProductPolicy;
-import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.product.MetaProductUnit;
-import org.urm.meta.product.MetaProductVersion;
-import org.urm.meta.product.MetaSources;
-import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.product.MetaSourceProjectItem;
-import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.product.MetaUnits;
+import org.urm.meta.product.*;
 import org.urm.meta.Types.*;
 
 public class EngineTransaction extends TransactionBase {
@@ -253,9 +186,9 @@ public class EngineTransaction extends TransactionBase {
 		for( MetaSourceProjectItem item : project.getItems() ) {
 			MetaDistrBinaryItem distItem = item.distItem;
 			if( leaveManual )
-				distr.changeBinaryItemProjectToManual( this , distItem );
+				DBMetaDistr.changeBinaryItemProjectToManual( this , storage , distr , distItem );
 			else
-				distr.deleteBinaryItem( this , distItem );
+				DBMetaDistr.deleteBinaryItem( this , storage , distr , distItem );
 		}
 		
 		DBMetaSources.deleteProject( this , storage , sources , project );
@@ -706,8 +639,9 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void createDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
-		checkTransactionMetadata( delivery.meta.getStorage() );
-		delivery.dist.createDelivery( this , delivery );
+		ProductMeta storage = delivery.meta.getStorage();
+		checkTransactionMetadata( storage );
+		DBMetaDistr.createDelivery( this , storage , delivery.dist , delivery );
 	}
 	
 	public void modifyDistrDelivery( MetaDistrDelivery delivery ) throws Exception {

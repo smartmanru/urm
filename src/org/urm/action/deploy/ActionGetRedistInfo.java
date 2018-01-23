@@ -55,7 +55,7 @@ public class ActionGetRedistInfo extends ActionBase {
 	}
 	
 	private void showReleaseState( RedistStorage redist ) throws Exception {
-		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+		VersionInfo version = VersionInfo.getDistVersion( dist ); 
 		ServerDeployment deployment = redist.getDeployment( this , version );
 		for( String category : deployment.getCategories( this ) ) {
 			boolean first = true;

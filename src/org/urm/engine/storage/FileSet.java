@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.meta.Types;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 
@@ -182,11 +181,11 @@ public class FileSet {
 	public String findDistItem( ActionBase action , MetaDistrBinaryItem distItem , String subPath ) throws Exception {
 		FileSet delivery = getDirByPath( action , subPath );
 		if( delivery == null ) {
-			action.trace( "missing delivery folder=" + subPath + " for distItem=" + distItem.KEY );
+			action.trace( "missing delivery folder=" + subPath + " for distItem=" + distItem.NAME );
 			return( "" );
 		}
 		
-		String[] patterns = Types.getVersionPatterns( action , distItem );
+		String[] patterns = distItem.getVersionPatterns();
 		for( String baseName : delivery.files.keySet() ) {
 			for( String pattern : patterns ) {
 				if( baseName.matches( pattern ) )
@@ -194,22 +193,22 @@ public class FileSet {
 			}
 		}
 		
-		action.trace( "missing distItem=" + distItem.KEY + " (path=" + subPath + ", search using " + Common.getList( patterns) + ")" );
+		action.trace( "missing distItem=" + distItem.NAME + " (path=" + subPath + ", search using " + Common.getList( patterns) + ")" );
 		return( "" );
 	}
 
 	public String findDistItem( ActionBase action , MetaDistrConfItem distItem , String subPath ) throws Exception {
 		FileSet delivery = getDirByPath( action , subPath );
 		if( delivery == null ) {
-			action.trace( "missing delivery folder=" + subPath + " for distItem=" + distItem.KEY );
+			action.trace( "missing delivery folder=" + subPath + " for distItem=" + distItem.NAME );
 			return( "" );
 		}
 
-		FileSet comp = delivery.getDirByPath( action , distItem.KEY );
+		FileSet comp = delivery.getDirByPath( action , distItem.NAME );
 		if( comp != null )
-			return( distItem.KEY );
+			return( distItem.NAME );
 		
-		action.trace( "missing distItem=" + distItem.KEY + " (path=" + subPath + ")" );
+		action.trace( "missing distItem=" + distItem.NAME + " (path=" + subPath + ")" );
 		return( "" );
 	}
 

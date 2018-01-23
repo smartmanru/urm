@@ -39,7 +39,7 @@ public class HiddenFiles {
 			return( false );
 		
 		LocalFolder srcServerFolder = artefactory.getAnyFolder( action , 
-			Common.getPath( action.context.env.CONF_SECRETFILESPATH , confItem.KEY + "-" + server.NAME ) );
+			Common.getPath( action.context.env.CONF_SECRETFILESPATH , confItem.NAME + "-" + server.NAME ) );
 		if( srcServerFolder.checkExists( action ) ) {
 			action.trace( "found server-specific hidden configuration" );
 			folder.copyDirContent( action , srcServerFolder );
@@ -47,7 +47,7 @@ public class HiddenFiles {
 		}
 		else {
 			LocalFolder srcFolder = artefactory.getAnyFolder( action , 
-				Common.getPath( action.context.env.CONF_SECRETFILESPATH , confItem.KEY ) );
+				Common.getPath( action.context.env.CONF_SECRETFILESPATH , confItem.NAME ) );
 			if( srcFolder.checkExists( action ) ) {
 				action.trace( "found environment-specific hidden configuration" );
 				folder.copyDirContent( action , srcFolder );

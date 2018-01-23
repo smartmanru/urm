@@ -118,8 +118,8 @@ public class ActionGetBinary extends ActionBase {
 			
 			if( copyDistr ) {
 				Dist releaseStorage = targetRelease;
-				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , WAR.DOWNLOAD_FILENAME , scopeItem.distItem.DISTBASENAME , scopeItem.distItem.EXT );
-				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , STATIC.DOWNLOAD_FILENAME , scopeItem.distItem.DISTBASENAME , scopeItem.distItem.WAR_STATICEXT );
+				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , WAR.DOWNLOAD_FILENAME , scopeItem.distItem.BASENAME_DIST , scopeItem.distItem.EXT );
+				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , STATIC.DOWNLOAD_FILENAME , scopeItem.distItem.BASENAME_DIST , scopeItem.distItem.WAR_STATICEXT );
 			}
 		}
 		else 
@@ -165,7 +165,7 @@ public class ActionGetBinary extends ActionBase {
 			else {
 				// repack given item
 				FILENAME = nexusStorage.repackageNugetPlatform( this , BINARY , scopeItem.sourceItem );
-				BASENAME = scopeItem.distItem.DISTBASENAME;
+				BASENAME = scopeItem.distItem.BASENAME_DIST;
 				EXT = scopeItem.sourceItem.EXT;
 			}
 		}
@@ -199,7 +199,7 @@ public class ActionGetBinary extends ActionBase {
 			if( copyDistr ) {
 				Dist releaseStorage = targetRelease;
 				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , scopeItem.distItem.delivery.FOLDER + "/" + Common.getBaseName( ITEMPATH ) , 
-						scopeItem.distItem.DISTBASENAME , scopeItem.distItem.EXT );
+						scopeItem.distItem.BASENAME_DIST , scopeItem.distItem.EXT );
 			}
 		}
 		else
@@ -275,7 +275,7 @@ public class ActionGetBinary extends ActionBase {
 		if( copyDistr ) {
 			Dist releaseStorage = targetRelease;
 			releaseStorage.copyVFileToDistr( this , item.distItem , downloadDirFolder , srcname , 
-				item.distItem.DISTBASENAME , item.distItem.EXT );
+				item.distItem.BASENAME_DIST , item.distItem.EXT );
 		}
 	}
 	

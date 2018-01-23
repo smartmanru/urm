@@ -97,7 +97,7 @@ public class ActionGetCumulative extends ActionBase {
 		// find last full
 		int lastIndex = cumdists.length - 1;
 		for( int k = 0; k < cumdists.length; k++ ) {
-			ReleaseTarget target = cumdists[k].release.findConfComponent( this , item.KEY );
+			ReleaseTarget target = cumdists[k].release.findConfComponent( this , item.NAME );
 			if( target != null && target.ALL ) {
 				lastIndex = k;
 				break;
@@ -106,7 +106,7 @@ public class ActionGetCumulative extends ActionBase {
 		
 		for( int k = lastIndex; k >= 0; k-- ) {
 			Dist cumdist = cumdists[k];
-			ReleaseTarget target = cumdist.release.findConfComponent( this , item.KEY );
+			ReleaseTarget target = cumdist.release.findConfComponent( this , item.NAME );
 			if( target == null )
 				continue;
 			

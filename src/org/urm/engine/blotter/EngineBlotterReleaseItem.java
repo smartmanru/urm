@@ -22,7 +22,7 @@ public class EngineBlotterReleaseItem extends EngineBlotterItem {
 	}
 	
 	private String getSortKey() {
-		String RELEASEVER = VersionInfo.getReleaseVersion( repoItem.RELEASEDIR );
+		String RELEASEVER = VersionInfo.getReleaseDirVersion( repoItem.RELEASEDIR );
 		String RELEASEVARIANT = VersionInfo.getReleaseVariant( repoItem.RELEASEDIR );
 		String[] version = Common.splitDotted( RELEASEVER );
 		for( int k = 0; k < version.length; k++ ) {

@@ -513,14 +513,14 @@ public class MetaEnvServer extends PropertyController {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.confItem != null ) {
 				MetaDistrConfItem conf = deployment.confItem; 
-				confs.put( conf.KEY , conf );
+				confs.put( conf.NAME , conf );
 			}
 			else
 			if( deployment.comp != null ) {
 				for( MetaDistrComponentItem item : deployment.comp.getConfItems() ) {
 					if( item.confItem != null ) {
 						MetaDistrConfItem conf = item.confItem; 
-						confs.put( conf.KEY , conf );
+						confs.put( conf.NAME , conf );
 					}
 				}
 			}
@@ -580,7 +580,7 @@ public class MetaEnvServer extends PropertyController {
 					
 					for( MetaDistrComponentItem item : deployment.comp.getBinaryItems() ) {
 						if( item.binaryItem != null )
-							location.addBinaryItem( action , deployment , item.binaryItem , item.DEPLOYNAME );
+							location.addBinaryItem( action , deployment , item.binaryItem , item.DEPLOY_NAME );
 					}
 				}
 				

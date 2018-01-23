@@ -63,7 +63,7 @@ public class ActionPrepareRedist extends ActionBase {
 			return;
 		}
 		
-		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+		VersionInfo version = VersionInfo.getDistVersion( dist ); 
 		if( recreate )
 			storage.recreateReleaseFolder( this , version );
 		else

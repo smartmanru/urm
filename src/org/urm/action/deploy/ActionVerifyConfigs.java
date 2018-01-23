@@ -167,20 +167,20 @@ public class ActionVerifyConfigs extends ActionBase {
 		
 		boolean ok = true;
 		if( prepare ) {
-			debug( "prepare configuraton item=" + confItem.KEY + " from live ..." );
+			debug( "prepare configuraton item=" + confItem.NAME + " from live ..." );
 			sourceStorage.exportLiveConfigItem( this , server , name , context.CTX_TAG , parentTobe );
 	
 			ConfBuilder builder = new ConfBuilder( this , server.meta );
 			builder.configureLiveComponent( tobe , confItem , server , node );
 		}
 		else {
-			info( "compare configuraton item=" + confItem.KEY + " with live ..." );
+			info( "compare configuraton item=" + confItem.NAME + " with live ..." );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			LocalFolder asis = parentAsis.getSubFolder( this , name );
 			asis.ensureExists( this );
 			
 			if( !redist.getConfigItem( this , asis , confItem , deployment.DEPLOYPATH ) )
-				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.KEY , new String[] { confItem.KEY } );
+				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.NAME , new String[] { confItem.NAME } );
 			
 			String nodePrefix = "node" + node.POS + "-";
 			if( !showConfDiffs( server , node , parentTobe , parentAsis , nodePrefix , true ) )
@@ -194,23 +194,23 @@ public class ActionVerifyConfigs extends ActionBase {
 		
 		boolean ok = true;
 		if( prepare ) {
-			debug( "prepare configuraton item=" + confItem.KEY + " from templates ..." );
+			debug( "prepare configuraton item=" + confItem.NAME + " from templates ..." );
 			
-			LocalFolder template = parentTobe.getSubFolder( this , confItem.KEY );
+			LocalFolder template = parentTobe.getSubFolder( this , confItem.NAME );
 			tobe.recreateThis( this );
 			
 			ConfBuilder builder = new ConfBuilder( this , server.meta );
 			builder.configureComponent( template , tobe , confItem , server , node );
 		}
 		else {
-			info( "compare configuraton item=" + confItem.KEY + " with templates ..." );
+			info( "compare configuraton item=" + confItem.NAME + " with templates ..." );
 			
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			LocalFolder asis = parentAsis.getSubFolder( this , name );
 			asis.ensureExists( this );
 			
 			if( !redist.getConfigItem( this , asis , confItem , deployment.DEPLOYPATH ) )
-				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.KEY , new String[] { confItem.KEY } );
+				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.NAME , new String[] { confItem.NAME } );
 			
 			String nodePrefix = "node" + node.POS + "-";
 			if( !showConfDiffs( server , node , parentTobe , parentAsis , nodePrefix , true ) )

@@ -542,7 +542,7 @@ public class ActionTickets extends ActionBase {
 	private void executeCreateDeliveryTarget( String setCode , String deliveryName , String type , String[] items ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
 		MetaDistr distr = dist.meta.getDistr();
-		MetaDistrDelivery delivery = distr.getDelivery( this , deliveryName );
+		MetaDistrDelivery delivery = distr.getDelivery( deliveryName );
 		if( type.equals( TARGET_DELIVERYBINARY ) )
 			set.createTarget( this , delivery , VarTICKETSETTARGETTYPE.DISTITEM , items );
 		else

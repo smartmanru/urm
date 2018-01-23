@@ -3,7 +3,6 @@ package org.urm.engine.dist;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 
@@ -33,25 +32,25 @@ public class VersionInfo {
 		return( r );
 	}
 
-	public static VersionInfo getDistVersion( ActionBase action , Dist dist ) throws Exception {
+	public static VersionInfo getDistVersion( Dist dist ) throws Exception {
 		VersionInfo vi = new VersionInfo();
-		vi.setDistData( action , dist );
+		vi.setDistData( dist );
 		return( vi );
 	}
 	
-	public static VersionInfo getFileVersion( ActionBase action , String version ) throws Exception {
+	public static VersionInfo getFileVersion( String version ) throws Exception {
 		VersionInfo vi = new VersionInfo();
-		vi.setVersion( action , version );
+		vi.setVersion( version );
 		return( vi );
 	}
 	
-	public static VersionInfo getReleaseVersion( ActionBase action , String releaseDir ) throws Exception {
+	public static VersionInfo getReleaseDirInfo( String releaseDir ) throws Exception {
 		VersionInfo vi = new VersionInfo();
-		vi.setReleaseDir( action , releaseDir );
+		vi.setReleaseDir( releaseDir );
 		return( vi );
 	}
 
-	public static String getReleaseVersion( String RELEASEDIR ) {
+	public static String getReleaseDirVersion( String RELEASEDIR ) {
 		return( Common.getPartBeforeLast( RELEASEDIR , "-" ) );
 	}
 
@@ -59,9 +58,9 @@ public class VersionInfo {
 		return( Common.getPartAfterLast( RELEASEDIR , "-" ) );
 	}
 
-	public void setVersion( ActionBase action , String version ) throws Exception {
+	public void setVersion( String version ) throws Exception {
 		int[] vn = new int[4];
-		parseVersion( action , version , vn );
+		parseVersion( version , vn );
 		v1 = vn[0]; 
 		v2 = vn[1]; 
 		v3 = vn[2]; 
@@ -69,18 +68,18 @@ public class VersionInfo {
 		variant = "";
 	}
 
-	public void setReleaseDir( ActionBase action , String releaseDir ) throws Exception {
+	public void setReleaseDir( String releaseDir ) throws Exception {
 		String version = Common.getPartBeforeLast( releaseDir , "-" );
-		setVersion( action , version );
+		setVersion( version );
 		variant = Common.getPartAfterLast( releaseDir , "-" );
 	}
 	
-	public void setDistData( ActionBase action , Dist dist ) throws Exception {
+	public void setDistData( Dist dist ) throws Exception {
 		int[] vn = new int[4];
-		parseVersion( action , dist.release.RELEASEVER , vn );
+		parseVersion( dist.release.RELEASEVER , vn );
 		
 		if( !dist.isMaster() )
-			checkDistVersion( action , vn , Common.getPartBeforeLast( dist.RELEASEDIR , "-" ) );
+			checkDistVersion( vn , Common.getPartBeforeLast( dist.RELEASEDIR , "-" ) );
 		
 		v1 = vn[0]; 
 		v2 = vn[1]; 
@@ -89,35 +88,35 @@ public class VersionInfo {
 		variant = Common.getPartAfterLast( dist.RELEASEDIR , "-" );
 	}
 	
-	private void parseVersion( ActionBase action , String version , int[] vn ) throws Exception {
+	private void parseVersion( String version , int[] vn ) throws Exception {
 		if( !version.matches( "[0-9.]*" ) )
-			action.exit1( _Error.InvalidReleaseVersion1 , "Invalid release version=" + version , version );
+			Common.exit1( _Error.InvalidReleaseVersion1 , "Invalid release version=" + version , version );
 		
 		String items[] = Common.splitDotted( version );
 		if( items.length == 0 || items.length > 4 )
-			action.exit1( _Error.InvalidReleaseVersion1 , "Invalid release version=" + version , version );
+			Common.exit1( _Error.InvalidReleaseVersion1 , "Invalid release version=" + version , version );
 		
 		for( String item : items ) {
 			if( item.isEmpty() )
-				action.exit1( _Error.InvalidReleaseVersion1 , "Invalid release version=" + version , version );
+				Common.exit1( _Error.InvalidReleaseVersion1 , "Invalid release version=" + version , version );
 		}
 
-		vn[0] = parseNumber( action , items[0] );
-		vn[1] = ( items.length > 1 )? parseNumber( action , items[1] ) : 0;
-		vn[2] = ( items.length > 2 )? parseNumber( action , items[2] ) : 0;
-		vn[3] = ( items.length > 3 )? parseNumber( action , items[3] ) : 0;
+		vn[0] = parseNumber( items[0] );
+		vn[1] = ( items.length > 1 )? parseNumber( items[1] ) : 0;
+		vn[2] = ( items.length > 2 )? parseNumber( items[2] ) : 0;
+		vn[3] = ( items.length > 3 )? parseNumber( items[3] ) : 0;
 	}
 	
-	private void checkDistVersion( ActionBase action , int[] cvn , String version ) throws Exception {
+	private void checkDistVersion( int[] cvn , String version ) throws Exception {
 		int[] vn = new int[4];
-		parseVersion( action , version , vn );
+		parseVersion( version , vn );
 		for( int k = 0; k < 4; k++ ) {
 			if( cvn[k] != vn[k] )
-				action.exit1( _Error.InvalidReleaseVersion1 , "Invalid release version=" + version , version );
+				Common.exit1( _Error.InvalidReleaseVersion1 , "Invalid release version=" + version , version );
 		}
 	}
 	
-	private int parseNumber( ActionBase action , String number ) throws Exception {
+	private int parseNumber( String number ) throws Exception {
 		return( Integer.parseInt( number ) );
 	}
 	

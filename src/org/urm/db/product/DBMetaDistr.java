@@ -1,21 +1,549 @@
 package org.urm.db.product;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.urm.common.Common;
+import org.urm.common.ConfReader;
+import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
+import org.urm.db.EngineDB;
+import org.urm.db.core.DBEnums.*;
+import org.urm.db.core.DBNames;
+import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.ProductMeta;
+import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrComponent;
+import org.urm.meta.product.MetaDistrComponentItem;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaProductUnit;
+import org.urm.meta.product.MetaSourceProjectItem;
+import org.urm.meta.product.MetaSources;
+import org.urm.meta.product.MetaUnits;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class DBMetaDistr {
 
-	public static void deleteUnit( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaProductUnit unit ) throws Exception {
+	public static String ELEMENT_DELIVERIES = "deliveries"; 
+	public static String ELEMENT_COMPONENTS = "components";
+	public static String ELEMENT_DELIVERY = "delivery";
+	public static String ELEMENT_COMPONENT = "component";
+	public static String ELEMENT_BINARYITEM = "distitem";
+	public static String ELEMENT_CONFITEM = "confitem";
+	public static String ELEMENT_DATABASE = "schema";
+	public static String ELEMENT_DOCUMENT = "document";
+	public static String ELEMENT_COMPITEM_BINARYITEM = "distitem";
+	public static String ELEMENT_COMPITEM_CONFITEM = "confitem";
+	public static String ELEMENT_COMPITEM_SCHEMA = "schema";
+	public static String ELEMENT_COMPITEM_WS = "webservice";
+	public static String ATTR_DELIVERY_SCHEMA = "name";
+	public static String ATTR_DELIVERY_DOCNAME = "name";
+	
+	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
+		MetaDistr distr = new MetaDistr( storage , storage.meta );
+		storage.setDistr( distr );
+	
+		importxmlDeliveries( loader , storage , distr , ConfReader.xmlGetPathNode( root , ELEMENT_DELIVERIES ) );
+		importxmlComponents( loader , storage , distr , ConfReader.xmlGetPathNode( root , ELEMENT_COMPONENTS ) );
 	}
 
-	public static void deleteDocument( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaProductDoc doc ) throws Exception {
-	}
-
-	public static void deleteDatabaseSchema( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDatabaseSchema schema ) throws Exception {
+	private static void importxmlDeliveries( EngineLoader loader , ProductMeta storage , MetaDistr distr , Node root ) throws Exception {
+		if( root == null )
+			return;
+		
+		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_DELIVERY );
+		if( items == null )
+			return;
+		
+		for( Node node : items ) {
+			MetaDistrDelivery delivery = importxmlDelivery( loader , storage , distr , node );
+			distr.addDelivery( delivery );
+		}
 	}
 	
+	private static void importxmlComponents( EngineLoader loader , ProductMeta storage , MetaDistr distr , Node root ) throws Exception {
+		if( root == null )
+			return;
+		
+		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_COMPONENT );
+		if( items == null )
+			return;
+		
+		for( Node node : items ) {
+			MetaDistrComponent comp = importxmlComponent( loader , storage , distr , node );
+			distr.addComponent( comp );
+		}
+	}
+	
+	private static MetaDistrDelivery importxmlDelivery( EngineLoader loader , ProductMeta storage , MetaDistr distr , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrDelivery;
+		
+		String unitName = entity.importxmlStringAttr( root , MetaDistrDelivery.PROPERTY_UNIT_NAME );
+		Integer unitId = null;
+		if( !unitName.isEmpty() ) {
+			MetaUnits units = storage.getUnits();
+			MetaProductUnit unit = units.getUnit( unitName );
+			unitId = unit.ID;
+		}
+		
+		MetaDistrDelivery delivery = new MetaDistrDelivery( storage.meta , distr , storage.getDatabase() , storage.getDocs() );
+		delivery.createDelivery(
+				unitId , 
+				entity.importxmlStringAttr( root , MetaDistrDelivery.PROPERTY_NAME ) ,
+				entity.importxmlStringAttr( root , MetaDistrDelivery.PROPERTY_DESC ) ,
+				entity.importxmlStringAttr( root , MetaDistrDelivery.PROPERTY_FOLDER )
+				);
+		delivery.setDatabaseAll( entity.importxmlBooleanAttr( root , MetaDistrDelivery.PROPERTY_SCHEMA_ANY , false ) );
+		delivery.setDocAll( entity.importxmlBooleanAttr( root , MetaDistrDelivery.PROPERTY_DOC_ANY , false ) );
+		modifyDelivery( c , storage , delivery , true );
+		
+		importxmlDeliveryBinaryItems( loader , storage , distr , delivery , root );
+		importxmlDeliveryConfItems( loader , storage , distr , delivery , root );
+		importxmlDeliverySchemaItems( loader , storage , distr , delivery , root );
+		importxmlDeliveryDocItems( loader , storage , distr , delivery , root );
+		
+		return( delivery );
+	}
+	
+	private static void importxmlDeliveryBinaryItems( EngineLoader loader , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , Node root ) throws Exception {
+		Node[] distitems = ConfReader.xmlGetChildren( root , ELEMENT_BINARYITEM );
+		if( distitems == null )
+			return;
+		
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrBinaryItem;
+		
+		Map<String,Node> items = new HashMap<String,Node>();
+		Map<String,String> deps = new HashMap<String,String>();
+		
+		List<Node> orderNode = new LinkedList<Node>();
+		Map<String,Node> orderMap  = new HashMap<String,Node>();
+		for( Node node : distitems ) {
+			String name = entity.importxmlStringAttr( node , MetaDistrBinaryItem.PROPERTY_NAME );
+			String srcname = entity.importxmlStringAttr( node , MetaDistrBinaryItem.PROPERTY_SRCDISTITEM_NAME );
+			items.put( name , node );
+			if( !srcname.isEmpty() )
+				deps.put( name ,  srcname );
+			else {
+				orderNode.add( node );
+				orderMap.put( name , node );
+			}
+		}
+		
+		while( true ) {
+			boolean added = false;
+			boolean pending = false;
+			for( String name : deps.keySet() ) {
+				String srcname = deps.get( name );
+				if( !orderNode.contains( name ) ) {
+					if( orderNode.contains( srcname ) ) {
+						added = true;
+						Node node = items.get( name );
+						orderNode.add( node );
+						orderMap.put( name , node );
+					}
+					else
+						pending = true;
+				}
+			}
+			
+			if( pending == false )
+				break;
+			
+			if( added == false )
+				Common.exitUnexpected();
+		}
+		
+		for( Node node : orderNode ) {
+			MetaDistrBinaryItem item = importxmlBinaryItem( loader , storage , distr , delivery , node );
+			distr.addBinaryItem( delivery , item );
+		}
+	}
+	
+	private static MetaDistrBinaryItem importxmlBinaryItem( EngineLoader loader , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrBinaryItem;
+		
+		MetaDistrBinaryItem item = new MetaDistrBinaryItem( storage.meta , delivery );
+		DBEnumDistItemType itemType = DBEnumDistItemType.getValue( entity.importxmlEnumAttr( root , MetaDistrBinaryItem.PROPERTY_DISTITEMTYPE ) , true );
+		String ext = entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_EXT );
+		String staticExt = "";
+		if( itemType == DBEnumDistItemType.STATICWAR ) {
+			ext = ".war";
+			staticExt = ext;
+		}
+		
+		item.createBinaryItem(
+				entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_NAME ) ,
+				entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_DESC ) ,
+				itemType ,
+				entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_DISTNAME ) ,
+				entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_DEPLOYNAME ) ,
+				ext ,
+				DBEnumDeployVersionType.getValue( entity.importxmlEnumAttr( root , MetaDistrBinaryItem.PROPERTY_DEPLOYVERSION ) , false ) ,
+				staticExt ,
+				entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_WARCONTEXT ) ,
+				entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_ARCHIVEFILES ) ,
+				entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_ARCHIVEEXCLUDE )
+				);
+		
+		String srcItemName = entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_SRCITEM_NAME );
+		Integer srcItemId = null;
+		if( !srcItemName.isEmpty() ) {
+			MetaSources sources = storage.getSources();
+			MetaSourceProjectItem srcitem = sources.getProjectItem( srcItemName );
+			srcItemId = srcitem.ID;
+		}
+				
+		String srcDistName = entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_SRCDISTITEM_NAME );
+		Integer srcDistId = null;
+		if( !srcDistName.isEmpty() ) {
+			MetaDistrBinaryItem srcDistItem = distr.getBinaryItem( srcDistName );
+			srcDistId = srcDistItem.ID;
+		}
+		
+		item.setSource(
+				DBEnumItemOriginType.getValue( entity.importxmlEnumAttr( root , MetaDistrBinaryItem.PROPERTY_ITEMORIGIN ) , true ) ,
+				srcItemId ,
+				srcDistId ,
+				entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_SRCITEMPATH ) 
+				);
+				
+		
+		item.setCustom(
+				entity.importxmlBooleanAttr( root , MetaDistrBinaryItem.PROPERTY_CUSTOMGET , false ) ,
+				entity.importxmlBooleanAttr( root , MetaDistrBinaryItem.PROPERTY_CUSTOMDEPLOY , false )
+				);
+		
+		modifyBinaryItem( c , storage , item , true );
+		
+		return( item );
+	}
+	
+	private static void importxmlDeliveryConfItems( EngineLoader loader , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , Node root ) throws Exception {
+		Node[] distitems = ConfReader.xmlGetChildren( root , ELEMENT_CONFITEM );
+		if( distitems == null )
+			return;
+		
+		for( Node node : distitems ) {
+			MetaDistrConfItem item = importxmlConfItem( loader , storage , distr , delivery , node );
+			distr.addConfItem( delivery , item );
+		}
+	}
+	
+	private static MetaDistrConfItem importxmlConfItem( EngineLoader loader , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrConfItem;
+		
+		MetaDistrConfItem item = new MetaDistrConfItem( storage.meta , delivery );
+		item.createConfItem(
+				entity.importxmlStringAttr( root , MetaDistrConfItem.PROPERTY_NAME ) ,
+				entity.importxmlStringAttr( root , MetaDistrConfItem.PROPERTY_DESC ) ,
+				DBEnumConfItemType.getValue( entity.importxmlEnumAttr( root , MetaDistrConfItem.PROPERTY_TYPE ) , true ) ,
+				entity.importxmlStringAttr( root , MetaDistrConfItem.PROPERTY_FILES ) ,
+				entity.importxmlStringAttr( root , MetaDistrConfItem.PROPERTY_TEMPLATES ) ,
+				entity.importxmlStringAttr( root , MetaDistrConfItem.PROPERTY_SECURED ) ,
+				entity.importxmlStringAttr( root , MetaDistrConfItem.PROPERTY_EXCLUDE ) ,
+				entity.importxmlStringAttr( root , MetaDistrConfItem.PROPERTY_EXTCONF )
+				);
+		modifyConfItem( c , storage , item , true );
+		
+		return( item );
+	}
+
+	private static void importxmlDeliverySchemaItems( EngineLoader loader , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
+		Node[] distitems = ConfReader.xmlGetChildren( root , ELEMENT_DATABASE );
+		if( distitems == null )
+			return;
+		
+		int version = c.getNextProductVersion( storage );
+		
+		MetaDatabase database = storage.getDatabase();
+		for( Node node : distitems ) {
+			String name = ConfReader.getAttrValue( node , ATTR_DELIVERY_SCHEMA );
+			MetaDatabaseSchema schema = database.getSchema( name );
+			distr.addDeliverySchema( delivery , schema );
+			
+			if( !c.modify( DBQueries.MODIFY_DISTR_ADDDELIVERYSCHEMA4 , new String[] {
+					EngineDB.getInteger( delivery.ID ) ,
+					EngineDB.getInteger( schema.ID ) ,
+					EngineDB.getInteger( storage.ID ) ,
+					EngineDB.getInteger( version )
+				} ) )
+				Common.exitUnexpected();
+		}
+	}
+	
+	private static void importxmlDeliveryDocItems( EngineLoader loader , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
+		Node[] distitems = ConfReader.xmlGetChildren( root , ELEMENT_DOCUMENT );
+		if( distitems == null )
+			return;
+		
+		int version = c.getNextProductVersion( storage );
+		
+		MetaDocs docs = storage.getDocs();
+		for( Node node : distitems ) {
+			String name = ConfReader.getAttrValue( node , ATTR_DELIVERY_DOCNAME );
+			MetaProductDoc doc = docs.getDoc( name );
+			distr.addDeliveryDoc( delivery , doc );
+			
+			if( !c.modify( DBQueries.MODIFY_DISTR_ADDDELIVERYDOC4 , new String[] {
+					EngineDB.getInteger( delivery.ID ) ,
+					EngineDB.getInteger( doc.ID ) ,
+					EngineDB.getInteger( storage.ID ) ,
+					EngineDB.getInteger( version )
+				} ) )
+				Common.exitUnexpected();
+		}
+	}
+	
+	private static MetaDistrComponent importxmlComponent( EngineLoader loader , ProductMeta storage , MetaDistr distr , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrComponent;
+		
+		MetaDistrComponent comp = new MetaDistrComponent( storage.meta , distr );
+		comp.createComponent(
+				entity.importxmlStringAttr( root , MetaDistrComponent.PROPERTY_NAME ) ,
+				entity.importxmlStringAttr( root , MetaDistrComponent.PROPERTY_DESC )
+				);
+		modifyComponent( c , storage , comp , true );
+
+		// component items
+		Node[] compitems = ConfReader.xmlGetChildren( root , ELEMENT_COMPITEM_BINARYITEM );
+		if( compitems != null ) {
+			for( Node node : compitems ) {
+				MetaDistrComponentItem item = importxmlComponentItem( loader , storage , distr , comp , DBEnumCompItemType.BINARY , node );
+				comp.addBinaryItem( item );
+			}
+		}
+		compitems = ConfReader.xmlGetChildren( root , ELEMENT_COMPITEM_CONFITEM );
+		if( compitems != null ) {
+			for( Node node : compitems ) {
+				MetaDistrComponentItem item = importxmlComponentItem( loader , storage , distr , comp , DBEnumCompItemType.CONF , node );
+				comp.addConfItem( item );
+			}
+		}
+		compitems = ConfReader.xmlGetChildren( root , ELEMENT_COMPITEM_SCHEMA );
+		if( compitems != null ) {
+			for( Node node : compitems ) {
+				MetaDistrComponentItem item = importxmlComponentItem( loader , storage , distr , comp , DBEnumCompItemType.SCHEMA , node );
+				comp.addSchemaItem( item );
+			}
+		}
+		compitems = ConfReader.xmlGetChildren( root , ELEMENT_COMPITEM_WS );
+		if( compitems != null ) {
+			for( Node node : compitems ) {
+				MetaDistrComponentItem item = importxmlComponentItem( loader , storage , distr , comp , DBEnumCompItemType.WSDL , node );
+				comp.addWebService( item );
+			}
+		}
+		
+		return( comp );
+	}
+
+	private static MetaDistrComponentItem importxmlComponentItem( EngineLoader loader , ProductMeta storage , MetaDistr distr , MetaDistrComponent comp , DBEnumCompItemType type , Node root ) throws Exception {
+		MetaDistrComponentItem item = new MetaDistrComponentItem( storage.meta , comp );
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrCompItem;
+		
+		if( type == DBEnumCompItemType.BINARY ) {
+			MetaDistrBinaryItem binaryItem = distr.getBinaryItem( entity.importxmlStringAttr( root , MetaDistrComponentItem.PROPERTY_NAME ) );
+			item.createBinaryItem( binaryItem , entity.importxmlStringAttr( root , MetaDistrComponentItem.PROPERTY_DEPLOYNAME ) );
+		}
+		else
+		if( type == DBEnumCompItemType.CONF ) {
+			MetaDistrConfItem confItem = distr.getConfItem( entity.importxmlStringAttr( root , MetaDistrComponentItem.PROPERTY_NAME ) );
+			item.createConfItem( confItem );
+		}
+		else
+		if( type == DBEnumCompItemType.SCHEMA ) {
+			MetaDatabase database = storage.getDatabase();
+			MetaDatabaseSchema schema = database.getSchema( entity.importxmlStringAttr( root , MetaDistrComponentItem.PROPERTY_NAME ) );
+			item.createSchemaItem( schema , entity.importxmlStringAttr( root , MetaDistrComponentItem.PROPERTY_DEPLOYNAME ) );
+		}
+		else
+		if( type == DBEnumCompItemType.WSDL ) {
+			String url = entity.importxmlStringAttr( root , MetaDistrComponentItem.PROPERTY_WSDL );
+			item.createWsdlItem( url );
+		}
+		else
+			Common.exitUnexpected();
+		
+		return( item );
+	}
+
+	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
+	}
+	
+	private static void modifyDelivery( DBConnection c , ProductMeta storage , MetaDistrDelivery delivery , boolean insert ) throws Exception {
+		if( insert )
+			delivery.ID = DBNames.getNameIndex( c , storage.ID , delivery.NAME , DBEnumObjectType.META_DIST_DELIVERY );
+		else
+			DBNames.updateName( c , storage.ID , delivery.NAME , delivery.ID , DBEnumObjectType.META_DIST_DELIVERY );
+		
+		delivery.PV = c.getNextProductVersion( storage );
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaDistrDelivery , delivery.ID , delivery.PV , new String[] {
+				EngineDB.getInteger( storage.ID ) ,
+				EngineDB.getObject( delivery.UNIT_ID ) ,
+				EngineDB.getString( delivery.NAME ) ,
+				EngineDB.getString( delivery.DESC ) ,
+				EngineDB.getString( delivery.FOLDER ) ,
+				EngineDB.getBoolean( delivery.SCHEMA_ANY ) ,
+				EngineDB.getBoolean( delivery.DOC_ANY )
+				} , insert );
+	}
+	
+	private static void modifyBinaryItem( DBConnection c , ProductMeta storage , MetaDistrBinaryItem item , boolean insert ) throws Exception {
+		if( insert )
+			item.ID = DBNames.getNameIndex( c , storage.ID , item.NAME , DBEnumObjectType.META_DIST_BINARYITEM );
+		else
+			DBNames.updateName( c , storage.ID , item.NAME , item.ID , DBEnumObjectType.META_DIST_BINARYITEM );
+		
+		item.PV = c.getNextProductVersion( storage );
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaDistrBinaryItem , item.ID , item.PV , new String[] {
+				EngineDB.getInteger( storage.ID ) ,
+				EngineDB.getObject( item.delivery.ID ) ,
+				EngineDB.getString( item.NAME ) ,
+				EngineDB.getString( item.DESC ) ,
+				EngineDB.getEnum( item.DISTITEM_TYPE ) ,
+				EngineDB.getString( item.BASENAME_DIST ) ,
+				EngineDB.getString( item.BASENAME_DEPLOY ) ,
+				EngineDB.getString( item.EXT ) ,
+				EngineDB.getEnum( item.DEPLOYVERSION_TYPE ) ,
+				EngineDB.getEnum( item.ITEMORIGIN_TYPE ) ,
+				EngineDB.getObject( item.SRCITEM_ID ) ,
+				EngineDB.getObject( item.SRC_BINARY_ID ) ,
+				EngineDB.getString( item.SRC_ITEMPATH ) ,
+				EngineDB.getString( item.ARCHIVE_FILES ) ,
+				EngineDB.getString( item.ARCHIVE_EXCLUDE ) ,
+				EngineDB.getString( item.WAR_STATICEXT ) ,
+				EngineDB.getString( item.WAR_CONTEXT ) ,
+				EngineDB.getBoolean( item.CUSTOM_GET ) ,
+				EngineDB.getBoolean( item.CUSTOM_DEPLOY )
+				} , insert );
+	}
+	
+	private static void modifyConfItem( DBConnection c , ProductMeta storage , MetaDistrConfItem item , boolean insert ) throws Exception {
+		if( insert )
+			item.ID = DBNames.getNameIndex( c , storage.ID , item.NAME , DBEnumObjectType.META_DIST_CONFITEM );
+		else
+			DBNames.updateName( c , storage.ID , item.NAME , item.ID , DBEnumObjectType.META_DIST_CONFITEM );
+		
+		item.PV = c.getNextProductVersion( storage );
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaDistrConfItem , item.ID , item.PV , new String[] {
+				EngineDB.getInteger( storage.ID ) ,
+				EngineDB.getObject( item.delivery.ID ) ,
+				EngineDB.getString( item.NAME ) ,
+				EngineDB.getString( item.DESC ) ,
+				EngineDB.getEnum( item.CONFITEM_TYPE ) ,
+				EngineDB.getString( item.FILES ) ,
+				EngineDB.getString( item.TEMPLATES ) ,
+				EngineDB.getString( item.SECURED ) ,
+				EngineDB.getString( item.EXCLUDE ) ,
+				EngineDB.getString( item.EXTCONF )
+				} , insert );
+	}
+	
+	private static void modifyComponent( DBConnection c , ProductMeta storage , MetaDistrComponent comp , boolean insert ) throws Exception {
+		if( insert )
+			comp.ID = DBNames.getNameIndex( c , storage.ID , comp.NAME , DBEnumObjectType.META_DIST_COMPONENT );
+		else
+			DBNames.updateName( c , storage.ID , comp.NAME , comp.ID , DBEnumObjectType.META_DIST_COMPONENT );
+		
+		comp.PV = c.getNextProductVersion( storage );
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaDistrComponent , comp.ID , comp.PV , new String[] {
+				EngineDB.getInteger( storage.ID ) ,
+				EngineDB.getString( comp.NAME ) ,
+				EngineDB.getString( comp.DESC )
+				} , insert );
+	}
+	
+	public static void changeBinaryItemProjectToManual( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrBinaryItem item ) throws Exception {
+		item.changeProjectToManual();
+	}
+	
+	public static void deleteDatabaseSchema( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDatabaseSchema schema ) throws Exception {
+		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
+			if( delivery.findSchema( schema.NAME ) != null )
+				delivery.removeSchema( schema );
+		}
+		for( MetaDistrComponent comp : distr.getComponents() ) {
+			MetaDistrComponentItem compItem = comp.findSchemaItem( schema.NAME );
+			if( compItem != null )
+				comp.removeCompItem( compItem );
+		}
+	}
+	
+	public static void createDistrComponent( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
+	}
+	
+	public static void modifyDistrComponent( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
+	}
+	
+	public static void deleteDistrComponent( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
+	}
+
+	public static void deleteUnit( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaProductUnit unit ) throws Exception {
+		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
+			if( Common.equalsIntegers( delivery.UNIT_ID , unit.ID ) )
+				delivery.clearUnit();
+		}
+	}	
+	
+	public static void deleteDocument( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaProductDoc doc ) throws Exception {
+		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
+			if( delivery.findDoc( doc.NAME ) != null )
+				delivery.removeDoc( doc );
+		}
+	}	
+	
+	public static void deleteBinaryItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrBinaryItem item ) throws Exception {
+		for( MetaDistrComponent comp : distr.getComponents() ) {
+			MetaDistrComponentItem compItem = comp.findBinaryItem( item.NAME );
+			if( compItem != null )
+				comp.removeCompItem( compItem );
+		}
+
+		distr.removeBinaryItem( item );
+		storage.deleteBinaryItemFromEnvironments( transaction , item );
+	}
+	
+	public static void deleteConfItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrConfItem item ) throws Exception {
+		for( MetaDistrComponent comp : distr.getComponents() ) {
+			MetaDistrComponentItem compItem = comp.findConfItem( item.NAME );
+			if( compItem != null )
+				comp.removeCompItem( compItem );
+		}
+		
+		distr.removeConfItem( item );
+		storage.deleteConfItemFromEnvironments( transaction , item );
+	}
+
 }

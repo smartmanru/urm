@@ -681,7 +681,7 @@ public class DBMetaSources {
 		
 		int version = c.getNextProductVersion( storage );
 		DBEngineEntities.deleteAppObject( c , entity , item.ID , version );
-		sources.removeProjectItem( item );
+		sources.removeProjectItem( item.project , item );
 	}
 
 	public static void modifyProjectItem( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProjectItem item ) throws Exception {
