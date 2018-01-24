@@ -79,7 +79,7 @@ CREATE TABLE main.urm_dist_binaryitem (
                 src_binary_id INTEGER,
                 src_itempath VARCHAR,
                 archive_files VARCHAR,
-                archive_files_1 VARCHAR,
+                archive_exclude VARCHAR,
                 war_staticext VARCHAR(30),
                 war_context VARCHAR(30),
                 custom_get BOOLEAN NOT NULL,
