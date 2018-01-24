@@ -133,6 +133,8 @@ public class EngineLoaderMeta {
 	}
 	
 	private void loaddbDistr() throws Exception {
+		trace( "load product distributive data ..." );
+		DBMetaDistr.loaddb( loader , set );
 	}
 	
 	private void loaddbMonitoring() throws Exception {

@@ -1,5 +1,6 @@
 package org.urm.db.product;
 
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -395,7 +396,38 @@ public class DBMetaDistr {
 		return( item );
 	}
 
+	public static void loaddb( EngineLoader loader , ProductMeta storage ) throws Exception {
+		MetaDistr distr = new MetaDistr( storage , storage.meta );
+		storage.setDistr( distr );
+		
+		loaddbDeliveries( loader , storage , distr );
+		loaddbComponents( loader , storage , distr );
+	}
+
+	public static void loaddbDeliveries( EngineLoader loader , ProductMeta storage ) throws Exception {
+		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
+		try {
+			while( rs.next() ) {
+				MetaProductDoc doc = new MetaProductDoc( storage.meta , docs );
+				doc.ID = entity.loaddbId( rs );
+				doc.PV = entity.loaddbVersion( rs );
+				doc.createDoc( 
+						entity.loaddbString( rs , MetaProductDoc.PROPERTY_NAME ) , 
+						entity.loaddbString( rs , MetaProductDoc.PROPERTY_DESC ) ,
+						entity.loaddbString( rs , MetaProductDoc.PROPERTY_EXT ) ,
+						entity.loaddbBoolean( rs , MetaProductDoc.PROPERTY_UNITBOUND )
+						);
+				docs.addDoc( doc );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+	
 	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrCompItem;
 	}
 	
 	private static void modifyDelivery( DBConnection c , ProductMeta storage , MetaDistrDelivery delivery , boolean insert ) throws Exception {
