@@ -638,55 +638,130 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaPolicy.setProductLifecycles( this , storage , policy , major , minor , urgentsAll , urgents );
 	}
 	
-	public void createDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
-		ProductMeta storage = delivery.meta.getStorage();
+	public MetaDistrDelivery createDistrDelivery( MetaDistr distr , String unitName , String name , String desc , String folder ) throws Exception {
+		ProductMeta storage = distr.meta.getStorage();
 		checkTransactionMetadata( storage );
-		DBMetaDistr.createDelivery( this , storage , delivery.dist , delivery );
+		Integer unitId = null;
+		if( !unitName.isEmpty() ) {
+			MetaUnits units = storage.getUnits();
+			MetaProductUnit unit = units.getUnit( unitName );
+			unitId = unit.ID;
+		}
+		
+		return( DBMetaDistr.createDelivery( this , storage , distr , unitId , name , desc , folder ) );
 	}
 	
-	public void modifyDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
-		checkTransactionMetadata( delivery.meta.getStorage() );
-		delivery.dist.modifyDelivery( this , delivery );
+	public void modifyDistrDelivery( MetaDistrDelivery delivery , String unitName , String name , String desc , String folder ) throws Exception {
+		ProductMeta storage = delivery.meta.getStorage();
+		checkTransactionMetadata( storage );
+		
+		Integer unitId = null;
+		if( !unitName.isEmpty() ) {
+			MetaUnits units = storage.getUnits();
+			MetaProductUnit unit = units.getUnit( unitName );
+			unitId = unit.ID;
+		}
+		DBMetaDistr.modifyDelivery( this , storage , delivery.dist , delivery , unitId , name , desc , folder );
 	}
 	
 	public void deleteDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
-		checkTransactionMetadata( delivery.meta.getStorage() );
-		delivery.dist.deleteDelivery( this , delivery );
+		ProductMeta storage = delivery.meta.getStorage();
+		checkTransactionMetadata( storage );
+		
+		DBMetaDistr.deleteDelivery( this , storage , delivery.dist , delivery );
 	}
 	
-	public MetaDistrBinaryItem createDistrBinaryItem( MetaDistrDelivery delivery , String key ) throws Exception {
-		checkTransactionMetadata( delivery.meta.getStorage() );
-		MetaDistrBinaryItem item = new MetaDistrBinaryItem( delivery.meta , delivery );
-		item.createBinaryItem( this , key );
-		delivery.dist.createDistrBinaryItem( this , delivery , item );
-		return( item );
+	public MetaDistrBinaryItem createDistrBinaryItem( MetaDistrDelivery delivery , 
+			String name , String desc ,
+			DBEnumDistItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ,
+			String deployname , DBEnumDeployVersionType versionType , 
+			MetaSourceProjectItem itemSrcProject , MetaDistrBinaryItem itemSrcDist , String originPath ,
+			boolean customGet , boolean customDeploy ) throws Exception {
+		ProductMeta storage = delivery.meta.getStorage();
+		checkTransactionMetadata( storage );
+		
+		return( DBMetaDistr.createBinaryItem( this , storage , delivery.dist , delivery ,
+				name , desc ,
+				itemType , basename , ext , archiveFiles , archiveExclude ,
+				deployname , versionType , 
+				itemSrcProject , itemSrcDist , originPath ,
+				customGet , customDeploy ) );
 	}
 	
-	public void modifyDistrBinaryItem( MetaDistrBinaryItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage() );
-		item.delivery.modifyBinaryItem( this , item );
+	public void modifyDistrBinaryItem( MetaDistrBinaryItem item , 
+			String name , String desc ,
+			DBEnumDistItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ,
+			String deployname , DBEnumDeployVersionType versionType , 
+			MetaSourceProjectItem itemSrcProject , MetaDistrBinaryItem itemSrcDist , String originPath ,
+			boolean customGet , boolean customDeploy ) throws Exception {
+		ProductMeta storage = item.meta.getStorage();
+		checkTransactionMetadata( storage );
+		
+		DBMetaDistr.modifyBinaryItem( this , storage , item.delivery.dist , item ,
+				name , desc ,
+				itemType , basename , ext , archiveFiles , archiveExclude ,
+				deployname , versionType , 
+				itemSrcProject , itemSrcDist , originPath ,
+				customGet , customDeploy );
 	}
-
+	
 	public void deleteDistrBinaryItem( MetaDistrBinaryItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage() );
-		item.delivery.dist.deleteBinaryItem( this , item );
+		ProductMeta storage = item.meta.getStorage();
+		checkTransactionMetadata( storage );
+		
+		DBMetaDistr.deleteBinaryItem( this , storage , item.delivery.dist , item );
 	}
 	
-	public void createDistrConfItem( MetaDistrDelivery delivery , MetaDistrConfItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage() );
-		delivery.dist.createDistrConfItem( this , delivery , item );
+	public void changeDistrBinaryItemDelivery( MetaDistrBinaryItem item , MetaDistrDelivery delivery ) throws Exception {
+		ProductMeta storage = item.meta.getStorage();
+		checkTransactionMetadata( storage );
+		
+		DBMetaDistr.changeBinaryItemDelivery( this , storage , item.delivery.dist , item , delivery );
 	}
 	
-	public void modifyDistrConfItem( MetaDistrConfItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage() );
-		item.delivery.modifyConfItem( this , item );
+	public MetaDistrConfItem createDistrConfItem( MetaDistrDelivery delivery ,
+			String name , String desc , DBEnumConfItemType type , String files , String templates , String secured , String exclude , String extconf ) throws Exception {
+		ProductMeta storage = delivery.meta.getStorage();
+		checkTransactionMetadata( storage );
+		
+		return( DBMetaDistr.createConfItem( this , storage , delivery.dist , delivery ,
+				name , desc , type , files , templates , secured , exclude , extconf ) );
+	}
+	
+	public void modifyDistrConfItem( MetaDistrConfItem item ,
+		String name , String desc , DBEnumConfItemType type , String files , String templates , String secured , String exclude , String extconf ) throws Exception {
+		ProductMeta storage = item.meta.getStorage();
+		checkTransactionMetadata( storage );
+	
+		DBMetaDistr.modifyConfItem( this , storage , item.delivery.dist , item ,
+				name , desc , type , files , templates , secured , exclude , extconf );
 	}
 
 	public void deleteDistrConfItem( MetaDistrConfItem item ) throws Exception {
-		checkTransactionMetadata( item.meta.getStorage() );
-		item.delivery.dist.deleteConfItem( this , item );
+		ProductMeta storage = item.meta.getStorage();
+		checkTransactionMetadata( storage );
+		
+		DBMetaDistr.deleteConfItem( this , storage , item.delivery.dist , item );
 	}
 	
+	public void setDeliveryDatabaseAll( MetaDistrDelivery delivery , boolean all ) throws Exception {
+		ProductMeta storage = delivery.meta.getStorage();
+		checkTransactionMetadata( storage );
+		DBMetaDistr.setDeliveryDatabaseAll( this , storage , delivery.dist , delivery , all );
+	}
+
+	public void setDeliveryDatabaseSet( MetaDistrDelivery delivery , MetaDatabaseSchema[] set ) throws Exception {
+		ProductMeta storage = delivery.meta.getStorage();
+		checkTransactionMetadata( storage );
+		DBMetaDistr.setDeliveryDatabaseSet( this , storage , delivery.dist , delivery , set );
+	}
+
+	public void setDeliveryDocumentationSet( MetaDistrDelivery delivery , MetaProductDoc[] set ) throws Exception {
+		ProductMeta storage = delivery.meta.getStorage();
+		checkTransactionMetadata( storage );
+		DBMetaDistr.setDeliveryDocSet( this , storage , delivery.dist , delivery , set );
+	}
+
 	public MetaProductUnit createProductUnit( MetaUnits units , String name , String desc ) throws Exception {
 		ProductMeta storage = units.meta.getStorage();
 		checkTransactionMetadata( storage );
@@ -744,73 +819,37 @@ public class EngineTransaction extends TransactionBase {
 	public void createDistrComponent( MetaDistrComponent item ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
 		checkTransactionMetadata( storage );
-		item.dist.createDistrComponent( this , item );
+		//item.dist.createDistrComponent( this , item );
 	}
 	
 	public void modifyDistrComponent( MetaDistrComponent item ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
 		checkTransactionMetadata( storage );
-		item.dist.modifyDistrComponent( this , item );
+		//item.dist.modifyDistrComponent( this , item );
 	}
 
 	public void deleteDistrComponent( MetaDistrComponent item ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
 		checkTransactionMetadata( storage );
-		item.dist.deleteDistrComponent( this , item );
+		//item.dist.deleteDistrComponent( this , item );
 	}
 	
 	public void createDistrComponentItem( MetaDistrComponent comp , MetaDistrComponentItem item ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
 		checkTransactionMetadata( storage );
-		item.comp.createItem( this , item );
+		//item.comp.createItem( this , item );
 	}
 	
 	public void modifyDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
 		checkTransactionMetadata( storage );
-		item.comp.modifyItem( this , item );
+		//item.comp.modifyItem( this , item );
 	}
 
 	public void deleteDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
 		checkTransactionMetadata( storage );
-		item.comp.deleteItem( this , item );
-	}
-
-	public void createDistrComponentService( MetaDistrComponent comp , MetaDistrComponentWS service ) throws Exception {
-		ProductMeta storage = comp.meta.getStorage();
-		checkTransactionMetadata( storage );
-		service.comp.createWebService( this , service );
-	}
-	
-	public void modifyDistrComponentService( MetaDistrComponentWS service ) throws Exception {
-		ProductMeta storage = service.meta.getStorage();
-		checkTransactionMetadata( storage );
-		service.comp.modifyWebService( this , service );
-	}
-
-	public void deleteDistrComponentService( MetaDistrComponentWS service ) throws Exception {
-		ProductMeta storage = service.meta.getStorage();
-		checkTransactionMetadata( storage );
-		service.comp.deleteWebService( this , service );
-	}
-
-	public void setDeliveryDatabaseAll( MetaDistrDelivery delivery ) throws Exception {
-		ProductMeta storage = delivery.meta.getStorage();
-		checkTransactionMetadata( storage );
-		delivery.setDatabaseAll( this );
-	}
-
-	public void setDeliveryDatabaseSet( MetaDistrDelivery delivery , MetaDatabaseSchema[] set ) throws Exception {
-		ProductMeta storage = delivery.meta.getStorage();
-		checkTransactionMetadata( storage );
-		delivery.setDatabaseSet( this , set );
-	}
-
-	public void setDeliveryDocumentationSet( MetaDistrDelivery delivery , MetaProductDoc[] set ) throws Exception {
-		ProductMeta storage = delivery.meta.getStorage();
-		checkTransactionMetadata( storage );
-		delivery.setDocSet( this , set );
+		//item.comp.deleteItem( this , item );
 	}
 
 	public MetaSourceProjectSet createSourceProjectSet( MetaSources sources , String name , String desc ) throws Exception {
@@ -903,9 +942,9 @@ public class EngineTransaction extends TransactionBase {
 		if( distItem != null ) {
 			MetaDistr distr = distItem.delivery.dist;
 			if( leaveManual )
-				distr.changeBinaryItemProjectToManual( this , distItem );
+				DBMetaDistr.changeBinaryItemProjectToManual( this , storage , distr , distItem );
 			else
-				distr.deleteBinaryItem( this , distItem );
+				DBMetaDistr.deleteBinaryItem( this , storage , distr , distItem );
 		}
 		
 		MetaSources sources = storage.getSources();

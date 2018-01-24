@@ -74,4 +74,11 @@ public class MetaUnits {
 		return( unit );
 	}
 
+	public String findUnitName( Integer id ) {
+		if( id == null )
+			return( "" );
+		MetaProductUnit unit = mapUnitsById.get( id );
+		return( unit.NAME );
+	}
+	
 }

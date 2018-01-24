@@ -116,5 +116,9 @@ public abstract class DBQueries {
 	
 	public static String MODIFY_DISTR_ADDDELIVERYSCHEMA4 = "insert into urm_dist_schemaitem ( delivery_id , schema_id , meta_id , pv ) values ( @values@ )";
 	public static String MODIFY_DISTR_ADDDELIVERYDOC4 = "insert into urm_dist_docitem ( delivery_id , doc_id , meta_id , pv ) values ( @values@ )";
+	public static String MODIFY_DISTR_CASCADEBINARY_COMPITEM1 = "delete from urm_dist_compitem where binary_id = @1@";
+	public static String MODIFY_DISTR_CASCADECONF_COMPITEM1 = "delete from urm_dist_compitem where confitem_id = @1@";
+	public static String MODIFY_DISTR_DELETEDELIVERYSCHEMES1 = "delete from urm_dist_schemaitem where delivery_id = @1@";
+	public static String MODIFY_DISTR_DELETEDELIVERYDOCS1 = "delete from urm_dist_docitem where delivery_id = @1@";
 	
 }

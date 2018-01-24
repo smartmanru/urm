@@ -484,9 +484,237 @@ public class DBMetaDistr {
 				EngineDB.getString( comp.DESC )
 				} , insert );
 	}
+
+	public static MetaDistrDelivery createDelivery( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , Integer unitId , String name , String desc , String folder ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MetaDatabase db = storage.getDatabase();
+		MetaDocs docs = storage.getDocs();
+		MetaDistrDelivery delivery = new MetaDistrDelivery( storage.meta , distr , db , docs );
+		delivery.createDelivery( unitId , name , desc , folder );
+		modifyDelivery( c , storage , delivery , true );
+		
+		distr.addDelivery( delivery );
+		return( delivery );
+	}
+	
+	public static void modifyDelivery( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , Integer unitId , String name , String desc , String folder ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		delivery.modifyDelivery( unitId , name , desc , folder );
+		modifyDelivery( c , storage , delivery , false );
+		
+		distr.updateDelivery( delivery );
+	}
+	
+	public static void deleteDelivery( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		
+		if( !delivery.isEmpty() )
+			Common.exitUnexpected();
+		
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrDelivery , delivery.ID , c.getNextProductVersion( storage ) );
+		distr.removeDelivery( delivery );
+	}
+
+	public static MetaDistrBinaryItem createBinaryItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , 
+			String name , String desc ,
+			DBEnumDistItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ,
+			String deployname , DBEnumDeployVersionType versionType , 
+			MetaSourceProjectItem itemSrcProject , MetaDistrBinaryItem itemSrcDist , String originPath ,
+			boolean customGet , boolean customDeploy ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MetaDistrBinaryItem item = new MetaDistrBinaryItem( storage.meta , delivery );
+		item.createBinaryItem( name , desc );
+		item.setDistData( itemType , basename , ext , archiveFiles , archiveExclude );
+		item.setDeployData( deployname , versionType );
+		
+		if( itemSrcProject != null )
+			item.setBuildOrigin( itemSrcProject );
+		else
+		if( itemSrcDist != null )
+			item.setDistOrigin( itemSrcDist , originPath );
+		else
+			item.setManualOrigin();
+		item.setCustom( customGet , customDeploy );
+		
+		modifyBinaryItem( c , storage , item , true );
+		
+		distr.addBinaryItem( delivery , item );
+		return( item );
+	}
+	
+	public static void modifyBinaryItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrBinaryItem item , 
+			String name , String desc ,
+			DBEnumDistItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ,
+			String deployname , DBEnumDeployVersionType versionType , 
+			MetaSourceProjectItem itemSrcProject , MetaDistrBinaryItem itemSrcDist , String originPath ,
+			boolean customGet , boolean customDeploy ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		if( itemSrcProject != null && item.isProjectItem() )
+			item.sourceProjectItem.setDistItem( null );
+		
+		item.modifyBinaryItem( name , desc );
+		item.setDistData( itemType , basename , ext , archiveFiles , archiveExclude );
+		item.setDeployData( deployname , versionType );
+		
+		if( itemSrcProject != null )
+			item.setBuildOrigin( itemSrcProject );
+		else
+		if( itemSrcDist != null )
+			item.setDistOrigin( itemSrcDist , originPath );
+		else
+			item.setManualOrigin();
+		item.setCustom( customGet , customDeploy );
+		
+		modifyBinaryItem( c , storage , item , false );
+		
+		distr.updateBinaryItem( item );
+	}
+	
+	public static void deleteBinaryItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrBinaryItem item ) throws Exception {
+		storage.deleteBinaryItemFromEnvironments( transaction , item );
+		
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		
+		if( !c.modify( DBQueries.MODIFY_DISTR_CASCADEBINARY_COMPITEM1 , new String[] { EngineDB.getInteger( item.ID ) } ) )
+			Common.exitUnexpected();
+		
+		for( MetaDistrComponent comp : distr.getComponents() ) {
+			MetaDistrComponentItem compItem = comp.findBinaryItem( item.NAME );
+			if( compItem != null )
+				comp.removeCompItem( compItem );
+		}
+
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrBinaryItem , item.ID , c.getNextProductVersion( storage ) );
+		
+		distr.removeBinaryItem( item.delivery , item );
+	}
+
+	public static void changeBinaryItemDelivery( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrBinaryItem item , MetaDistrDelivery delivery ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		delivery.moveItemToThis( item );
+		modifyBinaryItem( c , storage , item , false );
+	}
 	
 	public static void changeBinaryItemProjectToManual( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrBinaryItem item ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
 		item.changeProjectToManual();
+		modifyBinaryItem( c , storage , item , false );
+	}
+
+	public static MetaDistrConfItem createConfItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery ,
+			String name , String desc , DBEnumConfItemType type , String files , String templates , String secured , String exclude , String extconf ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MetaDistrConfItem item = new MetaDistrConfItem( storage.meta , delivery );
+		item.createConfItem( name , desc , type , files , templates , secured , exclude , extconf );
+		modifyConfItem( c , storage , item , true );
+		
+		distr.addConfItem( delivery , item );
+		return( item );
+	}
+	
+	public static void modifyConfItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrConfItem item ,
+			String name , String desc , DBEnumConfItemType type , String files , String templates , String secured , String exclude , String extconf ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		item.modifyConfItem( name , desc , type , files , templates , secured , exclude , extconf );
+		modifyConfItem( c , storage , item , false );
+		
+		distr.updateConfItem( item );
+	}
+	
+	public static void deleteConfItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrConfItem item ) throws Exception {
+		storage.deleteConfItemFromEnvironments( transaction , item );
+		
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		
+		if( !c.modify( DBQueries.MODIFY_DISTR_CASCADECONF_COMPITEM1 , new String[] { EngineDB.getInteger( item.ID ) } ) )
+			Common.exitUnexpected();
+		
+		for( MetaDistrComponent comp : distr.getComponents() ) {
+			MetaDistrComponentItem compItem = comp.findConfItem( item.NAME );
+			if( compItem != null )
+				comp.removeCompItem( compItem );
+		}
+
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrConfItem , item.ID , c.getNextProductVersion( storage ) );
+		
+		distr.removeConfItem( item.delivery , item );
+	}
+
+	public static void setDeliveryDatabaseAll( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , boolean all ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		delivery.setDatabaseAll( all );
+		if( all ) {
+			if( !c.modify( DBQueries.MODIFY_DISTR_DELETEDELIVERYSCHEMES1 , new String[] { EngineDB.getInteger( delivery.ID ) } ) )
+				Common.exitUnexpected();
+		}
+		
+		modifyDelivery( c , storage , delivery , false );
+	}
+	
+	public static void setDeliveryDatabaseSet( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , MetaDatabaseSchema[] set ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		boolean needUpdate = false;
+		if( delivery.SCHEMA_ANY )
+			needUpdate = true;
+			
+		delivery.setDatabaseSet( set );
+
+		if( !c.modify( DBQueries.MODIFY_DISTR_DELETEDELIVERYSCHEMES1 , new String[] { EngineDB.getInteger( delivery.ID ) } ) )
+			Common.exitUnexpected();
+		
+		if( needUpdate )
+			modifyDelivery( c , storage , delivery , false );
+
+		int version = c.getNextProductVersion( storage );
+		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() ) {
+			if( !c.modify( DBQueries.MODIFY_DISTR_ADDDELIVERYSCHEMA4 , new String[] { 
+					EngineDB.getInteger( delivery.ID ) ,
+					EngineDB.getInteger( schema.ID ) ,
+					EngineDB.getInteger( storage.ID ) ,
+					EngineDB.getInteger( version )
+					} ) )
+				Common.exitUnexpected();
+		}
+	}
+	
+	public static void setDeliveryDocSet( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , MetaProductDoc[] set ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		boolean needUpdate = false;
+		if( delivery.DOC_ANY )
+			needUpdate = true;
+			
+		delivery.setDocSet( set );
+
+		if( !c.modify( DBQueries.MODIFY_DISTR_DELETEDELIVERYDOCS1 , new String[] { EngineDB.getInteger( delivery.ID ) } ) )
+			Common.exitUnexpected();
+		
+		if( needUpdate )
+			modifyDelivery( c , storage , delivery , false );
+
+		int version = c.getNextProductVersion( storage );
+		for( MetaProductDoc doc : delivery.getDocs() ) {
+			if( !c.modify( DBQueries.MODIFY_DISTR_ADDDELIVERYDOC4 , new String[] { 
+					EngineDB.getInteger( delivery.ID ) ,
+					EngineDB.getInteger( doc.ID ) ,
+					EngineDB.getInteger( storage.ID ) ,
+					EngineDB.getInteger( version )
+					} ) )
+				Common.exitUnexpected();
+		}
 	}
 	
 	public static void deleteDatabaseSchema( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDatabaseSchema schema ) throws Exception {
@@ -501,10 +729,10 @@ public class DBMetaDistr {
 		}
 	}
 	
-	public static void createDistrComponent( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
+	public static void createComponent( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
 	}
 	
-	public static void modifyDistrComponent( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
+	public static void modifyComponent( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
 	}
 	
 	public static void deleteDistrComponent( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
@@ -524,26 +752,4 @@ public class DBMetaDistr {
 		}
 	}	
 	
-	public static void deleteBinaryItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrBinaryItem item ) throws Exception {
-		for( MetaDistrComponent comp : distr.getComponents() ) {
-			MetaDistrComponentItem compItem = comp.findBinaryItem( item.NAME );
-			if( compItem != null )
-				comp.removeCompItem( compItem );
-		}
-
-		distr.removeBinaryItem( item );
-		storage.deleteBinaryItemFromEnvironments( transaction , item );
-	}
-	
-	public static void deleteConfItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrConfItem item ) throws Exception {
-		for( MetaDistrComponent comp : distr.getComponents() ) {
-			MetaDistrComponentItem compItem = comp.findConfItem( item.NAME );
-			if( compItem != null )
-				comp.removeCompItem( compItem );
-		}
-		
-		distr.removeConfItem( item );
-		storage.deleteConfItemFromEnvironments( transaction , item );
-	}
-
 }

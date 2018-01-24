@@ -102,6 +102,15 @@ public class MetaDistrBinaryItem {
 			sourceProjectItem.setDistItem( this );
 		}
 	}
+
+	public void createBinaryItem( String name , String desc ) throws Exception {
+		modifyBinaryItem( name , desc );
+	}
+	
+	public void modifyBinaryItem( String name , String desc ) throws Exception {
+		this.NAME = name;
+		this.DESC = desc;
+	}
 	
 	public void createBinaryItem( String name , String desc , DBEnumDistItemType itemType , String distName , String deployName , String ext , DBEnumDeployVersionType versionType , String staticExt , String warContext , String files , String exclude ) throws Exception {
 		modifyBinaryItem( name , desc , itemType , distName , deployName , ext , versionType , staticExt , warContext , files , exclude );
@@ -136,6 +145,42 @@ public class MetaDistrBinaryItem {
 		this.delivery = deliveryNew; 
 	}
 	
+	public void setDistData( DBEnumDistItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ) throws Exception {
+		this.DISTITEM_TYPE = itemType;
+		this.BASENAME_DIST = basename;
+		this.EXT = ext;
+		this.ARCHIVE_FILES = archiveFiles;
+		this.ARCHIVE_EXCLUDE = archiveExclude;
+		if( this.BASENAME_DIST.isEmpty() )
+			this.BASENAME_DIST = NAME;
+	}
+
+	public void setDeployData( String deployname , DBEnumDeployVersionType versionType ) throws Exception {
+		this.BASENAME_DEPLOY = deployname;
+		this.DEPLOYVERSION_TYPE = versionType;
+		if( this.BASENAME_DEPLOY.isEmpty() )
+			this.BASENAME_DEPLOY = BASENAME_DIST;
+	}
+
+	public void setBuildOrigin( MetaSourceProjectItem sourceItem ) throws Exception {
+		this.sourceProjectItem = sourceItem;
+		this.srcDistItem = null;
+		setSource( DBEnumItemOriginType.BUILD , sourceItem.ID , null , "" );
+		sourceItem.setDistItem( this );
+	}
+
+	public void setDistOrigin( MetaDistrBinaryItem itemSrc , String srcPath ) throws Exception {
+		this.sourceProjectItem = null;
+		this.srcDistItem = itemSrc;
+		setSource( DBEnumItemOriginType.DERIVED , null , itemSrc.ID , srcPath );
+	}
+	
+	public void setManualOrigin() throws Exception {
+		this.sourceProjectItem = null;
+		this.srcDistItem = null;
+		setSource( DBEnumItemOriginType.MANUAL , null , null , "" );
+	}
+
 	public void changeProjectToManual() throws Exception {
 		if( ITEMORIGIN_TYPE != DBEnumItemOriginType.BUILD )
 			Common.exitUnexpected();
@@ -241,42 +286,6 @@ public class MetaDistrBinaryItem {
 		return( null );
 	}
 	
-	public void setDistData( DBEnumDistItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ) throws Exception {
-		this.DISTITEM_TYPE = itemType;
-		this.BASENAME_DIST = basename;
-		this.EXT = ext;
-		this.ARCHIVE_FILES = archiveFiles;
-		this.ARCHIVE_EXCLUDE = archiveExclude;
-		if( this.BASENAME_DIST.isEmpty() )
-			this.BASENAME_DIST = NAME;
-	}
-
-	public void setDeployData( String deployname , DBEnumDeployVersionType versionType ) throws Exception {
-		this.BASENAME_DEPLOY = deployname;
-		this.DEPLOYVERSION_TYPE = versionType;
-		if( this.BASENAME_DEPLOY.isEmpty() )
-			this.BASENAME_DEPLOY = BASENAME_DIST;
-	}
-
-	public void setBuildOrigin( MetaSourceProjectItem sourceItem ) throws Exception {
-		this.sourceProjectItem = sourceItem;
-		this.srcDistItem = null;
-		setSource( DBEnumItemOriginType.BUILD , sourceItem.ID , null , "" );
-		sourceItem.setDistItem( this );
-	}
-
-	public void setDistOrigin( MetaDistrBinaryItem itemSrc , String srcPath ) throws Exception {
-		this.sourceProjectItem = null;
-		this.srcDistItem = itemSrc;
-		setSource( DBEnumItemOriginType.DERIVED , null , itemSrc.ID , srcPath );
-	}
-	
-	public void setManualOrigin() throws Exception {
-		this.sourceProjectItem = null;
-		this.srcDistItem = null;
-		setSource( DBEnumItemOriginType.MANUAL , null , null , "" );
-	}
-
 	public String getDeploySampleFile() {
 		String value = BASENAME_DEPLOY;
 		

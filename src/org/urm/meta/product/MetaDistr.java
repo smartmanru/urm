@@ -10,7 +10,7 @@ import org.urm.meta.ProductMeta;
 
 public class MetaDistr {
 
-	protected Meta meta;
+	public Meta meta;
 	private Map<String,MetaDistrDelivery> mapDeliveries;
 	private Map<String,MetaDistrBinaryItem> mapBinaryItems;
 	private Map<Integer,MetaDistrBinaryItem> mapBinaryItemsById;
@@ -174,8 +174,8 @@ public class MetaDistr {
 		return( list.toArray( new MetaDistrDelivery[0] ) );
 	}
 
-	public MetaDistrDelivery findDelivery( String DELIVERY ) {
-		return( mapDeliveries.get( DELIVERY ) );
+	public MetaDistrDelivery findDelivery( String delivery ) {
+		return( mapDeliveries.get( delivery ) );
 	}
 
 	public MetaDistrDelivery findDeliveryByFolder( String folder ) {
@@ -204,6 +204,10 @@ public class MetaDistr {
 
 	public void removeDelivery( MetaDistrDelivery delivery ) {
 		mapDeliveries.remove( delivery.NAME );
+		for( MetaDistrBinaryItem item : delivery.getBinaryItems() )
+			removeBinaryItem( item );
+		for( MetaDistrConfItem item : delivery.getConfItems() )
+			removeConfItem( item );
 	}
 
 	public void updateDelivery( MetaDistrDelivery delivery ) throws Exception {
@@ -233,13 +237,27 @@ public class MetaDistr {
 		mapBinaryItemsById.put( item.ID , item );
 	}
 	
+	public void updateBinaryItem( MetaDistrBinaryItem item ) throws Exception {
+		item.delivery.updateBinaryItem( item );
+		Common.changeMapKey( mapBinaryItems , item , item.NAME );
+	}
+	
 	public void addConfItem( MetaDistrConfItem item ) throws Exception {
 		mapConfItems.put( item.NAME , item );
 		mapConfItemsById.put( item.ID , item );
 	}
 
-	public void removeBinaryItem( MetaDistrBinaryItem item ) throws Exception {
+	public void updateConfItem( MetaDistrConfItem item ) throws Exception {
+		item.delivery.updateConfItem( item );
+		Common.changeMapKey( mapConfItems , item , item.NAME );
+	}
+	
+	public void removeBinaryItem( MetaDistrDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
 		item.delivery.removeBinaryItem( item );
+		removeBinaryItem( item );
+	}
+
+	private void removeBinaryItem( MetaDistrBinaryItem item ) {
 		mapBinaryItems.remove( item.NAME );
 		mapBinaryItemsById.remove( item.ID );
 	}
@@ -248,8 +266,12 @@ public class MetaDistr {
 		item.changeProjectToManual();
 	}
 	
-	public void removeConfItem( MetaDistrConfItem item ) throws Exception {
+	public void removeConfItem( MetaDistrDelivery delivery , MetaDistrConfItem item ) throws Exception {
 		item.delivery.removeConfItem( item );
+		removeConfItem( item );
+	}
+	
+	private void removeConfItem( MetaDistrConfItem item ) {
 		mapConfItems.remove( item.NAME );
 		mapConfItemsById.remove( item.ID );
 	}
