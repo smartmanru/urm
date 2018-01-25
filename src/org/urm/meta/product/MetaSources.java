@@ -200,13 +200,27 @@ public class MetaSources {
 		return( null );
 	}
 
-	public MetaSourceProjectItem getProjectItem( Integer id ) throws Exception {
+	public Integer getProjectItemId( String name ) throws Exception {
+		if( name.isEmpty() )
+			return( null );
+		MetaSourceProjectItem item = getProjectItem( name );
+		return( item.ID );
+	}
+
+	public MetaSourceProjectItem getProjectItem( int id ) throws Exception {
 		MetaSourceProjectItem item = itemMapById.get( id );
 		if( item != null )
 			return( item );
 		
 		Common.exit1( _Error.UnknownSourceProjectItem1 , "unknown source project item=" + id , "" + id );
 		return( null );
+	}
+
+	public String getProjectItemName( Integer id ) throws Exception {
+		if( id == null )
+			return( "" );
+		MetaSourceProjectItem item = getProjectItem( id );
+		return( item.NAME );
 	}
 
 	public void removeProjectSet( MetaSourceProjectSet set ) throws Exception {

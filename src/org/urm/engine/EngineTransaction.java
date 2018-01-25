@@ -2,6 +2,7 @@ package org.urm.engine;
 
 import java.util.List;
 
+import org.urm.common.Common;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
@@ -175,10 +176,9 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineMirrors.dropDetachedMirror( this , repo.mirrors , repo );
 	}
 
-	public void deleteSourceProjectMirror( EngineMirrors mirrors , MetaSourceProject project , boolean leaveManual ) throws Exception {
+	public void deleteSourceProject( MetaSourceProject project , boolean leaveManual ) throws Exception {
 		ProductMeta storage = project.meta.getStorage();
 		checkTransactionMetadata( storage );
-		checkTransactionMirrors( mirrors );
 		
 		Meta meta = project.meta;
 		MetaSources sources = project.set.sources;
@@ -192,7 +192,10 @@ public class EngineTransaction extends TransactionBase {
 		}
 		
 		DBMetaSources.deleteProject( this , storage , sources , project );
-		DBEngineMirrors.deleteProjectMirror( this , mirrors , project );
+		
+		if( !changeMirrors( getMirrors() ) )
+			Common.exitUnexpected();
+		DBEngineMirrors.deleteProjectMirror( this , getTransactionMirrors() , project );
 	}
 
 	public void createDetachedMirror( EngineMirrors mirrors , DBEnumMirrorType type , String product , String project ) throws Exception {
@@ -641,13 +644,9 @@ public class EngineTransaction extends TransactionBase {
 	public MetaDistrDelivery createDistrDelivery( MetaDistr distr , String unitName , String name , String desc , String folder ) throws Exception {
 		ProductMeta storage = distr.meta.getStorage();
 		checkTransactionMetadata( storage );
-		Integer unitId = null;
-		if( !unitName.isEmpty() ) {
-			MetaUnits units = storage.getUnits();
-			MetaProductUnit unit = units.getUnit( unitName );
-			unitId = unit.ID;
-		}
 		
+		MetaUnits units = storage.getUnits();
+		Integer unitId = units.getUnitId( unitName );
 		return( DBMetaDistr.createDelivery( this , storage , distr , unitId , name , desc , folder ) );
 	}
 	
@@ -655,12 +654,8 @@ public class EngineTransaction extends TransactionBase {
 		ProductMeta storage = delivery.meta.getStorage();
 		checkTransactionMetadata( storage );
 		
-		Integer unitId = null;
-		if( !unitName.isEmpty() ) {
-			MetaUnits units = storage.getUnits();
-			MetaProductUnit unit = units.getUnit( unitName );
-			unitId = unit.ID;
-		}
+		MetaUnits units = storage.getUnits();
+		Integer unitId = units.getUnitId( unitName );
 		DBMetaDistr.modifyDelivery( this , storage , delivery.dist , delivery , unitId , name , desc , folder );
 	}
 	

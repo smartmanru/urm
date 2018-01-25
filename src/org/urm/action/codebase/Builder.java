@@ -15,7 +15,6 @@ import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaUnits;
 
@@ -119,11 +118,7 @@ public abstract class Builder {
 		MetaProductBuildSettings settings = product.getBuildSettings( action );
 		MirrorRepository mirror = project.getMirror( action );
 		MetaUnits units = project.meta.getUnits();
-		String unitName = "";
-		if( project.UNIT_ID != null ) {
-			MetaProductUnit unit = units.getUnit( project.UNIT_ID );
-			unitName = unit.NAME;
-		}
+		String unitName = units.getUnitName( project.UNIT_ID );
 		
 		ObjectProperties ops = settings.getProperties();
 		PropertySet props = ops.getProperties();

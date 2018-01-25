@@ -9,6 +9,7 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
 import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 
 public class EngineLifecycles extends EngineObject {
 
@@ -86,4 +87,12 @@ public class EngineLifecycles extends EngineObject {
 		lcMapById.remove( lc.ID );
 	}
 
+	public MatchItem getLifecycleMatchItem( Integer id , String name ) throws Exception {
+		if( id == null && name.isEmpty() )
+			return( null );
+		ReleaseLifecycle lc = ( id == null )? findLifecycle( name ) : getLifecycle( id );
+		MatchItem match = ( lc == null )? new MatchItem( name ) : new MatchItem( lc.ID );
+		return( match );
+	}
+	
 }

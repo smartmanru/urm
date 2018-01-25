@@ -21,7 +21,6 @@ import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.MirrorRepository;
-import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
@@ -96,9 +95,7 @@ public class DBMetaSources {
 		
 		MetaSourceProject project = new MetaSourceProject( storage.meta , set );
 		MetaUnits units = storage.getUnits();
-		String unitName = entity.importxmlStringAttr( root , MetaSourceProject.PROPERTY_UNIT );
-		MetaProductUnit unit = ( unitName.isEmpty() )? null : units.getUnit( unitName );
-		Integer unitId = ( unit == null )? null : unit.ID;
+		Integer unitId = units.getUnitId( entity.importxmlStringAttr( root , MetaSourceProject.PROPERTY_UNIT ) );
 				
 		project.createProject( 
 				entity.importxmlStringAttr( root , MetaSourceProject.PROPERTY_NAME ) ,
@@ -140,10 +137,8 @@ public class DBMetaSources {
 				entity.importxmlStringAttr( root , MetaSourceProject.PROPERTY_TRACKER ) ,
 				matchMirror , mirrorRes , mirrorRepo , mirrorPath , mirrorData );
 		
-		String builderName = entity.importxmlStringAttr( root , MetaSourceProject.PROPERTY_BUILDER_NAME );
 		EngineBuilders builders = loader.getBuilders();
-		ProjectBuilder builder = ( builderName.isEmpty() )? null : builders.findBuilder( builderName );
-		MatchItem matchBuilder = ( builder == null )? new MatchItem( builderName ) : new MatchItem( builder.ID );
+		MatchItem matchBuilder = builders.getBuilderMatchItem( null , entity.importxmlStringAttr( root , MetaSourceProject.PROPERTY_BUILDER_NAME ) );
 		project.setBuild( matchBuilder , 
 				entity.importxmlStringAttr( root , MetaSourceProject.PROPERTY_BUILDER_OPTIONS ) ,
 				entity.importxmlStringAttr( root , MetaSourceProject.PROPERTY_BRANCH )
@@ -276,15 +271,10 @@ public class DBMetaSources {
 		PropertyEntity entity = entities.entityAppMetaSourceProject;
 		
 		MetaUnits units = storage.getUnits();
-		MetaProductUnit unit = ( project.UNIT_ID == null )? null : units.getUnit( project.UNIT_ID );
-		String unitName = ( unit == null )? null : unit.NAME;
+		String unitName = units.getUnitName( project.UNIT_ID );
 		
-		String builderName = project.BUILDER.FKNAME;
-		if( project.BUILDER.MATCHED ) {
-			EngineBuilders builders = loader.getBuilders();
-			ProjectBuilder builder = builders.getBuilder( project.BUILDER.FKID );
-			builderName = builder.NAME;
-		}
+		EngineBuilders builders = loader.getBuilders();
+		String builderName = builders.getBuilderName( project.BUILDER );
 
 		String mirrorRes = project.MIRROR_RESOURCE;
 		String mirrorRepo = project.MIRROR_REPOSITORY;
@@ -672,6 +662,18 @@ public class DBMetaSources {
 	}
 
 	public static void deleteProject( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProject project ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		PropertyEntity entity = entities.entityAppMetaSourceItem;
+		
+		if( !c.modify( DBQueries.MODIFY_SOURCE_DELETEPROJECTITEMS1 , new String[] {
+				EngineDB.getInteger( project.ID )
+				}))
+			transaction.exitUnexpectedState();
+		
+		int version = c.getCurrentProductVersion( storage );
+		DBEngineEntities.deleteAppObject( c , entity , project.ID , version );
+		sources.removeProject( project.set , project );
 	}
 
 	public static void deleteProjectItem( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProjectItem item ) throws Exception {
@@ -682,9 +684,6 @@ public class DBMetaSources {
 		int version = c.getNextProductVersion( storage );
 		DBEngineEntities.deleteAppObject( c , entity , item.ID , version );
 		sources.removeProjectItem( item.project , item );
-	}
-
-	public static void modifyProjectItem( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProjectItem item ) throws Exception {
 	}
 
 	public static void deleteUnit( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaProductUnit unit ) throws Exception {

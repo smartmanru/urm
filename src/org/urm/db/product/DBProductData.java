@@ -437,7 +437,7 @@ public class DBProductData {
 				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_DISTNAME , FIELD_BINARYITEM_DISTNAME , MetaDistrBinaryItem.PROPERTY_DISTNAME , "Distribute base name" , true , null ) ,
 				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_DEPLOYNAME , FIELD_BINARYITEM_DEPLOYNAME , MetaDistrBinaryItem.PROPERTY_DEPLOYNAME , "Default deployment base name" , true , null ) ,
 				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_EXT , FIELD_BINARYITEM_EXT , MetaDistrBinaryItem.PROPERTY_EXT , "Item file extension" , true , null ) ,
-				EntityVar.metaEnumVar( MetaDistrBinaryItem.PROPERTY_DEPLOYVERSION , FIELD_BINARYITEM_DEPLOYVERSIONTYPE , MetaDistrBinaryItem.PROPERTY_DEPLOYVERSION , "Deployment name version type" , false , DBEnumDeployVersionType.UNKNOWN ) ,
+				EntityVar.metaEnumVar( MetaDistrBinaryItem.PROPERTY_DEPLOYVERSIONTYPE , FIELD_BINARYITEM_DEPLOYVERSIONTYPE , MetaDistrBinaryItem.PROPERTY_DEPLOYVERSIONTYPE , "Deployment name version type" , false , DBEnumDeployVersionType.UNKNOWN ) ,
 				EntityVar.metaEnumVar( MetaDistrBinaryItem.PROPERTY_ITEMORIGIN , FIELD_BINARYITEM_ITEMORIGIN , MetaDistrBinaryItem.PROPERTY_ITEMORIGIN , "Item origin type" , true , DBEnumItemOriginType.UNKNOWN ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_BINARYITEM_SRCITEM_ID , "source project item id" , DBEnumObjectType.META_SOURCEITEM , false ) ,
 				EntityVar.metaStringXmlOnly( MetaDistrBinaryItem.PROPERTY_SRCITEM_NAME , "source project item name" , false , null ) ,

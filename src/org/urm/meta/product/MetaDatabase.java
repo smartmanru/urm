@@ -12,6 +12,7 @@ public class MetaDatabase {
 
 	public MetaDatabaseAdministration admin;
 	public Map<String,MetaDatabaseSchema> mapSchema;
+	public Map<Integer,MetaDatabaseSchema> mapSchemaById;
 	public Map<String,MetaDump> mapExport;
 	public Map<String,MetaDump> mapImport;
 	
@@ -22,6 +23,7 @@ public class MetaDatabase {
 		meta.setDatabase( this );
 		admin = new MetaDatabaseAdministration( meta , this );
 		mapSchema = new HashMap<String,MetaDatabaseSchema>();
+		mapSchemaById = new HashMap<Integer,MetaDatabaseSchema>();
 		mapExport = new HashMap<String,MetaDump>();
 		mapImport = new HashMap<String,MetaDump>();
 	}
@@ -32,7 +34,7 @@ public class MetaDatabase {
 		r.admin = admin.copy( rmeta , r );
 		for( MetaDatabaseSchema schema : mapSchema.values() ) {
 			MetaDatabaseSchema rschema = schema.copy( rmeta , r );
-			r.mapSchema.put( rschema.NAME , rschema );
+			r.addSchema( rschema );
 		}
 		
 		return( r );
@@ -40,6 +42,7 @@ public class MetaDatabase {
 	
 	public void addSchema( MetaDatabaseSchema schema ) {
 		mapSchema.put( schema.NAME , schema );
+		mapSchemaById.put( schema.ID , schema );
 	}
 	
 	public void updateSchema( MetaDatabaseSchema schema ) throws Exception {
@@ -85,12 +88,20 @@ public class MetaDatabase {
 		return( schema );
 	}
 
+	public MetaDatabaseSchema getSchema( int id ) throws Exception {
+		MetaDatabaseSchema schema = mapSchemaById.get( id );
+		if( schema == null )
+			Common.exit1( _Error.UnknownSchema1 , "unknown schema=" + id , "" + id );
+		return( schema );
+	}
+
 	public boolean checkAligned( String id ) {
 		return( true );
 	}
 
 	public void removeSchema( MetaDatabaseSchema schema ) throws Exception {
 		mapSchema.remove( schema.NAME );
+		mapSchemaById.remove( schema.ID );
 	}
 
 	public void addDump( MetaDump dump ) {

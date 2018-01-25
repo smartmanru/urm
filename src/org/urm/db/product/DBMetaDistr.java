@@ -95,13 +95,8 @@ public class DBMetaDistr {
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppMetaDistrDelivery;
 		
-		String unitName = entity.importxmlStringAttr( root , MetaDistrDelivery.PROPERTY_UNIT_NAME );
-		Integer unitId = null;
-		if( !unitName.isEmpty() ) {
-			MetaUnits units = storage.getUnits();
-			MetaProductUnit unit = units.getUnit( unitName );
-			unitId = unit.ID;
-		}
+		MetaUnits units = storage.getUnits();
+		Integer unitId = units.getUnitId( entity.importxmlStringAttr( root , MetaDistrDelivery.PROPERTY_UNIT_NAME ) );
 		
 		MetaDistrDelivery delivery = new MetaDistrDelivery( storage.meta , distr , storage.getDatabase() , storage.getDocs() );
 		delivery.createDelivery(
@@ -198,27 +193,16 @@ public class DBMetaDistr {
 				entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_DISTNAME ) ,
 				entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_DEPLOYNAME ) ,
 				ext ,
-				DBEnumDeployVersionType.getValue( entity.importxmlEnumAttr( root , MetaDistrBinaryItem.PROPERTY_DEPLOYVERSION ) , false ) ,
+				DBEnumDeployVersionType.getValue( entity.importxmlEnumAttr( root , MetaDistrBinaryItem.PROPERTY_DEPLOYVERSIONTYPE ) , false ) ,
 				staticExt ,
 				entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_WARCONTEXT ) ,
 				entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_ARCHIVEFILES ) ,
 				entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_ARCHIVEEXCLUDE )
 				);
-		
-		String srcItemName = entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_SRCITEM_NAME );
-		Integer srcItemId = null;
-		if( !srcItemName.isEmpty() ) {
-			MetaSources sources = storage.getSources();
-			MetaSourceProjectItem srcitem = sources.getProjectItem( srcItemName );
-			srcItemId = srcitem.ID;
-		}
-				
-		String srcDistName = entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_SRCDISTITEM_NAME );
-		Integer srcDistId = null;
-		if( !srcDistName.isEmpty() ) {
-			MetaDistrBinaryItem srcDistItem = distr.getBinaryItem( srcDistName );
-			srcDistId = srcDistItem.ID;
-		}
+
+		MetaSources sources = storage.getSources();
+		Integer srcItemId = sources.getProjectItemId( entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_SRCITEM_NAME ) );
+		Integer srcDistId = distr.getBinaryItemId( entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_SRCDISTITEM_NAME ) );
 		
 		item.setSource(
 				DBEnumItemOriginType.getValue( entity.importxmlEnumAttr( root , MetaDistrBinaryItem.PROPERTY_ITEMORIGIN ) , true ) ,
@@ -226,7 +210,6 @@ public class DBMetaDistr {
 				srcDistId ,
 				entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_SRCITEMPATH ) 
 				);
-				
 		
 		item.setCustom(
 				entity.importxmlBooleanAttr( root , MetaDistrBinaryItem.PROPERTY_CUSTOMGET , false ) ,
@@ -404,20 +387,68 @@ public class DBMetaDistr {
 		loaddbComponents( loader , storage , distr );
 	}
 
-	public static void loaddbDeliveries( EngineLoader loader , ProductMeta storage ) throws Exception {
-		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
+	public static void loaddbDeliveries( EngineLoader loader , ProductMeta storage , MetaDistr distr ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrDelivery;
+		
+		MetaDatabase db = storage.getDatabase();
+		MetaDocs docs = storage.getDocs();
+		MetaUnits units = storage.getUnits();
+		
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { EngineDB.getInteger( storage.ID ) } );
 		try {
 			while( rs.next() ) {
-				MetaProductDoc doc = new MetaProductDoc( storage.meta , docs );
-				doc.ID = entity.loaddbId( rs );
-				doc.PV = entity.loaddbVersion( rs );
-				doc.createDoc( 
-						entity.loaddbString( rs , MetaProductDoc.PROPERTY_NAME ) , 
-						entity.loaddbString( rs , MetaProductDoc.PROPERTY_DESC ) ,
-						entity.loaddbString( rs , MetaProductDoc.PROPERTY_EXT ) ,
-						entity.loaddbBoolean( rs , MetaProductDoc.PROPERTY_UNITBOUND )
+				MetaDistrDelivery delivery = new MetaDistrDelivery( storage.meta , distr , db , docs );
+				delivery.ID = entity.loaddbId( rs );
+				delivery.PV = entity.loaddbVersion( rs );
+				delivery.createDelivery( 
+						units.getUnitId( entity.loaddbString( rs , MetaDistrDelivery.PROPERTY_UNIT_NAME ) ) ,
+						entity.loaddbString( rs , MetaDistrDelivery.PROPERTY_NAME ) ,
+						entity.loaddbString( rs , MetaDistrDelivery.PROPERTY_DESC ) ,
+						entity.loaddbString( rs , MetaDistrDelivery.PROPERTY_FOLDER )
 						);
-				docs.addDoc( doc );
+				delivery.setDatabaseAll( entity.loaddbBoolean( rs , MetaDistrDelivery.PROPERTY_SCHEMA_ANY ) );
+				delivery.setDocAll( entity.loaddbBoolean( rs , MetaDistrDelivery.PROPERTY_DOC_ANY ) );
+				distr.addDelivery( delivery );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+		
+		loaddbDeliveryBinaryItems( loader , storage , distr );
+		loaddbDeliveryConfItems( loader , storage , distr );
+		loaddbDeliverySchemes( loader , storage , distr );
+		loaddbDeliveryDocs( loader , storage , distr );
+	}
+
+	public static void loaddbDeliveryBinaryItems( EngineLoader loader , ProductMeta storage , MetaDistr distr ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrBinaryItem;
+		
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { EngineDB.getInteger( storage.ID ) } );
+		try {
+			while( rs.next() ) {
+				MetaDistrDelivery delivery = distr.getDelivery( entity.loaddbObject( rs , DBProductData.FIELD_DELIVERY_ID ) );
+				MetaDistrBinaryItem item = new MetaDistrBinaryItem( storage.meta , delivery );
+				item.ID = entity.loaddbId( rs );
+				item.PV = entity.loaddbVersion( rs );
+				item.createBinaryItem( 
+						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_NAME ) ,
+						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_DESC ) ,
+						DBEnumDistItemType.getValue( entity.loaddbEnum( rs , MetaDistrBinaryItem.PROPERTY_DISTITEMTYPE ) , true ) ,
+						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_DISTNAME ) ,
+						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_DEPLOYNAME ) ,
+						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_EXT ) ,
+						DBEnumDeployVersionType.getValue( entity.loaddbEnum( rs , MetaDistrBinaryItem.PROPERTY_DEPLOYVERSIONTYPE ) , true ) ,
+						entity.loaddbString( rs , DBProductData.FIELD_BINARYITEM_WARSTATICEXT ) ,
+						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_WARCONTEXT ) ,
+						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_ARCHIVEFILES ) ,
+						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_ARCHIVEEXCLUDE )
+						);
+				distr.addBinaryItem( delivery , item );
 			}
 		}
 		finally {
@@ -425,9 +456,178 @@ public class DBMetaDistr {
 		}
 	}
 	
-	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
+	public static void loaddbDeliveryConfItems( EngineLoader loader , ProductMeta storage , MetaDistr distr ) throws Exception {
+		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
-		PropertyEntity entity = entities.entityAppMetaDistrCompItem;
+		PropertyEntity entity = entities.entityAppMetaDistrConfItem;
+		
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { EngineDB.getInteger( storage.ID ) } );
+		try {
+			while( rs.next() ) {
+				MetaDistrDelivery delivery = distr.getDelivery( entity.loaddbObject( rs , DBProductData.FIELD_DELIVERY_ID ) );
+				MetaDistrConfItem item = new MetaDistrConfItem( storage.meta , delivery );
+				item.ID = entity.loaddbId( rs );
+				item.PV = entity.loaddbVersion( rs );
+				item.createConfItem(
+						entity.loaddbString( rs , MetaDistrConfItem.PROPERTY_NAME ) ,
+						entity.loaddbString( rs , MetaDistrConfItem.PROPERTY_DESC ) ,
+						DBEnumConfItemType.getValue( entity.loaddbEnum( rs , MetaDistrConfItem.PROPERTY_TYPE ) , true ) ,
+						entity.loaddbString( rs , MetaDistrConfItem.PROPERTY_FILES ) ,
+						entity.loaddbString( rs , MetaDistrConfItem.PROPERTY_TEMPLATES ) ,
+						entity.loaddbString( rs , MetaDistrConfItem.PROPERTY_SECURED ) ,
+						entity.loaddbString( rs , MetaDistrConfItem.PROPERTY_EXCLUDE ) ,
+						entity.loaddbString( rs , MetaDistrConfItem.PROPERTY_EXTCONF )
+						);
+				distr.addConfItem( delivery , item );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+	
+	public static void loaddbDeliverySchemes( EngineLoader loader , ProductMeta storage , MetaDistr distr ) throws Exception {
+		DBConnection c = loader.getConnection();
+		MetaDatabase db = storage.getDatabase();
+		
+		ResultSet rs = c.query( DBQueries.QUERY_DISTR_GETALLDELIVERYSCHEMES1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		try {
+			while( rs.next() ) {
+				MetaDistrDelivery delivery = distr.getDelivery( rs.getInt( 1 ) );
+				MetaDatabaseSchema schema = db.getSchema( rs.getInt( 2 ) );
+				delivery.addSchema( schema );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+	
+	public static void loaddbDeliveryDocs( EngineLoader loader , ProductMeta storage , MetaDistr distr ) throws Exception {
+		DBConnection c = loader.getConnection();
+		MetaDocs docs = storage.getDocs();
+		
+		ResultSet rs = c.query( DBQueries.QUERY_DISTR_GETALLDELIVERYDOCS1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		try {
+			while( rs.next() ) {
+				MetaDistrDelivery delivery = distr.getDelivery( rs.getInt( 1 ) );
+				MetaProductDoc doc = docs.getDoc( rs.getInt( 2 ) );
+				delivery.addDocument( doc );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+	
+	public static void loaddbComponents( EngineLoader loader , ProductMeta storage , MetaDistr distr ) throws Exception {
+	}
+	
+	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
+		MetaDistr distr = storage.getDistr();
+
+		exportxmlDeliveries( loader , storage , distr , doc , Common.xmlCreateElement( doc , root , ELEMENT_DELIVERIES ) );
+		exportxmlComponents( loader , storage , distr , doc , Common.xmlCreateElement( doc , root , ELEMENT_COMPONENTS ) );
+	}
+
+	public static void exportxmlDeliveries( EngineLoader loader , ProductMeta storage , MetaDistr distr , Document doc , Element root ) throws Exception {
+		for( String name : distr.getDeliveryNames() ) {
+			MetaDistrDelivery delivery = distr.findDelivery( name );
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_DELIVERY );
+			exportxmlDelivery( loader , storage , delivery , doc , node );
+		}
+	}
+	
+	public static void exportxmlDelivery( EngineLoader loader , ProductMeta storage , MetaDistrDelivery delivery , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrDelivery;
+		
+		MetaUnits units = storage.getUnits();
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlString( units.getUnitName( delivery.UNIT_ID ) ) ,
+				entity.exportxmlString( delivery.NAME ) ,
+				entity.exportxmlString( delivery.DESC ) ,
+				entity.exportxmlString( delivery.FOLDER ) ,
+				entity.exportxmlBoolean( delivery.SCHEMA_ANY ) ,
+				entity.exportxmlBoolean( delivery.DOC_ANY )
+		} , true );
+		
+		exportxmlDeliveryBinaryItems( loader , storage , delivery , doc , root );
+		exportxmlDeliveryConfItems( loader , storage , delivery , doc , root );
+		exportxmlDeliverySchemes( loader , storage , delivery , doc , root );
+		exportxmlDeliveryDocs( loader , storage , delivery , doc , root );
+	}
+
+	public static void exportxmlDeliveryBinaryItems( EngineLoader loader , ProductMeta storage , MetaDistrDelivery delivery , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrBinaryItem;
+		MetaSources sources = storage.getSources();
+		MetaDistr distr = storage.getDistr();
+		
+		for( String name : delivery.getBinaryItemNames() ) {
+			MetaDistrBinaryItem item = delivery.findBinaryItem( name );
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_BINARYITEM );
+			
+			String EXT = ( item.DISTITEM_TYPE == DBEnumDistItemType.STATICWAR )? item.WAR_STATICEXT : item.EXT;
+			DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {
+					entity.exportxmlString( item.NAME ) ,
+					entity.exportxmlString( item.DESC ) ,
+					entity.exportxmlEnum( item.DISTITEM_TYPE ) ,
+					entity.exportxmlString( item.BASENAME_DIST ) ,
+					entity.exportxmlString( item.BASENAME_DEPLOY ) ,
+					entity.exportxmlString( EXT ) ,
+					entity.exportxmlEnum( item.DEPLOYVERSION_TYPE ) ,
+					entity.exportxmlEnum( item.ITEMORIGIN_TYPE ) ,
+					entity.exportxmlString( sources.getProjectItemName( item.SRCITEM_ID ) ) ,
+					entity.exportxmlString( distr.getBinaryItemName( item.SRC_BINARY_ID ) ) ,
+					entity.exportxmlString( item.SRC_ITEMPATH ) ,
+					entity.exportxmlString( item.ARCHIVE_FILES ) ,
+					entity.exportxmlString( item.ARCHIVE_EXCLUDE ) ,
+					entity.exportxmlString( item.WAR_CONTEXT ) ,
+					entity.exportxmlBoolean( item.CUSTOM_GET ) ,
+					entity.exportxmlBoolean( item.CUSTOM_DEPLOY )
+			} , true );
+		}
+	}
+	
+	public static void exportxmlDeliveryConfItems( EngineLoader loader , ProductMeta storage , MetaDistrDelivery delivery , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrConfItem;
+		
+		for( String name : delivery.getBinaryItemNames() ) {
+			MetaDistrConfItem item = delivery.findConfItem( name );
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_CONFITEM );
+			
+			DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {
+					entity.exportxmlString( item.NAME ) ,
+					entity.exportxmlString( item.DESC ) ,
+					entity.exportxmlEnum( item.CONFITEM_TYPE ) ,
+					entity.exportxmlString( item.FILES ) ,
+					entity.exportxmlString( item.TEMPLATES ) ,
+					entity.exportxmlString( item.SECURED ) ,
+					entity.exportxmlString( item.EXCLUDE ) ,
+					entity.exportxmlString( item.EXTCONF )
+			} , true );
+		}
+	}
+	
+	public static void exportxmlComponents( EngineLoader loader , ProductMeta storage , MetaDistr distr , Document doc , Element root ) throws Exception {
+	}
+	
+	public static void exportxmlDeliverySchemes( EngineLoader loader , ProductMeta storage , MetaDistrDelivery delivery , Document doc , Element root ) throws Exception {
+		for( String name : delivery.getDatabaseSchemaNames() ) {
+			MetaDatabaseSchema schema = delivery.findSchema( name );
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_DATABASE );
+			Common.xmlSetElementAttr( doc , node , ATTR_DELIVERY_SCHEMA , schema.NAME );
+		}
+	}
+	
+	public static void exportxmlDeliveryDocs( EngineLoader loader , ProductMeta storage , MetaDistrDelivery delivery , Document doc , Element root ) throws Exception {
+		for( String name : delivery.getDocNames() ) {
+			MetaProductDoc pdoc = delivery.findDoc( name );
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_DATABASE );
+			Common.xmlSetElementAttr( doc , node , ATTR_DELIVERY_SCHEMA , pdoc.NAME );
+		}
 	}
 	
 	private static void modifyDelivery( DBConnection c , ProductMeta storage , MetaDistrDelivery delivery , boolean insert ) throws Exception {

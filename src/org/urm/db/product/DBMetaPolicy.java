@@ -162,12 +162,7 @@ public class DBMetaPolicy {
 				Integer id = c.getNullInt( rs , 3 );
 				String name = rs.getString( 4 );
 				
-				MatchItem lcMatch = null;
-				ReleaseLifecycle lc = ( id == null )? lifecycles.getLifecycle( name ) : lifecycles.getLifecycle( id );
-				if( lc == null )
-					lcMatch = new MatchItem( name );
-				else
-					lcMatch = new MatchItem( lc.ID );
+				MatchItem lcMatch = lifecycles.getLifecycleMatchItem( id , name );
 				
 				if( index == 1 )
 					RELEASELC_MAJOR = lcMatch;
@@ -189,20 +184,13 @@ public class DBMetaPolicy {
 		DBConnection c = transaction.getConnection();
 		
 		EngineLifecycles lifecycles = transaction.getLifecycles();
-		MatchItem lcMajor = null;
-		if( !major.isEmpty() )
-			lcMajor = new MatchItem( lifecycles.getLifecycle( major ).ID );
-		
-		MatchItem lcMinor = null;
-		if( !minor.isEmpty() )
-			lcMinor = new MatchItem( lifecycles.getLifecycle( minor ).ID );
+		MatchItem lcMajor = lifecycles.getLifecycleMatchItem( null , major );
+		MatchItem lcMinor = lifecycles.getLifecycleMatchItem( null , minor );
 		
 		MatchItem[] lcs = ( urgentsAll )? new MatchItem[0] : new MatchItem[ urgents.length ];
 		if( !urgentsAll ) {
-			for( int k = 0; k < urgents.length; k++ ) {
-				ReleaseLifecycle lc = lifecycles.getLifecycle( urgents[ k ] );
-				lcs[ k ] = new MatchItem( lc.ID );
-			}
+			for( int k = 0; k < urgents.length; k++ )
+				lcs[ k ] = lifecycles.getLifecycleMatchItem( null , urgents[ k ] );
 		}
 		
 		policy.setAttrs( urgentsAll );

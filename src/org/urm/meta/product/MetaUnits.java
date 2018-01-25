@@ -59,6 +59,15 @@ public class MetaUnits {
 	public MetaProductUnit findUnit( String name ) {
 		return( mapUnits.get( name ) );
 	}
+
+	public Integer findUnitId( String name ) {
+		if( name.isEmpty() )
+			return( null );
+		MetaProductUnit unit =  mapUnits.get( name );
+		if( unit == null )
+			return( null );
+		return( unit.ID );
+	}
 	
 	public MetaProductUnit getUnit( String name ) throws Exception {
 		MetaProductUnit unit = mapUnits.get( name );
@@ -67,6 +76,13 @@ public class MetaUnits {
 		return( unit );
 	}
 
+	public Integer getUnitId( String name ) throws Exception {
+		if( name.isEmpty() )
+			return( null );
+		MetaProductUnit unit = getUnit( name );
+		return( unit.ID );
+	}
+	
 	public MetaProductUnit getUnit( int id ) throws Exception {
 		MetaProductUnit unit = mapUnitsById.get( id );
 		if( unit == null )
@@ -78,6 +94,13 @@ public class MetaUnits {
 		if( id == null )
 			return( "" );
 		MetaProductUnit unit = mapUnitsById.get( id );
+		return( unit.NAME );
+	}
+	
+	public String getUnitName( Integer id ) throws Exception {
+		if( id == null )
+			return( "" );
+		MetaProductUnit unit = getUnit( id );
 		return( unit.NAME );
 	}
 	

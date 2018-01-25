@@ -15,7 +15,7 @@ public class MetaDistrBinaryItem {
 	public static String PROPERTY_DISTNAME = "distname";
 	public static String PROPERTY_DEPLOYNAME = "deployname";
 	public static String PROPERTY_EXT = "extension";
-	public static String PROPERTY_DEPLOYVERSION = "deployversion";
+	public static String PROPERTY_DEPLOYVERSIONTYPE = "deployversion";
 	public static String PROPERTY_ITEMORIGIN = "source";
 	public static String PROPERTY_SRCITEM_NAME = "srcitem";
 	public static String PROPERTY_SRCDISTITEM_NAME = "srcdistitem";

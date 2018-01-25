@@ -6,6 +6,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.engine.Engine;
 import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 
 public class EngineBuilders extends EngineObject {
 
@@ -56,11 +57,27 @@ public class EngineBuilders extends EngineObject {
 		return( builder );
 	}
 
+	public Integer findBuilderId( String name ) {
+		if( name.isEmpty() )
+			return( null );
+		ProjectBuilder builder = builderMap.get( name );
+		if( builder == null )
+			return( null );
+		return( builder.ID );
+	}
+
 	public ProjectBuilder getBuilder( String name ) throws Exception {
 		ProjectBuilder builder = builderMap.get( name );
 		if( builder == null )
 			Common.exit1( _Error.UnknownBuilder1 , "unknown builder=" + name , name );
 		return( builder );
+	}
+
+	public Integer getBuilderId( String name ) throws Exception {
+		if( name.isEmpty() )
+			return( null );
+		ProjectBuilder builder = getBuilder( name );
+		return( builder.ID );
 	}
 
 	public ProjectBuilder getBuilder( Integer id ) throws Exception {
@@ -70,8 +87,33 @@ public class EngineBuilders extends EngineObject {
 		return( builder );
 	}
 
+	public String getBuilderName( Integer id ) throws Exception {
+		if( id == null )
+			return( null );
+		ProjectBuilder builder = getBuilder( id );
+		return( builder.NAME );
+	}
+
 	public String[] getBuilderNames() {
 		return( Common.getSortedKeys( builderMap ) );
+	}
+
+	public MatchItem getBuilderMatchItem( Integer id , String name ) throws Exception {
+		if( id == null && name.isEmpty() )
+			return( null );
+		ProjectBuilder builder = ( id == null )? findBuilder( name ) : getBuilder( id );
+		MatchItem match = ( builder == null )? new MatchItem( name ) : new MatchItem( builder.ID );
+		return( match );
+	}
+
+	public String getBuilderName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		if( item.MATCHED ) {
+			ProjectBuilder builder = getBuilder( item.FKID );
+			return( builder.NAME );
+		}
+		return( item.FKNAME );
 	}
 	
 }

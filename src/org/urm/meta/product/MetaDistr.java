@@ -12,6 +12,7 @@ public class MetaDistr {
 
 	public Meta meta;
 	private Map<String,MetaDistrDelivery> mapDeliveries;
+	private Map<Integer,MetaDistrDelivery> mapDeliveriesById;
 	private Map<String,MetaDistrBinaryItem> mapBinaryItems;
 	private Map<Integer,MetaDistrBinaryItem> mapBinaryItemsById;
 	private Map<String,MetaDistrConfItem> mapConfItems;
@@ -23,6 +24,7 @@ public class MetaDistr {
 		this.meta = meta;
 		
 		mapDeliveries = new HashMap<String,MetaDistrDelivery>();
+		mapDeliveriesById = new HashMap<Integer,MetaDistrDelivery>();
 		mapBinaryItems = new HashMap<String,MetaDistrBinaryItem>();
 		mapBinaryItemsById = new HashMap<Integer,MetaDistrBinaryItem>();
 		mapConfItems = new HashMap<String,MetaDistrConfItem>();
@@ -105,11 +107,25 @@ public class MetaDistr {
 		return( item );
 	}
 
+	public Integer getBinaryItemId( String name ) throws Exception {
+		if( name.isEmpty() )
+			return( null );
+		MetaDistrBinaryItem item = getBinaryItem( name );
+		return( item.ID );
+	}
+
 	public MetaDistrBinaryItem getBinaryItem( Integer id ) throws Exception {
 		MetaDistrBinaryItem item = mapBinaryItemsById.get( id );
 		if( item == null )
 			Common.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + id , "" + id );
 		return( item );
+	}
+
+	public String getBinaryItemName( Integer id ) throws Exception {
+		if( id == null )
+			return( null );
+		MetaDistrBinaryItem item = getBinaryItem( id );
+		return( item.NAME );
 	}
 
 	public MetaDistrBinaryItem[] getBinaryItems() {
@@ -186,10 +202,17 @@ public class MetaDistr {
 		return( null );
 	}
 	
-	public MetaDistrDelivery getDelivery( String DELIVERY ) throws Exception {
-		MetaDistrDelivery delivery = mapDeliveries.get( DELIVERY );
+	public MetaDistrDelivery getDelivery( String name ) throws Exception {
+		MetaDistrDelivery delivery = mapDeliveries.get( name );
 		if( delivery == null )
-			Common.exit1( _Error.UnknownDelivery1 , "unknown delivery=" + DELIVERY , DELIVERY );
+			Common.exit1( _Error.UnknownDelivery1 , "unknown delivery=" + name , name );
+		return( delivery );
+	}
+
+	public MetaDistrDelivery getDelivery( int id ) throws Exception {
+		MetaDistrDelivery delivery = mapDeliveriesById.get( id );
+		if( delivery == null )
+			Common.exit1( _Error.UnknownDelivery1 , "unknown delivery=" + id , "" + id );
 		return( delivery );
 	}
 
@@ -200,10 +223,13 @@ public class MetaDistr {
 	
 	public void addDelivery( MetaDistrDelivery delivery ) {
 		mapDeliveries.put( delivery.NAME , delivery );
+		mapDeliveriesById.put( delivery.ID , delivery );
 	}
 
 	public void removeDelivery( MetaDistrDelivery delivery ) {
 		mapDeliveries.remove( delivery.NAME );
+		mapDeliveriesById.remove( delivery.ID );
+		
 		for( MetaDistrBinaryItem item : delivery.getBinaryItems() )
 			removeBinaryItem( item );
 		for( MetaDistrConfItem item : delivery.getConfItems() )

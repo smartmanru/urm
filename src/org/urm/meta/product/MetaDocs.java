@@ -11,11 +11,13 @@ public class MetaDocs {
 	public Meta meta;
 	
 	private Map<String,MetaProductDoc> mapDocs;
+	private Map<Integer,MetaProductDoc> mapDocsById;
 	
 	public MetaDocs( ProductMeta storage , Meta meta ) {
 		this.meta = meta;
 		meta.setDocs( this );
 		mapDocs = new HashMap<String,MetaProductDoc>();
+		mapDocsById = new HashMap<Integer,MetaProductDoc>();
 	}
 	
 	public MetaDocs copy( Meta meta ) throws Exception {
@@ -23,7 +25,7 @@ public class MetaDocs {
 		
 		for( MetaProductDoc doc : mapDocs.values() ) {
 			MetaProductDoc rdoc = doc.copy( meta , r );
-			r.mapDocs.put( rdoc.NAME , rdoc );
+			r.addDoc( rdoc );
 		}
 		return( r );
 	}
@@ -51,8 +53,16 @@ public class MetaDocs {
 		return( doc );
 	}
 
+	public MetaProductDoc getDoc( int id ) throws Exception {
+		MetaProductDoc doc = mapDocsById.get( id );
+		if( doc == null )
+			Common.exit1( _Error.UnknownDoc1 , "unknown doc=" + id , "" + id );
+		return( doc );
+	}
+
 	public void addDoc( MetaProductDoc doc ) {
 		mapDocs.put( doc.NAME , doc );
+		mapDocsById.put( doc.ID , doc );
 	}
 	
 	public void updateDoc( MetaProductDoc doc ) throws Exception {
@@ -61,6 +71,7 @@ public class MetaDocs {
 	
 	public void removeDoc( MetaProductDoc doc ) {
 		mapDocs.remove( doc.NAME );
+		mapDocsById.remove( doc.ID );
 	}
 	
 }
