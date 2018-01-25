@@ -1,4 +1,17 @@
 
+CREATE TABLE main.urm_product_doc (
+                doc_id INTEGER NOT NULL,
+                meta_id INTEGER NOT NULL,
+                name VARCHAR(30) NOT NULL,
+                xdesc VARCHAR,
+                ext VARCHAR(30) NOT NULL,
+                unitbound BOOLEAN NOT NULL,
+                pv INTEGER NOT NULL,
+                CONSTRAINT urm_product_doc_pk PRIMARY KEY (doc_id)
+);
+COMMENT ON TABLE main.urm_product_doc IS 'Product document';
+
+
 CREATE TABLE main.urm_design_diagram (
                 diagram_id INTEGER NOT NULL,
                 meta_id INTEGER NOT NULL,

@@ -38,18 +38,6 @@ CREATE TABLE main.urm_product_lifecycle (
 COMMENT ON TABLE main.urm_product_lifecycle IS 'Product lifecycle';
 
 
-CREATE TABLE main.urm_product_doc (
-                doc_id INTEGER NOT NULL,
-                meta_id INTEGER NOT NULL,
-                name VARCHAR(30) NOT NULL,
-                xdesc VARCHAR,
-                ext VARCHAR(30) NOT NULL,
-                unitbound BOOLEAN NOT NULL,
-                pv INTEGER NOT NULL,
-                CONSTRAINT urm_product_doc_pk PRIMARY KEY (doc_id)
-);
-
-
 CREATE TABLE main.urm_source_set (
                 srcset_id INTEGER NOT NULL,
                 meta_id INTEGER NOT NULL,
@@ -148,13 +136,6 @@ ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
 ALTER TABLE main.urm_source_set ADD CONSTRAINT urm_product_source_set_fk
-FOREIGN KEY (meta_id)
-REFERENCES main.urm_product_meta (meta_id)
-ON DELETE NO ACTION
-ON UPDATE NO ACTION
-NOT DEFERRABLE;
-
-ALTER TABLE main.urm_product_doc ADD CONSTRAINT urm_product_doc_fk
 FOREIGN KEY (meta_id)
 REFERENCES main.urm_product_meta (meta_id)
 ON DELETE NO ACTION
