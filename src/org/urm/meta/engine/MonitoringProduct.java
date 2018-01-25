@@ -23,7 +23,7 @@ public class MonitoringProduct {
 		ActionMonitorTarget targetAction;
 	
 		ScheduleTaskSegmentMonitoringMajor( String name , ActionMonitorTarget targetAction ) {
-			super( name , targetAction.target.scheduleMajor );
+			super( name , targetAction.target.majorSchedule );
 			this.targetAction = targetAction;
 		}
 		
@@ -38,7 +38,7 @@ public class MonitoringProduct {
 		ActionMonitorTarget targetAction;
 	
 		ScheduleTaskSegmentMonitoringMinor( String name , ActionMonitorTarget targetAction ) {
-			super( name , targetAction.target.scheduleMajor );
+			super( name , targetAction.target.majorSchedule );
 			this.targetAction = targetAction;
 		}
 		
@@ -50,15 +50,14 @@ public class MonitoringProduct {
 	};
 	
 	EngineMonitoring monitoring;
-	Integer productId;
 	MetaMonitoring meta;
-	Map<String,ActionMonitorTarget> targets;
+	Integer productId;
+	Map<Integer,ActionMonitorTarget> targets;
 	
 	public MonitoringProduct( EngineMonitoring monitoring , AppProduct product , MetaMonitoring meta ) {
 		this.monitoring = monitoring;
 		this.productId = product.ID;
-		this.meta = meta;
-		targets = new HashMap<String,ActionMonitorTarget>();
+		targets = new HashMap<Integer,ActionMonitorTarget>();
 	}
 	
 	public synchronized void start( ActionBase action ) throws Exception {
@@ -89,7 +88,7 @@ public class MonitoringProduct {
 	private void stopTarget( ActionBase action , ActionMonitorTarget targetAction ) throws Exception {
 		targetAction.stop();
 		
-		MetaEnvSegment sg = targetAction.target.getSegment( action );
+		MetaEnvSegment sg = targetAction.target.findSegment();
 		EngineScheduler scheduler = action.getServerScheduler();
 		String sgName = sg.meta.name + "-" + sg.env.NAME + sg.NAME;
 		
@@ -104,17 +103,21 @@ public class MonitoringProduct {
 			scheduler.deleteTask( action , ScheduleTaskCategory.MONITORING , task );
 	}
 	
+	public void addTarget( MetaMonitoringTarget target , ActionMonitorTarget ta ) {
+		targets.put( target.ID , ta );
+	}
+	
 	private void startTarget( ActionBase action , MetaMonitoringTarget target ) throws Exception {
-		MetaEnvSegment sg = target.getSegment( action );
+		MetaEnvSegment sg = target.findSegment();
 		if( action.isSegmentOffline( sg ) )
 			return;
 	
-		ActionMonitorTarget targetAction = targets.get( target.NAME );
+		ActionMonitorTarget targetAction = targets.get( target.ID );
 		if( targetAction == null ) {
-			MonitoringStorage storage = action.artefactory.getMonitoringStorage( action , meta );
+			MonitoringStorage storage = action.artefactory.getMonitoringStorage( action );
 			MonitorTargetInfo info = new MonitorTargetInfo( target , storage );
 			targetAction = new ActionMonitorTarget( action , null , info );
-			targets.put( target.NAME , targetAction );
+			addTarget( target , targetAction );
 		}
 		
 		targetAction.start();
@@ -122,7 +125,7 @@ public class MonitoringProduct {
 		EngineScheduler scheduler = action.getServerScheduler();
 		String sgName = sg.meta.name + "-" + sg.env.NAME + sg.NAME;
 		
-		if( target.enabledMajor ) {
+		if( target.MAJOR_ENABLED ) {
 			String codeMajor = sgName + "-major";
 			ScheduleTask task = scheduler.findTask( ScheduleTaskCategory.MONITORING , codeMajor );
 			if( task == null ) {
@@ -131,7 +134,7 @@ public class MonitoringProduct {
 			}
 		}
 		
-		if( target.enabledMinor ) {
+		if( target.MINOR_ENABLED ) {
 			String codeMinor = sgName + "-minor";
 			ScheduleTask task = scheduler.findTask( ScheduleTaskCategory.MONITORING , codeMinor );
 			if( task == null ) {
@@ -167,7 +170,7 @@ public class MonitoringProduct {
 	}
 	
 	public void createFolders( ActionBase action , MetaMonitoringTarget target ) throws Exception {
-		MonitoringStorage storage = action.artefactory.getMonitoringStorage( action , meta );
+		MonitoringStorage storage = action.artefactory.getMonitoringStorage( action );
 		LocalFolder folder = storage.getDataFolder( action , target );
 		folder.ensureExists( action );
 		folder = storage.getReportsFolder( action , target );

@@ -22,6 +22,7 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineObject;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnvs;
 import org.urm.meta.Types.*;
 import org.urm.meta.product.MetaEnv;
 
@@ -439,7 +440,9 @@ public class EngineAuth extends EngineObject {
 			Meta meta = action.getProductMetadata( productName );
 			if( meta == null )
 				return( false );
-			MetaEnv env = meta.findEnv( envName );
+			
+			MetaEnvs envs = meta.getEnviroments();
+			MetaEnv env = envs.findEnv( envName );
 			return( checkAccessProductAction( action , sa , productName , env , null , readOnly ) );
 		}
 		catch( Throwable e ) {

@@ -35,11 +35,11 @@ public class MetaProductDoc {
 		return( r );
 	}
 
-	public void createDoc( String name , String ext , String desc , boolean unitbound ) throws Exception {
-		modifyDoc( name , ext , desc , unitbound );
+	public void createDoc( String name , String desc , String ext , boolean unitbound ) throws Exception {
+		modifyDoc( name , desc , ext , unitbound );
 	}
 	
-	public void modifyDoc( String name , String ext , String desc , boolean unitbound ) throws Exception {
+	public void modifyDoc( String name , String desc , String ext , boolean unitbound ) throws Exception {
 		this.NAME = name;
 		this.EXT = ext;
 		this.DESC = desc;

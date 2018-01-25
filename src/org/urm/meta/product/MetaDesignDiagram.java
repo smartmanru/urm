@@ -40,11 +40,11 @@ public class MetaDesignDiagram extends EngineObject {
 		return( "meta-design" );
 	}
 	
-	public MetaDesignDiagram copy( ActionBase action , Meta meta ) throws Exception {
+	public MetaDesignDiagram copy( Meta meta ) throws Exception {
 		MetaDesignDiagram r = new MetaDesignDiagram( meta.getStorage() , meta );
 		r.fullProd = fullProd;
 		for( MetaDesignElement element : elements.values() ) {
-			MetaDesignElement relement = element.copy( action , meta , r );
+			MetaDesignElement relement = element.copy( meta , r );
 			r.elements.put( relement.NAME , relement );
 			if( relement.isGroup() )
 				r.groups.put( relement.NAME , relement );
@@ -52,7 +52,7 @@ public class MetaDesignDiagram extends EngineObject {
 				r.childs.put( relement.NAME , relement );
 		}
 		for( MetaDesignElement element : r.elements.values() )
-			element.resolve( action );
+			element.resolve();
 		return( r );
 	}
 	
@@ -95,7 +95,7 @@ public class MetaDesignDiagram extends EngineObject {
 		}
 		
 		for( MetaDesignElement element : elements.values() )
-			element.resolve( action );
+			element.resolve();
 	}
 
 	public void saveElements( ActionBase action , Document doc , Element root ) throws Exception {
@@ -105,14 +105,14 @@ public class MetaDesignDiagram extends EngineObject {
 		}
 	}
 	
-	public MetaDesignElement getElement( ActionBase action , String ID ) throws Exception {
+	public MetaDesignElement getElement( String ID ) throws Exception {
 		MetaDesignElement element = elements.get( ID );
 		if( element == null )
-			action.exit1( _Error.UnknownDesignElement1 , "unknown design element=" + ID , ID );
+			Common.exit1( _Error.UnknownDesignElement1 , "unknown design element=" + ID , ID );
 		return( element );
 	}
 
-	public void addSubGraphItem( ActionBase action , MetaDesignElement item , MetaDesignElement child ) throws Exception {
+	public void addSubGraphItem( MetaDesignElement item , MetaDesignElement child ) throws Exception {
 		elements.put( child.NAME , child );
 	}
 	

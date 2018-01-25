@@ -12,12 +12,15 @@ public class MetaDocs {
 	
 	private Map<String,MetaProductDoc> mapDocs;
 	private Map<Integer,MetaProductDoc> mapDocsById;
+	private Map<String,MetaDesignDiagram> diagrams;
 	
 	public MetaDocs( ProductMeta storage , Meta meta ) {
 		this.meta = meta;
 		meta.setDocs( this );
+		
 		mapDocs = new HashMap<String,MetaProductDoc>();
 		mapDocsById = new HashMap<Integer,MetaProductDoc>();
+		diagrams = new HashMap<String,MetaDesignDiagram>();
 	}
 	
 	public MetaDocs copy( Meta meta ) throws Exception {
@@ -27,6 +30,13 @@ public class MetaDocs {
 			MetaProductDoc rdoc = doc.copy( meta , r );
 			r.addDoc( rdoc );
 		}
+		
+		for( String name : diagrams.keySet() ) {
+			MetaDesignDiagram design = diagrams.get( name );
+			MetaDesignDiagram rd = design.copy( r.meta );
+			r.diagrams.put( name , rd );
+		}
+		
 		return( r );
 	}
 	
@@ -74,4 +84,20 @@ public class MetaDocs {
 		mapDocsById.remove( doc.ID );
 	}
 	
+	public void addDiagram( MetaDesignDiagram diagram ) throws Exception {
+		diagrams.put( diagram.NAME , diagram );
+	}
+
+	public String[] getDiagramNames() {
+		return( Common.getSortedKeys( diagrams ) );
+	}
+	
+	public MetaDesignDiagram findDiagram( String diagramName ) {
+		for( MetaDesignDiagram diagram : diagrams.values() ) {
+			if( diagram.NAME.equals( diagramName ) )
+				return( diagram );
+		}
+		return( null );
+	}
+
 }

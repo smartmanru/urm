@@ -223,7 +223,7 @@ public class EngineMonitoring extends EngineObject {
 			return( false );
 		
 		MetaMonitoringTarget target = mon.meta.findMonitoringTarget( sg );
-		return( target != null && isRunning( sg.env ) && sg.OFFLINE == false && ( target.enabledMajor || target.enabledMinor ) );
+		return( target != null && isRunning( sg.env ) && sg.OFFLINE == false && ( target.MAJOR_ENABLED || target.MINOR_ENABLED ) );
 	}	
 	
 	public boolean isRunning( MetaEnvServer server ) {

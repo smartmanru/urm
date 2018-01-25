@@ -14,9 +14,11 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDesignDiagram;
 import org.urm.meta.product.MetaDesignElement;
 import org.urm.meta.product.MetaDesignLink;
+import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvs;
 
 public class ActionCreateDesignDoc extends ActionBase {
 
@@ -36,8 +38,9 @@ public class ActionCreateDesignDoc extends ActionBase {
 		getProdServers();
 		
 		MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
+		MetaDocs docs = meta.getDocs();
 		for( String designFile : ms.getDesignFiles( this ) ) {
-			MetaDesignDiagram design = meta.findDiagram( designFile );
+			MetaDesignDiagram design = docs.findDiagram( designFile );
 			
 			String designBase = Common.getPath( OUTDIR , Common.getPartBeforeLast( designFile , ".xml" ) );
 			createDesignDocs( design , designBase );
@@ -64,10 +67,9 @@ public class ActionCreateDesignDoc extends ActionBase {
 	private void getProdServers() throws Exception {
 		prodServers = new HashMap<String,List<MetaEnvServer>>();
 		
-		MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
-		String[] files = ms.getEnvFiles( this );
-		for( String envFile : files ) {
-			MetaEnv env = meta.findEnv( envFile );
+		MetaEnvs envs = meta.getEnviroments();
+		for( String envName : envs.getEnvNames() ) {
+			MetaEnv env = envs.findEnv( envName );
 			if( !env.isProd() )
 				continue;
 			
@@ -116,20 +118,20 @@ public class ActionCreateDesignDoc extends ActionBase {
 		
 		// add top-level elements
 		for( String elementName : Common.getSortedKeys( design.childs ) ) {
-			MetaDesignElement element = design.getElement( this , elementName );
+			MetaDesignElement element = design.getElement( elementName );
 			createDotElement( lines , element , false );
 		}
 		lines.add( "" );
 		
 		// add subgraphs
 		for( String elementName : Common.getSortedKeys( design.groups ) ) {
-			MetaDesignElement element = design.getElement( this , elementName );
+			MetaDesignElement element = design.getElement( elementName );
 			createDotSubgraph( lines , element );
 		}
 		lines.add( "" );
 		
 		for( String elementName : Common.getSortedKeys( design.elements ) ) {
-			MetaDesignElement element = design.getElement( this , elementName );
+			MetaDesignElement element = design.getElement( elementName );
 			for( String linkName : Common.getSortedKeys( element.links ) ) {
 				MetaDesignLink link = element.getLink( this , linkName );
 				createDotLink( lines , element , link );

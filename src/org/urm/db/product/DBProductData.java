@@ -454,7 +454,7 @@ public class DBProductData {
 	}
 
 	public static PropertyEntity loaddbEntityMetaDistrBinaryItem( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_DELIVERY , DBEnumParamEntityType.PRODUCT_DIST_DELIVERY , DBEnumObjectVersionType.PRODUCT , TABLE_DELIVERY , FIELD_DELIVERY_ID );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_BINARYITEM , DBEnumParamEntityType.PRODUCT_DIST_BINARYITEM , DBEnumObjectVersionType.PRODUCT , TABLE_BINARYITEM , FIELD_BINARYITEM_ID );
 		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}

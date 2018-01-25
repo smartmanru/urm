@@ -24,8 +24,10 @@ public class MatchItem {
 		MATCHED = ( id == null )? false : true;
 	}
 
-	public MatchItem copy() {
-		MatchItem r = new MatchItem( FKID , FKNAME );
+	public static MatchItem copy( MatchItem item ) {
+		if( item == null )
+			return( null );
+		MatchItem r = new MatchItem( item.FKID , item.FKNAME );
 		return( r );
 	}
 

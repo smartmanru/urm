@@ -1,36 +1,21 @@
 package org.urm.meta;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
-import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.dist.DistRepository;
-import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineProducts;
-import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
-import org.urm.meta.product.MetaDatabaseSchema;
-import org.urm.meta.product.MetaDesignDiagram;
 import org.urm.meta.product.MetaDistr;
-import org.urm.meta.product.MetaDistrBinaryItem;
-import org.urm.meta.product.MetaDistrComponent;
-import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDocs;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaMonitoring;
+import org.urm.meta.product.MetaEnvs;
 import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
@@ -57,12 +42,9 @@ public class ProductMeta extends EngineObject {
 	private MetaSources sources;
 	private MetaDocs docs;
 	private MetaDistr distr;
-	private MetaMonitoring mon;
+	private MetaEnvs envs;
 
 	private DistRepository repo;
-	
-	private Map<String,MetaEnv> envs;
-	private Map<String,MetaDesignDiagram> diagrams;
 	
 	private Map<EngineSession,Meta> sessionMeta;
 	private boolean primary;
@@ -79,8 +61,6 @@ public class ProductMeta extends EngineObject {
 		PV = -1;
 		MATCHED = false;
 		engine.trace( "new product storage meta object, id=" + meta.objectId + ", storage=" + objectId );
-		diagrams = new HashMap<String,MetaDesignDiagram>();
-		envs = new HashMap<String,MetaEnv>();
 		
 		sessionMeta = new HashMap<EngineSession,Meta>();
 		primary = false;
@@ -107,21 +87,7 @@ public class ProductMeta extends EngineObject {
 		r.docs = docs.copy( r.meta );
 		r.distr = distr.copy( r.meta );
 		
-		if( mon != null )
-			r.mon = mon.copy( action , r.meta );
-		
-		for( String envKey : envs.keySet() ) {
-			MetaEnv env = envs.get( envKey );
-			MetaEnv re = env.copy( action , r.meta );
-			r.envs.put( envKey , re );
-		}
-		
-		for( String name : diagrams.keySet() ) {
-			MetaDesignDiagram design = diagrams.get( name );
-			MetaDesignDiagram rd = design.copy( action , r.meta );
-			r.diagrams.put( name , rd );
-		}
-		
+		r.envs = envs.copy( action , r.meta );
 		r.repo = repo.copy( action , r.meta );
 		return( r );
 	}
@@ -177,7 +143,7 @@ public class ProductMeta extends EngineObject {
 		createInitialSources( transaction );
 		createInitialDocs( transaction );
 		createInitialDistr( transaction );
-		createInitialMonitoring( transaction );
+		createInitialEnvs( transaction );
 	}
 
 	private void createInitialVersion( TransactionBase transaction ) throws Exception {
@@ -232,11 +198,12 @@ public class ProductMeta extends EngineObject {
 		meta.setSources( sources );
 	}
 	
-	private void createInitialMonitoring( TransactionBase transaction ) throws Exception {
-		mon = new MetaMonitoring( this , settings , meta );
-		mon.createMonitoring( transaction );
+	private void createInitialEnvs( TransactionBase transaction ) throws Exception {
+		envs = new MetaEnvs( this , meta );
+		//sources.createSources( transaction );
+		//meta.setenvs( sources );
 	}
-
+	
 	public void createInitialRepository( TransactionBase transaction , boolean forceClear ) throws Exception {
 		repo = DistRepository.createInitialRepository( transaction.action , meta , forceClear );
 	}
@@ -277,16 +244,8 @@ public class ProductMeta extends EngineObject {
 		this.distr = distr;
 	}
 
-	public void setMonitoring( MetaMonitoring mon ) throws Exception {
-		this.mon = mon;
-	}
-
-	public void addEnv( MetaEnv env ) throws Exception {
-		envs.put( env.NAME , env );
-	}
-
-	public void addDiagram( MetaDesignDiagram diagram ) throws Exception {
-		diagrams.put( diagram.NAME , diagram );
+	public void setEnvs( MetaEnvs envs ) throws Exception {
+		this.envs = envs;
 	}
 
 	public void setReleases( DistRepository repo ) throws Exception {
@@ -325,82 +284,8 @@ public class ProductMeta extends EngineObject {
 		return( sources );
 	}
 	
-	public MetaMonitoring getMonitoring() {
-		return( mon );
+	public MetaEnvs getEnviroments() {
+		return( envs );
 	}
 	
-	public String[] getEnvironmentNames() {
-		List<String> names = new LinkedList<String>();
-		for( MetaEnv env : envs.values() )
-			names.add( env.NAME );
-		Collections.sort( names );
-		return( names.toArray( new String[0] ) );
-	}
-
-	public MetaEnv findEnvironment( String envId ) {
-		for( MetaEnv env : envs.values() ) {
-			if( env.NAME.equals( envId ) )
-				return( env );
-		}
-		return( null );
-	}
-
-	public String[] getDiagramNames() {
-		return( Common.getSortedKeys( diagrams ) );
-	}
-	
-	public MetaDesignDiagram findDiagram( String diagramName ) {
-		for( MetaDesignDiagram diagram : diagrams.values() ) {
-			if( diagram.NAME.equals( diagramName ) )
-				return( diagram );
-		}
-		return( null );
-	}
-
-	public MetaEnv[] getEnvironments() {
-		return( envs.values().toArray( new MetaEnv[0] ) );
-	}
-	
-	public void deleteEnv( EngineTransaction transaction , MetaEnv env ) throws Exception {
-		String envFile = env.NAME + ".xml";
-		envs.remove( envFile );
-		ActionBase action = transaction.getAction();
-		MetadataStorage storage = action.artefactory.getMetadataStorage( action , env.meta );
-		storage.deleteEnvConfFile( action , envFile );
-		env.deleteObject();
-	}
-
-	public void deleteHostAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
-		for( MetaEnv env : envs.values() )
-			env.deleteHostAccount( transaction , account );
-	}
-
-	public void deleteBinaryItemFromEnvironments( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
-		for( MetaEnv env : getEnvironments() )
-			for( MetaEnvSegment sg : env.getSegments() )
-				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteBinaryItem( transaction , item );
-	}
-
-	public void deleteConfItemFromEnvironments( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
-		for( MetaEnv env : getEnvironments() )
-			for( MetaEnvSegment sg : env.getSegments() )
-				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteConfItem( transaction , item );
-	}
-
-	public void deleteComponentFromEnvironments( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
-		for( MetaEnv env : getEnvironments() )
-			for( MetaEnvSegment sg : env.getSegments() )
-				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteComponent( transaction , item );
-	}
-
-	public void deleteDatabaseSchemaFromEnvironments( EngineTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
-		for( MetaEnv env : getEnvironments() )
-			for( MetaEnvSegment sg : env.getSegments() )
-				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteSchema( transaction , schema );
-	}
-
 }

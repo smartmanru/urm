@@ -14,8 +14,8 @@ import org.urm.db.product.DBMetaSources;
 import org.urm.db.product.DBMetaUnits;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaMonitoring;
-import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaDesignDiagram;
+import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaProductVersion;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -23,13 +23,13 @@ import org.w3c.dom.Node;
 
 public class EngineLoaderMeta {
 
+	public static String XML_ROOT_DESIGN = "design";
 	public static String XML_ROOT_VERSION = "version";
 	public static String XML_ROOT_SETTINGS = "product";
 	public static String XML_ROOT_POLICY = "product";
 	public static String XML_ROOT_DISTR = "distributive";
 	public static String XML_ROOT_DATABASE = "database";
 	public static String XML_ROOT_SOURCES = "sources";
-	public static String XML_ROOT_MONITORING = "monitoring";
 	
 	public EngineLoader loader;
 	public ProductMeta set;
@@ -43,8 +43,45 @@ public class EngineLoaderMeta {
 		this.meta = set.meta;
 	}
 
-	public void saveAll( MetadataStorage ms ) throws Exception {
-		saveMonitoring( ms );
+	public void loadDesignDocs( MetadataStorage ms ) throws Exception {
+		ActionBase action = loader.getAction();
+		for( String designFile : ms.getDesignFiles( action ) )
+			loadDesignData( ms , designFile );
+	}
+	
+	private void loadDesignData( MetadataStorage storageMeta , String diagramName ) throws Exception {
+		MetaDesignDiagram diagram = new MetaDesignDiagram( set , set.meta );
+		MetaDocs docs = set.getDocs();
+		
+		ActionBase action = loader.getAction();
+		try {
+			// read
+			String filePath = storageMeta.getDesignFile( action , diagramName );
+			action.debug( "read design definition file " + filePath + "..." );
+			Document doc = action.readXmlFile( filePath );
+			Node root = doc.getDocumentElement();
+			diagram.load( action , root );
+			docs.addDiagram( diagram );
+		}
+		catch( Throwable e ) {
+			loader.setLoadFailed( action , _Error.UnableLoadProductDiagram2 , e , "unable to load design metadata, product=" + set.name + ", diagram=" + diagramName , set.name , diagramName );
+		}
+	}
+
+	public void saveDesignDocs( MetadataStorage ms ) throws Exception {
+		MetaDocs docs = set.getDocs();
+		for( String diagramName : docs.getDiagramNames() ) {
+			MetaDesignDiagram diagram = docs.findDiagram( diagramName );
+			saveDesignData( ms , diagram );
+		}
+	}
+	
+	private void saveDesignData( MetadataStorage storageMeta , MetaDesignDiagram diagram ) throws Exception {
+		ActionBase action = loader.getAction();
+		Document doc = Common.xmlCreateDoc( XML_ROOT_DESIGN );
+		diagram.save( action , doc , doc.getDocumentElement() );
+		String diagramFile = diagram.NAME + ".xml";
+		storageMeta.saveEnvConfFile( action , doc , diagramFile );
 	}
 	
 	public void exportAll( MetadataStorage ms ) throws Exception {
@@ -59,7 +96,8 @@ public class EngineLoaderMeta {
 		exportxmlSources( ms );
 		exportxmlDocs( ms );
 		exportxmlDistr( ms );
-		exportxmlMonitoring( ms );
+		
+		saveDesignDocs( ms );
 	}
 	
 	public void loaddbAll( ProductContext context ) throws Exception {
@@ -74,7 +112,6 @@ public class EngineLoaderMeta {
 		loaddbSources();
 		loaddbDocs();
 		loaddbDistr();
-		loaddbMonitoring();
 	}
 
 	public void importxmlAll( MetadataStorage ms , ProductContext context ) throws Exception {
@@ -86,15 +123,6 @@ public class EngineLoaderMeta {
 		importxmlSources( ms );
 		importxmlDocs( ms );
 		importxmlDistr( ms );
-		importxmlMonitoring( ms );
-	}
-	
-	private void saveMonitoring( MetadataStorage ms ) throws Exception {
-		ActionBase action = loader.getAction();
-		Document doc = Common.xmlCreateDoc( XML_ROOT_MONITORING );
-		MetaMonitoring mon = set.getMonitoring();
-		mon.save( action , doc , doc.getDocumentElement() );
-		ms.saveMonitoringConfFile( action , doc );
 	}
 	
 	private void loaddbMeta() throws Exception {
@@ -137,9 +165,6 @@ public class EngineLoaderMeta {
 		DBMetaDistr.loaddb( loader , set );
 	}
 	
-	private void loaddbMonitoring() throws Exception {
-	}
-	
 	private void importxmlMeta( MetadataStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
@@ -152,7 +177,7 @@ public class EngineLoaderMeta {
 			DBMeta.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
-			setLoadFailed( action , _Error.UnableLoadProductVersion1 , e , "unable to import version metadata, product=" + set.name , set.name );
+			loader.setLoadFailed( action , _Error.UnableLoadProductVersion1 , e , "unable to import version metadata, product=" + set.name , set.name );
 		}
 	}
 
@@ -179,7 +204,7 @@ public class EngineLoaderMeta {
 			DBMetaSettings.importxml( loader , set , context , root );
 		}
 		catch( Throwable e ) {
-			setLoadFailed( action , _Error.UnableLoadProductSettings1 , e , "unable to import settings metadata, product=" + set.name , set.name );
+			loader.setLoadFailed( action , _Error.UnableLoadProductSettings1 , e , "unable to import settings metadata, product=" + set.name , set.name );
 		}
 	}
 	
@@ -206,7 +231,7 @@ public class EngineLoaderMeta {
 			DBMetaPolicy.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
-			setLoadFailed( action , _Error.UnableLoadProductVersion1 , e , "unable to import version metadata, product=" + set.name , set.name );
+			loader.setLoadFailed( action , _Error.UnableLoadProductVersion1 , e , "unable to import version metadata, product=" + set.name , set.name );
 		}
 	}
 
@@ -233,7 +258,7 @@ public class EngineLoaderMeta {
 			DBMetaUnits.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
-			setLoadFailed( action , _Error.UnableLoadProductUnits1 , e , "unable to import units metadata, product=" + set.name , set.name );
+			loader.setLoadFailed( action , _Error.UnableLoadProductUnits1 , e , "unable to import units metadata, product=" + set.name , set.name );
 		}
 	}
 	
@@ -260,7 +285,7 @@ public class EngineLoaderMeta {
 			DBMetaDatabase.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
-			setLoadFailed( action , _Error.UnableLoadProductDatabase1 , e , "unable to import database metadata, product=" + set.name , set.name );
+			loader.setLoadFailed( action , _Error.UnableLoadProductDatabase1 , e , "unable to import database metadata, product=" + set.name , set.name );
 		}
 	}
 	
@@ -287,7 +312,7 @@ public class EngineLoaderMeta {
 			DBMetaSources.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
-			setLoadFailed( action , _Error.UnableLoadProductSources1 , e , "unable to import source metadata, product=" + set.name , set.name );
+			loader.setLoadFailed( action , _Error.UnableLoadProductSources1 , e , "unable to import source metadata, product=" + set.name , set.name );
 		}
 	}
 	
@@ -314,7 +339,7 @@ public class EngineLoaderMeta {
 			DBMetaDocs.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
-			setLoadFailed( action , _Error.UnableLoadProductDocs1 , e , "unable to import documentation metadata, product=" + set.name , set.name );
+			loader.setLoadFailed( action , _Error.UnableLoadProductDocs1 , e , "unable to import documentation metadata, product=" + set.name , set.name );
 		}
 	}
 	
@@ -341,7 +366,7 @@ public class EngineLoaderMeta {
 			DBMetaDistr.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
-			setLoadFailed( action , _Error.UnableLoadProductDistr1 , e , "unable to import distributive metadata, product=" + set.name , set.name );
+			loader.setLoadFailed( action , _Error.UnableLoadProductDistr1 , e , "unable to import distributive metadata, product=" + set.name , set.name );
 		}
 	}
 
@@ -356,35 +381,8 @@ public class EngineLoaderMeta {
 		Common.xmlSaveDoc( doc , file );
 	}
 	
-	private void importxmlMonitoring( MetadataStorage ms ) throws Exception {
-		MetaProductSettings settings = set.getSettings();
-		MetaMonitoring mon = new MetaMonitoring( set , settings , set.meta );
-		set.setMonitoring( mon );
-		
-		ActionBase action = loader.getAction();
-		try {
-			// read
-			String file = ms.getMonitoringConfFile( action );
-			action.debug( "read monitoring definition file " + file + "..." );
-			Document doc = action.readXmlFile( file );
-			Node root = doc.getDocumentElement();
-			mon.load( action , root );
-		}
-		catch( Throwable e ) {
-			setLoadFailed( action , _Error.UnableLoadProductMonitoring1 , e , "unable to import monitoring metadata, product=" + set.name , set.name );
-		}
-	}
-
-	private void exportxmlMonitoring( MetadataStorage ms ) throws Exception {
-	}
-	
 	public void trace( String s ) {
 		loader.trace( s );
 	}
 
-	private void setLoadFailed( ActionBase action , int error , Throwable e , String msg , String product ) throws Exception {
-		loader.log( msg ,  e );
-		Common.exit1( error , msg , product );
-	}
-	
 }

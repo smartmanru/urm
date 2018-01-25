@@ -156,6 +156,9 @@ public class MetaDistrBinaryItem {
 	}
 
 	public void setDeployData( String deployname , DBEnumDeployVersionType versionType ) throws Exception {
+		if( DISTITEM_TYPE == DBEnumDistItemType.BINARY && versionType == DBEnumDeployVersionType.UNKNOWN )
+			Common.exitUnexpected();
+		
 		this.BASENAME_DEPLOY = deployname;
 		this.DEPLOYVERSION_TYPE = versionType;
 		if( this.BASENAME_DEPLOY.isEmpty() )

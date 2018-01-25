@@ -17,6 +17,7 @@ import org.urm.engine.shell.Account;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
+import org.urm.meta.product.MetaEnvs;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 
@@ -402,7 +403,8 @@ public class CommandContext {
 	
 	public void loadEnv( ActionInit action , String ENV , String SG , boolean loadProps ) throws Exception {
 		Meta meta = action.getContextMeta();
-		env = meta.findEnv( ENV );
+		MetaEnvs envs = meta.getEnviroments();
+		env = envs.findEnv( ENV );
 		
 		if( SG == null || SG.isEmpty() ) {
 			sg = null;

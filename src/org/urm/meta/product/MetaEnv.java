@@ -258,7 +258,8 @@ public class MetaEnv extends PropertyController {
 	}
 	
 	private void resolveLinks( ActionBase action ) throws Exception {
-		baselineEnvRef.set( meta.findEnv( BASELINE ) );
+		MetaEnvs envs = meta.getEnviroments();
+		baselineEnvRef.set( envs.findEnv( BASELINE ) );
 		for( MetaEnvSegment sg : originalList )
 			sg.resolveLinks( action );
 	}

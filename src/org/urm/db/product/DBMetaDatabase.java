@@ -17,6 +17,7 @@ import org.urm.meta.ProductMeta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaEnvs;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -170,8 +171,9 @@ public class DBMetaDatabase {
 	public static void deleteSchema( EngineTransaction transaction , ProductMeta storage , MetaDatabase database , MetaDatabaseSchema schema ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
-		
-		storage.deleteDatabaseSchemaFromEnvironments( transaction , schema );
+
+		MetaEnvs envs = storage.getEnviroments();
+		envs.deleteDatabaseSchemaFromEnvironments( transaction , schema );
 		
 		MetaDistr distr = schema.meta.getDistr();
 		DBMetaDistr.deleteDatabaseSchema( transaction , storage , distr , schema );

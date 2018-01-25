@@ -9,7 +9,6 @@ import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
-import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaMonitoringTarget;
 
@@ -29,12 +28,11 @@ public class ActionMonitorCheckEnv extends ActionBase {
 		MonitoringStorage storage = info.storage;
 		MetaMonitoringTarget target = info.target;
 		
-		MetaEnv env = target.meta.findEnv( target.ENV );
-		MetaEnvSegment sg = env.getSG( this , target.SG );
-		action.context.update( action , env , sg );
+		MetaEnvSegment sg = target.findSegment();
+		action.context.update( action , sg.env , sg );
 		action.context.CTX_FORCE = true;
 		
-		ActionEnvScopeMaker maker = new ActionEnvScopeMaker( action , env );
+		ActionEnvScopeMaker maker = new ActionEnvScopeMaker( action , sg.env );
 		maker.addScopeEnv( sg , null );
 		ActionScope scope = maker.getScope();
 		

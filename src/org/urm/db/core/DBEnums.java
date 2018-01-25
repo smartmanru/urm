@@ -471,6 +471,20 @@ public abstract class DBEnums {
 		public static DBEnumCompItemType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumCompItemType.class , value , required , UNKNOWN ) ); };
 	};
 	
+	public enum DBEnumMonItemType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		CHECKURL(1,null) ,
+		CHECKWS(2,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumMonItemType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumMonItemType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumMonItemType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumMonItemType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumMonItemType.class , value , required , UNKNOWN ) ); };
+	};
+	
 	public enum DBEnumObjectVersionType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		APP(1,null) ,
@@ -619,7 +633,8 @@ public abstract class DBEnums {
 		new DBEnumInfo( DBEnumDeployVersionType.class , 534 ) ,
 		new DBEnumInfo( DBEnumItemOriginType.class , 535 ) ,
 		new DBEnumInfo( DBEnumConfItemType.class , 536 ) ,
-		new DBEnumInfo( DBEnumCompItemType.class , 537 )
+		new DBEnumInfo( DBEnumCompItemType.class , 537 ) ,
+		new DBEnumInfo( DBEnumMonItemType.class , 538 )
 	}; 
 
 	private static String prefix = "DBEnum";

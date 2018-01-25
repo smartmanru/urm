@@ -7,7 +7,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
-import org.urm.engine.TransactionBase;
 import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.meta.ProductMeta;
 import org.w3c.dom.Document;
@@ -15,31 +14,28 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaMonitoring {
-	
+
 	public Meta meta;
+	
+	private Map<Integer,MetaMonitoringTarget> mapTargets;
 
-	Map<String,MetaMonitoringTarget> mapTargets;
-
-	public MetaMonitoring( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
+	public MetaMonitoring( ProductMeta storage , Meta meta ) {
 		this.meta = meta;
-		mapTargets = new HashMap<String,MetaMonitoringTarget>();
+		
+		mapTargets = new HashMap<Integer,MetaMonitoringTarget>();
 	}
 	
-	public MetaMonitoring copy( ActionBase action , Meta meta ) throws Exception {
-		MetaProductSettings settings = meta.getProductSettings();
-		MetaMonitoring r = new MetaMonitoring( meta.getStorage() , settings , meta );
+	public MetaMonitoring copy( Meta rmeta ) throws Exception {
+		MetaMonitoring r = new MetaMonitoring( rmeta.getStorage() , rmeta );
 		
 		for( MetaMonitoringTarget target : mapTargets.values() ) {
-			MetaMonitoringTarget rtarget = target.copy( action , meta , r );
-			r.mapTargets.put( target.NAME , rtarget );
+			MetaMonitoringTarget rtarget = target.copy( meta , r );
+			r.mapTargets.put( target.ENVSG.FKID , rtarget );
 		}
 		
 		return( r );
 	}
-	
-	public void createMonitoring( TransactionBase transaction ) throws Exception {
-	}
-	
+
 	public void load( ActionBase action , Node root ) throws Exception {
 		loadTargets( action , ConfReader.xmlGetPathNode( root , "scope" ) );
 	}
@@ -68,7 +64,7 @@ public class MetaMonitoring {
 	}
 	
 	private void addTarget( MetaMonitoringTarget target ) {
-		mapTargets.put( target.NAME , target );
+		mapTargets.put( target.ID , target );
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
@@ -81,7 +77,8 @@ public class MetaMonitoring {
 
 	public MetaMonitoringTarget findMonitoringTarget( MetaEnvSegment sg ) {
 		for( MetaMonitoringTarget target : mapTargets.values() ) {
-			if( target.ENV.equals( sg.env.NAME ) && target.SG.equals( sg.NAME ) )
+			MetaEnvSegment sgTarget = target.findSegment();
+			if( sgTarget == sg )
 				return( target );
 		}
 		return( null );
@@ -99,4 +96,10 @@ public class MetaMonitoring {
 		return( target );
 	}
 
+	public MetaEnvSegment getTargetSegment( MetaMonitoringTarget target ) {
+		MetaEnvs envs = meta.getEnviroments();
+		MetaEnv env = envs.findEnv( target.getMatchEnvName() );
+		return( env.findSegment( target.getMatchSgName() ) );
+	}
+	
 }

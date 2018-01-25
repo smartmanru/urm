@@ -44,12 +44,14 @@ public class MetaDistr {
 		}
 		
 		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
-			MetaDistrBinaryItem ritem = r.getBinaryItem( item.NAME );
+			MetaDistrDelivery rd = r.getDelivery( item.delivery.ID );
+			MetaDistrBinaryItem ritem = item.copy( rmeta , rd );
 			r.addBinaryItem( ritem );
 		}
 		
 		for( MetaDistrConfItem item : mapConfItems.values() ) {
-			MetaDistrConfItem ritem = r.getConfItem( item.NAME );
+			MetaDistrDelivery rd = r.getDelivery( item.delivery.ID );
+			MetaDistrConfItem ritem = item.copy( rmeta , rd );
 			r.addConfItem( ritem );
 		}
 		

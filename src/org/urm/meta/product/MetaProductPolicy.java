@@ -31,10 +31,12 @@ public class MetaProductPolicy {
 		MetaProductPolicy r = new MetaProductPolicy( rmeta.getStorage() , rmeta );
 		
 		// stored
-		r.LC_MAJOR = LC_MAJOR;
+		r.LC_MAJOR = MatchItem.copy( LC_MAJOR );
 		r.LC_MINOR = LC_MINOR;
 		r.LCUrgentAll = LCUrgentAll;
-		r.LC_URGENT_LIST = LC_URGENT_LIST.clone();
+		r.LC_URGENT_LIST = new MatchItem[ LC_URGENT_LIST.length ];
+		for( int k = 0; k < LC_URGENT_LIST.length; k++ )
+			r.LC_URGENT_LIST[ k ] = MatchItem.copy( LC_URGENT_LIST[ k ] );
 		
 		return( r );
 	}

@@ -26,6 +26,17 @@ public class ScheduleProperties {
 		this.now = false;
 	}
 
+	public ScheduleProperties copy() {
+		ScheduleProperties r = new ScheduleProperties();
+		r.scheduleType = scheduleType;
+		r.specificDateTime = specificDateTime;
+		r.regularFromEnd = regularFromEnd;
+		r.regularInterval = regularInterval;
+		r.betweenInterval = betweenInterval;
+		r.now = false;
+		return( r );
+	}
+	
 	public void createNow( ActionBase action ) {
 		createSpecific( action , new Date() );
 		now = true;

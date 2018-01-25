@@ -1,7 +1,5 @@
 package org.urm.meta.product;
 
-import java.util.List;
-
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
@@ -10,9 +8,7 @@ import org.urm.engine.dist.DistRepository;
 import org.urm.meta.EngineObject;
 import org.urm.meta.ProductMeta;
 import org.urm.meta.Types.*;
-import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.EngineProducts;
-import org.urm.meta.engine.HostAccount;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -183,29 +179,19 @@ public class Meta extends EngineObject {
 	}
 
 	public synchronized MetaMonitoring getMonitoring() {
-		if( monitoring == null )
-			monitoring = storage.getMonitoring();
+		if( monitoring == null ) {
+			MetaEnvs envs = storage.getEnviroments();
+			monitoring = envs.getMonitoring();
+		}
 		return( monitoring );
 	}
 	
-	public synchronized MetaDesignDiagram findDiagram( String diagramName ) {
-		return( storage.findDiagram( diagramName ) );
-	}
-	
-	public String[] getEnvNames() {
-		return( storage.getEnvironmentNames() );
-	}
-	
-	public MetaEnv[] getEnvironments() {
-		return( storage.getEnvironments() );
+	public MetaEnvs getEnviroments() {
+		return( storage.getEnviroments() );
 	}
 	
 	public DistRepository getDistRepository() {
 		return( storage.getDistRepository() );
-	}
-	
-	public MetaEnv findEnv( String envName ) {
-		return( storage.findEnvironment( envName ) );
 	}
 	
 	public static String getConfigurableExtensionsFindOptions( ActionBase action ) throws Exception {
@@ -259,43 +245,9 @@ public class Meta extends EngineObject {
     	
     	Common.xmlSetElementAttr( doc , element , PROPERTY_NAME , value );
     }
-    
-    public MetaEnv findMetaEnv( MetaEnv env ) {
-    	if( env == null )
-    		return( null );
-    	return( findEnv( env.NAME ) );
-    }
-    
-    public MetaEnvSegment findMetaEnvSegment( MetaEnvSegment sg ) {
-    	if( sg == null )
-    		return( null );
-    	MetaEnv env = findMetaEnv( sg.env );
-    	if( env == null )
-    		return( null );
-    	return( env.findSegment( sg.NAME ) );
-    }
-    
-    public MetaEnvServer findMetaEnvServer( MetaEnvServer server ) {
-    	if( server == null )
-    		return( null );
-    	MetaEnvSegment sg = findMetaEnvSegment( server.sg );
-    	if( sg == null )
-    		return( null );
-    	return( sg.findServer( server.NAME ) );
-    }
 
-    public MetaEnvServerNode getMetaEnvServerNode( MetaEnvServerNode node ) {
-    	if( node == null )
-    		return( null );
-    	MetaEnvServer server = findMetaEnvServer( node.server );
-    	if( server == null )
-    		return( null );
-    	return( server.findNode( node.POS ) );
+    public MetaEnv findEnv( String name ) {
+    	MetaEnvs envs = storage.getEnviroments();
+    	return( envs.findEnv( name ) );
     }
-
-	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
-		for( MetaEnv env : storage.getEnvironments() )
-			env.getApplicationReferences( account , refs );
-	}
-
 }

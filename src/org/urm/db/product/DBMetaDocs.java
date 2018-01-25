@@ -162,5 +162,5 @@ public class DBMetaDocs {
 		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDoc , doc.ID , c.getNextProductVersion( storage ) );
 		docs.removeDoc( doc );
 	}
-	
+
 }

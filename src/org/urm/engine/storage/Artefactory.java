@@ -12,7 +12,6 @@ import org.urm.meta.ProductMeta;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaSourceProject;
@@ -95,8 +94,8 @@ public class Artefactory {
 		return( repo );
 	}
 	
-	public MonitoringStorage getMonitoringStorage( ActionBase action , MetaMonitoring mon ) throws Exception {
-		return( new MonitoringStorage( this , workFolder , mon ) );
+	public MonitoringStorage getMonitoringStorage( ActionBase action ) throws Exception {
+		return( new MonitoringStorage( this , workFolder ) );
 	}
 
 	public NexusStorage getNexusStorage( ActionBase action , Integer NEXUS_RESOURCE , Meta meta , String repository ) throws Exception {

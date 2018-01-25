@@ -487,4 +487,14 @@ public class EngineLoader {
 		ldp.saveAll( storage );
 	}
 	
+	public void setLoadFailed( ActionBase action , int error , Throwable e , String msg , String product ) throws Exception {
+		log( msg ,  e );
+		Common.exit1( error , msg , product );
+	}
+	
+	public void setLoadFailed( ActionBase action , int error , Throwable e , String msg , String product , String item ) throws Exception {
+		log( msg ,  e );
+		Common.exit2( error , msg , product , item );
+	}
+	
 }

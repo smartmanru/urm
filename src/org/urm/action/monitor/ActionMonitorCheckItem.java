@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.SimpleHttp;
+import org.urm.db.core.DBEnums.DBEnumMonItemType;
 import org.urm.engine.status.NodeStatus;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ServerStatus;
@@ -35,10 +36,10 @@ public class ActionMonitorCheckItem extends ActionBase {
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		if( server == null ) {
-			if( item.monitorUrl )
+			if( item.MONITEM_TYPE == DBEnumMonItemType.CHECKURL )
 				monitorUrl( item.URL );
 			else
-			if( item.monitorWS )
+			if( item.MONITEM_TYPE == DBEnumMonItemType.CHECKWS )
 				monitorWS( item.URL , item.WSDATA , item.WSCHECK );
 			else
 				exitUnexpectedState();
@@ -158,21 +159,14 @@ public class ActionMonitorCheckItem extends ActionBase {
 	}
 
 	private boolean monitorServerItemsUrl( String URL ) throws Exception {
-		MetaMonitoringItem item = new MetaMonitoringItem( server.meta , target );
-		item.setUrlItem( this , URL );
-		boolean res = monitorUrl( item.URL );
-		item.setMonitorStatus( res );
-		serverStatus.addWholeUrlStatus( item.URL , item.NAME , res );
+		boolean res = monitorUrl( URL );
+		serverStatus.addWholeUrlStatus( URL , URL , res );
 		return( res );
 	}		
 
 	private boolean monitorNodeItemsUrl( NodeStatus nodeStatus , String URL ) throws Exception {
-		MetaMonitoringItem item = new MetaMonitoringItem( server.meta , target );
-		item.setUrlItem( this , URL );
-		boolean res = monitorUrl( item.URL );
-		item.setMonitorStatus( res );
-		
-		nodeStatus.addWholeUrlStatus( item.URL , item.NAME , res );
+		boolean res = monitorUrl( URL );
+		nodeStatus.addWholeUrlStatus( URL , URL , res );
 		return( res );
 	}		
 

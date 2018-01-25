@@ -53,6 +53,7 @@ import org.urm.meta.product.MetaEnv;
 import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaEnvs;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaSources;
@@ -813,6 +814,7 @@ public class TransactionBase extends EngineObject {
 				
 				tm = new TransactionMetadata( this );
 				if( tm.changeProduct( meta ) ) {
+					changeDatabase();
 					addTransactionMeta( meta , tm );
 					return( true );
 				}
@@ -841,6 +843,7 @@ public class TransactionBase extends EngineObject {
 				
 				tm = new TransactionMetadata( this );
 				if( tm.deleteProduct( meta ) ) {
+					changeDatabase();
 					addTransactionMeta( meta , tm );
 					return( true );
 				}
@@ -1117,7 +1120,8 @@ public class TransactionBase extends EngineObject {
 
 	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
 		ProductMeta metadata = getTransactionProductMetadata( env.meta );
-		return( metadata.findEnvironment( env.NAME ) );
+		MetaEnvs envs = metadata.getEnviroments();
+		return( envs.findEnv( env.NAME ) );
 	}
 
 	public MetaEnvSegment getMetaEnvSegment( MetaEnvSegment sg ) throws Exception {

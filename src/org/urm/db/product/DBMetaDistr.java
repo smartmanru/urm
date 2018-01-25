@@ -28,6 +28,7 @@ import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaDocs;
+import org.urm.meta.product.MetaEnvs;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaSourceProjectItem;
@@ -403,7 +404,7 @@ public class DBMetaDistr {
 				delivery.ID = entity.loaddbId( rs );
 				delivery.PV = entity.loaddbVersion( rs );
 				delivery.createDelivery( 
-						units.getUnitId( entity.loaddbString( rs , MetaDistrDelivery.PROPERTY_UNIT_NAME ) ) ,
+						units.getUnitId( entity.loaddbString( rs , DBProductData.FIELD_DELIVERY_UNIT_ID ) ) ,
 						entity.loaddbString( rs , MetaDistrDelivery.PROPERTY_NAME ) ,
 						entity.loaddbString( rs , MetaDistrDelivery.PROPERTY_DESC ) ,
 						entity.loaddbString( rs , MetaDistrDelivery.PROPERTY_FOLDER )
@@ -442,7 +443,7 @@ public class DBMetaDistr {
 						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_DISTNAME ) ,
 						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_DEPLOYNAME ) ,
 						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_EXT ) ,
-						DBEnumDeployVersionType.getValue( entity.loaddbEnum( rs , MetaDistrBinaryItem.PROPERTY_DEPLOYVERSIONTYPE ) , true ) ,
+						DBEnumDeployVersionType.getValue( entity.loaddbEnum( rs , MetaDistrBinaryItem.PROPERTY_DEPLOYVERSIONTYPE ) , false ) ,
 						entity.loaddbString( rs , DBProductData.FIELD_BINARYITEM_WARSTATICEXT ) ,
 						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_WARCONTEXT ) ,
 						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_ARCHIVEFILES ) ,
@@ -808,7 +809,8 @@ public class DBMetaDistr {
 	}
 	
 	public static void deleteBinaryItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrBinaryItem item ) throws Exception {
-		storage.deleteBinaryItemFromEnvironments( transaction , item );
+		MetaEnvs envs = storage.getEnviroments();
+		envs.deleteBinaryItemFromEnvironments( transaction , item );
 		
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
@@ -864,7 +866,8 @@ public class DBMetaDistr {
 	}
 	
 	public static void deleteConfItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrConfItem item ) throws Exception {
-		storage.deleteConfItemFromEnvironments( transaction , item );
+		MetaEnvs envs = storage.getEnviroments();
+		envs.deleteConfItemFromEnvironments( transaction , item );
 		
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();

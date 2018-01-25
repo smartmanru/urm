@@ -46,7 +46,7 @@ public class MetaSources {
 		for( MetaSourceProjectItem item : itemMapById.values() ) {
 			MetaSourceProject rp = r.getProject( item.project.ID );
 			MetaSourceProjectItem ritem = rp.getItem( item.NAME );
-			addProjectItem( ritem );
+			r.addProjectItem( ritem );
 		}
 		
 		return( r );

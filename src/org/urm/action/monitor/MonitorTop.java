@@ -36,7 +36,7 @@ public class MonitorTop {
 	
 	private void updateTime() throws Exception {
 		EngineStatus status = targetAction.getServerStatus();
-		status.updateRunTime( targetAction , targetAction.target.getSegment( targetAction ) );
+		status.updateRunTime( targetAction , targetAction.target.findSegment() );
 	}
 	
 }

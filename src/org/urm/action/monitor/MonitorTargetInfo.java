@@ -17,6 +17,7 @@ import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaMonitoringTarget;
 
 public class MonitorTargetInfo {
@@ -48,10 +49,10 @@ public class MonitorTargetInfo {
 	}
 
 	public boolean isAvailable() {
-		if( target.enabledMajor || target.enabledMinor ) {
-			if( target.enabledMajor && !validMajor )
+		if( target.MAJOR_ENABLED || target.MINOR_ENABLED ) {
+			if( target.MAJOR_ENABLED && !validMajor )
 				return( false );
-			if( target.enabledMinor && !validMinor )
+			if( target.MINOR_ENABLED && !validMinor )
 				return( false );
 			return( true );
 		}
@@ -137,13 +138,15 @@ public class MonitorTargetInfo {
 	}
 	
 	public void addCheckEnvData( ActionBase action , long timeMillis , boolean status ) throws Exception {
-		action.info( "addCheckEnvData: product=" + target.meta.name + ", env=" + target.ENV + ", sg=" + target.SG + 
+		MetaEnvSegment sg = target.findSegment();
+		action.info( "addCheckEnvData: product=" + target.meta.name + ", env=" + sg.env.NAME + ", sg=" + sg.NAME + 
 				", timeMillis=" + timeMillis + ", succeeded:" + Common.getBooleanValue( status ) );
 		setLastMajor( status , timeMillis );
 	}
 
 	public void addCheckMinorsData( ActionBase action , long timeMillis , boolean status ) throws Exception {
-		action.info( "addCheckMinorsData: product=" + target.meta.name + ", env=" + target.ENV + ", sg=" + target.SG + 
+		MetaEnvSegment sg = target.findSegment();
+		action.info( "addCheckMinorsData: product=" + target.meta.name + ", env=" + sg.env.NAME + ", sg=" + sg.NAME + 
 				", succeeded:" + Common.getBooleanValue( status ) );
 		setLastMinor( status , timeMillis );
 	}
@@ -151,10 +154,10 @@ public class MonitorTargetInfo {
 	public void addHistoryGraph( ActionBase action ) throws Exception {
 		// add to totals, update reports
 		long timeLimit = 0;
-		if( target.enabledMajor )
-			timeLimit += target.maxTimeMajor;
-		if( target.enabledMinor )
-			timeLimit += target.maxTimeMinor;
+		if( target.MAJOR_ENABLED )
+			timeLimit += target.MAJOR_MAXTIME;
+		if( target.MINOR_ENABLED )
+			timeLimit += target.MINOR_MAXTIME;
 		addRrdRecord( action );
 		createHistoryGraph( action , timeLimit );
 		updateReport( action );
@@ -202,6 +205,8 @@ public class MonitorTargetInfo {
 			" DEF:lineb=" + rrdfile + ":checkenv-time:MAX:step=60 LINE1:lineb" + max_color + ":" + Common.getQuoted( "Max" ) ); 
 		 */
 		
+		MetaEnvSegment sg = target.findSegment();
+		
 		RrdGraphDef gDef = new RrdGraphDef();
 		long endTime = Util.getTime();
 		long startTime = endTime - 86400;
@@ -213,7 +218,7 @@ public class MonitorTargetInfo {
 		gDef.setHeight( 200 );
 		gDef.setVerticalLabel( "Milliseconds" );
 		gDef.setAltYGrid( true );
-		gDef.setTitle( target.ENV + ", sg=" + target.SG + " check segment execution time (0 if not running) - " + Common.getRefDate( new Date() ) );
+		gDef.setTitle( sg.env.NAME + ", sg=" + sg.NAME + " check segment execution time (0 if not running) - " + Common.getRefDate( new Date() ) );
 		gDef.setColor( RrdGraphDef.COLOR_GRID , Color.decode( "0xC0C0C0" ) );
 		gDef.setColor( RrdGraphDef.COLOR_BACK , Color.decode( "0xE4E4E4" ) );
 		gDef.setTimeAxis( RrdGraphDef.MINUTE , 30 , RrdGraphDef.HOUR , 1 , RrdGraphDef.HOUR , 1 , 0 , "%H" );
@@ -233,9 +238,11 @@ public class MonitorTargetInfo {
 	}
 
 	private void updateReport( ActionBase action ) throws Exception {
+		MetaEnvSegment sg = target.findSegment();
+		
 		LocalFolder resourceFolder = storage.getResourceFolder( action );
 		if( !resourceFolder.checkExists( action ) ) {
-			action.trace( "environment " + target.ENV + ", sg=" + target.SG + " - ignore create report due to missing resource folder: " + resourceFolder.folderPath );
+			action.trace( "environment " + sg.env.NAME + ", sg=" + sg.NAME + " - ignore create report due to missing resource folder: " + resourceFolder.folderPath );
 			return;
 		}
 		
@@ -247,11 +254,11 @@ public class MonitorTargetInfo {
 		String F_IMAGETEXT;
 		if( F_STATUS ) {
 			F_IMAGEFILE = storage.getRunningImageBasename();
-			F_IMAGETEXT = "environment " + target.ENV + ", sg=" + target.SG + " is up and running";
+			F_IMAGETEXT = "environment " + sg.env.NAME + ", sg=" + sg.NAME + " is up and running";
 		}
 		else {
 			F_IMAGEFILE = storage.getFailedImageBasename();
-			F_IMAGETEXT = "environment " + target.ENV + ", sg=" + target.SG + " is not working";
+			F_IMAGETEXT = "environment " + sg.env.NAME + ", sg=" + sg.NAME + " is not working";
 		}
 
 		LocalFolder reportsFolder = storage.getReportsFolder( action , target );

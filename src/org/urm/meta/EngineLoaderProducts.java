@@ -7,23 +7,14 @@ import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
-import org.urm.engine.dist.DistRepository;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineProducts;
-import org.urm.meta.product.MetaDesignDiagram;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaProductSettings;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 public class EngineLoaderProducts {
-
-	public static String XML_ROOT_ENV = "environment";
-	public static String XML_ROOT_DESIGN = "design";
 
 	private EngineLoader loader;
 	private EngineData data;
@@ -118,16 +109,11 @@ public class EngineLoaderProducts {
 		MetadataStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
 		
 		EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
-		ldm.saveAll( ms );
+		ldm.saveDesignDocs( ms );
 		
-		for( String envName : set.getEnvironmentNames() ) {
-			MetaEnv env = set.findEnvironment( envName );
-			saveEnvData( set , ms , env );
-		}
-		for( String diagramName : set.getDiagramNames() ) {
-			MetaDesignDiagram diagram = set.findDiagram( diagramName );
-			saveDesignData( set , ms , diagram );
-		}
+		EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
+		lde.saveEnvs( ms );
+		lde.saveMonitoring( ms );
 	}
 	
 	public void exportAll( ProductMeta set ) throws Exception {
@@ -136,15 +122,9 @@ public class EngineLoaderProducts {
 		
 		EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
 		ldm.exportAll( ms );
-		
-		for( String envName : set.getEnvironmentNames() ) {
-			MetaEnv env = set.findEnvironment( envName );
-			saveEnvData( set , ms , env );
-		}
-		for( String diagramName : set.getDiagramNames() ) {
-			MetaDesignDiagram diagram = set.findDiagram( diagramName );
-			saveDesignData( set , ms , diagram );
-		}
+
+		EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
+		lde.exportAll( ms );
 	}
 	
 	private boolean addProduct( ProductMeta set ) {
@@ -180,7 +160,7 @@ public class EngineLoaderProducts {
 				if( importxml )
 					importxmlAll( set , storageMeta , context );
 				else
-					loaddbAll( set , context );
+					loaddbAll( set , storageMeta , context );
 
 				if( !DBEngineDirectory.matchProduct( loader , product , set , update ) )
 					trace( "match failed for product=" + product.NAME );
@@ -214,111 +194,42 @@ public class EngineLoaderProducts {
 		return( null );
 	}
 	
-	private void setLoadFailed( ActionBase action , int error , Throwable e , String msg , String product ) throws Exception {
-		loader.log( msg ,  e );
-		Common.exit1( error , msg , product );
-	}
-	
-	private void setLoadFailed( ActionBase action , int error , Throwable e , String msg , String product , String item ) throws Exception {
-		loader.log( msg ,  e );
-		Common.exit2( error , msg , product , item );
-	}
-	
-	private void importxmlAll( ProductMeta set , MetadataStorage storageMeta , ProductContext context ) throws Exception {
+	private void importxmlAll( ProductMeta set , MetadataStorage ms , ProductContext context ) throws Exception {
 		ActionBase action = loader.getAction();
 		
 		try {
 			EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
-			ldm.importxmlAll( storageMeta , context );
+			ldm.importxmlAll( ms , context );
 		
-			for( String envFile : storageMeta.getEnvFiles( action ) )
-				loadEnvData( set , storageMeta , envFile );
-			for( String designFile : storageMeta.getDesignFiles( action ) )
-				loadDesignData( set , storageMeta , designFile );
+			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
+			lde.loadEnvs( ms );
+			ldm.loadDesignDocs( ms );
 			
-			loadReleases( set , true );
+			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , set );
+			ldr.loadReleases( set , true );
 		}
 		catch( Throwable e ) {
-			setLoadFailed( action , _Error.UnableLoadProductMeta1 , e , "unable to load metadata, product=" + set.name , set.name );
+			loader.setLoadFailed( action , _Error.UnableLoadProductMeta1 , e , "unable to load metadata, product=" + set.name , set.name );
 		}
 	}
 	
-	private void loaddbAll( ProductMeta set , ProductContext context ) throws Exception {
+	private void loaddbAll( ProductMeta set , MetadataStorage ms , ProductContext context ) throws Exception {
 		ActionBase action = loader.getAction();
 		
 		try {
 			EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
 			ldm.loaddbAll( context );
-		}
-		catch( Throwable e ) {
-			setLoadFailed( action , _Error.UnableLoadProductMeta1 , e , "unable to load metadata, product=" + set.name , set.name );
-		}
-	}
-	
-	private void loadEnvData( ProductMeta set , MetadataStorage storageMeta , String envName ) throws Exception {
-		MetaProductSettings settings = set.getSettings();
-		MetaEnv env = new MetaEnv( set , settings , set.meta );
-		loader.trace( "load meta env object, id=" + env.objectId );
 
-		ActionBase action = loader.getAction();
-		try {
-			// read
-			String file = storageMeta.getEnvConfFile( action , envName );
-			action.debug( "read environment definition file " + file + "..." );
-			Document doc = action.readXmlFile( file );
-			Node root = doc.getDocumentElement();
-			env.load( action , root );
-			set.addEnv( env );
+			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
+			lde.loadEnvs( ms );
+			ldm.loadDesignDocs( ms );
+			
+			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , set );
+			ldr.loadReleases( set , false );
 		}
 		catch( Throwable e ) {
-			setLoadFailed( action , _Error.UnableLoadProductEnvironment2 , e , "unable to load environment metadata, product=" + set.name + ", env=" + envName , set.name , envName );
+			loader.setLoadFailed( action , _Error.UnableLoadProductMeta1 , e , "unable to load metadata, product=" + set.name , set.name );
 		}
-	}
-	
-	private void loadDesignData( ProductMeta set , MetadataStorage storageMeta , String diagramName ) throws Exception {
-		MetaDesignDiagram diagram = new MetaDesignDiagram( set , set.meta );
-		
-		ActionBase action = loader.getAction();
-		try {
-			// read
-			String filePath = storageMeta.getDesignFile( action , diagramName );
-			action.debug( "read design definition file " + filePath + "..." );
-			Document doc = action.readXmlFile( filePath );
-			Node root = doc.getDocumentElement();
-			diagram.load( action , root );
-			set.addDiagram( diagram );
-		}
-		catch( Throwable e ) {
-			setLoadFailed( action , _Error.UnableLoadProductDiagram2 , e , "unable to load design metadata, product=" + set.name + ", diagram=" + diagramName , set.name , diagramName );
-		}
-	}
-
-	private void loadReleases( ProductMeta set , boolean importxml ) throws Exception {
-		ActionBase action = loader.getAction();
-		
-		try {
-			DistRepository repo = DistRepository.loadDistRepository( action , set.meta , importxml );
-			set.setReleases( repo );
-		}
-		catch( Throwable e ) {
-			setLoadFailed( action , _Error.UnableLoadProductReleases1 , e , "unable to load release repository, product=" + set.name , set.name );
-		}
-	}
-	
-	private void saveEnvData( ProductMeta set , MetadataStorage storageMeta , MetaEnv env ) throws Exception {
-		ActionBase action = loader.getAction();
-		Document doc = Common.xmlCreateDoc( XML_ROOT_ENV );
-		env.save( action , doc , doc.getDocumentElement() );
-		String envFile = env.NAME + ".xml";
-		storageMeta.saveEnvConfFile( action , doc , envFile );
-	}
-	
-	private void saveDesignData( ProductMeta set , MetadataStorage storageMeta , MetaDesignDiagram diagram ) throws Exception {
-		ActionBase action = loader.getAction();
-		Document doc = Common.xmlCreateDoc( XML_ROOT_DESIGN );
-		diagram.save( action , doc , doc.getDocumentElement() );
-		String diagramFile = diagram.NAME + ".xml";
-		storageMeta.saveEnvConfFile( action , doc , diagramFile );
 	}
 	
 	public void trace( String s ) {

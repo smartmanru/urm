@@ -7,6 +7,7 @@ import org.urm.common.Common;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineObject;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnvs;
 
 public class HostAccount extends EngineObject {
 
@@ -67,7 +68,8 @@ public class HostAccount extends EngineObject {
 		EngineDirectory directory = action.getServerDirectory();
 		for( String productName : directory.getProductNames() ) {
 			Meta meta = action.findProductMetadata( productName );
-			meta.getApplicationReferences( this , refs );
+			MetaEnvs envs = meta.getEnviroments();
+			envs.getApplicationReferences( this , refs );
 		}
 	}
 

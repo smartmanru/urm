@@ -951,18 +951,21 @@ public class EngineTransaction extends TransactionBase {
 	// ENVIRONMENT
 	
 	public MetaEnv createMetaEnv( Meta meta , String name , VarENVTYPE envType ) throws Exception {
-		ProductMeta metadata = getTransactionProductMetadata( meta );
+		ProductMeta storage = getTransactionProductMetadata( meta );
 		MetaProductSettings settings = meta.getProductSettings();
-		MetaEnv env = new MetaEnv( metadata , settings , metadata.meta );
+		MetaEnv env = new MetaEnv( storage , settings , storage.meta );
 		action.trace( "create meta env object, id=" + env.objectId );
 		env.createEnv( action , name , envType );
-		metadata.addEnv( env );
+		
+		MetaEnvs envs = storage.getEnviroments();
+		envs.addEnv( env );
 		return( env );
 	}
 	
 	public void deleteMetaEnv( MetaEnv env ) throws Exception {
-		ProductMeta metadata = getTransactionProductMetadata( env.meta );
-		metadata.deleteEnv( this , env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		MetaEnvs envs = storage.getEnviroments();
+		envs.deleteEnv( this , env );
 		env.deleteObject();
 	}
 
