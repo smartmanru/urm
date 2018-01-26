@@ -15,8 +15,8 @@ import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineMatcher;
 import org.urm.meta.MatchItem;
-import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineMirrors;
@@ -27,6 +27,7 @@ import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaUnits;
+import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -92,6 +93,7 @@ public class DBMetaSources {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppMetaSourceProject;
+		EngineMatcher matcher = loader.getMatcher();
 		
 		MetaSourceProject project = new MetaSourceProject( storage.meta , set );
 		MetaUnits units = storage.getUnits();
@@ -138,7 +140,9 @@ public class DBMetaSources {
 				matchMirror , mirrorRes , mirrorRepo , mirrorPath , mirrorData );
 		
 		EngineBuilders builders = loader.getBuilders();
-		MatchItem matchBuilder = builders.getBuilderMatchItem( null , entity.importxmlStringAttr( root , MetaSourceProject.PROPERTY_BUILDER_NAME ) );
+		String value = matcher.matchProductBefore( storage , entity.importxmlStringAttr( root , MetaSourceProject.PROPERTY_BUILDER_NAME ) , project.ID , entity , MetaSourceProject.PROPERTY_BUILDER_NAME , null );
+		MatchItem matchBuilder = builders.getBuilderMatchItem( null , value );
+		matcher.matchProductDone( matchBuilder );
 		project.setBuild( matchBuilder , 
 				entity.importxmlStringAttr( root , MetaSourceProject.PROPERTY_BUILDER_OPTIONS ) ,
 				entity.importxmlStringAttr( root , MetaSourceProject.PROPERTY_BRANCH )
@@ -368,6 +372,8 @@ public class DBMetaSources {
 	
 	public static void loaddbProjects( EngineLoader loader , ProductMeta storage , MetaSources sources ) throws Exception {
 		DBConnection c = loader.getConnection();
+		EngineBuilders builders = loader.getBuilders();
+		EngineMatcher matcher = loader.getMatcher();
 		EngineEntities entities = c.getEntities();
 		PropertyEntity entity = entities.entityAppMetaSourceProject;
 
@@ -379,7 +385,8 @@ public class DBMetaSources {
 				MetaSourceProject project = new MetaSourceProject( storage.meta , set );
 				project.ID = entity.loaddbId( rs );
 				project.PV = entity.loaddbVersion( rs );
-				
+
+				// create
 				project.createProject( 
 						entity.loaddbString( rs , MetaSourceProject.PROPERTY_NAME ) , 
 						entity.loaddbString( rs , MetaSourceProject.PROPERTY_DESC ) ,
@@ -388,6 +395,7 @@ public class DBMetaSources {
 						entity.loaddbBoolean( rs , MetaSourceProject.PROPERTY_PROD )
 						);
 				
+				// mirror
 				Integer mirrorId = entity.loaddbObject( rs , DBProductData.FIELD_SOURCEPROJECT_MIRROR_ID );
 				MatchItem matchMirror = null;
 				
@@ -408,10 +416,27 @@ public class DBMetaSources {
 					mirrorData = entity.loaddbString( rs , MetaSourceProject.PROPERTY_MIRRORDATA );
 				}
 				
+				// source
 				project.setSource(
 						DBEnumProjectType.getValue( entity.loaddbEnum( rs , MetaSourceProject.PROPERTY_PROJECTTYPE ) , true ) ,
 						entity.loaddbString( rs , MetaSourceProject.PROPERTY_TRACKER ) ,
-						matchMirror , mirrorRes , mirrorRepo , mirrorPath , mirrorData ); 
+						matchMirror , mirrorRes , mirrorRepo , mirrorPath , mirrorData );
+
+				// build
+				MatchItem builder = builders.getBuilderMatchItem(
+						entity.loaddbObject( rs , DBProductData.FIELD_SOURCEPROJECT_BUILDER_ID ) ,
+						entity.loaddbString( rs , MetaSourceProject.PROPERTY_BUILDER_NAME ) );
+				matcher.matchProductDone( builder , storage , null , project.ID , entity , MetaSourceProject.PROPERTY_BUILDER_NAME , null );
+				project.setBuild(
+						builder , 
+						entity.loaddbString( rs , MetaSourceProject.PROPERTY_BUILDER_OPTIONS ) , 
+						entity.loaddbString( rs , MetaSourceProject.PROPERTY_BRANCH ) );
+				
+				// custom
+				project.setCustom(
+						entity.loaddbBoolean( rs , MetaSourceProject.PROPERTY_CUSTOM_BUILD ) , 
+						entity.loaddbBoolean( rs , MetaSourceProject.PROPERTY_CUSTOM_GET ) );
+				
 				sources.addProject( set , project );
 			}
 		}

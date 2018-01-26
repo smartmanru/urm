@@ -5,8 +5,8 @@ import org.urm.action.ActionEnvScopeMaker;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.status.ScopeState;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
 
 public class ServerCluster {
 

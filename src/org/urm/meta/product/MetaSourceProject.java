@@ -58,6 +58,7 @@ public class MetaSourceProject {
 	
 	List<MetaSourceProjectItem> itemList;
 	Map<String,MetaSourceProjectItem> itemMap;
+	Map<Integer,MetaSourceProjectItem> itemMapById;
 
 	public MetaSourceProject( Meta meta , MetaSourceProjectSet set ) {
 		this.meta = meta;
@@ -67,6 +68,7 @@ public class MetaSourceProject {
 		
 		itemList = new LinkedList<MetaSourceProjectItem>();
 		itemMap = new HashMap<String,MetaSourceProjectItem>();
+		itemMapById = new HashMap<Integer,MetaSourceProjectItem>();
 	}
 	
 	public MetaSourceProject copy( Meta rmeta , MetaSourceProjectSet rset ) throws Exception {
@@ -157,11 +159,13 @@ public class MetaSourceProject {
 	public void addItem( MetaSourceProjectItem srcItem ) {
 		itemList.add( srcItem );
 		itemMap.put( srcItem.NAME , srcItem );
+		itemMapById.put( srcItem.ID , srcItem );
 	}
 	
 	public void removeItem( MetaSourceProjectItem srcItem ) {
 		itemList.remove( srcItem );
 		itemMap.remove( srcItem.NAME );
+		itemMapById.remove( srcItem.ID );
 	}
 	
 	public void updateItem( MetaSourceProjectItem item ) throws Exception {
@@ -219,6 +223,14 @@ public class MetaSourceProject {
 		MetaSourceProjectItem item = itemMap.get( name );
 		if( item == null )
 			Common.exit2( _Error.UnknownSourceProjectItem2 , "unknown source project item=" + name + ", in project=" + NAME , NAME , name );
+		
+		return( item );
+	}
+	
+	public MetaSourceProjectItem getItem( int id ) throws Exception {
+		MetaSourceProjectItem item = itemMapById.get( id );
+		if( item == null )
+			Common.exit2( _Error.UnknownSourceProjectItem2 , "unknown source project item=" + id + ", in project=" + NAME , NAME , "" + id );
 		
 		return( item );
 	}

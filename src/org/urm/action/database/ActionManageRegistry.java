@@ -9,8 +9,8 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.product.MetaEnvServer;
 
 public class ActionManageRegistry extends ActionBase {
 

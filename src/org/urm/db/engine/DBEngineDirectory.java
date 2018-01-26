@@ -19,7 +19,6 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineMatcher;
-import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.AppSystem;
@@ -161,56 +160,8 @@ public abstract class DBEngineDirectory {
 		
 		for( String name : directory.getAllSystemNames() ) {
 			AppSystem system = directory.findSystem( name );
-			matchSystem( loader , directory , system , update );
+			matcher.matchSystem( loader , directory , system , update );
 		}
-	}
-	
-	public static void matchSystem( EngineLoader loader , EngineDirectory directory , AppSystem system , boolean update ) {
-		EngineMatcher matcher = loader.getMatcher();
-		
-		try {
-			if( update ) {
-				matcher.prepareMatchSystem( system , true , true );
-				DBAppSystem.matchSystem( loader , directory , system , update );
-			}
-			else
-			if( system.MATCHED ) {
-				matcher.prepareMatchSystem( system , false , true );
-				DBAppSystem.matchSystem( loader , directory , system , update );
-			}
-			
-			matcher.doneSystem( system );
-		}
-		catch( Throwable e ) {
-			loader.log( "match problem " , e );
-			return;
-		}
-	}
-	
-	public static boolean matchProduct( EngineLoader loader , AppProduct product , ProductMeta set , boolean update ) {
-		// match to mirrors
-		EngineMatcher matcher = loader.getMatcher();
-		
-		// product meta
-		try {
-			matcher.prepareMatchProduct( product , false , false );
-			DBAppProduct.match( loader , product , set );
-			
-			if( !matcher.matchProjectMirrors( product , set.getSources() , update ) ) {
-				matcher.matchProductUpdateStatus( product , set , update , false );
-				return( false );
-			}
-			
-			matcher.doneProduct( product , set );
-		}
-		catch( Throwable e ) {
-			loader.log( "match problem " , e );
-			matcher.matchProductUpdateStatus( product , set , update , false );
-			return( false );
-		}
-		
-		matcher.matchProductUpdateStatus( product , set , update , true );
-		return( true );
 	}
 	
 	public static AppSystem createSystem( EngineTransaction transaction , EngineDirectory directory , String name , String desc ) throws Exception {

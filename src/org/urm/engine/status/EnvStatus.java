@@ -1,6 +1,6 @@
 package org.urm.engine.status;
 
-import org.urm.meta.product.MetaEnv;
+import org.urm.meta.env.MetaEnv;
 
 public class EnvStatus extends Status {
 

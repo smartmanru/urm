@@ -12,9 +12,9 @@ import org.urm.engine.schedule.EngineScheduler.ScheduleTaskCategory;
 import org.urm.engine.schedule.ScheduleTask;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
-import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaMonitoring;
-import org.urm.meta.product.MetaMonitoringTarget;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaMonitoring;
+import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.product.MetaProductCoreSettings;
 
 public class MonitoringProduct {

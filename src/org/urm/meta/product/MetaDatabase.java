@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.meta.ProductMeta;
+import org.urm.meta.env.MetaDump;
 
 public class MetaDatabase {
 

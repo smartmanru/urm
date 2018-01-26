@@ -16,9 +16,9 @@ import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.RuntimeStorage;
 import org.urm.engine.storage.VersionInfoStorage;
 import org.urm.meta.engine.BaseItemData;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerBase;
-import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerBase;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.Types.*;
 
 public class ActionBaseInstall extends ActionBase {

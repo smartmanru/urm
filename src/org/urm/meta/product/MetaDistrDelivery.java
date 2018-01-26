@@ -29,9 +29,11 @@ public class MetaDistrDelivery {
 	public int PV;
 	
 	private Map<String,MetaDistrBinaryItem> mapBinaryItems;
+	private Map<Integer,MetaDistrBinaryItem> mapBinaryItemsById;
 	private Map<String,MetaDistrConfItem> mapConfComps;
-	private Map<String,MetaDatabaseSchema> mapDatabaseSchema;
-	private Map<String,MetaProductDoc> mapDocuments;
+	private Map<Integer,MetaDistrConfItem> mapConfCompsById;
+	private Map<Integer,MetaDatabaseSchema> mapDatabaseSchema;
+	private Map<Integer,MetaProductDoc> mapDocuments;
 	
 	public MetaDistrDelivery( Meta meta , MetaDistr dist , MetaDatabase db , MetaDocs docs ) {
 		this.meta = meta;
@@ -40,9 +42,11 @@ public class MetaDistrDelivery {
 		this.docs = docs;
 		
 		mapBinaryItems = new HashMap<String,MetaDistrBinaryItem>();
+		mapBinaryItemsById = new HashMap<Integer,MetaDistrBinaryItem>();
 		mapConfComps = new HashMap<String,MetaDistrConfItem>();
-		mapDatabaseSchema = new HashMap<String,MetaDatabaseSchema>();
-		mapDocuments = new HashMap<String,MetaProductDoc>();
+		mapConfCompsById = new HashMap<Integer,MetaDistrConfItem>();
+		mapDatabaseSchema = new HashMap<Integer,MetaDatabaseSchema>();
+		mapDocuments = new HashMap<Integer,MetaProductDoc>();
 
 		ID = -1;
 		PV = -1;
@@ -63,22 +67,22 @@ public class MetaDistrDelivery {
 		
 		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
 			MetaDistrBinaryItem ritem = item.copy( meta , r );
-			r.mapBinaryItems.put( ritem.NAME , ritem );
+			r.addBinaryItem( ritem );
 		}
 			
 		for( MetaDistrConfItem item : mapConfComps.values() ) {
 			MetaDistrConfItem ritem = item.copy( meta , r );
-			r.mapConfComps.put( ritem.NAME , ritem );
+			r.addConfItem( ritem );
 		}
 			
 		for( MetaDatabaseSchema item : mapDatabaseSchema.values() ) {
 			MetaDatabaseSchema ritem = rdb.getSchema( item.NAME );
-			r.mapDatabaseSchema.put( ritem.NAME , ritem );
+			r.addSchema( ritem );
 		}
 			
 		for( MetaProductDoc item : mapDocuments.values() ) {
 			MetaProductDoc ritem = rdocs.getDoc( item.NAME );
-			r.mapDocuments.put( ritem.NAME , ritem );
+			r.addDocument( ritem );
 		}
 			
 		return( r );
@@ -101,60 +105,76 @@ public class MetaDistrDelivery {
 		return( false );
 	}
 	
-	public MetaDistrBinaryItem findBinaryItem( String NAME ) {
-		return( mapBinaryItems.get( NAME ) );
+	public MetaDistrBinaryItem findBinaryItem( String name ) {
+		return( mapBinaryItems.get( name ) );
 	}
 	
-	public MetaDistrBinaryItem getBinaryItem( String NAME ) throws Exception {
-		MetaDistrBinaryItem item = mapBinaryItems.get( NAME );
+	public MetaDistrBinaryItem getBinaryItem( String name ) throws Exception {
+		MetaDistrBinaryItem item = mapBinaryItems.get( name );
 		if( item == null )
-			Common.exit1( _Error.UnknownDeliveryBinaryItem1 , "unknown delivery binary item=" + NAME , NAME );
+			Common.exit1( _Error.UnknownDeliveryBinaryItem1 , "unknown delivery binary item=" + name , name );
 		return( item );
 	}
 	
-	public MetaDistrConfItem findConfItem( String NAME ) {
-		return( mapConfComps.get( NAME ) );
-	}
-	
-	public MetaDistrConfItem getConfItem( String NAME ) throws Exception {
-		MetaDistrConfItem item = mapConfComps.get( NAME );
+	public MetaDistrBinaryItem getBinaryItem( int id ) throws Exception {
+		MetaDistrBinaryItem item = mapBinaryItemsById.get( id );
 		if( item == null )
-			Common.exit1( _Error.UnknownDeliveryConfigurationItem1 , "unknown delivery configuration item=" + NAME , NAME );
+			Common.exit1( _Error.UnknownDeliveryBinaryItem1 , "unknown delivery binary item=" + id , "" + id );
 		return( item );
 	}
-
-	public MetaDatabaseSchema findSchema( String NAME ) {
-		if( SCHEMA_ANY )
-			return( db.findSchema( NAME ) );
-			
-		return( mapDatabaseSchema.get( NAME ) );
+	
+	public MetaDistrConfItem findConfItem( String name ) {
+		return( mapConfComps.get( name ) );
 	}
 	
-	public MetaDatabaseSchema getSchema( String NAME ) throws Exception {
-		if( SCHEMA_ANY )
-			return( db.getSchema( NAME ) );
-			
-		MetaDatabaseSchema item = mapDatabaseSchema.get( NAME );
+	public MetaDistrConfItem getConfItem( String name ) throws Exception {
+		MetaDistrConfItem item = mapConfComps.get( name );
 		if( item == null )
-			Common.exit1( _Error.UnknownDeliverySchema1 , "unknown delivery schema=" + NAME , NAME );
+			Common.exit1( _Error.UnknownDeliveryConfigurationItem1 , "unknown delivery configuration item=" + name , name );
 		return( item );
 	}
 
-	public MetaProductDoc findDoc( String NAME ) {
-		if( DOC_ANY )
-			return( docs.findDoc( NAME ) );
+	public MetaDistrConfItem getConfItem( int id ) throws Exception {
+		MetaDistrConfItem item = mapConfCompsById.get( id );
+		if( item == null )
+			Common.exit1( _Error.UnknownDeliveryConfigurationItem1 , "unknown delivery configuration item=" + id , "" + id );
+		return( item );
+	}
+
+	public MetaDatabaseSchema findSchema( String name ) {
+		MetaDatabaseSchema schema = db.findSchema( name );
+		if( schema == null )
+			return( null );
+		
+		if( SCHEMA_ANY || mapDatabaseSchema.containsKey( schema.ID ) )
+			return( schema );
 			
-		return( mapDocuments.get( NAME ) );
+		return( null );
 	}
 	
-	public MetaProductDoc getDoc( String NAME ) throws Exception {
-		if( DOC_ANY )
-			return( docs.getDoc( NAME ) );
+	public MetaDatabaseSchema getSchema( String name ) throws Exception {
+		MetaDatabaseSchema schema = findSchema( name );
+		if( schema == null )
+			Common.exit1( _Error.UnknownDeliverySchema1 , "unknown delivery schema=" + name , name );
+		return( schema );
+	}
+
+	public MetaProductDoc findDoc( String name ) {
+		MetaProductDoc doc = docs.findDoc( name );
+		if( doc == null )
+			return( null );
+		
+		if( DOC_ANY || mapDocuments.containsKey( doc.ID ) )
+			return( doc );
 			
-		MetaProductDoc item = mapDocuments.get( NAME );
-		if( item == null )
-			Common.exit1( _Error.UnknownDeliveryDoc1 , "unknown delivery doc=" + NAME , NAME );
-		return( item );
+		return( null );
+	}
+	
+	public MetaProductDoc getDoc( String name ) throws Exception {
+		MetaProductDoc doc = findDoc( name );
+		if( doc == null )
+			Common.exit1( _Error.UnknownDeliveryDoc1 , "unknown delivery doc=" + name , name );
+		return( doc );
 	}
 
 	public String[] getBinaryItemNames() {
@@ -177,7 +197,10 @@ public class MetaDistrDelivery {
 		if( SCHEMA_ANY )
 			return( db.getSchemaNames() );
 		
-		return( Common.getSortedKeys( mapDatabaseSchema ) );
+		Map<String,MetaDatabaseSchema> set = new HashMap<String,MetaDatabaseSchema>();
+		for( MetaDatabaseSchema schema : mapDatabaseSchema.values() )
+			set.put( schema.NAME , schema );
+		return( Common.getSortedKeys( set ) );
 	}
 	
 	public MetaDatabaseSchema[] getDatabaseSchemes() {
@@ -191,7 +214,10 @@ public class MetaDistrDelivery {
 		if( DOC_ANY )
 			return( docs.getDocNames() );
 		
-		return( Common.getSortedKeys( mapDocuments ) );
+		Map<String,MetaProductDoc> set = new HashMap<String,MetaProductDoc>();
+		for( MetaProductDoc doc : mapDocuments.values() )
+			set.put( doc.NAME , doc );
+		return( Common.getSortedKeys( set ) );
 	}
 	
 	public MetaProductDoc[] getDocs() {
@@ -221,6 +247,7 @@ public class MetaDistrDelivery {
 
 	public void addBinaryItem( MetaDistrBinaryItem item ) {
 		mapBinaryItems.put( item.NAME , item );
+		mapBinaryItemsById.put( item.ID , item );
 	}
 	
 	public void updateBinaryItem( MetaDistrBinaryItem item ) throws Exception {
@@ -231,8 +258,8 @@ public class MetaDistrDelivery {
 		if( item.delivery == this )
 			return;
 			
-		item.delivery.mapBinaryItems.remove( item.NAME );
-		mapBinaryItems.put( item.NAME , item );
+		item.delivery.removeBinaryItemOnly( item );
+		addBinaryItem( item );
 		item.setDelivery( this );
 	}
 
@@ -243,11 +270,17 @@ public class MetaDistrDelivery {
 				comp.removeCompItem( compItem );
 		}
 		
+		removeBinaryItemOnly( item );
+	}
+	
+	private void removeBinaryItemOnly( MetaDistrBinaryItem item ) throws Exception {
 		mapBinaryItems.remove( item.NAME );
+		mapBinaryItemsById.remove( item.ID );
 	}
 	
 	public void addConfItem( MetaDistrConfItem item ) throws Exception {
 		mapConfComps.put( item.NAME , item );
+		mapConfCompsById.put( item.ID , item );
 	}
 	
 	public void updateConfItem( MetaDistrConfItem item ) throws Exception {
@@ -262,6 +295,7 @@ public class MetaDistrDelivery {
 		}
 		
 		mapConfComps.remove( item.NAME );
+		mapConfCompsById.remove( item.ID );
 	}
 	
 	public void removeSchema( MetaDatabaseSchema schema ) throws Exception {
@@ -276,7 +310,7 @@ public class MetaDistrDelivery {
 
 	public void addSchema( MetaDatabaseSchema schema ) throws Exception {
 		SCHEMA_ANY = false;
-		mapDatabaseSchema.put( schema.NAME , schema );
+		mapDatabaseSchema.put( schema.ID , schema );
 	}
 	
 	public void setDatabaseSet( MetaDatabaseSchema[] set ) throws Exception {
@@ -284,11 +318,11 @@ public class MetaDistrDelivery {
 			
 		mapDatabaseSchema.clear();
 		for( MetaDatabaseSchema schema : set )
-			mapDatabaseSchema.put( schema.NAME , schema );
+			addSchema( schema );
 	}
 	
 	public void removeDoc( MetaProductDoc doc ) throws Exception {
-		mapDocuments.remove( doc.NAME );
+		mapDocuments.remove( doc.ID );
 	}
 
 	public void setDocAll( boolean all ) {
@@ -299,7 +333,7 @@ public class MetaDistrDelivery {
 	
 	public void addDocument( MetaProductDoc doc ) throws Exception {
 		DOC_ANY = false;
-		mapDocuments.put( doc.NAME , doc );
+		mapDocuments.put( doc.ID , doc );
 	}
 	
 	public void setDocSet( MetaProductDoc[] set ) throws Exception {
@@ -307,7 +341,7 @@ public class MetaDistrDelivery {
 			
 		mapDocuments.clear();
 		for( MetaProductDoc doc : set )
-			mapDocuments.put( doc.NAME , doc );
+			addDocument( doc );
 	}
 	
 	public void clearUnit() throws Exception {

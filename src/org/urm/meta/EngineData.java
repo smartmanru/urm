@@ -20,6 +20,7 @@ import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.ProductMeta;
 
 public class EngineData {
 

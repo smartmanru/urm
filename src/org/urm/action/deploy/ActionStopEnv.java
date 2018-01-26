@@ -11,7 +11,7 @@ import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.product.MetaEnvStartGroup;
+import org.urm.meta.env.MetaEnvStartGroup;
 
 public class ActionStopEnv extends ActionBase {
 

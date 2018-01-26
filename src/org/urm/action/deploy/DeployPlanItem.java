@@ -1,6 +1,6 @@
 package org.urm.action.deploy;
 
-import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServer;
 
 public class DeployPlanItem {
 

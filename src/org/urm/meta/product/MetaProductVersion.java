@@ -1,7 +1,6 @@
 package org.urm.meta.product;
 
 import org.urm.common.Common;
-import org.urm.meta.ProductMeta;
 
 public class MetaProductVersion {
 

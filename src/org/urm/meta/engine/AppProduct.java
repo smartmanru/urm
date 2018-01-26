@@ -3,8 +3,8 @@ package org.urm.meta.engine;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.meta.EngineObject;
-import org.urm.meta.ProductMeta;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.ProductMeta;
 
 public class AppProduct extends EngineObject {
 

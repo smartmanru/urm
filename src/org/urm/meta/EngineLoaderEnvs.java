@@ -3,11 +3,12 @@ package org.urm.meta;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.storage.MetadataStorage;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvs;
-import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -32,6 +33,9 @@ public class EngineLoaderEnvs {
 	}
 	
 	public void loadEnvs( MetadataStorage ms ) throws Exception {
+		MetaEnvs envs = new MetaEnvs( set , set.meta );
+		set.setEnvs( envs );
+		
 		ActionBase action = loader.getAction();
 		for( String envFile : ms.getEnvFiles( action ) )
 			loadEnvData( ms , envFile );

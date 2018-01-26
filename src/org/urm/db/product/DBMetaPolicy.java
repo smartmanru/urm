@@ -14,11 +14,12 @@ import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineMatcher;
 import org.urm.meta.MatchItem;
-import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.MetaProductPolicy;
+import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -27,6 +28,8 @@ public class DBMetaPolicy {
 
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		
 		MetaProductPolicy policy = new MetaProductPolicy( storage , storage.meta );
 		storage.setPolicy( policy );
 		
@@ -44,14 +47,25 @@ public class DBMetaPolicy {
 			URGENTS = ConfReader.getPropertyValue( root , MetaProductPolicy.PROPERTY_RELEASELC_URGENTS , "" );
 		String[] urgents = Common.splitSpaced( URGENTS );
 		
+		EngineMatcher matcher = loader.getMatcher();
+		major = matcher.matchProductBefore( storage , major , storage.ID , entities.entityAppMetaPolicy , MetaProductPolicy.PROPERTY_RELEASELC_MAJOR , null );
 		MatchItem RELEASELC_MAJOR = modifyLifecycle( loader , storage , major , 1 );
+		matcher.matchProductDone( RELEASELC_MAJOR );
+		
+		major = matcher.matchProductBefore( storage , minor , storage.ID , entities.entityAppMetaPolicy , MetaProductPolicy.PROPERTY_RELEASELC_MINOR , null );
 		MatchItem RELEASELC_MINOR = modifyLifecycle( loader , storage , minor , 2 );
+		matcher.matchProductDone( RELEASELC_MINOR );
 		
 		MatchItem[] RELEASELC_URGENT_LIST;
 		if( !urgentsAll ) {
 			RELEASELC_URGENT_LIST = new MatchItem[ urgents.length ];
-			for( int k = 0; k < urgents.length; k++ )
-				RELEASELC_URGENT_LIST[ k ] = modifyLifecycle( loader , storage , urgents[ k ] , 3 + k );
+			for( int k = 0; k < urgents.length; k++ ) {
+				String name = urgents[ k ];
+				name = matcher.matchProductBefore( storage , name , storage.ID , entities.entityAppMetaPolicy , MetaProductPolicy.PROPERTY_RELEASELC_URGENTS , "" + ( k + 3 ) );
+				MatchItem item = modifyLifecycle( loader , storage , name , 3 + k );
+				matcher.matchProductDone( item );
+				RELEASELC_URGENT_LIST[ k ] = item;
+			}
 		}
 		else
 			RELEASELC_URGENT_LIST = new MatchItem[0];
@@ -154,6 +168,7 @@ public class DBMetaPolicy {
 		MatchItem RELEASELC_MINOR = null;
 		List<MatchItem> list = new LinkedList<MatchItem>();
 
+		EngineMatcher matcher = loader.getMatcher();
 		EngineLifecycles lifecycles = loader.getLifecycles();
 		rs = c.query( DBQueries.QUERY_METALC_GETALL1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		try {
@@ -164,13 +179,19 @@ public class DBMetaPolicy {
 				
 				MatchItem lcMatch = lifecycles.getLifecycleMatchItem( id , name );
 				
-				if( index == 1 )
+				if( index == 1 ) {
 					RELEASELC_MAJOR = lcMatch;
+					matcher.matchProductDone( lcMatch , storage , name , storage.ID , entity , MetaProductPolicy.PROPERTY_RELEASELC_MAJOR , null );
+				}
 				else
-				if( index == 2 )
+				if( index == 2 ) {
 					RELEASELC_MINOR = lcMatch;
-				else
+					matcher.matchProductDone( lcMatch , storage , name , storage.ID , entity , MetaProductPolicy.PROPERTY_RELEASELC_MINOR , null );
+				}
+				else {
 					list.add( lcMatch );
+					matcher.matchProductDone( lcMatch , storage , name , storage.ID , entity , MetaProductPolicy.PROPERTY_RELEASELC_URGENTS , "" + index );
+				}
 			}
 		}
 		finally {

@@ -16,12 +16,12 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStateInfo;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.SourceStorage;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerLocation;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerLocation;
-import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.Types.*;
 
 public class ActionRedist extends ActionBase {

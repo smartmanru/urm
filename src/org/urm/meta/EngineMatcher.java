@@ -5,7 +5,9 @@ import org.urm.db.DBConnection;
 import org.urm.db.engine.DBEngineMirrors;
 import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBMetaSources;
+import org.urm.db.system.DBAppSystem;
 import org.urm.engine.Engine;
+import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.AuthResource;
@@ -15,6 +17,7 @@ import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.ProductMeta;
 
 public class EngineMatcher {
 
@@ -22,6 +25,13 @@ public class EngineMatcher {
 	public Engine engine;
 	public RunContext execrc;
 
+	protected ProductMeta matchStorage;
+	protected String matchValueInitial;
+	protected int matchOwnerId;
+	protected PropertyEntity matchItemEntity;
+	protected String matchItemProperty;
+	protected String matchItemIndex;
+	
 	public EngineMatcher( EngineLoader loader ) {
 		this.loader = loader;
 		this.engine = loader.engine;
@@ -33,24 +43,26 @@ public class EngineMatcher {
 		mirrors.clearProductReferences();
 	}
 	
-	public void prepareMatchSystem( AppSystem system , boolean update , boolean useOldMatch ) throws Exception {
+	public void matchSystem( EngineLoader loader , EngineDirectory directory , AppSystem system , boolean update ) {
+		try {
+			if( update ) {
+				prepareMatchSystem( system , true , true );
+				DBAppSystem.matchSystem( loader , directory , system , update );
+			}
+			else
+			if( system.MATCHED ) {
+				prepareMatchSystem( system , false , true );
+				DBAppSystem.matchSystem( loader , directory , system , update );
+			}
+			
+			doneSystem( system );
+		}
+		catch( Throwable e ) {
+			loader.log( "match problem " , e );
+			return;
+		}
 	}
 	
-	public void prepareMatchProduct( AppProduct product , boolean update , boolean useOldMatch ) throws Exception {
-	}
-	
-	public void doneSystem( AppSystem system ) throws Exception {
-		EngineDirectory directory = loader.getDirectory();
-		if( system.MATCHED )
-			directory.addSystem( system );
-	}
-	
-	public void doneProduct( AppProduct product , ProductMeta set ) throws Exception {
-		EngineDirectory directory = loader.getDirectory();
-		directory.addProduct( product );
-		product.setStorage( set );
-	}
-
 	public boolean matchProductMirrors( AppProduct product ) {
 		boolean ok = true;
 		
@@ -74,7 +86,54 @@ public class EngineMatcher {
 		return( ok );
 	}
 	
-	public boolean matchProjectMirrors( AppProduct product , MetaSources sources , boolean update ) throws Exception {
+	public boolean matchProduct( EngineLoader loader , AppProduct product , ProductMeta set , boolean update ) {
+		// product meta
+		try {
+			prepareMatchProduct( product , false , false );
+
+			boolean matched = true;
+			if( !matchProjectMirrors( product , set.getSources() , update ) )
+				matched = false;
+			
+			if( !set.isMatched() )
+				matched = false;
+			
+			if( !matched ) {
+				matchProductUpdateStatus( set , update , false );
+				return( false );
+			}
+			
+			doneProduct( product , set );
+		}
+		catch( Throwable e ) {
+			loader.log( "match problem " , e );
+			matchProductUpdateStatus( set , update , false );
+			return( false );
+		}
+		
+		matchProductUpdateStatus( set , update , true );
+		return( true );
+	}
+	
+	private void prepareMatchSystem( AppSystem system , boolean update , boolean useOldMatch ) throws Exception {
+	}
+	
+	private void prepareMatchProduct( AppProduct product , boolean update , boolean useOldMatch ) throws Exception {
+	}
+	
+	private void doneSystem( AppSystem system ) throws Exception {
+		EngineDirectory directory = loader.getDirectory();
+		if( system.MATCHED )
+			directory.addSystem( system );
+	}
+	
+	private void doneProduct( AppProduct product , ProductMeta set ) throws Exception {
+		EngineDirectory directory = loader.getDirectory();
+		directory.addProduct( product );
+		product.setStorage( set );
+	}
+
+	private boolean matchProjectMirrors( AppProduct product , MetaSources sources , boolean update ) throws Exception {
 		boolean ok = true;
 		
 		EngineMirrors mirrors = loader.getMirrors();
@@ -119,7 +178,7 @@ public class EngineMatcher {
 		return( ok );
 	}
 
-	public void matchProductUpdateStatus( AppProduct product , ProductMeta set , boolean update , boolean matched ) {
+	private void matchProductUpdateStatus( ProductMeta set , boolean update , boolean matched ) {
 		if( matched != set.MATCHED ) {
 			try {
 				if( update )
@@ -130,6 +189,26 @@ public class EngineMatcher {
 				loader.log( "update match status" , e );
 			}
 		}
+	}
+
+	public String matchProductBefore( ProductMeta storage , String value , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
+		this.matchStorage = storage;
+		this.matchValueInitial = value;
+		this.matchOwnerId = ownerId;
+		this.matchItemEntity = entity;
+		this.matchItemProperty = prop;
+		this.matchItemIndex = index;
+		return( value );
+	}
+
+	public void matchProductDone( MatchItem item ) throws Exception {
+		if( !item.MATCHED )
+			matchProductUpdateStatus( matchStorage , true , false );
+	}
+
+	public void matchProductDone( MatchItem item , ProductMeta storage , String value , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
+		if( !item.MATCHED )
+			storage.setMatched( false );
 	}
 	
 }

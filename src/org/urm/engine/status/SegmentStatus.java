@@ -1,6 +1,6 @@
 package org.urm.engine.status;
 
-import org.urm.meta.product.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvSegment;
 
 public class SegmentStatus extends Status {
 

@@ -9,7 +9,7 @@ import org.urm.engine.shell.Account;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.RedistStorage;
-import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServer;
 
 public class ActionDropRedist extends ActionBase {
 

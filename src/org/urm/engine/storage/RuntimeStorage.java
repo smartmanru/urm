@@ -8,12 +8,12 @@ import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.meta.Types;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerDeployment;
+import org.urm.meta.env.MetaEnvServerLocation;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerDeployment;
-import org.urm.meta.product.MetaEnvServerLocation;
-import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.Types.*;
 
 public class RuntimeStorage extends ServerStorage {

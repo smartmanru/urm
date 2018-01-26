@@ -4,7 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServer;
 
 public class UrmStorage {
 

@@ -15,10 +15,10 @@ import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.dist.DistRepositoryItem;
-import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.ProductMeta;
 
 public class EngineBlotterSet extends EngineEventsSource {
 

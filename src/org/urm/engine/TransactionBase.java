@@ -15,7 +15,6 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
-import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.BaseCategory;
 import org.urm.meta.engine.BaseGroup;
 import org.urm.meta.engine.BaseItem;
@@ -38,6 +37,12 @@ import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineAuth.SpecialRights;
 import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.env.MetaDump;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvs;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -48,12 +53,6 @@ import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaDocs;
-import org.urm.meta.product.MetaDump;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.MetaEnvs;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaSources;
@@ -61,6 +60,7 @@ import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.product.MetaUnits;
+import org.urm.meta.product.ProductMeta;
 
 public class TransactionBase extends EngineObject {
 
@@ -1089,18 +1089,18 @@ public class TransactionBase extends EngineObject {
 
 	// helpers
 	public AuthResource getResource( AuthResource resource ) throws Exception {
-		return( resourcesNew.getResource( resource.NAME ) );
+		return( resourcesNew.getResource( resource.ID ) );
 	}
 	
 	public ProjectBuilder getBuilder( ProjectBuilder builder ) throws Exception {
-		return( buildersNew.getBuilder( builder.NAME ) );
+		return( buildersNew.getBuilder( builder.ID ) );
 	}
 	
 	public AppSystem getSystem( AppSystem system ) throws Exception {
 		if( directoryNew != null )
-			return( directoryNew.getSystem( system.NAME ) );
+			return( directoryNew.getSystem( system.ID ) );
 		EngineDirectory directory = data.getDirectory();
-		return( directory.getSystem( system.NAME ) );
+		return( directory.getSystem( system.ID ) );
 	}
 	
 	public AppProduct getProduct( AppProduct product ) throws Exception {
@@ -1184,41 +1184,41 @@ public class TransactionBase extends EngineObject {
 	public MetaDistrDelivery getDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
 		Meta meta = getTransactionMetadata( delivery.meta.name );
 		MetaDistr distr = meta.getDistr();
-		return( distr.getDelivery( delivery.NAME ) );
+		return( distr.getDelivery( delivery.ID ) );
 	}
 
 	public MetaDistrBinaryItem getDistrBinaryItem( MetaDistrBinaryItem item ) throws Exception {
 		MetaDistrDelivery delivery = getDistrDelivery( item.delivery );
-		return( delivery.getBinaryItem( item.NAME ) );
+		return( delivery.getBinaryItem( item.ID ) );
 	}
 	
 	public MetaDistrConfItem getDistrConfItem( MetaDistrConfItem item ) throws Exception {
 		MetaDistrDelivery delivery = getDistrDelivery( item.delivery );
-		return( delivery.getConfItem( item.NAME ) );
+		return( delivery.getConfItem( item.ID ) );
 	}
 
 	public MetaDatabaseSchema getDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
 		Meta meta = getTransactionMetadata( schema.meta.name );
 		MetaDatabase database = meta.getDatabase();
-		return( database.getSchema( schema.NAME ) );
+		return( database.getSchema( schema.ID ) );
 	}
 
 	public MetaProductUnit getProductUnit( MetaProductUnit unit ) throws Exception {
 		Meta meta = getTransactionMetadata( unit.meta.name );
 		MetaUnits units = meta.getUnits();
-		return( units.getUnit( unit.NAME ) );
+		return( units.getUnit( unit.ID ) );
 	}
 
 	public MetaProductDoc getProductDoc( MetaProductDoc doc ) throws Exception {
 		Meta meta = getTransactionMetadata( doc.meta.name );
 		MetaDocs docs = meta.getDocs();
-		return( docs.getDoc( doc.NAME ) );
+		return( docs.getDoc( doc.ID ) );
 	}
 
 	public MetaDistrComponent getDistrComponent( MetaDistrComponent comp ) throws Exception {
 		Meta meta = getTransactionMetadata( comp.meta.name );
 		MetaDistr distr = meta.getDistr();
-		return( distr.getComponent( comp.NAME ) );
+		return( distr.getComponent( comp.ID ) );
 	}
 
 	public MetaDistrComponentItem getDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
@@ -1237,27 +1237,27 @@ public class TransactionBase extends EngineObject {
 
 	public MetaSourceProjectItem getSourceProjectItem( MetaSourceProjectItem item ) throws Exception {
 		MetaSourceProject project = getSourceProject( item.project );
-		return( project.getItem( item.NAME ) );
+		return( project.getItem( item.ID ) );
 	}
 	
 	public MetaSourceProject getSourceProject( MetaSourceProject project ) throws Exception {
 		Meta metaNew = getTransactionMetadata( project.meta.name );
 		MetaSources sourceNew = metaNew.getSources();
-		return( sourceNew.getProject( project.NAME ) );
+		return( sourceNew.getProject( project.ID ) );
 	}
 	
 	public MetaSourceProjectSet getSourceProjectSet( MetaSourceProjectSet set ) throws Exception {
 		Meta metaNew = getTransactionMetadata( set.meta.name );
 		MetaSources sourceNew = metaNew.getSources();
-		return( sourceNew.getProjectSet( set.NAME ) );
+		return( sourceNew.getProjectSet( set.ID ) );
 	}
 
 	public MirrorRepository getMirrorRepository( MirrorRepository repo ) throws Exception {
-		return( mirrorsNew.getRepository( repo.NAME ) );
+		return( mirrorsNew.getRepository( repo.ID ) );
 	}
 	
 	public Datacenter getDatacenter( Datacenter datacenter ) throws Exception {
-		return( infraChange.getDatacenter( datacenter.NAME ) );
+		return( infraChange.getDatacenter( datacenter.ID ) );
 	}
 	
 	public ReleaseLifecycle getLifecycle( ReleaseLifecycle lc ) throws Exception {

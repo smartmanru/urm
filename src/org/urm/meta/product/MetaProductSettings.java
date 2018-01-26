@@ -8,8 +8,6 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
-import org.urm.meta.ProductContext;
-import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineMonitoring;
 
 public class MetaProductSettings {

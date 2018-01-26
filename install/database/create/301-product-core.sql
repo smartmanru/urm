@@ -18,6 +18,19 @@ CREATE TABLE main.urm_product_meta (
 COMMENT ON TABLE main.urm_product_meta IS 'Product';
 
 
+CREATE TABLE main.urm_product_doc (
+                doc_id INTEGER NOT NULL,
+                meta_id INTEGER NOT NULL,
+                name VARCHAR(30) NOT NULL,
+                xdesc VARCHAR,
+                ext VARCHAR(30) NOT NULL,
+                unitbound BOOLEAN NOT NULL,
+                pv INTEGER NOT NULL,
+                CONSTRAINT urm_product_doc_pk PRIMARY KEY (doc_id)
+);
+COMMENT ON TABLE main.urm_product_doc IS 'Product document type';
+
+
 CREATE TABLE main.urm_product_policy (
                 meta_id INTEGER NOT NULL,
                 lcurgent_any BOOLEAN NOT NULL,
@@ -143,6 +156,13 @@ ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
 ALTER TABLE main.urm_product_policy ADD CONSTRAINT urm_product_meta_urm_product_policy_fk
+FOREIGN KEY (meta_id)
+REFERENCES main.urm_product_meta (meta_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE main.urm_product_doc ADD CONSTRAINT urm_product_meta_urm_product_doc_fk
 FOREIGN KEY (meta_id)
 REFERENCES main.urm_product_meta (meta_id)
 ON DELETE NO ACTION

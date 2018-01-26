@@ -22,9 +22,9 @@ import org.urm.engine.events.SourceEvent;
 import org.urm.engine.status.ObjectState.STATETYPE;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
 
 public class DeployPlan extends EngineEventsSource implements EngineEventsListener {
 	

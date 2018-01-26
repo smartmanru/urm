@@ -9,10 +9,10 @@ import org.urm.engine.EngineSession;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineLoader;
-import org.urm.meta.ProductContext;
-import org.urm.meta.ProductMeta;
 import org.urm.meta._Error;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.ProductContext;
+import org.urm.meta.product.ProductMeta;
 
 public class EngineProducts {
 
@@ -20,10 +20,12 @@ public class EngineProducts {
 	
 	private ProductMeta offline;
 	private Map<String,ProductMeta> productMeta;
+	private Map<String,ProductMeta> productMetaSkipped;
 	
 	public EngineProducts( Engine engine ) {
 		this.engine = engine;
 		productMeta = new HashMap<String,ProductMeta>();
+		productMetaSkipped = new HashMap<String,ProductMeta>();
 	}
 	
 	public ProductMeta createPrimaryMeta( AppProduct product , ProductContext context ) {
@@ -34,6 +36,12 @@ public class EngineProducts {
 	
 	public void addProduct( ProductMeta set ) {
 		productMeta.put( set.name , set );
+		productMetaSkipped.remove( set.name );
+	}
+	
+	public void addProductSkipped( ProductMeta set ) {
+		productMetaSkipped.put( set.name , set );
+		productMeta.remove( set.name );
 	}
 	
 	public synchronized boolean isProductBroken( String productName ) {
@@ -116,18 +124,30 @@ public class EngineProducts {
 		
 		ProductMeta storage = productMeta.get( productName );
 		if( storage == null )
-			action.exit1( _Error.UnknownSessionProduct1 , "unknown product=" + session.productName , session.productName );
+			action.exit1( _Error.UnknownSessionProduct1 , "unknown product=" + productName , productName );
 		
 		return( storage );
 	}
 
 	public void unloadProducts() {
 		for( ProductMeta storage : productMeta.values() )
-			unloadProduct( storage );
+			unloadProductData( storage );
 		productMeta.clear();
+		
+		for( ProductMeta storage : productMetaSkipped.values() )
+			unloadProductData( storage );
+		productMetaSkipped.clear();
+	}
+
+	public void unloadProduct( ProductMeta storage ) {
+		if( productMeta.get( storage.name ) == storage )
+			productMeta.remove( storage.name );
+		if( productMetaSkipped.get( storage.name ) == storage )
+			productMetaSkipped.remove( storage.name );
+		unloadProductData( storage );
 	}
 	
-	public void unloadProduct( ProductMeta storage ) {
+	private void unloadProductData( ProductMeta storage ) {
 		storage.setPrimary( false );
 		if( !storage.isReferencedBySessions() ) {
 			storage.meta.deleteObject();
@@ -160,7 +180,7 @@ public class EngineProducts {
 	}
 	
 	public void deleteProductMetadata( TransactionBase transaction , ProductMeta storage ) throws Exception {
-		productMeta.remove( storage.name );
+		unloadProduct( storage );
 	}
 
 }

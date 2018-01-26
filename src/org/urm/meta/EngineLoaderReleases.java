@@ -3,6 +3,7 @@ package org.urm.meta;
 import org.urm.action.ActionBase;
 import org.urm.engine.dist.DistRepository;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.ProductMeta;
 
 public class EngineLoaderReleases {
 

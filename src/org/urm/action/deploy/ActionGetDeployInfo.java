@@ -12,9 +12,9 @@ import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileInfo;
 import org.urm.engine.storage.RedistStateInfo;
 import org.urm.engine.storage.RedistStorage;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerLocation;
-import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerLocation;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.Types.*;
 
 public class ActionGetDeployInfo extends ActionBase {

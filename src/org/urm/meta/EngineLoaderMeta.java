@@ -17,6 +17,8 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDesignDiagram;
 import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaProductVersion;
+import org.urm.meta.product.ProductContext;
+import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
