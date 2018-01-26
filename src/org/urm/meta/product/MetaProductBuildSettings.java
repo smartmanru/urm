@@ -83,6 +83,7 @@ public class MetaProductBuildSettings {
 		this.ops = ops;
 		ops.updateProperties();
 		ops.initFinished();
+		scatterProperties();
 	}
 	
 	public MetaProductBuildSettings copy( Meta meta , MetaProductSettings product , ObjectProperties rparent ) throws Exception {
@@ -94,6 +95,7 @@ public class MetaProductBuildSettings {
 	
 	public void setProperties( PropertySet props ) throws Exception {
 		ops.updateProperties( props , true );
+		scatterProperties();
 	}
 
 }

@@ -123,6 +123,7 @@ public class MetaDistrBinaryItem {
 		this.BASENAME_DIST = distName;
 		this.BASENAME_DEPLOY = deployName;
 		this.EXT = ext;
+		this.DEPLOYVERSION_TYPE = versionType;
 		this.WAR_STATICEXT = staticExt;
 		this.WAR_CONTEXT = warContext;
 		this.ARCHIVE_FILES = files;

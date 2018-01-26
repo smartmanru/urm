@@ -115,6 +115,9 @@ public class DBMetaDistr {
 		importxmlDeliverySchemaItems( loader , storage , distr , delivery , root );
 		importxmlDeliveryDocItems( loader , storage , distr , delivery , root );
 		
+		for( MetaDistrBinaryItem item : distr.getBinaryItems() )
+			item.resolveReferences();
+		
 		return( delivery );
 	}
 	
@@ -424,6 +427,9 @@ public class DBMetaDistr {
 		loaddbDeliveryConfItems( loader , storage , distr );
 		loaddbDeliverySchemes( loader , storage , distr );
 		loaddbDeliveryDocs( loader , storage , distr );
+		
+		for( MetaDistrBinaryItem item : distr.getBinaryItems() )
+			item.resolveReferences();
 	}
 
 	public static void loaddbDeliveryBinaryItems( EngineLoader loader , ProductMeta storage , MetaDistr distr ) throws Exception {
@@ -451,6 +457,19 @@ public class DBMetaDistr {
 						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_ARCHIVEFILES ) ,
 						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_ARCHIVEEXCLUDE )
 						);
+				
+				item.setSource(
+						DBEnumItemOriginType.getValue( entity.loaddbEnum( rs , MetaDistrBinaryItem.PROPERTY_ITEMORIGIN ) , true ) ,
+						entity.loaddbObject( rs , DBProductData.FIELD_BINARYITEM_SRCITEM_ID ) ,
+						entity.loaddbObject( rs , DBProductData.FIELD_BINARYITEM_SRCDISTITEM_ID ) ,
+						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_SRCITEMPATH ) 
+						);
+				
+				item.setCustom(
+						entity.loaddbBoolean( rs , MetaDistrBinaryItem.PROPERTY_CUSTOMGET ) ,
+						entity.loaddbBoolean( rs , MetaDistrBinaryItem.PROPERTY_CUSTOMDEPLOY )
+						);
+				
 				distr.addBinaryItem( delivery , item );
 			}
 		}
