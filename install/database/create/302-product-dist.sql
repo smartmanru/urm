@@ -3,7 +3,7 @@ CREATE TABLE main.urm_dist_comp (
                 comp_id INTEGER NOT NULL,
                 meta_id INTEGER NOT NULL,
                 name VARCHAR(64) NOT NULL,
-                desc_1 VARCHAR,
+                xdesc VARCHAR,
                 pv INTEGER NOT NULL,
                 CONSTRAINT urm_dist_comp_pk PRIMARY KEY (comp_id)
 );
