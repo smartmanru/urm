@@ -350,10 +350,11 @@ public class DBMetaDistr {
 	}
 
 	private static MetaDistrComponentItem importxmlComponentItem( EngineLoader loader , ProductMeta storage , MetaDistr distr , MetaDistrComponent comp , DBEnumCompItemType type , Node root ) throws Exception {
-		MetaDistrComponentItem item = new MetaDistrComponentItem( storage.meta , comp );
+		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppMetaDistrCompItem;
 		
+		MetaDistrComponentItem item = new MetaDistrComponentItem( storage.meta , comp );
 		if( type == DBEnumCompItemType.BINARY ) {
 			MetaDistrBinaryItem binaryItem = distr.getBinaryItem( entity.importxmlStringAttr( root , MetaDistrComponentItem.PROPERTY_NAME ) );
 			item.createBinaryItem( binaryItem , entity.importxmlStringAttr( root , MetaDistrComponentItem.PROPERTY_DEPLOYNAME ) );
@@ -376,7 +377,8 @@ public class DBMetaDistr {
 		}
 		else
 			Common.exitUnexpected();
-		
+
+		modifyComponentItem( c , storage , distr , item , true );
 		return( item );
 	}
 
@@ -522,8 +524,78 @@ public class DBMetaDistr {
 	}
 	
 	public static void loaddbComponents( EngineLoader loader , ProductMeta storage , MetaDistr distr ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrComponent;
+		
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { EngineDB.getInteger( storage.ID ) } );
+		try {
+			while( rs.next() ) {
+				MetaDistrComponent comp = new MetaDistrComponent( storage.meta , distr );
+				comp.ID = entity.loaddbId( rs );
+				comp.PV = entity.loaddbVersion( rs );
+				comp.createComponent(
+						entity.loaddbString( rs , MetaDistrComponent.PROPERTY_NAME ) ,
+						entity.loaddbString( rs , MetaDistrComponent.PROPERTY_DESC )
+						);
+				distr.addComponent( comp );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+		
+		loaddbCompItems( loader , storage , distr );
 	}
 	
+	public static void loaddbCompItems( EngineLoader loader , ProductMeta storage , MetaDistr distr ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrCompItem;
+		
+		MetaDatabase db = storage.getDatabase();
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { EngineDB.getInteger( storage.ID ) } );
+		try {
+			while( rs.next() ) {
+				MetaDistrComponent comp = distr.getComponent( entity.loaddbObject( rs , DBProductData.FIELD_COMPITEM_COMPID ) );
+				MetaDistrComponentItem item = new MetaDistrComponentItem( storage.meta , comp );
+				item.ID = entity.loaddbId( rs );
+				item.PV = entity.loaddbVersion( rs );
+				
+				DBEnumCompItemType type = DBEnumCompItemType.getValue( entity.loaddbEnum( rs , DBProductData.FIELD_COMPITEM_TYPE ) , true );
+				String deployName = entity.loaddbString( rs , MetaDistrComponentItem.PROPERTY_DEPLOYNAME );
+				
+				if( type == DBEnumCompItemType.BINARY ) {
+					MetaDistrBinaryItem binaryItem = distr.getBinaryItem( entity.loaddbObject( rs , DBProductData.FIELD_COMPITEM_BINARY_ID ) );
+					item.createBinaryItem( binaryItem , deployName );
+					comp.addBinaryItem( item );
+				}
+				else
+				if( type == DBEnumCompItemType.CONF ) {
+					MetaDistrConfItem confItem = distr.getConfItem( entity.loaddbObject( rs , DBProductData.FIELD_COMPITEM_CONF_ID ) );
+					item.createConfItem( confItem );
+					comp.addConfItem( item );
+				}
+				else
+				if( type == DBEnumCompItemType.SCHEMA ) {
+					MetaDatabaseSchema schema = db.getSchema( entity.loaddbObject( rs , DBProductData.FIELD_COMPITEM_SCHEMA_ID ) );
+					item.createSchemaItem( schema , deployName );
+					comp.addSchemaItem( item );
+				}				
+				else
+				if( type == DBEnumCompItemType.WSDL ) {
+					item.createWsdlItem( entity.loaddbString( rs , MetaDistrComponentItem.PROPERTY_WSDL ) );
+					comp.addWebService( item );
+				}
+				else
+					Common.exitUnexpected();
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+
 	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
 		MetaDistr distr = storage.getDistr();
 
@@ -613,6 +685,68 @@ public class DBMetaDistr {
 	}
 	
 	public static void exportxmlComponents( EngineLoader loader , ProductMeta storage , MetaDistr distr , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrComponent;
+		
+		for( String name : distr.getComponentNames() ) {
+			MetaDistrComponent comp = distr.findComponent( name );
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_COMPONENT );
+			
+			DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {
+					entity.exportxmlString( comp.NAME ) ,
+					entity.exportxmlString( comp.DESC )
+			} , true );
+			
+			exportxmlComponentItems( loader , storage , distr , comp , doc , node );
+		}
+	}
+	
+	public static void exportxmlComponentItems( EngineLoader loader , ProductMeta storage , MetaDistr distr , MetaDistrComponent comp , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrCompItem;
+		
+		for( String name : comp.getBinaryItemNames() ) {
+			MetaDistrComponentItem item = comp.getBinaryItem( name ); 
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_COMPITEM_BINARYITEM );
+			
+			DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {
+					entity.exportxmlString( item.binaryItem.NAME ) ,
+					entity.exportxmlString( item.DEPLOY_NAME ) ,
+					entity.exportxmlString( null )
+			} , true );
+		}
+		
+		for( String name : comp.getConfItemNames() ) {
+			MetaDistrComponentItem item = comp.getConfItem( name ); 
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_COMPITEM_CONFITEM );
+			
+			DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {
+					entity.exportxmlString( item.confItem.NAME ) ,
+					entity.exportxmlString( null ) ,
+					entity.exportxmlString( null )
+			} , true );
+		}
+		
+		for( String name : comp.getSchemaItemNames() ) {
+			MetaDistrComponentItem item = comp.getSchemaItem( name ); 
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_COMPITEM_SCHEMA );
+			
+			DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {
+					entity.exportxmlString( item.schema.NAME ) ,
+					entity.exportxmlString( item.DEPLOY_NAME ) ,
+					entity.exportxmlString( null )
+			} , true );
+		}
+		
+		for( MetaDistrComponentItem item : comp.getWebServices() ) {
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_COMPITEM_WS );
+			
+			DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {
+					entity.exportxmlString( null ) ,
+					entity.exportxmlString( null ) ,
+					entity.exportxmlString( item.WSDL_REQUEST )
+			} , true );
+		}
 	}
 	
 	public static void exportxmlDeliverySchemes( EngineLoader loader , ProductMeta storage , MetaDistrDelivery delivery , Document doc , Element root ) throws Exception {
@@ -715,6 +849,27 @@ public class DBMetaDistr {
 				EngineDB.getInteger( storage.ID ) ,
 				EngineDB.getString( comp.NAME ) ,
 				EngineDB.getString( comp.DESC )
+				} , insert );
+	}
+
+	private static void modifyComponentItem( DBConnection c , ProductMeta storage , MetaDistr distr , MetaDistrComponentItem item , boolean insert ) throws Exception {
+		String name = item.getMatchName();
+		if( insert )
+			item.ID = DBNames.getNameIndex( c , storage.ID , name , DBEnumObjectType.META_DIST_COMPITEM );
+		else
+			DBNames.updateName( c , storage.ID , name , item.ID , DBEnumObjectType.META_DIST_COMPITEM );
+		
+		item.PV = c.getNextProductVersion( storage );
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaDistrCompItem , item.ID , item.PV , new String[] {
+				EngineDB.getInteger( storage.ID ) ,
+				EngineDB.getObject( item.comp.ID ) ,
+				EngineDB.getEnum( item.COMPITEM_TYPE ) ,
+				EngineDB.getObject( item.binaryItem ) ,
+				EngineDB.getObject( item.confItem ) ,
+				EngineDB.getObject( item.schema ) ,
+				EngineDB.getString( item.DEPLOY_NAME ) ,
+				EngineDB.getString( item.WSDL_REQUEST)
 				} , insert );
 	}
 

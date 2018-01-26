@@ -65,7 +65,7 @@ public class MetaDistr {
 		
 		return( r );
 	}
-	
+
 	public String[] getDeliveryNames() {
 		return( Common.getSortedKeys( mapDeliveries ) );
 	}

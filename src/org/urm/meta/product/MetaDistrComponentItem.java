@@ -15,7 +15,7 @@ public class MetaDistrComponentItem {
 	public DBEnumCompItemType COMPITEM_TYPE;
 	public String DEPLOY_NAME;
 	public String WSDL_REQUEST;
-	public String PV;
+	public int PV;
 	
 	public MetaDistrBinaryItem binaryItem;
 	public MetaDistrConfItem confItem;
@@ -80,6 +80,18 @@ public class MetaDistrComponentItem {
 	
 	public String getURL( String ACCESSPOINT ) {
 		return( ACCESSPOINT + "/" + WSDL_REQUEST + "?wsdl" );
+	}
+
+	public String getMatchName() {
+		if( COMPITEM_TYPE == DBEnumCompItemType.BINARY )
+			return( "" + binaryItem.ID );
+		if( COMPITEM_TYPE == DBEnumCompItemType.CONF )
+			return( "" + confItem.ID );
+		if( COMPITEM_TYPE == DBEnumCompItemType.SCHEMA )
+			return( "" + schema.ID );
+		if( COMPITEM_TYPE == DBEnumCompItemType.WSDL )
+			return( WSDL_REQUEST );
+		return( null );
 	}
 	
 }

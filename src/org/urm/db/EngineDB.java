@@ -10,6 +10,10 @@ import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnumInterface;
 import org.urm.db.core.DBEnums;
 import org.urm.engine.Engine;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
 
 public class EngineDB {
 
@@ -118,4 +122,16 @@ public class EngineDB {
 		return( "" + item.code() );
 	}
 
+	public static String getObject( MetaDistrBinaryItem item ) {
+		return( getObject( Meta.getObject( item ) ) );
+	}
+	
+	public static String getObject( MetaDistrConfItem item ) {
+		return( getObject( Meta.getObject( item ) ) );
+	}
+	
+	public static String getObject( MetaDatabaseSchema schema ) {
+		return( getObject( Meta.getObject( schema ) ) );
+	}
+	
 }

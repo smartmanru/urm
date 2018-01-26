@@ -252,4 +252,23 @@ public class Meta extends EngineObject {
     	MetaEnvs envs = storage.getEnviroments();
     	return( envs.findEnv( name ) );
     }
+
+	public static Integer getObject( MetaDistrBinaryItem item ) {
+		if( item == null )
+			return( null );
+		return( item.ID );
+	}
+	
+	public static Integer getObject( MetaDistrConfItem item ) {
+		if( item == null )
+			return( null );
+		return( item.ID );
+	}
+	
+	public static Integer getObject( MetaDatabaseSchema schema ) {
+		if( schema == null )
+			return( null );
+		return( schema.ID );
+	}
+	
 }
