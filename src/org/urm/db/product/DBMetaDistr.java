@@ -386,7 +386,7 @@ public class DBMetaDistr {
 		else
 			Common.exitUnexpected();
 
-		modifyComponentItem( c , storage , distr , item , true );
+		modifyComponentItem( c , storage , distr , comp , item , true );
 		return( item );
 	}
 
@@ -876,12 +876,12 @@ public class DBMetaDistr {
 				} , insert );
 	}
 
-	private static void modifyComponentItem( DBConnection c , ProductMeta storage , MetaDistr distr , MetaDistrComponentItem item , boolean insert ) throws Exception {
+	private static void modifyComponentItem( DBConnection c , ProductMeta storage , MetaDistr distr , MetaDistrComponent comp , MetaDistrComponentItem item , boolean insert ) throws Exception {
 		String name = item.getMatchName();
 		if( insert )
-			item.ID = DBNames.getNameIndex( c , storage.ID , name , DBEnumObjectType.META_DIST_COMPITEM );
+			item.ID = DBNames.getNameIndex( c , comp.ID , name , DBEnumObjectType.META_DIST_COMPITEM );
 		else
-			DBNames.updateName( c , storage.ID , name , item.ID , DBEnumObjectType.META_DIST_COMPITEM );
+			DBNames.updateName( c , comp.ID , name , item.ID , DBEnumObjectType.META_DIST_COMPITEM );
 		
 		item.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
