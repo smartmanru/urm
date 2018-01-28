@@ -1143,13 +1143,36 @@ public class DBMetaDistr {
 		}
 	}
 	
-	public static void createComponent( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
+	public static MetaDistrComponent createComponent( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , String name , String desc ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MetaDistrComponent comp = new MetaDistrComponent( storage.meta , distr );
+		comp.createComponent( name , desc );
+		modifyComponent( c , storage , comp , true );
+		
+		distr.addComponent( comp );
+		return( comp );
 	}
 	
-	public static void modifyComponent( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
+	public static void modifyComponent( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrComponent comp , String name , String desc ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		comp.modifyComponent( name , desc );
+		modifyComponent( c , storage , comp , false );
+		
+		distr.updateComponent( comp );
 	}
 	
-	public static void deleteDistrComponent( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
+	public static void deleteComponent( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrComponent comp ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		
+		if( !c.modify( DBQueries.MODIFY_DISTR_CASCADECOMP_ALLITEMS1 , new String[] { EngineDB.getInteger( comp.ID ) } ) )
+			Common.exitUnexpected();
+		
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrComponent , comp.ID , c.getNextProductVersion( storage ) );
+		
+		distr.removeComponent( comp );
 	}
 
 	public static void deleteUnit( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaProductUnit unit ) throws Exception {
@@ -1165,5 +1188,56 @@ public class DBMetaDistr {
 				delivery.removeDoc( doc );
 		}
 	}	
+	
+	public static MetaDistrComponentItem createComponentItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrComponent comp , MetaDistrBinaryItem binaryItem , MetaDistrConfItem confItem , MetaDatabaseSchema schema , String deployName , String WSDL ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MetaDistrComponentItem item = new MetaDistrComponentItem( storage.meta , comp );
+		if( binaryItem != null )
+			item.createBinaryItem( binaryItem , deployName );
+		else
+		if( confItem != null )
+			item.createConfItem( confItem );
+		else
+		if( schema != null )
+			item.createSchemaItem( schema , deployName );
+		else
+		if( !WSDL.isEmpty() )
+			item.createWsdlItem( WSDL );
+		else
+			Common.exitUnexpected();
+		
+		modifyComponentItem( c , storage , distr , comp , item , true );
+		return( item );
+	}
+	
+	public static void modifyComponentItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrComponent comp , MetaDistrComponentItem item , MetaDistrBinaryItem binaryItem , MetaDistrConfItem confItem , MetaDatabaseSchema schema , String deployName , String WSDL ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		if( binaryItem != null )
+			item.createBinaryItem( binaryItem , deployName );
+		else
+		if( confItem != null )
+			item.createConfItem( confItem );
+		else
+		if( schema != null )
+			item.createSchemaItem( schema , deployName );
+		else
+		if( !WSDL.isEmpty() )
+			item.createWsdlItem( WSDL );
+		else
+			Common.exitUnexpected();
+		
+		modifyComponentItem( c , storage , distr , comp , item , false );
+	}
+	
+	public static void deleteComponentItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrComponent comp , MetaDistrComponentItem item ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrCompItem , item.ID , c.getNextProductVersion( storage ) );
+		
+		comp.removeCompItem( item );
+	}
 	
 }

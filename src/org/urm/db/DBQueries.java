@@ -123,5 +123,6 @@ public abstract class DBQueries {
 	public static String MODIFY_DISTR_DELETEDELIVERYDOCS1 = "delete from urm_dist_docitem where delivery_id = @1@";
 	public static String QUERY_DISTR_GETALLDELIVERYSCHEMES1 = "select delivery_id , schema_id , meta_id , pv from urm_dist_schemaitem where meta_id = @1@";
 	public static String QUERY_DISTR_GETALLDELIVERYDOCS1 = "select delivery_id , doc_id , meta_id , pv from urm_dist_docitem where meta_id = @1@";
+	public static String MODIFY_DISTR_CASCADECOMP_ALLITEMS1 = "delete from urm_dist_compitem where comp_id = @1@";
 	
 }

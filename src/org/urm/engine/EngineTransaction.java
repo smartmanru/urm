@@ -847,40 +847,41 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaDatabase.deleteSchema( this , storage , schema.database , schema );
 	}
 	
-	public void createDistrComponent( MetaDistrComponent item ) throws Exception {
-		ProductMeta storage = item.meta.getStorage();
+	public MetaDistrComponent createDistrComponent( MetaDistr distr , String name , String desc ) throws Exception {
+		ProductMeta storage = distr.meta.getStorage();
 		checkTransactionMetadata( storage );
-		//item.dist.createDistrComponent( this , item );
+		return( DBMetaDistr.createComponent( this , storage , distr , name , desc ) );
 	}
 	
-	public void modifyDistrComponent( MetaDistrComponent item ) throws Exception {
-		ProductMeta storage = item.meta.getStorage();
+	public void modifyDistrComponent( MetaDistrComponent comp , String name , String desc ) throws Exception {
+		ProductMeta storage = comp.meta.getStorage();
 		checkTransactionMetadata( storage );
-		//item.dist.modifyDistrComponent( this , item );
+		DBMetaDistr.modifyComponent( this , storage , comp.dist , comp , name , desc );
 	}
 
-	public void deleteDistrComponent( MetaDistrComponent item ) throws Exception {
-		ProductMeta storage = item.meta.getStorage();
+	public void deleteDistrComponent( MetaDistrComponent comp ) throws Exception {
+		ProductMeta storage = comp.meta.getStorage();
 		checkTransactionMetadata( storage );
-		//item.dist.deleteDistrComponent( this , item );
+		
+		DBMetaDistr.deleteComponent( this , storage , comp.dist , comp );
 	}
 	
-	public void createDistrComponentItem( MetaDistrComponent comp , MetaDistrComponentItem item ) throws Exception {
-		ProductMeta storage = item.meta.getStorage();
+	public MetaDistrComponentItem createDistrComponentItem( MetaDistrComponent comp , MetaDistrBinaryItem binaryItem , MetaDistrConfItem confItem , MetaDatabaseSchema schema , String deployName , String WSDL ) throws Exception {
+		ProductMeta storage = comp.meta.getStorage();
 		checkTransactionMetadata( storage );
-		//item.comp.createItem( this , item );
+		return( DBMetaDistr.createComponentItem( this , storage , comp.dist , comp , binaryItem , confItem , schema , deployName , WSDL ) );
 	}
 	
-	public void modifyDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
+	public void modifyDistrComponentItem( MetaDistrComponentItem item , MetaDistrBinaryItem binaryItem , MetaDistrConfItem confItem , MetaDatabaseSchema schema , String deployName , String WSDL ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
 		checkTransactionMetadata( storage );
-		//item.comp.modifyItem( this , item );
+		DBMetaDistr.modifyComponentItem( this , storage , item.comp.dist , item.comp , item , binaryItem , confItem , schema , deployName , WSDL );
 	}
 
 	public void deleteDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
 		checkTransactionMetadata( storage );
-		//item.comp.deleteItem( this , item );
+		DBMetaDistr.deleteComponentItem( this , storage , item.comp.dist , item.comp , item );
 	}
 
 	public MetaSourceProjectSet createSourceProjectSet( MetaSources sources , String name , String desc ) throws Exception {
