@@ -204,7 +204,7 @@ public class EngineMatcher {
 	public void matchProductDone( MatchItem item ) throws Exception {
 		boolean ok = false;
 		if( item == null || item.MATCHED )
-			ok = false;
+			ok = true;
 		
 		matchProductUpdateStatus( matchStorage , ok , ok );
 	}
