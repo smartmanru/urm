@@ -6,6 +6,7 @@ import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumBuildModeType;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
@@ -14,6 +15,7 @@ import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductContext;
 import org.urm.meta.product.ProductMeta;
@@ -204,6 +206,48 @@ public class DBMetaSettings {
 			MetaProductBuildSettings buildMode = settings.getBuildModeSettings( mode );
 			DBSettings.exportxmlEntity( loader , doc , coreMode , buildMode.ops , false , false );
 		}
+	}
+
+	public static void updateProductCoreProperties( EngineTransaction transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MetaProductCoreSettings core = settings.getCoreSettings();
+		ObjectProperties opsCore = core.ops;
+		int version = c.getNextProductVersion( storage );
+		DBSettings.savedbPropertyValues( c , storage.ID , opsCore , true , false , version );
+		core.scatterPrimaryProperties();
+	}
+	
+	public static void updateProductCustomProperties( EngineTransaction transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		ObjectProperties opsContext = settings.getContextProperties();
+		int version = c.getNextProductVersion( storage );
+		DBSettings.savedbEntityCustom( c , opsContext , storage.ID , storage.ID , version );
+		DBSettings.savedbPropertyValues( c , storage.ID , opsContext , false , true , version );
+		opsContext.recalculateChildProperties();
+	}
+	
+	public static void updateProductBuildCommonProperties( EngineTransaction transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MetaProductBuildSettings build = settings.getBuildCommonSettings();
+		ObjectProperties opsBuild = build.ops;
+		int version = c.getNextProductVersion( storage );
+		DBSettings.savedbPropertyValues( c , storage.ID , opsBuild , true , false , version );
+		build.scatterProperties();
+		opsBuild.recalculateChildProperties();
+	}
+	
+	public static void updateProductBuildModeProperties( EngineTransaction transaction , ProductMeta storage , MetaProductSettings settings , DBEnumBuildModeType mode ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MetaProductBuildSettings build = settings.getBuildModeSettings( mode );
+		ObjectProperties opsBuild = build.ops;
+		int version = c.getNextProductVersion( storage );
+		DBSettings.savedbPropertyValues( c , storage.ID , opsBuild , true , false , version );
+		build.scatterProperties();
+		opsBuild.recalculateChildProperties();
 	}
 	
 }

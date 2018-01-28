@@ -642,22 +642,28 @@ public class EngineTransaction extends TransactionBase {
 	// ################################################################################
 	// PRODUCT
 	
-	public void setProductProperties( Meta meta , PropertySet props , boolean system ) throws Exception {
-		ProductMeta metadata = getTransactionProductMetadata( meta );
-		MetaProductSettings settings = metadata.getSettings();
-		settings.setProperties( props , system );
+	public void updateProductCoreProperties( MetaProductSettings settings ) throws Exception {
+		ProductMeta storage = settings.meta.getStorage();
+		checkTransactionMetadata( storage );
+		DBMetaSettings.updateProductCoreProperties( this , storage , settings );
 	}
 	
-	public void setProductBuildCommonProperties( Meta meta , PropertySet props ) throws Exception {
-		ProductMeta metadata = getTransactionProductMetadata( meta );
-		MetaProductSettings settings = metadata.getSettings();
-		settings.setBuildCommonProperties( props );
+	public void updateProductCustomProperties( MetaProductSettings settings ) throws Exception {
+		ProductMeta storage = settings.meta.getStorage();
+		checkTransactionMetadata( storage );
+		DBMetaSettings.updateProductCustomProperties( this , storage , settings );
 	}
 	
-	public void setProductBuildModeProperties( Meta meta , DBEnumBuildModeType mode , PropertySet props ) throws Exception {
-		ProductMeta metadata = getTransactionProductMetadata( meta );
-		MetaProductSettings settings = metadata.getSettings();
-		settings.setBuildModeProperties( mode , props );
+	public void updateProductBuildCommonProperties( MetaProductSettings settings ) throws Exception {
+		ProductMeta storage = settings.meta.getStorage();
+		checkTransactionMetadata( storage );
+		DBMetaSettings.updateProductBuildCommonProperties( this , storage , settings );
+	}
+	
+	public void updateProductBuildModeProperties( MetaProductSettings settings , DBEnumBuildModeType mode ) throws Exception {
+		ProductMeta storage = settings.meta.getStorage();
+		checkTransactionMetadata( storage );
+		DBMetaSettings.updateProductBuildModeProperties( this , storage , settings , mode );
 	}
 
 	public MetaProductVersion updateProductVersion( Meta meta , int majorFirstNumber , int majorSecondNumber , int lastProdTag , int lastUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int nextUrgentTag ) throws Exception {

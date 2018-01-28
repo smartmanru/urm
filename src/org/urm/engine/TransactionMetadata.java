@@ -1,6 +1,7 @@
 package org.urm.engine;
 
 import org.urm.engine.status.EngineStatus;
+import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.AppProduct;
@@ -61,7 +62,8 @@ public class TransactionMetadata {
 		ProductMeta storage = meta.getStorage();
 		if( storage.isPrimary() ) {
 			metadataOld = storage;
-			metadata = storage.copy( transaction.action , storage.products , storage.product );
+			AppSystem system = storage.product.system;
+			metadata = storage.copy( transaction.action , storage.products , storage.product , system.getParameters() );
 			sessionMeta = transaction.action.getProductMetadata( meta.name );
 			transaction.trace( "transaction product storage meta: source=" + storage.objectId + ", copy=" + metadata.objectId );
 			if( metadata != null )

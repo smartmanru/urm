@@ -131,7 +131,6 @@ public class ObjectProperties {
 		if( var.isApp() )
 			return( properties.getSystemPathExprProperty( var.NAME , execrc , var.EXPR_DEF , var.REQUIRED ) );
 		return( properties.getPathProperty( var.NAME , var.EXPR_DEF ) );
-		
 	}
 	
 	public int getIntProperty( String prop ) throws Exception {

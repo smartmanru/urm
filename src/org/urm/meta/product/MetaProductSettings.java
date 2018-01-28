@@ -49,7 +49,7 @@ public class MetaProductSettings {
 		r.core = core.copy( rmeta , r );
 		
 		if( buildCommon != null )
-			r.buildCommon = buildCommon.copy( rmeta , r , r.getProperties() ); 
+			r.buildCommon = buildCommon.copy( rmeta , r , r.getContextProperties() ); 
 		for( DBEnumBuildModeType mode : buildModes.keySet() ) {
 			MetaProductBuildSettings modeSet = buildModes.get( mode );
 			r.buildModes.put( mode , modeSet.copy( rmeta , r , r.buildCommon.getProperties() ) );
@@ -58,7 +58,7 @@ public class MetaProductSettings {
 		return( r );
 	}
 
-	public ObjectProperties getProperties() {
+	public ObjectProperties getContextProperties() {
 		return( ctx );
 	}
 	

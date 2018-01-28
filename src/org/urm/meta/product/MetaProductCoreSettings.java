@@ -81,14 +81,14 @@ public class MetaProductCoreSettings {
 
 	public MetaProductCoreSettings copy( Meta rmeta , MetaProductSettings rsettings ) throws Exception {
 		MetaProductCoreSettings r = new MetaProductCoreSettings( rmeta , rsettings );
-		r.ops = ops.copy( rsettings.getProperties() );
+		r.ops = ops.copy( rsettings.getContextProperties() );
 		r.scatterPrimaryProperties();
 		r.mon = mon.copy( ops );
 		r.scatterMonitoringProperties();
 		return( r );
 	}
 	
-	private void scatterPrimaryProperties() throws Exception {
+	public void scatterPrimaryProperties() throws Exception {
 		CONFIG_REDISTWIN_PATH = ops.getPathProperty( PROPERTY_REDISTWIN_PATH );
 		CONFIG_REDISTLINUX_PATH = ops.getPathProperty( PROPERTY_REDISTLINUX_PATH );
 		CONFIG_DISTR_PATH = ops.getPathProperty( PROPERTY_DISTR_PATH );

@@ -8,6 +8,7 @@ import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineProducts;
@@ -62,7 +63,7 @@ public class ProductMeta extends EngineObject {
 		return( name );
 	}
 	
-	public synchronized ProductMeta copy( ActionBase action , EngineProducts rproducts , AppProduct rproduct ) throws Exception {
+	public synchronized ProductMeta copy( ActionBase action , EngineProducts rproducts , AppProduct rproduct , ObjectProperties opsParent ) throws Exception {
 		ProductMeta r = new ProductMeta( products , rproduct );
 		
 		r.ID = ID;
@@ -70,7 +71,8 @@ public class ProductMeta extends EngineObject {
 		r.MATCHED = MATCHED;
 		
 		r.version = version.copy( r.meta );
-		r.settings = settings.copy( r.meta , null );
+		
+		r.settings = settings.copy( r.meta , opsParent );
 		r.policy = policy.copy( r.meta );
 		r.units = units.copy( r.meta );
 		r.database = database.copy( r.meta );

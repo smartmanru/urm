@@ -168,6 +168,7 @@ public class MetaMonitoringTarget {
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		MetaEnvSegment sg = findSegment();
+		
 		Common.xmlSetElementAttr( doc , root , "env" , sg.env.NAME );
 		Common.xmlSetElementAttr( doc , root , "segment" , sg.NAME );
 		Common.xmlSetElementAttr( doc , root , "major.enabled" , Common.getBooleanValue( MAJOR_ENABLED ) );
