@@ -202,8 +202,11 @@ public class EngineMatcher {
 	}
 
 	public void matchProductDone( MatchItem item ) throws Exception {
-		if( !item.MATCHED )
-			matchProductUpdateStatus( matchStorage , true , false );
+		boolean ok = false;
+		if( item == null || item.MATCHED )
+			ok = false;
+		
+		matchProductUpdateStatus( matchStorage , ok , ok );
 	}
 
 	public void matchProductDone( MatchItem item , ProductMeta storage , String value , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
