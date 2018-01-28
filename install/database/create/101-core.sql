@@ -126,7 +126,7 @@ COMMENT ON TABLE main.urm_mirror IS 'Code repository';
 CREATE TABLE main.urm_object_name (
                 parent INTEGER NOT NULL,
                 object_type INTEGER NOT NULL,
-                name VARCHAR(64) NOT NULL,
+                name VARCHAR NOT NULL,
                 object_id INTEGER NOT NULL,
                 CONSTRAINT urm_object_name_pk PRIMARY KEY (parent, object_type, name)
 );
