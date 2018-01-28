@@ -126,8 +126,8 @@ public class DBMetaPolicy {
 		if( !c.modify( DBQueries.MODIFY_METALC_ADD5 , new String[] { 
 				EngineDB.getInteger( storage.ID ) ,
 				EngineDB.getInteger( index ) ,
-				EngineDB.getInteger( item.FKID ) ,
-				EngineDB.getString( item.FKNAME ) ,
+				EngineDB.getMatchId( item ) ,
+				EngineDB.getMatchName( item ) ,
 				EngineDB.getInteger( c.getNextProductVersion( storage ) )
 				} ) )
 			Common.exitUnexpected();

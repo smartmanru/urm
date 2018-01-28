@@ -10,6 +10,7 @@ import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnumInterface;
 import org.urm.db.core.DBEnums;
 import org.urm.engine.Engine;
+import org.urm.meta.MatchItem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -86,6 +87,18 @@ public class EngineDB {
 		if( value == null )
 			return( "null" );
 		return( "" + value );
+	}
+
+	public static String getMatchId( MatchItem item ) {
+		if( item == null )
+			return( "null" );
+		return( getObject( item.FKID ) );
+	}
+
+	public static String getMatchName( MatchItem item ) {
+		if( item == null )
+			return( "null" );
+		return( getString( item.FKNAME ) );
 	}
 
 	public static String getBooleanString( String value ) {
