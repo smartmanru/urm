@@ -8,7 +8,6 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
-import org.urm.meta.engine.EngineMonitoring;
 
 public class MetaProductSettings {
 
@@ -79,8 +78,12 @@ public class MetaProductSettings {
 		}
 	}
 
-	public void createCoreSettings( ObjectProperties opsCore , ObjectProperties opsMon , EngineMonitoring sm ) throws Exception {
-		core.createSettings( opsCore , opsMon , sm );
+	public void createCoreSettings( ObjectProperties opsCore ) throws Exception {
+		core.createCoreSettings( opsCore );
+	}
+	
+	public void createMonitoringSettings( ObjectProperties mon ) throws Exception {
+		core.createMonitoringSettings( mon );
 	}
 	
 	public void createBuildCommonSettings( ObjectProperties opsBuild ) throws Exception {

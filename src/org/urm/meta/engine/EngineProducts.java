@@ -11,7 +11,6 @@ import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineLoader;
 import org.urm.meta._Error;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.ProductContext;
 import org.urm.meta.product.ProductMeta;
 
 public class EngineProducts {
@@ -26,12 +25,6 @@ public class EngineProducts {
 		this.engine = engine;
 		productMeta = new HashMap<String,ProductMeta>();
 		productMetaSkipped = new HashMap<String,ProductMeta>();
-	}
-	
-	public ProductMeta createPrimaryMeta( AppProduct product , ProductContext context ) {
-		ProductMeta set = new ProductMeta( this , product );
-		set.setPrimary( true );
-		return( set );
 	}
 	
 	public void addProduct( ProductMeta set ) {
@@ -160,12 +153,6 @@ public class EngineProducts {
 		for( PropertySet set : settings.getBuildModeDefaults() )
 			props.copyOriginalPropertiesToRaw( set );
 		props.resolveRawProperties();
-	}
-
-	public ProductMeta createProductMetadata( TransactionBase transaction , EngineSettings settings , AppProduct product ) throws Exception {
-		ProductMeta set = new ProductMeta( this , product );
-		set.createInitial( transaction , settings , product );
-		return( set );
 	}
 
 	public void setProductMetadata( TransactionBase transaction , ProductMeta storageNew ) throws Exception {

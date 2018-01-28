@@ -12,6 +12,7 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
+import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductContext;
@@ -24,8 +25,58 @@ public class DBMetaSettings {
 
 	public static String ELEMENT_CUSTOM = "custom";
 	public static String ELEMENT_CORE = "core";
+	public static String ELEMENT_MONITORING = "monitoring";
 	public static String ELEMENT_BUILD = "build";
 	public static String ELEMENT_MODE = "mode";
+	
+	public static void createdb( EngineLoader loader , ProductMeta storage , ProductContext context ) throws Exception {
+		DBConnection c = loader.getConnection();
+		AppProduct product = storage.product;
+		EngineEntities entities = loader.getEntities();
+		
+		MetaProductSettings settings = new MetaProductSettings( storage , storage.meta );
+		storage.setSettings( settings );
+
+		// context and custom settings
+		AppSystem system = product.system;
+		ObjectProperties opsContext = entities.createMetaContextProps( system.getParameters() );
+		int version = c.getNextProductVersion( storage );
+		opsContext.recalculateProperties();
+		DBSettings.savedbEntityCustom( c , opsContext , storage.ID , storage.ID , version );
+		DBSettings.savedbPropertyValues( c , storage.ID , opsContext , false , true , version );
+		settings.createSettings( opsContext , context );
+		
+		// core settings
+		ObjectProperties opsCore = entities.createMetaCoreSettingsProps( opsContext );
+		opsCore.recalculateProperties();
+		DBSettings.savedbPropertyValues( c , storage.ID , opsCore , true , false , version );
+		settings.createCoreSettings( opsCore );
+
+		// monitoring settings
+		ObjectProperties opsMon = entities.createMetaMonitoringProps( opsCore );
+		DBSettings.savedbPropertyValues( c , storage.ID , opsMon , true , false , version );
+		opsMon.recalculateProperties();
+		settings.createMonitoringSettings( opsMon );
+		
+		// build settings
+		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( opsCore );
+		EngineSettings engineSettings = context.settings;
+		ObjectProperties opsBuildCommonDefaults = engineSettings.getDefaultProductBuildProperties();
+		opsBuildCommon.copyOriginalPropertiesToRaw( opsBuildCommonDefaults.getProperties() );
+		DBSettings.savedbPropertyValues( c , storage.ID , opsBuildCommon , true , false , version );
+		settings.createBuildCommonSettings( opsBuildCommon );
+		
+		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
+			if( mode == DBEnumBuildModeType.UNKNOWN )
+				continue;
+			
+			ObjectProperties opsBuildMode = entities.createMetaBuildModeProps( opsBuildCommon , mode );
+			ObjectProperties opsBuildModeDefaults = engineSettings.getDefaultProductBuildObjectProperties( mode );
+			opsBuildMode.copyOriginalPropertiesToRaw( opsBuildModeDefaults.getProperties() );
+			DBSettings.savedbPropertyValues( c , storage.ID , opsBuildMode , true , false , version );
+			settings.createBuildModeSettings( mode , opsBuildMode );
+		}
+	}
 	
 	public static void importxml( EngineLoader loader , ProductMeta storage , ProductContext context , Node root ) throws Exception {
 		AppProduct product = storage.product;
@@ -42,24 +93,29 @@ public class DBMetaSettings {
 		opsContext.recalculateProperties();
 		settings.createSettings( opsContext , context );
 		
-		// core and monitoring settings
+		// core settings
 		Node coreNode = ConfReader.xmlGetFirstChild( root , ELEMENT_CORE );
 		if( coreNode == null )
 			Common.exitUnexpected();
 		ObjectProperties opsCore = entities.createMetaCoreSettingsProps( opsContext );
 		DBSettings.importxml( loader , coreNode , opsCore , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
 		opsCore.recalculateProperties();
+		settings.createCoreSettings( opsCore );
 
+		// monitoring settings
 		ObjectProperties opsMon = entities.createMetaMonitoringProps( opsCore );
-		settings.createCoreSettings( opsCore , opsMon , loader.getMonitoring() );
-
+		Node monitoringNode = ConfReader.xmlGetFirstChild( root , ELEMENT_MONITORING );
+		if( monitoringNode != null )
+			DBSettings.importxml( loader , monitoringNode , opsMon , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
+		opsMon.recalculateProperties();
+		settings.createMonitoringSettings( opsMon );
+		
 		// build settings
 		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( opsCore );
 		Node buildNode = ConfReader.xmlGetFirstChild( root , ELEMENT_BUILD );
 		if( buildNode == null )
 			Common.exitUnexpected();
 		DBSettings.importxml( loader , buildNode , opsBuildCommon , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
-		
 		settings.createBuildCommonSettings( opsBuildCommon );
 		
 		Node[] items = ConfReader.xmlGetChildren( buildNode , ELEMENT_MODE );
@@ -91,13 +147,17 @@ public class DBMetaSettings {
 		opsContext.recalculateProperties();
 		settings.createSettings( opsContext , context );
 		
-		// core and monitoring settings
+		// core settings
 		ObjectProperties opsCore = entities.createMetaCoreSettingsProps( opsContext );
 		DBSettings.loaddbValues( loader , storage.ID , opsCore , true );
 		opsCore.recalculateProperties();
+		settings.createCoreSettings( opsCore );
 
+		// monitoring settings
 		ObjectProperties opsMon = entities.createMetaMonitoringProps( opsCore );
-		settings.createCoreSettings( opsCore , opsMon , loader.getMonitoring() );
+		DBSettings.loaddbValues( loader , storage.ID , opsMon , true );
+		opsMon.recalculateProperties();
+		settings.createMonitoringSettings( opsMon );
 
 		// build settings
 		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( opsCore );
@@ -125,6 +185,10 @@ public class DBMetaSettings {
 		// core settings
 		Element coreNode = Common.xmlCreateElement( doc , root , ELEMENT_CORE );
 		DBSettings.exportxmlEntity( loader , doc , coreNode , settings.core.ops , false , false );
+
+		// monitoring settings
+		Element monitoringNode = Common.xmlCreateElement( doc , root , ELEMENT_MONITORING );
+		DBSettings.exportxmlEntity( loader , doc , monitoringNode , settings.core.mon , false , false );
 
 		// build settings
 		Element coreBuild = Common.xmlCreateElement( doc , root , ELEMENT_BUILD );

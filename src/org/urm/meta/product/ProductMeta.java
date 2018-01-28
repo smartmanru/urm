@@ -11,7 +11,6 @@ import org.urm.engine.dist.DistRepository;
 import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineProducts;
-import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.env.MetaEnvs;
 
 public class ProductMeta extends EngineObject {
@@ -123,76 +122,6 @@ public class ProductMeta extends EngineObject {
 	
 	public boolean isPrimary() {
 		return( primary );
-	}
-	
-	public synchronized void createInitial( TransactionBase transaction , EngineSettings settings , AppProduct product ) throws Exception {
-		createInitialVersion( transaction );
-		createInitialCore( transaction , settings , product );
-		createInitialPolicy( transaction );
-		createInitialUnits( transaction );
-		createInitialDatabase( transaction );
-		createInitialSources( transaction );
-		createInitialDocs( transaction );
-		createInitialDistr( transaction );
-		createInitialEnvs( transaction );
-	}
-
-	private void createInitialVersion( TransactionBase transaction ) throws Exception {
-		version = new MetaProductVersion( this , meta );
-		version.createVersion( 1 , 0 , 0 , 0 , 1 , 1 , 1 , 1 );
-		meta.setVersion( version );
-	}
-	
-	private void createInitialCore( TransactionBase transaction , EngineSettings engineSettings , AppProduct product ) throws Exception {
-		settings = new MetaProductSettings( this , meta );
-		
-		//ProductContext productContext = new ProductContext( product );
-		//productContext.create( version );
-		
-		//settings.createSettings( transaction , engineSettings , productContext );
-		meta.setSettings( settings );
-	}
-	
-	private void createInitialPolicy( TransactionBase transaction ) throws Exception {
-		policy = new MetaProductPolicy( this , meta );
-		//policy.createPolicy( transaction );
-		meta.setPolicy( policy );
-	}
-	
-	private void createInitialUnits( TransactionBase transaction ) throws Exception {
-		//units = new MetaUnits( this , settings , meta );
-		//units.createUnits( transaction );
-		meta.setUnits( units );
-	}
-	
-	private void createInitialDatabase( TransactionBase transaction ) throws Exception {
-		database = new MetaDatabase( this , meta );
-		//database.createDatabase( transaction );
-		meta.setDatabase( database );
-	}
-	
-	private void createInitialDocs( TransactionBase transaction ) throws Exception {
-		docs = new MetaDocs( this , meta );
-		// docs.createDocs( transaction );
-		meta.setDocs( docs );
-	}
-	
-	private void createInitialDistr( TransactionBase transaction ) throws Exception {
-		distr = new MetaDistr( this , meta );
-		//distr.createDistr( transaction );
-		meta.setDistr( distr );
-	}
-	
-	private void createInitialSources( TransactionBase transaction ) throws Exception {
-		sources = new MetaSources( this , meta );
-		//sources.createSources( transaction );
-		meta.setSources( sources );
-	}
-	
-	private void createInitialEnvs( TransactionBase transaction ) throws Exception {
-		envs = new MetaEnvs( this , meta );
-		//sources.createSources( transaction );
-		//meta.setenvs( sources );
 	}
 	
 	public void createInitialRepository( TransactionBase transaction , boolean forceClear ) throws Exception {

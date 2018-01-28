@@ -26,6 +26,11 @@ public class DBMetaUnits {
 
 	public static String ELEMENT_UNIT = "unit";
 	
+	public static void createdb( EngineLoader loader , ProductMeta storage ) throws Exception {
+		MetaUnits units = new MetaUnits( storage , storage.meta );
+		storage.setUnits( units );
+	}
+	
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
 		MetaUnits units = new MetaUnits( storage , storage.meta );
 		storage.setUnits( units );
@@ -155,5 +160,5 @@ public class DBMetaUnits {
 		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaUnit , unit.ID , c.getNextProductVersion( storage ) );
 		units.removeUnit( unit );
 	}
-	
+
 }

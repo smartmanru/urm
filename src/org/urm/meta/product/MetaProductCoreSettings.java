@@ -7,7 +7,6 @@ import org.urm.db.core.DBEnums.DBEnumOSType;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.meta.engine.EngineContext;
-import org.urm.meta.engine.EngineMonitoring;
 
 public class MetaProductCoreSettings {
 
@@ -31,16 +30,16 @@ public class MetaProductCoreSettings {
 	public static String PROPERTY_SOURCE_CFG_LIVEROOTDIR = "config.live";
 	public static String PROPERTY_SOURCE_SQL_POSTREFRESH = "config.postrefresh";
 	
+	public static String PROPERTY_CUSTOM_BUILD = "custom.build";
+	public static String PROPERTY_CUSTOM_DEPLOY = "custom.deploy";
+	public static String PROPERTY_CUSTOM_DATABASE = "custom.database";
+
 	public static String PROPERTY_MONITORING_RESOURCE_URL = "resources.url";
 	public static String PROPERTY_MONITORING_DIR_RES = "resources.path";
 	public static String PROPERTY_MONITORING_DIR_DATA = "data.path";
 	public static String PROPERTY_MONITORING_DIR_REPORTS = "reports.path";
 	public static String PROPERTY_MONITORING_DIR_LOGS = "logs.path";
 	
-	public static String PROPERTY_CUSTOM_BUILD = "custom.build";
-	public static String PROPERTY_CUSTOM_DEPLOY = "custom.deploy";
-	public static String PROPERTY_CUSTOM_DATABASE = "custom.database";
-
 	public Meta meta;
 	public MetaProductSettings settings;
 	public ObjectProperties ops;
@@ -65,15 +64,15 @@ public class MetaProductCoreSettings {
 	public String CONFIG_SOURCE_CFG_LIVEROOTDIR;
 	public String CONFIG_SOURCE_SQL_POSTREFRESH;
 	
+	public String CONFIG_CUSTOM_BUILD;
+	public String CONFIG_CUSTOM_DEPLOY;
+	public String CONFIG_CUSTOM_DATABASE;
+	
 	public String MONITORING_RESOURCE_URL;
 	public String MONITORING_DIR_RES;
 	public String MONITORING_DIR_DATA;
 	public String MONITORING_DIR_REPORTS;
 	public String MONITORING_DIR_LOGS;
-	
-	public String CONFIG_CUSTOM_BUILD;
-	public String CONFIG_CUSTOM_DEPLOY;
-	public String CONFIG_CUSTOM_DATABASE;
 	
 	public MetaProductCoreSettings( Meta meta , MetaProductSettings settings ) {
 		this.meta = meta;
@@ -83,8 +82,8 @@ public class MetaProductCoreSettings {
 	public MetaProductCoreSettings copy( Meta rmeta , MetaProductSettings rsettings ) throws Exception {
 		MetaProductCoreSettings r = new MetaProductCoreSettings( rmeta , rsettings );
 		r.ops = ops.copy( rsettings.getProperties() );
-		r.mon = mon.copy( r.ops );
 		r.scatterPrimaryProperties();
+		r.mon = mon.copy( ops );
 		r.scatterMonitoringProperties();
 		return( r );
 	}
@@ -116,6 +115,20 @@ public class MetaProductCoreSettings {
 		CONFIG_CUSTOM_DATABASE = ops.getStringProperty( PROPERTY_CUSTOM_DATABASE );
 	}
 
+	public void createCoreSettings( ObjectProperties ops ) throws Exception {
+		this.ops = ops;
+		scatterPrimaryProperties();
+	}
+	
+	public String getTargetPath( DBEnumOSType osType , String artefactDir ) {
+		if( Common.isAbsolutePath( artefactDir ) )
+			return( artefactDir );
+		
+		String redistPath = ( osType.isWindows() )? CONFIG_REDISTWIN_PATH : CONFIG_REDISTLINUX_PATH;
+		String finalPath = Common.getPath( redistPath , artefactDir );
+		return( finalPath );
+	}
+
 	private void scatterMonitoringProperties() throws Exception {
 		MONITORING_RESOURCE_URL = mon.getStringProperty( PROPERTY_MONITORING_RESOURCE_URL );
 		MONITORING_DIR_RES = mon.getPathProperty( PROPERTY_MONITORING_DIR_RES );
@@ -124,13 +137,9 @@ public class MetaProductCoreSettings {
 		MONITORING_DIR_LOGS = mon.getPathProperty( PROPERTY_MONITORING_DIR_LOGS );
 	}
 	
-	public void createSettings( ObjectProperties ops , ObjectProperties mon , EngineMonitoring sm ) throws Exception {
-		this.ops = ops;
+	public void createMonitoringSettings( ObjectProperties mon ) throws Exception {
 		this.mon = mon;
-		scatterPrimaryProperties();
-		
-		PropertySet src = sm.properties.getProperties();
-		setMonitoringProperties( src );
+		scatterMonitoringProperties();
 	}
 	
 	public void setMonitoringProperties( PropertySet src ) throws Exception {
@@ -151,13 +160,4 @@ public class MetaProductCoreSettings {
 		return( true );
 	}
 	
-	public String getTargetPath( DBEnumOSType osType , String artefactDir ) {
-		if( Common.isAbsolutePath( artefactDir ) )
-			return( artefactDir );
-		
-		String redistPath = ( osType.isWindows() )? CONFIG_REDISTWIN_PATH : CONFIG_REDISTLINUX_PATH;
-		String finalPath = Common.getPath( redistPath , artefactDir );
-		return( finalPath );
-	}
-
 }

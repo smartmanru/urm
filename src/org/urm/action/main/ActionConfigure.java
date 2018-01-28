@@ -109,7 +109,7 @@ public class ActionConfigure extends ActionBase {
 
 	private void configureProduct( Meta meta ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder pf = urm.getProductHome( this , meta.name );
+		LocalFolder pf = urm.getProductHome( this , meta.getProduct() );
 		pfMaster = pf.getSubFolder( this , "master" );
 		String masterPath = pfMaster.getFilePath( this , MainCommandMeta.MASTERFILE );
 		

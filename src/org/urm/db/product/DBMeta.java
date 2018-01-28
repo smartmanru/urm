@@ -25,6 +25,16 @@ import org.w3c.dom.Node;
 
 public class DBMeta {
 
+	public static void createdb( EngineLoader loader , ProductMeta storage ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
+		MetaProductVersion version = new MetaProductVersion( storage , storage.meta );
+		storage.setVersion( version );
+		
+		version.createVersion( 1 , 0 , 0 , 0 , 1 , 1 , 1 , 1 ); 
+		modifyMeta( c , storage , version , true );
+	}
+	
 	public static ProductContext[] getProducts( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = c.getEntities();
@@ -147,5 +157,5 @@ public class DBMeta {
 				} ) )
 			Common.exitUnexpected();
 	}
-	
+
 }

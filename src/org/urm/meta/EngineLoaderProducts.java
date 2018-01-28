@@ -3,15 +3,18 @@ package org.urm.meta;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
+import org.urm.db.DBConnection;
 import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
+import org.urm.engine.dist.DistRepository;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineProducts;
+import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.ProductContext;
 import org.urm.meta.product.ProductMeta;
 
@@ -27,6 +30,63 @@ public class EngineLoaderProducts {
 		this.data = data;
 		this.execrc = loader.execrc;
 		this.engine = loader.engine;
+	}
+	
+	public ProductMeta createProductMetadata( AppProduct product , boolean forceClearMeta , boolean forceClearDist ) throws Exception {
+		ActionBase action = loader.getAction();
+		ProductContext context = new ProductContext( product , false );
+		EngineSettings settings = loader.getSettings();
+		UrmStorage urm = action.artefactory.getUrmStorage();
+		context.create( settings , urm.getProductHome( action , product ) );
+		
+		ProductMeta set = product.storage;
+		EngineProducts products = data.getProducts();
+		set = new ProductMeta( products , product );
+		set.setPrimary( true );
+		set.setMatched( true );
+		
+		try {
+			// create in database
+			EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
+			ldm.createdbAll( context );
+	
+			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
+			lde.createAll();
+	
+			// create folders
+			MetadataStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
+			LocalFolder homeFolder = ms.getHomeFolder( action );
+			if( homeFolder.checkExists( action ) ) {
+				if( !forceClearMeta ) {
+					String path = action.getLocalPath( homeFolder.folderPath );
+					action.exit1( _Error.ProductPathAlreadyExists1 , "Product path already exists - " + path , path );
+				}
+				homeFolder.removeThis( action );
+			}
+				
+			homeFolder.ensureExists( action );
+			
+			LocalFolder folder = ms.getMetaFolder( action );
+			folder.ensureExists( action );
+			folder = ms.getEnvConfFolder( action );
+			folder.ensureExists( action );
+	
+			// create distributive
+			DistRepository.createInitialRepository( action , set.meta , forceClearDist );
+			
+			// add product
+			product.setStorage( set );
+			addProduct( set );
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			action.error( "unable to create metadata, product=" + product.NAME );
+			set.meta.deleteObject();
+			set.deleteObject();
+			return( null );
+		}
+		
+		return( set );
 	}
 	
 	public void loadProducts( boolean update ) throws Exception {
@@ -63,6 +123,8 @@ public class EngineLoaderProducts {
 	}
 	
 	public void importProduct( AppProduct product , boolean includingEnvironments ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
 		EngineProducts products = data.getProducts();
 		trace( "reload settings, product=" + product.NAME + " ..." );
 		
@@ -71,7 +133,7 @@ public class EngineLoaderProducts {
 
 		ProductMeta storage = product.storage;
 		if( storage.isExists() )
-			DBProductData.dropProductData( loader , storage );
+			DBProductData.dropProductData( c , storage );
 		
 		synchronized( products ) {
 			ProductContext context = new ProductContext( product , false );
@@ -115,7 +177,6 @@ public class EngineLoaderProducts {
 		
 		EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
 		lde.saveEnvs( ms );
-		lde.saveMonitoring( ms );
 	}
 	
 	public void exportAll( ProductMeta set ) throws Exception {
@@ -146,16 +207,18 @@ public class EngineLoaderProducts {
 	
 	private ProductMeta loadProduct( AppProduct product , ProductContext context , boolean importxml , boolean update ) {
 		EngineProducts products = data.getProducts();
-		ProductMeta set = products.createPrimaryMeta( product , context );
+		ProductMeta set = new ProductMeta( products , product );
+		set.setPrimary( true );
 		set.setMatched( true );
+		set.setContext( context ); 
 		
 		ActionBase action = loader.getAction();
 		try {
 			UrmStorage urm = action.artefactory.getUrmStorage();
-			LocalFolder meta = urm.getProductCoreMetadataFolder( action , product.NAME );
+			LocalFolder meta = urm.getProductCoreMetadataFolder( action , product );
 			
 			if( meta.checkExists( action ) ) {
-				LocalFolder home = urm.getProductCoreMetadataFolder( action , product.NAME );
+				LocalFolder home = urm.getProductCoreMetadataFolder( action , product );
 				context.create( loader.getSettings() , home );
 				set.setContext( context );
 				
@@ -170,9 +233,6 @@ public class EngineLoaderProducts {
 					trace( "match failed for product=" + product.NAME );
 				else
 					trace( "successfully matched product=" + product.NAME );
-				
-				product.setStorage( set );
-				addProduct( set );
 			}
 			else
 				Common.exitUnexpected();
@@ -180,11 +240,11 @@ public class EngineLoaderProducts {
 		catch( Throwable e ) {
 			action.handle( e );
 			action.error( "unable to load metadata, product=" + product.NAME );
-			set.meta.deleteObject();
-			set.deleteObject();
-			return( null );
+			set.setMatched( false );
 		}
 		
+		product.setStorage( set );
+		addProduct( set );
 		return( set );
 	}
 	

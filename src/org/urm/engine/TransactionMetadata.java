@@ -73,6 +73,27 @@ public class TransactionMetadata {
 		return( false );
 	}
 
+	public boolean recreateProduct( Meta meta ) throws Exception {
+		ProductMeta storage = meta.getStorage();
+		if( storage.isPrimary() ) {
+			metadataOld = storage;
+			metadata = null;
+			sessionMeta = transaction.action.getProductMetadata( meta.name );
+			transaction.trace( "transaction recreate product storage meta=" + storage.objectId );
+			return( true );
+		}
+		else
+			transaction.error( "Unable to change old metadata, id=" + storage.objectId );
+		
+		return( false );
+	}
+
+	public boolean replaceProduct( ProductMeta storage ) throws Exception {
+		metadata = storage;
+		transaction.trace( "transaction recreate product storage meta=" + storage.objectId );
+		return( true );
+	}
+
 	public boolean deleteProduct( Meta meta ) throws Exception {
 		ProductMeta sourceMetadata = meta.getStorage();
 		if( sourceMetadata.isPrimary() ) {

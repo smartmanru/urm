@@ -3,6 +3,8 @@ package org.urm.engine;
 import java.util.List;
 
 import org.urm.common.Common;
+import org.urm.common.action.CommandMethodMeta.SecurityAction;
+import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
@@ -450,17 +452,42 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineDirectory.deleteSystem( this , system.directory , system );
 	}
 	
-	public AppProduct createProduct( AppSystem system , String name , String desc , String path , boolean forceClear ) throws Exception {
-		checkTransactionDirectory( system.directory );
-		AppProduct product = DBEngineDirectory.createProduct( this , system.directory , system , name , desc , path );
+	public AppProduct createProduct( AppSystem system , String name , String desc , String path , boolean forceClearMeta , boolean forceClearDist ) throws Exception {
+		EngineDirectory directory = system.directory;
+		checkTransactionDirectory( directory );
 		
-		EngineMirrors mirrors = action.getServerMirrors();
-		changeMirrors( mirrors );
-		DBEngineMirrors.createProductMirrors( this , mirrors , product , forceClear );
+		if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
+			action.exitUnexpectedState();
 		
-		Meta meta = super.createProductMetadata( product );
-		ProductMeta storage = meta.getStorage();
-		storage.createInitialRepository( this , forceClear );
+		changeMirrors( action.getServerMirrors() );
+		EngineMirrors mirrors = super.getTransactionMirrors();
+		
+		AppProduct product = directory.findProduct( name );
+		boolean change = false;
+		if( product != null ) {
+			if( !forceClearMeta )
+				Common.exitUnexpected();
+
+			change = true;
+			if( !super.recreateMetadata( product.storage.meta ) )
+				Common.exitUnexpected();
+			
+			DBConnection c = super.getConnection();
+			DBProductData.dropProductData( c , product.storage );
+			DBEngineDirectory.deleteProduct( this , directory , product , true , false , false );
+			DBEngineMirrors.deleteProductResources( this , mirrors , product , forceClearMeta , false , false );
+		}
+		
+		product = DBEngineDirectory.createProduct( this , directory , system , name , desc , path );
+		DBEngineMirrors.createProductMirrors( this , mirrors , product );
+		
+		EngineLoader loader = engine.createLoader( this );
+		ProductMeta storage = loader.createProduct( product , forceClearMeta , forceClearDist );
+		
+		if( change )
+			super.replaceProductMetadata( storage );
+		else
+			super.createProductMetadata( storage );
 		
 		return( product );
 	}

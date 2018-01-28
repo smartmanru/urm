@@ -2,11 +2,16 @@ package org.urm.meta;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.core.DBSettings;
+import org.urm.db.core.DBVersions;
+import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvs;
 import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
@@ -27,11 +32,16 @@ public class EngineLoaderEnvs {
 		this.meta = set.meta;
 	}
 
+	public void createAll() throws Exception {
+		MetaEnvs envs = new MetaEnvs( set , set.meta );
+		set.setEnvs( envs );
+	}
+	
 	public void exportAll( MetadataStorage ms ) throws Exception {
 		saveEnvs( ms );
 		saveMonitoring( ms );
 	}
-	
+
 	public void loadEnvs( MetadataStorage ms ) throws Exception {
 		MetaEnvs envs = new MetaEnvs( set , set.meta );
 		set.setEnvs( envs );
@@ -39,6 +49,8 @@ public class EngineLoaderEnvs {
 		ActionBase action = loader.getAction();
 		for( String envFile : ms.getEnvFiles( action ) )
 			loadEnvData( ms , envFile );
+		
+		loadMonitoring( ms );
 	}
 	
 	public void saveEnvs( MetadataStorage ms ) throws Exception {
@@ -51,7 +63,7 @@ public class EngineLoaderEnvs {
 		saveMonitoring( ms );
 	}
 	
-	public void importxmlMonitoring( MetadataStorage ms ) throws Exception {
+	public void loadMonitoring( MetadataStorage ms ) throws Exception {
 		MetaEnvs envs = set.getEnviroments();
 		MetaMonitoring mon = envs.getMonitoring();
 		
@@ -62,7 +74,15 @@ public class EngineLoaderEnvs {
 			action.debug( "read monitoring definition file " + file + "..." );
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
-			mon.load( action , root );
+			
+			// monitoring settings
+			EngineEntities entities = action.getServerEntities();
+			MetaProductCoreSettings settings = meta.getProductCoreSettings();
+			ObjectProperties opsMon = entities.createMetaMonitoringProps( settings.ops );
+			DBSettings.importxml( loader , root , opsMon , set.ID , DBVersions.CORE_ID , true , false , set.PV );
+			opsMon.recalculateProperties();
+			
+			mon.load( action , opsMon , root );
 		}
 		catch( Throwable e ) {
 			loader.setLoadFailed( action , _Error.UnableLoadProductMonitoring1 , e , "unable to import monitoring metadata, product=" + set.name , set.name );
@@ -71,12 +91,14 @@ public class EngineLoaderEnvs {
 
 	public void saveMonitoring( MetadataStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
+		String file = ms.getMonitoringConfFile( action );
+		action.debug( "export product monitoring file " + file + "..." );
 		Document doc = Common.xmlCreateDoc( XML_ROOT_MONITORING );
 		MetaEnvs envs = set.getEnviroments();
 		MetaMonitoring mon = envs.getMonitoring();
 		
 		mon.save( action , doc , doc.getDocumentElement() );
-		ms.saveMonitoringConfFile( action , doc );
+		ms.saveFile( action , doc , file );
 	}
 	
 	private void loadEnvData( MetadataStorage ms , String envName ) throws Exception {

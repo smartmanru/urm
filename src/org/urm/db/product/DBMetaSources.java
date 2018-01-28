@@ -37,6 +37,11 @@ public class DBMetaSources {
 	public static String ELEMENT_SET = "projectset";
 	public static String ELEMENT_PROJECT = "project";
 	public static String ELEMENT_ITEM = "srcitem";
+
+	public static void createdb( EngineLoader loader , ProductMeta storage ) throws Exception {
+		MetaSources sources = new MetaSources( storage , storage.meta );
+		storage.setSources( sources );
+	}
 	
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
 		MetaSources sources = new MetaSources( storage , storage.meta );

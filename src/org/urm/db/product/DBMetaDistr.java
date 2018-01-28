@@ -55,6 +55,11 @@ public class DBMetaDistr {
 	public static String ATTR_DELIVERY_SCHEMA = "name";
 	public static String ATTR_DELIVERY_DOCNAME = "name";
 	
+	public static void createdb( EngineLoader loader , ProductMeta storage ) throws Exception {
+		MetaDistr distr = new MetaDistr( storage , storage.meta );
+		storage.setDistr( distr );
+	}
+	
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
 		MetaDistr distr = new MetaDistr( storage , storage.meta );
 		storage.setDistr( distr );

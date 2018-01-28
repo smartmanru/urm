@@ -25,6 +25,7 @@ import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
+import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
@@ -820,7 +821,36 @@ public class TransactionBase extends EngineObject {
 				}
 			}
 			catch( Throwable e ) {
-				handle( e , "unable to save metadata" );
+				handle( e , "unable to change metadata" );
+			}
+			
+			abortTransaction( false );
+			return( false );
+		}
+	}
+	
+	public boolean recreateMetadata( Meta meta ) {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+
+				TransactionMetadata tm = productMeta.get( meta.name ); 
+				if( tm != null )
+					return( false );
+				
+				if( !checkSecurityProductChange( meta , null ) )
+					return( false );
+				
+				tm = new TransactionMetadata( this );
+				if( tm.recreateProduct( meta ) ) {
+					changeDatabase();
+					addTransactionMeta( meta , tm );
+					return( true );
+				}
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to recreate metadata" );
 			}
 			
 			abortTransaction( false );
@@ -979,6 +1009,10 @@ public class TransactionBase extends EngineObject {
 			}
 			else
 				exitUnexpectedState();
+	}
+
+	public EngineProducts getProducts() {
+		return( data.getProducts() );
 	}
 	
 	public EngineEntities getEntities() {
@@ -1154,22 +1188,6 @@ public class TransactionBase extends EngineObject {
 		return( tm.metadata );
 	}
 	
-	protected Meta createProductMetadata( AppProduct product ) throws Exception {
-		TransactionMetadata tm = productMeta.get( product.NAME );
-		if( tm != null )
-			action.exitUnexpectedState();
-		
-		if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
-			action.exitUnexpectedState();
-		
-		EngineSettings settings = getSettings();
-		Meta meta = data.createProductMetadata( this , settings , product );
-		tm = new TransactionMetadata( this );
-		tm.createProduct( meta );
-		addTransactionMeta( meta , tm );
-		return( meta );
-	}
-
 	public Meta getTransactionMetadata( Meta meta ) throws Exception {
 		return( getTransactionMetadata( meta.name ) );
 	}
@@ -1332,4 +1350,24 @@ public class TransactionBase extends EngineObject {
 		data.deleteProductMetadata( this , metadata );
 	}
 	
+	public Meta createProductMetadata( ProductMeta storage ) throws Exception {
+		TransactionMetadata tm = productMeta.get( storage.name );
+		if( tm != null )
+			action.exitUnexpectedState();
+		
+		Meta meta = data.createSessionProductMetadata( this , storage );
+		tm = new TransactionMetadata( this );
+		tm.createProduct( meta );
+		addTransactionMeta( meta , tm );
+		return( meta );
+	}
+
+	public void replaceProductMetadata( ProductMeta storage ) throws Exception {
+		TransactionMetadata tm = productMeta.get( storage.name );
+		if( tm == null )
+			action.exitUnexpectedState();
+		
+		tm.replaceProduct( storage );
+	}
+
 }

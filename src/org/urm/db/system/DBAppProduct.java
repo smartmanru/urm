@@ -105,4 +105,10 @@ public abstract class DBAppProduct {
 				} , insert );
 	}
 
+	public static void deleteProduct( DBConnection c , AppProduct product ) throws Exception {
+		EngineEntities entities = c.getEntities();
+		int version = c.getNextSystemVersion( product.system );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppDirectoryProduct , product.ID , version );
+	}
+	
 }

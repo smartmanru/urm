@@ -113,6 +113,7 @@ public class DistRepository {
 			
 		repoFolder.ensureExists( action );
 		readRepositoryFile( action );
+		action.info( "distributive repository has been created, path=" + action.getLocalPath( repoFolder.folderPath ) );
 	}
 
 	private synchronized void readRepositoryFile( ActionBase action ) throws Exception {

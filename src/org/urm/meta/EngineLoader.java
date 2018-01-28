@@ -313,6 +313,11 @@ public class EngineLoader {
 	public void log( String p , Throwable e ) {
 		action.log( p ,  e );
 	}
+
+	public ProductMeta createProduct( AppProduct product , boolean forceClearMeta , boolean forceClearDist ) throws Exception {
+		trace( "create engine product=" + product.NAME + " data ..." );
+		return( ldp.createProductMetadata( product , forceClearMeta , forceClearDist ) );
+	}
 	
 	private void exportProduct( Integer productId ) throws Exception {
 		EngineDirectory directory = data.getDirectory();

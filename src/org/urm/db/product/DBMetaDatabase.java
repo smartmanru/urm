@@ -27,6 +27,11 @@ public class DBMetaDatabase {
 	public static String ELEMENT_SCHEMA = "schema";
 	public static String ELEMENT_ADMINISTRATION = "administration";
 	
+	public static void createdb( EngineLoader loader , ProductMeta storage ) throws Exception {
+		MetaDatabase database = new MetaDatabase( storage , storage.meta );
+		storage.setDatabase( database );
+	}
+
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
 		MetaDatabase database = new MetaDatabase( storage , storage.meta );
 		storage.setDatabase( database );

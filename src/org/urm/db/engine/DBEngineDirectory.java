@@ -242,16 +242,21 @@ public abstract class DBEngineDirectory {
 	}
 	
 	public static void deleteProduct( EngineTransaction transaction , EngineDirectory directory , AppProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+		DBConnection c = transaction.getConnection();
 		if( directory.getProduct( product.ID ) != product )
 			transaction.exit( _Error.UnknownProduct1 , "product=" + product.NAME + " is unknown or mismatched" , new String[] { product.NAME } );
 		
+		DBAppProduct.deleteProduct( c , product );
 		directory.removeProduct( product );
 		
-		ActionBase action = transaction.getAction();
-		UrmStorage storage = action.artefactory.getUrmStorage();
-		LocalFolder products = storage.getServerProductsFolder( action );
-		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
-		productfolder.removeThis( action );
+		if( fsDeleteFlag ) {
+			ActionBase action = transaction.getAction();
+			UrmStorage storage = action.artefactory.getUrmStorage();
+			LocalFolder products = storage.getServerProductsFolder( action );
+			LocalFolder productfolder = products.getSubFolder( action , product.PATH );
+			productfolder.removeThis( action );
+		}
+		
 		product.deleteObject();
 	}
 

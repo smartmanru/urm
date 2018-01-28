@@ -49,6 +49,11 @@ public class UrmStorage {
 		return( false );
 	}
 	
+	public LocalFolder getInstallFolder( ActionBase action , String dirname ) throws Exception {
+		String dir = Common.getPath( action.context.session.execrc.installPath , dirname );
+		return( artefactory.getAnyFolder( action , dir ) );
+	}
+
 	private String getDatabaseSpecificFolder( ActionBase action , DBEnumDbmsType dbtype , DBEnumOSType ostype , boolean remoteRun ) throws Exception {
 		String dbFolder = "";
 		if( dbtype == DBEnumDbmsType.ORACLE )
@@ -103,44 +108,35 @@ public class UrmStorage {
 		return( getDatabaseFolder( action , server , "database/datapump" , true ) ); 
 	}
 	
-	public LocalFolder getProductHome( ActionBase action , String productName ) throws Exception {
+	public LocalFolder getProductHome( ActionBase action , AppProduct product ) throws Exception {
 		if( isStandaloneMode( action ) ) {
 			String dir = action.execrc.installPath;
 			return( artefactory.getAnyFolder( action , dir ) );
 		}
 		
-		AppProduct product = action.findProduct( productName );
-		if( product == null )
-			action.exitUnexpectedState();
-		
 		LocalFolder products = getServerProductsFolder( action );
 		return( products.getSubFolder( action , product.PATH ) );
 	}
 
-	public LocalFolder getInstallFolder( ActionBase action , String dirname ) throws Exception {
-		String dir = Common.getPath( action.context.session.execrc.installPath , dirname );
-		return( artefactory.getAnyFolder( action , dir ) );
-	}
-
-	public LocalFolder getProductFolder( ActionBase action , String productName , String dirname ) throws Exception {
-		LocalFolder folder = getProductHome( action , productName );
+	public LocalFolder getProductFolder( ActionBase action , AppProduct product , String dirname ) throws Exception {
+		LocalFolder folder = getProductHome( action , product );
 		return( folder.getSubFolder( action , dirname ) );
 	}
 
-	public LocalFolder getProductCoreMetadataFolder( ActionBase action , String productName ) throws Exception {
-		return( getProductFolder( action , productName , ETC_PATH ) );
+	public LocalFolder getProductCoreMetadataFolder( ActionBase action , AppProduct product ) throws Exception {
+		return( getProductFolder( action , product , ETC_PATH ) );
 	}
 
-	public LocalFolder getProductEnvMetadataFolder( ActionBase action , String productName ) throws Exception {
-		return( getProductFolder( action , productName , Common.getPath( ETC_PATH , ENV_DIR ) ) );
+	public LocalFolder getProductEnvMetadataFolder( ActionBase action , AppProduct product ) throws Exception {
+		return( getProductFolder( action , product , Common.getPath( ETC_PATH , ENV_DIR ) ) );
 	}
 
-	public LocalFolder getProductDatapumpMetadataFolder( ActionBase action , String productName ) throws Exception {
-		return( getProductFolder( action , productName , Common.getPath( ETC_PATH , DATAPUMP_DIR ) ) );
+	public LocalFolder getProductDatapumpMetadataFolder( ActionBase action , AppProduct product ) throws Exception {
+		return( getProductFolder( action , product , Common.getPath( ETC_PATH , DATAPUMP_DIR ) ) );
 	}
 
-	public LocalFolder getProductXDocMetadataFolder( ActionBase action , String productName ) throws Exception {
-		return( getProductFolder( action , productName , Common.getPath( ETC_PATH , XDOC_DIR ) ) );
+	public LocalFolder getProductXDocMetadataFolder( ActionBase action , AppProduct product ) throws Exception {
+		return( getProductFolder( action , product , Common.getPath( ETC_PATH , XDOC_DIR ) ) );
 	}
 
 	public LocalFolder getServerSettingsFolder( ActionBase action ) throws Exception {

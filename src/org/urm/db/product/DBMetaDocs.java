@@ -24,6 +24,11 @@ import org.w3c.dom.Node;
 public class DBMetaDocs {
 
 	public static String ELEMENT_DOCUMENT = "document";
+
+	public static void createdb( EngineLoader loader , ProductMeta storage ) throws Exception {
+		MetaDocs docs = new MetaDocs( storage , storage.meta );
+		storage.setDocs( docs );
+	}
 	
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
 		MetaDocs docs = new MetaDocs( storage , storage.meta );

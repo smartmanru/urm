@@ -75,5 +75,6 @@ public class _Error {
 	public static final int UnableLoadProductMeta1 = ErrorBase + 119;
 	public static final int UnableLoadProductReleases1 = ErrorBase + 120;
 	public static final int InvalidProductMirros1 = ErrorBase + 121;
+	public static final int ProductPathAlreadyExists1 = ErrorBase + 122;
 
 }

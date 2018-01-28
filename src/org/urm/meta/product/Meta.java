@@ -7,6 +7,7 @@ import org.urm.engine.EngineSession;
 import org.urm.engine.dist.DistRepository;
 import org.urm.meta.EngineObject;
 import org.urm.meta.Types.*;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvs;
@@ -60,6 +61,10 @@ public class Meta extends EngineObject {
 
 	public int getId() {
 		return( storage.ID );
+	}
+	
+	public AppProduct getProduct() {
+		return( storage.product );
 	}
 	
 	public void replaceStorage( ActionBase action , ProductMeta storage ) throws Exception {

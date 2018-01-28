@@ -26,6 +26,18 @@ import org.w3c.dom.Node;
 
 public class DBMetaPolicy {
 
+	public static void createdb( EngineLoader loader , ProductMeta storage ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
+		MetaProductPolicy policy = new MetaProductPolicy( storage , storage.meta );
+		storage.setPolicy( policy );
+		
+		// policy record
+		boolean urgentsAll = true;
+		policy.setAttrs( urgentsAll );
+		modifyPolicy( c , storage , policy , true );
+	}
+	
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
@@ -226,5 +238,5 @@ public class DBMetaPolicy {
 		
 		modifyLifecycles( c , storage , policy );
 	}
-	
+
 }

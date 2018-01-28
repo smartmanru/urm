@@ -25,7 +25,6 @@ import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
-import org.urm.engine.storage.UrmStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.engine.vcs.MirrorCase;
 import org.urm.meta.EngineLoader;
@@ -176,22 +175,7 @@ public class DBEngineMirrors {
 		}
 	}
 
-	public static void createProductMirrors( EngineTransaction transaction , EngineMirrors mirrors , AppProduct product , boolean forceClear ) throws Exception {
-		ActionBase action = transaction.getAction();
-		UrmStorage storage = action.artefactory.getUrmStorage();
-
-		LocalFolder products = storage.getServerProductsFolder( action );
-		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
-		if( productfolder.checkExists( action ) )  {
-			if( !forceClear ) {
-				String path = action.getLocalPath( productfolder.folderPath );
-				action.exit1( _Error.ProductPathAlreadyExists1 , "Product path already exists - " + path , path );
-			}
-			productfolder.removeThis( action );
-		}
-			
-		productfolder.ensureExists( action );
-		
+	public static void createProductMirrors( EngineTransaction transaction , EngineMirrors mirrors , AppProduct product ) throws Exception {
 		// meta
 		String name = "product-" + product.NAME + "-meta";
 		MirrorRepository meta = createRepository( transaction , mirrors , name , "standard meta repository" , DBEnumMirrorType.PRODUCT_META );

@@ -520,13 +520,12 @@ public class DBProductData {
 		return( entity );
 	}
 	
-	public static void dropProductData( EngineLoader loader , ProductMeta storage ) throws Exception {
-		dropProductDistData( loader , storage );
-		dropProductCoreData( loader , storage );
+	public static void dropProductData( DBConnection c , ProductMeta storage ) throws Exception {
+		dropProductDistData( c , storage );
+		dropProductCoreData( c , storage );
 	}
 
-	public static void dropProductDistData( EngineLoader loader , ProductMeta storage ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static void dropProductDistData( DBConnection c , ProductMeta storage ) throws Exception {
 		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTCOMPITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
 			Common.exitUnexpected();
 		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTBINARYITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
@@ -543,8 +542,7 @@ public class DBProductData {
 			Common.exitUnexpected();
 	}
 	
-	public static void dropProductCoreData( EngineLoader loader , ProductMeta storage ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static void dropProductCoreData( DBConnection c , ProductMeta storage ) throws Exception {
 		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_SOURCEITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
 			Common.exitUnexpected();
 		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_SOURCEPROJECT1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )

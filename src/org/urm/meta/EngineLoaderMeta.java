@@ -89,7 +89,7 @@ public class EngineLoaderMeta {
 	public void exportAll( MetadataStorage ms ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
-		trace( "export engine product data, name=" + set.name + ", version=" + c.getCurrentProductVersion( set ) + " ..." );
+		trace( "export product data, name=" + set.name + ", version=" + c.getCurrentProductVersion( set ) + " ..." );
 		exportxmlMeta( ms );
 		exportxmlSettings( ms );
 		exportxmlPolicy( ms );
@@ -102,6 +102,18 @@ public class EngineLoaderMeta {
 		saveDesignDocs( ms );
 	}
 	
+	public void createdbAll( ProductContext context ) throws Exception {
+		trace( "create product data, name=" + set.name + " ..." );
+		createdbMeta();
+		createdbSettings( context );
+		createdbPolicy();
+		createdbUnits();
+		createdbDatabase();
+		createdbSources();
+		createdbDocs();
+		createdbDistr();
+	}
+
 	public void loaddbAll( ProductContext context ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
@@ -125,6 +137,46 @@ public class EngineLoaderMeta {
 		importxmlSources( ms );
 		importxmlDocs( ms );
 		importxmlDistr( ms );
+	}
+	
+	private void createdbMeta() throws Exception {
+		trace( "create product meta data ..." );
+		DBMeta.createdb( loader , set );
+	}
+
+	private void createdbSettings( ProductContext context ) throws Exception {
+		trace( "create product settings data ..." );
+		DBMetaSettings.createdb( loader , set , context );
+	}
+	
+	private void createdbPolicy() throws Exception {
+		trace( "create product policy data ..." );
+		DBMetaPolicy.createdb( loader , set );
+	}
+	
+	private void createdbUnits() throws Exception {
+		trace( "create product units data ..." );
+		DBMetaUnits.createdb( loader , set );
+	}
+	
+	private void createdbDatabase() throws Exception {
+		trace( "create product database data ..." );
+		DBMetaDatabase.createdb( loader , set );
+	}
+	
+	private void createdbSources() throws Exception {
+		trace( "create product source data ..." );
+		DBMetaSources.createdb( loader , set );
+	}
+	
+	private void createdbDocs() throws Exception {
+		trace( "create product documentation data ..." );
+		DBMetaDocs.createdb( loader , set );
+	}
+	
+	private void createdbDistr() throws Exception {
+		trace( "create product distributive data ..." );
+		DBMetaDistr.createdb( loader , set );
 	}
 	
 	private void loaddbMeta() throws Exception {
