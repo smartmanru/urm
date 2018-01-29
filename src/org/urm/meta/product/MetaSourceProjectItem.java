@@ -10,7 +10,7 @@ public class MetaSourceProjectItem {
 	public static String PROPERTY_BASENAME = "basename";
 	public static String PROPERTY_EXT = "extension";
 	public static String PROPERTY_STATICEXT = "staticextension";
-	public static String PROPERTY_PATH = "path";
+	public static String PROPERTY_PATH = "itempath";
 	public static String PROPERTY_VERSION = "version";
 	public static String PROPERTY_NODIST = "internal";
 	
