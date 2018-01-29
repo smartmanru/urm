@@ -576,6 +576,8 @@ public abstract class DBEnums {
 		BUILDMODE_DEVTRUNK(15,null) ,
 		MONITORING(20,null) ,
 		LDAP(50,null) ,
+		METACORE(101,null),
+		METAMON(102,null),
 		DEFAULT(200,null);
 
 		private final int value;

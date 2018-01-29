@@ -2,7 +2,6 @@ package org.urm.engine;
 
 import org.urm.engine.status.EngineStatus;
 import org.urm.meta.engine.AppSystem;
-import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
@@ -65,6 +64,7 @@ public class TransactionMetadata {
 			AppSystem system = storage.product.system;
 			metadata = storage.copy( transaction.action , storage.products , storage.product , system.getParameters() );
 			sessionMeta = transaction.action.getProductMetadata( meta.name );
+			sessionMeta.replaceStorage( transaction.action , metadata );
 			transaction.trace( "transaction product storage meta: source=" + storage.objectId + ", copy=" + metadata.objectId );
 			if( metadata != null )
 				return( true );
@@ -109,21 +109,20 @@ public class TransactionMetadata {
 	}
 
 	public boolean saveProduct() throws Exception {
-		EngineDirectory directory = transaction.getDirectory();
-		AppProduct product = directory.getProduct( metadata.name );
-		
 		if( deleteMetadata ) {
 			if( metadataOld == null )
-				return( true );
+				return( false );
 
+			AppProduct product = metadataOld.product;
 			deleteProduct( product , metadataOld );
 			transaction.deleteProductMetadata( metadataOld );
 			transaction.trace( "transaction product storage meta: delete=" + metadataOld.objectId );
 		}
 		else {
 			if( metadata == null )
-				return( true );
+				return( false );
 				
+			AppProduct product = metadata.product;
 			transaction.setProductMetadata( metadata );
 			sessionMeta.replaceStorage( transaction.action , metadata );
 			transaction.trace( "transaction product storage meta: save=" + metadata.objectId );
@@ -161,7 +160,6 @@ public class TransactionMetadata {
 		product.setStorage( metadataNew );
 		EngineStatus status = transaction.action.getServerStatus();
 		status.modifyProduct( transaction , metadataOld , metadataNew );
-		
 		EngineMonitoring mon = transaction.action.getServerMonitoring();
 		mon.transactionCommitModifyProduct( transaction , product );
 	}

@@ -99,7 +99,7 @@ public class EngineMatcher {
 				matched = false;
 			
 			if( !matched ) {
-				matchProductUpdateStatus( set , update , false );
+				matchProductUpdateStatus( set , false , true );
 				return( false );
 			}
 			
@@ -107,11 +107,11 @@ public class EngineMatcher {
 		}
 		catch( Throwable e ) {
 			loader.log( "match problem " , e );
-			matchProductUpdateStatus( set , update , false );
+			matchProductUpdateStatus( set , false , true );
 			return( false );
 		}
 		
-		matchProductUpdateStatus( set , update , true );
+		matchProductUpdateStatus( set , true , true );
 		return( true );
 	}
 	
@@ -178,16 +178,15 @@ public class EngineMatcher {
 		return( ok );
 	}
 
-	private void matchProductUpdateStatus( ProductMeta set , boolean update , boolean matched ) {
-		if( matched != set.MATCHED ) {
-			try {
-				if( update )
-					DBMeta.setMatched( loader , set , matched );
-				set.setMatched( matched );
-			}
-			catch( Throwable e ) {
-				loader.log( "update match status" , e );
-			}
+	private void matchProductUpdateStatus( ProductMeta set , boolean matched , boolean finish ) {
+		try {
+			if( !matched )
+				set.setMatched( false );
+			if( finish )
+				DBMeta.setMatched( loader , set , matched );
+		}
+		catch( Throwable e ) {
+			loader.log( "update match status" , e );
 		}
 	}
 
@@ -202,16 +201,12 @@ public class EngineMatcher {
 	}
 
 	public void matchProductDone( MatchItem item ) throws Exception {
-		boolean ok = false;
-		if( item == null || item.MATCHED )
-			ok = true;
-		
-		matchProductUpdateStatus( matchStorage , ok , ok );
+		matchProductDone( item , matchStorage , matchValueInitial , matchOwnerId , matchItemEntity , matchItemProperty , matchItemIndex );
 	}
 
 	public void matchProductDone( MatchItem item , ProductMeta storage , String value , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
-		if( !item.MATCHED )
-			storage.setMatched( false );
+		if( item != null && !item.MATCHED )
+			matchProductUpdateStatus( matchStorage , false , false );
 	}
 	
 }

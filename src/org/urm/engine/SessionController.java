@@ -82,7 +82,7 @@ public class SessionController {
 		waitAllActions( action );
 		
 		// release all meta
-		for( EngineSession session : sessions.values() )
+		for( EngineSession session : sessions.values().toArray( new EngineSession[0] ) )
 			session.releaseMeta( action );
 	}
 

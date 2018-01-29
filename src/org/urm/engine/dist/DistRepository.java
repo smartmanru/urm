@@ -101,7 +101,7 @@ public class DistRepository {
 			}
 			else {
 				String path = repoFolder.getLocalPath( action );
-				action.exit1( _Error.ReleaseRepositoryExists1 , "unable to create release repository, already exists at " + path , path );
+				action.debug( "found existing release repository, path=" + path );
 			}
 		}
 		

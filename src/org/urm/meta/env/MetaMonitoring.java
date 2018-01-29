@@ -7,7 +7,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
-import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
@@ -38,7 +37,7 @@ public class MetaMonitoring {
 		return( r );
 	}
 
-	public void load( ActionBase action , ObjectProperties mon , Node root ) throws Exception {
+	public void load( ActionBase action , Node root ) throws Exception {
 		loadTargets( action , ConfReader.xmlGetPathNode( root , "scope" ) );
 	}
 

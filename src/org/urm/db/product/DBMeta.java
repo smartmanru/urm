@@ -12,6 +12,7 @@ import org.urm.db.core.DBNames;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.engine.DBEngineEntities;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
@@ -149,13 +150,22 @@ public class DBMeta {
 		}
 	}
 
-	public static void setMatched( EngineLoader loader , ProductMeta set , boolean matched ) throws Exception {
+	public static void setMatched( EngineLoader loader , ProductMeta storage , boolean matched ) throws Exception {
 		DBConnection c = loader.getConnection();
 		if( !c.modify( DBQueries.MODIFY_META_SETSTATUS2 , new String[] { 
-				EngineDB.getInteger( set.ID ) ,
+				EngineDB.getInteger( storage.ID ) ,
 				EngineDB.getBoolean( matched )
 				} ) )
 			Common.exitUnexpected();
 	}
 
+	public static void modifyVersion( EngineTransaction transaction , ProductMeta storage , MetaProductVersion version , int majorFirstNumber , int majorSecondNumber , int lastProdTag , int lastUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int nextUrgentTag ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		version.modifyVersion( majorFirstNumber , majorSecondNumber , lastProdTag , lastUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , nextUrgentTag );
+		modifyMeta( c , storage , version , false );
+		
+		MetaProductSettings settings = storage.getSettings();
+		settings.updateSettings( version );
+	}
+	
 }

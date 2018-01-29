@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
-import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
@@ -458,38 +457,8 @@ public class EngineTransaction extends TransactionBase {
 		
 		if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
 			action.exitUnexpectedState();
-		
-		changeMirrors( action.getServerMirrors() );
-		EngineMirrors mirrors = super.getTransactionMirrors();
-		
-		AppProduct product = directory.findProduct( name );
-		boolean change = false;
-		if( product != null ) {
-			if( !forceClearMeta )
-				Common.exitUnexpected();
 
-			change = true;
-			if( !super.recreateMetadata( product.storage.meta ) )
-				Common.exitUnexpected();
-			
-			DBConnection c = super.getConnection();
-			DBProductData.dropProductData( c , product.storage );
-			DBEngineDirectory.deleteProduct( this , directory , product , true , false , false );
-			DBEngineMirrors.deleteProductResources( this , mirrors , product , forceClearMeta , false , false );
-		}
-		
-		product = DBEngineDirectory.createProduct( this , directory , system , name , desc , path );
-		DBEngineMirrors.createProductMirrors( this , mirrors , product );
-		
-		EngineLoader loader = engine.createLoader( this );
-		ProductMeta storage = loader.createProduct( product , forceClearMeta , forceClearDist );
-		
-		if( change )
-			super.replaceProductMetadata( storage );
-		else
-			super.createProductMetadata( storage );
-		
-		return( product );
+		return( DBEngineProducts.createProduct( this , system , name , desc , path , forceClearMeta , forceClearDist ) );
 	}
 	
 	public void modifyProduct( AppProduct product , String name , String desc , String path ) throws Exception {
@@ -502,15 +471,13 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineDirectory.setProductOffline( this , product.directory , product , offline );
 	}
 
-	public void deleteProduct( EngineMirrors mirrors , AppProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+	public void deleteProduct( AppProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		checkTransactionDirectory( product.directory );
-		checkTransactionMirrors( mirrors );
-		checkTransactionMetadata( product.NAME );
 		
-		DBEngineMirrors.deleteProductResources( this , mirrors , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
-		EngineAuth auth = action.getServerAuth();
-		DBEngineAuth.deleteProductAccess( this , auth , product );
-		DBEngineDirectory.deleteProduct( this , product.directory , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+		if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
+			action.exitUnexpectedState();
+		
+		DBEngineProducts.deleteProduct( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 	}
 
 	// ################################################################################
@@ -666,15 +633,10 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaSettings.updateProductBuildModeProperties( this , storage , settings , mode );
 	}
 
-	public MetaProductVersion updateProductVersion( Meta meta , int majorFirstNumber , int majorSecondNumber , int lastProdTag , int lastUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int nextUrgentTag ) throws Exception {
-		ProductMeta metadata = getTransactionProductMetadata( meta );
-		MetaProductVersion version = metadata.getVersion();
-		version.updateVersion( majorFirstNumber , majorSecondNumber , lastProdTag , lastUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , nextUrgentTag );
-		
-		MetaProductSettings settings = meta.getProductSettings();
-		settings.updateSettings( version );
-		
-		return( version );
+	public void updateProductVersion( MetaProductVersion version , int majorFirstNumber , int majorSecondNumber , int lastProdTag , int lastUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int nextUrgentTag ) throws Exception {
+		ProductMeta storage = version.meta.getStorage();
+		checkTransactionMetadata( storage );
+		DBMeta.modifyVersion( this , storage , version , majorFirstNumber , majorSecondNumber , lastProdTag , lastUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , nextUrgentTag );
 	}
 
 	public void setProductLifecycles( MetaProductPolicy policy , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {

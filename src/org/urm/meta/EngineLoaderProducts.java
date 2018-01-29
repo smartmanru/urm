@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
+import org.urm.db.engine.DBEngineAuth;
 import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
@@ -12,6 +13,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.engine.EngineSettings;
@@ -131,6 +133,9 @@ public class EngineLoaderProducts {
 		if( !matchProductMirrors( product ) )
 			Common.exit1( _Error.InvalidProductMirros1 , "Invalid product mirror repositories, product=" + product.NAME , product.NAME );
 
+		EngineAuth auth = engine.getAuth();
+		DBEngineAuth.deleteProductAccess( c , auth , product );
+		
 		ProductMeta storage = product.storage;
 		if( storage.isExists() )
 			DBProductData.dropProductData( c , storage );

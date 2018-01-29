@@ -2,16 +2,11 @@ package org.urm.meta;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.core.DBSettings;
-import org.urm.db.core.DBVersions;
-import org.urm.engine.properties.EngineEntities;
-import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvs;
 import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
@@ -76,13 +71,7 @@ public class EngineLoaderEnvs {
 			Node root = doc.getDocumentElement();
 			
 			// monitoring settings
-			EngineEntities entities = action.getServerEntities();
-			MetaProductCoreSettings settings = meta.getProductCoreSettings();
-			ObjectProperties opsMon = entities.createMetaMonitoringProps( settings.ops );
-			DBSettings.importxml( loader , root , opsMon , set.ID , DBVersions.CORE_ID , true , false , set.PV );
-			opsMon.recalculateProperties();
-			
-			mon.load( action , opsMon , root );
+			mon.load( action , root );
 		}
 		catch( Throwable e ) {
 			loader.setLoadFailed( action , _Error.UnableLoadProductMonitoring1 , e , "unable to import monitoring metadata, product=" + set.name , set.name );

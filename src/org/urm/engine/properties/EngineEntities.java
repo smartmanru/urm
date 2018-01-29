@@ -23,12 +23,12 @@ public class EngineEntities {
 	public static String nameRunContextSet = "execrc";
 	public static String nameEngineSettings = "engine";
 	public static String nameProductSet = "product.defaults";
-	public static String nameBuildSet = "build.defaults";
-	public static String nameBuildBranchSet = "build.branch.defaults";
-	public static String nameBuildDevBranchSet = "build.devbranch.defaults";
-	public static String nameBuildDevTrunkSet = "build.devtrunk.defaults";
-	public static String nameBuildMajorBranchSet = "build.majorbranch.defaults";
-	public static String nameBuildTrunkSet = "build.trunk.defaults";
+	public static String nameBuildSet = "build";
+	public static String nameBuildBranchSet = "build.branch";
+	public static String nameBuildDevBranchSet = "build.devbranch";
+	public static String nameBuildDevTrunkSet = "build.devtrunk";
+	public static String nameBuildMajorBranchSet = "build.majorbranch";
+	public static String nameBuildTrunkSet = "build.trunk";
 	public static String nameEngineMonitoring = "defmon";
 	public static String nameBaseItem = "baseitem";
 	public static String nameSystem = "system";
@@ -208,20 +208,24 @@ public class EngineEntities {
 	}
 
 	public ObjectProperties createDefaultBuildCommonProps( ObjectProperties parent ) throws Exception {
-		return( createBuildCommonProps( parent , DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE ) );
+		return( createBuildCommonProps( parent , DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , true ) );
 	}
 	
-	public ObjectProperties createBuildCommonProps( ObjectProperties parent , DBEnumObjectType objectType , DBEnumObjectVersionType versionType ) throws Exception {
-		ObjectProperties props = new ObjectProperties( objectType , versionType , DBEnumParamRoleType.BUILDMODE_COMMON , nameBuildSet , engine.execrc );
+	public ObjectProperties createDefaultBuildModeProps( ObjectProperties parent , DBEnumBuildModeType mode ) throws Exception {
+		return( createBuildModeProps( parent , DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , mode , true ) );
+	}
+	
+	private ObjectProperties createBuildCommonProps( ObjectProperties parent , DBEnumObjectType objectType , DBEnumObjectVersionType versionType , boolean defaults ) throws Exception {
+		String set = nameBuildSet;
+		if( defaults )
+			set += ".defaults";
+		
+		ObjectProperties props = new ObjectProperties( objectType , versionType , DBEnumParamRoleType.BUILDMODE_COMMON , set , engine.execrc );
 		props.create( parent , entityAppProductBuild , null );
 		return( props );
 	}
 
-	public ObjectProperties createDefaultBuildModeProps( ObjectProperties parent , DBEnumBuildModeType mode ) throws Exception {
-		return( createBuildModeProps( parent , DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , mode ) );
-	}
-	
-	public ObjectProperties createBuildModeProps( ObjectProperties parent , DBEnumObjectType objectType , DBEnumObjectVersionType versionType , DBEnumBuildModeType mode ) throws Exception {
+	private ObjectProperties createBuildModeProps( ObjectProperties parent , DBEnumObjectType objectType , DBEnumObjectVersionType versionType , DBEnumBuildModeType mode , boolean defaults ) throws Exception {
 		DBEnumParamRoleType role = null;
 		String set = null;
 		if( mode == DBEnumBuildModeType.BRANCH ) {
@@ -248,6 +252,10 @@ public class EngineEntities {
 			role = DBEnumParamRoleType.BUILDMODE_TRUNK;
 			set = nameBuildTrunkSet;
 		}
+		
+		if( defaults )
+			set += ".defaults";
+		
 		ObjectProperties props = new ObjectProperties( objectType , versionType , role , set , engine.execrc );
 		props.create( parent , entityAppProductBuild , null ); 
 		return( props );
@@ -286,30 +294,24 @@ public class EngineEntities {
 		return( props );
 	}
 
-	public ObjectProperties createMetaProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.DEFAULT , nameMeta , engine.execrc );
-		props.create( parent , entityAppMeta , null );
-		return( props );
-	}
-	
 	public ObjectProperties createMetaCoreSettingsProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.DEFAULT , nameMetaCoreSettings , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.METACORE , nameMetaCoreSettings , engine.execrc );
 		props.create( parent , entityAppProductSettings , null );
 		return( props );
 	}
 
 	public ObjectProperties createMetaMonitoringProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.DEFAULT , nameMetaMonitoringSettings , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.METAMON , nameMetaMonitoringSettings , engine.execrc );
 		props.create( parent , entityAppMetaMonitoring , null );
 		return( props );
 	}
 
 	public ObjectProperties createMetaBuildCommonProps( ObjectProperties parent ) throws Exception {
-		return( createBuildCommonProps( parent , DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT ) );
+		return( createBuildCommonProps( parent , DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , false ) );
 	}
 
 	public ObjectProperties createMetaBuildModeProps( ObjectProperties parent , DBEnumBuildModeType mode ) throws Exception {
-		return( createBuildModeProps( parent , DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , mode ) );
+		return( createBuildModeProps( parent , DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , mode , false ) );
 	}
 	
 }

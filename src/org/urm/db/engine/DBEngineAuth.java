@@ -750,8 +750,7 @@ public class DBEngineAuth {
 		}
 	}
 
-	public static void deleteProductAccess( EngineTransaction transaction , EngineAuth auth , AppProduct product ) throws Exception {
-		DBConnection c = transaction.getConnection();
+	public static void deleteProductAccess( DBConnection c , EngineAuth auth , AppProduct product ) throws Exception {
 		if( !c.modify( DBQueries.MODIFY_AUTH_DROP_PRODUCTACCESS1 , new String[] {
 			EngineDB.getInteger( product.ID )
 			}))

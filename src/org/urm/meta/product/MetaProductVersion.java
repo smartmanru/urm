@@ -54,10 +54,10 @@ public class MetaProductVersion {
 	}
 	
 	public void createVersion( int majorFirstNumber , int majorSecondNumber , int lastProdTag , int lastUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int nextUrgentTag ) throws Exception {
-		updateVersion( majorFirstNumber , majorSecondNumber , lastProdTag , nextUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , lastUrgentTag );
+		modifyVersion( majorFirstNumber , majorSecondNumber , lastProdTag , lastUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , nextUrgentTag );
 	}
 
-	public void updateVersion( int majorLastFirstNumber , int majorLastSecondNumber , int lastProdTag , int nextUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int lastUrgentTag ) throws Exception {
+	public void modifyVersion( int majorLastFirstNumber , int majorLastSecondNumber , int lastProdTag , int lastUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int nextUrgentTag ) throws Exception {
 		this.majorLastFirstNumber = majorLastFirstNumber;
 		this.majorLastSecondNumber = majorLastSecondNumber;
 		this.majorNextFirstNumber = majorNextFirstNumber;
