@@ -25,7 +25,7 @@ public class MetaSourceProject {
 	public static String PROPERTY_BRANCH = "branch";
 	public static String PROPERTY_UNIT = "unit";
 	public static String PROPERTY_BUILDER_NAME = "builder";
-	public static String PROPERTY_BUILDER_OPTIONS = "builder_options";
+	public static String PROPERTY_BUILDER_OPTIONS = "builder.addoptions";
 	public static String PROPERTY_MIRRORRES = "resource";
 	public static String PROPERTY_MIRRORREPO = "repository";
 	public static String PROPERTY_MIRRORPATH = "repopath";
