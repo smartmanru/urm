@@ -118,7 +118,7 @@
 
     <target name="package" depends="runJar">
 
-    	<copy todir="master" >
+    	<copy todir="${target.dir}" >
         	<fileset dir="${build.dir}"     includes="*.jar" />
     	</copy>
 
