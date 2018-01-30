@@ -115,7 +115,7 @@ public class MonitoringProduct {
 	
 		ActionMonitorTarget targetAction = targets.get( target.ID );
 		if( targetAction == null ) {
-			MonitoringStorage storage = action.artefactory.getMonitoringStorage( action );
+			MonitoringStorage storage = action.artefactory.getMonitoringStorage( action , target.meta );
 			MonitorTargetInfo info = new MonitorTargetInfo( target , storage );
 			targetAction = new ActionMonitorTarget( action , null , info );
 			addTarget( target , targetAction );
@@ -171,7 +171,7 @@ public class MonitoringProduct {
 	}
 	
 	public void createFolders( ActionBase action , MetaMonitoringTarget target ) throws Exception {
-		MonitoringStorage storage = action.artefactory.getMonitoringStorage( action );
+		MonitoringStorage storage = action.artefactory.getMonitoringStorage( action , target.meta );
 		LocalFolder folder = storage.getDataFolder( action , target );
 		folder.ensureExists( action );
 		folder = storage.getReportsFolder( action , target );

@@ -3,7 +3,6 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.meta.env.MetaEnvSegment;
-import org.urm.meta.env.MetaEnvs;
 import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductCoreSettings;
@@ -13,12 +12,11 @@ public class MonitoringStorage {
 	public Artefactory artefactory;
 	public Meta meta;
 	LocalFolder workFolder;
-	MetaEnvs envs;
 	
-	public MonitoringStorage( Artefactory artefactory , LocalFolder workFolder ) {
+	public MonitoringStorage( Artefactory artefactory , Meta meta , LocalFolder workFolder ) {
 		this.artefactory = artefactory;
+		this.meta = meta;
 		this.workFolder = workFolder;
-		this.meta = envs.meta;
 	}
 	
 	public LocalFolder getDataFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {

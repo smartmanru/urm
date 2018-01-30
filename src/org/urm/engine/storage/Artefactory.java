@@ -94,8 +94,8 @@ public class Artefactory {
 		return( repo );
 	}
 	
-	public MonitoringStorage getMonitoringStorage( ActionBase action ) throws Exception {
-		return( new MonitoringStorage( this , workFolder ) );
+	public MonitoringStorage getMonitoringStorage( ActionBase action , Meta meta ) throws Exception {
+		return( new MonitoringStorage( this , meta , workFolder ) );
 	}
 
 	public NexusStorage getNexusStorage( ActionBase action , Integer NEXUS_RESOURCE , Meta meta , String repository ) throws Exception {
