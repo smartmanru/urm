@@ -57,6 +57,7 @@ public class MonitoringProduct {
 	public MonitoringProduct( EngineMonitoring monitoring , AppProduct product , MetaMonitoring meta ) {
 		this.monitoring = monitoring;
 		this.productId = product.ID;
+		this.meta = meta;
 		targets = new HashMap<Integer,ActionMonitorTarget>();
 	}
 	
