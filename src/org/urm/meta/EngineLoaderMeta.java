@@ -12,7 +12,7 @@ import org.urm.db.product.DBMetaSettings;
 import org.urm.db.product.DBMetaPolicy;
 import org.urm.db.product.DBMetaSources;
 import org.urm.db.product.DBMetaUnits;
-import org.urm.engine.storage.MetadataStorage;
+import org.urm.engine.storage.ProductStorage;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDesignDiagram;
 import org.urm.meta.product.MetaDocs;
@@ -45,13 +45,13 @@ public class EngineLoaderMeta {
 		this.meta = set.meta;
 	}
 
-	public void loadDesignDocs( MetadataStorage ms ) throws Exception {
+	public void loadDesignDocs( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		for( String designFile : ms.getDesignFiles( action ) )
 			loadDesignData( ms , designFile );
 	}
 	
-	private void loadDesignData( MetadataStorage storageMeta , String diagramName ) throws Exception {
+	private void loadDesignData( ProductStorage storageMeta , String diagramName ) throws Exception {
 		MetaDesignDiagram diagram = new MetaDesignDiagram( set , set.meta );
 		MetaDocs docs = set.getDocs();
 		
@@ -70,7 +70,7 @@ public class EngineLoaderMeta {
 		}
 	}
 
-	public void saveDesignDocs( MetadataStorage ms ) throws Exception {
+	public void saveDesignDocs( ProductStorage ms ) throws Exception {
 		MetaDocs docs = set.getDocs();
 		for( String diagramName : docs.getDiagramNames() ) {
 			MetaDesignDiagram diagram = docs.findDiagram( diagramName );
@@ -78,7 +78,7 @@ public class EngineLoaderMeta {
 		}
 	}
 	
-	private void saveDesignData( MetadataStorage storageMeta , MetaDesignDiagram diagram ) throws Exception {
+	private void saveDesignData( ProductStorage storageMeta , MetaDesignDiagram diagram ) throws Exception {
 		ActionBase action = loader.getAction();
 		Document doc = Common.xmlCreateDoc( XML_ROOT_DESIGN );
 		diagram.save( action , doc , doc.getDocumentElement() );
@@ -86,7 +86,7 @@ public class EngineLoaderMeta {
 		storageMeta.saveEnvConfFile( action , doc , diagramFile );
 	}
 	
-	public void exportAll( MetadataStorage ms ) throws Exception {
+	public void exportAll( ProductStorage ms ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
 		trace( "export product data, name=" + set.name + ", version=" + c.getCurrentProductVersion( set ) + " ..." );
@@ -128,7 +128,7 @@ public class EngineLoaderMeta {
 		loaddbDistr();
 	}
 
-	public void importxmlAll( MetadataStorage ms , ProductContext context ) throws Exception {
+	public void importxmlAll( ProductStorage ms , ProductContext context ) throws Exception {
 		importxmlMeta( ms );
 		importxmlSettings( ms , context );
 		importxmlPolicy( ms );
@@ -219,7 +219,7 @@ public class EngineLoaderMeta {
 		DBMetaDistr.loaddb( loader , set );
 	}
 	
-	private void importxmlMeta( MetadataStorage ms ) throws Exception {
+	private void importxmlMeta( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -235,7 +235,7 @@ public class EngineLoaderMeta {
 		}
 	}
 
-	private void exportxmlMeta( MetadataStorage ms ) throws Exception {
+	private void exportxmlMeta( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		String file = ms.getVersionConfFile( action );
 		action.debug( "export product version file " + file + "..." );
@@ -243,10 +243,10 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 
 		DBMeta.exportxml( loader , set , doc , root );
-		Common.xmlSaveDoc( doc , file );
+		ms.saveDoc( doc , file );
 	}
 
-	private void importxmlSettings( MetadataStorage ms , ProductContext context ) throws Exception {
+	private void importxmlSettings( ProductStorage ms , ProductContext context ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -262,7 +262,7 @@ public class EngineLoaderMeta {
 		}
 	}
 	
-	private void exportxmlSettings( MetadataStorage ms ) throws Exception {
+	private void exportxmlSettings( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		String file = ms.getCoreConfFile( action );
 		action.debug( "export product settings file " + file + "..." );
@@ -270,10 +270,10 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 
 		DBMetaSettings.exportxml( loader , set , doc , root );
-		Common.xmlSaveDoc( doc , file );
+		ms.saveDoc( doc , file );
 	}
 	
-	private void importxmlPolicy( MetadataStorage ms ) throws Exception {
+	private void importxmlPolicy( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -289,7 +289,7 @@ public class EngineLoaderMeta {
 		}
 	}
 
-	private void exportxmlPolicy( MetadataStorage ms ) throws Exception {
+	private void exportxmlPolicy( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		String file = ms.getPolicyConfFile( action );
 		action.debug( "export product policy file " + file + "..." );
@@ -297,10 +297,10 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 		
 		DBMetaPolicy.exportxml( loader , set , doc , root );
-		Common.xmlSaveDoc( doc , file );
+		ms.saveDoc( doc , file );
 	}
 
-	private void importxmlUnits( MetadataStorage ms ) throws Exception {
+	private void importxmlUnits( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -316,7 +316,7 @@ public class EngineLoaderMeta {
 		}
 	}
 	
-	private void exportxmlUnits( MetadataStorage ms ) throws Exception {
+	private void exportxmlUnits( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		String file = ms.getUnitsFile( action );
 		action.debug( "export units definition file " + file + "..." );
@@ -324,10 +324,10 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 		
 		DBMetaUnits.exportxml( loader , set , doc , root );
-		Common.xmlSaveDoc( doc , file );
+		ms.saveDoc( doc , file );
 	}
 	
-	private void importxmlDatabase( MetadataStorage ms ) throws Exception {
+	private void importxmlDatabase( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -343,7 +343,7 @@ public class EngineLoaderMeta {
 		}
 	}
 	
-	private void exportxmlDatabase( MetadataStorage ms ) throws Exception {
+	private void exportxmlDatabase( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		String file = ms.getDatabaseConfFile( action );
 		action.debug( "export database definition file " + file + "..." );
@@ -351,10 +351,10 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 		
 		DBMetaDatabase.exportxml( loader , set , doc , root );
-		Common.xmlSaveDoc( doc , file );
+		ms.saveDoc( doc , file );
 	}
 	
-	private void importxmlSources( MetadataStorage ms ) throws Exception {
+	private void importxmlSources( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -370,7 +370,7 @@ public class EngineLoaderMeta {
 		}
 	}
 	
-	private void exportxmlSources( MetadataStorage ms ) throws Exception {
+	private void exportxmlSources( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		String file = ms.getSourcesConfFile( action );
 		action.debug( "export source definition file " + file + "..." );
@@ -378,10 +378,10 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 		
 		DBMetaSources.exportxml( loader , set , doc , root );
-		Common.xmlSaveDoc( doc , file );
+		ms.saveDoc( doc , file );
 	}
 	
-	private void importxmlDocs( MetadataStorage ms ) throws Exception {
+	private void importxmlDocs( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -397,7 +397,7 @@ public class EngineLoaderMeta {
 		}
 	}
 	
-	private void exportxmlDocs( MetadataStorage ms ) throws Exception {
+	private void exportxmlDocs( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		String file = ms.getDocumentationFile( action );
 		action.debug( "export units definition file " + file + "..." );
@@ -405,10 +405,10 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 		
 		DBMetaDocs.exportxml( loader , set , doc , root );
-		Common.xmlSaveDoc( doc , file );
+		ms.saveDoc( doc , file );
 	}
 	
-	private void importxmlDistr( MetadataStorage ms ) throws Exception {
+	private void importxmlDistr( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -424,7 +424,7 @@ public class EngineLoaderMeta {
 		}
 	}
 
-	private void exportxmlDistr( MetadataStorage ms ) throws Exception {
+	private void exportxmlDistr( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		String file = ms.getDistrConfFile( action );
 		action.debug( "export distributive definition file " + file + "..." );
@@ -432,7 +432,7 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 		
 		DBMetaDistr.exportxml( loader , set , doc , root );
-		Common.xmlSaveDoc( doc , file );
+		ms.saveDoc( doc , file );
 	}
 	
 	public void trace( String s ) {

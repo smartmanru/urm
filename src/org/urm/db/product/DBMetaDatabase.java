@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBEnums.*;
@@ -129,7 +130,7 @@ public class DBMetaDatabase {
 		MetaDatabase database = new MetaDatabase( storage , storage.meta );
 		storage.setDatabase( database );
 		
-		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { EngineDB.getInteger( storage.ID ) } );
 		try {
 			while( rs.next() ) {
 				MetaDatabaseSchema schema = new MetaDatabaseSchema( storage.meta , database );

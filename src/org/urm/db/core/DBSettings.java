@@ -130,70 +130,79 @@ public abstract class DBSettings {
 	}
 	
 	public static void exportxml( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
-		exportxmlEntity( loader , doc , root , properties , appAsProperties , true );
+		exportxmlAppEntity( loader , doc , root , properties , appAsProperties );
 		
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity custom = meta.getCustomEntity();
 		
 		if( custom != null ) {
 			Element nodeCustom = Common.xmlCreateElement( doc , root , ELEMENT_CUSTOM );
-			exportxmlEntity( loader , doc , nodeCustom , properties , appAsProperties , false );
+			exportxmlCustomEntity( loader , doc , nodeCustom , properties );
 		}
 	}
-		
-	public static void exportxmlEntity( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties , boolean exportApp ) throws Exception {
+
+	public static void exportxmlCustomEntity( EngineLoader loader , Document doc , Element root , ObjectProperties properties ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity custom = meta.getCustomEntity();
 		PropertySet set = properties.getProperties();
 		
 		for( PropertyValue value : set.getAllProperties() ) {
 			EntityVar var = properties.getVar( value.property );
+			if( !var.isCustom() )
+				continue;
+			
 			if( !var.isXml() )
 				continue;
 			
-			if( var.isApp() ) {
-				if( exportApp ) {
-					String data = value.getOriginalValue();
-					if( data == null || data.isEmpty() )
-						continue;
-					
-					if( var.isEnum() ) {
-						int ev = Integer.parseInt( data );
-						if( ev == DBEnums.VALUE_UNKNOWN )
-							continue;
-						
-						data = DBEnums.getEnumValue( var.enumClass , ev );
-					}
-					else
-					if( var.isObject() ) {
-						int ev = Integer.parseInt( data );
-						data = var.exportxmlObjectValue( loader , ev );
-					}
-						
-					if( appAsProperties )
-						exportxmlSetProperty( loader , doc , root , var , data , false );
-					else
-						exportxmlSetAttr( loader , doc , root , var , data );
-				}
-			}
+			boolean defineProp = ( var.isCustom() && var.entity == custom )? true : false;
+			String data = null;
+			if( defineProp )
+				data = value.getExpressionValue();
 			else {
-				if( !exportApp ) {
-					boolean defineProp = ( var.isCustom() && var.entity == custom )? true : false;
-					String data = null;
-					if( defineProp )
-						data = value.getExpressionValue();
-					else {
-						data = value.getOriginalValue();
-						if( data == null || data.isEmpty() )
-							continue;
-					}
-					
-					exportxmlSetProperty( loader , doc , root , var , data , defineProp );
-				}
+				data = value.getOriginalValue();
+				if( data == null || data.isEmpty() )
+					continue;
 			}
+			
+			exportxmlSetProperty( loader , doc , root , var , data , defineProp );
 		}
 	}
 
+	public static void exportxmlAppEntity( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
+		PropertySet set = properties.getProperties();
+		
+		for( PropertyValue value : set.getAllProperties() ) {
+			EntityVar var = properties.getVar( value.property );
+			if( !var.isApp() )
+				continue;
+			
+			if( !var.isXml() )
+				continue;
+			
+			String data = value.getOriginalValue();
+			if( data == null || data.isEmpty() )
+				continue;
+			
+			if( var.isEnum() ) {
+				int ev = Integer.parseInt( data );
+				if( ev == DBEnums.VALUE_UNKNOWN )
+					continue;
+				
+				data = DBEnums.getEnumValue( var.enumClass , ev );
+			}
+			else
+			if( var.isObject() ) {
+				int ev = Integer.parseInt( data );
+				data = var.exportxmlObjectValue( loader , ev );
+			}
+				
+			if( appAsProperties )
+				exportxmlSetProperty( loader , doc , root , var , data , false );
+			else
+				exportxmlSetAttr( loader , doc , root , var , data );
+		}
+	}
+	
 	private static void exportxmlSetAttr( EngineLoader loader, Document doc , Element root , EntityVar var , String data ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , var.XMLNAME , data );
 	}

@@ -141,8 +141,8 @@ public class Artefactory {
 		return( new SourceStorage( this , meta , downloadFolder ) );
 	}
 	
-	public MetadataStorage getMetadataStorage( ActionBase action , Meta meta ) throws Exception {
-		return( new MetadataStorage( this , meta ) );
+	public ProductStorage getMetadataStorage( ActionBase action , Meta meta ) throws Exception {
+		return( new ProductStorage( this , meta ) );
 	}
 
 	public LogStorage getReleaseBuildLogStorage( ActionBase action , Meta meta , String release ) throws Exception {

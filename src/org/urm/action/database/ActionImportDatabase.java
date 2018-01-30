@@ -13,7 +13,7 @@ import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.MetadataStorage;
+import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.SourceStorage;
@@ -195,7 +195,7 @@ public class ActionImportDatabase extends ActionBase {
 		Common.createFileFromStringList( execrc , confFile , conf );
 		importScriptsFolder.copyFileFromLocal( this , confFile );
 		
-		MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta );
+		ProductStorage ms = artefactory.getMetadataStorage( this , server.meta );
 		String tablesFilePath = workFolder.getFilePath( this , UrmStorage.TABLES_FILE_NAME );
 		ms.saveDatapumpSet( this , tableSet , server , tablesFilePath );
 		importScriptsFolder.copyFileFromLocal( this , tablesFilePath );
@@ -210,7 +210,7 @@ public class ActionImportDatabase extends ActionBase {
 		}
 		
 		if( CMD.equals( "all" ) || CMD.equals( "data" ) ) {
-			MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta );
+			ProductStorage ms = artefactory.getMetadataStorage( this , server.meta );
 			ms.loadDatapumpSet( this , tableSet , server , false , false );
 			
 			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )

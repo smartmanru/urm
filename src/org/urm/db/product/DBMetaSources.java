@@ -21,6 +21,8 @@ import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.MirrorRepository;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
@@ -691,10 +693,19 @@ public class DBMetaSources {
 		sources.updateProjectItem( item );
 	}
 
-	public static void deleteProject( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProject project ) throws Exception {
+	public static void deleteProject( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProject project , boolean leaveManual ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
 		PropertyEntity entity = entities.entityAppMetaSourceItem;
+
+		MetaDistr distr = storage.getDistr();
+		for( MetaSourceProjectItem item : project.getItems() ) {
+			MetaDistrBinaryItem distItem = item.distItem;
+			if( leaveManual )
+				DBMetaDistr.changeBinaryItemProjectToManual( transaction , storage , distr , distItem );
+			else
+				DBMetaDistr.deleteBinaryItem( transaction , storage , distr , distItem );
+		}
 		
 		if( !c.modify( DBQueries.MODIFY_SOURCE_DELETEPROJECTITEMS1 , new String[] {
 				EngineDB.getInteger( project.ID )
@@ -704,6 +715,10 @@ public class DBMetaSources {
 		int version = c.getCurrentProductVersion( storage );
 		DBEngineEntities.deleteAppObject( c , entity , project.ID , version );
 		sources.removeProject( project.set , project );
+		
+		transaction.changeMirrors();
+		EngineMirrors mirrors = transaction.getTransactionMirrors();
+		DBEngineMirrors.deleteProjectMirror( transaction , mirrors , project );
 	}
 
 	public static void deleteProjectItem( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProjectItem item ) throws Exception {

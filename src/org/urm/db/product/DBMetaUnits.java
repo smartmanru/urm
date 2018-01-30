@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBEnums.*;
@@ -107,7 +108,7 @@ public class DBMetaUnits {
 		MetaUnits units = new MetaUnits( storage , storage.meta );
 		storage.setUnits( units );
 		
-		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { EngineDB.getInteger( storage.ID ) } );
 		try {
 			while( rs.next() ) {
 				MetaProductUnit unit = new MetaProductUnit( storage.meta , units );

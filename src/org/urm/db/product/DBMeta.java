@@ -98,7 +98,7 @@ public class DBMeta {
 				entity.exportxmlInt( version.majorNextSecondNumber ) , 
 				entity.exportxmlInt( version.nextProdTag ) , 
 				entity.exportxmlInt( version.nextUrgentTag ) 
-		} , true );
+		} , false );
 	}
 	
 	private static void modifyMeta( DBConnection c , ProductMeta storage , MetaProductVersion version , boolean insert ) throws Exception {

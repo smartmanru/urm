@@ -13,7 +13,7 @@ import org.urm.engine.Engine;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.MetadataStorage;
+import org.urm.engine.storage.ProductStorage;
 import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineDirectory;
@@ -175,7 +175,7 @@ public class EngineLoader {
 			return( folder );
 		}
 		
-		MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , meta );
+		ProductStorage storageMeta = action.artefactory.getMetadataStorage( action , meta );
 		LocalFolder folder = storageMeta.getHomeFolder( action );
 		return( folder );
 	}

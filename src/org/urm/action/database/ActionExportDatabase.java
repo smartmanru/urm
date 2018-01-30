@@ -11,7 +11,7 @@ import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.MetadataStorage;
+import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.UrmStorage;
@@ -167,7 +167,7 @@ public class ActionExportDatabase extends ActionBase {
 		Common.createFileFromStringList( execrc , confFile , conf );
 		exportScriptsFolder.copyFileFromLocal( this , confFile );
 		
-		MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta );
+		ProductStorage ms = artefactory.getMetadataStorage( this , server.meta );
 		String tablesFilePath = work.getFilePath( this , UrmStorage.TABLES_FILE_NAME );
 		ms.saveDatapumpSet( this , tableSet , server , tablesFilePath );
 		exportScriptsFolder.copyFileFromLocal( this , tablesFilePath );
@@ -175,7 +175,7 @@ public class ActionExportDatabase extends ActionBase {
 
 	private void runAll() throws Exception {
 		if( !STANDBY ) {
-			MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta );
+			ProductStorage ms = artefactory.getMetadataStorage( this , server.meta );
 			ms.loadDatapumpSet( this , tableSet , server , STANDBY , true );
 		}
 		

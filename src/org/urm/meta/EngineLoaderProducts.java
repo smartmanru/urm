@@ -10,7 +10,7 @@ import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.MetadataStorage;
+import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineAuth;
@@ -56,7 +56,7 @@ public class EngineLoaderProducts {
 			lde.createAll();
 	
 			// create folders
-			MetadataStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
+			ProductStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
 			LocalFolder homeFolder = ms.getHomeFolder( action );
 			if( homeFolder.checkExists( action ) ) {
 				if( !forceClearMeta ) {
@@ -175,7 +175,7 @@ public class EngineLoaderProducts {
 	
 	public void saveAll( ProductMeta set ) throws Exception {
 		ActionBase action = loader.getAction();
-		MetadataStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
+		ProductStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
 		
 		EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
 		ldm.saveDesignDocs( ms );
@@ -186,7 +186,7 @@ public class EngineLoaderProducts {
 	
 	public void exportAll( ProductMeta set ) throws Exception {
 		ActionBase action = loader.getAction();
-		MetadataStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
+		ProductStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
 		
 		EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
 		ldm.exportAll( ms );
@@ -227,7 +227,7 @@ public class EngineLoaderProducts {
 				context.create( loader.getSettings() , home );
 				set.setContext( context );
 				
-				MetadataStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
+				ProductStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
 				if( importxml )
 					importxmlAll( set , storageMeta , context );
 				else
@@ -263,7 +263,7 @@ public class EngineLoaderProducts {
 		return( null );
 	}
 	
-	private void importxmlAll( ProductMeta set , MetadataStorage ms , ProductContext context ) throws Exception {
+	private void importxmlAll( ProductMeta set , ProductStorage ms , ProductContext context ) throws Exception {
 		ActionBase action = loader.getAction();
 		
 		try {
@@ -282,7 +282,7 @@ public class EngineLoaderProducts {
 		}
 	}
 	
-	private void loaddbAll( ProductMeta set , MetadataStorage ms , ProductContext context ) throws Exception {
+	private void loaddbAll( ProductMeta set , ProductStorage ms , ProductContext context ) throws Exception {
 		ActionBase action = loader.getAction();
 		
 		try {

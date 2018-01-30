@@ -112,11 +112,11 @@ public class MetaMonitoringTarget {
 	}
 	
 	public String getMatchEnvName() {
-		return( Common.getListItem( ENVSG.FKNAME , "::" , 2 ) );
+		return( Common.getListItem( ENVSG.FKNAME , "::" , 1 ) );
 	}
 	
 	public String getMatchSgName() {
-		return( Common.getListItem( ENVSG.FKNAME , "::" , 3 ) );
+		return( Common.getListItem( ENVSG.FKNAME , "::" , 2 ) );
 	}
 	
 	public String getName() throws Exception {
@@ -168,6 +168,8 @@ public class MetaMonitoringTarget {
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		MetaEnvSegment sg = findSegment();
+		if( sg == null )
+			Common.exitUnexpected();
 		
 		Common.xmlSetElementAttr( doc , root , "env" , sg.env.NAME );
 		Common.xmlSetElementAttr( doc , root , "segment" , sg.NAME );

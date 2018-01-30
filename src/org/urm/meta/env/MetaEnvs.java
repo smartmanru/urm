@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.EngineTransaction;
-import org.urm.engine.storage.MetadataStorage;
+import org.urm.engine.storage.ProductStorage;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.product.Meta;
@@ -72,7 +72,7 @@ public class MetaEnvs {
 		mapEnvs.remove( env.NAME );
 		
 		ActionBase action = transaction.getAction();
-		MetadataStorage storage = action.artefactory.getMetadataStorage( action , env.meta );
+		ProductStorage storage = action.artefactory.getMetadataStorage( action , env.meta );
 		storage.deleteEnvConfFile( action , envFile );
 		env.deleteObject();
 	}

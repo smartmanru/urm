@@ -2,7 +2,6 @@ package org.urm.engine;
 
 import java.util.List;
 
-import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
@@ -65,13 +64,13 @@ public class EngineTransaction extends TransactionBase {
 	// SETTINGS
 	
 	public void setEngineProductBuildModeDefaultsProperties( DBEnumBuildModeType mode , PropertySet props ) throws Exception {
-		checkTransactionSettings();
+		super.checkTransactionSettings();
 		EngineSettings settings = super.getTransactionSettings();
 		settings.setProductBuildModeDefaultsProperties( this , mode , props );
 	}
 
 	public EntityVar createCustomProperty( int ownerId , ObjectProperties ops , String name , String desc , String defvalue ) throws Exception {
-		checkTransactionCustomProperty( ownerId , ops );
+		super.checkTransactionCustomProperty( ownerId , ops );
 		EngineEntities entities = getEntities();
 		EntityVar var = DBEngineEntities.createCustomProperty( this , entities , ownerId , ops , name , desc , defvalue );
 		entityNew = var.entity;
@@ -79,7 +78,7 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public EntityVar modifyCustomProperty( int ownerId , ObjectProperties ops , int paramId , String name , String desc , String defvalue ) throws Exception {
-		checkTransactionCustomProperty( ownerId , ops );
+		super.checkTransactionCustomProperty( ownerId , ops );
 		EngineEntities entities = getEntities();
 		EntityVar var = DBEngineEntities.modifyCustomProperty( this , entities , ownerId , ops , paramId , name , desc , defvalue );
 		entityNew = var.entity;
@@ -87,7 +86,7 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void deleteCustomProperty( int ownerId , ObjectProperties ops , int paramId ) throws Exception {
-		checkTransactionCustomProperty( ownerId , ops );
+		super.checkTransactionCustomProperty( ownerId , ops );
 		EngineEntities entities = getEntities();
 		DBEngineEntities.deleteCustomProperty( this , entities , ownerId , ops , paramId );
 		ObjectMeta meta = ops.getMeta();
@@ -95,31 +94,31 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void updateCustomEngineProperties( EngineSettings settings ) throws Exception {
-		checkTransactionSettings();
+		super.checkTransactionSettings();
 		ObjectProperties ops = settings.getEngineProperties();
 		DBSettings.modifyCustomValues( this , DBVersions.CORE_ID , ops );
 	}
 	
 	public void updateAppEngineProperties( EngineSettings settings ) throws Exception {
-		checkTransactionSettings();
+		super.checkTransactionSettings();
 		ObjectProperties ops = settings.getEngineProperties();
 		DBSettings.modifyAppValues( this , DBVersions.CORE_ID , ops );
 	}
 	
 	public void updateProductDefaultProperties( EngineSettings settings ) throws Exception {
-		checkTransactionSettings();
+		super.checkTransactionSettings();
 		ObjectProperties ops = settings.getDefaultProductSettigns();
 		DBSettings.modifyAppValues( this , DBVersions.CORE_ID , ops );
 	}
 	
 	public void updateProductDefaultBuildCommonProperties( EngineSettings settings ) throws Exception {
-		checkTransactionSettings();
+		super.checkTransactionSettings();
 		ObjectProperties ops = settings.getDefaultProductBuildSettings();
 		DBSettings.modifyAppValues( this , DBVersions.CORE_ID , ops );
 	}
 	
 	public void updateProductDefaultBuildModeProperties( EngineSettings settings , DBEnumBuildModeType mode ) throws Exception {
-		checkTransactionSettings();
+		super.checkTransactionSettings();
 		ObjectProperties ops = settings.getDefaultProductBuildObjectProperties( mode );
 		DBSettings.modifyAppValues( this , DBVersions.CORE_ID , ops );
 	}
@@ -129,24 +128,24 @@ public class EngineTransaction extends TransactionBase {
 	// RESOURCES
 	
 	public AuthResource createResource( EngineResources resources , AuthResource rcdata ) throws Exception {
-		checkTransactionResources( resources );
+		super.checkTransactionResources( resources );
 		return( DBEngineResources.createResource( this , resources , rcdata ) );
 	}
 	
 	public void updateResource( AuthResource rc , AuthResource rcdata ) throws Exception {
-		checkTransactionResources( rc.resources );
+		super.checkTransactionResources( rc.resources );
 		DBEngineResources.modifyResource( this , rc.resources , rc , rcdata );
 	}
 	
 	public void deleteResource( AuthResource rc ) throws Exception {
-		checkTransactionResources( rc.resources );
+		super.checkTransactionResources( rc.resources );
 		EngineAuth auth = action.getServerAuth();
 		DBEngineAuth.deleteResourceAccess( this , auth , rc );
 		DBEngineResources.deleteResource( this , rc.resources , rc );
 	}
 
 	public void verifyResource( AuthResource rc ) throws Exception {
-		checkTransactionResources( rc.resources );
+		super.checkTransactionResources( rc.resources );
 		DBEngineResources.verifyResource( this , rc.resources , rc );
 	}
 	
@@ -155,7 +154,7 @@ public class EngineTransaction extends TransactionBase {
 	// MIRRORS
 	
 	public void createMirrorRepository( MirrorRepository repo , Integer resourceId , String reponame , String reporoot , String dataroot , boolean push ) throws Exception {
-		checkTransactionMirrors( repo.mirrors );
+		super.checkTransactionMirrors( repo.mirrors );
 		EngineLoader loader = engine.createLoader( this );
 		if( push )
 			loader.exportRepo( repo );
@@ -165,19 +164,21 @@ public class EngineTransaction extends TransactionBase {
 	}
 
 	public void pushMirror( MirrorRepository repo ) throws Exception {
+		super.useDatabase();
 		EngineLoader loader = engine.createLoader( this );
 		loader.exportRepo( repo );
 		DBEngineMirrors.pushMirror( this , repo.mirrors , repo );
 	}
 
 	public void refreshMirror( MirrorRepository repo ) throws Exception {
+		super.checkTransactionImport();
 		DBEngineMirrors.refreshMirror( this , repo.mirrors , repo );
 		EngineLoader loader = engine.createLoader( this );
 		loader.importRepo( repo );
 	}
 
 	public void dropMirrorWorkspace( MirrorRepository repo , boolean dropOnServer ) throws Exception {
-		checkTransactionMirrors( repo.mirrors );
+		super.checkTransactionMirrors( repo.mirrors );
 		DBEngineMirrors.dropMirrorWorkspace( this , repo.mirrors , repo , dropOnServer );
 	}
 
@@ -188,28 +189,14 @@ public class EngineTransaction extends TransactionBase {
 
 	public void deleteSourceProject( MetaSourceProject project , boolean leaveManual ) throws Exception {
 		ProductMeta storage = project.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
-		Meta meta = project.meta;
-		MetaSources sources = project.set.sources;
-		MetaDistr distr = meta.getDistr();
-		for( MetaSourceProjectItem item : project.getItems() ) {
-			MetaDistrBinaryItem distItem = item.distItem;
-			if( leaveManual )
-				DBMetaDistr.changeBinaryItemProjectToManual( this , storage , distr , distItem );
-			else
-				DBMetaDistr.deleteBinaryItem( this , storage , distr , distItem );
-		}
-		
-		DBMetaSources.deleteProject( this , storage , sources , project );
-		
-		if( !changeMirrors( getMirrors() ) )
-			Common.exitUnexpected();
-		DBEngineMirrors.deleteProjectMirror( this , getTransactionMirrors() , project );
+		MetaSources sources = storage.getSources();
+		DBMetaSources.deleteProject( this , storage , sources , project , leaveManual );
 	}
 
 	public void createDetachedMirror( EngineMirrors mirrors , DBEnumMirrorType type , String product , String project ) throws Exception {
-		checkTransactionMirrors( mirrors );
+		super.checkTransactionMirrors( mirrors );
 		DBEngineMirrors.createDetachedMirror( this , mirrors , type , product , project );
 	}
 	
@@ -218,54 +205,54 @@ public class EngineTransaction extends TransactionBase {
 	// BASE
 	
 	public BaseGroup createBaseGroup( DBEnumBaseCategoryType type , String name , String desc ) throws Exception {
-		checkTransactionBase();
+		super.checkTransactionBase();
 		EngineBase base = super.getTransactionBase();
 		return( DBEngineBase.createGroup( this , base , type , name , desc ) );
 	}
 
 	public void deleteBaseGroup( BaseGroup group ) throws Exception {
-		checkTransactionBase();
+		super.checkTransactionBase();
 		EngineBase base = super.getTransactionBase();
 		DBEngineBase.deleteGroup( this , base , group );
 	}
 
 	public void modifyBaseGroup( BaseGroup group , String name , String desc ) throws Exception {
-		checkTransactionBase();
+		super.checkTransactionBase();
 		EngineBase base = super.getTransactionBase();
 		DBEngineBase.modifyGroup( this , base , group , name , desc );
 	}
 
 	public BaseItem createBaseItem( BaseGroup group , String name , String desc ) throws Exception {
-		checkTransactionBase();
+		super.checkTransactionBase();
 		EngineBase base = super.getTransactionBase();
 		return( DBEngineBase.createItem( this , base , group , name , desc ) );
 	}
 
 	public void modifyBaseItem( BaseItem item , String name , String desc ) throws Exception {
-		checkTransactionBase();
+		super.checkTransactionBase();
 		EngineBase base = super.getTransactionBase();
 		DBEngineBase.modifyItem( this , base , item , name , desc );
 	}
 
 	public void deleteBaseItem( BaseItem item ) throws Exception {
-		checkTransactionBase();
+		super.checkTransactionBase();
 		EngineBase base = super.getTransactionBase();
 		DBEngineBase.deleteItem( this , base , item );
 	}
 
 	public void modifyBaseItemData( BaseItem item , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
-		checkTransactionBase();
+		super.checkTransactionBase();
 		DBEngineBase.modifyItemData( this , item , name , version , ostype , accessType , srcType , srcFormat , SRCFILE , SRCFILEDIR , INSTALLPATH , INSTALLLINK );
 	}
 
 	public void addBaseItemDependency( BaseItem item , BaseItem dep ) throws Exception {
-		checkTransactionBase();
+		super.checkTransactionBase();
 		EngineBase base = super.getTransactionBase();
 		DBEngineBase.addItemDependency( this , base , item , dep );
 	}
 
 	public void deleteBaseItemDependency( BaseItem item , BaseItem dep ) throws Exception {
-		checkTransactionBase();
+		super.checkTransactionBase();
 		EngineBase base = super.getTransactionBase();
 		DBEngineBase.deleteItemDependency( this , base , item , dep );
 	}
@@ -275,17 +262,17 @@ public class EngineTransaction extends TransactionBase {
 	// BUILDERS
 	
 	public ProjectBuilder createBuilder( EngineBuilders builders , ProjectBuilder builder ) throws Exception {
-		checkTransactionBuilders( builders );
+		super.checkTransactionBuilders( builders );
 		return( DBEngineBuilders.createBuilder( this , builders , builder ) );
 	}
 	
 	public void modifyBuilder( ProjectBuilder builder , ProjectBuilder builderNew ) throws Exception {
-		checkTransactionBuilders( builder.builders );
+		super.checkTransactionBuilders( builder.builders );
 		DBEngineBuilders.modifyBuilder( this , builder.builders , builder , builderNew );
 	}
 	
 	public void deleteBuilder( ProjectBuilder builder ) throws Exception {
-		checkTransactionBuilders( builder.builders );
+		super.checkTransactionBuilders( builder.builders );
 		DBEngineBuilders.deleteBuilder( this , builder.builders , builder );
 	}
 	
@@ -294,37 +281,37 @@ public class EngineTransaction extends TransactionBase {
 	// LIFECYCLES
 	
 	public ReleaseLifecycle createLifecycleType( String name , String desc , DBEnumLifecycleType type , boolean regular , int daysRelease , int daysDeploy , int shiftDays ) throws Exception {
-		checkTransactionReleaseLifecycles();
+		super.checkTransactionReleaseLifecycles();
 		EngineLifecycles lifecycles = super.getTransactionLifecycles();
 		return( DBEngineLifecycles.createLifecycle( this , lifecycles , name , desc , type , regular , daysRelease , daysDeploy , shiftDays ) );
 	}
 	
 	public void modifyLifecycleType( ReleaseLifecycle lc , String name , String desc , DBEnumLifecycleType type , boolean regular , int daysRelease , int daysDeploy , int shiftDays ) throws Exception {
-		checkTransactionReleaseLifecycles();
+		super.checkTransactionReleaseLifecycles();
 		EngineLifecycles lifecycles = super.getTransactionLifecycles();
 		DBEngineLifecycles.modifyLifecycle( this , lifecycles , lc , name , desc , type , regular , daysRelease , daysDeploy , shiftDays );
 	}
 	
 	public void deleteLifecycleType( ReleaseLifecycle lc ) throws Exception {
-		checkTransactionReleaseLifecycles();
+		super.checkTransactionReleaseLifecycles();
 		EngineLifecycles lifecycles = super.getTransactionLifecycles();
 		DBEngineLifecycles.deleteLifecycle( this , lifecycles , lc );
 	}
 	
 	public ReleaseLifecycle copyLifecycleType( ReleaseLifecycle lc , String name , String desc ) throws Exception {
-		checkTransactionReleaseLifecycles();
+		super.checkTransactionReleaseLifecycles();
 		EngineLifecycles lifecycles = super.getTransactionLifecycles();
 		return( DBEngineLifecycles.copyLifecycle( this , lifecycles , lc , name , desc ) );
 	}
 	
 	public void enableLifecycleType( ReleaseLifecycle lc , boolean enable ) throws Exception {
-		checkTransactionReleaseLifecycles();
+		super.checkTransactionReleaseLifecycles();
 		EngineLifecycles lifecycles = super.getTransactionLifecycles();
 		DBEngineLifecycles.enableLifecycle( this , lifecycles , lc , enable );
 	}
 	
 	public void changeLifecyclePhases( ReleaseLifecycle lc , LifecyclePhase[] phases ) throws Exception {
-		checkTransactionReleaseLifecycles();
+		super.checkTransactionReleaseLifecycles();
 		EngineLifecycles lifecycles = super.getTransactionLifecycles();
 		DBEngineLifecycles.changePhases( this , lifecycles , lc , phases );
 	}
@@ -334,19 +321,19 @@ public class EngineTransaction extends TransactionBase {
 	// INFRASTRUCTURE
 	
 	public Datacenter createDatacenter( String name , String desc ) throws Exception {
-		checkTransactionInfrastructure();
+		super.checkTransactionInfrastructure();
 		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		return( DBEngineInfrastructure.createDatacenter( this , infra , name , desc ) );
 	}
 
 	public void modifyDatacenter( Datacenter datacenter , String name , String desc ) throws Exception {
-		checkTransactionInfrastructure();
+		super.checkTransactionInfrastructure();
 		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.modifyDatacenter( this , infra , datacenter , name , desc );
 	}
 
 	public void deleteDatacenter( Datacenter datacenter ) throws Exception {
-		checkTransactionInfrastructure();
+		super.checkTransactionInfrastructure();
 		EngineAuth auth = action.getServerAuth();
 		DBEngineAuth.deleteDatacenterAccess( this , auth , datacenter );
 		EngineInfrastructure infra = super.getTransactionInfrastructure();
@@ -354,19 +341,19 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public Network createNetwork( Datacenter datacenter , String name , String desc , String mask ) throws Exception {
-		checkTransactionInfrastructure();
+		super.checkTransactionInfrastructure();
 		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		return( DBEngineInfrastructure.createNetwork( this , infra , datacenter , name , desc , mask ) );
 	}
 
 	public void modifyNetwork( Network network , String name , String desc , String mask ) throws Exception {
-		checkTransactionInfrastructure();
+		super.checkTransactionInfrastructure();
 		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.modifyNetwork( this , infra , network , name , desc , mask );
 	}
 
 	public void deleteNetwork( Network network ) throws Exception {
-		checkTransactionInfrastructure();
+		super.checkTransactionInfrastructure();
 		EngineAuth auth = action.getServerAuth();
 		DBEngineAuth.deleteNetworkAccess( this , auth , network );
 		EngineInfrastructure infra = super.getTransactionInfrastructure();
@@ -374,37 +361,37 @@ public class EngineTransaction extends TransactionBase {
 	}
 
 	public NetworkHost createNetworkHost( Network network , String name , String desc , DBEnumOSType osType , String ip , int port ) throws Exception {
-		checkTransactionInfrastructure();
+		super.checkTransactionInfrastructure();
 		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		return( DBEngineInfrastructure.createHost( this , infra , network , name , desc , osType , ip , port ) );
 	}
 	
 	public void modifyNetworkHost( NetworkHost host , String name , String desc , DBEnumOSType osType , String ip , int port ) throws Exception {
-		checkTransactionInfrastructure();
+		super.checkTransactionInfrastructure();
 		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.modifyHost( this , infra , host , name , desc , osType , ip , port );
 	}
 	
 	public void deleteNetworkHost( NetworkHost host ) throws Exception {
-		checkTransactionInfrastructure();
+		super.checkTransactionInfrastructure();
 		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.deleteHost( this , infra , host );
 	}
 	
 	public HostAccount createHostAccount( NetworkHost host , String user , String desc , boolean admin , Integer resourceId ) throws Exception {
-		checkTransactionInfrastructure();
+		super.checkTransactionInfrastructure();
 		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		return( DBEngineInfrastructure.createAccount( this , infra , host , user , desc , admin , resourceId ) );
 	}
 	
 	public void modifyHostAccount( HostAccount account , String user , String desc , boolean admin , Integer resourceId , boolean refRename ) throws Exception {
-		checkTransactionInfrastructure();
+		super.checkTransactionInfrastructure();
 		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.modifyAccount( this , infra , account , user , desc , admin , resourceId );
 	}
 	
 	public HostAccount createHostAccount( Network network , Account account , AuthResource resource ) throws Exception {
-		checkTransactionInfrastructure();
+		super.checkTransactionInfrastructure();
 		NetworkHost host = network.findHost( account );
 		if( host == null ) {
 			DBEnumOSType type = DBEnumOSType.getValue( account.osType.name() , true );
@@ -415,7 +402,7 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void deleteHostAccount( HostAccount account ) throws Exception {
-		checkTransactionInfrastructure();
+		super.checkTransactionInfrastructure();
 		EngineInfrastructure infra = super.getTransactionInfrastructure();
 		DBEngineInfrastructure.deleteAccount( this , infra , account );
 	}
@@ -425,22 +412,22 @@ public class EngineTransaction extends TransactionBase {
 	// DIRECTORY
 	
 	public AppSystem createSystem( EngineDirectory directory , String name , String desc ) throws Exception {
-		checkTransactionDirectory( directory );
+		super.checkTransactionDirectory( directory );
 		return( DBEngineDirectory.createSystem( this , directory , name , desc ) );
 	}
 	
 	public void modifySystem( AppSystem system , String name , String desc ) throws Exception {
-		checkTransactionDirectory( system.directory );
+		super.checkTransactionDirectory( system.directory );
 		DBEngineDirectory.modifySystem( this , system.directory , system , name , desc );
 	}
 
 	public void setSystemOffline( AppSystem system , boolean offline ) throws Exception {
-		checkTransactionDirectory( system.directory );
+		super.checkTransactionDirectory( system.directory );
 		DBEngineDirectory.setSystemOffline( this , system.directory , system , offline );
 	}
 
 	public void deleteSystem( AppSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-		checkTransactionDirectory( system.directory );
+		super.checkTransactionDirectory( system.directory );
 		
 		EngineMirrors mirrors = action.getServerMirrors();
 		for( String productName : system.getProductNames() ) {
@@ -453,7 +440,7 @@ public class EngineTransaction extends TransactionBase {
 	
 	public AppProduct createProduct( AppSystem system , String name , String desc , String path , boolean forceClearMeta , boolean forceClearDist ) throws Exception {
 		EngineDirectory directory = system.directory;
-		checkTransactionDirectory( directory );
+		super.checkTransactionDirectory( directory );
 		
 		if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
 			action.exitUnexpectedState();
@@ -462,17 +449,17 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void modifyProduct( AppProduct product , String name , String desc , String path ) throws Exception {
-		checkTransactionDirectory( product.directory );
+		super.checkTransactionDirectory( product.directory );
 		DBEngineDirectory.modifyProduct( this , product.directory , product , name , desc , path );
 	}
 
 	public void setProductOffline( AppProduct product , boolean offline ) throws Exception {
-		checkTransactionDirectory( product.directory );
+		super.checkTransactionDirectory( product.directory );
 		DBEngineDirectory.setProductOffline( this , product.directory , product , offline );
 	}
 
 	public void deleteProduct( AppProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
-		checkTransactionDirectory( product.directory );
+		super.checkTransactionDirectory( product.directory );
 		
 		if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
 			action.exitUnexpectedState();
@@ -485,13 +472,13 @@ public class EngineTransaction extends TransactionBase {
 	// MONITORING
 	
 	public void disableMonitoring() throws Exception {
-		checkTransactionMonitoring();
+		super.checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		DBEngineMonitoring.enableMonitoring( this , mon , false );
 	}
 	
 	public void enableMonitoring() throws Exception {
-		checkTransactionMonitoring();
+		super.checkTransactionMonitoring();
 		EngineMonitoring mon = action.getActiveMonitoring();
 		DBEngineMonitoring.enableMonitoring( this , mon , true );
 	}
@@ -502,27 +489,27 @@ public class EngineTransaction extends TransactionBase {
 	}
 
 	public void setMonitoringEnabled( AppProduct product ) throws Exception {
-		checkTransactionDirectory( product.directory );
+		super.checkTransactionDirectory( product.directory );
 		DBEngineDirectory.setMonitoringEnabled( this , product.directory , product , true );
 		EngineMonitoring mon = super.getMonitoring();
 		mon.setProductEnabled( action , product );
 	}
 	
 	public void setMonitoringDisabled( AppProduct product ) throws Exception {
-		checkTransactionDirectory( product.directory );
+		super.checkTransactionDirectory( product.directory );
 		DBEngineDirectory.setMonitoringEnabled( this , product.directory , product , false );
 		EngineMonitoring mon = super.getMonitoring();
 		mon.setProductDisabled( action , product );
 	}
 
 	public void setProductMonitoringProperties( Meta meta , PropertySet props ) throws Exception {
-		checkTransactionMetadata( meta.getStorage() );
+		super.checkTransactionMetadata( meta.getStorage() );
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.setProductMonitoringProperties( this , meta , props );
 	}
 
 	public MetaMonitoringTarget modifyMonitoringTarget( MetaMonitoring monMeta , MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
-		checkTransactionMetadata( monMeta.meta.getStorage() );
+		super.checkTransactionMetadata( monMeta.meta.getStorage() );
 		MetaMonitoringTarget target = monMeta.modifyTarget( this , sg , major , enabled , maxTime , schedule );
 		EngineMonitoring mon = action.getActiveMonitoring();
 		mon.modifyTarget( this , target );
@@ -534,73 +521,73 @@ public class EngineTransaction extends TransactionBase {
 	// AUTH
 	
 	public void disableLdap() throws Exception {
-		checkTransactionAuth();
+		super.checkTransactionAuth();
 		EngineAuth auth = action.getServerAuth();
 		DBEngineAuth.disableLdap( this , auth );
 	}
 	
 	public void enableLdap( ObjectProperties ops ) throws Exception {
-		checkTransactionAuth();
+		super.checkTransactionAuth();
 		EngineAuth auth = action.getServerAuth();
 		DBEngineAuth.enableLdap( this , auth , ops );
 	}
 	
 	public AuthGroup createAuthGroup( String name , String desc ) throws Exception {
-		checkTransactionAuth();
+		super.checkTransactionAuth();
 		EngineAuth auth = action.getServerAuth();
 		return( DBEngineAuth.createGroup( this , auth , name , desc ) );
 	}
 	
 	public void modifyAuthGroup( AuthGroup group , String name , String desc ) throws Exception {
-		checkTransactionAuth();
+		super.checkTransactionAuth();
 		EngineAuth auth = action.getServerAuth();
 		DBEngineAuth.modifyGroup( this , auth , group , name , desc );
 	}
 	
 	public void deleteAuthGroup( AuthGroup group ) throws Exception {
-		checkTransactionAuth();
+		super.checkTransactionAuth();
 		EngineAuth auth = action.getServerAuth();
 		DBEngineAuth.deleteGroup( this , auth , group );
 	}
 	
 	public AuthUser createAuthLocalUser( String name , String desc , String full , String email , boolean admin ) throws Exception {
-		checkTransactionAuth();
+		super.checkTransactionAuth();
 		EngineAuth auth = action.getServerAuth();
 		return( DBEngineAuth.createLocalUser( this , auth , name , desc , full , email , admin ) );
 	}
 	
 	public void modifyAuthLocalUser( AuthUser user , String name , String desc , String full , String email , boolean admin ) throws Exception {
-		checkTransactionAuth();
+		super.checkTransactionAuth();
 		EngineAuth auth = action.getServerAuth();
 		DBEngineAuth.modifyLocalUser( this , auth , user , name , desc , full , email , admin );
 	}
 	
 	public void deleteAuthLocalUser( AuthUser user ) throws Exception {
-		checkTransactionAuth();
+		super.checkTransactionAuth();
 		EngineAuth auth = action.getServerAuth();
 		DBEngineAuth.deleteLocalUser( this , auth , user );
 	}
 	
 	public void addGroupLocalUsers( AuthGroup group , String[] users ) throws Exception {
-		checkTransactionAuth();
+		super.checkTransactionAuth();
 		EngineAuth auth = action.getServerAuth();
 		DBEngineAuth.addGroupLocalUsers( this , auth , group , users );
 	}
 	
 	public void addGroupLdapUsers( AuthGroup group , String[] users ) throws Exception {
-		checkTransactionAuth();
+		super.checkTransactionAuth();
 		EngineAuth auth = action.getServerAuth();
 		DBEngineAuth.addGroupLdapUsers( this , auth , group , users );
 	}
 	
 	public void deleteGroupUsers( AuthGroup group , String[] users ) throws Exception {
-		checkTransactionAuth();
+		super.checkTransactionAuth();
 		EngineAuth auth = action.getServerAuth();
 		DBEngineAuth.deleteGroupUsers( this , auth , group , users );
 	}
 	
 	public void setGroupPermissions( AuthGroup group , AuthRoleSet roles , boolean allResources , String[] resources , boolean allProd , String[] products , boolean allNet , String[] networks , SpecialRights[] special ) throws Exception {
-		checkTransactionAuth();
+		super.checkTransactionAuth();
 		EngineAuth auth = action.getServerAuth();
 		DBEngineAuth.setGroupPermissions( this , auth , group , roles , allResources , resources , allProd , products , allNet , networks , special );
 	}
@@ -611,43 +598,43 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void updateProductCoreProperties( MetaProductSettings settings ) throws Exception {
 		ProductMeta storage = settings.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaSettings.updateProductCoreProperties( this , storage , settings );
 	}
 	
 	public void updateProductCustomProperties( MetaProductSettings settings ) throws Exception {
 		ProductMeta storage = settings.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaSettings.updateProductCustomProperties( this , storage , settings );
 	}
 	
 	public void updateProductBuildCommonProperties( MetaProductSettings settings ) throws Exception {
 		ProductMeta storage = settings.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaSettings.updateProductBuildCommonProperties( this , storage , settings );
 	}
 	
 	public void updateProductBuildModeProperties( MetaProductSettings settings , DBEnumBuildModeType mode ) throws Exception {
 		ProductMeta storage = settings.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaSettings.updateProductBuildModeProperties( this , storage , settings , mode );
 	}
 
 	public void updateProductVersion( MetaProductVersion version , int majorFirstNumber , int majorSecondNumber , int lastProdTag , int lastUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int nextUrgentTag ) throws Exception {
 		ProductMeta storage = version.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMeta.modifyVersion( this , storage , version , majorFirstNumber , majorSecondNumber , lastProdTag , lastUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , nextUrgentTag );
 	}
 
 	public void setProductLifecycles( MetaProductPolicy policy , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
 		ProductMeta storage = policy.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaPolicy.setProductLifecycles( this , storage , policy , major , minor , urgentsAll , urgents );
 	}
 	
 	public MetaDistrDelivery createDistrDelivery( MetaDistr distr , String unitName , String name , String desc , String folder ) throws Exception {
 		ProductMeta storage = distr.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		MetaUnits units = storage.getUnits();
 		Integer unitId = units.getUnitId( unitName );
@@ -656,7 +643,7 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void modifyDistrDelivery( MetaDistrDelivery delivery , String unitName , String name , String desc , String folder ) throws Exception {
 		ProductMeta storage = delivery.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		MetaUnits units = storage.getUnits();
 		Integer unitId = units.getUnitId( unitName );
@@ -665,7 +652,7 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void deleteDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
 		ProductMeta storage = delivery.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		DBMetaDistr.deleteDelivery( this , storage , delivery.dist , delivery );
 	}
@@ -677,7 +664,7 @@ public class EngineTransaction extends TransactionBase {
 			MetaSourceProjectItem itemSrcProject , MetaDistrBinaryItem itemSrcDist , String originPath ,
 			boolean customGet , boolean customDeploy ) throws Exception {
 		ProductMeta storage = delivery.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		return( DBMetaDistr.createBinaryItem( this , storage , delivery.dist , delivery ,
 				name , desc ,
@@ -694,7 +681,7 @@ public class EngineTransaction extends TransactionBase {
 			MetaSourceProjectItem itemSrcProject , MetaDistrBinaryItem itemSrcDist , String originPath ,
 			boolean customGet , boolean customDeploy ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		DBMetaDistr.modifyBinaryItem( this , storage , item.delivery.dist , item ,
 				name , desc ,
@@ -706,14 +693,14 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void deleteDistrBinaryItem( MetaDistrBinaryItem item ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		DBMetaDistr.deleteBinaryItem( this , storage , item.delivery.dist , item );
 	}
 	
 	public void changeDistrBinaryItemDelivery( MetaDistrBinaryItem item , MetaDistrDelivery delivery ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		DBMetaDistr.changeBinaryItemDelivery( this , storage , item.delivery.dist , item , delivery );
 	}
@@ -721,7 +708,7 @@ public class EngineTransaction extends TransactionBase {
 	public MetaDistrConfItem createDistrConfItem( MetaDistrDelivery delivery ,
 			String name , String desc , DBEnumConfItemType type , String files , String templates , String secured , String exclude , String extconf ) throws Exception {
 		ProductMeta storage = delivery.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		return( DBMetaDistr.createConfItem( this , storage , delivery.dist , delivery ,
 				name , desc , type , files , templates , secured , exclude , extconf ) );
@@ -730,7 +717,7 @@ public class EngineTransaction extends TransactionBase {
 	public void modifyDistrConfItem( MetaDistrConfItem item ,
 		String name , String desc , DBEnumConfItemType type , String files , String templates , String secured , String exclude , String extconf ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 	
 		DBMetaDistr.modifyConfItem( this , storage , item.delivery.dist , item ,
 				name , desc , type , files , templates , secured , exclude , extconf );
@@ -738,123 +725,123 @@ public class EngineTransaction extends TransactionBase {
 
 	public void deleteDistrConfItem( MetaDistrConfItem item ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		DBMetaDistr.deleteConfItem( this , storage , item.delivery.dist , item );
 	}
 	
 	public void setDeliveryDatabaseAll( MetaDistrDelivery delivery , boolean all ) throws Exception {
 		ProductMeta storage = delivery.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaDistr.setDeliveryDatabaseAll( this , storage , delivery.dist , delivery , all );
 	}
 
 	public void setDeliveryDatabaseSet( MetaDistrDelivery delivery , MetaDatabaseSchema[] set ) throws Exception {
 		ProductMeta storage = delivery.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaDistr.setDeliveryDatabaseSet( this , storage , delivery.dist , delivery , set );
 	}
 
 	public void setDeliveryDocumentationSet( MetaDistrDelivery delivery , MetaProductDoc[] set ) throws Exception {
 		ProductMeta storage = delivery.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaDistr.setDeliveryDocSet( this , storage , delivery.dist , delivery , set );
 	}
 
 	public MetaProductUnit createProductUnit( MetaUnits units , String name , String desc ) throws Exception {
 		ProductMeta storage = units.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		return( DBMetaUnits.createUnit( this , storage , units , name , desc ) );
 	}
 	
 	public MetaProductDoc createProductDoc( MetaDocs docs , String name , String desc , String ext , boolean unitbound ) throws Exception {
 		ProductMeta storage = docs.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		return( DBMetaDocs.createDoc( this , storage , docs , name , desc , ext , unitbound ) );
 	}
 	
 	public void modifyProductDoc( MetaProductDoc doc , String name , String desc , String ext , boolean unitbound ) throws Exception {
 		ProductMeta storage = doc.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaDocs.modifyDoc( this , storage , doc.docs , doc , name , desc , ext , unitbound );
 	}
 	
 	public MetaDatabaseSchema createDatabaseSchema( MetaDatabase database , String name , String desc , DBEnumDbmsType type , String dbname , String dbuser ) throws Exception {
 		ProductMeta storage = database.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		return( DBMetaDatabase.createSchema( this , storage , database , name , desc , type , dbname , dbuser ) );
 	}
 	
 	public void modifyProductUnit( MetaProductUnit unit , String name , String desc ) throws Exception {
 		ProductMeta storage = unit.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaUnits.modifyUnit( this , storage , unit.units , unit , name , desc );
 	}
 	
 	public void modifyDatabaseSchema( MetaDatabaseSchema schema , String name , String desc , DBEnumDbmsType type , String dbname , String dbuser ) throws Exception {
 		ProductMeta storage = schema.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaDatabase.modifySchema( this , storage , schema.database , schema , name , desc , type , dbname , dbuser );
 	}
 
 	public void deleteProductUnit( MetaProductUnit unit ) throws Exception {
 		ProductMeta storage = unit.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaUnits.deleteUnit( this , storage , unit.units , unit );
 	}
 	
 	public void deleteProductDoc( MetaProductDoc doc ) throws Exception {
 		ProductMeta storage = doc.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaDocs.deleteDoc( this , storage , doc.docs , doc );
 	}
 	
 	public void deleteDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
 		ProductMeta storage = schema.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaDatabase.deleteSchema( this , storage , schema.database , schema );
 	}
 	
 	public MetaDistrComponent createDistrComponent( MetaDistr distr , String name , String desc ) throws Exception {
 		ProductMeta storage = distr.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		return( DBMetaDistr.createComponent( this , storage , distr , name , desc ) );
 	}
 	
 	public void modifyDistrComponent( MetaDistrComponent comp , String name , String desc ) throws Exception {
 		ProductMeta storage = comp.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaDistr.modifyComponent( this , storage , comp.dist , comp , name , desc );
 	}
 
 	public void deleteDistrComponent( MetaDistrComponent comp ) throws Exception {
 		ProductMeta storage = comp.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		DBMetaDistr.deleteComponent( this , storage , comp.dist , comp );
 	}
 	
 	public MetaDistrComponentItem createDistrComponentItem( MetaDistrComponent comp , MetaDistrBinaryItem binaryItem , MetaDistrConfItem confItem , MetaDatabaseSchema schema , String deployName , String WSDL ) throws Exception {
 		ProductMeta storage = comp.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		return( DBMetaDistr.createComponentItem( this , storage , comp.dist , comp , binaryItem , confItem , schema , deployName , WSDL ) );
 	}
 	
 	public void modifyDistrComponentItem( MetaDistrComponentItem item , MetaDistrBinaryItem binaryItem , MetaDistrConfItem confItem , MetaDatabaseSchema schema , String deployName , String WSDL ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaDistr.modifyComponentItem( this , storage , item.comp.dist , item.comp , item , binaryItem , confItem , schema , deployName , WSDL );
 	}
 
 	public void deleteDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		DBMetaDistr.deleteComponentItem( this , storage , item.comp.dist , item.comp , item );
 	}
 
 	public MetaSourceProjectSet createSourceProjectSet( MetaSources sources , String name , String desc ) throws Exception {
 		ProductMeta storage = sources.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		return( DBMetaSources.createProjectSet( this , storage , sources , name , desc ) );
 	}
 
@@ -864,7 +851,7 @@ public class EngineTransaction extends TransactionBase {
 			Integer builder , String addOptions , String branch ,
 			boolean customBuild , boolean customGet ) throws Exception {
 		ProductMeta storage = set.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		MetaSources sources = storage.getSources();
 		return( DBMetaSources.createProject( this , storage , sources , set , 
@@ -876,7 +863,7 @@ public class EngineTransaction extends TransactionBase {
 
 	public void changeProjectSet( MetaSourceProject project , MetaSourceProjectSet setNew , int posNew ) throws Exception {
 		ProductMeta storage = project.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		MetaSources sources = storage.getSources();
 		DBMetaSources.changeProjectSet( this , storage , sources , project , setNew , posNew );
@@ -884,7 +871,7 @@ public class EngineTransaction extends TransactionBase {
 
 	public void changeProjectOrder( MetaSourceProject project , int pos ) throws Exception {
 		ProductMeta storage = project.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		MetaSources sources = storage.getSources();
 		DBMetaSources.changeProjectOrder( this , storage , sources , project , pos );
@@ -896,7 +883,7 @@ public class EngineTransaction extends TransactionBase {
 			Integer builder , String addOptions , String branch ,
 			boolean customBuild , boolean customGet ) throws Exception {
 		ProductMeta storage = project.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		MetaSources sources = storage.getSources();
 		DBMetaSources.modifyProject( this , storage , sources , project , 
@@ -908,7 +895,7 @@ public class EngineTransaction extends TransactionBase {
 
 	public void changeProjectSetOrder( MetaSourceProjectSet set , String[] namesOrdered ) throws Exception {
 		ProductMeta storage = set.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		MetaSources sources = storage.getSources();
 		DBMetaSources.modifySetOrder( this , storage , sources , set , namesOrdered );
@@ -918,7 +905,7 @@ public class EngineTransaction extends TransactionBase {
 			String name , String desc ,  
 			DBEnumSourceItemType srcType , String basename , String ext , String staticext , String path , String version , boolean internal ) throws Exception {
 		ProductMeta storage = project.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		MetaSources sources = storage.getSources();
 		return( DBMetaSources.createProjectItem ( this , storage , sources , project , name , desc , srcType , basename , ext , staticext , path , version , internal ) );
@@ -928,7 +915,7 @@ public class EngineTransaction extends TransactionBase {
 			String name , String desc ,  
 			DBEnumSourceItemType srcType , String basename , String ext , String staticext , String path , String version , boolean internal ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		MetaSources sources = storage.getSources();
 		DBMetaSources.modifyProjectItem ( this , storage , sources , item , name , desc , srcType , basename , ext , staticext , path , version , internal );
@@ -936,7 +923,7 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void deleteSourceProjectItem( MetaSourceProjectItem item , boolean leaveManual ) throws Exception {
 		ProductMeta storage = item.meta.getStorage();
-		checkTransactionMetadata( storage );
+		super.checkTransactionMetadata( storage );
 		
 		MetaDistrBinaryItem distItem = item.distItem;
 		if( distItem != null ) {
@@ -975,38 +962,38 @@ public class EngineTransaction extends TransactionBase {
 	}
 
 	public void setMetaEnvProperties( MetaEnv env , PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( env.meta.getStorage() );
+		super.checkTransactionMetadata( env.meta.getStorage() );
 		env.setProperties( this , props , system );
 	}
 	
 	public void updateMetaEnv( MetaEnv env ) throws Exception {
-		checkTransactionMetadata( env.meta.getStorage() );
+		super.checkTransactionMetadata( env.meta.getStorage() );
 		env.updateProperties( this );
 	}
 	
 	public void updateMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage() );
+		super.checkTransactionMetadata( sg.meta.getStorage() );
 		sg.updateProperties( this );
 	}
 	
 	public void createMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage() );
+		super.checkTransactionMetadata( sg.meta.getStorage() );
 		sg.env.createSegment( this , sg );
 	}
 	
 	public void deleteMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage() );
+		super.checkTransactionMetadata( sg.meta.getStorage() );
 		sg.env.deleteSegment( this , sg );
 		sg.deleteObject();
 	}
 
 	public void setMetaEnvSGProperties( MetaEnvSegment sg , PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage() );
+		super.checkTransactionMetadata( sg.meta.getStorage() );
 		sg.setProperties( this , props , system );
 	}
 	
 	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage() );
+		super.checkTransactionMetadata( sg.meta.getStorage() );
 		MetaEnvServer server = new MetaEnvServer( sg.meta , sg );
 		server.createServer( action , name , desc , osType , runType , accessType , sysname );
 		sg.createServer( this , server );
@@ -1014,28 +1001,28 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void modifyMetaEnvServer( MetaEnvServer server ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage() );
+		super.checkTransactionMetadata( server.meta.getStorage() );
 		server.sg.modifyServer( this , server );
 	}
 
 	public void deleteMetaEnvServer( MetaEnvServer server ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage() );
+		super.checkTransactionMetadata( server.meta.getStorage() );
 		server.sg.deleteServer( this , server );
 		server.deleteObject();
 	}
 
 	public void updateMetaEnvServer( MetaEnvServer server ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage() );
+		super.checkTransactionMetadata( server.meta.getStorage() );
 		server.updateProperties( this );
 	}
 
 	public void setMetaEnvServerProperties( MetaEnvServer server , PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage() );
+		super.checkTransactionMetadata( server.meta.getStorage() );
 		server.setProperties( this , props , system );
 	}
 	
 	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage() );
+		super.checkTransactionMetadata( server.meta.getStorage() );
 		MetaEnvServerNode node = new MetaEnvServerNode( server.meta , server , pos );
 		node.createNode( action , nodeType , account );
 		server.createNode( this , node );
@@ -1043,7 +1030,7 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void modifyMetaEnvServerNode( MetaEnvServerNode node , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
-		checkTransactionMetadata( node.meta.getStorage() );
+		super.checkTransactionMetadata( node.meta.getStorage() );
 		node.updateProperties( this );
 		node.modifyNode( action , pos , nodeType , account );
 		node.server.modifyNode( this , node );
@@ -1054,28 +1041,28 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void deleteMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {
-		checkTransactionMetadata( node.meta.getStorage() );
+		super.checkTransactionMetadata( node.meta.getStorage() );
 		node.server.deleteNode( this , node );
 		node.deleteObject();
 	}
 
 	public void setMetaEnvServerNodeProperties( MetaEnvServerNode node , PropertySet props , boolean system ) throws Exception {
-		checkTransactionMetadata( node.meta.getStorage() );
+		super.checkTransactionMetadata( node.meta.getStorage() );
 		node.setProperties( this , props , system );
 	}
 	
 	public void setStartInfo( MetaEnvSegment sg , MetaEnvStartInfo startInfo ) throws Exception {
-		checkTransactionMetadata( sg.meta.getStorage() );
+		super.checkTransactionMetadata( sg.meta.getStorage() );
 		sg.setStartInfo( this , startInfo );
 	}
 
 	public void modifyServerDeployments( MetaEnvServer server , List<MetaEnvServerDeployment> deployments ) throws Exception {
-		checkTransactionMetadata( server.meta.getStorage() );
+		super.checkTransactionMetadata( server.meta.getStorage() );
 		server.setDeployments( this , deployments );
 	}
 
 	public MetaDump createDump( MetaDatabase db , boolean export , String name , String desc , MetaEnvServer server , boolean standby , String setdbenv , String dataset , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
-		checkTransactionMetadata( db.meta.getStorage() );
+		super.checkTransactionMetadata( db.meta.getStorage() );
 		MetaDump dump = new MetaDump( db.meta , db );
 		dump.create( name , desc , export );
 		dump.setTarget( server , standby , setdbenv );
@@ -1085,7 +1072,7 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void modifyDump( MetaDump dump , String name , String desc , MetaEnvServer server , boolean standby , String setdbenv , String dataset , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
-		checkTransactionMetadata( dump.database.meta.getStorage() );
+		super.checkTransactionMetadata( dump.database.meta.getStorage() );
 		dump.modify( name , desc );
 		dump.setTarget( server , standby , setdbenv );
 		dump.setFiles( dataset , dumpdir , datapumpdir , nfs , postRefresh );
@@ -1093,27 +1080,27 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void deleteDump( MetaDump dump ) throws Exception {
-		checkTransactionMetadata( dump.database.meta.getStorage() );
+		super.checkTransactionMetadata( dump.database.meta.getStorage() );
 		//dump.database.deleteDump( this , dump );
 	}
 
 	public void createDumpTables( MetaDump dump , String schema , String tables ) throws Exception {
-		checkTransactionMetadata( dump.database.meta.getStorage() );
+		super.checkTransactionMetadata( dump.database.meta.getStorage() );
 		dump.addTables( schema , tables );
 	}
 	
 	public void deleteDumpTables( MetaDump dump , int index ) throws Exception {
-		checkTransactionMetadata( dump.database.meta.getStorage() );
+		super.checkTransactionMetadata( dump.database.meta.getStorage() );
 		dump.deleteTables( index );
 	}
 
 	public void setDumpOnline( MetaDump dump , boolean online ) throws Exception {
-		checkTransactionMetadata( dump.database.meta.getStorage() );
+		super.checkTransactionMetadata( dump.database.meta.getStorage() );
 		dump.setOnline( online );
 	}
 
 	public void setDumpSchedule( MetaDump dump , ScheduleProperties schedule ) throws Exception {
-		checkTransactionMetadata( dump.database.meta.getStorage() );
+		super.checkTransactionMetadata( dump.database.meta.getStorage() );
 		dump.setSchedule( schedule );
 	}
 

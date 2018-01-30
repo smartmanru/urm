@@ -7,7 +7,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.engine.properties.PropertySet;
 
 public class MetaProductSettings {
 
@@ -95,7 +94,7 @@ public class MetaProductSettings {
 		buildMode.createSettings( opsBuild );
 	}
 
-	public void setContextProperties( ProductContext context ) throws Exception {
+	private void setContextProperties( ProductContext context ) throws Exception {
 		ctx.setStringProperty( PROPERTY_PRODUCT_NAME , meta.name );
 		ctx.setPathProperty( PROPERTY_PRODUCT_HOME , context.home.folderPath );
 		
@@ -116,8 +115,25 @@ public class MetaProductSettings {
 	
 	public void updateSettings( MetaProductVersion version ) throws Exception {
 		updateVersion( version );
+		updateContextSettings();
+	}
+
+	public void updateContextSettings() throws Exception {
 		ctx.recalculateProperties();
 		ctx.recalculateChildProperties();
+		updateCoreSettings();
+	}
+	
+	public void updateCoreSettings() throws Exception {
+		core.scatterPrimaryProperties();
+		core.scatterMonitoringProperties();
+		updateBuildSettings();
+	}
+
+	public void updateBuildSettings() throws Exception {
+		buildCommon.scatterProperties();
+		for( MetaProductBuildSettings settings : buildModes.values() )
+			settings.scatterProperties();
 	}
 	
 	public Map<String,String> getExportProperties( ActionBase action ) throws Exception {
@@ -159,20 +175,4 @@ public class MetaProductSettings {
 		return( getBuildModeSettings( action.context.buildMode ) );
 	}
     
-	public void setProperties( PropertySet props , boolean system ) throws Exception {
-		ctx.updateProperties( props , system );
-	}
-
-	public void setBuildCommonProperties( PropertySet props ) throws Exception {
-		buildCommon.setProperties( props );
-	}
-	
-	public void setBuildModeProperties( DBEnumBuildModeType mode , PropertySet props ) throws Exception {
-		MetaProductBuildSettings set = buildModes.get( mode );
-		if( set == null )
-			Common.exitUnexpected();
-		
-		set.setProperties( props );
-	}
-
 }

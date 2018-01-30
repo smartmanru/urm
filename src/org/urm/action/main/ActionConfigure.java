@@ -21,7 +21,7 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.MetadataStorage;
+import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.env.MetaEnv;
@@ -270,7 +270,7 @@ public class ActionConfigure extends ActionBase {
 			String proxyPath = DeployCommandMeta.NAME;
 			
 			Map<String,MetaEnv> envMap = new HashMap<String,MetaEnv>(); 
-			MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
+			ProductStorage ms = artefactory.getMetadataStorage( this , meta );
 			
 			MetaEnvSegment sg = null;
 			MetaEnvs envs = meta.getEnviroments();

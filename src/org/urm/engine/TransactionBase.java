@@ -71,7 +71,8 @@ public class TransactionBase extends EngineObject {
 	private EngineData data;
 	
 	private DBConnection connection;
-	private boolean CHANGEDATABASE;
+	private boolean USEDATABASE;
+	private boolean IMPORT;
 	private boolean CHANGEDATABASECORE;
 	private boolean CHANGEDATABASEAUTH;
 	
@@ -104,7 +105,8 @@ public class TransactionBase extends EngineObject {
 		this.data = data;
 		this.action = action;
 		
-		CHANGEDATABASE = false;
+		USEDATABASE = false;
+		IMPORT = false;
 		CHANGEDATABASECORE = false;
 		CHANGEDATABASEAUTH = false;
 		
@@ -386,17 +388,17 @@ public class TransactionBase extends EngineObject {
 		action.trace( s );
 	}
 	
-	public void changeDatabase() throws Exception {
-		if( CHANGEDATABASE )
+	public void useDatabase() throws Exception {
+		if( USEDATABASE )
 			return;
 		
-		CHANGEDATABASE = true;
+		USEDATABASE = true;
 		EngineDB db = data.getDatabase();
 		connection = db.getConnection( action );
 	}
 	
 	private void changeDatabaseCore() throws Exception {
-		changeDatabase();
+		useDatabase();
 		if( CHANGEDATABASECORE )
 			return;
 		
@@ -406,7 +408,7 @@ public class TransactionBase extends EngineObject {
 	}
 
 	private void changeDatabaseAuth() throws Exception {
-		changeDatabase();
+		useDatabase();
 		if( CHANGEDATABASEAUTH )
 			return;
 		
@@ -415,12 +417,29 @@ public class TransactionBase extends EngineObject {
 		trace( "auth update, new version=" + version );
 	}
 	
-	public EngineAuth changeAuth() throws Exception {
-		if( authChange == null ) {
-			if( !changeAuth( getAuth() ) )
-				exitUnexpectedState();
+	public boolean startImport() throws Exception {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+					
+				if( IMPORT )
+					return( true );
+
+				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
+					return( false );
+				
+				useDatabase();
+				IMPORT = true;
+				return( true );
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to start import" );
+			}
+			
+			abortTransaction( false );
+			return( false );
 		}
-		return( authChange );
 	}
 	
 	public boolean changeAuth( EngineAuth sourceAuth ) {
@@ -669,7 +688,7 @@ public class TransactionBase extends EngineObject {
 				else {
 					directoryOld = action.getActiveDirectory();
 					if( sourceDirectory == directoryOld ) {
-						changeDatabase();
+						useDatabase();
 						directoryNew = sourceDirectory.copy( this );
 						if( directoryNew != null ) {
 							trace( "transaction directory: source=" + sourceDirectory.objectId + ", copy=" + directoryNew.objectId );
@@ -732,7 +751,7 @@ public class TransactionBase extends EngineObject {
 
 	public EngineMonitoring changeMonitoring() throws Exception {
 		EngineMonitoring monitoring = getMonitoring();
-		if( !CHANGEDATABASE ) {
+		if( !USEDATABASE ) {
 			if( !changeMonitoring( monitoring ) )
 				exitUnexpectedState();
 		}
@@ -748,7 +767,7 @@ public class TransactionBase extends EngineObject {
 				if( !checkSecurityServerChange( SecurityAction.ACTION_MONITOR ) )
 					return( false );
 				
-				changeDatabase();
+				useDatabase();
 				return( true );
 			}
 			catch( Throwable e ) {
@@ -815,7 +834,7 @@ public class TransactionBase extends EngineObject {
 				
 				tm = new TransactionMetadata( this );
 				if( tm.changeProduct( meta ) ) {
-					changeDatabase();
+					useDatabase();
 					addTransactionMeta( meta , tm );
 					return( true );
 				}
@@ -844,7 +863,7 @@ public class TransactionBase extends EngineObject {
 				
 				tm = new TransactionMetadata( this );
 				if( tm.recreateProduct( meta ) ) {
-					changeDatabase();
+					useDatabase();
 					addTransactionMeta( meta , tm );
 					return( true );
 				}
@@ -873,7 +892,7 @@ public class TransactionBase extends EngineObject {
 				
 				tm = new TransactionMetadata( this );
 				if( tm.deleteProduct( meta ) ) {
-					changeDatabase();
+					useDatabase();
 					addTransactionMeta( meta , tm );
 					return( true );
 				}
@@ -914,6 +933,12 @@ public class TransactionBase extends EngineObject {
 	protected void checkTransaction() throws Exception {
 		if( !continueTransaction() )
 			exit( _Error.TransactionAborted0 , "Transaction is aborted" , null );
+	}
+
+	protected void checkTransactionImport() throws Exception {
+		checkTransaction();
+		if( !IMPORT )
+			exit( _Error.TransactionMissingImportChanges0 , "Missing import changes" , null );
 	}
 
 	protected void checkTransactionAuth() throws Exception {

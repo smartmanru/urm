@@ -691,7 +691,7 @@ public class DBMetaDistr {
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppMetaDistrConfItem;
 		
-		for( String name : delivery.getBinaryItemNames() ) {
+		for( String name : delivery.getConfItemNames() ) {
 			MetaDistrConfItem item = delivery.findConfItem( name );
 			Element node = Common.xmlCreateElement( doc , root , ELEMENT_CONFITEM );
 			
@@ -730,7 +730,7 @@ public class DBMetaDistr {
 		PropertyEntity entity = entities.entityAppMetaDistrCompItem;
 		
 		for( String name : comp.getBinaryItemNames() ) {
-			MetaDistrComponentItem item = comp.getBinaryItem( name ); 
+			MetaDistrComponentItem item = comp.findBinaryItem( name ); 
 			Element node = Common.xmlCreateElement( doc , root , ELEMENT_COMPITEM_BINARYITEM );
 			
 			DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {
@@ -741,7 +741,7 @@ public class DBMetaDistr {
 		}
 		
 		for( String name : comp.getConfItemNames() ) {
-			MetaDistrComponentItem item = comp.getConfItem( name ); 
+			MetaDistrComponentItem item = comp.findConfItem( name ); 
 			Element node = Common.xmlCreateElement( doc , root , ELEMENT_COMPITEM_CONFITEM );
 			
 			DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {
@@ -752,7 +752,7 @@ public class DBMetaDistr {
 		}
 		
 		for( String name : comp.getSchemaItemNames() ) {
-			MetaDistrComponentItem item = comp.getSchemaItem( name ); 
+			MetaDistrComponentItem item = comp.findSchemaItem( name ); 
 			Element node = Common.xmlCreateElement( doc , root , ELEMENT_COMPITEM_SCHEMA );
 			
 			DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {

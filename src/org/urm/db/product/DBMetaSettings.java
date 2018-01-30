@@ -122,11 +122,11 @@ public class DBMetaSettings {
 		
 		Node[] items = ConfReader.xmlGetChildren( buildNode , ELEMENT_MODE );
 		if( items != null ) {
-			for( Node node : items ) {
-				String modeName = ConfReader.getAttrValue( node , "name" );
+			for( Node itemNode : items ) {
+				String modeName = ConfReader.getAttrValue( itemNode , "name" );
 				DBEnumBuildModeType mode = DBEnumBuildModeType.getValue( modeName , false );
 				ObjectProperties opsBuildMode = entities.createMetaBuildModeProps( opsBuildCommon , mode );
-				DBSettings.importxml( loader , buildNode , opsBuildMode , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
+				DBSettings.importxml( loader , itemNode , opsBuildMode , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
 				
 				settings.createBuildModeSettings( mode , opsBuildMode );
 			}
@@ -182,29 +182,29 @@ public class DBMetaSettings {
 		MetaProductSettings settings = storage.getSettings();
 
 		// custom settings
-		DBSettings.exportxmlEntity( loader , doc , root , settings.ctx , false , false );
+		DBSettings.exportxmlCustomEntity( loader , doc , root , settings.ctx );
 		
 		// core settings
 		Element coreNode = Common.xmlCreateElement( doc , root , ELEMENT_CORE );
-		DBSettings.exportxmlEntity( loader , doc , coreNode , settings.core.ops , false , false );
+		DBSettings.exportxml( loader , doc , coreNode , settings.core.ops , true );
 
 		// monitoring settings
 		Element monitoringNode = Common.xmlCreateElement( doc , root , ELEMENT_MONITORING );
-		DBSettings.exportxmlEntity( loader , doc , monitoringNode , settings.core.mon , false , false );
+		DBSettings.exportxml( loader , doc , monitoringNode , settings.core.mon , true );
 
 		// build settings
-		Element coreBuild = Common.xmlCreateElement( doc , root , ELEMENT_BUILD );
-		DBSettings.exportxmlEntity( loader , doc , coreNode , settings.buildCommon.ops , false , false );
+		Element buildCommonNode = Common.xmlCreateElement( doc , root , ELEMENT_BUILD );
+		DBSettings.exportxml( loader , doc , buildCommonNode , settings.buildCommon.ops , true );
 		
 		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
 			if( mode == DBEnumBuildModeType.UNKNOWN )
 				continue;
 			
-			Element coreMode = Common.xmlCreateElement( doc , coreBuild , ELEMENT_BUILD );
-			Common.xmlSetNameAttr( doc , coreMode , Common.getEnumLower( mode ) );
+			Element buildModeNode = Common.xmlCreateElement( doc , buildCommonNode , ELEMENT_BUILD );
+			Common.xmlSetNameAttr( doc , buildModeNode , Common.getEnumLower( mode ) );
 			
 			MetaProductBuildSettings buildMode = settings.getBuildModeSettings( mode );
-			DBSettings.exportxmlEntity( loader , doc , coreMode , buildMode.ops , false , false );
+			DBSettings.exportxml( loader , doc , buildModeNode , buildMode.ops , true );
 		}
 	}
 
@@ -216,6 +216,7 @@ public class DBMetaSettings {
 		int version = c.getNextProductVersion( storage );
 		DBSettings.savedbPropertyValues( c , storage.ID , opsCore , true , false , version );
 		core.scatterPrimaryProperties();
+		settings.updateCoreSettings();
 	}
 	
 	public static void updateProductCustomProperties( EngineTransaction transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
@@ -226,6 +227,7 @@ public class DBMetaSettings {
 		DBSettings.savedbEntityCustom( c , opsContext , storage.ID , storage.ID , version );
 		DBSettings.savedbPropertyValues( c , storage.ID , opsContext , false , true , version );
 		opsContext.recalculateChildProperties();
+		settings.updateContextSettings();
 	}
 	
 	public static void updateProductBuildCommonProperties( EngineTransaction transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
@@ -237,6 +239,7 @@ public class DBMetaSettings {
 		DBSettings.savedbPropertyValues( c , storage.ID , opsBuild , true , false , version );
 		build.scatterProperties();
 		opsBuild.recalculateChildProperties();
+		settings.updateBuildSettings();
 	}
 	
 	public static void updateProductBuildModeProperties( EngineTransaction transaction , ProductMeta storage , MetaProductSettings settings , DBEnumBuildModeType mode ) throws Exception {
@@ -248,6 +251,7 @@ public class DBMetaSettings {
 		DBSettings.savedbPropertyValues( c , storage.ID , opsBuild , true , false , version );
 		build.scatterProperties();
 		opsBuild.recalculateChildProperties();
+		settings.updateBuildSettings();
 	}
 	
 }
