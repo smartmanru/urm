@@ -1,5 +1,6 @@
 package org.urm.db.product;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
@@ -13,6 +14,7 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
+import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
@@ -215,7 +217,7 @@ public class DBMetaSettings {
 		ObjectProperties opsCore = core.ops;
 		int version = c.getNextProductVersion( storage );
 		DBSettings.savedbPropertyValues( c , storage.ID , opsCore , true , false , version );
-		core.scatterPrimaryProperties();
+		opsCore.recalculateChildProperties();
 		settings.updateCoreSettings();
 	}
 	
@@ -237,8 +239,8 @@ public class DBMetaSettings {
 		ObjectProperties opsBuild = build.ops;
 		int version = c.getNextProductVersion( storage );
 		DBSettings.savedbPropertyValues( c , storage.ID , opsBuild , true , false , version );
-		build.scatterProperties();
 		opsBuild.recalculateChildProperties();
+		build.scatterProperties();
 		settings.updateBuildSettings();
 	}
 	
@@ -249,9 +251,25 @@ public class DBMetaSettings {
 		ObjectProperties opsBuild = build.ops;
 		int version = c.getNextProductVersion( storage );
 		DBSettings.savedbPropertyValues( c , storage.ID , opsBuild , true , false , version );
-		build.scatterProperties();
 		opsBuild.recalculateChildProperties();
 		settings.updateBuildSettings();
 	}
+
+	public static void updateMonitoringProperties( EngineTransaction transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		AppProduct product = storage.product;
+		ActionBase action = transaction.getAction();
+		EngineMonitoring mon = transaction.getMonitoring();
+		
+		mon.stopProduct( action , product );
+		
+		MetaProductCoreSettings core = settings.getCoreSettings();
+		ObjectProperties ops = core.mon;
+		int version = c.getNextProductVersion( storage );
+		DBSettings.savedbPropertyValues( c , storage.ID , ops , true , false , version );
+		ops.recalculateChildProperties();
+		settings.updateMonitoringSettings();
+	}
+	
 	
 }

@@ -8,7 +8,6 @@ import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineObject;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
@@ -16,7 +15,6 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaProductCoreSettings;
 
 public class EngineMonitoring extends EngineObject {
 
@@ -114,23 +112,6 @@ public class EngineMonitoring extends EngineObject {
 		return( properties );
 	}
 	
-	public void modifyProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
-		stopAll( transaction.getAction() );
-		properties.updateProperties( props , true );
-		ENABLED = properties.getBooleanProperty( PROPERTY_ENABLED );
-		startAll( transaction.getAction() );
-	}
-
-	public void setProductMonitoringProperties( EngineTransaction transaction , Meta meta , PropertySet props ) throws Exception {
-		EngineDirectory directory = transaction.getDirectory();
-		AppProduct product = directory.getProduct( meta.name );
-		ActionBase action = transaction.getAction();
-		
-		stopProduct( action , product );
-		MetaProductCoreSettings core = meta.getProductCoreSettings();
-		core.setMonitoringProperties( props );
-	}
-	
 	public void modifyTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {
 		EngineDirectory directory = transaction.getDirectory();
 		AppProduct product = directory.getProduct( target.meta.name );
@@ -185,7 +166,7 @@ public class EngineMonitoring extends EngineObject {
 			mon.start( action );
 	}
 	
-	private synchronized void stopProduct( ActionBase action , AppProduct product ) throws Exception {
+	public synchronized void stopProduct( ActionBase action , AppProduct product ) throws Exception {
 		MonitoringProduct mon = getProduct( product );
 		if( mon != null )
 			mon.stop( action );

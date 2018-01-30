@@ -502,10 +502,10 @@ public class EngineTransaction extends TransactionBase {
 		mon.setProductDisabled( action , product );
 	}
 
-	public void setProductMonitoringProperties( Meta meta , PropertySet props ) throws Exception {
-		super.checkTransactionMetadata( meta.getStorage() );
-		EngineMonitoring mon = action.getActiveMonitoring();
-		mon.setProductMonitoringProperties( this , meta , props );
+	public void updateProductMonitoringProperties( MetaProductSettings settings ) throws Exception {
+		ProductMeta storage = settings.meta.getStorage();
+		super.checkTransactionMetadata( storage );
+		DBMetaSettings.updateMonitoringProperties( this , storage , settings );
 	}
 
 	public MetaMonitoringTarget modifyMonitoringTarget( MetaMonitoring monMeta , MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {

@@ -1217,6 +1217,10 @@ public class TransactionBase extends EngineObject {
 		return( getTransactionMetadata( meta.name ) );
 	}
 
+	public Meta getTransactionMetadata( AppProduct product ) throws Exception {
+		return( getTransactionMetadata( product.NAME ) );
+	}
+
 	public Meta getTransactionMetadata( String productName ) throws Exception {
 		TransactionMetadata tm = productMeta.get( productName );
 		if( tm == null )

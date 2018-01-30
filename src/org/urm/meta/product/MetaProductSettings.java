@@ -119,8 +119,6 @@ public class MetaProductSettings {
 	}
 
 	public void updateContextSettings() throws Exception {
-		ctx.recalculateProperties();
-		ctx.recalculateChildProperties();
 		updateCoreSettings();
 	}
 	
@@ -134,6 +132,10 @@ public class MetaProductSettings {
 		buildCommon.scatterProperties();
 		for( MetaProductBuildSettings settings : buildModes.values() )
 			settings.scatterProperties();
+	}
+	
+	public void updateMonitoringSettings() throws Exception {
+		core.scatterMonitoringProperties();
 	}
 	
 	public Map<String,String> getExportProperties( ActionBase action ) throws Exception {
@@ -174,5 +176,9 @@ public class MetaProductSettings {
 
 		return( getBuildModeSettings( action.context.buildMode ) );
 	}
-    
+
+	public ObjectProperties getMonitoringProperties() {
+		return( core.mon );
+	}
+	
 }
