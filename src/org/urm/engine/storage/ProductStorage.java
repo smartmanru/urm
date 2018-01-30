@@ -8,18 +8,22 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseClient;
 import org.urm.common.Common;
+import org.urm.db.EngineDB;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-public class MetadataStorage {
+public class ProductStorage {
 
+	public static String XML_APPVERSION = "appversion";
+	
 	public Artefactory artefactory;
 	public Meta meta;
 	
-	public MetadataStorage( Artefactory artefactory , Meta meta ) {
+	public ProductStorage( Artefactory artefactory , Meta meta ) {
 		this.artefactory = artefactory;
 		this.meta = meta;
 	}
@@ -225,6 +229,12 @@ public class MetadataStorage {
 		LocalFolder folder = action.getLocalFolder( dir );
 		folder.ensureExists( action );
 		Common.xmlSaveDoc( doc , file );
+	}
+	
+	public void saveDoc( Document doc , String path ) throws Exception {
+		Element root = doc.getDocumentElement();
+		Common.xmlSetElementAttr( doc , root , XML_APPVERSION , "" + EngineDB.APP_VERSION );
+		Common.xmlSaveDoc( doc , path );
 	}
 	
 	public void saveEnvConfFile( ActionBase action , Document doc , String envFile ) throws Exception {
