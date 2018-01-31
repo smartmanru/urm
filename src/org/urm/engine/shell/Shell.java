@@ -166,7 +166,7 @@ abstract public class Shell {
 		this.rootPath = rootPath;
 	}
 	
-	public synchronized String getOSPath( ActionBase action , String path ) throws Exception {
+	public String getOSPath( ActionBase action , String path ) throws Exception {
 		if( account.isWindows() )
 			return( Common.getWinPath( path ) );
 		return( path );
@@ -219,10 +219,11 @@ abstract public class Shell {
 		action.exit0( _Error.CommandKilled , "Wait failed, command has been killed" );
 	}
 
-	public synchronized int waitForInteractive( ActionBase action ) throws Exception {
-		if( process == null )
+	public int waitForInteractive( ActionBase action ) throws Exception {
+		ShellProcess useProcess = process;
+		if( useProcess == null )
 			return( -1 );
-		return( process.waitForInteractive( action ) );
+		return( useProcess.waitForInteractive( action ) );
 	}
 
 	public boolean waitForMarker( ActionBase action , String marker , boolean system ) throws Exception {
