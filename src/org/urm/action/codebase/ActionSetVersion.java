@@ -7,7 +7,9 @@ import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
+import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.ProjectBuilder;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 
 public class ActionSetVersion extends ActionBase {
@@ -21,8 +23,7 @@ public class ActionSetVersion extends ActionBase {
 
 	private void updateVersion( ActionScopeTarget scopeProject , LocalFolder PATCHPATH ) throws Exception {
 		LocalFolder CODEPATH = PATCHPATH;
-		String BUILDER = scopeProject.sourceProject.getBuilder( this );
-		ProjectBuilder builder = super.getBuilder( BUILDER );
+		ProjectBuilder builder = scopeProject.sourceProject.getBuilder( this );
 		String JAVA_HOME = builder .JAVA_JDKHOMEPATH;
 		
 		shell.export( this , "JAVA_HOME" , JAVA_HOME );
@@ -54,8 +55,9 @@ public class ActionSetVersion extends ActionBase {
 		BuildStorage PATCHPATH = artefactory.getEmptyBuildStorage( this , scopeProject.sourceProject );
 		String BRANCH = scopeProject.getProjectBuildBranch( this );
 		
-		info( "setVersionProject: PROJECT=" + scopeProject.sourceProject.NAME + ", REPOSITORY=" + scopeProject.sourceProject.REPOSITORY + 
-				", PATH=" + scopeProject.sourceProject.REPOPATH + ", BRANCH=" + BRANCH + ", VERSION=" + BUILDVERSION + ", PATCHPATH=" + PATCHPATH.buildFolder.folderPath + " ..." );
+		MirrorRepository mirror = scopeProject.sourceProject.getMirror( this );
+		info( "setVersionProject: PROJECT=" + scopeProject.sourceProject.NAME + ", MIRROR=" + mirror.NAME + 
+				", BRANCH=" + BRANCH + ", VERSION=" + BUILDVERSION + ", PATCHPATH=" + PATCHPATH.buildFolder.folderPath + " ..." );
 
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
 		
@@ -65,8 +67,11 @@ public class ActionSetVersion extends ActionBase {
 		// set version
 		createDedicatedShell( "build"  );
 		updateVersion( scopeProject , PATCHPATH.buildFolder );
-		MetaProductSettings product = scopeProject.meta.getProductSettings( this );
-		vcs.commit( scopeProject.sourceProject , BRANCH , PATCHPATH.buildFolder , product.CONFIG_ADM_TRACKER + "-0000: set version " + BUILDVERSION );
+		
+		MetaProductSettings product = scopeProject.meta.getProductSettings();
+		MetaProductCoreSettings core =  product.getCoreSettings();
+		
+		vcs.commit( scopeProject.sourceProject , BRANCH , PATCHPATH.buildFolder , core.CONFIG_ADM_TRACKER + "-0000: set version " + BUILDVERSION );
 		return( SCOPESTATE.RunSuccess );
 	}
 }

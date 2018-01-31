@@ -22,6 +22,10 @@ public class GitProjectRepo {
 		this.action = vcs.action;
 	}
 
+	public MirrorRepository getRepository() {
+		return( mc.mirror );
+	}
+	
 	public void refreshRepository() throws Exception {
 		mc.refreshRepository();
 	}

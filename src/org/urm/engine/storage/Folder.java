@@ -427,7 +427,7 @@ public abstract class Folder {
 	public String findBinaryDistItemFile( ActionBase action , MetaDistrBinaryItem item , String specificDeployBaseName ) throws Exception {
 		String deployBasename = specificDeployBaseName;
 		if( deployBasename.isEmpty() )
-			deployBasename = item.DEPLOYBASENAME;
+			deployBasename = item.BASENAME_DEPLOY;
 		
 		boolean addDotSlash = ( windows )? false : true;
 		String filePath = findOneTopWithGrep( action , "*" + deployBasename + "*" + item.EXT , Common.getGrepMask( action , deployBasename , addDotSlash , item.EXT ) );

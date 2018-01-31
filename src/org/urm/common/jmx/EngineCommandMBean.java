@@ -309,7 +309,7 @@ public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster
 
 	public void notifyLog( RemoteServerCall call , Throwable e ) {
 		String msg = "exception: " + e.getClass().getName();
-		String em = e.getMessage();
+		String em = e.toString();
 		if( em != null && !em.isEmpty() )
 			msg += ", " + em;
 		
@@ -333,7 +333,7 @@ public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster
 			value = notifyExecute( name , args );
 		}
 		catch( Throwable e ) {
-			action.error( e.getMessage() );
+			action.error( e.toString() );
 		}
 
 		return( value );

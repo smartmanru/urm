@@ -12,7 +12,7 @@ import org.w3c.dom.Node;
 public class MetaDesignLink {
 
 	protected Meta meta;
-	MetaDesign design;
+	MetaDesignDiagram design;
 	MetaDesignElement element;
 	
 	public String TARGET;
@@ -20,7 +20,7 @@ public class MetaDesignLink {
 	public String TEXT;
 	private VarLINKTYPE linkType;
 	
-	public MetaDesignLink( Meta meta , MetaDesign design , MetaDesignElement element ) {
+	public MetaDesignLink( Meta meta , MetaDesignDiagram design , MetaDesignElement element ) {
 		this.meta = meta;
 		this.design = design;
 		this.element = element;
@@ -33,7 +33,7 @@ public class MetaDesignLink {
 		TEXT = ConfReader.getAttrValue( node , "text" );
 	}
 
-	public MetaDesignLink copy( ActionBase action , Meta meta , MetaDesignElement element ) throws Exception {
+	public MetaDesignLink copy( Meta meta , MetaDesignElement element ) throws Exception {
 		MetaDesignLink r = new MetaDesignLink( meta , element.design , element );
 		r.TARGET = TARGET;
 		r.linkType = linkType;
@@ -48,8 +48,8 @@ public class MetaDesignLink {
 		Common.xmlSetElementAttr( doc , root , "text" , TEXT );
 	}
 	
-	public void resolve( ActionBase action ) throws Exception {
-		target = design.getElement( action , TARGET );
+	public void resolve() throws Exception {
+		target = design.getElement( TARGET );
 	}
 
 	public boolean isGenericType() {

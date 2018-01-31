@@ -872,7 +872,7 @@ public class Common {
 		
 		int indexTo = length - 1;
 		for( ; indexTo > 0; indexTo-- ) {
-			if( s.charAt( indexFrom ) != trimChar )
+			if( s.charAt( indexTo ) != trimChar )
 				break;
 		}
 		
@@ -1113,5 +1113,5 @@ public class Common {
 			return( getWinPath( path ) );
 		return( path );
 	}
-	
+
 }

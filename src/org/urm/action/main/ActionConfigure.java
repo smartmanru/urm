@@ -21,12 +21,13 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.MetadataStorage;
+import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvs;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
 
 public class ActionConfigure extends ActionBase {
 
@@ -108,7 +109,7 @@ public class ActionConfigure extends ActionBase {
 
 	private void configureProduct( Meta meta ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder pf = urm.getProductHome( this , meta.name );
+		LocalFolder pf = urm.getProductHome( this , meta.getProduct() );
 		pfMaster = pf.getSubFolder( this , "master" );
 		String masterPath = pfMaster.getFilePath( this , MainCommandMeta.MASTERFILE );
 		
@@ -268,26 +269,27 @@ public class ActionConfigure extends ActionBase {
 		if( executor.name.equals( DeployCommandMeta.NAME ) ) {
 			String proxyPath = DeployCommandMeta.NAME;
 			
-			Map<String,MetaEnv> envs = new HashMap<String,MetaEnv>(); 
-			MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
+			Map<String,MetaEnv> envMap = new HashMap<String,MetaEnv>(); 
+			ProductStorage ms = artefactory.getMetadataStorage( this , meta );
 			
 			MetaEnvSegment sg = null;
+			MetaEnvs envs = meta.getEnviroments();
 			if( USEENV.isEmpty() ) {
 				addAffected( linux , proxyPath , true );
-				String[] envNames = meta.getEnvNames();
+				String[] envNames = envs.getEnvNames();
 				for( String envName : envNames ) {
-					MetaEnv env = meta.getEnvData( this , envName , false );
-					envs.put( envName , env );
+					MetaEnv env = envs.findEnv( envName );
+					envMap.put( envName , env );
 				}
 			}
 			else {
 				MetaEnv env = null;
 				String[] envFiles = ms.getEnvFiles( this );
 				for( String envFile : envFiles ) {
-					MetaEnv envx = meta.getEnvData( this , envFile , false );
+					MetaEnv envx = envs.findEnv( envFile );
 					if( envx.NAME.equals( USEENV ) ) {
 						env = envx;
-						envs.put( envFile , envx );
+						envMap.put( envFile , envx );
 						break;
 					}
 				}
@@ -308,8 +310,8 @@ public class ActionConfigure extends ActionBase {
 				}
 			}
 			
-			for( String envFile : envs.keySet() ) {
-				MetaEnv env = envs.get( envFile );
+			for( String envFile : envMap.keySet() ) {
+				MetaEnv env = envMap.get( envFile );
 				configureDeploymentEnv( meta , exeFolder , executor , envFile , env , sg , linux , dbe );
 			}
 		}

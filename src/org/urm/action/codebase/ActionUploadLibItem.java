@@ -75,7 +75,7 @@ public class ActionUploadLibItem extends ActionBase {
 			F_CLASSIFIER = "-Dclassifier=" + CLASSIFIER;
 
 		String CMD;
-		AuthResource res = getResource( scopeProject.sourceProject.RESOURCE_ID );
+		AuthResource res = scopeProject.sourceProject.getResource( this );
 		if( F_EXTENSION.equals( "pom" ) ) {
 	        CMD = "mvn -e deploy:deploy-file " + BUILD_MSETTINGS + 
 	        	" -DupdateReleaseInfo=true -DuniqueVersion=false -DrepositoryId=nexus" + 

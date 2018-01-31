@@ -14,9 +14,9 @@ import org.urm.engine.shell.Account;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.EngineContext;
 import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -101,7 +101,7 @@ public class DistRepository {
 			}
 			else {
 				String path = repoFolder.getLocalPath( action );
-				action.exit1( _Error.ReleaseRepositoryExists1 , "unable to create release repository, already exists at " + path , path );
+				action.debug( "found existing release repository, path=" + path );
 			}
 		}
 		
@@ -113,6 +113,7 @@ public class DistRepository {
 			
 		repoFolder.ensureExists( action );
 		readRepositoryFile( action );
+		action.info( "distributive repository has been created, path=" + action.getLocalPath( repoFolder.folderPath ) );
 	}
 
 	private synchronized void readRepositoryFile( ActionBase action ) throws Exception {
@@ -293,8 +294,8 @@ public class DistRepository {
 			}
 			else {
 				if( !action.isLocalRun() ) {
-					MetaProductSettings product = meta.getProductSettings( action );
-					account = Account.getDatacenterAccount( action , "" , product.CONFIG_DISTR_HOSTLOGIN , DBEnumOSType.LINUX );
+					MetaProductCoreSettings core = meta.getProductCoreSettings();
+					account = Account.getDatacenterAccount( action , "" , core.CONFIG_DISTR_HOSTLOGIN , DBEnumOSType.LINUX );
 				}
 			}
 		}

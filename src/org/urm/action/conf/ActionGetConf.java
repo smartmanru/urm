@@ -24,7 +24,7 @@ public class ActionGetConf extends ActionBase {
 
 	protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeItem ) throws Exception {
 		// export from source
-		String KEY = scopeItem.confItem.KEY;
+		String KEY = scopeItem.confItem.NAME;
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , scopeItem.meta , downloadFolder );
 		info( "get configuration item " + KEY + " ..." );
 		

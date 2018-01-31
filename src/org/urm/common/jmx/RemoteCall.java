@@ -120,7 +120,7 @@ public class RemoteCall implements NotificationListener {
 				return( false );
 		}
 		catch( Throwable e ) {
-			println( e.getMessage() );
+			println( e.toString() );
 			return( false );
 		}
 
@@ -135,7 +135,7 @@ public class RemoteCall implements NotificationListener {
 			return( res );
 		}
 		catch( Throwable e ) {
-			return( "error: " + e.getMessage() );
+			return( "error: " + e.toString() );
 		}
 	}
 	

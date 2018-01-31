@@ -85,8 +85,8 @@ public class EngineSettings extends EngineObject {
 		return( defaultProductProperties );
 	}
 
-	public PropertySet getDefaultProductBuildProperties() {
-		return( defaultProductBuildProperties.getProperties() );
+	public ObjectProperties getDefaultProductBuildProperties() {
+		return( defaultProductBuildProperties );
 	}
 
 	public ObjectProperties getDefaultProductBuildSettings() {
@@ -137,7 +137,7 @@ public class EngineSettings extends EngineObject {
 			mapBuildModeDefaults.put( mode , set );
 		}
 		
-		set.updateProperties( transaction , props , true );
+		set.updateProperties( props , true );
 		set.resolveRawProperties();
 	}
 

@@ -26,16 +26,17 @@ import org.w3c.dom.Node;
 
 public abstract class DBSettings {
 
-	public static String ELEMENT_PROPERTY = "property"; 
+	public static String ELEMENT_PROPERTY = "property";
+	public static String ELEMENT_CUSTOM = "custom";
 	public static String ATTR_NAME = "name"; 
 	public static String ATTR_VALUE = "value"; 
 	public static String ATTR_DESC = "desc"; 
 	
-	public static void loaddbValues( EngineLoader loader , int objectId , ObjectProperties properties , boolean saveApp ) throws Exception {
+	public static void loaddbValues( EngineLoader loader , int objectId , ObjectProperties properties , boolean loadApp ) throws Exception {
 		DBConnection c = loader.getConnection();
 		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETOBJECTPARAMVALUES2 , new String[] { 
 				EngineDB.getInteger( objectId ) , 
-				EngineDB.getEnum( properties.type ) } );
+				EngineDB.getEnum( properties.roleType ) } );
 
 		try {
 			while( rs.next() ) {
@@ -43,7 +44,7 @@ public abstract class DBSettings {
 				String exprValue = rs.getString( 3 );
 				
 				EntityVar var = properties.getVar( param );
-				if( saveApp == false && var.isApp() )
+				if( loadApp == false && var.isApp() )
 					Common.exitUnexpected();
 				
 				properties.setProperty( var , exprValue );
@@ -54,18 +55,38 @@ public abstract class DBSettings {
 		}
 	}
 
-	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean saveApp , int version ) throws Exception {
-		importxmlLoad( loader , root , properties );
-		importxmlSave( loader , properties , paramObjectId , metaObjectId , saveApp , version );
+	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean importApp , boolean importCustom , int version ) throws Exception {
+		importxmlLoad( loader , root , properties , importApp , importCustom );
+		importxmlSave( loader , properties , paramObjectId , metaObjectId , importApp , importCustom , version );
 	}
 	
-	public static void importxmlLoad( EngineLoader loader , Node root , ObjectProperties properties ) throws Exception {
+	public static void importxmlLoad( EngineLoader loader , Node root , ObjectProperties properties , boolean importApp , boolean importCustom ) throws Exception {
+		if( importApp )
+			importxmlLoadDirect( loader , root , properties , true , false );
+		if( importCustom ) {
+			Node custom = null;
+			if( root != null )
+				custom = ConfReader.xmlGetFirstChild( root , ELEMENT_CUSTOM );
+			importxmlLoadDirect( loader , custom , properties , false , true );
+		}
+	}
+	
+	public static void importxmlLoadDirect( EngineLoader loader , Node root , ObjectProperties properties , boolean importApp , boolean importCustom ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity app = meta.getAppEntity();
+		PropertyEntity custom = meta.getCustomEntity();
+		
+		if( custom != null && importCustom ) {
+			custom.clear();
+			meta.rebuild();
+		}
+
+		if( root == null )
+			return;
 		
 		// load attributes - app only
 		boolean ok = true;
-		if( !app.USE_PROPS ) {
+		if( importApp && !app.USE_PROPS ) {
 			Map<String,String> attrs = ConfReader.getAttributes( root );
 			for( String prop : Common.getSortedKeys( attrs ) ) {
 				String value = attrs.get( prop );
@@ -73,86 +94,115 @@ public abstract class DBSettings {
 					importxmlSetAttr( loader , properties , prop , value );
 				}
 				catch( Throwable e ) {
-					loader.trace( "attribute load error: " + e.getMessage() );
+					loader.trace( "attribute load error: " + e.toString() );
 					ok = false;
 				}
 			}
 		}
 		
 		// load properties
-		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_PROPERTY );
-		if( items != null ) {
-			for( Node item : items ) {
-				try {
-					importxmlSetProperty( loader , item , properties , app.USE_PROPS );
+		if( importCustom || app.USE_PROPS ) {
+			Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_PROPERTY );
+			if( items != null ) {
+				for( Node item : items ) {
+					try {
+						importxmlSetProperty( loader , item , properties , importApp , importCustom , app.USE_PROPS );
+					}
+					catch( Throwable e ) {
+						loader.trace( "property load error: " + e.toString() );
+						ok = false;
+					}
 				}
-				catch( Throwable e ) {
-					loader.trace( "property load error: " + e.getMessage() );
-					ok = false;
-				}
+				
+				meta.rebuild();
 			}
-			
-			meta.rebuild();
 		}
 
 		if( !ok )
-			Common.exit1( _Error.SettingsImportErrors1 , "Errors on settings import, set type=" + properties.type.name() , "" + properties.type.name() );
+			Common.exit1( _Error.SettingsImportErrors1 , "Errors on settings import, set object=" + properties.objectType.name() , "" + properties.objectType.name() );
 	}
 
-	public static void importxmlSave( EngineLoader loader , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean saveApp , int version ) throws Exception {
+	public static void importxmlSave( EngineLoader loader , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean saveApp , boolean saveCustom , int version ) throws Exception {
 		DBConnection c = loader.getConnection();
-		savedbEntityCustom( c , properties , paramObjectId , metaObjectId , version );
-		savedbPropertyValues( c , paramObjectId , properties , saveApp , true , version );
+		if( saveCustom )
+			savedbEntityCustom( c , properties , paramObjectId , metaObjectId , version );
+		savedbPropertyValues( c , paramObjectId , properties , saveApp , saveCustom , version );
 	}
 	
 	public static void exportxml( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
-		PropertySet set = properties.getProperties();
+		exportxmlAppEntity( loader , doc , root , properties , appAsProperties );
+		
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity custom = meta.getCustomEntity();
-		for( PropertyValue value : set.getAllProperties() ) {
-			EntityVar var = properties.getVar( value.property );
-			if( !var.isXml() )
-				continue;
-			
-			if( var.isApp() ) {
-				String data = value.getOriginalValue();
-				if( data == null || data.isEmpty() )
-					continue;
-				
-				if( var.isEnum() ) {
-					int ev = Integer.parseInt( data );
-					if( ev == DBEnums.VALUE_UNKNOWN )
-						continue;
-					
-					data = DBEnums.getEnumValue( var.enumClass , ev );
-				}
-				else
-				if( var.isObject() ) {
-					int ev = Integer.parseInt( data );
-					data = var.exportxmlObjectValue( loader , ev );
-				}
-					
-				if( appAsProperties )
-					exportxmlSetProperty( loader , doc , root , var , data , false );
-				else
-					exportxmlSetAttr( loader , doc , root , var , data );
-			}
-			else {
-				boolean defineProp = ( var.isCustom() && var.entity == custom )? true : false;
-				String data = null;
-				if( defineProp )
-					data = value.getExpressionValue();
-				else {
-					data = value.getOriginalValue();
-					if( data == null || data.isEmpty() )
-						continue;
-				}
-				
-				exportxmlSetProperty( loader , doc , root , var , data , defineProp );
-			}
+		
+		if( custom != null ) {
+			Element nodeCustom = Common.xmlCreateElement( doc , root , ELEMENT_CUSTOM );
+			exportxmlCustomEntity( loader , doc , nodeCustom , properties );
 		}
 	}
 
+	public static void exportxmlCustomEntity( EngineLoader loader , Document doc , Element root , ObjectProperties properties ) throws Exception {
+		ObjectMeta meta = properties.getMeta();
+		PropertyEntity custom = meta.getCustomEntity();
+		PropertySet set = properties.getProperties();
+		
+		for( PropertyValue value : set.getAllProperties() ) {
+			EntityVar var = properties.getVar( value.property );
+			if( !var.isCustom() )
+				continue;
+			
+			if( !var.isXml() )
+				continue;
+			
+			boolean defineProp = ( var.isCustom() && var.entity == custom )? true : false;
+			String data = null;
+			if( defineProp )
+				data = value.getExpressionValue();
+			else {
+				data = value.getOriginalValue();
+				if( data == null || data.isEmpty() )
+					continue;
+			}
+			
+			exportxmlSetProperty( loader , doc , root , var , data , defineProp );
+		}
+	}
+
+	public static void exportxmlAppEntity( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
+		PropertySet set = properties.getProperties();
+		
+		for( PropertyValue value : set.getAllProperties() ) {
+			EntityVar var = properties.getVar( value.property );
+			if( !var.isApp() )
+				continue;
+			
+			if( !var.isXml() )
+				continue;
+			
+			String data = value.getOriginalValue();
+			if( data == null || data.isEmpty() )
+				continue;
+			
+			if( var.isEnum() ) {
+				int ev = Integer.parseInt( data );
+				if( ev == DBEnums.VALUE_UNKNOWN )
+					continue;
+				
+				data = DBEnums.getEnumValue( var.enumClass , ev );
+			}
+			else
+			if( var.isObject() ) {
+				int ev = Integer.parseInt( data );
+				data = var.exportxmlObjectValue( loader , ev );
+			}
+				
+			if( appAsProperties )
+				exportxmlSetProperty( loader , doc , root , var , data , false );
+			else
+				exportxmlSetAttr( loader , doc , root , var , data );
+		}
+	}
+	
 	private static void exportxmlSetAttr( EngineLoader loader, Document doc , Element root , EntityVar var , String data ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , var.XMLNAME , data );
 	}
@@ -198,7 +248,7 @@ public abstract class DBSettings {
 		}
 	}
 	
-	private static void importxmlSetProperty( EngineLoader loader , Node item , ObjectProperties properties , boolean appAsProperties ) throws Exception {
+	private static void importxmlSetProperty( EngineLoader loader , Node item , ObjectProperties properties , boolean importApp , boolean importCustom , boolean appAsProperties ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity app = meta.getAppEntity();
 		PropertyEntity custom = meta.getCustomEntity();
@@ -207,18 +257,21 @@ public abstract class DBSettings {
 		
 		// this.app - set app value
 		EntityVar var = app.findXmlVar( prop );
-		if( var != null && appAsProperties ) {
+		if( var != null ) {
+			// this.app as custom
+			if( appAsProperties == false )
+				Common.exit1( _Error.SetSystemVarAsCustom1 , "Attempt to set built-in variable=" + prop + " as custom variable" , prop );
+
+			if( importApp == false )
+				Common.exit1( _Error.UnexpectedAppVar1 , "Unexpected built-in variable=" + prop , prop );
+			
 			String value = ConfReader.getAttrValue( item , ATTR_VALUE );
 			importxmlSetProperty( loader , properties , var , value , false );
 			return;
 		}
-
-		// this.app as custom
-		if( var != null && appAsProperties == false )
-			Common.exit1( _Error.SetSystemVarAsCustom1 , "Attempt to set built-in variable=" + prop + " as custom variable" , prop );
 		
-		// this.custom - duplicate
 		if( custom != null ) {
+			// this.custom - duplicate
 			var = custom.findXmlVar( prop );
 			if( var != null )
 				Common.exit1( _Error.DuplicateCustomVar1 , "Duplicate custom variable=" + prop , prop );
@@ -231,6 +284,9 @@ public abstract class DBSettings {
 		
 		// parent.custom - normal override, set value as manual
 		if( var != null && var.isCustom() ) {
+			if( importCustom == false )
+				Common.exit1( _Error.UnexpectedCustomVar1 , "Unexpected custom variable=" + prop , prop );
+			
 			String value = ConfReader.getAttrValue( item , ATTR_VALUE );
 			importxmlSetProperty( loader , properties , var , value , true );
 			return;
@@ -239,12 +295,16 @@ public abstract class DBSettings {
 		// custom properties cannot be defined
 		if( custom == null )
 			Common.exit1( _Error.UnexpectedCustom1 , "Custom variables cannot be defined here, variable=" + prop , prop );
+
+		if( importCustom == false )
+			Common.exit1( _Error.UnexpectedCustomVar1 , "Unexpected custom variable=" + prop , prop );
 		
 		// new custom string property
 		String desc = ConfReader.getAttrValue( item , ATTR_DESC );
 		String def = ConfReader.getAttrValue( item , ATTR_VALUE );
-		var = EntityVar.metaString( prop , desc , var.REQUIRED , def );
+		var = EntityVar.metaString( prop , desc , false , def );
 		custom.addVar( var );
+		properties.createProperty( var );
 	}		
 
 	private static EntityVar findParentXmlVar( ObjectProperties properties , String xmlprop ) {
@@ -407,14 +467,17 @@ public abstract class DBSettings {
 			Common.exitUnexpected();
 	}
 	
-	public static PropertyEntity loaddbAppPropsEntity( EngineLoader loader , int paramObjectId , DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType dataVersionType ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( objectType , entityType , dataVersionType );
-		loaddbEntity( loader , entity , paramObjectId );
+	public static PropertyEntity loaddbCustomPropsEntity( DBConnection c , int ownerId , DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType versionType ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getCustomEntity( ownerId , objectType , entityType , ownerId , versionType );
+		DBSettings.loaddbEntity( c , entity , ownerId );
 		return( entity );
 	}
-		
-	public static void loaddbEntity( EngineLoader loader , PropertyEntity entity , int paramObjectId ) throws Exception {
-		DBConnection c = loader.getConnection();
+
+	public static void loaddbAppEntity( DBConnection c , PropertyEntity entity ) throws Exception {
+		loaddbEntity( c , entity , DBVersions.APP_ID );
+	}
+	
+	public static void loaddbEntity( DBConnection c , PropertyEntity entity , int paramObjectId ) throws Exception {
 		entity.PARAM_OBJECT_ID = paramObjectId;
 		entity.META_OBJECT_ID = ( entity.CUSTOM )? entity.PARAM_OBJECT_ID : DBVersions.APP_ID;
 		entity.VERSION = verifyEntity( c , entity );
@@ -452,7 +515,7 @@ public abstract class DBSettings {
 		if( saveApp && saveCustom ) {
 			if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUES2 , new String[] {
 					EngineDB.getInteger( objectId ) ,
-					EngineDB.getEnum( properties.type ) 
+					EngineDB.getEnum( properties.roleType ) 
 					} ) )
 				Common.exitUnexpected();
 		}
@@ -460,14 +523,14 @@ public abstract class DBSettings {
 			if( saveApp ) {
 				if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUESAPP2 , new String[] {
 						EngineDB.getInteger( objectId ) ,
-						EngineDB.getEnum( properties.type ) 
+						EngineDB.getEnum( properties.roleType ) 
 						} ) )
 					Common.exitUnexpected();
 			}
 			if( saveCustom ) {
 				if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUESCUSTOM2 , new String[] {
 					EngineDB.getInteger( objectId ) ,
-					EngineDB.getEnum( properties.type ) 
+					EngineDB.getEnum( properties.roleType ) 
 					} ) )
 				Common.exitUnexpected();
 			}
@@ -487,7 +550,7 @@ public abstract class DBSettings {
 			
 			if( !c.modify( DBQueries.MODIFY_PARAM_ADDOBJECTPARAMVALUE7 , new String[] {
 					EngineDB.getInteger( objectId ) ,
-					EngineDB.getEnum( properties.type ) ,
+					EngineDB.getEnum( properties.roleType ) ,
 					EngineDB.getInteger( var.entity.PARAM_OBJECT_ID ) ,
 					EngineDB.getEnum( var.entity.PARAMENTITY_TYPE ) ,
 					EngineDB.getInteger( var.PARAM_ID ) ,

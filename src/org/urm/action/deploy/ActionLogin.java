@@ -5,7 +5,7 @@ import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellInteractive;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvServerNode;
 
 public class ActionLogin extends ActionBase {
 

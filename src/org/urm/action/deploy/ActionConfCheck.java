@@ -7,9 +7,10 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvs;
 
 public class ActionConfCheck extends ActionBase {
 
@@ -62,7 +63,8 @@ public class ActionConfCheck extends ActionBase {
 			if( context.env.hasBaseline( this ) ) {
 				String S_CONFCHECK_BASELINE_ENV = context.env.getBaselineFile( this );
 				info( "============================================ check env properties baseline=" + S_CONFCHECK_BASELINE_ENV + " ..." );
-				baselineEnv = scope.meta.getEnvData( this , S_CONFCHECK_BASELINE_ENV , true );
+				MetaEnvs envs = scope.meta.getEnviroments();
+				baselineEnv = envs.findEnv( S_CONFCHECK_BASELINE_ENV );
 				checkConfEnv( context.env , baselineEnv , S_CONFCHECK_PROPLIST_ENV );
 			}
 			else

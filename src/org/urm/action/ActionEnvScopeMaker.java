@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
 
 public class ActionEnvScopeMaker {
 

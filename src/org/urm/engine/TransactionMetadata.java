@@ -1,11 +1,11 @@
 package org.urm.engine;
 
 import org.urm.engine.status.EngineStatus;
-import org.urm.meta.ProductMeta;
-import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.ProductMeta;
 
 public class TransactionMetadata {
 
@@ -58,19 +58,42 @@ public class TransactionMetadata {
 	}
 
 	public boolean changeProduct( Meta meta ) throws Exception {
-		ProductMeta sourceMetadata = meta.getStorage();
-		if( sourceMetadata.isPrimary() ) {
-			metadataOld = sourceMetadata;
-			metadata = sourceMetadata.copy( transaction.action );
+		ProductMeta storage = meta.getStorage();
+		if( storage.isPrimary() ) {
+			metadataOld = storage;
+			AppSystem system = storage.product.system;
+			metadata = storage.copy( transaction.action , storage.products , storage.product , system.getParameters() );
 			sessionMeta = transaction.action.getProductMetadata( meta.name );
-			transaction.trace( "transaction product storage meta: source=" + sourceMetadata.objectId + ", copy=" + metadata.objectId );
+			sessionMeta.replaceStorage( transaction.action , metadata );
+			transaction.trace( "transaction product storage meta: source=" + storage.objectId + ", copy=" + metadata.objectId );
 			if( metadata != null )
 				return( true );
 		}
 		else
-			transaction.error( "Unable to change old metadata, id=" + sourceMetadata.objectId );
+			transaction.error( "Unable to change old metadata, id=" + storage.objectId );
 		
 		return( false );
+	}
+
+	public boolean recreateProduct( Meta meta ) throws Exception {
+		ProductMeta storage = meta.getStorage();
+		if( storage.isPrimary() ) {
+			metadataOld = storage;
+			metadata = null;
+			sessionMeta = transaction.action.getProductMetadata( meta.name );
+			transaction.trace( "transaction recreate product storage meta=" + storage.objectId );
+			return( true );
+		}
+		else
+			transaction.error( "Unable to change old metadata, id=" + storage.objectId );
+		
+		return( false );
+	}
+
+	public boolean replaceProduct( ProductMeta storage ) throws Exception {
+		metadata = storage;
+		transaction.trace( "transaction recreate product storage meta=" + storage.objectId );
+		return( true );
 	}
 
 	public boolean deleteProduct( Meta meta ) throws Exception {
@@ -86,21 +109,20 @@ public class TransactionMetadata {
 	}
 
 	public boolean saveProduct() throws Exception {
-		EngineDirectory directory = transaction.getDirectory();
-		AppProduct product = directory.getProduct( metadata.name );
-		
 		if( deleteMetadata ) {
 			if( metadataOld == null )
-				return( true );
+				return( false );
 
+			AppProduct product = metadataOld.product;
 			deleteProduct( product , metadataOld );
 			transaction.deleteProductMetadata( metadataOld );
 			transaction.trace( "transaction product storage meta: delete=" + metadataOld.objectId );
 		}
 		else {
 			if( metadata == null )
-				return( true );
+				return( false );
 				
+			AppProduct product = metadata.product;
 			transaction.setProductMetadata( metadata );
 			sessionMeta.replaceStorage( transaction.action , metadata );
 			transaction.trace( "transaction product storage meta: save=" + metadata.objectId );
@@ -135,10 +157,9 @@ public class TransactionMetadata {
 	}
 	
 	private void modifyProduct( AppProduct product , ProductMeta metadataOld , ProductMeta metadataNew ) throws Exception {
-		product.setMatched( metadataNew );
+		product.setStorage( metadataNew );
 		EngineStatus status = transaction.action.getServerStatus();
 		status.modifyProduct( transaction , metadataOld , metadataNew );
-		
 		EngineMonitoring mon = transaction.action.getServerMonitoring();
 		mon.transactionCommitModifyProduct( transaction , product );
 	}

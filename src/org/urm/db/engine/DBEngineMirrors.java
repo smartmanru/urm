@@ -25,7 +25,6 @@ import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
-import org.urm.engine.storage.UrmStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.engine.vcs.MirrorCase;
 import org.urm.meta.EngineLoader;
@@ -35,6 +34,7 @@ import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine._Error;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.w3c.dom.Document;
@@ -67,9 +67,9 @@ public class DBEngineMirrors {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMirror( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityMirror( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.MIRROR , DBEnumParamEntityType.MIRROR , DBEnumObjectVersionType.CORE , TABLE_MIRROR , FIELD_MIRROR_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	
@@ -105,7 +105,7 @@ public class DBEngineMirrors {
 		return( repo );
 	}
 	
-	private static void modifyRepository( DBConnection c , MirrorRepository repo , boolean insert ) throws Exception {
+	public static void modifyRepository( DBConnection c , MirrorRepository repo , boolean insert ) throws Exception {
 		if( insert )
 			repo.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , repo.NAME , DBEnumObjectType.MIRROR );
 		else
@@ -175,22 +175,7 @@ public class DBEngineMirrors {
 		}
 	}
 
-	public static void createProductMirrors( EngineTransaction transaction , EngineMirrors mirrors , AppProduct product , boolean forceClear ) throws Exception {
-		ActionBase action = transaction.getAction();
-		UrmStorage storage = action.artefactory.getUrmStorage();
-
-		LocalFolder products = storage.getServerProductsFolder( action );
-		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
-		if( productfolder.checkExists( action ) )  {
-			if( !forceClear ) {
-				String path = action.getLocalPath( productfolder.folderPath );
-				action.exit1( _Error.ProductPathAlreadyExists1 , "Product path already exists - " + path , path );
-			}
-			productfolder.removeThis( action );
-		}
-			
-		productfolder.ensureExists( action );
-		
+	public static void createProductMirrors( EngineTransaction transaction , EngineMirrors mirrors , AppProduct product ) throws Exception {
 		// meta
 		String name = "product-" + product.NAME + "-meta";
 		MirrorRepository meta = createRepository( transaction , mirrors , name , "standard meta repository" , DBEnumMirrorType.PRODUCT_META );
@@ -219,14 +204,16 @@ public class DBEngineMirrors {
 		modifyRepository( c , repo , false );
 	} 
 	
-	public static void createProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
+	public static MirrorRepository createProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project , Integer repoRes , String repoName , String repoPath , String codePath ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		MirrorRepository repo = new MirrorRepository( mirrors );
 		String name = "project-" + project.meta.name + "-" + project.NAME;
 		repo.createRepository( name , null , DBEnumMirrorType.PROJECT );
+		repo.setMirror( repoRes , repoName , repoPath , codePath );
 		modifyRepository( c , repo , true );
 		mirrors.addRepository( repo );
+		return( repo );
 	}
 	
 	public static void createDetachedMirror( EngineTransaction transaction , EngineMirrors mirrors , DBEnumMirrorType type , String product , String project ) throws Exception {
@@ -264,9 +251,9 @@ public class DBEngineMirrors {
 		}
 	}
 
-	public static void changeProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
+	public static void changeProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project , Integer repoRes , String repoName , String repoPath , String codePath ) throws Exception {
 		deleteProjectMirror( transaction , mirrors , project );
-		createProjectMirror( transaction , mirrors , project );
+		createProjectMirror( transaction , mirrors , project , repoRes , repoName , repoPath , codePath );
 	}
 	
 	public static void deleteProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
@@ -375,12 +362,13 @@ public class DBEngineMirrors {
 		if( repo.MIRROR_TYPE == DBEnumMirrorType.PRODUCT_DATA ) {
 			AppProduct product = action.getProduct( repo.productId );
 			Meta meta = action.getActiveProductMetadata( product.NAME );
-			MetaProductSettings settings = meta.getProductSettings( action );
+			MetaProductSettings settings = meta.getProductSettings();
+			MetaProductCoreSettings core = settings.getCoreSettings();
 			LocalFolder home = loader.getEngineHomeFolder();
-			addFolderMapItem( action , map , SourceStorage.DATA_LIVE , home , settings.CONFIG_SOURCE_CFG_LIVEROOTDIR );
-			addFolderMapItem( action , map , SourceStorage.DATA_TEMPLATES , home , settings.CONFIG_SOURCE_CFG_ROOTDIR );
-			addFolderMapItem( action , map , SourceStorage.DATA_POSTREFRESH , home , settings.CONFIG_SOURCE_SQL_POSTREFRESH );
-			addFolderMapItem( action , map , SourceStorage.DATA_CHANGES , home , settings.CONFIG_SOURCE_RELEASEROOTDIR );
+			addFolderMapItem( action , map , SourceStorage.DATA_LIVE , home , core.CONFIG_SOURCE_CFG_LIVEROOTDIR );
+			addFolderMapItem( action , map , SourceStorage.DATA_TEMPLATES , home , core.CONFIG_SOURCE_CFG_ROOTDIR );
+			addFolderMapItem( action , map , SourceStorage.DATA_POSTREFRESH , home , core.CONFIG_SOURCE_SQL_POSTREFRESH );
+			addFolderMapItem( action , map , SourceStorage.DATA_CHANGES , home , core.CONFIG_SOURCE_RELEASEROOTDIR );
 		}
 		
 		return( map );

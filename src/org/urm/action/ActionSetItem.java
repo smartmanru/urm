@@ -2,7 +2,7 @@ package org.urm.action;
 
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.status.ScopeState;
-import org.urm.meta.product.MetaEnv;
+import org.urm.meta.env.MetaEnv;
 
 public class ActionSetItem implements Runnable {
 

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Folder;
@@ -14,17 +15,17 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.Types.*;
 
 public class DatabaseSpecific {
 
 	Meta meta;
-	VarDBMSTYPE dbmsType;
+	DBEnumDbmsType dbmsType;
 	MetaEnvServer server;
 	MetaEnvServerNode node;
 
@@ -37,7 +38,7 @@ public class DatabaseSpecific {
 		this.meta = meta;
 	}
 	
-	public DatabaseSpecific( Meta meta , VarDBMSTYPE dbmsType ) {
+	public DatabaseSpecific( Meta meta , DBEnumDbmsType dbmsType ) {
 		this.meta = meta;
 		this.dbmsType = dbmsType; 
 	}
@@ -133,8 +134,9 @@ public class DatabaseSpecific {
 			return( false );
 		}
 		
-		MetaProductSettings settings = server.meta.getProductSettings( action );
-		List<String> data = action.readFileLines( fileLog , settings.charset );
+		MetaProductSettings settings = server.meta.getProductSettings();
+		MetaProductCoreSettings core = settings.getCoreSettings();
+		List<String> data = action.readFileLines( fileLog , core.charset );
 		String[] lines = data.toArray( new String[0] );
 		String[] errors = Common.grep( lines , "^ERROR" );
 		if( errors.length > 0 ) {
@@ -161,8 +163,9 @@ public class DatabaseSpecific {
 		if( status != 0 )
 			action.exit1( _Error.ScriptApplyError1 , "error: (see logs)" , file );
 
-		MetaProductSettings settings = server.meta.getProductSettings( action );
-		List<String> data = action.readFileLines( fileLog , settings.charset );
+		MetaProductSettings settings = server.meta.getProductSettings();
+		MetaProductCoreSettings core = settings.getCoreSettings();
+		List<String> data = action.readFileLines( fileLog , core.charset );
 		String[] lines = data.toArray( new String[0] );
 		for( int k = 0; k < lines.length; k++ )
 			lines[ k ] = lines[ k ].trim();
@@ -175,10 +178,10 @@ public class DatabaseSpecific {
 	}
 
 	public String getTableName( ActionBase action , String dbschema , String table ) throws Exception {
-		if( server.dbType == VarDBMSTYPE.ORACLE )
+		if( server.dbType == DBEnumDbmsType.ORACLE )
 			return( dbschema + "." + table );
-		if( server.dbType == VarDBMSTYPE.FIREBIRD ||
-			server.dbType == VarDBMSTYPE.POSTGRESQL )
+		if( server.dbType == DBEnumDbmsType.FIREBIRD ||
+			server.dbType == DBEnumDbmsType.POSTGRESQL )
 			return( table );
 		
 		action.exitUnexpectedState();
@@ -309,7 +312,7 @@ public class DatabaseSpecific {
 	}
 
 	private void beginTransaction( ActionBase action , List<String> lines ) throws Exception {
-		if( server.dbType == VarDBMSTYPE.POSTGRESQL )
+		if( server.dbType == DBEnumDbmsType.POSTGRESQL )
 			lines.add( "begin;" );
 	}
 	
@@ -402,13 +405,13 @@ public class DatabaseSpecific {
 	}
 	
 	private String getTimestampValue( ActionBase action ) throws Exception {
-		if( server.dbType == VarDBMSTYPE.POSTGRESQL )
+		if( server.dbType == DBEnumDbmsType.POSTGRESQL )
 			return( "now()" );
 		else
-		if( server.dbType == VarDBMSTYPE.ORACLE )
+		if( server.dbType == DBEnumDbmsType.ORACLE )
 			return( "SYSDATE" );
 		else
-		if( server.dbType == VarDBMSTYPE.FIREBIRD )
+		if( server.dbType == DBEnumDbmsType.FIREBIRD )
 			return( "CURRENT_TIMESTAMP" );
 		
 		action.exitUnexpectedState();
@@ -446,7 +449,7 @@ public class DatabaseSpecific {
 	public void addSpecificConf( ActionBase action , List<String> lines ) throws Exception {
 		Account account = action.getNodeAccount( node );
 		String DBMSADDR = ( account.isLocal() )? "localhost" : server.DBMSADDR;
-		MetaProductSettings settings = server.meta.getProductSettings( action );
+		MetaProductSettings settings = server.meta.getProductSettings();
 		addSpecificLine( action , lines , "CONF_DBADDR" , DBMSADDR );
 		if( DBMSADDR.contains( ":" ) ) {
 			addSpecificLine( action , lines , "CONF_DBHOST" , Common.getPartBeforeLast( DBMSADDR , ":" ) );
@@ -454,8 +457,9 @@ public class DatabaseSpecific {
 		}
 		else
 			addSpecificLine( action , lines , "CONF_DBHOST" , DBMSADDR );
-		
-		addSpecificLine( action , lines , "CONF_CHARSET" , settings.charset.name() );
+
+		MetaProductCoreSettings core = settings.getCoreSettings();
+		addSpecificLine( action , lines , "CONF_CHARSET" , core.charset.name() );
 	}
 	
 	public void addSpecificLine( ActionBase action , List<String> lines , String var , String value ) {

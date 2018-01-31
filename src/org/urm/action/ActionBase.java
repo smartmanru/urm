@@ -27,6 +27,7 @@ import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.EngineScheduler;
 import org.urm.engine.shell.Account;
@@ -41,7 +42,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.EngineObject;
-import org.urm.meta.ProductMeta;
+import org.urm.meta.MatchItem;
 import org.urm.meta.Types;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.AuthUser;
@@ -58,14 +59,16 @@ import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.ProductMeta;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -713,6 +716,10 @@ abstract public class ActionBase extends ActionCore {
     	return( Meta.getNameAttr( this , node , nameType ) );
     }
 
+	public void printValues( ObjectProperties ops ) throws Exception {
+		printValues( ops.getProperties() );
+	}
+    
 	public void printValues( PropertySet props ) throws Exception {
 		for( String prop : props.getRunningKeys() ) {
 			String value = props.getPropertyAny( prop );
@@ -825,7 +832,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public MetaProductBuildSettings getBuildSettings( Meta meta ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( this );
+		MetaProductSettings product = meta.getProductSettings();
 		return( product.getBuildSettings( this ) );
 	}
 
@@ -850,10 +857,14 @@ abstract public class ActionBase extends ActionCore {
 		return( repo );
 	}
 
-	public ProjectBuilder getBuilder( String name ) throws Exception {
+	public ProjectBuilder getBuilder( MatchItem match ) throws Exception {
+		if( match == null )
+			return( null );
+		
 		EngineBuilders builders = getServerBuilders();
-		ProjectBuilder builder = builders.getBuilder( name );
-		return( builder );
+		if( match.FKID != null )
+			return( builders.getBuilder( match.FKID ) );
+		return( builders.getBuilder( match.FKNAME ) );
 	}
 
 	public EngineBlotter getServerBlotter() throws Exception {
@@ -935,17 +946,18 @@ abstract public class ActionBase extends ActionCore {
 		return( isServerOffline( node.server ) );
 	}
 	
-	public String getContextRedistPath( Account account ) throws Exception {
+	public String getContextRedistPath( Account account ) {
 		if( account.isLinux() )
 			return( context.CTX_REDISTLINUX_PATH );
 		return( context.CTX_REDISTWIN_PATH );
 	}
 	
-	public String getProductRedistPath( MetaEnvServer server ) throws Exception {
-		MetaProductSettings product = server.meta.getProductSettings( this );
+	public String getProductRedistPath( MetaEnvServer server ) {
+		MetaProductSettings product = server.meta.getProductSettings();
+		MetaProductCoreSettings core = product.getCoreSettings();
 		if( server.isLinux() )
-			return( product.CONFIG_REDISTLINUX_PATH );
-		return( product.CONFIG_REDISTWIN_PATH );
+			return( core.CONFIG_REDISTLINUX_PATH );
+		return( core.CONFIG_REDISTWIN_PATH );
 	}
 	
 	public String getEnvRedistPath( MetaEnvServer server ) throws Exception {

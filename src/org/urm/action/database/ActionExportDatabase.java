@@ -11,15 +11,15 @@ import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.MetadataStorage;
+import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.env.MetaDump;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
-import org.urm.meta.product.MetaDump;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionExportDatabase extends ActionBase {
 
@@ -80,7 +80,7 @@ public class ActionExportDatabase extends ActionBase {
 	}
 
 	private void loadExportSettings() throws Exception {
-		MetaDatabase db = server.meta.getDatabase( this );
+		MetaDatabase db = server.meta.getDatabase();
 		dump = db.findExportDump( TASK );
 		if( dump == null )
 			exit1( _Error.UnknownExportTask1 , "export task " + TASK + " is not found in product database configuraton" , TASK );
@@ -149,7 +149,7 @@ public class ActionExportDatabase extends ActionBase {
 		List<String> conf = new LinkedList<String>();
 		String EXECUTEMAPPING = "";
 		for( MetaDatabaseSchema schema : serverSchemas.values() )
-			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.SCHEMA + "=" + server.getSchemaDBName( schema ) );
+			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.NAME + "=" + server.getSchemaDBName( schema ) );
 		
 		DatabaseSpecific specific = client.specific;
 		if( !REMOTE_SETDBENV.isEmpty() )
@@ -167,7 +167,7 @@ public class ActionExportDatabase extends ActionBase {
 		Common.createFileFromStringList( execrc , confFile , conf );
 		exportScriptsFolder.copyFileFromLocal( this , confFile );
 		
-		MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta );
+		ProductStorage ms = artefactory.getMetadataStorage( this , server.meta );
 		String tablesFilePath = work.getFilePath( this , UrmStorage.TABLES_FILE_NAME );
 		ms.saveDatapumpSet( this , tableSet , server , tablesFilePath );
 		exportScriptsFolder.copyFileFromLocal( this , tablesFilePath );
@@ -175,7 +175,7 @@ public class ActionExportDatabase extends ActionBase {
 
 	private void runAll() throws Exception {
 		if( !STANDBY ) {
-			MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta );
+			ProductStorage ms = artefactory.getMetadataStorage( this , server.meta );
 			ms.loadDatapumpSet( this , tableSet , server , STANDBY , true );
 		}
 		

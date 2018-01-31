@@ -14,9 +14,11 @@ import org.urm.engine.EngineCall;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
 import org.urm.engine.shell.Account;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvs;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 
 public class CommandContext {
@@ -304,7 +306,8 @@ public class CommandContext {
 		String value;
 		
 		// generic
-		MetaProductSettings product = ( isproduct )? meta.getProductSettings( action ) : null; 
+		MetaProductSettings settings = ( isproduct )? meta.getProductSettings() : null;
+		MetaProductCoreSettings core = ( isproduct )? settings.getCoreSettings() : null;
 		CTX_TRACEINTERNAL = ( getFlagValue( "OPT_TRACE" ) && getFlagValue( "OPT_SHOWALL" ) )? true : false;
 		CTX_TRACE = getFlagValue( "OPT_TRACE" );
 		CTX_SHOWONLY = combineValue( "OPT_SHOWONLY" , ( isenv )? env.SHOWONLY : null , def );
@@ -319,12 +322,12 @@ public class CommandContext {
 		CTX_TIMEOUT = getIntParamValue( "OPT_TIMEOUT" , options.optDefaultCommandTimeout ) * 1000;
 		value = getParamValue( "OPT_KEY" ); 
 		CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? env.KEYFILE : "" ) : value;
-		String productValue = ( isproduct )? product.CONFIG_DISTR_PATH : "";
+		String productValue = ( isproduct )? core.CONFIG_DISTR_PATH : "";
 		CTX_DISTPATH = getParamPathValue( "OPT_DISTPATH" , productValue );
-		CTX_REDISTWIN_PATH = ( isproduct )? product.CONFIG_REDISTWIN_PATH : null;
+		CTX_REDISTWIN_PATH = ( isproduct )? core.CONFIG_REDISTWIN_PATH : null;
 		if( isenv && !env.REDISTWIN_PATH.isEmpty() )
 			CTX_REDISTWIN_PATH = env.REDISTWIN_PATH;
-		CTX_REDISTLINUX_PATH = ( isproduct )? product.CONFIG_REDISTLINUX_PATH : null;
+		CTX_REDISTLINUX_PATH = ( isproduct )? core.CONFIG_REDISTLINUX_PATH : null;
 		if( isenv && !env.REDISTLINUX_PATH.isEmpty() )
 			CTX_REDISTLINUX_PATH = env.REDISTLINUX_PATH;
 		value = getParamPathValue( "OPT_HIDDENPATH" );
@@ -400,7 +403,8 @@ public class CommandContext {
 	
 	public void loadEnv( ActionInit action , String ENV , String SG , boolean loadProps ) throws Exception {
 		Meta meta = action.getContextMeta();
-		env = meta.getEnvData( action , ENV , loadProps );
+		MetaEnvs envs = meta.getEnviroments();
+		env = envs.findEnv( ENV );
 		
 		if( SG == null || SG.isEmpty() ) {
 			sg = null;

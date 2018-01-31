@@ -334,7 +334,7 @@ public class ReleaseTicketSet {
 		}
 		else {
 			for( String item : items ) {
-				MetaSourceProjectItem projectItem = project.getItem( action , item );
+				MetaSourceProjectItem projectItem = project.getItem( item );
 				if( projectItem.distItem == null )
 					continue;
 				
@@ -363,17 +363,17 @@ public class ReleaseTicketSet {
 			for( String item : items ) {
 				ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this , pos );
 				if( type == VarTICKETSETTARGETTYPE.DISTITEM ) {
-					MetaDistrBinaryItem binaryItem = delivery.getBinaryItem( action , item );
+					MetaDistrBinaryItem binaryItem = delivery.getBinaryItem( item );
 					target.create( action , binaryItem );
 				}
 				else
 				if( type == VarTICKETSETTARGETTYPE.CONFITEM ) {
-					MetaDistrConfItem confItem = delivery.getConfItem( action , item );
+					MetaDistrConfItem confItem = delivery.getConfItem( item );
 					target.create( action , confItem );
 				}
 				else
 				if( type == VarTICKETSETTARGETTYPE.SCHEMA ) {
-					MetaDatabaseSchema schemaItem = delivery.getSchema( action , item );
+					MetaDatabaseSchema schemaItem = delivery.getSchema( item );
 					target.create( action , delivery , schemaItem );
 				}
 				addTarget( target );

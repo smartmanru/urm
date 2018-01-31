@@ -56,7 +56,7 @@ public class ReleaseMasterItem {
 	}
 	
 	public void setRelease( ActionBase action , Release src , MetaDistrBinaryItem distItem , DistItemInfo info ) throws Exception {
-		KEY = distItem.KEY;
+		KEY = distItem.NAME;
 		RELEASE = src.RELEASEVER;
 		DELIVERY = distItem.delivery.NAME;
 		FOLDER = distItem.delivery.FOLDER;
@@ -65,7 +65,7 @@ public class ReleaseMasterItem {
 	}
 
 	public void setManual( ActionBase action , MetaDistrBinaryItem distItem , DistItemInfo info ) throws Exception {
-		KEY = distItem.KEY;
+		KEY = distItem.NAME;
 		RELEASE = master.release.RELEASEVER + "-manual";
 		DELIVERY = distItem.delivery.NAME;
 		FOLDER = distItem.delivery.FOLDER;

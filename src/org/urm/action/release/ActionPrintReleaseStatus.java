@@ -23,6 +23,7 @@ import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.Types.*;
 
@@ -43,9 +44,10 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		FileSet files = dist.getFiles( this );
 		String hashStatus = dist.checkHash( this )? "OK" : "not matched";
 		
-		MetaProductSettings product = dist.meta.getProductSettings( this );
+		MetaProductSettings settings = dist.meta.getProductSettings();
+		MetaProductCoreSettings core = settings.getCoreSettings();
 		info( "RELEASE " + dist.RELEASEDIR + " STATUS:" );
-		info( "\tlocation: " + product.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
+		info( "\tlocation: " + core.CONFIG_DISTR_HOSTLOGIN + ":" + dist.getDistPath( this ) );
 		info( "\tversion: " + release.RELEASEVER );
 		info( "\tstate: " + dist.getState().name() );
 		info( "\tsignature: " + hashStatus );
@@ -104,7 +106,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		}
 		else {
 			info( "DELIVERIES:" );
-			MetaDistr distr = dist.meta.getDistr( this );
+			MetaDistr distr = dist.meta.getDistr();
 			for( String s : distr.getDeliveryNames() ) {
 				MetaDistrDelivery delivery = distr.findDelivery( s );
 				info( "\tdelivery=" + s + " (folder=" + delivery.FOLDER + ")" + ":" );
@@ -205,7 +207,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ", " + 
 				Common.getRefDate( info.timestamp ) + ")" : "missing (" + info.subPath + ")";
 		
-		info( "\t\tdistitem=" + distItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
+		info( "\t\tdistitem=" + distItem.NAME + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseConfStatus( Dist dist , FileSet files , ReleaseTarget conf ) throws Exception {
@@ -214,7 +216,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String folder = Common.getPath( info.subPath , info.fileName );
 		String status = ( info.found )? "OK" : "missing";
 		
-		info( "\t\tconfitem=" + conf.distConfItem.KEY + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
+		info( "\t\tconfitem=" + conf.distConfItem.NAME + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseManualStatus( Dist dist , FileSet files , ReleaseTarget manual ) throws Exception {
@@ -224,7 +226,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		String status = ( info.found )? "OK (" + folder + ", " + 
 				Common.getRefDate( info.timestamp ) + ")" : "missing (" + info.subPath + ")";
 		
-		info( "\t\tdistitem=" + manual.distManualItem.KEY + ": " + status + Common.getCommentIfAny( specifics ) );
+		info( "\t\tdistitem=" + manual.distManualItem.NAME + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printReleaseDatabaseStatus( Dist dist , FileSet files , ReleaseTarget db ) throws Exception {
@@ -260,7 +262,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		MetaDatabaseSchema schema = item.schema;
 		boolean found = DatabaseScriptFile.checkDistHasSchemaFiles( files , schema );
 		String status = ( found )? "found" : "missing";
-		info( "\tschema=" + schema.SCHEMA + ": " + status + Common.getCommentIfAny( specifics ) );
+		info( "\tschema=" + schema.NAME + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
 	private void printProdBinaryStatus( Dist dist , FileSet files , MetaDistrBinaryItem distItem ) throws Exception {
@@ -271,7 +273,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		if( masterItem == null ) {
 			String folder = Common.getPath( distItem.delivery.FOLDER , Dist.BINARY_FOLDER );
 			status = ( info.found )? "OK (" + Common.getPath( folder , info.fileName ) + ", new)" : 
-				"missing (" + Common.getPath( folder , distItem.getBaseFile( this ) ) + ")";
+				"missing (" + Common.getPath( folder , distItem.getBaseFile() ) + ")";
 		}
 		else {
 			if( masterItem.FOLDER.equals( distItem.delivery.FOLDER ) ) { 
@@ -283,18 +285,18 @@ public class ActionPrintReleaseStatus extends ActionBase {
 						status = "OK (" + Common.getPath( folder , info.fileName ) + ", " + masterItem.RELEASE + ")";
 				}
 				else					
-					status = "missing (" + Common.getPath( folder , distItem.getBaseFile( this ) ) + ")";
+					status = "missing (" + Common.getPath( folder , distItem.getBaseFile() ) + ")";
 			}
 			else {
 				String folder = Common.getPath( distItem.delivery.FOLDER , Dist.BINARY_FOLDER );
 				if( info.found )
 					status = "OK (" + Common.getPath( folder , info.fileName ) + ", moved)";
 				else
-					status = "missing (" + Common.getPath( folder , distItem.getBaseFile( this ) ) + ", obsolete)";
+					status = "missing (" + Common.getPath( folder , distItem.getBaseFile() ) + ", obsolete)";
 			}
 		}
 		
-		info( "\t\tdistitem=" + distItem.KEY + ": " + status );
+		info( "\t\tdistitem=" + distItem.NAME + ": " + status );
 	}
 
 }

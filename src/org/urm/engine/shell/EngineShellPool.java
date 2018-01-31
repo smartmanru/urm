@@ -199,7 +199,7 @@ public class EngineShellPool {
 		}
 		catch( Throwable e ) {
 			if( action.context.CTX_TRACEINTERNAL )
-				action.trace( "exception when killing shell=" + master.name + " (" + e.getMessage() + ")" );
+				action.trace( "exception when killing shell=" + master.name + " (" + e.toString() + ")" );
 		}
 		action.debug( "shell pool has been stopped" );
 	}
@@ -210,7 +210,7 @@ public class EngineShellPool {
 		}
 		catch( Throwable e ) {
 			if( engine.serverAction.context.CTX_TRACEINTERNAL )
-				engine.trace( "exception when killing shell=" + shell.name + " (" + e.getMessage() + ")" );
+				engine.trace( "exception when killing shell=" + shell.name + " (" + e.toString() + ")" );
 		}
 	}
 	

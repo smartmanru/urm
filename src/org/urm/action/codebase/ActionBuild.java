@@ -10,6 +10,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.product.MetaSourceProject;
 
 public class ActionBuild extends ActionBase {
@@ -66,8 +67,9 @@ public class ActionBuild extends ActionBase {
 		
 		// execute
 		Builder builder = Builder.createBuilder( this , project , TAG , version );
+		MirrorRepository mirror = project.getMirror( this );
 		info( "ActionBuild: CATEGORY=" + Common.getEnumLower( target.CATEGORY ) + ", PROJECT=" + project.NAME + 
-				", REPOSITORY=" + project.REPOSITORY + ", TAG=" + TAG + ", VERSION=" + version + ", BUILDER=" + builder.builder.NAME );
+				", MIRROR=" + mirror.NAME + ", TAG=" + TAG + ", VERSION=" + version + ", BUILDER=" + builder.builder.NAME );
 
 		// in separate shell
 		LocalFolder BUILDDIR = OUTDIR.getSubFolder( this , project.set.NAME );
@@ -79,7 +81,7 @@ public class ActionBuild extends ActionBase {
 		
 		action.startRedirect( "PROJECT BUILD LOG:" , logFile );
 		info( "build: BUILDER=" + builder.builder.NAME + ", BUILDMODE=" + context.getBuildModeName() + ", PROJECT=" + builder.project.NAME + 
-				", REPOSITORY=" + builder.project.REPOSITORY + ", TAG=" + builder.TAG + ", VERSION=" + builder.APPVERSION );
+				", MIRROR=" + mirror.NAME + ", TAG=" + builder.TAG + ", VERSION=" + builder.APPVERSION );
 
 		BUILDSTATUS = "SUCCESSFUL";
 		boolean res = true;

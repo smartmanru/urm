@@ -8,14 +8,13 @@ import org.urm.db.core.DBEnums.DBEnumOSType;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.shell.Account;
-import org.urm.meta.ProductMeta;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
-import org.urm.meta.product.MetaMonitoring;
 import org.urm.meta.product.MetaProductBuildSettings;
-import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.ProductMeta;
 
 public class Artefactory {
 
@@ -67,9 +66,9 @@ public class Artefactory {
 		if( build.CONFIG_APPVERSION.isEmpty() )
 			action.exit0( _Error.MissingAppVersion0 , "Missing application version in product build configuration" );
 		
-		MetaProductSettings settings = meta.getProductSettings( action );
+		MetaProductCoreSettings core = meta.getProductCoreSettings();
 		String artefactDir = Common.getPath( build.CONFIG_ARTEFACTDIR , build.CONFIG_APPVERSION , FOLDER );
-		String finalPath = settings.getTargetPath( osType , artefactDir );
+		String finalPath = core.getTargetPath( osType , artefactDir );
 		
 		LocalFolder folder = getAnyFolder( action , finalPath );
 		folder.ensureExists( action );
@@ -86,7 +85,7 @@ public class Artefactory {
 	
 	public DistRepository getDistRepository( ActionBase action , Meta meta ) throws Exception {
 		ProductMeta storage = meta.getStorage();
-		DistRepository repo = storage.getDistRepository( action );
+		DistRepository repo = storage.getDistRepository();
 		return( repo );
 	}
 	
@@ -95,8 +94,8 @@ public class Artefactory {
 		return( repo );
 	}
 	
-	public MonitoringStorage getMonitoringStorage( ActionBase action , MetaMonitoring mon ) throws Exception {
-		return( new MonitoringStorage( this , workFolder , mon ) );
+	public MonitoringStorage getMonitoringStorage( ActionBase action , Meta meta ) throws Exception {
+		return( new MonitoringStorage( this , meta , workFolder ) );
 	}
 
 	public NexusStorage getNexusStorage( ActionBase action , Integer NEXUS_RESOURCE , Meta meta , String repository ) throws Exception {
@@ -142,8 +141,8 @@ public class Artefactory {
 		return( new SourceStorage( this , meta , downloadFolder ) );
 	}
 	
-	public MetadataStorage getMetadataStorage( ActionBase action , Meta meta ) throws Exception {
-		return( new MetadataStorage( this , meta ) );
+	public ProductStorage getMetadataStorage( ActionBase action , Meta meta ) throws Exception {
+		return( new ProductStorage( this , meta ) );
 	}
 
 	public LogStorage getReleaseBuildLogStorage( ActionBase action , Meta meta , String release ) throws Exception {

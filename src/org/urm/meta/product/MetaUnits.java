@@ -3,97 +3,46 @@ package org.urm.meta.product;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.TransactionBase;
-import org.urm.engine.properties.PropertyController;
-import org.urm.meta.ProductMeta;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
-public class MetaUnits extends PropertyController {
+public class MetaUnits {
 
-	protected Meta meta;
+	public Meta meta;
 	
-	public Map<String,MetaProductUnit> mapUnits;
+	private Map<String,MetaProductUnit> mapUnits;
+	private Map<Integer,MetaProductUnit> mapUnitsById;
 	
-	public MetaUnits( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
-		super( storage , settings , "units" );
-		
+	public MetaUnits( ProductMeta storage , Meta meta ) {
 		this.meta = meta;
 		meta.setUnits( this );
 		mapUnits = new HashMap<String,MetaProductUnit>();
+		mapUnitsById = new HashMap<Integer,MetaProductUnit>();
 	}
 	
-	@Override
-	public String getName() {
-		return( "meta-units" );
-	}
-	
-	@Override
-	public boolean isValid() {
-		if( super.isLoadFailed() )
-			return( false );
-		return( true );
-	}
-	
-	@Override
-	public void scatterProperties( ActionBase action ) throws Exception {
-	}
-	
-	public MetaUnits copy( ActionBase action , Meta meta ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
-		MetaUnits r = new MetaUnits( meta.getStorage() , product , meta );
-		r.initCopyStarted( this , product.getProperties() );
+	public MetaUnits copy( Meta meta ) throws Exception {
+		MetaUnits r = new MetaUnits( meta.getStorage() , meta );
 		
 		for( MetaProductUnit unit : mapUnits.values() ) {
-			MetaProductUnit runit = unit.copy( action , meta , r );
-			r.mapUnits.put( runit.NAME , runit );
+			MetaProductUnit runit = unit.copy( meta , r );
+			r.addUnit( runit );
 		}
-		r.initFinished();
 		return( r );
 	}
 	
-	public void createUnits( TransactionBase transaction ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( transaction.action );
-		if( !initCreateStarted( product.getProperties() ) )
-			return;
+	public void addUnit( MetaProductUnit unit ) {
+		mapUnits.put( unit.NAME , unit );
+		mapUnitsById.put( unit.ID , unit );
+	}
 
-		initFinished();
+	public void removeUnit( MetaProductUnit unit ) {
+		mapUnits.remove( unit.NAME );
+		mapUnitsById.remove( unit.ID );
+	}
+
+	public void updateUnit( MetaProductUnit unit ) throws Exception {
+		Common.changeMapKey( mapUnits , unit , unit.NAME );
 	}
 	
-	public void load( ActionBase action , Node root ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings( action );
-		if( !initCreateStarted( product.getProperties() ) )
-			return;
-
-		if( root != null )
-			loadUnitSet( action , root );
-		initFinished();
-	}
-
-	private void loadUnitSet( ActionBase action , Node node ) throws Exception {
-		Node[] items = ConfReader.xmlGetChildren( node , "unit" );
-		if( items == null )
-			return;
-		
-		for( Node unitNode : items ) {
-			MetaProductUnit item = new MetaProductUnit( meta , this );
-			item.load( action , unitNode );
-			mapUnits.put( item.NAME , item );
-		}
-	}
-
-	private void saveUnitSet( ActionBase action , Document doc , Element root ) throws Exception {
-		for( MetaProductUnit unit : mapUnits.values() ) {
-			Element unitElement = Common.xmlCreateElement( doc , root , "unit" );
-			unit.save( action , doc , unitElement );
-		}
-	}
-
 	public boolean isEmpty() {
 		return( mapUnits.isEmpty() );
 	}
@@ -109,32 +58,49 @@ public class MetaUnits extends PropertyController {
 	public MetaProductUnit findUnit( String name ) {
 		return( mapUnits.get( name ) );
 	}
+
+	public Integer findUnitId( String name ) {
+		if( name.isEmpty() )
+			return( null );
+		MetaProductUnit unit =  mapUnits.get( name );
+		if( unit == null )
+			return( null );
+		return( unit.ID );
+	}
 	
-	public MetaProductUnit getUnit( ActionBase action , String name ) throws Exception {
+	public MetaProductUnit getUnit( String name ) throws Exception {
 		MetaProductUnit unit = mapUnits.get( name );
 		if( unit == null )
-			action.exit1( _Error.UnknownUnit1 , "unknown unit=" + name , name );
+			Common.exit1( _Error.UnknownUnit1 , "unknown unit=" + name , name );
 		return( unit );
 	}
 
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		super.saveAsElements( doc , root , false );
-		saveUnitSet( action , doc , root );
+	public Integer getUnitId( String name ) throws Exception {
+		if( name.isEmpty() )
+			return( null );
+		MetaProductUnit unit = getUnit( name );
+		return( unit.ID );
+	}
+	
+	public MetaProductUnit getUnit( int id ) throws Exception {
+		MetaProductUnit unit = mapUnitsById.get( id );
+		if( unit == null )
+			Common.exit1( _Error.UnknownUnit1 , "unknown unit=" + id , "" + id );
+		return( unit );
 	}
 
-	public void createUnit( EngineTransaction transaction , MetaProductUnit unit ) throws Exception {
-		mapUnits.put( unit.NAME , unit );
+	public String findUnitName( Integer id ) {
+		if( id == null )
+			return( "" );
+		MetaProductUnit unit = mapUnitsById.get( id );
+		return( unit.NAME );
 	}
 	
-	public void modifyUnit( EngineTransaction transaction , MetaProductUnit unit ) throws Exception {
-	}
-	
-	public void deleteUnit( EngineTransaction transaction , MetaProductUnit unit ) throws Exception {
-		MetaDistr distr = unit.meta.getDistr( transaction.getAction() );
-		distr.deleteUnit( transaction , unit );
-		MetaSource sources = unit.meta.getSources( transaction.getAction() );
-		sources.deleteUnit( transaction , unit );
-		mapUnits.remove( unit.NAME );
+	public String getUnitName( Integer id ) throws Exception {
+		if( id == null )
+			return( "" );
+		MetaProductUnit unit = getUnit( id );
+		return( unit.NAME );
 	}
 	
 }

@@ -6,8 +6,8 @@ import java.util.List;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.meta.engine.RoleItemFailed;
 import org.urm.meta.engine.WholeUrlFailed;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
 
 public class ServerStatus extends Status {
 

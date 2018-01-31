@@ -83,7 +83,7 @@ public class ConfDiffSet {
 		Map<String,String> dirRel = getMap( action , releaseSet.dirList );
 		Map<String,String> dirProd = getMap( action , prodSet.dirList );
 		
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		for( String key : releaseSet.dirList ) {
 			if( dirPrefix != null ) {
 				if( !key.startsWith( dirPrefix ) )
@@ -97,7 +97,7 @@ public class ConfDiffSet {
 
 			MetaDistrConfItem comp = null;
 			if( confComps )
-				comp = distr.getConfItem( action , topName );
+				comp = distr.getConfItem( topName );
 			
 			if( !topMatched.containsKey( topName ) )
 				topMatched.put( topName , comp );
@@ -158,7 +158,7 @@ public class ConfDiffSet {
 		Map<String,String> fileRel = getMap( action , releaseSet.fileList );
 		Map<String,String> fileProd = getMap( action , prodSet.fileList );
 		
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		for( String key : fileRel.keySet() ) {
 			if( !fileProd.containsKey( key ) ) {
 				String dir = Common.getDirName( key );
@@ -180,7 +180,7 @@ public class ConfDiffSet {
 					topName = Common.getPartAfterFirst( topName , dirPrefix );
 				
 				if( confComps )
-					comp = distr.getConfItem( action , topName );
+					comp = distr.getConfItem( topName );
 				fileMatched.put( key , comp );
 			}
 		}

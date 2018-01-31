@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.meta.product.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvSegment;
 
 public class DeployPlanSegment {
 	

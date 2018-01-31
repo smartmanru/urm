@@ -15,10 +15,10 @@ import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.dist.DistRepositoryItem;
-import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.ProductMeta;
 
 public class EngineBlotterSet extends EngineEventsSource {
 
@@ -59,7 +59,7 @@ public class EngineBlotterSet extends EngineEventsSource {
 		for( String productName : directory.getProductNames() ) {
 			Meta meta = action.getProductMetadata( productName );
 			ProductMeta storage = meta.getStorage();
-			DistRepository repo = storage.getDistRepository( action );
+			DistRepository repo = storage.getDistRepository();
 			if( repo != null )
 				startReleaseSetRepo( action , repo );
 		}

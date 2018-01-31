@@ -15,7 +15,7 @@ import org.w3c.dom.Node;
 public class MetaDesignElement {
 	
 	protected Meta meta;
-	MetaDesign design;
+	MetaDesignDiagram design;
 	MetaDesignElement group;
 	public Map<String,MetaDesignLink> links;
 	public Map<String,MetaDesignElement> childs;
@@ -26,7 +26,7 @@ public class MetaDesignElement {
 	public String FUNCTION;
 	private VarELEMENTTYPE elementType;
 	
-	public MetaDesignElement( Meta meta , MetaDesign design , MetaDesignElement group ) {
+	public MetaDesignElement( Meta meta , MetaDesignDiagram design , MetaDesignElement group ) {
 		this.meta = meta;
 		this.design = design;
 		this.group = group;
@@ -57,7 +57,7 @@ public class MetaDesignElement {
 			for( Node elementNode : items ) {
 				MetaDesignElement child = new MetaDesignElement( meta , design , this );
 				child.load( action , elementNode );
-				addChild( action , child );
+				addChild( child );
 			}
 		}
 		
@@ -93,16 +93,16 @@ public class MetaDesignElement {
 		}		
 	}
 	
-	private void addChild( ActionBase action , MetaDesignElement child ) throws Exception {
+	private void addChild( MetaDesignElement child ) throws Exception {
 		childs.put( child.NAME , child );
-		design.addSubGraphItem( action , this , child );
+		design.addSubGraphItem( this , child );
 	}
 	
-	public MetaDesignElement copy( ActionBase action , Meta meta , MetaDesign design ) throws Exception {
-		return( copy( action , meta , design , null ) );
+	public MetaDesignElement copy( Meta meta , MetaDesignDiagram design ) throws Exception {
+		return( copy( meta , design , null ) );
 	}
 	
-	public MetaDesignElement copy( ActionBase action , Meta meta , MetaDesign design , MetaDesignElement group ) throws Exception {
+	public MetaDesignElement copy( Meta meta , MetaDesignDiagram design , MetaDesignElement group ) throws Exception {
 		MetaDesignElement r = new MetaDesignElement( meta , design , group );
 		
 		r.NAME = NAME;
@@ -114,22 +114,22 @@ public class MetaDesignElement {
 			r.GROUPFILLCOLOR = GROUPFILLCOLOR;
 			
 			for( MetaDesignElement child : childs.values() ) {
-				MetaDesignElement rchild = child.copy( action , meta , design , r );
-				r.addChild( action , rchild );
+				MetaDesignElement rchild = child.copy( meta , design , r );
+				r.addChild( rchild );
 			}
 		}
 		
 		for( MetaDesignLink link : links.values() ) {
-			MetaDesignLink rlink = link.copy( action , meta , r );
+			MetaDesignLink rlink = link.copy( meta , r );
 			r.links.put( rlink.TARGET , rlink );
 		}
 		
 		return( r );
 	}		
 	
-	public void resolve( ActionBase action ) throws Exception {
+	public void resolve() throws Exception {
 		for( MetaDesignLink link : links.values() )
-			link.resolve( action );
+			link.resolve();
 	}
 
 	public MetaDesignLink getLink( ActionBase action , String ID ) throws Exception {

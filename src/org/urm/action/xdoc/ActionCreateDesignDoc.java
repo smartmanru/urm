@@ -9,14 +9,16 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.engine.storage.MetadataStorage;
+import org.urm.engine.storage.ProductStorage;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvs;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaDesign;
+import org.urm.meta.product.MetaDesignDiagram;
 import org.urm.meta.product.MetaDesignElement;
 import org.urm.meta.product.MetaDesignLink;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaDocs;
 
 public class ActionCreateDesignDoc extends ActionBase {
 
@@ -35,9 +37,10 @@ public class ActionCreateDesignDoc extends ActionBase {
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		getProdServers();
 		
-		MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
+		ProductStorage ms = artefactory.getMetadataStorage( this , meta );
+		MetaDocs docs = meta.getDocs();
 		for( String designFile : ms.getDesignFiles( this ) ) {
-			MetaDesign design = meta.getDesignData( this , designFile );
+			MetaDesignDiagram design = docs.findDiagram( designFile );
 			
 			String designBase = Common.getPath( OUTDIR , Common.getPartBeforeLast( designFile , ".xml" ) );
 			createDesignDocs( design , designBase );
@@ -46,7 +49,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 		
-	private void createDesignDocs( MetaDesign design , String designBase ) throws Exception {
+	private void createDesignDocs( MetaDesignDiagram design , String designBase ) throws Exception {
 		verifyConfiguration( design );
 		
 		String dotFile = designBase + ".dot";
@@ -64,10 +67,9 @@ public class ActionCreateDesignDoc extends ActionBase {
 	private void getProdServers() throws Exception {
 		prodServers = new HashMap<String,List<MetaEnvServer>>();
 		
-		MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
-		String[] files = ms.getEnvFiles( this );
-		for( String envFile : files ) {
-			MetaEnv env = meta.getEnvData( this , envFile , false );
+		MetaEnvs envs = meta.getEnviroments();
+		for( String envName : envs.getEnvNames() ) {
+			MetaEnv env = envs.findEnv( envName );
 			if( !env.isProd() )
 				continue;
 			
@@ -85,7 +87,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		}
 	}
 	
-	private void verifyConfiguration( MetaDesign design ) throws Exception {
+	private void verifyConfiguration( MetaDesignDiagram design ) throws Exception {
 		Map<String,List<MetaEnvServer>> designServers = new HashMap<String,List<MetaEnvServer>>();
 		
 		// verify all design servers are mentioned in prod environment
@@ -109,27 +111,27 @@ public class ActionCreateDesignDoc extends ActionBase {
 		}
 	}
 
-	private void createDot( MetaDesign design , String fileName ) throws Exception {
+	private void createDot( MetaDesignDiagram design , String fileName ) throws Exception {
 		List<String> lines = new LinkedList<String>();
 		
 		createDotHeading( lines );
 		
 		// add top-level elements
 		for( String elementName : Common.getSortedKeys( design.childs ) ) {
-			MetaDesignElement element = design.getElement( this , elementName );
+			MetaDesignElement element = design.getElement( elementName );
 			createDotElement( lines , element , false );
 		}
 		lines.add( "" );
 		
 		// add subgraphs
 		for( String elementName : Common.getSortedKeys( design.groups ) ) {
-			MetaDesignElement element = design.getElement( this , elementName );
+			MetaDesignElement element = design.getElement( elementName );
 			createDotSubgraph( lines , element );
 		}
 		lines.add( "" );
 		
 		for( String elementName : Common.getSortedKeys( design.elements ) ) {
-			MetaDesignElement element = design.getElement( this , elementName );
+			MetaDesignElement element = design.getElement( elementName );
 			for( String linkName : Common.getSortedKeys( element.links ) ) {
 				MetaDesignLink link = element.getLink( this , linkName );
 				createDotLink( lines , element , link );

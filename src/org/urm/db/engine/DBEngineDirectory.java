@@ -5,7 +5,6 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
-import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
@@ -20,7 +19,6 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineMatcher;
-import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.AppSystem;
@@ -67,15 +65,15 @@ public abstract class DBEngineDirectory {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityDirectorySystem( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityDirectorySystem( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.APPSYSTEM , DBEnumObjectVersionType.SYSTEM , TABLE_SYSTEM , FIELD_SYSTEM_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	
-	public static PropertyEntity loaddbEntityDirectoryProduct( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityDirectoryProduct( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPPRODUCT , DBEnumParamEntityType.APPPRODUCT , DBEnumObjectVersionType.SYSTEM , TABLE_PRODUCT , FIELD_PRODUCT_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	
@@ -162,57 +160,8 @@ public abstract class DBEngineDirectory {
 		
 		for( String name : directory.getAllSystemNames() ) {
 			AppSystem system = directory.findSystem( name );
-			matchSystem( loader , directory , system , update );
+			matcher.matchSystem( loader , directory , system , update );
 		}
-	}
-	
-	public static void matchSystem( EngineLoader loader , EngineDirectory directory , AppSystem system , boolean update ) {
-		EngineMatcher matcher = loader.getMatcher();
-		
-		try {
-			if( update ) {
-				matcher.prepareMatchSystem( system , true , true );
-				DBAppSystem.matchSystem( loader , directory , system , update );
-			}
-			else
-			if( system.MATCHED ) {
-				matcher.prepareMatchSystem( system , false , true );
-				DBAppSystem.matchSystem( loader , directory , system , update );
-			}
-			
-			matcher.doneSystem( system );
-		}
-		catch( Throwable e ) {
-			loader.log( "match problem " , e );
-			return;
-		}
-	}
-	
-	public static boolean matchProduct( EngineLoader loader , EngineDirectory directory , AppProduct product , ProductMeta set , boolean update ) {
-		// match to mirrors
-		EngineMatcher matcher = loader.getMatcher();
-		if( !matcher.matchProductMirrors( product ) )
-			return( false );
-		
-		// product meta
-		if( set.loadFailed )
-			return( false );
-
-		try {
-			matcher.prepareMatchProduct( product , false , false );
-			DBAppProduct.match( loader , directory , product );
-			
-			if( !matcher.matchProjectMirrors( product , set.getSources() ) )
-				return( false );
-			
-			matcher.doneProduct( product , set );
-		}
-		catch( Throwable e ) {
-			loader.log( "match problem " , e );
-			return( false );
-		}
-		
-		return( true );
 	}
 	
 	public static AppSystem createSystem( EngineTransaction transaction , EngineDirectory directory , String name , String desc ) throws Exception {
@@ -293,16 +242,21 @@ public abstract class DBEngineDirectory {
 	}
 	
 	public static void deleteProduct( EngineTransaction transaction , EngineDirectory directory , AppProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
+		DBConnection c = transaction.getConnection();
 		if( directory.getProduct( product.ID ) != product )
 			transaction.exit( _Error.UnknownProduct1 , "product=" + product.NAME + " is unknown or mismatched" , new String[] { product.NAME } );
 		
+		DBAppProduct.deleteProduct( c , product );
 		directory.removeProduct( product );
 		
-		ActionBase action = transaction.getAction();
-		UrmStorage storage = action.artefactory.getUrmStorage();
-		LocalFolder products = storage.getServerProductsFolder( action );
-		LocalFolder productfolder = products.getSubFolder( action , product.PATH );
-		productfolder.removeThis( action );
+		if( fsDeleteFlag ) {
+			ActionBase action = transaction.getAction();
+			UrmStorage storage = action.artefactory.getUrmStorage();
+			LocalFolder products = storage.getServerProductsFolder( action );
+			LocalFolder productfolder = products.getSubFolder( action , product.PATH );
+			productfolder.removeThis( action );
+		}
+		
 		product.deleteObject();
 	}
 

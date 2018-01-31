@@ -18,8 +18,8 @@ import org.urm.meta.engine.EngineRegistry;
 import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.ProductMeta;
 
 public class EngineData {
 
@@ -191,10 +191,6 @@ public class EngineData {
 		monitoring = monitoringNew;
 	}
 
-	public void saveProductMetadata( EngineLoader loader , String productName ) throws Exception {
-		products.saveProductMetadata( loader , productName );
-	}
-	
 	public void setProductMetadata( TransactionBase transaction , ProductMeta storageNew ) throws Exception {
 		products.setProductMetadata( transaction , storageNew );
 	}
@@ -203,17 +199,15 @@ public class EngineData {
 		products.deleteProductMetadata( transaction , storage );
 	}
 
-	public Meta createProductMetadata( TransactionBase transaction , EngineSettings settings , AppProduct product ) throws Exception {
-		ProductMeta storage = products.createProductMetadata( transaction , settings , product );
-		return( products.createSessionProductMetadata( transaction.action , storage ) );
-	}
-
-	public Meta findSessionProductMetadata( ActionBase action , String productName ) {
-		return( products.findSessionProductMetadata( action , productName ) );
-	}
-	
 	public ProductMeta findProductStorage( String productName ) {
 		return( products.findProductStorage( productName ) );
+	}
+	
+	public Meta createSessionProductMetadata( TransactionBase transaction , ProductMeta storage ) throws Exception {
+		return( products.createSessionProductMetadata( transaction.action , storage ) );
+	}
+	public Meta findSessionProductMetadata( ActionBase action , String productName ) {
+		return( products.findSessionProductMetadata( action , productName ) );
 	}
 	
 	public Meta getSessionProductMetadata( ActionBase action , String productName , boolean primary ) throws Exception {

@@ -11,11 +11,11 @@ import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.SourceStorage;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerDeployment;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerDeployment;
-import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionSaveConfigs extends ActionBase {
 
@@ -150,7 +150,7 @@ public class ActionSaveConfigs extends ActionBase {
 
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		if( !redist.getConfigItem( this , folder , confItem , LOCATION ) ) {
-			ifexit( _Error.UnableGetApplicationConf1 , "unable to get configuration item=" + confItem.KEY , new String[] { confItem.KEY } );
+			ifexit( _Error.UnableGetApplicationConf1 , "unable to get configuration item=" + confItem.NAME , new String[] { confItem.NAME } );
 			return;
 		}
 		

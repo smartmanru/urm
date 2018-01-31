@@ -26,7 +26,7 @@ public class FileInfo {
 
 	public FileInfo( MetaDistrBinaryItem item , VersionInfo version , String md5value , String deployNameNoVersion , String finalName ) {
 		this.binaryItem = item;
-		this.itemName = item.KEY;
+		this.itemName = item.NAME;
 		this.version = version;
 		this.md5value = Common.nonull( md5value );
 		this.deployBaseName = Common.nonull( deployNameNoVersion );
@@ -35,7 +35,7 @@ public class FileInfo {
 	
 	public FileInfo( MetaDistrConfItem item , VersionInfo version , String md5value , boolean partial ) {
 		this.confItem = item;
-		this.itemName = item.KEY;
+		this.itemName = item.NAME;
 		this.version = version;
 		this.md5value = Common.nonull( md5value );
 	}
@@ -54,7 +54,7 @@ public class FileInfo {
 	private void scatterParams( ActionBase action , String value ) throws Exception {
 		Map<String,String> params = getParams( action , value );
 		version = new VersionInfo();
-		version.setVersion( action , params.get( "version" ) );
+		version.setVersion( params.get( "version" ) );
 		md5value = Common.nonull( params.get( "md5" ) );
 		deployBaseName = Common.nonull( params.get( "base" ) );
 		deployFinalName = Common.nonull( params.get( "final" ) );
@@ -89,14 +89,14 @@ public class FileInfo {
 	public void set( ActionBase action , MetaDistrBinaryItem item , String value ) throws Exception {
 		this.binaryItem = item; 
 		this.confItem = null; 
-		this.itemName = item.KEY;
+		this.itemName = item.NAME;
 		scatterParams( action , value );
 	}
 
 	public void set( ActionBase action , MetaDistrConfItem item , String value ) throws Exception {
 		this.binaryItem = null; 
 		this.confItem = item; 
-		this.itemName = item.KEY;
+		this.itemName = item.NAME;
 		scatterParams( action , value );
 	}
 
@@ -113,19 +113,19 @@ public class FileInfo {
 	}
 	
 	public static String getInfoName( ActionBase action , MetaDistrConfItem confItem ) throws Exception {
-		return( confItem.KEY + ".ver" );
+		return( confItem.NAME + ".ver" );
 	}
 	
 	public static String getInfoName( ActionBase action , MetaDistrBinaryItem binaryItem ) throws Exception {
-		return( binaryItem.KEY + ".ver" );
+		return( binaryItem.NAME + ".ver" );
 	}
 	
 	public static String getFileName( ActionBase action , MetaDistrConfItem confItem ) throws Exception {
-		return( confItem.KEY + ".file" );
+		return( confItem.NAME + ".file" );
 	}
 	
 	public static String getFileName( ActionBase action , MetaDistrBinaryItem binaryItem ) throws Exception {
-		return( binaryItem.KEY + ".file" );
+		return( binaryItem.NAME + ".file" );
 	}
 	
 }

@@ -16,7 +16,6 @@ public class _Error {
 	public static final int UnablePublishRepository0 = ErrorBase + 16;
 	public static final int TransactionBuilderOld1 = ErrorBase + 19;
 	public static final int DuplicateResource1 = ErrorBase + 20;
-	public static final int ProductPathAlreadyExists1 = ErrorBase + 33;
 	public static final int UnableReadEnginePropertyFile1 = ErrorBase + 34;
 	public static final int DuplicateBaseItem1 = ErrorBase + 35;
 	public static final int UnknownHostAccount1 = ErrorBase + 36;

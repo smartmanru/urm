@@ -89,8 +89,8 @@ public class ActionPatch extends ActionBase {
 			targetFolder = codeFolder.getSubFolder( this , builder.builder.TARGET_PATH );
 		
 		if( item.isSourceDirectory() ) {
-			LocalFolder targetDirFolder = targetFolder.getSubFolder( this , item.ITEMPATH );
-			LocalFolder downloadDirFolder = downloadFolder.getSubFolder( this , item.ITEMBASENAME );
+			LocalFolder targetDirFolder = targetFolder.getSubFolder( this , item.PATH );
+			LocalFolder downloadDirFolder = downloadFolder.getSubFolder( this , item.BASENAME );
 			if( !shell.checkDirExists( this , targetDirFolder.folderPath ) ) {
 				String dir = shell.getLocalPath( targetDirFolder.folderPath );
 				super.fail1( _Error.MissingProjectItemDirectory1 , "Missing project item directory: " + dir , dir );
@@ -103,15 +103,15 @@ public class ActionPatch extends ActionBase {
 		}
 		
 		if( item.isSourceBasic() || item.isSourcePackage() ) {
-			LocalFolder targetDirFolder = targetFolder.getSubFolder( this , item.ITEMPATH );
-			return( copyFile( targetDirFolder , downloadFolder , item.ITEMBASENAME , item.ITEMEXTENSION ) );
+			LocalFolder targetDirFolder = targetFolder.getSubFolder( this , item.PATH );
+			return( copyFile( targetDirFolder , downloadFolder , item.BASENAME , item.EXT ) );
 		}
 			
 		if( item.isSourceStaticWar() ) {
-			LocalFolder targetDirFolder = targetFolder.getSubFolder( this , item.ITEMPATH );
-			if( !copyFile( targetDirFolder , downloadFolder , item.ITEMBASENAME , item.ITEMEXTENSION ) )
+			LocalFolder targetDirFolder = targetFolder.getSubFolder( this , item.PATH );
+			if( !copyFile( targetDirFolder , downloadFolder , item.BASENAME , item.EXT ) )
 				return( false );
-			if( !copyFile( targetDirFolder , downloadFolder , item.ITEMBASENAME , item.ITEMSTATICEXTENSION ) )
+			if( !copyFile( targetDirFolder , downloadFolder , item.BASENAME , item.STATICEXT ) )
 				return( false );
 			return( true );
 		}

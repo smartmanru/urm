@@ -1,107 +1,97 @@
 package org.urm.meta.product;
 
-import org.urm.action.ActionBase;
-import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.engine.EngineTransaction;
-import org.urm.meta.Types.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import org.urm.db.core.DBEnums.*;
 
 public class MetaDistrComponentItem {
 
+	public static String PROPERTY_NAME = "name";	
+	public static String PROPERTY_WSDL = "url";
+	public static String PROPERTY_DEPLOYNAME = "deployname";
+	
 	public Meta meta;
 	public MetaDistrComponent comp;
+
+	public int ID;
+	public DBEnumCompItemType COMPITEM_TYPE;
+	public String DEPLOY_NAME;
+	public String WSDL_REQUEST;
+	public int PV;
 	
-	public VarCOMPITEMTYPE type;
-	public String NAME;
 	public MetaDistrBinaryItem binaryItem;
 	public MetaDistrConfItem confItem;
-	public MetaDatabaseSchema schema; 
-	public boolean OBSOLETE;
-	public String DEPLOYNAME;
+	public MetaDatabaseSchema schema;
 
 	public MetaDistrComponentItem( Meta meta , MetaDistrComponent comp ) {
 		this.meta = meta;
 		this.comp = comp;
 	}
 
-	public void createComponentItem( EngineTransaction transaction ) throws Exception {
-		this.type = VarCOMPITEMTYPE.UNKNOWN;
-		this.NAME = "";
-		this.OBSOLETE = false;
-		this.DEPLOYNAME = "";
-	}
-
-	public void setBinaryItem( EngineTransaction transaction , MetaDistrBinaryItem binaryItem , String DEPLOYNAME ) throws Exception {
-		this.type = VarCOMPITEMTYPE.BINARY;
-		this.binaryItem = binaryItem;
-		this.NAME = binaryItem.KEY;
-		this.DEPLOYNAME = DEPLOYNAME;
-	}
-	
-	public void setConfItem( EngineTransaction transaction , MetaDistrConfItem confItem ) throws Exception {
-		this.type = VarCOMPITEMTYPE.CONF;
-		this.confItem = confItem;
-		this.NAME = confItem.KEY;
-		this.DEPLOYNAME = "";
-	}
-	
-	public void setSchema( EngineTransaction transaction , MetaDatabaseSchema schema , String DEPLOYNAME ) throws Exception {
-		this.type = VarCOMPITEMTYPE.SCHEMA;
-		this.schema = schema;
-		this.NAME = schema.SCHEMA;
-		this.DEPLOYNAME = DEPLOYNAME;
-	}
-	
-	public MetaDistrComponentItem copy( ActionBase action , Meta meta , MetaDistrComponent comp ) throws Exception {
-		MetaDistrComponentItem r = new MetaDistrComponentItem( meta , comp );
-		r.type = type;
-		r.NAME = NAME;
-		if( binaryItem != null )
-			r.binaryItem = comp.dist.findBinaryItem( binaryItem.KEY );
+	public MetaDistrComponentItem copy( Meta rmeta , MetaDistrComponent rcomp ) throws Exception {
+		MetaDistrComponentItem r = new MetaDistrComponentItem( rmeta , rcomp );
+		
+		r.ID = ID;
+		r.COMPITEM_TYPE = COMPITEM_TYPE;
+		r.WSDL_REQUEST = WSDL_REQUEST;
+		r.DEPLOY_NAME = DEPLOY_NAME;
+		r.PV = PV;
+		
+		if( binaryItem != null ) {
+			MetaDistr rdistr = rmeta.getDistr();
+			r.binaryItem = rdistr.findBinaryItem( binaryItem.NAME );
+		}
 		else
-		if( confItem != null )
-			r.confItem = comp.dist.findConfItem( confItem.KEY );
+		if( confItem != null ) {
+			MetaDistr rdistr = rmeta.getDistr();
+			r.confItem = rdistr.getConfItem( confItem.NAME );
+		}
 		else
 		if( schema != null ) {
-			MetaDatabase database = r.meta.getDatabase( action );
-			r.schema = database.getSchema( action , schema.SCHEMA );
+			MetaDatabase database = rmeta.getDatabase();
+			r.schema = database.getSchema( schema.NAME );
 		}
-		r.OBSOLETE = OBSOLETE;
-		r.DEPLOYNAME = DEPLOYNAME;
 		return( r );
 	}
 
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "name" , NAME );
-		Common.xmlSetElementAttr( doc , root , "obsolete" , Common.getBooleanValue( OBSOLETE ) );
-		Common.xmlSetElementAttr( doc , root , "deployname" , DEPLOYNAME );
+	public void createBinaryItem( MetaDistrBinaryItem binaryItem , String DEPLOYNAME ) throws Exception {
+		this.binaryItem = binaryItem;
+		this.COMPITEM_TYPE = DBEnumCompItemType.BINARY;
+		this.DEPLOY_NAME = DEPLOYNAME;
+		this.WSDL_REQUEST = "";
 	}
 	
-	public void loadBinary( ActionBase action , Node node ) throws Exception {
-		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
-		type = VarCOMPITEMTYPE.BINARY;
-		binaryItem = comp.dist.getBinaryItem( action , NAME );
-		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
-		DEPLOYNAME = ConfReader.getAttrValue( node , "deployname" );
+	public void createConfItem( MetaDistrConfItem confItem ) throws Exception {
+		this.confItem = confItem;
+		this.COMPITEM_TYPE = DBEnumCompItemType.CONF;
+		this.DEPLOY_NAME = "";
+		this.WSDL_REQUEST = "";
+	}
+	
+	public void createSchemaItem( MetaDatabaseSchema schema , String DEPLOYNAME ) throws Exception {
+		this.schema = schema;
+		this.COMPITEM_TYPE = DBEnumCompItemType.SCHEMA;
+		this.DEPLOY_NAME = DEPLOYNAME;
+		this.WSDL_REQUEST = "";
+	}
+	
+	public void createWsdlItem( String wsdl ) throws Exception {
+		this.COMPITEM_TYPE = DBEnumCompItemType.WSDL;
+		this.WSDL_REQUEST = wsdl;
+	}
+	
+	public String getURL( String ACCESSPOINT ) {
+		return( ACCESSPOINT + "/" + WSDL_REQUEST + "?wsdl" );
 	}
 
-	public void loadConf( ActionBase action , Node node ) throws Exception {
-		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
-		type = VarCOMPITEMTYPE.CONF;
-		confItem = comp.dist.getConfItem( action , NAME );
-		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
+	public String getMatchName() {
+		if( COMPITEM_TYPE == DBEnumCompItemType.BINARY )
+			return( "" + binaryItem.ID );
+		if( COMPITEM_TYPE == DBEnumCompItemType.CONF )
+			return( "" + confItem.ID );
+		if( COMPITEM_TYPE == DBEnumCompItemType.SCHEMA )
+			return( "" + schema.ID );
+		if( COMPITEM_TYPE == DBEnumCompItemType.WSDL )
+			return( WSDL_REQUEST );
+		return( null );
 	}
-
-	public void loadSchema( ActionBase action , Node node ) throws Exception {
-		NAME = ConfReader.getRequiredAttrValue( node , "name" );
-		
-		MetaDatabase database = meta.getDatabase( action );
-		type = VarCOMPITEMTYPE.SCHEMA;
-		schema = database.getSchema( action , NAME );
-		DEPLOYNAME = ConfReader.getAttrValue( node , "deployname" );
-	}
-
+	
 }

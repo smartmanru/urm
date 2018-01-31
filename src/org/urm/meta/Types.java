@@ -1,9 +1,7 @@
 package org.urm.meta;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.product.MetaDistrBinaryItem;
 import org.w3c.dom.Node;
 
 public class Types {
@@ -33,13 +31,6 @@ public class Types {
 		MSG
 	};
 	
-	public enum VarPROJECTTYPE {
-		UNKNOWN ,
-		BUILDABLE ,
-		PREBUILT_NEXUS ,
-		PREBUILT_VCS
-	};
-	
 	public enum VarCATEGORY {
 		UNKNOWN ,
 		PROJECT ,
@@ -65,32 +56,6 @@ public class Types {
 		CONF ,
 		SCHEMA ,
 		COMP
-	};
-	
-	public enum VarCOMPITEMTYPE {
-		UNKNOWN ,
-		BINARY ,
-		CONF ,
-		SCHEMA ,
-		WSDL
-	};
-	
-	public enum VarITEMVERSION {
-		UNKNOWN ,
-		NONE ,
-		IGNORE ,
-		MIDDASH ,
-		MIDPOUND ,
-		PREFIX
-	};
-	
-	public enum VarITEMSRCTYPE {
-		UNKNOWN ,
-		BASIC ,
-		DIRECTORY ,
-		STATICWAR ,
-		PACKAGE ,
-		CUSTOM
 	};
 	
 	public enum VarSERVERRUNTYPE {
@@ -119,13 +84,6 @@ public class Types {
 		COPYONLY
 	};
 	
-	public enum VarDBMSTYPE {
-		UNKNOWN ,
-		ORACLE ,
-		POSTGRESQL ,
-		FIREBIRD
-	};
-
 	public enum VarSESSIONTYPE {
 		UNKNOWN ,
 		UNIXLOCAL ,
@@ -136,23 +94,6 @@ public class Types {
 		WINDOWSFROMUNIX
 	};
 
-	public enum VarDISTITEMTYPE {
-		UNKNOWN ,
-		BINARY ,
-		PACKAGE ,
-		STATICWAR ,
-		ARCHIVE_DIRECT ,	// deploydir = archive/content
-		ARCHIVE_CHILD ,		// deploydir/archivename = archive/archivename/fullcontent
-		ARCHIVE_SUBDIR		// deploydir/archivename = archive/content/fullcontent
-	};
-	
-	public enum VarDISTITEMORIGIN {
-		UNKNOWN ,
-		MANUAL ,
-		DERIVED ,
-		BUILD
-	};
-	
 	public enum VarPROCESSMODE {
 		UNKNOWN ,
 		STARTED ,
@@ -162,12 +103,6 @@ public class Types {
 		UNREACHABLE
 	};
 
-	public enum VarCONFITEMTYPE {
-		UNKNOWN ,
-		FILES ,
-		DIR
-	};
-	
 	public enum VarCONTENTTYPE {
 		UNKNOWN ,
 		BINARYCOLDDEPLOY ,
@@ -252,24 +187,6 @@ public class Types {
 		return( value );
 	}
 	
-	public static VarPROJECTTYPE getProjectType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingProjectType0 , "missing project type" );
-			return( VarPROJECTTYPE.UNKNOWN );
-		}
-		
-		VarPROJECTTYPE value = null;
-		try {
-			value = VarPROJECTTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidProjectType1 , "invalid project type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
 	public static VarSERVERRUNTYPE getServerRunType( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
@@ -321,63 +238,6 @@ public class Types {
 		return( value );
 	}
 	
-	public static VarITEMSRCTYPE getItemSrcType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingSourceItemType0 , "missing source item type" );
-			return( VarITEMSRCTYPE.UNKNOWN );
-		}
-		
-		VarITEMSRCTYPE value = null;
-		try {
-			value = VarITEMSRCTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidSourceItemType1 , "invalid source item type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarDISTITEMTYPE getItemDistType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingDistributiveItemType0 , "missing distributive item type" );
-			return( VarDISTITEMTYPE.UNKNOWN );
-		}
-		
-		VarDISTITEMTYPE value = null;
-		try {
-			value = VarDISTITEMTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidDistributiveItemType1 , "invalid distributive item type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarDISTITEMORIGIN getItemDistOrigin( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingDistItemSource0 , "missing distributive item source" );
-			return( VarDISTITEMORIGIN.UNKNOWN );
-		}
-		
-		VarDISTITEMORIGIN value = null;
-		try {
-			value = VarDISTITEMORIGIN.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidDistributiveItemSource1 , "invalid distributive item source=" + ID , ID );
-		}
-		
-		if( value == null )
-			Common.exit0( _Error.MissingDistributiveItemSource0 , "missing distributive item source" );
-		
-		return( value );
-	}
-	
 	public static VarENVTYPE getEnvType( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
@@ -409,62 +269,6 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDeployItemType1 , "invalid deploy item type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarDBMSTYPE getDbmsType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingDbmsType0 , "missing DBMS type" );
-			return( VarDBMSTYPE.UNKNOWN );
-		}
-		
-		VarDBMSTYPE value = null;		
-		try {
-			value = VarDBMSTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidDbmsType1 , "invalid dbmstype=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarCONFITEMTYPE getConfItemType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingConfItemType0 , "missing configuration item type" );
-			return( VarCONFITEMTYPE.UNKNOWN );
-		}
-		
-		VarCONFITEMTYPE value = null;		
-		try {
-			value = VarCONFITEMTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidConfItemType1 , "invalid confitemtype=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarITEMVERSION readItemVersionAttr( Node node , String attrName ) throws Exception {
-		String ID = ConfReader.getAttrValue( node , attrName , "default" );
-		return( getItemVersionType( ID ) );
-	}
-
-	public static VarITEMVERSION getItemVersionType( String ID ) throws Exception {
-		if( ID.isEmpty() || ID.equals( "default" ) )
-			return( VarITEMVERSION.PREFIX );
-		
-		VarITEMVERSION value = null;
-		try {
-			value = VarITEMVERSION.valueOf( ID.toUpperCase() );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidItemVersionType1 , "invalid item version type=" + ID , ID );
 		}
 		
 		return( value );
@@ -596,14 +400,6 @@ public class Types {
 		return( value );
 	}
 
-    public static boolean isArchive( VarDISTITEMTYPE distItemType ) {
-		if( distItemType == VarDISTITEMTYPE.ARCHIVE_CHILD || 
-			distItemType == VarDISTITEMTYPE.ARCHIVE_DIRECT || 
-			distItemType == VarDISTITEMTYPE.ARCHIVE_SUBDIR )
-			return( true );
-		return( false );
-    }
-
 	public static boolean isBinaryContent( VarCONTENTTYPE c ) throws Exception {
 		if( c == VarCONTENTTYPE.BINARYCOLDDEPLOY || c == VarCONTENTTYPE.BINARYCOPYONLY || c == VarCONTENTTYPE.BINARYHOTDEPLOY )
 			return( true );
@@ -647,39 +443,6 @@ public class Types {
 		return( false );
 	}
 	
-	public static String getVersionPattern( ActionBase action , VarITEMVERSION version , String basename , String ext ) throws Exception {
-		String value = "";
-		if( version == VarITEMVERSION.NONE || version == VarITEMVERSION.IGNORE )
-			value = basename + ext;
-		else if( version == VarITEMVERSION.MIDPOUND )
-			value = Common.getLiteral( basename ) + "##[0-9.]+.*" + Common.getLiteral( ext );
-		else if( version == VarITEMVERSION.MIDDASH )
-			value = basename + "-[0-9.]+.*" + ext;
-		else if( version == VarITEMVERSION.PREFIX )
-			value = "[0-9.]+-" + Common.getLiteral( basename + ext );
-		else
-			action.exitUnexpectedState();
-		
-		return( value );
-	}
-
-	public static String[] getVersionPatterns( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
-		String basename = distItem.DISTBASENAME;
-		String ext = distItem.EXT;
-		if( distItem.deployVersion == VarITEMVERSION.IGNORE ) {
-			String[] values = new String[1];
-			values[0] = getVersionPattern( action , distItem.deployVersion , basename , ext );
-			return( values );
-		}
-
-		String[] values = new String[4];
-		values[0] = getVersionPattern( action , VarITEMVERSION.NONE , basename , ext );
-		values[1] = getVersionPattern( action , VarITEMVERSION.MIDPOUND , basename , ext );
-		values[2] = getVersionPattern( action , VarITEMVERSION.MIDDASH , basename , ext );
-		values[3] = getVersionPattern( action , VarITEMVERSION.PREFIX , basename , ext );
-		return( values );
-	}
-
 	public static boolean isPackageExtension( String ext ) {
 		try {
 			if( !ext.startsWith( "." ) )

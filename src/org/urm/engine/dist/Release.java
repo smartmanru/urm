@@ -16,7 +16,7 @@ import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
@@ -460,8 +460,8 @@ public class Release {
 	}
 
 	public ReleaseTarget findBuildProject( ActionBase action , String name ) throws Exception {
-		MetaSource sources = meta.getSources( action ); 
-		MetaSourceProject sourceProject = sources.getProject( action , name );
+		MetaSources sources = meta.getSources(); 
+		MetaSourceProject sourceProject = sources.getProject( name );
 		ReleaseDistSet set = sourceSetMap.get( sourceProject.set.NAME );
 		if( set == null )
 			return( null );
@@ -624,7 +624,7 @@ public class Release {
 	}
 
 	public void addSourceAll( ActionBase action ) throws Exception {
-		MetaSource sources = meta.getSources( action ); 
+		MetaSources sources = meta.getSources(); 
 		for( MetaSourceProjectSet sourceSet : sources.getSets() )
 			addSourceSet( action , sourceSet , true );
 	}
@@ -808,7 +808,7 @@ public class Release {
 
 	public boolean addProjectItem( ActionBase action , MetaSourceProject sourceProject , MetaSourceProjectItem sourceItem ) throws Exception {
 		if( sourceItem.isInternal() )
-			action.exit1( _Error.UnexpectedInternalItem1 , "unexpected call for INTERNAL item=" + sourceItem.ITEMNAME , sourceItem.ITEMNAME );
+			action.exit1( _Error.UnexpectedInternalItem1 , "unexpected call for INTERNAL item=" + sourceItem.NAME , sourceItem.NAME );
 		
 		ReleaseDistSet set = sourceSetMap.get( sourceProject.set.NAME );
 		if( set == null )
@@ -898,7 +898,7 @@ public class Release {
 		if( set.ALL )
 			return( true );
 
-		ReleaseTarget target = set.findTarget( item.KEY );
+		ReleaseTarget target = set.findTarget( item.NAME );
 		if( target != null ) {
 			if( !target.ALL )
 				target.setAll( action , action.context.CTX_REPLACE );
@@ -911,14 +911,14 @@ public class Release {
 	}
 
 	public boolean addManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		if( item.distItemOrigin != VarDISTITEMORIGIN.MANUAL )
-			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item.KEY , item.KEY );
+		if( item.ITEMORIGIN_TYPE != DBEnumItemOriginType.MANUAL )
+			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item.NAME , item.NAME );
 			
 		ReleaseDistSet set = getCategorySet( action , VarCATEGORY.MANUAL );
 		if( set.ALL )
 			return( true );
 
-		ReleaseTarget target = set.findTarget( item.KEY );
+		ReleaseTarget target = set.findTarget( item.NAME );
 		if( target != null )
 			return( true );
 		
@@ -928,14 +928,14 @@ public class Release {
 	}
 
 	public boolean addDerivedItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		if( item.distItemOrigin != VarDISTITEMORIGIN.DERIVED )
-			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item.KEY , item.KEY );
+		if( item.ITEMORIGIN_TYPE != DBEnumItemOriginType.DERIVED )
+			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item.NAME , item.NAME );
 			
 		ReleaseDistSet set = getCategorySet( action , VarCATEGORY.DERIVED );
 		if( set.ALL )
 			return( true );
 
-		ReleaseTarget target = set.findTarget( item.KEY );
+		ReleaseTarget target = set.findTarget( item.NAME );
 		if( target != null )
 			return( true );
 		

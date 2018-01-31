@@ -81,42 +81,42 @@ public class ReleaseDelivery {
 	
 	public void addTargetItem( ActionBase action , ReleaseTargetItem item ) throws Exception {
 		if( item.distItem != null ) {
-			action.debug( "add delivery binary item: " + distDelivery.NAME + "::" + item.distItem.KEY );
-			projectItems.put( item.distItem.KEY , item );
+			action.debug( "add delivery binary item: " + distDelivery.NAME + "::" + item.distItem.NAME );
+			projectItems.put( item.distItem.NAME , item );
 		}
 		else
 		if( item.schema != null ) {
-			action.debug( "add delivery schema item: " + distDelivery.NAME + "::" + item.schema.SCHEMA );
-			schemaItems.put( item.schema.SCHEMA , item );
+			action.debug( "add delivery schema item: " + distDelivery.NAME + "::" + item.schema.NAME );
+			schemaItems.put( item.schema.NAME , item );
 		}
 	}
 
 	public void removeTargetItem( ActionBase action , ReleaseTargetItem item ) throws Exception {
 		if( item.distItem != null ) {
-			action.debug( "remove delivery binary item: " + distDelivery.NAME + "::" + item.distItem.KEY );
-			projectItems.remove( item.distItem.KEY );
+			action.debug( "remove delivery binary item: " + distDelivery.NAME + "::" + item.distItem.NAME );
+			projectItems.remove( item.distItem.NAME );
 		}
 		else
 		if( item.schema != null ) {
-			action.debug( "remove delivery schema item: " + distDelivery.NAME + "::" + item.schema.SCHEMA );
-			schemaItems.remove( item.schema.SCHEMA );
+			action.debug( "remove delivery schema item: " + distDelivery.NAME + "::" + item.schema.NAME );
+			schemaItems.remove( item.schema.NAME );
 		}
 	}
 
 	public void addCategoryTarget( ActionBase action , ReleaseTarget target ) throws Exception {
 		if( target.distConfItem != null ) {
-			action.debug( "add delivery configuration item: " + distDelivery.NAME + "::" + target.distConfItem.KEY );
-			confItems.put( target.distConfItem.KEY , target );
+			action.debug( "add delivery configuration item: " + distDelivery.NAME + "::" + target.distConfItem.NAME );
+			confItems.put( target.distConfItem.NAME , target );
 		}
 		else 
 		if( target.distManualItem != null ) {
-			action.debug( "add manual delivery: " + distDelivery.NAME + "::" + target.distManualItem.KEY );
-			manualItems.put( target.distManualItem.KEY , target );
+			action.debug( "add manual delivery: " + distDelivery.NAME + "::" + target.distManualItem.NAME );
+			manualItems.put( target.distManualItem.NAME , target );
 		}
 		else 
 		if( target.distDerivedItem != null ) {
-			action.debug( "add derived delivery: " + distDelivery.NAME + "::" + target.distDerivedItem.KEY );
-			derivedItems.put( target.distDerivedItem.KEY , target );
+			action.debug( "add derived delivery: " + distDelivery.NAME + "::" + target.distDerivedItem.NAME );
+			derivedItems.put( target.distDerivedItem.NAME , target );
 		}
 		else
 			action.exit1( _Error.UnexpectedReleaseSourceType1 , "unexpected type of release source =" + target.NAME , target.NAME );
@@ -124,18 +124,18 @@ public class ReleaseDelivery {
 	
 	public void removeCategoryTarget( ActionBase action , ReleaseTarget target ) throws Exception {
 		if( target.distConfItem != null ) {
-			action.debug( "remove delivery configuration item: " + distDelivery.NAME + "::" + target.distConfItem.KEY );
-			confItems.remove( target.distConfItem.KEY );
+			action.debug( "remove delivery configuration item: " + distDelivery.NAME + "::" + target.distConfItem.NAME );
+			confItems.remove( target.distConfItem.NAME );
 		}
 		else 
 		if( target.distManualItem != null ) {
-			action.debug( "remove manual delivery: " + distDelivery.NAME + "::" + target.distManualItem.KEY );
-			manualItems.remove( target.distManualItem.KEY );
+			action.debug( "remove manual delivery: " + distDelivery.NAME + "::" + target.distManualItem.NAME );
+			manualItems.remove( target.distManualItem.NAME );
 		}
 		else 
 		if( target.distDerivedItem != null ) {
-			action.debug( "remove manual delivery: " + distDelivery.NAME + "::" + target.distDerivedItem.KEY );
-			derivedItems.remove( target.distDerivedItem.KEY );
+			action.debug( "remove manual delivery: " + distDelivery.NAME + "::" + target.distDerivedItem.NAME );
+			derivedItems.remove( target.distDerivedItem.NAME );
 		}
 		else
 			action.exit1( _Error.UnexpectedReleaseSourceType1 , "unexpected type of release source =" + target.NAME , target.NAME );

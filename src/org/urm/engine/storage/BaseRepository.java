@@ -7,7 +7,7 @@ import org.urm.meta.engine.BaseItem;
 import org.urm.meta.engine.BaseItemData;
 import org.urm.meta.engine.EngineContext;
 import org.urm.meta.engine.EngineSettings;
-import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.w3c.dom.Document;
 
 public class BaseRepository {

@@ -1,20 +1,17 @@
 package org.urm.meta.product;
 
-import java.util.List;
-
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineSession;
-import org.urm.engine.EngineTransaction;
 import org.urm.engine.dist.DistRepository;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineObject;
-import org.urm.meta.ProductMeta;
 import org.urm.meta.Types.*;
-import org.urm.meta.engine.AccountReference;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineProducts;
-import org.urm.meta.engine.HostAccount;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.MetaMonitoring;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -28,12 +25,13 @@ public class Meta extends EngineObject {
 	private ProductMeta storage;
 
 	private MetaProductVersion version;
-	private MetaProductSettings product;
+	private MetaProductSettings settings;
+	private MetaProductPolicy policy;
 	private MetaUnits units;
 	private MetaDatabase database;
 	private MetaDocs docs;
 	private MetaDistr distr;
-	private MetaSource sources;
+	private MetaSources sources;
 	private MetaMonitoring monitoring;
 	
 	static String[] configurableExtensions = {
@@ -61,8 +59,12 @@ public class Meta extends EngineObject {
 		return( name );
 	}
 
-	public void trace( String s ) {
-		products.engine.trace( s );
+	public int getId() {
+		return( storage.ID );
+	}
+	
+	public AppProduct getProduct() {
+		return( storage.product );
 	}
 	
 	public void replaceStorage( ActionBase action , ProductMeta storage ) throws Exception {
@@ -70,7 +72,8 @@ public class Meta extends EngineObject {
 		
 		// clear old refs
 		version = null;
-		product = null;
+		settings = null;
+		policy = null;
 		units = null;
 		database = null;
 		docs = null;
@@ -83,12 +86,6 @@ public class Meta extends EngineObject {
 		session.addProductMeta( this );
 	}
 
-	public boolean isCorrect() {
-		if( storage.loadFailed )
-			return( false );
-		return( true );
-	}
-	
 	private static String createConfigurableExtensions() {
 		String configurableExtensionsFindOptions = "";
 		for( int k = 0; k < configurableExtensions.length; k++ ) {
@@ -103,8 +100,12 @@ public class Meta extends EngineObject {
 		this.version = version;
 	}
 	
-	public void setProduct( MetaProductSettings product ) {
-		this.product = product;
+	public void setSettings( MetaProductSettings settings ) {
+		this.settings = settings;
+	}
+	
+	public void setPolicy( MetaProductPolicy policy ) {
+		this.policy = policy;
 	}
 	
 	public void setUnits( MetaUnits units ) {
@@ -123,7 +124,7 @@ public class Meta extends EngineObject {
 		this.database = database;
 	}
 	
-	public void setSources( MetaSource sources ) {
+	public void setSources( MetaSources sources ) {
 		this.sources = sources;
 	}
 
@@ -131,86 +132,73 @@ public class Meta extends EngineObject {
 		return( storage );
 	}
 
-	public synchronized MetaProductVersion getVersion( ActionBase action ) throws Exception {
+	public synchronized MetaProductVersion getVersion() {
 		if( version == null )
 			version = storage.getVersion();
 		return( version );
 	}
 
-	public synchronized MetaProductCoreSettings getProductCoreSettings( ActionBase action ) throws Exception {
-		MetaProductSettings settings = getProductSettings( action );
+	public synchronized MetaProductPolicy getPolicy() {
+		if( policy == null )
+			policy = storage.getPolicy();
+		return( policy );
+	}
+
+	public synchronized MetaProductCoreSettings getProductCoreSettings() {
+		MetaProductSettings settings = getProductSettings();
 		return( settings.core );
 	}
 	
-	public synchronized MetaProductSettings getProductSettings( ActionBase action ) throws Exception {
-		if( product == null )
-			product = storage.getProductSettings();
-		return( product );
+	public synchronized MetaProductSettings getProductSettings() {
+		if( settings == null )
+			settings = storage.getSettings();
+		return( settings );
 	}
 	
-	public synchronized MetaUnits getUnits( ActionBase action ) throws Exception {
+	public synchronized MetaUnits getUnits() {
 		if( units == null )
 			units = storage.getUnits();
 		return( units );
 	}
 
-	public synchronized MetaDatabase getDatabase( ActionBase action ) throws Exception {
+	public synchronized MetaDatabase getDatabase() {
 		if( database == null )
 			database = storage.getDatabase();
 		return( database );
 	}
 
-	public synchronized MetaDocs getDocs( ActionBase action ) throws Exception {
+	public synchronized MetaDocs getDocs() {
 		if( docs == null )
 			docs = storage.getDocs();
 		return( docs );
 	}
 
-	public synchronized MetaDistr getDistr( ActionBase action ) throws Exception {
+	public synchronized MetaDistr getDistr() {
 		if( distr == null )
 			distr = storage.getDistr();
 		return( distr );
 	}
 
-	public synchronized MetaSource getSources( ActionBase action ) throws Exception {
+	public synchronized MetaSources getSources() {
 		if( sources == null )
 			sources = storage.getSources();
 		return( sources );
 	}
 
-	public synchronized MetaMonitoring getMonitoring( ActionBase action ) throws Exception {
-		if( monitoring == null )
-			monitoring = storage.getMonitoring();
+	public synchronized MetaMonitoring getMonitoring() {
+		if( monitoring == null ) {
+			MetaEnvs envs = storage.getEnviroments();
+			monitoring = envs.getMonitoring();
+		}
 		return( monitoring );
 	}
 	
-	public synchronized MetaDesign getDesignData( ActionBase action , String fileName ) throws Exception {
-		EngineLoader loader = action.engine.createLoader();
-		return( products.loadDesignData( loader , storage , fileName ) );
-	}
-	
-	public String[] getEnvNames() {
-		return( storage.getEnvironmentNames() );
-	}
-	
-	public MetaEnv[] getEnvironments() {
-		return( storage.getEnvironments() );
+	public MetaEnvs getEnviroments() {
+		return( storage.getEnviroments() );
 	}
 	
 	public DistRepository getDistRepository() {
 		return( storage.getDistRepository() );
-	}
-	
-	public synchronized MetaEnv getEnvData( ActionBase action , String envName , boolean loadProps ) throws Exception {
-		return( storage.findEnvironment( envName ) );
-	}
-	
-	public MetaEnv findEnv( String envId ) {
-		return( storage.findEnvironment( envId ) );
-	}
-	
-	public synchronized MetaEnv getEnv( ActionBase action , String envId ) throws Exception {
-		return( storage.findEnvironment( envId ) );
 	}
 	
 	public static String getConfigurableExtensionsFindOptions( ActionBase action ) throws Exception {
@@ -264,71 +252,28 @@ public class Meta extends EngineObject {
     	
     	Common.xmlSetElementAttr( doc , element , PROPERTY_NAME , value );
     }
-    
-    public MetaEnv findMetaEnv( MetaEnv env ) {
-    	if( env == null )
-    		return( null );
-    	return( findEnv( env.NAME ) );
-    }
-    
-    public MetaEnvSegment findMetaEnvSegment( MetaEnvSegment sg ) {
-    	if( sg == null )
-    		return( null );
-    	MetaEnv env = findMetaEnv( sg.env );
-    	if( env == null )
-    		return( null );
-    	return( env.findSegment( sg.NAME ) );
-    }
-    
-    public MetaEnvServer findMetaEnvServer( MetaEnvServer server ) {
-    	if( server == null )
-    		return( null );
-    	MetaEnvSegment sg = findMetaEnvSegment( server.sg );
-    	if( sg == null )
-    		return( null );
-    	return( sg.findServer( server.NAME ) );
+
+    public MetaEnv findEnv( String name ) {
+    	MetaEnvs envs = storage.getEnviroments();
+    	return( envs.findEnv( name ) );
     }
 
-    public MetaEnvServerNode getMetaEnvServerNode( MetaEnvServerNode node ) {
-    	if( node == null )
-    		return( null );
-    	MetaEnvServer server = findMetaEnvServer( node.server );
-    	if( server == null )
-    		return( null );
-    	return( server.findNode( node.POS ) );
-    }
-
-	public void deleteBinaryItemFromEnvironments( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
-		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvSegment sg : env.getSegments() )
-				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteBinaryItem( transaction , item );
+	public static Integer getObject( MetaDistrBinaryItem item ) {
+		if( item == null )
+			return( null );
+		return( item.ID );
 	}
-
-	public void deleteConfItemFromEnvironments( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
-		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvSegment sg : env.getSegments() )
-				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteConfItem( transaction , item );
+	
+	public static Integer getObject( MetaDistrConfItem item ) {
+		if( item == null )
+			return( null );
+		return( item.ID );
 	}
-
-	public void deleteComponentFromEnvironments( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
-		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvSegment sg : env.getSegments() )
-				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteComponent( transaction , item );
+	
+	public static Integer getObject( MetaDatabaseSchema schema ) {
+		if( schema == null )
+			return( null );
+		return( schema.ID );
 	}
-
-	public void deleteDatabaseSchemaFromEnvironments( EngineTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
-		for( MetaEnv env : storage.getEnvironments() )
-			for( MetaEnvSegment sg : env.getSegments() )
-				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteSchema( transaction , schema );
-	}
-
-	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
-		for( MetaEnv env : storage.getEnvironments() )
-			env.getApplicationReferences( account , refs );
-	}
-
+	
 }

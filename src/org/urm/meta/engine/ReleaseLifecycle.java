@@ -217,7 +217,7 @@ public class ReleaseLifecycle extends EngineObject {
 	}
 
 	public static Date getReleaseDate( ActionBase action , String RELEASEVER , Meta meta ) throws Exception {
-		VersionInfo info = VersionInfo.getReleaseVersion( action , RELEASEVER );
+		VersionInfo info = VersionInfo.getReleaseDirInfo( RELEASEVER );
 		String prevReleaseVer = info.getPreviousVersion();
 		if( prevReleaseVer.isEmpty() )
 			return( null );

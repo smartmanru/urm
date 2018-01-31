@@ -57,7 +57,7 @@ public class ActionDeployRedist extends ActionBase {
 		deployments = new HashMap<ActionScopeTargetItem,ServerDeployment>();
 		boolean isEmpty = true;
 		
-		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+		VersionInfo version = VersionInfo.getDistVersion( dist ); 
 		for( ActionScopeTarget target : set.getTargets( this ).values() ) {
 			if( !Common.checkListItem( targets , target ) )
 				continue;

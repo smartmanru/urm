@@ -10,13 +10,18 @@ import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnumInterface;
 import org.urm.db.core.DBEnums;
 import org.urm.engine.Engine;
+import org.urm.meta.MatchItem;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
 
 public class EngineDB {
 
 	private Engine engine;
 	
 	private PGConnectionPoolDataSource pool;
-	public static int APP_VERSION = 104;
+	public static int APP_VERSION = 120;
 	
 	public EngineDB( Engine engine ) {
 		this.engine = engine;
@@ -74,9 +79,6 @@ public class EngineDB {
 			connection.close( true );
 	}
 
-	public void clearProduct( String productName ) {
-	}
-
 	public static String getInteger( int value ) {
 		return( "" + value );
 	}
@@ -85,6 +87,18 @@ public class EngineDB {
 		if( value == null )
 			return( "null" );
 		return( "" + value );
+	}
+
+	public static String getMatchId( MatchItem item ) {
+		if( item == null )
+			return( "null" );
+		return( getObject( item.FKID ) );
+	}
+
+	public static String getMatchName( MatchItem item ) {
+		if( item == null )
+			return( "null" );
+		return( getString( item.FKNAME ) );
 	}
 
 	public static String getBooleanString( String value ) {
@@ -121,4 +135,16 @@ public class EngineDB {
 		return( "" + item.code() );
 	}
 
+	public static String getObject( MetaDistrBinaryItem item ) {
+		return( getObject( Meta.getObject( item ) ) );
+	}
+	
+	public static String getObject( MetaDistrConfItem item ) {
+		return( getObject( Meta.getObject( item ) ) );
+	}
+	
+	public static String getObject( MetaDatabaseSchema schema ) {
+		return( getObject( Meta.getObject( schema ) ) );
+	}
+	
 }

@@ -1,5 +1,6 @@
 package org.urm.engine.properties;
 
+import org.urm.db.DBConnection;
 import org.urm.db.core.DBVersions;
 
 import org.urm.db.core.DBEnums.*;
@@ -13,7 +14,7 @@ import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMirrors;
 import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
-import org.urm.db.engine.DBEngineSettings;
+import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
 import org.urm.meta.EngineLoader;
 
@@ -21,26 +22,22 @@ public class EngineEntities {
 
 	public static String nameRunContextSet = "execrc";
 	public static String nameEngineSettings = "engine";
-	public static String nameDefaultProductSet = "product.defaults";
-	public static String nameDefaultBuildSet = "build.defaults";
-	public static String nameDefaultBuildBranchSet = "build.branch.defaults";
-	public static String nameDefaultBuildDevBranchSet = "build.devbranch.defaults";
-	public static String nameDefaultBuildDevTrunkSet = "build.devtrunk.defaults";
-	public static String nameDefaultBuildMajorBranchSet = "build.majorbranch.defaults";
-	public static String nameDefaultBuildTrunkSet = "build.trunk.defaults";
+	public static String nameProductSet = "product.defaults";
+	public static String nameBuildSet = "build";
+	public static String nameBuildBranchSet = "build.branch";
+	public static String nameBuildDevBranchSet = "build.devbranch";
+	public static String nameBuildDevTrunkSet = "build.devtrunk";
+	public static String nameBuildMajorBranchSet = "build.majorbranch";
+	public static String nameBuildTrunkSet = "build.trunk";
 	public static String nameEngineMonitoring = "defmon";
 	public static String nameBaseItem = "baseitem";
 	public static String nameSystem = "system";
 	public static String nameLdap = "ldap";
 	public static String nameProductContext = "ctx";
+	public static String nameMeta = "meta";
+	public static String nameMetaCoreSettings = "core";
+	public static String nameMetaMonitoringSettings = "mon";
 
-	public static String FIELD_VERSION_APP = "av"; 
-	public static String FIELD_VERSION_CORE = "cv"; 
-	public static String FIELD_VERSION_SYSTEM = "sv"; 
-	public static String FIELD_VERSION_PRODUCT = "pv"; 
-	public static String FIELD_VERSION_ENVIRONMENT = "ev"; 
-	public static String FIELD_VERSION_AUTH = "uv"; 
-	
 	public Engine engine;
 
 	public PropertyEntity entityAppRC; 
@@ -67,6 +64,21 @@ public class EngineEntities {
 	public PropertyEntity entityAppLDAPSettings;
 	public PropertyEntity entityAppAuthUser;
 	public PropertyEntity entityAppAuthGroup;
+	public PropertyEntity entityAppMeta;
+	public PropertyEntity entityAppMetaVersion;
+	public PropertyEntity entityAppMetaMonitoring;
+	public PropertyEntity entityAppMetaUnit;
+	public PropertyEntity entityAppMetaSchema;
+	public PropertyEntity entityAppMetaSourceSet;
+	public PropertyEntity entityAppMetaSourceProject;
+	public PropertyEntity entityAppMetaSourceItem;
+	public PropertyEntity entityAppMetaDoc;
+	public PropertyEntity entityAppMetaPolicy;
+	public PropertyEntity entityAppMetaDistrDelivery;
+	public PropertyEntity entityAppMetaDistrBinaryItem;
+	public PropertyEntity entityAppMetaDistrConfItem;
+	public PropertyEntity entityAppMetaDistrComponent;
+	public PropertyEntity entityAppMetaDistrCompItem;
 	
 	public EngineEntities( Engine engine ) {
 		this.engine = engine;
@@ -75,9 +87,9 @@ public class EngineEntities {
 	public void upgradeMeta( EngineLoader loader ) throws Exception {
 		entityAppRC = DBEngineContext.upgradeEntityRC( loader );
 		entityAppEngine = DBEngineContext.upgradeEntityEngine( loader );
-		entityAppProductContext = DBEngineSettings.upgradeEntityProductContext( loader );
-		entityAppProductSettings = DBEngineSettings.upgradeEntityProductSettings( loader );
-		entityAppProductBuild = DBEngineSettings.upgradeEntityProductBuild( loader );
+		entityAppProductContext = DBProductData.upgradeEntityProductContext( loader );
+		entityAppProductSettings = DBProductData.upgradeEntityProductSettings( loader );
+		entityAppProductBuild = DBProductData.upgradeEntityProductBuild( loader );
 		entityAppEngineMonitoring = DBEngineMonitoring.upgradeEntityEngineMonitoring( loader );
 		entityAppBaseGroup = DBEngineBase.upgradeEntityBaseGroup( loader );
 		entityAppBaseItem = DBEngineBase.upgradeEntityBaseItem( loader );
@@ -95,37 +107,68 @@ public class EngineEntities {
 		entityAppLDAPSettings = DBEngineAuth.upgradeEntityLDAPSettings( loader );
 		entityAppAuthUser = DBEngineAuth.upgradeEntityAuthUser( loader );
 		entityAppAuthGroup = DBEngineAuth.upgradeEntityAuthGroup( loader );
+		entityAppMeta = DBProductData.upgradeEntityMeta( loader );
+		entityAppMetaVersion = DBProductData.upgradeEntityMetaVersion( loader );
+		entityAppMetaMonitoring = DBProductData.upgradeEntityMetaMonitoring( loader );
+		entityAppMetaUnit = DBProductData.upgradeEntityMetaUnit( loader );
+		entityAppMetaSchema = DBProductData.upgradeEntityMetaSchema( loader );
+		entityAppMetaSourceSet = DBProductData.upgradeEntityMetaSourceSet( loader );
+		entityAppMetaSourceProject = DBProductData.upgradeEntityMetaSourceProject( loader );
+		entityAppMetaSourceItem = DBProductData.upgradeEntityMetaSourceItem( loader );
+		entityAppMetaDoc = DBProductData.upgradeEntityMetaDoc( loader );
+		entityAppMetaPolicy = DBProductData.upgradeEntityMetaPolicy( loader );
+		entityAppMetaDistrDelivery = DBProductData.upgradeEntityMetaDistrDelivery( loader );
+		entityAppMetaDistrBinaryItem = DBProductData.upgradeEntityMetaDistrBinaryItem( loader );
+		entityAppMetaDistrConfItem = DBProductData.upgradeEntityMetaDistrConfItem( loader );
+		entityAppMetaDistrComponent = DBProductData.upgradeEntityMetaDistrComponent( loader );
+		entityAppMetaDistrCompItem = DBProductData.upgradeEntityMetaDistrCompItem( loader );
 		
 		entityCustomRC = DBEngineContext.createEntityCustomRC( loader );
 		entityCustomEngine = DBEngineContext.createEntityCustomEngine( loader );
 	}
 	
 	public void useMeta( EngineLoader loader ) throws Exception {
-		entityAppRC = DBEngineContext.loaddbEntityRC( loader );
-		entityAppEngine = DBEngineContext.loaddbEntityEngine( loader );
-		entityAppProductContext = DBEngineSettings.loaddbEntityProductContext( loader );
-		entityAppProductSettings = DBEngineSettings.loaddbEntityProductSettings( loader );
-		entityAppProductBuild = DBEngineSettings.loaddbEntityProductBuild( loader );
-		entityAppEngineMonitoring = DBEngineMonitoring.loaddbEntityEngineMonitoring( loader );
-		entityAppBaseGroup = DBEngineBase.loaddbEntityBaseGroup( loader );
-		entityAppBaseItem = DBEngineBase.loaddbEntityBaseItem( loader );
-		entityAppDirectorySystem = DBEngineDirectory.loaddbEntityDirectorySystem( loader );
-		entityAppDirectoryProduct = DBEngineDirectory.loaddbEntityDirectoryProduct( loader );
-		entityAppDatacenter = DBEngineInfrastructure.loaddbEntityDatacenter( loader );
-		entityAppNetwork = DBEngineInfrastructure.loaddbEntityNetwork( loader );
-		entityAppNetworkHost = DBEngineInfrastructure.loaddbEntityNetworkHost( loader );
-		entityAppHostAccount = DBEngineInfrastructure.loaddbEntityHostAccount( loader );
-		entityAppReleaseLifecycle = DBEngineLifecycles.loaddbEntityReleaseLifecycle( loader );
-		entityAppLifecyclePhase = DBEngineLifecycles.loaddbEntityLifecyclePhase( loader );
-		entityAppResource = DBEngineResources.loaddbEntityResource( loader );
-		entityAppMirror = DBEngineMirrors.loaddbEntityMirror( loader );
-		entityAppProjectBuilder = DBEngineBuilders.loaddbEntityBuilder( loader );
-		entityAppLDAPSettings = DBEngineAuth.loaddbEntityLDAPSettings( loader );
-		entityAppAuthUser = DBEngineAuth.loaddbEntityAuthUser( loader );
-		entityAppAuthGroup = DBEngineAuth.loaddbEntityAuthGroup( loader );
+		DBConnection c = loader.getConnection();
+		entityAppRC = DBEngineContext.loaddbEntityRC( c );
+		entityAppEngine = DBEngineContext.loaddbEntityEngine( c );
+		entityAppProductContext = DBProductData.loaddbEntityProductContext( c );
+		entityAppProductSettings = DBProductData.loaddbEntityProductSettings( c );
+		entityAppProductBuild = DBProductData.loaddbEntityProductBuild( c );
+		entityAppEngineMonitoring = DBEngineMonitoring.loaddbEntityEngineMonitoring( c );
+		entityAppBaseGroup = DBEngineBase.loaddbEntityBaseGroup( c );
+		entityAppBaseItem = DBEngineBase.loaddbEntityBaseItem( c );
+		entityAppDirectorySystem = DBEngineDirectory.loaddbEntityDirectorySystem( c );
+		entityAppDirectoryProduct = DBEngineDirectory.loaddbEntityDirectoryProduct( c );
+		entityAppDatacenter = DBEngineInfrastructure.loaddbEntityDatacenter( c );
+		entityAppNetwork = DBEngineInfrastructure.loaddbEntityNetwork( c );
+		entityAppNetworkHost = DBEngineInfrastructure.loaddbEntityNetworkHost( c );
+		entityAppHostAccount = DBEngineInfrastructure.loaddbEntityHostAccount( c );
+		entityAppReleaseLifecycle = DBEngineLifecycles.loaddbEntityReleaseLifecycle( c );
+		entityAppLifecyclePhase = DBEngineLifecycles.loaddbEntityLifecyclePhase( c );
+		entityAppResource = DBEngineResources.loaddbEntityResource( c );
+		entityAppMirror = DBEngineMirrors.loaddbEntityMirror( c );
+		entityAppProjectBuilder = DBEngineBuilders.loaddbEntityBuilder( c );
+		entityAppLDAPSettings = DBEngineAuth.loaddbEntityLDAPSettings( c );
+		entityAppAuthUser = DBEngineAuth.loaddbEntityAuthUser( c );
+		entityAppAuthGroup = DBEngineAuth.loaddbEntityAuthGroup( c );
+		entityAppMeta = DBProductData.loaddbEntityMeta( c );
+		entityAppMetaVersion = DBProductData.loaddbEntityMetaVersion( c );
+		entityAppMetaMonitoring = DBProductData.loaddbEntityMetaMonitoring( c );
+		entityAppMetaUnit = DBProductData.loaddbEntityMetaUnit( c );
+		entityAppMetaSchema = DBProductData.loaddbEntityMetaSchema( c );
+		entityAppMetaSourceSet = DBProductData.loaddbEntityMetaSourceSet( c );
+		entityAppMetaSourceProject = DBProductData.loaddbEntityMetaSourceProject( c );
+		entityAppMetaSourceItem = DBProductData.loaddbEntityMetaSourceItem( c );
+		entityAppMetaDoc = DBProductData.loaddbEntityMetaDoc( c );
+		entityAppMetaPolicy = DBProductData.loaddbEntityMetaPolicy( c );
+		entityAppMetaDistrDelivery = DBProductData.loaddbEntityMetaDistrDelivery( c );
+		entityAppMetaDistrBinaryItem = DBProductData.loaddbEntityMetaDistrBinaryItem( c );
+		entityAppMetaDistrConfItem = DBProductData.loaddbEntityMetaDistrConfItem( c );
+		entityAppMetaDistrComponent = DBProductData.loaddbEntityMetaDistrComponent( c );
+		entityAppMetaDistrCompItem = DBProductData.loaddbEntityMetaDistrCompItem( c );
 		
-		entityCustomRC = DBEngineContext.loaddbEntityCustomRC( loader );
-		entityCustomEngine = DBEngineContext.loaddbEntityCustomEngine( loader );
+		entityCustomRC = DBEngineContext.loaddbEntityCustomRC( c );
+		entityCustomEngine = DBEngineContext.loaddbEntityCustomEngine( c );
 	}
 
 	public void updateEntity( PropertyEntity entity ) {
@@ -137,91 +180,138 @@ public class EngineEntities {
 	}
 	
 	public ObjectProperties createRunContextProps() throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.RC , nameRunContextSet , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.RC , nameRunContextSet , engine.execrc );
 		props.create( null , entityAppRC , entityCustomRC );
 		return( props );
 	}
 
 	public ObjectProperties createEngineProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.ENGINE , nameEngineSettings , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.ENGINE , nameEngineSettings , engine.execrc );
 		props.create( parent , entityAppEngine , entityCustomEngine ); 
 		return( props );
 	}
 
 	public ObjectProperties createDefaultProductProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.PRODUCTDEFS , nameDefaultProductSet , engine.execrc );
+		return( createProductProps( parent , DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE ) );
+	}
+	
+	public ObjectProperties createProductProps( ObjectProperties parent , DBEnumObjectType objectType , DBEnumObjectVersionType versionType ) throws Exception {
+		ObjectProperties props = new ObjectProperties( objectType , versionType , DBEnumParamRoleType.PRODUCTDEFS , nameProductSet , engine.execrc );
 		props.create( parent , entityAppProductSettings , null ); 
 		return( props );
 	}
 
-	public ObjectProperties createDefaultBuildCommonProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.BUILDMODE_COMMON , nameDefaultBuildSet , engine.execrc );
-		props.create( parent , entityAppProductBuild , null );
-		return( props );
-	}
-
 	public ObjectProperties createEngineMonitoringProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.MONITORING , nameEngineMonitoring , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.MONITORING , nameEngineMonitoring , engine.execrc );
 		props.create( parent , entityAppEngineMonitoring , null ); 
 		return( props );
 	}
 
+	public ObjectProperties createDefaultBuildCommonProps( ObjectProperties parent ) throws Exception {
+		return( createBuildCommonProps( parent , DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , true ) );
+	}
+	
 	public ObjectProperties createDefaultBuildModeProps( ObjectProperties parent , DBEnumBuildModeType mode ) throws Exception {
+		return( createBuildModeProps( parent , DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , mode , true ) );
+	}
+	
+	private ObjectProperties createBuildCommonProps( ObjectProperties parent , DBEnumObjectType objectType , DBEnumObjectVersionType versionType , boolean defaults ) throws Exception {
+		String set = nameBuildSet;
+		if( defaults )
+			set += ".defaults";
+		
+		ObjectProperties props = new ObjectProperties( objectType , versionType , DBEnumParamRoleType.BUILDMODE_COMMON , set , engine.execrc );
+		props.create( parent , entityAppProductBuild , null );
+		return( props );
+	}
+
+	private ObjectProperties createBuildModeProps( ObjectProperties parent , DBEnumObjectType objectType , DBEnumObjectVersionType versionType , DBEnumBuildModeType mode , boolean defaults ) throws Exception {
 		DBEnumParamRoleType role = null;
 		String set = null;
 		if( mode == DBEnumBuildModeType.BRANCH ) {
 			role = DBEnumParamRoleType.BUILDMODE_BRANCH;
-			set = nameDefaultBuildBranchSet;
+			set = nameBuildBranchSet;
 		}
 		else
 		if( mode == DBEnumBuildModeType.DEVBRANCH ) {
 			role = DBEnumParamRoleType.BUILDMODE_DEVBRANCH;
-			set = nameDefaultBuildDevBranchSet;
+			set = nameBuildDevBranchSet;
 		}
 		else
 		if( mode == DBEnumBuildModeType.DEVTRUNK ) {
 			role = DBEnumParamRoleType.BUILDMODE_DEVTRUNK;
-			set = nameDefaultBuildDevTrunkSet;
+			set = nameBuildDevTrunkSet;
 		}
 		else
 		if( mode == DBEnumBuildModeType.MAJORBRANCH ) {
 			role = DBEnumParamRoleType.BUILDMODE_MAJORBRANCH;
-			set = nameDefaultBuildMajorBranchSet;
+			set = nameBuildMajorBranchSet;
 		}
 		else
 		if( mode == DBEnumBuildModeType.TRUNK ) {
 			role = DBEnumParamRoleType.BUILDMODE_TRUNK;
-			set = nameDefaultBuildTrunkSet;
+			set = nameBuildTrunkSet;
 		}
-		ObjectProperties props = new ObjectProperties( role , set , engine.execrc );
+		
+		if( defaults )
+			set += ".defaults";
+		
+		ObjectProperties props = new ObjectProperties( objectType , versionType , role , set , engine.execrc );
 		props.create( parent , entityAppProductBuild , null ); 
 		return( props );
 	}
 
 	public ObjectProperties createBaseItemProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.BASEITEM , nameBaseItem , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.DEFAULT , nameBaseItem , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM_CUSTOM , DBVersions.CORE_ID , DBEnumObjectVersionType.CORE );
 		props.create( parent , entityAppBaseItem , custom );
 		return( props );
 	}
 
 	public ObjectProperties createSystemProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.SYSTEM , nameSystem , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.DEFAULT , nameSystem , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.SYSTEM_CUSTOM , -1 , DBEnumObjectVersionType.SYSTEM );
 		props.create( parent , entityAppDirectorySystem , custom );
 		return( props );
 	}
 
 	public ObjectProperties createLdapProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.LDAP , nameLdap , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.LDAP , nameLdap , engine.execrc );
 		props.create( parent , entityAppLDAPSettings , null );
 		return( props );
 	}
 
-	public ObjectProperties createProductContextProps() throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumParamRoleType.PRODUCTCTX , nameProductContext , engine.execrc );
+	public ObjectProperties createDefaultProductContextProps() throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.PRODUCTCTX , nameProductContext , engine.execrc );
 		props.create( null , entityAppProductContext , null );
 		return( props );
+	}
+	
+	public ObjectProperties createMetaContextProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.PRODUCTCTX , nameProductContext , engine.execrc );
+		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_CUSTOM , -1 , DBEnumObjectVersionType.PRODUCT ); 
+		props.create( parent , entityAppProductContext , custom );
+		return( props );
+	}
+
+	public ObjectProperties createMetaCoreSettingsProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.METACORE , nameMetaCoreSettings , engine.execrc );
+		props.create( parent , entityAppProductSettings , null );
+		return( props );
+	}
+
+	public ObjectProperties createMetaMonitoringProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.METAMON , nameMetaMonitoringSettings , engine.execrc );
+		props.create( parent , entityAppMetaMonitoring , null );
+		return( props );
+	}
+
+	public ObjectProperties createMetaBuildCommonProps( ObjectProperties parent ) throws Exception {
+		return( createBuildCommonProps( parent , DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , false ) );
+	}
+
+	public ObjectProperties createMetaBuildModeProps( ObjectProperties parent , DBEnumBuildModeType mode ) throws Exception {
+		return( createBuildModeProps( parent , DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , mode , false ) );
 	}
 	
 }

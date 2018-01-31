@@ -21,7 +21,7 @@ import org.urm.meta.Types.VarTICKETSETTARGETTYPE;
 import org.urm.meta.Types.VarTICKETTYPE;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 
@@ -432,8 +432,8 @@ public class ActionTickets extends ActionBase {
 		}
 		else
 		if( target.isProject() ) {
-			MetaSource sources = dist.meta.getSources( this );
-			MetaSourceProject project = sources.getProject( this , target.ITEM );
+			MetaSources sources = dist.meta.getSources();
+			MetaSourceProject project = sources.getProject( target.ITEM );
 			maker.addScopeProductSet( project.set.NAME , new String[] { target.ITEM } );
 		}
 		else
@@ -452,7 +452,7 @@ public class ActionTickets extends ActionBase {
 		}
 		else
 		if( target.isDelivery() ) {
-			MetaDistr distr = dist.meta.getDistr( this );
+			MetaDistr distr = dist.meta.getDistr();
 			MetaDistrDelivery delivery = distr.findDelivery( target.ITEM );
 			if( target.isDeliveryBinaries() ) {
 				maker.addScopeProductDistItems( delivery.getBinaryItemNames() );
@@ -527,22 +527,22 @@ public class ActionTickets extends ActionBase {
 	
 	private void executeCreateSetTarget( String setCode , String element , String[] items ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
-		MetaSource sources = dist.meta.getSources( this );
-		MetaSourceProjectSet projectSet = sources.getProjectSet( this , element );
+		MetaSources sources = dist.meta.getSources();
+		MetaSourceProjectSet projectSet = sources.getProjectSet( element );
 		set.createTarget( this , projectSet );
 	}
 	
 	private void executeCreateProjectTarget( String setCode , String element , String[] items ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
-		MetaSource sources = dist.meta.getSources( this );
-		MetaSourceProject project = sources.getProject( this , element );
+		MetaSources sources = dist.meta.getSources();
+		MetaSourceProject project = sources.getProject( element );
 		set.createTarget( this , project , items );
 	}
 	
 	private void executeCreateDeliveryTarget( String setCode , String deliveryName , String type , String[] items ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
-		MetaDistr distr = dist.meta.getDistr( this );
-		MetaDistrDelivery delivery = distr.getDelivery( this , deliveryName );
+		MetaDistr distr = dist.meta.getDistr();
+		MetaDistrDelivery delivery = distr.getDelivery( deliveryName );
 		if( type.equals( TARGET_DELIVERYBINARY ) )
 			set.createTarget( this , delivery , VarTICKETSETTARGETTYPE.DISTITEM , items );
 		else

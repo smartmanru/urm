@@ -1,10 +1,10 @@
 package org.urm.action;
 
 import org.urm.engine.dist.ReleaseTargetItem;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
-import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProjectItem;
 
@@ -47,7 +47,7 @@ public class ActionScopeTargetItem {
 		ti.distItem = distItem;
 		ti.sourceItem = sourceItem;
 		ti.specifiedExplicitly = specifiedExplicitly;
-		ti.NAME = sourceItem.ITEMNAME;
+		ti.NAME = sourceItem.NAME;
 		return( ti );
 	}
 	
@@ -55,7 +55,7 @@ public class ActionScopeTargetItem {
 		ActionScopeTargetItem ti = new ActionScopeTargetItem( target ); 
 		ti.schema = schema;
 		ti.specifiedExplicitly = specifiedExplicitly;
-		ti.NAME = schema.SCHEMA;
+		ti.NAME = schema.NAME;
 		return( ti );
 	}
 	
@@ -98,7 +98,7 @@ public class ActionScopeTargetItem {
 		}
 		
 		if( BUILDVERSION.isEmpty() )
-			BUILDVERSION = sourceItem.ITEMVERSION;
+			BUILDVERSION = sourceItem.FIXED_VERSION;
 		
 		if( BUILDVERSION.isEmpty() ) {
 			MetaProductBuildSettings build = action.getBuildSettings( meta );

@@ -1,6 +1,6 @@
 package org.urm.meta.engine;
 
-import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvServerNode;
 
 public class RoleItemFailed {
 	public RoleItemFailed( String role , MetaEnvServerNode node ) {

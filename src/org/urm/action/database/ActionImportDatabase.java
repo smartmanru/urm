@@ -13,15 +13,16 @@ import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.MetadataStorage;
+import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.SourceStorage;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.env.MetaDump;
+import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
-import org.urm.meta.product.MetaDump;
-import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 
 public class ActionImportDatabase extends ActionBase {
@@ -81,7 +82,7 @@ public class ActionImportDatabase extends ActionBase {
 	}
 	
 	private void loadImportSettings() throws Exception {
-		MetaDatabase db = server.meta.getDatabase( this );
+		MetaDatabase db = server.meta.getDatabase();
 		dump = db.findExportDump( TASK );
 		if( dump == null )
 			exit1( _Error.UnknownImportTask1 , "import task " + TASK + " is not found in product database configuraton" , TASK );
@@ -179,7 +180,7 @@ public class ActionImportDatabase extends ActionBase {
 		List<String> conf = new LinkedList<String>();
 		String EXECUTEMAPPING = "";
 		for( MetaDatabaseSchema schema : serverSchemas.values() )
-			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.SCHEMA + "=" + server.getSchemaDBName( schema ) );
+			EXECUTEMAPPING = Common.addItemToUniqueSpacedList( EXECUTEMAPPING , schema.NAME + "=" + server.getSchemaDBName( schema ) );
 		
 		DatabaseSpecific specific = client.specific;
 		specific.addSpecificLine( this , conf , "CONF_MAPPING" , Common.getQuoted( EXECUTEMAPPING ) );
@@ -194,7 +195,7 @@ public class ActionImportDatabase extends ActionBase {
 		Common.createFileFromStringList( execrc , confFile , conf );
 		importScriptsFolder.copyFileFromLocal( this , confFile );
 		
-		MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta );
+		ProductStorage ms = artefactory.getMetadataStorage( this , server.meta );
 		String tablesFilePath = workFolder.getFilePath( this , UrmStorage.TABLES_FILE_NAME );
 		ms.saveDatapumpSet( this , tableSet , server , tablesFilePath );
 		importScriptsFolder.copyFileFromLocal( this , tablesFilePath );
@@ -209,7 +210,7 @@ public class ActionImportDatabase extends ActionBase {
 		}
 		
 		if( CMD.equals( "all" ) || CMD.equals( "data" ) ) {
-			MetadataStorage ms = artefactory.getMetadataStorage( this , server.meta );
+			ProductStorage ms = artefactory.getMetadataStorage( this , server.meta );
 			ms.loadDatapumpSet( this , tableSet , server , false , false );
 			
 			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
@@ -374,8 +375,9 @@ public class ActionImportDatabase extends ActionBase {
 		
 		// configure
 		ConfBuilder builder = new ConfBuilder( this , server.meta );
-		MetaProductSettings settings = server.meta.getProductSettings( this );
-		builder.configureFolder( this , folder , server , null , settings.charset );
+		MetaProductSettings settings = server.meta.getProductSettings();
+		MetaProductCoreSettings core = settings.getCoreSettings();
+		builder.configureFolder( this , folder , server , null , core.charset );
 		
 		// apply
 		if( !client.applyManualSet( this , folder ) )

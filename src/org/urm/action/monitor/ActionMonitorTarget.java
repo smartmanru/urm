@@ -9,12 +9,12 @@ import org.urm.engine.status.NodeStatus;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.SegmentStatus;
 import org.urm.engine.status.StatusSource;
-import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaMonitoringItem;
-import org.urm.meta.product.MetaMonitoringTarget;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.MetaMonitoringItem;
+import org.urm.meta.env.MetaMonitoringTarget;
 
 public class ActionMonitorTarget extends ActionBase {
 	
@@ -42,8 +42,8 @@ public class ActionMonitorTarget extends ActionBase {
 	}
 	
 	private MetaEnv getEnv( MetaMonitoringTarget target ) throws Exception {
-		Meta meta = target.meta;
-		MetaEnv env = meta.getEnv( this , target.ENV );
+		MetaEnvs envs = target.meta.getEnviroments();
+		MetaEnv env = envs.findEnv( target.getMatchEnvName() );
 		return( env );
 	}
 	
@@ -65,11 +65,11 @@ public class ActionMonitorTarget extends ActionBase {
 		if( !info.isAvailable() )
 			return;
 		
-		super.trace( "refresh target graph env=" + info.target.ENV + ", sg=" + info.target.SG );
+		MetaEnvSegment sg = info.target.findSegment();
+		super.trace( "refresh target graph env=" + sg.env.NAME + ", sg=" + sg.NAME );
 		info.addHistoryGraph( this );
 		info.stop( this );
 
-		MetaEnvSegment sg = info.target.getSegment( this );
 		if( sg != null ) { 
 			EngineStatus status = super.getServerStatus();
 			StatusSource source = status.getObjectSource( sg );
@@ -81,14 +81,12 @@ public class ActionMonitorTarget extends ActionBase {
 	public long executeOnceMinor( ScopeState state ) throws Exception {
 		// system
 		int sgIndex = super.logStartCapture();
-		super.info( "Run fast segment checks, sg=" + info.target.SG + " ..." );
+		MetaEnvSegment sg = info.target.findSegment();
+		super.info( "Run fast segment checks, env=" + sg.env.NAME + ", sg=" + sg.NAME + " ..." );
 		
 		long timeStart = System.currentTimeMillis();
-		
 		boolean ok = true;
 		
-		MetaEnv env = getEnv( target );
-		MetaEnvSegment sg = env.getSG( this , target.SG );
 		EngineStatus engineStatus = super.getServerStatus();
 		
 		for( MetaEnvServer server : sg.getServers() ) {
@@ -96,7 +94,7 @@ public class ActionMonitorTarget extends ActionBase {
 				break;
 			
 			if( !super.isServerOffline( server ) ) {
-				ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , target , null , server );
+				ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.getName() , target , null , server );
 				currentAction = action;
 				action.runSimpleEnv( state , server.sg.env , SecurityAction.ACTION_DEPLOY , false );
 				if( action.isFailed() )
@@ -109,22 +107,22 @@ public class ActionMonitorTarget extends ActionBase {
 		}
 		
 		// direct
-		for( MetaMonitoringItem item : target.getUrlsList( this ) ) {
+		for( MetaMonitoringItem item : target.getUrlsList() ) {
 			if( !running )
 				break;
 			
-			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , target , item , null );
+			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.getName() , target , item , null );
 			currentAction = action;
 			action.runSimpleEnv( state , sg.env , SecurityAction.ACTION_DEPLOY , false );
 			if( action.isFailed() )
 				ok = false;
 		}
 		
-		for( MetaMonitoringItem item : target.getWSList( this ) ) {
+		for( MetaMonitoringItem item : target.getWSList() ) {
 			if( !running )
 				break;
 			
-			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.NAME , target , item , null );
+			ActionMonitorCheckItem action = new ActionMonitorCheckItem( this , target.getName() , target , item , null );
 			currentAction = action;
 			action.runSimpleEnv( state , sg.env , SecurityAction.ACTION_DEPLOY , false );
 			if( action.isFailed() )
@@ -133,8 +131,10 @@ public class ActionMonitorTarget extends ActionBase {
 		
 		long timeFinish = System.currentTimeMillis();
 		
-		if( !ok )
-			super.fail1( _Error.MonitorTargetFailed1 , "Monitoring target failed name=" + target.NAME , target.NAME );
+		if( !ok ) {
+			String name = target.getName();
+			super.fail1( _Error.MonitorTargetFailed1 , "Monitoring target failed name=" + name , name );
+		}
 		
 		info( "Fast server checks finished" );
 		String[] log = super.logFinishCapture( sgIndex );

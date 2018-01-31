@@ -3,16 +3,17 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.action.deploy.ServerDeployment;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumDistItemType;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.meta.Types;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerDeployment;
+import org.urm.meta.env.MetaEnvServerLocation;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerDeployment;
-import org.urm.meta.product.MetaEnvServerLocation;
-import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.Types.*;
 
 public class RuntimeStorage extends ServerStorage {
@@ -77,7 +78,7 @@ public class RuntimeStorage extends ServerStorage {
 
 	public void restoreConfigItem( ActionBase action , RedistStorage redist , LocalFolder srcFolder , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem ) throws Exception {
 		String LOCATION = deployment.getDeployPath( action );
-		String msg = "restore server configuration files item=" + confItem.KEY + ", location=" + LOCATION;
+		String msg = "restore server configuration files item=" + confItem.NAME + ", location=" + LOCATION;
 		action.executeLogLive( action.getNodeAccount( node ) , msg );
 		if( !action.isExecute() )
 			return;
@@ -108,24 +109,20 @@ public class RuntimeStorage extends ServerStorage {
 	}
 	
 	private void deployConfigItem( ActionBase action , String stagingPath , MetaDistrConfItem confItem , RemoteFolder deployDir , boolean full ) throws Exception {
-		if( confItem.CREATEDIR )
-			deployDir.ensureExists( action );
-		else {
-			if( !deployDir.checkExists( action ) )
-				action.exit1( _Error.MissingDeployDirectory1 , "deploy directory " + deployDir.folderPath + " does not exist" , deployDir.folderPath );
-		}
+		if( !deployDir.checkExists( action ) )
+			action.exit1( _Error.MissingDeployDirectory1 , "deploy directory " + deployDir.folderPath + " does not exist" , deployDir.folderPath );
 			
 		// delete old only if full deploy
 		if( full ) {
 			String includeFiles;
 			String excludeFiles;
 			if( action.context.CTX_HIDDEN ) {
-				includeFiles = confItem.getLiveIncludeFiles( action );
-				excludeFiles = confItem.getLiveExcludeFiles( action );
+				includeFiles = confItem.getLiveIncludeFiles();
+				excludeFiles = confItem.getLiveExcludeFiles();
 			}
 			else {
-				includeFiles = confItem.getTemplateIncludeFiles( action );
-				excludeFiles = confItem.getTemplateExcludeFiles( action );
+				includeFiles = confItem.getTemplateIncludeFiles();
+				excludeFiles = confItem.getTemplateExcludeFiles();
 			}
 			deployDir.removeFilesWithExclude( action , includeFiles , excludeFiles );
 		}
@@ -223,16 +220,16 @@ public class RuntimeStorage extends ServerStorage {
 		VarARCHIVETYPE atype = archiveItem.getArchiveType( action );
 
 		deployFolder.ensureExists( action );
-		if( archiveItem.distItemType == VarDISTITEMTYPE.ARCHIVE_CHILD ) {
+		if( archiveItem.DISTITEM_TYPE == DBEnumDistItemType.ARCHIVE_CHILD ) {
 			// delete old
-			if( !deployFolder.checkFolderExists( action , archiveItem.DEPLOYBASENAME ) ) {
+			if( !deployFolder.checkFolderExists( action , archiveItem.BASENAME_DEPLOY ) ) {
 				String content = "";
 				String exclude = "";
-				String prefix = archiveItem.DEPLOYBASENAME + "/";
+				String prefix = archiveItem.BASENAME_DEPLOY + "/";
 				
-				for( String s : Common.splitSpaced( archiveItem.FILES ) )
+				for( String s : Common.splitSpaced( archiveItem.ARCHIVE_FILES ) )
 					content = Common.addItemToUniqueSpacedList( content , prefix + s );
-				for( String s : Common.splitSpaced( archiveItem.EXCLUDE ) )
+				for( String s : Common.splitSpaced( archiveItem.ARCHIVE_EXCLUDE ) )
 					exclude = Common.addItemToUniqueSpacedList( exclude , prefix + s );
 				
 				deployFolder.removeFilesWithExclude( action , content , exclude );
@@ -242,21 +239,21 @@ public class RuntimeStorage extends ServerStorage {
 			deployFolder.extractArchive( action , atype , archiveFilePath , "" );
 		}
 		else
-		if( archiveItem.distItemType == VarDISTITEMTYPE.ARCHIVE_DIRECT ) {
+		if( archiveItem.DISTITEM_TYPE == DBEnumDistItemType.ARCHIVE_DIRECT ) {
 			// delete old
-			deployFolder.removeFilesWithExclude( action , archiveItem.FILES , archiveItem.EXCLUDE );
+			deployFolder.removeFilesWithExclude( action , archiveItem.ARCHIVE_FILES , archiveItem.ARCHIVE_EXCLUDE );
 			
 			// deploy new
 			deployFolder.extractArchive( action , atype , archiveFilePath , "" );
 		}
 		else
-		if( archiveItem.distItemType == VarDISTITEMTYPE.ARCHIVE_SUBDIR ) {
-			RemoteFolder deployTarFolder = deployFolder.getSubFolder( action , archiveItem.DEPLOYBASENAME );
+		if( archiveItem.DISTITEM_TYPE == DBEnumDistItemType.ARCHIVE_SUBDIR ) {
+			RemoteFolder deployTarFolder = deployFolder.getSubFolder( action , archiveItem.BASENAME_DEPLOY );
 			if( !deployTarFolder.checkExists( action ) ) {
 				deployTarFolder.ensureExists( action );
 				
 				// delete old
-				deployTarFolder.removeFilesWithExclude( action , archiveItem.FILES , archiveItem.EXCLUDE );
+				deployTarFolder.removeFilesWithExclude( action , archiveItem.ARCHIVE_FILES , archiveItem.ARCHIVE_EXCLUDE );
 			}
 			
 			// deploy new

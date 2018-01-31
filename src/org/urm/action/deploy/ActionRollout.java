@@ -9,8 +9,8 @@ import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RuntimeStorage;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
 
 public class ActionRollout extends ActionBase {
 
@@ -44,7 +44,7 @@ public class ActionRollout extends ActionBase {
 		debug( "get deployment data ..." );
 		int k = 0;
 		boolean hasDeployments = false;
-		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+		VersionInfo version = VersionInfo.getDistVersion( dist ); 
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
@@ -79,7 +79,7 @@ public class ActionRollout extends ActionBase {
 		redist.recreateTmpFolder( this );
 		
 		RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
-		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+		VersionInfo version = VersionInfo.getDistVersion( dist ); 
 		runtime.rollout( this , version , deployment );
 	}
 	

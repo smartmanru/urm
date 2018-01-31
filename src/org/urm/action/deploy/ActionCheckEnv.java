@@ -14,10 +14,10 @@ import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.SegmentStatus;
 import org.urm.engine.status.ServerStatus;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.product.MetaDistrComponentWS;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerDeployment;
-import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerDeployment;
+import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.Types.*;
 
 public class ActionCheckEnv extends ActionBase {
@@ -267,7 +267,7 @@ public class ActionCheckEnv extends ActionBase {
 			if( deployment.comp == null )
 				continue;
 			
-			for( MetaDistrComponentWS ws : deployment.comp.getWebServices() ) {
+			for( MetaDistrComponentItem ws : deployment.comp.getWebServices() ) {
 				String URL = ws.getURL( ACCESSPOINT ); 
 				if( !checkOneServerWholeUrl( URL , "web service" , state , nodeStatus , serverStatus ) ) {
 					ok = false;
@@ -370,7 +370,7 @@ public class ActionCheckEnv extends ActionBase {
 			process.gatherStatus( this );
 		}
 		catch( Throwable e ) {
-			mainState.setUnknown( e.getMessage() );
+			mainState.setUnknown( e.toString() );
 			handle( e );
 			return( false );
 		}

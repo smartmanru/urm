@@ -119,21 +119,21 @@ public class DBEngineAuth {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityLDAPSettings( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityLDAPSettings( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppAttrsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.LDAPSETTINGS , DBEnumObjectVersionType.LOCAL );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	
-	public static PropertyEntity loaddbEntityAuthUser( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityAuthUser( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_USER , DBEnumParamEntityType.AUTHUSER , DBEnumObjectVersionType.LOCAL , TABLE_USER , FIELD_USER_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	
-	public static PropertyEntity loaddbEntityAuthGroup( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityAuthGroup( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_GROUP , DBEnumParamEntityType.AUTHGROUP , DBEnumObjectVersionType.LOCAL , TABLE_GROUP , FIELD_GROUP_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	
@@ -152,7 +152,7 @@ public class DBEngineAuth {
 		ObjectProperties ops = entities.createLdapProps( settings.getEngineProperties() );
 		Node ldap = ConfReader.xmlGetFirstChild( root , ELEMENT_LDAP );
 		if( ldap != null )
-			DBSettings.importxml( loader , ldap , ops , DBVersions.LOCAL_ID , DBVersions.LOCAL_ID , true , version );
+			DBSettings.importxml( loader , ldap , ops , DBVersions.LOCAL_ID , DBVersions.LOCAL_ID , true , false , version );
 		
 		auth.setLdapSettings( ops );
 	}
@@ -750,8 +750,7 @@ public class DBEngineAuth {
 		}
 	}
 
-	public static void deleteProductAccess( EngineTransaction transaction , EngineAuth auth , AppProduct product ) throws Exception {
-		DBConnection c = transaction.getConnection();
+	public static void deleteProductAccess( DBConnection c , EngineAuth auth , AppProduct product ) throws Exception {
 		if( !c.modify( DBQueries.MODIFY_AUTH_DROP_PRODUCTACCESS1 , new String[] {
 			EngineDB.getInteger( product.ID )
 			}))

@@ -9,13 +9,14 @@ import org.urm.engine.events.EngineEvents;
 import org.urm.engine.status.EngineStatus.StatusType;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.meta.EngineObject;
-import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.AppProduct;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvs;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.ProductMeta;
 
 public class EngineStatusProduct extends EngineObject {
 
@@ -41,8 +42,9 @@ public class EngineStatusProduct extends EngineObject {
 	}
 
 	public void start( ActionBase action ) {
-		for( String envName : meta.getEnvNames() ) {
-			MetaEnv env = meta.findEnv( envName );
+		MetaEnvs envs = meta.getEnviroments();
+		for( String envName : envs.getEnvNames() ) {
+			MetaEnv env = envs.findEnv( envName );
 			startEnvironment( action , env );
 		}
 	}
@@ -108,17 +110,20 @@ public class EngineStatusProduct extends EngineObject {
 		product = transaction.getProduct( product );
 		meta = transaction.getMeta( product );
 		
-		for( String envName : storage.getEnvironmentNames() ) {
-			MetaEnv envNew = storage.findEnvironment( envName );
-			MetaEnv envOld = storageOld.findEnvironment( envName );
+		MetaEnvs envs = meta.getEnviroments();
+		MetaEnvs envsOld = storageOld.getEnviroments();
+		for( String envName : envs.getEnvNames() ) {
+			MetaEnv envNew = envs.findEnv( envName );
+			MetaEnv envOld = envsOld.findEnv( envName );
 			if( envOld != null )
 				modifyEnvironment( action , envOld , envNew );
 			else
 				startEnvironment( action , envNew );
 		}
-		for( String envName : storageOld.getEnvironmentNames() ) {
-			MetaEnv envOld = storageOld.findEnvironment( envName );
-			MetaEnv envNew = storage.findEnvironment( envName );
+		
+		for( String envName : envsOld.getEnvNames() ) {
+			MetaEnv envOld = envsOld.findEnv( envName );
+			MetaEnv envNew = envs.findEnv( envName );
 			if( envNew == null )
 				stopEnvironment( action , envOld , true );
 		}
@@ -406,8 +411,9 @@ public class EngineStatusProduct extends EngineObject {
 
 	private void recalculateProduct( ActionBase action ) {
 		OBJECT_STATE finalState = OBJECT_STATE.STATE_NODATA;
-		for( String envName : meta.getEnvNames() ) {
-			MetaEnv env = meta.findEnv( envName );
+		MetaEnvs envs = meta.getEnviroments();
+		for( String envName : envs.getEnvNames() ) {
+			MetaEnv env = envs.findEnv( envName );
 			StatusSource envSource = getObjectSource( env );
 			if( envSource != null )
 				finalState = StatusData.addState( finalState , envSource.state.state );

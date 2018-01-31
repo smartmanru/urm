@@ -6,6 +6,8 @@ import java.util.List;
 import org.urm.common.Common;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -13,8 +15,6 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
@@ -89,7 +89,7 @@ public class ActionScopeTarget {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 
 		target.confItem = confItem;
-		target.NAME = confItem.KEY;
+		target.NAME = confItem.NAME;
 		target.itemFull = true;
 		target.specifiedExplicitly = specifiedExplicitly;
 		return( target );
@@ -99,7 +99,7 @@ public class ActionScopeTarget {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 
 		target.manualItem = manualItem;
-		target.NAME = manualItem.KEY;
+		target.NAME = manualItem.NAME;
 		target.itemFull = true;
 		target.specifiedExplicitly = specifiedExplicitly;
 		return( target );
@@ -109,7 +109,7 @@ public class ActionScopeTarget {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 
 		target.derivedItem = derivedItem;
-		target.NAME = derivedItem.KEY;
+		target.NAME = derivedItem.NAME;
 		target.itemFull = true;
 		target.specifiedExplicitly = specifiedExplicitly;
 		return( target );
@@ -172,7 +172,7 @@ public class ActionScopeTarget {
 			else {
 				String itemlist = "";
 				for( ActionScopeTargetItem item : items )
-					itemlist = Common.concat( itemlist , item.distItem.KEY , "," );
+					itemlist = Common.concat( itemlist , item.distItem.NAME , "," );
 				scope += itemlist;
 			}
 			return( scope );
@@ -210,13 +210,13 @@ public class ActionScopeTarget {
 			return;
 		}
 		
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		for( String itemName : ITEMS ) {
-			MetaDistrBinaryItem item = distr.getBinaryItem( action , itemName );
+			MetaDistrBinaryItem item = distr.getBinaryItem( itemName );
 			if( item.sourceProjectItem == null )
 				action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + itemName , itemName );
 			
-			MetaSourceProjectItem projectItem = sourceProject.getItem( action , itemName );
+			MetaSourceProjectItem projectItem = sourceProject.getItem( itemName );
 			addProjectItem( action , projectItem , true );
 		}
 	}
@@ -231,7 +231,7 @@ public class ActionScopeTarget {
 		
 		MetaDatabase db = dbDelivery.db;
 		for( String itemName : ITEMS ) {
-			MetaDatabaseSchema item = db.getSchema( action , itemName );
+			MetaDatabaseSchema item = db.getSchema( itemName );
 			addDatabaseSchema( action , item , true );
 		}
 	}
@@ -246,7 +246,7 @@ public class ActionScopeTarget {
 		
 		MetaSourceProject project = releaseTarget.sourceProject;
 		for( String itemName : ITEMS ) {
-			MetaSourceProjectItem item = project.getItem( action , itemName );
+			MetaSourceProjectItem item = project.getItem( itemName );
 			
 			ReleaseTargetItem releaseItem = releaseTarget.findProjectItem( item );
 			if( releaseItem != null )
@@ -266,7 +266,7 @@ public class ActionScopeTarget {
 		
 		MetaDistrDelivery delivery = releaseTarget.distDatabaseDelivery;
 		for( String itemName : ITEMS ) {
-			MetaDatabaseSchema item = delivery.getSchema( action , itemName );
+			MetaDatabaseSchema item = delivery.getSchema( itemName );
 			
 			ReleaseTargetItem releaseItem = releaseTarget.findDatabaseSchema( item );
 			if( releaseItem != null )

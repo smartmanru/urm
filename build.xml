@@ -26,16 +26,21 @@
       =  Define Local Variables & Common Classpath
       =======================================================================-->
 
-  <property name="common.jars"                 value="${basedir}/master/lib"/>
+  <property name="common.jars"                 	value="${basedir}/master/lib"/>
 
-  <property name="build"                       value="${basedir}/antbuild"/>
-  <property name="javaTarget"                  value="1.7"/>
-  <property name="javaSource"                  value="1.7"/>
+  <property name="build"                       	value="${basedir}/antbuild"/>
+  <property name="javaTarget"                  	value="1.7"/>
+  <property name="javaSource"                  	value="1.7"/>
 
-  <property name="runSource"                   value="src"/>
-  <property name="runSourceMessenger"          value="messenger"/>
-  <property name="runSourcePlugins"            value="plugins"/>
-  <property name="runClasses"                  value="${build}"/>
+  <property name="runSource"                   	value="src"/>
+  <property name="runSourceMessenger"          	value="messenger"/>
+  <property name="runSourcePlugins"            	value="plugins"/>
+  <property name="runClasses"                  	value="${build}"/>
+
+  <property name="build.dir" 			value="${build}"/>
+  <property name="javac.source" 		value="${runSource}"/>
+
+  <property name="target.dir" 			value="${basedir}/target"/>
 
   <path id="classpath">
 	<pathelement path="${classpath}" />
@@ -54,9 +59,6 @@
   <target name="timeStamp">
     <tstamp/>
   </target>
-
-  <property name="build.dir" value="${build}"/>
-  <property name="javac.source" value="${runSource}"/>
 
   <!--=======================================================================
       =  Create any necessary build dirs
@@ -116,7 +118,7 @@
 
     <target name="package" depends="runJar">
 
-    	<copy todir="master" >
+    	<copy todir="${target.dir}" >
         	<fileset dir="${build.dir}"     includes="*.jar" />
     	</copy>
 

@@ -7,7 +7,7 @@ import org.urm.common.RunError;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
-import org.urm.db.core.DBEnums.DBEnumParamEntityType;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectMeta;
@@ -15,7 +15,6 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
-import org.urm.meta.ProductMeta;
 import org.urm.meta.engine.BaseCategory;
 import org.urm.meta.engine.BaseGroup;
 import org.urm.meta.engine.BaseItem;
@@ -26,6 +25,7 @@ import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
+import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
@@ -38,6 +38,12 @@ import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineAuth.SpecialRights;
 import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.env.MetaDump;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvs;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -45,23 +51,17 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
-import org.urm.meta.product.MetaDistrComponentWS;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaDocs;
-import org.urm.meta.product.MetaDump;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaProductUnit;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.product.MetaUnits;
-import org.urm.meta.Types.*;
+import org.urm.meta.product.ProductMeta;
 
 public class TransactionBase extends EngineObject {
 
@@ -71,7 +71,8 @@ public class TransactionBase extends EngineObject {
 	private EngineData data;
 	
 	private DBConnection connection;
-	private boolean CHANGEDATABASE;
+	private boolean USEDATABASE;
+	private boolean IMPORT;
 	private boolean CHANGEDATABASECORE;
 	private boolean CHANGEDATABASEAUTH;
 	
@@ -104,7 +105,8 @@ public class TransactionBase extends EngineObject {
 		this.data = data;
 		this.action = action;
 		
-		CHANGEDATABASE = false;
+		USEDATABASE = false;
+		IMPORT = false;
 		CHANGEDATABASECORE = false;
 		CHANGEDATABASEAUTH = false;
 		
@@ -386,17 +388,17 @@ public class TransactionBase extends EngineObject {
 		action.trace( s );
 	}
 	
-	public void changeDatabase() throws Exception {
-		if( CHANGEDATABASE )
+	public void useDatabase() throws Exception {
+		if( USEDATABASE )
 			return;
 		
-		CHANGEDATABASE = true;
+		USEDATABASE = true;
 		EngineDB db = data.getDatabase();
 		connection = db.getConnection( action );
 	}
 	
 	private void changeDatabaseCore() throws Exception {
-		changeDatabase();
+		useDatabase();
 		if( CHANGEDATABASECORE )
 			return;
 		
@@ -406,13 +408,38 @@ public class TransactionBase extends EngineObject {
 	}
 
 	private void changeDatabaseAuth() throws Exception {
-		changeDatabase();
+		useDatabase();
 		if( CHANGEDATABASEAUTH )
 			return;
 		
 		CHANGEDATABASEAUTH = true;
 		int version = connection.getNextLocalVersion();
 		trace( "auth update, new version=" + version );
+	}
+	
+	public boolean startImport() throws Exception {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+					
+				if( IMPORT )
+					return( true );
+
+				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
+					return( false );
+				
+				useDatabase();
+				IMPORT = true;
+				return( true );
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to start import" );
+			}
+			
+			abortTransaction( false );
+			return( false );
+		}
 	}
 	
 	public boolean changeAuth( EngineAuth sourceAuth ) {
@@ -440,6 +467,14 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineInfrastructure changeInfrastructure( Network network ) throws Exception {
+		if( authChange == null ) {
+			if( !changeInfrastructure( getInfrastructure() , network ) )
+				exitUnexpectedState();
+		}
+		return( infraChange );
+	}
+	
 	public boolean changeInfrastructure( EngineInfrastructure sourceInfrastructure , Network network ) {
 		synchronized( engine ) {
 			try {
@@ -471,6 +506,14 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineLifecycles changeReleaseLifecycles() throws Exception {
+		if( lifecyclesChange == null ) {
+			if( !changeReleaseLifecycles( getLifecycles() ) )
+				exitUnexpectedState();
+		}
+		return( lifecyclesChange );
+	}
+	
 	public boolean changeReleaseLifecycles( EngineLifecycles sourceLifecycles ) {
 		synchronized( engine ) {
 			try {
@@ -496,6 +539,14 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineBase changeBase( SpecialRights sr ) throws Exception {
+		if( baseChange == null ) {
+			if( !changeBase( getEngineBase() , sr ) )
+				exitUnexpectedState();
+		}
+		return( baseChange );
+	}
+	
 	public boolean changeBase( EngineBase sourceBase , SpecialRights sr ) {
 		synchronized( engine ) {
 			try {
@@ -521,6 +572,14 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineResources changeResources() throws Exception {
+		if( resourcesNew == null ) {
+			if( !changeResources( getResources() ) )
+				exitUnexpectedState();
+		}
+		return( resourcesNew );
+	}
+	
 	public boolean changeResources( EngineResources sourceResources ) {
 		synchronized( engine ) {
 			try {
@@ -558,6 +617,14 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineBuilders changeBuilders() throws Exception {
+		if( buildersNew == null ) {
+			if( !changeBuilders( getBuilders() ) )
+				exitUnexpectedState();
+		}
+		return( buildersNew );
+	}
+	
 	public boolean changeBuilders( EngineBuilders sourceBuilders ) {
 		synchronized( engine ) {
 			try {
@@ -595,6 +662,14 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineDirectory changeDirectory( boolean critical ) throws Exception {
+		if( directoryNew == null ) {
+			if( !changeDirectory( getDirectory() , critical ) )
+				exitUnexpectedState();
+		}
+		return( directoryNew );
+	}
+	
 	public boolean changeDirectory( EngineDirectory sourceDirectory , boolean critical ) {
 		synchronized( engine ) {
 			try {
@@ -613,7 +688,7 @@ public class TransactionBase extends EngineObject {
 				else {
 					directoryOld = action.getActiveDirectory();
 					if( sourceDirectory == directoryOld ) {
-						changeDatabase();
+						useDatabase();
 						directoryNew = sourceDirectory.copy( this );
 						if( directoryNew != null ) {
 							trace( "transaction directory: source=" + sourceDirectory.objectId + ", copy=" + directoryNew.objectId );
@@ -633,6 +708,14 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineMirrors changeMirrors() throws Exception {
+		if( mirrorsNew == null ) {
+			if( !changeMirrors( getMirrors() ) )
+				exitUnexpectedState();
+		}
+		return( mirrorsNew );
+	}
+	
 	public boolean changeMirrors( EngineMirrors sourceMirrors ) {
 		synchronized( engine ) {
 			try {
@@ -666,6 +749,15 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public EngineMonitoring changeMonitoring() throws Exception {
+		EngineMonitoring monitoring = getMonitoring();
+		if( !USEDATABASE ) {
+			if( !changeMonitoring( monitoring ) )
+				exitUnexpectedState();
+		}
+		return( monitoring );
+	}
+	
 	public boolean changeMonitoring( EngineMonitoring sourceMonitoring ) {
 		synchronized( engine ) {
 			try {
@@ -675,7 +767,7 @@ public class TransactionBase extends EngineObject {
 				if( !checkSecurityServerChange( SecurityAction.ACTION_MONITOR ) )
 					return( false );
 				
-				changeDatabase();
+				useDatabase();
 				return( true );
 			}
 			catch( Throwable e ) {
@@ -685,6 +777,14 @@ public class TransactionBase extends EngineObject {
 			abortTransaction( false );
 			return( false );
 		}
+	}
+	
+	public EngineSettings changeSettings() throws Exception {
+		if( settingsNew == null ) {
+			if( !changeSettings( getSettings() ) )
+				exitUnexpectedState();
+		}
+		return( settingsNew );
 	}
 	
 	public boolean changeSettings( EngineSettings sourceSettings ) {
@@ -734,12 +834,42 @@ public class TransactionBase extends EngineObject {
 				
 				tm = new TransactionMetadata( this );
 				if( tm.changeProduct( meta ) ) {
+					useDatabase();
 					addTransactionMeta( meta , tm );
 					return( true );
 				}
 			}
 			catch( Throwable e ) {
-				handle( e , "unable to save metadata" );
+				handle( e , "unable to change metadata" );
+			}
+			
+			abortTransaction( false );
+			return( false );
+		}
+	}
+	
+	public boolean recreateMetadata( Meta meta ) {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+
+				TransactionMetadata tm = productMeta.get( meta.name ); 
+				if( tm != null )
+					return( false );
+				
+				if( !checkSecurityProductChange( meta , null ) )
+					return( false );
+				
+				tm = new TransactionMetadata( this );
+				if( tm.recreateProduct( meta ) ) {
+					useDatabase();
+					addTransactionMeta( meta , tm );
+					return( true );
+				}
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to recreate metadata" );
 			}
 			
 			abortTransaction( false );
@@ -762,6 +892,7 @@ public class TransactionBase extends EngineObject {
 				
 				tm = new TransactionMetadata( this );
 				if( tm.deleteProduct( meta ) ) {
+					useDatabase();
 					addTransactionMeta( meta , tm );
 					return( true );
 				}
@@ -802,6 +933,12 @@ public class TransactionBase extends EngineObject {
 	protected void checkTransaction() throws Exception {
 		if( !continueTransaction() )
 			exit( _Error.TransactionAborted0 , "Transaction is aborted" , null );
+	}
+
+	protected void checkTransactionImport() throws Exception {
+		checkTransaction();
+		if( !IMPORT )
+			exit( _Error.TransactionMissingImportChanges0 , "Missing import changes" , null );
 	}
 
 	protected void checkTransactionAuth() throws Exception {
@@ -898,6 +1035,10 @@ public class TransactionBase extends EngineObject {
 			else
 				exitUnexpectedState();
 	}
+
+	public EngineProducts getProducts() {
+		return( data.getProducts() );
+	}
 	
 	public EngineEntities getEntities() {
 		return( data.getEntities() );
@@ -945,6 +1086,12 @@ public class TransactionBase extends EngineObject {
 	
 	public EngineMirrors getTransactionMirrors() {
 		return( mirrorsNew );
+	}
+	
+	public EngineAuth getAuth() {
+		if( authChange != null )
+			return( authChange );
+		return( engine.getAuth() );
 	}
 	
 	public EngineMirrors getMirrors() {
@@ -1001,18 +1148,18 @@ public class TransactionBase extends EngineObject {
 
 	// helpers
 	public AuthResource getResource( AuthResource resource ) throws Exception {
-		return( resourcesNew.getResource( resource.NAME ) );
+		return( resourcesNew.getResource( resource.ID ) );
 	}
 	
 	public ProjectBuilder getBuilder( ProjectBuilder builder ) throws Exception {
-		return( buildersNew.getBuilder( builder.NAME ) );
+		return( buildersNew.getBuilder( builder.ID ) );
 	}
 	
 	public AppSystem getSystem( AppSystem system ) throws Exception {
 		if( directoryNew != null )
-			return( directoryNew.getSystem( system.NAME ) );
+			return( directoryNew.getSystem( system.ID ) );
 		EngineDirectory directory = data.getDirectory();
-		return( directory.getSystem( system.NAME ) );
+		return( directory.getSystem( system.ID ) );
 	}
 	
 	public AppProduct getProduct( AppProduct product ) throws Exception {
@@ -1032,7 +1179,8 @@ public class TransactionBase extends EngineObject {
 
 	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
 		ProductMeta metadata = getTransactionProductMetadata( env.meta );
-		return( metadata.findEnvironment( env.NAME ) );
+		MetaEnvs envs = metadata.getEnviroments();
+		return( envs.findEnv( env.NAME ) );
 	}
 
 	public MetaEnvSegment getMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
@@ -1065,24 +1213,12 @@ public class TransactionBase extends EngineObject {
 		return( tm.metadata );
 	}
 	
-	protected Meta createProductMetadata( AppProduct product ) throws Exception {
-		TransactionMetadata tm = productMeta.get( product.NAME );
-		if( tm != null )
-			action.exitUnexpectedState();
-		
-		if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
-			action.exitUnexpectedState();
-		
-		EngineSettings settings = getSettings();
-		Meta meta = data.createProductMetadata( this , settings , product );
-		tm = new TransactionMetadata( this );
-		tm.createProduct( meta );
-		addTransactionMeta( meta , tm );
-		return( meta );
-	}
-
 	public Meta getTransactionMetadata( Meta meta ) throws Exception {
 		return( getTransactionMetadata( meta.name ) );
+	}
+
+	public Meta getTransactionMetadata( AppProduct product ) throws Exception {
+		return( getTransactionMetadata( product.NAME ) );
 	}
 
 	public Meta getTransactionMetadata( String productName ) throws Exception {
@@ -1094,84 +1230,81 @@ public class TransactionBase extends EngineObject {
 
 	public MetaDistrDelivery getDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
 		Meta meta = getTransactionMetadata( delivery.meta.name );
-		MetaDistr distr = meta.getDistr( action );
-		return( distr.getDelivery( action , delivery.NAME ) );
+		MetaDistr distr = meta.getDistr();
+		return( distr.getDelivery( delivery.ID ) );
 	}
 
 	public MetaDistrBinaryItem getDistrBinaryItem( MetaDistrBinaryItem item ) throws Exception {
 		MetaDistrDelivery delivery = getDistrDelivery( item.delivery );
-		return( delivery.getBinaryItem( action , item.KEY ) );
+		return( delivery.getBinaryItem( item.ID ) );
 	}
 	
 	public MetaDistrConfItem getDistrConfItem( MetaDistrConfItem item ) throws Exception {
 		MetaDistrDelivery delivery = getDistrDelivery( item.delivery );
-		return( delivery.getConfItem( action , item.KEY ) );
+		return( delivery.getConfItem( item.ID ) );
 	}
 
 	public MetaDatabaseSchema getDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
 		Meta meta = getTransactionMetadata( schema.meta.name );
-		MetaDatabase database = meta.getDatabase( action );
-		return( database.getSchema( action , schema.SCHEMA ) );
+		MetaDatabase database = meta.getDatabase();
+		return( database.getSchema( schema.ID ) );
 	}
 
 	public MetaProductUnit getProductUnit( MetaProductUnit unit ) throws Exception {
 		Meta meta = getTransactionMetadata( unit.meta.name );
-		MetaUnits units = meta.getUnits( action );
-		return( units.getUnit( action , unit.NAME ) );
+		MetaUnits units = meta.getUnits();
+		return( units.getUnit( unit.ID ) );
 	}
 
 	public MetaProductDoc getProductDoc( MetaProductDoc doc ) throws Exception {
 		Meta meta = getTransactionMetadata( doc.meta.name );
-		MetaDocs docs = meta.getDocs( action );
-		return( docs.getDoc( action , doc.NAME ) );
+		MetaDocs docs = meta.getDocs();
+		return( docs.getDoc( doc.ID ) );
 	}
 
 	public MetaDistrComponent getDistrComponent( MetaDistrComponent comp ) throws Exception {
 		Meta meta = getTransactionMetadata( comp.meta.name );
-		MetaDistr distr = meta.getDistr( action );
-		return( distr.getComponent( action , comp.NAME ) );
+		MetaDistr distr = meta.getDistr();
+		return( distr.getComponent( comp.ID ) );
 	}
 
 	public MetaDistrComponentItem getDistrComponentItem( MetaDistrComponentItem item ) throws Exception {
 		MetaDistrComponent comp = getDistrComponent( item.comp );
-		if( item.type == VarCOMPITEMTYPE.BINARY )
-			return( comp.getBinaryItem( action , item.NAME ) );
-		if( item.type == VarCOMPITEMTYPE.CONF )
-			return( comp.getConfItem( action , item.NAME ) );
-		if( item.type == VarCOMPITEMTYPE.SCHEMA )
-			return( comp.getSchemaItem( action , item.NAME ) );
+		if( item.COMPITEM_TYPE == DBEnumCompItemType.BINARY )
+			return( comp.getBinaryItem( item.binaryItem.NAME ) );
+		if( item.COMPITEM_TYPE == DBEnumCompItemType.CONF )
+			return( comp.getConfItem( item.confItem.NAME ) );
+		if( item.COMPITEM_TYPE == DBEnumCompItemType.SCHEMA )
+			return( comp.getSchemaItem( item.schema.NAME ) );
+		if( item.COMPITEM_TYPE == DBEnumCompItemType.WSDL )
+			return( comp.getWebService( item.WSDL_REQUEST ) );
 		action.exitUnexpectedState();
 		return( null );
 	}
 
-	public MetaDistrComponentWS getDistrComponentService( MetaDistrComponentWS service ) throws Exception {
-		MetaDistrComponent comp = getDistrComponent( service.comp );
-		return( comp.getWebService( action , service.NAME ) );
-	}
-
 	public MetaSourceProjectItem getSourceProjectItem( MetaSourceProjectItem item ) throws Exception {
 		MetaSourceProject project = getSourceProject( item.project );
-		return( project.getItem( action , item.ITEMNAME ) );
+		return( project.getItem( item.ID ) );
 	}
 	
 	public MetaSourceProject getSourceProject( MetaSourceProject project ) throws Exception {
 		Meta metaNew = getTransactionMetadata( project.meta.name );
-		MetaSource sourceNew = metaNew.getSources( action );
-		return( sourceNew.getProject( action , project.NAME ) );
+		MetaSources sourceNew = metaNew.getSources();
+		return( sourceNew.getProject( project.ID ) );
 	}
 	
 	public MetaSourceProjectSet getSourceProjectSet( MetaSourceProjectSet set ) throws Exception {
 		Meta metaNew = getTransactionMetadata( set.meta.name );
-		MetaSource sourceNew = metaNew.getSources( action );
-		return( sourceNew.getProjectSet( action , set.NAME ) );
+		MetaSources sourceNew = metaNew.getSources();
+		return( sourceNew.getProjectSet( set.ID ) );
 	}
 
 	public MirrorRepository getMirrorRepository( MirrorRepository repo ) throws Exception {
-		return( mirrorsNew.getRepository( repo.NAME ) );
+		return( mirrorsNew.getRepository( repo.ID ) );
 	}
 	
 	public Datacenter getDatacenter( Datacenter datacenter ) throws Exception {
-		return( infraChange.getDatacenter( datacenter.NAME ) );
+		return( infraChange.getDatacenter( datacenter.ID ) );
 	}
 	
 	public ReleaseLifecycle getLifecycle( ReleaseLifecycle lc ) throws Exception {
@@ -1192,7 +1325,7 @@ public class TransactionBase extends EngineObject {
 
 	public MetaDump getDump( MetaDump dump ) throws Exception {
 		Meta meta = getTransactionMetadata( dump.meta );
-		MetaDatabase db = meta.getDatabase( action );
+		MetaDatabase db = meta.getDatabase();
 		if( dump.EXPORT )
 			return( db.findExportDump( dump.NAME ) );
 		return( db.findImportDump( dump.NAME ) );
@@ -1246,4 +1379,24 @@ public class TransactionBase extends EngineObject {
 		data.deleteProductMetadata( this , metadata );
 	}
 	
+	public Meta createProductMetadata( ProductMeta storage ) throws Exception {
+		TransactionMetadata tm = productMeta.get( storage.name );
+		if( tm != null )
+			action.exitUnexpectedState();
+		
+		Meta meta = data.createSessionProductMetadata( this , storage );
+		tm = new TransactionMetadata( this );
+		tm.createProduct( meta );
+		addTransactionMeta( meta , tm );
+		return( meta );
+	}
+
+	public void replaceProductMetadata( ProductMeta storage ) throws Exception {
+		TransactionMetadata tm = productMeta.get( storage.name );
+		if( tm == null )
+			action.exitUnexpectedState();
+		
+		tm.replaceProduct( storage );
+	}
+
 }

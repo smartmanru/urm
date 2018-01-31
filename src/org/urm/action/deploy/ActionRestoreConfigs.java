@@ -11,11 +11,11 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RuntimeStorage;
 import org.urm.engine.storage.SourceStorage;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerDeployment;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerDeployment;
-import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionRestoreConfigs extends ActionBase {
 
@@ -131,14 +131,14 @@ public class ActionRestoreConfigs extends ActionBase {
 	private void executeNodeConfLive( LocalFolder parent , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String name , boolean prepare ) throws Exception {
 		LocalFolder live = parent.getSubFolder( this , name );
 		if( prepare ) {
-			debug( "prepare restore configuraton item=" + confItem.KEY + " from live ..." );
+			debug( "prepare restore configuraton item=" + confItem.NAME + " from live ..." );
 			sourceStorage.exportLiveConfigItem( this , server , name , context.CTX_TAG , parent );
 	
 			ConfBuilder builder = new ConfBuilder( this , server.meta );
 			builder.configureLiveComponent( live , confItem , server , node );
 		}
 		else {
-			info( "restore configuraton item=" + confItem.KEY + " from live ..." );
+			info( "restore configuraton item=" + confItem.NAME + " from live ..." );
 			
 			RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
@@ -149,16 +149,16 @@ public class ActionRestoreConfigs extends ActionBase {
 	private void executeNodeConfTemplates( LocalFolder parent , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String name , boolean prepare ) throws Exception {
 		LocalFolder live = parent.getSubFolder( this , name );
 		if( prepare ) {
-			debug( "prepare restore configuraton item=" + confItem.KEY + " from templates ..." );
+			debug( "prepare restore configuraton item=" + confItem.NAME + " from templates ..." );
 			
-			LocalFolder template = parent.getSubFolder( this , confItem.KEY );
+			LocalFolder template = parent.getSubFolder( this , confItem.NAME );
 			live.recreateThis( this );
 			
 			ConfBuilder builder = new ConfBuilder( this , server.meta );
 			builder.configureComponent( template , live , confItem , server , node );
 		}
 		else {
-			info( "restore configuraton item=" + confItem.KEY + " from templates ..." );
+			info( "restore configuraton item=" + confItem.NAME + " from templates ..." );
 			
 			RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );

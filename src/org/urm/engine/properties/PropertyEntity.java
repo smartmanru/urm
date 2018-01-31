@@ -30,7 +30,7 @@ public class PropertyEntity {
 																// app module meta: APP (change only with app version upgrade) 
 																// custom module meta: specific module object   
 	public DBEnumObjectVersionType META_OBJECTVERSION_TYPE;		// type of module object, owning entity meta
-	public DBEnumObjectVersionType DATA_OBJECTVERSION_TYPE;		// type of module object, owning entity data
+	public DBEnumObjectVersionType DATA_OBJECTVERSION_TYPE;		// type of module object, owning entity data (can be different for different objects)
 	public String ID_FIELD;										// object identifier table field 
 	public int VERSION;
 	
@@ -137,7 +137,9 @@ public class PropertyEntity {
 
 	public void clear() {
 		list.clear();
+		dblist.clear();
 		map.clear();
+		xmlmap.clear();
 	}
 
 	public void removeVar( EntityVar var ) throws Exception {
@@ -180,22 +182,6 @@ public class PropertyEntity {
 		return( ID_FIELD );
 	}
 	
-	public String getVersionField() {
-		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.APP )
-			return( EngineEntities.FIELD_VERSION_APP );
-		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.CORE )
-			return( EngineEntities.FIELD_VERSION_CORE );
-		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.SYSTEM )
-			return( EngineEntities.FIELD_VERSION_SYSTEM );
-		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.PRODUCT )
-			return( EngineEntities.FIELD_VERSION_PRODUCT );
-		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.ENVIRONMENT )
-			return( EngineEntities.FIELD_VERSION_ENVIRONMENT );
-		if( DATA_OBJECTVERSION_TYPE == DBEnumObjectVersionType.LOCAL )
-			return( EngineEntities.FIELD_VERSION_AUTH );
-		return( null );
-	}
-
 	public String importxmlStringAttr( Node root , String prop ) throws Exception {
 		EntityVar var = findVar( prop );
 		if( var == null )
@@ -225,17 +211,25 @@ public class PropertyEntity {
 	}
 
 	public int importxmlIntAttr( Node root , String prop ) throws Exception {
+		return( importxmlIntAttr( root , prop , 0 ) );
+	}
+	
+	public int importxmlIntAttr( Node root , String prop , int defaultValue ) throws Exception {
 		EntityVar var = findVar( prop );
 		if( var == null )
 			Common.exitUnexpected();
-		return( ConfReader.getIntegerAttrValue( root , var.XMLNAME , 0 ) );
+		return( ConfReader.getIntegerAttrValue( root , var.XMLNAME , defaultValue ) );
 	}
 	
 	public int importxmlIntProperty( Node root , String prop ) throws Exception {
+		return( importxmlIntProperty( root , prop , 0 ) );
+	}
+	
+	public int importxmlIntProperty( Node root , String prop , int defaultValue ) throws Exception {
 		EntityVar var = findVar( prop );
 		if( var == null )
 			Common.exitUnexpected();
-		return( ConfReader.getIntegerPropertyValue( root , var.XMLNAME , 0 ) );
+		return( ConfReader.getIntegerPropertyValue( root , var.XMLNAME , defaultValue ) );
 	}
 	
 	public int importxmlEnumAttr( Node root , String prop ) throws Exception {
@@ -243,7 +237,7 @@ public class PropertyEntity {
 		if( var == null )
 			Common.exitUnexpected();
 		String xmlvalue = ConfReader.getAttrValue( root , var.XMLNAME );
-		return( DBEnums.getEnumCode( var.enumClass ,  xmlvalue ) );
+		return( DBEnums.getEnumCode( var.enumClass , xmlvalue ) );
 	}
 	
 	public int importxmlEnumProperty( Node root , String prop ) throws Exception {
@@ -251,7 +245,7 @@ public class PropertyEntity {
 		if( var == null )
 			Common.exitUnexpected();
 		String xmlvalue = ConfReader.getPropertyValue( root , var.XMLNAME );
-		return( DBEnums.getEnumCode( var.enumClass ,  xmlvalue ) );
+		return( DBEnums.getEnumCode( var.enumClass , xmlvalue ) );
 	}
 	
 	public Integer importxmlObjectAttr( EngineLoader loader , Node root , String prop ) throws Exception {

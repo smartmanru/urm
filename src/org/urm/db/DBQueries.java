@@ -53,10 +53,12 @@ public abstract class DBQueries {
 	public static String MODIFY_APP_DROP_SYSTEMPARAMVALUES0 = "delete from urm_object_param_value where param_object_id in ( select system_id from urm_system )";
 	public static String MODIFY_APP_DROP_SYSTEMPARAMS0 = "delete from urm_object_param where param_object_id in ( select system_id from urm_system )";
 	public static String MODIFY_APP_DROP_SYSTEMENTITIES0 = "delete from urm_object_entity where param_object_id in ( select system_id from urm_system )";
+	public static String MODIFY_APP_UNMATCHPRODUCTS0 = "update urm_product_meta set product_fkid = null , product_fkname = product.name , matched = 'no' from ( select product_id , name from urm_product ) as product where product_fkid is not null and urm_product_meta.product_fkid = product.product_id";
 
-	public static String MODIFY_CORE_DROP_PARAMVALUE1 = "delete from urm_object_param_value where param_object_id = @1@";
-	public static String MODIFY_CORE_DROP_PARAM1 = "delete from urm_object_param where param_object_id = @1@";
 	public static String MODIFY_CORE_DROP_ENTITY1 = "delete from urm_object_entity where param_object_id = @1@";
+	public static String MODIFY_CORE_UNMATCHPRODUCTLIFECYCLES0 = "update urm_product_lifecycle set lifecycle_fkid = null , lifecycle_fkname = lifecycle.name from ( select lifecycle_id , name from urm_release_lifecycle ) as lifecycle where lifecycle_fkid is not null and urm_product_lifecycle.lifecycle_fkid = lifecycle.lifecycle_id";
+	public static String MODIFY_CORE_UNMATCHPROJECTBUILDERS0 = "update urm_source_project set builder_fkid = null , builder_fkname = builder.name from ( select builder_id , name from urm_project_builder ) as builder where builder_fkid is not null and urm_source_project.builder_fkid = builder.builder_id";
+	public static String MODIFY_CORE_UNMATCHPROJECTMIRRORS0 = "update urm_source_project set mirror_fkid = null , mirror_fkresource = mirror.resource_name , mirror_fkrepository = mirror.resource_repo , mirror_fkrepopath = mirror.resource_root , mirror_fkcodepath = mirror.resource_data from ( select mirror_id , urm_resource.name as resource_name , resource_repo , resource_root , resource_data from urm_mirror , urm_resource where urm_mirror.resource_id = urm_resource.resource_id ) as mirror where mirror_fkid is not null and urm_source_project.mirror_fkid = mirror.mirror_id";
 	
 	public static String MODIFY_LIFECYCLE_DROPPHASES1 = "delete from urm_lifecycle_phase where lifecycle_id = @1@";
 
@@ -81,5 +83,46 @@ public abstract class DBQueries {
 	public static String QUERY_AUTH_GROUPACCESS_PRODUCTS0 = "select group_id , product_id , uv from urm_auth_access_product";
 	public static String QUERY_AUTH_GROUPACCESS_NETWORKS0 = "select group_id , network_id , uv from urm_auth_access_network";
 	public static String QUERY_AUTH_GROUPUSERS0 = "select group_id , user_id , uv from urm_auth_groupuser";
+
+	public static String MODIFY_META_DELETEALL_SOURCEITEM1 = "delete from urm_source_item where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_SOURCEPROJECT1 = "delete from urm_source_project where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_UNIT1 = "delete from urm_product_unit where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_SCHEMA1 = "delete from urm_product_schema where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_SOURCESET1 = "delete from urm_source_set where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_DOC1 = "delete from urm_product_doc where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_LIFECYCLE1 = "delete from urm_product_lifecycle where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_POLICY1 = "delete from urm_product_policy where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_META1 = "delete from urm_product_meta where meta_id = @1@";
+	
+	public static String MODIFY_META_DELETEALL_DISTCOMPITEM1 = "delete from urm_dist_compitem where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_DISTBINARYITEM1 = "delete from urm_dist_binaryitem where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_DISTSCHEMAITEM1 = "delete from urm_dist_schemaitem where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_DISTCONFITEM1 = "delete from urm_dist_confitem where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_DISTDOCITEM1 = "delete from urm_dist_docitem where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_DISTDELIVERY1 = "delete from urm_dist_delivery where meta_id = @1@";
+	public static String MODIFY_META_DELETEALL_DISTCOMP1 = "delete from urm_dist_comp where meta_id = @1@";
+
+	public static String MODIFY_META_SETSTATUS2 = "update urm_product_meta set matched = @2@ where meta_id = @1@";
+	
+	public static String MODIFY_METALC_ADD5 = "insert into urm_product_lifecycle ( meta_id , lc_index , lifecycle_fkid , lifecycle_fkname , pv ) values ( @values@ )";
+	public static String MODIFY_METALC_DELETEALL1 = "delete from urm_product_lifecycle where meta_id = @1@";
+	public static String QUERY_METALC_GETALL1 = "select meta_id , lc_index , lifecycle_fkid , lifecycle_fkname , pv from urm_product_lifecycle where meta_id = @1@";
+
+	public static String FILTER_META_ID = "where meta_id = @1@";
+	public static String MODIFY_SOURCE_SHIFTPOS_ONDELETEPROJECT3 = "update urm_source_project set project_pos = project_pos - 1 where meta_id = @1@ and srcset_id = @2@ and project_pos > @3@";
+	public static String MODIFY_SOURCE_SHIFTPOS_ONINSERTPROJECT3 = "update urm_source_project set project_pos = project_pos + 1 where meta_id = @1@ and srcset_id = @2@ and project_pos >= @3@";
+	public static String MODIFY_SOURCE_CHANGEPROJECTSET2 = "update urm_source_project set srcset_id = @2@ where meta_id = @1@";
+	public static String MODIFY_SOURCE_CHANGEPROJECTORDER2 = "update urm_source_project set project_pos = @2@ where meta_id = @1@";
+	public static String MODIFY_SOURCE_DELETEPROJECTITEMS1 = "delete from urm_source_item where project_id = @1@";
+	
+	public static String MODIFY_DISTR_ADDDELIVERYSCHEMA4 = "insert into urm_dist_schemaitem ( delivery_id , schema_id , meta_id , pv ) values ( @values@ )";
+	public static String MODIFY_DISTR_ADDDELIVERYDOC4 = "insert into urm_dist_docitem ( delivery_id , doc_id , meta_id , pv ) values ( @values@ )";
+	public static String MODIFY_DISTR_CASCADEBINARY_COMPITEM1 = "delete from urm_dist_compitem where binary_id = @1@";
+	public static String MODIFY_DISTR_CASCADECONF_COMPITEM1 = "delete from urm_dist_compitem where confitem_id = @1@";
+	public static String MODIFY_DISTR_DELETEDELIVERYSCHEMES1 = "delete from urm_dist_schemaitem where delivery_id = @1@";
+	public static String MODIFY_DISTR_DELETEDELIVERYDOCS1 = "delete from urm_dist_docitem where delivery_id = @1@";
+	public static String QUERY_DISTR_GETALLDELIVERYSCHEMES1 = "select delivery_id , schema_id , meta_id , pv from urm_dist_schemaitem where meta_id = @1@";
+	public static String QUERY_DISTR_GETALLDELIVERYDOCS1 = "select delivery_id , doc_id , meta_id , pv from urm_dist_docitem where meta_id = @1@";
+	public static String MODIFY_DISTR_CASCADECOMP_ALLITEMS1 = "delete from urm_dist_compitem where comp_id = @1@";
 	
 }

@@ -78,15 +78,15 @@ public class DBEngineLifecycles {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseLifecycle( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityReleaseLifecycle( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.LIFECYCLE , DBEnumParamEntityType.LIFECYCLE , DBEnumObjectVersionType.CORE , TABLE_LIFECYCLE , FIELD_LIFECYCLE_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	
-	public static PropertyEntity loaddbEntityLifecyclePhase( EngineLoader loader ) throws Exception {
+	public static PropertyEntity loaddbEntityLifecyclePhase( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.LIFECYCLEPHASE , DBEnumParamEntityType.LIFECYCLEPHASE , DBEnumObjectVersionType.CORE , TABLE_PHASE , FIELD_PHASE_ID );
-		DBSettings.loaddbEntity( loader , entity , DBVersions.APP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
 	

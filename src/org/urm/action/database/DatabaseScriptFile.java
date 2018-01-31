@@ -44,14 +44,14 @@ public class DatabaseScriptFile {
 	}
 
 	public static boolean checkDistHasSchemaFiles( FileSet files , MetaDatabaseSchema schema ) {
-		String regexp = "[^-]+-[^-]+-[^-]+" + schema.SCHEMA + "[-.].*";
+		String regexp = "[^-]+-[^-]+-[^-]+" + schema.NAME + "[-.].*";
 		if( files.findFileMatched( regexp ) != null )
 			return( true );
 		return( false );
 	}
 
 	public static String[] getDistSchemaFiles( FileSet files , MetaDatabaseSchema schema ) {
-		String regexp = "[^-]+-[^-]+-[^-]+" + schema.SCHEMA + "[-.].*";
+		String regexp = "[^-]+-[^-]+-[^-]+" + schema.NAME + "[-.].*";
 		return( files.getFilesMatched( regexp ) );
 	}
 	

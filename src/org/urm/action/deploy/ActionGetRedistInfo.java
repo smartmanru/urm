@@ -11,8 +11,8 @@ import org.urm.engine.storage.FileInfo;
 import org.urm.engine.storage.RedistStateInfo;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.Types.*;
 
 public class ActionGetRedistInfo extends ActionBase {
@@ -55,7 +55,7 @@ public class ActionGetRedistInfo extends ActionBase {
 	}
 	
 	private void showReleaseState( RedistStorage redist ) throws Exception {
-		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
+		VersionInfo version = VersionInfo.getDistVersion( dist ); 
 		ServerDeployment deployment = redist.getDeployment( this , version );
 		for( String category : deployment.getCategories( this ) ) {
 			boolean first = true;

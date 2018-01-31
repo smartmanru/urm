@@ -8,8 +8,8 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
 
 public class ActionStopServer extends ActionBase {
 	

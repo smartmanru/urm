@@ -10,9 +10,9 @@ import org.urm.engine.action.CommandContext;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDistSet;
 import org.urm.meta.Types;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.Types.*;
 

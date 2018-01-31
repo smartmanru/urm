@@ -7,13 +7,14 @@ import java.util.Map.Entry;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.db.core.DBEnums.*;
 import org.urm.meta.Types;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.Types.*;
@@ -51,8 +52,8 @@ public class ReleaseDistSet {
 		nx.BUILDTAG = BUILDTAG;
 		nx.BUILDVERSION = BUILDVERSION;
 		if( set != null ) {
-			MetaSource nsources = nr.meta.getSources( action );
-			nx.set = nsources.getProjectSet( action , set.NAME );
+			MetaSources nsources = nr.meta.getSources();
+			nx.set = nsources.getProjectSet( set.NAME );
 		}
 		
 		for( Entry<String,ReleaseTarget> entry : map.entrySet() ) {
@@ -122,8 +123,8 @@ public class ReleaseDistSet {
 	
 	private void loadBinary( ActionBase action , Node node ) throws Exception {
 		String SET = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		MetaSource sources = meta.getSources( action ); 
-		set = sources.getProjectSet( action , SET );
+		MetaSources sources = meta.getSources(); 
+		set = sources.getProjectSet( SET );
 		NAME = set.NAME;
 		
 		BUILDBRANCH = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDBRANCH );
@@ -302,29 +303,29 @@ public class ReleaseDistSet {
 	}
 
 	public void addAllConfItems( ActionBase action ) throws Exception {
-		MetaDistr distr = meta.getDistr( action ); 
+		MetaDistr distr = meta.getDistr(); 
 		for( MetaDistrConfItem comp : distr.getConfItems() )
 			addConfItem( action , comp , true );
 	}
 
 	public void addAllDatabaseItems( ActionBase action ) throws Exception {
-		MetaDistr distr = meta.getDistr( action ); 
+		MetaDistr distr = meta.getDistr(); 
 		for( MetaDistrDelivery delivery : distr.getDatabaseDeliveries() )
 			addDatabaseDelivery( action , delivery , true );
 	}
 
 	public void addAllManualItems( ActionBase action ) throws Exception {
-		MetaDistr distr = meta.getDistr( action ); 
+		MetaDistr distr = meta.getDistr(); 
 		for( MetaDistrBinaryItem item : distr.getBinaryItems() ) {
-			if( item.distItemOrigin == VarDISTITEMORIGIN.MANUAL )
+			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL )
 				addManualItem( action , item );
 		}
 	}
 
 	public void addAllDerivedItems( ActionBase action ) throws Exception {
-		MetaDistr distr = meta.getDistr( action ); 
+		MetaDistr distr = meta.getDistr(); 
 		for( MetaDistrBinaryItem item : distr.getBinaryItems() ) {
-			if( item.distItemOrigin == VarDISTITEMORIGIN.DERIVED )
+			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED )
 				addDerivedItem( action , item );
 		}
 	}

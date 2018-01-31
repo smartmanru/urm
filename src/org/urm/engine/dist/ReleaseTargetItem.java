@@ -36,10 +36,10 @@ public class ReleaseTargetItem {
 	public ReleaseTargetItem copy( ActionBase action , Release nr , ReleaseDistSet ns , ReleaseTarget nt ) throws Exception {
 		ReleaseTargetItem nx = new ReleaseTargetItem( nt.meta , nt );
 		
-		nx.sourceItem = ( sourceItem == null )? null : nt.sourceProject.getItem( action , sourceItem.ITEMNAME );
+		nx.sourceItem = ( sourceItem == null )? null : nt.sourceProject.getItem( sourceItem.NAME );
 		nx.distItem = ( distItem == null )? null : sourceItem.distItem;
-		MetaDatabase ndb = nt.meta.getDatabase( action );
-		nx.schema = ( schema == null )? null : ndb.getSchema( action , schema.SCHEMA );
+		MetaDatabase ndb = nt.meta.getDatabase();
+		nx.schema = ( schema == null )? null : ndb.getSchema( schema.NAME );
 		nx.NAME = NAME;
 		nx.BUILDVERSION = BUILDVERSION;
 		
@@ -64,9 +64,9 @@ public class ReleaseTargetItem {
 	
 	public String getId() {
 		if( isBinary() )
-			return( target.NAME + ":" + distItem.KEY );
+			return( target.NAME + ":" + distItem.NAME );
 		if( isDatabase() )
-			return( target.NAME + ":" + schema.SCHEMA );
+			return( target.NAME + ":" + schema.NAME );
 		return( null );
 	}
 	
@@ -93,28 +93,28 @@ public class ReleaseTargetItem {
 	public void loadSourceItem( ActionBase action , Node node ) throws Exception {
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		BUILDVERSION = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDVERSION );
-		MetaDistr distr = meta.getDistr( action );
-		this.distItem = distr.getBinaryItem( action , NAME );
-		this.sourceItem = target.sourceProject.getItem( action , distItem.sourceProjectItem.ITEMNAME );
+		MetaDistr distr = meta.getDistr();
+		this.distItem = distr.getBinaryItem( NAME );
+		this.sourceItem = target.sourceProject.getItem( distItem.sourceProjectItem.NAME );
 	}
 	
 	public void loadDatabaseItem( ActionBase action , Node node ) throws Exception {
 		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		BUILDVERSION = "";
-		MetaDatabase db = meta.getDatabase( action );
-		this.schema = db.getSchema( action , NAME );
+		MetaDatabase db = meta.getDatabase();
+		this.schema = db.getSchema( NAME );
 	}
 	
 	public void createFromDistrItem( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
 		this.distItem = distItem;
-		this.sourceItem = target.sourceProject.getItem( action , distItem.sourceProjectItem.ITEMNAME );
-		NAME = distItem.KEY;
+		this.sourceItem = target.sourceProject.getItem( distItem.sourceProjectItem.NAME );
+		NAME = distItem.NAME;
 		BUILDVERSION = "";
 	}
 	
 	public void createFromSchema( ActionBase action , MetaDatabaseSchema schema ) throws Exception {
 		this.schema = schema;
-		NAME = schema.SCHEMA;
+		NAME = schema.NAME;
 		BUILDVERSION = "";
 	}
 	

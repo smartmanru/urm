@@ -184,7 +184,7 @@ public class CommandOutput {
 		}
 		else {
 			s += "exception: " + e.getClass().getName();
-			String msg = e.getMessage();
+			String msg = e.toString();
 			if( msg != null )
 				s += " - " + msg;
 		}

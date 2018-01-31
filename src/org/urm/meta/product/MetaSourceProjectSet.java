@@ -6,26 +6,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.engine.EngineTransaction;
-import org.urm.meta.Types.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class MetaSourceProjectSet {
 
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
+	
 	public Meta meta;
-	public MetaSource sources;
+	public MetaSources sources;
 
+	public int ID;
 	public String NAME;
+	public String DESC;
+	public int PV;
 
 	private List<MetaSourceProject> orderedList;
 	private Map<String,MetaSourceProject> map;
 	
-	public MetaSourceProjectSet( Meta meta , MetaSource sources ) {
+	public MetaSourceProjectSet( Meta meta , MetaSources sources ) {
 		this.meta = meta;
 		this.sources = sources;
 		
@@ -33,43 +32,40 @@ public class MetaSourceProjectSet {
 		map = new HashMap<String, MetaSourceProject>();
 	}
 	
-	public MetaSourceProjectSet copy( ActionBase action , Meta meta , MetaSource sources ) throws Exception {
-		MetaSourceProjectSet r = new MetaSourceProjectSet( meta , sources );
+	public MetaSourceProjectSet copy( Meta rmeta , MetaSources rsources ) throws Exception {
+		MetaSourceProjectSet r = new MetaSourceProjectSet( rmeta , rsources );
+		
+		r.ID = ID;
 		r.NAME = NAME;
+		r.DESC = DESC;
+		r.PV = PV;
+		
 		for( MetaSourceProject project : orderedList ) {
-			MetaSourceProject rproject = project.copy( action , meta , r );
+			MetaSourceProject rproject = project.copy( rmeta , r );
 			r.addProject( rproject );
 		}
+		
 		return( r );
 	}
 	
-	public void create( EngineTransaction transaction , String name ) throws Exception {
-		NAME = name;
+	public void createProjectSet( String name , String desc ) {
+		modifyProjectSet( name , desc );
 	}
 	
-	public void load( ActionBase action , Node node ) throws Exception {
-		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		loadProjects( action , node );
+	public void modifyProjectSet( String name , String desc ) {
+		this.NAME = name;
+		this.DESC = desc;
 	}
-
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "name" , NAME );
-		
-		for( MetaSourceProject project : orderedList ) {
-			Element projectElement = Common.xmlCreateElement( doc , root , "project" );
-			project.save( action , doc , projectElement );
-		}
-	}
-
+	
 	public MetaSourceProject findProject( String name ) {
 		MetaSourceProject project = map.get( name );
 		return( project );
 	}
 	
-	public MetaSourceProject getProject( ActionBase action , String name ) throws Exception {
+	public MetaSourceProject getProject( String name ) throws Exception {
 		MetaSourceProject project = map.get( name );
 		if( project == null )
-			action.exit1( _Error.UnknownSourceProject1 , "unknown source project=" + name , name );
+			Common.exit1( _Error.UnknownSourceProject1 , "unknown source project=" + name , name );
 		return( project );
 	}
 
@@ -92,58 +88,39 @@ public class MetaSourceProjectSet {
 		return( list.toArray( new String[0] ) );
 	}
 
-	private void loadProjects( ActionBase action , Node pset ) throws Exception {
-		Node[] projects = ConfReader.xmlGetChildren( pset , "project" );
-		if( projects == null )
-			return;
-		
-		for( Node node : projects ) {
-			MetaSourceProject project = new MetaSourceProject( meta , this );
-			project.load( action , node );
-			map.put( project.NAME , project );
+	public void addProject( MetaSourceProject project ) throws Exception {
+		for( MetaSourceProject p : orderedList ) {
+			if( p.PROJECT_POS >= project.PROJECT_POS )
+				p.changeOrder( p.PROJECT_POS + 1 );
 		}
-		
+			
+		map.put( project.NAME , project );
 		reorderProjects();
 	}
-
-	private void addProject( MetaSourceProject project ) {
-		orderedList.add( project );
-		map.put( project.NAME , project );
+	
+	public void updateProject( MetaSourceProject project ) throws Exception {
+		Common.changeMapKey( map , project , project.NAME );
 	}
 	
-	public void removeProject( EngineTransaction transaction , MetaSourceProject project ) throws Exception {
+	public void removeProject( MetaSourceProject project ) throws Exception {
 		map.remove( project.NAME );
 		reorderProjects();
 	}
 	
-	public void addProject( EngineTransaction transaction , MetaSourceProject project ) throws Exception {
+	public void changeProjectOrder( MetaSourceProject project , int POS ) throws Exception {
 		for( MetaSourceProject p : orderedList ) {
-			if( p.POS >= project.POS )
-				p.setOrder( transaction , p.POS + 1 );
+			if( p.PROJECT_POS >= POS )
+				p.changeOrder( p.PROJECT_POS + 1 );
 		}
 			
-		map.put( project.NAME , project );
+		project.changeOrder( POS );
 		reorderProjects();
 	}
 
-	public void changeProjectOrder( EngineTransaction transaction , MetaSourceProject project , int POS ) throws Exception {
-		for( MetaSourceProject p : orderedList ) {
-			if( p.POS >= POS )
-				p.setOrder( transaction , p.POS + 1 );
-		}
-			
-		project.setOrder( transaction , POS );
-		reorderProjects();
-	}
-
-	public void reorderProjects( EngineTransaction transaction ) throws Exception {
-		reorderProjects();
-	}
-	
-	private void reorderProjects() {
+	public void reorderProjects() {
 		List<String> order = new LinkedList<String>();
 		for( MetaSourceProject project : map.values() ) {
-			String key = Common.getZeroPadded( project.POS , 10 ) + "#" + project.NAME;
+			String key = Common.getZeroPadded( project.PROJECT_POS , 10 ) + "#" + project.NAME;
 			order.add( key );
 		}
 		
@@ -154,7 +131,7 @@ public class MetaSourceProjectSet {
 		for( String key : order ) {
 			String projectName = Common.getPartAfterFirst( key , "#" );
 			MetaSourceProject project = map.get( projectName );
-			project.POS = POS++;
+			project.PROJECT_POS = POS++;
 			orderedList.add( project );
 		}
 	}

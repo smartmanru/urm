@@ -30,7 +30,7 @@ public class ActionBaseList extends ActionBase {
 		if( items.isEmpty() ) {
 			info( "(no base items)" );
 			state.addFact( Facts.BASEEMPTY );
-			return( SCOPESTATE.NotRun );
+			return( SCOPESTATE.RunSuccess );
 		}
 		
 		for( String key : Common.getSortedKeys( items ) ) {

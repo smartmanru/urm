@@ -9,7 +9,7 @@ import org.urm.engine.shell.Account;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.RedistStorage;
-import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServer;
 
 public class ActionDropRedist extends ActionBase {
 
@@ -33,7 +33,7 @@ public class ActionDropRedist extends ActionBase {
 		
 		VersionInfo version = null;
 		if( !releaseDir.equals( "all") )
-			version = VersionInfo.getReleaseVersion( this , releaseDir ); 
+			version = VersionInfo.getReleaseDirInfo( releaseDir ); 
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			RedistStorage redist = artefactory.getRedistStorage( this , target.envServer , item.envServerNode );
 			if( version == null ) {

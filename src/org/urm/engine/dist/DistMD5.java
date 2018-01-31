@@ -14,7 +14,7 @@ public class DistMD5 {
 		String deliveryFile = dist.getBinaryDistItemFile( action , item );
 		String md5value = dist.getDistItemMD5( action , item , deliveryFile );
 		String releaseFile = Common.getPath( item.delivery.FOLDER , deliveryFile );
-		return( item.KEY + ":" + releaseFile + ":" + md5value );
+		return( item.NAME + ":" + releaseFile + ":" + md5value );
 	}
 	
 	public static String getManualItemRecord( ActionBase action , Dist dist , ReleaseTarget manualItem ) throws Exception {

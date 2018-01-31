@@ -12,9 +12,9 @@ import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.status.ScopeState;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
 
 public class DeployCommandExecutor extends CommandExecutor {
 

@@ -36,8 +36,8 @@ public class ActionAppendProd extends ActionBase {
 		}
 		
 		DistRepository repo = artefactory.getDistRepository( this , dist.meta );
-		VersionInfo infoProd = VersionInfo.getDistVersion( this , prod );
-		VersionInfo infoDist = VersionInfo.getDistVersion( this , dist );
+		VersionInfo infoProd = VersionInfo.getDistVersion( prod );
+		VersionInfo infoDist = VersionInfo.getDistVersion( dist );
 		String prodSortVersion = infoProd.getSortVersion();
 		if( prodSortVersion.compareTo( infoDist.getSortVersion() ) >= 0 ) {
 			super.fail1( _Error.CannotAppendOlderRelease1 , "Unable to append older release=" + dist.RELEASEDIR , dist.RELEASEDIR );
@@ -53,7 +53,7 @@ public class ActionAppendProd extends ActionBase {
 			}
 		}
 		else {
-			VersionInfo infoNext = VersionInfo.getDistVersion( this , next );
+			VersionInfo infoNext = VersionInfo.getDistVersion( next );
 			String nextVersion = infoNext.getFullVersion();
 			if( !nextVersion.equals( infoDist.getFullVersion() ) ) {
 				if( !super.isForced() ) {

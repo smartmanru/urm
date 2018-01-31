@@ -8,14 +8,13 @@ import org.urm.engine.Engine;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineObject;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaMonitoring;
+import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaEnv;
-import org.urm.meta.product.MetaEnvSegment;
-import org.urm.meta.product.MetaEnvServer;
-import org.urm.meta.product.MetaMonitoring;
-import org.urm.meta.product.MetaMonitoringTarget;
 
 public class EngineMonitoring extends EngineObject {
 
@@ -113,23 +112,6 @@ public class EngineMonitoring extends EngineObject {
 		return( properties );
 	}
 	
-	public void modifyProperties( EngineTransaction transaction , PropertySet props ) throws Exception {
-		stopAll( transaction.getAction() );
-		properties.updateProperties( transaction , props , true );
-		ENABLED = properties.getBooleanProperty( PROPERTY_ENABLED );
-		startAll( transaction.getAction() );
-	}
-
-	public void setProductMonitoringProperties( EngineTransaction transaction , Meta meta , PropertySet props ) throws Exception {
-		EngineDirectory directory = transaction.getDirectory();
-		AppProduct product = directory.getProduct( meta.name );
-		ActionBase action = transaction.getAction();
-		
-		stopProduct( action , product );
-		MetaMonitoring metaMon = meta.getMonitoring( action );
-		metaMon.setProductProperties( transaction , props );
-	}
-	
 	public void modifyTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {
 		EngineDirectory directory = transaction.getDirectory();
 		AppProduct product = directory.getProduct( target.meta.name );
@@ -151,7 +133,7 @@ public class EngineMonitoring extends EngineObject {
 	
 	private synchronized void createProduct( ActionBase action , AppProduct product ) throws Exception {
 		Meta meta = product.getMeta( action );
-		MetaMonitoring mon = meta.getMonitoring( action );
+		MetaMonitoring mon = meta.getMonitoring();
 		MonitoringProduct monp = new MonitoringProduct( this , product , mon );
 		addProduct( product , monp );
 		startProduct( action , product );
@@ -184,7 +166,7 @@ public class EngineMonitoring extends EngineObject {
 			mon.start( action );
 	}
 	
-	private synchronized void stopProduct( ActionBase action , AppProduct product ) throws Exception {
+	public synchronized void stopProduct( ActionBase action , AppProduct product ) throws Exception {
 		MonitoringProduct mon = getProduct( product );
 		if( mon != null )
 			mon.stop( action );
@@ -222,7 +204,7 @@ public class EngineMonitoring extends EngineObject {
 			return( false );
 		
 		MetaMonitoringTarget target = mon.meta.findMonitoringTarget( sg );
-		return( target != null && isRunning( sg.env ) && sg.OFFLINE == false && ( target.enabledMajor || target.enabledMinor ) );
+		return( target != null && isRunning( sg.env ) && sg.OFFLINE == false && ( target.MAJOR_ENABLED || target.MINOR_ENABLED ) );
 	}	
 	
 	public boolean isRunning( MetaEnvServer server ) {

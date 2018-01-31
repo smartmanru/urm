@@ -2,6 +2,7 @@ package org.urm.action.codebase;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
@@ -10,11 +11,12 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.engine.AuthResource;
-import org.urm.meta.engine.EngineBuilders;
+import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaUnits;
 
 public abstract class Builder {
 
@@ -33,7 +35,7 @@ public abstract class Builder {
 	static String PROPERTY_PROJECTNAME = "project.name";
 	static String PROPERTY_PROJECTDESC = "project.desc";
 	static String PROPERTY_REPOSITORY = "project.repository";
-	static String PROPERTY_BUILDGROUP = "project.buildgroup";
+	static String PROPERTY_UNIT = "project.unit";
 	static String PROPERTY_GROUPPOS = "project.grouppos";
 	static String PROPERTY_REPOPATH = "project.repopath";
 	static String PROPERTY_CODEPATH = "project.codepath";
@@ -53,10 +55,7 @@ public abstract class Builder {
 	}
 
 	public static Builder createBuilder( ActionBase action , MetaSourceProject project , String TAG , String VERSION ) throws Exception {
-		String BUILDER = project.getBuilder( action );
-		
-		EngineBuilders builders = action.getServerBuilders();
-		ProjectBuilder builder = builders.getBuilder( BUILDER );
+		ProjectBuilder builder = project.getBuilder( action );
 		
 		Builder projectBuilder = null;
 		
@@ -77,7 +76,7 @@ public abstract class Builder {
 			projectBuilder = new BuilderWinbuildMethod( builder , project , storage , TAG , VERSION );
 		else {
 			String method = Common.getEnumLower( builder.BUILDER_METHOD_TYPE );
-			action.exit2( _Error.UnknownBuilderMethod2 , "unknown builder method=" + method + " (builder=" + BUILDER + ")" , method , BUILDER );
+			action.exit2( _Error.UnknownBuilderMethod2 , "unknown builder method=" + method + " (builder=" + builder.NAME + ")" , method , builder.NAME );
 		}
 		
 		return( projectBuilder );
@@ -115,17 +114,22 @@ public abstract class Builder {
 	}
 
 	public PropertySet createProperties( ActionBase action , MetaSourceProject project ) throws Exception {
-		MetaProductSettings product = project.meta.getProductSettings( action );
+		MetaProductSettings product = project.meta.getProductSettings();
 		MetaProductBuildSettings settings = product.getBuildSettings( action );
-		PropertySet props = settings.getProperties();
+		MirrorRepository mirror = project.getMirror( action );
+		MetaUnits units = project.meta.getUnits();
+		String unitName = units.getUnitName( project.UNIT_ID );
+		
+		ObjectProperties ops = settings.getProperties();
+		PropertySet props = ops.getProperties();
 		PropertySet propsGenerated = new PropertySet( "build" , props );
 		propsGenerated.setManualStringProperty( PROPERTY_PROJECTNAME , project.NAME );
 		propsGenerated.setManualStringProperty( PROPERTY_PROJECTDESC , project.DESC );
-		propsGenerated.setManualStringProperty( PROPERTY_REPOSITORY , project.REPOSITORY );
-		propsGenerated.setManualStringProperty( PROPERTY_BUILDGROUP , project.UNIT );
-		propsGenerated.setManualStringProperty( PROPERTY_GROUPPOS , "" + project.POS );
-		propsGenerated.setManualStringProperty( PROPERTY_REPOPATH , project.REPOPATH );
-		propsGenerated.setManualStringProperty( PROPERTY_CODEPATH , project.CODEPATH );
+		propsGenerated.setManualStringProperty( PROPERTY_REPOSITORY , mirror.RESOURCE_REPO );
+		propsGenerated.setManualStringProperty( PROPERTY_UNIT , unitName );
+		propsGenerated.setManualStringProperty( PROPERTY_GROUPPOS , "" + project.PROJECT_POS );
+		propsGenerated.setManualStringProperty( PROPERTY_REPOPATH , mirror.RESOURCE_ROOT );
+		propsGenerated.setManualStringProperty( PROPERTY_CODEPATH , mirror.RESOURCE_DATA );
 		propsGenerated.setManualStringProperty( PROPERTY_BUILDTAG , TAG );
 		propsGenerated.setManualStringProperty( PROPERTY_BUILDVERSION , APPVERSION );
 		return( propsGenerated );

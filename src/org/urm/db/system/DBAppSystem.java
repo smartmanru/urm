@@ -41,7 +41,7 @@ public abstract class DBAppSystem {
 				);
 		system.setOffline( ConfReader.getBooleanAttrValue( node , AppSystem.PROPERTY_OFFLINE , true ) );
 		modifySystem( c , system , true );
-		DBSettings.importxml( loader , node , props , system.ID , system.ID , false , system.SV );
+		DBSettings.importxml( loader , node , props , system.ID , system.ID , false , true , system.SV );
 		
 		return( system );
 	}
@@ -86,7 +86,7 @@ public abstract class DBAppSystem {
 			ObjectProperties props = system.getParameters();
 			ObjectMeta meta = props.getMeta();
 			
-			DBSettings.loaddbEntity( loader , meta.getCustomEntity() , system.ID );
+			DBSettings.loaddbEntity( c , meta.getCustomEntity() , system.ID );
 			DBSettings.loaddbValues( loader , system.ID , props , false );
 		}
 		

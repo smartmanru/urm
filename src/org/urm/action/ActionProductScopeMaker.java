@@ -1,14 +1,14 @@
 package org.urm.action;
 
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumItemOriginType;
 import org.urm.meta.Types.VarCATEGORY;
-import org.urm.meta.Types.VarDISTITEMORIGIN;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.product.MetaSource;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 
@@ -124,26 +124,26 @@ public class ActionProductScopeMaker {
 		if( set.equals( Common.getEnumLower( VarCATEGORY.DERIVED ) ) )
 			addDerivedItems( TARGETS );
 		else {
-			MetaSource sources = meta.getSources( action );
-			MetaSourceProjectSet pset = sources.getProjectSet( action , set );  
+			MetaSources sources = meta.getSources();
+			MetaSourceProjectSet pset = sources.getProjectSet( set );  
 			addSourceProjects( pset , TARGETS );
 		}
 	}
 	
 	private void addProductDistItemsScope( String ITEMS[] , boolean specifiedExplicitly ) throws Exception {
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		for( String itemName : ITEMS ) {
-			MetaDistrBinaryItem item = distr.getBinaryItem( action , itemName );
+			MetaDistrBinaryItem item = distr.getBinaryItem( itemName );
 			if( item == null )
 				action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + itemName , itemName );
 			
 			ActionScopeSet sset = null;
-			if( item.distItemOrigin == VarDISTITEMORIGIN.MANUAL ) {
+			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL ) {
 				sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.MANUAL );
 				addProductManualItems( sset , new String[] { itemName } );
 			}
 			else
-			if( item.distItemOrigin == VarDISTITEMORIGIN.DERIVED ) {
+			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
 				sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.DERIVED );
 				addProductDerivedItems( sset , new String[] { itemName } );
 			}
@@ -157,7 +157,7 @@ public class ActionProductScopeMaker {
 	}
 	
 	private void addAllSourceProjects() throws Exception {
-		MetaSource sources = meta.getSources( action );
+		MetaSources sources = meta.getSources();
 		for( MetaSourceProjectSet pset : sources.getSets() ) {
 			ActionScopeSet sset = scope.makeProjectScopeSet( action , pset );
 			addProductSourceProjects( sset , null );
@@ -211,7 +211,7 @@ public class ActionProductScopeMaker {
 	}
 
 	private void addProductDatabaseDeliveries( ActionScopeSet set , String[] DELIVERIES ) throws Exception {
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
 			set.setFullContent( true ); 
 			for( MetaDistrDelivery item : distr.getDatabaseDeliveries() )
@@ -220,7 +220,7 @@ public class ActionProductScopeMaker {
 		}
 		
 		for( String key : DELIVERIES ) {
-			MetaDistrDelivery item = distr.getDelivery( action , key );
+			MetaDistrDelivery item = distr.getDelivery( key );
 			if( item.hasDatabaseItems() )
 				addProductDatabase( set , item , true );
 		}
@@ -233,7 +233,7 @@ public class ActionProductScopeMaker {
 	}
 
 	private void addProductConfigComps( ActionScopeSet set , String[] COMPS ) throws Exception {
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		if( COMPS == null || COMPS.length == 0 ) {
 			set.setFullContent( true ); 
 			for( MetaDistrConfItem item : distr.getConfItems() )
@@ -242,7 +242,7 @@ public class ActionProductScopeMaker {
 		}
 		
 		for( String key : COMPS ) {
-			MetaDistrConfItem comp = distr.getConfItem( action , key );
+			MetaDistrConfItem comp = distr.getConfItem( key );
 			addProductConfig( set , comp , true );
 		}
 	}
@@ -253,7 +253,7 @@ public class ActionProductScopeMaker {
 	}
 
 	private void addProductManualItems( ActionScopeSet set , String[] ITEMS ) throws Exception {
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			set.setFullContent( true ); 
 			for( String itemName : distr.getManualItemNames() ) {
@@ -264,8 +264,8 @@ public class ActionProductScopeMaker {
 		}
 		
 		for( String item : ITEMS ) {
-			MetaDistrBinaryItem distitem = distr.getBinaryItem( action , item );
-			if( distitem.distItemOrigin != VarDISTITEMORIGIN.MANUAL )
+			MetaDistrBinaryItem distitem = distr.getBinaryItem( item );
+			if( distitem.ITEMORIGIN_TYPE != DBEnumItemOriginType.MANUAL )
 				action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item , item );
 			
 			addProductManualItem( set , distitem , true );
@@ -278,7 +278,7 @@ public class ActionProductScopeMaker {
 	}
 	
 	private void addProductDerivedItems( ActionScopeSet set , String[] ITEMS ) throws Exception {
-		MetaDistr distr = meta.getDistr( action );
+		MetaDistr distr = meta.getDistr();
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			set.setFullContent( true ); 
 			for( String itemName : distr.getDerivedItemNames() ) {
@@ -289,8 +289,8 @@ public class ActionProductScopeMaker {
 		}
 		
 		for( String item : ITEMS ) {
-			MetaDistrBinaryItem distitem = distr.getBinaryItem( action , item );
-			if( distitem.distItemOrigin != VarDISTITEMORIGIN.DERIVED )
+			MetaDistrBinaryItem distitem = distr.getBinaryItem( item );
+			if( distitem.ITEMORIGIN_TYPE != DBEnumItemOriginType.DERIVED )
 				action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item , item );
 			
 			addProductManualItem( set , distitem , true );
@@ -303,8 +303,8 @@ public class ActionProductScopeMaker {
 	}
 	
 	private void addProductDatabaseDeliverySchemes( ActionScopeSet set , String DELIVERY , String[] SCHEMES ) throws Exception {
-		MetaDistr distr = meta.getDistr( action );
-		MetaDistrDelivery item = distr.getDelivery( action , DELIVERY );
+		MetaDistr distr = meta.getDistr();
+		MetaDistrDelivery item = distr.getDelivery( DELIVERY );
 		ActionScopeTarget target = addProductDatabase( set , item , true );
 		target.addDatabaseSchemes( action , SCHEMES );
 	}
@@ -317,9 +317,9 @@ public class ActionProductScopeMaker {
 			return;
 		}
 		
-		MetaSource sources = meta.getSources( action );
+		MetaSources sources = meta.getSources();
 		for( String name : PROJECTS ) {
-			MetaSourceProject sourceProject = sources.getProject( action , name );
+			MetaSourceProject sourceProject = sources.getProject( name );
 			addProductSourceProject( set , sourceProject , true , true );
 		}
 	}
