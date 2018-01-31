@@ -86,6 +86,7 @@ public class DBProductData {
 	public static String FIELD_SOURCEITEM_NODIST = "nodist";
 	public static String FIELD_DOC_ID = "doc_id";
 	public static String FIELD_DOC_DESC = "xdesc";
+	public static String FIELD_DOC_CATEGORY = "doccategory_type";
 	public static String FIELD_DOC_EXT = "ext";
 	public static String FIELD_POLICY_ID = "meta_id";
 	public static String FIELD_POLICY_LCURGENTALL = "lcurgent_any";
@@ -393,6 +394,7 @@ public class DBProductData {
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
 				EntityVar.metaString( MetaProductDoc.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( MetaProductDoc.PROPERTY_DESC , FIELD_DOC_DESC , MetaProductDoc.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaEnumVar( MetaProductDoc.PROPERTY_CATEGORY , FIELD_DOC_CATEGORY , MetaProductDoc.PROPERTY_CATEGORY , "Document category" , true , DBEnumDocCategoryType.UNKNOWN ) ,
 				EntityVar.metaStringVar( MetaProductDoc.PROPERTY_EXT , FIELD_DOC_EXT , MetaProductDoc.PROPERTY_EXT , "Document extension" , true , null ) ,
 				EntityVar.metaBoolean( MetaProductDoc.PROPERTY_UNITBOUND , "Document type can have separate instance for every unit" , true , false )
 		} ) );

@@ -23,6 +23,7 @@ CREATE TABLE main.urm_product_doc (
                 meta_id INTEGER NOT NULL,
                 name VARCHAR(30) NOT NULL,
                 xdesc VARCHAR,
+                doccategory_type INTEGER NOT NULL,
                 ext VARCHAR(30) NOT NULL,
                 unitbound BOOLEAN NOT NULL,
                 pv INTEGER NOT NULL,

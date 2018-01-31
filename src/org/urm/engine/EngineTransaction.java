@@ -754,16 +754,16 @@ public class EngineTransaction extends TransactionBase {
 		return( DBMetaUnits.createUnit( this , storage , units , name , desc ) );
 	}
 	
-	public MetaProductDoc createProductDoc( MetaDocs docs , String name , String desc , String ext , boolean unitbound ) throws Exception {
+	public MetaProductDoc createProductDoc( MetaDocs docs , String name , String desc , DBEnumDocCategoryType category , String ext , boolean unitbound ) throws Exception {
 		ProductMeta storage = docs.meta.getStorage();
 		super.checkTransactionMetadata( storage );
-		return( DBMetaDocs.createDoc( this , storage , docs , name , desc , ext , unitbound ) );
+		return( DBMetaDocs.createDoc( this , storage , docs , name , desc , category , ext , unitbound ) );
 	}
 	
-	public void modifyProductDoc( MetaProductDoc doc , String name , String desc , String ext , boolean unitbound ) throws Exception {
+	public void modifyProductDoc( MetaProductDoc doc , String name , String desc , DBEnumDocCategoryType category , String ext , boolean unitbound ) throws Exception {
 		ProductMeta storage = doc.meta.getStorage();
 		super.checkTransactionMetadata( storage );
-		DBMetaDocs.modifyDoc( this , storage , doc.docs , doc , name , desc , ext , unitbound );
+		DBMetaDocs.modifyDoc( this , storage , doc.docs , doc , name , desc , category , ext , unitbound );
 	}
 	
 	public MetaDatabaseSchema createDatabaseSchema( MetaDatabase database , String name , String desc , DBEnumDbmsType type , String dbname , String dbuser ) throws Exception {

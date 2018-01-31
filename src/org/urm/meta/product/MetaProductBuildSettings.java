@@ -1,7 +1,6 @@
 package org.urm.meta.product;
 
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.engine.properties.PropertySet;
 
 public class MetaProductBuildSettings {
 
@@ -93,9 +92,4 @@ public class MetaProductBuildSettings {
 		return( r );
 	}
 	
-	public void setProperties( PropertySet props ) throws Exception {
-		ops.updateProperties( props , true );
-		scatterProperties();
-	}
-
 }
