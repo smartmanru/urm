@@ -59,6 +59,7 @@ public class DBMetaDocs {
 		doc.createDoc( 
 				entity.importxmlStringAttr( root , MetaProductDoc.PROPERTY_NAME ) ,
 				entity.importxmlStringAttr( root , MetaProductDoc.PROPERTY_DESC ) ,
+				DBEnumDocCategoryType.getValue( entity.importxmlEnumAttr( root , MetaProductDoc.PROPERTY_CATEGORY ) , true ) ,
 				entity.importxmlStringAttr( root , MetaProductDoc.PROPERTY_EXT ) ,
 				entity.importxmlBooleanAttr( root , MetaProductDoc.PROPERTY_UNITBOUND , false )
 				);
@@ -79,6 +80,7 @@ public class DBMetaDocs {
 				EngineDB.getInteger( storage.ID ) , 
 				EngineDB.getString( doc.NAME ) ,
 				EngineDB.getString( doc.DESC ) ,
+				EngineDB.getEnum( doc.DOC_CATEGORY ) ,
 				EngineDB.getString( doc.EXT ) ,
 				EngineDB.getBoolean( doc.UNITBOUND )
 				} , insert );
@@ -100,6 +102,7 @@ public class DBMetaDocs {
 		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
 				entity.exportxmlString( pdoc.NAME ) ,
 				entity.exportxmlString( pdoc.DESC ) ,
+				entity.exportxmlEnum( pdoc.DOC_CATEGORY ) ,
 				entity.exportxmlString( pdoc.EXT ) ,
 				entity.exportxmlBoolean( pdoc.UNITBOUND )
 		} , true );
@@ -122,6 +125,7 @@ public class DBMetaDocs {
 				doc.createDoc( 
 						entity.loaddbString( rs , MetaProductDoc.PROPERTY_NAME ) , 
 						entity.loaddbString( rs , MetaProductDoc.PROPERTY_DESC ) ,
+						DBEnumDocCategoryType.getValue( entity.loaddbEnum( rs , MetaProductDoc.PROPERTY_DESC ) , true ) ,
 						entity.loaddbString( rs , MetaProductDoc.PROPERTY_EXT ) ,
 						entity.loaddbBoolean( rs , MetaProductDoc.PROPERTY_UNITBOUND )
 						);
@@ -134,14 +138,14 @@ public class DBMetaDocs {
 	}
 
 	public static MetaProductDoc createDoc( EngineTransaction transaction , ProductMeta storage , MetaDocs docs , 
-			String name , String desc , String ext , boolean unitbound ) throws Exception {
+			String name , String desc , DBEnumDocCategoryType category , String ext , boolean unitbound ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		if( docs.findDoc( name ) != null )
 			transaction.exitUnexpectedState();
 		
 		MetaProductDoc doc = new MetaProductDoc( storage.meta , docs );
-		doc.createDoc( name , desc , ext , unitbound );
+		doc.createDoc( name , desc , category , ext , unitbound );
 		modifyDoc( c , storage , doc , true );
 		
 		docs.addDoc( doc );
@@ -149,10 +153,10 @@ public class DBMetaDocs {
 	}
 
 	public static void modifyDoc( EngineTransaction transaction , ProductMeta storage , MetaDocs docs , MetaProductDoc doc , 
-			String name , String desc , String ext , boolean unitbound ) throws Exception {
+			String name , String desc , DBEnumDocCategoryType category , String ext , boolean unitbound ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
-		doc.modifyDoc( name , desc , ext , unitbound );
+		doc.modifyDoc( name , desc , category , ext , unitbound );
 		modifyDoc( c , storage , doc , false );
 		
 		docs.updateDoc( doc );
