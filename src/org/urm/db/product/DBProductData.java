@@ -86,7 +86,7 @@ public class DBProductData {
 	public static String FIELD_SOURCEITEM_NODIST = "nodist";
 	public static String FIELD_DOC_ID = "doc_id";
 	public static String FIELD_DOC_DESC = "xdesc";
-	public static String FIELD_DOC_CATEGORY = "doc_type";
+	public static String FIELD_DOC_CATEGORY = "doccategory_type";
 	public static String FIELD_DOC_EXT = "ext";
 	public static String FIELD_POLICY_ID = "meta_id";
 	public static String FIELD_POLICY_LCURGENTALL = "lcurgent_any";

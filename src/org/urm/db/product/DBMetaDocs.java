@@ -125,7 +125,7 @@ public class DBMetaDocs {
 				doc.createDoc( 
 						entity.loaddbString( rs , MetaProductDoc.PROPERTY_NAME ) , 
 						entity.loaddbString( rs , MetaProductDoc.PROPERTY_DESC ) ,
-						DBEnumDocCategoryType.getValue( entity.loaddbEnum( rs , MetaProductDoc.PROPERTY_DESC ) , true ) ,
+						DBEnumDocCategoryType.getValue( entity.loaddbEnum( rs , MetaProductDoc.PROPERTY_CATEGORY ) , true ) ,
 						entity.loaddbString( rs , MetaProductDoc.PROPERTY_EXT ) ,
 						entity.loaddbBoolean( rs , MetaProductDoc.PROPERTY_UNITBOUND )
 						);

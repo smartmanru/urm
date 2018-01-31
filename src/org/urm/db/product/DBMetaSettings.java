@@ -133,6 +133,17 @@ public class DBMetaSettings {
 				settings.createBuildModeSettings( mode , opsBuildMode );
 			}
 		}
+		
+		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
+			if( mode == DBEnumBuildModeType.UNKNOWN )
+				continue;
+			
+			MetaProductBuildSettings build = settings.getBuildModeSettings( mode );
+			if( build.ops == null ) {
+				loader.trace( "missing build settings, mode=" + mode.name() );
+				Common.exitUnexpected();
+			}
+		}
 	}
 	
 	public static void loaddb( EngineLoader loader , ProductMeta storage , ProductContext context ) throws Exception {
@@ -202,7 +213,7 @@ public class DBMetaSettings {
 			if( mode == DBEnumBuildModeType.UNKNOWN )
 				continue;
 			
-			Element buildModeNode = Common.xmlCreateElement( doc , buildCommonNode , ELEMENT_BUILD );
+			Element buildModeNode = Common.xmlCreateElement( doc , buildCommonNode , ELEMENT_MODE );
 			Common.xmlSetNameAttr( doc , buildModeNode , Common.getEnumLower( mode ) );
 			
 			MetaProductBuildSettings buildMode = settings.getBuildModeSettings( mode );
