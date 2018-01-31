@@ -55,7 +55,6 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		info( "\tproperty=master: " + Common.getBooleanValue( release.MASTER ) );
 		if( !release.MASTER ) {
 			info( "\tproperty=mode: " + Common.getEnumLower( release.BUILDMODE ) );
-			info( "\tproperty=obsolete: " + Common.getBooleanValue( release.OBSOLETE ) );
 			info( "\tproperty=over: " + release.COMPATIBILITY );
 			info( "\tproperty=cumulative: " + Common.getBooleanValue( release.isCumulative() ) );
 		}

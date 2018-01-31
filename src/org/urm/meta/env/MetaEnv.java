@@ -37,27 +37,33 @@ public class MetaEnv extends PropertyController {
 	
 	public int ID;
 	public String NAME;
+	public String DESC;
 	public String BASELINE;
 	public boolean OFFLINE;
-	public String REDISTWIN_PATH;
-	public String REDISTLINUX_PATH;
-	public boolean DISTR_USELOCAL;
-	public String DISTR_HOSTLOGIN;
-	public String DISTR_PATH;
-	public String UPGRADE_PATH;
-	public String CONF_SECRETFILESPATH;
 	public String CHATROOMFILE;
 	public String KEYFILE;
 	public String DB_AUTHFILE;
 	public VarENVTYPE envType;
+
+	// distributive source
+	public boolean DISTR_USELOCAL;
+	public String DISTR_HOSTLOGIN;
 	
 	// properties, affecting options
 	public FLAG DB_AUTH;
-	public FLAG OBSOLETE;
 	public FLAG SHOWONLY;
 	public FLAG BACKUP;
 	public FLAG CONF_DEPLOY;
 	public FLAG CONF_KEEPALIVE;
+
+	// configuration overrides
+	public String REDISTWIN_PATH;
+	public String REDISTLINUX_PATH;
+	public String DISTR_PATH;
+	public String UPGRADE_PATH;
+	public String CONF_SECRETFILESPATH;
+	
+	public int EV;
 
 	private List<MetaEnvSegment> originalList;
 	private Map<String,MetaEnvSegment> sgMap;
@@ -134,7 +140,6 @@ public class MetaEnv extends PropertyController {
 
 		// affect runtime options
 		DB_AUTH = super.getOptionProperty( action , PROPERTY_DB_AUTH );
-		OBSOLETE = super.getOptionProperty( action , PROPERTY_OBSOLETE );
 		SHOWONLY = super.getOptionProperty( action , PROPERTY_SHOWONLY );
 		BACKUP = super.getOptionProperty( action , PROPERTY_BACKUP );
 		CONF_DEPLOY = super.getOptionProperty( action , PROPERTY_CONF_DEPLOY );

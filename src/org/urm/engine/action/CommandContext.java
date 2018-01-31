@@ -106,7 +106,6 @@ public class CommandContext {
 	public boolean CTX_CHECK;
 	public boolean CTX_REPLACE;
 	public boolean CTX_BACKUP;
-	public boolean CTX_OBSOLETE;
 	public boolean CTX_CONFDEPLOY;
 	public boolean CTX_PARTIALCONF;
 	public boolean CTX_DEPLOYBINARY;
@@ -212,7 +211,6 @@ public class CommandContext {
 		this.CTX_CHECK = context.CTX_CHECK;
 		this.CTX_REPLACE = context.CTX_REPLACE;
 		this.CTX_BACKUP = context.CTX_BACKUP;
-		this.CTX_OBSOLETE = context.CTX_OBSOLETE;
 		this.CTX_CONFDEPLOY = context.CTX_CONFDEPLOY;
 		this.CTX_PARTIALCONF = context.CTX_PARTIALCONF;
 		this.CTX_DEPLOYBINARY = context.CTX_DEPLOYBINARY;
@@ -340,7 +338,6 @@ public class CommandContext {
 		CTX_CHECK = getFlagValue( "OPT_CHECK" , false );
 		CTX_REPLACE = getFlagValue( "OPT_REPLACE" );
 		CTX_BACKUP = combineValue( "OPT_BACKUP" , ( isenv )? env.BACKUP : null , def );
-		CTX_OBSOLETE = combineValue( "OPT_OBSOLETE" , ( isenv )? env.OBSOLETE : null , true );
 		CTX_CONFDEPLOY = combineValue( "OPT_DEPLOYCONF" , ( isenv )? env.CONF_DEPLOY : null , true );
 		CTX_PARTIALCONF = getFlagValue( "OPT_PARTIALCONF" );
 		CTX_DEPLOYBINARY = getFlagValue( "OPT_DEPLOYBINARY" , true );

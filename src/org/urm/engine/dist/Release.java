@@ -33,7 +33,6 @@ public class Release {
 	public String RELEASEVER;
 	
 	public boolean MASTER;
-	public boolean OBSOLETE;
 	public DBEnumBuildModeType BUILDMODE;
 	public String COMPATIBILITY;
 	private boolean CUMULATIVE;
@@ -132,7 +131,6 @@ public class Release {
 		rr.RELEASEVER = RELEASEVER;
 		
 		rr.MASTER = MASTER;
-		rr.OBSOLETE = OBSOLETE;
 		rr.BUILDMODE = BUILDMODE;
 		rr.COMPATIBILITY = COMPATIBILITY;
 		rr.CUMULATIVE = CUMULATIVE;
@@ -173,7 +171,6 @@ public class Release {
 		schedule.createProd( action ); 
 		
 		this.MASTER = true;
-		this.OBSOLETE = true;
 		this.BUILDMODE = DBEnumBuildModeType.UNKNOWN;
 		this.COMPATIBILITY = "";
 		this.CUMULATIVE = true;
@@ -235,7 +232,6 @@ public class Release {
 	
 	public void setProperties( ActionBase action ) throws Exception {
 		BUILDMODE = action.context.CTX_BUILDMODE;
-		OBSOLETE = action.context.CTX_OBSOLETE;
 		
 		if( action.context.CTX_ALL )
 			COMPATIBILITY = "";
@@ -341,7 +337,6 @@ public class Release {
 		// properties
 		MASTER = getReleasePropertyBoolean( action , root , PROPERTY_MASTER , false );
 		BUILDMODE = getReleasePropertyBuildMode( action , root , PROPERTY_BUILDMODE ); 
-		OBSOLETE = getReleasePropertyBoolean( action , root , PROPERTY_OBSOLETE , true );
 		COMPATIBILITY = getReleaseProperty( action , root , PROPERTY_COMPATIBILITY );
 		CUMULATIVE = getReleasePropertyBoolean( action , root , PROPERTY_CUMULATIVE , false );
 
@@ -581,7 +576,6 @@ public class Release {
 		Common.xmlSetElementAttr( doc , root , PROPERTY_VERSION , RELEASEVER );
 		Common.xmlCreatePropertyElement( doc , root , PROPERTY_MASTER , Common.getBooleanValue( MASTER ) );
 		Common.xmlCreatePropertyElement( doc , root , PROPERTY_BUILDMODE , Common.getEnumLower( BUILDMODE ) );
-		Common.xmlCreateBooleanPropertyElement( doc , root , PROPERTY_OBSOLETE , OBSOLETE );
 		Common.xmlCreatePropertyElement( doc , root , PROPERTY_COMPATIBILITY , COMPATIBILITY );
 		Common.xmlCreateBooleanPropertyElement( doc , root , PROPERTY_CUMULATIVE , CUMULATIVE );
 		
