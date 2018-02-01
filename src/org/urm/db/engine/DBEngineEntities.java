@@ -170,9 +170,8 @@ public abstract class DBEngineEntities {
 	
 	public static void loaddbAppObject( ResultSet rs , ObjectProperties props ) throws Exception {
 		ObjectMeta meta = props.getMeta();
-		PropertyEntity entity = meta.getAppEntity();
 		
-		for( EntityVar var : entity.getVars() ) {
+		for( EntityVar var : meta.getAppVars() ) {
 			if( var.isDatabaseOnly() || var.isXmlOnly() )
 				continue;
 

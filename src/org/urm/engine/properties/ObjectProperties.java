@@ -58,9 +58,13 @@ public class ObjectProperties {
 	}
 
 	public void create( ObjectProperties parent , PropertyEntity entityFixed , PropertyEntity entityCustom ) throws Exception {
+		create( parent , new PropertyEntity[] { entityFixed } , entityCustom );
+	}
+	
+	public void create( ObjectProperties parent , PropertyEntity[] entitiesFixed , PropertyEntity entityCustom ) throws Exception {
 		initCreateStarted( parent );
 		
-		meta.create( entityFixed , entityCustom );
+		meta.create( entitiesFixed , entityCustom );
 		for( EntityVar var : meta.getVars() )
 			createProperty( var );
 		

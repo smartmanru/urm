@@ -56,42 +56,48 @@ public abstract class DBSettings {
 	}
 
 	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean importApp , boolean importCustom , int version ) throws Exception {
-		importxmlLoad( loader , root , properties , importApp , importCustom );
-		importxmlSave( loader , properties , paramObjectId , metaObjectId , importApp , importCustom , version );
+		importxmlLoad( loader , root , properties , importApp , importCustom , null );
+		importxmlSave( loader , properties , paramObjectId , metaObjectId , importApp , importCustom , version , null );
+	}
+
+	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , DBEnumParamEntityType entityType , int paramObjectId , int metaObjectId , boolean importApp , boolean importCustom , int version ) throws Exception {
+		importxmlLoad( loader , root , properties , importApp , importCustom , entityType );
+		importxmlSave( loader , properties , paramObjectId , metaObjectId , importApp , importCustom , version , entityType );
+	}
+
+	public static void importxmlLoad( EngineLoader loader , Node root , ObjectProperties properties , boolean importApp , boolean importCustom ) throws Exception {
+		importxmlLoad( loader , root , properties , importApp , importCustom , null );
 	}
 	
-	public static void importxmlLoad( EngineLoader loader , Node root , ObjectProperties properties , boolean importApp , boolean importCustom ) throws Exception {
+	public static void importxmlLoad( EngineLoader loader , Node root , ObjectProperties properties , boolean importApp , boolean importCustom , DBEnumParamEntityType entityType ) throws Exception {
 		if( importApp )
-			importxmlLoadDirect( loader , root , properties , true , false );
+			importxmlLoadApp( loader , root , properties , entityType );
 		if( importCustom ) {
 			Node custom = null;
 			if( root != null )
 				custom = ConfReader.xmlGetFirstChild( root , ELEMENT_CUSTOM );
-			importxmlLoadDirect( loader , custom , properties , false , true );
+			importxmlLoadCustom( loader , custom , properties );
 		}
 	}
 	
-	public static void importxmlLoadDirect( EngineLoader loader , Node root , ObjectProperties properties , boolean importApp , boolean importCustom ) throws Exception {
-		ObjectMeta meta = properties.getMeta();
-		PropertyEntity app = meta.getAppEntity();
-		PropertyEntity custom = meta.getCustomEntity();
-		
-		if( custom != null && importCustom ) {
-			custom.clear();
-			meta.rebuild();
-		}
-
+	private static void importxmlLoadApp( EngineLoader loader , Node root , ObjectProperties properties , DBEnumParamEntityType entityType ) throws Exception {
 		if( root == null )
 			return;
 		
-		// load attributes - app only
 		boolean ok = true;
-		if( importApp && !app.USE_PROPS ) {
+		
+		ObjectMeta meta = properties.getMeta();
+		PropertyEntity entity = ( entityType == null )? null : meta.getAppEntity( entityType );
+		boolean hasAttrs = ( entity == null )? meta.hasAppAttrs() : entity.USE_PROPS; 
+		boolean hasProps = ( entity == null )? meta.hasAppProps() : !entity.USE_PROPS;
+		
+		// load attributes
+		if( hasAttrs ) {
 			Map<String,String> attrs = ConfReader.getAttributes( root );
 			for( String prop : Common.getSortedKeys( attrs ) ) {
 				String value = attrs.get( prop );
 				try {
-					importxmlSetAttr( loader , properties , prop , value );
+					importxmlGetAttr( loader , properties , prop , value , entity );
 				}
 				catch( Throwable e ) {
 					loader.trace( "attribute load error: " + e.toString() );
@@ -101,20 +107,18 @@ public abstract class DBSettings {
 		}
 		
 		// load properties
-		if( importCustom || app.USE_PROPS ) {
+		if( hasProps ) {
 			Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_PROPERTY );
 			if( items != null ) {
 				for( Node item : items ) {
 					try {
-						importxmlSetProperty( loader , item , properties , importApp , importCustom , app.USE_PROPS );
+						importxmlGetProperty( loader , item , properties , true , false , entity );
 					}
 					catch( Throwable e ) {
 						loader.trace( "property load error: " + e.toString() );
 						ok = false;
 					}
 				}
-				
-				meta.rebuild();
 			}
 		}
 
@@ -122,22 +126,66 @@ public abstract class DBSettings {
 			Common.exit1( _Error.SettingsImportErrors1 , "Errors on settings import, set object=" + properties.objectType.name() , "" + properties.objectType.name() );
 	}
 
-	public static void importxmlSave( EngineLoader loader , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean saveApp , boolean saveCustom , int version ) throws Exception {
-		DBConnection c = loader.getConnection();
-		if( saveCustom )
-			savedbEntityCustom( c , properties , paramObjectId , metaObjectId , version );
-		savedbPropertyValues( c , paramObjectId , properties , saveApp , saveCustom , version );
-	}
-	
-	public static void exportxml( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
-		exportxmlAppEntity( loader , doc , root , properties , appAsProperties );
-		
+	private static void importxmlLoadCustom( EngineLoader loader , Node root , ObjectProperties properties ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity custom = meta.getCustomEntity();
 		
 		if( custom != null ) {
-			Element nodeCustom = Common.xmlCreateElement( doc , root , ELEMENT_CUSTOM );
-			exportxmlCustomEntity( loader , doc , nodeCustom , properties );
+			custom.clear();
+			meta.rebuild();
+		}
+
+		if( root == null )
+			return;
+		
+		boolean ok = true;
+		
+		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_PROPERTY );
+		if( items != null ) {
+			for( Node item : items ) {
+				try {
+					importxmlGetProperty( loader , item , properties , false , true , null );
+				}
+				catch( Throwable e ) {
+					loader.trace( "property load error: " + e.toString() );
+					ok = false;
+				}
+			}
+			
+			meta.rebuild();
+		}
+
+		if( !ok )
+			Common.exit1( _Error.SettingsImportErrors1 , "Errors on settings import, set object=" + properties.objectType.name() , "" + properties.objectType.name() );
+	}
+
+	public static void importxmlSave( EngineLoader loader , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean saveApp , boolean saveCustom , int version ) throws Exception {
+		importxmlSave( loader , properties , paramObjectId , metaObjectId , saveApp , saveCustom , version , null );
+	}
+	
+	public static void importxmlSave( EngineLoader loader , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean saveApp , boolean saveCustom , int version , DBEnumParamEntityType entityType ) throws Exception {
+		DBConnection c = loader.getConnection();
+		if( saveCustom )
+			savedbEntityCustom( c , properties , paramObjectId , metaObjectId , version );
+		savedbPropertyValues( c , paramObjectId , properties , saveApp , saveCustom , version , entityType );
+	}
+
+	public static void exportxml( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
+		exportxml( loader , doc , root , properties , true , true , appAsProperties , null );
+	}
+	
+	public static void exportxml( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean exportApp , boolean exportCustom , boolean appAsProperties , DBEnumParamEntityType entityType ) throws Exception {
+		if( exportApp )
+			exportxmlAppEntity( loader , doc , root , properties , appAsProperties , entityType );
+		
+		if( exportCustom ) {
+			ObjectMeta meta = properties.getMeta();
+			PropertyEntity custom = meta.getCustomEntity();
+			
+			if( custom != null ) {
+				Element nodeCustom = Common.xmlCreateElement( doc , root , ELEMENT_CUSTOM );
+				exportxmlCustomEntity( loader , doc , nodeCustom , properties );
+			}
 		}
 	}
 
@@ -168,7 +216,7 @@ public abstract class DBSettings {
 		}
 	}
 
-	public static void exportxmlAppEntity( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
+	public static void exportxmlAppEntity( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties , DBEnumParamEntityType entityType ) throws Exception {
 		PropertySet set = properties.getProperties();
 		
 		for( PropertyValue value : set.getAllProperties() ) {
@@ -177,6 +225,9 @@ public abstract class DBSettings {
 				continue;
 			
 			if( !var.isXml() )
+				continue;
+
+			if( entityType != null && var.entity.PARAMENTITY_TYPE != entityType )
 				continue;
 			
 			String data = value.getOriginalValue();
@@ -213,10 +264,15 @@ public abstract class DBSettings {
 			Common.xmlSetElementAttr( doc , property , ATTR_DESC , var.DESC );
 	}
 	
-	private static void importxmlSetAttr( EngineLoader loader , ObjectProperties properties , String xmlprop , String value ) throws Exception {
-		ObjectMeta meta = properties.getMeta();
-		PropertyEntity app = meta.getAppEntity();
-		EntityVar var = app.findXmlVar( xmlprop );
+	private static void importxmlGetAttr( EngineLoader loader , ObjectProperties properties , String xmlprop , String value , PropertyEntity entityApp ) throws Exception {
+		EntityVar var = null;
+		if( entityApp != null )
+			var = entityApp.findXmlVar( xmlprop );
+		else {
+			ObjectMeta meta = properties.getMeta();
+			var = meta.findAppXmlVar( xmlprop );
+		}
+		
 		if( var == null )
 			Common.exit1( _Error.UnknownAppVar1 , "Attempt to override built-in variable=" + xmlprop , xmlprop );
 		
@@ -248,34 +304,34 @@ public abstract class DBSettings {
 		}
 	}
 	
-	private static void importxmlSetProperty( EngineLoader loader , Node item , ObjectProperties properties , boolean importApp , boolean importCustom , boolean appAsProperties ) throws Exception {
+	private static void importxmlGetProperty( EngineLoader loader , Node item , ObjectProperties properties , boolean importApp , boolean importCustom , PropertyEntity entityApp ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
-		PropertyEntity app = meta.getAppEntity();
 		PropertyEntity custom = meta.getCustomEntity();
 		
 		String prop = ConfReader.getAttrValue( item , ATTR_NAME );
 		
 		// this.app - set app value
-		EntityVar var = app.findXmlVar( prop );
+		EntityVar var = meta.findAppXmlVar( prop );
 		if( var != null ) {
 			// this.app as custom
-			if( appAsProperties == false )
+			if( !var.entity.USE_PROPS )
 				Common.exit1( _Error.SetSystemVarAsCustom1 , "Attempt to set built-in variable=" + prop + " as custom variable" , prop );
 
 			if( importApp == false )
 				Common.exit1( _Error.UnexpectedAppVar1 , "Unexpected built-in variable=" + prop , prop );
+
+			if( entityApp != null && entityApp != var.entity )
+				Common.exit1( _Error.SetSystemVarWrongPlace1 , "Attempt to set built-in variable=" + prop + " in wrong place" , prop );
 			
 			String value = ConfReader.getAttrValue( item , ATTR_VALUE );
 			importxmlSetProperty( loader , properties , var , value , false );
 			return;
 		}
 		
-		if( custom != null ) {
-			// this.custom - duplicate
-			var = custom.findXmlVar( prop );
-			if( var != null )
-				Common.exit1( _Error.DuplicateCustomVar1 , "Duplicate custom variable=" + prop , prop );
-		}
+		// this.custom - duplicate
+		var = meta.findCustomXmlVar( prop );
+		if( var != null )
+			Common.exit1( _Error.DuplicateCustomVar1 , "Duplicate custom variable=" + prop , prop );
 
 		// parent.app - override error
 		var = findParentXmlVar( properties , prop );
@@ -512,40 +568,59 @@ public abstract class DBSettings {
 	}
 
 	public static void savedbPropertyValues( DBConnection c , int objectId , ObjectProperties properties , boolean saveApp , boolean saveCustom , int version ) throws Exception {
-		if( saveApp && saveCustom ) {
-			if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUES2 , new String[] {
+		savedbPropertyValues( c , objectId , properties , saveApp , saveCustom , version , null );
+	}
+	
+	public static void savedbPropertyValues( DBConnection c , int objectId , ObjectProperties properties , boolean saveApp , boolean saveCustom , int version , DBEnumParamEntityType entityTypeApp ) throws Exception {
+		if( saveApp && saveCustom == false && entityTypeApp != null ) {
+			if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTENTITYPARAMVALUES3 , new String[] {
 					EngineDB.getInteger( objectId ) ,
-					EngineDB.getEnum( properties.roleType ) 
+					EngineDB.getEnum( properties.roleType ) ,
+					EngineDB.getEnum( entityTypeApp )
 					} ) )
 				Common.exitUnexpected();
 		}
 		else {
-			if( saveApp ) {
-				if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUESAPP2 , new String[] {
+			if( saveApp && saveCustom ) {
+				if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUES2 , new String[] {
 						EngineDB.getInteger( objectId ) ,
 						EngineDB.getEnum( properties.roleType ) 
 						} ) )
 					Common.exitUnexpected();
 			}
-			if( saveCustom ) {
-				if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUESCUSTOM2 , new String[] {
-					EngineDB.getInteger( objectId ) ,
-					EngineDB.getEnum( properties.roleType ) 
-					} ) )
-				Common.exitUnexpected();
+			else {
+				if( saveApp ) {
+					if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUESAPP2 , new String[] {
+							EngineDB.getInteger( objectId ) ,
+							EngineDB.getEnum( properties.roleType ) 
+							} ) )
+						Common.exitUnexpected();
+				}
+				if( saveCustom ) {
+					if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUESCUSTOM2 , new String[] {
+						EngineDB.getInteger( objectId ) ,
+						EngineDB.getEnum( properties.roleType ) 
+						} ) )
+					Common.exitUnexpected();
+				}
 			}
 		}
 
+		ObjectMeta meta = properties.getMeta();
+		PropertyEntity entityApp = ( entityTypeApp == null )? null : meta.getAppEntity( entityTypeApp ); 
+		
 		PropertySet set = properties.getProperties();
 		for( PropertyValue value : set.getAllProperties() ) {
-			String data = value.getOriginalValue();
-			if( data == null || data.isEmpty() )
-				continue;
-			
 			EntityVar var = properties.getVar( value.property );
 			if( saveApp == false && var.isApp() )
 				continue;
 			if( saveCustom == false && var.isCustom() )
+				continue;
+			if( saveApp == true && entityApp != null && var.entity != entityApp )
+				continue;
+			
+			String data = value.getOriginalValue();
+			if( data == null || data.isEmpty() )
 				continue;
 			
 			if( !c.modify( DBQueries.MODIFY_PARAM_ADDOBJECTPARAMVALUE7 , new String[] {
@@ -573,13 +648,14 @@ public abstract class DBSettings {
 		meta.rebuild();
 	}
 
-	public static void modifyAppValues( DBConnection c , int objectId , ObjectProperties properties , int version , String[] dbonlyValues , boolean insert ) throws Exception {
+	public static void modifyAppValues( DBConnection c , int objectId , ObjectProperties properties , DBEnumParamEntityType entityType , int version , String[] dbonlyValues , boolean insert ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
-		PropertyEntity entity = meta.getAppEntity();
+		PropertyEntity entity = meta.getAppEntity( entityType );
 		EntityVar[] vars = entity.getDatabaseVars();
 		String[] values = new String[ vars.length ];
 
 		int dbonlyVarCount = entity.getDatabaseOnlyVarCount();
+		
 		int valuesCount = ( dbonlyValues == null )? 0 : dbonlyValues.length;
 		if( dbonlyVarCount != valuesCount )
 			Common.exitUnexpected();
@@ -660,14 +736,14 @@ public abstract class DBSettings {
 		DBConnection c = transaction.getConnection();
 		
 		int version = c.getNextCoreVersion();
-		savedbPropertyValues( c , objectId , ops , false , true , version );
+		savedbPropertyValues( c , objectId , ops , false , true , version , null );
 	}
 	
-	public static void modifyAppValues( EngineTransaction transaction , int objectId , ObjectProperties ops ) throws Exception {
+	public static void modifyAppValues( EngineTransaction transaction , int objectId , ObjectProperties ops , DBEnumParamEntityType entityType ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		int version = c.getNextCoreVersion();
-		savedbPropertyValues( c , objectId , ops , true , false , version );
+		savedbPropertyValues( c , objectId , ops , true , false , version , entityType );
 	}
 
 	private static int verifyEntity( DBConnection c , PropertyEntity entity ) throws Exception {

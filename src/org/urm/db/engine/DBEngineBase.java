@@ -325,7 +325,7 @@ public abstract class DBEngineBase {
 			DBNames.updateName( c , DBVersions.CORE_ID , item.NAME , item.ID , DBEnumObjectType.BASE_ITEM );
 		
 		item.CV = c.getNextCoreVersion();
-		DBSettings.modifyAppValues( c , item.ID , item.p , item.CV , new String[] {
+		DBSettings.modifyAppValues( c , item.ID , item.p , DBEnumParamEntityType.BASEITEM , item.CV , new String[] {
 				EngineDB.getInteger( item.group.ID )
 		} , insert );
 	}

@@ -158,15 +158,12 @@ public class EngineSettings extends EngineObject {
 
 		// get custom properties from environment variables if any
 		ObjectMeta meta = execrcProperties.getMeta();
-		for( PropertyEntity entity : meta.getEntities() ) {
-			if( !entity.CUSTOM ) 
-				continue;
+		PropertyEntity entity = meta.getCustomEntity();
 			
-			for( EntityVar var : entity.getVars() ) {
-				String value = RunContext.getProperty( var.NAME );
-				if( !value.isEmpty() )
-					execrcProperties.setStringProperty( var.NAME , value );
-			}
+		for( EntityVar var : entity.getVars() ) {
+			String value = RunContext.getProperty( var.NAME );
+			if( !value.isEmpty() )
+				execrcProperties.setStringProperty( var.NAME , value );
 		}
 		
 		execrcProperties.resolveRawProperties();

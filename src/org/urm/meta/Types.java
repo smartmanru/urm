@@ -43,13 +43,6 @@ public class Types {
 		PREBUILT
 	};
 
-	public enum VarENVTYPE {
-		UNKNOWN ,
-		PRODUCTION ,
-		UAT ,
-		DEVELOPMENT
-	};
-	
 	public enum VarDEPLOYITEMTYPE {
 		UNKNOWN ,
 		BINARY ,
@@ -233,24 +226,6 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDeployType1 , "invalid deploytype=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarENVTYPE getEnvType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingEnvType0 , "missing deploy item type" );
-			return( VarENVTYPE.UNKNOWN );
-		}
-		
-		VarENVTYPE value = null;
-		try {
-			value = VarENVTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidEnvType1 , "invalid environment type=" + ID , ID );
 		}
 		
 		return( value );

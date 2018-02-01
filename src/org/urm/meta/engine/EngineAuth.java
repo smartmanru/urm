@@ -24,7 +24,6 @@ import org.urm.meta.EngineObject;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvs;
 import org.urm.meta.product.Meta;
-import org.urm.meta.Types.*;
 
 public class EngineAuth extends EngineObject {
 
@@ -469,7 +468,7 @@ public class EngineAuth extends EngineObject {
 			return( true );
 		
 		AuthRoleSet roles = security.getProductRoles( productName );
-		VarENVTYPE envtype = ( env == null )? VarENVTYPE.UNKNOWN : env.envType;
+		DBEnumEnvType envtype = ( env == null )? DBEnumEnvType.UNKNOWN : env.envType;
 		
 		if( sa == SecurityAction.ACTION_SECURED ) {
 			if( env == null ) {
@@ -477,11 +476,11 @@ public class EngineAuth extends EngineObject {
 					return( true );
 			}
 			else {
-				if( ( roles.secDev && envtype == VarENVTYPE.DEVELOPMENT ) || 
-					( roles.secRel && envtype == VarENVTYPE.UAT ) || 
-					( roles.secTest && envtype == VarENVTYPE.DEVELOPMENT ) || 
-					( roles.secTest && envtype == VarENVTYPE.UAT ) || 
-					( roles.secOpr && envtype == VarENVTYPE.PRODUCTION ) )
+				if( ( roles.secDev && envtype == DBEnumEnvType.DEVELOPMENT ) || 
+					( roles.secRel && envtype == DBEnumEnvType.UAT ) || 
+					( roles.secTest && envtype == DBEnumEnvType.DEVELOPMENT ) || 
+					( roles.secTest && envtype == DBEnumEnvType.UAT ) || 
+					( roles.secOpr && envtype == DBEnumEnvType.PRODUCTION ) )
 					return( true );
 			}
 			return( false );
@@ -504,9 +503,9 @@ public class EngineAuth extends EngineObject {
 						return( true );
 				}
 				else {
-					if( ( roles.secDev && envtype == VarENVTYPE.DEVELOPMENT ) || 
-						( roles.secRel && envtype == VarENVTYPE.UAT ) || 
-						( roles.secOpr && envtype == VarENVTYPE.PRODUCTION ) )
+					if( ( roles.secDev && envtype == DBEnumEnvType.DEVELOPMENT ) || 
+						( roles.secRel && envtype == DBEnumEnvType.UAT ) || 
+						( roles.secOpr && envtype == DBEnumEnvType.PRODUCTION ) )
 						return( true );
 				}
 			}
@@ -539,11 +538,11 @@ public class EngineAuth extends EngineObject {
 					return( true );
 			}
 			else {
-				if( ( roles.secDev && envtype == VarENVTYPE.DEVELOPMENT ) || 
-					( roles.secRel && envtype == VarENVTYPE.UAT ) || 
-					( roles.secTest && envtype == VarENVTYPE.DEVELOPMENT ) || 
-					( roles.secTest && envtype == VarENVTYPE.UAT ) || 
-					( roles.secOpr && envtype == VarENVTYPE.PRODUCTION ) )
+				if( ( roles.secDev && envtype == DBEnumEnvType.DEVELOPMENT ) || 
+					( roles.secRel && envtype == DBEnumEnvType.UAT ) || 
+					( roles.secTest && envtype == DBEnumEnvType.DEVELOPMENT ) || 
+					( roles.secTest && envtype == DBEnumEnvType.UAT ) || 
+					( roles.secOpr && envtype == DBEnumEnvType.PRODUCTION ) )
 					return( true );
 			}
 		}

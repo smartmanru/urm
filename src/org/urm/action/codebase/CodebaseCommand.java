@@ -132,7 +132,7 @@ public class CodebaseCommand {
 		action.info( "-------------------");
 		action.info( "product properties:");
 		action.info( "-------------------");
-		action.printValues( product.getContextProperties() );
+		action.printValues( product.getProperties() );
 	}
 
 	public void checkout( ScopeState parentState , ActionBase action , ActionScope scope , LocalFolder CODIR ) throws Exception {

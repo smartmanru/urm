@@ -26,5 +26,6 @@ public class _Error {
 	public static final int MissingEnum1 = ErrorBase + 17;
 	public static final int MissingEnumItem2 = ErrorBase + 18;
 	public static final int InvalidEnum3 = ErrorBase + 19;
+	public static final int SetSystemVarWrongPlace1 = ErrorBase + 20;
 	
 }

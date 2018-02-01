@@ -34,9 +34,10 @@ public class EngineEntities {
 	public static String nameSystem = "system";
 	public static String nameLdap = "ldap";
 	public static String nameProductContext = "ctx";
-	public static String nameMeta = "meta";
-	public static String nameMetaCoreSettings = "core";
-	public static String nameMetaMonitoringSettings = "mon";
+	//public static String nameMeta = "meta";
+	//public static String nameMetaCoreSettings = "core";
+	//public static String nameMetaMonitoringSettings = "mon";
+	public static String nameMetaProduct = "product";
 
 	public Engine engine;
 
@@ -287,6 +288,7 @@ public class EngineEntities {
 		return( props );
 	}
 	
+	/*
 	public ObjectProperties createMetaContextProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.PRODUCTCTX , nameProductContext , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_CUSTOM , -1 , DBEnumObjectVersionType.PRODUCT ); 
@@ -305,6 +307,15 @@ public class EngineEntities {
 		props.create( parent , entityAppMetaMonitoring , null );
 		return( props );
 	}
+	*/
+	
+	public ObjectProperties createMetaProductProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.DEFAULT , nameMetaProduct , engine.execrc );
+		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_CUSTOM , -1 , DBEnumObjectVersionType.PRODUCT ); 
+		props.create( parent , new PropertyEntity[] { entityAppProductContext , entityAppProductSettings , entityAppMetaMonitoring } , custom );
+		return( props );
+	}
+	
 
 	public ObjectProperties createMetaBuildCommonProps( ObjectProperties parent ) throws Exception {
 		return( createBuildCommonProps( parent , DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , false ) );

@@ -499,6 +499,21 @@ public abstract class DBEnums {
 		public static DBEnumDocCategoryType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDocCategoryType.class , value , required , UNKNOWN ) ); };
 	};
 	
+	public enum DBEnumEnvType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		PRODUCTION(1,null) ,
+		UAT(2,null) ,
+		DEVELOPMENT(3,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumEnvType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumEnvType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumEnvType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumEnvType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumEnvType.class , value , required , UNKNOWN ) ); };
+	};
+	
 	public enum DBEnumObjectVersionType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		APP(1,null) ,
@@ -651,7 +666,8 @@ public abstract class DBEnums {
 		new DBEnumInfo( DBEnumConfItemType.class , 536 ) ,
 		new DBEnumInfo( DBEnumCompItemType.class , 537 ) ,
 		new DBEnumInfo( DBEnumMonItemType.class , 538 ) ,
-		new DBEnumInfo( DBEnumDocCategoryType.class , 539 )
+		new DBEnumInfo( DBEnumDocCategoryType.class , 539 ) ,
+		new DBEnumInfo( DBEnumEnvType.class , 540 )
 	}; 
 
 	private static String prefix = "DBEnum";

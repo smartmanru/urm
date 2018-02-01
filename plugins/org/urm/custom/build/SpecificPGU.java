@@ -62,7 +62,7 @@ public class SpecificPGU {
 	
 	public String getPguServiceCallExt() throws Exception {
 		MetaProductSettings settings = meta.getProductSettings();
-		ObjectProperties ops = settings.getContextProperties();
+		ObjectProperties ops = settings.getProperties();
 		String custom = ops.getStringProperty( "CUSTOM_SERVICECALL_EXT" );
 		if( custom != null && !custom.isEmpty() )
 			return( custom );
@@ -72,7 +72,7 @@ public class SpecificPGU {
 	
 	public String getPguStorageServiceExt() throws Exception {
 		MetaProductSettings settings = meta.getProductSettings();
-		ObjectProperties ops = settings.getContextProperties();
+		ObjectProperties ops = settings.getProperties();
 		String custom = ops.getStringProperty( "CUSTOM_STORAGESERVICE_EXT" );
 		if( custom != null && !custom.isEmpty() )
 			return( custom );

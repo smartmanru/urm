@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.action.CommandOption.FLAG;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.PropertyController;
 import org.urm.engine.properties.PropertySet;
@@ -21,8 +22,6 @@ import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductMeta;
 import org.urm.meta.product._Error;
-import org.urm.meta.Types;
-import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -40,10 +39,11 @@ public class MetaEnv extends PropertyController {
 	public String DESC;
 	public String BASELINE;
 	public boolean OFFLINE;
+	public DBEnumEnvType envType;
+	
 	public String CHATROOMFILE;
 	public String KEYFILE;
 	public String DB_AUTHFILE;
-	public VarENVTYPE envType;
 
 	// distributive source
 	public boolean DISTR_USELOCAL;
@@ -135,8 +135,8 @@ public class MetaEnv extends PropertyController {
 		CHATROOMFILE = super.getPathProperty( action , PROPERTY_CHATROOMFILE );
 		KEYFILE = super.getPathProperty( action , PROPERTY_KEYFILE );
 		DB_AUTHFILE = super.getPathProperty( action , PROPERTY_DB_AUTHFILE );
-		String ENVTYPE = super.getStringProperty( action , PROPERTY_ENVTYPE , Common.getEnumLower( VarENVTYPE.DEVELOPMENT ) );
-		envType = Types.getEnvType( ENVTYPE , true );
+		String ENVTYPE = super.getStringProperty( action , PROPERTY_ENVTYPE , Common.getEnumLower( DBEnumEnvType.DEVELOPMENT ) );
+		envType = DBEnumEnvType.getValue( ENVTYPE , true );
 
 		// affect runtime options
 		DB_AUTH = super.getOptionProperty( action , PROPERTY_DB_AUTH );
@@ -150,7 +150,7 @@ public class MetaEnv extends PropertyController {
 			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
 	}
 
-	public void createEnv( ActionBase action , String ID , VarENVTYPE envType ) throws Exception {
+	public void createEnv( ActionBase action , String ID , DBEnumEnvType envType ) throws Exception {
 		this.NAME = ID;
 		this.envType = envType;
 		createProperties( action );
@@ -173,7 +173,7 @@ public class MetaEnv extends PropertyController {
 	}
 
 	public boolean isProd() {
-		return( envType == VarENVTYPE.PRODUCTION );
+		return( envType == DBEnumEnvType.PRODUCTION );
 	}
 	
 	public boolean hasBaseline( ActionBase action ) throws Exception {

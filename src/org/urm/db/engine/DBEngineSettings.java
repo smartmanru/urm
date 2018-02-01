@@ -6,6 +6,7 @@ import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumBuildModeType;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineLoader;
@@ -139,4 +140,24 @@ public abstract class DBEngineSettings {
 		}
 	}
 
+	public static void updateAppEngineProperties( EngineTransaction transaction , EngineSettings settings ) throws Exception {
+		ObjectProperties ops = settings.getEngineProperties();
+		DBSettings.modifyAppValues( transaction , DBVersions.CORE_ID , ops , null );
+	}
+	
+	public static void updateProductDefaultProperties( EngineTransaction transaction , EngineSettings settings ) throws Exception {
+		ObjectProperties ops = settings.getDefaultProductSettigns();
+		DBSettings.modifyAppValues( transaction , DBVersions.CORE_ID , ops , null );
+	}
+	
+	public static void updateProductDefaultBuildCommonProperties( EngineTransaction transaction , EngineSettings settings ) throws Exception {
+		ObjectProperties ops = settings.getDefaultProductBuildSettings();
+		DBSettings.modifyAppValues( transaction , DBVersions.CORE_ID , ops , null );
+	}
+	
+	public static void updateProductDefaultBuildModeProperties( EngineTransaction transaction , EngineSettings settings , DBEnumBuildModeType mode ) throws Exception {
+		ObjectProperties ops = settings.getDefaultProductBuildObjectProperties( mode );
+		DBSettings.modifyAppValues( transaction , DBVersions.CORE_ID , ops , null );
+	}
+	
 }

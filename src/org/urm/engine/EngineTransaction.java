@@ -101,26 +101,22 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void updateAppEngineProperties( EngineSettings settings ) throws Exception {
 		super.checkTransactionSettings();
-		ObjectProperties ops = settings.getEngineProperties();
-		DBSettings.modifyAppValues( this , DBVersions.CORE_ID , ops );
+		DBEngineSettings.updateAppEngineProperties( this , settings );
 	}
 	
 	public void updateProductDefaultProperties( EngineSettings settings ) throws Exception {
 		super.checkTransactionSettings();
-		ObjectProperties ops = settings.getDefaultProductSettigns();
-		DBSettings.modifyAppValues( this , DBVersions.CORE_ID , ops );
+		DBEngineSettings.updateProductDefaultProperties( this , settings );
 	}
 	
 	public void updateProductDefaultBuildCommonProperties( EngineSettings settings ) throws Exception {
 		super.checkTransactionSettings();
-		ObjectProperties ops = settings.getDefaultProductBuildSettings();
-		DBSettings.modifyAppValues( this , DBVersions.CORE_ID , ops );
+		DBEngineSettings.updateProductDefaultBuildCommonProperties( this , settings );
 	}
 	
 	public void updateProductDefaultBuildModeProperties( EngineSettings settings , DBEnumBuildModeType mode ) throws Exception {
 		super.checkTransactionSettings();
-		ObjectProperties ops = settings.getDefaultProductBuildObjectProperties( mode );
-		DBSettings.modifyAppValues( this , DBVersions.CORE_ID , ops );
+		DBEngineSettings.updateProductDefaultBuildModeProperties( this , settings , mode );
 	}
 	
 	// ################################################################################
@@ -942,7 +938,7 @@ public class EngineTransaction extends TransactionBase {
 	// ################################################################################
 	// ENVIRONMENT
 	
-	public MetaEnv createMetaEnv( Meta meta , String name , VarENVTYPE envType ) throws Exception {
+	public MetaEnv createMetaEnv( Meta meta , String name , DBEnumEnvType envType ) throws Exception {
 		ProductMeta storage = getTransactionProductMetadata( meta );
 		MetaProductSettings settings = meta.getProductSettings();
 		MetaEnv env = new MetaEnv( storage , settings , storage.meta );

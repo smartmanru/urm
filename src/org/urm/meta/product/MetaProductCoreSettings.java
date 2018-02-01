@@ -3,9 +3,8 @@ package org.urm.meta.product;
 import java.nio.charset.Charset;
 
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.DBEnumOSType;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.engine.properties.PropertySet;
 import org.urm.meta.engine.EngineContext;
 
 public class MetaProductCoreSettings {
@@ -42,8 +41,6 @@ public class MetaProductCoreSettings {
 	
 	public Meta meta;
 	public MetaProductSettings settings;
-	public ObjectProperties ops;
-	public ObjectProperties mon;
 	
 	public String CONFIG_REDISTWIN_PATH;
 	public String CONFIG_REDISTLINUX_PATH;
@@ -81,14 +78,14 @@ public class MetaProductCoreSettings {
 
 	public MetaProductCoreSettings copy( Meta rmeta , MetaProductSettings rsettings ) throws Exception {
 		MetaProductCoreSettings r = new MetaProductCoreSettings( rmeta , rsettings );
-		r.ops = ops.copy( rsettings.getContextProperties() );
 		r.scatterPrimaryProperties();
-		r.mon = mon.copy( ops );
 		r.scatterMonitoringProperties();
 		return( r );
 	}
 	
 	public void scatterPrimaryProperties() throws Exception {
+		ObjectProperties ops = settings.ops;
+		
 		CONFIG_REDISTWIN_PATH = ops.getPathProperty( PROPERTY_REDISTWIN_PATH );
 		CONFIG_REDISTLINUX_PATH = ops.getPathProperty( PROPERTY_REDISTLINUX_PATH );
 		CONFIG_DISTR_PATH = ops.getPathProperty( PROPERTY_DISTR_PATH );
@@ -115,11 +112,6 @@ public class MetaProductCoreSettings {
 		CONFIG_CUSTOM_DATABASE = ops.getStringProperty( PROPERTY_CUSTOM_DATABASE );
 	}
 
-	public void createCoreSettings( ObjectProperties ops ) throws Exception {
-		this.ops = ops;
-		scatterPrimaryProperties();
-	}
-	
 	public String getTargetPath( DBEnumOSType osType , String artefactDir ) {
 		if( Common.isAbsolutePath( artefactDir ) )
 			return( artefactDir );
@@ -130,6 +122,8 @@ public class MetaProductCoreSettings {
 	}
 
 	public void scatterMonitoringProperties() throws Exception {
+		ObjectProperties mon = settings.ops;
+		
 		MONITORING_RESOURCE_URL = mon.getStringProperty( PROPERTY_MONITORING_RESOURCE_URL );
 		MONITORING_DIR_RES = mon.getPathProperty( PROPERTY_MONITORING_DIR_RES );
 		MONITORING_DIR_DATA = mon.getPathProperty( PROPERTY_MONITORING_DIR_DATA );
@@ -137,20 +131,11 @@ public class MetaProductCoreSettings {
 		MONITORING_DIR_LOGS = mon.getPathProperty( PROPERTY_MONITORING_DIR_LOGS );
 	}
 	
-	public void createMonitoringSettings( ObjectProperties mon ) throws Exception {
-		this.mon = mon;
+	public void createSettings() throws Exception {
+		scatterPrimaryProperties();
 		scatterMonitoringProperties();
 	}
 	
-	public void setMonitoringProperties( PropertySet src ) throws Exception {
-		mon.setUrlProperty( PROPERTY_MONITORING_RESOURCE_URL , src.getExpressionByProperty( PROPERTY_MONITORING_RESOURCE_URL ) );
-		mon.setPathProperty( PROPERTY_MONITORING_DIR_RES , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_RES ) );
-		mon.setPathProperty( PROPERTY_MONITORING_DIR_DATA , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_DATA ) );
-		mon.setPathProperty( PROPERTY_MONITORING_DIR_REPORTS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_REPORTS ) );
-		mon.setPathProperty( PROPERTY_MONITORING_DIR_LOGS , src.getExpressionByProperty( PROPERTY_MONITORING_DIR_LOGS ) );
-		scatterMonitoringProperties();
-	}
-
 	public boolean isValidMonitoringSettings() {
 		if( MONITORING_DIR_RES.isEmpty() || 
 			MONITORING_DIR_DATA.isEmpty() || 
