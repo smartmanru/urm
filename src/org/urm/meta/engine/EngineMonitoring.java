@@ -32,7 +32,7 @@ public class EngineMonitoring extends EngineObject {
 	boolean running;
 	public boolean ENABLED;
 	
-	public ObjectProperties properties;
+	public ObjectProperties ops;
 	
 	public EngineMonitoring( Engine engine ) {
 		super( null );
@@ -48,7 +48,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 	
 	public void setProperties( ObjectProperties properties ) throws Exception {
-		this.properties = properties;
+		this.ops = properties;
 		this.ENABLED = properties.getBooleanProperty( PROPERTY_ENABLED );
 	}
 	
@@ -99,7 +99,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 	
 	public void setEnabled( EngineTransaction transaction , boolean enabled ) throws Exception {
-		properties.setBooleanProperty( PROPERTY_ENABLED , enabled );
+		ops.setBooleanProperty( PROPERTY_ENABLED , enabled );
 		ENABLED = enabled;
 		
 		if( enabled )
@@ -109,7 +109,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 
 	public ObjectProperties getProperties() {
-		return( properties );
+		return( ops );
 	}
 	
 	public void modifyTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {

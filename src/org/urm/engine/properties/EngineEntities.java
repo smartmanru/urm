@@ -34,10 +34,8 @@ public class EngineEntities {
 	public static String nameSystem = "system";
 	public static String nameLdap = "ldap";
 	public static String nameProductContext = "ctx";
-	//public static String nameMeta = "meta";
-	//public static String nameMetaCoreSettings = "core";
-	//public static String nameMetaMonitoringSettings = "mon";
-	public static String nameMetaProduct = "product";
+	public static String nameMetaProductSet = "product";
+	public static String nameMetaMonitoringSet = "mon";
 
 	public Engine engine;
 
@@ -288,31 +286,16 @@ public class EngineEntities {
 		return( props );
 	}
 	
-	/*
-	public ObjectProperties createMetaContextProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.PRODUCTCTX , nameProductContext , engine.execrc );
-		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_CUSTOM , -1 , DBEnumObjectVersionType.PRODUCT ); 
-		props.create( parent , entityAppProductContext , custom );
-		return( props );
-	}
-
-	public ObjectProperties createMetaCoreSettingsProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.METACORE , nameMetaCoreSettings , engine.execrc );
-		props.create( parent , entityAppProductSettings , null );
-		return( props );
-	}
-
 	public ObjectProperties createMetaMonitoringProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.METAMON , nameMetaMonitoringSettings , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.METAMON , nameMetaMonitoringSet , engine.execrc );
 		props.create( parent , entityAppMetaMonitoring , null );
 		return( props );
 	}
-	*/
 	
 	public ObjectProperties createMetaProductProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.DEFAULT , nameMetaProduct , engine.execrc );
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.DEFAULT , nameMetaProductSet , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_CUSTOM , -1 , DBEnumObjectVersionType.PRODUCT ); 
-		props.create( parent , new PropertyEntity[] { entityAppProductContext , entityAppProductSettings , entityAppMetaMonitoring } , custom );
+		props.create( parent , new PropertyEntity[] { entityAppProductContext , entityAppProductSettings } , custom );
 		return( props );
 	}
 	

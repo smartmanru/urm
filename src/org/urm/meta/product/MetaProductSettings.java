@@ -29,6 +29,7 @@ public class MetaProductSettings {
 	
 	// context and custom product properties
 	public ObjectProperties ops;
+	public ObjectProperties mon;
 	
 	// detailed product properties
 	public MetaProductCoreSettings core;
@@ -47,6 +48,7 @@ public class MetaProductSettings {
 		
 		// context
 		r.ops = ops.copy( parent );
+		r.mon = mon.copy( r.ops );
 		r.core = core.copy( rmeta , r );
 		
 		if( buildCommon != null )
@@ -63,8 +65,9 @@ public class MetaProductSettings {
 		return( ops );
 	}
 	
-	public void createSettings( ObjectProperties ops , ProductContext context ) throws Exception {
+	public void createSettings( ObjectProperties ops , ObjectProperties mon , ProductContext context ) throws Exception {
 		this.ops = ops;
+		this.mon = mon;
 		setContextProperties( context );
 		core.createSettings();
 		

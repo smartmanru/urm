@@ -40,15 +40,20 @@ public class DBMetaSettings {
 		
 		MetaProductSettings settings = new MetaProductSettings( storage , storage.meta );
 		storage.setSettings( settings );
+		int version = c.getNextProductVersion( storage );
 
-		// context, custom, core, monitoring settings
+		// context, custom, core settings
 		AppSystem system = product.system;
 		ObjectProperties ops = entities.createMetaProductProps( system.getParameters() );
-		int version = c.getNextProductVersion( storage );
-		ops.recalculateProperties();
 		DBSettings.savedbEntityCustom( c , ops , storage.ID , storage.ID , version );
 		DBSettings.savedbPropertyValues( c , storage.ID , ops , false , true , version );
-		settings.createSettings( ops , context );
+		ops.recalculateProperties();
+		
+		// monitoring settings
+		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
+		DBSettings.savedbPropertyValues( c , storage.ID , mon , true , false , version );
+		mon.recalculateProperties();
+		settings.createSettings( ops , mon , context );
 		
 		// build settings
 		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( ops );
@@ -77,7 +82,7 @@ public class DBMetaSettings {
 		MetaProductSettings settings = new MetaProductSettings( storage , storage.meta );
 		storage.setSettings( settings );
 
-		// context and custom settings
+		// context, custom settings
 		AppSystem system = product.system;
 		ObjectProperties ops = entities.createMetaProductProps( system.getParameters() );
 		Node customNode = ConfReader.xmlGetFirstChild( root , ELEMENT_CUSTOM );
@@ -88,13 +93,15 @@ public class DBMetaSettings {
 		if( coreNode == null )
 			Common.exitUnexpected();
 		DBSettings.importxml( loader , coreNode , ops , DBEnumParamEntityType.PRODUCTDEFS , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
+		ops.recalculateProperties();
 
 		// monitoring settings
+		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
 		Node monitoringNode = ConfReader.xmlGetFirstChild( root , ELEMENT_MONITORING );
 		if( monitoringNode != null )
-			DBSettings.importxml( loader , monitoringNode , ops , DBEnumParamEntityType.PRODUCT_MONITORING , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
-		ops.recalculateProperties();
-		settings.createSettings( ops , context );
+			DBSettings.importxml( loader , monitoringNode , mon , DBEnumParamEntityType.PRODUCT_MONITORING , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
+		mon.recalculateProperties();
+		settings.createSettings( ops , mon , context );
 		
 		// build settings
 		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( ops );
@@ -135,15 +142,21 @@ public class DBMetaSettings {
 		MetaProductSettings settings = new MetaProductSettings( storage , storage.meta );
 		storage.setSettings( settings );
 
-		// context, custom, core, monitoring settings
 		AppSystem system = storage.product.system;
+		
+		// context, custom, core settings
 		ObjectProperties ops = entities.createMetaProductProps( system.getParameters() );
 		ObjectMeta meta = ops.getMeta();
 		DBSettings.loaddbEntity( c , meta.getCustomEntity() , storage.ID );
 		DBSettings.loaddbValues( loader , storage.ID , ops , true );
 		ops.recalculateProperties();
-		settings.createSettings( ops , context );
 
+		// monitoring settings
+		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
+		DBSettings.loaddbValues( loader , storage.ID , mon , true );
+		mon.recalculateProperties();
+		settings.createSettings( ops , mon , context );
+		
 		// build settings
 		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( ops );
 		DBSettings.loaddbValues( loader , storage.ID , opsBuildCommon , true );
@@ -173,7 +186,7 @@ public class DBMetaSettings {
 
 		// monitoring settings
 		Element monitoringNode = Common.xmlCreateElement( doc , root , ELEMENT_MONITORING );
-		DBSettings.exportxml( loader , doc , monitoringNode , settings.ops , true , false , true , DBEnumParamEntityType.PRODUCT_MONITORING );
+		DBSettings.exportxml( loader , doc , monitoringNode , settings.mon , true , false , true , DBEnumParamEntityType.PRODUCT_MONITORING );
 
 		// build settings
 		Element buildCommonNode = Common.xmlCreateElement( doc , root , ELEMENT_BUILD );
@@ -243,7 +256,7 @@ public class DBMetaSettings {
 		
 		mon.stopProduct( action , product );
 		
-		ObjectProperties ops = settings.ops;
+		ObjectProperties ops = settings.mon;
 		int version = c.getNextProductVersion( storage );
 		DBSettings.savedbPropertyValues( c , storage.ID , ops , true , false , version , DBEnumParamEntityType.PRODUCT_MONITORING );
 		ops.recalculateChildProperties();

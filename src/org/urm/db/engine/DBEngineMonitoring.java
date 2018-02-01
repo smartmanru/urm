@@ -55,7 +55,7 @@ public class DBEngineMonitoring {
 	}
 	
 	public static void savexml( EngineLoader loader , EngineMonitoring mon , Document doc , Element root ) throws Exception {
-		ObjectProperties properties = mon.properties;
+		ObjectProperties properties = mon.ops;
 		DBSettings.exportxml( loader , doc , root , properties , true );
 	}
 
@@ -71,13 +71,13 @@ public class DBEngineMonitoring {
 		DBConnection c = transaction.getConnection();
 		mon.setEnabled( transaction , enable );
 		int version = c.getNextCoreVersion();
-		DBSettings.savedbPropertyValues( c , DBVersions.CORE_ID , mon.properties , true , false , version );
+		DBSettings.savedbPropertyValues( c , DBVersions.CORE_ID , mon.ops , true , false , version );
 	}
 
 	public static void setProperties( EngineTransaction transaction , EngineMonitoring mon ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		int version = c.getNextCoreVersion();
-		DBSettings.savedbPropertyValues( c , DBVersions.CORE_ID , mon.properties , true , false , version );
+		DBSettings.savedbPropertyValues( c , DBVersions.CORE_ID , mon.ops , true , false , version );
 	}
 
 }

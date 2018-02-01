@@ -122,7 +122,7 @@ public class MetaProductCoreSettings {
 	}
 
 	public void scatterMonitoringProperties() throws Exception {
-		ObjectProperties mon = settings.ops;
+		ObjectProperties mon = settings.mon;
 		
 		MONITORING_RESOURCE_URL = mon.getStringProperty( PROPERTY_MONITORING_RESOURCE_URL );
 		MONITORING_DIR_RES = mon.getPathProperty( PROPERTY_MONITORING_DIR_RES );
@@ -144,5 +144,5 @@ public class MetaProductCoreSettings {
 			return( false );
 		return( true );
 	}
-	
+
 }
