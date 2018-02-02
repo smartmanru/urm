@@ -346,6 +346,12 @@ public class ObjectProperties {
 		recalculateChildProperties();
 	}
 
+	public String getExpressionValue( String prop ) throws Exception {
+		EntityVar var = meta.getVar( prop );
+		PropertyValue value = properties.getPropertyValue( var.NAME );
+		return( value.getExpressionValue() );
+	}
+
 	public String getOriginalPropertyValue( String prop ) throws Exception {
 		EntityVar var = meta.getVar( prop );
 		PropertyValue value = properties.getPropertyValue( var.NAME );

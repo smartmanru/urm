@@ -18,6 +18,7 @@ import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductContext;
 import org.urm.meta.product.ProductMeta;
@@ -51,7 +52,13 @@ public class DBMetaSettings {
 		
 		// monitoring settings
 		EngineMonitoring monitoring = loader.getMonitoring();
-		ObjectProperties mon = entities.createMetaMonitoringProps( monitoring.ops );
+		ObjectProperties engineOps = monitoring.getProperties();
+		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
+		mon.setStringProperty( MetaProductCoreSettings.PROPERTY_MONITORING_RESOURCE_URL , engineOps.getExpressionValue( EngineMonitoring.PROPERTY_RESOURCE_URL ) );
+		mon.setPathProperty( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_RES , engineOps.getExpressionValue( EngineMonitoring.PROPERTY_RESOURCE_PATH ) );
+		mon.setPathProperty( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_DATA , engineOps.getExpressionValue( EngineMonitoring.PROPERTY_DIR_DATA ) );
+		mon.setPathProperty( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_REPORTS , engineOps.getExpressionValue( EngineMonitoring.PROPERTY_DIR_REPORTS ) );
+		mon.setPathProperty( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_LOGS , engineOps.getExpressionValue( EngineMonitoring.PROPERTY_DIR_LOGS ) );
 		DBSettings.savedbPropertyValues( c , storage.ID , mon , true , false , version );
 		mon.recalculateProperties();
 		settings.createSettings( ops , mon , context );
@@ -97,8 +104,7 @@ public class DBMetaSettings {
 		ops.recalculateProperties();
 
 		// monitoring settings
-		EngineMonitoring monitoring = loader.getMonitoring();
-		ObjectProperties mon = entities.createMetaMonitoringProps( monitoring.ops );
+		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
 		Node monitoringNode = ConfReader.xmlGetFirstChild( root , ELEMENT_MONITORING );
 		if( monitoringNode != null )
 			DBSettings.importxml( loader , monitoringNode , mon , DBEnumParamEntityType.PRODUCT_MONITORING , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
@@ -154,8 +160,7 @@ public class DBMetaSettings {
 		ops.recalculateProperties();
 
 		// monitoring settings
-		EngineMonitoring monitoring = loader.getMonitoring();
-		ObjectProperties mon = entities.createMetaMonitoringProps( monitoring.ops );
+		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
 		DBSettings.loaddbValues( loader , storage.ID , mon , true );
 		mon.recalculateProperties();
 		settings.createSettings( ops , mon , context );
