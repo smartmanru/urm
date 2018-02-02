@@ -193,8 +193,8 @@ public class EngineStatus extends EngineObject {
 		return( app.subscribe( source , listener ) );
 	}
 
-	public synchronized void createProduct( TransactionBase transaction , AppProduct product , ProductMeta storage ) {
-		startProduct( transaction.getAction() , product , storage );
+	public synchronized void createProduct( TransactionBase transaction , AppProduct product ) {
+		startProduct( transaction.getAction() , product );
 	}
 
 	public void modifyProduct( TransactionBase transaction , ProductMeta storageOld , ProductMeta storageNew ) throws Exception {
@@ -243,12 +243,12 @@ public class EngineStatus extends EngineObject {
 		// start products
 		for( String productName : system.getProductNames() ) {
 			AppProduct product = system.findProduct( productName );
-			ProductMeta storage = data.findProductStorage( product.NAME );
-			startProduct( action , product , storage );
+			startProduct( action , product );
 		}
 	}
 	
-	private void startProduct( ActionBase action , AppProduct product , ProductMeta storage ) {
+	private void startProduct( ActionBase action , AppProduct product ) {
+		ProductMeta storage = product.storage;
 		if( storage == null ) {
 			action.trace( "ignore status for non-healthy product=" + product.NAME );
 			return;

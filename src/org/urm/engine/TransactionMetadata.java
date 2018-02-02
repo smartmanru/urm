@@ -141,10 +141,12 @@ public class TransactionMetadata {
 				
 			AppProduct product = metadata.product;
 			transaction.setProductMetadata( metadata );
+			product.setStorage( metadata );
 			sessionMeta.replaceStorage( transaction.action , metadata );
 			transaction.trace( "transaction product storage meta: save=" + metadata.objectId );
+			
 			if( createMetadata )
-				createProductFinish( product , metadata );
+				createProductFinish( product );
 			else
 				modifyProductFinish( product , metadataOld , metadata );
 		}
@@ -163,9 +165,9 @@ public class TransactionMetadata {
 			transaction.exit1( _Error.InternalTransactionError1 , "Internal error: invalid transaction metadata" , "invalid transaction metadata" );
 	}
 
-	private void createProductFinish( AppProduct product , ProductMeta metadata ) throws Exception {
+	private void createProductFinish( AppProduct product ) throws Exception {
 		EngineStatus status = transaction.action.getServerStatus();
-		status.createProduct( transaction , product , metadata );
+		status.createProduct( transaction , product );
 		EngineMonitoring mon = transaction.action.getServerMonitoring();
 		mon.transactionCommitCreateProduct( transaction , product );
 		EngineJmx jmx = transaction.engine.jmxController;
@@ -183,7 +185,7 @@ public class TransactionMetadata {
 		}
 		
 		if( product.isMatched() ) {
-			status.createProduct( transaction , product , metadata );
+			status.createProduct( transaction , product );
 			mon.transactionCommitCreateProduct( transaction , product );
 			
 			if( !matchedBeforeImport )

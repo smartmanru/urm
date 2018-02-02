@@ -148,7 +148,7 @@ public class MonitoringProduct {
 	private boolean createFolders( ActionBase action ) {
 		MetaProductCoreSettings core = meta.meta.getProductCoreSettings();
 		if( !core.isValidMonitoringSettings() ) {
-			action.error( "monitoring is forced off because monitoring folders are not ready, check settings" );
+			action.error( "monitoring is forced off because monitoring folders are not ready, check settings, product=" + meta.meta.name );
 			return( false );
 		}
 		
