@@ -65,6 +65,10 @@ public class MetaProductSettings {
 		return( ops );
 	}
 	
+	public ObjectProperties getMonitoringProperties() {
+		return( mon );
+	}
+	
 	public void createSettings( ObjectProperties ops , ObjectProperties mon , ProductContext context ) throws Exception {
 		this.ops = ops;
 		this.mon = mon;

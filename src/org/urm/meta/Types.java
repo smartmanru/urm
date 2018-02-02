@@ -132,6 +132,7 @@ public class Types {
 		UNKNOWN ,
 		FEATURE ,
 		CHANGE ,
+		DOCUMENT ,
 		BUGFIX
 	};
 
