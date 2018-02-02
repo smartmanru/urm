@@ -88,8 +88,8 @@ public abstract class DBSettings {
 		
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity entity = ( entityType == null )? null : meta.getAppEntity( entityType );
-		boolean hasAttrs = ( entity == null )? meta.hasAppAttrs() : entity.USE_PROPS; 
-		boolean hasProps = ( entity == null )? meta.hasAppProps() : !entity.USE_PROPS;
+		boolean hasAttrs = ( entity == null )? meta.hasAppAttrs() : !entity.USE_PROPS; 
+		boolean hasProps = ( entity == null )? meta.hasAppProps() : entity.USE_PROPS;
 		
 		// load attributes
 		if( hasAttrs ) {
