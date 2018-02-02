@@ -50,7 +50,8 @@ public class DBMetaSettings {
 		ops.recalculateProperties();
 		
 		// monitoring settings
-		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
+		EngineMonitoring monitoring = loader.getMonitoring();
+		ObjectProperties mon = entities.createMetaMonitoringProps( monitoring.ops );
 		DBSettings.savedbPropertyValues( c , storage.ID , mon , true , false , version );
 		mon.recalculateProperties();
 		settings.createSettings( ops , mon , context );
@@ -96,7 +97,8 @@ public class DBMetaSettings {
 		ops.recalculateProperties();
 
 		// monitoring settings
-		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
+		EngineMonitoring monitoring = loader.getMonitoring();
+		ObjectProperties mon = entities.createMetaMonitoringProps( monitoring.ops );
 		Node monitoringNode = ConfReader.xmlGetFirstChild( root , ELEMENT_MONITORING );
 		if( monitoringNode != null )
 			DBSettings.importxml( loader , monitoringNode , mon , DBEnumParamEntityType.PRODUCT_MONITORING , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
@@ -152,7 +154,8 @@ public class DBMetaSettings {
 		ops.recalculateProperties();
 
 		// monitoring settings
-		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
+		EngineMonitoring monitoring = loader.getMonitoring();
+		ObjectProperties mon = entities.createMetaMonitoringProps( monitoring.ops );
 		DBSettings.loaddbValues( loader , storage.ID , mon , true );
 		mon.recalculateProperties();
 		settings.createSettings( ops , mon , context );
