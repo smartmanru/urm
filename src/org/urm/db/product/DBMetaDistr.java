@@ -784,8 +784,8 @@ public class DBMetaDistr {
 	public static void exportxmlDeliveryDocs( EngineLoader loader , ProductMeta storage , MetaDistrDelivery delivery , Document doc , Element root ) throws Exception {
 		for( String name : delivery.getDocNames() ) {
 			MetaProductDoc pdoc = delivery.findDoc( name );
-			Element node = Common.xmlCreateElement( doc , root , ELEMENT_DATABASE );
-			Common.xmlSetElementAttr( doc , node , ATTR_DELIVERY_SCHEMA , pdoc.NAME );
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_DOCUMENT );
+			Common.xmlSetElementAttr( doc , node , ATTR_DELIVERY_DOCNAME , pdoc.NAME );
 		}
 	}
 	

@@ -459,7 +459,8 @@ public class DatabaseSpecific {
 			addSpecificLine( action , lines , "CONF_DBHOST" , DBMSADDR );
 
 		MetaProductCoreSettings core = settings.getCoreSettings();
-		addSpecificLine( action , lines , "CONF_CHARSET" , core.charset.name() );
+		if( core.charset != null )
+			addSpecificLine( action , lines , "CONF_CHARSET" , core.charset.name() );
 	}
 	
 	public void addSpecificLine( ActionBase action , List<String> lines , String var , String value ) {
