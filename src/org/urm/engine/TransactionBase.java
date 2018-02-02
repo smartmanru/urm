@@ -819,6 +819,36 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
+	public boolean importProduct( AppProduct product ) {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+
+				TransactionMetadata tm = productMeta.get( product.NAME ); 
+				if( tm != null )
+					return( false );
+				
+				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
+					return( false );
+				
+				tm = new TransactionMetadata( this );
+				if( tm.importProduct( product ) ) {
+					useDatabase();
+					addTransactionMeta( product.NAME , tm );
+					return( true );
+				}
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to change metadata" );
+			}
+			
+			abortTransaction( false );
+			return( false );
+		}
+	}
+	
+	
 	public boolean changeMetadata( Meta meta , MetaEnv env ) {
 		synchronized( engine ) {
 			try {
@@ -835,7 +865,7 @@ public class TransactionBase extends EngineObject {
 				tm = new TransactionMetadata( this );
 				if( tm.changeProduct( meta ) ) {
 					useDatabase();
-					addTransactionMeta( meta , tm );
+					addTransactionMeta( meta.name , tm );
 					return( true );
 				}
 			}
@@ -864,7 +894,7 @@ public class TransactionBase extends EngineObject {
 				tm = new TransactionMetadata( this );
 				if( tm.recreateProduct( meta ) ) {
 					useDatabase();
-					addTransactionMeta( meta , tm );
+					addTransactionMeta( meta.name , tm );
 					return( true );
 				}
 			}
@@ -893,7 +923,7 @@ public class TransactionBase extends EngineObject {
 				tm = new TransactionMetadata( this );
 				if( tm.deleteProduct( meta ) ) {
 					useDatabase();
-					addTransactionMeta( meta , tm );
+					addTransactionMeta( meta.name , tm );
 					return( true );
 				}
 			}
@@ -1142,8 +1172,8 @@ public class TransactionBase extends EngineObject {
 		return( tm.sessionMeta );
 	}
 	
-	private void addTransactionMeta( Meta meta , TransactionMetadata tm ) {
-		productMeta.put( meta.name , tm );
+	private void addTransactionMeta( String name , TransactionMetadata tm ) {
+		productMeta.put( name , tm );
 	}
 
 	// helpers
@@ -1387,7 +1417,7 @@ public class TransactionBase extends EngineObject {
 		Meta meta = data.createSessionProductMetadata( this , storage );
 		tm = new TransactionMetadata( this );
 		tm.createProduct( meta );
-		addTransactionMeta( meta , tm );
+		addTransactionMeta( meta.name , tm );
 		return( meta );
 	}
 

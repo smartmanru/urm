@@ -208,6 +208,7 @@ public class EngineJmx {
 	}		
 	
 	public void addProduct( AppProduct product ) throws Exception {
+		action.trace( "register jmx connector, product=" + product.NAME + " ..." );
 		List<String> objects = new LinkedList<String>();
 		productObjects.put( product.ID , objects );
 		

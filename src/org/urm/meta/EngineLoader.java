@@ -331,6 +331,9 @@ public class EngineLoader {
 		EngineDirectory directory = data.getDirectory();
 		AppProduct product = directory.getProduct( productId );
 		
+		if( !transaction.importProduct( product ) )
+			Common.exitUnexpected();
+		
 		trace( "import engine product=" + product.NAME + " data ..." );
 		ldp.importProduct( product , includingEnvironments );
 	}

@@ -13,20 +13,24 @@ public class TransactionMetadata {
 	TransactionBase transaction;
 	
 	public boolean createMetadata;
+	public boolean changeMetadata;
 	public boolean deleteMetadata;
+	public boolean recreateMetadata;
+	public boolean importMetadata;
+	
 	public Meta sessionMeta;
-
+	public AppProduct product;
 	public ProductMeta metadata;
 	protected ProductMeta metadataOld;
 	
 	public TransactionMetadata( TransactionBase transaction ) {
 		this.transaction = transaction;
 		
-		metadata = null;
-		metadataOld = null;
 		createMetadata = false;
+		changeMetadata = false;
 		deleteMetadata = false;
-		sessionMeta = null;
+		recreateMetadata = false;
+		importMetadata = false;
 	}
 
 	public void createProduct( Meta sessionMeta ) throws Exception {
@@ -35,32 +39,16 @@ public class TransactionMetadata {
 		metadata = sessionMeta.getStorage();
 	}
 
-	public void abortTransaction( boolean save ) {
-		if( metadataOld == null )
-			return;
-
-		String name = metadataOld.name;
-		try {
-			if( save )
-				transaction.setProductMetadata( metadataOld );
-			
-			if( !deleteMetadata )
-				sessionMeta.replaceStorage( transaction.action , metadataOld );
-			
-			createMetadata = false;
-			deleteMetadata = false;
-			sessionMeta = null;
-			metadata = null;
-			metadataOld = null;
-		}
-		catch( Throwable e ) {
-			transaction.handle( e , "Unable to restore metadata, product=" + name );
-		}
+	public boolean importProduct( AppProduct product ) throws Exception {
+		this.product = product;
+		importMetadata = true;
+		return( true );
 	}
 
 	public boolean changeProduct( Meta meta ) throws Exception {
 		ProductMeta storage = meta.getStorage();
 		if( storage.isPrimary() ) {
+			changeMetadata = true;
 			metadataOld = storage;
 			AppSystem system = storage.product.system;
 			metadata = storage.copy( transaction.action , storage.products , storage.product , system.getParameters() );
@@ -79,6 +67,7 @@ public class TransactionMetadata {
 	public boolean recreateProduct( Meta meta ) throws Exception {
 		ProductMeta storage = meta.getStorage();
 		if( storage.isPrimary() ) {
+			recreateMetadata = true;
 			metadataOld = storage;
 			metadata = null;
 			sessionMeta = transaction.action.getProductMetadata( meta.name );
@@ -89,12 +78,6 @@ public class TransactionMetadata {
 			transaction.error( "Unable to change old metadata, id=" + storage.objectId );
 		
 		return( false );
-	}
-
-	public boolean replaceProduct( ProductMeta storage ) throws Exception {
-		metadata = storage;
-		transaction.trace( "transaction recreate product storage meta=" + storage.objectId );
-		return( true );
 	}
 
 	public boolean deleteProduct( Meta meta ) throws Exception {
@@ -109,17 +92,45 @@ public class TransactionMetadata {
 		return( false );
 	}
 
+	public void abortTransaction( boolean save ) {
+		if( metadataOld == null )
+			return;
+
+		String name = metadataOld.name;
+		try {
+			if( save )
+				transaction.setProductMetadata( metadataOld );
+			
+			if( !deleteMetadata )
+				sessionMeta.replaceStorage( transaction.action , metadataOld );
+			
+			createMetadata = false;
+			changeMetadata = false;
+			deleteMetadata = false;
+			recreateMetadata = false;
+			importMetadata = false;
+			
+			sessionMeta = null;
+			metadata = null;
+			metadataOld = null;
+		}
+		catch( Throwable e ) {
+			transaction.handle( e , "Unable to restore metadata, product=" + name );
+		}
+	}
+
 	public boolean commitTransaction() throws Exception {
 		if( deleteMetadata ) {
 			if( metadataOld == null )
 				return( false );
 
 			AppProduct product = metadataOld.product;
-			deleteProduct( product , metadataOld );
+			deleteProductFinish( product , metadataOld );
 			transaction.deleteProductMetadata( metadataOld );
 			transaction.trace( "transaction product storage meta: delete=" + metadataOld.objectId );
 		}
-		else {
+		else
+		if( createMetadata || changeMetadata || recreateMetadata ) {
 			if( metadata == null )
 				return( false );
 				
@@ -128,9 +139,13 @@ public class TransactionMetadata {
 			sessionMeta.replaceStorage( transaction.action , metadata );
 			transaction.trace( "transaction product storage meta: save=" + metadata.objectId );
 			if( createMetadata )
-				createProduct( product , metadata );
+				createProductFinish( product , metadata );
 			else
-				modifyProduct( product , metadataOld , metadata );
+				modifyProductFinish( product , metadataOld , metadata );
+		}
+		else
+		if( importMetadata ) {
+			importProductFinish();
 		}
 		
 		return( true );
@@ -143,7 +158,7 @@ public class TransactionMetadata {
 			transaction.exit1( _Error.InternalTransactionError1 , "Internal error: invalid transaction metadata" , "invalid transaction metadata" );
 	}
 
-	private void createProduct( AppProduct product , ProductMeta metadata ) throws Exception {
+	private void createProductFinish( AppProduct product , ProductMeta metadata ) throws Exception {
 		EngineStatus status = transaction.action.getServerStatus();
 		status.createProduct( transaction , product , metadata );
 		EngineMonitoring mon = transaction.action.getServerMonitoring();
@@ -152,7 +167,16 @@ public class TransactionMetadata {
 		jmx.addProduct( product );
 	}
 	
-	private void deleteProduct( AppProduct product , ProductMeta metadata ) throws Exception {
+	private void importProductFinish() throws Exception {
+		EngineStatus status = transaction.action.getServerStatus();
+		status.createProduct( transaction , product , metadata );
+		EngineMonitoring mon = transaction.action.getServerMonitoring();
+		mon.transactionCommitCreateProduct( transaction , product );
+		EngineJmx jmx = transaction.engine.jmxController;
+		jmx.addProduct( product );
+	}
+	
+	private void deleteProductFinish( AppProduct product , ProductMeta metadata ) throws Exception {
 		EngineStatus status = transaction.action.getServerStatus();
 		status.deleteProduct( transaction , metadata );
 		EngineMonitoring mon = transaction.action.getServerMonitoring();
@@ -161,7 +185,7 @@ public class TransactionMetadata {
 		jmx.deleteProduct( product );
 	}
 	
-	private void modifyProduct( AppProduct product , ProductMeta metadataOld , ProductMeta metadataNew ) throws Exception {
+	private void modifyProductFinish( AppProduct product , ProductMeta metadataOld , ProductMeta metadataNew ) throws Exception {
 		product.setStorage( metadataNew );
 		EngineStatus status = transaction.action.getServerStatus();
 		status.modifyProduct( transaction , metadataOld , metadataNew );
@@ -169,4 +193,10 @@ public class TransactionMetadata {
 		mon.transactionCommitModifyProduct( transaction , product );
 	}
 	
+	public boolean replaceProduct( ProductMeta storage ) throws Exception {
+		metadata = storage;
+		transaction.trace( "transaction recreate product storage meta=" + storage.objectId );
+		return( true );
+	}
+
 }
