@@ -22,6 +22,8 @@ public class TransactionMetadata {
 	public AppProduct product;
 	public ProductMeta metadata;
 	protected ProductMeta metadataOld;
+
+	private boolean matchedBeforeImport; 
 	
 	public TransactionMetadata( TransactionBase transaction ) {
 		this.transaction = transaction;
@@ -31,6 +33,7 @@ public class TransactionMetadata {
 		deleteMetadata = false;
 		recreateMetadata = false;
 		importMetadata = false;
+		matchedBeforeImport = false;
 	}
 
 	public void createProduct( Meta sessionMeta ) throws Exception {
@@ -42,6 +45,8 @@ public class TransactionMetadata {
 	public boolean importProduct( AppProduct product ) throws Exception {
 		this.product = product;
 		importMetadata = true;
+		matchedBeforeImport = product.isMatched();
+		metadataOld = product.storage;
 		return( true );
 	}
 
@@ -169,11 +174,25 @@ public class TransactionMetadata {
 	
 	private void importProductFinish() throws Exception {
 		EngineStatus status = transaction.action.getServerStatus();
-		status.createProduct( transaction , product , metadata );
 		EngineMonitoring mon = transaction.action.getServerMonitoring();
-		mon.transactionCommitCreateProduct( transaction , product );
 		EngineJmx jmx = transaction.engine.jmxController;
-		jmx.addProduct( product );
+
+		if( matchedBeforeImport ) {
+			status.deleteProduct( transaction , metadataOld );
+			mon.transactionCommitDeleteProduct( transaction , product );
+		}
+		
+		if( product.isMatched() ) {
+			status.createProduct( transaction , product , metadata );
+			mon.transactionCommitCreateProduct( transaction , product );
+			
+			if( !matchedBeforeImport )
+				jmx.addProduct( product );
+		}
+		else {
+			if( matchedBeforeImport )
+				jmx.deleteProduct( product );
+		}
 	}
 	
 	private void deleteProductFinish( AppProduct product , ProductMeta metadata ) throws Exception {

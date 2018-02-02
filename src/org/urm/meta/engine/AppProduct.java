@@ -89,7 +89,7 @@ public class AppProduct extends EngineObject {
 	}
 
 	public boolean isBroken() {
-		return( false );
+		return( !isMatched() );
 	}
 	
 	public void setOffline( boolean offline ) throws Exception {

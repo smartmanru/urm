@@ -225,6 +225,7 @@ public class EngineJmx {
 	}
 
 	public void deleteProduct( AppProduct product ) throws Exception {
+		action.trace( "unregister jmx connector, product=" + product.NAME + " ..." );
 		List<String> objects = productObjects.get( product.ID );
 		for( String name : objects ) {
 			ObjectName object = new ObjectName( name );
