@@ -1065,14 +1065,12 @@ public class DBMetaDistr {
 		distr.removeConfItem( item.delivery , item );
 	}
 
-	public static void setDeliveryDatabaseAll( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , boolean all ) throws Exception {
+	public static void setDeliveryDatabaseAll( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
-		delivery.setDatabaseAll( all );
-		if( all ) {
-			if( !c.modify( DBQueries.MODIFY_DISTR_DELETEDELIVERYSCHEMES1 , new String[] { EngineDB.getInteger( delivery.ID ) } ) )
-				Common.exitUnexpected();
-		}
+		delivery.setDatabaseAll( true );
+		if( !c.modify( DBQueries.MODIFY_DISTR_DELETEDELIVERYSCHEMES1 , new String[] { EngineDB.getInteger( delivery.ID ) } ) )
+			Common.exitUnexpected();
 		
 		modifyDelivery( c , storage , delivery , false );
 	}
@@ -1102,6 +1100,16 @@ public class DBMetaDistr {
 					} ) )
 				Common.exitUnexpected();
 		}
+	}
+	
+	public static void setDeliveryDocumentationAll( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		delivery.setDocAll( true );
+		if( !c.modify( DBQueries.MODIFY_DISTR_DELETEDELIVERYDOCS1 , new String[] { EngineDB.getInteger( delivery.ID ) } ) )
+			Common.exitUnexpected();
+		
+		modifyDelivery( c , storage , delivery , false );
 	}
 	
 	public static void setDeliveryDocSet( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , MetaProductDoc[] set ) throws Exception {

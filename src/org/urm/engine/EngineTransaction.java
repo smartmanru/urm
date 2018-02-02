@@ -726,16 +726,22 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaDistr.deleteConfItem( this , storage , item.delivery.dist , item );
 	}
 	
-	public void setDeliveryDatabaseAll( MetaDistrDelivery delivery , boolean all ) throws Exception {
+	public void setDeliveryDatabaseAll( MetaDistrDelivery delivery ) throws Exception {
 		ProductMeta storage = delivery.meta.getStorage();
 		super.checkTransactionMetadata( storage );
-		DBMetaDistr.setDeliveryDatabaseAll( this , storage , delivery.dist , delivery , all );
+		DBMetaDistr.setDeliveryDatabaseAll( this , storage , delivery.dist , delivery );
 	}
 
 	public void setDeliveryDatabaseSet( MetaDistrDelivery delivery , MetaDatabaseSchema[] set ) throws Exception {
 		ProductMeta storage = delivery.meta.getStorage();
 		super.checkTransactionMetadata( storage );
 		DBMetaDistr.setDeliveryDatabaseSet( this , storage , delivery.dist , delivery , set );
+	}
+
+	public void setDeliveryDocumentationAll( MetaDistrDelivery delivery ) throws Exception {
+		ProductMeta storage = delivery.meta.getStorage();
+		super.checkTransactionMetadata( storage );
+		DBMetaDistr.setDeliveryDocumentationAll( this , storage , delivery.dist , delivery );
 	}
 
 	public void setDeliveryDocumentationSet( MetaDistrDelivery delivery , MetaProductDoc[] set ) throws Exception {
