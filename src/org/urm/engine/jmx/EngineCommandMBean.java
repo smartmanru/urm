@@ -1,4 +1,4 @@
-package org.urm.common.jmx;
+package org.urm.engine.jmx;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -32,33 +32,36 @@ import org.urm.common.action.CommandMethodMeta.ACTION_TYPE;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandOption.FLAG;
 import org.urm.common.action.CommandVar;
+import org.urm.common.jmx.ActionNotification;
+import org.urm.common.jmx.RemoteCall;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
 import org.urm.engine.SessionController;
 import org.urm.engine.SessionSecurity;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineAuth;
 
 public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster {
 
 	public ActionBase action;
 	public Engine engine;
-	public String product;
+	public String productName;
 	public CommandMeta meta;
 	
 	int notificationSequence;
 	NotificationBroadcasterSupport broadcaster; 
 	MBeanNotificationInfo[] notifyInfo;
 	
-	public EngineMBean jmxServer;
+	public EngineJmx jmxServer;
 	public SessionController server;
 	
 	public MBeanInfo mbean;
 	public CommandOptions options;
 	
-	public EngineCommandMBean( ActionBase action , Engine engine , EngineMBean jmxServer , String product , CommandMeta meta ) {
+	public EngineCommandMBean( ActionBase action , Engine engine , EngineJmx jmxServer , AppProduct product , CommandMeta meta ) {
 		this.action = action;
 		this.engine = engine;
-		this.product = product;
+		this.productName = product.NAME;
 		this.meta = meta;
 		
 		notificationSequence = 0;
@@ -99,7 +102,7 @@ public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster
 		Collections.reverse( opers );
 		mbean = new MBeanInfo(
 			this.getClass().getName() ,
-			"PRODUCT=" + product + ": actions for COMMAND TYPE=" + meta.name ,
+			"PRODUCT=" + productName + ": actions for COMMAND TYPE=" + meta.name ,
             attrs.toArray( new MBeanAttributeInfo[0] ) ,
             null , 
             opers.toArray( new MBeanOperationInfo[0] ) ,
@@ -396,7 +399,7 @@ public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster
 		}
 		
 		RunContext clientrc = RunContext.copy( engine.execrc );
-		clientrc.product = product;
+		clientrc.product = productName;
 		EngineAuth auth = engine.getAuth();
 		SessionSecurity security = auth.createServerSecurity();
 		EngineSession session = engine.sessionController.createSession( security , clientrc , true );

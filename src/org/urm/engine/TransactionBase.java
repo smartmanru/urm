@@ -140,7 +140,7 @@ public class TransactionBase extends EngineObject {
 
 			boolean res = true;
 			if( res )
-				res = saveProducts();
+				res = commitTransactionProducts();
 			
 			if( res ) {
 				if( connection != null ) {
@@ -906,14 +906,14 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
-	private boolean saveProducts() {
+	private boolean commitTransactionProducts() {
 		if( !continueTransaction() )
 			return( false );
 
 		try {
 			boolean failed = false;
 			for( TransactionMetadata tm : productMeta.values() ) {
-				if( !tm.saveProduct() ) {
+				if( !tm.commitTransaction() ) {
 					failed = true;
 					break;
 				}

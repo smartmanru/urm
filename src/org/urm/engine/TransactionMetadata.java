@@ -1,5 +1,6 @@
 package org.urm.engine;
 
+import org.urm.engine.jmx.EngineJmx;
 import org.urm.engine.status.EngineStatus;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineMonitoring;
@@ -108,7 +109,7 @@ public class TransactionMetadata {
 		return( false );
 	}
 
-	public boolean saveProduct() throws Exception {
+	public boolean commitTransaction() throws Exception {
 		if( deleteMetadata ) {
 			if( metadataOld == null )
 				return( false );
@@ -147,6 +148,8 @@ public class TransactionMetadata {
 		status.createProduct( transaction , product , metadata );
 		EngineMonitoring mon = transaction.action.getServerMonitoring();
 		mon.transactionCommitCreateProduct( transaction , product );
+		EngineJmx jmx = transaction.engine.jmxController;
+		jmx.addProduct( product );
 	}
 	
 	private void deleteProduct( AppProduct product , ProductMeta metadata ) throws Exception {
@@ -154,6 +157,8 @@ public class TransactionMetadata {
 		status.deleteProduct( transaction , metadata );
 		EngineMonitoring mon = transaction.action.getServerMonitoring();
 		mon.transactionCommitDeleteProduct( transaction , product );
+		EngineJmx jmx = transaction.engine.jmxController;
+		jmx.deleteProduct( product );
 	}
 	
 	private void modifyProduct( AppProduct product , ProductMeta metadataOld , ProductMeta metadataNew ) throws Exception {

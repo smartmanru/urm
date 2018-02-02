@@ -1,4 +1,9 @@
-package org.urm.common.jmx;
+package org.urm.engine.jmx;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -17,32 +22,91 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.urm.common.action.CommandMeta;
+import org.urm.common.jmx.RemoteCall;
 import org.urm.engine.Engine;
 import org.urm.engine.SessionController;
 import org.urm.engine.action.ActionInit;
-import org.urm.engine.storage.LocalFolder;
-import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineSettings;
 
 import com.sun.jdmk.comm.HtmlAdaptorServer;
 
-public class EngineMBean implements DynamicMBean {
+public class EngineJmx {
 
+	class EngineMBean implements DynamicMBean {
+		@Override
+		public synchronized String getAttribute( String name ) throws AttributeNotFoundException {
+			return( null );
+		}
+
+		@Override
+		public synchronized void setAttribute( Attribute attribute) throws InvalidAttributeValueException, MBeanException, AttributeNotFoundException {
+		}
+
+		@Override
+		public synchronized AttributeList getAttributes(String[] names) {
+	        return( null );
+		}
+
+		@Override
+		public synchronized AttributeList setAttributes(AttributeList list) {
+	    	Attribute[] attrs = (Attribute[]) list.toArray( new Attribute[0] );
+	    	AttributeList retlist = new AttributeList();
+	        
+	    	for (Attribute attr : attrs) {
+	    		String name = attr.getName();
+	    		Object value = attr.getValue();
+	    		retlist.add( new Attribute(name, value) );
+	    	}
+	        
+	    	return retlist;
+		}
+
+		@Override
+		public Object invoke( String name , Object[] args , String[] sig ) throws MBeanException, ReflectionException {
+			int sessionId = -1;
+			try {
+				if( name.equals( "stop" ) )
+					return( stopServer() );
+				if( name.equals( "status" ) )
+					return( status() );
+				return( null );
+			}
+			catch( Throwable e ) {
+				action.error( e.toString() );
+			}
+
+			String value = "" + sessionId;
+			return( value );
+		}
+
+		@Override
+		public synchronized MBeanInfo getMBeanInfo() {
+			return( mbean );
+		}
+	}
+	
 	Engine engine;
 	ActionInit action;
 	
+	private EngineMBean jmxOwner;
 	private MBeanServer mbs = null;
 	private MBeanInfo mbean = null;
 	JMXConnectorServer jmxConnector;
+
+	Map<Integer,List<String>> productObjects;
 	
-	public EngineMBean( ActionInit action , Engine engine ) {
+	public EngineJmx( ActionInit action , Engine engine ) {
 		this.action = action;
 		this.engine = engine;
+		productObjects = new HashMap<Integer,List<String>>();  
 	}
 	
 	public void start() throws Exception {
 		action.debug( "start JMX server ..." );
+		
+		jmxOwner = new EngineMBean();
 		int port = action.context.CTX_PORT;
 		if( port <= 0 ) {
 			EngineSettings settings = action.getServerSettings();
@@ -77,6 +141,7 @@ public class EngineMBean implements DynamicMBean {
 		jmxConnector = null;
 		mbean = null;
 		mbs = null;
+		jmxOwner = null;
 		action.debug( "JMX server has been stopped" );
 	}
 	
@@ -113,7 +178,7 @@ public class EngineMBean implements DynamicMBean {
 				"String" , 
 				MBeanOperationInfo.ACTION );
 		mbean = new MBeanInfo(
-				this.getClass().getName() ,
+				EngineMBean.class.getName() ,
 				"URM server JMX" ,
 	            null ,
 	            null , 
@@ -121,7 +186,7 @@ public class EngineMBean implements DynamicMBean {
 	            null );
 
 		// register server as mbean
-		mbs.registerMBean( this , object );
+		mbs.registerMBean( jmxOwner , object );
 	}
 	
 	private void addHtmlAdapter( int port ) throws Exception {
@@ -133,79 +198,39 @@ public class EngineMBean implements DynamicMBean {
         adapter.start();
 	}
 	
-	private void addProducts() throws Exception {
+	public void addProducts() throws Exception {
 		// create meta jmx for products
-		UrmStorage urm = action.artefactory.getUrmStorage();
-		LocalFolder products = urm.getServerProductsFolder( action );
-		if( !products.checkExists( action ) )
-			action.exit1( _Error.CannotFindDirectory1 , "cannot find directory: " + products.folderPath , products.folderPath );
-		
 		EngineDirectory directory = action.actionInit.getServerDirectory();
-		for( String name : directory.getProductNames() )
-			addProduct( name );
+		for( String name : directory.getProductNames() ) {
+			AppProduct product = directory.getProduct( name );
+			addProduct( product );
+		}
 	}		
 	
-	private void addProduct( String product ) throws Exception {
+	public void addProduct( AppProduct product ) throws Exception {
+		List<String> objects = new LinkedList<String>();
+		productObjects.put( product.ID , objects );
+		
 		SessionController sessionController = engine.sessionController;
 		for( CommandMeta meta : sessionController.executors  ) {
 			EngineCommandMBean bean = new EngineCommandMBean( action , action.executor.engine , this , product , meta );
 			bean.createInfo();
 			
-			String name = RemoteCall.getCommandMBeanName( product , meta.name );
+			String name = RemoteCall.getCommandMBeanName( product.NAME , meta.name );
 			ObjectName object = new ObjectName( name );
 			mbs.registerMBean( bean , object );
+			objects.add( name );
 		}
 	}
 
-	@Override
-	public synchronized String getAttribute( String name ) throws AttributeNotFoundException {
-		return( null );
-	}
-
-	@Override
-	public synchronized void setAttribute( Attribute attribute) throws InvalidAttributeValueException, MBeanException, AttributeNotFoundException {
-	}
-
-	@Override
-	public synchronized AttributeList getAttributes(String[] names) {
-        return( null );
-	}
-
-	@Override
-	public synchronized AttributeList setAttributes(AttributeList list) {
-    	Attribute[] attrs = (Attribute[]) list.toArray( new Attribute[0] );
-    	AttributeList retlist = new AttributeList();
-        
-    	for (Attribute attr : attrs) {
-    		String name = attr.getName();
-    		Object value = attr.getValue();
-    		retlist.add( new Attribute(name, value) );
-    	}
-        
-    	return retlist;
-	}
-
-	@Override
-	public Object invoke( String name , Object[] args , String[] sig ) throws MBeanException, ReflectionException {
-		int sessionId = -1;
-		try {
-			if( name.equals( "stop" ) )
-				return( stopServer() );
-			if( name.equals( "status" ) )
-				return( status() );
-			return( null );
+	public void deleteProduct( AppProduct product ) throws Exception {
+		List<String> objects = productObjects.get( product.ID );
+		for( String name : objects ) {
+			ObjectName object = new ObjectName( name );
+			mbs.unregisterMBean( object );
 		}
-		catch( Throwable e ) {
-			action.error( e.toString() );
-		}
-
-		String value = "" + sessionId;
-		return( value );
+		
+		productObjects.remove( product.ID );
 	}
-
-	@Override
-	public synchronized MBeanInfo getMBeanInfo() {
-		return( mbean );
-	}
-
+	
 }

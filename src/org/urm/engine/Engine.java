@@ -6,7 +6,6 @@ import org.urm.common.RunContext;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.OptionsMeta;
-import org.urm.common.jmx.EngineMBean;
 import org.urm.common.meta.CodebaseCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
@@ -29,6 +28,7 @@ import org.urm.engine.executor.MainExecutor;
 import org.urm.engine.executor.MonitorCommandExecutor;
 import org.urm.engine.executor.ReleaseCommandExecutor;
 import org.urm.engine.executor.XDocCommandExecutor;
+import org.urm.engine.jmx.EngineJmx;
 import org.urm.engine.schedule.EngineScheduler;
 import org.urm.engine.shell.ShellCoreJNI;
 import org.urm.engine.shell.EngineShellPool;
@@ -47,7 +47,7 @@ public class Engine {
 	public EngineExecutor executor;
 	public EngineSession serverSession;
 	public SessionController sessionController;
-	public EngineMBean jmxController;
+	public EngineJmx jmxController;
 	public EngineHouseKeeping houseKeeping;
 	
 	public EngineCache cache;
@@ -150,7 +150,7 @@ public class Engine {
 		mon.start( serverAction );
 		events.start();
 		
-		jmxController = new EngineMBean( action , this );
+		jmxController = new EngineJmx( action , this );
 		jmxController.start();
 		
 		houseKeeping.start();
