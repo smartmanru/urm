@@ -8,6 +8,7 @@ CREATE TABLE main.urm_env (
                 env_type INTEGER NOT NULL,
                 baseline_env_fkid INTEGER,
                 baseline_env_fkname VARCHAR(30),
+                offline BOOLEAN NOT NULL,
                 envkey_resource_fkid INTEGER,
                 envkey_resource_fkname VARCHAR(64),
                 distr_remote BOOLEAN NOT NULL,
