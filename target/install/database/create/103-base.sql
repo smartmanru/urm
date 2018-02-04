@@ -12,7 +12,7 @@ COMMENT ON TABLE main.urm_base_group IS 'Base software item group';
 
 
 CREATE TABLE main.urm_base_item (
-                item_id INTEGER NOT NULL,
+                baseitem_id INTEGER NOT NULL,
                 group_id INTEGER NOT NULL,
                 name VARCHAR(64) NOT NULL,
                 xdesc VARCHAR,
@@ -31,16 +31,16 @@ CREATE TABLE main.urm_base_item (
                 charset VARCHAR(30),
                 offline BOOLEAN NOT NULL,
                 cv INTEGER NOT NULL,
-                CONSTRAINT urm_base_item_pk PRIMARY KEY (item_id)
+                CONSTRAINT urm_base_item_pk PRIMARY KEY (baseitem_id)
 );
 COMMENT ON TABLE main.urm_base_item IS 'Base software installable item';
 
 
 CREATE TABLE main.urm_base_item_deps (
-                item_id INTEGER NOT NULL,
-                dep_item_id INTEGER NOT NULL,
+                baseitem_id INTEGER NOT NULL,
+                dep_baseitem_id INTEGER NOT NULL,
                 cv INTEGER NOT NULL,
-                CONSTRAINT urm_base_item_deps_pk PRIMARY KEY (item_id, dep_item_id)
+                CONSTRAINT urm_base_item_deps_pk PRIMARY KEY (baseitem_id, dep_baseitem_id)
 );
 COMMENT ON TABLE main.urm_base_item_deps IS 'Base software item installation dependencies';
 
@@ -53,15 +53,15 @@ ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
 ALTER TABLE main.urm_base_item_deps ADD CONSTRAINT urm_base_item_deps_item_fk
-FOREIGN KEY (item_id)
-REFERENCES main.urm_base_item (item_id)
+FOREIGN KEY (baseitem_id)
+REFERENCES main.urm_base_item (baseitem_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
 ALTER TABLE main.urm_base_item_deps ADD CONSTRAINT urm_base_item_deps_depitem_fk
-FOREIGN KEY (dep_item_id)
-REFERENCES main.urm_base_item (item_id)
+FOREIGN KEY (dep_baseitem_id)
+REFERENCES main.urm_base_item (baseitem_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
