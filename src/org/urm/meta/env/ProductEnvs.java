@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.ProductStorage;
+import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.product.Meta;
@@ -16,27 +18,31 @@ import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductMeta;
 
-public class MetaEnvs {
+public class ProductEnvs {
 
 	public Meta meta;
 	
 	private Map<String,MetaEnv> mapEnvs;
+	private Map<Integer,MetaEnv> mapEnvsById;
 	private MetaMonitoring mon;
 	
-	public MetaEnvs( ProductMeta storage , Meta meta ) {
+	public ProductEnvs( ProductMeta storage , Meta meta ) {
 		this.meta = meta;
 		
 		mapEnvs = new HashMap<String,MetaEnv>();
+		mapEnvsById = new HashMap<Integer,MetaEnv>();
 		mon = new MetaMonitoring( storage , meta );
 	}
 	
-	public MetaEnvs copy( ActionBase action , Meta rmeta ) throws Exception {
-		MetaEnvs r = new MetaEnvs( rmeta.getStorage() , rmeta );
+	public ProductEnvs copy( ActionBase action , Meta rmeta ) throws Exception {
+		ProductEnvs r = new ProductEnvs( rmeta.getStorage() , rmeta );
 		
+		MetaProductSettings rsettings = rmeta.getProductSettings();
 		for( MetaEnv env : mapEnvs.values() ) {
-			MetaEnv renv = env.copy( action , rmeta );
+			MetaEnv renv = env.copy( rmeta.getStorage() , rmeta , rsettings.getProperties() );
 			r.addEnv( renv );
 		}
 		
@@ -49,6 +55,7 @@ public class MetaEnvs {
 	
 	public void addEnv( MetaEnv env ) {
 		mapEnvs.put( env.NAME , env );
+		mapEnvsById.put( env.ID , env );
 	}
 	
 	public String[] getEnvNames() {
@@ -57,10 +64,6 @@ public class MetaEnvs {
 			names.add( env.NAME );
 		Collections.sort( names );
 		return( names.toArray( new String[0] ) );
-	}
-
-	public MetaEnv findEnv( String name ) {
-		return( mapEnvs.get( name ) );
 	}
 
 	public MetaEnv[] getEnvs() {
@@ -110,12 +113,50 @@ public class MetaEnvs {
 					server.reflectDeleteSchema( transaction , schema );
 	}
 
+	public MetaEnv findMetaEnv( int id ) {
+		return( mapEnvsById.get( id ) );
+	}
+
+	public MetaEnv getMetaEnv( int id ) throws Exception {
+		MetaEnv env = mapEnvsById.get( id );
+		if( env == null )
+			Common.exitUnexpected();
+		return( env );
+	}
+
+	public MetaEnv findMetaEnv( String name ) {
+		return( mapEnvs.get( name ) );
+	}
+
+	public MetaEnv getMetaEnv( String name ) throws Exception {
+		MetaEnv env = mapEnvs.get( name );
+		if( env == null )
+			Common.exitUnexpected();
+		return( env );
+	}
+
     public MetaEnv findMetaEnv( MetaEnv env ) {
     	if( env == null )
     		return( null );
-    	return( findEnv( env.NAME ) );
+    	return( findMetaEnv( env.NAME ) );
     }
     
+	public MetaEnv findMetaEnv( MatchItem env ) throws Exception {
+		if( env == null )
+			return( null );
+		if( env.MATCHED )
+			return( findMetaEnv( env.FKID ) );
+		return( findMetaEnv( env.FKNAME ) );
+	}
+	
+	public MetaEnv getMetaEnv( MatchItem env ) throws Exception {
+		if( env == null )
+			return( null );
+		if( env.MATCHED )
+			return( getMetaEnv( env.FKID ) );
+		return( getMetaEnv( env.FKNAME ) );
+	}
+	
     public MetaEnvSegment findMetaEnvSegment( MetaEnvSegment sg ) {
     	if( sg == null )
     		return( null );
