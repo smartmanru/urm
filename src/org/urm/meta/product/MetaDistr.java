@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.meta.MatchItem;
 
 public class MetaDistr {
 
@@ -95,6 +96,14 @@ public class MetaDistr {
 		if( comp == null )
 			Common.exit1( _Error.UnknownDistributiveComponent1 , "unknown distributive component=" + id , "" + id );
 		return( comp );
+	}
+	
+	public MetaDistrComponent getComponent( MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( getComponent( item.FKID ) );
+		return( getComponent( item.FKNAME ) );
 	}
 	
 	public MetaDistrBinaryItem findBinaryItem( String name ) {

@@ -46,11 +46,13 @@ import org.urm.meta.MatchItem;
 import org.urm.meta.Types;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.AuthUser;
+import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineContext;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
+import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
@@ -465,15 +467,16 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public Account getNodeAccount( MetaEnvServerNode node ) throws Exception {
-		return( Account.getDatacenterAccount( this , node.server.sg.DC , node.HOSTLOGIN , node.server.osType ) );
+		HostAccount hostAccount = node.getHostAccount( this );
+		return( Account.getHostAccount( this , hostAccount ) );
 	}
 	
-	public Account getSingleHostAccount( String datacenter , String host , int port , DBEnumOSType OSTYPE ) throws Exception {
+	public Account getSingleHostAccount( Datacenter dc , String host , int port , DBEnumOSType OSTYPE ) throws Exception {
 		String user = context.CTX_HOSTUSER;
 		if( user.isEmpty() )
 			user = "root";
 		
-		Account account = Account.getDatacenterAccount( this , datacenter , user , host , port , OSTYPE );
+		Account account = Account.getDatacenterAccount( this , dc , user , host , port , OSTYPE );
 		return( account );
 	}
 

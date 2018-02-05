@@ -43,40 +43,6 @@ public class Types {
 		PREBUILT
 	};
 
-	public enum VarDEPLOYITEMTYPE {
-		UNKNOWN ,
-		BINARY ,
-		CONF ,
-		SCHEMA ,
-		COMP
-	};
-	
-	public enum VarSERVERRUNTYPE {
-		UNKNOWN ,
-		DATABASE ,
-		APP ,
-		WEBUI ,
-		WEBAPP ,
-		COMMAND
-	};
-
-	public enum VarNODETYPE {
-		UNKNOWN ,
-		SELF ,
-		ADMIN ,
-		SLAVE
-	};
-	
-	public enum VarDEPLOYMODE {
-		UNKNOWN ,
-		MANUAL , 
-		COLD , 
-		HOT ,
-		LINKS_SINGLEDIR ,
-		LINKS_MULTIDIR ,
-		COPYONLY
-	};
-	
 	public enum VarSESSIONTYPE {
 		UNKNOWN ,
 		UNIXLOCAL ,
@@ -176,75 +142,6 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidCategory1 , "invalid category=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarSERVERRUNTYPE getServerRunType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingServerRunType0 , "missing server run type" );
-			return( VarSERVERRUNTYPE.UNKNOWN );
-		}
-		
-		VarSERVERRUNTYPE value = null;
-		try {
-			value = VarSERVERRUNTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidServerRunType1 , "invalid server run type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarNODETYPE getNodeType( String ID , VarNODETYPE defValue ) throws Exception {
-		if( ID.isEmpty() )
-			return( defValue );
-		
-		VarNODETYPE value = null;
-		try {
-			value = VarNODETYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidNodeType1 , "invalid node type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarDEPLOYMODE getDeployMode( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingDeployType0 , "missing deploy type" );
-			return( VarDEPLOYMODE.UNKNOWN );
-		}
-		
-		VarDEPLOYMODE value = null;
-		try {
-			value = VarDEPLOYMODE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidDeployType1 , "invalid deploytype=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarDEPLOYITEMTYPE getDeployItemType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingDeployItemType0 , "missing deploy item type" );
-			return( VarDEPLOYITEMTYPE.UNKNOWN );
-		}
-		
-		VarDEPLOYITEMTYPE value = null;
-		try {
-			value = VarDEPLOYITEMTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidDeployItemType1 , "invalid deploy item type=" + ID , ID );
 		}
 		
 		return( value );

@@ -363,6 +363,11 @@ public class ObjectProperties {
 		return( value.getOriginalValue() );
 	}
 
+	public void clearProperty( String prop ) throws Exception {
+		EntityVar var = meta.getVar( prop );
+		properties.clearProperty( var.NAME );
+	}
+
 	public EntityVar getVar( int propId ) throws Exception {
 		EntityVar var = meta.findAppVar( propId );
 		if( var != null )

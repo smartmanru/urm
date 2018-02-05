@@ -13,11 +13,15 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 
 public class DatabaseClient {
 
 	public DatabaseSpecific specific;
+	public MetaEnvServer server;
+	public MetaEnvServerNode node;
+	public MetaDatabaseSchema admSchema;
 	
 	public DatabaseClient() {
 	}
@@ -30,12 +34,15 @@ public class DatabaseClient {
 	public boolean checkConnect( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		specific = new DatabaseSpecific( server , node );
 		
+		MetaDatabase db = server.meta.getDatabase();
+		admSchema = db.getSchema( server.DATABASE_ADMSCHEMA );
+		
 		// check connect to admin schema if any
-		String schema = specific.getAdmSchema( action );
+		String schema = getAdmSchema( action );
 		if( schema.isEmpty() )
 			return( true );
 		
-		String user = specific.getAdmUser( action );
+		String user = getAdmUser( action );
 		String pwd = getUserPassword( action , user );
 		try { 
 			action.debug( "check connect to database server=" + server.NAME + ", node=" + node.POS + " ..." );
@@ -59,8 +66,8 @@ public class DatabaseClient {
 		if( !action.context.CTX_DBAUTH )
 			S_DB_USE_SCHEMA_PASSWORD = user;
 		else
-		if( !specific.server.sg.env.DB_AUTHFILE.isEmpty() ) {
-			String F_FNAME = specific.server.sg.env.DB_AUTHFILE;
+		if( !specific.server.sg.env.DBAUTH_FILE.isEmpty() ) {
+			String F_FNAME = specific.server.sg.env.DBAUTH_FILE;
 			if( !action.shell.checkFileExists( action , F_FNAME ) )
 				action.exit1( _Error.PasswordFileNotExist1 , "getSchemaPassword: password file " + F_FNAME + " does not exist" , F_FNAME );
 
@@ -216,8 +223,8 @@ public class DatabaseClient {
 	}
 	
 	public boolean applyAdmScript( ActionBase action , LocalFolder scriptFolder , String scriptFile , LocalFolder outFolder , String outFile ) throws Exception {
-		String DBUSER = specific.getAdmUser( action );
-		String DBSCHEMA = specific.getAdmSchema( action );
+		String DBUSER = getAdmUser( action );
+		String DBSCHEMA = getAdmSchema( action );
 		String password = getUserPassword( action , DBUSER );
 		String file = scriptFolder.getFilePath( action , scriptFile );
 		String log = outFolder.getFilePath( action , outFile );
@@ -225,6 +232,18 @@ public class DatabaseClient {
 			return( true );
 		
 		return( specific.applyScript( action , DBSCHEMA , DBUSER , password , file , log ) );
+	}
+	
+	public String getAdmUser( ActionBase action ) throws Exception {
+		if( admSchema == null )
+			action.exitUnexpectedState();
+		return( server.getSchemaDBUser( admSchema ) );
+	}
+	
+	public String getAdmSchema( ActionBase action ) throws Exception {
+		if( admSchema == null )
+			action.exitUnexpectedState();
+		return( server.getSchemaDBName( admSchema ) );
 	}
 	
 }

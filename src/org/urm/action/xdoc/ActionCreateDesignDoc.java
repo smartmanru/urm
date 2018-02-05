@@ -13,7 +13,7 @@ import org.urm.engine.storage.ProductStorage;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDesignDiagram;
 import org.urm.meta.product.MetaDesignElement;
@@ -67,7 +67,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 	private void getProdServers() throws Exception {
 		prodServers = new HashMap<String,List<MetaEnvServer>>();
 		
-		MetaEnvs envs = meta.getEnviroments();
+		ProductEnvs envs = meta.getEnviroments();
 		for( String envName : envs.getEnvNames() ) {
 			MetaEnv env = envs.findEnv( envName );
 			if( !env.isProd() )

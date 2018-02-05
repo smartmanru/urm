@@ -422,6 +422,12 @@ public class PropertySet {
 		setProperty( pv );
 	}
 
+	public void clearProperty( String key ) {
+		resolved = false;
+		PropertyValue pvc = getPropertyValue( key );
+		pvc.setNull();
+	}
+	
 	public String getPropertyAny( String prop ) throws Exception {
 		PropertyValue pv = getPropertyInternal( prop , true , true , true );
 		if( pv == null )
@@ -823,7 +829,7 @@ public class PropertySet {
 			
 		return( true );
 	}
-	
+
 	private PropertyValue setProperty( PropertyValue pv ) {
 		resolved = false;
 		PropertyValue pvc = getPropertyValue( pv.property );

@@ -14,9 +14,12 @@ import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.SegmentStatus;
 import org.urm.engine.status.ServerStatus;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.Types.*;
 
@@ -262,16 +265,18 @@ public class ActionCheckEnv extends ActionBase {
 			return( true );
 		
 		// by comps
+		MetaDistr distr = server.meta.getDistr();
 		boolean ok = true;
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
-			if( deployment.comp == null )
+			if( !deployment.isComponent() )
 				continue;
 			
-			for( MetaDistrComponentItem ws : deployment.comp.getWebServices() ) {
+			MetaDistrComponent comp = distr.getComponent( deployment.COMP );
+			for( MetaDistrComponentItem ws : comp.getWebServices() ) {
 				String URL = ws.getURL( ACCESSPOINT ); 
 				if( !checkOneServerWholeUrl( URL , "web service" , state , nodeStatus , serverStatus ) ) {
 					ok = false;
-					S_CHECKENV_SERVER_COMPS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_SERVER_COMPS_FAILED , deployment.comp.NAME );
+					S_CHECKENV_SERVER_COMPS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_SERVER_COMPS_FAILED , comp.NAME );
 				}
 			}
 		}
@@ -306,10 +311,11 @@ public class ActionCheckEnv extends ActionBase {
 			nodeStatus = new NodeStatus( node );
 			captureIndex = super.logStartCapture();
 		}
-		
-		info( "node " + node.POS + "=" + node.HOSTLOGIN );
 
 		try {
+			HostAccount account = node.getHostAccount( this );
+			info( "node " + node.POS + "=" + account.getFinalAccount() );
+
 			if( checkOneServerNodeStatus( server , node , state , nodeStatus ) ) {
 				if( !checkOneServerNodeComps( server , node , state , nodeStatus ) ) {
 					nodeStatus.setCompsFailed();
@@ -381,17 +387,19 @@ public class ActionCheckEnv extends ActionBase {
 		if( process.isStarted( this ) )
 			return( true );
 		
+		HostAccount account = node.getHostAccount( this );
+
 		if( process.mode == VarPROCESSMODE.ERRORS )
-			error( node.HOSTLOGIN + ": status=errors (" + process.cmdValue + ")" ); 
+			error( account.getFinalAccount() + ": status=errors (" + process.cmdValue + ")" ); 
 		else
 		if( process.mode == VarPROCESSMODE.STARTING )
-			error( node.HOSTLOGIN + ": status=starting" );
+			error( account.getFinalAccount() + ": status=starting" );
 		else
 		if( process.mode == VarPROCESSMODE.STOPPED )
-			error( node.HOSTLOGIN + ": status=stopped" );
+			error( account.getFinalAccount() + ": status=stopped" );
 		else
 		if( process.mode == VarPROCESSMODE.UNREACHABLE )
-			error( node.HOSTLOGIN + ": status=unreachable" );
+			error( account.getFinalAccount() + ": status=unreachable" );
 		else
 			this.exitUnexpectedState();
 		return( false );

@@ -27,7 +27,7 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.env.MetaEnvStartInfo;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.product.*;
@@ -236,9 +236,9 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineBase.deleteItem( this , base , item );
 	}
 
-	public void modifyBaseItemData( BaseItem item , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
+	public void modifyBaseItemData( BaseItem item , boolean admin , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
 		super.checkTransactionBase();
-		DBEngineBase.modifyItemData( this , item , name , version , ostype , accessType , srcType , srcFormat , SRCFILE , SRCFILEDIR , INSTALLPATH , INSTALLLINK );
+		DBEngineBase.modifyItemData( this , item , admin , name , version , ostype , accessType , srcType , srcFormat , SRCFILE , SRCFILEDIR , INSTALLPATH , INSTALLLINK );
 	}
 
 	public void addBaseItemDependency( BaseItem item , BaseItem dep ) throws Exception {
@@ -951,14 +951,14 @@ public class EngineTransaction extends TransactionBase {
 		action.trace( "create meta env object, id=" + env.objectId );
 		env.createEnv( action , name , envType );
 		
-		MetaEnvs envs = storage.getEnviroments();
+		ProductEnvs envs = storage.getEnviroments();
 		envs.addEnv( env );
 		return( env );
 	}
 	
 	public void deleteMetaEnv( MetaEnv env ) throws Exception {
 		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		MetaEnvs envs = storage.getEnviroments();
+		ProductEnvs envs = storage.getEnviroments();
 		envs.deleteEnv( this , env );
 		env.deleteObject();
 	}
@@ -969,33 +969,33 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void updateMetaEnv( MetaEnv env ) throws Exception {
-		super.checkTransactionMetadata( env.meta.getStorage() );
+		super.checkTransactionEnv( env );
 		env.updateProperties( this );
 	}
 	
 	public void updateMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		super.checkTransactionMetadata( sg.meta.getStorage() );
+		super.checkTransactionEnv( sg.env );
 		sg.updateProperties( this );
 	}
 	
 	public void createMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		super.checkTransactionMetadata( sg.meta.getStorage() );
+		super.checkTransactionEnv( sg.env );
 		sg.env.createSegment( this , sg );
 	}
 	
 	public void deleteMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		super.checkTransactionMetadata( sg.meta.getStorage() );
+		super.checkTransactionEnv( sg.env );
 		sg.env.deleteSegment( this , sg );
 		sg.deleteObject();
 	}
 
 	public void setMetaEnvSGProperties( MetaEnvSegment sg , PropertySet props , boolean system ) throws Exception {
-		super.checkTransactionMetadata( sg.meta.getStorage() );
+		super.checkTransactionEnv( sg.env );
 		sg.setProperties( this , props , system );
 	}
 	
 	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
-		super.checkTransactionMetadata( sg.meta.getStorage() );
+		super.checkTransactionEnv( sg.env );
 		MetaEnvServer server = new MetaEnvServer( sg.meta , sg );
 		server.createServer( action , name , desc , osType , runType , accessType , sysname );
 		sg.createServer( this , server );
@@ -1003,28 +1003,28 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void modifyMetaEnvServer( MetaEnvServer server ) throws Exception {
-		super.checkTransactionMetadata( server.meta.getStorage() );
+		super.checkTransactionEnv( server.sg.env );
 		server.sg.modifyServer( this , server );
 	}
 
 	public void deleteMetaEnvServer( MetaEnvServer server ) throws Exception {
-		super.checkTransactionMetadata( server.meta.getStorage() );
+		super.checkTransactionEnv( server.sg.env );
 		server.sg.deleteServer( this , server );
 		server.deleteObject();
 	}
 
 	public void updateMetaEnvServer( MetaEnvServer server ) throws Exception {
-		super.checkTransactionMetadata( server.meta.getStorage() );
+		super.checkTransactionEnv( server.sg.env );
 		server.updateProperties( this );
 	}
 
 	public void setMetaEnvServerProperties( MetaEnvServer server , PropertySet props , boolean system ) throws Exception {
-		super.checkTransactionMetadata( server.meta.getStorage() );
+		super.checkTransactionEnv( server.sg.env );
 		server.setProperties( this , props , system );
 	}
 	
 	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
-		super.checkTransactionMetadata( server.meta.getStorage() );
+		super.checkTransactionEnv( server.sg.env );
 		MetaEnvServerNode node = new MetaEnvServerNode( server.meta , server , pos );
 		node.createNode( action , nodeType , account );
 		server.createNode( this , node );
@@ -1032,39 +1032,40 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void modifyMetaEnvServerNode( MetaEnvServerNode node , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
-		super.checkTransactionMetadata( node.meta.getStorage() );
+		super.checkTransactionEnv( node.server.sg.env );
 		node.updateProperties( this );
 		node.modifyNode( action , pos , nodeType , account );
 		node.server.modifyNode( this , node );
 	}
 
 	public void updateMetaEnvServerNodeSetOffline( MetaEnvServerNode node , boolean newStatus ) throws Exception {
+		super.checkTransactionEnv( node.server.sg.env );
 		node.setOffline( this , newStatus );
 	}
 	
 	public void deleteMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {
-		super.checkTransactionMetadata( node.meta.getStorage() );
+		super.checkTransactionEnv( node.server.sg.env );
 		node.server.deleteNode( this , node );
 		node.deleteObject();
 	}
 
 	public void setMetaEnvServerNodeProperties( MetaEnvServerNode node , PropertySet props , boolean system ) throws Exception {
-		super.checkTransactionMetadata( node.meta.getStorage() );
+		super.checkTransactionEnv( node.server.sg.env );
 		node.setProperties( this , props , system );
 	}
 	
 	public void setStartInfo( MetaEnvSegment sg , MetaEnvStartInfo startInfo ) throws Exception {
-		super.checkTransactionMetadata( sg.meta.getStorage() );
+		super.checkTransactionEnv( sg.env );
 		sg.setStartInfo( this , startInfo );
 	}
 
 	public void modifyServerDeployments( MetaEnvServer server , List<MetaEnvServerDeployment> deployments ) throws Exception {
-		super.checkTransactionMetadata( server.meta.getStorage() );
+		super.checkTransactionEnv( server.sg.env );
 		server.setDeployments( this , deployments );
 	}
 
-	public MetaDump createDump( MetaDatabase db , boolean export , String name , String desc , MetaEnvServer server , boolean standby , String setdbenv , String dataset , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
-		super.checkTransactionMetadata( db.meta.getStorage() );
+	public MetaDump createDump( MetaEnvServer server , MetaDatabase db , boolean export , String name , String desc , boolean standby , String setdbenv , String dataset , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
+		super.checkTransactionEnv( server.sg.env );
 		MetaDump dump = new MetaDump( db.meta , db );
 		dump.create( name , desc , export );
 		dump.setTarget( server , standby , setdbenv );
@@ -1074,7 +1075,7 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void modifyDump( MetaDump dump , String name , String desc , MetaEnvServer server , boolean standby , String setdbenv , String dataset , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
-		super.checkTransactionMetadata( dump.database.meta.getStorage() );
+		super.checkTransactionEnv( server.sg.env );
 		dump.modify( name , desc );
 		dump.setTarget( server , standby , setdbenv );
 		dump.setFiles( dataset , dumpdir , datapumpdir , nfs , postRefresh );
@@ -1082,7 +1083,7 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void deleteDump( MetaDump dump ) throws Exception {
-		super.checkTransactionMetadata( dump.database.meta.getStorage() );
+		super.checkTransactionEnv( dump.server.sg.env );
 		//dump.database.deleteDump( this , dump );
 	}
 

@@ -16,7 +16,7 @@ import org.urm.engine.EngineSession;
 import org.urm.engine.shell.Account;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
@@ -356,7 +356,7 @@ public class CommandContext {
 		value = getEnumValue( "OPT_DBMODE" );
 		CTX_DBMODE = ( value.isEmpty() )? SQLMODE.UNKNOWN : SQLMODE.valueOf( value );
 		CTX_DBMOVE = getFlagValue( "OPT_DBMOVE" );
-		CTX_DBAUTH = combineValue( "OPT_DBAUTH" , ( isenv )? env.DB_AUTH : null , false );
+		CTX_DBAUTH = combineValue( "OPT_DBAUTH" , ( isenv )? env.DBAUTH : null , false );
 		CTX_CUMULATIVE = getFlagValue( "OPT_CUMULATIVE" );
 		
 		CTX_DBALIGNED = getParamValue( "OPT_DBALIGNED" );
@@ -400,7 +400,7 @@ public class CommandContext {
 	
 	public void loadEnv( ActionInit action , String ENV , String SG , boolean loadProps ) throws Exception {
 		Meta meta = action.getContextMeta();
-		MetaEnvs envs = meta.getEnviroments();
+		ProductEnvs envs = meta.getEnviroments();
 		env = envs.findEnv( ENV );
 		
 		if( SG == null || SG.isEmpty() ) {

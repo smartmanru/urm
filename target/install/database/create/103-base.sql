@@ -16,6 +16,7 @@ CREATE TABLE main.urm_base_item (
                 group_id INTEGER NOT NULL,
                 name VARCHAR(64) NOT NULL,
                 xdesc VARCHAR,
+                admin BOOLEAN NOT NULL,
                 basesrc_type INTEGER NOT NULL,
                 basesrcformat_type INTEGER NOT NULL,
                 os_type INTEGER NOT NULL,

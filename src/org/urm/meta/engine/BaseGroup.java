@@ -46,7 +46,7 @@ public class BaseGroup extends EngineObject {
 		r.CV = CV;
 		
 		for( BaseItem item : itemMap.values() ) {
-			ObjectProperties ritem_parameters = item.p.copy( rparametersEngine );
+			ObjectProperties ritem_parameters = item.ops.copy( rparametersEngine );
 			BaseItem ritem = item.copy( r , ritem_parameters );
 			r.addItem( ritem );
 		}

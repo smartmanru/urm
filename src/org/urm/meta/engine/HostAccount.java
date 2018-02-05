@@ -4,9 +4,8 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.shell.Account;
 import org.urm.meta.EngineObject;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.Meta;
 
 public class HostAccount extends EngineObject {
@@ -68,13 +67,9 @@ public class HostAccount extends EngineObject {
 		EngineDirectory directory = action.getServerDirectory();
 		for( String productName : directory.getProductNames() ) {
 			Meta meta = action.findProductMetadata( productName );
-			MetaEnvs envs = meta.getEnviroments();
+			ProductEnvs envs = meta.getEnviroments();
 			envs.getApplicationReferences( this , refs );
 		}
 	}
 
-	public Account getHostAccount( ActionBase action ) throws Exception {
-		return( Account.getDatacenterAccount( action , host.network.datacenter.NAME , NAME , host.NAME , host.PORT , host.OS_TYPE ) );
-	}
-	
 }

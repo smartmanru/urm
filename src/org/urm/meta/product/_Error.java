@@ -28,7 +28,6 @@ public class _Error {
 	public static final int UnknownDeliverySchema1 = ErrorBase + 49;
 	public static final int UnknownDeliveryDatagroup1 = ErrorBase + 50;
 	public static final int UnknownSegment1 = ErrorBase + 51;
-	public static final int NoSegmentDefined0 = ErrorBase + 52;
 	public static final int UnknownServer1 = ErrorBase + 53;
 	public static final int RootpathEmptyRequiredForDeployments1 = ErrorBase + 54;
 	public static final int RootpathEmptyRequiredForGeneric1 = ErrorBase + 55;

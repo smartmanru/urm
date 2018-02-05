@@ -4,33 +4,41 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumNodeType;
 import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyController;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.AccountReference;
+import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.NetworkHost;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product._Error;
+import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaEnvServerNode extends PropertyController {
+public class MetaEnvServerNode extends EngineObject {
 
 	public Meta meta;
 	public MetaEnvServer server;
-	
+
+	public ObjectProperties ops;
+	public int ID;
 	public int POS;
-	public VarNODETYPE nodeType;
-	public String HOSTLOGIN;
+	public DBEnumNodeType NODE_TYPE;
+	public MatchItem ACCOUNT;
 	public String DEPLOYGROUP;
 	public boolean OFFLINE;
 	public String DBINSTANCE;
 	public boolean DBSTANDBY;
+	public int EV;
 	
 	public static String PROPERTY_NODETYPE = "type";
 	public static String PROPERTY_HOSTLOGIN = "account";
@@ -40,7 +48,7 @@ public class MetaEnvServerNode extends PropertyController {
 	public static String PROPERTY_DBSTANDBY = "standby";
 	
 	public MetaEnvServerNode( Meta meta , MetaEnvServer server , int POS ) {
-		super( server , "node" );
+		super( server );
 		this.meta = meta;
 		this.server = server;
 		this.POS = POS;
@@ -50,13 +58,11 @@ public class MetaEnvServerNode extends PropertyController {
 	public String getName() {
 		return( "" + POS );
 	}
-	
-	@Override
-	public boolean isValid() {
-		return( true );
+
+	public ObjectProperties getProperties() {
+		return( ops );
 	}
 	
-	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
 		action.trace( "load properties of node=" + POS );
 		HOSTLOGIN = super.getStringPropertyRequired( action , PROPERTY_HOSTLOGIN );
@@ -201,6 +207,11 @@ public class MetaEnvServerNode extends PropertyController {
 		ha.setHost( action , host );
 		super.setStringProperty( PROPERTY_HOSTLOGIN , ha.getHostLogin() );
 		scatterProperties( action );
+	}
+
+	public HostAccount getHostAccount( ActionBase action ) throws Exception {
+		EngineInfrastructure infra = action.getServerInfrastructure();
+		return( infra.getHostAccount( ACCOUNT ) );
 	}
 	
 }

@@ -14,6 +14,7 @@ import org.urm.engine.dist.Release;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyController;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.Account;
@@ -29,61 +30,62 @@ import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product._Error;
+import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaEnvServer extends PropertyController {
+public class MetaEnvServer extends EngineObject {
 
 	public Meta meta;
 	public MetaEnvSegment sg;
 	
-	public String NAME = "";
-	public String DESC = "";
-	private VarSERVERRUNTYPE serverRunType;
-	private DBEnumServerAccessType serverAccessType;
-	public DBEnumOSType osType;
-	
-	public String BASELINE = "";
-	public String XDOC = "";
+	// table data
+	public ObjectProperties ops;
+	public int ID;
+	public String NAME;
+	public String DESC;
+	private DBEnumServerRunType SERVERRUN_TYPE;
+	private DBEnumServerAccessType SERVERACCESS_TYPE;
+	public DBEnumOSType OS_TYPE;
+	public MatchItem BASELINE;
 	public boolean OFFLINE = false;
+	public DBEnumDbmsType DBMS_TYPE;
+	public MatchItem DATABASE_ADMSCHEMA;
+	public MatchItem BASEITEM;
+	public int EV;
 	
-	public String ROOTPATH = "";
-	public String BINPATH = "";
-	public String SYSNAME = "";
-	public int PORT = 0;
-	private String NLBSERVER = "";
-	public MetaEnvServer nlbServer;
-	private String PROXYSERVER = "";
-	public MetaEnvServer proxyServer;
-	private String STATICSERVER = "";
-	public MetaEnvServer staticServer;
-	private String SUBORDINATESERVERS = "";
-	public MetaEnvServer[] subordinateServers;
-	public int STARTTIME = 0;
-	public int STOPTIME = 0;
-	public String DEPLOYPATH = "";
-	public String LINKFROMPATH = "";
-	public String DEPLOYSCRIPT = "";
-	public String HOTDEPLOYPATH = "";
-	public String HOTDEPLOYDATA = "";
-	public String WEBSERVICEURL = "";
-	public String WEBMAINURL = "";
-	public String LOGPATH = "";
-	public String LOGFILEPATH = "";
-	public boolean NOPIDS = false;
-
-	public DBEnumDbmsType dbType;
-	public String DBMSADDR = "";
-	public String ADMSCHEMA = "";
-	public MetaDatabaseSchema admSchema;
+	// properties
+	public String XDOC;
+	public String ROOTPATH;
+	public String BINPATH;
+	public String SYSNAME;
+	public int PORT;
+	public int STARTTIME;
+	public int STOPTIME;
+	public String DEPLOYPATH;
+	public String LINKFROMPATH;
+	public String DEPLOYSCRIPT;
+	public String HOTDEPLOYPATH;
+	public String HOTDEPLOYDATA;
+	public String WEBSERVICEURL;
+	public String WEBMAINURL;
+	public String LOGPATH;
+	public String LOGFILEPATH;
+	public boolean NOPIDS;
 	public String ALIGNED = "";
 	public String REGIONS = "";
+	public String DBMSADDR;
 	
-	public MetaEnvServerBase basesw;
-	
+	// dependencies
+	public MetaEnvServer nlbServer;
+	public MetaEnvServer proxyServer;
+	public MetaEnvServer staticServer;
+	public MetaEnvServer[] subordinateServers;
+
 	Map<String,MetaEnvServerDeployment> deployMap;
 	List<MetaEnvServerDeployment> deployments;
 	List<MetaEnvServerNode> nodes;
@@ -136,7 +138,7 @@ public class MetaEnvServer extends PropertyController {
 	public MetaEnvStartGroup startGroup;
 	
 	public MetaEnvServer( Meta meta , MetaEnvSegment sg ) {
-		super( sg , "server" );
+		super( sg );
 		this.meta = meta;
 		this.sg = sg;
 		
@@ -150,14 +152,10 @@ public class MetaEnvServer extends PropertyController {
 		return( NAME );
 	}
 	
-	@Override
-	public boolean isValid() {
-		if( super.isLoadFailed() )
-			return( false );
-		return( true );
+	public ObjectProperties getProperties() {
+		return( ops );
 	}
 	
-	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
 		NAME = super.getStringPropertyRequired( action , PROPERTY_NAME );
 		action.trace( "load properties of server=" + NAME );
@@ -170,8 +168,8 @@ public class MetaEnvServer extends PropertyController {
 		String SERVERRUNTYPE = super.getStringPropertyRequired( action , PROPERTY_SERVERRUNTYPE );
 		serverRunType = Types.getServerRunType( SERVERRUNTYPE , false );
 		String SERVERACCESSTYPE = super.getStringPropertyRequired( action , PROPERTY_SERVERACCESSTYPE );
-		serverAccessType = DBEnumServerAccessType.getValue( SERVERACCESSTYPE , false );
-		osType = DBEnumOSType.getValue( super.getStringProperty( action , PROPERTY_OSTYPE , "linux" ) , false );
+		SERVERACCESS_TYPE = DBEnumServerAccessType.getValue( SERVERACCESSTYPE , false );
+		OS_TYPE = DBEnumOSType.getValue( super.getStringProperty( action , PROPERTY_OSTYPE , "linux" ) , false );
 		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE );
 		XDOC = super.getPathProperty( action , PROPERTY_XDOC , NAME + ".xml" );
 		SYSNAME = super.getStringProperty( action , PROPERTY_SYSNAME );
@@ -205,7 +203,7 @@ public class MetaEnvServer extends PropertyController {
 		}
 		
 		if( isDatabase() ) {
-			dbType = DBEnumDbmsType.getValue( super.getStringProperty( action , PROPERTY_DBMSTYPE ) , true );
+			DBMS_TYPE = DBEnumDbmsType.getValue( super.getStringProperty( action , PROPERTY_DBMSTYPE ) , true );
 			DBMSADDR = super.getStringProperty( action , PROPERTY_DBMSADDR );
 			ALIGNED = super.getStringProperty( action , PROPERTY_ALIGNED );
 			REGIONS = super.getStringProperty( action , PROPERTY_REGIONS );
@@ -228,11 +226,11 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public DBEnumServerAccessType getServerAccessType() {
-		return( serverAccessType );
+		return( SERVERACCESS_TYPE );
 	}
 	
 	public String getServerTypeName( ActionBase action ) throws Exception {
-		return( Common.getEnumLower( serverRunType ) + "/" + Common.getEnumLower( serverAccessType ) );
+		return( Common.getEnumLower( serverRunType ) + "/" + Common.getEnumLower( SERVERACCESS_TYPE ) );
 	}
 	
 	public String getFullId( ActionBase action ) throws Exception {
@@ -270,24 +268,6 @@ public class MetaEnvServer extends PropertyController {
 		return( r );
 	}
 	
-	public void load( ActionBase action , Node node ) throws Exception {
-		if( !super.initCreateStarted( sg.getProperties() ) )
-			return;
-
-		loadDeployments( action , node );
-		
-		super.loadFromNodeAttributes( action , node , false );
-		scatterProperties( action );
-		
-		super.loadFromNodeElements( action , node , true );
-		super.resolveRawProperties();
-
-		loadNodes( action , node );
-		loadBase( action , node );
-		
-		super.initFinished();
-	}
-
 	public void resolveLinks( ActionBase action ) throws Exception {
 		if( NLBSERVER != null && !NLBSERVER.isEmpty() )
 			nlbServer = sg.getServer( action , NLBSERVER );
@@ -352,27 +332,6 @@ public class MetaEnvServer extends PropertyController {
 
 	private void addNode( MetaEnvServerNode sn ) {
 		nodes.add( sn );
-	}
-
-	private void loadBase( ActionBase action , Node node ) throws Exception {
-		Node item = ConfReader.xmlGetFirstChild( node , ELEMENT_PLATFORM );
-		if( item == null )
-			return;
-		
-		basesw = new MetaEnvServerBase( meta , this );
-		basesw.load( action , item );
-	}
-		
-	private void loadDeployments( ActionBase action , Node node ) throws Exception {
-		Node[] items = ConfReader.xmlGetChildren( node , ELEMENT_DEPLOY );
-		if( items == null )
-			return;
-		
-		for( Node dpnode : items ) {
-			MetaEnvServerDeployment dp = new MetaEnvServerDeployment( meta , this );
-			dp.load( action , dpnode );
-			addDeployment( dp );
-		}
 	}
 
 	private void addDeployment( MetaEnvServerDeployment dp ) {
@@ -467,7 +426,7 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public boolean isConfigurable() {
-		if( serverAccessType == DBEnumServerAccessType.MANUAL || serverAccessType == DBEnumServerAccessType.UNKNOWN )
+		if( SERVERACCESS_TYPE == DBEnumServerAccessType.MANUAL || SERVERACCESS_TYPE == DBEnumServerAccessType.UNKNOWN )
 			return( false );
 		if( serverRunType == VarSERVERRUNTYPE.DATABASE || serverRunType == VarSERVERRUNTYPE.UNKNOWN ) 
 			return( false );
@@ -661,11 +620,11 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public boolean isWindows() {
-		return( osType == DBEnumOSType.WINDOWS );
+		return( OS_TYPE == DBEnumOSType.WINDOWS );
 	}
 
 	public boolean isLinux() {
-		return( osType == DBEnumOSType.LINUX );
+		return( OS_TYPE == DBEnumOSType.LINUX );
 	}
 
 	public boolean isDatabase() {
@@ -673,15 +632,15 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public boolean isService() {
-		return( serverAccessType == DBEnumServerAccessType.SERVICE );
+		return( SERVERACCESS_TYPE == DBEnumServerAccessType.SERVICE );
 	}
 
 	public boolean isDocker() {
-		return( serverAccessType == DBEnumServerAccessType.DOCKER );
+		return( SERVERACCESS_TYPE == DBEnumServerAccessType.DOCKER );
 	}
 
 	public boolean isPacemaker() {
-		return( serverAccessType == DBEnumServerAccessType.PACEMAKER );
+		return( SERVERACCESS_TYPE == DBEnumServerAccessType.PACEMAKER );
 	}
 
 	public boolean isCommand() {
@@ -689,11 +648,11 @@ public class MetaEnvServer extends PropertyController {
 	}
 	
 	public boolean isGeneric() {
-		return( serverAccessType == DBEnumServerAccessType.GENERIC );
+		return( SERVERACCESS_TYPE == DBEnumServerAccessType.GENERIC );
 	}
 
 	public boolean isManual() {
-		return( serverAccessType == DBEnumServerAccessType.MANUAL );
+		return( SERVERACCESS_TYPE == DBEnumServerAccessType.MANUAL );
 	}
 
 	public boolean isWebUser() {
@@ -713,30 +672,11 @@ public class MetaEnvServer extends PropertyController {
 	}
 
 	public boolean isStartable() {
-		if( serverAccessType == DBEnumServerAccessType.MANUAL )
+		if( SERVERACCESS_TYPE == DBEnumServerAccessType.MANUAL )
 			return( false );
 		return( true );
 	}
 
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		super.saveSplit( doc , root );
-		
-		if( basesw != null ) {
-			Element baseElement = Common.xmlCreateElement( doc , root , ELEMENT_PLATFORM );
-			basesw.save( action , doc , baseElement );
-		}
-
-		for( MetaEnvServerDeployment deploy : deployments ) {
-			Element deployElement = Common.xmlCreateElement( doc , root , ELEMENT_DEPLOY );
-			deploy.save( action , doc , deployElement );
-		}
-		
-		for( MetaEnvServerNode node : nodes ) {
-			Element nodeElement = Common.xmlCreateElement( doc , root , ELEMENT_NODE );
-			node.save( action , doc , nodeElement );
-		}
-	}
-	
 	public void createServer( ActionBase action , String NAME , String DESC , DBEnumOSType osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
 		if( !super.initCreateStarted( sg.getProperties() ) )
 			return;
@@ -943,7 +883,7 @@ public class MetaEnvServer extends PropertyController {
 	public String getSchemaDBName( MetaDatabaseSchema schema ) {
 		for( MetaEnvServerDeployment d : deployments ) {
 			if( d.isDatabase() ) {
-				if( d.schema == schema )
+				if( d.SCHEMA.FKID == schema.ID )
 					return( d.DBNAME );
 			}
 			else {

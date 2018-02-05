@@ -215,7 +215,8 @@ public abstract class DBEnums {
 		META_DIST_BINARYITEM(152,null) ,
 		META_DIST_CONFITEM(153,null) ,
 		META_DIST_COMPONENT(154,null) ,
-		META_DIST_COMPITEM(155,null);
+		META_DIST_COMPITEM(155,null) ,
+		ENVIRONMENT(156,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -514,6 +515,88 @@ public abstract class DBEnums {
 		public static DBEnumEnvType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumEnvType.class , value , required , UNKNOWN ) ); };
 	};
 	
+	public enum DBEnumServerRunType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		DATABASE(1,null) ,
+		APP(2,null) ,
+		WEBUI(3,null) ,
+		WEBAPP(4,null) ,
+		COMMAND(5,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumServerRunType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumServerRunType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumServerRunType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumServerRunType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumServerRunType.class , value , required , UNKNOWN ) ); };
+	};
+	
+	public enum DBEnumServerDependencyType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		NLB(1,null) ,
+		PROXY(2,null) ,
+		STATIC(3,null) ,
+		SUBORDINATE(4,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumServerDependencyType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumServerDependencyType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumServerDependencyType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumServerDependencyType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumServerDependencyType.class , value , required , UNKNOWN ) ); };
+	};
+	
+	public enum DBEnumServerDeploymentType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		BINARY(1,null) ,
+		CONF(2,null) ,
+		SCHEMA(3,null) ,
+		COMP(4,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumServerDeploymentType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumServerDeploymentType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumServerDeploymentType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumServerDeploymentType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumServerDeploymentType.class , value , required , UNKNOWN ) ); };
+	};
+	
+	public enum DBEnumDeployModeType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		MANUAL(1,null) ,
+		COLD(2,null) ,
+		HOT(3,null) ,
+		LINKS_SINGLEDIR(4,null) ,
+		LINKS_MULTIDIR(5,null) ,
+		COPYONLY(6,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumDeployModeType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumDeployModeType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDeployModeType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumDeployModeType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDeployModeType.class , value , required , UNKNOWN ) ); };
+	};
+	
+	public enum DBEnumNodeType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		SELF(1,null) ,
+		ADMIN(2,null) ,
+		SLAVE(3,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumNodeType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumNodeType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumNodeType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumNodeType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumNodeType.class , value , required , UNKNOWN ) ); };
+	};
+	
 	public enum DBEnumObjectVersionType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		APP(1,null) ,
@@ -558,7 +641,6 @@ public abstract class DBEnums {
 		APPSYSTEM(41,null) ,
 		APPPRODUCT(42,null) ,
 		PRODUCT(50,null) ,
-		ENVIRONMENT(51,null) ,
 		SEGMENT(52,null) ,
 		SERVER(53,null) ,
 		NODE(54,null) ,
@@ -580,7 +662,9 @@ public abstract class DBEnums {
 		PRODUCT_DIST_BINARYITEM(202,null) ,
 		PRODUCT_DIST_CONFITEM(203,null) ,
 		PRODUCT_DIST_COMPONENT(204,null) ,
-		PRODUCT_DIST_COMPITEM(205,null);
+		PRODUCT_DIST_COMPITEM(205,null) ,
+		ENV_PRIMARY(301,null) ,
+		ENV_EXTRA(302,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -667,7 +751,12 @@ public abstract class DBEnums {
 		new DBEnumInfo( DBEnumCompItemType.class , 537 ) ,
 		new DBEnumInfo( DBEnumMonItemType.class , 538 ) ,
 		new DBEnumInfo( DBEnumDocCategoryType.class , 539 ) ,
-		new DBEnumInfo( DBEnumEnvType.class , 540 )
+		new DBEnumInfo( DBEnumEnvType.class , 540 ) ,
+		new DBEnumInfo( DBEnumServerRunType.class , 541 ) ,
+		new DBEnumInfo( DBEnumServerDependencyType.class , 542 ) ,
+		new DBEnumInfo( DBEnumServerDeploymentType.class , 543 ) ,
+		new DBEnumInfo( DBEnumDeployModeType.class , 544 ) ,
+		new DBEnumInfo( DBEnumNodeType.class , 544 )
 	}; 
 
 	private static String prefix = "DBEnum";

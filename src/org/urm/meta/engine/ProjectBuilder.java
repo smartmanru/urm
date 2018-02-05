@@ -25,11 +25,8 @@ public class ProjectBuilder extends EngineObject {
 	public static String PROPERTY_BUILDER_OPTIONS = "builder.options";
 	public static String PROPERTY_JAVA_JDKHOMEPATH = "java.jdkhomepath";
 	
-	public static String PROPERTY_REMOTE = "remote";
-	public static String PROPERTY_REMOTEOSTYPE = "ostype";
+	public static String PROPERTY_BUILDER_REMOTE = "remote";
 	public static String PROPERTY_REMOTEHOSTLOGIN = "hostlogin";
-	public static String PROPERTY_REMOTEPORT = "port";
-	public static String PROPERTY_REMOTEAUTHRESOURCE = "authresource";
 	
 	public EngineBuilders builders;
 
@@ -51,11 +48,8 @@ public class ProjectBuilder extends EngineObject {
 	public String BUILDER_OPTIONS;
 	public String JAVA_JDKHOMEPATH;
 
-	public boolean REMOTE;
-	public DBEnumOSType REMOTE_OS_TYPE;
-	public String REMOTE_HOSTLOGIN;
-	public int REMOTE_PORT;
-	public Integer REMOTE_AUTH_RESOURCE_ID;
+	public boolean BUILDER_REMOTE;
+	public Integer REMOTE_ACCOUNT_ID;
 	public int CV;
 	
 	public ProjectBuilder( EngineBuilders builders ) {
@@ -89,11 +83,8 @@ public class ProjectBuilder extends EngineObject {
 		r.BUILDER_OPTIONS = BUILDER_OPTIONS;
 		r.JAVA_JDKHOMEPATH = JAVA_JDKHOMEPATH;
 
-		r.REMOTE = REMOTE;
-		r.REMOTE_OS_TYPE = REMOTE_OS_TYPE;
-		r.REMOTE_HOSTLOGIN = REMOTE_HOSTLOGIN;
-		r.REMOTE_PORT = REMOTE_PORT;
-		r.REMOTE_AUTH_RESOURCE_ID = REMOTE_AUTH_RESOURCE_ID;
+		r.BUILDER_REMOTE = BUILDER_REMOTE;
+		r.REMOTE_ACCOUNT_ID = REMOTE_ACCOUNT_ID;
 		
 		r.CV = CV;
 		return( r );
@@ -172,23 +163,22 @@ public class ProjectBuilder extends EngineObject {
 		this.TARGET_PLATFORM = Common.nonull( platform );
 	}
 	
-	public void setRemoteData( boolean remote , DBEnumOSType osType , String hostLogin , int port , Integer resourceId ) {
-		this.REMOTE = remote;
-		this.REMOTE_OS_TYPE = osType;
-		this.REMOTE_HOSTLOGIN = Common.nonull( hostLogin );
-		this.REMOTE_PORT = port;
-		this.REMOTE_AUTH_RESOURCE_ID = resourceId;
+	public void setRemoteData( boolean remote , Integer accountId ) {
+		this.BUILDER_REMOTE = remote;
+		this.REMOTE_ACCOUNT_ID = accountId;
 	}
 	
 	public Account getRemoteAccount( ActionBase action ) throws Exception {
-		if( !REMOTE )
+		if( !BUILDER_REMOTE )
 			return( action.getLocalAccount() );
-		AuthResource rc = action.getResource( REMOTE_AUTH_RESOURCE_ID );
-		return( Account.getResourceAccount( action , rc , REMOTE_HOSTLOGIN , REMOTE_PORT , REMOTE_OS_TYPE ) );
+		
+		EngineInfrastructure infra = action.getServerInfrastructure();
+		HostAccount account = infra.getHostAccount( REMOTE_ACCOUNT_ID );
+		return( Account.getHostAccount( action , account ) );
 	}
 
 	public ShellExecutor createShell( ActionBase action , boolean dedicated ) throws Exception {
-		if( REMOTE ) {
+		if( BUILDER_REMOTE ) {
 			Account account = getRemoteAccount( action );
 			if( dedicated )
 				return( action.createDedicatedRemoteShell( "builder" , account , true ) );

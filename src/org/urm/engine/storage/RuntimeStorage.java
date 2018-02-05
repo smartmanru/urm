@@ -306,7 +306,7 @@ public class RuntimeStorage extends ServerStorage {
 		if( !server.isService() )
 			action.exitUnexpectedState();
 		
-		if( server.osType.isLinux() ) {
+		if( server.OS_TYPE.isLinux() ) {
 			RemoteFolder runtimeDir = new RemoteFolder( action.getNodeAccount( node ) , servicePath );
 			if( !runtimeDir.checkFileExists( action , "service" ) )
 				action.exit1( _Error.MissingLiveServiceFile1 , "unable to find service file in " + runtimeDir.folderPath , runtimeDir.folderPath );

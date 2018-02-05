@@ -41,6 +41,7 @@ public class DBMetaPolicy {
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
+		EngineLifecycles lifecycles = loader.getLifecycles();
 		
 		MetaProductPolicy policy = new MetaProductPolicy( storage , storage.meta );
 		storage.setPolicy( policy );
@@ -61,11 +62,11 @@ public class DBMetaPolicy {
 		
 		EngineMatcher matcher = loader.getMatcher();
 		major = matcher.matchProductBefore( storage , major , storage.ID , entities.entityAppMetaPolicy , MetaProductPolicy.PROPERTY_RELEASELC_MAJOR , null );
-		MatchItem RELEASELC_MAJOR = modifyLifecycle( loader , storage , major , 1 );
+		MatchItem RELEASELC_MAJOR = lifecycles.matchLifecycle( major );
 		matcher.matchProductDone( RELEASELC_MAJOR );
 		
 		major = matcher.matchProductBefore( storage , minor , storage.ID , entities.entityAppMetaPolicy , MetaProductPolicy.PROPERTY_RELEASELC_MINOR , null );
-		MatchItem RELEASELC_MINOR = modifyLifecycle( loader , storage , minor , 2 );
+		MatchItem RELEASELC_MINOR = lifecycles.matchLifecycle( minor );
 		matcher.matchProductDone( RELEASELC_MINOR );
 		
 		MatchItem[] RELEASELC_URGENT_LIST;
@@ -73,8 +74,8 @@ public class DBMetaPolicy {
 			RELEASELC_URGENT_LIST = new MatchItem[ urgents.length ];
 			for( int k = 0; k < urgents.length; k++ ) {
 				String name = urgents[ k ];
-				name = matcher.matchProductBefore( storage , name , storage.ID , entities.entityAppMetaPolicy , MetaProductPolicy.PROPERTY_RELEASELC_URGENTS , "" + ( k + 3 ) );
-				MatchItem item = modifyLifecycle( loader , storage , name , 3 + k );
+				name = matcher.matchProductBefore( storage , name , storage.ID , entities.entityAppMetaPolicy , MetaProductPolicy.PROPERTY_RELEASELC_URGENTS , "" + k );
+				MatchItem item = lifecycles.matchLifecycle( name );
 				matcher.matchProductDone( item );
 				RELEASELC_URGENT_LIST[ k ] = item;
 			}
@@ -97,21 +98,6 @@ public class DBMetaPolicy {
 			MatchItem lc = policy.LC_URGENT_LIST[ k ];
 			modifyLifecycle( c , storage , lc , k + 3 );
 		}
-	}
-
-	private static MatchItem modifyLifecycle( EngineLoader loader , ProductMeta storage , String name , int index ) throws Exception {
-		EngineLifecycles lifecycles = loader.getLifecycles();
-		if( name.isEmpty() )
-			return( null );
-		
-		MatchItem lcMatch;
-		ReleaseLifecycle lc = lifecycles.findLifecycle( name );
-		if( lc == null )
-			lcMatch = new MatchItem( name );
-		else
-			lcMatch = new MatchItem( lc.ID );
-		
-		return( lcMatch );
 	}
 
 	private static void modifyPolicy( DBConnection c , ProductMeta storage , MetaProductPolicy policy , boolean insert ) throws Exception {
@@ -189,7 +175,7 @@ public class DBMetaPolicy {
 				Integer id = c.getNullInt( rs , 3 );
 				String name = rs.getString( 4 );
 				
-				MatchItem lcMatch = lifecycles.getLifecycleMatchItem( id , name );
+				MatchItem lcMatch = lifecycles.matchLifecycle( id , name );
 				
 				if( index == 1 ) {
 					RELEASELC_MAJOR = lcMatch;
@@ -217,13 +203,13 @@ public class DBMetaPolicy {
 		DBConnection c = transaction.getConnection();
 		
 		EngineLifecycles lifecycles = transaction.getLifecycles();
-		MatchItem lcMajor = lifecycles.getLifecycleMatchItem( null , major );
-		MatchItem lcMinor = lifecycles.getLifecycleMatchItem( null , minor );
+		MatchItem lcMajor = lifecycles.matchLifecycle( null , major );
+		MatchItem lcMinor = lifecycles.matchLifecycle( null , minor );
 		
 		MatchItem[] lcs = ( urgentsAll )? new MatchItem[0] : new MatchItem[ urgents.length ];
 		if( !urgentsAll ) {
 			for( int k = 0; k < urgents.length; k++ )
-				lcs[ k ] = lifecycles.getLifecycleMatchItem( null , urgents[ k ] );
+				lcs[ k ] = lifecycles.matchLifecycle( null , urgents[ k ] );
 		}
 		
 		policy.setAttrs( urgentsAll );

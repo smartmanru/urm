@@ -2,9 +2,10 @@ package org.urm.meta;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.env.DBMetaEnv;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.meta.env.MetaEnv;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
@@ -28,38 +29,39 @@ public class EngineLoaderEnvs {
 	}
 
 	public void createAll() throws Exception {
-		MetaEnvs envs = new MetaEnvs( set , set.meta );
+		ProductEnvs envs = new ProductEnvs( set , set.meta );
 		set.setEnvs( envs );
 	}
 	
 	public void exportAll( ProductStorage ms ) throws Exception {
-		saveEnvs( ms );
+		exportEnvs( ms );
 		saveMonitoring( ms );
 	}
 
-	public void loadEnvs( ProductStorage ms ) throws Exception {
-		MetaEnvs envs = new MetaEnvs( set , set.meta );
+	public void importxmlEnvs( ProductStorage ms ) throws Exception {
+		ProductEnvs envs = new ProductEnvs( set , set.meta );
 		set.setEnvs( envs );
 		
 		ActionBase action = loader.getAction();
 		for( String envFile : ms.getEnvFiles( action ) )
-			loadEnvData( ms , envFile );
+			importxmlEnvData( ms , envFile );
 		
 		loadMonitoring( ms );
 	}
 	
-	public void saveEnvs( ProductStorage ms ) throws Exception {
-		MetaEnvs envs = set.getEnviroments();
+	public void exportEnvs( ProductStorage ms ) throws Exception {
+		ProductEnvs envs = set.getEnviroments();
 		for( String envName : envs.getEnvNames() ) {
 			MetaEnv env = envs.findEnv( envName );
-			saveEnvData( ms , env );
+			exportEnvData( ms , env );
 		}
-		
-		saveMonitoring( ms );
+	}
+
+	public void loaddbEnvs() throws Exception {
 	}
 	
 	public void loadMonitoring( ProductStorage ms ) throws Exception {
-		MetaEnvs envs = set.getEnviroments();
+		ProductEnvs envs = set.getEnviroments();
 		MetaMonitoring mon = envs.getMonitoring();
 		
 		ActionBase action = loader.getAction();
@@ -83,19 +85,14 @@ public class EngineLoaderEnvs {
 		String file = ms.getMonitoringConfFile( action );
 		action.debug( "export product monitoring file " + file + "..." );
 		Document doc = Common.xmlCreateDoc( XML_ROOT_MONITORING );
-		MetaEnvs envs = set.getEnviroments();
+		ProductEnvs envs = set.getEnviroments();
 		MetaMonitoring mon = envs.getMonitoring();
 		
 		mon.save( action , doc , doc.getDocumentElement() );
 		ms.saveFile( action , doc , file );
 	}
 	
-	private void loadEnvData( ProductStorage ms , String envName ) throws Exception {
-		MetaEnvs envs = set.getEnviroments();
-		MetaProductSettings settings = set.getSettings();
-		MetaEnv env = new MetaEnv( set , settings , set.meta );
-		loader.trace( "load meta env object, id=" + env.objectId );
-
+	private void importxmlEnvData( ProductStorage ms , String envName ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -103,15 +100,15 @@ public class EngineLoaderEnvs {
 			action.debug( "read environment definition file " + file + "..." );
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
-			env.load( action , root );
-			envs.addEnv( env );
+			
+			DBMetaEnv.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
 			loader.setLoadFailed( action , _Error.UnableLoadProductEnvironment2 , e , "unable to load environment metadata, product=" + set.name + ", env=" + envName , set.name , envName );
 		}
 	}
 	
-	private void saveEnvData( ProductStorage storageMeta , MetaEnv env ) throws Exception {
+	private void exportEnvData( ProductStorage storageMeta , MetaEnv env ) throws Exception {
 		ActionBase action = loader.getAction();
 		Document doc = Common.xmlCreateDoc( XML_ROOT_ENV );
 		env.save( action , doc , doc.getDocumentElement() );

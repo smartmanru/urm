@@ -3,6 +3,7 @@ package org.urm.meta;
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
 import org.urm.db.engine.DBEngineMirrors;
+import org.urm.db.env.DBMetaEnv;
 import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBMetaSources;
 import org.urm.db.system.DBAppSystem;
@@ -15,6 +16,7 @@ import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.MirrorRepository;
+import org.urm.meta.env.MetaEnv;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.ProductMeta;
@@ -26,6 +28,8 @@ public class EngineMatcher {
 	public RunContext execrc;
 
 	protected ProductMeta matchStorage;
+	protected MetaEnv matchEnv;
+	
 	protected String matchValueInitial;
 	protected int matchOwnerId;
 	protected PropertyEntity matchItemEntity;
@@ -209,4 +213,35 @@ public class EngineMatcher {
 			matchProductUpdateStatus( matchStorage , false , false );
 	}
 	
+	public String matchEnvBefore( MetaEnv env , String value , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
+		this.matchEnv = env;
+		this.matchValueInitial = value;
+		this.matchOwnerId = ownerId;
+		this.matchItemEntity = entity;
+		this.matchItemProperty = prop;
+		this.matchItemIndex = index;
+		return( value );
+	}
+
+	public void matchEnvDone( MatchItem item ) throws Exception {
+		matchEnvDone( item , matchEnv , matchValueInitial , matchOwnerId , matchItemEntity , matchItemProperty , matchItemIndex );
+	}
+
+	public void matchEnvDone( MatchItem item , MetaEnv env , String value , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
+		if( item != null && !item.MATCHED )
+			matchEnvUpdateStatus( matchEnv , false , false );
+	}
+	
+	private void matchEnvUpdateStatus( MetaEnv env , boolean matched , boolean finish ) {
+		try {
+			if( !matched )
+				env.setMatched( false );
+			if( finish )
+				DBMetaEnv.setMatched( loader , env , matched );
+		}
+		catch( Throwable e ) {
+			loader.log( "update match status" , e );
+		}
+	}
+
 }

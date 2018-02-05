@@ -60,7 +60,7 @@ public abstract class DBSettings {
 		importxmlSave( loader , properties , paramObjectId , metaObjectId , importApp , importCustom , version , null );
 	}
 
-	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , DBEnumParamEntityType entityType , int paramObjectId , int metaObjectId , boolean importApp , boolean importCustom , int version ) throws Exception {
+	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean importApp , boolean importCustom , int version , DBEnumParamEntityType entityType ) throws Exception {
 		importxmlLoad( loader , root , properties , importApp , importCustom , entityType );
 		importxmlSave( loader , properties , paramObjectId , metaObjectId , importApp , importCustom , version , entityType );
 	}

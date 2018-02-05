@@ -11,10 +11,15 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.dist.Release;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyController;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.Account;
+import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
+import org.urm.meta.engine.Datacenter;
+import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrConfItem;
@@ -23,18 +28,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaEnvSegment extends PropertyController {
+public class MetaEnvSegment extends EngineObject {
 
 	public Meta meta;
 	public MetaEnv env;
 	
+	// table data
+	public ObjectProperties ops;
+	public int ID;
 	public String NAME;
-	public String BASELINE;
-	public boolean OFFLINE;
 	public String DESC;
-	public String DC;
+	public MatchItem BASELINE;
+	public boolean OFFLINE;
+	public MatchItem DC;
+	public int EV;
 	
-	public MetaEnvDeployment deploy;
+	public MetaEnvDeployment deployInfo;
 	public MetaEnvStartInfo startInfo;
 	
 	private List<MetaEnvServer> originalList;
@@ -51,7 +60,7 @@ public class MetaEnvSegment extends PropertyController {
 	public static String ELEMENT_SERVER = "server";
 	
 	public MetaEnvSegment( Meta meta , MetaEnv env ) {
-		super( env , "sg" );
+		super( env );
 		this.meta = meta;
 		this.env = env;
 		
@@ -64,14 +73,10 @@ public class MetaEnvSegment extends PropertyController {
 		return( NAME );
 	}
 	
-	@Override
-	public boolean isValid() {
-		if( super.isLoadFailed() )
-			return( false );
-		return( true );
+	public MetaEnvSegment getBaselineSegment( MetaEnv baselineEnv ) throws Exception {
+		return( baselineEnv.getSegment( BASELINE.FKID ) );
 	}
-
-	@Override
+	
 	public void scatterProperties( ActionBase action ) throws Exception {
 		NAME = super.getStringPropertyRequired( action , PROPERTY_NAME );
 		DESC = super.getStringProperty( action , PROPERTY_DESC );
@@ -86,12 +91,12 @@ public class MetaEnvSegment extends PropertyController {
 		super.finishRawProperties();
 	}
 	
-	public MetaEnvSegment copy( ActionBase action , Meta meta , MetaEnv env ) throws Exception {
+	public MetaEnvSegment copy( Meta rmeta , MetaEnv renv ) throws Exception {
 		MetaEnvSegment r = new MetaEnvSegment( meta , env );
 		r.initCopyStarted( this , env.getProperties() );
 		
-		if( deploy != null )
-			r.deploy = deploy.copy( action , meta , r );
+		if( deployInfo != null )
+			r.deployInfo = deployInfo.copy( action , meta , r );
 		for( MetaEnvServer server : originalList ) {
 			MetaEnvServer rserver = server.copy( action , meta , r );
 			r.addServer( rserver );
@@ -122,45 +127,6 @@ public class MetaEnvSegment extends PropertyController {
 	
 	public String getBaselineSG( ActionBase action ) throws Exception {
 		return( BASELINE );
-	}
-	
-	public void load( ActionBase action , Node node ) throws Exception {
-		if( !super.initCreateStarted( env.getProperties() ) )
-			return;
-
-		super.loadFromNodeAttributes( action , node , false );
-		scatterProperties( action );
-		
-		super.loadFromNodeElements( action , node , true );
-		super.resolveRawProperties();
-		
-		loadServers( action , node );
-		loadStartOrder( action , node );
-		loadDeployment( action , node );
-		
-		super.initFinished();
-	}
-
-	public void loadDeployment( ActionBase action , Node node ) throws Exception {
-		deploy = new MetaEnvDeployment( meta , this );
-		
-		Node deployment = ConfReader.xmlGetFirstChild( node , ELEMENT_DEPLOYMENT );
-		if( deployment == null )
-			return;
-		
-		deploy.load( action , deployment );
-	}
-	
-	public void loadServers( ActionBase action , Node node ) throws Exception {
-		Node[] items = ConfReader.xmlGetChildren( node , ELEMENT_SERVER );
-		if( items == null )
-			return;
-		
-		for( Node srvnode : items ) {
-			MetaEnvServer server = new MetaEnvServer( meta , this );
-			server.load( action , srvnode );
-			addServer( server );
-		}
 	}
 	
 	private void addServer( MetaEnvServer server ) {
@@ -236,19 +202,6 @@ public class MetaEnvSegment extends PropertyController {
 		return( false );
 	}
 	
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Element deployElement = Common.xmlCreateElement( doc , root , ELEMENT_DEPLOYMENT );
-		deploy.save( action , doc , deployElement );
-		Element startElement = Common.xmlCreateElement( doc , root , ELEMENT_STARTORDER );
-		startInfo.save( action , doc , startElement );
-		
-		super.saveSplit( doc , root );
-		for( MetaEnvServer server : originalList ) {
-			Element serverElement = Common.xmlCreateElement( doc , root , ELEMENT_SERVER );
-			server.save( action , doc , serverElement );
-		}
-	}
-	
 	public void createSegment( ActionBase action , String NAME , String DESC , String DC ) throws Exception {
 		this.NAME = NAME;
 		if( !super.initCreateStarted( env.getProperties() ) )
@@ -262,7 +215,7 @@ public class MetaEnvSegment extends PropertyController {
 		
 		scatterProperties( action );
 		
-		deploy = new MetaEnvDeployment( meta , this );
+		deployInfo = new MetaEnvDeployment( meta , this );
 		startInfo = new MetaEnvStartInfo( meta , this );
 	}
 
@@ -351,5 +304,9 @@ public class MetaEnvSegment extends PropertyController {
 		}
 		return( false );
 	}
-	
+
+	public Datacenter getDatacenter( ActionBase action ) throws Exception {
+		EngineInfrastructure infra = action.getServerInfrastructure();
+		return( infra.getDatacenter( DC ) );
+	}
 }

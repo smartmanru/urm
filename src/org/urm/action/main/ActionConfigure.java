@@ -26,7 +26,7 @@ import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.Meta;
 
 public class ActionConfigure extends ActionBase {
@@ -273,7 +273,7 @@ public class ActionConfigure extends ActionBase {
 			ProductStorage ms = artefactory.getMetadataStorage( this , meta );
 			
 			MetaEnvSegment sg = null;
-			MetaEnvs envs = meta.getEnviroments();
+			ProductEnvs envs = meta.getEnviroments();
 			if( USEENV.isEmpty() ) {
 				addAffected( linux , proxyPath , true );
 				String[] envNames = envs.getEnvNames();

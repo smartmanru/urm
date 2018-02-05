@@ -70,6 +70,7 @@ public abstract class DBEngineBase {
 				EntityVar.metaIntegerDatabaseOnly( FIELD_ITEM_GROUP_ID , "Name" , true , null ) ,
 				EntityVar.metaStringVar( BaseItem.PROPERTY_NAME , BaseItem.PROPERTY_NAME , XMLPROP_ITEM_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( BaseItem.PROPERTY_DESC , FIELD_ITEM_DESC , BaseItem.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaBoolean( BaseItem.PROPERTY_ADMIN , "Administrative" , false , false ) ,
 				EntityVar.metaEnum( BaseItem.PROPERTY_BASESRC_TYPE , "Base item type" , false , DBEnumBaseSrcType.UNKNOWN ) ,
 				EntityVar.metaEnum( BaseItem.PROPERTY_BASESRCFORMAT_TYPE , "Base format type" , false , DBEnumBaseSrcFormatType.UNKNOWN ) ,
 				EntityVar.metaEnum( BaseItem.PROPERTY_OS_TYPE , "Operating system" , false , DBEnumOSType.UNKNOWN ) ,
@@ -224,7 +225,7 @@ public abstract class DBEngineBase {
 	}
 
 	public static void exportxmlItem( EngineLoader loader , BaseItem item , Document doc , Element root ) throws Exception {
-		DBSettings.exportxml( loader , doc , root , item.p , false );
+		DBSettings.exportxml( loader , doc , root , item.ops , false );
 		
 		for( String name : item.getDepItemNames() ) {
 			BaseItem dep = item.findDepItem( name );
@@ -325,7 +326,7 @@ public abstract class DBEngineBase {
 			DBNames.updateName( c , DBVersions.CORE_ID , item.NAME , item.ID , DBEnumObjectType.BASE_ITEM );
 		
 		item.CV = c.getNextCoreVersion();
-		DBSettings.modifyAppValues( c , item.ID , item.p , DBEnumParamEntityType.BASEITEM , item.CV , new String[] {
+		DBSettings.modifyAppValues( c , item.ID , item.ops , DBEnumParamEntityType.BASEITEM , item.CV , new String[] {
 				EngineDB.getInteger( item.group.ID )
 		} , insert );
 	}
@@ -416,10 +417,10 @@ public abstract class DBEngineBase {
 		base.updateItem( item );
 	}
 
-	public static void modifyItemData( EngineTransaction transaction , BaseItem item , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
+	public static void modifyItemData( EngineTransaction transaction , BaseItem item , boolean admin , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
-		item.modifyData( name , version , ostype , accessType , srcType , srcFormat , SRCFILE , SRCFILEDIR , INSTALLPATH , INSTALLLINK );
+		item.modifyData( admin , name , version , ostype , accessType , srcType , srcFormat , SRCFILE , SRCFILEDIR , INSTALLPATH , INSTALLLINK );
 		modifyItem( c , item , false );
 	}
 	

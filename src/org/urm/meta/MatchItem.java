@@ -24,6 +24,12 @@ public class MatchItem {
 		MATCHED = ( id == null )? false : true;
 	}
 
+	public static MatchItem create( String value ) {
+		if( value == null || value.isEmpty() )
+			return( null );
+		return( new MatchItem( value ) );
+	}
+	
 	public static MatchItem copy( MatchItem item ) {
 		if( item == null )
 			return( null );
@@ -36,5 +42,5 @@ public class MatchItem {
 		FKNAME = "";
 		MATCHED = true;
 	}
-	
+
 }

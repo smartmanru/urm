@@ -14,7 +14,7 @@ import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
@@ -178,7 +178,7 @@ public class DBMetaDatabase {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
 
-		MetaEnvs envs = storage.getEnviroments();
+		ProductEnvs envs = storage.getEnviroments();
 		envs.deleteDatabaseSchemaFromEnvironments( transaction , schema );
 		
 		MetaDistr distr = schema.meta.getDistr();

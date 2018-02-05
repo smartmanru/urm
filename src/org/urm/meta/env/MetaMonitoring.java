@@ -98,7 +98,7 @@ public class MetaMonitoring {
 	}
 
 	public MetaEnvSegment getTargetSegment( MetaMonitoringTarget target ) {
-		MetaEnvs envs = meta.getEnviroments();
+		ProductEnvs envs = meta.getEnviroments();
 		MetaEnv env = envs.findEnv( target.getMatchEnvName() );
 		return( env.findSegment( target.getMatchSgName() ) );
 	}

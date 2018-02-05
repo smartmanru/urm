@@ -12,7 +12,7 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineProducts;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.ProductEnvs;
 
 public class ProductMeta extends EngineObject {
 
@@ -34,7 +34,7 @@ public class ProductMeta extends EngineObject {
 	private MetaSources sources;
 	private MetaDocs docs;
 	private MetaDistr distr;
-	private MetaEnvs envs;
+	private ProductEnvs envs;
 
 	private DistRepository repo;
 	
@@ -166,7 +166,7 @@ public class ProductMeta extends EngineObject {
 		this.distr = distr;
 	}
 
-	public void setEnvs( MetaEnvs envs ) throws Exception {
+	public void setEnvs( ProductEnvs envs ) throws Exception {
 		this.envs = envs;
 	}
 
@@ -206,7 +206,7 @@ public class ProductMeta extends EngineObject {
 		return( sources );
 	}
 	
-	public MetaEnvs getEnviroments() {
+	public ProductEnvs getEnviroments() {
 		return( envs );
 	}
 

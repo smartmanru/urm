@@ -14,7 +14,6 @@ import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.EngineProducts;
-import org.urm.meta.engine.EngineRegistry;
 import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
@@ -87,15 +86,13 @@ public class EngineData {
 
 	public EngineResources getResources() {
 		synchronized( engine ) {
-			EngineRegistry registry = core.getRegistry();
-			return( registry.resources );
+			return( core.getResources() );
 		}
 	}
 	
 	public EngineBuilders getBuilders() {
 		synchronized( engine ) {
-			EngineRegistry registry = core.getRegistry();
-			return( registry.builders );
+			return( core.getBuilders() );
 		}
 	}
 	
@@ -137,8 +134,7 @@ public class EngineData {
 	
 	public EngineMirrors getMirrors() {
 		synchronized( engine ) {
-			EngineRegistry registry = core.getRegistry();
-			return( registry.mirrors );
+			return( core.getMirrors() );
 		}
 	}
 	
@@ -169,18 +165,15 @@ public class EngineData {
 	}
 
 	public void setResources( EngineResources resourcesNew ) {
-		EngineRegistry registry = core.getRegistry();
-		registry.setResources( resourcesNew );
+		core.setResources( resourcesNew );
 	}
 
 	public void setBuilders( EngineBuilders buildersNew ) {
-		EngineRegistry registry = core.getRegistry();
-		registry.setBuilders( buildersNew );
+		core.setBuilders( buildersNew );
 	}
 
 	public void setMirrors( EngineMirrors mirrorsNew ) {
-		EngineRegistry registry = core.getRegistry();
-		registry.setMirrors( mirrorsNew );
+		core.setMirrors( mirrorsNew );
 	}
 
 	public void setDirectory( EngineDirectory directoryNew ) {
@@ -206,6 +199,7 @@ public class EngineData {
 	public Meta createSessionProductMetadata( TransactionBase transaction , ProductMeta storage ) throws Exception {
 		return( products.createSessionProductMetadata( transaction.action , storage ) );
 	}
+	
 	public Meta findSessionProductMetadata( ActionBase action , String productName ) {
 		return( products.findSessionProductMetadata( action , productName ) );
 	}

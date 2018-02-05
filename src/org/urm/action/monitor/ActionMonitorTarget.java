@@ -12,7 +12,7 @@ import org.urm.engine.status.StatusSource;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.env.MetaMonitoringItem;
 import org.urm.meta.env.MetaMonitoringTarget;
 
@@ -42,7 +42,7 @@ public class ActionMonitorTarget extends ActionBase {
 	}
 	
 	private MetaEnv getEnv( MetaMonitoringTarget target ) throws Exception {
-		MetaEnvs envs = target.meta.getEnviroments();
+		ProductEnvs envs = target.meta.getEnviroments();
 		MetaEnv env = envs.findEnv( target.getMatchEnvName() );
 		return( env );
 	}

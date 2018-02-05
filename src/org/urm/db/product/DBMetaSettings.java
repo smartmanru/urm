@@ -28,7 +28,6 @@ import org.w3c.dom.Node;
 
 public class DBMetaSettings {
 
-	public static String ELEMENT_CUSTOM = "custom";
 	public static String ELEMENT_CORE = "core";
 	public static String ELEMENT_MONITORING = "monitoring";
 	public static String ELEMENT_BUILD = "build";
@@ -93,21 +92,20 @@ public class DBMetaSettings {
 		// context, custom settings
 		AppSystem system = product.system;
 		ObjectProperties ops = entities.createMetaProductProps( system.getParameters() );
-		Node customNode = ConfReader.xmlGetFirstChild( root , ELEMENT_CUSTOM );
-		DBSettings.importxml( loader , customNode , ops , storage.ID , storage.ID , false , true , storage.PV );
+		DBSettings.importxml( loader , root , ops , storage.ID , storage.ID , false , true , storage.PV );
 		
 		// core settings
 		Node coreNode = ConfReader.xmlGetFirstChild( root , ELEMENT_CORE );
 		if( coreNode == null )
 			Common.exitUnexpected();
-		DBSettings.importxml( loader , coreNode , ops , DBEnumParamEntityType.PRODUCTDEFS , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
+		DBSettings.importxml( loader , coreNode , ops , storage.ID , DBVersions.CORE_ID , true , false , storage.PV , DBEnumParamEntityType.PRODUCTDEFS );
 		ops.recalculateProperties();
 
 		// monitoring settings
 		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
 		Node monitoringNode = ConfReader.xmlGetFirstChild( root , ELEMENT_MONITORING );
 		if( monitoringNode != null )
-			DBSettings.importxml( loader , monitoringNode , mon , DBEnumParamEntityType.PRODUCT_MONITORING , storage.ID , DBVersions.CORE_ID , true , false , storage.PV );
+			DBSettings.importxml( loader , monitoringNode , mon , storage.ID , DBVersions.CORE_ID , true , false , storage.PV , DBEnumParamEntityType.PRODUCT_MONITORING );
 		mon.recalculateProperties();
 		settings.createSettings( ops , mon , context );
 		

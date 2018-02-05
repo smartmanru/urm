@@ -87,7 +87,17 @@ public class EngineLifecycles extends EngineObject {
 		lcMapById.remove( lc.ID );
 	}
 
-	public MatchItem getLifecycleMatchItem( Integer id , String name ) throws Exception {
+	public MatchItem matchLifecycle( String name ) throws Exception {
+		if( name == null || name.isEmpty() )
+			return( null );
+		
+		ReleaseLifecycle lc = findLifecycle( name );
+		if( lc == null )
+			return( new MatchItem( name ) );
+		return( new MatchItem( lc.ID ) );
+	}
+
+	public MatchItem matchLifecycle( Integer id , String name ) throws Exception {
 		if( id == null && name.isEmpty() )
 			return( null );
 		ReleaseLifecycle lc = ( id == null )? findLifecycle( name ) : getLifecycle( id );

@@ -18,8 +18,11 @@ public class MetaEnvStartGroup {
 	protected Meta meta;
 	public MetaEnvStartInfo startInfo;
 	
+	public int ID;
 	public String NAME;
-	public String SERVERS;
+	public String DESC;
+	public int EV;
+	
 	public List<MetaEnvServer> servers;
 	
 	public MetaEnvStartGroup( Meta meta , MetaEnvStartInfo startInfo ) {

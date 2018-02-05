@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
 
@@ -122,6 +123,14 @@ public class EngineBase extends EngineObject {
 		return( item );
 	}
 
+	public BaseItem getItem( MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( getItem( item.FKID ) );
+		return( getItem( item.FKNAME ) );
+	}
+	
 	public BaseItem getItem( int itemId ) throws Exception {
 		BaseItem item = mapItemById.get( itemId );
 		if( item == null )

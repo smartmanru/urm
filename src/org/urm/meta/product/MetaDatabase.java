@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.meta.MatchItem;
 import org.urm.meta.env.MetaDump;
 
 public class MetaDatabase {
@@ -95,6 +96,14 @@ public class MetaDatabase {
 		return( schema );
 	}
 
+	public MetaDatabaseSchema getSchema( MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( getSchema( item.FKID ) );
+		return( getSchema( item.FKNAME ) );
+	}
+	
 	public boolean checkAligned( String id ) {
 		return( true );
 	}

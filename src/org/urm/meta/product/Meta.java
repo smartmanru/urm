@@ -10,7 +10,7 @@ import org.urm.meta.Types.*;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.env.MetaEnv;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.env.MetaMonitoring;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -187,13 +187,13 @@ public class Meta extends EngineObject {
 
 	public synchronized MetaMonitoring getMonitoring() {
 		if( monitoring == null ) {
-			MetaEnvs envs = storage.getEnviroments();
+			ProductEnvs envs = storage.getEnviroments();
 			monitoring = envs.getMonitoring();
 		}
 		return( monitoring );
 	}
 	
-	public MetaEnvs getEnviroments() {
+	public ProductEnvs getEnviroments() {
 		return( storage.getEnviroments() );
 	}
 	
@@ -254,8 +254,8 @@ public class Meta extends EngineObject {
     }
 
     public MetaEnv findEnv( String name ) {
-    	MetaEnvs envs = storage.getEnviroments();
-    	return( envs.findEnv( name ) );
+    	ProductEnvs envs = storage.getEnviroments();
+    	return( envs.findMetaEnv( name ) );
     }
 
 	public static Integer getObject( MetaDistrBinaryItem item ) {

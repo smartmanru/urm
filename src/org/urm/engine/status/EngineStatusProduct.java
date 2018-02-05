@@ -14,7 +14,7 @@ import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
 
@@ -42,7 +42,7 @@ public class EngineStatusProduct extends EngineObject {
 	}
 
 	public void start( ActionBase action ) {
-		MetaEnvs envs = meta.getEnviroments();
+		ProductEnvs envs = meta.getEnviroments();
 		for( String envName : envs.getEnvNames() ) {
 			MetaEnv env = envs.findEnv( envName );
 			startEnvironment( action , env );
@@ -110,8 +110,8 @@ public class EngineStatusProduct extends EngineObject {
 		product = transaction.getProduct( product );
 		meta = transaction.getMeta( product );
 		
-		MetaEnvs envs = meta.getEnviroments();
-		MetaEnvs envsOld = storageOld.getEnviroments();
+		ProductEnvs envs = meta.getEnviroments();
+		ProductEnvs envsOld = storageOld.getEnviroments();
 		for( String envName : envs.getEnvNames() ) {
 			MetaEnv envNew = envs.findEnv( envName );
 			MetaEnv envOld = envsOld.findEnv( envName );
@@ -411,7 +411,7 @@ public class EngineStatusProduct extends EngineObject {
 
 	private void recalculateProduct( ActionBase action ) {
 		OBJECT_STATE finalState = OBJECT_STATE.STATE_NODATA;
-		MetaEnvs envs = meta.getEnviroments();
+		ProductEnvs envs = meta.getEnviroments();
 		for( String envName : envs.getEnvNames() ) {
 			MetaEnv env = envs.findEnv( envName );
 			StatusSource envSource = getObjectSource( env );

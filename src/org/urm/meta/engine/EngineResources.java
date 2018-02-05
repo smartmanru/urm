@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumResourceType;
 import org.urm.engine.Engine;
 import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 import org.urm.meta.Types.EnumResourceCategory;
 
 public class EngineResources extends EngineObject {
@@ -78,6 +80,14 @@ public class EngineResources extends EngineObject {
 		return( res );
 	}
 
+	public AuthResource getResource( MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( getResource( item.FKID ) );
+		return( getResource( item.FKNAME ) );
+	}
+	
 	public String[] getResourceNames() {
 		return( Common.getSortedKeys( resourceMap ) );
 	}
@@ -101,6 +111,30 @@ public class EngineResources extends EngineObject {
 				list.add( res.NAME );
 		}
 		return( Common.getSortedList( list ) );
+	}
+	
+	public MatchItem matchResource( String name , DBEnumResourceType rcType ) throws Exception {
+		if( name == null || name.isEmpty() )
+			return( null );
+		
+		AuthResource res = findResource( name );
+		if( res == null )
+			return( new MatchItem( name ) );
+		if( rcType != null && rcType != res.RESOURCE_TYPE )
+			return( new MatchItem( name ) );
+		return( new MatchItem( res.ID ) );
+	}
+
+	public MatchItem matchResource( Integer id , String name , DBEnumResourceType rcType ) throws Exception {
+		if( id == null && name.isEmpty() )
+			return( null );
+		AuthResource res = ( id == null )? findResource( name ) : getResource( id );
+		if( res != null ) {
+			if( rcType != null && rcType != res.RESOURCE_TYPE )
+				return( new MatchItem( name ) );
+			return( new MatchItem( res.ID ) );
+		}
+		return( new MatchItem( name ) );
 	}
 	
 }

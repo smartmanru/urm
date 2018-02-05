@@ -22,7 +22,7 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineObject;
 import org.urm.meta.env.MetaEnv;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.Meta;
 
 public class EngineAuth extends EngineObject {
@@ -440,7 +440,7 @@ public class EngineAuth extends EngineObject {
 			if( meta == null )
 				return( false );
 			
-			MetaEnvs envs = meta.getEnviroments();
+			ProductEnvs envs = meta.getEnviroments();
 			MetaEnv env = envs.findEnv( envName );
 			return( checkAccessProductAction( action , sa , productName , env , null , readOnly ) );
 		}
@@ -468,7 +468,7 @@ public class EngineAuth extends EngineObject {
 			return( true );
 		
 		AuthRoleSet roles = security.getProductRoles( productName );
-		DBEnumEnvType envtype = ( env == null )? DBEnumEnvType.UNKNOWN : env.envType;
+		DBEnumEnvType envtype = ( env == null )? DBEnumEnvType.UNKNOWN : env.ENV_TYPE;
 		
 		if( sa == SecurityAction.ACTION_SECURED ) {
 			if( env == null ) {

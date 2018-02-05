@@ -21,6 +21,7 @@ import org.urm.meta.Types;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.Types.*;
+import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
@@ -918,7 +919,8 @@ public class ScopeExecutor implements EngineEventsListener {
 	private SCOPESTATE runSingleHostInternal( ActionScopeSet set , String host , int port , DBEnumOSType OSTYPE , ScopeState stateAccount ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
-			Account account = action.getSingleHostAccount( set.sg.DC , host , port , OSTYPE );
+			Datacenter dc = set.sg.getDatacenter( action );
+			Account account = action.getSingleHostAccount( dc , host , port , OSTYPE );
 			String serverNodes = set.sg.getServerNodesByHost( action , host );
 			action.info( account.getPrintName() + ": serverNodes={" + serverNodes + "}" );
 			

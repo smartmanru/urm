@@ -10,6 +10,7 @@ import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineLoader;
 import org.urm.meta._Error;
+import org.urm.meta.env.MetaEnv;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
 
@@ -27,14 +28,20 @@ public class EngineProducts {
 		productMetaSkipped = new HashMap<String,ProductMeta>();
 	}
 	
-	public void addProduct( ProductMeta set ) {
+	public synchronized void addProduct( ProductMeta set ) {
 		productMeta.put( set.name , set );
 		productMetaSkipped.remove( set.name );
 	}
 	
-	public void addProductSkipped( ProductMeta set ) {
+	public synchronized void addProductSkipped( ProductMeta set ) {
 		productMetaSkipped.put( set.name , set );
 		productMeta.remove( set.name );
+	}
+	
+	public synchronized void addEnv( MetaEnv env ) {
+	}
+	
+	public synchronized void addEnvSkipped( MetaEnv env ) {
 	}
 	
 	public synchronized boolean isProductBroken( String productName ) {

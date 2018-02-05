@@ -14,6 +14,7 @@ import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMirrors;
 import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
+import org.urm.db.env.DBEnvData;
 import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
 import org.urm.meta.EngineLoader;
@@ -78,6 +79,8 @@ public class EngineEntities {
 	public PropertyEntity entityAppMetaDistrConfItem;
 	public PropertyEntity entityAppMetaDistrComponent;
 	public PropertyEntity entityAppMetaDistrCompItem;
+	public PropertyEntity entityAppEnvPrimary;
+	public PropertyEntity entityAppEnvExtra;
 	
 	public EngineEntities( Engine engine ) {
 		this.engine = engine;
@@ -121,6 +124,8 @@ public class EngineEntities {
 		entityAppMetaDistrConfItem = DBProductData.upgradeEntityMetaDistrConfItem( loader );
 		entityAppMetaDistrComponent = DBProductData.upgradeEntityMetaDistrComponent( loader );
 		entityAppMetaDistrCompItem = DBProductData.upgradeEntityMetaDistrCompItem( loader );
+		entityAppEnvPrimary = DBEnvData.upgradeEntityEnvPrimary( loader );
+		entityAppEnvExtra = DBEnvData.upgradeEntityEnvExtra( loader );
 		
 		entityCustomRC = DBEngineContext.createEntityCustomRC( loader );
 		entityCustomEngine = DBEngineContext.createEntityCustomEngine( loader );
@@ -165,6 +170,8 @@ public class EngineEntities {
 		entityAppMetaDistrConfItem = DBProductData.loaddbEntityMetaDistrConfItem( c );
 		entityAppMetaDistrComponent = DBProductData.loaddbEntityMetaDistrComponent( c );
 		entityAppMetaDistrCompItem = DBProductData.loaddbEntityMetaDistrCompItem( c );
+		entityAppEnvPrimary = DBEnvData.loaddbEntityEnvPrimary( c );
+		entityAppEnvExtra = DBEnvData.loaddbEntityEnvExtra( c );
 		
 		entityCustomRC = DBEngineContext.loaddbEntityCustomRC( c );
 		entityCustomEngine = DBEngineContext.loaddbEntityCustomEngine( c );

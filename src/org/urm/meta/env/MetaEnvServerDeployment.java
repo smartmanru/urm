@@ -2,8 +2,10 @@ package org.urm.meta.env;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.PropertyController;
+import org.urm.meta.MatchItem;
 import org.urm.meta.Types;
 import org.urm.meta.Types.*;
 import org.urm.meta.product.Meta;
@@ -19,26 +21,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class MetaEnvServerDeployment extends PropertyController {
-	
-	protected Meta meta;
-	MetaEnvServer server;
-	
-	public VarDEPLOYITEMTYPE itemType = VarDEPLOYITEMTYPE.UNKNOWN;
-	public String COMP = "";
-	public MetaDistrComponent comp;
-	public String DISTITEM = "";
-	public MetaDistrBinaryItem binaryItem;
-	public String CONFITEM = "";
-	public MetaDistrConfItem confItem;
-	public String SCHEMA = "";
-	public MetaDatabaseSchema schema;
-	
-	public VarDEPLOYMODE deployMode = VarDEPLOYMODE.UNKNOWN;
-	public String DEPLOYPATH = "";
-	public String DBNAME = "";
-	public String DBUSER = "";
-	public VarNODETYPE nodeType = VarNODETYPE.UNKNOWN;
+public class MetaEnvServerDeployment {
 	
 	public static String PROPERTY_DEPLOYMODE = "deploymode";
 	public static String PROPERTY_DEPLOYPATH = "deploypath";
@@ -50,20 +33,27 @@ public class MetaEnvServerDeployment extends PropertyController {
 	public static String PROPERTY_CONFITEM = "confitem";
 	public static String PROPERTY_SCHEMA = "schema";
 	
+	protected Meta meta;
+	MetaEnvServer server;
+
+	public int ID;
+	public DBEnumServerDeploymentType SERVERDEPLOYMENT_TYPE;
+	public MatchItem COMP;
+	public MatchItem BINARYITEM;
+	public MatchItem CONFITEM;
+	public MatchItem SCHEMA;
+	public DBEnumDeployModeType DEPLOYMODE_TYPE;
+	public String DEPLOYPATH;
+	public String DBNAME;
+	public String DBUSER;
+	public DBEnumNodeType NODE_TYPE;
+	public int EV;
+	
 	public MetaEnvServerDeployment( Meta meta , MetaEnvServer server ) {
-		super( server , "deploy" );
 		this.meta = meta;
 		this.server = server;
 	}
 
-	@Override
-	public boolean isValid() {
-		if( super.isLoadFailed() )
-			return( false );
-		return( true );
-	}
-	
-	@Override
 	public void scatterProperties( ActionBase action ) throws Exception {
 		String value = super.getStringProperty( action , PROPERTY_DEPLOYMODE );
 		if( value.isEmpty() )

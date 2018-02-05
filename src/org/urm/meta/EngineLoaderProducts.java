@@ -5,6 +5,7 @@ import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
 import org.urm.db.engine.DBEngineAuth;
+import org.urm.db.env.DBEnvData;
 import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
@@ -78,7 +79,7 @@ public class EngineLoaderProducts {
 			
 			// add product
 			product.setStorage( set );
-			addProduct( set );
+			products.addProduct( set );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -111,7 +112,7 @@ public class EngineLoaderProducts {
 			}
 			
 			context.setProduct( product );
-			loadProduct( product , context , false , update );
+			loadProduct( product , context , false , update , true , null );
 		}
 	}
 
@@ -137,18 +138,18 @@ public class EngineLoaderProducts {
 		DBEngineAuth.deleteProductAccess( c , auth , product );
 		
 		ProductMeta storage = product.storage;
+		if( includingEnvironments )
+			DBEnvData.dropEnvData( c , storage );
+			
 		if( storage.isExists() )
 			DBProductData.dropProductData( c , storage );
 		
 		synchronized( products ) {
 			ProductContext context = new ProductContext( product , false );
-			ProductMeta storageNew = loadProduct( product , context , true , true );
+			ProductMeta storageNew = loadProduct( product , context , true , true , includingEnvironments , storage );
 			if( storageNew == null )
 				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + product.NAME , product.NAME );
 
-			if( storage != null )
-				products.unloadProduct( storage );
-			
 			if( !storageNew.MATCHED )
 				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + product.NAME , product.NAME );
 		}
@@ -179,9 +180,6 @@ public class EngineLoaderProducts {
 		
 		EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
 		ldm.saveDesignDocs( ms );
-		
-		EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
-		lde.saveEnvs( ms );
 	}
 	
 	public void exportAll( ProductMeta set ) throws Exception {
@@ -195,12 +193,6 @@ public class EngineLoaderProducts {
 		lde.exportAll( ms );
 	}
 	
-	private boolean addProduct( ProductMeta set ) {
-		EngineProducts products = data.getProducts();
-		products.addProduct( set );
-		return( true );
-	}
-
 	private boolean matchProductMirrors( AppProduct product ) {
 		// match to mirrors
 		EngineMatcher matcher = loader.getMatcher();
@@ -210,7 +202,7 @@ public class EngineLoaderProducts {
 		return( true );
 	}
 	
-	private ProductMeta loadProduct( AppProduct product , ProductContext context , boolean importxml , boolean update ) {
+	private ProductMeta loadProduct( AppProduct product , ProductContext context , boolean importxml , boolean update , boolean includingEnvironments , ProductMeta setOld ) {
 		EngineProducts products = data.getProducts();
 		ProductMeta set = new ProductMeta( products , product );
 		set.setPrimary( true );
@@ -229,7 +221,7 @@ public class EngineLoaderProducts {
 				
 				ProductStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
 				if( importxml )
-					importxmlAll( set , storageMeta , context );
+					importxmlAll( set , storageMeta , context , includingEnvironments );
 				else
 					loaddbAll( set , storageMeta , context );
 
@@ -249,7 +241,9 @@ public class EngineLoaderProducts {
 		}
 		
 		product.setStorage( set );
-		addProduct( set );
+		if( setOld != null )
+			products.unloadProduct( setOld );
+		products.addProduct( set );
 		return( set );
 	}
 	
@@ -263,7 +257,7 @@ public class EngineLoaderProducts {
 		return( null );
 	}
 	
-	private void importxmlAll( ProductMeta set , ProductStorage ms , ProductContext context ) throws Exception {
+	private void importxmlAll( ProductMeta set , ProductStorage ms , ProductContext context , boolean includingEnvironments ) throws Exception {
 		ActionBase action = loader.getAction();
 		
 		try {
@@ -271,7 +265,12 @@ public class EngineLoaderProducts {
 			ldm.importxmlAll( ms , context );
 		
 			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
-			lde.loadEnvs( ms );
+			if( includingEnvironments )
+				lde.importxmlEnvs( ms );
+			else
+ 				lde.loaddbEnvs();
+				
+			lde.loadMonitoring( ms );
 			ldm.loadDesignDocs( ms );
 			
 			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , set );
@@ -290,7 +289,8 @@ public class EngineLoaderProducts {
 			ldm.loaddbAll( context );
 
 			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
-			lde.loadEnvs( ms );
+			lde.loaddbEnvs();
+			lde.loadMonitoring( ms );
 			ldm.loadDesignDocs( ms );
 			
 			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , set );

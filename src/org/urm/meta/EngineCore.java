@@ -4,9 +4,11 @@ import org.urm.engine.Engine;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.engine.EngineBase;
+import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineInfrastructure;
-import org.urm.meta.engine.EngineRegistry;
+import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineLifecycles;
+import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
 
 public class EngineCore {
@@ -14,17 +16,19 @@ public class EngineCore {
 	public Engine engine;
 	
 	private EngineEntities entities;
+	
 	private EngineSettings settings;
-	private EngineRegistry registry;
 	private EngineBase base;
 	private EngineInfrastructure infra;
 	private EngineLifecycles lifecycles;
+	private EngineResources resources;
+	private EngineMirrors mirrors;
+	private EngineBuilders builders;
 
 	public EngineCore( Engine engine ) {
 		this.engine = engine;
 		
 		entities = new EngineEntities( engine );
-		registry = new EngineRegistry( engine ); 
 	}
 
 	public void upgradeMeta( EngineLoader loader ) throws Exception {
@@ -41,7 +45,20 @@ public class EngineCore {
 			settings = null;
 		}
 		
-		registry.unloadAll();
+		if( builders != null ) {
+			builders.deleteObject();
+			builders = null;
+		}
+		
+		if( mirrors != null ) {
+			mirrors.deleteObject();
+			mirrors = null;
+		}
+
+		if( resources != null ) {
+			resources.deleteObject();
+			resources = null;
+		}
 		
 		if( base != null ) {
 			base.deleteObject();
@@ -67,8 +84,16 @@ public class EngineCore {
 		return( settings );
 	}
 
-	public EngineRegistry getRegistry() {
-		return( registry );
+	public EngineResources getResources() {
+		return( resources );
+	}
+
+	public EngineMirrors getMirrors() {
+		return( mirrors );
+	}
+
+	public EngineBuilders getBuilders() {
+		return( builders );
 	}
 
 	public EngineInfrastructure getInfrastructure() {
@@ -101,6 +126,18 @@ public class EngineCore {
 
 	public void updateEntity( PropertyEntity entity ) {
 		entities.updateEntity( entity );
+	}
+
+	public void setResources( EngineResources resourcesNew ) {
+		this.resources = resourcesNew;
+	}
+
+	public void setBuilders( EngineBuilders buildersNew ) {
+		this.builders = buildersNew;
+	}
+
+	public void setMirrors( EngineMirrors mirrorsNew ) {
+		this.mirrors = mirrorsNew;
 	}
 
 }

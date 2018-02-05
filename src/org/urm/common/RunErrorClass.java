@@ -27,6 +27,7 @@ public class RunErrorClass {
 	public static int BaseMetaCommon = 250000;
 	public static int BaseMetaEngine = 251000;
 	public static int BaseMetaProduct = 252000;
+	public static int BaseMetaEnv = 253000;
 	public static int BaseClient = 300000;
 	public static int BaseDB = 400000;
 	public static int BaseDBCore = 401000;

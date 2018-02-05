@@ -207,7 +207,7 @@ public class DBProductData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_PRODUCT_ID , "Application product id" , DBEnumObjectType.APPPRODUCT , false ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_NAME , "Application product name" , false , null ) ,
-				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_MATCHED , "Product match status" , false , null ) ,
+				EntityVar.metaBooleanDatabaseOnly( FIELD_META_PRODUCT_MATCHED , "Product match status" , false , false ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MAJOR1 , "Major last version, first number" , true , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MAJOR2 , "Major last version, last number" , true , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MINOR1 , "Minor last version, first number" , true , null ) ,
