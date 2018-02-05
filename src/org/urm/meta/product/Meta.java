@@ -3,8 +3,10 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
 import org.urm.engine.dist.DistRepository;
+import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.Types.*;
 import org.urm.meta.engine.AppProduct;
@@ -19,6 +21,7 @@ import org.w3c.dom.Node;
 public class Meta extends EngineObject {
 
 	public String name;
+	public Engine engine;
 	public EngineSession session;
 	
 	private EngineProducts products;
@@ -51,6 +54,7 @@ public class Meta extends EngineObject {
 		this.storage = storage;
 		this.products = storage.products;
 		this.session = session;
+		this.engine = storage.engine;
 		name = storage.name;
 	}
 	
@@ -274,6 +278,10 @@ public class Meta extends EngineObject {
 		if( schema == null )
 			return( null );
 		return( schema.ID );
+	}
+
+	public EngineData getEngineData() {
+		return( engine.getData() );
 	}
 	
 }

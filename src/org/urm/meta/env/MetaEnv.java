@@ -5,11 +5,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.ObjectProperties;
+import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
@@ -49,17 +49,17 @@ public class MetaEnv extends EngineObject {
 	public Meta meta;
 
 	// table data
-	public ObjectProperties ops;
+	private ObjectProperties ops;
 	public int ID;
 	public boolean MATCHED;
 	public String NAME;
 	public String DESC;
 	public DBEnumEnvType ENV_TYPE;
-	public MatchItem BASELINE;
+	private MatchItem BASELINE;
 	public boolean OFFLINE;
-	public MatchItem ENVKEY;
+	private MatchItem ENVKEY;
 	public boolean DISTR_REMOTE;
-	public MatchItem DISTR_ACCOUNT;
+	private MatchItem DISTR_ACCOUNT;
 	public String DISTR_PATH;
 	public int EV;
 	
@@ -75,6 +75,7 @@ public class MetaEnv extends EngineObject {
 	public String REDISTLINUX_PATH;
 
 	private Map<String,MetaEnvSegment> sgMap;
+	private Map<Integer,MetaEnvSegment> sgMapById;
 
 	public MetaEnv( ProductMeta storage , Meta meta ) {
 		super( null );
@@ -83,6 +84,7 @@ public class MetaEnv extends EngineObject {
 		EV = -1;
 		MATCHED = false;
 		sgMap = new HashMap<String,MetaEnvSegment>();
+		sgMapById = new HashMap<Integer,MetaEnvSegment>();
 	}
 	
 	@Override
@@ -107,6 +109,7 @@ public class MetaEnv extends EngineObject {
 		r.DISTR_PATH = DISTR_PATH;
 		r.EV = EV;
 		r.MATCHED = MATCHED;
+		r.refreshProperties();
 		
 		for( MetaEnvSegment sg : sgMap.values() ) {
 			MetaEnvSegment rsg = sg.copy( rmeta , r );
@@ -117,6 +120,10 @@ public class MetaEnv extends EngineObject {
 		return( r );
 	}
 
+	public ObjectProperties getProperties() {
+		return( ops );
+	}
+	
 	public void setMatched( boolean matched ) {
 		this.MATCHED = matched;
 	}
@@ -143,9 +150,11 @@ public class MetaEnv extends EngineObject {
 		DISTR_REMOTE = distRemote;
 		DISTR_ACCOUNT = distAccount;
 		DISTR_PATH = distPath;
+		
+		refreshProperties();
 	}
 
-	public void refreshProperties( ActionBase action ) throws Exception {
+	private void refreshProperties() throws Exception {
 		ops.setStringProperty( PROPERTY_NAME , NAME );
 		ops.setStringProperty( PROPERTY_DESC , DESC );
 		ops.setEnumProperty( PROPERTY_ENVTYPE , ENV_TYPE );
@@ -161,7 +170,8 @@ public class MetaEnv extends EngineObject {
 		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 		
 		if( ENVKEY != null ) {
-			EngineResources resources = action.getServerResources();
+			EngineData data = meta.getEngineData();
+			EngineResources resources = data.getResources();
 			AuthResource res = resources.getResource( ENVKEY );
 			ops.setStringProperty( PROPERTY_ENVKEY , res.NAME );
 		}
@@ -170,7 +180,8 @@ public class MetaEnv extends EngineObject {
 		
 		ops.setBooleanProperty( PROPERTY_DISTR_REMOTE , DISTR_REMOTE );
 		if( DISTR_REMOTE ) {
-			EngineInfrastructure infra = action.getServerInfrastructure();
+			EngineData data = meta.getEngineData();
+			EngineInfrastructure infra = data.getInfrastructure();
 			HostAccount account = infra.getHostAccount( DISTR_ACCOUNT );
 			ops.setStringProperty( PROPERTY_DISTR_HOSTLOGIN , account.getFinalAccount() );
 			ops.setStringProperty( PROPERTY_DISTR_PATH , DISTR_PATH );
@@ -185,13 +196,13 @@ public class MetaEnv extends EngineObject {
 		return( ENV_TYPE == DBEnumEnvType.PRODUCTION );
 	}
 	
-	public boolean hasBaseline( ActionBase action ) throws Exception {
+	public boolean hasBaseline() {
 		if( BASELINE == null )
 			return( false );
 		return( true );
 	}
 	
-	public MetaEnv getBaselineEnv( ActionBase action ) throws Exception {
+	public MetaEnv getBaseline() throws Exception {
 		ProductEnvs envs = meta.getEnviroments();
 		MetaEnv env = envs.getMetaEnv( BASELINE );
 		return( env );
@@ -199,6 +210,7 @@ public class MetaEnv extends EngineObject {
 	
 	public void addSegment( MetaEnvSegment sg ) {
 		sgMap.put( sg.NAME , sg );
+		sgMapById.put( sg.ID , sg );
 	}
 	
 	public void updateSegment( MetaEnvSegment sg ) throws Exception {
@@ -216,6 +228,21 @@ public class MetaEnv extends EngineObject {
 		return( sg );
 	}
 
+	public MetaEnvSegment getSegment( int id ) throws Exception {
+		MetaEnvSegment sg = sgMapById.get( id );
+		if( sg == null )
+			Common.exit1( _Error.UnknownSegment1 , "unknown segment=" + id , "" + id );
+		return( sg );
+	}
+
+	public MetaEnvSegment getSegment( MatchItem segment ) throws Exception {
+		if( segment == null )
+			return( null );
+		if( segment.MATCHED )
+			return( getSegment( segment.FKID ) );
+		return( getSegment( segment.FKNAME ) );
+	}
+	
 	public String[] getSegmentNames() {
 		return( Common.getSortedKeys( sgMap ) );
 	}
@@ -229,15 +256,15 @@ public class MetaEnv extends EngineObject {
 		return( list.toArray( new MetaEnvSegment[0] ) );
 	}
 	
-	public boolean isMultiSG( ActionBase action ) throws Exception {
+	public boolean isMultiSegment() throws Exception {
 		return( sgMap.size() > 1 );
 	}
 	
-	public MetaEnvSegment getMainSegment( ActionBase action ) throws Exception {
+	public MetaEnvSegment getMainSegment() throws Exception {
 		if( sgMap.isEmpty() )
-			action.exit0( _Error.NoSegmentDefined0 , "no segment defined" );
+			Common.exit0( _Error.NoSegmentDefined0 , "no segment defined" );
 		if( sgMap.size() > 1 )
-			action.exitUnexpectedState();
+			Common.exitUnexpected();
 		for( MetaEnvSegment sg : sgMap.values() )
 			return( sg );
 		return( null );
@@ -249,10 +276,12 @@ public class MetaEnv extends EngineObject {
 	
 	public void setBaseline( MetaEnv env ) throws Exception {
 		this.BASELINE = new MatchItem( env.ID );
+		refreshProperties();
 	}
 	
 	public void setOffline( boolean offline ) throws Exception {
 		this.OFFLINE = offline;
+		refreshProperties();
 	}
 	
 	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
@@ -271,6 +300,21 @@ public class MetaEnv extends EngineObject {
 				return( true );
 		}
 		return( false );
+	}
+
+	public boolean checkMatched() {
+		if( !MatchItem.isMatched( BASELINE ) )
+			return( false );
+		if( !MatchItem.isMatched( ENVKEY ) )
+			return( false );
+		if( !MatchItem.isMatched( DISTR_ACCOUNT ) )
+			return( false );
+		
+		for( MetaEnvSegment sg : sgMap.values() ) {
+			if( !sg.checkMatched() )
+				return( false );
+		}
+		return( true );
 	}
 	
 }

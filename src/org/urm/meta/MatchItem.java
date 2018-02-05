@@ -37,6 +37,13 @@ public class MatchItem {
 		return( r );
 	}
 
+	public static boolean isMatched( MatchItem item ) {
+		if( item == null )
+			return( true );
+		return( item.MATCHED );
+	}
+		
+	
 	public void match( Integer id ) {
 		FKID = id;
 		FKNAME = "";

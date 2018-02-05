@@ -21,7 +21,7 @@ public class ActionChangeKeys extends ActionBase {
 
 	@Override protected SCOPESTATE executeAccount( ScopeState state , ActionScopeSet set , Account account ) throws Exception {
 		// NEEDS REWORK - still non-engine implementation
-		String F_NEWKEY = context.env.ENVKEY.FKNAME;
+		String F_NEWKEY = "TBD"; // context.env.ENVKEY.FKNAME;
 		String F_OLDKEY = F_NEWKEY;
 
 		if( !context.CTX_NEWKEY.isEmpty() )

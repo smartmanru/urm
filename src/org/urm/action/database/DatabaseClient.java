@@ -13,7 +13,6 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 
 public class DatabaseClient {
@@ -33,9 +32,7 @@ public class DatabaseClient {
 	
 	public boolean checkConnect( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		specific = new DatabaseSpecific( server , node );
-		
-		MetaDatabase db = server.meta.getDatabase();
-		admSchema = db.getSchema( server.DATABASE_ADMSCHEMA );
+		admSchema = server.getAdmSchema();
 		
 		// check connect to admin schema if any
 		String schema = getAdmSchema( action );

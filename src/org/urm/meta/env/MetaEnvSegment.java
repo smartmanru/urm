@@ -15,6 +15,7 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyController;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.Account;
+import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
@@ -30,25 +31,7 @@ import org.w3c.dom.Node;
 
 public class MetaEnvSegment extends EngineObject {
 
-	public Meta meta;
-	public MetaEnv env;
-	
-	// table data
-	public ObjectProperties ops;
-	public int ID;
-	public String NAME;
-	public String DESC;
-	public MatchItem BASELINE;
-	public boolean OFFLINE;
-	public MatchItem DC;
-	public int EV;
-	
-	public MetaEnvDeployment deployInfo;
-	public MetaEnvStartInfo startInfo;
-	
-	private List<MetaEnvServer> originalList;
-	private Map<String,MetaEnvServer> serverMap;
-
+	// properties
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
 	public static String PROPERTY_BASELINE = "basesg";
@@ -59,13 +42,35 @@ public class MetaEnvSegment extends EngineObject {
 	public static String ELEMENT_STARTORDER = "startorder";
 	public static String ELEMENT_SERVER = "server";
 	
+	public Meta meta;
+	public MetaEnv env;
+	
+	// table data
+	private ObjectProperties ops;
+	public int ID;
+	public String NAME;
+	public String DESC;
+	private MatchItem BASELINE;
+	public boolean OFFLINE;
+	private MatchItem DC;
+	public int EV;
+	
+	private MetaEnvDeployment deployInfo;
+	private MetaEnvStartInfo startInfo;
+	
+	private Map<String,MetaEnvServer> serverMap;
+	private Map<Integer,MetaEnvServer> serverMapById;
+
 	public MetaEnvSegment( Meta meta , MetaEnv env ) {
 		super( env );
 		this.meta = meta;
 		this.env = env;
 		
-		originalList = new LinkedList<MetaEnvServer>();
 		serverMap = new HashMap<String,MetaEnvServer>();
+		serverMapById = new HashMap<Integer,MetaEnvServer>();
+		
+		deployInfo = new MetaEnvDeployment( meta , this );
+		startInfo = new MetaEnvStartInfo( meta , this );
 	}
 
 	@Override
@@ -73,10 +78,220 @@ public class MetaEnvSegment extends EngineObject {
 		return( NAME );
 	}
 	
+	public MetaEnvSegment copy( Meta rmeta , MetaEnv renv ) throws Exception {
+		MetaEnvSegment r = new MetaEnvSegment( rmeta , renv );
+
+		r.ops = ops.copy( renv.getProperties() );
+		r.ID = ID;
+		r.NAME = NAME;
+		r.DESC = DESC;
+		r.BASELINE = MatchItem.copy( BASELINE );
+		r.OFFLINE = OFFLINE;
+		r.DC = MatchItem.copy( DC );
+		r.EV = EV;
+		r.refreshProperties();
+		
+		r.deployInfo = deployInfo.copy( rmeta , r );
+		
+		for( MetaEnvServer server : serverMap.values() ) {
+			MetaEnvServer rserver = server.copy( rmeta , r );
+			r.addServer( rserver );
+		}
+		
+		r.startInfo = startInfo.copy( rmeta , r );
+		
+		return( r );
+	}
+
+	public ObjectProperties getProperties() {
+		return( ops );
+	}
+	
 	public MetaEnvSegment getBaselineSegment( MetaEnv baselineEnv ) throws Exception {
 		return( baselineEnv.getSegment( BASELINE.FKID ) );
 	}
 	
+	public String getEnvObjectName() throws Exception {
+		return( env.NAME + "-" + NAME );
+	}
+	
+	public boolean hasBaseline() throws Exception {
+		if( BASELINE == null )
+			return( false );
+		return( true );
+	}
+	
+	public MetaEnvSegment getBaseline() throws Exception {
+		MetaEnv envBaseline = env.getBaseline();
+		if( envBaseline == null )
+			Common.exitUnexpected();
+		
+		return( envBaseline.getSegment( BASELINE ) );
+	}
+	
+	private void addServer( MetaEnvServer server ) {
+		serverMap.put( server.NAME , server );
+		serverMapById.put( server.ID , server );
+	}
+	
+	public void resolveLinks() throws Exception {
+		for( MetaEnvServer server : serverMap.values() )
+			server.resolveLinks();
+	}
+	
+	public MetaEnvServer findServer( String name ) {
+		return( serverMap.get( name ) );
+	}
+	
+	public MetaEnvServer getServer( ActionBase action , String name ) throws Exception {
+		MetaEnvServer server = serverMap.get( name );
+		if( server == null )
+			action.exit1( _Error.UnknownServer1 , "unknown server=" + name , name );
+		return( server );
+	}
+	
+	public MetaEnvServer[] getServers() {
+		return( serverMap.values().toArray( new MetaEnvServer[0] ) );
+	}
+
+	public String[] getServerNames() {
+		return( Common.getSortedKeys( serverMap ) );
+	}
+	
+	public String getServerNodesByHost( String host ) throws Exception {
+		String s = "";
+		for( String name : Common.getSortedKeys( serverMap ) ) {
+			MetaEnvServer server = serverMap.get( name );
+			String sn = server.getNodesAsStringByHost( host );
+			if( !sn.isEmpty() ) {
+				if( !s.isEmpty() )
+					s += ", ";
+				s += "server=" + server.NAME + " (" + sn + ")";
+			}
+		}
+		return( s );
+	}
+
+	public String getServerNodesByAccount( Account account ) throws Exception {
+		String s = "";
+		for( String name : Common.getSortedKeys( serverMap ) ) {
+			MetaEnvServer server = serverMap.get( name );
+			String sn = server.getNodesAsStringByAccount( account );
+			if( !sn.isEmpty() ) {
+				if( !s.isEmpty() )
+					s += ", ";
+				s += "server=" + server.NAME + " (" + sn + ")";
+			}
+		}
+		return( s );
+	}
+
+	public boolean hasDatabaseServers() {
+		for( MetaEnvServer server : serverMap.values() )
+			if( server.isDatabase() )
+				return( true );
+		
+		return( false );
+	}
+	
+	public void modifySegment( String name , String desc , MatchItem dcItem ) throws Exception {
+		this.NAME = name;
+		this.DESC = desc;
+		this.DC = dcItem;
+
+		refreshProperties();
+	}
+	
+	private void refreshProperties() throws Exception {
+		ops.setStringProperty( PROPERTY_NAME , NAME );
+		ops.setStringProperty( PROPERTY_DESC , DESC );
+		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
+		
+		MetaEnvSegment sgBaseline = getBaseline();
+		if( sgBaseline != null )
+			ops.setStringProperty( PROPERTY_BASELINE , sgBaseline.NAME );
+		else
+			ops.clearProperty( PROPERTY_BASELINE );
+		
+		Datacenter dc = getDatacenter();
+		if( dc != null )
+			ops.setStringProperty( PROPERTY_DC , dc.NAME );
+		else
+			ops.clearProperty( PROPERTY_DC );
+	}
+
+	public void updateServer( MetaEnvServer server ) throws Exception {
+		Common.changeMapKey( serverMap , server , server.NAME );
+	}
+	
+	public void removeServer( MetaEnvServer server ) {
+		serverMap.remove( server.NAME );
+		serverMapById.remove( server.ID );
+		startInfo.removeServer( server );
+	}
+	
+	public void setBaseline( MatchItem sgBaseline ) throws Exception {
+		this.BASELINE = sgBaseline;
+		refreshProperties();
+	}
+	
+	public void setOffline( EngineTransaction transaction , boolean offline ) throws Exception {
+		this.OFFLINE = offline;
+		refreshProperties();
+	}
+	
+	public boolean checkMatched() {
+		if( !MatchItem.isMatched( BASELINE ) )
+			return( false );
+		if( !MatchItem.isMatched( DC ) )
+			return( false );
+		
+		for( MetaEnvServer server : serverMap.values() ) {
+			if( !server.checkMatched() )
+				return( false );
+		}
+		
+		return( true );
+	}
+
+	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
+		for( MetaEnvServer server : serverMap.values() )
+			server.getApplicationReferences( account , refs );
+	}
+
+	public void setStartInfo( EngineTransaction transaction , MetaEnvStartInfo startInfo ) throws Exception {
+		this.startInfo = startInfo;
+		for( MetaEnvServer server : serverMap.values() )
+			server.setStartGroup( null );
+		
+		for( MetaEnvStartGroup group : startInfo.getForwardGroupList() ) {
+			for( MetaEnvServer server : group.getServers() )
+				server.setStartGroup( group );
+		}
+	}
+
+	public boolean isConfUsed( MetaDistrConfItem item ) {
+		for( MetaEnvServer server : serverMap.values() ) {
+			if( server.hasConfItemDeployment( item ) )
+				return( true );
+		}
+		return( false );
+	}
+
+	public boolean isReleaseApplicable( Release release ) {
+		for( MetaEnvServer server : serverMap.values() ) {
+			if( server.isReleaseApplicable( release ) )
+				return( true );
+		}
+		return( false );
+	}
+
+	public Datacenter getDatacenter() throws Exception {
+		EngineData data = meta.getEngineData();
+		EngineInfrastructure infra = data.getInfrastructure();
+		return( infra.getDatacenter( DC ) );
+	}
+
 	public void scatterProperties( ActionBase action ) throws Exception {
 		NAME = super.getStringPropertyRequired( action , PROPERTY_NAME );
 		DESC = super.getStringProperty( action , PROPERTY_DESC );
@@ -91,54 +306,6 @@ public class MetaEnvSegment extends EngineObject {
 		super.finishRawProperties();
 	}
 	
-	public MetaEnvSegment copy( Meta rmeta , MetaEnv renv ) throws Exception {
-		MetaEnvSegment r = new MetaEnvSegment( meta , env );
-		r.initCopyStarted( this , env.getProperties() );
-		
-		if( deployInfo != null )
-			r.deployInfo = deployInfo.copy( action , meta , r );
-		for( MetaEnvServer server : originalList ) {
-			MetaEnvServer rserver = server.copy( action , meta , r );
-			r.addServer( rserver );
-		}
-		
-		if( startInfo != null )
-			r.startInfo = startInfo.copy( action , meta , r );
-		
-		r.scatterProperties( action );
-		r.initFinished();
-		return( r );
-	}
-
-	public void setProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
-		super.updateProperties( transaction , props , system );
-		scatterProperties( transaction.getAction() );
-	}
-	
-	public String getFullId( ActionBase action ) throws Exception {
-		return( env.NAME + "-" + NAME );
-	}
-	
-	public boolean hasBaseline( ActionBase action ) throws Exception {
-		if( BASELINE.isEmpty() )
-			return( false );
-		return( true );
-	}
-	
-	public String getBaselineSG( ActionBase action ) throws Exception {
-		return( BASELINE );
-	}
-	
-	private void addServer( MetaEnvServer server ) {
-		serverMap.put( server.NAME , server );
-		originalList.add( server );
-	}
-	
-	public void resolveLinks( ActionBase action ) throws Exception {
-		for( MetaEnvServer server : originalList )
-			server.resolveLinks( action );
-	}
-	
 	public void loadStartOrder( ActionBase action , Node node ) throws Exception {
 		startInfo = new MetaEnvStartInfo( meta , this );
 		
@@ -149,164 +316,4 @@ public class MetaEnvSegment extends EngineObject {
 		startInfo.load( action , startorder );
 	}
 
-	public MetaEnvServer findServer( String name ) {
-		return( serverMap.get( name ) );
-	}
-	
-	public MetaEnvServer getServer( ActionBase action , String name ) throws Exception {
-		MetaEnvServer server = serverMap.get( name );
-		if( server == null )
-			action.exit1( _Error.UnknownServer1 , "unknown server=" + name , name );
-		return( server );
-	}
-	
-	public MetaEnvServer[] getServers() {
-		return( originalList.toArray( new MetaEnvServer[0] ) );
-	}
-
-	public String[] getServerNames() {
-		return( Common.getSortedKeys( serverMap ) );
-	}
-	
-	public String getServerNodesByHost( ActionBase action , String host ) throws Exception {
-		String s = "";
-		for( MetaEnvServer server : originalList ) {
-			String sn = server.getNodesAsStringByHost( action , host );
-			if( !sn.isEmpty() ) {
-				if( !s.isEmpty() )
-					s += ", ";
-				s += "server=" + server.NAME + " (" + sn + ")";
-			}
-		}
-		return( s );
-	}
-
-	public String getServerNodesByAccount( ActionBase action , Account account ) throws Exception {
-		String s = "";
-		for( MetaEnvServer server : originalList ) {
-			String sn = server.getNodesAsStringByAccount( action , account );
-			if( !sn.isEmpty() ) {
-				if( !s.isEmpty() )
-					s += ", ";
-				s += "server=" + server.NAME + " (" + sn + ")";
-			}
-		}
-		return( s );
-	}
-
-	public boolean hasDatabaseServers() {
-		for( MetaEnvServer server : originalList )
-			if( server.isDatabase() )
-				return( true );
-		
-		return( false );
-	}
-	
-	public void createSegment( ActionBase action , String NAME , String DESC , String DC ) throws Exception {
-		this.NAME = NAME;
-		if( !super.initCreateStarted( env.getProperties() ) )
-			return;
-
-		super.setStringProperty( PROPERTY_NAME , NAME );
-		super.setStringProperty( PROPERTY_DESC , DESC );
-		super.setStringProperty( PROPERTY_DC , DC );
-		super.finishProperties( action );
-		super.initFinished();
-		
-		scatterProperties( action );
-		
-		deployInfo = new MetaEnvDeployment( meta , this );
-		startInfo = new MetaEnvStartInfo( meta , this );
-	}
-
-	public void modifySegment( ActionBase action , String NAME , String DESC , String DC ) throws Exception {
-		this.NAME = NAME;
-
-		super.setStringProperty( PROPERTY_NAME , NAME );
-		super.setStringProperty( PROPERTY_DESC , DESC );
-		super.setStringProperty( PROPERTY_DC , DC );
-		super.finishProperties( action );
-		
-		scatterProperties( action );
-	}
-
-	public void createServer( EngineTransaction transaction , MetaEnvServer server ) {
-		addServer( server );
-	}
-	
-	public void modifyServer( EngineTransaction transaction , MetaEnvServer server ) {
-		for( Entry<String,MetaEnvServer> entry : serverMap.entrySet() ) {
-			if( entry.getValue() == server ) {
-				serverMap.remove( entry.getKey() );
-				break;
-			}
-		}
-		
-		originalList.remove( server );
-		addServer( server );
-	}
-	
-	public void deleteServer( EngineTransaction transaction , MetaEnvServer server ) {
-		int index = originalList.indexOf( server );
-		if( index < 0 )
-			return;
-		
-		originalList.remove( index );
-		serverMap.remove( server.NAME );
-		startInfo.removeServer( transaction , server );
-	}
-	
-	public void setBaseline( EngineTransaction transaction , String baselineSG ) throws Exception {
-		super.setSystemStringProperty( PROPERTY_BASELINE , baselineSG );
-	}
-	
-	public void setOffline( EngineTransaction transaction , boolean offline ) throws Exception {
-		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
-	}
-	
-	public boolean isBroken() {
-		return( super.isLoadFailed() );
-	}
-
-	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
-		for( MetaEnvServer server : originalList )
-			server.getApplicationReferences( account , refs );
-	}
-
-	public void deleteHostAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
-		super.deleteObject();
-	}
-
-	public void setStartInfo( EngineTransaction transaction , MetaEnvStartInfo startInfo ) throws Exception {
-		ActionBase action = transaction.getAction();
-		this.startInfo = startInfo;
-		for( MetaEnvServer server : originalList )
-			server.setStartGroup( action , null );
-		
-		for( MetaEnvStartGroup group : startInfo.getForwardGroupList() ) {
-			for( MetaEnvServer server : group.getServers() )
-				server.setStartGroup( action , group );
-		}
-	}
-
-	public boolean isConfUsed( MetaDistrConfItem item ) {
-		for( MetaEnvServer server : originalList ) {
-			if( server.hasConfItemDeployment( item ) )
-				return( true );
-		}
-		return( false );
-	}
-
-	public boolean isReleaseApplicable( Release release ) {
-		for( MetaEnvServer server : originalList ) {
-			if( server.isReleaseApplicable( release ) )
-				return( true );
-		}
-		return( false );
-	}
-
-	public Datacenter getDatacenter( ActionBase action ) throws Exception {
-		EngineInfrastructure infra = action.getServerInfrastructure();
-		return( infra.getDatacenter( DC ) );
-	}
 }

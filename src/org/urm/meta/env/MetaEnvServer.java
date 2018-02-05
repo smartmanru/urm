@@ -20,6 +20,7 @@ import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.BaseItem;
+import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
@@ -30,6 +31,7 @@ import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product._Error;
+import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.MatchItem;
 import org.urm.meta.Types;
@@ -40,56 +42,7 @@ import org.w3c.dom.Node;
 
 public class MetaEnvServer extends EngineObject {
 
-	public Meta meta;
-	public MetaEnvSegment sg;
-	
-	// table data
-	public ObjectProperties ops;
-	public int ID;
-	public String NAME;
-	public String DESC;
-	private DBEnumServerRunType SERVERRUN_TYPE;
-	private DBEnumServerAccessType SERVERACCESS_TYPE;
-	public DBEnumOSType OS_TYPE;
-	public MatchItem BASELINE;
-	public boolean OFFLINE = false;
-	public DBEnumDbmsType DBMS_TYPE;
-	public MatchItem DATABASE_ADMSCHEMA;
-	public MatchItem BASEITEM;
-	public int EV;
-	
 	// properties
-	public String XDOC;
-	public String ROOTPATH;
-	public String BINPATH;
-	public String SYSNAME;
-	public int PORT;
-	public int STARTTIME;
-	public int STOPTIME;
-	public String DEPLOYPATH;
-	public String LINKFROMPATH;
-	public String DEPLOYSCRIPT;
-	public String HOTDEPLOYPATH;
-	public String HOTDEPLOYDATA;
-	public String WEBSERVICEURL;
-	public String WEBMAINURL;
-	public String LOGPATH;
-	public String LOGFILEPATH;
-	public boolean NOPIDS;
-	public String ALIGNED = "";
-	public String REGIONS = "";
-	public String DBMSADDR;
-	
-	// dependencies
-	public MetaEnvServer nlbServer;
-	public MetaEnvServer proxyServer;
-	public MetaEnvServer staticServer;
-	public MetaEnvServer[] subordinateServers;
-
-	Map<String,MetaEnvServerDeployment> deployMap;
-	List<MetaEnvServerDeployment> deployments;
-	List<MetaEnvServerNode> nodes;
-
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
 	public static String PROPERTY_BASELINE = "baseserver";
@@ -135,7 +88,57 @@ public class MetaEnvServer extends EngineObject {
 	public static String ELEMENT_PLATFORM = "platform";
 	public static String ELEMENT_DEPLOY = "deploy";
 
-	public MetaEnvStartGroup startGroup;
+	public Meta meta;
+	public MetaEnvSegment sg;
+	
+	// table data
+	private ObjectProperties ops;
+	public int ID;
+	public String NAME;
+	public String DESC;
+	private DBEnumServerRunType SERVERRUN_TYPE;
+	private DBEnumServerAccessType SERVERACCESS_TYPE;
+	public DBEnumOSType OS_TYPE;
+	private MatchItem BASELINE;
+	public boolean OFFLINE = false;
+	public DBEnumDbmsType DBMS_TYPE;
+	private MatchItem DATABASE_ADMSCHEMA;
+	private MatchItem BASEITEM;
+	public int EV;
+	
+	// properties
+	public String XDOC;
+	public String ROOTPATH;
+	public String BINPATH;
+	public String SYSNAME;
+	public int PORT;
+	public int STARTTIME;
+	public int STOPTIME;
+	public String DEPLOYPATH;
+	public String LINKFROMPATH;
+	public String DEPLOYSCRIPT;
+	public String HOTDEPLOYPATH;
+	public String HOTDEPLOYDATA;
+	public String WEBSERVICEURL;
+	public String WEBMAINURL;
+	public String LOGPATH;
+	public String LOGFILEPATH;
+	public boolean NOPIDS;
+	public String ALIGNED = "";
+	public String REGIONS = "";
+	public String DBMSADDR;
+	
+	// dependencies
+	private MetaEnvServer nlbServer;
+	private MetaEnvServer proxyServer;
+	private MetaEnvServer staticServer;
+	private MetaEnvServer[] subordinateServers;
+
+	private Map<String,MetaEnvServerDeployment> deployMap;
+	private List<MetaEnvServerDeployment> deployments;
+	private List<MetaEnvServerNode> nodes;
+
+	private MetaEnvStartGroup startGroup;
 	
 	public MetaEnvServer( Meta meta , MetaEnvSegment sg ) {
 		super( sg );
@@ -154,6 +157,24 @@ public class MetaEnvServer extends EngineObject {
 	
 	public ObjectProperties getProperties() {
 		return( ops );
+	}
+
+	public boolean checkMatched() {
+		if( !MatchItem.isMatched( BASELINE ) )
+			return( false );
+		if( !MatchItem.isMatched( DATABASE_ADMSCHEMA ) )
+			return( false );
+		if( !MatchItem.isMatched( BASEITEM ) )
+			return( false );
+		
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( !deployment.checkMatched() )
+				return( false );
+		}
+		for( MetaEnvServerNode node : nodes ) {
+			if( !node.checkMatched() )
+				return( false );
+		}
 	}
 	
 	public void scatterProperties( ActionBase action ) throws Exception {
@@ -247,7 +268,7 @@ public class MetaEnvServer extends EngineObject {
 		return( BASELINE );
 	}
 
-	public MetaEnvServer copy( ActionBase action , Meta meta , MetaEnvSegment sg ) throws Exception {
+	public MetaEnvServer copy( Meta meta , MetaEnvSegment sg ) throws Exception {
 		MetaEnvServer r = new MetaEnvServer( meta , sg );
 		r.initCopyStarted( this , sg.getProperties() );
 		r.scatterProperties( action );
@@ -268,7 +289,7 @@ public class MetaEnvServer extends EngineObject {
 		return( r );
 	}
 	
-	public void resolveLinks( ActionBase action ) throws Exception {
+	public void resolveLinks() throws Exception {
 		if( NLBSERVER != null && !NLBSERVER.isEmpty() )
 			nlbServer = sg.getServer( action , NLBSERVER );
 		if( PROXYSERVER != null && !PROXYSERVER.isEmpty() )
@@ -312,7 +333,7 @@ public class MetaEnvServer extends EngineObject {
 		return( servers );
 	}
 	
-	public void setStartGroup( ActionBase action , MetaEnvStartGroup group ) {
+	public void setStartGroup( MetaEnvStartGroup group ) {
 		this.startGroup = group;
 	}
 	
@@ -390,7 +411,7 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public String getNodesAsStringByHost( ActionBase action , String host ) throws Exception {
+	public String getNodesAsStringByHost( String host ) throws Exception {
 		String s = "";
 		for( MetaEnvServerNode node : nodes ) {
 			Account account = action.getNodeAccount( node );
@@ -403,7 +424,7 @@ public class MetaEnvServer extends EngineObject {
 		return( s );
 	}
 
-	public String getNodesAsStringByAccount( ActionBase action , Account account ) throws Exception {
+	public String getNodesAsStringByAccount( Account account ) throws Exception {
 		String s = "";
 		for( MetaEnvServerNode node : nodes ) {
 			Account nodeAccount = action.getNodeAccount( node );
@@ -910,6 +931,21 @@ public class MetaEnvServer extends EngineObject {
 		}
 		
 		return( null );
+	}
+
+	public MetaDatabaseSchema getAdmSchema() throws Exception {
+		MetaDatabase db = meta.getDatabase();
+		return( db.getSchema( DATABASE_ADMSCHEMA ) );
+	}
+
+	public BaseItem getBaseItem() throws Exception {
+		EngineData data = meta.getEngineData();
+		EngineBase base = data.getEngineBase();
+		return( base.getItem( BASEITEM ) );
+	}
+	
+	public MetaEnvStartGroup getStartGroup() {
+		return( startGroup );
 	}
 	
 }

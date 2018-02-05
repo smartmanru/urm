@@ -18,6 +18,7 @@ import org.urm.engine.storage.SourceStorage;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.Types.*;
@@ -107,17 +108,19 @@ public class ActionConfigure extends ActionBase {
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , SourceStorage sourceStorage , LocalFolder parent ) throws Exception {
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
-			if( deployment.confItem != null ) {
-				String name = sourceStorage.getConfItemLiveName( this , node , deployment.confItem );
-				executeNodeConf( parent , sourceStorage , server , node , deployment , deployment.confItem , name );
+			if( deployment.isConfItem() ) {
+				MetaDistrConfItem confItem = deployment.getConfItem(); 
+				String name = sourceStorage.getConfItemLiveName( this , node , confItem );
+				executeNodeConf( parent , sourceStorage , server , node , deployment , confItem , name );
 				continue;
 			}
 			
 			// deployments
-			if( deployment.comp == null )
+			if( !deployment.isComponent() )
 				continue;
 			
-			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems() ) {
+			MetaDistrComponent comp = deployment.getComponent();
+			for( MetaDistrComponentItem compItem : comp.getConfItems() ) {
 				if( compItem.confItem != null ) {
 					String name = sourceStorage.getConfItemLiveName( this , node , compItem.confItem );
 					executeNodeConf( parent , sourceStorage , server , node , deployment , compItem.confItem , name );

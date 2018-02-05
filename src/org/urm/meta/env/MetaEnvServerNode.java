@@ -26,26 +26,27 @@ import org.w3c.dom.Node;
 
 public class MetaEnvServerNode extends EngineObject {
 
-	public Meta meta;
-	public MetaEnvServer server;
-
-	public ObjectProperties ops;
-	public int ID;
-	public int POS;
-	public DBEnumNodeType NODE_TYPE;
-	public MatchItem ACCOUNT;
-	public String DEPLOYGROUP;
-	public boolean OFFLINE;
-	public String DBINSTANCE;
-	public boolean DBSTANDBY;
-	public int EV;
-	
+	// properties
 	public static String PROPERTY_NODETYPE = "type";
 	public static String PROPERTY_HOSTLOGIN = "account";
 	public static String PROPERTY_DEPLOYGROUP = "deploygroup";
 	public static String PROPERTY_OFFLINE = "offline";
 	public static String PROPERTY_DBINSTANCE = "instance";
 	public static String PROPERTY_DBSTANDBY = "standby";
+	
+	public Meta meta;
+	public MetaEnvServer server;
+
+	private ObjectProperties ops;
+	public int ID;
+	public int POS;
+	public DBEnumNodeType NODE_TYPE;
+	private MatchItem ACCOUNT;
+	public String DEPLOYGROUP;
+	public boolean OFFLINE;
+	public String DBINSTANCE;
+	public boolean DBSTANDBY;
+	public int EV;
 	
 	public MetaEnvServerNode( Meta meta , MetaEnvServer server , int POS ) {
 		super( server );

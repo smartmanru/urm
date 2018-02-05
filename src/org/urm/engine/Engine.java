@@ -542,6 +542,10 @@ public class Engine {
 		return( auth );
 	}
 
+	public EngineData getData() {
+		return( data );
+	}
+	
 	public EngineStatus getStatus() {
 		return( status );
 	}

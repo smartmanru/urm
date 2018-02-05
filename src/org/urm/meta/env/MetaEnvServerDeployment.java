@@ -22,7 +22,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MetaEnvServerDeployment {
-	
+
+	// properties
 	public static String PROPERTY_DEPLOYMODE = "deploymode";
 	public static String PROPERTY_DEPLOYPATH = "deploypath";
 	public static String PROPERTY_DBNAME = "dbname";
@@ -33,15 +34,15 @@ public class MetaEnvServerDeployment {
 	public static String PROPERTY_CONFITEM = "confitem";
 	public static String PROPERTY_SCHEMA = "schema";
 	
-	protected Meta meta;
-	MetaEnvServer server;
+	public Meta meta;
+	public MetaEnvServer server;
 
 	public int ID;
 	public DBEnumServerDeploymentType SERVERDEPLOYMENT_TYPE;
-	public MatchItem COMP;
-	public MatchItem BINARYITEM;
-	public MatchItem CONFITEM;
-	public MatchItem SCHEMA;
+	private MatchItem COMP;
+	private MatchItem BINARYITEM;
+	private MatchItem CONFITEM;
+	private MatchItem SCHEMA;
 	public DBEnumDeployModeType DEPLOYMODE_TYPE;
 	public String DEPLOYPATH;
 	public String DBNAME;
@@ -263,30 +264,50 @@ public class MetaEnvServerDeployment {
 		return( false );
 	}
 	
+	public boolean isComponent() {
+		if( SERVERDEPLOYMENT_TYPE == DBEnumServerDeploymentType.COMP )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isBinaryItem() {
-		if( !DISTITEM.isEmpty() )
+		if( SERVERDEPLOYMENT_TYPE == DBEnumServerDeploymentType.BINARY )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isConfItem() {
-		if( !CONFITEM.isEmpty() )
-			return( true );
-		return( false );
-	}
-	
-	public boolean isComponent() {
-		if( !COMP.isEmpty() )
+		if( SERVERDEPLOYMENT_TYPE == DBEnumServerDeploymentType.CONF )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isDatabase() {
-		if( !SCHEMA.isEmpty() )
+		if( SERVERDEPLOYMENT_TYPE == DBEnumServerDeploymentType.SCHEMA )
 			return( true );
 		return( false );
 	}
 
+	public MetaDistrComponent getComponent() throws Exception {
+		MetaDistr distr = meta.getDistr();
+		return( distr.getComponent( COMP ) );
+	}
+	
+	public MetaDistrBinaryItem getBinaryItem() throws Exception {
+		MetaDistr distr = meta.getDistr();
+		return( distr.getBinaryItem( BINARYITEM ) );
+	}
+	
+	public MetaDistrConfItem getConfItem() throws Exception {
+		MetaDistr distr = meta.getDistr();
+		return( distr.getConfItem( CONFITEM ) );
+	}
+	
+	public MetaDatabaseSchema getSchema() throws Exception {
+		MetaDatabase db = meta.getDatabase();
+		return( db.getSchema( SCHEMA ) );
+	}
+	
 	public boolean hasFileDeployments() {
 		if( isBinaryItem() || isConfItem() )
 			return( true );

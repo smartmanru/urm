@@ -49,7 +49,7 @@ public class ActionConfCheck extends ActionBase {
 
 	private void executeEnv( ActionScope scope ) throws Exception {
 		// read env properties...
-		ObjectProperties ops = context.env.ops;
+		ObjectProperties ops = context.env.getProperties();
 		String[] S_CONFCHECK_PROPLIST_ENV = ops.getPropertyList();
 
 		if( !isExecute() ) {
@@ -137,7 +137,7 @@ public class ActionConfCheck extends ActionBase {
 	}
 
 	private void checkConfEnv( MetaEnv env , MetaEnv baseline , String[] propList ) throws Exception {
-		ObjectProperties ops = baseline.ops;
+		ObjectProperties ops = baseline.getProperties();
 		String[] F_CONFCHECK_PROPLIST = ops.getPropertyList(); 
 		checkLists( "environment" , propList , F_CONFCHECK_PROPLIST );
 	}

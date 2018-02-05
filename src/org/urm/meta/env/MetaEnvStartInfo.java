@@ -29,7 +29,7 @@ public class MetaEnvStartInfo {
 		groupMap = new HashMap<String,MetaEnvStartGroup>();
 	}
 	
-	public MetaEnvStartInfo copy( ActionBase action , Meta meta , MetaEnvSegment sg ) throws Exception {
+	public MetaEnvStartInfo copy( Meta meta , MetaEnvSegment sg ) throws Exception {
 		MetaEnvStartInfo r = new MetaEnvStartInfo( meta , sg );
 		for( MetaEnvStartGroup group : groups ) {
 			MetaEnvStartGroup rg = group.copy( action , meta , r );
@@ -73,9 +73,9 @@ public class MetaEnvStartInfo {
 		}
 	}
 
-	public void removeServer( EngineTransaction transaction , MetaEnvServer server ) {
+	public void removeServer( MetaEnvServer server ) {
 		if( server.startGroup != null )
-			server.startGroup.removeServer( transaction , server );
+			server.startGroup.removeServer( server );
 	}
 
 	public MetaEnvStartGroup findServerGroup( String serverName ) {

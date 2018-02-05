@@ -9,6 +9,7 @@ import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvStartGroup;
 
 public class ActionEnvScopeMaker {
 
@@ -206,12 +207,13 @@ public class ActionEnvScopeMaker {
 			}
 			
 			if( !action.context.CTX_STARTGROUP.isEmpty() ) {
-				if( server.startGroup == null ) {
+				MetaEnvStartGroup startGroup = server.getStartGroup();
+				if( startGroup == null ) {
 					action.trace( "scope: ignore non-specified startgroup server=" + server.NAME );
 					return( null );
 				}
 				
-				if( !server.startGroup.NAME.equals( action.context.CTX_STARTGROUP ) ) {
+				if( !startGroup.NAME.equals( action.context.CTX_STARTGROUP ) ) {
 					action.trace( "scope: ignore different startgroup server=" + server.NAME );
 					return( null );
 				}

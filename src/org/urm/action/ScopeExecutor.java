@@ -919,9 +919,9 @@ public class ScopeExecutor implements EngineEventsListener {
 	private SCOPESTATE runSingleHostInternal( ActionScopeSet set , String host , int port , DBEnumOSType OSTYPE , ScopeState stateAccount ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
-			Datacenter dc = set.sg.getDatacenter( action );
+			Datacenter dc = set.sg.getDatacenter();
 			Account account = action.getSingleHostAccount( dc , host , port , OSTYPE );
-			String serverNodes = set.sg.getServerNodesByHost( action , host );
+			String serverNodes = set.sg.getServerNodesByHost( host );
 			action.info( account.getPrintName() + ": serverNodes={" + serverNodes + "}" );
 			
 			ss = getActionStatus( ss , action , action.executeAccount( stateAccount , set , account ) );
@@ -966,7 +966,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	private SCOPESTATE runSingleAccountInternal( ActionScopeSet set , Account account , ScopeState stateAccount ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
-			String serverNodes = set.sg.getServerNodesByAccount( action , account );
+			String serverNodes = set.sg.getServerNodesByAccount( account );
 			action.info( account.getPrintName() + ": serverNodes={" + serverNodes + "}" );
 			ss = getActionStatus( ss , action , action.executeAccount( stateAccount , set , account ) );
 		}

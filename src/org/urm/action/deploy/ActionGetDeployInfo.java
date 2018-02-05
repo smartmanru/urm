@@ -52,6 +52,7 @@ public class ActionGetDeployInfo extends ActionBase {
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
+			HostAccount hostAccount = node.g
 			info( "node" + node.POS + " (" + node.HOSTLOGIN + "):" );
 			
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );

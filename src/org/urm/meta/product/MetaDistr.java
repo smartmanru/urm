@@ -131,6 +131,14 @@ public class MetaDistr {
 		return( item );
 	}
 
+	public MetaDistrBinaryItem getBinaryItem( MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( getBinaryItem( item.FKID ) );
+		return( getBinaryItem( item.FKNAME ) );
+	}
+	
 	public String getBinaryItemName( Integer id ) throws Exception {
 		if( id == null )
 			return( null );
@@ -186,6 +194,14 @@ public class MetaDistr {
 		if( item == null )
 			Common.exit1( _Error.UnknownConfigurationItem1 , "unknown configuration item=" + id , "" + id );
 		return( item );
+	}
+	
+	public MetaDistrConfItem getConfItem( MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( getConfItem( item.FKID ) );
+		return( getConfItem( item.FKNAME ) );
 	}
 	
 	public MetaDistrDelivery[] getDeliveries() {
