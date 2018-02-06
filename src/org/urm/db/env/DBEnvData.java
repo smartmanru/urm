@@ -1,0 +1,259 @@
+package org.urm.db.env;
+
+import org.urm.db.DBConnection;
+import org.urm.db.core.DBEnums.*;
+import org.urm.db.core.DBSettings;
+import org.urm.engine.properties.EntityVar;
+import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvStartGroup;
+import org.urm.meta.product.ProductMeta;
+
+public class DBEnvData {
+
+	public static String TABLE_ENV = "urm_env";
+	public static String TABLE_SEGMENT = "urm_env_segment";
+	public static String TABLE_SERVER = "urm_env_server";
+	public static String TABLE_NODE = "urm_env_node";
+	public static String TABLE_STARTGROUP = "urm_env_startgroup";
+	public static String FIELD_ENV_ID = "env_id";
+	public static String FIELD_ENV_META_ID = "meta_fkid";
+	public static String FIELD_ENV_META_NAME = "meta_fkname";
+	public static String FIELD_ENV_MATCHED = "matched";
+	public static String FIELD_ENV_DESC = "xdesc";
+	public static String FIELD_ENV_ENVTYPE = "env_type";
+	public static String FIELD_ENV_BASELINE_ID = "baseline_env_fkid";
+	public static String FIELD_ENV_BASELINE_NAME = "baseline_env_fkname";
+	public static String FIELD_ENV_ENVKEY_ID = "envkey_resource_fkid";
+	public static String FIELD_ENV_ENVKEY_NAME = "baseline_env_fkname";
+	public static String FIELD_ENV_REMOTE = "distr_remote";
+	public static String FIELD_ENV_REMOTE_ACCOUNT_ID = "distr_account_fkid";
+	public static String FIELD_ENV_REMOTE_ACCOUNT_NAME = "distr_account_fkname";
+	public static String FIELD_ENV_REMOTE_PATH = "distr_path";
+	public static String FIELD_SEGMENT_ID = "segment_id";
+	public static String FIELD_SEGMENT_ENV_ID = "env_id";
+	public static String FIELD_SEGMENT_DESC = "xdesc";
+	public static String FIELD_SEGMENT_BASELINE_ID = "baseline_segment_fkid";
+	public static String FIELD_SEGMENT_BASELINE_NAME = "baseline_segment_fkname";
+	public static String FIELD_SEGMENT_DATACENTER_ID = "baseline_datacenter_fkid";
+	public static String FIELD_SEGMENT_DATACENTER_NAME = "baseline_datacenter_fkname";
+	public static String FIELD_SERVER_ID = "server_id";
+	public static String FIELD_SERVER_ENV_ID = "env_id";
+	public static String FIELD_SERVER_SEGMENT_ID = "segment_id";
+	public static String FIELD_SERVER_DESC = "xdesc";
+	public static String FIELD_SERVER_RUNTYPE = "serverrun_type";
+	public static String FIELD_SERVER_ACCESSTYPE = "serveraccess_type";
+	public static String FIELD_SERVER_OSTYPE = "os_type";
+	public static String FIELD_SERVER_BASELINE_ID = "baseline_server_fkid";
+	public static String FIELD_SERVER_BASELINE_NAME = "baseline_server_fkname";
+	public static String FIELD_SERVER_DBMSTYPE = "dbms_type";
+	public static String FIELD_SERVER_ADMSCHEMA_ID = "db_admschema_fkid";
+	public static String FIELD_SERVER_ADMSCHEMA_NAME = "db_admschema_fkname";
+	public static String FIELD_SERVER_BASEITEM_ID = "baseitem_fkid";
+	public static String FIELD_SERVER_BASEITEM_NAME = "baseitem_fkname";
+	public static String FIELD_NODE_ID = "node_id";
+	public static String FIELD_NODE_ENV_ID = "env_id";
+	public static String FIELD_NODE_SERVER_ID = "server_id";
+	public static String FIELD_NODE_TYPE = "node_type";
+	public static String FIELD_NODE_ACCOUNT_ID = "account_fkid";
+	public static String FIELD_NODE_ACCOUNT_NAME = "account_fkname";
+	public static String FIELD_STARTGROUP_ID = "startgroup_id";
+	public static String FIELD_STARTGROUP_ENV_ID = "env_id";
+	public static String FIELD_STARTGROUP_SEGMENT_ID = "segment_id";
+	public static String FIELD_STARTGROUP_DESC = "xdesc";
+	
+	public static PropertyEntity upgradeEntityEnvPrimary( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT , DBEnumParamEntityType.ENV_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_ENV , FIELD_ENV_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_META_ID , "product meta id" , DBEnumObjectType.META , false ) ,
+				EntityVar.metaStringDatabaseOnly( FIELD_ENV_META_NAME , "product meta name" , false , null ) ,
+				EntityVar.metaBooleanDatabaseOnly( FIELD_ENV_MATCHED , "environment match status" , false , false ) ,
+				EntityVar.metaString( MetaEnv.PROPERTY_NAME , "name" , true , null ) ,
+				EntityVar.metaStringVar( MetaEnv.PROPERTY_DESC , FIELD_ENV_DESC , MetaEnv.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaEnumVar( MetaEnv.PROPERTY_ENVTYPE , FIELD_ENV_ENVTYPE , MetaEnv.PROPERTY_ENVTYPE , "Environment type" , true , DBEnumEnvType.UNKNOWN ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_BASELINE_ID , "baseline environment id" , DBEnumObjectType.ENVIRONMENT , false ) ,
+				EntityVar.metaStringVar( MetaEnv.PROPERTY_BASELINE , FIELD_ENV_BASELINE_NAME , MetaEnv.PROPERTY_BASELINE , "baseline environment name" , false , null ) ,
+				EntityVar.metaBoolean( MetaEnv.PROPERTY_OFFLINE , "Offline" , true , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ENVKEY_ID , "environment key resource id" , DBEnumObjectType.RESOURCE , false ) ,
+				EntityVar.metaStringVar( MetaEnv.PROPERTY_ENVKEY , FIELD_ENV_ENVKEY_NAME , MetaEnv.PROPERTY_ENVKEY , "environment key resource name" , false , null ) ,
+				EntityVar.metaBooleanVar( MetaEnv.PROPERTY_DISTR_REMOTE , FIELD_ENV_REMOTE , MetaEnv.PROPERTY_DISTR_REMOTE , "remote distributive" , false , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_REMOTE_ACCOUNT_ID , "remote distributive account id" , DBEnumObjectType.HOSTACCOUNT , false ) ,
+				EntityVar.metaStringVar( MetaEnv.PROPERTY_DISTR_HOSTLOGIN , FIELD_ENV_REMOTE_ACCOUNT_NAME , MetaEnv.PROPERTY_DISTR_HOSTLOGIN , "remote distributive account name" , false , null ) ,
+				EntityVar.metaStringVar( MetaEnv.PROPERTY_DISTR_PATH , FIELD_ENV_REMOTE_PATH , MetaEnv.PROPERTY_DISTR_PATH , "remote distributive path" , false , null ) ,
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityEnvPrimary( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT , DBEnumParamEntityType.ENV_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_ENV , FIELD_ENV_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity upgradeEntityEnvExtra( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ENVIRONMENT , DBEnumParamEntityType.ENV_EXTRA , DBEnumObjectVersionType.ENVIRONMENT );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaBoolean( MetaEnv.PROPERTY_DB_AUTH , "secured database authentification" , false , false ) ,
+				EntityVar.metaBoolean( MetaEnv.PROPERTY_SHOWONLY , "showonly mode" , false , false ) ,
+				EntityVar.metaBoolean( MetaEnv.PROPERTY_BACKUP , "backup mode" , false , false ) ,
+				EntityVar.metaBoolean( MetaEnv.PROPERTY_CONF_DEPLOY , "configuration deploy" , false , false ) ,
+				EntityVar.metaBoolean( MetaEnv.PROPERTY_CONF_KEEPALIVE , "keep live configuration up-to-date" , false , false ) ,
+				EntityVar.metaString( MetaEnv.PROPERTY_DB_AUTHFILE , "database authentification file" , false , null ) ,
+				EntityVar.metaString( MetaEnv.PROPERTY_CHATROOM , "environment chatroom" , false , null ) ,
+				EntityVar.metaString( MetaEnv.PROPERTY_REDISTWIN_PATH , "use specific redist path for windows" , false , null ) ,
+				EntityVar.metaString( MetaEnv.PROPERTY_REDISTLINUX_PATH , "use specific redist path for linux" , false , null )
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityEnvExtra( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ENVIRONMENT , DBEnumParamEntityType.ENV_EXTRA , DBEnumObjectVersionType.ENVIRONMENT );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity upgradeEntitySegmentPrimary( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_SEGMENT , DBEnumParamEntityType.ENV_SEGMENT_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_SEGMENT , FIELD_SEGMENT_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaObjectDatabaseOnly( FIELD_SEGMENT_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , false ) ,
+				EntityVar.metaString( MetaEnvSegment.PROPERTY_NAME , "name" , true , null ) ,
+				EntityVar.metaStringVar( MetaEnvSegment.PROPERTY_DESC , FIELD_SEGMENT_DESC , MetaEnvSegment.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_SEGMENT_BASELINE_ID , "baseline segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , false ) ,
+				EntityVar.metaStringVar( MetaEnvSegment.PROPERTY_BASELINE , FIELD_SEGMENT_BASELINE_NAME , MetaEnvSegment.PROPERTY_BASELINE , "baseline segment name" , false , null ) ,
+				EntityVar.metaBoolean( MetaEnvSegment.PROPERTY_OFFLINE , "Offline" , true , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_SEGMENT_DATACENTER_ID , "segment datacenter id" , DBEnumObjectType.DATACENTER , false ) ,
+				EntityVar.metaStringVar( MetaEnvSegment.PROPERTY_DC , FIELD_SEGMENT_DATACENTER_NAME , MetaEnvSegment.PROPERTY_DC , "segment datacenter resource name" , false , null ) ,
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntitySegmentPrimary( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_SEGMENT , DBEnumParamEntityType.ENV_SEGMENT_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_SEGMENT , FIELD_SEGMENT_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity upgradeEntityServerPrimary( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_SERVER , DBEnumParamEntityType.ENV_SERVER_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_SERVER , FIELD_SERVER_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaObjectDatabaseOnly( FIELD_SERVER_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_SERVER_SEGMENT_ID , "environment segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , false ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_NAME , "name" , true , null ) ,
+				EntityVar.metaStringVar( MetaEnvServer.PROPERTY_DESC , FIELD_SERVER_DESC , MetaEnvServer.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaEnumVar( MetaEnvServer.PROPERTY_SERVERRUNTYPE , FIELD_SERVER_RUNTYPE , MetaEnvServer.PROPERTY_SERVERRUNTYPE , "Run type" , true , DBEnumServerRunType.UNKNOWN ) ,
+				EntityVar.metaEnumVar( MetaEnvServer.PROPERTY_SERVERACCESSTYPE , FIELD_SERVER_ACCESSTYPE , MetaEnvServer.PROPERTY_SERVERACCESSTYPE , "Access type" , true , DBEnumServerAccessType.UNKNOWN ) ,
+				EntityVar.metaEnumVar( MetaEnvServer.PROPERTY_OSTYPE , FIELD_SERVER_OSTYPE , MetaEnvServer.PROPERTY_OSTYPE , "Operating system type" , true , DBEnumOSType.UNKNOWN ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_SERVER_BASELINE_ID , "baseline server id" , DBEnumObjectType.ENVIRONMENT_SERVER , false ) ,
+				EntityVar.metaStringVar( MetaEnvServer.PROPERTY_BASELINE , FIELD_SERVER_BASELINE_NAME , MetaEnvServer.PROPERTY_BASELINE , "baseline server name" , false , null ) ,
+				EntityVar.metaBoolean( MetaEnvServer.PROPERTY_OFFLINE , "Offline" , true , false ) ,
+				EntityVar.metaEnumVar( MetaEnvServer.PROPERTY_DBMSTYPE , FIELD_SERVER_DBMSTYPE , MetaEnvServer.PROPERTY_DBMSTYPE , "Database system type" , true , DBEnumDbmsType.UNKNOWN ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_SERVER_ADMSCHEMA_ID , "administrative database schema id" , DBEnumObjectType.DBSCHEMA , false ) ,
+				EntityVar.metaStringVar( MetaEnvServer.PROPERTY_ADMSCHEMA , FIELD_SERVER_ADMSCHEMA_NAME , MetaEnvServer.PROPERTY_ADMSCHEMA , "administrative database schema name" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_SERVER_BASEITEM_ID , "base software item id" , DBEnumObjectType.BASE_ITEM , false ) ,
+				EntityVar.metaStringVar( MetaEnvServer.PROPERTY_BASEITEM , FIELD_SERVER_BASEITEM_NAME , MetaEnvServer.PROPERTY_BASEITEM , "base software item name" , false , null ) ,
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityServerPrimary( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_SERVER , DBEnumParamEntityType.ENV_SERVER_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_SERVER , FIELD_SERVER_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity upgradeEntityServerExtra( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ENVIRONMENT_SERVER , DBEnumParamEntityType.ENV_SERVER_EXTRA , DBEnumObjectVersionType.ENVIRONMENT );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaString( MetaEnvServer.PROPERTY_XDOC , "design identifier" , false , null ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_ROOTPATH , "environment chatroom" , false , null ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_BINPATH , "use specific redist path for windows" , false , null ) ,
+				EntityVar.metaInteger( MetaEnvServer.PROPERTY_PORT , "use specific redist path for linux" , false , null ) ,
+				EntityVar.metaInteger( MetaEnvServer.PROPERTY_STARTTIME , "use specific redist path for linux" , false , 60 ) ,
+				EntityVar.metaInteger( MetaEnvServer.PROPERTY_STOPTIME , "use specific redist path for linux" , false , 60 ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_DEPLOYPATH , "use specific redist path for windows" , false , null ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_LINKFROMPATH , "use specific redist path for windows" , false , null ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_DEPLOYSCRIPT , "use specific redist path for windows" , false , null ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_HOTDEPLOYPATH , "use specific redist path for windows" , false , null ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_HOTDEPLOYDATA , "use specific redist path for windows" , false , null ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_WEBSERVICEURL , "use specific redist path for windows" , false , null ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_WEBMAINURL , "use specific redist path for windows" , false , null ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_LOGPATH , "use specific redist path for windows" , false , null ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_LOGFILEPATH , "use specific redist path for windows" , false , null ) ,
+				EntityVar.metaBoolean( MetaEnvServer.PROPERTY_NOPIDS , "Offline" , true , false ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_DBMSADDR , "use specific redist path for windows" , false , null ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_ALIGNED , "use specific redist path for windows" , false , null ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_REGIONS , "use specific redist path for windows" , false , null )
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityServerExtra( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ENVIRONMENT_SERVER , DBEnumParamEntityType.ENV_SERVER_EXTRA , DBEnumObjectVersionType.ENVIRONMENT );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity upgradeEntityNodePrimary( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_NODE , DBEnumParamEntityType.ENV_NODE_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_NODE , FIELD_NODE_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaObjectDatabaseOnly( FIELD_NODE_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_NODE_SERVER_ID , "environment server id" , DBEnumObjectType.ENVIRONMENT_SERVER , false ) ,
+				EntityVar.metaInteger( MetaEnvServerNode.PROPERTY_POS , "position" , true , null ) ,
+				EntityVar.metaEnumVar( MetaEnvServerNode.PROPERTY_NODETYPE , FIELD_NODE_TYPE , MetaEnvServerNode.PROPERTY_NODETYPE , "Node type" , true , DBEnumNodeType.UNKNOWN ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_NODE_ACCOUNT_ID , "infrastructure account id" , DBEnumObjectType.HOSTACCOUNT , false ) ,
+				EntityVar.metaStringVar( MetaEnvServerNode.PROPERTY_HOSTLOGIN , FIELD_NODE_ACCOUNT_NAME , MetaEnvServerNode.PROPERTY_HOSTLOGIN , "infrastructure account name" , false , null ) ,
+				EntityVar.metaString( MetaEnvServerNode.PROPERTY_DEPLOYGROUP , "deploy group" , false , null ) ,
+				EntityVar.metaBoolean( MetaEnvServerNode.PROPERTY_OFFLINE , "Offline" , true , false ) ,
+				EntityVar.metaString( MetaEnvServerNode.PROPERTY_DBINSTANCE , "database instance node code" , false , null ) ,
+				EntityVar.metaBoolean( MetaEnvServerNode.PROPERTY_DBSTANDBY , "standby node" , false , false ) ,
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityNodePrimary( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_NODE , DBEnumParamEntityType.ENV_NODE_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_NODE , FIELD_NODE_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity upgradeEntityStartGroup( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_STARTGROUP , DBEnumParamEntityType.ENV_SEGMENT_STARTGROUP , DBEnumObjectVersionType.ENVIRONMENT , TABLE_STARTGROUP , FIELD_STARTGROUP_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaObjectDatabaseOnly( FIELD_STARTGROUP_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_STARTGROUP_SEGMENT_ID , "segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , false ) ,
+				EntityVar.metaString( MetaEnvStartGroup.PROPERTY_NAME , "name" , true , null ) ,
+				EntityVar.metaStringVar( MetaEnvStartGroup.PROPERTY_DESC , FIELD_SERVER_DESC , MetaEnvStartGroup.PROPERTY_DESC , "Description" , false , null ) ,
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityStartGroup( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_STARTGROUP , DBEnumParamEntityType.ENV_SEGMENT_STARTGROUP , DBEnumObjectVersionType.ENVIRONMENT , TABLE_STARTGROUP , FIELD_STARTGROUP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static void dropEnvData( DBConnection c , ProductMeta storage ) throws Exception {
+		dropEnvDumpData( c , storage );
+		dropEnvDesignData( c , storage );
+		dropEnvMonData( c , storage );
+		dropEnvCoreData( c , storage );
+	}
+
+	public static void dropEnvDumpData( DBConnection c , ProductMeta storage ) throws Exception {
+	}
+	
+	public static void dropEnvDesignData( DBConnection c , ProductMeta storage ) throws Exception {
+	}
+	
+	public static void dropEnvMonData( DBConnection c , ProductMeta storage ) throws Exception {
+	}
+	
+	public static void dropEnvCoreData( DBConnection c , ProductMeta storage ) throws Exception {
+	}
+	
+}
