@@ -52,19 +52,19 @@ public class ServerProcess {
 	}
 
 	public boolean isGeneric( ActionBase action ) throws Exception {
-		return( srv.isGeneric() );
+		return( srv.isAccessGeneric() );
 	}
 
 	public boolean isService( ActionBase action ) throws Exception {
-		return( srv.isService() );
+		return( srv.isAccessService() );
 	}
 
 	public boolean isDocker( ActionBase action ) throws Exception {
-		return( srv.isDocker() );
+		return( srv.isAccessDocker() );
 	}
 
 	public boolean isPacemaker( ActionBase action ) throws Exception {
-		return( srv.isPacemaker() );
+		return( srv.isAccessPacemaker() );
 	}
 
 	public boolean gatherStatus( ActionBase action ) throws Exception {

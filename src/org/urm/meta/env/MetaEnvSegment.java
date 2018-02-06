@@ -1,19 +1,13 @@
 package org.urm.meta.env;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.dist.Release;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.engine.properties.PropertyController;
-import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
@@ -24,10 +18,6 @@ import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.product._Error;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class MetaEnvSegment extends EngineObject {
 
@@ -89,7 +79,8 @@ public class MetaEnvSegment extends EngineObject {
 		r.OFFLINE = OFFLINE;
 		r.DC = MatchItem.copy( DC );
 		r.EV = EV;
-		r.refreshProperties();
+		
+		r.refreshPrimaryProperties();
 		
 		r.deployInfo = deployInfo.copy( rmeta , r );
 		
@@ -111,11 +102,15 @@ public class MetaEnvSegment extends EngineObject {
 		return( baselineEnv.getSegment( BASELINE.FKID ) );
 	}
 	
-	public String getEnvObjectName() throws Exception {
+	public String getEnvObjectName() {
 		return( env.NAME + "-" + NAME );
 	}
 	
-	public boolean hasBaseline() throws Exception {
+	public MetaEnvStartInfo getStartInfo() {
+		return( startInfo );
+	}
+	
+	public boolean hasBaseline() {
 		if( BASELINE == null )
 			return( false );
 		return( true );
@@ -134,19 +129,42 @@ public class MetaEnvSegment extends EngineObject {
 		serverMapById.put( server.ID , server );
 	}
 	
-	public void resolveLinks() throws Exception {
-		for( MetaEnvServer server : serverMap.values() )
-			server.resolveLinks();
-	}
-	
 	public MetaEnvServer findServer( String name ) {
 		return( serverMap.get( name ) );
 	}
 	
-	public MetaEnvServer getServer( ActionBase action , String name ) throws Exception {
+	public MetaEnvServer findServer( int id ) {
+		return( serverMapById.get( id ) );
+	}
+	
+	public MetaEnvServer getServer( String name ) throws Exception {
 		MetaEnvServer server = serverMap.get( name );
 		if( server == null )
-			action.exit1( _Error.UnknownServer1 , "unknown server=" + name , name );
+			Common.exit1( _Error.UnknownServer1 , "unknown server=" + name , name );
+		return( server );
+	}
+	
+	public MetaEnvServer getServer( int id ) throws Exception {
+		MetaEnvServer server = serverMapById.get( id );
+		if( server == null )
+			Common.exit1( _Error.UnknownServer1 , "unknown server=" + id , "" + id );
+		return( server );
+	}
+	
+	public MetaEnvServer findServer( MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( findServer( item.FKID ) );
+		return( findServer( item.FKNAME ) );
+	}
+	
+	public MetaEnvServer getServer( MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		MetaEnvServer server = findServer( item );
+		if( server == null )
+			Common.exitUnexpected();
 		return( server );
 	}
 	
@@ -158,11 +176,11 @@ public class MetaEnvSegment extends EngineObject {
 		return( Common.getSortedKeys( serverMap ) );
 	}
 	
-	public String getServerNodesByHost( String host ) throws Exception {
+	public String getServerNodesByHost( ActionBase action , String host ) throws Exception {
 		String s = "";
 		for( String name : Common.getSortedKeys( serverMap ) ) {
 			MetaEnvServer server = serverMap.get( name );
-			String sn = server.getNodesAsStringByHost( host );
+			String sn = server.getNodesAsStringByHost( action , host );
 			if( !sn.isEmpty() ) {
 				if( !s.isEmpty() )
 					s += ", ";
@@ -172,11 +190,11 @@ public class MetaEnvSegment extends EngineObject {
 		return( s );
 	}
 
-	public String getServerNodesByAccount( Account account ) throws Exception {
+	public String getServerNodesByAccount( ActionBase action , Account account ) throws Exception {
 		String s = "";
 		for( String name : Common.getSortedKeys( serverMap ) ) {
 			MetaEnvServer server = serverMap.get( name );
-			String sn = server.getNodesAsStringByAccount( account );
+			String sn = server.getNodesAsStringByAccount( action , account );
 			if( !sn.isEmpty() ) {
 				if( !s.isEmpty() )
 					s += ", ";
@@ -188,7 +206,7 @@ public class MetaEnvSegment extends EngineObject {
 
 	public boolean hasDatabaseServers() {
 		for( MetaEnvServer server : serverMap.values() )
-			if( server.isDatabase() )
+			if( server.isRunDatabase() )
 				return( true );
 		
 		return( false );
@@ -199,10 +217,12 @@ public class MetaEnvSegment extends EngineObject {
 		this.DESC = desc;
 		this.DC = dcItem;
 
-		refreshProperties();
+		refreshPrimaryProperties();
 	}
 	
-	private void refreshProperties() throws Exception {
+	private void refreshPrimaryProperties() throws Exception {
+		ops.clearProperties( DBEnumParamEntityType.ENV_SEGMENT_PRIMARY );
+		
 		ops.setStringProperty( PROPERTY_NAME , NAME );
 		ops.setStringProperty( PROPERTY_DESC , DESC );
 		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
@@ -210,14 +230,10 @@ public class MetaEnvSegment extends EngineObject {
 		MetaEnvSegment sgBaseline = getBaseline();
 		if( sgBaseline != null )
 			ops.setStringProperty( PROPERTY_BASELINE , sgBaseline.NAME );
-		else
-			ops.clearProperty( PROPERTY_BASELINE );
 		
 		Datacenter dc = getDatacenter();
 		if( dc != null )
 			ops.setStringProperty( PROPERTY_DC , dc.NAME );
-		else
-			ops.clearProperty( PROPERTY_DC );
 	}
 
 	public void updateServer( MetaEnvServer server ) throws Exception {
@@ -232,12 +248,12 @@ public class MetaEnvSegment extends EngineObject {
 	
 	public void setBaseline( MatchItem sgBaseline ) throws Exception {
 		this.BASELINE = sgBaseline;
-		refreshProperties();
+		refreshPrimaryProperties();
 	}
 	
-	public void setOffline( EngineTransaction transaction , boolean offline ) throws Exception {
+	public void setOffline( boolean offline ) throws Exception {
 		this.OFFLINE = offline;
-		refreshProperties();
+		refreshPrimaryProperties();
 	}
 	
 	public boolean checkMatched() {
@@ -259,7 +275,7 @@ public class MetaEnvSegment extends EngineObject {
 			server.getApplicationReferences( account , refs );
 	}
 
-	public void setStartInfo( EngineTransaction transaction , MetaEnvStartInfo startInfo ) throws Exception {
+	public void setStartInfo( MetaEnvStartInfo startInfo ) throws Exception {
 		this.startInfo = startInfo;
 		for( MetaEnvServer server : serverMap.values() )
 			server.setStartGroup( null );
@@ -270,17 +286,9 @@ public class MetaEnvSegment extends EngineObject {
 		}
 	}
 
-	public boolean isConfUsed( MetaDistrConfItem item ) {
+	public boolean isConfUsed( MetaDistrConfItem item ) throws Exception {
 		for( MetaEnvServer server : serverMap.values() ) {
 			if( server.hasConfItemDeployment( item ) )
-				return( true );
-		}
-		return( false );
-	}
-
-	public boolean isReleaseApplicable( Release release ) {
-		for( MetaEnvServer server : serverMap.values() ) {
-			if( server.isReleaseApplicable( release ) )
 				return( true );
 		}
 		return( false );
@@ -290,30 +298,6 @@ public class MetaEnvSegment extends EngineObject {
 		EngineData data = meta.getEngineData();
 		EngineInfrastructure infra = data.getInfrastructure();
 		return( infra.getDatacenter( DC ) );
-	}
-
-	public void scatterProperties( ActionBase action ) throws Exception {
-		NAME = super.getStringPropertyRequired( action , PROPERTY_NAME );
-		DESC = super.getStringProperty( action , PROPERTY_DESC );
-		DC = super.getStringProperty( action , PROPERTY_DC );
-		action.trace( "load properties of sg=" + NAME );
-		
-		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );
-		if( BASELINE.equals( "default" ) )
-			BASELINE = NAME;
-		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE , true );
-		
-		super.finishRawProperties();
-	}
-	
-	public void loadStartOrder( ActionBase action , Node node ) throws Exception {
-		startInfo = new MetaEnvStartInfo( meta , this );
-		
-		Node startorder = ConfReader.xmlGetFirstChild( node , ELEMENT_STARTORDER );
-		if( startorder == null )
-			return;
-		
-		startInfo.load( action , startorder );
 	}
 
 }

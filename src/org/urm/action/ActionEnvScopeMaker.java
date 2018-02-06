@@ -181,7 +181,7 @@ public class ActionEnvScopeMaker {
 			set.setFullContent( false );
 		
 		for( MetaEnvServer server : set.sg.getServers() ) {
-			if( !server.isDatabase() )
+			if( !server.isRunDatabase() )
 				continue;
 			
 			boolean addServer = ( dist == null )? true : releaseServers.containsKey( server.NAME );

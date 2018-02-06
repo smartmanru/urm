@@ -18,19 +18,19 @@ public class MetaDistrComponent {
 	public String DESC;
 	public int PV;
 
-	private Map<Integer,MetaDistrComponentItem> mapBinaryItems;
-	private Map<Integer,MetaDistrComponentItem> mapConfItems;
-	private Map<Integer,MetaDistrComponentItem> mapSchemaItems;
-	private Map<Integer,MetaDistrComponentItem> mapWS;
+	private Map<Integer,MetaDistrComponentItem> mapBinaryItemsById;
+	private Map<Integer,MetaDistrComponentItem> mapConfItemsById;
+	private Map<Integer,MetaDistrComponentItem> mapSchemaItemsById;
+	private Map<Integer,MetaDistrComponentItem> mapWSByItemId;
 	
 	public MetaDistrComponent( Meta meta , MetaDistr dist ) {
 		this.meta = meta;
 		this.dist = dist;
 		
-		mapBinaryItems = new HashMap<Integer,MetaDistrComponentItem>();
-		mapConfItems = new HashMap<Integer,MetaDistrComponentItem>();
-		mapSchemaItems = new HashMap<Integer,MetaDistrComponentItem>();
-		mapWS = new HashMap<Integer,MetaDistrComponentItem>();
+		mapBinaryItemsById = new HashMap<Integer,MetaDistrComponentItem>();
+		mapConfItemsById = new HashMap<Integer,MetaDistrComponentItem>();
+		mapSchemaItemsById = new HashMap<Integer,MetaDistrComponentItem>();
+		mapWSByItemId = new HashMap<Integer,MetaDistrComponentItem>();
 	}
 
 	public MetaDistrComponent copy( Meta meta , MetaDistr distr ) throws Exception {
@@ -40,22 +40,22 @@ public class MetaDistrComponent {
 		r.DESC = DESC;
 		r.PV = PV;
 		
-		for( MetaDistrComponentItem item : mapBinaryItems.values() ) {
+		for( MetaDistrComponentItem item : mapBinaryItemsById.values() ) {
 			MetaDistrComponentItem ritem = item.copy( meta , r );
 			r.addBinaryItem( ritem );
 		}
 		
-		for( MetaDistrComponentItem item : mapConfItems.values() ) {
+		for( MetaDistrComponentItem item : mapConfItemsById.values() ) {
 			MetaDistrComponentItem ritem = item.copy( meta , r );
 			r.addConfItem( ritem );
 		}
 		
-		for( MetaDistrComponentItem item : mapSchemaItems.values() ) {
+		for( MetaDistrComponentItem item : mapSchemaItemsById.values() ) {
 			MetaDistrComponentItem ritem = item.copy( meta , r );
 			r.addSchemaItem( ritem );
 		}
 
-		for( MetaDistrComponentItem item : mapWS.values() ) {
+		for( MetaDistrComponentItem item : mapWSByItemId.values() ) {
 			MetaDistrComponentItem ritem = item.copy( meta , r );
 			r.addWebService( ritem );
 		}
@@ -73,78 +73,78 @@ public class MetaDistrComponent {
 	}
 	
 	public void addBinaryItem( MetaDistrComponentItem item ) {
-		mapBinaryItems.put( item.ID , item );
+		mapBinaryItemsById.put( item.ID , item );
 	}
 	
 	public void addConfItem( MetaDistrComponentItem item ) {
-		mapConfItems.put( item.ID , item );
+		mapConfItemsById.put( item.ID , item );
 	}
 	
 	public void addSchemaItem( MetaDistrComponentItem item ) {
-		mapSchemaItems.put( item.ID , item );
+		mapSchemaItemsById.put( item.ID , item );
 	}
 	
 	public void addWebService( MetaDistrComponentItem item ) {
-		mapWS.put( item.ID , item );
+		mapWSByItemId.put( item.ID , item );
 	}
 	
 	public boolean hasWebServices() {
-		if( mapWS.isEmpty() )
+		if( mapWSByItemId.isEmpty() )
 			return( false );
 		return( true );
 	}
 
 	public MetaDistrComponentItem[] getWebServices() {
-		return( mapWS.values().toArray( new MetaDistrComponentItem[0] ) );
+		return( mapWSByItemId.values().toArray( new MetaDistrComponentItem[0] ) );
 	}
 
 	public boolean hasBinaryItems() {
-		if( mapBinaryItems.isEmpty() )
+		if( mapBinaryItemsById.isEmpty() )
 			return( false );
 		return( true );
 	}
 
 	public boolean hasConfItems() {
-		if( mapConfItems.isEmpty() )
+		if( mapConfItemsById.isEmpty() )
 			return( false );
 		return( true );
 	}
 
 	public String[] getBinaryItemNames() {
 		Map<String,MetaDistrComponentItem> map = new HashMap<String,MetaDistrComponentItem>();
-		for( MetaDistrComponentItem item : mapBinaryItems.values() )
+		for( MetaDistrComponentItem item : mapBinaryItemsById.values() )
 			map.put( item.binaryItem.NAME , item );
 		return( Common.getSortedKeys( map ) );
 	}
 	
 	public MetaDistrComponentItem[] getBinaryItems() {
-		return( mapBinaryItems.values().toArray( new MetaDistrComponentItem[0] ) );
+		return( mapBinaryItemsById.values().toArray( new MetaDistrComponentItem[0] ) );
 	}
 	
 	public String[] getConfItemNames() {
 		Map<String,MetaDistrComponentItem> map = new HashMap<String,MetaDistrComponentItem>();
-		for( MetaDistrComponentItem item : mapConfItems.values() )
+		for( MetaDistrComponentItem item : mapConfItemsById.values() )
 			map.put( item.confItem.NAME , item );
 		return( Common.getSortedKeys( map ) );
 	}
 	
 	public MetaDistrComponentItem[] getConfItems() {
-		return( mapConfItems.values().toArray( new MetaDistrComponentItem[0] ) );
+		return( mapConfItemsById.values().toArray( new MetaDistrComponentItem[0] ) );
 	}
 	
 	public String[] getSchemaItemNames() {
 		Map<String,MetaDistrComponentItem> map = new HashMap<String,MetaDistrComponentItem>();
-		for( MetaDistrComponentItem item : mapSchemaItems.values() )
+		for( MetaDistrComponentItem item : mapSchemaItemsById.values() )
 			map.put( item.schema.NAME , item );
 		return( Common.getSortedKeys( map ) );
 	}
 	
 	public MetaDistrComponentItem[] getSchemaItems() {
-		return( mapSchemaItems.values().toArray( new MetaDistrComponentItem[0] ) );
+		return( mapSchemaItemsById.values().toArray( new MetaDistrComponentItem[0] ) );
 	}
 
 	public MetaDistrComponentItem findBinaryItem( String name ) {
-		for( MetaDistrComponentItem item : mapBinaryItems.values() ) {
+		for( MetaDistrComponentItem item : mapBinaryItemsById.values() ) {
 			if( item.binaryItem.NAME.equals( name ) )
 				return( item );
 		}
@@ -159,7 +159,7 @@ public class MetaDistrComponent {
 	}
 	
 	public MetaDistrComponentItem findConfItem( String name ) {
-		for( MetaDistrComponentItem item : mapConfItems.values() ) {
+		for( MetaDistrComponentItem item : mapConfItemsById.values() ) {
 			if( item.confItem.NAME.equals( name ) )
 				return( item );
 		}
@@ -172,9 +172,13 @@ public class MetaDistrComponent {
 			Common.exit1( _Error.UnknownCompConfItem1 , "Unknown component configuration item=" + name , name );
 		return( item );
 	}
+
+	public MetaDistrComponentItem findSchemaItem( int id ) {
+		return( mapSchemaItemsById.get( id ) );
+	}
 	
 	public MetaDistrComponentItem findSchemaItem( String name ) {
-		for( MetaDistrComponentItem item : mapSchemaItems.values() ) {
+		for( MetaDistrComponentItem item : mapSchemaItemsById.values() ) {
 			if( item.schema.NAME.equals( name ) )
 				return( item );
 		}
@@ -189,7 +193,7 @@ public class MetaDistrComponent {
 	}
 
 	public MetaDistrComponentItem findWebService( String name ) {
-		for( MetaDistrComponentItem item : mapWS.values() ) {
+		for( MetaDistrComponentItem item : mapWSByItemId.values() ) {
 			if( item.WSDL_REQUEST.equals( name ) )
 				return( item );
 		}
@@ -206,16 +210,16 @@ public class MetaDistrComponent {
 	
 	public void removeCompItem( MetaDistrComponentItem item ) throws Exception {
 		if( item.binaryItem != null )
-			mapBinaryItems.remove( item.binaryItem.NAME );
+			mapBinaryItemsById.remove( item.binaryItem.ID );
 		else
 		if( item.confItem != null )
-			mapConfItems.remove( item.confItem.NAME );
+			mapConfItemsById.remove( item.confItem.ID );
 		else
 		if( item.schema != null )
-			mapSchemaItems.remove( item.schema.NAME );
+			mapSchemaItemsById.remove( item.schema.ID );
 		else
 		if( !item.WSDL_REQUEST.isEmpty() )
-			mapWS.remove( item.ID );
+			mapWSByItemId.remove( item.ID );
 	}
 
 }

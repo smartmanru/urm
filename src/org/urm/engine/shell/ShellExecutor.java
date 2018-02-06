@@ -1251,7 +1251,7 @@ public abstract class ShellExecutor extends Shell {
 		if( !server.isLinux() )
 			return( false );
 
-		if( !server.isService() )
+		if( !server.isAccessService() )
 			return( false );
 
 		ShellCoreUnix coreUnix = ( ShellCoreUnix )coreHidden;
@@ -1268,13 +1268,13 @@ public abstract class ShellExecutor extends Shell {
 		if( !server.isLinux() )
 			return( "" );
 				
-		if( server.isService() ) {
+		if( server.isAccessService() ) {
 			if( isSystemctlService( action , server ) )
 				return( "/usr/lib/systemd/system/" );
 			return( "/etc/init.d" );
 		}
 		
-		if( server.isGeneric() )
+		if( server.isAccessGeneric() )
 			return( Common.getPath( server.ROOTPATH , server.BINPATH ) );
 			
 		String value = Common.getEnumLower( server.getServerAccessType() );
@@ -1283,13 +1283,13 @@ public abstract class ShellExecutor extends Shell {
 	}
 	
 	public String getSystemFiles( ActionBase action , MetaEnvServer server ) throws Exception {
-		if( isLinux() && server.isService() ) {
+		if( isLinux() && server.isAccessService() ) {
 			if( isSystemctlService( action , server ) )
 				return( server.SYSNAME + ".*" );
 			return( server.SYSNAME );
 		}
 		
-		if( server.isGeneric() ) {
+		if( server.isAccessGeneric() ) {
 			if( isLinux() )
 				return( "server.*.sh" );
 			return( "server.*.cmd" );

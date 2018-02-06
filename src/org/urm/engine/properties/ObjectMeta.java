@@ -64,6 +64,12 @@ public class ObjectMeta {
 		return( entitiesApp );
 	}
 
+	public PropertyEntity getEntity( DBEnumParamEntityType entityType ) throws Exception {
+		if( entityCustom != null && entityCustom.PARAMENTITY_TYPE == entityType )
+			return( entityCustom );
+		return( getAppEntity( entityType ) );
+	}
+	
 	public PropertyEntity getAppEntity( DBEnumParamEntityType entityType ) throws Exception {
 		for( PropertyEntity entity : entitiesApp ) {
 			if( entity.PARAMENTITY_TYPE == entityType )

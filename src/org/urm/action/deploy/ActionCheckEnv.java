@@ -18,7 +18,6 @@ import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.Types.*;
@@ -110,14 +109,15 @@ public class ActionCheckEnv extends ActionBase {
 			
 			// check associated if specific servers and not specific nodes 
 			if( set.setFull == false && target.itemFull == true ) {
-				if( target.envServer.nlbServer != null ) 
-					checkOneServer( target , state , target.envServer.nlbServer , false , "nlb" , serverStatus );
-				if( target.envServer.staticServer != null ) 
-					checkOneServer( target , state , target.envServer.staticServer , false , "static" , serverStatus );
-				if( target.envServer.subordinateServers != null ) {
-					for( MetaEnvServer server : target.envServer.subordinateServers ) 
-						checkOneServer( target , state , server , false , "subordinate" , serverStatus );
-				}
+				MetaEnvServer nlbServer = target.envServer.getNlbServer();
+				if( nlbServer != null ) 
+					checkOneServer( target , state , nlbServer , false , "nlb" , serverStatus );
+				MetaEnvServer staticServer = target.envServer.getStaticServer();
+				if( staticServer != null ) 
+					checkOneServer( target , state , staticServer , false , "static" , serverStatus );
+				MetaEnvServer[] subordinateServers = target.envServer.getSubordinateServers();
+				for( MetaEnvServer server : subordinateServers ) 
+					checkOneServer( target , state , server , false , "subordinate" , serverStatus );
 			}
 		}
 		catch( Throwable e ) {
@@ -163,7 +163,7 @@ public class ActionCheckEnv extends ActionBase {
 		}
 		
 		// ignore command servers except when specifically called 
-		if( server.isCommand() ) {
+		if( server.isRunCommand() ) {
 			if( context.CTX_ALL == false || main == false ) {
 				debug( "ignore command server=" + server.NAME );
 				return;
@@ -214,7 +214,7 @@ public class ActionCheckEnv extends ActionBase {
 		
 		boolean wholeOk = true;
 		
-		if( server.isWebUser() ) {
+		if( server.isRunWebUser() ) {
 			if( !server.WEBMAINURL.isEmpty() )
 				if( !checkOneServerWholeUrl( server.WEBMAINURL , "main web url" , state , null , serverStatus ) )
 					wholeOk = false;
@@ -225,7 +225,7 @@ public class ActionCheckEnv extends ActionBase {
 				wholeOk = false;
 		}
 
-		if( server.isDatabase() ) {
+		if( server.isRunDatabase() ) {
 			if( !checkOneServerWholeDatabase( server , state , serverStatus ) )
 				wholeOk = false;
 		}
@@ -265,13 +265,12 @@ public class ActionCheckEnv extends ActionBase {
 			return( true );
 		
 		// by comps
-		MetaDistr distr = server.meta.getDistr();
 		boolean ok = true;
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
 			if( !deployment.isComponent() )
 				continue;
 			
-			MetaDistrComponent comp = distr.getComponent( deployment.COMP );
+			MetaDistrComponent comp = deployment.getComponent();
 			for( MetaDistrComponentItem ws : comp.getWebServices() ) {
 				String URL = ws.getURL( ACCESSPOINT ); 
 				if( !checkOneServerWholeUrl( URL , "web service" , state , nodeStatus , serverStatus ) ) {
@@ -328,11 +327,14 @@ public class ActionCheckEnv extends ActionBase {
 			}
 			
 			// check proxy node
-			if( main && server.proxyServer != null ) { 
-				info( "check proxy node ..." );
-				if( !checkOneServerNodeStatus( server.proxyServer , node.getProxyNode( this ) , state , null ) ) {
-					S_CHECKENV_NODE_FAILED = true;
-					nodeStatus.setProxyFailed( server.proxyServer );
+			if( main ) {
+				MetaEnvServer proxyServer = server.getProxyServer();
+				if( proxyServer != null ) {
+					info( "check proxy node ..." );
+					if( !checkOneServerNodeStatus( proxyServer , node.getProxyNode( this ) , state , null ) ) {
+						S_CHECKENV_NODE_FAILED = true;
+						nodeStatus.setProxyFailed( proxyServer );
+					}
 				}
 			}
 		}
@@ -364,7 +366,7 @@ public class ActionCheckEnv extends ActionBase {
 	}
 	
 	private boolean checkOneServerNodeStatus( MetaEnvServer server , MetaEnvServerNode node , ScopeState state , NodeStatus mainState ) throws Exception {
-		if( server.isManual() ) {
+		if( server.isAccessManual() ) {
 			debug( "skip check process for manual server=" + server.NAME );
 			if( mainState != null )
 				mainState.setSkipManual();

@@ -43,6 +43,13 @@ public class MatchItem {
 		return( item.MATCHED );
 	}
 		
+	public static boolean equals( MatchItem item , int id ) {
+		if( item == null )
+			return( false );
+		if( item.FKID == id )
+			return( true );
+		return( false );
+	}
 	
 	public void match( Integer id ) {
 		FKID = id;

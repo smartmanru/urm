@@ -10,6 +10,7 @@ import org.urm.common.RunError;
 import org.urm.db.core.DBEnumInterface;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.core.DBEnums.DBEnumParamRoleType;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
@@ -363,6 +364,12 @@ public class ObjectProperties {
 		return( value.getOriginalValue() );
 	}
 
+	public void clearProperties( DBEnumParamEntityType entityType ) throws Exception {
+		PropertyEntity entity = meta.getEntity( entityType );
+		for( EntityVar var : entity.getVars() )
+			properties.clearProperty( var.NAME );
+	}
+	
 	public void clearProperty( String prop ) throws Exception {
 		EntityVar var = meta.getVar( prop );
 		properties.clearProperty( var.NAME );

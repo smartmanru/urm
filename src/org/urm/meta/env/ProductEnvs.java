@@ -80,37 +80,32 @@ public class ProductEnvs {
 		env.deleteObject();
 	}
 
-	public void deleteHostAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
-		for( MetaEnv env : mapEnvs.values() )
-			env.deleteHostAccount( transaction , account );
-	}
-
-	public void deleteBinaryItemFromEnvironments( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+	public void removeBinaryItemFromEnvironments( MetaDistrBinaryItem item ) throws Exception {
 		for( MetaEnv env : getEnvs() )
 			for( MetaEnvSegment sg : env.getSegments() )
 				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteBinaryItem( transaction , item );
+					server.removeBinaryItem( item );
 	}
 
-	public void deleteConfItemFromEnvironments( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
+	public void removeConfItemFromEnvironments( MetaDistrConfItem item ) throws Exception {
 		for( MetaEnv env : getEnvs() )
 			for( MetaEnvSegment sg : env.getSegments() )
 				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteConfItem( transaction , item );
+					server.removeConfItem( item );
 	}
 
-	public void deleteComponentFromEnvironments( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
+	public void removeComponentFromEnvironments( MetaDistrComponent item ) throws Exception {
 		for( MetaEnv env : getEnvs() )
 			for( MetaEnvSegment sg : env.getSegments() )
 				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteComponent( transaction , item );
+					server.removeComponent( item );
 	}
 
-	public void deleteDatabaseSchemaFromEnvironments( EngineTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+	public void removeDatabaseSchemaFromEnvironments( MetaDatabaseSchema schema ) throws Exception {
 		for( MetaEnv env : getEnvs() )
 			for( MetaEnvSegment sg : env.getSegments() )
 				for( MetaEnvServer server : sg.getServers() )
-					server.reflectDeleteSchema( transaction , schema );
+					server.removeSchema( schema );
 	}
 
 	public MetaEnv findMetaEnv( int id ) {
@@ -149,12 +144,12 @@ public class ProductEnvs {
 		return( findMetaEnv( env.FKNAME ) );
 	}
 	
-	public MetaEnv getMetaEnv( MatchItem env ) throws Exception {
-		if( env == null )
+	public MetaEnv getMetaEnv( MatchItem item ) throws Exception {
+		if( item == null )
 			return( null );
-		if( env.MATCHED )
-			return( getMetaEnv( env.FKID ) );
-		return( getMetaEnv( env.FKNAME ) );
+		if( item.MATCHED )
+			return( getMetaEnv( item.FKID ) );
+		return( getMetaEnv( item.FKNAME ) );
 	}
 	
     public MetaEnvSegment findMetaEnvSegment( MetaEnvSegment sg ) {

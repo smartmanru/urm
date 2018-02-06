@@ -3,19 +3,15 @@ package org.urm.meta.env;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.engine.EngineTransaction;
-import org.urm.meta.Types.*;
 import org.urm.meta.product.Meta;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class MetaEnvStartGroup {
 
-	protected Meta meta;
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
+	
+	public Meta meta;
 	public MetaEnvStartInfo startInfo;
 	
 	public int ID;
@@ -31,39 +27,33 @@ public class MetaEnvStartGroup {
 		servers = new LinkedList<MetaEnvServer>();
 	}
 
-	public MetaEnvStartGroup copy( ActionBase action , Meta meta , MetaEnvStartInfo startInfo ) throws Exception {
-		MetaEnvStartGroup r = new MetaEnvStartGroup( meta , startInfo );
+	public MetaEnvStartGroup copy( Meta rmeta , MetaEnvStartInfo rstartInfo ) throws Exception {
+		MetaEnvStartGroup r = new MetaEnvStartGroup( rmeta , rstartInfo );
+		r.ID = ID;
 		r.NAME = NAME;
-		r.SERVERS = SERVERS;
+		r.DESC = DESC;
+		r.EV = EV;
+		
 		for( MetaEnvServer server : servers ) {
-			MetaEnvServer rserver = startInfo.sg.getServer( action , server.NAME );
-			r.addServer( action , rserver );
+			MetaEnvServer rserver = startInfo.sg.getServer( server.NAME );
+			r.addServer( rserver );
 		}
 		
 		return( r );
 	}
 	
-	public void load( ActionBase action , Node node ) throws Exception {
-		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
-		SERVERS = ConfReader.getAttrValue( node , "servers" );
-		
-		for( String name : Common.splitSpaced( SERVERS ) ) {
-			MetaEnvServer server = startInfo.sg.getServer( action , name );
-			addServer( action , server );
-		}
-	}
-
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "name" , NAME );
-		SERVERS = "";
-		for( MetaEnvServer server : servers )
-			SERVERS = Common.addToList( SERVERS , server.NAME , " " );
-		Common.xmlSetElementAttr( doc , root , "servers" , SERVERS );
+	public void createGroup( String name , String desc ) {
+		modifyGroup( name , desc );
 	}
 	
-	public void addServer( ActionBase action , MetaEnvServer server ) throws Exception {
+	public void modifyGroup( String name , String desc ) {
+		this.NAME = name;
+		this.DESC = desc;
+	}
+
+	public void addServer( MetaEnvServer server ) throws Exception {
 		servers.add( server );
-		server.setStartGroup( action , this );
+		server.setStartGroup( this );
 	}
 	
 	public MetaEnvServer[] getServers() {
@@ -77,9 +67,9 @@ public class MetaEnvStartGroup {
 		return( Common.getSortedList( names ) );
 	}
 
-	public void removeServer( EngineTransaction transaction , MetaEnvServer server ) {
+	public void removeServer( MetaEnvServer server ) {
 		servers.remove( server );
-		server.setStartGroup( transaction.action , null );
+		server.setStartGroup( null );
 	}
 
 	public MetaEnvServer findServer( String serverName ) {
@@ -88,10 +78,6 @@ public class MetaEnvStartGroup {
 				return( server );
 		}
 		return( null );
-	}
-
-	public void create( EngineTransaction transaction , String name ) {
-		this.NAME = name;
 	}
 
 }

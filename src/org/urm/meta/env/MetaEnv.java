@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
@@ -109,7 +108,7 @@ public class MetaEnv extends EngineObject {
 		r.DISTR_PATH = DISTR_PATH;
 		r.EV = EV;
 		r.MATCHED = MATCHED;
-		r.refreshProperties();
+		r.refreshPrimaryProperties();
 		
 		for( MetaEnvSegment sg : sgMap.values() ) {
 			MetaEnvSegment rsg = sg.copy( rmeta , r );
@@ -128,7 +127,39 @@ public class MetaEnv extends EngineObject {
 		this.MATCHED = matched;
 	}
 	
-	public void scatterExtraProperties() throws Exception {
+	private void refreshPrimaryProperties() throws Exception {
+		ops.clearProperties( DBEnumParamEntityType.ENV_PRIMARY );
+		
+		ops.setStringProperty( PROPERTY_NAME , NAME );
+		ops.setStringProperty( PROPERTY_DESC , DESC );
+		ops.setEnumProperty( PROPERTY_ENVTYPE , ENV_TYPE );
+		
+		if( BASELINE != null ) {
+			ProductEnvs envs = meta.getEnviroments();
+			MetaEnv env = envs.getMetaEnv( BASELINE );
+			ops.setStringProperty( PROPERTY_BASELINE , env.NAME );
+		}
+		
+		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
+		
+		if( ENVKEY != null ) {
+			EngineData data = meta.getEngineData();
+			EngineResources resources = data.getResources();
+			AuthResource res = resources.getResource( ENVKEY );
+			ops.setStringProperty( PROPERTY_ENVKEY , res.NAME );
+		}
+		
+		ops.setBooleanProperty( PROPERTY_DISTR_REMOTE , DISTR_REMOTE );
+		if( DISTR_REMOTE ) {
+			EngineData data = meta.getEngineData();
+			EngineInfrastructure infra = data.getInfrastructure();
+			HostAccount account = infra.getHostAccount( DISTR_ACCOUNT );
+			ops.setStringProperty( PROPERTY_DISTR_HOSTLOGIN , account.getFinalAccount() );
+			ops.setStringProperty( PROPERTY_DISTR_PATH , DISTR_PATH );
+		}
+	}
+	
+	private void scatterExtraProperties() throws Exception {
 		DBAUTH = ops.getBooleanProperty( PROPERTY_DB_AUTH );
 		SHOWONLY = ops.getBooleanProperty( PROPERTY_SHOWONLY );
 		BACKUP = ops.getBooleanProperty( PROPERTY_BACKUP );
@@ -151,47 +182,9 @@ public class MetaEnv extends EngineObject {
 		DISTR_ACCOUNT = distAccount;
 		DISTR_PATH = distPath;
 		
-		refreshProperties();
+		refreshPrimaryProperties();
 	}
 
-	private void refreshProperties() throws Exception {
-		ops.setStringProperty( PROPERTY_NAME , NAME );
-		ops.setStringProperty( PROPERTY_DESC , DESC );
-		ops.setEnumProperty( PROPERTY_ENVTYPE , ENV_TYPE );
-		
-		if( BASELINE != null ) {
-			ProductEnvs envs = meta.getEnviroments();
-			MetaEnv env = envs.getMetaEnv( BASELINE );
-			ops.setStringProperty( PROPERTY_BASELINE , env.NAME );
-		}
-		else
-			ops.clearProperty( PROPERTY_BASELINE );
-		
-		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
-		
-		if( ENVKEY != null ) {
-			EngineData data = meta.getEngineData();
-			EngineResources resources = data.getResources();
-			AuthResource res = resources.getResource( ENVKEY );
-			ops.setStringProperty( PROPERTY_ENVKEY , res.NAME );
-		}
-		else
-			ops.clearProperty( PROPERTY_ENVKEY );
-		
-		ops.setBooleanProperty( PROPERTY_DISTR_REMOTE , DISTR_REMOTE );
-		if( DISTR_REMOTE ) {
-			EngineData data = meta.getEngineData();
-			EngineInfrastructure infra = data.getInfrastructure();
-			HostAccount account = infra.getHostAccount( DISTR_ACCOUNT );
-			ops.setStringProperty( PROPERTY_DISTR_HOSTLOGIN , account.getFinalAccount() );
-			ops.setStringProperty( PROPERTY_DISTR_PATH , DISTR_PATH );
-		}
-		else {
-			ops.clearProperty( PROPERTY_DISTR_HOSTLOGIN );
-			ops.clearProperty( PROPERTY_DISTR_PATH );
-		}
-	}
-	
 	public boolean isProd() {
 		return( ENV_TYPE == DBEnumEnvType.PRODUCTION );
 	}
@@ -276,12 +269,12 @@ public class MetaEnv extends EngineObject {
 	
 	public void setBaseline( MetaEnv env ) throws Exception {
 		this.BASELINE = new MatchItem( env.ID );
-		refreshProperties();
+		refreshPrimaryProperties();
 	}
 	
 	public void setOffline( boolean offline ) throws Exception {
 		this.OFFLINE = offline;
-		refreshProperties();
+		refreshPrimaryProperties();
 	}
 	
 	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
@@ -289,12 +282,7 @@ public class MetaEnv extends EngineObject {
 			sg.getApplicationReferences( account , refs );
 	}
 
-	public void deleteHostAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
-		for( MetaEnvSegment sg : sgMap.values() )
-			sg.deleteHostAccount( transaction , account );
-	}
-
-	public boolean isConfUsed( MetaDistrConfItem item ) {
+	public boolean isConfUsed( MetaDistrConfItem item ) throws Exception {
 		for( MetaEnvSegment sg : sgMap.values() ) {
 			if( sg.isConfUsed( item ) )
 				return( true );
@@ -302,6 +290,18 @@ public class MetaEnv extends EngineObject {
 		return( false );
 	}
 
+	public MatchItem getBaselineMatchItem() {
+		return( BASELINE );
+	}
+	
+	public MatchItem getEnvKeyMatchItem() {
+		return( ENVKEY );
+	}
+	
+	public MatchItem getDistrAccountMatchItem() {
+		return( DISTR_ACCOUNT );
+	}
+	
 	public boolean checkMatched() {
 		if( !MatchItem.isMatched( BASELINE ) )
 			return( false );

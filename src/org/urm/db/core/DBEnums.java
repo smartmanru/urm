@@ -194,7 +194,7 @@ public abstract class DBEnums {
 		DATACENTER(10,null) ,
 		NETWORK(11,null) ,
 		HOST(12,null) ,
-		ACCOUNT(13,null) ,
+		HOSTACCOUNT(13,null) ,
 		AUTH_GROUP(15,null) ,
 		AUTH_USER(16,null) ,
 		BASE_CATEGORY(20,null) ,
@@ -216,7 +216,11 @@ public abstract class DBEnums {
 		META_DIST_CONFITEM(153,null) ,
 		META_DIST_COMPONENT(154,null) ,
 		META_DIST_COMPITEM(155,null) ,
-		ENVIRONMENT(156,null);
+		ENVIRONMENT(156,null) ,
+		ENVIRONMENT_SEGMENT(157,null) ,
+		ENVIRONMENT_SERVER(158,null) ,
+		ENVIRONMENT_NODE(159,null) ,
+		ENVIRONMENT_STARTGROUP(160,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -641,7 +645,6 @@ public abstract class DBEnums {
 		APPSYSTEM(41,null) ,
 		APPPRODUCT(42,null) ,
 		PRODUCT(50,null) ,
-		SEGMENT(52,null) ,
 		SERVER(53,null) ,
 		NODE(54,null) ,
 		RC_CUSTOM(111,null) ,
@@ -664,7 +667,12 @@ public abstract class DBEnums {
 		PRODUCT_DIST_COMPONENT(204,null) ,
 		PRODUCT_DIST_COMPITEM(205,null) ,
 		ENV_PRIMARY(301,null) ,
-		ENV_EXTRA(302,null);
+		ENV_EXTRA(302,null) ,
+		ENV_SEGMENT_PRIMARY(311,null) ,
+		ENV_SEGMENT_STARTGROUP(312,null) ,
+		ENV_SERVER_PRIMARY(321,null) ,
+		ENV_SERVER_EXTRA(322,null) ,
+		ENV_NODE_PRIMARY(331,null);
 
 		private final int value;
 		private String[] synonyms;

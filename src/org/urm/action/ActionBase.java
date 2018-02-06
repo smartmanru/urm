@@ -467,7 +467,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public Account getNodeAccount( MetaEnvServerNode node ) throws Exception {
-		HostAccount hostAccount = node.getHostAccount( this );
+		HostAccount hostAccount = node.getHostAccount();
 		return( Account.getHostAccount( this , hostAccount ) );
 	}
 	

@@ -69,7 +69,7 @@ public class ActionStopServer extends ActionBase {
 			return;
 		}
 	
-		if( actionServer.isCommand() ) {
+		if( actionServer.isRunCommand() ) {
 			if( !isForced() ) {
 				debug( "server=" + actionServer.NAME + " is command server. Skipped." );
 				return;

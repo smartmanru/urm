@@ -81,6 +81,11 @@ public class EngineEntities {
 	public PropertyEntity entityAppMetaDistrCompItem;
 	public PropertyEntity entityAppEnvPrimary;
 	public PropertyEntity entityAppEnvExtra;
+	public PropertyEntity entityAppSegmentPrimary;
+	public PropertyEntity entityAppSegmentStartGroup;
+	public PropertyEntity entityAppServerPrimary;
+	public PropertyEntity entityAppServerExtra;
+	public PropertyEntity entityAppNodePrimary;
 	
 	public EngineEntities( Engine engine ) {
 		this.engine = engine;
@@ -126,6 +131,11 @@ public class EngineEntities {
 		entityAppMetaDistrCompItem = DBProductData.upgradeEntityMetaDistrCompItem( loader );
 		entityAppEnvPrimary = DBEnvData.upgradeEntityEnvPrimary( loader );
 		entityAppEnvExtra = DBEnvData.upgradeEntityEnvExtra( loader );
+		entityAppSegmentPrimary = DBEnvData.upgradeEntitySegmentPrimary( loader );
+		entityAppSegmentStartGroup = DBEnvData.upgradeEntityStartGroup( loader );
+		entityAppServerPrimary = DBEnvData.upgradeEntityServerPrimary( loader );
+		entityAppServerExtra = DBEnvData.upgradeEntityServerExtra( loader );
+		entityAppNodePrimary = DBEnvData.upgradeEntityNodePrimary( loader );
 		
 		entityCustomRC = DBEngineContext.createEntityCustomRC( loader );
 		entityCustomEngine = DBEngineContext.createEntityCustomEngine( loader );
@@ -172,6 +182,11 @@ public class EngineEntities {
 		entityAppMetaDistrCompItem = DBProductData.loaddbEntityMetaDistrCompItem( c );
 		entityAppEnvPrimary = DBEnvData.loaddbEntityEnvPrimary( c );
 		entityAppEnvExtra = DBEnvData.loaddbEntityEnvExtra( c );
+		entityAppSegmentPrimary = DBEnvData.loaddbEntitySegmentPrimary( c );
+		entityAppSegmentStartGroup = DBEnvData.loaddbEntityStartGroup( c );
+		entityAppServerPrimary = DBEnvData.loaddbEntityServerPrimary( c );
+		entityAppServerExtra = DBEnvData.loaddbEntityServerExtra( c );
+		entityAppNodePrimary = DBEnvData.loaddbEntityNodePrimary( c );
 		
 		entityCustomRC = DBEngineContext.loaddbEntityCustomRC( c );
 		entityCustomEngine = DBEngineContext.loaddbEntityCustomEngine( c );

@@ -89,7 +89,7 @@ public class DBEngineInfrastructure {
 
 	public static PropertyEntity upgradeEntityHostAccount( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ACCOUNT , DBEnumParamEntityType.ACCOUNT , DBEnumObjectVersionType.CORE , TABLE_ACCOUNT , FIELD_ACCOUNT_ID );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.HOSTACCOUNT , DBEnumParamEntityType.ACCOUNT , DBEnumObjectVersionType.CORE , TABLE_ACCOUNT , FIELD_ACCOUNT_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaStringDatabaseOnly( FIELD_ACCOUNT_HOST , "Host" , true , null ) ,
 				EntityVar.metaStringVar( HostAccount.PROPERTY_NAME , HostAccount.PROPERTY_NAME , XMLPROP_ACCOUNT_NAME , "Name" , true , null ) ,
@@ -118,7 +118,7 @@ public class DBEngineInfrastructure {
 	}
 	
 	public static PropertyEntity loaddbEntityHostAccount( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ACCOUNT , DBEnumParamEntityType.ACCOUNT , DBEnumObjectVersionType.CORE , TABLE_ACCOUNT , FIELD_ACCOUNT_ID );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.HOSTACCOUNT , DBEnumParamEntityType.ACCOUNT , DBEnumObjectVersionType.CORE , TABLE_ACCOUNT , FIELD_ACCOUNT_ID );
 		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
@@ -269,9 +269,9 @@ public class DBEngineInfrastructure {
 
 	private static void modifyAccount( DBConnection c , HostAccount account , boolean insert ) throws Exception {
 		if( insert )
-			account.ID = DBNames.getNameIndex( c , account.host.ID , account.NAME , DBEnumObjectType.ACCOUNT );
+			account.ID = DBNames.getNameIndex( c , account.host.ID , account.NAME , DBEnumObjectType.HOSTACCOUNT );
 		else
-			DBNames.updateName( c , account.host.ID , account.NAME , account.ID , DBEnumObjectType.ACCOUNT );
+			DBNames.updateName( c , account.host.ID , account.NAME , account.ID , DBEnumObjectType.HOSTACCOUNT );
 		
 		account.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();

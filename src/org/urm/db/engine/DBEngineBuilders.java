@@ -59,7 +59,7 @@ public class DBEngineBuilders {
 				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_TARGETPLATFORM , FIELD_BUILDER_TARGET_PLATFORM , ProjectBuilder.PROPERTY_TARGETPLATFORM , "Target platform" , false , null ) ,
 				EntityVar.metaBooleanVar( ProjectBuilder.PROPERTY_BUILDER_REMOTE , FIELD_BUILDER_REMOTE , ProjectBuilder.PROPERTY_BUILDER_REMOTE , "Remote build" , false , false ) ,
 				EntityVar.metaStringXmlOnly( ProjectBuilder.PROPERTY_REMOTEHOSTLOGIN , "Remote host account" , false , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_BUILDER_ACCOUNT , "Remote host login" , DBEnumObjectType.ACCOUNT , false )
+				EntityVar.metaObjectDatabaseOnly( FIELD_BUILDER_ACCOUNT , "Remote host login" , DBEnumObjectType.HOSTACCOUNT , false )
 		} ) );
 	}
 

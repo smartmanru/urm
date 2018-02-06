@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.*;
 import org.urm.meta.Types.*;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -34,22 +35,22 @@ public class MetaEnvServerLocation {
 		}
 	}
 	
-	Meta meta;
-	MetaEnvServer server;
+	public Meta meta;
+	public MetaEnvServer server;
 	
-	public VarDEPLOYMODE DEPLOYTYPE;
+	public DBEnumDeployModeType DEPLOYTYPE;
 	public String DEPLOYPATH;
 	
-	public Map<String,String> deployNameMap;
+	private Map<String,String> deployNameMap;
 	private List<BinaryDeploymentPair> binaryItems;
 	private List<ConfDeploymentPair> confItems;
 	private List<MetaEnvServerDeployment> deployments;
 	
-	public MetaEnvServerLocation( Meta meta , MetaEnvServer server , VarDEPLOYMODE DEPLOYTYPE , String DEPLOYPATH ) {
+	public MetaEnvServerLocation( Meta meta , MetaEnvServer server , DBEnumDeployModeType deployType , String deployPath ) {
 		this.meta = meta;
 		this.server = server;
-		this.DEPLOYTYPE = DEPLOYTYPE;
-		this.DEPLOYPATH = DEPLOYPATH;
+		this.DEPLOYTYPE = deployType;
+		this.DEPLOYPATH = deployPath;
 		
 		binaryItems = new LinkedList<BinaryDeploymentPair>();
 		deployNameMap = new HashMap<String,String>();
@@ -57,7 +58,7 @@ public class MetaEnvServerLocation {
 		deployments = new LinkedList<MetaEnvServerDeployment>(); 
 	}
 	
-	public void addBinaryItem( ActionBase action , MetaEnvServerDeployment deployment , MetaDistrBinaryItem binaryItem , String deployName ) throws Exception {
+	public void addBinaryItem( MetaEnvServerDeployment deployment , MetaDistrBinaryItem binaryItem , String deployName ) {
 		if( deployName.isEmpty() )
 			deployName = binaryItem.BASENAME_DEPLOY;
 
@@ -69,7 +70,7 @@ public class MetaEnvServerLocation {
 			deployments.add( deployment );
 	}
 
-	public void addConfItem( ActionBase action , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem ) throws Exception {
+	public void addConfItem( MetaEnvServerDeployment deployment , MetaDistrConfItem confItem ) {
 		ConfDeploymentPair pair = new ConfDeploymentPair( deployment , confItem );
 		confItems.add( pair );
 		
@@ -77,41 +78,41 @@ public class MetaEnvServerLocation {
 			deployments.add( deployment );
 	}
 
-	public boolean hasBinaryItems( ActionBase action ) throws Exception {
+	public boolean hasBinaryItems() {
 		if( binaryItems.isEmpty() )
 			return( false );
 		return( true );
 	}
 
-	public boolean hasConfItems( ActionBase action ) throws Exception {
+	public boolean hasConfItems() {
 		if( confItems.isEmpty() )
 			return( false );
 		return( true );
 	}
 
-	public String getDeployName( ActionBase action , String key ) throws Exception {
+	public String getDeployName( String key ) throws Exception {
 		String itemName = deployNameMap.get( key );
 		if( itemName == null || itemName.isEmpty() )
-			action.exitUnexpectedState();
+			Common.exitUnexpected();
 		return( itemName );
 	}
 
-	public VarCONTENTTYPE getContentType( ActionBase action , boolean binary ) throws Exception {
+	public VarCONTENTTYPE getContentType( boolean binary ) {
 		VarCONTENTTYPE contentType;
-		if( DEPLOYTYPE == VarDEPLOYMODE.HOT )
+		if( DEPLOYTYPE == DBEnumDeployModeType.HOT )
 			contentType = ( binary )? VarCONTENTTYPE.BINARYHOTDEPLOY : VarCONTENTTYPE.CONFHOTDEPLOY;
 		else
-		if( DEPLOYTYPE == VarDEPLOYMODE.COPYONLY )
+		if( DEPLOYTYPE == DBEnumDeployModeType.COPYONLY )
 			contentType = ( binary )? VarCONTENTTYPE.BINARYCOPYONLY : VarCONTENTTYPE.CONFCOPYONLY;
 		else
 			contentType = ( binary )? VarCONTENTTYPE.BINARYCOLDDEPLOY : VarCONTENTTYPE.CONFCOLDDEPLOY;
 		return( contentType );
 	}
 
-	public String[] getNodeBinaryItems( ActionBase action , MetaEnvServerNode node ) throws Exception {
+	public String[] getNodeBinaryItems( MetaEnvServerNode node ) throws Exception {
 		Map<String, MetaDistrBinaryItem> items = new HashMap<String, MetaDistrBinaryItem>();
 		for( BinaryDeploymentPair pair : binaryItems ) {
-			if( node == null || checkNodeDeployment( action , node , pair.deployment ) ) {
+			if( node == null || checkNodeDeployment( node , pair.deployment ) ) {
 				if( !items.containsKey( pair.item.NAME ) )
 					items.put( pair.item.NAME , pair.item );
 			}
@@ -119,10 +120,10 @@ public class MetaEnvServerLocation {
 		return( Common.getSortedKeys( items ) );
 	}
 
-	public String[] getNodeConfItems( ActionBase action , MetaEnvServerNode node ) throws Exception {
+	public String[] getNodeConfItems( MetaEnvServerNode node ) throws Exception {
 		Map<String, MetaDistrConfItem> items = new HashMap<String, MetaDistrConfItem>();
 		for( ConfDeploymentPair pair : confItems ) {
-			if( node == null || checkNodeDeployment( action , node , pair.deployment ) ) {
+			if( node == null || checkNodeDeployment( node , pair.deployment ) ) {
 				if( !items.containsKey( pair.item.NAME ) )
 					items.put( pair.item.NAME , pair.item );
 			}
@@ -130,23 +131,23 @@ public class MetaEnvServerLocation {
 		return( Common.getSortedKeys( items ) );
 	}
 
-	public boolean checkNodeDeployment( ActionBase action , MetaEnvServerNode node , MetaEnvServerDeployment deployment ) throws Exception {
-		if( node.isAdmin( action ) )
+	public boolean checkNodeDeployment( MetaEnvServerNode node , MetaEnvServerDeployment deployment ) throws Exception {
+		if( node.isAdmin() )
 			return( deployment.isNodeAdminDeployment() );
-		if( node.isSlave( action ) )
+		if( node.isSlave() )
 			return( deployment.isNodeSlaveDeployment() );
-		if( node.isSelf( action ) )
+		if( node.isSelf() )
 			return( deployment.isNodeSelfDeployment() );
-		action.exitUnexpectedState();
+		Common.exitUnexpected();
 		return( false );
 	}
 	
-	public String[] getBinaryItems( ActionBase action ) throws Exception {
-		return( getNodeBinaryItems( action , null ) );
+	public String[] getBinaryItems() throws Exception {
+		return( getNodeBinaryItems( null ) );
 	}
 	
 	public String[] getConfItems( ActionBase action ) throws Exception {
-		return( getNodeConfItems( action , null ) );
+		return( getNodeConfItems( null ) );
 	}
 	
 }

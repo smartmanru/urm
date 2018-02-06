@@ -42,12 +42,11 @@ public class ActionBaseInstall extends ActionBase {
 		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 		
 		BaseItem baseItem = server.getBaseItem();
-		if( server.haBASEITEM == null ) {
+		if( baseItem == null ) {
 			info( "server has no base defined. Skipped" );
 			return;
 		}
 			
-		EngineBase base = super.getServerBase();
 		info( "rootpath=" + server.ROOTPATH + ", base=" + baseItem.NAME );
 
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {

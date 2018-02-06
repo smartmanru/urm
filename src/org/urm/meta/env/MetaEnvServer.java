@@ -7,16 +7,8 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.dist.Release;
-import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.dist.ReleaseTarget;
-import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.engine.properties.PropertyController;
-import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.BaseItem;
@@ -30,15 +22,9 @@ import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.product._Error;
 import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.MatchItem;
-import org.urm.meta.Types;
-import org.urm.meta.Types.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class MetaEnvServer extends EngineObject {
 
@@ -51,6 +37,7 @@ public class MetaEnvServer extends EngineObject {
 	public static String PROPERTY_SERVERACCESSTYPE = "accesstype";
 	public static String PROPERTY_SYSNAME = "sysname";
 	public static String PROPERTY_OFFLINE = "offline";
+	public static String PROPERTY_BASEITEM = "baseitem";
 	
 	public static String PROPERTY_ROOTPATH = "rootpath";
 	public static String PROPERTY_BINPATH = "binpath";
@@ -124,17 +111,17 @@ public class MetaEnvServer extends EngineObject {
 	public String LOGPATH;
 	public String LOGFILEPATH;
 	public boolean NOPIDS;
+	public String DBMSADDR;
 	public String ALIGNED = "";
 	public String REGIONS = "";
-	public String DBMSADDR;
 	
 	// dependencies
 	private MetaEnvServer nlbServer;
 	private MetaEnvServer proxyServer;
 	private MetaEnvServer staticServer;
-	private MetaEnvServer[] subordinateServers;
+	private List<MetaEnvServer> subordinateServers;
 
-	private Map<String,MetaEnvServerDeployment> deployMap;
+	private Map<Integer,MetaEnvServerDeployment> deployMapById;
 	private List<MetaEnvServerDeployment> deployments;
 	private List<MetaEnvServerNode> nodes;
 
@@ -145,14 +132,61 @@ public class MetaEnvServer extends EngineObject {
 		this.meta = meta;
 		this.sg = sg;
 		
+		subordinateServers = new LinkedList<MetaEnvServer>();
 		deployments = new LinkedList<MetaEnvServerDeployment>(); 
-		deployMap = new HashMap<String,MetaEnvServerDeployment>();
+		deployMapById = new HashMap<Integer,MetaEnvServerDeployment>();
 		nodes = new LinkedList<MetaEnvServerNode>();
 	}
 
 	@Override
 	public String getName() {
 		return( NAME );
+	}
+	
+	public MetaEnvServer copy( Meta rmeta , MetaEnvSegment rsg ) throws Exception {
+		MetaEnvServer r = new MetaEnvServer( rmeta , rsg );
+
+		ProductEnvs renvs = rmeta.getEnviroments();
+
+		// primary
+		r.ops = ops.copy( rsg.getProperties() );
+		r.ID = ID;
+		r.NAME = NAME;
+		r.DESC = DESC;
+		r.SERVERRUN_TYPE = SERVERRUN_TYPE;
+		r.SERVERACCESS_TYPE = SERVERACCESS_TYPE;
+		r.OS_TYPE = OS_TYPE;
+		r.BASELINE = MatchItem.copy( BASELINE );
+		r.OFFLINE = false;
+		r.DBMS_TYPE = DBMS_TYPE;
+		r.DATABASE_ADMSCHEMA = MatchItem.copy( DATABASE_ADMSCHEMA );
+		r.BASEITEM = MatchItem.copy( BASEITEM );
+		r.EV = EV;
+
+		// properties
+		refreshPrimaryProperties();
+		scatterExtraProperties();
+		
+		// children
+		r.nlbServer = renvs.findMetaEnvServer( nlbServer );
+		r.proxyServer = renvs.findMetaEnvServer( proxyServer );
+		r.staticServer = renvs.findMetaEnvServer( staticServer );
+		
+		for( MetaEnvServer server : subordinateServers ) {
+			MetaEnvServer rserver = renvs.findMetaEnvServer( server );
+			r.subordinateServers.add( rserver );
+		}
+			
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			MetaEnvServerDeployment rdeployment = deployment.copy( rmeta , r );
+			r.addDeployment( rdeployment );
+		}
+		for( MetaEnvServerNode node : nodes ) {
+			MetaEnvServerNode rnode = node.copy( rmeta , r );
+			r.addNodeInternal( rnode );
+		}
+		
+		return( r );
 	}
 	
 	public ObjectProperties getProperties() {
@@ -175,150 +209,123 @@ public class MetaEnvServer extends EngineObject {
 			if( !node.checkMatched() )
 				return( false );
 		}
+		
+		return( true );
 	}
 	
-	public void scatterProperties( ActionBase action ) throws Exception {
-		NAME = super.getStringPropertyRequired( action , PROPERTY_NAME );
-		action.trace( "load properties of server=" + NAME );
+	private void refreshPrimaryProperties() throws Exception {
+		ops.clearProperties( DBEnumParamEntityType.SERVER );
 		
-		DESC = super.getStringProperty( action , PROPERTY_DESC );
-		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE ); 
-		if( BASELINE.equals( "default" ) )
-			BASELINE = NAME;
+		ops.setStringProperty( PROPERTY_NAME , NAME );
+		ops.setStringProperty( PROPERTY_DESC , DESC );
+		ops.setEnumProperty( PROPERTY_SERVERRUNTYPE , SERVERRUN_TYPE );
+		ops.setEnumProperty( PROPERTY_SERVERACCESSTYPE , SERVERACCESS_TYPE );
+		ops.setEnumProperty( PROPERTY_OSTYPE , OS_TYPE );
 		
-		String SERVERRUNTYPE = super.getStringPropertyRequired( action , PROPERTY_SERVERRUNTYPE );
-		serverRunType = Types.getServerRunType( SERVERRUNTYPE , false );
-		String SERVERACCESSTYPE = super.getStringPropertyRequired( action , PROPERTY_SERVERACCESSTYPE );
-		SERVERACCESS_TYPE = DBEnumServerAccessType.getValue( SERVERACCESSTYPE , false );
-		OS_TYPE = DBEnumOSType.getValue( super.getStringProperty( action , PROPERTY_OSTYPE , "linux" ) , false );
-		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE );
-		XDOC = super.getPathProperty( action , PROPERTY_XDOC , NAME + ".xml" );
-		SYSNAME = super.getStringProperty( action , PROPERTY_SYSNAME );
+		MetaEnvServer serverBaseline = getBaselineServer();
+		if( serverBaseline != null )
+			ops.setStringProperty( PROPERTY_BASELINE , serverBaseline.NAME );
+
+		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
+		ops.setEnumProperty( PROPERTY_DBMSTYPE , DBMS_TYPE );
+		
+		MetaDatabaseSchema admSchema = getAdmSchema();
+		if( admSchema != null )
+			ops.setStringProperty( PROPERTY_ADMSCHEMA , admSchema.NAME );
+
+		BaseItem baseItem = getBaseItem();
+		if( baseItem != null )
+			ops.setStringProperty( PROPERTY_BASEITEM , baseItem.NAME );
+	}
+		
+	public void scatterExtraProperties() throws Exception {
+		XDOC = "";
+		ROOTPATH = "";
+		BINPATH = "";
+		SYSNAME = "";
+		PORT = 0;
+		STARTTIME = 0;
+		STOPTIME = 0;
+		DEPLOYPATH = "";
+		LINKFROMPATH = "";
+		DEPLOYSCRIPT = "";
+		HOTDEPLOYPATH = "";
+		HOTDEPLOYDATA = "";
+		WEBSERVICEURL = "";
+		WEBMAINURL = "";
+		LOGPATH = "";
+		LOGFILEPATH = "";
+		NOPIDS = false;
+		DBMSADDR = "";
+		ALIGNED = "";
+		REGIONS = "";
+		
+		XDOC = ops.getPathProperty( PROPERTY_XDOC );
+		SYSNAME = ops.getStringProperty( PROPERTY_SYSNAME );
 		
 		if( isStartable() || isDeployPossible() ) {
-			ROOTPATH = super.getPathProperty( action , PROPERTY_ROOTPATH );
+			ROOTPATH = ops.getPathProperty( PROPERTY_ROOTPATH );
 		}
 		
 		if( isStartable() ) {
-			BINPATH = super.getPathProperty( action , PROPERTY_BINPATH );
-			PORT = super.getIntProperty( action , PROPERTY_PORT , 0 );
-			NLBSERVER = super.getStringProperty( action , PROPERTY_NLBSERVER );
-			PROXYSERVER = super.getStringProperty( action , PROPERTY_PROXYSERVER , "" );
-			STATICSERVER = super.getStringProperty( action , PROPERTY_STATICSERVER , "" );
-			SUBORDINATESERVERS = super.getStringProperty( action , PROPERTY_SUBORDINATESERVERS , "" );
-			STARTTIME = super.getIntProperty( action , PROPERTY_STARTTIME , 0 );
-			STOPTIME = super.getIntProperty( action , PROPERTY_STOPTIME , 0 );
-			HOTDEPLOYPATH = super.getPathProperty( action , PROPERTY_HOTDEPLOYPATH );
-			HOTDEPLOYDATA = super.getStringProperty( action , PROPERTY_HOTDEPLOYDATA );
-			WEBSERVICEURL = super.getStringProperty( action , PROPERTY_WEBSERVICEURL );
-			WEBMAINURL = super.getStringProperty( action , PROPERTY_WEBMAINURL );
-			LOGPATH = super.getPathProperty( action , PROPERTY_LOGPATH );
-			LOGFILEPATH = super.getPathProperty( action , PROPERTY_LOGFILEPATH );
-			NOPIDS = super.getBooleanProperty( action , PROPERTY_NOPIDS );
+			BINPATH = ops.getPathProperty( PROPERTY_BINPATH );
+			PORT = ops.getIntProperty( PROPERTY_PORT );
+			STARTTIME = ops.getIntProperty( PROPERTY_STARTTIME );
+			STOPTIME = ops.getIntProperty( PROPERTY_STOPTIME );
+			HOTDEPLOYPATH = ops.getPathProperty( PROPERTY_HOTDEPLOYPATH );
+			HOTDEPLOYDATA = ops.getStringProperty( PROPERTY_HOTDEPLOYDATA );
+			WEBSERVICEURL = ops.getStringProperty( PROPERTY_WEBSERVICEURL );
+			WEBMAINURL = ops.getStringProperty( PROPERTY_WEBMAINURL );
+			LOGPATH = ops.getPathProperty( PROPERTY_LOGPATH );
+			LOGFILEPATH = ops.getPathProperty( PROPERTY_LOGFILEPATH );
+			NOPIDS = ops.getBooleanProperty( PROPERTY_NOPIDS );
 		}
 
 		if( isDeployPossible() ) {
-			DEPLOYPATH = super.getPathProperty( action , PROPERTY_DEPLOYPATH );
-			LINKFROMPATH = super.getPathProperty( action , PROPERTY_LINKFROMPATH );
-			DEPLOYSCRIPT = super.getPathProperty( action , PROPERTY_DEPLOYSCRIPT );
+			DEPLOYPATH = ops.getPathProperty( PROPERTY_DEPLOYPATH );
+			LINKFROMPATH = ops.getPathProperty( PROPERTY_LINKFROMPATH );
+			DEPLOYSCRIPT = ops.getPathProperty( PROPERTY_DEPLOYSCRIPT );
 		}
 		
-		if( isDatabase() ) {
-			DBMS_TYPE = DBEnumDbmsType.getValue( super.getStringProperty( action , PROPERTY_DBMSTYPE ) , true );
-			DBMSADDR = super.getStringProperty( action , PROPERTY_DBMSADDR );
-			ALIGNED = super.getStringProperty( action , PROPERTY_ALIGNED );
-			REGIONS = super.getStringProperty( action , PROPERTY_REGIONS );
-			ADMSCHEMA = super.getStringProperty( action , PROPERTY_ADMSCHEMA );
-			
-			MetaDatabase database = meta.getDatabase();
-			if( !ADMSCHEMA.isEmpty() )
-				admSchema = database.getSchema( ADMSCHEMA );
+		if( isRunDatabase() ) {
+			DBMS_TYPE = DBEnumDbmsType.getValue( ops.getStringProperty( PROPERTY_DBMSTYPE ) , true );
+			DBMSADDR = ops.getStringProperty( PROPERTY_DBMSADDR );
+			ALIGNED = ops.getStringProperty( PROPERTY_ALIGNED );
+			REGIONS = ops.getStringProperty( PROPERTY_REGIONS );
 		}
-
-		super.finishRawProperties();
 	}
 	
-	public boolean isBroken() {
-		return( super.isLoadFailed() );
-	}
-	
-	public VarSERVERRUNTYPE getServerRunType() {
-		return( serverRunType );
+	public DBEnumServerRunType getServerRunType() {
+		return( SERVERRUN_TYPE );
 	}
 	
 	public DBEnumServerAccessType getServerAccessType() {
 		return( SERVERACCESS_TYPE );
 	}
 	
-	public String getServerTypeName( ActionBase action ) throws Exception {
-		return( Common.getEnumLower( serverRunType ) + "/" + Common.getEnumLower( SERVERACCESS_TYPE ) );
+	public String getServerTypeName() {
+		return( Common.getEnumLower( SERVERRUN_TYPE ) + "/" + Common.getEnumLower( SERVERACCESS_TYPE ) );
 	}
 	
-	public String getFullId( ActionBase action ) throws Exception {
-		return( sg.getFullId( action ) + "-" + NAME );
+	public String getEnvObjectName() {
+		return( sg.getEnvObjectName() + "-" + NAME );
 	}
 	
-	public boolean hasBaseline( ActionBase action ) throws Exception {
-		if( BASELINE.isEmpty() )
+	public boolean hasBaseline() {
+		if( BASELINE == null )
 			return( false );
 		return( true );
 	}
 	
-	public String getBaselineServer( ActionBase action ) throws Exception {
-		return( BASELINE );
+	public MetaEnvServer getBaselineServer() throws Exception {
+		MetaEnvSegment segmentBaseline = sg.getBaseline();
+		if( segmentBaseline == null )
+			return( null );
+		
+		return( segmentBaseline.getServer( BASELINE ) );
 	}
 
-	public MetaEnvServer copy( Meta meta , MetaEnvSegment sg ) throws Exception {
-		MetaEnvServer r = new MetaEnvServer( meta , sg );
-		r.initCopyStarted( this , sg.getProperties() );
-		r.scatterProperties( action );
-		
-		if( basesw != null )
-			r.basesw = basesw.copy( action , meta , r );
-		for( MetaEnvServerDeployment deployment : deployments ) {
-			MetaEnvServerDeployment rdeployment = deployment.copy( action , meta , r );
-			r.addDeployment( rdeployment );
-		}
-		for( MetaEnvServerNode node : nodes ) {
-			MetaEnvServerNode rnode = node.copy( action , meta , r );
-			r.addNode( rnode );
-		}
-		
-		r.resolveLinks( action );
-		r.initFinished();
-		return( r );
-	}
-	
-	public void resolveLinks() throws Exception {
-		if( NLBSERVER != null && !NLBSERVER.isEmpty() )
-			nlbServer = sg.getServer( action , NLBSERVER );
-		if( PROXYSERVER != null && !PROXYSERVER.isEmpty() )
-			proxyServer = sg.getServer( action , PROXYSERVER );
-		if( STATICSERVER != null && !STATICSERVER.isEmpty() )
-			staticServer = sg.getServer( action , STATICSERVER );
-		if( SUBORDINATESERVERS != null && !SUBORDINATESERVERS.isEmpty() ) {
-			String[] SERVERS = Common.splitSpaced( SUBORDINATESERVERS );
-			subordinateServers = new MetaEnvServer[ SERVERS.length ];
-			for( int k = 0; k < SERVERS.length; k++ )
-				subordinateServers[ k ] = sg.getServer( action , SERVERS[ k ] );
-		}
-		
-		// verify aligned
-		if( isDatabase() ) {
-			MetaDatabase database = meta.getDatabase();
-			for( String id : Common.splitSpaced( ALIGNED ) )
-				database.checkAligned( id );
-		}
-		
-		if( basesw != null )
-			basesw.resolveLinks( action );
-		for( MetaEnvServerDeployment deploy : deployments )
-			deploy.resolveLinks( action );
-		for( MetaEnvServerNode node : nodes )
-			node.resolveLinks( action );
-	}
-	
-	public Map<String,MetaEnvServer> getAssociatedServers( ActionBase action ) throws Exception {
+	public Map<String,MetaEnvServer> getAssociatedServers() throws Exception {
 		Map<String,MetaEnvServer> servers = new HashMap<String,MetaEnvServer>();
 		if( nlbServer != null )
 			servers.put( nlbServer.NAME , nlbServer );
@@ -337,58 +344,36 @@ public class MetaEnvServer extends EngineObject {
 		this.startGroup = group;
 	}
 	
-	private void loadNodes( ActionBase action , Node node ) throws Exception {
-		Node[] items = ConfReader.xmlGetChildren( node , ELEMENT_NODE );
-		if( items == null )
-			return;
-		
-		int pos = 1;
-		for( Node snnode : items ) {
-			MetaEnvServerNode sn = new MetaEnvServerNode( meta , this , pos );
-			sn.load( action , snnode );
-			addNode( sn );
-			pos++;
-		}
-	}
-
-	private void addNode( MetaEnvServerNode sn ) {
+	private void addNodeInternal( MetaEnvServerNode sn ) {
 		nodes.add( sn );
 	}
 
 	private void addDeployment( MetaEnvServerDeployment dp ) {
-		String name = dp.getName();
 		deployments.add( dp );
-		deployMap.put( name , dp );
-	}
-	
-	public String[] getDeploymentNames() {
-		return( Common.getSortedKeys( deployMap ) );
-	}
-	
-	public MetaEnvServerDeployment findDeployment( String name ) {
-		return( deployMap.get( name ) );
+		deployMapById.put( dp.ID , dp );
 	}
 	
 	public MetaEnvServerNode[] getNodes() {
 		return( nodes.toArray( new MetaEnvServerNode[0] ) );
 	}
 
-	public MetaEnvServerNode findNode( int POS ) {
-		if( POS < 1 || POS > nodes.size() )
+	public MetaEnvServerNode findNode( int pos ) {
+		if( pos < 1 || pos > nodes.size() )
 			return( null );
-		return( nodes.get( POS - 1 ) );
+		return( nodes.get( pos - 1 ) );
 	}
 	
-	public MetaEnvServerNode getNode( ActionBase action , int POS ) throws Exception {
-		if( POS < 1 || POS > nodes.size() )
-			action.exit2( _Error.InvalidServerNode2 , "invalid node=" + POS + ", server=" + NAME , NAME , "" + POS );
-		return( nodes.get( POS - 1 ) );
+	public MetaEnvServerNode getNode( int pos ) throws Exception {
+		if( pos < 1 || pos > nodes.size() )
+			Common.exit2( _Error.InvalidServerNode2 , "invalid node=" + pos + ", server=" + NAME , NAME , "" + pos );
+		return( nodes.get( pos - 1 ) );
 	}
 
-	public boolean hasWebServices() {
+	public boolean hasWebServices() throws Exception {
 		for( MetaEnvServerDeployment deploy : deployments ) {
-			if( deploy.comp != null )
-				if( deploy.comp.hasWebServices() )
+			MetaDistrComponent comp = deploy.getComponent();
+			if( comp != null )
+				if( comp.hasWebServices() )
 					return( true );
 		}
 		return( false );
@@ -398,20 +383,15 @@ public class MetaEnvServer extends EngineObject {
 		return( deployments.toArray( new MetaEnvServerDeployment[0] ) );
 	}
 
-	public String getFullBinPath( ActionBase action ) throws Exception {
-		action.checkRequired( !ROOTPATH.isEmpty() , PROPERTY_ROOTPATH );
-		action.checkRequired( !BINPATH.isEmpty() , PROPERTY_BINPATH );
+	public String getFullBinPath() throws Exception {
+		if( ROOTPATH.isEmpty() )
+			Common.exitUnexpected();
+		if( BINPATH.isEmpty() )
+			Common.exitUnexpected();
 		return( Common.getPath( ROOTPATH , BINPATH ) );
 	}
 	
-	public boolean checkDeployBinaries( ActionBase action ) throws Exception {
-		for( MetaEnvServerDeployment deploy : deployments )
-			if( deploy.binaryItem != null )
-				return( true );
-		return( false );
-	}
-
-	public String getNodesAsStringByHost( String host ) throws Exception {
+	public String getNodesAsStringByHost( ActionBase action , String host ) throws Exception {
 		String s = "";
 		for( MetaEnvServerNode node : nodes ) {
 			Account account = action.getNodeAccount( node );
@@ -424,7 +404,7 @@ public class MetaEnvServer extends EngineObject {
 		return( s );
 	}
 
-	public String getNodesAsStringByAccount( Account account ) throws Exception {
+	public String getNodesAsStringByAccount( ActionBase action , Account account ) throws Exception {
 		String s = "";
 		for( MetaEnvServerNode node : nodes ) {
 			Account nodeAccount = action.getNodeAccount( node );
@@ -437,35 +417,38 @@ public class MetaEnvServer extends EngineObject {
 		return( s );
 	}
 
-	public MetaEnvServerNode[] getNodes( ActionBase action , String[] NODES ) throws Exception {
+	public MetaEnvServerNode[] getNodes( ActionBase action , String[] nodes ) throws Exception {
 		List<MetaEnvServerNode> list = new LinkedList<MetaEnvServerNode>();
-		for( String NODE : NODES ) {
-			MetaEnvServerNode node = getNode( action , Integer.parseInt( NODE ) );
+		for( String pos : nodes ) {
+			MetaEnvServerNode node = getNode( Integer.parseInt( pos ) );
 			list.add( node );
 		}
 		return( list.toArray( new MetaEnvServerNode[0] ) );
 	}
 	
 	public boolean isConfigurable() {
-		if( SERVERACCESS_TYPE == DBEnumServerAccessType.MANUAL || SERVERACCESS_TYPE == DBEnumServerAccessType.UNKNOWN )
+		if( isAccessManual() || SERVERACCESS_TYPE == DBEnumServerAccessType.UNKNOWN )
 			return( false );
-		if( serverRunType == VarSERVERRUNTYPE.DATABASE || serverRunType == VarSERVERRUNTYPE.UNKNOWN ) 
+		if( isRunDatabase() || SERVERRUN_TYPE == DBEnumServerRunType.UNKNOWN ) 
 			return( false );
 		return( true );
 	}
 	
-	public boolean hasConfiguration() {
+	public boolean hasConfiguration() throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.confItem != null )
+			if( deployment.isConfItem() )
 				return( true );
-			if( deployment.comp != null )
-				if( deployment.comp.hasConfItems() )
+			
+			if( deployment.isComponent() ) {
+				MetaDistrComponent comp = deployment.getComponent();
+				if( comp.hasConfItems() )
 					return( true );
+			}
 		}
 		return( false );
 	}
 
-	public boolean hasConfItemDeployment( MetaDistrConfItem confItem ) {
+	public boolean hasConfItemDeployment( MetaDistrConfItem confItem ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.hasConfItemDeployment( confItem ) )
 				return( true );
@@ -473,7 +456,7 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public boolean hasBinaryItemDeployment( MetaDistrBinaryItem binaryItem ) {
+	public boolean hasBinaryItemDeployment( MetaDistrBinaryItem binaryItem ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.hasBinaryItemDeployment( binaryItem ) )
 				return( true );
@@ -481,7 +464,7 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public boolean hasDatabaseItemDeployment( MetaDistrDelivery delivery ) {
+	public boolean hasDatabaseItemDeployment( MetaDistrDelivery delivery ) throws Exception {
 		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() ) {
 			if( hasDatabaseItemDeployment( schema ) )
 				return( true );
@@ -489,7 +472,7 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public boolean hasDatabaseItemDeployment( MetaDatabaseSchema schema ) {
+	public boolean hasDatabaseItemDeployment( MetaDatabaseSchema schema ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.hasDatabaseItemDeployment( schema ) ) 
 				return( true );
@@ -497,16 +480,17 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 	
-	public Map<String, MetaDistrConfItem> getConfItems() throws Exception {
+	public MetaDistrConfItem[] getConfItems() throws Exception {
 		Map<String, MetaDistrConfItem> confs = new HashMap<String, MetaDistrConfItem>(); 
 		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.confItem != null ) {
-				MetaDistrConfItem conf = deployment.confItem; 
+			if( deployment.isConfItem() ) {
+				MetaDistrConfItem conf = deployment.getConfItem(); 
 				confs.put( conf.NAME , conf );
 			}
 			else
-			if( deployment.comp != null ) {
-				for( MetaDistrComponentItem item : deployment.comp.getConfItems() ) {
+			if( deployment.isComponent() ) {
+				MetaDistrComponent comp = deployment.getComponent();
+				for( MetaDistrComponentItem item : comp.getConfItems() ) {
 					if( item.confItem != null ) {
 						MetaDistrConfItem conf = item.confItem; 
 						confs.put( conf.NAME , conf );
@@ -514,7 +498,13 @@ public class MetaEnvServer extends EngineObject {
 				}
 			}
 		}
-		return( confs );
+		
+		MetaDistrConfItem[] list = new MetaDistrConfItem[ confs.size() ];
+		String[] names = Common.getSortedKeys( confs );
+		for( int k = 0; k < names.length; k++ )
+			list[ k ] = confs.get( names[ k ] );
+		
+		return( list );
 	}
 
 	public MetaEnvServerNode getPrimaryNode( ActionBase action ) throws Exception {
@@ -534,55 +524,60 @@ public class MetaEnvServer extends EngineObject {
 				continue;
 			
 			String deployPath = deployment.getDeployPath( action );
-			VarDEPLOYMODE deployType = deployment.getDeployType( action );
+			DBEnumDeployModeType deployType = deployment.DEPLOYMODE_TYPE;
 			String key = Common.getEnumLower( deployType ) + "-" + deployPath;
 			
-			if( deployment.binaryItem != null ) {
+			if( deployment.isBinaryItem() ) {
 				if( binary ) {
 					MetaEnvServerLocation location = locations.get( key ); 
 					if( location == null ) {
 						location = new MetaEnvServerLocation( meta , this , deployType , deployPath );
 						locations.put( key , location );
 					}
-					location.addBinaryItem( action , deployment , deployment.binaryItem , "" );
+					
+					MetaDistrBinaryItem binaryItem = deployment.getBinaryItem();
+					location.addBinaryItem( deployment , binaryItem , "" );
 				}
 			}
 			else
-			if( deployment.confItem != null ) {
+			if( deployment.isConfItem() ) {
 				if( conf ) {
 					MetaEnvServerLocation location = locations.get( key ); 
 					if( location == null ) {
 						location = new MetaEnvServerLocation( meta , this , deployType , deployPath );
 						locations.put( key , location );
 					}
-					location.addConfItem( action , deployment , deployment.confItem );
+					
+					MetaDistrConfItem confItem = deployment.getConfItem();
+					location.addConfItem( deployment , confItem );
 				}
 			}
 			else
-			if( deployment.comp != null ) {
-				if( binary && deployment.comp.hasBinaryItems() ) {
+			if( deployment.isComponent() ) {
+				MetaDistrComponent comp = deployment.getComponent();
+				if( binary && comp.hasBinaryItems() ) {
 					MetaEnvServerLocation location = locations.get( key ); 
 					if( location == null ) {
 						location = new MetaEnvServerLocation( meta , this , deployType , deployPath );
 						locations.put( key , location );
 					}
 					
-					for( MetaDistrComponentItem item : deployment.comp.getBinaryItems() ) {
+					for( MetaDistrComponentItem item : comp.getBinaryItems() ) {
 						if( item.binaryItem != null )
-							location.addBinaryItem( action , deployment , item.binaryItem , item.DEPLOY_NAME );
+							location.addBinaryItem( deployment , item.binaryItem , item.DEPLOY_NAME );
 					}
 				}
 				
-				if( conf && deployment.comp.hasConfItems() ) {
+				if( conf && comp.hasConfItems() ) {
 					MetaEnvServerLocation location = locations.get( key ); 
 					if( location == null ) {
 						location = new MetaEnvServerLocation( meta , this , deployType , deployPath );
 						locations.put( key , location );
 					}
 					
-					for( MetaDistrComponentItem item : deployment.comp.getConfItems() ) {
+					for( MetaDistrComponentItem item : comp.getConfItems() ) {
 						if( item.confItem != null )
-							location.addConfItem( action , deployment , item.confItem );
+							location.addConfItem( deployment , item.confItem );
 					}
 				}
 			}
@@ -603,40 +598,52 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public Map<String,MetaDatabaseSchema> getSchemaSet( ActionBase action ) throws Exception {
+	public MetaDatabaseSchema[] getSchemaSet() throws Exception {
 		Map<String,MetaDatabaseSchema> schemaMap = new HashMap<String,MetaDatabaseSchema>();
-		for( MetaEnvServerDeployment item : deployments ) {
-			if( item.isDatabase() )
-				schemaMap.put( item.schema.NAME , item.schema );
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isDatabase() ) {
+				MetaDatabaseSchema schema = deployment.getSchema();
+				schemaMap.put( schema.NAME , schema );
+			}
 			else
-			if( item.isComponent() ) {
-				for( MetaDistrComponentItem compItem : item.comp.getSchemaItems() )
+			if( deployment.isComponent() ) {
+				MetaDistrComponent comp = deployment.getComponent();
+				for( MetaDistrComponentItem compItem : comp.getSchemaItems() )
 					schemaMap.put( compItem.schema.NAME , compItem.schema );
 			}
 		}
-		return( schemaMap );
-	}
-
-	public MetaEnvServerNode getStandbyNode( ActionBase action ) throws Exception {
-		for( MetaEnvServerNode node : getNodes() ) {
-			if( node.DBSTANDBY )
-				return( node );
-		}
 		
-		action.exit0( _Error.MissingStandbyNode0 , "unable to find standby node" );
-		return( null );
+		MetaDatabaseSchema[] list = new MetaDatabaseSchema[ schemaMap.size() ];
+		String[] names = Common.getSortedKeys( schemaMap );
+		for( int k = 0; k < names.length; k++ )
+			list[ k ] = schemaMap.get( names[ k ] );
+		
+		return( list );
 	}
 
-	public MetaEnvServerNode getMasterNode( ActionBase action ) throws Exception {
+	public MetaEnvServerNode getStandbyNode() throws Exception {
 		for( MetaEnvServerNode node : getNodes() ) {
 			if( node.OFFLINE )
 				continue;
 			
-			if( node.nodeType == VarNODETYPE.ADMIN )
+			if( node.DBSTANDBY )
 				return( node );
 		}
 		
-		action.exit0( _Error.MissingActiveNode0 , "unable to find active node" );
+		Common.exit0( _Error.MissingStandbyNode0 , "unable to find active standby node" );
+		return( null );
+	}
+
+	public MetaEnvServerNode getMasterNode() throws Exception {
+		for( MetaEnvServerNode node : getNodes() ) {
+			if( node.OFFLINE )
+				continue;
+			
+			if( node.isAdmin() )
+				return( node );
+		}
+		
+		Common.exit0( _Error.MissingActiveNode0 , "unable to find active master node" );
 		return( null );
 	}
 
@@ -648,289 +655,58 @@ public class MetaEnvServer extends EngineObject {
 		return( OS_TYPE == DBEnumOSType.LINUX );
 	}
 
-	public boolean isDatabase() {
-		return( serverRunType == VarSERVERRUNTYPE.DATABASE );
+	public boolean isRunDatabase() {
+		return( SERVERRUN_TYPE == DBEnumServerRunType.DATABASE );
 	}
 
-	public boolean isService() {
+	public boolean isAccessService() {
 		return( SERVERACCESS_TYPE == DBEnumServerAccessType.SERVICE );
 	}
 
-	public boolean isDocker() {
+	public boolean isAccessDocker() {
 		return( SERVERACCESS_TYPE == DBEnumServerAccessType.DOCKER );
 	}
 
-	public boolean isPacemaker() {
+	public boolean isAccessManual() {
+		if( SERVERACCESS_TYPE == DBEnumServerAccessType.MANUAL )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isAccessPacemaker() {
 		return( SERVERACCESS_TYPE == DBEnumServerAccessType.PACEMAKER );
 	}
 
-	public boolean isCommand() {
-		return( serverRunType == VarSERVERRUNTYPE.COMMAND );
+	public boolean isRunCommand() {
+		return( SERVERRUN_TYPE == DBEnumServerRunType.COMMAND );
 	}
 	
-	public boolean isGeneric() {
+	public boolean isAccessGeneric() {
 		return( SERVERACCESS_TYPE == DBEnumServerAccessType.GENERIC );
 	}
 
-	public boolean isManual() {
-		return( SERVERACCESS_TYPE == DBEnumServerAccessType.MANUAL );
+	public boolean isRunWebUser() {
+		return( SERVERRUN_TYPE == DBEnumServerRunType.WEBUI );
 	}
 
-	public boolean isWebUser() {
-		return( serverRunType == VarSERVERRUNTYPE.WEBUI );
+	public boolean isRunWebApp() {
+		return( SERVERRUN_TYPE == DBEnumServerRunType.WEBAPP );
 	}
 
-	public boolean isWebApp() {
-		return( serverRunType == VarSERVERRUNTYPE.WEBAPP );
+	public boolean isRunGenericApp() {
+		return( SERVERRUN_TYPE == DBEnumServerRunType.APP );
 	}
 
 	public boolean isCallable() {
-		if( serverRunType == VarSERVERRUNTYPE.DATABASE ||
-			serverRunType == VarSERVERRUNTYPE.APP ) 
+		if( isRunDatabase() || isRunGenericApp() ) 
 			return( false );
 		return( true );
-			
 	}
 
 	public boolean isStartable() {
-		if( SERVERACCESS_TYPE == DBEnumServerAccessType.MANUAL )
+		if( isAccessManual() )
 			return( false );
 		return( true );
-	}
-
-	public void createServer( ActionBase action , String NAME , String DESC , DBEnumOSType osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
-		if( !super.initCreateStarted( sg.getProperties() ) )
-			return;
-
-		OFFLINE = false;
-		super.setStringProperty( PROPERTY_NAME , NAME );
-		super.setStringProperty( PROPERTY_DESC , DESC );
-		super.setStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( osType ) );
-		super.setStringProperty( PROPERTY_SERVERRUNTYPE , Common.getEnumLower( runType ) );
-		super.setStringProperty( PROPERTY_SERVERACCESSTYPE , Common.getEnumLower( accessType ) );
-		super.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
-		super.setStringProperty( PROPERTY_SYSNAME , sysname );
-		super.finishProperties( action );
-		super.initFinished();
-		
-		scatterProperties( action );
-	}
-
-	public void modifyServer( ActionBase action , String NAME , String DESC , DBEnumOSType osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
-		super.setStringProperty( PROPERTY_NAME , NAME );
-		super.setStringProperty( PROPERTY_DESC , DESC );
-		super.setStringProperty( PROPERTY_OSTYPE , Common.getEnumLower( osType ) );
-		super.setStringProperty( PROPERTY_SERVERRUNTYPE , Common.getEnumLower( runType ) );
-		super.setStringProperty( PROPERTY_SERVERACCESSTYPE , Common.getEnumLower( accessType ) );
-		super.setStringProperty( PROPERTY_SYSNAME , sysname );
-		super.finishProperties( action );
-		
-		scatterProperties( action );
-	}
-
-	public void setBaseline( EngineTransaction transaction , String baselineServer ) throws Exception {
-		super.setSystemStringProperty( PROPERTY_BASELINE , baselineServer );
-	}
-	
-	public void setPlatform( EngineTransaction transaction , BaseItem item ) throws Exception {
-		if( basesw == null ) {
-			basesw = new MetaEnvServerBase( meta , this );
-			basesw.createBase( transaction.action , item );
-		}
-		else
-			basesw.setItem( transaction , item );
-	}
-	
-	public void setOffline( EngineTransaction transaction , boolean offline ) throws Exception {
-		// check props
-		if( !offline ) {
-			ActionBase action = transaction.getAction();
-			if( ROOTPATH == null || ROOTPATH.isEmpty() ) {
-				if( deployments != null && !deployments.isEmpty() )
-					action.exit1( _Error.RootpathEmptyRequiredForDeployments1 , "rootpath is empty, required for deployments server=" + NAME , NAME );
-				if( isGeneric() )
-					action.exit1( _Error.RootpathEmptyRequiredForGeneric1 , "rootpath is empty, required for generic server=" + NAME , NAME );
-			}
-		}
-		
-		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
-	}
-
-	public void createNode( EngineTransaction transaction , MetaEnvServerNode node ) {
-		addNode( transaction , node );
-	}
-	
-	private void addNode( EngineTransaction transaction , MetaEnvServerNode node ) {
-		int index = nodes.size();
-		if( node.POS > 0 )
-			index = node.POS - 1;
-		else
-			node.setPos( transaction , index + 1 );
-		
-		if( index >= nodes.size() ) {
-			addNode( node );
-			return;
-		}
-		
-		// add and shift tail nodes
-		nodes.add( index , node );
-		for( int k = index + 1; k < nodes.size(); k++ ) {
-			MetaEnvServerNode item = nodes.get( k );
-			item.setPos( transaction , k + 1 );
-		}
-	}
-	
-	public void deleteNode( EngineTransaction transaction , MetaEnvServerNode node ) {
-		int index = nodes.indexOf( node );
-		if( index < 0 )
-			return;
-		
-		// remove and shift tail nodes
-		nodes.remove( index );
-		for( int k = index; k < nodes.size(); k++ ) {
-			MetaEnvServerNode item = nodes.get( k );
-			item.setPos( transaction , k + 1 );
-		}
-	}
-
-	public void modifyNode( EngineTransaction transaction , MetaEnvServerNode node ) {
-		int index = nodes.indexOf( node );
-		if( index < 0 )
-			return;
-		
-		if( index + 1 == node.POS )
-			return;
-		
-		nodes.remove( index );
-		addNode( transaction , node );
-	}
-
-	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
-		for( MetaEnvServerNode node : nodes )
-			node.getApplicationReferences( account , refs );
-	}
-
-	public void deleteHostAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
-		super.deleteObject();
-	}
-	
-	public void setProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
-		super.updateProperties( transaction , props , system );
-		scatterProperties( transaction.getAction() );
-	}
-
-	public void setDeployments( EngineTransaction transaction , List<MetaEnvServerDeployment> deploymentsNew ) throws Exception {
-		for( MetaEnvServerDeployment deployment : deployments )
-			deployment.deleteObject();
-		deployments.clear();
-		deployMap.clear();
-		
-		for( MetaEnvServerDeployment deployment : deploymentsNew )
-			addDeployment( deployment );
-	}
-
-	public void reflectDeleteBinaryItem( EngineTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
-		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.isBinaryItem() && deployment.binaryItem == item ) {
-				deployMap.remove( deployment.getName() );
-				deployments.remove( deployment );
-				deployment.deleteObject();
-			}
-		}
-	}
-	
-	public void reflectDeleteConfItem( EngineTransaction transaction , MetaDistrConfItem item ) throws Exception {
-		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.isConfItem() && deployment.confItem == item ) {
-				deployMap.remove( deployment.getName() );
-				deployments.remove( deployment );
-				deployment.deleteObject();
-			}
-		}
-	}
-	
-	public void reflectDeleteComponent( EngineTransaction transaction , MetaDistrComponent item ) throws Exception {
-		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.isComponent() && deployment.comp == item ) {
-				deployMap.remove( deployment.getName() );
-				deployments.remove( deployment );
-				deployment.deleteObject();
-			}
-		}
-	}
-	
-	public void reflectDeleteSchema( EngineTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
-		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.isDatabase() && deployment.schema == schema ) {
-				deployMap.remove( deployment.getName() );
-				deployments.remove( deployment );
-				deployment.deleteObject();
-			}
-		}
-	}
-
-	public boolean isReleaseApplicable( Release release ) {
-		for( ReleaseDelivery delivery : release.getDeliveries() ) {
-			if( isDatabase() ) {
-				for( ReleaseTargetItem item : delivery.getDatabaseItems() ) {
-					if( hasDatabaseItemDeployment( item.schema ) )
-						return( true );
-				}
-			}
-			
-			for( ReleaseTargetItem item : delivery.getProjectItems() ) {
-				if( hasBinaryItemDeployment( item.distItem ) )
-					return( true );
-			}
-			
-			for( ReleaseTarget item : delivery.getManualItems() ) {
-				if( hasBinaryItemDeployment( item.distManualItem ) )
-					return( true );
-			}
-			
-			for( ReleaseTarget item : delivery.getDerivedItems() ) {
-				if( hasBinaryItemDeployment( item.distDerivedItem ) )
-					return( true );
-			}
-			
-			for( ReleaseTarget item : delivery.getConfItems() ) {
-				if( hasConfItemDeployment( item.distConfItem ) )
-					return( true );
-			}
-		}
-		return( false );
-	}
-
-	public String getSchemaDBName( MetaDatabaseSchema schema ) {
-		for( MetaEnvServerDeployment d : deployments ) {
-			if( d.isDatabase() ) {
-				if( d.SCHEMA.FKID == schema.ID )
-					return( d.DBNAME );
-			}
-			else {
-				MetaDistrComponentItem item = d.comp.findSchemaItem( schema.NAME );
-				if( item != null )
-					return( schema.DBNAMEDEF );
-			}
-		}
-		
-		return( null );
-	}
-	
-	public String getSchemaDBUser( MetaDatabaseSchema schema ) {
-		for( MetaEnvServerDeployment d : deployments ) {
-			if( d.isDatabase() ) {
-				if( d.schema == schema )
-					return( d.DBUSER );
-			}
-			else {
-				MetaDistrComponentItem item = d.comp.findSchemaItem( schema.NAME );
-				if( item != null )
-					return( schema.DBUSERDEF );
-			}
-		}
-		
-		return( null );
 	}
 
 	public MetaDatabaseSchema getAdmSchema() throws Exception {
@@ -946,6 +722,227 @@ public class MetaEnvServer extends EngineObject {
 	
 	public MetaEnvStartGroup getStartGroup() {
 		return( startGroup );
+	}
+
+	public MetaEnvServer getProxyServer() {
+		return( proxyServer );
+	}
+			
+	public MetaEnvServer getNlbServer() {
+		return( nlbServer );
+	}
+	
+	public MetaEnvServer getStaticServer() {
+		return( staticServer );
+	}
+	
+	public MetaEnvServer[] getSubordinateServers() {
+		return( subordinateServers.toArray( new MetaEnvServer[0] ) );
+	}
+	
+	public void setBaseline( MetaEnv server ) throws Exception {
+		if( server == null ) {
+			this.BASELINE = null;
+			return;
+		}
+			
+		this.BASELINE = new MatchItem( server.ID );
+		refreshPrimaryProperties();
+	}
+	
+	public void setPlatform( BaseItem item ) throws Exception {
+		if( item == null ) {
+			this.BASEITEM = null;
+			return;
+		}
+		
+		this.BASEITEM = new MatchItem( item.ID );
+		refreshPrimaryProperties();
+	}
+	
+	public void setOffline( boolean offline ) throws Exception {
+		// check props
+		if( !offline ) {
+			if( ROOTPATH == null || ROOTPATH.isEmpty() ) {
+				if( deployments != null && !deployments.isEmpty() )
+					Common.exit1( _Error.RootpathEmptyRequiredForDeployments1 , "rootpath is empty, required for deployments server=" + NAME , NAME );
+				if( isAccessGeneric() )
+					Common.exit1( _Error.RootpathEmptyRequiredForGeneric1 , "rootpath is empty, required for generic server=" + NAME , NAME );
+			}
+		}
+
+		this.OFFLINE = offline;
+		refreshPrimaryProperties();
+	}
+
+	public void addNode( MetaEnvServerNode node ) throws Exception {
+		int index = nodes.size();
+		if( node.POS > 0 )
+			index = node.POS - 1;
+		else
+			node.setPos( index + 1 );
+		
+		if( index >= nodes.size() ) {
+			addNodeInternal( node );
+			return;
+		}
+		
+		// add and shift tail nodes
+		nodes.add( index , node );
+		for( int k = index + 1; k < nodes.size(); k++ ) {
+			MetaEnvServerNode item = nodes.get( k );
+			item.setPos( k + 1 );
+		}
+	}
+	
+	public void removeNode( MetaEnvServerNode node ) throws Exception {
+		int index = nodes.indexOf( node );
+		if( index < 0 )
+			return;
+		
+		// remove and shift tail nodes
+		nodes.remove( index );
+		for( int k = index; k < nodes.size(); k++ ) {
+			MetaEnvServerNode item = nodes.get( k );
+			item.setPos( k + 1 );
+		}
+	}
+
+	public void updateNode( MetaEnvServerNode node ) throws Exception {
+		int index = nodes.indexOf( node );
+		if( index < 0 )
+			return;
+		
+		if( index + 1 == node.POS )
+			return;
+		
+		nodes.remove( index );
+		addNode( node );
+	}
+
+	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
+		for( MetaEnvServerNode node : nodes )
+			node.getApplicationReferences( account , refs );
+	}
+
+	public void removeBinaryItem( MetaDistrBinaryItem item ) throws Exception {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isBinaryItem() ) {
+				MetaDistrBinaryItem binaryItem = deployment.getBinaryItem();
+				if( binaryItem == item )
+					deployments.remove( deployment );
+			}
+		}
+	}
+	
+	public void removeDeployment( MetaEnvServerDeployment deployment ) {
+		deployments.remove( deployment );
+		deployMapById.remove( deployment.ID );
+	}
+	
+	public void removeConfItem( MetaDistrConfItem item ) throws Exception {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isConfItem( item ) )
+				removeDeployment( deployment );
+		}
+	}
+	
+	public void removeComponent( MetaDistrComponent item ) throws Exception {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isComponent( item ) )
+				removeDeployment( deployment );
+		}
+	}
+	
+	public void removeSchema( MetaDatabaseSchema schema ) throws Exception {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isSchema( schema ) )
+				removeDeployment( deployment );
+		}
+	}
+
+	public String getSchemaDBName( MetaDatabaseSchema schema ) throws Exception {
+		for( MetaEnvServerDeployment d : deployments ) {
+			if( d.isSchema( schema ) )
+				return( d.DBNAME );
+			
+			if( d.isComponent() ) {
+				MetaDistrComponent comp = d.getComponent();
+				MetaDistrComponentItem item = comp.findSchemaItem( schema.ID );
+				if( item != null )
+					return( schema.DBNAMEDEF );
+			}
+		}
+		
+		return( null );
+	}
+	
+	public String getSchemaDBUser( MetaDatabaseSchema schema ) throws Exception {
+		for( MetaEnvServerDeployment d : deployments ) {
+			if( d.isSchema( schema ) )
+				return( d.DBUSER );
+			
+			if( d.isComponent() ) {
+				MetaDistrComponent comp = d.getComponent();
+				MetaDistrComponentItem item = comp.findSchemaItem( schema.ID );
+				if( item != null )
+					return( schema.DBUSERDEF );
+			}
+		}
+		
+		return( null );
+	}
+
+	public void createServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , 
+			DBEnumOSType osType , MatchItem baselineMatch , boolean offline , DBEnumDbmsType dbmsType , MatchItem admSchemaMatch , MatchItem baseItemMatch ) throws Exception {
+		modifyServer( name , desc , runType , accessType , 
+				osType , baselineMatch , offline , dbmsType , admSchemaMatch , baseItemMatch );
+	}
+	
+	public void modifyServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , 
+			DBEnumOSType osType , MatchItem baselineMatch , boolean offline , DBEnumDbmsType dbmsType , MatchItem admSchemaMatch , MatchItem baseItemMatch ) throws Exception {
+		this.NAME = name;
+		this.DESC = desc;
+		this.SERVERRUN_TYPE = runType;
+		this.SERVERACCESS_TYPE = accessType;
+		this.OS_TYPE = osType;
+		this.BASELINE = MatchItem.copy( baselineMatch );
+		this.OFFLINE = false;
+		this.DBMS_TYPE = dbmsType;
+		this.DATABASE_ADMSCHEMA = MatchItem.copy( admSchemaMatch );
+		this.BASEITEM = MatchItem.copy( baseItemMatch );
+		
+		refreshPrimaryProperties();
+		scatterExtraProperties();
+	}
+
+	public void addDependencyServer( MetaEnvServer server , DBEnumServerDependencyType type ) throws Exception {
+		if( type == DBEnumServerDependencyType.NLB )
+			this.nlbServer = server;
+		else
+		if( type == DBEnumServerDependencyType.PROXY )
+			this.proxyServer = server;
+		else
+		if( type == DBEnumServerDependencyType.STATIC )
+			this.staticServer = server;
+		else
+		if( type == DBEnumServerDependencyType.SUBORDINATE )
+			subordinateServers.add( server );
+		else
+			Common.exitUnexpected();
+	}
+	
+	public void updateExtraSettings() throws Exception {
+		scatterExtraProperties();
+	}
+	
+	public void updateCustomSettings() throws Exception {
+		scatterExtraProperties();
+	}
+	
+	public void clearDeployments() {
+		deployments.clear();
+		deployMapById.clear();
 	}
 	
 }

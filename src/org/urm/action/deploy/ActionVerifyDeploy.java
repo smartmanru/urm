@@ -121,7 +121,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		
 		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 
-		if( server.isDatabase() )
+		if( server.isRunDatabase() )
 			executeServerDatabase( server );
 		else
 			executeServerApp( target , server );
