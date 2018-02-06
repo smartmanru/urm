@@ -91,7 +91,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		String SERVER = getRequiredArg( action , 1 , "DBSERVER" );
-		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
+		MetaEnvServer server = action.context.sg.getServer( SERVER );
 		ActionScope scope = getIndexScope( action , dist , 2 );
 		impl.applyManual( parentState , action , scope , dist , server );
 	}

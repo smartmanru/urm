@@ -8,9 +8,9 @@ import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class EngineLoaderEnvs {
@@ -33,11 +33,16 @@ public class EngineLoaderEnvs {
 		set.setEnvs( envs );
 	}
 	
-	public void exportAll( ProductStorage ms ) throws Exception {
-		exportEnvs( ms );
-		saveMonitoring( ms );
+	public void exportxmlAll( ProductStorage ms ) throws Exception {
+		exportxmlEnvs( ms );
+		exportxmlMonitoring( ms );
 	}
 
+	public void importxmlAll( ProductStorage ms ) throws Exception {
+		importxmlEnvs( ms );
+		importxmlMonitoring( ms );
+	}
+	
 	public void importxmlEnvs( ProductStorage ms ) throws Exception {
 		ProductEnvs envs = new ProductEnvs( set , set.meta );
 		set.setEnvs( envs );
@@ -46,21 +51,24 @@ public class EngineLoaderEnvs {
 		for( String envFile : ms.getEnvFiles( action ) )
 			importxmlEnvData( ms , envFile );
 		
-		loadMonitoring( ms );
+		importxmlMonitoring( ms );
 	}
 	
-	public void exportEnvs( ProductStorage ms ) throws Exception {
+	private void exportxmlEnvs( ProductStorage ms ) throws Exception {
 		ProductEnvs envs = set.getEnviroments();
 		for( String envName : envs.getEnvNames() ) {
-			MetaEnv env = envs.findEnv( envName );
+			MetaEnv env = envs.findMetaEnv( envName );
 			exportEnvData( ms , env );
 		}
 	}
 
+	public void loaddbAll() throws Exception {
+	}
+	
 	public void loaddbEnvs() throws Exception {
 	}
 	
-	public void loadMonitoring( ProductStorage ms ) throws Exception {
+	public void importxmlMonitoring( ProductStorage ms ) throws Exception {
 		ProductEnvs envs = set.getEnviroments();
 		MetaMonitoring mon = envs.getMonitoring();
 		
@@ -80,7 +88,7 @@ public class EngineLoaderEnvs {
 		}
 	}
 
-	public void saveMonitoring( ProductStorage ms ) throws Exception {
+	public void exportxmlMonitoring( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		String file = ms.getMonitoringConfFile( action );
 		action.debug( "export product monitoring file " + file + "..." );
@@ -108,12 +116,15 @@ public class EngineLoaderEnvs {
 		}
 	}
 	
-	private void exportEnvData( ProductStorage storageMeta , MetaEnv env ) throws Exception {
+	private void exportEnvData( ProductStorage ms , MetaEnv env ) throws Exception {
 		ActionBase action = loader.getAction();
+		String file = ms.getEnvConfFile( action , env.NAME );
+		action.debug( "export environment file " + file + "..." );
 		Document doc = Common.xmlCreateDoc( XML_ROOT_ENV );
-		env.save( action , doc , doc.getDocumentElement() );
-		String envFile = env.NAME + ".xml";
-		storageMeta.saveEnvConfFile( action , doc , envFile );
+		Element root = doc.getDocumentElement();
+		
+		DBMetaEnv.exportxml( loader , set , env , doc , root );
+		ms.saveDoc( doc , file );
 	}
 	
 }

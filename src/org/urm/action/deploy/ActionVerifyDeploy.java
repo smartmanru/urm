@@ -119,7 +119,7 @@ public class ActionVerifyDeploy extends ActionBase {
 	private void executeServer( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		
-		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
+		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName() + " ..." );
 
 		if( server.isRunDatabase() )
 			executeServerDatabase( server );
@@ -216,7 +216,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		if( super.context.CTX_DEPLOYBINARY ) {
 			info( "verify binaries ..." );
 			for( MetaEnvServerLocation location : binaryLocations ) {
-				String[] items = location.getNodeBinaryItems( this , node );
+				String[] items = location.getNodeBinaryItems( node );
 				for( String item : items ) {
 					MetaDistrBinaryItem binaryItem = distr.getBinaryItem( item );
 					if( !executeNodeBinary( server , node , location , binaryItem , tobeBinaryServerFolder , asisBinaryServerFolder ) )
@@ -229,7 +229,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		if( super.context.CTX_CONFDEPLOY ) {
 			info( "verify configuration ..." );
 			for( MetaEnvServerLocation location : confLocations ) {
-				String[] items = location.getNodeConfItems( this , node );
+				String[] items = location.getNodeConfItems( node );
 				for( String item : items ) {
 					MetaDistrConfItem confItem = distr.getConfItem( item );
 					executeNodeConf( server , node , location , confItem , asisConfigServerFolder );
@@ -374,7 +374,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			return( true );
 		}
 		
-		String deployBaseName = location.getDeployName( this , binaryItem.NAME );
+		String deployBaseName = location.getDeployName( binaryItem.NAME );
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		FileInfo runInfo = redist.getRuntimeItemInfo( this , binaryItem , location.DEPLOYPATH , deployBaseName );
 		if( runInfo.md5value == null ) {

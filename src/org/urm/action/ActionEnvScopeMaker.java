@@ -138,7 +138,7 @@ public class ActionEnvScopeMaker {
 	
 	private void addEnvServerNodesScope( MetaEnvSegment sg , String SERVER , String[] NODES , Dist dist ) throws Exception {
 		ActionScopeSet sset = scope.makeEnvScopeSet( action , env , sg , true );
-		MetaEnvServer server = sg.getServer( action , SERVER );
+		MetaEnvServer server = sg.getServer( SERVER );
 		addEnvServerNodes( sset , server , NODES , true , dist );
 	}
 
@@ -161,7 +161,7 @@ public class ActionEnvScopeMaker {
 		
 		Map<String,MetaEnvServer> added = new HashMap<String,MetaEnvServer>();
 		for( String SERVER : SERVERS ) {
-			MetaEnvServer server = set.sg.getServer( action , SERVER );
+			MetaEnvServer server = set.sg.getServer( SERVER );
 			boolean addServer = ( release == null )? true : releaseServers.containsKey( SERVER ); 
 			if( addServer ) {
 				added.put( server.NAME , server );

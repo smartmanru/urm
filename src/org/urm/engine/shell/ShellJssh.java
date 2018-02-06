@@ -76,40 +76,39 @@ public class ShellJssh {
 			ADDRESS = account.HOST;
 		jsession = jsch.getSession( account.USER , ADDRESS , account.PORT );
 		
-		String keyFile = action.context.CTX_KEYNAME;
-		if( keyFile.isEmpty() ) {
+		String keyRes = action.context.CTX_KEYRES;
+		if( keyRes.isEmpty() ) {
 			if( action.context.env != null ) {
-				keyFile = action.context.env.KEYFILE;
-				if( !keyFile.isEmpty() )
-					action.trace( "using key file from environment settings: " + keyFile );
+				AuthResource resEnv = action.context.env.getEnvKey();
+				if( resEnv != null ) {
+					action.trace( "using key file from environment resource: " + resEnv.NAME );
+					res = resEnv;
+				}
 			}
 		}
 		else {
-			action.trace( "using key file from parameter: " + keyFile );
+			action.trace( "using key resource from parameter: " + keyRes );
+			res = action.getResource( keyRes );
 		}
 		
-		if( !keyFile.isEmpty() )
-			jsch.addIdentity( action.context.CTX_KEYNAME );
-		else {		
-			if( res.ac.isCommon() ) {
-				String password = res.ac.getPassword( action );
-				if( password.isEmpty() )
-					action.exit1( _Error.MissingAuthPasswordData1 , "Missing password data of auth resource: " + res.NAME , res.NAME );
-				
-				action.trace( "using password from resource=" + res.NAME );
-				jsession.setPassword( password );
-			}
-			else
-			if( res.ac.isSshKey() ) {
-				if( res.ac.PRIVATEKEY.isEmpty() )
-					action.exit1( _Error.MissingAuthKeyData1 , "Missing key data of auth resource: " + res.NAME , res.NAME );
-				
-				action.trace( "using key pair from resource=" + res.NAME );
-				jsch.addIdentity( "main" , res.ac.PRIVATEKEY.getBytes() , res.ac.PUBLICKEY.getBytes() , null );
-			}
-			else
-				action.exit1( _Error.InvalidAuthData1 , "Invalid data of auth resource: " + res.NAME , res.NAME );
+		if( res.ac.isCommon() ) {
+			String password = res.ac.getPassword( action );
+			if( password.isEmpty() )
+				action.exit1( _Error.MissingAuthPasswordData1 , "Missing password data of auth resource: " + res.NAME , res.NAME );
+			
+			action.trace( "using password from resource=" + res.NAME );
+			jsession.setPassword( password );
 		}
+		else
+		if( res.ac.isSshKey() ) {
+			if( res.ac.PRIVATEKEY.isEmpty() )
+				action.exit1( _Error.MissingAuthKeyData1 , "Missing key data of auth resource: " + res.NAME , res.NAME );
+			
+			action.trace( "using key pair from resource=" + res.NAME );
+			jsch.addIdentity( "main" , res.ac.PRIVATEKEY.getBytes() , res.ac.PUBLICKEY.getBytes() , null );
+		}
+		else
+			action.exit1( _Error.InvalidAuthData1 , "Invalid data of auth resource: " + res.NAME , res.NAME );
 		
 		jsession.setConfig( "StrictHostKeyChecking" , "no" );
 		

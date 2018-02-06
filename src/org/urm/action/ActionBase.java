@@ -468,7 +468,7 @@ abstract public class ActionBase extends ActionCore {
 	
 	public Account getNodeAccount( MetaEnvServerNode node ) throws Exception {
 		HostAccount hostAccount = node.getHostAccount();
-		return( Account.getHostAccount( this , hostAccount ) );
+		return( Account.getHostAccount( hostAccount ) );
 	}
 	
 	public Account getSingleHostAccount( Datacenter dc , String host , int port , DBEnumOSType OSTYPE ) throws Exception {
@@ -476,7 +476,7 @@ abstract public class ActionBase extends ActionCore {
 		if( user.isEmpty() )
 			user = "root";
 		
-		Account account = Account.getDatacenterAccount( this , dc , user , host , port , OSTYPE );
+		Account account = Account.getDatacenterAccount( dc , user , host , port , OSTYPE );
 		return( account );
 	}
 

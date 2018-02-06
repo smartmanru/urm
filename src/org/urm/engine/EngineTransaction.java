@@ -7,6 +7,10 @@ import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.*;
+import org.urm.db.env.DBMetaEnv;
+import org.urm.db.env.DBMetaEnvSegment;
+import org.urm.db.env.DBMetaEnvServer;
+import org.urm.db.env.DBMetaEnvServerNode;
 import org.urm.db.product.*;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.EngineEntities;
@@ -947,7 +951,7 @@ public class EngineTransaction extends TransactionBase {
 	public MetaEnv createMetaEnv( Meta meta , String name , DBEnumEnvType envType ) throws Exception {
 		ProductMeta storage = getTransactionProductMetadata( meta );
 		MetaProductSettings settings = meta.getProductSettings();
-		MetaEnv env = new MetaEnv( storage , settings , storage.meta );
+		MetaEnv env = new MetaEnv( storage , storage.meta );
 		action.trace( "create meta env object, id=" + env.objectId );
 		env.createEnv( action , name , envType );
 		
@@ -963,24 +967,43 @@ public class EngineTransaction extends TransactionBase {
 		env.deleteObject();
 	}
 
-	public void setMetaEnvProperties( MetaEnv env , PropertySet props , boolean system ) throws Exception {
-		super.checkTransactionMetadata( env.meta.getStorage() );
-		env.setProperties( this , props , system );
-	}
-	
-	public void updateMetaEnv( MetaEnv env ) throws Exception {
+	public void setMetaEnvOffline( MetaEnv env , boolean offline ) throws Exception {
 		super.checkTransactionEnv( env );
-		env.updateProperties( this );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnv.setEnvOffline( this , storage , env , offline );
 	}
 	
-	public void updateMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		super.checkTransactionEnv( sg.env );
-		sg.updateProperties( this );
+	public void setMetaEnvBaseline( MetaEnv env , Integer envBaselineId ) throws Exception {
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnv.setEnvBaseline( this , storage , env , envBaselineId );
 	}
 	
-	public void createMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		super.checkTransactionEnv( sg.env );
-		sg.env.createSegment( this , sg );
+	public MetaEnvSegment createMetaEnvSegment( MetaEnv env , String name , String desc , Integer dcId ) throws Exception {
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		return( DBMetaEnvSegment.createSegment( this , storage , env , name , desc , dcId ) );
+	}
+	
+	public void modifyMetaEnvSegment( MetaEnvSegment sg , String name , String desc , Integer dcId ) throws Exception {
+		MetaEnv env = sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvSegment.modifySegment( this , storage , env , sg , name , desc , dcId );
+	}
+	
+	public void setMetaEnvSegmentBaseline( MetaEnvSegment sg , Integer sgId ) throws Exception {
+		MetaEnv env = sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvSegment.setSegmentBaseline( this , storage , env , sg , sgId );
+	}
+	
+	public void setMetaEnvSegmentOffline( MetaEnvSegment sg , boolean offline ) throws Exception {
+		MetaEnv env = sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvSegment.setSegmentOffline( this , storage , env , sg , offline );
 	}
 	
 	public void deleteMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
@@ -989,11 +1012,6 @@ public class EngineTransaction extends TransactionBase {
 		sg.deleteObject();
 	}
 
-	public void setMetaEnvSGProperties( MetaEnvSegment sg , PropertySet props , boolean system ) throws Exception {
-		super.checkTransactionEnv( sg.env );
-		sg.setProperties( this , props , system );
-	}
-	
 	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
 		super.checkTransactionEnv( sg.env );
 		MetaEnvServer server = new MetaEnvServer( sg.meta , sg );
@@ -1018,11 +1036,6 @@ public class EngineTransaction extends TransactionBase {
 		server.updateProperties( this );
 	}
 
-	public void setMetaEnvServerProperties( MetaEnvServer server , PropertySet props , boolean system ) throws Exception {
-		super.checkTransactionEnv( server.sg.env );
-		server.setProperties( this , props , system );
-	}
-	
 	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
 		super.checkTransactionEnv( server.sg.env );
 		MetaEnvServerNode node = new MetaEnvServerNode( server.meta , server , pos );
@@ -1038,20 +1051,57 @@ public class EngineTransaction extends TransactionBase {
 		node.server.modifyNode( this , node );
 	}
 
-	public void updateMetaEnvServerNodeSetOffline( MetaEnvServerNode node , boolean newStatus ) throws Exception {
-		super.checkTransactionEnv( node.server.sg.env );
-		node.setOffline( this , newStatus );
-	}
-	
 	public void deleteMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {
 		super.checkTransactionEnv( node.server.sg.env );
 		node.server.deleteNode( this , node );
 		node.deleteObject();
 	}
 
-	public void setMetaEnvServerNodeProperties( MetaEnvServerNode node , PropertySet props , boolean system ) throws Exception {
-		super.checkTransactionEnv( node.server.sg.env );
-		node.setProperties( this , props , system );
+	public void updateMetaEnvServerNodeSetOffline( MetaEnvServerNode node , boolean newStatus ) throws Exception {
+		MetaEnv env = node.server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServerNode.setOffline( this , storage , env , node , newStatus );
+	}
+	
+	public void updateMetaEnvServerNodeCustomProperties( MetaEnvServerNode node ) throws Exception {
+		MetaEnv env = node.server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServerNode.updateCustomProperties( this , storage , env , node );
+	}
+	
+	public void updateMetaEnvServerCustomProperties( MetaEnvServer server ) throws Exception {
+		MetaEnv env = server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServer.updateCustomProperties( this , storage , env , server );
+	}
+	
+	public void updateMetaEnvServerExtraProperties( MetaEnvServer server ) throws Exception {
+		MetaEnv env = server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServer.updateExtraProperties( this , storage , env , server );
+	}
+	
+	public void updateMetaEnvSegmentCustomProperties( MetaEnvSegment sg ) throws Exception {
+		MetaEnv env = sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvSegment.updateCustomProperties( this , storage , env , sg );
+	}
+	
+	public void updateMetaEnvCustomProperties( MetaEnv env ) throws Exception {
+		super.checkTransactionMetadata( env.meta.getStorage() );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnv.updateCustomProperties( this , storage , env );
+	}
+	
+	public void updateMetaEnvExtraProperties( MetaEnv env ) throws Exception {
+		super.checkTransactionMetadata( env.meta.getStorage() );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnv.updateExtraProperties( this , storage , env );
 	}
 	
 	public void setStartInfo( MetaEnvSegment sg , MetaEnvStartInfo startInfo ) throws Exception {

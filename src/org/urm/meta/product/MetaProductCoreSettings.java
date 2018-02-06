@@ -15,7 +15,6 @@ public class MetaProductCoreSettings {
 	
 	// own properties
 	public static String PROPERTY_DISTR_PATH  = "distr.path";
-	public static String PROPERTY_DISTR_HOSTLOGIN = "distr.hostlogin";
 	public static String PROPERTY_UPGRADE_PATH = "upgrade.path";
 	public static String PROPERTY_BASE_PATH = "base.path";
 	public static String PROPERTY_MIRRORPATH = "mirror.path";
@@ -45,7 +44,6 @@ public class MetaProductCoreSettings {
 	public String CONFIG_REDISTWIN_PATH;
 	public String CONFIG_REDISTLINUX_PATH;
 	public String CONFIG_DISTR_PATH;
-	public String CONFIG_DISTR_HOSTLOGIN;
 	public String CONFIG_UPGRADE_PATH;
 	public String CONFIG_BASE_PATH;
 	public String CONFIG_MIRRORPATH;
@@ -89,7 +87,6 @@ public class MetaProductCoreSettings {
 		CONFIG_REDISTWIN_PATH = ops.getPathProperty( PROPERTY_REDISTWIN_PATH );
 		CONFIG_REDISTLINUX_PATH = ops.getPathProperty( PROPERTY_REDISTLINUX_PATH );
 		CONFIG_DISTR_PATH = ops.getPathProperty( PROPERTY_DISTR_PATH );
-		CONFIG_DISTR_HOSTLOGIN = ops.getStringProperty( PROPERTY_DISTR_HOSTLOGIN );
 		CONFIG_UPGRADE_PATH = ops.getPathProperty( PROPERTY_UPGRADE_PATH );
 		CONFIG_BASE_PATH = ops.getPathProperty( PROPERTY_BASE_PATH );
 		CONFIG_MIRRORPATH = ops.getPathProperty( PROPERTY_MIRRORPATH );

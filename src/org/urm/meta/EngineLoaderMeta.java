@@ -31,7 +31,9 @@ public class EngineLoaderMeta {
 	public static String XML_ROOT_POLICY = "product";
 	public static String XML_ROOT_DISTR = "distributive";
 	public static String XML_ROOT_DATABASE = "database";
+	public static String XML_ROOT_DOCS = "docs";
 	public static String XML_ROOT_SOURCES = "sources";
+	public static String XML_ROOT_UNITS = "units";
 	
 	public EngineLoader loader;
 	public ProductMeta set;
@@ -86,7 +88,7 @@ public class EngineLoaderMeta {
 		storageMeta.saveEnvConfFile( action , doc , diagramFile );
 	}
 	
-	public void exportAll( ProductStorage ms ) throws Exception {
+	public void exportxmlAll( ProductStorage ms ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
 		trace( "export product data, name=" + set.name + ", version=" + c.getCurrentProductVersion( set ) + " ..." );
@@ -239,7 +241,7 @@ public class EngineLoaderMeta {
 		ActionBase action = loader.getAction();
 		String file = ms.getVersionConfFile( action );
 		action.debug( "export product version file " + file + "..." );
-		Document doc = Common.xmlCreateDoc( "version" );
+		Document doc = Common.xmlCreateDoc( XML_ROOT_VERSION );
 		Element root = doc.getDocumentElement();
 
 		DBMeta.exportxml( loader , set , doc , root );
@@ -266,7 +268,7 @@ public class EngineLoaderMeta {
 		ActionBase action = loader.getAction();
 		String file = ms.getCoreConfFile( action );
 		action.debug( "export product settings file " + file + "..." );
-		Document doc = Common.xmlCreateDoc( "settings" );
+		Document doc = Common.xmlCreateDoc( XML_ROOT_SETTINGS );
 		Element root = doc.getDocumentElement();
 
 		DBMetaSettings.exportxml( loader , set , doc , root );
@@ -293,7 +295,7 @@ public class EngineLoaderMeta {
 		ActionBase action = loader.getAction();
 		String file = ms.getPolicyConfFile( action );
 		action.debug( "export product policy file " + file + "..." );
-		Document doc = Common.xmlCreateDoc( "policy" );
+		Document doc = Common.xmlCreateDoc( XML_ROOT_POLICY );
 		Element root = doc.getDocumentElement();
 		
 		DBMetaPolicy.exportxml( loader , set , doc , root );
@@ -320,7 +322,7 @@ public class EngineLoaderMeta {
 		ActionBase action = loader.getAction();
 		String file = ms.getUnitsFile( action );
 		action.debug( "export units definition file " + file + "..." );
-		Document doc = Common.xmlCreateDoc( "units" );
+		Document doc = Common.xmlCreateDoc( XML_ROOT_UNITS );
 		Element root = doc.getDocumentElement();
 		
 		DBMetaUnits.exportxml( loader , set , doc , root );
@@ -347,7 +349,7 @@ public class EngineLoaderMeta {
 		ActionBase action = loader.getAction();
 		String file = ms.getDatabaseConfFile( action );
 		action.debug( "export database definition file " + file + "..." );
-		Document doc = Common.xmlCreateDoc( "database" );
+		Document doc = Common.xmlCreateDoc( XML_ROOT_DATABASE );
 		Element root = doc.getDocumentElement();
 		
 		DBMetaDatabase.exportxml( loader , set , doc , root );
@@ -374,7 +376,7 @@ public class EngineLoaderMeta {
 		ActionBase action = loader.getAction();
 		String file = ms.getSourcesConfFile( action );
 		action.debug( "export source definition file " + file + "..." );
-		Document doc = Common.xmlCreateDoc( "sources" );
+		Document doc = Common.xmlCreateDoc( XML_ROOT_SOURCES );
 		Element root = doc.getDocumentElement();
 		
 		DBMetaSources.exportxml( loader , set , doc , root );
@@ -401,7 +403,7 @@ public class EngineLoaderMeta {
 		ActionBase action = loader.getAction();
 		String file = ms.getDocumentationFile( action );
 		action.debug( "export units definition file " + file + "..." );
-		Document doc = Common.xmlCreateDoc( "docs" );
+		Document doc = Common.xmlCreateDoc( XML_ROOT_DOCS );
 		Element root = doc.getDocumentElement();
 		
 		DBMetaDocs.exportxml( loader , set , doc , root );
@@ -428,7 +430,7 @@ public class EngineLoaderMeta {
 		ActionBase action = loader.getAction();
 		String file = ms.getDistrConfFile( action );
 		action.debug( "export distributive definition file " + file + "..." );
-		Document doc = Common.xmlCreateDoc( "distr" );
+		Document doc = Common.xmlCreateDoc( XML_ROOT_DISTR );
 		Element root = doc.getDocumentElement();
 		
 		DBMetaDistr.exportxml( loader , set , doc , root );

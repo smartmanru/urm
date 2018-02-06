@@ -489,11 +489,11 @@ public class DatabaseSpecific {
 	public void addComment( ActionBase action , String comment , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 
-	public String getSchemaDBName( MetaDatabaseSchema schema ) {
+	public String getSchemaDBName( MetaDatabaseSchema schema ) throws Exception {
 		return( server.getSchemaDBName( schema ) );
 	}
 	
-	public String getSchemaDBUser( MetaDatabaseSchema schema ) {
+	public String getSchemaDBUser( MetaDatabaseSchema schema ) throws Exception {
 		return( server.getSchemaDBUser( schema ) );
 	}
 	

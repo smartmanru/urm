@@ -44,7 +44,7 @@ public class EngineStatusProduct extends EngineObject {
 	public void start( ActionBase action ) {
 		ProductEnvs envs = meta.getEnviroments();
 		for( String envName : envs.getEnvNames() ) {
-			MetaEnv env = envs.findEnv( envName );
+			MetaEnv env = envs.findMetaEnv( envName );
 			startEnvironment( action , env );
 		}
 	}
@@ -113,8 +113,8 @@ public class EngineStatusProduct extends EngineObject {
 		ProductEnvs envs = meta.getEnviroments();
 		ProductEnvs envsOld = storageOld.getEnviroments();
 		for( String envName : envs.getEnvNames() ) {
-			MetaEnv envNew = envs.findEnv( envName );
-			MetaEnv envOld = envsOld.findEnv( envName );
+			MetaEnv envNew = envs.findMetaEnv( envName );
+			MetaEnv envOld = envsOld.findMetaEnv( envName );
 			if( envOld != null )
 				modifyEnvironment( action , envOld , envNew );
 			else
@@ -122,8 +122,8 @@ public class EngineStatusProduct extends EngineObject {
 		}
 		
 		for( String envName : envsOld.getEnvNames() ) {
-			MetaEnv envOld = envsOld.findEnv( envName );
-			MetaEnv envNew = envs.findEnv( envName );
+			MetaEnv envOld = envsOld.findMetaEnv( envName );
+			MetaEnv envNew = envs.findMetaEnv( envName );
 			if( envNew == null )
 				stopEnvironment( action , envOld , true );
 		}
@@ -413,7 +413,7 @@ public class EngineStatusProduct extends EngineObject {
 		OBJECT_STATE finalState = OBJECT_STATE.STATE_NODATA;
 		ProductEnvs envs = meta.getEnviroments();
 		for( String envName : envs.getEnvNames() ) {
-			MetaEnv env = envs.findEnv( envName );
+			MetaEnv env = envs.findMetaEnv( envName );
 			StatusSource envSource = getObjectSource( env );
 			if( envSource != null )
 				finalState = StatusData.addState( finalState , envSource.state.state );

@@ -6,6 +6,7 @@ import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.vcs.GenericVCS;
+import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
@@ -13,6 +14,7 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
@@ -320,12 +322,14 @@ public class SourceStorage {
 		String SERVERPATH = getDATALiveConfigServerPath( action , server.sg , server.NAME );
 		String PATH = Common.getPath( SERVERPATH , item );
 
+		HostAccount hostAccount = node.getHostAccount();
+		
 		String path = vcs.getInfoMasterPath( mirror , PATH );
 		if( !vcs.isValidRepositoryMasterPath( mirror , PATH ) ) {
 			if( !vcs.isValidRepositoryMasterPath( mirror , SERVERPATH ) )
 				vcs.ensureMasterFolderExists( mirror , SERVERPATH , commitMessage );
 			vcs.importMasterFolder( mirror , folder , PATH , commitMessage );
-			action.info( node.HOSTLOGIN + ": live created at " + path );
+			action.info( hostAccount.getFinalAccount() + ": live created at " + path );
 			return;
 		}
 		
@@ -345,9 +349,9 @@ public class SourceStorage {
 		saveLiveConfigItemCopyFolder( action , vcs , mirror , tobeFiles , coFiles , folder , coFolder );
 
 		if( vcs.commitMasterFolder( mirror , coFolder , "/" , commitMessage ) )
-			action.info( node.HOSTLOGIN + ": live updated at " + path );
+			action.info( hostAccount.getFinalAccount() + ": live updated at " + path );
 		else
-			action.debug( node.HOSTLOGIN + ": live not changed at " + path );
+			action.debug( hostAccount.getFinalAccount() + ": live not changed at " + path );
 	}
 
 	private void saveLiveConfigItemCopyFolder( ActionBase action , GenericVCS vcs , MirrorRepository mirror , FileSet tobeFiles , FileSet coFiles , LocalFolder folder , LocalFolder coFolder ) throws Exception {
@@ -391,16 +395,18 @@ public class SourceStorage {
 
 	public void exportTemplates( ActionBase action , LocalFolder parent , MetaEnvServer server ) throws Exception {
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
-			if( deployment.confItem != null ) {
-				exportTemplateConfigItem( action , server.sg , deployment.confItem.NAME , action.context.CTX_TAG , parent );
+			if( deployment.isConfItem() ) {
+				MetaDistrConfItem confItem = deployment.getConfItem();
+				exportTemplateConfigItem( action , server.sg , confItem.NAME , action.context.CTX_TAG , parent );
 				continue;
 			}
 				
 			// deployments
-			if( deployment.comp == null )
+			if( !deployment.isComponent() )
 				continue;
 			
-			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems() ) {
+			MetaDistrComponent comp = deployment.getComponent();
+			for( MetaDistrComponentItem compItem : comp.getConfItems() ) {
 				if( compItem.confItem != null )
 					exportTemplateConfigItem( action , server.sg , compItem.confItem.NAME , action.context.CTX_TAG , parent );
 			}

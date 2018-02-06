@@ -1,5 +1,6 @@
 package org.urm.action.database;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -61,9 +62,9 @@ public class ActionExportDatabase extends ActionBase {
 		client = new DatabaseClient();
 		MetaEnvServerNode node;
 		if( STANDBY )
-			node = server.getStandbyNode( this );
+			node = server.getStandbyNode();
 		else
-			node = server.getMasterNode( this );
+			node = server.getMasterNode();
 		if( !client.checkConnect( this , server , node ) )
 			exit0( _Error.UnableConnectAdmin0 , "unable to connect to administrative db" );
 		
@@ -92,7 +93,10 @@ public class ActionExportDatabase extends ActionBase {
 		STANDBY = dump.STANDBY; 
 		NFS = dump.NFS; 
 
-		serverSchemas = server.getSchemaSet( this );
+		serverSchemas = new HashMap<String,MetaDatabaseSchema>();
+		for( MetaDatabaseSchema schema : server.getSchemaSet() )
+			serverSchemas.put( schema.NAME , schema );
+		
 		if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
 			if( !serverSchemas.containsKey( SCHEMA ) )
 				exit1( _Error.UnknownServerSchema1 , "schema " + SCHEMA + " is not part of server datasets" , SCHEMA );
@@ -187,8 +191,8 @@ public class ActionExportDatabase extends ActionBase {
 			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
 				runTarget( "data" , SCHEMA );
 			else {
-				for( String s : server.getSchemaSet( this ).keySet() )
-					runTarget( "data" , s );
+				for( MetaDatabaseSchema schema : server.getSchemaSet() )
+					runTarget( "data" , schema.NAME );
 			}
 		}
 

@@ -312,7 +312,7 @@ public class ActionCheckEnv extends ActionBase {
 		}
 
 		try {
-			HostAccount account = node.getHostAccount( this );
+			HostAccount account = node.getHostAccount();
 			info( "node " + node.POS + "=" + account.getFinalAccount() );
 
 			if( checkOneServerNodeStatus( server , node , state , nodeStatus ) ) {
@@ -331,7 +331,7 @@ public class ActionCheckEnv extends ActionBase {
 				MetaEnvServer proxyServer = server.getProxyServer();
 				if( proxyServer != null ) {
 					info( "check proxy node ..." );
-					if( !checkOneServerNodeStatus( proxyServer , node.getProxyNode( this ) , state , null ) ) {
+					if( !checkOneServerNodeStatus( proxyServer , node.getProxyNode() , state , null ) ) {
 						S_CHECKENV_NODE_FAILED = true;
 						nodeStatus.setProxyFailed( proxyServer );
 					}
@@ -389,7 +389,7 @@ public class ActionCheckEnv extends ActionBase {
 		if( process.isStarted( this ) )
 			return( true );
 		
-		HostAccount account = node.getHostAccount( this );
+		HostAccount account = node.getHostAccount();
 
 		if( process.mode == VarPROCESSMODE.ERRORS )
 			error( account.getFinalAccount() + ": status=errors (" + process.cmdValue + ")" ); 

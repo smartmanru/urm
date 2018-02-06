@@ -174,7 +174,7 @@ public class ProjectBuilder extends EngineObject {
 		
 		EngineInfrastructure infra = action.getServerInfrastructure();
 		HostAccount account = infra.getHostAccount( REMOTE_ACCOUNT_ID );
-		return( Account.getHostAccount( action , account ) );
+		return( account.getAccount() );
 	}
 
 	public ShellExecutor createShell( ActionBase action , boolean dedicated ) throws Exception {

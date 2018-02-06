@@ -103,7 +103,7 @@ public class MetaEnvSegment extends EngineObject {
 	}
 	
 	public String getEnvObjectName() {
-		return( env.NAME + "-" + NAME );
+		return( env.NAME + "::" + NAME );
 	}
 	
 	public MetaEnvStartInfo getStartInfo() {
@@ -300,4 +300,8 @@ public class MetaEnvSegment extends EngineObject {
 		return( infra.getDatacenter( DC ) );
 	}
 
+	public MatchItem getDatacenterMatchItem() {
+		return( DC );
+	}
+	
 }

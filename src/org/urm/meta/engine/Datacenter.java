@@ -14,7 +14,7 @@ public class Datacenter extends EngineObject {
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
 	
-	EngineInfrastructure infra;
+	public EngineInfrastructure infra;
 	
 	public int ID;
 	public String NAME;
@@ -103,7 +103,7 @@ public class Datacenter extends EngineObject {
 		if( hostLogin.isEmpty() )
 			return( null );
 		
-		Account account = Account.getDatacenterAccount( NAME , hostLogin );
+		Account account = Account.getDatacenterAccount( this , NAME , hostLogin );
 		return( findNetworkByHost( account.HOST ) );
 	}
 
@@ -111,7 +111,7 @@ public class Datacenter extends EngineObject {
 		if( hostName.isEmpty() )
 			return( null );
 		
-		Account account = Account.getDatacenterAccount( NAME , "ignore@" + hostName );
+		Account account = Account.getDatacenterAccount( this , NAME , "ignore@" + hostName );
 		if( account.isHostName() ) {
 			NetworkHost host = findNetworkHost( account.HOST );
 			if( host != null )

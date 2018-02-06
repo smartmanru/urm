@@ -1,5 +1,6 @@
 package org.urm.action.database;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
@@ -78,7 +79,10 @@ public class ActionApplyAutomatic extends ActionBase {
 			return( false );
 
 		boolean done = false;
-		Map<String,MetaDatabaseSchema> schemaSet = server.getSchemaSet( this );
+		Map<String,MetaDatabaseSchema> schemaSet = new HashMap<String,MetaDatabaseSchema>();
+		for( MetaDatabaseSchema schema : server.getSchemaSet() )
+			schemaSet.put( schema.NAME , schema );
+		
 		for( ReleaseDelivery releaseDelivery : dist.release.getDeliveries() ) {
 			if( optDelivery == null || optDelivery == releaseDelivery )
 				if( applyDelivery( server , client , registry , version , releaseDelivery , schemaSet , logs ) )

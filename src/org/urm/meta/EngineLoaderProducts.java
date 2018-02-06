@@ -187,10 +187,10 @@ public class EngineLoaderProducts {
 		ProductStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
 		
 		EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
-		ldm.exportAll( ms );
+		ldm.exportxmlAll( ms );
 
 		EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
-		lde.exportAll( ms );
+		lde.exportxmlAll( ms );
 	}
 	
 	private boolean matchProductMirrors( AppProduct product ) {
@@ -266,11 +266,10 @@ public class EngineLoaderProducts {
 		
 			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
 			if( includingEnvironments )
-				lde.importxmlEnvs( ms );
+				lde.importxmlAll( ms );
 			else
- 				lde.loaddbEnvs();
+ 				lde.loaddbAll();
 				
-			lde.loadMonitoring( ms );
 			ldm.loadDesignDocs( ms );
 			
 			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , set );
@@ -289,8 +288,8 @@ public class EngineLoaderProducts {
 			ldm.loaddbAll( context );
 
 			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
-			lde.loaddbEnvs();
-			lde.loadMonitoring( ms );
+			lde.loaddbAll();
+			
 			ldm.loadDesignDocs( ms );
 			
 			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , set );

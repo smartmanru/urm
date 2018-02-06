@@ -11,6 +11,7 @@ import org.urm.db.core.DBNames;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBEnums.DBEnumEnvType;
 import org.urm.db.engine.DBEngineEntities;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
@@ -21,8 +22,13 @@ import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
+import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductMeta;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class DBMetaEnv {
@@ -103,6 +109,9 @@ public class DBMetaEnv {
 	private static void importxmlResolve( EngineLoader loader , ProductMeta storage , MetaEnv env , Node root ) throws Exception {
 	}
 	
+	public static void exportxml( EngineLoader loader , ProductMeta storage , MetaEnv env , Document doc , Element root ) throws Exception {
+	}
+	
 	private static void modifyEnv( DBConnection c , ProductMeta storage , MetaEnv env , boolean insert ) throws Exception {
 		if( !insert )
 			DBNames.updateName( c , storage.ID , env.NAME , env.ID , DBEnumObjectType.ENVIRONMENT );
@@ -137,4 +146,22 @@ public class DBMetaEnv {
 			Common.exitUnexpected();
 	}
 
+	public static void deleteDatabaseSchema( EngineTransaction transaction , ProductMeta storage , MetaDatabaseSchema schema ) throws Exception {
+		ProductEnvs envs = storage.getEnviroments();
+		envs.removeDatabaseSchemaFromEnvironments( schema );
+		Common.exitUnexpected();
+	}
+
+	public static void deleteBinaryItem( EngineTransaction transaction , ProductMeta storage , MetaDistrBinaryItem item ) throws Exception {
+		ProductEnvs envs = storage.getEnviroments();
+		envs.removeBinaryItemFromEnvironments( item );
+		Common.exitUnexpected();
+	}
+	
+	public static void deleteConfItem( EngineTransaction transaction , ProductMeta storage , MetaDistrConfItem item ) throws Exception {
+		ProductEnvs envs = storage.getEnviroments();
+		envs.removeConfItemFromEnvironments( item );
+		Common.exitUnexpected();
+	}
+	
 }

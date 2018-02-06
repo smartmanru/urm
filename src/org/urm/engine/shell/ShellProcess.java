@@ -144,7 +144,7 @@ public class ShellProcess {
 	
 	public String prepareExecuteWindowsFromLinux( ActionBase action , String cmd ) throws Exception {
 		String execLine = "ssh";
-		String keyFile = action.context.CTX_KEYNAME;
+		String keyFile = action.context.CTX_KEYRES;
 		if( !keyFile.isEmpty() )
 			execLine += " -i " + keyFile;
 		if( shell.account.PORT != 22 )

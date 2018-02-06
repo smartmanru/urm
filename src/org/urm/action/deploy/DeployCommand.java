@@ -90,10 +90,10 @@ public class DeployCommand {
 	public void login( ScopeState parentState , ActionBase action , MetaEnvSegment sg , String SERVER , String NODE ) throws Exception {
 		if( sg == null )
 			action.exit0( _Error.UnknownSegment0 , "Unknown segment, missing specifier" );
-		MetaEnvServer server = sg.getServer( action , SERVER );
+		MetaEnvServer server = sg.getServer( SERVER );
 		
 		int nodePos = ( NODE.isEmpty() )? 1 : Integer.parseInt( NODE );
-		MetaEnvServerNode node = server.getNode( action , nodePos );
+		MetaEnvServerNode node = server.getNode( nodePos );
 		ActionLogin ca = new ActionLogin( action , null , node );
 		ca.runSimpleEnv( parentState , sg.env , SecurityAction.ACTION_DEPLOY , false );
 	}
@@ -209,11 +209,6 @@ public class DeployCommand {
 	public void saveConfigs( ScopeState parentState , ActionBase action , ActionScope scope ) throws Exception {
 		ActionSaveConfigs ca = new ActionSaveConfigs( action , null );
 		ca.runAll( parentState , scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
-	}
-
-	public void upgradeEnv( ScopeState parentState , ActionBase action , String PATCHID , ActionScope scope ) throws Exception {
-		ActionUpgradeEnv ca = new ActionUpgradeEnv( action , null , PATCHID );
-		ca.runEnvUniqueAccounts( parentState , scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void verifyDeploy( ScopeState parentState , ActionBase action , ActionScope scope , Dist dist ) throws Exception {

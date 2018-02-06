@@ -19,7 +19,7 @@ public class ShellInteractive extends Shell {
 	
 	@Override
 	public boolean start( ActionBase action ) throws Exception {
-		String KEY = action.context.CTX_KEYNAME;
+		String KEY = action.context.CTX_KEYRES;
 		
 		ShellProcess process = new ShellProcess( this ); 
 		if( action.isLocalLinux() ) {

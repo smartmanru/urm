@@ -14,11 +14,11 @@ import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.core.DBNames;
 import org.urm.db.engine.DBEngineEntities;
+import org.urm.db.env.DBMetaEnv;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
-import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
@@ -988,8 +988,7 @@ public class DBMetaDistr {
 	}
 	
 	public static void deleteBinaryItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrBinaryItem item ) throws Exception {
-		ProductEnvs envs = storage.getEnviroments();
-		envs.deleteBinaryItemFromEnvironments( transaction , item );
+		DBMetaEnv.deleteBinaryItem( transaction , storage , item );
 		
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
@@ -1045,8 +1044,7 @@ public class DBMetaDistr {
 	}
 	
 	public static void deleteConfItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrConfItem item ) throws Exception {
-		ProductEnvs envs = storage.getEnviroments();
-		envs.deleteConfItemFromEnvironments( transaction , item );
+		DBMetaEnv.deleteConfItem( transaction , storage , item );
 		
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();

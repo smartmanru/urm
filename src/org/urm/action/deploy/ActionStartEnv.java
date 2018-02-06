@@ -12,6 +12,7 @@ import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.env.MetaEnvStartGroup;
+import org.urm.meta.env.MetaEnvStartInfo;
 
 public class ActionStartEnv extends ActionBase {
 
@@ -31,7 +32,8 @@ public class ActionStartEnv extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeScopeSet( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		for( MetaEnvStartGroup group : set.sg.startInfo.getForwardGroupList() ) {
+		MetaEnvStartInfo startInfo = set.sg.getStartInfo();
+		for( MetaEnvStartGroup group : startInfo.getForwardGroupList() ) {
 			if( !startServerGroup( state , set , group , targets ) )
 				ifexit( _Error.FailedGroupOperation0 , "failed group operation" , null );
 		}
@@ -39,7 +41,8 @@ public class ActionStartEnv extends ActionBase {
 		// if specific run handle servers not covered by start groups 
 		if( !set.setFull ) {
 			for( ActionScopeTarget target : targets ) {
-				if( target.envServer.startGroup == null ) {
+				MetaEnvStartGroup startGroup = target.envServer.getStartGroup();
+				if( startGroup == null ) {
 					ActionStartServer startOne = new ActionStartServer( this , target.NAME , target );
 					if( !startOne.runSimpleEnv( state , target.envServer.sg.env , SecurityAction.ACTION_DEPLOY , false ) )
 						ifexit( _Error.StartenvFailed0 , "unable to start server" , null );

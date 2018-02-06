@@ -5,6 +5,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.action.deploy.ServerDeployment;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumDeployModeType;
 import org.urm.db.core.DBEnums.DBEnumDeployVersionType;
 import org.urm.db.core.DBEnums.DBEnumDistItemType;
 import org.urm.engine.dist.Dist;
@@ -12,6 +13,7 @@ import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.meta.Types;
+import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerLocation;
 import org.urm.meta.env.MetaEnvServerNode;
@@ -118,7 +120,7 @@ public class RedistStorage extends ServerStorage {
 		RemoteFolder folder = getRedistFolder( action );
 		RemoteFolder folderBase = folder.getSubFolder( action , "base" );
 		if( !folderBase.checkExists( action ) ) {
-			Account accountRoot = account.getRootAccount( action );
+			Account accountRoot = account.getRootAccount();
 			ShellExecutor remoteSession = action.getShell( accountRoot );
 			remoteSession.createPublicDir( action , folderBase.folderPath );
 		}
@@ -170,7 +172,8 @@ public class RedistStorage extends ServerStorage {
 		RemoteFolder F_DSTDIR_STATE = getStateLocationFolder( action , LOCATION , CONTENTTYPE );
 		RemoteFolder F_DSTDIR_DEPLOY = getRedistLocationFolder( action , version , LOCATION , CONTENTTYPE , true );
 
-		action.debug( node.HOSTLOGIN + ": create redist location=" + LOCATION + " contenttype=" + Common.getEnumLower( CONTENTTYPE ) + " ..." );
+		HostAccount hostAccount = node.getHostAccount(); 
+		action.debug( hostAccount.getFinalAccount() + ": create redist location=" + LOCATION + " contenttype=" + Common.getEnumLower( CONTENTTYPE ) + " ..." );
 		F_DSTDIR_STATE.ensureExists( action );
 		F_DSTDIR_DEPLOY.ensureExists( action );
 		
@@ -196,7 +199,7 @@ public class RedistStorage extends ServerStorage {
 	public boolean copyReleaseFile( ActionBase action , MetaDistrBinaryItem item , Dist dist , MetaEnvServerLocation location , String fileName , String deployBaseName , RedistStateInfo stateInfo ) throws Exception {
 		// primary file
 		String LOCATION = location.DEPLOYPATH; 
-		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , true );
+		VarCONTENTTYPE CONTENTTYPE = location.getContentType( true );
 		VersionInfo version = VersionInfo.getDistVersion( dist );
 		RemoteFolder locationDir = getRedistLocationFolder( action , version , LOCATION , CONTENTTYPE , true );
 		String redistFileName = FileInfo.getFileName( action , item );  
@@ -222,7 +225,7 @@ public class RedistStorage extends ServerStorage {
 	public boolean copyReleaseFile( ActionBase action , MetaDistrBinaryItem item , MetaEnvServerLocation location , String filePath , String deployBaseName , VersionInfo version , RedistStateInfo stateInfo ) throws Exception {
 		// primary file
 		String LOCATION = location.DEPLOYPATH; 
-		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , true );
+		VarCONTENTTYPE CONTENTTYPE = location.getContentType( true );
 		RemoteFolder locationDir = getRedistLocationFolder( action , version , LOCATION , CONTENTTYPE , true );
 		String redistFileName = FileInfo.getFileName( action , item );
 		String deployFinalName = getDeployVersionedName( action , location , item , deployBaseName , version );
@@ -243,7 +246,7 @@ public class RedistStorage extends ServerStorage {
 
 	public void copyReleaseFile( ActionBase action , MetaDistrConfItem item , Dist dist , MetaEnvServerLocation location , LocalFolder srcFolder , String configTarFile , boolean partial ) throws Exception {
 		String LOCATION = location.DEPLOYPATH; 
-		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , false );
+		VarCONTENTTYPE CONTENTTYPE = location.getContentType( false );
 		VersionInfo version = VersionInfo.getDistVersion( dist );
 		RemoteFolder locationDir = getRedistLocationFolder( action , version , LOCATION , CONTENTTYPE , true );
 		String path = srcFolder.getFilePath( action , configTarFile );
@@ -259,7 +262,7 @@ public class RedistStorage extends ServerStorage {
 
 	public void restoreConfigFile( ActionBase action , MetaDistrConfItem confItem , MetaEnvServerLocation location , String redistPath ) throws Exception {
 		String fileBaseName = FileInfo.getFileName( action , confItem );
-		VarCONTENTTYPE CONTENTTYPE = location.getContentType( action , false );
+		VarCONTENTTYPE CONTENTTYPE = location.getContentType( false );
 		RemoteFolder locationDir = getStateLocationFolder( action , location.DEPLOYPATH , CONTENTTYPE );
 		locationDir.ensureExists( action );
 		locationDir.copyFileRename( action , redistPath , fileBaseName );
@@ -514,8 +517,8 @@ public class RedistStorage extends ServerStorage {
 
 	public String getDeployVersionedName( ActionBase action , MetaEnvServerLocation location , MetaDistrBinaryItem item , String deployBaseName , VersionInfo version ) throws Exception {
 		if( item.DISTITEM_TYPE == DBEnumDistItemType.BINARY ) {
-			if( location.DEPLOYTYPE == VarDEPLOYMODE.LINKS_MULTIDIR ||
-				location.DEPLOYTYPE == VarDEPLOYMODE.LINKS_SINGLEDIR ) {
+			if( location.DEPLOYTYPE == DBEnumDeployModeType.LINKS_MULTIDIR ||
+				location.DEPLOYTYPE == DBEnumDeployModeType.LINKS_SINGLEDIR ) {
 				String deployName = deployBaseName + item.EXT;
 				return( deployName );
 			}

@@ -278,7 +278,7 @@ public class ActionConfigure extends ActionBase {
 				addAffected( linux , proxyPath , true );
 				String[] envNames = envs.getEnvNames();
 				for( String envName : envNames ) {
-					MetaEnv env = envs.findEnv( envName );
+					MetaEnv env = envs.findMetaEnv( envName );
 					envMap.put( envName , env );
 				}
 			}
@@ -286,7 +286,7 @@ public class ActionConfigure extends ActionBase {
 				MetaEnv env = null;
 				String[] envFiles = ms.getEnvFiles( this );
 				for( String envFile : envFiles ) {
-					MetaEnv envx = envs.findEnv( envFile );
+					MetaEnv envx = envs.findMetaEnv( envFile );
 					if( envx.NAME.equals( USEENV ) ) {
 						env = envx;
 						envMap.put( envFile , envx );
@@ -304,7 +304,7 @@ public class ActionConfigure extends ActionBase {
 					addAffected( linux , proxyPath , true );
 				}
 				else {
-					sg = env.getSG( this , USESG );
+					sg = env.getSegment( USESG );
 					proxyPath = Common.getPath( proxyPath , env.NAME , USESG );
 					addAffected( linux , proxyPath , true );
 				}
@@ -342,10 +342,10 @@ public class ActionConfigure extends ActionBase {
 		efEnv.ensureExists( this );
 		
 		// env-level
-		if( USESG.isEmpty() || !env.isMultiSG( this ) )
+		if( USESG.isEmpty() || !env.isMultiSegment() )
 			configureDeploymentEnvContent( meta , efEnv , executor , env , envFile , null , linux , dbe );
 		
-		if( env.isMultiSG( this ) ) {
+		if( env.isMultiSegment() ) {
 			if( USESG.isEmpty() ) {
 				if( context.CTX_ALL ) {
 					for( MetaEnvSegment envsg : env.getSegments() ) {
@@ -366,10 +366,10 @@ public class ActionConfigure extends ActionBase {
 		ef.ensureExists( this );
 		String CTXSG = SG;
 		if( SG == null ) {
-			if( env.isMultiSG( this ) )
+			if( env.isMultiSegment() )
 				CTXSG = "";
 			else
-				CTXSG = env.getMainSG( this ).NAME;
+				CTXSG = env.getMainSegment().NAME;
 		}
 		configureExecutorContextDeployment( meta , ef , ENVFILE , CTXSG , linux );
 

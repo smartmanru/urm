@@ -16,6 +16,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStateInfo;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.SourceStorage;
+import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerLocation;
 import org.urm.meta.env.MetaEnvServerNode;
@@ -65,7 +66,7 @@ public class ActionRedist extends ActionBase {
 			return;
 		}
 
-		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
+		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName() + " ..." );
 
 		// iterate by nodes
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
@@ -76,7 +77,8 @@ public class ActionRedist extends ActionBase {
 			executeNode( server , node , F_ENV_LOCATIONS_BINARY , F_ENV_LOCATIONS_CONFIG , liveServerFolder );
 		}
 
-		if( context.CTX_DEPLOYBINARY && server.staticServer != null )
+		MetaEnvServer staticServer = server.getStaticServer();
+		if( context.CTX_DEPLOYBINARY && staticServer != null )
 			exitNotImplemented();
 	}
 
@@ -105,12 +107,13 @@ public class ActionRedist extends ActionBase {
 	}
 
 	private void executeNodeConfig( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] locations , LocalFolder liveFolder ) throws Exception {
-		info( "redist configuration to server=" + server.NAME + " node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+		HostAccount hostAccount = node.getHostAccount();
+		info( "redist configuration to server=" + server.NAME + " node=" + node.POS + ", account=" + hostAccount.getFinalAccount() + " ..." );
 		
 		// by deployment location and conf component
 		MetaDistr distr = server.meta.getDistr();
 		for( MetaEnvServerLocation location : locations ) { 
-			String[] items = location.getNodeConfItems( this , node );
+			String[] items = location.getNodeConfItems( node );
 			if( items.length == 0 ) {
 				debug( "redist location=$F_LOCATIONFINAL no configuration to deploy, skipped." );
 				continue;
@@ -124,7 +127,8 @@ public class ActionRedist extends ActionBase {
 	}
 	
 	private void executeNodeBinary( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] locations ) throws Exception {
-		info( "redist binaries to server=" + server.NAME + " node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+		HostAccount hostAccount = node.getHostAccount();
+		info( "redist binaries to server=" + server.NAME + " node=" + node.POS + ", account=" + hostAccount.getFinalAccount() + " ..." );
 		
 		// by deployment location
 		for( MetaEnvServerLocation location : locations ) 
@@ -133,20 +137,20 @@ public class ActionRedist extends ActionBase {
 
 	private void executeNodeBinaryLocation( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location ) throws Exception {
 		// get components by location
-		String[] items = location.getNodeBinaryItems( this , node );
+		String[] items = location.getNodeBinaryItems( node );
 		if( items.length == 0 ) {
 			debug( "redist location=$F_LOCATIONFINAL no binaries to deploy, skipped." );
 			return;
 		}
 
 		// collect distribution items for all components
-		if( !location.hasBinaryItems( this ) ) {
+		if( !location.hasBinaryItems() ) {
 			debug( "redist location=" + location.DEPLOYPATH + " no items to deploy, skipped." );
 			return;
 		}
 
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-		VarCONTENTTYPE C_REDIST_DIRTYPE = location.getContentType( this , true );
+		VarCONTENTTYPE C_REDIST_DIRTYPE = location.getContentType( true );
 
 		info( "redist location=" + location.DEPLOYPATH + " deploytype=" + Common.getEnumLower( location.DEPLOYTYPE ) +
 				" items=" + Common.getListSet( items ) + " contenttype=" + Common.getEnumLower( C_REDIST_DIRTYPE ) + " ..." );
@@ -160,14 +164,15 @@ public class ActionRedist extends ActionBase {
 
 	private void transferFileSet( MetaEnvServer server , MetaEnvServerNode node , RedistStorage redist , MetaEnvServerLocation location , String[] items ) throws Exception {
 		// ensure redist created
-		VarCONTENTTYPE CONTENTTYPE = location.getContentType( this , true );
+		VarCONTENTTYPE CONTENTTYPE = location.getContentType( true );
 		RedistStateInfo stateInfo = redist.getStateInfo( this , location.DEPLOYPATH , CONTENTTYPE );
 
-		debug( node.HOSTLOGIN + ": redist content=" + Common.getEnumLower( CONTENTTYPE ) + ": items - " + Common.getListSet( items ) + " ..." );
+		HostAccount hostAccount = node.getHostAccount();
+		debug( hostAccount.getFinalAccount() + ": redist content=" + Common.getEnumLower( CONTENTTYPE ) + ": items - " + Common.getListSet( items ) + " ..." );
 		MetaDistr distr = server.meta.getDistr();
 		for( String key : items ) {
 			MetaDistrBinaryItem binaryItem = distr.getBinaryItem( key );
-			String deployBaseName = location.getDeployName( this , key );
+			String deployBaseName = location.getDeployName( key );
 			transferFile( server , node , redist , location , binaryItem , stateInfo , deployBaseName );
 		}
 	}
@@ -251,7 +256,8 @@ public class ActionRedist extends ActionBase {
 	}
 	
 	private void executeNodeBackup( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
-		debug( node.HOSTLOGIN + ": save backup ..." );
+		HostAccount hostAccount = node.getHostAccount();
+		debug( hostAccount.getFinalAccount() + ": save backup ..." );
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		VersionInfo version = VersionInfo.getDistVersion( dist ); 
 		ServerDeployment deployment = redist.getDeployment( this , version );

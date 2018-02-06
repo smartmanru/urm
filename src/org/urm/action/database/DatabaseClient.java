@@ -26,7 +26,7 @@ public class DatabaseClient {
 	}
 
 	public boolean checkConnect( ActionBase action , MetaEnvServer server ) throws Exception {
-		MetaEnvServerNode node = server.getMasterNode( action );
+		MetaEnvServerNode node = server.getMasterNode();
 		return( checkConnect( action , server , node ) );
 	}
 	
@@ -54,7 +54,7 @@ public class DatabaseClient {
 	}
 	
 	public String getUserPassword( ActionBase action , String user ) throws Exception {
-		String serverId = specific.server.getFullId( action );
+		String serverId = specific.server.getEnvObjectName();
 		
 		String S_DB_USE_SCHEMA_PASSWORD = "";
 		if( !action.context.CTX_DBPASSWORD.isEmpty() )

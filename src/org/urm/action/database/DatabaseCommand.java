@@ -20,12 +20,12 @@ public class DatabaseCommand {
 	}
 
 	public void initDatabase( ScopeState parentState , ActionBase action , String SERVER , int nodePos ) throws Exception {
-		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
+		MetaEnvServer server = action.context.sg.getServer( SERVER );
 		MetaEnvServerNode node;
 		if( nodePos < 0 )
-			node = server.getMasterNode( action );
+			node = server.getMasterNode();
 		else
-			node = server.getNode( action , nodePos );
+			node = server.getNode( nodePos );
 			
 		ActionInitDatabase ma = new ActionInitDatabase( action , null , server , node );
 		ma.runSimpleEnv( parentState , server.sg.env , SecurityAction.ACTION_DEPLOY , false );
@@ -79,13 +79,13 @@ public class DatabaseCommand {
 	}
 
 	public void importDatabase( ScopeState parentState , ActionBase action , String SERVER , String TASK , String CMD , String SCHEMA ) throws Exception {
-		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
+		MetaEnvServer server = action.context.sg.getServer( SERVER );
 		ActionImportDatabase ma = new ActionImportDatabase( action , null , server , TASK , CMD , SCHEMA );
 		ma.runSimpleEnv( parentState , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void exportDatabase( ScopeState parentState , ActionBase action , String SERVER , String TASK , String CMD , String SCHEMA ) throws Exception {
-		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
+		MetaEnvServer server = action.context.sg.getServer( SERVER );
 		ActionExportDatabase ma = new ActionExportDatabase( action , null , server , TASK , CMD , SCHEMA );
 		ma.runSimpleEnv( parentState , action.context.env , SecurityAction.ACTION_SECURED , true );
 	}

@@ -441,7 +441,7 @@ public class EngineAuth extends EngineObject {
 				return( false );
 			
 			ProductEnvs envs = meta.getEnviroments();
-			MetaEnv env = envs.findEnv( envName );
+			MetaEnv env = envs.findMetaEnv( envName );
 			return( checkAccessProductAction( action , sa , productName , env , null , readOnly ) );
 		}
 		catch( Throwable e ) {

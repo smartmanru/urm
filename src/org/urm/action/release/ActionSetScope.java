@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseDistSet;
@@ -12,9 +13,7 @@ import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.Types;
 import org.urm.meta.Types.VarCATEGORY;
-import org.urm.meta.Types.VarDEPLOYITEMTYPE;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -170,8 +169,8 @@ public class ActionSetScope extends ActionBase {
 				MetaDistrDelivery delivery = distr.getDelivery( els[0] );
 				check.put( els[0] , "delivery" );
 				
-				VarDEPLOYITEMTYPE type = Types.getDeployItemType( els[1] , true );
-				if( type == VarDEPLOYITEMTYPE.SCHEMA ) {
+				DBEnumServerDeploymentType type = DBEnumServerDeploymentType.getValue( els[1] , true );
+				if( type == DBEnumServerDeploymentType.SCHEMA ) {
 					if( !addDeliveryAllSchemes( check , delivery ) )
 						return( false );
 				}
@@ -179,21 +178,21 @@ public class ActionSetScope extends ActionBase {
 			if( els.length == 3 ) {
 				MetaDistrDelivery delivery = distr.getDelivery( els[0] );
 				check.put( els[0] , "delivery" );
-				VarDEPLOYITEMTYPE type = Types.getDeployItemType( els[1] , true );
+				DBEnumServerDeploymentType type = DBEnumServerDeploymentType.getValue( els[1] , true );
 				
-				if( type == VarDEPLOYITEMTYPE.BINARY ) {
+				if( type == DBEnumServerDeploymentType.BINARY ) {
 					MetaDistrBinaryItem item = delivery.getBinaryItem( els[2] );
 					if( !dist.addBinaryItem( this , item ) )
 						return( false );
 				}
 				else
-				if( type == VarDEPLOYITEMTYPE.CONF ) {
+				if( type == DBEnumServerDeploymentType.CONF ) {
 					MetaDistrConfItem item = delivery.getConfItem( els[2] );
 					if( !dist.addConfItem( this , item ) )
 						return( false );
 				}
 				else
-				if( type == VarDEPLOYITEMTYPE.SCHEMA ) {
+				if( type == DBEnumServerDeploymentType.SCHEMA ) {
 					MetaDatabaseSchema schema = delivery.getSchema( els[2] );
 					if( !dist.addDatabaseDeliverySchema( this , delivery , schema ) )
 						return( false );
@@ -204,28 +203,28 @@ public class ActionSetScope extends ActionBase {
 		// descope missing
 		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
 			for( ReleaseTargetItem item : delivery.getProjectItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.BINARY.toString() , item.distItem.NAME } , "/" ) );
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , DBEnumServerDeploymentType.BINARY.toString() , item.distItem.NAME } , "/" ) );
 				if( checkItem == null ) {
 					dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
 					continue;
 				}
 			}
 			for( ReleaseTarget item : delivery.getManualItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.BINARY.toString() , item.distManualItem.NAME } , "/" ) );
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , DBEnumServerDeploymentType.BINARY.toString() , item.distManualItem.NAME } , "/" ) );
 				if( checkItem == null ) {
 					dist.descopeTarget( this , item );
 					continue;
 				}
 			}
 			for( ReleaseTarget item : delivery.getDerivedItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.BINARY.toString() , item.distDerivedItem.NAME } , "/" ) );
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , DBEnumServerDeploymentType.BINARY.toString() , item.distDerivedItem.NAME } , "/" ) );
 				if( checkItem == null ) {
 					dist.descopeTarget( this , item );
 					continue;
 				}
 			}
 			for( ReleaseTarget item : delivery.getConfItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.CONF.toString() , item.distConfItem.NAME } , "/" ) );
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , DBEnumServerDeploymentType.CONF.toString() , item.distConfItem.NAME } , "/" ) );
 				if( checkItem == null ) {
 					dist.descopeTarget( this , item );
 					continue;
@@ -233,7 +232,7 @@ public class ActionSetScope extends ActionBase {
 			}
 			
 			for( ReleaseTargetItem item : delivery.getDatabaseItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , VarDEPLOYITEMTYPE.SCHEMA.toString() , item.schema.NAME } , "/" ) );
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , DBEnumServerDeploymentType.SCHEMA.toString() , item.schema.NAME } , "/" ) );
 				if( checkItem == null ) {
 					dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
 					continue;
@@ -247,12 +246,12 @@ public class ActionSetScope extends ActionBase {
 		for( MetaDistrBinaryItem binaryItem : delivery.getBinaryItems() ) {
 			if( !dist.addBinaryItem( this , binaryItem ) )
 				return( false );
-			check.put( Common.getList( new String[] { delivery.NAME , VarDEPLOYITEMTYPE.BINARY.toString() , binaryItem.NAME } , "/" ) , "binary" );
+			check.put( Common.getList( new String[] { delivery.NAME , DBEnumServerDeploymentType.BINARY.toString() , binaryItem.NAME } , "/" ) , "binary" );
 		}
 		for( MetaDistrConfItem confItem : delivery.getConfItems() ) {
 			if( !dist.addConfItem( this , confItem ) )
 				return( false );
-			check.put( Common.getList( new String[] { delivery.NAME , VarDEPLOYITEMTYPE.CONF.toString() , confItem.NAME } , "/" ) , "conf" );
+			check.put( Common.getList( new String[] { delivery.NAME , DBEnumServerDeploymentType.CONF.toString() , confItem.NAME } , "/" ) , "conf" );
 		}
 		if( delivery.hasDatabaseItems() ) {
 			if( !addDeliveryAllSchemes( check , delivery ) )
@@ -266,7 +265,7 @@ public class ActionSetScope extends ActionBase {
 			return( false );
 		
 		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() )
-			check.put( Common.getList( new String[] { delivery.NAME , VarDEPLOYITEMTYPE.SCHEMA.toString() , schema.NAME } , "/" ) , "database" );
+			check.put( Common.getList( new String[] { delivery.NAME , DBEnumServerDeploymentType.SCHEMA.toString() , schema.NAME } , "/" ) , "database" );
 		return( true );
 	}
 	

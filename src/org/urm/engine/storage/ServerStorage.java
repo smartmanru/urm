@@ -90,7 +90,7 @@ public class ServerStorage {
 	}
 	
 	public RemoteFolder getRedistHostRootFolder( ActionBase action ) throws Exception {
-		Account rootAccount = account.getRootAccount( action );
+		Account rootAccount = account.getRootAccount();
 		String path = action.getEnvRedistPath( server );
 		RemoteFolder rf = new RemoteFolder( rootAccount , path );
 		return( rf );

@@ -166,7 +166,7 @@ public class AuthResource extends EngineObject {
 	public boolean sshVerify( ActionBase action , DBEnumOSType osType , String host , int port , String user ) {
 		try {
 			loadAuthData();
-			Account account = Account.getResourceAccount( action , this , user , host , port , osType );
+			Account account = Account.getResourceAccount( this , user , host , port , osType );
 			EngineShellPool pool = action.engine.shellPool;
 			ShellExecutor shell = pool.createDedicatedRemoteShell( action , action.context.stream , account , this , false );
 			

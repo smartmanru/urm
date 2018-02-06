@@ -31,7 +31,6 @@ public class DeployCommandMeta extends CommandMeta {
 	public static String METHOD_VERIFYCONFIGS = "verifyconfigs";
 	public static String METHOD_RESTORECONFIGS = "restoreconfigs";
 	public static String METHOD_SAVECONFIGS = "saveconfigs";
-	public static String METHOD_UPGRADECONFIGS = "upgradeenv";
 	public static String METHOD_VERIFYDEPLOY = "verifydeploy";
 	public static String METHOD_WAITENV = "waitenv";
 	public static String METHOD_WAITWEB = "waitweb";
@@ -91,8 +90,6 @@ public class DeployCommandMeta extends CommandMeta {
 		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_RESTORECONFIGS , ACTION_ACCESS.ENV , false , SecurityAction.ACTION_DEPLOY , false , "restore environment configuration files from configuration repository" , cmdOpts , "{all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_SG, OPT_UNIT, OPT_TAG";
 		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_SAVECONFIGS , ACTION_ACCESS.ENV , false , SecurityAction.ACTION_DEPLOY , false , "save environment configuration files in live configuration repository" , cmdOpts , "{all|<servers>|<server> <node1> ... <nodeN>}" ) );
-		cmdOpts = "OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_SG, OPT_UNIT, OPT_HOSTUSER, OPT_ROOTUSER";
-		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_UPGRADECONFIGS , ACTION_ACCESS.ENV , false , SecurityAction.ACTION_DEPLOY , false , "apply system patch to environment hosts" , cmdOpts , "PATCHID {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "OPT_RELEASE, OPT_STARTGROUP, OPT_DEPLOYGROUP, OPT_DBPASSWORD, OPT_SG, OPT_UNIT, OPT_BACKUP, OPT_OBSOLETE, OPT_DEPLOYCONF, OPT_DEPLOYBINARY, OPT_CHECK";
 		super.defineAction( CommandMethodMeta.newStatus( this , METHOD_VERIFYDEPLOY , ACTION_ACCESS.ENV , true , SecurityAction.ACTION_DEPLOY , false , "check release items in environment runtime area" , cmdOpts , "<RELEASELABEL> {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_SG, OPT_EXTRAARGS, OPT_UNIT";

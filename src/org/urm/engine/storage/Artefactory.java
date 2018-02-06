@@ -194,7 +194,7 @@ public class Artefactory {
 	public RuntimeStorage getRootRuntimeStorage( ActionBase action , MetaEnvServer server , MetaEnvServerNode node , boolean adm ) throws Exception {
 		Account account = action.getNodeAccount( node );
 		if( adm )
-			account = account.getRootAccount( action );
+			account = account.getRootAccount();
 		return( new RuntimeStorage( this , account , server , node ) );
 	}
 

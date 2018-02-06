@@ -29,12 +29,13 @@ public class ActionStopServer extends ActionBase {
 			return( SCOPESTATE.NotRun );
 		}
 		
-		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName() + " ..." );
 
 		// stop proxy if any
-		if( target.itemFull && server.proxyServer != null ) {
-			info( "stop proxy server=" + server.proxyServer.NAME + " ..." );
-			executeServerSingle( server.proxyServer , state , null );
+		MetaEnvServer proxyServer = server.getProxyServer();
+		if( target.itemFull && proxyServer != null ) {
+			info( "stop proxy server=" + proxyServer.NAME + " ..." );
+			executeServerSingle( proxyServer , state , null );
 		}
 
 		// stop main
@@ -42,9 +43,10 @@ public class ActionStopServer extends ActionBase {
 		executeServerSingle( server , state , nodes );
 
 		// then stop childs
-		if( target.itemFull && server.subordinateServers != null && server.subordinateServers.length > 0 ) {
+		MetaEnvServer[] subordinateServers = server.getSubordinateServers();
+		if( target.itemFull && subordinateServers.length > 0 ) {
 			info( "stop subordinate servers ..." );
-			for( MetaEnvServer sub : server.subordinateServers )
+			for( MetaEnvServer sub : subordinateServers )
 				executeServerSingle( sub , state , null );
 		}
 		
@@ -82,7 +84,7 @@ public class ActionStopServer extends ActionBase {
 				super.fail1( _Error.ServerClusterStopFailed1 , "server cluster stop failed, server=" + actionServer.NAME , actionServer.NAME );
 		}
 		else
-			debug( "server=" + server.NAME + ", type=" + actionServer.getServerTypeName( this ) + " is not supported for stop. Skipped." );
+			debug( "server=" + server.NAME + ", type=" + actionServer.getServerTypeName() + " is not supported for stop. Skipped." );
 	}
 	
 }

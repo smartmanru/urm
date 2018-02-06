@@ -1,7 +1,6 @@
 package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
-import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.env.MetaEnv;
@@ -17,11 +16,11 @@ public class ActionSendChatMsg extends ActionBase {
 		if( action.context.CTX_NOCHATMSG )
 			return;
 		
-		if( action.context.env.CHATROOMFILE.isEmpty() )
-			return;
+		//if( action.context.env.CHATROOMFILE.isEmpty() )
+		//	return;
 
-		ActionSendChatMsg ca = new ActionSendChatMsg( action , null , msg , env , sg );
-		ca.runSimpleEnv( parentState , env , SecurityAction.ACTION_DEPLOY , true );
+		//ActionSendChatMsg ca = new ActionSendChatMsg( action , null , msg , env , sg );
+		//ca.runSimpleEnv( parentState , env , SecurityAction.ACTION_DEPLOY , true );
 	}
 	
 	public ActionSendChatMsg( ActionBase action , String stream , String msg , MetaEnv env , MetaEnvSegment sg ) {
@@ -36,11 +35,11 @@ public class ActionSendChatMsg extends ActionBase {
 		if( context.CTX_NOCHATMSG )
 			return( SCOPESTATE.NotRun );
 		
-		if( context.env.CHATROOMFILE.isEmpty() )
-			return( SCOPESTATE.NotRun );
+		//if( context.env.CHATROOMFILE.isEmpty() )
+		//	return( SCOPESTATE.NotRun );
 
-		if( sg != null )
-			msg += " (sg=" + sg.NAME + ")"; 
+		//if( sg != null )
+		//	msg += " (sg=" + sg.NAME + ")"; 
 		
 		//MetaProductSettings core = context.env.meta.getProductSettings();
 		//String filePath = Common.getPath( core.CONFIG_PRODUCTHOME , env.CHATROOMFILE ); 

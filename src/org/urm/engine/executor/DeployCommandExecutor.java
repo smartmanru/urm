@@ -55,7 +55,6 @@ public class DeployCommandExecutor extends CommandExecutor {
 		super.defineAction( new VerifyConfigs() , DeployCommandMeta.METHOD_VERIFYCONFIGS );
 		super.defineAction( new RestoreConfigs() , DeployCommandMeta.METHOD_RESTORECONFIGS );
 		super.defineAction( new SaveConfigs() , DeployCommandMeta.METHOD_SAVECONFIGS );
-		super.defineAction( new UpgradeEnv() , DeployCommandMeta.METHOD_UPGRADECONFIGS );
 		super.defineAction( new VerifyDeploy() , DeployCommandMeta.METHOD_VERIFYDEPLOY );
 		super.defineAction( new WaitEnv() , DeployCommandMeta.METHOD_WAITENV );
 		super.defineAction( new WaitWeb() , DeployCommandMeta.METHOD_WAITWEB );
@@ -326,14 +325,6 @@ public class DeployCommandExecutor extends CommandExecutor {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		ActionScope scope = getServerScope( action );
 		impl.saveConfigs( parentState , action , scope );
-	}
-	}
-
-	private class UpgradeEnv extends CommandMethod {
-	public void run( ScopeState parentState , ActionBase action ) throws Exception {
-		String PATCHID = getRequiredArg( action , 0 , "PATCHID" );
-		ActionScope scope = getServerScope( action , 1 );
-		impl.upgradeEnv( parentState , action , PATCHID , scope );
 	}
 	}
 

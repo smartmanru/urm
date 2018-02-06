@@ -389,7 +389,7 @@ public class ShellCoreUnix extends ShellCore {
 	@Override 
 	public void cmdScpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String options = "";
-		String keyFile = action.context.CTX_KEYNAME;
+		String keyFile = action.context.CTX_KEYRES;
 		if( !keyFile.isEmpty() )
 			options = "-i " + keyFile + " ";
 		if( account.PORT != 22 )
@@ -401,7 +401,7 @@ public class ShellCoreUnix extends ShellCore {
 	@Override 
 	public void cmdScpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String options = "";
-		String keyFile = action.context.CTX_KEYNAME;
+		String keyFile = action.context.CTX_KEYRES;
 		if( !keyFile.isEmpty() )
 			options = "-i " + keyFile + " ";
 		if( account.PORT != 22 )
@@ -416,7 +416,7 @@ public class ShellCoreUnix extends ShellCore {
 	@Override 
 	public void cmdScpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String options = "";
-		String keyFile = action.context.CTX_KEYNAME;
+		String keyFile = action.context.CTX_KEYRES;
 		if( !keyFile.isEmpty() )
 			options = "-i " + keyFile + " ";
 		if( account.PORT != 22 )
@@ -434,7 +434,7 @@ public class ShellCoreUnix extends ShellCore {
 	@Override 
 	public void cmdScpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
 		String options = "";
-		String keyFile = action.context.CTX_KEYNAME;
+		String keyFile = action.context.CTX_KEYRES;
 		if( !keyFile.isEmpty() )
 			options = "-i " + keyFile + " ";
 		if( account.PORT != 22 )
@@ -457,7 +457,7 @@ public class ShellCoreUnix extends ShellCore {
 	@Override 
 	public void cmdScpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
 		String options = "";
-		String keyFile = action.context.CTX_KEYNAME;
+		String keyFile = action.context.CTX_KEYRES;
 		if( !keyFile.isEmpty() )
 			options = "-i " + keyFile + " ";
 		if( account.PORT != 22 )
@@ -478,7 +478,7 @@ public class ShellCoreUnix extends ShellCore {
 	@Override 
 	public void cmdScpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		String options = "";
-		String keyFile = action.context.CTX_KEYNAME;
+		String keyFile = action.context.CTX_KEYRES;
 		if( !keyFile.isEmpty() )
 			options = "-i " + keyFile + " ";
 		if( account.PORT != 22 )

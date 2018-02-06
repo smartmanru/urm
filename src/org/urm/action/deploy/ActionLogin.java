@@ -21,10 +21,10 @@ public class ActionLogin extends ActionBase {
 		// handle user options
 		Account account = getNodeAccount( node );
 		if( !context.CTX_HOSTUSER.isEmpty() )
-			account = account.getUserAccount( this , context.CTX_HOSTUSER );
+			account = account.getUserAccount( context.CTX_HOSTUSER );
 		else
 		if( context.CTX_ROOTUSER )
-			account = account.getRootAccount( this );
+			account = account.getRootAccount();
 
 		info( "login sg=" + node.server.sg.NAME + ", server=" + node.server.NAME + 
 				", node=" + node.POS + ", hostlogin=" + account.getPrintName() + " ..." );

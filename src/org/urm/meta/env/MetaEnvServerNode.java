@@ -120,8 +120,8 @@ public class MetaEnvServerNode extends EngineObject {
 	}
 
 	public String getHost( ActionBase action ) throws Exception {
-		Account account = action.getNodeAccount( this );
-		return( account.HOST );
+		HostAccount account = getHostAccount();
+		return( account.host.getHost() );
 	}
 	
 	public boolean isSelf() throws Exception {

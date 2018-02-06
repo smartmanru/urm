@@ -222,7 +222,7 @@ public class MetaEnvServer extends EngineObject {
 		ops.setEnumProperty( PROPERTY_SERVERACCESSTYPE , SERVERACCESS_TYPE );
 		ops.setEnumProperty( PROPERTY_OSTYPE , OS_TYPE );
 		
-		MetaEnvServer serverBaseline = getBaselineServer();
+		MetaEnvServer serverBaseline = getBaseline();
 		if( serverBaseline != null )
 			ops.setStringProperty( PROPERTY_BASELINE , serverBaseline.NAME );
 
@@ -308,7 +308,7 @@ public class MetaEnvServer extends EngineObject {
 	}
 	
 	public String getEnvObjectName() {
-		return( sg.getEnvObjectName() + "-" + NAME );
+		return( sg.getEnvObjectName() + "::" + NAME );
 	}
 	
 	public boolean hasBaseline() {
@@ -317,7 +317,7 @@ public class MetaEnvServer extends EngineObject {
 		return( true );
 	}
 	
-	public MetaEnvServer getBaselineServer() throws Exception {
+	public MetaEnvServer getBaseline() throws Exception {
 		MetaEnvSegment segmentBaseline = sg.getBaseline();
 		if( segmentBaseline == null )
 			return( null );

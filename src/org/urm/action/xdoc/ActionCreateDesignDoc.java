@@ -69,7 +69,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		
 		ProductEnvs envs = meta.getEnviroments();
 		for( String envName : envs.getEnvNames() ) {
-			MetaEnv env = envs.findEnv( envName );
+			MetaEnv env = envs.findMetaEnv( envName );
 			if( !env.isProd() )
 				continue;
 			

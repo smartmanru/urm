@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.shell.Account;
 import org.urm.meta.EngineObject;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.Meta;
@@ -52,6 +53,10 @@ public class HostAccount extends EngineObject {
 		return( NAME + "@" + host.NAME );
 	}
 
+	public Account getAccount() throws Exception {
+		return( Account.getHostAccount( this ) );
+	}
+	
 	public void createAccount( String user , String desc , boolean isAdmin , Integer resource_id ) throws Exception {
 		modifyAccount( user , desc , isAdmin , resource_id );
 	}

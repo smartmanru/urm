@@ -14,6 +14,7 @@ import org.urm.engine.EngineCall;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
 import org.urm.engine.shell.Account;
+import org.urm.meta.engine.AuthResource;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.ProductEnvs;
@@ -93,7 +94,7 @@ public class CommandContext {
 	public boolean CTX_LOCAL;
 	public boolean CTX_OFFLINE;
 	public int CTX_TIMEOUT;
-	public String CTX_KEYNAME = "";
+	public String CTX_KEYRES = "";
 	public String CTX_DISTPATH = "";
 	public String CTX_REDISTWIN_PATH = "";
 	public String CTX_REDISTLINUX_PATH = "";
@@ -144,7 +145,7 @@ public class CommandContext {
 	public String CTX_UNIT = "";
 	public String CTX_BUILDINFO = "";
 	public String CTX_HOSTUSER = "";
-	public String CTX_NEWKEY = "";
+	public String CTX_NEWKEYRES = "";
 	public DBEnumBuildModeType CTX_BUILDMODE = DBEnumBuildModeType.UNKNOWN;
 	public String CTX_OLDRELEASE = "";
 	public String CTX_HOST = "";
@@ -198,7 +199,7 @@ public class CommandContext {
 		this.CTX_LOCAL = context.CTX_LOCAL;
 		this.CTX_OFFLINE = context.CTX_OFFLINE;
 		this.CTX_TIMEOUT = context.CTX_TIMEOUT;
-		this.CTX_KEYNAME = context.CTX_KEYNAME;
+		this.CTX_KEYRES = context.CTX_KEYRES;
 		this.CTX_DISTPATH = context.CTX_DISTPATH;
 		this.CTX_REDISTWIN_PATH = context.CTX_REDISTWIN_PATH;
 		this.CTX_REDISTLINUX_PATH = context.CTX_REDISTLINUX_PATH;
@@ -249,7 +250,7 @@ public class CommandContext {
 		this.CTX_UNIT = context.CTX_UNIT;
 		this.CTX_BUILDINFO = context.CTX_BUILDINFO;
 		this.CTX_HOSTUSER = context.CTX_HOSTUSER;
-		this.CTX_NEWKEY = context.CTX_NEWKEY;
+		this.CTX_NEWKEYRES = context.CTX_NEWKEYRES;
 		this.CTX_BUILDMODE = context.CTX_BUILDMODE;
 		this.CTX_OLDRELEASE = context.CTX_OLDRELEASE;
 		this.CTX_PORT = context.CTX_PORT;
@@ -318,8 +319,13 @@ public class CommandContext {
 		CTX_LOCAL = getFlagValue( "OPT_LOCAL" );
 		CTX_OFFLINE = getFlagValue( "OPT_OFFLINE" );
 		CTX_TIMEOUT = getIntParamValue( "OPT_TIMEOUT" , options.optDefaultCommandTimeout ) * 1000;
-		value = getParamValue( "OPT_KEY" ); 
-		CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? env.KEYFILE : "" ) : value;
+		value = getParamValue( "OPT_KEY" );
+		CTX_KEYRES = value;
+		if( value.isEmpty() && isenv ) {
+			AuthResource res = env.getEnvKey();
+			CTX_KEYRES = res.NAME;
+		}
+		
 		String productValue = ( isproduct )? core.CONFIG_DISTR_PATH : "";
 		CTX_DISTPATH = getParamPathValue( "OPT_DISTPATH" , productValue );
 		CTX_REDISTWIN_PATH = ( isproduct )? core.CONFIG_REDISTWIN_PATH : null;
@@ -328,8 +334,7 @@ public class CommandContext {
 		CTX_REDISTLINUX_PATH = ( isproduct )? core.CONFIG_REDISTLINUX_PATH : null;
 		if( isenv && !env.REDISTLINUX_PATH.isEmpty() )
 			CTX_REDISTLINUX_PATH = env.REDISTLINUX_PATH;
-		value = getParamPathValue( "OPT_HIDDENPATH" );
-		CTX_HIDDENPATH = ( value.isEmpty() )? ( ( isenv )? env.CONF_SECRETFILESPATH : "" ) : value;
+		CTX_HIDDENPATH = getParamPathValue( "OPT_HIDDENPATH" );
 		
 		// specific
 		CTX_GET = getFlagValue( "OPT_GET" );
@@ -378,7 +383,7 @@ public class CommandContext {
 		CTX_UNIT = getParamValue( "OPT_UNIT" );
 		CTX_BUILDINFO = getParamValue( "OPT_BUILDINFO" );
 		CTX_HOSTUSER = getParamValue( "OPT_HOSTUSER" );
-		CTX_NEWKEY = getParamValue( "OPT_NEWKEY" );
+		CTX_NEWKEYRES = getParamValue( "OPT_NEWKEY" );
 		CTX_BUILDMODE = DBEnumBuildModeType.getValue( getParamValue( "OPT_BUILDMODE" ) , false );
 		CTX_OLDRELEASE = getParamValue( "OPT_COMPATIBILITY" );
 		CTX_PORT = getIntParamValue( "OPT_PORT" , -1 );
@@ -401,14 +406,14 @@ public class CommandContext {
 	public void loadEnv( ActionInit action , String ENV , String SG , boolean loadProps ) throws Exception {
 		Meta meta = action.getContextMeta();
 		ProductEnvs envs = meta.getEnviroments();
-		env = envs.findEnv( ENV );
+		env = envs.findMetaEnv( ENV );
 		
 		if( SG == null || SG.isEmpty() ) {
 			sg = null;
 			return;
 		}
 		
-		sg = env.getSG( action , SG );
+		sg = env.getSegment( SG );
 		update( action );
 	}
 	
@@ -503,10 +508,11 @@ public class CommandContext {
 		return( options.getIntParamValue( var , defaultValue ) );
 	}
 
-	public boolean combineValue( String var , FLAG confValue , boolean defValue ) throws Exception {
+	public boolean combineValue( String var , boolean confValue , boolean defValue ) throws Exception {
 		if( !options.isValidVar( var ) )
 			Common.exit1( _Error.UnknownParamVar1 , "unknown param var=" + var , var );
-		return( options.combineValue( var , confValue , defValue ) );
+		FLAG confFlag = ( confValue )? FLAG.YES : FLAG.NO;
+		return( options.combineValue( var , confFlag, defValue ) );
 	}
 	
 	public int logStartCapture() {

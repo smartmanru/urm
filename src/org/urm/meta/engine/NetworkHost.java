@@ -119,13 +119,18 @@ public class NetworkHost extends EngineObject {
 		if( finalAccount.isEmpty() )
 			return( null );
 		
-		Account account = Account.getDatacenterAccount( network.datacenter.NAME , finalAccount );
+		Account account = Account.getDatacenterAccount( network.datacenter , finalAccount );
 		if( !isEqualsHost( account.HOST ) )
 			return( null );
 		
 		return( findAccount( account.USER ) );
 	}
 
+	public String getHost() {
+		Account account = Account.getHostAccount( this );
+		return( account.HOST );
+	}
+	
 	public boolean isEqualsHost( Account account ) {
 		if( isEqualsHost( account.HOST ) || isEqualsHost( account.IP ) )
 			return( true );

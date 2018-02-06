@@ -297,6 +297,22 @@ public class MetaEnv extends EngineObject {
 	public MatchItem getEnvKeyMatchItem() {
 		return( ENVKEY );
 	}
+
+	public AuthResource getEnvKey() throws Exception {
+		if( ENVKEY == null )
+			return( null );
+		EngineData data = meta.getEngineData();
+		EngineResources resources = data.getResources();
+		return( resources.getResource( ENVKEY ) );
+	}
+	
+	public HostAccount getDistrAccount() throws Exception {
+		if( DISTR_ACCOUNT == null )
+			return( null );
+		EngineData data = meta.getEngineData();
+		EngineInfrastructure infra = data.getInfrastructure();
+		return( infra.getHostAccount( DISTR_ACCOUNT ) );
+	}
 	
 	public MatchItem getDistrAccountMatchItem() {
 		return( DISTR_ACCOUNT );

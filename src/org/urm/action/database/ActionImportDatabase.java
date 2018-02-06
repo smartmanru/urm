@@ -1,5 +1,6 @@
 package org.urm.action.database;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +95,10 @@ public class ActionImportDatabase extends ActionBase {
 		POSTREFRESH = dump.POSTREFRESH;
 		NFS = dump.NFS; 
 
-		serverSchemas = server.getSchemaSet( this );
+		serverSchemas = new HashMap<String,MetaDatabaseSchema>();
+		for( MetaDatabaseSchema schema : server.getSchemaSet() )
+			serverSchemas.put( schema.NAME , schema );
+		
 		if( !SCHEMA.isEmpty() )
 			if( !serverSchemas.containsKey( SCHEMA ) )
 				exit1( _Error.UnknownServerSchema1 , "schema " + SCHEMA + " is not part of server datasets" , SCHEMA );
@@ -216,8 +220,8 @@ public class ActionImportDatabase extends ActionBase {
 			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
 				runTarget( "data" , SCHEMA );
 			else {
-				for( String s : server.getSchemaSet( this ).keySet() )
-					runTarget( "data" , s );
+				for( MetaDatabaseSchema schema : server.getSchemaSet() )
+					runTarget( "data" , schema.NAME );
 			}
 		}
 		

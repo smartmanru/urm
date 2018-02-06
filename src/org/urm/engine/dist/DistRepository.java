@@ -9,14 +9,14 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.db.core.DBEnums.*;
 import org.urm.engine.shell.Account;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.EngineContext;
+import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaProductCoreSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -289,13 +289,11 @@ public class DistRepository {
 				action.exit0( _Error.DistPathNotDefined0 , "DISTPATH is not defined in product configuration" );
 				
 			if( action.context.env != null ) {
-				if( !action.isLocalRun() )
-					account = Account.getDatacenterAccount( action , "" , action.context.env.DISTR_HOSTLOGIN , DBEnumOSType.LINUX );
-			}
-			else {
 				if( !action.isLocalRun() ) {
-					MetaProductCoreSettings core = meta.getProductCoreSettings();
-					account = Account.getDatacenterAccount( action , "" , core.CONFIG_DISTR_HOSTLOGIN , DBEnumOSType.LINUX );
+					MetaEnv env = action.context.env;
+					HostAccount hostAccount = env.getDistrAccount();
+					if( hostAccount != null )
+						account = hostAccount.getAccount();
 				}
 			}
 		}

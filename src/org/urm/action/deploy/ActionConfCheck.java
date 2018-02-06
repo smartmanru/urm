@@ -61,8 +61,8 @@ public class ActionConfCheck extends ActionBase {
 			}
 		}
 		else {
-			if( context.env.hasBaseline( this ) ) {
-				baselineEnv = context.env.getBaselineEnv( this );
+			if( context.env.hasBaseline() ) {
+				baselineEnv = context.env.getBaseline();
 				String S_CONFCHECK_BASELINE_ENV = baselineEnv.NAME;
 				info( "============================================ check env properties baseline=" + S_CONFCHECK_BASELINE_ENV + " ..." );
 				checkConfEnv( context.env , baselineEnv , S_CONFCHECK_PROPLIST_ENV );
@@ -74,7 +74,7 @@ public class ActionConfCheck extends ActionBase {
 
 	private void executeSG( MetaEnvSegment sg ) throws Exception {
 		// echo read data center=$SG properties...
-		ObjectProperties ops = sg.ops;
+		ObjectProperties ops = sg.getProperties();
 		String[] S_CONFCHECK_PROPLIST_SG = ops.getPropertyList();
 
 		if( !isExecute() ) {
@@ -86,9 +86,9 @@ public class ActionConfCheck extends ActionBase {
 			}
 		}
 		else {
-			if( context.env.hasBaseline( this ) && sg.hasBaseline( this ) ) {
+			if( context.env.hasBaseline() && sg.hasBaseline() ) {
 				baselineSG = sg.getBaselineSegment( baselineEnv );
-				String S_CONFCHECK_BASELINE_SG = sg.getBaselineSG( this );
+				String S_CONFCHECK_BASELINE_SG = baselineSG.NAME;
 				info( "============================================ check sg=" + sg.NAME + " properties baseline=" + S_CONFCHECK_BASELINE_SG + " ..." );
 				checkConfSG( sg , baselineSG , S_CONFCHECK_PROPLIST_SG );
 			}
@@ -99,7 +99,7 @@ public class ActionConfCheck extends ActionBase {
 
 	private void executeServer( MetaEnvServer server ) throws Exception {
 		// echo read server properties...
-		ObjectProperties ops = server.ops;
+		ObjectProperties ops = server.getProperties();
 		String[] S_CONFCHECK_PROPLIST_SERVER = ops.getPropertyList();
 
 		if( !isExecute() ) {
@@ -111,12 +111,13 @@ public class ActionConfCheck extends ActionBase {
 			}
 		}
 		else {
-			if( context.env.hasBaseline( this ) &&
-			   server.sg.hasBaseline( this ) &&
-			   server.hasBaseline( this ) ) {
-				String S_CONFCHECK_BASELINE_SERVER = server.getBaselineServer( this );
+			if( context.env.hasBaseline() &&
+			   server.sg.hasBaseline() &&
+			   server.hasBaseline() ) {
+				MetaEnvServer baselineServer = server.getBaseline();
+				String S_CONFCHECK_BASELINE_SERVER = baselineServer.NAME;
 				info( "============================================ check sg=" + server.sg.NAME + " server=" + server.NAME + " properties baseline=" + S_CONFCHECK_BASELINE_SERVER + " ..." );
-				baselineServer = baselineSG.getServer( this , S_CONFCHECK_BASELINE_SERVER );
+				baselineServer = baselineSG.getServer( S_CONFCHECK_BASELINE_SERVER );
 				checkConfServer( server , baselineServer , S_CONFCHECK_PROPLIST_SERVER );
 			}
 			else
@@ -125,13 +126,13 @@ public class ActionConfCheck extends ActionBase {
 	}
 
 	private void checkConfServer( MetaEnvServer server , MetaEnvServer baseline , String[] propList ) throws Exception {
-		ObjectProperties ops = baseline.ops;
+		ObjectProperties ops = baseline.getProperties();
 		String[] F_CONFCHECK_PROPLIST = ops.getPropertyList(); 
 		checkLists( "sg=" + server.sg.NAME + " server=" + server.NAME , propList , F_CONFCHECK_PROPLIST );
 	}
 
 	private void checkConfSG( MetaEnvSegment sg , MetaEnvSegment baseline , String[] propList ) throws Exception {
-		ObjectProperties ops = baseline.ops;
+		ObjectProperties ops = baseline.getProperties();
 		String[] F_CONFCHECK_PROPLIST = ops.getPropertyList(); 
 		checkLists( "sg=" + sg.NAME , propList , F_CONFCHECK_PROPLIST );
 	}

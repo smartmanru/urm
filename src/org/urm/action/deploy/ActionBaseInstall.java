@@ -39,7 +39,7 @@ public class ActionBaseInstall extends ActionBase {
 
 	private void executeServer( ActionScopeTarget target , ScopeState state ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName() + " ..." );
 		
 		BaseItem baseItem = server.getBaseItem();
 		if( baseItem == null ) {

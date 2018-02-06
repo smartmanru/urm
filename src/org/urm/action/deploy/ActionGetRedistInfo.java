@@ -11,6 +11,7 @@ import org.urm.engine.storage.FileInfo;
 import org.urm.engine.storage.RedistStateInfo;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
+import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.Types.*;
@@ -26,12 +27,13 @@ public class ActionGetRedistInfo extends ActionBase {
 
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName() + " ..." );
 		info( "root path: " + server.ROOTPATH );
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			info( "node" + node.POS + " (" + node.HOSTLOGIN + "):" );
+			HostAccount hostAccount = node.getHostAccount();
+			info( "node" + node.POS + " (" + hostAccount.getFinalAccount() + "):" );
 			
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			if( dist == null )

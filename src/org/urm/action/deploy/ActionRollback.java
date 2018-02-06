@@ -60,7 +60,7 @@ public class ActionRollback extends ActionBase {
 			return;
 		}
 		
-		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
+		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName() + " ..." );
 
 		k = 0;
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {

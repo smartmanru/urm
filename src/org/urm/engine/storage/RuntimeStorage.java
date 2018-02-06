@@ -52,7 +52,7 @@ public class RuntimeStorage extends ServerStorage {
 		Account nodeAccount = action.getNodeAccount( node );
 		Account account = nodeAccount;
 		if( server.isAccessService() )
-			account = account.getRootAccount( action );
+			account = account.getRootAccount();
 		
 		RemoteFolder runtimeDir = new RemoteFolder( account , F_RUNTIMEDIR );
 		String confFullPath = remoteDir.getFilePath( action , F_CONFIGTARFILE );
@@ -104,7 +104,7 @@ public class RuntimeStorage extends ServerStorage {
 		deployConfigItem( action , stagingPath , confItem , deployDir , true );
 		
 		// add to state
-		MetaEnvServerLocation location = deployment.getLocation( action );
+		MetaEnvServerLocation location = deployment.getLocation();
 		redist.restoreConfigFile( action , confItem , location , stagingPath );
 	}
 	
