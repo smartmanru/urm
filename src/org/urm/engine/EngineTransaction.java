@@ -1012,28 +1012,25 @@ public class EngineTransaction extends TransactionBase {
 		sg.deleteObject();
 	}
 
-	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , VarSERVERRUNTYPE runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
-		super.checkTransactionEnv( sg.env );
-		MetaEnvServer server = new MetaEnvServer( sg.meta , sg );
-		server.createServer( action , name , desc , osType , runType , accessType , sysname );
-		sg.createServer( this , server );
-		return( server );
+	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
+		MetaEnv env = sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		return( DBMetaEnvServer.createServer( this , storage , env , sg , name , desc , osType , runType , accessType , sysname ) );
 	}
 	
-	public void modifyMetaEnvServer( MetaEnvServer server ) throws Exception {
-		super.checkTransactionEnv( server.sg.env );
-		server.sg.modifyServer( this , server );
+	public void modifyMetaEnvServer( MetaEnvServer server , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
+		MetaEnv env = server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServer.modifyServer( this , storage , env , server , name , desc , osType , runType , accessType , sysname );
 	}
-
+	
 	public void deleteMetaEnvServer( MetaEnvServer server ) throws Exception {
-		super.checkTransactionEnv( server.sg.env );
-		server.sg.deleteServer( this , server );
-		server.deleteObject();
-	}
-
-	public void updateMetaEnvServer( MetaEnvServer server ) throws Exception {
-		super.checkTransactionEnv( server.sg.env );
-		server.updateProperties( this );
+		MetaEnv env = server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServer.deleteServer( this , storage , env , server );
 	}
 
 	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
