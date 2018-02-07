@@ -1,4 +1,4 @@
-﻿
+
 CREATE TABLE main.urm_env (
                 env_id INTEGER NOT NULL,
                 meta_fkid INTEGER,
