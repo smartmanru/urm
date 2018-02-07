@@ -15,7 +15,7 @@ public class Types {
 		SOURCE;
 	};
 	
-	public enum VarELEMENTTYPE {
+	public enum EnumElementType {
 		UNKNOWN ,
 		EXTERNAL ,
 		GENERIC ,
@@ -25,13 +25,13 @@ public class Types {
 		GROUP
 	};
 	
-	public enum VarLINKTYPE {
+	public enum EnumLinkType {
 		UNKNOWN ,
 		GENERIC ,
 		MSG
 	};
 	
-	public enum VarCATEGORY {
+	public enum EnumScopeCategory {
 		UNKNOWN ,
 		PROJECT ,
 		CONFIG ,
@@ -43,7 +43,7 @@ public class Types {
 		PREBUILT
 	};
 
-	public enum VarSESSIONTYPE {
+	public enum EnumSessionType {
 		UNKNOWN ,
 		UNIXLOCAL ,
 		UNIXREMOTE ,
@@ -53,7 +53,7 @@ public class Types {
 		WINDOWSFROMUNIX
 	};
 
-	public enum VarPROCESSMODE {
+	public enum EnumProcessMode {
 		UNKNOWN ,
 		STARTED ,
 		STARTING ,
@@ -62,7 +62,7 @@ public class Types {
 		UNREACHABLE
 	};
 
-	public enum VarCONTENTTYPE {
+	public enum EnumContentType {
 		UNKNOWN ,
 		BINARYCOLDDEPLOY ,
 		BINARYHOTDEPLOY ,
@@ -72,7 +72,7 @@ public class Types {
 		CONFCOPYONLY
 	};
 
-	public enum VarNAMETYPE {
+	public enum EnumNameType {
 		UNKNOWN ,
 		ANY ,
 		ALPHANUM ,
@@ -80,21 +80,21 @@ public class Types {
 		ALPHANUMDOTDASH
 	};
 	
-	public enum VarARCHIVETYPE {
+	public enum EnumArchiveType {
 		UNKNOWN ,
 		TARGZ ,
 		TAR ,
 		ZIP
 	};
 	
-	public enum VarTICKETSETSTATUS {
+	public enum EnumTicketSetStatus {
 		UNKNOWN ,
 		NEW ,
 		ACTIVE ,
 		DESCOPED
 	};
 
-	public enum VarTICKETTYPE {
+	public enum EnumTicketType {
 		UNKNOWN ,
 		FEATURE ,
 		CHANGE ,
@@ -102,14 +102,14 @@ public class Types {
 		BUGFIX
 	};
 
-	public enum VarTICKETSTATUS {
+	public enum EnumTicketStatus {
 		UNKNOWN ,
 		NEW ,
 		DEVDONE ,
 		QADONE
 	};
 
-	public enum VarTICKETSETTARGETTYPE {
+	public enum EnumTicketSetTargetType {
 		UNKNOWN ,
 		PROJECTSET ,
 		PROJECTALLITEMS ,
@@ -122,23 +122,23 @@ public class Types {
 		DELIVERYDATABASE
 	};
 
-	public enum VarPACKAGEEXTENSION {
+	public enum EnumPackageExtension {
 		UNKNOWN ,
 		NUPKG ,
 		RPM ,
 		DEB
 	}
 	
-	public static VarCATEGORY getCategory( String ID , boolean required ) throws Exception {
+	public static EnumScopeCategory getCategory( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingCategory0 , "missing category" );
-			return( VarCATEGORY.UNKNOWN );
+			return( EnumScopeCategory.UNKNOWN );
 		}
 
-		VarCATEGORY value = null;
+		EnumScopeCategory value = null;
 		try {
-			value = VarCATEGORY.valueOf( Common.xmlToEnumValue( ID ) );
+			value = EnumScopeCategory.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidCategory1 , "invalid category=" + ID , ID );
@@ -147,16 +147,16 @@ public class Types {
 		return( value );
 	}
 	
-	public static VarELEMENTTYPE getDesignElementType( String ID , boolean required ) throws Exception {
+	public static EnumElementType getDesignElementType( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingDesignElementType0 , "missing design element type" );
-			return( VarELEMENTTYPE.UNKNOWN );
+			return( EnumElementType.UNKNOWN );
 		}
 		
-		VarELEMENTTYPE value = null;		
+		EnumElementType value = null;		
 		try {
-			value = VarELEMENTTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+			value = EnumElementType.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDesignElementType1 , "invalid design element type=" + ID , ID );
@@ -165,16 +165,16 @@ public class Types {
 		return( value );
 	}
 
-	public static VarLINKTYPE getDesignLinkType( String ID , boolean required ) throws Exception {
+	public static EnumLinkType getDesignLinkType( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingDesignLinkType0 , "missing design link type" );
-			return( VarLINKTYPE.UNKNOWN );
+			return( EnumLinkType.UNKNOWN );
 		}
 		
-		VarLINKTYPE value = null;		
+		EnumLinkType value = null;		
 		try {
-			value = VarLINKTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+			value = EnumLinkType.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDesignLinkType1 , "invalid design link type=" + ID , ID );
@@ -183,16 +183,16 @@ public class Types {
 		return( value );
 	}
 
-	public static VarTICKETSETSTATUS getTicketSetStatus( String ID , boolean required ) throws Exception {
+	public static EnumTicketSetStatus getTicketSetStatus( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingTicketSetStatus0 , "missing ticket set status" );
-			return( VarTICKETSETSTATUS.UNKNOWN );
+			return( EnumTicketSetStatus.UNKNOWN );
 		}
 		
-		VarTICKETSETSTATUS value = null;
+		EnumTicketSetStatus value = null;
 		try {
-			value = VarTICKETSETSTATUS.valueOf( Common.xmlToEnumValue( ID ) );
+			value = EnumTicketSetStatus.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidTicketSetStatus1 , "invalid ticket set status=" + ID , ID );
@@ -201,16 +201,16 @@ public class Types {
 		return( value );
 	}
 
-	public static VarTICKETTYPE getTicketType( String ID , boolean required ) throws Exception {
+	public static EnumTicketType getTicketType( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingTicketType0 , "missing ticket type" );
-			return( VarTICKETTYPE.UNKNOWN );
+			return( EnumTicketType.UNKNOWN );
 		}
 		
-		VarTICKETTYPE value = null;
+		EnumTicketType value = null;
 		try {
-			value = VarTICKETTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+			value = EnumTicketType.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidTicketType1 , "invalid ticket type=" + ID , ID );
@@ -219,16 +219,16 @@ public class Types {
 		return( value );
 	}
 
-	public static VarTICKETSTATUS getTicketStatus( String ID , boolean required ) throws Exception {
+	public static EnumTicketStatus getTicketStatus( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingTicketStatus0 , "missing ticket status" );
-			return( VarTICKETSTATUS.UNKNOWN );
+			return( EnumTicketStatus.UNKNOWN );
 		}
 		
-		VarTICKETSTATUS value = null;
+		EnumTicketStatus value = null;
 		try {
-			value = VarTICKETSTATUS.valueOf( Common.xmlToEnumValue( ID ) );
+			value = EnumTicketStatus.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidTicketStatus1 , "invalid ticket status=" + ID , ID );
@@ -237,16 +237,16 @@ public class Types {
 		return( value );
 	}
 
-	public static VarTICKETSETTARGETTYPE getTicketSetTargetType( String ID , boolean required ) throws Exception {
+	public static EnumTicketSetTargetType getTicketSetTargetType( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingTicketSetTargetType0 , "missing ticket set target type" );
-			return( VarTICKETSETTARGETTYPE.UNKNOWN );
+			return( EnumTicketSetTargetType.UNKNOWN );
 		}
 		
-		VarTICKETSETTARGETTYPE value = null;
+		EnumTicketSetTargetType value = null;
 		try {
-			value = VarTICKETSETTARGETTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+			value = EnumTicketSetTargetType.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidTicketSetTargetType1 , "invalid ticket set target type=" + ID , ID );
@@ -255,16 +255,16 @@ public class Types {
 		return( value );
 	}
 
-	public static VarPACKAGEEXTENSION getPackageExtension( String ID , boolean required ) throws Exception {
+	public static EnumPackageExtension getPackageExtension( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingPackageExtension0 , "missing package extension" );
-			return( VarPACKAGEEXTENSION.UNKNOWN );
+			return( EnumPackageExtension.UNKNOWN );
 		}
 		
-		VarPACKAGEEXTENSION value = null;
+		EnumPackageExtension value = null;
 		try {
-			value = VarPACKAGEEXTENSION.valueOf( Common.xmlToEnumValue( ID ) );
+			value = EnumPackageExtension.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidPackageExtension1 , "invalid package extension=" + ID , ID );
@@ -273,44 +273,44 @@ public class Types {
 		return( value );
 	}
 
-	public static boolean isBinaryContent( VarCONTENTTYPE c ) throws Exception {
-		if( c == VarCONTENTTYPE.BINARYCOLDDEPLOY || c == VarCONTENTTYPE.BINARYCOPYONLY || c == VarCONTENTTYPE.BINARYHOTDEPLOY )
+	public static boolean isBinaryContent( EnumContentType c ) throws Exception {
+		if( c == EnumContentType.BINARYCOLDDEPLOY || c == EnumContentType.BINARYCOPYONLY || c == EnumContentType.BINARYHOTDEPLOY )
 			return( true );
 		return( false );
 	}
 	
-	public static boolean isConfContent( VarCONTENTTYPE c ) throws Exception {
-		if( c == VarCONTENTTYPE.CONFCOLDDEPLOY || c == VarCONTENTTYPE.CONFCOPYONLY || c == VarCONTENTTYPE.CONFHOTDEPLOY )
+	public static boolean isConfContent( EnumContentType c ) throws Exception {
+		if( c == EnumContentType.CONFCOLDDEPLOY || c == EnumContentType.CONFCOPYONLY || c == EnumContentType.CONFHOTDEPLOY )
 			return( true );
 		return( false );
 	}
 
-	public static VarCATEGORY readCategoryAttr( Node node ) throws Exception {
+	public static EnumScopeCategory readCategoryAttr( Node node ) throws Exception {
 		String value = ConfReader.getAttrValue( node , "category" );
 		return( Types.getCategory( value , true ) );
 	}
 	
-	public static boolean isSourceCategory( VarCATEGORY value ) {
-		if( value == VarCATEGORY.PROJECT )
+	public static boolean isSourceCategory( EnumScopeCategory value ) {
+		if( value == EnumScopeCategory.PROJECT )
 			return( true );
 		return( false );
 	}
 	
-	public static VarCATEGORY[] getAllReleaseCategories() {
-		VarCATEGORY[] categories = { VarCATEGORY.PROJECT , VarCATEGORY.CONFIG , VarCATEGORY.DB , VarCATEGORY.MANUAL , VarCATEGORY.DERIVED };
+	public static EnumScopeCategory[] getAllReleaseCategories() {
+		EnumScopeCategory[] categories = { EnumScopeCategory.PROJECT , EnumScopeCategory.CONFIG , EnumScopeCategory.DB , EnumScopeCategory.MANUAL , EnumScopeCategory.DERIVED };
 		return( categories );
 	}
 
-	public static VarCATEGORY[] getAllSourceCategories() {
-		VarCATEGORY[] categories = { VarCATEGORY.PROJECT };
+	public static EnumScopeCategory[] getAllSourceCategories() {
+		EnumScopeCategory[] categories = { EnumScopeCategory.PROJECT };
 		return( categories );
 	}
 
-	public static boolean checkCategoryProperty( VarCATEGORY part , VarCATEGORY property ) {
+	public static boolean checkCategoryProperty( EnumScopeCategory part , EnumScopeCategory property ) {
 		if( part == property )
 			return( true );
-		if( property == VarCATEGORY.BUILDABLE ) {
-			if( part == VarCATEGORY.PROJECT )
+		if( property == EnumScopeCategory.BUILDABLE ) {
+			if( part == EnumScopeCategory.PROJECT )
 				return( true );
 		}
 		return( false );

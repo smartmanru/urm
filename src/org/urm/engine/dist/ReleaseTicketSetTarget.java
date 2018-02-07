@@ -23,7 +23,7 @@ public class ReleaseTicketSetTarget {
 	public ReleaseTicketSet set;
 	public int POS;
 
-	public VarTICKETSETTARGETTYPE type;
+	public EnumTicketSetTargetType type;
 	public String ITEM;
 	public boolean accepted;
 	public boolean descoped;
@@ -64,34 +64,34 @@ public class ReleaseTicketSetTarget {
 	}
 	
 	public void create( ActionBase action , MetaSourceProjectSet projectSet ) {
-		type = VarTICKETSETTARGETTYPE.PROJECTSET;
+		type = EnumTicketSetTargetType.PROJECTSET;
 		ITEM = projectSet.NAME;
 		accepted = false;
 		descoped = false;
 	}
 	
 	public void create( ActionBase action , MetaSourceProject project , boolean all ) {
-		type = ( all )? VarTICKETSETTARGETTYPE.PROJECTALLITEMS : VarTICKETSETTARGETTYPE.PROJECTNOITEMS;
+		type = ( all )? EnumTicketSetTargetType.PROJECTALLITEMS : EnumTicketSetTargetType.PROJECTNOITEMS;
 		ITEM = project.NAME;
 		accepted = false;
 		descoped = false;
 	}
 	
 	public void create( ActionBase action , MetaDistrBinaryItem item ) {
-		type = VarTICKETSETTARGETTYPE.DISTITEM;
+		type = EnumTicketSetTargetType.DISTITEM;
 		ITEM = item.NAME;
 		accepted = false;
 		descoped = false;
 	}
 	
 	public void create( ActionBase action , MetaDistrConfItem item ) {
-		type = VarTICKETSETTARGETTYPE.CONFITEM;
+		type = EnumTicketSetTargetType.CONFITEM;
 		ITEM = item.NAME;
 		accepted = false;
 		descoped = false;
 	}
 	
-	public void create( ActionBase action , MetaDistrDelivery delivery , VarTICKETSETTARGETTYPE type ) {
+	public void create( ActionBase action , MetaDistrDelivery delivery , EnumTicketSetTargetType type ) {
 		this.type = type;
 		ITEM = delivery.NAME;
 		accepted = false;
@@ -99,7 +99,7 @@ public class ReleaseTicketSetTarget {
 	}
 	
 	public void create( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) {
-		this.type = VarTICKETSETTARGETTYPE.SCHEMA;
+		this.type = EnumTicketSetTargetType.SCHEMA;
 		ITEM = delivery.NAME + ":" + schema.NAME;
 		accepted = false;
 		descoped = false;
@@ -114,55 +114,55 @@ public class ReleaseTicketSetTarget {
 	}
 
 	public boolean isProjectSet() {
-		if( type == VarTICKETSETTARGETTYPE.PROJECTSET )
+		if( type == EnumTicketSetTargetType.PROJECTSET )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isProject() {
-		if( type == VarTICKETSETTARGETTYPE.PROJECTALLITEMS || type == VarTICKETSETTARGETTYPE.PROJECTNOITEMS )
+		if( type == EnumTicketSetTargetType.PROJECTALLITEMS || type == EnumTicketSetTargetType.PROJECTNOITEMS )
 			return( true );
 		return( false );
 	}
 		
 	public boolean isBinary() {
-		if( type == VarTICKETSETTARGETTYPE.DISTITEM )
+		if( type == EnumTicketSetTargetType.DISTITEM )
 			return( true );
 		return( false );
 	}
 
 	public boolean isConfiguration() {
-		if( type == VarTICKETSETTARGETTYPE.CONFITEM )
+		if( type == EnumTicketSetTargetType.CONFITEM )
 			return( true );
 		return( false );
 	}
 		
 	public boolean isDatabase() {
-		if( type == VarTICKETSETTARGETTYPE.SCHEMA )
+		if( type == EnumTicketSetTargetType.SCHEMA )
 			return( true );
 		return( false );
 	}
 
 	public boolean isDelivery() {
-		if( type == VarTICKETSETTARGETTYPE.DELIVERYBINARIES || type == VarTICKETSETTARGETTYPE.DELIVERYCONFS || type == VarTICKETSETTARGETTYPE.DELIVERYDATABASE )
+		if( type == EnumTicketSetTargetType.DELIVERYBINARIES || type == EnumTicketSetTargetType.DELIVERYCONFS || type == EnumTicketSetTargetType.DELIVERYDATABASE )
 			return( true );
 		return( false );
 	}
 
 	public boolean isDeliveryBinaries() {
-		if( type == VarTICKETSETTARGETTYPE.DELIVERYBINARIES )
+		if( type == EnumTicketSetTargetType.DELIVERYBINARIES )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isDeliveryConfs() {
-		if( type == VarTICKETSETTARGETTYPE.DELIVERYCONFS )
+		if( type == EnumTicketSetTargetType.DELIVERYCONFS )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isDeliveryDatabase() {
-		if( type == VarTICKETSETTARGETTYPE.DELIVERYDATABASE )
+		if( type == EnumTicketSetTargetType.DELIVERYDATABASE )
 			return( true );
 		return( false );
 	}
@@ -176,7 +176,7 @@ public class ReleaseTicketSetTarget {
 	}
 	
 	public boolean isProjectBuildOnly() {
-		if( type == VarTICKETSETTARGETTYPE.PROJECTNOITEMS )
+		if( type == EnumTicketSetTargetType.PROJECTNOITEMS )
 			return( true );
 		return( false );
 	}

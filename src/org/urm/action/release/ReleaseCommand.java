@@ -182,7 +182,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
 		ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
-		maker.addScopeProductCategory( VarCATEGORY.CONFIG , elements );
+		maker.addScopeProductCategory( EnumScopeCategory.CONFIG , elements );
 		ActionScope scope = maker.getScope();
 		addReleaseScope( parentState , action , dist , scope );
 	}
@@ -193,7 +193,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
 		ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
-		maker.addScopeProductCategory( VarCATEGORY.DB , DELIVERIES );
+		maker.addScopeProductCategory( EnumScopeCategory.DB , DELIVERIES );
 		ActionScope scope = maker.getScope();
 		addReleaseScope( parentState , action , dist , scope );
 	}
@@ -280,7 +280,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
 		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
-		maker.addScopeReleaseCategory( VarCATEGORY.CONFIG , COMPS );
+		maker.addScopeReleaseCategory( EnumScopeCategory.CONFIG , COMPS );
 		ActionScope scope = maker.getScope();
 		descope( parentState , action , dist , scope );
 	}
@@ -290,7 +290,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
 		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
-		maker.addScopeReleaseCategory( VarCATEGORY.MANUAL , ITEMS );
+		maker.addScopeReleaseCategory( EnumScopeCategory.MANUAL , ITEMS );
 		ActionScope scope = maker.getScope();
 		descope( parentState , action , dist , scope );
 	}
@@ -313,7 +313,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
 		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
-		maker.addScopeReleaseCategory( VarCATEGORY.DB , DELIVERIES );
+		maker.addScopeReleaseCategory( EnumScopeCategory.DB , DELIVERIES );
 		ActionScope scope = maker.getScope();
 		descope( parentState , action , dist , scope );
 	}

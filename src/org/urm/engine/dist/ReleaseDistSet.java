@@ -26,7 +26,7 @@ public class ReleaseDistSet {
 
 	Meta meta;
 	Release release;
-	public VarCATEGORY CATEGORY;
+	public EnumScopeCategory CATEGORY;
 	
 	public MetaSourceProjectSet set;
 	
@@ -38,7 +38,7 @@ public class ReleaseDistSet {
 
 	Map<String,ReleaseTarget> map = new HashMap<String,ReleaseTarget>(); 
 	
-	public ReleaseDistSet( Meta meta , Release release , VarCATEGORY CATEGORY ) {
+	public ReleaseDistSet( Meta meta , Release release , EnumScopeCategory CATEGORY ) {
 		this.meta = meta;
 		this.release = release;
 		this.CATEGORY = CATEGORY;
@@ -82,7 +82,7 @@ public class ReleaseDistSet {
 	}
 
 	public boolean isSourceSet() {
-		if( CATEGORY == VarCATEGORY.PROJECT )
+		if( CATEGORY == EnumScopeCategory.PROJECT )
 			return( true );
 		return( false );
 	}
@@ -97,16 +97,16 @@ public class ReleaseDistSet {
 			loadBinary( action , node );
 		else {
 			NAME = Common.getEnumLower( CATEGORY );
-			if( CATEGORY == VarCATEGORY.CONFIG )
+			if( CATEGORY == EnumScopeCategory.CONFIG )
 				loadConfiguration( action , node );
 			else
-			if( CATEGORY == VarCATEGORY.DB )
+			if( CATEGORY == EnumScopeCategory.DB )
 				loadDatabase( action , node );
 			else
-			if( CATEGORY == VarCATEGORY.MANUAL )
+			if( CATEGORY == EnumScopeCategory.MANUAL )
 				loadManual( action , node );
 			else
-			if( CATEGORY == VarCATEGORY.DERIVED )
+			if( CATEGORY == EnumScopeCategory.DERIVED )
 				loadDerived( action , node );
 			else
 				action.exitUnexpectedCategory( CATEGORY );
@@ -122,7 +122,7 @@ public class ReleaseDistSet {
 	}
 	
 	private void loadBinary( ActionBase action , Node node ) throws Exception {
-		String SET = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		String SET = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
 		MetaSources sources = meta.getSources(); 
 		set = sources.getProjectSet( SET );
 		NAME = set.NAME;
@@ -153,7 +153,7 @@ public class ReleaseDistSet {
 	}
 	
 	private void loadConfiguration( ActionBase action , Node node ) throws Exception {
-		NAME = Common.getEnumLower( VarCATEGORY.CONFIG );
+		NAME = Common.getEnumLower( EnumScopeCategory.CONFIG );
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
 		Node[] confitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_CONFITEM );
@@ -174,7 +174,7 @@ public class ReleaseDistSet {
 	}
 	
 	private void loadDatabase( ActionBase action , Node node ) throws Exception {
-		NAME = Common.getEnumLower( VarCATEGORY.DB );
+		NAME = Common.getEnumLower( EnumScopeCategory.DB );
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
 		Node[] dbitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DELIVERY );
@@ -195,7 +195,7 @@ public class ReleaseDistSet {
 	}
 
 	private void loadManual( ActionBase action , Node node ) throws Exception {
-		NAME = Common.getEnumLower( VarCATEGORY.MANUAL );
+		NAME = Common.getEnumLower( EnumScopeCategory.MANUAL );
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
 		Node[] manualitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DISTITEM );
@@ -216,7 +216,7 @@ public class ReleaseDistSet {
 	}
 
 	private void loadDerived( ActionBase action , Node node ) throws Exception {
-		NAME = Common.getEnumLower( VarCATEGORY.DERIVED );
+		NAME = Common.getEnumLower( EnumScopeCategory.DERIVED );
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
 		Node[] deriveditems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DISTITEM );
@@ -239,7 +239,7 @@ public class ReleaseDistSet {
 	public void createSourceSet( ActionBase action , MetaSourceProjectSet set , boolean ALL ) throws Exception {
 		this.set = set;
 		this.NAME = set.NAME;
-		this.CATEGORY = VarCATEGORY.PROJECT;
+		this.CATEGORY = EnumScopeCategory.PROJECT;
 		this.ALL = ALL;
 		this.BUILDBRANCH = action.context.CTX_BRANCH;
 		this.BUILDTAG = action.context.CTX_TAG;
@@ -249,7 +249,7 @@ public class ReleaseDistSet {
 			addAllSourceProjects( action );
 	}
 	
-	public void createCategorySet( ActionBase action , VarCATEGORY CATEGORY , boolean ALL ) throws Exception {
+	public void createCategorySet( ActionBase action , EnumScopeCategory CATEGORY , boolean ALL ) throws Exception {
 		this.CATEGORY = CATEGORY;
 		this.NAME = Common.getEnumLower( CATEGORY );
 		this.ALL = ALL;
@@ -258,16 +258,16 @@ public class ReleaseDistSet {
 		this.BUILDVERSION = action.context.CTX_VERSION;
 		
 		if( ALL ) {
-			if( CATEGORY == VarCATEGORY.CONFIG )
+			if( CATEGORY == EnumScopeCategory.CONFIG )
 				addAllConfItems( action );
 			else
-			if( CATEGORY == VarCATEGORY.DB )
+			if( CATEGORY == EnumScopeCategory.DB )
 				addAllDatabaseItems( action );
 			else
-			if( CATEGORY == VarCATEGORY.MANUAL )
+			if( CATEGORY == EnumScopeCategory.MANUAL )
 				addAllManualItems( action );
 			else
-			if( CATEGORY == VarCATEGORY.DERIVED )
+			if( CATEGORY == EnumScopeCategory.DERIVED )
 				addAllDerivedItems( action );
 			else
 				action.exitUnexpectedCategory( CATEGORY );
@@ -439,7 +439,7 @@ public class ReleaseDistSet {
 	public Element createXmlBinary( ActionBase action , Document doc , Element parent ) throws Exception {
 		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_SET );
 		
-		Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , set.NAME );
+		Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , set.NAME );
 		if( !BUILDBRANCH.isEmpty() )
 			Common.xmlSetElementAttr( doc , element , Release.PROPERTY_BUILDBRANCH , BUILDBRANCH );
 		if( !BUILDTAG.isEmpty() )

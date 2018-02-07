@@ -2,7 +2,7 @@ package org.urm.action;
 
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumItemOriginType;
-import org.urm.meta.Types.VarCATEGORY;
+import org.urm.meta.Types.EnumScopeCategory;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -98,7 +98,7 @@ public class ActionProductScopeMaker {
 			addProductDatabaseDeliverySchemes( DELIVERY , ITEMS );
 	}
 
-	public void addScopeProductCategory( VarCATEGORY CATEGORY , String[] TARGETS ) throws Exception {
+	public void addScopeProductCategory( EnumScopeCategory CATEGORY , String[] TARGETS ) throws Exception {
 		addScopeProductSet( Common.getEnumLower( CATEGORY ) , TARGETS );
 	}
 
@@ -112,16 +112,16 @@ public class ActionProductScopeMaker {
 	}
 	
 	private void addProductSet( String set , String[] TARGETS ) throws Exception {
-		if( set.equals( Common.getEnumLower( VarCATEGORY.CONFIG ) ) )
+		if( set.equals( Common.getEnumLower( EnumScopeCategory.CONFIG ) ) )
 			addProductConfigs( TARGETS );
 		else 
-		if( set.equals( Common.getEnumLower( VarCATEGORY.DB ) ) )
+		if( set.equals( Common.getEnumLower( EnumScopeCategory.DB ) ) )
 			addProductDatabaseDeliveries( TARGETS );
 		else 
-		if( set.equals( Common.getEnumLower( VarCATEGORY.MANUAL ) ) )
+		if( set.equals( Common.getEnumLower( EnumScopeCategory.MANUAL ) ) )
 			addManualItems( TARGETS );
 		else 
-		if( set.equals( Common.getEnumLower( VarCATEGORY.DERIVED ) ) )
+		if( set.equals( Common.getEnumLower( EnumScopeCategory.DERIVED ) ) )
 			addDerivedItems( TARGETS );
 		else {
 			MetaSources sources = meta.getSources();
@@ -139,12 +139,12 @@ public class ActionProductScopeMaker {
 			
 			ActionScopeSet sset = null;
 			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL ) {
-				sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.MANUAL );
+				sset = scope.makeProductCategoryScopeSet( action , EnumScopeCategory.MANUAL );
 				addProductManualItems( sset , new String[] { itemName } );
 			}
 			else
 			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
-				sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.DERIVED );
+				sset = scope.makeProductCategoryScopeSet( action , EnumScopeCategory.DERIVED );
 				addProductDerivedItems( sset , new String[] { itemName } );
 			}
 			else {
@@ -174,7 +174,7 @@ public class ActionProductScopeMaker {
 	}
 	
 	private void addProductConfigs( String[] CONFCOMPS ) throws Exception {
-		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.CONFIG );
+		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , EnumScopeCategory.CONFIG );
 		addProductConfigComps( sset , CONFCOMPS );
 	}
 
@@ -183,7 +183,7 @@ public class ActionProductScopeMaker {
 	}
 	
 	private void addProductDatabaseDeliveries( String[] DELIVERIES ) throws Exception {
-		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , VarCATEGORY.DB );
+		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , EnumScopeCategory.DB );
 		addProductDatabaseDeliveries( set , DELIVERIES );
 	}
 
@@ -192,7 +192,7 @@ public class ActionProductScopeMaker {
 	}
 
 	private void addManualItems( String[] DISTITEMS ) throws Exception {
-		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.MANUAL );
+		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , EnumScopeCategory.MANUAL );
 		addProductManualItems( sset , DISTITEMS );
 	}
 	
@@ -201,12 +201,12 @@ public class ActionProductScopeMaker {
 	}
 
 	private void addDerivedItems( String[] DISTITEMS ) throws Exception {
-		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.DERIVED );
+		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , EnumScopeCategory.DERIVED );
 		addProductDerivedItems( sset , DISTITEMS );
 	}
 	
 	private void addProductDatabaseDeliverySchemes( String DELIVERY , String[] SCHEMES ) throws Exception {
-		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , VarCATEGORY.DB );
+		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , EnumScopeCategory.DB );
 		addProductDatabaseDeliverySchemes( set , DELIVERY , SCHEMES );
 	}
 

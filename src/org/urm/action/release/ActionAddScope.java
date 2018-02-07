@@ -56,11 +56,11 @@ public class ActionAddScope extends ActionBase {
 	}
 	
 	private boolean addAllProductTargetElements( ActionScopeSet set , ActionScopeTarget target ) throws Exception {
-		if( target.CATEGORY == VarCATEGORY.CONFIG )
+		if( target.CATEGORY == EnumScopeCategory.CONFIG )
 			return( dist.addConfItem( this , target.confItem ) );
-		if( target.CATEGORY == VarCATEGORY.DB )
+		if( target.CATEGORY == EnumScopeCategory.DB )
 			return( dist.addDatabaseDeliveryAllSchemes( this , target.dbDelivery ) );
-		if( target.CATEGORY == VarCATEGORY.MANUAL )
+		if( target.CATEGORY == EnumScopeCategory.MANUAL )
 			return( dist.addManualItem( this , target.manualItem ) );
 		if( Types.isSourceCategory( target.CATEGORY ) )
 			return( dist.addProjectAllItems( this , target.sourceProject ) );
@@ -72,7 +72,7 @@ public class ActionAddScope extends ActionBase {
 	private boolean addTargetItem( ActionScopeSet set , ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {
 		if( Types.isSourceCategory( target.CATEGORY ) )
 			return( dist.addProjectItem( this , target.sourceProject , item.sourceItem ) );
-		if( target.CATEGORY == VarCATEGORY.DB )
+		if( target.CATEGORY == EnumScopeCategory.DB )
 			return( dist.addDatabaseDeliverySchema( this , target.dbDelivery , item.schema ) );
 		
 		this.exitUnexpectedCategory( target.CATEGORY );

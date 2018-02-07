@@ -385,12 +385,12 @@ abstract public class ActionBase extends ActionCore {
 		return( executor.runTargetList( set , items , env , sa , readOnly ) );
 	}
 	
-	public boolean runCategories( ScopeState parentState , ActionScope scope , VarCATEGORY[] categories , SecurityAction sa , boolean readOnly ) {
+	public boolean runCategories( ScopeState parentState , ActionScope scope , EnumScopeCategory[] categories , SecurityAction sa , boolean readOnly ) {
 		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runCategories( scope , categories , sa , readOnly ) );
 	}
 	
-	public boolean runCategoriesAsync( ScopeState parentState , ActionScope scope , VarCATEGORY[] categories , SecurityAction sa , boolean readOnly ) {
+	public boolean runCategoriesAsync( ScopeState parentState , ActionScope scope , EnumScopeCategory[] categories , SecurityAction sa , boolean readOnly ) {
 		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runCategories( scope , categories , sa , readOnly ) );
 	}
@@ -420,22 +420,22 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public boolean runEachBuildableProject( ScopeState parentState , ActionScope scope , SecurityAction sa , boolean readOnly ) {
-		VarCATEGORY[] categories = { VarCATEGORY.BUILDABLE };
+		EnumScopeCategory[] categories = { EnumScopeCategory.BUILDABLE };
 		return( runCategories( parentState , scope , categories , sa , readOnly ) );
 	}
 	
 	public boolean runEachSourceProject( ScopeState parentState , ActionScope scope , SecurityAction sa , boolean readOnly ) {
-		VarCATEGORY[] categories = Types.getAllSourceCategories();
+		EnumScopeCategory[] categories = Types.getAllSourceCategories();
 		return( runCategories( parentState, scope , categories , sa , readOnly ) );
 	}
 	
-	public boolean runEachCategoryTarget( ScopeState parentState , ActionScope scope , VarCATEGORY category , SecurityAction sa , boolean readOnly ) {
-		VarCATEGORY[] categories = new VarCATEGORY[] { category };
+	public boolean runEachCategoryTarget( ScopeState parentState , ActionScope scope , EnumScopeCategory category , SecurityAction sa , boolean readOnly ) {
+		EnumScopeCategory[] categories = new EnumScopeCategory[] { category };
 		return( runCategories( parentState , scope , categories , sa , readOnly ) );
 	}
 	
 	public boolean runEachPrebuiltProject( ScopeState parentState , String methodName , ActionScope scope , SecurityAction sa , boolean readOnly ) {
-		return( runEachCategoryTarget( parentState , scope , VarCATEGORY.PREBUILT , sa , readOnly ) );
+		return( runEachCategoryTarget( parentState , scope , EnumScopeCategory.PREBUILT , sa , readOnly ) );
 	}
 
 	public ShellExecutor getShell( Account account ) throws Exception {
@@ -715,7 +715,7 @@ abstract public class ActionBase extends ActionCore {
     	return( ConfReader.readStringFile( engine.execrc , path ) );
     }
     
-    public String getNameAttr( Node node , VarNAMETYPE nameType ) throws Exception {
+    public String getNameAttr( Node node , EnumNameType nameType ) throws Exception {
     	return( Meta.getNameAttr( this , node , nameType ) );
     }
 

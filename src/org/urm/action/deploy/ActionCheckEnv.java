@@ -391,16 +391,16 @@ public class ActionCheckEnv extends ActionBase {
 		
 		HostAccount account = node.getHostAccount();
 
-		if( process.mode == VarPROCESSMODE.ERRORS )
+		if( process.mode == EnumProcessMode.ERRORS )
 			error( account.getFinalAccount() + ": status=errors (" + process.cmdValue + ")" ); 
 		else
-		if( process.mode == VarPROCESSMODE.STARTING )
+		if( process.mode == EnumProcessMode.STARTING )
 			error( account.getFinalAccount() + ": status=starting" );
 		else
-		if( process.mode == VarPROCESSMODE.STOPPED )
+		if( process.mode == EnumProcessMode.STOPPED )
 			error( account.getFinalAccount() + ": status=stopped" );
 		else
-		if( process.mode == VarPROCESSMODE.UNREACHABLE )
+		if( process.mode == EnumProcessMode.UNREACHABLE )
 			error( account.getFinalAccount() + ": status=unreachable" );
 		else
 			this.exitUnexpectedState();

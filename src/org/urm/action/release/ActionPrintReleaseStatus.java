@@ -87,7 +87,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			for( String set : release.getSourceSetNames() )
 				printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
 			
-			for( VarCATEGORY CATEGORY : Types.getAllReleaseCategories() ) {
+			for( EnumScopeCategory CATEGORY : Types.getAllReleaseCategories() ) {
 				ReleaseDistSet set = release.findCategorySet( CATEGORY );
 				if( set != null )
 					printReleaseCategorySetStatus( dist , files , set );
@@ -148,13 +148,13 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		for( String key : set.getTargetNames() ) {
 			ReleaseTarget target = set.findTarget( key );
 			
-			if( set.CATEGORY == VarCATEGORY.CONFIG )
+			if( set.CATEGORY == EnumScopeCategory.CONFIG )
 				printReleaseConfStatus( dist , files , target );
 			else
-			if( set.CATEGORY == VarCATEGORY.DB )
+			if( set.CATEGORY == EnumScopeCategory.DB )
 				printReleaseDatabaseStatus( dist , files , target );
 			else
-			if( set.CATEGORY == VarCATEGORY.MANUAL )
+			if( set.CATEGORY == EnumScopeCategory.MANUAL )
 				printReleaseManualStatus( dist , files , target );
 			else
 				exitUnexpectedCategory( set.CATEGORY );

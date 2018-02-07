@@ -87,7 +87,7 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		// copy from release
-		if( dist.release.findCategoryTarget( this , VarCATEGORY.CONFIG , conf.NAME ) != null ) {
+		if( dist.release.findCategoryTarget( this , EnumScopeCategory.CONFIG , conf.NAME ) != null ) {
 			LocalFolder folder = templateFolder.getSubFolder( this , conf.NAME );
 			if( folder.checkExists( this ) )
 				dist.copyDistConfToFolder( this , conf , folder );

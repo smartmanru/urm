@@ -97,15 +97,15 @@ public class MetaEnvServerLocation {
 		return( itemName );
 	}
 
-	public VarCONTENTTYPE getContentType( boolean binary ) {
-		VarCONTENTTYPE contentType;
+	public EnumContentType getContentType( boolean binary ) {
+		EnumContentType contentType;
 		if( DEPLOYTYPE == DBEnumDeployModeType.HOT )
-			contentType = ( binary )? VarCONTENTTYPE.BINARYHOTDEPLOY : VarCONTENTTYPE.CONFHOTDEPLOY;
+			contentType = ( binary )? EnumContentType.BINARYHOTDEPLOY : EnumContentType.CONFHOTDEPLOY;
 		else
 		if( DEPLOYTYPE == DBEnumDeployModeType.COPYONLY )
-			contentType = ( binary )? VarCONTENTTYPE.BINARYCOPYONLY : VarCONTENTTYPE.CONFCOPYONLY;
+			contentType = ( binary )? EnumContentType.BINARYCOPYONLY : EnumContentType.CONFCOPYONLY;
 		else
-			contentType = ( binary )? VarCONTENTTYPE.BINARYCOLDDEPLOY : VarCONTENTTYPE.CONFCOLDDEPLOY;
+			contentType = ( binary )? EnumContentType.BINARYCOLDDEPLOY : EnumContentType.CONFCOLDDEPLOY;
 		return( contentType );
 	}
 

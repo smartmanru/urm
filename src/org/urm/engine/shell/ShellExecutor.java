@@ -17,7 +17,7 @@ import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
-import org.urm.meta.Types.VarSESSIONTYPE;
+import org.urm.meta.Types.EnumSessionType;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.Meta;
@@ -47,19 +47,19 @@ public abstract class ShellExecutor extends Shell {
 	}
 	
 	public boolean isWindowsFromUnix() {
-		if( coreHidden.sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX )
+		if( coreHidden.sessionType == EnumSessionType.WINDOWSFROMUNIX )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isUnixFromWindows() {
-		if( coreHidden.sessionType == VarSESSIONTYPE.UNIXFROMWINDOWS )
+		if( coreHidden.sessionType == EnumSessionType.UNIXFROMWINDOWS )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isUnixRemote() {
-		if( coreHidden.sessionType == VarSESSIONTYPE.UNIXREMOTE )
+		if( coreHidden.sessionType == EnumSessionType.UNIXREMOTE )
 			return( true );
 		return( false );
 	}

@@ -29,7 +29,7 @@ public class ReleaseTarget {
 
 	Meta meta;
 	public ReleaseDistSet set;
-	public VarCATEGORY CATEGORY;
+	public EnumScopeCategory CATEGORY;
 
 	public boolean ALL;
 	public String NAME = "";
@@ -48,7 +48,7 @@ public class ReleaseTarget {
 	
 	public String DISTFILE;
 
-	public ReleaseTarget( Meta meta , ReleaseDistSet set , VarCATEGORY CATEGORY ) {
+	public ReleaseTarget( Meta meta , ReleaseDistSet set , EnumScopeCategory CATEGORY ) {
 		this.meta = meta;
 		this.set = set;
 		this.CATEGORY = CATEGORY;
@@ -83,23 +83,23 @@ public class ReleaseTarget {
 		if( Types.isSourceCategory( CATEGORY ) )
 			loadProject( action , node );
 		else
-		if( CATEGORY == VarCATEGORY.CONFIG )
+		if( CATEGORY == EnumScopeCategory.CONFIG )
 			loadConfiguration( action , node );
 		else
-		if( CATEGORY == VarCATEGORY.DB )
+		if( CATEGORY == EnumScopeCategory.DB )
 			loadDatabase( action , node );
 		else
-		if( CATEGORY == VarCATEGORY.MANUAL )
+		if( CATEGORY == EnumScopeCategory.MANUAL )
 			loadManual( action , node );
 		else
-		if( CATEGORY == VarCATEGORY.DERIVED )
+		if( CATEGORY == EnumScopeCategory.DERIVED )
 			loadDerived( action , node );
 		else
 			action.exitUnexpectedCategory( CATEGORY );
 	}
 	
 	private void loadProject( ActionBase action , Node node ) throws Exception {
-		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
+		String name = action.getNameAttr( node , EnumNameType.ALPHANUMDOTDASH );
 		BUILDBRANCH = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDBRANCH , BUILDBRANCH );
 		BUILDTAG = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDTAG , BUILDTAG );
 		BUILDVERSION = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDVERSION , BUILDVERSION );
@@ -126,7 +126,7 @@ public class ReleaseTarget {
 	}
 
 	private void loadConfiguration( ActionBase action , Node node ) throws Exception {
-		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		String name = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
 		MetaDistr distr = meta.getDistr(); 
 		distConfItem = distr.getConfItem( name );
 		this.NAME = name;
@@ -135,7 +135,7 @@ public class ReleaseTarget {
 	}
 	
 	private void loadDatabase( ActionBase action , Node node ) throws Exception {
-		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		String name = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
 		MetaDistr distr = meta.getDistr(); 
 		distDatabaseDelivery = distr.getDelivery( name );
 		this.NAME = name;
@@ -158,7 +158,7 @@ public class ReleaseTarget {
 	}
 
 	private void loadManual( ActionBase action , Node node ) throws Exception {
-		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		String name = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
 		MetaDistr distr = meta.getDistr(); 
 		distManualItem = distr.getBinaryItem( name );
 		this.NAME = name;
@@ -167,7 +167,7 @@ public class ReleaseTarget {
 	}
 
 	private void loadDerived( ActionBase action , Node node ) throws Exception {
-		String name = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		String name = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
 		MetaDistr distr = meta.getDistr(); 
 		distDerivedItem = distr.getBinaryItem( name );
 		this.NAME = name;
@@ -190,24 +190,24 @@ public class ReleaseTarget {
 		this.DISTFILE = DISTFILE;
 	}
 	
-	public boolean isCategoryItem( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
+	public boolean isCategoryItem( ActionBase action , EnumScopeCategory CATEGORY ) throws Exception {
 		if( Types.isSourceCategory( CATEGORY ) ) {
 			if( sourceProject != null )
 				return( true );
 		}
-		else if( CATEGORY == VarCATEGORY.CONFIG ) {
+		else if( CATEGORY == EnumScopeCategory.CONFIG ) {
 			if( distConfItem != null )
 				return( true );
 		}
-		else if( CATEGORY == VarCATEGORY.DB ) {
+		else if( CATEGORY == EnumScopeCategory.DB ) {
 			if( distDatabaseDelivery != null )
 				return( true );
 		}
-		else if( CATEGORY == VarCATEGORY.MANUAL ) {
+		else if( CATEGORY == EnumScopeCategory.MANUAL ) {
 			if( distManualItem != null )
 				return( true );
 		}
-		else if( CATEGORY == VarCATEGORY.DERIVED ) {
+		else if( CATEGORY == EnumScopeCategory.DERIVED ) {
 			if( distDerivedItem != null )
 				return( true );
 		}
@@ -254,7 +254,7 @@ public class ReleaseTarget {
 
 	public void createFromProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems ) throws Exception {
 		this.sourceProject = sourceProject;
-		this.CATEGORY = VarCATEGORY.PROJECT;
+		this.CATEGORY = EnumScopeCategory.PROJECT;
 		
 		NAME = sourceProject.NAME;
 		ALL = false;
@@ -269,14 +269,14 @@ public class ReleaseTarget {
 
 	public void createFromConfItem( ActionBase action , MetaDistrConfItem item , boolean allFiles ) throws Exception {
 		this.distConfItem = item;
-		this.CATEGORY = VarCATEGORY.CONFIG;
+		this.CATEGORY = EnumScopeCategory.CONFIG;
 		this.ALL = allFiles;
 		this.NAME = item.NAME;
 	}
 	
 	public void createFromDatabaseDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allSchemes ) throws Exception {
 		this.distDatabaseDelivery = delivery;
-		this.CATEGORY = VarCATEGORY.DB;
+		this.CATEGORY = EnumScopeCategory.DB;
 		this.ALL = false;
 		this.NAME = delivery.NAME;
 		
@@ -289,7 +289,7 @@ public class ReleaseTarget {
 			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item.NAME , item.NAME );
 		
 		this.distManualItem = item;
-		this.CATEGORY = VarCATEGORY.MANUAL;
+		this.CATEGORY = EnumScopeCategory.MANUAL;
 		this.ALL = true;
 		this.NAME = item.NAME;
 	}
@@ -299,7 +299,7 @@ public class ReleaseTarget {
 			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item.NAME , item.NAME );
 		
 		this.distDerivedItem = item;
-		this.CATEGORY = VarCATEGORY.DERIVED;
+		this.CATEGORY = EnumScopeCategory.DERIVED;
 		this.ALL = true;
 		this.NAME = item.NAME;
 	}
@@ -476,7 +476,7 @@ public class ReleaseTarget {
 	public Element createXmlBinary( ActionBase action , Document doc , Element parent ) throws Exception {
 		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_PROJECT );
 		
-		Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , sourceProject.NAME );
+		Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , sourceProject.NAME );
 		if( !BUILDBRANCH.isEmpty() )
 			Common.xmlSetElementAttr( doc , element , Release.PROPERTY_BUILDBRANCH , BUILDBRANCH );
 		if( !BUILDTAG.isEmpty() )
@@ -499,7 +499,7 @@ public class ReleaseTarget {
 	
 	public Element createXmlConfig( ActionBase action , Document doc , Element parent ) throws Exception {
 		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_CONFITEM );
-		Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , distConfItem.NAME );
+		Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , distConfItem.NAME );
 		String partial = Common.getBooleanValue( !ALL ); 
 		Common.xmlSetElementAttr( doc , element , Release.PROPERTY_PARTIAL , partial );
 		return( element );
@@ -507,7 +507,7 @@ public class ReleaseTarget {
 
 	public Element createXmlDatabase( ActionBase action , Document doc , Element parent ) throws Exception {
 		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_DELIVERY );
-		Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , distDatabaseDelivery.NAME );
+		Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , distDatabaseDelivery.NAME );
 		
 		// all project items
 		if( ALL ) {
@@ -524,13 +524,13 @@ public class ReleaseTarget {
 
 	public Element createXmlManual( ActionBase action , Document doc , Element parent ) throws Exception {
 		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_DISTITEM );
-		Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , distManualItem.NAME );
+		Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , distManualItem.NAME );
 		return( element );
 	}
 
 	public Element createXmlDerived( ActionBase action , Document doc , Element parent ) throws Exception {
 		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_DISTITEM );
-		Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , distDerivedItem.NAME );
+		Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , distDerivedItem.NAME );
 		return( element );
 	}
 
@@ -545,13 +545,13 @@ public class ReleaseTarget {
 	}
 
 	public boolean isBuildableProject() {
-		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.isBuildable() )
+		if( CATEGORY == EnumScopeCategory.PROJECT && sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isPrebuiltProject() {
-		if( CATEGORY == VarCATEGORY.PROJECT && !sourceProject.isBuildable() )
+		if( CATEGORY == EnumScopeCategory.PROJECT && !sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}

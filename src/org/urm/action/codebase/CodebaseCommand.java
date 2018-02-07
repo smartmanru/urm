@@ -66,7 +66,7 @@ public class CodebaseCommand {
 
 		if( dist != null && scope.hasConfig( action ) ) {
 			ActionGetConf cacf = new ActionGetConf( action , null , dist , downloadFolder , action.context.CTX_DIST );
-			if( !cacf.runEachCategoryTarget( parentState , scope , VarCATEGORY.CONFIG , SecurityAction.ACTION_CODEBASE , false ) )
+			if( !cacf.runEachCategoryTarget( parentState , scope , EnumScopeCategory.CONFIG , SecurityAction.ACTION_CODEBASE , false ) )
 				res = false;
 			
 			// automatically create configuration difference after distributive update
@@ -76,7 +76,7 @@ public class CodebaseCommand {
 		
 		if( dist != null && scope.hasDatabase( action ) ) {
 			ActionGetDB cadb = new ActionGetDB( action , null , dist , downloadFolder , action.context.CTX_DIST );
-			if( !cadb.runEachCategoryTarget( parentState , scope , VarCATEGORY.DB , SecurityAction.ACTION_CODEBASE , false ) )
+			if( !cadb.runEachCategoryTarget( parentState , scope , EnumScopeCategory.DB , SecurityAction.ACTION_CODEBASE , false ) )
 				res = false;
 		}
 		
@@ -262,10 +262,10 @@ public class CodebaseCommand {
 			return;
 		}
 		
-		action.info( "buildRelease: set TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , new VarCATEGORY[] { VarCATEGORY.BUILDABLE } ) + "}" );
+		action.info( "buildRelease: set TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , new EnumScopeCategory[] { EnumScopeCategory.BUILDABLE } ) + "}" );
 		setTag( parentState , action , TAG , scope );
 		
-		action.info( "buildRelease: build TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , new VarCATEGORY[] { VarCATEGORY.BUILDABLE } ) + "}" );
+		action.info( "buildRelease: build TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , new EnumScopeCategory[] { EnumScopeCategory.BUILDABLE } ) + "}" );
 		String OUTFILE = OUTDIR.folderPath + "/build.final.out"; 
 		action.shell.createFileFromString( action , OUTFILE , "FINAL STATUS:" );
 		buildTags( parentState , action , TAG , scope , OUTDIR , OUTFILE , dist );

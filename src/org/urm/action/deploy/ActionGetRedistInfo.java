@@ -62,7 +62,7 @@ public class ActionGetRedistInfo extends ActionBase {
 		for( String category : deployment.getCategories( this ) ) {
 			boolean first = true;
 			
-			VarCONTENTTYPE CONTENTTYPE = deployment.getCategoryContent( this , category );
+			EnumContentType CONTENTTYPE = deployment.getCategoryContent( this , category );
 			boolean rollout = deployment.getCategoryRollout( this , category );
 			
 			for( String LOCATION : deployment.getCategoryLocations( this , category ) ) {

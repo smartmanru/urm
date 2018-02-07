@@ -26,7 +26,7 @@ public class ActionScopeTarget {
 	public ActionScopeSet set;
 	public Meta meta;
 	
-	public VarCATEGORY CATEGORY; 
+	public EnumScopeCategory CATEGORY; 
 	public String NAME;
 	public ReleaseTarget releaseTarget;
 	public MetaSourceProject sourceProject;
@@ -126,9 +126,9 @@ public class ActionScopeTarget {
 	
 	public boolean isLeafTarget() {
 		if( dbManualItems ||
-			CATEGORY == VarCATEGORY.CONFIG ||
-			CATEGORY == VarCATEGORY.DERIVED ||
-			CATEGORY == VarCATEGORY.MANUAL )
+			CATEGORY == EnumScopeCategory.CONFIG ||
+			CATEGORY == EnumScopeCategory.DERIVED ||
+			CATEGORY == EnumScopeCategory.MANUAL )
 			return( true );
 		return( false );
 	}
@@ -142,20 +142,20 @@ public class ActionScopeTarget {
 	public ActionScopeTarget copy( ActionScopeSet setNew ) {
 		if( dbManualItems )
 			return( createReleaseDatabaseManualTarget( setNew , itemFull ) );
-		if( CATEGORY == VarCATEGORY.CONFIG )
+		if( CATEGORY == EnumScopeCategory.CONFIG )
 			return( createProductConfItemTarget( setNew , confItem , specifiedExplicitly ) );
-		if( CATEGORY == VarCATEGORY.DERIVED )
+		if( CATEGORY == EnumScopeCategory.DERIVED )
 			return( createProductDerivedDistItemTarget( setNew , derivedItem , specifiedExplicitly ) );
-		if( CATEGORY == VarCATEGORY.MANUAL )
+		if( CATEGORY == EnumScopeCategory.MANUAL )
 			return( createProductManualDistItemTarget( setNew , manualItem , specifiedExplicitly ) );
 		if( Types.isSourceCategory( CATEGORY ) ) {
 			if( releaseTarget != null )
 				return( createReleaseSourceProjectTarget( setNew , releaseTarget , specifiedExplicitly ) );
 			return( createProductSourceProjectTarget( setNew , sourceProject , specifiedExplicitly ) );
 		}
-		if( CATEGORY == VarCATEGORY.ENV )
+		if( CATEGORY == EnumScopeCategory.ENV )
 			return( createEnvServerTarget( setNew , envServer , specifiedExplicitly ) );
-		if( CATEGORY == VarCATEGORY.DB )
+		if( CATEGORY == EnumScopeCategory.DB )
 			return( createDatabaseDeliveryTarget( setNew , dbDelivery , specifiedExplicitly , itemFull ) );
 		return( null );
 	}
@@ -385,13 +385,13 @@ public class ActionScopeTarget {
 	}
 
 	public boolean isBuildableProject() {
-		if( CATEGORY == VarCATEGORY.PROJECT && sourceProject.isBuildable() )
+		if( CATEGORY == EnumScopeCategory.PROJECT && sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isPrebuiltProject() {
-		if( CATEGORY == VarCATEGORY.PROJECT && !sourceProject.isBuildable() )
+		if( CATEGORY == EnumScopeCategory.PROJECT && !sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}

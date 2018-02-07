@@ -13,7 +13,7 @@ import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.Types.VarCATEGORY;
+import org.urm.meta.Types.EnumScopeCategory;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -138,7 +138,7 @@ public class ActionSetScope extends ActionBase {
 		dist.reloadCheckOpenedForDataChange( this );
 		if( pathItems.length == 1 ) {
 			if( pathItems[0].equals( "all" ) ) {
-				for( VarCATEGORY category : new VarCATEGORY[] { VarCATEGORY.MANUAL , VarCATEGORY.DERIVED , VarCATEGORY.CONFIG , VarCATEGORY.DB } ) {
+				for( EnumScopeCategory category : new EnumScopeCategory[] { EnumScopeCategory.MANUAL , EnumScopeCategory.DERIVED , EnumScopeCategory.CONFIG , EnumScopeCategory.DB } ) {
 					if( !dist.addAllCategory( this , category ) )
 						return( false );
 				}

@@ -75,7 +75,7 @@ public class ActionGetDeployInfo extends ActionBase {
 	}
 
 	private void showDeployInfoContent( MetaEnvServer server , RedistStorage redist , MetaEnvServerLocation location , boolean binary ) throws Exception {
-		VarCONTENTTYPE contentType = location.getContentType( binary );
+		EnumContentType contentType = location.getContentType( binary );
 		RedistStateInfo info = redist.getStateInfo( this , location.DEPLOYPATH , contentType );
 		if( !info.exists ) {
 			String type = ( binary )? "binary" : "conf";

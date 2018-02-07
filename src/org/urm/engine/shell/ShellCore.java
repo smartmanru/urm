@@ -16,7 +16,7 @@ abstract public class ShellCore {
 
 	public boolean local;
 	public DBEnumOSType osType;
-	public VarSESSIONTYPE sessionType;
+	public EnumSessionType sessionType;
 	public Folder tmpFolder;
 	protected ShellExecutor executor;
 	
@@ -100,15 +100,15 @@ abstract public class ShellCore {
 	public static ShellCore createShellCore( ActionBase action , ShellExecutor executor , DBEnumOSType osType , boolean local ) throws Exception {
 		ShellCore core = null;
 		
-		VarSESSIONTYPE sessionType = null;
+		EnumSessionType sessionType = null;
 		if( osType.isLinux() ) {
 			if( action.isLocalWindows() ) {
 				if( local )
 					action.exitUnexpectedState();
-				sessionType = VarSESSIONTYPE.UNIXFROMWINDOWS;
+				sessionType = EnumSessionType.UNIXFROMWINDOWS;
 			}
 			else
-				sessionType = ( local )? VarSESSIONTYPE.UNIXLOCAL : VarSESSIONTYPE.UNIXREMOTE;
+				sessionType = ( local )? EnumSessionType.UNIXLOCAL : EnumSessionType.UNIXREMOTE;
 			
 			core = new ShellCoreUnix( executor , sessionType , executor.tmpFolder , local );
 		}
@@ -117,12 +117,12 @@ abstract public class ShellCore {
 			if( action.isLocalWindows() ) {
 				if( !local )
 					action.exitUnexpectedState();
-				sessionType = VarSESSIONTYPE.WINDOWSLOCAL;
+				sessionType = EnumSessionType.WINDOWSLOCAL;
 			}
 			else {
 				if( local )
 					action.exitUnexpectedState();
-				sessionType = VarSESSIONTYPE.WINDOWSFROMUNIX;
+				sessionType = EnumSessionType.WINDOWSFROMUNIX;
 			}
 				
 			core = new ShellCoreWindows( executor , sessionType , executor.tmpFolder , local );
@@ -133,7 +133,7 @@ abstract public class ShellCore {
 		return( core );
 	}
 	
-	protected ShellCore( ShellExecutor executor , DBEnumOSType osType , VarSESSIONTYPE sessionType , Folder tmpFolder , boolean local ) {
+	protected ShellCore( ShellExecutor executor , DBEnumOSType osType , EnumSessionType sessionType , Folder tmpFolder , boolean local ) {
 		this.local = local;
 		this.executor = executor;
 		this.osType = osType;

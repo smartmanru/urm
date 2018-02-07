@@ -71,7 +71,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		String[] DELIVERIES = getArgList( action , 1 );
 		
 		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
-		maker.addScopeReleaseCategory( VarCATEGORY.DB , DELIVERIES );
+		maker.addScopeReleaseCategory( EnumScopeCategory.DB , DELIVERIES );
 		ActionScope scope = maker.getScope();
 		impl.getReleaseScripts( parentState , action , scope , dist );
 	}

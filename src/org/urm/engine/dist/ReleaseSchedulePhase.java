@@ -5,7 +5,7 @@ import java.util.Date;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.Types.VarNAMETYPE;
+import org.urm.meta.Types.EnumNameType;
 import org.urm.meta.engine.LifecyclePhase;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
@@ -63,7 +63,7 @@ public class ReleaseSchedulePhase {
 	public void load( ActionBase action , Node root , int pos , int current ) throws Exception {
 		this.pos = pos;
 		
-		name = Meta.getNameAttr( action , root , VarNAMETYPE.ANY );
+		name = Meta.getNameAttr( action , root , EnumNameType.ANY );
 		days = ConfReader.getIntegerAttrValue( root , Release.PROPERTY_DAYS , 0 );
 		normalDays = ConfReader.getIntegerAttrValue( root , Release.PROPERTY_NORMALDAYS , 0 );
 		release = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_RELEASESTAGE , false );
@@ -86,7 +86,7 @@ public class ReleaseSchedulePhase {
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Meta.setNameAttr( action , doc , root , VarNAMETYPE.ANY , name );
+		Meta.setNameAttr( action , doc , root , EnumNameType.ANY , name );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_DAYS , "" + days );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_NORMALDAYS , "" + normalDays );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_RELEASESTAGE , Common.getBooleanValue( release ) );

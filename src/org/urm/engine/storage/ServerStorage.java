@@ -76,14 +76,14 @@ public class ServerStorage {
 		return( rf.getSubFolder( action , folder ) );
 	}
 	
-	public RemoteFolder getRedistLocationFolder( ActionBase action , VersionInfo version , String LOCATION , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
+	public RemoteFolder getRedistLocationFolder( ActionBase action , VersionInfo version , String LOCATION , EnumContentType CONTENTTYPE , boolean rollout ) throws Exception {
 		String path = getPathRedistReleaseRoot( action , version , CONTENTTYPE , rollout );
 		path = Common.getPath( path , LOCATION );
 		RemoteFolder rf = new RemoteFolder( account , path );
 		return( rf );
 	}
 
-	protected RemoteFolder getStateLocationFolder( ActionBase action , String LOCATION , VarCONTENTTYPE CONTENTTYPE ) throws Exception {
+	protected RemoteFolder getStateLocationFolder( ActionBase action , String LOCATION , EnumContentType CONTENTTYPE ) throws Exception {
 		String path = getPathStateLocation( action , LOCATION , CONTENTTYPE );
 		RemoteFolder rf = new RemoteFolder( account , path );
 		return( rf );
@@ -111,7 +111,7 @@ public class ServerStorage {
 		return( folder.getSubFolder( action , "state" ) );
 	}
 
-	public String getRedistFolderByContent( ActionBase action , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
+	public String getRedistFolderByContent( ActionBase action , EnumContentType CONTENTTYPE , boolean rollout ) throws Exception {
 		String rolloutDir = Common.getEnumLower( CONTENTTYPE );
 		if( rollout )
 			return( rolloutDir );
@@ -120,7 +120,7 @@ public class ServerStorage {
 		return( rollbackDir );
 	}
 	
-	protected String getPathRedistReleaseRoot( ActionBase action , VersionInfo version , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
+	protected String getPathRedistReleaseRoot( ActionBase action , VersionInfo version , EnumContentType CONTENTTYPE , boolean rollout ) throws Exception {
 		String C_COMMON_DIRPATH = getRedistFolderRootPath( action );
 		C_COMMON_DIRPATH = Common.getPath( C_COMMON_DIRPATH , "releases" , version.getReleaseName() );
 		
@@ -128,7 +128,7 @@ public class ServerStorage {
 		return( Common.getPath( C_COMMON_DIRPATH , folder ) );
 	}
 	
-	protected String getPathRedistStateRoot( ActionBase action , VarCONTENTTYPE CONTENTTYPE ) throws Exception {
+	protected String getPathRedistStateRoot( ActionBase action , EnumContentType CONTENTTYPE ) throws Exception {
 		String C_COMMON_DIRPATH = getRedistFolderRootPath( action );
 		C_COMMON_DIRPATH = Common.getPath( C_COMMON_DIRPATH , "state" );
 		
@@ -136,13 +136,13 @@ public class ServerStorage {
 		return( Common.getPath( C_COMMON_DIRPATH , folder ) );
 	}
 	
-	public String getPathRedistLocation( ActionBase action , VersionInfo version , String LOCATION , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
+	public String getPathRedistLocation( ActionBase action , VersionInfo version , String LOCATION , EnumContentType CONTENTTYPE , boolean rollout ) throws Exception {
 		checkRelativeDir( action , LOCATION );
 		String C_COMMON_DIRPATH = getPathRedistReleaseRoot( action , version , CONTENTTYPE , rollout );
 		return( Common.getPath( C_COMMON_DIRPATH , LOCATION ) );
 	}
 
-	public String getPathStateLocation( ActionBase action , String LOCATION , VarCONTENTTYPE CONTENTTYPE ) throws Exception {
+	public String getPathStateLocation( ActionBase action , String LOCATION , EnumContentType CONTENTTYPE ) throws Exception {
 		checkRelativeDir( action , LOCATION );
 		String C_COMMON_DIRPATH = getPathRedistStateRoot( action , CONTENTTYPE );
 		return( Common.getPath( C_COMMON_DIRPATH , LOCATION ) );

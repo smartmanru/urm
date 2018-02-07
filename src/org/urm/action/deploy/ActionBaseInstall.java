@@ -224,12 +224,12 @@ public class ActionBaseInstall extends ActionBase {
 		int timeout = setTimeoutUnlimited();
 
 		if( baseItem.BASESRCFORMAT_TYPE == DBEnumBaseSrcFormatType.TARGZ_SINGLEDIR ) {
-			runtime.extractBaseArchiveSingleDir( this , redistPath , baseItem.SRCFILEDIR , installPath , VarARCHIVETYPE.TARGZ );
+			runtime.extractBaseArchiveSingleDir( this , redistPath , baseItem.SRCFILEDIR , installPath , EnumArchiveType.TARGZ );
 			debug( "runtime path: " + baseItem.INSTALLPATH );
 		}
 
 		if( baseItem.BASESRCFORMAT_TYPE == DBEnumBaseSrcFormatType.ZIP_SINGLEDIR ) {
-			runtime.extractBaseArchiveSingleDir( this , redistPath , baseItem.SRCFILEDIR , installPath , VarARCHIVETYPE.ZIP );
+			runtime.extractBaseArchiveSingleDir( this , redistPath , baseItem.SRCFILEDIR , installPath , EnumArchiveType.ZIP );
 			debug( "runtime path: " + baseItem.INSTALLPATH );
 		}
 

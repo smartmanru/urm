@@ -20,7 +20,7 @@ public class ShellCoreUnix extends ShellCore {
 	String osType;
 	String osTypeVersion;
 	
-	public ShellCoreUnix( ShellExecutor executor , VarSESSIONTYPE sessionType , Folder tmpFolder , boolean local ) {
+	public ShellCoreUnix( ShellExecutor executor , EnumSessionType sessionType , Folder tmpFolder , boolean local ) {
 		super( executor , DBEnumOSType.LINUX , sessionType , tmpFolder , local );
 	}
 

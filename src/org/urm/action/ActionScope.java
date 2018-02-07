@@ -21,7 +21,7 @@ public class ActionScope {
 	public Meta meta;
 	public CommandContext context;
 
-	private Map<VarCATEGORY,ActionScopeSet> categoryMap = new HashMap<VarCATEGORY,ActionScopeSet>();
+	private Map<EnumScopeCategory,ActionScopeSet> categoryMap = new HashMap<EnumScopeCategory,ActionScopeSet>();
 	private Map<String,ActionScopeSet> sourceMap = new HashMap<String,ActionScopeSet>();
 	private Map<String,ActionScopeSet> envMap = new HashMap<String,ActionScopeSet>();
 
@@ -101,7 +101,7 @@ public class ActionScope {
 		return( sset );
 	}
 	
-	public ActionScopeSet makeProductCategoryScopeSet( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
+	public ActionScopeSet makeProductCategoryScopeSet( ActionBase action , EnumScopeCategory CATEGORY ) throws Exception {
 		ActionScopeSet sset = getCategorySet( action , CATEGORY );
 		if( sset != null )
 			return( sset );
@@ -113,7 +113,7 @@ public class ActionScope {
 	}
 	
 	public ActionScopeSet makeEnvScopeSet( ActionBase action , MetaEnv env , MetaEnvSegment sg , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeSet sset = getCategorySet( action , VarCATEGORY.ENV );
+		ActionScopeSet sset = getCategorySet( action , EnumScopeCategory.ENV );
 		if( sset != null )
 			return( sset );
 		
@@ -123,7 +123,7 @@ public class ActionScope {
 		return( sset );
 	}
 	
-	public ActionScopeSet makeReleaseCategoryScopeSet( ActionBase action , Dist dist , VarCATEGORY CATEGORY ) throws Exception {
+	public ActionScopeSet makeReleaseCategoryScopeSet( ActionBase action , Dist dist , EnumScopeCategory CATEGORY ) throws Exception {
 		ActionScopeSet sset = getCategorySet( action , CATEGORY );
 		if( sset != null )
 			return( sset );
@@ -152,19 +152,19 @@ public class ActionScope {
 		return( sset );
 	}
 
-	private ActionScopeSet getCategorySet( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
+	private ActionScopeSet getCategorySet( ActionBase action , EnumScopeCategory CATEGORY ) throws Exception {
 		return( categoryMap.get( CATEGORY ) );
 	}
 	
-	private ActionScopeSet getScopeSet( ActionBase action , VarCATEGORY CATEGORY , String name ) throws Exception {
+	private ActionScopeSet getScopeSet( ActionBase action , EnumScopeCategory CATEGORY , String name ) throws Exception {
 		if( Types.isSourceCategory( CATEGORY ) )
 			return( sourceMap.get( name ) );
-		if( CATEGORY == VarCATEGORY.ENV )
+		if( CATEGORY == EnumScopeCategory.ENV )
 			return( envMap.get( name ) );
 		return( categoryMap.get( CATEGORY ) );
 	}
 
-	public boolean hasCategorySet( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
+	public boolean hasCategorySet( ActionBase action , EnumScopeCategory CATEGORY ) throws Exception {
 		ActionScopeSet sset = getCategorySet( action , CATEGORY );
 		if( sset == null || sset.isEmpty() )
 			return( false );
@@ -173,19 +173,19 @@ public class ActionScope {
 	}
 	
 	public boolean hasConfig( ActionBase action ) throws Exception {
-		return( hasCategorySet( action , VarCATEGORY.CONFIG ) );
+		return( hasCategorySet( action , EnumScopeCategory.CONFIG ) );
 	}
 	
 	public boolean hasDatabase( ActionBase action ) throws Exception {
-		return( hasCategorySet( action , VarCATEGORY.DB ) );
+		return( hasCategorySet( action , EnumScopeCategory.DB ) );
 	}
 
 	public boolean hasManual( ActionBase action ) throws Exception {
-		return( hasCategorySet( action , VarCATEGORY.MANUAL ) );
+		return( hasCategorySet( action , EnumScopeCategory.MANUAL ) );
 	}
 
 	public boolean hasDerived( ActionBase action ) throws Exception {
-		return( hasCategorySet( action , VarCATEGORY.DERIVED ) );
+		return( hasCategorySet( action , EnumScopeCategory.DERIVED ) );
 	}
 
 	public List<ActionScopeSet> getSetList() {
@@ -196,7 +196,7 @@ public class ActionScope {
 		return( list );
 	}
 	
-	public String getScopeInfo( ActionBase action , VarCATEGORY[] categories ) throws Exception {
+	public String getScopeInfo( ActionBase action , EnumScopeCategory[] categories ) throws Exception {
 		String scope = "";
 		
 		boolean all = true;
@@ -204,7 +204,7 @@ public class ActionScope {
 			boolean add = true;
 			if( categories != null ) {
 				add = false;
-				for( VarCATEGORY CATEGORY : categories ) {
+				for( EnumScopeCategory CATEGORY : categories ) {
 					if( Types.checkCategoryProperty( set.CATEGORY , CATEGORY ) )
 						add = true;
 				}
@@ -229,14 +229,14 @@ public class ActionScope {
 	}
 	
 	public String getBuildScopeInfo( ActionBase action ) throws Exception {
-		return( getScopeInfo( action , new VarCATEGORY[] { VarCATEGORY.BUILDABLE } ) );
+		return( getScopeInfo( action , new EnumScopeCategory[] { EnumScopeCategory.BUILDABLE } ) );
 	}
 	
 	public String getSourceScopeInfo( ActionBase action ) throws Exception {
 		return( getScopeInfo( action , Types.getAllSourceCategories() ) );
 	}
 	
-	public boolean isEmpty( ActionBase action , VarCATEGORY[] categories ) throws Exception {
+	public boolean isEmpty( ActionBase action , EnumScopeCategory[] categories ) throws Exception {
 		for( ActionScopeSet set : getSetList() ) {
 			if( categories == null ) {
 				if( !set.isEmpty() )
@@ -244,7 +244,7 @@ public class ActionScope {
 				continue;
 			}
 			
-			for( VarCATEGORY CATEGORY : categories ) {
+			for( EnumScopeCategory CATEGORY : categories ) {
 				if( Types.checkCategoryProperty( set.CATEGORY , CATEGORY ) && !set.isEmpty() )
 					return( false );
 			}
@@ -301,13 +301,13 @@ public class ActionScope {
 	public ActionScopeSet[] getBuildableSets( ActionBase action ) throws Exception {
 		List<ActionScopeSet> x = new LinkedList<ActionScopeSet>();
 		for( ActionScopeSet set : sourceMap.values() ) {
-			if( set.CATEGORY == VarCATEGORY.PROJECT && !set.isEmpty() )
+			if( set.CATEGORY == EnumScopeCategory.PROJECT && !set.isEmpty() )
 				x.add( set );
 		}
 		return( x.toArray( new ActionScopeSet[0] ) );
 	}
 	
-	public Map<String,ActionScopeTarget> getCategorySetTargets( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
+	public Map<String,ActionScopeTarget> getCategorySetTargets( ActionBase action , EnumScopeCategory CATEGORY ) throws Exception {
 		ActionScopeSet set = getCategorySet( action , CATEGORY );
 		if( set == null )
 			return( new HashMap<String,ActionScopeTarget>() );
@@ -321,16 +321,16 @@ public class ActionScope {
 		if( Types.isSourceCategory( sset.CATEGORY ) )
 			sourceMap.put( sset.NAME , sset );
 		else
-		if( sset.CATEGORY == VarCATEGORY.ENV )
+		if( sset.CATEGORY == EnumScopeCategory.ENV )
 			envMap.put( sset.NAME , sset );
 		else
 			categoryMap.put( sset.CATEGORY , sset );
 	}
 	
-	public ActionScopeSet findSet( ActionBase action , VarCATEGORY CATEGORY , String NAME ) throws Exception {
+	public ActionScopeSet findSet( ActionBase action , EnumScopeCategory CATEGORY , String NAME ) throws Exception {
 		if( Types.isSourceCategory( CATEGORY ) )
 			return( sourceMap.get( NAME ) );
-		if( CATEGORY == VarCATEGORY.ENV )
+		if( CATEGORY == EnumScopeCategory.ENV )
 			return( envMap.get( NAME ) );
 		return( categoryMap.get( CATEGORY ) );
 	}
@@ -360,7 +360,7 @@ public class ActionScope {
 		if( Types.isSourceCategory( setAdd.CATEGORY ) )
 			setNew.create( action , setAdd.pset );
 		else
-		if( setAdd.CATEGORY == VarCATEGORY.ENV )
+		if( setAdd.CATEGORY == EnumScopeCategory.ENV )
 			setNew.create( action , setAdd.sg );
 		else
 			setNew.create( action , setAdd.CATEGORY );

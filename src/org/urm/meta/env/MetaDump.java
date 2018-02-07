@@ -71,7 +71,7 @@ public class MetaDump {
 
 	public void load( ActionBase action , Node node ) throws Exception {
 		EXPORT = ConfReader.getBooleanAttrValue( node , "export" , true );
-		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		NAME = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
 		DESC = ConfReader.getAttrValue( node , "desc" );
 		ENV = ConfReader.getAttrValue( node , "env" );
 		SG = ConfReader.getAttrValue( node , "sg" );

@@ -23,8 +23,8 @@ public class ReleaseTicket {
 	public String DEV;
 	public String QA;
 	public String COMMENTS;
-	public VarTICKETTYPE type;
-	public VarTICKETSTATUS status;
+	public EnumTicketType type;
+	public EnumTicketStatus status;
 	public boolean active;
 	public boolean accepted;
 	public boolean descoped;
@@ -64,7 +64,7 @@ public class ReleaseTicket {
 	
 	public void load( ActionBase action , Node root ) throws Exception {
 		CODE = ConfReader.getRequiredAttrValue( root , Release.PROPERTY_TICKETCODE );
-		NAME = Meta.getNameAttr( action , root , VarNAMETYPE.ANY );
+		NAME = Meta.getNameAttr( action , root , EnumNameType.ANY );
 		LINK = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETLINK );
 		OWNER = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETOWNER );
 		DEV = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETDEV );
@@ -83,7 +83,7 @@ public class ReleaseTicket {
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETCODE , CODE );
-		Meta.setNameAttr( action , doc , root , VarNAMETYPE.ANY , NAME );
+		Meta.setNameAttr( action , doc , root , EnumNameType.ANY , NAME );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETLINK , LINK );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETOWNER , OWNER );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETDEV , DEV );
@@ -110,13 +110,13 @@ public class ReleaseTicket {
 		}
 	}
 
-	public void create( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
+	public void create( ActionBase action , EnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		this.type = type;
 		this.CODE = code;
 		this.NAME = name;
 		this.LINK = link;
 		this.COMMENTS = comments;
-		type = VarTICKETTYPE.CHANGE;
+		type = EnumTicketType.CHANGE;
 		this.OWNER = owner;
 		this.QA = "";
 		this.active = false;
@@ -124,15 +124,15 @@ public class ReleaseTicket {
 		this.descoped = false;
 		if( devdone ) {
 			this.DEV = owner;
-			status = VarTICKETSTATUS.DEVDONE;
+			status = EnumTicketStatus.DEVDONE;
 		}
 		else {
 			this.DEV = "";
-			status = VarTICKETSTATUS.NEW;
+			status = EnumTicketStatus.NEW;
 		}
 	}
 	
-	public void modify( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
+	public void modify( ActionBase action , EnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		this.type = type;
 		this.CODE = code;
 		this.NAME = name;
@@ -142,11 +142,11 @@ public class ReleaseTicket {
 		
 		if( devdone ) {
 			this.DEV = owner;
-			status = VarTICKETSTATUS.DEVDONE;
+			status = EnumTicketStatus.DEVDONE;
 		}
 		else {
 			this.DEV = "";
-			status = VarTICKETSTATUS.NEW;
+			status = EnumTicketStatus.NEW;
 		}
 	}
 
@@ -163,25 +163,25 @@ public class ReleaseTicket {
 	}
 
 	public boolean isCompleted() {
-		if( accepted && ( status == VarTICKETSTATUS.QADONE || descoped ) )
+		if( accepted && ( status == EnumTicketStatus.QADONE || descoped ) )
 			return( true );
 		return( false );
 	}
 
 	public boolean isNew() {
-		if( status == VarTICKETSTATUS.NEW )
+		if( status == EnumTicketStatus.NEW )
 			return( true );
 		return( false );
 	}
 
 	public boolean isDevDone() {
-		if( status == VarTICKETSTATUS.DEVDONE || status == VarTICKETSTATUS.QADONE )
+		if( status == EnumTicketStatus.DEVDONE || status == EnumTicketStatus.QADONE )
 			return( true );
 		return( false );
 	}
 
 	public boolean isQaDone() {
-		if( status == VarTICKETSTATUS.QADONE )
+		if( status == EnumTicketStatus.QADONE )
 			return( true );
 		return( false );
 	}
@@ -194,14 +194,14 @@ public class ReleaseTicket {
 
 	public void setDevDone( ActionBase action ) throws Exception {
 		if( isRunning() && isNew() ) {
-			status = VarTICKETSTATUS.DEVDONE;
+			status = EnumTicketStatus.DEVDONE;
 			DEV = action.getUserName();
 		}
 	}
 	
 	public void setVerified( ActionBase action ) throws Exception {
 		if( isRunning() && isDevDone() ) {
-			status = VarTICKETSTATUS.QADONE;
+			status = EnumTicketStatus.QADONE;
 			QA = action.getUserName();
 		}
 	}

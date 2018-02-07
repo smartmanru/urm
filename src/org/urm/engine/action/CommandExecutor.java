@@ -99,8 +99,8 @@ public abstract class CommandExecutor {
 		action.exit1( _Error.UnexpectedExtraArguments1 , "unexpected extra arguments: " + Common.getQuoted( xargs ) + "; see help to find syntax" , xargs );
 	}
 	
-	public VarCATEGORY getRequiredCategoryArg( ActionBase action , int pos ) throws Exception {
-		VarCATEGORY CATEGORY = getCategoryArg( action , pos );
+	public EnumScopeCategory getRequiredCategoryArg( ActionBase action , int pos ) throws Exception {
+		EnumScopeCategory CATEGORY = getCategoryArg( action , pos );
 		if( CATEGORY == null )
 			action.exit1( _Error.ArgumentRequired1 , "CATEGORY argument is required" , "CATEGORY" );
 		return( CATEGORY );
@@ -121,7 +121,7 @@ public abstract class CommandExecutor {
 		return( BUILDMODE );
 	}
 	
-	public VarCATEGORY getCategoryArg( ActionBase action , int pos ) throws Exception {
+	public EnumScopeCategory getCategoryArg( ActionBase action , int pos ) throws Exception {
 		if( pos >= action.context.options.getArgCount() )
 			return( null );
 		

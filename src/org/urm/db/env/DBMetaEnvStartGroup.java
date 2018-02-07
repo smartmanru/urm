@@ -3,7 +3,7 @@ package org.urm.db.env;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.Types.VarNAMETYPE;
+import org.urm.meta.Types.EnumNameType;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvStartGroup;
 import org.w3c.dom.Document;
@@ -13,7 +13,7 @@ import org.w3c.dom.Node;
 public class DBMetaEnvStartGroup {
 
 	public void load( ActionBase action , Node node ) throws Exception {
-		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		NAME = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
 		SERVERS = ConfReader.getAttrValue( node , "servers" );
 		
 		for( String name : Common.splitSpaced( SERVERS ) ) {

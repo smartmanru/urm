@@ -21,7 +21,7 @@ public class ShellCoreWindows extends ShellCore {
 
 	String cmdAnd;
 
-	public ShellCoreWindows( ShellExecutor executor , VarSESSIONTYPE sessionType , Folder tmpFolder , boolean local ) {
+	public ShellCoreWindows( ShellExecutor executor , EnumSessionType sessionType , Folder tmpFolder , boolean local ) {
 		super( executor , DBEnumOSType.WINDOWS , sessionType , tmpFolder , local );
 		cmdAnd = "&&";
 	}
@@ -31,8 +31,8 @@ public class ShellCoreWindows extends ShellCore {
 		if( rootPath == null )
 			action.exitUnexpectedState();
 		
-		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
-			localSession = new ShellCoreUnix( executor , VarSESSIONTYPE.UNIXLOCAL , tmpFolder , true );
+		if( sessionType == EnumSessionType.WINDOWSFROMUNIX ) {
+			localSession = new ShellCoreUnix( executor , EnumSessionType.UNIXLOCAL , tmpFolder , true );
 			localSession.setWindowsHelper();
 			running = true;
 			if( !localSession.createProcess( action , process , action.context.CTX_REDISTWIN_PATH , auth ) )
@@ -47,7 +47,7 @@ public class ShellCoreWindows extends ShellCore {
 	
 	@Override 
 	public void kill( ActionBase action ) throws Exception {
-		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX )
+		if( sessionType == EnumSessionType.WINDOWSFROMUNIX )
 			localSession.kill( action );
 		
 		super.kill( action );
@@ -68,7 +68,7 @@ public class ShellCoreWindows extends ShellCore {
 	
 	@Override 
 	public int runCommandGetStatus( ActionBase action , String cmd , int logLevel ) throws Exception {
-		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
+		if( sessionType == EnumSessionType.WINDOWSFROMUNIX ) {
 			String execLine = prepareExecuteWindowsFromLinux( action , cmd , logLevel );
 			int status = localSession.runCommandGetStatus( action , execLine , logLevel );
 			getOutput( action );
@@ -730,7 +730,7 @@ public class ShellCoreWindows extends ShellCore {
 	}
 
 	private void runCommand( ActionBase action , String cmd , int logLevel , boolean addErrorLevel ) throws Exception {
-		if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX ) {
+		if( sessionType == EnumSessionType.WINDOWSFROMUNIX ) {
 			String execLine = prepareExecuteWindowsFromLinux( action , cmd , logLevel );
 			localSession.runCommand( action , execLine , logLevel );
 			getOutput( action );
@@ -768,7 +768,7 @@ public class ShellCoreWindows extends ShellCore {
 			mask = Common.replace( mask , "*" , ".*" );
 			
 			reg += "^" + mask;
-			if( sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX )
+			if( sessionType == EnumSessionType.WINDOWSFROMUNIX )
 				reg += "\\$";
 			else
 				reg += "$";

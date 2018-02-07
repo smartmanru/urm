@@ -17,8 +17,8 @@ import org.urm.engine.dist.ReleaseTicketSetTarget;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.Types;
-import org.urm.meta.Types.VarTICKETSETTARGETTYPE;
-import org.urm.meta.Types.VarTICKETTYPE;
+import org.urm.meta.Types.EnumTicketSetTargetType;
+import org.urm.meta.Types.EnumTicketType;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSources;
@@ -163,7 +163,7 @@ public class ActionTickets extends ActionBase {
 			}
 			
 			String setName = args[0];
-			VarTICKETTYPE type = Types.getTicketType( args[1] , true );
+			EnumTicketType type = Types.getTicketType( args[1] , true );
 			String code = args[2];
 			String name = args[3];
 			String link = ( args.length > 4 )? args[4] : "";
@@ -181,7 +181,7 @@ public class ActionTickets extends ActionBase {
 			
 			String setName = args[0];
 			int pos = Integer.parseInt( args[1] );
-			VarTICKETTYPE type = Types.getTicketType( args[2] , true );
+			EnumTicketType type = Types.getTicketType( args[2] , true );
 			String code = args[3];
 			String name = args[4];
 			String link = ( args.length > 5 )? args[5] : "";
@@ -468,12 +468,12 @@ public class ActionTickets extends ActionBase {
 		}
 	}
 	
-	private void executeCreateTicket( String setCode , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
+	private void executeCreateTicket( String setCode , EnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
 		dist.release.changes.createTicket( this , set , type , code , name , link , comments , owner , devdone );
 	}
 	
-	private void executeModifyTicket( String setCode , int POS , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
+	private void executeModifyTicket( String setCode , int POS , EnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
 		ReleaseTicket ticket = set.getTicket( this , POS );
 		set.modifyTicket( this , ticket , type , code , name , link , comments , owner , devdone );
@@ -544,13 +544,13 @@ public class ActionTickets extends ActionBase {
 		MetaDistr distr = dist.meta.getDistr();
 		MetaDistrDelivery delivery = distr.getDelivery( deliveryName );
 		if( type.equals( TARGET_DELIVERYBINARY ) )
-			set.createTarget( this , delivery , VarTICKETSETTARGETTYPE.DISTITEM , items );
+			set.createTarget( this , delivery , EnumTicketSetTargetType.DISTITEM , items );
 		else
 		if( type.equals( TARGET_DELIVERYCONF ) )
-			set.createTarget( this , delivery , VarTICKETSETTARGETTYPE.CONFITEM , items );
+			set.createTarget( this , delivery , EnumTicketSetTargetType.CONFITEM , items );
 		else
 		if( type.equals( TARGET_DELIVERYSCHEMA ) )
-			set.createTarget( this , delivery , VarTICKETSETTARGETTYPE.SCHEMA , items );
+			set.createTarget( this , delivery , EnumTicketSetTargetType.SCHEMA , items );
 	}
 	
 }

@@ -276,15 +276,15 @@ public class MetaDistrBinaryItem {
 		return( false );
 	}
 	
-	public VarARCHIVETYPE getArchiveType( ActionBase action ) throws Exception {
+	public EnumArchiveType getArchiveType( ActionBase action ) throws Exception {
 		if( EXT.equals( ".tar.gz" ) || EXT.equals( ".tgz" ) )
-			return( VarARCHIVETYPE.TARGZ );
+			return( EnumArchiveType.TARGZ );
 		
 		if( EXT.equals( ".tar" ) )
-			return( VarARCHIVETYPE.TAR );
+			return( EnumArchiveType.TAR );
 		
 		if( EXT.equals( ".zip" ) )
-			return( VarARCHIVETYPE.ZIP );
+			return( EnumArchiveType.ZIP );
 		
 		action.exit1( _Error.ArchiveTypeNotSupported1 , "not supported archive type=" + EXT , EXT );
 		return( null );

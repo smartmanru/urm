@@ -189,7 +189,7 @@ public class SpecificPGU {
 
 		// download latest built libs for all microportals
 		action.debug( "download last built libs for all microportals from Nexus - to pgu-services-lib ..." );
-		Map<String,ActionScopeTarget> projects = scope.getCategorySetTargets( action , VarCATEGORY.BUILDABLE );
+		Map<String,ActionScopeTarget> projects = scope.getCategorySetTargets( action , EnumScopeCategory.BUILDABLE );
 		
 		for( ActionScopeTarget scopeProject : projects.values() ) {
 			MetaDistrBinaryItem distItem = getWarItem( scopeProject.sourceProject , 1 );

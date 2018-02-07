@@ -30,7 +30,7 @@ public class ReleaseTicketSet {
 	public String CODE;
 	public String NAME;
 	public String COMMENTS;
-	public VarTICKETSETSTATUS status;
+	public EnumTicketSetStatus status;
 	
 	private List<ReleaseTicket> items;
 	private Map<String,ReleaseTicket> map;
@@ -105,7 +105,7 @@ public class ReleaseTicketSet {
 		targets.clear();
 		
 		CODE = ConfReader.getRequiredAttrValue( root , Release.PROPERTY_TICKETSETCODE );
-		NAME = Meta.getNameAttr( action , root , VarNAMETYPE.ANY );
+		NAME = Meta.getNameAttr( action , root , EnumNameType.ANY );
 		COMMENTS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSETCOMMENTS );
 		String STATUS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSETSTATUS );
 		status = Types.getTicketSetStatus( STATUS , true );
@@ -135,7 +135,7 @@ public class ReleaseTicketSet {
 	
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETSETCODE , CODE );
-		Meta.setNameAttr( action , doc , root , VarNAMETYPE.ANY , NAME );
+		Meta.setNameAttr( action , doc , root , EnumNameType.ANY , NAME );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETSETCOMMENTS , COMMENTS );
 		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETSETSTATUS , Common.getEnumLower( status ) );
 		
@@ -154,10 +154,10 @@ public class ReleaseTicketSet {
 		this.CODE = code;
 		this.NAME = name;
 		this.COMMENTS = comments;
-		status = VarTICKETSETSTATUS.NEW;
+		status = EnumTicketSetStatus.NEW;
 	}
 	
-	public void createTicket( ActionBase action , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
+	public void createTicket( ActionBase action , EnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		ReleaseTicket ticket = new ReleaseTicket( meta , this , items.size() + 1 );
 		ticket.create( action , type , code , name , link , comments , owner , devdone );
 		addTicket( ticket );
@@ -172,7 +172,7 @@ public class ReleaseTicketSet {
 	public void descope( ActionBase action ) throws Exception {
 		for( ReleaseTicket ticket : items )
 			ticket.descope( action );
-		status = VarTICKETSETSTATUS.DESCOPED;
+		status = EnumTicketSetStatus.DESCOPED;
 	}
 
 	public ReleaseTicket[] getTickets() {
@@ -203,7 +203,7 @@ public class ReleaseTicketSet {
 		return( targets.get( POS - 1 ) );
 	}
 
-	public void modifyTicket( ActionBase action , ReleaseTicket ticket , VarTICKETTYPE type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
+	public void modifyTicket( ActionBase action , ReleaseTicket ticket , EnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		map.remove( ticket.CODE );
 		ticket.modify( action , type , code , name , link , comments , owner , devdone );
 		map.put( ticket.CODE , ticket );
@@ -251,25 +251,25 @@ public class ReleaseTicketSet {
 	}
 
 	public boolean isNew() {
-		if( status == VarTICKETSETSTATUS.NEW )
+		if( status == EnumTicketSetStatus.NEW )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isActive() {
-		if( status == VarTICKETSETSTATUS.ACTIVE )
+		if( status == EnumTicketSetStatus.ACTIVE )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isDescoped() {
-		if( status == VarTICKETSETSTATUS.DESCOPED )
+		if( status == EnumTicketSetStatus.DESCOPED )
 			return( true );
 		return( false );
 	}
 
 	public boolean isRunning() {
-		if( status != VarTICKETSETSTATUS.NEW )
+		if( status != EnumTicketSetStatus.NEW )
 			return( true );
 		
 		for( ReleaseTicket ticket : items ) {
@@ -300,8 +300,8 @@ public class ReleaseTicketSet {
 	}
 
 	public void activate( ActionBase action ) throws Exception {
-		if( status == VarTICKETSETSTATUS.NEW )
-			status = VarTICKETSETSTATUS.ACTIVE;
+		if( status == EnumTicketSetStatus.NEW )
+			status = EnumTicketSetStatus.ACTIVE;
 	}
 
 	public void setDevDone( ActionBase action , ReleaseTicket ticket ) throws Exception {
@@ -345,34 +345,34 @@ public class ReleaseTicketSet {
 		}
 	}
 
-	public void createTarget( ActionBase action , MetaDistrDelivery delivery , VarTICKETSETTARGETTYPE type , String[] items ) throws Exception {
+	public void createTarget( ActionBase action , MetaDistrDelivery delivery , EnumTicketSetTargetType type , String[] items ) throws Exception {
 		int pos = targets.size() + 1;
 		if( items == null ) {
 			ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this , pos );
-			if( type == VarTICKETSETTARGETTYPE.DISTITEM )
-				target.create( action , delivery , VarTICKETSETTARGETTYPE.DELIVERYBINARIES );
+			if( type == EnumTicketSetTargetType.DISTITEM )
+				target.create( action , delivery , EnumTicketSetTargetType.DELIVERYBINARIES );
 			else
-			if( type == VarTICKETSETTARGETTYPE.CONFITEM )
-				target.create( action , delivery , VarTICKETSETTARGETTYPE.DELIVERYCONFS );
+			if( type == EnumTicketSetTargetType.CONFITEM )
+				target.create( action , delivery , EnumTicketSetTargetType.DELIVERYCONFS );
 			else
-			if( type == VarTICKETSETTARGETTYPE.SCHEMA )
-				target.create( action , delivery , VarTICKETSETTARGETTYPE.DELIVERYDATABASE );
+			if( type == EnumTicketSetTargetType.SCHEMA )
+				target.create( action , delivery , EnumTicketSetTargetType.DELIVERYDATABASE );
 			addTarget( target );
 		}
 		else {
 			for( String item : items ) {
 				ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this , pos );
-				if( type == VarTICKETSETTARGETTYPE.DISTITEM ) {
+				if( type == EnumTicketSetTargetType.DISTITEM ) {
 					MetaDistrBinaryItem binaryItem = delivery.getBinaryItem( item );
 					target.create( action , binaryItem );
 				}
 				else
-				if( type == VarTICKETSETTARGETTYPE.CONFITEM ) {
+				if( type == EnumTicketSetTargetType.CONFITEM ) {
 					MetaDistrConfItem confItem = delivery.getConfItem( item );
 					target.create( action , confItem );
 				}
 				else
-				if( type == VarTICKETSETTARGETTYPE.SCHEMA ) {
+				if( type == EnumTicketSetTargetType.SCHEMA ) {
 					MetaDatabaseSchema schemaItem = delivery.getSchema( item );
 					target.create( action , delivery , schemaItem );
 				}

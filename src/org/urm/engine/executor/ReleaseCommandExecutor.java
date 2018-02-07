@@ -369,17 +369,17 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 			impl.descopeAll( parentState , action , dist );
 		}
 		else
-		if( SET.equals( Common.getEnumLower( VarCATEGORY.CONFIG ) ) ) {
+		if( SET.equals( Common.getEnumLower( EnumScopeCategory.CONFIG ) ) ) {
 			String[] COMPS = getArgList( action , 2 );
 			impl.descopeConfComps( parentState , action , dist , COMPS );
 		}
 		else
-		if( SET.equals( Common.getEnumLower( VarCATEGORY.DB ) ) ) {
+		if( SET.equals( Common.getEnumLower( EnumScopeCategory.DB ) ) ) {
 			String[] ITEMS = getArgList( action , 2 );
 			impl.descopeDatabase( parentState , action , dist , ITEMS );
 		}
 		else
-		if( SET.equals( Common.getEnumLower( VarCATEGORY.MANUAL ) ) ) {
+		if( SET.equals( Common.getEnumLower( EnumScopeCategory.MANUAL ) ) ) {
 			String[] ITEMS = getArgList( action , 2 );
 			impl.descopeManualItems( parentState , action , dist , ITEMS );
 		}

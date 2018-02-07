@@ -27,7 +27,7 @@ public class RedistStateInfo {
 		this.meta = meta;
 	}
 	
-	public void gather( ActionBase action , MetaEnvServerNode node , VarCONTENTTYPE CONTENTTYPE , String STATEDIR ) throws Exception {
+	public void gather( ActionBase action , MetaEnvServerNode node , EnumContentType CONTENTTYPE , String STATEDIR ) throws Exception {
 		verData = new HashMap<String,FileInfo>(); 
 		ShellExecutor shell = action.getShell( action.getNodeAccount( node ) );
 		if( !shell.checkDirExists( action , STATEDIR ) ) {
@@ -97,7 +97,7 @@ public class RedistStateInfo {
 		return( key );
 	}
 	
-	private FileInfo createFileInfo( ActionBase action , VarCONTENTTYPE CONTENTTYPE , String verName , String verInfo ) throws Exception {
+	private FileInfo createFileInfo( ActionBase action , EnumContentType CONTENTTYPE , String verName , String verInfo ) throws Exception {
 		String baseitem = verName;
 		MetaDistr distr = meta.getDistr();
 		if( Types.isBinaryContent( CONTENTTYPE ) ) {

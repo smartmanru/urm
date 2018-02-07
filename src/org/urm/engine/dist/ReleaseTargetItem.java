@@ -91,7 +91,7 @@ public class ReleaseTargetItem {
 	}
 	
 	public void loadSourceItem( ActionBase action , Node node ) throws Exception {
-		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		NAME = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
 		BUILDVERSION = ConfReader.getAttrValue( node , Release.PROPERTY_BUILDVERSION );
 		MetaDistr distr = meta.getDistr();
 		this.distItem = distr.getBinaryItem( NAME );
@@ -99,7 +99,7 @@ public class ReleaseTargetItem {
 	}
 	
 	public void loadDatabaseItem( ActionBase action , Node node ) throws Exception {
-		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		NAME = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
 		BUILDVERSION = "";
 		MetaDatabase db = meta.getDatabase();
 		this.schema = db.getSchema( NAME );
@@ -127,14 +127,14 @@ public class ReleaseTargetItem {
 	public Element createXml( ActionBase action , Document doc , Element parent ) throws Exception {
 		if( isBinary() ) {
 			Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_DISTITEM );
-			Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , NAME );
+			Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , NAME );
 			if( !BUILDVERSION.isEmpty() )
 				Common.xmlSetElementAttr( doc , element , Release.PROPERTY_BUILDVERSION , BUILDVERSION );
 			return( element );
 		}
 		if( isDatabase() ) {
 			Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_SCHEMA );
-			Meta.setNameAttr( action , doc , element , VarNAMETYPE.ALPHANUMDOTDASH , NAME );
+			Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , NAME );
 			return( element );
 		}
 		action.exitUnexpectedState();

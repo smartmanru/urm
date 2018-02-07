@@ -150,7 +150,7 @@ public class ActionRedist extends ActionBase {
 		}
 
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-		VarCONTENTTYPE C_REDIST_DIRTYPE = location.getContentType( true );
+		EnumContentType C_REDIST_DIRTYPE = location.getContentType( true );
 
 		info( "redist location=" + location.DEPLOYPATH + " deploytype=" + Common.getEnumLower( location.DEPLOYTYPE ) +
 				" items=" + Common.getListSet( items ) + " contenttype=" + Common.getEnumLower( C_REDIST_DIRTYPE ) + " ..." );
@@ -164,7 +164,7 @@ public class ActionRedist extends ActionBase {
 
 	private void transferFileSet( MetaEnvServer server , MetaEnvServerNode node , RedistStorage redist , MetaEnvServerLocation location , String[] items ) throws Exception {
 		// ensure redist created
-		VarCONTENTTYPE CONTENTTYPE = location.getContentType( true );
+		EnumContentType CONTENTTYPE = location.getContentType( true );
 		RedistStateInfo stateInfo = redist.getStateInfo( this , location.DEPLOYPATH , CONTENTTYPE );
 
 		HostAccount hostAccount = node.getHostAccount();
@@ -263,7 +263,7 @@ public class ActionRedist extends ActionBase {
 		ServerDeployment deployment = redist.getDeployment( this , version );
 		
 		// backup binary items
-		for( VarCONTENTTYPE content : VarCONTENTTYPE.values() ) {
+		for( EnumContentType content : EnumContentType.values() ) {
 			for( String location : deployment.getLocations( this , content , true ) ) {
 				RedistStateInfo rinfo = new RedistStateInfo( server.meta );
 				RedistStateInfo sinfo = new RedistStateInfo( server.meta );

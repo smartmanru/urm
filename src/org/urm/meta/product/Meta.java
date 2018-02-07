@@ -221,24 +221,24 @@ public class Meta extends EngineObject {
 		return( configurableExtensions );
 	}
 
-	public static String getMask( ActionBase action , VarNAMETYPE nameType ) throws Exception {
+	public static String getMask( ActionBase action , EnumNameType nameType ) throws Exception {
     	String mask = null;
-    	if( nameType == VarNAMETYPE.ALPHANUM )
+    	if( nameType == EnumNameType.ALPHANUM )
     		mask = "[0-9a-zA-Z_]+";
     	else
-    	if( nameType == VarNAMETYPE.ALPHANUMDOT )
+    	if( nameType == EnumNameType.ALPHANUMDOT )
     		mask = "[0-9a-zA-Z_.]+";
     	else
-    	if( nameType == VarNAMETYPE.ALPHANUMDOTDASH )
+    	if( nameType == EnumNameType.ALPHANUMDOTDASH )
     		mask = "[0-9a-zA-Z_.-]+";
     	else
     		action.exitUnexpectedState();
     	return( mask );
 	}
 	
-    public static String getNameAttr( ActionBase action , Node node , VarNAMETYPE nameType ) throws Exception {
+    public static String getNameAttr( ActionBase action , Node node , EnumNameType nameType ) throws Exception {
     	String name = ConfReader.getRequiredAttrValue( node , PROPERTY_NAME );
-    	if( nameType == VarNAMETYPE.ANY )
+    	if( nameType == EnumNameType.ANY )
     		return( name );
     	
     	String mask = getMask( action , nameType );
@@ -247,8 +247,8 @@ public class Meta extends EngineObject {
     	return( name );	
     }
 
-    public static void setNameAttr( ActionBase action , Document doc , Element element , VarNAMETYPE nameType , String value ) throws Exception {
-    	if( nameType != VarNAMETYPE.ANY ) {
+    public static void setNameAttr( ActionBase action , Document doc , Element element , EnumNameType nameType , String value ) throws Exception {
+    	if( nameType != EnumNameType.ANY ) {
         	String mask = getMask( action , nameType );
         	if( !value.matches( mask ) )
         		action.exit1( _Error.WrongNameAttribute1 , "name attribute should contain only alphanumeric or dot characters, value=" + value , value );

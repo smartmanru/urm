@@ -139,7 +139,7 @@ public class RuntimeStorage extends ServerStorage {
 	}
 	
 	private void deploy( ActionBase action , VersionInfo version , ServerDeployment deployment , boolean rollout ) throws Exception {
-		for( VarCONTENTTYPE content : VarCONTENTTYPE.values() ) {
+		for( EnumContentType content : EnumContentType.values() ) {
 			if( Types.isBinaryContent( content ) ) {
 				if( !action.context.CTX_DEPLOYBINARY ) {
 					action.trace( "ignore conf deploy content" );
@@ -165,7 +165,7 @@ public class RuntimeStorage extends ServerStorage {
 		}
 	}
 	
-	public void deployRedistItem( ActionBase action , VersionInfo version , VarCONTENTTYPE CONTENTTYPE , String LOCATION , FileInfo redistFile , boolean rollout ) throws Exception {
+	public void deployRedistItem( ActionBase action , VersionInfo version , EnumContentType CONTENTTYPE , String LOCATION , FileInfo redistFile , boolean rollout ) throws Exception {
 		String mode = ( rollout )? "rollout" : "rollback";
 		String msg = "deploy redist item mode=" + mode + ", release=" + version.getReleaseName() + ", content=" + 
 				Common.getEnumLower( CONTENTTYPE ) + ", location=" + LOCATION + ", file=" + redistFile.getFileName( action );
@@ -193,7 +193,7 @@ public class RuntimeStorage extends ServerStorage {
 		action.debug( "deploy done location=" + LOCATION + ", file=" + redistFile.getFileName( action ) );
 	}
 
-	private void deployRedistConfItem( ActionBase action , RedistStorage redist , VersionInfo version , VarCONTENTTYPE CONTENTTYPE , String LOCATION , RemoteFolder redistFolder , RemoteFolder deployFolder , FileInfo redistFile , boolean rollout ) throws Exception {
+	private void deployRedistConfItem( ActionBase action , RedistStorage redist , VersionInfo version , EnumContentType CONTENTTYPE , String LOCATION , RemoteFolder redistFolder , RemoteFolder deployFolder , FileInfo redistFile , boolean rollout ) throws Exception {
 		boolean full = ( redistFile.partial )? false : true;
 		String stagingPath = redistFolder.getFilePath( action , redistFile.getFileName( action ) );
 		
@@ -201,7 +201,7 @@ public class RuntimeStorage extends ServerStorage {
 		redist.changeStateItem( action , version , CONTENTTYPE , LOCATION , redistFile , rollout );
 	}
 	
-	private void deployRedistBinaryItem( ActionBase action , RedistStorage redist , VersionInfo version , VarCONTENTTYPE CONTENTTYPE , String LOCATION , RemoteFolder redistFolder , RemoteFolder deployFolder , FileInfo redistFile , boolean rollout ) throws Exception {
+	private void deployRedistBinaryItem( ActionBase action , RedistStorage redist , VersionInfo version , EnumContentType CONTENTTYPE , String LOCATION , RemoteFolder redistFolder , RemoteFolder deployFolder , FileInfo redistFile , boolean rollout ) throws Exception {
 		// delete old
 		String oldFile = deployFolder.findBinaryDistItemFile( action , redistFile.binaryItem , redistFile.deployBaseName );
 		if( !oldFile.isEmpty() )
@@ -213,11 +213,11 @@ public class RuntimeStorage extends ServerStorage {
 		redist.changeStateItem( action , version , CONTENTTYPE , LOCATION , redistFile , rollout );
 	}
 	
-	private void deployRedistArchiveItem( ActionBase action , RedistStorage redist , VersionInfo version , VarCONTENTTYPE CONTENTTYPE , String LOCATION , RemoteFolder redistFolder , RemoteFolder deployFolder , FileInfo redistFile , boolean rollout ) throws Exception {
+	private void deployRedistArchiveItem( ActionBase action , RedistStorage redist , VersionInfo version , EnumContentType CONTENTTYPE , String LOCATION , RemoteFolder redistFolder , RemoteFolder deployFolder , FileInfo redistFile , boolean rollout ) throws Exception {
 		String archiveFilePath = redistFolder.getFilePath( action , redistFile.getFileName( action ) );
 
 		MetaDistrBinaryItem archiveItem = redistFile.binaryItem;
-		VarARCHIVETYPE atype = archiveItem.getArchiveType( action );
+		EnumArchiveType atype = archiveItem.getArchiveType( action );
 
 		deployFolder.ensureExists( action );
 		if( archiveItem.DISTITEM_TYPE == DBEnumDistItemType.ARCHIVE_CHILD ) {
@@ -265,7 +265,7 @@ public class RuntimeStorage extends ServerStorage {
 		redist.changeStateItem( action , version , CONTENTTYPE , LOCATION , redistFile , rollout );
 	}
 
-	public void extractBaseArchiveSingleDir( ActionBase action , String archivePath , String archiveDir , String installPath , VarARCHIVETYPE archiveType ) throws Exception {
+	public void extractBaseArchiveSingleDir( ActionBase action , String archivePath , String archiveDir , String installPath , EnumArchiveType archiveType ) throws Exception {
 		ShellExecutor session = action.getShell( account );
 		session.appendExecuteLog( action , "install/upgrade base from " + archivePath + " to " + installPath + " ..." );
 		String installDir = Common.getDirName( installPath );
@@ -274,10 +274,10 @@ public class RuntimeStorage extends ServerStorage {
 		RemoteFolder rf = new RemoteFolder( account , installDir );
 		rf.removeFolder( action , installName );
 		
-		if( archiveType == VarARCHIVETYPE.TAR || archiveType == VarARCHIVETYPE.TARGZ )
+		if( archiveType == EnumArchiveType.TAR || archiveType == EnumArchiveType.TARGZ )
 			rf.extractTarGzPart( action , archivePath , installName , archiveDir );
 		else
-		if( archiveType == VarARCHIVETYPE.ZIP )
+		if( archiveType == EnumArchiveType.ZIP )
 			rf.unzipSingleFile( action , archivePath , archiveDir , installName );
 		else
 			action.exitUnexpectedState();

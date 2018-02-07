@@ -36,7 +36,7 @@ public class ServerProcess {
 	MetaEnvServerNode node;
 	ScopeState state;
 	
-	public VarPROCESSMODE mode;
+	public EnumProcessMode mode;
 	public String pids;
 	public String cmdValue;
 	
@@ -48,7 +48,7 @@ public class ServerProcess {
 		this.srv = srv;
 		this.node = node;
 		this.state = state;
-		this.mode = VarPROCESSMODE.UNKNOWN;
+		this.mode = EnumProcessMode.UNKNOWN;
 		this.pids = "ignore";
 	}
 
@@ -72,7 +72,7 @@ public class ServerProcess {
 		HostAccount hostAccount = node.getHostAccount();
 		action.debug( hostAccount.getFinalAccount() + ": check status srv=" + srv.NAME + " ..." );
 		
-		mode = VarPROCESSMODE.UNKNOWN;
+		mode = EnumProcessMode.UNKNOWN;
 		boolean res = false;
 		if( isService( action ) )
 			res = gatherServiceStatus( action );
@@ -94,10 +94,10 @@ public class ServerProcess {
 
 	public boolean isStarted( ActionBase action ) throws Exception {
 		HostAccount hostAccount = node.getHostAccount();
-		if( mode == VarPROCESSMODE.UNKNOWN )
+		if( mode == EnumProcessMode.UNKNOWN )
 			action.exit1( _Error.UnknownHostState1 , "state is unknown for node=" + hostAccount.getFinalAccount() , hostAccount.getFinalAccount() );
 		
-		if( mode == VarPROCESSMODE.STARTED )
+		if( mode == EnumProcessMode.STARTED )
 			return( true );
 		
 		return( false );
@@ -136,7 +136,7 @@ public class ServerProcess {
 			return( shell );
 		}
 		catch( Throwable e ) {
-			mode = VarPROCESSMODE.UNREACHABLE;
+			mode = EnumProcessMode.UNREACHABLE;
 			action.error( hostAccount.getFinalAccount() + ": account is unreachable" );
 			return( null );
 		}
@@ -154,19 +154,19 @@ public class ServerProcess {
 			cmdValue = shell.customGetValue( action , "crm_resource -W -r " + srv.SYSNAME + " 2>&1 | grep `hostname`" );
 			String check = cmdValue.toUpperCase();
 			if( isStoppedStatus( action , check ) ) {
-				mode = VarPROCESSMODE.STOPPED;
+				mode = EnumProcessMode.STOPPED;
 				return( true );
 			}
 			
 			if( isStartedStatus( action , check ) ) {
-				mode = VarPROCESSMODE.STARTED;
+				mode = EnumProcessMode.STARTED;
 				return( true );
 			}
 			
 			if( check.indexOf( "not found" ) >= 0 )
 				action.error( "unknown pacemaker resource: " + srv.SYSNAME );
 			
-			mode = VarPROCESSMODE.ERRORS;
+			mode = EnumProcessMode.ERRORS;
 		}
 		finally {
 			shell.release( action );
@@ -187,7 +187,7 @@ public class ServerProcess {
 			cmdValue = shell.customGetValue( action , "docker inspect " + srv.SYSNAME + " | grep Status" );
 			cmdValue = cmdValue.trim();
 			if( !cmdValue.startsWith( Common.getQuoted( "Status" ) + ":" ) ) {
-				mode = VarPROCESSMODE.ERRORS;
+				mode = EnumProcessMode.ERRORS;
 				action.error( "unknown docker resource: " + srv.SYSNAME );
 				return( true );
 			}
@@ -197,19 +197,19 @@ public class ServerProcess {
 			check = check.toUpperCase();
 			
 			if( isStoppedStatus( action , check ) ) {
-				mode = VarPROCESSMODE.STOPPED;
+				mode = EnumProcessMode.STOPPED;
 				return( true );
 			}
 			
 			if( isStartedStatus( action , check ) ) {
-				mode = VarPROCESSMODE.STARTED;
+				mode = EnumProcessMode.STARTED;
 				return( true );
 			}
 			
 			if( check.indexOf( "not found" ) >= 0 )
 				action.error( "unknown docker resource: " + srv.SYSNAME );
 			
-			mode = VarPROCESSMODE.ERRORS;
+			mode = EnumProcessMode.ERRORS;
 		}
 		finally {
 			shell.release( action );
@@ -230,24 +230,24 @@ public class ServerProcess {
 				
 				String check = cmdValue.toUpperCase();
 				if( isStoppedStatus( action , check ) ) {
-					mode = VarPROCESSMODE.STOPPED;
+					mode = EnumProcessMode.STOPPED;
 					state.addFact( mode );
 					return( true );
 				}
 				
 				if( isStartedStatus( action , check ) ) {
-					mode = VarPROCESSMODE.STARTED;
+					mode = EnumProcessMode.STARTED;
 					state.addFact( mode );
 					return( true );
 				}
 		
 				if( isStartingStatus( action , check ) ) {
-					mode = VarPROCESSMODE.STARTING;
+					mode = EnumProcessMode.STARTING;
 					state.addFact( mode );
 					return( true );
 				}
 				
-				mode = VarPROCESSMODE.ERRORS;
+				mode = EnumProcessMode.ERRORS;
 				state.addFact( mode );
 				return( true );
 			}
@@ -268,15 +268,15 @@ public class ServerProcess {
 	}
 
 	private boolean gatherGenericStatus( ActionBase action ) throws Exception {
-		mode = VarPROCESSMODE.UNKNOWN;
+		mode = EnumProcessMode.UNKNOWN;
 		
 		if( !srv.NOPIDS ) {
 			if( !getPids( action ) )
 				return( false );
 			
 			if( pids.isEmpty() ) {
-				if( mode == VarPROCESSMODE.UNKNOWN )
-					mode = VarPROCESSMODE.STOPPED;
+				if( mode == EnumProcessMode.UNKNOWN )
+					mode = EnumProcessMode.STOPPED;
 				return( true );
 			}
 		}
@@ -301,23 +301,23 @@ public class ServerProcess {
 
 		String check = cmdValue.toUpperCase();
 		if( isStartingStatus( action , check ) ) {
-			mode = VarPROCESSMODE.STARTING;
+			mode = EnumProcessMode.STARTING;
 			return( true );
 		}
 		
 		if( srv.NOPIDS ) {
 			if( isStoppedStatus( action , check  ) ) {
-				mode = VarPROCESSMODE.STOPPED;
+				mode = EnumProcessMode.STOPPED;
 				return( true );
 			}
 		}
 		
 		if( isStartedStatus( action , check ) ) {
-			mode = VarPROCESSMODE.STARTED;
+			mode = EnumProcessMode.STARTED;
 			return( true );
 		}
 		
-		mode = VarPROCESSMODE.ERRORS;
+		mode = EnumProcessMode.ERRORS;
 		return( true );
 	}
 
@@ -383,7 +383,7 @@ public class ServerProcess {
 			return( false );
 
 		HostAccount hostAccount = node.getHostAccount();
-		if( mode == VarPROCESSMODE.STOPPED ) {
+		if( mode == EnumProcessMode.STOPPED ) {
 			action.debug( hostAccount.getFinalAccount() + ": pacemaker resource=" + srv.SYSNAME + " already stopped" );
 			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
 			return( true );
@@ -409,7 +409,7 @@ public class ServerProcess {
 			return( false );
 
 		HostAccount hostAccount = node.getHostAccount();
-		if( mode == VarPROCESSMODE.STOPPED ) {
+		if( mode == EnumProcessMode.STOPPED ) {
 			action.debug( hostAccount.getFinalAccount() + ": docker resource=" + srv.SYSNAME + " already stopped" );
 			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
 			return( true );
@@ -432,7 +432,7 @@ public class ServerProcess {
 			return( false );
 
 		HostAccount hostAccount = node.getHostAccount();
-		if( mode == VarPROCESSMODE.STOPPED ) {
+		if( mode == EnumProcessMode.STOPPED ) {
 			action.debug( hostAccount.getFinalAccount() + ": service=" + srv.SYSNAME + " already stopped" );
 			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
 			return( true );
@@ -469,7 +469,7 @@ public class ServerProcess {
 			if( !gatherStatus( action ) )
 				return( false );
 			
-			if( mode == VarPROCESSMODE.STOPPED ) {
+			if( mode == EnumProcessMode.STOPPED ) {
 				action.debug( hostAccount.getFinalAccount() + ": server already stopped" );
 				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
 				return( true );
@@ -561,7 +561,7 @@ public class ServerProcess {
 			stoptime = defaultStopServerTimeSecs;
 		long stopMillis = startMillis + stoptime * 1000;
 		
-		mode = VarPROCESSMODE.UNKNOWN;
+		mode = EnumProcessMode.UNKNOWN;
 		if( !getPids( action ) )
 			return( false );
 		
@@ -611,7 +611,7 @@ public class ServerProcess {
 			stoptime = defaultStopServerTimeSecs;
 		long stopMillis = startMillis + stoptime * 1000;
 		
-		while( mode != VarPROCESSMODE.STOPPED ) {
+		while( mode != EnumProcessMode.STOPPED ) {
 			if( System.currentTimeMillis() > stopMillis ) {
 				action.error( hostAccount.getFinalAccount() + ": failed to stop " + title + " within " + stoptime + " seconds" );
 				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTOP.name() );
@@ -686,13 +686,13 @@ public class ServerProcess {
 			return( false );
 
 		HostAccount hostAccount = node.getHostAccount();
-		if( mode == VarPROCESSMODE.STARTED ) {
+		if( mode == EnumProcessMode.STARTED ) {
 			action.debug( hostAccount.getFinalAccount() + ": pacemaker resource=" + srv.SYSNAME + " already started" );
 			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTARTED.name() );
 			return( true );
 		}
 
-		if( mode != VarPROCESSMODE.STOPPED ) {
+		if( mode != EnumProcessMode.STOPPED ) {
 			action.error( hostAccount.getFinalAccount() + ": pacemaker resource=" + srv.SYSNAME + " is in unexpected state" );
 			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
 			return( false );
@@ -718,13 +718,13 @@ public class ServerProcess {
 			return( false );
 
 		HostAccount hostAccount = node.getHostAccount();
-		if( mode == VarPROCESSMODE.STARTED ) {
+		if( mode == EnumProcessMode.STARTED ) {
 			action.debug( hostAccount.getFinalAccount() + ": docker resource=" + srv.SYSNAME + " already started" );
 			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTARTED.name() );
 			return( true );
 		}
 
-		if( mode != VarPROCESSMODE.STOPPED ) {
+		if( mode != EnumProcessMode.STOPPED ) {
 			action.error( hostAccount.getFinalAccount() + ": docker resource=" + srv.SYSNAME + " is in unexpected state" );
 			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTARTED.name() );
 			return( false );
@@ -747,13 +747,13 @@ public class ServerProcess {
 			return( false );
 
 		HostAccount hostAccount = node.getHostAccount();
-		if( mode == VarPROCESSMODE.STARTED ) {
+		if( mode == EnumProcessMode.STARTED ) {
 			action.debug( hostAccount.getFinalAccount() + ": service=" + srv.SYSNAME + " already started" );
 			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTARTED.name() );
 			return( true );
 		}
 
-		if( mode != VarPROCESSMODE.STOPPED ) {
+		if( mode != EnumProcessMode.STOPPED ) {
 			action.error( hostAccount.getFinalAccount() + ": service=" + srv.SYSNAME + " is in unexpected state" );
 			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
 			return( false );
@@ -788,13 +788,13 @@ public class ServerProcess {
 			return( false );
 
 		HostAccount hostAccount = node.getHostAccount();
-		if( mode == VarPROCESSMODE.STARTED ) {
+		if( mode == EnumProcessMode.STARTED ) {
 			action.debug( hostAccount.getFinalAccount() + ": server=" + srv.NAME + " already started (pids=" + pids + ")" );
 			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTARTED.name() );
 			return( true );
 		}
 
-		if( mode != VarPROCESSMODE.STOPPED ) {
+		if( mode != EnumProcessMode.STOPPED ) {
 			action.error( hostAccount.getFinalAccount() + ": server=" + srv.NAME + " is in unexpected state (pids=" + pids + ")" );
 			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
 			return( false );
@@ -880,7 +880,7 @@ public class ServerProcess {
 		if( !gatherStatus( action ) )
 			return( false );
 		
-		while( mode != VarPROCESSMODE.STARTED ) {
+		while( mode != EnumProcessMode.STARTED ) {
 			Common.sleep( 1000 );
 		    
 			if( System.currentTimeMillis() > stopMillis ) {
@@ -889,13 +889,13 @@ public class ServerProcess {
 				return( false );
 			}
 
-			if( mode == VarPROCESSMODE.STOPPED && System.currentTimeMillis() > startTimeoutMillis ) {
+			if( mode == EnumProcessMode.STOPPED && System.currentTimeMillis() > startTimeoutMillis ) {
 				action.info( hostAccount.getFinalAccount() + ": failed to start " + title + " - process launch timeout is " + defaultStartProcessTimeSecs + " seconds" );
 				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
 				return( false );
 			}
 
-			if( mode != VarPROCESSMODE.STOPPED && mode != VarPROCESSMODE.STARTING ) {
+			if( mode != EnumProcessMode.STOPPED && mode != EnumProcessMode.STARTING ) {
 				action.info( hostAccount.getFinalAccount() + ": failed to start " + title + " - process is in unexpected state (" + cmdValue + ")" );
 				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
 				return( false );

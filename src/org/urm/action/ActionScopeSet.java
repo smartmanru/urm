@@ -26,7 +26,7 @@ public class ActionScopeSet {
 	public ActionScope scope;
 	public Meta meta;
 	public String NAME;
-	public VarCATEGORY CATEGORY;
+	public EnumScopeCategory CATEGORY;
 	public boolean setFull;
 	
 	public MetaSourceProjectSet pset;
@@ -50,7 +50,7 @@ public class ActionScopeSet {
 	
 	public boolean isEmpty() {
 		// manual files are by default
-		if( CATEGORY == VarCATEGORY.MANUAL && setFull )
+		if( CATEGORY == EnumScopeCategory.MANUAL && setFull )
 			return( false );
 		
 		return( targets.isEmpty() );
@@ -63,7 +63,7 @@ public class ActionScopeSet {
 	public void create( ActionBase action , MetaSourceProjectSet pset ) throws Exception {
 		this.pset = pset;
 		this.NAME = pset.NAME;
-		this.CATEGORY = VarCATEGORY.PROJECT;
+		this.CATEGORY = EnumScopeCategory.PROJECT;
 		this.setFull = false;
 	}
 
@@ -75,7 +75,7 @@ public class ActionScopeSet {
 		this.setFull = false;
 	}
 
-	public void create( ActionBase action , VarCATEGORY CATEGORY ) throws Exception {
+	public void create( ActionBase action , EnumScopeCategory CATEGORY ) throws Exception {
 		this.pset = null;
 		this.NAME = Common.getEnumLower( CATEGORY );
 		this.CATEGORY = CATEGORY;
@@ -85,7 +85,7 @@ public class ActionScopeSet {
 	public void create( ActionBase action , MetaEnvSegment sg ) throws Exception {
 		this.pset = null;
 		this.NAME = sg.NAME;
-		this.CATEGORY = VarCATEGORY.ENV;
+		this.CATEGORY = EnumScopeCategory.ENV;
 		this.setFull = false;
 		this.sg = sg;
 	}
@@ -101,7 +101,7 @@ public class ActionScopeSet {
 	
 	public String getScopeInfo( ActionBase action ) throws Exception {
 		if( targets.isEmpty() ) {
-			if( CATEGORY == VarCATEGORY.MANUAL && setFull )
+			if( CATEGORY == EnumScopeCategory.MANUAL && setFull )
 				return( "manual files" );
 			return( "" );
 		}
@@ -113,10 +113,10 @@ public class ActionScopeSet {
 		}
 
 		String itemlist = "";
-		if( CATEGORY == VarCATEGORY.MANUAL )
+		if( CATEGORY == EnumScopeCategory.MANUAL )
 			itemlist = "manual files";
 		else
-		if( CATEGORY == VarCATEGORY.DERIVED )
+		if( CATEGORY == EnumScopeCategory.DERIVED )
 			itemlist = "derived files";
 		for( ActionScopeTarget scopeTarget : targets.values() )
 			itemlist = Common.concat( itemlist , scopeTarget.getScopeInfo( action ) , ", " );
