@@ -119,6 +119,12 @@ public class ProductStorage {
 		return( files );
 	}
 	
+	public String getEnvFilePath( ActionBase action , String file ) throws Exception {
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.getProduct() );
+		return( folder.getFilePath( action , file ) );
+	}
+	
 	public String[] getDesignFiles( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder folder = urm.getProductXDocMetadataFolder( action , meta.getProduct() );

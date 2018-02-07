@@ -90,6 +90,20 @@ public class MetaEnvSegment extends EngineObject {
 		return( r );
 	}
 
+	public void setSegmentPrimary( String name , String desc , MatchItem baseline , boolean offline , MatchItem dc ) throws Exception {
+		this.NAME = name;
+		this.DESC = desc;
+		this.BASELINE = MatchItem.copy( baseline );
+		this.OFFLINE = offline;
+		this.DC = MatchItem.copy( dc );
+		
+		refreshPrimaryProperties();
+	}
+
+	public void createSettings( ObjectProperties ops ) throws Exception {
+		this.ops = ops;
+	}
+	
 	public ObjectProperties getProperties() {
 		return( ops );
 	}
@@ -115,7 +129,7 @@ public class MetaEnvSegment extends EngineObject {
 	public MetaEnvSegment getBaseline() throws Exception {
 		MetaEnv envBaseline = env.getBaseline();
 		if( envBaseline == null )
-			Common.exitUnexpected();
+			return( null );
 		
 		return( envBaseline.getSegment( BASELINE ) );
 	}
@@ -296,6 +310,10 @@ public class MetaEnvSegment extends EngineObject {
 		return( infra.getDatacenter( DC ) );
 	}
 
+	public MatchItem getBaselineMatchItem() {
+		return( BASELINE );
+	}
+	
 	public MatchItem getDatacenterMatchItem() {
 		return( DC );
 	}

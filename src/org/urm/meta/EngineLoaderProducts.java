@@ -138,11 +138,13 @@ public class EngineLoaderProducts {
 		DBEngineAuth.deleteProductAccess( c , auth , product );
 		
 		ProductMeta storage = product.storage;
-		if( includingEnvironments )
-			DBEnvData.dropEnvData( c , storage );
-			
-		if( storage.isExists() )
-			DBProductData.dropProductData( c , storage );
+		if( storage.isExists() ) {
+			if( includingEnvironments )
+				DBEnvData.dropEnvData( c , storage );
+				
+			if( storage.isExists() )
+				DBProductData.dropProductData( c , storage );
+		}
 		
 		synchronized( products ) {
 			ProductContext context = new ProductContext( product , false );

@@ -37,6 +37,8 @@ public class EngineEntities {
 	public static String nameProductContext = "ctx";
 	public static String nameMetaProductSet = "product";
 	public static String nameMetaMonitoringSet = "mon";
+	public static String nameMetaEnvSet = "env";
+	public static String nameMetaEnvSegmentSet = "sg";
 
 	public Engine engine;
 
@@ -321,13 +323,26 @@ public class EngineEntities {
 		return( props );
 	}
 	
-
 	public ObjectProperties createMetaBuildCommonProps( ObjectProperties parent ) throws Exception {
 		return( createBuildCommonProps( parent , DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , false ) );
 	}
 
 	public ObjectProperties createMetaBuildModeProps( ObjectProperties parent , DBEnumBuildModeType mode ) throws Exception {
 		return( createBuildModeProps( parent , DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , mode , false ) );
+	}
+	
+	public ObjectProperties createMetaEnvProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ENVIRONMENT , DBEnumObjectVersionType.ENVIRONMENT , DBEnumParamRoleType.DEFAULT , nameMetaEnvSet , engine.execrc );
+		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.ENV_CUSTOM , -1 , DBEnumObjectVersionType.ENVIRONMENT ); 
+		props.create( parent , new PropertyEntity[] { entityAppEnvPrimary , entityAppEnvExtra } , custom );
+		return( props );
+	}
+	
+	public ObjectProperties createMetaEnvSegmentProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ENVIRONMENT_SEGMENT , DBEnumObjectVersionType.ENVIRONMENT , DBEnumParamRoleType.DEFAULT , nameMetaEnvSegmentSet , engine.execrc );
+		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.ENV_SEGMENT_CUSTOM , -1 , DBEnumObjectVersionType.ENVIRONMENT ); 
+		props.create( parent , new PropertyEntity[] { entityAppSegmentPrimary } , custom );
+		return( props );
 	}
 	
 }

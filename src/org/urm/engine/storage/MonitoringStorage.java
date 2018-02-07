@@ -22,6 +22,9 @@ public class MonitoringStorage {
 	public LocalFolder getDataFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
 		MetaProductCoreSettings core = meta.getProductCoreSettings();
 		MetaEnvSegment sg = target.findSegment();
+		if( sg == null )
+			Common.exitUnexpected();
+		
 		String path = Common.getPath( core.MONITORING_DIR_DATA , sg.env.NAME );
 		return( artefactory.getAnyFolder( action , path ) );
 	}

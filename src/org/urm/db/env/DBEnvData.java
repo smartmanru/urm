@@ -1,6 +1,9 @@
 package org.urm.db.env;
 
+import org.urm.common.Common;
 import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
+import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.core.DBSettings;
 import org.urm.engine.properties.EntityVar;
@@ -29,7 +32,7 @@ public class DBEnvData {
 	public static String FIELD_ENV_BASELINE_ID = "baseline_env_fkid";
 	public static String FIELD_ENV_BASELINE_NAME = "baseline_env_fkname";
 	public static String FIELD_ENV_ENVKEY_ID = "envkey_resource_fkid";
-	public static String FIELD_ENV_ENVKEY_NAME = "baseline_env_fkname";
+	public static String FIELD_ENV_ENVKEY_NAME = "envkey_resource_fkname";
 	public static String FIELD_ENV_REMOTE = "distr_remote";
 	public static String FIELD_ENV_REMOTE_ACCOUNT_ID = "distr_account_fkid";
 	public static String FIELD_ENV_REMOTE_ACCOUNT_NAME = "distr_account_fkname";
@@ -39,8 +42,8 @@ public class DBEnvData {
 	public static String FIELD_SEGMENT_DESC = "xdesc";
 	public static String FIELD_SEGMENT_BASELINE_ID = "baseline_segment_fkid";
 	public static String FIELD_SEGMENT_BASELINE_NAME = "baseline_segment_fkname";
-	public static String FIELD_SEGMENT_DATACENTER_ID = "baseline_datacenter_fkid";
-	public static String FIELD_SEGMENT_DATACENTER_NAME = "baseline_datacenter_fkname";
+	public static String FIELD_SEGMENT_DATACENTER_ID = "datacenter_fkid";
+	public static String FIELD_SEGMENT_DATACENTER_NAME = "datacenter_fkname";
 	public static String FIELD_SERVER_ID = "server_id";
 	public static String FIELD_SERVER_ENV_ID = "env_id";
 	public static String FIELD_SERVER_SEGMENT_ID = "segment_id";
@@ -254,6 +257,24 @@ public class DBEnvData {
 	}
 	
 	public static void dropEnvCoreData( DBConnection c , ProductMeta storage ) throws Exception {
+		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_PARAMVALUES1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_NODES1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_DEPLOYMENTS1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_SERVERDEPS1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_STARTGROUPSERVERS1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_STARTGROUPS1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_SERVERS1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_SEGMENTS1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_ENVS1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
 	}
 	
 }

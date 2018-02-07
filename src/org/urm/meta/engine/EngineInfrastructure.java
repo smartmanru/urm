@@ -225,5 +225,15 @@ public class EngineInfrastructure extends EngineObject {
 		return( match );
 	}
 	
+	public MatchItem matchDatacenter( String name ) throws Exception {
+		if( name == null || name.isEmpty() )
+			return( null );
+		
+		Datacenter dc = findDatacenter( name );
+		if( dc == null )
+			return( new MatchItem( name ) );
+		return( new MatchItem( dc.ID ) );
+	}
+
 	
 }

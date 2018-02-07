@@ -63,6 +63,8 @@ public class EngineLoaderEnvs {
 	}
 
 	public void loaddbAll() throws Exception {
+		ProductEnvs envs = new ProductEnvs( set , set.meta );
+		set.setEnvs( envs );
 	}
 	
 	public void loaddbEnvs() throws Exception {
@@ -100,11 +102,11 @@ public class EngineLoaderEnvs {
 		ms.saveFile( action , doc , file );
 	}
 	
-	private void importxmlEnvData( ProductStorage ms , String envName ) throws Exception {
+	private void importxmlEnvData( ProductStorage ms , String envFile ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
-			String file = ms.getEnvConfFile( action , envName );
+			String file = ms.getEnvFilePath( action , envFile );
 			action.debug( "read environment definition file " + file + "..." );
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
@@ -112,7 +114,7 @@ public class EngineLoaderEnvs {
 			DBMetaEnv.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductEnvironment2 , e , "unable to load environment metadata, product=" + set.name + ", env=" + envName , set.name , envName );
+			loader.setLoadFailed( action , _Error.UnableLoadProductEnvironment2 , e , "unable to load environment metadata, product=" + set.name + ", env file=" + envFile , set.name , envFile );
 		}
 	}
 	

@@ -309,7 +309,7 @@ public class CommandContext {
 		MetaProductCoreSettings core = ( isproduct )? settings.getCoreSettings() : null;
 		CTX_TRACEINTERNAL = ( getFlagValue( "OPT_TRACE" ) && getFlagValue( "OPT_SHOWALL" ) )? true : false;
 		CTX_TRACE = getFlagValue( "OPT_TRACE" );
-		CTX_SHOWONLY = combineValue( "OPT_SHOWONLY" , ( isenv )? env.SHOWONLY : null , def );
+		CTX_SHOWONLY = combineValue( "OPT_SHOWONLY" , ( ( isenv )? env.SHOWONLY : null ) , def );
 		CTX_SHOWALL = getFlagValue( "OPT_SHOWALL" );
 		if( CTX_TRACE )
 			CTX_SHOWALL = true;
@@ -323,7 +323,7 @@ public class CommandContext {
 		CTX_KEYRES = value;
 		if( value.isEmpty() && isenv ) {
 			AuthResource res = env.getEnvKey();
-			CTX_KEYRES = res.NAME;
+			CTX_KEYRES = ( res == null )? "" : res.NAME;
 		}
 		
 		String productValue = ( isproduct )? core.CONFIG_DISTR_PATH : "";
@@ -508,10 +508,16 @@ public class CommandContext {
 		return( options.getIntParamValue( var , defaultValue ) );
 	}
 
-	public boolean combineValue( String var , boolean confValue , boolean defValue ) throws Exception {
+	public boolean combineValue( String var , Boolean confValue , boolean defValue ) throws Exception {
 		if( !options.isValidVar( var ) )
 			Common.exit1( _Error.UnknownParamVar1 , "unknown param var=" + var , var );
-		FLAG confFlag = ( confValue )? FLAG.YES : FLAG.NO;
+		FLAG confFlag = FLAG.DEFAULT;
+		if( confValue != null ) {
+			if( confValue.booleanValue() )
+				confFlag = FLAG.YES;
+			else
+				confFlag = FLAG.NO;
+		}
 		return( options.combineValue( var , confFlag, defValue ) );
 	}
 	

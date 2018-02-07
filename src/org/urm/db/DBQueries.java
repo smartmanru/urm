@@ -47,9 +47,9 @@ public abstract class DBQueries {
 	public static String MODIFY_AUTH_DROP_GROUP0 = "delete from urm_auth_group";
 	
 	public static String MODIFY_BASE_DROP_ITEMDEPS0 = "delete from urm_base_item_deps";
-	public static String MODIFY_BASE_ADDDEPITEM3 = "insert into urm_base_item_deps ( item_id , dep_item_id , cv ) values ( @values@ )";
-	public static String MODIFY_BASE_DELETEDEPITEM2 = "delete from urm_base_item_deps where item_id = @1@ and dep_item_id = @2@";
-	public static String QUERY_BASE_ITEMDEPS0 = "select item_id , dep_item_id , cv from urm_base_item_deps";
+	public static String MODIFY_BASE_ADDDEPITEM3 = "insert into urm_base_item_deps ( baseitem_id , dep_baseitem_id , cv ) values ( @values@ )";
+	public static String MODIFY_BASE_DELETEDEPITEM2 = "delete from urm_base_item_deps where baseitem_id = @1@ and dep_baseitem_id = @2@";
+	public static String QUERY_BASE_ITEMDEPS0 = "select baseitem_id , dep_baseitem_id , cv from urm_base_item_deps";
 
 	public static String MODIFY_APP_DROP_SYSTEMPARAMVALUES0 = "delete from urm_object_param_value where param_object_id in ( select system_id from urm_system )";
 	public static String MODIFY_APP_DROP_SYSTEMPARAMS0 = "delete from urm_object_param where param_object_id in ( select system_id from urm_system )";
@@ -125,5 +125,19 @@ public abstract class DBQueries {
 	public static String QUERY_DISTR_GETALLDELIVERYSCHEMES1 = "select delivery_id , schema_id , meta_id , pv from urm_dist_schemaitem where meta_id = @1@";
 	public static String QUERY_DISTR_GETALLDELIVERYDOCS1 = "select delivery_id , doc_id , meta_id , pv from urm_dist_docitem where meta_id = @1@";
 	public static String MODIFY_DISTR_CASCADECOMP_ALLITEMS1 = "delete from urm_dist_compitem where comp_id = @1@";
+
+	public static String MODIFY_ENVALL_DELETEALL_PARAMVALUES1 = "delete from urm_object_param_value where object_id in ( " +
+			"select node_id from urm_env_node a , urm_env b where a.env_id = b.env_id and b.meta_fkid = @1@ union all " +
+			"select server_id from urm_env_server a , urm_env b where a.env_id = b.env_id and b.meta_fkid = @1@ union all " +
+			"select segment_id from urm_env_segment a , urm_env b where a.env_id = b.env_id and b.meta_fkid = @1@ union all " + 
+			"select env_id from urm_env where meta_fkid = @1@ )";
+	public static String MODIFY_ENVALL_DELETEALL_NODES1 = "delete from urm_env_node where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
+	public static String MODIFY_ENVALL_DELETEALL_DEPLOYMENTS1 = "delete from urm_env_deployment where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
+	public static String MODIFY_ENVALL_DELETEALL_SERVERDEPS1 = "delete from urm_env_server_deps where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
+	public static String MODIFY_ENVALL_DELETEALL_STARTGROUPSERVERS1 = "delete from urm_env_startgroup_server where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
+	public static String MODIFY_ENVALL_DELETEALL_STARTGROUPS1 = "delete from urm_env_startgroup where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
+	public static String MODIFY_ENVALL_DELETEALL_SERVERS1 = "delete from urm_env_server where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
+	public static String MODIFY_ENVALL_DELETEALL_SEGMENTS1 = "delete from urm_env_segment where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
+	public static String MODIFY_ENVALL_DELETEALL_ENVS1 = "delete from urm_env where meta_fkid = @1@";
 	
 }

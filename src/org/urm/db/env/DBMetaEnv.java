@@ -58,14 +58,16 @@ public class DBMetaEnv {
 		EngineResources resources = loader.getResources();
 		EngineInfrastructure infra = loader.getInfrastructure();
 		
-		MetaProductSettings settings = storage.getSettings();
-		ObjectProperties ops = entities.createMetaProductProps( settings.ops );
-		PropertyEntity entity = entities.entityAppEnvPrimary;
-
 		// identify
+		PropertyEntity entity = entities.entityAppEnvPrimary;
 		String NAME = entity.importxmlStringAttr( root , MetaEnv.PROPERTY_NAME );
 		env.ID = DBNames.getNameIndex( c , storage.ID , NAME , DBEnumObjectType.ENVIRONMENT );
-		
+
+		// create settings
+		MetaProductSettings settings = storage.getSettings();
+		ObjectProperties ops = entities.createMetaEnvProps( settings.ops );
+		env.createSettings( ops );
+
 		// primary match (baseline match is postponed)
 		MatchItem BASELINE = MatchItem.create( entity.importxmlStringAttr( root , MetaEnv.PROPERTY_BASELINE ) );
 		
@@ -104,6 +106,7 @@ public class DBMetaEnv {
 		
 		// extra
 		DBSettings.importxml( loader , root , ops , env.ID , env.ID , true , false , env.EV , DBEnumParamEntityType.ENV_EXTRA );
+		env.scatterExtraProperties();
 	}
 
 	private static void importxmlSegments( EngineLoader loader , ProductMeta storage , MetaEnv env , Node root ) throws Exception {

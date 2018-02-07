@@ -41,13 +41,11 @@ public abstract class DBEngineBase {
 	public static String ELEMENT_GROUP = "group";
 	public static String ELEMENT_ITEM = "item";
 	public static String ELEMENT_DEPITEM = "dependency";
-	public static String XMLPROP_GROUP_NAME = "id";
-	public static String XMLPROP_ITEM_NAME = "id";
 	public static String XMLPROP_ITEM_DEPNAME = "name";
 	public static String FIELD_GROUP_ID = "group_id";
 	public static String FIELD_GROUP_CATEGORY = "basecategory_type";
 	public static String FIELD_GROUP_DESC = "xdesc";
-	public static String FIELD_ITEM_ID = "item_id";
+	public static String FIELD_ITEM_ID = "baseitem_id";
 	public static String FIELD_ITEM_GROUP_ID = "group_id";
 	public static String FIELD_ITEM_DESC = "xdesc";
 	
@@ -57,7 +55,7 @@ public abstract class DBEngineBase {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaStringXmlOnly( BaseGroup.PROPERTY_TYPE , "Type" , true , null ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_GROUP_CATEGORY , "Category" , true , null ) ,
-				EntityVar.metaStringVar( BaseGroup.PROPERTY_NAME , BaseGroup.PROPERTY_NAME , XMLPROP_GROUP_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( BaseGroup.PROPERTY_NAME , BaseGroup.PROPERTY_NAME , BaseGroup.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( BaseGroup.PROPERTY_DESC , FIELD_GROUP_DESC , BaseGroup.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBoolean( BaseGroup.PROPERTY_OFFLINE , "Offline" , false , true )
 		} ) );
@@ -68,7 +66,7 @@ public abstract class DBEngineBase {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM , DBEnumObjectVersionType.CORE , TABLE_BASEITEM , FIELD_ITEM_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaIntegerDatabaseOnly( FIELD_ITEM_GROUP_ID , "Name" , true , null ) ,
-				EntityVar.metaStringVar( BaseItem.PROPERTY_NAME , BaseItem.PROPERTY_NAME , XMLPROP_ITEM_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( BaseItem.PROPERTY_NAME , BaseItem.PROPERTY_NAME , BaseItem.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( BaseItem.PROPERTY_DESC , FIELD_ITEM_DESC , BaseItem.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBoolean( BaseItem.PROPERTY_ADMIN , "Administrative" , false , false ) ,
 				EntityVar.metaEnum( BaseItem.PROPERTY_BASESRC_TYPE , "Base item type" , false , DBEnumBaseSrcType.UNKNOWN ) ,

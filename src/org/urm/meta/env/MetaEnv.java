@@ -119,6 +119,10 @@ public class MetaEnv extends EngineObject {
 		return( r );
 	}
 
+	public void createSettings( ObjectProperties ops ) throws Exception {
+		this.ops = ops;
+	}
+	
 	public ObjectProperties getProperties() {
 		return( ops );
 	}
@@ -159,7 +163,7 @@ public class MetaEnv extends EngineObject {
 		}
 	}
 	
-	private void scatterExtraProperties() throws Exception {
+	public void scatterExtraProperties() throws Exception {
 		DBAUTH = ops.getBooleanProperty( PROPERTY_DB_AUTH );
 		SHOWONLY = ops.getBooleanProperty( PROPERTY_SHOWONLY );
 		BACKUP = ops.getBooleanProperty( PROPERTY_BACKUP );

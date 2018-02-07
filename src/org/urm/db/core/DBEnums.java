@@ -668,11 +668,15 @@ public abstract class DBEnums {
 		PRODUCT_DIST_COMPITEM(205,null) ,
 		ENV_PRIMARY(301,null) ,
 		ENV_EXTRA(302,null) ,
+		ENV_CUSTOM(303,null) ,
 		ENV_SEGMENT_PRIMARY(311,null) ,
 		ENV_SEGMENT_STARTGROUP(312,null) ,
+		ENV_SEGMENT_CUSTOM(313,null) ,
 		ENV_SERVER_PRIMARY(321,null) ,
 		ENV_SERVER_EXTRA(322,null) ,
-		ENV_NODE_PRIMARY(331,null);
+		ENV_SERVER_CUSTOM(323,null) ,
+		ENV_NODE_PRIMARY(331,null) ,
+		ENV_NODE_CUSTOM(333,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -764,7 +768,7 @@ public abstract class DBEnums {
 		new DBEnumInfo( DBEnumServerDependencyType.class , 542 ) ,
 		new DBEnumInfo( DBEnumServerDeploymentType.class , 543 ) ,
 		new DBEnumInfo( DBEnumDeployModeType.class , 544 ) ,
-		new DBEnumInfo( DBEnumNodeType.class , 544 )
+		new DBEnumInfo( DBEnumNodeType.class , 545 )
 	}; 
 
 	private static String prefix = "DBEnum";
