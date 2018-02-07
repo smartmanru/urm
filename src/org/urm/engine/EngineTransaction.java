@@ -1,7 +1,5 @@
 package org.urm.engine;
 
-import java.util.List;
-
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
@@ -31,11 +29,9 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.env.MetaEnvStartInfo;
-import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.product.*;
-import org.urm.meta.Types.*;
 
 public class EngineTransaction extends TransactionBase {
 
@@ -393,10 +389,8 @@ public class EngineTransaction extends TransactionBase {
 	public HostAccount createHostAccount( Network network , Account account , AuthResource resource ) throws Exception {
 		super.checkTransactionInfrastructure();
 		NetworkHost host = network.findHost( account );
-		if( host == null ) {
-			DBEnumOSType type = DBEnumOSType.getValue( account.osType.name() , true );
-			host = createNetworkHost( network , account.HOST , null , type , account.IP , account.PORT );
-		}
+		if( host == null )
+			host = createNetworkHost( network , account.HOST , null , account.osType , account.IP , account.PORT );
 		
 		return( createHostAccount( host , account.USER , null , account.isAdmin() , resource.ID ) );
 	}
@@ -949,22 +943,16 @@ public class EngineTransaction extends TransactionBase {
 	// ENVIRONMENT
 	
 	public MetaEnv createMetaEnv( Meta meta , String name , DBEnumEnvType envType ) throws Exception {
-		ProductMeta storage = getTransactionProductMetadata( meta );
-		MetaProductSettings settings = meta.getProductSettings();
+		ProductMeta storage = meta.getStorage();
 		MetaEnv env = new MetaEnv( storage , storage.meta );
 		action.trace( "create meta env object, id=" + env.objectId );
-		env.createEnv( action , name , envType );
-		
-		ProductEnvs envs = storage.getEnviroments();
-		envs.addEnv( env );
-		return( env );
+		return( DBMetaEnv.createEnv( this , storage , name , envType ) );
 	}
 	
 	public void deleteMetaEnv( MetaEnv env ) throws Exception {
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		ProductEnvs envs = storage.getEnviroments();
-		envs.deleteEnv( this , env );
-		env.deleteObject();
+		super.checkTransactionEnv( env );
+		ProductMeta storage = env.meta.getStorage();
+		DBMetaEnv.deleteEnv( this , storage , env );
 	}
 
 	public void setMetaEnvOffline( MetaEnv env , boolean offline ) throws Exception {
@@ -1007,9 +995,17 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void deleteMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		super.checkTransactionEnv( sg.env );
-		sg.env.deleteSegment( this , sg );
-		sg.deleteObject();
+		MetaEnv env = sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvSegment.deleteSegment( this , storage , env , sg );
+	}
+
+	public void setStartInfo( MetaEnvSegment sg , MetaEnvStartInfo startInfo ) throws Exception {
+		MetaEnv env = sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvSegment.setStartInfo( this , storage , env , sg , startInfo );
 	}
 
 	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
@@ -1033,28 +1029,56 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaEnvServer.deleteServer( this , storage , env , server );
 	}
 
-	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
-		super.checkTransactionEnv( server.sg.env );
-		MetaEnvServerNode node = new MetaEnvServerNode( server.meta , server , pos );
-		node.createNode( action , nodeType , account );
-		server.createNode( this , node );
-		return( node );
+	public void setMetaEnvServerBaseline( MetaEnvServer server , Integer serverBaselineId ) throws Exception {
+		MetaEnv env = server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServer.setServerBaseline( this , storage , env , server , serverBaselineId );
 	}
 	
-	public void modifyMetaEnvServerNode( MetaEnvServerNode node , int pos , VarNODETYPE nodeType , Account account ) throws Exception {
-		super.checkTransactionEnv( node.server.sg.env );
-		node.updateProperties( this );
-		node.modifyNode( action , pos , nodeType , account );
-		node.server.modifyNode( this , node );
+	public void setMetaEnvServerBaseItem( MetaEnvServer server , Integer baseItemId ) throws Exception {
+		MetaEnv env = server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServer.setServerBaseItem( this , storage , env , server , baseItemId );
+	}
+	
+	public void setMetaEnvServerOffline( MetaEnvServer server , boolean offline ) throws Exception {
+		MetaEnv env = server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServer.setServerOffline( this , storage , env , server , offline );
+	}
+	
+	public void modifyServerDeployments( MetaEnvServer server , MetaEnvServerDeployment[] deployments ) throws Exception {
+		MetaEnv env = server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServer.setDeployments( this , storage , env , server , deployments );
+	}
+
+	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , DBEnumNodeType nodeType , HostAccount account ) throws Exception {
+		MetaEnv env = server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		return( DBMetaEnvServerNode.createNode( this , storage , env , server , pos , nodeType , account ) );
+	}
+	
+	public void modifyMetaEnvServerNode( MetaEnvServerNode node , int pos , DBEnumNodeType nodeType , HostAccount account ) throws Exception {
+		MetaEnv env = node.server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServerNode.modifyNode( this , storage , env , node , pos , nodeType , account );
 	}
 
 	public void deleteMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {
-		super.checkTransactionEnv( node.server.sg.env );
-		node.server.deleteNode( this , node );
-		node.deleteObject();
+		MetaEnv env = node.server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServerNode.deleteNode( this , storage , env , node );
 	}
 
-	public void updateMetaEnvServerNodeSetOffline( MetaEnvServerNode node , boolean newStatus ) throws Exception {
+	public void setMetaEnvServerNodeSetOffline( MetaEnvServerNode node , boolean newStatus ) throws Exception {
 		MetaEnv env = node.server.sg.env;
 		super.checkTransactionEnv( env );
 		ProductMeta storage = getTransactionProductMetadata( env.meta );
@@ -1090,27 +1114,17 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void updateMetaEnvCustomProperties( MetaEnv env ) throws Exception {
-		super.checkTransactionMetadata( env.meta.getStorage() );
+		super.checkTransactionEnv( env );
 		ProductMeta storage = getTransactionProductMetadata( env.meta );
 		DBMetaEnv.updateCustomProperties( this , storage , env );
 	}
 	
 	public void updateMetaEnvExtraProperties( MetaEnv env ) throws Exception {
-		super.checkTransactionMetadata( env.meta.getStorage() );
+		super.checkTransactionEnv( env );
 		ProductMeta storage = getTransactionProductMetadata( env.meta );
 		DBMetaEnv.updateExtraProperties( this , storage , env );
 	}
 	
-	public void setStartInfo( MetaEnvSegment sg , MetaEnvStartInfo startInfo ) throws Exception {
-		super.checkTransactionEnv( sg.env );
-		sg.setStartInfo( this , startInfo );
-	}
-
-	public void modifyServerDeployments( MetaEnvServer server , List<MetaEnvServerDeployment> deployments ) throws Exception {
-		super.checkTransactionEnv( server.sg.env );
-		server.setDeployments( this , deployments );
-	}
-
 	public MetaDump createDump( MetaEnvServer server , MetaDatabase db , boolean export , String name , String desc , boolean standby , String setdbenv , String dataset , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
 		super.checkTransactionEnv( server.sg.env );
 		MetaDump dump = new MetaDump( db.meta , db );
@@ -1130,7 +1144,7 @@ public class EngineTransaction extends TransactionBase {
 	}
 	
 	public void deleteDump( MetaDump dump ) throws Exception {
-		super.checkTransactionEnv( dump.server.sg.env );
+		//super.checkTransactionEnv( dump.server.sg.env );
 		//dump.database.deleteDump( this , dump );
 	}
 

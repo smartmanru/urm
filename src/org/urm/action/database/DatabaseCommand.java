@@ -25,7 +25,7 @@ public class DatabaseCommand {
 		if( nodePos < 0 )
 			node = server.getMasterNode();
 		else
-			node = server.getNode( nodePos );
+			node = server.getNodeByPos( nodePos );
 			
 		ActionInitDatabase ma = new ActionInitDatabase( action , null , server , node );
 		ma.runSimpleEnv( parentState , server.sg.env , SecurityAction.ACTION_DEPLOY , false );

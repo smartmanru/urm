@@ -1296,7 +1296,7 @@ public class TransactionBase extends EngineObject {
 
 	public MetaEnvServerNode getMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {
 		MetaEnvServer server = getMetaEnvServer( node.server );
-		return( server.getNode( node.POS ) );
+		return( server.getNodeByPos( node.POS ) );
 	}
 
 	public Meta[] getTransactionProductMetadataList() {

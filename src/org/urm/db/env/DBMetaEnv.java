@@ -163,5 +163,30 @@ public class DBMetaEnv {
 		envs.removeConfItemFromEnvironments( item );
 		Common.exitUnexpected();
 	}
+
+	public static MetaEnv createEnv( EngineTransaction transaction , ProductMeta storage , String name , DBEnumEnvType envType ) throws Exception {
+		Common.exitUnexpected();
+		return( null );
+	}
+
+	public static void deleteEnv( EngineTransaction transaction , ProductMeta storage , MetaEnv env ) throws Exception {
+		Common.exitUnexpected();
+	}
+
+	public static void setEnvOffline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , boolean offline ) throws Exception {
+		Common.exitUnexpected();
+	}
+
+	public static void setEnvBaseline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , Integer envBaselineId ) throws Exception {
+		Common.exitUnexpected();
+	}
+
+	public static void updateCustomProperties( EngineTransaction transaction , ProductMeta storage , MetaEnv env ) throws Exception {
+		Common.exitUnexpected();
+	}
+	
+	public static void updateExtraProperties( EngineTransaction transaction , ProductMeta storage , MetaEnv env ) throws Exception {
+		Common.exitUnexpected();
+	}
 	
 }

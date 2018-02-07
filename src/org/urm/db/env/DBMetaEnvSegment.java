@@ -3,9 +3,13 @@ package org.urm.db.env;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.EngineTransaction;
+import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvDeployment;
+import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvStartInfo;
+import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -74,4 +78,33 @@ public class DBMetaEnvSegment {
 		startInfo.load( action , startorder );
 	}
 
+	public static MetaEnvSegment createSegment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , String name , String desc , Integer dcId ) throws Exception {
+		Common.exitUnexpected();
+		return( null );
+	}
+
+	public static void modifySegment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , String name , String desc , Integer dcId ) throws Exception {
+		Common.exitUnexpected();
+	}
+
+	public static void setSegmentBaseline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Integer sgId ) throws Exception {
+		Common.exitUnexpected();
+	}
+
+	public static void setSegmentOffline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , boolean offline ) throws Exception {
+		Common.exitUnexpected();
+	}
+
+	public static void deleteSegment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg ) throws Exception {
+		Common.exitUnexpected();
+	}
+
+	public static void setStartInfo( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , MetaEnvStartInfo startInfo ) throws Exception {
+		Common.exitUnexpected();
+	}
+
+	public static void updateCustomProperties( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg ) throws Exception {
+		Common.exitUnexpected();
+	}
+	
 }

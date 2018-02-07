@@ -93,6 +93,30 @@ public class MetaEnvServerDeployment {
 		this.NODE_TYPE = nodeType;
 	}
 	
+	public void createComponent( MetaDistrComponent comp , 
+			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
+		create( DBEnumServerDeploymentType.COMP , new MatchItem( comp.ID ) , null , null ,
+				null , deployMode , deployPath , "" , "" , nodeType );
+	}
+	
+	public void createBinaryItem( MetaDistrBinaryItem item , 
+			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
+		create( DBEnumServerDeploymentType.BINARY , null , new MatchItem( item.ID ) , null ,
+				null , deployMode , deployPath , "" , "" , nodeType );
+	}
+	
+	public void createConfItem( MetaDistrConfItem item , 
+			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
+		create( DBEnumServerDeploymentType.CONF , null , null , new MatchItem( item.ID ) , 
+				null , deployMode , deployPath , "" , "" , nodeType );
+	}
+	
+	public void createSchema( MetaDatabaseSchema schema , 
+			DBEnumDeployModeType deployMode , String dbName , String dbUser ) throws Exception {
+		create( DBEnumServerDeploymentType.CONF , null , null , null ,
+				new MatchItem( schema.ID ) , deployMode , "" , dbName , dbUser , DBEnumNodeType.ADMIN );
+	}
+	
 	public boolean hasConfItemDeployment( MetaDistrConfItem confItem ) throws Exception {
 		if( MatchItem.equals( CONFITEM , confItem.ID ) ) 
 			return( true );

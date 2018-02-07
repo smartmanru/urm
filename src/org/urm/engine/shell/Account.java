@@ -97,7 +97,7 @@ public class Account {
 		// find account
 		if( !local ) {
 			if( hostAccount == null ) {
-				hostAccount = dc.getFinalAccount( user + "@" + host );
+				hostAccount = dc.getAccountByFinal( user + "@" + host );
 				if( hostAccount.host.OS_TYPE != osType ) {
 					String p1 = Common.getEnumLower( hostAccount.host.OS_TYPE );
 					String p2 = Common.getEnumLower( osType );
@@ -181,7 +181,7 @@ public class Account {
 		String host = Common.getPartAfterLast( hostLogin , "@" );
 		
 		// find account
-		HostAccount account = dc.getFinalAccount( hostLogin );
+		HostAccount account = dc.getAccountByFinal( hostLogin );
 		if( account.host.OS_TYPE != osType ) {
 			String p1 = Common.getEnumLower( account.host.OS_TYPE );
 			String p2 = Common.getEnumLower( osType );
@@ -359,7 +359,7 @@ public class Account {
 			if( dc == null )
 				action.exit0( _Error.MissingDatacenter0 , "Unable to access resource, missing datacenter" );
 			
-			HostAccount hostAccount = dc.getFinalAccount( hostLogin );
+			HostAccount hostAccount = dc.getAccountByFinal( hostLogin );
 			if( hostAccount.RESOURCE_ID == null )
 				action.exit1( _Error.MissingAuthKey1 , "Missing auth resource to login to " + hostLogin , hostLogin );
 			

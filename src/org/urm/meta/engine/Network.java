@@ -101,9 +101,18 @@ public class Network extends EngineObject {
 		return( Common.getSortedList( list ) );
 	}
 
-	public HostAccount findFinalAccount( String finalAccount ) {
+	public HostAccount findAccount( int id ) {
 		for( NetworkHost host : hostMap.values() ) {
-			HostAccount account = host.findFinalAccount( finalAccount );
+			HostAccount account = host.findAccount( id );
+			if( account != null )
+				return( account );
+		}
+		return( null );
+	}
+	
+	public HostAccount findAccountByFinal( String finalAccount ) {
+		for( NetworkHost host : hostMap.values() ) {
+			HostAccount account = host.findAccountByFinal( finalAccount );
 			if( account != null )
 				return( account );
 		}

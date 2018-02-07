@@ -107,7 +107,7 @@ public class MetaEnvServerNode extends EngineObject {
 		if( proxy == null )
 			Common.exit0( _Error.MissingProxyNode0 , "no proxy server to call" );
 		
-		MetaEnvServerNode node = proxy.getNode( POS );
+		MetaEnvServerNode node = proxy.getNodeByPos( POS );
 		return( node );
 	}
 

@@ -363,7 +363,7 @@ public class MetaEnvServer extends EngineObject {
 		return( nodes.get( pos - 1 ) );
 	}
 	
-	public MetaEnvServerNode getNode( int pos ) throws Exception {
+	public MetaEnvServerNode getNodeByPos( int pos ) throws Exception {
 		if( pos < 1 || pos > nodes.size() )
 			Common.exit2( _Error.InvalidServerNode2 , "invalid node=" + pos + ", server=" + NAME , NAME , "" + pos );
 		return( nodes.get( pos - 1 ) );
@@ -420,7 +420,7 @@ public class MetaEnvServer extends EngineObject {
 	public MetaEnvServerNode[] getNodes( ActionBase action , String[] nodes ) throws Exception {
 		List<MetaEnvServerNode> list = new LinkedList<MetaEnvServerNode>();
 		for( String pos : nodes ) {
-			MetaEnvServerNode node = getNode( Integer.parseInt( pos ) );
+			MetaEnvServerNode node = getNodeByPos( Integer.parseInt( pos ) );
 			list.add( node );
 		}
 		return( list.toArray( new MetaEnvServerNode[0] ) );

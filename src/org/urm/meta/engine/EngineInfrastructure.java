@@ -166,7 +166,7 @@ public class EngineInfrastructure extends EngineObject {
 
 	public HostAccount findHostAccount( String hostLogin ) {
 		for( Datacenter datacenter : mapDatacenters.values() ) {
-			HostAccount account = datacenter.findFinalAccount( hostLogin );
+			HostAccount account = datacenter.findAccountByFinal( hostLogin );
 			if( account != null )
 				return( account );
 		}

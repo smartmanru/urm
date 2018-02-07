@@ -93,7 +93,7 @@ public class DeployCommand {
 		MetaEnvServer server = sg.getServer( SERVER );
 		
 		int nodePos = ( NODE.isEmpty() )? 1 : Integer.parseInt( NODE );
-		MetaEnvServerNode node = server.getNode( nodePos );
+		MetaEnvServerNode node = server.getNodeByPos( nodePos );
 		ActionLogin ca = new ActionLogin( action , null , node );
 		ca.runSimpleEnv( parentState , sg.env , SecurityAction.ACTION_DEPLOY , false );
 	}

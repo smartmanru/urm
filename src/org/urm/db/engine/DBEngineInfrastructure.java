@@ -335,7 +335,7 @@ public class DBEngineInfrastructure {
 		} , true );
 		
 		for( String name : host.getAccountNames() ) {
-			HostAccount account = host.findAccount( name );
+			HostAccount account = host.findAccountByUser( name );
 			Element element = Common.xmlCreateElement( doc , root , ELEMENT_ACCOUNT );
 			exportxmlAccount( loader , account , doc , element );
 		}
@@ -564,7 +564,7 @@ public class DBEngineInfrastructure {
 	public static HostAccount createAccount( EngineTransaction transaction , EngineInfrastructure infra , NetworkHost host , String user , String desc , boolean admin , Integer resourceId ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
-		if( host.findAccount( user ) != null )
+		if( host.findAccountByUser( user ) != null )
 			transaction.exitUnexpectedState();
 		
 		HostAccount account = new HostAccount( host );

@@ -3,8 +3,16 @@ package org.urm.db.env;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.db.core.DBEnums.DBEnumOSType;
+import org.urm.db.core.DBEnums.DBEnumServerAccessType;
+import org.urm.db.core.DBEnums.DBEnumServerRunType;
+import org.urm.engine.EngineTransaction;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -118,4 +126,41 @@ public class DBMetaEnvServer {
 		}
 	}
 
+	public static MetaEnvServer createServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
+		Common.exitUnexpected();
+		return( null );
+	}
+	
+	public static void modifyServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
+		Common.exitUnexpected();
+	}
+	
+	public static void deleteServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server ) throws Exception {
+		Common.exitUnexpected();
+	}
+	
+	public static void setServerBaseline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , Integer baselineId ) throws Exception {
+		Common.exitUnexpected();
+	}
+	
+	public static void setServerBaseItem( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , Integer baseItemId ) throws Exception {
+		Common.exitUnexpected();
+	}
+	
+	public static void setServerOffline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , boolean offline ) throws Exception {
+		Common.exitUnexpected();
+	}
+	
+	public static void setDeployments( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvServerDeployment[] deployments ) throws Exception {
+		Common.exitUnexpected();
+	}
+	
+	public static void updateCustomProperties( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server ) throws Exception {
+		Common.exitUnexpected();
+	}
+	
+	public static void updateExtraProperties( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server ) throws Exception {
+		Common.exitUnexpected();
+	}
+	
 }
