@@ -1,6 +1,7 @@
 package org.urm.db.env;
 
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
@@ -21,6 +22,7 @@ import org.urm.meta.MatchItem;
 import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -35,7 +37,7 @@ public class DBMetaEnv {
 
 	public static String ELEMENT_SEGMENT = "segment";
 	
-	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
+	public static MetaEnv importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
 		ProductEnvs envs = storage.getEnviroments();
 		MetaEnv env = new MetaEnv( storage , storage.meta );
 		
@@ -46,6 +48,7 @@ public class DBMetaEnv {
 		importxmlResolve( loader , storage , env , root );
 		
 		envs.addEnv( env );
+		return( env );
 	}
 	
 	private static void importxmlMain( EngineLoader loader , ProductMeta storage , MetaEnv env , Node root ) throws Exception {
@@ -104,6 +107,14 @@ public class DBMetaEnv {
 	}
 
 	private static void importxmlSegments( EngineLoader loader , ProductMeta storage , MetaEnv env , Node root ) throws Exception {
+		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_SEGMENT );
+		if( items == null )
+			return;
+		
+		for( Node node : items ) {
+			MetaEnvSegment sg = DBMetaEnvSegment.importxml( loader , storage , env , node );
+			env.addSegment( sg );
+		}
 	}
 	
 	private static void importxmlResolve( EngineLoader loader , ProductMeta storage , MetaEnv env , Node root ) throws Exception {

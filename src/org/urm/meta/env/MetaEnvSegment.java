@@ -28,10 +28,6 @@ public class MetaEnvSegment extends EngineObject {
 	public static String PROPERTY_DC = "datacenter";
 	public static String PROPERTY_OFFLINE = "offline";
 
-	public static String ELEMENT_DEPLOYMENT = "deployment";
-	public static String ELEMENT_STARTORDER = "startorder";
-	public static String ELEMENT_SERVER = "server";
-	
 	public Meta meta;
 	public MetaEnv env;
 	
@@ -124,7 +120,7 @@ public class MetaEnvSegment extends EngineObject {
 		return( envBaseline.getSegment( BASELINE ) );
 	}
 	
-	private void addServer( MetaEnvServer server ) {
+	public void addServer( MetaEnvServer server ) {
 		serverMap.put( server.NAME , server );
 		serverMapById.put( server.ID , server );
 	}

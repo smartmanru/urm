@@ -1,83 +1,55 @@
 package org.urm.db.env;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.EngineTransaction;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.env.MetaEnv;
-import org.urm.meta.env.MetaEnvDeployment;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvStartInfo;
 import org.urm.meta.product.ProductMeta;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class DBMetaEnvSegment {
 
-	public void load( ActionBase action , Node node ) throws Exception {
-		if( !super.initCreateStarted( env.getProperties() ) )
-			return;
+	public static String ELEMENT_DEPLOYMENT = "deployment";
+	public static String ELEMENT_STARTORDER = "startorder";
+	public static String ELEMENT_SERVER = "server";
+	
+	public static MetaEnvSegment importxml( EngineLoader loader , ProductMeta storage , MetaEnv env , Node root ) throws Exception {
+		MetaEnvSegment sg = new MetaEnvSegment( storage.meta , env );
+		
+		loader.trace( "import meta env segment object, name=" + env.NAME );
 
-		super.loadFromNodeAttributes( action , node , false );
-		scatterProperties( action );
+		importxmlMain( loader , storage , env , sg , root );
+		importxmlServers( loader , storage , env , sg , root );
+		importxmlStartOrder( loader , storage , env , sg , root );
+		importxmlDeployment( loader , storage , env , sg , root );
 		
-		super.loadFromNodeElements( action , node , true );
-		super.resolveRawProperties();
-		
-		loadServers( action , node );
-		loadStartOrder( action , node );
-		loadDeployment( action , node );
-		
-		super.initFinished();
+ 		return( sg );
 	}
 
-	public void loadDeployment( ActionBase action , Node node ) throws Exception {
-		deploy = new MetaEnvDeployment( meta , this );
-		
-		Node deployment = ConfReader.xmlGetFirstChild( node , ELEMENT_DEPLOYMENT );
-		if( deployment == null )
-			return;
-		
-		deploy.load( action , deployment );
+	public static void importxmlMain( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Node root ) throws Exception {
 	}
 	
-	public void loadServers( ActionBase action , Node node ) throws Exception {
-		Node[] items = ConfReader.xmlGetChildren( node , ELEMENT_SERVER );
+	public static void importxmlServers( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Node root ) throws Exception {
+		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_SERVER );
 		if( items == null )
 			return;
 		
-		for( Node srvnode : items ) {
-			MetaEnvServer server = new MetaEnvServer( meta , this );
-			server.load( action , srvnode );
-			addServer( server );
+		for( Node node : items ) {
+			MetaEnvServer server = DBMetaEnvServer.importxml( loader , storage , env , sg , node );
+			sg.addServer( server );
 		}
 	}
 	
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Element deployElement = Common.xmlCreateElement( doc , root , ELEMENT_DEPLOYMENT );
-		deploy.save( action , doc , deployElement );
-		Element startElement = Common.xmlCreateElement( doc , root , ELEMENT_STARTORDER );
-		startInfo.save( action , doc , startElement );
-		
-		super.saveSplit( doc , root );
-		for( MetaEnvServer server : originalList ) {
-			Element serverElement = Common.xmlCreateElement( doc , root , ELEMENT_SERVER );
-			server.save( action , doc , serverElement );
-		}
+	public static void importxmlStartOrder( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Node root ) throws Exception {
 	}
 	
-	public void loadStartOrder( ActionBase action , Node node ) throws Exception {
-		startInfo = new MetaEnvStartInfo( meta , this );
-		
-		Node startorder = ConfReader.xmlGetFirstChild( node , ELEMENT_STARTORDER );
-		if( startorder == null )
-			return;
-		
-		startInfo.load( action , startorder );
+	public static void importxmlDeployment( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Node root ) throws Exception {
 	}
-
+	
 	public static MetaEnvSegment createSegment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , String name , String desc , Integer dcId ) throws Exception {
 		Common.exitUnexpected();
 		return( null );

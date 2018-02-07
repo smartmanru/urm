@@ -71,10 +71,6 @@ public class MetaEnvServer extends EngineObject {
 
 	public static String PROPERTY_XDOC = "xdoc";
 	
-	public static String ELEMENT_NODE = "node";
-	public static String ELEMENT_PLATFORM = "platform";
-	public static String ELEMENT_DEPLOY = "deploy";
-
 	public Meta meta;
 	public MetaEnvSegment sg;
 	
