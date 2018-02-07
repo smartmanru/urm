@@ -26,7 +26,7 @@ CREATE TABLE main.urm_env_segment (
                 segment_id INTEGER NOT NULL,
                 env_id INTEGER NOT NULL,
                 name VARCHAR(30) NOT NULL,
-                xdesc VARCHAR NOT NULL,
+                xdesc VARCHAR,
                 baseline_segment_fkid INTEGER,
                 baseline_segment_fkname VARCHAR(30),
                 offline BOOLEAN NOT NULL,
