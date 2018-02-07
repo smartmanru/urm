@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<registry>
-    <resources/>
-    <directory/>
-    <mirror>
+<mirrors>
         <repository>
             <property name="name" value="core"/>
             <property name="type" value="server"/>
         </repository>
-    </mirror>
-    <build>
-        <property name="register" value="no"/>
-    </build>
-</registry>
+</mirrors>
