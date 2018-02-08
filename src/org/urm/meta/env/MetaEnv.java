@@ -175,15 +175,15 @@ public class MetaEnv extends EngineObject {
 		REDISTLINUX_PATH = ops.getPathProperty( PROPERTY_REDISTLINUX_PATH );
 	}
 
-	public void setEnvPrimary( String name , String desc , DBEnumEnvType type , MatchItem baseline , boolean offline , MatchItem envKey , boolean distRemote , MatchItem distAccount , String distPath ) throws Exception {
+	public void setEnvPrimary( String name , String desc , DBEnumEnvType type , MatchItem baselineMatchItem , boolean offline , MatchItem envKeyMatchItem , boolean distRemote , MatchItem distAccountMatchItem , String distPath ) throws Exception {
 		NAME = name;
 		DESC = desc;
 		ENV_TYPE = type;
-		BASELINE = baseline;
+		BASELINE = MatchItem.copy( baselineMatchItem );
 		OFFLINE = offline;
-		ENVKEY = envKey;
+		ENVKEY = MatchItem.copy( envKeyMatchItem );
 		DISTR_REMOTE = distRemote;
-		DISTR_ACCOUNT = distAccount;
+		DISTR_ACCOUNT = MatchItem.copy( distAccountMatchItem );
 		DISTR_PATH = distPath;
 		
 		refreshPrimaryProperties();

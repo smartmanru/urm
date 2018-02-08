@@ -39,6 +39,7 @@ public class EngineEntities {
 	public static String nameMetaMonitoringSet = "mon";
 	public static String nameMetaEnvSet = "env";
 	public static String nameMetaEnvSegmentSet = "sg";
+	public static String nameMetaEnvServerSet = "server";
 
 	public Engine engine;
 
@@ -342,6 +343,13 @@ public class EngineEntities {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ENVIRONMENT_SEGMENT , DBEnumObjectVersionType.ENVIRONMENT , DBEnumParamRoleType.DEFAULT , nameMetaEnvSegmentSet , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.ENV_SEGMENT_CUSTOM , -1 , DBEnumObjectVersionType.ENVIRONMENT ); 
 		props.create( parent , new PropertyEntity[] { entityAppSegmentPrimary } , custom );
+		return( props );
+	}
+	
+	public ObjectProperties createMetaEnvServerProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ENVIRONMENT_SERVER , DBEnumObjectVersionType.ENVIRONMENT , DBEnumParamRoleType.DEFAULT , nameMetaEnvServerSet , engine.execrc );
+		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.ENV_SERVER_CUSTOM , -1 , DBEnumObjectVersionType.ENVIRONMENT ); 
+		props.create( parent , new PropertyEntity[] { entityAppServerPrimary } , custom );
 		return( props );
 	}
 	

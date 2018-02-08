@@ -58,6 +58,8 @@ public abstract class DBEngineData {
 	private static void dropCoreInfraData( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = c.getEntities();
+		if( !c.modify( DBQueries.MODIFY_CORE_UNMATCHDATACENTERS0 ) )
+			Common.exitUnexpected();
 		DBEngineEntities.dropAppObjects( c , entities.entityAppHostAccount );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppNetworkHost );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppNetwork );

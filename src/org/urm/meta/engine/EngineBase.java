@@ -142,4 +142,14 @@ public class EngineBase extends EngineObject {
 		return( Common.getSortedKeys( mapCategory ) );
 	}
 
+	public MatchItem matchBaseItem( String name ) throws Exception {
+		if( name == null || name.isEmpty() )
+			return( null );
+		
+		BaseItem item = findItem( name );
+		if( item == null )
+			return( new MatchItem( name ) );
+		return( new MatchItem( item.ID ) );
+	}
+	
 }

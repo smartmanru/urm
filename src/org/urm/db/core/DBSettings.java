@@ -60,9 +60,19 @@ public abstract class DBSettings {
 		importxmlSave( loader , properties , paramObjectId , metaObjectId , importApp , importCustom , version , null );
 	}
 
+	public static void importxmlApp( EngineLoader loader , Node root , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean importApp , boolean importCustom , int version ) throws Exception {
+		importxmlLoad( loader , root , properties , true , false , null );
+		importxmlSave( loader , properties , paramObjectId , -1 , true , false , version , null );
+	}
+
 	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean importApp , boolean importCustom , int version , DBEnumParamEntityType entityType ) throws Exception {
 		importxmlLoad( loader , root , properties , importApp , importCustom , entityType );
 		importxmlSave( loader , properties , paramObjectId , metaObjectId , importApp , importCustom , version , entityType );
+	}
+
+	public static void importxmlApp( EngineLoader loader , Node root , ObjectProperties properties , int paramObjectId , int version , DBEnumParamEntityType entityType ) throws Exception {
+		importxmlLoad( loader , root , properties , true , false , entityType );
+		importxmlSave( loader , properties , paramObjectId , -1 , true , false , version , entityType );
 	}
 
 	public static void importxmlLoad( EngineLoader loader , Node root , ObjectProperties properties , boolean importApp , boolean importCustom ) throws Exception {

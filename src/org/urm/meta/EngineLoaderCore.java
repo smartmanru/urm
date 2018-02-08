@@ -93,6 +93,12 @@ public class EngineLoaderCore {
 		return( data.getInfrastructure() );
 	}
 
+	public EngineBase getBase() {
+		if( baseNew != null )
+			return( baseNew );
+		return( data.getEngineBase() );
+	}
+
 	public EngineMonitoring getMonitoring() {
 		if( infraNew != null )
 			return( monitoringNew );

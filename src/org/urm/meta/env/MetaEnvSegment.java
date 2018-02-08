@@ -90,12 +90,12 @@ public class MetaEnvSegment extends EngineObject {
 		return( r );
 	}
 
-	public void setSegmentPrimary( String name , String desc , MatchItem baseline , boolean offline , MatchItem dc ) throws Exception {
+	public void setSegmentPrimary( String name , String desc , MatchItem baselineMatchItem , boolean offline , MatchItem dcMatchItem ) throws Exception {
 		this.NAME = name;
 		this.DESC = desc;
-		this.BASELINE = MatchItem.copy( baseline );
+		this.BASELINE = MatchItem.copy( baselineMatchItem );
 		this.OFFLINE = offline;
-		this.DC = MatchItem.copy( dc );
+		this.DC = MatchItem.copy( dcMatchItem );
 		
 		refreshPrimaryProperties();
 	}

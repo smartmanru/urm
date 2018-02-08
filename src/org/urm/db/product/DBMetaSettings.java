@@ -98,14 +98,14 @@ public class DBMetaSettings {
 		Node coreNode = ConfReader.xmlGetFirstChild( root , ELEMENT_CORE );
 		if( coreNode == null )
 			Common.exitUnexpected();
-		DBSettings.importxml( loader , coreNode , ops , storage.ID , DBVersions.CORE_ID , true , false , storage.PV , DBEnumParamEntityType.PRODUCTDEFS );
+		DBSettings.importxmlApp( loader , coreNode , ops , storage.ID , storage.PV , DBEnumParamEntityType.PRODUCTDEFS );
 		ops.recalculateProperties();
 
 		// monitoring settings
 		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
 		Node monitoringNode = ConfReader.xmlGetFirstChild( root , ELEMENT_MONITORING );
 		if( monitoringNode != null )
-			DBSettings.importxml( loader , monitoringNode , mon , storage.ID , DBVersions.CORE_ID , true , false , storage.PV , DBEnumParamEntityType.PRODUCT_MONITORING );
+			DBSettings.importxmlApp( loader , monitoringNode , mon , storage.ID , storage.PV , DBEnumParamEntityType.PRODUCT_MONITORING );
 		mon.recalculateProperties();
 		settings.createSettings( ops , mon , context );
 		

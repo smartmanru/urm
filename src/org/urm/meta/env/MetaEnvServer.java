@@ -79,11 +79,11 @@ public class MetaEnvServer extends EngineObject {
 	public int ID;
 	public String NAME;
 	public String DESC;
-	private DBEnumServerRunType SERVERRUN_TYPE;
-	private DBEnumServerAccessType SERVERACCESS_TYPE;
+	public DBEnumServerRunType SERVERRUN_TYPE;
+	public DBEnumServerAccessType SERVERACCESS_TYPE;
 	public DBEnumOSType OS_TYPE;
 	private MatchItem BASELINE;
-	public boolean OFFLINE = false;
+	public boolean OFFLINE;
 	public DBEnumDbmsType DBMS_TYPE;
 	private MatchItem DATABASE_ADMSCHEMA;
 	private MatchItem BASEITEM;
@@ -127,7 +127,9 @@ public class MetaEnvServer extends EngineObject {
 		super( sg );
 		this.meta = meta;
 		this.sg = sg;
-		
+
+		ID = -1;
+		EV = -1;
 		subordinateServers = new LinkedList<MetaEnvServer>();
 		deployments = new LinkedList<MetaEnvServerDeployment>(); 
 		deployMapById = new HashMap<Integer,MetaEnvServerDeployment>();
@@ -185,6 +187,10 @@ public class MetaEnvServer extends EngineObject {
 		return( r );
 	}
 	
+	public void createSettings( ObjectProperties ops ) throws Exception {
+		this.ops = ops;
+	}
+	
 	public ObjectProperties getProperties() {
 		return( ops );
 	}
@@ -207,6 +213,20 @@ public class MetaEnvServer extends EngineObject {
 		}
 		
 		return( true );
+	}
+
+	public void setServerPrimary( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , DBEnumOSType osType , 
+			MatchItem baselineMatchItem , boolean offline , DBEnumDbmsType dbmsType , MatchItem admSchemaMatchItem , MatchItem baseItemMatchItem ) throws Exception {
+		this.NAME = name;
+		this.DESC = desc;
+		this.SERVERRUN_TYPE = runType;
+		this.SERVERACCESS_TYPE = accessType;
+		this.OS_TYPE = osType;
+		this.BASELINE = MatchItem.copy( baselineMatchItem );
+		this.OFFLINE = offline;
+		this.DBMS_TYPE = dbmsType;
+		this.DATABASE_ADMSCHEMA = MatchItem.copy( admSchemaMatchItem );
+		this.BASEITEM = MatchItem.copy( baseItemMatchItem );
 	}
 	
 	private void refreshPrimaryProperties() throws Exception {
@@ -939,6 +959,18 @@ public class MetaEnvServer extends EngineObject {
 	public void clearDeployments() {
 		deployments.clear();
 		deployMapById.clear();
+	}
+
+	public MatchItem getBaselineMatchItem() {
+		return( BASELINE );
+	}
+	
+	public MatchItem getAdmSchemaMatchItem() {
+		return( DATABASE_ADMSCHEMA );
+	}
+	
+	public MatchItem getBaseItemMatchItem() {
+		return( BASEITEM );
 	}
 	
 }

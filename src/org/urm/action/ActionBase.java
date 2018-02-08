@@ -89,7 +89,7 @@ abstract public class ActionBase extends ActionCore {
 	public int outputChannel;
 	public ScopeExecutor scopeExecutor;
 
-	public int commandTimeout;
+	public int commandTimeoutMillis;
 	
 	protected SCOPESTATE executeSimple( ScopeState state ) throws Exception { return( SCOPESTATE.NotRun ); };
 	protected SCOPESTATE executeScope( ScopeState state , ActionScope scope ) throws Exception { return( SCOPESTATE.NotRun ); };
@@ -117,7 +117,7 @@ abstract public class ActionBase extends ActionCore {
 		this.outputChannel = -1;
 		this.artefactory = artefactory;
 		
-		commandTimeout = 0;
+		commandTimeoutMillis = 0;
 	}
 
 	public ActionBase( ActionBase base , String stream , String actionInfo ) {
@@ -132,7 +132,7 @@ abstract public class ActionBase extends ActionCore {
 		this.artefactory = base.artefactory;
 		
 		this.shell = base.shell;
-		this.commandTimeout = base.commandTimeout;
+		this.commandTimeoutMillis = base.commandTimeoutMillis;
 		
 		context = new CommandContext( this , base.context , stream );
 	}
@@ -598,9 +598,9 @@ abstract public class ActionBase extends ActionCore {
 		output.setLogLevel( this , logLevelLimit );
 	}
     
-	public int setTimeout( int timeout ) {
-		int saveTimeout = commandTimeout;
-		commandTimeout = timeout;
+	public int setTimeout( int timeoutMillis ) {
+		int saveTimeout = commandTimeoutMillis;
+		commandTimeoutMillis = timeoutMillis;
 		return( saveTimeout );
 	}
     

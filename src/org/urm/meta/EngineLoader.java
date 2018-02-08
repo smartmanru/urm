@@ -15,6 +15,7 @@ import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.meta.engine.EngineAuth;
+import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
@@ -97,6 +98,10 @@ public class EngineLoader {
 	
 	public EngineInfrastructure getInfrastructure() {
 		return( ldc.getInfrastructure() );
+	}
+
+	public EngineBase getBase() {
+		return( ldc.getBase() );
 	}
 
 	public EngineMonitoring getMonitoring() {

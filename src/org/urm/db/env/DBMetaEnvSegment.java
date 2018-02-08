@@ -75,7 +75,7 @@ public class DBMetaEnvSegment {
 		modifySegment( c , storage , env , sg , true );
 		
 		// custom
-		DBSettings.importxml( loader , root , ops , env.ID , env.ID , false , true , env.EV );
+		DBSettings.importxml( loader , root , ops , sg.ID , storage.ID , false , true , env.EV );
 	}
 	
 	public static void importxmlServers( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Node root ) throws Exception {

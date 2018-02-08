@@ -174,7 +174,7 @@ public class ShellOutputWaiter {
 		this.cmdout = cmdout;
 		this.cmderr = cmderr;
 		
-		return( waiter.wait( action , action.commandTimeout , logLevel , system ) );
+		return( waiter.wait( action , action.commandTimeoutMillis , logLevel , system ) );
 	}
 	
 	public boolean waitForMarker( ActionBase action , int logLevel , boolean system , String marker ) throws Exception {
@@ -183,7 +183,7 @@ public class ShellOutputWaiter {
 		this.waitForMarker = true;
 		this.waitMarker = marker;
 		
-		return( waiter.wait( action , action.commandTimeout , logLevel , system ) );
+		return( waiter.wait( action , action.commandTimeoutMillis , logLevel , system ) );
 	}
 
 	public boolean runWaitForCommandFinished() throws Exception {

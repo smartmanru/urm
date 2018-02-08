@@ -103,14 +103,26 @@ public class MirrorCaseSubversion extends MirrorCase {
 	@Override
 	public void refreshMirror() throws Exception {
 		LocalFolder branch = getBranchFolder();
-		shell.customCheckStatus( action , branch.folderPath , "svn update " + vcsSubversion.SVNAUTH );
+		try {
+			action.setTimeout( 10 * 60 * 1000 );
+			shell.customCheckStatus( action , branch.folderPath , "svn update " + vcsSubversion.SVNAUTH );
+		}
+		finally {
+			action.setTimeoutDefault();
+		}
 	}
 	
 	@Override
 	public void pushMirror() throws Exception {
 		String msg = "push to origin";
 		LocalFolder branch = getBranchFolder();
-		shell.customCheckStatus( action , branch.folderPath , "svn commit -m " + Common.getQuoted( msg ) + " " + vcsSubversion.SVNAUTH );
+		try {
+			action.setTimeout( 10 * 60 * 1000 );
+			shell.customCheckStatus( action , branch.folderPath , "svn commit -m " + Common.getQuoted( msg ) + " " + vcsSubversion.SVNAUTH );
+		}
+		finally {
+			action.setTimeoutDefault();
+		}
 	}
 
 	@Override

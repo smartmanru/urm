@@ -134,4 +134,14 @@ public class MetaDatabase {
 			mapImport.remove( dump.NAME );
 	}
 	
+	public MatchItem matchSchema( String name ) throws Exception {
+		if( name == null || name.isEmpty() )
+			return( null );
+		
+		MetaDatabaseSchema schema = findSchema( name );
+		if( schema == null )
+			return( new MatchItem( name ) );
+		return( new MatchItem( schema.ID ) );
+	}
+
 }

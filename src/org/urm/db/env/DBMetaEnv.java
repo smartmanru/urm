@@ -105,7 +105,7 @@ public class DBMetaEnv {
 		DBSettings.importxml( loader , root , ops , env.ID , env.ID , false , true , env.EV );
 		
 		// extra
-		DBSettings.importxml( loader , root , ops , env.ID , env.ID , true , false , env.EV , DBEnumParamEntityType.ENV_EXTRA );
+		DBSettings.importxmlApp( loader , root , ops , env.ID , env.EV , DBEnumParamEntityType.ENV_EXTRA );
 		env.scatterExtraProperties();
 	}
 
