@@ -83,7 +83,7 @@ public class DBMetaEnv {
 		if( DISTR_REMOTE ) {
 			String account = entity.importxmlStringAttr( root , MetaEnv.PROPERTY_DISTR_HOSTLOGIN );
 			account = matcher.matchEnvBefore( env , account , env.ID , entities.entityAppEnvPrimary , MetaEnv.PROPERTY_DISTR_HOSTLOGIN , null );
-			DISTR_ACCOUNT = infra.matchAccount( envKey );
+			DISTR_ACCOUNT = infra.matchAccountByHostlogin( envKey );
 			matcher.matchEnvDone( DISTR_ACCOUNT );
 			DISTR_PATH = entity.importxmlStringAttr( root , MetaEnv.PROPERTY_DISTR_PATH );
 		}

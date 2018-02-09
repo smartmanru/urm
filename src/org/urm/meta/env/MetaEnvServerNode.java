@@ -78,6 +78,10 @@ public class MetaEnvServerNode extends EngineObject {
 		return( true );
 	}
 	
+	public void createSettings( ObjectProperties ops ) throws Exception {
+		this.ops = ops;
+	}
+	
 	public ObjectProperties getProperties() {
 		return( ops );
 	}
@@ -136,11 +140,7 @@ public class MetaEnvServerNode extends EngineObject {
 		return( NODE_TYPE == DBEnumNodeType.SLAVE );
 	}
 
-	public void createNode( int pos , DBEnumNodeType type , MatchItem account , String deployGroup , boolean offline , String dbInstance , boolean dbStandBy ) throws Exception {
-		modifyNode( pos , type , account , deployGroup , offline , dbInstance , dbStandBy );
-	}
-	
-	public void modifyNode( int pos , DBEnumNodeType type , MatchItem account , String deployGroup , boolean offline , String dbInstance , boolean dbStandBy ) throws Exception {
+	public void setNodePrimary( int pos , DBEnumNodeType type , MatchItem account , String deployGroup , boolean offline , String dbInstance , boolean dbStandBy ) throws Exception {
 		this.POS = pos;
 		this.NODE_TYPE = type;
 		this.ACCOUNT = MatchItem.copy( account );
@@ -184,6 +184,10 @@ public class MetaEnvServerNode extends EngineObject {
 		EngineData data = meta.getEngineData();
 		EngineInfrastructure infra = data.getInfrastructure();
 		return( infra.getHostAccount( ACCOUNT ) );
+	}
+
+	public MatchItem getAccountMatchItem() {
+		return( ACCOUNT );
 	}
 	
 }

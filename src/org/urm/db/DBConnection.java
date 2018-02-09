@@ -373,4 +373,11 @@ public class DBConnection {
 		return( value );
 	}
 	
+	public int getNextSequenceValue() throws Exception {
+		String value = queryValue( DBQueries.QUERY_SEQ_GETNEXTVAL0 );
+		if( value == null )
+			Common.exitUnexpected();
+		return( Integer.parseInt( value ) );
+	}
+	
 }

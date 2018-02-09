@@ -207,13 +207,13 @@ public class EngineInfrastructure extends EngineObject {
 		return( account );
 	}
 
-	public MatchItem matchAccount( String name ) throws Exception {
-		if( name == null || name.isEmpty() )
+	public MatchItem matchAccountByHostlogin( String hostLogin ) throws Exception {
+		if( hostLogin == null || hostLogin.isEmpty() )
 			return( null );
 		
-		HostAccount account = findHostAccount( name );
+		HostAccount account = findHostAccount( hostLogin );
 		if( account == null )
-			return( new MatchItem( name ) );
+			return( new MatchItem( hostLogin ) );
 		return( new MatchItem( account.ID ) );
 	}
 

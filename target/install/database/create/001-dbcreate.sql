@@ -7,6 +7,6 @@ CREATE SCHEMA main;
 
 -- initial create
 CREATE SEQUENCE main.urm_object_seq
-    INCREMENT 10
+    INCREMENT 1
     START 1000
 ;

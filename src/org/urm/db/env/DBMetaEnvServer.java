@@ -1,6 +1,7 @@
 package org.urm.db.env;
 
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
@@ -19,6 +20,7 @@ import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Node;
@@ -95,6 +97,14 @@ public class DBMetaEnvServer {
 	}
 	
 	public static void importxmlNodes( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , Node root ) throws Exception {
+		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_NODE );
+		if( items == null )
+			return;
+		
+		for( Node node : items ) {
+			MetaEnvServerNode sn = DBMetaEnvServerNode.importxml( loader , storage , env , server , node );
+			server.addNode( sn );
+		}
 	}
 	
 	public static void importxmlBase( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , Node root ) throws Exception {

@@ -41,13 +41,6 @@ public abstract class DBNames {
 		}
 	}
 	
-	public static int getNextSequenceValue( DBConnection c ) throws Exception {
-		String value = c.queryValue( DBQueries.QUERY_SEQ_GETNEXTVAL0 );
-		if( value == null )
-			Common.exitUnexpected();
-		return( Integer.parseInt( value ) );
-	}
-	
 	public synchronized static int getNameIndex( DBConnection c , int parent , String name , DBEnumObjectType type ) throws Exception {
 		if( name == null || name.isEmpty() )
 			Common.exit1( _Error.UnexpectedNameNull1 , "Unexpected empty name, object type=" + type.name() , type.name() );
@@ -57,7 +50,7 @@ public abstract class DBNames {
 		if( value != null && value > 0 )
 			return( value );
 			
-		int valueSeq = getNextSequenceValue( c );
+		int valueSeq = c.getNextSequenceValue();
 		if( !c.modify( DBQueries.MODIFY_NAMES_MERGEITEM4 , new String[] { "" + parent , "" + type.code() , EngineDB.getString( name ) , "" + valueSeq } ) )
 			Common.exitUnexpected();
 				
