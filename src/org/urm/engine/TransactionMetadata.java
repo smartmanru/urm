@@ -190,7 +190,7 @@ public class TransactionMetadata {
 			if( save )
 				transaction.setProductMetadata( metadataOld );
 			
-			if( productType != CHANGETYPE.DELETE )
+			if( productType != CHANGETYPE.DELETE && sessionMeta != null )
 				sessionMeta.replaceStorage( transaction.action , metadataOld );
 			
 			productType = CHANGETYPE.NOTHING;

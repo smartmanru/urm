@@ -304,7 +304,7 @@ public class MetaEnvServer extends EngineObject {
 		}
 		
 		if( isRunDatabase() ) {
-			DBMS_TYPE = DBEnumDbmsType.getValue( ops.getStringProperty( PROPERTY_DBMSTYPE ) , true );
+			DBMS_TYPE = DBEnumDbmsType.getValue( ops.getEnumProperty( PROPERTY_DBMSTYPE ) , false );
 			DBMSADDR = ops.getStringProperty( PROPERTY_DBMSADDR );
 			ALIGNED = ops.getStringProperty( PROPERTY_ALIGNED );
 			REGIONS = ops.getStringProperty( PROPERTY_REGIONS );
@@ -317,6 +317,10 @@ public class MetaEnvServer extends EngineObject {
 	
 	public DBEnumServerAccessType getServerAccessType() {
 		return( SERVERACCESS_TYPE );
+	}
+	
+	public DBEnumDbmsType getServerDbmsType() {
+		return( DBMS_TYPE );
 	}
 	
 	public String getServerTypeName() {

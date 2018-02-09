@@ -53,7 +53,7 @@ public class DBMetaEnvServer {
 		String NAME = entity.importxmlStringAttr( root , MetaEnvServer.PROPERTY_NAME );
 		server.ID = DBNames.getNameIndex( c , server.sg.ID , NAME , DBEnumObjectType.ENVIRONMENT_SERVER );
 
-		loader.trace( "import meta env server object, name=" + server.NAME );
+		loader.trace( "import meta env server object, name=" + NAME );
 		
 		// create settings
 		ObjectProperties ops = entities.createMetaEnvServerProps( server.sg.getProperties() );
@@ -91,7 +91,7 @@ public class DBMetaEnvServer {
 		
 		// extra
 		DBSettings.importxmlApp( loader , root , ops , server.ID , server.EV , DBEnumParamEntityType.ENV_SERVER_EXTRA );
-		env.scatterExtraProperties();
+		server.scatterExtraProperties();
 	}
 	
 	public static void importxmlNodes( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , Node root ) throws Exception {
@@ -114,6 +114,7 @@ public class DBMetaEnvServer {
 				EngineDB.getEnum( server.SERVERRUN_TYPE ) ,
 				EngineDB.getEnum( server.SERVERACCESS_TYPE ) ,
 				EngineDB.getEnum( server.OS_TYPE ) ,
+				EngineDB.getString( server.SYSNAME ) ,
 				EngineDB.getMatchId( server.getBaselineMatchItem() ) ,
 				EngineDB.getMatchName( server.getBaselineMatchItem() ) ,
 				EngineDB.getBoolean( server.OFFLINE ) ,
@@ -125,12 +126,12 @@ public class DBMetaEnvServer {
 				} , insert );
 	}
 	
-	public static MetaEnvServer createServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
+	public static MetaEnvServer createServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , DBEnumDbmsType dbmsType , Integer admSchema ) throws Exception {
 		Common.exitUnexpected();
 		return( null );
 	}
 	
-	public static void modifyServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
+	public static void modifyServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , DBEnumDbmsType dbmsType , Integer admSchema ) throws Exception {
 		Common.exitUnexpected();
 	}
 	

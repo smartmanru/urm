@@ -47,6 +47,7 @@ CREATE TABLE main.urm_env_server (
                 serverrun_type INTEGER NOT NULL,
                 serveraccess_type INTEGER NOT NULL,
                 os_type INTEGER NOT NULL,
+                sysname VARCHAR(30),
                 baseline_server_fkid INTEGER,
                 baseline_server_fkname VARCHAR(30),
                 offline BOOLEAN NOT NULL,

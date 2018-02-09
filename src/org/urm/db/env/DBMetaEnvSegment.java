@@ -51,7 +51,7 @@ public class DBMetaEnvSegment {
 		String NAME = entity.importxmlStringAttr( root , MetaEnvSegment.PROPERTY_NAME );
 		sg.ID = DBNames.getNameIndex( c , env.ID , NAME , DBEnumObjectType.ENVIRONMENT_SEGMENT );
 
-		loader.trace( "import meta env segment object, name=" + sg.NAME );
+		loader.trace( "import meta env segment object, name=" + NAME );
 
 		// create settings
 		ObjectProperties ops = entities.createMetaEnvSegmentProps( env.getProperties() );

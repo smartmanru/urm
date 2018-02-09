@@ -1008,18 +1008,18 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaEnvSegment.setStartInfo( this , storage , env , sg , startInfo );
 	}
 
-	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
+	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , DBEnumDbmsType dbmsType , Integer admSchema ) throws Exception {
 		MetaEnv env = sg.env;
 		super.checkTransactionEnv( env );
 		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		return( DBMetaEnvServer.createServer( this , storage , env , sg , name , desc , osType , runType , accessType , sysname ) );
+		return( DBMetaEnvServer.createServer( this , storage , env , sg , name , desc , osType , runType , accessType , sysname , dbmsType , admSchema ) );
 	}
 	
-	public void modifyMetaEnvServer( MetaEnvServer server , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname ) throws Exception {
+	public void modifyMetaEnvServer( MetaEnvServer server , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , DBEnumDbmsType dbmsType , Integer admSchema ) throws Exception {
 		MetaEnv env = server.sg.env;
 		super.checkTransactionEnv( env );
 		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		DBMetaEnvServer.modifyServer( this , storage , env , server , name , desc , osType , runType , accessType , sysname );
+		DBMetaEnvServer.modifyServer( this , storage , env , server , name , desc , osType , runType , accessType , sysname , dbmsType , admSchema );
 	}
 	
 	public void deleteMetaEnvServer( MetaEnvServer server ) throws Exception {

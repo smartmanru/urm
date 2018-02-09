@@ -349,7 +349,7 @@ public class EngineEntities {
 	public ObjectProperties createMetaEnvServerProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ENVIRONMENT_SERVER , DBEnumObjectVersionType.ENVIRONMENT , DBEnumParamRoleType.DEFAULT , nameMetaEnvServerSet , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.ENV_SERVER_CUSTOM , -1 , DBEnumObjectVersionType.ENVIRONMENT ); 
-		props.create( parent , new PropertyEntity[] { entityAppServerPrimary } , custom );
+		props.create( parent , new PropertyEntity[] { entityAppServerPrimary , entityAppServerExtra } , custom );
 		return( props );
 	}
 	

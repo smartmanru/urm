@@ -151,6 +151,7 @@ public class DBEnvData {
 				EntityVar.metaEnumVar( MetaEnvServer.PROPERTY_SERVERRUNTYPE , FIELD_SERVER_RUNTYPE , MetaEnvServer.PROPERTY_SERVERRUNTYPE , "Run type" , true , DBEnumServerRunType.UNKNOWN ) ,
 				EntityVar.metaEnumVar( MetaEnvServer.PROPERTY_SERVERACCESSTYPE , FIELD_SERVER_ACCESSTYPE , MetaEnvServer.PROPERTY_SERVERACCESSTYPE , "Access type" , true , DBEnumServerAccessType.UNKNOWN ) ,
 				EntityVar.metaEnumVar( MetaEnvServer.PROPERTY_OSTYPE , FIELD_SERVER_OSTYPE , MetaEnvServer.PROPERTY_OSTYPE , "Operating system type" , true , DBEnumOSType.UNKNOWN ) ,
+				EntityVar.metaString( MetaEnvServer.PROPERTY_SYSNAME , "system name" , false , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_SERVER_BASELINE_ID , "baseline server id" , DBEnumObjectType.ENVIRONMENT_SERVER , false ) ,
 				EntityVar.metaStringVar( MetaEnvServer.PROPERTY_BASELINE , FIELD_SERVER_BASELINE_NAME , MetaEnvServer.PROPERTY_BASELINE , "baseline server name" , false , null ) ,
 				EntityVar.metaBoolean( MetaEnvServer.PROPERTY_OFFLINE , "Offline" , true , false ) ,

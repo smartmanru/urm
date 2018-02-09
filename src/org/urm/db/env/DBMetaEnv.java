@@ -41,8 +41,6 @@ public class DBMetaEnv {
 		ProductEnvs envs = storage.getEnviroments();
 		MetaEnv env = new MetaEnv( storage , storage.meta );
 		
-		loader.trace( "import meta env object, id=" + env.objectId );
-
 		importxmlMain( loader , storage , env , root );
 		importxmlSegments( loader , storage , env , root );
 		importxmlResolve( loader , storage , env , root );
@@ -62,6 +60,8 @@ public class DBMetaEnv {
 		PropertyEntity entity = entities.entityAppEnvPrimary;
 		String NAME = entity.importxmlStringAttr( root , MetaEnv.PROPERTY_NAME );
 		env.ID = DBNames.getNameIndex( c , storage.ID , NAME , DBEnumObjectType.ENVIRONMENT );
+
+		loader.trace( "import meta env object, object=" + env.objectId + ", id=" + env.ID + ", name=" + NAME );
 
 		// create settings
 		MetaProductSettings settings = storage.getSettings();
