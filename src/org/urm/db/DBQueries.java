@@ -140,5 +140,12 @@ public abstract class DBQueries {
 	public static String MODIFY_ENVALL_DELETEALL_SERVERS1 = "delete from urm_env_server where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
 	public static String MODIFY_ENVALL_DELETEALL_SEGMENTS1 = "delete from urm_env_segment where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
 	public static String MODIFY_ENVALL_DELETEALL_ENVS1 = "delete from urm_env where meta_fkid = @1@";
+
+	public static String MODIFY_ENV_SETSTATUS2 = "update urm_env set matched = @2@ where env_id = @1@";
+	public static String MODIFY_ENV_MATCHBASELINE2 = "update urm_env set baseline_env_fkid = @2@ , baseline_env_fkname = null where env_id = @1@";
+	public static String MODIFY_ENVSG_MATCHBASELINE2 = "update urm_env_segment set baseline_segment_fkid = @2@ , baseline_segment_fkname = null where segment_id = @1@";
+	public static String MODIFY_ENVSG_ADDSTARTGROUPSERVER4 = "insert into urm_env_startgroup_server ( startgroup_id , server_id , env_id , ev ) values ( @values@ )";
+	public static String MODIFY_ENVSERVER_MATCHBASELINE2 = "update urm_env_server set baseline_server_fkid = @2@ , baseline_server_fkname = null where server_id = @1@";
+	public static String MODIFY_ENVSERVER_ADDDEPSERVER5 = "insert into urm_env_server_deps ( server_id , dep_server_id , env_id , serverdependency_type , ev ) values ( @values@ )";
 	
 }

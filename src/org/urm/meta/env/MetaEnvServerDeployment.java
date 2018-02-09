@@ -306,4 +306,20 @@ public class MetaEnvServerDeployment {
 		return( false );
 	}
 	
+	public MatchItem getCompMatchItem() {
+		return( COMP );
+	}
+	
+	public MatchItem getBinaryItemMatchItem() {
+		return( BINARYITEM );
+	}
+	
+	public MatchItem getConfItemMatchItem() {
+		return( CONFITEM );
+	}
+	
+	public MatchItem getSchemaMatchItem() {
+		return( SCHEMA );
+	}
+	
 }

@@ -223,7 +223,7 @@ public class EngineLoaderProducts {
 				
 				ProductStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
 				if( importxml )
-					importxmlAll( set , storageMeta , context , includingEnvironments );
+					importxmlAll( set , storageMeta , context , update , includingEnvironments );
 				else
 					loaddbAll( set , storageMeta , context );
 
@@ -259,7 +259,7 @@ public class EngineLoaderProducts {
 		return( null );
 	}
 	
-	private void importxmlAll( ProductMeta set , ProductStorage ms , ProductContext context , boolean includingEnvironments ) throws Exception {
+	private void importxmlAll( ProductMeta set , ProductStorage ms , ProductContext context , boolean update , boolean includingEnvironments ) throws Exception {
 		ActionBase action = loader.getAction();
 		
 		try {
@@ -268,7 +268,7 @@ public class EngineLoaderProducts {
 		
 			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
 			if( includingEnvironments )
-				lde.importxmlAll( ms );
+				lde.importxmlAll( ms , update );
 			else
  				lde.loaddbAll();
 				

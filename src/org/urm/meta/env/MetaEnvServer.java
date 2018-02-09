@@ -76,6 +76,7 @@ public class MetaEnvServer extends EngineObject {
 	
 	// table data
 	private ObjectProperties ops;
+	private ObjectProperties base;
 	public int ID;
 	public String NAME;
 	public String DESC;
@@ -112,10 +113,10 @@ public class MetaEnvServer extends EngineObject {
 	public String REGIONS = "";
 	
 	// dependencies
-	private MetaEnvServer nlbServer;
-	private MetaEnvServer proxyServer;
-	private MetaEnvServer staticServer;
-	private List<MetaEnvServer> subordinateServers;
+	private MatchItem nlbServer;
+	private MatchItem proxyServer;
+	private MatchItem staticServer;
+	private List<MatchItem> subordinateServers;
 
 	private Map<Integer,MetaEnvServerDeployment> deployMapById;
 	private List<MetaEnvServerDeployment> deployments;
@@ -130,7 +131,7 @@ public class MetaEnvServer extends EngineObject {
 
 		ID = -1;
 		EV = -1;
-		subordinateServers = new LinkedList<MetaEnvServer>();
+		subordinateServers = new LinkedList<MatchItem>();
 		deployments = new LinkedList<MetaEnvServerDeployment>(); 
 		deployMapById = new HashMap<Integer,MetaEnvServerDeployment>();
 		nodes = new LinkedList<MetaEnvServerNode>();
@@ -144,10 +145,9 @@ public class MetaEnvServer extends EngineObject {
 	public MetaEnvServer copy( Meta rmeta , MetaEnvSegment rsg ) throws Exception {
 		MetaEnvServer r = new MetaEnvServer( rmeta , rsg );
 
-		ProductEnvs renvs = rmeta.getEnviroments();
-
 		// primary
 		r.ops = ops.copy( rsg.getProperties() );
+		r.base = base.copy( r.ops );
 		r.ID = ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
@@ -161,20 +161,7 @@ public class MetaEnvServer extends EngineObject {
 		r.BASEITEM = MatchItem.copy( BASEITEM );
 		r.EV = EV;
 
-		// properties
-		refreshPrimaryProperties();
-		scatterExtraProperties();
-		
 		// children
-		r.nlbServer = renvs.findMetaEnvServer( nlbServer );
-		r.proxyServer = renvs.findMetaEnvServer( proxyServer );
-		r.staticServer = renvs.findMetaEnvServer( staticServer );
-		
-		for( MetaEnvServer server : subordinateServers ) {
-			MetaEnvServer rserver = renvs.findMetaEnvServer( server );
-			r.subordinateServers.add( rserver );
-		}
-			
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			MetaEnvServerDeployment rdeployment = deployment.copy( rmeta , r );
 			r.addDeployment( rdeployment );
@@ -184,11 +171,25 @@ public class MetaEnvServer extends EngineObject {
 			r.addNodeInternal( rnode );
 		}
 		
+		// server refs
+		r.nlbServer = MatchItem.copy( nlbServer );
+		r.proxyServer = MatchItem.copy( proxyServer );
+		r.staticServer = MatchItem.copy( staticServer );
+		
+		for( MatchItem server : subordinateServers ) {
+			MatchItem rserver = MatchItem.copy( server );
+			r.subordinateServers.add( rserver );
+		}
+			
 		return( r );
 	}
 	
 	public void createSettings( ObjectProperties ops ) throws Exception {
 		this.ops = ops;
+	}
+	
+	public void createBaseSettings( ObjectProperties base ) throws Exception {
+		this.base = base;
 	}
 	
 	public ObjectProperties getProperties() {
@@ -347,15 +348,26 @@ public class MetaEnvServer extends EngineObject {
 
 	public Map<String,MetaEnvServer> getAssociatedServers() throws Exception {
 		Map<String,MetaEnvServer> servers = new HashMap<String,MetaEnvServer>();
-		if( nlbServer != null )
-			servers.put( nlbServer.NAME , nlbServer );
-		if( proxyServer != null )
-			servers.put( proxyServer.NAME , proxyServer );
-		if( staticServer != null )
-			servers.put( staticServer.NAME , staticServer );
+		if( nlbServer != null ) {
+			MetaEnvServer server = sg.getServer( nlbServer );
+			servers.put( server.NAME , server );
+		}
+		
+		if( proxyServer != null ) {
+			MetaEnvServer server = sg.getServer( proxyServer );
+			servers.put( server.NAME , server );
+		}
+	
+		if( staticServer != null ) {
+			MetaEnvServer server = sg.getServer( staticServer );
+			servers.put( server.NAME , server );
+		}
+	
 		if( subordinateServers != null ) {
-			for( MetaEnvServer server : subordinateServers )
+			for( MatchItem item : subordinateServers ) {
+				MetaEnvServer server = sg.getServer( item );
 				servers.put( server.NAME , server );
+			}
 		}
 		return( servers );
 	}
@@ -368,7 +380,7 @@ public class MetaEnvServer extends EngineObject {
 		nodes.add( sn );
 	}
 
-	private void addDeployment( MetaEnvServerDeployment dp ) {
+	public void addDeployment( MetaEnvServerDeployment dp ) {
 		deployments.add( dp );
 		deployMapById.put( dp.ID , dp );
 	}
@@ -744,16 +756,16 @@ public class MetaEnvServer extends EngineObject {
 		return( startGroup );
 	}
 
-	public MetaEnvServer getProxyServer() {
-		return( proxyServer );
+	public MetaEnvServer getProxyServer() throws Exception {
+		return( sg.getServer( proxyServer ) );
 	}
 			
-	public MetaEnvServer getNlbServer() {
-		return( nlbServer );
+	public MetaEnvServer getNlbServer() throws Exception {
+		return( sg.getServer( nlbServer ) );
 	}
 	
-	public MetaEnvServer getStaticServer() {
-		return( staticServer );
+	public MetaEnvServer getStaticServer() throws Exception {
+		return( sg.getServer( staticServer ) );
 	}
 	
 	public MetaEnvServer[] getSubordinateServers() {
@@ -938,16 +950,16 @@ public class MetaEnvServer extends EngineObject {
 
 	public void addDependencyServer( MetaEnvServer server , DBEnumServerDependencyType type ) throws Exception {
 		if( type == DBEnumServerDependencyType.NLB )
-			this.nlbServer = server;
+			this.nlbServer = new MatchItem( server.ID );
 		else
 		if( type == DBEnumServerDependencyType.PROXY )
-			this.proxyServer = server;
+			this.proxyServer = new MatchItem( server.ID );
 		else
 		if( type == DBEnumServerDependencyType.STATIC )
-			this.staticServer = server;
+			this.staticServer = new MatchItem( server.ID );
 		else
 		if( type == DBEnumServerDependencyType.SUBORDINATE )
-			subordinateServers.add( server );
+			subordinateServers.add( new MatchItem( server.ID ) );
 		else
 			Common.exitUnexpected();
 	}
@@ -975,6 +987,23 @@ public class MetaEnvServer extends EngineObject {
 	
 	public MatchItem getBaseItemMatchItem() {
 		return( BASEITEM );
+	}
+	
+	public void copyResolveExternals() throws Exception {
+		if( BASELINE != null ) {
+			MetaEnvServer server = getBaseline();
+			if( server == null )
+				Common.exitUnexpected();
+			
+			BASELINE.match( server.ID );
+		}
+		
+		refreshPrimaryProperties();
+		ops.recalculateProperties();
+		scatterExtraProperties();
+		
+		for( MetaEnvServerNode node : nodes )
+			node.copyResolveExternals();
 	}
 	
 }

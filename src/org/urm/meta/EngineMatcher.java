@@ -125,6 +125,9 @@ public class EngineMatcher {
 	private void prepareMatchProduct( AppProduct product , boolean update , boolean useOldMatch ) throws Exception {
 	}
 	
+	private void prepareMatchEnv( MetaEnv env , boolean update , boolean useOldMatch ) throws Exception {
+	}
+	
 	private void doneSystem( AppSystem system ) throws Exception {
 		EngineDirectory directory = loader.getDirectory();
 		if( system.MATCHED )
@@ -242,6 +245,35 @@ public class EngineMatcher {
 		catch( Throwable e ) {
 			loader.log( "update match status" , e );
 		}
+	}
+
+	public boolean matchEnv( EngineLoader loader , ProductMeta set , MetaEnv env , boolean update ) {
+		// product meta
+		try {
+			prepareMatchEnv( env , false , false );
+
+			boolean matched = true;
+			if( !env.checkMatched() )
+				matched = false;
+			
+			if( !matched ) {
+				matchEnvUpdateStatus( env , false , true );
+				return( false );
+			}
+			
+			doneEnv( set , env );
+		}
+		catch( Throwable e ) {
+			loader.log( "match problem " , e );
+			matchEnvUpdateStatus( env , false , true );
+			return( false );
+		}
+		
+		matchEnvUpdateStatus( env , true , true );
+		return( true );
+	}
+	
+	private void doneEnv( ProductMeta set , MetaEnv env ) throws Exception {
 	}
 
 }

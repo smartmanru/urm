@@ -26,8 +26,6 @@ public class DBMetaEnvServerNode {
 	public static MetaEnvServerNode importxml( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , Node root ) throws Exception {
 		MetaEnvServerNode node = new MetaEnvServerNode( storage.meta , server );
 		
-		loader.trace( "import meta env segment object, name=" + env.NAME );
-
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		EngineMatcher matcher = loader.getMatcher();
@@ -41,7 +39,7 @@ public class DBMetaEnvServerNode {
 		loader.trace( "import meta env server node object, pos=" + pos );
 
 		// create settings
-		ObjectProperties ops = entities.createMetaEnvSegmentProps( env.getProperties() );
+		ObjectProperties ops = entities.createMetaEnvServerNodeProps( env.getProperties() );
 		node.createSettings( ops );
 		
 		// primary match

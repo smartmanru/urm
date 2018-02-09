@@ -12,6 +12,7 @@ import org.urm.meta.EngineLoader;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.env.MetaEnvStartGroup;
 import org.urm.meta.product.ProductMeta;
@@ -23,6 +24,7 @@ public class DBEnvData {
 	public static String TABLE_SERVER = "urm_env_server";
 	public static String TABLE_NODE = "urm_env_node";
 	public static String TABLE_STARTGROUP = "urm_env_startgroup";
+	public static String TABLE_DEPLOYMENT = "urm_env_deployment";
 	public static String FIELD_ENV_ID = "env_id";
 	public static String FIELD_ENV_META_ID = "meta_fkid";
 	public static String FIELD_ENV_META_NAME = "meta_fkname";
@@ -68,6 +70,20 @@ public class DBEnvData {
 	public static String FIELD_STARTGROUP_ENV_ID = "env_id";
 	public static String FIELD_STARTGROUP_SEGMENT_ID = "segment_id";
 	public static String FIELD_STARTGROUP_DESC = "xdesc";
+	public static String FIELD_DEPLOYMENT_ID = "deployment_id";
+	public static String FIELD_DEPLOYMENT_ENV_ID = "env_id";
+	public static String FIELD_DEPLOYMENT_SERVER_ID = "server_id";
+	public static String FIELD_DEPLOYMENT_TYPE = "serverdeployment_type";
+	public static String FIELD_DEPLOYMENT_COMP_ID = "comp_fkid";
+	public static String FIELD_DEPLOYMENT_COMP_NAME = "comp_fkname";
+	public static String FIELD_DEPLOYMENT_BINARY_ID = "binaryitem_fkid";
+	public static String FIELD_DEPLOYMENT_BINARY_NAME = "binaryitem_fkname";
+	public static String FIELD_DEPLOYMENT_CONF_ID = "confitem_fkid";
+	public static String FIELD_DEPLOYMENT_CONF_NAME = "confitem_fkname";
+	public static String FIELD_DEPLOYMENT_SCHEMA_ID = "schema_fkid";
+	public static String FIELD_DEPLOYMENT_SCHEMA_NAME = "schema_fkname";
+	public static String FIELD_DEPLOYMENT_DEPLOYMODE = "deploymode_type";
+	public static String FIELD_DEPLOYMENT_NODETYPE = "node_type";
 	
 	public static PropertyEntity upgradeEntityEnvPrimary( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
@@ -205,8 +221,8 @@ public class DBEnvData {
 		DBConnection c = loader.getConnection();
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_NODE , DBEnumParamEntityType.ENV_NODE_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_NODE , FIELD_NODE_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_NODE_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , false ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_NODE_SERVER_ID , "environment server id" , DBEnumObjectType.ENVIRONMENT_SERVER , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_NODE_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_NODE_SERVER_ID , "environment server id" , DBEnumObjectType.ENVIRONMENT_SERVER , true ) ,
 				EntityVar.metaInteger( MetaEnvServerNode.PROPERTY_POS , "position" , true , null ) ,
 				EntityVar.metaEnumVar( MetaEnvServerNode.PROPERTY_NODETYPE , FIELD_NODE_TYPE , MetaEnvServerNode.PROPERTY_NODETYPE , "Node type" , true , DBEnumNodeType.UNKNOWN ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_NODE_ACCOUNT_ID , "infrastructure account id" , DBEnumObjectType.HOSTACCOUNT , false ) ,
@@ -228,15 +244,45 @@ public class DBEnvData {
 		DBConnection c = loader.getConnection();
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_STARTGROUP , DBEnumParamEntityType.ENV_SEGMENT_STARTGROUP , DBEnumObjectVersionType.ENVIRONMENT , TABLE_STARTGROUP , FIELD_STARTGROUP_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_STARTGROUP_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , false ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_STARTGROUP_SEGMENT_ID , "segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_STARTGROUP_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_STARTGROUP_SEGMENT_ID , "segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , true ) ,
 				EntityVar.metaString( MetaEnvStartGroup.PROPERTY_NAME , "name" , true , null ) ,
 				EntityVar.metaStringVar( MetaEnvStartGroup.PROPERTY_DESC , FIELD_SERVER_DESC , MetaEnvStartGroup.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringXmlOnly( MetaEnvStartGroup.PROPERTY_SERVERS , "spece-delimited list of servers" , false , null ) ,
 		} ) );
 	}
 
 	public static PropertyEntity loaddbEntityStartGroup( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_STARTGROUP , DBEnumParamEntityType.ENV_SEGMENT_STARTGROUP , DBEnumObjectVersionType.ENVIRONMENT , TABLE_STARTGROUP , FIELD_STARTGROUP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity upgradeEntityServerDeployment( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_DEPLOYMENT , DBEnumParamEntityType.ENV_DEPLOYMENT , DBEnumObjectVersionType.ENVIRONMENT , TABLE_DEPLOYMENT , FIELD_DEPLOYMENT_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaObjectDatabaseOnly( FIELD_DEPLOYMENT_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DEPLOYMENT_SERVER_ID , "environment server id" , DBEnumObjectType.ENVIRONMENT_SERVER , true ) ,
+				EntityVar.metaEnumDatabaseOnly( FIELD_DEPLOYMENT_TYPE , "deployment type" , true , DBEnumObjectType.ENVIRONMENT_DEPLOYMENT ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DEPLOYMENT_COMP_ID , "component id" , DBEnumObjectType.META_DIST_COMPONENT , false ) ,
+				EntityVar.metaStringVar( MetaEnvServerDeployment.PROPERTY_COMPONENT , FIELD_DEPLOYMENT_COMP_NAME , MetaEnvServerDeployment.PROPERTY_COMPONENT , "component name" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DEPLOYMENT_BINARY_ID , "binary item id" , DBEnumObjectType.META_DIST_BINARYITEM , false ) ,
+				EntityVar.metaStringVar( MetaEnvServerDeployment.PROPERTY_DISTITEM , FIELD_DEPLOYMENT_BINARY_NAME , MetaEnvServerDeployment.PROPERTY_DISTITEM , "binary item name" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DEPLOYMENT_CONF_ID , "conf item id" , DBEnumObjectType.META_DIST_CONFITEM , false ) ,
+				EntityVar.metaStringVar( MetaEnvServerDeployment.PROPERTY_CONFITEM , FIELD_DEPLOYMENT_CONF_NAME , MetaEnvServerDeployment.PROPERTY_CONFITEM , "conf item name" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DEPLOYMENT_SCHEMA_ID , "schema id" , DBEnumObjectType.META_SCHEMA , false ) ,
+				EntityVar.metaStringVar( MetaEnvServerDeployment.PROPERTY_SCHEMA , FIELD_DEPLOYMENT_SCHEMA_NAME , MetaEnvServerDeployment.PROPERTY_SCHEMA , "schema name" , false , null ) ,
+				EntityVar.metaEnumVar( MetaEnvServerDeployment.PROPERTY_DEPLOYMODE , FIELD_DEPLOYMENT_DEPLOYMODE , MetaEnvServerDeployment.PROPERTY_DEPLOYMODE , "deploy mode" , true , DBEnumDeployModeType.UNKNOWN ) ,
+				EntityVar.metaString( MetaEnvServerDeployment.PROPERTY_DEPLOYPATH , "deployment path" , false , null ) ,
+				EntityVar.metaString( MetaEnvServerDeployment.PROPERTY_DBNAME , "database schema name" , false , null ) ,
+				EntityVar.metaString( MetaEnvServerDeployment.PROPERTY_DBUSER , "database schema user" , false , null ) ,
+				EntityVar.metaEnumVar( MetaEnvServerDeployment.PROPERTY_NODETYPE , FIELD_DEPLOYMENT_NODETYPE , MetaEnvServerDeployment.PROPERTY_NODETYPE , "node type to deploy" , true , DBEnumNodeType.UNKNOWN ) ,
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityServerDeployment( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_DEPLOYMENT , DBEnumParamEntityType.ENV_DEPLOYMENT , DBEnumObjectVersionType.ENVIRONMENT , TABLE_DEPLOYMENT , FIELD_DEPLOYMENT_ID );
 		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}

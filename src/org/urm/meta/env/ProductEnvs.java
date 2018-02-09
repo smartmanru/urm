@@ -46,6 +46,10 @@ public class ProductEnvs {
 			r.addEnv( renv );
 		}
 		
+		// resolve properties
+		for( MetaEnv renv : r.getEnvs() )
+			renv.copyResolveExternals();
+		
 		return( r );
 	}
 
@@ -136,7 +140,7 @@ public class ProductEnvs {
     	return( findMetaEnv( env.NAME ) );
     }
     
-	public MetaEnv findMetaEnv( MatchItem env ) throws Exception {
+	public MetaEnv findMetaEnv( MatchItem env ) {
 		if( env == null )
 			return( null );
 		if( env.MATCHED )

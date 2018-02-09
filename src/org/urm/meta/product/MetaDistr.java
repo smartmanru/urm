@@ -362,5 +362,35 @@ public class MetaDistr {
 				delivery.removeDoc( doc );
 		}
 	}	
+
+	public MatchItem matchComponent( String name ) throws Exception {
+		if( name == null || name.isEmpty() )
+			return( null );
+		
+		MetaDistrComponent comp = findComponent( name );
+		if( comp == null )
+			return( new MatchItem( name ) );
+		return( new MatchItem( comp.ID ) );
+	}
+	
+	public MatchItem matchBinaryItem( String name ) throws Exception {
+		if( name == null || name.isEmpty() )
+			return( null );
+		
+		MetaDistrBinaryItem item = findBinaryItem( name );
+		if( item == null )
+			return( new MatchItem( name ) );
+		return( new MatchItem( item.ID ) );
+	}
+	
+	public MatchItem matchConfItem( String name ) throws Exception {
+		if( name == null || name.isEmpty() )
+			return( null );
+		
+		MetaDistrConfItem item = findConfItem( name );
+		if( item == null )
+			return( new MatchItem( name ) );
+		return( new MatchItem( item.ID ) );
+	}
 	
 }

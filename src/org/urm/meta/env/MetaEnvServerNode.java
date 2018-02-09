@@ -23,8 +23,8 @@ public class MetaEnvServerNode extends EngineObject {
 	public static String PROPERTY_HOSTLOGIN = "account";
 	public static String PROPERTY_DEPLOYGROUP = "deploygroup";
 	public static String PROPERTY_OFFLINE = "offline";
-	public static String PROPERTY_DBINSTANCE = "instance";
-	public static String PROPERTY_DBSTANDBY = "standby";
+	public static String PROPERTY_DBINSTANCE = "dbinstance";
+	public static String PROPERTY_DBSTANDBY = "dbstandby";
 	
 	public Meta meta;
 	public MetaEnvServer server;
@@ -66,8 +66,6 @@ public class MetaEnvServerNode extends EngineObject {
 		r.DBINSTANCE = DBINSTANCE;
 		r.DBSTANDBY = DBSTANDBY;
 		r.EV = EV;
-		
-		refreshPrimaryProperties();
 		
 		return( r );
 	}
@@ -188,6 +186,11 @@ public class MetaEnvServerNode extends EngineObject {
 
 	public MatchItem getAccountMatchItem() {
 		return( ACCOUNT );
+	}
+
+	public void copyResolveExternals() throws Exception {
+		refreshPrimaryProperties();
+		ops.recalculateProperties();
 	}
 	
 }

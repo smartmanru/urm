@@ -3,6 +3,7 @@ package org.urm.db.env;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBSettings;
@@ -19,6 +20,7 @@ import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvStartGroup;
 import org.urm.meta.env.MetaEnvStartInfo;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Node;
@@ -27,6 +29,7 @@ public class DBMetaEnvSegment {
 
 	public static String ELEMENT_DEPLOYMENT = "deployment";
 	public static String ELEMENT_STARTORDER = "startorder";
+	public static String ELEMENT_STARTGROUP = "startgroup";
 	public static String ELEMENT_SERVER = "server";
 	
 	public static MetaEnvSegment importxml( EngineLoader loader , ProductMeta storage , MetaEnv env , Node root ) throws Exception {
@@ -35,12 +38,34 @@ public class DBMetaEnvSegment {
 		importxmlMain( loader , storage , env , sg , root );
 		importxmlServers( loader , storage , env , sg , root );
 		importxmlStartOrder( loader , storage , env , sg , root );
-		importxmlDeployment( loader , storage , env , sg , root );
+		importxmlServerDependencies( loader , storage , env , sg , root );
 		
  		return( sg );
 	}
 
-	public static void importxmlMain( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Node root ) throws Exception {
+	public static void importxmlMatchBaseline( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , MetaEnv baselineEnv ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		EngineMatcher matcher = loader.getMatcher();
+		DBConnection c = loader.getConnection();
+		
+		MatchItem BASELINE = sg.getBaselineMatchItem();
+		if( BASELINE != null ) {
+			String value = matcher.matchEnvBefore( env , BASELINE.FKNAME , sg.ID , entities.entityAppSegmentPrimary , MetaEnvSegment.PROPERTY_BASELINE , null );
+			MetaEnvSegment baseline = baselineEnv.findSegment( value );
+			if( baseline != null ) {
+				BASELINE.match( baseline.ID );
+				modifySegmentMatch( c , storage , env , sg );
+			}
+			matcher.matchEnvDone( BASELINE );
+			
+			if( baseline != null ) {
+				for( MetaEnvServer server : sg.getServers() )
+					DBMetaEnvServer.importxmlMatchBaseline( loader , storage , env , server , baseline );
+			}
+		}
+	}
+	
+	private static void importxmlMain( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		EngineMatcher matcher = loader.getMatcher();
@@ -78,7 +103,7 @@ public class DBMetaEnvSegment {
 		DBSettings.importxml( loader , root , ops , sg.ID , storage.ID , false , true , env.EV );
 	}
 	
-	public static void importxmlServers( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Node root ) throws Exception {
+	private static void importxmlServers( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Node root ) throws Exception {
 		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_SERVER );
 		if( items == null )
 			return;
@@ -89,10 +114,53 @@ public class DBMetaEnvSegment {
 		}
 	}
 	
-	public static void importxmlStartOrder( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Node root ) throws Exception {
+	private static void importxmlStartOrder( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Node root ) throws Exception {
+		MetaEnvStartInfo startInfo = sg.getStartInfo();
+		
+		Node startorder = ConfReader.xmlGetFirstChild( root , ELEMENT_STARTORDER );
+		if( startorder == null )
+			return;
+		
+		Node[] items = ConfReader.xmlGetChildren( startorder , ELEMENT_STARTGROUP );
+		if( items == null )
+			return;
+		
+		for( Node node : items ) {
+			MetaEnvStartGroup group = importxmlStartGroup( loader , storage , env , sg , node );
+			startInfo.addGroup( group );
+		}
 	}
 	
-	public static void importxmlDeployment( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Node root ) throws Exception {
+	private static MetaEnvStartGroup importxmlStartGroup( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Node root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppSegmentStartGroup;
+		DBConnection c = loader.getConnection();
+		
+		MetaEnvStartInfo startInfo = sg.getStartInfo();
+		MetaEnvStartGroup group = new MetaEnvStartGroup( storage.meta , startInfo );
+		
+		group.createGroup(
+				entity.importxmlStringAttr( root , MetaEnvStartGroup.PROPERTY_NAME ) ,
+				entity.importxmlStringAttr( root , MetaEnvStartGroup.PROPERTY_DESC ) );
+		modifyStartGroup( c , storage , env , group , true );
+		
+		String servers = entity.importxmlStringAttr( root , MetaEnvStartGroup.PROPERTY_SERVERS );
+		for( String name : Common.splitSpaced( servers ) ) {
+			MetaEnvServer server = sg.getServer( name );
+			group.addServer( server );
+			addStartGroupServer( c , storage , env , group , server );
+		}
+		
+		return( group );
+	}
+	
+	private static void importxmlServerDependencies( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Node root ) throws Exception {
+		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_SERVER );
+		if( items == null )
+			return;
+		
+		for( Node node : items )
+			DBMetaEnvServer.importxmlDependencies( loader , storage , env , sg , node );
 	}
 	
 	private static void modifySegment( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , boolean insert ) throws Exception {
@@ -111,6 +179,41 @@ public class DBMetaEnvSegment {
 				EngineDB.getMatchId( sg.getDatacenterMatchItem() ) ,
 				EngineDB.getMatchName( sg.getDatacenterMatchItem() )
 				} , insert );
+	}
+	
+	private static void modifyStartGroup( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvStartGroup group , boolean insert ) throws Exception {
+		if( insert )
+			group.ID = DBNames.getNameIndex( c , group.startInfo.sg.ID , group.NAME , DBEnumObjectType.ENVIRONMENT_STARTGROUP );
+		else
+			DBNames.updateName( c , group.ID , group.NAME , group.ID , DBEnumObjectType.ENVIRONMENT_STARTGROUP );
+		
+		group.EV = c.getNextEnvironmentVersion( env );
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.modifyAppObject( c , entities.entityAppSegmentStartGroup , group.ID , group.EV , new String[] {
+				EngineDB.getObject( env.ID ) ,
+				EngineDB.getObject( group.startInfo.sg.ID ) ,
+				EngineDB.getString( group.NAME ) ,
+				EngineDB.getString( group.DESC )
+				} , insert );
+	}
+	
+	private static void addStartGroupServer( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvStartGroup group , MetaEnvServer server ) throws Exception {
+		int version = c.getNextEnvironmentVersion( env );
+		if( !c.modify( DBQueries.MODIFY_ENVSG_ADDSTARTGROUPSERVER4 , new String[] { 
+				EngineDB.getInteger( group.ID ) , 
+				EngineDB.getInteger( server.ID ) ,
+				EngineDB.getInteger( env.ID ) ,
+				EngineDB.getInteger( version ) 
+				} ) )
+			Common.exitUnexpected();
+	}
+	
+	private static void modifySegmentMatch( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvSegment sg ) throws Exception {
+		MatchItem item = sg.getBaselineMatchItem();
+		if( !item.MATCHED )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_ENVSG_MATCHBASELINE2 , new String[] { EngineDB.getInteger( sg.ID ) , EngineDB.getInteger( item.FKID ) } ) )
+			Common.exitUnexpected();
 	}
 	
 	public static MetaEnvSegment createSegment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , String name , String desc , Integer dcId ) throws Exception {

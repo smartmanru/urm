@@ -38,18 +38,29 @@ public class EngineLoaderEnvs {
 		exportxmlMonitoring( ms );
 	}
 
-	public void importxmlAll( ProductStorage ms ) throws Exception {
-		importxmlEnvs( ms );
+	public void importxmlAll( ProductStorage ms , boolean update ) throws Exception {
+		importxmlEnvs( ms , update );
 		importxmlMonitoring( ms );
 	}
 	
-	public void importxmlEnvs( ProductStorage ms ) throws Exception {
+	public void importxmlEnvs( ProductStorage ms , boolean update ) throws Exception {
 		ProductEnvs envs = new ProductEnvs( set , set.meta );
 		set.setEnvs( envs );
 		
 		ActionBase action = loader.getAction();
 		for( String envFile : ms.getEnvFiles( action ) )
 			importxmlEnvData( ms , envFile );
+		
+		for( MetaEnv env : envs.getEnvs() )
+			DBMetaEnv.importxmlMatchBaseline( loader , set , env );
+
+		for( MetaEnv env : envs.getEnvs() ) {
+			EngineMatcher matcher = loader.getMatcher();
+			if( !matcher.matchEnv( loader , set , env , update ) )
+				loader.trace( "match failed for env=" + env.NAME );
+			else
+				loader.trace( "successfully matched env=" + env.NAME );
+		}
 		
 		importxmlMonitoring( ms );
 	}

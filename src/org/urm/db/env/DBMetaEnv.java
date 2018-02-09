@@ -43,10 +43,32 @@ public class DBMetaEnv {
 		
 		importxmlMain( loader , storage , env , root );
 		importxmlSegments( loader , storage , env , root );
-		importxmlResolve( loader , storage , env , root );
 		
 		envs.addEnv( env );
 		return( env );
+	}
+
+	public static void importxmlMatchBaseline( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		EngineMatcher matcher = loader.getMatcher();
+		ProductEnvs envs = storage.getEnviroments();
+		DBConnection c = loader.getConnection();
+		
+		MatchItem BASELINE = env.getBaselineMatchItem();
+		if( BASELINE != null ) {
+			String value = matcher.matchEnvBefore( env , BASELINE.FKNAME , env.ID , entities.entityAppEnvPrimary , MetaEnv.PROPERTY_BASELINE , null );
+			MetaEnv baseline = envs.findMetaEnv( value );
+			if( baseline != null ) {
+				BASELINE.match( baseline.ID );
+				modifyEnvMatch( c , storage , env );
+			}
+			matcher.matchEnvDone( BASELINE );
+			
+			if( baseline != null ) {
+				for( MetaEnvSegment sg : env.getSegments() )
+					DBMetaEnvSegment.importxmlMatchBaseline( loader , storage , env , sg , baseline );
+			}
+		}
 	}
 	
 	private static void importxmlMain( EngineLoader loader , ProductMeta storage , MetaEnv env , Node root ) throws Exception {
@@ -120,10 +142,15 @@ public class DBMetaEnv {
 		}
 	}
 	
-	private static void importxmlResolve( EngineLoader loader , ProductMeta storage , MetaEnv env , Node root ) throws Exception {
-	}
-	
 	public static void exportxml( EngineLoader loader , ProductMeta storage , MetaEnv env , Document doc , Element root ) throws Exception {
+	}
+
+	private static void modifyEnvMatch( DBConnection c , ProductMeta storage , MetaEnv env ) throws Exception {
+		MatchItem item = env.getBaselineMatchItem();
+		if( !item.MATCHED )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_ENV_MATCHBASELINE2 , new String[] { EngineDB.getInteger( env.ID ) , EngineDB.getInteger( item.FKID ) } ) )
+			Common.exitUnexpected();
 	}
 	
 	private static void modifyEnv( DBConnection c , ProductMeta storage , MetaEnv env , boolean insert ) throws Exception {
@@ -153,7 +180,7 @@ public class DBMetaEnv {
 	
 	public static void setMatched( EngineLoader loader , MetaEnv env , boolean matched ) throws Exception {
 		DBConnection c = loader.getConnection();
-		if( !c.modify( DBQueries.MODIFY_META_SETSTATUS2 , new String[] { 
+		if( !c.modify( DBQueries.MODIFY_ENV_SETSTATUS2 , new String[] { 
 				EngineDB.getInteger( env.ID ) ,
 				EngineDB.getBoolean( matched )
 				} ) )

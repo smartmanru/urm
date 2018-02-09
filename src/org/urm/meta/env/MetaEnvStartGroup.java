@@ -10,6 +10,7 @@ public class MetaEnvStartGroup {
 
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_SERVERS = "servers";
 	
 	public Meta meta;
 	public MetaEnvStartInfo startInfo;

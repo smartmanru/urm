@@ -336,5 +336,23 @@ public class MetaEnv extends EngineObject {
 		}
 		return( true );
 	}
+
+	public void copyResolveExternals() throws Exception {
+		if( BASELINE != null ) {
+			MetaEnv env = getBaseline();
+			if( env == null )
+				Common.exitUnexpected();
+			
+			BASELINE.match( env.ID );
+		}
+		
+		refreshPrimaryProperties();
+		ops.recalculateProperties();
+		
+		scatterExtraProperties();
+		
+		for( MetaEnvSegment sg : sgMap.values() )
+			sg.copyResolveExternals();
+	}
 	
 }

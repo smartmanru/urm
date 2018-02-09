@@ -40,6 +40,8 @@ public class EngineEntities {
 	public static String nameMetaEnvSet = "env";
 	public static String nameMetaEnvSegmentSet = "sg";
 	public static String nameMetaEnvServerSet = "server";
+	public static String nameMetaEnvServerBaseSet = "base";
+	public static String nameMetaEnvServerNodeSet = "node";
 
 	public Engine engine;
 
@@ -88,6 +90,7 @@ public class EngineEntities {
 	public PropertyEntity entityAppSegmentStartGroup;
 	public PropertyEntity entityAppServerPrimary;
 	public PropertyEntity entityAppServerExtra;
+	public PropertyEntity entityAppServerDeployment;
 	public PropertyEntity entityAppNodePrimary;
 	
 	public EngineEntities( Engine engine ) {
@@ -138,6 +141,7 @@ public class EngineEntities {
 		entityAppSegmentStartGroup = DBEnvData.upgradeEntityStartGroup( loader );
 		entityAppServerPrimary = DBEnvData.upgradeEntityServerPrimary( loader );
 		entityAppServerExtra = DBEnvData.upgradeEntityServerExtra( loader );
+		entityAppServerDeployment = DBEnvData.upgradeEntityServerDeployment( loader );
 		entityAppNodePrimary = DBEnvData.upgradeEntityNodePrimary( loader );
 		
 		entityCustomRC = DBEngineContext.createEntityCustomRC( loader );
@@ -189,6 +193,7 @@ public class EngineEntities {
 		entityAppSegmentStartGroup = DBEnvData.loaddbEntityStartGroup( c );
 		entityAppServerPrimary = DBEnvData.loaddbEntityServerPrimary( c );
 		entityAppServerExtra = DBEnvData.loaddbEntityServerExtra( c );
+		entityAppServerDeployment = DBEnvData.loaddbEntityServerDeployment( c );
 		entityAppNodePrimary = DBEnvData.loaddbEntityNodePrimary( c );
 		
 		entityCustomRC = DBEngineContext.loaddbEntityCustomRC( c );
@@ -350,6 +355,20 @@ public class EngineEntities {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ENVIRONMENT_SERVER , DBEnumObjectVersionType.ENVIRONMENT , DBEnumParamRoleType.DEFAULT , nameMetaEnvServerSet , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.ENV_SERVER_CUSTOM , -1 , DBEnumObjectVersionType.ENVIRONMENT ); 
 		props.create( parent , new PropertyEntity[] { entityAppServerPrimary , entityAppServerExtra } , custom );
+		return( props );
+	}
+	
+	public ObjectProperties createMetaEnvServerBaseProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ENVIRONMENT_SERVER , DBEnumObjectVersionType.ENVIRONMENT , DBEnumParamRoleType.DEFAULT , nameMetaEnvServerBaseSet , engine.execrc );
+		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.ENV_SERVER_CUSTOM , -1 , DBEnumObjectVersionType.ENVIRONMENT ); 
+		props.create( parent , new PropertyEntity[] { entityAppBaseItem } , custom );
+		return( props );
+	}
+	
+	public ObjectProperties createMetaEnvServerNodeProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ENVIRONMENT_NODE , DBEnumObjectVersionType.ENVIRONMENT , DBEnumParamRoleType.DEFAULT , nameMetaEnvServerNodeSet , engine.execrc );
+		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.ENV_NODE_CUSTOM , -1 , DBEnumObjectVersionType.ENVIRONMENT ); 
+		props.create( parent , new PropertyEntity[] { entityAppNodePrimary } , custom );
 		return( props );
 	}
 	

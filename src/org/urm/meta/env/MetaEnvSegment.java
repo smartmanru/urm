@@ -76,8 +76,6 @@ public class MetaEnvSegment extends EngineObject {
 		r.DC = MatchItem.copy( DC );
 		r.EV = EV;
 		
-		r.refreshPrimaryProperties();
-		
 		r.deployInfo = deployInfo.copy( rmeta , r );
 		
 		for( MetaEnvServer server : serverMap.values() ) {
@@ -316,6 +314,22 @@ public class MetaEnvSegment extends EngineObject {
 	
 	public MatchItem getDatacenterMatchItem() {
 		return( DC );
+	}
+
+	public void copyResolveExternals() throws Exception {
+		if( BASELINE != null ) {
+			MetaEnvSegment sg = getBaseline();
+			if( sg == null )
+				Common.exitUnexpected();
+			
+			BASELINE.match( sg.ID );
+		}
+		
+		refreshPrimaryProperties();
+		ops.recalculateProperties();
+		
+		for( MetaEnvServer server : serverMap.values() )
+			server.copyResolveExternals();
 	}
 	
 }
