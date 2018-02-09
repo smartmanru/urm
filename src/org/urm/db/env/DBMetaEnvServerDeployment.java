@@ -59,7 +59,7 @@ public class DBMetaEnvServerDeployment {
 		String binaryName = entity.importxmlStringAttr( root , MetaEnvServerDeployment.PROPERTY_DISTITEM );
 		if( !binaryName.isEmpty() ) {
 			binaryName = matcher.matchEnvBefore( env , binaryName , deployment.ID , entity , MetaEnvServerDeployment.PROPERTY_DISTITEM , null );
-			MatchItem BINARYITEM = distr.matchBinaryItem( compName );
+			MatchItem BINARYITEM = distr.matchBinaryItem( binaryName );
 			matcher.matchEnvDone( BINARYITEM );
 			
 			deployment.create( DBEnumServerDeploymentType.BINARY , null , BINARYITEM , null , null , deployMode , deployPath , "" , "" , nodeType );
@@ -69,7 +69,7 @@ public class DBMetaEnvServerDeployment {
 		String confName = entity.importxmlStringAttr( root , MetaEnvServerDeployment.PROPERTY_CONFITEM );
 		if( !confName.isEmpty() ) {
 			confName = matcher.matchEnvBefore( env , confName , deployment.ID , entity , MetaEnvServerDeployment.PROPERTY_CONFITEM , null );
-			MatchItem CONFITEM = distr.matchConfItem( compName );
+			MatchItem CONFITEM = distr.matchConfItem( confName );
 			matcher.matchEnvDone( CONFITEM );
 			
 			deployment.create( DBEnumServerDeploymentType.CONF , null , null , CONFITEM , null , deployMode , deployPath , "" , "" , nodeType );
@@ -82,7 +82,7 @@ public class DBMetaEnvServerDeployment {
 		String schemaName = entity.importxmlStringAttr( root , MetaEnvServerDeployment.PROPERTY_SCHEMA );
 		if( !schemaName.isEmpty() ) {
 			schemaName = matcher.matchEnvBefore( env , schemaName , deployment.ID , entity , MetaEnvServerDeployment.PROPERTY_SCHEMA , null );
-			MatchItem SCHEMA = database.matchSchema( compName );
+			MatchItem SCHEMA = database.matchSchema( schemaName );
 			matcher.matchEnvDone( SCHEMA );
 			
 			deployment.create( DBEnumServerDeploymentType.SCHEMA , null , null , null , SCHEMA , deployMode , "" , dbname , dbuser , DBEnumNodeType.UNKNOWN );
