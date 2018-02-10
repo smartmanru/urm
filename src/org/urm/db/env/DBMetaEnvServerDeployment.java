@@ -151,7 +151,7 @@ public class DBMetaEnvServerDeployment {
 				matcher.matchEnvDone( BINARYITEM , env , deployment.ID , entity , MetaEnvServerDeployment.PROPERTY_DISTITEM , null );
 				
 				MatchItem CONFITEM = entity.loaddbMatchItem( rs , DBEnvData.FIELD_DEPLOYMENT_CONF_ID , MetaEnvServerDeployment.PROPERTY_CONFITEM );
-				distr.matchBinaryItem( CONFITEM );
+				distr.matchConfItem( CONFITEM );
 				matcher.matchEnvDone( CONFITEM , env , deployment.ID , entity , MetaEnvServerDeployment.PROPERTY_CONFITEM , null );
 				
 				MatchItem SCHEMA = entity.loaddbMatchItem( rs , DBEnvData.FIELD_DEPLOYMENT_SCHEMA_ID , MetaEnvServerDeployment.PROPERTY_SCHEMA );
@@ -186,8 +186,6 @@ public class DBMetaEnvServerDeployment {
 				server.scatterExtraProperties();
 			}
 		}
-		
-		DBMetaEnvServerDeployment.loaddb( loader , storage , env );
 	}
 	
 }

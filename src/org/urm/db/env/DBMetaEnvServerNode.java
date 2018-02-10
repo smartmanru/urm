@@ -104,6 +104,9 @@ public class DBMetaEnvServerNode {
 				node.ID = entity.loaddbId( rs );
 				node.EV = entity.loaddbVersion( rs );
 
+				ObjectProperties ops = entities.createMetaEnvServerNodeProps( server.getProperties() );
+				node.createSettings( ops );
+				
 				// set primary 
 				MatchItem ACCOUNT = entity.loaddbMatchItem( rs , DBEnvData.FIELD_NODE_ACCOUNT_ID , MetaEnvServerNode.PROPERTY_HOSTLOGIN );
 				infra.matchAccount( ACCOUNT );

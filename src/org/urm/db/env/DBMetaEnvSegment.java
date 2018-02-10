@@ -214,6 +214,9 @@ public class DBMetaEnvSegment {
 				sg.ID = entity.loaddbId( rs );
 				sg.EV = entity.loaddbVersion( rs );
 
+				ObjectProperties ops = entities.createMetaEnvSegmentProps( env.getProperties() );
+				sg.createSettings( ops );
+				
 				// match baseline later
 				MatchItem BASELINE = entity.loaddbMatchItem( rs , DBEnvData.FIELD_SEGMENT_BASELINE_ID , MetaEnvSegment.PROPERTY_BASELINE );
 				

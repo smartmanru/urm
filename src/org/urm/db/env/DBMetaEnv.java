@@ -187,6 +187,7 @@ public class DBMetaEnv {
 		PropertyEntity entity = entities.entityAppEnvPrimary;
 		EngineResources resources = loader.getResources();
 		EngineInfrastructure infra = loader.getInfrastructure();
+		MetaProductSettings settings = storage.getSettings();
 
 		List<MetaEnv> list = new LinkedList<MetaEnv>();
 		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_FK2 , new String[] { 
@@ -198,6 +199,9 @@ public class DBMetaEnv {
 				MetaEnv env = new MetaEnv( storage , storage.meta );
 				env.ID = entity.loaddbId( rs );
 				env.EV = entity.loaddbVersion( rs );
+				
+				ObjectProperties ops = entities.createMetaEnvProps( settings.ops );
+				env.createSettings( ops );
 
 				// match baseline later
 				MatchItem BASELINE = entity.loaddbMatchItem( rs , DBEnvData.FIELD_ENV_BASELINE_ID , MetaEnv.PROPERTY_BASELINE );
@@ -234,17 +238,22 @@ public class DBMetaEnv {
 		List<MetaEnv> ready = new LinkedList<MetaEnv>();
 		for( MetaEnv env : list ) {
 			try {
+				loader.trace( "load env=" + env.NAME + " ..." );
 				loaddbEnvData( loader , storage , env );
 				ready.add( env );
 			}
 			catch( Throwable e ) {
-				loader.trace( "unable to load environment=" + env.NAME );
+				loader.log( "unable to load environment=" + env.NAME , e );
 			}
 		}
 		
 		// match baselines
 		for( MetaEnv env : ready ) {
 			matchBaseline( loader , storage , env );
+			if( env.checkMatched() )
+				loader.trace( "successfully matched env=" + env.NAME );
+			else
+				loader.trace( "match failed env=" + env.NAME );
 			envs.addEnv( env );
 		}
 	}

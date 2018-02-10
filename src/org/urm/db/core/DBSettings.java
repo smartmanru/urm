@@ -33,8 +33,7 @@ public abstract class DBSettings {
 	public static String ATTR_DESC = "desc"; 
 
 	public static void loaddbValues( EngineLoader loader , int objectId , ObjectProperties properties ) throws Exception {
-		loaddbAppValues( loader , objectId , properties );
-		loaddbCustomValues( loader , objectId , properties );
+		loaddbValues( loader , objectId , properties , true );
 	}
 	
 	public static void loaddbAppValues( EngineLoader loader , int objectId , ObjectProperties properties ) throws Exception {

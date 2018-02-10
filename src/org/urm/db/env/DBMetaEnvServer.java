@@ -255,6 +255,9 @@ public class DBMetaEnvServer {
 				server.ID = entity.loaddbId( rs );
 				server.EV = entity.loaddbVersion( rs );
 
+				ObjectProperties ops = entities.createMetaEnvServerProps( sg.getProperties() );
+				server.createSettings( ops );
+				
 				// match baseline later
 				MatchItem BASELINE = entity.loaddbMatchItem( rs , DBEnvData.FIELD_SERVER_BASELINE_ID , MetaEnvServer.PROPERTY_BASELINE );
 				
