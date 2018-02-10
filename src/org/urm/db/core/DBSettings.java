@@ -31,8 +31,21 @@ public abstract class DBSettings {
 	public static String ATTR_NAME = "name"; 
 	public static String ATTR_VALUE = "value"; 
 	public static String ATTR_DESC = "desc"; 
+
+	public static void loaddbValues( EngineLoader loader , int objectId , ObjectProperties properties ) throws Exception {
+		loaddbAppValues( loader , objectId , properties );
+		loaddbCustomValues( loader , objectId , properties );
+	}
 	
-	public static void loaddbValues( EngineLoader loader , int objectId , ObjectProperties properties , boolean loadApp ) throws Exception {
+	public static void loaddbAppValues( EngineLoader loader , int objectId , ObjectProperties properties ) throws Exception {
+		loaddbValues( loader , objectId , properties , true );
+	}
+	
+	public static void loaddbCustomValues( EngineLoader loader , int objectId , ObjectProperties properties ) throws Exception {
+		loaddbValues( loader , objectId , properties , false );
+	}
+	
+	private static void loaddbValues( EngineLoader loader , int objectId , ObjectProperties properties , boolean loadApp ) throws Exception {
 		DBConnection c = loader.getConnection();
 		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETOBJECTPARAMVALUES2 , new String[] { 
 				EngineDB.getInteger( objectId ) , 

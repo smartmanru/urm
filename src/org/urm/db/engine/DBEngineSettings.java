@@ -61,7 +61,7 @@ public abstract class DBEngineSettings {
 	private static void loaddbEngineSettings( EngineLoader loader , EngineSettings settings ) throws Exception {
 		EngineEntities entities = loader.getEntities();
 		settings.engineProperties = entities.createEngineProps( settings.execrcProperties );
-		DBSettings.loaddbValues( loader , DBVersions.CORE_ID , settings.engineProperties , true );
+		DBSettings.loaddbAppValues( loader , DBVersions.CORE_ID , settings.engineProperties );
 	}
 	
 	private static void importProductDefaults( EngineLoader loader , EngineSettings settings , Node root ) throws Exception {
@@ -102,10 +102,10 @@ public abstract class DBEngineSettings {
 		EngineEntities entities = loader.getEntities();
 		
 		settings.defaultProductProperties = entities.createDefaultProductProps( settings.engineProperties );
-		DBSettings.loaddbValues( loader , DBVersions.CORE_ID , settings.defaultProductProperties , true );
+		DBSettings.loaddbAppValues( loader , DBVersions.CORE_ID , settings.defaultProductProperties );
 		
 		settings.defaultProductBuildProperties = entities.createDefaultBuildCommonProps( settings.defaultProductProperties );
-		DBSettings.loaddbValues( loader , DBVersions.CORE_ID , settings.defaultProductBuildProperties , true );
+		DBSettings.loaddbAppValues( loader , DBVersions.CORE_ID , settings.defaultProductBuildProperties );
 		
 		// for build modes
 		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
@@ -113,7 +113,7 @@ public abstract class DBEngineSettings {
 				continue;
 			
 			ObjectProperties properties = entities.createDefaultBuildModeProps( settings.defaultProductBuildProperties , mode );
-			DBSettings.loaddbValues( loader , DBVersions.CORE_ID , properties , true );
+			DBSettings.loaddbAppValues( loader , DBVersions.CORE_ID , properties );
 			settings.addBuildModeDefaults( mode , properties );
 		}
 	}

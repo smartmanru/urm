@@ -108,7 +108,7 @@ public class DBMetaUnits {
 		MetaUnits units = new MetaUnits( storage , storage.meta );
 		storage.setUnits( units );
 		
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { EngineDB.getInteger( storage.ID ) } );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		try {
 			while( rs.next() ) {
 				MetaProductUnit unit = new MetaProductUnit( storage.meta , units );

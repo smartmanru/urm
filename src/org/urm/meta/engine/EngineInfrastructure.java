@@ -225,6 +225,24 @@ public class EngineInfrastructure extends EngineObject {
 		return( match );
 	}
 	
+	public boolean matchAccount( MatchItem item ) throws Exception {
+		if( item == null )
+			return( true );
+		
+		HostAccount account = null;
+		if( item.MATCHED ) {
+			account = getHostAccount( item.FKID );
+			return( true );
+		}
+		
+		account = findHostAccount( item.FKNAME );
+		if( account != null ) {
+			item.match( account.ID );
+			return( true );
+		}
+		return( false );
+	}
+	
 	public MatchItem matchDatacenter( String name ) throws Exception {
 		if( name == null || name.isEmpty() )
 			return( null );
@@ -235,4 +253,22 @@ public class EngineInfrastructure extends EngineObject {
 		return( new MatchItem( dc.ID ) );
 	}
 
+	public boolean matchDatacenter( MatchItem item ) throws Exception {
+		if( item == null )
+			return( true );
+		
+		Datacenter dc = null;
+		if( item.MATCHED ) {
+			dc = getDatacenter( item.FKID );
+			return( true );
+		}
+		
+		dc = findDatacenter( item.FKNAME );
+		if( dc != null ) {
+			item.match( dc.ID );
+			return( true );
+		}
+		return( false );
+	}
+	
 }

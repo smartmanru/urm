@@ -359,7 +359,7 @@ public class DBMetaSources {
 		EngineEntities entities = c.getEntities();
 		PropertyEntity entity = entities.entityAppMetaSourceSet;
 
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { "" + storage.ID } );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { "" + storage.ID } );
 		try {
 			while( rs.next() ) {
 				MetaSourceProjectSet set = new MetaSourceProjectSet( storage.meta , sources );
@@ -384,7 +384,7 @@ public class DBMetaSources {
 		EngineEntities entities = c.getEntities();
 		PropertyEntity entity = entities.entityAppMetaSourceProject;
 
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { "" + storage.ID } );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { "" + storage.ID } );
 		try {
 			while( rs.next() ) {
 				int setId = entity.loaddbInt( rs , DBProductData.FIELD_SOURCEPROJECT_SET_ID );
@@ -433,7 +433,7 @@ public class DBMetaSources {
 				MatchItem builder = builders.getBuilderMatchItem(
 						entity.loaddbObject( rs , DBProductData.FIELD_SOURCEPROJECT_BUILDER_ID ) ,
 						entity.loaddbString( rs , MetaSourceProject.PROPERTY_BUILDER_NAME ) );
-				matcher.matchProductDone( builder , storage , null , project.ID , entity , MetaSourceProject.PROPERTY_BUILDER_NAME , null );
+				matcher.matchProductDone( builder , storage , project.ID , entity , MetaSourceProject.PROPERTY_BUILDER_NAME , null );
 				project.setBuild(
 						builder , 
 						entity.loaddbString( rs , MetaSourceProject.PROPERTY_BUILDER_OPTIONS ) , 
@@ -457,7 +457,7 @@ public class DBMetaSources {
 		EngineEntities entities = c.getEntities();
 		PropertyEntity entity = entities.entityAppMetaSourceItem;
 
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { "" + storage.ID } );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { "" + storage.ID } );
 		try {
 			while( rs.next() ) {
 				int projectId = entity.loaddbInt( rs , DBProductData.FIELD_SOURCEITEM_PROJECT_ID );

@@ -137,4 +137,26 @@ public class EngineResources extends EngineObject {
 		return( new MatchItem( name ) );
 	}
 	
+	public boolean matchResource( MatchItem item , DBEnumResourceType rcType ) throws Exception {
+		if( item == null )
+			return( true );
+
+		AuthResource res = null;
+		if( item.MATCHED ) {
+			res = getResource( item.FKID );
+			if( rcType != null && rcType != res.RESOURCE_TYPE ) {
+				item.unmatch( res.NAME );
+				return( false );
+			}
+			return( true );
+		}
+		
+		res = findResource( item.FKNAME );
+		if( rcType == null || rcType == res.RESOURCE_TYPE ) {
+			item.match( res.ID );
+			return( true );
+		}
+		return( false );
+	}
+	
 }

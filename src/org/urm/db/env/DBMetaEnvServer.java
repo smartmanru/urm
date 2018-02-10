@@ -1,5 +1,7 @@
 package org.urm.db.env;
 
+import java.sql.ResultSet;
+
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
@@ -75,7 +77,7 @@ public class DBMetaEnvServer {
 		}
 	}
 	
-	public static void importxmlMatchBaseline( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvSegment baselineSegment ) throws Exception {
+	public static void matchBaseline( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvSegment baselineSegment ) throws Exception {
 		EngineEntities entities = loader.getEntities();
 		EngineMatcher matcher = loader.getMatcher();
 		DBConnection c = loader.getConnection();
@@ -234,6 +236,67 @@ public class DBMetaEnvServer {
 				EngineDB.getInteger( version )
 				} ) )
 			Common.exitUnexpected();
+	}
+	
+	public static void loaddb( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppServerPrimary;
+		MetaDatabase database = storage.getDatabase();
+		EngineBase base = loader.getBase();
+		EngineMatcher matcher = loader.getMatcher();
+		
+		// load segments
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		try {
+			while( rs.next() ) {
+				MetaEnvSegment sg = env.getSegment( entity.loaddbObject( rs , DBEnvData.FIELD_SERVER_SEGMENT_ID ) );
+				MetaEnvServer server = new MetaEnvServer( storage.meta , sg );
+				server.ID = entity.loaddbId( rs );
+				server.EV = entity.loaddbVersion( rs );
+
+				// match baseline later
+				MatchItem BASELINE = entity.loaddbMatchItem( rs , DBEnvData.FIELD_SERVER_BASELINE_ID , MetaEnvServer.PROPERTY_BASELINE );
+				
+				// set primary 
+				MatchItem ADMSCHEMA = entity.loaddbMatchItem( rs , DBEnvData.FIELD_SERVER_ADMSCHEMA_ID , MetaEnvServer.PROPERTY_ADMSCHEMA );
+				database.matchSchema( ADMSCHEMA );
+				matcher.matchEnvDone( ADMSCHEMA , env , server.ID , entity , MetaEnvServer.PROPERTY_ADMSCHEMA , null );
+				
+				MatchItem BASEITEM = entity.loaddbMatchItem( rs , DBEnvData.FIELD_SERVER_BASEITEM_ID , MetaEnvServer.PROPERTY_BASEITEM );
+				base.matchBaseItem( BASEITEM );
+				matcher.matchEnvDone( BASEITEM , env , server.ID , entity , MetaEnvServer.PROPERTY_BASEITEM , null );
+				
+				server.setServerPrimary(
+						entity.loaddbString( rs , MetaEnvServer.PROPERTY_NAME ) ,
+						entity.loaddbString( rs , MetaEnvServer.PROPERTY_DESC ) ,
+						DBEnumServerRunType.getValue( entity.loaddbEnum( rs , MetaEnvServer.PROPERTY_SERVERRUNTYPE ) , true ) ,
+						DBEnumServerAccessType.getValue( entity.loaddbEnum( rs , MetaEnvServer.PROPERTY_SERVERACCESSTYPE ) , true ) ,
+						DBEnumOSType.getValue( entity.loaddbEnum( rs , MetaEnvServer.PROPERTY_OSTYPE ) , true ) ,
+						BASELINE ,
+						entity.loaddbBoolean( rs , MetaEnvServer.PROPERTY_OFFLINE ) ,
+						DBEnumDbmsType.getValue( entity.loaddbEnum( rs , MetaEnvServer.PROPERTY_DBMSTYPE ) , false ) ,
+						ADMSCHEMA ,
+						BASEITEM
+						);
+				
+				sg.addServer( server );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+		
+		// properties
+		for( MetaEnvSegment sg : env.getSegments() ) {
+			for( MetaEnvServer server : sg.getServers() ) {
+				ObjectProperties ops = server.getProperties();
+				DBSettings.loaddbValues( loader , server.ID , ops );
+				server.scatterExtraProperties();
+			}
+		}
+		
+		DBMetaEnvServerDeployment.loaddb( loader , storage , env );
 	}
 	
 	public static MetaEnvServer createServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , DBEnumDbmsType dbmsType , Integer admSchema ) throws Exception {

@@ -144,4 +144,22 @@ public class MetaDatabase {
 		return( new MatchItem( schema.ID ) );
 	}
 
+	public boolean matchSchema( MatchItem item ) throws Exception {
+		if( item == null )
+			return( true );
+		
+		MetaDatabaseSchema schema = null;
+		if( item.MATCHED ) {
+			schema = getSchema( item.FKID );
+			return( true );
+		}
+		
+		schema = findSchema( item.FKNAME );
+		if( schema != null ) {
+			item.match( schema.ID );
+			return( true );
+		}
+		return( false );
+	}
+	
 }

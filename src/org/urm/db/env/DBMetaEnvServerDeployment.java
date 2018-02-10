@@ -1,16 +1,22 @@
 package org.urm.db.env;
 
+import java.sql.ResultSet;
+
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
+import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineMatcher;
 import org.urm.meta.MatchItem;
 import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.product.MetaDatabase;
@@ -116,6 +122,72 @@ public class DBMetaEnvServerDeployment {
 				EngineDB.getString( deployment.DBUSER ) ,
 				EngineDB.getEnum( deployment.NODE_TYPE )
 				} , insert );
+	}
+	
+	public static void loaddb( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppServerDeployment;
+		MetaDatabase database = storage.getDatabase();
+		MetaDistr distr = storage.getDistr();
+		EngineMatcher matcher = loader.getMatcher();
+		
+		// load segments
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		try {
+			while( rs.next() ) {
+				MetaEnvServer server = env.getServer( entity.loaddbObject( rs , DBEnvData.FIELD_DEPLOYMENT_SERVER_ID ) );
+				MetaEnvServerDeployment deployment = new MetaEnvServerDeployment( storage.meta , server );
+				deployment.ID = entity.loaddbId( rs );
+				deployment.EV = entity.loaddbVersion( rs );
+
+				// set primary 
+				MatchItem COMP = entity.loaddbMatchItem( rs , DBEnvData.FIELD_DEPLOYMENT_COMP_ID , MetaEnvServerDeployment.PROPERTY_COMPONENT );
+				distr.matchComponent( COMP );
+				matcher.matchEnvDone( COMP , env , deployment.ID , entity , MetaEnvServerDeployment.PROPERTY_COMPONENT , null );
+				
+				MatchItem BINARYITEM = entity.loaddbMatchItem( rs , DBEnvData.FIELD_DEPLOYMENT_BINARY_ID , MetaEnvServerDeployment.PROPERTY_DISTITEM );
+				distr.matchBinaryItem( BINARYITEM );
+				matcher.matchEnvDone( BINARYITEM , env , deployment.ID , entity , MetaEnvServerDeployment.PROPERTY_DISTITEM , null );
+				
+				MatchItem CONFITEM = entity.loaddbMatchItem( rs , DBEnvData.FIELD_DEPLOYMENT_CONF_ID , MetaEnvServerDeployment.PROPERTY_CONFITEM );
+				distr.matchBinaryItem( CONFITEM );
+				matcher.matchEnvDone( CONFITEM , env , deployment.ID , entity , MetaEnvServerDeployment.PROPERTY_CONFITEM , null );
+				
+				MatchItem SCHEMA = entity.loaddbMatchItem( rs , DBEnvData.FIELD_DEPLOYMENT_SCHEMA_ID , MetaEnvServerDeployment.PROPERTY_SCHEMA );
+				database.matchSchema( SCHEMA );
+				matcher.matchEnvDone( SCHEMA , env , deployment.ID , entity , MetaEnvServerDeployment.PROPERTY_SCHEMA , null );
+				
+				deployment.create(
+						DBEnumServerDeploymentType.getValue( entity.loaddbEnum( rs , DBEnvData.FIELD_DEPLOYMENT_TYPE ) , true ) ,
+						COMP ,
+						BINARYITEM ,
+						CONFITEM ,
+						SCHEMA ,
+						DBEnumDeployModeType.getValue( entity.loaddbEnum( rs , MetaEnvServerDeployment.PROPERTY_DEPLOYMODE ) , false ) ,
+						entity.loaddbString( rs , MetaEnvServerDeployment.PROPERTY_DEPLOYPATH ) ,
+						entity.loaddbString( rs , MetaEnvServerDeployment.PROPERTY_DBNAME ) ,
+						entity.loaddbString( rs , MetaEnvServerDeployment.PROPERTY_DBUSER ) ,
+						DBEnumNodeType.getValue( entity.loaddbEnum( rs , MetaEnvServerDeployment.PROPERTY_NODETYPE ) , false )
+						);
+				
+				server.addDeployment( deployment );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+		
+		// properties
+		for( MetaEnvSegment sg : env.getSegments() ) {
+			for( MetaEnvServer server : sg.getServers() ) {
+				ObjectProperties ops = server.getProperties();
+				DBSettings.loaddbValues( loader , server.ID , ops );
+				server.scatterExtraProperties();
+			}
+		}
+		
+		DBMetaEnvServerDeployment.loaddb( loader , storage , env );
 	}
 	
 }

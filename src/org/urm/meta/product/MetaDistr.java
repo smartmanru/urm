@@ -91,7 +91,7 @@ public class MetaDistr {
 		return( comp );
 	}
 	
-	public MetaDistrComponent getComponent( Integer id ) throws Exception {
+	public MetaDistrComponent getComponent( int id ) throws Exception {
 		MetaDistrComponent comp = mapCompsById.get( id );
 		if( comp == null )
 			Common.exit1( _Error.UnknownDistributiveComponent1 , "unknown distributive component=" + id , "" + id );
@@ -124,7 +124,7 @@ public class MetaDistr {
 		return( item.ID );
 	}
 
-	public MetaDistrBinaryItem getBinaryItem( Integer id ) throws Exception {
+	public MetaDistrBinaryItem getBinaryItem( int id ) throws Exception {
 		MetaDistrBinaryItem item = mapBinaryItemsById.get( id );
 		if( item == null )
 			Common.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + id , "" + id );
@@ -189,7 +189,7 @@ public class MetaDistr {
 		return( item );
 	}
 	
-	public MetaDistrConfItem getConfItem( Integer id ) throws Exception {
+	public MetaDistrConfItem getConfItem( int id ) throws Exception {
 		MetaDistrConfItem item = mapConfItemsById.get( id );
 		if( item == null )
 			Common.exit1( _Error.UnknownConfigurationItem1 , "unknown configuration item=" + id , "" + id );
@@ -391,6 +391,60 @@ public class MetaDistr {
 		if( item == null )
 			return( new MatchItem( name ) );
 		return( new MatchItem( item.ID ) );
+	}
+	
+	public boolean matchComponent( MatchItem item ) throws Exception {
+		if( item == null )
+			return( true );
+		
+		MetaDistrComponent comp = null;
+		if( item.MATCHED ) {
+			comp = getComponent( item.FKID );
+			return( true );
+		}
+		
+		comp = findComponent( item.FKNAME );
+		if( comp != null ) {
+			item.match( comp.ID );
+			return( true );
+		}
+		return( false );
+	}
+	
+	public boolean matchBinaryItem( MatchItem item ) throws Exception {
+		if( item == null )
+			return( true );
+		
+		MetaDistrBinaryItem binaryItem = null;
+		if( item.MATCHED ) {
+			binaryItem = getBinaryItem( item.FKID );
+			return( true );
+		}
+		
+		binaryItem = findBinaryItem( item.FKNAME );
+		if( binaryItem != null ) {
+			item.match( binaryItem.ID );
+			return( true );
+		}
+		return( false );
+	}
+	
+	public boolean matchConfItem( MatchItem item ) throws Exception {
+		if( item == null )
+			return( true );
+		
+		MetaDistrConfItem confItem = null;
+		if( item.MATCHED ) {
+			confItem = getConfItem( item.FKID );
+			return( true );
+		}
+		
+		confItem = findConfItem( item.FKNAME );
+		if( confItem != null ) {
+			item.match( confItem.ID );
+			return( true );
+		}
+		return( false );
 	}
 	
 }

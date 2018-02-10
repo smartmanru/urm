@@ -13,6 +13,7 @@ public class MetaEnvStartInfo {
 	public MetaEnvSegment sg;
 	
 	Map<String,MetaEnvStartGroup> groupMap;
+	Map<Integer,MetaEnvStartGroup> groupMapById;
 	List<MetaEnvStartGroup> groups;
 	
 	public MetaEnvStartInfo( Meta meta , MetaEnvSegment sg ) {
@@ -20,6 +21,7 @@ public class MetaEnvStartInfo {
 		this.sg = sg;
 		groups = new LinkedList<MetaEnvStartGroup>();
 		groupMap = new HashMap<String,MetaEnvStartGroup>();
+		groupMapById = new HashMap<Integer,MetaEnvStartGroup>();
 	}
 	
 	public MetaEnvStartInfo copy( Meta rmeta , MetaEnvSegment rsg ) throws Exception {
@@ -33,6 +35,7 @@ public class MetaEnvStartInfo {
 	
 	public void addGroup( MetaEnvStartGroup sg ) {
 		groupMap.put( sg.NAME , sg );
+		groupMapById.put( sg.ID , sg );
 		groups.add( sg );
 	}
 	
@@ -75,4 +78,8 @@ public class MetaEnvStartInfo {
 		return( missing.toArray( new String[0] ) );
 	}
 	
+	public MetaEnvStartGroup findStartGroup( int id ) {
+		return( groupMapById.get( id ) );
+	}
+
 }

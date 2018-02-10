@@ -407,7 +407,7 @@ public class DBMetaDistr {
 		MetaDocs docs = storage.getDocs();
 		MetaUnits units = storage.getUnits();
 		
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { EngineDB.getInteger( storage.ID ) } );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		try {
 			while( rs.next() ) {
 				MetaDistrDelivery delivery = new MetaDistrDelivery( storage.meta , distr , db , docs );
@@ -442,7 +442,7 @@ public class DBMetaDistr {
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppMetaDistrBinaryItem;
 		
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { EngineDB.getInteger( storage.ID ) } );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		try {
 			while( rs.next() ) {
 				MetaDistrDelivery delivery = distr.getDelivery( entity.loaddbObject( rs , DBProductData.FIELD_DELIVERY_ID ) );
@@ -488,7 +488,7 @@ public class DBMetaDistr {
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppMetaDistrConfItem;
 		
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { EngineDB.getInteger( storage.ID ) } );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		try {
 			while( rs.next() ) {
 				MetaDistrDelivery delivery = distr.getDelivery( entity.loaddbObject( rs , DBProductData.FIELD_DELIVERY_ID ) );
@@ -552,7 +552,7 @@ public class DBMetaDistr {
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppMetaDistrComponent;
 		
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { EngineDB.getInteger( storage.ID ) } );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		try {
 			while( rs.next() ) {
 				MetaDistrComponent comp = new MetaDistrComponent( storage.meta , distr );
@@ -578,7 +578,7 @@ public class DBMetaDistr {
 		PropertyEntity entity = entities.entityAppMetaDistrCompItem;
 		
 		MetaDatabase db = storage.getDatabase();
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { EngineDB.getInteger( storage.ID ) } );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		try {
 			while( rs.next() ) {
 				MetaDistrComponent comp = distr.getComponent( entity.loaddbObject( rs , DBProductData.FIELD_COMPITEM_COMPID ) );

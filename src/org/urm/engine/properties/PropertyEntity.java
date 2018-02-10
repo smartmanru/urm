@@ -15,6 +15,7 @@ import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.EngineResources;
 
@@ -333,6 +334,16 @@ public class PropertyEntity {
 	
 	public int loaddbVersion( ResultSet rs ) throws Exception {
 		return( rs.getInt( dblist.size() + 2 ) );
+	}
+	
+	public MatchItem loaddbMatchItem( ResultSet rs , String propId , String propName ) throws Exception {
+		Integer id = loaddbObject( rs , propId );
+		if( id != null )
+			return( new MatchItem( id ) );
+		String name = loaddbString( rs , propName );
+		if( name.isEmpty() )
+			return( null );
+		return( new MatchItem( name ) );
 	}
 	
 	public String exportxmlString( String value ) {

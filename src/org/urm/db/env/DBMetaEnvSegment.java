@@ -1,5 +1,7 @@
 package org.urm.db.env;
 
+import java.sql.ResultSet;
+
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
@@ -43,7 +45,7 @@ public class DBMetaEnvSegment {
  		return( sg );
 	}
 
-	public static void importxmlMatchBaseline( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , MetaEnv baselineEnv ) throws Exception {
+	public static void matchBaseline( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , MetaEnv baselineEnv ) throws Exception {
 		EngineEntities entities = loader.getEntities();
 		EngineMatcher matcher = loader.getMatcher();
 		DBConnection c = loader.getConnection();
@@ -60,7 +62,7 @@ public class DBMetaEnvSegment {
 			
 			if( baseline != null ) {
 				for( MetaEnvServer server : sg.getServers() )
-					DBMetaEnvServer.importxmlMatchBaseline( loader , storage , env , server , baseline );
+					DBMetaEnvServer.matchBaseline( loader , storage , env , server , baseline );
 			}
 		}
 	}
@@ -195,6 +197,125 @@ public class DBMetaEnvSegment {
 				EngineDB.getString( group.NAME ) ,
 				EngineDB.getString( group.DESC )
 				} , insert );
+	}
+	
+	public static void loaddb( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppSegmentPrimary;
+		EngineInfrastructure infra = loader.getInfrastructure();
+		EngineMatcher matcher = loader.getMatcher();
+		
+		// load segments
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		try {
+			while( rs.next() ) {
+				MetaEnvSegment sg = new MetaEnvSegment( storage.meta , env );
+				sg.ID = entity.loaddbId( rs );
+				sg.EV = entity.loaddbVersion( rs );
+
+				// match baseline later
+				MatchItem BASELINE = entity.loaddbMatchItem( rs , DBEnvData.FIELD_SEGMENT_BASELINE_ID , MetaEnvSegment.PROPERTY_BASELINE );
+				
+				// set primary 
+				MatchItem DATACENTER = entity.loaddbMatchItem( rs , DBEnvData.FIELD_SEGMENT_DATACENTER_ID , MetaEnvSegment.PROPERTY_DC );
+				infra.matchDatacenter( DATACENTER );
+				matcher.matchEnvDone( DATACENTER , env , sg.ID , entity , MetaEnvSegment.PROPERTY_DC , null );
+				
+				sg.setSegmentPrimary(
+						entity.loaddbString( rs , MetaEnvSegment.PROPERTY_NAME ) ,
+						entity.loaddbString( rs , MetaEnvSegment.PROPERTY_DESC ) ,
+						BASELINE ,
+						entity.loaddbBoolean( rs , MetaEnvSegment.PROPERTY_OFFLINE ) ,
+						DATACENTER
+						);
+				
+				env.addSegment( sg );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+		
+		// properties
+		for( MetaEnvSegment sg : env.getSegments() ) {
+			ObjectProperties ops = sg.getProperties();
+			DBSettings.loaddbCustomValues( loader , sg.ID , ops );
+		}
+		
+		DBMetaEnvServer.loaddb( loader , storage , env );
+		DBMetaEnvServerNode.loaddb( loader , storage , env );
+		
+		loaddbStartGroups( loader , storage , env );
+		loaddbStartGroupItems( loader , storage , env );
+		loaddbServerDeps( loader , storage , env );
+	}	
+	
+	private static void loaddbStartGroups( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppSegmentStartGroup;
+		
+		// load start groups
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		try {
+			while( rs.next() ) {
+				MetaEnvSegment sg = env.getSegment( entity.loaddbObject( rs , DBEnvData.FIELD_STARTGROUP_SEGMENT_ID ) );
+				MetaEnvStartInfo startInfo = sg.getStartInfo();
+				MetaEnvStartGroup startGroup = new MetaEnvStartGroup( storage.meta , startInfo );
+				
+				startGroup.ID = entity.loaddbId( rs );
+				startGroup.EV = entity.loaddbVersion( rs );
+				startGroup.createGroup(
+						entity.loaddbString( rs , MetaEnvStartGroup.PROPERTY_NAME ) , 
+						entity.loaddbString( rs , MetaEnvStartGroup.PROPERTY_DESC )
+						);
+				
+				startInfo.addGroup( startGroup );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+
+	private static void loaddbStartGroupItems( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
+		ResultSet rs = c.query( DBQueries.QUERY_ENV_GETALLSTARTGROUPITEMS1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		try {
+			while( rs.next() ) {
+				int startGroupId = rs.getInt( 1 );
+				int serverId = rs.getInt( 2 );
+				
+				MetaEnvStartGroup startGroup = env.getStartGroup( startGroupId );
+				MetaEnvServer server = startGroup.startInfo.sg.getServer( serverId );
+				startGroup.addServer( server );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+	
+	private static void loaddbServerDeps( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
+		ResultSet rs = c.query( DBQueries.QUERY_ENV_GETALLSERVERDEPS1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		try {
+			while( rs.next() ) {
+				int serverId = rs.getInt( 1 );
+				int serverDepId = rs.getInt( 2 );
+				DBEnumServerDependencyType type = DBEnumServerDependencyType.getValue( rs.getInt( 4 ) , true );
+				
+				MetaEnvServer server = env.getServer( serverId );
+				MetaEnvServer depServer = server.sg.getServer( serverDepId );
+				server.addDependencyServer( depServer , type );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
 	}
 	
 	private static void addStartGroupServer( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvStartGroup group , MetaEnvServer server ) throws Exception {

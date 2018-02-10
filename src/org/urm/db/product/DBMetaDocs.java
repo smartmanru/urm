@@ -116,7 +116,7 @@ public class DBMetaDocs {
 		MetaDocs docs = new MetaDocs( storage , storage.meta );
 		storage.setDocs( docs );
 		
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { EngineDB.getInteger( storage.ID ) } );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		try {
 			while( rs.next() ) {
 				MetaProductDoc doc = new MetaProductDoc( storage.meta , docs );

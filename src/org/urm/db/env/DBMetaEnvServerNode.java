@@ -1,7 +1,10 @@
 package org.urm.db.env;
 
+import java.sql.ResultSet;
+
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBEnums.*;
@@ -16,6 +19,7 @@ import org.urm.meta.MatchItem;
 import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.ProductMeta;
@@ -82,6 +86,55 @@ public class DBMetaEnvServerNode {
 				EngineDB.getString( node.DBINSTANCE ) ,
 				EngineDB.getBoolean( node.DBSTANDBY )
 				} , insert );
+	}
+	
+	public static void loaddb( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppNodePrimary;
+		EngineInfrastructure infra = loader.getInfrastructure();
+		EngineMatcher matcher = loader.getMatcher();
+		
+		// load segments
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		try {
+			while( rs.next() ) {
+				MetaEnvServer server = env.getServer( entity.loaddbObject( rs , DBEnvData.FIELD_NODE_SERVER_ID ) );
+				MetaEnvServerNode node = new MetaEnvServerNode( storage.meta , server );
+				node.ID = entity.loaddbId( rs );
+				node.EV = entity.loaddbVersion( rs );
+
+				// set primary 
+				MatchItem ACCOUNT = entity.loaddbMatchItem( rs , DBEnvData.FIELD_NODE_ACCOUNT_ID , MetaEnvServerNode.PROPERTY_HOSTLOGIN );
+				infra.matchAccount( ACCOUNT );
+				matcher.matchEnvDone( ACCOUNT , env , node.ID , entity , MetaEnvServerNode.PROPERTY_HOSTLOGIN , null );
+				
+				node.setNodePrimary(
+						entity.loaddbInt( rs , MetaEnvServerNode.PROPERTY_POS ) ,
+						DBEnumNodeType.getValue( entity.loaddbEnum( rs , MetaEnvServerNode.PROPERTY_NODETYPE ) , true ) ,
+						ACCOUNT ,
+						entity.loaddbString( rs , MetaEnvServerNode.PROPERTY_DEPLOYGROUP ) ,
+						entity.loaddbBoolean( rs , MetaEnvServerNode.PROPERTY_OFFLINE ) ,
+						entity.loaddbString( rs , MetaEnvServerNode.PROPERTY_DBINSTANCE ) ,
+						entity.loaddbBoolean( rs , MetaEnvServerNode.PROPERTY_DBSTANDBY )
+						);
+				
+				server.addNode( node );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+		
+		// properties
+		for( MetaEnvSegment sg : env.getSegments() ) {
+			for( MetaEnvServer server : sg.getServers() ) {
+				for( MetaEnvServerNode node : server.getNodes() ) {
+					ObjectProperties ops = node.getProperties();
+					DBSettings.loaddbCustomValues( loader , node.ID , ops );
+				}
+			}
+		}
 	}
 	
 	public static MetaEnvServerNode createNode( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , int pos , DBEnumNodeType nodeType , HostAccount account ) throws Exception {

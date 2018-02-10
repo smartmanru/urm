@@ -208,10 +208,10 @@ public class EngineMatcher {
 	}
 
 	public void matchProductDone( MatchItem item ) throws Exception {
-		matchProductDone( item , matchStorage , matchValueInitial , matchOwnerId , matchItemEntity , matchItemProperty , matchItemIndex );
+		matchProductDone( item , matchStorage , matchOwnerId , matchItemEntity , matchItemProperty , matchItemIndex );
 	}
 
-	public void matchProductDone( MatchItem item , ProductMeta storage , String value , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
+	public void matchProductDone( MatchItem item , ProductMeta storage , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
 		if( item != null && !item.MATCHED )
 			matchProductUpdateStatus( matchStorage , false , false );
 	}
@@ -227,10 +227,10 @@ public class EngineMatcher {
 	}
 
 	public void matchEnvDone( MatchItem item ) throws Exception {
-		matchEnvDone( item , matchEnv , matchValueInitial , matchOwnerId , matchItemEntity , matchItemProperty , matchItemIndex );
+		matchEnvDone( item , matchEnv , matchOwnerId , matchItemEntity , matchItemProperty , matchItemIndex );
 	}
 
-	public void matchEnvDone( MatchItem item , MetaEnv env , String value , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
+	public void matchEnvDone( MatchItem item , MetaEnv env , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
 		if( item != null && !item.MATCHED )
 			matchEnvUpdateStatus( matchEnv , false , false );
 	}

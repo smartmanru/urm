@@ -152,4 +152,22 @@ public class EngineBase extends EngineObject {
 		return( new MatchItem( item.ID ) );
 	}
 	
+	public boolean matchBaseItem( MatchItem item ) throws Exception {
+		if( item == null )
+			return( true );
+		
+		BaseItem baseItem = null;
+		if( item.MATCHED ) {
+			baseItem = getItem( item.FKID );
+			return( true );
+		}
+		
+		baseItem = findItem( item.FKNAME );
+		if( baseItem != null ) {
+			item.match( baseItem.ID );
+			return( true );
+		}
+		return( false );
+	}
+	
 }

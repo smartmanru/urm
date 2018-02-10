@@ -30,8 +30,7 @@ public class DBMetaMonitoring {
 	public static String ATTR_ENV = "env";
 	public static String ATTR_SEGMENT = "segment";
 	
-	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
-		ProductEnvs envs = storage.getEnviroments();
+	public static void importxml( EngineLoader loader , ProductMeta storage , ProductEnvs envs , Node root ) throws Exception {
 		MetaMonitoring mon = envs.getMonitoring();
 		
 		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_TARGET );
@@ -121,6 +120,9 @@ public class DBMetaMonitoring {
 			target.addWS( item );
 			modifyItem( c , storage , env , item , true );
 		}
+	}
+	
+	public static void loaddbProductMonitoring( EngineLoader loader , ProductMeta storage , ProductEnvs envs ) throws Exception {
 	}
 	
 	private static void modifyTarget( DBConnection c , ProductMeta storage , MetaEnv env , MetaMonitoringTarget target , boolean insert ) throws Exception {

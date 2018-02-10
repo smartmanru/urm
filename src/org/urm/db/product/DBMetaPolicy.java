@@ -179,16 +179,16 @@ public class DBMetaPolicy {
 				
 				if( index == 1 ) {
 					RELEASELC_MAJOR = lcMatch;
-					matcher.matchProductDone( lcMatch , storage , name , storage.ID , entity , MetaProductPolicy.PROPERTY_RELEASELC_MAJOR , null );
+					matcher.matchProductDone( lcMatch , storage , storage.ID , entity , MetaProductPolicy.PROPERTY_RELEASELC_MAJOR , null );
 				}
 				else
 				if( index == 2 ) {
 					RELEASELC_MINOR = lcMatch;
-					matcher.matchProductDone( lcMatch , storage , name , storage.ID , entity , MetaProductPolicy.PROPERTY_RELEASELC_MINOR , null );
+					matcher.matchProductDone( lcMatch , storage , storage.ID , entity , MetaProductPolicy.PROPERTY_RELEASELC_MINOR , null );
 				}
 				else {
 					list.add( lcMatch );
-					matcher.matchProductDone( lcMatch , storage , name , storage.ID , entity , MetaProductPolicy.PROPERTY_RELEASELC_URGENTS , "" + index );
+					matcher.matchProductDone( lcMatch , storage , storage.ID , entity , MetaProductPolicy.PROPERTY_RELEASELC_URGENTS , "" + index );
 				}
 			}
 		}

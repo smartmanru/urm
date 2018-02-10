@@ -358,5 +358,28 @@ public class MetaEnv extends EngineObject {
 		for( MetaEnvSegment sg : sgMap.values() )
 			sg.copyResolveExternals();
 	}
+
+	public MetaEnvStartGroup getStartGroup( int id ) throws Exception {
+		for( MetaEnvSegment sg : sgMap.values() ) {
+			MetaEnvStartInfo startInfo = sg.getStartInfo();
+			MetaEnvStartGroup startGroup = startInfo.findStartGroup( id );
+			if( startGroup != null )
+				return( startGroup );
+		}
+		
+		Common.exitUnexpected();
+		return( null );
+	}
+	
+	public MetaEnvServer getServer( int id ) throws Exception {
+		for( MetaEnvSegment sg : sgMap.values() ) {
+			MetaEnvServer server = sg.findServer( id );
+			if( server != null )
+				return( server );
+		}
+		
+		Common.exitUnexpected();
+		return( null );
+	}
 	
 }

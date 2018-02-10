@@ -57,4 +57,10 @@ public class MatchItem {
 		MATCHED = true;
 	}
 
+	public void unmatch( String name ) {
+		FKID = null;
+		FKNAME = name;
+		MATCHED = false;
+	}
+
 }

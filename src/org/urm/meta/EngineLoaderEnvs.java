@@ -39,20 +39,20 @@ public class EngineLoaderEnvs {
 	}
 
 	public void importxmlAll( ProductStorage ms , boolean update ) throws Exception {
-		importxmlEnvs( ms , update );
-		importxmlMonitoring( ms );
-	}
-	
-	private void importxmlEnvs( ProductStorage ms , boolean update ) throws Exception {
 		ProductEnvs envs = new ProductEnvs( set , set.meta );
 		set.setEnvs( envs );
 		
+		importxmlEnvs( ms , update , envs );
+		importxmlMonitoring( ms , envs );
+	}
+	
+	private void importxmlEnvs( ProductStorage ms , boolean update , ProductEnvs envs ) throws Exception {
 		ActionBase action = loader.getAction();
 		for( String envFile : ms.getEnvFiles( action ) )
 			importxmlEnvData( ms , envFile );
 		
 		for( MetaEnv env : envs.getEnvs() )
-			DBMetaEnv.importxmlMatchBaseline( loader , set , env );
+			DBMetaEnv.matchBaseline( loader , set , env );
 
 		for( MetaEnv env : envs.getEnvs() ) {
 			EngineMatcher matcher = loader.getMatcher();
@@ -63,7 +63,7 @@ public class EngineLoaderEnvs {
 		}
 	}
 	
-	private void importxmlMonitoring( ProductStorage ms ) throws Exception {
+	private void importxmlMonitoring( ProductStorage ms , ProductEnvs envs ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -73,7 +73,7 @@ public class EngineLoaderEnvs {
 			Node root = doc.getDocumentElement();
 			
 			// monitoring settings
-			DBMetaMonitoring.importxml( loader , set , root );
+			DBMetaMonitoring.importxml( loader , set , envs , root );
 		}
 		catch( Throwable e ) {
 			loader.setLoadFailed( action , _Error.UnableLoadProductMonitoring1 , e , "unable to import monitoring metadata, product=" + set.name , set.name );
@@ -91,10 +91,9 @@ public class EngineLoaderEnvs {
 	public void loaddbAll() throws Exception {
 		ProductEnvs envs = new ProductEnvs( set , set.meta );
 		set.setEnvs( envs );
-		loaddbEnvs();
-	}
-	
-	private void loaddbEnvs() throws Exception {
+		
+		DBMetaEnv.loaddbProductEnvs( loader , set , envs );
+		DBMetaMonitoring.loaddbProductMonitoring( loader , set , envs );
 	}
 	
 	public void exportxmlMonitoring( ProductStorage ms ) throws Exception {

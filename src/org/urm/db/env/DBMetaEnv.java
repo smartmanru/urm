@@ -1,13 +1,15 @@
 package org.urm.db.env;
 
+import java.sql.ResultSet;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
-import org.urm.db.core.DBEnums.DBEnumObjectType;
-import org.urm.db.core.DBEnums.DBEnumParamEntityType;
-import org.urm.db.core.DBEnums.DBEnumResourceType;
+import org.urm.db.core.DBEnums.*;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBEnums.DBEnumEnvType;
@@ -48,7 +50,7 @@ public class DBMetaEnv {
 		return( env );
 	}
 
-	public static void importxmlMatchBaseline( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
+	public static void matchBaseline( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
 		EngineEntities entities = loader.getEntities();
 		EngineMatcher matcher = loader.getMatcher();
 		ProductEnvs envs = storage.getEnviroments();
@@ -66,7 +68,7 @@ public class DBMetaEnv {
 			
 			if( baseline != null ) {
 				for( MetaEnvSegment sg : env.getSegments() )
-					DBMetaEnvSegment.importxmlMatchBaseline( loader , storage , env , sg , baseline );
+					DBMetaEnvSegment.matchBaseline( loader , storage , env , sg , baseline );
 			}
 		}
 	}
@@ -176,6 +178,83 @@ public class DBMetaEnv {
 				EngineDB.getMatchName( env.getDistrAccountMatchItem() ) ,
 				EngineDB.getString( env.DISTR_PATH )
 				} , insert );
+	}
+	
+	public static void loaddbProductEnvs( EngineLoader loader , ProductMeta storage , ProductEnvs envs ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		EngineMatcher matcher = loader.getMatcher();
+		PropertyEntity entity = entities.entityAppEnvPrimary;
+		EngineResources resources = loader.getResources();
+		EngineInfrastructure infra = loader.getInfrastructure();
+
+		List<MetaEnv> list = new LinkedList<MetaEnv>();
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_FK2 , new String[] { 
+				EngineDB.getInteger( storage.ID ) ,
+				EngineDB.getString( storage.name ) 
+				} );
+		try {
+			while( rs.next() ) {
+				MetaEnv env = new MetaEnv( storage , storage.meta );
+				env.ID = entity.loaddbId( rs );
+				env.EV = entity.loaddbVersion( rs );
+
+				// match baseline later
+				MatchItem BASELINE = entity.loaddbMatchItem( rs , DBEnvData.FIELD_ENV_BASELINE_ID , MetaEnv.PROPERTY_BASELINE );
+				
+				// set primary 
+				MatchItem ENVKEY = entity.loaddbMatchItem( rs , DBEnvData.FIELD_ENV_ENVKEY_ID , MetaEnv.PROPERTY_ENVKEY );
+				resources.matchResource( ENVKEY , DBEnumResourceType.SSH );
+				matcher.matchEnvDone( ENVKEY , env , env.ID , entity , MetaEnv.PROPERTY_ENVKEY , null );
+				
+				MatchItem DISTACCOUNT = entity.loaddbMatchItem( rs , DBEnvData.FIELD_ENV_REMOTE_ACCOUNT_ID , MetaEnv.PROPERTY_DISTR_HOSTLOGIN );
+				infra.matchAccount( DISTACCOUNT );
+				matcher.matchEnvDone( DISTACCOUNT , env , env.ID , entity , MetaEnv.PROPERTY_DISTR_HOSTLOGIN , null );
+				
+				env.setEnvPrimary(
+						entity.loaddbString( rs , MetaEnv.PROPERTY_NAME ) ,
+						entity.loaddbString( rs , MetaEnv.PROPERTY_DESC ) ,
+						DBEnumEnvType.getValue( entity.loaddbEnum( rs , MetaEnv.PROPERTY_ENVTYPE ) , true ) ,
+						BASELINE ,
+						entity.loaddbBoolean( rs , MetaEnv.PROPERTY_OFFLINE ) ,
+						ENVKEY ,
+						entity.loaddbBoolean( rs , MetaEnv.PROPERTY_DISTR_REMOTE ) ,
+						DISTACCOUNT ,
+						entity.loaddbString( rs , MetaEnv.PROPERTY_DISTR_PATH )
+						);
+				
+				list.add( env );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+		
+		// load env data by env
+		List<MetaEnv> ready = new LinkedList<MetaEnv>();
+		for( MetaEnv env : list ) {
+			try {
+				loaddbEnvData( loader , storage , env );
+				ready.add( env );
+			}
+			catch( Throwable e ) {
+				loader.trace( "unable to load environment=" + env.NAME );
+			}
+		}
+		
+		// match baselines
+		for( MetaEnv env : ready ) {
+			matchBaseline( loader , storage , env );
+			envs.addEnv( env );
+		}
+	}
+
+	public static void loaddbEnvData( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
+		ObjectProperties ops = env.getProperties();
+		DBSettings.loaddbValues( loader , env.ID , ops );
+		env.scatterExtraProperties();
+		
+		DBMetaEnvSegment.loaddb( loader , storage , env );
 	}
 	
 	public static void setMatched( EngineLoader loader , MetaEnv env , boolean matched ) throws Exception {

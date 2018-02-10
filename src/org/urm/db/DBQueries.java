@@ -110,7 +110,6 @@ public abstract class DBQueries {
 	public static String MODIFY_METALC_DELETEALL1 = "delete from urm_product_lifecycle where meta_id = @1@";
 	public static String QUERY_METALC_GETALL1 = "select meta_id , lc_index , lifecycle_fkid , lifecycle_fkname , pv from urm_product_lifecycle where meta_id = @1@";
 
-	public static String FILTER_META_ID = "where meta_id = @1@";
 	public static String MODIFY_SOURCE_SHIFTPOS_ONDELETEPROJECT3 = "update urm_source_project set project_pos = project_pos - 1 where meta_id = @1@ and srcset_id = @2@ and project_pos > @3@";
 	public static String MODIFY_SOURCE_SHIFTPOS_ONINSERTPROJECT3 = "update urm_source_project set project_pos = project_pos + 1 where meta_id = @1@ and srcset_id = @2@ and project_pos >= @3@";
 	public static String MODIFY_SOURCE_CHANGEPROJECTSET2 = "update urm_source_project set srcset_id = @2@ where meta_id = @1@";
@@ -149,5 +148,11 @@ public abstract class DBQueries {
 	public static String MODIFY_ENVSG_ADDSTARTGROUPSERVER4 = "insert into urm_env_startgroup_server ( startgroup_id , server_id , env_id , ev ) values ( @values@ )";
 	public static String MODIFY_ENVSERVER_MATCHBASELINE2 = "update urm_env_server set baseline_server_fkid = @2@ , baseline_server_fkname = null where server_id = @1@";
 	public static String MODIFY_ENVSERVER_ADDDEPSERVER5 = "insert into urm_env_server_deps ( server_id , dep_server_id , env_id , serverdependency_type , ev ) values ( @values@ )";
+	public static String QUERY_ENV_GETALLSTARTGROUPITEMS1 = "select startgroup_id , server_id , env_id , ev from urm_env_startgroup_server where env_id = @1@";
+	public static String QUERY_ENV_GETALLSERVERDEPS1 = "select server_id , dep_server_id , env_id , serverdependency_type , ev from urm_env_server_deps where env_id = @1@";
+
+	public static String FILTER_META_ID1 = "where meta_id = @1@";
+	public static String FILTER_META_FK2 = "where meta_fkid = @1@ or meta_fkname = @2@";
+	public static String FILTER_ENV_ID1 = "where env_id = @1@";
 	
 }
