@@ -88,6 +88,8 @@ public class EngineEntities {
 	public PropertyEntity entityAppEnvExtra;
 	public PropertyEntity entityAppSegmentPrimary;
 	public PropertyEntity entityAppSegmentStartGroup;
+	public PropertyEntity entityAppSegmentMonTarget;
+	public PropertyEntity entityAppSegmentMonItem;
 	public PropertyEntity entityAppServerPrimary;
 	public PropertyEntity entityAppServerExtra;
 	public PropertyEntity entityAppServerDeployment;
@@ -139,6 +141,8 @@ public class EngineEntities {
 		entityAppEnvExtra = DBEnvData.upgradeEntityEnvExtra( loader );
 		entityAppSegmentPrimary = DBEnvData.upgradeEntitySegmentPrimary( loader );
 		entityAppSegmentStartGroup = DBEnvData.upgradeEntityStartGroup( loader );
+		entityAppSegmentMonTarget = DBEnvData.upgradeEntityMonitoringTarget( loader );
+		entityAppSegmentMonItem = DBEnvData.upgradeEntityMonitoringItem( loader );
 		entityAppServerPrimary = DBEnvData.upgradeEntityServerPrimary( loader );
 		entityAppServerExtra = DBEnvData.upgradeEntityServerExtra( loader );
 		entityAppServerDeployment = DBEnvData.upgradeEntityServerDeployment( loader );
@@ -191,6 +195,8 @@ public class EngineEntities {
 		entityAppEnvExtra = DBEnvData.loaddbEntityEnvExtra( c );
 		entityAppSegmentPrimary = DBEnvData.loaddbEntitySegmentPrimary( c );
 		entityAppSegmentStartGroup = DBEnvData.loaddbEntityStartGroup( c );
+		entityAppSegmentMonTarget = DBEnvData.loaddbEntityMonitoringTarget( c );
+		entityAppSegmentMonItem = DBEnvData.loaddbEntityMonitoringItem( c );
 		entityAppServerPrimary = DBEnvData.loaddbEntityServerPrimary( c );
 		entityAppServerExtra = DBEnvData.loaddbEntityServerExtra( c );
 		entityAppServerDeployment = DBEnvData.loaddbEntityServerDeployment( c );

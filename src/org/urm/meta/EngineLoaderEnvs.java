@@ -3,10 +3,10 @@ package org.urm.meta;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.env.DBMetaEnv;
+import org.urm.db.env.DBMetaMonitoring;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
-import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
@@ -76,15 +76,13 @@ public class EngineLoaderEnvs {
 	public void loaddbAll() throws Exception {
 		ProductEnvs envs = new ProductEnvs( set , set.meta );
 		set.setEnvs( envs );
+		loaddbEnvs();
 	}
 	
-	public void loaddbEnvs() throws Exception {
+	private void loaddbEnvs() throws Exception {
 	}
 	
 	public void importxmlMonitoring( ProductStorage ms ) throws Exception {
-		ProductEnvs envs = set.getEnviroments();
-		MetaMonitoring mon = envs.getMonitoring();
-		
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -94,7 +92,7 @@ public class EngineLoaderEnvs {
 			Node root = doc.getDocumentElement();
 			
 			// monitoring settings
-			mon.load( action , root );
+			DBMetaMonitoring.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
 			loader.setLoadFailed( action , _Error.UnableLoadProductMonitoring1 , e , "unable to import monitoring metadata, product=" + set.name , set.name );
@@ -106,10 +104,9 @@ public class EngineLoaderEnvs {
 		String file = ms.getMonitoringConfFile( action );
 		action.debug( "export product monitoring file " + file + "..." );
 		Document doc = Common.xmlCreateDoc( XML_ROOT_MONITORING );
-		ProductEnvs envs = set.getEnviroments();
-		MetaMonitoring mon = envs.getMonitoring();
+		Element root = doc.getDocumentElement();
 		
-		mon.save( action , doc , doc.getDocumentElement() );
+		DBMetaMonitoring.exportxml( loader , set , doc , root );
 		ms.saveFile( action , doc , file );
 	}
 	

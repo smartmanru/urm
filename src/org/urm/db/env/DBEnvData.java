@@ -15,6 +15,8 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.env.MetaEnvStartGroup;
+import org.urm.meta.env.MetaMonitoringItem;
+import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.product.ProductMeta;
 
 public class DBEnvData {
@@ -25,6 +27,8 @@ public class DBEnvData {
 	public static String TABLE_NODE = "urm_env_node";
 	public static String TABLE_STARTGROUP = "urm_env_startgroup";
 	public static String TABLE_DEPLOYMENT = "urm_env_deployment";
+	public static String TABLE_MONTARGET = "urm_env_montarget";
+	public static String TABLE_MONITEM = "urm_env_monitem";
 	public static String FIELD_ENV_ID = "env_id";
 	public static String FIELD_ENV_META_ID = "meta_fkid";
 	public static String FIELD_ENV_META_NAME = "meta_fkname";
@@ -84,7 +88,20 @@ public class DBEnvData {
 	public static String FIELD_DEPLOYMENT_SCHEMA_NAME = "schema_fkname";
 	public static String FIELD_DEPLOYMENT_DEPLOYMODE = "deploymode_type";
 	public static String FIELD_DEPLOYMENT_NODETYPE = "node_type";
-	
+	public static String FIELD_MONTARGET_ID = "montarget_id";
+	public static String FIELD_MONTARGET_ENV_ID = "env_id";
+	public static String FIELD_MONTARGET_SEGMENT_ID = "segment_id";
+	public static String FIELD_MONTARGET_MAJOR_ENABLED = "major_enabled";
+	public static String FIELD_MONTARGET_MAJOR_SCHEDULE = "major_schedule";
+	public static String FIELD_MONTARGET_MAJOR_MAXTIME = "major_maxtime";
+	public static String FIELD_MONTARGET_MINOR_ENABLED = "minor_enabled";
+	public static String FIELD_MONTARGET_MINOR_SCHEDULE = "minor_schedule";
+	public static String FIELD_MONTARGET_MINOR_MAXTIME = "minor_maxtime";
+	public static String FIELD_MONITEM_ID = "monitem_id";
+	public static String FIELD_MONITEM_ENV_ID = "env_id";
+	public static String FIELD_MONITEM_TARGET_ID = "monitem_id";
+	public static String FIELD_MONITEM_TYPE = "monitem_type";
+
 	public static PropertyEntity upgradeEntityEnvPrimary( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT , DBEnumParamEntityType.ENV_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_ENV , FIELD_ENV_ID );
@@ -283,6 +300,46 @@ public class DBEnvData {
 
 	public static PropertyEntity loaddbEntityServerDeployment( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_DEPLOYMENT , DBEnumParamEntityType.ENV_DEPLOYMENT , DBEnumObjectVersionType.ENVIRONMENT , TABLE_DEPLOYMENT , FIELD_DEPLOYMENT_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity upgradeEntityMonitoringTarget( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_MONTARGET , DBEnumParamEntityType.ENV_SEGMENT_MONTARGET , DBEnumObjectVersionType.ENVIRONMENT , TABLE_MONTARGET , FIELD_MONTARGET_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaObjectDatabaseOnly( FIELD_MONTARGET_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_MONTARGET_SEGMENT_ID , "environment segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , true ) ,
+				EntityVar.metaBooleanVar( MetaMonitoringTarget.PROPERTY_MAJOR_ENABLED , FIELD_MONTARGET_MAJOR_ENABLED , MetaMonitoringTarget.PROPERTY_MAJOR_ENABLED , "Enabled major monitoring" , true , false ) ,
+				EntityVar.metaStringVar( MetaMonitoringTarget.PROPERTY_MAJOR_SCHEDULE , FIELD_MONTARGET_MAJOR_SCHEDULE , MetaMonitoringTarget.PROPERTY_MAJOR_SCHEDULE , "major schedule" , false , null ) ,
+				EntityVar.metaIntegerVar( MetaMonitoringTarget.PROPERTY_MAJOR_MAXTIME , FIELD_MONTARGET_MAJOR_MAXTIME , MetaMonitoringTarget.PROPERTY_MAJOR_MAXTIME , "major max time" , true , 300000 ) ,
+				EntityVar.metaBooleanVar( MetaMonitoringTarget.PROPERTY_MINOR_ENABLED , FIELD_MONTARGET_MINOR_ENABLED , MetaMonitoringTarget.PROPERTY_MINOR_ENABLED , "Enabled minor monitoring" , true , false ) ,
+				EntityVar.metaStringVar( MetaMonitoringTarget.PROPERTY_MINOR_SCHEDULE , FIELD_MONTARGET_MINOR_SCHEDULE , MetaMonitoringTarget.PROPERTY_MINOR_SCHEDULE , "minor schedule" , false , null ) ,
+				EntityVar.metaIntegerVar( MetaMonitoringTarget.PROPERTY_MINOR_MAXTIME , FIELD_MONTARGET_MINOR_MAXTIME , MetaMonitoringTarget.PROPERTY_MINOR_MAXTIME , "minor max time" , true , 300000 ) ,
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityMonitoringTarget( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_MONTARGET , DBEnumParamEntityType.ENV_SEGMENT_MONTARGET , DBEnumObjectVersionType.ENVIRONMENT , TABLE_MONTARGET , FIELD_MONTARGET_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity upgradeEntityMonitoringItem( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_MONITEM , DBEnumParamEntityType.ENV_SEGMENT_MONITEM , DBEnumObjectVersionType.ENVIRONMENT , TABLE_MONITEM , FIELD_MONITEM_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaObjectDatabaseOnly( FIELD_MONITEM_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_MONITEM_TARGET_ID , "monitoring target id" , DBEnumObjectType.ENVIRONMENT_MONTARGET , true ) ,
+				EntityVar.metaEnumVar( MetaMonitoringItem.PROPERTY_TYPE , FIELD_MONITEM_TYPE , MetaMonitoringItem.PROPERTY_TYPE , "monitoring item type" , true , DBEnumMonItemType.UNKNOWN ) ,
+				EntityVar.metaString( MetaMonitoringItem.PROPERTY_URL , "check url" , false , null ) ,
+				EntityVar.metaString( MetaMonitoringItem.PROPERTY_WSDATA , "check request" , false , null ) ,
+				EntityVar.metaString( MetaMonitoringItem.PROPERTY_WSCHECK , "check request response" , false , null )
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityMonitoringItem( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_MONITEM , DBEnumParamEntityType.ENV_SEGMENT_MONITEM , DBEnumObjectVersionType.ENVIRONMENT , TABLE_MONITEM , FIELD_MONITEM_ID );
 		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}

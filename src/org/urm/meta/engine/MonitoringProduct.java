@@ -89,7 +89,7 @@ public class MonitoringProduct {
 	private void stopTarget( ActionBase action , ActionMonitorTarget targetAction ) throws Exception {
 		targetAction.stop();
 		
-		MetaEnvSegment sg = targetAction.target.findSegment();
+		MetaEnvSegment sg = targetAction.target.getSegment();
 		EngineScheduler scheduler = action.getServerScheduler();
 		String sgName = sg.meta.name + "-" + sg.env.NAME + sg.NAME;
 		
@@ -109,7 +109,7 @@ public class MonitoringProduct {
 	}
 	
 	private void startTarget( ActionBase action , MetaMonitoringTarget target ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
+		MetaEnvSegment sg = target.getSegment();
 		if( action.isSegmentOffline( sg ) )
 			return;
 	

@@ -9,6 +9,7 @@ import org.urm.db.env.DBMetaEnv;
 import org.urm.db.env.DBMetaEnvSegment;
 import org.urm.db.env.DBMetaEnvServer;
 import org.urm.db.env.DBMetaEnvServerNode;
+import org.urm.db.env.DBMetaMonitoring;
 import org.urm.db.product.*;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.EngineEntities;
@@ -29,7 +30,6 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.env.MetaEnvStartInfo;
-import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.product.*;
 
@@ -500,14 +500,6 @@ public class EngineTransaction extends TransactionBase {
 		ProductMeta storage = settings.meta.getStorage();
 		super.checkTransactionMetadata( storage );
 		DBMetaSettings.updateMonitoringProperties( this , storage , settings );
-	}
-
-	public MetaMonitoringTarget modifyMonitoringTarget( MetaMonitoring monMeta , MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
-		super.checkTransactionMetadata( monMeta.meta.getStorage() );
-		MetaMonitoringTarget target = monMeta.modifyTarget( this , sg , major , enabled , maxTime , schedule );
-		EngineMonitoring mon = action.getActiveMonitoring();
-		mon.modifyTarget( this , target );
-		return( target );
 	}
 
 	// ################################################################################
@@ -1166,6 +1158,13 @@ public class EngineTransaction extends TransactionBase {
 	public void setDumpSchedule( MetaDump dump , ScheduleProperties schedule ) throws Exception {
 		super.checkTransactionMetadata( dump.database.meta.getStorage() );
 		dump.setSchedule( schedule );
+	}
+
+	public MetaMonitoringTarget modifyMonitoringTarget( MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
+		MetaEnv env = sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		return( DBMetaMonitoring.modifyTarget( this , storage , env , sg , major , enabled , maxTime , schedule ) );
 	}
 
 }

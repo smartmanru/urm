@@ -138,14 +138,14 @@ public class MonitorTargetInfo {
 	}
 	
 	public void addCheckEnvData( ActionBase action , long timeMillis , boolean status ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
+		MetaEnvSegment sg = target.getSegment();
 		action.info( "addCheckEnvData: product=" + target.meta.name + ", env=" + sg.env.NAME + ", sg=" + sg.NAME + 
 				", timeMillis=" + timeMillis + ", succeeded:" + Common.getBooleanValue( status ) );
 		setLastMajor( status , timeMillis );
 	}
 
 	public void addCheckMinorsData( ActionBase action , long timeMillis , boolean status ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
+		MetaEnvSegment sg = target.getSegment();
 		action.info( "addCheckMinorsData: product=" + target.meta.name + ", env=" + sg.env.NAME + ", sg=" + sg.NAME + 
 				", succeeded:" + Common.getBooleanValue( status ) );
 		setLastMinor( status , timeMillis );
@@ -205,7 +205,7 @@ public class MonitorTargetInfo {
 			" DEF:lineb=" + rrdfile + ":checkenv-time:MAX:step=60 LINE1:lineb" + max_color + ":" + Common.getQuoted( "Max" ) ); 
 		 */
 		
-		MetaEnvSegment sg = target.findSegment();
+		MetaEnvSegment sg = target.getSegment();
 		
 		RrdGraphDef gDef = new RrdGraphDef();
 		long endTime = Util.getTime();
@@ -238,7 +238,7 @@ public class MonitorTargetInfo {
 	}
 
 	private void updateReport( ActionBase action ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
+		MetaEnvSegment sg = target.getSegment();
 		
 		LocalFolder resourceFolder = storage.getResourceFolder( action );
 		if( !resourceFolder.checkExists( action ) ) {

@@ -218,6 +218,10 @@ public class MetaEnv extends EngineObject {
 		return( sgMap.get( name ) );
 	}
 
+	public MetaEnvSegment findSegment( int id ) {
+		return( sgMapById.get( id ) );
+	}
+
 	public MetaEnvSegment getSegment( String name ) throws Exception {
 		MetaEnvSegment sg = sgMap.get( name );
 		if( sg == null )

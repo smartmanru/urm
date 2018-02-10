@@ -221,7 +221,9 @@ public abstract class DBEnums {
 		ENVIRONMENT_SERVER(158,null) ,
 		ENVIRONMENT_NODE(159,null) ,
 		ENVIRONMENT_STARTGROUP(160,null) ,
-		ENVIRONMENT_DEPLOYMENT(161,null);
+		ENVIRONMENT_DEPLOYMENT(161,null) ,
+		ENVIRONMENT_MONTARGET(162,null) ,
+		ENVIRONMENT_MONITEM(163,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -673,6 +675,8 @@ public abstract class DBEnums {
 		ENV_SEGMENT_PRIMARY(311,null) ,
 		ENV_SEGMENT_STARTGROUP(312,null) ,
 		ENV_SEGMENT_CUSTOM(313,null) ,
+		ENV_SEGMENT_MONTARGET(314,null) ,
+		ENV_SEGMENT_MONITEM(315,null) ,
 		ENV_SERVER_PRIMARY(321,null) ,
 		ENV_SERVER_EXTRA(322,null) ,
 		ENV_SERVER_CUSTOM(323,null) ,
