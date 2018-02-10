@@ -132,6 +132,8 @@ public abstract class DBQueries {
 			"select server_id from urm_env_server a , urm_env b where a.env_id = b.env_id and b.meta_fkid = @1@ union all " +
 			"select segment_id from urm_env_segment a , urm_env b where a.env_id = b.env_id and b.meta_fkid = @1@ union all " + 
 			"select env_id from urm_env where meta_fkid = @1@ )";
+	public static String MODIFY_ENVALL_DELETEALL_MONITEM1 = "delete from urm_env_monitem where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
+	public static String MODIFY_ENVALL_DELETEALL_MONTARGET1 = "delete from urm_env_montarget where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
 	public static String MODIFY_ENVALL_DELETEALL_NODES1 = "delete from urm_env_node where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
 	public static String MODIFY_ENVALL_DELETEALL_DEPLOYMENTS1 = "delete from urm_env_deployment where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
 	public static String MODIFY_ENVALL_DELETEALL_SERVERDEPS1 = "delete from urm_env_server_deps where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";

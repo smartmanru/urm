@@ -358,6 +358,10 @@ public class DBEnvData {
 	}
 	
 	public static void dropEnvMonData( DBConnection c , ProductMeta storage ) throws Exception {
+		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_MONITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_MONTARGET1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+			Common.exitUnexpected();
 	}
 	
 	public static void dropEnvCoreData( DBConnection c , ProductMeta storage ) throws Exception {

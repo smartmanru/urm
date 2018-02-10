@@ -43,7 +43,7 @@ public class EngineLoaderEnvs {
 		importxmlMonitoring( ms );
 	}
 	
-	public void importxmlEnvs( ProductStorage ms , boolean update ) throws Exception {
+	private void importxmlEnvs( ProductStorage ms , boolean update ) throws Exception {
 		ProductEnvs envs = new ProductEnvs( set , set.meta );
 		set.setEnvs( envs );
 		
@@ -61,10 +61,25 @@ public class EngineLoaderEnvs {
 			else
 				loader.trace( "successfully matched env=" + env.NAME );
 		}
-		
-		importxmlMonitoring( ms );
 	}
 	
+	private void importxmlMonitoring( ProductStorage ms ) throws Exception {
+		ActionBase action = loader.getAction();
+		try {
+			// read
+			String file = ms.getMonitoringConfFile( action );
+			action.debug( "read monitoring definition file " + file + "..." );
+			Document doc = action.readXmlFile( file );
+			Node root = doc.getDocumentElement();
+			
+			// monitoring settings
+			DBMetaMonitoring.importxml( loader , set , root );
+		}
+		catch( Throwable e ) {
+			loader.setLoadFailed( action , _Error.UnableLoadProductMonitoring1 , e , "unable to import monitoring metadata, product=" + set.name , set.name );
+		}
+	}
+
 	private void exportxmlEnvs( ProductStorage ms ) throws Exception {
 		ProductEnvs envs = set.getEnviroments();
 		for( String envName : envs.getEnvNames() ) {
@@ -82,23 +97,6 @@ public class EngineLoaderEnvs {
 	private void loaddbEnvs() throws Exception {
 	}
 	
-	public void importxmlMonitoring( ProductStorage ms ) throws Exception {
-		ActionBase action = loader.getAction();
-		try {
-			// read
-			String file = ms.getMonitoringConfFile( action );
-			action.debug( "read monitoring definition file " + file + "..." );
-			Document doc = action.readXmlFile( file );
-			Node root = doc.getDocumentElement();
-			
-			// monitoring settings
-			DBMetaMonitoring.importxml( loader , set , root );
-		}
-		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductMonitoring1 , e , "unable to import monitoring metadata, product=" + set.name , set.name );
-		}
-	}
-
 	public void exportxmlMonitoring( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		String file = ms.getMonitoringConfFile( action );

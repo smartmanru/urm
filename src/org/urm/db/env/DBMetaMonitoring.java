@@ -64,20 +64,20 @@ public class DBMetaMonitoring {
 		target.createTarget( sg );
 		
 		ScheduleProperties propsMajor = new ScheduleProperties();
-		propsMajor.setScheduleData( action , entity.importxmlStringAttr( root , MetaMonitoringTarget.PROPERTY_MAJOR_SCHEDULE ) );
+		propsMajor.setScheduleData( action , entity.importxmlStringProperty( root , MetaMonitoringTarget.PROPERTY_MAJOR_SCHEDULE ) );
 		target.modifyTarget( 
 				true , 
-				entity.importxmlBooleanAttr( root , MetaMonitoringTarget.PROPERTY_MAJOR_ENABLED , false ) ,
+				entity.importxmlBooleanProperty( root , MetaMonitoringTarget.PROPERTY_MAJOR_ENABLED , false ) ,
 				propsMajor ,
-				entity.importxmlIntAttr( root , MetaMonitoringTarget.PROPERTY_MAJOR_MAXTIME ) );
+				entity.importxmlIntProperty( root , MetaMonitoringTarget.PROPERTY_MAJOR_MAXTIME ) );
 		
 		ScheduleProperties propsMinor = new ScheduleProperties();
 		propsMinor.setScheduleData( action , entity.importxmlStringAttr( root , MetaMonitoringTarget.PROPERTY_MINOR_SCHEDULE ) );
 		target.modifyTarget( 
-				true , 
-				entity.importxmlBooleanAttr( root , MetaMonitoringTarget.PROPERTY_MINOR_ENABLED , false ) ,
+				false , 
+				entity.importxmlBooleanProperty( root , MetaMonitoringTarget.PROPERTY_MINOR_ENABLED , false ) ,
 				propsMajor ,
-				entity.importxmlIntAttr( root , MetaMonitoringTarget.PROPERTY_MINOR_MAXTIME ) );
+				entity.importxmlIntProperty( root , MetaMonitoringTarget.PROPERTY_MINOR_MAXTIME ) );
 		modifyTarget( c , storage , env , target , true );
 		
 		importxmlTargetUrls( loader , storage , mon , env , target , root );
