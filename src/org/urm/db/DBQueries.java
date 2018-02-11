@@ -3,6 +3,10 @@ package org.urm.db;
 // all queries executed versus database
 public abstract class DBQueries {
 
+	public static String FILTER_META_ID1 = "where meta_id = @1@";
+	public static String FILTER_META_FK2 = "where meta_fkid = @1@ or meta_fkname = @2@";
+	public static String FILTER_ENV_ID1 = "where env_id = @1@";
+	
 	public static String QUERY_SEQ_GETNEXTVAL0 = "select nextval( 'urm_object_seq' )";
 
 	public static String QUERY_VERSIONS_GETVERSION1 = "select owner_object_id , version , objectversion_type , last_import_id , last_name , ownerstatus_type from urm_object_version where owner_object_id = @1@";
@@ -151,8 +155,8 @@ public abstract class DBQueries {
 	public static String QUERY_ENV_GETALLSTARTGROUPITEMS1 = "select startgroup_id , server_id , env_id , ev from urm_env_startgroup_server where env_id = @1@";
 	public static String QUERY_ENV_GETALLSERVERDEPS1 = "select server_id , dep_server_id , env_id , serverdependency_type , ev from urm_env_server_deps where env_id = @1@";
 
-	public static String FILTER_META_ID1 = "where meta_id = @1@";
-	public static String FILTER_META_FK2 = "where meta_fkid = @1@ or meta_fkname = @2@";
-	public static String FILTER_ENV_ID1 = "where env_id = @1@";
+	public static String MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPITEMS1 = "delete from urm_env_startgroup_server where startgroup_id in ( select startgroup_id from urm_env_startgroup where segment_id = @1@ )";
+	public static String MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPS1 = "delete from urm_env_startgroup where segment_id = @1@";
+	public static String MODIFY_ENV_CASCADESERVER_ALLDEPLOYMENTS1 = "delete from urm_env_deployment where server_id = @1@";
 	
 }

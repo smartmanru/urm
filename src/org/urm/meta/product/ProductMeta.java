@@ -6,7 +6,6 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
-import org.urm.engine.TransactionBase;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
@@ -81,6 +80,8 @@ public class ProductMeta extends EngineObject {
 		r.distr = distr.copy( r.meta );
 		
 		r.envs = envs.copy( action , r.meta );
+		r.envs.copyResolveExternals();
+		
 		r.repo = repo.copy( action , r.meta );
 		return( r );
 	}
@@ -126,10 +127,6 @@ public class ProductMeta extends EngineObject {
 		return( primary );
 	}
 	
-	public void createInitialRepository( TransactionBase transaction , boolean forceClear ) throws Exception {
-		repo = DistRepository.createInitialRepository( transaction.action , meta , forceClear );
-	}
-
 	public DistRepository getDistRepository() {
 		return( repo );
 	}

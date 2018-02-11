@@ -37,7 +37,6 @@ public class MetaEnv extends EngineObject {
 	public static String PROPERTY_REDISTWIN_PATH = "redist-win-path";
 	public static String PROPERTY_REDISTLINUX_PATH = "redist-linux-path";
 	public static String PROPERTY_CHATROOM = "chatroom";
-	public static String PROPERTY_KEYFILE = "keyfile";
 	public static String PROPERTY_DB_AUTHFILE = "db-authfile";
 	public static String PROPERTY_DB_AUTH = "db-auth";
 	public static String PROPERTY_SHOWONLY = "showonly";
@@ -282,8 +281,8 @@ public class MetaEnv extends EngineObject {
 		sgMap.remove( sg.NAME );
 	}
 	
-	public void setBaseline( MetaEnv env ) throws Exception {
-		this.BASELINE = new MatchItem( env.ID );
+	public void setBaseline( MatchItem envMatchItem ) throws Exception {
+		this.BASELINE = MatchItem.copy( envMatchItem );
 		refreshPrimaryProperties();
 	}
 	

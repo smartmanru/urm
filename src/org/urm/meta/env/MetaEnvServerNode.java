@@ -160,6 +160,11 @@ public class MetaEnvServerNode extends EngineObject {
 		refreshPrimaryProperties();
 	}
 
+	public void modifyNode( DBEnumNodeType type , MatchItem account ) {
+		this.NODE_TYPE = type;
+		this.ACCOUNT = MatchItem.copy( account );
+	}
+	
 	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
 		if( !checkReferencedByHostAccount( account ) )
 			return;

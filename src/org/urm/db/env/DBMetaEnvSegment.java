@@ -395,32 +395,81 @@ public class DBMetaEnvSegment {
 	}
 	
 	public static MetaEnvSegment createSegment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , String name , String desc , Integer dcId ) throws Exception {
-		Common.exitUnexpected();
-		return( null );
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = transaction.getEntities();
+		
+		MetaEnvSegment sg = new MetaEnvSegment( storage.meta , env );
+		sg.ID = DBNames.getNameIndex( c , env.ID , name , DBEnumObjectType.ENVIRONMENT_SEGMENT );
+		
+		transaction.trace( "create meta env segment, object=" + sg.objectId + ", name=" + name + ", id=" + sg.ID );
+
+		// create settings
+		ObjectProperties ops = entities.createMetaEnvSegmentProps( env.getProperties() );
+		sg.createSettings( ops );
+		
+		sg.setSegmentPrimary( name , desc , null , true , MatchItem.create( dcId ) );
+		modifySegment( c , storage , env , sg , true );
+		
+		env.addSegment( sg );
+		return( sg );
 	}
 
 	public static void modifySegment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , String name , String desc , Integer dcId ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		sg.modifySegment( name , desc , MatchItem.create( dcId ) );
+		
+		modifySegment( c , storage , env , sg , false );
+		env.updateSegment( sg );
 	}
 
 	public static void setSegmentBaseline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Integer sgId ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		sg.setBaseline( MatchItem.create( sgId ) );
+		
+		modifySegment( c , storage , env , sg , false );
 	}
 
 	public static void setSegmentOffline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , boolean offline ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		sg.setOffline( offline );
+		
+		modifySegment( c , storage , env , sg , false );
 	}
 
 	public static void deleteSegment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		
+		DBEngineEntities.deleteAppObject( c , entities.entityAppSegmentPrimary , sg.ID , c.getNextEnvironmentVersion( env ) );
+		env.removeSegment( sg );
 	}
 
-	public static void setStartInfo( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , MetaEnvStartInfo startInfo ) throws Exception {
-		Common.exitUnexpected();
+	public static void setStartInfo( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , MetaEnvStartInfo startInfoNew ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		MetaEnvStartInfo startInfo = startInfoNew.copy( storage.meta , sg );
+		
+		if( !c.modify( DBQueries.MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPITEMS1 , new String[] { EngineDB.getInteger( sg.ID ) } ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPS1 , new String[] { EngineDB.getInteger( sg.ID ) } ) )
+			Common.exitUnexpected();
+		
+		sg.setStartInfo( startInfo );
+		
+		for( MetaEnvStartGroup startGroup : startInfo.getForwardGroupList() ) {
+			modifyStartGroup( c , storage , env , startGroup , true );
+			
+			for( MetaEnvServer server : startGroup.getServers() )
+				addStartGroupServer( c , storage , env , startGroup , server );
+		}
 	}
 
 	public static void updateCustomProperties( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		
+		ObjectProperties ops = sg.getProperties();
+		int version = c.getNextEnvironmentVersion( env );
+		DBSettings.savedbPropertyValues( c , sg.ID , ops , false , true , version );
+		ops.recalculateChildProperties();
 	}
 	
 }

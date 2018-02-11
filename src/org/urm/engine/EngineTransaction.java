@@ -936,8 +936,7 @@ public class EngineTransaction extends TransactionBase {
 	
 	public MetaEnv createMetaEnv( Meta meta , String name , DBEnumEnvType envType ) throws Exception {
 		ProductMeta storage = meta.getStorage();
-		MetaEnv env = new MetaEnv( storage , storage.meta );
-		action.trace( "create meta env object, id=" + env.objectId );
+		super.checkTransactionMetadata( storage );
 		return( DBMetaEnv.createEnv( this , storage , name , envType ) );
 	}
 	

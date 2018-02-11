@@ -46,13 +46,15 @@ public class ProductEnvs {
 			r.addEnv( renv );
 		}
 		
-		// resolve properties
-		for( MetaEnv renv : r.getEnvs() )
-			renv.copyResolveExternals();
-		
 		return( r );
 	}
 
+	public void copyResolveExternals() throws Exception {
+		// resolve properties
+		for( MetaEnv env : getEnvs() )
+			env.copyResolveExternals();
+	}
+	
 	public MetaMonitoring getMonitoring() {
 		return( mon );
 	}

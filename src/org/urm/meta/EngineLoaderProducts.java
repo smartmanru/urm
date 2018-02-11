@@ -75,7 +75,8 @@ public class EngineLoaderProducts {
 			folder.ensureExists( action );
 	
 			// create distributive
-			DistRepository.createInitialRepository( action , set.meta , forceClearDist );
+			DistRepository repo = DistRepository.createInitialRepository( action , set.meta , forceClearDist );
+			set.setReleases( repo );
 			
 			// add product
 			product.setStorage( set );

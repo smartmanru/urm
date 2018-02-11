@@ -88,6 +88,22 @@ public class MetaEnvSegment extends EngineObject {
 		return( r );
 	}
 
+	public void copyResolveExternals() throws Exception {
+		if( BASELINE != null ) {
+			MetaEnvSegment sg = getBaseline();
+			if( sg == null )
+				Common.exitUnexpected();
+			
+			BASELINE.match( sg.ID );
+		}
+		
+		refreshPrimaryProperties();
+		ops.recalculateProperties();
+		
+		for( MetaEnvServer server : serverMap.values() )
+			server.copyResolveExternals();
+	}
+	
 	public void setSegmentPrimary( String name , String desc , MatchItem baselineMatchItem , boolean offline , MatchItem dcMatchItem ) throws Exception {
 		this.NAME = name;
 		this.DESC = desc;
@@ -262,7 +278,7 @@ public class MetaEnvSegment extends EngineObject {
 	}
 	
 	public void setBaseline( MatchItem sgBaseline ) throws Exception {
-		this.BASELINE = sgBaseline;
+		this.BASELINE = MatchItem.copy( sgBaseline );
 		refreshPrimaryProperties();
 	}
 	
@@ -323,20 +339,4 @@ public class MetaEnvSegment extends EngineObject {
 		return( DC );
 	}
 
-	public void copyResolveExternals() throws Exception {
-		if( BASELINE != null ) {
-			MetaEnvSegment sg = getBaseline();
-			if( sg == null )
-				Common.exitUnexpected();
-			
-			BASELINE.match( sg.ID );
-		}
-		
-		refreshPrimaryProperties();
-		ops.recalculateProperties();
-		
-		for( MetaEnvServer server : serverMap.values() )
-			server.copyResolveExternals();
-	}
-	
 }

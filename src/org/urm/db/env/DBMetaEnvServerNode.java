@@ -2,7 +2,6 @@ package org.urm.db.env;
 
 import java.sql.ResultSet;
 
-import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
@@ -164,24 +163,55 @@ public class DBMetaEnvServerNode {
 	}
 	
 	public static MetaEnvServerNode createNode( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , int pos , DBEnumNodeType nodeType , HostAccount account ) throws Exception {
-		Common.exitUnexpected();
-		return( null );
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = transaction.getEntities();
+		
+		MetaEnvServerNode node = new MetaEnvServerNode( storage.meta , server );
+		node.ID = c.getNextSequenceValue();
+		
+		transaction.trace( "create meta env server node, object=" + node.objectId + ", id=" + node.ID );
+
+		// create settings
+		ObjectProperties ops = entities.createMetaEnvServerNodeProps( server.getProperties() );
+		node.createSettings( ops );
+		
+		node.setNodePrimary( pos , nodeType , new MatchItem( account.ID ) , "" , true , "" , false );
+		server.addNode( node );
+		modifyNode( c , storage , env , node , true );
+		
+		return( node );
 	}
 	
 	public static void modifyNode( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServerNode node , int pos , DBEnumNodeType nodeType , HostAccount account ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		
+		node.modifyNode( nodeType , new MatchItem( account.ID ) );
+		node.server.updateNode( node );
+		modifyNode( c , storage , env , node , false );
 	}
 	
 	public static void deleteNode( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServerNode node ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		
+		DBEngineEntities.deleteAppObject( c , entities.entityAppNodePrimary , node.ID , c.getNextEnvironmentVersion( env ) );
+		node.server.removeNode( node );
 	}
 	
 	public static void setOffline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServerNode node , boolean offline ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		
+		node.setOffline( offline );
+		modifyNode( c , storage , env , node , false );
 	}
 	
 	public static void updateCustomProperties( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServerNode node ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		
+		ObjectProperties ops = node.getProperties();
+		int version = c.getNextEnvironmentVersion( env );
+		DBSettings.savedbPropertyValues( c , node.ID , ops , false , true , version );
+		ops.recalculateChildProperties();
 	}
 	
 }

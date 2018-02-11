@@ -338,8 +338,26 @@ public class DBMetaEnv {
 	}
 
 	public static MetaEnv createEnv( EngineTransaction transaction , ProductMeta storage , String name , DBEnumEnvType envType ) throws Exception {
-		Common.exitUnexpected();
-		return( null );
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = transaction.getEntities();
+		ProductEnvs envs = storage.getEnviroments();
+		
+		MetaEnv env = new MetaEnv( storage , storage.meta );
+		env.ID = DBNames.getNameIndex( c , storage.ID , name , DBEnumObjectType.ENVIRONMENT );
+		
+		transaction.trace( "create meta env, object=" + env.objectId + ", name=" + name + ", id=" + env.ID );
+
+		// create settings
+		MetaProductSettings settings = storage.getSettings();
+		ObjectProperties ops = entities.createMetaEnvProps( settings.getProperties() );
+		env.createSettings( ops );
+		
+		env.setEnvPrimary( name , "" , envType , null , true , null , false , null , "" );
+		env.scatterExtraProperties();
+		modifyEnv( c , storage , env , true );
+		
+		envs.addEnv( env );
+		return( env );
 	}
 
 	public static void deleteEnv( EngineTransaction transaction , ProductMeta storage , MetaEnv env ) throws Exception {
@@ -347,19 +365,33 @@ public class DBMetaEnv {
 	}
 
 	public static void setEnvOffline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , boolean offline ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		env.setOffline( offline );
+		
+		modifyEnv( c , storage , env , false );
 	}
 
 	public static void setEnvBaseline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , Integer envBaselineId ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		env.setBaseline( MatchItem.create( envBaselineId ) );
+		
+		modifyEnv( c , storage , env , false );
 	}
 
 	public static void updateCustomProperties( EngineTransaction transaction , ProductMeta storage , MetaEnv env ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		ObjectProperties ops = env.getProperties();
+		int version = c.getNextEnvironmentVersion( env );
+		DBSettings.savedbPropertyValues( c , env.ID , ops , false , true , version );
+		ops.recalculateChildProperties();
 	}
 	
 	public static void updateExtraProperties( EngineTransaction transaction , ProductMeta storage , MetaEnv env ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		ObjectProperties ops = env.getProperties();
+		int version = c.getNextEnvironmentVersion( env );
+		DBSettings.savedbPropertyValues( c , env.ID , ops , true , false , version , DBEnumParamEntityType.ENV_EXTRA );
+		ops.recalculateChildProperties();
 	}
 	
 }

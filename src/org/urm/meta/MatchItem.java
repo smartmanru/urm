@@ -30,6 +30,12 @@ public class MatchItem {
 		return( new MatchItem( value ) );
 	}
 	
+	public static MatchItem create( Integer value ) {
+		if( value == null )
+			return( null );
+		return( new MatchItem( value ) );
+	}
+	
 	public static MatchItem copy( MatchItem item ) {
 		if( item == null )
 			return( null );

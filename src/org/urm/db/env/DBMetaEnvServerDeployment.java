@@ -100,7 +100,7 @@ public class DBMetaEnvServerDeployment {
 		Common.exitUnexpected();
 	}
 	
-	private static void modifyDeployment( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvServerDeployment deployment , boolean insert ) throws Exception {
+	public static void modifyDeployment( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvServerDeployment deployment , boolean insert ) throws Exception {
 		if( insert )
 			deployment.ID = c.getNextSequenceValue();
 		

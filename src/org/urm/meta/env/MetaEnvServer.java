@@ -785,23 +785,13 @@ public class MetaEnvServer extends EngineObject {
 		return( list.toArray( new MetaEnvServer[0] ) );
 	}
 	
-	public void setBaseline( MetaEnv server ) throws Exception {
-		if( server == null ) {
-			this.BASELINE = null;
-			return;
-		}
-			
-		this.BASELINE = new MatchItem( server.ID );
+	public void setBaseline( MatchItem baselineMatchItem ) throws Exception {
+		this.BASELINE = MatchItem.copy( baselineMatchItem );
 		refreshPrimaryProperties();
 	}
 	
-	public void setPlatform( BaseItem item ) throws Exception {
-		if( item == null ) {
-			this.BASEITEM = null;
-			return;
-		}
-		
-		this.BASEITEM = new MatchItem( item.ID );
+	public void setBaseItem( MatchItem baseItemMatchItem ) throws Exception {
+		this.BASEITEM = MatchItem.copy( baseItemMatchItem );
 		refreshPrimaryProperties();
 	}
 	
@@ -940,22 +930,21 @@ public class MetaEnvServer extends EngineObject {
 
 	public void createServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , 
 			DBEnumOSType osType , MatchItem baselineMatch , boolean offline , DBEnumDbmsType dbmsType , MatchItem admSchemaMatch , MatchItem baseItemMatch ) throws Exception {
-		modifyServer( name , desc , runType , accessType , 
-				osType , baselineMatch , offline , dbmsType , admSchemaMatch , baseItemMatch );
+		this.BASELINE = MatchItem.copy( baselineMatch );
+		this.BASEITEM = MatchItem.copy( baseItemMatch );
+		this.OFFLINE = false;
+		modifyServer( name , desc , runType , accessType , osType , dbmsType , admSchemaMatch );
 	}
 	
 	public void modifyServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , 
-			DBEnumOSType osType , MatchItem baselineMatch , boolean offline , DBEnumDbmsType dbmsType , MatchItem admSchemaMatch , MatchItem baseItemMatch ) throws Exception {
+			DBEnumOSType osType , DBEnumDbmsType dbmsType , MatchItem admSchemaMatch ) throws Exception {
 		this.NAME = name;
 		this.DESC = desc;
 		this.SERVERRUN_TYPE = runType;
 		this.SERVERACCESS_TYPE = accessType;
 		this.OS_TYPE = osType;
-		this.BASELINE = MatchItem.copy( baselineMatch );
-		this.OFFLINE = false;
 		this.DBMS_TYPE = dbmsType;
 		this.DATABASE_ADMSCHEMA = MatchItem.copy( admSchemaMatch );
-		this.BASEITEM = MatchItem.copy( baseItemMatch );
 		
 		refreshPrimaryProperties();
 		scatterExtraProperties();

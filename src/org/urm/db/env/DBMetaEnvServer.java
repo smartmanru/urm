@@ -404,41 +404,94 @@ public class DBMetaEnvServer {
 		}
 	}
 	
-	public static MetaEnvServer createServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , DBEnumDbmsType dbmsType , Integer admSchema ) throws Exception {
-		Common.exitUnexpected();
-		return( null );
+	public static MetaEnvServer createServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , String name , String desc , 
+			DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , DBEnumDbmsType dbmsType , Integer admSchema ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = transaction.getEntities();
+		
+		// identify
+		MetaEnvServer server = new MetaEnvServer( storage.meta , sg );
+		server.ID = DBNames.getNameIndex( c , server.sg.ID , name , DBEnumObjectType.ENVIRONMENT_SERVER );
+
+		transaction.trace( "create meta env server, name=" + name );
+		
+		// create settings
+		ObjectProperties ops = entities.createMetaEnvServerProps( server.sg.getProperties() );
+		server.createSettings( ops );
+		
+		// primary
+		server.setServerPrimary( name , desc , runType , accessType , osType , sysname , null , true , dbmsType , MatchItem.create( admSchema ) , null );
+ 		modifyServer( c , storage , env , server , true );
+		server.scatterExtraProperties();
+		sg.addServer( server );
+		return( server );
 	}
 	
 	public static void modifyServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , DBEnumDbmsType dbmsType , Integer admSchema ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		
+		server.modifyServer( name , desc , runType , accessType , osType , dbmsType , MatchItem.create( admSchema ) );
+ 		modifyServer( c , storage , env , server , false );
+ 		server.sg.updateServer( server );
 	}
 	
 	public static void deleteServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		
+		DBEngineEntities.deleteAppObject( c , entities.entityAppServerPrimary , server.ID , c.getNextEnvironmentVersion( env ) );
+		server.sg.removeServer( server );
 	}
 	
 	public static void setServerBaseline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , Integer baselineId ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		server.setBaseline( MatchItem.create( baselineId ) );
+		
+		modifyServer( c , storage , env , server , false );
 	}
 	
 	public static void setServerBaseItem( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , Integer baseItemId ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		server.setBaseItem( MatchItem.create( baseItemId ) );
+		
+		modifyServer( c , storage , env , server , false );
 	}
 	
 	public static void setServerOffline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , boolean offline ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		server.setOffline( offline );
+		
+		modifyServer( c , storage , env , server , false );
 	}
 	
 	public static void setDeployments( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvServerDeployment[] deployments ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		
+		if( !c.modify( DBQueries.MODIFY_ENV_CASCADESERVER_ALLDEPLOYMENTS1 , new String[] { EngineDB.getInteger( server.ID ) } ) )
+			Common.exitUnexpected();
+		
+		server.clearDeployments();
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			deployment = deployment.copy( storage.meta , server );
+			server.addDeployment( deployment );
+			DBMetaEnvServerDeployment.modifyDeployment( c , storage , env , deployment , true );
+		}
 	}
 	
 	public static void updateCustomProperties( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		ObjectProperties ops = server.getProperties();
+		int version = c.getNextEnvironmentVersion( env );
+		DBSettings.savedbPropertyValues( c , server.ID , ops , false , true , version );
+		ops.recalculateChildProperties();
 	}
 	
 	public static void updateExtraProperties( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		ObjectProperties ops = server.getProperties();
+		int version = c.getNextEnvironmentVersion( env );
+		DBSettings.savedbPropertyValues( c , server.ID , ops , true , false , version , DBEnumParamEntityType.ENV_SERVER_EXTRA );
+		ops.recalculateChildProperties();
 	}
 	
 }
