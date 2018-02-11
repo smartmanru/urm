@@ -42,11 +42,7 @@ public class MirrorCaseSubversion extends MirrorCase {
 		LocalFolder comp = getComponentFolder();
 		if( !comp.checkExists( action ) ) {
 			comp.ensureExists( action );
-			if( !vcsSubversion.isValidRepositoryMasterPath( mirror , "/" ) ) {
-				vcsSubversion.createMasterFolder( mirror , "trunk" , "create component" );
-				vcsSubversion.createMasterFolder( mirror , "branches" , "create component" );
-				vcsSubversion.createMasterFolder( mirror , "tags" , "create component" );
-			}
+			vcsSubversion.createRepositoryFolders( mirror );
 		}
 
 		LocalFolder branch = getBranchFolder();

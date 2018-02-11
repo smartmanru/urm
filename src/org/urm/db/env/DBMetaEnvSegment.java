@@ -25,6 +25,8 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvStartGroup;
 import org.urm.meta.env.MetaEnvStartInfo;
 import org.urm.meta.product.ProductMeta;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class DBMetaEnvSegment {
@@ -318,6 +320,58 @@ public class DBMetaEnvSegment {
 		}
 		finally {
 			c.closeQuery();
+		}
+	}
+	
+	public static void exportxml( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Document doc , Element root ) throws Exception {
+		exportxmlMain( loader , storage , env , sg , doc , root );
+		exportxmlServers( loader , storage , env , sg , doc , root );
+		exportxmlStartOrder( loader , storage , env , sg , doc , root );
+	}	
+
+	private static void exportxmlMain( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Document doc , Element root ) throws Exception {
+		ObjectProperties ops = sg.getProperties();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppSegmentPrimary;
+		EngineInfrastructure infra = loader.getInfrastructure();
+		
+		// primary
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlString( sg.NAME ) ,
+				entity.exportxmlString( sg.DESC ) ,
+				entity.exportxmlString( env.getSegmentName( sg.getBaselineMatchItem() ) ) ,
+				entity.exportxmlBoolean( sg.OFFLINE ) ,
+				entity.exportxmlString( infra.getDatacenterName( sg.getBaselineMatchItem() ) )
+		} , true );
+		
+		// custom settings
+		DBSettings.exportxmlCustomEntity( loader , doc , root , ops );
+	}
+	
+	private static void exportxmlServers( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Document doc , Element root ) throws Exception {
+		for( String name : sg.getServerNames() ) {
+			MetaEnvServer server = sg.findServer( name );
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_SERVER );
+			DBMetaEnvServer.exportxml( loader , storage , env , server , doc , node );
+		}
+	}
+	
+	private static void exportxmlStartOrder( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppSegmentStartGroup;
+		
+		Element nodeStartOrder = Common.xmlCreateElement( doc , root , ELEMENT_STARTORDER );
+		
+		MetaEnvStartInfo startInfo = sg.getStartInfo();
+		for( MetaEnvStartGroup startGroup : startInfo.getForwardGroupList() ) {
+			Element nodeStartGroup = Common.xmlCreateElement( doc , nodeStartOrder , ELEMENT_STARTGROUP );
+			
+			String servers = Common.getList( startGroup.getServerNames() , " " );
+			DBEngineEntities.exportxmlAppObject( doc , nodeStartGroup , entity , new String[] {
+					entity.exportxmlString( startGroup.NAME ) ,
+					entity.exportxmlString( sg.DESC ) ,
+					servers
+			} , true );
 		}
 	}
 	

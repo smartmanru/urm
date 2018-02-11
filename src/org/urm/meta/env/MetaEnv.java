@@ -244,6 +244,13 @@ public class MetaEnv extends EngineObject {
 		return( getSegment( segment.FKNAME ) );
 	}
 	
+	public String getSegmentName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaEnvSegment sg = getSegment( item );
+		return( sg.NAME );
+	}
+	
 	public String[] getSegmentNames() {
 		return( Common.getSortedKeys( sgMap ) );
 	}

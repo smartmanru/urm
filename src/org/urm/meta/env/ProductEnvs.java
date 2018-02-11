@@ -156,6 +156,13 @@ public class ProductEnvs {
 		return( getMetaEnv( item.FKNAME ) );
 	}
 	
+	public String getMetaEnvName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaEnv env = getMetaEnv( item );
+		return( env.NAME );
+	}
+	
     public MetaEnvSegment findMetaEnvSegment( MetaEnvSegment sg ) {
     	if( sg == null )
     		return( null );

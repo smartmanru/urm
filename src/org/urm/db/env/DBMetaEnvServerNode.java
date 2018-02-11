@@ -23,6 +23,8 @@ import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.ProductMeta;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class DBMetaEnvServerNode {
@@ -138,6 +140,27 @@ public class DBMetaEnvServerNode {
 				}
 			}
 		}
+	}
+	
+	public static void exportxml( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServerNode sn , Document doc , Element root ) throws Exception {
+		ObjectProperties ops = sn.getProperties();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppNodePrimary;
+		EngineInfrastructure infra = loader.getInfrastructure();
+		
+		// primary
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlInt( sn.POS ) ,
+				entity.exportxmlEnum( sn.NODE_TYPE ) ,
+				entity.exportxmlString( infra.getHostAccountName( sn.getAccountMatchItem() ) ) ,
+				entity.exportxmlString( sn.DEPLOYGROUP ) ,
+				entity.exportxmlBoolean( sn.OFFLINE ) ,
+				entity.exportxmlString( sn.DBINSTANCE ) ,
+				entity.exportxmlBoolean( sn.DBSTANDBY )
+		} , true );
+		
+		// custom settings
+		DBSettings.exportxmlCustomEntity( loader , doc , root , ops );
 	}
 	
 	public static MetaEnvServerNode createNode( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , int pos , DBEnumNodeType nodeType , HostAccount account ) throws Exception {

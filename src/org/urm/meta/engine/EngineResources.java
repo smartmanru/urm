@@ -88,6 +88,13 @@ public class EngineResources extends EngineObject {
 		return( getResource( item.FKNAME ) );
 	}
 	
+	public String getResourceName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		AuthResource res = getResource( item );
+		return( res.NAME );
+	}
+	
 	public String[] getResourceNames() {
 		return( Common.getSortedKeys( resourceMap ) );
 	}

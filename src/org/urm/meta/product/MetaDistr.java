@@ -106,6 +106,13 @@ public class MetaDistr {
 		return( getComponent( item.FKNAME ) );
 	}
 	
+	public String getComponentName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaDistrComponent comp = getComponent( item );
+		return( comp.NAME );
+	}
+	
 	public MetaDistrBinaryItem findBinaryItem( String name ) {
 		return( mapBinaryItems.get( name ) );
 	}
@@ -137,6 +144,13 @@ public class MetaDistr {
 		if( item.MATCHED )
 			return( getBinaryItem( item.FKID ) );
 		return( getBinaryItem( item.FKNAME ) );
+	}
+	
+	public String getBinaryItemName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaDistrBinaryItem binaryItem = getBinaryItem( item );
+		return( binaryItem.NAME );
 	}
 	
 	public String getBinaryItemName( Integer id ) throws Exception {
@@ -202,6 +216,13 @@ public class MetaDistr {
 		if( item.MATCHED )
 			return( getConfItem( item.FKID ) );
 		return( getConfItem( item.FKNAME ) );
+	}
+	
+	public String getConfItemName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaDistrConfItem confItem = getConfItem( item );
+		return( confItem.NAME );
 	}
 	
 	public MetaDistrDelivery[] getDeliveries() {

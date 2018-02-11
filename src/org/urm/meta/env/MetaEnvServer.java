@@ -83,6 +83,7 @@ public class MetaEnvServer extends EngineObject {
 	public DBEnumServerRunType SERVERRUN_TYPE;
 	public DBEnumServerAccessType SERVERACCESS_TYPE;
 	public DBEnumOSType OS_TYPE;
+	public String SYSNAME;
 	private MatchItem BASELINE;
 	public boolean OFFLINE;
 	public DBEnumDbmsType DBMS_TYPE;
@@ -90,11 +91,10 @@ public class MetaEnvServer extends EngineObject {
 	private MatchItem BASEITEM;
 	public int EV;
 	
-	// properties
+	// extra properties
 	public String XDOC;
 	public String ROOTPATH;
 	public String BINPATH;
-	public String SYSNAME;
 	public int PORT;
 	public int STARTTIME;
 	public int STOPTIME;
@@ -196,6 +196,10 @@ public class MetaEnvServer extends EngineObject {
 		return( ops );
 	}
 
+	public ObjectProperties getBaseProperties() {
+		return( base );
+	}
+
 	public boolean checkMatched() {
 		if( !MatchItem.isMatched( BASELINE ) )
 			return( false );
@@ -217,12 +221,13 @@ public class MetaEnvServer extends EngineObject {
 	}
 
 	public void setServerPrimary( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , DBEnumOSType osType , 
-			MatchItem baselineMatchItem , boolean offline , DBEnumDbmsType dbmsType , MatchItem admSchemaMatchItem , MatchItem baseItemMatchItem ) throws Exception {
+			String sysname , MatchItem baselineMatchItem , boolean offline , DBEnumDbmsType dbmsType , MatchItem admSchemaMatchItem , MatchItem baseItemMatchItem ) throws Exception {
 		this.NAME = name;
 		this.DESC = desc;
 		this.SERVERRUN_TYPE = runType;
 		this.SERVERACCESS_TYPE = accessType;
 		this.OS_TYPE = osType;
+		this.SYSNAME = sysname;
 		this.BASELINE = MatchItem.copy( baselineMatchItem );
 		this.OFFLINE = offline;
 		this.DBMS_TYPE = dbmsType;
@@ -238,6 +243,7 @@ public class MetaEnvServer extends EngineObject {
 		ops.setEnumProperty( PROPERTY_SERVERRUNTYPE , SERVERRUN_TYPE );
 		ops.setEnumProperty( PROPERTY_SERVERACCESSTYPE , SERVERACCESS_TYPE );
 		ops.setEnumProperty( PROPERTY_OSTYPE , OS_TYPE );
+		ops.setStringProperty( PROPERTY_SYSNAME , SYSNAME );
 		
 		MetaEnvServer serverBaseline = getBaseline();
 		if( serverBaseline != null )
@@ -259,7 +265,6 @@ public class MetaEnvServer extends EngineObject {
 		XDOC = "";
 		ROOTPATH = "";
 		BINPATH = "";
-		SYSNAME = "";
 		PORT = 0;
 		STARTTIME = 0;
 		STOPTIME = 0;
@@ -278,7 +283,6 @@ public class MetaEnvServer extends EngineObject {
 		REGIONS = "";
 		
 		XDOC = ops.getPathProperty( PROPERTY_XDOC );
-		SYSNAME = ops.getStringProperty( PROPERTY_SYSNAME );
 		
 		if( isStartable() || isDeployPossible() ) {
 			ROOTPATH = ops.getPathProperty( PROPERTY_ROOTPATH );
@@ -346,7 +350,7 @@ public class MetaEnvServer extends EngineObject {
 		return( segmentBaseline.getServer( BASELINE ) );
 	}
 
-	public Map<String,MetaEnvServer> getAssociatedServers() throws Exception {
+	public MetaEnvServer[] getAssociatedServers() throws Exception {
 		Map<String,MetaEnvServer> servers = new HashMap<String,MetaEnvServer>();
 		if( nlbServer != null ) {
 			MetaEnvServer server = sg.getServer( nlbServer );
@@ -363,13 +367,17 @@ public class MetaEnvServer extends EngineObject {
 			servers.put( server.NAME , server );
 		}
 	
-		if( subordinateServers != null ) {
-			for( MatchItem item : subordinateServers ) {
-				MetaEnvServer server = sg.getServer( item );
-				servers.put( server.NAME , server );
-			}
+		for( MatchItem item : subordinateServers ) {
+			MetaEnvServer server = sg.getServer( item );
+			servers.put( server.NAME , server );
 		}
-		return( servers );
+		
+		List<MetaEnvServer> list = new LinkedList<MetaEnvServer>();
+		for( String name : Common.getSortedKeys( servers ) ) {
+			MetaEnvServer server = servers.get( name );
+			list.add( server );
+		}
+		return( list.toArray( new MetaEnvServer[0] ) );
 	}
 	
 	public void setStartGroup( MetaEnvStartGroup group ) {
@@ -768,8 +776,13 @@ public class MetaEnvServer extends EngineObject {
 		return( sg.getServer( staticServer ) );
 	}
 	
-	public MetaEnvServer[] getSubordinateServers() {
-		return( subordinateServers.toArray( new MetaEnvServer[0] ) );
+	public MetaEnvServer[] getSubordinateServers() throws Exception {
+		List<MetaEnvServer> list = new LinkedList<MetaEnvServer>();
+		for( MatchItem item : subordinateServers ) {
+			MetaEnvServer server = sg.getServer( item );
+			list.add( server );
+		}
+		return( list.toArray( new MetaEnvServer[0] ) );
 	}
 	
 	public void setBaseline( MetaEnv server ) throws Exception {
@@ -1004,6 +1017,24 @@ public class MetaEnvServer extends EngineObject {
 		
 		for( MetaEnvServerNode node : nodes )
 			node.copyResolveExternals();
+	}
+
+	public boolean hasBaseItem() {
+		if( BASEITEM == null )
+			return( false );
+		return( true );
+	}
+	
+	public boolean hasDependencies() {
+		if( nlbServer != null )
+			return( true );
+		if( proxyServer != null )
+			return( true );
+		if( staticServer != null )
+			return( true );
+		if( !subordinateServers.isEmpty() )
+			return( true );
+		return( false );
 	}
 	
 }

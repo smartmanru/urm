@@ -22,6 +22,8 @@ import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.ProductMeta;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class DBMetaEnvServerDeployment {
@@ -186,6 +188,26 @@ public class DBMetaEnvServerDeployment {
 				server.scatterExtraProperties();
 			}
 		}
+	}
+	
+	public static void exportxml( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServerDeployment deployment , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppServerDeployment;
+		MetaDistr distr = storage.getDistr();
+		MetaDatabase database = storage.getDatabase();
+		
+		// primary
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlString( distr.getComponentName( deployment.getCompMatchItem() ) ) ,
+				entity.exportxmlString( distr.getBinaryItemName( deployment.getBinaryItemMatchItem() ) ) ,
+				entity.exportxmlString( distr.getConfItemName( deployment.getConfItemMatchItem() ) ) ,
+				entity.exportxmlString( database.getSchemaName( deployment.getSchemaMatchItem() ) ) ,
+				entity.exportxmlEnum( deployment.DEPLOYMODE_TYPE ) ,
+				entity.exportxmlString( deployment.DEPLOYPATH ) ,
+				entity.exportxmlString( deployment.DBNAME ) ,
+				entity.exportxmlString( deployment.DBUSER ) ,
+				entity.exportxmlEnum( deployment.NODE_TYPE )
+		} , true );
 	}
 	
 }

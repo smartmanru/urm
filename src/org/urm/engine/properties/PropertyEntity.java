@@ -11,6 +11,7 @@ import org.urm.db.core.DBVersions;
 import org.w3c.dom.Node;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.db.core.DBEnumInterface;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
@@ -351,6 +352,9 @@ public class PropertyEntity {
 	}
 	
 	public String exportxmlEnum( Enum<?> value ) {
+		DBEnumInterface ei = ( DBEnumInterface )value;
+		if( ei.code() == 0 )
+			return( "" );
 		return( value.name().toLowerCase() );
 	}
 	

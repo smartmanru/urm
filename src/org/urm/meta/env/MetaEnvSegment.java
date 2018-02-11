@@ -176,6 +176,13 @@ public class MetaEnvSegment extends EngineObject {
 		return( server );
 	}
 	
+	public String getServerName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaEnvServer server = getServer( item );
+		return( server.NAME );
+	}
+	
 	public MetaEnvServer[] getServers() {
 		return( serverMap.values().toArray( new MetaEnvServer[0] ) );
 	}

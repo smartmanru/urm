@@ -709,6 +709,7 @@ public abstract class DBEnums {
 		LDAP(50,null) ,
 		METACORE(101,null),
 		METAMON(102,null),
+		SERVERBASE(122,null),
 		DEFAULT(200,null);
 
 		private final int value;

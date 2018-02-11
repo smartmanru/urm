@@ -533,6 +533,22 @@ public class SubversionVCS extends GenericVCS {
 	}
 	
 	// implementation
+	public void createRepositoryFolders( MirrorRepository mirror ) throws Exception {
+		String path = getRepositoryPath( mirror );
+		if( !checkSvnPathExists( path ) ) {
+			createRepositoryFolder( mirror , "trunk" , "create component" );
+			createRepositoryFolder( mirror , "branches" , "create component" );
+			createRepositoryFolder( mirror , "tags" , "create component" );
+		}
+	}
+
+	private boolean createRepositoryFolder( MirrorRepository mirror , String folder , String commitMessage ) throws Exception {
+		String rootPath = getRepositoryPath( mirror );
+		String fullPath = Common.getPath( rootPath , folder );
+		shell.customCheckStatus( action , "svn mkdir " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " --parents " + Common.getQuoted( fullPath ) + " > " + shell.getOSDevNull() );
+		return( true );
+	}
+	
 	private String getTrunkRepositoryPath( MirrorRepository mirror , String path ) {
 		return( Common.getPath( getRepositoryPath( mirror ) , "trunk" , path ) );
 	}
@@ -553,7 +569,7 @@ public class SubversionVCS extends GenericVCS {
 		shell.customCheckStatus( action , "svn co " + SVNAUTH + " " + fullPath + " " + ospath );
 	}
 	
-	private boolean checkSvnPathExists( String path ) throws Exception {
+	public boolean checkSvnPathExists( String path ) throws Exception {
 		int status = shell.customGetStatus( action , "svn info " + SVNAUTH + " " + path + " > " + shell.getOSDevNull() );
 		if( status != 0 )
 			return( false );

@@ -38,6 +38,7 @@ import org.w3c.dom.Node;
 public class DBMetaEnv {
 
 	public static String ELEMENT_SEGMENT = "segment";
+	public static String ATTR_VERSION = "envversion";
 	
 	public static MetaEnv importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
 		ProductEnvs envs = storage.getEnviroments();
@@ -81,11 +82,12 @@ public class DBMetaEnv {
 		EngineInfrastructure infra = loader.getInfrastructure();
 		
 		// identify
+		String version = ConfReader.getAttrValue( root , ATTR_VERSION );
 		PropertyEntity entity = entities.entityAppEnvPrimary;
 		String NAME = entity.importxmlStringAttr( root , MetaEnv.PROPERTY_NAME );
 		env.ID = DBNames.getNameIndex( c , storage.ID , NAME , DBEnumObjectType.ENVIRONMENT );
 
-		loader.trace( "import meta env object, object=" + env.objectId + ", id=" + env.ID + ", name=" + NAME );
+		loader.trace( "import meta env object, object=" + env.objectId + ", id=" + env.ID + ", name=" + NAME + ", source version=" + version );
 
 		// create settings
 		MetaProductSettings settings = storage.getSettings();
@@ -145,8 +147,50 @@ public class DBMetaEnv {
 	}
 	
 	public static void exportxml( EngineLoader loader , ProductMeta storage , MetaEnv env , Document doc , Element root ) throws Exception {
+		exportxmlMain( loader , storage , env , doc , root );
+		exportxmlSegments( loader , storage , env , doc , root );
 	}
 
+	private static void exportxmlMain( EngineLoader loader , ProductMeta storage , MetaEnv env , Document doc , Element root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		ObjectProperties ops = env.getProperties();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppEnvPrimary;
+		ProductEnvs envs = storage.getEnviroments();
+		EngineResources resources = loader.getResources();
+		EngineInfrastructure infra = loader.getInfrastructure();
+		
+		int version = c.getCurrentEnvironmentVersion( env );
+		Common.xmlSetElementAttr( doc , root , ATTR_VERSION , "" + version );
+		
+		// primary
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlString( env.NAME ) ,
+				entity.exportxmlString( env.DESC ) ,
+				entity.exportxmlEnum( env.ENV_TYPE ) ,
+				entity.exportxmlString( envs.getMetaEnvName( env.getBaselineMatchItem() ) ) ,
+				entity.exportxmlBoolean( env.OFFLINE ) ,
+				entity.exportxmlString( resources.getResourceName( env.getEnvKeyMatchItem() ) ) ,
+				entity.exportxmlBoolean( env.DISTR_REMOTE ) ,
+				entity.exportxmlString( infra.getHostAccountName( env.getDistrAccountMatchItem() ) ) ,
+				entity.exportxmlString( env.DISTR_PATH )
+		} , true );
+		
+		// custom settings
+		DBSettings.exportxmlCustomEntity( loader , doc , root , ops );
+		
+		// core settings
+		DBSettings.exportxml( loader , doc , root , ops , true , false , true , DBEnumParamEntityType.ENV_EXTRA );
+	}
+	
+	private static void exportxmlSegments( EngineLoader loader , ProductMeta storage , MetaEnv env , Document doc , Element root ) throws Exception {
+		for( String name : env.getSegmentNames() ) {
+			MetaEnvSegment sg = env.findSegment( name );
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_SEGMENT );
+			DBMetaEnvSegment.exportxml( loader , storage , env , sg , doc , node );
+		}
+	}
+	
 	private static void modifyEnvMatch( DBConnection c , ProductMeta storage , MetaEnv env ) throws Exception {
 		MatchItem item = env.getBaselineMatchItem();
 		if( !item.MATCHED )

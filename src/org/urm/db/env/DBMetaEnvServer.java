@@ -27,12 +27,13 @@ import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.ProductMeta;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class DBMetaEnvServer {
 
 	public static String ELEMENT_NODE = "node";
-	public static String ELEMENT_PLATFORM = "platform";
 	public static String ELEMENT_DEPLOY = "deploy";
 	public static String ELEMENT_DEPENDENCIES = "dependencies";
 	public static String ELEMENT_DEPSERVER = "server";
@@ -132,6 +133,7 @@ public class DBMetaEnvServer {
 				DBEnumServerRunType.getValue( entity.importxmlEnumAttr( root , MetaEnvServer.PROPERTY_SERVERRUNTYPE ) , true ) ,
 				DBEnumServerAccessType.getValue( entity.importxmlEnumAttr( root , MetaEnvServer.PROPERTY_SERVERACCESSTYPE ) , true ) ,
 				DBEnumOSType.getValue( entity.importxmlEnumAttr( root , MetaEnvServer.PROPERTY_OSTYPE ) , true ) ,
+				entity.importxmlStringAttr( root , MetaEnvServer.PROPERTY_SYSNAME ) ,
 				BASELINE ,
 				entity.importxmlBooleanAttr( root , MetaEnv.PROPERTY_OFFLINE , false ) ,
 				DBEnumDbmsType.getValue( entity.importxmlEnumAttr( root , MetaEnvServer.PROPERTY_DBMSTYPE ) , false ) ,
@@ -161,8 +163,11 @@ public class DBMetaEnvServer {
 	private static void importxmlBase( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , Node root ) throws Exception {
 		EngineEntities entities = loader.getEntities();
 		
+		ObjectProperties base = entities.createMetaEnvServerBaseProps( server.getProperties() );
+		server.createBaseSettings( base );
+		
 		MatchItem BASEITEM = server.getBaseItemMatchItem();
-		if( BASEITEM == null || !BASEITEM.MATCHED )
+		if( BASEITEM == null )
 			return;
 		
 		BaseItem baseItem = server.getBaseItem();
@@ -172,9 +177,6 @@ public class DBMetaEnvServer {
 		Node baseNode = ConfReader.xmlGetFirstChild( root , ELEMENT_BASE );
 		if( baseNode == null )
 			Common.exitUnexpected();
-		
-		ObjectProperties base = entities.createMetaEnvServerBaseProps( server.getProperties() );
-		server.createBaseSettings( base );
 		
 		// base item and base custom
 		DBSettings.importxml( loader , root , base , server.ID , storage.ID , false , true , env.EV );
@@ -257,6 +259,8 @@ public class DBMetaEnvServer {
 
 				ObjectProperties ops = entities.createMetaEnvServerProps( sg.getProperties() );
 				server.createSettings( ops );
+				ObjectProperties opsBase = entities.createMetaEnvServerBaseProps( ops );
+				server.createBaseSettings( opsBase );
 				
 				// match baseline later
 				MatchItem BASELINE = entity.loaddbMatchItem( rs , DBEnvData.FIELD_SERVER_BASELINE_ID , MetaEnvServer.PROPERTY_BASELINE );
@@ -276,6 +280,7 @@ public class DBMetaEnvServer {
 						DBEnumServerRunType.getValue( entity.loaddbEnum( rs , MetaEnvServer.PROPERTY_SERVERRUNTYPE ) , true ) ,
 						DBEnumServerAccessType.getValue( entity.loaddbEnum( rs , MetaEnvServer.PROPERTY_SERVERACCESSTYPE ) , true ) ,
 						DBEnumOSType.getValue( entity.loaddbEnum( rs , MetaEnvServer.PROPERTY_OSTYPE ) , true ) ,
+						entity.loaddbString( rs , MetaEnvServer.PROPERTY_SYSNAME ) ,
 						BASELINE ,
 						entity.loaddbBoolean( rs , MetaEnvServer.PROPERTY_OFFLINE ) ,
 						DBEnumDbmsType.getValue( entity.loaddbEnum( rs , MetaEnvServer.PROPERTY_DBMSTYPE ) , false ) ,
@@ -296,10 +301,107 @@ public class DBMetaEnvServer {
 				ObjectProperties ops = server.getProperties();
 				DBSettings.loaddbValues( loader , server.ID , ops );
 				server.scatterExtraProperties();
+				
+				ObjectProperties opsBase = server.getBaseProperties();
+				DBSettings.loaddbValues( loader , server.ID , opsBase );
 			}
 		}
 		
 		DBMetaEnvServerDeployment.loaddb( loader , storage , env );
+	}
+
+	public static void exportxml( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , Document doc , Element root ) throws Exception {
+		exportxmlMain( loader , storage , env , server , doc , root );
+		exportxmlNodes( loader , storage , env , server , doc , root );
+		exportxmlBase( loader , storage , env , server , doc , root );
+		exportxmlDeployments( loader , storage , env , server , doc , root );
+		exportxmlDependencies( loader , storage , env , server , doc , root );
+	}
+
+	private static void exportxmlMain( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , Document doc , Element root ) throws Exception {
+		ObjectProperties ops = server.getProperties();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppServerPrimary;
+		EngineBase base = loader.getBase();
+		MetaDatabase database = storage.getDatabase();
+		
+		// primary
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlString( server.NAME ) ,
+				entity.exportxmlString( server.DESC ) ,
+				entity.exportxmlEnum( server.SERVERRUN_TYPE ) ,
+				entity.exportxmlEnum( server.SERVERACCESS_TYPE ) ,
+				entity.exportxmlEnum( server.OS_TYPE ) ,
+				entity.exportxmlString( server.SYSNAME ) ,
+				entity.exportxmlString( server.sg.getServerName( server.getBaselineMatchItem() ) ) ,
+				entity.exportxmlBoolean( server.OFFLINE ) ,
+				entity.exportxmlEnum( server.DBMS_TYPE ) ,
+				entity.exportxmlString( database.getSchemaName( server.getAdmSchemaMatchItem() ) ) ,
+				entity.exportxmlString( base.getItemName( server.getBaseItemMatchItem() ) )
+		} , true );
+		
+		// custom settings
+		DBSettings.exportxmlCustomEntity( loader , doc , root , ops );
+		
+		// extra settings
+		DBSettings.exportxml( loader , doc , root , ops , true , false , true , DBEnumParamEntityType.ENV_SERVER_EXTRA );
+	}
+	
+	private static void exportxmlNodes( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , Document doc , Element root ) throws Exception {
+		for( MetaEnvServerNode sn : server.getNodes() ) {
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_NODE );
+			DBMetaEnvServerNode.exportxml( loader , storage , env , sn , doc , node );
+		}
+	}
+	
+	private static void exportxmlBase( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , Document doc , Element root ) throws Exception {
+		if( server.hasBaseItem() ) {
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_BASE );
+			ObjectProperties base = server.getBaseProperties();
+			DBSettings.exportxmlCustomEntity( loader , doc , node , base );
+		}
+	}
+	
+	private static void exportxmlDeployments( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , Document doc , Element root ) throws Exception {
+		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_DEPLOY );
+			DBMetaEnvServerDeployment.exportxml( loader , storage , env , deployment , doc , node );
+		}
+	}
+	
+	private static void exportxmlDependencies( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , Document doc , Element root ) throws Exception {
+		if( !server.hasDependencies() )
+			return;
+		
+		Element deps = Common.xmlCreateElement( doc , root , ELEMENT_DEPENDENCIES );
+		
+		MetaEnvServer dep = null;
+		dep = server.getNlbServer();
+		if( dep != null ) {
+			Element node = Common.xmlCreateElement( doc , deps , ELEMENT_DEPSERVER );
+			Common.xmlSetElementAttr( doc , node , ATTR_DEPSERVER_NAME , dep.NAME );
+			Common.xmlSetElementAttr( doc , node , ATTR_DEPSERVER_TYPE , DBEnumServerDependencyType.NLB.name().toLowerCase() );
+		}
+		
+		dep = server.getProxyServer();
+		if( dep != null ) {
+			Element node = Common.xmlCreateElement( doc , deps , ELEMENT_DEPSERVER );
+			Common.xmlSetElementAttr( doc , node , ATTR_DEPSERVER_NAME , dep.NAME );
+			Common.xmlSetElementAttr( doc , node , ATTR_DEPSERVER_TYPE , DBEnumServerDependencyType.PROXY.name().toLowerCase() );
+		}
+		
+		dep = server.getStaticServer();
+		if( dep != null ) {
+			Element node = Common.xmlCreateElement( doc , deps , ELEMENT_DEPSERVER );
+			Common.xmlSetElementAttr( doc , node , ATTR_DEPSERVER_NAME , dep.NAME );
+			Common.xmlSetElementAttr( doc , node , ATTR_DEPSERVER_TYPE , DBEnumServerDependencyType.STATIC.name().toLowerCase() );
+		}
+		
+		for( MetaEnvServer sub : server.getSubordinateServers() ) {
+			Element node = Common.xmlCreateElement( doc , deps , ELEMENT_DEPSERVER );
+			Common.xmlSetElementAttr( doc , node , ATTR_DEPSERVER_NAME , sub.NAME );
+			Common.xmlSetElementAttr( doc , node , ATTR_DEPSERVER_TYPE , DBEnumServerDependencyType.SUBORDINATE.name().toLowerCase() );
+		}
 	}
 	
 	public static MetaEnvServer createServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , DBEnumDbmsType dbmsType , Integer admSchema ) throws Exception {

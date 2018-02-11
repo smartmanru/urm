@@ -131,6 +131,13 @@ public class EngineBase extends EngineObject {
 		return( getItem( item.FKNAME ) );
 	}
 	
+	public String getItemName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		BaseItem baseItem = getItem( item.FKID );
+		return( baseItem.NAME );
+	}
+	
 	public BaseItem getItem( int itemId ) throws Exception {
 		BaseItem item = mapItemById.get( itemId );
 		if( item == null )

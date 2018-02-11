@@ -104,6 +104,13 @@ public class MetaDatabase {
 		return( getSchema( item.FKNAME ) );
 	}
 	
+	public String getSchemaName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaDatabaseSchema schema = getSchema( item.FKID );
+		return( schema.NAME );
+	}
+	
 	public boolean checkAligned( String id ) {
 		return( true );
 	}

@@ -381,11 +381,14 @@ public class DBEngineMirrors {
 	}
 
 	public static void dropMirrorWorkspace( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo , boolean dropOnServer ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
 		if( !repo.isActive() )
 			return;
 		
 		dropMirrorInternal( transaction , mirrors , repo , dropOnServer );
 		repo.clearMirror();
+		modifyRepository( c , repo , false );
 	}
 	
 	public static void dropDetachedMirror( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo ) throws Exception {

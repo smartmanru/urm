@@ -348,6 +348,10 @@ public class DBConnection {
 		return( getCurrentObjectVersion( envId , DBEnumObjectVersionType.ENVIRONMENT ) );
 	}
 
+	public synchronized int getCurrentEnvironmentVersion( MetaEnv env ) throws Exception {
+		return( getCurrentEnvironmentVersion( env.ID ) );
+	}
+	
 	public synchronized int getNextEnvironmentVersion( MetaEnv env ) throws Exception {
 		return( getNextEnvironmentVersion( env , false ) );
 	}

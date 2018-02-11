@@ -132,6 +132,14 @@ public class EngineInfrastructure extends EngineObject {
 		return( datacenter );
 	}
 
+	public String getDatacenterName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		
+		Datacenter datacenter = getDatacenter( item );
+		return( datacenter.NAME );
+	}
+
 	public Network getNetwork( int id ) throws Exception {
 		Network network = mapNetworksById.get( id );
 		if( network == null )
@@ -205,6 +213,13 @@ public class EngineInfrastructure extends EngineObject {
 		if( account != null )
 			Common.exitUnexpected();
 		return( account );
+	}
+
+	public String getHostAccountName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		HostAccount account = getHostAccount( item );
+		return( account.getFinalAccount() );
 	}
 
 	public MatchItem matchAccountByHostlogin( String hostLogin ) throws Exception {
