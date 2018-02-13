@@ -158,7 +158,10 @@ public class ReleaseTicketSetTarget {
 	}
 
 	public boolean isDelivery() {
-		if( type == EnumTicketSetTargetType.DELIVERYBINARIES || type == EnumTicketSetTargetType.DELIVERYCONFS || type == EnumTicketSetTargetType.DELIVERYDATABASE )
+		if( type == EnumTicketSetTargetType.DELIVERYBINARIES || 
+			type == EnumTicketSetTargetType.DELIVERYCONFS || 
+			type == EnumTicketSetTargetType.DELIVERYDATABASE ||
+			type == EnumTicketSetTargetType.DELIVERYDOC )
 			return( true );
 		return( false );
 	}
