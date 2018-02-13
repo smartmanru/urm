@@ -331,7 +331,14 @@ public class Types {
 	}
 	
 	public static EnumScopeCategory[] getAllReleaseCategories() {
-		EnumScopeCategory[] categories = { EnumScopeCategory.PROJECT , EnumScopeCategory.CONFIG , EnumScopeCategory.DB , EnumScopeCategory.MANUAL , EnumScopeCategory.DERIVED };
+		EnumScopeCategory[] categories = { 
+				EnumScopeCategory.PROJECT , 
+				EnumScopeCategory.CONFIG , 
+				EnumScopeCategory.MANUAL , 
+				EnumScopeCategory.DERIVED , 
+				EnumScopeCategory.DB ,
+				EnumScopeCategory.DOC
+				};
 		return( categories );
 	}
 
