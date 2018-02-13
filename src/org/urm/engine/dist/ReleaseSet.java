@@ -22,7 +22,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public class ReleaseDistSet {
+public class ReleaseSet {
 
 	Meta meta;
 	Release release;
@@ -38,19 +38,20 @@ public class ReleaseDistSet {
 
 	Map<String,ReleaseTarget> map = new HashMap<String,ReleaseTarget>(); 
 	
-	public ReleaseDistSet( Meta meta , Release release , EnumScopeCategory CATEGORY ) {
+	public ReleaseSet( Meta meta , Release release , EnumScopeCategory CATEGORY ) {
 		this.meta = meta;
 		this.release = release;
 		this.CATEGORY = CATEGORY;
 	}
 	
-	public ReleaseDistSet copy( ActionBase action , Release nr ) throws Exception {
-		ReleaseDistSet nx = new ReleaseDistSet( nr.meta , nr , CATEGORY );
+	public ReleaseSet copy( ActionBase action , Release nr ) throws Exception {
+		ReleaseSet nx = new ReleaseSet( nr.meta , nr , CATEGORY );
 		nx.NAME = NAME;
 		nx.ALL = ALL;
 		nx.BUILDBRANCH = BUILDBRANCH;
 		nx.BUILDTAG = BUILDTAG;
 		nx.BUILDVERSION = BUILDVERSION;
+		
 		if( set != null ) {
 			MetaSources nsources = nr.meta.getSources();
 			nx.set = nsources.getProjectSet( set.NAME );
@@ -64,7 +65,7 @@ public class ReleaseDistSet {
 		return( nx );
 	}
 	
-	public void addReleaseSet( ActionBase action , ReleaseDistSet srcset ) throws Exception {
+	public void addReleaseSet( ActionBase action , ReleaseSet srcset ) throws Exception {
 		for( Entry<String,ReleaseTarget> entry : srcset.map.entrySet() ) {
 			ReleaseTarget srcitem = entry.getValue();
 			ReleaseTarget item = map.get( entry.getKey() );
@@ -100,14 +101,17 @@ public class ReleaseDistSet {
 			if( CATEGORY == EnumScopeCategory.CONFIG )
 				loadConfiguration( action , node );
 			else
-			if( CATEGORY == EnumScopeCategory.DB )
-				loadDatabase( action , node );
-			else
 			if( CATEGORY == EnumScopeCategory.MANUAL )
 				loadManual( action , node );
 			else
 			if( CATEGORY == EnumScopeCategory.DERIVED )
 				loadDerived( action , node );
+			else
+			if( CATEGORY == EnumScopeCategory.DB )
+				loadDatabase( action , node );
+			else
+			if( CATEGORY == EnumScopeCategory.DOC )
+				loadDocs( action , node );
 			else
 				action.exitUnexpectedCategory( CATEGORY );
 		}
@@ -173,27 +177,6 @@ public class ReleaseDistSet {
 			loadTarget( action , pnode ); 
 	}
 	
-	private void loadDatabase( ActionBase action , Node node ) throws Exception {
-		NAME = Common.getEnumLower( EnumScopeCategory.DB );
-		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
-
-		Node[] dbitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DELIVERY );
-		if( ALL ) {
-			if( dbitems == null || dbitems.length == 0 ) {
-				addAllDatabaseItems( action );
-				return;
-			}
-
-			action.exit0( _Error.UnexpectedFullSetDatabaseItems0 , "unexpected database items defined with all=true" );
-		}
-
-		if( dbitems == null )
-			return;
-		
-		for( Node pnode : dbitems )
-			loadTarget( action , pnode ); 
-	}
-
 	private void loadManual( ActionBase action , Node node ) throws Exception {
 		NAME = Common.getEnumLower( EnumScopeCategory.MANUAL );
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
@@ -236,6 +219,48 @@ public class ReleaseDistSet {
 			loadTarget( action , pnode ); 
 	}
 
+	private void loadDatabase( ActionBase action , Node node ) throws Exception {
+		NAME = Common.getEnumLower( EnumScopeCategory.DB );
+		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
+
+		Node[] dbitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DELIVERY );
+		if( ALL ) {
+			if( dbitems == null || dbitems.length == 0 ) {
+				addAllDatabaseItems( action );
+				return;
+			}
+
+			action.exit0( _Error.UnexpectedFullSetDatabaseItems0 , "unexpected database items defined with all=true" );
+		}
+
+		if( dbitems == null )
+			return;
+		
+		for( Node pnode : dbitems )
+			loadTarget( action , pnode ); 
+	}
+
+	private void loadDocs( ActionBase action , Node node ) throws Exception {
+		NAME = Common.getEnumLower( EnumScopeCategory.DOC );
+		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
+
+		Node[] docitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DELIVERY );
+		if( ALL ) {
+			if( docitems == null || docitems.length == 0 ) {
+				addAllDocItems( action );
+				return;
+			}
+
+			action.exit0( _Error.UnexpectedFullSetDocItems0 , "unexpected documentation items defined with all=true" );
+		}
+
+		if( docitems == null )
+			return;
+		
+		for( Node pnode : docitems )
+			loadTarget( action , pnode ); 
+	}
+
 	public void createSourceSet( ActionBase action , MetaSourceProjectSet set , boolean ALL ) throws Exception {
 		this.set = set;
 		this.NAME = set.NAME;
@@ -261,14 +286,17 @@ public class ReleaseDistSet {
 			if( CATEGORY == EnumScopeCategory.CONFIG )
 				addAllConfItems( action );
 			else
-			if( CATEGORY == EnumScopeCategory.DB )
-				addAllDatabaseItems( action );
-			else
 			if( CATEGORY == EnumScopeCategory.MANUAL )
 				addAllManualItems( action );
 			else
 			if( CATEGORY == EnumScopeCategory.DERIVED )
 				addAllDerivedItems( action );
+			else
+			if( CATEGORY == EnumScopeCategory.DB )
+				addAllDatabaseItems( action );
+			else
+			if( CATEGORY == EnumScopeCategory.DOC )
+				addAllDocItems( action );
 			else
 				action.exitUnexpectedCategory( CATEGORY );
 		}
@@ -308,12 +336,6 @@ public class ReleaseDistSet {
 			addConfItem( action , comp , true );
 	}
 
-	public void addAllDatabaseItems( ActionBase action ) throws Exception {
-		MetaDistr distr = meta.getDistr(); 
-		for( MetaDistrDelivery delivery : distr.getDatabaseDeliveries() )
-			addDatabaseDelivery( action , delivery , true );
-	}
-
 	public void addAllManualItems( ActionBase action ) throws Exception {
 		MetaDistr distr = meta.getDistr(); 
 		for( MetaDistrBinaryItem item : distr.getBinaryItems() ) {
@@ -330,20 +352,24 @@ public class ReleaseDistSet {
 		}
 	}
 
+	public void addAllDatabaseItems( ActionBase action ) throws Exception {
+		MetaDistr distr = meta.getDistr(); 
+		for( MetaDistrDelivery delivery : distr.getDatabaseDeliveries() )
+			addDatabaseDelivery( action , delivery , true );
+	}
+
+	public void addAllDocItems( ActionBase action ) throws Exception {
+		MetaDistr distr = meta.getDistr(); 
+		for( MetaDistrDelivery delivery : distr.getDocDeliveries() )
+			addDocDelivery( action , delivery , true );
+	}
+
 	public ReleaseTarget addConfItem( ActionBase action , MetaDistrConfItem item , boolean allFiles ) throws Exception {
 		ReleaseTarget confItem = new ReleaseTarget( meta , this , CATEGORY );
 		confItem.createFromConfItem( action , item , allFiles );
 		
 		map.put( confItem.NAME , confItem );
 		return( confItem );
-	}
-	
-	public ReleaseTarget addDatabaseDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allSchemes ) throws Exception {
-		ReleaseTarget dbItem = new ReleaseTarget( meta , this , CATEGORY );
-		dbItem.createFromDatabaseDelivery( action , delivery , allSchemes );
-		
-		map.put( dbItem.NAME , dbItem );
-		return( dbItem );
 	}
 	
 	public ReleaseTarget addManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
@@ -362,6 +388,22 @@ public class ReleaseDistSet {
 		return( derivedItem );
 	}
 
+	public ReleaseTarget addDatabaseDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allSchemes ) throws Exception {
+		ReleaseTarget dbItem = new ReleaseTarget( meta , this , CATEGORY );
+		dbItem.createFromDatabaseDelivery( action , delivery , allSchemes );
+		
+		map.put( dbItem.NAME , dbItem );
+		return( dbItem );
+	}
+	
+	public ReleaseTarget addDocDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allDocs ) throws Exception {
+		ReleaseTarget docItem = new ReleaseTarget( meta , this , CATEGORY );
+		docItem.createFromDocDelivery( action , delivery , allDocs );
+		
+		map.put( docItem.NAME , docItem );
+		return( docItem );
+	}
+	
 	public void removeTarget( ActionBase action , ReleaseTarget source ) throws Exception {
 		map.remove( source.NAME );
 		ALL = false;
