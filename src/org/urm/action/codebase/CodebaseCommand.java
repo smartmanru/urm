@@ -80,6 +80,12 @@ public class CodebaseCommand {
 				res = false;
 		}
 		
+		if( dist != null && scope.hasDoc( action ) ) {
+			ActionGetDocs cadoc = new ActionGetDocs( action , null , dist , downloadFolder , action.context.CTX_DIST );
+			if( !cadoc.runEachCategoryTarget( parentState , scope , EnumScopeCategory.DOC , SecurityAction.ACTION_CODEBASE , false ) )
+				res = false;
+		}
+		
 		if( dist != null && scope.hasManual( action ) ) {
 			ActionGetManual cam = new ActionGetManual( action , null , scope.meta , copyDist , dist , downloadFolder );
 			if( !cam.runProductBuild( parentState , scope.meta.name , SecurityAction.ACTION_CODEBASE , action.context.buildMode , false ) )
@@ -262,10 +268,10 @@ public class CodebaseCommand {
 			return;
 		}
 		
-		action.info( "buildRelease: set TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , new EnumScopeCategory[] { EnumScopeCategory.BUILDABLE } ) + "}" );
+		action.info( "buildRelease: set TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , new EnumScopeCategory[] { EnumScopeCategory.SEARCH_SOURCEBUILDABLE } ) + "}" );
 		setTag( parentState , action , TAG , scope );
 		
-		action.info( "buildRelease: build TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , new EnumScopeCategory[] { EnumScopeCategory.BUILDABLE } ) + "}" );
+		action.info( "buildRelease: build TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , new EnumScopeCategory[] { EnumScopeCategory.SEARCH_SOURCEBUILDABLE } ) + "}" );
 		String OUTFILE = OUTDIR.folderPath + "/build.final.out"; 
 		action.shell.createFileFromString( action , OUTFILE , "FINAL STATUS:" );
 		buildTags( parentState , action , TAG , scope , OUTDIR , OUTFILE , dist );

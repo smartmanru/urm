@@ -52,6 +52,8 @@ public class DistFinalizer {
 					createExpectedProjectDeliveryItem( action , fs , delivery , item );
 				for( ReleaseTarget item : delivery.getManualItems() )
 					createExpectedManualDeliveryItem( action , fs , delivery , item );
+				for( ReleaseTargetItem item : delivery.getDocItems() )
+					createExpectedDocDeliveryItem( action , fs , delivery , item );
 				createExpectedDatabaseDeliveryItem( action , fs , delivery );
 			}
 		}
@@ -67,6 +69,13 @@ public class DistFinalizer {
 	private void createExpectedProjectDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTargetItem item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryBinaryFolder( action , delivery.distDelivery ) );
 		String file = ( item.DISTFILE.isEmpty() )? item.distItem.getBaseFile() : item.DISTFILE; 
+		dir.addFile( file );
+		dir.addFile( file + ".md5" );
+	}
+	
+	private void createExpectedDocDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTargetItem item ) throws Exception {
+		FileSet dir = fs.createDir( dist.getDeliveryDocFolder( action , delivery.distDelivery ) );
+		String file = ( item.DISTFILE.isEmpty() )? item.doc.getBaseFile() : item.DISTFILE; 
 		dir.addFile( file );
 		dir.addFile( file + ".md5" );
 	}
@@ -187,6 +196,11 @@ public class DistFinalizer {
 						return( false );
 				}
 				else
+				if( dir.equals( Dist.DOC_FOLDER ) ) {
+					if( !finishDistDeliveryDoc( action , delivery , dirFilesDist , dirFilesRelease ) )
+						return( false );
+				}
+				else
 					action.exitUnexpectedState();
 			}
 		}
@@ -213,6 +227,47 @@ public class DistFinalizer {
 				}
 				
 				String folder = Common.getPath( delivery.FOLDER , Dist.BINARY_FOLDER );
+				action.info( "delete non-release delivery item folder=" + folder + " file=" + fileDist + " ..." );
+				distFolder.removeFolderFile( action , folder , fileDist );
+			}
+		}
+		
+		if( fsr == null )
+			return( true );
+		
+		for( String fileRelease : fsr.getAllFiles() ) {
+			String fileDist = findBasenameFile( fileRelease , fsd );
+			if( fileDist == null ) {
+				if( fileRelease.endsWith( ".md5" ) ) {
+					String fileMD5 = Common.getPath( fsr.dirPath , fileRelease );
+					String file = Common.getPartBeforeLast( fileMD5 , ".md5" );
+					if( findBasenameFile( file , fsd ) != null ) {
+						action.info( "create missing md5 delivery=" + delivery.NAME + " file=" + fileRelease + " ..." );
+						String value = distFolder.getFileMD5( action , file );
+						distFolder.createFileFromString( action , fileMD5 , value );
+					}
+				}
+				else {
+					action.error( "distributive has missing delivery=" + delivery.NAME + " file=" + fileRelease );
+					return( false );
+				}
+			}
+		}
+		
+		return( true );
+	}
+
+	private boolean finishDistDeliveryDoc( ActionBase action , MetaDistrDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
+		for( String fileDist : fsd.getAllFiles() ) {
+			String fileRelease = findBasenameFile( fileDist , fsr );
+			if( fileRelease == null ) {
+				if( !action.isForced() ) {
+					action.error( "distributive delivery=" + delivery.NAME + 
+						" has non-release file=" + fileDist );
+					return( false );
+				}
+				
+				String folder = Common.getPath( delivery.FOLDER , Dist.DOC_FOLDER );
 				action.info( "delete non-release delivery item folder=" + folder + " file=" + fileDist + " ..." );
 				distFolder.removeFolderFile( action , folder , fileDist );
 			}

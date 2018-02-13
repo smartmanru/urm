@@ -9,6 +9,8 @@ import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaDocs;
+import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
@@ -23,9 +25,10 @@ public class ReleaseTargetItem {
 	public MetaSourceProjectItem sourceItem;
 	public MetaDistrBinaryItem distItem;
 	public MetaDatabaseSchema schema;
+	public MetaProductDoc doc;
+	
 	public String NAME = "";
 	public String BUILDVERSION = "";
-	
 	public String DISTFILE;
 
 	public ReleaseTargetItem( Meta meta , ReleaseTarget target ) {
@@ -33,13 +36,15 @@ public class ReleaseTargetItem {
 		this.target = target;
 	}
 
-	public ReleaseTargetItem copy( ActionBase action , Release nr , ReleaseDistSet ns , ReleaseTarget nt ) throws Exception {
+	public ReleaseTargetItem copy( ActionBase action , Release nr , ReleaseSet ns , ReleaseTarget nt ) throws Exception {
 		ReleaseTargetItem nx = new ReleaseTargetItem( nt.meta , nt );
 		
 		nx.sourceItem = ( sourceItem == null )? null : nt.sourceProject.getItem( sourceItem.NAME );
 		nx.distItem = ( distItem == null )? null : sourceItem.distItem;
 		MetaDatabase ndb = nt.meta.getDatabase();
 		nx.schema = ( schema == null )? null : ndb.getSchema( schema.NAME );
+		MetaDocs ndocs = nt.meta.getDocs();
+		nx.doc = ( doc == null )? null : ndocs.getDoc( doc.NAME );
 		nx.NAME = NAME;
 		nx.BUILDVERSION = BUILDVERSION;
 		
@@ -58,6 +63,12 @@ public class ReleaseTargetItem {
 		return( false );
 	}
 	
+	public boolean isDoc() {
+		if( doc != null )
+			return( true );
+		return( false );
+	}
+	
 	public void setDistFile( ActionBase action , String DISTFILE ) throws Exception {
 		this.DISTFILE = DISTFILE;
 	}
@@ -67,6 +78,8 @@ public class ReleaseTargetItem {
 			return( target.NAME + ":" + distItem.NAME );
 		if( isDatabase() )
 			return( target.NAME + ":" + schema.NAME );
+		if( isDoc() )
+			return( target.NAME + ":" + doc.NAME );
 		return( null );
 	}
 	
@@ -85,7 +98,9 @@ public class ReleaseTargetItem {
 			return( distItem.delivery );
 		}
 		if( isDatabase() )
-			return( target.distDatabaseDelivery );
+			return( target.distDelivery );
+		if( isDoc() )
+			return( target.distDelivery );
 		action.exitUnexpectedState();
 		return( null );
 	}
@@ -105,6 +120,13 @@ public class ReleaseTargetItem {
 		this.schema = db.getSchema( NAME );
 	}
 	
+	public void loadDocItem( ActionBase action , Node node ) throws Exception {
+		NAME = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
+		BUILDVERSION = "";
+		MetaDocs docs = meta.getDocs();
+		this.doc = docs.getDoc( NAME );
+	}
+	
 	public void createFromDistrItem( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
 		this.distItem = distItem;
 		this.sourceItem = target.sourceProject.getItem( distItem.sourceProjectItem.NAME );
@@ -115,6 +137,12 @@ public class ReleaseTargetItem {
 	public void createFromSchema( ActionBase action , MetaDatabaseSchema schema ) throws Exception {
 		this.schema = schema;
 		NAME = schema.NAME;
+		BUILDVERSION = "";
+	}
+	
+	public void createFromDoc( ActionBase action , MetaProductDoc doc ) throws Exception {
+		this.doc = doc;
+		NAME = doc.NAME;
 		BUILDVERSION = "";
 	}
 	
@@ -134,6 +162,11 @@ public class ReleaseTargetItem {
 		}
 		if( isDatabase() ) {
 			Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_SCHEMA );
+			Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , NAME );
+			return( element );
+		}
+		if( isDoc() ) {
+			Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_DOC );
 			Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , NAME );
 			return( element );
 		}

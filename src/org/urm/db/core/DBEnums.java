@@ -375,7 +375,7 @@ public abstract class DBEnums {
 		public static DBEnumSourceItemType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumSourceItemType.class , value , required , UNKNOWN ) ); };
 	};
 	
-	public enum DBEnumDistItemType implements DBEnumInterface {
+	public enum DBEnumBinaryItemType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		BINARY(1,null) ,
 		PACKAGE(2,null) ,
@@ -396,9 +396,9 @@ public abstract class DBEnums {
 		private String[] synonyms;
 		@Override public int code() { return( value ); };
 		@Override public String[] synonyms() { return( synonyms ); };
-		private DBEnumDistItemType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
-		public static DBEnumDistItemType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDistItemType.class , value , required , UNKNOWN ) ); };
-		public static DBEnumDistItemType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDistItemType.class , value , required , UNKNOWN ) ); };
+		private DBEnumBinaryItemType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumBinaryItemType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumBinaryItemType.class , value , required , UNKNOWN ) ); };
+		public static DBEnumBinaryItemType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumBinaryItemType.class , value , required , UNKNOWN ) ); };
 	};
 	
 	public enum DBEnumDeployVersionType implements DBEnumInterface {
@@ -763,7 +763,7 @@ public abstract class DBEnums {
 		new DBEnumInfo( DBEnumDbmsType.class , 530 ) ,
 		new DBEnumInfo( DBEnumProjectType.class , 531 ) ,
 		new DBEnumInfo( DBEnumSourceItemType.class , 532 ) ,
-		new DBEnumInfo( DBEnumDistItemType.class , 533 ) ,
+		new DBEnumInfo( DBEnumBinaryItemType.class , 533 ) ,
 		new DBEnumInfo( DBEnumDeployVersionType.class , 534 ) ,
 		new DBEnumInfo( DBEnumItemOriginType.class , 535 ) ,
 		new DBEnumInfo( DBEnumConfItemType.class , 536 ) ,

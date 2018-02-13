@@ -245,6 +245,18 @@ public class MetaDistrDelivery {
 		return( true );
 	}
 
+	public boolean hasDocItems() {
+		if( DOC_ANY ) {
+			if( !docs.isEmpty() )
+				return( true );
+			return( false );
+		}
+			
+		if( mapDocuments.isEmpty() )
+			return( false );
+		return( true );
+	}
+
 	public void addBinaryItem( MetaDistrBinaryItem item ) {
 		mapBinaryItems.put( item.NAME , item );
 		mapBinaryItemsById.put( item.ID , item );

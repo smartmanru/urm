@@ -5,10 +5,9 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.dist.ReleaseDistSet;
+import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.status.ScopeState;
@@ -19,6 +18,7 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
@@ -26,6 +26,13 @@ import org.urm.meta.product.MetaSourceProjectSet;
 
 public class ActionSetScope extends ActionBase {
 
+	public static String SCOPETYPE_SOURCE = "source";
+	public static String SCOPETYPE_DELIVERY = "delivery";
+	public static String SCOPEITEM_BINARY = "binary";
+	public static String SCOPEITEM_CONF = "conf";
+	public static String SCOPEITEM_SCHEMA = "schema";
+	public static String SCOPEITEM_DOC = "doc";
+	
 	public Dist dist;
 	boolean sourcePath;
 	String[] pathItems;
@@ -100,7 +107,7 @@ public class ActionSetScope extends ActionBase {
 		}
 		
 		// descope missing
-		for( ReleaseDistSet set : dist.release.getSourceSets() ) {
+		for( ReleaseSet set : dist.release.getSourceSets() ) {
 			String checkSet = check.get( set.set.NAME );
 			if( checkSet == null ) {
 				dist.descopeSet( this , set );
@@ -138,7 +145,12 @@ public class ActionSetScope extends ActionBase {
 		dist.reloadCheckOpenedForDataChange( this );
 		if( pathItems.length == 1 ) {
 			if( pathItems[0].equals( "all" ) ) {
-				for( EnumScopeCategory category : new EnumScopeCategory[] { EnumScopeCategory.MANUAL , EnumScopeCategory.DERIVED , EnumScopeCategory.CONFIG , EnumScopeCategory.DB } ) {
+				for( EnumScopeCategory category : new EnumScopeCategory[] { 
+						EnumScopeCategory.MANUAL , 
+						EnumScopeCategory.DERIVED , 
+						EnumScopeCategory.CONFIG , 
+						EnumScopeCategory.DB , 
+						EnumScopeCategory.DOC } ) {
 					if( !dist.addAllCategory( this , category ) )
 						return( false );
 				}
@@ -167,34 +179,45 @@ public class ActionSetScope extends ActionBase {
 			}
 			if( els.length == 2 ) {
 				MetaDistrDelivery delivery = distr.getDelivery( els[0] );
-				check.put( els[0] , "delivery" );
+				check.put( els[0] , SCOPETYPE_DELIVERY );
 				
-				DBEnumServerDeploymentType type = DBEnumServerDeploymentType.getValue( els[1] , true );
-				if( type == DBEnumServerDeploymentType.SCHEMA ) {
+				String type = els[1];
+				if( type.equals( SCOPEITEM_SCHEMA ) ) {
 					if( !addDeliveryAllSchemes( check , delivery ) )
+						return( false );
+				}
+				else
+				if( type.equals( SCOPEITEM_DOC ) ) {
+					if( !addDeliveryAllDocs( check , delivery ) )
 						return( false );
 				}
 			}
 			if( els.length == 3 ) {
 				MetaDistrDelivery delivery = distr.getDelivery( els[0] );
-				check.put( els[0] , "delivery" );
-				DBEnumServerDeploymentType type = DBEnumServerDeploymentType.getValue( els[1] , true );
+				check.put( els[0] , SCOPETYPE_DELIVERY );
+				String type = els[1];
 				
-				if( type == DBEnumServerDeploymentType.BINARY ) {
+				if( type.equals( SCOPEITEM_BINARY ) ) {
 					MetaDistrBinaryItem item = delivery.getBinaryItem( els[2] );
 					if( !dist.addBinaryItem( this , item ) )
 						return( false );
 				}
 				else
-				if( type == DBEnumServerDeploymentType.CONF ) {
+					if( type.equals( SCOPEITEM_CONF ) ) {
 					MetaDistrConfItem item = delivery.getConfItem( els[2] );
 					if( !dist.addConfItem( this , item ) )
 						return( false );
 				}
 				else
-				if( type == DBEnumServerDeploymentType.SCHEMA ) {
+					if( type.equals( SCOPEITEM_SCHEMA ) ) {
 					MetaDatabaseSchema schema = delivery.getSchema( els[2] );
-					if( !dist.addDatabaseDeliverySchema( this , delivery , schema ) )
+					if( !dist.addDeliveryDatabaseSchema( this , delivery , schema ) )
+						return( false );
+				}
+				else
+					if( type.equals( SCOPEITEM_DOC ) ) {
+					MetaProductDoc doc = delivery.getDoc( els[2] );
+					if( !dist.addDeliveryDoc( this , delivery , doc ) )
 						return( false );
 				}
 			}
@@ -203,28 +226,28 @@ public class ActionSetScope extends ActionBase {
 		// descope missing
 		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
 			for( ReleaseTargetItem item : delivery.getProjectItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , DBEnumServerDeploymentType.BINARY.toString() , item.distItem.NAME } , "/" ) );
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distItem.NAME } , "/" ) );
 				if( checkItem == null ) {
 					dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
 					continue;
 				}
 			}
 			for( ReleaseTarget item : delivery.getManualItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , DBEnumServerDeploymentType.BINARY.toString() , item.distManualItem.NAME } , "/" ) );
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distManualItem.NAME } , "/" ) );
 				if( checkItem == null ) {
 					dist.descopeTarget( this , item );
 					continue;
 				}
 			}
 			for( ReleaseTarget item : delivery.getDerivedItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , DBEnumServerDeploymentType.BINARY.toString() , item.distDerivedItem.NAME } , "/" ) );
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distDerivedItem.NAME } , "/" ) );
 				if( checkItem == null ) {
 					dist.descopeTarget( this , item );
 					continue;
 				}
 			}
 			for( ReleaseTarget item : delivery.getConfItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , DBEnumServerDeploymentType.CONF.toString() , item.distConfItem.NAME } , "/" ) );
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , SCOPEITEM_CONF , item.distConfItem.NAME } , "/" ) );
 				if( checkItem == null ) {
 					dist.descopeTarget( this , item );
 					continue;
@@ -232,7 +255,15 @@ public class ActionSetScope extends ActionBase {
 			}
 			
 			for( ReleaseTargetItem item : delivery.getDatabaseItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , DBEnumServerDeploymentType.SCHEMA.toString() , item.schema.NAME } , "/" ) );
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , SCOPEITEM_SCHEMA , item.schema.NAME } , "/" ) );
+				if( checkItem == null ) {
+					dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
+					continue;
+				}
+			}
+			
+			for( ReleaseTargetItem item : delivery.getDocItems() ) {
+				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , SCOPEITEM_DOC , item.doc.NAME } , "/" ) );
 				if( checkItem == null ) {
 					dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
 					continue;
@@ -246,26 +277,39 @@ public class ActionSetScope extends ActionBase {
 		for( MetaDistrBinaryItem binaryItem : delivery.getBinaryItems() ) {
 			if( !dist.addBinaryItem( this , binaryItem ) )
 				return( false );
-			check.put( Common.getList( new String[] { delivery.NAME , DBEnumServerDeploymentType.BINARY.toString() , binaryItem.NAME } , "/" ) , "binary" );
+			check.put( Common.getList( new String[] { delivery.NAME , SCOPEITEM_BINARY , binaryItem.NAME } , "/" ) , "binary" );
 		}
 		for( MetaDistrConfItem confItem : delivery.getConfItems() ) {
 			if( !dist.addConfItem( this , confItem ) )
 				return( false );
-			check.put( Common.getList( new String[] { delivery.NAME , DBEnumServerDeploymentType.CONF.toString() , confItem.NAME } , "/" ) , "conf" );
+			check.put( Common.getList( new String[] { delivery.NAME , SCOPEITEM_CONF , confItem.NAME } , "/" ) , "conf" );
 		}
 		if( delivery.hasDatabaseItems() ) {
 			if( !addDeliveryAllSchemes( check , delivery ) )
+				return( false );
+		}
+		if( delivery.hasDocItems() ) {
+			if( !addDeliveryAllDocs( check , delivery ) )
 				return( false );
 		}
 		return( true );
 	}
 	
 	private boolean addDeliveryAllSchemes( Map<String,String> check , MetaDistrDelivery delivery ) throws Exception {
-		if( !dist.addDatabaseDeliveryAllSchemes( this , delivery ) )
+		if( !dist.addDeliveryAllDatabaseSchemes( this , delivery ) )
 			return( false );
 		
 		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() )
-			check.put( Common.getList( new String[] { delivery.NAME , DBEnumServerDeploymentType.SCHEMA.toString() , schema.NAME } , "/" ) , "database" );
+			check.put( Common.getList( new String[] { delivery.NAME , SCOPEITEM_SCHEMA , schema.NAME } , "/" ) , "database" );
+		return( true );
+	}
+	
+	private boolean addDeliveryAllDocs( Map<String,String> check , MetaDistrDelivery delivery ) throws Exception {
+		if( !dist.addDeliveryAllDocs( this , delivery ) )
+			return( false );
+		
+		for( MetaProductDoc doc : delivery.getDocs() )
+			check.put( Common.getList( new String[] { delivery.NAME , SCOPEITEM_DOC , doc.NAME } , "/" ) , "doc" );
 		return( true );
 	}
 	

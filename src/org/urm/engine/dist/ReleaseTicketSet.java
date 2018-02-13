@@ -15,6 +15,7 @@ import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
@@ -357,6 +358,11 @@ public class ReleaseTicketSet {
 			else
 			if( type == EnumTicketSetTargetType.SCHEMA )
 				target.create( action , delivery , EnumTicketSetTargetType.DELIVERYDATABASE );
+			else
+			if( type == EnumTicketSetTargetType.DOC )
+				target.create( action , delivery , EnumTicketSetTargetType.DELIVERYDOC );
+			else
+				Common.exitUnexpected();
 			addTarget( target );
 		}
 		else {
@@ -375,6 +381,11 @@ public class ReleaseTicketSet {
 				if( type == EnumTicketSetTargetType.SCHEMA ) {
 					MetaDatabaseSchema schemaItem = delivery.getSchema( item );
 					target.create( action , delivery , schemaItem );
+				}
+				else
+				if( type == EnumTicketSetTargetType.DOC ) {
+					MetaProductDoc docItem = delivery.getDoc( item );
+					target.create( action , delivery , docItem );
 				}
 				addTarget( target );
 			}
@@ -448,6 +459,18 @@ public class ReleaseTicketSet {
 			if( target.descoped && target.accepted )
 				continue;
 			if( target.references( delivery , item ) )
+				return( true );
+		}
+		return( false );
+	}
+	
+	public boolean references( MetaDistrDelivery delivery , MetaProductDoc doc ) {
+		for( ReleaseTicketSetTarget target : targets ) {
+			if( !target.isActive() )
+				continue;
+			if( target.descoped && target.accepted )
+				continue;
+			if( target.references( delivery , doc ) )
 				return( true );
 		}
 		return( false );

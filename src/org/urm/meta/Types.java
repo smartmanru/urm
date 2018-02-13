@@ -33,14 +33,20 @@ public class Types {
 	
 	public enum EnumScopeCategory {
 		UNKNOWN ,
+		// source
 		PROJECT ,
+		// distributive
 		CONFIG ,
 		MANUAL ,
 		DERIVED ,
+		// delivery
 		DB ,
+		DOC ,
+		// env hierarchy
 		ENV ,
-		BUILDABLE ,
-		PREBUILT
+		// search only
+		SEARCH_SOURCEBUILDABLE ,
+		SEARCH_SOURCEPREBUILT ,
 	};
 
 	public enum EnumSessionType {
@@ -117,9 +123,11 @@ public class Types {
 		DISTITEM ,
 		CONFITEM ,
 		SCHEMA ,
+		DOC ,
 		DELIVERYBINARIES ,
 		DELIVERYCONFS ,
-		DELIVERYDATABASE
+		DELIVERYDATABASE ,
+		DELIVERYDOC
 	};
 
 	public enum EnumPackageExtension {
@@ -127,6 +135,14 @@ public class Types {
 		NUPKG ,
 		RPM ,
 		DEB
+	}
+	
+	public enum EnumDistItemType {
+		UNKNOWN ,
+		BINARIES ,
+		CONFIGURATION ,
+		DATABASE ,
+		DOCUMENTATION
 	}
 	
 	public static EnumScopeCategory getCategory( String ID , boolean required ) throws Exception {
@@ -273,6 +289,24 @@ public class Types {
 		return( value );
 	}
 
+	public static EnumDistItemType getDistItemType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingDistItemType0 , "missing dist item type" );
+			return( EnumDistItemType.UNKNOWN );
+		}
+		
+		EnumDistItemType value = null;
+		try {
+			value = EnumDistItemType.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidDistItemType1 , "invalid dist item type=" + ID , ID );
+		}
+		
+		return( value );
+	}
+
 	public static boolean isBinaryContent( EnumContentType c ) throws Exception {
 		if( c == EnumContentType.BINARYCOLDDEPLOY || c == EnumContentType.BINARYCOPYONLY || c == EnumContentType.BINARYHOTDEPLOY )
 			return( true );
@@ -309,7 +343,7 @@ public class Types {
 	public static boolean checkCategoryProperty( EnumScopeCategory part , EnumScopeCategory property ) {
 		if( part == property )
 			return( true );
-		if( property == EnumScopeCategory.BUILDABLE ) {
+		if( property == EnumScopeCategory.SEARCH_SOURCEBUILDABLE ) {
 			if( part == EnumScopeCategory.PROJECT )
 				return( true );
 		}

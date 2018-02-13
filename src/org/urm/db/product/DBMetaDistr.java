@@ -187,10 +187,10 @@ public class DBMetaDistr {
 		PropertyEntity entity = entities.entityAppMetaDistrBinaryItem;
 		
 		MetaDistrBinaryItem item = new MetaDistrBinaryItem( storage.meta , delivery );
-		DBEnumDistItemType itemType = DBEnumDistItemType.getValue( entity.importxmlEnumAttr( root , MetaDistrBinaryItem.PROPERTY_DISTITEMTYPE ) , true );
+		DBEnumBinaryItemType itemType = DBEnumBinaryItemType.getValue( entity.importxmlEnumAttr( root , MetaDistrBinaryItem.PROPERTY_DISTITEMTYPE ) , true );
 		String ext = entity.importxmlStringAttr( root , MetaDistrBinaryItem.PROPERTY_EXT );
 		String staticExt = "";
-		if( itemType == DBEnumDistItemType.STATICWAR ) {
+		if( itemType == DBEnumBinaryItemType.STATICWAR ) {
 			ext = ".war";
 			staticExt = ext;
 		}
@@ -452,7 +452,7 @@ public class DBMetaDistr {
 				item.createBinaryItem( 
 						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_NAME ) ,
 						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_DESC ) ,
-						DBEnumDistItemType.getValue( entity.loaddbEnum( rs , MetaDistrBinaryItem.PROPERTY_DISTITEMTYPE ) , true ) ,
+						DBEnumBinaryItemType.getValue( entity.loaddbEnum( rs , MetaDistrBinaryItem.PROPERTY_DISTITEMTYPE ) , true ) ,
 						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_DISTNAME ) ,
 						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_DEPLOYNAME ) ,
 						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_EXT ) ,
@@ -665,7 +665,7 @@ public class DBMetaDistr {
 			MetaDistrBinaryItem item = delivery.findBinaryItem( name );
 			Element node = Common.xmlCreateElement( doc , root , ELEMENT_BINARYITEM );
 			
-			String EXT = ( item.DISTITEM_TYPE == DBEnumDistItemType.STATICWAR )? item.WAR_STATICEXT : item.EXT;
+			String EXT = ( item.DISTITEM_TYPE == DBEnumBinaryItemType.STATICWAR )? item.WAR_STATICEXT : item.EXT;
 			DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {
 					entity.exportxmlString( item.NAME ) ,
 					entity.exportxmlString( item.DESC ) ,
@@ -932,7 +932,7 @@ public class DBMetaDistr {
 
 	public static MetaDistrBinaryItem createBinaryItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , 
 			String name , String desc ,
-			DBEnumDistItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ,
+			DBEnumBinaryItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ,
 			String deployname , DBEnumDeployVersionType versionType , 
 			MetaSourceProjectItem itemSrcProject , MetaDistrBinaryItem itemSrcDist , String originPath ,
 			boolean customGet , boolean customDeploy ) throws Exception {
@@ -960,7 +960,7 @@ public class DBMetaDistr {
 	
 	public static void modifyBinaryItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrBinaryItem item , 
 			String name , String desc ,
-			DBEnumDistItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ,
+			DBEnumBinaryItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ,
 			String deployname , DBEnumDeployVersionType versionType , 
 			MetaSourceProjectItem itemSrcProject , MetaDistrBinaryItem itemSrcDist , String originPath ,
 			boolean customGet , boolean customDeploy ) throws Exception {

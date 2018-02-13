@@ -4,7 +4,7 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.dist.ReleaseDistSet;
+import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.meta.Types.EnumScopeCategory;
 import org.urm.meta.product.Meta;
@@ -40,7 +40,7 @@ public class ActionReleaseScopeMaker {
 		addReleaseDatabaseIndexScope( null , INDEXES );
 	}
 	
-	public void addScopeReleaseDatabaseDeliveryItems( String DELIVERY , String[] INDEXES ) throws Exception {
+	public void addScopeReleaseDeliveryDatabaseItems( String DELIVERY , String[] INDEXES ) throws Exception {
 		action.trace( "scope: Release Database Delivery Index Scope, release=" + dist.RELEASEDIR + ", delivery=" + DELIVERY + ", items=" + Common.getListSet( INDEXES ) );
 		addReleaseDatabaseIndexScope( DELIVERY , INDEXES );
 	}
@@ -50,15 +50,31 @@ public class ActionReleaseScopeMaker {
 		addReleaseDatabaseSchemaScope( DELIVERY , SCHEMES );
 	}
 	
-	public void addScopeReleaseDatabaseDeliverySchemes( String DELIVERY , String[] ITEMS ) throws Exception {
+	public void addScopeReleaseDocs( String DELIVERY , String[] DOCS ) throws Exception {
+		action.trace( "scope: Release Delivery Docs Scope, release=" + dist.RELEASEDIR + ", delivery=" + DELIVERY + ", items=" + Common.getListSet( DOCS ) );
+		addReleaseDocScope( DELIVERY , DOCS );
+	}
+	
+	public void addScopeReleaseDeliveryDatabaseSchemes( String DELIVERY , String[] ITEMS ) throws Exception {
 		action.trace( "scope: Release Database Delivery Schemes Scope, items=" + Common.getListSet( ITEMS ) );
 		if( ITEMS == null || ITEMS.length == 0 )
 			action.exit0( _Error.MissingTargetItems0 , "missing items (use \"all\" to reference all items)" );
 		
 		if( ITEMS.length == 1 && ITEMS[0].equals( "all" ) )
-			addReleaseDatabaseDeliverySchemes( DELIVERY , null );
+			addReleaseDeliveryDatabaseSchemes( DELIVERY , null );
 		else
-			addReleaseDatabaseDeliverySchemes( DELIVERY , ITEMS );
+			addReleaseDeliveryDatabaseSchemes( DELIVERY , ITEMS );
+	}
+
+	public void addScopeReleaseDeliveryDocs( String DELIVERY , String[] ITEMS ) throws Exception {
+		action.trace( "scope: Release Delivery Docs Scope, items=" + Common.getListSet( ITEMS ) );
+		if( ITEMS == null || ITEMS.length == 0 )
+			action.exit0( _Error.MissingTargetItems0 , "missing items (use \"all\" to reference all items)" );
+		
+		if( ITEMS.length == 1 && ITEMS[0].equals( "all" ) )
+			addReleaseDeliveryDocs( DELIVERY , null );
+		else
+			addReleaseDeliveryDocs( DELIVERY , ITEMS );
 	}
 
 	public void addScopeReleaseCategory( EnumScopeCategory CATEGORY , String[] TARGETS ) throws Exception {
@@ -181,6 +197,32 @@ public class ActionReleaseScopeMaker {
 		}
 	}
 	
+	private void addReleaseDocScope( String DELIVERY , String[] SCHEMES ) throws Exception {
+		if( SCHEMES.length == 0 )
+			action.exit0( _Error.MissingDocItems0 , "use \"all\" to reference all items" );
+		
+		boolean all = ( SCHEMES.length == 1 && SCHEMES[0].equals( "all" ) )? true : false;
+		
+		EnumScopeCategory CATEGORY = EnumScopeCategory.DOC;
+		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , CATEGORY );
+		if( sset == null )
+			return;
+		
+		if( DELIVERY.equals( "all" ) ) {
+			for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
+				ActionScopeTarget target = addReleaseDocDelivery( sset , delivery , all , false );
+				if( !all )
+					target.addDocs( action , SCHEMES );
+			}
+		}
+		else {
+			ReleaseDelivery delivery = dist.release.getDelivery( action , DELIVERY );
+			ActionScopeTarget target = addReleaseDocDelivery( sset , delivery , all , true );
+			if( !all )
+				target.addDocs( action , SCHEMES );
+		}
+	}
+	
 	private ActionScopeTarget addReleaseProjectItemsScope( String PROJECT , String[] ITEMS ) throws Exception {
 		ReleaseTarget releaseProject = dist.release.findBuildProject( action , PROJECT );
 		if( releaseProject == null ) {
@@ -207,7 +249,7 @@ public class ActionReleaseScopeMaker {
 			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED )
 				sset = scope.makeReleaseCategoryScopeSet( action , dist , EnumScopeCategory.DERIVED );
 			else {
-				ReleaseDistSet rset = dist.release.getSourceSet( action , item.sourceProjectItem.project.set.NAME );
+				ReleaseSet rset = dist.release.getSourceSet( action , item.sourceProjectItem.project.set.NAME );
 				sset = scope.makeReleaseScopeSet( action , rset );
 			}
 			
@@ -223,6 +265,7 @@ public class ActionReleaseScopeMaker {
 		addAllReleaseProjects();
 		addAllReleaseConfigs();
 		addAllReleaseDatabase();
+		addAllReleaseDocs();
 		addAllReleaseManualItems();
 		addAllReleaseDerivedItems();
 		scope.setFullRelease( action , true );
@@ -232,19 +275,22 @@ public class ActionReleaseScopeMaker {
 		if( SET.equals( Common.getEnumLower( EnumScopeCategory.CONFIG ) ) )
 			addReleaseConfigs( TARGETS );
 		else 
-		if( SET.equals( Common.getEnumLower( EnumScopeCategory.DB ) ) )
-			addReleaseDatabaseDeliveries( TARGETS );
-		else 
 		if( SET.equals( Common.getEnumLower( EnumScopeCategory.MANUAL ) ) )
 			addReleaseManualItems( TARGETS );
 		else 
 		if( SET.equals( Common.getEnumLower( EnumScopeCategory.DERIVED ) ) )
 			addReleaseDerivedItems( TARGETS );
+		else 
+		if( SET.equals( Common.getEnumLower( EnumScopeCategory.DB ) ) )
+			addReleaseDatabaseDeliveries( TARGETS );
+		else 
+		if( SET.equals( Common.getEnumLower( EnumScopeCategory.DOC ) ) )
+			addReleaseDocDeliveries( TARGETS );
 		else {
 			MetaSources sources = meta.getSources();
 			MetaSourceProjectSet set = sources.getProjectSet( SET );
 			if( dist.release.addSourceSet( action , set , false ) ) {
-				ReleaseDistSet rset = dist.release.getSourceSet( action , SET );  
+				ReleaseSet rset = dist.release.getSourceSet( action , SET );  
 				addReleaseSourceProjects( rset , TARGETS );
 			}
 		}
@@ -271,13 +317,13 @@ public class ActionReleaseScopeMaker {
  	}
 	
 	private void addAllReleaseProjects() throws Exception {
-		for( ReleaseDistSet rset : dist.release.getSourceSets() ) {
+		for( ReleaseSet rset : dist.release.getSourceSets() ) {
 			ActionScopeSet sset = scope.makeReleaseScopeSet( action , rset );
 			addReleaseSourceProjects( sset , null );
 		}
 	}
 		
-	private void addReleaseSourceProjects( ReleaseDistSet rset , String[] PROJECTS ) throws Exception {
+	private void addReleaseSourceProjects( ReleaseSet rset , String[] PROJECTS ) throws Exception {
 		ActionScopeSet sset = scope.makeReleaseScopeSet( action , rset );
 		addReleaseSourceProjects( sset , PROJECTS );
 	}
@@ -296,20 +342,49 @@ public class ActionReleaseScopeMaker {
 		addReleaseDatabaseDeliveries( null );
 	}
 
+ 	private void addAllReleaseDocs() throws Exception {
+		addReleaseDocDeliveries( null );
+	}
+
 	private void addReleaseDatabaseDeliveries( String[] DELIVERIES ) throws Exception {
 		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , EnumScopeCategory.DB );
 		if( sset != null )
 			addReleaseDatabaseDeliveries( sset , DELIVERIES );
 	}
 
-	private void addReleaseDatabaseDeliverySchemes( String DELIVERY , String[] SCHEMES ) throws Exception {
-		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , EnumScopeCategory.DB );
+	private void addReleaseDocDeliveries( String[] DELIVERIES ) throws Exception {
+		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , EnumScopeCategory.DOC );
 		if( sset != null )
-			addReleaseDatabaseDeliverySchemes( sset , DELIVERY , SCHEMES );
+			addReleaseDocDeliveries( sset , DELIVERIES );
 	}
 
+	private void addReleaseDeliveryDatabaseSchemes( String DELIVERY , String[] SCHEMES ) throws Exception {
+		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , EnumScopeCategory.DB );
+		if( sset != null )
+			addReleaseDeliveryDatabaseSchemes( sset , DELIVERY , SCHEMES );
+	}
+
+	private void addReleaseDeliveryDocs( String DELIVERY , String[] DOCS ) throws Exception {
+		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , EnumScopeCategory.DOC );
+		if( sset != null )
+			addReleaseDeliveryDocs( sset , DELIVERY , DOCS );
+	}
 	
 	private void addReleaseDatabaseDeliveries( ActionScopeSet set , String[] DELIVERIES ) throws Exception {
+		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
+			set.setFullContent( true ); 
+			for( ReleaseTarget item : set.rset.getTargets() )
+				addReleaseTarget( set , item , false );
+			return;
+		}
+		
+		for( String key : DELIVERIES ) {
+			ReleaseTarget item = set.rset.getTarget( action , key );
+			addReleaseTarget( set , item , true );
+		}
+	}
+
+	private void addReleaseDocDeliveries( ActionScopeSet set , String[] DELIVERIES ) throws Exception {
 		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
 			set.setFullContent( true ); 
 			for( ReleaseTarget item : set.rset.getTargets() )
@@ -371,10 +446,16 @@ public class ActionReleaseScopeMaker {
 		}
 	}
 
-	private void addReleaseDatabaseDeliverySchemes( ActionScopeSet set , String DELIVERY , String[] SCHEMES ) throws Exception {
+	private void addReleaseDeliveryDatabaseSchemes( ActionScopeSet set , String DELIVERY , String[] SCHEMES ) throws Exception {
 		ReleaseTarget item = set.rset.getTarget( action , DELIVERY );
 		ActionScopeTarget target = addReleaseTarget( set , item , true );
 		target.addDatabaseSchemes( action , SCHEMES );
+	}
+	
+	private void addReleaseDeliveryDocs( ActionScopeSet set , String DELIVERY , String[] DOCS ) throws Exception {
+		ReleaseTarget item = set.rset.getTarget( action , DELIVERY );
+		ActionScopeTarget target = addReleaseTarget( set , item , true );
+		target.addDocs( action , DOCS );
 	}
 	
 	private void addReleaseSourceProjects( ActionScopeSet set , String[] PROJECTS ) throws Exception {
@@ -409,11 +490,21 @@ public class ActionReleaseScopeMaker {
 	}
 
 	public ActionScopeTarget addReleaseDatabaseDelivery( ActionScopeSet set , ReleaseDelivery delivery , boolean allItems , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createDatabaseDeliveryTarget( set , delivery.distDelivery , specifiedExplicitly , allItems );
+		ActionScopeTarget target = ActionScopeTarget.createDeliveryDatabaseTarget( set , delivery.distDelivery , specifiedExplicitly , allItems );
 		set.addTarget( action , target );
 		
 		if( allItems )
 			target.addDatabaseSchemes( action , null );
+		
+		return( target );
+	}
+	
+	public ActionScopeTarget addReleaseDocDelivery( ActionScopeSet set , ReleaseDelivery delivery , boolean allItems , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createDeliveryDocTarget( set , delivery.distDelivery , specifiedExplicitly , allItems );
+		set.addTarget( action , target );
+		
+		if( allItems )
+			target.addDocs( action , null );
 		
 		return( target );
 	}

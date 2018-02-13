@@ -68,5 +68,6 @@ public class _Error {
 	public static final int UnexpectedFullSetDerivedItems0 = ErrorBase + 61;
 	public static final int UnknownReleaseTicketSet2 = ErrorBase + 62;
 	public static final int DuplicateReleaseTicket3 = ErrorBase + 63;
+	public static final int UnexpectedFullSetDocItems0 = ErrorBase + 64;
 	
 }

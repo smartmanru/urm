@@ -4,11 +4,13 @@ import java.util.Date;
 
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaProductDoc;
 
 public class DistItemInfo {
 
 	MetaDistrBinaryItem distBinaryItem;
 	MetaDistrConfItem distConfItem;
+	MetaProductDoc distDocItem;
 
 	public boolean found;
 	public String subPath;
@@ -22,6 +24,10 @@ public class DistItemInfo {
 
 	public DistItemInfo( MetaDistrConfItem distConfItem ) {
 		this.distConfItem = distConfItem;
+	}
+
+	public DistItemInfo( MetaProductDoc distDocItem ) {
+		this.distDocItem = distDocItem;
 	}
 
 }

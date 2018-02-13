@@ -9,13 +9,13 @@ import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.Types;
@@ -30,7 +30,7 @@ public class ActionScopeTarget {
 	public String NAME;
 	public ReleaseTarget releaseTarget;
 	public MetaSourceProject sourceProject;
-	public MetaDistrDelivery dbDelivery;
+	public MetaDistrDelivery delivery;
 	
 	public MetaDistrConfItem confItem;
 	public MetaDistrBinaryItem manualItem;
@@ -76,15 +76,6 @@ public class ActionScopeTarget {
 		return( target );
 	}
 
-	public static ActionScopeTarget createDatabaseDeliveryTarget( ActionScopeSet set , MetaDistrDelivery delivery , boolean specifiedExplicitly , boolean all ) {
-		ActionScopeTarget target = new ActionScopeTarget( set );
-		target.dbDelivery = delivery;
-		target.NAME = "db." + delivery.NAME;
-		target.itemFull = all;
-		target.specifiedExplicitly = specifiedExplicitly;
-		return( target );
-	}
-	
 	public static ActionScopeTarget createProductConfItemTarget( ActionScopeSet set , MetaDistrConfItem confItem , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 
@@ -111,6 +102,24 @@ public class ActionScopeTarget {
 		target.derivedItem = derivedItem;
 		target.NAME = derivedItem.NAME;
 		target.itemFull = true;
+		target.specifiedExplicitly = specifiedExplicitly;
+		return( target );
+	}
+	
+	public static ActionScopeTarget createDeliveryDatabaseTarget( ActionScopeSet set , MetaDistrDelivery delivery , boolean specifiedExplicitly , boolean all ) {
+		ActionScopeTarget target = new ActionScopeTarget( set );
+		target.delivery = delivery;
+		target.NAME = "db." + delivery.NAME;
+		target.itemFull = all;
+		target.specifiedExplicitly = specifiedExplicitly;
+		return( target );
+	}
+	
+	public static ActionScopeTarget createDeliveryDocTarget( ActionScopeSet set , MetaDistrDelivery delivery , boolean specifiedExplicitly , boolean all ) {
+		ActionScopeTarget target = new ActionScopeTarget( set );
+		target.delivery = delivery;
+		target.NAME = "doc." + delivery.NAME;
+		target.itemFull = all;
 		target.specifiedExplicitly = specifiedExplicitly;
 		return( target );
 	}
@@ -156,7 +165,9 @@ public class ActionScopeTarget {
 		if( CATEGORY == EnumScopeCategory.ENV )
 			return( createEnvServerTarget( setNew , envServer , specifiedExplicitly ) );
 		if( CATEGORY == EnumScopeCategory.DB )
-			return( createDatabaseDeliveryTarget( setNew , dbDelivery , specifiedExplicitly , itemFull ) );
+			return( createDeliveryDatabaseTarget( setNew , delivery , specifiedExplicitly , itemFull ) );
+		if( CATEGORY == EnumScopeCategory.DOC )
+			return( createDeliveryDocTarget( setNew , delivery , specifiedExplicitly , itemFull ) );
 		return( null );
 	}
 	
@@ -195,13 +206,6 @@ public class ActionScopeTarget {
 			addProjectItemsInternal( action , ITEMS );
 	}
 	
-	public void addDatabaseSchemes( ActionBase action , String[] ITEMS ) throws Exception {
-		if( releaseTarget != null )
-			addReleaseDatabaseSchemes( action , ITEMS );
-		else
-			addDatabaseSchemesInternal( action , ITEMS );
-	}
-	
 	private void addProjectItemsInternal( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			itemFull = true;
@@ -218,21 +222,6 @@ public class ActionScopeTarget {
 			
 			MetaSourceProjectItem projectItem = sourceProject.getItem( itemName );
 			addProjectItem( action , projectItem , true );
-		}
-	}
-
-	private void addDatabaseSchemesInternal( ActionBase action , String[] ITEMS ) throws Exception {
-		if( ITEMS == null || ITEMS.length == 0 ) {
-			itemFull = true;
-			for( MetaDatabaseSchema item : dbDelivery.getDatabaseSchemes() )
-				addDatabaseSchema( action , item , false );
-			return;
-		}
-		
-		MetaDatabase db = dbDelivery.db;
-		for( String itemName : ITEMS ) {
-			MetaDatabaseSchema item = db.getSchema( itemName );
-			addDatabaseSchema( action , item , true );
 		}
 	}
 
@@ -256,6 +245,32 @@ public class ActionScopeTarget {
 		}
 	}
 	
+	public void addProjectItem( ActionBase action , MetaSourceProjectItem item , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createSourceProjectTargetItem( this , item , item.distItem , specifiedExplicitly );
+		items.add( scopeItem );
+	}
+	
+	public void addDatabaseSchemes( ActionBase action , String[] ITEMS ) throws Exception {
+		if( releaseTarget != null )
+			addReleaseDatabaseSchemes( action , ITEMS );
+		else
+			addDatabaseSchemesInternal( action , ITEMS );
+	}
+	
+	private void addDatabaseSchemesInternal( ActionBase action , String[] ITEMS ) throws Exception {
+		if( ITEMS == null || ITEMS.length == 0 ) {
+			itemFull = true;
+			for( MetaDatabaseSchema item : delivery.getDatabaseSchemes() )
+				addDatabaseSchema( action , item , false );
+			return;
+		}
+		
+		for( String itemName : ITEMS ) {
+			MetaDatabaseSchema item = delivery.getSchema( itemName );
+			addDatabaseSchema( action , item , true );
+		}
+	}
+
 	private void addReleaseDatabaseSchemes( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			itemFull = true;
@@ -264,11 +279,11 @@ public class ActionScopeTarget {
 			return;
 		}
 		
-		MetaDistrDelivery delivery = releaseTarget.distDatabaseDelivery;
+		MetaDistrDelivery delivery = releaseTarget.distDelivery;
 		for( String itemName : ITEMS ) {
 			MetaDatabaseSchema item = delivery.getSchema( itemName );
 			
-			ReleaseTargetItem releaseItem = releaseTarget.findDatabaseSchema( item );
+			ReleaseTargetItem releaseItem = releaseTarget.findDeliverySchema( item );
 			if( releaseItem != null )
 				addItem( action , releaseItem , true );
 			else
@@ -276,13 +291,54 @@ public class ActionScopeTarget {
 		}
 	}
 	
-	public void addProjectItem( ActionBase action , MetaSourceProjectItem item , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createSourceProjectTargetItem( this , item , item.distItem , specifiedExplicitly );
+	public void addDatabaseSchema( ActionBase action , MetaDatabaseSchema schema , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createDeliverySchemaTargetItem( this , schema , specifiedExplicitly );
 		items.add( scopeItem );
 	}
 	
-	public void addDatabaseSchema( ActionBase action , MetaDatabaseSchema schema , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createDeliverySchemaTargetItem( this , schema , specifiedExplicitly );
+	public void addDocs( ActionBase action , String[] ITEMS ) throws Exception {
+		if( releaseTarget != null )
+			addReleaseDocs( action , ITEMS );
+		else
+			addDocsInternal( action , ITEMS );
+	}
+	
+	private void addDocsInternal( ActionBase action , String[] ITEMS ) throws Exception {
+		if( ITEMS == null || ITEMS.length == 0 ) {
+			itemFull = true;
+			for( MetaProductDoc item : delivery.getDocs() )
+				addDoc( action , item , false );
+			return;
+		}
+		
+		for( String itemName : ITEMS ) {
+			MetaProductDoc item = delivery.getDoc( itemName );
+			addDoc( action , item , true );
+		}
+	}
+
+	private void addReleaseDocs( ActionBase action , String[] ITEMS ) throws Exception {
+		if( ITEMS == null || ITEMS.length == 0 ) {
+			itemFull = true;
+			for( ReleaseTargetItem item : releaseTarget.getItems() )
+				addItem( action , item , false );
+			return;
+		}
+		
+		MetaDistrDelivery delivery = releaseTarget.distDelivery;
+		for( String itemName : ITEMS ) {
+			MetaProductDoc item = delivery.getDoc( itemName );
+			
+			ReleaseTargetItem releaseItem = releaseTarget.findDeliveryDoc( item );
+			if( releaseItem != null )
+				addItem( action , releaseItem , true );
+			else
+				action.debug( "scope: ignore non-release item=" + itemName );
+		}
+	}
+	
+	public void addDoc( ActionBase action , MetaProductDoc doc , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createDeliveryDocTargetItem( this , doc , specifiedExplicitly );
 		items.add( scopeItem );
 	}
 	

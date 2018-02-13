@@ -645,7 +645,7 @@ public class EngineTransaction extends TransactionBase {
 	
 	public MetaDistrBinaryItem createDistrBinaryItem( MetaDistrDelivery delivery , 
 			String name , String desc ,
-			DBEnumDistItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ,
+			DBEnumBinaryItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ,
 			String deployname , DBEnumDeployVersionType versionType , 
 			MetaSourceProjectItem itemSrcProject , MetaDistrBinaryItem itemSrcDist , String originPath ,
 			boolean customGet , boolean customDeploy ) throws Exception {
@@ -662,7 +662,7 @@ public class EngineTransaction extends TransactionBase {
 	
 	public void modifyDistrBinaryItem( MetaDistrBinaryItem item , 
 			String name , String desc ,
-			DBEnumDistItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ,
+			DBEnumBinaryItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ,
 			String deployname , DBEnumDeployVersionType versionType , 
 			MetaSourceProjectItem itemSrcProject , MetaDistrBinaryItem itemSrcDist , String originPath ,
 			boolean customGet , boolean customDeploy ) throws Exception {

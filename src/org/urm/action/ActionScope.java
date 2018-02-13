@@ -8,7 +8,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseDistSet;
+import org.urm.engine.dist.ReleaseSet;
 import org.urm.meta.Types;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
@@ -128,7 +128,7 @@ public class ActionScope {
 		if( sset != null )
 			return( sset );
 		
-		ReleaseDistSet rset = dist.release.findCategorySet( CATEGORY );
+		ReleaseSet rset = dist.release.findCategorySet( CATEGORY );
 		if( rset == null ) {
 			action.debug( "ignore non-release set=" + Common.getEnumLower( CATEGORY ) );
 			return( null );
@@ -141,7 +141,7 @@ public class ActionScope {
 		return( sset );
 	}
 	
-	public ActionScopeSet makeReleaseScopeSet( ActionBase action , ReleaseDistSet rset ) throws Exception {
+	public ActionScopeSet makeReleaseScopeSet( ActionBase action , ReleaseSet rset ) throws Exception {
 		ActionScopeSet sset = getScopeSet( action , rset.CATEGORY , rset.NAME );
 		if( sset != null )
 			return( sset );
@@ -176,16 +176,20 @@ public class ActionScope {
 		return( hasCategorySet( action , EnumScopeCategory.CONFIG ) );
 	}
 	
-	public boolean hasDatabase( ActionBase action ) throws Exception {
-		return( hasCategorySet( action , EnumScopeCategory.DB ) );
-	}
-
 	public boolean hasManual( ActionBase action ) throws Exception {
 		return( hasCategorySet( action , EnumScopeCategory.MANUAL ) );
 	}
 
 	public boolean hasDerived( ActionBase action ) throws Exception {
 		return( hasCategorySet( action , EnumScopeCategory.DERIVED ) );
+	}
+
+	public boolean hasDatabase( ActionBase action ) throws Exception {
+		return( hasCategorySet( action , EnumScopeCategory.DB ) );
+	}
+
+	public boolean hasDoc( ActionBase action ) throws Exception {
+		return( hasCategorySet( action , EnumScopeCategory.DOC ) );
 	}
 
 	public List<ActionScopeSet> getSetList() {
@@ -229,7 +233,7 @@ public class ActionScope {
 	}
 	
 	public String getBuildScopeInfo( ActionBase action ) throws Exception {
-		return( getScopeInfo( action , new EnumScopeCategory[] { EnumScopeCategory.BUILDABLE } ) );
+		return( getScopeInfo( action , new EnumScopeCategory[] { EnumScopeCategory.SEARCH_SOURCEBUILDABLE } ) );
 	}
 	
 	public String getSourceScopeInfo( ActionBase action ) throws Exception {

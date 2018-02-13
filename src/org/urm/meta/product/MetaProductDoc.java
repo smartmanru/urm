@@ -52,4 +52,8 @@ public class MetaProductDoc {
 		this.UNITBOUND = unitbound;
 	}
 
+	public String getBaseFile() {
+		return( NAME + EXT );
+	}
+	
 }

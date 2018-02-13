@@ -87,7 +87,7 @@ public class ActionGetCumulative extends ActionBase {
 		for( Dist cumdist : cumdists ) {
 			String file = cumdist.getBinaryDistItemFile( this , item );
 			if( !file.isEmpty() ) {
-				dist.copyBinaryDistrToDistr( this , delivery , cumdist , file );
+				dist.copyFileDistrToDistr( this , delivery , cumdist , file );
 				return;
 			}
 		}

@@ -33,7 +33,7 @@ public class ActionSetSpecifics extends ActionBase {
 	}
 
 	private boolean setTargetSpecifics( ReleaseTarget target ) throws Exception {
-		if( !target.isProjectTarget() )
+		if( !target.isSourceTarget() )
 			return( false );
 		
 		target.setSpecifics( this , context.CTX_BRANCH , context.CTX_TAG , context.CTX_VERSION );

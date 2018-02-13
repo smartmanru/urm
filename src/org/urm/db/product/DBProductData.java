@@ -434,7 +434,7 @@ public class DBProductData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_DELIVERY_ID , "delivery id" , DBEnumObjectType.META_DIST_DELIVERY , true ) ,
 				EntityVar.metaString( MetaDistrBinaryItem.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_DESC , FIELD_BINARYITEM_DESC , MetaDistrBinaryItem.PROPERTY_DESC , "Description" , false , null ) ,
-				EntityVar.metaEnumVar( MetaDistrBinaryItem.PROPERTY_DISTITEMTYPE , FIELD_BINARYITEM_DISTITEMTYPE , MetaDistrBinaryItem.PROPERTY_DISTITEMTYPE , "Distributive item type" , true , DBEnumDistItemType.UNKNOWN ) ,
+				EntityVar.metaEnumVar( MetaDistrBinaryItem.PROPERTY_DISTITEMTYPE , FIELD_BINARYITEM_DISTITEMTYPE , MetaDistrBinaryItem.PROPERTY_DISTITEMTYPE , "Distributive item type" , true , DBEnumBinaryItemType.UNKNOWN ) ,
 				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_DISTNAME , FIELD_BINARYITEM_DISTNAME , MetaDistrBinaryItem.PROPERTY_DISTNAME , "Distribute base name" , true , null ) ,
 				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_DEPLOYNAME , FIELD_BINARYITEM_DEPLOYNAME , MetaDistrBinaryItem.PROPERTY_DEPLOYNAME , "Default deployment base name" , true , null ) ,
 				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_EXT , FIELD_BINARYITEM_EXT , MetaDistrBinaryItem.PROPERTY_EXT , "Item file extension" , true , null ) ,

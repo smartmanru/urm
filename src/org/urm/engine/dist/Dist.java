@@ -29,6 +29,7 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
@@ -48,6 +49,7 @@ public class Dist {
 	public static String BINARY_FOLDER = "binary";
 	public static String CONFIG_FOLDER = "config";
 	public static String DATABASE_FOLDER = "db";
+	public static String DOC_FOLDER = "doc";
 	public static String DBSCRIPTS_FOLDER = "scripts";
 	public static String DBDATALOAD_FOLDER = "dataload";
 	public static String ROLLBACK_FOLDER = "rollback";
@@ -270,6 +272,10 @@ public class Dist {
 	
 	public String getDeliveryDatabaseFolder( ActionBase action , MetaDistrDelivery delivery , String RELEASEVER ) throws Exception {
 		return( Common.getPath( delivery.FOLDER , DATABASE_FOLDER , RELEASEVER ) );
+	}
+	
+	public String getDeliveryDocFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
+		return( Common.getPath( delivery.FOLDER , DOC_FOLDER ) );
 	}
 	
 	public String getDeliveryDatabaseScriptFolder( ActionBase action , MetaDistrDelivery delivery , String RELEASEVER ) throws Exception {
@@ -592,7 +598,7 @@ public class Dist {
 		return( false );
 	}
 	
-	public boolean addDatabaseDeliveryAllSchemes( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
+	public boolean addDeliveryAllDatabaseSchemes( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
 		action.debug( "release - add database delivery=" + delivery.NAME );
 		if( !release.addCategorySet( action , EnumScopeCategory.DB , false ) )
 			return( false );
@@ -601,13 +607,33 @@ public class Dist {
 		return( true );
 	}
 
-	public boolean addDatabaseDeliverySchema( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
+	public boolean addDeliveryAllDocs( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
+		action.debug( "release - add doc delivery=" + delivery.NAME );
+		if( !release.addCategorySet( action , EnumScopeCategory.DOC , false ) )
+			return( false );
+		if( !release.addDocDelivery( action , delivery , true ) )
+			return( false );
+		return( true );
+	}
+
+	public boolean addDeliveryDatabaseSchema( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
 		action.debug( "release - add database delivery=" + delivery.NAME + ", schema=" + schema );
 		if( !release.addCategorySet( action , EnumScopeCategory.DB , false ) )
 			return( false );
 		if( !release.addDatabaseDelivery( action , delivery , false ) )
 			return( false );
 		if( !release.addDatabaseSchema( action , delivery , schema ) )
+			return( false );
+		return( true );
+	}
+	
+	public boolean addDeliveryDoc( ActionBase action , MetaDistrDelivery delivery , MetaProductDoc doc ) throws Exception {
+		action.debug( "release - add doc delivery=" + delivery.NAME + ", doc=" + doc );
+		if( !release.addCategorySet( action , EnumScopeCategory.DOC , false ) )
+			return( false );
+		if( !release.addDocDelivery( action , delivery , false ) )
+			return( false );
+		if( !release.addDoc( action , delivery , doc ) )
 			return( false );
 		return( true );
 	}
@@ -619,6 +645,13 @@ public class Dist {
 		return( true );
 	}
 
+	public boolean addDocAll( ActionBase action ) throws Exception {
+		action.debug( "release - add doc" );
+		if( !release.addCategorySet( action , EnumScopeCategory.DOC , true ) )
+			return( false );
+		return( true );
+	}
+
 	public String getReleaseConfCompParentFolder( ActionBase action , MetaDistrConfItem comp ) throws Exception {
 		String folder = getDeliveryConfFolder( action , comp.delivery );
 		return( folder );
@@ -626,6 +659,11 @@ public class Dist {
 	
 	public String getReleaseBinaryFolder( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
 		String folder = getDeliveryBinaryFolder( action , item.delivery );
+		return( folder );
+	}
+
+	public String getReleaseDocFolder( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
+		String folder = getDeliveryDocFolder( action , delivery );
 		return( folder );
 	}
 
@@ -694,11 +732,27 @@ public class Dist {
 		return( info );
 	}
 
+	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrDelivery delivery , MetaProductDoc item ) {
+		DistItemInfo info = new DistItemInfo( item );
+
+		try {
+			info.subPath = getReleaseDocFolder( action , delivery );
+			info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );
+			info.found = ( info.fileName.isEmpty() )? false : true;
+		}
+		catch( Throwable e ) {
+			action.log( "get document distitem info item=" + item.NAME , e );
+			info.found = false;
+		}
+		
+		return( info );
+	}
+
 	public void reloadCheckOpenedForDataChange( ActionBase action ) throws Exception {
 		state.ctlReloadCheckOpenedForDataChange( action );
 	}
 	
-	public void descopeSet( ActionBase action , ReleaseDistSet set ) throws Exception {
+	public void descopeSet( ActionBase action , ReleaseSet set ) throws Exception {
 		for( ReleaseTarget target : set.getTargets() )
 			dropTarget( action , target );
 		
@@ -709,7 +763,7 @@ public class Dist {
 	}
 
 	public void descopeAllProjects( ActionBase action ) throws Exception {
-		for( ReleaseDistSet set : release.getSourceSets() )
+		for( ReleaseSet set : release.getSourceSets() )
 			descopeSet( action , set );
 	}
 	
@@ -735,14 +789,19 @@ public class Dist {
 			distFolder.removeFolder( action , folder );
 		}
 		else
-		if( target.CATEGORY == EnumScopeCategory.DB ) {
-			String folder = getDeliveryDatabaseFolder( action , target.distDatabaseDelivery , release.RELEASEVER );
-			distFolder.removeFolderContent( action , folder );
-		}
-		else
 		if( target.CATEGORY == EnumScopeCategory.MANUAL ) {
 			String folder = getReleaseBinaryFolder( action , target.distManualItem );
 			distFolder.deleteVFile( action , folder , target.distManualItem.BASENAME_DIST , target.distManualItem.EXT );
+		}
+		else
+		if( target.CATEGORY == EnumScopeCategory.DB ) {
+			String folder = getDeliveryDatabaseFolder( action , target.distDelivery , release.RELEASEVER );
+			distFolder.removeFolderContent( action , folder );
+		}
+		else
+		if( target.CATEGORY == EnumScopeCategory.DOC ) {
+			String folder = getDeliveryDocFolder( action , target.distDelivery );
+			distFolder.removeFolderContent( action , folder );
 		}
 		else {
 			for( ReleaseTargetItem item : target.getItems() )
@@ -757,13 +816,18 @@ public class Dist {
 		}
 		else
 		if( item.isDatabase() ) {
-			String folderName = getReleaseBinaryFolder( action , item.distItem );
+			String folderName = getDeliveryDatabaseFolder( action , item.target.distDelivery , release.RELEASEVER );
 			RemoteFolder folder = distFolder.getSubFolder( action , folderName );
 			if( folder.checkExists( action ) ) {
 				FileSet fs = folder.getFileSet( action );
 				String[] files = DatabaseScriptFile.getDistSchemaFiles( fs , item.schema );
 				folder.removeFiles( action , Common.getList( files , " " ) );
 			}
+		}
+		else
+		if( item.isDoc() ) {
+			String folder = getReleaseDocFolder( action , item.target.distDelivery );
+			distFolder.deleteVFile( action , folder , item.doc.NAME , item.doc.EXT );
 		}
 	}
 
@@ -847,6 +911,20 @@ public class Dist {
 		return( null );
 	}
 
+	public String getDocDistItemFile( ActionBase action , MetaProductDoc doc ) throws Exception {
+		if( !openedForUse )
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
+		
+		ReleaseTarget target = release.findCategoryTarget( action , EnumScopeCategory.DOC , doc.NAME );
+		if( target == null )
+			return( "" );
+		
+		if( target.DISTFILE == null || target.DISTFILE.isEmpty() )
+			return( "" );
+		
+		return( Common.getPath( DOC_FOLDER , target.DISTFILE ) );
+	}
+
 	public void gatherFiles( ActionBase action ) throws Exception {
 		action.info( "find distributive files ..." );
 		files = distFolder.getFileSet( action );
@@ -859,6 +937,9 @@ public class Dist {
 				
 			for( ReleaseTarget targetItem : delivery.getManualItems() )
 				gatherDeliveryManualItem( action , delivery , deliveryFiles , targetItem );
+			
+			for( ReleaseTargetItem targetItem : delivery.getDocItems() )
+				gatherDeliveryDocItem( action , delivery , deliveryFiles , targetItem );
 		}
 	}
 
@@ -872,6 +953,18 @@ public class Dist {
 			fileName = binaryFiles.findDistItem( action , targetItem.distItem );
 		targetItem.setDistFile( action , fileName );
 		action.trace( "item=" + targetItem.distItem.NAME + ", file=" + ( ( fileName.isEmpty() )? "(missing)" : fileName ) );
+	}
+
+	private void gatherDeliveryDocItem( ActionBase action , ReleaseDelivery delivery , FileSet deliveryFiles , ReleaseTargetItem targetItem ) throws Exception {
+		FileSet docFiles = null;
+		if( deliveryFiles != null )
+			docFiles = deliveryFiles.getDirByPath( action , DOC_FOLDER );
+		String fileName = "";
+		
+		if( docFiles != null )
+			fileName = docFiles.findDistItem( action , targetItem.doc );
+		targetItem.setDistFile( action , fileName );
+		action.trace( "item=" + targetItem.doc.NAME + ", file=" + ( ( fileName.isEmpty() )? "(missing)" : fileName ) );
 	}
 
 	private void gatherDeliveryManualItem( ActionBase action , ReleaseDelivery delivery , FileSet deliveryFiles , ReleaseTarget targetItem ) throws Exception {
@@ -953,6 +1046,22 @@ public class Dist {
 		}
 	}
 
+	public void copyDocToTarget( ActionBase action , MetaDistrDelivery delivery , MetaProductDoc item , String fileName , RemoteFolder locationDir , String redistFileName ) throws Exception {
+		if( !openedForUse )
+			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
+		
+		if( isRemote( action ) ) {
+			// copy via local
+			LocalFolder work = action.getWorkFolder( "copy" );
+			copyDistFileToFolderRename( action , work , delivery.FOLDER , fileName , redistFileName );
+			locationDir.copyFileFromLocal( action , work.getFilePath( action , redistFileName ) );
+		}
+		else {
+			String path = Common.getPath( distFolder.folderPath , delivery.FOLDER , fileName );
+			locationDir.copyFileFromLocalRename( action , path , redistFileName );
+		}
+	}
+
 	public void descopeAll( ActionBase action ) throws Exception {
 		if( !openedForChange )
 			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
@@ -974,7 +1083,7 @@ public class Dist {
 		}
 	}
 	
-	public void copyBinaryDistrToDistr( ActionBase action , ReleaseDelivery delivery , Dist src , String file ) throws Exception {
+	public void copyFileDistrToDistr( ActionBase action , ReleaseDelivery delivery , Dist src , String file ) throws Exception {
 		ReleaseDelivery reldel = src.release.findDelivery( delivery.distDelivery.NAME );
 		if( reldel != null ) {
 			String folder = reldel.distDelivery.FOLDER;
@@ -1135,7 +1244,7 @@ public class Dist {
 		}
 		
 		release.addMasterItem( action , src.release , distItem , info );
-		copyBinaryDistrToDistr( action , delivery , src , Common.getPath( BINARY_FOLDER , info.fileName ) );
+		copyFileDistrToDistr( action , delivery , src , Common.getPath( BINARY_FOLDER , info.fileName ) );
 		folder = distFolder.getSubFolder( action , Common.getPath( delivery.distDelivery.FOLDER , BINARY_FOLDER ) );
 		folder.createFileFromString( action , info.fileName + ".md5" , info.md5value );
 	}

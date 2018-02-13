@@ -29,6 +29,7 @@ public class SourceStorage {
 
 	public static String CONFIG_FOLDER = "config";
 	public static String DATABASE_FOLDER = "db";
+	public static String DOC_FOLDER = "doc";
 	public static String ERRORS_FOLDER = "errors";
 	public static String MANUAL_FOLDER = "manual";
 
@@ -112,6 +113,20 @@ public class SourceStorage {
 		return( false );
 	}
 	
+	public boolean downloadReleaseDocFiles( ActionBase action , Dist distStorage , MetaDistrDelivery docDelivery , LocalFolder dstFolder ) throws Exception {
+		ProductMeta storage = meta.getStorage();
+		MirrorRepository mirror = action.getConfigurationMirror( storage );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
+		String PATH = getDATAReleaseDocSourcePath( action , distStorage , docDelivery );
+		
+		if( downloadDocFiles( action , vcs , PATH , docDelivery , dstFolder ) )
+			return( true );
+		
+		String path = vcs.getInfoMasterPath( mirror , PATH );
+		action.info( "no doc changes at " + path + ". Skipped." );
+		return( false );
+	}
+	
 	public boolean downloadProductConfigItem( ActionBase action , ConfSourceFolder sourceFolder , LocalFolder dstFolder ) throws Exception {
 		ProductMeta storage = meta.getStorage();
 		MirrorRepository mirror = action.getConfigurationMirror( storage );
@@ -142,6 +157,20 @@ public class SourceStorage {
 	}
 	
 	private boolean downloadDBFiles( ActionBase action , GenericVCS vcs , String ITEMPATH , MetaDistrDelivery dbDelivery , LocalFolder dstFolder ) throws Exception {
+		if( !isValidPath( action , vcs , ITEMPATH ) )
+			return( false );
+	
+		ProductMeta storage = meta.getStorage();
+		MirrorRepository mirror = action.getConfigurationMirror( storage );
+		if( !vcs.exportRepositoryMasterPath( mirror , dstFolder , ITEMPATH , DATABASE_FOLDER ) )
+			action.exit2( _Error.UnableExportMirror2 , "unable to export from mirror=" + mirror.NAME + ", ITEMPATH=" + ITEMPATH , mirror.NAME , ITEMPATH );
+		
+		if( action.isLocalLinux() )
+			dstFolder.prepareFolderForLinux( action , DATABASE_FOLDER );
+		return( true );
+	}
+	
+	private boolean downloadDocFiles( ActionBase action , GenericVCS vcs , String ITEMPATH , MetaDistrDelivery docDelivery , LocalFolder dstFolder ) throws Exception {
 		if( !isValidPath( action , vcs , ITEMPATH ) )
 			return( false );
 	
@@ -214,6 +243,11 @@ public class SourceStorage {
 	
 	public String getDBFolderRelPath( ActionBase action , MetaDistrDelivery dbDelivery ) throws Exception {
 		String PATH = Common.getPath( dbDelivery.FOLDER , SourceStorage.DATABASE_FOLDER );
+		return( PATH );
+	}
+	
+	public String getDocFolderRelPath( ActionBase action , MetaDistrDelivery docDelivery ) throws Exception {
+		String PATH = Common.getPath( docDelivery.FOLDER , SourceStorage.DOC_FOLDER );
 		return( PATH );
 	}
 	
@@ -458,6 +492,12 @@ public class SourceStorage {
 		return( PATH );
 	}
 
+	private String getDATAReleaseDocSourcePath( ActionBase action , Dist distStorage , MetaDistrDelivery docDelivery ) throws Exception {
+		String PATH = Common.getPath( getDATAReleasePath( action , distStorage ) , 
+			getDocFolderRelPath( action , docDelivery ) );
+		return( PATH );
+	}
+	
 	private String getDATAReleaseErrorsPath( ActionBase action , Dist distStorage , MetaDistrDelivery dbDelivery , String errorFolder ) throws Exception {
 		String PATH = Common.getPath( getDATAReleasePath( action , distStorage ) , 
 			getErrorFolderRelPath( action , dbDelivery , errorFolder ) );

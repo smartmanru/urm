@@ -10,6 +10,7 @@ import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
@@ -105,6 +106,13 @@ public class ReleaseTicketSetTarget {
 		descoped = false;
 	}
 	
+	public void create( ActionBase action , MetaDistrDelivery delivery , MetaProductDoc doc ) {
+		this.type = EnumTicketSetTargetType.DOC;
+		ITEM = delivery.NAME + ":" + doc.NAME;
+		accepted = false;
+		descoped = false;
+	}
+	
 	public boolean isAccepted() {
 		return( accepted );
 	}
@@ -143,6 +151,12 @@ public class ReleaseTicketSetTarget {
 		return( false );
 	}
 
+	public boolean isDoc() {
+		if( type == EnumTicketSetTargetType.DOC )
+			return( true );
+		return( false );
+	}
+
 	public boolean isDelivery() {
 		if( type == EnumTicketSetTargetType.DELIVERYBINARIES || type == EnumTicketSetTargetType.DELIVERYCONFS || type == EnumTicketSetTargetType.DELIVERYDATABASE )
 			return( true );
@@ -167,11 +181,25 @@ public class ReleaseTicketSetTarget {
 		return( false );
 	}
 	
+	public boolean isDeliveryDoc() {
+		if( type == EnumTicketSetTargetType.DELIVERYDOC )
+			return( true );
+		return( false );
+	}
+	
 	public String getDatabaseDelivery() {
 		return( Common.getPartBeforeFirst( ITEM , ":" ) );
 	}
 	
 	public String getDatabaseSchema() {
+		return( Common.getPartAfterFirst( ITEM , ":" ) );
+	}
+	
+	public String getDocDelivery() {
+		return( Common.getPartBeforeFirst( ITEM , ":" ) );
+	}
+	
+	public String getDoc() {
 		return( Common.getPartAfterFirst( ITEM , ":" ) );
 	}
 	
@@ -272,6 +300,25 @@ public class ReleaseTicketSetTarget {
 
 		if( isDeliveryDatabase() ) {
 			String deliveryName = getDatabaseDelivery();
+			if( deliveryName.equals( delivery.NAME ) )
+				return( true );
+			return( false );
+		}
+		
+		return( false );
+	}
+
+	public boolean references( MetaDistrDelivery delivery , MetaProductDoc item ) {
+		if( isDoc() ) {
+			String deliveryName = getDocDelivery();
+			String docName = getDoc();
+			if( deliveryName.equals( delivery.NAME ) && docName.equals( item.NAME ) )
+				return( true );
+			return( false );
+		}
+
+		if( isDeliveryDoc() ) {
+			String deliveryName = getDocDelivery();
 			if( deliveryName.equals( delivery.NAME ) )
 				return( true );
 			return( false );

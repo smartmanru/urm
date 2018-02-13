@@ -420,7 +420,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public boolean runEachBuildableProject( ScopeState parentState , ActionScope scope , SecurityAction sa , boolean readOnly ) {
-		EnumScopeCategory[] categories = { EnumScopeCategory.BUILDABLE };
+		EnumScopeCategory[] categories = { EnumScopeCategory.SEARCH_SOURCEBUILDABLE };
 		return( runCategories( parentState , scope , categories , sa , readOnly ) );
 	}
 	
@@ -435,7 +435,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public boolean runEachPrebuiltProject( ScopeState parentState , String methodName , ActionScope scope , SecurityAction sa , boolean readOnly ) {
-		return( runEachCategoryTarget( parentState , scope , EnumScopeCategory.PREBUILT , sa , readOnly ) );
+		return( runEachCategoryTarget( parentState , scope , EnumScopeCategory.SEARCH_SOURCEPREBUILT , sa , readOnly ) );
 	}
 
 	public ShellExecutor getShell( Account account ) throws Exception {

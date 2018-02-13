@@ -56,7 +56,7 @@ public class BuildPlanItem {
 	public void setExecute( boolean execute ) {
 		this.execute = execute;
 		executeBuild = ( execute && target.isBuildableProject() )? true : false;
-		boolean canGet = ( target.isProjectTarget() )? ( ( target.isEmpty() )? false : true ) : true;
+		boolean canGet = ( target.isSourceTarget() )? ( ( target.isEmpty() )? false : true ) : true;
 		executeGet = ( canGet && execute )? true : false;
 	}
 

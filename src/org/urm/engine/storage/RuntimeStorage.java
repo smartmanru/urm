@@ -3,7 +3,7 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.action.deploy.ServerDeployment;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.DBEnumDistItemType;
+import org.urm.db.core.DBEnums.DBEnumBinaryItemType;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
@@ -220,7 +220,7 @@ public class RuntimeStorage extends ServerStorage {
 		EnumArchiveType atype = archiveItem.getArchiveType( action );
 
 		deployFolder.ensureExists( action );
-		if( archiveItem.DISTITEM_TYPE == DBEnumDistItemType.ARCHIVE_CHILD ) {
+		if( archiveItem.DISTITEM_TYPE == DBEnumBinaryItemType.ARCHIVE_CHILD ) {
 			// delete old
 			if( !deployFolder.checkFolderExists( action , archiveItem.BASENAME_DEPLOY ) ) {
 				String content = "";
@@ -239,7 +239,7 @@ public class RuntimeStorage extends ServerStorage {
 			deployFolder.extractArchive( action , atype , archiveFilePath , "" );
 		}
 		else
-		if( archiveItem.DISTITEM_TYPE == DBEnumDistItemType.ARCHIVE_DIRECT ) {
+		if( archiveItem.DISTITEM_TYPE == DBEnumBinaryItemType.ARCHIVE_DIRECT ) {
 			// delete old
 			deployFolder.removeFilesWithExclude( action , archiveItem.ARCHIVE_FILES , archiveItem.ARCHIVE_EXCLUDE );
 			
@@ -247,7 +247,7 @@ public class RuntimeStorage extends ServerStorage {
 			deployFolder.extractArchive( action , atype , archiveFilePath , "" );
 		}
 		else
-		if( archiveItem.DISTITEM_TYPE == DBEnumDistItemType.ARCHIVE_SUBDIR ) {
+		if( archiveItem.DISTITEM_TYPE == DBEnumBinaryItemType.ARCHIVE_SUBDIR ) {
 			RemoteFolder deployTarFolder = deployFolder.getSubFolder( action , archiveItem.BASENAME_DEPLOY );
 			if( !deployTarFolder.checkExists( action ) ) {
 				deployTarFolder.ensureExists( action );

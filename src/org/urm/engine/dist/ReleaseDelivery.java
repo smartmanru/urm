@@ -20,6 +20,7 @@ public class ReleaseDelivery {
 	private Map<String,ReleaseTarget> manualItems;
 	private Map<String,ReleaseTarget> derivedItems;
 	private Map<String,ReleaseTargetItem> schemaItems;
+	private Map<String,ReleaseTargetItem> docItems;
 	
 	public ReleaseDelivery( Meta meta , Release release , MetaDistrDelivery distDelivery ) {
 		this.meta = meta; 
@@ -31,6 +32,7 @@ public class ReleaseDelivery {
 		manualItems = new HashMap<String,ReleaseTarget>();
 		derivedItems = new HashMap<String,ReleaseTarget>();
 		schemaItems = new HashMap<String,ReleaseTargetItem>();
+		docItems = new HashMap<String,ReleaseTargetItem>();
 	}
 
 	public ReleaseDelivery copy( ActionBase action , Release nr ) throws Exception {
@@ -39,8 +41,8 @@ public class ReleaseDelivery {
 		for( Entry<String,ReleaseTargetItem> entry : projectItems.entrySet() ) {
 			ReleaseTargetItem src = entry.getValue();
 			ReleaseTarget srcTarget = src.target;
-			ReleaseDistSet srcSet = srcTarget.set;
-			ReleaseDistSet dstSet = nr.getSourceSet( action , srcSet.NAME );
+			ReleaseSet srcSet = srcTarget.set;
+			ReleaseSet dstSet = nr.getSourceSet( action , srcSet.NAME );
 			ReleaseTarget dstTarget = dstSet.getTarget( action , srcTarget.NAME );
 			ReleaseTargetItem dst = dstTarget.findItem( src.NAME );
 			nx.projectItems.put( entry.getKey() , dst );
@@ -48,21 +50,21 @@ public class ReleaseDelivery {
 		
 		for( Entry<String,ReleaseTarget> entry : confItems.entrySet() ) {
 			ReleaseTarget src = entry.getValue();
-			ReleaseDistSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
+			ReleaseSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
 			ReleaseTarget dst = dstSet.getTarget( action , src.NAME );
 			nx.confItems.put( entry.getKey() , dst );
 		}
 		
 		for( Entry<String,ReleaseTarget> entry : manualItems.entrySet() ) {
 			ReleaseTarget src = entry.getValue();
-			ReleaseDistSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
+			ReleaseSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
 			ReleaseTarget dst = dstSet.getTarget( action , src.NAME );
 			nx.manualItems.put( entry.getKey() , dst );
 		}
 		
 		for( Entry<String,ReleaseTarget> entry : derivedItems.entrySet() ) {
 			ReleaseTarget src = entry.getValue();
-			ReleaseDistSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
+			ReleaseSet dstSet = nr.getCategorySet( action , src.set.CATEGORY );
 			ReleaseTarget dst = dstSet.getTarget( action , src.NAME );
 			nx.derivedItems.put( entry.getKey() , dst );
 		}
@@ -70,10 +72,19 @@ public class ReleaseDelivery {
 		for( Entry<String,ReleaseTargetItem> entry : schemaItems.entrySet() ) {
 			ReleaseTargetItem src = entry.getValue();
 			ReleaseTarget srcTarget = src.target;
-			ReleaseDistSet dstSet = nr.getCategorySet( action , srcTarget.set.CATEGORY );
+			ReleaseSet dstSet = nr.getCategorySet( action , srcTarget.set.CATEGORY );
 			ReleaseTarget dstTarget = dstSet.getTarget( action , srcTarget.NAME );
 			ReleaseTargetItem dst = dstTarget.findItem( src.NAME );
 			nx.schemaItems.put( entry.getKey() , dst );
+		}
+		
+		for( Entry<String,ReleaseTargetItem> entry : docItems.entrySet() ) {
+			ReleaseTargetItem src = entry.getValue();
+			ReleaseTarget srcTarget = src.target;
+			ReleaseSet dstSet = nr.getCategorySet( action , srcTarget.set.CATEGORY );
+			ReleaseTarget dstTarget = dstSet.getTarget( action , srcTarget.NAME );
+			ReleaseTargetItem dst = dstTarget.findItem( src.NAME );
+			nx.docItems.put( entry.getKey() , dst );
 		}
 		
 		return( nx );
@@ -89,6 +100,11 @@ public class ReleaseDelivery {
 			action.debug( "add delivery schema item: " + distDelivery.NAME + "::" + item.schema.NAME );
 			schemaItems.put( item.schema.NAME , item );
 		}
+		else
+		if( item.doc != null ) {
+			action.debug( "add delivery doc item: " + distDelivery.NAME + "::" + item.doc.NAME );
+			docItems.put( item.doc.NAME , item );
+		}
 	}
 
 	public void removeTargetItem( ActionBase action , ReleaseTargetItem item ) throws Exception {
@@ -100,6 +116,11 @@ public class ReleaseDelivery {
 		if( item.schema != null ) {
 			action.debug( "remove delivery schema item: " + distDelivery.NAME + "::" + item.schema.NAME );
 			schemaItems.remove( item.schema.NAME );
+		}
+		else
+		if( item.doc != null ) {
+			action.debug( "remove delivery doc item: " + distDelivery.NAME + "::" + item.doc.NAME );
+			docItems.remove( item.doc.NAME );
 		}
 	}
 
@@ -173,6 +194,18 @@ public class ReleaseDelivery {
 		return( manualItems.get( name ) );
 	}
 
+	public String[] getDocItemNames() {
+		return( Common.getSortedKeys( docItems ) );
+	}
+	
+	public ReleaseTargetItem[] getDocItems() {
+		return( docItems.values().toArray( new ReleaseTargetItem[0] ) );
+	}
+
+	public ReleaseTargetItem findDocItem( String name ) {
+		return( docItems.get( name ) );
+	}
+
 	public String[] getDerivedItemNames() {
 		return( Common.getSortedKeys( derivedItems ) );
 	}
@@ -202,7 +235,7 @@ public class ReleaseDelivery {
 	}
 	
 	public boolean isEmpty() {
-		if( projectItems.isEmpty() && confItems.isEmpty() && manualItems.isEmpty() && derivedItems.isEmpty() && schemaItems.isEmpty() )
+		if( projectItems.isEmpty() && confItems.isEmpty() && manualItems.isEmpty() && derivedItems.isEmpty() && schemaItems.isEmpty() && docItems.isEmpty() )
 			return( true );
 		return( false );
 	}
@@ -221,6 +254,12 @@ public class ReleaseDelivery {
 	
 	public boolean hasDatabaseItems() {
 		if( !schemaItems.isEmpty() )
+			return( true );
+		return( false );
+	}
+
+	public boolean hasDocItems() {
+		if( !docItems.isEmpty() )
 			return( true );
 		return( false );
 	}

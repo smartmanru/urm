@@ -237,6 +237,14 @@ public class MetaDistr {
 		return( list.toArray( new MetaDistrDelivery[0] ) );
 	}
 
+	public MetaDistrDelivery[] getDocDeliveries() {
+		List<MetaDistrDelivery> list = new LinkedList<MetaDistrDelivery>();
+		for( MetaDistrDelivery delivery : mapDeliveries.values() )
+			if( delivery.hasDocItems() )
+				list.add( delivery );
+		return( list.toArray( new MetaDistrDelivery[0] ) );
+	}
+
 	public MetaDistrDelivery findDelivery( String delivery ) {
 		return( mapDeliveries.get( delivery ) );
 	}

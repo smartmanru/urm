@@ -12,7 +12,7 @@ import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseMasterItem;
 import org.urm.engine.dist.ReleaseSchedule;
 import org.urm.engine.dist.ReleaseSchedulePhase;
-import org.urm.engine.dist.ReleaseDistSet;
+import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.status.ScopeState;
@@ -88,7 +88,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 				printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
 			
 			for( EnumScopeCategory CATEGORY : Types.getAllReleaseCategories() ) {
-				ReleaseDistSet set = release.findCategorySet( CATEGORY );
+				ReleaseSet set = release.findCategorySet( CATEGORY );
 				if( set != null )
 					printReleaseCategorySetStatus( dist , files , set );
 			}
@@ -123,7 +123,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		}
 	}
 	
-	private void printReleaseSourceSetStatus( Dist dist , FileSet files , ReleaseDistSet set ) throws Exception {
+	private void printReleaseSourceSetStatus( Dist dist , FileSet files , ReleaseSet set ) throws Exception {
 		if( set.isEmpty() )
 			return;
 		
@@ -138,7 +138,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		}
 	}
 
-	private void printReleaseCategorySetStatus( Dist dist , FileSet files , ReleaseDistSet set ) throws Exception {
+	private void printReleaseCategorySetStatus( Dist dist , FileSet files , ReleaseSet set ) throws Exception {
 		if( set.isEmpty() )
 			return;
 		
@@ -161,7 +161,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		}
 	}
 
-	private void printReleaseBuildSetProjectStatus( Dist dist , FileSet files , ReleaseDistSet set , ReleaseTarget project ) throws Exception {
+	private void printReleaseBuildSetProjectStatus( Dist dist , FileSet files , ReleaseSet set , ReleaseTarget project ) throws Exception {
 		String specifics = project.getSpecifics();
 		if( project.isBuildableProject() ) {
 			if( project.sourceProject.isEmpty( this ) ) {
@@ -195,7 +195,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		}
 	}
 
-	private void printReleaseBuildSetProjectItemStatus( Dist dist , FileSet files , ReleaseDistSet set , ReleaseTarget project , ReleaseTargetItem item ) throws Exception {
+	private void printReleaseBuildSetProjectItemStatus( Dist dist , FileSet files , ReleaseSet set , ReleaseTarget project , ReleaseTargetItem item ) throws Exception {
 		String specifics = item.getSpecifics( this );
 		MetaDistrBinaryItem distItem = item.distItem;
 		DistItemInfo info = dist.getDistItemInfo( this , distItem , false , true );
@@ -225,7 +225,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 	}
 
 	private void printReleaseDatabaseStatus( Dist dist , FileSet files , ReleaseTarget db ) throws Exception {
-		MetaDistrDelivery delivery = db.distDatabaseDelivery;
+		MetaDistrDelivery delivery = db.distDelivery;
 
 		if( dist.release.isCumulative() ) {
 			String[] versions = dist.release.getCumulativeVersions();

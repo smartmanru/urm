@@ -58,6 +58,7 @@ public class ActionTickets extends ActionBase {
 	public static String TARGET_DELIVERYBINARY = "binary";
 	public static String TARGET_DELIVERYCONF = "conf";
 	public static String TARGET_DELIVERYSCHEMA = "schema";
+	public static String TARGET_DELIVERYDOC = "doc";
 	
 	public ActionTickets( ActionBase action , String stream , Dist dist , String method , String[] args ) {
 		super( action , stream , "change tickets release=" + dist.RELEASEDIR );
@@ -448,7 +449,13 @@ public class ActionTickets extends ActionBase {
 		if( target.isDatabase() ) {
 			String delivery = target.getDatabaseDelivery();
 			String schema = target.getDatabaseSchema();
-			maker.addScopeProductDatabaseDeliverySchemes( delivery , new String[] { schema } );
+			maker.addScopeProductDeliveryDatabaseSchemes( delivery , new String[] { schema } );
+		}
+		else
+		if( target.isDoc() ) {
+			String delivery = target.getDatabaseDelivery();
+			String doc = target.getDoc();
+			maker.addScopeProductDeliveryDocs( delivery , new String[] { doc } );
 		}
 		else
 		if( target.isDelivery() ) {
@@ -463,7 +470,7 @@ public class ActionTickets extends ActionBase {
 			}
 			else
 			if( target.isDeliveryDatabase() ) {
-				maker.addScopeProductDatabaseDeliverySchemes( delivery.NAME , delivery.getDatabaseSchemaNames() );
+				maker.addScopeProductDeliveryDatabaseSchemes( delivery.NAME , delivery.getDatabaseSchemaNames() );
 			}
 		}
 	}
@@ -551,6 +558,11 @@ public class ActionTickets extends ActionBase {
 		else
 		if( type.equals( TARGET_DELIVERYSCHEMA ) )
 			set.createTarget( this , delivery , EnumTicketSetTargetType.SCHEMA , items );
+		else
+		if( type.equals( TARGET_DELIVERYDOC ) )
+			set.createTarget( this , delivery , EnumTicketSetTargetType.DOC , items );
+		else
+			Common.exitUnexpected();
 	}
 	
 }

@@ -17,6 +17,7 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
@@ -28,7 +29,7 @@ import org.w3c.dom.Node;
 public class ReleaseTarget {
 
 	Meta meta;
-	public ReleaseDistSet set;
+	public ReleaseSet set;
 	public EnumScopeCategory CATEGORY;
 
 	public boolean ALL;
@@ -40,21 +41,22 @@ public class ReleaseTarget {
 	
 	public MetaSourceProject sourceProject;
 	public MetaDistrConfItem distConfItem;
-	public MetaDistrDelivery distDatabaseDelivery;
 	public MetaDistrBinaryItem distManualItem;
 	public MetaDistrBinaryItem distDerivedItem;
+	
+	public MetaDistrDelivery distDelivery;
 	
 	Map<String,ReleaseTargetItem> itemMap = new HashMap<String,ReleaseTargetItem>();
 	
 	public String DISTFILE;
 
-	public ReleaseTarget( Meta meta , ReleaseDistSet set , EnumScopeCategory CATEGORY ) {
+	public ReleaseTarget( Meta meta , ReleaseSet set , EnumScopeCategory CATEGORY ) {
 		this.meta = meta;
 		this.set = set;
 		this.CATEGORY = CATEGORY;
 	}
 
-	public ReleaseTarget copy( ActionBase action , Release nr , ReleaseDistSet ns ) throws Exception {
+	public ReleaseTarget copy( ActionBase action , Release nr , ReleaseSet ns ) throws Exception {
 		ReleaseTarget nx = new ReleaseTarget( ns.meta , ns , CATEGORY );
 		
 		nx.ALL = ALL;
@@ -67,7 +69,7 @@ public class ReleaseTarget {
 		nx.sourceProject = ( sourceProject == null )? null : ns.set.getProject( sourceProject.NAME );
 		MetaDistr ndistr = ns.meta.getDistr();
 		nx.distConfItem = ( distConfItem == null )? null : ndistr.getConfItem( distConfItem.NAME );
-		nx.distDatabaseDelivery = ( distDatabaseDelivery == null )? null : ndistr.getDelivery( distDatabaseDelivery.NAME );
+		nx.distDelivery = ( distDelivery == null )? null : ndistr.getDelivery( distDelivery.NAME );
 		nx.distManualItem = ( distManualItem == null )? null : ndistr.getBinaryItem( distManualItem.NAME );
 		nx.distDerivedItem = ( distDerivedItem == null )? null : ndistr.getBinaryItem( distDerivedItem.NAME );
 
@@ -86,14 +88,17 @@ public class ReleaseTarget {
 		if( CATEGORY == EnumScopeCategory.CONFIG )
 			loadConfiguration( action , node );
 		else
-		if( CATEGORY == EnumScopeCategory.DB )
-			loadDatabase( action , node );
-		else
 		if( CATEGORY == EnumScopeCategory.MANUAL )
 			loadManual( action , node );
 		else
 		if( CATEGORY == EnumScopeCategory.DERIVED )
 			loadDerived( action , node );
+		else
+		if( CATEGORY == EnumScopeCategory.DB )
+			loadDatabase( action , node );
+		else
+		if( CATEGORY == EnumScopeCategory.DOC )
+			loadDoc( action , node );
 		else
 			action.exitUnexpectedCategory( CATEGORY );
 	}
@@ -134,29 +139,6 @@ public class ReleaseTarget {
 		ALL = ( ConfReader.getBooleanAttrValue( node , Release.PROPERTY_PARTIAL , true ) )? false : true;
 	}
 	
-	private void loadDatabase( ActionBase action , Node node ) throws Exception {
-		String name = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
-		MetaDistr distr = meta.getDistr(); 
-		distDatabaseDelivery = distr.getDelivery( name );
-		this.NAME = name;
-
-		// add database
-		Node[] items = ConfReader.xmlGetChildren( node , Release.ELEMENT_SCHEMA );
-		if( items == null ) {
-			ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
-			if( ALL )
-				addAllDatabaseSchemes( action );
-			return;
-		}
-
-		ALL = false;
-		for( Node inode : items ) {
-			ReleaseTargetItem item = new ReleaseTargetItem( meta , this );
-			item.loadDatabaseItem( action , inode );
-			itemMap.put( item.NAME , item );
-		}
-	}
-
 	private void loadManual( ActionBase action , Node node ) throws Exception {
 		String name = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
 		MetaDistr distr = meta.getDistr(); 
@@ -173,6 +155,52 @@ public class ReleaseTarget {
 		this.NAME = name;
 		
 		ALL = true;
+	}
+
+	private void loadDatabase( ActionBase action , Node node ) throws Exception {
+		String name = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
+		MetaDistr distr = meta.getDistr(); 
+		distDelivery = distr.getDelivery( name );
+		this.NAME = name;
+
+		// add database
+		Node[] items = ConfReader.xmlGetChildren( node , Release.ELEMENT_SCHEMA );
+		if( items == null ) {
+			ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
+			if( ALL )
+				addAllDeliverySchemes( action );
+			return;
+		}
+
+		ALL = false;
+		for( Node inode : items ) {
+			ReleaseTargetItem item = new ReleaseTargetItem( meta , this );
+			item.loadDatabaseItem( action , inode );
+			itemMap.put( item.NAME , item );
+		}
+	}
+
+	private void loadDoc( ActionBase action , Node node ) throws Exception {
+		String name = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
+		MetaDistr distr = meta.getDistr(); 
+		distDelivery = distr.getDelivery( name );
+		this.NAME = name;
+
+		// add documents
+		Node[] items = ConfReader.xmlGetChildren( node , Release.ELEMENT_DOC );
+		if( items == null ) {
+			ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
+			if( ALL )
+				addAllDeliveryDocs( action );
+			return;
+		}
+
+		ALL = false;
+		for( Node inode : items ) {
+			ReleaseTargetItem item = new ReleaseTargetItem( meta , this );
+			item.loadDocItem( action , inode );
+			itemMap.put( item.NAME , item );
+		}
 	}
 
 	public void addReleaseTarget( ActionBase action , ReleaseTarget srctarget ) throws Exception {
@@ -199,10 +227,6 @@ public class ReleaseTarget {
 			if( distConfItem != null )
 				return( true );
 		}
-		else if( CATEGORY == EnumScopeCategory.DB ) {
-			if( distDatabaseDelivery != null )
-				return( true );
-		}
 		else if( CATEGORY == EnumScopeCategory.MANUAL ) {
 			if( distManualItem != null )
 				return( true );
@@ -211,12 +235,20 @@ public class ReleaseTarget {
 			if( distDerivedItem != null )
 				return( true );
 		}
+		else if( CATEGORY == EnumScopeCategory.DB ) {
+			if( this.CATEGORY == CATEGORY )
+				return( true );
+		}
+		else if( CATEGORY == EnumScopeCategory.DOC ) {
+			if( this.CATEGORY == CATEGORY )
+				return( true );
+		}
 		
 		action.exitUnexpectedState();
 		return( false );
 	}
 	
-	public boolean isProjectTarget() {
+	public boolean isSourceTarget() {
 		if( sourceProject != null )
 			return( true );
 		return( false );
@@ -235,7 +267,7 @@ public class ReleaseTarget {
 	}
 	
 	public boolean isBinaryTarget() {
-		if( isProjectTarget() || isManualTarget() || isDerivedTarget() )
+		if( isSourceTarget() || isManualTarget() || isDerivedTarget() )
 			return( true );
 		return( false );
 	}
@@ -247,7 +279,13 @@ public class ReleaseTarget {
 	}
 	
 	public boolean isDatabaseTarget() {
-		if( distDatabaseDelivery != null )
+		if( CATEGORY == EnumScopeCategory.DB )
+			return( true );
+		return( false );
+	}
+
+	public boolean isDocTarget() {
+		if( CATEGORY == EnumScopeCategory.DOC )
 			return( true );
 		return( false );
 	}
@@ -274,16 +312,6 @@ public class ReleaseTarget {
 		this.NAME = item.NAME;
 	}
 	
-	public void createFromDatabaseDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allSchemes ) throws Exception {
-		this.distDatabaseDelivery = delivery;
-		this.CATEGORY = EnumScopeCategory.DB;
-		this.ALL = false;
-		this.NAME = delivery.NAME;
-		
-		if( allSchemes )
-			addAllDatabaseSchemes( action );
-	}
-	
 	public void createFromManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
 		if( item.ITEMORIGIN_TYPE != DBEnumItemOriginType.MANUAL )
 			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item.NAME , item.NAME );
@@ -302,6 +330,26 @@ public class ReleaseTarget {
 		this.CATEGORY = EnumScopeCategory.DERIVED;
 		this.ALL = true;
 		this.NAME = item.NAME;
+	}
+	
+	public void createFromDatabaseDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allSchemes ) throws Exception {
+		this.distDelivery = delivery;
+		this.CATEGORY = EnumScopeCategory.DB;
+		this.ALL = false;
+		this.NAME = delivery.NAME;
+		
+		if( allSchemes )
+			addAllDeliverySchemes( action );
+	}
+	
+	public void createFromDocDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allDocs ) throws Exception {
+		this.distDelivery = delivery;
+		this.CATEGORY = EnumScopeCategory.DOC;
+		this.ALL = false;
+		this.NAME = delivery.NAME;
+		
+		if( allDocs )
+			addAllDeliveryDocs( action );
 	}
 	
 	public void setAll( ActionBase action , boolean ALL ) throws Exception {
@@ -343,9 +391,16 @@ public class ReleaseTarget {
 		return( list.toArray( new ReleaseTargetItem[0] ) );
 	}
 	
-	public ReleaseTargetItem addDatabaseSchema( ActionBase action , MetaDatabaseSchema schema ) throws Exception {
+	public ReleaseTargetItem addDeliverySchema( ActionBase action , MetaDatabaseSchema schema ) throws Exception {
 		ReleaseTargetItem item = new ReleaseTargetItem( meta , this );
 		item.createFromSchema( action , schema );
+		itemMap.put( item.NAME , item );
+		return( item );
+	}
+	
+	public ReleaseTargetItem addDeliveryDoc( ActionBase action , MetaProductDoc doc ) throws Exception {
+		ReleaseTargetItem item = new ReleaseTargetItem( meta , this );
+		item.createFromDoc( action , doc );
 		itemMap.put( item.NAME , item );
 		return( item );
 	}
@@ -358,22 +413,26 @@ public class ReleaseTarget {
 		return( itemMap.get( NAME ) );
 	}
 	
-	public ReleaseTargetItem findDatabaseSchema( MetaDatabaseSchema schema ) {
-		return( itemMap.get( schema.NAME ) );
-	}
-	
 	public ReleaseTargetItem findProjectItem( MetaSourceProjectItem item ) {
 		return( itemMap.get( item.NAME ) );
 	}
 	
 	public ReleaseTargetItem findDistItem( MetaDistrBinaryItem item ) {
-		if( isProjectTarget() ) {
+		if( isSourceTarget() ) {
 			if( item.isProjectItem() )
 				return( findProjectItem( item.sourceProjectItem ) );
 			return( null );
 		}
 			
 		return( itemMap.get( item.NAME ) );
+	}
+	
+	public ReleaseTargetItem findDeliverySchema( MetaDatabaseSchema schema ) {
+		return( itemMap.get( schema.NAME ) );
+	}
+	
+	public ReleaseTargetItem findDeliveryDoc( MetaProductDoc doc ) {
+		return( itemMap.get( doc.NAME ) );
 	}
 	
 	public void addAllSourceItems( ActionBase action ) throws Exception {
@@ -384,12 +443,20 @@ public class ReleaseTarget {
 			addSourceItem( action , projectitem );
 	}
 
-	public void addAllDatabaseSchemes( ActionBase action ) throws Exception {
+	public void addAllDeliverySchemes( ActionBase action ) throws Exception {
 		ALL = true;
 		
 		// read source items
-		for( MetaDatabaseSchema schema : distDatabaseDelivery.getDatabaseSchemes() )
-			addDatabaseSchema( action , schema );
+		for( MetaDatabaseSchema schema : distDelivery.getDatabaseSchemes() )
+			addDeliverySchema( action , schema );
+	}
+
+	public void addAllDeliveryDocs( ActionBase action ) throws Exception {
+		ALL = true;
+		
+		// read source items
+		for( MetaProductDoc doc : distDelivery.getDocs() )
+			addDeliveryDoc( action , doc );
 	}
 
 	public ReleaseTargetItem[] getItems() {
@@ -399,8 +466,8 @@ public class ReleaseTarget {
 	public MetaDistrDelivery getDelivery( ActionBase action ) throws Exception {
 		if( distConfItem != null )
 			return( distConfItem.delivery );
-		if( distDatabaseDelivery != null )
-			return( distDatabaseDelivery );
+		if( distDelivery != null )
+			return( distDelivery );
 		if( distManualItem != null )
 			return( distManualItem.delivery );
 		
@@ -409,16 +476,18 @@ public class ReleaseTarget {
 	}
 	
 	public String getSpecifics() {
-		if( sourceProject != null )
+		if( isSourceTarget() )
 			return( getSpecificsProject() );
-		if( distConfItem != null )
+		if( isConfTarget() )
 			return( getSpecificsConfig() );
-		if( distDatabaseDelivery != null )
-			return( getSpecificsDatabase() );
-		if( distManualItem != null )
+		if( isManualTarget() )
 			return( getSpecificsManual() );
-		if( distDerivedItem != null )
+		if( isDerivedTarget() )
 			return( getSpecificsDerived() );
+		if( isDatabaseTarget() )
+			return( getSpecificsDatabase() );
+		if( isDocTarget() )
+			return( getSpecificsDoc() );
 		return( "" );
 	}
 	
@@ -441,12 +510,6 @@ public class ReleaseTarget {
 		return( "" );
 	}
 	
-	public String getSpecificsDatabase() {
-		if( !ALL )
-			return( "partial" );
-		return( "" );
-	}
-	
 	public String getSpecificsManual() {
 		return( "" );
 	}
@@ -455,21 +518,35 @@ public class ReleaseTarget {
 		return( "" );
 	}
 	
+	public String getSpecificsDatabase() {
+		if( !ALL )
+			return( "partial" );
+		return( "" );
+	}
+	
+	public String getSpecificsDoc() {
+		if( !ALL )
+			return( "partial" );
+		return( "" );
+	}
+	
 	public boolean isEmpty() {
 		return( itemMap.isEmpty() );
 	}
 
 	public Element createXml( ActionBase action , Document doc , Element parent ) throws Exception {
-		if( sourceProject != null )
+		if( isSourceTarget() )
 			return( createXmlBinary( action , doc , parent ) );
-		if( distConfItem != null )
+		if( isConfTarget() )
 			return( createXmlConfig( action , doc , parent ) );
-		if( distDatabaseDelivery != null )
-			return( createXmlDatabase( action , doc , parent ) );
-		if( distManualItem != null )
+		if( isManualTarget() )
 			return( createXmlManual( action , doc , parent ) );
-		if( distManualItem != null )
+		if( isDerivedTarget() )
 			return( createXmlDerived( action , doc , parent ) );
+		if( isDatabaseTarget() )
+			return( createXmlDatabase( action , doc , parent ) );
+		if( isDocTarget() )
+			return( createXmlDoc( action , doc , parent ) );
 		return( null );
 	}
 	
@@ -505,9 +582,21 @@ public class ReleaseTarget {
 		return( element );
 	}
 
+	public Element createXmlManual( ActionBase action , Document doc , Element parent ) throws Exception {
+		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_DISTITEM );
+		Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , distManualItem.NAME );
+		return( element );
+	}
+
+	public Element createXmlDerived( ActionBase action , Document doc , Element parent ) throws Exception {
+		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_DISTITEM );
+		Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , distDerivedItem.NAME );
+		return( element );
+	}
+
 	public Element createXmlDatabase( ActionBase action , Document doc , Element parent ) throws Exception {
 		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_DELIVERY );
-		Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , distDatabaseDelivery.NAME );
+		Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , distDelivery.NAME );
 		
 		// all project items
 		if( ALL ) {
@@ -522,15 +611,20 @@ public class ReleaseTarget {
 		return( element );
 	}
 
-	public Element createXmlManual( ActionBase action , Document doc , Element parent ) throws Exception {
-		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_DISTITEM );
-		Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , distManualItem.NAME );
-		return( element );
-	}
-
-	public Element createXmlDerived( ActionBase action , Document doc , Element parent ) throws Exception {
-		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_DISTITEM );
-		Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , distDerivedItem.NAME );
+	public Element createXmlDoc( ActionBase action , Document doc , Element parent ) throws Exception {
+		Element element = Common.xmlCreateElement( doc , parent , Release.ELEMENT_DELIVERY );
+		Meta.setNameAttr( action , doc , element , EnumNameType.ALPHANUMDOTDASH , distDelivery.NAME );
+		
+		// all project items
+		if( ALL ) {
+			Common.xmlSetElementAttr( doc , element , Release.PROPERTY_ALL , Common.getBooleanValue( true ) );
+			return( element );
+		}
+		
+		// selected items
+		for( ReleaseTargetItem item : itemMap.values() )
+			item.createXml( action , doc , element );
+		
 		return( element );
 	}
 
@@ -541,6 +635,11 @@ public class ReleaseTarget {
 
 	public void removeDatabaseItem( ActionBase action , ReleaseTargetItem databaseItem ) throws Exception {
 		itemMap.remove( databaseItem.NAME );
+		ALL = false;
+	}
+
+	public void removeDocItem( ActionBase action , ReleaseTargetItem docItem ) throws Exception {
+		itemMap.remove( docItem.NAME );
 		ALL = false;
 	}
 

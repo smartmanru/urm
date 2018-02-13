@@ -9,7 +9,7 @@ import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.Release;
 import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.dist.ReleaseDistSet;
+import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.shell.Account;
@@ -30,7 +30,7 @@ public class ActionScopeSet {
 	public boolean setFull;
 	
 	public MetaSourceProjectSet pset;
-	public ReleaseDistSet rset;
+	public ReleaseSet rset;
 	
 	Map<String,ActionScopeTarget> targets = new HashMap<String,ActionScopeTarget>();
 
@@ -67,18 +67,11 @@ public class ActionScopeSet {
 		this.setFull = false;
 	}
 
-	public void create( ActionBase action , ReleaseDistSet rset ) throws Exception {
+	public void create( ActionBase action , ReleaseSet rset ) throws Exception {
 		this.rset = rset;
 		this.pset = rset.set;
 		this.NAME = rset.NAME;
 		this.CATEGORY = rset.CATEGORY;
-		this.setFull = false;
-	}
-
-	public void create( ActionBase action , EnumScopeCategory CATEGORY ) throws Exception {
-		this.pset = null;
-		this.NAME = Common.getEnumLower( CATEGORY );
-		this.CATEGORY = CATEGORY;
 		this.setFull = false;
 	}
 
@@ -88,6 +81,13 @@ public class ActionScopeSet {
 		this.CATEGORY = EnumScopeCategory.ENV;
 		this.setFull = false;
 		this.sg = sg;
+	}
+
+	public void create( ActionBase action , EnumScopeCategory CATEGORY ) throws Exception {
+		this.pset = null;
+		this.NAME = Common.getEnumLower( CATEGORY );
+		this.CATEGORY = CATEGORY;
+		this.setFull = false;
 	}
 
 	public void addTarget( ActionBase action , ActionScopeTarget target ) throws Exception {
@@ -118,6 +118,7 @@ public class ActionScopeSet {
 		else
 		if( CATEGORY == EnumScopeCategory.DERIVED )
 			itemlist = "derived files";
+		
 		for( ActionScopeTarget scopeTarget : targets.values() )
 			itemlist = Common.concat( itemlist , scopeTarget.getScopeInfo( action ) , ", " );
 		

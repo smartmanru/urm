@@ -104,7 +104,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 			else
 			if( state.action instanceof ActionGetDB ) {
 				if( state.type == STATETYPE.TypeScopeTarget )
-					addGetDBNormalStatus( state.target.dbDelivery , start , state.state );
+					addGetDBNormalStatus( state.target.delivery , start , state.state );
 			}
 			else
 			if( state.action instanceof ActionGetConf ) {
@@ -440,7 +440,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	public BuildPlanItem getItem( MetaDistrDelivery delivery , String dbVersion ) {
 		BuildPlanSet set = getDatabaseSet();
 		for( BuildPlanItem item : set.listItems ) {
-			if( item.target.distDatabaseDelivery == delivery && item.dbVersion.equals( dbVersion ) )
+			if( item.target.distDelivery == delivery && item.dbVersion.equals( dbVersion ) )
 				return( item );
 		}
 		return( null );

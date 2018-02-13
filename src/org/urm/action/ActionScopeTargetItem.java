@@ -6,6 +6,7 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaProductBuildSettings;
+import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSourceProjectItem;
 
 public class ActionScopeTargetItem {
@@ -18,6 +19,7 @@ public class ActionScopeTargetItem {
 	public MetaSourceProjectItem sourceItem;
 	public MetaEnvServerNode envServerNode;
 	public MetaDatabaseSchema schema;
+	public MetaProductDoc doc;
 	
 	public ReleaseTargetItem releaseItem;
 	public boolean scriptIndex = false;
@@ -35,6 +37,7 @@ public class ActionScopeTargetItem {
 		item.sourceItem = sourceItem;
 		item.envServerNode = envServerNode;
 		item.schema = schema;
+		item.doc = doc;
 		
 		item.releaseItem = releaseItem;
 		item.scriptIndex = scriptIndex;
@@ -56,6 +59,14 @@ public class ActionScopeTargetItem {
 		ti.schema = schema;
 		ti.specifiedExplicitly = specifiedExplicitly;
 		ti.NAME = schema.NAME;
+		return( ti );
+	}
+	
+	public static ActionScopeTargetItem createDeliveryDocTargetItem( ActionScopeTarget target , MetaProductDoc doc , boolean specifiedExplicitly ) {
+		ActionScopeTargetItem ti = new ActionScopeTargetItem( target ); 
+		ti.doc = doc;
+		ti.specifiedExplicitly = specifiedExplicitly;
+		ti.NAME = doc.NAME;
 		return( ti );
 	}
 	
@@ -116,6 +127,7 @@ public class ActionScopeTargetItem {
 			sourceItem != sample.sourceItem ||
 			envServerNode != sample.envServerNode ||
 			schema != sample.schema ||
+			doc != sample.doc ||
 			scriptIndex != sample.scriptIndex )
 			return( false );
 		

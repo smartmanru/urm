@@ -76,5 +76,7 @@ public class _Error {
 	public static final int UnableLoadProductReleases1 = ErrorBase + 120;
 	public static final int InvalidProductMirros1 = ErrorBase + 121;
 	public static final int ProductPathAlreadyExists1 = ErrorBase + 122;
+	public static final int InvalidDistItemType1 = ErrorBase + 123;
+	public static final int MissingDistItemType0 = ErrorBase + 124;
 
 }
