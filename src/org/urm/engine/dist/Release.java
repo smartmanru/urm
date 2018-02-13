@@ -388,6 +388,11 @@ public class Release {
 			for( ReleaseTargetItem item : target.getItems() )
 				registerTargetItem( action , item );
 		}
+		else
+		if( target.isDocTarget() ) {
+			for( ReleaseTargetItem item : target.getItems() )
+				registerTargetItem( action , item );
+		}
 		else {
 			ReleaseDelivery releaseDelivery = registerDelivery( action , target.getDelivery( action ) );
 			releaseDelivery.addCategoryTarget( action , target );
