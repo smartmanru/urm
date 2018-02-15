@@ -648,8 +648,6 @@ public abstract class DBEnums {
 		APPSYSTEM(41,null) ,
 		APPPRODUCT(42,null) ,
 		PRODUCT(50,null) ,
-		SERVER(53,null) ,
-		NODE(54,null) ,
 		RC_CUSTOM(111,null) ,
 		ENGINE_CUSTOM(112,null) ,
 		BASEITEM_CUSTOM(116,null) ,

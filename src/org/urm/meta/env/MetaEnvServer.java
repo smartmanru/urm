@@ -236,7 +236,7 @@ public class MetaEnvServer extends EngineObject {
 	}
 	
 	private void refreshPrimaryProperties() throws Exception {
-		ops.clearProperties( DBEnumParamEntityType.SERVER );
+		ops.clearProperties( DBEnumParamEntityType.ENV_SERVER_PRIMARY );
 		
 		ops.setStringProperty( PROPERTY_NAME , NAME );
 		ops.setStringProperty( PROPERTY_DESC , DESC );
