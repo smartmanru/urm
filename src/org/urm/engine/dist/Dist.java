@@ -1120,7 +1120,7 @@ public class Dist {
 			else {
 				if( lc != null ) {
 					if( expected != lc.ID )
-						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.NAME );
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" + lc.NAME , lc.NAME );
 					return( lc );
 				}
 				
@@ -1138,7 +1138,7 @@ public class Dist {
 			else {
 				if( lc != null ) {
 					if( expected != lc.ID )
-						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.NAME );
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" + lc.NAME , lc.NAME );
 					return( lc );
 				}
 				
@@ -1159,7 +1159,7 @@ public class Dist {
 						if( expected[ k ].FKID == lc.ID )
 							return( lc );
 					}
-					action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" , lc.NAME );
+					action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" + lc.NAME , lc.NAME );
 				}
 				
 				action.exit0( _Error.MissingReleasecycleType0 , "Missing release cycle type" );
