@@ -24,6 +24,7 @@ public class MetaProductPolicy {
 	public MetaProductPolicy( ProductMeta storage , Meta meta ) {
 		LCUrgentAll = false;
 		LC_URGENT_LIST = new MatchItem[0];
+		this.meta = meta;
 	}
 
 	public MetaProductPolicy copy( Meta rmeta ) throws Exception {
