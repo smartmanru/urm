@@ -23,11 +23,16 @@ public class ActionModifyRelease extends ActionBase {
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		dist.openForDataChange( this );
-		if( releaseDate != null && releaseDate.equals( dist.release.schedule.releaseDate ) == false )
-			dist.changeReleaseDate( this , releaseDate , lc );
-		dist.release.setProperties( this );
-		dist.saveReleaseXml( this );
-		dist.closeDataChange( this );
+		
+		try {
+			if( releaseDate != null && ( releaseDate.equals( dist.release.schedule.releaseDate ) == false || lc != null ) )
+				dist.changeReleaseDate( this , releaseDate , lc );
+			dist.release.setProperties( this );
+			dist.saveReleaseXml( this );
+		}
+		finally {
+			dist.closeDataChange( this );
+		}
 		return( SCOPESTATE.RunSuccess );
 	}
 	
