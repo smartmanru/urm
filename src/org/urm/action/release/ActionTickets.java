@@ -136,8 +136,11 @@ public class ActionTickets extends ActionBase {
 			
 			String tickets = args[1];
 			String[] ticketList = null;
-			if( tickets.equals( "all" ) )
+			boolean allTickets = false;
+			if( tickets.equals( "all" ) ) {
 				ticketList = null;
+				allTickets = true;
+			}
 			else
 			if( tickets.equals( "none" ) )
 				ticketList = new String[0];
@@ -146,15 +149,18 @@ public class ActionTickets extends ActionBase {
 			
 			String targets = args[2];
 			String[] targetList = null;
-			if( targets.equals( "all" ) )
+			boolean allTargets = false;
+			if( targets.equals( "all" ) ) {
 				targetList = null;
+				allTargets = true;
+			}
 			else
 			if( targets.equals( "none" ) )
 				targetList = new String[0];
 			else
 				targetList = Common.split( targets , "," );
 			
-			executeAcceptSet( state , code , ticketList , targetList );
+			executeAcceptSet( state , code , allTickets , ticketList , allTargets , targetList );
 		}
 		else
 		if( method.equals( METHOD_CREATETICKET ) ) {
@@ -358,12 +364,12 @@ public class ActionTickets extends ActionBase {
 		dist.release.changes.dropSet( this , set , descope );
 	}
 	
-	private void executeAcceptSet( ScopeState state , String code , String[] tickets , String[] targets ) throws Exception {
+	private void executeAcceptSet( ScopeState state , String code , boolean allTickets , String[] tickets , boolean allTargets , String[] targets ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , code );
 		
 		// change release scope
 		List<ReleaseTicketSetTarget> targetList = new LinkedList<ReleaseTicketSetTarget>();
-		if( targets == null ) {
+		if( allTargets ) {
 			for( ReleaseTicketSetTarget target : set.getTargets() ) {
 				if( !target.isAccepted() )
 					targetList.add( target );
@@ -412,7 +418,7 @@ public class ActionTickets extends ActionBase {
 
 		// accept set and tickets
 		set.activate( this );
-		if( tickets == null ) {
+		if( allTickets ) {
 			for( ReleaseTicket ticket : set.getTickets() ) {
 				if( !ticket.isAccepted() )
 					ticket.accept( this );
@@ -471,6 +477,10 @@ public class ActionTickets extends ActionBase {
 			else
 			if( target.isDeliveryDatabase() ) {
 				maker.addScopeProductDeliveryDatabaseSchemes( delivery.NAME , delivery.getDatabaseSchemaNames() );
+			}
+			else
+			if( target.isDeliveryDoc() ) {
+				maker.addScopeProductDeliveryDocs( delivery.NAME , delivery.getDocNames() );
 			}
 		}
 	}

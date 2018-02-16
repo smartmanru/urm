@@ -497,10 +497,6 @@ public class EngineLoader {
 		loadCore( true , includingSystems );
 	}
 
-	public void saveProductMetadata( ProductMeta storage ) throws Exception {
-		ldp.saveAll( storage );
-	}
-	
 	public void setLoadFailed( ActionBase action , int error , Throwable e , String msg , String product ) throws Exception {
 		log( msg ,  e );
 		Common.exit1( error , msg , product );

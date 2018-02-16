@@ -45,6 +45,8 @@ public class DBEngineProducts {
 		
 		EngineLoader loader = engine.createLoader( transaction );
 		ProductMeta storage = loader.createProduct( product , forceClearMeta , forceClearDist );
+		if( storage == null )
+			Common.exit0( _Error.UnableCreateProduct0 , "Unable to create product" );
 		
 		if( change )
 			transaction.replaceProductMetadata( storage );

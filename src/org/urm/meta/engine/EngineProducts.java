@@ -8,7 +8,6 @@ import org.urm.engine.Engine;
 import org.urm.engine.EngineSession;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.PropertySet;
-import org.urm.meta.EngineLoader;
 import org.urm.meta._Error;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.product.Meta;
@@ -28,7 +27,7 @@ public class EngineProducts {
 		productMetaSkipped = new HashMap<String,ProductMeta>();
 	}
 	
-	public synchronized void addProduct( ProductMeta set ) {
+	private synchronized void addProduct( ProductMeta set ) {
 		productMeta.put( set.name , set );
 		productMetaSkipped.remove( set.name );
 	}
@@ -162,14 +161,11 @@ public class EngineProducts {
 		props.resolveRawProperties();
 	}
 
-	public void setProductMetadata( TransactionBase transaction , ProductMeta storageNew ) throws Exception {
-		EngineLoader loader = engine.createLoader();
-		loader.saveProductMetadata( storageNew );
-		
+	public void setProductMetadata( ProductMeta storageNew ) {
 		ProductMeta storageOld = productMeta.get( storageNew.name );
 		if( storageOld != null )
 			storageOld.setPrimary( false );
-		productMeta.put( storageNew.name , storageNew );
+		addProduct( storageNew );
 		storageNew.setPrimary( true );
 	}
 	

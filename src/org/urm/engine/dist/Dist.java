@@ -1112,7 +1112,7 @@ public class Dist {
 		MetaProductPolicy policy = meta.getPolicy();
 		
 		if( type == DBEnumLifecycleType.MAJOR ) {
-			Integer expected = policy.LC_MAJOR.FKID;
+			Integer expected = policy.getMajorId( action );
 			if( expected == null ) {
 				if( lc != null )
 					return( lc );
@@ -1130,7 +1130,7 @@ public class Dist {
 		}
 		else
 		if( type == DBEnumLifecycleType.MINOR ) {
-			Integer expected = policy.LC_MAJOR.FKID;
+			Integer expected = policy.getMinorId( action );
 			if( expected == null ) {
 				if( lc != null )
 					return( lc );

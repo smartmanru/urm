@@ -45,7 +45,6 @@ public class EngineLoaderProducts {
 		ProductMeta set = product.storage;
 		EngineProducts products = data.getProducts();
 		set = new ProductMeta( products , product );
-		set.setPrimary( true );
 		set.setMatched( true );
 		
 		try {
@@ -80,7 +79,7 @@ public class EngineLoaderProducts {
 			
 			// add product
 			product.setStorage( set );
-			products.addProduct( set );
+			products.setProductMetadata( set );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -158,16 +157,6 @@ public class EngineLoaderProducts {
 		}
 	}
 	
-	public void saveProductMetadata( String productName ) throws Exception {
-		ActionBase action = loader.getAction();
-		EngineProducts products = data.getProducts();
-		ProductMeta storage = products.findProductStorage( productName );
-		if( storage == null )
-			action.exitUnexpectedState();
-
-		saveAll( storage );
-	}
-	
 	public void exportProductMetadata( AppProduct product ) throws Exception {
 		EngineProducts products = data.getProducts();
 		ProductMeta storage = products.findProductStorage( product.NAME );
@@ -175,14 +164,6 @@ public class EngineLoaderProducts {
 			Common.exitUnexpected();
 
 		exportAll( storage );
-	}
-	
-	public void saveAll( ProductMeta set ) throws Exception {
-		ActionBase action = loader.getAction();
-		ProductStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
-		
-		EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
-		ldm.saveDesignDocs( ms );
 	}
 	
 	public void exportAll( ProductMeta set ) throws Exception {
@@ -208,7 +189,6 @@ public class EngineLoaderProducts {
 	private ProductMeta loadProduct( AppProduct product , ProductContext context , boolean importxml , boolean update , boolean includingEnvironments , ProductMeta setOld ) {
 		EngineProducts products = data.getProducts();
 		ProductMeta set = new ProductMeta( products , product );
-		set.setPrimary( true );
 		set.setMatched( true );
 		set.setContext( context ); 
 		
@@ -246,7 +226,7 @@ public class EngineLoaderProducts {
 		product.setStorage( set );
 		if( setOld != null )
 			products.unloadProduct( setOld );
-		products.addProduct( set );
+		products.setProductMetadata( set );
 		return( set );
 	}
 	

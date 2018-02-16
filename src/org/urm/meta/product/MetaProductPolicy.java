@@ -59,6 +59,14 @@ public class MetaProductPolicy {
 		return( getLifecycleName( action , LC_MINOR ) );
 	}
 
+	public Integer getMajorId( ActionBase action ) throws Exception {
+		return( getLifecycleId( action , LC_MAJOR ) );
+	}
+	
+	public Integer getMinorId( ActionBase action ) throws Exception {
+		return( getLifecycleId( action , LC_MINOR ) );
+	}
+	
 	public String[] getUrgentNames( ActionBase action ) throws Exception {
 		String[] names = new String[ LC_URGENT_LIST.length ];
 		for( int k = 0; k < names.length; k++ )
@@ -67,9 +75,20 @@ public class MetaProductPolicy {
 	}
 	
 	public String getLifecycleName( ActionBase action , MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
 		EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
-		ReleaseLifecycle lc = lifecycles.getLifecycle( item.FKID );
+		ReleaseLifecycle lc = lifecycles.getLifecycle( item );
 		return( lc.NAME );
+	}
+
+	public Integer getLifecycleId( ActionBase action , MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		
+		EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
+		ReleaseLifecycle lc = lifecycles.getLifecycle( item );
+		return( lc.ID );
 	}
 
 }

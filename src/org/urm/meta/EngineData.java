@@ -185,7 +185,7 @@ public class EngineData {
 	}
 
 	public void setProductMetadata( TransactionBase transaction , ProductMeta storageNew ) throws Exception {
-		products.setProductMetadata( transaction , storageNew );
+		products.setProductMetadata( storageNew );
 	}
 	
 	public void deleteProductMetadata( TransactionBase transaction , ProductMeta storage ) throws Exception {

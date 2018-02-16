@@ -177,14 +177,26 @@ public class DBEngineMirrors {
 
 	public static void createProductMirrors( EngineTransaction transaction , EngineMirrors mirrors , AppProduct product ) throws Exception {
 		// meta
-		String name = "product-" + product.NAME + "-meta";
-		MirrorRepository meta = createRepository( transaction , mirrors , name , "standard meta repository" , DBEnumMirrorType.PRODUCT_META );
-		mirrors.addRepository( meta );
+		MirrorRepository meta = mirrors.findProductMetaRepository( product.NAME );
+		if( meta == null ) {
+			String name = "product-" + product.NAME + "-meta";
+			meta = createRepository( transaction , mirrors , name , "standard meta repository" , DBEnumMirrorType.PRODUCT_META );
+			mirrors.addRepository( meta );
+		}
+		else {
+			meta.setProduct( product.ID );
+		}
  		
  		// data
-		name = "product-" + product.NAME + "-data";
-		MirrorRepository data = createRepository( transaction , mirrors , name , "standard data repository" , DBEnumMirrorType.PRODUCT_DATA );
-		mirrors.addRepository( data );
+		MirrorRepository data = mirrors.findProductDataRepository( product.NAME );
+		if( data == null ) {
+			String name = "product-" + product.NAME + "-data";
+			data = createRepository( transaction , mirrors , name , "standard data repository" , DBEnumMirrorType.PRODUCT_DATA );
+			mirrors.addRepository( data );
+		}
+		else {
+			data.setProduct( product.ID );
+		}
 	}
 
 	private static MirrorRepository createRepository( EngineTransaction transaction , EngineMirrors mirrors , String name , String desc , DBEnumMirrorType type ) throws Exception {

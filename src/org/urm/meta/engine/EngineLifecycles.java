@@ -43,6 +43,22 @@ public class EngineLifecycles extends EngineObject {
 		return( lcMap.get( name ) );
 	}
 
+	public ReleaseLifecycle findLifecycle( MatchItem item ) {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( lcMap.get( item.FKNAME ) );
+		return( lcMapById.get( item.FKID ) );
+	}
+
+	public ReleaseLifecycle getLifecycle( MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( getLifecycle( item.FKID ) );
+		return( getLifecycle( item.FKNAME ) );
+	}
+
 	public ReleaseLifecycle getLifecycle( String name ) throws Exception {
 		ReleaseLifecycle lc = findLifecycle( name );
 		if( lc == null )
@@ -60,7 +76,6 @@ public class EngineLifecycles extends EngineObject {
 	public void addPhase( LifecyclePhase phase ) {
 		phase.lc.addPhase( phase );
 	}
-
 	
 	public String[] getLifecycleNames() {
 		return( Common.getSortedKeys( lcMap ) );
