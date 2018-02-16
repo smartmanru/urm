@@ -801,7 +801,7 @@ public class DBEngineAuth {
 		int version = c.getNextLocalVersion();
 		DBSettings.savedbPropertyValues( c , DBVersions.LOCAL_ID , ldap.getLdapSettings() , true , false , version );
 		
-		ldap.start( transaction.getAction() );
+		ldap.start();
 	}
 	
 	public static AuthGroup createGroup( EngineTransaction transaction , EngineAuth auth , String name , String desc ) throws Exception {
