@@ -192,7 +192,9 @@ public class EngineAuth extends EngineObject {
 				return( null );
 		}
 		else {
-			SearchResult res = ldapSettings.verifyLogin( engine.serverAction , username , password );
+			ldapSettings.start();
+			
+			SearchResult res = ldapSettings.verifyLogin( username , password );
 			if( res == null )
 				return( null );
 			
@@ -237,9 +239,9 @@ public class EngineAuth extends EngineObject {
 		return( Common.getSortedKeys( mapLdapUsers ) );
 	}
 	
-	public String[] getLdapFullUserList( ActionBase action ) {
+	public String[] getLdapFullUserList() {
 		try {
-			return( ldapSettings.getUserList( action ) );
+			return( ldapSettings.getUserList() );
 		}
 		catch( Throwable e ) {
 			return( new String[0] );
@@ -295,15 +297,11 @@ public class EngineAuth extends EngineObject {
 	}
 	
 	public AuthLdapUser getLdapUserData( String username ) {
-		ActionBase action = engine.serverAction;
-		if( action == null )
-			return( null );
-
 		try {
-			return( ldapSettings.getLdapUserData( action , username ) );
+			return( ldapSettings.getLdapUserData( username ) );
 		}
 		catch( Throwable e ) {
-			action.log( "find user in LDAP" , e );
+			engine.log( "find user in LDAP" , e );
 		}
 		return( null );
 	}
@@ -312,6 +310,7 @@ public class EngineAuth extends EngineObject {
 		AuthUser user = findLocalUser( username );
 		if( user == null )
 			user = findLdapUser( username );
+		
 		if( user == null )
 			Common.exit1( _Error.UnknownUser1 , "Unknown user=" + username , username );
 		return( user );
@@ -605,29 +604,43 @@ public class EngineAuth extends EngineObject {
 				return( false );
 			}
 			
-			String authKey = getAuthKey( AUTH_GROUP_USER , username );
-			AuthContext ac = loadAuthData( authKey );
-			if( !ac.PUBLICKEY.isEmpty() ) {
-		        String checkMessage = ClientAuth.getCheckMessage( username );
-				if( ClientAuth.verifySigned( checkMessage , password , ac.PUBLICKEY ) ) {
-					engine.trace( "successful login using key: user=" + username );
-					return( true );
+			if( user.LOCAL ) {
+				String authKey = getAuthKey( AUTH_GROUP_USER , username );
+				AuthContext ac = loadAuthData( authKey );
+				if( !ac.PUBLICKEY.isEmpty() ) {
+			        String checkMessage = ClientAuth.getCheckMessage( username );
+					if( ClientAuth.verifySigned( checkMessage , password , ac.PUBLICKEY ) ) {
+						engine.trace( "successful login using key: user=" + username );
+						return( true );
+					}
+					
+					engine.trace( "unsuccessful login using key: user=" + username );
+					return( false );
 				}
 				
-				engine.trace( "unsuccessful login using key: user=" + username );
-				return( false );
+				if( !ac.PASSWORDSAVE.isEmpty() ) {
+					String md5 = Common.getMD5( password );
+					if( ac.PASSWORDSAVE.equals( md5 ) ) {
+						ac.setOnlinePassword( password );
+						engine.trace( "successful login using password: user=" + username );
+						return( true );
+					}
+					
+					engine.trace( "unsuccessful login using password: user=" + username );
+					return( false );
+				}
 			}
-			
-			if( !ac.PASSWORDSAVE.isEmpty() ) {
-				String md5 = Common.getMD5( password );
-				if( ac.PASSWORDSAVE.equals( md5 ) ) {
-					ac.setOnlinePassword( password );
-					engine.trace( "successful login using password: user=" + username );
-					return( true );
+			else {
+				ldapSettings.start();
+				
+				SearchResult res = ldapSettings.verifyLogin( username , password );
+				if( res == null ) {
+					engine.trace( "unsuccessful login using password: user=" + username );
+					return( false );
 				}
 				
-				engine.trace( "unsuccessful login using password: user=" + username );
-				return( false );
+				engine.trace( "successful login using password: user=" + username );
+				return( true );
 			}
 		}
 		catch( Throwable e ) {
