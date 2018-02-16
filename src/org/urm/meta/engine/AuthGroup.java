@@ -208,7 +208,7 @@ public class AuthGroup {
 		return( users.get( user ) );
 	}
 
-	public void setGroupPermissions( AuthRoleSet roles , boolean allResources , Integer[] resourceList , boolean allProd , Integer[] productList , boolean allNet , Integer[] networkList , SpecialRights[] specialList ) throws Exception {
+	public void setGroupPermissions( AuthRoleSet roles , boolean allResources , Integer[] resourceList , boolean allProd , Integer[] productList , boolean allNet , Integer[] networkList , boolean allSpecial , SpecialRights[] specialList ) throws Exception {
 		this.roles.set( roles );
 		this.anyResources = allResources;
 		
@@ -232,9 +232,15 @@ public class AuthGroup {
 		}
 
 		specials.clear();
-		if( specialList != null ) {
-			for( SpecialRights specialId : specialList )
+		if( allSpecial ) {
+			for( SpecialRights specialId : SpecialRights.values() )
 				specials.add( specialId );
+		}
+		else {
+			if( specialList != null ) {
+				for( SpecialRights specialId : specialList )
+					specials.add( specialId );
+			}
 		}
 	}
 	

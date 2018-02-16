@@ -572,10 +572,10 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineAuth.deleteGroupUsers( this , auth , group , users );
 	}
 	
-	public void setGroupPermissions( AuthGroup group , AuthRoleSet roles , boolean allResources , String[] resources , boolean allProd , String[] products , boolean allNet , String[] networks , SpecialRights[] special ) throws Exception {
+	public void setGroupPermissions( AuthGroup group , AuthRoleSet roles , boolean allResources , String[] resources , boolean allProd , String[] products , boolean allNet , String[] networks , boolean allSpecial , SpecialRights[] special ) throws Exception {
 		super.checkTransactionAuth();
 		EngineAuth auth = action.getServerAuth();
-		DBEngineAuth.setGroupPermissions( this , auth , group , roles , allResources , resources , allProd , products , allNet , networks , special );
+		DBEngineAuth.setGroupPermissions( this , auth , group , roles , allResources , resources , allProd , products , allNet , networks , allSpecial , special );
 	}
 	
 	// ################################################################################

@@ -251,7 +251,7 @@ public class DBEngineAuth {
 			Integer[] networkList = resolveNetworks( loader.getInfrastructure() , networkNames );
 			SpecialRights[] specialList = resolveSpecialRights( specialNames );
 			
-			group.setGroupPermissions( roles , anyResources , resourcesList , anyProducts , productList , anyNetworks , networkList , specialList );
+			group.setGroupPermissions( roles , anyResources , resourcesList , anyProducts , productList , anyNetworks , networkList , false , specialList );
 		}
 		
 		modifyGroup( c , group , true );
@@ -476,7 +476,8 @@ public class DBEngineAuth {
 						entity.loaddbBoolean( rs , AuthGroup.PROPERTY_ANY_PRODUCTS ) ,
 						null ,
 						entity.loaddbBoolean( rs , AuthGroup.PROPERTY_ANY_NETWORKS ) ,
-						null , 
+						null ,
+						false ,
 						specials );
 				auth.addGroup( group );
 			}
@@ -948,7 +949,7 @@ public class DBEngineAuth {
 		}
 	}
 
-	public static void setGroupPermissions( EngineTransaction transaction , EngineAuth auth , AuthGroup group , AuthRoleSet roles , boolean allResources , String[] resources , boolean allProd , String[] products , boolean allNet , String[] networks , SpecialRights[] specials ) throws Exception {
+	public static void setGroupPermissions( EngineTransaction transaction , EngineAuth auth , AuthGroup group , AuthRoleSet roles , boolean allResources , String[] resources , boolean allProd , String[] products , boolean allNet , String[] networks , boolean allSpecial , SpecialRights[] specials ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		Engine engine = transaction.engine;
 		ActionBase action = transaction.getAction();
@@ -957,7 +958,7 @@ public class DBEngineAuth {
 		Integer[] productList = resolveProducts( transaction.getDirectory() , products );
 		Integer[] networkList = resolveNetworks( transaction.getInfrastructure() , networks );
 		
-		group.setGroupPermissions( roles , allResources , resourcesList , allProd , productList , allNet , networkList , specials );
+		group.setGroupPermissions( roles , allResources , resourcesList , allProd , productList , allNet , networkList , allSpecial , specials );
 		modifyGroup( c , group , false );
 		
 		modifyGroupResources( c , group , null , false );
