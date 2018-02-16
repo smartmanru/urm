@@ -114,6 +114,7 @@ public class DBEngineAuth {
 				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ROLETEST , "" , true , false ) ,
 				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ROLEOPR , "" , true , false ) ,
 				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ROLEINFRA , "" , true , false ) ,
+				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_SPECIAL_ADMCORE , "" , true , false ) ,
 				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_SPECIAL_BASEADM , "" , true , false ) ,
 				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_SPECIAL_BASEITEMS , "" , true , false )
 		} ) );
@@ -316,6 +317,7 @@ public class DBEngineAuth {
 				EngineDB.getBoolean( group.roles.secTest ) ,
 				EngineDB.getBoolean( group.roles.secOpr ) ,
 				EngineDB.getBoolean( group.roles.secInfra ) ,
+				EngineDB.getBoolean( group.checkSpecialPermission( SpecialRights.SPECIAL_ADMCORE ) ) ,
 				EngineDB.getBoolean( group.checkSpecialPermission( SpecialRights.SPECIAL_BASEADM ) ) ,
 				EngineDB.getBoolean( group.checkSpecialPermission( SpecialRights.SPECIAL_BASEITEMS ) )
 				} , insert );
@@ -456,10 +458,12 @@ public class DBEngineAuth {
 				
 				SpecialRights[] specials = loaddbSpecials(
 						new SpecialRights[] {
+								SpecialRights.SPECIAL_ADMCORE ,
 								SpecialRights.SPECIAL_BASEADM ,
 								SpecialRights.SPECIAL_BASEITEMS
 						} ,
 						new boolean[] {
+								entity.loaddbBoolean( rs , AuthGroup.PROPERTY_SPECIAL_ADMCORE ) ,
 								entity.loaddbBoolean( rs , AuthGroup.PROPERTY_SPECIAL_BASEADM ) ,
 								entity.loaddbBoolean( rs , AuthGroup.PROPERTY_SPECIAL_BASEITEMS )
 						}

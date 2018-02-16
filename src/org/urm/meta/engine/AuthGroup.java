@@ -21,6 +21,7 @@ public class AuthGroup {
 	public static String PROPERTY_ROLETEST = "roletest";
 	public static String PROPERTY_ROLEOPR = "roleopr";
 	public static String PROPERTY_ROLEINFRA = "roleinfra";
+	public static String PROPERTY_SPECIAL_ADMCORE = "specialrights_admcore";
 	public static String PROPERTY_SPECIAL_BASEADM = "specialrights_baseadm";
 	public static String PROPERTY_SPECIAL_BASEITEMS = "specialrights_baseitems";
 	

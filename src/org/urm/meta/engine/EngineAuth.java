@@ -33,6 +33,7 @@ public class EngineAuth extends EngineObject {
 	};
 	
 	public enum SpecialRights {
+		SPECIAL_ADMCORE ,
 		SPECIAL_BASEADM ,
 		SPECIAL_BASEITEMS
 	};
@@ -388,12 +389,15 @@ public class EngineAuth extends EngineObject {
 			return( false );
 		
 		SessionSecurity security = action.actionInit.session.getSecurity();
-		if( security.isAdmin() )
+		if( security.isAdminAny() )
 			return( true );
 		
 		if( sa == SecurityAction.ACTION_SECURED || sa == SecurityAction.ACTION_ADMIN )
 			return( false );
 
+		if( security.isAdminCore() )
+			return( true );
+		
 		AuthRoleSet roles = security.getBaseRoles();
 		
 		if( sa == SecurityAction.ACTION_MONITOR || sa == SecurityAction.ACTION_EXECUTE ) {
@@ -464,7 +468,7 @@ public class EngineAuth extends EngineObject {
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , MetaEnv env , DBEnumBuildModeType mode , boolean readOnly ) {
 		SessionSecurity security = action.actionInit.session.getSecurity();
-		if( security.isAdmin() )
+		if( security.isAdminAny() )
 			return( true );
 		
 		AuthRoleSet roles = security.getProductRoles( productName );
@@ -564,7 +568,7 @@ public class EngineAuth extends EngineObject {
 	
 	public boolean checkAccessNetworkAction( ActionBase action , SecurityAction sa , String networkName , boolean configure , boolean allocate ) {
 		SessionSecurity security = action.actionInit.session.getSecurity();
-		if( security.isAdmin() )
+		if( security.isAdminAny() )
 			return( true );
 		
 		AuthRoleSet roles = security.getNetworkRoles( networkName );
@@ -587,7 +591,7 @@ public class EngineAuth extends EngineObject {
 	
 	public boolean checkAccessSpecial( ActionBase action , SpecialRights sr ) {
 		SessionSecurity security = action.actionInit.session.getSecurity();
-		if( security.isAdmin() )
+		if( security.isAdminAny() )
 			return( true );
 		
 		return( security.checkSpecial( sr ) );

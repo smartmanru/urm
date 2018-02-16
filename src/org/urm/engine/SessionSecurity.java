@@ -40,10 +40,18 @@ public class SessionSecurity {
 		secSpecial = new HashMap<SpecialRights,Integer>(); 
 	}
 
-	public boolean isAdmin() {
+	public boolean isAdminAny() {
 		if( server )
 			return( true );
 		if( user != null && user.ADMIN )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isAdminCore() {
+		if( isAdminAny() )
+			return( true );
+		if( checkSpecial( SpecialRights.SPECIAL_ADMCORE ) )
 			return( true );
 		return( false );
 	}
