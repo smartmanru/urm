@@ -80,6 +80,13 @@ public class ObjectMeta {
 		return( null );
 	}
 	
+	
+	public boolean hasCustom() {
+		if( entityCustom != null && !entityCustom.isEmpty() )
+			return( true );
+		return( false );
+	}
+	
 	public boolean hasAppAttrs() {
 		for( PropertyEntity entity : entitiesApp ) {
 			if( !entity.USE_PROPS )
@@ -202,6 +209,24 @@ public class ObjectMeta {
 				list.add( var );
 		}
 		return( list.toArray( new EntityVar[0] ) );
+	}
+	
+	public String[] getCustomVarNames() {
+		Map<String,EntityVar> map = new HashMap<String,EntityVar>();
+		if( entityCustom != null ) {
+			for( EntityVar var : entityCustom.getVars() )
+				map.put( var.NAME , var );
+		}
+		return( Common.getSortedKeys( map ) );
+	}
+	
+	public String[] getAppVarNames() {
+		Map<String,EntityVar> map = new HashMap<String,EntityVar>();
+		for( PropertyEntity entity : entitiesApp ) {
+			for( EntityVar var : entity.getVars() )
+				map.put( var.NAME , var );
+		}
+		return( Common.getSortedKeys( map ) );
 	}
 	
 }

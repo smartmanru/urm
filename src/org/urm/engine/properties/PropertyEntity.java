@@ -99,6 +99,10 @@ public class PropertyEntity {
 		}
 		return( r );
 	}
+
+	public boolean isEmpty() {
+		return( list.isEmpty() );
+	}
 	
 	public String[] getVarNames() {
 		return( Common.getSortedKeys( map ) );
