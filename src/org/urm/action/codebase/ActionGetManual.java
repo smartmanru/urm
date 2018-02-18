@@ -25,7 +25,8 @@ public class ActionGetManual extends ActionBase {
 		this.downloadFolder = downloadFolder;
 	}
 
-	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
+	@Override 
+	protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , meta , downloadFolder );
 		
 		LocalFolder manualFolder = downloadFolder.getSubFolder( this , "manual" );

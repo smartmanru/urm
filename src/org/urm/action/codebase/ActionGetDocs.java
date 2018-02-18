@@ -3,6 +3,7 @@ package org.urm.action.codebase;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
@@ -22,7 +23,8 @@ public class ActionGetDocs extends ActionBase {
 		this.copyDist = copyDist;
 	}
 
-	protected SCOPESTATE executeScopeTarget( ActionScopeTarget item ) throws Exception {
+	@Override
+	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget item ) throws Exception {
 		info( "get doc items of delivery=" + item.NAME + " ..." );
 
 		LocalFolder workFolder = artefactory.getWorkFolder( this , "download" );

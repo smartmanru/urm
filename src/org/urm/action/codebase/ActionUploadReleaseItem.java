@@ -18,7 +18,8 @@ public class ActionUploadReleaseItem extends ActionBase {
 		this.release = release;
 	}
 	
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
+	@Override 
+	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
 		// load distr data for cross-product exports - thirdparty
 		List<ActionScopeTargetItem> items = scopeProject.getItems( this );
 		

@@ -18,15 +18,18 @@ public class BuilderWinbuildMethod extends Builder {
 		super( builder , project , storage , TAG , APPVERSION );
 	}
 
-	@Override public boolean prepareSource( ActionBase action ) throws Exception {
+	@Override 
+	public boolean prepareSource( ActionBase action ) throws Exception {
 		return( true );
 	}
 	
-	@Override public boolean checkSourceCode( ActionBase action ) throws Exception {
+	@Override 
+	public boolean checkSourceCode( ActionBase action ) throws Exception {
 		return( true );
 	}
 	
-	@Override public boolean runBuild( ActionBase action ) throws Exception {
+	@Override 
+	public boolean runBuild( ActionBase action ) throws Exception {
 		// msbuilder params
 		String MSBUILD_PATH = builder.BUILDER_HOMEPATH + "\\Bin\\msbuild.exe";
 		PropertySet props = super.createProperties( action , project );
@@ -80,7 +83,8 @@ public class BuilderWinbuildMethod extends Builder {
 		return( true );
 	}
 	
-	@Override public void removeExportedCode( ActionBase action ) throws Exception {
+	@Override 
+	public void removeExportedCode( ActionBase action ) throws Exception {
 		ShellExecutor session = createShell( action );
 		RedistStorage storage = action.artefactory.getRedistStorage( action , session.account );
 		RemoteFolder buildFolder = storage.getRedistTmpFolder( action , "export" );

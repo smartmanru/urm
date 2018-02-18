@@ -39,7 +39,8 @@ public class ActionGetBinary extends ActionBase {
 		this.downloadFolder = downloadFolder;
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
+	@Override 
+	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		if( target.isBuildableProject() )
 			downloadCoreProject( target );
 		else 

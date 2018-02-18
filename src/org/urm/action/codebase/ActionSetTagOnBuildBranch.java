@@ -18,7 +18,8 @@ public class ActionSetTagOnBuildBranch extends ActionBase {
 		this.TAG = TAG;
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
+	@Override 
+	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
 		String BUILDBRANCH = "";
 		String BUILDTAG = "";
 		

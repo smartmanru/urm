@@ -746,7 +746,7 @@ public class Release {
 			return( true );
 		}
 		
-		if( allSchemes == true && target.ALL == false ) {
+		if( allSchemes == true ) {
 			deleteDatabaseDelivery( action , delivery );
 			addDatabaseDelivery( action , delivery , true );
 			return( true );
@@ -767,7 +767,7 @@ public class Release {
 			return( true );
 		}
 		
-		if( allDocs == true && target.ALL == false ) {
+		if( allDocs == true ) {
 			deleteDocDelivery( action , delivery );
 			addDocDelivery( action , delivery , true );
 			return( true );
@@ -791,7 +791,7 @@ public class Release {
 		if( !project.checkPropsEqualsToOptions( action ) )
 			return( false );
 			
-		if( allItems == true && project.ALL == false ) {
+		if( allItems == true ) {
 			deleteProjectSource( action , sourceProject );
 			addProject( action , sourceProject , true );
 			return( true );

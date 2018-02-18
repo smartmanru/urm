@@ -252,14 +252,14 @@ public class ActionProductScopeMaker {
 		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
 			set.setFullContent( true ); 
 			for( MetaDistrDelivery item : distr.getDatabaseDeliveries() )
-				addProductDatabase( set , item , false );
+				addProductDatabase( set , item , true , false );
 			return;
 		}
 		
 		for( String key : DELIVERIES ) {
 			MetaDistrDelivery item = distr.getDelivery( key );
 			if( item.hasDatabaseItems() )
-				addProductDatabase( set , item , true );
+				addProductDatabase( set , item , true , true );
 		}
 	}
 
@@ -268,26 +268,34 @@ public class ActionProductScopeMaker {
 		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
 			set.setFullContent( true ); 
 			for( MetaDistrDelivery item : distr.getDatabaseDeliveries() )
-				addProductDoc( set , item , false );
+				addProductDoc( set , item , true , false );
 			return;
 		}
 		
 		for( String key : DELIVERIES ) {
 			MetaDistrDelivery item = distr.getDelivery( key );
 			if( item.hasDocItems() )
-				addProductDoc( set , item , true );
+				addProductDoc( set , item , true , true );
 		}
 	}
 
-	private ActionScopeTarget addProductDatabase( ActionScopeSet set , MetaDistrDelivery dbitem , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createDeliveryDatabaseTarget( set , dbitem , specifiedExplicitly , true );
+	private ActionScopeTarget addProductDatabase( ActionScopeSet set , MetaDistrDelivery dbitem , boolean allItems , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createDeliveryDatabaseTarget( set , dbitem , specifiedExplicitly , allItems );
 		set.addTarget( action , target );
+		
+		if( allItems )
+			target.addDatabaseSchemes( action , null );
+			
 		return( target );
 	}
 
-	private ActionScopeTarget addProductDoc( ActionScopeSet set , MetaDistrDelivery docitem , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createDeliveryDocTarget( set , docitem , specifiedExplicitly , true );
+	private ActionScopeTarget addProductDoc( ActionScopeSet set , MetaDistrDelivery docitem , boolean allItems , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createDeliveryDocTarget( set , docitem , specifiedExplicitly , allItems );
 		set.addTarget( action , target );
+		
+		if( allItems )
+			target.addDocs( action , null );
+			
 		return( target );
 	}
 
@@ -364,14 +372,14 @@ public class ActionProductScopeMaker {
 	private void addProductDatabaseDeliverySchemes( ActionScopeSet set , String DELIVERY , String[] SCHEMES ) throws Exception {
 		MetaDistr distr = meta.getDistr();
 		MetaDistrDelivery item = distr.getDelivery( DELIVERY );
-		ActionScopeTarget target = addProductDatabase( set , item , true );
+		ActionScopeTarget target = addProductDatabase( set , item , false , true );
 		target.addDatabaseSchemes( action , SCHEMES );
 	}
 	
 	private void addProductDeliveryDocs( ActionScopeSet set , String DELIVERY , String[] DOCS ) throws Exception {
 		MetaDistr distr = meta.getDistr();
 		MetaDistrDelivery item = distr.getDelivery( DELIVERY );
-		ActionScopeTarget target = addProductDoc( set , item , true );
+		ActionScopeTarget target = addProductDoc( set , item , false , true );
 		target.addDocs( action , DOCS );
 	}
 	

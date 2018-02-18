@@ -221,7 +221,7 @@ public class MetaDistrDelivery {
 	}
 	
 	public MetaProductDoc[] getDocs() {
-		if( SCHEMA_ANY )
+		if( DOC_ANY )
 			return( docs.getDocList() );
 			
 		return( mapDocuments.values().toArray( new MetaProductDoc[0] ) );

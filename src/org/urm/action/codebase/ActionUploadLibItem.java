@@ -29,7 +29,8 @@ public class ActionUploadLibItem extends ActionBase {
 		this.CLASSIFIER = CLASSIFIER;
 	}
 	
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
+	@Override 
+	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
 		if( !scopeProject.sourceProject.isPrebuiltNexus() )
 			super.exitUnexpectedState();
 		

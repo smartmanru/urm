@@ -338,6 +338,7 @@ public class Dist {
 			createInternalDeliveryFolder( action , getDeliveryBinaryFolder( action , delivery.distDelivery ) );
 			createInternalDeliveryFolder( action , getDeliveryConfFolder( action , delivery.distDelivery ) );
 			createInternalDeliveryFolder( action , getDeliveryDatabaseFolder( action , delivery.distDelivery , release.RELEASEVER ) );
+			createInternalDeliveryFolder( action , getDeliveryDocFolder( action , delivery.distDelivery ) );
 		}
 	}
 

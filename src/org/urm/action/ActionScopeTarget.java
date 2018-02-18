@@ -76,6 +76,16 @@ public class ActionScopeTarget {
 		return( target );
 	}
 
+	public static ActionScopeTarget createReleaseDeliveryTarget( ActionScopeSet set , ReleaseTarget releaseTarget , boolean specifiedExplicitly ) {
+		ActionScopeTarget target = new ActionScopeTarget( set );
+		target.NAME = releaseTarget.NAME;
+		target.releaseTarget = releaseTarget;
+		target.delivery = releaseTarget.distDelivery;
+		target.itemFull = releaseTarget.ALL;
+		target.specifiedExplicitly = specifiedExplicitly;
+		return( target );
+	}
+	
 	public static ActionScopeTarget createProductConfItemTarget( ActionScopeSet set , MetaDistrConfItem confItem , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 
