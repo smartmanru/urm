@@ -733,13 +733,23 @@ public class Dist {
 		return( info );
 	}
 
-	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrDelivery delivery , MetaProductDoc item ) {
+	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrDelivery delivery , MetaProductDoc item , boolean getMD5 , boolean getTimestamp ) {
 		DistItemInfo info = new DistItemInfo( item );
 
 		try {
 			info.subPath = getReleaseDocFolder( action , delivery );
 			info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );
 			info.found = ( info.fileName.isEmpty() )? false : true;
+			
+			if( info.found && getTimestamp ) {
+				RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
+				info.timestamp = fileFolder.getFileChangeTime( action , info.fileName );
+			}
+			
+			if( info.found && getMD5 ) {
+				RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
+				info.md5value = fileFolder.getFileMD5( action , info.fileName );
+			}
 		}
 		catch( Throwable e ) {
 			action.log( "get document distitem info item=" + item.NAME , e );
