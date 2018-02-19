@@ -175,7 +175,7 @@ public class Dist {
 			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
 		
 		state.checkDistDataChangeEnabled( action );
-		String folder = getDeliveryDatabaseFolder( action , dbDelivery , release.RELEASEVER );
+		String folder = getDeliveryDocFolder( action , dbDelivery );
 		distFolder.removeFolder( action , folder );
 		
 		String parentFolder = Common.getDirName( folder );

@@ -524,7 +524,7 @@ public class TransactionBase extends EngineObject {
 				if( lifecyclesChange != null )
 					return( true );
 
-				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
+				if( !checkSecurityServerChange( SecurityAction.ACTION_RELEASE ) )
 					return( false );
 				
 				changeDatabaseCore();
@@ -635,7 +635,7 @@ public class TransactionBase extends EngineObject {
 				if( buildersNew != null )
 					return( true );
 				
-				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
+				if( !checkSecurityServerChange( SecurityAction.ACTION_RELEASE ) )
 					return( false );
 				
 				if( !engine.isRunning() )

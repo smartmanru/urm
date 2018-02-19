@@ -176,11 +176,9 @@ public class SourceStorage {
 	
 		ProductMeta storage = meta.getStorage();
 		MirrorRepository mirror = action.getConfigurationMirror( storage );
-		if( !vcs.exportRepositoryMasterPath( mirror , dstFolder , ITEMPATH , DATABASE_FOLDER ) )
+		if( !vcs.exportRepositoryMasterPath( mirror , dstFolder , ITEMPATH , DOC_FOLDER ) )
 			action.exit2( _Error.UnableExportMirror2 , "unable to export from mirror=" + mirror.NAME + ", ITEMPATH=" + ITEMPATH , mirror.NAME , ITEMPATH );
 		
-		if( action.isLocalLinux() )
-			dstFolder.prepareFolderForLinux( action , DATABASE_FOLDER );
 		return( true );
 	}
 	
