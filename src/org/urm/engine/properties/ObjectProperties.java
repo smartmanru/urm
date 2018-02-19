@@ -417,6 +417,26 @@ public class ObjectProperties {
 		return( null );
 	}
 
+	public EntityVar findVar( String prop ) {
+		EntityVar var = meta.findAppVar( prop );
+		if( var != null )
+			return( var );
+		
+		ObjectProperties hfind = this;
+		while( hfind != null ) {
+			var = meta.findCustomVar( prop );
+			if( var != null ) {
+				if( var.isApp() )
+					return( null );
+				return( var );
+			}
+			
+			hfind = hfind.parent;
+		}
+		
+		return( null );
+	}
+
 	public int getDepth() {
 		int depth = 0;
 		ObjectProperties ps = parent;
