@@ -154,6 +154,7 @@ public class MetaEnvServer extends EngineObject {
 		r.SERVERRUN_TYPE = SERVERRUN_TYPE;
 		r.SERVERACCESS_TYPE = SERVERACCESS_TYPE;
 		r.OS_TYPE = OS_TYPE;
+		r.SYSNAME = SYSNAME;
 		r.BASELINE = MatchItem.copy( BASELINE );
 		r.OFFLINE = false;
 		r.DBMS_TYPE = DBMS_TYPE;

@@ -66,6 +66,12 @@ public class PropertyValue {
 		this.finalValue = "";
 	}
 
+	public boolean isOriginalEmpty() {
+		if( originalValue == null || originalValue.isEmpty() )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isNull() {
 		return( nullvalue );
 	}
