@@ -74,9 +74,9 @@ public class DistFinalizer {
 	}
 	
 	private void createExpectedDocDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTargetItem item ) throws Exception {
-		action.trace( "FINISH: add doc to expected: " + item.NAME );
 		FileSet dir = fs.createDir( dist.getDeliveryDocFolder( action , delivery.distDelivery ) );
 		String file = ( item.DISTFILE.isEmpty() )? item.doc.getBaseFile() : item.DISTFILE; 
+		action.trace( "FINISH: add doc=" + item.NAME + ", dir=" + dir.dirPath + ", file=" + file );
 		dir.addFile( file );
 		dir.addFile( file + ".md5" );
 	}
