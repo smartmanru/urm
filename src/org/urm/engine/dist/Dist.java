@@ -423,10 +423,10 @@ public class Dist {
 			state.ctlForceClose( action );
 	}
 
-	public void finish( ActionBase action ) throws Exception {
+	public boolean finish( ActionBase action ) throws Exception {
 		if( isFinalized() ) {
 			action.info( "release is already finalized" );
-			return;
+			return( true );
 		}
 		
 		openForDataChange( action );
@@ -435,7 +435,7 @@ public class Dist {
 			if( !release.changes.isCompleted() ) {
 				action.error( "release changes are not completed" );
 				state.ctlCloseDataChange( action );
-				return;
+				return( false );
 			}
 		}
 		
@@ -443,12 +443,13 @@ public class Dist {
 		if( !finalizer.finish() ) {
 			action.error( "distributive is not ready to be finalyzed" );
 			state.ctlCloseDataChange( action );
-			return;
+			return( false );
 		}
 		
 		release.finish( action );
 		saveReleaseXml( action );
 		state.ctlFinish( action );
+		return( true );
 	}
 
 	public void complete( ActionBase action ) throws Exception {

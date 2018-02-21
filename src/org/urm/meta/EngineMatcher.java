@@ -212,8 +212,10 @@ public class EngineMatcher {
 	}
 
 	public void matchProductDone( MatchItem item , ProductMeta storage , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
-		if( item != null && !item.MATCHED )
+		if( item != null && !item.MATCHED ) {
+			engine.error( "product match failed: object=" + ownerId + ", entity=" + entity.PARAMENTITY_TYPE.name() + ", property=" + prop + ", value=" + matchValueInitial );
 			matchProductUpdateStatus( matchStorage , false , false );
+		}
 	}
 	
 	public String matchEnvBefore( MetaEnv env , String value , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
@@ -231,8 +233,10 @@ public class EngineMatcher {
 	}
 
 	public void matchEnvDone( MatchItem item , MetaEnv env , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
-		if( item != null && !item.MATCHED )
+		if( item != null && !item.MATCHED ) {
+			engine.error( "env match failed: env=" + env.NAME + ", object=" + ownerId + ", entity=" + entity.PARAMENTITY_TYPE.name() + ", property=" + prop + ", value=" + matchValueInitial );
 			matchEnvUpdateStatus( matchEnv , false , false );
+		}
 	}
 	
 	private void matchEnvUpdateStatus( MetaEnv env , boolean matched , boolean finish ) {

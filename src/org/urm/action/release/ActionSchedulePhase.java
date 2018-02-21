@@ -56,7 +56,8 @@ public class ActionSchedulePhase extends ActionBase {
 		ReleaseSchedule schedule = dist.release.schedule;
 		if( cmdNext && schedule.currentPhase >= 0 ) {
 			if( schedule.currentPhase == schedule.releasePhases - 1 ) {
-				dist.finish( this );
+				if( !dist.finish( this ) )
+					super.exit0( _Error.UnableFinalizeRelease0 , "Unable to finalize release" );
 				return( SCOPESTATE.RunSuccess );
 			}
 			

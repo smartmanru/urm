@@ -327,6 +327,11 @@ public class DBEngineLifecycles {
 	public static void deleteLifecycle( EngineTransaction transaction , EngineLifecycles lifecycles , ReleaseLifecycle lc ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
+		if( !c.modify( DBQueries.MODIFY_LIFECYCLE_DROPPHASES1 , new String[] {
+				EngineDB.getInteger( lc.ID )
+				}))
+			transaction.exitUnexpectedState();
+		
 		DBEngineEntities.deleteAppObject( c , entities.entityAppReleaseLifecycle , lc.ID , c.getNextCoreVersion() );
 		lifecycles.removeLifecycle( lc );
 		lc.deleteObject();

@@ -15,7 +15,8 @@ public class ActionFinishRelease extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
-		dist.finish( this );
+		if( !dist.finish( this ) )
+			super.exit0( _Error.UnableFinalizeRelease0 , "Unable to finalize release" );
 		return( SCOPESTATE.RunSuccess );
 	}
 	
