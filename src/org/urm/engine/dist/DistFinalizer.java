@@ -115,12 +115,18 @@ public class DistFinalizer {
 				delivery = distr.findDeliveryByFolder( dir );
 			}
 			else {
+				action.trace( "FINISH: find delivery folder by dir=" + dir );
 				ReleaseDelivery deliveryRelease = info.findDeliveryByFolder( dir );
 				if( deliveryRelease != null )
 					delivery = deliveryRelease.distDelivery;
 			}
 			
 			if( delivery == null || delivery.isEmpty() ) {
+				if( delivery == null )
+					action.trace( "FINISH: delivery=null" );
+				if( delivery.isEmpty() )
+					action.trace( "FINISH: delivery is empty" );
+
 				if( dirFilesDist.hasFiles() ) {
 					if( !action.isForced() ) {
 						action.error( "distributive delivery folder=" + dir + " has files, while nothing is declared in release" );
