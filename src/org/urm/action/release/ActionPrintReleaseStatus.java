@@ -157,6 +157,9 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			if( set.CATEGORY == EnumScopeCategory.MANUAL )
 				printReleaseManualStatus( dist , files , target );
 			else
+			if( set.CATEGORY == EnumScopeCategory.DOC )
+				printReleaseDocStatus( dist , files , target );
+			else
 				exitUnexpectedCategory( set.CATEGORY );
 		}
 	}
@@ -222,6 +225,19 @@ public class ActionPrintReleaseStatus extends ActionBase {
 				Common.getRefDate( info.timestamp ) + ")" : "missing (" + info.subPath + ")";
 		
 		info( "\t\tdistitem=" + manual.distManualItem.NAME + ": " + status + Common.getCommentIfAny( specifics ) );
+	}
+
+	private void printReleaseDocStatus( Dist dist , FileSet files , ReleaseTarget items ) throws Exception {
+		for( String name : items.getItemNames() ) {
+			ReleaseTargetItem item = items.findItem( name );
+			DistItemInfo info = dist.getDistItemInfo( this , items.distDelivery , item.doc , false , true );
+			
+			String folder = Common.getPath( info.subPath , info.fileName );
+			String status = ( info.found )? "OK (" + folder + ", " + 
+					Common.getRefDate( info.timestamp ) + ")" : "missing (" + info.subPath + ")";
+			
+			info( "\t\tdoc=" + item.doc.NAME + ": " + status );
+		}
 	}
 
 	private void printReleaseDatabaseStatus( Dist dist , FileSet files , ReleaseTarget db ) throws Exception {
