@@ -240,10 +240,11 @@ public class DistFinalizer {
 			if( fileDist == null ) {
 				if( fileRelease.endsWith( ".md5" ) ) {
 					String fileMD5 = Common.getPath( fsr.dirPath , fileRelease );
-					String file = Common.getPartBeforeLast( fileMD5 , ".md5" );
+					String file = Common.getPartBeforeLast( fileRelease , ".md5" );
+					String filePath = Common.getPath( fsr.dirPath , file );
 					if( findBasenameFile( file , fsd ) != null ) {
 						action.info( "create missing md5 delivery=" + delivery.NAME + " file=" + fileRelease + " ..." );
-						String value = distFolder.getFileMD5( action , file );
+						String value = distFolder.getFileMD5( action , filePath );
 						distFolder.createFileFromString( action , fileMD5 , value );
 					}
 				}
@@ -281,10 +282,11 @@ public class DistFinalizer {
 			if( fileDist == null ) {
 				if( fileRelease.endsWith( ".md5" ) ) {
 					String fileMD5 = Common.getPath( fsr.dirPath , fileRelease );
-					String file = Common.getPartBeforeLast( fileMD5 , ".md5" );
+					String file = Common.getPartBeforeLast( fileRelease , ".md5" );
+					String filePath = Common.getPath( fsr.dirPath , file );
 					if( findBasenameFile( file , fsd ) != null ) {
 						action.info( "create missing md5 delivery=" + delivery.NAME + " file=" + fileRelease + " ..." );
-						String value = distFolder.getFileMD5( action , file );
+						String value = distFolder.getFileMD5( action , filePath );
 						distFolder.createFileFromString( action , fileMD5 , value );
 					}
 				}
