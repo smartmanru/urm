@@ -1073,7 +1073,7 @@ public class Release {
 	public DBEnumLifecycleType getLifecycleType() {
 		if( MASTER )
 			return( DBEnumLifecycleType.MAJOR );
-		return( VersionInfo.getLifecycleType( RELEASEVER ) );
+		return( VersionInfo.getLifecycleTypeByFullVersion( RELEASEVER ) );
 	}
 
 	public void finish( ActionBase action ) throws Exception {

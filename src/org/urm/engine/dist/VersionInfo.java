@@ -58,6 +58,17 @@ public class VersionInfo {
 		return( Common.getPartAfterLast( RELEASEDIR , "-" ) );
 	}
 
+	public static DBEnumLifecycleType getLifecycleTypeByShortVersion( String RELEASEVER ) {
+		String[] parts = Common.splitDotted( RELEASEVER );
+		if( parts.length == 2 )
+			return( DBEnumLifecycleType.MAJOR );
+		if( parts.length == 3 )
+			return( DBEnumLifecycleType.MINOR );
+		if( parts.length == 4 )
+			return( DBEnumLifecycleType.URGENT );
+		return( DBEnumLifecycleType.UNKNOWN );
+	}
+	
 	public void setVersion( String version ) throws Exception {
 		int[] vn = new int[4];
 		parseVersion( version , vn );
@@ -174,7 +185,7 @@ public class VersionInfo {
 		return( DBEnumLifecycleType.MAJOR );
 	}
 	
-	public static DBEnumLifecycleType getLifecycleType( String RELEASEVER ) {
+	public static DBEnumLifecycleType getLifecycleTypeByFullVersion( String RELEASEVER ) {
 		String[] items = Common.splitDotted( RELEASEVER );
 		if( items.length != 4 )
 			return( DBEnumLifecycleType.UNKNOWN );

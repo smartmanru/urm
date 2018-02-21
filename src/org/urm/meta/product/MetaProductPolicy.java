@@ -67,6 +67,14 @@ public class MetaProductPolicy {
 		return( getLifecycleId( action , LC_MINOR ) );
 	}
 	
+	public boolean checkUrgentIncluded( ActionBase action , ReleaseLifecycle lc ) throws Exception {
+		for( MatchItem item : LC_URGENT_LIST ) {
+			if( MatchItem.equals( item , lc.ID ) )
+				return( true );
+		}
+		return( false );
+	}
+	
 	public String[] getUrgentNames( ActionBase action ) throws Exception {
 		String[] names = new String[ LC_URGENT_LIST.length ];
 		for( int k = 0; k < names.length; k++ )
