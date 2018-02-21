@@ -157,6 +157,7 @@ public class DistFinalizer {
 	private boolean finishDistDelivery( ActionBase action , MetaDistrDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
 		// check by category
 		for( String dir : fsd.getAllDirNames() ) {
+			action.trace( "FINISH: check top=" + fsr.dirPath + ", dir=" + dir );
 			FileSet dirFilesDist = fsd.findDirByName( dir );
 			FileSet dirFilesRelease = fsr.findDirByName( dir );
 			if( dirFilesRelease == null ) {
