@@ -100,6 +100,18 @@ public class MetaDistrDelivery {
 	}
 	
 	public boolean isEmpty() {
+		if( SCHEMA_ANY ) {
+			MetaDatabase database = meta.getDatabase();
+			if( !database.isEmpty() )
+				return( false );
+		}
+		
+		if( DOC_ANY ) {
+			MetaDocs docs = meta.getDocs();
+			if( !docs.isEmpty() )
+				return( false );
+		}
+		
 		if( mapBinaryItems.isEmpty() && mapConfComps.isEmpty() && mapDatabaseSchema.isEmpty() && mapDocuments.isEmpty() )
 			return( true );
 		return( false );

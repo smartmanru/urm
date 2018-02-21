@@ -117,8 +117,11 @@ public class DBMetaDistr {
 		
 		importxmlDeliveryBinaryItems( loader , storage , distr , delivery , root );
 		importxmlDeliveryConfItems( loader , storage , distr , delivery , root );
-		importxmlDeliverySchemaItems( loader , storage , distr , delivery , root );
-		importxmlDeliveryDocItems( loader , storage , distr , delivery , root );
+		
+		if( !delivery.SCHEMA_ANY )
+			importxmlDeliverySchemaItems( loader , storage , distr , delivery , root );
+		if( !delivery.DOC_ANY )
+			importxmlDeliveryDocItems( loader , storage , distr , delivery , root );
 		
 		for( MetaDistrBinaryItem item : distr.getBinaryItems() )
 			item.resolveReferences();

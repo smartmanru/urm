@@ -115,18 +115,12 @@ public class DistFinalizer {
 				delivery = distr.findDeliveryByFolder( dir );
 			}
 			else {
-				action.trace( "FINISH: find delivery folder by dir=" + dir );
 				ReleaseDelivery deliveryRelease = info.findDeliveryByFolder( dir );
 				if( deliveryRelease != null )
 					delivery = deliveryRelease.distDelivery;
 			}
 			
 			if( delivery == null || delivery.isEmpty() ) {
-				if( delivery == null )
-					action.trace( "FINISH: delivery=null" );
-				if( delivery.isEmpty() )
-					action.trace( "FINISH: delivery is empty" );
-
 				if( dirFilesDist.hasFiles() ) {
 					if( !action.isForced() ) {
 						action.error( "distributive delivery folder=" + dir + " has files, while nothing is declared in release" );
@@ -163,7 +157,6 @@ public class DistFinalizer {
 	private boolean finishDistDelivery( ActionBase action , MetaDistrDelivery delivery , FileSet fsd , FileSet fsr ) throws Exception {
 		// check by category
 		for( String dir : fsd.getAllDirNames() ) {
-			action.trace( "FINISH: check top=" + fsr.dirPath + ", dir=" + dir );
 			FileSet dirFilesDist = fsd.findDirByName( dir );
 			FileSet dirFilesRelease = fsr.findDirByName( dir );
 			if( dirFilesRelease == null ) {
