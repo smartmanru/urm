@@ -20,10 +20,12 @@ public class ObjectProperties {
 	public DBEnumObjectType objectType;				// owner object type
 	public DBEnumObjectVersionType versionType;		// type of module object, owning entity data
 	public DBEnumParamRoleType roleType;
+	
 	private String setName;
 	private RunContext execrc;
 	
 	private ObjectProperties parent;
+	private boolean customDefineAllowed;
 	private boolean loadFailed;
 	private boolean loadFinished;
 	private RunError error;
@@ -41,6 +43,8 @@ public class ObjectProperties {
 		
 		loadFailed = false;
 		loadFinished = false;
+		customDefineAllowed = false;
+		
 		childs = new LinkedList<ObjectProperties>();
 		meta = new ObjectMeta();
 	}
@@ -50,6 +54,7 @@ public class ObjectProperties {
 		r.parent = parent;
 		r.loadFailed = loadFailed;
 		r.loadFinished = loadFinished;
+		r.customDefineAllowed = customDefineAllowed;
 		r.error = error;
 		r.meta = meta.copy();
 		
@@ -58,11 +63,12 @@ public class ObjectProperties {
 		return( r );
 	}
 
-	public void create( ObjectProperties parent , PropertyEntity entityFixed , PropertyEntity entityCustom ) throws Exception {
-		create( parent , new PropertyEntity[] { entityFixed } , entityCustom );
+	public void create( ObjectProperties parent , PropertyEntity entityFixed , PropertyEntity entityCustom , boolean customDefineAllowed ) throws Exception {
+		create( parent , new PropertyEntity[] { entityFixed } , entityCustom , customDefineAllowed );
 	}
 	
-	public void create( ObjectProperties parent , PropertyEntity[] entitiesFixed , PropertyEntity entityCustom ) throws Exception {
+	public void create( ObjectProperties parent , PropertyEntity[] entitiesFixed , PropertyEntity entityCustom , boolean customDefineAllowed ) throws Exception {
+		this.customDefineAllowed = customDefineAllowed;
 		initCreateStarted( parent );
 		
 		meta.create( entitiesFixed , entityCustom );
@@ -131,6 +137,10 @@ public class ObjectProperties {
 		loadFinished = true;
 	}
 
+	public boolean isCustomDefineAllowed() {
+		return( customDefineAllowed );
+	}
+	
 	public String getPathProperty( String prop ) throws Exception {
 		EntityVar var = meta.getVar( prop );
 		if( var.isApp() )

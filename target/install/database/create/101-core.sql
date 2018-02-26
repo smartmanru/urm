@@ -65,6 +65,7 @@ CREATE TABLE main.urm_object_param (
                 object_type INTEGER NOT NULL,
                 enumname VARCHAR(64),
                 required BOOLEAN NOT NULL,
+                secured BOOLEAN NOT NULL,
                 expr_def VARCHAR,
                 version INTEGER NOT NULL,
                 CONSTRAINT urm_object_param_pk PRIMARY KEY (param_object_id, paramentity_type, param_id)

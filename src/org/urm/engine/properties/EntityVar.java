@@ -21,10 +21,12 @@ public class EntityVar {
 	public DBEnumObjectType OBJECT_TYPE;
 	public String DESC;
 	public boolean REQUIRED;
+	public boolean SECURED;
 	public String EXPR_DEF;
 	public int VERSION;
 	
 	public Class<?> enumClass;
+	public String[] customEnumValues;
 	public int databaseColumn;
 	
 	public EntityVar() {
@@ -41,9 +43,12 @@ public class EntityVar {
 		r.OBJECT_TYPE = OBJECT_TYPE;
 		r.DESC = DESC;
 		r.REQUIRED = REQUIRED;
+		r.SECURED = SECURED;
 		r.EXPR_DEF = EXPR_DEF;
 		r.VERSION = VERSION;
 		r.enumClass = enumClass;
+		if( customEnumValues != null )
+			r.customEnumValues = customEnumValues.clone();
 		r.databaseColumn = databaseColumn;
 		return( r );
 	}
@@ -56,6 +61,12 @@ public class EntityVar {
 	
 	public boolean isDefaultEmpty() {
 		if( EXPR_DEF.isEmpty() )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isCustomEnum() {
+		if( PARAMVALUE_SUBTYPE == DBEnumParamValueSubType.CUSTOMENUM )
 			return( true );
 		return( false );
 	}
@@ -77,7 +88,7 @@ public class EntityVar {
 			Common.exitUnexpected();
 		
 		Enum<?> defEnumValue = ( Enum<?> )defValue;
-		EntityVar var = meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubType.DEFAULT , DBEnumObjectType.UNKNOWN , required , null , defEnumValue.getClass() );
+		EntityVar var = meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubType.DEFAULT , DBEnumObjectType.UNKNOWN , required , false , null , defEnumValue.getClass() , null );
 		return( var );
 	}
 	
@@ -94,7 +105,7 @@ public class EntityVar {
 	}
 	
 	public static EntityVar metaStringVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , String defValue ) {
-		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.STRING , DBEnumParamValueSubType.DEFAULT , DBEnumObjectType.UNKNOWN , required , defValue , null ) );
+		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.STRING , DBEnumParamValueSubType.DEFAULT , DBEnumObjectType.UNKNOWN , required , false , defValue , null , null ) );
 	}
 	
 	public static EntityVar metaInteger( String propertyKey , String propertyDesc , boolean required , Integer defValue ) {
@@ -111,7 +122,7 @@ public class EntityVar {
 	
 	public static EntityVar metaIntegerVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , Integer defValue ) {
 		String value = ( defValue == null )? null : "" + defValue;
-		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubType.DEFAULT , DBEnumObjectType.UNKNOWN , required , value , null ) );
+		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubType.DEFAULT , DBEnumObjectType.UNKNOWN , required , false , value , null , null ) );
 	}
 	
 	public static EntityVar metaPathAbsolute( String propertyKey , String propertyDesc , boolean required , String defValue , DBEnumOSType ostype ) {
@@ -136,7 +147,7 @@ public class EntityVar {
 		else
 		if( ostype.isWindows() )
 			subtype = DBEnumParamValueSubType.PATHABSOLUTEWINDOWS;
-		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.PATH , subtype , DBEnumObjectType.UNKNOWN , required , defValue , null ) );
+		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.PATH , subtype , DBEnumObjectType.UNKNOWN , required , false , defValue , null , null ) );
 	}
 	
 	public static EntityVar metaPathRelative( String propertyKey , String propertyDesc , boolean required , String defValue , DBEnumOSType ostype ) {
@@ -161,7 +172,7 @@ public class EntityVar {
 		else
 		if( ostype.isWindows() )
 			subtype = DBEnumParamValueSubType.PATHRELATIVEWINDOWS;
-		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.PATH , subtype , DBEnumObjectType.UNKNOWN , required , defValue , null ) );
+		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.PATH , subtype , DBEnumObjectType.UNKNOWN , required , false , defValue , null , null ) );
 	}
 	
 	public static EntityVar metaBoolean( String propertyKey , String propertyDesc , boolean required , boolean defValue ) {
@@ -177,7 +188,7 @@ public class EntityVar {
 	}
 	
 	public static EntityVar metaBooleanVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , boolean defValue ) {
-		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.BOOL , DBEnumParamValueSubType.DEFAULT , DBEnumObjectType.UNKNOWN , required , Common.getBooleanValue( defValue ) , null ) );
+		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.BOOL , DBEnumParamValueSubType.DEFAULT , DBEnumObjectType.UNKNOWN , required , false , Common.getBooleanValue( defValue ) , null , null ) );
 	}
 	
 	public static EntityVar metaObject( String propertyKey , String propertyDesc , DBEnumObjectType objectType , boolean required ) {
@@ -193,10 +204,10 @@ public class EntityVar {
 	}
 	
 	public static EntityVar metaObjectVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , DBEnumObjectType objectType , boolean required ) {
-		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubType.DEFAULT , objectType , required , null , null ) );
+		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubType.DEFAULT , objectType , required , false , null , null , null ) );
 	}
 	
-	public static EntityVar meta( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , DBEnumObjectType objectType , boolean required , String defValue , Class<?> enumClass ) {
+	public static EntityVar meta( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , DBEnumObjectType objectType , boolean required , boolean secured , String defValue , Class<?> enumClass , String[] customEnumValues ) {
 		EntityVar var = new EntityVar();
 		var.NAME = propertyKey;
 		var.DBNAME = propertyDatabaseKey;
@@ -208,6 +219,7 @@ public class EntityVar {
 		var.REQUIRED = required;
 		var.EXPR_DEF = Common.nonull( defValue );
 		var.enumClass = enumClass;
+		var.customEnumValues = ( customEnumValues == null )? null : customEnumValues.clone();
 		return( var );
 	}
 
@@ -225,6 +237,12 @@ public class EntityVar {
 	
 	public boolean isCustom() {
 		if( entity.CUSTOM )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isSecured() {
+		if( SECURED )
 			return( true );
 		return( false );
 	}

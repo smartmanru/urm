@@ -28,9 +28,13 @@ public abstract class DBSettings {
 
 	public static String ELEMENT_PROPERTY = "property";
 	public static String ELEMENT_CUSTOM = "custom";
+	public static String ELEMENT_DEFINE = "define";
 	public static String ATTR_NAME = "name"; 
 	public static String ATTR_VALUE = "value"; 
-	public static String ATTR_DESC = "desc"; 
+	public static String ATTR_DESC = "desc";
+	public static String ATTR_SECURED = "secured"; 
+	public static String ATTR_TYPE = "type";
+	public static String VALUE_ENUM = "enum";
 
 	public static void loaddbValues( EngineLoader loader , int objectId , ObjectProperties properties ) throws Exception {
 		loaddbValues( loader , objectId , properties , true );
@@ -162,6 +166,28 @@ public abstract class DBSettings {
 		
 		boolean ok = true;
 		
+		// import property definition
+		Node define = ConfReader.xmlGetFirstChild( root , ELEMENT_DEFINE );
+		if( define != null ) {
+			if( !properties.isCustomDefineAllowed() )
+				Common.exitUnexpected();
+			
+			Node[] props = ConfReader.xmlGetChildren( define , ELEMENT_PROPERTY );
+			if( props != null ) {
+				for( Node item : props ) {
+					try {
+						importxmlGetDefineCustomProperty( loader , item , properties );
+					}
+					catch( Throwable e ) {
+						loader.trace( "property definition load error: " + e.toString() );
+						ok = false;
+					}
+				}
+				
+				meta.rebuild();
+			}
+		}
+		
 		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_PROPERTY );
 		if( items != null ) {
 			for( Node item : items ) {
@@ -215,6 +241,8 @@ public abstract class DBSettings {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity custom = meta.getCustomEntity();
 		PropertySet set = properties.getProperties();
+
+		Element nodeDefine = null;
 		
 		for( PropertyValue value : set.getAllProperties() ) {
 			EntityVar var = properties.getVar( value.property );
@@ -225,16 +253,31 @@ public abstract class DBSettings {
 				continue;
 			
 			boolean defineProp = ( var.isCustom() && var.entity == custom )? true : false;
-			String data = null;
-			if( defineProp )
-				data = value.getExpressionValue();
-			else {
-				data = value.getOriginalValue();
-				if( data == null || data.isEmpty() )
-					continue;
+			if( defineProp ) {
+				if( !properties.isCustomDefineAllowed() )
+					Common.exitUnexpected();
+				
+				if( nodeDefine == null )
+					nodeDefine = Common.xmlCreateElement( doc , root , ELEMENT_DEFINE );
+				
+				Element nodeVar = Common.xmlCreateElement( doc , nodeDefine , ELEMENT_PROPERTY );
+				Common.xmlSetElementAttr( doc , nodeVar , ATTR_NAME , var.NAME );
+				Common.xmlSetElementAttr( doc , nodeVar , ATTR_DESC , var.DESC );
+				Common.xmlSetElementAttr( doc , nodeVar , ATTR_TYPE , custom.exportxmlEnum( var.PARAMVALUE_TYPE ) );
+				Common.xmlSetElementBooleanAttr( doc , nodeVar , ATTR_SECURED , var.SECURED );
+				
+				// handle special custom enum case
+				if( var.isCustomEnum() )
+					Common.xmlSetElementAttr( doc , nodeVar , ATTR_VALUE , Common.getList( var.customEnumValues , " " ) );
+				else
+					Common.xmlSetElementAttr( doc , nodeVar , ATTR_VALUE , var.EXPR_DEF );
 			}
 			
-			exportxmlSetProperty( loader , doc , root , var , data , defineProp );
+			String data = value.getOriginalValue();
+			if( data == null || data.isEmpty() )
+				continue;
+			
+			exportxmlSetProperty( loader , doc , root , var , data );
 		}
 	}
 
@@ -270,7 +313,7 @@ public abstract class DBSettings {
 			}
 				
 			if( appAsProperties )
-				exportxmlSetProperty( loader , doc , root , var , data , false );
+				exportxmlSetProperty( loader , doc , root , var , data );
 			else
 				exportxmlSetAttr( loader , doc , root , var , data );
 		}
@@ -280,10 +323,8 @@ public abstract class DBSettings {
 		Common.xmlSetElementAttr( doc , root , var.XMLNAME , data );
 	}
 	
-	private static void exportxmlSetProperty( EngineLoader loader , Document doc , Element root , EntityVar var , String data , boolean defineProp ) throws Exception {
-		Element property = Common.xmlCreatePropertyElement( doc , root , var.XMLNAME , data );
-		if( defineProp )
-			Common.xmlSetElementAttr( doc , property , ATTR_DESC , var.DESC );
+	private static void exportxmlSetProperty( EngineLoader loader , Document doc , Element root , EntityVar var , String data ) throws Exception {
+		Common.xmlCreatePropertyElement( doc , root , var.XMLNAME , data );
 	}
 	
 	private static void importxmlGetAttr( EngineLoader loader , ObjectProperties properties , String xmlprop , String value , PropertyEntity entityApp ) throws Exception {
@@ -328,7 +369,6 @@ public abstract class DBSettings {
 	
 	private static void importxmlGetProperty( EngineLoader loader , Node item , ObjectProperties properties , boolean importApp , boolean importCustom , PropertyEntity entityApp ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
-		PropertyEntity custom = meta.getCustomEntity();
 		
 		String prop = ConfReader.getAttrValue( item , ATTR_NAME );
 		
@@ -350,10 +390,16 @@ public abstract class DBSettings {
 			return;
 		}
 		
-		// this.custom - duplicate
+		// this.custom - found
 		var = meta.findCustomXmlVar( prop );
-		if( var != null )
-			Common.exit1( _Error.DuplicateCustomVar1 , "Duplicate custom variable=" + prop , prop );
+		if( var != null ) {
+			if( importCustom == false )
+				Common.exit1( _Error.UnexpectedCustomVar1 , "Unexpected custom variable=" + prop , prop );
+			
+			String value = ConfReader.getAttrValue( item , ATTR_VALUE );
+			importxmlSetProperty( loader , properties , var , value , true );
+			return;
+		}
 
 		// parent.app - override error
 		var = findParentXmlVar( properties , prop );
@@ -370,17 +416,64 @@ public abstract class DBSettings {
 			return;
 		}
 
+		// custom properties should be defined before usage
+		Common.exit1( _Error.UnexpectedCustom1 , "Custom variables cannot be defined here, variable=" + prop , prop );
+	}		
+
+	private static void importxmlGetDefineCustomProperty( EngineLoader loader , Node item , ObjectProperties properties ) throws Exception {
+		ObjectMeta meta = properties.getMeta();
+		PropertyEntity custom = meta.getCustomEntity();
+		
+		String prop = ConfReader.getAttrValue( item , ATTR_NAME );
+		
+		// this.app - set app value
+		EntityVar var = meta.findAppXmlVar( prop );
+		if( var != null )
+			Common.exit1( _Error.UnexpectedAppVar1 , "Unexpected built-in variable=" + prop , prop );
+		
+		// this.custom - duplicate
+		var = meta.findCustomXmlVar( prop );
+		if( var != null )
+			Common.exit1( _Error.DuplicateCustomVar1 , "Duplicate custom variable=" + prop , prop );
+
+		// parent.app - override error
+		var = findParentXmlVar( properties , prop );
+		if( var != null && var.isApp() ) 
+			Common.exit1( _Error.OverrideAppVar1 , "Attempt to override built-in variable=" + prop , prop );
+		
 		// custom properties cannot be defined
 		if( custom == null )
 			Common.exit1( _Error.UnexpectedCustom1 , "Custom variables cannot be defined here, variable=" + prop , prop );
 
-		if( importCustom == false )
-			Common.exit1( _Error.UnexpectedCustomVar1 , "Unexpected custom variable=" + prop , prop );
-		
 		// new custom string property
 		String desc = ConfReader.getAttrValue( item , ATTR_DESC );
-		String def = ConfReader.getAttrValue( item , ATTR_VALUE );
-		var = EntityVar.metaString( prop , desc , false , def );
+		String typeName = ConfReader.getAttrValue( item , ATTR_TYPE );
+		String exprDef = ConfReader.getAttrValue( item , ATTR_VALUE );
+		boolean secured = ConfReader.getBooleanAttrValue( item , ATTR_SECURED , false );
+		
+		DBEnumParamValueType type = null;
+		DBEnumParamValueSubType subType = null;
+		String defValue = "";
+		
+		// special custom enum case
+		String[] customEnums = null;
+		if( typeName.equals( VALUE_ENUM ) ) {
+			type = DBEnumParamValueType.STRING;
+			subType = DBEnumParamValueSubType.CUSTOMENUM;
+			customEnums = Common.splitSpaced( exprDef );
+			if( customEnums.length == 0 )
+				Common.exitUnexpected();
+		}
+		else {
+			if( typeName.isEmpty() )
+				type = DBEnumParamValueType.STRING;
+			else
+				type = DBEnumParamValueType.getValue( typeName , true );
+			subType = DBEnumParamValueSubType.DEFAULT;
+			defValue = exprDef;
+		}
+		
+		var = EntityVar.meta( prop , prop , prop , desc , type , subType , DBEnumObjectType.UNKNOWN , false , secured , defValue , null , customEnums );
 		custom.addVar( var );
 		properties.createProperty( var );
 	}		
@@ -483,7 +576,15 @@ public abstract class DBSettings {
 		var.PARAM_ID = DBNames.getNameIndex( c , entity.PARAM_OBJECT_ID , var.NAME , DBEnumObjectType.PARAM );
 		var.VERSION = version;
 		String enumName = ( var.enumClass == null )? null : DBEnums.getEnumName( var.enumClass );
-		if( !c.modify( DBQueries.MODIFY_PARAM_ADDPARAM15 , new String[] {
+		
+		// handle custom enum case
+		String exprDef = null;
+		if( var.PARAMVALUE_SUBTYPE == DBEnumParamValueSubType.CUSTOMENUM )
+			exprDef = Common.getList( var.customEnumValues , " " );
+		else
+			exprDef = var.EXPR_DEF;
+		
+		if( !c.modify( DBQueries.MODIFY_PARAM_ADDPARAM16 , new String[] {
 			EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
 			EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 			EngineDB.getInteger( var.PARAM_ID ) ,
@@ -497,7 +598,8 @@ public abstract class DBSettings {
 			EngineDB.getEnum( var.OBJECT_TYPE ) ,
 			EngineDB.getString( enumName ) ,
 			EngineDB.getBoolean( var.REQUIRED ) ,
-			EngineDB.getString( var.EXPR_DEF ) ,
+			EngineDB.getBoolean( var.SECURED ) ,
+			EngineDB.getString( exprDef ) ,
 			EngineDB.getInteger( version )
 			} ) )
 			Common.exitUnexpected();
@@ -507,7 +609,7 @@ public abstract class DBSettings {
 		DBNames.updateName( c , entity.PARAM_OBJECT_ID , var.NAME , var.PARAM_ID , DBEnumObjectType.PARAM );
 		var.VERSION = version;
 		String enumName = ( var.enumClass == null )? null : DBEnums.getEnumName( var.enumClass );
-		if( !c.modify( DBQueries.MODIFY_PARAM_UPDATEPARAM15 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_UPDATEPARAM16 , new String[] {
 				EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
 				EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 				EngineDB.getInteger( var.PARAM_ID ) ,
@@ -521,6 +623,7 @@ public abstract class DBSettings {
 				EngineDB.getEnum( var.OBJECT_TYPE ) ,
 				EngineDB.getString( enumName ) ,
 				EngineDB.getBoolean( var.REQUIRED ) ,
+				EngineDB.getBoolean( var.SECURED ) ,
 				EngineDB.getString( var.EXPR_DEF ) ,
 				EngineDB.getInteger( version )
 				} ) )
@@ -567,20 +670,38 @@ public abstract class DBSettings {
 		try {
 			while( rs.next() ) {
 				String enumName = rs.getString( 9 );
-				Class<?> enumClass = ( enumName == null || enumName.isEmpty() )? null : DBEnums.getEnum( enumName );					
+				Class<?> enumClass = ( enumName == null || enumName.isEmpty() )? null : DBEnums.getEnum( enumName );
+				
+				String exprDef = rs.getString( 12 );
+				String defValue = null;
+				
+				// handle custom enum case
+				String[] customEnumList = null;
+				DBEnumParamValueSubType subType = DBEnumParamValueSubType.getValue( rs.getInt( 7 ) , false );
+				if( subType == DBEnumParamValueSubType.CUSTOMENUM ) {
+					defValue = "";
+					customEnumList = Common.splitSpaced( exprDef );
+				}
+				else {
+					defValue = exprDef;
+					customEnumList = null;
+				}
+				
 				EntityVar var = EntityVar.meta( 
 						rs.getString( 2 ) , 
 						rs.getString( 3 ) ,
 						rs.getString( 4 ) , 
 						rs.getString( 5 ) , 
 						DBEnumParamValueType.getValue( rs.getInt( 6 ) , true ) , 
-						DBEnumParamValueSubType.getValue( rs.getInt( 7 ) , false ) ,
+						subType ,
 						DBEnumObjectType.getValue( rs.getInt( 8 ) , false ) ,
 						rs.getBoolean( 10 ) , 
-						rs.getString( 11 ) ,
-						enumClass );
+						rs.getBoolean( 11 ) ,
+						defValue ,
+						enumClass ,
+						customEnumList );
 				var.PARAM_ID = rs.getInt( 1 );
-				var.VERSION = rs.getInt( 12 );
+				var.VERSION = rs.getInt( 13 );
 				entity.addVar( var );
 			}
 		}

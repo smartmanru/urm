@@ -135,14 +135,15 @@ public abstract class DBEnums {
 	public enum DBEnumParamValueSubType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		DEFAULT(1,null) ,
-		PATHABSOLUTE(20,null) ,
-		PATHABSOLUTEWINDOWS(2,null) ,
-		PATHABSOLUTELINUX(3,null) ,
-		PATHRELATIVE(4,null) ,
-		PATHRELATIVEWINDOWS(5,null) ,
-		PATHRELATIVELINUX(6,null) ,
-		PATHABSOLUTEENGINE(10,null) ,
-		PATHRELATIVEENGINE(11,null);
+		PATHABSOLUTE(10,null) ,
+		PATHABSOLUTEWINDOWS(11,null) ,
+		PATHABSOLUTELINUX(12,null) ,
+		PATHRELATIVE(13,null) ,
+		PATHRELATIVEWINDOWS(14,null) ,
+		PATHRELATIVELINUX(15,null) ,
+		PATHABSOLUTEENGINE(16,null) ,
+		PATHRELATIVEENGINE(17,null) ,
+		CUSTOMENUM(20,null);
 
 		private final int value;
 		private String[] synonyms;
