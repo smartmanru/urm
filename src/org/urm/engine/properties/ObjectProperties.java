@@ -434,7 +434,8 @@ public class ObjectProperties {
 		
 		ObjectProperties hfind = this;
 		while( hfind != null ) {
-			var = meta.findCustomVar( prop );
+			ObjectMeta metaFind = hfind.getMeta();
+			var = metaFind.findCustomVar( prop );
 			if( var != null ) {
 				if( var.isApp() )
 					return( null );
