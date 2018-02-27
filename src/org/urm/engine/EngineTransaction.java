@@ -934,10 +934,10 @@ public class EngineTransaction extends TransactionBase {
 	// ################################################################################
 	// ENVIRONMENT
 	
-	public MetaEnv createMetaEnv( Meta meta , String name , DBEnumEnvType envType ) throws Exception {
+	public MetaEnv createMetaEnv( Meta meta , String name , String desc , DBEnumEnvType envType ) throws Exception {
 		ProductMeta storage = meta.getStorage();
 		super.checkTransactionMetadata( storage );
-		return( DBMetaEnv.createEnv( this , storage , name , envType ) );
+		return( DBMetaEnv.createEnv( this , storage , name , desc , envType ) );
 	}
 	
 	public void deleteMetaEnv( MetaEnv env ) throws Exception {

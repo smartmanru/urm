@@ -337,7 +337,7 @@ public class DBMetaEnv {
 		Common.exitUnexpected();
 	}
 
-	public static MetaEnv createEnv( EngineTransaction transaction , ProductMeta storage , String name , DBEnumEnvType envType ) throws Exception {
+	public static MetaEnv createEnv( EngineTransaction transaction , ProductMeta storage , String name , String desc , DBEnumEnvType envType ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = transaction.getEntities();
 		ProductEnvs envs = storage.getEnviroments();
@@ -352,7 +352,7 @@ public class DBMetaEnv {
 		ObjectProperties ops = entities.createMetaEnvProps( settings.getProperties() );
 		env.createSettings( ops );
 		
-		env.setEnvPrimary( name , "" , envType , null , true , null , false , null , "" );
+		env.setEnvPrimary( name , desc , envType , null , true , null , false , null , "" );
 		env.scatterExtraProperties();
 		modifyEnv( c , storage , env , true );
 		
