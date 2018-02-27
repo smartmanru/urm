@@ -392,7 +392,8 @@ public class ObjectProperties {
 		
 		ObjectProperties hfind = this;
 		while( hfind != null ) {
-			var = meta.findCustomVar( propId );
+			ObjectMeta metaFind = hfind.getMeta();
+			var = metaFind.findCustomVar( propId );
 			if( var != null ) {
 				if( var.isApp() )
 					Common.exit1( _Error.UnexpectedCustomVar1 , "Unexpected builtin variable name=" + var.NAME  , "" + var.NAME );
@@ -413,7 +414,8 @@ public class ObjectProperties {
 		
 		ObjectProperties hfind = this;
 		while( hfind != null ) {
-			var = meta.findCustomVar( prop );
+			ObjectMeta metaFind = hfind.getMeta();
+			var = metaFind.findCustomVar( prop );
 			if( var != null ) {
 				if( var.isApp() )
 					Common.exit1( _Error.UnexpectedCustomVar1 , "Unexpected builtin variable name=" + var.NAME  , "" + var.NAME );
@@ -423,10 +425,32 @@ public class ObjectProperties {
 			hfind = hfind.parent;
 		}
 		
-		Common.exit1( _Error.UnknownVarName1 , "Unable to find variable id=" + prop , "" + prop );
+		Common.exit1( _Error.UnknownVarName1 , "Unable to find variable name=" + prop , "" + prop );
 		return( null );
 	}
 
+	public ObjectProperties getOwnerObject( String prop ) throws Exception {
+		EntityVar var = meta.findAppVar( prop );
+		if( var != null )
+			return( this );
+		
+		ObjectProperties hfind = this;
+		while( hfind != null ) {
+			ObjectMeta metaFind = hfind.getMeta();
+			var = metaFind.findCustomVar( prop );
+			if( var != null ) {
+				if( var.isApp() )
+					Common.exit1( _Error.UnexpectedCustomVar1 , "Unexpected builtin variable name=" + var.NAME  , "" + var.NAME );
+				return( hfind );
+			}
+			
+			hfind = hfind.parent;
+		}
+		
+		Common.exit1( _Error.UnknownVarName1 , "Unable to find variable name=" + prop , "" + prop );
+		return( null );
+	}
+	
 	public EntityVar findVar( String prop ) {
 		EntityVar var = meta.findAppVar( prop );
 		if( var != null )
