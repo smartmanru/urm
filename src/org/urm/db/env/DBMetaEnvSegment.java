@@ -245,7 +245,7 @@ public class DBMetaEnvSegment {
 		// properties
 		for( MetaEnvSegment sg : env.getSegments() ) {
 			ObjectProperties ops = sg.getProperties();
-			DBSettings.loaddbCustomValues( loader , sg.ID , ops );
+			DBSettings.loaddbValues( loader , sg.ID , ops );
 		}
 		
 		DBMetaEnvServer.loaddb( loader , storage , env );

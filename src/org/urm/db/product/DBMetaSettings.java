@@ -153,19 +153,19 @@ public class DBMetaSettings {
 		// context, custom, core settings
 		ObjectProperties ops = entities.createMetaProductProps( system.getParameters() );
 		ObjectMeta meta = ops.getMeta();
-		DBSettings.loaddbEntity( c , meta.getCustomEntity() , storage.ID );
-		DBSettings.loaddbAppValues( loader , storage.ID , ops );
+		DBSettings.loaddbCustomEntity( c , meta , storage.ID );
+		DBSettings.loaddbValues( loader , storage.ID , ops );
 		ops.recalculateProperties();
 
 		// monitoring settings
 		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
-		DBSettings.loaddbAppValues( loader , storage.ID , mon );
+		DBSettings.loaddbValues( loader , storage.ID , mon );
 		mon.recalculateProperties();
 		settings.createSettings( ops , mon , context );
 		
 		// build settings
 		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( ops );
-		DBSettings.loaddbAppValues( loader , storage.ID , opsBuildCommon );
+		DBSettings.loaddbValues( loader , storage.ID , opsBuildCommon );
 		
 		settings.createBuildCommonSettings( opsBuildCommon );
 		
@@ -174,7 +174,7 @@ public class DBMetaSettings {
 				continue;
 			
 			ObjectProperties opsBuildMode = entities.createMetaBuildModeProps( opsBuildCommon , mode );
-			DBSettings.loaddbAppValues( loader , storage.ID , opsBuildMode );
+			DBSettings.loaddbValues( loader , storage.ID , opsBuildMode );
 				
 			settings.createBuildModeSettings( mode , opsBuildMode );
 		}

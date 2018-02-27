@@ -135,7 +135,7 @@ public class DBMetaEnvServerNode {
 			for( MetaEnvServer server : sg.getServers() ) {
 				for( MetaEnvServerNode node : server.getNodes() ) {
 					ObjectProperties ops = node.getProperties();
-					DBSettings.loaddbCustomValues( loader , node.ID , ops );
+					DBSettings.loaddbValues( loader , node.ID , ops );
 				}
 			}
 		}

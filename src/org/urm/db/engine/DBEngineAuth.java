@@ -397,7 +397,7 @@ public class DBEngineAuth {
 		EngineSettings settings = loader.getSettings();
 		
 		ObjectProperties ops = entities.createLdapProps( settings.getEngineProperties() );
-		DBSettings.loaddbAppValues( loader , DBVersions.LOCAL_ID , ops );
+		DBSettings.loaddbValues( loader , DBVersions.LOCAL_ID , ops );
 		auth.setLdapSettings( ops );
 		
 		loaddbUsers( loader , auth );

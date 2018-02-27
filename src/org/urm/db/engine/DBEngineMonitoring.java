@@ -63,7 +63,7 @@ public class DBEngineMonitoring {
 		EngineSettings settings = loader.getSettings();
 		EngineEntities entities = loader.getEntities();
 		ObjectProperties properties = entities.createEngineMonitoringProps( settings.getEngineProperties() );
-		DBSettings.loaddbAppValues( loader , DBVersions.CORE_ID , properties );
+		DBSettings.loaddbValues( loader , DBVersions.CORE_ID , properties );
 		mon.setProperties( properties );
 	}
 

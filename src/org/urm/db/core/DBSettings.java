@@ -37,18 +37,6 @@ public abstract class DBSettings {
 	public static String VALUE_ENUM = "enum";
 
 	public static void loaddbValues( EngineLoader loader , int objectId , ObjectProperties properties ) throws Exception {
-		loaddbValues( loader , objectId , properties , true );
-	}
-	
-	public static void loaddbAppValues( EngineLoader loader , int objectId , ObjectProperties properties ) throws Exception {
-		loaddbValues( loader , objectId , properties , true );
-	}
-	
-	public static void loaddbCustomValues( EngineLoader loader , int objectId , ObjectProperties properties ) throws Exception {
-		loaddbValues( loader , objectId , properties , false );
-	}
-	
-	private static void loaddbValues( EngineLoader loader , int objectId , ObjectProperties properties , boolean loadApp ) throws Exception {
 		DBConnection c = loader.getConnection();
 		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETOBJECTPARAMVALUES2 , new String[] { 
 				EngineDB.getInteger( objectId ) , 
@@ -60,9 +48,6 @@ public abstract class DBSettings {
 				String exprValue = rs.getString( 3 );
 				
 				EntityVar var = properties.getVar( param );
-				if( loadApp == false && var.isApp() )
-					Common.exitUnexpected();
-				
 				properties.setProperty( var , exprValue );
 			}
 		}
@@ -648,9 +633,10 @@ public abstract class DBSettings {
 			Common.exitUnexpected();
 	}
 	
-	public static PropertyEntity loaddbCustomPropsEntity( DBConnection c , int ownerId , DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType versionType ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getCustomEntity( ownerId , objectType , entityType , ownerId , versionType );
+	public static PropertyEntity loaddbCustomEntity( DBConnection c , ObjectMeta meta , int ownerId ) throws Exception {
+		PropertyEntity entity = meta.getCustomEntity();
 		DBSettings.loaddbEntity( c , entity , ownerId );
+		meta.rebuild();
 		return( entity );
 	}
 

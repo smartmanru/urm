@@ -86,8 +86,8 @@ public abstract class DBAppSystem {
 			ObjectProperties props = system.getParameters();
 			ObjectMeta meta = props.getMeta();
 			
-			DBSettings.loaddbEntity( c , meta.getCustomEntity() , system.ID );
-			DBSettings.loaddbCustomValues( loader , system.ID , props );
+			DBSettings.loaddbCustomEntity( c , meta , system.ID );
+			DBSettings.loaddbValues( loader , system.ID , props );
 		}
 		
 		return( systems.toArray( new AppSystem[0] ) );
