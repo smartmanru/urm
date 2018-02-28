@@ -92,7 +92,7 @@ public abstract class DBEngineSettings {
 			for( Node itemNode : items ) {
 				String MODE = ConfReader.getRequiredAttrValue( itemNode , MODE_ATTR_NAME );
 				DBEnumBuildModeType mode = DBEnumBuildModeType.valueOf( MODE.toUpperCase() );
-				ObjectProperties properties = settings.getDefaultProductBuildObjectProperties( mode );
+				ObjectProperties properties = settings.getDefaultProductBuildModeSettings( mode );
 				DBSettings.importxml( loader , itemNode , properties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , false , version );
 			}
 		}
@@ -133,7 +133,7 @@ public abstract class DBEngineSettings {
 		DBEnumBuildModeType[] list = new DBEnumBuildModeType[] { DBEnumBuildModeType.DEVTRUNK , DBEnumBuildModeType.DEVBRANCH ,
 				DBEnumBuildModeType.TRUNK , DBEnumBuildModeType.BRANCH , DBEnumBuildModeType.MAJORBRANCH };
 		for( DBEnumBuildModeType mode : list ) {
-			ObjectProperties set = settings.getDefaultProductBuildObjectProperties( mode );
+			ObjectProperties set = settings.getDefaultProductBuildModeSettings( mode );
 			Element modeElement = Common.xmlCreateElement( doc , modeBuild , ELEMENT_MODE );
 			Common.xmlSetElementAttr( doc , modeElement , MODE_ATTR_NAME , mode.toString().toLowerCase() );
 			DBSettings.exportxml( loader , doc , modeElement , set , true );
@@ -156,7 +156,7 @@ public abstract class DBEngineSettings {
 	}
 	
 	public static void updateProductDefaultBuildModeProperties( EngineTransaction transaction , EngineSettings settings , DBEnumBuildModeType mode ) throws Exception {
-		ObjectProperties ops = settings.getDefaultProductBuildObjectProperties( mode );
+		ObjectProperties ops = settings.getDefaultProductBuildModeSettings( mode );
 		DBSettings.modifyAppValues( transaction , DBVersions.CORE_ID , ops , null );
 	}
 	

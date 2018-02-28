@@ -85,15 +85,15 @@ public class EngineSettings extends EngineObject {
 		return( defaultProductProperties );
 	}
 
-	public ObjectProperties getDefaultProductBuildProperties() {
-		return( defaultProductBuildProperties );
+	public PropertySet getDefaultProductBuildProperties() {
+		return( defaultProductBuildProperties.getProperties() );
 	}
 
 	public ObjectProperties getDefaultProductBuildSettings() {
 		return( defaultProductBuildProperties );
 	}
 
-	public ObjectProperties getDefaultProductBuildObjectProperties( DBEnumBuildModeType mode ) {
+	public ObjectProperties getDefaultProductBuildModeSettings( DBEnumBuildModeType mode ) {
 		return( mapBuildModeDefaults.get( mode ) );
 	}
 	

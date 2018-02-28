@@ -65,7 +65,7 @@ public class DBMetaSettings {
 		// build settings
 		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( ops );
 		EngineSettings engineSettings = context.settings;
-		ObjectProperties opsBuildCommonDefaults = engineSettings.getDefaultProductBuildProperties();
+		ObjectProperties opsBuildCommonDefaults = engineSettings.getDefaultProductBuildSettings();
 		opsBuildCommon.copyOriginalPropertiesToRaw( opsBuildCommonDefaults.getProperties() );
 		DBSettings.savedbPropertyValues( c , storage.ID , opsBuildCommon , true , false , version );
 		settings.createBuildCommonSettings( opsBuildCommon );
@@ -75,7 +75,7 @@ public class DBMetaSettings {
 				continue;
 			
 			ObjectProperties opsBuildMode = entities.createMetaBuildModeProps( opsBuildCommon , mode );
-			ObjectProperties opsBuildModeDefaults = engineSettings.getDefaultProductBuildObjectProperties( mode );
+			ObjectProperties opsBuildModeDefaults = engineSettings.getDefaultProductBuildModeSettings( mode );
 			opsBuildMode.copyOriginalPropertiesToRaw( opsBuildModeDefaults.getProperties() );
 			DBSettings.savedbPropertyValues( c , storage.ID , opsBuildMode , true , false , version );
 			settings.createBuildModeSettings( mode , opsBuildMode );
