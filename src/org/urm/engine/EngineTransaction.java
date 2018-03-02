@@ -11,6 +11,7 @@ import org.urm.db.env.DBMetaEnvServer;
 import org.urm.db.env.DBMetaEnvServerNode;
 import org.urm.db.env.DBMetaMonitoring;
 import org.urm.db.product.*;
+import org.urm.db.system.DBAppSystem;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
@@ -461,6 +462,11 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineProducts.deleteProduct( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 	}
 
+	public void updateCustomSystemProperties( AppSystem system ) throws Exception {
+		super.checkTransactionDirectory( system.directory );
+		DBAppSystem.updateCustomProperties( this , system );
+	}
+	
 	// ################################################################################
 	// ################################################################################
 	// MONITORING

@@ -108,6 +108,7 @@ public class EngineProducts {
 		if( storage.isReferencedBySessions() == false && storage.isPrimary() == false ) {
 			storage.meta.deleteObject();
 			storage.deleteObject();
+			storage.deleteEnvObjects();
 		}
 		
 		meta.deleteObject();

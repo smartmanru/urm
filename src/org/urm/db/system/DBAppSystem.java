@@ -14,6 +14,7 @@ import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.db.DBQueries;
+import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
@@ -131,6 +132,15 @@ public abstract class DBAppSystem {
 				EngineDB.getInteger( system.SV ) 
 				} ) )
 			Common.exitUnexpected();
+	}
+	
+	public static void updateCustomProperties( EngineTransaction transaction , AppSystem system ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		ObjectProperties ops = system.getParameters();
+		int version = c.getNextSystemVersion( system );
+		DBSettings.savedbPropertyValues( c , system.ID , ops , false , true , version );
+		ops.recalculateChildProperties();
 	}
 	
 }

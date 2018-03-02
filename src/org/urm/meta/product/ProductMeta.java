@@ -11,6 +11,7 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.EngineProducts;
+import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
 
 public class ProductMeta extends EngineObject {
@@ -209,6 +210,11 @@ public class ProductMeta extends EngineObject {
 
 	public boolean isMatched() {
 		return( MATCHED );
+	}
+
+	public void deleteEnvObjects() {
+		for( MetaEnv env : envs.getEnvs() )
+			env.deleteObject();
 	}
 	
 }

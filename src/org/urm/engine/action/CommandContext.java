@@ -326,8 +326,7 @@ public class CommandContext {
 			CTX_KEYRES = ( res == null )? "" : res.NAME;
 		}
 		
-		String productValue = ( isproduct )? core.CONFIG_DISTR_PATH : "";
-		CTX_DISTPATH = getParamPathValue( "OPT_DISTPATH" , productValue );
+		CTX_DISTPATH = getParamPathValue( "OPT_DISTPATH" , "" );
 		CTX_REDISTWIN_PATH = ( isproduct )? core.CONFIG_REDISTWIN_PATH : null;
 		if( isenv && !env.REDISTWIN_PATH.isEmpty() )
 			CTX_REDISTWIN_PATH = env.REDISTWIN_PATH;
