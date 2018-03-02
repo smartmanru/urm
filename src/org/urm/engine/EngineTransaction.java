@@ -483,7 +483,7 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineMonitoring.enableMonitoring( this , mon , true );
 	}
 
-	public void setMonitoringProperties( EngineMonitoring mon ) throws Exception {
+	public void updateMonitoringProperties( EngineMonitoring mon ) throws Exception {
 		checkTransactionMonitoring();
 		DBEngineMonitoring.setProperties( this , mon );
 	}
