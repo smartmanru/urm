@@ -6,6 +6,7 @@ import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumBuildModeType;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
@@ -72,7 +73,7 @@ public abstract class DBEngineSettings {
 		// load from xml
 		settings.defaultProductProperties = entities.createDefaultProductProps( settings.engineProperties );
 		Node node = ConfReader.xmlGetFirstChild( root , ELEMENT_DEFAULTS );
-		DBSettings.importxml( loader , node , settings.defaultProductProperties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , false , version );
+		DBSettings.importxml( loader , node , settings.defaultProductProperties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , false , version , DBEnumParamEntityType.PRODUCTDEFS);
 		
 		settings.defaultProductBuildProperties = entities.createDefaultBuildCommonProps( settings.defaultProductBuildProperties );
 		Node build = ConfReader.xmlGetFirstChild( node , ELEMENT_BUILD );
@@ -125,7 +126,7 @@ public abstract class DBEngineSettings {
 
 		// defaults
 		Element modeDefaults = Common.xmlCreateElement( doc , root , ELEMENT_DEFAULTS );
-		DBSettings.exportxml( loader , doc , modeDefaults , settings.defaultProductProperties , true );
+		DBSettings.exportxml( loader , doc , modeDefaults , settings.defaultProductProperties , true , false , true , DBEnumParamEntityType.PRODUCTDEFS );
 		Element modeBuild = Common.xmlCreateElement( doc , modeDefaults , ELEMENT_BUILD );
 		DBSettings.exportxml( loader , doc , modeBuild , settings.defaultProductBuildProperties , true );
 		
@@ -147,7 +148,7 @@ public abstract class DBEngineSettings {
 	
 	public static void updateProductDefaultProperties( EngineTransaction transaction , EngineSettings settings ) throws Exception {
 		ObjectProperties ops = settings.getDefaultProductSettigns();
-		DBSettings.modifyAppValues( transaction , DBVersions.CORE_ID , ops , null );
+		DBSettings.modifyAppValues( transaction , DBVersions.CORE_ID , ops , DBEnumParamEntityType.PRODUCTDEFS );
 	}
 	
 	public static void updateProductDefaultBuildCommonProperties( EngineTransaction transaction , EngineSettings settings ) throws Exception {

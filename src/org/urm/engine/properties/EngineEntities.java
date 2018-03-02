@@ -228,7 +228,7 @@ public class EngineEntities {
 
 	public ObjectProperties createDefaultProductProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.PRODUCTDEFS , nameProductSet , engine.execrc );
-		props.create( parent , entityAppProductSettings , null , false ); 
+		props.create( parent , new PropertyEntity[] { entityAppProductContext , entityAppProductSettings } , null , false ); 
 		return( props );
 	}
 
