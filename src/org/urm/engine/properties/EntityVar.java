@@ -23,6 +23,7 @@ public class EntityVar {
 	public boolean REQUIRED;
 	public boolean SECURED;
 	public String EXPR_DEF;
+	public String CUSTOMENUM_DEF;
 	public int VERSION;
 	
 	public Class<?> enumClass;
@@ -45,6 +46,7 @@ public class EntityVar {
 		r.REQUIRED = REQUIRED;
 		r.SECURED = SECURED;
 		r.EXPR_DEF = EXPR_DEF;
+		r.CUSTOMENUM_DEF = CUSTOMENUM_DEF;
 		r.VERSION = VERSION;
 		r.enumClass = enumClass;
 		if( customEnumValues != null )
@@ -218,6 +220,7 @@ public class EntityVar {
 		var.OBJECT_TYPE = objectType;
 		var.REQUIRED = required;
 		var.EXPR_DEF = Common.nonull( defValue );
+		var.CUSTOMENUM_DEF = ( customEnumValues == null )? "" : Common.getList( customEnumValues , " " );
 		var.enumClass = enumClass;
 		var.customEnumValues = ( customEnumValues == null )? null : customEnumValues.clone();
 		return( var );

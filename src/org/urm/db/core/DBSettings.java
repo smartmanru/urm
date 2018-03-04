@@ -30,7 +30,8 @@ public abstract class DBSettings {
 	public static String ELEMENT_CUSTOM = "custom";
 	public static String ELEMENT_DEFINE = "define";
 	public static String ATTR_NAME = "name"; 
-	public static String ATTR_VALUE = "value"; 
+	public static String ATTR_ENUMDEF = "enumdef";
+	public static String ATTR_VALUE = "value";
 	public static String ATTR_DESC = "desc";
 	public static String ATTR_SECURED = "secured"; 
 	public static String ATTR_TYPE = "type";
@@ -250,12 +251,8 @@ public abstract class DBSettings {
 				Common.xmlSetElementAttr( doc , nodeVar , ATTR_DESC , var.DESC );
 				Common.xmlSetElementAttr( doc , nodeVar , ATTR_TYPE , custom.exportxmlEnum( var.PARAMVALUE_TYPE ) );
 				Common.xmlSetElementBooleanAttr( doc , nodeVar , ATTR_SECURED , var.SECURED );
-				
-				// handle special custom enum case
-				if( var.isCustomEnum() )
-					Common.xmlSetElementAttr( doc , nodeVar , ATTR_VALUE , Common.getList( var.customEnumValues , " " ) );
-				else
-					Common.xmlSetElementAttr( doc , nodeVar , ATTR_VALUE , var.EXPR_DEF );
+				Common.xmlSetElementAttr( doc , nodeVar , ATTR_VALUE , var.EXPR_DEF );
+				Common.xmlSetElementAttr( doc , nodeVar , ATTR_ENUMDEF , var.CUSTOMENUM_DEF );
 			}
 			
 			String data = value.getOriginalValue();
@@ -562,14 +559,7 @@ public abstract class DBSettings {
 		var.VERSION = version;
 		String enumName = ( var.enumClass == null )? null : DBEnums.getEnumName( var.enumClass );
 		
-		// handle custom enum case
-		String exprDef = null;
-		if( var.PARAMVALUE_SUBTYPE == DBEnumParamValueSubType.CUSTOMENUM )
-			exprDef = Common.getList( var.customEnumValues , " " );
-		else
-			exprDef = var.EXPR_DEF;
-		
-		if( !c.modify( DBQueries.MODIFY_PARAM_ADDPARAM16 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_ADDPARAM17 , new String[] {
 			EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
 			EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 			EngineDB.getInteger( var.PARAM_ID ) ,
@@ -584,7 +574,8 @@ public abstract class DBSettings {
 			EngineDB.getString( enumName ) ,
 			EngineDB.getBoolean( var.REQUIRED ) ,
 			EngineDB.getBoolean( var.SECURED ) ,
-			EngineDB.getString( exprDef ) ,
+			EngineDB.getString( var.EXPR_DEF ) ,
+			EngineDB.getString( var.CUSTOMENUM_DEF ) ,
 			EngineDB.getInteger( version )
 			} ) )
 			Common.exitUnexpected();
@@ -594,7 +585,7 @@ public abstract class DBSettings {
 		DBNames.updateName( c , entity.PARAM_OBJECT_ID , var.NAME , var.PARAM_ID , DBEnumObjectType.PARAM );
 		var.VERSION = version;
 		String enumName = ( var.enumClass == null )? null : DBEnums.getEnumName( var.enumClass );
-		if( !c.modify( DBQueries.MODIFY_PARAM_UPDATEPARAM16 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_UPDATEPARAM17 , new String[] {
 				EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
 				EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 				EngineDB.getInteger( var.PARAM_ID ) ,
@@ -610,6 +601,7 @@ public abstract class DBSettings {
 				EngineDB.getBoolean( var.REQUIRED ) ,
 				EngineDB.getBoolean( var.SECURED ) ,
 				EngineDB.getString( var.EXPR_DEF ) ,
+				EngineDB.getString( var.CUSTOMENUM_DEF ) ,
 				EngineDB.getInteger( version )
 				} ) )
 				Common.exitUnexpected();
