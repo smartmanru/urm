@@ -651,19 +651,13 @@ public abstract class DBSettings {
 				String enumName = rs.getString( 9 );
 				Class<?> enumClass = ( enumName == null || enumName.isEmpty() )? null : DBEnums.getEnum( enumName );
 				
-				String exprDef = rs.getString( 12 );
-				String defValue = null;
-				
 				// handle custom enum case
 				String[] customEnumList = null;
+				String customEnumDef = "";
 				DBEnumParamValueSubType subType = DBEnumParamValueSubType.getValue( rs.getInt( 7 ) , false );
 				if( subType == DBEnumParamValueSubType.CUSTOMENUM ) {
-					defValue = "";
-					customEnumList = Common.splitSpaced( exprDef );
-				}
-				else {
-					defValue = exprDef;
-					customEnumList = null;
+					customEnumDef = rs.getString( 13 );
+					customEnumList = Common.splitSpaced( customEnumDef );
 				}
 				
 				EntityVar var = EntityVar.meta( 
@@ -676,11 +670,11 @@ public abstract class DBSettings {
 						DBEnumObjectType.getValue( rs.getInt( 8 ) , false ) ,
 						rs.getBoolean( 10 ) , 
 						rs.getBoolean( 11 ) ,
-						defValue ,
+						rs.getString( 12 ) ,
 						enumClass ,
 						customEnumList );
 				var.PARAM_ID = rs.getInt( 1 );
-				var.VERSION = rs.getInt( 13 );
+				var.VERSION = rs.getInt( 14 );
 				entity.addVar( var );
 			}
 		}
