@@ -90,7 +90,7 @@ public class EntityVar {
 			Common.exitUnexpected();
 		
 		Enum<?> defEnumValue = ( Enum<?> )defValue;
-		EntityVar var = meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubType.DEFAULT , DBEnumObjectType.UNKNOWN , required , false , null , defEnumValue.getClass() , null );
+		EntityVar var = meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubType.SYSENUM , DBEnumObjectType.UNKNOWN , required , false , null , defEnumValue.getClass() , null );
 		return( var );
 	}
 	
@@ -206,7 +206,7 @@ public class EntityVar {
 	}
 	
 	public static EntityVar metaObjectVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , DBEnumObjectType objectType , boolean required ) {
-		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubType.DEFAULT , objectType , required , false , null , null , null ) );
+		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.NUMBER , DBEnumParamValueSubType.SYSOBJECT , objectType , required , false , null , null , null ) );
 	}
 	
 	public static EntityVar meta( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , DBEnumObjectType objectType , boolean required , boolean secured , String defValue , Class<?> enumClass , String[] customEnumValues ) {

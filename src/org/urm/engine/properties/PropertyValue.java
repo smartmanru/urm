@@ -138,14 +138,6 @@ public class PropertyValue {
 		return( type );
 	}
 	
-	public String getOriginalValue() {
-		return( originalValue );
-	}
-	
-	public String getFinalValue() {
-		return( finalValue );
-	}
-	
 	public void setName( String propNew ) {
 		this.property = propNew;
 	}
@@ -306,10 +298,22 @@ public class PropertyValue {
 		return( Integer.parseInt( finalValue ) );
 	}
 	
+	public String getOriginalValue() {
+		return( originalValue );
+	}
+	
+	public String getFinalValue() {
+		return( finalValue );
+	}
+	
 	public String getExpressionValue() {
 		if( originalValue.isEmpty() )
 			return( defaultValue );
 		return( originalValue );
+	}
+
+	public String getDefaultValue() {
+		return( defaultValue );
 	}
 
 	public String getString() {

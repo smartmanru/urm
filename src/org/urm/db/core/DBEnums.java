@@ -135,6 +135,8 @@ public abstract class DBEnums {
 	public enum DBEnumParamValueSubType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		DEFAULT(1,null) ,
+		SYSENUM(2,null) ,
+		SYSOBJECT(3,null) ,
 		PATHABSOLUTE(10,null) ,
 		PATHABSOLUTEWINDOWS(11,null) ,
 		PATHABSOLUTELINUX(12,null) ,

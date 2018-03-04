@@ -431,6 +431,7 @@ public abstract class DBSettings {
 		String desc = ConfReader.getAttrValue( item , ATTR_DESC );
 		String typeName = ConfReader.getAttrValue( item , ATTR_TYPE );
 		String exprDef = ConfReader.getAttrValue( item , ATTR_VALUE );
+		String customEnumDef = ConfReader.getAttrValue( item , ATTR_ENUMDEF );
 		boolean secured = ConfReader.getBooleanAttrValue( item , ATTR_SECURED , false );
 		
 		DBEnumParamValueType type = null;
@@ -442,9 +443,9 @@ public abstract class DBSettings {
 		if( typeName.equals( VALUE_ENUM ) ) {
 			type = DBEnumParamValueType.STRING;
 			subType = DBEnumParamValueSubType.CUSTOMENUM;
-			customEnums = Common.splitSpaced( exprDef );
+			customEnums = Common.splitSpaced( customEnumDef );
 			if( customEnums.length == 0 )
-				Common.exitUnexpected();
+				Common.exit1( _Error.UnexpectedEmptyCustomEnum1 , "Custom variables is defined as empty enum, variable=" + prop , prop );
 		}
 		else {
 			if( typeName.isEmpty() )
