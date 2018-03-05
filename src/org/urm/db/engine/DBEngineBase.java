@@ -162,6 +162,7 @@ public abstract class DBEngineBase {
 			item.setOffline( true );
 		
 		modifyItem( c , item , true );
+		props.setOwnerId( item.ID );
 		DBSettings.importxmlSave( loader , props , item.ID , DBVersions.CORE_ID , true , false , item.CV ); 
 		
 		Node[] list = ConfReader.xmlGetChildren( root , ELEMENT_DEPITEM );
@@ -289,7 +290,8 @@ public abstract class DBEngineBase {
 				item.ID = entity.loaddbId( rs );
 				item.CV = entity.loaddbVersion( rs );
 				item.scatterProperties();
-						
+
+				p.setOwnerId( item.ID );
 				base.addItem( item );
 			}
 		}
@@ -402,6 +404,7 @@ public abstract class DBEngineBase {
 		BaseItem item = new BaseItem( group , p );
 		item.createBaseItem( name , desc );
 		modifyItem( c , item , true );
+		p.setOwnerId( item.ID );
 		
 		base.addItem( item );
 		return( item );

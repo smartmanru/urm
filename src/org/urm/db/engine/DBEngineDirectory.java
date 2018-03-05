@@ -178,6 +178,7 @@ public abstract class DBEngineDirectory {
 		system.createSystem( name , desc );
 		DBAppSystem.modifySystem( c , system , true );
 		DBSettings.savedbEntityCustom( c , props , system.ID , system.ID , system.SV );
+		props.setOwnerId( system.ID );
 		
 		directory.addSystem( system );
 		return( system );

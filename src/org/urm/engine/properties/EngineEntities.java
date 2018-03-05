@@ -218,6 +218,7 @@ public class EngineEntities {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.RC , nameRunContextSet , engine.execrc );
 		props.create( null , entityAppRC , entityCustomRC , true );
 		props.createCustom();
+		props.setOwnerId( DBVersions.LOCAL_ID );
 		return( props );
 	}
 
@@ -225,23 +226,27 @@ public class EngineEntities {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.ENGINE , nameEngineSettings , engine.execrc );
 		props.create( parent , entityAppEngine , entityCustomEngine , true );
 		props.createCustom();
+		props.setOwnerId( DBVersions.CORE_ID );
 		return( props );
 	}
 
 	public ObjectProperties createDefaultProductProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.PRODUCTDEFS , nameProductSet , engine.execrc );
-		props.create( parent , new PropertyEntity[] { entityAppProductContext , entityAppProductSettings } , null , false ); 
+		props.create( parent , new PropertyEntity[] { entityAppProductContext , entityAppProductSettings } , null , false );
+		props.setOwnerId( DBVersions.CORE_ID );
 		return( props );
 	}
 
 	public ObjectProperties createEngineMonitoringProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.MONITORING , nameEngineMonitoring , engine.execrc );
 		props.create( parent , entityAppEngineMonitoring , null , false ); 
+		props.setOwnerId( DBVersions.CORE_ID );
 		return( props );
 	}
 
 	public ObjectProperties createDefaultBuildCommonProps( ObjectProperties parent ) throws Exception {
-		return( createBuildCommonProps( parent , DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , true ) );
+		ObjectProperties ops = createBuildCommonProps( parent , DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , true );
+		return( ops );
 	}
 	
 	public ObjectProperties createDefaultBuildModeProps( ObjectProperties parent , DBEnumBuildModeType mode ) throws Exception {
@@ -255,6 +260,7 @@ public class EngineEntities {
 		
 		ObjectProperties props = new ObjectProperties( objectType , versionType , DBEnumParamRoleType.BUILDMODE_COMMON , set , engine.execrc );
 		props.create( parent , entityAppProductBuild , null , false );
+		props.setOwnerId( parent.ownerId );
 		return( props );
 	}
 
@@ -291,6 +297,7 @@ public class EngineEntities {
 		
 		ObjectProperties props = new ObjectProperties( objectType , versionType , role , set , engine.execrc );
 		props.create( parent , entityAppProductBuild , null , false ); 
+		props.setOwnerId( parent.ownerId );
 		return( props );
 	}
 
@@ -311,30 +318,28 @@ public class EngineEntities {
 	public ObjectProperties createLdapProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.LDAP , nameLdap , engine.execrc );
 		props.create( parent , entityAppLDAPSettings , null , false );
+		props.setOwnerId( DBVersions.CORE_ID );
 		return( props );
 	}
 
-	public ObjectProperties createDefaultProductContextProps() throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.PRODUCTCTX , nameProductContext , engine.execrc );
-		props.create( null , entityAppProductContext , null , false );
-		return( props );
-	}
-	
 	public ObjectProperties createMetaMonitoringProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.METAMON , nameMetaMonitoringSet , engine.execrc );
 		props.create( parent , entityAppMetaMonitoring , null , false );
+		props.setOwnerId( parent.ownerId );
 		return( props );
 	}
 	
-	public ObjectProperties createMetaProductProps( ObjectProperties parent ) throws Exception {
+	public ObjectProperties createMetaProductProps( int metaId , ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.DEFAULT , nameMetaProductSet , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_CUSTOM , -1 , DBEnumObjectVersionType.PRODUCT ); 
 		props.create( parent , new PropertyEntity[] { entityAppProductContext , entityAppProductSettings } , custom , true );
+		props.setOwnerId( metaId );
 		return( props );
 	}
 	
 	public ObjectProperties createMetaBuildCommonProps( ObjectProperties parent ) throws Exception {
-		return( createBuildCommonProps( parent , DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , false ) );
+		ObjectProperties ops = createBuildCommonProps( parent , DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , false );
+		return( ops );
 	}
 
 	public ObjectProperties createMetaBuildModeProps( ObjectProperties parent , DBEnumBuildModeType mode ) throws Exception {
@@ -352,6 +357,7 @@ public class EngineEntities {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ENVIRONMENT_SEGMENT , DBEnumObjectVersionType.ENVIRONMENT , DBEnumParamRoleType.DEFAULT , nameMetaEnvSegmentSet , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.ENV_SEGMENT_CUSTOM , -1 , DBEnumObjectVersionType.ENVIRONMENT ); 
 		props.create( parent , new PropertyEntity[] { entityAppSegmentPrimary } , custom , false );
+		props.setOwnerId( parent.ownerId );
 		return( props );
 	}
 	
@@ -359,6 +365,7 @@ public class EngineEntities {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ENVIRONMENT_SERVER , DBEnumObjectVersionType.ENVIRONMENT , DBEnumParamRoleType.DEFAULT , nameMetaEnvServerSet , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.ENV_SERVER_CUSTOM , -1 , DBEnumObjectVersionType.ENVIRONMENT ); 
 		props.create( parent , new PropertyEntity[] { entityAppServerPrimary , entityAppServerExtra } , custom , false );
+		props.setOwnerId( parent.ownerId );
 		return( props );
 	}
 	
@@ -366,6 +373,7 @@ public class EngineEntities {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ENVIRONMENT_SERVER , DBEnumObjectVersionType.ENVIRONMENT , DBEnumParamRoleType.SERVERBASE , nameMetaEnvServerBaseSet , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.ENV_SERVER_CUSTOM , -1 , DBEnumObjectVersionType.ENVIRONMENT ); 
 		props.create( parent , new PropertyEntity[] { entityAppBaseItem } , custom , false );
+		props.setOwnerId( parent.ownerId );
 		return( props );
 	}
 	
@@ -373,7 +381,32 @@ public class EngineEntities {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ENVIRONMENT_NODE , DBEnumObjectVersionType.ENVIRONMENT , DBEnumParamRoleType.DEFAULT , nameMetaEnvServerNodeSet , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.ENV_NODE_CUSTOM , -1 , DBEnumObjectVersionType.ENVIRONMENT ); 
 		props.create( parent , new PropertyEntity[] { entityAppNodePrimary } , custom , false );
+		props.setOwnerId( parent.ownerId );
 		return( props );
+	}
+
+	public boolean isRunContext( ObjectProperties ops ) {
+		if( nameRunContextSet.equals( ops.getName() ) )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isEngineCore( ObjectProperties ops ) {
+		if( nameEngineSettings.equals( ops.getName() ) )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isSystemCore( ObjectProperties ops ) {
+		if( nameSystem.equals( ops.getName() ) )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isProductCore( ObjectProperties ops ) {
+		if( nameMetaProductSet.equals( ops.getName() ) )
+			return( true );
+		return( false );
 	}
 	
 }

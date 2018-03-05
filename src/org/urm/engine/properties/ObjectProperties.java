@@ -17,6 +17,7 @@ import org.urm.engine.shell.ShellExecutor;
 
 public class ObjectProperties {
 
+	public int ownerId;
 	public DBEnumObjectType objectType;				// owner object type
 	public DBEnumObjectVersionType versionType;		// type of module object, owning entity data
 	public DBEnumParamRoleType roleType;
@@ -51,6 +52,7 @@ public class ObjectProperties {
 
 	public ObjectProperties copy( ObjectProperties parent ) {
 		ObjectProperties r = new ObjectProperties( objectType , versionType , roleType , setName , execrc );
+		r.ownerId = ownerId;
 		r.parent = parent;
 		r.loadFailed = loadFailed;
 		r.loadFinished = loadFinished;
@@ -63,6 +65,10 @@ public class ObjectProperties {
 		return( r );
 	}
 
+	public void setOwnerId( int ownerId ) {
+		this.ownerId = ownerId;
+	}
+	
 	public void create( ObjectProperties parent , PropertyEntity entityFixed , PropertyEntity entityCustom , boolean customDefineAllowed ) throws Exception {
 		create( parent , new PropertyEntity[] { entityFixed } , entityCustom , customDefineAllowed );
 	}
@@ -350,6 +356,10 @@ public class ObjectProperties {
 	public void recalculateChildProperties() throws Exception {
 		for( ObjectProperties child : childs )
 			child.parentPropertiesModified();
+	}
+	
+	public ObjectProperties[] getChildProperties() throws Exception {
+		return( childs.toArray( new ObjectProperties[0] ) );
 	}
 	
 	public void parentPropertiesModified() throws Exception {

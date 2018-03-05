@@ -231,6 +231,7 @@ public class EntityVar {
 		var.PARAMVALUE_SUBTYPE = subtype;
 		var.OBJECT_TYPE = objectType;
 		var.REQUIRED = required;
+		var.SECURED = secured;
 		var.EXPR_DEF = Common.nonull( defValue );
 		var.CUSTOMENUM_DEF = ( customEnumValues == null )? "" : Common.getListSpaced( customEnumValues );
 		var.enumClass = enumClass;

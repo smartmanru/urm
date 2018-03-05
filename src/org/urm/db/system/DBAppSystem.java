@@ -42,6 +42,7 @@ public abstract class DBAppSystem {
 				);
 		system.setOffline( ConfReader.getBooleanAttrValue( node , AppSystem.PROPERTY_OFFLINE , true ) );
 		modifySystem( c , system , true );
+		props.setOwnerId( system.ID );
 		DBSettings.importxml( loader , node , props , system.ID , system.ID , false , true , system.SV );
 		
 		return( system );
@@ -76,6 +77,8 @@ public abstract class DBAppSystem {
 						);
 				system.setOffline( entity.loaddbBoolean( rs , AppSystem.PROPERTY_OFFLINE ) );
 				system.setMatched( entity.loaddbBoolean( rs , AppSystem.PROPERTY_MATCHED ) );
+				
+				props.setOwnerId( system.ID );
 				systems.add( system );
 			}
 		}

@@ -44,7 +44,7 @@ public class DBMetaSettings {
 
 		// context, custom, core settings
 		AppSystem system = product.system;
-		ObjectProperties ops = entities.createMetaProductProps( system.getParameters() );
+		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
 		DBSettings.savedbEntityCustom( c , ops , storage.ID , storage.ID , version );
 		DBSettings.savedbPropertyValues( c , storage.ID , ops , false , true , version );
 		ops.recalculateProperties();
@@ -91,7 +91,7 @@ public class DBMetaSettings {
 
 		// context, custom settings
 		AppSystem system = product.system;
-		ObjectProperties ops = entities.createMetaProductProps( system.getParameters() );
+		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
 		DBSettings.importxml( loader , root , ops , storage.ID , storage.ID , false , true , storage.PV );
 		
 		// core settings
@@ -151,7 +151,7 @@ public class DBMetaSettings {
 		AppSystem system = storage.product.system;
 		
 		// context, custom, core settings
-		ObjectProperties ops = entities.createMetaProductProps( system.getParameters() );
+		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
 		ObjectMeta meta = ops.getMeta();
 		DBSettings.loaddbCustomEntity( c , meta , storage.ID );
 		ops.createCustom();

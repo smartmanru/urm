@@ -907,6 +907,6 @@ public abstract class DBSettings {
 			c.closeQuery();
 		}
 	}
-	
+
 }
 
