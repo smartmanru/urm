@@ -30,7 +30,7 @@ public class EngineBlotterReleaseItem extends EngineBlotterItem {
 			version[ k ] = s.substring( version[ k ].length() );
 		}
 			 
-		return( repoItem.repo.meta.name + "-" + Common.getList( version , "." ) + "-" + RELEASEVARIANT );
+		return( repoItem.repo.meta.name + "-" + Common.getListDotted( version ) + "-" + RELEASEVARIANT );
 	}
 	
 }

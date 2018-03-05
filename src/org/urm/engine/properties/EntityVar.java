@@ -55,10 +55,22 @@ public class EntityVar {
 		return( r );
 	}
 
-	public void modifyCustom( String name , String desc , String defvalue ) {
+	public void modifyCustom( String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) {
 		this.NAME = name;
 		this.DESC = Common.nonull( desc );
-		this.EXPR_DEF = Common.nonull( defvalue );
+		this.EXPR_DEF = Common.nonull( defValue );
+		this.PARAMVALUE_TYPE = type;
+		this.PARAMVALUE_SUBTYPE = subtype;
+		this.SECURED = secured;
+
+		if( PARAMVALUE_SUBTYPE == DBEnumParamValueSubType.CUSTOMENUM ) {
+			this.CUSTOMENUM_DEF = ( enumList == null )? "" : Common.getListSpaced( enumList );
+			this.customEnumValues = enumList.clone();
+		}
+		else {
+			this.CUSTOMENUM_DEF = "";
+			this.customEnumValues = null;
+		}
 	}
 	
 	public boolean isDefaultEmpty() {
@@ -220,7 +232,7 @@ public class EntityVar {
 		var.OBJECT_TYPE = objectType;
 		var.REQUIRED = required;
 		var.EXPR_DEF = Common.nonull( defValue );
-		var.CUSTOMENUM_DEF = ( customEnumValues == null )? "" : Common.getList( customEnumValues , " " );
+		var.CUSTOMENUM_DEF = ( customEnumValues == null )? "" : Common.getListSpaced( customEnumValues );
 		var.enumClass = enumClass;
 		var.customEnumValues = ( customEnumValues == null )? null : customEnumValues.clone();
 		return( var );

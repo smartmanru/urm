@@ -36,6 +36,7 @@ public class EngineSession extends EngineObject {
 	private boolean closed;
 	
 	private Map<String,Meta> productMeta;
+	private Map<Integer,Meta> productMetaById;
 	private SessionSecurity security;
 	
 	public EngineSession( SessionController controller , SessionSecurity security , RunContext clientrc , int sessionId , boolean client ) {
@@ -52,6 +53,7 @@ public class EngineSession extends EngineObject {
 		
 		timestamp = Common.getNameTimeStamp();
 		productMeta = new HashMap<String,Meta>();
+		productMetaById = new HashMap<Integer,Meta>();
 		closed = false;
 	}
 
@@ -85,12 +87,18 @@ public class EngineSession extends EngineObject {
 		return( productMeta.get( productName ) );
 	}
 
+	public synchronized Meta findMeta( int metaId ) {
+		return( productMetaById.get( metaId ) );
+	}
+
 	public synchronized void addProductMeta( Meta meta ) {
 		productMeta.put( meta.name , meta );
+		productMetaById.put( meta.getId() , meta );
 	}
 	
 	public synchronized void releaseProductMeta( Meta meta ) {
 		productMeta.remove( meta.name );
+		productMetaById.remove( meta.getId() );
 	}
 	
 	public void setLoginAuth( AuthContext ac ) {

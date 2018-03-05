@@ -154,6 +154,7 @@ public class DBMetaSettings {
 		ObjectProperties ops = entities.createMetaProductProps( system.getParameters() );
 		ObjectMeta meta = ops.getMeta();
 		DBSettings.loaddbCustomEntity( c , meta , storage.ID );
+		ops.createCustom();
 		DBSettings.loaddbValues( loader , storage.ID , ops );
 		ops.recalculateProperties();
 

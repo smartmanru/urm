@@ -366,7 +366,7 @@ public class DBMetaEnvSegment {
 		for( MetaEnvStartGroup startGroup : startInfo.getForwardGroupList() ) {
 			Element nodeStartGroup = Common.xmlCreateElement( doc , nodeStartOrder , ELEMENT_STARTGROUP );
 			
-			String servers = Common.getList( startGroup.getServerNames() , " " );
+			String servers = Common.getListSpaced( startGroup.getServerNames() );
 			DBEngineEntities.exportxmlAppObject( doc , nodeStartGroup , entity , new String[] {
 					entity.exportxmlString( startGroup.NAME ) ,
 					entity.exportxmlString( sg.DESC ) ,

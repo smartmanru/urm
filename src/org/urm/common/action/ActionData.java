@@ -170,7 +170,7 @@ public class ActionData implements Serializable {
 		}
 		
 		String info = "execute options={" + values + "}, args={" + 
-				Common.getList( args.toArray( new String[0] ) , ", " ) + "}";
+				Common.getListCommaSpaced( args.toArray( new String[0] ) ) + "}";
 		return( info );
 	}
 	

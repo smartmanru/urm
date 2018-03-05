@@ -20,6 +20,8 @@ import org.urm.engine.properties.PropertyValue;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -138,8 +140,8 @@ public abstract class DBSettings {
 			Common.exit1( _Error.SettingsImportErrors1 , "Errors on settings import, set object=" + properties.objectType.name() , "" + properties.objectType.name() );
 	}
 
-	private static void importxmlLoadCustom( EngineLoader loader , Node root , ObjectProperties properties ) throws Exception {
-		ObjectMeta meta = properties.getMeta();
+	private static void importxmlLoadCustom( EngineLoader loader , Node root , ObjectProperties ops ) throws Exception {
+		ObjectMeta meta = ops.getMeta();
 		PropertyEntity custom = meta.getCustomEntity();
 		
 		if( custom != null ) {
@@ -155,14 +157,14 @@ public abstract class DBSettings {
 		// import property definition
 		Node define = ConfReader.xmlGetFirstChild( root , ELEMENT_DEFINE );
 		if( define != null ) {
-			if( !properties.isCustomDefineAllowed() )
+			if( !ops.isCustomDefineAllowed() )
 				Common.exitUnexpected();
 			
 			Node[] props = ConfReader.xmlGetChildren( define , ELEMENT_PROPERTY );
 			if( props != null ) {
 				for( Node item : props ) {
 					try {
-						importxmlGetDefineCustomProperty( loader , item , properties );
+						importxmlGetDefineCustomProperty( loader , item , ops );
 					}
 					catch( Throwable e ) {
 						loader.trace( "property definition load error: " + e.toString() );
@@ -172,13 +174,15 @@ public abstract class DBSettings {
 				
 				meta.rebuild();
 			}
+			
+			ops.createCustom();
 		}
 		
 		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_PROPERTY );
 		if( items != null ) {
 			for( Node item : items ) {
 				try {
-					importxmlGetProperty( loader , item , properties , false , true , null );
+					importxmlGetProperty( loader , item , ops , false , true , null );
 				}
 				catch( Throwable e ) {
 					loader.trace( "property load error: " + e.toString() );
@@ -190,7 +194,7 @@ public abstract class DBSettings {
 		}
 
 		if( !ok )
-			Common.exit1( _Error.SettingsImportErrors1 , "Errors on settings import, set object=" + properties.objectType.name() , "" + properties.objectType.name() );
+			Common.exit1( _Error.SettingsImportErrors1 , "Errors on settings import, set object=" + ops.objectType.name() , "" + ops.objectType.name() );
 	}
 
 	public static void importxmlSave( EngineLoader loader , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean saveApp , boolean saveCustom , int version ) throws Exception {
@@ -458,7 +462,6 @@ public abstract class DBSettings {
 		
 		var = EntityVar.meta( prop , prop , prop , desc , type , subType , DBEnumObjectType.UNKNOWN , false , secured , defValue , null , customEnums );
 		custom.addVar( var );
-		properties.createProperty( var );
 	}		
 
 	private static EntityVar findParentXmlVar( ObjectProperties properties , String xmlprop ) {
@@ -842,6 +845,12 @@ public abstract class DBSettings {
 			EngineDirectory directory = transaction.getTransactionDirectory();
 			AppSystem system = directory.getSystem( entity.META_OBJECT_ID );
 			version = c.getNextSystemVersion( system );
+		}
+		else
+		if( entity.META_OBJECTVERSION_TYPE == DBEnumObjectVersionType.PRODUCT ) {
+			Meta meta = transaction.getTransactionMetadata( entity.META_OBJECT_ID );
+			ProductMeta storage = transaction.getTransactionProductMetadata( meta );
+			version = c.getNextProductVersion( storage );
 		}
 		else
 			transaction.exitUnexpectedState();

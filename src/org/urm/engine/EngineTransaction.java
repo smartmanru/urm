@@ -70,18 +70,18 @@ public class EngineTransaction extends TransactionBase {
 		settings.setProductBuildModeDefaultsProperties( this , mode , props );
 	}
 
-	public EntityVar createCustomProperty( int ownerId , ObjectProperties ops , String name , String desc , String defvalue ) throws Exception {
+	public EntityVar createCustomProperty( int ownerId , ObjectProperties ops , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) throws Exception {
 		super.checkTransactionCustomProperty( ownerId , ops );
 		EngineEntities entities = getEntities();
-		EntityVar var = DBEngineEntities.createCustomProperty( this , entities , ownerId , ops , name , desc , defvalue );
+		EntityVar var = DBEngineEntities.createCustomProperty( this , entities , ownerId , ops , name , desc , type , subtype , defValue , secured , enumList );
 		entityNew = var.entity;
 		return( var );
 	}
 	
-	public EntityVar modifyCustomProperty( int ownerId , ObjectProperties ops , int paramId , String name , String desc , String defvalue ) throws Exception {
+	public EntityVar modifyCustomProperty( int ownerId , ObjectProperties ops , int paramId , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) throws Exception {
 		super.checkTransactionCustomProperty( ownerId , ops );
 		EngineEntities entities = getEntities();
-		EntityVar var = DBEngineEntities.modifyCustomProperty( this , entities , ownerId , ops , paramId , name , desc , defvalue );
+		EntityVar var = DBEngineEntities.modifyCustomProperty( this , entities , ownerId , ops , paramId , name , desc , type , subtype , defValue , secured , enumList );
 		entityNew = var.entity;
 		return( var );
 	}

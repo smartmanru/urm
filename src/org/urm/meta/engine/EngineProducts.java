@@ -20,21 +20,25 @@ public class EngineProducts {
 	private ProductMeta offline;
 	private Map<String,ProductMeta> productMeta;
 	private Map<String,ProductMeta> productMetaSkipped;
+	private Map<Integer,ProductMeta> productMetaById;
 	
 	public EngineProducts( Engine engine ) {
 		this.engine = engine;
 		productMeta = new HashMap<String,ProductMeta>();
 		productMetaSkipped = new HashMap<String,ProductMeta>();
+		productMetaById = new HashMap<Integer,ProductMeta>();
 	}
 	
 	private synchronized void addProduct( ProductMeta set ) {
 		productMeta.put( set.name , set );
 		productMetaSkipped.remove( set.name );
+		productMetaById.put( set.ID , set );
 	}
 	
 	public synchronized void addProductSkipped( ProductMeta set ) {
 		productMetaSkipped.put( set.name , set );
 		productMeta.remove( set.name );
+		productMetaById.remove( set.ID );
 	}
 	
 	public synchronized void addEnv( MetaEnv env ) {
@@ -90,6 +94,25 @@ public class EngineProducts {
 		return( meta );
 	}
 
+	public synchronized Meta getSessionProductMetadata( ActionBase action , int metaId , boolean primary ) throws Exception {
+		EngineSession session = action.session;
+		Meta meta = session.findMeta( metaId );
+		if( meta != null ) {
+			if( primary ) {
+				ProductMeta storage = meta.getStorage();
+				if( !storage.isPrimary() ) {
+					ProductMeta storageNew = getMetaStorage( action , session , metaId );
+					meta.replaceStorage( action , storageNew );
+				}
+			}
+			return( meta );
+		}
+		
+		ProductMeta storage = getMetaStorage( action , session , metaId );
+		meta = createSessionProductMetadata( action , storage );
+		return( meta );
+	}
+
 	public synchronized Meta createSessionProductMetadata( ActionBase action , ProductMeta storage ) throws Exception {
 		EngineSession session = action.session;
 		Meta meta = new Meta( storage , session );
@@ -125,6 +148,14 @@ public class EngineProducts {
 		ProductMeta storage = productMeta.get( productName );
 		if( storage == null )
 			action.exit1( _Error.UnknownSessionProduct1 , "unknown product=" + productName , productName );
+		
+		return( storage );
+	}
+
+	private ProductMeta getMetaStorage( ActionBase action , EngineSession session , int metaId ) throws Exception {
+		ProductMeta storage = productMetaById.get( metaId );
+		if( storage == null )
+			action.exit1( _Error.UnknownSessionProduct1 , "unknown product=" + metaId , "" + metaId );
 		
 		return( storage );
 	}

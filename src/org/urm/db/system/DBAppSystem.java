@@ -88,6 +88,7 @@ public abstract class DBAppSystem {
 			ObjectMeta meta = props.getMeta();
 			
 			DBSettings.loaddbCustomEntity( c , meta , system.ID );
+			props.createCustom();
 			DBSettings.loaddbValues( loader , system.ID , props );
 		}
 		

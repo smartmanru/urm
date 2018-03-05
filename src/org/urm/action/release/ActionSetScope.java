@@ -226,28 +226,28 @@ public class ActionSetScope extends ActionBase {
 		// descope missing
 		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
 			for( ReleaseTargetItem item : delivery.getProjectItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distItem.NAME } , "/" ) );
+				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distItem.NAME } ) );
 				if( checkItem == null ) {
 					dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
 					continue;
 				}
 			}
 			for( ReleaseTarget item : delivery.getManualItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distManualItem.NAME } , "/" ) );
+				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distManualItem.NAME } ) );
 				if( checkItem == null ) {
 					dist.descopeTarget( this , item );
 					continue;
 				}
 			}
 			for( ReleaseTarget item : delivery.getDerivedItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distDerivedItem.NAME } , "/" ) );
+				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distDerivedItem.NAME } ) );
 				if( checkItem == null ) {
 					dist.descopeTarget( this , item );
 					continue;
 				}
 			}
 			for( ReleaseTarget item : delivery.getConfItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , SCOPEITEM_CONF , item.distConfItem.NAME } , "/" ) );
+				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_CONF , item.distConfItem.NAME } ) );
 				if( checkItem == null ) {
 					dist.descopeTarget( this , item );
 					continue;
@@ -255,7 +255,7 @@ public class ActionSetScope extends ActionBase {
 			}
 			
 			for( ReleaseTargetItem item : delivery.getDatabaseItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , SCOPEITEM_SCHEMA , item.schema.NAME } , "/" ) );
+				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_SCHEMA , item.schema.NAME } ) );
 				if( checkItem == null ) {
 					dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
 					continue;
@@ -263,7 +263,7 @@ public class ActionSetScope extends ActionBase {
 			}
 			
 			for( ReleaseTargetItem item : delivery.getDocItems() ) {
-				String checkItem = check.get( Common.getList( new String[] { delivery.distDelivery.NAME , SCOPEITEM_DOC , item.doc.NAME } , "/" ) );
+				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_DOC , item.doc.NAME } ) );
 				if( checkItem == null ) {
 					dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
 					continue;
@@ -277,12 +277,12 @@ public class ActionSetScope extends ActionBase {
 		for( MetaDistrBinaryItem binaryItem : delivery.getBinaryItems() ) {
 			if( !dist.addBinaryItem( this , binaryItem ) )
 				return( false );
-			check.put( Common.getList( new String[] { delivery.NAME , SCOPEITEM_BINARY , binaryItem.NAME } , "/" ) , "binary" );
+			check.put( Common.getListPath( new String[] { delivery.NAME , SCOPEITEM_BINARY , binaryItem.NAME } ) , "binary" );
 		}
 		for( MetaDistrConfItem confItem : delivery.getConfItems() ) {
 			if( !dist.addConfItem( this , confItem ) )
 				return( false );
-			check.put( Common.getList( new String[] { delivery.NAME , SCOPEITEM_CONF , confItem.NAME } , "/" ) , "conf" );
+			check.put( Common.getListPath( new String[] { delivery.NAME , SCOPEITEM_CONF , confItem.NAME } ) , "conf" );
 		}
 		if( delivery.hasDatabaseItems() ) {
 			if( !addDeliveryAllSchemes( check , delivery ) )
@@ -300,7 +300,7 @@ public class ActionSetScope extends ActionBase {
 			return( false );
 		
 		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() )
-			check.put( Common.getList( new String[] { delivery.NAME , SCOPEITEM_SCHEMA , schema.NAME } , "/" ) , "database" );
+			check.put( Common.getListPath( new String[] { delivery.NAME , SCOPEITEM_SCHEMA , schema.NAME } ) , "database" );
 		return( true );
 	}
 	
@@ -309,7 +309,7 @@ public class ActionSetScope extends ActionBase {
 			return( false );
 		
 		for( MetaProductDoc doc : delivery.getDocs() )
-			check.put( Common.getList( new String[] { delivery.NAME , SCOPEITEM_DOC , doc.NAME } , "/" ) , "doc" );
+			check.put( Common.getListPath( new String[] { delivery.NAME , SCOPEITEM_DOC , doc.NAME } ) , "doc" );
 		return( true );
 	}
 	

@@ -156,7 +156,7 @@ public class DBUpgrade {
 				run.add( out );
 		}
 		
-		return( Common.getList( run.toArray( new String[0] ) , "\n" ) );
+		return( Common.getListLines( run.toArray( new String[0] ) ) );
 	}
 	
 }

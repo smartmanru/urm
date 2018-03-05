@@ -833,7 +833,7 @@ public class Dist {
 			if( folder.checkExists( action ) ) {
 				FileSet fs = folder.getFileSet( action );
 				String[] files = DatabaseScriptFile.getDistSchemaFiles( fs , item.schema );
-				folder.removeFiles( action , Common.getList( files , " " ) );
+				folder.removeFiles( action , Common.getListSpaced( files ) );
 			}
 		}
 		else

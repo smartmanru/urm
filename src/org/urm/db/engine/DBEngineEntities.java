@@ -4,7 +4,10 @@ import java.sql.ResultSet;
 
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
+import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
+import org.urm.db.core.DBEnums.DBEnumParamValueSubType;
+import org.urm.db.core.DBEnums.DBEnumParamValueType;
 import org.urm.db.core.DBSettings;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
@@ -194,7 +197,7 @@ public abstract class DBEngineEntities {
 		}
 	}
 
-	public static EntityVar createCustomProperty( EngineTransaction transaction , EngineEntities entities , int ownerId , ObjectProperties ops , String name , String desc , String defvalue ) throws Exception {
+	public static EntityVar createCustomProperty( EngineTransaction transaction , EngineEntities entities , int ownerId , ObjectProperties ops , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
 		if( entity.META_OBJECT_ID != ownerId )
@@ -203,8 +206,13 @@ public abstract class DBEngineEntities {
 		// check unique
 		if( entity.findVar( name ) != null )
 			Common.exitUnexpected();
+
+		if( enumList != null && defValue.isEmpty() == false ) {
+			if( Common.getIndexOf( enumList , defValue ) < 0 )
+				Common.exitUnexpected();
+		}
 		
-		EntityVar var = EntityVar.metaString( name , desc , false , defvalue );
+		EntityVar var = EntityVar.meta( name , name , name , desc , type , subtype , DBEnumObjectType.UNKNOWN , false , secured , defValue , null , enumList );
 		DBSettings.createCustomProperty( transaction , entity , var );
 		meta.rebuild();
 		
@@ -212,7 +220,7 @@ public abstract class DBEngineEntities {
 		return( var );
 	}
 	
-	public static EntityVar modifyCustomProperty( EngineTransaction transaction , EngineEntities entities , int ownerId , ObjectProperties ops , int paramId , String name , String desc , String defvalue ) throws Exception {
+	public static EntityVar modifyCustomProperty( EngineTransaction transaction , EngineEntities entities , int ownerId , ObjectProperties ops , int paramId , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
 		if( entity.META_OBJECT_ID != ownerId )
@@ -225,12 +233,12 @@ public abstract class DBEngineEntities {
 			Common.exitUnexpected();
 		
 		String originalName = var.NAME;
-		var.modifyCustom( name , desc , defvalue );
+		var.modifyCustom( name , desc , type , subtype , defValue , secured , enumList );
 		DBSettings.modifyCustomProperty( transaction , var );
 
 		PropertySet set = ops.getProperties();
 		PropertyValue pv = set.renameCustomProperty( originalName , name );
-		pv.setDefault( defvalue );
+		pv.setDefault( defValue );
 		
 		meta.rebuild();
 		ops.recalculateProperties();

@@ -217,12 +217,14 @@ public class EngineEntities {
 	public ObjectProperties createRunContextProps() throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.RC , nameRunContextSet , engine.execrc );
 		props.create( null , entityAppRC , entityCustomRC , true );
+		props.createCustom();
 		return( props );
 	}
 
 	public ObjectProperties createEngineProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.ENGINE , nameEngineSettings , engine.execrc );
-		props.create( parent , entityAppEngine , entityCustomEngine , true ); 
+		props.create( parent , entityAppEngine , entityCustomEngine , true );
+		props.createCustom();
 		return( props );
 	}
 

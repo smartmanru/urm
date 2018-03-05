@@ -906,6 +906,10 @@ abstract public class ActionBase extends ActionCore {
 		return( actionInit.getActiveProductMetadata( productName ) );
 	}
 
+	public Meta getProductMetadata( int metaId ) throws Exception {
+		return( actionInit.getActiveProductMetadata( metaId ) );
+	}
+
 	public Meta findProductMetadata( String productName ) {
 		return( actionInit.findActiveProductMetadata( productName ) );
 	}

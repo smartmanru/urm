@@ -229,6 +229,30 @@ public class Common {
 		
 		return( value );
 	}
+
+	public static String getListLines( String[] items ) {
+		return( getList( items , "\n" ) );
+	}
+	
+	public static String getListSpaced( String[] items ) {
+		return( getList( items , " " ) );
+	}
+	
+	public static String getListDotted( String[] items ) {
+		return( getList( items , "." ) );
+	}
+	
+	public static String getListComma( String[] items ) {
+		return( getList( items , "," ) );
+	}
+	
+	public static String getListCommaSpaced( String[] items ) {
+		return( getList( items , ", " ) );
+	}
+	
+	public static String getListPath( String[] items ) {
+		return( getList( items , "/" ) );
+	}
 	
 	public static String getList( String[] items , String delimiter ) {
 		String value = "";

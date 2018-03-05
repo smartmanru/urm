@@ -208,6 +208,10 @@ public class EngineData {
 		return( products.getSessionProductMetadata( action , productName , primary ) );
 	}
 
+	public Meta getSessionProductMetadata( ActionBase action , int metaId , boolean primary ) throws Exception {
+		return( products.getSessionProductMetadata( action , metaId , primary ) );
+	}
+
 	public void releaseSessionProductMetadata( ActionBase action , Meta meta ) throws Exception {
 		products.releaseSessionProductMetadata( action , meta );
 	}
