@@ -1118,7 +1118,7 @@ public class TransactionBase extends EngineObject {
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
 	}
 
-	protected void checkTransactionCustomProperty( int ownerId , ObjectProperties ops ) throws Exception {
+	protected void checkTransactionCustomProperty( ObjectProperties ops ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
 		
@@ -1132,7 +1132,7 @@ public class TransactionBase extends EngineObject {
 		}
 		else
 		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.PRODUCT_CUSTOM ) {
-			Meta productMeta = getTransactionMetadata( ownerId );
+			Meta productMeta = getTransactionMetadata( ops.ownerId );
 			if( productMeta == null )
 				exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
 		}

@@ -197,10 +197,10 @@ public abstract class DBEngineEntities {
 		}
 	}
 
-	public static EntityVar createCustomProperty( EngineTransaction transaction , EngineEntities entities , int ownerId , ObjectProperties ops , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) throws Exception {
+	public static EntityVar createCustomProperty( EngineTransaction transaction , EngineEntities entities , ObjectProperties ops , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
-		if( entity.META_OBJECT_ID != ownerId )
+		if( entity.META_OBJECT_ID != ops.ownerId )
 			transaction.exitUnexpectedState();
 
 		// check unique
@@ -217,13 +217,14 @@ public abstract class DBEngineEntities {
 		meta.rebuild();
 		
 		ops.createProperty( var );
+		recalculateProperties( transaction , ops );
 		return( var );
 	}
 	
-	public static EntityVar modifyCustomProperty( EngineTransaction transaction , EngineEntities entities , int ownerId , ObjectProperties ops , int paramId , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) throws Exception {
+	public static EntityVar modifyCustomProperty( EngineTransaction transaction , EngineEntities entities , ObjectProperties ops , int paramId , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
-		if( entity.META_OBJECT_ID != ownerId )
+		if( entity.META_OBJECT_ID != ops.ownerId )
 			transaction.exitUnexpectedState();
 			
 		// check unique
@@ -237,19 +238,27 @@ public abstract class DBEngineEntities {
 		DBSettings.modifyCustomProperty( transaction , var );
 
 		PropertySet set = ops.getProperties();
-		PropertyValue pv = set.renameCustomProperty( originalName , name );
-		pv.setDefault( defValue );
+		if( !originalName.equals( name ) ) {
+			PropertyValue pv = set.renameCustomProperty( originalName , name );
+			pv.setDefault( defValue );
+		}
+		else {
+			PropertyValue pv = ops.getProperty( name );
+			pv.setDefault( defValue );
+		}
 		
 		meta.rebuild();
-		ops.recalculateProperties();
+		if( !originalName.equals( name ) )
+			renameProperty( transaction , ops , originalName , name );
+		recalculateProperties( transaction , ops );
 		
 		return( var );
 	}
 	
-	public static void deleteCustomProperty( EngineTransaction transaction , EngineEntities entities , int ownerId , ObjectProperties ops , int paramId ) throws Exception {
+	public static void deleteCustomProperty( EngineTransaction transaction , EngineEntities entities , ObjectProperties ops , int paramId ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
-		if( entity.META_OBJECT_ID != ownerId )
+		if( entity.META_OBJECT_ID != ops.ownerId )
 			transaction.exitUnexpectedState();
 		
 		EntityVar var = meta.getVar( paramId );
@@ -258,7 +267,54 @@ public abstract class DBEngineEntities {
 		set.removeCustomProperty( var.NAME );
 		
 		meta.rebuild();
+		deleteProperty( transaction , ops , var.NAME );
+		recalculateProperties( transaction , ops );
+	}
+
+	private static void renameProperty( EngineTransaction transaction , ObjectProperties ops , String originalName , String name ) throws Exception {
+		renameObjectProperty( transaction , ops , originalName , name );
+		for( ObjectProperties child : ops.getChildProperties() ) {
+			if( child.versionType == ops.versionType )
+				renameProperty( transaction , ops , originalName , name );
+		}
+	}
+
+	private static void deleteProperty( EngineTransaction transaction , ObjectProperties ops , String name ) throws Exception {
+		deleteObjectProperty( transaction , ops , name );
+		for( ObjectProperties child : ops.getChildProperties() ) {
+			if( child.versionType == ops.versionType )
+				deleteProperty( transaction , ops , name );
+		}
+	}
+
+	private static void recalculateProperties( EngineTransaction transaction , ObjectProperties ops ) throws Exception {
 		ops.recalculateProperties();
+		ops.recalculateChildProperties();
+	}
+
+	private static void renameObjectProperty( EngineTransaction transaction , ObjectProperties ops , String originalName , String name ) throws Exception {
+		String refOld = EntityVar.p( originalName );
+		String refNew = EntityVar.p( name );
+		for( String prop : ops.getPropertyList() ) {
+			EntityVar var = ops.getVar( prop );
+			PropertyValue pv = ops.getProperty( prop );
+			String originalValue = pv.getOriginalValue();
+			if( originalValue.indexOf( refOld ) >= 0 ) {
+				originalValue = Common.replace( originalValue , refOld , refNew );
+				DBSettings.modifyPropertyValue( transaction , ops , var );
+				ops.setProperty( var , originalValue );
+			}
+		}
+	}
+
+	private static void deleteObjectProperty( EngineTransaction transaction , ObjectProperties ops , String name ) throws Exception {
+		String ref = EntityVar.p( name );
+		for( String prop : ops.getPropertyList() ) {
+			PropertyValue pv = ops.getProperty( prop );
+			String originalValue = pv.getOriginalValue();
+			if( originalValue.indexOf( ref ) >= 0 )
+				transaction.exit2( _Error.UnableDeleteUsedParam2 , "Unable to delete parameter, referenced in object=" + ops.getName() + ", property=" + prop , ops.getName() , prop );
+		}
 	}
 	
 }

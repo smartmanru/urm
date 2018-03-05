@@ -832,23 +832,27 @@ public abstract class DBSettings {
 	}
 
 	private static int getEntityVersion( EngineTransaction transaction , PropertyEntity entity ) throws Exception {
+		return( getEntityVersion( transaction , entity.META_OBJECTVERSION_TYPE , entity.META_OBJECT_ID ) );
+	}
+	
+	private static int getEntityVersion( EngineTransaction transaction , DBEnumObjectVersionType versionType , int objectId ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		int version = 0;
-		if( entity.META_OBJECTVERSION_TYPE == DBEnumObjectVersionType.LOCAL )
+		if( versionType == DBEnumObjectVersionType.LOCAL )
 			version = c.getNextLocalVersion();
 		else
-		if( entity.META_OBJECTVERSION_TYPE == DBEnumObjectVersionType.CORE )
+		if( versionType == DBEnumObjectVersionType.CORE )
 			version = c.getNextCoreVersion();
 		else
-		if( entity.META_OBJECTVERSION_TYPE == DBEnumObjectVersionType.SYSTEM ) {
+		if( versionType == DBEnumObjectVersionType.SYSTEM ) {
 			EngineDirectory directory = transaction.getTransactionDirectory();
-			AppSystem system = directory.getSystem( entity.META_OBJECT_ID );
+			AppSystem system = directory.getSystem( objectId );
 			version = c.getNextSystemVersion( system );
 		}
 		else
-		if( entity.META_OBJECTVERSION_TYPE == DBEnumObjectVersionType.PRODUCT ) {
-			Meta meta = transaction.getTransactionMetadata( entity.META_OBJECT_ID );
+		if( versionType == DBEnumObjectVersionType.PRODUCT ) {
+			Meta meta = transaction.getTransactionMetadata( objectId );
 			ProductMeta storage = transaction.getTransactionProductMetadata( meta );
 			version = c.getNextProductVersion( storage );
 		}
@@ -908,5 +912,30 @@ public abstract class DBSettings {
 		}
 	}
 
+	public static void modifyPropertyValue( EngineTransaction transaction , ObjectProperties ops , EntityVar var ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		int version = getEntityVersion( transaction , ops.versionType , ops.ownerId );
+		if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUE3, new String[] {
+				EngineDB.getInteger( ops.ownerId ) ,
+				EngineDB.getEnum( ops.roleType ) ,
+				EngineDB.getInteger( var.PARAM_ID ) 
+				} ) )
+				Common.exitUnexpected();
+		
+		String data = ops.getExpressionValue( var.NAME );
+		if( !data.isEmpty() ) {
+			if( !c.modify( DBQueries.MODIFY_PARAM_ADDOBJECTPARAMVALUE7 , new String[] {
+					EngineDB.getInteger( ops.ownerId ) ,
+					EngineDB.getEnum( ops.roleType ) ,
+					EngineDB.getInteger( var.entity.PARAM_OBJECT_ID ) ,
+					EngineDB.getEnum( var.entity.PARAMENTITY_TYPE ) ,
+					EngineDB.getInteger( var.PARAM_ID ) ,
+					EngineDB.getString( data ) ,
+					EngineDB.getInteger( version )
+					} ) )
+				Common.exitUnexpected();
+		}
+	}
+	
 }
 
