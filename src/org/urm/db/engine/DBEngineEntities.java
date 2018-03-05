@@ -275,7 +275,7 @@ public abstract class DBEngineEntities {
 		renameObjectProperty( transaction , ops , originalName , name );
 		for( ObjectProperties child : ops.getChildProperties() ) {
 			if( child.versionType == ops.versionType )
-				renameProperty( transaction , ops , originalName , name );
+				renameProperty( transaction , child , originalName , name );
 		}
 	}
 
@@ -283,7 +283,7 @@ public abstract class DBEngineEntities {
 		deleteObjectProperty( transaction , ops , name );
 		for( ObjectProperties child : ops.getChildProperties() ) {
 			if( child.versionType == ops.versionType )
-				deleteProperty( transaction , ops , name );
+				deleteProperty( transaction , child , name );
 		}
 	}
 
