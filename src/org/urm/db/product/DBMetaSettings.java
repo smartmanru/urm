@@ -226,7 +226,6 @@ public class DBMetaSettings {
 		
 		ObjectProperties ops = settings.ops;
 		int version = c.getNextProductVersion( storage );
-		DBSettings.savedbEntityCustom( c , ops , storage.ID , storage.ID , version );
 		DBSettings.savedbPropertyValues( c , storage.ID , ops , false , true , version );
 		ops.recalculateChildProperties();
 		settings.updateContextSettings();
