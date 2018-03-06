@@ -39,19 +39,19 @@ public abstract class DBSettings {
 	public static String ATTR_TYPE = "type";
 	public static String VALUE_ENUM = "enum";
 
-	public static void loaddbValues( EngineLoader loader , int objectId , ObjectProperties properties ) throws Exception {
+	public static void loaddbValues( EngineLoader loader , ObjectProperties ops ) throws Exception {
 		DBConnection c = loader.getConnection();
 		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETOBJECTPARAMVALUES2 , new String[] { 
-				EngineDB.getInteger( objectId ) , 
-				EngineDB.getEnum( properties.roleType ) } );
+				EngineDB.getInteger( ops.ownerId ) , 
+				EngineDB.getEnum( ops.roleType ) } );
 
 		try {
 			while( rs.next() ) {
 				int param = rs.getInt( 2 );
 				String exprValue = rs.getString( 3 );
 				
-				EntityVar var = properties.getVar( param );
-				properties.setProperty( var , exprValue );
+				EntityVar var = ops.getVar( param );
+				ops.setProperty( var , exprValue );
 			}
 		}
 		finally {
@@ -59,24 +59,24 @@ public abstract class DBSettings {
 		}
 	}
 
-	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean importApp , boolean importCustom , int version ) throws Exception {
+	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , boolean importApp , boolean importCustom , int version ) throws Exception {
 		importxmlLoad( loader , root , properties , importApp , importCustom , null );
-		importxmlSave( loader , properties , paramObjectId , metaObjectId , importApp , importCustom , version , null );
+		importxmlSave( loader , properties , importApp , importCustom , version , null );
 	}
 
-	public static void importxmlApp( EngineLoader loader , Node root , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean importApp , boolean importCustom , int version ) throws Exception {
+	public static void importxmlApp( EngineLoader loader , Node root , ObjectProperties properties , boolean importApp , boolean importCustom , int version ) throws Exception {
 		importxmlLoad( loader , root , properties , true , false , null );
-		importxmlSave( loader , properties , paramObjectId , -1 , true , false , version , null );
+		importxmlSave( loader , properties , true , false , version , null );
 	}
 
-	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean importApp , boolean importCustom , int version , DBEnumParamEntityType entityType ) throws Exception {
+	public static void importxml( EngineLoader loader , Node root , ObjectProperties properties , boolean importApp , boolean importCustom , int version , DBEnumParamEntityType entityType ) throws Exception {
 		importxmlLoad( loader , root , properties , importApp , importCustom , entityType );
-		importxmlSave( loader , properties , paramObjectId , metaObjectId , importApp , importCustom , version , entityType );
+		importxmlSave( loader , properties , importApp , importCustom , version , entityType );
 	}
 
-	public static void importxmlApp( EngineLoader loader , Node root , ObjectProperties properties , int paramObjectId , int version , DBEnumParamEntityType entityType ) throws Exception {
+	public static void importxmlApp( EngineLoader loader , Node root , ObjectProperties properties , int version , DBEnumParamEntityType entityType ) throws Exception {
 		importxmlLoad( loader , root , properties , true , false , entityType );
-		importxmlSave( loader , properties , paramObjectId , -1 , true , false , version , entityType );
+		importxmlSave( loader , properties , true , false , version , entityType );
 	}
 
 	public static void importxmlLoad( EngineLoader loader , Node root , ObjectProperties properties , boolean importApp , boolean importCustom ) throws Exception {
@@ -140,21 +140,21 @@ public abstract class DBSettings {
 			Common.exit1( _Error.SettingsImportErrors1 , "Errors on settings import, set object=" + properties.objectType.name() , "" + properties.objectType.name() );
 	}
 
-	private static void importxmlLoadCustom( EngineLoader loader , Node root , ObjectProperties ops ) throws Exception {
-		ObjectMeta meta = ops.getMeta();
-		PropertyEntity custom = meta.getCustomEntity();
+	public static void importxmlCustomEntity( EngineLoader loader , Node root , ObjectProperties ops , int version ) throws Exception {
+		DBConnection c = loader.getConnection();
 		
-		if( custom != null ) {
-			custom.clear();
-			meta.rebuild();
-		}
-
+		Node custom = ConfReader.xmlGetFirstChild( root , ELEMENT_CUSTOM );
+		importxmlLoadCustomEntity( loader , custom , ops );
+		savedbEntityCustom( c , ops , version );
+	}
+	
+	public static void importxmlLoadCustomEntity( EngineLoader loader , Node root , ObjectProperties ops ) throws Exception {
 		if( root == null )
 			return;
 		
 		boolean ok = true;
 		
-		// import property definition
+		ObjectMeta meta = ops.getMeta();
 		Node define = ConfReader.xmlGetFirstChild( root , ELEMENT_DEFINE );
 		if( define != null ) {
 			if( !ops.isCustomDefineAllowed() )
@@ -178,6 +178,18 @@ public abstract class DBSettings {
 			ops.createCustom();
 		}
 		
+		if( !ok )
+			Common.exit1( _Error.SettingsImportErrors1 , "Errors on settings import, set object=" + ops.objectType.name() , "" + ops.objectType.name() );
+	}
+	
+	private static void importxmlLoadCustom( EngineLoader loader , Node root , ObjectProperties ops ) throws Exception {
+		importxmlLoadCustomEntity( loader , root , ops );
+		
+		if( root == null )
+			return;
+		
+		// import property values
+		boolean ok = true;
 		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_PROPERTY );
 		if( items != null ) {
 			for( Node item : items ) {
@@ -190,6 +202,7 @@ public abstract class DBSettings {
 				}
 			}
 			
+			ObjectMeta meta = ops.getMeta();
 			meta.rebuild();
 		}
 
@@ -197,15 +210,15 @@ public abstract class DBSettings {
 			Common.exit1( _Error.SettingsImportErrors1 , "Errors on settings import, set object=" + ops.objectType.name() , "" + ops.objectType.name() );
 	}
 
-	public static void importxmlSave( EngineLoader loader , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean saveApp , boolean saveCustom , int version ) throws Exception {
-		importxmlSave( loader , properties , paramObjectId , metaObjectId , saveApp , saveCustom , version , null );
+	public static void importxmlSave( EngineLoader loader , ObjectProperties ops , int paramObjectId , int metaObjectId , boolean saveApp , boolean saveCustom , int version ) throws Exception {
+		importxmlSave( loader , ops , saveApp , saveCustom , version , null );
 	}
 	
-	public static void importxmlSave( EngineLoader loader , ObjectProperties properties , int paramObjectId , int metaObjectId , boolean saveApp , boolean saveCustom , int version , DBEnumParamEntityType entityType ) throws Exception {
+	public static void importxmlSave( EngineLoader loader , ObjectProperties ops , boolean saveApp , boolean saveCustom , int version , DBEnumParamEntityType entityType ) throws Exception {
 		DBConnection c = loader.getConnection();
 		if( saveCustom )
-			savedbEntityCustom( c , properties , paramObjectId , metaObjectId , version );
-		savedbPropertyValues( c , paramObjectId , properties , saveApp , saveCustom , version , entityType );
+			savedbEntityCustom( c , ops , version );
+		savedbPropertyValues( c , ops , saveApp , saveCustom , version , entityType );
 	}
 
 	public static void exportxml( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
@@ -628,6 +641,11 @@ public abstract class DBSettings {
 				} ) )
 			Common.exitUnexpected();
 	}
+
+	public static void loaddbCustomEntity( DBConnection c , ObjectProperties ops ) throws Exception {
+		ObjectMeta meta = ops.getMeta();
+		loaddbCustomEntity( c , meta , ops.ownerId );
+	}
 	
 	public static PropertyEntity loaddbCustomEntity( DBConnection c , ObjectMeta meta , int ownerId ) throws Exception {
 		PropertyEntity entity = meta.getCustomEntity();
@@ -686,15 +704,15 @@ public abstract class DBSettings {
 		}
 	}
 
-	public static void savedbPropertyValues( DBConnection c , int objectId , ObjectProperties properties , boolean saveApp , boolean saveCustom , int version ) throws Exception {
-		savedbPropertyValues( c , objectId , properties , saveApp , saveCustom , version , null );
+	public static void savedbPropertyValues( DBConnection c , ObjectProperties properties , boolean saveApp , boolean saveCustom , int version ) throws Exception {
+		savedbPropertyValues( c , properties , saveApp , saveCustom , version , null );
 	}
 	
-	public static void savedbPropertyValues( DBConnection c , int objectId , ObjectProperties properties , boolean saveApp , boolean saveCustom , int version , DBEnumParamEntityType entityTypeApp ) throws Exception {
+	public static void savedbPropertyValues( DBConnection c , ObjectProperties ops , boolean saveApp , boolean saveCustom , int version , DBEnumParamEntityType entityTypeApp ) throws Exception {
 		if( saveApp && saveCustom == false && entityTypeApp != null ) {
 			if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTENTITYPARAMVALUES3 , new String[] {
-					EngineDB.getInteger( objectId ) ,
-					EngineDB.getEnum( properties.roleType ) ,
+					EngineDB.getInteger( ops.ownerId ) ,
+					EngineDB.getEnum( ops.roleType ) ,
 					EngineDB.getEnum( entityTypeApp )
 					} ) )
 				Common.exitUnexpected();
@@ -702,35 +720,35 @@ public abstract class DBSettings {
 		else {
 			if( saveApp && saveCustom ) {
 				if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUES2 , new String[] {
-						EngineDB.getInteger( objectId ) ,
-						EngineDB.getEnum( properties.roleType ) 
+						EngineDB.getInteger( ops.ownerId ) ,
+						EngineDB.getEnum( ops.roleType ) 
 						} ) )
 					Common.exitUnexpected();
 			}
 			else {
 				if( saveApp ) {
 					if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUESAPP2 , new String[] {
-							EngineDB.getInteger( objectId ) ,
-							EngineDB.getEnum( properties.roleType ) 
+							EngineDB.getInteger( ops.ownerId ) ,
+							EngineDB.getEnum( ops.roleType ) 
 							} ) )
 						Common.exitUnexpected();
 				}
 				if( saveCustom ) {
 					if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUESCUSTOM2 , new String[] {
-						EngineDB.getInteger( objectId ) ,
-						EngineDB.getEnum( properties.roleType ) 
+						EngineDB.getInteger( ops.ownerId ) ,
+						EngineDB.getEnum( ops.roleType ) 
 						} ) )
 					Common.exitUnexpected();
 				}
 			}
 		}
 
-		ObjectMeta meta = properties.getMeta();
+		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entityApp = ( entityTypeApp == null )? null : meta.getAppEntity( entityTypeApp ); 
 		
-		PropertySet set = properties.getProperties();
+		PropertySet set = ops.getProperties();
 		for( PropertyValue value : set.getAllProperties() ) {
-			EntityVar var = properties.getVar( value.property );
+			EntityVar var = ops.getVar( value.property );
 			if( saveApp == false && var.isApp() )
 				continue;
 			if( saveCustom == false && var.isCustom() )
@@ -743,8 +761,8 @@ public abstract class DBSettings {
 				continue;
 			
 			if( !c.modify( DBQueries.MODIFY_PARAM_ADDOBJECTPARAMVALUE7 , new String[] {
-					EngineDB.getInteger( objectId ) ,
-					EngineDB.getEnum( properties.roleType ) ,
+					EngineDB.getInteger( ops.ownerId ) ,
+					EngineDB.getEnum( ops.roleType ) ,
 					EngineDB.getInteger( var.entity.PARAM_OBJECT_ID ) ,
 					EngineDB.getEnum( var.entity.PARAMENTITY_TYPE ) ,
 					EngineDB.getInteger( var.PARAM_ID ) ,
@@ -755,14 +773,14 @@ public abstract class DBSettings {
 		}
 	}
 
-	public static void savedbEntityCustom( DBConnection c , ObjectProperties properties , int paramObjectId , int metaObjectId , int version ) throws Exception {
-		ObjectMeta meta = properties.getMeta();
+	public static void savedbEntityCustom( DBConnection c , ObjectProperties ops , int version ) throws Exception {
+		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
 		if( entity == null )
 			return;
 		
-		entity.PARAM_OBJECT_ID = paramObjectId;
-		entity.META_OBJECT_ID = metaObjectId;
+		entity.PARAM_OBJECT_ID = ops.ownerId;
+		entity.META_OBJECT_ID = ops.ownerId;
 		savedbPropertyEntity( c , entity , entity.getVars() , version );
 		meta.rebuild();
 	}
@@ -861,18 +879,18 @@ public abstract class DBSettings {
 		return( version );
 	}
 
-	public static void modifyCustomValues( EngineTransaction transaction , int objectId , ObjectProperties ops ) throws Exception {
+	public static void modifyCustomValues( EngineTransaction transaction , ObjectProperties ops ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		int version = c.getNextCoreVersion();
-		savedbPropertyValues( c , objectId , ops , false , true , version , null );
+		savedbPropertyValues( c , ops , false , true , version , null );
 	}
 	
-	public static void modifyAppValues( EngineTransaction transaction , int objectId , ObjectProperties ops , DBEnumParamEntityType entityType ) throws Exception {
+	public static void modifyAppValues( EngineTransaction transaction , ObjectProperties ops , DBEnumParamEntityType entityType ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		int version = c.getNextCoreVersion();
-		savedbPropertyValues( c , objectId , ops , true , false , version , entityType );
+		savedbPropertyValues( c , ops , true , false , version , entityType );
 	}
 
 	private static int verifyEntity( DBConnection c , PropertyEntity entity ) throws Exception {

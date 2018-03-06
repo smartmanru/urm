@@ -2,7 +2,6 @@ package org.urm.db.engine;
 
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
-import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
@@ -50,7 +49,7 @@ public class DBEngineMonitoring {
 		ObjectProperties properties = entities.createEngineMonitoringProps( settings.getEngineProperties() );
 		
 		int version = c.getNextCoreVersion();
-		DBSettings.importxml( loader , root , properties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , false , version );
+		DBSettings.importxml( loader , root , properties , true , false , version );
 		mon.setProperties( properties );
 	}
 	
@@ -63,7 +62,7 @@ public class DBEngineMonitoring {
 		EngineSettings settings = loader.getSettings();
 		EngineEntities entities = loader.getEntities();
 		ObjectProperties properties = entities.createEngineMonitoringProps( settings.getEngineProperties() );
-		DBSettings.loaddbValues( loader , DBVersions.CORE_ID , properties );
+		DBSettings.loaddbValues( loader , properties );
 		mon.setProperties( properties );
 	}
 
@@ -71,13 +70,13 @@ public class DBEngineMonitoring {
 		DBConnection c = transaction.getConnection();
 		mon.setEnabled( transaction , enable );
 		int version = c.getNextCoreVersion();
-		DBSettings.savedbPropertyValues( c , DBVersions.CORE_ID , mon.ops , true , false , version );
+		DBSettings.savedbPropertyValues( c , mon.ops , true , false , version );
 	}
 
 	public static void setProperties( EngineTransaction transaction , EngineMonitoring mon ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		int version = c.getNextCoreVersion();
-		DBSettings.savedbPropertyValues( c , DBVersions.CORE_ID , mon.ops , true , false , version );
+		DBSettings.savedbPropertyValues( c , mon.ops , true , false , version );
 	}
 
 }

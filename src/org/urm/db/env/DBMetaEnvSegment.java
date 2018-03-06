@@ -104,7 +104,7 @@ public class DBMetaEnvSegment {
 		modifySegment( c , storage , env , sg , true );
 		
 		// custom
-		DBSettings.importxml( loader , root , ops , sg.ID , storage.ID , false , true , env.EV );
+		DBSettings.importxml( loader , root , ops , false , true , env.EV );
 	}
 	
 	private static void importxmlServers( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , Node root ) throws Exception {
@@ -245,7 +245,7 @@ public class DBMetaEnvSegment {
 		// properties
 		for( MetaEnvSegment sg : env.getSegments() ) {
 			ObjectProperties ops = sg.getProperties();
-			DBSettings.loaddbValues( loader , sg.ID , ops );
+			DBSettings.loaddbValues( loader , ops );
 		}
 		
 		DBMetaEnvServer.loaddb( loader , storage , env );
@@ -468,7 +468,7 @@ public class DBMetaEnvSegment {
 		
 		ObjectProperties ops = sg.getProperties();
 		int version = c.getNextEnvironmentVersion( env );
-		DBSettings.savedbPropertyValues( c , sg.ID , ops , false , true , version );
+		DBSettings.savedbPropertyValues( c , ops , false , true , version );
 		ops.recalculateChildProperties();
 	}
 	

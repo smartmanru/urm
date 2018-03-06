@@ -66,7 +66,7 @@ public class DBMetaEnvServerNode {
 		modifyNode( c , storage , env , node , true );
 		
 		// custom
-		DBSettings.importxml( loader , root , ops , node.ID , storage.ID , false , true , env.EV );
+		DBSettings.importxml( loader , root , ops , false , true , env.EV );
 		
  		return( node );
 	}
@@ -135,7 +135,7 @@ public class DBMetaEnvServerNode {
 			for( MetaEnvServer server : sg.getServers() ) {
 				for( MetaEnvServerNode node : server.getNodes() ) {
 					ObjectProperties ops = node.getProperties();
-					DBSettings.loaddbValues( loader , node.ID , ops );
+					DBSettings.loaddbValues( loader , ops );
 				}
 			}
 		}
@@ -210,7 +210,7 @@ public class DBMetaEnvServerNode {
 		
 		ObjectProperties ops = node.getProperties();
 		int version = c.getNextEnvironmentVersion( env );
-		DBSettings.savedbPropertyValues( c , node.ID , ops , false , true , version );
+		DBSettings.savedbPropertyValues( c , ops , false , true , version );
 		ops.recalculateChildProperties();
 	}
 	

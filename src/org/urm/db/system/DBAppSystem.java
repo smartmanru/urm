@@ -16,7 +16,6 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.db.DBQueries;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
-import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
@@ -43,7 +42,7 @@ public abstract class DBAppSystem {
 		system.setOffline( ConfReader.getBooleanAttrValue( node , AppSystem.PROPERTY_OFFLINE , true ) );
 		modifySystem( c , system , true );
 		props.setOwnerId( system.ID );
-		DBSettings.importxml( loader , node , props , system.ID , system.ID , false , true , system.SV );
+		DBSettings.importxml( loader , node , props , false , true , system.SV );
 		
 		return( system );
 	}
@@ -88,11 +87,9 @@ public abstract class DBAppSystem {
 
 		for( AppSystem system : systems ) {
 			ObjectProperties props = system.getParameters();
-			ObjectMeta meta = props.getMeta();
-			
-			DBSettings.loaddbCustomEntity( c , meta , system.ID );
+			DBSettings.loaddbCustomEntity( c , props );
 			props.createCustom();
-			DBSettings.loaddbValues( loader , system.ID , props );
+			DBSettings.loaddbValues( loader , props );
 		}
 		
 		return( systems.toArray( new AppSystem[0] ) );
@@ -143,7 +140,7 @@ public abstract class DBAppSystem {
 		
 		ObjectProperties ops = system.getParameters();
 		int version = c.getNextSystemVersion( system );
-		DBSettings.savedbPropertyValues( c , system.ID , ops , false , true , version );
+		DBSettings.savedbPropertyValues( c , ops , false , true , version );
 		ops.recalculateChildProperties();
 	}
 	

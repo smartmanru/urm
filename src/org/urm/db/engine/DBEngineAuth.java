@@ -153,7 +153,7 @@ public class DBEngineAuth {
 		ObjectProperties ops = entities.createLdapProps( settings.getEngineProperties() );
 		Node ldap = ConfReader.xmlGetFirstChild( root , ELEMENT_LDAP );
 		if( ldap != null )
-			DBSettings.importxml( loader , ldap , ops , DBVersions.LOCAL_ID , DBVersions.LOCAL_ID , true , false , version );
+			DBSettings.importxml( loader , ldap , ops , true , false , version );
 		
 		auth.setLdapSettings( ops );
 	}
@@ -397,7 +397,7 @@ public class DBEngineAuth {
 		EngineSettings settings = loader.getSettings();
 		
 		ObjectProperties ops = entities.createLdapProps( settings.getEngineProperties() );
-		DBSettings.loaddbValues( loader , DBVersions.LOCAL_ID , ops );
+		DBSettings.loaddbValues( loader , ops );
 		auth.setLdapSettings( ops );
 		
 		loaddbUsers( loader , auth );
@@ -790,7 +790,7 @@ public class DBEngineAuth {
 		ldap.setNotUse();
 		
 		int version = c.getNextLocalVersion();
-		DBSettings.savedbPropertyValues( c , DBVersions.LOCAL_ID , ldap.getLdapSettings() , true , false , version );
+		DBSettings.savedbPropertyValues( c , ldap.getLdapSettings() , true , false , version );
 	}
 	
 	public static void enableLdap( EngineTransaction transaction , EngineAuth auth , ObjectProperties ops ) throws Exception {
@@ -799,7 +799,7 @@ public class DBEngineAuth {
 		ldap.setLdapSettings( ops );
 		
 		int version = c.getNextLocalVersion();
-		DBSettings.savedbPropertyValues( c , DBVersions.LOCAL_ID , ldap.getLdapSettings() , true , false , version );
+		DBSettings.savedbPropertyValues( c , ldap.getLdapSettings() , true , false , version );
 		
 		ldap.start();
 	}

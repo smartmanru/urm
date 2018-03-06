@@ -184,7 +184,7 @@ public class DBMetaEnvServerDeployment {
 		for( MetaEnvSegment sg : env.getSegments() ) {
 			for( MetaEnvServer server : sg.getServers() ) {
 				ObjectProperties ops = server.getProperties();
-				DBSettings.loaddbValues( loader , server.ID , ops );
+				DBSettings.loaddbValues( loader , ops );
 				server.scatterExtraProperties();
 			}
 		}

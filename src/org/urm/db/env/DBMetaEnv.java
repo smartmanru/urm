@@ -129,10 +129,10 @@ public class DBMetaEnv {
 		modifyEnv( c , storage , env , true );
 		
 		// custom
-		DBSettings.importxml( loader , root , ops , env.ID , env.ID , false , true , env.EV );
+		DBSettings.importxml( loader , root , ops , false , true , env.EV );
 		
 		// extra
-		DBSettings.importxmlApp( loader , root , ops , env.ID , env.EV , DBEnumParamEntityType.ENV_EXTRA );
+		DBSettings.importxmlApp( loader , root , ops , env.EV , DBEnumParamEntityType.ENV_EXTRA );
 		env.scatterExtraProperties();
 	}
 
@@ -306,7 +306,7 @@ public class DBMetaEnv {
 
 	public static void loaddbEnvData( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
 		ObjectProperties ops = env.getProperties();
-		DBSettings.loaddbValues( loader , env.ID , ops );
+		DBSettings.loaddbValues( loader , ops );
 		env.scatterExtraProperties();
 		
 		DBMetaEnvSegment.loaddb( loader , storage , env );
@@ -385,7 +385,7 @@ public class DBMetaEnv {
 		DBConnection c = transaction.getConnection();
 		ObjectProperties ops = env.getProperties();
 		int version = c.getNextEnvironmentVersion( env );
-		DBSettings.savedbPropertyValues( c , env.ID , ops , false , true , version );
+		DBSettings.savedbPropertyValues( c , ops , false , true , version );
 		ops.recalculateChildProperties();
 	}
 	
@@ -393,7 +393,7 @@ public class DBMetaEnv {
 		DBConnection c = transaction.getConnection();
 		ObjectProperties ops = env.getProperties();
 		int version = c.getNextEnvironmentVersion( env );
-		DBSettings.savedbPropertyValues( c , env.ID , ops , true , false , version , DBEnumParamEntityType.ENV_EXTRA );
+		DBSettings.savedbPropertyValues( c , ops , true , false , version , DBEnumParamEntityType.ENV_EXTRA );
 		ops.recalculateChildProperties();
 	}
 	

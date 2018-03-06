@@ -155,17 +155,21 @@ public abstract class DBEngineBase {
 		EngineEntities entities = loader.getEntities();
 		EngineSettings settings = loader.getSettings();
 		
-		ObjectProperties props = entities.createBaseItemProps( settings.getEngineProperties() ); 
-		BaseItem item = new BaseItem( group , props );
-		DBSettings.importxmlLoad( loader , root , props , true , false );
+		ObjectProperties ops = entities.createBaseItemProps( settings.getEngineProperties() ); 
+		BaseItem item = new BaseItem( group , ops );
+		DBSettings.importxmlLoadCustomEntity( loader , root , ops );
+		DBSettings.importxmlLoad( loader , root , ops , true , false );
 		item.scatterProperties();
 		
 		if( !item.isValid() )
 			item.setOffline( true );
 		
+		int version = c.getNextCoreVersion();
 		modifyItem( c , item , true );
-		props.setOwnerId( item.ID );
-		DBSettings.importxmlSave( loader , props , item.ID , DBVersions.CORE_ID , true , false , item.CV ); 
+		ops.setOwnerId( item.ID );
+		
+		DBSettings.savedbEntityCustom( c , ops , version );
+		DBSettings.importxmlSave( loader , ops , item.ID , DBVersions.CORE_ID , true , false , item.CV ); 
 		
 		Node[] list = ConfReader.xmlGetChildren( root , ELEMENT_DEPITEM );
 		if( list != null ) {
@@ -498,7 +502,7 @@ public abstract class DBEngineBase {
 		
 		ObjectProperties ops = item.getParameters();
 		int version = c.getNextCoreVersion();
-		DBSettings.savedbPropertyValues( c , item.ID , ops , false , true , version );
+		DBSettings.savedbPropertyValues( c , ops , false , true , version );
 		ops.recalculateChildProperties();
 	}
 	
@@ -507,7 +511,7 @@ public abstract class DBEngineBase {
 		
 		ObjectProperties ops = item.getDependencySettings( depitem.ID );
 		int version = c.getNextCoreVersion();
-		DBSettings.savedbPropertyValues( c , item.ID , ops , false , true , version );
+		DBSettings.savedbPropertyValues( c , ops , false , true , version );
 		ops.recalculateChildProperties();
 	}
 	

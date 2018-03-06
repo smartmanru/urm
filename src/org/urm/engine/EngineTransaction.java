@@ -2,7 +2,6 @@ package org.urm.engine;
 
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBSettings;
-import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.*;
 import org.urm.db.env.DBMetaEnv;
@@ -97,7 +96,7 @@ public class EngineTransaction extends TransactionBase {
 	public void updateCustomEngineProperties( EngineSettings settings ) throws Exception {
 		super.checkTransactionSettings();
 		ObjectProperties ops = settings.getEngineProperties();
-		DBSettings.modifyCustomValues( this , DBVersions.CORE_ID , ops );
+		DBSettings.modifyCustomValues( this , ops );
 	}
 	
 	public void updateAppEngineProperties( EngineSettings settings ) throws Exception {
