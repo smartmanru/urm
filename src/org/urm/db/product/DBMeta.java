@@ -100,7 +100,7 @@ public class DBMeta {
 				entity.exportxmlInt( version.nextUrgentTag ) 
 		} , false );
 	}
-	
+
 	private static void modifyMeta( DBConnection c , ProductMeta storage , MetaProductVersion version , boolean insert ) throws Exception {
 		if( insert )
 			storage.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , storage.name , DBEnumObjectType.META );

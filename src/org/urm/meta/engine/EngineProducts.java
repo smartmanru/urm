@@ -38,7 +38,9 @@ public class EngineProducts {
 	public synchronized void addProductSkipped( ProductMeta set ) {
 		productMetaSkipped.put( set.name , set );
 		productMeta.remove( set.name );
-		productMetaById.remove( set.ID );
+		
+		if( set.ID != null )
+			productMetaById.remove( set.ID );
 	}
 	
 	public synchronized void addEnv( MetaEnv env ) {

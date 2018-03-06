@@ -1254,9 +1254,10 @@ public class TransactionBase extends EngineObject {
 		return( tm.sessionMeta );
 	}
 	
-	private void addTransactionMeta( int metaId , String name , TransactionMetadata tm ) {
+	private void addTransactionMeta( Integer metaId , String name , TransactionMetadata tm ) {
 		productMeta.put( name , tm );
-		productMetaById.put( metaId , tm );
+		if( metaId != null )
+			productMetaById.put( metaId , tm );
 	}
 
 	// helpers

@@ -7,6 +7,7 @@ import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
 import org.urm.db.engine.DBEngineData;
+import org.urm.db.product.DBMeta;
 import org.urm.db.system.DBSystemData;
 import org.urm.db.upgrade.DBUpgrade;
 import org.urm.engine.Engine;
