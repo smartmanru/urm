@@ -138,7 +138,7 @@ public class CodebaseCommand {
 		action.info( "-------------------");
 		action.info( "product properties:");
 		action.info( "-------------------");
-		action.printValues( product.getProperties() );
+		action.printValues( product.getParameters() );
 	}
 
 	public void checkout( ScopeState parentState , ActionBase action , ActionScope scope , LocalFolder CODIR ) throws Exception {

@@ -254,6 +254,11 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineBase.deleteItemDependency( this , base , item , dep );
 	}
 
+	public void updateCustomBaseItemProperties( BaseItem item ) throws Exception {
+		super.checkTransactionBase();
+		DBEngineBase.updateCustomProperties( this , item );
+	}
+	
 	// ################################################################################
 	// ################################################################################
 	// BUILDERS

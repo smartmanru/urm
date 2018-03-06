@@ -351,7 +351,7 @@ public class DBMetaEnv {
 
 		// create settings
 		MetaProductSettings settings = storage.getSettings();
-		ObjectProperties ops = entities.createMetaEnvProps( settings.getProperties() );
+		ObjectProperties ops = entities.createMetaEnvProps( settings.getParameters() );
 		env.createSettings( ops );
 		
 		env.setEnvPrimary( name , desc , envType , null , true , null , false , null , "" );

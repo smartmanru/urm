@@ -452,4 +452,13 @@ public abstract class DBEngineBase {
 		item.deleteDepItem( dep );
 	}
 	
+	public static void updateCustomProperties( EngineTransaction transaction , BaseItem item ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		ObjectProperties ops = item.getParameters();
+		int version = c.getNextCoreVersion();
+		DBSettings.savedbPropertyValues( c , item.ID , ops , false , true , version );
+		ops.recalculateChildProperties();
+	}
+	
 }

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.engine.properties.ObjectProperties;
+import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineObject;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
@@ -89,6 +90,10 @@ public class BaseItem extends EngineObject {
 		CHARSET = ops.getPropertyValue( BaseItem.PROPERTY_CHARSET );
 	}
 	
+	public ObjectProperties getParameters() {
+		return( ops );
+	}
+	
 	public void createBaseItem( String name , String desc ) throws Exception {
 		modifyBaseItem( name , desc );
 		setOffline( true );
@@ -134,7 +139,7 @@ public class BaseItem extends EngineObject {
 		return( false );
 	}
 
-	public boolean isValid() {
+	public boolean isValidImplementation() {
 		if( NAME.isEmpty() || 
 			BASESRC_TYPE == DBEnumBaseSrcType.UNKNOWN || 
 			BASESRCFORMAT_TYPE == DBEnumBaseSrcFormatType.UNKNOWN ||
@@ -258,6 +263,27 @@ public class BaseItem extends EngineObject {
 			if( depName.equals( item.NAME ) )
 				return( true );
 		}
+		return( false );
+	}
+
+	public boolean isValidConfiguration() {
+		PropertySet set = ops.getProperties();
+		if( !set.isCorrect() )
+			return( false );
+		return( true );
+	}
+	
+	public boolean areValidDependencies() {
+		for( BaseItem depitem : depsById.values() ) {
+			if( depitem.OFFLINE )
+				return( false );
+		}
+		return( true );
+	}
+	
+	public boolean isValid() {
+		if( isValidImplementation() && isValidConfiguration() && areValidDependencies() )
+			return( true );
 		return( false );
 	}
 	
