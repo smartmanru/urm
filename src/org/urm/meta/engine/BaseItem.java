@@ -1,8 +1,11 @@
 package org.urm.meta.engine;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineObject;
@@ -52,8 +55,8 @@ public class BaseItem extends EngineObject {
 	
 	public ObjectProperties ops;
 	
-	Map<String,BaseItem> depsDraft;
-	Map<Integer,BaseItem> depsById;
+	List<String> depsDraft;
+	Map<Integer,ObjectProperties> depsById;
 	
 	public BaseItem( BaseGroup group , ObjectProperties ops ) {
 		super( group );
@@ -62,8 +65,8 @@ public class BaseItem extends EngineObject {
 		ID = -1;
 		CV = 0;
 		
-		depsDraft = new HashMap<String,BaseItem>();
-		depsById = new HashMap<Integer,BaseItem>(); 
+		depsDraft = new LinkedList<String>();
+		depsById = new HashMap<Integer,ObjectProperties>(); 
 	}
 
 	@Override
@@ -111,13 +114,20 @@ public class BaseItem extends EngineObject {
 		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 	}
 	
-	public BaseItem copy( BaseGroup rgroup , ObjectProperties rparameters ) {
+	public BaseItem copy( BaseGroup rgroup , EngineEntities entities , ObjectProperties rparameters ) throws Exception {
 		BaseItem r = new BaseItem( rgroup , rparameters );
 		r.ID = ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.OFFLINE = OFFLINE;
 		r.CV = CV;
+		
+		EngineBase rbase = rgroup.category.base;
+		for( int depId : depsById.keySet() ) {
+			BaseItem rdep = rbase.getItem( depId );
+			r.addDepItem( entities , rdep );
+		}
+		
 		return( r );
 	}
 
@@ -219,10 +229,25 @@ public class BaseItem extends EngineObject {
 		ops.setProperty( BaseItem.PROPERTY_CHARSET , CHARSET );
 	}
 	
+	public Integer[] getDepItemIds() {
+		return( depsById.keySet().toArray( new Integer[0] ) );
+	}
+
+	public ObjectProperties getDependencySettings( int depId ) throws Exception {
+		ObjectProperties ops = depsById.get( depId );
+		if( ops == null )
+			Common.exit1( _Error.UnknownDependencyBaseItem1 , "Unknown dependency base item=" + depId , "" + depId );
+		return( ops );
+	}
+	
 	public String[] getDepItemNames() {
+		EngineBase base = group.category.base;
 		Map<String,BaseItem> map = new HashMap<String,BaseItem>();
-		for( BaseItem item : depsById.values() )
+		
+		for( int itemId : depsById.keySet() ) {
+			BaseItem item = base.findItem( itemId );
 			map.put( item.NAME , item );
+		}
 		return( Common.getSortedKeys( map ) );
 	}
 
@@ -231,11 +256,12 @@ public class BaseItem extends EngineObject {
 	}
 
 	public String[] getDepItemDraftNames() {
-		return( Common.getSortedKeys( depsDraft ) );
+		return( depsDraft.toArray( new String[0] ) );
 	}
 
-	public void addDepItem( BaseItem dep ) {
-		depsById.put( dep.ID , dep );
+	public void addDepItem( EngineEntities entities , BaseItem dep ) throws Exception {
+		ObjectProperties ops = entities.createBaseItemDependencyProps( this , dep );
+		depsById.put( dep.ID , ops );
 	}
 	
 	public void deleteDepItem( BaseItem dep ) {
@@ -247,7 +273,9 @@ public class BaseItem extends EngineObject {
 	}
 	
 	public BaseItem findDepItem( String depName ) {
-		for( BaseItem item : depsById.values() ) {
+		EngineBase base = group.category.base;
+		for( int itemId : depsById.keySet() ) {
+			BaseItem item = base.findItem( itemId );
 			if( depName.equals( item.NAME ) )
 				return( item );
 		}
@@ -255,14 +283,12 @@ public class BaseItem extends EngineObject {
 	}
 	
 	public void addDepDraft( String depName ) {
-		depsDraft.put( depName , null );
+		depsDraft.add( depName );
 	}
 	
 	public boolean checkDependencyItem( String depName ) {
-		for( BaseItem item : depsById.values() ) {
-			if( depName.equals( item.NAME ) )
-				return( true );
-		}
+		if( findDepItem( depName ) != null )
+			return( true );
 		return( false );
 	}
 
@@ -274,8 +300,10 @@ public class BaseItem extends EngineObject {
 	}
 	
 	public boolean areValidDependencies() {
-		for( BaseItem depitem : depsById.values() ) {
-			if( depitem.OFFLINE )
+		EngineBase base = group.category.base;
+		for( int itemId : depsById.keySet() ) {
+			BaseItem item = base.findItem( itemId );
+			if( item.OFFLINE )
 				return( false );
 		}
 		return( true );

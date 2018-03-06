@@ -259,6 +259,11 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineBase.updateCustomProperties( this , item );
 	}
 	
+	public void updateCustomBaseItemDependencyProperties( BaseItem item , BaseItem depitem ) throws Exception {
+		super.checkTransactionBase();
+		DBEngineBase.updateCustomDependencyProperties( this , item , depitem );
+	}
+	
 	// ################################################################################
 	// ################################################################################
 	// BUILDERS

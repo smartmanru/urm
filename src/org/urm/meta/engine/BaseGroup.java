@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
 
@@ -37,7 +38,7 @@ public class BaseGroup extends EngineObject {
 		return( NAME );
 	}
 	
-	public BaseGroup copy( BaseCategory rn , ObjectProperties rparametersEngine ) throws Exception {
+	public BaseGroup copy( BaseCategory rn , EngineEntities entities , ObjectProperties rparametersEngine ) throws Exception {
 		BaseGroup r = new BaseGroup( rn );
 		r.ID = ID;
 		r.NAME = NAME;
@@ -47,7 +48,7 @@ public class BaseGroup extends EngineObject {
 		
 		for( BaseItem item : itemMap.values() ) {
 			ObjectProperties ritem_parameters = item.ops.copy( rparametersEngine );
-			BaseItem ritem = item.copy( r , ritem_parameters );
+			BaseItem ritem = item.copy( r , entities , ritem_parameters );
 			r.addItem( ritem );
 		}
 		return( r );

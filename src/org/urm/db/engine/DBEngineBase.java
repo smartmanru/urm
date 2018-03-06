@@ -14,6 +14,7 @@ import org.urm.db.core.DBEnums.DBEnumOSType;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
+import org.urm.db.core.DBEnums.DBEnumParamRoleType;
 import org.urm.db.core.DBEnums.DBEnumServerAccessType;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBSettings;
@@ -21,6 +22,7 @@ import org.urm.db.core.DBVersions;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
+import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
@@ -178,11 +180,12 @@ public abstract class DBEngineBase {
 
 	private static void importxmlItemResolve( EngineLoader loader , EngineBase base , BaseItem item ) throws Exception {
 		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
 		
 		int version = item.CV;
 		for( String name : item.getDepItemDraftNames() ) {
 			BaseItem dep = base.getItem( name );
-			addItemDependency( c , item , dep , version );
+			addItemDependency( c , entities , item , dep , version );
 		}
 		
 		item.clearDrafts();
@@ -298,10 +301,19 @@ public abstract class DBEngineBase {
 		finally {
 			c.closeQuery();
 		}
+
+		// load base item custom meta
+		for( BaseItem item : base.getItems() ) {
+			ObjectProperties p = item.getParameters();
+			ObjectMeta meta = p.getMeta();
+			PropertyEntity custom = meta.getCustomEntity();
+			DBSettings.loaddbEntity( c , custom , item.ID );
+		}
 	}
 	
 	public static void loaddbItemDeps( EngineLoader loader , EngineBase base ) throws Exception {
 		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
 		
 		ResultSet rs = c.query( DBQueries.QUERY_BASE_ITEMDEPS0 );
 		try {
@@ -311,14 +323,41 @@ public abstract class DBEngineBase {
 				
 				BaseItem item = base.getItem( itemId );
 				BaseItem dep = base.getItem( depId );
-				item.addDepItem( dep );
+				item.addDepItem( entities , dep );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+		
+		loaddbDependencyValues( loader , base );
+	}
+	
+	private static void loaddbDependencyValues( EngineLoader loader , EngineBase base ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
+		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETPARAMROLEVALUES1 , new String[] { 
+				EngineDB.getEnum( DBEnumParamRoleType.BASEITEM_DEPENDENCY ) } );
+
+		try {
+			while( rs.next() ) {
+				int objectId = rs.getInt( 1 );
+				int paramObjectId = rs.getInt( 2 );
+				int param = rs.getInt( 4 );
+				String exprValue = rs.getString( 5 );
+				
+				BaseItem item = base.getItem( objectId );
+				ObjectProperties ops = item.getDependencySettings( paramObjectId );
+				
+				EntityVar var = ops.getVar( param );
+				ops.setProperty( var , exprValue );
 			}
 		}
 		finally {
 			c.closeQuery();
 		}
 	}
-	
+
 	public static void modifyItem( DBConnection c , BaseItem item , boolean insert ) throws Exception {
 		if( insert )
 			item.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , item.NAME , DBEnumObjectType.BASE_ITEM );
@@ -347,7 +386,7 @@ public abstract class DBEngineBase {
 				} , insert );
 	}
 
-	private static void addItemDependency( DBConnection c , BaseItem item , BaseItem dep , int version ) throws Exception {
+	private static void addItemDependency( DBConnection c , EngineEntities entities , BaseItem item , BaseItem dep , int version ) throws Exception {
 		if( !c.modify( DBQueries.MODIFY_BASE_ADDDEPITEM3 , new String[] { 
 				EngineDB.getInteger( item.ID ) , 
 				EngineDB.getInteger( dep.ID ) ,
@@ -355,7 +394,7 @@ public abstract class DBEngineBase {
 				} ) )
 			Common.exitUnexpected();
 		
-		item.addDepItem( dep );
+		item.addDepItem( entities , dep );
 	}
 	
 	public static BaseGroup createGroup( EngineTransaction transaction , EngineBase base , DBEnumBaseCategoryType type , String name , String desc ) throws Exception {
@@ -437,8 +476,10 @@ public abstract class DBEngineBase {
 	
 	public static void addItemDependency( EngineTransaction transaction , EngineBase base , BaseItem item , BaseItem dep ) throws Exception {
 		DBConnection c = transaction.getConnection();
+		EngineEntities entities = transaction.getEntities();
+		
 		int version = c.getNextCoreVersion();
-		addItemDependency( c , item , dep , version );
+		addItemDependency( c , entities , item , dep , version );
 	}
 	
 	public static void deleteItemDependency( EngineTransaction transaction , EngineBase base , BaseItem item , BaseItem dep ) throws Exception {
@@ -456,6 +497,15 @@ public abstract class DBEngineBase {
 		DBConnection c = transaction.getConnection();
 		
 		ObjectProperties ops = item.getParameters();
+		int version = c.getNextCoreVersion();
+		DBSettings.savedbPropertyValues( c , item.ID , ops , false , true , version );
+		ops.recalculateChildProperties();
+	}
+	
+	public static void updateCustomDependencyProperties( EngineTransaction transaction , BaseItem item , BaseItem depitem ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		ObjectProperties ops = item.getDependencySettings( depitem.ID );
 		int version = c.getNextCoreVersion();
 		DBSettings.savedbPropertyValues( c , item.ID , ops , false , true , version );
 		ops.recalculateChildProperties();

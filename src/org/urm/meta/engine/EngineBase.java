@@ -116,6 +116,10 @@ public class EngineBase extends EngineObject {
 		return( mapItem.get( name ) );
 	}
 
+	public BaseItem findItem( int id ) {
+		return( mapItemById.get( id ) );
+	}
+
 	public BaseItem getItem( String name ) throws Exception {
 		BaseItem item = mapItem.get( name );
 		if( item == null )

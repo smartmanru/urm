@@ -18,6 +18,7 @@ import org.urm.db.env.DBEnvData;
 import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.engine.BaseItem;
 
 public class EngineEntities {
 
@@ -32,6 +33,7 @@ public class EngineEntities {
 	public static String nameBuildTrunkSet = "build.trunk";
 	public static String nameEngineMonitoring = "defmon";
 	public static String nameBaseItem = "baseitem";
+	public static String nameBaseItemDependency = "depitem";
 	public static String nameSystem = "system";
 	public static String nameLdap = "ldap";
 	public static String nameProductContext = "ctx";
@@ -374,6 +376,13 @@ public class EngineEntities {
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.META , DBEnumParamEntityType.ENV_SERVER_CUSTOM , -1 , DBEnumObjectVersionType.ENVIRONMENT ); 
 		props.create( parent , new PropertyEntity[] { entityAppBaseItem } , custom , false );
 		props.setOwnerId( parent.ownerId );
+		return( props );
+	}
+	
+	public ObjectProperties createBaseItemDependencyProps( BaseItem item , BaseItem dep ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.BASE_ITEM , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.BASEITEM_DEPENDENCY , nameBaseItemDependency , engine.execrc );
+		PropertyEntity custom = PropertyEntity.getCustomEntity( item.ID , DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM_CUSTOM , dep.ID , DBEnumObjectVersionType.CORE );
+		props.create( item.getParameters() , new PropertyEntity[] {} , custom , true );
 		return( props );
 	}
 	

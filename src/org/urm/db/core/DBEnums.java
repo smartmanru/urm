@@ -697,9 +697,9 @@ public abstract class DBEnums {
 	public enum DBEnumParamRoleType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		RC(1,null) ,
-		ENGINE(2,null),
-		PRODUCTCTX(4,null),
-		PRODUCTDEFS(3,null),
+		ENGINE(2,null) ,
+		PRODUCTCTX(4,null) ,
+		PRODUCTDEFS(3,null) ,
 		BUILDMODE_COMMON(10,null),
 		BUILDMODE_BRANCH(11,null) ,
 		BUILDMODE_MAJORBRANCH(12,null) ,
@@ -708,9 +708,10 @@ public abstract class DBEnums {
 		BUILDMODE_DEVTRUNK(15,null) ,
 		MONITORING(20,null) ,
 		LDAP(50,null) ,
-		METACORE(101,null),
-		METAMON(102,null),
-		SERVERBASE(122,null),
+		BASEITEM_DEPENDENCY(60,null) ,
+		METACORE(101,null) ,
+		METAMON(102,null) ,
+		SERVERBASE(122,null) ,
 		DEFAULT(200,null);
 
 		private final int value;
