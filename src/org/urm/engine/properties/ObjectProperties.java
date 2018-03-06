@@ -323,7 +323,7 @@ public class ObjectProperties {
 	}
 
 	public String[] getPropertyList() {
-		return( properties.getRunningProperties() );
+		return( properties.getAllPropertyNames() );
 	}
 
 	public String getPropertyValue( String prop ) throws Exception {

@@ -143,6 +143,10 @@ public class PropertySet {
 		return( Common.getSortedList( props ) );		
 	}
 
+	public String[] getAllPropertyNames() {
+		return( Common.getSortedKeys( data ) );
+	}
+	
 	public PropertyValue[] getAllProperties() {
 		List<PropertyValue> props = new LinkedList<PropertyValue>();
 		for( String p : Common.getSortedKeys( data ) )
