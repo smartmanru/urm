@@ -915,10 +915,12 @@ public abstract class DBSettings {
 	public static void modifyPropertyValue( EngineTransaction transaction , ObjectProperties ops , EntityVar var ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		int version = getEntityVersion( transaction , ops.versionType , ops.ownerId );
-		if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUE3, new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUE5 , new String[] {
 				EngineDB.getInteger( ops.ownerId ) ,
 				EngineDB.getEnum( ops.roleType ) ,
-				EngineDB.getInteger( var.PARAM_ID ) 
+				EngineDB.getInteger( var.entity.PARAM_OBJECT_ID ) ,
+				EngineDB.getEnum( var.entity.PARAMENTITY_TYPE ) ,
+				EngineDB.getInteger( var.PARAM_ID )
 				} ) )
 				Common.exitUnexpected();
 		
