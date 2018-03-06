@@ -75,7 +75,7 @@ public abstract class DBEngineSettings {
 		Node node = ConfReader.xmlGetFirstChild( root , ELEMENT_DEFAULTS );
 		DBSettings.importxml( loader , node , settings.defaultProductProperties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , false , version , DBEnumParamEntityType.PRODUCTDEFS);
 		
-		settings.defaultProductBuildProperties = entities.createDefaultBuildCommonProps( settings.defaultProductBuildProperties );
+		settings.defaultProductBuildProperties = entities.createDefaultBuildCommonProps( settings.defaultProductProperties );
 		Node build = ConfReader.xmlGetFirstChild( node , ELEMENT_BUILD );
 		DBSettings.importxml( loader , build , settings.defaultProductBuildProperties , DBVersions.CORE_ID , DBVersions.CORE_ID , true , false , version );
 		
