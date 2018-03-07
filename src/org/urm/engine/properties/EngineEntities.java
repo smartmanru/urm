@@ -381,8 +381,11 @@ public class EngineEntities {
 	
 	public ObjectProperties createBaseItemDependencyProps( BaseItem item , BaseItem dep ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.BASE_ITEM , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.BASEITEM_DEPENDENCY , nameBaseItemDependency , engine.execrc );
-		PropertyEntity custom = PropertyEntity.getCustomEntity( item.ID , DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM_CUSTOM , dep.ID , DBEnumObjectVersionType.CORE );
+		ObjectProperties depops = dep.getParameters();
+		ObjectMeta meta = depops.getMeta();
+		PropertyEntity custom = meta.getCustomEntity();
 		props.create( item.getParameters() , new PropertyEntity[] {} , custom , true );
+		props.setOwnerId( item.ID );
 		return( props );
 	}
 	

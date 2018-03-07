@@ -1137,6 +1137,10 @@ public class TransactionBase extends EngineObject {
 				exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
 		}
 		else
+		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.BASEITEM_CUSTOM ) {
+			checkTransactionBase();
+		}
+		else
 			exitUnexpectedState();
 	}
 
