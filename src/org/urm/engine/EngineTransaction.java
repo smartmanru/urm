@@ -72,7 +72,7 @@ public class EngineTransaction extends TransactionBase {
 	public EntityVar createCustomProperty( ObjectProperties ops , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) throws Exception {
 		super.checkTransactionCustomProperty( ops );
 		EngineEntities entities = getEntities();
-		EntityVar var = DBEngineEntities.createCustomProperty( this , entities , ops , name , desc , type , subtype , defValue , secured , enumList );
+		EntityVar var = DBEngineEntities.createCustomProperty( this , entities , ops , name , desc , type , subtype , defValue , secured , false , enumList );
 		entityNew = var.entity;
 		return( var );
 	}
@@ -80,7 +80,7 @@ public class EngineTransaction extends TransactionBase {
 	public EntityVar modifyCustomProperty( ObjectProperties ops , int paramId , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) throws Exception {
 		super.checkTransactionCustomProperty( ops );
 		EngineEntities entities = getEntities();
-		EntityVar var = DBEngineEntities.modifyCustomProperty( this , entities , ops , paramId , name , desc , type , subtype , defValue , secured , enumList );
+		EntityVar var = DBEngineEntities.modifyCustomProperty( this , entities , ops , paramId , name , desc , type , subtype , defValue , secured , false , enumList );
 		entityNew = var.entity;
 		return( var );
 	}

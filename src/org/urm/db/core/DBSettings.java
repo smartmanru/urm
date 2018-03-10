@@ -36,6 +36,7 @@ public abstract class DBSettings {
 	public static String ATTR_VALUE = "value";
 	public static String ATTR_DESC = "desc";
 	public static String ATTR_SECURED = "secured"; 
+	public static String ATTR_INHERITED = "inherited";
 	public static String ATTR_TYPE = "type";
 	public static String VALUE_ENUM = "enum";
 
@@ -268,6 +269,7 @@ public abstract class DBSettings {
 				Common.xmlSetElementAttr( doc , nodeVar , ATTR_DESC , var.DESC );
 				Common.xmlSetElementAttr( doc , nodeVar , ATTR_TYPE , custom.exportxmlEnum( var.PARAMVALUE_TYPE ) );
 				Common.xmlSetElementBooleanAttr( doc , nodeVar , ATTR_SECURED , var.SECURED );
+				Common.xmlSetElementBooleanAttr( doc , nodeVar , ATTR_INHERITED , var.INHERITED );
 				Common.xmlSetElementAttr( doc , nodeVar , ATTR_VALUE , var.EXPR_DEF );
 				Common.xmlSetElementAttr( doc , nodeVar , ATTR_ENUMDEF , var.CUSTOMENUM_DEF );
 			}
@@ -450,6 +452,7 @@ public abstract class DBSettings {
 		String exprDef = ConfReader.getAttrValue( item , ATTR_VALUE );
 		String customEnumDef = ConfReader.getAttrValue( item , ATTR_ENUMDEF );
 		boolean secured = ConfReader.getBooleanAttrValue( item , ATTR_SECURED , false );
+		boolean inherited = ConfReader.getBooleanAttrValue( item , ATTR_INHERITED , false );
 		
 		DBEnumParamValueType type = null;
 		DBEnumParamValueSubType subType = null;
@@ -472,8 +475,16 @@ public abstract class DBSettings {
 			subType = DBEnumParamValueSubType.DEFAULT;
 			defValue = exprDef;
 		}
+
+		// check inherited has parent
+		if( inherited ) {
+			ObjectProperties opsParent = properties.getParent();
+			EntityVar varOriginal = opsParent.findVar( prop );
+			if( varOriginal == null )
+				Common.exit1( _Error.MissingInheritedCustom1 , "Missing original parameter for inherited custom variable=" + prop , prop );
+		}
 		
-		var = EntityVar.meta( prop , prop , prop , desc , type , subType , DBEnumObjectType.UNKNOWN , false , secured , defValue , null , customEnums );
+		var = EntityVar.meta( prop , prop , prop , desc , type , subType , DBEnumObjectType.UNKNOWN , false , secured , inherited , defValue , null , customEnums );
 		custom.addVar( var );
 	}		
 
@@ -576,7 +587,7 @@ public abstract class DBSettings {
 		var.VERSION = version;
 		String enumName = ( var.enumClass == null )? null : DBEnums.getEnumName( var.enumClass );
 		
-		if( !c.modify( DBQueries.MODIFY_PARAM_ADDPARAM17 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_ADDPARAM18 , new String[] {
 			EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
 			EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 			EngineDB.getInteger( var.PARAM_ID ) ,
@@ -591,6 +602,7 @@ public abstract class DBSettings {
 			EngineDB.getString( enumName ) ,
 			EngineDB.getBoolean( var.REQUIRED ) ,
 			EngineDB.getBoolean( var.SECURED ) ,
+			EngineDB.getBoolean( var.INHERITED ) ,
 			EngineDB.getString( var.EXPR_DEF ) ,
 			EngineDB.getString( var.CUSTOMENUM_DEF ) ,
 			EngineDB.getInteger( version )
@@ -602,7 +614,7 @@ public abstract class DBSettings {
 		DBNames.updateName( c , entity.PARAM_OBJECT_ID , var.NAME , var.PARAM_ID , DBEnumObjectType.PARAM );
 		var.VERSION = version;
 		String enumName = ( var.enumClass == null )? null : DBEnums.getEnumName( var.enumClass );
-		if( !c.modify( DBQueries.MODIFY_PARAM_UPDATEPARAM17 , new String[] {
+		if( !c.modify( DBQueries.MODIFY_PARAM_UPDATEPARAM18 , new String[] {
 				EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
 				EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 				EngineDB.getInteger( var.PARAM_ID ) ,
@@ -617,6 +629,7 @@ public abstract class DBSettings {
 				EngineDB.getString( enumName ) ,
 				EngineDB.getBoolean( var.REQUIRED ) ,
 				EngineDB.getBoolean( var.SECURED ) ,
+				EngineDB.getBoolean( var.INHERITED ) ,
 				EngineDB.getString( var.EXPR_DEF ) ,
 				EngineDB.getString( var.CUSTOMENUM_DEF ) ,
 				EngineDB.getInteger( version )
@@ -677,7 +690,7 @@ public abstract class DBSettings {
 				String customEnumDef = "";
 				DBEnumParamValueSubType subType = DBEnumParamValueSubType.getValue( rs.getInt( 7 ) , false );
 				if( subType == DBEnumParamValueSubType.CUSTOMENUM ) {
-					customEnumDef = rs.getString( 13 );
+					customEnumDef = rs.getString( 14 );
 					customEnumList = Common.splitSpaced( customEnumDef );
 				}
 				
@@ -691,11 +704,12 @@ public abstract class DBSettings {
 						DBEnumObjectType.getValue( rs.getInt( 8 ) , false ) ,
 						rs.getBoolean( 10 ) , 
 						rs.getBoolean( 11 ) ,
-						rs.getString( 12 ) ,
+						rs.getBoolean( 12 ) ,
+						rs.getString( 13 ) ,
 						enumClass ,
 						customEnumList );
 				var.PARAM_ID = rs.getInt( 1 );
-				var.VERSION = rs.getInt( 14 );
+				var.VERSION = rs.getInt( 15 );
 				entity.addVar( var );
 			}
 		}

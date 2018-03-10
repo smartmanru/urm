@@ -196,7 +196,7 @@ public class AuthGroup {
 	}
 	
 	public void addUser( SourceType source , AuthUser user ) {
-		if( !users.containsKey( user.NAME ) )
+		if( !users.containsKey( user.ID ) )
 			users.put( user.ID , source );
 	}
 

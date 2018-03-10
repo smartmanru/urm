@@ -145,25 +145,25 @@ public class SessionSecurity {
 		return( new AuthRoleSet( secBase ) );
 	}
 
-	public synchronized AuthRoleSet getResourceRoles( String resourceName ) {
+	public synchronized AuthRoleSet getResourceRoles( int resourceId ) {
 		AuthRoleSet set = new AuthRoleSet( secResourceAny );
-		AuthRoleSet roles = secProduct.get( resourceName );
+		AuthRoleSet roles = secProduct.get( resourceId );
 		if( roles != null )
 			set.add( roles );
 		return( set );
 	}
 	
-	public synchronized AuthRoleSet getProductRoles( String productName ) {
+	public synchronized AuthRoleSet getProductRoles( int productId ) {
 		AuthRoleSet set = new AuthRoleSet( secProductAny );
-		AuthRoleSet roles = secProduct.get( productName );
+		AuthRoleSet roles = secProduct.get( productId );
 		if( roles != null )
 			set.add( roles );
 		return( set );
 	}
 	
-	public synchronized AuthRoleSet getNetworkRoles( String networkName ) {
+	public synchronized AuthRoleSet getNetworkRoles( int networkId ) {
 		AuthRoleSet set = new AuthRoleSet( secNetworkAny );
-		AuthRoleSet roles = secNetwork.get( networkName );
+		AuthRoleSet roles = secNetwork.get( networkId );
 		if( roles != null )
 			set.add( roles );
 		return( set );

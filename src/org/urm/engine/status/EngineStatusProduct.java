@@ -283,28 +283,7 @@ public class EngineStatusProduct extends EngineObject {
 	}
 	
 	private void removeProductSource( EngineObject object ) {
-		String name = null;
-		if( object instanceof MetaEnv ) {
-			MetaEnv env = ( MetaEnv )object;
-			name = env.NAME;
-		}
-		else
-		if( object instanceof MetaEnvSegment ) {
-			MetaEnvSegment sg = ( MetaEnvSegment )object;
-			name = sg.env.NAME + "-" + sg.NAME;
-		}
-		else
-		if( object instanceof MetaEnvServer ) {
-			MetaEnvServer server = ( MetaEnvServer )object;
-			name = server.sg.env.NAME + "-" + server.sg.NAME + "-" + server.NAME;
-		}
-		else
-		if( object instanceof MetaEnvServerNode ) {
-			MetaEnvServerNode node = ( MetaEnvServerNode )object;
-			name = node.server.sg.env.NAME + "-" + node.server.sg.NAME + "-" + node.server.NAME + "-" + node.POS;
-		}
-		
-		StatusSource source = productSources.get( name );
+		StatusSource source = productSources.get( object );
 		if( source == null )
 			return;
 		

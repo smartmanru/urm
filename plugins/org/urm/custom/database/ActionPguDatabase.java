@@ -94,7 +94,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 
 		// regional tail
 		String F_REGIONALINDEX = "";
-		if( P_ALIGNEDNAME.equals( "regional" ) )
+		if( P_ALIGNEDNAME.dirName.equals( "regional" ) )
 			F_REGIONALINDEX = "RR";
 
 		// process UDDI

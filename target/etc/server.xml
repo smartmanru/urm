@@ -20,9 +20,6 @@
         <property name="work.deploylogs" value="@urm.installpath@/logs/deploy"/>
         <property name="work.mirrorpath" value="@urm.installpath@/mirror"/>
         <custom>
-            <property desc="" name="aaa" value="@rrr@"/>
-            <property desc="" name="bbb" value=""/>
-            <property desc="" name="myprop" value="myvalue1"/>
         </custom>
     </core>
     <defaults>
@@ -35,7 +32,6 @@
         <property name="release.charset" value="UTF-8"/>
         <property name="release.root" value="products/@product@/changes"/>
         <property name="source.trackers" value="@adm.tracker@ DEV"/>
-        <property name="upgrade.path" value="upgrade"/>
         <build>
             <property name="app.logpath" value="@product.home@/logs"/>
             <property name="build.artefacts" value="@product.home@/artefacts"/>

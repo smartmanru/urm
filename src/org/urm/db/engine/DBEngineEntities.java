@@ -197,7 +197,7 @@ public abstract class DBEngineEntities {
 		}
 	}
 
-	public static EntityVar createCustomProperty( EngineTransaction transaction , EngineEntities entities , ObjectProperties ops , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) throws Exception {
+	public static EntityVar createCustomProperty( EngineTransaction transaction , EngineEntities entities , ObjectProperties ops , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , boolean inherited , String[] enumList ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
 		if( entity.META_OBJECT_ID != ops.ownerId )
@@ -212,7 +212,7 @@ public abstract class DBEngineEntities {
 				Common.exitUnexpected();
 		}
 		
-		EntityVar var = EntityVar.meta( name , name , name , desc , type , subtype , DBEnumObjectType.UNKNOWN , false , secured , defValue , null , enumList );
+		EntityVar var = EntityVar.meta( name , name , name , desc , type , subtype , DBEnumObjectType.UNKNOWN , false , secured , inherited , defValue , null , enumList );
 		DBSettings.createCustomProperty( transaction , entity , var );
 		meta.rebuild();
 		
@@ -221,7 +221,7 @@ public abstract class DBEngineEntities {
 		return( var );
 	}
 	
-	public static EntityVar modifyCustomProperty( EngineTransaction transaction , EngineEntities entities , ObjectProperties ops , int paramId , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) throws Exception {
+	public static EntityVar modifyCustomProperty( EngineTransaction transaction , EngineEntities entities , ObjectProperties ops , int paramId , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , boolean inherited , String[] enumList ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
 		if( entity.META_OBJECT_ID != ops.ownerId )
@@ -234,7 +234,7 @@ public abstract class DBEngineEntities {
 			Common.exitUnexpected();
 		
 		String originalName = var.NAME;
-		var.modifyCustom( name , desc , type , subtype , defValue , secured , enumList );
+		var.modifyCustom( name , desc , type , subtype , defValue , secured , inherited , enumList );
 		DBSettings.modifyCustomProperty( transaction , var );
 
 		PropertySet set = ops.getProperties();

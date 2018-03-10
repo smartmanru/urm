@@ -72,7 +72,7 @@ public class BaseCategory extends EngineObject {
 	}
 	
 	public void removeGroup( BaseGroup group ) {
-		groupMap.remove( group );
+		groupMap.remove( group.NAME );
 	}
 	
 	public void modifyGroup( BaseGroup group ) {

@@ -72,7 +72,7 @@ public class ReleaseTicketSet {
 	}
 	
 	private void removeTicket( ReleaseTicket ticket ) {
-		map.remove( ticket );
+		map.remove( ticket.CODE );
 		items.remove( ticket );
 	}
 

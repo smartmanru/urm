@@ -334,7 +334,7 @@ public class EngineAuth extends EngineObject {
 	}
 
 	public AuthGroup findGroup( int groupId ) {
-		return( groups.get( groupId ) );
+		return( groupsById.get( groupId ) );
 	}
 
 	public AuthUser findUser( int userId ) {
@@ -422,55 +422,54 @@ public class EngineAuth extends EngineObject {
 	}
 
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , product.NAME , readOnly ) );
+		return( checkAccessProductAction( action , sa , product , null , DBEnumBuildModeType.UNKNOWN , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , meta.name , readOnly ) );
+		return( checkAccessProductAction( action , sa , meta.getProduct() , null , DBEnumBuildModeType.UNKNOWN , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , DBEnumBuildModeType mode , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , meta.name , null , mode , readOnly ) );
+		return( checkAccessProductAction( action , sa , meta.getProduct() , null , mode , readOnly ) );
 	}
 	
-	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , productName , null , action.context.buildMode , readOnly ) );
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , String envName , boolean readOnly ) {
+		ProductEnvs envs = meta.getEnviroments();
+		MetaEnv env = envs.findMetaEnv( envName );
+		return( checkAccessProductAction( action , sa , meta.getProduct() , env , DBEnumBuildModeType.UNKNOWN , readOnly ) );
 	}
 	
-	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , String envName , boolean readOnly ) {
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , String envName , boolean readOnly ) {
 		try {
-			Meta meta = action.getProductMetadata( productName );
-			if( meta == null )
-				return( false );
-			
+			Meta meta = product.getMeta( action );
 			ProductEnvs envs = meta.getEnviroments();
 			MetaEnv env = envs.findMetaEnv( envName );
-			return( checkAccessProductAction( action , sa , productName , env , null , readOnly ) );
+			return( checkAccessProductAction( action , sa , product , env , DBEnumBuildModeType.UNKNOWN , readOnly ) );
 		}
 		catch( Throwable e ) {
-			action.log( "checkAccessProductAction" , e );
+			action.log( "invalid product", e );
+			return( false );
 		}
-		return( false );
 	}
 	
-	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , DBEnumBuildModeType mode , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , productName , null , mode , readOnly ) );
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , DBEnumBuildModeType mode , boolean readOnly ) {
+		return( checkAccessProductAction( action , sa , product , null , mode , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , MetaEnv env , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , meta.name , env , null , readOnly ) );
+		return( checkAccessProductAction( action , sa , meta.getProduct() , env , null , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , MetaEnv env , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , env.meta.name , env , null , readOnly ) );
+		return( checkAccessProductAction( action , sa , env.meta.getProduct() , env , null , readOnly ) );
 	}
 	
-	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , String productName , MetaEnv env , DBEnumBuildModeType mode , boolean readOnly ) {
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , MetaEnv env , DBEnumBuildModeType mode , boolean readOnly ) {
 		SessionSecurity security = action.actionInit.session.getSecurity();
 		if( security.isAdminAny() )
 			return( true );
 		
-		AuthRoleSet roles = security.getProductRoles( productName );
+		AuthRoleSet roles = security.getProductRoles( product.ID );
 		DBEnumEnvType envtype = ( env == null )? DBEnumEnvType.UNKNOWN : env.ENV_TYPE;
 		
 		if( sa == SecurityAction.ACTION_SECURED ) {
@@ -558,19 +557,19 @@ public class EngineAuth extends EngineObject {
 	}
 
 	public boolean checkAccessNetworkAction( ActionBase action , SecurityAction sa , Network network ) {
-		return( checkAccessNetworkAction( action , sa , network.NAME , false , false ) );
+		return( checkAccessNetworkAction( action , sa , network.ID , false , false ) );
 	}
 	
 	public boolean checkAccessNetworkAction( ActionBase action , SecurityAction sa , Network network , boolean configure , boolean allocate ) {
-		return( checkAccessNetworkAction( action , sa , network.NAME , configure , allocate ) );
+		return( checkAccessNetworkAction( action , sa , network.ID , configure , allocate ) );
 	}
 	
-	public boolean checkAccessNetworkAction( ActionBase action , SecurityAction sa , String networkName , boolean configure , boolean allocate ) {
+	public boolean checkAccessNetworkAction( ActionBase action , SecurityAction sa , int networkId , boolean configure , boolean allocate ) {
 		SessionSecurity security = action.actionInit.session.getSecurity();
 		if( security.isAdminAny() )
 			return( true );
 		
-		AuthRoleSet roles = security.getNetworkRoles( networkName );
+		AuthRoleSet roles = security.getNetworkRoles( networkId );
 		if( configure ) {
 			if( roles.secInfra )
 				return( true );

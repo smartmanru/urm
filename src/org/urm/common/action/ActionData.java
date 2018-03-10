@@ -238,7 +238,7 @@ public class ActionData implements Serializable {
 		
 		for( CommandOption option : optionsSet ) {
 			if( option.var == var ) {
-				optionsSet.remove( option.optName );
+				optionsSet.remove( option );
 				break;
 			}
 		}

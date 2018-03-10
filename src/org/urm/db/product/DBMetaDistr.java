@@ -159,8 +159,8 @@ public class DBMetaDistr {
 			boolean pending = false;
 			for( String name : deps.keySet() ) {
 				String srcname = deps.get( name );
-				if( !orderNode.contains( name ) ) {
-					if( orderNode.contains( srcname ) ) {
+				if( !orderMap.containsKey( name ) ) {
+					if( orderMap.containsKey( srcname ) ) {
 						added = true;
 						Node node = items.get( name );
 						orderNode.add( node );

@@ -323,7 +323,7 @@ public class MetaDistrDelivery {
 	}
 	
 	public void removeSchema( MetaDatabaseSchema schema ) throws Exception {
-		mapDatabaseSchema.remove( schema.NAME );
+		mapDatabaseSchema.remove( schema.ID );
 	}
 
 	public void setDatabaseAll( boolean all ) throws Exception {

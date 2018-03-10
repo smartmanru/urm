@@ -28,5 +28,6 @@ public class _Error {
 	public static final int InvalidEnum3 = ErrorBase + 19;
 	public static final int SetSystemVarWrongPlace1 = ErrorBase + 20;
 	public static final int UnexpectedEmptyCustomEnum1 = ErrorBase + 21;
+	public static final int MissingInheritedCustom1 = ErrorBase + 22;
 	
 }

@@ -24,7 +24,7 @@ public class ActionSetVersion extends ActionBase {
 	@Override 
 	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
 		// ignore if builder is not maven
-		if( !scopeProject.sourceProject.getBuilder( this ).equals( "maven" ) ) {
+		if( !scopeProject.sourceProject.getBuilder( this ).isMaven() ) {
 			info( "project=" + scopeProject.sourceProject.NAME + " is not built by maven. Skipped." );
 			return( SCOPESTATE.NotRun );
 		}

@@ -99,7 +99,7 @@ public class BaseGroup extends EngineObject {
 	}
 	
 	public void deleteItem( BaseItem item ) throws Exception {
-		itemMap.remove( item );
+		itemMap.remove( item.NAME );
 	}
 	
 	public void modifyItem( BaseItem item ) throws Exception {

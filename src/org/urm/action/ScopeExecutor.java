@@ -21,6 +21,7 @@ import org.urm.meta.Types;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.Types.*;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.env.MetaEnv;
@@ -124,8 +125,14 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( runSimple() );
 	}
 	
-	public boolean runSimpleProduct( String product , SecurityAction sa , boolean readOnly ) {
+	public boolean runSimpleProduct( String productName , SecurityAction sa , boolean readOnly ) {
 		EngineAuth auth = action.engine.getAuth();
+		AppProduct product = action.findProduct( productName );
+		if( product == null ) {
+			accessDenied( "access denied (user=" + action.getUserName() + ", unknown product)" );
+			return( false );
+		}
+		
 		if( !auth.checkAccessProductAction( action , sa , product , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", product operation)" );
 			return( false );
@@ -156,7 +163,13 @@ public class ScopeExecutor implements EngineEventsListener {
 	
 	public boolean runProductBuild( String productName , SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
 		EngineAuth auth = action.engine.getAuth();
-		if( !auth.checkAccessProductAction( action , sa , productName , mode , readOnly ) ) {
+		AppProduct product = action.findProduct( productName );
+		if( product == null ) {
+			accessDenied( "access denied (user=" + action.getUserName() + ", unknown product)" );
+			return( false );
+		}
+		
+		if( !auth.checkAccessProductAction( action , sa , product , mode , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", build operation)" );
 			return( false );
 		}
