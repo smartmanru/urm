@@ -11,7 +11,7 @@ import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
-import org.urm.db.core.DBEnums.DBEnumObjectType;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.db.DBQueries;
 import org.urm.engine.EngineTransaction;
@@ -97,9 +97,9 @@ public abstract class DBAppSystem {
 	
 	public static void modifySystem( DBConnection c , AppSystem system , boolean insert ) throws Exception {
 		if( insert )
-			system.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , system.NAME , DBEnumObjectType.APPSYSTEM );
+			system.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , system.NAME , DBEnumParamEntityType.APPSYSTEM );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , system.NAME , system.ID , DBEnumObjectType.APPSYSTEM );
+			DBNames.updateName( c , DBVersions.CORE_ID , system.NAME , system.ID , DBEnumParamEntityType.APPSYSTEM );
 		
 		system.SV = c.getNextSystemVersion( system );
 		EngineEntities entities = c.getEntities();
@@ -140,7 +140,7 @@ public abstract class DBAppSystem {
 		
 		ObjectProperties ops = system.getParameters();
 		int version = c.getNextSystemVersion( system );
-		DBSettings.savedbPropertyValues( c , ops , false , true , version );
+		DBSettings.savedbPropertyValues( transaction , ops , false , true , version );
 		ops.recalculateChildProperties();
 	}
 	

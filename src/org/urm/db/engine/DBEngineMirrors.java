@@ -107,9 +107,9 @@ public class DBEngineMirrors {
 	
 	public static void modifyRepository( DBConnection c , MirrorRepository repo , boolean insert ) throws Exception {
 		if( insert )
-			repo.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , repo.NAME , DBEnumObjectType.MIRROR );
+			repo.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , repo.NAME , DBEnumParamEntityType.MIRROR );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , repo.NAME , repo.ID , DBEnumObjectType.MIRROR );
+			DBNames.updateName( c , DBVersions.CORE_ID , repo.NAME , repo.ID , DBEnumParamEntityType.MIRROR );
 		
 		repo.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();

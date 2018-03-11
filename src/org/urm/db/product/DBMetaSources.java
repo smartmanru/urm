@@ -83,9 +83,9 @@ public class DBMetaSources {
 	
 	private static void modifyProjectSet( DBConnection c , ProductMeta storage , MetaSourceProjectSet set , boolean insert ) throws Exception {
 		if( insert )
-			set.ID = DBNames.getNameIndex( c , storage.ID , set.NAME , DBEnumObjectType.META_SOURCESET );
+			set.ID = DBNames.getNameIndex( c , storage.ID , set.NAME , DBEnumParamEntityType.PRODUCT_SOURCESET );
 		else
-			DBNames.updateName( c , storage.ID , set.NAME , set.ID , DBEnumObjectType.META_SOURCESET );
+			DBNames.updateName( c , storage.ID , set.NAME , set.ID , DBEnumParamEntityType.PRODUCT_SOURCESET );
 		
 		set.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
@@ -175,9 +175,9 @@ public class DBMetaSources {
 	
 	public static void modifyProject( DBConnection c , ProductMeta storage , MetaSourceProject project , boolean insert ) throws Exception {
 		if( insert )
-			project.ID = DBNames.getNameIndex( c , storage.ID , project.NAME , DBEnumObjectType.META_SOURCEPROJECT );
+			project.ID = DBNames.getNameIndex( c , storage.ID , project.NAME , DBEnumParamEntityType.PRODUCT_SOURCEPROJECT );
 		else
-			DBNames.updateName( c , storage.ID , project.NAME , project.ID , DBEnumObjectType.META_SOURCEPROJECT );
+			DBNames.updateName( c , storage.ID , project.NAME , project.ID , DBEnumParamEntityType.PRODUCT_SOURCEPROJECT );
 		
 		project.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
@@ -232,9 +232,9 @@ public class DBMetaSources {
 	
 	private static void modifyProjectItem( DBConnection c , ProductMeta storage , MetaSourceProjectItem item , boolean insert ) throws Exception {
 		if( insert )
-			item.ID = DBNames.getNameIndex( c , item.project.ID , item.NAME , DBEnumObjectType.META_SOURCEITEM );
+			item.ID = DBNames.getNameIndex( c , item.project.ID , item.NAME , DBEnumParamEntityType.PRODUCT_SOURCEITEM );
 		else
-			DBNames.updateName( c , item.project.ID , item.NAME , item.ID , DBEnumObjectType.META_SOURCEITEM );
+			DBNames.updateName( c , item.project.ID , item.NAME , item.ID , DBEnumParamEntityType.PRODUCT_SOURCEITEM );
 		
 		item.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();

@@ -210,7 +210,7 @@ public class DBMetaEnvServerNode {
 		
 		ObjectProperties ops = node.getProperties();
 		int version = c.getNextEnvironmentVersion( env );
-		DBSettings.savedbPropertyValues( c , ops , false , true , version );
+		DBSettings.savedbPropertyValues( transaction , ops , false , true , version );
 		ops.recalculateChildProperties();
 	}
 	

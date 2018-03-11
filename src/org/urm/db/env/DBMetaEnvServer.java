@@ -105,7 +105,7 @@ public class DBMetaEnvServer {
 		// identify
 		PropertyEntity entity = entities.entityAppServerPrimary;
 		String NAME = entity.importxmlStringAttr( root , MetaEnvServer.PROPERTY_NAME );
-		server.ID = DBNames.getNameIndex( c , server.sg.ID , NAME , DBEnumObjectType.ENVIRONMENT_SERVER );
+		server.ID = DBNames.getNameIndex( c , server.sg.ID , NAME , DBEnumParamEntityType.ENV_SERVER_PRIMARY );
 
 		loader.trace( "import meta env server object, name=" + NAME );
 		
@@ -196,7 +196,7 @@ public class DBMetaEnvServer {
 	
 	private static void modifyServer( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvServer server , boolean insert ) throws Exception {
 		if( !insert )
-			DBNames.updateName( c , server.sg.ID , server.NAME , server.ID , DBEnumObjectType.ENVIRONMENT_SERVER );
+			DBNames.updateName( c , server.sg.ID , server.NAME , server.ID , DBEnumParamEntityType.ENV_SERVER_PRIMARY );
 		
 		server.EV = c.getNextEnvironmentVersion( env );
 		EngineEntities entities = c.getEntities();
@@ -411,7 +411,7 @@ public class DBMetaEnvServer {
 		
 		// identify
 		MetaEnvServer server = new MetaEnvServer( storage.meta , sg );
-		server.ID = DBNames.getNameIndex( c , server.sg.ID , name , DBEnumObjectType.ENVIRONMENT_SERVER );
+		server.ID = DBNames.getNameIndex( c , server.sg.ID , name , DBEnumParamEntityType.ENV_SERVER_PRIMARY );
 
 		transaction.trace( "create meta env server, name=" + name );
 		
@@ -482,7 +482,7 @@ public class DBMetaEnvServer {
 		DBConnection c = transaction.getConnection();
 		ObjectProperties ops = server.getProperties();
 		int version = c.getNextEnvironmentVersion( env );
-		DBSettings.savedbPropertyValues( c , ops , false , true , version );
+		DBSettings.savedbPropertyValues( transaction , ops , false , true , version );
 		ops.recalculateChildProperties();
 	}
 	
@@ -490,7 +490,7 @@ public class DBMetaEnvServer {
 		DBConnection c = transaction.getConnection();
 		ObjectProperties ops = server.getProperties();
 		int version = c.getNextEnvironmentVersion( env );
-		DBSettings.savedbPropertyValues( c , ops , true , false , version , DBEnumParamEntityType.ENV_SERVER_EXTRA );
+		DBSettings.savedbPropertyValues( transaction , ops , true , false , version , DBEnumParamEntityType.ENV_SERVER_EXTRA );
 		ops.recalculateChildProperties();
 	}
 	

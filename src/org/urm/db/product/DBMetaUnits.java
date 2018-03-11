@@ -68,9 +68,9 @@ public class DBMetaUnits {
 	
 	private static void modifyUnit( DBConnection c , ProductMeta storage , MetaProductUnit unit , boolean insert ) throws Exception {
 		if( insert )
-			unit.ID = DBNames.getNameIndex( c , storage.ID , unit.NAME , DBEnumObjectType.META_UNIT );
+			unit.ID = DBNames.getNameIndex( c , storage.ID , unit.NAME , DBEnumParamEntityType.PRODUCT_UNIT );
 		else
-			DBNames.updateName( c , storage.ID , unit.NAME , unit.ID , DBEnumObjectType.META_UNIT );
+			DBNames.updateName( c , storage.ID , unit.NAME , unit.ID , DBEnumParamEntityType.PRODUCT_UNIT );
 		
 		unit.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();

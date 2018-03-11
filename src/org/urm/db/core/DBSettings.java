@@ -10,7 +10,8 @@ import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
-import org.urm.engine.EngineTransaction;
+import org.urm.engine.TransactionBase;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
@@ -344,6 +345,13 @@ public abstract class DBSettings {
 	}
 	
 	private static void importxmlSetProperty( EngineLoader loader , ObjectProperties properties , EntityVar var , String value , boolean manual ) throws Exception {
+		// check set owned application property
+		if( var.isApp() ) {
+			ObjectProperties opsOwner = properties.getOwnerObject( var.NAME );
+			if( opsOwner != properties )
+				Common.exit1( _Error.UnknownAppVar1 , "Attempt to override built-in variable=" + var.NAME , var.NAME );
+		}
+		
 		if( var.isEnum() ) {
 			// convert enum name (xml value) to enum code
 			int code = DBEnums.getEnumCode(  var.enumClass , value );
@@ -583,12 +591,12 @@ public abstract class DBSettings {
 	}
 
 	private static void insertVar( DBConnection c , PropertyEntity entity , EntityVar var , int version ) throws Exception {
-		var.PARAM_ID = DBNames.getNameIndex( c , entity.PARAM_OBJECT_ID , var.NAME , DBEnumObjectType.PARAM );
+		var.PARAM_ID = DBNames.getNameIndex( c , entity.META_OBJECT_ID , var.NAME , entity.PARAMENTITY_TYPE );
 		var.VERSION = version;
 		String enumName = ( var.enumClass == null )? null : DBEnums.getEnumName( var.enumClass );
 		
 		if( !c.modify( DBQueries.MODIFY_PARAM_ADDPARAM18 , new String[] {
-			EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
+			EngineDB.getInteger( entity.META_OBJECT_ID ) ,
 			EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 			EngineDB.getInteger( var.PARAM_ID ) ,
 			EngineDB.getInteger( var.ENTITYCOLUMN ) ,
@@ -611,11 +619,11 @@ public abstract class DBSettings {
 	}
 
 	private static void updateVar( DBConnection c , PropertyEntity entity , EntityVar var , int version ) throws Exception {
-		DBNames.updateName( c , entity.PARAM_OBJECT_ID , var.NAME , var.PARAM_ID , DBEnumObjectType.PARAM );
+		DBNames.updateName( c , entity.META_OBJECT_ID , var.NAME , var.PARAM_ID , entity.PARAMENTITY_TYPE );
 		var.VERSION = version;
 		String enumName = ( var.enumClass == null )? null : DBEnums.getEnumName( var.enumClass );
 		if( !c.modify( DBQueries.MODIFY_PARAM_UPDATEPARAM18 , new String[] {
-				EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
+				EngineDB.getInteger( entity.META_OBJECT_ID ) ,
 				EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 				EngineDB.getInteger( var.PARAM_ID ) ,
 				EngineDB.getInteger( var.ENTITYCOLUMN ) ,
@@ -718,11 +726,43 @@ public abstract class DBSettings {
 		}
 	}
 
-	public static void savedbPropertyValues( DBConnection c , ObjectProperties properties , boolean saveApp , boolean saveCustom , int version ) throws Exception {
-		savedbPropertyValues( c , properties , saveApp , saveCustom , version , null );
+	public static void savedbPropertyValues( TransactionBase transaction , ObjectProperties properties , boolean saveApp , boolean saveCustom , int version ) throws Exception {
+		savedbPropertyValues( transaction , properties , saveApp , saveCustom , version , null );
+	}
+
+	public static void savedbPropertyValues( TransactionBase transaction , ObjectProperties ops , boolean saveApp , boolean saveCustom , int version , DBEnumParamEntityType entityTypeApp ) throws Exception {
+		// handle custom cross-version properties
+		if( saveCustom ) {
+			PropertySet set = ops.getProperties();
+			for( PropertyValue value : set.getAllProperties() ) {
+				EntityVar var = ops.getVar( value.property );
+				if( var.isApp() )
+					continue;
+				
+				ObjectProperties opsOwner = ops.getOwnerObject( var.NAME );
+				if( opsOwner.versionType != ops.versionType ) {
+					// ignore empty properties
+					String data = value.getOriginalValue();
+					if( data == null || data.isEmpty() )
+						continue;
+					
+					var = createInheritedProperty( transaction , ops , opsOwner , var );
+				}
+			}
+		}
+		
+		// save values
+		DBConnection c = transaction.getConnection();
+		savedbPropertyValues( c , ops , saveApp , saveCustom , version , entityTypeApp );
 	}
 	
-	public static void savedbPropertyValues( DBConnection c , ObjectProperties ops , boolean saveApp , boolean saveCustom , int version , DBEnumParamEntityType entityTypeApp ) throws Exception {
+	private static EntityVar createInheritedProperty( TransactionBase transaction , ObjectProperties ops , ObjectProperties opsOwner , EntityVar var ) throws Exception {
+		EngineEntities entities = transaction.getEntities();
+		EntityVar varInherited = DBEngineEntities.createCustomProperty( transaction , entities , ops , var.NAME , "(inherited)" , var.PARAMVALUE_TYPE , var.PARAMVALUE_SUBTYPE , "(inherited)" , false , true , null );
+		return( varInherited );
+	}
+	
+	private static void savedbPropertyValues( DBConnection c , ObjectProperties ops , boolean saveApp , boolean saveCustom , int version , DBEnumParamEntityType entityTypeApp ) throws Exception {
 		if( saveApp && saveCustom == false && entityTypeApp != null ) {
 			if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTENTITYPARAMVALUES3 , new String[] {
 					EngineDB.getInteger( ops.ownerId ) ,
@@ -773,6 +813,12 @@ public abstract class DBSettings {
 			String data = value.getOriginalValue();
 			if( data == null || data.isEmpty() )
 				continue;
+			
+			if( var.isCustom() ) {
+				ObjectProperties opsOwner = ops.getOwnerObject( var.NAME );
+				if( opsOwner.versionType != ops.versionType )
+					Common.exitUnexpected();
+			}
 			
 			if( !c.modify( DBQueries.MODIFY_PARAM_ADDOBJECTPARAMVALUE7 , new String[] {
 					EngineDB.getInteger( ops.ownerId ) ,
@@ -838,7 +884,7 @@ public abstract class DBSettings {
 		DBEngineEntities.modifyAppObject( c , entity , objectId , version , values , insert );
 	}
 
-	public static EntityVar createCustomProperty( EngineTransaction transaction , PropertyEntity entity , EntityVar var ) throws Exception {
+	public static EntityVar createCustomProperty( TransactionBase transaction , PropertyEntity entity , EntityVar var ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		int version = getEntityVersion( transaction , entity );
@@ -847,7 +893,7 @@ public abstract class DBSettings {
 		return( var );
 	}
 	
-	public static void modifyCustomProperty( EngineTransaction transaction , EntityVar var ) throws Exception {
+	public static void modifyCustomProperty( TransactionBase transaction , EntityVar var ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		int version = getEntityVersion( transaction , var.entity );
@@ -855,7 +901,7 @@ public abstract class DBSettings {
 		var.entity.updateVar( var );
 	}
 
-	public static void deleteCustomProperty( EngineTransaction transaction , EntityVar var ) throws Exception {
+	public static void deleteCustomProperty( TransactionBase transaction , EntityVar var ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		int version = getEntityVersion( transaction , var.entity );
@@ -863,11 +909,11 @@ public abstract class DBSettings {
 		var.entity.removeVar( var );
 	}
 
-	private static int getEntityVersion( EngineTransaction transaction , PropertyEntity entity ) throws Exception {
+	private static int getEntityVersion( TransactionBase transaction , PropertyEntity entity ) throws Exception {
 		return( getEntityVersion( transaction , entity.META_OBJECTVERSION_TYPE , entity.META_OBJECT_ID ) );
 	}
 	
-	private static int getEntityVersion( EngineTransaction transaction , DBEnumObjectVersionType versionType , int objectId ) throws Exception {
+	private static int getEntityVersion( TransactionBase transaction , DBEnumObjectVersionType versionType , int objectId ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		int version = 0;
@@ -893,14 +939,14 @@ public abstract class DBSettings {
 		return( version );
 	}
 
-	public static void modifyCustomValues( EngineTransaction transaction , ObjectProperties ops ) throws Exception {
+	public static void modifyCustomValues( TransactionBase transaction , ObjectProperties ops ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		int version = c.getNextCoreVersion();
 		savedbPropertyValues( c , ops , false , true , version , null );
 	}
 	
-	public static void modifyAppValues( EngineTransaction transaction , ObjectProperties ops , DBEnumParamEntityType entityType ) throws Exception {
+	public static void modifyAppValues( TransactionBase transaction , ObjectProperties ops , DBEnumParamEntityType entityType ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		int version = c.getNextCoreVersion();
@@ -944,7 +990,7 @@ public abstract class DBSettings {
 		}
 	}
 
-	public static void modifyPropertyValue( EngineTransaction transaction , ObjectProperties ops , EntityVar var ) throws Exception {
+	public static void modifyPropertyValue( TransactionBase transaction , ObjectProperties ops , EntityVar var ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		int version = getEntityVersion( transaction , ops.versionType , ops.ownerId );
 		if( !c.modify( DBQueries.MODIFY_PARAM_DROPOBJECTPARAMVALUE5 , new String[] {

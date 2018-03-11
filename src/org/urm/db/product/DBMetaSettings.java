@@ -7,7 +7,7 @@ import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBEnums.DBEnumBuildModeType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
-import org.urm.engine.EngineTransaction;
+import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineLoader;
@@ -33,6 +33,7 @@ public class DBMetaSettings {
 	
 	public static void createdb( EngineLoader loader , ProductMeta storage , ProductContext context ) throws Exception {
 		DBConnection c = loader.getConnection();
+		TransactionBase transaction = loader.getTransaction();
 		AppProduct product = storage.product;
 		EngineEntities entities = loader.getEntities();
 		
@@ -44,7 +45,7 @@ public class DBMetaSettings {
 		AppSystem system = product.system;
 		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
 		DBSettings.savedbEntityCustom( c , ops , version );
-		DBSettings.savedbPropertyValues( c , ops , false , true , version );
+		DBSettings.savedbPropertyValues( transaction , ops , false , true , version );
 		ops.recalculateProperties();
 		
 		// monitoring settings
@@ -56,7 +57,7 @@ public class DBMetaSettings {
 		mon.setPathProperty( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_DATA , engineOps.getExpressionValue( EngineMonitoring.PROPERTY_DIR_DATA ) );
 		mon.setPathProperty( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_REPORTS , engineOps.getExpressionValue( EngineMonitoring.PROPERTY_DIR_REPORTS ) );
 		mon.setPathProperty( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_LOGS , engineOps.getExpressionValue( EngineMonitoring.PROPERTY_DIR_LOGS ) );
-		DBSettings.savedbPropertyValues( c , mon , true , false , version );
+		DBSettings.savedbPropertyValues( transaction , mon , true , false , version );
 		mon.recalculateProperties();
 		settings.createSettings( ops , mon , context );
 		
@@ -65,7 +66,7 @@ public class DBMetaSettings {
 		EngineSettings engineSettings = context.settings;
 		ObjectProperties opsBuildCommonDefaults = engineSettings.getDefaultProductBuildSettings();
 		opsBuildCommon.copyOriginalPropertiesToRaw( opsBuildCommonDefaults.getProperties() );
-		DBSettings.savedbPropertyValues( c , opsBuildCommon , true , false , version );
+		DBSettings.savedbPropertyValues( transaction , opsBuildCommon , true , false , version );
 		settings.createBuildCommonSettings( opsBuildCommon );
 		
 		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
@@ -75,7 +76,7 @@ public class DBMetaSettings {
 			ObjectProperties opsBuildMode = entities.createMetaBuildModeProps( opsBuildCommon , mode );
 			ObjectProperties opsBuildModeDefaults = engineSettings.getDefaultProductBuildModeSettings( mode );
 			opsBuildMode.copyOriginalPropertiesToRaw( opsBuildModeDefaults.getProperties() );
-			DBSettings.savedbPropertyValues( c , opsBuildMode , true , false , version );
+			DBSettings.savedbPropertyValues( transaction , opsBuildMode , true , false , version );
 			settings.createBuildModeSettings( mode , opsBuildMode );
 		}
 	}
@@ -208,50 +209,50 @@ public class DBMetaSettings {
 		}
 	}
 
-	public static void updateProductCoreProperties( EngineTransaction transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
+	public static void updateProductCoreProperties( TransactionBase transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		ObjectProperties ops = settings.ops;
 		int version = c.getNextProductVersion( storage );
-		DBSettings.savedbPropertyValues( c , ops , true , false , version , DBEnumParamEntityType.PRODUCTDEFS );
+		DBSettings.savedbPropertyValues( transaction , ops , true , true , version , DBEnumParamEntityType.PRODUCTDEFS );
 		ops.recalculateChildProperties();
 		settings.updateCoreSettings();
 	}
 	
-	public static void updateProductCustomProperties( EngineTransaction transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
+	public static void updateProductCustomProperties( TransactionBase transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		ObjectProperties ops = settings.ops;
 		int version = c.getNextProductVersion( storage );
-		DBSettings.savedbPropertyValues( c , ops , false , true , version );
+		DBSettings.savedbPropertyValues( transaction , ops , false , true , version );
 		ops.recalculateChildProperties();
 		settings.updateContextSettings();
 	}
 	
-	public static void updateProductBuildCommonProperties( EngineTransaction transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
+	public static void updateProductBuildCommonProperties( TransactionBase transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		MetaProductBuildSettings build = settings.getBuildCommonSettings();
 		ObjectProperties opsBuild = build.ops;
 		int version = c.getNextProductVersion( storage );
-		DBSettings.savedbPropertyValues( c , opsBuild , true , false , version );
+		DBSettings.savedbPropertyValues( transaction , opsBuild , true , false , version );
 		opsBuild.recalculateChildProperties();
 		build.scatterProperties();
 		settings.updateBuildSettings();
 	}
 	
-	public static void updateProductBuildModeProperties( EngineTransaction transaction , ProductMeta storage , MetaProductSettings settings , DBEnumBuildModeType mode ) throws Exception {
+	public static void updateProductBuildModeProperties( TransactionBase transaction , ProductMeta storage , MetaProductSettings settings , DBEnumBuildModeType mode ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		MetaProductBuildSettings build = settings.getBuildModeSettings( mode );
 		ObjectProperties opsBuild = build.ops;
 		int version = c.getNextProductVersion( storage );
-		DBSettings.savedbPropertyValues( c , opsBuild , true , false , version );
+		DBSettings.savedbPropertyValues( transaction , opsBuild , true , false , version );
 		opsBuild.recalculateChildProperties();
 		settings.updateBuildSettings();
 	}
 
-	public static void updateMonitoringProperties( EngineTransaction transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
+	public static void updateMonitoringProperties( TransactionBase transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		AppProduct product = storage.product;
 		ActionBase action = transaction.getAction();
@@ -261,7 +262,7 @@ public class DBMetaSettings {
 		
 		ObjectProperties ops = settings.mon;
 		int version = c.getNextProductVersion( storage );
-		DBSettings.savedbPropertyValues( c , ops , true , false , version , DBEnumParamEntityType.PRODUCT_MONITORING );
+		DBSettings.savedbPropertyValues( transaction , ops , true , false , version , DBEnumParamEntityType.PRODUCT_MONITORING );
 		ops.recalculateChildProperties();
 		settings.updateMonitoringSettings();
 	}

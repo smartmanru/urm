@@ -9,7 +9,7 @@ import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamValueSubType;
 import org.urm.db.core.DBEnums.DBEnumParamValueType;
 import org.urm.db.core.DBSettings;
-import org.urm.engine.EngineTransaction;
+import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectMeta;
@@ -197,7 +197,7 @@ public abstract class DBEngineEntities {
 		}
 	}
 
-	public static EntityVar createCustomProperty( EngineTransaction transaction , EngineEntities entities , ObjectProperties ops , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , boolean inherited , String[] enumList ) throws Exception {
+	public static EntityVar createCustomProperty( TransactionBase transaction , EngineEntities entities , ObjectProperties ops , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , boolean inherited , String[] enumList ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
 		if( entity.META_OBJECT_ID != ops.ownerId )
@@ -221,7 +221,7 @@ public abstract class DBEngineEntities {
 		return( var );
 	}
 	
-	public static EntityVar modifyCustomProperty( EngineTransaction transaction , EngineEntities entities , ObjectProperties ops , int paramId , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , boolean inherited , String[] enumList ) throws Exception {
+	public static EntityVar modifyCustomProperty( TransactionBase transaction , EngineEntities entities , ObjectProperties ops , int paramId , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , boolean inherited , String[] enumList ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
 		if( entity.META_OBJECT_ID != ops.ownerId )
@@ -255,7 +255,7 @@ public abstract class DBEngineEntities {
 		return( var );
 	}
 	
-	public static void deleteCustomProperty( EngineTransaction transaction , EngineEntities entities , ObjectProperties ops , int paramId ) throws Exception {
+	public static void deleteCustomProperty( TransactionBase transaction , EngineEntities entities , ObjectProperties ops , int paramId ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
 		if( entity.META_OBJECT_ID != ops.ownerId )
@@ -271,7 +271,7 @@ public abstract class DBEngineEntities {
 		recalculateProperties( transaction , ops );
 	}
 
-	private static void renameProperty( EngineTransaction transaction , ObjectProperties ops , String originalName , String name ) throws Exception {
+	private static void renameProperty( TransactionBase transaction , ObjectProperties ops , String originalName , String name ) throws Exception {
 		renameObjectProperty( transaction , ops , originalName , name );
 		for( ObjectProperties child : ops.getChildProperties() ) {
 			if( child.versionType == ops.versionType )
@@ -279,7 +279,7 @@ public abstract class DBEngineEntities {
 		}
 	}
 
-	private static void deleteProperty( EngineTransaction transaction , ObjectProperties ops , String name ) throws Exception {
+	private static void deleteProperty( TransactionBase transaction , ObjectProperties ops , String name ) throws Exception {
 		deleteObjectProperty( transaction , ops , name );
 		for( ObjectProperties child : ops.getChildProperties() ) {
 			if( child.versionType == ops.versionType )
@@ -287,12 +287,12 @@ public abstract class DBEngineEntities {
 		}
 	}
 
-	private static void recalculateProperties( EngineTransaction transaction , ObjectProperties ops ) throws Exception {
+	private static void recalculateProperties( TransactionBase transaction , ObjectProperties ops ) throws Exception {
 		ops.recalculateProperties();
 		ops.recalculateChildProperties();
 	}
 
-	private static void renameObjectProperty( EngineTransaction transaction , ObjectProperties ops , String originalName , String name ) throws Exception {
+	private static void renameObjectProperty( TransactionBase transaction , ObjectProperties ops , String originalName , String name ) throws Exception {
 		String refOld = EntityVar.p( originalName );
 		String refNew = EntityVar.p( name );
 		for( String prop : ops.getPropertyList() ) {
@@ -307,7 +307,7 @@ public abstract class DBEngineEntities {
 		}
 	}
 
-	private static void deleteObjectProperty( EngineTransaction transaction , ObjectProperties ops , String name ) throws Exception {
+	private static void deleteObjectProperty( TransactionBase transaction , ObjectProperties ops , String name ) throws Exception {
 		String ref = EntityVar.p( name );
 		for( String prop : ops.getPropertyList() ) {
 			PropertyValue pv = ops.getProperty( prop );

@@ -12,8 +12,8 @@ public abstract class DBQueries {
 	public static String QUERY_VERSIONS_GETVERSION1 = "select owner_object_id , version , objectversion_type , last_import_id , last_name , ownerstatus_type from urm_object_version where owner_object_id = @1@";
 	public static String MODIFY_VERSIONS_MERGEVERSION6 = "insert into urm_object_version ( owner_object_id , version , objectversion_type , last_import_id , last_name , ownerstatus_type ) values( @values@ ) on conflict (owner_object_id) do update set version = excluded.version , objectversion_type = excluded.objectversion_type , last_import_id = excluded.last_import_id , last_name = excluded.last_name , ownerstatus_type = excluded.ownerstatus_type";
 	
-	public static String QUERY_NAMES_GETALL0 = "select parent , object_type , name , object_id from urm_object_name";
-	public static String MODIFY_NAMES_MERGEITEM4 = "insert into urm_object_name ( parent , object_type , name , object_id ) values ( @values@ ) on conflict (parent,object_type,name) do update set object_id = excluded.object_id";
+	public static String QUERY_NAMES_GETALL0 = "select parent , paramentity_type , name , object_id from urm_object_name";
+	public static String MODIFY_NAMES_MERGEITEM4 = "insert into urm_object_name ( parent , paramentity_type , name , object_id ) values ( @values@ ) on conflict (parent,paramentity_type,name) do update set object_id = excluded.object_id";
 	
 	public static String QUERY_ENUMS_GETALL0 = "select category , item , name from urm_object_type order by category , item";
 	public static String MODIFY_ENUMS_DROP0 = "delete from urm_object_type";

@@ -10,7 +10,7 @@ import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBVersions;
-import org.urm.db.core.DBEnums.DBEnumObjectType;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.EngineTransaction;
 import org.urm.engine.properties.EngineEntities;
@@ -103,9 +103,9 @@ public class DBMeta {
 
 	private static void modifyMeta( DBConnection c , ProductMeta storage , MetaProductVersion version , boolean insert ) throws Exception {
 		if( insert )
-			storage.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , storage.name , DBEnumObjectType.META );
+			storage.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , storage.name , DBEnumParamEntityType.PRODUCT );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , storage.name , storage.ID , DBEnumObjectType.META );
+			DBNames.updateName( c , DBVersions.CORE_ID , storage.name , storage.ID , DBEnumParamEntityType.PRODUCT );
 		
 		storage.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();

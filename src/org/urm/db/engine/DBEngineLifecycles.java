@@ -151,9 +151,9 @@ public class DBEngineLifecycles {
 	
 	private static void modifyLifecycle( DBConnection c , ReleaseLifecycle lc , boolean insert ) throws Exception {
 		if( insert )
-			lc.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , lc.NAME , DBEnumObjectType.LIFECYCLE );
+			lc.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , lc.NAME , DBEnumParamEntityType.LIFECYCLE );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , lc.NAME , lc.ID , DBEnumObjectType.LIFECYCLE );
+			DBNames.updateName( c , DBVersions.CORE_ID , lc.NAME , lc.ID , DBEnumParamEntityType.LIFECYCLE );
 		
 		lc.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
@@ -171,9 +171,9 @@ public class DBEngineLifecycles {
 
 	private static void modifyPhase( DBConnection c , LifecyclePhase phase , boolean insert ) throws Exception {
 		if( insert )
-			phase.ID = DBNames.getNameIndex( c , phase.lc.ID , phase.NAME , DBEnumObjectType.LIFECYCLEPHASE );
+			phase.ID = DBNames.getNameIndex( c , phase.lc.ID , phase.NAME , DBEnumParamEntityType.LIFECYCLEPHASE );
 		else
-			DBNames.updateName( c , phase.lc.ID , phase.NAME , phase.ID , DBEnumObjectType.LIFECYCLEPHASE );
+			DBNames.updateName( c , phase.lc.ID , phase.NAME , phase.ID , DBEnumParamEntityType.LIFECYCLEPHASE );
 		
 		phase.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();

@@ -794,9 +794,9 @@ public class DBMetaDistr {
 	
 	private static void modifyDelivery( DBConnection c , ProductMeta storage , MetaDistrDelivery delivery , boolean insert ) throws Exception {
 		if( insert )
-			delivery.ID = DBNames.getNameIndex( c , storage.ID , delivery.NAME , DBEnumObjectType.META_DIST_DELIVERY );
+			delivery.ID = DBNames.getNameIndex( c , storage.ID , delivery.NAME , DBEnumParamEntityType.PRODUCT_DIST_DELIVERY );
 		else
-			DBNames.updateName( c , storage.ID , delivery.NAME , delivery.ID , DBEnumObjectType.META_DIST_DELIVERY );
+			DBNames.updateName( c , storage.ID , delivery.NAME , delivery.ID , DBEnumParamEntityType.PRODUCT_DIST_DELIVERY );
 		
 		delivery.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
@@ -813,9 +813,9 @@ public class DBMetaDistr {
 	
 	private static void modifyBinaryItem( DBConnection c , ProductMeta storage , MetaDistrBinaryItem item , boolean insert ) throws Exception {
 		if( insert )
-			item.ID = DBNames.getNameIndex( c , storage.ID , item.NAME , DBEnumObjectType.META_DIST_BINARYITEM );
+			item.ID = DBNames.getNameIndex( c , storage.ID , item.NAME , DBEnumParamEntityType.PRODUCT_DIST_BINARYITEM );
 		else
-			DBNames.updateName( c , storage.ID , item.NAME , item.ID , DBEnumObjectType.META_DIST_BINARYITEM );
+			DBNames.updateName( c , storage.ID , item.NAME , item.ID , DBEnumParamEntityType.PRODUCT_DIST_BINARYITEM );
 		
 		item.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
@@ -844,9 +844,9 @@ public class DBMetaDistr {
 	
 	private static void modifyConfItem( DBConnection c , ProductMeta storage , MetaDistrConfItem item , boolean insert ) throws Exception {
 		if( insert )
-			item.ID = DBNames.getNameIndex( c , storage.ID , item.NAME , DBEnumObjectType.META_DIST_CONFITEM );
+			item.ID = DBNames.getNameIndex( c , storage.ID , item.NAME , DBEnumParamEntityType.PRODUCT_DIST_CONFITEM );
 		else
-			DBNames.updateName( c , storage.ID , item.NAME , item.ID , DBEnumObjectType.META_DIST_CONFITEM );
+			DBNames.updateName( c , storage.ID , item.NAME , item.ID , DBEnumParamEntityType.PRODUCT_DIST_CONFITEM );
 		
 		item.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
@@ -866,9 +866,9 @@ public class DBMetaDistr {
 	
 	private static void modifyComponent( DBConnection c , ProductMeta storage , MetaDistrComponent comp , boolean insert ) throws Exception {
 		if( insert )
-			comp.ID = DBNames.getNameIndex( c , storage.ID , comp.NAME , DBEnumObjectType.META_DIST_COMPONENT );
+			comp.ID = DBNames.getNameIndex( c , storage.ID , comp.NAME , DBEnumParamEntityType.PRODUCT_DIST_COMPONENT );
 		else
-			DBNames.updateName( c , storage.ID , comp.NAME , comp.ID , DBEnumObjectType.META_DIST_COMPONENT );
+			DBNames.updateName( c , storage.ID , comp.NAME , comp.ID , DBEnumParamEntityType.PRODUCT_DIST_COMPONENT );
 		
 		comp.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
@@ -882,9 +882,9 @@ public class DBMetaDistr {
 	private static void modifyComponentItem( DBConnection c , ProductMeta storage , MetaDistr distr , MetaDistrComponent comp , MetaDistrComponentItem item , boolean insert ) throws Exception {
 		String name = item.getMatchName();
 		if( insert )
-			item.ID = DBNames.getNameIndex( c , comp.ID , name , DBEnumObjectType.META_DIST_COMPITEM );
+			item.ID = DBNames.getNameIndex( c , comp.ID , name , DBEnumParamEntityType.PRODUCT_DIST_COMPITEM );
 		else
-			DBNames.updateName( c , comp.ID , name , item.ID , DBEnumObjectType.META_DIST_COMPITEM );
+			DBNames.updateName( c , comp.ID , name , item.ID , DBEnumParamEntityType.PRODUCT_DIST_COMPITEM );
 		
 		item.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();

@@ -310,17 +310,17 @@ public class EngineEntities {
 		return( props );
 	}
 
-	public ObjectProperties createSystemProps( ObjectProperties parent ) throws Exception {
-		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.DEFAULT , nameSystem , engine.execrc );
-		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.SYSTEM_CUSTOM , -1 , DBEnumObjectVersionType.SYSTEM );
-		props.create( parent , entityAppDirectorySystem , custom , true );
-		return( props );
-	}
-
 	public ObjectProperties createLdapProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.LDAP , nameLdap , engine.execrc );
 		props.create( parent , entityAppLDAPSettings , null , false );
 		props.setOwnerId( DBVersions.CORE_ID );
+		return( props );
+	}
+
+	public ObjectProperties createSystemProps( ObjectProperties parent ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.SYSTEM , DBEnumParamRoleType.DEFAULT , nameSystem , engine.execrc );
+		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.SYSTEM_CUSTOM , -1 , DBEnumObjectVersionType.SYSTEM );
+		props.create( parent , entityAppDirectorySystem , custom , true );
 		return( props );
 	}
 

@@ -70,13 +70,13 @@ public class DBEngineMonitoring {
 		DBConnection c = transaction.getConnection();
 		mon.setEnabled( transaction , enable );
 		int version = c.getNextCoreVersion();
-		DBSettings.savedbPropertyValues( c , mon.ops , true , false , version );
+		DBSettings.savedbPropertyValues( transaction , mon.ops , true , false , version );
 	}
 
 	public static void setProperties( EngineTransaction transaction , EngineMonitoring mon ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		int version = c.getNextCoreVersion();
-		DBSettings.savedbPropertyValues( c , mon.ops , true , false , version );
+		DBSettings.savedbPropertyValues( transaction , mon.ops , true , false , version );
 	}
 
 }

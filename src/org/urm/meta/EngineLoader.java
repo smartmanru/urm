@@ -68,6 +68,10 @@ public class EngineLoader {
 		ldp = new EngineLoaderProducts( this , data );
 	}
 
+	public TransactionBase getTransaction() {
+		return( transaction );
+	}
+	
 	public EngineEntities getEntities() {
 		return( entities );
 	}

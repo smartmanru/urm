@@ -75,9 +75,9 @@ public class DBMetaDatabase {
 
 	private static void modifySchema( DBConnection c , ProductMeta storage , MetaDatabaseSchema schema , boolean insert ) throws Exception {
 		if( insert )
-			schema.ID = DBNames.getNameIndex( c , storage.ID , schema.NAME , DBEnumObjectType.META_SCHEMA );
+			schema.ID = DBNames.getNameIndex( c , storage.ID , schema.NAME , DBEnumParamEntityType.PRODUCT_SCHEMA );
 		else
-			DBNames.updateName( c , storage.ID , schema.NAME , schema.ID , DBEnumObjectType.META_SCHEMA );
+			DBNames.updateName( c , storage.ID , schema.NAME , schema.ID , DBEnumParamEntityType.PRODUCT_SCHEMA );
 		
 		schema.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();

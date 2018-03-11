@@ -122,9 +122,9 @@ public class DBEngineBuilders {
 	
 	private static void modifyBuilder( DBConnection c , ProjectBuilder builder , boolean insert ) throws Exception {
 		if( insert )
-			builder.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , builder.NAME , DBEnumObjectType.BUILDER );
+			builder.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , builder.NAME , DBEnumParamEntityType.BUILDER );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , builder.NAME , builder.ID , DBEnumObjectType.BUILDER );
+			DBNames.updateName( c , DBVersions.CORE_ID , builder.NAME , builder.ID , DBEnumParamEntityType.BUILDER );
 		
 		builder.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();

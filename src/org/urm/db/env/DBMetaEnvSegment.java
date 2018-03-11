@@ -78,7 +78,7 @@ public class DBMetaEnvSegment {
 		// identify
 		PropertyEntity entity = entities.entityAppSegmentPrimary;
 		String NAME = entity.importxmlStringAttr( root , MetaEnvSegment.PROPERTY_NAME );
-		sg.ID = DBNames.getNameIndex( c , env.ID , NAME , DBEnumObjectType.ENVIRONMENT_SEGMENT );
+		sg.ID = DBNames.getNameIndex( c , env.ID , NAME , DBEnumParamEntityType.ENV_SEGMENT_PRIMARY );
 
 		loader.trace( "import meta env segment object, name=" + NAME );
 
@@ -169,7 +169,7 @@ public class DBMetaEnvSegment {
 	
 	private static void modifySegment( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvSegment sg , boolean insert ) throws Exception {
 		if( !insert )
-			DBNames.updateName( c , env.ID , sg.NAME , sg.ID , DBEnumObjectType.ENVIRONMENT_SEGMENT );
+			DBNames.updateName( c , env.ID , sg.NAME , sg.ID , DBEnumParamEntityType.ENV_SEGMENT_PRIMARY );
 		
 		sg.EV = c.getNextEnvironmentVersion( env );
 		EngineEntities entities = c.getEntities();
@@ -187,9 +187,9 @@ public class DBMetaEnvSegment {
 	
 	private static void modifyStartGroup( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvStartGroup group , boolean insert ) throws Exception {
 		if( insert )
-			group.ID = DBNames.getNameIndex( c , group.startInfo.sg.ID , group.NAME , DBEnumObjectType.ENVIRONMENT_STARTGROUP );
+			group.ID = DBNames.getNameIndex( c , group.startInfo.sg.ID , group.NAME , DBEnumParamEntityType.ENV_SEGMENT_STARTGROUP );
 		else
-			DBNames.updateName( c , group.ID , group.NAME , group.ID , DBEnumObjectType.ENVIRONMENT_STARTGROUP );
+			DBNames.updateName( c , group.ID , group.NAME , group.ID , DBEnumParamEntityType.ENV_SEGMENT_STARTGROUP );
 		
 		group.EV = c.getNextEnvironmentVersion( env );
 		EngineEntities entities = c.getEntities();
@@ -399,7 +399,7 @@ public class DBMetaEnvSegment {
 		EngineEntities entities = transaction.getEntities();
 		
 		MetaEnvSegment sg = new MetaEnvSegment( storage.meta , env );
-		sg.ID = DBNames.getNameIndex( c , env.ID , name , DBEnumObjectType.ENVIRONMENT_SEGMENT );
+		sg.ID = DBNames.getNameIndex( c , env.ID , name , DBEnumParamEntityType.ENV_SEGMENT_PRIMARY );
 		
 		transaction.trace( "create meta env segment, object=" + sg.objectId + ", name=" + name + ", id=" + sg.ID );
 
@@ -468,7 +468,7 @@ public class DBMetaEnvSegment {
 		
 		ObjectProperties ops = sg.getProperties();
 		int version = c.getNextEnvironmentVersion( env );
-		DBSettings.savedbPropertyValues( c , ops , false , true , version );
+		DBSettings.savedbPropertyValues( transaction , ops , false , true , version );
 		ops.recalculateChildProperties();
 	}
 	

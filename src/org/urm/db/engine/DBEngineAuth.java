@@ -282,9 +282,9 @@ public class DBEngineAuth {
 	
 	private static void modifyUser( DBConnection c , AuthUser user , boolean insert ) throws Exception {
 		if( insert )
-			user.ID = DBNames.getNameIndex( c , DBVersions.LOCAL_ID , user.NAME , DBEnumObjectType.AUTH_USER );
+			user.ID = DBNames.getNameIndex( c , DBVersions.LOCAL_ID , user.NAME , DBEnumParamEntityType.AUTHUSER );
 		else
-			DBNames.updateName( c , DBVersions.LOCAL_ID , user.NAME , user.ID , DBEnumObjectType.AUTH_USER );
+			DBNames.updateName( c , DBVersions.LOCAL_ID , user.NAME , user.ID , DBEnumParamEntityType.AUTHUSER );
 		
 		user.UV = c.getNextLocalVersion();
 		EngineEntities entities = c.getEntities();
@@ -300,9 +300,9 @@ public class DBEngineAuth {
 
 	private static void modifyGroup( DBConnection c , AuthGroup group , boolean insert ) throws Exception {
 		if( insert )
-			group.ID = DBNames.getNameIndex( c , DBVersions.LOCAL_ID , group.NAME , DBEnumObjectType.AUTH_GROUP );
+			group.ID = DBNames.getNameIndex( c , DBVersions.LOCAL_ID , group.NAME , DBEnumParamEntityType.AUTHGROUP );
 		else
-			DBNames.updateName( c , DBVersions.LOCAL_ID , group.NAME , group.ID , DBEnumObjectType.AUTH_GROUP );
+			DBNames.updateName( c , DBVersions.LOCAL_ID , group.NAME , group.ID , DBEnumParamEntityType.AUTHGROUP );
 		
 		group.UV = c.getNextLocalVersion();
 		EngineEntities entities = c.getEntities();
@@ -790,7 +790,7 @@ public class DBEngineAuth {
 		ldap.setNotUse();
 		
 		int version = c.getNextLocalVersion();
-		DBSettings.savedbPropertyValues( c , ldap.getLdapSettings() , true , false , version );
+		DBSettings.savedbPropertyValues( transaction , ldap.getLdapSettings() , true , false , version );
 	}
 	
 	public static void enableLdap( EngineTransaction transaction , EngineAuth auth , ObjectProperties ops ) throws Exception {
@@ -799,7 +799,7 @@ public class DBEngineAuth {
 		ldap.setLdapSettings( ops );
 		
 		int version = c.getNextLocalVersion();
-		DBSettings.savedbPropertyValues( c , ldap.getLdapSettings() , true , false , version );
+		DBSettings.savedbPropertyValues( transaction , ldap.getLdapSettings() , true , false , version );
 		
 		ldap.start();
 	}

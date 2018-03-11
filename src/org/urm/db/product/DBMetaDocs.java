@@ -70,9 +70,9 @@ public class DBMetaDocs {
 	
 	private static void modifyDoc( DBConnection c , ProductMeta storage , MetaProductDoc doc , boolean insert ) throws Exception {
 		if( insert )
-			doc.ID = DBNames.getNameIndex( c , storage.ID , doc.NAME , DBEnumObjectType.META_DOC );
+			doc.ID = DBNames.getNameIndex( c , storage.ID , doc.NAME , DBEnumParamEntityType.PRODUCT_DOC );
 		else
-			DBNames.updateName( c , storage.ID , doc.NAME , doc.ID , DBEnumObjectType.META_DOC );
+			DBNames.updateName( c , storage.ID , doc.NAME , doc.ID , DBEnumParamEntityType.PRODUCT_DOC );
 		
 		doc.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();

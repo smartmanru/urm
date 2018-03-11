@@ -82,9 +82,9 @@ public class DBEngineResources {
 	
 	private static void modifyResource( DBConnection c , AuthResource rc , boolean insert ) throws Exception {
 		if( insert )
-			rc.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , rc.NAME , DBEnumObjectType.RESOURCE );
+			rc.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , rc.NAME , DBEnumParamEntityType.RESOURCE );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , rc.NAME , rc.ID , DBEnumObjectType.RESOURCE );
+			DBNames.updateName( c , DBVersions.CORE_ID , rc.NAME , rc.ID , DBEnumParamEntityType.RESOURCE );
 		
 		rc.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();

@@ -8,7 +8,7 @@ import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBVersions;
-import org.urm.db.core.DBEnums.DBEnumObjectType;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.properties.EngineEntities;
@@ -88,9 +88,9 @@ public abstract class DBAppProduct {
 	
 	public static void modifyProduct( DBConnection c , AppProduct product , boolean insert ) throws Exception {
 		if( insert )
-			product.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , product.NAME , DBEnumObjectType.APPPRODUCT );
+			product.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , product.NAME , DBEnumParamEntityType.APPPRODUCT );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , product.NAME , product.ID , DBEnumObjectType.APPPRODUCT );
+			DBNames.updateName( c , DBVersions.CORE_ID , product.NAME , product.ID , DBEnumParamEntityType.APPPRODUCT );
 			
 		product.SV = c.getNextSystemVersion( product.system );
 		EngineEntities entities = c.getEntities();

@@ -364,9 +364,9 @@ public abstract class DBEngineBase {
 
 	public static void modifyItem( DBConnection c , BaseItem item , boolean insert ) throws Exception {
 		if( insert )
-			item.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , item.NAME , DBEnumObjectType.BASE_ITEM );
+			item.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , item.NAME , DBEnumParamEntityType.BASEITEM );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , item.NAME , item.ID , DBEnumObjectType.BASE_ITEM );
+			DBNames.updateName( c , DBVersions.CORE_ID , item.NAME , item.ID , DBEnumParamEntityType.BASEITEM );
 		
 		item.CV = c.getNextCoreVersion();
 		DBSettings.modifyAppValues( c , item.ID , item.ops , DBEnumParamEntityType.BASEITEM , item.CV , new String[] {
@@ -376,9 +376,9 @@ public abstract class DBEngineBase {
 
 	private static void modifyGroup( DBConnection c , BaseGroup group , boolean insert ) throws Exception {
 		if( insert )
-			group.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , group.NAME , DBEnumObjectType.BASE_GROUP );
+			group.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , group.NAME , DBEnumParamEntityType.BASEGROUP );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , group.NAME , group.ID , DBEnumObjectType.BASE_GROUP );
+			DBNames.updateName( c , DBVersions.CORE_ID , group.NAME , group.ID , DBEnumParamEntityType.BASEGROUP );
 		
 		group.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
@@ -502,7 +502,7 @@ public abstract class DBEngineBase {
 		
 		ObjectProperties ops = item.getParameters();
 		int version = c.getNextCoreVersion();
-		DBSettings.savedbPropertyValues( c , ops , false , true , version );
+		DBSettings.savedbPropertyValues( transaction , ops , false , true , version );
 		ops.recalculateChildProperties();
 	}
 	
@@ -511,7 +511,7 @@ public abstract class DBEngineBase {
 		
 		ObjectProperties ops = item.getDependencySettings( depitem.ID );
 		int version = c.getNextCoreVersion();
-		DBSettings.savedbPropertyValues( c , ops , false , true , version );
+		DBSettings.savedbPropertyValues( transaction , ops , false , true , version );
 		ops.recalculateChildProperties();
 	}
 	
