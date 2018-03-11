@@ -66,6 +66,7 @@ CREATE TABLE main.urm_object_param (
                 enumname VARCHAR(64),
                 required BOOLEAN NOT NULL,
                 secured BOOLEAN NOT NULL,
+                inherited BOOLEAN NOT NULL,
                 expr_def VARCHAR,
                 customenum_def VARCHAR,
                 version INTEGER NOT NULL,
