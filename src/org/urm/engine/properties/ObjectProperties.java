@@ -68,6 +68,16 @@ public class ObjectProperties {
 	public void setOwnerId( int ownerId ) {
 		this.ownerId = ownerId;
 	}
+
+	public void removeChildProperties( ObjectProperties child ) {
+		childs.remove( child );
+	}
+	
+	public void setParentProperties( ObjectProperties parent ) {
+		this.parent = parent;
+		if( parent != null )
+			parent.childs.add( this );
+	}
 	
 	public void create( ObjectProperties parent , PropertyEntity entityFixed , PropertyEntity entityCustom , boolean customDefineAllowed ) throws Exception {
 		create( parent , new PropertyEntity[] { entityFixed } , entityCustom , customDefineAllowed );
@@ -117,7 +127,7 @@ public class ObjectProperties {
 	}
 	
 	private boolean initCreateStarted( ObjectProperties parent ) {
-		this.parent = parent; 
+		setParentProperties( parent ); 
 		loadFailed = false;
 		loadFinished = false;
 		
@@ -254,7 +264,7 @@ public class ObjectProperties {
 	}
 
 	public void setProperty( String prop , String value ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		properties.setOriginalProperty( var.NAME , var.PARAMVALUE_TYPE , value , var.isApp() , null );
 	}
 
@@ -358,7 +368,7 @@ public class ObjectProperties {
 			child.parentPropertiesModified();
 	}
 	
-	public ObjectProperties[] getChildProperties() throws Exception {
+	public ObjectProperties[] getChildProperties() {
 		return( childs.toArray( new ObjectProperties[0] ) );
 	}
 	
@@ -507,5 +517,14 @@ public class ObjectProperties {
 	public PropertyValue getProperty( String prop , boolean allowParent , boolean allowUnresolved ) throws Exception {
 		return( properties.getFinalProperty( prop , allowParent , allowUnresolved ) );
 	}
-	
+
+	public void replaceChildsParent( ObjectProperties opsNew ) {
+		for( ObjectProperties opsChild : getChildProperties() ) {
+			ObjectProperties opsParent = opsChild.getParent();
+			if( opsParent != opsNew ) {
+				opsParent.removeChildProperties( opsChild );
+				opsChild.setParentProperties( opsNew );
+			}
+		}
+	}
 }

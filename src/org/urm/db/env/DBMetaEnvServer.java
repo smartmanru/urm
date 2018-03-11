@@ -110,7 +110,7 @@ public class DBMetaEnvServer {
 		loader.trace( "import meta env server object, name=" + NAME );
 		
 		// create settings
-		ObjectProperties ops = entities.createMetaEnvServerProps( server.sg.getProperties() );
+		ObjectProperties ops = entities.createMetaEnvServerProps( server.ID , server.sg.getProperties() );
 		server.createSettings( ops );
 		
 		// primary match (baseline match is postponed)
@@ -257,7 +257,7 @@ public class DBMetaEnvServer {
 				server.ID = entity.loaddbId( rs );
 				server.EV = entity.loaddbVersion( rs );
 
-				ObjectProperties ops = entities.createMetaEnvServerProps( sg.getProperties() );
+				ObjectProperties ops = entities.createMetaEnvServerProps( server.ID , sg.getProperties() );
 				server.createSettings( ops );
 				ObjectProperties opsBase = entities.createMetaEnvServerBaseProps( ops );
 				server.createBaseSettings( opsBase );
@@ -416,7 +416,7 @@ public class DBMetaEnvServer {
 		transaction.trace( "create meta env server, name=" + name );
 		
 		// create settings
-		ObjectProperties ops = entities.createMetaEnvServerProps( server.sg.getProperties() );
+		ObjectProperties ops = entities.createMetaEnvServerProps( server.ID , server.sg.getProperties() );
 		server.createSettings( ops );
 		
 		// primary

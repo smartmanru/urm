@@ -943,7 +943,7 @@ public abstract class DBSettings {
 		DBConnection c = transaction.getConnection();
 		
 		int version = c.getNextCoreVersion();
-		savedbPropertyValues( c , ops , false , true , version , null );
+		savedbPropertyValues( transaction , ops , false , true , version , null );
 	}
 	
 	public static void modifyAppValues( TransactionBase transaction , ObjectProperties ops , DBEnumParamEntityType entityType ) throws Exception {

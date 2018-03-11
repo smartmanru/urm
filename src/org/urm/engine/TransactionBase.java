@@ -1191,6 +1191,10 @@ public class TransactionBase extends EngineObject {
 			return( directoryNew );
 		return( data.getDirectory() );
 	}
+
+	public EngineDirectory getOldDirectory() {
+		return( data.getDirectory() );
+	}
 	
 	public EngineMirrors getTransactionMirrors() {
 		return( mirrorsNew );

@@ -83,7 +83,7 @@ public class DBMetaEnvSegment {
 		loader.trace( "import meta env segment object, name=" + NAME );
 
 		// create settings
-		ObjectProperties ops = entities.createMetaEnvSegmentProps( env.getProperties() );
+		ObjectProperties ops = entities.createMetaEnvSegmentProps( sg.ID , env.getProperties() );
 		sg.createSettings( ops );
 		
 		// primary match (baseline match is postponed)
@@ -216,7 +216,7 @@ public class DBMetaEnvSegment {
 				sg.ID = entity.loaddbId( rs );
 				sg.EV = entity.loaddbVersion( rs );
 
-				ObjectProperties ops = entities.createMetaEnvSegmentProps( env.getProperties() );
+				ObjectProperties ops = entities.createMetaEnvSegmentProps( sg.ID , env.getProperties() );
 				sg.createSettings( ops );
 				
 				// match baseline later
@@ -404,7 +404,7 @@ public class DBMetaEnvSegment {
 		transaction.trace( "create meta env segment, object=" + sg.objectId + ", name=" + name + ", id=" + sg.ID );
 
 		// create settings
-		ObjectProperties ops = entities.createMetaEnvSegmentProps( env.getProperties() );
+		ObjectProperties ops = entities.createMetaEnvSegmentProps( sg.ID , env.getProperties() );
 		sg.createSettings( ops );
 		
 		sg.setSegmentPrimary( name , desc , null , true , MatchItem.create( dcId ) );

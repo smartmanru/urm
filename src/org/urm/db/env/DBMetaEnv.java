@@ -91,8 +91,7 @@ public class DBMetaEnv {
 
 		// create settings
 		MetaProductSettings settings = storage.getSettings();
-		ObjectProperties ops = entities.createMetaEnvProps( settings.ops );
-		ops.setOwnerId( env.ID );
+		ObjectProperties ops = entities.createMetaEnvProps( env.ID , settings.ops );
 		env.createSettings( ops );
 
 		// primary match (baseline match is postponed)
@@ -245,8 +244,7 @@ public class DBMetaEnv {
 				env.ID = entity.loaddbId( rs );
 				env.EV = entity.loaddbVersion( rs );
 				
-				ObjectProperties ops = entities.createMetaEnvProps( settings.ops );
-				ops.setOwnerId( env.ID );
+				ObjectProperties ops = entities.createMetaEnvProps( env.ID , settings.ops );
 				env.createSettings( ops );
 
 				// match baseline later
@@ -351,13 +349,12 @@ public class DBMetaEnv {
 
 		// create settings
 		MetaProductSettings settings = storage.getSettings();
-		ObjectProperties ops = entities.createMetaEnvProps( settings.getParameters() );
+		ObjectProperties ops = entities.createMetaEnvProps( env.ID , settings.getParameters() );
 		env.createSettings( ops );
 		
 		env.setEnvPrimary( name , desc , envType , null , true , null , false , null , "" );
 		env.scatterExtraProperties();
 		modifyEnv( c , storage , env , true );
-		ops.setOwnerId( env.ID );
 		
 		envs.addEnv( env );
 		return( env );

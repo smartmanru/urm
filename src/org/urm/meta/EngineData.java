@@ -6,7 +6,9 @@ import org.urm.db.EngineDB;
 import org.urm.engine.Engine;
 import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineDirectory;
@@ -149,7 +151,14 @@ public class EngineData {
 	}
 	
 	public void setSettings( EngineSettings settingsNew ) {
+		EngineSettings settingsOld = core.getSettings();
 		core.setSettings( settingsNew );
+		
+		if( settingsOld != null ) {
+			ObjectProperties opsOld = settingsOld.getEngineProperties();
+			ObjectProperties opsNew = settingsNew.getEngineProperties();
+			opsOld.replaceChildsParent( opsNew );
+		}
 	}
 
 	public void setBase( EngineBase baseNew ) {
@@ -177,7 +186,19 @@ public class EngineData {
 	}
 
 	public void setDirectory( EngineDirectory directoryNew ) {
+		EngineDirectory directoryOld = directory;
 		directory = directoryNew;
+
+		if( directoryOld != null ) {
+			for( AppSystem systemOld : directoryOld.getSystems() ) {
+				AppSystem systemNew = directory.findSystem( systemOld );
+				if( systemNew != null ) {
+					ObjectProperties opsOld = systemOld.getParameters();
+					ObjectProperties opsNew = systemNew.getParameters();
+					opsOld.replaceChildsParent( opsNew );
+				}
+			}
+		}
 	}
 
 	public void setMonitoring( EngineMonitoring monitoringNew ) {

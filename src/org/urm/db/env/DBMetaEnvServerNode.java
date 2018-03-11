@@ -44,7 +44,7 @@ public class DBMetaEnvServerNode {
 		loader.trace( "import meta env server node object, pos=" + pos );
 
 		// create settings
-		ObjectProperties ops = entities.createMetaEnvServerNodeProps( env.getProperties() );
+		ObjectProperties ops = entities.createMetaEnvServerNodeProps( node.ID , env.getProperties() );
 		node.createSettings( ops );
 		
 		// primary match
@@ -105,7 +105,7 @@ public class DBMetaEnvServerNode {
 				node.ID = entity.loaddbId( rs );
 				node.EV = entity.loaddbVersion( rs );
 
-				ObjectProperties ops = entities.createMetaEnvServerNodeProps( server.getProperties() );
+				ObjectProperties ops = entities.createMetaEnvServerNodeProps( node.ID , server.getProperties() );
 				node.createSettings( ops );
 				
 				// set primary 
@@ -172,7 +172,7 @@ public class DBMetaEnvServerNode {
 		transaction.trace( "create meta env server node, object=" + node.objectId + ", id=" + node.ID );
 
 		// create settings
-		ObjectProperties ops = entities.createMetaEnvServerNodeProps( server.getProperties() );
+		ObjectProperties ops = entities.createMetaEnvServerNodeProps( node.ID , server.getProperties() );
 		node.createSettings( ops );
 		
 		node.setNodePrimary( pos , nodeType , new MatchItem( account.ID ) , "" , true , "" , false );
