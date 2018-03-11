@@ -153,8 +153,8 @@ public class EngineSettings extends EngineObject {
 		execrcProperties.setPathProperty( RunContext.PROPERTY_WORK_PATH , rc.workPath );
 		execrcProperties.setPathProperty( RunContext.PROPERTY_AUTH_PATH , rc.authPath );
 		execrcProperties.setPathProperty( RunContext.PROPERTY_DB_PATH , rc.dbPath );
-		execrcProperties.setPathProperty( RunContext.PROPERTY_SERVER_CONFPATH , Common.getPath( rc.installPath , "etc" ) );
-		execrcProperties.setPathProperty( RunContext.PROPERTY_SERVER_PRODUCTSPATH , Common.getPath( rc.installPath , "products" ) );
+		execrcProperties.setPathProperty( RunContext.PROPERTY_SERVER_CONFPATH , Common.getPath( EntityVar.p( RunContext.PROPERTY_INSTALL_PATH ) , "etc" ) );
+		execrcProperties.setPathProperty( RunContext.PROPERTY_SERVER_PRODUCTSPATH , Common.getPath( EntityVar.p( RunContext.PROPERTY_INSTALL_PATH ) , "products" ) );
 
 		// get custom properties from environment variables if any
 		ObjectMeta meta = execrcProperties.getMeta();
