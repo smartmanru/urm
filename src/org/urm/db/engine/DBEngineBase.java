@@ -311,7 +311,7 @@ public abstract class DBEngineBase {
 			ObjectProperties p = item.getParameters();
 			ObjectMeta meta = p.getMeta();
 			PropertyEntity custom = meta.getCustomEntity();
-			DBSettings.loaddbEntity( c , custom , item.ID );
+			DBSettings.loaddbEntity( c , custom , item.ID , false );
 		}
 	}
 	

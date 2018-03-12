@@ -15,7 +15,7 @@ import org.urm.meta.product.ProductMeta;
 
 public class TransactionMetadata {
 
-	class TransactionMetadataEnv {
+	public class TransactionMetadataEnv {
 		public MetaEnv env;
 		CHANGETYPE envType;
 	};
@@ -50,6 +50,10 @@ public class TransactionMetadata {
 		transactionEnvs = new LinkedList<TransactionMetadataEnv>();
 	}
 
+	public TransactionMetadataEnv[] getTransactionEnvs() {
+		return( transactionEnvs.toArray( new TransactionMetadataEnv[ 0 ] ) );
+	}
+	
 	public boolean createProduct( Meta sessionMeta ) throws Exception {
 		if( productType != null ) {
 			transaction.error( "Should be first product operation" );
@@ -69,7 +73,7 @@ public class TransactionMetadata {
 		productType = CHANGETYPE.IMPORT;
 		this.product = product;
 		matchedBeforeImport = product.isMatched();
-		metadataOld = product.storage;
+		metadata = product.storage;
 		return( true );
 	}
 
@@ -164,6 +168,19 @@ public class TransactionMetadata {
 		TransactionMetadataEnv tenvNew = new TransactionMetadataEnv();
 		tenvNew.env = envNew;
 		tenvNew.envType = CHANGETYPE.CHANGE;
+		transactionEnvs.add( tenvNew );
+		return( true );
+	}
+
+	public boolean importEnv( MetaEnv env ) throws Exception {
+		for( TransactionMetadataEnv tenv : transactionEnvs ) {
+			if( tenv.env == env )
+				return( true );
+		}
+		
+		TransactionMetadataEnv tenvNew = new TransactionMetadataEnv();
+		tenvNew.env = env;
+		tenvNew.envType = CHANGETYPE.IMPORT;
 		transactionEnvs.add( tenvNew );
 		return( true );
 	}
@@ -268,7 +285,7 @@ public class TransactionMetadata {
 		EngineJmx jmx = transaction.engine.jmxController;
 
 		if( matchedBeforeImport ) {
-			status.deleteProduct( transaction , metadataOld );
+			status.deleteProduct( transaction , metadata );
 			mon.transactionCommitDeleteProduct( transaction , product );
 		}
 		

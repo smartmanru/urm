@@ -122,6 +122,22 @@ public class ObjectProperties {
 		return( parent );
 	}
 
+	public ObjectProperties getTopInherited() {
+		ObjectProperties inherited = this;
+		while( true ) {
+			ObjectProperties inheritedParent = inherited.getParent();
+			if( inheritedParent == null )
+				break;
+			
+			if( inheritedParent.versionType != inherited.versionType )
+				break;
+			
+			inherited = inheritedParent;
+		}
+		
+		return( inherited );
+	}
+	
 	public String getName() {
 		return( setName );
 	}
@@ -158,28 +174,28 @@ public class ObjectProperties {
 	}
 	
 	public String getPathProperty( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		if( var.isApp() )
 			return( properties.getSystemPathExprProperty( var.NAME , execrc , var.EXPR_DEF , var.REQUIRED ) );
 		return( properties.getPathProperty( var.NAME , var.EXPR_DEF ) );
 	}
 	
 	public int getIntProperty( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		if( var.isApp() )
 			return( properties.getSystemIntExprProperty( var.NAME , var.EXPR_DEF , var.REQUIRED ) );
 		return( properties.getIntProperty( var.NAME , Integer.parseInt( var.EXPR_DEF ) ) );
 	}
 	
 	public boolean getBooleanProperty( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		if( var.isApp() )
 			return( properties.getSystemBooleanExprProperty( var.NAME , var.EXPR_DEF , var.REQUIRED ) );
 		return( properties.getBooleanProperty( var.NAME , Common.getBooleanValue( var.EXPR_DEF ) ) );
 	}
 	
 	public String getStringProperty( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		if( var.isApp() )
 			return( properties.getSystemStringExprProperty( var.NAME , var.EXPR_DEF , var.REQUIRED ) );
 		return( properties.getStringProperty( var.NAME , var.EXPR_DEF ) );
@@ -190,14 +206,14 @@ public class ObjectProperties {
 	}
 	
 	public int getEnumProperty( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		if( var.isApp() )
 			return( properties.getSystemIntExprProperty( var.NAME , var.EXPR_DEF , var.REQUIRED ) );
 		return( properties.getIntProperty( var.NAME , Integer.parseInt( var.EXPR_DEF ) ) );
 	}
 	
 	public Integer getObjectProperty( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		int value = 0;
 		if( var.isApp() )
 			value = properties.getSystemIntExprProperty( var.NAME , var.EXPR_DEF , var.REQUIRED );
@@ -308,27 +324,27 @@ public class ObjectProperties {
 	}
 
 	public void setManualStringProperty( String prop , String value ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		properties.setManualStringProperty( var.NAME , value );
 	}
 
 	public void setManualIntProperty( String prop , int value ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		properties.setManualNumberProperty( var.NAME , value );
 	}
 
 	public void setManualBooleanProperty( String prop , boolean value ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		properties.setManualBooleanProperty( var.NAME , value );
 	}
 
 	public void setManualUrlProperty( String prop , String value ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		properties.setManualStringProperty( var.NAME , value );
 	}
 
 	public void setManualPathProperty( String prop , String value , ShellExecutor shell ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		properties.setManualPathProperty( var.NAME , value , shell );
 	}
 
@@ -337,7 +353,7 @@ public class ObjectProperties {
 	}
 
 	public String getPropertyValue( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		String value = properties.getPropertyAny( var.NAME );
 		return( getPropertyValue( var , value ) );
 	}
@@ -359,7 +375,7 @@ public class ObjectProperties {
 	}
 	
 	public String getFinalProperty( String prop , Account account , boolean allowParent , boolean allowUnresolved ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		return( properties.getFinalProperty( var.NAME , account , allowParent , allowUnresolved ) );		
 	}
 
@@ -378,13 +394,13 @@ public class ObjectProperties {
 	}
 
 	public String getExpressionValue( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		PropertyValue value = properties.getPropertyValue( var.NAME );
 		return( value.getExpressionValue() );
 	}
 
 	public String getOriginalPropertyValue( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		PropertyValue value = properties.getPropertyValue( var.NAME );
 		return( value.getOriginalValue() );
 	}
@@ -401,7 +417,7 @@ public class ObjectProperties {
 	}
 	
 	public void clearProperty( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		properties.clearProperty( var.NAME );
 	}
 

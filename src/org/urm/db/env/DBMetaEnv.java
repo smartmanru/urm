@@ -15,6 +15,7 @@ import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBEnums.DBEnumEnvType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.EngineTransaction;
+import org.urm.engine.TransactionBase;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
@@ -89,6 +90,10 @@ public class DBMetaEnv {
 
 		loader.trace( "import meta env object, object=" + env.objectId + ", id=" + env.ID + ", name=" + NAME + ", source version=" + version );
 
+		TransactionBase transaction = loader.getTransaction();
+		if( !transaction.importEnv( env ) )
+			Common.exitUnexpected();
+		
 		// create settings
 		MetaProductSettings settings = storage.getSettings();
 		ObjectProperties ops = entities.createMetaEnvProps( env.ID , settings.ops );
@@ -303,7 +308,11 @@ public class DBMetaEnv {
 	}
 
 	public static void loaddbEnvData( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
 		ObjectProperties ops = env.getProperties();
+		DBSettings.loaddbCustomEntity( c , ops , true );
+		ops.createCustom();
 		DBSettings.loaddbValues( loader , ops );
 		env.scatterExtraProperties();
 		

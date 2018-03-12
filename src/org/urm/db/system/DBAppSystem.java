@@ -87,7 +87,7 @@ public abstract class DBAppSystem {
 
 		for( AppSystem system : systems ) {
 			ObjectProperties props = system.getParameters();
-			DBSettings.loaddbCustomEntity( c , props );
+			DBSettings.loaddbCustomEntity( c , props , false );
 			props.createCustom();
 			DBSettings.loaddbValues( loader , props );
 		}

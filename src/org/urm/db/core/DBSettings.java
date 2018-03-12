@@ -21,6 +21,7 @@ import org.urm.engine.properties.PropertyValue;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.env.MetaEnv;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
@@ -217,10 +218,11 @@ public abstract class DBSettings {
 	}
 	
 	public static void importxmlSave( EngineLoader loader , ObjectProperties ops , boolean saveApp , boolean saveCustom , int version , DBEnumParamEntityType entityType ) throws Exception {
+		TransactionBase transaction = loader.getTransaction();
 		DBConnection c = loader.getConnection();
 		if( saveCustom )
 			savedbEntityCustom( c , ops , version );
-		savedbPropertyValues( c , ops , saveApp , saveCustom , version , entityType );
+		savedbPropertyValues( transaction , ops , saveApp , saveCustom , version , entityType );
 	}
 
 	public static void exportxml( EngineLoader loader , Document doc , Element root , ObjectProperties properties , boolean appAsProperties ) throws Exception {
@@ -663,23 +665,19 @@ public abstract class DBSettings {
 			Common.exitUnexpected();
 	}
 
-	public static void loaddbCustomEntity( DBConnection c , ObjectProperties ops ) throws Exception {
+	public static void loaddbCustomEntity( DBConnection c , ObjectProperties ops , boolean inheritedOnly ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
-		loaddbCustomEntity( c , meta , ops.ownerId );
-	}
-	
-	public static PropertyEntity loaddbCustomEntity( DBConnection c , ObjectMeta meta , int ownerId ) throws Exception {
+		
 		PropertyEntity entity = meta.getCustomEntity();
-		DBSettings.loaddbEntity( c , entity , ownerId );
+		loaddbEntity( c , entity , ops.ownerId , inheritedOnly );
 		meta.rebuild();
-		return( entity );
 	}
 
 	public static void loaddbAppEntity( DBConnection c , PropertyEntity entity ) throws Exception {
-		loaddbEntity( c , entity , DBVersions.APP_ID );
+		loaddbEntity( c , entity , DBVersions.APP_ID , false );
 	}
 	
-	public static void loaddbEntity( DBConnection c , PropertyEntity entity , int paramObjectId ) throws Exception {
+	public static void loaddbEntity( DBConnection c , PropertyEntity entity , int paramObjectId , boolean inheritedOnly ) throws Exception {
 		entity.PARAM_OBJECT_ID = paramObjectId;
 		entity.META_OBJECT_ID = ( entity.CUSTOM )? entity.PARAM_OBJECT_ID : DBVersions.APP_ID;
 		entity.VERSION = verifyEntity( c , entity );
@@ -718,6 +716,10 @@ public abstract class DBSettings {
 						customEnumList );
 				var.PARAM_ID = rs.getInt( 1 );
 				var.VERSION = rs.getInt( 15 );
+				
+				if( inheritedOnly && entity.CUSTOM && !var.INHERITED )
+					Common.exitUnexpected();
+				
 				entity.addVar( var );
 			}
 		}
@@ -746,7 +748,9 @@ public abstract class DBSettings {
 					if( data == null || data.isEmpty() )
 						continue;
 					
-					var = createInheritedProperty( transaction , ops , opsOwner , var );
+					// get top of inherited
+					ObjectProperties opsInherited = ops.getTopInherited();
+					var = createInheritedProperty( transaction , opsInherited , opsOwner , var );
 				}
 			}
 		}
@@ -933,6 +937,11 @@ public abstract class DBSettings {
 			Meta meta = transaction.getTransactionMetadata( objectId );
 			ProductMeta storage = transaction.getTransactionProductMetadata( meta );
 			version = c.getNextProductVersion( storage );
+		}
+		else
+		if( versionType == DBEnumObjectVersionType.ENVIRONMENT ) {
+			MetaEnv env = transaction.getTransactionEnv( objectId );
+			version = c.getNextEnvironmentVersion( env , false );
 		}
 		else
 			transaction.exitUnexpectedState();

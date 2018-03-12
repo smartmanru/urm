@@ -151,7 +151,7 @@ public class DBMetaSettings {
 		
 		// context, custom, core settings
 		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
-		DBSettings.loaddbCustomEntity( c , ops );
+		DBSettings.loaddbCustomEntity( c , ops , false );
 		ops.createCustom();
 		DBSettings.loaddbValues( loader , ops );
 		ops.recalculateProperties();

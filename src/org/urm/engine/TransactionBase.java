@@ -9,6 +9,7 @@ import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.TransactionMetadata.TransactionMetadataEnv;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectMeta;
@@ -851,7 +852,7 @@ public class TransactionBase extends EngineObject {
 				if( tm != null )
 					action.exitUnexpectedState();
 				
-				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
+				if( !checkSecurityProductChange( product.storage.meta , null ) )
 					return( false );
 				
 				tm = new TransactionMetadata( this );
@@ -860,6 +861,33 @@ public class TransactionBase extends EngineObject {
 					addTransactionMeta( product.storage.ID , product.NAME , tm );
 					return( true );
 				}
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to change metadata" );
+			}
+			
+			abortTransaction( false );
+			return( false );
+		}
+	}
+	
+	public boolean importEnv( MetaEnv env ) {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+
+				TransactionMetadata tm = productMeta.get( env.meta.name );
+				
+				// should exist product transaction operation
+				if( tm == null )
+					action.exitUnexpectedState();
+				
+				if( !checkSecurityProductChange( env.meta , env ) )
+					return( false );
+				
+				if( tm.importEnv( env ) )
+					return( true );
 			}
 			catch( Throwable e ) {
 				handle( e , "unable to change metadata" );
@@ -1357,6 +1385,18 @@ public class TransactionBase extends EngineObject {
 		return( tm.metadata.meta );
 	}
 
+	public MetaEnv getTransactionEnv( int envId ) throws Exception {
+		for( TransactionMetadata tm : productMeta.values() ) {
+			for( TransactionMetadataEnv tme : tm.getTransactionEnvs() ) {
+				if( tme.env.ID == envId )
+					return( tme.env );
+			}
+		}
+		
+		action.exitUnexpectedState();
+		return( null );
+	}
+	
 	public MetaDistrDelivery getDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
 		Meta meta = getTransactionMetadata( delivery.meta.name );
 		MetaDistr distr = meta.getDistr();
