@@ -44,6 +44,9 @@ import org.w3c.dom.Element;
 
 public class Common {
 
+	public static String BOOLEAN_YES = "yes";
+	public static String BOOLEAN_NO = "no";
+	
 	public static String getValueDefault( String value , String defValue ) {
 		if( value == null || value.isEmpty() )
 			return( defValue );
@@ -574,10 +577,10 @@ public class Common {
 		if( s == null )
 			return( false );
 		
-		if( s.equals( "yes" ) )
+		if( s.equals( BOOLEAN_YES ) )
 			return( true );
 		
-		if( !s.equals( "no" ) )
+		if( !s.equals( BOOLEAN_NO ) )
 			throw new RuntimeException( "invalid boolean value=" + s ); 
 			
 		return( false );
@@ -585,9 +588,9 @@ public class Common {
 	
 	public static String getBooleanValue( boolean v ) {
 		if( v == true )
-			return( "yes" );
+			return( BOOLEAN_YES );
 		
-		return( "no" );
+		return( BOOLEAN_NO );
 	}
 
 	public static Date getDateCurrentDay() {
