@@ -113,11 +113,20 @@ public class Engine {
 		createTemporaryEngineAction();
 		data.init();
 		
-		EngineLoader loader = createLoader();
-		loader.initMeta();
-		loader.initCore();
-		loader.initAuth( auth );
-		auth.start( serverAction );
+		EngineTransaction transaction = createTransaction( serverAction );
+		try {
+			EngineLoader loader = createLoader( transaction );
+			loader.initMeta();
+			loader.initCore();
+			loader.initAuth( auth );
+			auth.start( serverAction );
+			transaction.commitTransaction();
+		}
+		catch( Throwable e ) {
+			log( "unable to init core data" , e );
+			transaction.abortTransaction( false );
+			Common.exitUnexpected();
+		}
 	}
 	
 	public EngineLoader createLoader() {
