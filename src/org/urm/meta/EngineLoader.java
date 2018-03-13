@@ -211,10 +211,8 @@ public class EngineLoader {
 	public void initMeta() throws Exception {
 		try {
 			boolean dbUpdate = getInitialUpdateState();
-			if( dbUpdate ) {
-				transaction.useDatabase();
+			if( dbUpdate )
 				recreateDatabase();
-			}
 			
 			trace( "init, checking engine/database consistency ..." );
 			trace( "load names ..." );

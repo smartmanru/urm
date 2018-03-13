@@ -115,6 +115,7 @@ public class Engine {
 		
 		EngineTransaction transaction = createTransaction( serverAction );
 		try {
+			transaction.useDatabase();
 			EngineLoader loader = createLoader( transaction );
 			loader.initMeta();
 			loader.initCore();
