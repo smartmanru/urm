@@ -364,6 +364,9 @@ public class DBMetaEnv {
 		env.setEnvPrimary( name , desc , envType , null , true , null , false , null , "" );
 		env.scatterExtraProperties();
 		modifyEnv( c , storage , env , true );
+
+		// create empty custom entity
+		DBSettings.savedbEntityCustom( c , ops , env.EV );
 		
 		envs.addEnv( env );
 		return( env );
