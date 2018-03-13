@@ -261,9 +261,6 @@ public abstract class DBSettings {
 			
 			boolean defineProp = ( var.isCustom() && var.entity == custom )? true : false;
 			if( defineProp ) {
-				if( !properties.isCustomDefineAllowed() )
-					Common.exitUnexpected();
-				
 				if( nodeDefine == null )
 					nodeDefine = Common.xmlCreateElement( doc , root , ELEMENT_DEFINE );
 				
