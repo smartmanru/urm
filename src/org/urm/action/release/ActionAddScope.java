@@ -76,6 +76,8 @@ public class ActionAddScope extends ActionBase {
 			return( dist.addProjectItem( this , target.sourceProject , item.sourceItem ) );
 		if( target.CATEGORY == EnumScopeCategory.DB )
 			return( dist.addDeliveryDatabaseSchema( this , target.delivery , item.schema ) );
+		if( target.CATEGORY == EnumScopeCategory.DOC )
+			return( dist.addDeliveryDoc( this , target.delivery , item.doc ) );
 		
 		this.exitUnexpectedCategory( target.CATEGORY );
 		return( false );
