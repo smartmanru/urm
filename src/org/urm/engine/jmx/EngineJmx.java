@@ -203,7 +203,8 @@ public class EngineJmx {
 		EngineDirectory directory = action.actionInit.getServerDirectory();
 		for( String name : directory.getProductNames() ) {
 			AppProduct product = directory.getProduct( name );
-			addProduct( product );
+			if( product.isMatched() )
+				addProduct( product );
 		}
 	}		
 	
