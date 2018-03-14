@@ -286,7 +286,7 @@ public class DBEngineMirrors {
 
 		for( String name : mirrors.getRepositoryNames() ) {
 			MirrorRepository repo = mirrors.findRepository( name );
-			if( repo.RESOURCE_ID == res.ID ) {
+			if( repo.RESOURCE_ID != null && repo.RESOURCE_ID == res.ID ) {
 				repo.clearMirror();
 				modifyRepository( c , repo , false );
 			}
