@@ -668,5 +668,12 @@ public class EngineAuth extends EngineObject {
 	public ObjectProperties getLdapSettings() {
 		return( ldapSettings.getLdapSettings() );
 	}
+
+	public String[] getUserNames() {
+		Map<String,AuthUser> users = new HashMap<String,AuthUser>();
+		users.putAll( mapLocalUsers );
+		users.putAll( mapLdapUsers );
+		return( Common.getSortedKeys( users ) );
+	}
 	
 }
