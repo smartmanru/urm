@@ -410,6 +410,15 @@ public class MetaEnvServer extends EngineObject {
 		return( nodes.get( pos - 1 ) );
 	}
 
+	public MetaEnvServerNode getNodeById( int id ) throws Exception {
+		for( MetaEnvServerNode node : nodes ) {
+			if( node.ID == id )
+				return( node );
+		}
+		Common.exit2( _Error.InvalidServerNode2 , "invalid node=" + id + ", server=" + NAME , NAME , "" + id );
+		return( null );
+	}
+
 	public boolean hasWebServices() throws Exception {
 		for( MetaEnvServerDeployment deploy : deployments ) {
 			MetaDistrComponent comp = deploy.getComponent();
