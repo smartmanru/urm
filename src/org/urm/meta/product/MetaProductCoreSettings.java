@@ -124,6 +124,9 @@ public class MetaProductCoreSettings {
 	
 	public void createSettings() throws Exception {
 		scatterPrimaryProperties();
+	}
+	
+	public void createMonitoringSettings() throws Exception {
 		scatterMonitoringProperties();
 	}
 	

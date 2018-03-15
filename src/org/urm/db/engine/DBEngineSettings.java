@@ -146,7 +146,7 @@ public abstract class DBEngineSettings {
 	}
 	
 	public static void updateProductDefaultProperties( EngineTransaction transaction , EngineSettings settings ) throws Exception {
-		ObjectProperties ops = settings.getDefaultProductSettigns();
+		ObjectProperties ops = settings.getDefaultProductSettings();
 		DBSettings.modifyAppValues( transaction , ops , DBEnumParamEntityType.PRODUCTDEFS );
 	}
 	

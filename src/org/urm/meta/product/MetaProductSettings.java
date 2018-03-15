@@ -41,6 +41,17 @@ public class MetaProductSettings {
 		meta.setSettings( this );
 		core = new MetaProductCoreSettings( meta , this ); 
 		buildModes = new HashMap<DBEnumBuildModeType,MetaProductBuildSettings>();
+		
+		// build
+		buildCommon = new MetaProductBuildSettings( "build.common" , meta , this );
+		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
+			if( mode == DBEnumBuildModeType.UNKNOWN )
+				continue;
+			
+			String modeName = Common.getEnumLower( mode );
+			MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "build." + modeName , meta , this );
+			buildModes.put( mode , buildMode );
+		}
 	}
 
 	public MetaProductSettings copy( Meta rmeta , ObjectProperties parent ) throws Exception {
@@ -69,24 +80,16 @@ public class MetaProductSettings {
 		return( mon );
 	}
 	
-	public void createSettings( ObjectProperties ops , ObjectProperties mon , ProductContext context ) throws Exception {
+	public void createCoreSettings( ObjectProperties ops ) throws Exception {
 		this.ops = ops;
-		this.mon = mon;
-		setContextProperties( context );
 		core.createSettings();
-		
-		// build
-		buildCommon = new MetaProductBuildSettings( "build.common" , meta , this );
-		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
-			if( mode == DBEnumBuildModeType.UNKNOWN )
-				continue;
-			
-			String modeName = Common.getEnumLower( mode );
-			MetaProductBuildSettings buildMode = new MetaProductBuildSettings( "build." + modeName , meta , this );
-			buildModes.put( mode , buildMode );
-		}
 	}
 
+	public void createMonitoringSettings( ObjectProperties mon ) throws Exception {
+		this.mon = mon;
+		core.createMonitoringSettings();
+	}
+	
 	public void createBuildCommonSettings( ObjectProperties opsBuild ) throws Exception {
 		buildCommon.createSettings( opsBuild );
 	}
@@ -96,15 +99,15 @@ public class MetaProductSettings {
 		buildMode.createSettings( opsBuild );
 	}
 
-	private void setContextProperties( ProductContext context ) throws Exception {
+	public void setContextProperties( ObjectProperties ops , ProductContext context ) throws Exception {
 		ops.setStringProperty( PROPERTY_PRODUCT_NAME , meta.name );
 		ops.setPathProperty( PROPERTY_PRODUCT_HOME , context.home.folderPath );
 		
 		MetaProductVersion version = meta.getVersion();
-		updateVersion( version );
+		updateVersion( ops , version );
 	}
 	
-	private void updateVersion( MetaProductVersion version ) throws Exception {
+	private void updateVersion( ObjectProperties ops , MetaProductVersion version ) throws Exception {
 		ops.setIntProperty( PROPERTY_LAST_MAJOR_FIRST , version.majorLastFirstNumber );
 		ops.setIntProperty( PROPERTY_LAST_MAJOR_SECOND , version.majorLastSecondNumber );
 		ops.setIntProperty( PROPERTY_NEXT_MAJOR_FIRST , version.majorNextFirstNumber );
@@ -116,7 +119,7 @@ public class MetaProductSettings {
 	}
 	
 	public void updateSettings( MetaProductVersion version ) throws Exception {
-		updateVersion( version );
+		updateVersion( ops , version );
 		updateContextSettings();
 	}
 

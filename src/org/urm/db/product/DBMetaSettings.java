@@ -44,9 +44,16 @@ public class DBMetaSettings {
 		// context, custom, core settings
 		AppSystem system = product.system;
 		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
+		settings.setContextProperties( ops , context );
+		
+		EngineSettings engineSettings = context.settings;
+		ObjectProperties opsDefaults = engineSettings.getDefaultProductSettings();
+		ops.copyOriginalPropertiesToRaw( opsDefaults.getProperties() );
+		ops.recalculateProperties();
+		settings.createCoreSettings( ops );
+		
 		DBSettings.savedbEntityCustom( c , ops , version );
 		DBSettings.savedbPropertyValues( transaction , ops , false , true , version );
-		ops.recalculateProperties();
 		
 		// monitoring settings
 		EngineMonitoring monitoring = loader.getMonitoring();
@@ -59,11 +66,10 @@ public class DBMetaSettings {
 		mon.setPathProperty( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_LOGS , engineOps.getExpressionValue( EngineMonitoring.PROPERTY_DIR_LOGS ) );
 		DBSettings.savedbPropertyValues( transaction , mon , true , false , version );
 		mon.recalculateProperties();
-		settings.createSettings( ops , mon , context );
+		settings.createMonitoringSettings( mon );
 		
 		// build settings
 		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( ops );
-		EngineSettings engineSettings = context.settings;
 		ObjectProperties opsBuildCommonDefaults = engineSettings.getDefaultProductBuildSettings();
 		opsBuildCommon.copyOriginalPropertiesToRaw( opsBuildCommonDefaults.getProperties() );
 		DBSettings.savedbPropertyValues( transaction , opsBuildCommon , true , false , version );
@@ -91,6 +97,11 @@ public class DBMetaSettings {
 		// context, custom settings
 		AppSystem system = product.system;
 		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
+		settings.setContextProperties( ops , context );
+		
+		EngineSettings engineSettings = context.settings;
+		ObjectProperties opsDefaults = engineSettings.getDefaultProductSettings();
+		ops.copyOriginalPropertiesToRaw( opsDefaults.getProperties() );
 		DBSettings.importxml( loader , root , ops , false , true , storage.PV );
 		
 		// core settings
@@ -99,6 +110,7 @@ public class DBMetaSettings {
 			Common.exitUnexpected();
 		DBSettings.importxmlApp( loader , coreNode , ops , storage.PV , DBEnumParamEntityType.PRODUCTDEFS );
 		ops.recalculateProperties();
+		settings.createCoreSettings( ops );
 
 		// monitoring settings
 		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
@@ -106,7 +118,7 @@ public class DBMetaSettings {
 		if( monitoringNode != null )
 			DBSettings.importxmlApp( loader , monitoringNode , mon , storage.PV , DBEnumParamEntityType.PRODUCT_MONITORING );
 		mon.recalculateProperties();
-		settings.createSettings( ops , mon , context );
+		settings.createMonitoringSettings( mon );
 		
 		// build settings
 		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( ops );
@@ -151,16 +163,19 @@ public class DBMetaSettings {
 		
 		// context, custom, core settings
 		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
+		settings.setContextProperties( ops , context );
+		
 		DBSettings.loaddbCustomEntity( c , ops , false );
 		ops.createCustom();
 		DBSettings.loaddbValues( loader , ops );
 		ops.recalculateProperties();
+		settings.createCoreSettings( ops );
 
 		// monitoring settings
 		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
 		DBSettings.loaddbValues( loader , mon );
 		mon.recalculateProperties();
-		settings.createSettings( ops , mon , context );
+		settings.createMonitoringSettings( mon );
 		
 		// build settings
 		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( ops );
