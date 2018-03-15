@@ -759,7 +759,7 @@ public abstract class DBSettings {
 	
 	private static EntityVar createInheritedProperty( TransactionBase transaction , ObjectProperties ops , ObjectProperties opsOwner , EntityVar var ) throws Exception {
 		EngineEntities entities = transaction.getEntities();
-		EntityVar varInherited = DBEngineEntities.createCustomProperty( transaction , entities , ops , var.NAME , "(inherited)" , var.PARAMVALUE_TYPE , var.PARAMVALUE_SUBTYPE , "(inherited)" , false , true , null );
+		EntityVar varInherited = DBEngineEntities.createCustomProperty( transaction , entities , ops , var.NAME , "(inherited)" , var.PARAMVALUE_TYPE , var.PARAMVALUE_SUBTYPE , "" , false , true , null );
 		return( varInherited );
 	}
 	
