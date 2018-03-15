@@ -282,8 +282,14 @@ public class PropertySet {
 
 	public void recalculateProperties() throws Exception {
 		resolved = false;
-		for( PropertyValue pv : data.values() )
-			pv.setFinalFromOriginalValue();
+		for( PropertyValue pv : data.values() ) {
+			String expression = null;
+			if( pv.isSourceEmpty() && parent != null )
+				expression = parent.getFinalProperty( pv.property , null , true , true );
+			else
+				expression = pv.getExpressionValue();
+			pv.setFinalValue( expression );
+		}
 		resolveRawProperties( true );
 	}
 
@@ -455,6 +461,8 @@ public class PropertySet {
 			return( null );
 		String data = pv.getFinalValue();
 		if( pv.getType() != DBEnumParamValueType.PATH )
+			return( data );
+		if( account == null )
 			return( data );
 		return( account.getOSPath( data ) );
 	}
