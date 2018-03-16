@@ -165,7 +165,8 @@ public class DBEngineResources {
 	public static void modifyResource( EngineTransaction transaction , EngineResources resources , AuthResource rc , AuthResource rcdata ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
-		dropResourceMirrors( transaction , rc );
+		if( rc.RESOURCE_TYPE != rcdata.RESOURCE_TYPE || rc.BASEURL.equals( rcdata.BASEURL ) )
+			dropResourceMirrors( transaction , rc );
 		
 		rc.modifyResource( rcdata.NAME , rcdata.DESC , rcdata.RESOURCE_TYPE , rcdata.BASEURL );
 		if( rcdata.ac != null ) {
@@ -176,6 +177,11 @@ public class DBEngineResources {
 		modifyResource( c , rc , false );
 		
 		resources.updateResource( rc );
+	}
+	
+	public static void modifyResourceAuth( EngineTransaction transaction , EngineResources resources , AuthResource rc , AuthResource rcdata ) throws Exception {
+		rc.setAuthData( rcdata.ac );
+		rc.saveAuthData();
 	}
 	
 	public static void verifyResource( EngineTransaction transaction , EngineResources resources , AuthResource rc ) throws Exception {

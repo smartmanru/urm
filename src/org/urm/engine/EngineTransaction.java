@@ -133,6 +133,11 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineResources.modifyResource( this , rc.resources , rc , rcdata );
 	}
 	
+	public void updateResourceAuth( AuthResource rc , AuthResource rcdata ) throws Exception {
+		super.checkTransactionResources( rc.resources );
+		DBEngineResources.modifyResourceAuth( this , rc.resources , rc , rcdata );
+	}
+	
 	public void deleteResource( AuthResource rc ) throws Exception {
 		super.checkTransactionResources( rc.resources );
 		EngineAuth auth = action.getServerAuth();

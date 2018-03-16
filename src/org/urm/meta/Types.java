@@ -15,6 +15,15 @@ public class Types {
 		SOURCE;
 	};
 	
+	public enum EnumAuthType {
+		UNKNOWN ,
+		PASSWORD ,
+		CREDENTIALS ,
+		KEYS ,
+		ANONYMOUS , 
+		CURRENTUSER
+	};
+	
 	public enum EnumElementType {
 		UNKNOWN ,
 		EXTERNAL ,
