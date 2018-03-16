@@ -234,7 +234,7 @@ public class EngineMatcher {
 
 	public void matchEnvDone( MatchItem item , MetaEnv env , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
 		if( item != null && !item.MATCHED ) {
-			engine.error( "env match failed: env=" + env.NAME + ", object=" + ownerId + ", entity=" + entity.PARAMENTITY_TYPE.name() + ", property=" + prop + ", value=" + matchValueInitial );
+			engine.error( "env match failed: env=" + env.NAME + ", object=" + ownerId + ", entity=" + entity.PARAMENTITY_TYPE.name() + ", property=" + prop + ", value=" + item.FKNAME );
 			matchEnvUpdateStatus( env , false , false );
 		}
 	}

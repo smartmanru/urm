@@ -60,6 +60,8 @@ public abstract class DBEngineData {
 		EngineEntities entities = c.getEntities();
 		if( !c.modify( DBQueries.MODIFY_CORE_UNMATCHDATACENTERS0 ) )
 			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_CORE_UNMATCHACCOUNTS0 ) )
+			Common.exitUnexpected();
 		DBEngineEntities.dropAppObjects( c , entities.entityAppHostAccount );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppNetworkHost );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppNetwork );

@@ -92,7 +92,8 @@ public class MetaEnvServerNode extends EngineObject {
 		
 		if( ACCOUNT != null ) {
 			HostAccount account = getHostAccount();
-			ops.setStringProperty( PROPERTY_HOSTLOGIN , account.getFinalAccount() );
+			if( account != null )
+				ops.setStringProperty( PROPERTY_HOSTLOGIN , account.getFinalAccount() );
 		}
 		
 		ops.setStringProperty( PROPERTY_DEPLOYGROUP , DEPLOYGROUP );
