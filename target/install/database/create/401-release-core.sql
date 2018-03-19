@@ -1,8 +1,8 @@
 
 CREATE TABLE main.urm_rel_repository (
                 repo_id INTEGER NOT NULL,
-                meta_fkid INTEGER,
-                meta_fkname VARCHAR(30),
+                product_fkid INTEGER,
+                product_fkname VARCHAR(30),
                 master_release_id INTEGER NOT NULL,
                 rv INTEGER NOT NULL,
                 CONSTRAINT urm_rel_repository_pk PRIMARY KEY (repo_id)
