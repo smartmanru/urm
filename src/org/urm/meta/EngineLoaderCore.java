@@ -16,6 +16,8 @@ import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
 import org.urm.db.engine.DBEngineSettings;
 import org.urm.engine.Engine;
+import org.urm.engine.EngineTransaction;
+import org.urm.engine.TransactionBase;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.engine.EngineBase;
@@ -138,6 +140,8 @@ public class EngineLoaderCore {
 	}
 	
 	public void setData() {
+		TransactionBase transaction = loader.getTransaction();
+		
 		if( settingsNew != null ) {
 			data.setSettings( settingsNew );
 			settingsNew = null;
@@ -159,6 +163,7 @@ public class EngineLoaderCore {
 		}
 		
 		if( mirrorsNew != null ) {
+			transaction.setMirrors( mirrorsNew );
 			data.setMirrors( mirrorsNew );
 			mirrorsNew = null;
 		}

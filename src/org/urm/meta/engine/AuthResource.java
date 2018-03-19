@@ -108,12 +108,13 @@ public class AuthResource extends EngineObject {
 		NAME = name;
 		DESC = Common.nonull( desc );
 		
+		baseurl = Common.nonull( baseurl );
 		if( type != RESOURCE_TYPE ||
 			baseurl.equals( BASEURL ) == false )
 			VERIFIED = false;
 			
 		RESOURCE_TYPE = type;
-		BASEURL = Common.nonull( baseurl );
+		BASEURL = baseurl;
 		
 		ac = null;
 	}
@@ -146,9 +147,6 @@ public class AuthResource extends EngineObject {
 		EngineAuth auth = resources.engine.getAuth();
 		String authKey = auth.getAuthKey( EngineAuth.AUTH_GROUP_RESOURCE , NAME );
 		ac = auth.loadAuthData( authKey );
-	}
-
-	public void createResource() throws Exception {
 	}
 
 	public boolean vcsVerify( ActionBase action , String repo , String repoPath ) {

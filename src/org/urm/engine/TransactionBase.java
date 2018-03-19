@@ -8,7 +8,8 @@ import org.urm.common.RunError;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
-import org.urm.db.core.DBEnums.*;
+import org.urm.db.core.DBEnums.DBEnumCompItemType;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.engine.TransactionMetadata.TransactionMetadataEnv;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.properties.EngineEntities;
@@ -17,28 +18,28 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
+import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.AppSystem;
+import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.BaseCategory;
 import org.urm.meta.engine.BaseGroup;
 import org.urm.meta.engine.BaseItem;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.EngineAuth;
-import org.urm.meta.engine.AuthResource;
+import org.urm.meta.engine.EngineAuth.SpecialRights;
 import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.EngineInfrastructure;
-import org.urm.meta.engine.EngineProducts;
-import org.urm.meta.engine.MirrorRepository;
+import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.EngineMonitoring;
-import org.urm.meta.engine.Network;
-import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.ProjectBuilder;
-import org.urm.meta.engine.EngineLifecycles;
+import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.EngineSettings;
-import org.urm.meta.engine.AppSystem;
-import org.urm.meta.engine.EngineAuth.SpecialRights;
+import org.urm.meta.engine.MirrorRepository;
+import org.urm.meta.engine.Network;
+import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.env.MetaDump;
 import org.urm.meta.env.MetaEnv;
@@ -58,10 +59,10 @@ import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaProductUnit;
-import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaUnits;
 import org.urm.meta.product.ProductMeta;
 
@@ -719,6 +720,12 @@ public class TransactionBase extends EngineObject {
 				exitUnexpectedState();
 		}
 		return( mirrorsNew );
+	}
+	
+	public void setMirrors( EngineMirrors mirrors ) {
+		if( mirrorsNew != null )
+			mirrorsNew.deleteObject();
+		mirrorsNew = mirrors;
 	}
 	
 	public boolean changeMirrors( EngineMirrors sourceMirrors ) {
