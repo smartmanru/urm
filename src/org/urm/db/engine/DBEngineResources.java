@@ -187,8 +187,6 @@ public class DBEngineResources {
 	public static void verifyResource( EngineTransaction transaction , EngineResources resources , AuthResource rc ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
-		dropResourceMirrors( transaction , rc );
-		
 		rc.setVerified( true );
 		modifyResource( c , rc , false );
 	}
