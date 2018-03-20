@@ -1,10 +1,11 @@
 
 CREATE TABLE main.urm_rel_repository (
                 repo_id INTEGER NOT NULL,
+                name VARCHAR(30) NOT NULL,
+                xdesc VARCHAR,
                 product_fkid INTEGER,
                 product_fkname VARCHAR(30),
-                master_release_id INTEGER NOT NULL,
-                rv INTEGER NOT NULL,
+                cv INTEGER NOT NULL,
                 CONSTRAINT urm_rel_repository_pk PRIMARY KEY (repo_id)
 );
 COMMENT ON TABLE main.urm_rel_repository IS 'Release repository';
@@ -15,6 +16,7 @@ CREATE TABLE main.urm_rel_main (
                 repo_id INTEGER NOT NULL,
                 name VARCHAR(64) NOT NULL,
                 xdesc VARCHAR,
+                master BOOLEAN NOT NULL,
                 lifecycle_type INTEGER NOT NULL,
                 v1 INTEGER NOT NULL,
                 v2 INTEGER NOT NULL,
@@ -22,13 +24,6 @@ CREATE TABLE main.urm_rel_main (
                 v4 INTEGER NOT NULL,
                 label_version VARCHAR(30) NOT NULL,
                 archived BOOLEAN NOT NULL,
-                uat_env_fkid INTEGER,
-                uat_env_fkname VARCHAR(30),
-                uat_ev INTEGER,
-                prod_env_fkid INTEGER,
-                prod_env_fkname VARCHAR(30),
-                prod_ev INTEGER,
-                issue_pv INTEGER,
                 rv INTEGER NOT NULL,
                 CONSTRAINT urm_rel_main_pk PRIMARY KEY (release_id)
 );
@@ -106,7 +101,6 @@ COMMENT ON TABLE main.urm_rel_scopeitem IS 'Release scope item';
 CREATE TABLE main.urm_rel_dist (
                 dist_id INTEGER NOT NULL,
                 release_id INTEGER NOT NULL,
-                master BOOLEAN NOT NULL,
                 data_hash VARCHAR(30) NOT NULL,
                 dist_date DATE,
                 dist_variant VARCHAR(64),
@@ -125,13 +119,6 @@ NOT DEFERRABLE;
 
 ALTER TABLE main.urm_rel_dist ADD CONSTRAINT urm_rel_main_dist_fk
 FOREIGN KEY (release_id)
-REFERENCES main.urm_rel_main (release_id)
-ON DELETE NO ACTION
-ON UPDATE NO ACTION
-NOT DEFERRABLE;
-
-ALTER TABLE main.urm_rel_repository ADD CONSTRAINT urm_rel_repository_master_release_fk
-FOREIGN KEY (master_release_id)
 REFERENCES main.urm_rel_main (release_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
