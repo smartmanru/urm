@@ -6,7 +6,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.Types.EnumTicketType;
+import org.urm.db.core.DBEnums.*;
 import org.urm.meta.product.Meta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -95,7 +95,7 @@ public class ReleaseChanges {
 		addSet( set );
 	}
 	
-	public void createTicket( ActionBase action , ReleaseTicketSet set , EnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
+	public void createTicket( ActionBase action , ReleaseTicketSet set , DBEnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		set.createTicket( action , type , code , name , link , comments , owner , devdone );
 	}
 	

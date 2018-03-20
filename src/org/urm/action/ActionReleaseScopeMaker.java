@@ -5,7 +5,6 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseSet;
 import org.urm.engine.dist.ReleaseTarget;
-import org.urm.meta.Types.EnumScopeCategory;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -76,7 +75,7 @@ public class ActionReleaseScopeMaker {
 			addReleaseDeliveryDocs( DELIVERY , ITEMS );
 	}
 
-	public void addScopeReleaseCategory( EnumScopeCategory CATEGORY , String[] TARGETS ) throws Exception {
+	public void addScopeReleaseCategory( DBEnumScopeCategory CATEGORY , String[] TARGETS ) throws Exception {
 		addScopeReleaseSet( Common.getEnumLower( CATEGORY ) , TARGETS ); 
 	}
 	
@@ -137,9 +136,9 @@ public class ActionReleaseScopeMaker {
 		
 		boolean all = ( INDEXES.length == 1 && INDEXES[0].equals( "all" ) )? true : false;
 		
-		EnumScopeCategory CATEGORY;
+		DBEnumScopeCategory CATEGORY;
 		if( DELIVERY == null ) {
-			CATEGORY = EnumScopeCategory.MANUAL;
+			CATEGORY = DBEnumScopeCategory.MANUAL;
 			ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , CATEGORY );
 			if( sset == null )
 				return;
@@ -149,7 +148,7 @@ public class ActionReleaseScopeMaker {
 				target.addIndexItems( action , INDEXES );
 		}
 		else {
-			CATEGORY = EnumScopeCategory.DB;
+			CATEGORY = DBEnumScopeCategory.DB;
 			ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , CATEGORY );
 			if( sset == null )
 				return;
@@ -176,7 +175,7 @@ public class ActionReleaseScopeMaker {
 		
 		boolean all = ( SCHEMES.length == 1 && SCHEMES[0].equals( "all" ) )? true : false;
 		
-		EnumScopeCategory CATEGORY = EnumScopeCategory.DB;
+		DBEnumScopeCategory CATEGORY = DBEnumScopeCategory.DB;
 		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , CATEGORY );
 		if( sset == null )
 			return;
@@ -202,7 +201,7 @@ public class ActionReleaseScopeMaker {
 		
 		boolean all = ( SCHEMES.length == 1 && SCHEMES[0].equals( "all" ) )? true : false;
 		
-		EnumScopeCategory CATEGORY = EnumScopeCategory.DOC;
+		DBEnumScopeCategory CATEGORY = DBEnumScopeCategory.DOC;
 		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , CATEGORY );
 		if( sset == null )
 			return;
@@ -243,10 +242,10 @@ public class ActionReleaseScopeMaker {
 			
 			ActionScopeSet sset = null;
 			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL )
-				sset = scope.makeReleaseCategoryScopeSet( action , dist , EnumScopeCategory.MANUAL );
+				sset = scope.makeReleaseCategoryScopeSet( action , dist , DBEnumScopeCategory.MANUAL );
 			else
 			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED )
-				sset = scope.makeReleaseCategoryScopeSet( action , dist , EnumScopeCategory.DERIVED );
+				sset = scope.makeReleaseCategoryScopeSet( action , dist , DBEnumScopeCategory.DERIVED );
 			else {
 				ReleaseSet rset = dist.release.getSourceSet( action , item.sourceProjectItem.project.set.NAME );
 				sset = scope.makeReleaseScopeSet( action , rset );
@@ -271,19 +270,19 @@ public class ActionReleaseScopeMaker {
 	}
 	
 	private void addReleaseSet( String SET , String[] TARGETS )	throws Exception {
-		if( SET.equals( Common.getEnumLower( EnumScopeCategory.CONFIG ) ) )
+		if( SET.equals( Common.getEnumLower( DBEnumScopeCategory.CONFIG ) ) )
 			addReleaseConfigs( TARGETS );
 		else 
-		if( SET.equals( Common.getEnumLower( EnumScopeCategory.MANUAL ) ) )
+		if( SET.equals( Common.getEnumLower( DBEnumScopeCategory.MANUAL ) ) )
 			addReleaseManualItems( TARGETS );
 		else 
-		if( SET.equals( Common.getEnumLower( EnumScopeCategory.DERIVED ) ) )
+		if( SET.equals( Common.getEnumLower( DBEnumScopeCategory.DERIVED ) ) )
 			addReleaseDerivedItems( TARGETS );
 		else 
-		if( SET.equals( Common.getEnumLower( EnumScopeCategory.DB ) ) )
+		if( SET.equals( Common.getEnumLower( DBEnumScopeCategory.DB ) ) )
 			addReleaseDatabaseDeliveries( TARGETS );
 		else 
-		if( SET.equals( Common.getEnumLower( EnumScopeCategory.DOC ) ) )
+		if( SET.equals( Common.getEnumLower( DBEnumScopeCategory.DOC ) ) )
 			addReleaseDocDeliveries( TARGETS );
 		else {
 			MetaSources sources = meta.getSources();
@@ -296,7 +295,7 @@ public class ActionReleaseScopeMaker {
 	}
 
  	private void addReleaseManualItems( String[] ITEMS ) throws Exception {
-		ActionScopeSet set = scope.makeReleaseCategoryScopeSet( action , dist , EnumScopeCategory.MANUAL );
+		ActionScopeSet set = scope.makeReleaseCategoryScopeSet( action , dist , DBEnumScopeCategory.MANUAL );
 		if( set != null )
 			addReleaseManualItems( set , ITEMS );
  	}
@@ -306,7 +305,7 @@ public class ActionReleaseScopeMaker {
  	}
 	
  	private void addReleaseDerivedItems( String[] ITEMS ) throws Exception {
-		ActionScopeSet set = scope.makeReleaseCategoryScopeSet( action , dist , EnumScopeCategory.DERIVED );
+		ActionScopeSet set = scope.makeReleaseCategoryScopeSet( action , dist , DBEnumScopeCategory.DERIVED );
 		if( set != null )
 			addReleaseDerivedItems( set , ITEMS );
  	}
@@ -328,7 +327,7 @@ public class ActionReleaseScopeMaker {
 	}
 		
 	private void addReleaseConfigs( String[] CONFCOMPS ) throws Exception {
-		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , EnumScopeCategory.CONFIG );
+		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , DBEnumScopeCategory.CONFIG );
 		if( sset != null )
 			addReleaseConfigComps( sset , CONFCOMPS );
 	}
@@ -346,25 +345,25 @@ public class ActionReleaseScopeMaker {
 	}
 
 	private void addReleaseDatabaseDeliveries( String[] DELIVERIES ) throws Exception {
-		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , EnumScopeCategory.DB );
+		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , DBEnumScopeCategory.DB );
 		if( sset != null )
 			addReleaseDatabaseDeliveries( sset , DELIVERIES );
 	}
 
 	private void addReleaseDocDeliveries( String[] DELIVERIES ) throws Exception {
-		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , EnumScopeCategory.DOC );
+		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , DBEnumScopeCategory.DOC );
 		if( sset != null )
 			addReleaseDocDeliveries( sset , DELIVERIES );
 	}
 
 	private void addReleaseDeliveryDatabaseSchemes( String DELIVERY , String[] SCHEMES ) throws Exception {
-		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , EnumScopeCategory.DB );
+		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , DBEnumScopeCategory.DB );
 		if( sset != null )
 			addReleaseDeliveryDatabaseSchemes( sset , DELIVERY , SCHEMES );
 	}
 
 	private void addReleaseDeliveryDocs( String DELIVERY , String[] DOCS ) throws Exception {
-		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , EnumScopeCategory.DOC );
+		ActionScopeSet sset = scope.makeReleaseCategoryScopeSet( action , dist , DBEnumScopeCategory.DOC );
 		if( sset != null )
 			addReleaseDeliveryDocs( sset , DELIVERY , DOCS );
 	}

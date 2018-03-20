@@ -7,6 +7,7 @@ import org.urm.action.release.ReleaseCommand;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.meta.ReleaseCommandMeta;
+import org.urm.db.core.DBEnums.DBEnumScopeCategory;
 import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
@@ -14,7 +15,6 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.status.ScopeState;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
-import org.urm.meta.Types.*;
 
 public class ReleaseCommandExecutor extends CommandExecutor {
 
@@ -369,17 +369,17 @@ public class ReleaseCommandExecutor extends CommandExecutor {
 			impl.descopeAll( parentState , action , dist );
 		}
 		else
-		if( SET.equals( Common.getEnumLower( EnumScopeCategory.CONFIG ) ) ) {
+		if( SET.equals( Common.getEnumLower( DBEnumScopeCategory.CONFIG ) ) ) {
 			String[] COMPS = getArgList( action , 2 );
 			impl.descopeConfComps( parentState , action , dist , COMPS );
 		}
 		else
-		if( SET.equals( Common.getEnumLower( EnumScopeCategory.DB ) ) ) {
+		if( SET.equals( Common.getEnumLower( DBEnumScopeCategory.DB ) ) ) {
 			String[] ITEMS = getArgList( action , 2 );
 			impl.descopeDatabase( parentState , action , dist , ITEMS );
 		}
 		else
-		if( SET.equals( Common.getEnumLower( EnumScopeCategory.MANUAL ) ) ) {
+		if( SET.equals( Common.getEnumLower( DBEnumScopeCategory.MANUAL ) ) ) {
 			String[] ITEMS = getArgList( action , 2 );
 			impl.descopeManualItems( parentState , action , dist , ITEMS );
 		}

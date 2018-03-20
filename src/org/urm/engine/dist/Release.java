@@ -9,7 +9,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnums.*;
-import org.urm.meta.Types;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -21,7 +20,6 @@ import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -39,7 +37,7 @@ public class Release {
 	private boolean CUMULATIVE;
 	
 	Map<String,ReleaseSet> sourceSetMap = new HashMap<String,ReleaseSet>();
-	Map<EnumScopeCategory,ReleaseSet> categorySetMap = new HashMap<EnumScopeCategory,ReleaseSet>();
+	Map<DBEnumScopeCategory,ReleaseSet> categorySetMap = new HashMap<DBEnumScopeCategory,ReleaseSet>();
 	Map<String,ReleaseDelivery> deliveryMap = new HashMap<String,ReleaseDelivery>();
 
 	public ReleaseSchedule schedule;
@@ -155,7 +153,7 @@ public class Release {
 			sourceSetMap.put( entry.getKey() , set );
 		}
 		
-		for( Entry<EnumScopeCategory,ReleaseSet> entry : src.categorySetMap.entrySet() ) {
+		for( Entry<DBEnumScopeCategory,ReleaseSet> entry : src.categorySetMap.entrySet() ) {
 			ReleaseSet set = entry.getValue().copy( action , this );
 			categorySetMap.put( entry.getKey() , set );
 		}
@@ -199,7 +197,7 @@ public class Release {
 				set.addReleaseSet( action , srcset );
 		}
 		
-		for( Entry<EnumScopeCategory,ReleaseSet> entry : src.categorySetMap.entrySet() ) {
+		for( Entry<DBEnumScopeCategory,ReleaseSet> entry : src.categorySetMap.entrySet() ) {
 			ReleaseSet set = categorySetMap.get( entry.getKey() );
 			ReleaseSet srcset = entry.getValue();
 			if( set == null ) {
@@ -283,15 +281,15 @@ public class Release {
 		return( set );
 	}
 	
-	public Map<EnumScopeCategory,ReleaseSet> getCategorySets( ActionBase action ) throws Exception {
+	public Map<DBEnumScopeCategory,ReleaseSet> getCategorySets( ActionBase action ) throws Exception {
 		return( categorySetMap );
 	}
 	
-	public ReleaseSet findCategorySet( EnumScopeCategory CATEGORY ) {
+	public ReleaseSet findCategorySet( DBEnumScopeCategory CATEGORY ) {
 		return( categorySetMap.get( CATEGORY ) );
 	}
 	
-	public ReleaseSet getCategorySet( ActionBase action , EnumScopeCategory CATEGORY ) throws Exception {
+	public ReleaseSet getCategorySet( ActionBase action , DBEnumScopeCategory CATEGORY ) throws Exception {
 		ReleaseSet set = findCategorySet( CATEGORY );
 		if( set == null ) {
 			String name = Common.getEnumLower( CATEGORY );
@@ -300,12 +298,12 @@ public class Release {
 		return( set );
 	}
 
-	private void loadSets( ActionBase action , Node root , EnumScopeCategory CATEGORY ) throws Exception {
+	private void loadSets( ActionBase action , Node root , DBEnumScopeCategory CATEGORY ) throws Exception {
 		Node element = ConfReader.xmlGetFirstChild( root , Common.getEnumLower( CATEGORY ) );
 		if( element == null )
 			return;
 		
-		if( Types.isSourceCategory( CATEGORY ) ) {
+		if( CATEGORY.isSourceCategory() ) {
 			Node[] sets = ConfReader.xmlGetChildren( element , ELEMENT_SET );
 			if( sets == null )
 				return;
@@ -351,7 +349,7 @@ public class Release {
 		}
 		else {
 			// get project sets
-			for( EnumScopeCategory CATEGORY : Types.getAllReleaseCategories() )
+			for( DBEnumScopeCategory CATEGORY : DBEnumScopeCategory.getAllReleaseCategories() )
 				loadSets( action , root , CATEGORY );
 			changes = new ReleaseChanges( meta , this );
 			changes.load( action , root );
@@ -362,7 +360,7 @@ public class Release {
 
 	private void registerSet( ActionBase action , ReleaseSet set ) throws Exception {
 		action.trace( "add set=" + set.NAME + ", category=" + Common.getEnumLower( set.CATEGORY ) );
-		if( Types.isSourceCategory( set.CATEGORY ) )
+		if( set.CATEGORY.isSourceCategory() )
 			sourceSetMap.put( set.NAME , set );
 		else
 			categorySetMap.put( set.CATEGORY , set );
@@ -379,7 +377,7 @@ public class Release {
 	
 	private void registerTarget( ActionBase action , ReleaseTarget target ) throws Exception {
 		action.trace( "add target=" + target.NAME );
-		if( Types.isSourceCategory( target.CATEGORY ) ) {
+		if( target.CATEGORY.isSourceCategory() ) {
 			for( ReleaseTargetItem item : target.getItems() )
 				registerTargetItem( action , item );
 		}
@@ -454,7 +452,7 @@ public class Release {
 		return( set.getTargets() );
 	}
 
-	public ReleaseTarget[] getCategoryTargets( ActionBase action , EnumScopeCategory CATEGORY ) throws Exception {
+	public ReleaseTarget[] getCategoryTargets( ActionBase action , DBEnumScopeCategory CATEGORY ) throws Exception {
 		ReleaseSet set = categorySetMap.get( CATEGORY );
 		if( set == null )
 			return( new ReleaseTarget[0] );
@@ -480,7 +478,7 @@ public class Release {
 		return( project );
 	}
 
-	public ReleaseTarget findCategoryTarget( ActionBase action , EnumScopeCategory CATEGORY , String KEY ) throws Exception {
+	public ReleaseTarget findCategoryTarget( ActionBase action , DBEnumScopeCategory CATEGORY , String KEY ) throws Exception {
 		ReleaseSet set = categorySetMap.get( CATEGORY );
 		if( set == null )
 			return( null );
@@ -490,7 +488,7 @@ public class Release {
 	}
 	
 	public ReleaseTarget findConfComponent( ActionBase action , String KEY ) throws Exception {
-		return( findCategoryTarget( action , EnumScopeCategory.CONFIG , KEY ) );
+		return( findCategoryTarget( action , DBEnumScopeCategory.CONFIG , KEY ) );
 	}
 	
 	public ReleaseTarget getConfComponent( ActionBase action , String KEY ) throws Exception {
@@ -501,7 +499,7 @@ public class Release {
 		return( comp );
 	}
 
-	public ReleaseTarget[] getCategoryTargets( EnumScopeCategory CATEGORY ) {
+	public ReleaseTarget[] getCategoryTargets( DBEnumScopeCategory CATEGORY ) {
 		ReleaseSet set = categorySetMap.get( CATEGORY );
 		if( set == null )
 			return( new ReleaseTarget[0] );
@@ -510,7 +508,7 @@ public class Release {
 	}
 	
 	public ReleaseTarget[] getConfComponents() {
-		return( getCategoryTargets( EnumScopeCategory.CONFIG ) );
+		return( getCategoryTargets( DBEnumScopeCategory.CONFIG ) );
 	}
 
 	public ReleaseDelivery[] getDeliveries() {
@@ -562,7 +560,7 @@ public class Release {
 	}
 
 	public boolean isEmptyConfiguration() throws Exception {
-		ReleaseSet set = findCategorySet( EnumScopeCategory.CONFIG );
+		ReleaseSet set = findCategorySet( DBEnumScopeCategory.CONFIG );
 		if( set == null || set.isEmpty() )
 			return( true );
 		
@@ -570,7 +568,7 @@ public class Release {
 	}
 	
 	public boolean isEmptyDatabase() {
-		ReleaseSet set = findCategorySet( EnumScopeCategory.DB );
+		ReleaseSet set = findCategorySet( DBEnumScopeCategory.DB );
 		if( set == null || set.isEmpty() )
 			return( true );
 		
@@ -578,7 +576,7 @@ public class Release {
 	}
 	
 	public boolean isEmptyDoc() {
-		ReleaseSet set = findCategorySet( EnumScopeCategory.DOC );
+		ReleaseSet set = findCategorySet( DBEnumScopeCategory.DOC );
 		if( set == null || set.isEmpty() )
 			return( true );
 		
@@ -594,7 +592,7 @@ public class Release {
 		Common.xmlCreatePropertyElement( doc , root , PROPERTY_COMPATIBILITY , COMPATIBILITY );
 		Common.xmlCreateBooleanPropertyElement( doc , root , PROPERTY_CUMULATIVE , CUMULATIVE );
 		
-		for( EnumScopeCategory CATEGORY : Types.getAllReleaseCategories() )
+		for( DBEnumScopeCategory CATEGORY : DBEnumScopeCategory.getAllReleaseCategories() )
 			Common.xmlCreateElement( doc , root , Common.getEnumLower( CATEGORY ) );
 		
 		schedule.save( action , doc , root );
@@ -641,7 +639,7 @@ public class Release {
 	public boolean addSourceSet( ActionBase action , MetaSourceProjectSet sourceSet , boolean all ) throws Exception {
 		ReleaseSet set = findSourceSet( sourceSet.NAME );
 		if( set == null ) {
-			set = new ReleaseSet( meta , this , EnumScopeCategory.PROJECT );
+			set = new ReleaseSet( meta , this , DBEnumScopeCategory.PROJECT );
 			set.createSourceSet( action , sourceSet , all );
 			registerSet( action , set );
 			return( true );
@@ -659,7 +657,7 @@ public class Release {
 		return( true );
 	}
 	
-	public boolean addCategorySet( ActionBase action , EnumScopeCategory CATEGORY , boolean all ) throws Exception {
+	public boolean addCategorySet( ActionBase action , DBEnumScopeCategory CATEGORY , boolean all ) throws Exception {
 		ReleaseSet set = findCategorySet( CATEGORY );
 		if( set == null ) {
 			set = new ReleaseSet( meta , this , CATEGORY );
@@ -680,7 +678,7 @@ public class Release {
 		return( true );
 	}
 
-	public void deleteCategorySet( ActionBase action , EnumScopeCategory CATEGORY ) throws Exception {
+	public void deleteCategorySet( ActionBase action , DBEnumScopeCategory CATEGORY ) throws Exception {
 		ReleaseSet set = findCategorySet( CATEGORY );
 		if( set == null )
 			return;
@@ -697,7 +695,7 @@ public class Release {
 	}
 
 	private void unregisterTarget( ActionBase action , ReleaseTarget target ) throws Exception {
-		if( Types.isSourceCategory( target.CATEGORY ) ) {
+		if( target.CATEGORY.isSourceCategory() ) {
 			for( ReleaseTargetItem item : target.getItems() )
 				unregisterTargetItem( action , item );
 		}
@@ -728,14 +726,14 @@ public class Release {
 		for( ReleaseTarget project : set.getTargets() )
 			unregisterTarget( action , project );
 		
-		if( Types.isSourceCategory( set.CATEGORY ) )
+		if( set.CATEGORY.isSourceCategory() )
 			sourceSetMap.remove( set.NAME );
 		else
 			categorySetMap.remove( set.CATEGORY );
 	}
 
 	public boolean addDatabaseDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allSchemes ) throws Exception {
-		ReleaseSet set = getCategorySet( action , EnumScopeCategory.DB );
+		ReleaseSet set = getCategorySet( action , DBEnumScopeCategory.DB );
 		if( set == null )
 			return( false );
 		
@@ -756,7 +754,7 @@ public class Release {
 	}
 	
 	public boolean addDocDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allDocs ) throws Exception {
-		ReleaseSet set = getCategorySet( action , EnumScopeCategory.DOC );
+		ReleaseSet set = getCategorySet( action , DBEnumScopeCategory.DOC );
 		if( set == null )
 			return( false );
 		
@@ -805,7 +803,7 @@ public class Release {
 		target.set.removeTarget( action , target );
 	}
 	
-	public void deleteCategoryTarget( ActionBase action , EnumScopeCategory CATEGORY , String NAME ) throws Exception {
+	public void deleteCategoryTarget( ActionBase action , DBEnumScopeCategory CATEGORY , String NAME ) throws Exception {
 		ReleaseSet set = getCategorySet( action , CATEGORY );
 		if( set == null )
 			return;
@@ -830,7 +828,7 @@ public class Release {
 	}
 
 	public void deleteDatabaseDelivery( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		ReleaseSet set = getCategorySet( action , EnumScopeCategory.DB );
+		ReleaseSet set = getCategorySet( action , DBEnumScopeCategory.DB );
 		if( set == null )
 			return;
 		
@@ -842,7 +840,7 @@ public class Release {
 	}
 
 	public void deleteDocDelivery( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		ReleaseSet set = getCategorySet( action , EnumScopeCategory.DOC );
+		ReleaseSet set = getCategorySet( action , DBEnumScopeCategory.DOC );
 		if( set == null )
 			return;
 		
@@ -877,7 +875,7 @@ public class Release {
 	}
 
 	public boolean addDatabaseSchema( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
-		ReleaseSet set = getCategorySet( action , EnumScopeCategory.DB );
+		ReleaseSet set = getCategorySet( action , DBEnumScopeCategory.DB );
 		if( set == null )
 			return( false );
 		
@@ -897,7 +895,7 @@ public class Release {
 	}
 
 	public boolean addDoc( ActionBase action , MetaDistrDelivery delivery , MetaProductDoc doc ) throws Exception {
-		ReleaseSet set = getCategorySet( action , EnumScopeCategory.DOC );
+		ReleaseSet set = getCategorySet( action , DBEnumScopeCategory.DOC );
 		if( set == null )
 			return( false );
 		
@@ -951,7 +949,7 @@ public class Release {
 	}
 	
 	public void deleteDatabaseSchema( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
-		ReleaseSet set = getCategorySet( action , EnumScopeCategory.DB );
+		ReleaseSet set = getCategorySet( action , DBEnumScopeCategory.DB );
 		if( set == null )
 			return;
 
@@ -967,7 +965,7 @@ public class Release {
 	}
 	
 	public void deleteDoc( ActionBase action , MetaDistrDelivery delivery , MetaProductDoc doc ) throws Exception {
-		ReleaseSet set = getCategorySet( action , EnumScopeCategory.DOC );
+		ReleaseSet set = getCategorySet( action , DBEnumScopeCategory.DOC );
 		if( set == null )
 			return;
 
@@ -983,7 +981,7 @@ public class Release {
 	}
 	
 	public boolean addConfItem( ActionBase action , MetaDistrConfItem item ) throws Exception {
-		ReleaseSet set = getCategorySet( action , EnumScopeCategory.CONFIG );
+		ReleaseSet set = getCategorySet( action , DBEnumScopeCategory.CONFIG );
 		if( set.ALL )
 			return( true );
 
@@ -1003,7 +1001,7 @@ public class Release {
 		if( item.ITEMORIGIN_TYPE != DBEnumItemOriginType.MANUAL )
 			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item.NAME , item.NAME );
 			
-		ReleaseSet set = getCategorySet( action , EnumScopeCategory.MANUAL );
+		ReleaseSet set = getCategorySet( action , DBEnumScopeCategory.MANUAL );
 		if( set.ALL )
 			return( true );
 
@@ -1020,7 +1018,7 @@ public class Release {
 		if( item.ITEMORIGIN_TYPE != DBEnumItemOriginType.DERIVED )
 			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item.NAME , item.NAME );
 			
-		ReleaseSet set = getCategorySet( action , EnumScopeCategory.DERIVED );
+		ReleaseSet set = getCategorySet( action , DBEnumScopeCategory.DERIVED );
 		if( set.ALL )
 			return( true );
 

@@ -14,8 +14,6 @@ import org.urm.common.action.CommandMethodMeta;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
 import org.urm.engine.status.ScopeState;
-import org.urm.meta.Types;
-import org.urm.meta.Types.*;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.engine.EngineLifecycles;
 
@@ -99,8 +97,8 @@ public abstract class CommandExecutor {
 		action.exit1( _Error.UnexpectedExtraArguments1 , "unexpected extra arguments: " + Common.getQuoted( xargs ) + "; see help to find syntax" , xargs );
 	}
 	
-	public EnumScopeCategory getRequiredCategoryArg( ActionBase action , int pos ) throws Exception {
-		EnumScopeCategory CATEGORY = getCategoryArg( action , pos );
+	public DBEnumScopeCategory getRequiredCategoryArg( ActionBase action , int pos ) throws Exception {
+		DBEnumScopeCategory CATEGORY = getCategoryArg( action , pos );
 		if( CATEGORY == null )
 			action.exit1( _Error.ArgumentRequired1 , "CATEGORY argument is required" , "CATEGORY" );
 		return( CATEGORY );
@@ -121,11 +119,11 @@ public abstract class CommandExecutor {
 		return( BUILDMODE );
 	}
 	
-	public EnumScopeCategory getCategoryArg( ActionBase action , int pos ) throws Exception {
+	public DBEnumScopeCategory getCategoryArg( ActionBase action , int pos ) throws Exception {
 		if( pos >= action.context.options.getArgCount() )
 			return( null );
 		
-		return( Types.getCategory( getArg( action , pos ) , true ) );
+		return( DBEnumScopeCategory.getValue( getArg( action , pos ) , true ) );
 	}
 	
 	public String getRequiredArg( ActionBase action , int pos , String argName ) throws Exception {

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseSet;
@@ -12,7 +13,6 @@ import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.Types.EnumScopeCategory;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -145,12 +145,12 @@ public class ActionSetScope extends ActionBase {
 		dist.reloadCheckOpenedForDataChange( this );
 		if( pathItems.length == 1 ) {
 			if( pathItems[0].equals( "all" ) ) {
-				for( EnumScopeCategory category : new EnumScopeCategory[] { 
-						EnumScopeCategory.MANUAL , 
-						EnumScopeCategory.DERIVED , 
-						EnumScopeCategory.CONFIG , 
-						EnumScopeCategory.DB , 
-						EnumScopeCategory.DOC } ) {
+				for( DBEnumScopeCategory category : new DBEnumScopeCategory[] { 
+						DBEnumScopeCategory.MANUAL , 
+						DBEnumScopeCategory.DERIVED , 
+						DBEnumScopeCategory.CONFIG , 
+						DBEnumScopeCategory.DB , 
+						DBEnumScopeCategory.DOC } ) {
 					if( !dist.addAllCategory( this , category ) )
 						return( false );
 				}

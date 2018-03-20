@@ -9,6 +9,7 @@ import org.urm.action.ActionProductScopeMaker;
 import org.urm.action.ActionScope;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.ReleaseTicket;
@@ -16,9 +17,6 @@ import org.urm.engine.dist.ReleaseTicketSet;
 import org.urm.engine.dist.ReleaseTicketSetTarget;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.Types;
-import org.urm.meta.Types.EnumTicketSetTargetType;
-import org.urm.meta.Types.EnumTicketType;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSources;
@@ -170,7 +168,7 @@ public class ActionTickets extends ActionBase {
 			}
 			
 			String setName = args[0];
-			EnumTicketType type = Types.getTicketType( args[1] , true );
+			DBEnumTicketType type = DBEnumTicketType.getValue( args[1] , true );
 			String code = args[2];
 			String name = args[3];
 			String link = ( args.length > 4 )? args[4] : "";
@@ -188,7 +186,7 @@ public class ActionTickets extends ActionBase {
 			
 			String setName = args[0];
 			int pos = Integer.parseInt( args[1] );
-			EnumTicketType type = Types.getTicketType( args[2] , true );
+			DBEnumTicketType type = DBEnumTicketType.getValue( args[2] , true );
 			String code = args[3];
 			String name = args[4];
 			String link = ( args.length > 5 )? args[5] : "";
@@ -485,12 +483,12 @@ public class ActionTickets extends ActionBase {
 		}
 	}
 	
-	private void executeCreateTicket( String setCode , EnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
+	private void executeCreateTicket( String setCode , DBEnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
 		dist.release.changes.createTicket( this , set , type , code , name , link , comments , owner , devdone );
 	}
 	
-	private void executeModifyTicket( String setCode , int POS , EnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
+	private void executeModifyTicket( String setCode , int POS , DBEnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , setCode );
 		ReleaseTicket ticket = set.getTicket( this , POS );
 		set.modifyTicket( this , ticket , type , code , name , link , comments , owner , devdone );
@@ -561,16 +559,16 @@ public class ActionTickets extends ActionBase {
 		MetaDistr distr = dist.meta.getDistr();
 		MetaDistrDelivery delivery = distr.getDelivery( deliveryName );
 		if( type.equals( TARGET_DELIVERYBINARY ) )
-			set.createTarget( this , delivery , EnumTicketSetTargetType.DISTITEM , items );
+			set.createTarget( this , delivery , DBEnumReleaseTargetType.DISTITEM , items );
 		else
 		if( type.equals( TARGET_DELIVERYCONF ) )
-			set.createTarget( this , delivery , EnumTicketSetTargetType.CONFITEM , items );
+			set.createTarget( this , delivery , DBEnumReleaseTargetType.CONFITEM , items );
 		else
 		if( type.equals( TARGET_DELIVERYSCHEMA ) )
-			set.createTarget( this , delivery , EnumTicketSetTargetType.SCHEMA , items );
+			set.createTarget( this , delivery , DBEnumReleaseTargetType.SCHEMA , items );
 		else
 		if( type.equals( TARGET_DELIVERYDOC ) )
-			set.createTarget( this , delivery , EnumTicketSetTargetType.DOC , items );
+			set.createTarget( this , delivery , DBEnumReleaseTargetType.DOC , items );
 		else
 			Common.exitUnexpected();
 	}

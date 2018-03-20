@@ -3,11 +3,11 @@ package org.urm.action.codebase;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.vcs.ProjectVersionControl;
 import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.Types.*;
 
 public class ActionSetTagOnBuildBranch extends ActionBase {
 
@@ -48,13 +48,13 @@ public class ActionSetTagOnBuildBranch extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private void setTagFromTag( String SRCTAG , String TAG , EnumScopeCategory CATEGORY , MetaSourceProject sourceProject ) throws Exception {
+	private void setTagFromTag( String SRCTAG , String TAG , DBEnumScopeCategory CATEGORY , MetaSourceProject sourceProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
 		if( !vcs.copyTagToTag( sourceProject , SRCTAG , TAG ) )
 			super.ifexit3( _Error.ProjectCopyTagError3 , "unable to copy tag=" + SRCTAG + " to tag=" + TAG + " for proect=" + sourceProject.NAME , SRCTAG , TAG , sourceProject.NAME );
 	}
 	
-	private void setTagFromBranch( String BRANCH , String TAG , EnumScopeCategory CATEGORY , MetaSourceProject sourceProject ) throws Exception {
+	private void setTagFromBranch( String BRANCH , String TAG , DBEnumScopeCategory CATEGORY , MetaSourceProject sourceProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
 		if( !vcs.setTag( sourceProject , BRANCH , TAG , context.CTX_DATE ) )
 			super.ifexit2( _Error.ProjectSetTagError2 , "unable to set tag=" + TAG + " on proect=" + sourceProject.NAME , TAG , sourceProject.NAME );

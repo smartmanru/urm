@@ -5,11 +5,10 @@ import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.Types;
-import org.urm.meta.Types.*;
 
 public class ActionAddScope extends ActionBase {
 
@@ -50,21 +49,21 @@ public class ActionAddScope extends ActionBase {
 	}
 
 	private boolean addAllProductSetElements( ActionScopeSet set ) throws Exception {
-		if( Types.isSourceCategory( set.CATEGORY ) )
+		if( set.CATEGORY.isSourceCategory() )
 			return( dist.addAllSource( this , set.pset ) );
 		return( dist.addAllCategory( this , set.CATEGORY ) );
 	}
 	
 	private boolean addAllProductTargetElements( ActionScopeSet set , ActionScopeTarget target ) throws Exception {
-		if( target.CATEGORY == EnumScopeCategory.CONFIG )
+		if( target.CATEGORY == DBEnumScopeCategory.CONFIG )
 			return( dist.addConfItem( this , target.confItem ) );
-		if( target.CATEGORY == EnumScopeCategory.MANUAL )
+		if( target.CATEGORY == DBEnumScopeCategory.MANUAL )
 			return( dist.addManualItem( this , target.manualItem ) );
-		if( target.CATEGORY == EnumScopeCategory.DB )
+		if( target.CATEGORY == DBEnumScopeCategory.DB )
 			return( dist.addDeliveryAllDatabaseSchemes( this , target.delivery ) );
-		if( target.CATEGORY == EnumScopeCategory.DOC )
+		if( target.CATEGORY == DBEnumScopeCategory.DOC )
 			return( dist.addDeliveryAllDocs( this , target.delivery ) );
-		if( Types.isSourceCategory( target.CATEGORY ) )
+		if( target.CATEGORY.isSourceCategory() )
 			return( dist.addProjectAllItems( this , target.sourceProject ) );
 
 		this.exitUnexpectedCategory( target.CATEGORY );
@@ -72,11 +71,11 @@ public class ActionAddScope extends ActionBase {
 	}
 	
 	private boolean addTargetItem( ActionScopeSet set , ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {
-		if( Types.isSourceCategory( target.CATEGORY ) )
+		if( target.CATEGORY.isSourceCategory() )
 			return( dist.addProjectItem( this , target.sourceProject , item.sourceItem ) );
-		if( target.CATEGORY == EnumScopeCategory.DB )
+		if( target.CATEGORY == DBEnumScopeCategory.DB )
 			return( dist.addDeliveryDatabaseSchema( this , target.delivery , item.schema ) );
-		if( target.CATEGORY == EnumScopeCategory.DOC )
+		if( target.CATEGORY == DBEnumScopeCategory.DOC )
 			return( dist.addDeliveryDoc( this , target.delivery , item.doc ) );
 		
 		this.exitUnexpectedCategory( target.CATEGORY );

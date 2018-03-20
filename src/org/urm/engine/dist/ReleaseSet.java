@@ -8,7 +8,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnums.*;
-import org.urm.meta.Types;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -26,7 +25,7 @@ public class ReleaseSet {
 
 	Meta meta;
 	Release release;
-	public EnumScopeCategory CATEGORY;
+	public DBEnumScopeCategory CATEGORY;
 	
 	public MetaSourceProjectSet set;
 	
@@ -38,7 +37,7 @@ public class ReleaseSet {
 
 	Map<String,ReleaseTarget> map = new HashMap<String,ReleaseTarget>(); 
 	
-	public ReleaseSet( Meta meta , Release release , EnumScopeCategory CATEGORY ) {
+	public ReleaseSet( Meta meta , Release release , DBEnumScopeCategory CATEGORY ) {
 		this.meta = meta;
 		this.release = release;
 		this.CATEGORY = CATEGORY;
@@ -83,7 +82,7 @@ public class ReleaseSet {
 	}
 
 	public boolean isSourceSet() {
-		if( CATEGORY == EnumScopeCategory.PROJECT )
+		if( CATEGORY == DBEnumScopeCategory.PROJECT )
 			return( true );
 		return( false );
 	}
@@ -94,23 +93,23 @@ public class ReleaseSet {
 	
 	public void load( ActionBase action , Node node ) throws Exception {
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
-		if( Types.isSourceCategory( CATEGORY ) )
+		if( CATEGORY.isSourceCategory() )
 			loadBinary( action , node );
 		else {
 			NAME = Common.getEnumLower( CATEGORY );
-			if( CATEGORY == EnumScopeCategory.CONFIG )
+			if( CATEGORY == DBEnumScopeCategory.CONFIG )
 				loadConfiguration( action , node );
 			else
-			if( CATEGORY == EnumScopeCategory.MANUAL )
+			if( CATEGORY == DBEnumScopeCategory.MANUAL )
 				loadManual( action , node );
 			else
-			if( CATEGORY == EnumScopeCategory.DERIVED )
+			if( CATEGORY == DBEnumScopeCategory.DERIVED )
 				loadDerived( action , node );
 			else
-			if( CATEGORY == EnumScopeCategory.DB )
+			if( CATEGORY == DBEnumScopeCategory.DB )
 				loadDatabase( action , node );
 			else
-			if( CATEGORY == EnumScopeCategory.DOC )
+			if( CATEGORY == DBEnumScopeCategory.DOC )
 				loadDocs( action , node );
 			else
 				action.exitUnexpectedCategory( CATEGORY );
@@ -157,7 +156,7 @@ public class ReleaseSet {
 	}
 	
 	private void loadConfiguration( ActionBase action , Node node ) throws Exception {
-		NAME = Common.getEnumLower( EnumScopeCategory.CONFIG );
+		NAME = Common.getEnumLower( DBEnumScopeCategory.CONFIG );
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
 		Node[] confitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_CONFITEM );
@@ -178,7 +177,7 @@ public class ReleaseSet {
 	}
 	
 	private void loadManual( ActionBase action , Node node ) throws Exception {
-		NAME = Common.getEnumLower( EnumScopeCategory.MANUAL );
+		NAME = Common.getEnumLower( DBEnumScopeCategory.MANUAL );
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
 		Node[] manualitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DISTITEM );
@@ -199,7 +198,7 @@ public class ReleaseSet {
 	}
 
 	private void loadDerived( ActionBase action , Node node ) throws Exception {
-		NAME = Common.getEnumLower( EnumScopeCategory.DERIVED );
+		NAME = Common.getEnumLower( DBEnumScopeCategory.DERIVED );
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
 		Node[] deriveditems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DISTITEM );
@@ -220,7 +219,7 @@ public class ReleaseSet {
 	}
 
 	private void loadDatabase( ActionBase action , Node node ) throws Exception {
-		NAME = Common.getEnumLower( EnumScopeCategory.DB );
+		NAME = Common.getEnumLower( DBEnumScopeCategory.DB );
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
 		Node[] dbitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DELIVERY );
@@ -241,7 +240,7 @@ public class ReleaseSet {
 	}
 
 	private void loadDocs( ActionBase action , Node node ) throws Exception {
-		NAME = Common.getEnumLower( EnumScopeCategory.DOC );
+		NAME = Common.getEnumLower( DBEnumScopeCategory.DOC );
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
 		Node[] docitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DELIVERY );
@@ -264,7 +263,7 @@ public class ReleaseSet {
 	public void createSourceSet( ActionBase action , MetaSourceProjectSet set , boolean ALL ) throws Exception {
 		this.set = set;
 		this.NAME = set.NAME;
-		this.CATEGORY = EnumScopeCategory.PROJECT;
+		this.CATEGORY = DBEnumScopeCategory.PROJECT;
 		this.ALL = ALL;
 		this.BUILDBRANCH = action.context.CTX_BRANCH;
 		this.BUILDTAG = action.context.CTX_TAG;
@@ -274,7 +273,7 @@ public class ReleaseSet {
 			addAllSourceProjects( action );
 	}
 	
-	public void createCategorySet( ActionBase action , EnumScopeCategory CATEGORY , boolean ALL ) throws Exception {
+	public void createCategorySet( ActionBase action , DBEnumScopeCategory CATEGORY , boolean ALL ) throws Exception {
 		this.CATEGORY = CATEGORY;
 		this.NAME = Common.getEnumLower( CATEGORY );
 		this.ALL = ALL;
@@ -283,19 +282,19 @@ public class ReleaseSet {
 		this.BUILDVERSION = action.context.CTX_VERSION;
 		
 		if( ALL ) {
-			if( CATEGORY == EnumScopeCategory.CONFIG )
+			if( CATEGORY == DBEnumScopeCategory.CONFIG )
 				addAllConfItems( action );
 			else
-			if( CATEGORY == EnumScopeCategory.MANUAL )
+			if( CATEGORY == DBEnumScopeCategory.MANUAL )
 				addAllManualItems( action );
 			else
-			if( CATEGORY == EnumScopeCategory.DERIVED )
+			if( CATEGORY == DBEnumScopeCategory.DERIVED )
 				addAllDerivedItems( action );
 			else
-			if( CATEGORY == EnumScopeCategory.DB )
+			if( CATEGORY == DBEnumScopeCategory.DB )
 				addAllDatabaseItems( action );
 			else
-			if( CATEGORY == EnumScopeCategory.DOC )
+			if( CATEGORY == DBEnumScopeCategory.DOC )
 				addAllDocItems( action );
 			else
 				action.exitUnexpectedCategory( CATEGORY );
@@ -472,7 +471,7 @@ public class ReleaseSet {
 	}
 
 	public Element createXml( ActionBase action , Document doc , Element parent ) throws Exception {
-		if( Types.isSourceCategory( CATEGORY ) )
+		if( CATEGORY.isSourceCategory() )
 			return( createXmlBinary( action , doc , parent ) );
 
 		return( createXmlCategory( action , doc , parent ) );

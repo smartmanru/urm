@@ -606,7 +606,76 @@ public abstract class DBEnums {
 		public static DBEnumNodeType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumNodeType.class , value , required , UNKNOWN ) ); };
 		public static DBEnumNodeType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumNodeType.class , value , required , UNKNOWN ) ); };
 	};
+
+	public enum DBEnumReleaseTargetType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		PROJECTSET(10,null) ,
+		PROJECTALLITEMS(11,null) ,
+		PROJECTNOITEMS(12,null) ,
+		DISTITEM(20,null) ,
+		CONFITEM(21,null) ,
+		SCHEMA(22,null) ,
+		DOC(23,null) ,
+		DELIVERYBINARIES(30,null) ,
+		DELIVERYCONFS(31,null) ,
+		DELIVERYDATABASE(32,null) ,
+		DELIVERYDOC(33,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumReleaseTargetType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumReleaseTargetType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumReleaseTargetType.class , value , required , null ) ); };
+		public static DBEnumReleaseTargetType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumReleaseTargetType.class , value , required , null ) ); };
+	};
 	
+	public enum DBEnumTicketSetStatus implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		NEW(1,null) ,
+		ACTIVE(2,null) ,
+		DESCOPED(3,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumTicketSetStatus( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumTicketSetStatus getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketSetStatus.class , value , required , null ) ); };
+		public static DBEnumTicketSetStatus getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketSetStatus.class , value , required , null ) ); };
+	};
+
+	public enum DBEnumTicketType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		FEATURE(1,null) ,
+		CHANGE(2,null) ,
+		DOCUMENT(3,null) ,
+		BUGFIX(4,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumTicketType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumTicketType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketType.class , value , required , null ) ); };
+		public static DBEnumTicketType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketType.class , value , required , null ) ); };
+	};
+
+	public enum DBEnumTicketStatus implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		NEW(1,null) ,
+		DEVDONE(2,null) ,
+		QADONE(5,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumTicketStatus( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumTicketStatus getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketStatus.class , value , required , null ) ); };
+		public static DBEnumTicketStatus getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketStatus.class , value , required , null ) ); };
+	};
+
 	public enum DBEnumObjectVersionType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		APP(1,null) ,
@@ -722,7 +791,66 @@ public abstract class DBEnums {
 		public static DBEnumParamRoleType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamRoleType.class , value , required , null ) ); };
 		public static DBEnumParamRoleType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamRoleType.class , value , required , null ) ); };
 	};
-	
+
+	public enum DBEnumScopeCategory implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		// source
+		PROJECT(10,null) ,
+		// distributive
+		CONFIG(20,null) ,
+		MANUAL(21,null) ,
+		DERIVED(22,null) ,
+		// delivery
+		DB(30,null) ,
+		DOC(31,null) ,
+		// env hierarchy
+		ENV(40,null) ,
+		// search only
+		SEARCH_SOURCEBUILDABLE(100,null) ,
+		SEARCH_SOURCEPREBUILT(101,null);
+
+		public boolean isSourceCategory() {
+			if( this == DBEnumScopeCategory.PROJECT )
+				return( true );
+			return( false );
+		}
+		
+		public static DBEnumScopeCategory[] getAllReleaseCategories() {
+			DBEnumScopeCategory[] categories = { 
+					DBEnumScopeCategory.PROJECT , 
+					DBEnumScopeCategory.CONFIG , 
+					DBEnumScopeCategory.MANUAL , 
+					DBEnumScopeCategory.DERIVED , 
+					DBEnumScopeCategory.DB ,
+					DBEnumScopeCategory.DOC
+					};
+			return( categories );
+		}
+
+		public static DBEnumScopeCategory[] getAllSourceCategories() {
+			DBEnumScopeCategory[] categories = { DBEnumScopeCategory.PROJECT };
+			return( categories );
+		}
+
+		public boolean checkCategoryProperty( DBEnumScopeCategory part ) {
+			if( part == this )
+				return( true );
+			if( this == DBEnumScopeCategory.SEARCH_SOURCEBUILDABLE ) {
+				if( part == DBEnumScopeCategory.PROJECT )
+					return( true );
+			}
+			return( false );
+		}
+		
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumScopeCategory( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumScopeCategory getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumScopeCategory.class , value , required , null ) ); };
+		public static DBEnumScopeCategory getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumScopeCategory.class , value , required , null ) ); };
+	};
+
 	public enum DBEnumChatType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		JABBER(1,null) ,
@@ -777,7 +905,12 @@ public abstract class DBEnums {
 		new DBEnumInfo( DBEnumServerDependencyType.class , 542 ) ,
 		new DBEnumInfo( DBEnumServerDeploymentType.class , 543 ) ,
 		new DBEnumInfo( DBEnumDeployModeType.class , 544 ) ,
-		new DBEnumInfo( DBEnumNodeType.class , 545 )
+		new DBEnumInfo( DBEnumNodeType.class , 545 ) ,
+		new DBEnumInfo( DBEnumScopeCategory.class , 546 ) ,
+		new DBEnumInfo( DBEnumReleaseTargetType.class , 547 ) ,
+		new DBEnumInfo( DBEnumTicketSetStatus.class , 548 ) ,
+		new DBEnumInfo( DBEnumTicketType.class , 549 ) ,
+		new DBEnumInfo( DBEnumTicketStatus.class , 550 )
 	}; 
 
 	private static String prefix = "DBEnum";

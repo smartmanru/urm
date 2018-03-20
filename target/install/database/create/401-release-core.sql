@@ -38,6 +38,7 @@ COMMENT ON TABLE main.urm_rel_main IS 'Product release';
 CREATE TABLE main.urm_rel_target (
                 releasetarget_id INTEGER NOT NULL,
                 release_id INTEGER NOT NULL,
+                scopetarget BOOLEAN NOT NULL,
                 scopecategory_type INTEGER NOT NULL,
                 releasetarget_type INTEGER NOT NULL,
                 scope_all BOOLEAN NOT NULL,
@@ -103,13 +104,14 @@ COMMENT ON TABLE main.urm_rel_scopeitem IS 'Release scope item';
 
 
 CREATE TABLE main.urm_rel_dist (
+                dist_id INTEGER NOT NULL,
                 release_id INTEGER NOT NULL,
                 master BOOLEAN NOT NULL,
                 data_hash VARCHAR(30) NOT NULL,
                 dist_date DATE,
                 dist_variant VARCHAR(64),
                 rv INTEGER NOT NULL,
-                CONSTRAINT urm_rel_dist_pk PRIMARY KEY (release_id)
+                CONSTRAINT urm_rel_dist_pk PRIMARY KEY (dist_id)
 );
 COMMENT ON TABLE main.urm_rel_dist IS 'Release distibutive';
 

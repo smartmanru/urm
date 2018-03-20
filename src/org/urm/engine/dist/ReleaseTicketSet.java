@@ -8,7 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.Types;
+import org.urm.db.core.DBEnums.*;
 import org.urm.meta.Types.*;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -31,7 +31,7 @@ public class ReleaseTicketSet {
 	public String CODE;
 	public String NAME;
 	public String COMMENTS;
-	public EnumTicketSetStatus status;
+	public DBEnumTicketSetStatus status;
 	
 	private List<ReleaseTicket> items;
 	private Map<String,ReleaseTicket> map;
@@ -109,7 +109,7 @@ public class ReleaseTicketSet {
 		NAME = Meta.getNameAttr( action , root , EnumNameType.ANY );
 		COMMENTS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSETCOMMENTS );
 		String STATUS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSETSTATUS );
-		status = Types.getTicketSetStatus( STATUS , true );
+		status = DBEnumTicketSetStatus.getValue( STATUS , true );
 		
 		Node[] items = ConfReader.xmlGetChildren( root , Release.ELEMENT_TICKET );
 		if( items != null ) {
@@ -155,10 +155,10 @@ public class ReleaseTicketSet {
 		this.CODE = code;
 		this.NAME = name;
 		this.COMMENTS = comments;
-		status = EnumTicketSetStatus.NEW;
+		status = DBEnumTicketSetStatus.NEW;
 	}
 	
-	public void createTicket( ActionBase action , EnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
+	public void createTicket( ActionBase action , DBEnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		ReleaseTicket ticket = new ReleaseTicket( meta , this , items.size() + 1 );
 		ticket.create( action , type , code , name , link , comments , owner , devdone );
 		addTicket( ticket );
@@ -173,7 +173,7 @@ public class ReleaseTicketSet {
 	public void descope( ActionBase action ) throws Exception {
 		for( ReleaseTicket ticket : items )
 			ticket.descope( action );
-		status = EnumTicketSetStatus.DESCOPED;
+		status = DBEnumTicketSetStatus.DESCOPED;
 	}
 
 	public ReleaseTicket[] getTickets() {
@@ -204,7 +204,7 @@ public class ReleaseTicketSet {
 		return( targets.get( POS - 1 ) );
 	}
 
-	public void modifyTicket( ActionBase action , ReleaseTicket ticket , EnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
+	public void modifyTicket( ActionBase action , ReleaseTicket ticket , DBEnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
 		map.remove( ticket.CODE );
 		ticket.modify( action , type , code , name , link , comments , owner , devdone );
 		map.put( ticket.CODE , ticket );
@@ -252,25 +252,25 @@ public class ReleaseTicketSet {
 	}
 
 	public boolean isNew() {
-		if( status == EnumTicketSetStatus.NEW )
+		if( status == DBEnumTicketSetStatus.NEW )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isActive() {
-		if( status == EnumTicketSetStatus.ACTIVE )
+		if( status == DBEnumTicketSetStatus.ACTIVE )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isDescoped() {
-		if( status == EnumTicketSetStatus.DESCOPED )
+		if( status == DBEnumTicketSetStatus.DESCOPED )
 			return( true );
 		return( false );
 	}
 
 	public boolean isRunning() {
-		if( status != EnumTicketSetStatus.NEW )
+		if( status != DBEnumTicketSetStatus.NEW )
 			return( true );
 		
 		for( ReleaseTicket ticket : items ) {
@@ -301,8 +301,8 @@ public class ReleaseTicketSet {
 	}
 
 	public void activate( ActionBase action ) throws Exception {
-		if( status == EnumTicketSetStatus.NEW )
-			status = EnumTicketSetStatus.ACTIVE;
+		if( status == DBEnumTicketSetStatus.NEW )
+			status = DBEnumTicketSetStatus.ACTIVE;
 	}
 
 	public void setDevDone( ActionBase action , ReleaseTicket ticket ) throws Exception {
@@ -346,21 +346,21 @@ public class ReleaseTicketSet {
 		}
 	}
 
-	public void createTarget( ActionBase action , MetaDistrDelivery delivery , EnumTicketSetTargetType type , String[] items ) throws Exception {
+	public void createTarget( ActionBase action , MetaDistrDelivery delivery , DBEnumReleaseTargetType type , String[] items ) throws Exception {
 		int pos = targets.size() + 1;
 		if( items == null ) {
 			ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this , pos );
-			if( type == EnumTicketSetTargetType.DISTITEM )
-				target.create( action , delivery , EnumTicketSetTargetType.DELIVERYBINARIES );
+			if( type == DBEnumReleaseTargetType.DISTITEM )
+				target.create( action , delivery , DBEnumReleaseTargetType.DELIVERYBINARIES );
 			else
-			if( type == EnumTicketSetTargetType.CONFITEM )
-				target.create( action , delivery , EnumTicketSetTargetType.DELIVERYCONFS );
+			if( type == DBEnumReleaseTargetType.CONFITEM )
+				target.create( action , delivery , DBEnumReleaseTargetType.DELIVERYCONFS );
 			else
-			if( type == EnumTicketSetTargetType.SCHEMA )
-				target.create( action , delivery , EnumTicketSetTargetType.DELIVERYDATABASE );
+			if( type == DBEnumReleaseTargetType.SCHEMA )
+				target.create( action , delivery , DBEnumReleaseTargetType.DELIVERYDATABASE );
 			else
-			if( type == EnumTicketSetTargetType.DOC )
-				target.create( action , delivery , EnumTicketSetTargetType.DELIVERYDOC );
+			if( type == DBEnumReleaseTargetType.DOC )
+				target.create( action , delivery , DBEnumReleaseTargetType.DELIVERYDOC );
 			else
 				Common.exitUnexpected();
 			addTarget( target );
@@ -368,22 +368,22 @@ public class ReleaseTicketSet {
 		else {
 			for( String item : items ) {
 				ReleaseTicketSetTarget target = new ReleaseTicketSetTarget( meta , this , pos );
-				if( type == EnumTicketSetTargetType.DISTITEM ) {
+				if( type == DBEnumReleaseTargetType.DISTITEM ) {
 					MetaDistrBinaryItem binaryItem = delivery.getBinaryItem( item );
 					target.create( action , binaryItem );
 				}
 				else
-				if( type == EnumTicketSetTargetType.CONFITEM ) {
+				if( type == DBEnumReleaseTargetType.CONFITEM ) {
 					MetaDistrConfItem confItem = delivery.getConfItem( item );
 					target.create( action , confItem );
 				}
 				else
-				if( type == EnumTicketSetTargetType.SCHEMA ) {
+				if( type == DBEnumReleaseTargetType.SCHEMA ) {
 					MetaDatabaseSchema schemaItem = delivery.getSchema( item );
 					target.create( action , delivery , schemaItem );
 				}
 				else
-				if( type == EnumTicketSetTargetType.DOC ) {
+				if( type == DBEnumReleaseTargetType.DOC ) {
 					MetaProductDoc docItem = delivery.getDoc( item );
 					target.create( action , delivery , docItem );
 				}

@@ -10,6 +10,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -21,7 +22,6 @@ import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.Types.*;
 
 public class ActionConfigure extends ActionBase {
 
@@ -87,7 +87,7 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		// copy from release
-		if( dist.release.findCategoryTarget( this , EnumScopeCategory.CONFIG , conf.NAME ) != null ) {
+		if( dist.release.findCategoryTarget( this , DBEnumScopeCategory.CONFIG , conf.NAME ) != null ) {
 			LocalFolder folder = templateFolder.getSubFolder( this , conf.NAME );
 			if( folder.checkExists( this ) )
 				dist.copyDistConfToFolder( this , conf , folder );

@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.meta.env.MetaEnvServer;
@@ -18,15 +19,13 @@ import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
-import org.urm.meta.Types;
-import org.urm.meta.Types.*;
 
 public class ActionScopeTarget {
 
 	public ActionScopeSet set;
 	public Meta meta;
 	
-	public EnumScopeCategory CATEGORY; 
+	public DBEnumScopeCategory CATEGORY; 
 	public String NAME;
 	public ReleaseTarget releaseTarget;
 	public MetaSourceProject sourceProject;
@@ -145,9 +144,9 @@ public class ActionScopeTarget {
 	
 	public boolean isLeafTarget() {
 		if( dbManualItems ||
-			CATEGORY == EnumScopeCategory.CONFIG ||
-			CATEGORY == EnumScopeCategory.DERIVED ||
-			CATEGORY == EnumScopeCategory.MANUAL )
+			CATEGORY == DBEnumScopeCategory.CONFIG ||
+			CATEGORY == DBEnumScopeCategory.DERIVED ||
+			CATEGORY == DBEnumScopeCategory.MANUAL )
 			return( true );
 		return( false );
 	}
@@ -161,22 +160,22 @@ public class ActionScopeTarget {
 	public ActionScopeTarget copy( ActionScopeSet setNew ) {
 		if( dbManualItems )
 			return( createReleaseDatabaseManualTarget( setNew , itemFull ) );
-		if( CATEGORY == EnumScopeCategory.CONFIG )
+		if( CATEGORY == DBEnumScopeCategory.CONFIG )
 			return( createProductConfItemTarget( setNew , confItem , specifiedExplicitly ) );
-		if( CATEGORY == EnumScopeCategory.DERIVED )
+		if( CATEGORY == DBEnumScopeCategory.DERIVED )
 			return( createProductDerivedDistItemTarget( setNew , derivedItem , specifiedExplicitly ) );
-		if( CATEGORY == EnumScopeCategory.MANUAL )
+		if( CATEGORY == DBEnumScopeCategory.MANUAL )
 			return( createProductManualDistItemTarget( setNew , manualItem , specifiedExplicitly ) );
-		if( Types.isSourceCategory( CATEGORY ) ) {
+		if( CATEGORY.isSourceCategory() ) {
 			if( releaseTarget != null )
 				return( createReleaseSourceProjectTarget( setNew , releaseTarget , specifiedExplicitly ) );
 			return( createProductSourceProjectTarget( setNew , sourceProject , specifiedExplicitly ) );
 		}
-		if( CATEGORY == EnumScopeCategory.ENV )
+		if( CATEGORY == DBEnumScopeCategory.ENV )
 			return( createEnvServerTarget( setNew , envServer , specifiedExplicitly ) );
-		if( CATEGORY == EnumScopeCategory.DB )
+		if( CATEGORY == DBEnumScopeCategory.DB )
 			return( createDeliveryDatabaseTarget( setNew , delivery , specifiedExplicitly , itemFull ) );
-		if( CATEGORY == EnumScopeCategory.DOC )
+		if( CATEGORY == DBEnumScopeCategory.DOC )
 			return( createDeliveryDocTarget( setNew , delivery , specifiedExplicitly , itemFull ) );
 		return( null );
 	}
@@ -451,13 +450,13 @@ public class ActionScopeTarget {
 	}
 
 	public boolean isBuildableProject() {
-		if( CATEGORY == EnumScopeCategory.PROJECT && sourceProject.isBuildable() )
+		if( CATEGORY == DBEnumScopeCategory.PROJECT && sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isPrebuiltProject() {
-		if( CATEGORY == EnumScopeCategory.PROJECT && !sourceProject.isBuildable() )
+		if( CATEGORY == DBEnumScopeCategory.PROJECT && !sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}

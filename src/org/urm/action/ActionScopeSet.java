@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.Release;
 import org.urm.engine.dist.ReleaseDelivery;
@@ -19,14 +20,13 @@ import org.urm.meta.env.MetaEnvStartGroup;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.Types.*;
 
 public class ActionScopeSet {
 
 	public ActionScope scope;
 	public Meta meta;
 	public String NAME;
-	public EnumScopeCategory CATEGORY;
+	public DBEnumScopeCategory CATEGORY;
 	public boolean setFull;
 	
 	public MetaSourceProjectSet pset;
@@ -50,7 +50,7 @@ public class ActionScopeSet {
 	
 	public boolean isEmpty() {
 		// manual files are by default
-		if( CATEGORY == EnumScopeCategory.MANUAL && setFull )
+		if( CATEGORY == DBEnumScopeCategory.MANUAL && setFull )
 			return( false );
 		
 		return( targets.isEmpty() );
@@ -63,7 +63,7 @@ public class ActionScopeSet {
 	public void create( ActionBase action , MetaSourceProjectSet pset ) throws Exception {
 		this.pset = pset;
 		this.NAME = pset.NAME;
-		this.CATEGORY = EnumScopeCategory.PROJECT;
+		this.CATEGORY = DBEnumScopeCategory.PROJECT;
 		this.setFull = false;
 	}
 
@@ -78,12 +78,12 @@ public class ActionScopeSet {
 	public void create( ActionBase action , MetaEnvSegment sg ) throws Exception {
 		this.pset = null;
 		this.NAME = sg.NAME;
-		this.CATEGORY = EnumScopeCategory.ENV;
+		this.CATEGORY = DBEnumScopeCategory.ENV;
 		this.setFull = false;
 		this.sg = sg;
 	}
 
-	public void create( ActionBase action , EnumScopeCategory CATEGORY ) throws Exception {
+	public void create( ActionBase action , DBEnumScopeCategory CATEGORY ) throws Exception {
 		this.pset = null;
 		this.NAME = Common.getEnumLower( CATEGORY );
 		this.CATEGORY = CATEGORY;
@@ -101,7 +101,7 @@ public class ActionScopeSet {
 	
 	public String getScopeInfo( ActionBase action ) throws Exception {
 		if( targets.isEmpty() ) {
-			if( CATEGORY == EnumScopeCategory.MANUAL && setFull )
+			if( CATEGORY == DBEnumScopeCategory.MANUAL && setFull )
 				return( "manual files" );
 			return( "" );
 		}
@@ -113,10 +113,10 @@ public class ActionScopeSet {
 		}
 
 		String itemlist = "";
-		if( CATEGORY == EnumScopeCategory.MANUAL )
+		if( CATEGORY == DBEnumScopeCategory.MANUAL )
 			itemlist = "manual files";
 		else
-		if( CATEGORY == EnumScopeCategory.DERIVED )
+		if( CATEGORY == DBEnumScopeCategory.DERIVED )
 			itemlist = "derived files";
 		
 		for( ActionScopeTarget scopeTarget : targets.values() )

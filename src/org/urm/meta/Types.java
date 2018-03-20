@@ -1,8 +1,6 @@
 package org.urm.meta;
 
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.w3c.dom.Node;
 
 public class Types {
 
@@ -40,24 +38,6 @@ public class Types {
 		MSG
 	};
 	
-	public enum EnumScopeCategory {
-		UNKNOWN ,
-		// source
-		PROJECT ,
-		// distributive
-		CONFIG ,
-		MANUAL ,
-		DERIVED ,
-		// delivery
-		DB ,
-		DOC ,
-		// env hierarchy
-		ENV ,
-		// search only
-		SEARCH_SOURCEBUILDABLE ,
-		SEARCH_SOURCEPREBUILT ,
-	};
-
 	public enum EnumSessionType {
 		UNKNOWN ,
 		UNIXLOCAL ,
@@ -102,43 +82,6 @@ public class Types {
 		ZIP
 	};
 	
-	public enum EnumTicketSetStatus {
-		UNKNOWN ,
-		NEW ,
-		ACTIVE ,
-		DESCOPED
-	};
-
-	public enum EnumTicketType {
-		UNKNOWN ,
-		FEATURE ,
-		CHANGE ,
-		DOCUMENT ,
-		BUGFIX
-	};
-
-	public enum EnumTicketStatus {
-		UNKNOWN ,
-		NEW ,
-		DEVDONE ,
-		QADONE
-	};
-
-	public enum EnumTicketSetTargetType {
-		UNKNOWN ,
-		PROJECTSET ,
-		PROJECTALLITEMS ,
-		PROJECTNOITEMS ,
-		DISTITEM ,
-		CONFITEM ,
-		SCHEMA ,
-		DOC ,
-		DELIVERYBINARIES ,
-		DELIVERYCONFS ,
-		DELIVERYDATABASE ,
-		DELIVERYDOC
-	};
-
 	public enum EnumPackageExtension {
 		UNKNOWN ,
 		NUPKG ,
@@ -152,24 +95,6 @@ public class Types {
 		CONFIGURATION ,
 		DATABASE ,
 		DOCUMENTATION
-	}
-	
-	public static EnumScopeCategory getCategory( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingCategory0 , "missing category" );
-			return( EnumScopeCategory.UNKNOWN );
-		}
-
-		EnumScopeCategory value = null;
-		try {
-			value = EnumScopeCategory.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidCategory1 , "invalid category=" + ID , ID );
-		}
-		
-		return( value );
 	}
 	
 	public static EnumElementType getDesignElementType( String ID , boolean required ) throws Exception {
@@ -203,78 +128,6 @@ public class Types {
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDesignLinkType1 , "invalid design link type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-
-	public static EnumTicketSetStatus getTicketSetStatus( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingTicketSetStatus0 , "missing ticket set status" );
-			return( EnumTicketSetStatus.UNKNOWN );
-		}
-		
-		EnumTicketSetStatus value = null;
-		try {
-			value = EnumTicketSetStatus.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidTicketSetStatus1 , "invalid ticket set status=" + ID , ID );
-		}
-		
-		return( value );
-	}
-
-	public static EnumTicketType getTicketType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingTicketType0 , "missing ticket type" );
-			return( EnumTicketType.UNKNOWN );
-		}
-		
-		EnumTicketType value = null;
-		try {
-			value = EnumTicketType.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidTicketType1 , "invalid ticket type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-
-	public static EnumTicketStatus getTicketStatus( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingTicketStatus0 , "missing ticket status" );
-			return( EnumTicketStatus.UNKNOWN );
-		}
-		
-		EnumTicketStatus value = null;
-		try {
-			value = EnumTicketStatus.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidTicketStatus1 , "invalid ticket status=" + ID , ID );
-		}
-		
-		return( value );
-	}
-
-	public static EnumTicketSetTargetType getTicketSetTargetType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingTicketSetTargetType0 , "missing ticket set target type" );
-			return( EnumTicketSetTargetType.UNKNOWN );
-		}
-		
-		EnumTicketSetTargetType value = null;
-		try {
-			value = EnumTicketSetTargetType.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidTicketSetTargetType1 , "invalid ticket set target type=" + ID , ID );
 		}
 		
 		return( value );
@@ -328,44 +181,6 @@ public class Types {
 		return( false );
 	}
 
-	public static EnumScopeCategory readCategoryAttr( Node node ) throws Exception {
-		String value = ConfReader.getAttrValue( node , "category" );
-		return( Types.getCategory( value , true ) );
-	}
-	
-	public static boolean isSourceCategory( EnumScopeCategory value ) {
-		if( value == EnumScopeCategory.PROJECT )
-			return( true );
-		return( false );
-	}
-	
-	public static EnumScopeCategory[] getAllReleaseCategories() {
-		EnumScopeCategory[] categories = { 
-				EnumScopeCategory.PROJECT , 
-				EnumScopeCategory.CONFIG , 
-				EnumScopeCategory.MANUAL , 
-				EnumScopeCategory.DERIVED , 
-				EnumScopeCategory.DB ,
-				EnumScopeCategory.DOC
-				};
-		return( categories );
-	}
-
-	public static EnumScopeCategory[] getAllSourceCategories() {
-		EnumScopeCategory[] categories = { EnumScopeCategory.PROJECT };
-		return( categories );
-	}
-
-	public static boolean checkCategoryProperty( EnumScopeCategory part , EnumScopeCategory property ) {
-		if( part == property )
-			return( true );
-		if( property == EnumScopeCategory.SEARCH_SOURCEBUILDABLE ) {
-			if( part == EnumScopeCategory.PROJECT )
-				return( true );
-		}
-		return( false );
-	}
-	
 	public static boolean isPackageExtension( String ext ) {
 		try {
 			if( !ext.startsWith( "." ) )

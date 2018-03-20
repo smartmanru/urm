@@ -8,11 +8,11 @@ import org.urm.action.ActionReleaseScopeMaker;
 import org.urm.action.ActionScope;
 import org.urm.action.codebase.CodebaseCommand;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.status.ScopeState;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
-import org.urm.meta.Types.*;
 
 public class ReleaseCommand {
 
@@ -182,7 +182,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
 		ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
-		maker.addScopeProductCategory( EnumScopeCategory.CONFIG , elements );
+		maker.addScopeProductCategory( DBEnumScopeCategory.CONFIG , elements );
 		ActionScope scope = maker.getScope();
 		addReleaseScope( parentState , action , dist , scope );
 	}
@@ -193,7 +193,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
 		ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
-		maker.addScopeProductCategory( EnumScopeCategory.DB , DELIVERIES );
+		maker.addScopeProductCategory( DBEnumScopeCategory.DB , DELIVERIES );
 		ActionScope scope = maker.getScope();
 		addReleaseScope( parentState , action , dist , scope );
 	}
@@ -280,7 +280,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
 		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
-		maker.addScopeReleaseCategory( EnumScopeCategory.CONFIG , COMPS );
+		maker.addScopeReleaseCategory( DBEnumScopeCategory.CONFIG , COMPS );
 		ActionScope scope = maker.getScope();
 		descope( parentState , action , dist , scope );
 	}
@@ -290,7 +290,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
 		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
-		maker.addScopeReleaseCategory( EnumScopeCategory.MANUAL , ITEMS );
+		maker.addScopeReleaseCategory( DBEnumScopeCategory.MANUAL , ITEMS );
 		ActionScope scope = maker.getScope();
 		descope( parentState , action , dist , scope );
 	}
@@ -313,7 +313,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
 		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
-		maker.addScopeReleaseCategory( EnumScopeCategory.DB , DELIVERIES );
+		maker.addScopeReleaseCategory( DBEnumScopeCategory.DB , DELIVERIES );
 		ActionScope scope = maker.getScope();
 		descope( parentState , action , dist , scope );
 	}

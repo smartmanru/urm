@@ -5,6 +5,7 @@ import java.util.Date;
 import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseScriptFile;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
 import org.urm.engine.dist.Release;
@@ -18,12 +19,10 @@ import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
-import org.urm.meta.Types;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.Types.*;
 
 public class ActionPrintReleaseStatus extends ActionBase {
 
@@ -87,7 +86,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			for( String set : release.getSourceSetNames() )
 				printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
 			
-			for( EnumScopeCategory CATEGORY : Types.getAllReleaseCategories() ) {
+			for( DBEnumScopeCategory CATEGORY : DBEnumScopeCategory.getAllReleaseCategories() ) {
 				ReleaseSet set = release.findCategorySet( CATEGORY );
 				if( set != null )
 					printReleaseCategorySetStatus( dist , files , set );
@@ -148,16 +147,16 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		for( String key : set.getTargetNames() ) {
 			ReleaseTarget target = set.findTarget( key );
 			
-			if( set.CATEGORY == EnumScopeCategory.CONFIG )
+			if( set.CATEGORY == DBEnumScopeCategory.CONFIG )
 				printReleaseConfStatus( dist , files , target );
 			else
-			if( set.CATEGORY == EnumScopeCategory.DB )
+			if( set.CATEGORY == DBEnumScopeCategory.DB )
 				printReleaseDatabaseStatus( dist , files , target );
 			else
-			if( set.CATEGORY == EnumScopeCategory.MANUAL )
+			if( set.CATEGORY == DBEnumScopeCategory.MANUAL )
 				printReleaseManualStatus( dist , files , target );
 			else
-			if( set.CATEGORY == EnumScopeCategory.DOC )
+			if( set.CATEGORY == DBEnumScopeCategory.DOC )
 				printReleaseDocStatus( dist , files , target );
 			else
 				exitUnexpectedCategory( set.CATEGORY );

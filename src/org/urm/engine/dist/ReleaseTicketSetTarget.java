@@ -3,8 +3,7 @@ package org.urm.engine.dist;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.Types;
-import org.urm.meta.Types.*;
+import org.urm.db.core.DBEnums.*;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -24,7 +23,7 @@ public class ReleaseTicketSetTarget {
 	public ReleaseTicketSet set;
 	public int POS;
 
-	public EnumTicketSetTargetType type;
+	public DBEnumReleaseTargetType type;
 	public String ITEM;
 	public boolean accepted;
 	public boolean descoped;
@@ -47,7 +46,7 @@ public class ReleaseTicketSetTarget {
 
 	public void load( ActionBase action , Node root ) throws Exception {
 		String TYPE = ConfReader.getRequiredAttrValue( root , Release.PROPERTY_TICKETTARGETTYPE );
-		type = Types.getTicketSetTargetType( TYPE , true );
+		type = DBEnumReleaseTargetType.getValue( TYPE , true );
 		ITEM = ConfReader.getRequiredAttrValue( root , Release.PROPERTY_TICKETTARGETITEM );
 		accepted = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETTARGETACCEPTED , false );
 		descoped = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETTARGETDESCOPED , false );
@@ -65,34 +64,34 @@ public class ReleaseTicketSetTarget {
 	}
 	
 	public void create( ActionBase action , MetaSourceProjectSet projectSet ) {
-		type = EnumTicketSetTargetType.PROJECTSET;
+		type = DBEnumReleaseTargetType.PROJECTSET;
 		ITEM = projectSet.NAME;
 		accepted = false;
 		descoped = false;
 	}
 	
 	public void create( ActionBase action , MetaSourceProject project , boolean all ) {
-		type = ( all )? EnumTicketSetTargetType.PROJECTALLITEMS : EnumTicketSetTargetType.PROJECTNOITEMS;
+		type = ( all )? DBEnumReleaseTargetType.PROJECTALLITEMS : DBEnumReleaseTargetType.PROJECTNOITEMS;
 		ITEM = project.NAME;
 		accepted = false;
 		descoped = false;
 	}
 	
 	public void create( ActionBase action , MetaDistrBinaryItem item ) {
-		type = EnumTicketSetTargetType.DISTITEM;
+		type = DBEnumReleaseTargetType.DISTITEM;
 		ITEM = item.NAME;
 		accepted = false;
 		descoped = false;
 	}
 	
 	public void create( ActionBase action , MetaDistrConfItem item ) {
-		type = EnumTicketSetTargetType.CONFITEM;
+		type = DBEnumReleaseTargetType.CONFITEM;
 		ITEM = item.NAME;
 		accepted = false;
 		descoped = false;
 	}
 	
-	public void create( ActionBase action , MetaDistrDelivery delivery , EnumTicketSetTargetType type ) {
+	public void create( ActionBase action , MetaDistrDelivery delivery , DBEnumReleaseTargetType type ) {
 		this.type = type;
 		ITEM = delivery.NAME;
 		accepted = false;
@@ -100,14 +99,14 @@ public class ReleaseTicketSetTarget {
 	}
 	
 	public void create( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) {
-		this.type = EnumTicketSetTargetType.SCHEMA;
+		this.type = DBEnumReleaseTargetType.SCHEMA;
 		ITEM = delivery.NAME + ":" + schema.NAME;
 		accepted = false;
 		descoped = false;
 	}
 	
 	public void create( ActionBase action , MetaDistrDelivery delivery , MetaProductDoc doc ) {
-		this.type = EnumTicketSetTargetType.DOC;
+		this.type = DBEnumReleaseTargetType.DOC;
 		ITEM = delivery.NAME + ":" + doc.NAME;
 		accepted = false;
 		descoped = false;
@@ -122,70 +121,70 @@ public class ReleaseTicketSetTarget {
 	}
 
 	public boolean isProjectSet() {
-		if( type == EnumTicketSetTargetType.PROJECTSET )
+		if( type == DBEnumReleaseTargetType.PROJECTSET )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isProject() {
-		if( type == EnumTicketSetTargetType.PROJECTALLITEMS || type == EnumTicketSetTargetType.PROJECTNOITEMS )
+		if( type == DBEnumReleaseTargetType.PROJECTALLITEMS || type == DBEnumReleaseTargetType.PROJECTNOITEMS )
 			return( true );
 		return( false );
 	}
 		
 	public boolean isBinary() {
-		if( type == EnumTicketSetTargetType.DISTITEM )
+		if( type == DBEnumReleaseTargetType.DISTITEM )
 			return( true );
 		return( false );
 	}
 
 	public boolean isConfiguration() {
-		if( type == EnumTicketSetTargetType.CONFITEM )
+		if( type == DBEnumReleaseTargetType.CONFITEM )
 			return( true );
 		return( false );
 	}
 		
 	public boolean isDatabase() {
-		if( type == EnumTicketSetTargetType.SCHEMA )
+		if( type == DBEnumReleaseTargetType.SCHEMA )
 			return( true );
 		return( false );
 	}
 
 	public boolean isDoc() {
-		if( type == EnumTicketSetTargetType.DOC )
+		if( type == DBEnumReleaseTargetType.DOC )
 			return( true );
 		return( false );
 	}
 
 	public boolean isDelivery() {
-		if( type == EnumTicketSetTargetType.DELIVERYBINARIES || 
-			type == EnumTicketSetTargetType.DELIVERYCONFS || 
-			type == EnumTicketSetTargetType.DELIVERYDATABASE ||
-			type == EnumTicketSetTargetType.DELIVERYDOC )
+		if( type == DBEnumReleaseTargetType.DELIVERYBINARIES || 
+			type == DBEnumReleaseTargetType.DELIVERYCONFS || 
+			type == DBEnumReleaseTargetType.DELIVERYDATABASE ||
+			type == DBEnumReleaseTargetType.DELIVERYDOC )
 			return( true );
 		return( false );
 	}
 
 	public boolean isDeliveryBinaries() {
-		if( type == EnumTicketSetTargetType.DELIVERYBINARIES )
+		if( type == DBEnumReleaseTargetType.DELIVERYBINARIES )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isDeliveryConfs() {
-		if( type == EnumTicketSetTargetType.DELIVERYCONFS )
+		if( type == DBEnumReleaseTargetType.DELIVERYCONFS )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isDeliveryDatabase() {
-		if( type == EnumTicketSetTargetType.DELIVERYDATABASE )
+		if( type == DBEnumReleaseTargetType.DELIVERYDATABASE )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isDeliveryDoc() {
-		if( type == EnumTicketSetTargetType.DELIVERYDOC )
+		if( type == DBEnumReleaseTargetType.DELIVERYDOC )
 			return( true );
 		return( false );
 	}
@@ -207,7 +206,7 @@ public class ReleaseTicketSetTarget {
 	}
 	
 	public boolean isProjectBuildOnly() {
-		if( type == EnumTicketSetTargetType.PROJECTNOITEMS )
+		if( type == DBEnumReleaseTargetType.PROJECTNOITEMS )
 			return( true );
 		return( false );
 	}

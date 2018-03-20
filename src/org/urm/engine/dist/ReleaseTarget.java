@@ -10,7 +10,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnums.*;
-import org.urm.meta.Types;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
@@ -30,7 +29,7 @@ public class ReleaseTarget {
 
 	Meta meta;
 	public ReleaseSet set;
-	public EnumScopeCategory CATEGORY;
+	public DBEnumScopeCategory CATEGORY;
 
 	public boolean ALL;
 	public String NAME = "";
@@ -50,7 +49,7 @@ public class ReleaseTarget {
 	
 	public String DISTFILE;
 
-	public ReleaseTarget( Meta meta , ReleaseSet set , EnumScopeCategory CATEGORY ) {
+	public ReleaseTarget( Meta meta , ReleaseSet set , DBEnumScopeCategory CATEGORY ) {
 		this.meta = meta;
 		this.set = set;
 		this.CATEGORY = CATEGORY;
@@ -82,22 +81,22 @@ public class ReleaseTarget {
 	}
 	
 	public void load( ActionBase action , Node node ) throws Exception {
-		if( Types.isSourceCategory( CATEGORY ) )
+		if( CATEGORY.isSourceCategory() )
 			loadProject( action , node );
 		else
-		if( CATEGORY == EnumScopeCategory.CONFIG )
+		if( CATEGORY == DBEnumScopeCategory.CONFIG )
 			loadConfiguration( action , node );
 		else
-		if( CATEGORY == EnumScopeCategory.MANUAL )
+		if( CATEGORY == DBEnumScopeCategory.MANUAL )
 			loadManual( action , node );
 		else
-		if( CATEGORY == EnumScopeCategory.DERIVED )
+		if( CATEGORY == DBEnumScopeCategory.DERIVED )
 			loadDerived( action , node );
 		else
-		if( CATEGORY == EnumScopeCategory.DB )
+		if( CATEGORY == DBEnumScopeCategory.DB )
 			loadDatabase( action , node );
 		else
-		if( CATEGORY == EnumScopeCategory.DOC )
+		if( CATEGORY == DBEnumScopeCategory.DOC )
 			loadDoc( action , node );
 		else
 			action.exitUnexpectedCategory( CATEGORY );
@@ -218,28 +217,28 @@ public class ReleaseTarget {
 		this.DISTFILE = DISTFILE;
 	}
 	
-	public boolean isCategoryItem( ActionBase action , EnumScopeCategory CATEGORY ) throws Exception {
-		if( Types.isSourceCategory( CATEGORY ) ) {
+	public boolean isCategoryItem( ActionBase action , DBEnumScopeCategory CATEGORY ) throws Exception {
+		if( CATEGORY.isSourceCategory() ) {
 			if( sourceProject != null )
 				return( true );
 		}
-		else if( CATEGORY == EnumScopeCategory.CONFIG ) {
+		else if( CATEGORY == DBEnumScopeCategory.CONFIG ) {
 			if( distConfItem != null )
 				return( true );
 		}
-		else if( CATEGORY == EnumScopeCategory.MANUAL ) {
+		else if( CATEGORY == DBEnumScopeCategory.MANUAL ) {
 			if( distManualItem != null )
 				return( true );
 		}
-		else if( CATEGORY == EnumScopeCategory.DERIVED ) {
+		else if( CATEGORY == DBEnumScopeCategory.DERIVED ) {
 			if( distDerivedItem != null )
 				return( true );
 		}
-		else if( CATEGORY == EnumScopeCategory.DB ) {
+		else if( CATEGORY == DBEnumScopeCategory.DB ) {
 			if( this.CATEGORY == CATEGORY )
 				return( true );
 		}
-		else if( CATEGORY == EnumScopeCategory.DOC ) {
+		else if( CATEGORY == DBEnumScopeCategory.DOC ) {
 			if( this.CATEGORY == CATEGORY )
 				return( true );
 		}
@@ -279,20 +278,20 @@ public class ReleaseTarget {
 	}
 	
 	public boolean isDatabaseTarget() {
-		if( CATEGORY == EnumScopeCategory.DB )
+		if( CATEGORY == DBEnumScopeCategory.DB )
 			return( true );
 		return( false );
 	}
 
 	public boolean isDocTarget() {
-		if( CATEGORY == EnumScopeCategory.DOC )
+		if( CATEGORY == DBEnumScopeCategory.DOC )
 			return( true );
 		return( false );
 	}
 
 	public void createFromProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems ) throws Exception {
 		this.sourceProject = sourceProject;
-		this.CATEGORY = EnumScopeCategory.PROJECT;
+		this.CATEGORY = DBEnumScopeCategory.PROJECT;
 		
 		NAME = sourceProject.NAME;
 		ALL = false;
@@ -307,7 +306,7 @@ public class ReleaseTarget {
 
 	public void createFromConfItem( ActionBase action , MetaDistrConfItem item , boolean allFiles ) throws Exception {
 		this.distConfItem = item;
-		this.CATEGORY = EnumScopeCategory.CONFIG;
+		this.CATEGORY = DBEnumScopeCategory.CONFIG;
 		this.ALL = allFiles;
 		this.NAME = item.NAME;
 	}
@@ -317,7 +316,7 @@ public class ReleaseTarget {
 			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item.NAME , item.NAME );
 		
 		this.distManualItem = item;
-		this.CATEGORY = EnumScopeCategory.MANUAL;
+		this.CATEGORY = DBEnumScopeCategory.MANUAL;
 		this.ALL = true;
 		this.NAME = item.NAME;
 	}
@@ -327,14 +326,14 @@ public class ReleaseTarget {
 			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item.NAME , item.NAME );
 		
 		this.distDerivedItem = item;
-		this.CATEGORY = EnumScopeCategory.DERIVED;
+		this.CATEGORY = DBEnumScopeCategory.DERIVED;
 		this.ALL = true;
 		this.NAME = item.NAME;
 	}
 	
 	public void createFromDatabaseDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allSchemes ) throws Exception {
 		this.distDelivery = delivery;
-		this.CATEGORY = EnumScopeCategory.DB;
+		this.CATEGORY = DBEnumScopeCategory.DB;
 		this.ALL = false;
 		this.NAME = delivery.NAME;
 		
@@ -344,7 +343,7 @@ public class ReleaseTarget {
 	
 	public void createFromDocDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allDocs ) throws Exception {
 		this.distDelivery = delivery;
-		this.CATEGORY = EnumScopeCategory.DOC;
+		this.CATEGORY = DBEnumScopeCategory.DOC;
 		this.ALL = false;
 		this.NAME = delivery.NAME;
 		
@@ -644,13 +643,13 @@ public class ReleaseTarget {
 	}
 
 	public boolean isBuildableProject() {
-		if( CATEGORY == EnumScopeCategory.PROJECT && sourceProject.isBuildable() )
+		if( CATEGORY == DBEnumScopeCategory.PROJECT && sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isPrebuiltProject() {
-		if( CATEGORY == EnumScopeCategory.PROJECT && !sourceProject.isBuildable() )
+		if( CATEGORY == DBEnumScopeCategory.PROJECT && !sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}

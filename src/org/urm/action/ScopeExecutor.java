@@ -17,10 +17,8 @@ import org.urm.engine.events.SourceEvent;
 import org.urm.engine.shell.Account;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.Types;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.Types.*;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.EngineAuth;
@@ -58,7 +56,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	ActionScopeSet asyncScopeSet;
 	ActionScopeTarget asyncScopeTarget;
 	ActionScopeTarget[] asyncTargets;
-	EnumScopeCategory[] asyncCategories;
+	DBEnumScopeCategory[] asyncCategories;
 	EngineEventsSubscription asyncSub;
 	
 	public ScopeExecutor( ScopeState parentState , ActionBase action , boolean async ) {
@@ -206,7 +204,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( runScope( scope ) );
 	}
 	
-	public boolean runCategories( ActionScope scope , EnumScopeCategory[] categories , SecurityAction sa , boolean readOnly ) {
+	public boolean runCategories( ActionScope scope , DBEnumScopeCategory[] categories , SecurityAction sa , boolean readOnly ) {
 		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , scope.meta , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", categories)" );
@@ -490,7 +488,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( finishExecutor( ss ) );
 	}
 
-	private boolean runCategories( ActionScope scope , EnumScopeCategory[] categories ) {
+	private boolean runCategories( ActionScope scope , DBEnumScopeCategory[] categories ) {
 		if( !startExecutor( scope ) )
 			return( false );
 		
@@ -530,7 +528,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
-		EnumScopeCategory[] categories = new EnumScopeCategory[] { EnumScopeCategory.ENV };
+		DBEnumScopeCategory[] categories = new DBEnumScopeCategory[] { DBEnumScopeCategory.ENV };
 		try {
 			action.debug( action.NAME + ": run unique hosts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
 			action.runBefore( stateFinal , scope );
@@ -568,7 +566,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
-		EnumScopeCategory[] categories = new EnumScopeCategory[] { EnumScopeCategory.ENV };
+		DBEnumScopeCategory[] categories = new DBEnumScopeCategory[] { DBEnumScopeCategory.ENV };
 		try {
 			action.debug( action.NAME + ": run unique accounts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
 			action.runBefore( stateFinal , scope );
@@ -713,7 +711,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( ss );
 	}
 	
-	private SCOPESTATE runTargetCategoriesInternal( ActionScope scope , EnumScopeCategory[] categories ) {
+	private SCOPESTATE runTargetCategoriesInternal( ActionScope scope , DBEnumScopeCategory[] categories ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			if( scope.isEmpty( action , categories ) ) {
@@ -725,11 +723,11 @@ public class ScopeExecutor implements EngineEventsListener {
 				boolean run = true;
 				if( categories != null ) {
 					run = false;
-					for( EnumScopeCategory CATEGORY : categories ) {
+					for( DBEnumScopeCategory CATEGORY : categories ) {
 						if( !running )
 							break;
 						
-						if( Types.checkCategoryProperty( set.CATEGORY , CATEGORY ) )
+						if( CATEGORY.checkCategoryProperty( set.CATEGORY ) )
 							run = true;
 					}
 				}
@@ -1021,7 +1019,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		if( scope.meta != null ) {
 			MetaSources sources = scope.meta.getSources(); 
 			for( String sourceSetName : sources.getSetNames() ) {
-				ActionScopeSet set = scope.findSet( action , EnumScopeCategory.PROJECT , sourceSetName );
+				ActionScopeSet set = scope.findSet( action , DBEnumScopeCategory.PROJECT , sourceSetName );
 				if( set != null )
 					list.add( set );
 			}
@@ -1032,7 +1030,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		
 		if( context.env != null ) {
 			for( MetaEnvSegment envSet : context.env.getSegments() ) {
-				ActionScopeSet set = scope.findSet( action , EnumScopeCategory.ENV , envSet.NAME );
+				ActionScopeSet set = scope.findSet( action , DBEnumScopeCategory.ENV , envSet.NAME );
 				if( set != null )
 					list.add( set );
 			}
@@ -1045,7 +1043,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		List<ActionScopeTarget> list = new LinkedList<ActionScopeTarget>();
 		Map<String,ActionScopeTarget> map = new HashMap<String,ActionScopeTarget>();
 		
-		if( Types.isSourceCategory( set.CATEGORY ) ) {
+		if( set.CATEGORY.isSourceCategory() ) {
 			for( ActionScopeTarget target : targets )
 				map.put( target.sourceProject.NAME , target );
 			
@@ -1058,7 +1056,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( list );
 		}
 				
-		if( set.CATEGORY == EnumScopeCategory.ENV ) {
+		if( set.CATEGORY == DBEnumScopeCategory.ENV ) {
 			for( ActionScopeTarget target : targets )
 				map.put( target.envServer.NAME , target );
 
