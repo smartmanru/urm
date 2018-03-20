@@ -734,7 +734,7 @@ public class DBMetaSources {
 	public static void deleteUnit( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaProductUnit unit ) throws Exception {
 		for( String name : sources.getProjectNames() ) {
 			MetaSourceProject project = sources.findProject( name );
-			if( project.UNIT_ID == unit.ID )
+			if( Common.equalsIntegers( project.UNIT_ID , unit.ID ) )
 				project.clearUnit();
 		}
 	}
