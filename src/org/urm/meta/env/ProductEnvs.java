@@ -42,7 +42,7 @@ public class ProductEnvs {
 		
 		MetaProductSettings rsettings = rmeta.getProductSettings();
 		for( MetaEnv env : mapEnvs.values() ) {
-			MetaEnv renv = env.copy( rmeta.getStorage() , rmeta , rsettings.getParameters() );
+			MetaEnv renv = env.copy( rmeta.getStorage() , rmeta , r , rsettings.getParameters() );
 			r.addEnv( renv );
 		}
 		

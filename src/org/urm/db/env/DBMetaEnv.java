@@ -43,7 +43,7 @@ public class DBMetaEnv {
 	
 	public static MetaEnv importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
 		ProductEnvs envs = storage.getEnviroments();
-		MetaEnv env = new MetaEnv( storage , storage.meta );
+		MetaEnv env = new MetaEnv( storage , storage.meta , envs );
 		
 		importxmlMain( loader , storage , env , root );
 		importxmlSegments( loader , storage , env , root );
@@ -245,7 +245,7 @@ public class DBMetaEnv {
 				} );
 		try {
 			while( rs.next() ) {
-				MetaEnv env = new MetaEnv( storage , storage.meta );
+				MetaEnv env = new MetaEnv( storage , storage.meta , envs );
 				env.ID = entity.loaddbId( rs );
 				env.EV = entity.loaddbVersion( rs );
 				
@@ -351,7 +351,7 @@ public class DBMetaEnv {
 		EngineEntities entities = transaction.getEntities();
 		ProductEnvs envs = storage.getEnviroments();
 		
-		MetaEnv env = new MetaEnv( storage , storage.meta );
+		MetaEnv env = new MetaEnv( storage , storage.meta , envs );
 		env.ID = DBNames.getNameIndex( c , storage.ID , name , DBEnumParamEntityType.ENV_PRIMARY );
 		
 		transaction.trace( "create meta env, object=" + env.objectId + ", name=" + name + ", id=" + env.ID );

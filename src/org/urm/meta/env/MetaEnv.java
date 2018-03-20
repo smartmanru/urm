@@ -45,6 +45,7 @@ public class MetaEnv extends EngineObject {
 	public static String PROPERTY_CONF_KEEPALIVE = "configuration-keepalive";
 
 	public Meta meta;
+	public ProductEnvs envs;
 
 	// table data
 	private ObjectProperties ops;
@@ -75,9 +76,11 @@ public class MetaEnv extends EngineObject {
 	private Map<String,MetaEnvSegment> sgMap;
 	private Map<Integer,MetaEnvSegment> sgMapById;
 
-	public MetaEnv( ProductMeta storage , Meta meta ) {
+	public MetaEnv( ProductMeta storage , Meta meta , ProductEnvs envs ) {
 		super( null );
 		this.meta = meta;
+		this.envs = envs;
+		
 		ID = -1;
 		EV = -1;
 		MATCHED = false;
@@ -90,8 +93,8 @@ public class MetaEnv extends EngineObject {
 		return( NAME );
 	}
 	
-	public MetaEnv copy( ProductMeta rstorage , Meta rmeta , ObjectProperties rparent ) throws Exception {
-		MetaEnv r = new MetaEnv( rstorage , rmeta );
+	public MetaEnv copy( ProductMeta rstorage , Meta rmeta , ProductEnvs renvs , ObjectProperties rparent ) throws Exception {
+		MetaEnv r = new MetaEnv( rstorage , rmeta , renvs );
 		
 		r.ops = ops.copy( rparent );
 		
@@ -138,7 +141,6 @@ public class MetaEnv extends EngineObject {
 		ops.setEnumProperty( PROPERTY_ENVTYPE , ENV_TYPE );
 		
 		if( BASELINE != null ) {
-			ProductEnvs envs = meta.getEnviroments();
 			MetaEnv env = envs.getMetaEnv( BASELINE );
 			ops.setStringProperty( PROPERTY_BASELINE , env.NAME );
 		}
@@ -199,7 +201,6 @@ public class MetaEnv extends EngineObject {
 	}
 	
 	public MetaEnv getBaseline() throws Exception {
-		ProductEnvs envs = meta.getEnviroments();
 		MetaEnv env = envs.getMetaEnv( BASELINE );
 		return( env );
 	}
