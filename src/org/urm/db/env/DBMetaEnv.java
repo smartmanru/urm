@@ -299,8 +299,10 @@ public class DBMetaEnv {
 		// match baselines
 		for( MetaEnv env : ready ) {
 			matchBaseline( loader , storage , env );
-			if( env.checkMatched() )
+			if( env.checkMatched() ) {
 				loader.trace( "successfully matched env=" + env.NAME );
+				env.refreshPrimaryProperties();
+			}
 			else
 				loader.trace( "match failed env=" + env.NAME );
 			envs.addEnv( env );
@@ -362,6 +364,7 @@ public class DBMetaEnv {
 		env.createSettings( ops );
 		
 		env.setEnvPrimary( name , desc , envType , null , true , null , false , null , "" );
+		env.refreshPrimaryProperties();
 		env.scatterExtraProperties();
 		modifyEnv( c , storage , env , true );
 
@@ -386,6 +389,7 @@ public class DBMetaEnv {
 	public static void setEnvBaseline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , Integer envBaselineId ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		env.setBaseline( MatchItem.create( envBaselineId ) );
+		env.refreshPrimaryProperties();
 		
 		modifyEnv( c , storage , env , false );
 	}

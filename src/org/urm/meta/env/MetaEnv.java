@@ -133,7 +133,7 @@ public class MetaEnv extends EngineObject {
 		this.MATCHED = matched;
 	}
 	
-	private void refreshPrimaryProperties() throws Exception {
+	public void refreshPrimaryProperties() throws Exception {
 		ops.clearProperties( DBEnumParamEntityType.ENV_PRIMARY );
 		
 		ops.setStringProperty( PROPERTY_NAME , NAME );

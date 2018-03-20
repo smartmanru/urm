@@ -51,8 +51,10 @@ public class EngineLoaderEnvs {
 		for( String envFile : ms.getEnvFiles( action ) )
 			importxmlEnvData( ms , envFile );
 		
-		for( MetaEnv env : envs.getEnvs() )
+		for( MetaEnv env : envs.getEnvs() ) {
 			DBMetaEnv.matchBaseline( loader , set , env );
+			env.refreshPrimaryProperties();
+		}
 
 		for( MetaEnv env : envs.getEnvs() ) {
 			EngineMatcher matcher = loader.getMatcher();
