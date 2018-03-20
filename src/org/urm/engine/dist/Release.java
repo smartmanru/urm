@@ -61,6 +61,9 @@ public class Release {
 	public static String ELEMENT_TICKET = "ticket";
 	public static String ELEMENT_TICKETSETTARGET = "target";
 
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
+	
 	public static String PROPERTY_VERSION = "version";
 	public static String PROPERTY_MASTER = "master";
 	public static String PROPERTY_BUILDMODE = "mode"; 

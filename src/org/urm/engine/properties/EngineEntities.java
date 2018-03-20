@@ -16,6 +16,7 @@ import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
 import org.urm.db.env.DBEnvData;
 import org.urm.db.product.DBProductData;
+import org.urm.db.release.DBReleaseData;
 import org.urm.engine.Engine;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.BaseItem;
@@ -96,6 +97,7 @@ public class EngineEntities {
 	public PropertyEntity entityAppServerExtra;
 	public PropertyEntity entityAppServerDeployment;
 	public PropertyEntity entityAppNodePrimary;
+	public PropertyEntity entityAppReleaseRepository;
 	
 	public EngineEntities( Engine engine ) {
 		this.engine = engine;
@@ -149,6 +151,7 @@ public class EngineEntities {
 		entityAppServerExtra = DBEnvData.upgradeEntityServerExtra( loader );
 		entityAppServerDeployment = DBEnvData.upgradeEntityServerDeployment( loader );
 		entityAppNodePrimary = DBEnvData.upgradeEntityNodePrimary( loader );
+		entityAppReleaseRepository = DBReleaseData.upgradeEntityReleaseRepository( loader );
 		
 		entityCustomRC = DBEngineContext.createEntityCustomRC( loader );
 		entityCustomEngine = DBEngineContext.createEntityCustomEngine( loader );
@@ -203,6 +206,7 @@ public class EngineEntities {
 		entityAppServerExtra = DBEnvData.loaddbEntityServerExtra( c );
 		entityAppServerDeployment = DBEnvData.loaddbEntityServerDeployment( c );
 		entityAppNodePrimary = DBEnvData.loaddbEntityNodePrimary( c );
+		entityAppReleaseRepository = DBReleaseData.loaddbEntityReleaseRepository( c );
 		
 		entityCustomRC = DBEngineContext.loaddbEntityCustomRC( c );
 		entityCustomEngine = DBEngineContext.loaddbEntityCustomEngine( c );

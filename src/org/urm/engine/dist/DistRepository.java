@@ -23,6 +23,11 @@ import org.w3c.dom.Node;
 
 public class DistRepository {
 
+	public static String PROPERTY_PRODUCT = "product";
+	
+	static String RELEASEREPOSITORYFILE = "releases.xml";
+	static String RELEASEHISTORYFILE = "history.txt";
+	
 	public enum DistOperation {
 		CREATE ,
 		DROP ,
@@ -42,9 +47,6 @@ public class DistRepository {
 
 	public Map<String,Dist> distMap; 
 	public Map<String,DistRepositoryItem> runMap; 
-	
-	static String RELEASEREPOSITORYFILE = "releases.xml";
-	static String RELEASEHISTORYFILE = "history.txt";
 	
 	private DistRepository( Meta meta ) {
 		this.meta = meta;

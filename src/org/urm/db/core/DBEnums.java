@@ -226,7 +226,9 @@ public abstract class DBEnums {
 		ENVIRONMENT_STARTGROUP(160,null) ,
 		ENVIRONMENT_DEPLOYMENT(161,null) ,
 		ENVIRONMENT_MONTARGET(162,null) ,
-		ENVIRONMENT_MONITEM(163,null);
+		ENVIRONMENT_MONITEM(163,null) ,
+		RELEASE_REPOSITORY(201,null) ,
+		RELEASE_MAIN(202,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -683,7 +685,8 @@ public abstract class DBEnums {
 		LOCAL(3,null) ,
 		SYSTEM(4,null) ,
 		PRODUCT(5,null) ,
-		ENVIRONMENT(6,null);
+		ENVIRONMENT(6,null) ,
+		RELEASE(7,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -752,7 +755,9 @@ public abstract class DBEnums {
 		ENV_SERVER_CUSTOM(323,null) ,
 		ENV_DEPLOYMENT(325,null) ,
 		ENV_NODE_PRIMARY(331,null) ,
-		ENV_NODE_CUSTOM(333,null);
+		ENV_NODE_CUSTOM(333,null) ,
+		RELEASE_REPOSITORY(401,null) ,
+		RELEASE_MAIN(402,null);
 
 		private final int value;
 		private String[] synonyms;
