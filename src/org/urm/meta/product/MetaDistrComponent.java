@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumCompItemType;
 
 public class MetaDistrComponent {
 
@@ -70,6 +71,22 @@ public class MetaDistrComponent {
 	public void modifyComponent( String name , String desc ) throws Exception {
 		this.NAME = name;
 		this.DESC = desc;
+	}
+
+	public void addItem( MetaDistrComponentItem item ) throws Exception {
+		if( item.COMPITEM_TYPE == DBEnumCompItemType.BINARY )
+			addBinaryItem( item );
+		else
+		if( item.COMPITEM_TYPE == DBEnumCompItemType.CONF )
+			addConfItem( item );
+		else
+		if( item.COMPITEM_TYPE == DBEnumCompItemType.SCHEMA )
+			addSchemaItem( item );
+		else
+		if( item.COMPITEM_TYPE == DBEnumCompItemType.WSDL )
+			addWebService( item );
+		else
+			Common.exitUnexpected();
 	}
 	
 	public void addBinaryItem( MetaDistrComponentItem item ) {

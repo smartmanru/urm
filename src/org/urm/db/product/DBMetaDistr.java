@@ -1217,6 +1217,8 @@ public class DBMetaDistr {
 			Common.exitUnexpected();
 		
 		modifyComponentItem( c , storage , distr , comp , item , true );
+		
+		comp.addItem( item );
 		return( item );
 	}
 	
