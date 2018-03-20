@@ -188,9 +188,11 @@ public class TransactionBase extends EngineObject {
 				
 				if( mirrorsNew != null ) {
 					data.setMirrors( mirrorsNew );
-					engine.trace( "remove old mirrors object, id=" + mirrorsOld.objectId );
-					mirrorsOld.deleteObject();
-					mirrorsOld = null;
+					if( mirrorsOld != null ) {
+						engine.trace( "remove old mirrors object, id=" + mirrorsOld.objectId );
+						mirrorsOld.deleteObject();
+						mirrorsOld = null;
+					}
 				}
 				
 				return( true );
