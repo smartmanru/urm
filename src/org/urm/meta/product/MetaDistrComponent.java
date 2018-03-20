@@ -34,30 +34,30 @@ public class MetaDistrComponent {
 		mapWSByItemId = new HashMap<Integer,MetaDistrComponentItem>();
 	}
 
-	public MetaDistrComponent copy( Meta meta , MetaDistr distr ) throws Exception {
-		MetaDistrComponent r = new MetaDistrComponent( meta , distr );
+	public MetaDistrComponent copy( Meta rmeta , MetaDistr rdistr ) throws Exception {
+		MetaDistrComponent r = new MetaDistrComponent( rmeta , rdistr );
 		r.ID = ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.PV = PV;
 		
 		for( MetaDistrComponentItem item : mapBinaryItemsById.values() ) {
-			MetaDistrComponentItem ritem = item.copy( meta , r );
+			MetaDistrComponentItem ritem = item.copy( rmeta , r );
 			r.addBinaryItem( ritem );
 		}
 		
 		for( MetaDistrComponentItem item : mapConfItemsById.values() ) {
-			MetaDistrComponentItem ritem = item.copy( meta , r );
+			MetaDistrComponentItem ritem = item.copy( rmeta , r );
 			r.addConfItem( ritem );
 		}
 		
 		for( MetaDistrComponentItem item : mapSchemaItemsById.values() ) {
-			MetaDistrComponentItem ritem = item.copy( meta , r );
+			MetaDistrComponentItem ritem = item.copy( rmeta , r );
 			r.addSchemaItem( ritem );
 		}
 
 		for( MetaDistrComponentItem item : mapWSByItemId.values() ) {
-			MetaDistrComponentItem ritem = item.copy( meta , r );
+			MetaDistrComponentItem ritem = item.copy( rmeta , r );
 			r.addWebService( ritem );
 		}
 		

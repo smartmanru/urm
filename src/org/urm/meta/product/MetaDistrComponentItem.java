@@ -35,15 +35,11 @@ public class MetaDistrComponentItem {
 		r.DEPLOY_NAME = DEPLOY_NAME;
 		r.PV = PV;
 		
-		if( binaryItem != null ) {
-			MetaDistr rdistr = rmeta.getDistr();
-			r.binaryItem = rdistr.findBinaryItem( binaryItem.NAME );
-		}
+		if( binaryItem != null )
+			r.binaryItem = rcomp.dist.findBinaryItem( binaryItem.NAME );
 		else
-		if( confItem != null ) {
-			MetaDistr rdistr = rmeta.getDistr();
-			r.confItem = rdistr.getConfItem( confItem.NAME );
-		}
+		if( confItem != null )
+			r.confItem = rcomp.dist.getConfItem( confItem.NAME );
 		else
 		if( schema != null ) {
 			MetaDatabase database = rmeta.getDatabase();
