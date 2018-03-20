@@ -119,7 +119,7 @@ public class ActionProductScopeMaker {
 			addProductDeliveryDocs( DELIVERY , ITEMS );
 	}
 
-	public void addScopeProductCategory( DBEnumScopeCategory CATEGORY , String[] TARGETS ) throws Exception {
+	public void addScopeProductCategory( DBEnumScopeCategoryType CATEGORY , String[] TARGETS ) throws Exception {
 		addScopeProductSet( Common.getEnumLower( CATEGORY ) , TARGETS );
 	}
 
@@ -134,16 +134,16 @@ public class ActionProductScopeMaker {
 	}
 	
 	private void addProductSet( String set , String[] TARGETS ) throws Exception {
-		if( set.equals( Common.getEnumLower( DBEnumScopeCategory.CONFIG ) ) )
+		if( set.equals( Common.getEnumLower( DBEnumScopeCategoryType.CONFIG ) ) )
 			addProductConfigs( TARGETS );
 		else 
-		if( set.equals( Common.getEnumLower( DBEnumScopeCategory.DB ) ) )
+		if( set.equals( Common.getEnumLower( DBEnumScopeCategoryType.DB ) ) )
 			addProductDatabaseDeliveries( TARGETS );
 		else 
-		if( set.equals( Common.getEnumLower( DBEnumScopeCategory.MANUAL ) ) )
+		if( set.equals( Common.getEnumLower( DBEnumScopeCategoryType.MANUAL ) ) )
 			addManualItems( TARGETS );
 		else 
-		if( set.equals( Common.getEnumLower( DBEnumScopeCategory.DERIVED ) ) )
+		if( set.equals( Common.getEnumLower( DBEnumScopeCategoryType.DERIVED ) ) )
 			addDerivedItems( TARGETS );
 		else {
 			MetaSources sources = meta.getSources();
@@ -161,12 +161,12 @@ public class ActionProductScopeMaker {
 			
 			ActionScopeSet sset = null;
 			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL ) {
-				sset = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategory.MANUAL );
+				sset = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.MANUAL );
 				addProductManualItems( sset , new String[] { itemName } );
 			}
 			else
 			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
-				sset = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategory.DERIVED );
+				sset = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.DERIVED );
 				addProductDerivedItems( sset , new String[] { itemName } );
 			}
 			else {
@@ -196,7 +196,7 @@ public class ActionProductScopeMaker {
 	}
 	
 	private void addProductConfigs( String[] CONFCOMPS ) throws Exception {
-		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategory.CONFIG );
+		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.CONFIG );
 		addProductConfigComps( sset , CONFCOMPS );
 	}
 
@@ -209,12 +209,12 @@ public class ActionProductScopeMaker {
 	}
 	
 	private void addProductDatabaseDeliveries( String[] DELIVERIES ) throws Exception {
-		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategory.DB );
+		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.DB );
 		addProductDatabaseDeliveries( set , DELIVERIES );
 	}
 
 	private void addProductDocDeliveries( String[] DELIVERIES ) throws Exception {
-		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategory.DOC );
+		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.DOC );
 		addProductDocDeliveries( set , DELIVERIES );
 	}
 
@@ -223,7 +223,7 @@ public class ActionProductScopeMaker {
 	}
 
 	private void addManualItems( String[] DISTITEMS ) throws Exception {
-		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategory.MANUAL );
+		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.MANUAL );
 		addProductManualItems( sset , DISTITEMS );
 	}
 	
@@ -232,17 +232,17 @@ public class ActionProductScopeMaker {
 	}
 
 	private void addDerivedItems( String[] DISTITEMS ) throws Exception {
-		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategory.DERIVED );
+		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.DERIVED );
 		addProductDerivedItems( sset , DISTITEMS );
 	}
 	
 	private void addProductDeliveryDatabaseSchemes( String DELIVERY , String[] SCHEMES ) throws Exception {
-		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategory.DB );
+		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.DB );
 		addProductDatabaseDeliverySchemes( set , DELIVERY , SCHEMES );
 	}
 
 	private void addProductDeliveryDocs( String DELIVERY , String[] DOCS ) throws Exception {
-		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategory.DOC );
+		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.DOC );
 		addProductDeliveryDocs( set , DELIVERY , DOCS );
 	}
 

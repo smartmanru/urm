@@ -792,7 +792,7 @@ public abstract class DBEnums {
 		public static DBEnumParamRoleType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamRoleType.class , value , required , null ) ); };
 	};
 
-	public enum DBEnumScopeCategory implements DBEnumInterface {
+	public enum DBEnumScopeCategoryType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		// source
 		PROJECT(10,null) ,
@@ -810,33 +810,33 @@ public abstract class DBEnums {
 		SEARCH_SOURCEPREBUILT(101,null);
 
 		public boolean isSourceCategory() {
-			if( this == DBEnumScopeCategory.PROJECT )
+			if( this == DBEnumScopeCategoryType.PROJECT )
 				return( true );
 			return( false );
 		}
 		
-		public static DBEnumScopeCategory[] getAllReleaseCategories() {
-			DBEnumScopeCategory[] categories = { 
-					DBEnumScopeCategory.PROJECT , 
-					DBEnumScopeCategory.CONFIG , 
-					DBEnumScopeCategory.MANUAL , 
-					DBEnumScopeCategory.DERIVED , 
-					DBEnumScopeCategory.DB ,
-					DBEnumScopeCategory.DOC
+		public static DBEnumScopeCategoryType[] getAllReleaseCategories() {
+			DBEnumScopeCategoryType[] categories = { 
+					DBEnumScopeCategoryType.PROJECT , 
+					DBEnumScopeCategoryType.CONFIG , 
+					DBEnumScopeCategoryType.MANUAL , 
+					DBEnumScopeCategoryType.DERIVED , 
+					DBEnumScopeCategoryType.DB ,
+					DBEnumScopeCategoryType.DOC
 					};
 			return( categories );
 		}
 
-		public static DBEnumScopeCategory[] getAllSourceCategories() {
-			DBEnumScopeCategory[] categories = { DBEnumScopeCategory.PROJECT };
+		public static DBEnumScopeCategoryType[] getAllSourceCategories() {
+			DBEnumScopeCategoryType[] categories = { DBEnumScopeCategoryType.PROJECT };
 			return( categories );
 		}
 
-		public boolean checkCategoryProperty( DBEnumScopeCategory part ) {
+		public boolean checkCategoryProperty( DBEnumScopeCategoryType part ) {
 			if( part == this )
 				return( true );
-			if( this == DBEnumScopeCategory.SEARCH_SOURCEBUILDABLE ) {
-				if( part == DBEnumScopeCategory.PROJECT )
+			if( this == DBEnumScopeCategoryType.SEARCH_SOURCEBUILDABLE ) {
+				if( part == DBEnumScopeCategoryType.PROJECT )
 					return( true );
 			}
 			return( false );
@@ -846,9 +846,9 @@ public abstract class DBEnums {
 		private String[] synonyms;
 		@Override public int code() { return( value ); };
 		@Override public String[] synonyms() { return( synonyms ); };
-		private DBEnumScopeCategory( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
-		public static DBEnumScopeCategory getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumScopeCategory.class , value , required , null ) ); };
-		public static DBEnumScopeCategory getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumScopeCategory.class , value , required , null ) ); };
+		private DBEnumScopeCategoryType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumScopeCategoryType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumScopeCategoryType.class , value , required , null ) ); };
+		public static DBEnumScopeCategoryType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumScopeCategoryType.class , value , required , null ) ); };
 	};
 
 	public enum DBEnumChatType implements DBEnumInterface {
@@ -906,7 +906,7 @@ public abstract class DBEnums {
 		new DBEnumInfo( DBEnumServerDeploymentType.class , 543 ) ,
 		new DBEnumInfo( DBEnumDeployModeType.class , 544 ) ,
 		new DBEnumInfo( DBEnumNodeType.class , 545 ) ,
-		new DBEnumInfo( DBEnumScopeCategory.class , 546 ) ,
+		new DBEnumInfo( DBEnumScopeCategoryType.class , 546 ) ,
 		new DBEnumInfo( DBEnumReleaseTargetType.class , 547 ) ,
 		new DBEnumInfo( DBEnumTicketSetStatusType.class , 548 ) ,
 		new DBEnumInfo( DBEnumTicketType.class , 549 ) ,

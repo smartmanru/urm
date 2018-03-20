@@ -66,7 +66,7 @@ public class CodebaseCommand {
 
 		if( dist != null && scope.hasConfig( action ) ) {
 			ActionGetConf cacf = new ActionGetConf( action , null , dist , downloadFolder , action.context.CTX_DIST );
-			if( !cacf.runEachCategoryTarget( parentState , scope , DBEnumScopeCategory.CONFIG , SecurityAction.ACTION_CODEBASE , false ) )
+			if( !cacf.runEachCategoryTarget( parentState , scope , DBEnumScopeCategoryType.CONFIG , SecurityAction.ACTION_CODEBASE , false ) )
 				res = false;
 			
 			// automatically create configuration difference after distributive update
@@ -76,13 +76,13 @@ public class CodebaseCommand {
 		
 		if( dist != null && scope.hasDatabase( action ) ) {
 			ActionGetDB cadb = new ActionGetDB( action , null , dist , downloadFolder , action.context.CTX_DIST );
-			if( !cadb.runEachCategoryTarget( parentState , scope , DBEnumScopeCategory.DB , SecurityAction.ACTION_CODEBASE , false ) )
+			if( !cadb.runEachCategoryTarget( parentState , scope , DBEnumScopeCategoryType.DB , SecurityAction.ACTION_CODEBASE , false ) )
 				res = false;
 		}
 		
 		if( dist != null && scope.hasDoc( action ) ) {
 			ActionGetDocs cadoc = new ActionGetDocs( action , null , dist , downloadFolder , action.context.CTX_DIST );
-			if( !cadoc.runEachCategoryTarget( parentState , scope , DBEnumScopeCategory.DOC , SecurityAction.ACTION_CODEBASE , false ) )
+			if( !cadoc.runEachCategoryTarget( parentState , scope , DBEnumScopeCategoryType.DOC , SecurityAction.ACTION_CODEBASE , false ) )
 				res = false;
 		}
 		
@@ -268,10 +268,10 @@ public class CodebaseCommand {
 			return;
 		}
 		
-		action.info( "buildRelease: set TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , new DBEnumScopeCategory[] { DBEnumScopeCategory.SEARCH_SOURCEBUILDABLE } ) + "}" );
+		action.info( "buildRelease: set TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , new DBEnumScopeCategoryType[] { DBEnumScopeCategoryType.SEARCH_SOURCEBUILDABLE } ) + "}" );
 		setTag( parentState , action , TAG , scope );
 		
-		action.info( "buildRelease: build TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , new DBEnumScopeCategory[] { DBEnumScopeCategory.SEARCH_SOURCEBUILDABLE } ) + "}" );
+		action.info( "buildRelease: build TAG=" + TAG + ", scope={" + scope.getScopeInfo( action , new DBEnumScopeCategoryType[] { DBEnumScopeCategoryType.SEARCH_SOURCEBUILDABLE } ) + "}" );
 		String OUTFILE = OUTDIR.folderPath + "/build.final.out"; 
 		action.shell.createFileFromString( action , OUTFILE , "FINAL STATUS:" );
 		buildTags( parentState , action , TAG , scope , OUTDIR , OUTFILE , dist );

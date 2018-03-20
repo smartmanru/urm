@@ -87,7 +87,7 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		// copy from release
-		if( dist.release.findCategoryTarget( this , DBEnumScopeCategory.CONFIG , conf.NAME ) != null ) {
+		if( dist.release.findCategoryTarget( this , DBEnumScopeCategoryType.CONFIG , conf.NAME ) != null ) {
 			LocalFolder folder = templateFolder.getSubFolder( this , conf.NAME );
 			if( folder.checkExists( this ) )
 				dist.copyDistConfToFolder( this , conf , folder );

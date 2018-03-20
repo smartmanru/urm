@@ -56,7 +56,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	ActionScopeSet asyncScopeSet;
 	ActionScopeTarget asyncScopeTarget;
 	ActionScopeTarget[] asyncTargets;
-	DBEnumScopeCategory[] asyncCategories;
+	DBEnumScopeCategoryType[] asyncCategories;
 	EngineEventsSubscription asyncSub;
 	
 	public ScopeExecutor( ScopeState parentState , ActionBase action , boolean async ) {
@@ -204,7 +204,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( runScope( scope ) );
 	}
 	
-	public boolean runCategories( ActionScope scope , DBEnumScopeCategory[] categories , SecurityAction sa , boolean readOnly ) {
+	public boolean runCategories( ActionScope scope , DBEnumScopeCategoryType[] categories , SecurityAction sa , boolean readOnly ) {
 		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , scope.meta , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", categories)" );
@@ -488,7 +488,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( finishExecutor( ss ) );
 	}
 
-	private boolean runCategories( ActionScope scope , DBEnumScopeCategory[] categories ) {
+	private boolean runCategories( ActionScope scope , DBEnumScopeCategoryType[] categories ) {
 		if( !startExecutor( scope ) )
 			return( false );
 		
@@ -528,7 +528,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
-		DBEnumScopeCategory[] categories = new DBEnumScopeCategory[] { DBEnumScopeCategory.ENV };
+		DBEnumScopeCategoryType[] categories = new DBEnumScopeCategoryType[] { DBEnumScopeCategoryType.ENV };
 		try {
 			action.debug( action.NAME + ": run unique hosts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
 			action.runBefore( stateFinal , scope );
@@ -566,7 +566,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
-		DBEnumScopeCategory[] categories = new DBEnumScopeCategory[] { DBEnumScopeCategory.ENV };
+		DBEnumScopeCategoryType[] categories = new DBEnumScopeCategoryType[] { DBEnumScopeCategoryType.ENV };
 		try {
 			action.debug( action.NAME + ": run unique accounts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
 			action.runBefore( stateFinal , scope );
@@ -711,7 +711,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( ss );
 	}
 	
-	private SCOPESTATE runTargetCategoriesInternal( ActionScope scope , DBEnumScopeCategory[] categories ) {
+	private SCOPESTATE runTargetCategoriesInternal( ActionScope scope , DBEnumScopeCategoryType[] categories ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			if( scope.isEmpty( action , categories ) ) {
@@ -723,7 +723,7 @@ public class ScopeExecutor implements EngineEventsListener {
 				boolean run = true;
 				if( categories != null ) {
 					run = false;
-					for( DBEnumScopeCategory CATEGORY : categories ) {
+					for( DBEnumScopeCategoryType CATEGORY : categories ) {
 						if( !running )
 							break;
 						
@@ -1019,7 +1019,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		if( scope.meta != null ) {
 			MetaSources sources = scope.meta.getSources(); 
 			for( String sourceSetName : sources.getSetNames() ) {
-				ActionScopeSet set = scope.findSet( action , DBEnumScopeCategory.PROJECT , sourceSetName );
+				ActionScopeSet set = scope.findSet( action , DBEnumScopeCategoryType.PROJECT , sourceSetName );
 				if( set != null )
 					list.add( set );
 			}
@@ -1030,7 +1030,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		
 		if( context.env != null ) {
 			for( MetaEnvSegment envSet : context.env.getSegments() ) {
-				ActionScopeSet set = scope.findSet( action , DBEnumScopeCategory.ENV , envSet.NAME );
+				ActionScopeSet set = scope.findSet( action , DBEnumScopeCategoryType.ENV , envSet.NAME );
 				if( set != null )
 					list.add( set );
 			}
@@ -1056,7 +1056,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( list );
 		}
 				
-		if( set.CATEGORY == DBEnumScopeCategory.ENV ) {
+		if( set.CATEGORY == DBEnumScopeCategoryType.ENV ) {
 			for( ActionScopeTarget target : targets )
 				map.put( target.envServer.NAME , target );
 

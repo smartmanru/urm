@@ -26,7 +26,7 @@ public class ActionScopeSet {
 	public ActionScope scope;
 	public Meta meta;
 	public String NAME;
-	public DBEnumScopeCategory CATEGORY;
+	public DBEnumScopeCategoryType CATEGORY;
 	public boolean setFull;
 	
 	public MetaSourceProjectSet pset;
@@ -50,7 +50,7 @@ public class ActionScopeSet {
 	
 	public boolean isEmpty() {
 		// manual files are by default
-		if( CATEGORY == DBEnumScopeCategory.MANUAL && setFull )
+		if( CATEGORY == DBEnumScopeCategoryType.MANUAL && setFull )
 			return( false );
 		
 		return( targets.isEmpty() );
@@ -63,7 +63,7 @@ public class ActionScopeSet {
 	public void create( ActionBase action , MetaSourceProjectSet pset ) throws Exception {
 		this.pset = pset;
 		this.NAME = pset.NAME;
-		this.CATEGORY = DBEnumScopeCategory.PROJECT;
+		this.CATEGORY = DBEnumScopeCategoryType.PROJECT;
 		this.setFull = false;
 	}
 
@@ -78,12 +78,12 @@ public class ActionScopeSet {
 	public void create( ActionBase action , MetaEnvSegment sg ) throws Exception {
 		this.pset = null;
 		this.NAME = sg.NAME;
-		this.CATEGORY = DBEnumScopeCategory.ENV;
+		this.CATEGORY = DBEnumScopeCategoryType.ENV;
 		this.setFull = false;
 		this.sg = sg;
 	}
 
-	public void create( ActionBase action , DBEnumScopeCategory CATEGORY ) throws Exception {
+	public void create( ActionBase action , DBEnumScopeCategoryType CATEGORY ) throws Exception {
 		this.pset = null;
 		this.NAME = Common.getEnumLower( CATEGORY );
 		this.CATEGORY = CATEGORY;
@@ -101,7 +101,7 @@ public class ActionScopeSet {
 	
 	public String getScopeInfo( ActionBase action ) throws Exception {
 		if( targets.isEmpty() ) {
-			if( CATEGORY == DBEnumScopeCategory.MANUAL && setFull )
+			if( CATEGORY == DBEnumScopeCategoryType.MANUAL && setFull )
 				return( "manual files" );
 			return( "" );
 		}
@@ -113,10 +113,10 @@ public class ActionScopeSet {
 		}
 
 		String itemlist = "";
-		if( CATEGORY == DBEnumScopeCategory.MANUAL )
+		if( CATEGORY == DBEnumScopeCategoryType.MANUAL )
 			itemlist = "manual files";
 		else
-		if( CATEGORY == DBEnumScopeCategory.DERIVED )
+		if( CATEGORY == DBEnumScopeCategoryType.DERIVED )
 			itemlist = "derived files";
 		
 		for( ActionScopeTarget scopeTarget : targets.values() )

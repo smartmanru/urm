@@ -86,7 +86,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			for( String set : release.getSourceSetNames() )
 				printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
 			
-			for( DBEnumScopeCategory CATEGORY : DBEnumScopeCategory.getAllReleaseCategories() ) {
+			for( DBEnumScopeCategoryType CATEGORY : DBEnumScopeCategoryType.getAllReleaseCategories() ) {
 				ReleaseSet set = release.findCategorySet( CATEGORY );
 				if( set != null )
 					printReleaseCategorySetStatus( dist , files , set );
@@ -147,16 +147,16 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		for( String key : set.getTargetNames() ) {
 			ReleaseTarget target = set.findTarget( key );
 			
-			if( set.CATEGORY == DBEnumScopeCategory.CONFIG )
+			if( set.CATEGORY == DBEnumScopeCategoryType.CONFIG )
 				printReleaseConfStatus( dist , files , target );
 			else
-			if( set.CATEGORY == DBEnumScopeCategory.DB )
+			if( set.CATEGORY == DBEnumScopeCategoryType.DB )
 				printReleaseDatabaseStatus( dist , files , target );
 			else
-			if( set.CATEGORY == DBEnumScopeCategory.MANUAL )
+			if( set.CATEGORY == DBEnumScopeCategoryType.MANUAL )
 				printReleaseManualStatus( dist , files , target );
 			else
-			if( set.CATEGORY == DBEnumScopeCategory.DOC )
+			if( set.CATEGORY == DBEnumScopeCategoryType.DOC )
 				printReleaseDocStatus( dist , files , target );
 			else
 				exitUnexpectedCategory( set.CATEGORY );

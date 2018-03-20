@@ -145,12 +145,12 @@ public class ActionSetScope extends ActionBase {
 		dist.reloadCheckOpenedForDataChange( this );
 		if( pathItems.length == 1 ) {
 			if( pathItems[0].equals( "all" ) ) {
-				for( DBEnumScopeCategory category : new DBEnumScopeCategory[] { 
-						DBEnumScopeCategory.MANUAL , 
-						DBEnumScopeCategory.DERIVED , 
-						DBEnumScopeCategory.CONFIG , 
-						DBEnumScopeCategory.DB , 
-						DBEnumScopeCategory.DOC } ) {
+				for( DBEnumScopeCategoryType category : new DBEnumScopeCategoryType[] { 
+						DBEnumScopeCategoryType.MANUAL , 
+						DBEnumScopeCategoryType.DERIVED , 
+						DBEnumScopeCategoryType.CONFIG , 
+						DBEnumScopeCategoryType.DB , 
+						DBEnumScopeCategoryType.DOC } ) {
 					if( !dist.addAllCategory( this , category ) )
 						return( false );
 				}

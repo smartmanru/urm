@@ -55,13 +55,13 @@ public class ActionAddScope extends ActionBase {
 	}
 	
 	private boolean addAllProductTargetElements( ActionScopeSet set , ActionScopeTarget target ) throws Exception {
-		if( target.CATEGORY == DBEnumScopeCategory.CONFIG )
+		if( target.CATEGORY == DBEnumScopeCategoryType.CONFIG )
 			return( dist.addConfItem( this , target.confItem ) );
-		if( target.CATEGORY == DBEnumScopeCategory.MANUAL )
+		if( target.CATEGORY == DBEnumScopeCategoryType.MANUAL )
 			return( dist.addManualItem( this , target.manualItem ) );
-		if( target.CATEGORY == DBEnumScopeCategory.DB )
+		if( target.CATEGORY == DBEnumScopeCategoryType.DB )
 			return( dist.addDeliveryAllDatabaseSchemes( this , target.delivery ) );
-		if( target.CATEGORY == DBEnumScopeCategory.DOC )
+		if( target.CATEGORY == DBEnumScopeCategoryType.DOC )
 			return( dist.addDeliveryAllDocs( this , target.delivery ) );
 		if( target.CATEGORY.isSourceCategory() )
 			return( dist.addProjectAllItems( this , target.sourceProject ) );
@@ -73,9 +73,9 @@ public class ActionAddScope extends ActionBase {
 	private boolean addTargetItem( ActionScopeSet set , ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {
 		if( target.CATEGORY.isSourceCategory() )
 			return( dist.addProjectItem( this , target.sourceProject , item.sourceItem ) );
-		if( target.CATEGORY == DBEnumScopeCategory.DB )
+		if( target.CATEGORY == DBEnumScopeCategoryType.DB )
 			return( dist.addDeliveryDatabaseSchema( this , target.delivery , item.schema ) );
-		if( target.CATEGORY == DBEnumScopeCategory.DOC )
+		if( target.CATEGORY == DBEnumScopeCategoryType.DOC )
 			return( dist.addDeliveryDoc( this , target.delivery , item.doc ) );
 		
 		this.exitUnexpectedCategory( target.CATEGORY );

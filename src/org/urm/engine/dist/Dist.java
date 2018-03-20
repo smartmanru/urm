@@ -525,7 +525,7 @@ public class Dist {
 		return( release.addSourceSet( action , set , true ) );
 	}
 	
-	public boolean addAllCategory( ActionBase action , DBEnumScopeCategory CATEGORY ) throws Exception {
+	public boolean addAllCategory( ActionBase action , DBEnumScopeCategoryType CATEGORY ) throws Exception {
 		action.debug( "release - add category=" + Common.getEnumLower( CATEGORY ) );
 		return( release.addCategorySet( action , CATEGORY , true ) );
 	}
@@ -561,7 +561,7 @@ public class Dist {
 	public boolean addConfItem( ActionBase action , MetaDistrConfItem item ) throws Exception {
 		action.debug( "release - add conf item=" + item.NAME );
 		
-		if( !release.addCategorySet( action , DBEnumScopeCategory.CONFIG , false ) )
+		if( !release.addCategorySet( action , DBEnumScopeCategoryType.CONFIG , false ) )
 			return( false );
 		if( !release.addConfItem( action , item ) )
 			return( false );
@@ -571,7 +571,7 @@ public class Dist {
 	public boolean addManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
 		action.debug( "release - add manual item=" + item.NAME );
 		
-		if( !release.addCategorySet( action , DBEnumScopeCategory.MANUAL , false ) )
+		if( !release.addCategorySet( action , DBEnumScopeCategoryType.MANUAL , false ) )
 			return( false );
 		if( !release.addManualItem( action , item ) )
 			return( false );
@@ -581,7 +581,7 @@ public class Dist {
 	public boolean addDerivedItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
 		action.debug( "release - add derived item=" + item.NAME );
 		
-		if( !release.addCategorySet( action , DBEnumScopeCategory.DERIVED , false ) )
+		if( !release.addCategorySet( action , DBEnumScopeCategoryType.DERIVED , false ) )
 			return( false );
 		if( !release.addDerivedItem( action , item ) )
 			return( false );
@@ -600,7 +600,7 @@ public class Dist {
 	
 	public boolean addDeliveryAllDatabaseSchemes( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
 		action.debug( "release - add database delivery=" + delivery.NAME );
-		if( !release.addCategorySet( action , DBEnumScopeCategory.DB , false ) )
+		if( !release.addCategorySet( action , DBEnumScopeCategoryType.DB , false ) )
 			return( false );
 		if( !release.addDatabaseDelivery( action , delivery , true ) )
 			return( false );
@@ -609,7 +609,7 @@ public class Dist {
 
 	public boolean addDeliveryAllDocs( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
 		action.debug( "release - add doc delivery=" + delivery.NAME );
-		if( !release.addCategorySet( action , DBEnumScopeCategory.DOC , false ) )
+		if( !release.addCategorySet( action , DBEnumScopeCategoryType.DOC , false ) )
 			return( false );
 		if( !release.addDocDelivery( action , delivery , true ) )
 			return( false );
@@ -618,7 +618,7 @@ public class Dist {
 
 	public boolean addDeliveryDatabaseSchema( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
 		action.debug( "release - add database delivery=" + delivery.NAME + ", schema=" + schema );
-		if( !release.addCategorySet( action , DBEnumScopeCategory.DB , false ) )
+		if( !release.addCategorySet( action , DBEnumScopeCategoryType.DB , false ) )
 			return( false );
 		if( !release.addDatabaseDelivery( action , delivery , false ) )
 			return( false );
@@ -629,7 +629,7 @@ public class Dist {
 	
 	public boolean addDeliveryDoc( ActionBase action , MetaDistrDelivery delivery , MetaProductDoc doc ) throws Exception {
 		action.debug( "release - add doc delivery=" + delivery.NAME + ", doc=" + doc );
-		if( !release.addCategorySet( action , DBEnumScopeCategory.DOC , false ) )
+		if( !release.addCategorySet( action , DBEnumScopeCategoryType.DOC , false ) )
 			return( false );
 		if( !release.addDocDelivery( action , delivery , false ) )
 			return( false );
@@ -640,14 +640,14 @@ public class Dist {
 	
 	public boolean addDatabaseAll( ActionBase action ) throws Exception {
 		action.debug( "release - add database" );
-		if( !release.addCategorySet( action , DBEnumScopeCategory.DB , true ) )
+		if( !release.addCategorySet( action , DBEnumScopeCategoryType.DB , true ) )
 			return( false );
 		return( true );
 	}
 
 	public boolean addDocAll( ActionBase action ) throws Exception {
 		action.debug( "release - add doc" );
-		if( !release.addCategorySet( action , DBEnumScopeCategory.DOC , true ) )
+		if( !release.addCategorySet( action , DBEnumScopeCategoryType.DOC , true ) )
 			return( false );
 		return( true );
 	}
@@ -794,22 +794,22 @@ public class Dist {
 	}
 	
 	private void dropTarget( ActionBase action , ReleaseTarget target ) throws Exception {
-		if( target.CATEGORY == DBEnumScopeCategory.CONFIG ) {
+		if( target.CATEGORY == DBEnumScopeCategoryType.CONFIG ) {
 			String folder = getDeliveryConfFolder( action , target.distConfItem.delivery );
 			distFolder.removeFolder( action , folder );
 		}
 		else
-		if( target.CATEGORY == DBEnumScopeCategory.MANUAL ) {
+		if( target.CATEGORY == DBEnumScopeCategoryType.MANUAL ) {
 			String folder = getReleaseBinaryFolder( action , target.distManualItem );
 			distFolder.deleteVFile( action , folder , target.distManualItem.BASENAME_DIST , target.distManualItem.EXT );
 		}
 		else
-		if( target.CATEGORY == DBEnumScopeCategory.DB ) {
+		if( target.CATEGORY == DBEnumScopeCategoryType.DB ) {
 			String folder = getDeliveryDatabaseFolder( action , target.distDelivery , release.RELEASEVER );
 			distFolder.removeFolderContent( action , folder );
 		}
 		else
-		if( target.CATEGORY == DBEnumScopeCategory.DOC ) {
+		if( target.CATEGORY == DBEnumScopeCategoryType.DOC ) {
 			String folder = getDeliveryDocFolder( action , target.distDelivery );
 			distFolder.removeFolderContent( action , folder );
 		}
@@ -846,14 +846,14 @@ public class Dist {
 			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL ) {
-			ReleaseTarget target = release.findCategoryTarget( action , DBEnumScopeCategory.MANUAL , item.NAME );
+			ReleaseTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.MANUAL , item.NAME );
 			if( target == null )
 				return( false );
 			return( true );
 		}
 		else
 		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
-			ReleaseTarget target = release.findCategoryTarget( action , DBEnumScopeCategory.DERIVED , item.NAME );
+			ReleaseTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.DERIVED , item.NAME );
 			if( target == null )
 				return( false );
 			return( checkIfReleaseItem( action , item.srcDistItem ) );
@@ -880,7 +880,7 @@ public class Dist {
 			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL ) {
-			ReleaseTarget target = release.findCategoryTarget( action , DBEnumScopeCategory.MANUAL , item.NAME );
+			ReleaseTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.MANUAL , item.NAME );
 			if( target == null )
 				return( "" );
 			
@@ -891,7 +891,7 @@ public class Dist {
 		}
 		else
 		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
-			ReleaseTarget target = release.findCategoryTarget( action , DBEnumScopeCategory.DERIVED , item.NAME );
+			ReleaseTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.DERIVED , item.NAME );
 			if( target == null )
 				return( "" );
 			
@@ -925,7 +925,7 @@ public class Dist {
 		if( !openedForUse )
 			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
-		ReleaseTarget target = release.findCategoryTarget( action , DBEnumScopeCategory.DOC , doc.NAME );
+		ReleaseTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.DOC , doc.NAME );
 		if( target == null )
 			return( "" );
 		

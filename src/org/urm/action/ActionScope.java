@@ -20,7 +20,7 @@ public class ActionScope {
 	public Meta meta;
 	public CommandContext context;
 
-	private Map<DBEnumScopeCategory,ActionScopeSet> categoryMap = new HashMap<DBEnumScopeCategory,ActionScopeSet>();
+	private Map<DBEnumScopeCategoryType,ActionScopeSet> categoryMap = new HashMap<DBEnumScopeCategoryType,ActionScopeSet>();
 	private Map<String,ActionScopeSet> sourceMap = new HashMap<String,ActionScopeSet>();
 	private Map<String,ActionScopeSet> envMap = new HashMap<String,ActionScopeSet>();
 
@@ -100,7 +100,7 @@ public class ActionScope {
 		return( sset );
 	}
 	
-	public ActionScopeSet makeProductCategoryScopeSet( ActionBase action , DBEnumScopeCategory CATEGORY ) throws Exception {
+	public ActionScopeSet makeProductCategoryScopeSet( ActionBase action , DBEnumScopeCategoryType CATEGORY ) throws Exception {
 		ActionScopeSet sset = getCategorySet( action , CATEGORY );
 		if( sset != null )
 			return( sset );
@@ -112,7 +112,7 @@ public class ActionScope {
 	}
 	
 	public ActionScopeSet makeEnvScopeSet( ActionBase action , MetaEnv env , MetaEnvSegment sg , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeSet sset = getCategorySet( action , DBEnumScopeCategory.ENV );
+		ActionScopeSet sset = getCategorySet( action , DBEnumScopeCategoryType.ENV );
 		if( sset != null )
 			return( sset );
 		
@@ -122,7 +122,7 @@ public class ActionScope {
 		return( sset );
 	}
 	
-	public ActionScopeSet makeReleaseCategoryScopeSet( ActionBase action , Dist dist , DBEnumScopeCategory CATEGORY ) throws Exception {
+	public ActionScopeSet makeReleaseCategoryScopeSet( ActionBase action , Dist dist , DBEnumScopeCategoryType CATEGORY ) throws Exception {
 		ActionScopeSet sset = getCategorySet( action , CATEGORY );
 		if( sset != null )
 			return( sset );
@@ -151,19 +151,19 @@ public class ActionScope {
 		return( sset );
 	}
 
-	private ActionScopeSet getCategorySet( ActionBase action , DBEnumScopeCategory CATEGORY ) throws Exception {
+	private ActionScopeSet getCategorySet( ActionBase action , DBEnumScopeCategoryType CATEGORY ) throws Exception {
 		return( categoryMap.get( CATEGORY ) );
 	}
 	
-	private ActionScopeSet getScopeSet( ActionBase action , DBEnumScopeCategory CATEGORY , String name ) throws Exception {
+	private ActionScopeSet getScopeSet( ActionBase action , DBEnumScopeCategoryType CATEGORY , String name ) throws Exception {
 		if( CATEGORY.isSourceCategory() )
 			return( sourceMap.get( name ) );
-		if( CATEGORY == DBEnumScopeCategory.ENV )
+		if( CATEGORY == DBEnumScopeCategoryType.ENV )
 			return( envMap.get( name ) );
 		return( categoryMap.get( CATEGORY ) );
 	}
 
-	public boolean hasCategorySet( ActionBase action , DBEnumScopeCategory CATEGORY ) throws Exception {
+	public boolean hasCategorySet( ActionBase action , DBEnumScopeCategoryType CATEGORY ) throws Exception {
 		ActionScopeSet sset = getCategorySet( action , CATEGORY );
 		if( sset == null || sset.isEmpty() )
 			return( false );
@@ -172,23 +172,23 @@ public class ActionScope {
 	}
 	
 	public boolean hasConfig( ActionBase action ) throws Exception {
-		return( hasCategorySet( action , DBEnumScopeCategory.CONFIG ) );
+		return( hasCategorySet( action , DBEnumScopeCategoryType.CONFIG ) );
 	}
 	
 	public boolean hasManual( ActionBase action ) throws Exception {
-		return( hasCategorySet( action , DBEnumScopeCategory.MANUAL ) );
+		return( hasCategorySet( action , DBEnumScopeCategoryType.MANUAL ) );
 	}
 
 	public boolean hasDerived( ActionBase action ) throws Exception {
-		return( hasCategorySet( action , DBEnumScopeCategory.DERIVED ) );
+		return( hasCategorySet( action , DBEnumScopeCategoryType.DERIVED ) );
 	}
 
 	public boolean hasDatabase( ActionBase action ) throws Exception {
-		return( hasCategorySet( action , DBEnumScopeCategory.DB ) );
+		return( hasCategorySet( action , DBEnumScopeCategoryType.DB ) );
 	}
 
 	public boolean hasDoc( ActionBase action ) throws Exception {
-		return( hasCategorySet( action , DBEnumScopeCategory.DOC ) );
+		return( hasCategorySet( action , DBEnumScopeCategoryType.DOC ) );
 	}
 
 	public List<ActionScopeSet> getSetList() {
@@ -199,7 +199,7 @@ public class ActionScope {
 		return( list );
 	}
 	
-	public String getScopeInfo( ActionBase action , DBEnumScopeCategory[] categories ) throws Exception {
+	public String getScopeInfo( ActionBase action , DBEnumScopeCategoryType[] categories ) throws Exception {
 		String scope = "";
 		
 		boolean all = true;
@@ -207,7 +207,7 @@ public class ActionScope {
 			boolean add = true;
 			if( categories != null ) {
 				add = false;
-				for( DBEnumScopeCategory CATEGORY : categories ) {
+				for( DBEnumScopeCategoryType CATEGORY : categories ) {
 					if( CATEGORY.checkCategoryProperty( set.CATEGORY ) )
 						add = true;
 				}
@@ -232,14 +232,14 @@ public class ActionScope {
 	}
 	
 	public String getBuildScopeInfo( ActionBase action ) throws Exception {
-		return( getScopeInfo( action , new DBEnumScopeCategory[] { DBEnumScopeCategory.SEARCH_SOURCEBUILDABLE } ) );
+		return( getScopeInfo( action , new DBEnumScopeCategoryType[] { DBEnumScopeCategoryType.SEARCH_SOURCEBUILDABLE } ) );
 	}
 	
 	public String getSourceScopeInfo( ActionBase action ) throws Exception {
-		return( getScopeInfo( action , DBEnumScopeCategory.getAllSourceCategories() ) );
+		return( getScopeInfo( action , DBEnumScopeCategoryType.getAllSourceCategories() ) );
 	}
 	
-	public boolean isEmpty( ActionBase action , DBEnumScopeCategory[] categories ) throws Exception {
+	public boolean isEmpty( ActionBase action , DBEnumScopeCategoryType[] categories ) throws Exception {
 		for( ActionScopeSet set : getSetList() ) {
 			if( categories == null ) {
 				if( !set.isEmpty() )
@@ -247,7 +247,7 @@ public class ActionScope {
 				continue;
 			}
 			
-			for( DBEnumScopeCategory CATEGORY : categories ) {
+			for( DBEnumScopeCategoryType CATEGORY : categories ) {
 				if( CATEGORY.checkCategoryProperty( set.CATEGORY ) && !set.isEmpty() )
 					return( false );
 			}
@@ -304,13 +304,13 @@ public class ActionScope {
 	public ActionScopeSet[] getBuildableSets( ActionBase action ) throws Exception {
 		List<ActionScopeSet> x = new LinkedList<ActionScopeSet>();
 		for( ActionScopeSet set : sourceMap.values() ) {
-			if( set.CATEGORY == DBEnumScopeCategory.PROJECT && !set.isEmpty() )
+			if( set.CATEGORY == DBEnumScopeCategoryType.PROJECT && !set.isEmpty() )
 				x.add( set );
 		}
 		return( x.toArray( new ActionScopeSet[0] ) );
 	}
 	
-	public Map<String,ActionScopeTarget> getCategorySetTargets( ActionBase action , DBEnumScopeCategory CATEGORY ) throws Exception {
+	public Map<String,ActionScopeTarget> getCategorySetTargets( ActionBase action , DBEnumScopeCategoryType CATEGORY ) throws Exception {
 		ActionScopeSet set = getCategorySet( action , CATEGORY );
 		if( set == null )
 			return( new HashMap<String,ActionScopeTarget>() );
@@ -324,16 +324,16 @@ public class ActionScope {
 		if( sset.CATEGORY.isSourceCategory() )
 			sourceMap.put( sset.NAME , sset );
 		else
-		if( sset.CATEGORY == DBEnumScopeCategory.ENV )
+		if( sset.CATEGORY == DBEnumScopeCategoryType.ENV )
 			envMap.put( sset.NAME , sset );
 		else
 			categoryMap.put( sset.CATEGORY , sset );
 	}
 	
-	public ActionScopeSet findSet( ActionBase action , DBEnumScopeCategory CATEGORY , String NAME ) throws Exception {
+	public ActionScopeSet findSet( ActionBase action , DBEnumScopeCategoryType CATEGORY , String NAME ) throws Exception {
 		if( CATEGORY.isSourceCategory() )
 			return( sourceMap.get( NAME ) );
-		if( CATEGORY == DBEnumScopeCategory.ENV )
+		if( CATEGORY == DBEnumScopeCategoryType.ENV )
 			return( envMap.get( NAME ) );
 		return( categoryMap.get( CATEGORY ) );
 	}
@@ -363,7 +363,7 @@ public class ActionScope {
 		if( setAdd.CATEGORY.isSourceCategory() )
 			setNew.create( action , setAdd.pset );
 		else
-		if( setAdd.CATEGORY == DBEnumScopeCategory.ENV )
+		if( setAdd.CATEGORY == DBEnumScopeCategoryType.ENV )
 			setNew.create( action , setAdd.sg );
 		else
 			setNew.create( action , setAdd.CATEGORY );

@@ -25,7 +25,7 @@ public class ReleaseSet {
 
 	Meta meta;
 	Release release;
-	public DBEnumScopeCategory CATEGORY;
+	public DBEnumScopeCategoryType CATEGORY;
 	
 	public MetaSourceProjectSet set;
 	
@@ -37,7 +37,7 @@ public class ReleaseSet {
 
 	Map<String,ReleaseTarget> map = new HashMap<String,ReleaseTarget>(); 
 	
-	public ReleaseSet( Meta meta , Release release , DBEnumScopeCategory CATEGORY ) {
+	public ReleaseSet( Meta meta , Release release , DBEnumScopeCategoryType CATEGORY ) {
 		this.meta = meta;
 		this.release = release;
 		this.CATEGORY = CATEGORY;
@@ -82,7 +82,7 @@ public class ReleaseSet {
 	}
 
 	public boolean isSourceSet() {
-		if( CATEGORY == DBEnumScopeCategory.PROJECT )
+		if( CATEGORY == DBEnumScopeCategoryType.PROJECT )
 			return( true );
 		return( false );
 	}
@@ -97,19 +97,19 @@ public class ReleaseSet {
 			loadBinary( action , node );
 		else {
 			NAME = Common.getEnumLower( CATEGORY );
-			if( CATEGORY == DBEnumScopeCategory.CONFIG )
+			if( CATEGORY == DBEnumScopeCategoryType.CONFIG )
 				loadConfiguration( action , node );
 			else
-			if( CATEGORY == DBEnumScopeCategory.MANUAL )
+			if( CATEGORY == DBEnumScopeCategoryType.MANUAL )
 				loadManual( action , node );
 			else
-			if( CATEGORY == DBEnumScopeCategory.DERIVED )
+			if( CATEGORY == DBEnumScopeCategoryType.DERIVED )
 				loadDerived( action , node );
 			else
-			if( CATEGORY == DBEnumScopeCategory.DB )
+			if( CATEGORY == DBEnumScopeCategoryType.DB )
 				loadDatabase( action , node );
 			else
-			if( CATEGORY == DBEnumScopeCategory.DOC )
+			if( CATEGORY == DBEnumScopeCategoryType.DOC )
 				loadDocs( action , node );
 			else
 				action.exitUnexpectedCategory( CATEGORY );
@@ -156,7 +156,7 @@ public class ReleaseSet {
 	}
 	
 	private void loadConfiguration( ActionBase action , Node node ) throws Exception {
-		NAME = Common.getEnumLower( DBEnumScopeCategory.CONFIG );
+		NAME = Common.getEnumLower( DBEnumScopeCategoryType.CONFIG );
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
 		Node[] confitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_CONFITEM );
@@ -177,7 +177,7 @@ public class ReleaseSet {
 	}
 	
 	private void loadManual( ActionBase action , Node node ) throws Exception {
-		NAME = Common.getEnumLower( DBEnumScopeCategory.MANUAL );
+		NAME = Common.getEnumLower( DBEnumScopeCategoryType.MANUAL );
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
 		Node[] manualitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DISTITEM );
@@ -198,7 +198,7 @@ public class ReleaseSet {
 	}
 
 	private void loadDerived( ActionBase action , Node node ) throws Exception {
-		NAME = Common.getEnumLower( DBEnumScopeCategory.DERIVED );
+		NAME = Common.getEnumLower( DBEnumScopeCategoryType.DERIVED );
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
 		Node[] deriveditems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DISTITEM );
@@ -219,7 +219,7 @@ public class ReleaseSet {
 	}
 
 	private void loadDatabase( ActionBase action , Node node ) throws Exception {
-		NAME = Common.getEnumLower( DBEnumScopeCategory.DB );
+		NAME = Common.getEnumLower( DBEnumScopeCategoryType.DB );
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
 		Node[] dbitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DELIVERY );
@@ -240,7 +240,7 @@ public class ReleaseSet {
 	}
 
 	private void loadDocs( ActionBase action , Node node ) throws Exception {
-		NAME = Common.getEnumLower( DBEnumScopeCategory.DOC );
+		NAME = Common.getEnumLower( DBEnumScopeCategoryType.DOC );
 		ALL = ConfReader.getBooleanAttrValue( node , Release.PROPERTY_ALL , false );
 
 		Node[] docitems = ConfReader.xmlGetChildren( node , Release.ELEMENT_DELIVERY );
@@ -263,7 +263,7 @@ public class ReleaseSet {
 	public void createSourceSet( ActionBase action , MetaSourceProjectSet set , boolean ALL ) throws Exception {
 		this.set = set;
 		this.NAME = set.NAME;
-		this.CATEGORY = DBEnumScopeCategory.PROJECT;
+		this.CATEGORY = DBEnumScopeCategoryType.PROJECT;
 		this.ALL = ALL;
 		this.BUILDBRANCH = action.context.CTX_BRANCH;
 		this.BUILDTAG = action.context.CTX_TAG;
@@ -273,7 +273,7 @@ public class ReleaseSet {
 			addAllSourceProjects( action );
 	}
 	
-	public void createCategorySet( ActionBase action , DBEnumScopeCategory CATEGORY , boolean ALL ) throws Exception {
+	public void createCategorySet( ActionBase action , DBEnumScopeCategoryType CATEGORY , boolean ALL ) throws Exception {
 		this.CATEGORY = CATEGORY;
 		this.NAME = Common.getEnumLower( CATEGORY );
 		this.ALL = ALL;
@@ -282,19 +282,19 @@ public class ReleaseSet {
 		this.BUILDVERSION = action.context.CTX_VERSION;
 		
 		if( ALL ) {
-			if( CATEGORY == DBEnumScopeCategory.CONFIG )
+			if( CATEGORY == DBEnumScopeCategoryType.CONFIG )
 				addAllConfItems( action );
 			else
-			if( CATEGORY == DBEnumScopeCategory.MANUAL )
+			if( CATEGORY == DBEnumScopeCategoryType.MANUAL )
 				addAllManualItems( action );
 			else
-			if( CATEGORY == DBEnumScopeCategory.DERIVED )
+			if( CATEGORY == DBEnumScopeCategoryType.DERIVED )
 				addAllDerivedItems( action );
 			else
-			if( CATEGORY == DBEnumScopeCategory.DB )
+			if( CATEGORY == DBEnumScopeCategoryType.DB )
 				addAllDatabaseItems( action );
 			else
-			if( CATEGORY == DBEnumScopeCategory.DOC )
+			if( CATEGORY == DBEnumScopeCategoryType.DOC )
 				addAllDocItems( action );
 			else
 				action.exitUnexpectedCategory( CATEGORY );

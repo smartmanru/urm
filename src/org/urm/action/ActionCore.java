@@ -200,7 +200,7 @@ abstract public class ActionCore {
 		exit( _Error.NotImplemented0 , "sorry, code is not implemented yet" , null );
 	}
 	
-	public void exitUnexpectedCategory( DBEnumScopeCategory CATEGORY ) throws Exception {
+	public void exitUnexpectedCategory( DBEnumScopeCategoryType CATEGORY ) throws Exception {
 		String category = Common.getEnumLower( CATEGORY );
 		exit( _Error.UnexpectedCategory1 , "unexpected category=" + category , new String[] { category } );
 	}

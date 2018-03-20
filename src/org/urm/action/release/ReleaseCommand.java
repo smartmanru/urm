@@ -182,7 +182,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
 		ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
-		maker.addScopeProductCategory( DBEnumScopeCategory.CONFIG , elements );
+		maker.addScopeProductCategory( DBEnumScopeCategoryType.CONFIG , elements );
 		ActionScope scope = maker.getScope();
 		addReleaseScope( parentState , action , dist , scope );
 	}
@@ -193,7 +193,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
 		ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
-		maker.addScopeProductCategory( DBEnumScopeCategory.DB , DELIVERIES );
+		maker.addScopeProductCategory( DBEnumScopeCategoryType.DB , DELIVERIES );
 		ActionScope scope = maker.getScope();
 		addReleaseScope( parentState , action , dist , scope );
 	}
@@ -280,7 +280,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
 		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
-		maker.addScopeReleaseCategory( DBEnumScopeCategory.CONFIG , COMPS );
+		maker.addScopeReleaseCategory( DBEnumScopeCategoryType.CONFIG , COMPS );
 		ActionScope scope = maker.getScope();
 		descope( parentState , action , dist , scope );
 	}
@@ -290,7 +290,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
 		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
-		maker.addScopeReleaseCategory( DBEnumScopeCategory.MANUAL , ITEMS );
+		maker.addScopeReleaseCategory( DBEnumScopeCategoryType.MANUAL , ITEMS );
 		ActionScope scope = maker.getScope();
 		descope( parentState , action , dist , scope );
 	}
@@ -313,7 +313,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
 		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
-		maker.addScopeReleaseCategory( DBEnumScopeCategory.DB , DELIVERIES );
+		maker.addScopeReleaseCategory( DBEnumScopeCategoryType.DB , DELIVERIES );
 		ActionScope scope = maker.getScope();
 		descope( parentState , action , dist , scope );
 	}

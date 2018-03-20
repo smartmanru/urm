@@ -6,7 +6,7 @@ import org.urm.action.ActionScope;
 import org.urm.action.database.DatabaseCommand;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
-import org.urm.db.core.DBEnums.DBEnumScopeCategory;
+import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
 import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
@@ -71,7 +71,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 		String[] DELIVERIES = getArgList( action , 1 );
 		
 		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
-		maker.addScopeReleaseCategory( DBEnumScopeCategory.DB , DELIVERIES );
+		maker.addScopeReleaseCategory( DBEnumScopeCategoryType.DB , DELIVERIES );
 		ActionScope scope = maker.getScope();
 		impl.getReleaseScripts( parentState , action , scope , dist );
 	}

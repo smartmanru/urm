@@ -29,7 +29,7 @@ public class ReleaseTarget {
 
 	Meta meta;
 	public ReleaseSet set;
-	public DBEnumScopeCategory CATEGORY;
+	public DBEnumScopeCategoryType CATEGORY;
 
 	public boolean ALL;
 	public String NAME = "";
@@ -49,7 +49,7 @@ public class ReleaseTarget {
 	
 	public String DISTFILE;
 
-	public ReleaseTarget( Meta meta , ReleaseSet set , DBEnumScopeCategory CATEGORY ) {
+	public ReleaseTarget( Meta meta , ReleaseSet set , DBEnumScopeCategoryType CATEGORY ) {
 		this.meta = meta;
 		this.set = set;
 		this.CATEGORY = CATEGORY;
@@ -84,19 +84,19 @@ public class ReleaseTarget {
 		if( CATEGORY.isSourceCategory() )
 			loadProject( action , node );
 		else
-		if( CATEGORY == DBEnumScopeCategory.CONFIG )
+		if( CATEGORY == DBEnumScopeCategoryType.CONFIG )
 			loadConfiguration( action , node );
 		else
-		if( CATEGORY == DBEnumScopeCategory.MANUAL )
+		if( CATEGORY == DBEnumScopeCategoryType.MANUAL )
 			loadManual( action , node );
 		else
-		if( CATEGORY == DBEnumScopeCategory.DERIVED )
+		if( CATEGORY == DBEnumScopeCategoryType.DERIVED )
 			loadDerived( action , node );
 		else
-		if( CATEGORY == DBEnumScopeCategory.DB )
+		if( CATEGORY == DBEnumScopeCategoryType.DB )
 			loadDatabase( action , node );
 		else
-		if( CATEGORY == DBEnumScopeCategory.DOC )
+		if( CATEGORY == DBEnumScopeCategoryType.DOC )
 			loadDoc( action , node );
 		else
 			action.exitUnexpectedCategory( CATEGORY );
@@ -217,28 +217,28 @@ public class ReleaseTarget {
 		this.DISTFILE = DISTFILE;
 	}
 	
-	public boolean isCategoryItem( ActionBase action , DBEnumScopeCategory CATEGORY ) throws Exception {
+	public boolean isCategoryItem( ActionBase action , DBEnumScopeCategoryType CATEGORY ) throws Exception {
 		if( CATEGORY.isSourceCategory() ) {
 			if( sourceProject != null )
 				return( true );
 		}
-		else if( CATEGORY == DBEnumScopeCategory.CONFIG ) {
+		else if( CATEGORY == DBEnumScopeCategoryType.CONFIG ) {
 			if( distConfItem != null )
 				return( true );
 		}
-		else if( CATEGORY == DBEnumScopeCategory.MANUAL ) {
+		else if( CATEGORY == DBEnumScopeCategoryType.MANUAL ) {
 			if( distManualItem != null )
 				return( true );
 		}
-		else if( CATEGORY == DBEnumScopeCategory.DERIVED ) {
+		else if( CATEGORY == DBEnumScopeCategoryType.DERIVED ) {
 			if( distDerivedItem != null )
 				return( true );
 		}
-		else if( CATEGORY == DBEnumScopeCategory.DB ) {
+		else if( CATEGORY == DBEnumScopeCategoryType.DB ) {
 			if( this.CATEGORY == CATEGORY )
 				return( true );
 		}
-		else if( CATEGORY == DBEnumScopeCategory.DOC ) {
+		else if( CATEGORY == DBEnumScopeCategoryType.DOC ) {
 			if( this.CATEGORY == CATEGORY )
 				return( true );
 		}
@@ -278,20 +278,20 @@ public class ReleaseTarget {
 	}
 	
 	public boolean isDatabaseTarget() {
-		if( CATEGORY == DBEnumScopeCategory.DB )
+		if( CATEGORY == DBEnumScopeCategoryType.DB )
 			return( true );
 		return( false );
 	}
 
 	public boolean isDocTarget() {
-		if( CATEGORY == DBEnumScopeCategory.DOC )
+		if( CATEGORY == DBEnumScopeCategoryType.DOC )
 			return( true );
 		return( false );
 	}
 
 	public void createFromProject( ActionBase action , MetaSourceProject sourceProject , boolean allItems ) throws Exception {
 		this.sourceProject = sourceProject;
-		this.CATEGORY = DBEnumScopeCategory.PROJECT;
+		this.CATEGORY = DBEnumScopeCategoryType.PROJECT;
 		
 		NAME = sourceProject.NAME;
 		ALL = false;
@@ -306,7 +306,7 @@ public class ReleaseTarget {
 
 	public void createFromConfItem( ActionBase action , MetaDistrConfItem item , boolean allFiles ) throws Exception {
 		this.distConfItem = item;
-		this.CATEGORY = DBEnumScopeCategory.CONFIG;
+		this.CATEGORY = DBEnumScopeCategoryType.CONFIG;
 		this.ALL = allFiles;
 		this.NAME = item.NAME;
 	}
@@ -316,7 +316,7 @@ public class ReleaseTarget {
 			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-manual item=" + item.NAME , item.NAME );
 		
 		this.distManualItem = item;
-		this.CATEGORY = DBEnumScopeCategory.MANUAL;
+		this.CATEGORY = DBEnumScopeCategoryType.MANUAL;
 		this.ALL = true;
 		this.NAME = item.NAME;
 	}
@@ -326,14 +326,14 @@ public class ReleaseTarget {
 			action.exit1( _Error.UnexpectedNonManualItem1 , "unexpected non-derived item=" + item.NAME , item.NAME );
 		
 		this.distDerivedItem = item;
-		this.CATEGORY = DBEnumScopeCategory.DERIVED;
+		this.CATEGORY = DBEnumScopeCategoryType.DERIVED;
 		this.ALL = true;
 		this.NAME = item.NAME;
 	}
 	
 	public void createFromDatabaseDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allSchemes ) throws Exception {
 		this.distDelivery = delivery;
-		this.CATEGORY = DBEnumScopeCategory.DB;
+		this.CATEGORY = DBEnumScopeCategoryType.DB;
 		this.ALL = false;
 		this.NAME = delivery.NAME;
 		
@@ -343,7 +343,7 @@ public class ReleaseTarget {
 	
 	public void createFromDocDelivery( ActionBase action , MetaDistrDelivery delivery , boolean allDocs ) throws Exception {
 		this.distDelivery = delivery;
-		this.CATEGORY = DBEnumScopeCategory.DOC;
+		this.CATEGORY = DBEnumScopeCategoryType.DOC;
 		this.ALL = false;
 		this.NAME = delivery.NAME;
 		
@@ -643,13 +643,13 @@ public class ReleaseTarget {
 	}
 
 	public boolean isBuildableProject() {
-		if( CATEGORY == DBEnumScopeCategory.PROJECT && sourceProject.isBuildable() )
+		if( CATEGORY == DBEnumScopeCategoryType.PROJECT && sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isPrebuiltProject() {
-		if( CATEGORY == DBEnumScopeCategory.PROJECT && !sourceProject.isBuildable() )
+		if( CATEGORY == DBEnumScopeCategoryType.PROJECT && !sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}

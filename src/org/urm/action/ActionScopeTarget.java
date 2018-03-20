@@ -25,7 +25,7 @@ public class ActionScopeTarget {
 	public ActionScopeSet set;
 	public Meta meta;
 	
-	public DBEnumScopeCategory CATEGORY; 
+	public DBEnumScopeCategoryType CATEGORY; 
 	public String NAME;
 	public ReleaseTarget releaseTarget;
 	public MetaSourceProject sourceProject;
@@ -144,9 +144,9 @@ public class ActionScopeTarget {
 	
 	public boolean isLeafTarget() {
 		if( dbManualItems ||
-			CATEGORY == DBEnumScopeCategory.CONFIG ||
-			CATEGORY == DBEnumScopeCategory.DERIVED ||
-			CATEGORY == DBEnumScopeCategory.MANUAL )
+			CATEGORY == DBEnumScopeCategoryType.CONFIG ||
+			CATEGORY == DBEnumScopeCategoryType.DERIVED ||
+			CATEGORY == DBEnumScopeCategoryType.MANUAL )
 			return( true );
 		return( false );
 	}
@@ -160,22 +160,22 @@ public class ActionScopeTarget {
 	public ActionScopeTarget copy( ActionScopeSet setNew ) {
 		if( dbManualItems )
 			return( createReleaseDatabaseManualTarget( setNew , itemFull ) );
-		if( CATEGORY == DBEnumScopeCategory.CONFIG )
+		if( CATEGORY == DBEnumScopeCategoryType.CONFIG )
 			return( createProductConfItemTarget( setNew , confItem , specifiedExplicitly ) );
-		if( CATEGORY == DBEnumScopeCategory.DERIVED )
+		if( CATEGORY == DBEnumScopeCategoryType.DERIVED )
 			return( createProductDerivedDistItemTarget( setNew , derivedItem , specifiedExplicitly ) );
-		if( CATEGORY == DBEnumScopeCategory.MANUAL )
+		if( CATEGORY == DBEnumScopeCategoryType.MANUAL )
 			return( createProductManualDistItemTarget( setNew , manualItem , specifiedExplicitly ) );
 		if( CATEGORY.isSourceCategory() ) {
 			if( releaseTarget != null )
 				return( createReleaseSourceProjectTarget( setNew , releaseTarget , specifiedExplicitly ) );
 			return( createProductSourceProjectTarget( setNew , sourceProject , specifiedExplicitly ) );
 		}
-		if( CATEGORY == DBEnumScopeCategory.ENV )
+		if( CATEGORY == DBEnumScopeCategoryType.ENV )
 			return( createEnvServerTarget( setNew , envServer , specifiedExplicitly ) );
-		if( CATEGORY == DBEnumScopeCategory.DB )
+		if( CATEGORY == DBEnumScopeCategoryType.DB )
 			return( createDeliveryDatabaseTarget( setNew , delivery , specifiedExplicitly , itemFull ) );
-		if( CATEGORY == DBEnumScopeCategory.DOC )
+		if( CATEGORY == DBEnumScopeCategoryType.DOC )
 			return( createDeliveryDocTarget( setNew , delivery , specifiedExplicitly , itemFull ) );
 		return( null );
 	}
@@ -450,13 +450,13 @@ public class ActionScopeTarget {
 	}
 
 	public boolean isBuildableProject() {
-		if( CATEGORY == DBEnumScopeCategory.PROJECT && sourceProject.isBuildable() )
+		if( CATEGORY == DBEnumScopeCategoryType.PROJECT && sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isPrebuiltProject() {
-		if( CATEGORY == DBEnumScopeCategory.PROJECT && !sourceProject.isBuildable() )
+		if( CATEGORY == DBEnumScopeCategoryType.PROJECT && !sourceProject.isBuildable() )
 			return( true );
 		return( false );
 	}

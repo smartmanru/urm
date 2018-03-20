@@ -97,8 +97,8 @@ public abstract class CommandExecutor {
 		action.exit1( _Error.UnexpectedExtraArguments1 , "unexpected extra arguments: " + Common.getQuoted( xargs ) + "; see help to find syntax" , xargs );
 	}
 	
-	public DBEnumScopeCategory getRequiredCategoryArg( ActionBase action , int pos ) throws Exception {
-		DBEnumScopeCategory CATEGORY = getCategoryArg( action , pos );
+	public DBEnumScopeCategoryType getRequiredCategoryArg( ActionBase action , int pos ) throws Exception {
+		DBEnumScopeCategoryType CATEGORY = getCategoryArg( action , pos );
 		if( CATEGORY == null )
 			action.exit1( _Error.ArgumentRequired1 , "CATEGORY argument is required" , "CATEGORY" );
 		return( CATEGORY );
@@ -119,11 +119,11 @@ public abstract class CommandExecutor {
 		return( BUILDMODE );
 	}
 	
-	public DBEnumScopeCategory getCategoryArg( ActionBase action , int pos ) throws Exception {
+	public DBEnumScopeCategoryType getCategoryArg( ActionBase action , int pos ) throws Exception {
 		if( pos >= action.context.options.getArgCount() )
 			return( null );
 		
-		return( DBEnumScopeCategory.getValue( getArg( action , pos ) , true ) );
+		return( DBEnumScopeCategoryType.getValue( getArg( action , pos ) , true ) );
 	}
 	
 	public String getRequiredArg( ActionBase action , int pos , String argName ) throws Exception {
