@@ -186,8 +186,6 @@ public class MetaEnv extends EngineObject {
 		DISTR_REMOTE = distRemote;
 		DISTR_ACCOUNT = MatchItem.copy( distAccountMatchItem );
 		DISTR_PATH = distPath;
-		
-		refreshPrimaryProperties();
 	}
 
 	public boolean isProd() {
