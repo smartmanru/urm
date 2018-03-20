@@ -45,6 +45,9 @@ public class ProductEnvs {
 			MetaEnv renv = env.copy( rmeta.getStorage() , rmeta , r , rsettings.getParameters() );
 			r.addEnv( renv );
 		}
+
+		for( MetaEnv renv : r.getEnvs() )
+			renv.refreshProperties();
 		
 		return( r );
 	}

@@ -110,7 +110,6 @@ public class MetaEnv extends EngineObject {
 		r.DISTR_PATH = DISTR_PATH;
 		r.EV = EV;
 		r.MATCHED = MATCHED;
-		r.refreshPrimaryProperties();
 		
 		for( MetaEnvSegment sg : sgMap.values() ) {
 			MetaEnvSegment rsg = sg.copy( rmeta , r );
