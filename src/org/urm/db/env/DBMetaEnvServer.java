@@ -418,6 +418,8 @@ public class DBMetaEnvServer {
 		// create settings
 		ObjectProperties ops = entities.createMetaEnvServerProps( server.ID , server.sg.getProperties() );
 		server.createSettings( ops );
+		ObjectProperties opsBase = entities.createMetaEnvServerBaseProps( ops );
+		server.createBaseSettings( opsBase );
 		
 		// primary
 		server.setServerPrimary( name , desc , runType , accessType , osType , sysname , null , true , dbmsType , MatchItem.create( admSchema ) , null );
