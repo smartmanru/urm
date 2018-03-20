@@ -408,6 +408,7 @@ public class DBMetaEnvSegment {
 		sg.createSettings( ops );
 		
 		sg.setSegmentPrimary( name , desc , null , true , MatchItem.create( dcId ) );
+		sg.refreshPrimaryProperties();
 		modifySegment( c , storage , env , sg , true );
 		
 		env.addSegment( sg );

@@ -53,7 +53,7 @@ public class EngineLoaderEnvs {
 		
 		for( MetaEnv env : envs.getEnvs() ) {
 			DBMetaEnv.matchBaseline( loader , set , env );
-			env.refreshPrimaryProperties();
+			env.refreshProperties();
 		}
 
 		for( MetaEnv env : envs.getEnvs() ) {

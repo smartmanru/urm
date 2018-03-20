@@ -236,6 +236,10 @@ public class MetaEnvServer extends EngineObject {
 		this.BASEITEM = MatchItem.copy( baseItemMatchItem );
 	}
 	
+	public void refreshProperties() throws Exception {
+		refreshPrimaryProperties();
+	}
+	
 	private void refreshPrimaryProperties() throws Exception {
 		ops.clearProperties( DBEnumParamEntityType.ENV_SERVER_PRIMARY );
 		

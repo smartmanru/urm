@@ -188,6 +188,12 @@ public class MetaEnv extends EngineObject {
 		DISTR_PATH = distPath;
 	}
 
+	public void refreshProperties() throws Exception {
+		refreshPrimaryProperties();
+		for( MetaEnvSegment sg : sgMap.values() )
+			sg.refreshProperties();
+	}
+	
 	public boolean isProd() {
 		return( ENV_TYPE == DBEnumEnvType.PRODUCTION );
 	}

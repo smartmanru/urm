@@ -113,10 +113,14 @@ public class MetaEnvSegment extends EngineObject {
 		this.BASELINE = MatchItem.copy( baselineMatchItem );
 		this.OFFLINE = offline;
 		this.DC = MatchItem.copy( dcMatchItem );
-		
-		refreshPrimaryProperties();
 	}
 
+	public void refreshProperties() throws Exception {
+		refreshPrimaryProperties();
+		for( MetaEnvServer server : serverMap.values() )
+			server.refreshProperties();
+	}
+	
 	public void createSettings( ObjectProperties ops ) throws Exception {
 		this.ops = ops;
 	}
@@ -254,7 +258,7 @@ public class MetaEnvSegment extends EngineObject {
 		refreshPrimaryProperties();
 	}
 	
-	private void refreshPrimaryProperties() throws Exception {
+	public void refreshPrimaryProperties() throws Exception {
 		ops.clearProperties( DBEnumParamEntityType.ENV_SEGMENT_PRIMARY );
 		
 		ops.setStringProperty( PROPERTY_NAME , NAME );

@@ -301,7 +301,7 @@ public class DBMetaEnv {
 			matchBaseline( loader , storage , env );
 			if( env.checkMatched() ) {
 				loader.trace( "successfully matched env=" + env.NAME );
-				env.refreshPrimaryProperties();
+				env.refreshProperties();
 			}
 			else
 				loader.trace( "match failed env=" + env.NAME );
