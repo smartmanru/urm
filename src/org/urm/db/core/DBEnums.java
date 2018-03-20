@@ -630,7 +630,7 @@ public abstract class DBEnums {
 		public static DBEnumReleaseTargetType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumReleaseTargetType.class , value , required , null ) ); };
 	};
 	
-	public enum DBEnumTicketSetStatus implements DBEnumInterface {
+	public enum DBEnumTicketSetStatusType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		NEW(1,null) ,
 		ACTIVE(2,null) ,
@@ -640,9 +640,9 @@ public abstract class DBEnums {
 		private String[] synonyms;
 		@Override public int code() { return( value ); };
 		@Override public String[] synonyms() { return( synonyms ); };
-		private DBEnumTicketSetStatus( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
-		public static DBEnumTicketSetStatus getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketSetStatus.class , value , required , null ) ); };
-		public static DBEnumTicketSetStatus getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketSetStatus.class , value , required , null ) ); };
+		private DBEnumTicketSetStatusType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumTicketSetStatusType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketSetStatusType.class , value , required , null ) ); };
+		public static DBEnumTicketSetStatusType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketSetStatusType.class , value , required , null ) ); };
 	};
 
 	public enum DBEnumTicketType implements DBEnumInterface {
@@ -661,7 +661,7 @@ public abstract class DBEnums {
 		public static DBEnumTicketType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketType.class , value , required , null ) ); };
 	};
 
-	public enum DBEnumTicketStatus implements DBEnumInterface {
+	public enum DBEnumTicketStatusType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		NEW(1,null) ,
 		DEVDONE(2,null) ,
@@ -671,9 +671,9 @@ public abstract class DBEnums {
 		private String[] synonyms;
 		@Override public int code() { return( value ); };
 		@Override public String[] synonyms() { return( synonyms ); };
-		private DBEnumTicketStatus( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
-		public static DBEnumTicketStatus getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketStatus.class , value , required , null ) ); };
-		public static DBEnumTicketStatus getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketStatus.class , value , required , null ) ); };
+		private DBEnumTicketStatusType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumTicketStatusType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketStatusType.class , value , required , null ) ); };
+		public static DBEnumTicketStatusType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketStatusType.class , value , required , null ) ); };
 	};
 
 	public enum DBEnumObjectVersionType implements DBEnumInterface {
@@ -908,9 +908,9 @@ public abstract class DBEnums {
 		new DBEnumInfo( DBEnumNodeType.class , 545 ) ,
 		new DBEnumInfo( DBEnumScopeCategory.class , 546 ) ,
 		new DBEnumInfo( DBEnumReleaseTargetType.class , 547 ) ,
-		new DBEnumInfo( DBEnumTicketSetStatus.class , 548 ) ,
+		new DBEnumInfo( DBEnumTicketSetStatusType.class , 548 ) ,
 		new DBEnumInfo( DBEnumTicketType.class , 549 ) ,
-		new DBEnumInfo( DBEnumTicketStatus.class , 550 )
+		new DBEnumInfo( DBEnumTicketStatusType.class , 550 )
 	}; 
 
 	private static String prefix = "DBEnum";

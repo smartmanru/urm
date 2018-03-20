@@ -24,7 +24,7 @@ public class ReleaseTicket {
 	public String QA;
 	public String COMMENTS;
 	public DBEnumTicketType type;
-	public DBEnumTicketStatus status;
+	public DBEnumTicketStatusType status;
 	public boolean active;
 	public boolean accepted;
 	public boolean descoped;
@@ -73,7 +73,7 @@ public class ReleaseTicket {
 		String TYPE = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETTYPE );
 		type = DBEnumTicketType.getValue( TYPE , false );
 		String STATUS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSTATUS );
-		status = DBEnumTicketStatus.getValue( STATUS , true );
+		status = DBEnumTicketStatusType.getValue( STATUS , true );
 		active = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETACTIVE , false );
 		accepted = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETACCEPTED , false );
 		descoped = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETDESCOPED , false );
@@ -124,11 +124,11 @@ public class ReleaseTicket {
 		this.descoped = false;
 		if( devdone ) {
 			this.DEV = owner;
-			status = DBEnumTicketStatus.DEVDONE;
+			status = DBEnumTicketStatusType.DEVDONE;
 		}
 		else {
 			this.DEV = "";
-			status = DBEnumTicketStatus.NEW;
+			status = DBEnumTicketStatusType.NEW;
 		}
 	}
 	
@@ -142,11 +142,11 @@ public class ReleaseTicket {
 		
 		if( devdone ) {
 			this.DEV = owner;
-			status = DBEnumTicketStatus.DEVDONE;
+			status = DBEnumTicketStatusType.DEVDONE;
 		}
 		else {
 			this.DEV = "";
-			status = DBEnumTicketStatus.NEW;
+			status = DBEnumTicketStatusType.NEW;
 		}
 	}
 
@@ -163,25 +163,25 @@ public class ReleaseTicket {
 	}
 
 	public boolean isCompleted() {
-		if( accepted && ( status == DBEnumTicketStatus.QADONE || descoped ) )
+		if( accepted && ( status == DBEnumTicketStatusType.QADONE || descoped ) )
 			return( true );
 		return( false );
 	}
 
 	public boolean isNew() {
-		if( status == DBEnumTicketStatus.NEW )
+		if( status == DBEnumTicketStatusType.NEW )
 			return( true );
 		return( false );
 	}
 
 	public boolean isDevDone() {
-		if( status == DBEnumTicketStatus.DEVDONE || status == DBEnumTicketStatus.QADONE )
+		if( status == DBEnumTicketStatusType.DEVDONE || status == DBEnumTicketStatusType.QADONE )
 			return( true );
 		return( false );
 	}
 
 	public boolean isQaDone() {
-		if( status == DBEnumTicketStatus.QADONE )
+		if( status == DBEnumTicketStatusType.QADONE )
 			return( true );
 		return( false );
 	}
@@ -194,14 +194,14 @@ public class ReleaseTicket {
 
 	public void setDevDone( ActionBase action ) throws Exception {
 		if( isRunning() && isNew() ) {
-			status = DBEnumTicketStatus.DEVDONE;
+			status = DBEnumTicketStatusType.DEVDONE;
 			DEV = action.getUserName();
 		}
 	}
 	
 	public void setVerified( ActionBase action ) throws Exception {
 		if( isRunning() && isDevDone() ) {
-			status = DBEnumTicketStatus.QADONE;
+			status = DBEnumTicketStatusType.QADONE;
 			QA = action.getUserName();
 		}
 	}

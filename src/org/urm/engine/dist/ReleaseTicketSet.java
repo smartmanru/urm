@@ -31,7 +31,7 @@ public class ReleaseTicketSet {
 	public String CODE;
 	public String NAME;
 	public String COMMENTS;
-	public DBEnumTicketSetStatus status;
+	public DBEnumTicketSetStatusType status;
 	
 	private List<ReleaseTicket> items;
 	private Map<String,ReleaseTicket> map;
@@ -109,7 +109,7 @@ public class ReleaseTicketSet {
 		NAME = Meta.getNameAttr( action , root , EnumNameType.ANY );
 		COMMENTS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSETCOMMENTS );
 		String STATUS = ConfReader.getAttrValue( root , Release.PROPERTY_TICKETSETSTATUS );
-		status = DBEnumTicketSetStatus.getValue( STATUS , true );
+		status = DBEnumTicketSetStatusType.getValue( STATUS , true );
 		
 		Node[] items = ConfReader.xmlGetChildren( root , Release.ELEMENT_TICKET );
 		if( items != null ) {
@@ -155,7 +155,7 @@ public class ReleaseTicketSet {
 		this.CODE = code;
 		this.NAME = name;
 		this.COMMENTS = comments;
-		status = DBEnumTicketSetStatus.NEW;
+		status = DBEnumTicketSetStatusType.NEW;
 	}
 	
 	public void createTicket( ActionBase action , DBEnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
@@ -173,7 +173,7 @@ public class ReleaseTicketSet {
 	public void descope( ActionBase action ) throws Exception {
 		for( ReleaseTicket ticket : items )
 			ticket.descope( action );
-		status = DBEnumTicketSetStatus.DESCOPED;
+		status = DBEnumTicketSetStatusType.DESCOPED;
 	}
 
 	public ReleaseTicket[] getTickets() {
@@ -252,25 +252,25 @@ public class ReleaseTicketSet {
 	}
 
 	public boolean isNew() {
-		if( status == DBEnumTicketSetStatus.NEW )
+		if( status == DBEnumTicketSetStatusType.NEW )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isActive() {
-		if( status == DBEnumTicketSetStatus.ACTIVE )
+		if( status == DBEnumTicketSetStatusType.ACTIVE )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isDescoped() {
-		if( status == DBEnumTicketSetStatus.DESCOPED )
+		if( status == DBEnumTicketSetStatusType.DESCOPED )
 			return( true );
 		return( false );
 	}
 
 	public boolean isRunning() {
-		if( status != DBEnumTicketSetStatus.NEW )
+		if( status != DBEnumTicketSetStatusType.NEW )
 			return( true );
 		
 		for( ReleaseTicket ticket : items ) {
@@ -301,8 +301,8 @@ public class ReleaseTicketSet {
 	}
 
 	public void activate( ActionBase action ) throws Exception {
-		if( status == DBEnumTicketSetStatus.NEW )
-			status = DBEnumTicketSetStatus.ACTIVE;
+		if( status == DBEnumTicketSetStatusType.NEW )
+			status = DBEnumTicketSetStatusType.ACTIVE;
 	}
 
 	public void setDevDone( ActionBase action , ReleaseTicket ticket ) throws Exception {
