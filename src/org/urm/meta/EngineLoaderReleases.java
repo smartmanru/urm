@@ -34,9 +34,11 @@ public class EngineLoaderReleases {
 	public void loadReleases( ProductMeta set , boolean importxml ) throws Exception {
 		ProductReleases releases = new ProductReleases( set , meta );
 		set.setReleases( releases );
+
+		DBProductReleases.loaddb( loader , releases );
 		
+		// old
 		ActionBase action = loader.getAction();
-		
 		try {
 			DistRepository repo = DistRepository.loadDistRepository( action , set.meta , importxml );
 			releases.setDistRepository( repo );

@@ -9,6 +9,7 @@ public class ProductReleases {
 	public Meta meta;
 
 	DistRepository repo;
+	ReleaseRepository rrepo;
 	
 	public ProductReleases( ProductMeta storage , Meta meta ) {
 		this.meta = meta;
@@ -25,6 +26,14 @@ public class ProductReleases {
 	
 	public DistRepository getDistRepository() {
 		return( repo );
+	}
+	
+	public void setReleaseRepository( ReleaseRepository rrepo ) {
+		this.rrepo = rrepo;
+	}
+	
+	public ReleaseRepository getReleaseRepository() {
+		return( rrepo );
 	}
 	
 }
