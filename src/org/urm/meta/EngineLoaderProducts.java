@@ -9,26 +9,26 @@ import org.urm.db.env.DBEnvData;
 import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
-import org.urm.engine.dist.DistRepository;
+import org.urm.engine.AuthService;
+import org.urm.engine.DataService;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.data.EngineProducts;
+import org.urm.engine.data.EngineSettings;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.EngineAuth;
-import org.urm.meta.engine.EngineDirectory;
-import org.urm.meta.engine.EngineProducts;
-import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.ProductContext;
 import org.urm.meta.product.ProductMeta;
 
 public class EngineLoaderProducts {
 
 	private EngineLoader loader;
-	private EngineData data;
+	private DataService data;
 	public RunContext execrc;
 	public Engine engine;
 
-	public EngineLoaderProducts( EngineLoader loader , EngineData data ) {
+	public EngineLoaderProducts( EngineLoader loader , DataService data ) {
 		this.loader = loader;
 		this.data = data;
 		this.execrc = loader.execrc;
@@ -53,7 +53,7 @@ public class EngineLoaderProducts {
 			ldm.createdbAll( context );
 	
 			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
-			lde.createAll();
+			lde.createAll( forceClearMeta );
 	
 			// create folders
 			ProductStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
@@ -74,8 +74,8 @@ public class EngineLoaderProducts {
 			folder.ensureExists( action );
 	
 			// create distributive
-			DistRepository repo = DistRepository.createInitialRepository( action , set.meta , forceClearDist );
-			set.setReleases( repo );
+			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , set );
+			ldr.createAll( forceClearMeta , forceClearDist );
 			
 			// add product
 			product.setStorage( set );
@@ -134,7 +134,7 @@ public class EngineLoaderProducts {
 		if( !matchProductMirrors( product ) )
 			Common.exit1( _Error.InvalidProductMirros1 , "Invalid product mirror repositories, product=" + product.NAME , product.NAME );
 
-		EngineAuth auth = engine.getAuth();
+		AuthService auth = engine.getAuth();
 		DBEngineAuth.deleteProductAccess( c , auth , product );
 		
 		ProductMeta storage = product.storage;

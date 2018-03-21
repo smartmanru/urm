@@ -15,12 +15,12 @@ import org.urm.common.meta.ReleaseCommandMeta;
 import org.urm.common.meta.XDocCommandMeta;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.ActionInit.RootActionType;
-import org.urm.engine.blotter.EngineBlotter;
-import org.urm.engine.events.EngineEvents;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.action.CommandOutput;
+import org.urm.engine.action.EngineCall;
+import org.urm.engine.data.EngineMonitoring;
 import org.urm.engine.executor.CodebaseCommandExecutor;
 import org.urm.engine.executor.DatabaseCommandExecutor;
 import org.urm.engine.executor.DeployCommandExecutor;
@@ -28,44 +28,42 @@ import org.urm.engine.executor.MainExecutor;
 import org.urm.engine.executor.MonitorCommandExecutor;
 import org.urm.engine.executor.ReleaseCommandExecutor;
 import org.urm.engine.executor.XDocCommandExecutor;
-import org.urm.engine.jmx.EngineJmx;
-import org.urm.engine.schedule.EngineScheduler;
+import org.urm.engine.session.EngineSession;
+import org.urm.engine.session.SessionSecurity;
 import org.urm.engine.shell.ShellCoreJNI;
-import org.urm.engine.shell.EngineShellPool;
-import org.urm.engine.status.EngineStatus;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.EngineData;
+import org.urm.engine.transaction.EngineTransaction;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.EngineLoader;
-import org.urm.meta.engine.EngineAuth;
-import org.urm.meta.engine.EngineMonitoring;
 
 public class Engine {
 
 	public RunContext execrc;
 	
-	public EngineExecutor executor;
-	public EngineSession serverSession;
-	public SessionController sessionController;
-	public EngineJmx jmxController;
-	public EngineHouseKeeping houseKeeping;
+	public TaskService executor;
+	public SessionService sessions;
+	public CleaningService houseKeeping;
+	public CacheService cache;
+	public ShellService shellPool;
+	private EventService events;
+	private ScheduleService scheduler;
+	private StateService status;
+	private AuthService auth;
+	private DataService data;
+	public CallService jmx;
 	
-	public EngineCache cache;
+	public EngineSession serverSession;
+	
 	public OptionsMeta optionsMeta;
 	public MainExecutor serverExecutor;
 	public ActionInit serverAction;
-	public EngineShellPool shellPool;
 	
-	private EngineAuth auth;
-	private EngineEvents events;
-	private EngineData data;
-	private EngineScheduler scheduler;
-	private EngineStatus status;
 	public boolean running;
 
 	private TransactionBase currentTransaction = null;
 
-	public EngineBlotter blotter;
+	public BlotterService blotter;
 	public CodebaseCommandExecutor buildExecutor;
 	public DatabaseCommandExecutor databaseExecutor;
 	public DeployCommandExecutor deployExecutor;
@@ -78,17 +76,17 @@ public class Engine {
 	public Engine( RunContext execrc ) {
 		this.execrc = execrc;
 		
-		executor = new EngineExecutor( this ); 
-		houseKeeping = new EngineHouseKeeping( this );
-		cache = new EngineCache( this ); 
+		executor = new TaskService( this ); 
+		houseKeeping = new CleaningService( this );
+		cache = new CacheService( this ); 
 
-		data = new EngineData( this );
-		auth = new EngineAuth( this );
-		events = new EngineEvents( this );
-		scheduler = new EngineScheduler( this ); 
-		sessionController = new SessionController( this , data );
-		status = new EngineStatus( this );
-		blotter = new EngineBlotter( this );
+		data = new DataService( this );
+		auth = new AuthService( this );
+		events = new EventService( this );
+		scheduler = new ScheduleService( this ); 
+		sessions = new SessionService( this , data );
+		status = new StateService( this );
+		blotter = new BlotterService( this );
 		
 		optionsMeta = new OptionsMeta();
 	}
@@ -99,7 +97,7 @@ public class Engine {
 		events.init();
 		scheduler.init();
 		status.init();
-		sessionController.init();
+		sessions.init();
 		blotter.init();
 		
 		serverExecutor = MainExecutor.createExecutor( this );
@@ -154,19 +152,19 @@ public class Engine {
 		blotter.start( serverAction );
 		scheduler.start( serverAction );
 		
-		sessionController.start( serverAction );
+		sessions.start( serverAction );
 		
 		EngineMonitoring mon = data.getMonitoring();
 		mon.start( serverAction );
 		events.start();
 		
-		jmxController = new EngineJmx( action , this );
-		jmxController.start();
+		jmx = new CallService( action , this );
+		jmx.start();
 		
 		houseKeeping.start();
 		
 		serverAction.info( "server successfully started, accepting connections." );
-		sessionController.waitFinished( serverAction );
+		sessions.waitFinished( serverAction );
 	}
 	
 	public void stopServer() throws Exception {
@@ -186,9 +184,9 @@ public class Engine {
 		mon.stop( serverAction );
 		shellPool.stop( serverAction );
 		
-		jmxController.stop();
-		sessionController.stop( serverAction );
-		jmxController = null;
+		jmx.stop();
+		sessions.stop( serverAction );
+		jmx = null;
 		data.unloadProducts();
 		blotter.clear();
 		cache.clear();
@@ -221,7 +219,7 @@ public class Engine {
 	}
 
 	public EngineSession createClientSession( SessionSecurity security , RunContext clientrc ) throws Exception {
-		EngineSession sessionContext = sessionController.createSession( security , clientrc , true );
+		EngineSession sessionContext = sessions.createSession( security , clientrc , true );
 		return( sessionContext );
 	}
 	
@@ -238,7 +236,7 @@ public class Engine {
 
 	public void createTemporaryEngineAction() throws Exception {
 		SessionSecurity security = auth.createServerSecurity();
-		EngineSession session = sessionController.createSession( security , execrc , false );
+		EngineSession session = sessions.createSession( security , execrc , false );
 		CommandOptions options = serverExecutor.createOptionsTemporary( this , true );
 		
 		ActionInit action = createRootAction( RootActionType.Temporary , options , session , "init" , null , true , "Temporary engine action, session=" + session.sessionId );
@@ -255,7 +253,7 @@ public class Engine {
 		}
 		
 		if( serverSession != null ) {
-			sessionController.closeSession( serverSession );
+			sessions.closeSession( serverSession );
 			serverSession = null;
 		}
 	}
@@ -283,7 +281,7 @@ public class Engine {
 	private boolean prepareServerExecutor( CommandOptions options ) throws Exception {
 		// server action environment
 		SessionSecurity security = auth.createServerSecurity();
-		EngineSession session = sessionController.createSession( security , execrc , false );
+		EngineSession session = sessions.createSession( security , execrc , false );
 		session.setServerLayout( options );
 		
 		// create server action
@@ -305,7 +303,7 @@ public class Engine {
 
 	public boolean runClientMode( CommandOptions options , CommandMeta commandInfo ) throws Exception {
 		SessionSecurity security = auth.createServerSecurity();
-		serverSession = sessionController.createSession( security , execrc , false );
+		serverSession = sessions.createSession( security , execrc , false );
 		
 		if( execrc.isStandalone() )
 			serverSession.setStandaloneLayout( options );
@@ -407,7 +405,7 @@ public class Engine {
 	}
 	
 	public void createPool( ActionInit action ) throws Exception {
-		shellPool = new EngineShellPool( this );
+		shellPool = new ShellService( this );
 		shellPool.start( action );
 	}
 
@@ -447,7 +445,7 @@ public class Engine {
 			
 			shellPool.releaseActionPool( action );
 			if( closeSession ) {
-				sessionController.closeSession( action.session );
+				sessions.closeSession( action.session );
 				action.clearSession();
 			}
 			
@@ -548,32 +546,32 @@ public class Engine {
 		return( currentTransaction );
 	}
 
-	public EngineAuth getAuth() {
+	public AuthService getAuth() {
 		return( auth );
 	}
 
-	public EngineData getData() {
+	public DataService getData() {
 		return( data );
 	}
 	
-	public EngineStatus getStatus() {
+	public StateService getStatus() {
 		return( status );
 	}
 	
-	public EngineScheduler getScheduler() {
+	public ScheduleService getScheduler() {
 		return( scheduler );
 	}
 	
-	public EngineEvents getEvents() {
+	public EventService getEvents() {
 		return( events );
 	}
 
-	public EngineCache getCache() {
+	public CacheService getCache() {
 		return( cache );
 	}
 
 	public void updatePermissions( ActionBase action , String user ) throws Exception {
-		sessionController.updatePermissions( action , user );
+		sessions.updatePermissions( action , user );
 	}
 
 	public void log( String prompt , Throwable e ) {

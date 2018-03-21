@@ -1,6 +1,5 @@
 package org.urm.action;
 
-import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -8,6 +7,7 @@ import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSourceProjectItem;
+import org.urm.meta.release.ReleaseScopeItem;
 
 public class ActionScopeTargetItem {
 
@@ -21,7 +21,7 @@ public class ActionScopeTargetItem {
 	public MetaDatabaseSchema schema;
 	public MetaProductDoc doc;
 	
-	public ReleaseTargetItem releaseItem;
+	public ReleaseScopeItem releaseItem;
 	public boolean scriptIndex = false;
 	public boolean specifiedExplicitly;
 	
@@ -78,7 +78,7 @@ public class ActionScopeTargetItem {
 		return( ti );
 	}
 	
-	public static ActionScopeTargetItem createReleaseTargetItem( ActionScopeTarget target , ReleaseTargetItem releaseItem , boolean specifiedExplicitly ) {
+	public static ActionScopeTargetItem createReleaseTargetItem( ActionScopeTarget target , ReleaseScopeItem releaseItem , boolean specifiedExplicitly ) {
 		ActionScopeTargetItem ti = new ActionScopeTargetItem( target ); 
 		ti.distItem = releaseItem.distItem;
 		ti.sourceItem = releaseItem.sourceItem;

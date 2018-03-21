@@ -4,9 +4,9 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.release.ReleaseScopeTarget;
 
 public class ActionSetSpecifics extends ActionBase {
 
@@ -32,7 +32,7 @@ public class ActionSetSpecifics extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private boolean setTargetSpecifics( ReleaseTarget target ) throws Exception {
+	private boolean setTargetSpecifics( ReleaseScopeTarget target ) throws Exception {
 		if( !target.isSourceTarget() )
 			return( false );
 		

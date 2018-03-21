@@ -8,9 +8,9 @@ import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseRegistryRelease.RELEASE_STATE;
 import org.urm.common.Common;
 import org.urm.common.action.CommandOptions.SQLMODE;
-import org.urm.engine.dist.Release;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.release.Release;
 
 public class DatabaseRegistry {
 

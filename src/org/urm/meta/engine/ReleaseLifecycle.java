@@ -9,13 +9,15 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.BlotterService.BlotterType;
 import org.urm.engine.blotter.EngineBlotterReleaseItem;
 import org.urm.engine.blotter.EngineBlotterSet;
-import org.urm.engine.blotter.EngineBlotter.BlotterType;
-import org.urm.engine.dist.Release;
+import org.urm.engine.data.EngineLifecycles;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.meta.EngineObject;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaProductPolicy;
+import org.urm.meta.release.Release;
 
 public class ReleaseLifecycle extends EngineObject {
 
@@ -226,13 +228,10 @@ public class ReleaseLifecycle extends EngineObject {
 		EngineBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
 		if( item == null )
 			return( null );
-		
-		String LIFECYCLE = item.repoItem.dist.release.schedule.LIFECYCLE;
-		if( LIFECYCLE.isEmpty() )
-			return( null );
-		
-		EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
-		ReleaseLifecycle lc = lifecycles.findLifecycle( LIFECYCLE );
+
+		DBEnumLifecycleType lctype = VersionInfo.getLifecycleTypeByShortVersion( item.repoItem.dist.release.RELEASEVER );
+		MetaProductPolicy policy = meta.getPolicy();
+		ReleaseLifecycle lc = policy.findLifecycle( action , lctype );
 		if( lc == null )
 			return( null );
 		

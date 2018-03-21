@@ -10,7 +10,6 @@ import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
@@ -21,6 +20,7 @@ import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.release.ReleaseDelivery;
 
 public class ActionApplyAutomatic extends ActionBase {
 

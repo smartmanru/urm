@@ -3,9 +3,12 @@ package org.urm.db;
 // all queries executed versus database
 public abstract class DBQueries {
 
-	public static String FILTER_META_ID1 = "where meta_id = @1@";
-	public static String FILTER_META_FK2 = "where meta_fkid = @1@ or meta_fkname = @2@";
-	public static String FILTER_ENV_ID1 = "where env_id = @1@";
+	public static String FILTER_META_ID1 = "meta_id = @1@";
+	public static String FILTER_META_FK2 = "meta_fkid = @1@ or meta_fkname = @2@";
+	public static String FILTER_ENV_ID1 = "env_id = @1@";
+	public static String FILTER_REL_META1 = "release_id in ( select release_id from urm_rel_repository a , urm_rel_main b where a.repo_id = b.repo_id and a.meta_fkid = @1@ )";
+	public static String FILTER_REL_MAINMETA1 = "repo_id in ( select repo_id from urm_rel_repository where meta_fkid = @1@ )";
+	public static String FILTER_REL_REPOMETA1 = "meta_fkid = @1@";
 	
 	public static String QUERY_SEQ_GETNEXTVAL0 = "select nextval( 'urm_object_seq' )";
 
@@ -161,5 +164,7 @@ public abstract class DBQueries {
 	public static String MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPITEMS1 = "delete from urm_env_startgroup_server where startgroup_id in ( select startgroup_id from urm_env_startgroup where segment_id = @1@ )";
 	public static String MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPS1 = "delete from urm_env_startgroup where segment_id = @1@";
 	public static String MODIFY_ENV_CASCADESERVER_ALLDEPLOYMENTS1 = "delete from urm_env_deployment where server_id = @1@";
+
+	public static String MODIFY_REL_REPO_MATCHMETA2 = "update urm_rel_repository set meta_fkid = @1@ , meta_fkname = null where meta_fkid is null and meta_fkname = @2@";
 	
 }

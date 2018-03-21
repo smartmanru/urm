@@ -15,10 +15,10 @@ import org.urm.db.core.DBEnumInterface;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
+import org.urm.engine.data.EngineResources;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AuthResource;
-import org.urm.meta.engine.EngineResources;
 
 public class PropertyEntity {
 

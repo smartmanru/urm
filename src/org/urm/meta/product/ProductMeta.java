@@ -5,14 +5,15 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.Engine;
-import org.urm.engine.EngineSession;
+import org.urm.engine.data.EngineProducts;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.properties.ObjectProperties;
+import org.urm.engine.session.EngineSession;
 import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
+import org.urm.meta.release.ProductReleases;
 
 public class ProductMeta extends EngineObject {
 
@@ -35,9 +36,8 @@ public class ProductMeta extends EngineObject {
 	private MetaDocs docs;
 	private MetaDistr distr;
 	private ProductEnvs envs;
+	private ProductReleases releases;
 
-	private DistRepository repo;
-	
 	private Map<EngineSession,Meta> sessionMeta;
 	private boolean primary;
 	
@@ -80,10 +80,10 @@ public class ProductMeta extends EngineObject {
 		r.docs = docs.copy( r.meta );
 		r.distr = distr.copy( r.meta );
 		
-		r.envs = envs.copy( action , r.meta );
+		r.envs = envs.copy( r.meta );
 		r.envs.copyResolveExternals();
 		
-		r.repo = repo.copy( action , r.meta );
+		r.releases = releases.copy( r.meta );
 		return( r );
 	}
 
@@ -129,7 +129,7 @@ public class ProductMeta extends EngineObject {
 	}
 	
 	public DistRepository getDistRepository() {
-		return( repo );
+		return( releases.getDistRepository() );
 	}
 	
 	public void setVersion( MetaProductVersion version ) throws Exception {
@@ -168,8 +168,8 @@ public class ProductMeta extends EngineObject {
 		this.envs = envs;
 	}
 
-	public void setReleases( DistRepository repo ) throws Exception {
-		this.repo = repo;
+	public void setReleases( ProductReleases releases ) throws Exception {
+		this.releases = releases;
 	}
 	
 	public MetaProductVersion getVersion() {
@@ -206,6 +206,10 @@ public class ProductMeta extends EngineObject {
 	
 	public ProductEnvs getEnviroments() {
 		return( envs );
+	}
+
+	public ProductReleases getReleases() {
+		return( releases );
 	}
 
 	public boolean isMatched() {

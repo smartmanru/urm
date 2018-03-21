@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.dist.ReleaseTarget;
-import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
@@ -19,6 +17,8 @@ import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
+import org.urm.meta.release.ReleaseScopeTarget;
+import org.urm.meta.release.ReleaseScopeItem;
 
 public class ActionScopeTarget {
 
@@ -27,7 +27,7 @@ public class ActionScopeTarget {
 	
 	public DBEnumScopeCategoryType CATEGORY; 
 	public String NAME;
-	public ReleaseTarget releaseTarget;
+	public ReleaseScopeTarget releaseTarget;
 	public MetaSourceProject sourceProject;
 	public MetaDistrDelivery delivery;
 	
@@ -65,7 +65,7 @@ public class ActionScopeTarget {
 		return( target );
 	}
 	
-	public static ActionScopeTarget createReleaseSourceProjectTarget( ActionScopeSet set , ReleaseTarget releaseProject , boolean specifiedExplicitly ) {
+	public static ActionScopeTarget createReleaseSourceProjectTarget( ActionScopeSet set , ReleaseScopeTarget releaseProject , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 		target.NAME = releaseProject.NAME;
 		target.releaseTarget = releaseProject;
@@ -75,7 +75,7 @@ public class ActionScopeTarget {
 		return( target );
 	}
 
-	public static ActionScopeTarget createReleaseDeliveryTarget( ActionScopeSet set , ReleaseTarget releaseTarget , boolean specifiedExplicitly ) {
+	public static ActionScopeTarget createReleaseDeliveryTarget( ActionScopeSet set , ReleaseScopeTarget releaseTarget , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 		target.NAME = releaseTarget.NAME;
 		target.releaseTarget = releaseTarget;
@@ -237,7 +237,7 @@ public class ActionScopeTarget {
 	private void addReleaseProjectItems( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			itemFull = true;
-			for( ReleaseTargetItem item : releaseTarget.getItems() )
+			for( ReleaseScopeItem item : releaseTarget.getItems() )
 				addItem( action , item , false );
 			return;
 		}
@@ -246,7 +246,7 @@ public class ActionScopeTarget {
 		for( String itemName : ITEMS ) {
 			MetaSourceProjectItem item = project.getItem( itemName );
 			
-			ReleaseTargetItem releaseItem = releaseTarget.findProjectItem( item );
+			ReleaseScopeItem releaseItem = releaseTarget.findProjectItem( item );
 			if( releaseItem != null )
 				addItem( action , releaseItem , true );
 			else
@@ -283,7 +283,7 @@ public class ActionScopeTarget {
 	private void addReleaseDatabaseSchemes( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			itemFull = true;
-			for( ReleaseTargetItem item : releaseTarget.getItems() )
+			for( ReleaseScopeItem item : releaseTarget.getItems() )
 				addItem( action , item , false );
 			return;
 		}
@@ -292,7 +292,7 @@ public class ActionScopeTarget {
 		for( String itemName : ITEMS ) {
 			MetaDatabaseSchema item = delivery.getSchema( itemName );
 			
-			ReleaseTargetItem releaseItem = releaseTarget.findDeliverySchema( item );
+			ReleaseScopeItem releaseItem = releaseTarget.findDeliverySchema( item );
 			if( releaseItem != null )
 				addItem( action , releaseItem , true );
 			else
@@ -329,7 +329,7 @@ public class ActionScopeTarget {
 	private void addReleaseDocs( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			itemFull = true;
-			for( ReleaseTargetItem item : releaseTarget.getItems() )
+			for( ReleaseScopeItem item : releaseTarget.getItems() )
 				addItem( action , item , false );
 			return;
 		}
@@ -338,7 +338,7 @@ public class ActionScopeTarget {
 		for( String itemName : ITEMS ) {
 			MetaProductDoc item = delivery.getDoc( itemName );
 			
-			ReleaseTargetItem releaseItem = releaseTarget.findDeliveryDoc( item );
+			ReleaseScopeItem releaseItem = releaseTarget.findDeliveryDoc( item );
 			if( releaseItem != null )
 				addItem( action , releaseItem , true );
 			else
@@ -351,7 +351,7 @@ public class ActionScopeTarget {
 		items.add( scopeItem );
 	}
 	
-	public void addItem( ActionBase action , ReleaseTargetItem item , boolean specifiedExplicitly ) throws Exception {
+	public void addItem( ActionBase action , ReleaseScopeItem item , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createReleaseTargetItem( this , item , specifiedExplicitly );
 		items.add( scopeItem );
 	}

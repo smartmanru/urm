@@ -13,7 +13,7 @@ import org.urm.db.core.DBEnums.DBEnumOwnerStatusType;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.engine.Engine;
-import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.data.EngineEntities;
 import org.urm.meta.OwnerObjectVersion;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.env.MetaEnv;

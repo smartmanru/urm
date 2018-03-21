@@ -4,13 +4,13 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.Engine;
-import org.urm.engine.EngineSession;
+import org.urm.engine.DataService;
+import org.urm.engine.data.EngineProducts;
 import org.urm.engine.dist.DistRepository;
-import org.urm.meta.EngineData;
+import org.urm.engine.session.EngineSession;
 import org.urm.meta.EngineObject;
 import org.urm.meta.Types.*;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.env.MetaMonitoring;
@@ -280,7 +280,7 @@ public class Meta extends EngineObject {
 		return( schema.ID );
 	}
 
-	public EngineData getEngineData() {
+	public DataService getEngineData() {
 		return( engine.getData() );
 	}
 	

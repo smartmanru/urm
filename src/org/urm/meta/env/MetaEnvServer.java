@@ -8,11 +8,12 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.DataService;
+import org.urm.engine.data.EngineBase;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.BaseItem;
-import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
@@ -22,7 +23,6 @@ import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.MatchItem;
 
@@ -769,7 +769,7 @@ public class MetaEnvServer extends EngineObject {
 	}
 
 	public BaseItem getBaseItem() throws Exception {
-		EngineData data = meta.getEngineData();
+		DataService data = meta.getEngineData();
 		EngineBase base = data.getEngineBase();
 		return( base.getItem( BASEITEM ) );
 	}

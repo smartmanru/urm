@@ -9,14 +9,14 @@ import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamValueSubType;
 import org.urm.db.core.DBEnums.DBEnumParamValueType;
 import org.urm.db.core.DBSettings;
-import org.urm.engine.TransactionBase;
-import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.properties.PropertyValue;
+import org.urm.engine.transaction.TransactionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -120,7 +120,7 @@ public abstract class DBEngineEntities {
 	}
 
 	public static ResultSet listAppObjectsFiltered( DBConnection c , PropertyEntity entity , String filter , String[] args ) throws Exception {
-		String query = "select " + getFieldList( entity ) + " from " + entity.APP_TABLE + " " + filter; 
+		String query = "select " + getFieldList( entity ) + " from " + entity.APP_TABLE + " where " + filter; 
 		ResultSet rs = c.query( query , args );
 		return( rs );
 	}
@@ -151,6 +151,12 @@ public abstract class DBEngineEntities {
 	public static void dropAppObjects( DBConnection c , PropertyEntity entity ) throws Exception {
 		String query = "delete from " + entity.APP_TABLE;
 		if( !c.modify( query ) )
+			Common.exitUnexpected();
+	}
+	
+	public static void dropAppObjects( DBConnection c , PropertyEntity entity , String filter , String[] args ) throws Exception {
+		String query = "delete from " + entity.APP_TABLE + " where " + filter;
+		if( !c.modify( query , args ) )
 			Common.exitUnexpected();
 	}
 	

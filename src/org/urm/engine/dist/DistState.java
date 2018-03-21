@@ -12,6 +12,7 @@ import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.release.Release;
 
 public class DistState {
 

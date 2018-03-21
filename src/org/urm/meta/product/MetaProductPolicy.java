@@ -2,8 +2,9 @@ package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumLifecycleType;
+import org.urm.engine.data.EngineLifecycles;
 import org.urm.meta.MatchItem;
-import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.ReleaseLifecycle;
 
 public class MetaProductPolicy {
@@ -99,4 +100,13 @@ public class MetaProductPolicy {
 		return( lc.ID );
 	}
 
+	public ReleaseLifecycle findLifecycle( ActionBase action , DBEnumLifecycleType lctype ) {
+		EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
+		if( lctype == DBEnumLifecycleType.MAJOR )
+			return( lifecycles.findLifecycle( LC_MAJOR ) ); 
+		if( lctype == DBEnumLifecycleType.MINOR )
+			return( lifecycles.findLifecycle( LC_MINOR ) );
+		return( null );
+	}
+	
 }

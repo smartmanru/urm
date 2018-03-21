@@ -5,7 +5,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.urm.common.Common;
-import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.data.EngineBase;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
 import org.urm.db.core.DBEnums.*;

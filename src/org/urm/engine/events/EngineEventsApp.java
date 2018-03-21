@@ -3,17 +3,19 @@ package org.urm.engine.events;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.engine.EventService;
+
 // sync order: source -> app -> listener,subscription
 
 public class EngineEventsApp {
 
-	EngineEvents events;
-	String appId;
-	boolean closed;
+	EventService events;
+	public String appId;
+	public boolean closed;
 
 	private List<EngineEventsSubscription> subs;
 	
-	EngineEventsApp( EngineEvents events , String appId ) {
+	public EngineEventsApp( EventService events , String appId ) {
 		this.events = events;
 		this.appId = appId;
 		

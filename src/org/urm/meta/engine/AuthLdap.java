@@ -14,6 +14,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.urm.common.Common;
+import org.urm.engine.AuthService;
+import org.urm.engine.data.EngineResources;
 import org.urm.engine.properties.ObjectProperties;
 
 public class AuthLdap {
@@ -30,7 +32,7 @@ public class AuthLdap {
 	public static String PROPERTY_EMAILATTR = "emailattr";
 	public static String PROPERTY_PASSWORDATTR = "passwordattr";
 	
-	EngineAuth auth;
+	AuthService auth;
 	
 	public boolean ldapUse;
 	public String ldapHost;
@@ -55,7 +57,7 @@ public class AuthLdap {
 
 	ObjectProperties props;
 	
-	public AuthLdap( EngineAuth auth ) {
+	public AuthLdap( AuthService auth ) {
 		this.auth = auth;
 		ldapStarted = false;
 		ldapFailed = false;

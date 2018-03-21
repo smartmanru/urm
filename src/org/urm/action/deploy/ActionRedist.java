@@ -7,7 +7,6 @@ import org.urm.action.ActionScopeTargetItem;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumItemOriginType;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -23,6 +22,7 @@ import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.release.ReleaseScopeTarget;
 import org.urm.meta.Types.*;
 
 public class ActionRedist extends ActionBase {
@@ -223,7 +223,7 @@ public class ActionRedist extends ActionBase {
 	}
 	
 	private boolean executeNodeConfigComp( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder liveFolder ) throws Exception {
-		ReleaseTarget target = dist.release.findConfComponent( this , confItem.NAME );
+		ReleaseScopeTarget target = dist.release.findConfComponent( this , confItem.NAME );
 		
 		// not in release
 		if( target == null ) {

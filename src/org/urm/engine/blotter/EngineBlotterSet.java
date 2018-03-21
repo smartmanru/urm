@@ -5,31 +5,32 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.action.codebase.ActionPatch;
+import org.urm.engine.BlotterService;
+import org.urm.engine.EventService;
+import org.urm.engine.BlotterService.BlotterEvent;
+import org.urm.engine.BlotterService.BlotterType;
 import org.urm.engine.action.ActionInit;
-import org.urm.engine.blotter.EngineBlotter.BlotterEvent;
-import org.urm.engine.blotter.EngineBlotter.BlotterType;
+import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepository.DistOperation;
-import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.dist.DistRepositoryItem;
-import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.ProductMeta;
 
 public class EngineBlotterSet extends EngineEventsSource {
 
-	public EngineBlotter blotter;
+	public BlotterService blotter;
 	public BlotterType type;
 	
 	private Map<String,EngineBlotterItem> items;
 	private Map<String,EngineBlotterMemo> memos;
 	private EngineBlotterStat stat;
 	
-	public EngineBlotterSet( EngineBlotter blotter , BlotterType type , EngineEvents events , String setId ) {
+	public EngineBlotterSet( BlotterService blotter , BlotterType type , EventService events , String setId ) {
 		super( events , setId );
 		this.blotter = blotter;
 		this.type = type;
@@ -152,12 +153,12 @@ public class EngineBlotterSet extends EngineEventsSource {
 	
 	public void notifyItem( EngineBlotterItem item , BlotterEvent event ) {
 		EngineBlotterEvent data = new EngineBlotterEvent( item , event );
-		super.notify( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_BLOTTEREVENT , data );
+		super.notify( EventService.OWNER_ENGINE , EventService.EVENT_BLOTTEREVENT , data );
 	}
 	
 	public void notifyChildItem( EngineBlotterItem baseItem , EngineBlotterTreeItem treeItem , BlotterEvent event ) {
 		EngineBlotterEvent data = new EngineBlotterEvent( baseItem , treeItem , event );
-		super.notify( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_BLOTTEREVENT , data );
+		super.notify( EventService.OWNER_ENGINE , EventService.EVENT_BLOTTEREVENT , data );
 	}
 	
 	public synchronized void startChildAction( EngineBlotterActionItem baseItem , EngineBlotterTreeItem treeItem ) {

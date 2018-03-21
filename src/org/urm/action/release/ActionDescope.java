@@ -8,9 +8,9 @@ import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.release.ReleaseScopeItem;
 
 public class ActionDescope extends ActionBase {
 
@@ -37,12 +37,12 @@ public class ActionDescope extends ActionBase {
 			return( SCOPESTATE.RunSuccess );
 		}
 		
-		List<ReleaseTargetItem> items = new LinkedList<ReleaseTargetItem>();
+		List<ReleaseScopeItem> items = new LinkedList<ReleaseScopeItem>();
 		for( ActionScopeTargetItem item : target.getItems( this ) )
 			items.add( item.releaseItem );
 		
 		dist.reloadCheckOpenedForDataChange( this );
-		dist.descopeTargetItems( this , items.toArray( new ReleaseTargetItem[0] ) );
+		dist.descopeTargetItems( this , items.toArray( new ReleaseScopeItem[0] ) );
 		
 		return( SCOPESTATE.RunSuccess );
 	}

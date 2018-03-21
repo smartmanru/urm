@@ -4,10 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.TransactionBase;
-import org.urm.engine.events.EngineEvents;
-import org.urm.engine.status.EngineStatus.StatusType;
+import org.urm.engine.EventService;
+import org.urm.engine.StateService;
+import org.urm.engine.StateService.StatusType;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
@@ -20,14 +21,14 @@ import org.urm.meta.product.ProductMeta;
 
 public class EngineStatusProduct extends EngineObject {
 
-	EngineStatus engineStatus;
-	EngineEvents events;
-	AppProduct product;
+	StateService engineStatus;
+	EventService events;
+	public AppProduct product;
 	Meta meta;
 	
 	private Map<EngineObject,StatusSource> productSources;
 	
-	public EngineStatusProduct( EngineStatus engineStatus , AppProduct product , Meta meta ) {
+	public EngineStatusProduct( StateService engineStatus , AppProduct product , Meta meta ) {
 		super( engineStatus );
 		this.product = product;
 		this.meta = meta;
@@ -297,8 +298,8 @@ public class EngineStatusProduct extends EngineObject {
 	}
 	
 	private void processSegmentItems( ActionBase action , StatusSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
-		sgSource.setExtraLog( EngineStatus.EXTRA_SEGMENT_ITEMS , status.getLog() );
-		if( sgSource.setExtraState( EngineStatus.EXTRA_SEGMENT_ITEMS , status.itemState , status ) ) {
+		sgSource.setExtraLog( StateService.EXTRA_SEGMENT_ITEMS , status.getLog() );
+		if( sgSource.setExtraState( StateService.EXTRA_SEGMENT_ITEMS , status.itemState , status ) ) {
 			MetaEnv env = sg.env;
 			recalculateEnv( action , env );
 		}
@@ -313,8 +314,8 @@ public class EngineStatusProduct extends EngineObject {
 	}
 	
 	private void processServerItems( ActionBase action , StatusSource serverSource , MetaEnvServer server , ServerStatus status ) {
-		serverSource.setExtraLog( EngineStatus.EXTRA_SERVER_ITEMS , status.getLog() );
-		if( serverSource.setExtraState( EngineStatus.EXTRA_SERVER_ITEMS , status.itemState , status ) ) {
+		serverSource.setExtraLog( StateService.EXTRA_SERVER_ITEMS , status.getLog() );
+		if( serverSource.setExtraState( StateService.EXTRA_SERVER_ITEMS , status.itemState , status ) ) {
 			MetaEnvSegment sg = server.sg;
 			recalculateSegment( action , sg );
 		}
@@ -329,8 +330,8 @@ public class EngineStatusProduct extends EngineObject {
 	}
 	
 	private void processServerNodeItems( ActionBase action , StatusSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
-		nodeSource.setExtraLog( EngineStatus.EXTRA_NODE_ITEMS , status.getLog() );
-		if( nodeSource.setExtraState( EngineStatus.EXTRA_NODE_ITEMS , status.itemState , status ) ) {
+		nodeSource.setExtraLog( StateService.EXTRA_NODE_ITEMS , status.getLog() );
+		if( nodeSource.setExtraState( StateService.EXTRA_NODE_ITEMS , status.itemState , status ) ) {
 			MetaEnvServer server = node.server;
 			recalculateServer( action , server );
 		}

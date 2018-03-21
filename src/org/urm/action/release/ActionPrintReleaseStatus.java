@@ -8,14 +8,7 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
-import org.urm.engine.dist.Release;
-import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.dist.ReleaseMasterItem;
-import org.urm.engine.dist.ReleaseSchedule;
-import org.urm.engine.dist.ReleaseSchedulePhase;
-import org.urm.engine.dist.ReleaseSet;
-import org.urm.engine.dist.ReleaseTarget;
-import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
@@ -23,6 +16,13 @@ import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseDelivery;
+import org.urm.meta.release.ReleaseSchedule;
+import org.urm.meta.release.ReleaseSchedulePhase;
+import org.urm.meta.release.ReleaseScopeSet;
+import org.urm.meta.release.ReleaseScopeTarget;
+import org.urm.meta.release.ReleaseScopeItem;
 
 public class ActionPrintReleaseStatus extends ActionBase {
 
@@ -56,7 +56,6 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		
 		if( !dist.isMaster() ) {
 			info( "SCHEDULE:" );
-			info( "\trelease lifecycle: " + schedule.LIFECYCLE );
 			info( "\trelease date: " + Common.getDateValue( schedule.releaseDate ) );
 			
 			ReleaseSchedulePhase phase = schedule.getCurrentPhase();
@@ -87,7 +86,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 				printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
 			
 			for( DBEnumScopeCategoryType CATEGORY : DBEnumScopeCategoryType.getAllReleaseCategories() ) {
-				ReleaseSet set = release.findCategorySet( CATEGORY );
+				ReleaseScopeSet set = release.findCategorySet( CATEGORY );
 				if( set != null )
 					printReleaseCategorySetStatus( dist , files , set );
 			}
@@ -122,7 +121,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		}
 	}
 	
-	private void printReleaseSourceSetStatus( Dist dist , FileSet files , ReleaseSet set ) throws Exception {
+	private void printReleaseSourceSetStatus( Dist dist , FileSet files , ReleaseScopeSet set ) throws Exception {
 		if( set.isEmpty() )
 			return;
 		
@@ -132,12 +131,12 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			info( "\t(no items)" );
 			
 		for( String key : set.getTargetNames() ) {
-			ReleaseTarget project = set.findTarget( key );
+			ReleaseScopeTarget project = set.findTarget( key );
 			printReleaseBuildSetProjectStatus( dist , files , set , project );
 		}
 	}
 
-	private void printReleaseCategorySetStatus( Dist dist , FileSet files , ReleaseSet set ) throws Exception {
+	private void printReleaseCategorySetStatus( Dist dist , FileSet files , ReleaseScopeSet set ) throws Exception {
 		if( set.isEmpty() )
 			return;
 		
@@ -145,7 +144,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		info( "SCOPE SET=" + Common.getEnumLower( set.CATEGORY ) + ":" );
 		
 		for( String key : set.getTargetNames() ) {
-			ReleaseTarget target = set.findTarget( key );
+			ReleaseScopeTarget target = set.findTarget( key );
 			
 			if( set.CATEGORY == DBEnumScopeCategoryType.CONFIG )
 				printReleaseConfStatus( dist , files , target );
@@ -163,7 +162,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		}
 	}
 
-	private void printReleaseBuildSetProjectStatus( Dist dist , FileSet files , ReleaseSet set , ReleaseTarget project ) throws Exception {
+	private void printReleaseBuildSetProjectStatus( Dist dist , FileSet files , ReleaseScopeSet set , ReleaseScopeTarget project ) throws Exception {
 		String specifics = project.getSpecifics();
 		if( project.isBuildableProject() ) {
 			if( project.sourceProject.isEmpty( this ) ) {
@@ -192,12 +191,12 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			exitUnexpectedCategory( set.CATEGORY );
 		
 		for( String key : project.getItemNames() ) {
-			ReleaseTargetItem item = project.findItem( key );
+			ReleaseScopeItem item = project.findItem( key );
 			printReleaseBuildSetProjectItemStatus( dist , files , set , project , item );
 		}
 	}
 
-	private void printReleaseBuildSetProjectItemStatus( Dist dist , FileSet files , ReleaseSet set , ReleaseTarget project , ReleaseTargetItem item ) throws Exception {
+	private void printReleaseBuildSetProjectItemStatus( Dist dist , FileSet files , ReleaseScopeSet set , ReleaseScopeTarget project , ReleaseScopeItem item ) throws Exception {
 		String specifics = item.getSpecifics( this );
 		MetaDistrBinaryItem distItem = item.distItem;
 		DistItemInfo info = dist.getDistItemInfo( this , distItem , false , true );
@@ -207,7 +206,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		info( "\t\tdistitem=" + distItem.NAME + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
-	private void printReleaseConfStatus( Dist dist , FileSet files , ReleaseTarget conf ) throws Exception {
+	private void printReleaseConfStatus( Dist dist , FileSet files , ReleaseScopeTarget conf ) throws Exception {
 		String specifics = conf.getSpecifics();
 		DistItemInfo info = dist.getDistItemInfo( this , conf.distConfItem );
 		String folder = Common.getPath( info.subPath , info.fileName );
@@ -216,7 +215,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		info( "\t\tconfitem=" + conf.distConfItem.NAME + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
 	}
 
-	private void printReleaseManualStatus( Dist dist , FileSet files , ReleaseTarget manual ) throws Exception {
+	private void printReleaseManualStatus( Dist dist , FileSet files , ReleaseScopeTarget manual ) throws Exception {
 		String specifics = manual.getSpecifics();
 		DistItemInfo info = dist.getDistItemInfo( this , manual.distManualItem , false , true );
 		String folder = Common.getPath( info.subPath , info.fileName );
@@ -226,9 +225,9 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		info( "\t\tdistitem=" + manual.distManualItem.NAME + ": " + status + Common.getCommentIfAny( specifics ) );
 	}
 
-	private void printReleaseDocStatus( Dist dist , FileSet files , ReleaseTarget items ) throws Exception {
+	private void printReleaseDocStatus( Dist dist , FileSet files , ReleaseScopeTarget items ) throws Exception {
 		for( String name : items.getItemNames() ) {
-			ReleaseTargetItem item = items.findItem( name );
+			ReleaseScopeItem item = items.findItem( name );
 			DistItemInfo info = dist.getDistItemInfo( this , items.distDelivery , item.doc , false , true );
 			
 			String folder = Common.getPath( info.subPath , info.fileName );
@@ -239,7 +238,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		}
 	}
 
-	private void printReleaseDatabaseStatus( Dist dist , FileSet files , ReleaseTarget db ) throws Exception {
+	private void printReleaseDatabaseStatus( Dist dist , FileSet files , ReleaseScopeTarget db ) throws Exception {
 		MetaDistrDelivery delivery = db.distDelivery;
 
 		if( dist.release.isCumulative() ) {
@@ -261,13 +260,13 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			info( "\tdelivery=" + delivery.NAME + ": " + status + Common.getCommentIfAny( folder ) );
 			
 			for( String key : db.getItemNames() ) {
-				ReleaseTargetItem item = db.findItem( key );
+				ReleaseScopeItem item = db.findItem( key );
 				printReleaseDatabaseSchemaStatus( dist , dbset , db , item );
 			}
 		}
 	}
 
-	private void printReleaseDatabaseSchemaStatus( Dist dist , FileSet files , ReleaseTarget project , ReleaseTargetItem item ) throws Exception {
+	private void printReleaseDatabaseSchemaStatus( Dist dist , FileSet files , ReleaseScopeTarget project , ReleaseScopeItem item ) throws Exception {
 		String specifics = item.getSpecifics( this );
 		MetaDatabaseSchema schema = item.schema;
 		boolean found = DatabaseScriptFile.checkDistHasSchemaFiles( files , schema );

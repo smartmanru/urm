@@ -4,14 +4,14 @@ import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
-import org.urm.engine.EngineTransaction;
+import org.urm.engine.AuthService;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.data.EngineMirrors;
+import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
-import org.urm.meta.engine.EngineAuth;
-import org.urm.meta.engine.EngineDirectory;
-import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.product.ProductMeta;
 
 public class DBEngineProducts {
@@ -59,7 +59,7 @@ public class DBEngineProducts {
 	public static void deleteProduct( EngineTransaction transaction , AppProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		ActionInit action = transaction.getAction();
-		EngineAuth auth = action.getServerAuth();
+		AuthService auth = action.getServerAuth();
 		EngineMirrors mirrors = action.getActiveMirrors();
 		ProductMeta storage = product.storage;
 

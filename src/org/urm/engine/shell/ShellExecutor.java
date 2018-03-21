@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.ShellService;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
@@ -38,7 +39,7 @@ public abstract class ShellExecutor extends Shell {
 	abstract public boolean start( ActionBase action ) throws Exception;
 
 	// construction and administration
-	protected ShellExecutor( int id , String name , EngineShellPool pool , Account account , String rootPath , Folder tmpFolder , boolean dedicated ) {
+	protected ShellExecutor( int id , String name , ShellService pool , Account account , String rootPath , Folder tmpFolder , boolean dedicated ) {
 		super( id , name , pool , account );
 		this.rootPath = rootPath;
 		this.tmpFolder = tmpFolder;
@@ -64,13 +65,13 @@ public abstract class ShellExecutor extends Shell {
 		return( false );
 	}
 	
-	public static ShellExecutor getLocalShellExecutor( ActionBase action , int id , String name , EngineShellPool pool , String rootPath , Folder tmpFolder , boolean dedicated ) throws Exception {
+	public static ShellExecutor getLocalShellExecutor( ActionBase action , int id , String name , ShellService pool , String rootPath , Folder tmpFolder , boolean dedicated ) throws Exception {
 		ShellExecutor executor = new LocalShellExecutor( id , name , pool , rootPath , tmpFolder , dedicated );
 		executor.coreHidden = ShellCore.createShellCore( action, executor , action.context.account.osType , true );
 		return( executor );
 	}
 
-	public static ShellExecutor getRemoteShellExecutor( ActionBase action , int id , String name , EngineShellPool pool , Account account , AuthResource auth , boolean dedicated ) throws Exception {
+	public static ShellExecutor getRemoteShellExecutor( ActionBase action , int id , String name , ShellService pool , Account account , AuthResource auth , boolean dedicated ) throws Exception {
 		RedistStorage storage = action.artefactory.getRedistStorage( action , account );
 		Folder tmpFolder = storage.getRedistTmpFolder( action );
 

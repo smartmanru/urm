@@ -8,10 +8,11 @@ import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseScriptFile;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.blotter.EngineBlotter;
+import org.urm.engine.BlotterService;
+import org.urm.engine.BlotterService.BlotterType;
 import org.urm.engine.blotter.EngineBlotterReleaseItem;
 import org.urm.engine.blotter.EngineBlotterSet;
-import org.urm.engine.blotter.EngineBlotter.BlotterType;
+import org.urm.engine.data.EngineLifecycles;
 import org.urm.engine.dist.DistState.DISTSTATE;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
@@ -20,7 +21,6 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.MatchItem;
 import org.urm.meta.engine.ReleaseLifecycle;
-import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.env.MetaEnvServerLocation;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -33,6 +33,11 @@ import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseDelivery;
+import org.urm.meta.release.ReleaseScopeSet;
+import org.urm.meta.release.ReleaseScopeTarget;
+import org.urm.meta.release.ReleaseScopeItem;
 import org.w3c.dom.Document;
 
 public class Dist {
@@ -316,7 +321,7 @@ public class Dist {
 		distFolder.copyDirContentToLocal( action , localFolder , confFolder );
 	}
 	
-	public boolean copyDistConfToFolder( ActionBase action , ReleaseTarget confTarget , LocalFolder parentFolder ) throws Exception {
+	public boolean copyDistConfToFolder( ActionBase action , ReleaseScopeTarget confTarget , LocalFolder parentFolder ) throws Exception {
 		if( !openedForUse )
 			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
@@ -762,8 +767,8 @@ public class Dist {
 		state.ctlReloadCheckOpenedForDataChange( action );
 	}
 	
-	public void descopeSet( ActionBase action , ReleaseSet set ) throws Exception {
-		for( ReleaseTarget target : set.getTargets() )
+	public void descopeSet( ActionBase action , ReleaseScopeSet set ) throws Exception {
+		for( ReleaseScopeTarget target : set.getTargets() )
 			dropTarget( action , target );
 		
 		if( set.CATEGORY.isSourceCategory() )
@@ -773,17 +778,17 @@ public class Dist {
 	}
 
 	public void descopeAllProjects( ActionBase action ) throws Exception {
-		for( ReleaseSet set : release.getSourceSets() )
+		for( ReleaseScopeSet set : release.getSourceSets() )
 			descopeSet( action , set );
 	}
 	
-	public void descopeTarget( ActionBase action , ReleaseTarget target ) throws Exception {
+	public void descopeTarget( ActionBase action , ReleaseScopeTarget target ) throws Exception {
 		dropTarget( action , target );
 		release.deleteTarget( action , target );
 	}
 	
-	public void descopeTargetItems( ActionBase action , ReleaseTargetItem[] items ) throws Exception {
-		for( ReleaseTargetItem item : items ) {
+	public void descopeTargetItems( ActionBase action , ReleaseScopeItem[] items ) throws Exception {
+		for( ReleaseScopeItem item : items ) {
 			dropTargetItem( action , item );
 			if( item.isBinary() )
 				release.deleteProjectItem( action , item );
@@ -793,7 +798,7 @@ public class Dist {
 		}
 	}
 	
-	private void dropTarget( ActionBase action , ReleaseTarget target ) throws Exception {
+	private void dropTarget( ActionBase action , ReleaseScopeTarget target ) throws Exception {
 		if( target.CATEGORY == DBEnumScopeCategoryType.CONFIG ) {
 			String folder = getDeliveryConfFolder( action , target.distConfItem.delivery );
 			distFolder.removeFolder( action , folder );
@@ -814,12 +819,12 @@ public class Dist {
 			distFolder.removeFolderContent( action , folder );
 		}
 		else {
-			for( ReleaseTargetItem item : target.getItems() )
+			for( ReleaseScopeItem item : target.getItems() )
 				dropTargetItem( action , item );
 		}
 	}
 
-	private void dropTargetItem( ActionBase action , ReleaseTargetItem item ) throws Exception {
+	private void dropTargetItem( ActionBase action , ReleaseScopeItem item ) throws Exception {
 		if( item.isBinary() ) {
 			String folder = getReleaseBinaryFolder( action , item.distItem );
 			distFolder.deleteVFile( action , folder , item.distItem.BASENAME_DIST , item.distItem.EXT );
@@ -846,21 +851,21 @@ public class Dist {
 			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL ) {
-			ReleaseTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.MANUAL , item.NAME );
+			ReleaseScopeTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.MANUAL , item.NAME );
 			if( target == null )
 				return( false );
 			return( true );
 		}
 		else
 		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
-			ReleaseTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.DERIVED , item.NAME );
+			ReleaseScopeTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.DERIVED , item.NAME );
 			if( target == null )
 				return( false );
 			return( checkIfReleaseItem( action , item.srcDistItem ) );
 		}
 		else 
 		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.BUILD ) {
-			ReleaseTarget target = release.findBuildProject( action , item.sourceProjectItem.project.NAME );
+			ReleaseScopeTarget target = release.findBuildProject( action , item.sourceProjectItem.project.NAME );
 			if( target == null )
 				return( false );
 			
@@ -880,7 +885,7 @@ public class Dist {
 			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
 		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL ) {
-			ReleaseTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.MANUAL , item.NAME );
+			ReleaseScopeTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.MANUAL , item.NAME );
 			if( target == null )
 				return( "" );
 			
@@ -891,7 +896,7 @@ public class Dist {
 		}
 		else
 		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
-			ReleaseTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.DERIVED , item.NAME );
+			ReleaseScopeTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.DERIVED , item.NAME );
 			if( target == null )
 				return( "" );
 			
@@ -902,11 +907,11 @@ public class Dist {
 		}
 		else
 		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.BUILD ) {
-			ReleaseTarget target = release.findBuildProject( action , item.sourceProjectItem.project.NAME );
+			ReleaseScopeTarget target = release.findBuildProject( action , item.sourceProjectItem.project.NAME );
 			if( target == null )
 				return( "" );
 			
-			ReleaseTargetItem targetItem = target.findDistItem( item );
+			ReleaseScopeItem targetItem = target.findDistItem( item );
 			if( targetItem == null )
 				return( "" );
 			
@@ -925,7 +930,7 @@ public class Dist {
 		if( !openedForUse )
 			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
-		ReleaseTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.DOC , doc.NAME );
+		ReleaseScopeTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.DOC , doc.NAME );
 		if( target == null )
 			return( "" );
 		
@@ -942,18 +947,18 @@ public class Dist {
 		for( ReleaseDelivery delivery : release.getDeliveries() ) {
 			FileSet deliveryFiles = files.getDirByPath( action , delivery.distDelivery.FOLDER );
 			
-			for( ReleaseTargetItem targetItem : delivery.getProjectItems() )
+			for( ReleaseScopeItem targetItem : delivery.getProjectItems() )
 				gatherDeliveryBinaryItem( action , delivery , deliveryFiles , targetItem );
 				
-			for( ReleaseTarget targetItem : delivery.getManualItems() )
+			for( ReleaseScopeTarget targetItem : delivery.getManualItems() )
 				gatherDeliveryManualItem( action , delivery , deliveryFiles , targetItem );
 			
-			for( ReleaseTargetItem targetItem : delivery.getDocItems() )
+			for( ReleaseScopeItem targetItem : delivery.getDocItems() )
 				gatherDeliveryDocItem( action , delivery , deliveryFiles , targetItem );
 		}
 	}
 
-	private void gatherDeliveryBinaryItem( ActionBase action , ReleaseDelivery delivery , FileSet deliveryFiles , ReleaseTargetItem targetItem ) throws Exception {
+	private void gatherDeliveryBinaryItem( ActionBase action , ReleaseDelivery delivery , FileSet deliveryFiles , ReleaseScopeItem targetItem ) throws Exception {
 		FileSet binaryFiles = null;
 		if( deliveryFiles != null )
 			binaryFiles = deliveryFiles.getDirByPath( action , BINARY_FOLDER );
@@ -965,7 +970,7 @@ public class Dist {
 		action.trace( "item=" + targetItem.distItem.NAME + ", file=" + ( ( fileName.isEmpty() )? "(missing)" : fileName ) );
 	}
 
-	private void gatherDeliveryDocItem( ActionBase action , ReleaseDelivery delivery , FileSet deliveryFiles , ReleaseTargetItem targetItem ) throws Exception {
+	private void gatherDeliveryDocItem( ActionBase action , ReleaseDelivery delivery , FileSet deliveryFiles , ReleaseScopeItem targetItem ) throws Exception {
 		FileSet docFiles = null;
 		if( deliveryFiles != null )
 			docFiles = deliveryFiles.getDirByPath( action , DOC_FOLDER );
@@ -977,7 +982,7 @@ public class Dist {
 		action.trace( "item=" + targetItem.doc.NAME + ", file=" + ( ( fileName.isEmpty() )? "(missing)" : fileName ) );
 	}
 
-	private void gatherDeliveryManualItem( ActionBase action , ReleaseDelivery delivery , FileSet deliveryFiles , ReleaseTarget targetItem ) throws Exception {
+	private void gatherDeliveryManualItem( ActionBase action , ReleaseDelivery delivery , FileSet deliveryFiles , ReleaseScopeTarget targetItem ) throws Exception {
 		FileSet binaryFiles = null;
 		if( deliveryFiles != null )
 			binaryFiles = deliveryFiles.getDirByPath( action , BINARY_FOLDER );
@@ -1206,7 +1211,7 @@ public class Dist {
 	}
 
 	public void finishStatus( ActionBase action ) throws Exception {
-		EngineBlotter blotter = action.getServerBlotter();
+		BlotterService blotter = action.getServerBlotter();
 		blotter.runDistStatus( action , meta , this );
 	}
 	
@@ -1215,9 +1220,9 @@ public class Dist {
 		src.gatherFiles( action );
 		
 		for( ReleaseDelivery delivery : src.release.getDeliveries() ) {
-			for( ReleaseTargetItem item : delivery.getProjectItems() )
+			for( ReleaseScopeItem item : delivery.getProjectItems() )
 				copyMasterItem( action , src , delivery , item.distItem , true );
-			for( ReleaseTarget item : delivery.getManualItems() )
+			for( ReleaseScopeTarget item : delivery.getManualItems() )
 				copyMasterItem( action , src , delivery , item.distManualItem , true );
 		}
 		
@@ -1227,9 +1232,9 @@ public class Dist {
 	public void appendMasterFiles( ActionBase action , Dist src ) throws Exception {
 		src.gatherFiles( action );
 		for( ReleaseDelivery delivery : src.release.getDeliveries() ) {
-			for( ReleaseTargetItem item : delivery.getProjectItems() )
+			for( ReleaseScopeItem item : delivery.getProjectItems() )
 				copyMasterItem( action , src , delivery , item.distItem , false );
-			for( ReleaseTarget item : delivery.getManualItems() )
+			for( ReleaseScopeTarget item : delivery.getManualItems() )
 				copyMasterItem( action , src , delivery , item.distManualItem , false );
 		}
 		

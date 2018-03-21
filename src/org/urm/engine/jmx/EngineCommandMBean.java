@@ -35,11 +35,12 @@ import org.urm.common.action.CommandVar;
 import org.urm.common.jmx.ActionNotification;
 import org.urm.common.jmx.RemoteCall;
 import org.urm.engine.Engine;
-import org.urm.engine.EngineSession;
-import org.urm.engine.SessionController;
-import org.urm.engine.SessionSecurity;
+import org.urm.engine.AuthService;
+import org.urm.engine.CallService;
+import org.urm.engine.SessionService;
+import org.urm.engine.session.EngineSession;
+import org.urm.engine.session.SessionSecurity;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.EngineAuth;
 
 public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster {
 
@@ -52,13 +53,13 @@ public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster
 	NotificationBroadcasterSupport broadcaster; 
 	MBeanNotificationInfo[] notifyInfo;
 	
-	public EngineJmx jmxServer;
-	public SessionController server;
+	public CallService jmxServer;
+	public SessionService server;
 	
 	public MBeanInfo mbean;
 	public CommandOptions options;
 	
-	public EngineCommandMBean( ActionBase action , Engine engine , EngineJmx jmxServer , AppProduct product , CommandMeta meta ) {
+	public EngineCommandMBean( ActionBase action , Engine engine , CallService jmxServer , AppProduct product , CommandMeta meta ) {
 		this.action = action;
 		this.engine = engine;
 		this.productName = product.NAME;
@@ -67,7 +68,7 @@ public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster
 		notificationSequence = 0;
 		broadcaster = new NotificationBroadcasterSupport();
 		
-		this.server = engine.sessionController;
+		this.server = engine.sessions;
 		this.jmxServer = jmxServer;
 	}
 
@@ -400,9 +401,9 @@ public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster
 		
 		RunContext clientrc = RunContext.copy( engine.execrc );
 		clientrc.product = productName;
-		EngineAuth auth = engine.getAuth();
+		AuthService auth = engine.getAuth();
 		SessionSecurity security = auth.createServerSecurity();
-		EngineSession session = engine.sessionController.createSession( security , clientrc , true );
+		EngineSession session = engine.sessions.createSession( security , clientrc , true );
 		if( !server.runWebJmx( session , meta , cmdopts ) )
 			return( -1 );
 		
@@ -430,12 +431,12 @@ public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster
 		String user = ( String )args[3];
 		String password = ( String )args[4];
 		
-		EngineAuth auth = engine.getAuth();
+		AuthService auth = engine.getAuth();
 		if( !auth.checkLogin( user , password ) )
 			return( -1 );
 		
 		SessionSecurity security = auth.createUserSecurity( user );
-		EngineSession sessionContext = engine.sessionController.createSession( security , data.clientrc , true );
+		EngineSession sessionContext = engine.sessions.createSession( security , data.clientrc , true );
 		action.debug( "operation invoked, sessionId=" + sessionContext.sessionId );
 		
 		RemoteServerCall thread = new RemoteServerCall( engine , sessionContext , clientId , this , actionName , data );

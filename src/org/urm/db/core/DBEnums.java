@@ -121,7 +121,8 @@ public abstract class DBEnums {
 		STRING(1,new String[] {"PROPERTY_STRING"}) ,
 		NUMBER(2,new String[] {"PROPERTY_NUMBER"}) ,
 		BOOL(3,new String[] {"PROPERTY_BOOL"}) ,
-		PATH(4,new String[] {"PROPERTY_PATH"});
+		DATE(4,new String[] {"PROPERTY_DATE"}) ,
+		PATH(5,new String[] {"PROPERTY_PATH"});
 
 		private final int value;
 		private String[] synonyms;
@@ -228,7 +229,17 @@ public abstract class DBEnums {
 		ENVIRONMENT_MONTARGET(162,null) ,
 		ENVIRONMENT_MONITEM(163,null) ,
 		RELEASE_REPOSITORY(201,null) ,
-		RELEASE_MAIN(202,null);
+		RELEASE_MAIN(202,null) ,
+		RELEASE_DIST(203,null) ,
+		RELEASE_TARGET(204,null) ,
+		RELEASE_SCOPESET(205,null) ,
+		RELEASE_SCOPETARGET(206,null) ,
+		RELEASE_SCOPEITEM(207,null) ,
+		RELEASE_SCHEDULE(208,null) ,
+		RELEASE_PHASE(209,null) ,
+		RELEASE_TICKETSET(210,null) ,
+		RELEASE_TICKETTARGET(211,null) ,
+		RELEASE_TICKET(212,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -757,7 +768,17 @@ public abstract class DBEnums {
 		ENV_NODE_PRIMARY(331,null) ,
 		ENV_NODE_CUSTOM(333,null) ,
 		RELEASE_REPOSITORY(401,null) ,
-		RELEASE_MAIN(402,null);
+		RELEASE_MAIN(402,null) ,
+		RELEASE_DIST(403,null) ,
+		RELEASE_TARGET(404,null) ,
+		RELEASE_SCOPESET(405,null) ,
+		RELEASE_SCOPETARGET(406,null) ,
+		RELEASE_SCOPEITEM(407,null) ,
+		RELEASE_SCHEDULE(408,null) ,
+		RELEASE_PHASE(409,null) ,
+		RELEASE_TICKETSET(410,null) ,
+		RELEASE_TICKETTARGET(411,null) ,
+		RELEASE_TICKET(412,null);
 
 		private final int value;
 		private String[] synonyms;

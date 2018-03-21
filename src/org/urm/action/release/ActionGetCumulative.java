@@ -3,14 +3,14 @@ package org.urm.action.release;
 import org.urm.action.ActionBase;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
-import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.dist.ReleaseTarget;
-import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.release.ReleaseDelivery;
+import org.urm.meta.release.ReleaseScopeTarget;
+import org.urm.meta.release.ReleaseScopeItem;
 
 public class ActionGetCumulative extends ActionBase {
 
@@ -69,11 +69,11 @@ public class ActionGetCumulative extends ActionBase {
 		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
 			if( delivery.hasDatabaseItems() )
 				copyDatabaseItems( cumdists , delivery );
-			for( ReleaseTargetItem item : delivery.getProjectItems() )
+			for( ReleaseScopeItem item : delivery.getProjectItems() )
 				copyBinaryItem( cumdists , delivery , item.distItem );
-			for( ReleaseTarget item : delivery.getManualItems() )
+			for( ReleaseScopeTarget item : delivery.getManualItems() )
 				copyBinaryItem( cumdists , delivery , item.distManualItem );
-			for( ReleaseTarget item : delivery.getConfItems() )
+			for( ReleaseScopeTarget item : delivery.getConfItems() )
 				copyConfItem( cumdists , delivery , item.distConfItem );
 		}
 	}
@@ -97,7 +97,7 @@ public class ActionGetCumulative extends ActionBase {
 		// find last full
 		int lastIndex = cumdists.length - 1;
 		for( int k = 0; k < cumdists.length; k++ ) {
-			ReleaseTarget target = cumdists[k].release.findConfComponent( this , item.NAME );
+			ReleaseScopeTarget target = cumdists[k].release.findConfComponent( this , item.NAME );
 			if( target != null && target.ALL ) {
 				lastIndex = k;
 				break;
@@ -106,7 +106,7 @@ public class ActionGetCumulative extends ActionBase {
 		
 		for( int k = lastIndex; k >= 0; k-- ) {
 			Dist cumdist = cumdists[k];
-			ReleaseTarget target = cumdist.release.findConfComponent( this , item.NAME );
+			ReleaseScopeTarget target = cumdist.release.findConfComponent( this , item.NAME );
 			if( target == null )
 				continue;
 			

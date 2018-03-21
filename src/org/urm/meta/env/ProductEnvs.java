@@ -8,8 +8,8 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.EngineTransaction;
 import org.urm.engine.storage.ProductStorage;
+import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.HostAccount;
@@ -37,7 +37,7 @@ public class ProductEnvs {
 		mon = new MetaMonitoring( storage , meta );
 	}
 	
-	public ProductEnvs copy( ActionBase action , Meta rmeta ) throws Exception {
+	public ProductEnvs copy( Meta rmeta ) throws Exception {
 		ProductEnvs r = new ProductEnvs( rmeta.getStorage() , rmeta );
 		
 		MetaProductSettings rsettings = rmeta.getProductSettings();

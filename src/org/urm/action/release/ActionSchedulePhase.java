@@ -5,9 +5,9 @@ import java.util.Date;
 import org.urm.action.ActionBase;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistState.DISTSTATE;
-import org.urm.engine.dist.ReleaseSchedule;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.release.ReleaseSchedule;
 
 public class ActionSchedulePhase extends ActionBase {
 

@@ -3,13 +3,13 @@ package org.urm.action;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseSet;
-import org.urm.engine.dist.ReleaseTarget;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.release.ReleaseScopeSet;
+import org.urm.meta.release.ReleaseScopeTarget;
 
 public class ActionReleaseScopeMaker {
 
@@ -154,14 +154,14 @@ public class ActionReleaseScopeMaker {
 				return;
 			
 			if( DELIVERY.equals( "all" ) ) {
-				for( ReleaseTarget releaseTarget : sset.rset.getTargets() ) {
+				for( ReleaseScopeTarget releaseTarget : sset.rset.getTargets() ) {
 					ActionScopeTarget target = addReleaseDatabaseDelivery( sset , releaseTarget , all , false );
 					if( !all )
 						target.addIndexItems( action , INDEXES );
 				}
 			}
 			else {
-				ReleaseTarget releaseTarget = sset.rset.getTarget( action , DELIVERY );
+				ReleaseScopeTarget releaseTarget = sset.rset.getTarget( action , DELIVERY );
 				ActionScopeTarget target = addReleaseDatabaseDelivery( sset , releaseTarget , all , true );
 				if( !all )
 					target.addIndexItems( action , INDEXES );
@@ -181,14 +181,14 @@ public class ActionReleaseScopeMaker {
 			return;
 		
 		if( DELIVERY.equals( "all" ) ) {
-			for( ReleaseTarget releaseTarget : sset.rset.getTargets() ) {
+			for( ReleaseScopeTarget releaseTarget : sset.rset.getTargets() ) {
 				ActionScopeTarget target = addReleaseDatabaseDelivery( sset , releaseTarget , all , false );
 				if( !all )
 					target.addDatabaseSchemes( action , SCHEMES );
 			}
 		}
 		else {
-			ReleaseTarget releaseTarget = sset.rset.getTarget( action , DELIVERY );
+			ReleaseScopeTarget releaseTarget = sset.rset.getTarget( action , DELIVERY );
 			ActionScopeTarget target = addReleaseDatabaseDelivery( sset , releaseTarget , all , true );
 			if( !all )
 				target.addDatabaseSchemes( action , SCHEMES );
@@ -207,14 +207,14 @@ public class ActionReleaseScopeMaker {
 			return;
 		
 		if( DELIVERY.equals( "all" ) ) {
-			for( ReleaseTarget releaseTarget : sset.rset.getTargets() ) {
+			for( ReleaseScopeTarget releaseTarget : sset.rset.getTargets() ) {
 				ActionScopeTarget target = addReleaseDocDelivery( sset , releaseTarget , all , false );
 				if( !all )
 					target.addDocs( action , SCHEMES );
 			}
 		}
 		else {
-			ReleaseTarget releaseTarget = sset.rset.getTarget( action , DELIVERY );
+			ReleaseScopeTarget releaseTarget = sset.rset.getTarget( action , DELIVERY );
 			ActionScopeTarget target = addReleaseDocDelivery( sset , releaseTarget , all , true );
 			if( !all )
 				target.addDocs( action , SCHEMES );
@@ -222,7 +222,7 @@ public class ActionReleaseScopeMaker {
 	}
 	
 	private ActionScopeTarget addReleaseProjectItemsScope( String PROJECT , String[] ITEMS ) throws Exception {
-		ReleaseTarget releaseProject = dist.release.findBuildProject( action , PROJECT );
+		ReleaseScopeTarget releaseProject = dist.release.findBuildProject( action , PROJECT );
 		if( releaseProject == null ) {
 			action.debug( "scope: ignore non-release project=" + PROJECT );
 			return( null );
@@ -247,11 +247,11 @@ public class ActionReleaseScopeMaker {
 			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED )
 				sset = scope.makeReleaseCategoryScopeSet( action , dist , DBEnumScopeCategoryType.DERIVED );
 			else {
-				ReleaseSet rset = dist.release.getSourceSet( action , item.sourceProjectItem.project.set.NAME );
+				ReleaseScopeSet rset = dist.release.getSourceSet( action , item.sourceProjectItem.project.set.NAME );
 				sset = scope.makeReleaseScopeSet( action , rset );
 			}
 			
-			ReleaseTarget rtarget = sset.rset.getTarget( action , item.sourceProjectItem.project.NAME );
+			ReleaseScopeTarget rtarget = sset.rset.getTarget( action , item.sourceProjectItem.project.NAME );
 			if( rtarget != null ) {
 				ActionScopeTarget scopeProject = addReleaseSourceProject( sset , rtarget , false , true ); 
 				scopeProject.addProjectItem( action , item.sourceProjectItem , specifiedExplicitly );
@@ -288,7 +288,7 @@ public class ActionReleaseScopeMaker {
 			MetaSources sources = meta.getSources();
 			MetaSourceProjectSet set = sources.getProjectSet( SET );
 			if( dist.release.addSourceSet( action , set , false ) ) {
-				ReleaseSet rset = dist.release.getSourceSet( action , SET );  
+				ReleaseScopeSet rset = dist.release.getSourceSet( action , SET );  
 				addReleaseSourceProjects( rset , TARGETS );
 			}
 		}
@@ -315,13 +315,13 @@ public class ActionReleaseScopeMaker {
  	}
 	
 	private void addAllReleaseProjects() throws Exception {
-		for( ReleaseSet rset : dist.release.getSourceSets() ) {
+		for( ReleaseScopeSet rset : dist.release.getSourceSets() ) {
 			ActionScopeSet sset = scope.makeReleaseScopeSet( action , rset );
 			addReleaseSourceProjects( sset , null );
 		}
 	}
 		
-	private void addReleaseSourceProjects( ReleaseSet rset , String[] PROJECTS ) throws Exception {
+	private void addReleaseSourceProjects( ReleaseScopeSet rset , String[] PROJECTS ) throws Exception {
 		ActionScopeSet sset = scope.makeReleaseScopeSet( action , rset );
 		addReleaseSourceProjects( sset , PROJECTS );
 	}
@@ -371,13 +371,13 @@ public class ActionReleaseScopeMaker {
 	private void addReleaseDatabaseDeliveries( ActionScopeSet set , String[] DELIVERIES ) throws Exception {
 		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
 			set.setFullContent( true ); 
-			for( ReleaseTarget item : set.rset.getTargets() )
+			for( ReleaseScopeTarget item : set.rset.getTargets() )
 				addReleaseDatabaseDelivery( set , item , true , false );
 			return;
 		}
 		
 		for( String key : DELIVERIES ) {
-			ReleaseTarget item = set.rset.getTarget( action , key );
+			ReleaseScopeTarget item = set.rset.getTarget( action , key );
 			addReleaseDatabaseDelivery( set , item , true , true );
 		}
 	}
@@ -385,18 +385,18 @@ public class ActionReleaseScopeMaker {
 	private void addReleaseDocDeliveries( ActionScopeSet set , String[] DELIVERIES ) throws Exception {
 		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
 			set.setFullContent( true ); 
-			for( ReleaseTarget item : set.rset.getTargets() )
+			for( ReleaseScopeTarget item : set.rset.getTargets() )
 				addReleaseDocDelivery( set , item , true , false );
 			return;
 		}
 		
 		for( String key : DELIVERIES ) {
-			ReleaseTarget item = set.rset.getTarget( action , key );
+			ReleaseScopeTarget item = set.rset.getTarget( action , key );
 			addReleaseDocDelivery( set , item , true , true );
 		}
 	}
 
-	private ActionScopeTarget addReleaseSingleDeliveryTarget( ActionScopeSet set , ReleaseTarget releaseItem , boolean specifiedExplicitly ) throws Exception {
+	private ActionScopeTarget addReleaseSingleDeliveryTarget( ActionScopeSet set , ReleaseScopeTarget releaseItem , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeTarget target = ActionScopeTarget.createReleaseDeliveryTarget( set , releaseItem , specifiedExplicitly );
 		set.addTarget( action , target );
 		return( target );
@@ -405,13 +405,13 @@ public class ActionReleaseScopeMaker {
 	private void addReleaseConfigComps( ActionScopeSet set , String[] COMPS ) throws Exception {
 		if( COMPS == null || COMPS.length == 0 ) {
 			set.setFullContent( true ); 
-			for( ReleaseTarget item : set.rset.getTargets() )
+			for( ReleaseScopeTarget item : set.rset.getTargets() )
 				addReleaseSingleDeliveryTarget( set , item , false );
 			return;
 		}
 		
 		for( String key : COMPS ) {
-			ReleaseTarget item = set.rset.getTarget( action , key );
+			ReleaseScopeTarget item = set.rset.getTarget( action , key );
 			addReleaseSingleDeliveryTarget( set , item , true );
 		}
 	}
@@ -419,13 +419,13 @@ public class ActionReleaseScopeMaker {
 	private void addReleaseManualItems( ActionScopeSet set , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			set.setFullContent( true ); 
-			for( ReleaseTarget item : set.rset.getTargets() )
+			for( ReleaseScopeTarget item : set.rset.getTargets() )
 				addReleaseSingleDeliveryTarget( set , item , false );
 			return;
 		}
 		
 		for( String key : ITEMS ) {
-			ReleaseTarget item = set.rset.getTarget( action , key );
+			ReleaseScopeTarget item = set.rset.getTarget( action , key );
 			addReleaseSingleDeliveryTarget( set , item , true );
 		}
 	}
@@ -433,25 +433,25 @@ public class ActionReleaseScopeMaker {
 	private void addReleaseDerivedItems( ActionScopeSet set , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			set.setFullContent( true ); 
-			for( ReleaseTarget item : set.rset.getTargets() )
+			for( ReleaseScopeTarget item : set.rset.getTargets() )
 				addReleaseSingleDeliveryTarget( set , item , false );
 			return;
 		}
 		
 		for( String key : ITEMS ) {
-			ReleaseTarget item = set.rset.getTarget( action , key );
+			ReleaseScopeTarget item = set.rset.getTarget( action , key );
 			addReleaseSingleDeliveryTarget( set , item , true );
 		}
 	}
 
 	private void addReleaseDeliveryDatabaseSchemes( ActionScopeSet set , String DELIVERY , String[] SCHEMES ) throws Exception {
-		ReleaseTarget item = set.rset.getTarget( action , DELIVERY );
+		ReleaseScopeTarget item = set.rset.getTarget( action , DELIVERY );
 		ActionScopeTarget target = addReleaseDatabaseDelivery( set , item , false , true );
 		target.addDatabaseSchemes( action , SCHEMES );
 	}
 	
 	private void addReleaseDeliveryDocs( ActionScopeSet set , String DELIVERY , String[] DOCS ) throws Exception {
-		ReleaseTarget item = set.rset.getTarget( action , DELIVERY );
+		ReleaseScopeTarget item = set.rset.getTarget( action , DELIVERY );
 		ActionScopeTarget target = addReleaseDocDelivery( set , item , false , true );
 		target.addDocs( action , DOCS );
 	}
@@ -459,18 +459,18 @@ public class ActionReleaseScopeMaker {
 	private void addReleaseSourceProjects( ActionScopeSet set , String[] PROJECTS ) throws Exception {
 		if( PROJECTS == null || PROJECTS.length == 0 ) {
 			set.setFullContent( true ); 
-			for( ReleaseTarget project : set.rset.getTargets() )
+			for( ReleaseScopeTarget project : set.rset.getTargets() )
 				addReleaseSourceProject( set , project , true , false );
 			return;
 		}
 		
 		for( String name : PROJECTS ) {
-			ReleaseTarget sourceProject = set.rset.getTarget( action ,  name );
+			ReleaseScopeTarget sourceProject = set.rset.getTarget( action ,  name );
 			addReleaseSourceProject( set , sourceProject , true , true );
 		}
 	}
 
-	public ActionScopeTarget addReleaseSourceProject( ActionScopeSet set , ReleaseTarget releaseProject , boolean allItems , boolean specifiedExplicitly ) throws Exception {
+	public ActionScopeTarget addReleaseSourceProject( ActionScopeSet set , ReleaseScopeTarget releaseProject , boolean allItems , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeTarget target = ActionScopeTarget.createReleaseSourceProjectTarget( set , releaseProject , specifiedExplicitly ); 
 		set.addTarget( action , target );
 		
@@ -480,14 +480,14 @@ public class ActionReleaseScopeMaker {
 		return( target );
 	}
 		
-	public ActionScopeTarget addReleaseProjectItems( ActionScopeSet set , ReleaseTarget releaseProject , String[] ITEMS ) throws Exception {
+	public ActionScopeTarget addReleaseProjectItems( ActionScopeSet set , ReleaseScopeTarget releaseProject , String[] ITEMS ) throws Exception {
 		ActionScopeTarget target = ActionScopeTarget.createReleaseSourceProjectTarget( set, releaseProject , true );
 		set.addTarget( action , target );
 		target.addProjectItems( action , ITEMS );
 		return( target );
 	}
 
-	public ActionScopeTarget addReleaseDatabaseDelivery( ActionScopeSet set , ReleaseTarget releaseDelivery , boolean allItems , boolean specifiedExplicitly ) throws Exception {
+	public ActionScopeTarget addReleaseDatabaseDelivery( ActionScopeSet set , ReleaseScopeTarget releaseDelivery , boolean allItems , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeTarget target = ActionScopeTarget.createDeliveryDatabaseTarget( set , releaseDelivery.distDelivery , specifiedExplicitly , allItems );
 		set.addTarget( action , target );
 		
@@ -497,7 +497,7 @@ public class ActionReleaseScopeMaker {
 		return( target );
 	}
 	
-	public ActionScopeTarget addReleaseDocDelivery( ActionScopeSet set , ReleaseTarget releaseDelivery , boolean allItems , boolean specifiedExplicitly ) throws Exception {
+	public ActionScopeTarget addReleaseDocDelivery( ActionScopeSet set , ReleaseScopeTarget releaseDelivery , boolean allItems , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeTarget target = ActionScopeTarget.createDeliveryDocTarget( set , releaseDelivery.distDelivery , specifiedExplicitly , allItems );
 		set.addTarget( action , target );
 		

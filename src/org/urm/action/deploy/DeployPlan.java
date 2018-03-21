@@ -11,8 +11,8 @@ import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.meta.DeployCommandMeta;
+import org.urm.engine.EventService;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSource;
@@ -49,7 +49,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 	
 	EngineEventsApp eventsApp;
 
-	private DeployPlan( Dist dist , MetaEnv env , boolean redist , boolean deploy , EngineEvents events , String id ) {
+	private DeployPlan( Dist dist , MetaEnv env , boolean redist , boolean deploy , EventService events , String id ) {
 		super( events , id );
 		this.dist = dist;
 		this.env = env;
@@ -68,7 +68,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 	
 	@Override
 	public void triggerEvent( EngineEventsSubscription sub , SourceEvent event ) {
-		if( event.isEngineEvent( EngineEvents.EVENT_FINISHCHILDSTATE ) ) {
+		if( event.isEngineEvent( EventService.EVENT_FINISHCHILDSTATE ) ) {
 			ScopeState state = ( ScopeState )event.data;
 			if( state.action instanceof ActionRedist ) {
 				if( state.type == STATETYPE.TypeScopeTarget )
@@ -98,7 +98,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 	}
 	
 	public static DeployPlan create( ActionBase action , EngineEventsApp app , EngineEventsListener listener , Dist dist , MetaEnv env , boolean redist , boolean deploy ) {
-		EngineEvents events = action.engine.getEvents();
+		EventService events = action.engine.getEvents();
 		DeployPlan plan = new DeployPlan( dist , env , redist , deploy , events , "build-plan-" + action.ID );
 		app.subscribe( plan , listener );
 		return( plan );
@@ -236,7 +236,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 		
 		boolean success = ( state == SCOPESTATE.RunFail || state == SCOPESTATE.RunBeforeFail )? false : true;
 		item.setDoneRedist( success );
-		super.notify( EngineEvents.OWNER_ENGINEDEPLOYPLAN , EVENT_ITEMFINISHED , item );
+		super.notify( EventService.OWNER_ENGINEDEPLOYPLAN , EVENT_ITEMFINISHED , item );
 	}
 	
 	private void addStopServerStatus( MetaEnvServer server , SCOPESTATE state ) {
@@ -249,7 +249,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 		else
 		if( state != SCOPESTATE.NotRun )
 			item.setDeployDone( false );
-		super.notify( EngineEvents.OWNER_ENGINEDEPLOYPLAN , EVENT_ITEMFINISHED , item );
+		super.notify( EventService.OWNER_ENGINEDEPLOYPLAN , EVENT_ITEMFINISHED , item );
 	}
 	
 	private void addRolloutStatus( MetaEnvServer server , SCOPESTATE state ) {
@@ -264,7 +264,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 				item.setDeployDone( true );
 		}
 		
-		super.notify( EngineEvents.OWNER_ENGINEDEPLOYPLAN , EVENT_ITEMFINISHED , item );
+		super.notify( EventService.OWNER_ENGINEDEPLOYPLAN , EVENT_ITEMFINISHED , item );
 	}
 	
 	private void addStartServerStatus( MetaEnvServer server , SCOPESTATE state ) {
@@ -277,7 +277,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 		else
 			item.setDeployDone( true );
 		
-		super.notify( EngineEvents.OWNER_ENGINEDEPLOYPLAN , EVENT_ITEMFINISHED , item );
+		super.notify( EventService.OWNER_ENGINEDEPLOYPLAN , EVENT_ITEMFINISHED , item );
 	}
 	
 	private void addDatabaseApplyStatus( MetaEnvServer server , SCOPESTATE state ) {
@@ -290,7 +290,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 		else
 			item.setDeployDone( true );
 		
-		super.notify( EngineEvents.OWNER_ENGINEDEPLOYPLAN , EVENT_ITEMFINISHED , item );
+		super.notify( EventService.OWNER_ENGINEDEPLOYPLAN , EVENT_ITEMFINISHED , item );
 	}
 	
 	private void finishPlanRedist() {
@@ -302,7 +302,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 				}
 			}
 		}
-		super.notify( EngineEvents.OWNER_ENGINEDEPLOYPLAN , EVENT_REDISTFINISHED , this );
+		super.notify( EventService.OWNER_ENGINEDEPLOYPLAN , EVENT_REDISTFINISHED , this );
 	}
 	
 	private void finishPlanDeploy() {
@@ -314,7 +314,7 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 				}
 			}
 		}
-		super.notify( EngineEvents.OWNER_ENGINEDEPLOYPLAN , EVENT_DEPLOYFINISHED , this );
+		super.notify( EventService.OWNER_ENGINEDEPLOYPLAN , EVENT_DEPLOYFINISHED , this );
 	}
 	
 }

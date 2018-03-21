@@ -9,11 +9,11 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseSet;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.release.ReleaseScopeSet;
 
 public class ActionScope {
 
@@ -127,7 +127,7 @@ public class ActionScope {
 		if( sset != null )
 			return( sset );
 		
-		ReleaseSet rset = dist.release.findCategorySet( CATEGORY );
+		ReleaseScopeSet rset = dist.release.findCategorySet( CATEGORY );
 		if( rset == null ) {
 			action.debug( "ignore non-release set=" + Common.getEnumLower( CATEGORY ) );
 			return( null );
@@ -140,7 +140,7 @@ public class ActionScope {
 		return( sset );
 	}
 	
-	public ActionScopeSet makeReleaseScopeSet( ActionBase action , ReleaseSet rset ) throws Exception {
+	public ActionScopeSet makeReleaseScopeSet( ActionBase action , ReleaseScopeSet rset ) throws Exception {
 		ActionScopeSet sset = getScopeSet( action , rset.CATEGORY , rset.NAME );
 		if( sset != null )
 			return( sset );

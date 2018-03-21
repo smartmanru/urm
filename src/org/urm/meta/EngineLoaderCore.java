@@ -16,19 +16,20 @@ import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
 import org.urm.db.engine.DBEngineSettings;
 import org.urm.engine.Engine;
-import org.urm.engine.TransactionBase;
+import org.urm.engine.AuthService;
+import org.urm.engine.DataService;
+import org.urm.engine.data.EngineBase;
+import org.urm.engine.data.EngineBuilders;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.data.EngineInfrastructure;
+import org.urm.engine.data.EngineLifecycles;
+import org.urm.engine.data.EngineMirrors;
+import org.urm.engine.data.EngineMonitoring;
+import org.urm.engine.data.EngineResources;
+import org.urm.engine.data.EngineSettings;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.EngineAuth;
-import org.urm.meta.engine.EngineBase;
-import org.urm.meta.engine.EngineBuilders;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.engine.EngineContext;
-import org.urm.meta.engine.EngineDirectory;
-import org.urm.meta.engine.EngineInfrastructure;
-import org.urm.meta.engine.EngineLifecycles;
-import org.urm.meta.engine.EngineMirrors;
-import org.urm.meta.engine.EngineMonitoring;
-import org.urm.meta.engine.EngineResources;
-import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine._Error;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -37,7 +38,7 @@ import org.w3c.dom.Node;
 public class EngineLoaderCore {
 
 	private EngineLoader loader;
-	private EngineData data;
+	private DataService data;
 	public RunContext execrc;
 	public Engine engine;
 	
@@ -51,7 +52,7 @@ public class EngineLoaderCore {
 	private EngineLifecycles lifecyclesNew;
 	private EngineMonitoring monitoringNew;
 	
-	public EngineLoaderCore( EngineLoader loader , EngineData data ) {
+	public EngineLoaderCore( EngineLoader loader , DataService data ) {
 		this.loader = loader;
 		this.data = data;
 		this.execrc = loader.execrc;
@@ -133,7 +134,7 @@ public class EngineLoaderCore {
 			exportxmlDirectory();
 	}
 
-	private void exportAuth( EngineAuth auth ) throws Exception {
+	private void exportAuth( AuthService auth ) throws Exception {
 		trace( "export engine auth data ..." );
 		exportxmlAuth( auth );
 	}
@@ -336,7 +337,7 @@ public class EngineLoaderCore {
 		DBEngineDirectory.importxml( loader , directoryNew , root );
 	}
 	
-	public void importxmlAuth( EngineAuth auth ) throws Exception {
+	public void importxmlAuth( AuthService auth ) throws Exception {
 		trace( "import engine auth data ..." );
 		String authFile = getAuthFile();
 		Document doc = ConfReader.readXmlFile( execrc , authFile );
@@ -345,7 +346,7 @@ public class EngineLoaderCore {
 		DBEngineAuth.importxml( loader , auth , root );
 	}
 
-	public void loaddbAuth( EngineAuth auth ) throws Exception {
+	public void loaddbAuth( AuthService auth ) throws Exception {
 		trace( "load engine auth data ..." );
 		DBEngineAuth.loaddb( loader , auth );
 	}
@@ -436,7 +437,7 @@ public class EngineLoaderCore {
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 	
-	private void exportxmlAuth( EngineAuth auth ) throws Exception {
+	private void exportxmlAuth( AuthService auth ) throws Exception {
 		trace( "export engine auth data ..." );
 		String authFile = getAuthFile();
 		Document doc = Common.xmlCreateDoc( "auth" );

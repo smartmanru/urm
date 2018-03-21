@@ -2,9 +2,9 @@ package org.urm.engine.jmx;
 
 import org.urm.common.action.ActionData;
 import org.urm.common.jmx.ActionNotification;
-import org.urm.engine.EngineCall;
 import org.urm.engine.Engine;
-import org.urm.engine.EngineSession;
+import org.urm.engine.action.EngineCall;
+import org.urm.engine.session.EngineSession;
 
 public class RemoteServerCall extends EngineCall {
 

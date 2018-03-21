@@ -8,8 +8,9 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.AuthService;
+import org.urm.engine.EventService;
 import org.urm.engine.action.CommandContext;
-import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSubscription;
@@ -21,7 +22,6 @@ import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.Datacenter;
-import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -72,7 +72,7 @@ public class ScopeExecutor implements EngineEventsListener {
 
 	@Override
 	public void triggerEvent( EngineEventsSubscription sub , SourceEvent event ) {
-		if( event.isEngineEvent( EngineEvents.EVENT_RUNASYNC ) )
+		if( event.isEngineEvent( EventService.EVENT_RUNASYNC ) )
 			executeAsync();
 	}
 	
@@ -81,9 +81,9 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runAsync() {
-		EngineEvents events = action.engine.getEvents();
+		EventService events = action.engine.getEvents();
 		EngineEventsApp app = action.actionInit.getEventsApp();
-		SourceEvent event = eventsSource.createCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_RUNASYNC , this );
+		SourceEvent event = eventsSource.createCustomEvent( EventService.OWNER_ENGINE , EventService.EVENT_RUNASYNC , this );
 		events.notifyListener( app , this , event );
 		return( true );
 	}
@@ -109,7 +109,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runSimpleServer( SecurityAction sa , boolean readOnly ) {
-		EngineAuth auth = action.engine.getAuth();
+		AuthService auth = action.engine.getAuth();
 		if( !auth.checkAccessServerAction( action , sa , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", server operation)" );
 			return( false );
@@ -124,7 +124,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runSimpleProduct( String productName , SecurityAction sa , boolean readOnly ) {
-		EngineAuth auth = action.engine.getAuth();
+		AuthService auth = action.engine.getAuth();
 		AppProduct product = action.findProduct( productName );
 		if( product == null ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", unknown product)" );
@@ -145,7 +145,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runSimpleEnv( MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		EngineAuth auth = action.engine.getAuth();
+		AuthService auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , env , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", environment operation)" );
 			return( false );
@@ -160,7 +160,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runProductBuild( String productName , SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
-		EngineAuth auth = action.engine.getAuth();
+		AuthService auth = action.engine.getAuth();
 		AppProduct product = action.findProduct( productName );
 		if( product == null ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", unknown product)" );
@@ -181,7 +181,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runAll( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		EngineAuth auth = action.engine.getAuth();
+		AuthService auth = action.engine.getAuth();
 		if( env != null ) {
 			if( !auth.checkAccessProductAction( action , sa , scope.meta , env , readOnly ) ) {
 				accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, scope)" );
@@ -205,7 +205,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runCategories( ActionScope scope , DBEnumScopeCategoryType[] categories , SecurityAction sa , boolean readOnly ) {
-		EngineAuth auth = action.engine.getAuth();
+		AuthService auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , scope.meta , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", categories)" );
 			return( false );
@@ -222,7 +222,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runAll( ActionScopeSet set , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		EngineAuth auth = action.engine.getAuth();
+		AuthService auth = action.engine.getAuth();
 		if( env != null ) {
 			if( !auth.checkAccessProductAction( action , sa , set.scope.meta , env , readOnly ) ) {
 				accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, scope set)" );
@@ -246,7 +246,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runTargetList( ActionScopeSet set , ActionScopeTarget[] targets , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		EngineAuth auth = action.engine.getAuth();
+		AuthService auth = action.engine.getAuth();
 		if( env != null ) {
 			if( !auth.checkAccessProductAction( action , sa , set.scope.meta , env , readOnly ) ) {
 				accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, scope targets)" );
@@ -271,7 +271,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runSingleTarget( ActionScopeTarget item , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		EngineAuth auth = action.engine.getAuth();
+		AuthService auth = action.engine.getAuth();
 		if( env != null ) {
 			if( !auth.checkAccessProductAction( action , sa , item.set.scope.meta , env , readOnly ) ) {
 				accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, scope target)" );
@@ -295,7 +295,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runEnvUniqueHosts( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		EngineAuth auth = action.engine.getAuth();
+		AuthService auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , scope.meta , env , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, hosts)" );
 			return( false );
@@ -316,7 +316,7 @@ public class ScopeExecutor implements EngineEventsListener {
 				return( runEnvUniqueHosts( scope , env , sa , readOnly ) );
 		}
 
-		EngineAuth auth = action.engine.getAuth();
+		AuthService auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , scope.meta , env , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, acccounts)" );
 			return( false );
@@ -1152,22 +1152,22 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 
 	private void notifyStartAction( ActionCore action ) {
-		action.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STARTACTION , action );
+		action.eventSource.notifyCustomEvent( EventService.OWNER_ENGINE , EventService.EVENT_STARTACTION , action );
 		
 		ActionCore actionParent = action;
 		while( actionParent.parent != null ) {
 			actionParent = actionParent.parent;
-			actionParent.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STARTCHILDACTION , action );
+			actionParent.eventSource.notifyCustomEvent( EventService.OWNER_ENGINE , EventService.EVENT_STARTCHILDACTION , action );
 		}
 	}
 
 	private void notifyFinishAction( ActionBase action ) {
-		action.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_FINISHACTION , action );
+		action.eventSource.notifyCustomEvent( EventService.OWNER_ENGINE , EventService.EVENT_FINISHACTION , action );
 		
 		ActionCore actionParent = action;
 		while( actionParent.parent != null ) {
 			actionParent = actionParent.parent;
-			actionParent.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_FINISHCHILDACTION , action );
+			actionParent.eventSource.notifyCustomEvent( EventService.OWNER_ENGINE , EventService.EVENT_FINISHCHILDACTION , action );
 		}
 	}
 	

@@ -8,11 +8,6 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.Release;
-import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.dist.ReleaseSet;
-import org.urm.engine.dist.ReleaseTarget;
-import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.shell.Account;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -20,6 +15,11 @@ import org.urm.meta.env.MetaEnvStartGroup;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseDelivery;
+import org.urm.meta.release.ReleaseScopeSet;
+import org.urm.meta.release.ReleaseScopeTarget;
+import org.urm.meta.release.ReleaseScopeItem;
 
 public class ActionScopeSet {
 
@@ -30,7 +30,7 @@ public class ActionScopeSet {
 	public boolean setFull;
 	
 	public MetaSourceProjectSet pset;
-	public ReleaseSet rset;
+	public ReleaseScopeSet rset;
 	
 	Map<String,ActionScopeTarget> targets = new HashMap<String,ActionScopeTarget>();
 
@@ -67,7 +67,7 @@ public class ActionScopeSet {
 		this.setFull = false;
 	}
 
-	public void create( ActionBase action , ReleaseSet rset ) throws Exception {
+	public void create( ActionBase action , ReleaseScopeSet rset ) throws Exception {
 		this.rset = rset;
 		this.pset = rset.set;
 		this.NAME = rset.NAME;
@@ -132,23 +132,23 @@ public class ActionScopeSet {
 	
 	private boolean checkServerDelivery( ActionBase action , MetaEnvServer server , ReleaseDelivery delivery ) throws Exception {
 		if( action.context.CTX_CONFDEPLOY ) {
-			for( ReleaseTarget target : delivery.getConfItems() ) {
+			for( ReleaseScopeTarget target : delivery.getConfItems() ) {
 				if( server.hasConfItemDeployment( target.distConfItem ) )
 					return( true );
 			}
 		}
 		
-		for( ReleaseTargetItem item : delivery.getDatabaseItems() ) {
+		for( ReleaseScopeItem item : delivery.getDatabaseItems() ) {
 			if( server.hasDatabaseItemDeployment( item.schema ) )
 				return( true );
 		}
 
 		if( action.context.CTX_DEPLOYBINARY ) {
-			for( ReleaseTarget target : delivery.getManualItems() ) {
+			for( ReleaseScopeTarget target : delivery.getManualItems() ) {
 				if( server.hasBinaryItemDeployment( target.distManualItem ) )
 					return( true );
 			}
-			for( ReleaseTargetItem item : delivery.getProjectItems() ) {
+			for( ReleaseScopeItem item : delivery.getProjectItems() ) {
 				if( server.hasBinaryItemDeployment( item.distItem ) )
 					return( true );
 			}

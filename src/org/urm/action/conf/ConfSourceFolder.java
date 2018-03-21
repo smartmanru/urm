@@ -1,16 +1,16 @@
 package org.urm.action.conf;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.dist.ReleaseTarget;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.release.ReleaseScopeTarget;
 
 public class ConfSourceFolder {
 	
 	Meta meta;
 	
 	public MetaDistrConfItem distrComp;
-	public ReleaseTarget releaseComp;
+	public ReleaseScopeTarget releaseComp;
 	
 	public boolean productFolder = false;
 	public boolean releaseFolder = false;
@@ -24,7 +24,7 @@ public class ConfSourceFolder {
 		this.productFolder = true;
 	}
 
-	public void createReleaseConfigurationFolder( ActionBase action , ReleaseTarget releaseComp ) throws Exception {
+	public void createReleaseConfigurationFolder( ActionBase action , ReleaseScopeTarget releaseComp ) throws Exception {
 		this.releaseComp = releaseComp;
 		this.distrComp = releaseComp.distConfItem;
 		

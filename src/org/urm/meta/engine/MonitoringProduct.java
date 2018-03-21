@@ -7,8 +7,10 @@ import org.urm.action.ActionBase;
 import org.urm.action.monitor.ActionMonitorTarget;
 import org.urm.action.monitor.MonitorTargetInfo;
 import org.urm.action.monitor.MonitorTop;
-import org.urm.engine.schedule.EngineScheduler;
-import org.urm.engine.schedule.EngineScheduler.ScheduleTaskCategory;
+import org.urm.engine.ScheduleService;
+import org.urm.engine.ScheduleService.ScheduleTaskCategory;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.data.EngineMonitoring;
 import org.urm.engine.schedule.ScheduleTask;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
@@ -50,7 +52,7 @@ public class MonitoringProduct {
 	};
 	
 	EngineMonitoring monitoring;
-	MetaMonitoring meta;
+	public MetaMonitoring meta;
 	Integer productId;
 	Map<Integer,ActionMonitorTarget> targets;
 	
@@ -90,7 +92,7 @@ public class MonitoringProduct {
 		targetAction.stop();
 		
 		MetaEnvSegment sg = targetAction.target.getSegment();
-		EngineScheduler scheduler = action.getServerScheduler();
+		ScheduleService scheduler = action.getServerScheduler();
 		String sgName = sg.meta.name + "-" + sg.env.NAME + sg.NAME;
 		
 		String codeMajor = sgName + "-major";
@@ -123,7 +125,7 @@ public class MonitoringProduct {
 		
 		targetAction.start();
 		
-		EngineScheduler scheduler = action.getServerScheduler();
+		ScheduleService scheduler = action.getServerScheduler();
 		String sgName = sg.meta.name + "-" + sg.env.NAME + sg.NAME;
 		
 		if( target.MAJOR_ENABLED ) {

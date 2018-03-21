@@ -23,8 +23,6 @@ import org.w3c.dom.Node;
 
 public class DistRepository {
 
-	public static String PROPERTY_PRODUCT = "product";
-	
 	static String RELEASEREPOSITORYFILE = "releases.xml";
 	static String RELEASEHISTORYFILE = "history.txt";
 	

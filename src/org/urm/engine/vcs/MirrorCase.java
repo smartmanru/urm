@@ -3,12 +3,12 @@ package org.urm.engine.vcs;
 import java.io.File;
 
 import org.urm.action.ActionBase;
+import org.urm.engine.data.EngineSettings;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.MirrorRepository;
-import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
 
 public abstract class MirrorCase {

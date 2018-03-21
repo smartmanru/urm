@@ -10,20 +10,22 @@ import org.urm.db.engine.DBEngineData;
 import org.urm.db.system.DBSystemData;
 import org.urm.db.upgrade.DBUpgrade;
 import org.urm.engine.Engine;
-import org.urm.engine.TransactionBase;
-import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.AuthService;
+import org.urm.engine.DataService;
+import org.urm.engine.data.EngineBase;
+import org.urm.engine.data.EngineBuilders;
+import org.urm.engine.data.EngineCore;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.data.EngineInfrastructure;
+import org.urm.engine.data.EngineLifecycles;
+import org.urm.engine.data.EngineMirrors;
+import org.urm.engine.data.EngineMonitoring;
+import org.urm.engine.data.EngineResources;
+import org.urm.engine.data.EngineSettings;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.ProductStorage;
-import org.urm.meta.engine.EngineAuth;
-import org.urm.meta.engine.EngineBase;
-import org.urm.meta.engine.EngineBuilders;
-import org.urm.meta.engine.EngineDirectory;
-import org.urm.meta.engine.EngineInfrastructure;
-import org.urm.meta.engine.EngineLifecycles;
-import org.urm.meta.engine.EngineMonitoring;
-import org.urm.meta.engine.EngineResources;
-import org.urm.meta.engine.EngineMirrors;
-import org.urm.meta.engine.EngineSettings;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine._Error;
@@ -33,7 +35,7 @@ import org.urm.meta.product.ProductMeta;
 public class EngineLoader {
 
 	public Engine engine;
-	private EngineData data;
+	private DataService data;
 	public RunContext execrc;
 	
 	private EngineEntities entities;
@@ -45,7 +47,7 @@ public class EngineLoader {
 	private EngineLoaderCore ldc;
 	private EngineLoaderProducts ldp;
 	
-	public EngineLoader( Engine engine , EngineData data , ActionBase action ) {
+	public EngineLoader( Engine engine , DataService data , ActionBase action ) {
 		this.engine = engine;
 		this.data = data;
 		this.action = action;
@@ -56,7 +58,7 @@ public class EngineLoader {
 		ldp = new EngineLoaderProducts( this , data );
 	}
 
-	public EngineLoader( Engine engine , EngineData data , TransactionBase transaction ) {
+	public EngineLoader( Engine engine , DataService data , TransactionBase transaction ) {
 		this.engine = engine;
 		this.data = data;
 		this.transaction = transaction;
@@ -306,7 +308,7 @@ public class EngineLoader {
 		loadCore( false , true );
 	}
 	
-	public void initAuth( EngineAuth auth ) throws Exception {
+	public void initAuth( AuthService auth ) throws Exception {
 		boolean dbUpdate = getInitialUpdateState();
 		if( dbUpdate )
 			importAuth( auth );
@@ -409,7 +411,7 @@ public class EngineLoader {
 		}
 	}
 
-	public void loadAuth( EngineAuth auth , boolean importxml ) throws Exception {
+	public void loadAuth( AuthService auth , boolean importxml ) throws Exception {
 		try {
 			startLoad();
 
@@ -440,7 +442,7 @@ public class EngineLoader {
 		}
 	}
 
-	public void importAuth( EngineAuth auth ) throws Exception {
+	public void importAuth( AuthService auth ) throws Exception {
 		trace( "cleanup auth data ..." );
 		auth.unloadAll();
 		dropAuthData();

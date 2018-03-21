@@ -1,8 +1,8 @@
 package org.urm.meta.product;
 
+import org.urm.engine.data.EngineSettings;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.EngineSettings;
 
 public class ProductContext {
 

@@ -28,7 +28,7 @@ public class EngineLoaderEnvs {
 		this.meta = set.meta;
 	}
 
-	public void createAll() throws Exception {
+	public void createAll( boolean forceClearMeta ) throws Exception {
 		ProductEnvs envs = new ProductEnvs( set , set.meta );
 		set.setEnvs( envs );
 	}

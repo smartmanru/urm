@@ -14,12 +14,12 @@ import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.LogStorage;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.release.ReleaseDelivery;
 
 public class CodebaseCommand {
 	

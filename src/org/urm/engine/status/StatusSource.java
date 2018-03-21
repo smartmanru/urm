@@ -4,10 +4,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.engine.events.EngineEvents;
+import org.urm.engine.EventService;
+import org.urm.engine.StateService.StatusType;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
-import org.urm.engine.status.EngineStatus.StatusType;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.meta.EngineObject;
 
@@ -25,7 +25,7 @@ public class StatusSource extends EngineEventsSource {
 	private StatusData primary;
 	private Map<String,StatusData> extra;
 
-	public StatusSource( EngineEvents events , EngineObject object , StatusType type , String name , Status status ) {
+	public StatusSource( EventService events , EngineObject object , StatusType type , String name , Status status ) {
 		super( events , name );
 		this.object = object;
 		this.type = type;
@@ -74,7 +74,7 @@ public class StatusSource extends EngineEventsSource {
 		if( !state.setState( finalState ) )
 			return( false );
 		
-		super.notify( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STATECHANGED , state );
+		super.notify( EventService.OWNER_ENGINE , EventService.EVENT_STATECHANGED , state );
 		return( true );
 	}
 
@@ -128,12 +128,12 @@ public class StatusSource extends EngineEventsSource {
 	public void updateRunTime() {
 		runTime = new Date();
 		updating = true;
-		super.notify( EngineEvents.OWNER_ENGINESTATUS , EVENT_UPDATESTARTED , getStatusState() );
+		super.notify( EventService.OWNER_ENGINESTATUS , EVENT_UPDATESTARTED , getStatusState() );
 	}
 
 	public void finishUpdate() {
 		updating = false;
-		super.notify( EngineEvents.OWNER_ENGINESTATUS , EVENT_UPDATEFINISHED , getStatusState() );
+		super.notify( EventService.OWNER_ENGINESTATUS , EVENT_UPDATEFINISHED , getStatusState() );
 	}
 	
 }

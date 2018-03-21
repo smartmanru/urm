@@ -5,13 +5,13 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.DataService;
+import org.urm.engine.data.EngineInfrastructure;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.AccountReference;
-import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.product.Meta;
-import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.MatchItem;
 
@@ -185,7 +185,7 @@ public class MetaEnvServerNode extends EngineObject {
 	}
 
 	public HostAccount getHostAccount() throws Exception {
-		EngineData data = meta.getEngineData();
+		DataService data = meta.getEngineData();
 		EngineInfrastructure infra = data.getInfrastructure();
 		return( infra.getHostAccount( ACCOUNT ) );
 	}

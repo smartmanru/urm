@@ -7,14 +7,14 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.DataService;
+import org.urm.engine.data.EngineInfrastructure;
+import org.urm.engine.data.EngineResources;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.meta.EngineData;
 import org.urm.meta.EngineObject;
 import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.AuthResource;
-import org.urm.meta.engine.EngineInfrastructure;
-import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrConfItem;
@@ -147,7 +147,7 @@ public class MetaEnv extends EngineObject {
 		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 		
 		if( ENVKEY != null ) {
-			EngineData data = meta.getEngineData();
+			DataService data = meta.getEngineData();
 			EngineResources resources = data.getResources();
 			AuthResource res = resources.getResource( ENVKEY );
 			ops.setStringProperty( PROPERTY_ENVKEY , res.NAME );
@@ -155,7 +155,7 @@ public class MetaEnv extends EngineObject {
 		
 		ops.setBooleanProperty( PROPERTY_DISTR_REMOTE , DISTR_REMOTE );
 		if( DISTR_REMOTE ) {
-			EngineData data = meta.getEngineData();
+			DataService data = meta.getEngineData();
 			EngineInfrastructure infra = data.getInfrastructure();
 			HostAccount account = infra.getHostAccount( DISTR_ACCOUNT );
 			ops.setStringProperty( PROPERTY_DISTR_HOSTLOGIN , account.getFinalAccount() );
@@ -319,7 +319,7 @@ public class MetaEnv extends EngineObject {
 	public AuthResource getEnvKey() throws Exception {
 		if( ENVKEY == null )
 			return( null );
-		EngineData data = meta.getEngineData();
+		DataService data = meta.getEngineData();
 		EngineResources resources = data.getResources();
 		return( resources.getResource( ENVKEY ) );
 	}
@@ -327,7 +327,7 @@ public class MetaEnv extends EngineObject {
 	public HostAccount getDistrAccount() throws Exception {
 		if( DISTR_ACCOUNT == null )
 			return( null );
-		EngineData data = meta.getEngineData();
+		DataService data = meta.getEngineData();
 		EngineInfrastructure infra = data.getInfrastructure();
 		return( infra.getHostAccount( DISTR_ACCOUNT ) );
 	}

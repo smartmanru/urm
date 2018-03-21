@@ -1,6 +1,6 @@
 package org.urm.action.monitor;
 
-import org.urm.engine.status.EngineStatus;
+import org.urm.engine.StateService;
 import org.urm.engine.status.ScopeState;
 import org.urm.meta.product.Meta;
 
@@ -35,7 +35,7 @@ public class MonitorTop {
 	}
 	
 	private void updateTime() throws Exception {
-		EngineStatus status = targetAction.getServerStatus();
+		StateService status = targetAction.getServerStatus();
 		status.updateRunTime( targetAction , targetAction.target.getSegment() );
 	}
 	

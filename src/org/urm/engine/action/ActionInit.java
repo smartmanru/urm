@@ -4,28 +4,28 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.common.Common;
 import org.urm.engine.Engine;
-import org.urm.engine.EngineSession;
-import org.urm.engine.TransactionBase;
-import org.urm.engine.events.EngineEvents;
+import org.urm.engine.AuthService;
+import org.urm.engine.DataService;
+import org.urm.engine.EventService;
+import org.urm.engine.ScheduleService;
+import org.urm.engine.StateService;
+import org.urm.engine.data.EngineBase;
+import org.urm.engine.data.EngineBuilders;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.data.EngineInfrastructure;
+import org.urm.engine.data.EngineLifecycles;
+import org.urm.engine.data.EngineMirrors;
+import org.urm.engine.data.EngineMonitoring;
+import org.urm.engine.data.EngineResources;
+import org.urm.engine.data.EngineSettings;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.events.EngineEventsApp;
-import org.urm.engine.properties.EngineEntities;
-import org.urm.engine.schedule.EngineScheduler;
-import org.urm.engine.status.EngineStatus;
+import org.urm.engine.session.EngineSession;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.EngineData;
-import org.urm.meta.engine.EngineAuth;
-import org.urm.meta.engine.EngineBase;
-import org.urm.meta.engine.EngineBuilders;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.engine.EngineContext;
-import org.urm.meta.engine.EngineDirectory;
-import org.urm.meta.engine.EngineInfrastructure;
-import org.urm.meta.engine.EngineMirrors;
-import org.urm.meta.engine.EngineMonitoring;
-import org.urm.meta.engine.EngineLifecycles;
-import org.urm.meta.engine.EngineResources;
-import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.Meta;
 
 public class ActionInit extends ActionBase {
@@ -41,13 +41,13 @@ public class ActionInit extends ActionBase {
 	public CommandMethod commandAction;
 	public String actionName;
 	public Engine engine;
-	private EngineData data;
+	private DataService data;
 	
 	protected TransactionBase transaction;
 	private boolean memoryOnly;
 	private EngineEventsApp eventsApp;
 
-	public ActionInit( Engine engine , EngineData data , EngineSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , String actionInfo ) {
+	public ActionInit( Engine engine , DataService data , EngineSession session , Artefactory artefactory , CommandExecutor executor , CommandOutput output , String actionInfo ) {
 		super( session , artefactory , executor , output , actionInfo );
 		this.engine = engine;
 		this.data = data;
@@ -71,7 +71,7 @@ public class ActionInit extends ActionBase {
 		this.memoryOnly = memoryOnly;
 		
 		if( !memoryOnly ) {
-			EngineEvents events = data.engine.getEvents();
+			EventService events = data.engine.getEvents();
 			eventsApp = events.createApp( "session-" + super.session.sessionId );
 		}
 	}
@@ -89,7 +89,7 @@ public class ActionInit extends ActionBase {
 
 	public void close() {
 		if( eventsApp != null ) {
-			EngineEvents events = data.engine.getEvents();
+			EventService events = data.engine.getEvents();
 			events.deleteApp( eventsApp );
 		}
 	}
@@ -187,15 +187,15 @@ public class ActionInit extends ActionBase {
 		return( data.getMonitoring() );
 	}
 	
-	public EngineAuth getServerAuth() {
+	public AuthService getServerAuth() {
 		return( engine.getAuth() );
 	}
 	
-	public EngineStatus getServerStatus() {
+	public StateService getServerStatus() {
 		return( engine.getStatus() );
 	}
 	
-	public EngineScheduler getServerScheduler() {
+	public ScheduleService getServerScheduler() {
 		return( engine.getScheduler() );
 	}
 	

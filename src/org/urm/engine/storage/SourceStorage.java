@@ -4,7 +4,6 @@ import org.urm.action.ActionBase;
 import org.urm.action.conf.ConfSourceFolder;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.MirrorRepository;
@@ -20,6 +19,7 @@ import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.ProductMeta;
+import org.urm.meta.release.ReleaseScopeTarget;
 
 public class SourceStorage {
 
@@ -478,7 +478,7 @@ public class SourceStorage {
 		return( PATH );
 	}
 
-	private String getDATAReleaseConfigSourcePath( ActionBase action , Dist distStorage , ReleaseTarget releaseComp ) throws Exception {
+	private String getDATAReleaseConfigSourcePath( ActionBase action , Dist distStorage , ReleaseScopeTarget releaseComp ) throws Exception {
 		String PATH = Common.getPath( getDATAReleasePath( action , distStorage ) , 
 			getConfFolderRelPath( action , releaseComp.distConfItem ) );
 		return( PATH );

@@ -7,7 +7,7 @@ import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
-import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.data.EngineEntities;
 import org.urm.meta.EngineLoader;
 
 public abstract class DBEngineData {

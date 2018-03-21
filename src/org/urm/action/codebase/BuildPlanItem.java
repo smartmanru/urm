@@ -1,12 +1,12 @@
 package org.urm.action.codebase;
 
-import org.urm.engine.dist.ReleaseTarget;
+import org.urm.meta.release.ReleaseScopeTarget;
 
 public class BuildPlanItem {
 	
 	public BuildPlanSet set;
 	public int pos;
-	public ReleaseTarget target;
+	public ReleaseScopeTarget target;
 	public String key;
 	public String dbVersion;
 	
@@ -25,7 +25,7 @@ public class BuildPlanItem {
 	public boolean noBuild;
 	public boolean noGet;
 	
-	public BuildPlanItem( BuildPlanSet set , ReleaseTarget target , int pos , String key ) {
+	public BuildPlanItem( BuildPlanSet set , ReleaseScopeTarget target , int pos , String key ) {
 		this.set = set;
 		this.pos = pos;
 		this.target = target;

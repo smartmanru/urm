@@ -3,9 +3,9 @@ package org.urm.engine.properties;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnumInterface;
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.data.EngineResources;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AuthResource;
-import org.urm.meta.engine.EngineResources;
 
 public class EntityVar {
 
@@ -124,6 +124,22 @@ public class EntityVar {
 	
 	public static EntityVar metaStringVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , String defValue ) {
 		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.STRING , DBEnumParamValueSubType.DEFAULT , DBEnumObjectType.UNKNOWN , required , false , false , defValue , null , null ) );
+	}
+	
+	public static EntityVar metaDate( String propertyKey , String propertyDesc , boolean required ) {
+		return( metaDateVar( propertyKey , propertyKey , propertyKey , propertyDesc , required ) ); 
+	}
+	
+	public static EntityVar metaDateDatabaseOnly( String propertyKey , String propertyDesc , boolean required , String defValue ) {
+		return( metaDateVar( propertyKey , propertyKey , null , propertyDesc , required ) ); 
+	}
+	
+	public static EntityVar metaDateXmlOnly( String propertyKey , String propertyDesc , boolean required , String defValue ) {
+		return( metaDateVar( propertyKey , null , propertyKey , propertyDesc , required ) ); 
+	}
+	
+	public static EntityVar metaDateVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required ) {
+		return( meta( propertyKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , DBEnumParamValueType.DATE , DBEnumParamValueSubType.DEFAULT , DBEnumObjectType.UNKNOWN , required , false , false , null , null , null ) );
 	}
 	
 	public static EntityVar metaInteger( String propertyKey , String propertyDesc , boolean required , Integer defValue ) {

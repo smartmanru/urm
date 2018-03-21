@@ -12,9 +12,6 @@ import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
-import org.urm.engine.dist.ReleaseTicket;
-import org.urm.engine.dist.ReleaseTicketSet;
-import org.urm.engine.dist.ReleaseTicketSetTarget;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaDistr;
@@ -22,6 +19,9 @@ import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.release.ReleaseTicket;
+import org.urm.meta.release.ReleaseTicketSet;
+import org.urm.meta.release.ReleaseTicketSetTarget;
 
 public class ActionTickets extends ActionBase {
 

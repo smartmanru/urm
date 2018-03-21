@@ -8,12 +8,12 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.dist.Release;
-import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.storage.FileSet;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseScopeTarget;
 
 public class ConfDiffSet {
 	
@@ -131,7 +131,7 @@ public class ConfDiffSet {
 				if( dirPrefix != null )
 					compName = Common.getPartAfterFirst( compName , dirPrefix );
 				
-				ReleaseTarget comp = release.getConfComponent( action , compName );
+				ReleaseScopeTarget comp = release.getConfComponent( action , compName );
 				if( !comp.ALL )
 					continue;
 			}
@@ -192,7 +192,7 @@ public class ConfDiffSet {
 				if( dirPrefix != null )
 					compName = Common.getPartAfterFirst( compName , dirPrefix );
 				
-				ReleaseTarget comp = release.getConfComponent( action , compName );
+				ReleaseScopeTarget comp = release.getConfComponent( action , compName );
 				if( !comp.ALL )
 					continue;
 			}

@@ -11,28 +11,37 @@ import org.urm.common.RunError;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.EngineCache;
-import org.urm.engine.EngineCacheObject;
-import org.urm.engine.EngineSession;
-import org.urm.engine.SessionSecurity;
+import org.urm.engine.BlotterService;
+import org.urm.engine.CacheService;
+import org.urm.engine.EventService;
+import org.urm.engine.ScheduleService;
+import org.urm.engine.StateService;
+import org.urm.engine.BlotterService.BlotterType;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.CommandContext;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.action.CommandOutput;
-import org.urm.engine.blotter.EngineBlotter;
 import org.urm.engine.blotter.EngineBlotterSet;
-import org.urm.engine.blotter.EngineBlotter.BlotterType;
+import org.urm.engine.cache.EngineCacheObject;
+import org.urm.engine.data.EngineBase;
+import org.urm.engine.data.EngineBuilders;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.data.EngineInfrastructure;
+import org.urm.engine.data.EngineLifecycles;
+import org.urm.engine.data.EngineMirrors;
+import org.urm.engine.data.EngineMonitoring;
+import org.urm.engine.data.EngineResources;
+import org.urm.engine.data.EngineSettings;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
-import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
-import org.urm.engine.schedule.EngineScheduler;
+import org.urm.engine.session.EngineSession;
+import org.urm.engine.session.SessionSecurity;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
-import org.urm.engine.status.EngineStatus;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.Artefactory;
@@ -46,20 +55,11 @@ import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.AuthUser;
 import org.urm.meta.engine.Datacenter;
-import org.urm.meta.engine.EngineBase;
-import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.EngineContext;
-import org.urm.meta.engine.EngineDirectory;
-import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.MirrorRepository;
-import org.urm.meta.engine.EngineMirrors;
-import org.urm.meta.engine.EngineMonitoring;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.ProjectBuilder;
-import org.urm.meta.engine.EngineLifecycles;
-import org.urm.meta.engine.EngineResources;
-import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -730,7 +730,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public EngineCacheObject getCacheObject( String group , String item ) {
-		EngineCache cache = engine.getCache();
+		CacheService cache = engine.getCache();
 		return( cache.getObject( group , item ) );
 	}
 	
@@ -799,11 +799,11 @@ abstract public class ActionBase extends ActionCore {
 		return( actionInit.getServerBase() );
 	}
 	
-	public EngineStatus getServerStatus() {
+	public StateService getServerStatus() {
 		return( actionInit.getServerStatus() );
 	}
 	
-	public EngineScheduler getServerScheduler() {
+	public ScheduleService getServerScheduler() {
 		return( actionInit.getServerScheduler() );
 	}
 	
@@ -870,7 +870,7 @@ abstract public class ActionBase extends ActionCore {
 		return( builders.getBuilder( match.FKNAME ) );
 	}
 
-	public EngineBlotter getServerBlotter() throws Exception {
+	public BlotterService getServerBlotter() throws Exception {
 		return( engine.blotter );
 	}
 	
@@ -996,7 +996,7 @@ abstract public class ActionBase extends ActionCore {
 				action.runSimpleServerAsync( parentState , SecurityAction.ACTION_EXECUTE , true );
 			else {
 				action.runSimpleServer( parentState , SecurityAction.ACTION_EXECUTE , true );
-				EngineEvents events = engine.getEvents();
+				EventService events = engine.getEvents();
 				events.waitDelivered( action.eventSource );
 			}
 			
