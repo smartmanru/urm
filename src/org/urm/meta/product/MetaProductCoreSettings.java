@@ -4,8 +4,8 @@ import java.nio.charset.Charset;
 
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.data.EngineContext;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.meta.engine.EngineContext;
 
 public class MetaProductCoreSettings {
 

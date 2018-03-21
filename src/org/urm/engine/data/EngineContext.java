@@ -1,8 +1,7 @@
-package org.urm.meta.engine;
+package org.urm.engine.data;
 
 import org.urm.common.RunContext;
 import org.urm.db.core.DBEnums.DBEnumChatType;
-import org.urm.engine.data.EngineSettings;
 import org.urm.engine.properties.ObjectProperties;
 
 public class EngineContext {

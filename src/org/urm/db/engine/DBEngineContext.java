@@ -5,10 +5,10 @@ import org.urm.db.DBConnection;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
+import org.urm.engine.data.EngineContext;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
-import org.urm.meta.engine.EngineContext;
 
 public abstract class DBEngineContext {
 
