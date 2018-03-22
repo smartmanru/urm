@@ -2,57 +2,77 @@ package org.urm.engine.dist;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumLifecycleType;
+import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductBuildSettings;
 
-public class DistLabelInfo {
+public class ReleaseLabelInfo {
 
-	DistRepository repo;
+	public static String LABEL_DEFAULT = "default";
+	public static String LABEL_MASTER = "master";
+	
+	Meta meta;
 	
 	public String RELEASEPATH = "";
 	public String RELEASEVER = "";
 	public String RELEASEDIR = "";
-	public boolean prod;
+	public String VARIANT = "";
+	public boolean master;
 	
-	public DistLabelInfo( DistRepository repo ) {
-		this.repo = repo;
-		this.prod = false;
+	public ReleaseLabelInfo( Meta meta ) {
+		this.meta = meta;
+		this.master = false;
+	}
+	
+	public static ReleaseLabelInfo getLabelInfo( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
+		ReleaseLabelInfo info = new ReleaseLabelInfo( meta );
+		info.createLabelInfo( action , RELEASELABEL );
+		return( info );
 	}
 	
 	public void createLabelInfo( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 
-		if( RELEASELABEL.equals( "default" ) && !action.context.CTX_DISTPATH.isEmpty() ) {
+		if( RELEASELABEL.equals( LABEL_DEFAULT ) && !action.context.CTX_DISTPATH.isEmpty() ) {
 			RELEASEVER = "default";
 			RELEASEDIR = ".";
 			RELEASEPATH = ".";
+			VARIANT = "";
 			return;
 		}
 		
-		if( RELEASELABEL.equals( Dist.MASTER_LABEL ) ) {
+		if( RELEASELABEL.equals( LABEL_MASTER ) ) {
 			RELEASEVER = "(master)";
 			RELEASEDIR = Dist.MASTER_DIR;
 			RELEASEPATH = RELEASEDIR;
-			prod = true;
+			VARIANT = "";
+			master = true;
 		}
 		else
 		if( RELEASELABEL.indexOf( "-" ) > 0 ) {
-			RELEASEVER = getReleaseVerByDir( action , RELEASELABEL );
+			RELEASEVER = getReleaseVerByDir( RELEASELABEL );
 			RELEASEDIR = RELEASELABEL;
 			RELEASEPATH = "releases/" + RELEASEDIR;
+			VARIANT = Common.getPartAfterFirst( RELEASEDIR , "-" );
 		}
 		else {
 			RELEASEVER = getReleaseVerByLabel( action , RELEASELABEL );
-			RELEASEDIR = getReleaseDirByVer( action , RELEASEVER );
+			RELEASEDIR = getReleaseDirByVer( RELEASEVER );
 			RELEASEPATH = "releases/" + RELEASEDIR;
+			VARIANT = "";
 		}
 		
 		action.debug( "release directory=" + RELEASEPATH + " by label=" + RELEASELABEL + " (RELEASEVER=" + RELEASEVER + ")" );
 	}
 	
+	public DBEnumLifecycleType getLifecycleType() {
+		return( VersionInfo.getLifecycleTypeByShortVersion( RELEASEVER ) );
+	}
+	
 	private String getReleaseVerByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 
-		MetaProductBuildSettings build = action.getBuildSettings( repo.meta );
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		
 		String RELEASEVER = "";
 		if( RELEASELABEL.equals( "last" ) ) {
@@ -72,16 +92,16 @@ public class DistLabelInfo {
 		}
 		
 		if( RELEASELABEL.indexOf( "-" ) < 0 ) {
-			RELEASEVER = normalizeReleaseVer( action , RELEASELABEL );
+			RELEASEVER = normalizeReleaseVer( RELEASELABEL );
 			return( RELEASEVER );
 		}
 
-		action.exit1( _Error.UnexpectedReleaseLabel1 , "unexpected release label=" + RELEASELABEL , RELEASELABEL );
+		Common.exit1( _Error.UnexpectedReleaseLabel1 , "unexpected release label=" + RELEASELABEL , RELEASELABEL );
 		return( null );
 	}
 	
-	private String getReleaseDirByVer( ActionBase action , String RELEASEVER ) throws Exception {
-		RELEASEVER = normalizeReleaseVer( action , RELEASEVER );
+	private static String getReleaseDirByVer( String RELEASEVER ) throws Exception {
+		RELEASEVER = normalizeReleaseVer( RELEASEVER );
 		String[] items = Common.splitDotted( RELEASEVER );
 		if( items[3].equals( "0" ) ) {
 			if( items[2].equals( "0" ) )
@@ -91,28 +111,28 @@ public class DistLabelInfo {
 		return( RELEASEVER );
 	}
 	
-	public static String getReleaseVerByDir( ActionBase action , String RELEASEDIR ) throws Exception {
+	public static String getReleaseVerByDir( String RELEASEDIR ) throws Exception {
 		String RELEASEVER = Common.getPartBeforeFirst( RELEASEDIR , "-" );
-		RELEASEVER = normalizeReleaseVer( action , RELEASEVER );
+		RELEASEVER = normalizeReleaseVer( RELEASEVER );
 		return( RELEASEVER );
 	}
 	
-	public static String getReleaseFolder( ActionBase action , Dist dist ) throws Exception {
-		return( "releases/" + dist.RELEASEDIR );
+	public static String getReleaseFolder( String RELEASEDIR ) throws Exception {
+		return( "releases/" + RELEASEDIR );
 	}
 	
-	public static String getArchivedReleaseFolder( ActionBase action , Dist dist ) throws Exception {
-		return( "archive/" + dist.RELEASEDIR );
+	public static String getArchivedReleaseFolder( String RELEASEDIR ) {
+		return( "archive/" + RELEASEDIR );
 	}
 	
-	public static String getArchiveFolder( ActionBase action ) throws Exception {
+	public static String getArchiveFolder() {
 		return( "archive" );
 	}
 	
-	public static String normalizeReleaseVer( ActionBase action , String RELEASEVER ) throws Exception {
+	public static String normalizeReleaseVer( String RELEASEVER ) throws Exception {
 		String[] items = Common.splitDotted( RELEASEVER );
 		if( items.length < 2 && items.length > 4 )
-			action.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
+			Common.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
 		
 		String value = "";
 		for( int k = 0; k < 4; k++ ) {
@@ -122,9 +142,9 @@ public class DistLabelInfo {
 				value += "0";
 			else {
 				if( !items[k].matches( "[0-9]+" ) )
-					action.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
+					Common.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
 				if( items[k].length() > 3 )
-					action.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
+					Common.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
 				value += items[k];
 			}
 		}
