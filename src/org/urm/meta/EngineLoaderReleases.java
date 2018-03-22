@@ -35,7 +35,7 @@ public class EngineLoaderReleases {
 		ProductReleases releases = new ProductReleases( set , meta );
 		set.setReleases( releases );
 
-		DBProductReleases.loaddb( loader , releases );
+		DBProductReleases.loaddb( loader , releases , importxml );
 		
 		// old
 		ActionBase action = loader.getAction();

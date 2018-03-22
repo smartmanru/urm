@@ -31,10 +31,14 @@ public class DBProductReleases {
 		releases.setReleaseRepository( repo );
 	}
 	
-	public static void loaddb( EngineLoader loader , ProductReleases releases ) throws Exception {
+	public static void loaddb( EngineLoader loader , ProductReleases releases , boolean importxml ) throws Exception {
 		ReleaseRepository repo = loaddbRepository( loader , releases );
-		if( repo == null )
-			Common.exitUnexpected();
+		if( repo == null ) {
+			if( !importxml )
+				Common.exitUnexpected();
+			
+			repo = createdbRepository( loader , releases );
+		}
 		
 		releases.setReleaseRepository( repo );
 	} 
