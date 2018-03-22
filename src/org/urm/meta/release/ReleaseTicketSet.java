@@ -248,7 +248,7 @@ public class ReleaseTicketSet {
 
 	public void copyTicket( ActionBase action , ReleaseTicket ticket , ReleaseTicketSet newSet ) throws Exception {
 		if( newSet.findTicket( ticket.CODE ) != null ) {
-			String release = newSet.changes.release.dist.RELEASEDIR;
+			String release = newSet.changes.release.RELEASEVER;
 			action.exit3( _Error.DuplicateReleaseTicket3 , "Duplicate ticket release=" + release + ", set=" + newSet.CODE + ", ticket=" + ticket.CODE , release , newSet.CODE , ticket.CODE );
 		}
 		

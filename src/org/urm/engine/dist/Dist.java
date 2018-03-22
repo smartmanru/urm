@@ -8,18 +8,14 @@ import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseScriptFile;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
+import org.urm.db.release.DBReleaseRepository;
 import org.urm.engine.BlotterService;
-import org.urm.engine.BlotterService.BlotterType;
-import org.urm.engine.blotter.EngineBlotterReleaseItem;
-import org.urm.engine.blotter.EngineBlotterSet;
-import org.urm.engine.data.EngineLifecycles;
 import org.urm.engine.dist.DistState.DISTSTATE;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.MatchItem;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.env.MetaEnvServerLocation;
 import org.urm.meta.product.Meta;
@@ -29,7 +25,6 @@ import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductDoc;
-import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
@@ -335,19 +330,19 @@ public class Dist {
 	// top-level control
 	public void create( ActionBase action , String RELEASEDIR , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		this.RELEASEDIR = RELEASEDIR;
-		state.ctlCreate( action );
+		state.ctlCreateNormal( action , null );
 		load( action );
 	}
 
 	public void changeReleaseDate( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		DBEnumLifecycleType type = release.getLifecycleType();
-		ReleaseLifecycle lcset = getLifecycle( action , meta , lc , type );
+		ReleaseLifecycle lcset = DBReleaseRepository.getLifecycle( action , meta , lc , type );
 		release.setReleaseDate( action , releaseDate , lcset );
 	}
 	
 	public void createMaster( ActionBase action ) throws Exception {
 		this.RELEASEDIR = MASTER_DIR;
-		state.ctlCreateMaster( action );
+		state.ctlCreateMaster( action , null );
 		MetaDistr distr = meta.getDistr();
 		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
 			if( delivery.hasBinaryItems() ) {
@@ -1105,7 +1100,7 @@ public class Dist {
 	}
 	
 	public void createMasterFiles( ActionBase action , Dist src ) throws Exception {
-		release.createMaster( action , src.release.RELEASEVER , true );
+		release.createMaster( action , src.release.RELEASEVER , null );
 		src.gatherFiles( action );
 		
 		for( ReleaseDelivery delivery : src.release.getDeliveries() ) {

@@ -95,8 +95,6 @@ public class DistRepositoryItem {
 
 		Dist dist = new Dist( repo.meta , repo , releaseDist );
 		dist.setFolder( distFolder );
-		
-		VersionInfo info = VersionInfo.getReleaseDirInfo( RELEASEDIR );
 		dist.create( action , distFolder.folderName , releaseDate , lc );
 		return( dist );
 	}
@@ -140,6 +138,10 @@ public class DistRepositoryItem {
 	
 	public synchronized DistRepositoryItemAction[] getHistory() {
 		return( history.toArray( new DistRepositoryItemAction[0] ) );
+	}
+
+	public synchronized Dist createDistNormal( ActionBase action , ReleaseDist releaseDist ) throws Exception {
+		return( null );
 	}
 	
 }

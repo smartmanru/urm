@@ -70,7 +70,7 @@ public class ActionAppendMaster extends ActionBase {
 	}
 
 	private void copyFiles( Dist distMaster , DistRepository repo ) throws Exception {
-		master = repo.copyDist( this , distMaster , distMaster.RELEASEDIR + "-new" );
+		master = repo.copyDist( this , distMaster , distMaster.RELEASEDIR + "-new" , null );
 		
 		master.openForControl( this );
 		master.appendMasterFiles( this , dist );

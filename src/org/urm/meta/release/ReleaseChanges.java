@@ -79,7 +79,7 @@ public class ReleaseChanges {
 	public ReleaseTicketSet getSet( ActionBase action , String code ) throws Exception {
 		ReleaseTicketSet set = sets.get( code );
 		if( set == null )
-			action.exit2( _Error.UnknownReleaseTicketSet2 , "Unknown set=" + code + " in release=" + release.dist.RELEASEDIR , code , release.dist.RELEASEDIR );
+			action.exit2( _Error.UnknownReleaseTicketSet2 , "Unknown set=" + code + " in release=" + release.RELEASEVER , code , release.RELEASEVER );
 		return( set );
 	}
 

@@ -190,7 +190,7 @@ public class ReleaseSchedule {
 	
 	public void changeReleaseSchedule( ActionBase action , Date releaseDate ) throws Exception {
 		if( released )
-			action.exit1( _Error.AlreadyReleased1 , "Release " + release.dist.RELEASEDIR + " is already released" , release.dist.RELEASEDIR );
+			action.exit1( _Error.AlreadyReleased1 , "Release " + release.RELEASEVER + " is already released" , release.RELEASEVER );
 			
 		this.releaseDate = releaseDate;
 		setDeadlines();
@@ -198,7 +198,7 @@ public class ReleaseSchedule {
 		int daysBeforeRelease = getDaysToRelease();
 		if( daysBeforeRelease <= 0 ) {
 			if( !action.isForced() )
-				action.exit1( _Error.DisabledLifecycle1 , "Release " + release.dist.RELEASEDIR + " is trying to release in the past" , release.dist.RELEASEDIR );
+				action.exit1( _Error.DisabledLifecycle1 , "Release " + release.RELEASEVER + " is trying to release in the past" , release.RELEASEVER );
 		}
 		
 		if( releasePhases == 0 )
@@ -223,7 +223,7 @@ public class ReleaseSchedule {
 		int daysDiff = daysBeforeRelease - ( currentDaysRemained + nextDaysRequired );
 		if( daysDiff < 0 ) {
 			if( !action.isForced() )
-				action.exit1( _Error.DisabledLifecycle1 , "Release " + release.dist.RELEASEDIR + " does not fit lifecycle" , release.dist.RELEASEDIR );
+				action.exit1( _Error.DisabledLifecycle1 , "Release " + release.RELEASEVER + " does not fit lifecycle" , release.RELEASEVER );
 			
 			squizeSchedule( action , -daysDiff , currentDaysRemained );
 		}
@@ -255,7 +255,7 @@ public class ReleaseSchedule {
 	public ReleaseSchedulePhase getPhase( ActionBase action , String PHASE ) throws Exception {
 		ReleaseSchedulePhase phase = findPhase( PHASE );
 		if( phase == null )
-			action.exit2( _Error.UnknownReleasePhase2 , "Unknown release=" + release.dist.RELEASEDIR + " phase=" + PHASE , release.dist.RELEASEDIR , PHASE );
+			action.exit2( _Error.UnknownReleasePhase2 , "Unknown release=" + release.RELEASEVER + " phase=" + PHASE , release.RELEASEVER , PHASE );
 		return( phase );
 	}
 	
@@ -462,22 +462,22 @@ public class ReleaseSchedule {
 	public void setPhaseDeadline( ActionBase action , String PHASE , Date deadlineDate ) throws Exception {
 		ReleaseSchedulePhase phase = getPhase( action , PHASE );
 		if( phase.isFinished() )
-			action.exit2( _Error.PhaseFinished2 , "Phase finished, cannot be modified, release=" + release.dist.RELEASEDIR + " phase=" + PHASE , release.dist.RELEASEDIR , PHASE );
+			action.exit2( _Error.PhaseFinished2 , "Phase finished, cannot be modified, release=" + release.RELEASEVER + " phase=" + PHASE , release.RELEASEVER , PHASE );
 		
 		if( deadlineDate.before( started ) ) {
 			String DATE = Common.getDateValue( started );
-			action.exit2( _Error.DateEalierThanReleaseStarted2 , "Date cannot be before date when release has been started, release=" + release.dist.RELEASEDIR + " date=" + DATE , release.dist.RELEASEDIR , DATE );
+			action.exit2( _Error.DateEalierThanReleaseStarted2 , "Date cannot be before date when release has been started, release=" + release.RELEASEVER + " date=" + DATE , release.RELEASEVER , DATE );
 		}
 		
 		if( phase.pos > 0 && deadlineDate.before( phase.getDeadlineStart() ) ) {
 			String DATE = Common.getDateValue( phase.getDeadlineStart() );
-			action.exit2( _Error.DateEalierThanPhaseStart2 , "Date cannot be before date when phase expected to start, release=" + release.dist.RELEASEDIR + " date=" + DATE , release.dist.RELEASEDIR , DATE );
+			action.exit2( _Error.DateEalierThanPhaseStart2 , "Date cannot be before date when phase expected to start, release=" + release.RELEASEVER + " date=" + DATE , release.RELEASEVER , DATE );
 		}
 		
 		Date currentDate = Common.getDateCurrentDay();
 		if( deadlineDate.before( currentDate ) ) {
 			String DATE = Common.getDateValue( currentDate );
-			action.exit2( _Error.DateEalierThanToday2 , "Date cannot be before current date, release=" + release.dist.RELEASEDIR + " date=" + DATE , release.dist.RELEASEDIR , DATE );
+			action.exit2( _Error.DateEalierThanToday2 , "Date cannot be before current date, release=" + release.RELEASEVER + " date=" + DATE , release.RELEASEVER , DATE );
 		}
 		
 		ReleaseSchedulePhase phaseNext = null;
@@ -485,10 +485,10 @@ public class ReleaseSchedule {
 			phaseNext = getPhase( phase.pos + 1 );
 			String DATE = Common.getDateValue( phaseNext.getDeadlineFinish() );
 			if( deadlineDate.after( phaseNext.getDeadlineFinish() ) )
-				action.exit2( _Error.DateEalierThanNextPhaseDeadline2 , "Date cannot be after next phase deadline, release=" + release.dist.RELEASEDIR + " date=" + DATE , release.dist.RELEASEDIR , DATE );
+				action.exit2( _Error.DateEalierThanNextPhaseDeadline2 , "Date cannot be after next phase deadline, release=" + release.RELEASEVER + " date=" + DATE , release.RELEASEVER , DATE );
 			
 			if( phaseNext.requireStartDay() && deadlineDate.compareTo( phaseNext.getDeadlineFinish() ) == 0 )
-				action.exit2( _Error.DateEqualToNextPhaseDeadline2 , "Date should be before next phase deadline, release=" + release.dist.RELEASEDIR + " date=" + DATE , release.dist.RELEASEDIR , DATE );
+				action.exit2( _Error.DateEqualToNextPhaseDeadline2 , "Date should be before next phase deadline, release=" + release.RELEASEVER + " date=" + DATE , release.RELEASEVER , DATE );
 		}
 		
 		// set new deadline, update current and next phases, update release date if current phase is finishing phase, shift best representation
@@ -514,7 +514,7 @@ public class ReleaseSchedule {
 	public void setPhaseDuration( ActionBase action , String PHASE , int duration ) throws Exception {
 		ReleaseSchedulePhase phase = getPhase( action , PHASE );
 		if( phase.isFinished() )
-			action.exit2( _Error.PhaseFinished2 , "Phase finished, cannot be modified, release=" + release.dist.RELEASEDIR + " phase=" + PHASE , release.dist.RELEASEDIR , PHASE );
+			action.exit2( _Error.PhaseFinished2 , "Phase finished, cannot be modified, release=" + release.RELEASEVER + " phase=" + PHASE , release.RELEASEVER , PHASE );
 
 		phase.setDuration( action , duration );
 		setDeadlinesExpected();

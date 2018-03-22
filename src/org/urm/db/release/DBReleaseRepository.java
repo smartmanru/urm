@@ -3,19 +3,13 @@ package org.urm.db.release;
 import java.util.Date;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumLifecycleType;
-import org.urm.engine.BlotterService.BlotterType;
-import org.urm.engine.blotter.EngineBlotterReleaseItem;
-import org.urm.engine.blotter.EngineBlotterSet;
 import org.urm.engine.data.EngineLifecycles;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseLabelInfo;
-import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.dist._Error;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepositoryItem;
-import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.MatchItem;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
@@ -36,7 +30,7 @@ public class DBReleaseRepository {
 		
 		// create meta item
 		Release release = DBRelease.createRelease( action , repo , info.RELEASEVER , releaseDate , lc );
-		ReleaseDist releaseDist = DBReleaseDist.createReleaseDist( action , release , info.VARIANT );
+		ReleaseDist releaseDist = DBReleaseDist.createReleaseDist( release , info.VARIANT );
 		
 		// create distributive
 		DistRepository distrepo = meta.getDistRepository();

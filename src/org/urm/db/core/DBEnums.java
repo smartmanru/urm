@@ -240,7 +240,7 @@ public abstract class DBEnums {
 		RELEASE_TICKETSET(210,null) ,
 		RELEASE_TICKETTARGET(211,null) ,
 		RELEASE_TICKET(212,null) ,
-		RELEASE_DISTFILE(213,null);
+		RELEASE_DISTTARGET(213,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -780,7 +780,7 @@ public abstract class DBEnums {
 		RELEASE_TICKETSET(410,null) ,
 		RELEASE_TICKETTARGET(411,null) ,
 		RELEASE_TICKET(412,null) ,
-		RELEASE_DISTFILE(413,null);
+		RELEASE_DISTTARGET(413,null);
 
 		private final int value;
 		private String[] synonyms;

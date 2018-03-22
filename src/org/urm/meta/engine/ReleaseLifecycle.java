@@ -249,7 +249,7 @@ public class ReleaseLifecycle extends EngineObject {
 			EngineBlotterSet blotter = action.getBlotter( BlotterType.BLOTTER_RELEASE );
 			EngineBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
 			if( item != null )
-				return( getNextReleaseDate( action , item.repoItem.dist.release ) );
+				return( getNextReleaseDate( action , item.release ) );
 		}
 		
 		return( Common.addDays( new Date() , DAYS_TO_RELEASE ) );

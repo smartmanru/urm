@@ -23,7 +23,7 @@ import org.urm.meta.EngineLoader;
 import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
-import org.urm.meta.release.ReleaseDistFile;
+import org.urm.meta.release.ReleaseDistTarget;
 import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.release.ReleaseSchedule;
 import org.urm.meta.release.ReleaseSchedulePhase;
@@ -46,7 +46,7 @@ public class DBReleaseData {
 	public static String TABLE_TICKETSET = "urm_rel_ticketset";
 	public static String TABLE_TICKETTARGET = "urm_rel_tickettarget";
 	public static String TABLE_TICKET = "urm_rel_ticket";
-	public static String TABLE_DISTFILE = "urm_rel_distfile";
+	public static String TABLE_DISTTARGET = "urm_rel_distfile";
 	public static String FIELD_RELEASE_ID = "release_id";
 	public static String FIELD_REPOSITORY_ID = "repo_id";
 	public static String FIELD_REPOSITORY_META_ID = "meta_fkid";
@@ -125,14 +125,15 @@ public class DBReleaseData {
 	public static String FIELD_TICKET_DEVUSER_NAME = "dev_user_fkname";
 	public static String FIELD_TICKET_QAUSER_ID = "qa_user_fkid";
 	public static String FIELD_TICKET_QAUSER_NAME = "qa_user_fkname";
-	public static String FIELD_DISTFILE_ID = "file_id";
-	public static String FIELD_DISTFILE_RELEASETARGET_ID = "releasetarget_id";
-	public static String FIELD_DISTFILE_DIST_ID = "dist_id";
-	public static String FIELD_DISTFILE_FILE = "targetfile";
-	public static String FIELD_DISTFILE_FILE_HASH = "targetfile_hash";
-	public static String FIELD_DISTFILE_FILE_SIZE = "targetfile_size";
-	public static String FIELD_DISTFILE_FILE_TIME = "targetfile_time";
-	public static String FIELD_DISTFILE_SOURCE = "source_dist_id";
+	public static String FIELD_DISTTARGET_ID = "disttarget_id";
+	public static String FIELD_DISTTARGET_RELEASETARGET_ID = "releasetarget_id";
+	public static String FIELD_DISTTARGET_DIST_ID = "dist_id";
+	public static String FIELD_DISTTARGET_FILE = "targetfile";
+	public static String FIELD_DISTTARGET_FILE_PATH = "targetfile_path";
+	public static String FIELD_DISTTARGET_FILE_HASH = "targetfile_hash";
+	public static String FIELD_DISTTARGET_FILE_SIZE = "targetfile_size";
+	public static String FIELD_DISTTARGET_FILE_TIME = "targetfile_time";
+	public static String FIELD_DISTTARGET_SOURCE = "source_dist_id";
 	
 	public static PropertyEntity upgradeEntityReleaseRepository( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
@@ -232,23 +233,24 @@ public class DBReleaseData {
 		return( entity );
 	}
 	
-	public static PropertyEntity upgradeEntityReleaseDistFile( EngineLoader loader ) throws Exception {
+	public static PropertyEntity upgradeEntityReleaseDistTarget( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DISTFILE , DBEnumParamEntityType.RELEASE_DISTFILE , DBEnumObjectVersionType.RELEASE , TABLE_DISTFILE , FIELD_DISTFILE_ID );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DISTTARGET , DBEnumParamEntityType.RELEASE_DISTTARGET , DBEnumObjectVersionType.RELEASE , TABLE_DISTTARGET , FIELD_DISTTARGET_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_DISTFILE_DIST_ID , "release distributive id" , DBEnumObjectType.RELEASE_DIST , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_DISTFILE_RELEASETARGET_ID , "release target id" , DBEnumObjectType.RELEASE_TARGET , true ) ,
-				EntityVar.metaStringVar( ReleaseDistFile.PROPERTY_FILE , FIELD_DISTFILE_FILE , ReleaseDistFile.PROPERTY_FILE , "file name" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseDistFile.PROPERTY_FILE_HASH , FIELD_DISTFILE_FILE_HASH , ReleaseDistFile.PROPERTY_FILE_HASH , "file hash" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseDistFile.PROPERTY_FILE_SIZE , FIELD_DISTFILE_FILE_SIZE , ReleaseDistFile.PROPERTY_FILE_SIZE , "file size" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseDistFile.PROPERTY_FILE_TIME , FIELD_DISTFILE_FILE_TIME , ReleaseDistFile.PROPERTY_FILE_TIME , "file time" , false , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_DISTFILE_SOURCE , "source release distributive id" , DBEnumObjectType.RELEASE_DIST , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_DIST_ID , "release distributive id" , DBEnumObjectType.RELEASE_DIST , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_RELEASETARGET_ID , "release target id" , DBEnumObjectType.RELEASE_TARGET , true ) ,
+				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_FILE , FIELD_DISTTARGET_FILE , ReleaseDistTarget.PROPERTY_FILE , "file name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_FILE_PATH , FIELD_DISTTARGET_FILE_PATH , ReleaseDistTarget.PROPERTY_FILE_PATH , "file path" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_FILE_HASH , FIELD_DISTTARGET_FILE_HASH , ReleaseDistTarget.PROPERTY_FILE_HASH , "file hash" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_FILE_SIZE , FIELD_DISTTARGET_FILE_SIZE , ReleaseDistTarget.PROPERTY_FILE_SIZE , "file size" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_FILE_TIME , FIELD_DISTTARGET_FILE_TIME , ReleaseDistTarget.PROPERTY_FILE_TIME , "file time" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_SOURCE , "source release distributive id" , DBEnumObjectType.RELEASE_DIST , false ) ,
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseDistFile( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DISTFILE , DBEnumParamEntityType.RELEASE_DISTFILE , DBEnumObjectVersionType.RELEASE , TABLE_DISTFILE , FIELD_DISTFILE_ID );
+	public static PropertyEntity loaddbEntityReleaseDistTarget( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DISTTARGET , DBEnumParamEntityType.RELEASE_DISTTARGET , DBEnumObjectVersionType.RELEASE , TABLE_DISTTARGET , FIELD_DISTTARGET_ID );
 		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}

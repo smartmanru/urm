@@ -24,9 +24,9 @@ public class ActionCreateMaster extends ActionBase {
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		DistRepository repo = meta.getDistRepository();
 		if( copy )
-			dist = repo.createMasterCopy( this , RELEASEVER );
+			dist = repo.createMasterCopy( this , RELEASEVER , null );
 		else
-			dist = repo.createMasterInitial( this , RELEASEVER );
+			dist = repo.createMasterInitial( this , RELEASEVER , null );
 		return( SCOPESTATE.RunSuccess );
 	}
 	

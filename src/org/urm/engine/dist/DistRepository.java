@@ -232,7 +232,7 @@ public class DistRepository {
 	public synchronized Dist createMasterInitial( ActionBase action , String RELEASEVER , ReleaseMaster releaseMaster ) throws Exception {
 		ReleaseLabelInfo info = getLabelInfo( action , ReleaseLabelInfo.LABEL_MASTER );
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
-		Dist dist = DistRepositoryItem.createMasterDist( action , this , distFolder , releaseMaster );
+		Dist dist = DistRepositoryItem.createDistMaster( action , this , distFolder , releaseMaster );
 		createDistItem( action , info , dist );
 		return( dist );
 	}
@@ -244,7 +244,7 @@ public class DistRepository {
 			action.exit1( _Error.NotCompletedSource1 , "Unable to use incomplete source release " + src.RELEASEDIR , src.RELEASEDIR );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
-		Dist dist = DistRepositoryItem.createMasterDist( action , this , distFolder , releaseMaster );
+		Dist dist = DistRepositoryItem.createDistMaster( action , this , distFolder , releaseMaster );
 		createDistItem( action , info , dist );
 		dist.createMasterFiles( action , src );
 		dist.finish( action );

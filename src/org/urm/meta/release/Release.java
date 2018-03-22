@@ -68,10 +68,13 @@ public class Release {
 	public DBEnumBuildModeType BUILDMODE;
 	public String COMPATIBILITY;
 	private boolean CUMULATIVE;
+	private boolean ARCHIVED;
 	
-	Map<String,ReleaseScopeSet> sourceSetMap = new HashMap<String,ReleaseScopeSet>();
-	Map<DBEnumScopeCategoryType,ReleaseScopeSet> categorySetMap = new HashMap<DBEnumScopeCategoryType,ReleaseScopeSet>();
-	Map<String,ReleaseDelivery> deliveryMap = new HashMap<String,ReleaseDelivery>();
+	Map<String,ReleaseScopeSet> sourceSetMap;
+	Map<DBEnumScopeCategoryType,ReleaseScopeSet> categorySetMap;
+	Map<String,ReleaseDelivery> deliveryMap;
+	Map<String,ReleaseDist> distMap;
+	ReleaseDist defaultDist;
 
 	public ReleaseSchedule schedule;
 	public ReleaseMaster master;
@@ -81,6 +84,11 @@ public class Release {
 		this.meta = meta;
 		this.repo = repo;
 		schedule = new ReleaseSchedule( meta , this );
+		
+		sourceSetMap = new HashMap<String,ReleaseScopeSet>();
+		categorySetMap = new HashMap<DBEnumScopeCategoryType,ReleaseScopeSet>();
+		deliveryMap = new HashMap<String,ReleaseDelivery>();
+		distMap = new HashMap<String,ReleaseDist>();
 	}
 
 	public Release copy( ActionBase action , Meta rmeta , ReleaseRepository rrepo ) throws Exception {
@@ -91,14 +99,15 @@ public class Release {
 		rr.BUILDMODE = BUILDMODE;
 		rr.COMPATIBILITY = COMPATIBILITY;
 		rr.CUMULATIVE = CUMULATIVE;
+		rr.ARCHIVED = ARCHIVED;
 		
 		rr.copyReleaseScope( action , this );
-		rr.schedule = schedule.copy( action , rr.meta , rr , false );
+		rr.schedule = schedule.copy( action , rmeta , rr , false );
 		
 		if( changes != null )
-			rr.changes = changes.copy( action , meta , rr );
+			rr.changes = changes.copy( action , rmeta , rr );
 		if( master != null )
-			rr.master = master.copy( action , rr );
+			rr.master = master.copy( rmeta , rr.getDefaultReleaseDist() );
 		
 		return( rr );
 	}
@@ -151,6 +160,10 @@ public class Release {
 	
 	public boolean isFinalized() {
 		return( schedule.released );
+	}
+	
+	public ReleaseDist getDefaultReleaseDist() {
+		return( defaultDist );
 	}
 	
 	public void addRelease( ActionBase action , Release src ) throws Exception {
@@ -228,9 +241,6 @@ public class Release {
 	}
 
 	public void createMaster( ActionBase action , String RELEASEVER , String filePath ) throws Exception {
-		createMaster( action , RELEASEVER , false );
-		Document doc = createXml( action );
-		Common.xmlSaveDoc( doc , filePath );
 	}
 	
 	public String[] getSourceSetNames() {
@@ -310,12 +320,13 @@ public class Release {
 		BUILDMODE = getReleasePropertyBuildMode( action , root , PROPERTY_BUILDMODE ); 
 		COMPATIBILITY = getReleaseProperty( action , root , PROPERTY_COMPATIBILITY );
 		CUMULATIVE = getReleasePropertyBoolean( action , root , PROPERTY_CUMULATIVE , false );
+		ARCHIVED = getReleasePropertyBoolean( action , root , PROPERTY_ARCHIVED , false );
 
 		schedule.load( action , root );
 		
 		if( MASTER ) {
 			Node node = ConfReader.xmlGetFirstChild( root , ReleaseLabelInfo.LABEL_MASTER );
-			master = new ReleaseMaster( meta , this );
+			master = new ReleaseMaster( meta , getDefaultReleaseDist() );
 			master.load( action , node );
 		}
 		else {
@@ -1070,7 +1081,21 @@ public class Release {
 			return( DISTSTATE.DIRTY );
 		if( !schedule.completed )
 			return( DISTSTATE.RELEASED );
-		if( )
+		if( !ARCHIVED )
+			return( DISTSTATE.COMPLETED );
+		return( DISTSTATE.ARCHIVED );
+	}
+
+	public ReleaseTarget findTarget( MetaDistrBinaryItem item ) {
+		return( null );
+	}
+	
+	public ReleaseTarget findTarget( MetaDistrConfItem item ) {
+		return( null );
+	}
+	
+	public ReleaseTarget findTarget( MetaProductDoc item ) {
+		return( null );
 	}
 	
 }

@@ -70,7 +70,7 @@ public class EngineBlotterSet extends EngineEventsSource {
 		for( DistRepositoryItem repoItem : repo.getRunItems() ) {
 			String key = getReleaseKey( repoItem );
 			EngineBlotterReleaseItem item = new EngineBlotterReleaseItem( this , key );
-			item.createReleaseItem( repoItem );
+			item.createReleaseItem( repoItem.dist.release );
 			items.put( item.ID , item );
 		}
 	}
@@ -234,7 +234,7 @@ public class EngineBlotterSet extends EngineEventsSource {
 		EngineBlotterReleaseItem item = null;
 		if( op == DistOperation.CREATE ) {
 			item = new EngineBlotterReleaseItem( this , key );
-			item.createReleaseItem( repoItem );
+			item.createReleaseItem( repoItem.dist.release );
 			items.put( item.ID , item );
 			notifyItem( item , BlotterEvent.BLOTTER_START );
 		}
@@ -271,10 +271,10 @@ public class EngineBlotterSet extends EngineEventsSource {
 	public synchronized EngineBlotterReleaseItem findReleaseItem( String productName , String releaseVer ) {
 		for( EngineBlotterItem item : items.values() ) {
 			EngineBlotterReleaseItem releaseItem = ( EngineBlotterReleaseItem )item;
-			if( releaseItem.repoItem.dist.isMaster() )
+			if( releaseItem.release.isMaster() )
 				continue;
 			
-			if( productName.equals( releaseItem.INFO_PRODUCT ) && releaseVer.equals( releaseItem.repoItem.dist.release.RELEASEVER ) )
+			if( productName.equals( releaseItem.INFO_PRODUCT ) && releaseVer.equals( releaseItem.release.RELEASEVER ) )
 				return( releaseItem );
 		}
 		return( null );

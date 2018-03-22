@@ -1,6 +1,8 @@
 package org.urm.meta.release;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -8,6 +10,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist._Error;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
 
 public class ReleaseDelivery {
@@ -233,6 +236,22 @@ public class ReleaseDelivery {
 	
 	public ReleaseScopeItem findDatabaseItem( String name ) {
 		return( schemaItems.get( name ) );
+	}
+
+	public MetaDistrBinaryItem[] getBinaryItems() {
+		Map<String,MetaDistrBinaryItem> map = new HashMap<String,MetaDistrBinaryItem>();
+		for( ReleaseScopeItem item : projectItems.values() )
+			map.put( item.sourceItem.distItem.NAME , item.sourceItem.distItem );
+		for( ReleaseScopeTarget item : manualItems.values() )
+			map.put( item.distManualItem.NAME , item.distManualItem );
+		for( ReleaseScopeTarget item : derivedItems.values() )
+			map.put( item.distDerivedItem.NAME , item.distDerivedItem );
+		
+		List<MetaDistrBinaryItem> list = new LinkedList<MetaDistrBinaryItem>();
+		for( String name : Common.getSortedKeys( map ) )
+			list.add( map.get( name ) );
+		
+		return( list.toArray( new MetaDistrBinaryItem[0] ) );
 	}
 	
 	public boolean isEmpty() {

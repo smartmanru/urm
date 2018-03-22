@@ -109,20 +109,21 @@ CREATE TABLE main.urm_rel_dist (
 COMMENT ON TABLE main.urm_rel_dist IS 'Release distibutive';
 
 
-CREATE TABLE main.urm_rel_distfile (
-                file_id INTEGER NOT NULL,
+CREATE TABLE main.urm_rel_disttarget (
+                disttarget_id INTEGER NOT NULL,
                 release_id INTEGER NOT NULL,
                 releasetarget_id INTEGER NOT NULL,
                 dist_id INTEGER NOT NULL,
+                targetfile VARCHAR,
+                targetfile_folder VARCHAR,
                 targetfile_size BIGINT,
                 targetfile_hash VARCHAR(30),
                 targetfile_time DATE,
-                targetfile VARCHAR,
                 source_dist_id INTEGER,
                 rv INTEGER NOT NULL,
-                CONSTRAINT urm_rel_distfile_pk PRIMARY KEY (file_id)
+                CONSTRAINT urm_rel_disttarget_pk PRIMARY KEY (disttarget_id)
 );
-COMMENT ON TABLE main.urm_rel_distfile IS 'Distributive file';
+COMMENT ON TABLE main.urm_rel_disttarget IS 'Distributive target';
 
 
 ALTER TABLE main.urm_rel_main ADD CONSTRAINT urm_rel_repository_release_fk
@@ -167,6 +168,13 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
+ALTER TABLE main.urm_rel_disttarget ADD CONSTRAINT urm_rel_main_urm_rel_distfile_fk
+FOREIGN KEY (release_id)
+REFERENCES main.urm_rel_main (release_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
 ALTER TABLE main.urm_rel_scopeset ADD CONSTRAINT urm_rel_target_scopeset_fk
 FOREIGN KEY (releasetarget_id)
 REFERENCES main.urm_rel_target (releasetarget_id)
@@ -188,7 +196,7 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE main.urm_rel_distfile ADD CONSTRAINT urm_rel_target_distfile_fk
+ALTER TABLE main.urm_rel_disttarget ADD CONSTRAINT urm_rel_target_urm_rel_distfile_fk
 FOREIGN KEY (releasetarget_id)
 REFERENCES main.urm_rel_target (releasetarget_id)
 ON DELETE NO ACTION
@@ -209,14 +217,14 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE main.urm_rel_distfile ADD CONSTRAINT urm_rel_dist_distfile_fk
+ALTER TABLE main.urm_rel_disttarget ADD CONSTRAINT urm_rel_dist_urm_rel_distfile_fk
 FOREIGN KEY (dist_id)
 REFERENCES main.urm_rel_dist (dist_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE main.urm_rel_distfile ADD CONSTRAINT urm_rel_dist_distfile_source_fk
+ALTER TABLE main.urm_rel_disttarget ADD CONSTRAINT urm_rel_dist_urm_rel_distfile_fk1
 FOREIGN KEY (source_dist_id)
 REFERENCES main.urm_rel_dist (dist_id)
 ON DELETE NO ACTION

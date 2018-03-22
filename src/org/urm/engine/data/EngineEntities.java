@@ -178,7 +178,7 @@ public class EngineEntities {
 		entityAppReleaseTicketSet = DBReleaseData.upgradeEntityReleaseTicketSet( loader );
 		entityAppReleaseTicketTarget = DBReleaseData.upgradeEntityReleaseTicketTarget( loader );
 		entityAppReleaseTicket = DBReleaseData.upgradeEntityReleaseTicket( loader );
-		entityAppReleaseDistFile = DBReleaseData.upgradeEntityReleaseDistFile( loader );
+		entityAppReleaseDistFile = DBReleaseData.upgradeEntityReleaseDistTarget( loader );
 		
 		entityCustomRC = DBEngineContext.createEntityCustomRC( loader );
 		entityCustomEngine = DBEngineContext.createEntityCustomEngine( loader );
@@ -245,7 +245,7 @@ public class EngineEntities {
 		entityAppReleaseTicketSet = DBReleaseData.loaddbEntityReleaseTicketSet( c );
 		entityAppReleaseTicketTarget = DBReleaseData.loaddbEntityReleaseTicketTarget( c );
 		entityAppReleaseTicket = DBReleaseData.loaddbEntityReleaseTicket( c );
-		entityAppReleaseDistFile = DBReleaseData.loaddbEntityReleaseDistFile( c );
+		entityAppReleaseDistFile = DBReleaseData.loaddbEntityReleaseDistTarget( c );
 		
 		entityCustomRC = DBEngineContext.loaddbEntityCustomRC( c );
 		entityCustomEngine = DBEngineContext.loaddbEntityCustomEngine( c );
