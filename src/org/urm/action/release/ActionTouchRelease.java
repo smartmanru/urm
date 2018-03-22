@@ -20,7 +20,7 @@ public class ActionTouchRelease extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
-		DistRepository repo = artefactory.getDistRepository( this , meta );
+		DistRepository repo = meta.getDistRepository();
 		dist = repo.reloadDist( this , RELEASELABEL );
 		return( SCOPESTATE.RunSuccess );
 	}

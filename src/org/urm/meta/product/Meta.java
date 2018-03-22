@@ -13,6 +13,7 @@ import org.urm.meta.Types.*;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
+import org.urm.meta.release.ProductReleases;
 import org.urm.meta.env.MetaMonitoring;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -199,6 +200,10 @@ public class Meta extends EngineObject {
 	
 	public ProductEnvs getEnviroments() {
 		return( storage.getEnviroments() );
+	}
+	
+	public ProductReleases getReleases() {
+		return( storage.getReleases() );
 	}
 	
 	public DistRepository getDistRepository() {

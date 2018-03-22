@@ -108,7 +108,7 @@ public class ActionImportDatabase extends ActionBase {
 	}
 
 	private void checkSource() throws Exception {
-		DistRepository repository = artefactory.getDistRepository( this , server.meta );
+		DistRepository repository = server.meta.getDistRepository();
 		distDataFolder = repository.getDataFolder( this , DATASET );
 		if( !distDataFolder.checkExists( this ) )
 			exit1( _Error.MissingDataFolder1 , "data folder does not exist: " + distDataFolder.folderPath , distDataFolder.folderPath );

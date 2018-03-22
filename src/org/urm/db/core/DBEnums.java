@@ -239,7 +239,8 @@ public abstract class DBEnums {
 		RELEASE_PHASE(209,null) ,
 		RELEASE_TICKETSET(210,null) ,
 		RELEASE_TICKETTARGET(211,null) ,
-		RELEASE_TICKET(212,null);
+		RELEASE_TICKET(212,null) ,
+		RELEASE_DISTFILE(213,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -778,7 +779,8 @@ public abstract class DBEnums {
 		RELEASE_PHASE(409,null) ,
 		RELEASE_TICKETSET(410,null) ,
 		RELEASE_TICKETTARGET(411,null) ,
-		RELEASE_TICKET(412,null);
+		RELEASE_TICKET(412,null) ,
+		RELEASE_DISTFILE(413,null);
 
 		private final int value;
 		private String[] synonyms;

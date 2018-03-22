@@ -11,10 +11,10 @@ import org.urm.action.codebase.ActionPatch;
 import org.urm.action.conf.ActionGetConf;
 import org.urm.action.database.ActionGetDB;
 import org.urm.action.release.ActionAddScope;
-import org.urm.action.release.ActionAppendProd;
+import org.urm.action.release.ActionAppendMaster;
 import org.urm.action.release.ActionArchiveRelease;
 import org.urm.action.release.ActionCopyRelease;
-import org.urm.action.release.ActionCreateProd;
+import org.urm.action.release.ActionCreateMaster;
 import org.urm.action.release.ActionCreateRelease;
 import org.urm.action.release.ActionDeleteRelease;
 import org.urm.action.release.ActionDescope;
@@ -217,11 +217,11 @@ public class BlotterService {
 		// release blotter
 		if( action instanceof ActionCopyRelease ) {
 			ActionCopyRelease xa = ( ActionCopyRelease )action;
-			runDistAction( xa , success , xa.src.meta , xa.dst , DistOperation.CREATE , "copy distributive from " + xa.src.RELEASEDIR + " to " + xa.RELEASEDST ); 
+			runDistAction( xa , success , xa.src.meta , xa.dist , DistOperation.CREATE , "copy distributive from " + xa.src.RELEASEDIR + " to " + xa.RELEASEDIR ); 
 		}
 		else
-		if( action instanceof ActionCreateProd ) {
-			ActionCreateProd xa = ( ActionCreateProd )action;
+		if( action instanceof ActionCreateMaster ) {
+			ActionCreateMaster xa = ( ActionCreateMaster )action;
 			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.CREATE , "create/copy production master distributive version=" + xa.RELEASEVER ); 
 		}
 		else
@@ -260,8 +260,8 @@ public class BlotterService {
 			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.STATUS , "reload distributive releasedir=" + xa.RELEASELABEL ); 
 		}
 		else
-		if( action instanceof ActionAppendProd ) {
-			ActionAppendProd xa = ( ActionAppendProd )action;
+		if( action instanceof ActionAppendMaster ) {
+			ActionAppendMaster xa = ( ActionAppendMaster )action;
 			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "append master distributive releasedir=" + xa.dist.RELEASEDIR ); 
 		}
 		else
@@ -329,8 +329,8 @@ public class BlotterService {
 
 	public void runDistStatus( ActionBase action , Meta meta , Dist dist ) {
 		try {
-			DistRepository repo = action.artefactory.getDistRepository( action , meta );
-			DistRepositoryItem distItem = repo.findRunItem( action , dist );
+			DistRepository repo = meta.getDistRepository();
+			DistRepositoryItem distItem = repo.findRunItem( dist );
 			if( distItem == null )
 				return;
 			
@@ -344,12 +344,12 @@ public class BlotterService {
 	private void runDistAction( ActionBase action , boolean success , Meta meta , Dist dist , DistOperation op , String msg ) {
 		try {
 			DistRepositoryItem distItem = null;
-			DistRepository repo = action.artefactory.getDistRepository( action , meta );
+			DistRepository repo = meta.getDistRepository();
 			if( op != DistOperation.STATUS )
 				distItem = repo.addDistAction( action , success , dist , op , msg );
 			else {
 				if( dist != null )
-					distItem = repo.findRunItem( action , dist );
+					distItem = repo.findRunItem( dist );
 			}
 			
 			if( distItem == null )

@@ -8,6 +8,7 @@ import org.urm.db.core.DBEnums.*;
 
 public class VersionInfo {
 
+	DBEnumLifecycleType type;
 	private int v1; 
 	private int v2; 
 	private int v3; 
@@ -24,6 +25,7 @@ public class VersionInfo {
 	
 	public VersionInfo copy() {
 		VersionInfo r = new VersionInfo();
+		r.type = type;
 		r.v1 = v1;
 		r.v2 = v2;
 		r.v3 = v3;
@@ -72,13 +74,26 @@ public class VersionInfo {
 	public void setVersion( String version ) throws Exception {
 		int[] vn = new int[4];
 		parseVersion( version , vn );
+		setVersion( vn );
+	}
+
+	public void setVersion( int[] vn ) throws Exception {
 		v1 = vn[0]; 
 		v2 = vn[1]; 
 		v3 = vn[2]; 
 		v4 = vn[3]; 
 		variant = "";
+		
+		type = DBEnumLifecycleType.UNKNOWN;
+		if( v4 != 0 )
+			type = DBEnumLifecycleType.URGENT;
+		else
+		if( v3 != 0 )
+			type = DBEnumLifecycleType.MINOR;
+		else
+			type = DBEnumLifecycleType.MAJOR;
 	}
-
+	
 	public void setReleaseDir( String releaseDir ) throws Exception {
 		String version = Common.getPartBeforeLast( releaseDir , "-" );
 		setVersion( version );
@@ -91,11 +106,8 @@ public class VersionInfo {
 		
 		if( !dist.isMaster() )
 			checkDistVersion( vn , Common.getPartBeforeLast( dist.RELEASEDIR , "-" ) );
-		
-		v1 = vn[0]; 
-		v2 = vn[1]; 
-		v3 = vn[2]; 
-		v4 = vn[3]; 
+
+		setVersion( vn );
 		variant = Common.getPartAfterLast( dist.RELEASEDIR , "-" );
 	}
 	
@@ -178,11 +190,7 @@ public class VersionInfo {
 	}
 
 	public DBEnumLifecycleType getLifecycleType() {
-		if( v4 != 0 )
-			return( DBEnumLifecycleType.URGENT );
-		if( v3 != 0 )
-			return( DBEnumLifecycleType.MINOR );
-		return( DBEnumLifecycleType.MAJOR );
+		return( type );
 	}
 	
 	public static DBEnumLifecycleType getLifecycleTypeByFullVersion( String RELEASEVER ) {

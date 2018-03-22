@@ -2,17 +2,18 @@ package org.urm.engine.dist;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.release.DBReleaseDist;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.engine.ReleaseLifecycle;
-import org.urm.meta.release.Release;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.release.ReleaseDist;
+import org.urm.meta.release.ReleaseMaster;
 
 public class DistState {
 
@@ -189,7 +190,7 @@ public class DistState {
 		}
 	}
 
-	public void ctlCreate( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
+	public void ctlCreateNormal( ActionBase action , ReleaseDist releaseDist ) throws Exception {
 		// create release.xml, create status file, set closed dirty state
 		// check current status
 		ctlLoadReleaseState( action );
@@ -199,14 +200,14 @@ public class DistState {
 		}
 			
 		// create directory
-		createMetaFile( action , releaseDate , lc );
+		saveMetaFile( action , releaseDist );
 		
 		// set status
 		ctlSetStatus( action , DISTSTATE.DIRTY );
 		action.info( "release has been created: " + dist.RELEASEDIR );
 	}
 	
-	public void ctlCreateProd( ActionBase action , String RELEASEVER ) throws Exception {
+	public void ctlCreateMaster( ActionBase action , ReleaseMaster master ) throws Exception {
 		// create release.xml, create status file, set closed dirty state
 		if( !distFolder.checkExists( action ) )
 			action.exit0( _Error.MissingProdDistributiveDirectory0 , "prod distributive directory should exist" );
@@ -218,9 +219,8 @@ public class DistState {
 		
 		// create empty release.xml
 		String filePath = action.artefactory.workFolder.getFilePath( action , Dist.META_FILENAME );
-		
-		Release info = new Release( dist.meta , dist );
-		info.createMaster( action , RELEASEVER , filePath );
+		EngineLoader loader = action.engine.createLoader( action );
+		DBReleaseDist.exportxml( loader , master , filePath );
 		distFolder.copyFileFromLocal( action , filePath );
 		
 		// set status
@@ -421,14 +421,11 @@ public class DistState {
         }		
 	}
 
-	public void createMetaFile( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
+	public void saveMetaFile( ActionBase action , ReleaseDist releaseDist ) throws Exception {
 		// create empty release.xml
 		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
-		String RELEASEDIR = distFolder.folderName;
-		
-		Release info = new Release( dist.meta , dist );
-		String RELEASEVER = DistLabelInfo.getReleaseVerByDir( action , RELEASEDIR ); 
-		info.createNormal( action , RELEASEVER , releaseDate , lc , filePath );
+		EngineLoader loader = action.engine.createLoader( action );
+		DBReleaseDist.exportxml( loader , releaseDist , filePath );
 		
 		distFolder.ensureExists( action );
 		distFolder.copyFileFromLocal( action , filePath );

@@ -218,24 +218,41 @@ public class ReleaseLifecycle extends EngineObject {
 		return( REGULAR );
 	}
 
-	public static Date getReleaseDate( ActionBase action , String RELEASEVER , Meta meta ) throws Exception {
+	public static Date findReleaseDate( ActionBase action , String RELEASEVER , Meta meta , ReleaseLifecycle lc ) throws Exception {
+		Date date = null;
+		if( lc == null )
+			date = ReleaseLifecycle.findReleaseDate( action , RELEASEVER , meta );
+		else
+			date = lc.getReleaseDate( action , RELEASEVER , meta );
+		return( date );
+	}
+	
+	public static Date findReleaseDate( ActionBase action , String RELEASEVER , Meta meta ) throws Exception {
 		VersionInfo info = VersionInfo.getReleaseDirInfo( RELEASEVER );
-		String prevReleaseVer = info.getPreviousVersion();
-		if( prevReleaseVer.isEmpty() )
-			return( null );
 		
-		EngineBlotterSet blotter = action.getBlotter( BlotterType.BLOTTER_RELEASE );
-		EngineBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
-		if( item == null )
-			return( null );
-
-		DBEnumLifecycleType lctype = VersionInfo.getLifecycleTypeByShortVersion( item.repoItem.dist.release.RELEASEVER );
 		MetaProductPolicy policy = meta.getPolicy();
-		ReleaseLifecycle lc = policy.findLifecycle( action , lctype );
+		ReleaseLifecycle lc = policy.findLifecycle( action , info.getLifecycleType() );
 		if( lc == null )
 			return( null );
 		
-		return( lc.getNextReleaseDate( action , item.repoItem.dist.release ) );
+		return( lc.getReleaseDate( action , RELEASEVER , meta , info ) );
+	}
+
+	public Date getReleaseDate( ActionBase action , String RELEASEVER , Meta meta ) throws Exception {
+		VersionInfo info = VersionInfo.getReleaseDirInfo( RELEASEVER );
+		return( getReleaseDate( action , RELEASEVER , meta , info ) );
+	}
+	
+	public Date getReleaseDate( ActionBase action , String RELEASEVER , Meta meta , VersionInfo info ) throws Exception {
+		String prevReleaseVer = info.getPreviousVersion();
+		if( !prevReleaseVer.isEmpty() ) {
+			EngineBlotterSet blotter = action.getBlotter( BlotterType.BLOTTER_RELEASE );
+			EngineBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
+			if( item != null )
+				return( getNextReleaseDate( action , item.repoItem.dist.release ) );
+		}
+		
+		return( Common.addDays( new Date() , DAYS_TO_RELEASE ) );
 	}
 	
 	public Date getNextReleaseDate( ActionBase action , Release release ) throws Exception {

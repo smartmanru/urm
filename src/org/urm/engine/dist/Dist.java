@@ -35,6 +35,8 @@ import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDelivery;
+import org.urm.meta.release.ReleaseDist;
+import org.urm.meta.release.ReleaseMasterItem;
 import org.urm.meta.release.ReleaseScopeSet;
 import org.urm.meta.release.ReleaseScopeTarget;
 import org.urm.meta.release.ReleaseScopeItem;
@@ -42,7 +44,6 @@ import org.w3c.dom.Document;
 
 public class Dist {
 
-	public static String MASTER_LABEL = "master";
 	public static String MASTER_DIR = "master";
 	
 	public static String META_FILENAME = "release.xml";
@@ -64,6 +65,7 @@ public class Dist {
 	private RemoteFolder distFolder;
 	
 	public String RELEASEDIR;
+	public ReleaseDist releaseDist;
 	public Release release;
 	String infoPath;
 
@@ -74,35 +76,15 @@ public class Dist {
 	boolean openedForChange;
 	boolean openedForControl;
 	
-	public Dist( Meta meta , DistRepository repo ) {
+	public Dist( Meta meta , DistRepository repo , ReleaseDist releaseDist ) {
 		this.meta = meta;
 		this.repo = repo;
-	}
-	
-	public Dist copy( ActionBase action , DistRepository rrepo ) throws Exception {
-		Dist rdist = new Dist( rrepo.meta , rrepo );
-		rdist.distFolder = distFolder;
-		rdist.RELEASEDIR = RELEASEDIR;
-		
-		rdist.release = release.copy( action , rdist );
-		rdist.infoPath = infoPath;
-		rdist.files = files;
-		rdist.state = state.copy( action , rdist );
-		
-		rdist.openedForUse = openedForUse;
-		rdist.openedForChange = openedForChange;
-		rdist.openedForControl = openedForControl;
-		return( rdist );
+		this.releaseDist = releaseDist;
+		this.release = releaseDist.release;
 	}
 	
 	public void load( ActionBase action ) throws Exception {
-		action.debug( "loading release specification from " + META_FILENAME + " ..." );
-		
 		state.ctlLoadReleaseState( action );
-		
-		infoPath = distFolder.copyFileToLocal( action , action.getWorkFolder() , META_FILENAME , "" );
-		release = new Release( meta , this );
-		release.load( action , infoPath );
 	}
 
 	public void setFolder( RemoteFolder distFolder ) {
@@ -353,13 +335,7 @@ public class Dist {
 	// top-level control
 	public void create( ActionBase action , String RELEASEDIR , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		this.RELEASEDIR = RELEASEDIR;
-		VersionInfo info = VersionInfo.getReleaseDirInfo( RELEASEDIR );
-		lc = getLifecycle( action , meta , lc , info.getLifecycleType() );
-		releaseDate = getReleaseDate( action , releaseDate , lc );
-		if( releaseDate == null )
-			action.exit1( _Error.MissingReleaseDate1 , "unable to create release label=" + RELEASEDIR + " due to missing release date" , RELEASEDIR );
-		
-		state.ctlCreate( action , releaseDate , lc );
+		state.ctlCreate( action );
 		load( action );
 	}
 
@@ -369,9 +345,9 @@ public class Dist {
 		release.setReleaseDate( action , releaseDate , lcset );
 	}
 	
-	public void createProd( ActionBase action , String RELEASEVER ) throws Exception {
+	public void createMaster( ActionBase action ) throws Exception {
 		this.RELEASEDIR = MASTER_DIR;
-		state.ctlCreateProd( action , RELEASEVER );
+		state.ctlCreateMaster( action );
 		MetaDistr distr = meta.getDistr();
 		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
 			if( delivery.hasBinaryItems() ) {
@@ -1123,93 +1099,6 @@ public class Dist {
 		}
 	}
 	
-	public static ReleaseLifecycle getLifecycle( ActionBase action , Meta meta , ReleaseLifecycle lc , DBEnumLifecycleType type ) throws Exception {
-		MetaProductPolicy policy = meta.getPolicy();
-		
-		if( type == DBEnumLifecycleType.MAJOR ) {
-			Integer expected = policy.getMajorId( action );
-			if( expected == null ) {
-				if( lc != null )
-					return( lc );
-			}
-			else {
-				if( lc != null ) {
-					if( expected != lc.ID )
-						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" + lc.NAME , lc.NAME );
-					return( lc );
-				}
-				
-				EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
-				return( lifecycles.getLifecycle( expected ) );
-			}
-		}
-		else
-		if( type == DBEnumLifecycleType.MINOR ) {
-			Integer expected = policy.getMinorId( action );
-			if( expected == null ) {
-				if( lc != null )
-					return( lc );
-			}
-			else {
-				if( lc != null ) {
-					if( expected != lc.ID )
-						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" + lc.NAME , lc.NAME );
-					return( lc );
-				}
-				
-				EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
-				return( lifecycles.getLifecycle( expected ) );
-			}
-		}
-		else
-		if( type == DBEnumLifecycleType.URGENT ) {
-			MatchItem[] expected = policy.LC_URGENT_LIST;
-			if( expected.length == 0 ) {
-				if( lc != null )
-					return( lc );
-			}
-			else {
-				if( lc != null ) {
-					for( int k = 0; k < expected.length; k++ ) {
-						if( expected[ k ].FKID == lc.ID )
-							return( lc );
-					}
-					action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" + lc.NAME , lc.NAME );
-				}
-				
-				action.exit0( _Error.MissingReleasecycleType0 , "Missing release cycle type" );
-			}
-		}
-		
-		return( null );
-	}
-	
-	private Date getReleaseDate( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
-		if( releaseDate != null )
-			return( releaseDate );
-		
-		if( lc != null ) {
-			if( lc.isRegular() ) {
-				VersionInfo info = VersionInfo.getReleaseDirInfo( RELEASEDIR );
-				String prevReleaseVer = info.getPreviousVersion();
-				
-				if( !prevReleaseVer.isEmpty() ) {
-					EngineBlotterSet blotter = action.getBlotter( BlotterType.BLOTTER_RELEASE );
-					EngineBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
-					
-					if( item != null ) {
-						releaseDate = Common.addDays( item.repoItem.dist.release.schedule.releaseDate , lc.SHIFT_DAYS );
-						return( releaseDate );
-					}
-				}
-			}
-			
-		}
-		
-		action.exit0( _Error.MissingReleaseDate0 , "Missing release date" );
-		return( null );
-	}
-
 	public void finishStatus( ActionBase action ) throws Exception {
 		BlotterService blotter = action.getServerBlotter();
 		blotter.runDistStatus( action , meta , this );
@@ -1264,7 +1153,7 @@ public class Dist {
 		folder.createFileFromString( action , info.fileName + ".md5" , info.md5value );
 	}
 
-	public Dist copyDist( ActionBase action , String newName ) throws Exception {
+	public Dist copyDist( ActionBase action , String newName , ReleaseDist newReleaseDist ) throws Exception {
 		RemoteFolder parent = distFolder.getParentFolder( action );
 		if( !parent.checkFolderExists( action , RELEASEDIR ) )
 			action.exitUnexpectedState();
@@ -1273,7 +1162,7 @@ public class Dist {
 		
 		parent.copyDir( action , RELEASEDIR , newName );
 		RemoteFolder folderNew = parent.getSubFolder( action , newName );
-		Dist distNew = DistRepositoryItem.read( action , repo , folderNew );
+		Dist distNew = DistRepositoryItem.read( action , repo , folderNew , newReleaseDist );
 		return( distNew );
 	}
 

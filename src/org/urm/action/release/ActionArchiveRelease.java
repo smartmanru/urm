@@ -16,7 +16,7 @@ public class ActionArchiveRelease extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
-		DistRepository repo = artefactory.getDistRepository( this , dist.meta );
+		DistRepository repo = dist.repo;
 		if( !dist.isCompleted() ) {
 			super.fail1( _Error.ArchiveNotCompleted1 , "Cannot archive not completed release=" + dist.RELEASEDIR , dist.RELEASEDIR );
 			return( SCOPESTATE.RunFail );

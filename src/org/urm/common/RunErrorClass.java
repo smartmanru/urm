@@ -32,6 +32,7 @@ public class RunErrorClass {
 	public static int BaseDB = 400000;
 	public static int BaseDBCore = 401000;
 	public static int BaseDBEngine = 402000;
+	public static int BaseDBRelease = 403000;
 	public static int BasePlugin = 800000;
 	
 	public static int InternalBase = 500;

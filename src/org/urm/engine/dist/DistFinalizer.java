@@ -9,6 +9,8 @@ import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDelivery;
+import org.urm.meta.release.ReleaseMaster;
+import org.urm.meta.release.ReleaseMasterItem;
 import org.urm.meta.release.ReleaseScopeTarget;
 import org.urm.meta.release.ReleaseScopeItem;
 

@@ -1,12 +1,11 @@
 package org.urm.engine.blotter;
 
 import org.urm.common.Common;
-import org.urm.engine.dist.DistRepositoryItem;
-import org.urm.engine.dist.VersionInfo;
+import org.urm.meta.release.Release;
 
 public class EngineBlotterReleaseItem extends EngineBlotterItem {
 
-	public DistRepositoryItem repoItem;
+	public Release release;
 	
 	public String INFO_PRODUCT;
 	public String SORTKEY;
@@ -15,22 +14,21 @@ public class EngineBlotterReleaseItem extends EngineBlotterItem {
 		super( blotterSet , ID );
 	}
 
-	public void createReleaseItem( DistRepositoryItem repoItem ) {
-		this.repoItem = repoItem;
-		this.INFO_PRODUCT = repoItem.repo.meta.name;
+	public void createReleaseItem( Release release ) {
+		this.release = release;
+		this.INFO_PRODUCT = release.repo.meta.name;
 		SORTKEY = getSortKey();
 	}
 	
 	private String getSortKey() {
-		String RELEASEVER = VersionInfo.getReleaseDirVersion( repoItem.RELEASEDIR );
-		String RELEASEVARIANT = VersionInfo.getReleaseVariant( repoItem.RELEASEDIR );
+		String RELEASEVER = release.RELEASEVER;
 		String[] version = Common.splitDotted( RELEASEVER );
 		for( int k = 0; k < version.length; k++ ) {
 			String s = "0000000000" + version[ k ];
 			version[ k ] = s.substring( version[ k ].length() );
 		}
 			 
-		return( repoItem.repo.meta.name + "-" + Common.getListDotted( version ) + "-" + RELEASEVARIANT );
+		return( release.repo.meta.name + "-" + Common.getListDotted( version ) );
 	}
 	
 }

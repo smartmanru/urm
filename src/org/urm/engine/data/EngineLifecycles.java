@@ -50,8 +50,8 @@ public class EngineLifecycles extends EngineObject {
 		if( item == null )
 			return( null );
 		if( item.MATCHED )
-			return( lcMap.get( item.FKNAME ) );
-		return( lcMapById.get( item.FKID ) );
+			return( lcMapById.get( item.FKID ) );
+		return( lcMap.get( item.FKNAME ) );
 	}
 
 	public ReleaseLifecycle getLifecycle( MatchItem item ) throws Exception {

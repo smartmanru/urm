@@ -9,11 +9,9 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
-import org.urm.engine.dist.DistLabelInfo;
-import org.urm.engine.dist.ReleaseMaster;
-import org.urm.engine.dist.ReleaseMasterItem;
+import org.urm.engine.dist.DistState.DISTSTATE;
+import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.dist._Error;
 import org.urm.meta.engine.ReleaseLifecycle;
@@ -32,24 +30,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class Release {
-
-	public Meta meta;
-	public Dist dist;
-	
-	public String RELEASEVER;
-	
-	public boolean MASTER;
-	public DBEnumBuildModeType BUILDMODE;
-	public String COMPATIBILITY;
-	private boolean CUMULATIVE;
-	
-	Map<String,ReleaseScopeSet> sourceSetMap = new HashMap<String,ReleaseScopeSet>();
-	Map<DBEnumScopeCategoryType,ReleaseScopeSet> categorySetMap = new HashMap<DBEnumScopeCategoryType,ReleaseScopeSet>();
-	Map<String,ReleaseDelivery> deliveryMap = new HashMap<String,ReleaseDelivery>();
-
-	public ReleaseSchedule schedule;
-	public ReleaseMaster master;
-	public ReleaseChanges changes;
 
 	public static String ELEMENT_RELEASE = "release";
 	public static String ELEMENT_SET = "set";
@@ -77,29 +57,34 @@ public class Release {
 	public static String PROPERTY_BUILDMODE = "mode"; 
 	public static String PROPERTY_COMPATIBILITY = "over";
 	public static String PROPERTY_CUMULATIVE = "cumulative";
+	public static String PROPERTY_ARCHIVED = "archived";
 	
-	public static String PROPERTY_RELEASE = "release";
-	public static String PROPERTY_DATEADDED = "added";
-	public static String PROPERTY_KEY = "key";
-	public static String PROPERTY_DELIVERY = "delivery";
-	public static String PROPERTY_FOLDER = "folder";
-	public static String PROPERTY_FILE = "folder";
-	public static String PROPERTY_MD5 = "md5";
+	public Meta meta;
+	public ReleaseRepository repo;
 	
-	public static String PROPERTY_TICKETTARGETTYPE = "type";
-	public static String PROPERTY_TICKETTARGETITEM = "item";
-	public static String PROPERTY_TICKETTARGETCOMMENTS = "comments";
-	public static String PROPERTY_TICKETTARGETACCEPTED = "accepted";
-	public static String PROPERTY_TICKETTARGETDESCOPED = "descoped";
+	public String RELEASEVER;
 	
-	public Release( Meta meta , Dist dist ) {
+	public boolean MASTER;
+	public DBEnumBuildModeType BUILDMODE;
+	public String COMPATIBILITY;
+	private boolean CUMULATIVE;
+	
+	Map<String,ReleaseScopeSet> sourceSetMap = new HashMap<String,ReleaseScopeSet>();
+	Map<DBEnumScopeCategoryType,ReleaseScopeSet> categorySetMap = new HashMap<DBEnumScopeCategoryType,ReleaseScopeSet>();
+	Map<String,ReleaseDelivery> deliveryMap = new HashMap<String,ReleaseDelivery>();
+
+	public ReleaseSchedule schedule;
+	public ReleaseMaster master;
+	public ReleaseChanges changes;
+
+	public Release( Meta meta , ReleaseRepository repo ) {
 		this.meta = meta;
-		this.dist = dist;
+		this.repo = repo;
 		schedule = new ReleaseSchedule( meta , this );
 	}
 
-	public Release copy( ActionBase action , Dist rdist ) throws Exception {
-		Release rr = new Release( rdist.meta , rdist );
+	public Release copy( ActionBase action , Meta rmeta , ReleaseRepository rrepo ) throws Exception {
+		Release rr = new Release( rmeta , rrepo );
 		rr.RELEASEVER = RELEASEVER;
 		
 		rr.MASTER = MASTER;
@@ -136,7 +121,7 @@ public class Release {
 		}
 	}
 
-	public void createMaster( ActionBase action , String RELEASEVER , boolean copy ) throws Exception {
+	public void createMaster( ActionBase action , String RELEASEVER , ReleaseDist releaseDist , boolean copy ) throws Exception {
 		this.RELEASEVER = RELEASEVER;
 
 		schedule.create( action );
@@ -147,11 +132,25 @@ public class Release {
 		this.COMPATIBILITY = "";
 		this.CUMULATIVE = true;
 
-		master = new ReleaseMaster( meta , this );
+		master = new ReleaseMaster( meta , releaseDist );
 		master.create( action );
 		
 		if( copy )
 			master.addMasterHistory( action , RELEASEVER );
+	}
+	
+	public boolean isMaster() {
+		if( master != null )
+			return( true );
+		return( false );
+	}
+	
+	public boolean isCompleted() {
+		return( schedule.completed );
+	}
+	
+	public boolean isFinalized() {
+		return( schedule.released );
 	}
 	
 	public void addRelease( ActionBase action , Release src ) throws Exception {
@@ -186,9 +185,9 @@ public class Release {
 	}
 	
 	public String[] getApplyVersions( ActionBase action ) throws Exception {
-		if( dist.release.isCumulative() )
-			return( dist.release.getCumulativeVersions() );
-		return( new String[] { dist.release.RELEASEVER } );
+		if( isCumulative() )
+			return( getCumulativeVersions() );
+		return( new String[] { RELEASEVER } );
 	}
 	
 	public void setReleaseVer( ActionBase action , String RELEASEVER ) throws Exception {
@@ -208,7 +207,7 @@ public class Release {
 		if( action.context.CTX_ALL )
 			COMPATIBILITY = "";
 		for( String OLDRELEASE : Common.splitSpaced( action.context.CTX_OLDRELEASE ) ) {
-			OLDRELEASE = DistLabelInfo.normalizeReleaseVer( action , OLDRELEASE );
+			OLDRELEASE = ReleaseLabelInfo.normalizeReleaseVer( OLDRELEASE );
 			if( OLDRELEASE.compareTo( RELEASEVER ) >= 0 )
 				action.exit1( _Error.CompatibilityExpectedForEarlierRelease1 , "compatibility is expected for earlier release (version=" + OLDRELEASE + ")" , OLDRELEASE );
 			
@@ -217,7 +216,7 @@ public class Release {
 	}
 	
 	public void createNormal( ActionBase action , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc , String RELEASEFILEPATH ) throws Exception {
-		this.RELEASEVER = DistLabelInfo.normalizeReleaseVer( action , RELEASEVER );
+		this.RELEASEVER = ReleaseLabelInfo.normalizeReleaseVer( RELEASEVER );
 		this.MASTER = false;
 		this.CUMULATIVE = action.context.CTX_CUMULATIVE;
 
@@ -315,7 +314,7 @@ public class Release {
 		schedule.load( action , root );
 		
 		if( MASTER ) {
-			Node node = ConfReader.xmlGetFirstChild( root , Dist.MASTER_LABEL );
+			Node node = ConfReader.xmlGetFirstChild( root , ReleaseLabelInfo.LABEL_MASTER );
 			master = new ReleaseMaster( meta , this );
 			master.load( action , node );
 		}
@@ -582,7 +581,7 @@ public class Release {
 		Element root = doc.getDocumentElement();
 		
 		if( MASTER ) {
-			Element parent = Common.xmlCreateElement( doc , root , Dist.MASTER_LABEL );
+			Element parent = Common.xmlCreateElement( doc , root , ReleaseLabelInfo.LABEL_MASTER );
 			master.save( action , doc , parent );
 		}
 		else {
@@ -1064,6 +1063,14 @@ public class Release {
 
 	public ReleaseMasterItem findMasterItem( MetaDistrBinaryItem distItem ) {
 		return( master.findMasterItem( distItem ) );
+	}
+
+	public DISTSTATE getState() {
+		if( !schedule.released )
+			return( DISTSTATE.DIRTY );
+		if( !schedule.completed )
+			return( DISTSTATE.RELEASED );
+		if( )
 	}
 	
 }

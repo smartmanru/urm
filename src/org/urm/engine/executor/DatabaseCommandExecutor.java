@@ -122,7 +122,7 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		Meta meta = action.getContextMeta();
-		DistRepository repo = action.artefactory.getDistRepository( action , meta );
+		DistRepository repo = meta.getDistRepository();
 		String RELEASEVER = repo.getReleaseVerByLabel( action , RELEASELABEL );
 		
 		String CMD = getRequiredArg( action , 1 , "CMD" );

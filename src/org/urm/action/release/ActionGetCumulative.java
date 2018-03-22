@@ -28,7 +28,7 @@ public class ActionGetCumulative extends ActionBase {
 		dist.descopeAll( this );
 		dist.saveReleaseXml( this );
 		
-		DistRepository repo = artefactory.getDistRepository( this , meta );
+		DistRepository repo = meta.getDistRepository();
 
 		// dists - source releases sorted from last to most earlier
 		String[] versions = dist.release.getCumulativeVersions();

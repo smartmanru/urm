@@ -14,7 +14,6 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.product.ProductMeta;
 
 public class Artefactory {
 
@@ -78,15 +77,9 @@ public class Artefactory {
 	public Dist getDistStorageByLabel( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 
-		DistRepository repo = getDistRepository( action , meta );
+		DistRepository repo = meta.getDistRepository();
 		Dist storage = repo.getDistByLabel( action , RELEASELABEL );
 		return( storage );
-	}
-	
-	public DistRepository getDistRepository( ActionBase action , Meta meta ) throws Exception {
-		ProductMeta storage = meta.getStorage();
-		DistRepository repo = storage.getDistRepository();
-		return( repo );
 	}
 	
 	public BaseRepository getBaseRepository( ActionBase action ) throws Exception {

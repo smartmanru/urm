@@ -20,6 +20,10 @@ import org.w3c.dom.Node;
 public class ReleaseTicketSetTarget {
 
 	public static String PROPERTY_POS = "pos";
+	public static String PROPERTY_TYPE = "type";
+	public static String PROPERTY_ITEM = "item";
+	public static String PROPERTY_ACCEPTED = "accepted";
+	public static String PROPERTY_DESCOPED = "descoped";
 	
 	public Meta meta;
 	public ReleaseTicketSet set;
@@ -47,18 +51,18 @@ public class ReleaseTicketSetTarget {
 	}
 
 	public void load( ActionBase action , Node root ) throws Exception {
-		String TYPE = ConfReader.getRequiredAttrValue( root , Release.PROPERTY_TICKETTARGETTYPE );
+		String TYPE = ConfReader.getRequiredAttrValue( root , PROPERTY_TYPE );
 		type = DBEnumReleaseTargetType.getValue( TYPE , true );
-		ITEM = ConfReader.getRequiredAttrValue( root , Release.PROPERTY_TICKETTARGETITEM );
-		accepted = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETTARGETACCEPTED , false );
-		descoped = ConfReader.getBooleanAttrValue( root , Release.PROPERTY_TICKETTARGETDESCOPED , false );
+		ITEM = ConfReader.getRequiredAttrValue( root , PROPERTY_ITEM );
+		accepted = ConfReader.getBooleanAttrValue( root , PROPERTY_ACCEPTED , false );
+		descoped = ConfReader.getBooleanAttrValue( root , PROPERTY_DESCOPED , false );
 	}
 
 	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETTARGETTYPE , Common.getEnumLower( type ) );
-		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETTARGETITEM , ITEM );
-		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETTARGETACCEPTED , Common.getBooleanValue( accepted ) );
-		Common.xmlSetElementAttr( doc , root , Release.PROPERTY_TICKETTARGETDESCOPED , Common.getBooleanValue( descoped ) );
+		Common.xmlSetElementAttr( doc , root , PROPERTY_TYPE , Common.getEnumLower( type ) );
+		Common.xmlSetElementAttr( doc , root , PROPERTY_ITEM , ITEM );
+		Common.xmlSetElementAttr( doc , root , PROPERTY_ACCEPTED , Common.getBooleanValue( accepted ) );
+		Common.xmlSetElementAttr( doc , root , PROPERTY_DESCOPED , Common.getBooleanValue( descoped ) );
 	}
 
 	public void setPos( ActionBase action , int POS ) throws Exception {

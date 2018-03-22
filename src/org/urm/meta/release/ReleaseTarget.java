@@ -17,9 +17,5 @@ public class ReleaseTarget {
 	public static String PROPERTY_BUILDTAG = "buildtag";
 	public static String PROPERTY_BUILDVERSION = "buildversion";
 	public static String PROPERTY_ALL = "all";
-	public static String PROPERTY_FILE = "file";
-	public static String PROPERTY_FILE_HASH = "filehash";
-	public static String PROPERTY_FILE_SIZE = "filesize";
-	public static String PROPERTY_FILE_TIME = "filetime";
 	
 }

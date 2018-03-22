@@ -10,6 +10,10 @@ import org.urm.common.ConfReader;
 import org.urm.engine.dist.DistRepository.DistOperation;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.product.Meta;
+import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseDist;
+import org.urm.meta.release.ReleaseMaster;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -17,27 +21,17 @@ import org.w3c.dom.Node;
 public class DistRepositoryItem {
 
 	public DistRepository repo;
-	public Dist dist;
 	
-	public String RELEASEDIR; 
+	public String RELEASEDIR;
+	public String DISTPATH;
+
+	public Dist dist;
 	
 	List<DistRepositoryItemAction> history;
 	
 	public DistRepositoryItem( DistRepository repo ) {
 		this.repo = repo;
 		history = new LinkedList<DistRepositoryItemAction>(); 
-	}
-	
-	public DistRepositoryItem copy( ActionBase action , DistRepository repo ) throws Exception {
-		DistRepositoryItem ritem = new DistRepositoryItem( repo );
-		ritem.RELEASEDIR = RELEASEDIR;
-		for( DistRepositoryItemAction historyItem : history ) {
-			DistRepositoryItemAction rhistoryItem = historyItem.copy( action , ritem );
-			ritem.addHistory( rhistoryItem );
-		}
-		
-		ritem.dist = dist.copy( action , ritem.repo );
-		return( ritem );
 	}
 	
 	public void load( ActionBase action , Node root ) throws Exception {
@@ -63,41 +57,51 @@ public class DistRepositoryItem {
 		}
 	}
 
-	public void read( ActionBase action , RemoteFolder distFolder ) throws Exception {
-		dist = read( action , repo , distFolder );
+	public void readDist( ActionBase action , RemoteFolder distFolder , ReleaseDist releaseDist ) throws Exception {
+		dist = read( action , repo , distFolder , releaseDist );
 		RELEASEDIR = dist.RELEASEDIR;
 	}
 	
-	public static Dist read( ActionBase action , DistRepository repo , RemoteFolder distFolder ) throws Exception {
+	public static Dist read( ActionBase action , DistRepository repo , RemoteFolder distFolder , ReleaseDist releaseDist ) throws Exception {
 		if( !distFolder.checkExists( action ) ) {
 			String path = distFolder.getLocalPath( action );
 			action.exit1( _Error.MissingRelease1 , "release does not exist at " + path , path );
 		}
 		
-		Dist dist = new Dist( repo.meta , repo );
+		Dist dist = new Dist( repo.meta , repo , releaseDist );
 		dist.setFolder( distFolder );
 		dist.load( action );
 		return( dist );
 	}
 
-	public void createItem( ActionBase action , Dist dist ) throws Exception {
-		this.dist = dist;
-		RELEASEDIR = dist.RELEASEDIR;
+	public void createItem( ActionBase action , String releaseDir , String distPath ) throws Exception {
+		this.dist = null;
+		this.RELEASEDIR = releaseDir;
+		this.DISTPATH = distPath;
 	}
 	
-	public static Dist createDist( ActionBase action , DistRepository repo , RemoteFolder distFolder , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
+	public void setDist( Dist dist ) throws Exception {
+		if( !RELEASEDIR.equals( dist.RELEASEDIR ) )
+			Common.exitUnexpected();
+		
+		this.dist = dist;
+	}
+	
+	public static Dist createDistNormal( ActionBase action , Meta meta , DistRepository repo , RemoteFolder distFolder , Date releaseDate , ReleaseLifecycle lc , ReleaseDist releaseDist ) throws Exception {
 		if( distFolder.checkExists( action ) ) {
 			String path = distFolder.folderPath;
 			action.ifexit( _Error.ReleaseAlreadyExists1 , "distributive already exists at " + path , new String[] { path } );
 		}
 
-		Dist dist = new Dist( repo.meta , repo );
+		Dist dist = new Dist( repo.meta , repo , releaseDist );
 		dist.setFolder( distFolder );
+		
+		VersionInfo info = VersionInfo.getReleaseDirInfo( RELEASEDIR );
 		dist.create( action , distFolder.folderName , releaseDate , lc );
 		return( dist );
 	}
 	
-	public static Dist createProdDist( ActionBase action , DistRepository repo , RemoteFolder distFolder , String RELEASEVER ) throws Exception {
+	public static Dist createDistMaster( ActionBase action , DistRepository repo , RemoteFolder distFolder , ReleaseMaster releaseMaster ) throws Exception {
 		if( distFolder.checkExists( action ) ) {
 			String path = distFolder.folderPath;
 			action.ifexit( _Error.ReleaseAlreadyExists1 , "distributive already exists at " + path , new String[] { path } );
@@ -108,10 +112,11 @@ public class DistRepositoryItem {
 		else
 			distFolder.ensureExists( action );
 		
-		Dist dist = new Dist( repo.meta , repo );
+		Release release = releaseMaster.release;
+		Dist dist = new Dist( repo.meta , repo , releaseMaster.releaseDist );
 		dist.setFolder( distFolder );
-		dist.createProd( action , RELEASEVER );
-		distFolder.createFileFromString( action , DistRepository.RELEASEHISTORYFILE , getHistoryRecord( action , RELEASEVER , "add" ) );
+		dist.createMaster( action );
+		distFolder.createFileFromString( action , DistRepository.RELEASEHISTORYFILE , getHistoryRecord( action , release.RELEASEVER , "add" ) );
 		return( dist );
 	}
 	

@@ -20,12 +20,12 @@ public class ReleaseCommand {
 	}
 
 	public void createProdInitial( ScopeState parentState , ActionBase action , Meta meta , String RELEASEVER ) throws Exception {
-		ActionCreateProd ma = new ActionCreateProd( action , null , meta , RELEASEVER , false );
+		ActionCreateMaster ma = new ActionCreateMaster( action , null , meta , RELEASEVER , false );
 		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public void createProdCopy( ScopeState parentState , ActionBase action , Meta meta , String RELEASEVER ) throws Exception {
-		ActionCreateProd ma = new ActionCreateProd( action , null , meta , RELEASEVER , true );
+		ActionCreateMaster ma = new ActionCreateMaster( action , null , meta , RELEASEVER , true );
 		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
@@ -97,7 +97,7 @@ public class ReleaseCommand {
 	}
 
 	public void appendProd( ScopeState parentState , ActionBase action , Dist dist ) throws Exception {
-		ActionAppendProd ma = new ActionAppendProd( action , null , dist );
+		ActionAppendMaster ma = new ActionAppendMaster( action , null , dist );
 		ma.runSimpleProduct( parentState , dist.meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	

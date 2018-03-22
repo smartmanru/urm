@@ -35,6 +35,7 @@ import org.urm.engine.data.EngineResources;
 import org.urm.engine.data.EngineSettings;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.properties.ObjectProperties;
@@ -681,7 +682,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public Dist getMasterDist( Meta meta ) throws Exception {
-		return( artefactory.getDistStorageByLabel( this , meta , Dist.MASTER_LABEL ) );
+		return( artefactory.getDistStorageByLabel( this , meta , ReleaseLabelInfo.LABEL_MASTER ) );
 	}
 	
 	public String readFile( String path ) throws Exception {

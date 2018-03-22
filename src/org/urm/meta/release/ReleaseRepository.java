@@ -1,5 +1,8 @@
 package org.urm.meta.release;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.urm.meta.product.Meta;
 
 public class ReleaseRepository {
@@ -24,4 +27,18 @@ public class ReleaseRepository {
 		this.NAME = name;
 		this.DESC = desc;
 	}
+	
+	public Release findRelease( String RELEASEVER ) {
+		return( null );
+	}
+	
+	public synchronized String[] getActiveVersions() {
+		List<String> list = new LinkedList<String>();
+		return( list.toArray( new String[0] ) );
+	}
+
+	public Release getNextRelease( String RELEASEVER ) {
+		return( null );	
+	}
+	
 }

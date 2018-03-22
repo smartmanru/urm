@@ -106,7 +106,7 @@ public class ActionExportDatabase extends ActionBase {
 	}
 
 	private void prepareDestination() throws Exception {
-		repository = artefactory.getDistRepository( this , server.meta );
+		repository = server.meta.getDistRepository();
 		distDataFolder = repository.getDataNewFolder( this , DATASET );
 		distDataFolder.ensureExists( this );
 		distLogFolder = repository.getExportLogFolder( this , DATASET );

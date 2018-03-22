@@ -18,7 +18,7 @@ public class ActionDeleteRelease extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
-		DistRepository repo = artefactory.getDistRepository( this , dist.meta );
+		DistRepository repo = dist.repo;
 		repo.dropDist( this , dist , force );
 		return( SCOPESTATE.RunSuccess );
 	}
