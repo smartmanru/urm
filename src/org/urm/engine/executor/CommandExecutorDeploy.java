@@ -16,7 +16,7 @@ import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.product.Meta;
 
-public class DeployCommandExecutor extends CommandExecutor {
+public class CommandExecutorDeploy extends CommandExecutor {
 
 	DeployCommand impl;
 	MetaEnv env;
@@ -24,12 +24,12 @@ public class DeployCommandExecutor extends CommandExecutor {
 	
 	String propertyBasedMethods;
 	
-	public static DeployCommandExecutor createExecutor( Engine engine ) throws Exception {
+	public static CommandExecutorDeploy createExecutor( Engine engine ) throws Exception {
 		DeployCommandMeta commandInfo = new DeployCommandMeta( engine.optionsMeta );
-		return( new DeployCommandExecutor( engine , commandInfo ) );
+		return( new CommandExecutorDeploy( engine , commandInfo ) );
 	}
 		
-	private DeployCommandExecutor( Engine engine , CommandMeta commandInfo ) throws Exception {
+	private CommandExecutorDeploy( Engine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		super.defineAction( new BaseOps() , DeployCommandMeta.METHOD_BASE );

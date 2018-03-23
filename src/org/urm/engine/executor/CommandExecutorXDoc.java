@@ -10,16 +10,16 @@ import org.urm.engine.status.ScopeState;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.meta.product.Meta;
 
-public class XDocCommandExecutor extends CommandExecutor {
+public class CommandExecutorXDoc extends CommandExecutor {
 
 	XDocCommand impl;
 	
-	public static XDocCommandExecutor createExecutor( Engine engine ) throws Exception {
+	public static CommandExecutorXDoc createExecutor( Engine engine ) throws Exception {
 		XDocCommandMeta commandInfo = new XDocCommandMeta( engine.optionsMeta );
-		return( new XDocCommandExecutor( engine , commandInfo ) );
+		return( new CommandExecutorXDoc( engine , commandInfo ) );
 	}
 		
-	private XDocCommandExecutor( Engine engine , CommandMeta commandInfo ) throws Exception {
+	private CommandExecutorXDoc( Engine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		defineAction( new DesignDoc() , "design" );

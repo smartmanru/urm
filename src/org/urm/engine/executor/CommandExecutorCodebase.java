@@ -17,16 +17,16 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductBuildSettings;
 
-public class CodebaseCommandExecutor extends CommandExecutor {
+public class CommandExecutorCodebase extends CommandExecutor {
 
 	CodebaseCommand impl;
 	
-	public static CodebaseCommandExecutor createExecutor( Engine engine ) throws Exception {
+	public static CommandExecutorCodebase createExecutor( Engine engine ) throws Exception {
 		CodebaseCommandMeta commandInfo = new CodebaseCommandMeta( engine.optionsMeta );
-		return( new CodebaseCommandExecutor( engine , commandInfo ) );
+		return( new CommandExecutorCodebase( engine , commandInfo ) );
 	}
 		
-	private CodebaseCommandExecutor( Engine engine , CommandMeta commandInfo ) throws Exception {
+	private CommandExecutorCodebase( Engine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		super.defineAction( new BuildAllTags() , CodebaseCommandMeta.METHOD_BUILDTAGS );

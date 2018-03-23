@@ -16,16 +16,16 @@ import org.urm.engine.status.ScopeState;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
 
-public class ReleaseCommandExecutor extends CommandExecutor {
+public class CommandExecutorRelease extends CommandExecutor {
 
 	ReleaseCommand impl;
 	
-	public static ReleaseCommandExecutor createExecutor( Engine engine ) throws Exception {
+	public static CommandExecutorRelease createExecutor( Engine engine ) throws Exception {
 		ReleaseCommandMeta commandInfo = new ReleaseCommandMeta( engine.optionsMeta );
-		return( new ReleaseCommandExecutor( engine , commandInfo ) );
+		return( new CommandExecutorRelease( engine , commandInfo ) );
 	}
 		
-	private ReleaseCommandExecutor( Engine engine , CommandMeta commandInfo ) throws Exception {
+	private CommandExecutorRelease( Engine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		defineAction( new CreateRelease() , ReleaseCommandMeta.METHOD_CREATE );

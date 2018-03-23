@@ -21,7 +21,7 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.release.ReleaseDelivery;
 
-public class DatabaseCommandExecutor extends CommandExecutor {
+public class CommandExecutorDatabase extends CommandExecutor {
 
 	DatabaseCommand impl;
 	MetaEnv env;
@@ -29,12 +29,12 @@ public class DatabaseCommandExecutor extends CommandExecutor {
 	
 	String propertyBasedMethods;
 	
-	public static DatabaseCommandExecutor createExecutor( Engine engine ) throws Exception {
+	public static CommandExecutorDatabase createExecutor( Engine engine ) throws Exception {
 		DatabaseCommandMeta commandInfo = new DatabaseCommandMeta( engine.optionsMeta );
-		return( new DatabaseCommandExecutor( engine , commandInfo ) );
+		return( new CommandExecutorDatabase( engine , commandInfo ) );
 	}
 		
-	private DatabaseCommandExecutor( Engine engine , CommandMeta commandInfo ) throws Exception {
+	private CommandExecutorDatabase( Engine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		
 		super.defineAction( new InitDB() , "initdb" );

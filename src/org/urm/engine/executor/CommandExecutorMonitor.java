@@ -9,16 +9,16 @@ import org.urm.engine.action.CommandMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.action.CommandExecutor;
 
-public class MonitorCommandExecutor extends CommandExecutor {
+public class CommandExecutorMonitor extends CommandExecutor {
 
 	MonitorCommand impl;
 
-	public static MonitorCommandExecutor createExecutor( Engine engine ) throws Exception {
+	public static CommandExecutorMonitor createExecutor( Engine engine ) throws Exception {
 		MonitorCommandMeta commandInfo = new MonitorCommandMeta( engine.optionsMeta );
-		return( new MonitorCommandExecutor( engine , commandInfo ) );
+		return( new CommandExecutorMonitor( engine , commandInfo ) );
 	}
 		
-	private MonitorCommandExecutor( Engine engine , CommandMeta commandInfo ) throws Exception {
+	private CommandExecutorMonitor( Engine engine , CommandMeta commandInfo ) throws Exception {
 		super( engine , commandInfo );
 		impl = new MonitorCommand();
 	}
