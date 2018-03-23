@@ -32,11 +32,11 @@ public class CleaningService {
 	}
 	
 	public void start() {
-        engine.executor.executeCycle( task );
+        engine.tasks.executeCycle( task );
 	}
 	
 	public void stop() {
-		engine.executor.stopTask( task );
+		engine.tasks.stopTask( task );
 	}
 
 	private void runHouseKeeping() throws Exception {

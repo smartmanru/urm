@@ -22,7 +22,7 @@ CREATE TABLE main.urm_rel_main (
                 v2 INTEGER NOT NULL,
                 v3 INTEGER NOT NULL,
                 v4 INTEGER NOT NULL,
-                label_version VARCHAR(30) NOT NULL,
+                version VARCHAR(30) NOT NULL,
                 buildmode_type INTEGER NOT NULL,
                 compatibility VARCHAR,
                 cumulative BOOLEAN NOT NULL,

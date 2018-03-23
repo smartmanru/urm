@@ -1,8 +1,11 @@
 package org.urm.meta.release;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.urm.engine.dist.VersionInfo;
 import org.urm.meta.product.Meta;
 
 public class ReleaseRepository {
@@ -16,11 +19,14 @@ public class ReleaseRepository {
 	public String DESC;
 	
 	public Meta meta;
-	ProductReleases releases;
+	public ProductReleases releases;
+	
+	private Map<String,Release> mapReleases;
 	
 	public ReleaseRepository( Meta meta , ProductReleases releases ) {
 		this.meta = meta;
 		this.releases = releases;
+		mapReleases = new HashMap<String,Release>();
 	}
 
 	public void createRepository( String name , String desc ) {
@@ -29,7 +35,13 @@ public class ReleaseRepository {
 	}
 	
 	public Release findRelease( String RELEASEVER ) {
-		return( null );
+		try {
+			String version = VersionInfo.normalizeReleaseVer( RELEASEVER );
+			return( mapReleases.get( version ) );
+		}
+		catch( Throwable e ) {
+			return( null );
+		}
 	}
 	
 	public synchronized String[] getActiveVersions() {
@@ -39,6 +51,10 @@ public class ReleaseRepository {
 
 	public Release getNextRelease( String RELEASEVER ) {
 		return( null );	
+	}
+
+	public void addRelease( Release release ) {
+		mapReleases.put( release.RELEASEVER , release );
 	}
 	
 }

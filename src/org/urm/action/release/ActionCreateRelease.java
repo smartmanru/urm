@@ -36,7 +36,7 @@ public class ActionCreateRelease extends ActionBase {
 		ProductReleases releases = meta.getReleases();
 		ReleaseRepository repo = releases.getReleaseRepository();
 		
-		release = DBReleaseRepository.createReleaseNormal( this , meta , repo , RELEASELABEL , releaseDate , lc );
+		release = DBReleaseRepository.createReleaseNormal( super.method , this , meta , repo , RELEASELABEL , releaseDate , lc );
 		DistRepository distrepo = meta.getDistRepository();
 		dist = distrepo.getDistByLabel( this , RELEASELABEL );
 		return( SCOPESTATE.RunSuccess );

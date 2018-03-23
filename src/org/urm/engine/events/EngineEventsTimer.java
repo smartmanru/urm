@@ -40,11 +40,11 @@ public class EngineEventsTimer extends EngineEventsSource {
 	}
 
 	public void start() {
-		events.engine.executor.executeCycle( task );
+		events.engine.tasks.executeCycle( task );
 	}
 
 	public void stop() {
-		events.engine.executor.stopTask( task );
+		events.engine.tasks.stopTask( task );
 	}
 	
 }

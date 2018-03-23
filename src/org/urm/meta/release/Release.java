@@ -61,14 +61,18 @@ public class Release {
 	
 	public Meta meta;
 	public ReleaseRepository repo;
-	
-	public String RELEASEVER;
-	
+
+	public int ID;
+	public String NAME;
+	public String DESC;
 	public boolean MASTER;
+	public DBEnumLifecycleType TYPE;
+	public String RELEASEVER;
 	public DBEnumBuildModeType BUILDMODE;
 	public String COMPATIBILITY;
-	private boolean CUMULATIVE;
-	private boolean ARCHIVED;
+	public boolean CUMULATIVE;
+	public boolean ARCHIVED;
+	public int RV;
 	
 	Map<String,ReleaseScopeSet> sourceSetMap;
 	Map<DBEnumScopeCategoryType,ReleaseScopeSet> categorySetMap;
@@ -92,24 +96,29 @@ public class Release {
 	}
 
 	public Release copy( ActionBase action , Meta rmeta , ReleaseRepository rrepo ) throws Exception {
-		Release rr = new Release( rmeta , rrepo );
-		rr.RELEASEVER = RELEASEVER;
+		Release r = new Release( rmeta , rrepo );
+
+		r.ID = ID;
+		r.NAME = NAME;
+		r.DESC = DESC;
+		r.MASTER = MASTER;
+		r.TYPE = TYPE;
+		r.RELEASEVER = RELEASEVER;
+		r.BUILDMODE = BUILDMODE;
+		r.COMPATIBILITY = COMPATIBILITY;
+		r.CUMULATIVE = CUMULATIVE;
+		r.ARCHIVED = ARCHIVED;
+		r.RV = RV;
 		
-		rr.MASTER = MASTER;
-		rr.BUILDMODE = BUILDMODE;
-		rr.COMPATIBILITY = COMPATIBILITY;
-		rr.CUMULATIVE = CUMULATIVE;
-		rr.ARCHIVED = ARCHIVED;
-		
-		rr.copyReleaseScope( action , this );
-		rr.schedule = schedule.copy( action , rmeta , rr , false );
+		r.copyReleaseScope( action , this );
+		r.schedule = schedule.copy( action , rmeta , r , false );
 		
 		if( changes != null )
-			rr.changes = changes.copy( action , rmeta , rr );
+			r.changes = changes.copy( action , rmeta , r );
 		if( master != null )
-			rr.master = master.copy( rmeta , rr.getDefaultReleaseDist() );
+			r.master = master.copy( rmeta , r.getDefaultReleaseDist() );
 		
-		return( rr );
+		return( r );
 	}
 	
 	public void copyReleaseScope( ActionBase action , Release src ) throws Exception {
@@ -128,6 +137,24 @@ public class Release {
 			ReleaseDelivery set = entry.getValue().copy( action , this );
 			deliveryMap.put( entry.getKey() , set );
 		}
+	}
+
+	public void createNormal( ActionBase action , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
+		this.NAME = RELEASEVER;
+		this.DESC = "";
+		this.MASTER = false;
+		this.RELEASEVER = VersionInfo.normalizeReleaseVer( RELEASEVER );
+		this.TYPE = VersionInfo.getLifecycleTypeByShortVersion( this.RELEASEVER );
+		this.BUILDMODE = action.context.CTX_BUILDMODE;
+		this.COMPATIBILITY = "";
+		this.CUMULATIVE = action.context.CTX_CUMULATIVE;
+		this.ARCHIVED = false;
+		this.RV = 0;
+
+		changes = new ReleaseChanges( meta , this );
+		schedule.create( action );
+		schedule.createReleaseSchedule( action , releaseDate , lc );
+		setProperties( action );
 	}
 
 	public void createMaster( ActionBase action , String RELEASEVER , ReleaseDist releaseDist , boolean copy ) throws Exception {
@@ -220,7 +247,7 @@ public class Release {
 		if( action.context.CTX_ALL )
 			COMPATIBILITY = "";
 		for( String OLDRELEASE : Common.splitSpaced( action.context.CTX_OLDRELEASE ) ) {
-			OLDRELEASE = ReleaseLabelInfo.normalizeReleaseVer( OLDRELEASE );
+			OLDRELEASE = VersionInfo.normalizeReleaseVer( OLDRELEASE );
 			if( OLDRELEASE.compareTo( RELEASEVER ) >= 0 )
 				action.exit1( _Error.CompatibilityExpectedForEarlierRelease1 , "compatibility is expected for earlier release (version=" + OLDRELEASE + ")" , OLDRELEASE );
 			
@@ -228,18 +255,6 @@ public class Release {
 		}
 	}
 	
-	public void createNormal( ActionBase action , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc , String RELEASEFILEPATH ) throws Exception {
-		this.RELEASEVER = ReleaseLabelInfo.normalizeReleaseVer( RELEASEVER );
-		this.MASTER = false;
-		this.CUMULATIVE = action.context.CTX_CUMULATIVE;
-
-		changes = new ReleaseChanges( meta , this );
-		schedule.create( action );
-		schedule.createReleaseSchedule( action , releaseDate , lc );
-		setProperties( action );
-		createEmptyXml( action , RELEASEFILEPATH );
-	}
-
 	public void createMaster( ActionBase action , String RELEASEVER , String filePath ) throws Exception {
 	}
 	
@@ -1051,9 +1066,7 @@ public class Release {
 	}
 
 	public DBEnumLifecycleType getLifecycleType() {
-		if( MASTER )
-			return( DBEnumLifecycleType.MAJOR );
-		return( VersionInfo.getLifecycleTypeByFullVersion( RELEASEVER ) );
+		return( TYPE );
 	}
 
 	public void finish( ActionBase action ) throws Exception {

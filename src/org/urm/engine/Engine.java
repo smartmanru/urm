@@ -21,13 +21,13 @@ import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.action.EngineCall;
 import org.urm.engine.data.EngineMonitoring;
-import org.urm.engine.executor.CodebaseCommandExecutor;
-import org.urm.engine.executor.DatabaseCommandExecutor;
-import org.urm.engine.executor.DeployCommandExecutor;
+import org.urm.engine.executor.CommandExecutorCodebase;
+import org.urm.engine.executor.CommandExecutorDatabase;
+import org.urm.engine.executor.CommandExecutorDeploy;
 import org.urm.engine.executor.MainExecutor;
-import org.urm.engine.executor.MonitorCommandExecutor;
-import org.urm.engine.executor.ReleaseCommandExecutor;
-import org.urm.engine.executor.XDocCommandExecutor;
+import org.urm.engine.executor.CommandExecutorMonitor;
+import org.urm.engine.executor.CommandExecutorRelease;
+import org.urm.engine.executor.CommandExecutorXDoc;
 import org.urm.engine.session.EngineSession;
 import org.urm.engine.session.SessionSecurity;
 import org.urm.engine.shell.ShellCoreJNI;
@@ -41,7 +41,7 @@ public class Engine {
 
 	public RunContext execrc;
 	
-	public TaskService executor;
+	public TaskService tasks;
 	public SessionService sessions;
 	public CleaningService houseKeeping;
 	public CacheService cache;
@@ -64,19 +64,19 @@ public class Engine {
 	private TransactionBase currentTransaction = null;
 
 	public BlotterService blotter;
-	public CodebaseCommandExecutor buildExecutor;
-	public DatabaseCommandExecutor databaseExecutor;
-	public DeployCommandExecutor deployExecutor;
-	public MonitorCommandExecutor monitorExecutor;
-	public ReleaseCommandExecutor releaseExecutor;
-	public XDocCommandExecutor xdocExecutor;
+	public CommandExecutorCodebase buildExecutor;
+	public CommandExecutorDatabase databaseExecutor;
+	public CommandExecutorDeploy deployExecutor;
+	public CommandExecutorMonitor monitorExecutor;
+	public CommandExecutorRelease releaseExecutor;
+	public CommandExecutorXDoc xdocExecutor;
 	
 	public static int META_CHANGE_TIMEOUT = 5000;
 	
 	public Engine( RunContext execrc ) {
 		this.execrc = execrc;
 		
-		executor = new TaskService( this ); 
+		tasks = new TaskService( this ); 
 		houseKeeping = new CleaningService( this );
 		cache = new CacheService( this ); 
 
@@ -101,12 +101,12 @@ public class Engine {
 		blotter.init();
 		
 		serverExecutor = MainExecutor.createExecutor( this );
-		buildExecutor = CodebaseCommandExecutor.createExecutor( this );
-		databaseExecutor = DatabaseCommandExecutor.createExecutor( this );
-		deployExecutor = DeployCommandExecutor.createExecutor( this );
-		monitorExecutor = MonitorCommandExecutor.createExecutor( this );
-		releaseExecutor = ReleaseCommandExecutor.createExecutor( this );
-		xdocExecutor = XDocCommandExecutor.createExecutor( this );
+		buildExecutor = CommandExecutorCodebase.createExecutor( this );
+		databaseExecutor = CommandExecutorDatabase.createExecutor( this );
+		deployExecutor = CommandExecutorDeploy.createExecutor( this );
+		monitorExecutor = CommandExecutorMonitor.createExecutor( this );
+		releaseExecutor = CommandExecutorRelease.createExecutor( this );
+		xdocExecutor = CommandExecutorXDoc.createExecutor( this );
 		
 		createTemporaryEngineAction();
 		data.init();
@@ -325,7 +325,7 @@ public class Engine {
 	private boolean runServerAction() throws Exception {
 		// execute
 		try {
-			serverExecutor.runExecutor( null , serverAction , serverAction.commandAction );
+			serverExecutor.runExecutor( null , serverAction , serverAction.commandAction , false );
 		}
 		catch( Throwable e ) {
 			serverAction.handle( e );
@@ -546,6 +546,10 @@ public class Engine {
 		return( currentTransaction );
 	}
 
+	public TaskService getTaskService() {
+		return( tasks );
+	}
+	
 	public AuthService getAuth() {
 		return( auth );
 	}

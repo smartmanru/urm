@@ -9,11 +9,11 @@ import org.urm.db.core.DBEnums.*;
 public class VersionInfo {
 
 	DBEnumLifecycleType type;
-	private int v1; 
-	private int v2; 
-	private int v3; 
-	private int v4;
-	private String variant;
+	public int v1; 
+	public int v2; 
+	public int v3; 
+	public int v4;
+	public String variant;
 	
 	public VersionInfo() {
 		v1 = 1;
@@ -230,4 +230,27 @@ public class VersionInfo {
 		return( sorted );
 	}
 	
+	public static String normalizeReleaseVer( String RELEASEVER ) throws Exception {
+		String[] items = Common.splitDotted( RELEASEVER );
+		if( items.length < 2 && items.length > 4 )
+			Common.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
+		
+		String value = "";
+		for( int k = 0; k < 4; k++ ) {
+			if( k > 0 )
+				value += ".";
+			if( k >= items.length )
+				value += "0";
+			else {
+				if( !items[k].matches( "[0-9]+" ) )
+					Common.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
+				if( items[k].length() > 3 )
+					Common.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
+				value += items[k];
+			}
+		}
+		
+		return( value );
+	}
+
 }

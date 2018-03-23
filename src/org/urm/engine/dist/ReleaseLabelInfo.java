@@ -61,8 +61,6 @@ public class ReleaseLabelInfo {
 			RELEASEPATH = "releases/" + RELEASEDIR;
 			VARIANT = "";
 		}
-		
-		action.debug( "release directory=" + RELEASEPATH + " by label=" + RELEASELABEL + " (RELEASEVER=" + RELEASEVER + ")" );
 	}
 	
 	public DBEnumLifecycleType getLifecycleType() {
@@ -92,7 +90,7 @@ public class ReleaseLabelInfo {
 		}
 		
 		if( RELEASELABEL.indexOf( "-" ) < 0 ) {
-			RELEASEVER = normalizeReleaseVer( RELEASELABEL );
+			RELEASEVER = VersionInfo.normalizeReleaseVer( RELEASELABEL );
 			return( RELEASEVER );
 		}
 
@@ -101,7 +99,7 @@ public class ReleaseLabelInfo {
 	}
 	
 	private static String getReleaseDirByVer( String RELEASEVER ) throws Exception {
-		RELEASEVER = normalizeReleaseVer( RELEASEVER );
+		RELEASEVER = VersionInfo.normalizeReleaseVer( RELEASEVER );
 		String[] items = Common.splitDotted( RELEASEVER );
 		if( items[3].equals( "0" ) ) {
 			if( items[2].equals( "0" ) )
@@ -113,7 +111,7 @@ public class ReleaseLabelInfo {
 	
 	public static String getReleaseVerByDir( String RELEASEDIR ) throws Exception {
 		String RELEASEVER = Common.getPartBeforeFirst( RELEASEDIR , "-" );
-		RELEASEVER = normalizeReleaseVer( RELEASEVER );
+		RELEASEVER = VersionInfo.normalizeReleaseVer( RELEASEVER );
 		return( RELEASEVER );
 	}
 	
@@ -129,27 +127,4 @@ public class ReleaseLabelInfo {
 		return( "archive" );
 	}
 	
-	public static String normalizeReleaseVer( String RELEASEVER ) throws Exception {
-		String[] items = Common.splitDotted( RELEASEVER );
-		if( items.length < 2 && items.length > 4 )
-			Common.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
-		
-		String value = "";
-		for( int k = 0; k < 4; k++ ) {
-			if( k > 0 )
-				value += ".";
-			if( k >= items.length )
-				value += "0";
-			else {
-				if( !items[k].matches( "[0-9]+" ) )
-					Common.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
-				if( items[k].length() > 3 )
-					Common.exit1( _Error.InvalidReleaseVersion1 , "invalid release version=" + RELEASEVER , RELEASEVER );
-				value += items[k];
-			}
-		}
-		
-		return( value );
-	}
-
 }

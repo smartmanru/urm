@@ -68,7 +68,7 @@ public class ScheduleService extends EngineObject {
 	public synchronized void start( ActionBase action ) {
 		running = true;
 		
-		engine.executor.executeCycle( dispatcher );
+		engine.tasks.executeCycle( dispatcher );
 		for( int k = 0; k < minExecutors; k++ )
 			createExecutor();
 	}
@@ -88,9 +88,9 @@ public class ScheduleService extends EngineObject {
 		}
 		
 		for( ScheduleExecutorTask executor : executors )
-			engine.executor.stopTask( executor );
+			engine.tasks.stopTask( executor );
 		executors.clear();
-		engine.executor.stopTask( dispatcher );
+		engine.tasks.stopTask( dispatcher );
 	}
 
 	public long getTimeInterval( int hours , int minutes , int seconds ) {
@@ -186,7 +186,7 @@ public class ScheduleService extends EngineObject {
 		
 		ScheduleExecutorTask executor = new ScheduleExecutorTask( this , executorsLastId );
 		executors.add( executor );
-		engine.executor.executeCycle( executor );
+		engine.tasks.executeCycle( executor );
 	}
 
 	public ScheduleTask getNextTask( ScheduleExecutorTask executor ) {
@@ -281,7 +281,7 @@ public class ScheduleService extends EngineObject {
 		
 		if( executors.size() > minExecutors && executorsAvailable > 0 ) {
 			executors.remove( executor );
-			engine.executor.stopTask( executor );
+			engine.tasks.stopTask( executor );
 			return;
 		}
 		

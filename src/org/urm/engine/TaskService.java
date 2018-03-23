@@ -16,6 +16,21 @@ public class TaskService {
 		thread.start();
 	}
 	
+	public void executeOnceWait( EngineExecutorTask task ) {
+		try {
+			EngineExecutorThread thread = new EngineExecutorThread( this , task , false );
+			thread.start();
+			
+			synchronized( task ) {
+				task.wait();
+			}
+		}
+		catch( Throwable e ) {
+			engine.log( "task" , e );
+			task.finishFailed( e );
+		}
+	}
+	
 	public void executeCycle( EngineExecutorTask task ) {
 		EngineExecutorThread thread = new EngineExecutorThread( this , task , true );
 		thread.start();

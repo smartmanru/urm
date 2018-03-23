@@ -13,7 +13,9 @@ import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
+import org.urm.engine.TaskService;
 import org.urm.engine.data.EngineLifecycles;
+import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.meta.engine.ReleaseLifecycle;
 
@@ -25,7 +27,7 @@ public abstract class CommandExecutor {
 	public Map<String,CommandMethod> actionsMap = new HashMap<String,CommandMethod>();
 	public List<CommandMethod> actionsList = new LinkedList<CommandMethod>();
 	
-	protected abstract boolean runExecutorImpl( ScopeState parentState , ActionBase action , CommandMethod method );
+	public abstract boolean runExecutorImpl( ScopeState parentState , ActionBase action , CommandMethod method );
 
 	public CommandExecutor( Engine engine , CommandMeta commandInfo ) {
 		this.engine = engine;
@@ -47,11 +49,17 @@ public abstract class CommandExecutor {
 		return( commandAction );
 	}
 
-	public boolean runExecutor( ScopeState parentState , ActionBase action , CommandMethod method ) {
-		if( runExecutorImpl( parentState , action , method ) )
+	public boolean runExecutor( ScopeState parentState , ActionBase action , CommandMethod command , boolean runTask ) {
+		if( runTask ) {
+			TaskService tasks = engine.getTaskService();
+			EngineMethod method = new EngineMethod( action , this , command , parentState );
+			tasks.executeOnceWait( method );
+			if( method.runFailed )
+				return( false );
 			return( true );
-		
-		return( false );
+		}
+
+		return( runExecutorImpl( parentState , action , command ) );
 	}
 	
 	public boolean runMethod( ScopeState parentState , ActionBase action , CommandMethod method ) {

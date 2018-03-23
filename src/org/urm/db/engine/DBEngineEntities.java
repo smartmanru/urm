@@ -27,6 +27,7 @@ public abstract class DBEngineEntities {
 	public static String FIELD_VERSION_SYSTEM = "sv"; 
 	public static String FIELD_VERSION_PRODUCT = "pv"; 
 	public static String FIELD_VERSION_ENVIRONMENT = "ev"; 
+	public static String FIELD_VERSION_RELEASE = "rv"; 
 	public static String FIELD_VERSION_AUTH = "uv"; 
 	
 	public static String getVersionField( DBEnumObjectVersionType versionType ) {
@@ -40,6 +41,8 @@ public abstract class DBEngineEntities {
 			return( FIELD_VERSION_PRODUCT );
 		if( versionType == DBEnumObjectVersionType.ENVIRONMENT )
 			return( FIELD_VERSION_ENVIRONMENT );
+		if( versionType == DBEnumObjectVersionType.RELEASE )
+			return( FIELD_VERSION_RELEASE );
 		if( versionType == DBEnumObjectVersionType.LOCAL )
 			return( FIELD_VERSION_AUTH );
 		return( null );

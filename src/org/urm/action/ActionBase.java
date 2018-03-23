@@ -40,6 +40,7 @@ import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
+import org.urm.engine.run.EngineMethod;
 import org.urm.engine.session.EngineSession;
 import org.urm.engine.session.SessionSecurity;
 import org.urm.engine.shell.Account;
@@ -82,6 +83,7 @@ abstract public class ActionBase extends ActionCore {
 	public EngineSession session;
 	public CommandExecutor executor;
 	public CommandContext context;
+	public EngineMethod method;
 	public Artefactory artefactory;
 	
 	public ShellExecutor shell;
@@ -129,6 +131,7 @@ abstract public class ActionBase extends ActionCore {
 		this.executor = base.executor;
 		this.output = base.output;
 		this.outputChannel = base.outputChannel;
+		this.method = base.method;
 		this.artefactory = base.artefactory;
 		
 		this.shell = base.shell;
@@ -168,6 +171,14 @@ abstract public class ActionBase extends ActionCore {
 	
 	public void setContext( CommandContext context ) {
 		this.context = context;
+	}
+	
+	public void setMethod( EngineMethod method ) {
+		this.method = method;
+	}
+	
+	public EngineMethod getMethod() {
+		return( method );
 	}
 	
 	public void setShell( ShellExecutor session ) throws Exception {

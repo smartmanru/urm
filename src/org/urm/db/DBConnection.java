@@ -18,6 +18,7 @@ import org.urm.meta.OwnerObjectVersion;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.product.ProductMeta;
+import org.urm.meta.release.Release;
 
 public class DBConnection {
 
@@ -47,6 +48,12 @@ public class DBConnection {
 	public void init() throws Exception {
 		action.trace( "connection created" );
 		stmt = connection.createStatement();
+	}
+	
+	public boolean isConnected() {
+		if( connection != null )
+			return( true );
+		return( false );
 	}
 	
 	public void close( boolean commit ) {
@@ -364,6 +371,18 @@ public class DBConnection {
 			DBVersions.setNextVersion( this , version , version.VERSION + 1 );
 		}
 		return( version.nextVersion );
+	}
+
+	public synchronized int getNextReleaseVersion( Release release ) throws Exception {
+		OwnerObjectVersion object = versions.get( release.ID );
+		if( object == null ) {
+			object = new OwnerObjectVersion( release.ID , DBEnumObjectVersionType.RELEASE );
+			object.VERSION = release.RV;
+			object.nextVersion = object.VERSION + 1;
+			versions.put( release.ID , object );
+		}
+		
+		return( object.nextVersion );
 	}
 	
 	public synchronized int getEnvironmentVersion( int envId ) throws Exception {

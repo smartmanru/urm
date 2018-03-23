@@ -83,7 +83,7 @@ public class EngineEventsNotifier extends EngineEventsSource {
 		for( int k = 0; k < NOTIFY_POOL; k++ ) {
 			ServerExecutorTaskNotify task = new ServerExecutorTaskNotify( k + 1 );
 			tasks.add( task );
-			events.engine.executor.executeCycle( task );
+			events.engine.tasks.executeCycle( task );
 		}
 	}
 
@@ -94,7 +94,7 @@ public class EngineEventsNotifier extends EngineEventsSource {
 		}
 		
 		for( ServerExecutorTaskNotify task : tasks )
-			events.engine.executor.stopTask( task );
+			events.engine.tasks.stopTask( task );
 		
 		synchronized( tasks ) {
 			tasks.clear();

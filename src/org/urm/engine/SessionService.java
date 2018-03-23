@@ -142,7 +142,7 @@ public class SessionService {
 		// execute
 		try {
 			engine.startAction( clientAction );
-			executor.runExecutor( null , clientAction , clientAction.commandAction );
+			executor.runExecutor( null , clientAction , clientAction.commandAction , true );
 		}
 		catch( Throwable e ) {
 			clientAction.handle( e );

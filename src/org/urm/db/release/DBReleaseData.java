@@ -60,6 +60,7 @@ public class DBReleaseData {
 	public static String FIELD_MAIN_V3 = "v3";
 	public static String FIELD_MAIN_V4 = "v4";
 	public static String FIELD_MAIN_BUILDMODE = "buildmode_type";
+	public static String FIELD_MAIN_COMPATIBILITY = "compatibility";
 	public static String FIELD_DIST_ID = "dist_id";
 	public static String FIELD_DIST_HASH = "data_hash";
 	public static String FIELD_DIST_DATE = "dist_date";
@@ -157,7 +158,7 @@ public class DBReleaseData {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_MAIN , DBEnumParamEntityType.RELEASE_MAIN , DBEnumObjectVersionType.RELEASE , TABLE_MAIN , FIELD_MAIN_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_MAIN_REPO_ID , "repo id" , DBEnumObjectType.RELEASE_REPOSITORY , true ) ,
-				EntityVar.metaString( Release.PROPERTY_NAME , "product name" , true , null ) ,
+				EntityVar.metaString( Release.PROPERTY_NAME , "release name" , true , null ) ,
 				EntityVar.metaStringVar( Release.PROPERTY_DESC , FIELD_MAIN_DESC , Release.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBoolean( Release.PROPERTY_MASTER , "master" , true , false ) ,
 				EntityVar.metaEnumVar( Release.PROPERTY_LIFECYCLETYPE , FIELD_MAIN_LIFECYCLETYPE , Release.PROPERTY_LIFECYCLETYPE , "Lifecycle type" , true , DBEnumLifecycleType.UNKNOWN ) ,
@@ -167,7 +168,7 @@ public class DBReleaseData {
 				EntityVar.metaIntegerDatabaseOnly( FIELD_MAIN_V4 , "version number 4" , true , null ) ,
 				EntityVar.metaString( Release.PROPERTY_VERSION , "release version" , true , null ) ,
 				EntityVar.metaEnumVar( Release.PROPERTY_BUILDMODE , FIELD_MAIN_BUILDMODE , Release.PROPERTY_BUILDMODE , "Build mode type" , true , DBEnumBuildModeType.UNKNOWN ) ,
-				EntityVar.metaString( Release.PROPERTY_COMPATIBILITY , "release compatibility" , false , null ) ,
+				EntityVar.metaStringVar( Release.PROPERTY_COMPATIBILITY , FIELD_MAIN_COMPATIBILITY , Release.PROPERTY_COMPATIBILITY , "release compatibility" , false , null ) ,
 				EntityVar.metaBoolean( Release.PROPERTY_CUMULATIVE , "cumulative" , true , false ) ,
 				EntityVar.metaBoolean( Release.PROPERTY_ARCHIVEDSTATUS , "archived" , true , false )
 		} ) );
