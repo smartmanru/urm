@@ -27,9 +27,9 @@ public class ActionSetTagOnBuildBranch extends ActionBase {
 		if( !context.CTX_BRANCH.isEmpty() )
 			BUILDBRANCH = context.CTX_BRANCH;
 		else {
-			if( scopeProject.releaseTarget != null ) {
-				BUILDBRANCH = scopeProject.releaseTarget.BUILDBRANCH;
-				BUILDTAG = scopeProject.releaseTarget.BUILDTAG;
+			if( scopeProject.releaseBuildScopeProject != null ) {
+				BUILDBRANCH = scopeProject.getProjectBuildBranch( this );
+				BUILDTAG = scopeProject.getProjectBuildTag( this );
 			}
 		}
 

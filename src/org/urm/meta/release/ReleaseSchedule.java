@@ -6,14 +6,9 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.engine.dist._Error;
-import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.engine.LifecyclePhase;
-import org.urm.meta.product.Meta;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import org.urm.meta.engine.ReleaseLifecycle;
 
 public class ReleaseSchedule {
 
@@ -25,158 +20,110 @@ public class ReleaseSchedule {
 	public static String PROPERTY_COMPLETEDSTATUS = "completed";
 	public static String PROPERTY_PHASE = "phase";
 	
-	public Meta meta;
 	public Release release;
 	
-	public Date started;
-	public Date releaseDate;
-	public Date releaseDateActual;
-	public Date completeDateActual;
-	public int currentPhase;
-	public int releasePhases;
-	public int deployPhases;
-	public boolean released;
-	public boolean completed;
+	public int ID;
+	public Date DATE_STARTED;
+	public Date RELEASE_DATE;
+	public Date RELEASE_DATE_ACTUAL;
+	public Date COMPLETE_DATE_ACTUAL;
+	public boolean RELEASED;
+	public boolean COMPLETED;
+	public int CURRENT_PHASE;
+	public int RV;
+
+	public int releasePhaseCount;
+	public int deployPhaseCount;
 	
 	public List<ReleaseSchedulePhase> phases;
 	
-	public ReleaseSchedule( Meta meta , Release release ) {
-		this.meta = meta;
+	public ReleaseSchedule( Release release ) {
 		this.release = release;
+		
+		CURRENT_PHASE = -1;
+		RELEASED = false;
+		COMPLETED = false;
+		
+		releasePhaseCount = 0;
+		deployPhaseCount = 0;
 		phases = new LinkedList<ReleaseSchedulePhase>();
-		currentPhase = -1;
-		releasePhases = 0;
-		deployPhases = 0;
-		released = false;
-		completed = false;
 	}
 	
-	public ReleaseSchedule copy( ActionBase action , Meta meta , Release release , boolean createProd ) throws Exception {
-		ReleaseSchedule r = new ReleaseSchedule( meta , release );
-		r.started = started;
-		r.releaseDate = ( createProd )? null : releaseDate;
-		r.releaseDateActual = ( createProd )? null : releaseDateActual;
-		r.completeDateActual = ( createProd )? null : completeDateActual;  
-		r.currentPhase = ( createProd )? -1 : currentPhase;
-		r.releasePhases = ( createProd )? 0 : releasePhases; 
-		r.deployPhases = ( createProd )? 0 : deployPhases; 
-		r.released = ( createProd )? false : released;
-		r.completed = ( createProd )? false : completed;
+	public ReleaseSchedule copy( Release rrelease ) throws Exception {
+		ReleaseSchedule r = new ReleaseSchedule( rrelease );
 		
-		if( !createProd ) {
-			for( ReleaseSchedulePhase phase : phases ) {
-				ReleaseSchedulePhase rphase = phase.copy( action , meta , r );
-				r.phases.add( rphase );
-			}
+		r.ID = ID;
+		r.DATE_STARTED = DATE_STARTED;
+		r.RELEASE_DATE = RELEASE_DATE;
+		r.RELEASE_DATE_ACTUAL = RELEASE_DATE_ACTUAL;
+		r.COMPLETE_DATE_ACTUAL = COMPLETE_DATE_ACTUAL;
+		r.RELEASED = RELEASED;
+		r.COMPLETED = COMPLETED;
+		r.CURRENT_PHASE = CURRENT_PHASE;
+		r.RV = RV;
+		
+		for( ReleaseSchedulePhase phase : phases ) {
+			ReleaseSchedulePhase rphase = phase.copy( rrelease , r );
+			r.addPhase( rphase );
 		}
 		
 		return( r );
 	}
 
-	public void load( ActionBase action , Node root ) throws Exception {
-		phases.clear();
-		
-		Node node = ConfReader.xmlGetFirstChild( root , Release.ELEMENT_SCHEDULE );
-		if( node == null ) {
-			started = new Date();
-			releaseDate = null;
-			releaseDateActual = null;
-			completeDateActual = null;
-			currentPhase = -1;
-			releasePhases = 0; 
-			deployPhases = 0; 
-			released = false;
-			completed = false;
-			return;
-		}
-		
-		started = Common.getDateValue( ConfReader.getAttrValue( node , PROPERTY_STARTED ) );
-		if( started == null )
-			started = new Date();
-			
-		releaseDate = Common.getDateValue( ConfReader.getAttrValue( node , PROPERTY_RELEASEDATE ) );
-		releaseDateActual = Common.getDateValue( ConfReader.getAttrValue( node , PROPERTY_RELEASEDATEACTUAL ) );
-		completeDateActual = Common.getDateValue( ConfReader.getAttrValue( node , PROPERTY_COMPLETEDATEACTUAL ) );
-		currentPhase = ConfReader.getIntegerAttrValue( node , PROPERTY_PHASE , 0 );
-		released = ConfReader.getBooleanAttrValue( node , PROPERTY_RELEASEDSTATUS , false );
-		completed = ConfReader.getBooleanAttrValue( node , PROPERTY_COMPLETEDSTATUS , false );
-		
-		Node[] items = ConfReader.xmlGetChildren( node , Release.ELEMENT_PHASE );
-		if( items == null )
-			return;
-		
-		int pos = 0;
-		for( Node phaseNode : items ) {
-			ReleaseSchedulePhase phase = new ReleaseSchedulePhase( meta , this );
-			phase.load( action , phaseNode , pos , currentPhase );
-			phases.add( phase );
-			pos++;
-		}
-		
-		getPhaseCounts();
-		setDeadlines();
+	public void addPhase( ReleaseSchedulePhase phase ) {
+		phases.add( phase );
 	}
 	
-	private void getPhaseCounts() {
-		releasePhases = 0; 
-		deployPhases = 0; 
+	public void getPhaseCounts() {
+		releasePhaseCount = 0; 
+		deployPhaseCount = 0;
+		
 		for( ReleaseSchedulePhase phase : phases ) {
 			if( phase.isRelease() )
-				releasePhases++;
+				releasePhaseCount++;
 			else
-				deployPhases++;
+				deployPhaseCount++;
 		}
 	}
 	
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Element node = Common.xmlCreateElement( doc , root , Release.ELEMENT_SCHEDULE );
-		Common.xmlSetElementAttr( doc , node , PROPERTY_STARTED , Common.getDateValue( started ) );
-		Common.xmlSetElementAttr( doc , node , PROPERTY_RELEASEDATE , Common.getDateValue( releaseDate ) );
-		Common.xmlSetElementAttr( doc , node , PROPERTY_RELEASEDATEACTUAL , Common.getDateValue( releaseDateActual ) );
-		Common.xmlSetElementAttr( doc , node , PROPERTY_COMPLETEDATEACTUAL , Common.getDateValue( completeDateActual ) );
-		Common.xmlSetElementAttr( doc , node , PROPERTY_PHASE , "" + currentPhase );
-		Common.xmlSetElementAttr( doc , node , PROPERTY_RELEASEDSTATUS , Common.getBooleanValue( released ) );
-		Common.xmlSetElementAttr( doc , node , PROPERTY_COMPLETEDSTATUS , Common.getBooleanValue( completed ) );
+	public void createMaster() {
+		DATE_STARTED = new Date();
+		RELEASE_DATE = null;
+		RELEASE_DATE_ACTUAL = null;
+		COMPLETE_DATE_ACTUAL = null;  
+		RELEASED = false;
+		COMPLETED = false;
+		CURRENT_PHASE = -1;
 		
-		for( ReleaseSchedulePhase phase : phases ) {
-			Element phaseElement = Common.xmlCreateElement( doc , node , Release.ELEMENT_PHASE );
-			phase.save( action , doc , phaseElement );
-		}
+		releasePhaseCount = 0;
+		deployPhaseCount = 0;
 	}
 
-	public void createProd( ActionBase action ) throws Exception {
-		releasePhases = 0;
-		deployPhases = 0;
-		released = false;
-		completed = false;
-		phases.clear();
-	}
-
-	public void create( ActionBase action ) throws Exception {
-		started = new Date();
-		currentPhase = -1;
+	public void create() {
+		DATE_STARTED = new Date();
+		CURRENT_PHASE = -1;
 	}
 	
 	public void createReleaseSchedule( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
-		currentPhase = ( lc == null )? -1 : 0;
+		CURRENT_PHASE = ( lc == null )? -1 : 0;
 		phases.clear();
 		
 		if( lc != null ) {
 			if( !lc.ENABLED )
-				action.exit1( _Error.DisabledLifecycle1 , "Release lifecycle " + lc.NAME + " is currently disabled" , lc.NAME );
+				Common.exit1( _Error.DisabledLifecycle1 , "Release lifecycle " + lc.NAME + " is currently disabled" , lc.NAME );
 			
 			int pos = 0;
 			for( LifecyclePhase lcPhase : lc.getPhases() ) {
-				ReleaseSchedulePhase phase = new ReleaseSchedulePhase( meta , this );
-				phase.create( action , lcPhase , pos );
+				ReleaseSchedulePhase phase = new ReleaseSchedulePhase( release , this );
+				phase.create( lcPhase , pos );
 				phases.add( phase );
 				pos++;
 			}
 			
 			getPhaseCounts();
-			if( releasePhases > 0 ) {
+			if( releasePhaseCount > 0 ) {
 				ReleaseSchedulePhase phase = getPhase( 0 );
-				phase.startPhase( action , started );
+				phase.startPhase( DATE_STARTED );
 			}
 		}
 		
@@ -185,14 +132,14 @@ public class ReleaseSchedule {
 	
 	public int getDaysToRelease() {
 		Date currentDate = Common.getDateCurrentDay();
-		return( Common.getDateDiffDays( currentDate , releaseDate ) + 1 );
+		return( Common.getDateDiffDays( currentDate , RELEASE_DATE ) + 1 );
 	}
 	
 	public void changeReleaseSchedule( ActionBase action , Date releaseDate ) throws Exception {
-		if( released )
+		if( RELEASED )
 			action.exit1( _Error.AlreadyReleased1 , "Release " + release.RELEASEVER + " is already released" , release.RELEASEVER );
 			
-		this.releaseDate = releaseDate;
+		this.RELEASE_DATE = releaseDate;
 		setDeadlines();
 		
 		int daysBeforeRelease = getDaysToRelease();
@@ -201,7 +148,7 @@ public class ReleaseSchedule {
 				action.exit1( _Error.DisabledLifecycle1 , "Release " + release.RELEASEVER + " is trying to release in the past" , release.RELEASEVER );
 		}
 		
-		if( releasePhases == 0 )
+		if( releasePhaseCount == 0 )
 			return;
 		
 		ReleaseSchedulePhase phase = getCurrentPhase();
@@ -215,8 +162,8 @@ public class ReleaseSchedule {
 			currentDaysRemained = 0;
 		
 		int nextDaysRequired = 0;
-		if( releasePhases > currentPhase + 1 ) {
-			ReleaseSchedulePhase phaseNext = getPhase( currentPhase + 1 );
+		if( releasePhaseCount > CURRENT_PHASE + 1 ) {
+			ReleaseSchedulePhase phaseNext = getPhase( CURRENT_PHASE + 1 );
 			nextDaysRequired = Common.getDateDiffDays( phaseNext.getDeadlineStart() , releaseDate ) + 1;
 		}
 		
@@ -235,8 +182,8 @@ public class ReleaseSchedule {
 	public ReleaseSchedulePhase getCurrentPhase() {
 		if( phases.isEmpty() )
 			return( null );
-		if( currentPhase >= 0 )
-			return( phases.get( currentPhase ) );
+		if( CURRENT_PHASE >= 0 )
+			return( phases.get( CURRENT_PHASE ) );
 		return( null );
 	}
 	
@@ -270,7 +217,7 @@ public class ReleaseSchedule {
 		
 		String name = PHASE.toLowerCase();
 		for( ReleaseSchedulePhase phase : phases ) {
-			if( name.equals( phase.name.toLowerCase() ) )
+			if( name.equals( phase.NAME.toLowerCase() ) )
 				return( phase );
 		}
 		return( null );
@@ -282,15 +229,15 @@ public class ReleaseSchedule {
 	}
 	
 	private void setDeadlinesBest() {
-		Date dateBest = releaseDate;
-		for( int k = releasePhases - 1; k >= 0; k-- ) {
+		Date dateBest = RELEASE_DATE;
+		for( int k = releasePhaseCount - 1; k >= 0; k-- ) {
 			ReleaseSchedulePhase phase = getPhase( k );
 			phase.setDeadlineDateBest( dateBest );
 			dateBest = phase.getDateBeforePhaseBest();
 		}
 		
-		dateBest = releaseDate;
-		for( int k = releasePhases; k < phases.size(); k++ ) {
+		dateBest = RELEASE_DATE;
+		for( int k = releasePhaseCount; k < phases.size(); k++ ) {
 			ReleaseSchedulePhase phase = getPhase( k );
 			phase.setStartDateBest( dateBest );
 			dateBest = phase.getBestFinish();
@@ -298,15 +245,15 @@ public class ReleaseSchedule {
 	}
 
 	private void setDeadlinesExpected() {
-		Date dateDeadline = releaseDate;
-		for( int k = releasePhases - 1; k >= 0; k-- ) {
+		Date dateDeadline = RELEASE_DATE;
+		for( int k = releasePhaseCount - 1; k >= 0; k-- ) {
 			ReleaseSchedulePhase phase = getPhase( k );
 			phase.setDeadlineDateExpected( dateDeadline );
 			dateDeadline = phase.getDateBeforePhaseExpected();
 		}
 		
-		dateDeadline = releaseDate;
-		for( int k = releasePhases; k < phases.size(); k++ ) {
+		dateDeadline = RELEASE_DATE;
+		for( int k = releasePhaseCount; k < phases.size(); k++ ) {
 			ReleaseSchedulePhase phase = getPhase( k );
 			phase.setStartDateExpected( dateDeadline );
 			dateDeadline = phase.getDeadlineFinish();
@@ -314,32 +261,32 @@ public class ReleaseSchedule {
 	}
 	
 	public Date getDateReleased() {
-		return( releaseDateActual );
+		return( RELEASE_DATE_ACTUAL );
 	}
 	
 	public Date getDateCompleted() {
-		return( completeDateActual );
+		return( COMPLETE_DATE_ACTUAL );
 	}
 	
 	public void finish( ActionBase action ) throws Exception {
-		released = true;
+		RELEASED = true;
 		
 		Date date = Common.getDateCurrentDay();
-		releaseDateActual = date;
+		RELEASE_DATE_ACTUAL = date;
 		
-		for( int k = 0; k < releasePhases; k++ ) {
+		for( int k = 0; k < releasePhaseCount; k++ ) {
 			ReleaseSchedulePhase phase = getPhase( k );
 			if( !phase.isFinished() ) {
 				if( !phase.isStarted() )
-					phase.startPhase( action , date );
-				phase.finishPhase( action , date );
+					phase.startPhase( date );
+				phase.finishPhase( date );
 			}
 		}
 
-		currentPhase = releasePhases;
-		if( deployPhases > 0 ) {
-			ReleaseSchedulePhase phase = getPhase( releasePhases );
-			phase.startPhase( action , date );
+		CURRENT_PHASE = releasePhaseCount;
+		if( deployPhaseCount > 0 ) {
+			ReleaseSchedulePhase phase = getPhase( releasePhaseCount );
+			phase.startPhase( date );
 		}
 		else
 			complete( action );
@@ -347,63 +294,63 @@ public class ReleaseSchedule {
 	
 	public void complete( ActionBase action ) throws Exception {
 		if( phases.isEmpty() ) {
-			completed = true;
+			COMPLETED = true;
 			return;
 		}
 		
-		if( currentPhase >= 0 && currentPhase < releasePhases )
+		if( CURRENT_PHASE >= 0 && CURRENT_PHASE < releasePhaseCount )
 			action.exit0( _Error.DistributiveNotReleased1 , "Release is not finished" );
 		
-		completed = true;
+		COMPLETED = true;
 		
-		if( currentPhase >= 0 ) {
+		if( CURRENT_PHASE >= 0 ) {
 			Date date = Common.getDateCurrentDay();
-			completeDateActual = date;
+			COMPLETE_DATE_ACTUAL = date;
 			
-			for( int k = currentPhase; k < phases.size(); k++ ) {
+			for( int k = CURRENT_PHASE; k < phases.size(); k++ ) {
 				ReleaseSchedulePhase phase = getPhase( k );
 				if( !phase.isFinished() ) {
 					if( !phase.isStarted() )
-						phase.startPhase( action , date );
-					phase.finishPhase( action , date );
+						phase.startPhase( date );
+					phase.finishPhase( date );
 				}
 			}
 		}
 		
-		currentPhase = -1;
+		CURRENT_PHASE = -1;
 	}
 	
 	public void reopen( ActionBase action ) throws Exception {
-		released = false;
-		releaseDateActual = null;
+		RELEASED = false;
+		RELEASE_DATE_ACTUAL = null;
 		
 		Date date = Common.getDateCurrentDay();
-		for( int k = 0; k < deployPhases; k++ ) {
-			ReleaseSchedulePhase phase = getPhase( releasePhases + k );
+		for( int k = 0; k < deployPhaseCount; k++ ) {
+			ReleaseSchedulePhase phase = getPhase( releasePhaseCount + k );
 			if( phase.isStarted() )
-				phase.clearPhase( action );
+				phase.clearPhase();
 		}
 		
-		if( releasePhases > 0 ) {
-			currentPhase = releasePhases - 1;
-			ReleaseSchedulePhase phase = getPhase( releasePhases - 1 );
+		if( releasePhaseCount > 0 ) {
+			CURRENT_PHASE = releasePhaseCount - 1;
+			ReleaseSchedulePhase phase = getPhase( releasePhaseCount - 1 );
 			if( phase.isFinished() )
-				phase.reopenPhase( action );
+				phase.reopenPhase();
 		}
 		else {
-			if( deployPhases > 0 ) {
-				currentPhase = 0;
+			if( deployPhaseCount > 0 ) {
+				CURRENT_PHASE = 0;
 				ReleaseSchedulePhase phase = getPhase( 0 );
-				phase.startPhase( action , date );
+				phase.startPhase( date );
 			}
 		}
 	}
 
 	private void squizeSchedule( ActionBase action , int days , int currentDaysRemained ) throws Exception {
-		for( int k = currentPhase; k < releasePhases; k++ ) {
+		for( int k = CURRENT_PHASE; k < releasePhaseCount; k++ ) {
 			ReleaseSchedulePhase phase = getPhase( k );
-			if( k == currentPhase ) {
-				phase.setDuration( action , phase.getDaysExpected() - currentDaysRemained );
+			if( k == CURRENT_PHASE ) {
+				phase.setDuration( phase.getDaysExpected() - currentDaysRemained );
 				days -= currentDaysRemained;
 			}
 			else {
@@ -411,7 +358,7 @@ public class ReleaseSchedule {
 				int reduce = expected;
 				if( reduce > days )
 					reduce = days;
-				phase.setDuration( action , expected - reduce );
+				phase.setDuration( expected - reduce );
 				days -= reduce;
 			}
 		}
@@ -420,7 +367,7 @@ public class ReleaseSchedule {
 	}
 	
 	private void extendSchedule( ActionBase action , int days ) throws Exception {
-		for( int k = releasePhases - 1; k >= currentPhase; k-- ) {
+		for( int k = releasePhaseCount - 1; k >= CURRENT_PHASE; k-- ) {
 			ReleaseSchedulePhase phase = getPhase( k );
 			if( phase.getDaysExpected() >= phase.getDaysBest() )
 				continue;
@@ -429,7 +376,7 @@ public class ReleaseSchedule {
 			if( increase > days )
 				increase = days;
 			
-			phase.setDuration( action , phase.getDaysExpected() + increase );
+			phase.setDuration( phase.getDaysExpected() + increase );
 			days -= increase;
 		}
 		
@@ -437,25 +384,24 @@ public class ReleaseSchedule {
 	}
 
 	public void nextPhase( ActionBase action ) throws Exception {
-		if( currentPhase < 0 )
+		if( CURRENT_PHASE < 0 )
 			action.exit0( _Error.NoCurrentPhase0 , "Release has no current phase" );
 		
-		if( currentPhase == releasePhases - 1 )
+		if( CURRENT_PHASE == releasePhaseCount - 1 )
 			finish( action );
 		else
-		if( currentPhase == phases.size() - 1 )
+		if( CURRENT_PHASE == phases.size() - 1 )
 			complete( action );
 		else {
 			ReleaseSchedulePhase phase = getCurrentPhase();
-			phase.finishPhase( action , Common.getDateCurrentDay() );
-			currentPhase++;
+			phase.finishPhase( Common.getDateCurrentDay() );
 			
 			ReleaseSchedulePhase phaseNext = getCurrentPhase();
 			Date date = phase.getFinishDate();
 			if( phaseNext.requireStartDay() )
 				date = Common.addDays( date , 1 );
 				
-			phaseNext.startPhase( action , date );
+			phaseNext.startPhase( date );
 		}
 	}
 
@@ -464,12 +410,12 @@ public class ReleaseSchedule {
 		if( phase.isFinished() )
 			action.exit2( _Error.PhaseFinished2 , "Phase finished, cannot be modified, release=" + release.RELEASEVER + " phase=" + PHASE , release.RELEASEVER , PHASE );
 		
-		if( deadlineDate.before( started ) ) {
-			String DATE = Common.getDateValue( started );
+		if( deadlineDate.before( DATE_STARTED ) ) {
+			String DATE = Common.getDateValue( DATE_STARTED );
 			action.exit2( _Error.DateEalierThanReleaseStarted2 , "Date cannot be before date when release has been started, release=" + release.RELEASEVER + " date=" + DATE , release.RELEASEVER , DATE );
 		}
 		
-		if( phase.pos > 0 && deadlineDate.before( phase.getDeadlineStart() ) ) {
+		if( phase.STAGE_POS > 0 && deadlineDate.before( phase.getDeadlineStart() ) ) {
 			String DATE = Common.getDateValue( phase.getDeadlineStart() );
 			action.exit2( _Error.DateEalierThanPhaseStart2 , "Date cannot be before date when phase expected to start, release=" + release.RELEASEVER + " date=" + DATE , release.RELEASEVER , DATE );
 		}
@@ -481,8 +427,8 @@ public class ReleaseSchedule {
 		}
 		
 		ReleaseSchedulePhase phaseNext = null;
-		if( phase.pos < phases.size() - 1 ) {
-			phaseNext = getPhase( phase.pos + 1 );
+		if( phase.STAGE_POS < phases.size() - 1 ) {
+			phaseNext = getPhase( phase.STAGE_POS + 1 );
 			String DATE = Common.getDateValue( phaseNext.getDeadlineFinish() );
 			if( deadlineDate.after( phaseNext.getDeadlineFinish() ) )
 				action.exit2( _Error.DateEalierThanNextPhaseDeadline2 , "Date cannot be after next phase deadline, release=" + release.RELEASEVER + " date=" + DATE , release.RELEASEVER , DATE );
@@ -495,18 +441,18 @@ public class ReleaseSchedule {
 		if( phaseNext != null ) {
 			if( deadlineDate.after( phase.getDeadlineFinish() ) ) {
 				if( phaseNext.requireStartDay() )
-					phaseNext.setStartDeadline( action , Common.addDays( deadlineDate , 1 ) , false );
+					phaseNext.setStartDeadline( Common.addDays( deadlineDate , 1 ) , false );
 				else
-					phaseNext.setStartDeadline( action , deadlineDate , false );
+					phaseNext.setStartDeadline( deadlineDate , false );
 			}
 			else 
 			if( deadlineDate.before( phase.getDeadlineFinish() ) )
-				phaseNext.setStartDeadline( action , deadlineDate , false );
+				phaseNext.setStartDeadline( deadlineDate , false );
 		}
 		
-		phase.setFinishDeadline( action , deadlineDate , false );
-		if( phase.pos == releasePhases - 1 ) {
-			releaseDate = deadlineDate;
+		phase.setFinishDeadline( deadlineDate , false );
+		if( phase.STAGE_POS == releasePhaseCount - 1 ) {
+			RELEASE_DATE = deadlineDate;
 			setDeadlinesBest();
 		}
 	}
@@ -516,7 +462,7 @@ public class ReleaseSchedule {
 		if( phase.isFinished() )
 			action.exit2( _Error.PhaseFinished2 , "Phase finished, cannot be modified, release=" + release.RELEASEVER + " phase=" + PHASE , release.RELEASEVER , PHASE );
 
-		phase.setDuration( action , duration );
+		phase.setDuration( duration );
 		setDeadlinesExpected();
 	}
 
@@ -535,10 +481,10 @@ public class ReleaseSchedule {
 			if( phase.isStarted() )
 				startDate = phase.getDeadlineStart();
 				
-			phase.setDeadlines( action , startDate , finishDate );
+			phase.setDeadlines( startDate , finishDate );
 			
-			if( k == releasePhases - 1 )
-				releaseDate = finishDate;
+			if( k == releasePhaseCount - 1 )
+				RELEASE_DATE = finishDate;
 		}
 	}
 	

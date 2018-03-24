@@ -13,7 +13,6 @@ import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
-import org.urm.meta.release.ReleaseMaster;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -99,7 +98,7 @@ public class DistRepositoryItem {
 		return( dist );
 	}
 	
-	public static Dist createDistMaster( ActionBase action , DistRepository repo , RemoteFolder distFolder , ReleaseMaster releaseMaster ) throws Exception {
+	public static Dist createDistMaster( ActionBase action , DistRepository repo , RemoteFolder distFolder , ReleaseDist releaseDist ) throws Exception {
 		if( distFolder.checkExists( action ) ) {
 			String path = distFolder.folderPath;
 			action.ifexit( _Error.ReleaseAlreadyExists1 , "distributive already exists at " + path , new String[] { path } );
@@ -110,8 +109,8 @@ public class DistRepositoryItem {
 		else
 			distFolder.ensureExists( action );
 		
-		Release release = releaseMaster.release;
-		Dist dist = new Dist( repo.meta , repo , releaseMaster.releaseDist );
+		Release release = releaseDist.release;
+		Dist dist = new Dist( repo.meta , repo , releaseDist );
 		dist.setFolder( distFolder );
 		dist.createMaster( action );
 		distFolder.createFileFromString( action , DistRepository.RELEASEHISTORYFILE , getHistoryRecord( action , release.RELEASEVER , "add" ) );

@@ -14,8 +14,13 @@ import org.urm.common.Common;
 import org.urm.common.RunError;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.meta.ReleaseCommandMeta;
+import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
 import org.urm.engine.EventService;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseBuildScope;
+import org.urm.engine.dist.ReleaseDistScope;
+import org.urm.engine.dist.ReleaseDistScopeDelivery;
+import org.urm.engine.dist.ReleaseDistScopeSet;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSource;
@@ -29,7 +34,6 @@ import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.release.ReleaseDelivery;
 
 public class BuildPlan extends EngineEventsSource implements EngineEventsListener {
 
@@ -54,6 +58,9 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	private boolean stopping;
 	
 	EngineEventsApp eventsApp;
+	
+	public ReleaseBuildScope buildScope;
+	public ReleaseDistScope distScope;
 
 	private BuildPlan( Dist dist , EventService events , String id ) {
 		super( events , id );
@@ -124,10 +131,12 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 		}
 	}
 	
-	public static BuildPlan create( ActionBase action , EngineEventsApp app , EngineEventsListener listener , Dist dist ) {
+	public static BuildPlan create( ActionBase action , EngineEventsApp app , EngineEventsListener listener , Dist dist ) throws Exception {
 		EventService events = action.engine.getEvents();
 		BuildPlan plan = new BuildPlan( dist , events , "build-plan-" + action.ID );
 		app.subscribe( plan , listener );
+		plan.buildScope = ReleaseBuildScope.createScope( dist.release );
+		plan.distScope = ReleaseDistScope.createScope( dist.release );
 		return( plan );
 	}
 	
@@ -298,7 +307,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 				
 				args = new String[ 2 + selected.length ];
 				args[ 0 ] = dist.RELEASEDIR;
-				args[ 1 ] = set.set.set.NAME;
+				args[ 1 ] = set.buildSet.set.NAME;
 				for( int k = 0; k < selected.length; k++ )
 					args[ 2 + k ] = Common.getPartAfterFirst( selected[ k ] , "::" );
 				run = true;
@@ -397,7 +406,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	
 	public BuildPlanSet getSet( MetaSourceProjectSet sourceSet ) {
 		for( BuildPlanSet set : listSets ) {
-			if( set.build && set.set.set == sourceSet )
+			if( set.build && set.buildSet.set == sourceSet )
 				return( set );
 		}
 		return( null );
@@ -422,7 +431,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	public BuildPlanItem getItem( MetaSourceProject sourceProject ) {
 		BuildPlanSet set = getSet( sourceProject.set );
 		for( BuildPlanItem item : set.listItems ) {
-			if( item.target.sourceProject == sourceProject )
+			if( item.buildTarget != null && item.buildTarget.project == sourceProject )
 				return( item );
 		}
 		return( null );
@@ -431,7 +440,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	public BuildPlanItem getItem( MetaDistrConfItem confItem ) {
 		BuildPlanSet set = getConfSet();
 		for( BuildPlanItem item : set.listItems ) {
-			if( item.target.distConfItem == confItem )
+			if( item.distItem != null && item.distItem.conf == confItem )
 				return( item );
 		}
 		return( null );
@@ -440,7 +449,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	public BuildPlanItem getItem( MetaDistrDelivery delivery , String dbVersion ) {
 		BuildPlanSet set = getDatabaseSet();
 		for( BuildPlanItem item : set.listItems ) {
-			if( item.target.distDelivery == delivery && item.dbVersion.equals( dbVersion ) )
+			if( item.set.distDelivery != null && item.set.distDelivery.distDelivery == delivery && item.dbVersion.equals( dbVersion ) )
 				return( item );
 		}
 		return( null );
@@ -512,7 +521,8 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	}
 	
 	private void addGetDBCumulativeStatus( boolean start , SCOPESTATE state ) {
-		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
+		ReleaseDistScopeSet set = distScope.findCategorySet( DBEnumScopeCategoryType.DB );
+		for( ReleaseDistScopeDelivery delivery : set.getDeliveries() ) {
 			for( String version : dist.release.getCumulativeVersions() ) {
 				BuildPlanItem item = getItem( delivery.distDelivery , version );
 				if( item != null ) {

@@ -49,7 +49,7 @@ public class ActionAddScope extends ActionBase {
 	}
 
 	private boolean addAllProductSetElements( ActionScopeSet set ) throws Exception {
-		if( set.CATEGORY.isSourceCategory() )
+		if( set.CATEGORY.isSource() )
 			return( dist.addAllSource( this , set.pset ) );
 		return( dist.addAllCategory( this , set.CATEGORY ) );
 	}
@@ -63,7 +63,7 @@ public class ActionAddScope extends ActionBase {
 			return( dist.addDeliveryAllDatabaseSchemes( this , target.delivery ) );
 		if( target.CATEGORY == DBEnumScopeCategoryType.DOC )
 			return( dist.addDeliveryAllDocs( this , target.delivery ) );
-		if( target.CATEGORY.isSourceCategory() )
+		if( target.CATEGORY.isSource() )
 			return( dist.addProjectAllItems( this , target.sourceProject ) );
 
 		this.exitUnexpectedCategory( target.CATEGORY );
@@ -71,7 +71,7 @@ public class ActionAddScope extends ActionBase {
 	}
 	
 	private boolean addTargetItem( ActionScopeSet set , ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {
-		if( target.CATEGORY.isSourceCategory() )
+		if( target.CATEGORY.isSource() )
 			return( dist.addProjectItem( this , target.sourceProject , item.sourceItem ) );
 		if( target.CATEGORY == DBEnumScopeCategoryType.DB )
 			return( dist.addDeliveryDatabaseSchema( this , target.delivery , item.schema ) );

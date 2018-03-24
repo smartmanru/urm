@@ -17,7 +17,10 @@ CREATE TABLE main.urm_rel_tickettarget (
                 release_id INTEGER NOT NULL,
                 ticketset_id INTEGER NOT NULL,
                 pos INTEGER NOT NULL,
-                releasetarget_id INTEGER NOT NULL,
+                buildtarget_id INTEGER,
+                disttarget_id INTEGER,
+                descoped BOOLEAN NOT NULL,
+                accepted BOOLEAN NOT NULL,
                 rv INTEGER NOT NULL,
                 CONSTRAINT urm_rel_tickettarget_pk PRIMARY KEY (tickettarget_id)
 );

@@ -1,14 +1,8 @@
 package org.urm.meta.release;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
-import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnums.*;
-import org.urm.meta.Types.*;
-import org.urm.meta.product.Meta;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import org.urm.meta.MatchItem;
 
 public class ReleaseTicket {
 
@@ -25,197 +19,168 @@ public class ReleaseTicket {
 	public static String PROPERTY_ACCEPTED = "accepted";
 	public static String PROPERTY_DESCOPED = "descoped";
 
-	public Meta meta;
+	public Release release;
 	public ReleaseTicketSet set;
 
+	public int ID;
 	public int POS;
 	public String CODE;
 	public String NAME;
+	public String DESC;
 	public String LINK;
-	public String OWNER;
-	public String DEV;
-	public String QA;
-	public String COMMENTS;
-	public DBEnumTicketType type;
-	public DBEnumTicketStatusType status;
-	public boolean active;
-	public boolean accepted;
-	public boolean descoped;
+	public DBEnumTicketType TYPE;
+	public DBEnumTicketStatusType TICKETSTATUS;
+	public boolean ACTIVE;
+	public boolean ACCEPTED;
+	public boolean DESCOPED;
+	public MatchItem OWNER;
+	public MatchItem DEV;
+	public MatchItem QA;
+	public int RV;
 	
-	public ReleaseTicket( Meta meta , ReleaseTicketSet set , int pos ) {
-		this.meta = meta; 
+	public ReleaseTicket( Release release , ReleaseTicketSet set ) {
+		this.release = release; 
 		this.set = set;
-		this.POS = pos;
 	}
 
-	public ReleaseTicket copy( ActionBase action , Meta meta , ReleaseTicketSet set ) throws Exception {
-		ReleaseTicket r = new ReleaseTicket( meta , set , POS );
+	public ReleaseTicket copy( Release release , ReleaseTicketSet set ) throws Exception {
+		ReleaseTicket r = new ReleaseTicket( release , set );
 
+		r.ID = ID;
+		r.POS = POS;
 		r.CODE = CODE;
 		r.NAME = NAME;
+		r.DESC = DESC;
 		r.LINK = LINK;
+		r.TYPE = TYPE;
+		r.TICKETSTATUS = TICKETSTATUS;
+		r.ACTIVE = ACTIVE;
+		r.ACCEPTED = ACCEPTED;
+		r.DESCOPED = DESCOPED;
 		r.OWNER = OWNER;
 		r.DEV = DEV;
 		r.QA = QA;
-		r.COMMENTS = COMMENTS;
-		r.type = type;
-		r.status = status;
-		r.active = active;
-		r.accepted = accepted;
-		r.descoped = descoped;
+		r.RV = RV;
 		
 		return( r );
 	}
 
-	public ReleaseTicket copyNew( ActionBase action , Meta meta , ReleaseTicketSet set ) throws Exception {
-		ReleaseTicket ticket = copy( action , meta , set );
-		ticket.active = false;
-		ticket.accepted = false;
-		ticket.descoped = false;
+	public ReleaseTicket copyNew( Release release , ReleaseTicketSet set ) throws Exception {
+		ReleaseTicket ticket = copy( release , set );
+		ticket.ACTIVE = false;
+		ticket.ACCEPTED = false;
+		ticket.DESCOPED = false;
 		return( ticket );
 	}
 	
-	public void load( ActionBase action , Node root ) throws Exception {
-		CODE = ConfReader.getRequiredAttrValue( root , PROPERTY_CODE );
-		NAME = Meta.getNameAttr( action , root , EnumNameType.ANY );
-		LINK = ConfReader.getAttrValue( root , PROPERTY_LINK );
-		OWNER = ConfReader.getAttrValue( root , PROPERTY_OWNER );
-		DEV = ConfReader.getAttrValue( root , PROPERTY_DEV );
-		QA = ConfReader.getAttrValue( root , PROPERTY_QA );
-		COMMENTS = ConfReader.getAttrValue( root , PROPERTY_DESC );
-		String TYPE = ConfReader.getAttrValue( root , PROPERTY_TYPE );
-		type = DBEnumTicketType.getValue( TYPE , false );
-		String STATUS = ConfReader.getAttrValue( root , PROPERTY_STATUS );
-		status = DBEnumTicketStatusType.getValue( STATUS , true );
-		active = ConfReader.getBooleanAttrValue( root , PROPERTY_ACTIVE , false );
-		accepted = ConfReader.getBooleanAttrValue( root , PROPERTY_ACCEPTED , false );
-		descoped = ConfReader.getBooleanAttrValue( root , PROPERTY_DESCOPED , false );
-		if( accepted )
-			active = true;
-	}
-	
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , PROPERTY_CODE , CODE );
-		Meta.setNameAttr( action , doc , root , EnumNameType.ANY , NAME );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_LINK , LINK );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_OWNER , OWNER );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_DEV , DEV );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_QA , QA );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_DESC , COMMENTS );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_TYPE , Common.getEnumLower( type ) );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_STATUS , Common.getEnumLower( status ) );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_ACTIVE , Common.getBooleanValue( active ) );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_ACCEPTED , Common.getBooleanValue( accepted ) );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_DESCOPED , Common.getBooleanValue( descoped ) );
-	}
-
 	public void accept( ActionBase action ) throws Exception {
-		accepted = true;
-		active = true;
+		ACCEPTED = true;
+		ACTIVE = true;
 	}
 
 	public void descope( ActionBase action ) throws Exception {
-		if( !descoped ) {
+		if( !DESCOPED ) {
 			if( set.isActive() )
-				accepted = false;
+				ACCEPTED = false;
 			
-			descoped = true;
+			DESCOPED = true;
 		}
 	}
 
-	public void create( ActionBase action , DBEnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
-		this.type = type;
+	public void create( DBEnumTicketType type , String code , String name , String link , String comments , Integer owner , boolean devdone ) throws Exception {
+		this.TYPE = type;
 		this.CODE = code;
 		this.NAME = name;
 		this.LINK = link;
-		this.COMMENTS = comments;
+		this.DESC = comments;
 		type = DBEnumTicketType.CHANGE;
-		this.OWNER = owner;
-		this.QA = "";
-		this.active = false;
-		this.accepted = false;
-		this.descoped = false;
+		this.OWNER = MatchItem.create( owner );
+		this.QA = null;
+		this.ACTIVE = false;
+		this.ACCEPTED = false;
+		this.DESCOPED = false;
+		
 		if( devdone ) {
-			this.DEV = owner;
-			status = DBEnumTicketStatusType.DEVDONE;
+			this.DEV = this.OWNER;
+			TICKETSTATUS = DBEnumTicketStatusType.DEVDONE;
 		}
 		else {
-			this.DEV = "";
-			status = DBEnumTicketStatusType.NEW;
+			this.DEV = null;
+			TICKETSTATUS = DBEnumTicketStatusType.NEW;
 		}
 	}
 	
-	public void modify( ActionBase action , DBEnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
-		this.type = type;
+	public void modify( DBEnumTicketType type , String code , String name , String link , String comments , Integer owner , boolean devdone ) throws Exception {
+		this.TYPE = type;
 		this.CODE = code;
 		this.NAME = name;
 		this.LINK = link;
-		this.COMMENTS = comments;
-		this.OWNER = owner;
+		this.DESC = comments;
+		this.OWNER = MatchItem.create( owner );
 		
 		if( devdone ) {
-			this.DEV = owner;
-			status = DBEnumTicketStatusType.DEVDONE;
+			this.DEV = this.OWNER;
+			TICKETSTATUS = DBEnumTicketStatusType.DEVDONE;
 		}
 		else {
-			this.DEV = "";
-			status = DBEnumTicketStatusType.NEW;
+			this.DEV = null;
+			TICKETSTATUS = DBEnumTicketStatusType.NEW;
 		}
 	}
 
-	public void setPos( ActionBase action , int pos ) throws Exception {
+	public void setPos( int pos ) throws Exception {
 		this.POS = pos;
 	}
 
 	public boolean isAccepted() {
-		return( accepted );
+		return( ACCEPTED );
 	}
 
 	public boolean isDescoped() {
-		return( descoped );
+		return( DESCOPED );
 	}
 
 	public boolean isCompleted() {
-		if( accepted && ( status == DBEnumTicketStatusType.QADONE || descoped ) )
+		if( ACCEPTED && ( TICKETSTATUS == DBEnumTicketStatusType.QADONE || DESCOPED ) )
 			return( true );
 		return( false );
 	}
 
 	public boolean isNew() {
-		if( status == DBEnumTicketStatusType.NEW )
+		if( TICKETSTATUS == DBEnumTicketStatusType.NEW )
 			return( true );
 		return( false );
 	}
 
 	public boolean isDevDone() {
-		if( status == DBEnumTicketStatusType.DEVDONE || status == DBEnumTicketStatusType.QADONE )
+		if( TICKETSTATUS == DBEnumTicketStatusType.DEVDONE || TICKETSTATUS == DBEnumTicketStatusType.QADONE )
 			return( true );
 		return( false );
 	}
 
 	public boolean isQaDone() {
-		if( status == DBEnumTicketStatusType.QADONE )
+		if( TICKETSTATUS == DBEnumTicketStatusType.QADONE )
 			return( true );
 		return( false );
 	}
 
 	public boolean isRunning() {
-		if( active )
+		if( ACTIVE )
 			return( true );
 		return( false );
 	}
 
 	public void setDevDone( ActionBase action ) throws Exception {
 		if( isRunning() && isNew() ) {
-			status = DBEnumTicketStatusType.DEVDONE;
-			DEV = action.getUserName();
+			TICKETSTATUS = DBEnumTicketStatusType.DEVDONE;
+			DEV = MatchItem.create( action.getUserId() );
 		}
 	}
 	
 	public void setVerified( ActionBase action ) throws Exception {
 		if( isRunning() && isDevDone() ) {
-			status = DBEnumTicketStatusType.QADONE;
-			QA = action.getUserName();
+			TICKETSTATUS = DBEnumTicketStatusType.QADONE;
+			QA = MatchItem.create( action.getUserId() );
 		}
 	}
 	

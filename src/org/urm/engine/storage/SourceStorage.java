@@ -19,7 +19,7 @@ import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.release.ReleaseScopeTarget;
+import org.urm.meta.release.ReleaseDistTarget;
 
 public class SourceStorage {
 
@@ -478,9 +478,9 @@ public class SourceStorage {
 		return( PATH );
 	}
 
-	private String getDATAReleaseConfigSourcePath( ActionBase action , Dist distStorage , ReleaseScopeTarget releaseComp ) throws Exception {
+	private String getDATAReleaseConfigSourcePath( ActionBase action , Dist distStorage , ReleaseDistTarget releaseComp ) throws Exception {
 		String PATH = Common.getPath( getDATAReleasePath( action , distStorage ) , 
-			getConfFolderRelPath( action , releaseComp.distConfItem ) );
+			getConfFolderRelPath( action , releaseComp.getConf() ) );
 		return( PATH );
 	}
 

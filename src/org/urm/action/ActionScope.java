@@ -8,12 +8,15 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.action.CommandContext;
-import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseBuildScope;
+import org.urm.engine.dist.ReleaseBuildScopeSet;
+import org.urm.engine.dist.ReleaseDistScope;
+import org.urm.engine.dist.ReleaseDistScopeSet;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.release.ReleaseScopeSet;
+import org.urm.meta.release.Release;
 
 public class ActionScope {
 
@@ -28,6 +31,10 @@ public class ActionScope {
 	public boolean scopeFullProduct;
 	public boolean scopeFullEnv;
 	public boolean scopeFullRelease;
+	
+	public Release release;
+	public ReleaseBuildScope releaseBuildScope;
+	public ReleaseDistScope releaseDistScope;
 
 	public ActionScope( ActionBase action ) {
 		this.context = action.context;
@@ -51,6 +58,22 @@ public class ActionScope {
 		this.scopeFullProduct = false;
 		this.scopeFullEnv = false;
 		this.scopeFullRelease = false;
+	}
+	
+	public void setReleaseBuildScope( Release release ) throws Exception {
+		if( releaseBuildScope != null )
+			return;
+
+		this.release = release;
+		this.releaseBuildScope = ReleaseBuildScope.createScope( release );
+	}
+	
+	public void setReleaseDistScope( Release release ) throws Exception {
+		if( releaseDistScope != null )
+			return;
+
+		this.release = release;
+		this.releaseDistScope = ReleaseDistScope.createScope( release );
 	}
 	
 	public void setIncomplete() {
@@ -122,12 +145,12 @@ public class ActionScope {
 		return( sset );
 	}
 	
-	public ActionScopeSet makeReleaseCategoryScopeSet( ActionBase action , Dist dist , DBEnumScopeCategoryType CATEGORY ) throws Exception {
+	public ActionScopeSet makeReleaseCategoryScopeSet( ActionBase action , DBEnumScopeCategoryType CATEGORY ) throws Exception {
 		ActionScopeSet sset = getCategorySet( action , CATEGORY );
 		if( sset != null )
 			return( sset );
 		
-		ReleaseScopeSet rset = dist.release.findCategorySet( CATEGORY );
+		ReleaseDistScopeSet rset = releaseDistScope.findCategorySet( CATEGORY );
 		if( rset == null ) {
 			action.debug( "ignore non-release set=" + Common.getEnumLower( CATEGORY ) );
 			return( null );
@@ -140,8 +163,8 @@ public class ActionScope {
 		return( sset );
 	}
 	
-	public ActionScopeSet makeReleaseScopeSet( ActionBase action , ReleaseScopeSet rset ) throws Exception {
-		ActionScopeSet sset = getScopeSet( action , rset.CATEGORY , rset.NAME );
+	public ActionScopeSet makeReleaseScopeSet( ActionBase action , ReleaseBuildScopeSet rset ) throws Exception {
+		ActionScopeSet sset = getScopeSet( action , DBEnumScopeCategoryType.PROJECT , rset.set.NAME );
 		if( sset != null )
 			return( sset );
 		
@@ -156,7 +179,7 @@ public class ActionScope {
 	}
 	
 	private ActionScopeSet getScopeSet( ActionBase action , DBEnumScopeCategoryType CATEGORY , String name ) throws Exception {
-		if( CATEGORY.isSourceCategory() )
+		if( CATEGORY.isSource() )
 			return( sourceMap.get( name ) );
 		if( CATEGORY == DBEnumScopeCategoryType.ENV )
 			return( envMap.get( name ) );
@@ -321,7 +344,7 @@ public class ActionScope {
 	private void addScopeSet( ActionBase action , ActionScopeSet sset ) throws Exception {
 		action.trace( "scope: scope add set category=" + Common.getEnumLower( sset.CATEGORY ) + ", name=" + sset.NAME );
 		
-		if( sset.CATEGORY.isSourceCategory() )
+		if( sset.CATEGORY.isSource() )
 			sourceMap.put( sset.NAME , sset );
 		else
 		if( sset.CATEGORY == DBEnumScopeCategoryType.ENV )
@@ -331,7 +354,7 @@ public class ActionScope {
 	}
 	
 	public ActionScopeSet findSet( ActionBase action , DBEnumScopeCategoryType CATEGORY , String NAME ) throws Exception {
-		if( CATEGORY.isSourceCategory() )
+		if( CATEGORY.isSource() )
 			return( sourceMap.get( NAME ) );
 		if( CATEGORY == DBEnumScopeCategoryType.ENV )
 			return( envMap.get( NAME ) );
@@ -360,7 +383,7 @@ public class ActionScope {
 	
 	private void createMinusSet( ActionBase action , ActionScopeSet setAdd , ActionScope scopeRemove ) throws Exception {
 		ActionScopeSet setNew = new ActionScopeSet( this , true );
-		if( setAdd.CATEGORY.isSourceCategory() )
+		if( setAdd.CATEGORY.isSource() )
 			setNew.create( action , setAdd.pset );
 		else
 		if( setAdd.CATEGORY == DBEnumScopeCategoryType.ENV )
@@ -378,5 +401,5 @@ public class ActionScope {
 	public ActionScopeSet findSimilarSet( ActionBase action , ActionScopeSet sample ) throws Exception {
 		return( findSet( action , sample.CATEGORY , sample.NAME ) );
 	}
-	
+
 }

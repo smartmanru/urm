@@ -13,7 +13,6 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.release.ReleaseDist;
-import org.urm.meta.release.ReleaseMaster;
 
 public class DistState {
 
@@ -207,7 +206,7 @@ public class DistState {
 		action.info( "release has been created: " + dist.RELEASEDIR );
 	}
 	
-	public void ctlCreateMaster( ActionBase action , ReleaseMaster master ) throws Exception {
+	public void ctlCreateMaster( ActionBase action , ReleaseDist releaseDist ) throws Exception {
 		// create release.xml, create status file, set closed dirty state
 		if( !distFolder.checkExists( action ) )
 			action.exit0( _Error.MissingProdDistributiveDirectory0 , "prod distributive directory should exist" );
@@ -220,7 +219,7 @@ public class DistState {
 		// create empty release.xml
 		String filePath = action.artefactory.workFolder.getFilePath( action , Dist.META_FILENAME );
 		EngineLoader loader = action.engine.createLoader( action );
-		DBReleaseDist.exportxml( loader , master , filePath );
+		DBReleaseDist.exportxml( loader , releaseDist , filePath );
 		distFolder.copyFileFromLocal( action , filePath );
 		
 		// set status

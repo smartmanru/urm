@@ -103,16 +103,14 @@ public class EngineEntities {
 	public PropertyEntity entityAppReleaseRepository;
 	public PropertyEntity entityAppReleaseMain;
 	public PropertyEntity entityAppReleaseDist;
-	public PropertyEntity entityAppReleaseTarget;
-	public PropertyEntity entityAppReleaseScopeSet;
-	public PropertyEntity entityAppReleaseScopeTarget;
-	public PropertyEntity entityAppReleaseScopeItem;
+	public PropertyEntity entityAppReleaseBuildTarget;
+	public PropertyEntity entityAppReleaseDistTarget;
 	public PropertyEntity entityAppReleaseSchedule;
 	public PropertyEntity entityAppReleasePhase;
 	public PropertyEntity entityAppReleaseTicketSet;
 	public PropertyEntity entityAppReleaseTicketTarget;
 	public PropertyEntity entityAppReleaseTicket;
-	public PropertyEntity entityAppReleaseDistFile;
+	public PropertyEntity entityAppReleaseDistItem;
 	
 	public EngineEntities( Engine engine ) {
 		this.engine = engine;
@@ -169,16 +167,14 @@ public class EngineEntities {
 		entityAppReleaseRepository = DBReleaseData.upgradeEntityReleaseRepository( loader );
 		entityAppReleaseMain = DBReleaseData.upgradeEntityReleaseMain( loader );
 		entityAppReleaseDist = DBReleaseData.upgradeEntityReleaseDist( loader );
-		entityAppReleaseTarget = DBReleaseData.upgradeEntityReleaseTarget( loader );
-		entityAppReleaseScopeSet = DBReleaseData.upgradeEntityReleaseScopeSet( loader );
-		entityAppReleaseScopeTarget = DBReleaseData.upgradeEntityReleaseScopeTarget( loader );
-		entityAppReleaseScopeItem = DBReleaseData.upgradeEntityReleaseScopeItem( loader );
+		entityAppReleaseBuildTarget = DBReleaseData.upgradeEntityReleaseBuildTarget( loader );
+		entityAppReleaseDistTarget = DBReleaseData.upgradeEntityReleaseDistTarget( loader );
 		entityAppReleaseSchedule = DBReleaseData.upgradeEntityReleaseSchedule( loader );
 		entityAppReleasePhase = DBReleaseData.upgradeEntityReleasePhase( loader );
 		entityAppReleaseTicketSet = DBReleaseData.upgradeEntityReleaseTicketSet( loader );
 		entityAppReleaseTicketTarget = DBReleaseData.upgradeEntityReleaseTicketTarget( loader );
 		entityAppReleaseTicket = DBReleaseData.upgradeEntityReleaseTicket( loader );
-		entityAppReleaseDistFile = DBReleaseData.upgradeEntityReleaseDistTarget( loader );
+		entityAppReleaseDistItem = DBReleaseData.upgradeEntityReleaseDistItem( loader );
 		
 		entityCustomRC = DBEngineContext.createEntityCustomRC( loader );
 		entityCustomEngine = DBEngineContext.createEntityCustomEngine( loader );
@@ -236,16 +232,14 @@ public class EngineEntities {
 		entityAppReleaseRepository = DBReleaseData.loaddbEntityReleaseRepository( c );
 		entityAppReleaseMain = DBReleaseData.loaddbEntityReleaseMain( c );
 		entityAppReleaseDist = DBReleaseData.loaddbEntityReleaseDist( c );
-		entityAppReleaseTarget = DBReleaseData.loaddbEntityReleaseTarget( c );
-		entityAppReleaseScopeSet = DBReleaseData.loaddbEntityReleaseScopeSet( c );
-		entityAppReleaseScopeTarget = DBReleaseData.loaddbEntityReleaseScopeTarget( c );
-		entityAppReleaseScopeItem = DBReleaseData.loaddbEntityReleaseScopeItem( c );
+		entityAppReleaseBuildTarget = DBReleaseData.loaddbEntityReleaseBuildTarget( c );
+		entityAppReleaseDistTarget = DBReleaseData.loaddbEntityReleaseDistTarget( c );
 		entityAppReleaseSchedule = DBReleaseData.loaddbEntityReleaseSchedule( c );
 		entityAppReleasePhase = DBReleaseData.loaddbEntityReleasePhase( c );
 		entityAppReleaseTicketSet = DBReleaseData.loaddbEntityReleaseTicketSet( c );
 		entityAppReleaseTicketTarget = DBReleaseData.loaddbEntityReleaseTicketTarget( c );
 		entityAppReleaseTicket = DBReleaseData.loaddbEntityReleaseTicket( c );
-		entityAppReleaseDistFile = DBReleaseData.loaddbEntityReleaseDistTarget( c );
+		entityAppReleaseDistItem = DBReleaseData.loaddbEntityReleaseDistItem( c );
 		
 		entityCustomRC = DBEngineContext.loaddbEntityCustomRC( c );
 		entityCustomEngine = DBEngineContext.loaddbEntityCustomEngine( c );

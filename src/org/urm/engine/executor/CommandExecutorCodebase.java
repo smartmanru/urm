@@ -86,7 +86,7 @@ public class CommandExecutorCodebase extends CommandExecutor {
 		Meta meta = action.getContextMeta();
 		if( !RELEASELABEL.isEmpty() ) {
 			dist = action.getReleaseDist( meta , RELEASELABEL );
-			ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+			ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
 			maker.addScopeReleaseSet( SET , PROJECTS );
 			scope = maker.getScope();
 		}
@@ -150,7 +150,7 @@ public class CommandExecutorCodebase extends CommandExecutor {
 		Meta meta = action.getContextMeta();
 		if( !RELEASELABEL.isEmpty() ) {
 			dist = action.getReleaseDist( meta , RELEASELABEL );
-			ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+			ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
 			maker.addScopeReleaseSet( SET , TARGETS );
 			scope = maker.getScope();
 		}
@@ -314,7 +314,7 @@ public class CommandExecutorCodebase extends CommandExecutor {
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		
-		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
 		ActionScopeTarget scopeProject = maker.addScopeReleaseProjectItemsTarget( "thirdparty" , null );
 		impl.thirdpartyUploadDist( parentState , action , scopeProject , dist );
 	}

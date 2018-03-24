@@ -2,15 +2,9 @@ package org.urm.meta.release;
 
 import java.util.Date;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.meta.Types.EnumNameType;
+import org.urm.db.core.DBEnums.*;
 import org.urm.meta.engine.LifecyclePhase;
-import org.urm.meta.product.Meta;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class ReleaseSchedulePhase {
 
@@ -24,140 +18,111 @@ public class ReleaseSchedulePhase {
 	public static String PROPERTY_STAGEPOS = "stagepos";
 	public static String PROPERTY_FINISHED = "finished";
 	public static String PROPERTY_FINISHDATE = "finishdate";
-	
-	Meta meta;
+
+	Release release;
 	ReleaseSchedule schedule;
 
-	public int pos;
-	public String name;
-	
-	private int days;
-	private int normalDays;
-	private boolean release;
-	private boolean finished;
-	private boolean unlimited;
-	private Date startDate;
-	private Date finishDate;
+	public int ID;
+	public DBEnumLifecycleStageType STAGETYPE;
+	public int STAGE_POS;
+	public String NAME;
+	public String DESC;
+	public int DAYS;
+	public int NORMAL_DAYS;
+	public boolean FINISHED;
+	public boolean UNLIMITED;
+	public Date START_DATE;
+	public Date FINISH_DATE;
+	public int RV;
 	
 	private Date deadlineStart;
 	private Date deadlineFinish;
 	private Date bestStart;
 	private Date bestFinish;
 	
-	public ReleaseSchedulePhase( Meta meta , ReleaseSchedule schedule ) {
-		this.meta = meta;
+	public ReleaseSchedulePhase( Release release , ReleaseSchedule schedule ) {
+		this.release = release;
 		this.schedule = schedule;
 		
-		pos = 0;
-		days = 0;
-		normalDays = 0;
-		release = false;
-		finished = false;
+		STAGE_POS = 0;
+		DAYS = 0;
+		NORMAL_DAYS = 0;
+		FINISHED = false;
 	}
 	
-	public ReleaseSchedulePhase copy( ActionBase action , Meta meta , ReleaseSchedule schedule ) throws Exception {
-		ReleaseSchedulePhase r = new ReleaseSchedulePhase( meta , schedule );
-		r.pos = pos;
-		r.name = name;
-		r.days = days;
-		r.normalDays = normalDays;
-		r.release = release;
-		r.finished = finished;
-		r.startDate = startDate;
-		r.finishDate = finishDate;
+	public ReleaseSchedulePhase copy( Release rrelease , ReleaseSchedule rschedule ) throws Exception {
+		ReleaseSchedulePhase r = new ReleaseSchedulePhase( rrelease , rschedule );
+		
+		r.ID = ID;
+		r.STAGETYPE = STAGETYPE;
+		r.STAGE_POS = STAGE_POS;
+		r.NAME = NAME;
+		r.DESC = DESC;
+		r.DAYS = DAYS;
+		r.NORMAL_DAYS = NORMAL_DAYS;
+		r.FINISHED = FINISHED;
+		r.UNLIMITED = UNLIMITED;
+		r.START_DATE = START_DATE;
+		r.FINISH_DATE = FINISH_DATE;
+		r.RV = RV;
+		
 		r.deadlineStart = deadlineStart;
 		r.deadlineFinish = deadlineFinish;
 		r.bestStart = bestStart;
 		r.bestFinish = bestFinish;
+		
 		return( r );
 	}
 
-	public void load( ActionBase action , Node root , int pos , int current ) throws Exception {
-		this.pos = pos;
-		
-		name = Meta.getNameAttr( action , root , EnumNameType.ANY );
-		days = ConfReader.getIntegerAttrValue( root , PROPERTY_DAYS , 0 );
-		normalDays = ConfReader.getIntegerAttrValue( root , PROPERTY_NORMALDAYS , 0 );
-		release = ConfReader.getBooleanAttrValue( root , PROPERTY_RELEASESTAGE , false );
-		unlimited = ConfReader.getBooleanAttrValue( root , PROPERTY_UNLIMITED , false );
-
-		if( current >= 0 && current < pos )
-			startDate = null;
-		else
-			startDate = Common.getDateValue( ConfReader.getAttrValue( root , PROPERTY_STARTDATE ) );
-		
-		if( current >= 0 && current <= pos ) {
-			finished = false;
-			finishDate = null;
-		}
-		else {
-			finished = ConfReader.getBooleanAttrValue( root , PROPERTY_FINISHED , false );
-			if( finished )
-				finishDate = Common.getDateValue( ConfReader.getAttrValue( root , PROPERTY_FINISHDATE ) );
-		}
-	}
-
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Meta.setNameAttr( action , doc , root , EnumNameType.ANY , name );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_DAYS , "" + days );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_NORMALDAYS , "" + normalDays );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_RELEASESTAGE , Common.getBooleanValue( release ) );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_FINISHED , Common.getBooleanValue( finished ) );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_UNLIMITED , Common.getBooleanValue( unlimited ) );
-		Common.xmlSetElementAttr( doc , root , PROPERTY_STARTDATE , Common.getDateValue( startDate ) );
-		if( finished )
-			Common.xmlSetElementAttr( doc , root , PROPERTY_FINISHDATE , Common.getDateValue( finishDate ) );
-	}
-	
-	public void create( ActionBase action , LifecyclePhase lcPhase , int pos ) throws Exception {
-		this.pos = pos;
-		this.name = lcPhase.NAME;
-		
-		this.unlimited = lcPhase.isUnlimited();
-		this.days = lcPhase.getDuration();
-		this.normalDays = this.days;
-		this.release = lcPhase.isRelease();
-		this.finished = false;
-		this.startDate = null;
-		this.finishDate = null;
+	public void create( LifecyclePhase lcPhase , int pos ) throws Exception {
+		this.STAGETYPE = lcPhase.LIFECYCLESTAGE_TYPE;
+		this.STAGE_POS = pos;
+		this.NAME = lcPhase.NAME;
+		this.DESC = lcPhase.DESC;
+		this.DAYS = lcPhase.getDuration();
+		this.NORMAL_DAYS = this.DAYS;
+		this.FINISHED = false;
+		this.UNLIMITED = lcPhase.isUnlimited();
+		this.START_DATE = null;
+		this.FINISH_DATE = null;
 	}
 
 	public boolean isRelease() {
-		return( release );
+		return( STAGETYPE == DBEnumLifecycleStageType.RELEASE );
 	}
 	
 	public boolean isDeploy() {
-		if( release )
+		if( isRelease() )
 			return( false );
 		return( true );
 	}
 	
 	public boolean isStarted() {
-		if( startDate != null )
+		if( START_DATE != null )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isFinished() {
-		return( finished );
+		return( FINISHED );
 	}
 	
 	public int getDaysPassed() {
-		if( startDate == null )
+		if( START_DATE == null )
 			return( -1 );
 		Date currentDate = Common.getDateCurrentDay();
-		int ndays = Common.getDateDiffDays( startDate , currentDate );
+		int ndays = Common.getDateDiffDays( START_DATE , currentDate );
 		if( requireStartDay() )
 			ndays++;
 		return( ndays );
 	}
 	
 	public int getDaysExpected() {
-		return( days );
+		return( DAYS );
 	}
 	
 	public int getDaysBest() {
-		return( normalDays );
+		return( NORMAL_DAYS );
 	}
 	
 	public Date getDeadlineStart() {
@@ -177,11 +142,11 @@ public class ReleaseSchedulePhase {
 	}
 
 	public Date getStartDate() {
-		return( startDate );
+		return( START_DATE );
 	}
 	
 	public Date getFinishDate() {
-		return( finishDate );
+		return( FINISH_DATE );
 	}
 	
 	public Date getDateBeforePhaseExpected() {
@@ -199,14 +164,14 @@ public class ReleaseSchedulePhase {
 	}
 	
 	public boolean requireStartDay() {
-		return( ( unlimited || normalDays > 0 )? true : false );
+		return( ( UNLIMITED || NORMAL_DAYS > 0 )? true : false );
 	}
 	
 	public int getDaysActually() {
-		if( startDate == null || finishDate == null )
+		if( START_DATE == null || FINISH_DATE == null )
 			return( -1 );
 			
-		int diff = Common.getDateDiffDays( startDate.getTime() , finishDate.getTime() );
+		int diff = Common.getDateDiffDays( START_DATE.getTime() , FINISH_DATE.getTime() );
 		if( requireStartDay() )
 			diff++;
 			
@@ -216,8 +181,8 @@ public class ReleaseSchedulePhase {
 	public void setDeadlineDateExpected( Date deadlineFinish ) {
 		this.deadlineFinish = deadlineFinish;
 		
-		if( days > 0 )
-			this.deadlineStart = Common.addDays( deadlineFinish , -(days-1) );
+		if( DAYS > 0 )
+			this.deadlineStart = Common.addDays( deadlineFinish , -(DAYS-1) );
 		else
 			this.deadlineStart = deadlineFinish;
 	}
@@ -225,8 +190,8 @@ public class ReleaseSchedulePhase {
 	public void setDeadlineDateBest( Date bestFinish ) {
 		this.bestFinish = bestFinish;
 		
-		if( normalDays > 0 )
-			this.bestStart = Common.addDays( bestFinish , -(normalDays-1) );
+		if( NORMAL_DAYS > 0 )
+			this.bestStart = Common.addDays( bestFinish , -(NORMAL_DAYS-1) );
 		else
 			this.bestStart = bestFinish;
 	}
@@ -237,8 +202,8 @@ public class ReleaseSchedulePhase {
 		else
 			this.deadlineStart = deadlineStart;
 		
-		if( days > 0 )
-			this.deadlineFinish = Common.addDays( this.deadlineStart , (days-1) );
+		if( DAYS > 0 )
+			this.deadlineFinish = Common.addDays( this.deadlineStart , (DAYS-1) );
 		else
 			this.deadlineFinish = this.deadlineStart;
 	}
@@ -249,49 +214,49 @@ public class ReleaseSchedulePhase {
 		else
 			this.bestStart = bestStart;
 		
-		if( normalDays > 0 )
-			this.bestFinish = Common.addDays( this.bestStart , (normalDays-1) );
+		if( NORMAL_DAYS > 0 )
+			this.bestFinish = Common.addDays( this.bestStart , (NORMAL_DAYS-1) );
 		else
 			this.bestFinish = this.bestStart;
 	}
 
-	public void startPhase( ActionBase action , Date date ) throws Exception {
-		startDate = date;
-		finished = false;
-		finishDate = null;
+	public void startPhase( Date date ) throws Exception {
+		START_DATE = date;
+		FINISHED = false;
+		FINISH_DATE = null;
 	}
 	
-	public void finishPhase( ActionBase action , Date date ) throws Exception {
-		finished = true;
-		finishDate = date;
+	public void finishPhase( Date date ) throws Exception {
+		FINISHED = true;
+		FINISH_DATE = date;
 	}
 	
-	public void reopenPhase( ActionBase action ) throws Exception {
-		finished = false;
-		finishDate = null;
+	public void reopenPhase() throws Exception {
+		FINISHED = false;
+		FINISH_DATE = null;
 	}
 	
-	public void clearPhase( ActionBase action ) throws Exception {
-		startDate = null;
-		finished = false;
-		finishDate = null;
+	public void clearPhase() throws Exception {
+		START_DATE = null;
+		FINISHED = false;
+		FINISH_DATE = null;
 	}
 
-	public void setDuration( ActionBase action , int duration ) throws Exception {
-		this.days = duration;
+	public void setDuration( int duration ) throws Exception {
+		this.DAYS = duration;
 	}
 
 	private void changeDays() {
-		days = Common.getDateDiffDays( deadlineStart , deadlineFinish );
+		DAYS = Common.getDateDiffDays( deadlineStart , deadlineFinish );
 		if( requireStartDay() )
-			days++;
+			DAYS++;
 	}
 	
-	public void setFinishDeadline( ActionBase action , Date deadlineDate , boolean shiftStart ) throws Exception {
+	public void setFinishDeadline( Date deadlineDate , boolean shiftStart ) throws Exception {
 		deadlineFinish = deadlineDate;
 		if( shiftStart ) {
-			if( days > 0 )
-				deadlineStart = Common.addDays( deadlineFinish , -(days-1) );
+			if( DAYS > 0 )
+				deadlineStart = Common.addDays( deadlineFinish , -(DAYS-1) );
 			else
 				deadlineStart = deadlineFinish;
 		}
@@ -299,11 +264,11 @@ public class ReleaseSchedulePhase {
 			changeDays();
 	}
 	
-	public void setStartDeadline( ActionBase action , Date deadlineDate , boolean shiftFinish ) throws Exception {
+	public void setStartDeadline( Date deadlineDate , boolean shiftFinish ) throws Exception {
 		deadlineStart = deadlineDate;
 		if( shiftFinish ) {
-			if( days > 0 )
-				deadlineFinish = Common.addDays( deadlineStart , days - 1 );
+			if( DAYS > 0 )
+				deadlineFinish = Common.addDays( deadlineStart , DAYS - 1 );
 			else
 				deadlineFinish = deadlineStart;
 		}
@@ -311,7 +276,7 @@ public class ReleaseSchedulePhase {
 			changeDays();
 	}
 
-	public void setDeadlines( ActionBase action , Date deadlineStart , Date deadlineFinish ) throws Exception {
+	public void setDeadlines( Date deadlineStart , Date deadlineFinish ) throws Exception {
 		this.deadlineStart = deadlineStart;
 		this.deadlineFinish = deadlineFinish;
 		changeDays();

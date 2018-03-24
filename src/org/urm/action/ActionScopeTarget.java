@@ -5,6 +5,10 @@ import java.util.List;
 
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.dist.ReleaseBuildScopeProject;
+import org.urm.engine.dist.ReleaseBuildScopeProjectItem;
+import org.urm.engine.dist.ReleaseDistScopeDelivery;
+import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
@@ -17,8 +21,6 @@ import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
-import org.urm.meta.release.ReleaseScopeTarget;
-import org.urm.meta.release.ReleaseScopeItem;
 
 public class ActionScopeTarget {
 
@@ -27,10 +29,13 @@ public class ActionScopeTarget {
 	
 	public DBEnumScopeCategoryType CATEGORY; 
 	public String NAME;
-	public ReleaseScopeTarget releaseTarget;
+	
+	public ReleaseBuildScopeProject releaseBuildScopeProject;
+	public ReleaseDistScopeDelivery releaseDistScopeDelivery;
+	public ReleaseDistScopeDeliveryItem releaseDistScopeDeliveryItem;
+	
 	public MetaSourceProject sourceProject;
 	public MetaDistrDelivery delivery;
-	
 	public MetaDistrConfItem confItem;
 	public MetaDistrBinaryItem manualItem;
 	public MetaDistrBinaryItem derivedItem;
@@ -65,29 +70,28 @@ public class ActionScopeTarget {
 		return( target );
 	}
 	
-	public static ActionScopeTarget createReleaseSourceProjectTarget( ActionScopeSet set , ReleaseScopeTarget releaseProject , boolean specifiedExplicitly ) {
+	public static ActionScopeTarget createReleaseSourceProjectTarget( ActionScopeSet set , ReleaseBuildScopeProject releaseProject , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
-		target.NAME = releaseProject.NAME;
-		target.releaseTarget = releaseProject;
-		target.sourceProject = releaseProject.sourceProject;
-		target.itemFull = ( releaseProject.sourceProject == null )? true : releaseProject.ALL;
+		target.NAME = releaseProject.project.NAME;
+		target.releaseBuildScopeProject = releaseProject;
+		target.sourceProject = releaseProject.project;
+		target.itemFull = releaseProject.all;
 		target.specifiedExplicitly = specifiedExplicitly;
 		return( target );
 	}
 
-	public static ActionScopeTarget createReleaseDeliveryTarget( ActionScopeSet set , ReleaseScopeTarget releaseTarget , boolean specifiedExplicitly ) {
+	public static ActionScopeTarget createReleaseDeliveryTarget( ActionScopeSet set , ReleaseDistScopeDelivery releaseTarget , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
-		target.NAME = releaseTarget.NAME;
-		target.releaseTarget = releaseTarget;
+		target.NAME = releaseTarget.distDelivery.NAME;
+		target.releaseDistScopeDelivery = releaseTarget;
 		target.delivery = releaseTarget.distDelivery;
-		target.itemFull = releaseTarget.ALL;
+		target.itemFull = releaseTarget.all;
 		target.specifiedExplicitly = specifiedExplicitly;
 		return( target );
 	}
 	
 	public static ActionScopeTarget createProductConfItemTarget( ActionScopeSet set , MetaDistrConfItem confItem , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
-
 		target.confItem = confItem;
 		target.NAME = confItem.NAME;
 		target.itemFull = true;
@@ -97,7 +101,6 @@ public class ActionScopeTarget {
 	
 	public static ActionScopeTarget createProductManualDistItemTarget( ActionScopeSet set , MetaDistrBinaryItem manualItem , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
-
 		target.manualItem = manualItem;
 		target.NAME = manualItem.NAME;
 		target.itemFull = true;
@@ -135,7 +138,6 @@ public class ActionScopeTarget {
 	
 	public static ActionScopeTarget createEnvServerTarget( ActionScopeSet set , MetaEnvServer envServer , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
-
 		target.envServer = envServer;
 		target.NAME = envServer.NAME;
 		target.specifiedExplicitly = specifiedExplicitly;
@@ -166,9 +168,9 @@ public class ActionScopeTarget {
 			return( createProductDerivedDistItemTarget( setNew , derivedItem , specifiedExplicitly ) );
 		if( CATEGORY == DBEnumScopeCategoryType.MANUAL )
 			return( createProductManualDistItemTarget( setNew , manualItem , specifiedExplicitly ) );
-		if( CATEGORY.isSourceCategory() ) {
-			if( releaseTarget != null )
-				return( createReleaseSourceProjectTarget( setNew , releaseTarget , specifiedExplicitly ) );
+		if( CATEGORY.isSource() ) {
+			if( releaseBuildScopeProject != null )
+				return( createReleaseSourceProjectTarget( setNew , releaseBuildScopeProject , specifiedExplicitly ) );
 			return( createProductSourceProjectTarget( setNew , sourceProject , specifiedExplicitly ) );
 		}
 		if( CATEGORY == DBEnumScopeCategoryType.ENV )
@@ -209,7 +211,7 @@ public class ActionScopeTarget {
 	}
 	
 	public void addProjectItems( ActionBase action , String[] ITEMS ) throws Exception {
-		if( releaseTarget != null )
+		if( releaseBuildScopeProject != null )
 			addReleaseProjectItems( action , ITEMS );
 		else
 			addProjectItemsInternal( action , ITEMS );
@@ -237,16 +239,16 @@ public class ActionScopeTarget {
 	private void addReleaseProjectItems( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			itemFull = true;
-			for( ReleaseScopeItem item : releaseTarget.getItems() )
+			for( ReleaseBuildScopeProjectItem item : releaseBuildScopeProject.getItems() )
 				addItem( action , item , false );
 			return;
 		}
 		
-		MetaSourceProject project = releaseTarget.sourceProject;
+		MetaSourceProject project = releaseBuildScopeProject.project;
 		for( String itemName : ITEMS ) {
 			MetaSourceProjectItem item = project.getItem( itemName );
 			
-			ReleaseScopeItem releaseItem = releaseTarget.findProjectItem( item );
+			ReleaseBuildScopeProjectItem releaseItem = releaseBuildScopeProject.findItem( item );
 			if( releaseItem != null )
 				addItem( action , releaseItem , true );
 			else
@@ -260,7 +262,7 @@ public class ActionScopeTarget {
 	}
 	
 	public void addDatabaseSchemes( ActionBase action , String[] ITEMS ) throws Exception {
-		if( releaseTarget != null )
+		if( releaseDistScopeDelivery != null )
 			addReleaseDatabaseSchemes( action , ITEMS );
 		else
 			addDatabaseSchemesInternal( action , ITEMS );
@@ -283,16 +285,16 @@ public class ActionScopeTarget {
 	private void addReleaseDatabaseSchemes( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			itemFull = true;
-			for( ReleaseScopeItem item : releaseTarget.getItems() )
+			for( ReleaseDistScopeDeliveryItem item : releaseDistScopeDelivery.getItems() )
 				addItem( action , item , false );
 			return;
 		}
 		
-		MetaDistrDelivery delivery = releaseTarget.distDelivery;
+		MetaDistrDelivery delivery = releaseDistScopeDelivery.distDelivery;
 		for( String itemName : ITEMS ) {
-			MetaDatabaseSchema item = delivery.getSchema( itemName );
+			MetaDatabaseSchema schema = delivery.getSchema( itemName );
 			
-			ReleaseScopeItem releaseItem = releaseTarget.findDeliverySchema( item );
+			ReleaseDistScopeDeliveryItem releaseItem = releaseDistScopeDelivery.findSchema( schema );
 			if( releaseItem != null )
 				addItem( action , releaseItem , true );
 			else
@@ -306,7 +308,7 @@ public class ActionScopeTarget {
 	}
 	
 	public void addDocs( ActionBase action , String[] ITEMS ) throws Exception {
-		if( releaseTarget != null )
+		if( releaseDistScopeDelivery != null )
 			addReleaseDocs( action , ITEMS );
 		else
 			addDocsInternal( action , ITEMS );
@@ -329,16 +331,16 @@ public class ActionScopeTarget {
 	private void addReleaseDocs( ActionBase action , String[] ITEMS ) throws Exception {
 		if( ITEMS == null || ITEMS.length == 0 ) {
 			itemFull = true;
-			for( ReleaseScopeItem item : releaseTarget.getItems() )
+			for( ReleaseDistScopeDeliveryItem item : releaseDistScopeDelivery.getItems() )
 				addItem( action , item , false );
 			return;
 		}
 		
-		MetaDistrDelivery delivery = releaseTarget.distDelivery;
+		MetaDistrDelivery delivery = releaseDistScopeDelivery.distDelivery;
 		for( String itemName : ITEMS ) {
-			MetaProductDoc item = delivery.getDoc( itemName );
+			MetaProductDoc doc = delivery.getDoc( itemName );
 			
-			ReleaseScopeItem releaseItem = releaseTarget.findDeliveryDoc( item );
+			ReleaseDistScopeDeliveryItem releaseItem = releaseDistScopeDelivery.findDoc( doc );
 			if( releaseItem != null )
 				addItem( action , releaseItem , true );
 			else
@@ -351,7 +353,12 @@ public class ActionScopeTarget {
 		items.add( scopeItem );
 	}
 	
-	public void addItem( ActionBase action , ReleaseScopeItem item , boolean specifiedExplicitly ) throws Exception {
+	public void addItem( ActionBase action , ReleaseBuildScopeProjectItem item , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createReleaseTargetItem( this , item , specifiedExplicitly );
+		items.add( scopeItem );
+	}
+	
+	public void addItem( ActionBase action , ReleaseDistScopeDeliveryItem item , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeTargetItem scopeItem = ActionScopeTargetItem.createReleaseTargetItem( this , item , specifiedExplicitly );
 		items.add( scopeItem );
 	}
@@ -365,8 +372,13 @@ public class ActionScopeTarget {
 		if( !action.context.CTX_VERSION.isEmpty() )
 			BUILDVERSION = action.context.CTX_VERSION;
 		
-		if( BUILDVERSION.isEmpty() && releaseTarget != null )
-			BUILDVERSION = releaseTarget.BUILDVERSION;
+		if( BUILDVERSION.isEmpty() && releaseBuildScopeProject != null ) {
+			if( releaseBuildScopeProject.scopeProjectTarget != null )
+				BUILDVERSION = releaseBuildScopeProject.scopeProjectTarget.BUILD_VERSION;
+			
+			if( BUILDVERSION.isEmpty() )
+				BUILDVERSION = set.getSetBuildVersion();
+		}
 		
 		if( BUILDVERSION.isEmpty() ) {
 			MetaProductBuildSettings build = action.getBuildSettings( meta );
@@ -384,8 +396,13 @@ public class ActionScopeTarget {
 		if( !action.context.CTX_BRANCH.isEmpty() )
 			BUILDBRANCH = action.context.CTX_BRANCH;
 		
-		if( BUILDBRANCH.isEmpty() && releaseTarget != null )
-			BUILDBRANCH = releaseTarget.BUILDBRANCH;
+		if( BUILDBRANCH.isEmpty() && releaseBuildScopeProject != null ) {
+			if( releaseBuildScopeProject.scopeProjectTarget != null )
+				BUILDBRANCH = releaseBuildScopeProject.scopeProjectTarget.BUILD_BRANCH;
+			
+			if( BUILDBRANCH.isEmpty() )
+				BUILDBRANCH = set.getSetBuildBranch();
+		}
 		
 		if( BUILDBRANCH.isEmpty() ) {
 			MetaProductBuildSettings build = action.getBuildSettings( meta );
@@ -403,8 +420,13 @@ public class ActionScopeTarget {
 		if( !action.context.CTX_TAG.isEmpty() )
 			BUILDTAG = action.context.CTX_TAG;
 		
-		if( BUILDTAG.isEmpty() && releaseTarget != null )
-			BUILDTAG = releaseTarget.BUILDTAG;
+		if( BUILDTAG.isEmpty() && releaseBuildScopeProject != null ) {
+			if( releaseBuildScopeProject.scopeProjectTarget != null )
+				BUILDTAG = releaseBuildScopeProject.scopeProjectTarget.BUILD_TAG;
+			
+			if( BUILDTAG.isEmpty() )
+				BUILDTAG = set.getSetBuildTag();
+		}
 		
 		return( BUILDTAG );
 	}

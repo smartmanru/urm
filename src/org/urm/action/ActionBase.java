@@ -169,6 +169,16 @@ abstract public class ActionBase extends ActionCore {
 		return( user.NAME );
 	}
 	
+	public Integer getUserId() {
+		if( session == null )
+			return( null );
+		SessionSecurity security = session.getSecurity();
+		if( security == null )
+			return( null );
+		AuthUser user = security.getUser();
+		return( user.ID );
+	}
+	
 	public void setContext( CommandContext context ) {
 		this.context = context;
 	}

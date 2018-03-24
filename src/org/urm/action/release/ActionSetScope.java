@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -19,7 +20,6 @@ import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.release.ReleaseDelivery;
 import org.urm.meta.release.ReleaseScopeSet;
 import org.urm.meta.release.ReleaseScopeTarget;
 import org.urm.meta.release.ReleaseScopeItem;
@@ -224,7 +224,7 @@ public class ActionSetScope extends ActionBase {
 		}
 
 		// descope missing
-		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
+		for( ReleaseDistScopeDelivery delivery : dist.release.getDeliveries() ) {
 			for( ReleaseScopeItem item : delivery.getProjectItems() ) {
 				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distItem.NAME } ) );
 				if( checkItem == null ) {

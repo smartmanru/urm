@@ -10,16 +10,15 @@ import org.urm.engine.data.EngineEntities;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.run.EngineMethod;
 import org.urm.meta.engine.ReleaseLifecycle;
-import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseRepository;
 
 public class DBRelease {
 
-	public static Release createRelease( EngineMethod method , ActionBase action , Meta meta , ReleaseRepository repo , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
+	public static Release createRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		
-		Release release = new Release( meta , repo );
+		Release release = new Release( repo );
 		release.createNormal( action , RELEASEVER , releaseDate , lc );
 		
 		modifyRelease( c , repo , release , true );

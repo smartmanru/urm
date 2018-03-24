@@ -15,7 +15,6 @@ import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.ReleaseDist;
-import org.urm.meta.release.ReleaseMaster;
 
 public class DistRepository {
 
@@ -229,22 +228,22 @@ public class DistRepository {
 		return( info.RELEASEVER );
 	}
 	
-	public synchronized Dist createMasterInitial( ActionBase action , String RELEASEVER , ReleaseMaster releaseMaster ) throws Exception {
+	public synchronized Dist createMasterInitial( ActionBase action , String RELEASEVER , ReleaseDist releaseDist ) throws Exception {
 		ReleaseLabelInfo info = getLabelInfo( action , ReleaseLabelInfo.LABEL_MASTER );
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
-		Dist dist = DistRepositoryItem.createDistMaster( action , this , distFolder , releaseMaster );
+		Dist dist = DistRepositoryItem.createDistMaster( action , this , distFolder , releaseDist );
 		createDistItem( action , info , dist );
 		return( dist );
 	}
 
-	public synchronized Dist createMasterCopy( ActionBase action , String RELEASEDIR , ReleaseMaster releaseMaster ) throws Exception {
+	public synchronized Dist createMasterCopy( ActionBase action , String RELEASEDIR , ReleaseDist releaseDist ) throws Exception {
 		ReleaseLabelInfo info = getLabelInfo( action , ReleaseLabelInfo.LABEL_MASTER );
 		Dist src = this.getDistByLabel( action , RELEASEDIR );
 		if( !src.isCompleted() )
 			action.exit1( _Error.NotCompletedSource1 , "Unable to use incomplete source release " + src.RELEASEDIR , src.RELEASEDIR );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
-		Dist dist = DistRepositoryItem.createDistMaster( action , this , distFolder , releaseMaster );
+		Dist dist = DistRepositoryItem.createDistMaster( action , this , distFolder , releaseDist );
 		createDistItem( action , info , dist );
 		dist.createMasterFiles( action , src );
 		dist.finish( action );

@@ -231,16 +231,17 @@ public abstract class DBEnums {
 		RELEASE_REPOSITORY(201,null) ,
 		RELEASE_MAIN(202,null) ,
 		RELEASE_DIST(203,null) ,
-		RELEASE_TARGET(204,null) ,
-		RELEASE_SCOPESET(205,null) ,
-		RELEASE_SCOPETARGET(206,null) ,
-		RELEASE_SCOPEITEM(207,null) ,
-		RELEASE_SCHEDULE(208,null) ,
-		RELEASE_PHASE(209,null) ,
-		RELEASE_TICKETSET(210,null) ,
-		RELEASE_TICKETTARGET(211,null) ,
-		RELEASE_TICKET(212,null) ,
-		RELEASE_DISTTARGET(213,null);
+		RELEASE_BUILDTARGET(204,null) ,
+		RELEASE_DISTTARGET(205,null) ,
+		RELEASE_SCOPESET(206,null) ,
+		RELEASE_SCOPETARGET(207,null) ,
+		RELEASE_SCOPEITEM(208,null) ,
+		RELEASE_SCHEDULE(209,null) ,
+		RELEASE_PHASE(210,null) ,
+		RELEASE_TICKETSET(211,null) ,
+		RELEASE_TICKETTARGET(212,null) ,
+		RELEASE_TICKET(213,null) ,
+		RELEASE_DISTITEM(214,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -621,12 +622,10 @@ public abstract class DBEnums {
 		public static DBEnumNodeType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumNodeType.class , value , required , UNKNOWN ) ); };
 	};
 
-	public enum DBEnumReleaseTargetType implements DBEnumInterface {
+	public enum DBEnumDistTargetType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
-		PROJECTSET(10,null) ,
-		PROJECTALLITEMS(11,null) ,
-		PROJECTNOITEMS(12,null) ,
-		DISTITEM(20,null) ,
+		DISTALL(1,null) ,
+		BINARYITEM(20,null) ,
 		CONFITEM(21,null) ,
 		SCHEMA(22,null) ,
 		DOC(23,null) ,
@@ -639,9 +638,25 @@ public abstract class DBEnums {
 		private String[] synonyms;
 		@Override public int code() { return( value ); };
 		@Override public String[] synonyms() { return( synonyms ); };
-		private DBEnumReleaseTargetType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
-		public static DBEnumReleaseTargetType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumReleaseTargetType.class , value , required , null ) ); };
-		public static DBEnumReleaseTargetType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumReleaseTargetType.class , value , required , null ) ); };
+		private DBEnumDistTargetType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumDistTargetType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDistTargetType.class , value , required , null ) ); };
+		public static DBEnumDistTargetType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDistTargetType.class , value , required , null ) ); };
+	};
+	
+	public enum DBEnumBuildTargetType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		BUILDALL(1,null) ,
+		PROJECTSET(10,null) ,
+		PROJECTALLITEMS(11,null) ,
+		PROJECTNOITEMS(12,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumBuildTargetType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumBuildTargetType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumBuildTargetType.class , value , required , null ) ); };
+		public static DBEnumBuildTargetType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumBuildTargetType.class , value , required , null ) ); };
 	};
 	
 	public enum DBEnumTicketSetStatusType implements DBEnumInterface {
@@ -771,16 +786,17 @@ public abstract class DBEnums {
 		RELEASE_REPOSITORY(401,null) ,
 		RELEASE_MAIN(402,null) ,
 		RELEASE_DIST(403,null) ,
-		RELEASE_TARGET(404,null) ,
-		RELEASE_SCOPESET(405,null) ,
-		RELEASE_SCOPETARGET(406,null) ,
-		RELEASE_SCOPEITEM(407,null) ,
-		RELEASE_SCHEDULE(408,null) ,
-		RELEASE_PHASE(409,null) ,
-		RELEASE_TICKETSET(410,null) ,
-		RELEASE_TICKETTARGET(411,null) ,
-		RELEASE_TICKET(412,null) ,
-		RELEASE_DISTTARGET(413,null);
+		RELEASE_BUILDTARGET(404,null) ,
+		RELEASE_DISTTARGET(405,null) ,
+		RELEASE_SCOPESET(406,null) ,
+		RELEASE_SCOPETARGET(407,null) ,
+		RELEASE_SCOPEITEM(408,null) ,
+		RELEASE_SCHEDULE(409,null) ,
+		RELEASE_PHASE(410,null) ,
+		RELEASE_TICKETSET(411,null) ,
+		RELEASE_TICKETTARGET(412,null) ,
+		RELEASE_TICKET(413,null) ,
+		RELEASE_DISTITEM(414,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -825,9 +841,10 @@ public abstract class DBEnums {
 		// source
 		PROJECT(10,null) ,
 		// distributive
-		CONFIG(20,null) ,
-		MANUAL(21,null) ,
-		DERIVED(22,null) ,
+		BINARY(20,null) ,
+		CONFIG(21,null) ,
+		MANUAL(22,null) ,
+		DERIVED(23,null) ,
 		// delivery
 		DB(30,null) ,
 		DOC(31,null) ,
@@ -837,7 +854,7 @@ public abstract class DBEnums {
 		SEARCH_SOURCEBUILDABLE(100,null) ,
 		SEARCH_SOURCEPREBUILT(101,null);
 
-		public boolean isSourceCategory() {
+		public boolean isSource() {
 			if( this == DBEnumScopeCategoryType.PROJECT )
 				return( true );
 			return( false );
@@ -935,10 +952,11 @@ public abstract class DBEnums {
 		new DBEnumInfo( DBEnumDeployModeType.class , 544 ) ,
 		new DBEnumInfo( DBEnumNodeType.class , 545 ) ,
 		new DBEnumInfo( DBEnumScopeCategoryType.class , 546 ) ,
-		new DBEnumInfo( DBEnumReleaseTargetType.class , 547 ) ,
-		new DBEnumInfo( DBEnumTicketSetStatusType.class , 548 ) ,
-		new DBEnumInfo( DBEnumTicketType.class , 549 ) ,
-		new DBEnumInfo( DBEnumTicketStatusType.class , 550 )
+		new DBEnumInfo( DBEnumBuildTargetType.class , 547 ) ,
+		new DBEnumInfo( DBEnumDistTargetType.class , 548 ) ,
+		new DBEnumInfo( DBEnumTicketSetStatusType.class , 549 ) ,
+		new DBEnumInfo( DBEnumTicketType.class , 550 ) ,
+		new DBEnumInfo( DBEnumTicketStatusType.class , 551 )
 	}; 
 
 	private static String prefix = "DBEnum";

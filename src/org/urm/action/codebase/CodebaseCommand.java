@@ -14,12 +14,14 @@ import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseDistScope;
+import org.urm.engine.dist.ReleaseDistScopeDelivery;
+import org.urm.engine.dist.ReleaseDistScopeSet;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.LogStorage;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.release.ReleaseDelivery;
 
 public class CodebaseCommand {
 	
@@ -110,10 +112,14 @@ public class CodebaseCommand {
 		action.info( "update configuration difference information ..." );
 		ConfBuilder builder = new ConfBuilder( action , scope.meta );
 		
-		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
-			if( delivery.getConfItems().length > 0 ) {
-				String file = builder.createConfDiffFile( dist , delivery );
-				dist.replaceConfDiffFile( action , file , delivery );
+		ReleaseDistScope distScope = ReleaseDistScope.createScope( dist.release , DBEnumScopeCategoryType.CONFIG );
+		ReleaseDistScopeSet distScopeSet = distScope.findCategorySet( DBEnumScopeCategoryType.CONFIG );
+		if( distScopeSet != null ) {
+			for( ReleaseDistScopeDelivery delivery : distScopeSet.getDeliveries() ) {
+				if( !delivery.isEmpty() ) {
+					String file = builder.createConfDiffFile( dist , delivery );
+					dist.replaceConfDiffFile( action , file , delivery );
+				}
 			}
 		}
 	}
@@ -223,7 +229,7 @@ public class CodebaseCommand {
 			scope = maker.getScope();
 		}
 		else {
-			ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+			ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
 			maker.addScopeReleaseSet( SET , PROJECTS );
 			scope = maker.getScope();
 		}
@@ -260,7 +266,7 @@ public class CodebaseCommand {
 	
 		action.logAction();
 	
-		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
 		maker.addScopeReleaseSet( SET , PROJECTS );
 		ActionScope scope = maker.getScope();
 		if( scope.isEmpty() ) {
@@ -280,7 +286,7 @@ public class CodebaseCommand {
 	public void getAllRelease( ScopeState parentState , ActionBase action , String SET , String[] PROJECTS , Dist dist ) throws Exception {
 		action.setBuildMode( dist.release.BUILDMODE );
 		
-		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
 		maker.addScopeReleaseSet( SET , PROJECTS );
 		ActionScope scope = maker.getScope();
 		if( scope.isEmpty() ) {

@@ -36,4 +36,8 @@ public class ProductReleases {
 		return( rrepo );
 	}
 	
+	public Release findRelease( String RELEASEVER ) {
+		return( rrepo.findRelease( RELEASEVER ) );
+	}
+	
 }

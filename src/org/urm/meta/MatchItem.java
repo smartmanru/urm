@@ -57,6 +57,12 @@ public class MatchItem {
 		return( false );
 	}
 	
+	public boolean equals( int id ) {
+		if( MATCHED && FKID == id )
+			return( true );
+		return( false );
+	}
+	
 	public void match( Integer id ) {
 		FKID = id;
 		FKNAME = "";

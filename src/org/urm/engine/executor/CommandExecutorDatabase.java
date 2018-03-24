@@ -12,6 +12,8 @@ import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.dist.ReleaseDistScope;
+import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.status.ScopeState;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
@@ -19,7 +21,6 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.release.ReleaseDelivery;
 
 public class CommandExecutorDatabase extends CommandExecutor {
 
@@ -58,7 +59,7 @@ public class CommandExecutorDatabase extends CommandExecutor {
 
 	private ActionScope getIndexScope( ActionBase action , Dist dist , int posFrom ) throws Exception {
 		String[] INDEXES = getArgList( action , posFrom );
-		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
 		maker.addScopeReleaseDatabaseManualItems( INDEXES );
 		return( maker.getScope() );
 	}
@@ -70,7 +71,7 @@ public class CommandExecutorDatabase extends CommandExecutor {
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		String[] DELIVERIES = getArgList( action , 1 );
 		
-		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
 		maker.addScopeReleaseCategory( DBEnumScopeCategoryType.DB , DELIVERIES );
 		ActionScope scope = maker.getScope();
 		impl.getReleaseScripts( parentState , action , scope , dist );
@@ -104,12 +105,12 @@ public class CommandExecutorDatabase extends CommandExecutor {
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		String DELIVERY = getRequiredArg( action , 1 , "delivery" );
 		
-		ReleaseDelivery delivery = null;
+		ReleaseDistScopeDelivery delivery = null;
 		String indexScope = null;
 		if( DELIVERY.equals( "all" ) )
 			checkNoArgs( action , 2 );
 		else {
-			delivery = dist.release.getDelivery( action , DELIVERY );
+			delivery = ReleaseDistScope.createDeliveryScope( dist.release , DELIVERY , DBEnumScopeCategoryType.DB );
 			indexScope = getRequiredArg( action , 2 , "mask" );
 			checkNoArgs( action , 3 );
 		}

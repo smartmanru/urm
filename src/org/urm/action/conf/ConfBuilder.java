@@ -8,6 +8,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyValue;
 import org.urm.engine.storage.Artefactory;
@@ -19,7 +20,6 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.release.ReleaseDelivery;
 import org.urm.meta.release.ReleaseScopeTarget;
 
 public class ConfBuilder {
@@ -36,7 +36,7 @@ public class ConfBuilder {
 		this.meta = meta;
 	}
 
-	public String createConfDiffFile( Dist release , ReleaseDelivery delivery ) throws Exception {
+	public String createConfDiffFile( Dist release , ReleaseDistScopeDelivery delivery ) throws Exception {
 		// copy conf from release
 		LocalFolder releaseFolder = artefactory.getWorkFolder( action , "release.delivery.conf" );
 		releaseFolder.recreateThis( action );

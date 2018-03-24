@@ -7,7 +7,10 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseBuildScopeSet;
+import org.urm.engine.dist.ReleaseDistScopeDelivery;
+import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
+import org.urm.engine.dist.ReleaseDistScopeSet;
 import org.urm.engine.shell.Account;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -15,11 +18,6 @@ import org.urm.meta.env.MetaEnvStartGroup;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.release.Release;
-import org.urm.meta.release.ReleaseDelivery;
-import org.urm.meta.release.ReleaseScopeSet;
-import org.urm.meta.release.ReleaseScopeTarget;
-import org.urm.meta.release.ReleaseScopeItem;
 
 public class ActionScopeSet {
 
@@ -30,7 +28,8 @@ public class ActionScopeSet {
 	public boolean setFull;
 	
 	public MetaSourceProjectSet pset;
-	public ReleaseScopeSet rset;
+	public ReleaseBuildScopeSet releaseBuildScopeSet;
+	public ReleaseDistScopeSet releaseDistScopeSet;
 	
 	Map<String,ActionScopeTarget> targets = new HashMap<String,ActionScopeTarget>();
 
@@ -67,11 +66,18 @@ public class ActionScopeSet {
 		this.setFull = false;
 	}
 
-	public void create( ActionBase action , ReleaseScopeSet rset ) throws Exception {
-		this.rset = rset;
-		this.pset = rset.set;
-		this.NAME = rset.NAME;
+	public void create( ActionBase action , ReleaseDistScopeSet rset ) throws Exception {
+		this.releaseDistScopeSet = rset;
 		this.CATEGORY = rset.CATEGORY;
+		this.NAME = Common.getEnumLower( CATEGORY );
+		this.setFull = false;
+	}
+
+	public void create( ActionBase action , ReleaseBuildScopeSet rset ) throws Exception {
+		this.releaseBuildScopeSet = rset;
+		this.pset = rset.set;
+		this.CATEGORY = DBEnumScopeCategoryType.PROJECT;
+		this.NAME = pset.NAME;
 		this.setFull = false;
 	}
 
@@ -126,30 +132,24 @@ public class ActionScopeSet {
 		return( scope );
 	}
 
-	private boolean checkServerDatabaseDelivery( ActionBase action , MetaEnvServer server , ReleaseDelivery delivery ) throws Exception {
-		return( server.hasDatabaseItemDeployment( delivery.distDelivery ) );
-	}
-	
-	private boolean checkServerDelivery( ActionBase action , MetaEnvServer server , ReleaseDelivery delivery ) throws Exception {
-		if( action.context.CTX_CONFDEPLOY ) {
-			for( ReleaseScopeTarget target : delivery.getConfItems() ) {
-				if( server.hasConfItemDeployment( target.distConfItem ) )
-					return( true );
+	private boolean checkServerDelivery( ActionBase action , MetaEnvServer server , ReleaseDistScopeDelivery delivery ) throws Exception {
+		for( ReleaseDistScopeDeliveryItem item : delivery.getItems() ) {
+			if( delivery.CATEGORY == DBEnumScopeCategoryType.CONFIG ) {
+				if( action.context.CTX_CONFDEPLOY ) {
+					if( server.hasConfItemDeployment( item.conf ) )
+						return( true );
+				}				
 			}
-		}
-		
-		for( ReleaseScopeItem item : delivery.getDatabaseItems() ) {
-			if( server.hasDatabaseItemDeployment( item.schema ) )
-				return( true );
-		}
-
-		if( action.context.CTX_DEPLOYBINARY ) {
-			for( ReleaseScopeTarget target : delivery.getManualItems() ) {
-				if( server.hasBinaryItemDeployment( target.distManualItem ) )
-					return( true );
+			else
+			if( delivery.CATEGORY == DBEnumScopeCategoryType.BINARY ) {
+				if( action.context.CTX_DEPLOYBINARY ) {
+					if( server.hasBinaryItemDeployment( item.binary ) )
+						return( true );
+				}
 			}
-			for( ReleaseScopeItem item : delivery.getProjectItems() ) {
-				if( server.hasBinaryItemDeployment( item.distItem ) )
+			else
+			if( delivery.CATEGORY == DBEnumScopeCategoryType.DB ) {
+				if( server.hasDatabaseItemDeployment( item.schema ) )
 					return( true );
 			}
 		}
@@ -157,33 +157,40 @@ public class ActionScopeSet {
 		return( false );
 	}
 	
-	public Map<String,MetaEnvServer> getReleaseServers( ActionBase action , Dist release ) throws Exception {
+	public Map<String,MetaEnvServer> getReleaseServers( ActionBase action ) throws Exception {
 		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
-		Release info = release.release;
 
-		for( ReleaseDelivery delivery : info.getDeliveries() ) {
-			for( MetaEnvServer server : sg.getServers() ) {
-				if( checkServerDelivery( action , server , delivery ) )
-					mapServers.put( server.NAME , server );
+		for( ReleaseDistScopeSet set : scope.releaseDistScope.getSets() ) {
+			for( ReleaseDistScopeDelivery delivery : set.getDeliveries() ) {
+				for( MetaEnvServer server : sg.getServers() ) {
+					if( checkServerDelivery( action , server , delivery ) )
+						mapServers.put( server.NAME , server );
+				}
 			}
 		}
 		return( mapServers );
 	}
 	
-	public Map<String,MetaEnvServer> getEnvDatabaseServers( ActionBase action , Dist dist ) throws Exception {
+	public Map<String,MetaEnvServer> getEnvDatabaseServers( ActionBase action ) throws Exception {
 		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
-		if( dist == null ) {
-			for( MetaEnvServer server : sg.getServers() )
+		for( MetaEnvServer server : sg.getServers() ) {
+			if( server.isRunDatabase() )
 				mapServers.put( server.NAME , server );
-			return( mapServers );
 		}
-		
-		Release info = dist.release;
-
-		for( ReleaseDelivery delivery : info.getDeliveries() ) {
-			for( MetaEnvServer server : sg.getServers() ) {
-				if( checkServerDatabaseDelivery( action , server , delivery ) )
-					mapServers.put( server.NAME , server );
+		return( mapServers );
+	}
+	
+	public Map<String,MetaEnvServer> getEnvDatabaseReleaseServers( ActionBase action ) throws Exception {
+		Map<String,MetaEnvServer> mapServers = new HashMap<String,MetaEnvServer>();
+		for( ReleaseDistScopeSet set : scope.releaseDistScope.getSets() ) {
+			if( set.CATEGORY != DBEnumScopeCategoryType.DB )
+				continue;
+			
+			for( ReleaseDistScopeDelivery delivery : set.getDeliveries() ) {
+				for( MetaEnvServer server : sg.getServers() ) {
+					if( server.isRunDatabase() && server.hasDatabaseItemDeployment( delivery.distDelivery ) )
+						mapServers.put( server.NAME , server );
+				}
 			}
 		}
 		return( mapServers );
@@ -276,7 +283,8 @@ public class ActionScopeSet {
 		this.CATEGORY = setAdd.CATEGORY;
 		
 		this.pset = setAdd.pset;
-		this.rset = setAdd.rset;
+		this.releaseBuildScopeSet = setAdd.releaseBuildScopeSet;
+		this.releaseDistScopeSet = setAdd.releaseDistScopeSet;
 		this.sg = setAdd.sg;
 		
 		for( ActionScopeTarget target : setAdd.targets.values() )
@@ -305,6 +313,39 @@ public class ActionScopeSet {
 
 	public ActionScopeTarget findSimilarTarget( ActionBase action , ActionScopeTarget sample ) throws Exception {
 		return( findTarget( action , sample.NAME ) );
+	}
+
+	public String getSetBuildVersion() {
+		String BUILDVERSION = "";
+		if( releaseBuildScopeSet != null && releaseBuildScopeSet.scopeSetTarget != null )
+			BUILDVERSION = releaseBuildScopeSet.scopeSetTarget.BUILD_VERSION;
+			
+		if( BUILDVERSION.isEmpty() && releaseBuildScopeSet.scopeTarget != null )
+			BUILDVERSION = releaseBuildScopeSet.scopeTarget.BUILD_VERSION;
+		
+		return( BUILDVERSION );
+	}
+	
+	public String getSetBuildBranch() {
+		String BUILDBRANCH = "";
+		if( releaseBuildScopeSet != null && releaseBuildScopeSet.scopeSetTarget != null )
+			BUILDBRANCH = releaseBuildScopeSet.scopeSetTarget.BUILD_BRANCH;
+			
+		if( BUILDBRANCH.isEmpty() && releaseBuildScopeSet.scopeTarget != null )
+			BUILDBRANCH = releaseBuildScopeSet.scopeTarget.BUILD_BRANCH;
+		
+		return( BUILDBRANCH );
+	}
+	
+	public String getSetBuildTag() {
+		String BUILDTAG = "";
+		if( releaseBuildScopeSet != null && releaseBuildScopeSet.scopeSetTarget != null )
+			BUILDTAG = releaseBuildScopeSet.scopeSetTarget.BUILD_TAG;
+			
+		if( BUILDTAG.isEmpty() && releaseBuildScopeSet.scopeTarget != null )
+			BUILDTAG = releaseBuildScopeSet.scopeTarget.BUILD_TAG;
+		
+		return( BUILDTAG );
 	}
 	
 }

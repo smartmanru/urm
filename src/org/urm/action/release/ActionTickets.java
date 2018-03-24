@@ -21,7 +21,7 @@ import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.release.ReleaseTicket;
 import org.urm.meta.release.ReleaseTicketSet;
-import org.urm.meta.release.ReleaseTicketSetTarget;
+import org.urm.meta.release.ReleaseTicketTarget;
 
 public class ActionTickets extends ActionBase {
 
@@ -366,16 +366,16 @@ public class ActionTickets extends ActionBase {
 		ReleaseTicketSet set = dist.release.changes.getSet( this , code );
 		
 		// change release scope
-		List<ReleaseTicketSetTarget> targetList = new LinkedList<ReleaseTicketSetTarget>();
+		List<ReleaseTicketTarget> targetList = new LinkedList<ReleaseTicketTarget>();
 		if( allTargets ) {
-			for( ReleaseTicketSetTarget target : set.getTargets() ) {
+			for( ReleaseTicketTarget target : set.getTargets() ) {
 				if( !target.isAccepted() )
 					targetList.add( target );
 			}
 		}
 		else {
 			for( String targetPos : targets ) {
-				ReleaseTicketSetTarget target = set.getTarget( this , Integer.parseInt( targetPos ) );
+				ReleaseTicketTarget target = set.getTarget( this , Integer.parseInt( targetPos ) );
 				if( !target.isAccepted() )
 					targetList.add( target );
 			}
@@ -385,7 +385,7 @@ public class ActionTickets extends ActionBase {
 		ActionProductScopeMaker scopeDescope = new ActionProductScopeMaker( this , dist.meta );
 		
 		// add to scope
-		for( ReleaseTicketSetTarget target : targetList ) {
+		for( ReleaseTicketTarget target : targetList ) {
 			if( target.isDescoped() )
 				executeAcceptTargetScope( target , scopeDescope );
 			else
@@ -411,7 +411,7 @@ public class ActionTickets extends ActionBase {
 		}
 		
 		// accept targets
-		for( ReleaseTicketSetTarget target : targetList )
+		for( ReleaseTicketTarget target : targetList )
 			target.accept( this );
 
 		// accept set and tickets
@@ -431,7 +431,7 @@ public class ActionTickets extends ActionBase {
 		}
 	}
 	
-	private void executeAcceptTargetScope( ReleaseTicketSetTarget target , ActionProductScopeMaker maker ) throws Exception {
+	private void executeAcceptTargetScope( ReleaseTicketTarget target , ActionProductScopeMaker maker ) throws Exception {
 		if( target.isProjectSet() ) {
 			maker.addScopeProductSet( target.ITEM , new String[] { "all" } );
 		}

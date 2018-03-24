@@ -3,14 +3,14 @@ package org.urm.action.conf;
 import org.urm.action.ActionBase;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.release.ReleaseScopeTarget;
+import org.urm.meta.release.ReleaseDistTarget;
 
 public class ConfSourceFolder {
 	
 	Meta meta;
 	
 	public MetaDistrConfItem distrComp;
-	public ReleaseScopeTarget releaseComp;
+	public ReleaseDistTarget releaseComp;
 	
 	public boolean productFolder = false;
 	public boolean releaseFolder = false;
@@ -24,11 +24,9 @@ public class ConfSourceFolder {
 		this.productFolder = true;
 	}
 
-	public void createReleaseConfigurationFolder( ActionBase action , ReleaseScopeTarget releaseComp ) throws Exception {
+	public void createReleaseConfigurationFolder( ActionBase action , ReleaseDistTarget releaseComp ) throws Exception {
 		this.releaseComp = releaseComp;
-		this.distrComp = releaseComp.distConfItem;
-		
-		action.checkRequired( releaseComp.distConfItem != null , "releaseComp.distConfItem" );
+		this.distrComp = releaseComp.getConf();
 		this.releaseFolder = true;
 	}
 

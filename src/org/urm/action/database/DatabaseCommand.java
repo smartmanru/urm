@@ -6,13 +6,13 @@ import org.urm.action.ActionScope;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.release.ReleaseDelivery;
 
 public class DatabaseCommand {
 
@@ -45,7 +45,7 @@ public class DatabaseCommand {
 		ma.runAll( parentState , scope , server.sg.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
-	public void applyAutomatic( ScopeState parentState , ActionBase action , Dist dist , ReleaseDelivery delivery , String indexScope ) throws Exception {
+	public void applyAutomatic( ScopeState parentState , ActionBase action , Dist dist , ReleaseDistScopeDelivery delivery , String indexScope ) throws Exception {
 		dist.openForUse( action );
 		
 		String deliveryInfo = ( delivery != null )? delivery.distDelivery.NAME : "(all)";

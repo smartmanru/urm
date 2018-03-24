@@ -15,6 +15,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.status.ScopeState;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
+import org.urm.meta.release.ReleaseSchedule;
 
 public class CommandExecutorRelease extends CommandExecutor {
 
@@ -125,7 +126,8 @@ public class CommandExecutorRelease extends CommandExecutor {
 		Meta meta = action.getContextMeta();
 		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		
-		int nPhases = dist.release.schedule.getPhaseCount();
+		ReleaseSchedule schedule = dist.release.getSchedule();
+		int nPhases = schedule.getPhaseCount();
 		Date[] dates = new Date[ nPhases * 2 ];
 		for( int k = 0; k < nPhases; k++ ) {
 			dates[ 2 * k ] = getRequiredDateArg( action , 1 + 2 * k , "STARTDATE" + (k+1) );

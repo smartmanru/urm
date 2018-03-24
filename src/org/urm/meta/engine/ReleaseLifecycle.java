@@ -9,15 +9,14 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.BlotterService.BlotterType;
-import org.urm.engine.blotter.EngineBlotterReleaseItem;
-import org.urm.engine.blotter.EngineBlotterSet;
 import org.urm.engine.data.EngineLifecycles;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.meta.EngineObject;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductPolicy;
+import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseSchedule;
 
 public class ReleaseLifecycle extends EngineObject {
 
@@ -244,22 +243,24 @@ public class ReleaseLifecycle extends EngineObject {
 	}
 	
 	public Date getReleaseDate( ActionBase action , String RELEASEVER , Meta meta , VersionInfo info ) throws Exception {
+		ProductReleases releases = meta.getReleases();
 		String prevReleaseVer = info.getPreviousVersion();
 		if( !prevReleaseVer.isEmpty() ) {
-			EngineBlotterSet blotter = action.getBlotter( BlotterType.BLOTTER_RELEASE );
-			EngineBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
-			if( item != null )
-				return( getNextReleaseDate( action , item.release ) );
+			Release release = releases.findRelease( prevReleaseVer );
+			if( release != null ) {
+				ReleaseSchedule schedule = release.getSchedule();
+				return( getNextReleaseDate( action , schedule.RELEASE_DATE ) );
+			}
 		}
 		
 		return( Common.addDays( new Date() , DAYS_TO_RELEASE ) );
 	}
 	
-	public Date getNextReleaseDate( ActionBase action , Release release ) throws Exception {
+	public Date getNextReleaseDate( ActionBase action , Date date ) throws Exception {
 		if( isRegular() )
-			return( Common.addDays( release.schedule.releaseDate , SHIFT_DAYS ) );
+			return( Common.addDays( date , SHIFT_DAYS ) );
 		
-		return( Common.addDays( release.schedule.releaseDate , DAYS_TO_RELEASE ) );
+		return( Common.addDays( date , DAYS_TO_RELEASE ) );
 	}
 
 }

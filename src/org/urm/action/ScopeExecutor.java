@@ -1043,7 +1043,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		List<ActionScopeTarget> list = new LinkedList<ActionScopeTarget>();
 		Map<String,ActionScopeTarget> map = new HashMap<String,ActionScopeTarget>();
 		
-		if( set.CATEGORY.isSourceCategory() ) {
+		if( set.CATEGORY.isSource() ) {
 			for( ActionScopeTarget target : targets )
 				map.put( target.sourceProject.NAME , target );
 			

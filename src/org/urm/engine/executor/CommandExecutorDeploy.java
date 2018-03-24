@@ -98,17 +98,17 @@ public class CommandExecutorDeploy extends CommandExecutor {
 		if( action.context.sg == null ) {
 			if( !SERVER.equals( "all" ) )
 				action.exit0( _Error.MissingSegmentName0, "Segment option is required to use specific server" );
-			maker.addScopeEnv( null , dist );
+			maker.addScopeEnv( null , dist.release );
 		}
 		else {
 			String s = getArg( action , posFrom + 1 );
 			if( s.matches( "[0-9]+" ) ) {
 				String[] NODES = getArgList( action , posFrom + 1 );
-				maker.addScopeEnvServerNodes( action.context.sg , SERVER , NODES , dist );
+				maker.addScopeEnvServerNodes( action.context.sg , SERVER , NODES , dist.release );
 			}
 			else {
 				String[] SERVERS = getArgList( action , posFrom );
-				maker.addScopeEnvServers( action.context.sg , SERVERS , dist );
+				maker.addScopeEnvServers( action.context.sg , SERVERS , dist.release );
 			}
 		}
 

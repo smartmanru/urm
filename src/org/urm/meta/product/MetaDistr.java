@@ -264,6 +264,14 @@ public class MetaDistr {
 		return( delivery );
 	}
 
+	public MetaDistrDelivery getDelivery( MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( getDelivery( item.FKID ) );
+		return( getDelivery( item.FKNAME ) );
+	}
+	
 	public MetaDistrDelivery getDelivery( int id ) throws Exception {
 		MetaDistrDelivery delivery = mapDeliveriesById.get( id );
 		if( delivery == null )

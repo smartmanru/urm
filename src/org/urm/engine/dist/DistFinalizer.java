@@ -8,11 +8,6 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.release.Release;
-import org.urm.meta.release.ReleaseDelivery;
-import org.urm.meta.release.ReleaseMaster;
-import org.urm.meta.release.ReleaseMasterItem;
-import org.urm.meta.release.ReleaseScopeTarget;
-import org.urm.meta.release.ReleaseScopeItem;
 
 public class DistFinalizer {
 
@@ -51,7 +46,7 @@ public class DistFinalizer {
 		}
 		else {
 			dist.gatherFiles( action );
-			for( ReleaseDelivery delivery : info.getDeliveries() ) {
+			for( ReleaseDistScopeDelivery delivery : info.getDeliveries() ) {
 				for( ReleaseScopeTarget item : delivery.getConfItems() )
 					createExpectedConfDeliveryItem( action , fs , delivery , item );
 				for( ReleaseScopeItem item : delivery.getProjectItems() )
@@ -67,19 +62,19 @@ public class DistFinalizer {
 		return( fs );
 	}
 	
-	private void createExpectedConfDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseScopeTarget item ) throws Exception {
+	private void createExpectedConfDeliveryItem( ActionBase action , FileSet fs , ReleaseDistScopeDelivery delivery , ReleaseScopeTarget item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryConfFolder( action , delivery.distDelivery ) );
 		dir.createDir( item.distConfItem.NAME );
 	}
 	
-	private void createExpectedProjectDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseScopeItem item ) throws Exception {
+	private void createExpectedProjectDeliveryItem( ActionBase action , FileSet fs , ReleaseDistScopeDelivery delivery , ReleaseScopeItem item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryBinaryFolder( action , delivery.distDelivery ) );
 		String file = ( item.DISTFILE.isEmpty() )? item.distItem.getBaseFile() : item.DISTFILE; 
 		dir.addFile( file );
 		dir.addFile( file + ".md5" );
 	}
 	
-	private void createExpectedDocDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseScopeItem item ) throws Exception {
+	private void createExpectedDocDeliveryItem( ActionBase action , FileSet fs , ReleaseDistScopeDelivery delivery , ReleaseScopeItem item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryDocFolder( action , delivery.distDelivery ) );
 		String file = ( item.DISTFILE.isEmpty() )? item.doc.getBaseFile() : item.DISTFILE; 
 		action.trace( "FINISH: add doc=" + item.NAME + ", dir=" + dir.dirPath + ", file=" + file );
@@ -87,14 +82,14 @@ public class DistFinalizer {
 		dir.addFile( file + ".md5" );
 	}
 	
-	private void createExpectedManualDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseScopeTarget item ) throws Exception {
+	private void createExpectedManualDeliveryItem( ActionBase action , FileSet fs , ReleaseDistScopeDelivery delivery , ReleaseScopeTarget item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryBinaryFolder( action , delivery.distDelivery ) );
 		String file = ( item.DISTFILE.isEmpty() )? item.distManualItem.getBaseFile() : item.DISTFILE;  
 		dir.addFile( file );
 		dir.addFile( file + ".md5" );
 	}
 	
-	private void createExpectedDatabaseDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery ) throws Exception {
+	private void createExpectedDatabaseDeliveryItem( ActionBase action , FileSet fs , ReleaseDistScopeDelivery delivery ) throws Exception {
 		if( delivery.hasDatabaseItems() )
 			fs.createDir( dist.getDeliveryDatabaseFolder( action , delivery.distDelivery , dist.release.RELEASEVER ) );
 	}
@@ -121,7 +116,7 @@ public class DistFinalizer {
 				delivery = distr.findDeliveryByFolder( dir );
 			}
 			else {
-				ReleaseDelivery deliveryRelease = info.findDeliveryByFolder( dir );
+				ReleaseDistScopeDelivery deliveryRelease = info.findDeliveryByFolder( dir );
 				if( deliveryRelease != null )
 					delivery = deliveryRelease.distDelivery;
 			}

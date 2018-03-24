@@ -3,12 +3,12 @@ package org.urm.action.release;
 import org.urm.action.ActionBase;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.release.ReleaseDelivery;
 import org.urm.meta.release.ReleaseScopeTarget;
 import org.urm.meta.release.ReleaseScopeItem;
 
@@ -66,7 +66,7 @@ public class ActionGetCumulative extends ActionBase {
 	}
 	
 	private void copyFiles( Dist[] cumdists ) throws Exception {
-		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
+		for( ReleaseDistScopeDelivery delivery : dist.release.getDeliveries() ) {
 			if( delivery.hasDatabaseItems() )
 				copyDatabaseItems( cumdists , delivery );
 			for( ReleaseScopeItem item : delivery.getProjectItems() )
@@ -78,12 +78,12 @@ public class ActionGetCumulative extends ActionBase {
 		}
 	}
 
-	private void copyDatabaseItems( Dist[] cumdists , ReleaseDelivery delivery ) throws Exception {
+	private void copyDatabaseItems( Dist[] cumdists , ReleaseDistScopeDelivery delivery ) throws Exception {
 		for( Dist cumdist : cumdists )
 			dist.copyDatabaseDistrToDistr( this , delivery , cumdist );
 	}
 	
-	private void copyBinaryItem( Dist[] cumdists , ReleaseDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
+	private void copyBinaryItem( Dist[] cumdists , ReleaseDistScopeDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
 		for( Dist cumdist : cumdists ) {
 			String file = cumdist.getBinaryDistItemFile( this , item );
 			if( !file.isEmpty() ) {
@@ -93,7 +93,7 @@ public class ActionGetCumulative extends ActionBase {
 		}
 	}
 	
-	private void copyConfItem( Dist[] cumdists , ReleaseDelivery delivery , MetaDistrConfItem item ) throws Exception {
+	private void copyConfItem( Dist[] cumdists , ReleaseDistScopeDelivery delivery , MetaDistrConfItem item ) throws Exception {
 		// find last full
 		int lastIndex = cumdists.length - 1;
 		for( int k = 0; k < cumdists.length; k++ ) {

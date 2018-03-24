@@ -8,6 +8,7 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
+import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
@@ -16,7 +17,6 @@ import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.release.Release;
-import org.urm.meta.release.ReleaseDelivery;
 import org.urm.meta.release.ReleaseMasterItem;
 import org.urm.meta.release.ReleaseSchedule;
 import org.urm.meta.release.ReleaseSchedulePhase;
@@ -60,7 +60,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			
 			ReleaseSchedulePhase phase = schedule.getCurrentPhase();
 			if( phase != null ) {
-				info( "\trelease phase: " + phase.name );
+				info( "\trelease phase: " + phase.NAME );
 				info( "\tphase deadline: " + Common.getDateValue( phase.getDeadlineFinish() ) );
 			}
 			
@@ -72,7 +72,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 					Date finished = ( phase.isFinished() )? phase.getFinishDate() : phase.getDeadlineFinish();
 					String status = ( phase.isStarted() )? ( ( phase.isFinished() )? "finished" : "started" ) : "expected";
 					
-					info( "\t\t" + (k+1) + ": " + phase.name + " - start=" + Common.getDateValue( started ) +
+					info( "\t\t" + (k+1) + ": " + phase.NAME + " - start=" + Common.getDateValue( started ) +
 						", finish=" + Common.getDateValue( finished ) + " (" + status + ")" );
 				}
 			}
@@ -93,7 +93,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 
 			info( "DELIVERIES:" );
 			for( String s : release.getDeliveryNames() ) {
-				ReleaseDelivery delivery = release.findDelivery( s );
+				ReleaseDistScopeDelivery delivery = release.findDelivery( s );
 				info( "\tdelivery=" + s + " (folder=" + delivery.distDelivery.FOLDER + ")" );
 			}
 		}

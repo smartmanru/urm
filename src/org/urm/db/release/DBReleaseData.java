@@ -3,18 +3,8 @@ package org.urm.db.release;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
-import org.urm.db.core.DBEnums.DBEnumBuildModeType;
-import org.urm.db.core.DBEnums.DBEnumLifecycleStageType;
-import org.urm.db.core.DBEnums.DBEnumReleaseTargetType;
-import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
-import org.urm.db.core.DBEnums.DBEnumTicketSetStatusType;
-import org.urm.db.core.DBEnums.DBEnumTicketStatusType;
-import org.urm.db.core.DBEnums.DBEnumTicketType;
+import org.urm.db.core.DBEnums.*;
 import org.urm.db.core.DBSettings;
-import org.urm.db.core.DBEnums.DBEnumLifecycleType;
-import org.urm.db.core.DBEnums.DBEnumObjectType;
-import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
-import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
@@ -22,22 +12,24 @@ import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseBuildTarget;
 import org.urm.meta.release.ReleaseDist;
-import org.urm.meta.release.ReleaseDistTarget;
+import org.urm.meta.release.ReleaseDistItem;
 import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.release.ReleaseSchedule;
 import org.urm.meta.release.ReleaseSchedulePhase;
-import org.urm.meta.release.ReleaseTarget;
+import org.urm.meta.release.ReleaseDistTarget;
 import org.urm.meta.release.ReleaseTicket;
 import org.urm.meta.release.ReleaseTicketSet;
-import org.urm.meta.release.ReleaseTicketSetTarget;
+import org.urm.meta.release.ReleaseTicketTarget;
 
 public class DBReleaseData {
 
 	public static String TABLE_REPOSITORY = "urm_rel_repository";
 	public static String TABLE_MAIN = "urm_rel_main";
 	public static String TABLE_DIST = "urm_rel_dist";
-	public static String TABLE_TARGET = "urm_rel_target";
+	public static String TABLE_BUILDTARGET = "urm_rel_buildtarget";
+	public static String TABLE_DISTTARGET = "urm_rel_disttarget";
 	public static String TABLE_SCOPESET = "urm_rel_scopeset";
 	public static String TABLE_SCOPETARGET = "urm_rel_scopetarget";
 	public static String TABLE_SCOPEITEM = "urm_rel_scopeitem";
@@ -46,7 +38,7 @@ public class DBReleaseData {
 	public static String TABLE_TICKETSET = "urm_rel_ticketset";
 	public static String TABLE_TICKETTARGET = "urm_rel_tickettarget";
 	public static String TABLE_TICKET = "urm_rel_ticket";
-	public static String TABLE_DISTTARGET = "urm_rel_distfile";
+	public static String TABLE_DISTITEM = "urm_rel_distitem";
 	public static String FIELD_RELEASE_ID = "release_id";
 	public static String FIELD_REPOSITORY_ID = "repo_id";
 	public static String FIELD_REPOSITORY_META_ID = "meta_fkid";
@@ -59,43 +51,36 @@ public class DBReleaseData {
 	public static String FIELD_MAIN_V2 = "v2";
 	public static String FIELD_MAIN_V3 = "v3";
 	public static String FIELD_MAIN_V4 = "v4";
+	public static String FIELD_MAIN_VERSION = "releasever";
 	public static String FIELD_MAIN_BUILDMODE = "buildmode_type";
 	public static String FIELD_MAIN_COMPATIBILITY = "compatibility";
 	public static String FIELD_DIST_ID = "dist_id";
 	public static String FIELD_DIST_HASH = "data_hash";
 	public static String FIELD_DIST_DATE = "dist_date";
 	public static String FIELD_DIST_VARIANT = "dist_variant";
-	public static String FIELD_TARGET_ID = "releasetarget_id";
-	public static String FIELD_TARGET_SCOPECATEGORY = "scopecategory_type";
-	public static String FIELD_TARGET_TARGETTYPE = "releasetarget_type";
-	public static String FIELD_TARGET_SCOPEALL = "scope_all";
-	public static String FIELD_TARGET_SRCSET_ID = "srcset_fkid";
-	public static String FIELD_TARGET_SRCSET_NAME = "srcset_fkname";
-	public static String FIELD_TARGET_PROJECT_ID = "project_fkid";
-	public static String FIELD_TARGET_PROJECT_NAME = "project_fkname";
-	public static String FIELD_TARGET_SRCITEM_ID = "srcitem_fkid";
-	public static String FIELD_TARGET_SRCITEM_NAME = "srcitem_fkname";
-	public static String FIELD_TARGET_DELIVERY_ID = "delivery_fkid";
-	public static String FIELD_TARGET_DELIVERY_NAME = "delivery_fkname";
-	public static String FIELD_TARGET_BINARY_ID = "binary_fkid";
-	public static String FIELD_TARGET_BINARY_NAME = "binary_fkname";
-	public static String FIELD_TARGET_CONF_ID = "confitem_fkid";
-	public static String FIELD_TARGET_CONF_NAME = "confitem_fkname";
-	public static String FIELD_TARGET_SCHEMA_ID = "schema_fkid";
-	public static String FIELD_TARGET_SCHEMA_NAME = "schema_fkname";
-	public static String FIELD_TARGET_DOC_ID = "doc_fkid";
-	public static String FIELD_TARGET_DOC_NAME = "doc_fkname";
-	public static String FIELD_TARGET_BRANCH = "build_branch";
-	public static String FIELD_TARGET_TAG = "build_tag";
-	public static String FIELD_TARGET_VERSION = "build_version";
-	public static String FIELD_SCOPESET_ID = "scopeset_id";
-	public static String FIELD_SCOPESET_RELEASETARGET_ID = "releasetarget_id";
-	public static String FIELD_SCOPETARGET_ID = "scopetarget_id";
-	public static String FIELD_SCOPETARGET_SCOPESET_ID = "scopeset_id";
-	public static String FIELD_SCOPETARGET_RELEASETARGET_ID = "releasetarget_id";
-	public static String FIELD_SCOPEITEM_ID = "scopeitem_id";
-	public static String FIELD_SCOPEITEM_RELEASETARGET_ID = "releasetarget_id";
-	public static String FIELD_SCOPEITEM_SCOPETARGET_ID = "scopetarget_id";
+	public static String FIELD_BUILDTARGET_ID = "buildtarget_id";
+	public static String FIELD_BUILDTARGET_TARGETTYPE = "buildtarget_type";
+	public static String FIELD_BUILDTARGET_SCOPEALL = "scope_all";
+	public static String FIELD_BUILDTARGET_SRCSET_ID = "srcset_fkid";
+	public static String FIELD_BUILDTARGET_SRCSET_NAME = "srcset_fkname";
+	public static String FIELD_BUILDTARGET_PROJECT_ID = "project_fkid";
+	public static String FIELD_BUILDTARGET_PROJECT_NAME = "project_fkname";
+	public static String FIELD_BUILDTARGET_BRANCH = "build_branch";
+	public static String FIELD_BUILDTARGET_TAG = "build_tag";
+	public static String FIELD_BUILDTARGET_VERSION = "build_version";
+	public static String FIELD_DISTTARGET_ID = "disttarget_id";
+	public static String FIELD_DISTTARGET_TARGETTYPE = "disttarget_type";
+	public static String FIELD_DISTTARGET_SCOPEALL = "scope_all";
+	public static String FIELD_DISTTARGET_DELIVERY_ID = "delivery_fkid";
+	public static String FIELD_DISTTARGET_DELIVERY_NAME = "delivery_fkname";
+	public static String FIELD_DISTTARGET_BINARY_ID = "binary_fkid";
+	public static String FIELD_DISTTARGET_BINARY_NAME = "binary_fkname";
+	public static String FIELD_DISTTARGET_CONF_ID = "confitem_fkid";
+	public static String FIELD_DISTTARGET_CONF_NAME = "confitem_fkname";
+	public static String FIELD_DISTTARGET_SCHEMA_ID = "schema_fkid";
+	public static String FIELD_DISTTARGET_SCHEMA_NAME = "schema_fkname";
+	public static String FIELD_DISTTARGET_DOC_ID = "doc_fkid";
+	public static String FIELD_DISTTARGET_DOC_NAME = "doc_fkname";
 	public static String FIELD_SCHEDULE_ID = "release_id";
 	public static String FIELD_SCHEDULE_STARTED = "start_date_actual";
 	public static String FIELD_SCHEDULE_RELEASEDATE = "release_date_scheduled";
@@ -114,7 +99,8 @@ public class DBReleaseData {
 	public static String FIELD_TICKETSET_STATUS = "ticketsetstatus_type";
 	public static String FIELD_TICKETTARGET_ID = "tickettarget_id";
 	public static String FIELD_TICKETTARGET_TICKETSET_ID = "ticketset_id";
-	public static String FIELD_TICKETTARGET_RELEASETARGET_ID = "releasetarget_id";
+	public static String FIELD_TICKETTARGET_BUILDTARGET_ID = "buildtarget_id";
+	public static String FIELD_TICKETTARGET_DISTTARGET_ID = "disttarget_id";
 	public static String FIELD_TICKET_ID = "ticket_id";
 	public static String FIELD_TICKET_TICKETSET_ID = "ticketset_id";
 	public static String FIELD_TICKET_DESC = "xdesc";
@@ -126,15 +112,16 @@ public class DBReleaseData {
 	public static String FIELD_TICKET_DEVUSER_NAME = "dev_user_fkname";
 	public static String FIELD_TICKET_QAUSER_ID = "qa_user_fkid";
 	public static String FIELD_TICKET_QAUSER_NAME = "qa_user_fkname";
-	public static String FIELD_DISTTARGET_ID = "disttarget_id";
-	public static String FIELD_DISTTARGET_RELEASETARGET_ID = "releasetarget_id";
-	public static String FIELD_DISTTARGET_DIST_ID = "dist_id";
-	public static String FIELD_DISTTARGET_FILE = "targetfile";
-	public static String FIELD_DISTTARGET_FILE_PATH = "targetfile_path";
-	public static String FIELD_DISTTARGET_FILE_HASH = "targetfile_hash";
-	public static String FIELD_DISTTARGET_FILE_SIZE = "targetfile_size";
-	public static String FIELD_DISTTARGET_FILE_TIME = "targetfile_time";
-	public static String FIELD_DISTTARGET_SOURCE = "source_dist_id";
+	public static String FIELD_DISTITEM_ID = "distitem_id";
+	public static String FIELD_DISTITEM_DISTTARGET_ID = "disttarget_id";
+	public static String FIELD_DISTITEM_DIST_ID = "dist_id";
+	public static String FIELD_DISTITEM_FILE = "targetfile";
+	public static String FIELD_DISTITEM_FILE_PATH = "targetfile_path";
+	public static String FIELD_DISTITEM_FILE_HASH = "targetfile_hash";
+	public static String FIELD_DISTITEM_FILE_SIZE = "targetfile_size";
+	public static String FIELD_DISTITEM_FILE_TIME = "targetfile_time";
+	public static String FIELD_DISTITEM_SOURCE_RELEASEDIR = "source_releasedir";
+	public static String FIELD_DISTITEM_SOURCE_RELEASETIME = "source_releasetime";
 	
 	public static PropertyEntity upgradeEntityReleaseRepository( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
@@ -166,7 +153,7 @@ public class DBReleaseData {
 				EntityVar.metaIntegerDatabaseOnly( FIELD_MAIN_V2 , "version number 2" , true , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_MAIN_V3 , "version number 3" , true , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_MAIN_V4 , "version number 4" , true , null ) ,
-				EntityVar.metaString( Release.PROPERTY_VERSION , "release version" , true , null ) ,
+				EntityVar.metaStringVar( Release.PROPERTY_VERSION , FIELD_MAIN_VERSION , Release.PROPERTY_VERSION , "release version" , true , null ) ,
 				EntityVar.metaEnumVar( Release.PROPERTY_BUILDMODE , FIELD_MAIN_BUILDMODE , Release.PROPERTY_BUILDMODE , "Build mode type" , true , DBEnumBuildModeType.UNKNOWN ) ,
 				EntityVar.metaStringVar( Release.PROPERTY_COMPATIBILITY , FIELD_MAIN_COMPATIBILITY , Release.PROPERTY_COMPATIBILITY , "release compatibility" , false , null ) ,
 				EntityVar.metaBoolean( Release.PROPERTY_CUMULATIVE , "cumulative" , true , false ) ,
@@ -197,39 +184,26 @@ public class DBReleaseData {
 		return( entity );
 	}
 	
-	public static PropertyEntity upgradeEntityReleaseTarget( EngineLoader loader ) throws Exception {
+	public static PropertyEntity upgradeEntityReleaseBuildTarget( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_TARGET , DBEnumParamEntityType.RELEASE_TARGET , DBEnumObjectVersionType.RELEASE , TABLE_TARGET , FIELD_TARGET_ID );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_BUILDTARGET , DBEnumParamEntityType.RELEASE_BUILDTARGET , DBEnumObjectVersionType.RELEASE , TABLE_BUILDTARGET , FIELD_BUILDTARGET_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
-				EntityVar.metaBoolean( ReleaseTarget.PROPERTY_SCOPETARGET , "scope target" , true , false ) ,
-				EntityVar.metaEnumVar( ReleaseTarget.PROPERTY_SCOPECATEGORY , FIELD_TARGET_SCOPECATEGORY , ReleaseTarget.PROPERTY_SCOPECATEGORY , "scope category type" , true , DBEnumScopeCategoryType.UNKNOWN ) ,
-				EntityVar.metaEnumVar( ReleaseTarget.PROPERTY_TARGETTYPE , FIELD_TARGET_TARGETTYPE , ReleaseTarget.PROPERTY_TARGETTYPE , "release target type" , true , DBEnumReleaseTargetType.UNKNOWN ) ,
-				EntityVar.metaBooleanVar( ReleaseTarget.PROPERTY_ALL , FIELD_TARGET_SCOPEALL , ReleaseTarget.PROPERTY_ALL , "all scope" , false , false ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_TARGET_SRCSET_ID , "source project set id" , DBEnumObjectType.META_SOURCESET , false ) ,
-				EntityVar.metaStringVar( ReleaseTarget.PROPERTY_SRCSET , FIELD_TARGET_SRCSET_NAME , ReleaseTarget.PROPERTY_SRCSET , "source project set name" , false , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_TARGET_PROJECT_ID , "source project id" , DBEnumObjectType.META_SOURCEPROJECT , false ) ,
-				EntityVar.metaStringVar( ReleaseTarget.PROPERTY_PROJECT , FIELD_TARGET_PROJECT_NAME , ReleaseTarget.PROPERTY_PROJECT , "source project name" , false , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_TARGET_SRCITEM_ID , "source project item id" , DBEnumObjectType.META_SOURCEITEM , false ) ,
-				EntityVar.metaStringVar( ReleaseTarget.PROPERTY_SRCITEM , FIELD_TARGET_SRCITEM_NAME , ReleaseTarget.PROPERTY_SRCITEM , "source project item name" , false , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_TARGET_DELIVERY_ID , "delivery id" , DBEnumObjectType.META_DIST_DELIVERY , false ) ,
-				EntityVar.metaStringVar( ReleaseTarget.PROPERTY_DELIVERY , FIELD_TARGET_DELIVERY_NAME , ReleaseTarget.PROPERTY_DELIVERY , "delivery name" , false , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_TARGET_BINARY_ID , "binary item id" , DBEnumObjectType.META_DIST_BINARYITEM , false ) ,
-				EntityVar.metaStringVar( ReleaseTarget.PROPERTY_BINARY , FIELD_TARGET_BINARY_NAME , ReleaseTarget.PROPERTY_BINARY , "binary item name" , false , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_TARGET_CONF_ID , "conf item id" , DBEnumObjectType.META_DIST_CONFITEM , false ) ,
-				EntityVar.metaStringVar( ReleaseTarget.PROPERTY_CONF , FIELD_TARGET_CONF_NAME , ReleaseTarget.PROPERTY_CONF , "conf item name" , false , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_TARGET_SCHEMA_ID , "schema id" , DBEnumObjectType.META_SCHEMA , false ) ,
-				EntityVar.metaStringVar( ReleaseTarget.PROPERTY_SCHEMA , FIELD_TARGET_SCHEMA_NAME , ReleaseTarget.PROPERTY_SCHEMA , "schema name" , false , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_TARGET_DOC_ID , "doc id" , DBEnumObjectType.META_DOC , false ) ,
-				EntityVar.metaStringVar( ReleaseTarget.PROPERTY_DOC , FIELD_TARGET_DOC_NAME , ReleaseTarget.PROPERTY_DOC , "doc name" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseTarget.PROPERTY_BUILDBRANCH , FIELD_TARGET_BRANCH , ReleaseTarget.PROPERTY_BUILDBRANCH , "build branch name" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseTarget.PROPERTY_BUILDTAG , FIELD_TARGET_TAG , ReleaseTarget.PROPERTY_BUILDTAG , "build tag name" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseTarget.PROPERTY_BUILDVERSION , FIELD_TARGET_VERSION , ReleaseTarget.PROPERTY_BUILDVERSION , "build version" , false , null )
+				EntityVar.metaBoolean( ReleaseBuildTarget.PROPERTY_SCOPETARGET , "scope target" , true , false ) ,
+				EntityVar.metaEnumVar( ReleaseBuildTarget.PROPERTY_TARGETTYPE , FIELD_BUILDTARGET_TARGETTYPE , ReleaseBuildTarget.PROPERTY_TARGETTYPE , "release target type" , true , DBEnumBuildTargetType.UNKNOWN ) ,
+				EntityVar.metaBooleanVar( ReleaseBuildTarget.PROPERTY_ALL , FIELD_BUILDTARGET_SCOPEALL , ReleaseBuildTarget.PROPERTY_ALL , "all scope" , false , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_BUILDTARGET_SRCSET_ID , "source project set id" , DBEnumObjectType.META_SOURCESET , false ) ,
+				EntityVar.metaStringVar( ReleaseBuildTarget.PROPERTY_SRCSET , FIELD_BUILDTARGET_SRCSET_NAME , ReleaseBuildTarget.PROPERTY_SRCSET , "source project set name" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_BUILDTARGET_PROJECT_ID , "source project id" , DBEnumObjectType.META_SOURCEPROJECT , false ) ,
+				EntityVar.metaStringVar( ReleaseBuildTarget.PROPERTY_PROJECT , FIELD_BUILDTARGET_PROJECT_NAME , ReleaseBuildTarget.PROPERTY_PROJECT , "source project name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseBuildTarget.PROPERTY_BUILDBRANCH , FIELD_BUILDTARGET_BRANCH , ReleaseBuildTarget.PROPERTY_BUILDBRANCH , "build branch name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseBuildTarget.PROPERTY_BUILDTAG , FIELD_BUILDTARGET_TAG , ReleaseBuildTarget.PROPERTY_BUILDTAG , "build tag name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseBuildTarget.PROPERTY_BUILDVERSION , FIELD_BUILDTARGET_VERSION , ReleaseBuildTarget.PROPERTY_BUILDVERSION , "build version" , false , null )
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseTarget( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_TARGET , DBEnumParamEntityType.RELEASE_TARGET , DBEnumObjectVersionType.RELEASE , TABLE_TARGET , FIELD_TARGET_ID );
+	public static PropertyEntity loaddbEntityReleaseBuildTarget( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_BUILDTARGET , DBEnumParamEntityType.RELEASE_BUILDTARGET , DBEnumObjectVersionType.RELEASE , TABLE_BUILDTARGET , FIELD_BUILDTARGET_ID );
 		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
@@ -239,14 +213,19 @@ public class DBReleaseData {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DISTTARGET , DBEnumParamEntityType.RELEASE_DISTTARGET , DBEnumObjectVersionType.RELEASE , TABLE_DISTTARGET , FIELD_DISTTARGET_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_DIST_ID , "release distributive id" , DBEnumObjectType.RELEASE_DIST , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_RELEASETARGET_ID , "release target id" , DBEnumObjectType.RELEASE_TARGET , true ) ,
-				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_FILE , FIELD_DISTTARGET_FILE , ReleaseDistTarget.PROPERTY_FILE , "file name" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_FILE_PATH , FIELD_DISTTARGET_FILE_PATH , ReleaseDistTarget.PROPERTY_FILE_PATH , "file path" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_FILE_HASH , FIELD_DISTTARGET_FILE_HASH , ReleaseDistTarget.PROPERTY_FILE_HASH , "file hash" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_FILE_SIZE , FIELD_DISTTARGET_FILE_SIZE , ReleaseDistTarget.PROPERTY_FILE_SIZE , "file size" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_FILE_TIME , FIELD_DISTTARGET_FILE_TIME , ReleaseDistTarget.PROPERTY_FILE_TIME , "file time" , false , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_SOURCE , "source release distributive id" , DBEnumObjectType.RELEASE_DIST , false ) ,
+				EntityVar.metaBoolean( ReleaseDistTarget.PROPERTY_SCOPETARGET , "scope target" , true , false ) ,
+				EntityVar.metaEnumVar( ReleaseDistTarget.PROPERTY_TARGETTYPE , FIELD_DISTTARGET_TARGETTYPE , ReleaseDistTarget.PROPERTY_TARGETTYPE , "release target type" , true , DBEnumDistTargetType.UNKNOWN ) ,
+				EntityVar.metaBooleanVar( ReleaseDistTarget.PROPERTY_ALL , FIELD_DISTTARGET_SCOPEALL , ReleaseDistTarget.PROPERTY_ALL , "all scope" , false , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_DELIVERY_ID , "delivery id" , DBEnumObjectType.META_DIST_DELIVERY , false ) ,
+				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_DELIVERY , FIELD_DISTTARGET_DELIVERY_NAME , ReleaseDistTarget.PROPERTY_DELIVERY , "delivery name" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_BINARY_ID , "binary item id" , DBEnumObjectType.META_DIST_BINARYITEM , false ) ,
+				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_BINARY , FIELD_DISTTARGET_BINARY_NAME , ReleaseDistTarget.PROPERTY_BINARY , "binary item name" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_CONF_ID , "conf item id" , DBEnumObjectType.META_DIST_CONFITEM , false ) ,
+				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_CONF , FIELD_DISTTARGET_CONF_NAME , ReleaseDistTarget.PROPERTY_CONF , "conf item name" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_SCHEMA_ID , "schema id" , DBEnumObjectType.META_SCHEMA , false ) ,
+				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_SCHEMA , FIELD_DISTTARGET_SCHEMA_NAME , ReleaseDistTarget.PROPERTY_SCHEMA , "schema name" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_DOC_ID , "doc id" , DBEnumObjectType.META_DOC , false ) ,
+				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_DOC , FIELD_DISTTARGET_DOC_NAME , ReleaseDistTarget.PROPERTY_DOC , "doc name" , false , null ) ,
 		} ) );
 	}
 
@@ -256,49 +235,25 @@ public class DBReleaseData {
 		return( entity );
 	}
 	
-	public static PropertyEntity upgradeEntityReleaseScopeSet( EngineLoader loader ) throws Exception {
+	public static PropertyEntity upgradeEntityReleaseDistItem( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_SCOPESET , DBEnumParamEntityType.RELEASE_SCOPESET , DBEnumObjectVersionType.RELEASE , TABLE_SCOPESET , FIELD_SCOPESET_ID );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DISTITEM , DBEnumParamEntityType.RELEASE_DISTITEM , DBEnumObjectVersionType.RELEASE , TABLE_DISTITEM , FIELD_DISTITEM_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_SCOPESET_RELEASETARGET_ID , "release target id" , DBEnumObjectType.RELEASE_TARGET , true )
+				EntityVar.metaObjectDatabaseOnly( FIELD_DISTITEM_DIST_ID , "release distributive id" , DBEnumObjectType.RELEASE_DIST , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DISTITEM_DISTTARGET_ID , "release target id" , DBEnumObjectType.RELEASE_DISTTARGET , true ) ,
+				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE , FIELD_DISTITEM_FILE , ReleaseDistItem.PROPERTY_FILE , "file name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_PATH , FIELD_DISTITEM_FILE_PATH , ReleaseDistItem.PROPERTY_FILE_PATH , "file path" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_HASH , FIELD_DISTITEM_FILE_HASH , ReleaseDistItem.PROPERTY_FILE_HASH , "file hash" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_SIZE , FIELD_DISTITEM_FILE_SIZE , ReleaseDistItem.PROPERTY_FILE_SIZE , "file size" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_TIME , FIELD_DISTITEM_FILE_TIME , ReleaseDistItem.PROPERTY_FILE_TIME , "file time" , false , null ) ,
+				EntityVar.metaString( FIELD_DISTITEM_SOURCE_RELEASEDIR , "source release distributive version" , false , null ) ,
+				EntityVar.metaDate( FIELD_DISTITEM_SOURCE_RELEASETIME , "source release distributive time" , false )
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseScopeSet( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_SCOPESET , DBEnumParamEntityType.RELEASE_SCOPESET , DBEnumObjectVersionType.RELEASE , TABLE_SCOPESET , FIELD_SCOPESET_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityReleaseScopeTarget( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_SCOPETARGET , DBEnumParamEntityType.RELEASE_SCOPETARGET , DBEnumObjectVersionType.RELEASE , TABLE_SCOPETARGET , FIELD_SCOPETARGET_ID );
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_SCOPETARGET_RELEASETARGET_ID , "release target id" , DBEnumObjectType.RELEASE_TARGET , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_SCOPETARGET_SCOPESET_ID , "scope set id" , DBEnumObjectType.RELEASE_SCOPESET , true )
-		} ) );
-	}
-
-	public static PropertyEntity loaddbEntityReleaseScopeTarget( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_SCOPETARGET , DBEnumParamEntityType.RELEASE_SCOPETARGET , DBEnumObjectVersionType.RELEASE , TABLE_SCOPETARGET , FIELD_SCOPETARGET_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityReleaseScopeItem( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_SCOPEITEM , DBEnumParamEntityType.RELEASE_SCOPEITEM , DBEnumObjectVersionType.RELEASE , TABLE_SCOPEITEM , FIELD_SCOPEITEM_ID );
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_SCOPEITEM_SCOPETARGET_ID , "scope set id" , DBEnumObjectType.RELEASE_SCOPESET , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_SCOPEITEM_RELEASETARGET_ID , "release target id" , DBEnumObjectType.RELEASE_TARGET , true )
-		} ) );
-	}
-
-	public static PropertyEntity loaddbEntityReleaseScopeItem( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_SCOPEITEM , DBEnumParamEntityType.RELEASE_SCOPEITEM , DBEnumObjectVersionType.RELEASE , TABLE_SCOPEITEM , FIELD_SCOPEITEM_ID );
+	public static PropertyEntity loaddbEntityReleaseDistItem( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DISTITEM , DBEnumParamEntityType.RELEASE_DISTITEM , DBEnumObjectVersionType.RELEASE , TABLE_DISTITEM , FIELD_DISTITEM_ID );
 		DBSettings.loaddbAppEntity( c , entity );
 		return( entity );
 	}
@@ -372,8 +327,9 @@ public class DBReleaseData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_TICKETTARGET_TICKETSET_ID , "ticket set id" , DBEnumObjectType.RELEASE_TICKETSET , true ) ,
-				EntityVar.metaInteger( ReleaseTicketSetTarget.PROPERTY_POS , "ticket target position" , true , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_TICKETTARGET_RELEASETARGET_ID , "ticket set target id" , DBEnumObjectType.RELEASE_TARGET , true )
+				EntityVar.metaInteger( ReleaseTicketTarget.PROPERTY_POS , "ticket target position" , true , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_TICKETTARGET_BUILDTARGET_ID , "ticket build target id" , DBEnumObjectType.RELEASE_BUILDTARGET , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_TICKETTARGET_DISTTARGET_ID , "ticket distributive target id" , DBEnumObjectType.RELEASE_DISTTARGET , true )
 		} ) );
 	}
 
@@ -389,7 +345,7 @@ public class DBReleaseData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_TICKET_TICKETSET_ID , "ticket set id" , DBEnumObjectType.RELEASE_TICKETSET , true ) ,
-				EntityVar.metaInteger( ReleaseTicketSetTarget.PROPERTY_POS , "ticket position" , true , null ) ,
+				EntityVar.metaInteger( ReleaseTicketTarget.PROPERTY_POS , "ticket position" , true , null ) ,
 				EntityVar.metaString( ReleaseTicket.PROPERTY_CODE , "ticket code" , true , null ) ,
 				EntityVar.metaString( ReleaseTicket.PROPERTY_NAME , "ticket name" , true , null ) ,
 				EntityVar.metaStringVar( ReleaseTicket.PROPERTY_DESC , FIELD_TICKET_DESC , ReleaseTicket.PROPERTY_DESC , "Description" , false , null ) ,
@@ -424,11 +380,9 @@ public class DBReleaseData {
 	private static void dropReleaseCore( EngineLoader loader , int metaId ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
-		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseDistFile , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
-		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseScopeItem , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
-		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseScopeTarget , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
-		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseScopeSet , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
-		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseTarget , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseDistItem , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseBuildTarget , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseDistTarget , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseDist , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseMain , DBQueries.FILTER_REL_MAINMETA1 , new String[] { EngineDB.getInteger( metaId ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseRepository , DBQueries.FILTER_REL_REPOMETA1 , new String[] { EngineDB.getInteger( metaId ) } );
