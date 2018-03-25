@@ -16,27 +16,32 @@ public class ReleaseDistScopeDeliveryItem {
 	public MetaDistrConfItem conf;
 	public MetaDatabaseSchema schema;
 	public MetaProductDoc doc;
+	public boolean partial;
 	
 	public ReleaseDistScopeDeliveryItem( Release release , MetaDistrBinaryItem binary ) {
 		this.release = release;
 		this.binary = binary;
+		this.partial = false;
 	}
 	
 	public ReleaseDistScopeDeliveryItem( Release release , MetaDistrConfItem conf ) {
 		this.release = release;
 		this.conf = conf;
+		this.partial = false;
 	}
 	
 	public ReleaseDistScopeDeliveryItem( Release release , MetaDistrDelivery distDelivery , MetaDatabaseSchema schema ) {
 		this.release = release;
 		this.distDelivery = distDelivery;
 		this.schema = schema;
+		this.partial = false;
 	}
 	
 	public ReleaseDistScopeDeliveryItem( Release release , MetaDistrDelivery distDelivery , MetaProductDoc doc ) {
 		this.release = release;
 		this.distDelivery = distDelivery;
 		this.doc = doc;
+		this.partial = false;
 	}
 	
 }

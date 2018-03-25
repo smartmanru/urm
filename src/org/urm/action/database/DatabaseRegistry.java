@@ -190,7 +190,7 @@ public class DatabaseRegistry {
 		}
 		
 		// check compatibility
-		if( !release.isCompatible( action , last.version ) ) {
+		if( !release.isCompatible( last.version ) ) {
 			action.error( "last release=" + last.version + " is not compatible with current, compatibility list={" + release.COMPATIBILITY + "}" );
 			return( false );
 		}

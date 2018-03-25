@@ -64,7 +64,7 @@ public class DatabaseCommand {
 		action.info( "apply database changes (" + op + ") release=" + dist.RELEASEDIR + ", delivery=" + deliveryInfo + ", items=" + itemsInfo );
 		
 		ActionEnvScopeMaker maker = new ActionEnvScopeMaker( action , action.context.env );
-		maker.addScopeEnvDatabase( dist );
+		maker.addScopeEnvDatabase( dist.release );
 		
 		ActionApplyAutomatic ma = new ActionApplyAutomatic( action , null , dist , delivery , indexScope );
 		ma.runAll( parentState , maker.getScope() , action.context.env , SecurityAction.ACTION_DEPLOY , false );

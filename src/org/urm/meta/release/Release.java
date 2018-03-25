@@ -345,5 +345,18 @@ public class Release {
 	public ReleaseBuildTarget[] getScopeBuildTargets() {
 		return( scopeBuildMapById.values().toArray( new ReleaseBuildTarget[0] ) );
 	}
+
+	public boolean isCompatible( String version ) {
+		if( COMPATIBILITY.isEmpty() )
+			return( true );
+			
+		if( Common.checkPartOfSpacedList( RELEASEVER , COMPATIBILITY ) )
+			return( true );
+		return( false );	
+	}
+
+	public ReleaseChanges getChanges() {
+		return( changes );
+	}
 	
 }

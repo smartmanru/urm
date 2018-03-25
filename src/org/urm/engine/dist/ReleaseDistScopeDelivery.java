@@ -74,5 +74,9 @@ public class ReleaseDistScopeDelivery {
 	public void setAll( boolean all ) {
 		this.all = all;
 	}
+
+	public ReleaseDistScopeDeliveryItem findItem( String itemName ) {
+		return( mapItems.get( itemName ) );
+	}
 	
 }

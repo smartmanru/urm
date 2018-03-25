@@ -19,7 +19,6 @@ import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.release.ReleaseDistTarget;
 
 public class SourceStorage {
 
@@ -89,7 +88,7 @@ public class SourceStorage {
 		ProductMeta storage = meta.getStorage();
 		MirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getDATAReleaseConfigSourcePath( action , distStorage , sourceFolder.releaseComp );
+		String PATH = getDATAReleaseConfigSourcePath( action , distStorage , sourceFolder );
 		
 		if( downloadConfigItem( action , vcs , PATH , sourceFolder.distrComp , dstFolder ) )
 			return( true );
@@ -478,9 +477,9 @@ public class SourceStorage {
 		return( PATH );
 	}
 
-	private String getDATAReleaseConfigSourcePath( ActionBase action , Dist distStorage , ReleaseDistTarget releaseComp ) throws Exception {
+	private String getDATAReleaseConfigSourcePath( ActionBase action , Dist distStorage , ConfSourceFolder sourceFolder ) throws Exception {
 		String PATH = Common.getPath( getDATAReleasePath( action , distStorage ) , 
-			getConfFolderRelPath( action , releaseComp.getConf() ) );
+			getConfFolderRelPath( action , sourceFolder.distrComp ) );
 		return( PATH );
 	}
 

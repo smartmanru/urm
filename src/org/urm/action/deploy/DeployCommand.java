@@ -4,7 +4,9 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
+import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseDistScopeSet;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.env.MetaEnvSegment;
@@ -110,7 +112,8 @@ public class DeployCommand {
 		// download configuration templates
 		LocalFolder folder = null;
 		LocalFolder live = null;
-		if( action.context.CTX_CONFDEPLOY && !dist.release.isEmptyConfiguration() ) {
+		ReleaseDistScopeSet set = scope.releaseDistScope.findCategorySet( DBEnumScopeCategoryType.CONFIG );
+		if( action.context.CTX_CONFDEPLOY && set != null ) {
 			ActionConfCheck check = new ActionConfCheck( action , null );
 			if( !check.runAll( parentState , scope , action.context.env , SecurityAction.ACTION_DEPLOY , false ) )
 				action.exit0( _Error.InvalidEnvironmentData0 , "configuration check failed: invalid environment data" );

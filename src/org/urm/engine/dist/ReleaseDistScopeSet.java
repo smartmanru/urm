@@ -28,5 +28,22 @@ public class ReleaseDistScopeSet {
 	public ReleaseDistScopeDelivery findDelivery( String deliveryName ) {
 		return( mapDelivery.get( deliveryName ) );
 	}
+
+	public ReleaseDistScopeDeliveryItem findDeliveryItem( String itemName ) {
+		for( ReleaseDistScopeDelivery delivery : mapDelivery.values() ) {
+			ReleaseDistScopeDeliveryItem item = delivery.findItem( itemName );
+			if( item != null )
+				return( item );
+		}
+		return( null );
+	}
+	
+	public boolean isEmpty() {
+		for( ReleaseDistScopeDelivery delivery : mapDelivery.values() ) {
+			if( !delivery.isEmpty() )
+				return( false );
+		}
+		return( true );
+	}
 	
 }

@@ -247,5 +247,12 @@ public class ReleaseDistScope {
 	public ReleaseDistScopeSet[] getSets() {
 		return( mapSet.values().toArray( new ReleaseDistScopeSet[0] ) );
 	}
+
+	public ReleaseDistScopeDeliveryItem findCategoryDeliveryItem( DBEnumScopeCategoryType CATEGORY , String itemName ) {
+		ReleaseDistScopeSet set = findCategorySet( CATEGORY );
+		if( set == null )
+			return( null );
+		return( set.findDeliveryItem( itemName ) );
+	}
 	
 }

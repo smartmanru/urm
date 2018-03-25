@@ -12,6 +12,7 @@ import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
@@ -75,10 +76,10 @@ public class ActionConfigure extends ActionBase {
 		
 		// export/copy to template folder
 		for( MetaDistrConfItem conf : confs.values() )
-			fillTemplateFolder( conf );
+			fillTemplateFolder( conf , scope.releaseDistScope );
 	}
 
-	private void fillTemplateFolder( MetaDistrConfItem conf ) throws Exception {
+	private void fillTemplateFolder( MetaDistrConfItem conf , ReleaseDistScope scope ) throws Exception {
 		if( dist == null ) {
 			// download configuration templates
 			SourceStorage sourceStorage = artefactory.getSourceStorage( this , conf.meta );
@@ -87,7 +88,7 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		// copy from release
-		if( dist.release.findCategoryTarget( this , DBEnumScopeCategoryType.CONFIG , conf.NAME ) != null ) {
+		if( scope.findCategoryDeliveryItem( DBEnumScopeCategoryType.CONFIG , conf.NAME ) != null ) {
 			LocalFolder folder = templateFolder.getSubFolder( this , conf.NAME );
 			if( folder.checkExists( this ) )
 				dist.copyDistConfToFolder( this , conf , folder );

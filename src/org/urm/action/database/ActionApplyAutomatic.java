@@ -9,8 +9,11 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.common.action.CommandOptions.SQLTYPE;
+import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.dist.ReleaseDistScopeDelivery;
+import org.urm.engine.dist.ReleaseDistScopeSet;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
@@ -52,7 +55,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		info( "apply changes to database=" + server.NAME + " ..." );
 		
 		applyFailed = false;
-		if( applyDatabase( server , client ) )
+		if( applyDatabase( target.set.scope.releaseDistScope , server , client ) )
 			info( "apply done." );
 		
 		if( applyFailed )
@@ -61,19 +64,25 @@ public class ActionApplyAutomatic extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private boolean applyDatabase( MetaEnvServer server , DatabaseClient client ) throws Exception {
+	private boolean applyDatabase( ReleaseDistScope scope , MetaEnvServer server , DatabaseClient client ) throws Exception {
 		boolean done = false;
-		String[] versions = dist.release.getApplyVersions( this );
+		String[] versions = dist.release.getApplyVersions();
 		for( String version : versions )
-			if( applyDatabaseVersion( server , client , logs , version ) )
+			if( applyDatabaseVersion( scope , server , client , logs , version ) )
 				done = true;
 		
 		return( done );
 	}
 
-	private boolean applyDatabaseVersion( MetaEnvServer server , DatabaseClient client , LogStorage logs , String version ) throws Exception {
+	private boolean applyDatabaseVersion( ReleaseDistScope scope , MetaEnvServer server , DatabaseClient client , LogStorage logs , String version ) throws Exception {
 		info( version + " " + getMode() + ": apply database changes ..." );
 		
+		ReleaseDistScopeSet set = scope.findCategorySet( DBEnumScopeCategoryType.DB );
+		if( set == null || set.isEmpty() ) {
+			info( version + " " + getMode() + ": nothing to apply." );
+			return( true );
+		}
+			
 		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
 		if( !registry.startApplyRelease( this , dist.release ) )
 			return( false );
@@ -83,7 +92,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		for( MetaDatabaseSchema schema : server.getSchemaSet() )
 			schemaSet.put( schema.NAME , schema );
 		
-		for( ReleaseDistScopeDelivery releaseDelivery : dist.release.getDeliveries() ) {
+		for( ReleaseDistScopeDelivery releaseDelivery : set.getDeliveries() ) {
 			if( optDelivery == null || optDelivery == releaseDelivery )
 				if( applyDelivery( server , client , registry , version , releaseDelivery , schemaSet , logs ) )
 					done = true;

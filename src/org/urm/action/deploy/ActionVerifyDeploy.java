@@ -13,8 +13,10 @@ import org.urm.action.database.DatabaseRegistryRelease;
 import org.urm.action.database.DatabaseRegistryRelease.RELEASE_STATE;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
+import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
+import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -107,7 +109,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			return( SCOPESTATE.NotRun );
 		}
 
-		executeServer( target );
+		executeServer( target , target.set.scope.releaseDistScope );
 		if( !verifyOk ) {
 			super.fail1( _Error.VerifyDeployFailed1 , "failed verification of deployment, server=" + server.NAME , server.NAME );
 			return( SCOPESTATE.RunFail );
@@ -116,24 +118,24 @@ public class ActionVerifyDeploy extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 	
-	private void executeServer( ActionScopeTarget target ) throws Exception {
+	private void executeServer( ActionScopeTarget target , ReleaseDistScope scope ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		
 		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName() + " ..." );
 
 		if( server.isRunDatabase() )
-			executeServerDatabase( server );
+			executeServerDatabase( scope , server );
 		else
-			executeServerApp( target , server );
+			executeServerApp( scope , target , server );
 	}
 
-	private void executeServerDatabase( MetaEnvServer server ) throws Exception {
+	private void executeServerDatabase( ReleaseDistScope scope , MetaEnvServer server ) throws Exception {
 		DatabaseClient client = new DatabaseClient();
 		if( !client.checkConnect( this , server ) )
 			exit1( _Error.UnableConnectServer1 , "unable to connect to server=" + server.NAME , server.NAME );
 
 		boolean verifyServer = true; 
-		for( String version : dist.release.getApplyVersions( this ) ) {
+		for( String version : dist.release.getApplyVersions() ) {
 			DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
 			DatabaseRegistryRelease release = registry.getReleaseInfo( this , version );
 			
@@ -156,7 +158,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 	}
 	
-	private void executeServerApp( ActionScopeTarget target , MetaEnvServer server ) throws Exception {
+	private void executeServerApp( ReleaseDistScope scope , ActionScopeTarget target , MetaEnvServer server ) throws Exception {
 		MetaEnvServerLocation[] F_ENV_LOCATIONS_BINARY = new MetaEnvServerLocation[0];
 		if( context.CTX_DEPLOYBINARY )
 			F_ENV_LOCATIONS_BINARY = server.getLocations( this , true , false );
@@ -193,7 +195,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			info( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
 
 			// verify configs to each node
-			if( !executeNode( server , node , F_ENV_LOCATIONS_CONFIG , F_ENV_LOCATIONS_BINARY , tobeConfigServerFolder , asisConfigServerFolder , tobeBinaryServerFolder , asisBinaryServerFolder ) )
+			if( !executeNode( scope , server , node , F_ENV_LOCATIONS_CONFIG , F_ENV_LOCATIONS_BINARY , tobeConfigServerFolder , asisConfigServerFolder , tobeBinaryServerFolder , asisBinaryServerFolder ) )
 				verifyServer = false;
 		}
 		
@@ -205,7 +207,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 	}
 
-	private boolean executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeConfigServerFolder , LocalFolder asisConfigServerFolder , LocalFolder tobeBinaryServerFolder , LocalFolder asisBinaryServerFolder ) throws Exception {
+	private boolean executeNode( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeConfigServerFolder , LocalFolder asisConfigServerFolder , LocalFolder tobeBinaryServerFolder , LocalFolder asisBinaryServerFolder ) throws Exception {
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		redist.recreateTmpFolder( this );
 		
@@ -232,7 +234,7 @@ public class ActionVerifyDeploy extends ActionBase {
 				String[] items = location.getNodeConfItems( node );
 				for( String item : items ) {
 					MetaDistrConfItem confItem = distr.getConfItem( item );
-					executeNodeConf( server , node , location , confItem , asisConfigServerFolder );
+					executeNodeConf( scope , server , node , location , confItem , asisConfigServerFolder );
 				}
 			}
 			
@@ -240,11 +242,11 @@ public class ActionVerifyDeploy extends ActionBase {
 			if( confLocations.length > 0 ) {
 				String nodePrefix = "node" + node.POS + "-";
 				if( context.CTX_CHECK ) {
-					if( !showConfDiffs( server , node , tobeConfigServerFolder , asisConfigServerFolder , nodePrefix ) )
+					if( !showConfDiffs( scope , server , node , tobeConfigServerFolder , asisConfigServerFolder , nodePrefix ) )
 						verifyNode = false;
 				}
 				else {
-					if( !checkConfDiffs( server , node , tobeConfigServerFolder , asisConfigServerFolder , nodePrefix ) )
+					if( !checkConfDiffs( scope , server , node , tobeConfigServerFolder , asisConfigServerFolder , nodePrefix ) )
 						verifyNode = false;
 				}
 			}
@@ -258,7 +260,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		return( verifyNode );
 	}
 		
-	private boolean showConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix ) throws Exception {
+	private boolean showConfDiffs( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix ) throws Exception {
 		boolean verifyNode = true;
 		
 		FileSet releaseSet = tobeServerFolder.getFileSet( this );
@@ -289,7 +291,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		return( verifyNode );
 	}
 
-	private boolean checkConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix ) throws Exception {
+	private boolean checkConfDiffs( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix ) throws Exception {
 		boolean verifyNode = true;
 		
 		Map<String,String> tobeDirs = Common.copyListToMap( tobeServerFolder.getTopDirs( this ) ); 
@@ -337,9 +339,9 @@ public class ActionVerifyDeploy extends ActionBase {
 		return( verifyNode );
 	}
 	
-	private void executeNodeConf( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder asisConfigServerFolder ) throws Exception {
+	private void executeNodeConf( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder asisConfigServerFolder ) throws Exception {
 		if( !dist.isMaster() ) {
-			if( dist.release.findConfComponent( this , confItem.NAME ) == null ) {
+			if( scope.findCategoryDeliveryItem( DBEnumScopeCategoryType.CONFIG , confItem.NAME ) == null ) {
 				trace( "ignore non-release conf item=" + confItem.NAME );
 				return;
 			}
