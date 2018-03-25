@@ -449,7 +449,7 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	public BuildPlanItem getItem( MetaDistrDelivery delivery , String dbVersion ) {
 		BuildPlanSet set = getDatabaseSet();
 		for( BuildPlanItem item : set.listItems ) {
-			if( item.set.distDelivery != null && item.set.distDelivery.distDelivery == delivery && item.dbVersion.equals( dbVersion ) )
+			if( item.set.distSet != null && item.distTarget.distDelivery.ID == delivery.ID && item.dbVersion.equals( dbVersion ) )
 				return( item );
 		}
 		return( null );

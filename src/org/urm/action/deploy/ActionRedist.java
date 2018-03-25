@@ -180,11 +180,6 @@ public class ActionRedist extends ActionBase {
 	}
 
 	private boolean transferFile( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , RedistStorage redist , MetaEnvServerLocation location , MetaDistrBinaryItem binaryItem , RedistStateInfo stateInfo , String deployBaseName ) throws Exception {
-		if( !dist.checkIfReleaseItem( this , binaryItem ) ) {
-			trace( "binary item=" + binaryItem.NAME + " is not in release. Skipped." );
-			return( false );
-		}
-		
 		if( binaryItem.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
 			String fileName = dist.getBinaryDistItemFile( this , binaryItem.srcDistItem );
 			if( fileName.isEmpty() ) {

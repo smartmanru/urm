@@ -7,7 +7,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -20,9 +19,6 @@ import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
-import org.urm.meta.release.ReleaseScopeSet;
-import org.urm.meta.release.ReleaseScopeTarget;
-import org.urm.meta.release.ReleaseScopeItem;
 
 public class ActionSetScope extends ActionBase {
 
@@ -107,33 +103,7 @@ public class ActionSetScope extends ActionBase {
 		}
 		
 		// descope missing
-		for( ReleaseScopeSet set : dist.release.getSourceSets() ) {
-			String checkSet = check.get( set.set.NAME );
-			if( checkSet == null ) {
-				dist.descopeSet( this , set );
-				continue;
-			}
-
-			if( checkSet.equals( "all" ) )
-				continue;
-			
-			for( ReleaseScopeTarget target : set.getTargets() ) {
-				String checkProject = check.get( Common.concat( set.set.NAME , target.sourceProject.NAME , "/" ) );
-				if( checkProject == null ) {
-					dist.descopeTarget( this , target );
-					continue;
-				}
-				
-				if( checkProject.equals( "all" ) )
-					continue;
-				
-				for( ReleaseScopeItem item : target.getItems() ) {
-					String checkItem = check.get( Common.concat( Common.concat( set.set.NAME , target.sourceProject.NAME , "/" ) , item.sourceItem.NAME , "/" ) );
-					if( checkItem == null )
-						dist.descopeTargetItems( this , new ReleaseScopeItem[] { item } );
-				}
-			}
-		}
+		Common.exitUnexpected();
 		return( true );
 	}
 
@@ -224,52 +194,7 @@ public class ActionSetScope extends ActionBase {
 		}
 
 		// descope missing
-		for( ReleaseDistScopeDelivery delivery : dist.release.getDeliveries() ) {
-			for( ReleaseScopeItem item : delivery.getProjectItems() ) {
-				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distItem.NAME } ) );
-				if( checkItem == null ) {
-					dist.descopeTargetItems( this , new ReleaseScopeItem[] { item } );
-					continue;
-				}
-			}
-			for( ReleaseScopeTarget item : delivery.getManualItems() ) {
-				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distManualItem.NAME } ) );
-				if( checkItem == null ) {
-					dist.descopeTarget( this , item );
-					continue;
-				}
-			}
-			for( ReleaseScopeTarget item : delivery.getDerivedItems() ) {
-				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distDerivedItem.NAME } ) );
-				if( checkItem == null ) {
-					dist.descopeTarget( this , item );
-					continue;
-				}
-			}
-			for( ReleaseScopeTarget item : delivery.getConfItems() ) {
-				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_CONF , item.distConfItem.NAME } ) );
-				if( checkItem == null ) {
-					dist.descopeTarget( this , item );
-					continue;
-				}
-			}
-			
-			for( ReleaseScopeItem item : delivery.getDatabaseItems() ) {
-				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_SCHEMA , item.schema.NAME } ) );
-				if( checkItem == null ) {
-					dist.descopeTargetItems( this , new ReleaseScopeItem[] { item } );
-					continue;
-				}
-			}
-			
-			for( ReleaseScopeItem item : delivery.getDocItems() ) {
-				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_DOC , item.doc.NAME } ) );
-				if( checkItem == null ) {
-					dist.descopeTargetItems( this , new ReleaseScopeItem[] { item } );
-					continue;
-				}
-			}
-		}
+		Common.exitUnexpected();
 		return( true );
 	}
 

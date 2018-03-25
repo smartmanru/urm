@@ -7,6 +7,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.release.ReleaseSchedule;
 
 public class ActionModifyRelease extends ActionBase {
 
@@ -25,7 +26,8 @@ public class ActionModifyRelease extends ActionBase {
 		dist.openForDataChange( this );
 		
 		try {
-			if( releaseDate != null && ( releaseDate.equals( dist.release.schedule.releaseDate ) == false || lc != null ) )
+			ReleaseSchedule schedule = dist.release.getSchedule();
+			if( releaseDate != null && ( releaseDate.equals( schedule.RELEASE_DATE ) == false || lc != null ) )
 				dist.changeReleaseDate( this , releaseDate , lc );
 			dist.release.setProperties( this );
 			dist.saveReleaseXml( this );

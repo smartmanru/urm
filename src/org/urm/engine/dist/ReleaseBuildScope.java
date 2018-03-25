@@ -2,6 +2,7 @@ package org.urm.engine.dist;
 
 import java.util.Map;
 
+import org.urm.common.Common;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -194,6 +195,10 @@ public class ReleaseBuildScope {
 			return( null );
 		
 		return( set.findProject( project ) );
+	}
+
+	public String[] getSetNames() {
+		return( Common.getSortedKeys( mapSet ) ); 
 	}
 	
 }

@@ -53,15 +53,15 @@ public class ActionSchedulePhase extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
-		ReleaseSchedule schedule = dist.release.schedule;
-		if( cmdNext && schedule.currentPhase >= 0 ) {
-			if( schedule.currentPhase == schedule.releasePhases - 1 ) {
+		ReleaseSchedule schedule = dist.release.getSchedule();
+		if( cmdNext && schedule.CURRENT_PHASE >= 0 ) {
+			if( schedule.CURRENT_PHASE == schedule.releasePhaseCount - 1 ) {
 				if( !dist.finish( this ) )
 					super.exit0( _Error.UnableFinalizeRelease0 , "Unable to finalize release" );
 				return( SCOPESTATE.RunSuccess );
 			}
 			
-			if( schedule.currentPhase == schedule.getPhaseCount() - 1 ) {
+			if( schedule.CURRENT_PHASE == schedule.getPhaseCount() - 1 ) {
 				dist.complete( this );
 				return( SCOPESTATE.RunSuccess );
 			}

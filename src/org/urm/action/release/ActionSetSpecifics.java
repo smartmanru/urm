@@ -3,10 +3,10 @@ package org.urm.action.release;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
+import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.release.ReleaseScopeTarget;
 
 public class ActionSetSpecifics extends ActionBase {
 
@@ -19,25 +19,8 @@ public class ActionSetSpecifics extends ActionBase {
 
 	@Override 
 	protected SCOPESTATE executeScopeSet( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		// full set scope
-		if( set.setFull ) {
-			set.rset.setSpecifics( this , context.CTX_BRANCH , context.CTX_TAG , context.CTX_VERSION );
-			return( SCOPESTATE.RunSuccess );
-		}
-		
-		// by target
-		for( ActionScopeTarget target : targets )
-			setTargetSpecifics( target.releaseTarget );
-		
+		Common.exitUnexpected();
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private boolean setTargetSpecifics( ReleaseScopeTarget target ) throws Exception {
-		if( !target.isSourceTarget() )
-			return( false );
-		
-		target.setSpecifics( this , context.CTX_BRANCH , context.CTX_TAG , context.CTX_VERSION );
-		return( true );
-	}
-	
 }

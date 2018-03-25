@@ -29,10 +29,9 @@ public class BuildPlanItem {
 	public boolean noBuild;
 	public boolean noGet;
 	
-	public BuildPlanItem( BuildPlanSet set , ReleaseBuildScopeProject target , int pos , String key ) {
+	public BuildPlanItem( BuildPlanSet set , int pos , String key ) {
 		this.set = set;
 		this.pos = pos;
-		this.buildTarget = target;
 		this.key = key;
 		
 		execute = true;
@@ -47,6 +46,18 @@ public class BuildPlanItem {
 		failedGet = false;
 		noBuild = false;
 		noGet = false;
+	}
+
+	public void createProject( ReleaseBuildScopeProject target ) {
+		this.buildTarget = target;
+	}
+	
+	public void createDelivery( ReleaseDistScopeDelivery target ) {
+		this.distTarget = target;
+	}
+	
+	public void createDeliveryItem( ReleaseDistScopeDeliveryItem target ) {
+		this.distItem = target;
 	}
 	
 	public void createDatabase( String dbVersion ) {

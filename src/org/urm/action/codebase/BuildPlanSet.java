@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.engine.dist.ReleaseBuildScopeSet;
-import org.urm.engine.dist.ReleaseDistScopeDelivery;
+import org.urm.engine.dist.ReleaseDistScopeSet;
 
 public class BuildPlanSet {
 	
 	public BuildPlan plan;
 	public ReleaseBuildScopeSet buildSet;
-	public ReleaseDistScopeDelivery distDelivery;
+	public ReleaseDistScopeSet distSet;
 	public int pos;
 	public String name;
 	public Map<String,BuildPlanItem> mapItems;
@@ -36,8 +36,8 @@ public class BuildPlanSet {
 		this.buildSet = buildSet;
 	}
 	
-	public void createDistDelivery( ReleaseDistScopeDelivery distDelivery ) {
-		this.distDelivery = distDelivery;
+	public void createDistSet( ReleaseDistScopeSet distSet ) {
+		this.distSet = distSet;
 	}
 	
 	public void addItem( BuildPlanItem item ) {

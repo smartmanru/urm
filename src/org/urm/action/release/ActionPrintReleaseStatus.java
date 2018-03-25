@@ -3,26 +3,17 @@ package org.urm.action.release;
 import java.util.Date;
 
 import org.urm.action.ActionBase;
-import org.urm.action.database.DatabaseScriptFile;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.DistItemInfo;
-import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
-import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.release.Release;
-import org.urm.meta.release.ReleaseMasterItem;
 import org.urm.meta.release.ReleaseSchedule;
 import org.urm.meta.release.ReleaseSchedulePhase;
-import org.urm.meta.release.ReleaseScopeSet;
-import org.urm.meta.release.ReleaseScopeTarget;
-import org.urm.meta.release.ReleaseScopeItem;
 
 public class ActionPrintReleaseStatus extends ActionBase {
 
@@ -35,7 +26,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		Release release = dist.release;
-		ReleaseSchedule schedule = release.schedule;
+		ReleaseSchedule schedule = release.getSchedule();
 	
 		dist.gatherFiles( this );
 		FileSet files = dist.getFiles( this );
@@ -56,7 +47,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		
 		if( !dist.isMaster() ) {
 			info( "SCHEDULE:" );
-			info( "\trelease date: " + Common.getDateValue( schedule.releaseDate ) );
+			info( "\trelease date: " + Common.getDateValue( schedule.RELEASE_DATE ) );
 			
 			ReleaseSchedulePhase phase = schedule.getCurrentPhase();
 			if( phase != null ) {
@@ -77,25 +68,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 				}
 			}
 		
-			if( release.isEmpty() ) {
-				info( "(scope is empty)" );
-				return( SCOPESTATE.NotRun );
-			}
-		
-			for( String set : release.getSourceSetNames() )
-				printReleaseSourceSetStatus( dist , files , release.getSourceSet( this , set ) );
-			
-			for( DBEnumScopeCategoryType CATEGORY : DBEnumScopeCategoryType.getAllReleaseCategories() ) {
-				ReleaseScopeSet set = release.findCategorySet( CATEGORY );
-				if( set != null )
-					printReleaseCategorySetStatus( dist , files , set );
-			}
-
-			info( "DELIVERIES:" );
-			for( String s : release.getDeliveryNames() ) {
-				ReleaseDistScopeDelivery delivery = release.findDelivery( s );
-				info( "\tdelivery=" + s + " (folder=" + delivery.distDelivery.FOLDER + ")" );
-			}
+			showScope();
 		}
 		else {
 			info( "DELIVERIES:" );
@@ -103,14 +76,17 @@ public class ActionPrintReleaseStatus extends ActionBase {
 			for( String s : distr.getDeliveryNames() ) {
 				MetaDistrDelivery delivery = distr.findDelivery( s );
 				info( "\tdelivery=" + s + " (folder=" + delivery.FOLDER + ")" + ":" );
-				printProdDeliveryStatus( dist , files , delivery );
+				printMasterDeliveryStatus( dist , files , delivery );
 			}
 		}
 	
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private void printProdDeliveryStatus( Dist dist , FileSet files , MetaDistrDelivery delivery ) throws Exception {
+	private void showScope() {
+	}
+	
+	private void printMasterDeliveryStatus( Dist dist , FileSet files , MetaDistrDelivery delivery ) throws Exception {
 		if( delivery.isEmpty() ) {
 			info( "\t\t(no items)" );
 		}
@@ -121,191 +97,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		}
 	}
 	
-	private void printReleaseSourceSetStatus( Dist dist , FileSet files , ReleaseScopeSet set ) throws Exception {
-		if( set.isEmpty() )
-			return;
-		
-		String specifics = set.getSpecifics( this );
-		info( "SCOPE SET=" + set.NAME + " CATEGORY=" + Common.getEnumLower( set.CATEGORY ) + Common.getCommentIfAny( specifics ) + ":" );
-		if( set.isEmpty() )
-			info( "\t(no items)" );
-			
-		for( String key : set.getTargetNames() ) {
-			ReleaseScopeTarget project = set.findTarget( key );
-			printReleaseBuildSetProjectStatus( dist , files , set , project );
-		}
-	}
-
-	private void printReleaseCategorySetStatus( Dist dist , FileSet files , ReleaseScopeSet set ) throws Exception {
-		if( set.isEmpty() )
-			return;
-		
-		// configuration
-		info( "SCOPE SET=" + Common.getEnumLower( set.CATEGORY ) + ":" );
-		
-		for( String key : set.getTargetNames() ) {
-			ReleaseScopeTarget target = set.findTarget( key );
-			
-			if( set.CATEGORY == DBEnumScopeCategoryType.CONFIG )
-				printReleaseConfStatus( dist , files , target );
-			else
-			if( set.CATEGORY == DBEnumScopeCategoryType.DB )
-				printReleaseDatabaseStatus( dist , files , target );
-			else
-			if( set.CATEGORY == DBEnumScopeCategoryType.MANUAL )
-				printReleaseManualStatus( dist , files , target );
-			else
-			if( set.CATEGORY == DBEnumScopeCategoryType.DOC )
-				printReleaseDocStatus( dist , files , target );
-			else
-				exitUnexpectedCategory( set.CATEGORY );
-		}
-	}
-
-	private void printReleaseBuildSetProjectStatus( Dist dist , FileSet files , ReleaseScopeSet set , ReleaseScopeTarget project ) throws Exception {
-		String specifics = project.getSpecifics();
-		if( project.isBuildableProject() ) {
-			if( project.sourceProject.isEmpty( this ) ) {
-				info( "\tbuild project=" + project.sourceProject.NAME + " (internal)" + Common.getCommentIfAny( specifics ) );
-				return;
-			}
-			
-			if( project.isEmpty() ) {
-				info( "\tbuild project=" + project.sourceProject.NAME + " (no items added)" + Common.getCommentIfAny( specifics ) );
-				return;
-			}
-			
-			if( !project.isEmpty() )
-				info( "\tbuild project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + ":" );
-			else
-				info( "\tbuild project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + " (no items)" );
-		}
-		else
-		if( project.isPrebuiltProject() ) {
-			if( project.isEmpty() )
-				return;
-			
-			info( "\tprebuilt project=" + project.sourceProject.NAME + Common.getCommentIfAny( specifics ) + ":" );
-		}
-		else
-			exitUnexpectedCategory( set.CATEGORY );
-		
-		for( String key : project.getItemNames() ) {
-			ReleaseScopeItem item = project.findItem( key );
-			printReleaseBuildSetProjectItemStatus( dist , files , set , project , item );
-		}
-	}
-
-	private void printReleaseBuildSetProjectItemStatus( Dist dist , FileSet files , ReleaseScopeSet set , ReleaseScopeTarget project , ReleaseScopeItem item ) throws Exception {
-		String specifics = item.getSpecifics( this );
-		MetaDistrBinaryItem distItem = item.distItem;
-		DistItemInfo info = dist.getDistItemInfo( this , distItem , false , true );
-		String status = ( info.found )? "OK (" + Common.getPath( info.subPath , info.fileName ) + ", " + 
-				Common.getRefDate( info.timestamp ) + ")" : "missing (" + info.subPath + ")";
-		
-		info( "\t\tdistitem=" + distItem.NAME + ": " + status + Common.getCommentIfAny( specifics ) );
-	}
-
-	private void printReleaseConfStatus( Dist dist , FileSet files , ReleaseScopeTarget conf ) throws Exception {
-		String specifics = conf.getSpecifics();
-		DistItemInfo info = dist.getDistItemInfo( this , conf.distConfItem );
-		String folder = Common.getPath( info.subPath , info.fileName );
-		String status = ( info.found )? "OK" : "missing";
-		
-		info( "\t\tconfitem=" + conf.distConfItem.NAME + ": " + status + " (" + folder + ")" + Common.getCommentIfAny( specifics ) );
-	}
-
-	private void printReleaseManualStatus( Dist dist , FileSet files , ReleaseScopeTarget manual ) throws Exception {
-		String specifics = manual.getSpecifics();
-		DistItemInfo info = dist.getDistItemInfo( this , manual.distManualItem , false , true );
-		String folder = Common.getPath( info.subPath , info.fileName );
-		String status = ( info.found )? "OK (" + folder + ", " + 
-				Common.getRefDate( info.timestamp ) + ")" : "missing (" + info.subPath + ")";
-		
-		info( "\t\tdistitem=" + manual.distManualItem.NAME + ": " + status + Common.getCommentIfAny( specifics ) );
-	}
-
-	private void printReleaseDocStatus( Dist dist , FileSet files , ReleaseScopeTarget items ) throws Exception {
-		for( String name : items.getItemNames() ) {
-			ReleaseScopeItem item = items.findItem( name );
-			DistItemInfo info = dist.getDistItemInfo( this , items.distDelivery , item.doc , false , true );
-			
-			String folder = Common.getPath( info.subPath , info.fileName );
-			String status = ( info.found )? "OK (" + folder + ", " + 
-					Common.getRefDate( info.timestamp ) + ")" : "missing (" + info.subPath + ")";
-			
-			info( "\t\tdoc=" + item.doc.NAME + ": " + status );
-		}
-	}
-
-	private void printReleaseDatabaseStatus( Dist dist , FileSet files , ReleaseScopeTarget db ) throws Exception {
-		MetaDistrDelivery delivery = db.distDelivery;
-
-		if( dist.release.isCumulative() ) {
-			String[] versions = dist.release.getCumulativeVersions();
-			
-			for( String version : versions ) {
-				String folder = dist.getDeliveryDatabaseFolder( this , delivery , version );
-				FileSet dbset = files.getDirByPath( this , folder );
-				if( dbset == null || dbset.isEmpty() )
-					continue;
-				
-				info( "\tdelivery=" + delivery.NAME + ", version=" + version + ": OK (" + folder + ")" + Common.getCommentIfAny( folder ) );
-			}
-		}
-		else {
-			String folder = dist.getDeliveryDatabaseFolder( this , delivery , dist.release.RELEASEVER );
-			FileSet dbset = files.getDirByPath( this , folder );
-			String status = ( dbset == null || dbset.isEmpty() )? "missing/empty" : "OK";
-			info( "\tdelivery=" + delivery.NAME + ": " + status + Common.getCommentIfAny( folder ) );
-			
-			for( String key : db.getItemNames() ) {
-				ReleaseScopeItem item = db.findItem( key );
-				printReleaseDatabaseSchemaStatus( dist , dbset , db , item );
-			}
-		}
-	}
-
-	private void printReleaseDatabaseSchemaStatus( Dist dist , FileSet files , ReleaseScopeTarget project , ReleaseScopeItem item ) throws Exception {
-		String specifics = item.getSpecifics( this );
-		MetaDatabaseSchema schema = item.schema;
-		boolean found = DatabaseScriptFile.checkDistHasSchemaFiles( files , schema );
-		String status = ( found )? "found" : "missing";
-		info( "\tschema=" + schema.NAME + ": " + status + Common.getCommentIfAny( specifics ) );
-	}
-
 	private void printProdBinaryStatus( Dist dist , FileSet files , MetaDistrBinaryItem distItem ) throws Exception {
-		ReleaseMasterItem masterItem = dist.release.findMasterItem( distItem );
-		DistItemInfo info = dist.getDistItemInfo( this , distItem , true , true );
-		
-		String status = "";
-		if( masterItem == null ) {
-			String folder = Common.getPath( distItem.delivery.FOLDER , Dist.BINARY_FOLDER );
-			status = ( info.found )? "OK (" + Common.getPath( folder , info.fileName ) + ", new)" : 
-				"missing (" + Common.getPath( folder , distItem.getBaseFile() ) + ")";
-		}
-		else {
-			if( masterItem.FOLDER.equals( distItem.delivery.FOLDER ) ) { 
-				String folder = Common.getPath( masterItem.FOLDER , Dist.BINARY_FOLDER );
-				if( info.found ) {
-					if( !info.md5value.equals( masterItem.MD5 ) )
-						status = "OK (" + Common.getPath( folder , info.fileName ) + ", manual)";
-					else
-						status = "OK (" + Common.getPath( folder , info.fileName ) + ", " + masterItem.RELEASE + ")";
-				}
-				else					
-					status = "missing (" + Common.getPath( folder , distItem.getBaseFile() ) + ")";
-			}
-			else {
-				String folder = Common.getPath( distItem.delivery.FOLDER , Dist.BINARY_FOLDER );
-				if( info.found )
-					status = "OK (" + Common.getPath( folder , info.fileName ) + ", moved)";
-				else
-					status = "missing (" + Common.getPath( folder , distItem.getBaseFile() ) + ", obsolete)";
-			}
-		}
-		
-		info( "\t\tdistitem=" + distItem.NAME + ": " + status );
 	}
 
 }

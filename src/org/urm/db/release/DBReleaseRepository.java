@@ -33,7 +33,7 @@ public class DBReleaseRepository {
 		action.debug( "create normal release: label=" + RELEASELABEL + ", version=" + info.RELEASEVER + ", date=" + Common.getDateValue( releaseDate ) + " ..." );
 		
 		// create meta item
-		Release release = DBRelease.createRelease( method , action , meta , repo , info.RELEASEVER , releaseDate , lc );
+		Release release = DBRelease.createRelease( method , action , repo , info.RELEASEVER , releaseDate , lc );
 		ReleaseDist releaseDist = DBReleaseDist.createReleaseDist( method , action , release , info.VARIANT );
 		
 		// create distributive

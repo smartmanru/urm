@@ -267,5 +267,37 @@ public class ReleaseTicketTarget {
 		this.DELIVERYTARGET_ID = deliveryTarget.ID;
 		this.deliveryTarget = deliveryTarget;
 	}
+
+	public String getName() {
+		return( "?" );
+	}
+	
+	public MetaSourceProject getProject() {
+		return( null );
+	}
+	
+	public MetaDistrBinaryItem getBinaryItem() {
+		return( null );
+	}
+
+	public MetaDistrConfItem getConfItem() {
+		return( null );
+	}
+	
+	public MetaDistrDelivery getDelivery() {
+		return( null );
+	}
+	
+	public MetaDatabaseSchema getDatabaseSchema() {
+		return( null );
+	}
+
+	public MetaProductDoc getDoc() {
+		return( null );
+	}
+
+	public DBEnumObjectType getType() {
+		return( DBEnumObjectType.UNKNOWN );
+	}
 	
 }

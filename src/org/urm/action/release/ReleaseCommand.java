@@ -170,7 +170,7 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
 		maker.addScopeReleaseSet( SET , elements );
 		ActionScope scope = maker.getScope();
 		setScopeSpecifics( parentState , action , dist , scope );
@@ -279,7 +279,7 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
 		maker.addScopeReleaseCategory( DBEnumScopeCategoryType.CONFIG , COMPS );
 		ActionScope scope = maker.getScope();
 		descope( parentState , action , dist , scope );
@@ -289,7 +289,7 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
 		maker.addScopeReleaseCategory( DBEnumScopeCategoryType.MANUAL , ITEMS );
 		ActionScope scope = maker.getScope();
 		descope( parentState , action , dist , scope );
@@ -299,7 +299,7 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
 		if( PROJECT.equals( "all" ) )
 			maker.addScopeReleaseSet( SET , new String [] { "all" } );
 		else
@@ -312,7 +312,7 @@ public class ReleaseCommand {
 		if( dist.release.isCumulative() )
 			action.exit0( _Error.CannotChangeCumulative0 , "cannot change scope of cumulative release" );
 		
-		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist );
+		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
 		maker.addScopeReleaseCategory( DBEnumScopeCategoryType.DB , DELIVERIES );
 		ActionScope scope = maker.getScope();
 		descope( parentState , action , dist , scope );

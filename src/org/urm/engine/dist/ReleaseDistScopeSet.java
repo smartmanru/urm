@@ -1,7 +1,9 @@
 package org.urm.engine.dist;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
 import org.urm.meta.release.Release;
 
@@ -44,6 +46,19 @@ public class ReleaseDistScopeSet {
 				return( false );
 		}
 		return( true );
+	}
+
+	public String[] getDeliveryNames() {
+		return( Common.getSortedKeys( mapDelivery ) );
+	}
+
+	public String[] getDeliveryItemNames() {
+		Map<String,String> map = new HashMap<String,String>();
+		for( ReleaseDistScopeDelivery delivery : mapDelivery.values() ) {
+			for( String name : delivery.getItemNames() )
+				map.put( name , name );
+		}
+		return( Common.getSortedKeys( map ) );
 	}
 	
 }

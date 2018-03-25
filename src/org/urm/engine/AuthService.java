@@ -20,6 +20,7 @@ import org.urm.engine.properties.PropertySet;
 import org.urm.engine.session.EngineSession;
 import org.urm.engine.session.SessionSecurity;
 import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AuthContext;
 import org.urm.meta.engine.AuthGroup;
@@ -359,6 +360,14 @@ public class AuthService extends EngineObject {
 		return( mapLdapUsers.get( name ) );
 	}
 
+	public AuthUser findUser( MatchItem item ) {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( findUser( item.FKID ) );
+		return( findUser( item.FKNAME ) );
+	}
+	
 	public AuthGroup getGroup( String groupName ) throws Exception {
 		AuthGroup group = groups.get( groupName );
 		if( group == null )
@@ -682,6 +691,13 @@ public class AuthService extends EngineObject {
 		users.putAll( mapLocalUsers );
 		users.putAll( mapLdapUsers );
 		return( Common.getSortedKeys( users ) );
+	}
+
+	public Integer getUserId( String name ) throws Exception {
+		if( name == null || name.isEmpty() )
+			return( null );
+		AuthUser user = getUser( name );
+		return( user.ID );
 	}
 	
 }

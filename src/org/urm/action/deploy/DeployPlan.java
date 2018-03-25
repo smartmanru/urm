@@ -13,6 +13,8 @@ import org.urm.common.action.CommandOptions;
 import org.urm.common.meta.DeployCommandMeta;
 import org.urm.engine.EventService;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseBuildScope;
+import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSource;
@@ -48,6 +50,9 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 	boolean deploy;
 	
 	EngineEventsApp eventsApp;
+
+	public ReleaseBuildScope buildScope;
+	public ReleaseDistScope distScope;
 
 	private DeployPlan( Dist dist , MetaEnv env , boolean redist , boolean deploy , EventService events , String id ) {
 		super( events , id );
@@ -97,10 +102,12 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 		}
 	}
 	
-	public static DeployPlan create( ActionBase action , EngineEventsApp app , EngineEventsListener listener , Dist dist , MetaEnv env , boolean redist , boolean deploy ) {
+	public static DeployPlan create( ActionBase action , EngineEventsApp app , EngineEventsListener listener , Dist dist , MetaEnv env , boolean redist , boolean deploy ) throws Exception {
 		EventService events = action.engine.getEvents();
 		DeployPlan plan = new DeployPlan( dist , env , redist , deploy , events , "build-plan-" + action.ID );
 		app.subscribe( plan , listener );
+		plan.buildScope = ReleaseBuildScope.createScope( dist.release );
+		plan.distScope = ReleaseDistScope.createScope( dist.release );
 		return( plan );
 	}
 

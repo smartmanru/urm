@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.action.database.DatabaseScriptFile;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.release.DBReleaseRepository;
@@ -29,8 +28,8 @@ import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseDist;
-import org.w3c.dom.Document;
 
 public class Dist {
 
@@ -283,45 +282,15 @@ public class Dist {
 		if( !openedForUse )
 			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
 		
-		ReleaseDistScopeDelivery delivery = release.findDelivery( conf.delivery.NAME );
-		if( delivery == null )
-			action.exit1( _Error.UnknownReleaseDelivery1 , "unknown release delivery=" + conf.delivery.NAME , conf.delivery.NAME );
-		
-		String confFolder = getDeliveryConfFolder( action , delivery.distDelivery );
+		String confFolder = getDeliveryConfFolder( action , conf.delivery );
 		confFolder = Common.getPath( confFolder , conf.NAME );
 		localFolder.ensureExists( action );
 		distFolder.copyDirContentToLocal( action , localFolder , confFolder );
 	}
 	
-	public boolean copyDistConfToFolder( ActionBase action , ReleaseScopeTarget confTarget , LocalFolder parentFolder ) throws Exception {
-		if( !openedForUse )
-			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
-		
-		String confFolder = getDeliveryConfFolder( action , confTarget.getDelivery( action ) );
-		String compFolder = Common.getPath( confFolder , confTarget.distConfItem.NAME );
-		RemoteFolder compDist = distFolder.getSubFolder( action , compFolder );
-		if( !compDist.checkExists( action ) )
-			return( false );
-		
-		compDist.copyDirToLocal( action , parentFolder );
-		return( true );
-	}
-	
 	public void createDeliveryFolders( ActionBase action ) throws Exception {
-		state.checkDistDataChangeEnabled( action );
-		for( ReleaseDistScopeDelivery delivery : release.getDeliveries() ) {
-			createInternalDeliveryFolder( action , getDeliveryBinaryFolder( action , delivery.distDelivery ) );
-			createInternalDeliveryFolder( action , getDeliveryConfFolder( action , delivery.distDelivery ) );
-			createInternalDeliveryFolder( action , getDeliveryDatabaseFolder( action , delivery.distDelivery , release.RELEASEVER ) );
-			createInternalDeliveryFolder( action , getDeliveryDocFolder( action , delivery.distDelivery ) );
-		}
 	}
 
-	private void createInternalDeliveryFolder( ActionBase action , String folder ) throws Exception {
-		RemoteFolder subFolder = distFolder.getSubFolder( action , folder );
-		subFolder.ensureExists( action );
-	}
-	
 	// top-level control
 	public void create( ActionBase action , String RELEASEDIR , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		this.RELEASEDIR = RELEASEDIR;
@@ -401,7 +370,8 @@ public class Dist {
 		openForDataChange( action );
 		
 		if( !release.MASTER ) {
-			if( !release.changes.isCompleted() ) {
+			ReleaseChanges changes = release.getChanges();
+			if( !changes.isCompleted() ) {
 				action.error( "release changes are not completed" );
 				state.ctlCloseDataChange( action );
 				return( false );
@@ -441,26 +411,6 @@ public class Dist {
 	}
 
 	public void copyScope( ActionBase action , Dist src ) throws Exception {
-		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
-		
-		release.copyReleaseScope( action , src.release );
-		Document doc = release.createXml( action );
-		Common.xmlSaveDoc( doc , filePath );
-		
-		openForDataChange( action );
-		
-		distFolder.copyFileFromLocal( action , filePath );
-		ShellExecutor shell = action.getShell( distFolder.account );
-		for( ReleaseDistScopeDelivery delivery : src.release.getDeliveries() ) {
-			String dirFrom = src.distFolder.getFolderPath( action , delivery.distDelivery.FOLDER );
-			String dirTo = distFolder.getFolderPath( action , delivery.distDelivery.FOLDER );
-			int timeout = action.setTimeoutUnlimited();
-			shell.copyDirDirect( action , dirFrom , dirTo );
-			action.setTimeout( timeout );
-		}
-		
-		closeDataChange( action );
-		action.info( "release " + RELEASEDIR + " has beed copied from " + src.RELEASEDIR );
 	}
 
 	public void dropRelease( ActionBase action ) throws Exception {
@@ -482,145 +432,62 @@ public class Dist {
 	}
 	
 	public void saveReleaseXml( ActionBase action ) throws Exception {
-		state.ctlReloadCheckOpenedForMetaChange( action );
-		
-		String filePath = action.getWorkFilePath( META_FILENAME );
-		Document doc = release.createXml( action );
-		Common.xmlSaveDoc( doc , filePath );
-		distFolder.copyFileFromLocal( action , filePath );
-		state.updateMetaHashValue( action );
 	}
 
 	public boolean addAllSource( ActionBase action , MetaSourceProjectSet set ) throws Exception {
-		action.debug( "release - add source set=" + set.NAME );
-		return( release.addSourceSet( action , set , true ) );
+		return( false );
 	}
 	
 	public boolean addAllCategory( ActionBase action , DBEnumScopeCategoryType CATEGORY ) throws Exception {
-		action.debug( "release - add category=" + Common.getEnumLower( CATEGORY ) );
-		return( release.addCategorySet( action , CATEGORY , true ) );
+		return( false );
 	}
 	
 	public boolean addProjectAllItems( ActionBase action , MetaSourceProject project ) throws Exception {
-		action.debug( "release - add project=" + project.NAME );
-		
-		if( !release.addSourceSet( action , project.set , false ) )
-			return( false );
-		if( !release.addProject( action , project , true ) )
-			return( false );
-		return( true );
+		return( false );
 	}
 
 	public boolean addProjectItem( ActionBase action , MetaSourceProject project , MetaSourceProjectItem item ) throws Exception {
-		action.debug( "release - add project=" + project.NAME + ", item=" + item.NAME );
-		
-		// ignore internal items
-		if( item.isInternal() ) {
-			action.info( "item=" + item.NAME + " is internal. Skipped.");
-			return( true );
-		}
-		
-		if( !release.addSourceSet( action , project.set , false ) )
-			return( false );
-		if( !release.addProject( action , project , false ) )
-			return( false );
-		if( !release.addProjectItem( action , project , item ) )
-			return( false );
-		return( true );
+		return( false );
 	}
 
 	public boolean addConfItem( ActionBase action , MetaDistrConfItem item ) throws Exception {
-		action.debug( "release - add conf item=" + item.NAME );
-		
-		if( !release.addCategorySet( action , DBEnumScopeCategoryType.CONFIG , false ) )
-			return( false );
-		if( !release.addConfItem( action , item ) )
-			return( false );
-		return( true );
+		return( false );
 	}
 
 	public boolean addManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		action.debug( "release - add manual item=" + item.NAME );
-		
-		if( !release.addCategorySet( action , DBEnumScopeCategoryType.MANUAL , false ) )
-			return( false );
-		if( !release.addManualItem( action , item ) )
-			return( false );
-		return( true );
+		return( false );
 	}
 
 	public boolean addDerivedItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		action.debug( "release - add derived item=" + item.NAME );
-		
-		if( !release.addCategorySet( action , DBEnumScopeCategoryType.DERIVED , false ) )
-			return( false );
-		if( !release.addDerivedItem( action , item ) )
-			return( false );
-		return( true );
+		return( false );
 	}
 
 	public boolean addBinaryItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		if( item.isProjectItem() )
-			return( addProjectItem( action , item.sourceProjectItem.project , item.sourceProjectItem ) );
-		if( item.isManualItem() )
-			return( addManualItem( action , item ) );
-		if( item.isDerivedItem() )
-			return( addDerivedItem( action , item ) );
 		return( false );
 	}
 	
 	public boolean addDeliveryAllDatabaseSchemes( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		action.debug( "release - add database delivery=" + delivery.NAME );
-		if( !release.addCategorySet( action , DBEnumScopeCategoryType.DB , false ) )
-			return( false );
-		if( !release.addDatabaseDelivery( action , delivery , true ) )
-			return( false );
-		return( true );
+		return( false );
 	}
 
 	public boolean addDeliveryAllDocs( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		action.debug( "release - add doc delivery=" + delivery.NAME );
-		if( !release.addCategorySet( action , DBEnumScopeCategoryType.DOC , false ) )
-			return( false );
-		if( !release.addDocDelivery( action , delivery , true ) )
-			return( false );
-		return( true );
+		return( false );
 	}
 
 	public boolean addDeliveryDatabaseSchema( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
-		action.debug( "release - add database delivery=" + delivery.NAME + ", schema=" + schema );
-		if( !release.addCategorySet( action , DBEnumScopeCategoryType.DB , false ) )
-			return( false );
-		if( !release.addDatabaseDelivery( action , delivery , false ) )
-			return( false );
-		if( !release.addDatabaseSchema( action , delivery , schema ) )
-			return( false );
-		return( true );
+		return( false );
 	}
 	
 	public boolean addDeliveryDoc( ActionBase action , MetaDistrDelivery delivery , MetaProductDoc doc ) throws Exception {
-		action.debug( "release - add doc delivery=" + delivery.NAME + ", doc=" + doc );
-		if( !release.addCategorySet( action , DBEnumScopeCategoryType.DOC , false ) )
-			return( false );
-		if( !release.addDocDelivery( action , delivery , false ) )
-			return( false );
-		if( !release.addDoc( action , delivery , doc ) )
-			return( false );
-		return( true );
+		return( false );
 	}
 	
 	public boolean addDatabaseAll( ActionBase action ) throws Exception {
-		action.debug( "release - add database" );
-		if( !release.addCategorySet( action , DBEnumScopeCategoryType.DB , true ) )
-			return( false );
-		return( true );
+		return( false );
 	}
 
 	public boolean addDocAll( ActionBase action ) throws Exception {
-		action.debug( "release - add doc" );
-		if( !release.addCategorySet( action , DBEnumScopeCategoryType.DOC , true ) )
-			return( false );
-		return( true );
+		return( false );
 	}
 
 	public String getReleaseConfCompParentFolder( ActionBase action , MetaDistrConfItem comp ) throws Exception {
@@ -733,247 +600,28 @@ public class Dist {
 		state.ctlReloadCheckOpenedForDataChange( action );
 	}
 	
-	public void descopeSet( ActionBase action , ReleaseScopeSet set ) throws Exception {
-		for( ReleaseScopeTarget target : set.getTargets() )
-			dropTarget( action , target );
-		
-		if( set.CATEGORY.isSource() )
-			release.deleteSourceSet( action , set.set );
-		else
-			release.deleteCategorySet( action , set.CATEGORY );
+	public void descopeSet( ActionBase action , ReleaseBuildScopeSet set ) throws Exception {
+	}
+
+	public void descopeSet( ActionBase action , ReleaseDistScopeSet set ) throws Exception {
 	}
 
 	public void descopeAllProjects( ActionBase action ) throws Exception {
-		for( ReleaseScopeSet set : release.getSourceSets() )
-			descopeSet( action , set );
-	}
-	
-	public void descopeTarget( ActionBase action , ReleaseScopeTarget target ) throws Exception {
-		dropTarget( action , target );
-		release.deleteTarget( action , target );
-	}
-	
-	public void descopeTargetItems( ActionBase action , ReleaseScopeItem[] items ) throws Exception {
-		for( ReleaseScopeItem item : items ) {
-			dropTargetItem( action , item );
-			if( item.isBinary() )
-				release.deleteProjectItem( action , item );
-			else
-			if( item.isDatabase() )
-				release.deleteDatabaseSchema( action , item );
-		}
-	}
-	
-	private void dropTarget( ActionBase action , ReleaseScopeTarget target ) throws Exception {
-		if( target.CATEGORY == DBEnumScopeCategoryType.CONFIG ) {
-			String folder = getDeliveryConfFolder( action , target.distConfItem.delivery );
-			distFolder.removeFolder( action , folder );
-		}
-		else
-		if( target.CATEGORY == DBEnumScopeCategoryType.MANUAL ) {
-			String folder = getReleaseBinaryFolder( action , target.distManualItem );
-			distFolder.deleteVFile( action , folder , target.distManualItem.BASENAME_DIST , target.distManualItem.EXT );
-		}
-		else
-		if( target.CATEGORY == DBEnumScopeCategoryType.DB ) {
-			String folder = getDeliveryDatabaseFolder( action , target.distDelivery , release.RELEASEVER );
-			distFolder.removeFolderContent( action , folder );
-		}
-		else
-		if( target.CATEGORY == DBEnumScopeCategoryType.DOC ) {
-			String folder = getDeliveryDocFolder( action , target.distDelivery );
-			distFolder.removeFolderContent( action , folder );
-		}
-		else {
-			for( ReleaseScopeItem item : target.getItems() )
-				dropTargetItem( action , item );
-		}
-	}
-
-	private void dropTargetItem( ActionBase action , ReleaseScopeItem item ) throws Exception {
-		if( item.isBinary() ) {
-			String folder = getReleaseBinaryFolder( action , item.distItem );
-			distFolder.deleteVFile( action , folder , item.distItem.BASENAME_DIST , item.distItem.EXT );
-		}
-		else
-		if( item.isDatabase() ) {
-			String folderName = getDeliveryDatabaseFolder( action , item.target.distDelivery , release.RELEASEVER );
-			RemoteFolder folder = distFolder.getSubFolder( action , folderName );
-			if( folder.checkExists( action ) ) {
-				FileSet fs = folder.getFileSet( action );
-				String[] files = DatabaseScriptFile.getDistSchemaFiles( fs , item.schema );
-				folder.removeFiles( action , Common.getListSpaced( files ) );
-			}
-		}
-		else
-		if( item.isDoc() ) {
-			String folder = getReleaseDocFolder( action , item.target.distDelivery );
-			distFolder.deleteVFile( action , folder , item.doc.NAME , item.doc.EXT );
-		}
-	}
-
-	public boolean checkIfReleaseItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		if( !openedForUse )
-			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
-		
-		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL ) {
-			ReleaseScopeTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.MANUAL , item.NAME );
-			if( target == null )
-				return( false );
-			return( true );
-		}
-		else
-		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
-			ReleaseScopeTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.DERIVED , item.NAME );
-			if( target == null )
-				return( false );
-			return( checkIfReleaseItem( action , item.srcDistItem ) );
-		}
-		else 
-		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.BUILD ) {
-			ReleaseScopeTarget target = release.findBuildProject( action , item.sourceProjectItem.project.NAME );
-			if( target == null )
-				return( false );
-			
-			if( target.findDistItem( item ) == null )
-				return( false );
-			
-			return( true );
-		}
-		else
-			action.exitUnexpectedState();
-		
-		return( false );
 	}
 	
 	public String getBinaryDistItemFile( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		if( !openedForUse )
-			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
-		
-		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL ) {
-			ReleaseScopeTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.MANUAL , item.NAME );
-			if( target == null )
-				return( "" );
-			
-			if( target.DISTFILE == null || target.DISTFILE.isEmpty() )
-				return( "" );
-			
-			return( Common.getPath( BINARY_FOLDER , target.DISTFILE ) );
-		}
-		else
-		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
-			ReleaseScopeTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.DERIVED , item.NAME );
-			if( target == null )
-				return( "" );
-			
-			if( target.DISTFILE == null || target.DISTFILE.isEmpty() )
-				return( "" );
-			
-			return( Common.getPath( BINARY_FOLDER , target.DISTFILE ) );
-		}
-		else
-		if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.BUILD ) {
-			ReleaseScopeTarget target = release.findBuildProject( action , item.sourceProjectItem.project.NAME );
-			if( target == null )
-				return( "" );
-			
-			ReleaseScopeItem targetItem = target.findDistItem( item );
-			if( targetItem == null )
-				return( "" );
-			
-			if( targetItem.DISTFILE == null || targetItem.DISTFILE.isEmpty() )
-				return( "" );
-			
-			return( Common.getPath( BINARY_FOLDER , targetItem.DISTFILE ) );
-		}
-		else
-			action.exitUnexpectedState();
-		
 		return( null );
 	}
 
 	public String getDocDistItemFile( ActionBase action , MetaProductDoc doc ) throws Exception {
-		if( !openedForUse )
-			action.exit0( _Error.DistributiveNotUse0 , "distributive is not opened for use" );
-		
-		ReleaseScopeTarget target = release.findCategoryTarget( action , DBEnumScopeCategoryType.DOC , doc.NAME );
-		if( target == null )
-			return( "" );
-		
-		if( target.DISTFILE == null || target.DISTFILE.isEmpty() )
-			return( "" );
-		
-		return( Common.getPath( DOC_FOLDER , target.DISTFILE ) );
+		return( null );
 	}
 
 	public void gatherFiles( ActionBase action ) throws Exception {
-		action.info( "find distributive files ..." );
-		files = distFolder.getFileSet( action );
-		
-		for( ReleaseDistScopeDelivery delivery : release.getDeliveries() ) {
-			FileSet deliveryFiles = files.getDirByPath( action , delivery.distDelivery.FOLDER );
-			
-			for( ReleaseScopeItem targetItem : delivery.getProjectItems() )
-				gatherDeliveryBinaryItem( action , delivery , deliveryFiles , targetItem );
-				
-			for( ReleaseScopeTarget targetItem : delivery.getManualItems() )
-				gatherDeliveryManualItem( action , delivery , deliveryFiles , targetItem );
-			
-			for( ReleaseScopeItem targetItem : delivery.getDocItems() )
-				gatherDeliveryDocItem( action , delivery , deliveryFiles , targetItem );
-		}
 	}
 
-	private void gatherDeliveryBinaryItem( ActionBase action , ReleaseDistScopeDelivery delivery , FileSet deliveryFiles , ReleaseScopeItem targetItem ) throws Exception {
-		FileSet binaryFiles = null;
-		if( deliveryFiles != null )
-			binaryFiles = deliveryFiles.getDirByPath( action , BINARY_FOLDER );
-		String fileName = "";
-		
-		if( binaryFiles != null )
-			fileName = binaryFiles.findDistItem( action , targetItem.distItem );
-		targetItem.setDistFile( action , fileName );
-		action.trace( "item=" + targetItem.distItem.NAME + ", file=" + ( ( fileName.isEmpty() )? "(missing)" : fileName ) );
-	}
-
-	private void gatherDeliveryDocItem( ActionBase action , ReleaseDistScopeDelivery delivery , FileSet deliveryFiles , ReleaseScopeItem targetItem ) throws Exception {
-		FileSet docFiles = null;
-		if( deliveryFiles != null )
-			docFiles = deliveryFiles.getDirByPath( action , DOC_FOLDER );
-		String fileName = "";
-		
-		if( docFiles != null )
-			fileName = docFiles.findDistItem( action , targetItem.doc );
-		targetItem.setDistFile( action , fileName );
-		action.trace( "item=" + targetItem.doc.NAME + ", file=" + ( ( fileName.isEmpty() )? "(missing)" : fileName ) );
-	}
-
-	private void gatherDeliveryManualItem( ActionBase action , ReleaseDistScopeDelivery delivery , FileSet deliveryFiles , ReleaseScopeTarget targetItem ) throws Exception {
-		FileSet binaryFiles = null;
-		if( deliveryFiles != null )
-			binaryFiles = deliveryFiles.getDirByPath( action , BINARY_FOLDER );
-		String fileName = "";
-		
-		if( binaryFiles != null )
-			fileName = binaryFiles.findDistItem( action , targetItem.distManualItem );
-		targetItem.setDistFile( action , fileName );
-		action.trace( "item=" + targetItem.distManualItem.NAME + ", file=" + ( ( fileName.isEmpty() )? "(missing)" : fileName ) );
-	}
-	
 	public MetaDistrConfItem[] getLocationConfItems( ActionBase action , MetaEnvServerLocation[] locations ) throws Exception {
 		Map<String,MetaDistrConfItem> confs = new HashMap<String,MetaDistrConfItem>(); 
-		MetaDistr distr = meta.getDistr(); 
-		for( MetaEnvServerLocation location : locations ) {
-			String[] items = location.getConfItems( action );
-			for( String item : items ) {
-				MetaDistrConfItem conf = distr.getConfItem( item );
-				if( release.findConfComponent( action , conf.NAME ) == null )
-					continue;
-				
-				if( !confs.containsKey( conf.NAME ) )
-					confs.put( conf.NAME , conf );
-			}
-		}
 		return( confs.values().toArray( new MetaDistrConfItem[0] ) );
 	}
 
@@ -1044,49 +692,31 @@ public class Dist {
 	}
 
 	public void descopeAll( ActionBase action ) throws Exception {
-		if( !openedForChange )
-			action.exit0( _Error.DistributiveNotOpened0 , "distributive is not opened for change" );
-		
-		action.info( "remove distributive content ..." );
-		for( String dir : distFolder.getTopDirs( action ) )
-			distFolder.removeFolder( action , dir );
-		
-		action.info( "remove all scope ..." );
-		release.descopeAll( action );
 	}
 
-	public void copyDatabaseDistrToDistr( ActionBase action , ReleaseDistScopeDelivery delivery , Dist src ) throws Exception {
-		ReleaseDistScopeDelivery reldel = src.release.findDelivery( delivery.distDelivery.NAME );
-		if( reldel != null ) {
-			String folder = src.getDeliveryDatabaseFolder( action , reldel.distDelivery , src.release.RELEASEVER );
-			if( src.distFolder.checkFolderExists( action , folder ) )
-				distFolder.copyExtDir( action , src.distFolder.getFilePath( action , folder ) , folder );
-		}
+	public void copyDatabaseDistrToDistr( ActionBase action , MetaDistrDelivery delivery , Dist src ) throws Exception {
+		String folder = src.getDeliveryDatabaseFolder( action , delivery , src.release.RELEASEVER );
+		if( src.distFolder.checkFolderExists( action , folder ) )
+			distFolder.copyExtDir( action , src.distFolder.getFilePath( action , folder ) , folder );
 	}
 	
-	public void copyFileDistrToDistr( ActionBase action , ReleaseDistScopeDelivery delivery , Dist src , String file ) throws Exception {
-		ReleaseDistScopeDelivery reldel = src.release.findDelivery( delivery.distDelivery.NAME );
-		if( reldel != null ) {
-			String folder = reldel.distDelivery.FOLDER;
-			String fileSrc = src.distFolder.getFilePath( action , Common.getPath( folder , file ) );
-			String fileDst = Common.getPath( folder , file );
-			action.debug( "copy " + fileSrc + " to " + fileDst + " ..." );
-			
-			distFolder.ensureFolderExists( action , Common.getDirName( fileDst ) );
-			distFolder.copyFile( action , fileSrc , fileDst );
-		}
+	public void copyFileDistrToDistr( ActionBase action , MetaDistrDelivery delivery , Dist src , String file ) throws Exception {
+		String folder = delivery.FOLDER;
+		String fileSrc = src.distFolder.getFilePath( action , Common.getPath( folder , file ) );
+		String fileDst = Common.getPath( folder , file );
+		action.debug( "copy " + fileSrc + " to " + fileDst + " ..." );
+		
+		distFolder.ensureFolderExists( action , Common.getDirName( fileDst ) );
+		distFolder.copyFile( action , fileSrc , fileDst );
 	}
 	
-	public void appendConfDistrToDistr( ActionBase action , ReleaseDistScopeDelivery delivery , Dist src , MetaDistrConfItem item ) throws Exception {
-		ReleaseDistScopeDelivery reldel = src.release.findDelivery( delivery.distDelivery.NAME );
-		if( reldel != null ) {
-			String folder = src.getDeliveryConfFolder( action , reldel.distDelivery );
-			ShellExecutor session = distFolder.getSession( action );
-			String folderSrc = src.distFolder.getFilePath( action , Common.getPath( folder , item.NAME ) );
-			String folderDst = distFolder.getFilePath( action , Common.getPath( folder , item.NAME ) );
-			distFolder.ensureFolderExists( action , folderDst );
-			session.copyDirContent( action , folderSrc , folderDst );
-		}
+	public void appendConfDistrToDistr( ActionBase action , MetaDistrDelivery delivery , Dist src , MetaDistrConfItem item ) throws Exception {
+		String folder = src.getDeliveryConfFolder( action , delivery );
+		ShellExecutor session = distFolder.getSession( action );
+		String folderSrc = src.distFolder.getFilePath( action , Common.getPath( folder , item.NAME ) );
+		String folderDst = distFolder.getFilePath( action , Common.getPath( folder , item.NAME ) );
+		distFolder.ensureFolderExists( action , folderDst );
+		session.copyDirContent( action , folderSrc , folderDst );
 	}
 	
 	public void finishStatus( ActionBase action ) throws Exception {
@@ -1095,54 +725,11 @@ public class Dist {
 	}
 	
 	public void createMasterFiles( ActionBase action , Dist src ) throws Exception {
-		release.createMaster( action , src.release.RELEASEVER , null );
-		src.gatherFiles( action );
-		
-		for( ReleaseDistScopeDelivery delivery : src.release.getDeliveries() ) {
-			for( ReleaseScopeItem item : delivery.getProjectItems() )
-				copyMasterItem( action , src , delivery , item.distItem , true );
-			for( ReleaseScopeTarget item : delivery.getManualItems() )
-				copyMasterItem( action , src , delivery , item.distManualItem , true );
-		}
-		
-		release.master.addMasterHistory( action , src.release.RELEASEVER );
 	}
 	
 	public void appendMasterFiles( ActionBase action , Dist src ) throws Exception {
-		src.gatherFiles( action );
-		for( ReleaseDistScopeDelivery delivery : src.release.getDeliveries() ) {
-			for( ReleaseScopeItem item : delivery.getProjectItems() )
-				copyMasterItem( action , src , delivery , item.distItem , false );
-			for( ReleaseScopeTarget item : delivery.getManualItems() )
-				copyMasterItem( action , src , delivery , item.distManualItem , false );
-		}
-		
-		release.master.addMasterHistory( action , src.release.RELEASEVER );
-		release.setReleaseVer( action , src.release.RELEASEVER );
 	}
 	
-	private void copyMasterItem( ActionBase action , Dist src , ReleaseDistScopeDelivery delivery , MetaDistrBinaryItem distItem , boolean create ) throws Exception {
-		DistItemInfo info = src.getDistItemInfo( action , distItem , true , false );
-		if( !info.found ) {
-			action.error( "missing item=" + distItem.NAME );
-			action.exitUnexpectedState();
-		}
-
-		RemoteFolder folder;
-		if( !create ) {
-			ReleaseMasterItem item = release.findMasterItem( distItem );
-			if( item != null ) {
-				folder = distFolder.getSubFolder( action , Common.getPath( item.FOLDER , BINARY_FOLDER ) );
-				folder.removeFiles( action , item.FILE + " " + item.FILE + ".md5" );
-			}
-		}
-		
-		release.addMasterItem( action , src.release , distItem , info );
-		copyFileDistrToDistr( action , delivery , src , Common.getPath( BINARY_FOLDER , info.fileName ) );
-		folder = distFolder.getSubFolder( action , Common.getPath( delivery.distDelivery.FOLDER , BINARY_FOLDER ) );
-		folder.createFileFromString( action , info.fileName + ".md5" , info.md5value );
-	}
-
 	public Dist copyDist( ActionBase action , String newName , ReleaseDist newReleaseDist ) throws Exception {
 		RemoteFolder parent = distFolder.getParentFolder( action );
 		if( !parent.checkFolderExists( action , RELEASEDIR ) )

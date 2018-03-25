@@ -1,16 +1,12 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
-import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaDistrBinaryItem;
-import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.release.ReleaseScopeTarget;
-import org.urm.meta.release.ReleaseScopeItem;
 
 public class ActionGetCumulative extends ActionBase {
 
@@ -52,66 +48,11 @@ public class ActionGetCumulative extends ActionBase {
 	}
 
 	private boolean addCumulativeVersion( DistRepository repo , String cumver , Dist cumdist ) throws Exception {
-		info( "append cumulative release version=" + cumver + " ..." );
-		
-		if( !cumdist.isFinalized() ) {
-			error( "cannot append cumulative release from non-finalized release version=" + cumver );
-			return( false );
-		}
-		
-		dist.release.addRelease( this , cumdist.release );
-		dist.release.rebuildDeliveries( this );
-		cumdist.openForUse( this );
-		return( true );
+		return( false );
 	}
 	
 	private void copyFiles( Dist[] cumdists ) throws Exception {
-		for( ReleaseDistScopeDelivery delivery : dist.release.getDeliveries() ) {
-			if( delivery.hasDatabaseItems() )
-				copyDatabaseItems( cumdists , delivery );
-			for( ReleaseScopeItem item : delivery.getProjectItems() )
-				copyBinaryItem( cumdists , delivery , item.distItem );
-			for( ReleaseScopeTarget item : delivery.getManualItems() )
-				copyBinaryItem( cumdists , delivery , item.distManualItem );
-			for( ReleaseScopeTarget item : delivery.getConfItems() )
-				copyConfItem( cumdists , delivery , item.distConfItem );
-		}
+		Common.exitUnexpected();
 	}
 
-	private void copyDatabaseItems( Dist[] cumdists , ReleaseDistScopeDelivery delivery ) throws Exception {
-		for( Dist cumdist : cumdists )
-			dist.copyDatabaseDistrToDistr( this , delivery , cumdist );
-	}
-	
-	private void copyBinaryItem( Dist[] cumdists , ReleaseDistScopeDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
-		for( Dist cumdist : cumdists ) {
-			String file = cumdist.getBinaryDistItemFile( this , item );
-			if( !file.isEmpty() ) {
-				dist.copyFileDistrToDistr( this , delivery , cumdist , file );
-				return;
-			}
-		}
-	}
-	
-	private void copyConfItem( Dist[] cumdists , ReleaseDistScopeDelivery delivery , MetaDistrConfItem item ) throws Exception {
-		// find last full
-		int lastIndex = cumdists.length - 1;
-		for( int k = 0; k < cumdists.length; k++ ) {
-			ReleaseScopeTarget target = cumdists[k].release.findConfComponent( this , item.NAME );
-			if( target != null && target.ALL ) {
-				lastIndex = k;
-				break;
-			}
-		}
-		
-		for( int k = lastIndex; k >= 0; k-- ) {
-			Dist cumdist = cumdists[k];
-			ReleaseScopeTarget target = cumdist.release.findConfComponent( this , item.NAME );
-			if( target == null )
-				continue;
-			
-			dist.appendConfDistrToDistr( this , delivery , cumdist , item );
-		}
-	}
-	
 }
