@@ -245,7 +245,7 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 
 		DBMeta.exportxml( loader , set , doc , root );
-		ms.saveDoc( doc , file );
+		ProductStorage.saveDoc( doc , file );
 	}
 
 	private void importxmlSettings( ProductStorage ms , ProductContext context ) throws Exception {
@@ -272,7 +272,7 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 
 		DBMetaSettings.exportxml( loader , set , doc , root );
-		ms.saveDoc( doc , file );
+		ProductStorage.saveDoc( doc , file );
 	}
 	
 	private void importxmlPolicy( ProductStorage ms ) throws Exception {
@@ -299,7 +299,7 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 		
 		DBMetaPolicy.exportxml( loader , set , doc , root );
-		ms.saveDoc( doc , file );
+		ProductStorage.saveDoc( doc , file );
 	}
 
 	private void importxmlUnits( ProductStorage ms ) throws Exception {
@@ -326,7 +326,7 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 		
 		DBMetaUnits.exportxml( loader , set , doc , root );
-		ms.saveDoc( doc , file );
+		ProductStorage.saveDoc( doc , file );
 	}
 	
 	private void importxmlDatabase( ProductStorage ms ) throws Exception {
@@ -353,7 +353,7 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 		
 		DBMetaDatabase.exportxml( loader , set , doc , root );
-		ms.saveDoc( doc , file );
+		ProductStorage.saveDoc( doc , file );
 	}
 	
 	private void importxmlSources( ProductStorage ms ) throws Exception {
@@ -380,7 +380,7 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 		
 		DBMetaSources.exportxml( loader , set , doc , root );
-		ms.saveDoc( doc , file );
+		ProductStorage.saveDoc( doc , file );
 	}
 	
 	private void importxmlDocs( ProductStorage ms ) throws Exception {
@@ -407,7 +407,7 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 		
 		DBMetaDocs.exportxml( loader , set , doc , root );
-		ms.saveDoc( doc , file );
+		ProductStorage.saveDoc( doc , file );
 	}
 	
 	private void importxmlDistr( ProductStorage ms ) throws Exception {
@@ -434,7 +434,7 @@ public class EngineLoaderMeta {
 		Element root = doc.getDocumentElement();
 		
 		DBMetaDistr.exportxml( loader , set , doc , root );
-		ms.saveDoc( doc , file );
+		ProductStorage.saveDoc( doc , file );
 	}
 	
 	public void trace( String s ) {

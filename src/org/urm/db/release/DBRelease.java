@@ -22,7 +22,6 @@ public class DBRelease {
 		release.createNormal( action , RELEASEVER , releaseDate , lc );
 		
 		modifyRelease( c , repo , release , true );
-		repo.addRelease( release );
 		
 		return( release );
 	}

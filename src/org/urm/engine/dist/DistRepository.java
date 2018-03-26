@@ -14,6 +14,7 @@ import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.Meta;
+import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
 
 public class DistRepository {
@@ -163,10 +164,11 @@ public class DistRepository {
 		return( item );
 	}
 
-	public synchronized DistRepositoryItem createRepositoryItem( ActionBase action , String RELEASELABEL ) throws Exception {
+	public DistRepositoryItem createRepositoryItem( ActionBase action , String RELEASELABEL ) throws Exception {
 		ReleaseLabelInfo info = getLabelInfo( action , RELEASELABEL );
 		DistRepositoryItem item = new DistRepositoryItem( this );
 		item.createItem( action , info.RELEASEDIR , info.RELEASEPATH );
+		item.createItemFolder( action );
 		return( item );
 	}
 
@@ -219,6 +221,12 @@ public class DistRepository {
 		return( folder );
 	}
 	
+	public RemoteFolder getDistFolder( ActionBase action , DistRepositoryItem item ) throws Exception {
+		RemoteFolder repoFolder = getDistFolder( action );
+		RemoteFolder distFolder = repoFolder.getSubFolder( action , item.DISTPATH );
+		return( distFolder );
+	}
+	
 	public ReleaseLabelInfo getLabelInfo( ActionBase action , String RELEASELABEL ) throws Exception {
 		return( ReleaseLabelInfo.getLabelInfo( action , meta , RELEASELABEL ) );
 	}
@@ -231,7 +239,9 @@ public class DistRepository {
 	public synchronized Dist createMasterInitial( ActionBase action , String RELEASEVER , ReleaseDist releaseDist ) throws Exception {
 		ReleaseLabelInfo info = getLabelInfo( action , ReleaseLabelInfo.LABEL_MASTER );
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
-		Dist dist = DistRepositoryItem.createDistMaster( action , this , distFolder , releaseDist );
+		DistRepositoryItem item = new DistRepositoryItem( this );
+		item.createItem( action , RELEASEVER , info.RELEASEPATH );
+		Dist dist = item.createDistMaster( action , distFolder , releaseDist );
 		createDistItem( action , info , dist );
 		return( dist );
 	}
@@ -243,7 +253,9 @@ public class DistRepository {
 			action.exit1( _Error.NotCompletedSource1 , "Unable to use incomplete source release " + src.RELEASEDIR , src.RELEASEDIR );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
-		Dist dist = DistRepositoryItem.createDistMaster( action , this , distFolder , releaseDist );
+		DistRepositoryItem item = new DistRepositoryItem( this );
+		item.createItem( action , RELEASEDIR , info.RELEASEPATH );
+		Dist dist = item.createDistMaster( action , distFolder , releaseDist );
 		createDistItem( action , info , dist );
 		dist.createMasterFiles( action , src );
 		dist.finish( action );
@@ -270,7 +282,7 @@ public class DistRepository {
 		return( item.dist );
 	}
 
-	private synchronized void addItem( DistRepositoryItem item ) {
+	public synchronized void addItem( DistRepositoryItem item ) {
 		itemMap.put( item.RELEASEDIR , item );
 		if( item.dist != null )
 			runMap.put( item.RELEASEDIR , item );
@@ -346,7 +358,7 @@ public class DistRepository {
 			return( null );
 			
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
-		item.readDist( action , distFolder , item.dist.releaseDist );
+		item.readDist( action , item , distFolder , item.dist.releaseDist );
 		return( item.dist );
 	}
 
@@ -377,7 +389,10 @@ public class DistRepository {
 	}
 
 	public Dist copyDist( ActionBase action , Dist dist , String newName , ReleaseDist newReleaseDist ) throws Exception {
-		return( dist.copyDist( action , newName , newReleaseDist ) );
+		ReleaseLabelInfo info = getLabelInfo( action , newReleaseDist.getReleaseDir() );
+		DistRepositoryItem newItem = new DistRepositoryItem( this );
+		newItem.createItem( action , info.RELEASEDIR , info.RELEASEPATH );
+		return( dist.copyDist( action , newName , newItem , newReleaseDist ) );
 	}
 	
 	public void replaceDist( ActionBase action , Dist dist , Dist distNew ) throws Exception {
@@ -400,6 +415,19 @@ public class DistRepository {
 		if( item == null )
 			return( null );
 		return( item.dist );
+	}
+
+	public Dist createDistNormal( ActionBase action , DistRepositoryItem item , ReleaseDist releaseDist ) throws Exception {
+		RemoteFolder distFolder = getDistFolder( action , item );
+		Dist dist = new Dist( meta , item , releaseDist , distFolder );
+		dist.createNormal( action );
+		item.setDist( dist );
+		return( dist );
+	}
+
+	public Dist findDefaultDist( Release release ) {
+		ReleaseDist dist = release.getDefaultReleaseDist();
+		return( findDist( dist.getReleaseDir() ) );
 	}
 	
 }

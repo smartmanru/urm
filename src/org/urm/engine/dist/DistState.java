@@ -7,11 +7,9 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.release.DBReleaseDist;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.release.ReleaseDist;
 
 public class DistState {
@@ -30,7 +28,6 @@ public class DistState {
 	}
 	
 	// state
-	private Dist dist;
 	private RemoteFolder distFolder;
 
 	public DISTSTATE state;
@@ -40,14 +37,13 @@ public class DistState {
 	String metaHash;
 	String activeChangeID;
 	
-	public DistState( Dist dist , RemoteFolder distFolder ) {
-		this.dist = dist;
+	public DistState( RemoteFolder distFolder ) {
 		this.distFolder = distFolder;
 		this.state = DISTSTATE.UNKNOWN;
 	}
 	
 	public DistState copy( ActionBase action , Dist rdist ) throws Exception {
-		DistState rstate = new DistState( rdist , distFolder );
+		DistState rstate = new DistState( distFolder );
 		rstate.state = state;
 		rstate.stateMem = stateMem;
 		rstate.stateChangeID = stateChangeID;
@@ -193,17 +189,14 @@ public class DistState {
 		// create release.xml, create status file, set closed dirty state
 		// check current status
 		ctlLoadReleaseState( action );
-		if( state != DISTSTATE.MISSINGDIST ) {
+		if( state != DISTSTATE.MISSINGSTATE ) {
 			if( !action.isForced() )
 				action.exit0( _Error.CannotCreateExistingDistributive0 , "cannot create existing distributive" );
 		}
 			
-		// create directory
-		saveMetaFile( action , releaseDist );
-		
 		// set status
 		ctlSetStatus( action , DISTSTATE.DIRTY );
-		action.info( "release has been created: " + dist.RELEASEDIR );
+		action.info( "release has been created at " + distFolder.getLocalPath( action ) );
 	}
 	
 	public void ctlCreateMaster( ActionBase action , ReleaseDist releaseDist ) throws Exception {
@@ -216,15 +209,9 @@ public class DistState {
 		if( state != DISTSTATE.MISSINGSTATE )
 			action.exit0( _Error.StateFileExists0 , "state file should not exist" );
 		
-		// create empty release.xml
-		String filePath = action.artefactory.workFolder.getFilePath( action , Dist.META_FILENAME );
-		EngineLoader loader = action.engine.createLoader( action );
-		DBReleaseDist.exportxml( loader , releaseDist , filePath );
-		distFolder.copyFileFromLocal( action , filePath );
-		
 		// set status
 		ctlSetStatus( action , DISTSTATE.DIRTY );
-		action.info( "prod has been created at " + distFolder.folderPath );
+		action.info( "prod has been created at " + distFolder.getLocalPath( action ) );
 	}
 	
 	public void ctlOpenForDataChange( ActionBase action ) throws Exception {
@@ -418,16 +405,6 @@ public class DistState {
             else
                 fileMap.put( namePath , f );
         }		
-	}
-
-	public void saveMetaFile( ActionBase action , ReleaseDist releaseDist ) throws Exception {
-		// create empty release.xml
-		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
-		EngineLoader loader = action.engine.createLoader( action );
-		DBReleaseDist.exportxml( loader , releaseDist , filePath );
-		
-		distFolder.ensureExists( action );
-		distFolder.copyFileFromLocal( action , filePath );
 	}
 
 	public boolean isFinalized() {

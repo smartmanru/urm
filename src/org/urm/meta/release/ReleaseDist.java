@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.common.Common;
+
 public class ReleaseDist {
 
 	public static String PROPERTY_HASH = "hash";
@@ -13,9 +15,9 @@ public class ReleaseDist {
 	public Release release;
 	
 	public int ID;
-	public String DATA_HASH;
-	public Date DIST_DATE;
 	public String DIST_VARIANT;
+	public Date DIST_DATE;
+	public String DATA_HASH;
 	public int RV;
 
 	private Map<Integer,ReleaseDistItem> itemMap;
@@ -39,6 +41,16 @@ public class ReleaseDist {
 		}
 		
 		return( r );
+	}
+
+	public void create( String DIST_VARIANT ) {
+		create( DIST_VARIANT , Common.getDateCurrentDay() , "" );
+	}
+	
+	public void create( String DIST_VARIANT , Date DIST_DATE , String DATA_HASH ) {
+		this.DIST_VARIANT = DIST_VARIANT;
+		this.DIST_DATE = DIST_DATE;
+		this.DATA_HASH = DATA_HASH;
 	}
 	
 	public void addItem( ReleaseDistItem item ) {

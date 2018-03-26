@@ -14,6 +14,7 @@ import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.release.ProductReleases;
+import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.env.MetaMonitoring;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -208,6 +209,10 @@ public class Meta extends EngineObject {
 	
 	public DistRepository getDistRepository() {
 		return( storage.getDistRepository() );
+	}
+	
+	public ReleaseRepository getReleaseRepository() {
+		return( storage.getReleaseRepository() );
 	}
 	
 	public static String getConfigurableExtensionsFindOptions( ActionBase action ) throws Exception {

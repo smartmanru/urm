@@ -1,14 +1,22 @@
 package org.urm.meta;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.db.release.DBProductReleases;
+import org.urm.db.release.DBReleaseDist;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.storage.ProductStorage;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
 import org.urm.meta.release.ProductReleases;
+import org.urm.meta.release.ReleaseDist;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class EngineLoaderReleases {
 
+	public static String XML_ROOT_RELEASE = "release";
+	
 	public EngineLoader loader;
 	public ProductMeta set;
 	public Meta meta;
@@ -48,4 +56,14 @@ public class EngineLoaderReleases {
 		}
 	}
 	
+	public void exportxmlReleaseDist( ReleaseDist releaseDist , String filePath ) throws Exception {
+		ActionBase action = loader.getAction();
+		action.debug( "export release distributive file ..." );
+		Document doc = Common.xmlCreateDoc( XML_ROOT_RELEASE );
+		Element root = doc.getDocumentElement();
+
+		DBReleaseDist.exportxml( loader , releaseDist , doc , root );
+		ProductStorage.saveDoc( doc , filePath );
+	}
+
 }

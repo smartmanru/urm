@@ -15,6 +15,8 @@ import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineLoaderReleases;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.env.MetaEnvServerLocation;
 import org.urm.meta.product.Meta;
@@ -50,11 +52,11 @@ public class Dist {
 	
 	public Meta meta;
 	public DistRepository repo;
-	
+	public DistRepositoryItem item;
+	public ReleaseDist releaseDist;
 	private RemoteFolder distFolder;
 	
 	public String RELEASEDIR;
-	public ReleaseDist releaseDist;
 	public Release release;
 	String infoPath;
 
@@ -65,22 +67,25 @@ public class Dist {
 	boolean openedForChange;
 	boolean openedForControl;
 	
-	public Dist( Meta meta , DistRepository repo , ReleaseDist releaseDist ) {
+	public Dist( Meta meta , DistRepositoryItem item , ReleaseDist releaseDist , RemoteFolder distFolder ) {
 		this.meta = meta;
-		this.repo = repo;
 		this.releaseDist = releaseDist;
 		this.release = releaseDist.release;
+		
+		this.repo = item.repo;
+		this.RELEASEDIR = item.RELEASEDIR;
+		
+		setFolder( distFolder );		
 	}
 	
-	public void load( ActionBase action ) throws Exception {
+	public void loadState( ActionBase action ) throws Exception {
 		state.ctlLoadReleaseState( action );
 	}
 
 	public void setFolder( RemoteFolder distFolder ) {
 		this.distFolder = distFolder;
-		this.RELEASEDIR = distFolder.folderName;
-				
-		state = new DistState( this , distFolder );
+		
+		state = new DistState( distFolder );
 		files = null;
 		
 		openedForUse = false;
@@ -292,10 +297,10 @@ public class Dist {
 	}
 
 	// top-level control
-	public void create( ActionBase action , String RELEASEDIR , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
-		this.RELEASEDIR = RELEASEDIR;
+	public void createNormal( ActionBase action ) throws Exception {
 		state.ctlCreateNormal( action , null );
-		load( action );
+		saveMetaFile( action , releaseDist );
+		loadState( action );
 	}
 
 	public void changeReleaseDate( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
@@ -307,6 +312,8 @@ public class Dist {
 	public void createMaster( ActionBase action ) throws Exception {
 		this.RELEASEDIR = MASTER_DIR;
 		state.ctlCreateMaster( action , null );
+		saveMetaFile( action , releaseDist );
+		
 		MetaDistr distr = meta.getDistr();
 		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
 			if( delivery.hasBinaryItems() ) {
@@ -315,7 +322,7 @@ public class Dist {
 			}
 		}
 		
-		load( action );
+		loadState( action );
 	}
 	
 	public void openForUse( ActionBase action ) throws Exception {
@@ -730,7 +737,7 @@ public class Dist {
 	public void appendMasterFiles( ActionBase action , Dist src ) throws Exception {
 	}
 	
-	public Dist copyDist( ActionBase action , String newName , ReleaseDist newReleaseDist ) throws Exception {
+	public Dist copyDist( ActionBase action , String newName , DistRepositoryItem newItem , ReleaseDist newReleaseDist ) throws Exception {
 		RemoteFolder parent = distFolder.getParentFolder( action );
 		if( !parent.checkFolderExists( action , RELEASEDIR ) )
 			action.exitUnexpectedState();
@@ -739,7 +746,7 @@ public class Dist {
 		
 		parent.copyDir( action , RELEASEDIR , newName );
 		RemoteFolder folderNew = parent.getSubFolder( action , newName );
-		Dist distNew = DistRepositoryItem.read( action , repo , folderNew , newReleaseDist );
+		Dist distNew = DistRepositoryItem.read( action , newItem , folderNew , newReleaseDist );
 		return( distNew );
 	}
 
@@ -754,4 +761,13 @@ public class Dist {
 		setFolder( parent.getSubFolder( action , newName ) );
 	}
 	
+	public void saveMetaFile( ActionBase action , ReleaseDist releaseDist ) throws Exception {
+		// create empty release.xml
+		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
+		EngineLoader loader = action.engine.createLoader( action );
+		EngineLoaderReleases loaderReleases = new EngineLoaderReleases( loader , meta.getStorage() );
+		loaderReleases.exportxmlReleaseDist( releaseDist , filePath );
+		distFolder.copyFileFromLocal( action , filePath );
+	}
+
 }

@@ -14,6 +14,7 @@ import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.release.ProductReleases;
+import org.urm.meta.release.ReleaseRepository;
 
 public class ProductMeta extends EngineObject {
 
@@ -130,6 +131,10 @@ public class ProductMeta extends EngineObject {
 	
 	public DistRepository getDistRepository() {
 		return( releases.getDistRepository() );
+	}
+	
+	public ReleaseRepository getReleaseRepository() {
+		return( releases.getReleaseRepository() );
 	}
 	
 	public void setVersion( MetaProductVersion version ) throws Exception {

@@ -77,9 +77,9 @@ COMMENT ON TABLE main.urm_rel_disttarget IS 'Release distributive target';
 CREATE TABLE main.urm_rel_dist (
                 dist_id INTEGER NOT NULL,
                 release_id INTEGER NOT NULL,
-                data_hash VARCHAR(30) NOT NULL,
-                dist_date DATE,
                 dist_variant VARCHAR(64),
+                dist_date DATE NOT NULL,
+                data_hash VARCHAR(30),
                 rv INTEGER NOT NULL,
                 CONSTRAINT urm_rel_dist_pk PRIMARY KEY (dist_id)
 );

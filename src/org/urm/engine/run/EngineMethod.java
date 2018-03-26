@@ -37,7 +37,7 @@ public class EngineMethod extends EngineExecutorTask {
 		try {
 			action.setMethod( this );
 			if( executor.runExecutorImpl( parentState , action , command ) )
-				res = false;
+				res = true;
 		}
 		catch( Throwable e ) {
 			action.log( "execute method error" , e );

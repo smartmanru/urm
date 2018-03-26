@@ -9,6 +9,7 @@ public abstract class DBQueries {
 	public static String FILTER_REL_META1 = "release_id in ( select release_id from urm_rel_repository a , urm_rel_main b where a.repo_id = b.repo_id and a.meta_fkid = @1@ )";
 	public static String FILTER_REL_MAINMETA1 = "repo_id in ( select repo_id from urm_rel_repository where meta_fkid = @1@ )";
 	public static String FILTER_REL_REPOMETA1 = "meta_fkid = @1@";
+	public static String FILTER_REL_REPOACTIVE1 = "repo_id = @1@ and archived = 'no'";
 	
 	public static String QUERY_SEQ_GETNEXTVAL0 = "select nextval( 'urm_object_seq' )";
 
@@ -166,5 +167,7 @@ public abstract class DBQueries {
 	public static String MODIFY_ENV_CASCADESERVER_ALLDEPLOYMENTS1 = "delete from urm_env_deployment where server_id = @1@";
 
 	public static String MODIFY_REL_REPO_MATCHMETA2 = "update urm_rel_repository set meta_fkid = @1@ , meta_fkname = null where meta_fkid is null and meta_fkname = @2@";
+
+	public static String MODIFY_CORE_UNMATCHRELEASES1 = "update urm_rel_repository set meta_fkid = null , meta_fkname = meta.name from ( select b.meta_id , a.name from urm_product a , urm_product_meta b where a.product_id = b.product_fkid and meta_id = @1@ ) as meta where meta_fkid is not null and urm_rel_repository.meta_fkid = meta.meta_id";
 	
 }

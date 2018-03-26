@@ -41,7 +41,6 @@ public class Release {
 
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
-	public static String PROPERTY_ARCHIVEDSTATUS = "archived";
 	public static String PROPERTY_MASTER = "master";
 	public static String PROPERTY_VERSION = "version";
 	public static String PROPERTY_LIFECYCLETYPE = "type";
@@ -77,7 +76,6 @@ public class Release {
 		
 		schedule = new ReleaseSchedule( this );
 		changes = new ReleaseChanges( this );
-		defaultDist = new ReleaseDist( this );
 		
 		scopeBuildMapById = new HashMap<Integer,ReleaseBuildTarget>(); 
 		scopeDistMapById = new HashMap<Integer,ReleaseDistTarget>();
@@ -112,13 +110,30 @@ public class Release {
 			r.addScopeDeliveryTarget( rtarget );
 		}
 
-		r.defaultDist = defaultDist.copy( r );
+		if( defaultDist != null )
+			r.defaultDist = defaultDist.copy( r );
+		
 		for( ReleaseDist releaseDist : distMap.values() ) {
 			ReleaseDist rreleaseDist = releaseDist.copy( r );
 			r.addReleaseDist( rreleaseDist );
 		}
 		
 		return( r );
+	}
+	
+	public void setDefaultDist( ReleaseDist releaseDist ) throws Exception {
+		if( defaultDist != null )
+			Common.exitUnexpected();
+		
+		this.defaultDist = releaseDist;
+	}
+	
+	public void addDist( ReleaseDist releaseDist ) throws Exception {
+		if( releaseDist.DIST_VARIANT.isEmpty() )
+			Common.exitUnexpected();
+		if( distMap.get( releaseDist.DIST_VARIANT ) != null )
+			Common.exitUnexpected();
+		distMap.put( releaseDist.DIST_VARIANT , releaseDist );
 	}
 	
 	public ReleaseDistTarget getScopeDeliveryTarget( int id ) throws Exception {
@@ -148,6 +163,19 @@ public class Release {
 			return;
 		
 		distMap.put( releaseDist.DIST_VARIANT , releaseDist );
+	}
+	
+	public void create( String NAME , String DESC , boolean MASTER , DBEnumLifecycleType TYPE , String RELEASEVER , 
+			DBEnumBuildModeType BUILDMODE , String COMPATIBILITY , boolean CUMULATIVE , boolean ARCHIVED ) {
+		this.NAME = NAME;
+		this.DESC = DESC;
+		this.MASTER = MASTER;
+		this.TYPE = TYPE;
+		this.RELEASEVER = RELEASEVER;
+		this.BUILDMODE = BUILDMODE;
+		this.COMPATIBILITY = COMPATIBILITY;
+		this.CUMULATIVE = CUMULATIVE;
+		this.ARCHIVED = ARCHIVED;
 	}
 	
 	public void createNormal( ActionBase action , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc ) throws Exception {

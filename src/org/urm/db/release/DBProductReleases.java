@@ -32,6 +32,9 @@ public class DBProductReleases {
 	}
 	
 	public static void loaddb( EngineLoader loader , ProductReleases releases , boolean importxml ) throws Exception {
+		if( importxml )
+			matchRepositories( loader , releases );
+		
 		ReleaseRepository repo = loaddbRepository( loader , releases );
 		if( repo == null ) {
 			if( !importxml )
@@ -64,6 +67,7 @@ public class DBProductReleases {
 		try {
 			while( rs.next() ) {
 				repo = new ReleaseRepository( releases.meta , releases );
+				repo.ID = entity.loaddbId( rs );
 				repo.createRepository(
 						entity.loaddbString( rs , ReleaseRepository.PROPERTY_NAME ) ,
 						entity.loaddbString( rs , ReleaseRepository.PROPERTY_DESC )
@@ -76,6 +80,7 @@ public class DBProductReleases {
 		}
 
 		// load repository releases
+		DBReleaseRepository.loaddbReleases( loader , repo );
 		return( repo );
 	}
 	

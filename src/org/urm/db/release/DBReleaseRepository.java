@@ -1,17 +1,26 @@
 package org.urm.db.release;
 
+import java.sql.ResultSet;
 import java.util.Date;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
+import org.urm.db.EngineDB;
+import org.urm.db.core.DBEnums.DBEnumBuildModeType;
 import org.urm.db.core.DBEnums.DBEnumLifecycleType;
+import org.urm.db.engine.DBEngineEntities;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.data.EngineLifecycles;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.dist._Error;
+import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.engine.run.EngineMethod;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.MatchItem;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
@@ -24,6 +33,9 @@ public class DBReleaseRepository {
 
 	public static Release createReleaseNormal( EngineMethod method , ActionBase action , Meta meta , ReleaseRepository repo , String RELEASELABEL , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta , RELEASELABEL );
+
+		if( repo.findRelease( info.RELEASEVER ) != null )
+			action.exit1( _Error.ReleaseAlreadyExists1 , "release label=" + info.RELEASEVER + " already exists" , info.RELEASEVER );
 		
 		lc = getLifecycle( action , meta , lc , info.getLifecycleType() );
 		releaseDate = getReleaseDate( action , meta , info.RELEASEVER , releaseDate , lc );
@@ -38,12 +50,11 @@ public class DBReleaseRepository {
 		
 		// create distributive
 		DistRepository distrepo = meta.getDistRepository();
-		DistRepositoryItem item = distrepo.findItem( info.RELEASEVER );
-		if( item != null )
-			action.exit1( _Error.ReleaseAlreadyExists1 , "release label=" + RELEASELABEL + " already exists" , RELEASELABEL );
+		DistRepositoryItem item = distrepo.createRepositoryItem( action , RELEASELABEL );
+		Dist dist = distrepo.createDistNormal( action , item , releaseDist );
 		
-		item = distrepo.createRepositoryItem( action , RELEASELABEL );
-		Dist dist = item.createDistNormal( action , releaseDist );
+		repo.addRelease( release );
+		distrepo.addItem( item );
 		
 		return( dist.release );
 	}
@@ -119,4 +130,41 @@ public class DBReleaseRepository {
 		return( null );
 	}
 
+	public static void loaddbReleases( EngineLoader loader , ReleaseRepository repo ) throws Exception {
+		loaddbReleasesMain( loader , repo );
+	}
+	
+	public static void loaddbReleasesMain( EngineLoader loader , ReleaseRepository repo ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseMain;
+		
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_REL_REPOACTIVE1 , 
+				new String[] { EngineDB.getInteger( repo.ID ) 
+				} );
+		try {
+			while( rs.next() ) {
+				Release release = new Release( repo );
+				release.ID = entity.loaddbId( rs );
+				release.RV = entity.loaddbVersion( rs );
+				release.create(
+						entity.loaddbString( rs , Release.PROPERTY_NAME ) ,
+						entity.loaddbString( rs , Release.PROPERTY_DESC ) ,
+						entity.loaddbBoolean( rs , Release.PROPERTY_MASTER ) ,
+						DBEnumLifecycleType.getValue( entity.loaddbEnum( rs , Release.PROPERTY_LIFECYCLETYPE ) , true ) ,
+						entity.loaddbString( rs , Release.PROPERTY_VERSION ) ,
+						DBEnumBuildModeType.getValue( entity.loaddbEnum( rs , Release.PROPERTY_BUILDMODE ) , false ) ,
+						entity.loaddbString( rs , Release.PROPERTY_COMPATIBILITY ) ,
+						entity.loaddbBoolean( rs , Release.PROPERTY_CUMULATIVE ) ,
+						entity.loaddbBoolean( rs , Release.PROPERTY_ARCHIVED )
+						);
+				repo.addRelease( release );
+				break;
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+	
 }

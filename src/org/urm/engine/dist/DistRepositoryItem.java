@@ -1,6 +1,5 @@
 package org.urm.engine.dist;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,8 +8,6 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.dist.DistRepository.DistOperation;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.engine.ReleaseLifecycle;
-import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
 import org.w3c.dom.Document;
@@ -56,20 +53,20 @@ public class DistRepositoryItem {
 		}
 	}
 
-	public void readDist( ActionBase action , RemoteFolder distFolder , ReleaseDist releaseDist ) throws Exception {
-		dist = read( action , repo , distFolder , releaseDist );
+	public void readDist( ActionBase action , DistRepositoryItem item , RemoteFolder distFolder , ReleaseDist releaseDist ) throws Exception {
+		dist = read( action , this , distFolder , releaseDist );
 		RELEASEDIR = dist.RELEASEDIR;
 	}
 	
-	public static Dist read( ActionBase action , DistRepository repo , RemoteFolder distFolder , ReleaseDist releaseDist ) throws Exception {
+	public static Dist read( ActionBase action , DistRepositoryItem item , RemoteFolder distFolder , ReleaseDist releaseDist ) throws Exception {
 		if( !distFolder.checkExists( action ) ) {
 			String path = distFolder.getLocalPath( action );
 			action.exit1( _Error.MissingRelease1 , "release does not exist at " + path , path );
 		}
 		
-		Dist dist = new Dist( repo.meta , repo , releaseDist );
+		Dist dist = new Dist( item.repo.meta , item , releaseDist , distFolder );
 		dist.setFolder( distFolder );
-		dist.load( action );
+		dist.loadState( action );
 		return( dist );
 	}
 
@@ -79,6 +76,16 @@ public class DistRepositoryItem {
 		this.DISTPATH = distPath;
 	}
 	
+	public void createItemFolder( ActionBase action ) throws Exception {
+		RemoteFolder distFolder = repo.getDistFolder( action , this );
+		if( distFolder.checkExists( action ) ) {
+			String path = distFolder.getLocalPath( action );
+			action.ifexit( _Error.ReleaseAlreadyExists1 , "distributive already exists at " + path , new String[] { path } );
+		}
+		
+		distFolder.ensureExists( action );
+	}
+	
 	public void setDist( Dist dist ) throws Exception {
 		if( !RELEASEDIR.equals( dist.RELEASEDIR ) )
 			Common.exitUnexpected();
@@ -86,21 +93,9 @@ public class DistRepositoryItem {
 		this.dist = dist;
 	}
 	
-	public static Dist createDistNormal( ActionBase action , Meta meta , DistRepository repo , RemoteFolder distFolder , Date releaseDate , ReleaseLifecycle lc , ReleaseDist releaseDist ) throws Exception {
+	public Dist createDistMaster( ActionBase action , RemoteFolder distFolder , ReleaseDist releaseDist ) throws Exception {
 		if( distFolder.checkExists( action ) ) {
-			String path = distFolder.folderPath;
-			action.ifexit( _Error.ReleaseAlreadyExists1 , "distributive already exists at " + path , new String[] { path } );
-		}
-
-		Dist dist = new Dist( repo.meta , repo , releaseDist );
-		dist.setFolder( distFolder );
-		dist.create( action , distFolder.folderName , releaseDate , lc );
-		return( dist );
-	}
-	
-	public static Dist createDistMaster( ActionBase action , DistRepository repo , RemoteFolder distFolder , ReleaseDist releaseDist ) throws Exception {
-		if( distFolder.checkExists( action ) ) {
-			String path = distFolder.folderPath;
+			String path = distFolder.getLocalPath( action );
 			action.ifexit( _Error.ReleaseAlreadyExists1 , "distributive already exists at " + path , new String[] { path } );
 			
 			if( action.isForced() )
@@ -110,7 +105,7 @@ public class DistRepositoryItem {
 			distFolder.ensureExists( action );
 		
 		Release release = releaseDist.release;
-		Dist dist = new Dist( repo.meta , repo , releaseDist );
+		Dist dist = new Dist( repo.meta , this , releaseDist , distFolder );
 		dist.setFolder( distFolder );
 		dist.createMaster( action );
 		distFolder.createFileFromString( action , DistRepository.RELEASEHISTORYFILE , getHistoryRecord( action , release.RELEASEVER , "add" ) );
@@ -139,8 +134,4 @@ public class DistRepositoryItem {
 		return( history.toArray( new DistRepositoryItemAction[0] ) );
 	}
 
-	public synchronized Dist createDistNormal( ActionBase action , ReleaseDist releaseDist ) throws Exception {
-		return( null );
-	}
-	
 }

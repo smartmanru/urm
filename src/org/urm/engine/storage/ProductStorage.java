@@ -243,7 +243,7 @@ public class ProductStorage {
 		Common.xmlSaveDoc( doc , file );
 	}
 	
-	public void saveDoc( Document doc , String path ) throws Exception {
+	public static void saveDoc( Document doc , String path ) throws Exception {
 		Element root = doc.getDocumentElement();
 		Common.xmlSetElementAttr( doc , root , XML_APPVERSION , "" + EngineDB.APP_VERSION );
 		Common.xmlSaveDoc( doc , path );

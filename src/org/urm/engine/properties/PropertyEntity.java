@@ -1,6 +1,9 @@
 package org.urm.engine.properties;
 
 import java.sql.ResultSet;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -353,6 +356,12 @@ public class PropertyEntity {
 	
 	public String exportxmlString( String value ) {
 		return( value );
+	}
+	
+	public String exportxmlDate( Date value ) {
+		DateFormat format = new SimpleDateFormat( "dd.MM.yyyy" );
+		String dateString = format.format( value );
+		return( dateString );
 	}
 	
 	public String exportxmlEnum( Enum<?> value ) {

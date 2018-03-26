@@ -157,7 +157,7 @@ public class DBReleaseData {
 				EntityVar.metaEnumVar( Release.PROPERTY_BUILDMODE , FIELD_MAIN_BUILDMODE , Release.PROPERTY_BUILDMODE , "Build mode type" , true , DBEnumBuildModeType.UNKNOWN ) ,
 				EntityVar.metaStringVar( Release.PROPERTY_COMPATIBILITY , FIELD_MAIN_COMPATIBILITY , Release.PROPERTY_COMPATIBILITY , "release compatibility" , false , null ) ,
 				EntityVar.metaBoolean( Release.PROPERTY_CUMULATIVE , "cumulative" , true , false ) ,
-				EntityVar.metaBoolean( Release.PROPERTY_ARCHIVEDSTATUS , "archived" , true , false )
+				EntityVar.metaBoolean( Release.PROPERTY_ARCHIVED , "archived" , true , false )
 		} ) );
 	}
 
@@ -172,9 +172,9 @@ public class DBReleaseData {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DIST , DBEnumParamEntityType.RELEASE_DIST , DBEnumObjectVersionType.RELEASE , TABLE_DIST , FIELD_DIST_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
-				EntityVar.metaStringVar( ReleaseDist.PROPERTY_HASH , FIELD_DIST_HASH , ReleaseDist.PROPERTY_HASH , "data hash" , false , null ) ,
-				EntityVar.metaDateVar( ReleaseDist.PROPERTY_DATE , FIELD_DIST_DATE , ReleaseDist.PROPERTY_DATE , "data date" , true ) ,
 				EntityVar.metaStringVar( ReleaseDist.PROPERTY_VARIANT , FIELD_DIST_VARIANT , ReleaseDist.PROPERTY_VARIANT , "distributive variant" , false , null ) ,
+				EntityVar.metaDateVar( ReleaseDist.PROPERTY_DATE , FIELD_DIST_DATE , ReleaseDist.PROPERTY_DATE , "data date" , true ) ,
+				EntityVar.metaStringVar( ReleaseDist.PROPERTY_HASH , FIELD_DIST_HASH , ReleaseDist.PROPERTY_HASH , "data hash" , false , null )
 		} ) );
 	}
 
