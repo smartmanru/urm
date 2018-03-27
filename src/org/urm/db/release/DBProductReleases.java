@@ -80,7 +80,8 @@ public class DBProductReleases {
 		}
 
 		// load repository releases
-		DBReleaseRepository.loaddbReleases( loader , repo );
+		if( repo != null )
+			DBReleaseRepository.loaddbReleases( loader , repo );
 		return( repo );
 	}
 	
