@@ -32,7 +32,8 @@ import org.urm.meta.release.ReleaseRepository;
 
 public class DBReleaseRepository {
 
-	public static Release createReleaseNormal( EngineMethod method , ActionBase action , Meta meta , ReleaseRepository repo , String RELEASELABEL , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
+	public static Release createReleaseNormal( EngineMethod method , ActionBase action , ReleaseRepository repo , String RELEASELABEL , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
+		Meta meta = repo.meta;
 		DistRepository distrepo = meta.getDistRepository();
 		ReleaseLabelInfo info = distrepo.getLabelInfo( action , RELEASELABEL );
 

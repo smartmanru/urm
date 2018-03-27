@@ -190,7 +190,7 @@ public class Release {
 		this.ARCHIVED = false;
 		this.RV = 0;
 
-		schedule.create();
+		schedule.createNormal( releaseDate );
 		schedule.createReleaseSchedule( action , releaseDate , lc );
 		setProperties( action );
 	}
@@ -198,7 +198,6 @@ public class Release {
 	public void createMaster( ActionBase action , String RELEASEVER , ReleaseDist releaseDist , boolean copy ) throws Exception {
 		this.RELEASEVER = RELEASEVER;
 
-		schedule.create();
 		schedule.createMaster(); 
 		
 		this.MASTER = true;

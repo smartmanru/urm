@@ -264,7 +264,6 @@ public class DBReleaseData {
 		DBConnection c = loader.getConnection();
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_SCHEDULE , DBEnumParamEntityType.RELEASE_SCHEDULE , DBEnumObjectVersionType.RELEASE , TABLE_SCHEDULE , FIELD_SCHEDULE_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaDateVar( ReleaseSchedule.PROPERTY_STARTED , FIELD_SCHEDULE_STARTED , ReleaseSchedule.PROPERTY_STARTED , "start date" , true ) ,
 				EntityVar.metaDateVar( ReleaseSchedule.PROPERTY_RELEASEDATE , FIELD_SCHEDULE_RELEASEDATE , ReleaseSchedule.PROPERTY_RELEASEDATE , "release date scheduled" , true ) ,
 				EntityVar.metaDateVar( ReleaseSchedule.PROPERTY_RELEASEDATEACTUAL , FIELD_SCHEDULE_RELEASEDATEACTUAL , ReleaseSchedule.PROPERTY_RELEASEDATEACTUAL , "release date actual" , false ) ,

@@ -99,9 +99,11 @@ public class ReleaseSchedule {
 		deployPhaseCount = 0;
 	}
 
-	public void create() {
+	public void createNormal( Date date ) {
 		DATE_STARTED = new Date();
 		CURRENT_PHASE = -1;
+		phases.clear();
+		RELEASE_DATE = date;
 	}
 	
 	public void createReleaseSchedule( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {

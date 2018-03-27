@@ -19,7 +19,7 @@ CREATE TABLE main.urm_rel_phase (
                 release_id INTEGER NOT NULL,
                 lifecyclestage_type INTEGER NOT NULL,
                 stage_pos INTEGER NOT NULL,
-                name VARCHAR(30) NOT NULL,
+                name VARCHAR(64) NOT NULL,
                 xdesc VARCHAR,
                 days INTEGER NOT NULL,
                 normal_days INTEGER NOT NULL,

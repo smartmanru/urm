@@ -20,8 +20,9 @@ public class DBRelease {
 		
 		Release release = new Release( repo );
 		release.createNormal( action , RELEASEVER , releaseDate , lc );
-		
+
 		modifyRelease( c , repo , release , true );
+		DBReleaseSchedule.createReleaseSchedule( method , action , release );
 		
 		return( release );
 	}

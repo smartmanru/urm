@@ -44,7 +44,7 @@ public class ActionCopyRelease extends ActionBase {
 		
 		ProductReleases releases = meta.getReleases();
 		ReleaseRepository repo = releases.getReleaseRepository();
-		release = DBReleaseRepository.createReleaseNormal( super.method , this , meta , repo , RELEASEDIR , releaseDate , lc );
+		release = DBReleaseRepository.createReleaseNormal( super.method , this , repo , RELEASEDIR , releaseDate , lc );
 		dist = distrepo.getDistByLabel( this , RELEASEDIR );
 		
 		dist.copyScope( this , src );
