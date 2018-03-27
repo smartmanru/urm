@@ -1,7 +1,5 @@
 package org.urm.engine.storage;
 
-import java.util.List;
-
 import org.urm.action.ActionBase;
 import org.urm.action.deploy.ServerDeployment;
 import org.urm.common.Common;
@@ -278,8 +276,7 @@ public class RedistStorage extends ServerStorage {
 		if( !folder.checkExists( action ) )
 			return( null );
 		
-		List<String> releases = folder.getTopDirs( action );
-		return( releases.toArray( new String[0] ) );
+		return( folder.getTopDirs( action ) );
 	}
 
 	public String[] getReleaseLocations( ActionBase action ) throws Exception {

@@ -35,8 +35,6 @@ import org.urm.meta.release.ReleaseDist;
 
 public class Dist {
 
-	public static String MASTER_DIR = "master";
-	
 	public static String META_FILENAME = "release.xml";
 	public static String CONFDIFF_FILENAME = "diffconf.txt";
 	public static String STATE_FILENAME = "state.txt";
@@ -54,24 +52,24 @@ public class Dist {
 	public DistRepository repo;
 	public DistRepositoryItem item;
 	public ReleaseDist releaseDist;
-	private RemoteFolder distFolder;
 	
 	public String RELEASEDIR;
 	public Release release;
-	String infoPath;
 
+	private RemoteFolder distFolder;
 	private FileSet files;
 
-	DistState state;
-	boolean openedForUse;
-	boolean openedForChange;
-	boolean openedForControl;
+	private DistState state;
+	private boolean openedForUse;
+	private boolean openedForChange;
+	private boolean openedForControl;
 	
 	public Dist( Meta meta , DistRepositoryItem item , ReleaseDist releaseDist , RemoteFolder distFolder ) {
 		this.meta = meta;
 		this.releaseDist = releaseDist;
 		this.release = releaseDist.release;
 		
+		this.item = item;
 		this.repo = item.repo;
 		this.RELEASEDIR = item.RELEASEDIR;
 		
@@ -93,6 +91,14 @@ public class Dist {
 		openedForControl = false;
 	}
 
+	public String getMetaHash() {
+		return( state.metaHash );
+	}
+	
+	public String getDataHash() {
+		return( state.dataHash );
+	}
+	
 	public boolean isMaster() {
 		return( release.MASTER );
 	}
@@ -298,8 +304,8 @@ public class Dist {
 
 	// top-level control
 	public void createNormal( ActionBase action ) throws Exception {
-		state.ctlCreateNormal( action , null );
 		saveMetaFile( action , releaseDist );
+		state.ctlCreateNormal( action , null );
 		loadState( action );
 	}
 
@@ -310,9 +316,8 @@ public class Dist {
 	}
 	
 	public void createMaster( ActionBase action ) throws Exception {
-		this.RELEASEDIR = MASTER_DIR;
-		state.ctlCreateMaster( action , null );
 		saveMetaFile( action , releaseDist );
+		state.ctlCreateMaster( action , null );
 		
 		MetaDistr distr = meta.getDistr();
 		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
@@ -746,7 +751,7 @@ public class Dist {
 		
 		parent.copyDir( action , RELEASEDIR , newName );
 		RemoteFolder folderNew = parent.getSubFolder( action , newName );
-		Dist distNew = DistRepositoryItem.read( action , newItem , folderNew , newReleaseDist );
+		Dist distNew = newItem.read( action , folderNew , newReleaseDist );
 		return( distNew );
 	}
 

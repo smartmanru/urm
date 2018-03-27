@@ -248,12 +248,12 @@ public abstract class Folder {
 		return( session.ls( action , Common.getPath( folderPath , folder ) ) );
 	}
 	
-	public List<String> getTopDirs( ActionBase action ) throws Exception {
+	public String[] getTopDirs( ActionBase action ) throws Exception {
 		ShellExecutor session = getSession( action ); 
 		List<String> dirs = new LinkedList<String>();  
 		List<String> files = new LinkedList<String>();  
 		session.getTopDirsAndFiles( action , folderPath , dirs , files );
-		return( dirs );
+		return( dirs.toArray( new String[0] ) );
 	}
 	
 	public List<String> getTopFiles( ActionBase action ) throws Exception {

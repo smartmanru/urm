@@ -79,7 +79,8 @@ CREATE TABLE main.urm_rel_dist (
                 release_id INTEGER NOT NULL,
                 dist_variant VARCHAR(64),
                 dist_date DATE NOT NULL,
-                data_hash VARCHAR(30),
+                data_hash VARCHAR(64) NOT NULL,
+                meta_hash VARCHAR(64) NOT NULL,
                 rv INTEGER NOT NULL,
                 CONSTRAINT urm_rel_dist_pk PRIMARY KEY (dist_id)
 );

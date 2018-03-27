@@ -313,6 +313,14 @@ public class PropertyEntity {
 		return( value );
 	}
 	
+	public Date loaddbDate( ResultSet rs , String prop ) throws Exception {
+		int column = getDatabaseColumn( prop );
+		java.sql.Date sqldate = rs.getDate( column );
+		if( sqldate == null )
+			return( sqldate );
+		return( new Date( sqldate.getTime() ) );
+	}
+	
 	public int loaddbInt( ResultSet rs , String prop ) throws Exception {
 		int column = getDatabaseColumn( prop );
 		return( rs.getInt( column ) );

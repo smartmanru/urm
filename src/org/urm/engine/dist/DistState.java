@@ -33,8 +33,8 @@ public class DistState {
 	public DISTSTATE state;
 	DISTSTATE stateMem;
 	String stateChangeID;
-	String dataHash;
-	String metaHash;
+	public String dataHash;
+	public String metaHash;
 	String activeChangeID;
 	
 	public DistState( RemoteFolder distFolder ) {
@@ -104,28 +104,11 @@ public class DistState {
 		
 		String timeStamp = Common.getNameTimeStamp();
 		String value = newState + ":" + timeStamp;
-		String dataHashNew = "";
-		String metaHashNew = "";
-		if( isFinalized() ) {
-			dataHashNew = dataHash;
-			if( isCompleted() )
-				metaHashNew = metaHash;
-			else
-				metaHashNew = getMetaHashValue( action );
-		}
-		else {
-			if( isFinalized( newState ) ) {
-				dataHashNew = getDataHashValue( action );
-				metaHashNew = getMetaHashValue( action );
-			}
-		}
 		
-		value += ":" + dataHashNew + ":" + metaHashNew;
+		value += ":" + dataHash + ":" + metaHash;
 		createStateFile( action , value );
 		activeChangeID = timeStamp;
 		stateMem = newState;
-		dataHash = dataHashNew;
-		metaHash = metaHashNew;
 		
 		state = stateMem;
 		stateChangeID = activeChangeID;
@@ -168,15 +151,13 @@ public class DistState {
 			}
 			
 			state = DISTSTATE.valueOf( parts[ 0 ] );
-			if( isFinalized() ) {
-				if( parts.length != 4 ) {
-					state = DISTSTATE.BROKEN;
-					return;
-				}
-				
-				dataHash = parts[ 2 ];
-				metaHash = parts[ 3 ];
+			if( parts.length != 4 ) {
+				state = DISTSTATE.BROKEN;
+				return;
 			}
+			
+			dataHash = parts[ 2 ];
+			metaHash = parts[ 3 ];
 			
 			stateChangeID = parts[ 1 ];
 		}
@@ -186,17 +167,25 @@ public class DistState {
 	}
 
 	public void ctlCreateNormal( ActionBase action , ReleaseDist releaseDist ) throws Exception {
-		// create release.xml, create status file, set closed dirty state
 		// check current status
 		ctlLoadReleaseState( action );
 		if( state != DISTSTATE.MISSINGSTATE ) {
+			if( state == DISTSTATE.MISSINGDIST )
+				Common.exitUnexpected();
+			
 			if( !action.isForced() )
 				action.exit0( _Error.CannotCreateExistingDistributive0 , "cannot create existing distributive" );
 		}
 			
 		// set status
+		updateHashValues( action );
 		ctlSetStatus( action , DISTSTATE.DIRTY );
 		action.info( "release has been created at " + distFolder.getLocalPath( action ) );
+	}
+
+	public void updateHashValues( ActionBase action ) throws Exception {
+		metaHash = getMetaHashValue( action );
+		dataHash = getDataHashValue( action );
 	}
 	
 	public void ctlCreateMaster( ActionBase action , ReleaseDist releaseDist ) throws Exception {
@@ -210,6 +199,7 @@ public class DistState {
 			action.exit0( _Error.StateFileExists0 , "state file should not exist" );
 		
 		// set status
+		updateHashValues( action );
 		ctlSetStatus( action , DISTSTATE.DIRTY );
 		action.info( "prod has been created at " + distFolder.getLocalPath( action ) );
 	}
@@ -249,6 +239,7 @@ public class DistState {
 
 	public void ctlCloseDataChange( ActionBase action ) throws Exception {
 		ctlReloadCheckOpenedForDataChange( action );
+		updateHashValues( action );
 		ctlSetStatus( action , DISTSTATE.DIRTY );
 		action.debug( "distributive has been closed after change, ID=" + stateChangeID );
 	}
@@ -275,6 +266,7 @@ public class DistState {
 	public void ctlFinish( ActionBase action ) throws Exception {
 		ctlReloadCheckOpenedForDataChange( action );
 
+		updateHashValues( action );
 		ctlSetStatus( action , DISTSTATE.RELEASED );
 		action.info( "distributive has been finalized, state=" + Common.getEnumLower( DISTSTATE.RELEASED ) );
 	}

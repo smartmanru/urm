@@ -343,19 +343,8 @@ public class BlotterService {
 	
 	private void runDistAction( ActionBase action , boolean success , Meta meta , Dist dist , DistOperation op , String msg ) {
 		try {
-			DistRepositoryItem distItem = null;
-			DistRepository repo = meta.getDistRepository();
-			if( op != DistOperation.STATUS )
-				distItem = repo.addDistAction( action , success , dist , op , msg );
-			else {
-				if( dist != null )
-					distItem = repo.findRunItem( dist );
-			}
-			
-			if( distItem == null )
-				return;
-			
-			blotterReleases.affectReleaseItem( action , success , op , distItem );
+			if( op != DistOperation.STATUS && dist != null )
+				blotterReleases.affectReleaseItem( action , success , op , dist.item );
 		}
 		catch( Throwable e ) {
 			action.log( "add release action to blotter" , e );

@@ -16,6 +16,7 @@ import org.urm.engine.data.EngineLifecycles;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.dist._Error;
+import org.urm.engine.dist.DistRepository.DistOperation;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepositoryItem;
@@ -32,7 +33,8 @@ import org.urm.meta.release.ReleaseRepository;
 public class DBReleaseRepository {
 
 	public static Release createReleaseNormal( EngineMethod method , ActionBase action , Meta meta , ReleaseRepository repo , String RELEASELABEL , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
-		ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta , RELEASELABEL );
+		DistRepository distrepo = meta.getDistRepository();
+		ReleaseLabelInfo info = distrepo.getLabelInfo( action , RELEASELABEL );
 
 		if( repo.findRelease( info.RELEASEVER ) != null )
 			action.exit1( _Error.ReleaseAlreadyExists1 , "release label=" + info.RELEASEVER + " already exists" , info.RELEASEVER );
@@ -49,9 +51,9 @@ public class DBReleaseRepository {
 		ReleaseDist releaseDist = DBReleaseDist.createReleaseDist( method , action , release , info.VARIANT );
 		
 		// create distributive
-		DistRepository distrepo = meta.getDistRepository();
 		DistRepositoryItem item = distrepo.createRepositoryItem( action , RELEASELABEL );
 		Dist dist = distrepo.createDistNormal( action , item , releaseDist );
+		DBReleaseDist.updateHash( method , action , release , releaseDist , dist );
 		
 		repo.addRelease( release );
 		distrepo.addItem( item );
@@ -132,6 +134,7 @@ public class DBReleaseRepository {
 
 	public static void loaddbReleases( EngineLoader loader , ReleaseRepository repo ) throws Exception {
 		loaddbReleasesMain( loader , repo );
+		loaddbReleasesDist( loader , repo );
 	}
 	
 	public static void loaddbReleasesMain( EngineLoader loader , ReleaseRepository repo ) throws Exception {
@@ -165,6 +168,43 @@ public class DBReleaseRepository {
 		finally {
 			c.closeQuery();
 		}
+	}
+
+	public static void loaddbReleasesDist( EngineLoader loader , ReleaseRepository repo ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseDist;
+		
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_REL_REPORELEASEACTIVE1 , 
+				new String[] { EngineDB.getInteger( repo.ID ) 
+				} );
+		try {
+			while( rs.next() ) {
+				int releaseId = entity.loaddbObject( rs , DBReleaseData.FIELD_RELEASE_ID );
+				Release release = repo.getRelease( releaseId );
+				ReleaseDist releaseDist = new ReleaseDist( release );
+				releaseDist.ID = entity.loaddbId( rs );
+				releaseDist.RV = entity.loaddbVersion( rs );
+				releaseDist.create(
+						entity.loaddbString( rs , ReleaseDist.PROPERTY_VARIANT ) ,
+						entity.loaddbDate( rs , ReleaseDist.PROPERTY_DATE ) ,
+						entity.loaddbString( rs , ReleaseDist.PROPERTY_METAHASH ) ,
+						entity.loaddbString( rs , ReleaseDist.PROPERTY_DATAHASH )
+						);
+				
+				if( releaseDist.isDefault() )
+					release.setDefaultDist( releaseDist );
+				else
+					release.addDist( releaseDist );
+				break;
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+
+	public static void addDistAction( EngineMethod method , Release release , ReleaseDist releaseDist , boolean success , DistOperation op , String msg ) throws Exception {
 	}
 	
 }

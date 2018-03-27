@@ -22,11 +22,13 @@ public class ReleaseRepository {
 	
 	private Map<String,Release> mapReleasesNormal;
 	private Map<String,Release> mapReleasesMaster;
+	private Map<Integer,Release> mapReleasesById;
 	
 	public ReleaseRepository( Meta meta , ProductReleases releases ) {
 		this.meta = meta;
 		this.releases = releases;
 		mapReleasesNormal = new HashMap<String,Release>();
+		mapReleasesById = new HashMap<Integer,Release>();
 		mapReleasesMaster = new HashMap<String,Release>();
 	}
 
@@ -71,6 +73,11 @@ public class ReleaseRepository {
 			mapReleasesMaster.put( release.NAME , release );
 		else
 			mapReleasesNormal.put( release.RELEASEVER , release );
+		mapReleasesById.put( release.ID , release );
+	}
+
+	public Release getRelease( int id ) throws Exception {
+		return( mapReleasesById.get( id ) );
 	}
 	
 }

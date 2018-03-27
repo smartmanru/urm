@@ -386,5 +386,11 @@ public class Release {
 	public ReleaseChanges getChanges() {
 		return( changes );
 	}
+
+	public ReleaseDist findDistVariant( String variant ) {
+		if( variant ==  null || variant.isEmpty() )
+			return( defaultDist );
+		return( distMap.get( variant ) );
+	}
 	
 }

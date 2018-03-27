@@ -16,11 +16,20 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
+import org.urm.meta.release.ReleaseRepository;
 
 public class DistRepository {
 
 	static String RELEASEREPOSITORYFILE = "releases.xml";
 	static String RELEASEHISTORYFILE = "history.txt";
+
+	static String REPO_FOLDER_DATA = "data";
+	static String REPO_FOLDER_DATA_DUMP = "dump";
+	static String REPO_FOLDER_DATA_DUMPNEW = "dump-new";
+	static String REPO_FOLDER_DATA_DUMPBACKUP = "dump-backup";
+	static String REPO_FOLDER_RELEASES_MASTER = "master";
+	static String REPO_FOLDER_RELEASES_NORMAL = "releases";
+	static String REPO_FOLDER_RELEASES_ARCHIVE = "archive";
 	
 	public enum DistOperation {
 		CREATE ,
@@ -72,6 +81,23 @@ public class DistRepository {
 			String path = repoFolder.getLocalPath( action );
 			action.exit1( _Error.MissingReleaseRepository1 , "missing release repository at " + path , path );
 		}
+		
+		// read repository
+		ReleaseRepository releaseRepo = meta.getReleaseRepository();
+		RemoteFolder normalFolder = repoFolder.getSubFolder( action , REPO_FOLDER_RELEASES_NORMAL );
+		String[] folders = normalFolder.getTopDirs( action );
+		for( String folder : folders ) {
+			VersionInfo info = VersionInfo.getReleaseDirInfo( folder );
+			Release release = releaseRepo.findRelease( info.getFullVersion() );
+			if( release == null )
+				continue;
+			
+			ReleaseDist releaseDist = release.findDistVariant( info.variant );
+			DistRepositoryItem item = new DistRepositoryItem( this );
+			item.createItem( action , folder , getNormalReleaseFolder( folder ) );
+			item.read( action , normalFolder.getSubFolder( action , folder ) , releaseDist );
+			addItem( item );
+		}
 	}
 	
 	private void create( ActionBase action , boolean forceClear ) throws Exception {
@@ -98,22 +124,22 @@ public class DistRepository {
 	}
 
 	public RemoteFolder getDataSetFolder( ActionBase action , String dataSet ) throws Exception {
-		return( repoFolder.getSubFolder( action , "data/" + dataSet ) );
+		return( repoFolder.getSubFolder( action , REPO_FOLDER_DATA + "/" + dataSet ) );
 	}
 	
 	public RemoteFolder getDataFolder( ActionBase action , String dataSet ) throws Exception {
 		RemoteFolder folder = getDataSetFolder( action , dataSet );
-		return( folder.getSubFolder( action , "dump" ) );
+		return( folder.getSubFolder( action , REPO_FOLDER_DATA_DUMP ) );
 	}
 	
 	public RemoteFolder getDataNewFolder( ActionBase action , String dataSet ) throws Exception {
 		RemoteFolder folder = getDataSetFolder( action , dataSet );
-		return( folder.getSubFolder( action , "dump-new" ) );
+		return( folder.getSubFolder( action , REPO_FOLDER_DATA_DUMPNEW ) );
 	}
 	
 	public RemoteFolder getDataBackupFolder( ActionBase action , String dataSet ) throws Exception {
 		RemoteFolder folder = getDataSetFolder( action , dataSet );
-		return( folder.getSubFolder( action , "dump-backup" ) );
+		return( folder.getSubFolder( action , REPO_FOLDER_DATA_DUMPBACKUP ) );
 	}
 	
 	public RemoteFolder getExportLogFolder( ActionBase action , String dataSet ) throws Exception {
@@ -228,7 +254,18 @@ public class DistRepository {
 	}
 	
 	public ReleaseLabelInfo getLabelInfo( ActionBase action , String RELEASELABEL ) throws Exception {
-		return( ReleaseLabelInfo.getLabelInfo( action , meta , RELEASELABEL ) );
+		ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta , RELEASELABEL );
+		if( info.local )
+			info.setRepositoryPath( "." );
+		else
+		if( info.master )
+			info.setRepositoryPath( REPO_FOLDER_RELEASES_MASTER );
+		else
+		if( info.archived )
+			info.setRepositoryPath( REPO_FOLDER_RELEASES_ARCHIVE + "/" + info.RELEASEDIR );
+		else
+			info.setRepositoryPath( REPO_FOLDER_RELEASES_NORMAL + "/" + info.RELEASEDIR );
+		return( info );
 	}
 	
 	public String getReleaseVerByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
@@ -297,37 +334,6 @@ public class DistRepository {
 		runMap.remove( item.RELEASEDIR );
 	}
 
-	public synchronized DistRepositoryItem addDistAction( ActionBase action , boolean success , Dist dist , DistOperation op , String msg ) throws Exception {
-		DistRepositoryItem item = null;
-		if( op == DistOperation.CREATE ) {
-			if( success == false )
-				return( null );
-			
-			item = findRunItem( dist.RELEASEDIR );
-		}
-		else {
-			item = findRunItem( dist.RELEASEDIR );
-			if( item == null )
-				return( null );
-		}
-		
-		item.addAction( action , success , op , msg );
-		
-		if( op == DistOperation.DROP ) {
-			if( success )
-				removeItem( item );
-		}
-		else
-		if( op == DistOperation.ARCHIVE ) {
-			if( success ) {
-				removeItem( item );
-				item.archiveItem( action );
-			}
-		}
-		
-		return( item );
-	}
-
 	public synchronized DistRepositoryItem[] getRunItems() {
 		int count = runMap.size();
 		DistRepositoryItem[] items = new DistRepositoryItem[ count ];
@@ -342,9 +348,9 @@ public class DistRepository {
 		if( item == null )
 			Common.exitUnexpected();
 		
-		String folderOld = ReleaseLabelInfo.getReleaseFolder( dist.RELEASEDIR );
-		String folderNew = ReleaseLabelInfo.getArchivedReleaseFolder( dist.RELEASEDIR );
-		String folderArchive = ReleaseLabelInfo.getArchiveFolder();
+		String folderOld = getNormalReleaseFolder( dist.RELEASEDIR );
+		String folderNew = getArchivedReleaseFolder( dist.RELEASEDIR );
+		String folderArchive = getArchiveFolder();
 		repoFolder.ensureFolderExists( action , folderArchive );
 		repoFolder.moveFolderToFolder( action , folderOld , folderNew );
 		removeItem( item );
@@ -358,14 +364,14 @@ public class DistRepository {
 			return( null );
 			
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
-		item.readDist( action , item , distFolder , item.dist.releaseDist );
+		item.read( action , distFolder , item.dist.releaseDist );
 		return( item.dist );
 	}
 
 	public synchronized String[] getActiveVersions() {
 		List<String> list = new LinkedList<String>();
 		for( String releasedir : runMap.keySet() ) {
-			if( releasedir.equals( Dist.MASTER_DIR ) )
+			if( releasedir.equals( REPO_FOLDER_RELEASES_MASTER ) )
 				continue;
 			list.add( releasedir );
 		}
@@ -411,7 +417,7 @@ public class DistRepository {
 	}
 
 	public Dist findMasterDist() {
-		DistRepositoryItem item = findItem( Dist.MASTER_DIR );
+		DistRepositoryItem item = findItem( REPO_FOLDER_RELEASES_MASTER );
 		if( item == null )
 			return( null );
 		return( item.dist );
@@ -428,6 +434,18 @@ public class DistRepository {
 	public Dist findDefaultDist( Release release ) {
 		ReleaseDist dist = release.getDefaultReleaseDist();
 		return( findDist( dist.getReleaseDir() ) );
+	}
+	
+	public static String getNormalReleaseFolder( String RELEASEDIR ) throws Exception {
+		return( REPO_FOLDER_RELEASES_NORMAL + "/" + RELEASEDIR );
+	}
+	
+	public static String getArchivedReleaseFolder( String RELEASEDIR ) {
+		return( REPO_FOLDER_RELEASES_ARCHIVE + "/" + RELEASEDIR );
+	}
+	
+	public static String getArchiveFolder() {
+		return( REPO_FOLDER_RELEASES_ARCHIVE );
 	}
 	
 }

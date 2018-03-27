@@ -10,6 +10,7 @@ public class ReleaseLabelInfo {
 
 	public static String LABEL_DEFAULT = "default";
 	public static String LABEL_MASTER = "master";
+	public static String LABEL_ARCHIVED = "archived";
 	
 	Meta meta;
 	
@@ -17,50 +18,73 @@ public class ReleaseLabelInfo {
 	public String RELEASEVER = "";
 	public String RELEASEDIR = "";
 	public String VARIANT = "";
+	
+	public boolean local;
 	public boolean master;
+	public boolean normal;
+	public boolean archived;
+	public boolean primary;
 	
 	public ReleaseLabelInfo( Meta meta ) {
 		this.meta = meta;
 		this.master = false;
+		this.normal = false;
+		this.archived = false;
+		this.local = false;
+		this.primary = false;
 	}
 	
 	public static ReleaseLabelInfo getLabelInfo( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
 		ReleaseLabelInfo info = new ReleaseLabelInfo( meta );
-		info.createLabelInfo( action , RELEASELABEL );
+		boolean archived = false;
+		if( RELEASELABEL.startsWith( LABEL_ARCHIVED + "-" ) ) {
+			archived = true;
+			RELEASELABEL = Common.getPartAfterFirst( RELEASELABEL , "-" );
+		}
+		
+		info.createLabelInfo( action , RELEASELABEL , archived );
 		return( info );
 	}
 	
-	public void createLabelInfo( ActionBase action , String RELEASELABEL ) throws Exception {
+	public void createLabelInfo( ActionBase action , String RELEASELABEL , boolean archived ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 
 		if( RELEASELABEL.equals( LABEL_DEFAULT ) && !action.context.CTX_DISTPATH.isEmpty() ) {
 			RELEASEVER = "default";
 			RELEASEDIR = ".";
-			RELEASEPATH = ".";
 			VARIANT = "";
+			local = true;
+			primary = true;
 			return;
 		}
 		
 		if( RELEASELABEL.equals( LABEL_MASTER ) ) {
 			RELEASEVER = "(master)";
-			RELEASEDIR = Dist.MASTER_DIR;
 			RELEASEPATH = RELEASEDIR;
 			VARIANT = "";
 			master = true;
+			primary = true;
 		}
 		else
 		if( RELEASELABEL.indexOf( "-" ) > 0 ) {
 			RELEASEVER = getReleaseVerByDir( RELEASELABEL );
 			RELEASEDIR = RELEASELABEL;
-			RELEASEPATH = "releases/" + RELEASEDIR;
 			VARIANT = Common.getPartAfterFirst( RELEASEDIR , "-" );
+			this.primary = false;
+			this.archived = archived;
 		}
 		else {
 			RELEASEVER = getReleaseVerByLabel( action , RELEASELABEL );
 			RELEASEDIR = getReleaseDirByVer( RELEASEVER );
 			RELEASEPATH = "releases/" + RELEASEDIR;
 			VARIANT = "";
+			this.primary = true;
+			this.archived = archived;
 		}
+	}
+	
+	public void setRepositoryPath( String path ) {
+		this.RELEASEPATH = path;
 	}
 	
 	public DBEnumLifecycleType getLifecycleType() {
@@ -113,18 +137,6 @@ public class ReleaseLabelInfo {
 		String RELEASEVER = Common.getPartBeforeFirst( RELEASEDIR , "-" );
 		RELEASEVER = VersionInfo.normalizeReleaseVer( RELEASEVER );
 		return( RELEASEVER );
-	}
-	
-	public static String getReleaseFolder( String RELEASEDIR ) throws Exception {
-		return( "releases/" + RELEASEDIR );
-	}
-	
-	public static String getArchivedReleaseFolder( String RELEASEDIR ) {
-		return( "archive/" + RELEASEDIR );
-	}
-	
-	public static String getArchiveFolder() {
-		return( "archive" );
 	}
 	
 }

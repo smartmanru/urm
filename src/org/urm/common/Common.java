@@ -840,6 +840,13 @@ public class Common {
 		return( map );
 	}
 
+	public static Map<String,String> copyListToMap( String[] list ) {
+		Map<String,String> map = new HashMap<String,String>();
+		for( String s : list )
+			map.put( s , s );
+		return( map );
+	}
+
 	public static String fileLinesToList( String text ) {
 		String[] lines = splitLines( text );
 		String s = "";

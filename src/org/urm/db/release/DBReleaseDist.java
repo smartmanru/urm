@@ -6,6 +6,7 @@ import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.dist.Dist;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.run.EngineMethod;
 import org.urm.meta.EngineLoader;
@@ -53,6 +54,7 @@ public class DBReleaseDist {
 		DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {
 				entity.exportxmlString( releaseDist.DIST_VARIANT ) ,
 				entity.exportxmlDate( releaseDist.DIST_DATE ) ,
+				entity.exportxmlString( releaseDist.META_HASH ) ,
 				entity.exportxmlString( releaseDist.DATA_HASH )
 		} , false );
 	}
@@ -81,6 +83,14 @@ public class DBReleaseDist {
 		return( releaseDist );
 	}
 	
+	public static void updateHash( EngineMethod method , ActionBase action , Release release , ReleaseDist releaseDist , Dist dist ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		
+		releaseDist.META_HASH = dist.getMetaHash();
+		releaseDist.DATA_HASH = dist.getDataHash();
+		modifyReleaseDist( c , release , releaseDist , false );
+	}
+	
 	private static void modifyReleaseDist( DBConnection c , Release release , ReleaseDist releaseDist , boolean insert ) throws Exception {
 		if( insert )
 			releaseDist.ID = c.getNextSequenceValue();
@@ -91,6 +101,7 @@ public class DBReleaseDist {
 				EngineDB.getObject( release.ID ) ,
 				EngineDB.getString( releaseDist.DIST_VARIANT ) ,
 				EngineDB.getDate( releaseDist.DIST_DATE ) ,
+				EngineDB.getString( releaseDist.META_HASH ) ,
 				EngineDB.getString( releaseDist.DATA_HASH )
 				} , insert );
 	}

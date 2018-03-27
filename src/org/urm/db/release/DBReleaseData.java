@@ -55,7 +55,8 @@ public class DBReleaseData {
 	public static String FIELD_MAIN_BUILDMODE = "buildmode_type";
 	public static String FIELD_MAIN_COMPATIBILITY = "compatibility";
 	public static String FIELD_DIST_ID = "dist_id";
-	public static String FIELD_DIST_HASH = "data_hash";
+	public static String FIELD_DIST_DATAHASH = "data_hash";
+	public static String FIELD_DIST_METAHASH = "meta_hash";
 	public static String FIELD_DIST_DATE = "dist_date";
 	public static String FIELD_DIST_VARIANT = "dist_variant";
 	public static String FIELD_BUILDTARGET_ID = "buildtarget_id";
@@ -174,7 +175,8 @@ public class DBReleaseData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaStringVar( ReleaseDist.PROPERTY_VARIANT , FIELD_DIST_VARIANT , ReleaseDist.PROPERTY_VARIANT , "distributive variant" , false , null ) ,
 				EntityVar.metaDateVar( ReleaseDist.PROPERTY_DATE , FIELD_DIST_DATE , ReleaseDist.PROPERTY_DATE , "data date" , true ) ,
-				EntityVar.metaStringVar( ReleaseDist.PROPERTY_HASH , FIELD_DIST_HASH , ReleaseDist.PROPERTY_HASH , "data hash" , false , null )
+				EntityVar.metaStringVar( ReleaseDist.PROPERTY_METAHASH , FIELD_DIST_METAHASH , ReleaseDist.PROPERTY_METAHASH , "meta hash" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDist.PROPERTY_DATAHASH , FIELD_DIST_DATAHASH , ReleaseDist.PROPERTY_DATAHASH , "data hash" , false , null )
 		} ) );
 	}
 
