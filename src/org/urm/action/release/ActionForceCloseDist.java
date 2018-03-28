@@ -5,11 +5,11 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 
-public class ActionForceCloseRelease extends ActionBase {
+public class ActionForceCloseDist extends ActionBase {
 
 	public Dist dist;
 	
-	public ActionForceCloseRelease( ActionBase action , String stream , Dist dist ) {
+	public ActionForceCloseDist( ActionBase action , String stream , Dist dist ) {
 		super( action , stream , "Close release=" + dist.RELEASEDIR );
 		this.dist = dist;
 	}
