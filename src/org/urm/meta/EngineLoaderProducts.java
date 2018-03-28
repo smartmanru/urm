@@ -214,8 +214,10 @@ public class EngineLoaderProducts {
 				else
 					trace( "successfully matched product=" + product.NAME );
 			}
-			else
-				Common.exitUnexpected();
+			else {
+				String path = meta.getLocalPath( action );
+				Common.exit1( _Error.MissingProductFolder1 , "missing product folder=" + path , path );
+			}
 		}
 		catch( Throwable e ) {
 			action.handle( e );

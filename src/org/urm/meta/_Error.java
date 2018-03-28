@@ -78,5 +78,6 @@ public class _Error {
 	public static final int ProductPathAlreadyExists1 = ErrorBase + 122;
 	public static final int InvalidDistItemType1 = ErrorBase + 123;
 	public static final int MissingDistItemType0 = ErrorBase + 124;
+	public static final int MissingProductFolder1 = ErrorBase + 125;
 
 }
