@@ -27,6 +27,7 @@ CREATE TABLE main.urm_rel_main (
                 compatibility VARCHAR,
                 cumulative BOOLEAN NOT NULL,
                 archived BOOLEAN NOT NULL,
+                cancelled BOOLEAN NOT NULL,
                 rv INTEGER NOT NULL,
                 CONSTRAINT urm_rel_main_pk PRIMARY KEY (release_id)
 );

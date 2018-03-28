@@ -7,7 +7,6 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.dist.DistState.DISTSTATE;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.dist._Error;
 import org.urm.meta.engine.ReleaseLifecycle;
@@ -49,6 +48,15 @@ public class Release {
 	public static String PROPERTY_CUMULATIVE = "cumulative";
 	public static String PROPERTY_ARCHIVED = "archived";
 	
+	public enum RELEASESTATE {
+		UNKNOWN ,
+		DIRTY ,
+		RELEASED ,
+		CANCELLED ,
+		COMPLETED ,
+		ARCHIVED
+	}
+	
 	public ReleaseRepository repo;
 
 	public int ID;
@@ -61,6 +69,7 @@ public class Release {
 	public String COMPATIBILITY;
 	public boolean CUMULATIVE;
 	public boolean ARCHIVED;
+	public boolean CANCELLED;
 	public int RV;
 	
 	private ReleaseSchedule schedule;
@@ -182,8 +191,9 @@ public class Release {
 		this.NAME = RELEASEVER;
 		this.DESC = "";
 		this.MASTER = false;
-		this.RELEASEVER = VersionInfo.normalizeReleaseVer( RELEASEVER );
-		this.TYPE = VersionInfo.getLifecycleTypeByShortVersion( this.RELEASEVER );
+		VersionInfo info = VersionInfo.getReleaseDirInfo( RELEASEVER );
+		this.RELEASEVER = info.getFullVersion();
+		this.TYPE = info.getLifecycleType();
 		this.BUILDMODE = action.context.CTX_BUILDMODE;
 		this.COMPATIBILITY = "";
 		this.CUMULATIVE = action.context.CTX_CUMULATIVE;
@@ -295,14 +305,16 @@ public class Release {
 		schedule.reopen( action );
 	}
 
-	public DISTSTATE getState() {
+	public RELEASESTATE getState() {
+		if( ARCHIVED )
+			return( RELEASESTATE.ARCHIVED );
+		if( CANCELLED )
+			return( RELEASESTATE.CANCELLED );
 		if( !schedule.RELEASED )
-			return( DISTSTATE.DIRTY );
+			return( RELEASESTATE.DIRTY );
 		if( !schedule.COMPLETED )
-			return( DISTSTATE.RELEASED );
-		if( !ARCHIVED )
-			return( DISTSTATE.COMPLETED );
-		return( DISTSTATE.ARCHIVED );
+			return( RELEASESTATE.RELEASED );
+		return( RELEASESTATE.COMPLETED );
 	}
 
 	public Meta getMeta() {
