@@ -19,35 +19,16 @@ import org.w3c.dom.Element;
 
 public class DBReleaseDist {
 
-	public static String ELEMENT_RELEASEPROPS = "version";
 	public static String ELEMENT_RELEASEDISTPROPS = "dist";
 	
 	public static void exportxml( EngineLoader loader , ReleaseDist releaseDist , Document doc , Element root ) throws Exception {
-		exportxmlReleaseProperties( loader , releaseDist.release , doc , root );
+		DBRelease.exportxmlReleaseProperties( loader , releaseDist.release , doc , root );
 		exportxmlReleaseDistProperties( loader , releaseDist , doc , root );
 		exportxmlReleaseSchedule( loader , releaseDist , doc , root );
 		exportxmlReleaseChanges( loader , releaseDist , doc , root );
 		exportxmlReleaseScope( loader , releaseDist , doc , root );
 	}
 
-	private static void exportxmlReleaseProperties( EngineLoader loader , Release release , Document doc , Element root ) throws Exception {
-		EngineEntities entities = loader.getEntities();
-		PropertyEntity entity = entities.entityAppReleaseMain;
-		
-		Element node = Common.xmlCreateElement( doc , root , ELEMENT_RELEASEPROPS );
-		DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {
-				entity.exportxmlString( release.NAME ) ,
-				entity.exportxmlString( release.DESC ) ,
-				entity.exportxmlBoolean( release.MASTER ) ,
-				entity.exportxmlEnum( release.TYPE ) ,
-				entity.exportxmlString( release.RELEASEVER ) ,
-				entity.exportxmlEnum( release.BUILDMODE ) ,
-				entity.exportxmlString( release.COMPATIBILITY ) ,
-				entity.exportxmlBoolean( release.CUMULATIVE ) ,
-				entity.exportxmlBoolean( release.ARCHIVED )
-		} , false );
-	}
-	
 	private static void exportxmlReleaseDistProperties( EngineLoader loader , ReleaseDist releaseDist , Document doc , Element root ) throws Exception {
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppReleaseDist;
@@ -56,7 +37,6 @@ public class DBReleaseDist {
 		DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {
 				entity.exportxmlString( releaseDist.DIST_VARIANT ) ,
 				entity.exportxmlDate( releaseDist.DIST_DATE ) ,
-				entity.exportxmlString( releaseDist.META_HASH ) ,
 				entity.exportxmlString( releaseDist.DATA_HASH )
 		} , false );
 	}
@@ -118,7 +98,7 @@ public class DBReleaseDist {
 		releaseDist.create(
 				entity.loaddbString( rs , ReleaseDist.PROPERTY_VARIANT ) ,
 				entity.loaddbDate( rs , ReleaseDist.PROPERTY_DATE ) ,
-				entity.loaddbString( rs , ReleaseDist.PROPERTY_METAHASH ) ,
+				entity.loaddbString( rs , DBReleaseData.FIELD_DIST_METAHASH ) ,
 				entity.loaddbString( rs , ReleaseDist.PROPERTY_DATAHASH )
 				);
 		return( releaseDist );

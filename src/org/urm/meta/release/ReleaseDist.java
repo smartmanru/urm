@@ -8,7 +8,6 @@ import org.urm.common.Common;
 
 public class ReleaseDist {
 
-	public static String PROPERTY_METAHASH = "metahash";
 	public static String PROPERTY_DATAHASH = "datahash";
 	public static String PROPERTY_DATE = "date";
 	public static String PROPERTY_VARIANT = "variant";
@@ -47,7 +46,7 @@ public class ReleaseDist {
 	}
 
 	public void create( String DIST_VARIANT ) {
-		create( DIST_VARIANT , Common.getDateCurrentDay() , "unknown" , "unknown" );
+		create( DIST_VARIANT , Common.getDateCurrentDay() , "unknown" , "empty" );
 	}
 	
 	public void create( String DIST_VARIANT , Date DIST_DATE , String META_HASH , String DATA_HASH ) {

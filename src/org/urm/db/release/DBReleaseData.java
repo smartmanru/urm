@@ -176,7 +176,7 @@ public class DBReleaseData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaStringVar( ReleaseDist.PROPERTY_VARIANT , FIELD_DIST_VARIANT , ReleaseDist.PROPERTY_VARIANT , "distributive variant" , false , null ) ,
 				EntityVar.metaDateVar( ReleaseDist.PROPERTY_DATE , FIELD_DIST_DATE , ReleaseDist.PROPERTY_DATE , "data date" , true ) ,
-				EntityVar.metaStringVar( ReleaseDist.PROPERTY_METAHASH , FIELD_DIST_METAHASH , ReleaseDist.PROPERTY_METAHASH , "meta hash" , false , null ) ,
+				EntityVar.metaStringDatabaseOnly( FIELD_DIST_METAHASH , "meta hash" , false , null ) ,
 				EntityVar.metaStringVar( ReleaseDist.PROPERTY_DATAHASH , FIELD_DIST_DATAHASH , ReleaseDist.PROPERTY_DATAHASH , "data hash" , false , null )
 		} ) );
 	}

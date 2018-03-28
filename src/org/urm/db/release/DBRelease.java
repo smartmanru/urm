@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.util.Date;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.DBEnumBuildModeType;
@@ -29,9 +30,13 @@ import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseRepository;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class DBRelease {
 
+	public static String ELEMENT_RELEASEPROPS = "version";
+	
 	public static Release createRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		
@@ -90,6 +95,25 @@ public class DBRelease {
 				entity.loaddbBoolean( rs , Release.PROPERTY_CANCELLED )
 				);
 		return( release );
+	}
+	
+	public static void exportxmlReleaseProperties( EngineLoader loader , Release release , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseMain;
+		
+		Element node = Common.xmlCreateElement( doc , root , ELEMENT_RELEASEPROPS );
+		DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {
+				entity.exportxmlString( release.NAME ) ,
+				entity.exportxmlString( release.DESC ) ,
+				entity.exportxmlBoolean( release.MASTER ) ,
+				entity.exportxmlEnum( release.TYPE ) ,
+				entity.exportxmlString( release.RELEASEVER ) ,
+				entity.exportxmlEnum( release.BUILDMODE ) ,
+				entity.exportxmlString( release.COMPATIBILITY ) ,
+				entity.exportxmlBoolean( release.CUMULATIVE ) ,
+				entity.exportxmlBoolean( release.ARCHIVED ) ,
+				entity.exportxmlBoolean( release.CANCELLED )
+		} , false );
 	}
 	
 	public static void complete( EngineMethod method , ActionBase action , Release release ) throws Exception {
