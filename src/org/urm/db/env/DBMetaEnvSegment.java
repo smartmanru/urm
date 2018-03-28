@@ -341,7 +341,7 @@ public class DBMetaEnvSegment {
 				entity.exportxmlString( sg.DESC ) ,
 				entity.exportxmlString( env.getSegmentName( sg.getBaselineMatchItem() ) ) ,
 				entity.exportxmlBoolean( sg.OFFLINE ) ,
-				entity.exportxmlString( infra.getDatacenterName( sg.getBaselineMatchItem() ) )
+				entity.exportxmlString( infra.getDatacenterName( sg.getDatacenterMatchItem() ) )
 		} , true );
 		
 		// custom settings
