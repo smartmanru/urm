@@ -5,11 +5,7 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.action.codebase.ActionBuild;
-import org.urm.action.codebase.ActionGetBinary;
-import org.urm.action.codebase.ActionGetManual;
 import org.urm.action.codebase.ActionPatch;
-import org.urm.action.conf.ActionGetConf;
-import org.urm.action.database.ActionGetDB;
 import org.urm.action.release.ActionAddScope;
 import org.urm.action.release.ActionAppendMaster;
 import org.urm.action.release.ActionArchiveRelease;
@@ -20,7 +16,6 @@ import org.urm.action.release.ActionDeleteRelease;
 import org.urm.action.release.ActionDescope;
 import org.urm.action.release.ActionFinishRelease;
 import org.urm.action.release.ActionCompleteRelease;
-import org.urm.action.release.ActionForceCloseRelease;
 import org.urm.action.release.ActionGetCumulative;
 import org.urm.action.release.ActionModifyRelease;
 import org.urm.action.release.ActionReopenRelease;
@@ -34,14 +29,11 @@ import org.urm.engine.blotter.EngineBlotterItem;
 import org.urm.engine.blotter.EngineBlotterSet;
 import org.urm.engine.blotter.EngineBlotterStat;
 import org.urm.engine.blotter.EngineBlotterTreeItem;
-import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.DistRepository;
-import org.urm.engine.dist.DistRepository.DistOperation;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSubscription;
-import org.urm.engine.dist.DistRepositoryItem;
-import org.urm.meta.product.Meta;
+import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseRepository.ReleaseOperation;
 
 public class BlotterService {
 
@@ -217,134 +209,104 @@ public class BlotterService {
 		// release blotter
 		if( action instanceof ActionCopyRelease ) {
 			ActionCopyRelease xa = ( ActionCopyRelease )action;
-			runDistAction( xa , success , xa.src.meta , xa.dist , DistOperation.CREATE , "copy distributive from " + xa.src.RELEASEDIR + " to " + xa.RELEASEDIR ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.CREATE , "copy distributive from " + xa.src.RELEASEVER + " to " + xa.RELEASEDIR ); 
 		}
 		else
 		if( action instanceof ActionCreateMaster ) {
 			ActionCreateMaster xa = ( ActionCreateMaster )action;
-			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.CREATE , "create/copy production master distributive version=" + xa.RELEASEVER ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.CREATE , "create/copy production master distributive version=" + xa.RELEASEVER ); 
 		}
 		else
 		if( action instanceof ActionCreateRelease ) {
 			ActionCreateRelease xa = ( ActionCreateRelease )action;
-			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.CREATE , "create distributive releaselabel=" + xa.RELEASELABEL ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.CREATE , "create release label=" + xa.RELEASELABEL ); 
 		}
 		else
 		if( action instanceof ActionDeleteRelease ) {
 			ActionDeleteRelease xa = ( ActionDeleteRelease )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.DROP , "drop distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.DROP , "drop release version=" + xa.release.RELEASEVER ); 
 		}
 		else
 		if( action instanceof ActionFinishRelease ) {
 			ActionFinishRelease xa = ( ActionFinishRelease )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.FINISH , "finalize distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.FINISH , "finalize release version=" + xa.release.RELEASEVER ); 
 		}
 		else
 		if( action instanceof ActionReopenRelease ) {
 			ActionReopenRelease xa = ( ActionReopenRelease )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.REOPEN , "reopen distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.REOPEN , "reopen release version=" + xa.release.RELEASEVER ); 
 		}
 		else
 		if( action instanceof ActionCompleteRelease ) {
 			ActionCompleteRelease xa = ( ActionCompleteRelease )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.COMPLETE , "finalize distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.COMPLETE , "finalize release version=" + xa.release.RELEASEVER ); 
 		}
 		else
 		if( action instanceof ActionArchiveRelease ) {
 			ActionArchiveRelease xa = ( ActionArchiveRelease )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.ARCHIVE , "archive distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.ARCHIVE , "archive release version=" + xa.release.RELEASEVER ); 
 		}
 		else
 		if( action instanceof ActionTouchRelease ) {
 			ActionTouchRelease xa = ( ActionTouchRelease )action;
-			runDistAction( xa , success , xa.meta , xa.dist , DistOperation.STATUS , "reload distributive releasedir=" + xa.RELEASELABEL ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.STATUS , "reload distributive releasedir=" + xa.RELEASELABEL ); 
 		}
 		else
 		if( action instanceof ActionAppendMaster ) {
 			ActionAppendMaster xa = ( ActionAppendMaster )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "append master distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.PUT , "append master distributive releasedir=" + xa.release.RELEASEVER ); 
 		}
 		else
 		if( action instanceof ActionSchedulePhase ) {
 			ActionSchedulePhase xa = ( ActionSchedulePhase )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PHASE , "phase control distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.PHASE , "phase control distributive releasedir=" + xa.release.RELEASEVER ); 
 		}
 		else
 		if( action instanceof ActionAddScope ) {
 			ActionAddScope xa = ( ActionAddScope )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "extend scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.MODIFY , "extend scope of distributive releasedir=" + xa.release.RELEASEVER ); 
 		}
 		else
 		if( action instanceof ActionSetScope ) {
 			ActionSetScope xa = ( ActionSetScope )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "set scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.MODIFY , "set scope of distributive releasedir=" + xa.release.RELEASEVER ); 
 		}
 		else
 		if( action instanceof ActionDescope ) {
 			ActionDescope xa = ( ActionDescope )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "reduce scope of distributive releasedir=" + xa.dist.RELEASEDIR ); 
-		}
-		else
-		if( action instanceof ActionForceCloseRelease ) {
-			ActionForceCloseRelease xa = ( ActionForceCloseRelease )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "close distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.MODIFY , "reduce scope of distributive releasedir=" + xa.release.RELEASEVER ); 
 		}
 		else
 		if( action instanceof ActionGetCumulative ) {
 			ActionGetCumulative xa = ( ActionGetCumulative )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put cumulative items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.PUT , "put cumulative items to distributive releasedir=" + xa.release.RELEASEVER ); 
 		}
 		else
 		if( action instanceof ActionModifyRelease ) {
 			ActionModifyRelease xa = ( ActionModifyRelease )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.MODIFY , "modify properties of distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.MODIFY , "modify properties of distributive releasedir=" + xa.release.RELEASEVER ); 
 		}
 		else
 		if( action instanceof ActionBuild ) {
 			ActionBuild xa = ( ActionBuild )action;
-			if( xa.dist != null )
-				runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.BUILD , "build release releasedir=" + xa.dist.RELEASEDIR ); 
-		}
-		else
-		if( action instanceof ActionGetBinary ) {
-			ActionGetBinary xa = ( ActionGetBinary )action;
-			runDistAction( xa , success , xa.targetRelease.meta , xa.targetRelease , DistOperation.PUT , "put binary items to distributive releasedir=" + xa.targetRelease.RELEASEDIR ); 
-		}
-		else
-		if( action instanceof ActionGetConf ) {
-			ActionGetConf xa = ( ActionGetConf )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put configuration items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
-		}
-		else
-		if( action instanceof ActionGetManual ) {
-			ActionGetManual xa = ( ActionGetManual )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put manual items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
-		}
-		else
-		if( action instanceof ActionGetDB ) {
-			ActionGetDB xa = ( ActionGetDB )action;
-			runDistAction( xa , success , xa.dist.meta , xa.dist , DistOperation.PUT , "put database items to distributive releasedir=" + xa.dist.RELEASEDIR ); 
+			if( xa.release != null )
+				runReleaseAction( xa , success , xa.release , ReleaseOperation.BUILD , "build release releasedir=" + xa.release.RELEASEVER ); 
 		}
 	}
 
-	public void runDistStatus( ActionBase action , Meta meta , Dist dist ) {
+	public void runReleaseStatus( ActionBase action , Release release ) {
 		try {
-			DistRepository repo = meta.getDistRepository();
-			DistRepositoryItem distItem = repo.findRunItem( dist );
-			if( distItem == null )
-				return;
-			
-			blotterReleases.affectReleaseItem( action , true , DistOperation.STATUS , distItem );
+			blotterReleases.affectReleaseItem( action , true , ReleaseOperation.STATUS , release );
 		}
 		catch( Throwable e ) {
 			action.log( "change release status in blotter" , e );
 		}
 	}
 	
-	private void runDistAction( ActionBase action , boolean success , Meta meta , Dist dist , DistOperation op , String msg ) {
+	private void runReleaseAction( ActionBase action , boolean success , Release release , ReleaseOperation op , String msg ) {
 		try {
-			if( op != DistOperation.STATUS && dist != null )
-				blotterReleases.affectReleaseItem( action , success , op , dist.item );
+			if( op != ReleaseOperation.STATUS && release != null )
+				blotterReleases.affectReleaseItem( action , success , op , release );
 		}
 		catch( Throwable e ) {
 			action.log( "add release action to blotter" , e );

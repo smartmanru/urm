@@ -6,17 +6,18 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.dist.Dist;
+import org.urm.db.release.DBRelease;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.release.Release;
 
 public class ActionAddScope extends ActionBase {
 
-	public Dist dist;
+	public Release release;
 	
-	public ActionAddScope( ActionBase action , String stream , Dist dist ) {
-		super( action , stream , "Add items to scope, release=" + dist.RELEASEDIR );
-		this.dist = dist;
+	public ActionAddScope( ActionBase action , String stream , Release release ) {
+		super( action , stream , "Add items to scope, release=" + release.RELEASEVER );
+		this.release = release;
 	}
 
 	@Override 
@@ -50,21 +51,21 @@ public class ActionAddScope extends ActionBase {
 
 	private boolean addAllProductSetElements( ActionScopeSet set ) throws Exception {
 		if( set.CATEGORY.isSource() )
-			return( dist.addAllSource( this , set.pset ) );
-		return( dist.addAllCategory( this , set.CATEGORY ) );
+			return( DBRelease.addAllSource( super.method , this , release , set.pset ) );
+		return( DBRelease.addAllCategory( super.method , this , release , set.CATEGORY ) );
 	}
 	
 	private boolean addAllProductTargetElements( ActionScopeSet set , ActionScopeTarget target ) throws Exception {
 		if( target.CATEGORY == DBEnumScopeCategoryType.CONFIG )
-			return( dist.addConfItem( this , target.confItem ) );
+			return( DBRelease.addConfItem( super.method , this , release , target.confItem ) );
 		if( target.CATEGORY == DBEnumScopeCategoryType.MANUAL )
-			return( dist.addManualItem( this , target.manualItem ) );
+			return( DBRelease.addManualItem( super.method , this , release , target.manualItem ) );
 		if( target.CATEGORY == DBEnumScopeCategoryType.DB )
-			return( dist.addDeliveryAllDatabaseSchemes( this , target.delivery ) );
+			return( DBRelease.addDeliveryAllDatabaseSchemes( super.method , this , release , target.delivery ) );
 		if( target.CATEGORY == DBEnumScopeCategoryType.DOC )
-			return( dist.addDeliveryAllDocs( this , target.delivery ) );
+			return( DBRelease.addDeliveryAllDocs( super.method , this , release , target.delivery ) );
 		if( target.CATEGORY.isSource() )
-			return( dist.addProjectAllItems( this , target.sourceProject ) );
+			return( DBRelease.addProjectAllItems( super.method , this , release , target.sourceProject ) );
 
 		this.exitUnexpectedCategory( target.CATEGORY );
 		return( false );
@@ -72,11 +73,11 @@ public class ActionAddScope extends ActionBase {
 	
 	private boolean addTargetItem( ActionScopeSet set , ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {
 		if( target.CATEGORY.isSource() )
-			return( dist.addProjectItem( this , target.sourceProject , item.sourceItem ) );
+			return( DBRelease.addProjectItem( super.method , this , release , target.sourceProject , item.sourceItem ) );
 		if( target.CATEGORY == DBEnumScopeCategoryType.DB )
-			return( dist.addDeliveryDatabaseSchema( this , target.delivery , item.schema ) );
+			return( DBRelease.addDeliveryDatabaseSchema( super.method , this , release , target.delivery , item.schema ) );
 		if( target.CATEGORY == DBEnumScopeCategoryType.DOC )
-			return( dist.addDeliveryDoc( this , target.delivery , item.doc ) );
+			return( DBRelease.addDeliveryDoc( super.method , this , release , target.delivery , item.doc ) );
 		
 		this.exitUnexpectedCategory( target.CATEGORY );
 		return( false );

@@ -3,15 +3,33 @@ package org.urm.meta.release;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.meta.product.Meta;
 
 public class ReleaseRepository {
 
+	public static String MASTER_NAME_PRIMARY = "primary";
+	
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
 	public static String PROPERTY_PRODUCT = "product";
+	
+	public enum ReleaseOperation {
+		CREATE ,
+		DROP ,
+		FINISH ,
+		REOPEN ,
+		COMPLETE ,
+		PHASE ,
+		MODIFY ,
+		BUILD ,
+		PUT ,
+		ARCHIVE ,
+		STATUS
+	};
 	
 	public Meta meta;
 	public ProductReleases releases;
@@ -36,6 +54,16 @@ public class ReleaseRepository {
 		this.NAME = name;
 		this.DESC = desc;
 	}
+
+	public Release findReleaseByLabel( ActionBase action , String RELEASELABEL ) {
+		try {
+			ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta, RELEASELABEL );
+			return( mapReleasesNormal.get( info.RELEASEVER ) );
+		}
+		catch( Throwable e ) {
+			return( null );
+		}
+	}
 	
 	public Release findRelease( String RELEASEVER ) {
 		try {
@@ -47,6 +75,10 @@ public class ReleaseRepository {
 		}
 	}
 
+	public Release findDefaultMaster() {
+		return( findMaster( ReleaseRepository.MASTER_NAME_PRIMARY ) );
+	}
+	
 	public Release findMaster( String name ) {
 		return( mapReleasesMaster.get( name ) );
 	}

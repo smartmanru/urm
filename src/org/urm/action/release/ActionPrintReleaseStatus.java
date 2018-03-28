@@ -5,9 +5,11 @@ import java.util.Date;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.DistRepository;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
+import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
@@ -17,17 +19,19 @@ import org.urm.meta.release.ReleaseSchedulePhase;
 
 public class ActionPrintReleaseStatus extends ActionBase {
 
-	Dist dist;
+	Release release;
 	
-	public ActionPrintReleaseStatus( ActionBase action , String stream , Dist dist ) {
-		super( action , stream , "Print release status=" + dist.RELEASEDIR );
-		this.dist = dist;
+	public ActionPrintReleaseStatus( ActionBase action , String stream , Release release ) {
+		super( action , stream , "Print release status=" + release.RELEASEVER );
+		this.release = release;
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
-		Release release = dist.release;
 		ReleaseSchedule schedule = release.getSchedule();
 	
+		Meta meta = release.getMeta();
+		DistRepository repo = meta.getDistRepository();
+		Dist dist = repo.findDefaultMasterDist();
 		dist.gatherFiles( this );
 		FileSet files = dist.getFiles( this );
 		String hashStatus = dist.checkHash( this )? "OK" : "not matched";

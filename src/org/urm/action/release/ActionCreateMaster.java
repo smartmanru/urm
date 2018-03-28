@@ -6,11 +6,13 @@ import org.urm.engine.dist.DistRepository;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
+import org.urm.meta.release.Release;
 
 public class ActionCreateMaster extends ActionBase { 
 
 	public Meta meta;
 	public String RELEASEVER;
+	public Release release;
 	public Dist dist;
 	public boolean copy;
 	
@@ -27,6 +29,7 @@ public class ActionCreateMaster extends ActionBase {
 			dist = repo.createMasterCopy( this , RELEASEVER , null );
 		else
 			dist = repo.createMasterInitial( this , RELEASEVER , null );
+		release = dist.release;
 		return( SCOPESTATE.RunSuccess );
 	}
 	

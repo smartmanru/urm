@@ -1,28 +1,27 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.DistRepository;
+import org.urm.db.release.DBReleaseRepository;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.release.Release;
 
 public class ActionArchiveRelease extends ActionBase {
 
-	public Dist dist;
+	public Release release;
 	
-	public ActionArchiveRelease( ActionBase action , String stream , Dist dist ) {
-		super( action , stream , "Archive release=" + dist.RELEASEDIR );
-		this.dist = dist;
+	public ActionArchiveRelease( ActionBase action , String stream , Release release ) {
+		super( action , stream , "Archive release=" + release.RELEASEVER );
+		this.release = release;
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
-		DistRepository repo = dist.repo;
-		if( !dist.isCompleted() ) {
-			super.fail1( _Error.ArchiveNotCompleted1 , "Cannot archive not completed release=" + dist.RELEASEDIR , dist.RELEASEDIR );
+		if( !release.isCompleted() ) {
+			super.fail1( _Error.ArchiveNotCompleted1 , "Cannot archive not completed release=" + release.RELEASEVER , release.RELEASEVER );
 			return( SCOPESTATE.RunFail );
 		}
 		
-		repo.archiveDist( this , dist );
+		DBReleaseRepository.archiveRelease( super.method , this , release.repo , release );
 		return( SCOPESTATE.RunSuccess );
 	}
 	

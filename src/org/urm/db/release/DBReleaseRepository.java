@@ -12,13 +12,9 @@ import org.urm.db.core.DBEnums.DBEnumLifecycleType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.data.EngineLifecycles;
-import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.dist._Error;
-import org.urm.engine.dist.DistRepository.DistOperation;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.engine.dist.DistRepository;
-import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.engine.run.EngineMethod;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.MatchItem;
@@ -28,37 +24,28 @@ import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
 import org.urm.meta.release.ReleaseRepository;
+import org.urm.meta.release.ReleaseRepository.ReleaseOperation;
 
 public class DBReleaseRepository {
 
-	public static Release createReleaseNormal( EngineMethod method , ActionBase action , ReleaseRepository repo , String RELEASELABEL , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
+	public static Release createReleaseNormal( EngineMethod method , ActionBase action , ReleaseRepository repo , ReleaseLabelInfo info , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		Meta meta = repo.meta;
-		DistRepository distrepo = meta.getDistRepository();
-		ReleaseLabelInfo info = distrepo.getLabelInfo( action , RELEASELABEL );
 
 		if( repo.findRelease( info.RELEASEVER ) != null )
-			action.exit1( _Error.ReleaseAlreadyExists1 , "release label=" + info.RELEASEVER + " already exists" , info.RELEASEVER );
+			action.exit1( _Error.ReleaseAlreadyExists1 , "release version=" + info.RELEASEVER + " already exists" , info.RELEASEVER );
 		
 		lc = getLifecycle( action , meta , lc , info.getLifecycleType() );
 		releaseDate = getReleaseDate( action , meta , info.RELEASEVER , releaseDate , lc );
 		if( releaseDate == null )
-			action.exit1( _Error.MissingReleaseDate1 , "unable to create release label=" + RELEASELABEL + " due to missing release date" , RELEASELABEL );
+			action.exit1( _Error.MissingReleaseDate1 , "unable to create release version=" + info.RELEASEVER + " due to missing release date" , info.RELEASEVER );
 
-		action.debug( "create normal release: label=" + RELEASELABEL + ", version=" + info.RELEASEVER + ", date=" + Common.getDateValue( releaseDate ) + " ..." );
+		action.debug( "create normal release: version=" + info.RELEASEVER + ", version=" + info.RELEASEVER + ", date=" + Common.getDateValue( releaseDate ) + " ..." );
 		
 		// create meta item
 		Release release = DBRelease.createRelease( method , action , repo , info.RELEASEVER , releaseDate , lc );
-		ReleaseDist releaseDist = DBReleaseDist.createReleaseDist( method , action , release , info.VARIANT );
-		
-		// create distributive
-		DistRepositoryItem item = distrepo.createRepositoryItem( action , RELEASELABEL );
-		Dist dist = distrepo.createDistNormal( action , item , releaseDist );
-		DBReleaseDist.updateHash( method , action , release , releaseDist , dist );
-		
 		repo.addRelease( release );
-		distrepo.addItem( item );
 		
-		return( dist.release );
+		return( release );
 	}
 	
 	public static ReleaseLifecycle getLifecycle( ActionBase action , Meta meta , ReleaseLifecycle lc , DBEnumLifecycleType type ) throws Exception {
@@ -182,7 +169,16 @@ public class DBReleaseRepository {
 		}
 	}
 
-	public static void addDistAction( EngineMethod method , Release release , ReleaseDist releaseDist , boolean success , DistOperation op , String msg ) throws Exception {
+	public static void dropRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , Release release ) throws Exception {
+	}
+
+	public static void archiveRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , Release release ) throws Exception {
+	}
+	
+	public static void copyScope( EngineMethod method , ActionBase action , ReleaseRepository repo , Release release , Release dst ) throws Exception {
+	}
+	
+	public static void addDistAction( EngineMethod method , Release release , ReleaseDist releaseDist , boolean success , ReleaseOperation op , String msg ) throws Exception {
 	}
 	
 }

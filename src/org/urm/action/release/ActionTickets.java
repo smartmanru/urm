@@ -11,14 +11,15 @@ import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.AuthService;
-import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.DistRepository;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaSources;
+import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseChanges;
+import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.release.ReleaseTicket;
 import org.urm.meta.release.ReleaseTicketSet;
 import org.urm.meta.release.ReleaseTicketTarget;
@@ -26,8 +27,8 @@ import org.urm.meta.release.ReleaseTicketTarget;
 public class ActionTickets extends ActionBase {
 
 	String RELEASELABEL;
-	public Dist dist;
-	public Dist distNew;
+	public Release release;
+	public Release releaseNew;
 	public String method;
 	String[] args;
 	
@@ -58,31 +59,23 @@ public class ActionTickets extends ActionBase {
 	public static String TARGET_DELIVERYSCHEMA = "schema";
 	public static String TARGET_DELIVERYDOC = "doc";
 	
-	public ActionTickets( ActionBase action , String stream , Dist dist , String method , String[] args ) {
-		super( action , stream , "change tickets release=" + dist.RELEASEDIR );
-		this.dist = dist;
+	public ActionTickets( ActionBase action , String stream , Release release , String method , String[] args ) {
+		super( action , stream , "change tickets release=" + release.RELEASEVER );
+		this.release = release;
 		this.method = method;
 		this.args = args;
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
-		dist.openForDataChange( this );
-		
 		SCOPESTATE res = SCOPESTATE.RunSuccess;
 		try {
 			executeCommand( state );
-			dist.saveReleaseXml( this );
-			if( distNew != null )
-				distNew.saveReleaseXml( this );
 		}
 		catch( Throwable e ) {
 			super.handle( "tickets command" , e );
 			res = SCOPESTATE.RunFail;
 		}
 
-		dist.closeDataChange( this );
-		if( distNew != null )
-			distNew.closeDataChange( this );
 		return( res );
 	}
 
@@ -365,7 +358,7 @@ public class ActionTickets extends ActionBase {
 	}
 	
 	private void executeAcceptSet( ScopeState state , String code , boolean allTickets , String[] tickets , boolean allTargets , String[] targets ) throws Exception {
-		ReleaseChanges changes = dist.release.getChanges();
+		ReleaseChanges changes = release.getChanges();
 		ReleaseTicketSet set = changes.getSet( this , code );
 		
 		// change release scope
@@ -384,8 +377,9 @@ public class ActionTickets extends ActionBase {
 			}
 		}
 
-		ActionProductScopeMaker scopeNew = new ActionProductScopeMaker( this , dist.meta );
-		ActionProductScopeMaker scopeDescope = new ActionProductScopeMaker( this , dist.meta );
+		Meta meta = release.getMeta();
+		ActionProductScopeMaker scopeNew = new ActionProductScopeMaker( this , meta );
+		ActionProductScopeMaker scopeDescope = new ActionProductScopeMaker( this , meta );
 		
 		// add to scope
 		for( ReleaseTicketTarget target : targetList ) {
@@ -396,21 +390,21 @@ public class ActionTickets extends ActionBase {
 		}
 
 		// execute change scope
-		ActionScope scopeAdd = new ActionScope( this , dist.meta );
+		ActionScope scopeAdd = new ActionScope( this , meta );
 		scopeAdd.createMinus( this , scopeNew.getScope() , scopeDescope.getScope() );
-		ActionScope scopeRemove = new ActionScope( this , dist.meta );
+		ActionScope scopeRemove = new ActionScope( this , meta );
 		scopeRemove.createMinus( this , scopeDescope.getScope() , scopeNew.getScope() );
 		
 		if( !scopeAdd.isEmpty() ) {
-			ActionBase runAction = new ActionAddScope( this , null , dist );
+			ActionBase runAction = new ActionAddScope( this , null , release );
 			if( !runAction.runAll( state , scopeAdd , null , SecurityAction.ACTION_RELEASE , false ) )
-				super.fail1( _Error.CannotExtendScope1 , "Cannot extend scope of release=" + dist.RELEASEDIR , dist.RELEASEDIR );
+				super.fail1( _Error.CannotExtendScope1 , "Cannot extend scope of release=" + release.RELEASEVER , release.RELEASEVER );
 		}
 		
 		if( !scopeRemove.isEmpty() ) {
-			ActionBase runAction = new ActionDescope( this , null , dist );
+			ActionBase runAction = new ActionDescope( this , null , release );
 			if( !runAction.runAll( state , scopeRemove , null , SecurityAction.ACTION_RELEASE , false ) )
-				super.fail1( _Error.CannotReduceScope1 , "Cannot extend scope of release=" + dist.RELEASEDIR , dist.RELEASEDIR );
+				super.fail1( _Error.CannotReduceScope1 , "Cannot extend scope of release=" + release.RELEASEVER , release.RELEASEVER );
 		}
 		
 		// accept targets
@@ -442,40 +436,40 @@ public class ActionTickets extends ActionBase {
 	}
 	
 	private void executeModifyTicket( String setCode , int POS , DBEnumTicketType type , String code , String name , String link , String comments , Integer owner , boolean devdone ) throws Exception {
-		ReleaseChanges changes = dist.release.getChanges();
+		ReleaseChanges changes = release.getChanges();
 		ReleaseTicketSet set = changes.getSet( this , setCode );
 		ReleaseTicket ticket = set.getTicket( this , POS );
 		set.modifyTicket( this , ticket , type , code , name , link , comments , owner , devdone );
 	}
 	
 	private void executeDropTicket( String setCode , int ticketPos , boolean descope ) throws Exception {
-		ReleaseChanges changes = dist.release.getChanges();
+		ReleaseChanges changes = release.getChanges();
 		ReleaseTicketSet set = changes.getSet( this , setCode );
 		set.dropTicket( this , ticketPos , descope );
 	}
 	
 	private void executeDropTarget( String setCode , int targetPos , boolean descope ) throws Exception {
-		ReleaseChanges changes = dist.release.getChanges();
+		ReleaseChanges changes = release.getChanges();
 		ReleaseTicketSet set = changes.getSet( this , setCode );
 		set.dropTarget( this , targetPos , descope );
 	}
 	
 	private void executeSetTicketDone( String setCode , int ticketPos ) throws Exception {
-		ReleaseChanges changes = dist.release.getChanges();
+		ReleaseChanges changes = release.getChanges();
 		ReleaseTicketSet set = changes.getSet( this , setCode );
 		ReleaseTicket ticket = set.getTicket( this , ticketPos );
 		set.setDevDone( this , ticket );
 	}
 	
 	private void executeSetTicketVerified( String setCode , int ticketPos ) throws Exception {
-		ReleaseChanges changes = dist.release.getChanges();
+		ReleaseChanges changes = release.getChanges();
 		ReleaseTicketSet set = changes.getSet( this , setCode );
 		ReleaseTicket ticket = set.getTicket( this , ticketPos );
 		set.setTicketVerified( this , ticket );
 	}
 	
 	private void executeMoveTicket( String setCode , int ticketPos , String newSetCode ) throws Exception {
-		ReleaseChanges changes = dist.release.getChanges();
+		ReleaseChanges changes = release.getChanges();
 		ReleaseTicketSet set = changes.getSet( this , setCode );
 		ReleaseTicketSet setNew = changes.getSet( this , newSetCode );
 		if( set == setNew )
@@ -485,33 +479,38 @@ public class ActionTickets extends ActionBase {
 	}
 	
 	private void executeCopyTicket( String setCode , int ticketPos , String newRelease , String newSetCode ) throws Exception {
-		if( newRelease.equals( dist.RELEASEDIR ) )
+		if( newRelease.equals( release.RELEASEVER ) )
 			return;
 		
-		ReleaseChanges changes = dist.release.getChanges();
+		ReleaseChanges changes = release.getChanges();
 		ReleaseTicketSet set = changes.getSet( this , setCode );
 		ReleaseTicket ticket = set.getTicket( this , ticketPos );
 		
-		DistRepository repo = dist.meta.getDistRepository();
-		distNew = repo.getDistByLabel( this , newRelease );
-		distNew.openForDataChange( this );
+		ReleaseRepository repo = release.repo;
+		releaseNew = repo.findReleaseByLabel( this , newRelease );
+		if( releaseNew == null )
+			Common.exitUnexpected();
 		
 		ReleaseTicketSet setNew = changes.getSet( this , newSetCode );
 		set.copyTicket( this , ticket , setNew );
 	}
 	
 	private void executeCreateSetTarget( String setCode , String element , String[] items ) throws Exception {
-		ReleaseChanges changes = dist.release.getChanges();
+		ReleaseChanges changes = release.getChanges();
 		ReleaseTicketSet set = changes.getSet( this , setCode );
-		MetaSources sources = dist.meta.getSources();
+		
+		Meta meta = release.getMeta();
+		MetaSources sources = meta.getSources();
 		MetaSourceProjectSet projectSet = sources.getProjectSet( element );
 		set.createTarget( this , projectSet );
 	}
 	
 	private void executeCreateProjectTarget( String setCode , String element , String[] items ) throws Exception {
-		ReleaseChanges changes = dist.release.getChanges();
+		ReleaseChanges changes = release.getChanges();
 		ReleaseTicketSet set = changes.getSet( this , setCode );
-		MetaSources sources = dist.meta.getSources();
+		
+		Meta meta = release.getMeta();
+		MetaSources sources = meta.getSources();
 		MetaSourceProject project = sources.getProject( element );
 		set.createTarget( this , project , items );
 	}

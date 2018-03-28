@@ -31,20 +31,6 @@ public class DistRepository {
 	static String REPO_FOLDER_RELEASES_NORMAL = "releases";
 	static String REPO_FOLDER_RELEASES_ARCHIVE = "archive";
 	
-	public enum DistOperation {
-		CREATE ,
-		DROP ,
-		FINISH ,
-		REOPEN ,
-		COMPLETE ,
-		PHASE ,
-		MODIFY ,
-		BUILD ,
-		PUT ,
-		ARCHIVE ,
-		STATUS
-	};
-	
 	public Meta meta;
 	RemoteFolder repoFolder;
 
@@ -190,8 +176,7 @@ public class DistRepository {
 		return( item );
 	}
 
-	public DistRepositoryItem createRepositoryItem( ActionBase action , String RELEASELABEL ) throws Exception {
-		ReleaseLabelInfo info = getLabelInfo( action , RELEASELABEL );
+	public DistRepositoryItem createRepositoryItem( ActionBase action , ReleaseLabelInfo info ) throws Exception {
 		DistRepositoryItem item = new DistRepositoryItem( this );
 		item.createItem( action , info.RELEASEDIR , info.RELEASEPATH );
 		item.createItemFolder( action );
@@ -416,7 +401,7 @@ public class DistRepository {
 		addItem( item );
 	}
 
-	public Dist findMasterDist() {
+	public Dist findDefaultMasterDist() {
 		DistRepositoryItem item = findItem( REPO_FOLDER_RELEASES_MASTER );
 		if( item == null )
 			return( null );

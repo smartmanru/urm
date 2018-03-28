@@ -3,28 +3,28 @@ package org.urm.action.release;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
-import org.urm.engine.dist.Dist;
+import org.urm.db.release.DBRelease;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.release.Release;
 
 public class ActionDescope extends ActionBase {
 
-	public Dist dist;
+	public Release release;
 	
-	public ActionDescope( ActionBase action , String stream , Dist dist ) {
-		super( action , stream , "Descope items from release=" + dist.RELEASEDIR );
-		this.dist = dist;
+	public ActionDescope( ActionBase action , String stream , Release release ) {
+		super( action , stream , "Descope items from release=" + release.RELEASEVER );
+		this.release = release;
 	}
 
 	@Override protected SCOPESTATE executeScopeSet( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		if( !set.setFull )
 			return( SCOPESTATE.NotRun );
 		
-		dist.reloadCheckOpenedForDataChange( this );
 		if( set.releaseBuildScopeSet != null )
-			dist.descopeSet( this , set.releaseBuildScopeSet );
+			DBRelease.descopeSet( super.method , this , release , set.releaseBuildScopeSet );
 		else
-			dist.descopeSet( this , set.releaseDistScopeSet );
+			DBRelease.descopeSet( super.method , this , release , set.releaseDistScopeSet );
 		
 		return( SCOPESTATE.RunSuccess );
 	}

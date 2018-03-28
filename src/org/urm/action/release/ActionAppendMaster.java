@@ -7,47 +7,51 @@ import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.dist.DistState.DISTSTATE;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.product.Meta;
+import org.urm.meta.release.Release;
 
 public class ActionAppendMaster extends ActionBase {
 
-	public Dist dist;
-	public Dist master;
+	public Release release;
+	public Release masterRelease;
 	
-	public ActionAppendMaster( ActionBase action , String stream , Dist dist ) {
-		super( action , stream , "Append release=" + dist.RELEASEDIR + " to master distributive" );
-		this.dist = dist;
+	public ActionAppendMaster( ActionBase action , String stream , Release release ) {
+		super( action , stream , "Append release=" + release.RELEASEVER + " to master distributive" );
+		this.release = release;
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
-		Dist prod = super.getMasterDist( dist.meta );
-		if( !prod.isFinalized() ) {
+		Meta meta = release.getMeta();
+		DistRepository repo = meta.getDistRepository();
+		Dist master = repo.findDefaultMasterDist();
+		if( !master.isFinalized() ) {
 			super.fail0( _Error.NotFinalizedProd0 , "Unable to append to non-finalized master release" );
 			return( SCOPESTATE.RunFail );
 		}
 			
-		if( prod.isCompleted() ) {
+		if( master.isCompleted() ) {
 			super.fail0( _Error.CannotChangeCompletedProd0 , "Unable to append to completed master release" );
 			return( SCOPESTATE.RunFail );
 		}
 
+		Dist dist = repo.findDefaultDist( release );
 		if( !dist.isCompleted() ) {
 			super.fail0( _Error.CannotAppendIncompleteRelease0 , "Unable to append incomplete release" );
 			return( SCOPESTATE.RunFail );
 		}
 		
-		DistRepository repo = dist.repo;
-		VersionInfo infoProd = VersionInfo.getDistVersion( prod );
+		VersionInfo infoMaster = VersionInfo.getDistVersion( master );
 		VersionInfo infoDist = VersionInfo.getDistVersion( dist );
-		String prodSortVersion = infoProd.getSortVersion();
+		String prodSortVersion = infoMaster.getSortVersion();
 		if( prodSortVersion.compareTo( infoDist.getSortVersion() ) >= 0 ) {
 			super.fail1( _Error.CannotAppendOlderRelease1 , "Unable to append older release=" + dist.RELEASEDIR , dist.RELEASEDIR );
 			return( SCOPESTATE.RunFail );
 		}
 		
-		Dist next = repo.getNextDist( this , infoProd );
+		Dist next = repo.getNextDist( this , infoMaster );
 		if( next == null ) {
 			if( !super.isForced() ) {
-				String name = infoProd.getReleaseName();
+				String name = infoMaster.getReleaseName();
 				super.fail1( _Error.CannotFindMasterRelease1 , "Current master source release distributive not found, version=" + name + ", use -force to override" , name );
 				return( SCOPESTATE.RunFail );
 			}
@@ -64,13 +68,12 @@ public class ActionAppendMaster extends ActionBase {
 			}
 		}
 		
-		copyFiles( prod , repo );
-		
+		copyFiles( dist , master , repo );
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private void copyFiles( Dist distMaster , DistRepository repo ) throws Exception {
-		master = repo.copyDist( this , distMaster , distMaster.RELEASEDIR + "-new" , null );
+	private void copyFiles( Dist dist , Dist distMaster , DistRepository repo ) throws Exception {
+		Dist master = repo.copyDist( this , distMaster , distMaster.RELEASEDIR + "-new" , null );
 		
 		master.openForControl( this );
 		master.appendMasterFiles( this , dist );
@@ -78,6 +81,7 @@ public class ActionAppendMaster extends ActionBase {
 		master.closeControl( this , DISTSTATE.RELEASED );
 		
 		repo.replaceDist( this , distMaster , master );
+		masterRelease = master.release;
 	}
 	
 }

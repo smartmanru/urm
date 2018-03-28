@@ -4,17 +4,17 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
-import org.urm.engine.dist.Dist;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.release.Release;
 
 public class ActionSetSpecifics extends ActionBase {
 
-	public Dist dist;
+	public Release release;
 	
-	public ActionSetSpecifics( ActionBase action , String stream , Dist dist ) {
-		super( action , stream , "Set scope specifics, release=" + dist.RELEASEDIR );
-		this.dist = dist;
+	public ActionSetSpecifics( ActionBase action , String stream , Release release ) {
+		super( action , stream , "Set scope specifics, release=" + release.RELEASEVER );
+		this.release = release;
 	}
 
 	@Override 

@@ -2,30 +2,33 @@ package org.urm.action.release;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.release.DBRelease;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
+import org.urm.meta.release.Release;
 
 public class ActionGetCumulative extends ActionBase {
 
 	Meta meta;
-	public Dist dist;
+	public Release release;
 	
-	public ActionGetCumulative( ActionBase action , String stream , Meta meta , Dist dist ) {
-		super( action , stream , "Rebuild cumulative release=" + dist.RELEASEDIR );
+	public ActionGetCumulative( ActionBase action , String stream , Meta meta , Release release ) {
+		super( action , stream , "Rebuild cumulative release=" + release.RELEASEVER );
 		this.meta = meta;
-		this.dist = dist;
+		this.release = release;
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
+		Meta meta = release.getMeta();
+		DistRepository repo = meta.getDistRepository();
+		Dist dist = repo.findDefaultDist( release );
 		dist.openForDataChange( this );
-		dist.descopeAll( this );
+		DBRelease.descopeAll( super.method , this , release );
 		dist.saveReleaseXml( this );
 		
-		DistRepository repo = meta.getDistRepository();
-
 		// dists - source releases sorted from last to most earlier
 		String[] versions = dist.release.getCumulativeVersions();
 		Dist[] dists = new Dist[ versions.length ];

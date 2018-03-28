@@ -23,10 +23,10 @@ public class ActionGetBinary extends ActionBase {
 
 	public LocalFolder downloadFolder;
 	public boolean copyDist;
-	public Dist targetRelease;
+	public Dist targetDist;
 	
-	public Dist useProdRelease;
-	public Dist useRefRelease;
+	public Dist useMasterDist;
+	public Dist useRefDist;
 	
 	static String C_RELEASENEXUSGROUPID = "release";
 	
@@ -35,7 +35,7 @@ public class ActionGetBinary extends ActionBase {
 				( ( targetRelease == null )? "default built" : "release=" + targetRelease.RELEASEDIR ) + 
 				", change distr=" + copyDist );
 		this.copyDist = copyDist;
-		this.targetRelease = targetRelease;
+		this.targetDist = targetRelease;
 		this.downloadFolder = downloadFolder;
 	}
 
@@ -118,7 +118,7 @@ public class ActionGetBinary extends ActionBase {
 			NexusDownloadInfo STATIC = nexusStorage.downloadNexus( this , GROUPID , ARTEFACTID , BUILDVERSION , "tar.gz" , CLASSIFIER , scopeItem.distItem );
 			
 			if( copyDistr ) {
-				Dist releaseStorage = targetRelease;
+				Dist releaseStorage = targetDist;
 				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , WAR.DOWNLOAD_FILENAME , scopeItem.distItem.BASENAME_DIST , scopeItem.distItem.EXT );
 				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , STATIC.DOWNLOAD_FILENAME , scopeItem.distItem.BASENAME_DIST , scopeItem.distItem.WAR_STATICEXT );
 			}
@@ -129,7 +129,7 @@ public class ActionGetBinary extends ActionBase {
 			NexusDownloadInfo BINARY = nexusStorage.downloadNexus( this , GROUPID , ARTEFACTID , BUILDVERSION , PACKAGING , CLASSIFIER , scopeItem.distItem );
 			
 			if( copyDistr ) {
-				Dist releaseStorage = targetRelease;
+				Dist releaseStorage = targetDist;
 				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , BINARY.DOWNLOAD_FILENAME , BINARY.BASENAME, BINARY.EXT );
 			}
 		}
@@ -138,7 +138,7 @@ public class ActionGetBinary extends ActionBase {
 			NexusDownloadInfo BINARY = nexusStorage.downloadNexus( this , GROUPID , ARTEFACTID , BUILDVERSION , PACKAGING , CLASSIFIER , scopeItem.distItem );
 			
 			if( copyDistr ) {
-				Dist releaseStorage = targetRelease;
+				Dist releaseStorage = targetDist;
 				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , BINARY.DOWNLOAD_FILENAME , BINARY.BASENAME, BINARY.EXT );
 			}
 		}
@@ -172,7 +172,7 @@ public class ActionGetBinary extends ActionBase {
 		}
 		
 		if( copyDistr ) {
-			Dist releaseStorage = targetRelease;
+			Dist releaseStorage = targetDist;
 			releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , FILENAME , BASENAME, EXT );
 		}
 	}
@@ -198,7 +198,7 @@ public class ActionGetBinary extends ActionBase {
 			sourceStorage.downloadThirdpartyItemFromVCS( this , ITEMPATH , DISTFOLDER );
 			
 			if( copyDistr ) {
-				Dist releaseStorage = targetRelease;
+				Dist releaseStorage = targetDist;
 				releaseStorage.copyVFileToDistr( this , scopeItem.distItem , downloadFolder , scopeItem.distItem.delivery.FOLDER + "/" + Common.getBaseName( ITEMPATH ) , 
 						scopeItem.distItem.BASENAME_DIST , scopeItem.distItem.EXT );
 			}
@@ -274,7 +274,7 @@ public class ActionGetBinary extends ActionBase {
 		
 		boolean copyDistr = context.CTX_DIST;
 		if( copyDistr ) {
-			Dist releaseStorage = targetRelease;
+			Dist releaseStorage = targetDist;
 			releaseStorage.copyVFileToDistr( this , item.distItem , downloadDirFolder , srcname , 
 				item.distItem.BASENAME_DIST , item.distItem.EXT );
 		}

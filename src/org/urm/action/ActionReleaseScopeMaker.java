@@ -84,6 +84,10 @@ public class ActionReleaseScopeMaker {
 		scope.setReleaseDistScope( release );
 		addScopeReleaseSet( Common.getEnumLower( CATEGORY ) , TARGETS ); 
 	}
+
+	public void addScopeAll() throws Exception {
+		addScopeReleaseSet( "all" , null );
+	}
 	
 	public void addScopeReleaseSet( String set , String[] TARGETS ) throws Exception {
 		action.trace( "scope: Release Set Scope, release=" + release.RELEASEVER + ", set=" + set + ", targets=" + Common.getListSet( TARGETS ) );
@@ -324,7 +328,7 @@ public class ActionReleaseScopeMaker {
 		}
 	}
 	
-	private void addFullRelease()	throws Exception {
+	private void addFullRelease() throws Exception {
 		addAllReleaseProjects();
 		addAllReleaseConfigs();
 		addAllReleaseDatabase();

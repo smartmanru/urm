@@ -71,13 +71,6 @@ public class CommandExecutorDeploy extends CommandExecutor {
 		return( res );
 	}
 
-	private Dist getDist( ActionBase action ) throws Exception {
-		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
-		Meta meta = action.getContextMeta();
-		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
-		return( dist );
-	}
-	
 	private ActionScope getServerScope( ActionBase action ) throws Exception {
 		return( getServerScope( action , 0 ) );
 	}
@@ -155,7 +148,8 @@ public class CommandExecutorDeploy extends CommandExecutor {
 
 	private class DeployRedist extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
-		Dist dist = getDist( action );
+		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		Dist dist = super.getDist( action , RELEASELABEL );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.deployRedist( parentState , action , scope , dist );
 	}
@@ -178,7 +172,8 @@ public class CommandExecutorDeploy extends CommandExecutor {
 
 	private class GetRedistInfo extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
-		Dist dist = getDist( action );
+		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		Dist dist = super.getDist( action , RELEASELABEL );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.getRedistInfo( parentState , action , scope , dist );
 	}
@@ -232,7 +227,8 @@ public class CommandExecutorDeploy extends CommandExecutor {
 
 	private class Redist extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
-		Dist dist = getDist( action );
+		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		Dist dist = super.getDist( action , RELEASELABEL );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.redist( parentState , action , scope , dist );
 	}
@@ -247,7 +243,8 @@ public class CommandExecutorDeploy extends CommandExecutor {
 
 	private class Rollback extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
-		Dist dist = getDist( action );
+		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		Dist dist = super.getDist( action , RELEASELABEL );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.rollback( parentState , action , scope , dist );
 	}
@@ -255,7 +252,8 @@ public class CommandExecutorDeploy extends CommandExecutor {
 
 	private class Rollout extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
-		Dist dist = getDist( action );
+		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		Dist dist = super.getDist( action , RELEASELABEL );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.rollout( parentState , action , scope , dist );
 	}
@@ -330,7 +328,8 @@ public class CommandExecutorDeploy extends CommandExecutor {
 
 	private class VerifyDeploy extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
-		Dist dist = getDist( action );
+		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		Dist dist = super.getDist( action , RELEASELABEL );
 		ActionScope scope = getServerScope( action , 1 );
 		impl.verifyDeploy( parentState , action , scope , dist );
 	}

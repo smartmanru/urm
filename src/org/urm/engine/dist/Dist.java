@@ -8,7 +8,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.release.DBReleaseRepository;
-import org.urm.engine.BlotterService;
 import org.urm.engine.dist.DistState.DISTSTATE;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
@@ -20,15 +19,11 @@ import org.urm.meta.EngineLoaderReleases;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.env.MetaEnvServerLocation;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductDoc;
-import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.product.MetaSourceProjectItem;
-import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseDist;
@@ -446,62 +441,6 @@ public class Dist {
 	public void saveReleaseXml( ActionBase action ) throws Exception {
 	}
 
-	public boolean addAllSource( ActionBase action , MetaSourceProjectSet set ) throws Exception {
-		return( false );
-	}
-	
-	public boolean addAllCategory( ActionBase action , DBEnumScopeCategoryType CATEGORY ) throws Exception {
-		return( false );
-	}
-	
-	public boolean addProjectAllItems( ActionBase action , MetaSourceProject project ) throws Exception {
-		return( false );
-	}
-
-	public boolean addProjectItem( ActionBase action , MetaSourceProject project , MetaSourceProjectItem item ) throws Exception {
-		return( false );
-	}
-
-	public boolean addConfItem( ActionBase action , MetaDistrConfItem item ) throws Exception {
-		return( false );
-	}
-
-	public boolean addManualItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		return( false );
-	}
-
-	public boolean addDerivedItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		return( false );
-	}
-
-	public boolean addBinaryItem( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
-		return( false );
-	}
-	
-	public boolean addDeliveryAllDatabaseSchemes( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		return( false );
-	}
-
-	public boolean addDeliveryAllDocs( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		return( false );
-	}
-
-	public boolean addDeliveryDatabaseSchema( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
-		return( false );
-	}
-	
-	public boolean addDeliveryDoc( ActionBase action , MetaDistrDelivery delivery , MetaProductDoc doc ) throws Exception {
-		return( false );
-	}
-	
-	public boolean addDatabaseAll( ActionBase action ) throws Exception {
-		return( false );
-	}
-
-	public boolean addDocAll( ActionBase action ) throws Exception {
-		return( false );
-	}
-
 	public String getReleaseConfCompParentFolder( ActionBase action , MetaDistrConfItem comp ) throws Exception {
 		String folder = getDeliveryConfFolder( action , comp.delivery );
 		return( folder );
@@ -612,15 +551,6 @@ public class Dist {
 		state.ctlReloadCheckOpenedForDataChange( action );
 	}
 	
-	public void descopeSet( ActionBase action , ReleaseBuildScopeSet set ) throws Exception {
-	}
-
-	public void descopeSet( ActionBase action , ReleaseDistScopeSet set ) throws Exception {
-	}
-
-	public void descopeAllProjects( ActionBase action ) throws Exception {
-	}
-	
 	public String getBinaryDistItemFile( ActionBase action , MetaDistrBinaryItem item ) throws Exception {
 		return( null );
 	}
@@ -703,9 +633,6 @@ public class Dist {
 		}
 	}
 
-	public void descopeAll( ActionBase action ) throws Exception {
-	}
-
 	public void copyDatabaseDistrToDistr( ActionBase action , MetaDistrDelivery delivery , Dist src ) throws Exception {
 		String folder = src.getDeliveryDatabaseFolder( action , delivery , src.release.RELEASEVER );
 		if( src.distFolder.checkFolderExists( action , folder ) )
@@ -729,11 +656,6 @@ public class Dist {
 		String folderDst = distFolder.getFilePath( action , Common.getPath( folder , item.NAME ) );
 		distFolder.ensureFolderExists( action , folderDst );
 		session.copyDirContent( action , folderSrc , folderDst );
-	}
-	
-	public void finishStatus( ActionBase action ) throws Exception {
-		BlotterService blotter = action.getServerBlotter();
-		blotter.runDistStatus( action , meta , this );
 	}
 	
 	public void createMasterFiles( ActionBase action , Dist src ) throws Exception {

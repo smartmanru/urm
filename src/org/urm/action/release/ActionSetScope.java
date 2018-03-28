@@ -6,9 +6,10 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.dist.Dist;
+import org.urm.db.release.DBRelease;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -16,6 +17,7 @@ import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSources;
+import org.urm.meta.release.Release;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
@@ -29,13 +31,13 @@ public class ActionSetScope extends ActionBase {
 	public static String SCOPEITEM_SCHEMA = "schema";
 	public static String SCOPEITEM_DOC = "doc";
 	
-	public Dist dist;
+	public Release release;
 	boolean sourcePath;
 	String[] pathItems;
 	
-	public ActionSetScope( ActionBase action , String stream , Dist dist , boolean sourcePath , String[] pathItems ) {
-		super( action , stream , "Set scope, release=" + dist.RELEASEDIR );
-		this.dist = dist;
+	public ActionSetScope( ActionBase action , String stream , Release release , boolean sourcePath , String[] pathItems ) {
+		super( action , stream , "Set scope, release=" + release.RELEASEVER );
+		this.release = release;
 		this.sourcePath = sourcePath;
 		this.pathItems = pathItems;
 	}
@@ -54,20 +56,20 @@ public class ActionSetScope extends ActionBase {
 	}
 
 	private boolean executeBySource() throws Exception {
-		MetaSources source = dist.meta.getSources();
+		Meta meta = release.getMeta();
+		MetaSources source = meta.getSources();
 		
 		// add new
-		dist.reloadCheckOpenedForDataChange( this );
 		if( pathItems.length == 1 ) {
 			if( pathItems[0].equals( "all" ) ) {
 				for( MetaSourceProjectSet set : source.getSets() ) {
-					if( !dist.addAllSource( this , set ) )
+					if( !DBRelease.addAllSource( super.method , this , release , set ) )
 						return( false );
 				}
 				return( true );
 			}
 			if( pathItems[0].equals( "none" ) ) {
-				dist.descopeAllProjects( this );
+				DBRelease.descopeAllProjects( super.method , this , release );
 				return( true );
 			}
 		}
@@ -78,7 +80,7 @@ public class ActionSetScope extends ActionBase {
 			String[] els = Common.split( path , "/" );
 			if( els.length == 1 ) {
 				MetaSourceProjectSet set = source.getProjectSet( els[0] );
-				if( !dist.addAllSource( this , set ) )
+				if( !DBRelease.addAllSource( super.method , this , release , set ) )
 					return( false );
 				continue;
 			}
@@ -86,7 +88,7 @@ public class ActionSetScope extends ActionBase {
 				MetaSourceProjectSet set = source.getProjectSet( els[0] );
 				check.put( els[0] , "set" );
 				MetaSourceProject project = set.getProject( els[1] );
-				if( !dist.addProjectAllItems( this , project ) )
+				if( !DBRelease.addProjectAllItems( super.method , this , release , project ) )
 					return( false );
 				continue;
 			}
@@ -96,7 +98,7 @@ public class ActionSetScope extends ActionBase {
 				MetaSourceProject project = set.getProject( els[1] );
 				check.put( Common.concat( els[0] , els[1] , "/" ) , "project" );
 				MetaSourceProjectItem item = project.getItem( els[2] );
-				if( !dist.addProjectItem( this , project , item ) )
+				if( !DBRelease.addProjectItem( super.method , this , release , project , item ) )
 					return( false );
 				continue;
 			}
@@ -108,11 +110,11 @@ public class ActionSetScope extends ActionBase {
 	}
 
 	private boolean executeByDelivery() throws Exception {
-		MetaDistr distr = dist.meta.getDistr();
-		MetaSources source = dist.meta.getSources();
+		Meta meta = release.getMeta();
+		MetaDistr distr = meta.getDistr();
+		MetaSources source = meta.getSources();
 		
 		// add new 
-		dist.reloadCheckOpenedForDataChange( this );
 		if( pathItems.length == 1 ) {
 			if( pathItems[0].equals( "all" ) ) {
 				for( DBEnumScopeCategoryType category : new DBEnumScopeCategoryType[] { 
@@ -121,18 +123,18 @@ public class ActionSetScope extends ActionBase {
 						DBEnumScopeCategoryType.CONFIG , 
 						DBEnumScopeCategoryType.DB , 
 						DBEnumScopeCategoryType.DOC } ) {
-					if( !dist.addAllCategory( this , category ) )
+					if( !DBRelease.addAllCategory( super.method , this , release , category ) )
 						return( false );
 				}
 				
 				for( MetaSourceProjectSet set : source.getSets() ) {
-					if( !dist.addAllSource( this , set ) )
+					if( !DBRelease.addAllSource( super.method , this , release , set ) )
 						return( false );
 				}
 				return( true );
 			}
 			if( pathItems[0].equals( "none" ) ) {
-				dist.descopeAll( this );
+				DBRelease.descopeAll( super.method , this , release );
 				return( true );
 			}
 		}
@@ -169,25 +171,25 @@ public class ActionSetScope extends ActionBase {
 				
 				if( type.equals( SCOPEITEM_BINARY ) ) {
 					MetaDistrBinaryItem item = delivery.getBinaryItem( els[2] );
-					if( !dist.addBinaryItem( this , item ) )
+					if( !DBRelease.addBinaryItem( super.method , this , release , item ) )
 						return( false );
 				}
 				else
 					if( type.equals( SCOPEITEM_CONF ) ) {
 					MetaDistrConfItem item = delivery.getConfItem( els[2] );
-					if( !dist.addConfItem( this , item ) )
+					if( !DBRelease.addConfItem( super.method , this , release , item ) )
 						return( false );
 				}
 				else
 					if( type.equals( SCOPEITEM_SCHEMA ) ) {
 					MetaDatabaseSchema schema = delivery.getSchema( els[2] );
-					if( !dist.addDeliveryDatabaseSchema( this , delivery , schema ) )
+					if( !DBRelease.addDeliveryDatabaseSchema( super.method , this , release , delivery , schema ) )
 						return( false );
 				}
 				else
 					if( type.equals( SCOPEITEM_DOC ) ) {
 					MetaProductDoc doc = delivery.getDoc( els[2] );
-					if( !dist.addDeliveryDoc( this , delivery , doc ) )
+					if( !DBRelease.addDeliveryDoc( super.method , this , release , delivery , doc ) )
 						return( false );
 				}
 			}
@@ -200,12 +202,12 @@ public class ActionSetScope extends ActionBase {
 
 	private boolean addAllDelivery( Map<String,String> check , MetaDistrDelivery delivery ) throws Exception {
 		for( MetaDistrBinaryItem binaryItem : delivery.getBinaryItems() ) {
-			if( !dist.addBinaryItem( this , binaryItem ) )
+			if( !DBRelease.addBinaryItem( super.method , this , release , binaryItem ) )
 				return( false );
 			check.put( Common.getListPath( new String[] { delivery.NAME , SCOPEITEM_BINARY , binaryItem.NAME } ) , "binary" );
 		}
 		for( MetaDistrConfItem confItem : delivery.getConfItems() ) {
-			if( !dist.addConfItem( this , confItem ) )
+			if( !DBRelease.addConfItem( super.method , this , release , confItem ) )
 				return( false );
 			check.put( Common.getListPath( new String[] { delivery.NAME , SCOPEITEM_CONF , confItem.NAME } ) , "conf" );
 		}
@@ -221,7 +223,7 @@ public class ActionSetScope extends ActionBase {
 	}
 	
 	private boolean addDeliveryAllSchemes( Map<String,String> check , MetaDistrDelivery delivery ) throws Exception {
-		if( !dist.addDeliveryAllDatabaseSchemes( this , delivery ) )
+		if( !DBRelease.addDeliveryAllDatabaseSchemes( super.method , this , release , delivery ) )
 			return( false );
 		
 		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() )
@@ -230,7 +232,7 @@ public class ActionSetScope extends ActionBase {
 	}
 	
 	private boolean addDeliveryAllDocs( Map<String,String> check , MetaDistrDelivery delivery ) throws Exception {
-		if( !dist.addDeliveryAllDocs( this , delivery ) )
+		if( !DBRelease.addDeliveryAllDocs( super.method , this , release , delivery ) )
 			return( false );
 		
 		for( MetaProductDoc doc : delivery.getDocs() )
