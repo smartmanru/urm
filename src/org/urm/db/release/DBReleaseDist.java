@@ -1,5 +1,7 @@
 package org.urm.db.release;
 
+import java.sql.ResultSet;
+
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
@@ -104,6 +106,22 @@ public class DBReleaseDist {
 				EngineDB.getString( releaseDist.META_HASH ) ,
 				EngineDB.getString( releaseDist.DATA_HASH )
 				} , insert );
+	}
+
+	public static ReleaseDist loaddbReleaseDist( EngineLoader loader , Release release , ResultSet rs ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseDist;
+		
+		ReleaseDist releaseDist = new ReleaseDist( release );
+		releaseDist.ID = entity.loaddbId( rs );
+		releaseDist.RV = entity.loaddbVersion( rs );
+		releaseDist.create(
+				entity.loaddbString( rs , ReleaseDist.PROPERTY_VARIANT ) ,
+				entity.loaddbDate( rs , ReleaseDist.PROPERTY_DATE ) ,
+				entity.loaddbString( rs , ReleaseDist.PROPERTY_METAHASH ) ,
+				entity.loaddbString( rs , ReleaseDist.PROPERTY_DATAHASH )
+				);
+		return( releaseDist );
 	}
 	
 }

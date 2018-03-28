@@ -169,16 +169,7 @@ public class DBReleaseRepository {
 			while( rs.next() ) {
 				int releaseId = entity.loaddbObject( rs , DBReleaseData.FIELD_RELEASE_ID );
 				Release release = repo.getRelease( releaseId );
-				ReleaseDist releaseDist = new ReleaseDist( release );
-				releaseDist.ID = entity.loaddbId( rs );
-				releaseDist.RV = entity.loaddbVersion( rs );
-				releaseDist.create(
-						entity.loaddbString( rs , ReleaseDist.PROPERTY_VARIANT ) ,
-						entity.loaddbDate( rs , ReleaseDist.PROPERTY_DATE ) ,
-						entity.loaddbString( rs , ReleaseDist.PROPERTY_METAHASH ) ,
-						entity.loaddbString( rs , ReleaseDist.PROPERTY_DATAHASH )
-						);
-				
+				ReleaseDist releaseDist = DBReleaseDist.loaddbReleaseDist( loader , release , rs );
 				if( releaseDist.isDefault() )
 					release.setDefaultDist( releaseDist );
 				else
