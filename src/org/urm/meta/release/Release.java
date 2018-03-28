@@ -47,6 +47,7 @@ public class Release {
 	public static String PROPERTY_COMPATIBILITY = "over";
 	public static String PROPERTY_CUMULATIVE = "cumulative";
 	public static String PROPERTY_ARCHIVED = "archived";
+	public static String PROPERTY_CANCELLED = "cancelled";
 	
 	public enum RELEASESTATE {
 		UNKNOWN ,
@@ -104,6 +105,7 @@ public class Release {
 		r.COMPATIBILITY = COMPATIBILITY;
 		r.CUMULATIVE = CUMULATIVE;
 		r.ARCHIVED = ARCHIVED;
+		r.CANCELLED = CANCELLED;
 		r.RV = RV;
 		
 		r.schedule = schedule.copy( r );
@@ -175,7 +177,7 @@ public class Release {
 	}
 	
 	public void create( String NAME , String DESC , boolean MASTER , DBEnumLifecycleType TYPE , String RELEASEVER , 
-			DBEnumBuildModeType BUILDMODE , String COMPATIBILITY , boolean CUMULATIVE , boolean ARCHIVED ) {
+			DBEnumBuildModeType BUILDMODE , String COMPATIBILITY , boolean CUMULATIVE , boolean ARCHIVED , boolean CANCELLED ) {
 		this.NAME = NAME;
 		this.DESC = DESC;
 		this.MASTER = MASTER;
@@ -185,6 +187,7 @@ public class Release {
 		this.COMPATIBILITY = COMPATIBILITY;
 		this.CUMULATIVE = CUMULATIVE;
 		this.ARCHIVED = ARCHIVED;
+		this.CANCELLED = CANCELLED;
 	}
 	
 	public void createNormal( ActionBase action , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
@@ -198,6 +201,7 @@ public class Release {
 		this.COMPATIBILITY = "";
 		this.CUMULATIVE = action.context.CTX_CUMULATIVE;
 		this.ARCHIVED = false;
+		this.CANCELLED = false;
 		this.RV = 0;
 
 		schedule.createNormal( releaseDate );
@@ -214,6 +218,8 @@ public class Release {
 		this.BUILDMODE = DBEnumBuildModeType.UNKNOWN;
 		this.COMPATIBILITY = "";
 		this.CUMULATIVE = true;
+		this.ARCHIVED = false;
+		this.CANCELLED = false;
 	}
 	
 	public ReleaseSchedule getSchedule() {
@@ -240,6 +246,10 @@ public class Release {
 	
 	public boolean isCumulative() {
 		return( CUMULATIVE );
+	}
+	
+	public boolean isCancelled() {
+		return( CANCELLED );
 	}
 	
 	public String[] getApplyVersions() {

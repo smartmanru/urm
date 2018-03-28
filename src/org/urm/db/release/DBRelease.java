@@ -1,14 +1,19 @@
 package org.urm.db.release;
 
+import java.sql.ResultSet;
 import java.util.Date;
 
 import org.urm.action.ActionBase;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
+import org.urm.db.core.DBEnums.DBEnumBuildModeType;
+import org.urm.db.core.DBEnums.DBEnumLifecycleType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.dist.VersionInfo;
+import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.run.EngineMethod;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseRepository;
@@ -48,8 +53,30 @@ public class DBRelease {
 				EngineDB.getEnum( release.BUILDMODE ) ,
 				EngineDB.getString( release.COMPATIBILITY ) ,
 				EngineDB.getBoolean( release.CUMULATIVE ) ,
-				EngineDB.getBoolean( release.ARCHIVED )
+				EngineDB.getBoolean( release.ARCHIVED ) ,
+				EngineDB.getBoolean( release.CANCELLED )
 				} , insert );
 	}
-	
+
+	public static Release loaddbRelease( EngineLoader loader , ReleaseRepository repo , ResultSet rs ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseMain;
+		
+		Release release = new Release( repo );
+		release.ID = entity.loaddbId( rs );
+		release.RV = entity.loaddbVersion( rs );
+		release.create(
+				entity.loaddbString( rs , Release.PROPERTY_NAME ) ,
+				entity.loaddbString( rs , Release.PROPERTY_DESC ) ,
+				entity.loaddbBoolean( rs , Release.PROPERTY_MASTER ) ,
+				DBEnumLifecycleType.getValue( entity.loaddbEnum( rs , Release.PROPERTY_LIFECYCLETYPE ) , true ) ,
+				entity.loaddbString( rs , Release.PROPERTY_VERSION ) ,
+				DBEnumBuildModeType.getValue( entity.loaddbEnum( rs , Release.PROPERTY_BUILDMODE ) , false ) ,
+				entity.loaddbString( rs , Release.PROPERTY_COMPATIBILITY ) ,
+				entity.loaddbBoolean( rs , Release.PROPERTY_CUMULATIVE ) ,
+				entity.loaddbBoolean( rs , Release.PROPERTY_ARCHIVED ) ,
+				entity.loaddbBoolean( rs , Release.PROPERTY_CANCELLED )
+				);
+		return( release );
+	}
 }

@@ -105,6 +105,9 @@ public class MetaEnvSegment extends EngineObject {
 	}
 	
 	public void setSegmentPrimary( String name , String desc , MatchItem baselineMatchItem , boolean offline , MatchItem dcMatchItem ) throws Exception {
+		if( env.hasBaseline() && baselineMatchItem != null )
+			Common.exitUnexpected();
+		
 		if( dcMatchItem == null )
 			Common.exitUnexpected();
 		

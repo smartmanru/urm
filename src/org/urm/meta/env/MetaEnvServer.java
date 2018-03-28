@@ -223,6 +223,9 @@ public class MetaEnvServer extends EngineObject {
 
 	public void setServerPrimary( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , DBEnumOSType osType , 
 			String sysname , MatchItem baselineMatchItem , boolean offline , DBEnumDbmsType dbmsType , MatchItem admSchemaMatchItem , MatchItem baseItemMatchItem ) throws Exception {
+		if( sg.hasBaseline() && baseItemMatchItem != null )
+			Common.exitUnexpected();
+		
 		this.NAME = name;
 		this.DESC = desc;
 		this.SERVERRUN_TYPE = runType;

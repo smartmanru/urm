@@ -8,7 +8,6 @@ import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
-import org.urm.db.core.DBEnums.DBEnumBuildModeType;
 import org.urm.db.core.DBEnums.DBEnumLifecycleType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
@@ -148,20 +147,7 @@ public class DBReleaseRepository {
 				} );
 		try {
 			while( rs.next() ) {
-				Release release = new Release( repo );
-				release.ID = entity.loaddbId( rs );
-				release.RV = entity.loaddbVersion( rs );
-				release.create(
-						entity.loaddbString( rs , Release.PROPERTY_NAME ) ,
-						entity.loaddbString( rs , Release.PROPERTY_DESC ) ,
-						entity.loaddbBoolean( rs , Release.PROPERTY_MASTER ) ,
-						DBEnumLifecycleType.getValue( entity.loaddbEnum( rs , Release.PROPERTY_LIFECYCLETYPE ) , true ) ,
-						entity.loaddbString( rs , Release.PROPERTY_VERSION ) ,
-						DBEnumBuildModeType.getValue( entity.loaddbEnum( rs , Release.PROPERTY_BUILDMODE ) , false ) ,
-						entity.loaddbString( rs , Release.PROPERTY_COMPATIBILITY ) ,
-						entity.loaddbBoolean( rs , Release.PROPERTY_CUMULATIVE ) ,
-						entity.loaddbBoolean( rs , Release.PROPERTY_ARCHIVED )
-						);
+				Release release = DBRelease.loaddbRelease( loader , repo , rs );
 				repo.addRelease( release );
 				break;
 			}

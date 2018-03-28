@@ -158,7 +158,8 @@ public class DBReleaseData {
 				EntityVar.metaEnumVar( Release.PROPERTY_BUILDMODE , FIELD_MAIN_BUILDMODE , Release.PROPERTY_BUILDMODE , "Build mode type" , true , DBEnumBuildModeType.UNKNOWN ) ,
 				EntityVar.metaStringVar( Release.PROPERTY_COMPATIBILITY , FIELD_MAIN_COMPATIBILITY , Release.PROPERTY_COMPATIBILITY , "release compatibility" , false , null ) ,
 				EntityVar.metaBoolean( Release.PROPERTY_CUMULATIVE , "cumulative" , true , false ) ,
-				EntityVar.metaBoolean( Release.PROPERTY_ARCHIVED , "archived" , true , false )
+				EntityVar.metaBoolean( Release.PROPERTY_ARCHIVED , "archived" , true , false ) ,
+				EntityVar.metaBoolean( Release.PROPERTY_CANCELLED , "cancelled" , true , false )
 		} ) );
 	}
 
