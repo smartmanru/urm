@@ -9,6 +9,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.common.RunError;
 import org.urm.common.action.CommandOptions;
+import org.urm.common.action.OptionsMeta;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.BlotterService;
@@ -1033,13 +1034,11 @@ abstract public class ActionBase extends ActionCore {
 		}
 	}
 
-	public CommandContext getDefaultContext( Meta meta , MetaEnv env ) {
-		CommandContext defctx = new CommandContext( this , context , null );
+	public void updateOptionDefaults( CommandOptions options , Meta meta , MetaEnv env ) {
 		if( env != null ) {
 			if( env.isProd() )
-				defctx.CTX_BACKUP = true;
+				options.setFlag( OptionsMeta.OPT_BACKUP , true );
 		}
-		return( defctx );
 	}
 	
 }
