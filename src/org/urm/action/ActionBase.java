@@ -1033,4 +1033,13 @@ abstract public class ActionBase extends ActionCore {
 		}
 	}
 
+	public CommandContext getDefaultContext( Meta meta , MetaEnv env ) {
+		CommandContext defctx = new CommandContext( this , context , null );
+		if( env != null ) {
+			if( env.isProd() )
+				defctx.CTX_BACKUP = true;
+		}
+		return( defctx );
+	}
+	
 }
