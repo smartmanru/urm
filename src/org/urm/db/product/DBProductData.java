@@ -6,6 +6,8 @@ import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.core.DBSettings;
+import org.urm.db.engine.DBEngineEntities;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
@@ -525,44 +527,36 @@ public class DBProductData {
 	}
 
 	public static void dropProductDistData( DBConnection c , ProductMeta storage ) throws Exception {
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTCOMPITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTBINARYITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrCompItem , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrBinaryItem , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrBinaryItem , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrConfItem , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		
 		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTSCHEMAITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTCONFITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
 			Common.exitUnexpected();
 		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTDOCITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
 			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTDELIVERY1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTCOMP1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
+		
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrDelivery , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrComponent , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 	}
 	
 	public static void dropProductCoreData( DBConnection c , ProductMeta storage ) throws Exception {
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_SOURCEITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_SOURCEPROJECT1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_UNIT1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_SCHEMA1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_SOURCESET1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DOC1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaSourceItem , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaSourceProject , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaUnit , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaSchema , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaSourceSet , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDoc , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_LIFECYCLE1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
 			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_POLICY1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaPolicy , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		
-		if( !c.modify( DBQueries.MODIFY_CORE_UNMATCHRELEASES1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
+		if( !c.modify( DBQueries.MODIFY_CORE_UNMATCHRELEASES2 , new String[] { EngineDB.getInteger( storage.ID ) , EngineDB.getString( storage.name ) } ) )
 			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_META1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMeta , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 	}
 
 }

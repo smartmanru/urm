@@ -2,6 +2,7 @@ package org.urm.db.engine;
 
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
+import org.urm.db.env.DBEnvData;
 import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
 import org.urm.engine.AuthService;
@@ -32,11 +33,14 @@ public class DBEngineProducts {
 				Common.exitUnexpected();
 
 			change = true;
-			if( !transaction.recreateMetadata( product.storage.meta ) )
+			ProductMeta storage = product.storage;
+			if( !transaction.recreateMetadata( storage.meta ) )
 				Common.exitUnexpected();
 			
-			if( product.storage.isExists() )
-				DBProductData.dropProductData( c , product.storage );
+			if( storage.isExists() ) {
+				DBEnvData.dropEnvData( c , storage );
+				DBProductData.dropProductData( c , storage );
+			}
 			
 			DBEngineDirectory.deleteProduct( transaction , directory , product , true , false , false );
 			DBEngineMirrors.deleteProductResources( transaction , mirrors , product , forceClearMeta , false , false );
@@ -70,6 +74,7 @@ public class DBEngineProducts {
 		if( !transaction.changeMirrors( mirrors ) )
 			Common.exitUnexpected();
 
+		DBEnvData.dropEnvData( c , storage );
 		DBEngineAuth.deleteProductAccess( c , auth , product );
 		DBProductData.dropProductData( c , storage );
 		DBEngineMirrors.deleteProductResources( transaction , mirrors , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );

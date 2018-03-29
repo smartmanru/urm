@@ -99,23 +99,12 @@ public abstract class DBQueries {
 	public static String QUERY_AUTH_GROUPACCESS_NETWORKS0 = "select group_id , network_id , uv from urm_auth_access_network";
 	public static String QUERY_AUTH_GROUPUSERS0 = "select group_id , user_id , uv from urm_auth_groupuser";
 
-	public static String MODIFY_META_DELETEALL_SOURCEITEM1 = "delete from urm_source_item where meta_id = @1@";
-	public static String MODIFY_META_DELETEALL_SOURCEPROJECT1 = "delete from urm_source_project where meta_id = @1@";
-	public static String MODIFY_META_DELETEALL_UNIT1 = "delete from urm_product_unit where meta_id = @1@";
-	public static String MODIFY_META_DELETEALL_SCHEMA1 = "delete from urm_product_schema where meta_id = @1@";
-	public static String MODIFY_META_DELETEALL_SOURCESET1 = "delete from urm_source_set where meta_id = @1@";
-	public static String MODIFY_META_DELETEALL_DOC1 = "delete from urm_product_doc where meta_id = @1@";
 	public static String MODIFY_META_DELETEALL_LIFECYCLE1 = "delete from urm_product_lifecycle where meta_id = @1@";
 	public static String MODIFY_META_DELETEALL_POLICY1 = "delete from urm_product_policy where meta_id = @1@";
 	public static String MODIFY_META_DELETEALL_META1 = "delete from urm_product_meta where meta_id = @1@";
 	
-	public static String MODIFY_META_DELETEALL_DISTCOMPITEM1 = "delete from urm_dist_compitem where meta_id = @1@";
-	public static String MODIFY_META_DELETEALL_DISTBINARYITEM1 = "delete from urm_dist_binaryitem where meta_id = @1@";
 	public static String MODIFY_META_DELETEALL_DISTSCHEMAITEM1 = "delete from urm_dist_schemaitem where meta_id = @1@";
-	public static String MODIFY_META_DELETEALL_DISTCONFITEM1 = "delete from urm_dist_confitem where meta_id = @1@";
 	public static String MODIFY_META_DELETEALL_DISTDOCITEM1 = "delete from urm_dist_docitem where meta_id = @1@";
-	public static String MODIFY_META_DELETEALL_DISTDELIVERY1 = "delete from urm_dist_delivery where meta_id = @1@";
-	public static String MODIFY_META_DELETEALL_DISTCOMP1 = "delete from urm_dist_comp where meta_id = @1@";
 
 	public static String MODIFY_META_SETSTATUS2 = "update urm_product_meta set matched = @2@ where meta_id = @1@";
 	
@@ -170,6 +159,6 @@ public abstract class DBQueries {
 
 	public static String MODIFY_REL_REPO_MATCHMETA2 = "update urm_rel_repository set meta_fkid = @1@ , meta_fkname = null where meta_fkid is null and meta_fkname = @2@";
 
-	public static String MODIFY_CORE_UNMATCHRELEASES1 = "update urm_rel_repository set meta_fkid = null , meta_fkname = meta.name from ( select b.meta_id , a.name from urm_product a , urm_product_meta b where a.product_id = b.product_fkid and meta_id = @1@ ) as meta where meta_fkid is not null and urm_rel_repository.meta_fkid = meta.meta_id";
+	public static String MODIFY_CORE_UNMATCHRELEASES2 = "update urm_rel_repository set meta_fkid = null , meta_fkname = @2@ where meta_fkid is not null and meta_fkid = @1@";
 	
 }

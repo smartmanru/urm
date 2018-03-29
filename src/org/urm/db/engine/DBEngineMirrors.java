@@ -183,9 +183,8 @@ public class DBEngineMirrors {
 			meta = createRepository( transaction , mirrors , name , "standard meta repository" , DBEnumMirrorType.PRODUCT_META );
 			mirrors.addRepository( meta );
 		}
-		else {
-			meta.setProduct( product.ID );
-		}
+		
+		meta.setProduct( product.ID );
  		
  		// data
 		MirrorRepository data = mirrors.findProductDataRepository( product.NAME );
@@ -194,9 +193,8 @@ public class DBEngineMirrors {
 			data = createRepository( transaction , mirrors , name , "standard data repository" , DBEnumMirrorType.PRODUCT_DATA );
 			mirrors.addRepository( data );
 		}
-		else {
-			data.setProduct( product.ID );
-		}
+		
+		data.setProduct( product.ID );
 	}
 
 	private static MirrorRepository createRepository( EngineTransaction transaction , EngineMirrors mirrors , String name , String desc , DBEnumMirrorType type ) throws Exception {

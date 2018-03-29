@@ -227,6 +227,9 @@ public class CallService {
 	public void deleteProduct( AppProduct product ) throws Exception {
 		action.trace( "unregister jmx connector, product=" + product.NAME + " ..." );
 		List<String> objects = productObjects.get( product.ID );
+		if( objects == null )
+			return;
+		
 		for( String name : objects ) {
 			ObjectName object = new ObjectName( name );
 			mbs.unregisterMBean( object );
