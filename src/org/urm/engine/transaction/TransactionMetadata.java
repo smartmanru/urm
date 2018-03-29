@@ -85,7 +85,7 @@ public class TransactionMetadata {
 		}
 		
 		ProductMeta storage = meta.getStorage();
-		if( !storage.isPrimary() ) {
+		if( storage.isExists() && !storage.isPrimary() ) {
 			transaction.error( "Unable to change old metadata, id=" + storage.objectId );
 			return( false );
 		}
@@ -93,7 +93,6 @@ public class TransactionMetadata {
 		productType = CHANGETYPE.RECREATE;
 		metadataOld = storage;
 		metadata = null;
-		sessionMeta = transaction.action.getProductMetadata( meta.name );
 		transaction.trace( "transaction recreate product storage meta=" + storage.objectId );
 		return( true );
 	}
@@ -243,7 +242,8 @@ public class TransactionMetadata {
 			AppProduct product = metadata.product;
 			transaction.setProductMetadata( metadata );
 			product.setStorage( metadata );
-			sessionMeta.replaceStorage( transaction.action , metadata );
+			if( sessionMeta != null )
+				sessionMeta.replaceStorage( transaction.action , metadata );
 			transaction.trace( "transaction product storage meta: save=" + metadata.objectId );
 			
 			if( productType == CHANGETYPE.CREATE )

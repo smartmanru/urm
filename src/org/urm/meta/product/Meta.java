@@ -65,7 +65,7 @@ public class Meta extends EngineObject {
 		return( name );
 	}
 
-	public int getId() {
+	public Integer getId() {
 		return( storage.ID );
 	}
 	

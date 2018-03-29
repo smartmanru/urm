@@ -35,7 +35,9 @@ public class DBEngineProducts {
 			if( !transaction.recreateMetadata( product.storage.meta ) )
 				Common.exitUnexpected();
 			
-			DBProductData.dropProductData( c , product.storage );
+			if( product.storage.isExists() )
+				DBProductData.dropProductData( c , product.storage );
+			
 			DBEngineDirectory.deleteProduct( transaction , directory , product , true , false , false );
 			DBEngineMirrors.deleteProductResources( transaction , mirrors , product , forceClearMeta , false , false );
 		}
