@@ -11,6 +11,7 @@ public abstract class DBQueries {
 	public static String FILTER_REL_REPOMETA1 = "meta_fkid = @1@";
 	public static String FILTER_REL_REPOACTIVE1 = "repo_id = @1@ and archived = 'no'";
 	public static String FILTER_REL_REPORELEASEACTIVE1 = "release_id in ( select release_id from urm_rel_main where repo_id = @1@ and archived = 'no' )";
+	public static String FILTER_REL_RELEASE1 = "release_id = @1@";
 	
 	public static String QUERY_SEQ_GETNEXTVAL0 = "select nextval( 'urm_object_seq' )";
 
