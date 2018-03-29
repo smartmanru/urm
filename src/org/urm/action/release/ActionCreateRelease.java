@@ -36,7 +36,6 @@ public class ActionCreateRelease extends ActionBase {
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		EngineMethod method = super.method;
-		
 		ReleaseRepository repo = method.changeReleaseRepository( meta );
 		DistRepository distrepo = method.changeDistRepository( meta );
 		

@@ -74,6 +74,20 @@ public class ReleaseSchedulePhase {
 		return( r );
 	}
 
+	public void create( DBEnumLifecycleStageType STAGETYPE , int STAGE_POS , String NAME , String DESC , int DAYS , int NORMAL_DAYS ,
+			boolean FINISHED , boolean UNLIMITED , Date START_DATE , Date FINISH_DATE ) throws Exception {
+		this.STAGETYPE = STAGETYPE;
+		this.STAGE_POS = STAGE_POS;
+		this.NAME = NAME;
+		this.DESC = DESC;
+		this.DAYS = DAYS;
+		this.NORMAL_DAYS = NORMAL_DAYS;
+		this.FINISHED = FINISHED;
+		this.UNLIMITED = UNLIMITED;
+		this.START_DATE = START_DATE;
+		this.FINISH_DATE = FINISH_DATE;
+	}
+	
 	public void create( LifecyclePhase lcPhase , int pos ) throws Exception {
 		this.STAGETYPE = lcPhase.LIFECYCLESTAGE_TYPE;
 		this.STAGE_POS = pos;

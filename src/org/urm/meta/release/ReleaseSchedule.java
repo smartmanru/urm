@@ -1,8 +1,10 @@
 package org.urm.meta.release;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
@@ -70,8 +72,38 @@ public class ReleaseSchedule {
 		return( r );
 	}
 
+	public void create( Date DATE_STARTED , Date RELEASE_DATE , Date RELEASE_DATE_ACTUAL , Date COMPLETE_DATE_ACTUAL ,
+			boolean RELEASED , boolean COMPLETED , int CURRENT_PHASE ) throws Exception {
+		this.DATE_STARTED = DATE_STARTED;
+		this.RELEASE_DATE = RELEASE_DATE;
+		this.RELEASE_DATE_ACTUAL = RELEASE_DATE_ACTUAL;
+		this.COMPLETE_DATE_ACTUAL = COMPLETE_DATE_ACTUAL;
+		this.RELEASED = RELEASED;
+		this.COMPLETED = COMPLETED;
+		this.CURRENT_PHASE = CURRENT_PHASE;
+	}
+
 	public void addPhase( ReleaseSchedulePhase phase ) {
 		phases.add( phase );
+	}
+	
+	public void sortPhases() throws Exception {
+		getPhaseCounts();
+		
+		Map<String,ReleaseSchedulePhase> map = new HashMap<String,ReleaseSchedulePhase>();
+		for( ReleaseSchedulePhase phase : phases ) {
+			String key = ( phase.isRelease() )? "1" : "2";
+			key += "-" + Common.getZeroPadded( phase.STAGE_POS , 10 );
+			map.put( key , phase );
+		}
+		
+		phases.clear();
+		for( String key : Common.getSortedKeys( map ) ) {
+			ReleaseSchedulePhase phase = map.get( key );
+			int expectedIndex = ( phase.isRelease() )? phase.STAGE_POS : releasePhaseCount + phase.STAGE_POS;
+			if( phases.size() != expectedIndex )
+				Common.exitUnexpected();
+		}
 	}
 	
 	public void getPhaseCounts() {

@@ -299,7 +299,7 @@ public class Dist {
 
 	// top-level control
 	public void createNormal( ActionBase action ) throws Exception {
-		saveMetaFile( action , releaseDist );
+		saveMetaFile( action );
 		state.ctlCreateNormal( action , null );
 		loadState( action );
 	}
@@ -311,7 +311,7 @@ public class Dist {
 	}
 	
 	public void createMaster( ActionBase action ) throws Exception {
-		saveMetaFile( action , releaseDist );
+		saveMetaFile( action );
 		state.ctlCreateMaster( action , null );
 		
 		MetaDistr distr = meta.getDistr();
@@ -688,7 +688,7 @@ public class Dist {
 		setFolder( parent.getSubFolder( action , newName ) );
 	}
 	
-	public void saveMetaFile( ActionBase action , ReleaseDist releaseDist ) throws Exception {
+	public void saveMetaFile( ActionBase action ) throws Exception {
 		// create empty release.xml
 		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
 		EngineLoader loader = action.engine.createLoader( action );

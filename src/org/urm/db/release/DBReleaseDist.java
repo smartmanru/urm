@@ -50,29 +50,6 @@ public class DBReleaseDist {
 	private static void exportxmlReleaseScope( EngineLoader loader , ReleaseDist releaseDist , Document doc , Element root ) {
 	}
 	
-	public static ReleaseDist createReleaseDist( EngineMethod method , ActionBase action , Release release , String variant ) throws Exception {
-		DBConnection c = method.getMethodConnection( action );
-		
-		ReleaseDist releaseDist = new ReleaseDist( release );
-		releaseDist.create( variant );
-		
-		modifyReleaseDist( c , release , releaseDist , true );
-		if( variant.isEmpty() )
-			release.setDefaultDist( releaseDist );
-		else
-			release.addDist( releaseDist );
-		
-		return( releaseDist );
-	}
-	
-	public static void updateHash( EngineMethod method , ActionBase action , Release release , ReleaseDist releaseDist , Dist dist ) throws Exception {
-		DBConnection c = method.getMethodConnection( action );
-		
-		releaseDist.META_HASH = dist.getMetaHash();
-		releaseDist.DATA_HASH = dist.getDataHash();
-		modifyReleaseDist( c , release , releaseDist , false );
-	}
-	
 	private static void modifyReleaseDist( DBConnection c , Release release , ReleaseDist releaseDist , boolean insert ) throws Exception {
 		if( insert )
 			releaseDist.ID = c.getNextSequenceValue();
@@ -102,6 +79,29 @@ public class DBReleaseDist {
 				entity.loaddbString( rs , ReleaseDist.PROPERTY_DATAHASH )
 				);
 		return( releaseDist );
+	}
+	
+	public static ReleaseDist createReleaseDist( EngineMethod method , ActionBase action , Release release , String variant ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		
+		ReleaseDist releaseDist = new ReleaseDist( release );
+		releaseDist.create( variant );
+		
+		modifyReleaseDist( c , release , releaseDist , true );
+		if( variant.isEmpty() )
+			release.setDefaultDist( releaseDist );
+		else
+			release.addDist( releaseDist );
+		
+		return( releaseDist );
+	}
+	
+	public static void updateHash( EngineMethod method , ActionBase action , Release release , ReleaseDist releaseDist , Dist dist ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		
+		releaseDist.META_HASH = dist.getMetaHash();
+		releaseDist.DATA_HASH = dist.getDataHash();
+		modifyReleaseDist( c , release , releaseDist , false );
 	}
 	
 }

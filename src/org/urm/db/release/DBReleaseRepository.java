@@ -24,6 +24,7 @@ import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
 import org.urm.meta.release.ReleaseRepository;
+import org.urm.meta.release.ReleaseSchedule;
 import org.urm.meta.release.ReleaseRepository.ReleaseOperation;
 
 public class DBReleaseRepository {
@@ -121,6 +122,8 @@ public class DBReleaseRepository {
 	public static void loaddbReleases( EngineLoader loader , ReleaseRepository repo ) throws Exception {
 		loaddbReleasesMain( loader , repo );
 		loaddbReleasesDist( loader , repo );
+		loaddbReleasesSchedule( loader , repo );
+		loaddbReleasesSchedulePhase( loader , repo );
 	}
 	
 	public static void loaddbReleasesMain( EngineLoader loader , ReleaseRepository repo ) throws Exception {
@@ -163,6 +166,54 @@ public class DBReleaseRepository {
 		}
 		finally {
 			c.closeQuery();
+		}
+	}
+
+	public static void loaddbReleasesSchedule( EngineLoader loader , ReleaseRepository repo ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseSchedule;
+		
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_REL_REPORELEASEACTIVE1 , 
+				new String[] { EngineDB.getInteger( repo.ID ) 
+				} );
+		try {
+			while( rs.next() ) {
+				int releaseId = entity.loaddbId( rs );
+				Release release = repo.getRelease( releaseId );
+				ReleaseSchedule releaseSchedule = release.getSchedule();
+				DBReleaseSchedule.loaddbReleaseSchedule( loader , release , releaseSchedule , rs );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+
+	public static void loaddbReleasesSchedulePhase( EngineLoader loader , ReleaseRepository repo ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleasePhase;
+		
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_REL_REPORELEASEACTIVE1 , 
+				new String[] { EngineDB.getInteger( repo.ID ) 
+				} );
+		try {
+			while( rs.next() ) {
+				int releaseId = entity.loaddbObject( rs , DBReleaseData.FIELD_RELEASE_ID );
+				Release release = repo.getRelease( releaseId );
+				ReleaseSchedule releaseSchedule = release.getSchedule();
+				DBReleaseSchedulePhase.loaddbReleaseSchedulePhase( loader , release , releaseSchedule , rs );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+		
+		for( String version : repo.getActiveVersions() ) {
+			Release release = repo.findRelease( version );
+			ReleaseSchedule releaseSchedule = release.getSchedule();
+			releaseSchedule.sortPhases();
 		}
 	}
 

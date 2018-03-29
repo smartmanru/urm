@@ -1,11 +1,15 @@
 package org.urm.db.release;
 
+import java.sql.ResultSet;
+
 import org.urm.action.ActionBase;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.run.EngineMethod;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseSchedule;
 import org.urm.meta.release.ReleaseSchedulePhase;
@@ -38,6 +42,23 @@ public class DBReleaseSchedule {
 				EngineDB.getBoolean( schedule.COMPLETED ) ,
 				EngineDB.getInteger( schedule.CURRENT_PHASE )
 				} , insert );
+	}
+	
+	public static void loaddbReleaseSchedule( EngineLoader loader , Release release , ReleaseSchedule schedule , ResultSet rs ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseSchedule;
+		
+		schedule.ID = entity.loaddbId( rs );
+		schedule.RV = entity.loaddbVersion( rs );
+		schedule.create(
+				entity.loaddbDate( rs , ReleaseSchedule.PROPERTY_STARTED ) ,
+				entity.loaddbDate( rs , ReleaseSchedule.PROPERTY_RELEASEDATE ) ,
+				entity.loaddbDate( rs , ReleaseSchedule.PROPERTY_RELEASEDATEACTUAL ) ,
+				entity.loaddbDate( rs , ReleaseSchedule.PROPERTY_COMPLETEDATEACTUAL ) ,
+				entity.loaddbBoolean( rs , ReleaseSchedule.PROPERTY_RELEASEDSTATUS ) ,
+				entity.loaddbBoolean( rs , ReleaseSchedule.PROPERTY_COMPLETEDSTATUS ) ,
+				entity.loaddbInt( rs , ReleaseSchedule.PROPERTY_PHASE )
+				);
 	}
 	
 }
