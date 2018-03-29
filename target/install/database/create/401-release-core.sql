@@ -34,6 +34,10 @@ CREATE TABLE main.urm_rel_main (
 COMMENT ON TABLE main.urm_rel_main IS 'Product release';
 
 
+CREATE UNIQUE INDEX urm_rel_main_idx
+ ON main.urm_rel_main
+ ( repo_id, releasever );
+
 CREATE TABLE main.urm_rel_buildtarget (
                 buildtarget_id INTEGER NOT NULL,
                 release_id INTEGER NOT NULL,
@@ -87,6 +91,10 @@ CREATE TABLE main.urm_rel_dist (
 );
 COMMENT ON TABLE main.urm_rel_dist IS 'Release distibutive';
 
+
+CREATE UNIQUE INDEX urm_rel_dist_idx
+ ON main.urm_rel_dist
+ ( release_id, dist_variant );
 
 CREATE TABLE main.urm_rel_distitem (
                 distitem_id INTEGER NOT NULL,

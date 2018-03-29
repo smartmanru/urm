@@ -215,6 +215,14 @@ public class Meta extends EngineObject {
 		return( storage.getReleaseRepository() );
 	}
 	
+	public void setDistRepository( DistRepository repo ) {
+		storage.setDistRepository( repo );
+	}
+	
+	public void setReleaseRepository( ReleaseRepository repo ) {
+		storage.setReleaseRepository( repo );
+	}
+	
 	public static String getConfigurableExtensionsFindOptions( ActionBase action ) throws Exception {
 		return( configurableExtensionsFindOptions );
 	}

@@ -81,6 +81,8 @@ public class Release {
 	private Map<Integer,ReleaseDistTarget> scopeDistMapById;
 	private Map<String,ReleaseDist> distMap;
 	
+	private boolean modifyState;
+	
 	public Release( ReleaseRepository repo ) {
 		this.repo = repo;
 		
@@ -90,6 +92,7 @@ public class Release {
 		scopeBuildMapById = new HashMap<Integer,ReleaseBuildTarget>(); 
 		scopeDistMapById = new HashMap<Integer,ReleaseDistTarget>();
 		distMap = new HashMap<String,ReleaseDist>();
+		modifyState = false;
 	}
 
 	public Release copy( ReleaseRepository rrepo ) throws Exception {
@@ -130,6 +133,23 @@ public class Release {
 		}
 		
 		return( r );
+	}
+	
+	public synchronized void modify( boolean done ) throws Exception {
+		if( !done ) {
+			if( modifyState )
+				Common.exitUnexpected();
+			modifyState = true;
+		}
+		else {
+			if( !modifyState )
+				Common.exitUnexpected();
+			modifyState = false;
+		}
+	}
+	
+	public void setRepository( ReleaseRepository repo ) throws Exception {
+		this.repo = repo;
 	}
 	
 	public void setDefaultDist( ReleaseDist releaseDist ) throws Exception {

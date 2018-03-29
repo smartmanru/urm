@@ -9,11 +9,11 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.engine.dist.ReleaseLabelInfo;
+import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
-import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
 import org.urm.meta.release.ReleaseRepository;
@@ -35,21 +35,19 @@ public class ActionCreateRelease extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
-		checkRequired( RELEASELABEL , "RELEASELABEL" );
-		ProductReleases releases = meta.getReleases();
-		ReleaseRepository repo = releases.getReleaseRepository();
+		EngineMethod method = super.method;
+		
+		ReleaseRepository repo = method.changeReleaseRepository( meta );
+		DistRepository distrepo = method.changeDistRepository( meta );
 		
 		ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( this , meta , RELEASELABEL );
-		release = DBReleaseRepository.createReleaseNormal( super.method , this , repo , info , releaseDate , lc );
+		release = DBReleaseRepository.createReleaseNormal( method , this , repo , info , releaseDate , lc );
 		ReleaseDist releaseDist = DBReleaseDist.createReleaseDist( method , this , release , info.VARIANT );
 		
 		// create distributive
-		DistRepository distrepo = meta.getDistRepository();
-		DistRepositoryItem item = distrepo.createRepositoryItem( this , info );
-		
-		Dist dist = distrepo.createDistNormal( this , item , releaseDist );
+		DistRepositoryItem item = distrepo.createRepositoryItem( method , this , info );
+		Dist dist = distrepo.createDistNormal( method , this , item , releaseDist );
 		DBReleaseDist.updateHash( method , this , release , releaseDist , dist );
-		distrepo.addItem( item );
 		
 		return( SCOPESTATE.RunSuccess );
 	}

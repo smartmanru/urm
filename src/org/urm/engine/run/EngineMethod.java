@@ -1,16 +1,24 @@
 package org.urm.engine.run;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.engine.DataService;
 import org.urm.engine.Engine;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.action.CommandMethod;
+import org.urm.engine.dist.DistRepository;
+import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.engine.status.ScopeState;
+import org.urm.meta.product.Meta;
+import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseRepository;
 
 public class EngineMethod extends EngineExecutorTask {
 	
@@ -21,6 +29,7 @@ public class EngineMethod extends EngineExecutorTask {
 
 	private DBConnection connection;
 	private List<DBConnection> dbstatus;
+	private Map<String,EngineMethodMeta> metastatus;
 	
 	public EngineMethod( ActionBase action , CommandExecutor executor , CommandMethod command , ScopeState parentState ) {
 		super( executor.commandInfo.name + "::" + command.method.name );
@@ -28,7 +37,9 @@ public class EngineMethod extends EngineExecutorTask {
 		this.executor = executor;
 		this.command = command;
 		this.parentState = parentState;
+		
 		dbstatus = new LinkedList<DBConnection>();
+		metastatus = new HashMap<String,EngineMethodMeta>();
 	}
 
 	@Override
@@ -60,18 +71,30 @@ public class EngineMethod extends EngineExecutorTask {
 		}
 	}
 	
-	private void commit() throws Exception {
-		if( connection != null ) {
-			connection.close( true );
-			connection = null;
+	private synchronized void commit() throws Exception {
+		try {
+			if( connection != null ) {
+				connection.close( true );
+				connection = null;
+			}
+			
+			for( EngineMethodMeta emm : metastatus.values() )
+				emm.commit();
+		}
+		catch( Throwable e ) {
+			action.log( "execute method commit error" , e );
+			abort();
 		}
 	}
 	
-	private void abort() throws Exception {
+	private synchronized void abort() throws Exception {
 		if( connection != null ) {
 			connection.close( false );
 			connection = null;
 		}
+		
+		for( EngineMethodMeta emm : metastatus.values() )
+			emm.abort();
 	}
 
 	public ActionBase getAction() {
@@ -104,6 +127,67 @@ public class EngineMethod extends EngineExecutorTask {
 				c.close( true );
 		}
 		dbstatus.clear();
+	}
+
+	public ReleaseRepository changeReleaseRepository( Meta meta ) throws Exception {
+		EngineMethodMeta emm = getEmm( meta );
+		return( emm.changeReleaseRepository() );
+	}
+	
+	public DistRepository changeDistRepository( Meta meta ) throws Exception {
+		EngineMethodMeta emm = getEmm( meta );
+		return( emm.changeDistRepository() );
+	}
+
+	private EngineMethodMeta checkUpdateReleaseRepository( ReleaseRepository repo ) throws Exception {
+		EngineMethodMeta emm = findEmm( repo.meta );
+		if( emm == null )
+			Common.exitUnexpected();
+		emm.checkUpdateReleaseRepository( repo );
+		return( emm );
+	}
+
+	private EngineMethodMeta checkUpdateDistRepository( DistRepository repo ) throws Exception {
+		EngineMethodMeta emm = findEmm( repo.meta );
+		if( emm == null )
+			Common.exitUnexpected();
+		emm.checkUpdateDistRepository( repo );
+		return( emm );
+	}
+
+	public void checkUpdateDistItem( DistRepositoryItem item ) throws Exception {
+		EngineMethodMeta emm = findEmm( item.repo.meta );
+		if( emm == null )
+			Common.exitUnexpected();
+		emm.checkUpdateDistItem( item );
+	}
+	
+	public void createRelease( ReleaseRepository repo , Release release ) throws Exception {
+		EngineMethodMeta emm = checkUpdateReleaseRepository( repo );
+		emm.createRelease( release );
+	}
+	
+	public void createDistItem( DistRepository repo , DistRepositoryItem item ) throws Exception {
+		EngineMethodMeta emm = checkUpdateDistRepository( repo );
+		emm.createDistItem( item );
+	}
+	
+	private synchronized EngineMethodMeta getEmm( Meta meta ) throws Exception {
+		EngineMethodMeta emm = metastatus.get( meta.name );
+		if( emm == null ) {
+			emm = new EngineMethodMeta( this , meta );
+			metastatus.put( meta.name , emm );
+		}
+		else {
+			if( emm.meta != meta )
+				Common.exitUnexpected();
+		}
+		
+		return( emm ); 
+	}
+
+	private synchronized EngineMethodMeta findEmm( Meta meta ) throws Exception {
+		return( metastatus.get( meta.name ) );
 	}
 	
 }

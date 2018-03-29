@@ -8,6 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.data.EngineContext;
+import org.urm.engine.run.EngineMethod;
 import org.urm.engine.shell.Account;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.HostAccount;
@@ -32,8 +33,8 @@ public class DistRepository {
 	static String REPO_FOLDER_RELEASES_ARCHIVE = "archive";
 	
 	public Meta meta;
-	RemoteFolder repoFolder;
-
+	
+	private RemoteFolder repoFolder;
 	private Map<String,DistRepositoryItem> itemMap; 
 	private Map<String,DistRepositoryItem> runMap; 
 	
@@ -41,6 +42,14 @@ public class DistRepository {
 		this.meta = meta;
 		itemMap = new HashMap<String,DistRepositoryItem>();
 		runMap = new HashMap<String,DistRepositoryItem>();
+	}
+	
+	public DistRepository copy( Meta rmeta ) {
+		DistRepository r = new DistRepository( rmeta );
+		r.repoFolder = repoFolder;
+		r.itemMap.putAll( itemMap );
+		r.runMap.putAll( runMap );
+		return( r );
 	}
 	
 	public static DistRepository loadDistRepository( ActionBase action , Meta meta , boolean importxml ) throws Exception {
@@ -176,10 +185,13 @@ public class DistRepository {
 		return( item );
 	}
 
-	public DistRepositoryItem createRepositoryItem( ActionBase action , ReleaseLabelInfo info ) throws Exception {
+	public DistRepositoryItem createRepositoryItem( EngineMethod method , ActionBase action , ReleaseLabelInfo info ) throws Exception {
 		DistRepositoryItem item = new DistRepositoryItem( this );
 		item.createItem( action , info.RELEASEDIR , info.RELEASEPATH );
 		item.createItemFolder( action );
+		
+		method.createDistItem( this , item );
+		addItem( item );
 		return( item );
 	}
 
@@ -304,10 +316,17 @@ public class DistRepository {
 		return( item.dist );
 	}
 
-	public synchronized void addItem( DistRepositoryItem item ) {
+	public void addItem( DistRepositoryItem item ) {
 		itemMap.put( item.RELEASEDIR , item );
 		if( item.dist != null )
 			runMap.put( item.RELEASEDIR , item );
+	}
+
+	public void replaceItem( DistRepositoryItem item ) throws Exception {
+		if( !itemMap.containsKey( item.RELEASEDIR ) )
+			Common.exitUnexpected();
+		
+		addItem( item );
 	}
 	
 	private synchronized DistRepositoryItem findRunItem( String releaseDir ) {
@@ -408,7 +427,9 @@ public class DistRepository {
 		return( item.dist );
 	}
 
-	public Dist createDistNormal( ActionBase action , DistRepositoryItem item , ReleaseDist releaseDist ) throws Exception {
+	public Dist createDistNormal( EngineMethod method , ActionBase action , DistRepositoryItem item , ReleaseDist releaseDist ) throws Exception {
+		method.checkUpdateDistItem( item );
+		
 		RemoteFolder distFolder = getDistFolder( action , item );
 		Dist dist = new Dist( meta , item , releaseDist , distFolder );
 		dist.createNormal( action );

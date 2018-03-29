@@ -50,6 +50,18 @@ public class ReleaseRepository {
 		mapReleasesMaster = new HashMap<String,Release>();
 	}
 
+	public ReleaseRepository copy( Meta rmeta , ProductReleases rreleases ) {
+		ReleaseRepository r = new ReleaseRepository( rmeta , rreleases );
+		r.ID = ID;
+		r.NAME = NAME;
+		r.DESC = DESC;
+		
+		r.mapReleasesNormal.putAll( mapReleasesNormal );
+		r.mapReleasesMaster.putAll( mapReleasesMaster );
+		r.mapReleasesById.putAll( mapReleasesById );
+		return( r );
+	}
+	
 	public void createRepository( String name , String desc ) {
 		this.NAME = name;
 		this.DESC = desc;
@@ -108,6 +120,13 @@ public class ReleaseRepository {
 		mapReleasesById.put( release.ID , release );
 	}
 
+	public void replaceRelease( Release release ) throws Exception {
+		if( !mapReleasesById.containsKey( release.ID ) )
+			Common.exitUnexpected();
+		
+		addRelease( release );
+	}
+	
 	public Release getRelease( int id ) throws Exception {
 		return( mapReleasesById.get( id ) );
 	}

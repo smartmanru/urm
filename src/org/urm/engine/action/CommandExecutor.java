@@ -67,6 +67,8 @@ public abstract class CommandExecutor {
 			action.debug( "execute " + method.getClass().getSimpleName() + " ..." );
 			action.debug( "context: " + action.context.getInfo() );
 			method.run( parentState , action );
+			if( action.isOK() )
+				return( true );
 		}
 		catch( Throwable e ) {
 			action.fail1( _Error.ActionException1 , "Exception in method=" + method.method.name + ": " + e.toString() , method.method.name );
@@ -80,11 +82,9 @@ public abstract class CommandExecutor {
 				else
 					action.error( "exception: " + ex.getMessage() );
 			}
-				
-			return( false );
 		}
 		
-		return( true );
+		return( false );
 	}
 	
 	public void checkRequired( ActionBase action , String value , String name ) throws Exception {

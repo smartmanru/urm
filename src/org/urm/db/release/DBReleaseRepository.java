@@ -44,7 +44,6 @@ public class DBReleaseRepository {
 		// create meta item
 		Release release = DBRelease.createRelease( method , action , repo , info.RELEASEVER , releaseDate , lc );
 		repo.addRelease( release );
-		
 		return( release );
 	}
 	
@@ -136,7 +135,6 @@ public class DBReleaseRepository {
 			while( rs.next() ) {
 				Release release = DBRelease.loaddbRelease( loader , repo , rs );
 				repo.addRelease( release );
-				break;
 			}
 		}
 		finally {
@@ -161,7 +159,6 @@ public class DBReleaseRepository {
 					release.setDefaultDist( releaseDist );
 				else
 					release.addDist( releaseDist );
-				break;
 			}
 		}
 		finally {

@@ -37,18 +37,6 @@ public class DBRelease {
 
 	public static String ELEMENT_RELEASEPROPS = "version";
 	
-	public static Release createRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
-		DBConnection c = method.getMethodConnection( action );
-		
-		Release release = new Release( repo );
-		release.createNormal( action , RELEASEVER , releaseDate , lc );
-
-		modifyRelease( c , repo , release , true );
-		DBReleaseSchedule.createReleaseSchedule( method , action , release );
-		
-		return( release );
-	}
-	
 	private static void modifyRelease( DBConnection c , ReleaseRepository repo , Release release , boolean insert ) throws Exception {
 		if( insert )
 			release.ID = c.getNextSequenceValue();
@@ -114,6 +102,19 @@ public class DBRelease {
 				entity.exportxmlBoolean( release.ARCHIVED ) ,
 				entity.exportxmlBoolean( release.CANCELLED )
 		} , false );
+	}
+	
+	public static Release createRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		
+		Release release = new Release( repo );
+		release.createNormal( action , RELEASEVER , releaseDate , lc );
+
+		modifyRelease( c , repo , release , true );
+		DBReleaseSchedule.createReleaseSchedule( method , action , release );
+		
+		method.createRelease( repo , release );
+		return( release );
 	}
 	
 	public static void complete( EngineMethod method , ActionBase action , Release release ) throws Exception {

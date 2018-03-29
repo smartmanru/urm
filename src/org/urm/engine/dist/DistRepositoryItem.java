@@ -15,7 +15,35 @@ public class DistRepositoryItem {
 
 	public Dist dist;
 	
+	private boolean modifyState;
+	
 	public DistRepositoryItem( DistRepository repo ) {
+		this.repo = repo;
+		modifyState = false;
+	}
+	
+	public DistRepositoryItem copy( DistRepository rrepo ) {
+		DistRepositoryItem r = new DistRepositoryItem( rrepo );
+		r.RELEASEDIR = RELEASEDIR;
+		r.DISTPATH = DISTPATH;
+		r.dist = dist;
+		return( r );
+	}
+	
+	public synchronized void modify( boolean done ) throws Exception {
+		if( !done ) {
+			if( modifyState )
+				Common.exitUnexpected();
+			modifyState = true;
+		}
+		else {
+			if( !modifyState )
+				Common.exitUnexpected();
+			modifyState = false;
+		}
+	}
+	
+	public void setRepository( DistRepository repo ) {
 		this.repo = repo;
 	}
 	

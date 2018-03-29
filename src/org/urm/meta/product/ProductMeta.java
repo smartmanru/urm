@@ -137,6 +137,14 @@ public class ProductMeta extends EngineObject {
 		return( releases.getReleaseRepository() );
 	}
 	
+	public void setDistRepository( DistRepository repo ) {
+		releases.setDistRepository( repo );
+	}
+	
+	public void setReleaseRepository( ReleaseRepository repo ) {
+		releases.setReleaseRepository( repo );
+	}
+	
 	public void setVersion( MetaProductVersion version ) throws Exception {
 		this.version = version;
 	}

@@ -9,6 +9,7 @@ import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepositoryItem;
+import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.engine.ReleaseLifecycle;
@@ -36,6 +37,8 @@ public class ActionCopyRelease extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
+		EngineMethod method = super.method;
+		
 		Meta meta = src.getMeta();
 		DistRepository distrepo = meta.getDistRepository();
 		ReleaseLabelInfo info = distrepo.getLabelInfo( this , RELEASEDIR );
@@ -46,17 +49,17 @@ public class ActionCopyRelease extends ActionBase {
 		
 		ProductReleases releases = meta.getReleases();
 		ReleaseRepository repo = releases.getReleaseRepository();
-		release = DBReleaseRepository.createReleaseNormal( super.method , this , repo , info , releaseDate , lc );
+		release = DBReleaseRepository.createReleaseNormal( method , this , repo , info , releaseDate , lc );
 		ReleaseDist releaseDist = DBReleaseDist.createReleaseDist( method , this , release , info.VARIANT );
 		
 		// create distributive
-		DistRepositoryItem item = distrepo.createRepositoryItem( this , info );
+		DistRepositoryItem item = distrepo.createRepositoryItem( method , this , info );
 		
-		Dist dist = distrepo.createDistNormal( this , item , releaseDist );
+		Dist dist = distrepo.createDistNormal( method , this , item , releaseDist );
 		DBReleaseDist.updateHash( method , this , release , releaseDist , dist );
 		distrepo.addItem( item );
 		
-		DBReleaseRepository.copyScope( super.method , this , repo , release , src );
+		DBReleaseRepository.copyScope( method , this , repo , release , src );
 		
 		return( SCOPESTATE.RunSuccess );
 	}
