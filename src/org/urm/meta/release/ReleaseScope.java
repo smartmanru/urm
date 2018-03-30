@@ -47,6 +47,11 @@ public class ReleaseScope {
 		return( r );
 	}
 	
+	public void clear() {
+		scopeBuildMapById.clear();
+		scopeDistMapById.clear();
+	}
+	
 	public ReleaseDistTarget getDistTarget( int id ) throws Exception {
 		ReleaseDistTarget rt = scopeDistMapById.get( id );
 		if( rt == null )

@@ -3,7 +3,11 @@ package org.urm.db.release;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
+import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
+import org.urm.db.engine.DBEngineEntities;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.dist.ReleaseBuildScopeSet;
 import org.urm.engine.dist.ReleaseDistScopeSet;
 import org.urm.engine.run.EngineMethod;
@@ -420,8 +424,14 @@ public class DBReleaseScope {
 			addAllDoc( method , action , release );
 	}
 	
-	public static boolean descopeAll( EngineMethod method , ActionBase action , Release release ) throws Exception {
-		return( false );
+	public static void descopeAll( EngineMethod method , ActionBase action , Release release ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		EngineEntities entities = c.getEntities();
+		ReleaseScope scope = release.getScope();
+		
+		scope.clear();
+		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseBuildTarget , DBQueries.FILTER_REL_SCOPERELEASE1 , new String[] { EngineDB.getObject( release.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseDistTarget , DBQueries.FILTER_REL_SCOPERELEASE1 , new String[] { EngineDB.getObject( release.ID ) } );
 	}
 
 	public static boolean descopeSet( EngineMethod method , ActionBase action , Release release , ReleaseBuildScopeSet set ) throws Exception {
