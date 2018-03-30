@@ -103,6 +103,7 @@ public class ReleaseSchedule {
 			int expectedIndex = ( phase.isRelease() )? phase.STAGE_POS : releasePhaseCount + phase.STAGE_POS;
 			if( phases.size() != expectedIndex )
 				Common.exitUnexpected();
+			phases.add( phase );
 		}
 	}
 	
@@ -146,12 +147,10 @@ public class ReleaseSchedule {
 			if( !lc.ENABLED )
 				Common.exit1( _Error.DisabledLifecycle1 , "Release lifecycle " + lc.NAME + " is currently disabled" , lc.NAME );
 			
-			int pos = 0;
 			for( LifecyclePhase lcPhase : lc.getPhases() ) {
 				ReleaseSchedulePhase phase = new ReleaseSchedulePhase( release , this );
-				phase.create( lcPhase , pos );
+				phase.create( lcPhase );
 				phases.add( phase );
-				pos++;
 			}
 			
 			getPhaseCounts();

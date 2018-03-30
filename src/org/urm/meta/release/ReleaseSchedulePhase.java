@@ -88,9 +88,9 @@ public class ReleaseSchedulePhase {
 		this.FINISH_DATE = FINISH_DATE;
 	}
 	
-	public void create( LifecyclePhase lcPhase , int pos ) throws Exception {
+	public void create( LifecyclePhase lcPhase ) throws Exception {
 		this.STAGETYPE = lcPhase.LIFECYCLESTAGE_TYPE;
-		this.STAGE_POS = pos;
+		this.STAGE_POS = lcPhase.STAGE_POS;
 		this.NAME = lcPhase.NAME;
 		this.DESC = lcPhase.DESC;
 		this.DAYS = lcPhase.getDuration();
