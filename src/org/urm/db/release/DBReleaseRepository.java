@@ -233,7 +233,7 @@ public class DBReleaseRepository {
 	}
 	
 	public static void copyScope( EngineMethod method , ActionBase action , ReleaseRepository repo , Release release , Release dst ) throws Exception {
-		DBRelease.descopeAll( method , action , release );
+		DBReleaseScope.descopeAll( method , action , release );
 	}
 	
 	public static void addDistAction( EngineMethod method , Release release , ReleaseDist releaseDist , boolean success , ReleaseOperation op , String msg ) throws Exception {

@@ -2,7 +2,7 @@ package org.urm.action.release;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.release.DBRelease;
+import org.urm.db.release.DBReleaseScope;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.status.ScopeState;
@@ -26,7 +26,8 @@ public class ActionGetCumulative extends ActionBase {
 		DistRepository repo = meta.getDistRepository();
 		Dist dist = repo.findDefaultDist( release );
 		dist.openForDataChange( this );
-		DBRelease.descopeAll( super.method , this , release );
+		
+		DBReleaseScope.descopeAll( super.method , this , release );
 		dist.saveReleaseXml( this );
 		
 		// dists - source releases sorted from last to most earlier
