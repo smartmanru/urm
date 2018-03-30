@@ -149,6 +149,14 @@ public class MetaSources {
 		return( set );
 	}
 	
+	public MetaSourceProjectSet findProjectSet( MatchItem item ) {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( setMapById.get( item.FKID ) );
+		return( setMap.get( item.FKNAME ) );
+	}
+	
 	public MetaSourceProjectSet getProjectSet( String name ) throws Exception {
 		MetaSourceProjectSet set = setMap.get( name );
 		if( set == null )

@@ -117,6 +117,14 @@ public class MetaDistr {
 		return( mapBinaryItems.get( name ) );
 	}
 	
+	public MetaDistrBinaryItem findBinaryItem( MatchItem item ) {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( mapBinaryItemsById.get( item.FKID ) );
+		return( mapBinaryItems.get( item.FKNAME ) );
+	}
+	
 	public MetaDistrBinaryItem getBinaryItem( String name ) throws Exception {
 		MetaDistrBinaryItem item = mapBinaryItems.get( name );
 		if( item == null )
@@ -196,6 +204,14 @@ public class MetaDistr {
 		return( mapConfItems.get( name ) );
 	}
 
+	public MetaDistrConfItem findConfItem( MatchItem item ) {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( mapConfItemsById.get( item.FKID ) );
+		return( mapConfItems.get( item.FKNAME ) );
+	}
+	
 	public MetaDistrConfItem getConfItem( String name ) throws Exception {
 		MetaDistrConfItem item = mapConfItems.get( name );
 		if( item == null )
@@ -249,6 +265,14 @@ public class MetaDistr {
 		return( mapDeliveries.get( delivery ) );
 	}
 
+	public MetaDistrDelivery findDelivery( MatchItem item ) {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( mapDeliveriesById.get( item.FKID ) );
+		return( mapDeliveries.get( item.FKNAME ) );
+	}
+	
 	public MetaDistrDelivery findDeliveryByFolder( String folder ) {
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
 			if( delivery.FOLDER.equals( folder ) )

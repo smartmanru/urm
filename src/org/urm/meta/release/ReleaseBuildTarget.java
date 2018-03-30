@@ -104,9 +104,7 @@ public class ReleaseBuildTarget {
 			if( isBuildAll() )
 				return( true );
 			
-			Meta meta = release.getMeta();
-			MetaSources sources = meta.getSources();
-			MetaSourceProject project = sources.findProject( targetCheck.PROJECT );
+			MetaSourceProject project = targetCheck.getProject();
 					
 			if( isBuildSet() ) {
 				if( MatchItem.equals( SRCSET , project.ID ) )
@@ -125,6 +123,18 @@ public class ReleaseBuildTarget {
 		}
 		
 		return( false );
+	}
+
+	public MetaSourceProjectSet getProjectSet() {
+		Meta meta = release.getMeta();
+		MetaSources sources = meta.getSources();
+		return( sources.findProjectSet( SRCSET ) );
+	}
+		
+	public MetaSourceProject getProject() {
+		Meta meta = release.getMeta();
+		MetaSources sources = meta.getSources();
+		return( sources.findProject( PROJECT ) );
 	}
 	
 }

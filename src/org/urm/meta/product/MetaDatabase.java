@@ -66,6 +66,14 @@ public class MetaDatabase {
 		return( mapSchema.get( name ) );
 	}
 
+	public MetaDatabaseSchema findSchema( MatchItem item ) {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( mapSchemaById.get( item.FKID ) );
+		return( mapSchema.get( item.FKNAME ) );
+	}
+	
 	public String[] getExportDumpNames() {
 		return( Common.getSortedKeys( mapExport ) );
 	}

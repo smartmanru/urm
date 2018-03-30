@@ -634,6 +634,15 @@ public abstract class DBEnums {
 		DELIVERYDATABASE(32,null) ,
 		DELIVERYDOC(33,null);
 
+		public boolean isDelivery() {
+			if( this == DBEnumDistTargetType.DELIVERYBINARIES ||
+				this == DBEnumDistTargetType.DELIVERYCONFS ||
+				this == DBEnumDistTargetType.DELIVERYDATABASE ||
+				this == DBEnumDistTargetType.DELIVERYDOC )
+				return( true );
+			return( false );
+		}
+		
 		private final int value;
 		private String[] synonyms;
 		@Override public int code() { return( value ); };

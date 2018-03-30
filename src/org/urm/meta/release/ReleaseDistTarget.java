@@ -3,11 +3,13 @@ package org.urm.meta.release;
 import org.urm.db.core.DBEnums.*;
 import org.urm.meta.MatchItem;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaProductDoc;
 
 public class ReleaseDistTarget {
@@ -110,6 +112,12 @@ public class ReleaseDistTarget {
 		return( TYPE == DBEnumDistTargetType.DISTALL );
 	}
 	
+	public boolean isDelivery() {
+		if( TYPE.isDelivery() )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isDeliveryBinaries() {
 		return( TYPE == DBEnumDistTargetType.DELIVERYBINARIES );
 	}
@@ -140,6 +148,107 @@ public class ReleaseDistTarget {
 	
 	public boolean isDoc() {
 		return( TYPE == DBEnumDistTargetType.DOC );
+	}
+	
+	public boolean isParentOf( ReleaseDistTarget targetCheck ) {
+		if( targetCheck.isBinaryItem() ) {
+			if( isDistAll() )
+				return( true );
+			
+			MetaDistrBinaryItem binary = targetCheck.getBinaryItem();
+					
+			if( isDeliveryBinaries() ) {
+				if( MatchItem.equals( BINARY , binary.ID ) )
+					return( true );
+				return( false );
+			}
+			
+			return( false );
+		}
+		
+		if( targetCheck.isConfItem() ) {
+			if( isDistAll() )
+				return( true );
+			
+			MetaDistrConfItem conf = targetCheck.getConfItem();
+			
+			if( isDeliveryConfs() ) {
+				if( MatchItem.equals( CONF , conf.ID ) )
+					return( true );
+				return( false );
+			}
+			
+			return( false );
+		}
+		
+		if( targetCheck.isSchema() ) {
+			if( isDistAll() )
+				return( true );
+			
+			MetaDatabaseSchema schema = targetCheck.getSchema();
+			
+			if( isDeliveryDatabase() ) {
+				if( MatchItem.equals( SCHEMA , schema.ID ) )
+					return( true );
+				return( false );
+			}
+			
+			return( false );
+		}
+		
+		if( targetCheck.isDoc() ) {
+			if( isDistAll() )
+				return( true );
+			
+			MetaProductDoc doc = targetCheck.getDoc();
+			
+			if( isDeliveryDocs() ) {
+				if( MatchItem.equals( DOC , doc.ID ) )
+					return( true );
+				return( false );
+			}
+			
+			return( false );
+		}
+		
+		if( targetCheck.isDelivery() ) {
+			if( isDistAll() )
+				return( true );
+			
+			return( false );
+		}
+		
+		return( false );
+	}
+
+	public MetaDistrDelivery getDelivery() {
+		Meta meta = release.getMeta();
+		MetaDistr distr = meta.getDistr();
+		return( distr.findDelivery( DELIVERY ) );
+	}
+	
+	public MetaDistrBinaryItem getBinaryItem() {
+		Meta meta = release.getMeta();
+		MetaDistr distr = meta.getDistr();
+		return( distr.findBinaryItem( BINARY ) );
+	}
+	
+	public MetaDistrConfItem getConfItem() {
+		Meta meta = release.getMeta();
+		MetaDistr distr = meta.getDistr();
+		return( distr.findConfItem( CONF ) );
+	}
+	
+	public MetaDatabaseSchema getSchema() {
+		Meta meta = release.getMeta();
+		MetaDatabase database = meta.getDatabase();
+		return( database.findSchema( SCHEMA ) );
+	}
+	
+	public MetaProductDoc getDoc() {
+		Meta meta = release.getMeta();
+		MetaDocs docs = meta.getDocs();
+		return( docs.findDoc( DOC ) );
 	}
 	
 }

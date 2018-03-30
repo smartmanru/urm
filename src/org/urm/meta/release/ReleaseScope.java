@@ -163,13 +163,22 @@ public class ReleaseScope {
 		return( scopeBuildMapById.values().toArray( new ReleaseBuildTarget[0] ) );
 	}
 
-	public ReleaseBuildTarget[] getChildTargets( ReleaseBuildTarget target ) {
+	public ReleaseBuildTarget[] getChildBuildTargets( ReleaseBuildTarget target ) {
 		List<ReleaseBuildTarget> list = new LinkedList<ReleaseBuildTarget>();
 		for( ReleaseBuildTarget targetCheck : scopeBuildMapById.values() ) {
 			if( target.isParentOf( targetCheck ) )
 				list.add( target );
 		}
 		return( list.toArray( new ReleaseBuildTarget[0] ) );
+	}
+
+	public ReleaseDistTarget[] getChildDistTargets( ReleaseDistTarget target ) {
+		List<ReleaseDistTarget> list = new LinkedList<ReleaseDistTarget>();
+		for( ReleaseDistTarget targetCheck : scopeDistMapById.values() ) {
+			if( target.isParentOf( targetCheck ) )
+				list.add( target );
+		}
+		return( list.toArray( new ReleaseDistTarget[0] ) );
 	}
 
 	public ReleaseDistTarget findDistDeliveryConfTarget( MetaDistrDelivery delivery ) {
