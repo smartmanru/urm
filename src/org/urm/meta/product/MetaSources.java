@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
+import org.urm.meta.MatchItem;
 
 public class MetaSources {
 
@@ -167,6 +168,14 @@ public class MetaSources {
 	public MetaSourceProject findProject( String name ) {
 		MetaSourceProject project = projectMap.get( name );
 		return( project );
+	}
+
+	public MetaSourceProject findProject( MatchItem item ) {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( projectMapById.get( item.FKID ) );
+		return( projectMap.get( item.FKNAME ) );
 	}
 	
 	public MetaSourceProject getProject( String name ) throws Exception {

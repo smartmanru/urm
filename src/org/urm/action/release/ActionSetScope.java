@@ -62,14 +62,11 @@ public class ActionSetScope extends ActionBase {
 		// add new
 		if( pathItems.length == 1 ) {
 			if( pathItems[0].equals( "all" ) ) {
-				for( MetaSourceProjectSet set : source.getSets() ) {
-					if( !DBReleaseScope.addAllSource( super.method , this , release , set ) )
-						return( false );
-				}
+				DBReleaseScope.addAllSource( super.method , this , release );
 				return( true );
 			}
 			if( pathItems[0].equals( "none" ) ) {
-				DBReleaseScope.descopeAllProjects( super.method , this , release );
+				DBReleaseScope.descopeAllSource( super.method , this , release );
 				return( true );
 			}
 		}
@@ -80,16 +77,14 @@ public class ActionSetScope extends ActionBase {
 			String[] els = Common.split( path , "/" );
 			if( els.length == 1 ) {
 				MetaSourceProjectSet set = source.getProjectSet( els[0] );
-				if( !DBReleaseScope.addAllSource( super.method , this , release , set ) )
-					return( false );
+				DBReleaseScope.addAllSourceSet( super.method , this , release , set );
 				continue;
 			}
 			if( els.length == 2 ) {
 				MetaSourceProjectSet set = source.getProjectSet( els[0] );
 				check.put( els[0] , "set" );
 				MetaSourceProject project = set.getProject( els[1] );
-				if( !DBReleaseScope.addProjectAllItems( super.method , this , release , project ) )
-					return( false );
+				DBReleaseScope.addAllProjectItems( super.method , this , release , project );
 				continue;
 			}
 			if( els.length == 3 ) {
@@ -98,8 +93,7 @@ public class ActionSetScope extends ActionBase {
 				MetaSourceProject project = set.getProject( els[1] );
 				check.put( Common.concat( els[0] , els[1] , "/" ) , "project" );
 				MetaSourceProjectItem item = project.getItem( els[2] );
-				if( !DBReleaseScope.addProjectItem( super.method , this , release , project , item ) )
-					return( false );
+				DBReleaseScope.addProjectItem( super.method , this , release , project , item );
 				continue;
 			}
 		}
@@ -122,15 +116,11 @@ public class ActionSetScope extends ActionBase {
 						DBEnumScopeCategoryType.DERIVED , 
 						DBEnumScopeCategoryType.CONFIG , 
 						DBEnumScopeCategoryType.DB , 
-						DBEnumScopeCategoryType.DOC } ) {
-					if( !DBReleaseScope.addAllCategory( super.method , this , release , category ) )
-						return( false );
-				}
+						DBEnumScopeCategoryType.DOC } )
+					DBReleaseScope.addAllCategory( super.method , this , release , category );
 				
-				for( MetaSourceProjectSet set : source.getSets() ) {
-					if( !DBReleaseScope.addAllSource( super.method , this , release , set ) )
-						return( false );
-				}
+				for( MetaSourceProjectSet set : source.getSets() )
+					DBReleaseScope.addAllSourceSet( super.method , this , release , set );
 				return( true );
 			}
 			if( pathItems[0].equals( "none" ) ) {
@@ -171,26 +161,22 @@ public class ActionSetScope extends ActionBase {
 				
 				if( type.equals( SCOPEITEM_BINARY ) ) {
 					MetaDistrBinaryItem item = delivery.getBinaryItem( els[2] );
-					if( !DBReleaseScope.addBinaryItem( super.method , this , release , item ) )
-						return( false );
+					DBReleaseScope.addBinaryItem( super.method , this , release , item );
 				}
 				else
-					if( type.equals( SCOPEITEM_CONF ) ) {
+				if( type.equals( SCOPEITEM_CONF ) ) {
 					MetaDistrConfItem item = delivery.getConfItem( els[2] );
-					if( !DBReleaseScope.addConfItem( super.method , this , release , item ) )
-						return( false );
+					DBReleaseScope.addConfItem( super.method , this , release , item );
 				}
 				else
-					if( type.equals( SCOPEITEM_SCHEMA ) ) {
+				if( type.equals( SCOPEITEM_SCHEMA ) ) {
 					MetaDatabaseSchema schema = delivery.getSchema( els[2] );
-					if( !DBReleaseScope.addDeliveryDatabaseSchema( super.method , this , release , delivery , schema ) )
-						return( false );
+					DBReleaseScope.addDeliveryDatabaseSchema( super.method , this , release , delivery , schema );
 				}
 				else
-					if( type.equals( SCOPEITEM_DOC ) ) {
+				if( type.equals( SCOPEITEM_DOC ) ) {
 					MetaProductDoc doc = delivery.getDoc( els[2] );
-					if( !DBReleaseScope.addDeliveryDoc( super.method , this , release , delivery , doc ) )
-						return( false );
+					DBReleaseScope.addDeliveryDoc( super.method , this , release , delivery , doc );
 				}
 			}
 		}
@@ -202,13 +188,11 @@ public class ActionSetScope extends ActionBase {
 
 	private boolean addAllDelivery( Map<String,String> check , MetaDistrDelivery delivery ) throws Exception {
 		for( MetaDistrBinaryItem binaryItem : delivery.getBinaryItems() ) {
-			if( !DBReleaseScope.addBinaryItem( super.method , this , release , binaryItem ) )
-				return( false );
+			DBReleaseScope.addBinaryItem( super.method , this , release , binaryItem );
 			check.put( Common.getListPath( new String[] { delivery.NAME , SCOPEITEM_BINARY , binaryItem.NAME } ) , "binary" );
 		}
 		for( MetaDistrConfItem confItem : delivery.getConfItems() ) {
-			if( !DBReleaseScope.addConfItem( super.method , this , release , confItem ) )
-				return( false );
+			DBReleaseScope.addConfItem( super.method , this , release , confItem );
 			check.put( Common.getListPath( new String[] { delivery.NAME , SCOPEITEM_CONF , confItem.NAME } ) , "conf" );
 		}
 		if( delivery.hasDatabaseItems() ) {
@@ -223,8 +207,7 @@ public class ActionSetScope extends ActionBase {
 	}
 	
 	private boolean addDeliveryAllSchemes( Map<String,String> check , MetaDistrDelivery delivery ) throws Exception {
-		if( !DBReleaseScope.addDeliveryAllDatabaseSchemes( super.method , this , release , delivery ) )
-			return( false );
+		DBReleaseScope.addDeliveryAllDatabaseSchemes( super.method , this , release , delivery );
 		
 		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() )
 			check.put( Common.getListPath( new String[] { delivery.NAME , SCOPEITEM_SCHEMA , schema.NAME } ) , "database" );
@@ -232,8 +215,7 @@ public class ActionSetScope extends ActionBase {
 	}
 	
 	private boolean addDeliveryAllDocs( Map<String,String> check , MetaDistrDelivery delivery ) throws Exception {
-		if( !DBReleaseScope.addDeliveryAllDocs( super.method , this , release , delivery ) )
-			return( false );
+		DBReleaseScope.addDeliveryAllDocs( super.method , this , release , delivery );
 		
 		for( MetaProductDoc doc : delivery.getDocs() )
 			check.put( Common.getListPath( new String[] { delivery.NAME , SCOPEITEM_DOC , doc.NAME } ) , "doc" );

@@ -100,6 +100,12 @@ public class ReleaseDistTarget {
 		return( distr.getConfItem( CONF ) );
 	}
 
+	public boolean isScopeTarget() {
+		if( scope != null )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isDistAll() {
 		return( TYPE == DBEnumDistTargetType.DISTALL );
 	}

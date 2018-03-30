@@ -1,7 +1,6 @@
 package org.urm.engine.executor;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ActionEnvScopeMaker;
 import org.urm.action.ActionScope;
 import org.urm.action.deploy.DeployCommand;
 import org.urm.common.Common;
@@ -14,7 +13,6 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.status.ScopeState;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
-import org.urm.meta.product.Meta;
 
 public class CommandExecutorDeploy extends CommandExecutor {
 
@@ -71,43 +69,6 @@ public class CommandExecutorDeploy extends CommandExecutor {
 		return( res );
 	}
 
-	private ActionScope getServerScope( ActionBase action ) throws Exception {
-		return( getServerScope( action , 0 ) );
-	}
-	
-	private ActionScope getServerScope( ActionBase action , int posFrom ) throws Exception {
-		Dist dist = null;
-		Meta meta = action.getContextMeta();
-		if( !action.context.CTX_RELEASELABEL.isEmpty() )
-			dist = action.getReleaseDist( meta , action.context.CTX_RELEASELABEL );
-		
-		return( getServerScope( action , posFrom , dist ) );
-	}
-
-	private ActionScope getServerScope( ActionBase action , int posFrom , Dist dist ) throws Exception {
-		ActionEnvScopeMaker maker = new ActionEnvScopeMaker( action , action.context.env );
-		
-		String SERVER = getArg( action , posFrom );
-		if( action.context.sg == null ) {
-			if( !SERVER.equals( "all" ) )
-				action.exit0( _Error.MissingSegmentName0, "Segment option is required to use specific server" );
-			maker.addScopeEnv( null , dist.release );
-		}
-		else {
-			String s = getArg( action , posFrom + 1 );
-			if( s.matches( "[0-9]+" ) ) {
-				String[] NODES = getArgList( action , posFrom + 1 );
-				maker.addScopeEnvServerNodes( action.context.sg , SERVER , NODES , dist.release );
-			}
-			else {
-				String[] SERVERS = getArgList( action , posFrom );
-				maker.addScopeEnvServers( action.context.sg , SERVERS , dist.release );
-			}
-		}
-
-		return( maker.getScope() );
-	}
-	
 	private class BaseOps extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String CMD = getRequiredArg( action , 0 , "CMD" );

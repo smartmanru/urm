@@ -51,36 +51,44 @@ public class ActionAddScope extends ActionBase {
 
 	private boolean addAllProductSetElements( ActionScopeSet set ) throws Exception {
 		if( set.CATEGORY.isSource() )
-			return( DBReleaseScope.addAllSource( super.method , this , release , set.pset ) );
-		return( DBReleaseScope.addAllCategory( super.method , this , release , set.CATEGORY ) );
+			DBReleaseScope.addAllSourceSet( super.method , this , release , set.pset );
+		else
+			DBReleaseScope.addAllCategory( super.method , this , release , set.CATEGORY );
+		return( true );
 	}
 	
 	private boolean addAllProductTargetElements( ActionScopeSet set , ActionScopeTarget target ) throws Exception {
 		if( target.CATEGORY == DBEnumScopeCategoryType.CONFIG )
-			return( DBReleaseScope.addConfItem( super.method , this , release , target.confItem ) );
+			DBReleaseScope.addConfItem( super.method , this , release , target.confItem );
+		else
 		if( target.CATEGORY == DBEnumScopeCategoryType.MANUAL )
-			return( DBReleaseScope.addManualItem( super.method , this , release , target.manualItem ) );
+			DBReleaseScope.addManualItem( super.method , this , release , target.manualItem );
+		else
 		if( target.CATEGORY == DBEnumScopeCategoryType.DB )
-			return( DBReleaseScope.addDeliveryAllDatabaseSchemes( super.method , this , release , target.delivery ) );
+			DBReleaseScope.addDeliveryAllDatabaseSchemes( super.method , this , release , target.delivery );
+		else
 		if( target.CATEGORY == DBEnumScopeCategoryType.DOC )
-			return( DBReleaseScope.addDeliveryAllDocs( super.method , this , release , target.delivery ) );
+			DBReleaseScope.addDeliveryAllDocs( super.method , this , release , target.delivery );
+		else
 		if( target.CATEGORY.isSource() )
-			return( DBReleaseScope.addProjectAllItems( super.method , this , release , target.sourceProject ) );
-
-		this.exitUnexpectedCategory( target.CATEGORY );
-		return( false );
+			DBReleaseScope.addAllProjectItems( super.method , this , release , target.sourceProject );
+		else
+			this.exitUnexpectedCategory( target.CATEGORY );
+		return( true );
 	}
 	
 	private boolean addTargetItem( ActionScopeSet set , ActionScopeTarget target , ActionScopeTargetItem item ) throws Exception {
 		if( target.CATEGORY.isSource() )
-			return( DBReleaseScope.addProjectItem( super.method , this , release , target.sourceProject , item.sourceItem ) );
+			DBReleaseScope.addProjectItem( super.method , this , release , target.sourceProject , item.sourceItem );
+		else
 		if( target.CATEGORY == DBEnumScopeCategoryType.DB )
-			return( DBReleaseScope.addDeliveryDatabaseSchema( super.method , this , release , target.delivery , item.schema ) );
+			DBReleaseScope.addDeliveryDatabaseSchema( super.method , this , release , target.delivery , item.schema );
+		else
 		if( target.CATEGORY == DBEnumScopeCategoryType.DOC )
-			return( DBReleaseScope.addDeliveryDoc( super.method , this , release , target.delivery , item.doc ) );
-		
-		this.exitUnexpectedCategory( target.CATEGORY );
-		return( false );
+			DBReleaseScope.addDeliveryDoc( super.method , this , release , target.delivery , item.doc );
+		else
+			this.exitUnexpectedCategory( target.CATEGORY );
+		return( true );
 	}
 	
 }

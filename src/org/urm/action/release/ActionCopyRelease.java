@@ -5,6 +5,7 @@ import java.util.Date;
 import org.urm.action.ActionBase;
 import org.urm.db.release.DBReleaseDist;
 import org.urm.db.release.DBReleaseRepository;
+import org.urm.db.release.DBReleaseScope;
 import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
@@ -57,7 +58,7 @@ public class ActionCopyRelease extends ActionBase {
 		DBReleaseDist.updateHash( method , this , release , releaseDist , dist );
 		distrepo.addItem( item );
 		
-		DBReleaseRepository.copyScope( method , this , repo , release , src );
+		DBReleaseScope.copyScope( method , this , repo , release , src );
 		Dist srcDist = distrepo.findDefaultDist( src );
 		item.copyFiles( method , this , srcDist );
 		

@@ -2,8 +2,10 @@ package org.urm.meta.release;
 
 import org.urm.db.core.DBEnums.*;
 import org.urm.meta.MatchItem;
+import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.product.MetaSources;
 
 public class ReleaseBuildTarget {
 
@@ -54,6 +56,11 @@ public class ReleaseBuildTarget {
 		return( r );
 	}
 	
+	public void create( boolean all ) {
+		TYPE = DBEnumBuildTargetType.BUILDALL;
+		this.ALL = all;
+	}
+	
 	public void create( MetaSourceProjectSet projectSet , boolean all ) {
 		TYPE = DBEnumBuildTargetType.PROJECTSET;
 		SRCSET = MatchItem.create( projectSet.ID );
@@ -66,6 +73,12 @@ public class ReleaseBuildTarget {
 		this.ALL = all;
 	}
 
+	public boolean isScopeTarget() {
+		if( scope != null )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isBuildAll() {
 		return( TYPE == DBEnumBuildTargetType.BUILDALL );
 	}
@@ -84,6 +97,34 @@ public class ReleaseBuildTarget {
 
 	public boolean isBuildProjectNoItems() {
 		return( TYPE == DBEnumBuildTargetType.PROJECTNOITEMS );
+	}
+
+	public boolean isParentOf( ReleaseBuildTarget targetCheck ) {
+		if( targetCheck.isBuildProject() ) {
+			if( isBuildAll() )
+				return( true );
+			
+			Meta meta = release.getMeta();
+			MetaSources sources = meta.getSources();
+			MetaSourceProject project = sources.findProject( targetCheck.PROJECT );
+					
+			if( isBuildSet() ) {
+				if( MatchItem.equals( SRCSET , project.ID ) )
+					return( true );
+				return( false );
+			}
+			
+			return( false );
+		}
+		
+		if( targetCheck.isBuildSet() ) {
+			if( isBuildAll() )
+				return( true );
+			
+			return( false );
+		}
+		
+		return( false );
 	}
 	
 }
