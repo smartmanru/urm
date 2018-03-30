@@ -9,6 +9,7 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.dist.ReleaseBuildScopeSet;
+import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.dist.ReleaseDistScopeSet;
 import org.urm.engine.run.EngineMethod;
 import org.urm.meta.product.Meta;
@@ -21,6 +22,7 @@ import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseBuildTarget;
 import org.urm.meta.release.ReleaseDistTarget;
@@ -434,18 +436,184 @@ public class DBReleaseScope {
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseDistTarget , DBQueries.FILTER_REL_SCOPERELEASE1 , new String[] { EngineDB.getObject( release.ID ) } );
 	}
 
-	public static boolean descopeSet( EngineMethod method , ActionBase action , Release release , ReleaseBuildScopeSet set ) throws Exception {
-		return( false );
+	private static void descopeBuildTargetOnly( DBConnection c , Release release , ReleaseScope scope , ReleaseBuildTarget target ) throws Exception {
+		EngineEntities entities = c.getEntities();
+		
+		scope.removeBuildTarget( target );
+		int version = c.getNextReleaseVersion( release );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppReleaseBuildTarget , target.ID , version );
 	}
 
-	public static boolean descopeSet( EngineMethod method , ActionBase action , Release release , ReleaseDistScopeSet set ) throws Exception {
-		return( false );
+	private static void descopeDistTargetOnly( DBConnection c , Release release , ReleaseScope scope , ReleaseDistTarget target ) throws Exception {
+		EngineEntities entities = c.getEntities();
+		
+		scope.removeDistTarget( target );
+		int version = c.getNextReleaseVersion( release );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppReleaseDistTarget , target.ID , version );
 	}
 
-	public static boolean descopeAllSource( EngineMethod method , ActionBase action , Release release ) throws Exception {
-		return( false );
+	private static void descopeAllBinaries( DBConnection c , Release release , ReleaseScope scope ) throws Exception {
+		Meta meta = release.getMeta();
+		MetaSources sources = meta.getSources();
+		
+		for( MetaSourceProjectSet set : sources.getSets() )
+			descopeSetBinaries( c , release , scope , set );
 	}
 
+	private static void descopeSetBinaries( DBConnection c , Release release , ReleaseScope scope , MetaSourceProjectSet set ) throws Exception {
+		for( MetaSourceProject project : set.getProjects() )
+			descopeProjectBinaries( c , release , scope , project );
+	}
+
+	private static void descopeProjectBinaries( DBConnection c , Release release , ReleaseScope scope , MetaSourceProject project ) throws Exception {
+		for( MetaSourceProjectItem item : project.getItems() ) {
+			if( !item.isInternal() ) {
+				ReleaseDistTarget target = scope.findDistBinaryItemTarget( item.distItem );
+				if( target != null )
+					descopeDistTargetOnly( c , release , scope , target );
+			}
+		}
+	}
+
+	private static void descopeDeliveryBinaries( DBConnection c , Release release , ReleaseScope scope , MetaDistrDelivery delivery ) throws Exception {
+		for( MetaDistrBinaryItem item : delivery.getBinaryItems() ) {
+			ReleaseDistTarget target = scope.findDistBinaryItemTarget( item );
+			if( target != null )
+				descopeDistTargetOnly( c , release , scope , target );
+		}
+	}
+
+	private static void descopeDeliveryConfs( DBConnection c , Release release , ReleaseScope scope , MetaDistrDelivery delivery ) throws Exception {
+		for( MetaDistrConfItem item : delivery.getConfItems() ) {
+			ReleaseDistTarget target = scope.findDistConfItemTarget( item );
+			if( target != null )
+				descopeDistTargetOnly( c , release , scope , target );
+		}
+	}
+
+	private static void descopeDeliveryDatabase( DBConnection c , Release release , ReleaseScope scope , MetaDistrDelivery delivery ) throws Exception {
+		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() ) {
+			ReleaseDistTarget target = scope.findDistDeliverySchemaTarget( delivery , schema );
+			if( target != null )
+				descopeDistTargetOnly( c , release , scope , target );
+		}
+	}
+
+	private static void descopeDeliveryDocs( DBConnection c , Release release , ReleaseScope scope , MetaDistrDelivery delivery ) throws Exception {
+		for( MetaProductDoc doc : delivery.getDocs() ) {
+			ReleaseDistTarget target = scope.findDistDeliveryDocTarget( delivery , doc );
+			if( target != null )
+				descopeDistTargetOnly( c , release , scope , target );
+		}
+	}
+
+	public static void descopeSet( EngineMethod method , ActionBase action , Release release , ReleaseBuildScopeSet set ) throws Exception {
+		descopeSet( method , action , release , set.set );
+	}
+	
+	public static void descopeSet( EngineMethod method , ActionBase action , Release release , MetaSourceProjectSet set ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		ReleaseScope scope = release.getScope();
+		
+		ReleaseBuildTarget target = scope.findBuildAllTarget();
+		if( target != null )
+			return;
+		
+		target = scope.findBuildProjectSetTarget( set );
+		if( target != null ) {
+			if( !target.ALL )
+				Common.exitUnexpected();
+			
+			descopeBuildTargetOnly( c , release , scope , target );
+			descopeSetBinaries( c , release , scope , set );
+			return;
+		}
+		
+		for( MetaSourceProject project : set.getProjects() ) {
+			target = scope.findBuildProjectTarget( project );
+			if( target != null ) {
+				descopeBuildTargetOnly( c , release , scope , target );
+				descopeProjectBinaries( c , release , scope , project );
+			}
+		}
+	}
+
+	public static void descopeAllSource( EngineMethod method , ActionBase action , Release release ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		ReleaseScope scope = release.getScope();
+		
+		ReleaseBuildTarget target = scope.findBuildAllTarget();
+		if( target != null ) {
+			descopeBuildTargetOnly( c , release , scope , target );
+			descopeAllBinaries( c , release , scope );
+			return;
+		}
+		
+		Meta meta = release.getMeta();
+		MetaSources sources = meta.getSources();
+		
+		for( MetaSourceProjectSet set : sources.getSets() )
+			descopeSet( method , action , release , set );
+	}
+
+	public static void descopeSet( EngineMethod method , ActionBase action , Release release , ReleaseDistScopeSet set ) throws Exception {
+		for( ReleaseDistScopeDelivery delivery : set.getDeliveries() )
+			descopeDelivery( method , action , release , delivery );
+	}
+
+	public static void descopeDelivery( EngineMethod method , ActionBase action , Release release , ReleaseDistScopeDelivery delivery ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		ReleaseScope scope = release.getScope();
+
+		ReleaseDistTarget target = scope.findDistAllTarget();
+		if( target != null )
+			return;
+		
+		if( delivery.CATEGORY == DBEnumScopeCategoryType.BINARY ) {
+			target = scope.findDistDeliveryBinaryTarget( delivery.distDelivery );
+			if( target != null ) {
+				descopeDistTargetOnly( c , release , scope , target );
+				return;
+			}
+				
+			descopeDeliveryBinaries( c , release , scope , delivery.distDelivery );
+			return;
+		}
+		
+		if( delivery.CATEGORY == DBEnumScopeCategoryType.CONFIG ) {
+			target = scope.findDistDeliveryConfTarget( delivery.distDelivery );
+			if( target != null ) {
+				descopeDistTargetOnly( c , release , scope , target );
+				return;
+			}
+				
+			descopeDeliveryConfs( c , release , scope , delivery.distDelivery );
+			return;
+		}
+		
+		if( delivery.CATEGORY == DBEnumScopeCategoryType.DB ) {
+			target = scope.findDistDeliveryDatabaseTarget( delivery.distDelivery );
+			if( target != null ) {
+				descopeDistTargetOnly( c , release , scope , target );
+				return;
+			}
+				
+			descopeDeliveryDatabase( c , release , scope , delivery.distDelivery );
+			return;
+		}
+		
+		if( delivery.CATEGORY == DBEnumScopeCategoryType.DOC ) {
+			target = scope.findDistDeliveryDocTarget( delivery.distDelivery );
+			if( target != null ) {
+				descopeDistTargetOnly( c , release , scope , target );
+				return;
+			}
+				
+			descopeDeliveryDocs( c , release , scope , delivery.distDelivery );
+			return;
+		}
+	}
+	
 	public static void copyScope( EngineMethod method , ActionBase action , ReleaseRepository repo , Release release , Release dst ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		
