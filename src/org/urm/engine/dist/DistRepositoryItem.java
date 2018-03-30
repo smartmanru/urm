@@ -2,6 +2,7 @@ package org.urm.engine.dist;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.run.EngineMethod;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
@@ -107,4 +108,7 @@ public class DistRepositoryItem {
 		return( s );
 	}
 
+	public void copyFiles( EngineMethod method , ActionBase action , Dist src ) throws Exception {
+	}
+	
 }

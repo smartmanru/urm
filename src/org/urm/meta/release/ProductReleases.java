@@ -1,7 +1,9 @@
 package org.urm.meta.release;
 
+import org.urm.db.core.DBEnums.DBEnumLifecycleType;
 import org.urm.engine.dist.DistRepository;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.ProductMeta;
 
 public class ProductReleases {
@@ -38,6 +40,27 @@ public class ProductReleases {
 	
 	public Release findRelease( String RELEASEVER ) {
 		return( rrepo.findRelease( RELEASEVER ) );
+	}
+
+	public String getNextRelease( DBEnumLifecycleType type ) {
+		MetaProductVersion version = meta.getVersion();
+		if( type == DBEnumLifecycleType.MAJOR )
+			return( version.majorNextFirstNumber + "." + version.majorNextSecondNumber );
+		if( type == DBEnumLifecycleType.MINOR )
+			return( version.majorLastFirstNumber + "." + version.majorLastSecondNumber + "." + version.nextProdTag );
+		if( type == DBEnumLifecycleType.URGENT )
+			return( version.majorLastFirstNumber + "." + version.majorLastSecondNumber + "." + version.lastProdTag + version.nextUrgentTag );
+		return( "" );
+	}
+	
+	public Release findLastRelease( DBEnumLifecycleType type ) {
+		String[] versions = rrepo.getActiveVersions();
+		for( int k = versions.length - 1; k >= 0; k-- ) {
+			Release release = rrepo.findRelease( versions[ k ] );
+			if( release.TYPE == type )
+				return( release );
+		}
+		return( null );
 	}
 	
 }

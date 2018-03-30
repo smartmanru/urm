@@ -14,7 +14,6 @@ import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
-import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
 import org.urm.meta.release.ReleaseRepository;
@@ -38,17 +37,16 @@ public class ActionCopyRelease extends ActionBase {
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		EngineMethod method = super.method;
-		
 		Meta meta = src.getMeta();
-		DistRepository distrepo = meta.getDistRepository();
+		ReleaseRepository repo = method.changeReleaseRepository( meta );
+		DistRepository distrepo = method.changeDistRepository( meta );
+		
 		ReleaseLabelInfo info = distrepo.getLabelInfo( this , RELEASEDIR );
 		if( info.master ) {
 			super.fail0( _Error.CannotCopyProd0 , "Cannot create master distributive, use master command instead" );
 			return( SCOPESTATE.RunFail );
 		}
 		
-		ProductReleases releases = meta.getReleases();
-		ReleaseRepository repo = releases.getReleaseRepository();
 		release = DBReleaseRepository.createReleaseNormal( method , this , repo , info , releaseDate , lc );
 		ReleaseDist releaseDist = DBReleaseDist.createReleaseDist( method , this , release , info.VARIANT );
 		
@@ -60,6 +58,8 @@ public class ActionCopyRelease extends ActionBase {
 		distrepo.addItem( item );
 		
 		DBReleaseRepository.copyScope( method , this , repo , release , src );
+		Dist srcDist = distrepo.findDefaultDist( src );
+		item.copyFiles( method , this , srcDist );
 		
 		return( SCOPESTATE.RunSuccess );
 	}
