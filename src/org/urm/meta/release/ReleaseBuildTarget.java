@@ -17,6 +17,7 @@ public class ReleaseBuildTarget {
 	public static String PROPERTY_ALL = "all";
 	
 	public Release release;
+	public ReleaseScope scope;
 	
 	public int ID;
 	public DBEnumBuildTargetType TYPE;
@@ -32,8 +33,13 @@ public class ReleaseBuildTarget {
 		this.release = release;
 	}
 
-	public ReleaseBuildTarget copy( Release rrelease ) {
-		ReleaseBuildTarget r = new ReleaseBuildTarget( rrelease );
+	public ReleaseBuildTarget( ReleaseScope scope ) {
+		this.release = scope.release;
+		this.scope = scope;
+	}
+
+	public ReleaseBuildTarget copy( ReleaseScope rscope ) {
+		ReleaseBuildTarget r = new ReleaseBuildTarget( rscope );
 		
 		r.ID = ID;
 		r.TYPE = TYPE;

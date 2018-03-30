@@ -14,6 +14,7 @@ import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseBuildTarget;
 import org.urm.meta.release.ReleaseDistTarget;
+import org.urm.meta.release.ReleaseScope;
 
 public class ReleaseDistScope {
 
@@ -96,9 +97,10 @@ public class ReleaseDistScope {
 
 	private static void createBinary( Release release , ReleaseDistScopeDelivery scopeDelivery ) throws Exception {
 		boolean all = false;
+		ReleaseScope scope = release.getScope();
 		for( MetaDistrBinaryItem item : scopeDelivery.distDelivery.getBinaryItems() ) {
 			boolean matched = false;
-			for( ReleaseDistTarget target : scopeDelivery.release.getScopeDistTargets() ) {
+			for( ReleaseDistTarget target : scope.getDistTargets() ) {
 				if( target.isDistAll() ) {
 					matched = true;
 					all = true;
@@ -134,9 +136,10 @@ public class ReleaseDistScope {
 	
 	private static void createConf( Release release , ReleaseDistScopeDelivery scopeDelivery ) throws Exception {
 		boolean all = false;
+		ReleaseScope scope = release.getScope();
 		for( MetaDistrConfItem item : scopeDelivery.distDelivery.getConfItems() ) {
 			boolean matched = false;
-			for( ReleaseDistTarget target : scopeDelivery.release.getScopeDistTargets() ) {
+			for( ReleaseDistTarget target : scope.getDistTargets() ) {
 				if( target.isDistAll() ) {
 					matched = true;
 					all = true;
@@ -165,9 +168,10 @@ public class ReleaseDistScope {
 	
 	private static void createDatabase( Release release , ReleaseDistScopeDelivery scopeDelivery ) throws Exception {
 		boolean all = false;
+		ReleaseScope scope = release.getScope();
 		for( MetaDatabaseSchema schema : scopeDelivery.distDelivery.getDatabaseSchemes() ) {
 			boolean matched = false;
-			for( ReleaseDistTarget target : scopeDelivery.release.getScopeDistTargets() ) {
+			for( ReleaseDistTarget target : scope.getDistTargets() ) {
 				if( target.isDistAll() ) {
 					matched = true;
 					all = true;
@@ -196,9 +200,10 @@ public class ReleaseDistScope {
 	
 	private static void createDoc( Release release , ReleaseDistScopeDelivery scopeDelivery ) throws Exception {
 		boolean all = false;
+		ReleaseScope scope = release.getScope();
 		for( MetaProductDoc doc : scopeDelivery.distDelivery.getDocs() ) {
 			boolean matched = false;
-			for( ReleaseDistTarget target : scopeDelivery.release.getScopeDistTargets() ) {
+			for( ReleaseDistTarget target : scope.getDistTargets() ) {
 				if( target.isDistAll() ) {
 					matched = true;
 					all = true;
@@ -225,7 +230,8 @@ public class ReleaseDistScope {
 	}
 
 	public static boolean checkScopeBuildProjectItem( Release release , MetaSourceProjectItem item ) {
-		for( ReleaseBuildTarget target : release.getScopeBuildTargets() ) {
+		ReleaseScope scope = release.getScope();
+		for( ReleaseBuildTarget target : scope.getBuildTargets() ) {
 			if( target.isBuildAll() )
 				return( true );
 			if( target.isBuildSet() && target.ALL && target.SRCSET.equals( item.project.set.ID ) )

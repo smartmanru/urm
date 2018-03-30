@@ -14,6 +14,7 @@ import org.urm.meta.product.MetaSources;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseBuildTarget;
 import org.urm.meta.release.ReleaseDistTarget;
+import org.urm.meta.release.ReleaseScope;
 
 public class ReleaseBuildScope {
 
@@ -36,7 +37,8 @@ public class ReleaseBuildScope {
 				scope.addSet( scopeSet );
 		}
 		
-		for( ReleaseBuildTarget target : release.getScopeBuildTargets() ) {
+		ReleaseScope releaseScope = release.getScope();
+		for( ReleaseBuildTarget target : releaseScope.getBuildTargets() ) {
 			if( target.isBuildAll() ) {
 				scope.scopeTarget = target;
 				break;
@@ -53,7 +55,8 @@ public class ReleaseBuildScope {
 	}
 
 	private static void createBuildableScopeSet( Release release , ReleaseBuildScopeSet scopeSet ) throws Exception {
-		for( ReleaseBuildTarget target : release.getScopeBuildTargets() ) {
+		ReleaseScope releaseScope = release.getScope();
+		for( ReleaseBuildTarget target : releaseScope.getBuildTargets() ) {
 			if( target.isBuildAll() )
 				scopeSet.scopeTarget = target;
 			if( target.isBuildSet() && target.SRCSET.equals( scopeSet.set.ID ) && target.ALL )
@@ -62,7 +65,7 @@ public class ReleaseBuildScope {
 		
 		for( MetaSourceProject project : scopeSet.set.getProjects() ) {
 			boolean matched = false;
-			for( ReleaseBuildTarget target : release.getScopeBuildTargets() ) {
+			for( ReleaseBuildTarget target : releaseScope.getBuildTargets() ) {
 				if( target.isBuildAll() ) {
 					matched = true;
 					break;
@@ -96,7 +99,8 @@ public class ReleaseBuildScope {
 		Meta meta = release.getMeta();
 		MetaDistr distr = meta.getDistr();
 		
-		for( ReleaseDistTarget target : release.getScopeDistTargets() ) {
+		ReleaseScope releaseScope = release.getScope();
+		for( ReleaseDistTarget target : releaseScope.getDistTargets() ) {
 			if( target.isDistAll() ) {
 				if( project.hasDistItems() )
 					return( true );
@@ -122,7 +126,8 @@ public class ReleaseBuildScope {
 
 	private static void createBuildableScopeProject( Release release , ReleaseBuildScopeProject scopeProject ) throws Exception {
 		boolean allItems = false;
-		for( ReleaseBuildTarget target : release.getScopeBuildTargets() ) {
+		ReleaseScope releaseScope = release.getScope();
+		for( ReleaseBuildTarget target : releaseScope.getBuildTargets() ) {
 			if( target.isBuildProject() && target.PROJECT.equals( scopeProject.project.ID ) ) {
 				scopeProject.scopeProjectTarget = target;
 				if( target.ALL )
@@ -138,7 +143,7 @@ public class ReleaseBuildScope {
 		
 		Meta meta = release.getMeta();
 		MetaDistr distr = meta.getDistr();
-		for( ReleaseDistTarget target : release.getScopeDistTargets() ) {
+		for( ReleaseDistTarget target : releaseScope.getDistTargets() ) {
 			if( target.isDistAll() ) {
 				createBuildableScopeProjectAllItems( release , scopeProject );
 				return;

@@ -22,6 +22,7 @@ public class ReleaseDistTarget {
 	public static String PROPERTY_ALL = "all";
 	
 	public Release release;
+	public ReleaseScope scope;
 	
 	public int ID;
 	public DBEnumDistTargetType TYPE;
@@ -37,8 +38,13 @@ public class ReleaseDistTarget {
 		this.release = release;
 	}
 
-	public ReleaseDistTarget copy( Release rrelease ) {
-		ReleaseDistTarget r = new ReleaseDistTarget( rrelease );
+	public ReleaseDistTarget( ReleaseScope scope ) {
+		this.release = scope.release;
+		this.scope = scope;
+	}
+
+	public ReleaseDistTarget copy( ReleaseScope rscope ) {
+		ReleaseDistTarget r = new ReleaseDistTarget( rscope );
 		
 		r.ID = ID;
 		r.TYPE = TYPE;
