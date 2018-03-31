@@ -28,7 +28,7 @@ public class ActionGetCumulative extends ActionBase {
 		dist.openForDataChange( this );
 		
 		DBReleaseScope.descopeAll( super.method , this , release );
-		dist.saveReleaseXml( this );
+		dist.saveMetaFile( this );
 		
 		// dists - source releases sorted from last to most earlier
 		String[] versions = dist.release.getCumulativeVersions();
@@ -46,7 +46,7 @@ public class ActionGetCumulative extends ActionBase {
 
 		copyFiles( dists );
 		
-		dist.saveReleaseXml( this );
+		dist.saveMetaFile( this );
 		dist.closeDataChange( this );
 		return( SCOPESTATE.RunSuccess );
 	}

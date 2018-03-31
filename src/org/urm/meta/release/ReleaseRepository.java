@@ -42,12 +42,15 @@ public class ReleaseRepository {
 	private Map<String,Release> mapReleasesMaster;
 	private Map<Integer,Release> mapReleasesById;
 	
+	private boolean modifyState;
+	
 	public ReleaseRepository( Meta meta , ProductReleases releases ) {
 		this.meta = meta;
 		this.releases = releases;
 		mapReleasesNormal = new HashMap<String,Release>();
 		mapReleasesById = new HashMap<Integer,Release>();
 		mapReleasesMaster = new HashMap<String,Release>();
+		modifyState = false;
 	}
 
 	public ReleaseRepository copy( Meta rmeta , ProductReleases rreleases ) {
@@ -60,6 +63,19 @@ public class ReleaseRepository {
 		r.mapReleasesMaster.putAll( mapReleasesMaster );
 		r.mapReleasesById.putAll( mapReleasesById );
 		return( r );
+	}
+	
+	public synchronized void modify( boolean done ) throws Exception {
+		if( !done ) {
+			if( modifyState )
+				Common.exitUnexpected();
+			modifyState = true;
+		}
+		else {
+			if( !modifyState )
+				Common.exitUnexpected();
+			modifyState = false;
+		}
 	}
 	
 	public void createRepository( String name , String desc ) {
@@ -117,6 +133,14 @@ public class ReleaseRepository {
 			mapReleasesMaster.put( release.NAME , release );
 		else
 			mapReleasesNormal.put( release.RELEASEVER , release );
+		mapReleasesById.put( release.ID , release );
+	}
+
+	public synchronized void removeRelease( Release release ) {
+		if( release.MASTER )
+			mapReleasesMaster.remove( release.NAME );
+		else
+			mapReleasesNormal.remove( release.RELEASEVER );
 		mapReleasesById.put( release.ID , release );
 	}
 

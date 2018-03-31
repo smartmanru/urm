@@ -31,6 +31,7 @@ public class EngineMethodMeta {
 	public synchronized ReleaseRepository changeReleaseRepository() throws Exception {
 		if( updateReleaseRepository == null ) {
 			ReleaseRepository repo = meta.getReleaseRepository();
+			repo.modify( false );
 			updateReleaseRepository = repo.copy( meta , meta.getReleases() );
 		}
 		return( updateReleaseRepository );
@@ -56,6 +57,7 @@ public class EngineMethodMeta {
 	public synchronized DistRepository changeDistRepository() throws Exception {
 		if( updateDistRepository == null ) {
 			DistRepository repo = meta.getDistRepository();
+			repo.modify( false );
 			updateDistRepository = repo.copy( meta );
 		}
 		return( updateDistRepository );
@@ -113,6 +115,12 @@ public class EngineMethodMeta {
 			Common.exitUnexpected();
 	}
 	
+	public synchronized void checkUpdateRelease( Release release ) throws Exception {
+		EngineMethodMetaRelease emmr = mapReleases.get( release.RELEASEVER );
+		if( emmr == null )
+			Common.exitUnexpected();
+	}
+	
 	public synchronized void createDistItem( DistRepositoryItem item ) throws Exception {
 		if( updateDistRepository == null || updateDistRepository != item.repo )
 			Common.exitUnexpected();
@@ -157,8 +165,8 @@ public class EngineMethodMeta {
 				emmr.commit();
 				
 			meta.setReleaseRepository( updateReleaseRepository );
-			return;
 		}
+		
 		if( updateDistRepository != null ) {
 			for( EngineMethodMetaDistItem emmd : mapDistItems.values() )
 				emmd.commit();
@@ -169,6 +177,16 @@ public class EngineMethodMeta {
 	}
 	
 	public synchronized void abort() throws Exception {
+		if( updateReleaseRepository != null ) {
+			ReleaseRepository repo = meta.getReleaseRepository();
+			repo.modify( true );
+		}
+			
+		if( updateDistRepository != null ) {
+			DistRepository repo = meta.getDistRepository();
+			repo.modify( true );
+		}
+			
 		for( EngineMethodMetaRelease emmr : mapReleases.values() )
 			emmr.abort();
 		for( EngineMethodMetaDistItem emmd : mapDistItems.values() )

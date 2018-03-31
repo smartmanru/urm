@@ -162,14 +162,45 @@ public class EngineMethod extends EngineExecutorTask {
 		emm.checkUpdateDistItem( item );
 	}
 	
-	public void createRelease( ReleaseRepository repo , Release release ) throws Exception {
-		EngineMethodMeta emm = checkUpdateReleaseRepository( repo );
-		emm.createRelease( release );
+	public void checkUpdateRelease( Release release ) throws Exception {
+		EngineMethodMeta emm = findEmm( release.getMeta() );
+		if( emm == null )
+			Common.exitUnexpected();
+		emm.checkUpdateRelease( release );
 	}
 	
-	public void createDistItem( DistRepository repo , DistRepositoryItem item ) throws Exception {
+	public Release createRelease( ReleaseRepository repo , Release release ) throws Exception {
+		EngineMethodMeta emm = checkUpdateReleaseRepository( repo );
+		emm.createRelease( release );
+		return( release );
+	}
+	
+	public Release changeRelease( ReleaseRepository repo , Release release ) throws Exception {
+		EngineMethodMeta emm = checkUpdateReleaseRepository( repo );
+		return( emm.updateRelease( release ) );
+	}
+	
+	public Release deleteRelease( ReleaseRepository repo , Release release ) throws Exception {
+		EngineMethodMeta emm = checkUpdateReleaseRepository( repo );
+		emm.deleteRelease( release );
+		return( release );
+	}
+	
+	public DistRepositoryItem createDistItem( DistRepository repo , DistRepositoryItem item ) throws Exception {
 		EngineMethodMeta emm = checkUpdateDistRepository( repo );
 		emm.createDistItem( item );
+		return( item );
+	}
+	
+	public DistRepositoryItem changeDistItem( DistRepository repo , DistRepositoryItem item ) throws Exception {
+		EngineMethodMeta emm = checkUpdateDistRepository( repo );
+		return( emm.updateDistItem( item ) );
+	}
+
+	public DistRepositoryItem deleteDistItem( DistRepository repo , DistRepositoryItem item ) throws Exception {
+		EngineMethodMeta emm = checkUpdateDistRepository( repo );
+		emm.deleteDistItem( item );
+		return( item );
 	}
 	
 	private synchronized EngineMethodMeta getEmm( Meta meta ) throws Exception {

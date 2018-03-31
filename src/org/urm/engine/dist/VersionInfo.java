@@ -151,6 +151,25 @@ public class VersionInfo {
 		return( v1 + "." + v2 );
 	}
 	
+	public static String getReleaseShortVersion( String RELEASEDIR ) {
+		String RELEASEVER = Common.getPartBeforeFirst( RELEASEDIR , "-" );
+		String[] parts = Common.splitDotted( RELEASEVER );
+		if( parts.length <= 2 )
+			return( RELEASEVER );
+		if( parts.length == 3 ) {
+			if( parts[2].equals( "0" ) )
+				return( parts[0] + "." + parts[1] );
+			return( RELEASEVER );
+		}
+		if( parts[3].equals( "0" ) ) {
+			if( parts[2].equals( "0" ) )
+				return( parts[0] + "." + parts[1] );
+			return( parts[0] + "." + parts[1] + "." + parts[2] );
+		}
+		
+		return( RELEASEVER );
+	}
+	
 	public String getReleaseVersion() {
 		if( v4 == 0 ) {
 			if( v3 == 0 )

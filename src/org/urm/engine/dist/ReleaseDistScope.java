@@ -1,5 +1,6 @@
 package org.urm.engine.dist;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
@@ -24,6 +25,7 @@ public class ReleaseDistScope {
 	
 	public ReleaseDistScope( Release release ) {
 		this.release = release;
+		mapSet = new HashMap<DBEnumScopeCategoryType,ReleaseDistScopeSet>(); 
 	}
 
 	public static ReleaseDistScope createScope( Release release ) throws Exception {

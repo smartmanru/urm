@@ -52,6 +52,8 @@ public class EngineMethodMetaRelease {
 		ReleaseRepository repo = emm.getReleaseRepository();
 		if( releaseNew != null && releaseNew.repo != repo )
 			releaseNew.setRepository( repo );
+		if( releaseOld != null )
+			releaseOld.modify( true );
 	}
 	
 	public void abort() throws Exception {

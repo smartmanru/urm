@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.engine.dist.VersionInfo;
 
 public class ReleaseDist {
 
@@ -80,9 +81,10 @@ public class ReleaseDist {
 	}
 	
 	public String getReleaseDir() {
+		String shortVersion = VersionInfo.getReleaseShortVersion( release.RELEASEVER );
 		if( DIST_VARIANT.isEmpty() )
-			return( release.RELEASEVER );
-		return( release.RELEASEVER + "-" + DIST_VARIANT );
+			return( shortVersion );
+		return( shortVersion + "-" + DIST_VARIANT );
 	}
 	
 	public void clear() {

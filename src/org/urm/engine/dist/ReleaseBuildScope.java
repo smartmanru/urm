@@ -1,5 +1,6 @@
 package org.urm.engine.dist;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
@@ -25,6 +26,7 @@ public class ReleaseBuildScope {
 	
 	private ReleaseBuildScope( Release release ) {
 		this.release = release;
+		mapSet = new HashMap<String,ReleaseBuildScopeSet>();
 	}
 	
 	public static ReleaseBuildScope createScope( Release release ) throws Exception {

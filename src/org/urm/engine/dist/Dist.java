@@ -393,7 +393,7 @@ public class Dist {
 		}
 		
 		release.finish( action );
-		saveReleaseXml( action );
+		saveMetaFile( action );
 		state.ctlFinish( action );
 		return( true );
 	}
@@ -406,14 +406,14 @@ public class Dist {
 		
 		openForControl( action );
 		release.complete( action );
-		saveReleaseXml( action );
+		saveMetaFile( action );
 		state.ctlCloseControl( action , DISTSTATE.COMPLETED );
 	}
 
 	public void reopen( ActionBase action ) throws Exception {
 		state.ctlReopen( action );
 		release.reopen( action );
-		saveReleaseXml( action );
+		saveMetaFile( action );
 		state.ctlCloseDataChange( action );
 	}
 
@@ -438,9 +438,6 @@ public class Dist {
 		return( files );
 	}
 	
-	public void saveReleaseXml( ActionBase action ) throws Exception {
-	}
-
 	public String getReleaseConfCompParentFolder( ActionBase action , MetaDistrConfItem comp ) throws Exception {
 		String folder = getDeliveryConfFolder( action , comp.delivery );
 		return( folder );
@@ -462,36 +459,36 @@ public class Dist {
 		try {
 			if( item.isDerivedItem() ) {
 				DistItemInfo infosrc = getDistItemInfo( action , item.srcDistItem , false , true );
-				info.subPath = infosrc.subPath;
-				info.fileName = infosrc.fileName;
-				info.found = infosrc.found;
-				info.timestamp = infosrc.timestamp;
+				info.setFinalName( infosrc );
+				info.setMD5( infosrc );
+				info.setTimestamp( infosrc );
 			}
 			else {
-				info.subPath = getReleaseBinaryFolder( action , item );
-				info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );
-				info.found = ( info.fileName.isEmpty() )? false : true;
-				
-				if( info.found && getTimestamp ) {
-					RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
-					info.timestamp = fileFolder.getFileChangeTime( action , info.fileName );
+				FileSet files = getFiles( action );
+				String fileName = files.findDistItem( action , item , info.getDistItemFolder() );
+				if( !fileName.isEmpty() ) {
+					info.setFinalName( fileName );
+					if( getTimestamp ) {
+						RemoteFolder fileFolder = distFolder.getSubFolder( action , info.getDistItemFolder() );
+						info.setTimestamp( fileFolder.getFileChangeTime( action , fileName ) );
+					}
 				}
 			}
 			
-			if( info.found && getMD5 ) {
-				RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
+			if( info.isFound() && getMD5 ) {
+				RemoteFolder fileFolder = distFolder.getSubFolder( action , info.getDistItemFolder() );
 				if( item.isDerivedItem() )
-					info.md5value = fileFolder.getArchivePartMD5( action , info.fileName , item.SRC_ITEMPATH , item.srcDistItem.EXT );
+					info.setMD5( fileFolder.getArchivePartMD5( action , info.getFinalName() , item.SRC_ITEMPATH , item.srcDistItem.EXT ) );
 				else
 				if( item.isArchive() )
-					info.md5value = fileFolder.getArchiveContentMD5( action , info.fileName , item.EXT );
+					info.setMD5( fileFolder.getArchiveContentMD5( action , info.getFinalName() , item.EXT ) );
 				else
-					info.md5value = fileFolder.getFileMD5( action , info.fileName );
+					info.setMD5( fileFolder.getFileMD5( action , info.getFinalName() ) );
 			}
 		}
 		catch( Throwable e ) {
 			action.log( "get binary distitem info item=" + item.NAME , e );
-			info.found = false;
+			info.clearFinal();
 		}
 		
 		return( info );
@@ -509,39 +506,42 @@ public class Dist {
 		DistItemInfo info = new DistItemInfo( item );
 
 		try {
-			info.subPath = getReleaseConfCompParentFolder( action , item );
-			info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );
-			info.found = ( info.fileName.isEmpty() )? false : true;
+			FileSet files = getFiles( action );
+			String dirName = files.findDistItem( action , item , info.getDistItemFolder() );
+			if( !dirName.isEmpty() )
+				info.setFinalName( dirName );
 		}
 		catch( Throwable e ) {
 			action.log( "get configuration distitem info item=" + item.NAME , e );
-			info.found = false;
+			info.clearFinal();
 		}
 		
 		return( info );
 	}
 
 	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrDelivery delivery , MetaProductDoc item , boolean getMD5 , boolean getTimestamp ) {
-		DistItemInfo info = new DistItemInfo( item );
+		DistItemInfo info = new DistItemInfo( delivery , item );
 
 		try {
-			info.subPath = getReleaseDocFolder( action , delivery );
-			info.fileName = getFiles( action ).findDistItem( action , item , info.subPath );
-			info.found = ( info.fileName.isEmpty() )? false : true;
-			
-			if( info.found && getTimestamp ) {
-				RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
-				info.timestamp = fileFolder.getFileChangeTime( action , info.fileName );
-			}
-			
-			if( info.found && getMD5 ) {
-				RemoteFolder fileFolder = distFolder.getSubFolder( action , info.subPath );
-				info.md5value = fileFolder.getFileMD5( action , info.fileName );
+			FileSet files = getFiles( action );
+			String fileName = files.findDistItem( action , item , info.getDistItemFolder() );
+			if( !fileName.isEmpty() ) {
+				info.setFinalName( fileName );
+				
+				if( getTimestamp ) {
+					RemoteFolder fileFolder = distFolder.getSubFolder( action , info.getDistItemFolder() );
+					info.setTimestamp( fileFolder.getFileChangeTime( action , fileName ) );
+				}
+				
+				if( getMD5 ) {
+					RemoteFolder fileFolder = distFolder.getSubFolder( action , info.getDistItemFolder() );
+					info.setMD5( fileFolder.getFileMD5( action , fileName ) );
+				}
 			}
 		}
 		catch( Throwable e ) {
 			action.log( "get document distitem info item=" + item.NAME , e );
-			info.found = false;
+			info.clearFinal();
 		}
 		
 		return( info );
@@ -647,6 +647,17 @@ public class Dist {
 		
 		distFolder.ensureFolderExists( action , Common.getDirName( fileDst ) );
 		distFolder.copyFile( action , fileSrc , fileDst );
+	}
+	
+	public void copyDirDistrToDistr( ActionBase action , MetaDistrDelivery delivery , Dist src , String dir ) throws Exception {
+		String folder = delivery.FOLDER;
+		String folderSrc = src.distFolder.getFilePath( action , Common.getPath( folder , dir ) );
+		String folderDst = Common.getPath( folder , dir );
+		action.debug( "copy " + folderSrc + " to " + folderDst + " ..." );
+		
+		distFolder.recreateFolder( action , folderDst );
+		ShellExecutor session = distFolder.getSession( action );
+		session.copyDirContent( action , folderSrc , folderDst );
 	}
 	
 	public void appendConfDistrToDistr( ActionBase action , MetaDistrDelivery delivery , Dist src , MetaDistrConfItem item ) throws Exception {

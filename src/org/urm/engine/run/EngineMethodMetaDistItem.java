@@ -51,6 +51,8 @@ public class EngineMethodMetaDistItem {
 		DistRepository repo = emm.getDistRepository();
 		if( itemNew != null && itemNew.repo != repo )
 			itemNew.setRepository( repo );
+		if( itemOld != null )
+			itemOld.modify( true );
 	}
 	
 	public void abort() throws Exception {

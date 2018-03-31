@@ -371,7 +371,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			return( executeNodeArchive( server , node , location , binaryItem , tobeServerFolder , asisServerFolder ) );
 		
 		DistItemInfo distInfo = dist.getDistItemInfo( this , binaryItem , true , false );
-		if( !distInfo.found ) {
+		if( !distInfo.isFound() ) {
 			debug( "ignore non-release item=" + binaryItem.NAME );
 			return( true );
 		}
@@ -384,9 +384,9 @@ public class ActionVerifyDeploy extends ActionBase {
 			return( false );
 		}
 		
-		if( !runInfo.md5value.equals( distInfo.md5value ) ) {
+		if( !distInfo.checkMD5( runInfo ) ) {
 			error( "dist item=" + binaryItem.NAME + " in location=" + location.DEPLOYPATH + " differs from distributive (" +
-				runInfo.md5value + " != " + distInfo.md5value + ")" );
+				runInfo.md5value + " != " + distInfo.getMD5() + ")" );
 			return( false );
 		}
 		
@@ -406,7 +406,7 @@ public class ActionVerifyDeploy extends ActionBase {
 	private boolean executeNodeArchive( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrBinaryItem archiveItem , LocalFolder tobeServerFolder , LocalFolder asisServerFolder ) throws Exception {
 		boolean getMD5 = ( context.CTX_CHECK )? false : true;
 		DistItemInfo distInfo = dist.getDistItemInfo( this , archiveItem , getMD5 , false );
-		if( !distInfo.found ) {
+		if( !distInfo.isFound() ) {
 			debug( "ignore non-release item=" + archiveItem.NAME );
 			return( true );
 		}
@@ -419,9 +419,9 @@ public class ActionVerifyDeploy extends ActionBase {
 				return( false );
 			}
 			
-			if( !runInfo.md5value.equals( distInfo.md5value ) ) {
+			if( !distInfo.checkMD5( runInfo ) ) {
 				error( "dist item=" + archiveItem.NAME + " in location=" + location.DEPLOYPATH + " differs from distributive (" +
-					runInfo.md5value + " != " + distInfo.md5value + ")" );
+					runInfo.md5value + " != " + distInfo.getMD5() + ")" );
 				return( false );
 			}
 		}
@@ -438,7 +438,7 @@ public class ActionVerifyDeploy extends ActionBase {
 			// copy file from dist area and extract
 			LocalFolder distFolder = tobeServerFolder.getSubFolder( this , "archive.dist" );
 			distFolder.recreateThis( this );
-			dist.copyDistFileToFolderRename( this , distFolder , distInfo.subPath , distInfo.fileName , fileName );
+			dist.copyDistFileToFolderRename( this , distFolder , distInfo.getDistItemFolder() , distInfo.getFinalName() , fileName );
 			distFolder.extractArchive( this , archiveItem.getArchiveType( this ), fileName , "" );
 			distFolder.removeFiles( this , fileName );
 			

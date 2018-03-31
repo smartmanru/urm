@@ -38,10 +38,13 @@ public class DistRepository {
 	private Map<String,DistRepositoryItem> itemMap; 
 	private Map<String,DistRepositoryItem> runMap; 
 	
+	private boolean modifyState;
+	
 	private DistRepository( Meta meta ) {
 		this.meta = meta;
 		itemMap = new HashMap<String,DistRepositoryItem>();
 		runMap = new HashMap<String,DistRepositoryItem>();
+		modifyState = false;
 	}
 	
 	public DistRepository copy( Meta rmeta ) {
@@ -50,6 +53,19 @@ public class DistRepository {
 		r.itemMap.putAll( itemMap );
 		r.runMap.putAll( runMap );
 		return( r );
+	}
+	
+	public synchronized void modify( boolean done ) throws Exception {
+		if( !done ) {
+			if( modifyState )
+				Common.exitUnexpected();
+			modifyState = true;
+		}
+		else {
+			if( !modifyState )
+				Common.exitUnexpected();
+			modifyState = false;
+		}
 	}
 	
 	public static DistRepository loadDistRepository( ActionBase action , Meta meta , boolean importxml ) throws Exception {
@@ -195,11 +211,10 @@ public class DistRepository {
 		return( item );
 	}
 
-	public synchronized void dropDist( ActionBase action , Dist dist , boolean force ) throws Exception {
-		DistRepositoryItem item = findRunItem( dist );
-		if( item == null )
-			Common.exitUnexpected();
-			
+	public synchronized void dropDist( EngineMethod method , ActionBase action , DistRepositoryItem item , boolean force ) throws Exception {
+		method.checkUpdateDistItem( item );
+		
+		Dist dist = item.dist;
 		if( force )
 			dist.forceDrop( action );
 		else
@@ -440,6 +455,11 @@ public class DistRepository {
 	public Dist findDefaultDist( Release release ) {
 		ReleaseDist dist = release.getDefaultReleaseDist();
 		return( findDist( dist.getReleaseDir() ) );
+	}
+	
+	public DistRepositoryItem findDefaultItem( Release release ) {
+		ReleaseDist dist = release.getDefaultReleaseDist();
+		return( findItem( dist.getReleaseDir() ) );
 	}
 	
 	public static String getNormalReleaseFolder( String RELEASEDIR ) throws Exception {

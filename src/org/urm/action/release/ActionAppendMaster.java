@@ -77,7 +77,7 @@ public class ActionAppendMaster extends ActionBase {
 		
 		master.openForControl( this );
 		master.appendMasterFiles( this , dist );
-		master.saveReleaseXml( this );
+		master.saveMetaFile( this );
 		master.closeControl( this , DISTSTATE.RELEASED );
 		
 		repo.replaceDist( this , distMaster , master );

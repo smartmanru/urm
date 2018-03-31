@@ -20,12 +20,14 @@ public class ReleaseDistScopeDeliveryItem {
 	
 	public ReleaseDistScopeDeliveryItem( Release release , MetaDistrBinaryItem binary ) {
 		this.release = release;
+		this.distDelivery = binary.delivery;
 		this.binary = binary;
 		this.partial = false;
 	}
 	
 	public ReleaseDistScopeDeliveryItem( Release release , MetaDistrConfItem conf ) {
 		this.release = release;
+		this.distDelivery = conf.delivery;
 		this.conf = conf;
 		this.partial = false;
 	}
@@ -43,5 +45,29 @@ public class ReleaseDistScopeDeliveryItem {
 		this.doc = doc;
 		this.partial = false;
 	}
+
+	public boolean isBinary() {
+		if( binary != null )
+			return( true );
+		return( false );
+	}
 	
+	public boolean isConf() {
+		if( conf != null )
+			return( true );
+		return( false );
+	}
+
+	public boolean isSchema() {
+		if( schema != null )
+			return( true );
+		return( false );
+	}
+
+	public boolean isDoc() {
+		if( doc != null )
+			return( true );
+		return( false );
+	}
+
 }
