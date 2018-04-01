@@ -69,11 +69,6 @@ public class ReleaseChanges {
 		return( true );
 	}
 
-	public void setDevDone( ReleaseTicket ticket , Integer userId ) throws Exception {
-		ReleaseTicketSet set = ticket.set;
-		set.setDevDone( ticket , userId );
-	}
-
 	public void updateSet( ReleaseTicketSet set ) throws Exception {
 		Common.changeMapKey( sets , set , set.CODE );
 	}

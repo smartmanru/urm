@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist._Error;
@@ -76,7 +75,11 @@ public class ReleaseTicketSet {
 		map.put( ticket.CODE , ticket );
 	}
 	
-	private void removeTicket( ReleaseTicket ticket ) {
+	public void updateTicket( ReleaseTicket ticket ) throws Exception {
+		Common.changeMapKey( map , ticket , ticket.CODE );
+	}
+	
+	public void removeTicket( ReleaseTicket ticket ) {
 		map.remove( ticket.CODE );
 		items.remove( ticket );
 	}
@@ -85,7 +88,7 @@ public class ReleaseTicketSet {
 		targets.remove( target );
 	}
 
-	private void reorderTickets() throws Exception {
+	public void reorderTickets() throws Exception {
 		int pos = 1;
 		for( ReleaseTicket ticketUpdate : items ) {
 			ticketUpdate.setPos( pos );
@@ -161,23 +164,6 @@ public class ReleaseTicketSet {
 		return( targets.get( POS - 1 ) );
 	}
 
-	public void modifyTicket( ReleaseTicket ticket , DBEnumTicketType type , String code , String name , String link , String desc , Integer owner , boolean devdone ) throws Exception {
-		map.remove( ticket.CODE );
-		ticket.modify( type , code , name , link , desc , owner , devdone );
-		map.put( ticket.CODE , ticket );
-	}
-
-	public void dropTicket( int ticketPos , boolean descope ) throws Exception {
-		ReleaseTicket ticket = getTicket( ticketPos );
-			
-		if( descope )
-			ticket.descope();
-		else {
-			removeTicket( ticket );
-			reorderTickets();
-		}
-	}
-	
 	public void dropTarget( int ticketPos , boolean descope ) throws Exception {
 		ReleaseTicketTarget target = getTarget( ticketPos );
 			
@@ -197,15 +183,18 @@ public class ReleaseTicketSet {
 		newSet.reorderTickets();
 	}
 
-	public void copyTicket( ReleaseTicket ticket , ReleaseTicketSet newSet ) throws Exception {
-		if( newSet.findTicket( ticket.CODE ) != null ) {
-			String release = newSet.changes.release.RELEASEVER;
-			Common.exit3( _Error.DuplicateReleaseTicket3 , "Duplicate ticket release=" + release + ", set=" + newSet.CODE + ", ticket=" + ticket.CODE , release , newSet.CODE , ticket.CODE );
+	public ReleaseTicket copyTicket( ReleaseTicket ticket ) throws Exception {
+		if( findTicket( ticket.CODE ) != null ) {
+			String releasever = changes.release.RELEASEVER;
+			Common.exit3( _Error.DuplicateReleaseTicket3 , "Duplicate ticket release=" + releasever + ", set=" + CODE + ", ticket=" + ticket.CODE , releasever , CODE , ticket.CODE );
 		}
 		
-		ReleaseTicket ticketNew = ticket.copyNew( release , newSet ); 
-		newSet.addTicket( ticketNew );
-		newSet.reorderTickets();
+		ReleaseTicket ticketNew = ticket.copyNew( release , this );
+		int lastPos = getLastPos();
+		addTicket( ticketNew );
+		ticketNew.setNew();
+		ticketNew.setPos( lastPos + 1 );
+		return( ticketNew );
 	}
 
 	public boolean isNew() {
@@ -262,14 +251,6 @@ public class ReleaseTicketSet {
 			TYPE = DBEnumTicketSetStatusType.ACTIVE;
 	}
 
-	public void setDevDone( ReleaseTicket ticket , Integer userId ) throws Exception {
-		ticket.setDevDone( userId );
-	}
-	
-	public void setTicketVerified( ReleaseTicket ticket , Integer userId ) throws Exception {
-		ticket.setVerified( userId );
-	}
-	
 	public void createTarget( MetaSourceProjectSet projectSet ) throws Exception {
 		int pos = targets.size() + 1;
 		ReleaseTicketTarget target = new ReleaseTicketTarget( release , this );
@@ -444,5 +425,13 @@ public class ReleaseTicketSet {
 		}
 		return( false );
 	}
-	
+
+	public int getLastPos() {
+		int pos = 0;
+		for( ReleaseTicket ticket : items ) {
+			if( ticket.POS > pos )
+				pos = ticket.POS;
+		}
+		return( pos );
+	}
 }

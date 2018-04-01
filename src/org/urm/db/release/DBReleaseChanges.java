@@ -157,7 +157,7 @@ public class DBReleaseChanges {
 		method.checkUpdateRelease( release );
 		DBConnection c = method.getMethodConnection( action );
 		
-		if( changes.getSet( code ) != null )
+		if( changes.findSet( code ) != null )
 			Common.exitUnexpected();
 		
 		ReleaseTicketSet set = new ReleaseTicketSet( release , changes );
@@ -176,6 +176,7 @@ public class DBReleaseChanges {
 	}
 	
 	public static void dropSet( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , ReleaseTicketSet set , boolean descope ) throws Exception {
+		method.checkUpdateRelease( release );
 		DBConnection c = method.getMethodConnection( action );
 		EngineEntities entities = c.getEntities();
 		
@@ -205,8 +206,88 @@ public class DBReleaseChanges {
 		}
 	}
 
-	public void createTicket( ActionBase action , ReleaseTicketSet set , DBEnumTicketType type , String code , String name , String link , String comments , String owner , boolean devdone ) throws Exception {
-		Common.exitUnexpected();
+	public static void createTicket( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , ReleaseTicketSet set , DBEnumTicketType type , String code , String name , String link , String comments , Integer owner , boolean devdone ) throws Exception {
+		method.checkUpdateRelease( release );
+		DBConnection c = method.getMethodConnection( action );
+		
+		if( set.findTicket( code ) != null )
+			Common.exitUnexpected();
+		
+		ReleaseTicket ticket = new ReleaseTicket( release , set );
+		ticket.create( type , code , name , link , comments , owner , devdone );
+		modifyTicket( c , release , changes , set , ticket , true );
+		set.addTicket( ticket );
+	}
+	
+	public static void modifyTicket( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , ReleaseTicketSet set , ReleaseTicket ticket , DBEnumTicketType type , String code , String name , String link , String comments , Integer owner , boolean devdone ) throws Exception {
+		method.checkUpdateRelease( release );
+		DBConnection c = method.getMethodConnection( action );
+		
+		if( set.findTicket( code ) != null )
+			Common.exitUnexpected();
+		
+		ticket.modify( type , code , name , link , comments , owner , devdone );
+		modifyTicket( c , release , changes , set , ticket , false );
+		set.updateTicket( ticket );
+	}
+	
+	public static void dropTicket( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , ReleaseTicketSet set , ReleaseTicket ticket , boolean descope ) throws Exception {
+		method.checkUpdateRelease( release );
+		DBConnection c = method.getMethodConnection( action );
+		EngineEntities entities = c.getEntities();
+		
+		if( descope ) {
+			if( !ticket.isDescoped() ) {
+				ticket.descope();
+				modifyTicket( c , release , changes , set , ticket , false );
+			}
+		}
+		else {
+			set.removeTicket( ticket );
+
+			int version = c.getNextReleaseVersion( release );
+			DBEngineEntities.deleteAppObject( c , entities.entityAppReleaseTicket , ticket.ID , version );
+			
+			set.reorderTickets();
+			for( ReleaseTicket orderTicket : set.getTickets() )
+				modifyTicket( c , release , changes , set , orderTicket , false );
+		}
+	}
+	
+	public static void setDevDone( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , ReleaseTicketSet set , ReleaseTicket ticket , Integer dev ) throws Exception {
+		method.checkUpdateRelease( release );
+		DBConnection c = method.getMethodConnection( action );
+		
+		ticket.setDevDone( dev );
+		modifyTicket( c , release , changes , set , ticket , false );
+	}
+	
+	public static void setVerified( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , ReleaseTicketSet set , ReleaseTicket ticket , Integer qa ) throws Exception {
+		method.checkUpdateRelease( release );
+		DBConnection c = method.getMethodConnection( action );
+		
+		ticket.setVerified( qa );
+		modifyTicket( c , release , changes , set , ticket , false );
+	}
+	
+	public static void copyTicket( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , ReleaseTicketSet set , ReleaseTicket src ) throws Exception {
+		method.checkUpdateRelease( release );
+		DBConnection c = method.getMethodConnection( action );
+		
+		ReleaseTicket ticket = set.copyTicket( src );
+		modifyTicket( c , release , changes , set , ticket , true );
+		set.addTicket( ticket );
+	}
+	
+	public static void moveTicket( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , ReleaseTicketSet set , ReleaseTicket ticket , ReleaseTicketSet setNew ) throws Exception {
+		method.checkUpdateRelease( release );
+		DBConnection c = method.getMethodConnection( action );
+
+		if( setNew.isDescoped() )
+			Common.exitUnexpected();
+		
+		set.moveTicket( ticket , setNew );
+		modifyTicket( c , release , changes , set , ticket , false );
 	}
 	
 }

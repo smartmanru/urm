@@ -144,6 +144,15 @@ public class ReleaseTicket {
 		}
 	}
 
+	public void setNew() {
+		TICKETSTATUS = DBEnumTicketStatusType.NEW;
+		ACTIVE = false;
+		ACCEPTED = false;
+		DESCOPED = false;
+		DEV = null;
+		QA = null;
+	}
+	
 	public void setPos( int pos ) throws Exception {
 		this.POS = pos;
 	}
