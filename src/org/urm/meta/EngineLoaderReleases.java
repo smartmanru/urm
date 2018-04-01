@@ -3,15 +3,18 @@ package org.urm.meta;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.release.DBProductReleases;
-import org.urm.db.release.DBReleaseDist;
+import org.urm.db.release.DBRelease;
+import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
 import org.urm.meta.release.ProductReleases;
+import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class EngineLoaderReleases {
 
@@ -56,14 +59,22 @@ public class EngineLoaderReleases {
 		}
 	}
 	
-	public void exportxmlReleaseDist( ReleaseDist releaseDist , String filePath ) throws Exception {
+	public void exportxmlReleaseDist( Release release , ReleaseDist releaseDist , String filePath ) throws Exception {
 		ActionBase action = loader.getAction();
 		action.debug( "export release distributive file ..." );
 		Document doc = Common.xmlCreateDoc( XML_ROOT_RELEASE );
 		Element root = doc.getDocumentElement();
 
-		DBReleaseDist.exportxml( loader , releaseDist , doc , root );
+		DBRelease.exportxml( loader , release , releaseDist , doc , root );
 		ProductStorage.saveDoc( doc , filePath );
 	}
 
+	public void importxmlReleaseDist( Release release , ReleaseDist releaseDist , Dist dist , String file ) throws Exception {
+		ActionBase action = loader.getAction();
+		action.debug( "import release distributive data ..." );
+		Document doc = action.readXmlFile( file );
+		Node root = doc.getDocumentElement();
+		DBRelease.importxml( loader , release , releaseDist , dist , root );
+	}
+	
 }

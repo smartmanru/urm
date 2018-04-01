@@ -1,6 +1,5 @@
 package org.urm.meta.release;
 
-import org.urm.action.ActionBase;
 import org.urm.db.core.DBEnums.*;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -136,14 +135,14 @@ public class ReleaseTicketTarget {
 		return( false );
 	}
 
-	public void accept( ActionBase action ) throws Exception {
+	public void accept() throws Exception {
 		if( ACCEPTED )
 			return;
 		
 		ACCEPTED = true;
 	}
 
-	public void descope( ActionBase action ) throws Exception {
+	public void descope() throws Exception {
 		if( !DESCOPED ) {
 			if( set.isActive() )
 				ACCEPTED = false;

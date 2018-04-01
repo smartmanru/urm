@@ -9,8 +9,6 @@ import org.urm.engine.dist.VersionInfo;
 
 public class ReleaseDist {
 
-	public static String PROPERTY_DATAHASH = "datahash";
-	public static String PROPERTY_DATE = "date";
 	public static String PROPERTY_VARIANT = "variant";
 
 	public Release release;

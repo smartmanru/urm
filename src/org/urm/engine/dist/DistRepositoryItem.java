@@ -24,11 +24,11 @@ public class DistRepositoryItem {
 		modifyState = false;
 	}
 	
-	public DistRepositoryItem copy( DistRepository rrepo ) {
+	public DistRepositoryItem copy( DistRepository rrepo , ReleaseDist rreleaseDist ) {
 		DistRepositoryItem r = new DistRepositoryItem( rrepo );
 		r.RELEASEDIR = RELEASEDIR;
 		r.DISTPATH = DISTPATH;
-		r.dist = dist;
+		r.dist = dist.copy( rrepo.meta , r , rreleaseDist );
 		return( r );
 	}
 	

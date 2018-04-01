@@ -17,6 +17,7 @@ import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.engine.status.ScopeState;
 import org.urm.meta.product.Meta;
+import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseRepository;
 
@@ -129,13 +130,13 @@ public class EngineMethod extends EngineExecutorTask {
 		dbstatus.clear();
 	}
 
-	public ReleaseRepository changeReleaseRepository( Meta meta ) throws Exception {
-		EngineMethodMeta emm = getEmm( meta );
+	public ReleaseRepository changeReleaseRepository( ProductReleases releases ) throws Exception {
+		EngineMethodMeta emm = getEmm( releases );
 		return( emm.changeReleaseRepository() );
 	}
 	
-	public DistRepository changeDistRepository( Meta meta ) throws Exception {
-		EngineMethodMeta emm = getEmm( meta );
+	public DistRepository changeDistRepository( ProductReleases releases ) throws Exception {
+		EngineMethodMeta emm = getEmm( releases );
 		return( emm.changeDistRepository() );
 	}
 
@@ -203,7 +204,8 @@ public class EngineMethod extends EngineExecutorTask {
 		return( item );
 	}
 	
-	private synchronized EngineMethodMeta getEmm( Meta meta ) throws Exception {
+	private synchronized EngineMethodMeta getEmm( ProductReleases releases ) throws Exception {
+		Meta meta = releases.meta;
 		EngineMethodMeta emm = metastatus.get( meta.name );
 		if( emm == null ) {
 			emm = new EngineMethodMeta( this , meta );

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.meta.product.Meta;
@@ -76,6 +77,10 @@ public class ReleaseRepository {
 				Common.exitUnexpected();
 			modifyState = false;
 		}
+	}
+	
+	public Release[] getReleases() {
+		return( mapReleasesById.values().toArray( new Release[0] ) );
 	}
 	
 	public void createRepository( String name , String desc ) {
@@ -153,6 +158,21 @@ public class ReleaseRepository {
 	
 	public Release getRelease( int id ) throws Exception {
 		return( mapReleasesById.get( id ) );
+	}
+
+	public ReleaseDist findReleaseDist( Dist dist ) {
+		if( dist.isMaster() ) {
+			Release release = mapReleasesMaster.get( dist.release.NAME );
+			if( release == null )
+				return( null );
+			return( release.getDefaultReleaseDist() );
+		}
+		
+		Release release = mapReleasesById.get( dist.release.ID );
+		if( release == null )
+			return( null );
+		
+		return( release.findDistVariant( dist.releaseDist.DIST_VARIANT ) ); 
 	}
 	
 }

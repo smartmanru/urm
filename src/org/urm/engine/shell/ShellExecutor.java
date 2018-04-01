@@ -188,7 +188,10 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void createFileFromString( ActionBase action , String path , String value ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			core.cmdCreateFileFromString( action , path , value );
+			if( isLocal() )
+				Files.write( Paths.get( path ), value.getBytes() );
+			else
+				core.cmdCreateFileFromString( action , path , value );
 		}
 		finally {
 			opstop();

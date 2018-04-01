@@ -15,6 +15,7 @@ public class ReleaseCommandMeta extends CommandMeta {
 	public static String METHOD_STATUS = "status";
 	public static String METHOD_CLEANUP = "cleanup";
 	public static String METHOD_COPY = "copy";
+	public static String METHOD_IMPORT = "import";
 	public static String METHOD_FINISH = "finish";
 	public static String METHOD_COMPLETE = "complete";
 	public static String METHOD_REOPEN = "reopen";
@@ -50,6 +51,7 @@ public class ReleaseCommandMeta extends CommandMeta {
 		defineAction( CommandMethodMeta.newStatus( this , METHOD_STATUS , ACTION_ACCESS.PRODUCT , true , SecurityAction.ACTION_RELEASE , true , "get release status" , releaseOpts , "<RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_CLEANUP , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "close release after failure" , releaseOpts , "<RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_COPY , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "copy release" , releaseOpts , "<RELEASESRC> <RELEASEDST> <RELEASEDATE>" ) );
+		defineAction( CommandMethodMeta.newNormal( this , METHOD_IMPORT , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "import release" , releaseOpts , "<RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_FINISH , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "finalize and disable distributive updates" , releaseOpts , "<RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_COMPLETE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "mark all release operations as completed" , releaseOpts , "<RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_REOPEN , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "reopen release" , releaseOpts , "<RELEASELABEL>" ) );

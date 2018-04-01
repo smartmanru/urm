@@ -3,19 +3,19 @@ package org.urm.meta.release;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.dist._Error;
 
 public class ReleaseChanges {
 
 	public Release release;
 
 	private Map<String,ReleaseTicketSet> sets;
+	private Map<Integer,ReleaseTicketSet> setsById;
 	
 	public ReleaseChanges( Release release ) {
 		this.release = release;
 		sets = new HashMap<String,ReleaseTicketSet>();
+		setsById = new HashMap<Integer,ReleaseTicketSet>();
 	}
 
 	public ReleaseChanges copy( Release rrelease ) throws Exception {
@@ -31,20 +31,29 @@ public class ReleaseChanges {
 
 	public void addSet( ReleaseTicketSet set ) {
 		sets.put( set.CODE , set );
+		setsById.put( set.ID , set );
 	}
 	
 	public void removeSet( ReleaseTicketSet set ) {
 		sets.remove( set.CODE );
+		setsById.remove( set.ID );
 	}
 	
 	public String[] getSetCodes() {
 		return( Common.getSortedKeys( sets ) );
 	}
 	
-	public ReleaseTicketSet getSet( ActionBase action , String code ) throws Exception {
+	public ReleaseTicketSet getSet( String code ) throws Exception {
 		ReleaseTicketSet set = sets.get( code );
 		if( set == null )
-			action.exit2( _Error.UnknownReleaseTicketSet2 , "Unknown set=" + code + " in release=" + release.RELEASEVER , code , release.RELEASEVER );
+			Common.exit2( _Error.UnknownReleaseTicketSet2 , "Unknown set=" + code + " in release=" + release.RELEASEVER , code , release.RELEASEVER );
+		return( set );
+	}
+
+	public ReleaseTicketSet getSet( int id ) throws Exception {
+		ReleaseTicketSet set = setsById.get( id );
+		if( set == null )
+			Common.exit2( _Error.UnknownReleaseTicketSet2 , "Unknown set=" + id + " in release=" + release.RELEASEVER , "" + id , release.RELEASEVER );
 		return( set );
 	}
 
@@ -60,9 +69,13 @@ public class ReleaseChanges {
 		return( true );
 	}
 
-	public void setDevDone( ActionBase action , ReleaseTicket ticket ) throws Exception {
+	public void setDevDone( ReleaseTicket ticket , Integer userId ) throws Exception {
 		ReleaseTicketSet set = ticket.set;
-		set.setDevDone( action , ticket );
+		set.setDevDone( ticket , userId );
+	}
+
+	public void updateSet( ReleaseTicketSet set ) throws Exception {
+		Common.changeMapKey( sets , set , set.CODE );
 	}
 	
 }

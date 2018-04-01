@@ -22,10 +22,12 @@ import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseDist;
 import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.release.ReleaseSchedule;
 import org.urm.meta.release.ReleaseRepository.ReleaseOperation;
+import org.urm.meta.release.ReleaseTicketSet;
 
 public class DBReleaseRepository {
 
@@ -44,6 +46,18 @@ public class DBReleaseRepository {
 		
 		// create meta item
 		Release release = DBRelease.createRelease( method , action , repo , info.RELEASEVER , releaseDate , lc );
+		repo.addRelease( release );
+		return( release );
+	}
+
+	public static Release createReleaseNormal( EngineMethod method , ActionBase action , ReleaseRepository repo , ReleaseLabelInfo info ) throws Exception {
+		if( repo.findRelease( info.RELEASEVER ) != null )
+			action.exit1( _Error.ReleaseAlreadyExists1 , "release version=" + info.RELEASEVER + " already exists" , info.RELEASEVER );
+		
+		action.debug( "create normal release: version=" + info.RELEASEVER + ", version=" + info.RELEASEVER + " ..." );
+		
+		// create meta item
+		Release release = DBRelease.createRelease( method , action , repo , info.RELEASEVER , new Date() , null );
 		repo.addRelease( release );
 		return( release );
 	}
@@ -124,9 +138,17 @@ public class DBReleaseRepository {
 		loaddbReleasesDist( loader , repo );
 		loaddbReleasesSchedule( loader , repo );
 		loaddbReleasesSchedulePhase( loader , repo );
+		loaddbReleasesTicketSet( loader , repo );
+		loaddbReleasesTicket( loader , repo );
+		
+		// recalcualte schedules
+		for( Release release : repo.getReleases() ) {
+			ReleaseSchedule schedule = release.getSchedule();
+			schedule.setDeadlines();
+		}
 	}
 	
-	public static void loaddbReleasesMain( EngineLoader loader , ReleaseRepository repo ) throws Exception {
+	private static void loaddbReleasesMain( EngineLoader loader , ReleaseRepository repo ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppReleaseMain;
@@ -145,7 +167,7 @@ public class DBReleaseRepository {
 		}
 	}
 
-	public static void loaddbReleasesDist( EngineLoader loader , ReleaseRepository repo ) throws Exception {
+	private static void loaddbReleasesDist( EngineLoader loader , ReleaseRepository repo ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppReleaseDist;
@@ -169,7 +191,7 @@ public class DBReleaseRepository {
 		}
 	}
 
-	public static void loaddbReleasesSchedule( EngineLoader loader , ReleaseRepository repo ) throws Exception {
+	private static void loaddbReleasesSchedule( EngineLoader loader , ReleaseRepository repo ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppReleaseSchedule;
@@ -190,7 +212,7 @@ public class DBReleaseRepository {
 		}
 	}
 
-	public static void loaddbReleasesSchedulePhase( EngineLoader loader , ReleaseRepository repo ) throws Exception {
+	private static void loaddbReleasesSchedulePhase( EngineLoader loader , ReleaseRepository repo ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppReleasePhase;
@@ -214,6 +236,50 @@ public class DBReleaseRepository {
 			Release release = repo.findRelease( version );
 			ReleaseSchedule releaseSchedule = release.getSchedule();
 			releaseSchedule.sortPhases();
+		}
+	}
+
+	private static void loaddbReleasesTicketSet( EngineLoader loader , ReleaseRepository repo ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseTicketSet;
+		
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_REL_REPORELEASEACTIVE1 , 
+				new String[] { EngineDB.getInteger( repo.ID ) 
+				} );
+		try {
+			while( rs.next() ) {
+				int releaseId = entity.loaddbObject( rs , DBReleaseData.FIELD_RELEASE_ID );
+				Release release = repo.getRelease( releaseId );
+				ReleaseChanges releaseChanges = release.getChanges();
+				DBReleaseChanges.loaddbReleaseTicketSet( loader , release , releaseChanges , rs );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+
+	private static void loaddbReleasesTicket( EngineLoader loader , ReleaseRepository repo ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseTicket;
+		
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_REL_REPORELEASEACTIVE1 , 
+				new String[] { EngineDB.getInteger( repo.ID ) 
+				} );
+		try {
+			while( rs.next() ) {
+				int releaseId = entity.loaddbObject( rs , DBReleaseData.FIELD_RELEASE_ID );
+				int setId = entity.loaddbObject( rs , DBReleaseData.FIELD_TICKET_TICKETSET_ID );
+				Release release = repo.getRelease( releaseId );
+				ReleaseChanges changes = release.getChanges();
+				ReleaseTicketSet set = changes.getSet( setId );
+				DBReleaseChanges.loaddbReleaseTicket( loader , release , changes , set , rs );
+			}
+		}
+		finally {
+			c.closeQuery();
 		}
 	}
 

@@ -318,7 +318,7 @@ public abstract class DBEnums {
 	public enum DBEnumLifecycleStageType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		RELEASE(1,null) ,
-		DEPLOYMENT(2,null);
+		DELIVERY(2,null);
 
 		private final int value;
 		private String[] synonyms;

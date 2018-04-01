@@ -28,6 +28,7 @@ import org.urm.engine.executor.MainExecutor;
 import org.urm.engine.executor.CommandExecutorMonitor;
 import org.urm.engine.executor.CommandExecutorRelease;
 import org.urm.engine.executor.CommandExecutorXDoc;
+import org.urm.engine.run.EngineMethod;
 import org.urm.engine.session.EngineSession;
 import org.urm.engine.session.SessionSecurity;
 import org.urm.engine.shell.ShellCoreJNI;
@@ -139,6 +140,11 @@ public class Engine {
 	
 	public EngineLoader createLoader( TransactionBase transaction ) {
 		EngineLoader loader = new EngineLoader( this , data , transaction );
+		return( loader );
+	}
+	
+	public EngineLoader createLoader( EngineMethod method , ActionBase action ) {
+		EngineLoader loader = new EngineLoader( this , data , method , action );
 		return( loader );
 	}
 	

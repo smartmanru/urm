@@ -175,9 +175,9 @@ public class DBReleaseData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaStringVar( ReleaseDist.PROPERTY_VARIANT , FIELD_DIST_VARIANT , ReleaseDist.PROPERTY_VARIANT , "distributive variant" , false , null ) ,
-				EntityVar.metaDateVar( ReleaseDist.PROPERTY_DATE , FIELD_DIST_DATE , ReleaseDist.PROPERTY_DATE , "data date" , true ) ,
+				EntityVar.metaDateDatabaseOnly( FIELD_DIST_DATE , "data date" , false ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_DIST_METAHASH , "meta hash" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseDist.PROPERTY_DATAHASH , FIELD_DIST_DATAHASH , ReleaseDist.PROPERTY_DATAHASH , "data hash" , false , null )
+				EntityVar.metaStringDatabaseOnly( FIELD_DIST_DATAHASH , "data hash" , false , null )
 		} ) );
 	}
 
@@ -347,7 +347,7 @@ public class DBReleaseData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_TICKET_TICKETSET_ID , "ticket set id" , DBEnumObjectType.RELEASE_TICKETSET , true ) ,
-				EntityVar.metaInteger( ReleaseTicketTarget.PROPERTY_POS , "ticket position" , true , null ) ,
+				EntityVar.metaInteger( ReleaseTicket.PROPERTY_POS , "ticket position" , true , null ) ,
 				EntityVar.metaString( ReleaseTicket.PROPERTY_CODE , "ticket code" , true , null ) ,
 				EntityVar.metaString( ReleaseTicket.PROPERTY_NAME , "ticket name" , true , null ) ,
 				EntityVar.metaStringVar( ReleaseTicket.PROPERTY_DESC , FIELD_TICKET_DESC , ReleaseTicket.PROPERTY_DESC , "Description" , false , null ) ,

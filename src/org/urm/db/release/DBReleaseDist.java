@@ -3,12 +3,12 @@ package org.urm.db.release;
 import java.sql.ResultSet;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.DistState;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.run.EngineMethod;
 import org.urm.meta.EngineLoader;
@@ -16,38 +16,11 @@ import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class DBReleaseDist {
 
-	public static String ELEMENT_RELEASEDISTPROPS = "dist";
-	
-	public static void exportxml( EngineLoader loader , ReleaseDist releaseDist , Document doc , Element root ) throws Exception {
-		DBRelease.exportxmlReleaseProperties( loader , releaseDist.release , doc , root );
-		exportxmlReleaseDistProperties( loader , releaseDist , doc , root );
-		exportxmlReleaseSchedule( loader , releaseDist , doc , root );
-		exportxmlReleaseChanges( loader , releaseDist , doc , root );
-		exportxmlReleaseScope( loader , releaseDist , doc , root );
-	}
-
-	private static void exportxmlReleaseDistProperties( EngineLoader loader , ReleaseDist releaseDist , Document doc , Element root ) throws Exception {
-		EngineEntities entities = loader.getEntities();
-		PropertyEntity entity = entities.entityAppReleaseDist;
-		
-		Element node = Common.xmlCreateElement( doc , root , ELEMENT_RELEASEDISTPROPS );
-		DBEngineEntities.exportxmlAppObject( doc , node , entity , new String[] {
-				entity.exportxmlString( releaseDist.DIST_VARIANT ) ,
-				entity.exportxmlDate( releaseDist.DIST_DATE ) ,
-				entity.exportxmlString( releaseDist.DATA_HASH )
-		} , false );
-	}
-	
-	private static void exportxmlReleaseSchedule( EngineLoader loader , ReleaseDist releaseDist , Document doc , Element root ) {
-	}
-	
-	private static void exportxmlReleaseChanges( EngineLoader loader , ReleaseDist releaseDist , Document doc , Element root ) {
-	}
-	
-	private static void exportxmlReleaseScope( EngineLoader loader , ReleaseDist releaseDist , Document doc , Element root ) {
+	public static void exportxmlReleaseDistProperties( EngineLoader loader , ReleaseDist releaseDist , Document doc , Element root ) throws Exception {
 	}
 	
 	private static void modifyReleaseDist( DBConnection c , Release release , ReleaseDist releaseDist , boolean insert ) throws Exception {
@@ -74,11 +47,21 @@ public class DBReleaseDist {
 		releaseDist.RV = entity.loaddbVersion( rs );
 		releaseDist.create(
 				entity.loaddbString( rs , ReleaseDist.PROPERTY_VARIANT ) ,
-				entity.loaddbDate( rs , ReleaseDist.PROPERTY_DATE ) ,
+				entity.loaddbDate( rs , DBReleaseData.FIELD_DIST_DATE ) ,
 				entity.loaddbString( rs , DBReleaseData.FIELD_DIST_METAHASH ) ,
-				entity.loaddbString( rs , ReleaseDist.PROPERTY_DATAHASH )
+				entity.loaddbString( rs , DBReleaseData.FIELD_DIST_DATAHASH )
 				);
 		return( releaseDist );
+	}
+
+	public static void importxmlReleaseDistProperties( EngineLoader loader , ReleaseDist releaseDist , Dist dist , Node root ) throws Exception {
+		DistState state = dist.getStateInfo();
+		releaseDist.create(
+				releaseDist.DIST_VARIANT ,
+				state.stateDate ,
+				state.metaHash ,
+				state.dataHash
+				);
 	}
 	
 	public static ReleaseDist createReleaseDist( EngineMethod method , ActionBase action , Release release , String variant ) throws Exception {

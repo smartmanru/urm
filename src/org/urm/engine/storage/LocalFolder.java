@@ -61,7 +61,7 @@ public class LocalFolder extends Folder {
 		String filePath = getFilePath( action , FILENAME );
 		return( action.readFile( filePath ) );
 	}
-	
+
 	public List<String> readFileLines( ActionBase action , String FILENAME ) throws Exception {
 		String filePath = getFilePath( action , FILENAME );
 		return( action.readFileLines( filePath ) );

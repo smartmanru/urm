@@ -1,8 +1,6 @@
 package org.urm.engine.properties;
 
 import java.sql.ResultSet;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -230,6 +228,16 @@ public class PropertyEntity {
 		return( ConfReader.getIntegerAttrValue( root , var.XMLNAME , defaultValue ) );
 	}
 	
+	public Date importxmlDateAttr( Node root , String prop ) throws Exception {
+		EntityVar var = findVar( prop );
+		if( var == null )
+			Common.exitUnexpected();
+		String xmlvalue = ConfReader.getAttrValue( root , var.XMLNAME );
+		if( xmlvalue.isEmpty() )
+			return( null );
+		return( Common.getDateValue( xmlvalue ) );
+	}
+	
 	public int importxmlIntProperty( Node root , String prop ) throws Exception {
 		return( importxmlIntProperty( root , prop , 0 ) );
 	}
@@ -239,6 +247,16 @@ public class PropertyEntity {
 		if( var == null )
 			Common.exitUnexpected();
 		return( ConfReader.getIntegerPropertyValue( root , var.XMLNAME , defaultValue ) );
+	}
+	
+	public Date importxmlDateProperty( Node root , String prop ) throws Exception {
+		EntityVar var = findVar( prop );
+		if( var == null )
+			Common.exitUnexpected();
+		String xmlvalue = ConfReader.getPropertyValue( root , var.XMLNAME );
+		if( xmlvalue.isEmpty() )
+			return( null );
+		return( Common.getDateValue( xmlvalue ) );
 	}
 	
 	public int importxmlEnumAttr( Node root , String prop ) throws Exception {
@@ -367,9 +385,9 @@ public class PropertyEntity {
 	}
 	
 	public String exportxmlDate( Date value ) {
-		DateFormat format = new SimpleDateFormat( "dd.MM.yyyy" );
-		String dateString = format.format( value );
-		return( dateString );
+		if( value == null )
+			return( "" );
+		return( Common.getDateValue( value ) );
 	}
 	
 	public String exportxmlEnum( Enum<?> value ) {

@@ -36,6 +36,7 @@ public class CommandExecutorRelease extends CommandExecutor {
 		defineAction( new StatusRelease() , ReleaseCommandMeta.METHOD_STATUS );
 		defineAction( new CleanupRelease() , ReleaseCommandMeta.METHOD_CLEANUP );
 		defineAction( new CopyRelease() , ReleaseCommandMeta.METHOD_COPY );
+		defineAction( new ImportRelease() , ReleaseCommandMeta.METHOD_IMPORT );
 		defineAction( new FinishRelease() , ReleaseCommandMeta.METHOD_FINISH );
 		defineAction( new CompleteRelease() , ReleaseCommandMeta.METHOD_COMPLETE );
 		defineAction( new ReopenRelease() , ReleaseCommandMeta.METHOD_REOPEN );
@@ -68,6 +69,15 @@ public class CommandExecutorRelease extends CommandExecutor {
 		checkNoArgs( action , 3 );
 		Meta meta = action.getContextMeta();
 		ReleaseCommand.createRelease( parentState , action , meta , RELEASELABEL , releaseDate , lc );
+	}
+	}
+
+	private class ImportRelease extends CommandMethod {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
+		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
+		checkNoArgs( action , 1 );
+		Meta meta = action.getContextMeta();
+		ReleaseCommand.importRelease( parentState , action , meta , RELEASELABEL );
 	}
 	}
 

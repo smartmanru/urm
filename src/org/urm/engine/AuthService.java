@@ -699,5 +699,10 @@ public class AuthService extends EngineObject {
 		AuthUser user = getUser( name );
 		return( user.ID );
 	}
+
+	public MatchItem getUserMatchItem( String name ) throws Exception {
+		Integer value = getUserId( name );
+		return( MatchItem.create( value ) );
+	}
 	
 }

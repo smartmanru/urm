@@ -35,7 +35,7 @@ public class ReleaseCommand {
 		if( release == null )
 			Common.exitUnexpected();
 		
-		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , release , true );
+		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , meta , release , true );
 		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
@@ -51,9 +51,14 @@ public class ReleaseCommand {
 		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 
+	public static void importRelease( ScopeState parentState , ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
+		ActionImportRelease ma = new ActionImportRelease( action , null , meta , RELEASELABEL );
+		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+	}
+
 	public static void modifyRelease( ScopeState parentState , ActionBase action , Release release , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
-		ActionModifyRelease ma = new ActionModifyRelease( action , null , release , releaseDate , lc );
 		Meta meta = release.getMeta();
+		ActionModifyRelease ma = new ActionModifyRelease( action , null , meta , release , releaseDate , lc );
 		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 
@@ -61,8 +66,8 @@ public class ReleaseCommand {
 		if( release.isMaster() )
 			action.exit0( _Error.CannotDropProd0 , "Cannot drop full master release, use master command" );
 		
-		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , release , force );
 		Meta meta = release.getMeta();
+		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , meta , release , force );
 		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
@@ -73,7 +78,7 @@ public class ReleaseCommand {
 	
 	public static void copyRelease( ScopeState parentState , ActionBase action , Release releaseSrc , String RELEASEDST , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		Meta meta = releaseSrc.getMeta();
-		ActionCopyRelease ma = new ActionCopyRelease( action , null , releaseSrc , RELEASEDST , releaseDate , lc );
+		ActionCopyRelease ma = new ActionCopyRelease( action , null , meta , releaseSrc , RELEASEDST , releaseDate , lc );
 		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	

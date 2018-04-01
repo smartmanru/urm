@@ -58,7 +58,7 @@ public class EngineMethodMeta {
 		if( updateDistRepository == null ) {
 			DistRepository repo = meta.getDistRepository();
 			repo.modify( false );
-			updateDistRepository = repo.copy( meta );
+			updateDistRepository = repo.copy( meta , getReleaseRepository() );
 		}
 		return( updateDistRepository );
 	}
@@ -140,7 +140,7 @@ public class EngineMethodMeta {
 		EngineMethodMetaDistItem emmd = mapDistItems.get( item.RELEASEDIR );
 		if( emmd == null ) {
 			emmd = new EngineMethodMetaDistItem( this , item );
-			emmd.setUpdated();
+			emmd.setUpdated( getReleaseRepository() );
 			mapDistItems.put( item.RELEASEDIR , emmd );
 		}
 		

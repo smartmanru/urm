@@ -130,7 +130,7 @@ public class EntityVar {
 		return( metaDateVar( propertyKey , propertyKey , propertyKey , propertyDesc , required ) ); 
 	}
 	
-	public static EntityVar metaDateDatabaseOnly( String propertyKey , String propertyDesc , boolean required , String defValue ) {
+	public static EntityVar metaDateDatabaseOnly( String propertyKey , String propertyDesc , boolean required ) {
 		return( metaDateVar( propertyKey , propertyKey , null , propertyDesc , required ) ); 
 	}
 	

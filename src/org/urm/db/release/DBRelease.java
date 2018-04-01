@@ -5,25 +5,40 @@ import java.util.Date;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.BlotterService;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.run.EngineMethod;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseChanges;
+import org.urm.meta.release.ReleaseDist;
 import org.urm.meta.release.ReleaseRepository;
+import org.urm.meta.release.ReleaseSchedule;
+import org.urm.meta.release.ReleaseSchedulePhase;
+import org.urm.meta.release.ReleaseTicket;
+import org.urm.meta.release.ReleaseTicketSet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class DBRelease {
 
 	public static String ELEMENT_RELEASEPROPS = "version";
+	public static String ELEMENT_RELEASEDISTPROPS = "dist";
+	public static String ELEMENT_SCHEDULE = "schedule";
+	public static String ELEMENT_PHASE = "phase";
+	public static String ELEMENT_CHANGES = "changes";
+	public static String ELEMENT_TICKETSET = "ticketset";
+	public static String ELEMENT_TICKET = "ticket";
 	
 	private static void modifyRelease( DBConnection c , ReleaseRepository repo , Release release , boolean insert ) throws Exception {
 		if( insert )
@@ -73,6 +88,39 @@ public class DBRelease {
 		return( release );
 	}
 	
+	public static void exportxml( EngineLoader loader , Release release , ReleaseDist releaseDist , Document doc , Element root ) throws Exception {
+		exportxmlReleaseProperties( loader , release , doc , root );
+		DBReleaseDist.exportxmlReleaseDistProperties( loader , releaseDist , doc , root );
+		exportxmlReleaseSchedule( loader , release , doc , root );
+		exportxmlReleaseChanges( loader , release , doc , root );
+		exportxmlReleaseScope( loader , release , doc , root );
+	}
+	
+	private static void exportxmlReleaseSchedule( EngineLoader loader , Release release , Document doc , Element root ) throws Exception {
+		Element node = Common.xmlCreateElement( doc , root , ELEMENT_SCHEDULE );
+		ReleaseSchedule schedule = release.getSchedule();
+		DBReleaseSchedule.exportxmlReleaseSchedule( loader , release , schedule , doc , node );
+		
+		for( ReleaseSchedulePhase phase : schedule.getPhases() ) {
+			Element nodePhase = Common.xmlCreateElement( doc , root , ELEMENT_PHASE );
+			DBReleaseSchedulePhase.exportxmlReleaseSchedulePhase( loader , release , phase , doc , nodePhase );
+		}
+	}
+	
+	private static void exportxmlReleaseChanges( EngineLoader loader , Release release , Document doc , Element root ) {
+	}
+	
+	private static void exportxmlReleaseScope( EngineLoader loader , Release release , Document doc , Element root ) {
+	}
+
+	public static void importxml( EngineLoader loader , Release release , ReleaseDist releaseDist , Dist dist , Node root ) throws Exception {
+		importxmlReleaseProperties( loader , release , root );
+		DBReleaseDist.importxmlReleaseDistProperties( loader , releaseDist , dist , root );
+		importxmlReleaseSchedule( loader , release , root );
+		importxmlReleaseChanges( loader , release , root );
+		importxmlReleaseScope( loader , release , root );
+	}
+
 	public static void exportxmlReleaseProperties( EngineLoader loader , Release release , Document doc , Element root ) throws Exception {
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppReleaseMain;
@@ -92,6 +140,75 @@ public class DBRelease {
 		} , false );
 	}
 	
+	public static void importxmlReleaseProperties( EngineLoader loader , Release release , Node root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseMain;
+
+		Node node = ConfReader.xmlGetFirstChild( root , ELEMENT_RELEASEPROPS );
+		if( node == null )
+			Common.exitUnexpected();
+		
+		release.create( 
+				entity.importxmlStringProperty( node , Release.PROPERTY_NAME ) ,
+				entity.importxmlStringProperty( node , Release.PROPERTY_DESC ) ,
+				entity.importxmlBooleanProperty( node , Release.PROPERTY_MASTER , false ) ,
+				DBEnumLifecycleType.getValue( entity.importxmlEnumProperty( node , Release.PROPERTY_LIFECYCLETYPE ) , true ) ,
+				entity.importxmlStringProperty( node , Release.PROPERTY_VERSION ) ,
+				DBEnumBuildModeType.getValue( entity.importxmlEnumProperty( node , Release.PROPERTY_BUILDMODE ) , false ) ,
+				entity.importxmlStringProperty( node , Release.PROPERTY_COMPATIBILITY ) ,
+				entity.importxmlBooleanProperty( node , Release.PROPERTY_CUMULATIVE , false ) ,
+				entity.importxmlBooleanProperty( node , Release.PROPERTY_ARCHIVED , false ) ,
+				entity.importxmlBooleanProperty( node , Release.PROPERTY_CANCELLED , false )
+				);
+	}
+	
+	public static void importxmlReleaseSchedule( EngineLoader loader , Release release , Node root ) throws Exception {
+		Node node = ConfReader.xmlGetFirstChild( root , ELEMENT_SCHEDULE );
+		if( node == null )
+			Common.exitUnexpected();
+
+		ReleaseSchedule schedule = release.getSchedule();
+		DBReleaseSchedule.importxmlReleaseSchedule( loader , release , schedule , node );
+
+		Node[] nodeItems = ConfReader.xmlGetChildren( node , ELEMENT_PHASE );
+		if( nodeItems != null ) {
+			for( Node nodePhase : nodeItems )
+				DBReleaseSchedulePhase.importxmlReleaseSchedulePhase( loader , release , schedule , nodePhase );
+			schedule.sortPhases();
+		}
+		
+		schedule.setDeadlines();
+	}
+	
+	private static void importxmlReleaseChanges( EngineLoader loader , Release release , Node root ) throws Exception {
+		Node node = ConfReader.xmlGetFirstChild( root , ELEMENT_CHANGES );
+		if( node == null )
+			return;
+
+		ReleaseChanges changes = release.getChanges();
+		Node[] nodeItems = ConfReader.xmlGetChildren( node , ELEMENT_TICKETSET );
+		if( nodeItems != null ) {
+			for( Node nodeSet : nodeItems )
+				importxmlReleaseChangeSet( loader , release , changes , nodeSet );
+		}
+	}
+
+	private static void importxmlReleaseChangeSet( EngineLoader loader , Release release , ReleaseChanges changes , Node root ) throws Exception {
+		ReleaseTicketSet set = DBReleaseChanges.importxmlReleaseChangeSet( loader , release , changes , root );
+		changes.addSet( set );
+		
+		Node[] nodeItems = ConfReader.xmlGetChildren( root , ELEMENT_TICKET );
+		if( nodeItems != null ) {
+			for( Node nodeTicket : nodeItems ) {
+				ReleaseTicket ticket = DBReleaseChanges.importxmlReleaseChangeTicket( loader , release , changes , set , nodeTicket );
+				set.addTicket( ticket );
+			}
+		}
+	}
+	
+	private static void importxmlReleaseScope( EngineLoader loader , Release release , Node root ) {
+	}
+
 	public static Release createRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		
@@ -103,6 +220,14 @@ public class DBRelease {
 		
 		method.createRelease( repo , release );
 		return( release );
+	}
+
+	public static void setProperties( EngineMethod method , ActionBase action , Release release ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		method.checkUpdateRelease( release );
+		
+		release.setProperties( action );
+		modifyRelease( c , release.repo , release , false );
 	}
 	
 	public static void complete( EngineMethod method , ActionBase action , Release release ) throws Exception {

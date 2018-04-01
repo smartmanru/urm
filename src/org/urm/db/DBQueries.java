@@ -13,6 +13,9 @@ public abstract class DBQueries {
 	public static String FILTER_REL_REPORELEASEACTIVE1 = "release_id in ( select release_id from urm_rel_main where repo_id = @1@ and archived = 'no' )";
 	public static String FILTER_REL_RELEASE1 = "release_id = @1@";
 	public static String FILTER_REL_SCOPERELEASE1 = "release_id = @1@ and scopetarget = 'yes'";
+	public static String FILTER_REL_TICKETSET1 = "ticketset_id = @1@";
+	public static String FILTER_REL_BUILDTARGET_TICKETSET1 = "buildtarget_id in ( select buildtarget_id from urm_rel_tickettarget where ticketset_id = @1@ and buildtarget_id is not null )";
+	public static String FILTER_REL_DISTTARGET_TICKETSET1 = "disttarget_id in ( select disttarget_id from urm_rel_tickettarget where ticketset_id = @1@ and disttarget_id is not null )";
 	
 	public static String QUERY_SEQ_GETNEXTVAL0 = "select nextval( 'urm_object_seq' )";
 

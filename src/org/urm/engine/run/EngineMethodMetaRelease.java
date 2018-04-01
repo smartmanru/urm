@@ -37,7 +37,6 @@ public class EngineMethodMetaRelease {
 		releaseOld = release;
 		
 		ReleaseRepository repo = emm.getReleaseRepository();
-		release.modify( false );
 		releaseNew = release.copy( repo );
 		repo.replaceRelease( releaseNew );
 	}

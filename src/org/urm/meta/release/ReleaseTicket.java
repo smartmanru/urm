@@ -1,11 +1,11 @@
 package org.urm.meta.release;
 
-import org.urm.action.ActionBase;
 import org.urm.db.core.DBEnums.*;
 import org.urm.meta.MatchItem;
 
 public class ReleaseTicket {
 
+	public static String PROPERTY_POS = "pos";
 	public static String PROPERTY_CODE = "code";
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
@@ -73,12 +73,12 @@ public class ReleaseTicket {
 		return( ticket );
 	}
 	
-	public void accept( ActionBase action ) throws Exception {
+	public void accept() throws Exception {
 		ACCEPTED = true;
 		ACTIVE = true;
 	}
 
-	public void descope( ActionBase action ) throws Exception {
+	public void descope() throws Exception {
 		if( !DESCOPED ) {
 			if( set.isActive() )
 				ACCEPTED = false;
@@ -87,13 +87,29 @@ public class ReleaseTicket {
 		}
 	}
 
+	public void create( int pos , String code , String name , String comments , String link , DBEnumTicketType type , DBEnumTicketStatusType status ,  
+			boolean active , boolean accepted , boolean descoped , MatchItem owner , MatchItem dev , MatchItem qa ) throws Exception {
+		this.POS = pos;
+		this.CODE = code;
+		this.NAME = name;
+		this.DESC = comments;
+		this.LINK = link;
+		this.TYPE = type;
+		this.TICKETSTATUS = status; 
+		this.ACTIVE = active;
+		this.ACCEPTED = accepted;
+		this.DESCOPED = descoped;
+		this.OWNER = MatchItem.copy( owner );
+		this.DEV = MatchItem.copy( dev );
+		this.QA = MatchItem.copy( qa );
+	}
+	
 	public void create( DBEnumTicketType type , String code , String name , String link , String comments , Integer owner , boolean devdone ) throws Exception {
 		this.TYPE = type;
 		this.CODE = code;
 		this.NAME = name;
 		this.LINK = link;
 		this.DESC = comments;
-		type = DBEnumTicketType.CHANGE;
 		this.OWNER = MatchItem.create( owner );
 		this.QA = null;
 		this.ACTIVE = false;
@@ -170,17 +186,17 @@ public class ReleaseTicket {
 		return( false );
 	}
 
-	public void setDevDone( ActionBase action ) throws Exception {
+	public void setDevDone( Integer userId ) throws Exception {
 		if( isRunning() && isNew() ) {
 			TICKETSTATUS = DBEnumTicketStatusType.DEVDONE;
-			DEV = MatchItem.create( action.getUserId() );
+			DEV = MatchItem.create( userId );
 		}
 	}
 	
-	public void setVerified( ActionBase action ) throws Exception {
+	public void setVerified( Integer userId ) throws Exception {
 		if( isRunning() && isDevDone() ) {
 			TICKETSTATUS = DBEnumTicketStatusType.QADONE;
-			QA = MatchItem.create( action.getUserId() );
+			QA = MatchItem.create( userId );
 		}
 	}
 	

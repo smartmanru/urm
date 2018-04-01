@@ -71,7 +71,7 @@ public class ReleaseTicketSet {
 		return( r );
 	}
 
-	private void addTicket( ReleaseTicket ticket ) {
+	public void addTicket( ReleaseTicket ticket ) {
 		items.add( ticket );
 		map.put( ticket.CODE , ticket );
 	}
@@ -85,7 +85,7 @@ public class ReleaseTicketSet {
 		targets.remove( target );
 	}
 
-	private void reorderTickets( ActionBase action ) throws Exception {
+	private void reorderTickets() throws Exception {
 		int pos = 1;
 		for( ReleaseTicket ticketUpdate : items ) {
 			ticketUpdate.setPos( pos );
@@ -93,7 +93,7 @@ public class ReleaseTicketSet {
 		}
 	}
 	
-	private void reorderTargets( ActionBase action ) throws Exception {
+	private void reorderTargets() throws Exception {
 		int pos = 1;
 		for( ReleaseTicketTarget targetUpdate : targets ) {
 			targetUpdate.setPos( pos );
@@ -105,29 +105,31 @@ public class ReleaseTicketSet {
 		targets.add( target );
 	}
 
-	public void create( String code , String name , String comments ) throws Exception {
+	public void create( String code , String name , String comments , DBEnumTicketSetStatusType type ) throws Exception {
 		this.CODE = code;
 		this.NAME = name;
 		this.DESC = comments;
-		TYPE = DBEnumTicketSetStatusType.NEW;
+		this.TYPE = type;
 	}
 	
-	public void createTicket( ActionBase action , DBEnumTicketType type , String code , String name , String link , String desc , Integer owner , boolean devdone ) throws Exception {
+	public void create( String code , String name , String comments ) throws Exception {
+		create( code , name , comments , DBEnumTicketSetStatusType.NEW );
+	}
+	
+	public void createTicket( DBEnumTicketType type , String code , String name , String link , String desc , Integer owner , boolean devdone ) throws Exception {
 		ReleaseTicket ticket = new ReleaseTicket( release , this );
 		ticket.setPos( items.size() + 1 );
 		ticket.create( type , code , name , link , desc , owner , devdone );
 		addTicket( ticket );
 	}
 	
-	public void modify( ActionBase action , String code , String name , String comments ) throws Exception {
+	public void modify( String code , String name , String comments ) throws Exception {
 		this.CODE = code;
 		this.NAME = name;
 		this.DESC = comments;
 	}
 
-	public void descope( ActionBase action ) throws Exception {
-		for( ReleaseTicket ticket : items )
-			ticket.descope( action );
+	public void descope() throws Exception {
 		TYPE = DBEnumTicketSetStatusType.DESCOPED;
 	}
 
@@ -147,63 +149,63 @@ public class ReleaseTicketSet {
 		return( map.get( code ) );
 	}
 
-	public ReleaseTicket getTicket( ActionBase action , int POS ) throws Exception {
+	public ReleaseTicket getTicket( int POS ) throws Exception {
 		if( POS < 1 || POS > items.size() )
-			action.exitUnexpectedState();
+			Common.exitUnexpected();
 		return( items.get( POS - 1 ) );
 	}
 
-	public ReleaseTicketTarget getTarget( ActionBase action , int POS ) throws Exception {
+	public ReleaseTicketTarget getTarget( int POS ) throws Exception {
 		if( POS < 1 || POS > targets.size() )
-			action.exitUnexpectedState();
+			Common.exitUnexpected();
 		return( targets.get( POS - 1 ) );
 	}
 
-	public void modifyTicket( ActionBase action , ReleaseTicket ticket , DBEnumTicketType type , String code , String name , String link , String desc , Integer owner , boolean devdone ) throws Exception {
+	public void modifyTicket( ReleaseTicket ticket , DBEnumTicketType type , String code , String name , String link , String desc , Integer owner , boolean devdone ) throws Exception {
 		map.remove( ticket.CODE );
 		ticket.modify( type , code , name , link , desc , owner , devdone );
 		map.put( ticket.CODE , ticket );
 	}
 
-	public void dropTicket( ActionBase action , int ticketPos , boolean descope ) throws Exception {
-		ReleaseTicket ticket = getTicket( action , ticketPos );
+	public void dropTicket( int ticketPos , boolean descope ) throws Exception {
+		ReleaseTicket ticket = getTicket( ticketPos );
 			
 		if( descope )
-			ticket.descope( action );
+			ticket.descope();
 		else {
 			removeTicket( ticket );
-			reorderTickets( action );
+			reorderTickets();
 		}
 	}
 	
-	public void dropTarget( ActionBase action , int ticketPos , boolean descope ) throws Exception {
-		ReleaseTicketTarget target = getTarget( action , ticketPos );
+	public void dropTarget( int ticketPos , boolean descope ) throws Exception {
+		ReleaseTicketTarget target = getTarget( ticketPos );
 			
 		if( descope )
-			target.descope( action );
+			target.descope();
 		else {
 			removeTarget( target );
-			reorderTargets( action );
+			reorderTargets();
 		}
 	}
 	
-	public void moveTicket( ActionBase action , ReleaseTicket ticket , ReleaseTicketSet newSet ) throws Exception {
+	public void moveTicket( ReleaseTicket ticket , ReleaseTicketSet newSet ) throws Exception {
 		removeTicket( ticket );
-		reorderTickets( action );
+		reorderTickets();
 		
 		newSet.addTicket( ticket );
-		newSet.reorderTickets( action );
+		newSet.reorderTickets();
 	}
 
-	public void copyTicket( ActionBase action , ReleaseTicket ticket , ReleaseTicketSet newSet ) throws Exception {
+	public void copyTicket( ReleaseTicket ticket , ReleaseTicketSet newSet ) throws Exception {
 		if( newSet.findTicket( ticket.CODE ) != null ) {
 			String release = newSet.changes.release.RELEASEVER;
-			action.exit3( _Error.DuplicateReleaseTicket3 , "Duplicate ticket release=" + release + ", set=" + newSet.CODE + ", ticket=" + ticket.CODE , release , newSet.CODE , ticket.CODE );
+			Common.exit3( _Error.DuplicateReleaseTicket3 , "Duplicate ticket release=" + release + ", set=" + newSet.CODE + ", ticket=" + ticket.CODE , release , newSet.CODE , ticket.CODE );
 		}
 		
 		ReleaseTicket ticketNew = ticket.copyNew( release , newSet ); 
 		newSet.addTicket( ticketNew );
-		newSet.reorderTickets( action );
+		newSet.reorderTickets();
 	}
 
 	public boolean isNew() {
@@ -255,20 +257,20 @@ public class ReleaseTicketSet {
 		return( true );
 	}
 
-	public void activate( ActionBase action ) throws Exception {
+	public void activate() throws Exception {
 		if( TYPE == DBEnumTicketSetStatusType.NEW )
 			TYPE = DBEnumTicketSetStatusType.ACTIVE;
 	}
 
-	public void setDevDone( ActionBase action , ReleaseTicket ticket ) throws Exception {
-		ticket.setDevDone( action );
+	public void setDevDone( ReleaseTicket ticket , Integer userId ) throws Exception {
+		ticket.setDevDone( userId );
 	}
 	
-	public void setTicketVerified( ActionBase action , ReleaseTicket ticket ) throws Exception {
-		ticket.setVerified( action );
+	public void setTicketVerified( ReleaseTicket ticket , Integer userId ) throws Exception {
+		ticket.setVerified( userId );
 	}
 	
-	public void createTarget( ActionBase action , MetaSourceProjectSet projectSet ) throws Exception {
+	public void createTarget( MetaSourceProjectSet projectSet ) throws Exception {
 		int pos = targets.size() + 1;
 		ReleaseTicketTarget target = new ReleaseTicketTarget( release , this );
 		ReleaseBuildTarget buildTarget = new ReleaseBuildTarget( release );
@@ -277,7 +279,7 @@ public class ReleaseTicketSet {
 		addTarget( target );
 	}
 	
-	public void createTarget( ActionBase action , MetaSourceProject project , String[] items ) throws Exception {
+	public void createTarget( MetaSourceProject project , String[] items ) throws Exception {
 		int pos = targets.size() + 1;
 		if( items == null ) {
 			ReleaseTicketTarget target = new ReleaseTicketTarget( release , this );
@@ -309,7 +311,7 @@ public class ReleaseTicketSet {
 		}
 	}
 
-	public void createTarget( ActionBase action , MetaDistrDelivery delivery , DBEnumDistTargetType type , String[] items ) throws Exception {
+	public void createTarget( MetaDistrDelivery delivery , DBEnumDistTargetType type , String[] items ) throws Exception {
 		int pos = targets.size() + 1;
 		if( items == null ) {
 			ReleaseTicketTarget target = new ReleaseTicketTarget( release , this );

@@ -23,6 +23,7 @@ import org.urm.engine.data.EngineMonitoring;
 import org.urm.engine.data.EngineResources;
 import org.urm.engine.data.EngineSettings;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.run.EngineMethod;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.transaction.TransactionBase;
@@ -42,6 +43,7 @@ public class EngineLoader {
 	private EngineMatcher matcher;
 	private DBConnection connection;
 	private TransactionBase transaction;
+	private EngineMethod method;
 	private ActionBase action;
 
 	private EngineLoaderCore ldc;
@@ -50,6 +52,18 @@ public class EngineLoader {
 	public EngineLoader( Engine engine , DataService data , ActionBase action ) {
 		this.engine = engine;
 		this.data = data;
+		this.action = action;
+		this.execrc = engine.execrc;
+		this.entities = data.getEntities();
+		
+		ldc = new EngineLoaderCore( this , data );
+		ldp = new EngineLoaderProducts( this , data );
+	}
+
+	public EngineLoader( Engine engine , DataService data , EngineMethod method , ActionBase action ) {
+		this.engine = engine;
+		this.data = data;
+		this.method = method;
 		this.action = action;
 		this.execrc = engine.execrc;
 		this.entities = data.getEntities();
@@ -72,6 +86,14 @@ public class EngineLoader {
 
 	public TransactionBase getTransaction() {
 		return( transaction );
+	}
+	
+	public EngineMethod getMethod() {
+		return( method );
+	}
+	
+	public AuthService getAuth() {
+		return( engine.getAuth() );
 	}
 	
 	public EngineEntities getEntities() {
@@ -126,6 +148,9 @@ public class EngineLoader {
 		if( connection == null ) {
 			if( transaction != null )
 				connection = transaction.getConnection();
+			else
+			if( method != null )
+				connection = method.getMethodConnection( action );
 			else {
 				EngineDB db = data.getDatabase();
 				connection = db.getConnection( action );

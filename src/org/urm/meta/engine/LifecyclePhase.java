@@ -71,7 +71,7 @@ public class LifecyclePhase extends EngineObject {
 	}
 
 	public boolean isDeploy() {
-		if( LIFECYCLESTAGE_TYPE == DBEnumLifecycleStageType.DEPLOYMENT )
+		if( LIFECYCLESTAGE_TYPE == DBEnumLifecycleStageType.DELIVERY )
 			return( true );
 		return( false );
 	}

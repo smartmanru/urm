@@ -256,7 +256,7 @@ public class ReleaseSchedule {
 		return( null );
 	}
 
-	private void setDeadlines() {
+	public void setDeadlines() {
 		setDeadlinesBest();
 		setDeadlinesExpected();
 	}

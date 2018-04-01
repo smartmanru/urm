@@ -15,12 +15,14 @@ import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
+import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
 import org.urm.meta.release.ReleaseRepository;
 
 public class ActionCopyRelease extends ActionBase {
 
+	public Meta meta;
 	public Release src;
 	public String RELEASEDIR;
 	public Date releaseDate;
@@ -28,8 +30,9 @@ public class ActionCopyRelease extends ActionBase {
 	
 	public Release release;
 	
-	public ActionCopyRelease( ActionBase action , String stream , Release src , String RELEASEDST , Date releaseDate , ReleaseLifecycle lc ) {
+	public ActionCopyRelease( ActionBase action , String stream , Meta meta , Release src , String RELEASEDST , Date releaseDate , ReleaseLifecycle lc ) {
 		super( action , stream , "Copy release src=" + src.RELEASEVER + ", dst=" + RELEASEDST );
+		this.meta = meta;
 		this.src = src;
 		this.RELEASEDIR = RELEASEDST;
 		this.releaseDate = releaseDate;
@@ -38,29 +41,34 @@ public class ActionCopyRelease extends ActionBase {
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		EngineMethod method = super.method;
-		Meta meta = src.getMeta();
-		ReleaseRepository repo = method.changeReleaseRepository( meta );
-		DistRepository distrepo = method.changeDistRepository( meta );
 		
-		ReleaseLabelInfo info = distrepo.getLabelInfo( this , RELEASEDIR );
-		if( info.master ) {
-			super.fail0( _Error.CannotCopyProd0 , "Cannot create master distributive, use master command instead" );
-			return( SCOPESTATE.RunFail );
+		ProductReleases releases = meta.getReleases();
+		synchronized( releases ) {
+			// update repositories
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			DistRepository distrepoUpdated = method.changeDistRepository( releases );
+
+			// create release
+			ReleaseLabelInfo info = distrepoUpdated.getLabelInfo( this , RELEASEDIR );
+			if( info.master ) {
+				super.fail0( _Error.CannotCopyProd0 , "Cannot create master distributive, use master command instead" );
+				return( SCOPESTATE.RunFail );
+			}
+			
+			release = DBReleaseRepository.createReleaseNormal( method , this , repoUpdated , info , releaseDate , lc );
+			ReleaseDist releaseDist = DBReleaseDist.createReleaseDist( method , this , release , info.VARIANT );
+			
+			// create distributive
+			DistRepositoryItem item = distrepoUpdated.createRepositoryItem( method , this , info );
+			
+			Dist dist = distrepoUpdated.createDistNormal( method , this , item , releaseDist );
+			DBReleaseDist.updateHash( method , this , release , releaseDist , dist );
+			distrepoUpdated.addItem( item );
+			
+			DBReleaseScope.copyScope( method , this , repoUpdated , release , src );
+			Dist srcDist = distrepoUpdated.findDefaultDist( src );
+			item.copyFiles( method , this , srcDist );
 		}
-		
-		release = DBReleaseRepository.createReleaseNormal( method , this , repo , info , releaseDate , lc );
-		ReleaseDist releaseDist = DBReleaseDist.createReleaseDist( method , this , release , info.VARIANT );
-		
-		// create distributive
-		DistRepositoryItem item = distrepo.createRepositoryItem( method , this , info );
-		
-		Dist dist = distrepo.createDistNormal( method , this , item , releaseDist );
-		DBReleaseDist.updateHash( method , this , release , releaseDist , dist );
-		distrepo.addItem( item );
-		
-		DBReleaseScope.copyScope( method , this , repo , release , src );
-		Dist srcDist = distrepo.findDefaultDist( src );
-		item.copyFiles( method , this , srcDist );
 		
 		return( SCOPESTATE.RunSuccess );
 	}

@@ -1,13 +1,10 @@
 package org.urm.engine.dist;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.*;
-import org.urm.db.release.DBReleaseRepository;
 import org.urm.engine.dist.DistState.DISTSTATE;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
@@ -16,7 +13,6 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineLoaderReleases;
-import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.env.MetaEnvServerLocation;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
@@ -69,6 +65,15 @@ public class Dist {
 		this.RELEASEDIR = item.RELEASEDIR;
 		
 		setFolder( distFolder );		
+	}
+
+	public Dist copy( Meta rmeta , DistRepositoryItem ritem , ReleaseDist rreleaseDist ) {
+		Dist r = new Dist( rmeta , ritem , rreleaseDist , distFolder );
+		return( r );
+	}
+	
+	public DistState getStateInfo() {
+		return( state );
 	}
 	
 	public void loadState( ActionBase action ) throws Exception {
@@ -304,12 +309,6 @@ public class Dist {
 		loadState( action );
 	}
 
-	public void changeReleaseDate( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
-		DBEnumLifecycleType type = release.getLifecycleType();
-		ReleaseLifecycle lcset = DBReleaseRepository.getLifecycle( action , meta , lc , type );
-		release.setReleaseDate( action , releaseDate , lcset );
-	}
-	
 	public void createMaster( ActionBase action ) throws Exception {
 		saveMetaFile( action );
 		state.ctlCreateMaster( action , null );
@@ -704,7 +703,7 @@ public class Dist {
 		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
 		EngineLoader loader = action.engine.createLoader( action );
 		EngineLoaderReleases loaderReleases = new EngineLoaderReleases( loader , meta.getStorage() );
-		loaderReleases.exportxmlReleaseDist( releaseDist , filePath );
+		loaderReleases.exportxmlReleaseDist( release , releaseDist , filePath );
 		distFolder.copyFileFromLocal( action , filePath );
 	}
 

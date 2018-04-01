@@ -2,6 +2,7 @@ package org.urm.engine.dist;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ public class DistState {
 	public DISTSTATE state;
 	DISTSTATE stateMem;
 	String stateChangeID;
+	public Date stateDate;
 	public String dataHash;
 	public String metaHash;
 	String activeChangeID;

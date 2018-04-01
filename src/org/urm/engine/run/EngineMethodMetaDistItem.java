@@ -2,6 +2,8 @@ package org.urm.engine.run;
 
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepositoryItem;
+import org.urm.meta.release.ReleaseDist;
+import org.urm.meta.release.ReleaseRepository;
 
 public class EngineMethodMetaDistItem {
 
@@ -28,7 +30,7 @@ public class EngineMethodMetaDistItem {
 		this.itemNew = item;
 	}
 	
-	public void setUpdated() throws Exception {
+	public void setUpdated( ReleaseRepository repoReleases ) throws Exception {
 		update = true;
 		if( itemNew != null )
 			return;
@@ -37,7 +39,8 @@ public class EngineMethodMetaDistItem {
 		itemOld = item;
 		
 		DistRepository repo = emm.getDistRepository();
-		itemNew = item.copy( repo );
+		ReleaseDist releaseDist = repoReleases.findReleaseDist( item.dist );
+		itemNew = item.copy( repo , releaseDist );
 		repo.replaceItem( itemNew );
 	}
 	

@@ -47,11 +47,14 @@ public class DistRepository {
 		modifyState = false;
 	}
 	
-	public DistRepository copy( Meta rmeta ) {
+	public DistRepository copy( Meta rmeta , ReleaseRepository rrepo ) {
 		DistRepository r = new DistRepository( rmeta );
 		r.repoFolder = repoFolder;
-		r.itemMap.putAll( itemMap );
-		r.runMap.putAll( runMap );
+		for( DistRepositoryItem item : itemMap.values() ) {
+			ReleaseDist rreleaseDist = rrepo.findReleaseDist( item.dist );
+			DistRepositoryItem ritem = item.copy( r , rreleaseDist );
+			r.addItem( ritem );
+		}
 		return( r );
 	}
 	
@@ -211,6 +214,17 @@ public class DistRepository {
 		return( item );
 	}
 
+	public DistRepositoryItem attachRepositoryItem( EngineMethod method , ActionBase action , ReleaseLabelInfo info , ReleaseDist releaseDist ) throws Exception {
+		DistRepositoryItem item = new DistRepositoryItem( this );
+		item.createItem( action , info.RELEASEDIR , info.RELEASEPATH );
+		RemoteFolder distFolder = getDistFolder( action , item );
+		item.read( action , distFolder , releaseDist );
+		
+		method.createDistItem( this , item );
+		addItem( item );
+		return( item );
+	}
+
 	public synchronized void dropDist( EngineMethod method , ActionBase action , DistRepositoryItem item , boolean force ) throws Exception {
 		method.checkUpdateDistItem( item );
 		
@@ -258,7 +272,7 @@ public class DistRepository {
 		RemoteFolder folder = new RemoteFolder( account , distPath );
 		return( folder );
 	}
-	
+
 	public RemoteFolder getDistFolder( ActionBase action , DistRepositoryItem item ) throws Exception {
 		RemoteFolder repoFolder = getDistFolder( action );
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , item.DISTPATH );
