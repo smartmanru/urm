@@ -8,6 +8,7 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.release.DBReleaseScope;
 import org.urm.engine.dist.ReleaseBuildScope;
+import org.urm.engine.dist.ReleaseBuildScopeProject;
 import org.urm.engine.dist.ReleaseBuildScopeSet;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -113,10 +114,10 @@ public class ActionSetScope extends ActionBase {
 				continue;
 			
 			/*
-			for( ReleaseTarget target : set.getTargets() ) {
-				String checkProject = check.get( Common.concat( set.set.NAME , target.sourceProject.NAME , "/" ) );
+			for( ReleaseBuildScopeProject target : set.getProjects() ) {
+				String checkProject = check.get( Common.concat( set.set.NAME , target.project.NAME , "/" ) );
 				if( checkProject == null ) {
-					dist.descopeTarget( this , target );
+					DBReleaseScope.descopeTarget( super.method , this , release , target.project , target );
 					continue;
 				}
 				

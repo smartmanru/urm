@@ -256,10 +256,12 @@ public class Release {
 	}
 	
 	public void setProperties( ActionBase action ) throws Exception {
-		BUILDMODE = action.context.CTX_BUILDMODE;
+		if( action.context.CTX_BUILDMODE != DBEnumBuildModeType.UNKNOWN )
+			BUILDMODE = action.context.CTX_BUILDMODE;
 		
 		if( action.context.CTX_ALL )
 			COMPATIBILITY = "";
+		
 		for( String OLDRELEASE : Common.splitSpaced( action.context.CTX_OLDRELEASE ) ) {
 			OLDRELEASE = VersionInfo.normalizeReleaseVer( OLDRELEASE );
 			if( OLDRELEASE.compareTo( RELEASEVER ) >= 0 )

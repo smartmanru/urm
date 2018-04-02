@@ -31,7 +31,7 @@ import org.urm.meta.release.ReleaseScope;
 
 public class DBReleaseScope {
 
-	public static void dropChildBuildTargets( EngineMethod method , ActionBase action , Release release , ReleaseBuildTarget target ) throws Exception {
+	private static void dropChildBuildTargets( EngineMethod method , ActionBase action , Release release , ReleaseBuildTarget target ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
 		
@@ -43,7 +43,7 @@ public class DBReleaseScope {
 		}
 	}
 
-	public static void dropChildDistTargets( EngineMethod method , ActionBase action , Release release , ReleaseDistTarget target ) throws Exception {
+	private static void dropChildDistTargets( EngineMethod method , ActionBase action , Release release , ReleaseDistTarget target ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
 		
@@ -58,6 +58,7 @@ public class DBReleaseScope {
 	public static void addAllSource( EngineMethod method , ActionBase action , Release release ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseBuildTarget target = scope.findBuildAllTarget();
 		if( target != null ) {
@@ -72,7 +73,7 @@ public class DBReleaseScope {
 		dropChildBuildTargets( method , action , release , target );
 	}
 	
-	public static void addAllBinaries( EngineMethod method , ActionBase action , Release release ) throws Exception {
+	private static void addAllBinaries( EngineMethod method , ActionBase action , Release release ) throws Exception {
 		ReleaseScope scope = release.getScope();
 		
 		ReleaseDistTarget target = scope.findDistAllTarget();
@@ -90,6 +91,7 @@ public class DBReleaseScope {
 	
 	public static void addAllConf( EngineMethod method , ActionBase action , Release release ) throws Exception {
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseDistTarget target = scope.findDistAllTarget();
 		if( target != null ) {
@@ -535,6 +537,26 @@ public class DBReleaseScope {
 				descopeBuildTargetOnly( c , release , scope , target );
 				descopeProjectBinaries( c , release , scope , project );
 			}
+		}
+	}
+
+	public static void descopeProject( EngineMethod method , ActionBase action , Release release , MetaSourceProjectSet set , MetaSourceProject project ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		ReleaseScope scope = release.getScope();
+		
+		ReleaseBuildTarget target = scope.findBuildAllTarget();
+		if( target != null )
+			return;
+		
+		target = scope.findBuildProjectSetTarget( set );
+		if( target != null )
+			return;
+		
+		target = scope.findBuildProjectTarget( project );
+		if( target != null ) {
+			descopeBuildTargetOnly( c , release , scope , target );
+			descopeProjectBinaries( c , release , scope , project );
+			return;
 		}
 	}
 
