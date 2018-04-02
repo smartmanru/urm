@@ -35,12 +35,12 @@ public class ReleaseScope {
 		ReleaseScope r = new ReleaseScope( rrelease );
 		
 		for( ReleaseBuildTarget target : scopeBuildMapById.values() ) {
-			ReleaseBuildTarget rtarget = target.copy( r );
+			ReleaseBuildTarget rtarget = target.copy( null , r );
 			r.addBuildTarget( rtarget );
 		}
 		
 		for( ReleaseDistTarget target : scopeDistMapById.values() ) {
-			ReleaseDistTarget rtarget = target.copy( r );
+			ReleaseDistTarget rtarget = target.copy( null , r );
 			r.addDistTarget( rtarget );
 		}
 

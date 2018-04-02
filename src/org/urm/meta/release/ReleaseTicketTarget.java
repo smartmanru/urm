@@ -1,5 +1,6 @@
 package org.urm.meta.release;
 
+import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -24,13 +25,13 @@ public class ReleaseTicketTarget {
 	public int ID;
 	public int POS;
 	public Integer BUILDTARGET_ID;
-	public Integer DELIVERYTARGET_ID;
+	public Integer DISTTARGET_ID;
 	public boolean ACCEPTED;
 	public boolean DESCOPED;
 	public int RV;
 
 	private ReleaseBuildTarget buildTarget;
-	private ReleaseDistTarget deliveryTarget;
+	private ReleaseDistTarget distTarget;
 	
 	public ReleaseTicketTarget( Release release , ReleaseTicketSet set ) {
 		this.release = release; 
@@ -43,14 +44,34 @@ public class ReleaseTicketTarget {
 		r.ID = ID;
 		r.POS = POS;
 		r.BUILDTARGET_ID = BUILDTARGET_ID;
-		r.DELIVERYTARGET_ID = DELIVERYTARGET_ID;
+		r.DISTTARGET_ID = DISTTARGET_ID;
 		r.ACCEPTED = ACCEPTED;
 		r.DESCOPED = DESCOPED;
 		r.RV = RV;
 		
+		ReleaseChanges rchanges = rrelease.getChanges();
+		if( BUILDTARGET_ID != null )
+			buildTarget = rchanges.getBuildTarget( BUILDTARGET_ID );
+		if( DISTTARGET_ID != null )
+			distTarget = rchanges.getDistTarget( DISTTARGET_ID );
+		
 		return( r );
 	}
 
+	public void create( int POS , Integer BUILDTARGET_ID , Integer DISTTARGET_ID , boolean ACCEPTED , boolean DESCOPED ) throws Exception {
+		this.POS = POS;
+		this.BUILDTARGET_ID = BUILDTARGET_ID;
+		this.DISTTARGET_ID = DISTTARGET_ID;
+		this.ACCEPTED = ACCEPTED;
+		this.DESCOPED = DESCOPED;
+		
+		ReleaseChanges changes = release.getChanges();
+		if( BUILDTARGET_ID != null )
+			buildTarget = changes.getBuildTarget( BUILDTARGET_ID );
+		if( DISTTARGET_ID != null )
+			distTarget = changes.getDistTarget( DISTTARGET_ID );
+	}
+	
 	public void setPos( int POS ) {
 		this.POS = POS;
 	}
@@ -63,6 +84,14 @@ public class ReleaseTicketTarget {
 		return( DESCOPED );
 	}
 
+	public ReleaseBuildTarget getBuildTarget() {
+		return( buildTarget );
+	}
+	
+	public ReleaseDistTarget getDistTarget() {
+		return( distTarget );
+	}
+	
 	public boolean isProjectSet() {
 		if( buildTarget != null && buildTarget.TYPE == DBEnumBuildTargetType.PROJECTSET )
 			return( true );
@@ -76,25 +105,37 @@ public class ReleaseTicketTarget {
 	}
 		
 	public boolean isBinary() {
-		if( deliveryTarget != null && deliveryTarget.TYPE == DBEnumDistTargetType.BINARYITEM )
+		if( distTarget != null && distTarget.TYPE == DBEnumDistTargetType.BINARYITEM )
 			return( true );
 		return( false );
 	}
 
 	public boolean isConfiguration() {
-		if( deliveryTarget != null && deliveryTarget.TYPE == DBEnumDistTargetType.CONFITEM )
+		if( distTarget != null && distTarget.TYPE == DBEnumDistTargetType.CONFITEM )
 			return( true );
 		return( false );
 	}
 		
 	public boolean isDatabase() {
-		if( deliveryTarget != null && deliveryTarget.TYPE == DBEnumDistTargetType.SCHEMA )
+		if( distTarget != null && distTarget.TYPE == DBEnumDistTargetType.SCHEMA )
 			return( true );
 		return( false );
 	}
 
 	public boolean isDoc() {
-		if( deliveryTarget != null && deliveryTarget.TYPE == DBEnumDistTargetType.DOC )
+		if( distTarget != null && distTarget.TYPE == DBEnumDistTargetType.DOC )
+			return( true );
+		return( false );
+	}
+
+	public boolean isBuildTarget() {
+		if( buildTarget != null )
+			return( true );
+		return( false );
+	}
+
+	public boolean isDistTarget() {
+		if( distTarget != null )
 			return( true );
 		return( false );
 	}
@@ -106,25 +147,25 @@ public class ReleaseTicketTarget {
 	}
 
 	public boolean isDeliveryBinaries() {
-		if( deliveryTarget != null && deliveryTarget.TYPE == DBEnumDistTargetType.DELIVERYBINARIES )
+		if( distTarget != null && distTarget.TYPE == DBEnumDistTargetType.DELIVERYBINARIES )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isDeliveryConfs() {
-		if( deliveryTarget != null && deliveryTarget.TYPE == DBEnumDistTargetType.DELIVERYCONFS )
+		if( distTarget != null && distTarget.TYPE == DBEnumDistTargetType.DELIVERYCONFS )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isDeliveryDatabase() {
-		if( deliveryTarget != null && deliveryTarget.TYPE == DBEnumDistTargetType.DELIVERYDATABASE )
+		if( distTarget != null && distTarget.TYPE == DBEnumDistTargetType.DELIVERYDATABASE )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isDeliveryDoc() {
-		if( deliveryTarget != null && deliveryTarget.TYPE == DBEnumDistTargetType.DELIVERYDOC )
+		if( distTarget != null && distTarget.TYPE == DBEnumDistTargetType.DELIVERYDOC )
 			return( true );
 		return( false );
 	}
@@ -164,7 +205,7 @@ public class ReleaseTicketTarget {
 	}
 	
 	public boolean isEqualTo( MetaSourceProjectItem item ) {
-		if( isBinary() && item.distItem != null && deliveryTarget.BINARY.equals( item.distItem.ID ) )
+		if( isBinary() && item.distItem != null && distTarget.BINARY.equals( item.distItem.ID ) )
 			return( true );
 		return( false );
 	}
@@ -185,13 +226,13 @@ public class ReleaseTicketTarget {
 		}
 		
 		if( isBinary() ) {
-			if( deliveryTarget.BINARY.equals( item.ID ) )
+			if( distTarget.BINARY.equals( item.ID ) )
 				return( true );
 			return( false );
 		}
 
 		if( isDeliveryBinaries() ) {
-			if( deliveryTarget.DELIVERY.equals( item.delivery.ID ) )
+			if( distTarget.DELIVERY.equals( item.delivery.ID ) )
 				return( true );
 			return( false );
 		}
@@ -201,13 +242,13 @@ public class ReleaseTicketTarget {
 
 	public boolean references( MetaDistrConfItem item ) {
 		if( isConfiguration() ) {
-			if( deliveryTarget.CONF.equals( item.ID ) )
+			if( distTarget.CONF.equals( item.ID ) )
 				return( true );
 			return( false );
 		}
 
 		if( isDeliveryConfs() ) {
-			if( deliveryTarget.DELIVERY.equals( item.delivery.ID ) )
+			if( distTarget.DELIVERY.equals( item.delivery.ID ) )
 				return( true );
 			return( false );
 		}
@@ -217,13 +258,13 @@ public class ReleaseTicketTarget {
 	
 	public boolean references( MetaDistrDelivery delivery , MetaDatabaseSchema item ) {
 		if( isDatabase() ) {
-			if( deliveryTarget.DELIVERY.equals( delivery.ID ) && deliveryTarget.SCHEMA.equals( item.ID ) )
+			if( distTarget.DELIVERY.equals( delivery.ID ) && distTarget.SCHEMA.equals( item.ID ) )
 				return( true );
 			return( false );
 		}
 
 		if( isDeliveryDatabase() ) {
-			if( deliveryTarget.DELIVERY.equals( delivery.ID ) )
+			if( distTarget.DELIVERY.equals( delivery.ID ) )
 				return( true );
 			return( false );
 		}
@@ -233,13 +274,13 @@ public class ReleaseTicketTarget {
 
 	public boolean references( MetaDistrDelivery delivery , MetaProductDoc item ) {
 		if( isDoc() ) {
-			if( deliveryTarget.DELIVERY.equals( delivery.ID ) && deliveryTarget.DOC.equals( item.ID ) )
+			if( distTarget.DELIVERY.equals( delivery.ID ) && distTarget.DOC.equals( item.ID ) )
 				return( true );
 			return( false );
 		}
 
 		if( isDeliveryDoc() ) {
-			if( deliveryTarget.DELIVERY.equals( delivery.ID ) )
+			if( distTarget.DELIVERY.equals( delivery.ID ) )
 				return( true );
 			return( false );
 		}
@@ -263,40 +304,67 @@ public class ReleaseTicketTarget {
 	
 	public void create( ReleaseDistTarget deliveryTarget , int pos ) {
 		this.POS = pos;
-		this.DELIVERYTARGET_ID = deliveryTarget.ID;
-		this.deliveryTarget = deliveryTarget;
+		this.DISTTARGET_ID = deliveryTarget.ID;
+		this.distTarget = deliveryTarget;
 	}
 
 	public String getName() {
 		return( "?" );
 	}
 	
-	public MetaSourceProject getProject() {
-		return( null );
+	public MetaSourceProject findProject() {
+		ReleaseChanges changes = release.getChanges();
+		ReleaseBuildTarget target = changes.findBuildTarget( BUILDTARGET_ID );
+		return( target.getProject() );
+	}
+	
+	public MetaSourceProjectSet findProjectSet() {
+		ReleaseChanges changes = release.getChanges();
+		ReleaseBuildTarget target = changes.findBuildTarget( BUILDTARGET_ID );
+		return( target.getProjectSet() );
 	}
 	
 	public MetaDistrBinaryItem getBinaryItem() {
-		return( null );
+		ReleaseChanges changes = release.getChanges();
+		ReleaseDistTarget target = changes.findDistTarget( DISTTARGET_ID );
+		return( target.getBinaryItem() );
 	}
 
 	public MetaDistrConfItem getConfItem() {
-		return( null );
+		ReleaseChanges changes = release.getChanges();
+		ReleaseDistTarget target = changes.findDistTarget( DISTTARGET_ID );
+		return( target.getConfItem() );
 	}
 	
 	public MetaDistrDelivery getDelivery() {
-		return( null );
+		ReleaseChanges changes = release.getChanges();
+		ReleaseDistTarget target = changes.findDistTarget( DISTTARGET_ID );
+		return( target.getDelivery() );
 	}
 	
 	public MetaDatabaseSchema getDatabaseSchema() {
-		return( null );
+		ReleaseChanges changes = release.getChanges();
+		ReleaseDistTarget target = changes.findDistTarget( DISTTARGET_ID );
+		return( target.getSchema() );
 	}
 
 	public MetaProductDoc getDoc() {
-		return( null );
+		ReleaseChanges changes = release.getChanges();
+		ReleaseDistTarget target = changes.findDistTarget( DISTTARGET_ID );
+		return( target.getDoc() );
 	}
 
-	public DBEnumObjectType getType() {
-		return( DBEnumObjectType.UNKNOWN );
+	public String getType() {
+		ReleaseChanges changes = release.getChanges();
+		if( BUILDTARGET_ID != null ) {
+			ReleaseBuildTarget target = changes.findBuildTarget( BUILDTARGET_ID );
+			return( Common.getEnumLower( target.TYPE ) );
+		}
+		if( DISTTARGET_ID != null ) {
+			ReleaseDistTarget target = changes.findDistTarget( DISTTARGET_ID );
+			return( Common.getEnumLower( target.TYPE ) );
+		}
+		return( "" );
 	}
 	
 }

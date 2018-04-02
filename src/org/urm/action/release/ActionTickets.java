@@ -11,13 +11,23 @@ import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.release.DBReleaseChanges;
+import org.urm.db.release.DBReleaseTicketTarget;
 import org.urm.engine.AuthService;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabase;
+import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaDistr;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaDocs;
+import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
@@ -290,7 +300,7 @@ public class ActionTickets extends ActionBase {
 				}
 				
 				String projectSet = args[2];
-				executeCreateSetTarget( codeSet , projectSet , null );
+				executeCreateSetTarget( codeSet , projectSet );
 			}
 			else
 			if( cmd.equals( TARGET_PROJECT ) ) {
@@ -418,7 +428,7 @@ public class ActionTickets extends ActionBase {
 			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
-			ReleaseTicket ticket = set.getTicket( ticketPos );
+			ReleaseTicket ticket = set.getTicketByPos( ticketPos );
 			DBReleaseChanges.modifyTicket( method , this , releaseUpdated , changes , set , ticket , type , code , name , link , comments , owner , devdone );
 		}
 	}
@@ -433,7 +443,7 @@ public class ActionTickets extends ActionBase {
 			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
-			ReleaseTicket ticket = set.getTicket( ticketPos );
+			ReleaseTicket ticket = set.getTicketByPos( ticketPos );
 			DBReleaseChanges.dropTicket( method , this , releaseUpdated , changes , set , ticket , descope );
 		}
 	}
@@ -448,7 +458,7 @@ public class ActionTickets extends ActionBase {
 			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
-			ReleaseTicket ticket = set.getTicket( ticketPos );
+			ReleaseTicket ticket = set.getTicketByPos( ticketPos );
 			DBReleaseChanges.setDevDone( method , this , releaseUpdated , changes , set , ticket , super.getUserId() );
 		}
 	}
@@ -463,7 +473,7 @@ public class ActionTickets extends ActionBase {
 			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
-			ReleaseTicket ticket = set.getTicket( ticketPos );
+			ReleaseTicket ticket = set.getTicketByPos( ticketPos );
 			DBReleaseChanges.setVerified( method , this , releaseUpdated , changes , set , ticket , super.getUserId() );
 		}
 	}
@@ -483,7 +493,7 @@ public class ActionTickets extends ActionBase {
 			
 			ReleaseChanges changes = release.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
-			ReleaseTicket ticket = set.getTicket( ticketPos );
+			ReleaseTicket ticket = set.getTicketByPos( ticketPos );
 			ReleaseChanges changesNew = releaseNewUpdated.getChanges();
 			ReleaseTicketSet setNew = changesNew.getSet( newSetCode );
 			DBReleaseChanges.copyTicket( method , this , releaseNewUpdated , changesNew , setNew , ticket );
@@ -500,9 +510,130 @@ public class ActionTickets extends ActionBase {
 			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
-			ReleaseTicket ticket = set.getTicket( ticketPos );
+			ReleaseTicket ticket = set.getTicketByPos( ticketPos );
 			ReleaseTicketSet setNew = changes.getSet( newSetCode );
 			DBReleaseChanges.moveTicket( method , this , releaseUpdated , changes , set , ticket , setNew );
+		}
+	}
+	
+	private void executeCreateSetTarget( String setCode , String element ) throws Exception {
+		EngineMethod method = super.method;
+		
+		ProductReleases releases = meta.getReleases();
+		synchronized( releases ) {
+			// update repositories
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			ReleaseChanges changes = releaseUpdated.getChanges();
+			ReleaseTicketSet set = changes.getSet( setCode );
+
+			// create
+			Meta meta = releaseUpdated.getMeta();
+			MetaSources sources = meta.getSources();
+			MetaSourceProjectSet projectSet = sources.getProjectSet( element );
+			DBReleaseTicketTarget.createProjectSetTarget( method , this , releaseUpdated , changes , set , projectSet );
+		}
+	}
+	
+	private void executeCreateProjectTarget( String setCode , String element , String[] items ) throws Exception {
+		EngineMethod method = super.method;
+		
+		ProductReleases releases = meta.getReleases();
+		synchronized( releases ) {
+			// update repositories
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			ReleaseChanges changes = releaseUpdated.getChanges();
+			ReleaseTicketSet set = changes.getSet( setCode );
+
+			// create
+			Meta meta = releaseUpdated.getMeta();
+			MetaSources sources = meta.getSources();
+			MetaSourceProject project = sources.getProject( element );
+			if( items == null )
+				DBReleaseTicketTarget.createProjectTarget( method , this , releaseUpdated , changes , set , project , true );
+			else {
+				DBReleaseTicketTarget.createProjectTarget( method , this , releaseUpdated , changes , set , project , false );
+				for( String item : items ) {
+					MetaSourceProjectItem projectItem = project.getItem( item );
+					DBReleaseTicketTarget.createProjectItemTarget( method , this , releaseUpdated , changes , set , projectItem );
+				}
+			}
+		}
+	}
+	
+	private void executeCreateDeliveryTarget( String setCode , String deliveryName , String type , String[] items ) throws Exception {
+		EngineMethod method = super.method;
+		
+		ProductReleases releases = meta.getReleases();
+		synchronized( releases ) {
+			// update repositories
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			ReleaseChanges changes = releaseUpdated.getChanges();
+			ReleaseTicketSet set = changes.getSet( setCode );
+			MetaDistr distr = meta.getDistr();
+			MetaDistrDelivery delivery = distr.getDelivery( deliveryName );
+			
+			DBEnumDistTargetType category = null;
+			if( type.equals( TARGET_DELIVERYBINARY ) )
+				category = DBEnumDistTargetType.DELIVERYBINARIES;
+			else
+			if( type.equals( TARGET_DELIVERYCONF ) )
+				category = DBEnumDistTargetType.DELIVERYCONFS;
+			else
+			if( type.equals( TARGET_DELIVERYSCHEMA ) )
+				category = DBEnumDistTargetType.DELIVERYDATABASE;
+			else
+			if( type.equals( TARGET_DELIVERYDOC ) )
+				category = DBEnumDistTargetType.DELIVERYDOC;
+				
+			if( items == null )
+				DBReleaseTicketTarget.createDeliveryTarget( method , this , releaseUpdated , changes , set , delivery , category );
+			else {
+				for( String item : items ) {
+					if( category == DBEnumDistTargetType.DELIVERYBINARIES ) {
+						MetaDistrBinaryItem binary = delivery.getBinaryItem( item );
+						DBReleaseTicketTarget.createDeliveryTargetItem( method , this , releaseUpdated , changes , set , delivery , binary );
+					}
+					else
+					if( category == DBEnumDistTargetType.DELIVERYCONFS ) {
+						MetaDistrConfItem conf = delivery.getConfItem( item );
+						DBReleaseTicketTarget.createDeliveryTargetItem( method , this , releaseUpdated , changes , set , delivery , conf );
+					}
+					else
+					if( category == DBEnumDistTargetType.DELIVERYDATABASE ) {
+						MetaDatabase db = meta.getDatabase();
+						MetaDatabaseSchema schema = db.getSchema( item );
+						DBReleaseTicketTarget.createDeliveryTargetItem( method , this , releaseUpdated , changes , set , delivery , schema );
+					}
+					else
+					if( category == DBEnumDistTargetType.DELIVERYDOC ) {
+						MetaDocs docs = meta.getDocs();
+						MetaProductDoc doc = docs.getDoc( item );
+						DBReleaseTicketTarget.createDeliveryTargetItem( method , this , releaseUpdated , changes , set , delivery , doc );
+					}
+				}
+			}
+		}
+	}
+	
+	private void executeDropTarget( String setCode , int targetPos , boolean descope ) throws Exception {
+		EngineMethod method = super.method;
+		
+		ProductReleases releases = meta.getReleases();
+		synchronized( releases ) {
+			// update repositories
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			ReleaseChanges changes = releaseUpdated.getChanges();
+			ReleaseTicketSet set = changes.getSet( setCode );
+			ReleaseTicketTarget target = set.getTargetByPos( targetPos );
+				
+			if( descope )
+				DBReleaseTicketTarget.descopeTarget( method , this , releaseUpdated , changes , set , target );
+			else
+				DBReleaseTicketTarget.deleteTarget( method , this , releaseUpdated , changes , set , target );
 		}
 	}
 	
@@ -520,7 +651,7 @@ public class ActionTickets extends ActionBase {
 		}
 		else {
 			for( String targetPos : targets ) {
-				ReleaseTicketTarget target = set.getTarget( Integer.parseInt( targetPos ) );
+				ReleaseTicketTarget target = set.getTargetByPos( Integer.parseInt( targetPos ) );
 				if( !target.isAccepted() )
 					targetList.add( target );
 			}
@@ -570,7 +701,7 @@ public class ActionTickets extends ActionBase {
 		}
 		else {
 			for( String ticketPos : tickets ) {
-				ReleaseTicket ticket = set.getTicket( Integer.parseInt( ticketPos ) );
+				ReleaseTicket ticket = set.getTicketByPos( Integer.parseInt( ticketPos ) );
 				if( !ticket.isAccepted() )
 					ticket.accept();
 			}
@@ -578,36 +709,6 @@ public class ActionTickets extends ActionBase {
 	}
 	
 	private void executeAcceptTargetScope( ReleaseTicketTarget target , ActionProductScopeMaker maker ) throws Exception {
-	}
-	
-	private void executeDropTarget( String setCode , int targetPos , boolean descope ) throws Exception {
-		ReleaseChanges changes = release.getChanges();
-		ReleaseTicketSet set = changes.getSet( setCode );
-		set.dropTarget( targetPos , descope );
-	}
-	
-	private void executeCreateSetTarget( String setCode , String element , String[] items ) throws Exception {
-		ReleaseChanges changes = release.getChanges();
-		ReleaseTicketSet set = changes.getSet( setCode );
-		
-		Meta meta = release.getMeta();
-		MetaSources sources = meta.getSources();
-		MetaSourceProjectSet projectSet = sources.getProjectSet( element );
-		set.createTarget( projectSet );
-	}
-	
-	private void executeCreateProjectTarget( String setCode , String element , String[] items ) throws Exception {
-		ReleaseChanges changes = release.getChanges();
-		ReleaseTicketSet set = changes.getSet( setCode );
-		
-		Meta meta = release.getMeta();
-		MetaSources sources = meta.getSources();
-		MetaSourceProject project = sources.getProject( element );
-		set.createTarget( project , items );
-	}
-	
-	private void executeCreateDeliveryTarget( String setCode , String deliveryName , String type , String[] items ) throws Exception {
-		Common.exitUnexpected();
 	}
 	
 }

@@ -19,9 +19,11 @@ public class ReleaseBuildTarget {
 	public static String PROPERTY_ALL = "all";
 	
 	public Release release;
+	public ReleaseChanges changes;
 	public ReleaseScope scope;
 	
 	public int ID;
+	public boolean SCOPETARGET;
 	public DBEnumBuildTargetType TYPE;
 	public MatchItem SRCSET;
 	public MatchItem PROJECT;
@@ -31,19 +33,23 @@ public class ReleaseBuildTarget {
 	public boolean ALL;
 	public int RV;
 	
-	public ReleaseBuildTarget( Release release ) {
-		this.release = release;
+	public ReleaseBuildTarget( ReleaseChanges changes ) {
+		this.changes = changes;
+		this.release = changes.release;
+		this.SCOPETARGET = false;
 	}
 
 	public ReleaseBuildTarget( ReleaseScope scope ) {
 		this.release = scope.release;
 		this.scope = scope;
+		this.SCOPETARGET = true;
 	}
 
-	public ReleaseBuildTarget copy( ReleaseScope rscope ) {
-		ReleaseBuildTarget r = new ReleaseBuildTarget( rscope );
+	public ReleaseBuildTarget copy( ReleaseChanges rchanges , ReleaseScope rscope ) {
+		ReleaseBuildTarget r = ( SCOPETARGET )? new ReleaseBuildTarget( rscope ) : new ReleaseBuildTarget( rchanges );
 		
 		r.ID = ID;
+		r.SCOPETARGET = SCOPETARGET;
 		r.TYPE = TYPE;
 		r.SRCSET = MatchItem.copy( SRCSET );
 		r.PROJECT = MatchItem.copy( PROJECT );
@@ -54,6 +60,16 @@ public class ReleaseBuildTarget {
 		r.RV = RV;
 		
 		return( r );
+	}
+
+	public void create( DBEnumBuildTargetType TYPE , MatchItem SRCSET , MatchItem PROJECT , String BUILD_BRANCH , String BUILD_TAG , String BUILD_VERSION , boolean ALL ) {
+		this.TYPE = TYPE;
+		this.SRCSET = MatchItem.copy( SRCSET );
+		this.PROJECT = MatchItem.copy( PROJECT );
+		this.BUILD_BRANCH = BUILD_BRANCH;
+		this.BUILD_TAG = BUILD_TAG;
+		this.BUILD_VERSION = BUILD_VERSION;
+		this.ALL = ALL;
 	}
 	
 	public void create( boolean all ) {

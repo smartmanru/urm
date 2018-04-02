@@ -24,9 +24,11 @@ public class ReleaseDistTarget {
 	public static String PROPERTY_ALL = "all";
 	
 	public Release release;
+	public ReleaseChanges changes;
 	public ReleaseScope scope;
 	
 	public int ID;
+	public boolean SCOPETARGET;
 	public DBEnumDistTargetType TYPE;
 	public MatchItem DELIVERY;
 	public MatchItem BINARY;
@@ -36,8 +38,9 @@ public class ReleaseDistTarget {
 	public boolean ALL;
 	public int RV;
 	
-	public ReleaseDistTarget( Release release ) {
-		this.release = release;
+	public ReleaseDistTarget( ReleaseChanges changes ) {
+		this.release = changes.release;
+		this.changes = changes;
 	}
 
 	public ReleaseDistTarget( ReleaseScope scope ) {
@@ -45,10 +48,11 @@ public class ReleaseDistTarget {
 		this.scope = scope;
 	}
 
-	public ReleaseDistTarget copy( ReleaseScope rscope ) {
-		ReleaseDistTarget r = new ReleaseDistTarget( rscope );
+	public ReleaseDistTarget copy( ReleaseChanges rchanges , ReleaseScope rscope ) {
+		ReleaseDistTarget r = ( SCOPETARGET )? new ReleaseDistTarget( rscope ) : new ReleaseDistTarget( rchanges );
 		
 		r.ID = ID;
+		r.SCOPETARGET = SCOPETARGET;
 		r.TYPE = TYPE;
 		r.DELIVERY = MatchItem.copy( DELIVERY );
 		r.BINARY = MatchItem.copy( BINARY );
@@ -59,6 +63,16 @@ public class ReleaseDistTarget {
 		r.RV = RV;
 		
 		return( r );
+	}
+
+	public void create( DBEnumDistTargetType TYPE , MatchItem DELIVERY , MatchItem BINARY , MatchItem CONF , MatchItem SCHEMA , MatchItem DOC , boolean ALL ) {
+		this.TYPE = TYPE;
+		this.DELIVERY = MatchItem.copy( DELIVERY );
+		this.BINARY = MatchItem.copy( BINARY );
+		this.CONF = MatchItem.copy( CONF );
+		this.SCHEMA = MatchItem.copy( SCHEMA );
+		this.DOC = MatchItem.copy( DOC );
+		this.ALL = ALL;
 	}
 	
 	public void createAll() {

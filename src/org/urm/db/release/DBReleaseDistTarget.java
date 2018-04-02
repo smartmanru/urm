@@ -1,16 +1,22 @@
 package org.urm.db.release;
 
+import java.sql.ResultSet;
+
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseBuildTarget;
+import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseDistTarget;
 import org.urm.meta.release.ReleaseScope;
 
@@ -40,6 +46,35 @@ public class DBReleaseDistTarget {
 				} , insert );
 	}
 
+	public static void loaddbReleaseDistTarget( EngineLoader loader , Release release , ReleaseChanges changes , ReleaseScope scope , ResultSet rs ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseDistTarget;
+
+		ReleaseDistTarget target = null;
+		boolean scopetarget = entity.loaddbBoolean( rs , ReleaseBuildTarget.PROPERTY_SCOPETARGET );
+		if( scopetarget )
+			target = new ReleaseDistTarget( scope );
+		else
+			target = new ReleaseDistTarget( changes );
+		
+		target.ID = entity.loaddbId( rs );
+		target.RV = entity.loaddbVersion( rs );
+		target.create(
+				DBEnumDistTargetType.getValue( entity.loaddbEnum( rs , ReleaseDistTarget.PROPERTY_TARGETTYPE ) , true ) ,
+				entity.loaddbMatchItem( rs , DBReleaseData.FIELD_DISTTARGET_DELIVERY_ID , ReleaseDistTarget.PROPERTY_DELIVERY ) ,
+				entity.loaddbMatchItem( rs , DBReleaseData.FIELD_DISTTARGET_BINARY_ID , ReleaseDistTarget.PROPERTY_BINARY ) ,
+				entity.loaddbMatchItem( rs , DBReleaseData.FIELD_DISTTARGET_CONF_ID , ReleaseDistTarget.PROPERTY_CONF ) ,
+				entity.loaddbMatchItem( rs , DBReleaseData.FIELD_DISTTARGET_SCHEMA_ID , ReleaseDistTarget.PROPERTY_SCHEMA ) ,
+				entity.loaddbMatchItem( rs , DBReleaseData.FIELD_DISTTARGET_DOC_ID , ReleaseDistTarget.PROPERTY_DOC ) ,
+				entity.loaddbBoolean( rs , ReleaseDistTarget.PROPERTY_ALL )
+				);
+		
+		if( scopetarget )
+			scope.addDistTarget( target );
+		else
+			changes.addDistTarget( target );
+	}
+	
 	public static void deleteDistTarget( DBConnection c , Release release , ReleaseDistTarget target ) throws Exception {
 		EngineEntities entities = c.getEntities();
 		int version = c.getNextReleaseVersion( release );

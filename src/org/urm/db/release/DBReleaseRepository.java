@@ -26,6 +26,7 @@ import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseDist;
 import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.release.ReleaseSchedule;
+import org.urm.meta.release.ReleaseScope;
 import org.urm.meta.release.ReleaseRepository.ReleaseOperation;
 import org.urm.meta.release.ReleaseTicketSet;
 
@@ -140,8 +141,9 @@ public class DBReleaseRepository {
 		loaddbReleasesSchedulePhase( loader , repo );
 		loaddbReleasesTicketSet( loader , repo );
 		loaddbReleasesTicket( loader , repo );
-		//loaddbReleasesBuildTarget( loader , repo );
-		//loaddbReleasesDistTarget( loader , repo );
+		loaddbReleasesBuildTarget( loader , repo );
+		loaddbReleasesDistTarget( loader , repo );
+		loaddbReleasesTicketTarget( loader , repo );
 		
 		// recalcualte schedules
 		for( Release release : repo.getReleases() ) {
@@ -278,6 +280,71 @@ public class DBReleaseRepository {
 				ReleaseChanges changes = release.getChanges();
 				ReleaseTicketSet set = changes.getSet( setId );
 				DBReleaseChanges.loaddbReleaseTicket( loader , release , changes , set , rs );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+
+	private static void loaddbReleasesBuildTarget( EngineLoader loader , ReleaseRepository repo ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseBuildTarget;
+		
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_REL_REPORELEASEACTIVE1 , 
+				new String[] { EngineDB.getInteger( repo.ID ) 
+				} );
+		try {
+			while( rs.next() ) {
+				int releaseId = entity.loaddbObject( rs , DBReleaseData.FIELD_RELEASE_ID );
+				Release release = repo.getRelease( releaseId );
+				ReleaseChanges releaseChanges = release.getChanges();
+				ReleaseScope releaseScope = release.getScope();
+				DBReleaseBuildTarget.loaddbReleaseBuildTarget( loader , release , releaseChanges , releaseScope , rs );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+
+	private static void loaddbReleasesDistTarget( EngineLoader loader , ReleaseRepository repo ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseDistTarget;
+		
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_REL_REPORELEASEACTIVE1 , 
+				new String[] { EngineDB.getInteger( repo.ID ) 
+				} );
+		try {
+			while( rs.next() ) {
+				int releaseId = entity.loaddbObject( rs , DBReleaseData.FIELD_RELEASE_ID );
+				Release release = repo.getRelease( releaseId );
+				ReleaseChanges releaseChanges = release.getChanges();
+				ReleaseScope releaseScope = release.getScope();
+				DBReleaseDistTarget.loaddbReleaseDistTarget( loader , release , releaseChanges , releaseScope , rs );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+
+	private static void loaddbReleasesTicketTarget( EngineLoader loader , ReleaseRepository repo ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseTicketTarget;
+		
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_REL_REPORELEASEACTIVE1 , 
+				new String[] { EngineDB.getInteger( repo.ID ) 
+				} );
+		try {
+			while( rs.next() ) {
+				int releaseId = entity.loaddbObject( rs , DBReleaseData.FIELD_RELEASE_ID );
+				Release release = repo.getRelease( releaseId );
+				ReleaseChanges releaseChanges = release.getChanges();
+				DBReleaseTicketTarget.loaddbReleaseTicketTarget( loader , release , releaseChanges , rs );
 			}
 		}
 		finally {

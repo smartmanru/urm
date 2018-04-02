@@ -683,12 +683,12 @@ public class DBReleaseScope {
 		ReleaseScope scopeSrc = release.getScope();
 		
 		for( ReleaseBuildTarget targetSrc : scopeSrc.getBuildTargets() ) {
-			ReleaseBuildTarget targetDst = targetSrc.copy( scopeDst );
+			ReleaseBuildTarget targetDst = targetSrc.copy( null , scopeDst );
 			DBReleaseBuildTarget.modifyReleaseBuildTarget( c , dst , targetDst , true );
 		}
 		
 		for( ReleaseDistTarget targetSrc : scopeSrc.getDistTargets() ) {
-			ReleaseDistTarget targetDst = targetSrc.copy( scopeDst );
+			ReleaseDistTarget targetDst = targetSrc.copy( null , scopeDst );
 			DBReleaseDistTarget.modifyReleaseDistTarget( c , dst , targetDst , true );
 		}
 	}

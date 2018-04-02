@@ -11,11 +11,15 @@ public class ReleaseChanges {
 
 	private Map<String,ReleaseTicketSet> sets;
 	private Map<Integer,ReleaseTicketSet> setsById;
+	private Map<Integer,ReleaseBuildTarget> buildTargetMapById;
+	private Map<Integer,ReleaseDistTarget> distTargetMapById;
 	
 	public ReleaseChanges( Release release ) {
 		this.release = release;
 		sets = new HashMap<String,ReleaseTicketSet>();
 		setsById = new HashMap<Integer,ReleaseTicketSet>();
+		buildTargetMapById = new HashMap<Integer,ReleaseBuildTarget>(); 
+		distTargetMapById = new HashMap<Integer,ReleaseDistTarget>();
 	}
 
 	public ReleaseChanges copy( Release rrelease ) throws Exception {
@@ -25,6 +29,16 @@ public class ReleaseChanges {
 			ReleaseTicketSet rset = set.copy( rrelease , r );
 			r.addSet( rset );
 		}
+
+		for( ReleaseBuildTarget target : buildTargetMapById.values() ) {
+			ReleaseBuildTarget rtarget = target.copy( r , null );
+			r.addBuildTarget( rtarget );
+		}
+		
+		for( ReleaseDistTarget target : distTargetMapById.values() ) {
+			ReleaseDistTarget rtarget = target.copy( r , null );
+			r.addDistTarget( rtarget );
+		}
 		
 		return( r );
 	}
@@ -32,6 +46,22 @@ public class ReleaseChanges {
 	public void addSet( ReleaseTicketSet set ) {
 		sets.put( set.CODE , set );
 		setsById.put( set.ID , set );
+	}
+	
+	public void addBuildTarget( ReleaseBuildTarget target ) {
+		buildTargetMapById.put( target.ID , target );
+	}
+	
+	public void addDistTarget( ReleaseDistTarget target ) {
+		distTargetMapById.put( target.ID , target );
+	}
+	
+	public void removeBuildTarget( ReleaseBuildTarget target ) {
+		buildTargetMapById.remove( target.ID );
+	}
+	
+	public void removeDistTarget( ReleaseDistTarget target ) {
+		distTargetMapById.remove( target.ID );
 	}
 	
 	public void removeSet( ReleaseTicketSet set ) {
@@ -71,6 +101,28 @@ public class ReleaseChanges {
 
 	public void updateSet( ReleaseTicketSet set ) throws Exception {
 		Common.changeMapKey( sets , set , set.CODE );
+	}
+
+	public ReleaseBuildTarget findBuildTarget( int id ) {
+		return( buildTargetMapById.get( id ) );
+	}
+	
+	public ReleaseDistTarget findDistTarget( int id ) {
+		return( distTargetMapById.get( id ) );
+	}
+	
+	public ReleaseBuildTarget getBuildTarget( int id ) throws Exception {
+		ReleaseBuildTarget target = buildTargetMapById.get( id );
+		if( target == null )
+			Common.exit2( _Error.UnknownReleaseBuildTarget2 , "Unknown target=" + id + " in release=" + release.RELEASEVER , "" + id , release.RELEASEVER );
+		return( target );
+	}
+	
+	public ReleaseDistTarget getDistTarget( int id ) throws Exception {
+		ReleaseDistTarget target = distTargetMapById.get( id );
+		if( target == null )
+			Common.exit2( _Error.UnknownReleaseDistTarget2 , "Unknown target=" + id + " in release=" + release.RELEASEVER , "" + id , release.RELEASEVER );
+		return( target );
 	}
 	
 }

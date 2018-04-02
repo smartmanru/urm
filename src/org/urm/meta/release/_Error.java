@@ -8,5 +8,7 @@ public class _Error {
 	public static final int ErrorInternalBase = ErrorBase + RunErrorClass.InternalBase;
 	
 	public static final int UnknownReleaseTicketSet2 = ErrorBase + 1;
+	public static final int UnknownReleaseBuildTarget2 = ErrorBase + 2;
+	public static final int UnknownReleaseDistTarget2 = ErrorBase + 3;
 	
 }

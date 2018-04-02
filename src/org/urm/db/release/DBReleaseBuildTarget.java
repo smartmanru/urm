@@ -1,13 +1,19 @@
 package org.urm.db.release;
 
+import java.sql.ResultSet;
+
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
+import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseBuildTarget;
+import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseScope;
 
 public class DBReleaseBuildTarget {
@@ -33,6 +39,35 @@ public class DBReleaseBuildTarget {
 				} , insert );
 	}
 
+	public static void loaddbReleaseBuildTarget( EngineLoader loader , Release release , ReleaseChanges changes , ReleaseScope scope , ResultSet rs ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseBuildTarget;
+
+		ReleaseBuildTarget target = null;
+		boolean scopetarget = entity.loaddbBoolean( rs , ReleaseBuildTarget.PROPERTY_SCOPETARGET );
+		if( scopetarget )
+			target = new ReleaseBuildTarget( scope );
+		else
+			target = new ReleaseBuildTarget( changes );
+		
+		target.ID = entity.loaddbId( rs );
+		target.RV = entity.loaddbVersion( rs );
+		target.create(
+				DBEnumBuildTargetType.getValue( entity.loaddbEnum( rs , ReleaseBuildTarget.PROPERTY_TARGETTYPE ) , true ) ,
+				entity.loaddbMatchItem( rs , DBReleaseData.FIELD_BUILDTARGET_SRCSET_ID , ReleaseBuildTarget.PROPERTY_SRCSET ) ,
+				entity.loaddbMatchItem( rs , DBReleaseData.FIELD_BUILDTARGET_PROJECT_ID , ReleaseBuildTarget.PROPERTY_PROJECT ) ,
+				entity.loaddbString( rs , ReleaseBuildTarget.PROPERTY_BUILDBRANCH ) ,
+				entity.loaddbString( rs , ReleaseBuildTarget.PROPERTY_BUILDTAG ) ,
+				entity.loaddbString( rs , ReleaseBuildTarget.PROPERTY_BUILDVERSION ) ,
+				entity.loaddbBoolean( rs , ReleaseBuildTarget.PROPERTY_ALL )
+				);
+		
+		if( scopetarget )
+			scope.addBuildTarget( target );
+		else
+			changes.addBuildTarget( target );
+	}
+	
 	public static void deleteBuildTarget( DBConnection c , Release release , ReleaseBuildTarget target ) throws Exception {
 		EngineEntities entities = c.getEntities();
 		int version = c.getNextReleaseVersion( release );

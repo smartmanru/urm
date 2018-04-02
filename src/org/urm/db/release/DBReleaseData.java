@@ -331,7 +331,9 @@ public class DBReleaseData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_TICKETTARGET_TICKETSET_ID , "ticket set id" , DBEnumObjectType.RELEASE_TICKETSET , true ) ,
 				EntityVar.metaInteger( ReleaseTicketTarget.PROPERTY_POS , "ticket target position" , true , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_TICKETTARGET_BUILDTARGET_ID , "ticket build target id" , DBEnumObjectType.RELEASE_BUILDTARGET , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_TICKETTARGET_DISTTARGET_ID , "ticket distributive target id" , DBEnumObjectType.RELEASE_DISTTARGET , true )
+				EntityVar.metaObjectDatabaseOnly( FIELD_TICKETTARGET_DISTTARGET_ID , "ticket distributive target id" , DBEnumObjectType.RELEASE_DISTTARGET , true ) ,
+				EntityVar.metaBoolean( ReleaseTicket.PROPERTY_DESCOPED , "descoped status" , true , false ) ,
+				EntityVar.metaBoolean( ReleaseTicket.PROPERTY_ACCEPTED , "accepted status" , true , false )
 		} ) );
 	}
 

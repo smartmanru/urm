@@ -84,7 +84,7 @@ public class ReleaseTicketSet {
 		items.remove( ticket );
 	}
 
-	private void removeTarget( ReleaseTicketTarget target ) {
+	public void removeTarget( ReleaseTicketTarget target ) {
 		targets.remove( target );
 	}
 
@@ -96,7 +96,7 @@ public class ReleaseTicketSet {
 		}
 	}
 	
-	private void reorderTargets() throws Exception {
+	public void reorderTargets() throws Exception {
 		int pos = 1;
 		for( ReleaseTicketTarget targetUpdate : targets ) {
 			targetUpdate.setPos( pos );
@@ -104,7 +104,7 @@ public class ReleaseTicketSet {
 		}
 	}
 	
-	private void addTarget( ReleaseTicketTarget target ) {
+	public void addTarget( ReleaseTicketTarget target ) {
 		targets.add( target );
 	}
 
@@ -152,27 +152,44 @@ public class ReleaseTicketSet {
 		return( map.get( code ) );
 	}
 
-	public ReleaseTicket getTicket( int POS ) throws Exception {
-		if( POS < 1 || POS > items.size() )
-			Common.exitUnexpected();
-		return( items.get( POS - 1 ) );
-	}
-
-	public ReleaseTicketTarget getTarget( int POS ) throws Exception {
-		if( POS < 1 || POS > targets.size() )
-			Common.exitUnexpected();
-		return( targets.get( POS - 1 ) );
-	}
-
-	public void dropTarget( int ticketPos , boolean descope ) throws Exception {
-		ReleaseTicketTarget target = getTarget( ticketPos );
-			
-		if( descope )
-			target.descope();
-		else {
-			removeTarget( target );
-			reorderTargets();
+	public ReleaseTicket getTicketByPos( int POS ) throws Exception {
+		for( ReleaseTicket ticket : items ) {
+			if( ticket.POS == POS )
+				return( ticket );
 		}
+		Common.exitUnexpected();
+		return( null );
+	}
+
+	public ReleaseTicketTarget getTargetByPos( int POS ) throws Exception {
+		for( ReleaseTicketTarget target : targets ) {
+			if( target.POS == POS )
+				return( target );
+		}
+		Common.exitUnexpected();
+		return( null );
+	}
+
+	public ReleaseTicketTarget findTarget( MetaSourceProjectSet set ) {
+		for( ReleaseTicketTarget target : targets ) {
+			if( target.isProjectSet() ) {
+				MetaSourceProjectSet targetSet = target.findProjectSet();
+				if( targetSet.ID == set.ID )
+					return( target );
+			}
+		}
+		return( null );
+	}
+	
+	public ReleaseTicketTarget findTarget( MetaSourceProject project ) {
+		for( ReleaseTicketTarget target : targets ) {
+			if( target.isProject() ) {
+				MetaSourceProject targetProject = target.findProject();
+				if( targetProject.ID == project.ID )
+					return( target );
+			}
+		}
+		return( null );
 	}
 	
 	public void moveTicket( ReleaseTicket ticket , ReleaseTicketSet newSet ) throws Exception {
@@ -190,7 +207,7 @@ public class ReleaseTicketSet {
 		}
 		
 		ReleaseTicket ticketNew = ticket.copyNew( release , this );
-		int lastPos = getLastPos();
+		int lastPos = getLastTicketPos();
 		addTicket( ticketNew );
 		ticketNew.setNew();
 		ticketNew.setPos( lastPos + 1 );
@@ -251,52 +268,11 @@ public class ReleaseTicketSet {
 			TYPE = DBEnumTicketSetStatusType.ACTIVE;
 	}
 
-	public void createTarget( MetaSourceProjectSet projectSet ) throws Exception {
-		int pos = targets.size() + 1;
-		ReleaseTicketTarget target = new ReleaseTicketTarget( release , this );
-		ReleaseBuildTarget buildTarget = new ReleaseBuildTarget( release );
-		buildTarget.create( projectSet , false );
-		target.create( buildTarget , pos );
-		addTarget( target );
-	}
-	
-	public void createTarget( MetaSourceProject project , String[] items ) throws Exception {
-		int pos = targets.size() + 1;
-		if( items == null ) {
-			ReleaseTicketTarget target = new ReleaseTicketTarget( release , this );
-			ReleaseBuildTarget buildTarget = new ReleaseBuildTarget( release );
-			buildTarget.create( project , true );
-			target.create( buildTarget , pos );
-			addTarget( target );
-		}
-		else
-		if( items.length == 0 ) {
-			ReleaseTicketTarget target = new ReleaseTicketTarget( release , this );
-			ReleaseBuildTarget buildTarget = new ReleaseBuildTarget( release );
-			buildTarget.create( project , false );
-			target.create( buildTarget , pos );
-			addTarget( target );
-		}
-		else {
-			for( String item : items ) {
-				MetaSourceProjectItem projectItem = project.getItem( item );
-				if( projectItem.distItem == null )
-					continue;
-				
-				ReleaseTicketTarget target = new ReleaseTicketTarget( release , this );
-				ReleaseDistTarget deliveryTarget = new ReleaseDistTarget( release );
-				deliveryTarget.create( projectItem.distItem );
-				target.create( deliveryTarget , pos );
-				addTarget( target );
-			}
-		}
-	}
-
 	public void createTarget( MetaDistrDelivery delivery , DBEnumDistTargetType type , String[] items ) throws Exception {
 		int pos = targets.size() + 1;
 		if( items == null ) {
 			ReleaseTicketTarget target = new ReleaseTicketTarget( release , this );
-			ReleaseDistTarget deliveryTarget = new ReleaseDistTarget( release );
+			ReleaseDistTarget deliveryTarget = new ReleaseDistTarget( changes );
 			if( type == DBEnumDistTargetType.BINARYITEM )
 				deliveryTarget.create( delivery , DBEnumDistTargetType.DELIVERYBINARIES );
 			else
@@ -316,7 +292,7 @@ public class ReleaseTicketSet {
 		else {
 			for( String item : items ) {
 				ReleaseTicketTarget target = new ReleaseTicketTarget( release , this );
-				ReleaseDistTarget deliveryTarget = new ReleaseDistTarget( release );
+				ReleaseDistTarget deliveryTarget = new ReleaseDistTarget( changes );
 				if( type == DBEnumDistTargetType.BINARYITEM ) {
 					MetaDistrBinaryItem binaryItem = delivery.getBinaryItem( item );
 					deliveryTarget.create( binaryItem );
@@ -426,7 +402,7 @@ public class ReleaseTicketSet {
 		return( false );
 	}
 
-	public int getLastPos() {
+	public int getLastTicketPos() {
 		int pos = 0;
 		for( ReleaseTicket ticket : items ) {
 			if( ticket.POS > pos )
@@ -434,4 +410,14 @@ public class ReleaseTicketSet {
 		}
 		return( pos );
 	}
+
+	public int getLastTargetPos() {
+		int pos = 0;
+		for( ReleaseTicketTarget target : targets ) {
+			if( target.POS > pos )
+				pos = target.POS;
+		}
+		return( pos );
+	}
+	
 }
