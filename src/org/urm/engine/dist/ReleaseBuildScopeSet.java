@@ -3,6 +3,7 @@ package org.urm.engine.dist;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.common.Common;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.release.Release;
@@ -45,4 +46,9 @@ public class ReleaseBuildScopeSet {
 	public ReleaseBuildScopeProject[] getProjects() {
 		return( buildProjects.values().toArray( new ReleaseBuildScopeProject[0] ) );
 	}
+	
+	public String[] getProjectNames() {
+		return( Common.getSortedKeys( buildProjects ) );
+	}
+	
 }

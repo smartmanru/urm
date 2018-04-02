@@ -274,5 +274,12 @@ public class ReleaseDistScope {
 			return( null );
 		return( delivery.findBinaryItem( item.distItem ) );
 	}
+
+	public ReleaseDistScopeDelivery findCategoryDelivery( DBEnumScopeCategoryType CATEGORY , MetaDistrDelivery delivery ) {
+		ReleaseDistScopeSet set = findCategorySet( CATEGORY );
+		if( set == null )
+			return( null );
+		return( set.findDelivery( delivery ) );
+	}
 	
 }

@@ -59,18 +59,27 @@ public class ReleaseBuildTarget {
 	public void create( boolean all ) {
 		TYPE = DBEnumBuildTargetType.BUILDALL;
 		this.ALL = all;
+		BUILD_BRANCH = "";
+		BUILD_TAG = "";
+		BUILD_VERSION = "";
 	}
 	
 	public void create( MetaSourceProjectSet projectSet , boolean all ) {
 		TYPE = DBEnumBuildTargetType.PROJECTSET;
 		SRCSET = MatchItem.create( projectSet.ID );
 		this.ALL = all;
+		BUILD_BRANCH = "";
+		BUILD_TAG = "";
+		BUILD_VERSION = "";
 	}
 	
 	public void create( MetaSourceProject project , boolean all ) {
 		TYPE = ( all )? DBEnumBuildTargetType.PROJECTALLITEMS : DBEnumBuildTargetType.PROJECTNOITEMS;
 		PROJECT = MatchItem.create( project.ID );
 		this.ALL = all;
+		BUILD_BRANCH = "";
+		BUILD_TAG = "";
+		BUILD_VERSION = "";
 	}
 
 	public boolean isScopeTarget() {

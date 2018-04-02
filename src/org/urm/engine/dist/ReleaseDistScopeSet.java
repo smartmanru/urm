@@ -18,6 +18,7 @@ public class ReleaseDistScopeSet {
 	public ReleaseDistScopeSet( Release release , DBEnumScopeCategoryType CATEGORY ) {
 		this.release = release;
 		this.CATEGORY = CATEGORY;
+		mapDelivery = new HashMap<String,ReleaseDistScopeDelivery>(); 
 	}
 	
 	public void addDelivery( ReleaseDistScopeDelivery scopeDelivery ) {

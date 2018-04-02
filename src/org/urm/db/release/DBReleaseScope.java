@@ -109,6 +109,7 @@ public class DBReleaseScope {
 	public static void addAllSourceSet( EngineMethod method , ActionBase action , Release release , MetaSourceProjectSet set ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseBuildTarget target = scope.findBuildAllTarget();
 		if( target != null ) {
@@ -137,6 +138,7 @@ public class DBReleaseScope {
 	public static void addProjectItems( EngineMethod method , ActionBase action , Release release , MetaSourceProject project , boolean allItems ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseBuildTarget target = scope.findBuildAllTarget();
 		if( target != null ) {
@@ -166,6 +168,7 @@ public class DBReleaseScope {
 
 	public static void addProjectItem( EngineMethod method , ActionBase action , Release release , MetaSourceProject project , MetaSourceProjectItem item ) throws Exception {
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseBuildTarget target = scope.findBuildProjectTarget( project );
 		if( target == null )
@@ -178,6 +181,7 @@ public class DBReleaseScope {
 	public static void addConfItem( EngineMethod method , ActionBase action , Release release , MetaDistrConfItem item ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseDistTarget target = scope.findDistAllTarget();
 		if( target != null ) {
@@ -212,6 +216,7 @@ public class DBReleaseScope {
 	public static void addBinaryItem( EngineMethod method , ActionBase action , Release release , MetaDistrBinaryItem item ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseDistTarget target = scope.findDistAllTarget();
 		if( target != null ) {
@@ -241,6 +246,7 @@ public class DBReleaseScope {
 	public static void addDeliveryAllBinaries( EngineMethod method , ActionBase action , Release release , MetaDistrDelivery delivery ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseDistTarget target = scope.findDistAllTarget();
 		if( target != null ) {
@@ -270,6 +276,7 @@ public class DBReleaseScope {
 	public static void addDeliveryAllConfItems( EngineMethod method , ActionBase action , Release release , MetaDistrDelivery delivery ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseDistTarget target = scope.findDistAllTarget();
 		if( target != null ) {
@@ -294,6 +301,7 @@ public class DBReleaseScope {
 	public static void addDeliveryAllDatabaseSchemes( EngineMethod method , ActionBase action , Release release , MetaDistrDelivery delivery ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseDistTarget target = scope.findDistAllTarget();
 		if( target != null ) {
@@ -318,6 +326,7 @@ public class DBReleaseScope {
 	public static void addDeliveryAllDocs( EngineMethod method , ActionBase action , Release release , MetaDistrDelivery delivery ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseDistTarget target = scope.findDistAllTarget();
 		if( target != null ) {
@@ -342,6 +351,7 @@ public class DBReleaseScope {
 	public static void addDeliveryDatabaseSchema( EngineMethod method , ActionBase action , Release release , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseDistTarget target = scope.findDistAllTarget();
 		if( target != null ) {
@@ -371,6 +381,7 @@ public class DBReleaseScope {
 	public static void addDeliveryDoc( EngineMethod method , ActionBase action , Release release , MetaDistrDelivery delivery , MetaProductDoc doc ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseDistTarget target = scope.findDistAllTarget();
 		if( target != null ) {
@@ -398,6 +409,8 @@ public class DBReleaseScope {
 	}
 	
 	public static void addAllDatabase( EngineMethod method , ActionBase action , Release release ) throws Exception {
+		method.checkUpdateRelease( release );
+		
 		Meta meta = release.getMeta();
 		MetaDistr distr = meta.getDistr();
 		for( MetaDistrDelivery delivery : distr.getDeliveries() )
@@ -405,6 +418,8 @@ public class DBReleaseScope {
 	}
 
 	public static void addAllDoc( EngineMethod method , ActionBase action , Release release ) throws Exception {
+		method.checkUpdateRelease( release );
+		
 		Meta meta = release.getMeta();
 		MetaDistr distr = meta.getDistr();
 		for( MetaDistrDelivery delivery : distr.getDeliveries() )
@@ -412,6 +427,8 @@ public class DBReleaseScope {
 	}
 
 	public static void addAllCategory( EngineMethod method , ActionBase action , Release release , DBEnumScopeCategoryType CATEGORY ) throws Exception {
+		method.checkUpdateRelease( release );
+		
 		if( CATEGORY == DBEnumScopeCategoryType.PROJECT )
 			addAllSource( method , action , release );
 		else
@@ -432,6 +449,7 @@ public class DBReleaseScope {
 		DBConnection c = method.getMethodConnection( action );
 		EngineEntities entities = c.getEntities();
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		scope.clear();
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseBuildTarget , DBQueries.FILTER_REL_SCOPERELEASE1 , new String[] { EngineDB.getObject( release.ID ) } );
@@ -477,6 +495,18 @@ public class DBReleaseScope {
 		}
 	}
 
+	public static void descopeDistItem( EngineMethod method , ActionBase action , Release release , MetaDistrBinaryItem item ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
+		
+		ReleaseDistTarget target = scope.findDistBinaryItemTarget( item );
+		if( target != null ) {
+			descopeDistTargetOnly( c , release , scope , target );
+			return;
+		}
+	}
+	
 	private static void descopeDeliveryBinaries( DBConnection c , Release release , ReleaseScope scope , MetaDistrDelivery delivery ) throws Exception {
 		for( MetaDistrBinaryItem item : delivery.getBinaryItems() ) {
 			ReleaseDistTarget target = scope.findDistBinaryItemTarget( item );
@@ -516,6 +546,7 @@ public class DBReleaseScope {
 	public static void descopeSet( EngineMethod method , ActionBase action , Release release , MetaSourceProjectSet set ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseBuildTarget target = scope.findBuildAllTarget();
 		if( target != null )
@@ -543,6 +574,7 @@ public class DBReleaseScope {
 	public static void descopeProject( EngineMethod method , ActionBase action , Release release , MetaSourceProjectSet set , MetaSourceProject project ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseBuildTarget target = scope.findBuildAllTarget();
 		if( target != null )
@@ -563,6 +595,7 @@ public class DBReleaseScope {
 	public static void descopeAllSource( EngineMethod method , ActionBase action , Release release ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 		
 		ReleaseBuildTarget target = scope.findBuildAllTarget();
 		if( target != null ) {
@@ -579,6 +612,8 @@ public class DBReleaseScope {
 	}
 
 	public static void descopeSet( EngineMethod method , ActionBase action , Release release , ReleaseDistScopeSet set ) throws Exception {
+		method.checkUpdateRelease( release );
+		
 		for( ReleaseDistScopeDelivery delivery : set.getDeliveries() )
 			descopeDelivery( method , action , release , delivery );
 	}
@@ -586,6 +621,7 @@ public class DBReleaseScope {
 	public static void descopeDelivery( EngineMethod method , ActionBase action , Release release , ReleaseDistScopeDelivery delivery ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
 
 		ReleaseDistTarget target = scope.findDistAllTarget();
 		if( target != null )
@@ -638,6 +674,7 @@ public class DBReleaseScope {
 	
 	public static void copyScope( EngineMethod method , ActionBase action , ReleaseRepository repo , Release release , Release dst ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
+		method.checkUpdateRelease( release );
 		
 		ReleaseScope scopeDst = dst.getScope();
 		if( !scopeDst.isEmpty() )
