@@ -7,6 +7,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.release.DBReleaseScope;
+import org.urm.engine.dist.ReleaseBuildScope;
+import org.urm.engine.dist.ReleaseBuildScopeSet;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
@@ -99,7 +101,36 @@ public class ActionSetScope extends ActionBase {
 		}
 		
 		// descope missing
-		Common.exitUnexpected();
+		ReleaseBuildScope buildScope = ReleaseBuildScope.createScope( release );
+		for( ReleaseBuildScopeSet set : buildScope.getSets() ) {
+			String checkSet = check.get( set.set.NAME );
+			if( checkSet == null ) {
+				DBReleaseScope.descopeSet( super.method , this , release , set );
+				continue;
+			}
+
+			if( checkSet.equals( "all" ) )
+				continue;
+			
+			/*
+			for( ReleaseTarget target : set.getTargets() ) {
+				String checkProject = check.get( Common.concat( set.set.NAME , target.sourceProject.NAME , "/" ) );
+				if( checkProject == null ) {
+					dist.descopeTarget( this , target );
+					continue;
+				}
+				
+				if( checkProject.equals( "all" ) )
+					continue;
+				
+				for( ReleaseTargetItem item : target.getItems() ) {
+					String checkItem = check.get( Common.concat( Common.concat( set.set.NAME , target.sourceProject.NAME , "/" ) , item.sourceItem.NAME , "/" ) );
+					if( checkItem == null )
+						dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
+				}
+			}
+			*/
+		}
 		return( true );
 	}
 

@@ -182,6 +182,10 @@ public class ReleaseBuildScope {
 		mapSet.put( scopeSet.set.NAME , scopeSet );
 	}
 
+	public ReleaseBuildScopeSet findSet( MetaSourceProjectSet set ) {
+		return( mapSet.get( set.NAME ) );
+	}
+
 	public ReleaseBuildScopeSet findSet( String setName ) {
 		return( mapSet.get( setName ) );
 	}

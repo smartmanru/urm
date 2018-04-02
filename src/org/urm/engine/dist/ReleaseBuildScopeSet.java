@@ -1,5 +1,6 @@
 package org.urm.engine.dist;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.meta.product.MetaSourceProject;
@@ -20,6 +21,7 @@ public class ReleaseBuildScopeSet {
 	public ReleaseBuildScopeSet( Release release , MetaSourceProjectSet set ) {
 		this.release = release;
 		this.set = set;
+		buildProjects = new HashMap<String,ReleaseBuildScopeProject>(); 
 	}
 
 	public boolean isEmpty() {

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
+import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.release.Release;
 
 public class ReleaseDistScopeSet {
@@ -27,6 +28,10 @@ public class ReleaseDistScopeSet {
 		return( mapDelivery.values().toArray( new ReleaseDistScopeDelivery[0] ) );
 	}
 	
+	public ReleaseDistScopeDelivery findDelivery( MetaDistrDelivery delivery ) {
+		return( mapDelivery.get( delivery.NAME ) );
+	}
+
 	public ReleaseDistScopeDelivery findDelivery( String deliveryName ) {
 		return( mapDelivery.get( deliveryName ) );
 	}
