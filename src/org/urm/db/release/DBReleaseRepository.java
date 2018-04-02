@@ -140,6 +140,8 @@ public class DBReleaseRepository {
 		loaddbReleasesSchedulePhase( loader , repo );
 		loaddbReleasesTicketSet( loader , repo );
 		loaddbReleasesTicket( loader , repo );
+		//loaddbReleasesBuildTarget( loader , repo );
+		//loaddbReleasesDistTarget( loader , repo );
 		
 		// recalcualte schedules
 		for( Release release : repo.getReleases() ) {
