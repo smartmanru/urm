@@ -141,6 +141,7 @@ public class DBRelease {
 	}
 	
 	public static void importxmlReleaseProperties( EngineLoader loader , Release release , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppReleaseMain;
 
@@ -160,6 +161,7 @@ public class DBRelease {
 				entity.importxmlBooleanProperty( node , Release.PROPERTY_ARCHIVED , false ) ,
 				entity.importxmlBooleanProperty( node , Release.PROPERTY_CANCELLED , false )
 				);
+		modifyRelease( c , release.repo , release , false );
 	}
 	
 	public static void importxmlReleaseSchedule( EngineLoader loader , Release release , Node root ) throws Exception {
