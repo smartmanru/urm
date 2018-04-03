@@ -3,6 +3,7 @@ package org.urm.engine.dist;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -280,6 +281,15 @@ public class ReleaseDistScope {
 		if( set == null )
 			return( null );
 		return( set.findDelivery( delivery ) );
+	}
+	
+	public String[] getDeliveryNames() {
+		Map<String,MetaDistrDelivery> map = new HashMap<String,MetaDistrDelivery>();
+		for( ReleaseDistScopeSet set : mapSet.values() ) {
+			for( ReleaseDistScopeDelivery delivery : set.getDeliveries() )
+				map.put( delivery.distDelivery.NAME , delivery.distDelivery );
+		}
+		return( Common.getSortedKeys( map ) );
 	}
 	
 }
