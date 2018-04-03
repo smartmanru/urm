@@ -309,6 +309,43 @@ public class ReleaseTicketTarget {
 	}
 
 	public String getName() {
+		if( isBuildTarget() ) {
+			if( buildTarget.isBuildAll() )
+				return( "(all)" );
+			if( buildTarget.isBuildSet() ) {
+				MetaSourceProjectSet set = buildTarget.getProjectSet();
+				return( set.NAME );
+			}
+			if( buildTarget.isBuildProject() ) {
+				MetaSourceProject project = buildTarget.getProject();
+				return( project.NAME );
+			}
+		}
+		else
+		if( isDistTarget() ) {
+			if( distTarget.isDistAll() )
+				return( "(all)" );
+			if( distTarget.isDelivery() ) {
+				MetaDistrDelivery delivery = distTarget.getDelivery();
+				return( delivery.NAME );
+			}
+			if( distTarget.isBinaryItem() ) {
+				MetaDistrBinaryItem item = distTarget.getBinaryItem();
+				return( item.NAME );
+			}
+			if( distTarget.isConfItem() ) {
+				MetaDistrConfItem item = distTarget.getConfItem();
+				return( item.NAME );
+			}
+			if( distTarget.isSchema() ) {
+				MetaDatabaseSchema schema = distTarget.getSchema();
+				return( schema.NAME );
+			}
+			if( distTarget.isDoc() ) {
+				MetaProductDoc doc = distTarget.getDoc();
+				return( doc.NAME );
+			}
+		}
 		return( "?" );
 	}
 	

@@ -71,21 +71,24 @@ public class ActionSetScope extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private boolean executeBySource( EngineMethod method , Release releaseUpdated ) throws Exception {
+	private boolean executeBySource( EngineMethod method , Release release ) throws Exception {
 		Meta meta = release.getMeta();
 		MetaSources source = meta.getSources();
 		
 		// add new
 		if( pathItems.length == 1 ) {
 			if( pathItems[0].equals( "all" ) ) {
-				DBReleaseScope.addAllSource( method , this , releaseUpdated );
+				DBReleaseScope.addAllSource( method , this , release );
 				return( true );
 			}
 			if( pathItems[0].equals( "none" ) ) {
-				DBReleaseScope.descopeAllSource( method , this , releaseUpdated );
+				DBReleaseScope.descopeAllSource( method , this , release );
 				return( true );
 			}
 		}
+		
+		ReleaseBuildScope buildScope = ReleaseBuildScope.createScope( release );
+		DBReleaseScope.descopeBuildAll( method , this , release );
 		
 		Map<String,String> check = new HashMap<String,String>();
 		for( String path : pathItems ) {
@@ -93,14 +96,14 @@ public class ActionSetScope extends ActionBase {
 			String[] els = Common.split( path , "/" );
 			if( els.length == 1 ) {
 				MetaSourceProjectSet set = source.getProjectSet( els[0] );
-				DBReleaseScope.addAllSourceSet( method , this , releaseUpdated , set );
+				DBReleaseScope.addAllSourceSet( method , this , release , set );
 				continue;
 			}
 			if( els.length == 2 ) {
 				MetaSourceProjectSet set = source.getProjectSet( els[0] );
 				check.put( els[0] , "set" );
 				MetaSourceProject project = set.getProject( els[1] );
-				DBReleaseScope.addAllProjectItems( method , this , releaseUpdated , project );
+				DBReleaseScope.addAllProjectItems( method , this , release , project );
 				continue;
 			}
 			if( els.length == 3 ) {
@@ -109,17 +112,16 @@ public class ActionSetScope extends ActionBase {
 				MetaSourceProject project = set.getProject( els[1] );
 				check.put( Common.concat( els[0] , els[1] , "/" ) , "project" );
 				MetaSourceProjectItem item = project.getItem( els[2] );
-				DBReleaseScope.addProjectItem( method , this , releaseUpdated , project , item );
+				DBReleaseScope.addProjectItem( method , this , release , project , item );
 				continue;
 			}
 		}
-		
+
 		// descope missing
-		ReleaseBuildScope buildScope = ReleaseBuildScope.createScope( releaseUpdated );
 		for( ReleaseBuildScopeSet set : buildScope.getSets() ) {
 			String checkSet = check.get( set.set.NAME );
 			if( checkSet == null ) {
-				DBReleaseScope.descopeSet( method , this , releaseUpdated , set );
+				DBReleaseScope.descopeSet( method , this , release , set );
 				continue;
 			}
 
@@ -129,7 +131,7 @@ public class ActionSetScope extends ActionBase {
 			for( ReleaseBuildScopeProject target : set.getProjects() ) {
 				String checkProject = check.get( Common.concat( set.set.NAME , target.project.NAME , "/" ) );
 				if( checkProject == null ) {
-					DBReleaseScope.descopeProject( method , this , releaseUpdated , set.set , target.project );
+					DBReleaseScope.descopeProject( method , this , release , set.set , target.project );
 					continue;
 				}
 				
@@ -142,10 +144,11 @@ public class ActionSetScope extends ActionBase {
 					
 					String checkItem = check.get( Common.concat( Common.concat( set.set.NAME , target.project.NAME , "/" ) , item.NAME , "/" ) );
 					if( checkItem == null )
-						DBReleaseScope.descopeBinaryItem( method , this , releaseUpdated , item.distItem );
+						DBReleaseScope.descopeBinaryItem( method , this , release , item.distItem );
 				}
 			}
 		}
+		
 		return( true );
 	}
 
@@ -228,7 +231,6 @@ public class ActionSetScope extends ActionBase {
 		}
 
 		// descope missing
-		Common.exitUnexpected();
 		return( true );
 	}
 

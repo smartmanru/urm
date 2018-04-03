@@ -551,6 +551,16 @@ public class DBReleaseScope {
 		}
 	}
 
+	public static void descopeBuildAll( EngineMethod method , ActionBase action , Release release ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
+		
+		ReleaseBuildTarget target = scope.findBuildAllTarget();
+		if( target != null )
+			descopeBuildTargetOnly( c , release , scope , target );
+	}
+	
 	public static void descopeSet( EngineMethod method , ActionBase action , Release release , ReleaseBuildScopeSet set ) throws Exception {
 		descopeSet( method , action , release , set.set );
 	}

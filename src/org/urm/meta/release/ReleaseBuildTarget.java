@@ -48,7 +48,7 @@ public class ReleaseBuildTarget {
 	}
 
 	public ReleaseBuildTarget copy( ReleaseChanges rchanges , ReleaseScope rscope ) {
-		ReleaseBuildTarget r = ( SCOPETARGET )? new ReleaseBuildTarget( rscope ) : new ReleaseBuildTarget( rchanges );
+		ReleaseBuildTarget r = ( rscope != null )? new ReleaseBuildTarget( rscope ) : new ReleaseBuildTarget( rchanges );
 		
 		r.ID = ID;
 		r.SCOPETARGET = SCOPETARGET;

@@ -186,4 +186,24 @@ public class DBReleaseSchedule {
 			DBReleaseSchedulePhase.modifySchedulePhase( c , release , schedule , phase , false );
 	}
 	
+	public static void complete( EngineMethod method , ActionBase action , Release release , ReleaseSchedule schedule ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		method.checkUpdateRelease( release );
+
+		schedule.complete( action );
+		modifySchedule( c , release , schedule , false );
+		for( ReleaseSchedulePhase phase : schedule.getPhases() )
+			DBReleaseSchedulePhase.modifySchedulePhase( c , release , schedule , phase , false );
+	}
+	
+	public static void reopen( EngineMethod method , ActionBase action , Release release , ReleaseSchedule schedule ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		method.checkUpdateRelease( release );
+
+		schedule.reopen( action );
+		modifySchedule( c , release , schedule , false );
+		for( ReleaseSchedulePhase phase : schedule.getPhases() )
+			DBReleaseSchedulePhase.modifySchedulePhase( c , release , schedule , phase , false );
+	}
+	
 }

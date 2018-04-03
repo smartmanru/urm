@@ -49,7 +49,7 @@ public class ReleaseDistTarget {
 	}
 
 	public ReleaseDistTarget copy( ReleaseChanges rchanges , ReleaseScope rscope ) {
-		ReleaseDistTarget r = ( SCOPETARGET )? new ReleaseDistTarget( rscope ) : new ReleaseDistTarget( rchanges );
+		ReleaseDistTarget r = ( rscope != null )? new ReleaseDistTarget( rscope ) : new ReleaseDistTarget( rchanges );
 		
 		r.ID = ID;
 		r.SCOPETARGET = SCOPETARGET;
@@ -83,19 +83,19 @@ public class ReleaseDistTarget {
 	public void create( MetaDistrBinaryItem item ) {
 		TYPE = DBEnumDistTargetType.BINARYITEM;
 		BINARY = MatchItem.create( item.ID );
-		ALL = false;
+		ALL = true;
 	}
 	
 	public void create( MetaDistrConfItem item ) {
 		TYPE = DBEnumDistTargetType.CONFITEM;
 		CONF = MatchItem.create( item.ID );
-		ALL = false;
+		ALL = true;
 	}
 	
 	public void create( MetaDistrDelivery delivery , DBEnumDistTargetType type ) {
 		this.TYPE = type;
 		DELIVERY = MatchItem.create( delivery.ID );
-		ALL = false;
+		ALL = true;
 	}
 	
 	public void create( MetaDistrDelivery delivery , MetaDatabaseSchema schema ) {

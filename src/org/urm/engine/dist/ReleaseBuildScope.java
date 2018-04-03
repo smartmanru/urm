@@ -31,6 +31,7 @@ public class ReleaseBuildScope {
 	
 	public static ReleaseBuildScope createScope( Release release ) throws Exception {
 		ReleaseBuildScope scope = new ReleaseBuildScope( release );
+		
 		Meta meta = release.getMeta();
 		MetaSources sources = meta.getSources();
 		for( MetaSourceProjectSet set : sources.getSets() ) {
@@ -176,6 +177,12 @@ public class ReleaseBuildScope {
 			ReleaseBuildScopeProjectItem scopeItem = new ReleaseBuildScopeProjectItem( release , item );
 			scopeProject.addItem( scopeItem );
 		}
+	}
+
+	public boolean isFullScope() {
+		if( scopeTarget != null )
+			return( true );
+		return( false );
 	}
 	
 	private void addSet( ReleaseBuildScopeSet scopeSet ) {

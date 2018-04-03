@@ -282,11 +282,10 @@ public class DBRelease {
 	}
 	
 	public static void reopen( EngineMethod method , ActionBase action , Release release ) throws Exception {
-		DBConnection c = method.getMethodConnection( action );
 		method.checkUpdateRelease( release );
 		
-		release.reopen( action );
-		modifyRelease( c , release.repo , release , false );
+		ReleaseSchedule schedule = release.getSchedule();
+		DBReleaseSchedule.reopen( method , action , release , schedule );
 	}
 	
 	public static void setMasterVersion( EngineMethod method , ActionBase action , Release release , String RELEASEVER ) throws Exception {
@@ -310,14 +309,30 @@ public class DBRelease {
 		// replace group scope with items
 		ReleaseScope scope = release.getScope();
 		DBReleaseScope.finish( method , action , release , scope );
+		
+		// create file information records
+		createFileRecords( method , action , release );
+	}
+	
+	public static void complete( EngineMethod method , ActionBase action , Release release ) throws Exception {
+		method.checkUpdateRelease( release );
+		
+		if( !release.isFinalized() )
+			Common.exitUnexpected();
+		
+		if( release.isCompleted() )
+			Common.exitUnexpected();
+		
+		ReleaseSchedule schedule = release.getSchedule();
+		DBReleaseSchedule.complete( method , action , release , schedule );
 	}
 	
 	public static void finishStatus( EngineMethod method , ActionBase action , Release release ) throws Exception {
 		BlotterService blotter = action.getServerBlotter();
 		blotter.runReleaseStatus( action , release );
 	}
-	
-	public static void complete( EngineMethod method , ActionBase action , Release release ) throws Exception {
+
+	private static void createFileRecords( EngineMethod method , ActionBase action , Release release ) throws Exception {
 	}
 	
 }

@@ -283,14 +283,6 @@ public class Release {
 		return( TYPE );
 	}
 
-	public void complete( ActionBase action ) throws Exception {
-		schedule.complete( action );
-	}
-	
-	public void reopen( ActionBase action ) throws Exception {
-		schedule.reopen( action );
-	}
-
 	public RELEASESTATE getState() {
 		if( ARCHIVED )
 			return( RELEASESTATE.ARCHIVED );

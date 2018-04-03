@@ -245,6 +245,12 @@ public class MetaDistrDelivery {
 		return( true );
 	}
 	
+	public boolean hasConfItems() {
+		if( mapConfComps.isEmpty() )
+			return( false );
+		return( true );
+	}
+	
 	public boolean hasDatabaseItems() {
 		if( SCHEMA_ANY ) {
 			if( !db.isEmpty() )

@@ -97,6 +97,10 @@ public class ReleaseRepository {
 			return( null );
 		}
 	}
+
+	public Release findRelease( int id ) {
+		return( mapReleasesById.get( id ) ); 
+	}
 	
 	public Release findRelease( String RELEASEVER ) {
 		try {

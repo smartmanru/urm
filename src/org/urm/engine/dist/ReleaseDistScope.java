@@ -40,19 +40,19 @@ public class ReleaseDistScope {
 		ReleaseDistScopeDelivery scopeDelivery;
 		
 		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
-			if( CATEGORY == null || CATEGORY == DBEnumScopeCategoryType.BINARY ) {
+			if( ( CATEGORY == null || CATEGORY == DBEnumScopeCategoryType.BINARY ) && delivery.hasBinaryItems() ) {
 				scopeDelivery = createDeliveryScope( release , delivery , DBEnumScopeCategoryType.BINARY );
 				addDelivery( release , scope , scopeDelivery );
 			}
-			if( CATEGORY == null || CATEGORY == DBEnumScopeCategoryType.CONFIG ) {
+			if( ( CATEGORY == null || CATEGORY == DBEnumScopeCategoryType.CONFIG ) && delivery.hasConfItems() ) {
 				scopeDelivery = createDeliveryScope( release , delivery , DBEnumScopeCategoryType.CONFIG );
 				addDelivery( release , scope , scopeDelivery );
 			}
-			if( CATEGORY == null || CATEGORY == DBEnumScopeCategoryType.DB ) {
+			if( ( CATEGORY == null || CATEGORY == DBEnumScopeCategoryType.DB ) && delivery.hasDatabaseItems() ) {
 				scopeDelivery = createDeliveryScope( release , delivery , DBEnumScopeCategoryType.DB );
 				addDelivery( release , scope , scopeDelivery );
 			}
-			if( CATEGORY == null || CATEGORY == DBEnumScopeCategoryType.DOC ) {
+			if( ( CATEGORY == null || CATEGORY == DBEnumScopeCategoryType.DOC ) && delivery.hasDocItems() ) {
 				scopeDelivery = createDeliveryScope( release , delivery , DBEnumScopeCategoryType.DOC );
 				addDelivery( release , scope , scopeDelivery );
 			}
