@@ -324,6 +324,22 @@ public class DBReleaseChanges {
 			Common.exitUnexpected();
 		
 		set.moveTicket( ticket , setNew );
+		modifyTicket( c , release , changes , setNew , ticket , false );
+	}
+	
+	public static void activateTicketSet( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , ReleaseTicketSet set ) throws Exception {
+		method.checkUpdateRelease( release );
+		DBConnection c = method.getMethodConnection( action );
+
+		set.activate();
+		modifyTicketSet( c , release , changes , set , false );
+	}
+	
+	public static void acceptTicket( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , ReleaseTicketSet set , ReleaseTicket ticket ) throws Exception {
+		method.checkUpdateRelease( release );
+		DBConnection c = method.getMethodConnection( action );
+		
+		ticket.accept();
 		modifyTicket( c , release , changes , set , ticket , false );
 	}
 	

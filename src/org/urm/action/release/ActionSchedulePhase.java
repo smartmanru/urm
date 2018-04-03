@@ -3,10 +3,16 @@ package org.urm.action.release;
 import java.util.Date;
 
 import org.urm.action.ActionBase;
+import org.urm.db.release.DBReleaseSchedule;
+import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.product.Meta;
+import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.release.ReleaseSchedule;
+import org.urm.meta.release.ReleaseSchedulePhase;
 
 public class ActionSchedulePhase extends ActionBase {
 
@@ -71,17 +77,32 @@ public class ActionSchedulePhase extends ActionBase {
 			}
 		}
 		
-		if( cmdNext )
-			schedule.nextPhase( this );
-		else
-		if( cmdPhaseDeadline )
-			schedule.setPhaseDeadline( this , PHASE , deadlineDate );
-		else
-		if( cmdPhaseDuration )
-			schedule.setPhaseDuration( this , PHASE , duration );
-		else
-		if( cmdScheduleAll )
-			schedule.setAllDates( this , dates );
+		EngineMethod method = super.method;
+		
+		Meta meta = release.getMeta();
+		ProductReleases releases = meta.getReleases();
+		synchronized( releases ) {
+			// update repository
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
+			ReleaseSchedule scheduleUpdated = releaseUpdated.getSchedule();
+			
+			if( cmdNext )
+				DBReleaseSchedule.scheduleNextPhase( method , this , releaseUpdated , scheduleUpdated );
+			else
+			if( cmdPhaseDeadline ) {
+				ReleaseSchedulePhase phase = scheduleUpdated.getPhase( this , PHASE );
+				DBReleaseSchedule.setPhaseDeadline( method , this , releaseUpdated , scheduleUpdated , phase , deadlineDate );
+			}
+			else
+			if( cmdPhaseDuration ) {
+				ReleaseSchedulePhase phase = scheduleUpdated.getPhase( this , PHASE );
+				DBReleaseSchedule.setPhaseDuration( method , this , releaseUpdated , scheduleUpdated , phase , duration );
+			}
+			else
+			if( cmdScheduleAll )
+				DBReleaseSchedule.scheduleSetAllDates( method , this , releaseUpdated , scheduleUpdated , dates );
+		}
 	
 		return( SCOPESTATE.RunSuccess );
 	}

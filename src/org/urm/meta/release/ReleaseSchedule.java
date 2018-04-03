@@ -438,10 +438,9 @@ public class ReleaseSchedule {
 		}
 	}
 
-	public void setPhaseDeadline( ActionBase action , String PHASE , Date deadlineDate ) throws Exception {
-		ReleaseSchedulePhase phase = getPhase( action , PHASE );
+	public void setPhaseDeadline( ActionBase action , ReleaseSchedulePhase phase , Date deadlineDate ) throws Exception {
 		if( phase.isFinished() )
-			action.exit2( _Error.PhaseFinished2 , "Phase finished, cannot be modified, release=" + release.RELEASEVER + " phase=" + PHASE , release.RELEASEVER , PHASE );
+			action.exit2( _Error.PhaseFinished2 , "Phase finished, cannot be modified, release=" + release.RELEASEVER + " phase=" + phase.NAME , release.RELEASEVER , phase.NAME );
 		
 		if( deadlineDate.before( DATE_STARTED ) ) {
 			String DATE = Common.getDateValue( DATE_STARTED );
@@ -490,10 +489,9 @@ public class ReleaseSchedule {
 		}
 	}
 
-	public void setPhaseDuration( ActionBase action , String PHASE , int duration ) throws Exception {
-		ReleaseSchedulePhase phase = getPhase( action , PHASE );
+	public void setPhaseDuration( ActionBase action , ReleaseSchedulePhase phase , int duration ) throws Exception {
 		if( phase.isFinished() )
-			action.exit2( _Error.PhaseFinished2 , "Phase finished, cannot be modified, release=" + release.RELEASEVER + " phase=" + PHASE , release.RELEASEVER , PHASE );
+			action.exit2( _Error.PhaseFinished2 , "Phase finished, cannot be modified, release=" + release.RELEASEVER + " phase=" + phase.NAME , release.RELEASEVER , phase.NAME );
 
 		phase.setDuration( duration );
 		setDeadlinesExpected();

@@ -123,7 +123,7 @@ public class DBRelease {
 			DBReleaseChanges.exportxmlChangeSet( loader , release , changes , set , doc , nodeSet );
 			
 			for( ReleaseTicket ticket : set.getTickets() ) {
-				Element nodeTicket = Common.xmlCreateElement( doc , node , ELEMENT_TICKETSET );
+				Element nodeTicket = Common.xmlCreateElement( doc , node , ELEMENT_TICKET );
 				DBReleaseChanges.exportxmlChangeTicket( loader , release , changes , set , ticket , doc , nodeTicket );
 			}
 			

@@ -313,57 +313,46 @@ public class ReleaseTicketTarget {
 	}
 	
 	public MetaSourceProject findProject() {
-		ReleaseChanges changes = release.getChanges();
-		ReleaseBuildTarget target = changes.findBuildTarget( BUILDTARGET_ID );
-		return( target.getProject() );
+		return( buildTarget.getProject() );
 	}
 	
 	public MetaSourceProjectSet findProjectSet() {
-		ReleaseChanges changes = release.getChanges();
-		ReleaseBuildTarget target = changes.findBuildTarget( BUILDTARGET_ID );
-		return( target.getProjectSet() );
+		return( buildTarget.getProjectSet() );
 	}
 	
 	public MetaDistrBinaryItem getBinaryItem() {
-		ReleaseChanges changes = release.getChanges();
-		ReleaseDistTarget target = changes.findDistTarget( DISTTARGET_ID );
-		return( target.getBinaryItem() );
+		return( distTarget.getBinaryItem() );
 	}
 
 	public MetaDistrConfItem getConfItem() {
-		ReleaseChanges changes = release.getChanges();
-		ReleaseDistTarget target = changes.findDistTarget( DISTTARGET_ID );
-		return( target.getConfItem() );
+		return( distTarget.getConfItem() );
 	}
 	
 	public MetaDistrDelivery getDelivery() {
-		ReleaseChanges changes = release.getChanges();
-		ReleaseDistTarget target = changes.findDistTarget( DISTTARGET_ID );
-		return( target.getDelivery() );
+		return( distTarget.getDelivery() );
 	}
 	
 	public MetaDatabaseSchema getDatabaseSchema() {
-		ReleaseChanges changes = release.getChanges();
-		ReleaseDistTarget target = changes.findDistTarget( DISTTARGET_ID );
-		return( target.getSchema() );
+		return( distTarget.getSchema() );
 	}
 
 	public MetaProductDoc getDoc() {
-		ReleaseChanges changes = release.getChanges();
-		ReleaseDistTarget target = changes.findDistTarget( DISTTARGET_ID );
-		return( target.getDoc() );
+		return( distTarget.getDoc() );
 	}
 
+	public MetaSourceProjectSet getProjectSet() {
+		return( buildTarget.getProjectSet() );
+	}
+	
+	public MetaSourceProject getProject() {
+		return( buildTarget.getProject() );
+	}
+	
 	public String getType() {
-		ReleaseChanges changes = release.getChanges();
-		if( BUILDTARGET_ID != null ) {
-			ReleaseBuildTarget target = changes.findBuildTarget( BUILDTARGET_ID );
-			return( Common.getEnumLower( target.TYPE ) );
-		}
-		if( DISTTARGET_ID != null ) {
-			ReleaseDistTarget target = changes.findDistTarget( DISTTARGET_ID );
-			return( Common.getEnumLower( target.TYPE ) );
-		}
+		if( isBuildTarget() )
+			return( Common.getEnumLower( buildTarget.TYPE ) );
+		if( isDistTarget() )
+			return( Common.getEnumLower( distTarget.TYPE ) );
 		return( "" );
 	}
 	

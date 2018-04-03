@@ -637,10 +637,22 @@ public class ActionTickets extends ActionBase {
 		}
 	}
 	
-	private void executeAcceptSet( ScopeState state , String code , boolean allTickets , String[] tickets , boolean allTargets , String[] targets ) throws Exception {
-		ReleaseChanges changes = release.getChanges();
-		ReleaseTicketSet set = changes.getSet( code );
+	private void executeAcceptSet( ScopeState state , String setCode , boolean allTickets , String[] tickets , boolean allTargets , String[] targets ) throws Exception {
+		EngineMethod method = super.method;
 		
+		ProductReleases releases = meta.getReleases();
+		synchronized( releases ) {
+			// update repositories
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			ReleaseChanges changes = releaseUpdated.getChanges();
+			ReleaseTicketSet set = changes.getSet( setCode );
+		
+			executeAcceptSet( state , method , releaseUpdated , changes , set , allTickets , tickets , allTargets , targets );
+		}
+	}
+	
+	private void executeAcceptSet( ScopeState state , EngineMethod method , Release release , ReleaseChanges changes , ReleaseTicketSet set , boolean allTickets , String[] tickets , boolean allTargets , String[] targets ) throws Exception {
 		// change release scope
 		List<ReleaseTicketTarget> targetList = new LinkedList<ReleaseTicketTarget>();
 		if( allTargets ) {
@@ -689,14 +701,14 @@ public class ActionTickets extends ActionBase {
 		
 		// accept targets
 		for( ReleaseTicketTarget target : targetList )
-			target.accept();
+			DBReleaseTicketTarget.acceptTarget( method , this , release , changes , set , target );
 
 		// accept set and tickets
-		set.activate();
+		DBReleaseChanges.activateTicketSet( method , this , release , changes , set );
 		if( allTickets ) {
 			for( ReleaseTicket ticket : set.getTickets() ) {
 				if( !ticket.isAccepted() )
-					ticket.accept();
+					DBReleaseChanges.acceptTicket( method , this , release , changes , set , ticket );
 			}
 		}
 		else {
@@ -709,6 +721,56 @@ public class ActionTickets extends ActionBase {
 	}
 	
 	private void executeAcceptTargetScope( ReleaseTicketTarget target , ActionProductScopeMaker maker ) throws Exception {
+		if( target.isProjectSet() ) {
+			MetaSourceProjectSet set = target.getProjectSet();
+			maker.addScopeProductSet( set.NAME , new String[] { "all" } );
+		}
+		else
+		if( target.isProject() ) {
+			MetaSourceProject project = target.getProject();
+			maker.addScopeProductSet( project.set.NAME , new String[] { project.NAME } );
+		}
+		else
+		if( target.isBinary() ) {
+			MetaDistrBinaryItem item = target.getBinaryItem();
+			maker.addScopeProductDistItems( new String[] { item.NAME } );
+		}
+		else
+		if( target.isConfiguration() ) {
+			MetaDistrConfItem item = target.getConfItem();
+			maker.addScopeProductConfItems( new String[] { item.NAME } );
+		}
+		else
+		if( target.isDatabase() ) {
+			MetaDistrDelivery delivery = target.getDelivery();
+			MetaDatabaseSchema schema = target.getDatabaseSchema();
+			maker.addScopeProductDeliveryDatabaseSchemes( delivery.NAME , new String[] { schema.NAME } );
+		}
+		else
+		if( target.isDoc() ) {
+			MetaDistrDelivery delivery = target.getDelivery();
+			MetaProductDoc doc = target.getDoc();
+			maker.addScopeProductDeliveryDocs( delivery.NAME , new String[] { doc.NAME } );
+		}
+		else
+		if( target.isDelivery() ) {
+			MetaDistrDelivery delivery = target.getDelivery();
+			if( target.isDeliveryBinaries() ) {
+				maker.addScopeProductDistItems( delivery.getBinaryItemNames() );
+			}
+			else
+			if( target.isDeliveryConfs() ) {
+				maker.addScopeProductConfItems( delivery.getConfItemNames() );
+			}
+			else
+			if( target.isDeliveryDatabase() ) {
+				maker.addScopeProductDeliveryDatabaseSchemes( delivery.NAME , delivery.getDatabaseSchemaNames() );
+			}
+			else
+			if( target.isDeliveryDoc() ) {
+				maker.addScopeProductDeliveryDocs( delivery.NAME , delivery.getDocNames() );
+			}
+		}
 	}
 	
 }

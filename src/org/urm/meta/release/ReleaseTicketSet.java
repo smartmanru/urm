@@ -196,6 +196,7 @@ public class ReleaseTicketSet {
 		removeTicket( ticket );
 		reorderTickets();
 		
+		ticket.setSet( newSet );
 		newSet.addTicket( ticket );
 		newSet.reorderTickets();
 	}

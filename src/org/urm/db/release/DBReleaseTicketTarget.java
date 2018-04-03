@@ -276,7 +276,6 @@ public class DBReleaseTicketTarget {
 			changes.removeBuildTarget( target.getBuildTarget() );
 			DBReleaseBuildTarget.deleteBuildTarget( c , release , target.getBuildTarget() );
 		}
-			
 	}	
 
 	public static void descopeTarget( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , ReleaseTicketSet ticketSet , ReleaseTicketTarget target ) throws Exception {
@@ -287,6 +286,13 @@ public class DBReleaseTicketTarget {
 		modifyReleaseTicketTarget( c , release , ticketSet , target , false );
 	}
 	
+	public static void acceptTarget( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , ReleaseTicketSet ticketSet , ReleaseTicketTarget target ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		method.checkUpdateRelease( release );
+
+		target.accept();
+		modifyReleaseTicketTarget( c , release , ticketSet , target , false );
+	}
 		
 }
 

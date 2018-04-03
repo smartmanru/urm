@@ -75,6 +75,10 @@ public class ReleaseTicket {
 		return( ticket );
 	}
 	
+	public void setSet( ReleaseTicketSet set ) {
+		this.set = set;
+	}
+	
 	public void accept() throws Exception {
 		ACCEPTED = true;
 		ACTIVE = true;
