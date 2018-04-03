@@ -22,7 +22,6 @@ import org.urm.meta.release.ReleaseRepository;
 public class DistRepository {
 
 	static String RELEASEREPOSITORYFILE = "releases.xml";
-	static String RELEASEHISTORYFILE = "history.txt";
 
 	static String REPO_FOLDER_DATA = "data";
 	static String REPO_FOLDER_DATA_DUMP = "dump";
@@ -204,6 +203,11 @@ public class DistRepository {
 		return( item );
 	}
 
+	public DistRepositoryItem createRepositoryMasterItem( EngineMethod method , ActionBase action ) throws Exception {
+		ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta , ReleaseLabelInfo.LABEL_MASTER );
+		return( createRepositoryItem( method , action , info ) );
+	}
+	
 	public DistRepositoryItem createRepositoryItem( EngineMethod method , ActionBase action , ReleaseLabelInfo info ) throws Exception {
 		DistRepositoryItem item = new DistRepositoryItem( this );
 		item.createItem( action , info.RELEASEDIR , info.RELEASEPATH );
@@ -299,29 +303,29 @@ public class DistRepository {
 		return( info.RELEASEVER );
 	}
 	
-	public synchronized Dist createMasterInitial( ActionBase action , String RELEASEVER , ReleaseDist releaseDist ) throws Exception {
+	public synchronized Dist createMasterInitial( ActionBase action , Release release , ReleaseDist releaseDist ) throws Exception {
 		ReleaseLabelInfo info = getLabelInfo( action , ReleaseLabelInfo.LABEL_MASTER );
-		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
+		
 		DistRepositoryItem item = new DistRepositoryItem( this );
-		item.createItem( action , RELEASEVER , info.RELEASEPATH );
+		item.createItem( action , info.RELEASEDIR , info.RELEASEPATH );
+		
+		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
 		Dist dist = item.createDistMaster( action , distFolder , releaseDist );
 		createDistItem( action , info , dist );
 		return( dist );
 	}
 
-	public synchronized Dist createMasterCopy( ActionBase action , String RELEASEDIR , ReleaseDist releaseDist ) throws Exception {
-		ReleaseLabelInfo info = getLabelInfo( action , ReleaseLabelInfo.LABEL_MASTER );
-		Dist src = this.getDistByLabel( action , RELEASEDIR );
+	public synchronized Dist createMasterCopy( EngineMethod method , ActionBase action , Dist src , Release release , ReleaseDist releaseDist ) throws Exception {
 		if( !src.isCompleted() )
 			action.exit1( _Error.NotCompletedSource1 , "Unable to use incomplete source release " + src.RELEASEDIR , src.RELEASEDIR );
+
+		ReleaseLabelInfo info = getLabelInfo( action , ReleaseLabelInfo.LABEL_MASTER );
+		DistRepositoryItem item = createRepositoryMasterItem( method , action );
+		item.createItem( action , info.RELEASEDIR , info.RELEASEPATH );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
-		DistRepositoryItem item = new DistRepositoryItem( this );
-		item.createItem( action , RELEASEDIR , info.RELEASEPATH );
 		Dist dist = item.createDistMaster( action , distFolder , releaseDist );
 		createDistItem( action , info , dist );
-		dist.createMasterFiles( action , src );
-		dist.finish( action );
 		
 		return( dist );
 	}

@@ -5,7 +5,6 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
 
 public class DistRepositoryItem {
@@ -96,19 +95,12 @@ public class DistRepositoryItem {
 		else
 			distFolder.ensureExists( action );
 		
-		Release release = releaseDist.release;
 		Dist dist = new Dist( repo.meta , this , releaseDist , distFolder );
 		dist.setFolder( distFolder );
 		dist.createMaster( action );
-		distFolder.createFileFromString( action , DistRepository.RELEASEHISTORYFILE , getHistoryRecord( action , release.RELEASEVER , "add" ) );
 		return( dist );
 	}
 	
-	private static String getHistoryRecord( ActionBase action , String RELEASEVER , String operation ) throws Exception {
-		String s = Common.getNameTimeStamp() + ":" + operation + ":" + RELEASEVER;
-		return( s );
-	}
-
 	public void copyFiles( EngineMethod method , ActionBase action , Dist src ) throws Exception {
 		if( dist == null )
 			Common.exitUnexpected();

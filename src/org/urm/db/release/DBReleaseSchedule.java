@@ -175,5 +175,15 @@ public class DBReleaseSchedule {
 		for( ReleaseSchedulePhase phaseUpdate : schedule.getPhases() )
 			DBReleaseSchedulePhase.modifySchedulePhase( c , release , schedule , phaseUpdate , false );
 	}
+
+	public static void finish( EngineMethod method , ActionBase action , Release release , ReleaseSchedule schedule ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		method.checkUpdateRelease( release );
+
+		schedule.finish( action );
+		modifySchedule( c , release , schedule , false );
+		for( ReleaseSchedulePhase phase : schedule.getPhases() )
+			DBReleaseSchedulePhase.modifySchedulePhase( c , release , schedule , phase , false );
+	}
 	
 }

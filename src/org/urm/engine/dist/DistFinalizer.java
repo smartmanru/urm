@@ -48,7 +48,6 @@ public class DistFinalizer {
 			}
 		}
 		else {
-			dist.gatherFiles( action );
 			for( ReleaseDistScopeSet set : scope.getSets() ) {
 				if( set.CATEGORY == DBEnumScopeCategoryType.DB ) {
 					for( ReleaseDistScopeDelivery delivery : set.getDeliveries() )

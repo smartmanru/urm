@@ -704,5 +704,73 @@ public class DBReleaseScope {
 			DBReleaseDistTarget.modifyReleaseDistTarget( c , dst , targetDst , true );
 		}
 	}
-	
+
+	public static void finish( EngineMethod method , ActionBase action , Release release , ReleaseScope scope ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		
+		Meta meta = release.getMeta();
+		MetaDistr distr = meta.getDistr();
+		for( ReleaseDistTarget target : scope.getDistTargets() ) {
+			// replace full scope
+			if( target.isDistAll() ) {
+				DBReleaseDistTarget.deleteDistTarget( c , release , target );
+				scope.removeDistTarget( target );
+				
+				for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
+					for( MetaDistrBinaryItem binary : delivery.getBinaryItems() ) {
+						target = DBReleaseDistTarget.createBinaryItemTarget( c , release , scope , binary );
+						scope.addDistTarget( target );
+					}
+					for( MetaDistrConfItem conf : delivery.getConfItems() ) {
+						target = DBReleaseDistTarget.createConfItemTarget( c , release , scope , conf );
+						scope.addDistTarget( target );
+					}
+					for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() ) {
+						target = DBReleaseDistTarget.createDeliverySchemaTarget( c , release , scope , delivery , schema );
+						scope.addDistTarget( target );
+					}
+					for( MetaProductDoc doc : delivery.getDocs() ) {
+						target = DBReleaseDistTarget.createDeliveryDocTarget( c , release , scope , delivery , doc );
+						scope.addDistTarget( target );
+					}
+				}
+			}
+			
+			// replace delivery scope
+			if( target.isDelivery() ) {
+				MetaDistrDelivery delivery = target.getDelivery();
+				DBReleaseDistTarget.deleteDistTarget( c , release , target );
+				scope.removeDistTarget( target );
+
+				if( target.isDeliveryBinaries() ) {
+					for( MetaDistrBinaryItem binary : delivery.getBinaryItems() ) {
+						target = DBReleaseDistTarget.createBinaryItemTarget( c , release , scope , binary );
+						scope.addDistTarget( target );
+					}
+				}
+				else
+				if( target.isDeliveryConfs() ) {
+					for( MetaDistrConfItem conf : delivery.getConfItems() ) {
+						target = DBReleaseDistTarget.createConfItemTarget( c , release , scope , conf );
+						scope.addDistTarget( target );
+					}
+				}
+				else
+				if( target.isDeliveryDatabase() ) {
+					for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() ) {
+						target = DBReleaseDistTarget.createDeliverySchemaTarget( c , release , scope , delivery , schema );
+						scope.addDistTarget( target );
+					}
+				}
+				else
+				if( target.isDeliveryDocs() ) {
+					for( MetaProductDoc doc : delivery.getDocs() ) {
+						target = DBReleaseDistTarget.createDeliveryDocTarget( c , release , scope , delivery , doc );
+						scope.addDistTarget( target );
+					}
+				}
+			}
+		}
+	}
+
 }

@@ -26,6 +26,7 @@ import org.urm.meta.release.ReleaseDistTarget;
 import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.release.ReleaseSchedule;
 import org.urm.meta.release.ReleaseSchedulePhase;
+import org.urm.meta.release.ReleaseScope;
 import org.urm.meta.release.ReleaseTicket;
 import org.urm.meta.release.ReleaseTicketSet;
 import org.urm.meta.release.ReleaseTicketTarget;
@@ -247,7 +248,7 @@ public class DBRelease {
 	private static void importxmlReleaseScope( EngineLoader loader , Release release , Node root ) {
 	}
 
-	public static Release createRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
+	public static Release createNormalRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		
 		Release release = new Release( repo );
@@ -255,6 +256,18 @@ public class DBRelease {
 
 		modifyRelease( c , repo , release , true );
 		DBReleaseSchedule.createReleaseSchedule( method , action , release );
+		
+		method.createRelease( repo , release );
+		return( release );
+	}
+
+	public static Release createMasterRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , String RELEASEVER ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		
+		Release release = new Release( repo );
+		release.createMaster( action , RELEASEVER );
+
+		modifyRelease( c , repo , release , true );
 		
 		method.createRelease( repo , release );
 		return( release );
@@ -268,9 +281,6 @@ public class DBRelease {
 		modifyRelease( c , release.repo , release , false );
 	}
 	
-	public static void complete( EngineMethod method , ActionBase action , Release release ) throws Exception {
-	}
-	
 	public static void reopen( EngineMethod method , ActionBase action , Release release ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		method.checkUpdateRelease( release );
@@ -279,9 +289,35 @@ public class DBRelease {
 		modifyRelease( c , release.repo , release , false );
 	}
 	
+	public static void setMasterVersion( EngineMethod method , ActionBase action , Release release , String RELEASEVER ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		method.checkUpdateRelease( release );
+
+		release.setReleaseVer( action , RELEASEVER );
+		modifyRelease( c , release.repo , release , false );
+	}
+
+	public static void finish( EngineMethod method , ActionBase action , Release release ) throws Exception {
+		method.checkUpdateRelease( release );
+		
+		if( release.isFinalized() )
+			Common.exitUnexpected();
+		
+		// finish schedule
+		ReleaseSchedule schedule = release.getSchedule();
+		DBReleaseSchedule.finish( method , action , release , schedule );
+		
+		// replace group scope with items
+		ReleaseScope scope = release.getScope();
+		DBReleaseScope.finish( method , action , release , scope );
+	}
+	
 	public static void finishStatus( EngineMethod method , ActionBase action , Release release ) throws Exception {
 		BlotterService blotter = action.getServerBlotter();
 		blotter.runReleaseStatus( action , release );
+	}
+	
+	public static void complete( EngineMethod method , ActionBase action , Release release ) throws Exception {
 	}
 	
 }

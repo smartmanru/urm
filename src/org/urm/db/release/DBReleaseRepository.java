@@ -46,7 +46,7 @@ public class DBReleaseRepository {
 		action.debug( "create normal release: version=" + info.RELEASEVER + ", version=" + info.RELEASEVER + ", date=" + Common.getDateValue( releaseDate ) + " ..." );
 		
 		// create meta item
-		Release release = DBRelease.createRelease( method , action , repo , info.RELEASEVER , releaseDate , lc );
+		Release release = DBRelease.createNormalRelease( method , action , repo , info.RELEASEVER , releaseDate , lc );
 		repo.addRelease( release );
 		return( release );
 	}
@@ -58,11 +58,24 @@ public class DBReleaseRepository {
 		action.debug( "create normal release: version=" + info.RELEASEVER + ", version=" + info.RELEASEVER + " ..." );
 		
 		// create meta item
-		Release release = DBRelease.createRelease( method , action , repo , info.RELEASEVER , new Date() , null );
+		Release release = DBRelease.createNormalRelease( method , action , repo , info.RELEASEVER , new Date() , null );
 		repo.addRelease( release );
 		return( release );
 	}
 	
+	public static Release createReleaseMaster( EngineMethod method , ActionBase action , ReleaseRepository repo , String RELEASEVER ) throws Exception {
+		Release release = repo.findMaster( ReleaseRepository.MASTER_NAME_PRIMARY );
+		if( repo.findMaster( ReleaseRepository.MASTER_NAME_PRIMARY ) != null )
+			action.exit1( _Error.ReleaseAlreadyExists1 , "master release version=" + release.RELEASEVER + " already exists" , release.RELEASEVER );
+		
+		action.debug( "create master release: version=" + RELEASEVER + " ..." );
+		
+		// create meta item
+		release = DBRelease.createMasterRelease( method , action , repo , RELEASEVER );
+		repo.addRelease( release );
+		return( release );
+	}
+
 	public static ReleaseLifecycle getLifecycle( ActionBase action , Meta meta , ReleaseLifecycle lc , DBEnumLifecycleType type ) throws Exception {
 		MetaProductPolicy policy = meta.getPolicy();
 		

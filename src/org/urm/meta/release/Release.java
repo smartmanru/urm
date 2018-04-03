@@ -189,7 +189,7 @@ public class Release {
 		setProperties( action );
 	}
 
-	public void createMaster( ActionBase action , String RELEASEVER , ReleaseDist releaseDist , boolean copy ) throws Exception {
+	public void createMaster( ActionBase action , String RELEASEVER ) throws Exception {
 		this.RELEASEVER = RELEASEVER;
 
 		schedule.createMaster(); 
@@ -283,10 +283,6 @@ public class Release {
 		return( TYPE );
 	}
 
-	public void finish( ActionBase action ) throws Exception {
-		schedule.finish( action );
-	}
-	
 	public void complete( ActionBase action ) throws Exception {
 		schedule.complete( action );
 	}

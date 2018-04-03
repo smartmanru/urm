@@ -21,7 +21,6 @@ import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.release.Release;
-import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseDist;
 
 public class Dist {
@@ -332,7 +331,6 @@ public class Dist {
 	public void openForUse( ActionBase action , boolean requireReleased ) throws Exception {
 		state.ctlOpenForUse( action , requireReleased );
 		openedForUse = true;
-		gatherFiles( action );
 	}
 	
 	public void openForDataChange( ActionBase action ) throws Exception {
@@ -368,22 +366,9 @@ public class Dist {
 	}
 
 	public boolean finish( ActionBase action ) throws Exception {
-		if( isFinalized() ) {
-			action.info( "release is already finalized" );
-			return( true );
-		}
+		state.ctlFinish( action );
 		
-		openForDataChange( action );
-		
-		if( !release.MASTER ) {
-			ReleaseChanges changes = release.getChanges();
-			if( !changes.isCompleted() ) {
-				action.error( "release changes are not completed" );
-				state.ctlCloseDataChange( action );
-				return( false );
-			}
-		}
-		
+		// check files/remote empty folders
 		DistFinalizer finalizer = new DistFinalizer( action , this , distFolder , release );
 		if( !finalizer.finish() ) {
 			action.error( "distributive is not ready to be finalyzed" );
@@ -391,10 +376,7 @@ public class Dist {
 			return( false );
 		}
 		
-		release.finish( action );
-		saveMetaFile( action );
-		state.ctlFinish( action );
-		return( true );
+		return( false );
 	}
 
 	public void complete( ActionBase action ) throws Exception {
@@ -556,9 +538,6 @@ public class Dist {
 		return( null );
 	}
 
-	public void gatherFiles( ActionBase action ) throws Exception {
-	}
-
 	public MetaDistrConfItem[] getLocationConfItems( ActionBase action , MetaEnvServerLocation[] locations ) throws Exception {
 		Map<String,MetaDistrConfItem> confs = new HashMap<String,MetaDistrConfItem>(); 
 		return( confs.values().toArray( new MetaDistrConfItem[0] ) );
@@ -635,6 +614,12 @@ public class Dist {
 		if( src.distFolder.checkFolderExists( action , folder ) )
 			distFolder.copyExtDir( action , src.distFolder.getFilePath( action , folder ) , folder );
 	}
+
+	public void copyFileDistrToDistr( ActionBase action , Dist src , DistItemInfo info ) throws Exception {
+		copyFileDistrToDistr( action , info.delivery , src , info.getDeliveryItemPath() );
+		RemoteFolder folder = distFolder.getSubFolder( action , info.getDistItemFolder() );
+		folder.createFileFromString( action , info.getFinalName() + ".md5" , info.getMD5() );
+	}
 	
 	public void copyFileDistrToDistr( ActionBase action , MetaDistrDelivery delivery , Dist src , String file ) throws Exception {
 		String folder = delivery.FOLDER;
@@ -666,10 +651,12 @@ public class Dist {
 		session.copyDirContent( action , folderSrc , folderDst );
 	}
 	
-	public void createMasterFiles( ActionBase action , Dist src ) throws Exception {
-	}
-	
-	public void appendMasterFiles( ActionBase action , Dist src ) throws Exception {
+	public void removeBinaryItem( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
+		DistItemInfo infoOld = getDistItemInfo( action , distItem , false , false );
+		if( infoOld.isFound() ) {
+			RemoteFolder folder = distFolder.getSubFolder( action , infoOld.getDistItemFolder() );
+			folder.removeFiles( action , infoOld.getFinalName() + " " + infoOld.getFinalName() + ".md5" );
+		}
 	}
 	
 	public Dist copyDist( ActionBase action , String newName , DistRepositoryItem newItem , ReleaseDist newReleaseDist ) throws Exception {
@@ -705,4 +692,18 @@ public class Dist {
 		distFolder.copyFileFromLocal( action , filePath );
 	}
 
+	public DistItemInfo copyBinaryItem( ActionBase action , Dist src , MetaDistrBinaryItem distItem , boolean create ) throws Exception {
+		if( !create )
+			removeBinaryItem( action , distItem );
+		
+		DistItemInfo info = src.getDistItemInfo( action , distItem , true , false );
+		if( !info.isFound() ) {
+			action.error( "missing item=" + distItem.NAME );
+			action.exitUnexpectedState();
+		}
+
+		copyFileDistrToDistr( action , src , info );
+		return( info );
+	}
+	
 }
