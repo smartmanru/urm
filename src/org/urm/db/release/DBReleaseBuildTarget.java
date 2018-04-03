@@ -9,12 +9,16 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
+import org.urm.meta.product.MetaSources;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseBuildTarget;
 import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseScope;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class DBReleaseBuildTarget {
 
@@ -66,6 +70,24 @@ public class DBReleaseBuildTarget {
 			scope.addBuildTarget( target );
 		else
 			changes.addBuildTarget( target );
+	}
+	
+	public static void exportxmlBuildTarget( EngineLoader loader , Release release , ReleaseBuildTarget target , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseBuildTarget;
+		
+		Meta meta = release.getMeta();
+		MetaSources sources = meta.getSources();
+		
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlEnum( target.TYPE ) ,
+				entity.exportxmlBoolean( target.ALL ) ,
+				entity.exportxmlString( sources.getProjectSetName( target.SRCSET ) ) ,
+				entity.exportxmlString( sources.getProjectName( target.PROJECT ) ) ,
+				entity.exportxmlString( target.BUILD_BRANCH ) ,
+				entity.exportxmlString( target.BUILD_TAG ) ,
+				entity.exportxmlString( target.BUILD_VERSION )
+		} , true );
 	}
 	
 	public static void deleteBuildTarget( DBConnection c , Release release , ReleaseBuildTarget target ) throws Exception {

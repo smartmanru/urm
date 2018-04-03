@@ -704,5 +704,21 @@ public class AuthService extends EngineObject {
 		Integer value = getUserId( name );
 		return( MatchItem.create( value ) );
 	}
+
+	public String findUserName( MatchItem item ) {
+		AuthUser user = findUser( item );
+		if( user == null )
+			return( null );
+		return( user.NAME );
+	}
+	
+	public String getUserName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		AuthUser user = findUser( item );
+		if( user == null )
+			Common.exitUnexpected();
+		return( user.NAME );
+	}
 	
 }

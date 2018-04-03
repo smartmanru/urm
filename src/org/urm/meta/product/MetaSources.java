@@ -157,6 +157,13 @@ public class MetaSources {
 		return( setMap.get( item.FKNAME ) );
 	}
 	
+	public String findProjectSetName( MatchItem item ) {
+		MetaSourceProjectSet set = findProjectSet( item );
+		if( item == null )
+			return( null );
+		return( set.NAME );
+	}
+	
 	public MetaSourceProjectSet getProjectSet( String name ) throws Exception {
 		MetaSourceProjectSet set = setMap.get( name );
 		if( set == null )
@@ -165,6 +172,15 @@ public class MetaSources {
 		return( set );
 	}
 
+	public String getProjectSetName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaSourceProjectSet set = findProjectSet( item );
+		if( set == null )
+			Common.exitUnexpected();
+		return( set.NAME );
+	}
+	
 	public MetaSourceProjectSet getProjectSet( int id ) throws Exception {
 		MetaSourceProjectSet set = setMapById.get( id );
 		if( set == null )
@@ -186,6 +202,13 @@ public class MetaSources {
 		return( projectMap.get( item.FKNAME ) );
 	}
 	
+	public String findProjectName( MatchItem item ) {
+		MetaSourceProject project = findProject( item );
+		if( item == null )
+			return( null );
+		return( project.NAME );
+	}
+	
 	public MetaSourceProject getProject( String name ) throws Exception {
 		MetaSourceProject project = projectMap.get( name );
 		if( project == null )
@@ -202,6 +225,15 @@ public class MetaSources {
 		return( project );
 	}
 
+	public String getProjectName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaSourceProject project = findProject( item );
+		if( project == null )
+			Common.exitUnexpected();
+		return( project.NAME );
+	}
+	
 	public String[] getProjectNames() {
 		return( Common.getSortedKeys( projectMap ) );
 	}

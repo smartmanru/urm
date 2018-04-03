@@ -9,16 +9,22 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseBuildTarget;
 import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseDistTarget;
 import org.urm.meta.release.ReleaseScope;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class DBReleaseDistTarget {
 
@@ -73,6 +79,26 @@ public class DBReleaseDistTarget {
 			scope.addDistTarget( target );
 		else
 			changes.addDistTarget( target );
+	}
+	
+	public static void exportxmlDistTarget( EngineLoader loader , Release release , ReleaseDistTarget target , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseDistTarget;
+		
+		Meta meta = release.getMeta();
+		MetaDistr distr = meta.getDistr();
+		MetaDatabase db = meta.getDatabase();
+		MetaDocs docs = meta.getDocs();
+		
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlEnum( target.TYPE ) ,
+				entity.exportxmlBoolean( target.ALL ) ,
+				entity.exportxmlString( distr.getDeliveryName( target.DELIVERY ) ) ,
+				entity.exportxmlString( distr.getBinaryItemName( target.BINARY ) ) ,
+				entity.exportxmlString( distr.getConfItemName( target.CONF ) ) ,
+				entity.exportxmlString( db.getSchemaName( target.SCHEMA ) ) ,
+				entity.exportxmlString( docs.getDocName( target.DOC ) ) ,
+		} , true );
 	}
 	
 	public static void deleteDistTarget( DBConnection c , Release release , ReleaseDistTarget target ) throws Exception {

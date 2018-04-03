@@ -1,7 +1,9 @@
 package org.urm.meta.release;
 
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.AuthService;
 import org.urm.meta.MatchItem;
+import org.urm.meta.engine.AuthUser;
 
 public class ReleaseTicket {
 
@@ -207,6 +209,21 @@ public class ReleaseTicket {
 			TICKETSTATUS = DBEnumTicketStatusType.QADONE;
 			QA = MatchItem.create( userId );
 		}
+	}
+
+	public AuthUser findOwner() {
+		AuthService auth = release.repo.meta.engine.getAuth();
+		return( auth.findUser( OWNER ) );
+	}
+	
+	public AuthUser findDev() {
+		AuthService auth = release.repo.meta.engine.getAuth();
+		return( auth.findUser( DEV ) );
+	}
+	
+	public AuthUser findQA() {
+		AuthService auth = release.repo.meta.engine.getAuth();
+		return( auth.findUser( QA ) );
 	}
 	
 }

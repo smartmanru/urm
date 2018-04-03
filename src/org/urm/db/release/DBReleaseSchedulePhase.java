@@ -99,7 +99,7 @@ public class DBReleaseSchedulePhase {
 				entity.exportxmlBoolean( phase.UNLIMITED ) ,
 				entity.exportxmlDate( phase.START_DATE ) ,
 				entity.exportxmlDate( phase.FINISH_DATE )
-		} , false );
+		} , true );
 	}
 	
 }

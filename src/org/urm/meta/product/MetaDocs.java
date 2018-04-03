@@ -71,6 +71,15 @@ public class MetaDocs {
 		return( doc );
 	}
 
+	public String getDocName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaProductDoc doc = findDoc( item );
+		if( doc == null )
+			Common.exitUnexpected();
+		return( doc.NAME );
+	}
+	
 	public MetaProductDoc getDoc( int id ) throws Exception {
 		MetaProductDoc doc = mapDocsById.get( id );
 		if( doc == null )

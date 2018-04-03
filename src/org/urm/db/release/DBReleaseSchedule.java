@@ -89,7 +89,7 @@ public class DBReleaseSchedule {
 				entity.exportxmlBoolean( schedule.RELEASED ) ,
 				entity.exportxmlBoolean( schedule.COMPLETED ) ,
 				entity.exportxmlInt( schedule.CURRENT_PHASE )
-		} , false );
+		} , true );
 	}
 	
 	public static ReleaseSchedule createReleaseSchedule( EngineMethod method , ActionBase action , Release release ) throws Exception {

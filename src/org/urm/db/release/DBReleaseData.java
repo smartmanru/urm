@@ -192,7 +192,7 @@ public class DBReleaseData {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_BUILDTARGET , DBEnumParamEntityType.RELEASE_BUILDTARGET , DBEnumObjectVersionType.RELEASE , TABLE_BUILDTARGET , FIELD_BUILDTARGET_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
-				EntityVar.metaBoolean( ReleaseBuildTarget.PROPERTY_SCOPETARGET , "scope target" , true , false ) ,
+				EntityVar.metaBooleanDatabaseOnly( ReleaseBuildTarget.PROPERTY_SCOPETARGET , "scope target" , true , false ) ,
 				EntityVar.metaEnumVar( ReleaseBuildTarget.PROPERTY_TARGETTYPE , FIELD_BUILDTARGET_TARGETTYPE , ReleaseBuildTarget.PROPERTY_TARGETTYPE , "release target type" , true , DBEnumBuildTargetType.UNKNOWN ) ,
 				EntityVar.metaBooleanVar( ReleaseBuildTarget.PROPERTY_ALL , FIELD_BUILDTARGET_SCOPEALL , ReleaseBuildTarget.PROPERTY_ALL , "all scope" , false , false ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_BUILDTARGET_SRCSET_ID , "source project set id" , DBEnumObjectType.META_SOURCESET , false ) ,
@@ -216,7 +216,7 @@ public class DBReleaseData {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DISTTARGET , DBEnumParamEntityType.RELEASE_DISTTARGET , DBEnumObjectVersionType.RELEASE , TABLE_DISTTARGET , FIELD_DISTTARGET_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
-				EntityVar.metaBoolean( ReleaseDistTarget.PROPERTY_SCOPETARGET , "scope target" , true , false ) ,
+				EntityVar.metaBooleanDatabaseOnly( ReleaseDistTarget.PROPERTY_SCOPETARGET , "scope target" , true , false ) ,
 				EntityVar.metaEnumVar( ReleaseDistTarget.PROPERTY_TARGETTYPE , FIELD_DISTTARGET_TARGETTYPE , ReleaseDistTarget.PROPERTY_TARGETTYPE , "release target type" , true , DBEnumDistTargetType.UNKNOWN ) ,
 				EntityVar.metaBooleanVar( ReleaseDistTarget.PROPERTY_ALL , FIELD_DISTTARGET_SCOPEALL , ReleaseDistTarget.PROPERTY_ALL , "all scope" , false , false ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_DELIVERY_ID , "delivery id" , DBEnumObjectType.META_DIST_DELIVERY , false ) ,

@@ -223,6 +223,9 @@ public class ReleaseLifecycle extends EngineObject {
 			date = ReleaseLifecycle.findReleaseDate( action , RELEASEVER , meta );
 		else
 			date = lc.getReleaseDate( action , RELEASEVER , meta );
+		
+		if( date == null && lc != null )
+			date = Common.addDays( new Date() , lc.DAYS_TO_RELEASE );
 		return( date );
 	}
 	
@@ -249,7 +252,10 @@ public class ReleaseLifecycle extends EngineObject {
 			Release release = releases.findRelease( prevReleaseVer );
 			if( release != null ) {
 				ReleaseSchedule schedule = release.getSchedule();
-				return( getNextReleaseDate( action , schedule.RELEASE_DATE ) );
+				Date refDate = new Date();
+				if( refDate.before( schedule.RELEASE_DATE ) )
+					refDate = schedule.RELEASE_DATE;
+				return( getNextReleaseDate( action , refDate ) );
 			}
 		}
 		
@@ -257,8 +263,11 @@ public class ReleaseLifecycle extends EngineObject {
 	}
 	
 	public Date getNextReleaseDate( ActionBase action , Date date ) throws Exception {
-		if( isRegular() )
-			return( Common.addDays( date , SHIFT_DAYS ) );
+		if( isRegular() ) {
+			Date newdate = Common.addDays( date , SHIFT_DAYS );
+			if( Common.getDateDiffDays( new Date() , newdate ) >= DAYS_TO_RELEASE )
+				return( date );
+		}
 		
 		return( Common.addDays( date , DAYS_TO_RELEASE ) );
 	}

@@ -19,13 +19,16 @@ import org.urm.engine.run.EngineMethod;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseBuildTarget;
 import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseDist;
+import org.urm.meta.release.ReleaseDistTarget;
 import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.release.ReleaseSchedule;
 import org.urm.meta.release.ReleaseSchedulePhase;
 import org.urm.meta.release.ReleaseTicket;
 import org.urm.meta.release.ReleaseTicketSet;
+import org.urm.meta.release.ReleaseTicketTarget;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -39,6 +42,9 @@ public class DBRelease {
 	public static String ELEMENT_CHANGES = "changes";
 	public static String ELEMENT_TICKETSET = "ticketset";
 	public static String ELEMENT_TICKET = "ticket";
+	public static String ELEMENT_TICKETTARGET = "target";
+	public static String ELEMENT_BUILDTARGET = "buildtarget";
+	public static String ELEMENT_DISTTARGET = "disttarget";
 	
 	private static void modifyRelease( DBConnection c , ReleaseRepository repo , Release release , boolean insert ) throws Exception {
 		if( insert )
@@ -102,12 +108,42 @@ public class DBRelease {
 		DBReleaseSchedule.exportxmlReleaseSchedule( loader , release , schedule , doc , node );
 		
 		for( ReleaseSchedulePhase phase : schedule.getPhases() ) {
-			Element nodePhase = Common.xmlCreateElement( doc , root , ELEMENT_PHASE );
+			Element nodePhase = Common.xmlCreateElement( doc , node , ELEMENT_PHASE );
 			DBReleaseSchedulePhase.exportxmlReleaseSchedulePhase( loader , release , phase , doc , nodePhase );
 		}
 	}
 	
-	private static void exportxmlReleaseChanges( EngineLoader loader , Release release , Document doc , Element root ) {
+	private static void exportxmlReleaseChanges( EngineLoader loader , Release release , Document doc , Element root ) throws Exception {
+		Element node = Common.xmlCreateElement( doc , root , ELEMENT_CHANGES );
+		ReleaseChanges changes = release.getChanges();
+		
+		for( String setCode : changes.getSetCodes() ) {
+			ReleaseTicketSet set = changes.getSet( setCode );
+			Element nodeSet = Common.xmlCreateElement( doc , node , ELEMENT_TICKETSET );
+			DBReleaseChanges.exportxmlChangeSet( loader , release , changes , set , doc , nodeSet );
+			
+			for( ReleaseTicket ticket : set.getTickets() ) {
+				Element nodeTicket = Common.xmlCreateElement( doc , node , ELEMENT_TICKETSET );
+				DBReleaseChanges.exportxmlChangeTicket( loader , release , changes , set , ticket , doc , nodeTicket );
+			}
+			
+			for( ReleaseTicketTarget target : set.getTargets() ) {
+				Element nodeTarget = Common.xmlCreateElement( doc , node , ELEMENT_TICKETTARGET );
+				DBReleaseTicketTarget.exportxmlChangeTicketTarget( loader , release , changes , set , target , doc , nodeTarget );
+				
+				if( target.isBuildTarget() ) {
+					Element nodeBuildTarget = Common.xmlCreateElement( doc , nodeTarget , ELEMENT_BUILDTARGET );
+					ReleaseBuildTarget buildTarget = target.getBuildTarget();
+					DBReleaseBuildTarget.exportxmlBuildTarget( loader , release , buildTarget , doc , nodeBuildTarget );
+				}
+				else
+				if( target.isDistTarget() ) {
+					Element nodeDistTarget = Common.xmlCreateElement( doc , nodeTarget , ELEMENT_DISTTARGET );
+					ReleaseDistTarget distTarget = target.getDistTarget();
+					DBReleaseDistTarget.exportxmlDistTarget( loader , release , distTarget , doc , nodeDistTarget );
+				}
+			}
+		}
 	}
 	
 	private static void exportxmlReleaseScope( EngineLoader loader , Release release , Document doc , Element root ) {
@@ -154,7 +190,7 @@ public class DBRelease {
 				entity.importxmlStringProperty( node , Release.PROPERTY_DESC ) ,
 				entity.importxmlBooleanProperty( node , Release.PROPERTY_MASTER , false ) ,
 				DBEnumLifecycleType.getValue( entity.importxmlEnumProperty( node , Release.PROPERTY_LIFECYCLETYPE ) , true ) ,
-				entity.importxmlStringProperty( node , Release.PROPERTY_VERSION ) ,
+				release.RELEASEVER ,
 				DBEnumBuildModeType.getValue( entity.importxmlEnumProperty( node , Release.PROPERTY_BUILDMODE ) , false ) ,
 				entity.importxmlStringProperty( node , Release.PROPERTY_COMPATIBILITY ) ,
 				entity.importxmlBooleanProperty( node , Release.PROPERTY_CUMULATIVE , false ) ,

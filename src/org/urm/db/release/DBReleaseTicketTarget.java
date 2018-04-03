@@ -26,6 +26,8 @@ import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseDistTarget;
 import org.urm.meta.release.ReleaseTicketSet;
 import org.urm.meta.release.ReleaseTicketTarget;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class DBReleaseTicketTarget {
 
@@ -66,6 +68,17 @@ public class DBReleaseTicketTarget {
 				);
 		
 		set.addTarget( target );
+	}
+	
+	public static void exportxmlChangeTicketTarget( EngineLoader loader , Release release , ReleaseChanges changes , ReleaseTicketSet set , ReleaseTicketTarget target , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseTicketTarget;
+		
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlInt( target.POS ) ,
+				entity.exportxmlBoolean( target.DESCOPED ) ,
+				entity.exportxmlBoolean( target.ACCEPTED )
+		} , true );
 	}
 	
 	public static void createProjectSetTarget( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , ReleaseTicketSet ticketSet , MetaSourceProjectSet projectSet ) throws Exception {

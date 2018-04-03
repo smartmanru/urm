@@ -19,6 +19,8 @@ import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseTicket;
 import org.urm.meta.release.ReleaseTicketSet;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class DBReleaseChanges {
@@ -50,7 +52,7 @@ public class DBReleaseChanges {
 				EngineDB.getString( set.CODE ) ,
 				EngineDB.getString( set.NAME ) ,
 				EngineDB.getString( set.DESC ) ,
-				EngineDB.getEnum( set.TYPE )
+				EngineDB.getEnum( set.STATUS )
 				} , insert );
 	}
 	
@@ -151,6 +153,41 @@ public class DBReleaseChanges {
 				EngineDB.getMatchId( ticket.QA ) ,
 				EngineDB.getMatchName( ticket.QA )
 				} , insert );
+	}
+	
+	public static void exportxmlChangeSet( EngineLoader loader , Release release , ReleaseChanges changes , ReleaseTicketSet set , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseTicketSet;
+		
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlString( set.CODE ) ,
+				entity.exportxmlString( set.NAME ) ,
+				entity.exportxmlString( set.DESC ) ,
+				entity.exportxmlEnum( set.STATUS )
+		} , true );
+	}
+	
+	public static void exportxmlChangeTicket( EngineLoader loader , Release release , ReleaseChanges changes , ReleaseTicketSet set , ReleaseTicket ticket , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseTicket;
+		
+		AuthService auth = loader.getAuth();
+		
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlInt( ticket.POS ) ,
+				entity.exportxmlString( ticket.CODE ) ,
+				entity.exportxmlString( ticket.NAME ) ,
+				entity.exportxmlString( ticket.DESC ) ,
+				entity.exportxmlString( ticket.LINK ) ,
+				entity.exportxmlEnum( ticket.TYPE ) ,
+				entity.exportxmlEnum( ticket.TICKETSTATUS ) ,
+				entity.exportxmlBoolean( ticket.ACTIVE ) ,
+				entity.exportxmlBoolean( ticket.ACCEPTED ) ,
+				entity.exportxmlBoolean( ticket.DESCOPED ) ,
+				entity.exportxmlString( auth.getUserName( ticket.OWNER ) ) ,
+				entity.exportxmlString( auth.getUserName( ticket.DEV ) ) ,
+				entity.exportxmlString( auth.getUserName( ticket.QA ) )
+		} , true );
 	}
 	
 	public static void createSet( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , String code , String name , String comments ) throws Exception {

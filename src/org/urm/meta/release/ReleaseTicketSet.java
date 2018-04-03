@@ -31,7 +31,7 @@ public class ReleaseTicketSet {
 	public String CODE;
 	public String NAME;
 	public String DESC;
-	public DBEnumTicketSetStatusType TYPE;
+	public DBEnumTicketSetStatusType STATUS;
 	public int RV;
 	
 	private List<ReleaseTicket> items;
@@ -54,7 +54,7 @@ public class ReleaseTicketSet {
 		r.CODE = CODE;
 		r.NAME = NAME;
 		r.DESC = DESC;
-		r.TYPE = TYPE;
+		r.STATUS = STATUS;
 		r.RV = RV;
 		
 		for( ReleaseTicket ticket : items ) {
@@ -108,11 +108,11 @@ public class ReleaseTicketSet {
 		targets.add( target );
 	}
 
-	public void create( String code , String name , String comments , DBEnumTicketSetStatusType type ) throws Exception {
+	public void create( String code , String name , String comments , DBEnumTicketSetStatusType status ) throws Exception {
 		this.CODE = code;
 		this.NAME = name;
 		this.DESC = comments;
-		this.TYPE = type;
+		this.STATUS = status;
 	}
 	
 	public void create( String code , String name , String comments ) throws Exception {
@@ -133,7 +133,7 @@ public class ReleaseTicketSet {
 	}
 
 	public void descope() throws Exception {
-		TYPE = DBEnumTicketSetStatusType.DESCOPED;
+		STATUS = DBEnumTicketSetStatusType.DESCOPED;
 	}
 
 	public ReleaseTicket[] getTickets() {
@@ -215,25 +215,25 @@ public class ReleaseTicketSet {
 	}
 
 	public boolean isNew() {
-		if( TYPE == DBEnumTicketSetStatusType.NEW )
+		if( STATUS == DBEnumTicketSetStatusType.NEW )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isActive() {
-		if( TYPE == DBEnumTicketSetStatusType.ACTIVE )
+		if( STATUS == DBEnumTicketSetStatusType.ACTIVE )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isDescoped() {
-		if( TYPE == DBEnumTicketSetStatusType.DESCOPED )
+		if( STATUS == DBEnumTicketSetStatusType.DESCOPED )
 			return( true );
 		return( false );
 	}
 
 	public boolean isRunning() {
-		if( TYPE != DBEnumTicketSetStatusType.NEW )
+		if( STATUS != DBEnumTicketSetStatusType.NEW )
 			return( true );
 		
 		for( ReleaseTicket ticket : items ) {
@@ -264,8 +264,8 @@ public class ReleaseTicketSet {
 	}
 
 	public void activate() throws Exception {
-		if( TYPE == DBEnumTicketSetStatusType.NEW )
-			TYPE = DBEnumTicketSetStatusType.ACTIVE;
+		if( STATUS == DBEnumTicketSetStatusType.NEW )
+			STATUS = DBEnumTicketSetStatusType.ACTIVE;
 	}
 
 	public void createTarget( MetaDistrDelivery delivery , DBEnumDistTargetType type , String[] items ) throws Exception {
