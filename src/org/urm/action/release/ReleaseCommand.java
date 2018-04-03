@@ -315,9 +315,8 @@ public class ReleaseCommand {
 		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
-	public static void touchRelease( ScopeState parentState , ActionBase action , Release release ) throws Exception {
-		Meta meta = release.getMeta();
-		ActionTouchRelease ma = new ActionTouchRelease( action , null , release );
+	public static void touchRelease( ScopeState parentState , ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
+		ActionTouchRelease ma = new ActionTouchRelease( action , null , meta , RELEASELABEL );
 		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	

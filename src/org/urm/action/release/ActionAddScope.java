@@ -30,7 +30,7 @@ public class ActionAddScope extends ActionBase {
 		}
 		
 		// by target
-		for( ActionScopeTarget target : set.getTargets( this ).values() ) {
+		for( ActionScopeTarget target : set.getTargets() ) {
 			if( !Common.checkListItem( targets ,  target ) )
 				continue;
 			

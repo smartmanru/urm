@@ -333,5 +333,9 @@ public class Release {
 	public ReleaseScope getScope() {
 		return( scope );
 	}
+
+	public void setArchived() {
+		ARCHIVED = true;
+	}
 	
 }

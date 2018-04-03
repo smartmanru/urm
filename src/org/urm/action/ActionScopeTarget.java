@@ -90,6 +90,16 @@ public class ActionScopeTarget {
 		return( target );
 	}
 	
+	public static ActionScopeTarget createReleaseBinaryTarget( ActionScopeSet set , ReleaseDistScopeDeliveryItem releaseItem , boolean specifiedExplicitly ) {
+		ActionScopeTarget target = new ActionScopeTarget( set );
+		target.NAME = releaseItem.binary.NAME;
+		target.releaseDistScopeDeliveryItem = releaseItem;
+		target.delivery = releaseItem.distDelivery;
+		target.itemFull = true;
+		target.specifiedExplicitly = specifiedExplicitly;
+		return( target );
+	}
+	
 	public static ActionScopeTarget createProductConfItemTarget( ActionScopeSet set , MetaDistrConfItem confItem , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
 		target.confItem = confItem;
@@ -110,7 +120,6 @@ public class ActionScopeTarget {
 	
 	public static ActionScopeTarget createProductDerivedDistItemTarget( ActionScopeSet set , MetaDistrBinaryItem derivedItem , boolean specifiedExplicitly ) {
 		ActionScopeTarget target = new ActionScopeTarget( set );
-
 		target.derivedItem = derivedItem;
 		target.NAME = derivedItem.NAME;
 		target.itemFull = true;

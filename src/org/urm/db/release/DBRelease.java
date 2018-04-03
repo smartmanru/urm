@@ -46,7 +46,7 @@ public class DBRelease {
 	public static String ELEMENT_BUILDTARGET = "buildtarget";
 	public static String ELEMENT_DISTTARGET = "disttarget";
 	
-	private static void modifyRelease( DBConnection c , ReleaseRepository repo , Release release , boolean insert ) throws Exception {
+	public static void modifyRelease( DBConnection c , ReleaseRepository repo , Release release , boolean insert ) throws Exception {
 		if( insert )
 			release.ID = c.getNextSequenceValue();
 		
@@ -272,6 +272,11 @@ public class DBRelease {
 	}
 	
 	public static void reopen( EngineMethod method , ActionBase action , Release release ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		method.checkUpdateRelease( release );
+		
+		release.reopen( action );
+		modifyRelease( c , release.repo , release , false );
 	}
 	
 	public static void finishStatus( EngineMethod method , ActionBase action , Release release ) throws Exception {

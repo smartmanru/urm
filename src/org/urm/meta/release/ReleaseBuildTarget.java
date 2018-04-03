@@ -17,6 +17,8 @@ public class ReleaseBuildTarget {
 	public static String PROPERTY_BUILDTAG = "buildtag";
 	public static String PROPERTY_BUILDVERSION = "buildversion";
 	public static String PROPERTY_ALL = "all";
+
+	public static String CLEANUP_VALUE = ".";
 	
 	public Release release;
 	public ReleaseChanges changes;
@@ -160,6 +162,27 @@ public class ReleaseBuildTarget {
 		Meta meta = release.getMeta();
 		MetaSources sources = meta.getSources();
 		return( sources.findProject( PROJECT ) );
+	}
+
+	public void setSpecifics( String branch , String tag , String version ) throws Exception {
+		if( !branch.isEmpty() ) {
+			if( branch.equals( CLEANUP_VALUE ) )
+				BUILD_BRANCH = "";
+			else
+				BUILD_BRANCH = branch;
+		}
+		if( !tag.isEmpty() ) {
+			if( tag.equals( CLEANUP_VALUE ) )
+				BUILD_TAG = "";
+			else
+				BUILD_TAG = tag;
+		}
+		if( !version.isEmpty() ) {
+			if( version.equals( CLEANUP_VALUE ) )
+				BUILD_VERSION = "";
+			else
+				BUILD_VERSION = version;
+		}
 	}
 	
 }

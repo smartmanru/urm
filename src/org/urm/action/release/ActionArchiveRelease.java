@@ -2,9 +2,15 @@ package org.urm.action.release;
 
 import org.urm.action.ActionBase;
 import org.urm.db.release.DBReleaseRepository;
+import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.DistRepository;
+import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.product.Meta;
+import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseRepository;
 
 public class ActionArchiveRelease extends ActionBase {
 
@@ -16,12 +22,24 @@ public class ActionArchiveRelease extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
-		if( !release.isCompleted() ) {
-			super.fail1( _Error.ArchiveNotCompleted1 , "Cannot archive not completed release=" + release.RELEASEVER , release.RELEASEVER );
-			return( SCOPESTATE.RunFail );
+		EngineMethod method = super.method;
+		
+		Meta meta = release.getMeta();
+		ProductReleases releases = meta.getReleases();
+		synchronized( releases ) {
+			// update repository
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
+			DistRepository distrepoUpdated = method.changeDistRepository( releases );
+			Dist dist = distrepoUpdated.findDefaultDist( releaseUpdated );
+			
+			// change database
+			DBReleaseRepository.archiveRelease( super.method , this , release.repo , release );
+			
+			// move distributive to archive
+			distrepoUpdated.archiveDist( this , dist );
 		}
 		
-		DBReleaseRepository.archiveRelease( super.method , this , release.repo , release );
 		return( SCOPESTATE.RunSuccess );
 	}
 	

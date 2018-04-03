@@ -142,7 +142,7 @@ public class ActionSetScope extends ActionBase {
 					
 					String checkItem = check.get( Common.concat( Common.concat( set.set.NAME , target.project.NAME , "/" ) , item.NAME , "/" ) );
 					if( checkItem == null )
-						DBReleaseScope.descopeDistItem( method , this , releaseUpdated , item.distItem );
+						DBReleaseScope.descopeBinaryItem( method , this , releaseUpdated , item.distItem );
 				}
 			}
 		}

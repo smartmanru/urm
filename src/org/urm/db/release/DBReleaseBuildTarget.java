@@ -2,12 +2,15 @@ package org.urm.db.release;
 
 import java.sql.ResultSet;
 
+import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.engine.run.EngineMethod;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
@@ -117,4 +120,16 @@ public class DBReleaseBuildTarget {
 		return( target );
 	}
 
+	public static void setTargetSpecifics( EngineMethod method , ActionBase action , Release release , ReleaseBuildTarget target , String branch , String tag , String version ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		method.checkUpdateRelease( release );
+		
+		if( release.isFinalized() )
+			Common.exitUnexpected();
+		
+		release.setArchived();
+		target.setSpecifics( branch , tag , version );
+		DBReleaseBuildTarget.modifyReleaseBuildTarget( c , release , target , false );
+	}
+	
 }

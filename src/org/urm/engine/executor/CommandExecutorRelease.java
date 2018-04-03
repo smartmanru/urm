@@ -250,8 +250,8 @@ public class CommandExecutorRelease extends CommandExecutor {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		checkNoArgs( action , 1 );
-		Release release = super.getRelease( action , RELEASELABEL );
-		ReleaseCommand.touchRelease( parentState , action , release );
+		Meta meta = action.getContextMeta();
+		ReleaseCommand.touchRelease( parentState , action , meta , RELEASELABEL );
 	}
 	}
 

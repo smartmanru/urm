@@ -404,14 +404,12 @@ public class Dist {
 		}
 		
 		openForControl( action );
-		release.complete( action );
 		saveMetaFile( action );
 		state.ctlCloseControl( action , DISTSTATE.COMPLETED );
 	}
 
 	public void reopen( ActionBase action ) throws Exception {
 		state.ctlReopen( action );
-		release.reopen( action );
 		saveMetaFile( action );
 		state.ctlCloseDataChange( action );
 	}

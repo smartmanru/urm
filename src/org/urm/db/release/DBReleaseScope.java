@@ -495,12 +495,24 @@ public class DBReleaseScope {
 		}
 	}
 
-	public static void descopeDistItem( EngineMethod method , ActionBase action , Release release , MetaDistrBinaryItem item ) throws Exception {
+	public static void descopeBinaryItem( EngineMethod method , ActionBase action , Release release , MetaDistrBinaryItem item ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();
 		method.checkUpdateRelease( release );
 		
 		ReleaseDistTarget target = scope.findDistBinaryItemTarget( item );
+		if( target != null ) {
+			descopeDistTargetOnly( c , release , scope , target );
+			return;
+		}
+	}
+	
+	public static void descopeConfItem( EngineMethod method , ActionBase action , Release release , MetaDistrConfItem item ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
+		
+		ReleaseDistTarget target = scope.findDistConfItemTarget( item );
 		if( target != null ) {
 			descopeDistTargetOnly( c , release , scope , target );
 			return;

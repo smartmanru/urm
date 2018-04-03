@@ -47,6 +47,10 @@ public class ActionScopeSet {
 		this.setFull = full;
 	}
 	
+	public boolean isFull() {
+		return( setFull );
+	}
+	
 	public boolean isEmpty() {
 		// manual files are by default
 		if( CATEGORY == DBEnumScopeCategoryType.MANUAL && setFull )
@@ -55,8 +59,13 @@ public class ActionScopeSet {
 		return( targets.isEmpty() );
 	}
 	
-	public Map<String,ActionScopeTarget> getTargets( ActionBase action ) throws Exception {
-		return( targets );
+	public ActionScopeTarget[] getTargets() throws Exception {
+		List<ActionScopeTarget> list = new LinkedList<ActionScopeTarget>();
+		for( String name : Common.getSortedKeys( targets ) ) {
+			ActionScopeTarget target = targets.get( name );
+			list.add( target );
+		}
+		return( list.toArray( new ActionScopeTarget[0] ) );
 	}
 	
 	public void create( ActionBase action , MetaSourceProjectSet pset ) throws Exception {

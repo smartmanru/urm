@@ -371,6 +371,13 @@ public class DBReleaseRepository {
 	}
 
 	public static void archiveRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , Release release ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		method.checkUpdateRelease( release );
+		
+		release.setArchived();
+		DBRelease.modifyRelease( c , repo , release , false );
+		
+		repo.removeRelease( release );
 	}
 	
 	public static void addDistAction( EngineMethod method , Release release , ReleaseDist releaseDist , boolean success , ReleaseOperation op , String msg ) throws Exception {

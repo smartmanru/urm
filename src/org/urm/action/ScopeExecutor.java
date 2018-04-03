@@ -679,7 +679,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			String all = ( set.setFull )? " (all)" : "";
 			action.debug( action.NAME + ": execute scope set=" + set.NAME + all + " ..." );
 			
-			items = set.getTargets( action ).values().toArray( new ActionScopeTarget[0] ); 
+			items = set.getTargets(); 
 			action.runBefore( stateSet , set , items );
 		}
 		catch( Throwable e ) {

@@ -5,6 +5,7 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.ReleaseBuildScopeProject;
 import org.urm.engine.dist.ReleaseBuildScopeSet;
 import org.urm.engine.dist.ReleaseDistScopeDelivery;
+import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -162,6 +163,12 @@ public class ActionReleaseScopeMaker {
 		return( target );
 	}
 	
+	private ActionScopeTarget addReleaseBinaryTarget( ActionScopeSet set , ReleaseDistScopeDeliveryItem releaseItem , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createReleaseBinaryTarget( set , releaseItem , specifiedExplicitly );
+		set.addTarget( action , target );
+		return( target );
+	}
+	
 	private ActionScopeTarget addReleaseDatabaseDelivery( ActionScopeSet set , ReleaseDistScopeDelivery releaseDelivery , boolean allItems , boolean specifiedExplicitly ) throws Exception {
 		ActionScopeTarget target = ActionScopeTarget.createDeliveryDatabaseTarget( set , releaseDelivery.distDelivery , specifiedExplicitly , allItems );
 		set.addTarget( action , target );
@@ -309,22 +316,36 @@ public class ActionReleaseScopeMaker {
 				action.exit1( _Error.UnknownDistributiveItem1 ,"unknown distributive item=" + itemName , itemName );
 			
 			ActionScopeSet sset = null;
-			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL )
+			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL ) {
 				sset = scope.makeReleaseCategoryScopeSet( action , DBEnumScopeCategoryType.MANUAL );
+				ReleaseDistScopeDelivery rtarget = sset.releaseDistScopeSet.findDelivery( item.delivery );
+				if( rtarget != null ) {
+					ReleaseDistScopeDeliveryItem ritem = rtarget.findBinaryItem( item );
+					if( ritem != null )
+						addReleaseBinaryTarget( sset , ritem, specifiedExplicitly );
+				}
+			}
 			else
-			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED )
+			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
 				sset = scope.makeReleaseCategoryScopeSet( action , DBEnumScopeCategoryType.DERIVED );
+				ReleaseDistScopeDelivery rtarget = sset.releaseDistScopeSet.findDelivery( item.delivery );
+				if( rtarget != null ) {
+					ReleaseDistScopeDeliveryItem ritem = rtarget.findBinaryItem( item );
+					if( ritem != null )
+						addReleaseBinaryTarget( sset , ritem , specifiedExplicitly );
+				}
+			}
 			else
-			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.BUILD )
+			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.BUILD ) {
 				sset = scope.makeProjectScopeSet( action , item.sourceProjectItem.project.set );
+				ReleaseBuildScopeProject rtarget = sset.releaseBuildScopeSet.findProject( item.sourceProjectItem.project );
+				if( rtarget != null ) {
+					ActionScopeTarget scopeProject = addReleaseSourceProject( sset , rtarget , false , true ); 
+					scopeProject.addProjectItem( action , item.sourceProjectItem , specifiedExplicitly );
+				}
+			}
 			else
 				Common.exitUnexpected();
-			
-			ReleaseBuildScopeProject rtarget = sset.releaseBuildScopeSet.findProject( item.sourceProjectItem.project );
-			if( rtarget != null ) {
-				ActionScopeTarget scopeProject = addReleaseSourceProject( sset , rtarget , false , true ); 
-				scopeProject.addProjectItem( action , item.sourceProjectItem , specifiedExplicitly );
-			}
 		}
 	}
 	
