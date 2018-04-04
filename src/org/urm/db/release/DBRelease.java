@@ -242,10 +242,65 @@ public class DBRelease {
 				ReleaseTicket ticket = DBReleaseChanges.importxmlReleaseChangeTicket( loader , release , changes , set , nodeTicket );
 				set.addTicket( ticket );
 			}
+			
+			set.sortTickets();
+		}
+		
+		nodeItems = ConfReader.xmlGetChildren( root , ELEMENT_TICKETTARGET );
+		if( nodeItems != null ) {
+			for( Node nodeTarget : nodeItems ) {
+				ReleaseTicketTarget target = importxmlReleaseChangeTarget( loader , release , changes , set , nodeTarget );
+				set.addTarget( target );
+			}
+			
+			set.sortTargets();
 		}
 	}
+
+	private static ReleaseTicketTarget importxmlReleaseChangeTarget( EngineLoader loader , Release release , ReleaseChanges changes , ReleaseTicketSet set , Node root ) throws Exception {
+		ReleaseTicketTarget target = DBReleaseTicketTarget.importxmlChangeTicketTarget( loader , release , changes , set , root );
+		
+		Node nodeBuildTarget = ConfReader.xmlGetFirstChild( root , ELEMENT_BUILDTARGET );
+		if( nodeBuildTarget != null ) {
+			ReleaseBuildTarget buildTarget = DBReleaseBuildTarget.importxmlBuildTarget( loader , release , changes , null , nodeBuildTarget );
+			int pos = target.POS;
+			if( pos <= 0 )
+				pos = set.getLastTargetPos() + 1;
+			target.create( buildTarget , pos );
+			set.addTarget( target );
+		}
+		else {
+			Node nodeDistTarget = ConfReader.xmlGetFirstChild( root , ELEMENT_DISTTARGET );
+			if( nodeDistTarget != null ) {
+				ReleaseDistTarget distTarget = DBReleaseDistTarget.importxmlDistTarget( loader , release , changes , null , nodeDistTarget );
+				int pos = target.POS;
+				if( pos <= 0 )
+					pos = set.getLastTargetPos() + 1;
+				target.create( distTarget , pos );
+				set.addTarget( target );
+			}
+		}
+		return( target );
+	}
 	
-	private static void importxmlReleaseScope( EngineLoader loader , Release release , Node root ) {
+	private static void importxmlReleaseScope( EngineLoader loader , Release release , Node root ) throws Exception {
+		ReleaseScope scope = release.getScope();
+		
+		Node[] nodeItems = ConfReader.xmlGetChildren( root , ELEMENT_BUILDTARGET );
+		if( nodeItems != null ) {
+			for( Node nodeBuildTarget : nodeItems ) {
+				ReleaseBuildTarget buildTarget = DBReleaseBuildTarget.importxmlBuildTarget( loader , release , null , scope , nodeBuildTarget );
+				scope.addBuildTarget( buildTarget );
+			}
+		}
+		
+		nodeItems = ConfReader.xmlGetChildren( root , ELEMENT_DISTTARGET );
+		if( nodeItems != null ) {
+			for( Node nodeDistTarget : nodeItems ) {
+				ReleaseDistTarget distTarget = DBReleaseDistTarget.importxmlDistTarget( loader , release , null , scope , nodeDistTarget );
+				scope.addDistTarget( distTarget );
+			}
+		}
 	}
 
 	public static Release createNormalRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , String RELEASEVER , Date releaseDate , ReleaseLifecycle lc ) throws Exception {

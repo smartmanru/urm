@@ -34,7 +34,7 @@ public class ReleaseTicketSet {
 	public DBEnumTicketSetStatusType STATUS;
 	public int RV;
 	
-	private List<ReleaseTicket> items;
+	private List<ReleaseTicket> tickets;
 	private Map<String,ReleaseTicket> map;
 	private List<ReleaseTicketTarget> targets;
 	
@@ -42,7 +42,7 @@ public class ReleaseTicketSet {
 		this.release = release; 
 		this.changes = changes;
 		
-		items = new LinkedList<ReleaseTicket>();
+		tickets = new LinkedList<ReleaseTicket>();
 		map = new HashMap<String,ReleaseTicket>();
 		targets = new LinkedList<ReleaseTicketTarget>();
 	}
@@ -57,7 +57,7 @@ public class ReleaseTicketSet {
 		r.STATUS = STATUS;
 		r.RV = RV;
 		
-		for( ReleaseTicket ticket : items ) {
+		for( ReleaseTicket ticket : tickets ) {
 			ReleaseTicket rticket = ticket.copy( rrelease , r );
 			r.addTicket( rticket );
 		}
@@ -71,7 +71,7 @@ public class ReleaseTicketSet {
 	}
 
 	public void addTicket( ReleaseTicket ticket ) {
-		items.add( ticket );
+		tickets.add( ticket );
 		map.put( ticket.CODE , ticket );
 	}
 	
@@ -81,7 +81,7 @@ public class ReleaseTicketSet {
 	
 	public void removeTicket( ReleaseTicket ticket ) {
 		map.remove( ticket.CODE );
-		items.remove( ticket );
+		tickets.remove( ticket );
 	}
 
 	public void removeTarget( ReleaseTicketTarget target ) {
@@ -90,7 +90,7 @@ public class ReleaseTicketSet {
 
 	public void reorderTickets() throws Exception {
 		int pos = 1;
-		for( ReleaseTicket ticketUpdate : items ) {
+		for( ReleaseTicket ticketUpdate : tickets ) {
 			ticketUpdate.setPos( pos );
 			pos++;
 		}
@@ -130,9 +130,9 @@ public class ReleaseTicketSet {
 	}
 
 	public ReleaseTicket[] getTickets() {
-		if( items.isEmpty() )
+		if( tickets.isEmpty() )
 			return( new ReleaseTicket[0] );
-		return( items.toArray( new ReleaseTicket[0] ) );
+		return( tickets.toArray( new ReleaseTicket[0] ) );
 	}
 
 	public ReleaseTicketTarget[] getTargets() {
@@ -146,7 +146,7 @@ public class ReleaseTicketSet {
 	}
 
 	public ReleaseTicket getTicketByPos( int POS ) throws Exception {
-		for( ReleaseTicket ticket : items ) {
+		for( ReleaseTicket ticket : tickets ) {
 			if( ticket.POS == POS )
 				return( ticket );
 		}
@@ -230,7 +230,7 @@ public class ReleaseTicketSet {
 		if( STATUS != DBEnumTicketSetStatusType.NEW )
 			return( true );
 		
-		for( ReleaseTicket ticket : items ) {
+		for( ReleaseTicket ticket : tickets ) {
 			if( ticket.isRunning() )
 				return( true );
 		}
@@ -238,7 +238,7 @@ public class ReleaseTicketSet {
 	}
 	
 	public boolean isCompleted() {
-		for( ReleaseTicket ticket : items ) {
+		for( ReleaseTicket ticket : tickets ) {
 			if( !ticket.isCompleted() )
 				return( false );
 		}
@@ -246,7 +246,7 @@ public class ReleaseTicketSet {
 	}
 	
 	public boolean isAccepted() {
-		for( ReleaseTicket ticket : items ) {
+		for( ReleaseTicket ticket : tickets ) {
 			if( !ticket.isAccepted() )
 				return( false );
 		}
@@ -398,7 +398,7 @@ public class ReleaseTicketSet {
 
 	public int getLastTicketPos() {
 		int pos = 0;
-		for( ReleaseTicket ticket : items ) {
+		for( ReleaseTicket ticket : tickets ) {
 			if( ticket.POS > pos )
 				pos = ticket.POS;
 		}
@@ -412,6 +412,34 @@ public class ReleaseTicketSet {
 				pos = target.POS;
 		}
 		return( pos );
+	}
+
+	public void sortTickets() {
+		Map<String,ReleaseTicket> map = new HashMap<String,ReleaseTicket>();
+		for( ReleaseTicket ticket : tickets ) {
+			String key = Common.appendZeros( ticket.POS , 10 );
+			map.put( key , ticket );
+		}
+		
+		tickets.clear();
+		for( String key : Common.getSortedKeys( map ) ) {
+			ReleaseTicket ticket = map.get( key );
+			tickets.add( ticket );
+		}
+	}
+	
+	public void sortTargets() {
+		Map<String,ReleaseTicketTarget> map = new HashMap<String,ReleaseTicketTarget>();
+		for( ReleaseTicketTarget target : targets ) {
+			String key = Common.appendZeros( target.POS , 10 );
+			map.put( key , target );
+		}
+		
+		targets.clear();
+		for( String key : Common.getSortedKeys( map ) ) {
+			ReleaseTicketTarget target = map.get( key );
+			targets.add( target );
+		}
 	}
 	
 }

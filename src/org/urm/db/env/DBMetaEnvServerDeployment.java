@@ -90,7 +90,7 @@ public class DBMetaEnvServerDeployment {
 		String schemaName = entity.importxmlStringAttr( root , MetaEnvServerDeployment.PROPERTY_SCHEMA );
 		if( !schemaName.isEmpty() ) {
 			schemaName = matcher.matchEnvBefore( env , schemaName , deployment.ID , entity , MetaEnvServerDeployment.PROPERTY_SCHEMA , null );
-			MatchItem SCHEMA = database.matchSchema( schemaName );
+			MatchItem SCHEMA = database.getSchemaMatchItem( null , schemaName );
 			matcher.matchEnvDone( SCHEMA );
 			
 			deployment.create( DBEnumServerDeploymentType.SCHEMA , null , null , null , SCHEMA , deployMode , "" , dbname , dbuser , DBEnumNodeType.UNKNOWN );

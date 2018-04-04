@@ -149,14 +149,12 @@ public class MetaDatabase {
 			mapImport.remove( dump.NAME );
 	}
 	
-	public MatchItem matchSchema( String name ) throws Exception {
-		if( name == null || name.isEmpty() )
+	public MatchItem getSchemaMatchItem( Integer id , String name ) throws Exception {
+		if( id == null && name.isEmpty() )
 			return( null );
-		
-		MetaDatabaseSchema schema = findSchema( name );
-		if( schema == null )
-			return( new MatchItem( name ) );
-		return( new MatchItem( schema.ID ) );
+		MetaDatabaseSchema schema = ( id == null )? findSchema( name ) : getSchema( id );
+		MatchItem match = ( schema == null )? new MatchItem( name ) : new MatchItem( schema.ID );
+		return( match );
 	}
 
 	public boolean matchSchema( MatchItem item ) throws Exception {

@@ -39,6 +39,10 @@ public class ReleaseChanges {
 		}
 	}
 
+	public ReleaseTicketSet[] getSets() {
+		return( setsById.values().toArray( new ReleaseTicketSet [0] ) );
+	}
+	
 	public void addSet( ReleaseTicketSet set ) {
 		sets.put( set.CODE , set );
 		setsById.put( set.ID , set );

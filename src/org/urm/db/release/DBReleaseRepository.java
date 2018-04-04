@@ -163,6 +163,12 @@ public class DBReleaseRepository {
 			ReleaseSchedule schedule = release.getSchedule();
 			schedule.sortPhases();
 			schedule.setDeadlines();
+			
+			ReleaseChanges changes = release.getChanges();
+			for( ReleaseTicketSet set : changes.getSets() ) {
+				set.sortTickets();
+				set.sortTargets();
+			}
 		}
 	}
 	

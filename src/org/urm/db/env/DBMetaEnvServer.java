@@ -118,7 +118,7 @@ public class DBMetaEnvServer {
 		
 		String admSchema = entity.importxmlStringAttr( root , MetaEnvServer.PROPERTY_ADMSCHEMA );
 		admSchema = matcher.matchEnvBefore( env , admSchema , server.ID , entities.entityAppServerPrimary , MetaEnvServer.PROPERTY_ADMSCHEMA , null );
-		MatchItem ADMSCHEMA = database.matchSchema( admSchema );
+		MatchItem ADMSCHEMA = database.getSchemaMatchItem( null , admSchema );
 		matcher.matchEnvDone( ADMSCHEMA );
 		
 		String baseItem = entity.importxmlStringAttr( root , MetaEnvServer.PROPERTY_BASEITEM );

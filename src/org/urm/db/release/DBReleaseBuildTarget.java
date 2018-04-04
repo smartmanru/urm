@@ -22,6 +22,7 @@ import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseScope;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class DBReleaseBuildTarget {
 
@@ -91,6 +92,26 @@ public class DBReleaseBuildTarget {
 				entity.exportxmlString( target.BUILD_TAG ) ,
 				entity.exportxmlString( target.BUILD_VERSION )
 		} , true );
+	}
+	
+	public static ReleaseBuildTarget importxmlBuildTarget( EngineLoader loader , Release release , ReleaseChanges changes , ReleaseScope scope , Node root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseBuildTarget;
+		
+		ReleaseBuildTarget buildTarget = ( changes != null )? new ReleaseBuildTarget( changes ) : new ReleaseBuildTarget( scope );
+		
+		Meta meta = release.getMeta();
+		MetaSources sources = meta.getSources();
+		buildTarget.create(
+				DBEnumBuildTargetType.getValue( entity.importxmlEnumAttr( root , ReleaseBuildTarget.PROPERTY_TARGETTYPE ) , true ) ,
+				sources.getProjectMatchItem( null , entity.importxmlStringAttr( root , ReleaseBuildTarget.PROPERTY_SRCSET ) ) ,
+				sources.getProjectMatchItem( null , entity.importxmlStringAttr( root , ReleaseBuildTarget.PROPERTY_PROJECT ) ) ,
+				entity.importxmlStringAttr( root , ReleaseBuildTarget.PROPERTY_BUILDBRANCH ) ,
+				entity.importxmlStringAttr( root , ReleaseBuildTarget.PROPERTY_BUILDTAG ) ,
+				entity.importxmlStringAttr( root , ReleaseBuildTarget.PROPERTY_BUILDVERSION ) ,
+				entity.importxmlBooleanAttr( root , ReleaseBuildTarget.PROPERTY_ALL , false )
+				);
+		return( buildTarget );
 	}
 	
 	public static void deleteBuildTarget( DBConnection c , Release release , ReleaseBuildTarget target ) throws Exception {

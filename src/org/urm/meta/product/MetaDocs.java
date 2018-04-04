@@ -117,4 +117,12 @@ public class MetaDocs {
 		return( null );
 	}
 
+	public MatchItem getDocMatchItem( Integer id , String name ) throws Exception {
+		if( id == null && name.isEmpty() )
+			return( null );
+		MetaProductDoc doc = ( id == null )? findDoc( name ) : getDoc( id );
+		MatchItem match = ( doc == null )? new MatchItem( name ) : new MatchItem( doc.ID );
+		return( match );
+	}
+
 }

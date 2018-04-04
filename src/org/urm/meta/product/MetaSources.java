@@ -284,5 +284,21 @@ public class MetaSources {
 			return( false );
 		return( true );
 	}
+
+	public MatchItem getProjectSetMatchItem( Integer id , String name ) throws Exception {
+		if( id == null && name.isEmpty() )
+			return( null );
+		MetaSourceProjectSet set = ( id == null )? findProjectSet( name ) : getProjectSet( id );
+		MatchItem match = ( set == null )? new MatchItem( name ) : new MatchItem( set.ID );
+		return( match );
+	}
+	
+	public MatchItem getProjectMatchItem( Integer id , String name ) throws Exception {
+		if( id == null && name.isEmpty() )
+			return( null );
+		MetaSourceProject project = ( id == null )? findProject( name ) : getProject( id );
+		MatchItem match = ( project == null )? new MatchItem( name ) : new MatchItem( project.ID );
+		return( match );
+	}
 	
 }

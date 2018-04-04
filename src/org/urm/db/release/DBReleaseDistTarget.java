@@ -25,6 +25,7 @@ import org.urm.meta.release.ReleaseDistTarget;
 import org.urm.meta.release.ReleaseScope;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class DBReleaseDistTarget {
 
@@ -99,6 +100,28 @@ public class DBReleaseDistTarget {
 				entity.exportxmlString( db.getSchemaName( target.SCHEMA ) ) ,
 				entity.exportxmlString( docs.getDocName( target.DOC ) ) ,
 		} , true );
+	}
+	
+	public static ReleaseDistTarget importxmlDistTarget( EngineLoader loader , Release release , ReleaseChanges changes , ReleaseScope scope , Node root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseDistTarget;
+		
+		ReleaseDistTarget distTarget = ( changes != null )? new ReleaseDistTarget( changes ) : new ReleaseDistTarget( scope );
+		
+		Meta meta = release.getMeta();
+		MetaDistr distr = meta.getDistr();
+		MetaDatabase db = meta.getDatabase();
+		MetaDocs docs = meta.getDocs();
+		distTarget.create(
+				DBEnumDistTargetType.getValue( entity.importxmlEnumAttr( root , ReleaseDistTarget.PROPERTY_TARGETTYPE ) , true ) ,
+				distr.getDeliveryMatchItem( null , entity.importxmlStringAttr( root , ReleaseDistTarget.PROPERTY_DELIVERY ) ) ,
+				distr.getBinaryMatchItem( null , entity.importxmlStringAttr( root , ReleaseDistTarget.PROPERTY_BINARY ) ) ,
+				distr.getConfMatchItem( null , entity.importxmlStringAttr( root , ReleaseDistTarget.PROPERTY_CONF ) ) ,
+				db.getSchemaMatchItem( null , entity.importxmlStringAttr( root , ReleaseDistTarget.PROPERTY_SCHEMA ) ) ,
+				docs.getDocMatchItem( null , entity.importxmlStringAttr( root , ReleaseDistTarget.PROPERTY_DOC ) ) ,
+				entity.importxmlBooleanAttr( root , ReleaseDistTarget.PROPERTY_ALL , false )
+				);
+		return( distTarget );
 	}
 	
 	public static void deleteDistTarget( DBConnection c , Release release , ReleaseDistTarget target ) throws Exception {

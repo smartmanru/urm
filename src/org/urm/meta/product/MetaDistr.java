@@ -530,5 +530,29 @@ public class MetaDistr {
 		}
 		return( false );
 	}
+
+	public MatchItem getDeliveryMatchItem( Integer id , String name ) throws Exception {
+		if( id == null && name.isEmpty() )
+			return( null );
+		MetaDistrDelivery delivery = ( id == null )? findDelivery( name ) : getDelivery( id );
+		MatchItem match = ( delivery == null )? new MatchItem( name ) : new MatchItem( delivery.ID );
+		return( match );
+	}
+	
+	public MatchItem getBinaryMatchItem( Integer id , String name ) throws Exception {
+		if( id == null && name.isEmpty() )
+			return( null );
+		MetaDistrBinaryItem binary = ( id == null )? findBinaryItem( name ) : getBinaryItem( id );
+		MatchItem match = ( binary == null )? new MatchItem( name ) : new MatchItem( binary.ID );
+		return( match );
+	}
+	
+	public MatchItem getConfMatchItem( Integer id , String name ) throws Exception {
+		if( id == null && name.isEmpty() )
+			return( null );
+		MetaDistrConfItem conf = ( id == null )? findConfItem( name ) : getConfItem( id );
+		MatchItem match = ( conf == null )? new MatchItem( name ) : new MatchItem( conf.ID );
+		return( match );
+	}
 	
 }

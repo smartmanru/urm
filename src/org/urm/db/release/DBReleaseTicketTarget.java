@@ -28,6 +28,7 @@ import org.urm.meta.release.ReleaseTicketSet;
 import org.urm.meta.release.ReleaseTicketTarget;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class DBReleaseTicketTarget {
 
@@ -79,6 +80,21 @@ public class DBReleaseTicketTarget {
 				entity.exportxmlBoolean( target.DESCOPED ) ,
 				entity.exportxmlBoolean( target.ACCEPTED )
 		} , true );
+	}
+	
+	public static ReleaseTicketTarget importxmlChangeTicketTarget( EngineLoader loader , Release release , ReleaseChanges changes , ReleaseTicketSet set , Node root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseTicketTarget;
+		
+		ReleaseTicketTarget ticketTarget = new ReleaseTicketTarget( release , set );
+		ticketTarget.create(
+				entity.importxmlIntAttr( root , ReleaseTicketTarget.PROPERTY_POS ) ,
+				null ,
+				null ,
+				entity.importxmlBooleanAttr( root , ReleaseTicketTarget.PROPERTY_DESCOPED , false ) ,
+				entity.importxmlBooleanAttr( root , ReleaseTicketTarget.PROPERTY_ACCEPTED , false )
+				);
+		return( ticketTarget );
 	}
 	
 	public static void createProjectSetTarget( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , ReleaseTicketSet ticketSet , MetaSourceProjectSet projectSet ) throws Exception {
