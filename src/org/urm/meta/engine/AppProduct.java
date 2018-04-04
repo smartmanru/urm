@@ -86,7 +86,7 @@ public class AppProduct extends EngineObject {
 	public boolean isOffline() {
 		if( OFFLINE )
 			return( false );
-		return( system.isOffline() );
+		return( true );
 	}
 
 	public boolean isBroken() {
