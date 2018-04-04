@@ -47,6 +47,7 @@ import org.urm.meta.env.MetaDump;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.Meta;
@@ -1352,6 +1353,11 @@ public class TransactionBase extends EngineObject {
 	public MetaEnvServer getMetaEnvServer( MetaEnvServer server ) throws Exception {
 		MetaEnvSegment sg = getMetaEnvSegment( server.sg );
 		return( sg.findServer( server.NAME ) );
+	}
+
+	public MetaEnvServerDeployment getMetaEnvServerDeployment( MetaEnvServerDeployment deployment ) throws Exception {
+		MetaEnvServer server = getMetaEnvServer( deployment.server );
+		return( server.getDeployment( deployment.ID ) );
 	}
 
 	public MetaEnvServerNode getMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {

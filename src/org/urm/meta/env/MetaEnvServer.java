@@ -440,6 +440,13 @@ public class MetaEnvServer extends EngineObject {
 		return( deployments.toArray( new MetaEnvServerDeployment[0] ) );
 	}
 
+	public MetaEnvServerDeployment getDeployment( int id ) throws Exception {
+		MetaEnvServerDeployment deployment = deployMapById.get( id );
+		if( deployment == null )
+			Common.exitUnexpected();
+		return( deployment );
+	}
+	
 	public String getFullBinPath() throws Exception {
 		if( ROOTPATH.isEmpty() )
 			Common.exitUnexpected();
