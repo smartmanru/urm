@@ -33,12 +33,12 @@ public class EngineMethodMetaRelease {
 		if( releaseNew != null )
 			return;
 
-		release.modify( false );
-		releaseOld = release;
-		
 		ReleaseRepository repo = emm.getReleaseRepository();
 		releaseNew = release.copy( repo );
 		repo.replaceRelease( releaseNew );
+		
+		release.modify( false );
+		releaseOld = release;
 	}
 	
 	public void setDeleted() throws Exception {

@@ -51,9 +51,7 @@ public class ReleaseSchedule {
 		phases = new LinkedList<ReleaseSchedulePhase>();
 	}
 	
-	public ReleaseSchedule copy( Release rrelease ) throws Exception {
-		ReleaseSchedule r = new ReleaseSchedule( rrelease );
-		
+	public void copy( Release rrelease , ReleaseSchedule r ) throws Exception {
 		r.ID = ID;
 		r.DATE_STARTED = DATE_STARTED;
 		r.RELEASE_DATE = RELEASE_DATE;
@@ -68,8 +66,6 @@ public class ReleaseSchedule {
 			ReleaseSchedulePhase rphase = phase.copy( rrelease , r );
 			r.addPhase( rphase );
 		}
-		
-		return( r );
 	}
 
 	public void create( Date DATE_STARTED , Date RELEASE_DATE , Date RELEASE_DATE_ACTUAL , Date COMPLETE_DATE_ACTUAL ,

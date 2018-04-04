@@ -22,14 +22,7 @@ public class ReleaseChanges {
 		distTargetMapById = new HashMap<Integer,ReleaseDistTarget>();
 	}
 
-	public ReleaseChanges copy( Release rrelease ) throws Exception {
-		ReleaseChanges r = new ReleaseChanges( rrelease );
-		
-		for( ReleaseTicketSet set : sets.values() ) {
-			ReleaseTicketSet rset = set.copy( rrelease , r );
-			r.addSet( rset );
-		}
-
+	public void copy( Release rrelease , ReleaseChanges r ) throws Exception {
 		for( ReleaseBuildTarget target : buildTargetMapById.values() ) {
 			ReleaseBuildTarget rtarget = target.copy( r , null );
 			r.addBuildTarget( rtarget );
@@ -40,7 +33,10 @@ public class ReleaseChanges {
 			r.addDistTarget( rtarget );
 		}
 		
-		return( r );
+		for( ReleaseTicketSet set : sets.values() ) {
+			ReleaseTicketSet rset = set.copy( rrelease , r );
+			r.addSet( rset );
+		}
 	}
 
 	public void addSet( ReleaseTicketSet set ) {

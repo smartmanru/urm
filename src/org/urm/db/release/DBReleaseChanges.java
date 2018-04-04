@@ -107,9 +107,13 @@ public class DBReleaseChanges {
 		MatchItem dev = auth.getUserMatchItem( entity.importxmlStringAttr( root , ReleaseTicket.PROPERTY_DEV ) );
 		MatchItem qa = auth.getUserMatchItem( entity.importxmlStringAttr( root , ReleaseTicket.PROPERTY_QA ) );
 		
+		int pos = entity.importxmlIntAttr( root , ReleaseTicket.PROPERTY_POS );
+		if( pos <= 0 )
+			pos = set.getLastTargetPos() + 1;
+		
 		ReleaseTicket ticket = new ReleaseTicket( release , set );
 		ticket.create(
-				entity.importxmlIntAttr( root , ReleaseTicket.PROPERTY_POS ) ,
+				pos ,
 				entity.importxmlStringAttr( root , ReleaseTicket.PROPERTY_CODE ) ,
 				entity.importxmlStringAttr( root , ReleaseTicket.PROPERTY_NAME ) ,
 				entity.importxmlStringAttr( root , ReleaseTicket.PROPERTY_DESC ) ,

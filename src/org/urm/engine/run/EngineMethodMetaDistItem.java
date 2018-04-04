@@ -35,13 +35,13 @@ public class EngineMethodMetaDistItem {
 		if( itemNew != null )
 			return;
 
-		item.modify( false );
-		itemOld = item;
-		
 		DistRepository repo = emm.getDistRepository();
 		ReleaseDist releaseDist = repoReleases.findReleaseDist( item.dist );
 		itemNew = item.copy( repo , releaseDist );
 		repo.replaceItem( itemNew );
+		
+		item.modify( false );
+		itemOld = item;
 	}
 	
 	public void setDeleted() throws Exception {

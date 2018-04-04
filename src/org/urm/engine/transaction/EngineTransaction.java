@@ -1098,7 +1098,8 @@ public class EngineTransaction extends TransactionBase {
 		return( null );
 	}
 	
-	public MetaEnvServerDeployment createMetaEnvServerDatabaseDeployment( MetaEnvServer server , DBEnumDeployModeType deployMode , String dbName , String dbUser ) throws Exception {
+	public MetaEnvServerDeployment createMetaEnvServerDatabaseDeployment( MetaEnvServer server , MetaDatabaseSchema schema ,
+			DBEnumDeployModeType deployMode , String dbName , String dbUser ) throws Exception {
 		action.exitNotImplemented();
 		return( null );
 	}
@@ -1119,7 +1120,8 @@ public class EngineTransaction extends TransactionBase {
 		action.exitNotImplemented();
 	}
 	
-	public void modifyMetaEnvServerDatabaseDeployment( MetaEnvServerDeployment deployment , DBEnumDeployModeType deployMode , String dbName , String dbUser ) throws Exception {
+	public void modifyMetaEnvServerDatabaseDeployment( MetaEnvServerDeployment deployment , MetaDatabaseSchema schema ,
+			DBEnumDeployModeType deployMode , String dbName , String dbUser ) throws Exception {
 		action.exitNotImplemented();
 	}
 	

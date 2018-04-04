@@ -102,9 +102,9 @@ public class Release {
 		r.CANCELLED = CANCELLED;
 		r.RV = RV;
 		
-		r.schedule = schedule.copy( r );
-		r.changes = changes.copy( r );
-		r.scope = scope.copy( r );
+		schedule.copy( r , r.schedule );
+		changes.copy( r , r.changes );
+		scope.copy( r , r.scope );
 		
 		if( defaultDist != null )
 			r.defaultDist = defaultDist.copy( r );

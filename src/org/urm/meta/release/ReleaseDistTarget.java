@@ -132,6 +132,12 @@ public class ReleaseDistTarget {
 		return( false );
 	}
 	
+	public boolean isDistItem() {
+		if( TYPE.isDistItem() )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isDeliveryBinaries() {
 		return( TYPE == DBEnumDistTargetType.DELIVERYBINARIES );
 	}

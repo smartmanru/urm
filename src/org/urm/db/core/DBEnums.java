@@ -643,6 +643,15 @@ public abstract class DBEnums {
 			return( false );
 		}
 		
+		public boolean isDistItem() {
+			if( this == DBEnumDistTargetType.BINARYITEM ||
+				this == DBEnumDistTargetType.CONFITEM ||
+				this == DBEnumDistTargetType.SCHEMA ||
+				this == DBEnumDistTargetType.DOC )
+				return( true );
+			return( false );
+		}
+		
 		private final int value;
 		private String[] synonyms;
 		@Override public int code() { return( value ); };

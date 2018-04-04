@@ -31,9 +31,7 @@ public class ReleaseScope {
 		scopeDistMapById = new HashMap<Integer,ReleaseDistTarget>();
 	}
 
-	public ReleaseScope copy( Release rrelease ) throws Exception {
-		ReleaseScope r = new ReleaseScope( rrelease );
-		
+	public void copy( Release rrelease , ReleaseScope r ) throws Exception {
 		for( ReleaseBuildTarget target : scopeBuildMapById.values() ) {
 			ReleaseBuildTarget rtarget = target.copy( null , r );
 			r.addBuildTarget( rtarget );
@@ -43,8 +41,6 @@ public class ReleaseScope {
 			ReleaseDistTarget rtarget = target.copy( null , r );
 			r.addDistTarget( rtarget );
 		}
-
-		return( r );
 	}
 	
 	public void clear() {

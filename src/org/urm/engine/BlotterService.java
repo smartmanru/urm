@@ -17,6 +17,7 @@ import org.urm.action.release.ActionDescope;
 import org.urm.action.release.ActionFinishRelease;
 import org.urm.action.release.ActionCompleteRelease;
 import org.urm.action.release.ActionGetCumulative;
+import org.urm.action.release.ActionImportRelease;
 import org.urm.action.release.ActionModifyRelease;
 import org.urm.action.release.ActionReopenRelease;
 import org.urm.action.release.ActionSchedulePhase;
@@ -219,6 +220,11 @@ public class BlotterService {
 		else
 		if( action instanceof ActionCreateRelease ) {
 			ActionCreateRelease xa = ( ActionCreateRelease )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.CREATE , "create release label=" + xa.RELEASELABEL ); 
+		}
+		else
+		if( action instanceof ActionImportRelease ) {
+			ActionImportRelease xa = ( ActionImportRelease )action;
 			runReleaseAction( xa , success , xa.release , ReleaseOperation.CREATE , "create release label=" + xa.RELEASELABEL ); 
 		}
 		else

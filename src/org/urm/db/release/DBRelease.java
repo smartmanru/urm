@@ -333,6 +333,11 @@ public class DBRelease {
 	}
 
 	private static void createFileRecords( EngineMethod method , ActionBase action , Release release ) throws Exception {
+		ReleaseScope scope = release.getScope();
+		for( ReleaseDistTarget target : scope.getDistTargets() ) {
+			if( !target.isDistItem() )
+				Common.exitUnexpected();
+		}
 	}
 	
 }
