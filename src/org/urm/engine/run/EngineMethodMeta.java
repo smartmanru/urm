@@ -83,6 +83,7 @@ public class EngineMethodMeta {
 
 	public synchronized Release updateRelease( Release release ) throws Exception {
 		changeReleaseRepository();
+		release = updateReleaseRepository.getRelease( release.ID );
 		
 		EngineMethodMetaRelease emmr = mapReleases.get( release.RELEASEVER );
 		if( emmr == null ) {
@@ -136,6 +137,7 @@ public class EngineMethodMeta {
 	
 	public synchronized DistRepositoryItem updateDistItem( DistRepositoryItem item ) throws Exception {
 		changeDistRepository();
+		item = updateDistRepository.findItem( item.RELEASEDIR );
 		
 		EngineMethodMetaDistItem emmd = mapDistItems.get( item.RELEASEDIR );
 		if( emmd == null ) {

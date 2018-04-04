@@ -124,12 +124,12 @@ public class DBRelease {
 			DBReleaseChanges.exportxmlChangeSet( loader , release , changes , set , doc , nodeSet );
 			
 			for( ReleaseTicket ticket : set.getTickets() ) {
-				Element nodeTicket = Common.xmlCreateElement( doc , node , ELEMENT_TICKET );
+				Element nodeTicket = Common.xmlCreateElement( doc , nodeSet , ELEMENT_TICKET );
 				DBReleaseChanges.exportxmlChangeTicket( loader , release , changes , set , ticket , doc , nodeTicket );
 			}
 			
 			for( ReleaseTicketTarget target : set.getTargets() ) {
-				Element nodeTarget = Common.xmlCreateElement( doc , node , ELEMENT_TICKETTARGET );
+				Element nodeTarget = Common.xmlCreateElement( doc , nodeSet , ELEMENT_TICKETTARGET );
 				DBReleaseTicketTarget.exportxmlChangeTicketTarget( loader , release , changes , set , target , doc , nodeTarget );
 				
 				if( target.isBuildTarget() ) {
@@ -258,29 +258,24 @@ public class DBRelease {
 	}
 
 	private static ReleaseTicketTarget importxmlReleaseChangeTarget( EngineLoader loader , Release release , ReleaseChanges changes , ReleaseTicketSet set , Node root ) throws Exception {
-		ReleaseTicketTarget target = DBReleaseTicketTarget.importxmlChangeTicketTarget( loader , release , changes , set , root );
-		
 		Node nodeBuildTarget = ConfReader.xmlGetFirstChild( root , ELEMENT_BUILDTARGET );
 		if( nodeBuildTarget != null ) {
 			ReleaseBuildTarget buildTarget = DBReleaseBuildTarget.importxmlBuildTarget( loader , release , changes , null , nodeBuildTarget );
-			int pos = target.POS;
-			if( pos <= 0 )
-				pos = set.getLastTargetPos() + 1;
-			target.create( buildTarget , pos );
+			ReleaseTicketTarget target = DBReleaseTicketTarget.importxmlChangeTicketTarget( loader , release , changes , set , buildTarget , null , root );
 			set.addTarget( target );
+			return( target );
 		}
-		else {
-			Node nodeDistTarget = ConfReader.xmlGetFirstChild( root , ELEMENT_DISTTARGET );
-			if( nodeDistTarget != null ) {
-				ReleaseDistTarget distTarget = DBReleaseDistTarget.importxmlDistTarget( loader , release , changes , null , nodeDistTarget );
-				int pos = target.POS;
-				if( pos <= 0 )
-					pos = set.getLastTargetPos() + 1;
-				target.create( distTarget , pos );
-				set.addTarget( target );
-			}
+		
+		Node nodeDistTarget = ConfReader.xmlGetFirstChild( root , ELEMENT_DISTTARGET );
+		if( nodeDistTarget != null ) {
+			ReleaseDistTarget distTarget = DBReleaseDistTarget.importxmlDistTarget( loader , release , changes , null , nodeDistTarget );
+			ReleaseTicketTarget target = DBReleaseTicketTarget.importxmlChangeTicketTarget( loader , release , changes , set , null , distTarget , root );
+			set.addTarget( target );
+			return( target );
 		}
-		return( target );
+		
+		Common.exitUnexpected();
+		return( null );
 	}
 	
 	private static void importxmlReleaseScope( EngineLoader loader , Release release , Node root ) throws Exception {

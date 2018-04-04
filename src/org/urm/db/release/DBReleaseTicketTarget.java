@@ -82,15 +82,22 @@ public class DBReleaseTicketTarget {
 		} , true );
 	}
 	
-	public static ReleaseTicketTarget importxmlChangeTicketTarget( EngineLoader loader , Release release , ReleaseChanges changes , ReleaseTicketSet set , Node root ) throws Exception {
+	public static ReleaseTicketTarget importxmlChangeTicketTarget( EngineLoader loader , Release release , ReleaseChanges changes , ReleaseTicketSet set , ReleaseBuildTarget buildTarget , ReleaseDistTarget distTarget , Node root ) throws Exception {
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppReleaseTicketTarget;
 		
+		int pos = entity.importxmlIntAttr( root , ReleaseTicketTarget.PROPERTY_POS );
+		if( pos <= 0 )
+			pos = set.getLastTargetPos() + 1;
+		
+		Integer buildTargetId = ( buildTarget == null )? null : buildTarget.ID;
+		Integer distTargetId = ( distTarget == null )? null : distTarget.ID;
+		
 		ReleaseTicketTarget ticketTarget = new ReleaseTicketTarget( release , set );
 		ticketTarget.create(
-				entity.importxmlIntAttr( root , ReleaseTicketTarget.PROPERTY_POS ) ,
-				null ,
-				null ,
+				pos ,
+				buildTargetId ,
+				distTargetId ,
 				entity.importxmlBooleanAttr( root , ReleaseTicketTarget.PROPERTY_DESCOPED , false ) ,
 				entity.importxmlBooleanAttr( root , ReleaseTicketTarget.PROPERTY_ACCEPTED , false )
 				);
