@@ -109,7 +109,7 @@ public class DBReleaseChanges {
 		
 		int pos = entity.importxmlIntAttr( root , ReleaseTicket.PROPERTY_POS );
 		if( pos <= 0 )
-			pos = set.getLastTargetPos() + 1;
+			pos = set.getLastTicketPos() + 1;
 		
 		ReleaseTicket ticket = new ReleaseTicket( release , set );
 		ticket.create(
