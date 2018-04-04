@@ -255,7 +255,8 @@ public class DBReleaseChanges {
 			Common.exitUnexpected();
 		
 		ReleaseTicket ticket = new ReleaseTicket( release , set );
-		ticket.create( type , code , name , link , comments , owner , devdone );
+		int pos = set.getLastTicketPos() + 1;
+		ticket.create( pos , type , code , name , link , comments , owner , devdone );
 		modifyTicket( c , release , changes , set , ticket , true );
 		set.addTicket( ticket );
 	}

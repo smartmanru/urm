@@ -110,7 +110,7 @@ public class ReleaseTicket {
 		this.QA = MatchItem.copy( qa );
 	}
 	
-	public void create( DBEnumTicketType type , String code , String name , String link , String comments , Integer owner , boolean devdone ) throws Exception {
+	public void create( int pos , DBEnumTicketType type , String code , String name , String link , String comments , Integer owner , boolean devdone ) throws Exception {
 		this.TYPE = type;
 		this.CODE = code;
 		this.NAME = name;

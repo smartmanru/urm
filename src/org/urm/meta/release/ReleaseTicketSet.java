@@ -119,13 +119,6 @@ public class ReleaseTicketSet {
 		create( code , name , comments , DBEnumTicketSetStatusType.NEW );
 	}
 	
-	public void createTicket( DBEnumTicketType type , String code , String name , String link , String desc , Integer owner , boolean devdone ) throws Exception {
-		ReleaseTicket ticket = new ReleaseTicket( release , this );
-		ticket.setPos( items.size() + 1 );
-		ticket.create( type , code , name , link , desc , owner , devdone );
-		addTicket( ticket );
-	}
-	
 	public void modify( String code , String name , String comments ) throws Exception {
 		this.CODE = code;
 		this.NAME = name;

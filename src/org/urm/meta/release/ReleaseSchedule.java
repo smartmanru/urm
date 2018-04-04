@@ -425,6 +425,7 @@ public class ReleaseSchedule {
 			ReleaseSchedulePhase phase = getCurrentPhase();
 			phase.finishPhase( Common.getDateCurrentDay() );
 			
+			CURRENT_PHASE++;
 			ReleaseSchedulePhase phaseNext = getCurrentPhase();
 			Date date = phase.getFinishDate();
 			if( phaseNext.requireStartDay() )

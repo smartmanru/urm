@@ -105,6 +105,10 @@ public class DistItemInfo {
 		return( md5value );
 	}
 
+	public Date getTimestamp() {
+		return( timestamp );
+	}
+	
 	public String getDeliveryItemPath() {
 		return( Common.getPath( deliveryItemFolder , finalName ) );
 	}
