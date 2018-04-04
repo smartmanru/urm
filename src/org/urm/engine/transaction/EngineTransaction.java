@@ -1109,6 +1109,29 @@ public class EngineTransaction extends TransactionBase {
 		return( null );
 	}
 	
+	public void modifyMetaEnvServerBinaryDeployment( MetaEnvServerDeployment deployment , MetaDistrBinaryItem item , 
+			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
+		action.exitNotImplemented();
+	}
+	
+	public void modifyMetaEnvServerConfDeployment( MetaEnvServerDeployment deployment , MetaDistrConfItem item , 
+			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
+		action.exitNotImplemented();
+	}
+	
+	public void modifyMetaEnvServerDatabaseDeployment( MetaEnvServerDeployment deployment , DBEnumDeployModeType deployMode , String dbName , String dbUser ) throws Exception {
+		action.exitNotImplemented();
+	}
+	
+	public void modifyMetaEnvServerComponentDeployment( MetaEnvServerDeployment deployment , MetaDistrComponent comp , 
+			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
+		action.exitNotImplemented();
+	}
+	
+	public void deleteMetaEnvServerDeployment( MetaEnvServerDeployment deployment ) throws Exception {
+		action.exitNotImplemented();
+	}
+	
 	public void modifyMetaEnvServerNode( MetaEnvServerNode node , int pos , DBEnumNodeType nodeType , HostAccount account ) throws Exception {
 		MetaEnv env = node.server.sg.env;
 		super.checkTransactionEnv( env );
