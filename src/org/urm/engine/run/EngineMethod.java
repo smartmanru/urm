@@ -15,6 +15,7 @@ import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepositoryItem;
+import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.status.ScopeState;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.ProductReleases;
@@ -31,6 +32,7 @@ public class EngineMethod extends EngineExecutorTask {
 	private DBConnection connection;
 	private List<DBConnection> dbstatus;
 	private Map<String,EngineMethodMeta> metastatus;
+	private List<EngineMethodNotify> notify;
 	
 	public EngineMethod( ActionBase action , CommandExecutor executor , CommandMethod command , ScopeState parentState ) {
 		super( executor.commandInfo.name + "::" + command.method.name );
@@ -41,6 +43,7 @@ public class EngineMethod extends EngineExecutorTask {
 		
 		dbstatus = new LinkedList<DBConnection>();
 		metastatus = new HashMap<String,EngineMethodMeta>();
+		notify = new LinkedList<EngineMethodNotify>(); 
 	}
 
 	@Override
@@ -81,6 +84,8 @@ public class EngineMethod extends EngineExecutorTask {
 			
 			for( EngineMethodMeta emm : metastatus.values() )
 				emm.commit();
+			
+			notifyEvents();
 		}
 		catch( Throwable e ) {
 			action.log( "execute method commit error" , e );
@@ -221,6 +226,16 @@ public class EngineMethod extends EngineExecutorTask {
 
 	private synchronized EngineMethodMeta findEmm( Meta meta ) throws Exception {
 		return( metastatus.get( meta.name ) );
+	}
+
+	public synchronized void addCommitEvent( EngineEventsSource source , int eventOwner , int eventType , Object data ) {
+		EngineMethodNotify event = new EngineMethodNotify( source , eventOwner , eventType , data );
+		notify.add( event );
+	}
+
+	private void notifyEvents() {
+		for( EngineMethodNotify event : notify )
+			event.source.notifyCustomEvent( event.eventOwner , event.eventType , event.data );
 	}
 	
 }

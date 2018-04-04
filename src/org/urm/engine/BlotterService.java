@@ -139,7 +139,7 @@ public class BlotterService {
 	public void startAction( ActionBase action ) throws Exception {
 		if( action instanceof ActionInit ) {
 			EngineBlotterItem item = blotterRoots.createRootItem( ( ActionInit )action );
-			notifyItem( item , BlotterEvent.BLOTTER_START );
+			notifyItem( action , item , BlotterEvent.BLOTTER_START );
 			return;
 		}
 
@@ -154,7 +154,7 @@ public class BlotterService {
 			EngineBlotterActionItem baseItem = blotterBuilds.createBuildItem( rootItem , parentBaseItem , parentTreeItem , ( ActionPatch )action );
 			parentTreeItem.addChild( baseItem.treeItem );
 			startChildAction( rootItem , parentBaseItem , baseItem.treeItem );
-			notifyItem( baseItem , BlotterEvent.BLOTTER_START );
+			notifyItem( action , baseItem , BlotterEvent.BLOTTER_START );
 			return;
 		}
 
@@ -164,12 +164,12 @@ public class BlotterService {
 
 	private void startChildAction( EngineBlotterActionItem rootItem , EngineBlotterActionItem baseItem , EngineBlotterTreeItem treeItem ) {
 		blotterRoots.startChildAction( rootItem , treeItem );
-		notifyChildItem( rootItem , treeItem , BlotterEvent.BLOTTER_STARTCHILD );
+		notifyChildItem( treeItem.action , rootItem , treeItem , BlotterEvent.BLOTTER_STARTCHILD );
 		
 		if( baseItem != rootItem ) {
 			EngineBlotterSet set = baseItem.blotterSet;
 			set.startChildAction( baseItem , treeItem );
-			notifyChildItem( baseItem , treeItem , BlotterEvent.BLOTTER_STARTCHILD );
+			notifyChildItem( treeItem.action , baseItem , treeItem , BlotterEvent.BLOTTER_STARTCHILD );
 		}
 	}
 	
@@ -197,14 +197,14 @@ public class BlotterService {
 		if( baseItem != null ) {
 			baseItem.stopAction( success );
 			finishItem( baseItem );
-			notifyItem( baseItem , BlotterEvent.BLOTTER_STOP );
+			notifyItem( action , baseItem , BlotterEvent.BLOTTER_STOP );
 			
 			if( baseItem != rootItem )
-				stopChildAction( rootItem , baseItem.parent , treeItem , success );
+				stopChildAction( action , rootItem , baseItem.parent , treeItem , success );
 		}
 		else {
 			baseItem = getBaseItem( rootItem , treeItem );
-			stopChildAction( rootItem , baseItem , treeItem , success );
+			stopChildAction( action , rootItem , baseItem , treeItem , success );
 		}
 		
 		// release blotter
@@ -319,25 +319,25 @@ public class BlotterService {
 		}
 	}
 	
-	private void stopChildAction( EngineBlotterActionItem rootItem , EngineBlotterActionItem baseItem , EngineBlotterTreeItem treeItem , boolean success ) {
+	private void stopChildAction( ActionBase action , EngineBlotterActionItem rootItem , EngineBlotterActionItem baseItem , EngineBlotterTreeItem treeItem , boolean success ) {
 		blotterRoots.stopChildAction( rootItem , treeItem , success );
-		notifyChildItem( rootItem , treeItem , BlotterEvent.BLOTTER_STOPCHILD );
+		notifyChildItem( action , rootItem , treeItem , BlotterEvent.BLOTTER_STOPCHILD );
 		
 		if( baseItem != rootItem ) {
 			EngineBlotterSet set = baseItem.blotterSet;
 			set.stopChildAction( baseItem , treeItem , success );
-			notifyChildItem( baseItem , treeItem , BlotterEvent.BLOTTER_STOPCHILD );
+			notifyChildItem( action , baseItem , treeItem , BlotterEvent.BLOTTER_STOPCHILD );
 		}
 	}
 	
-	private void notifyItem( EngineBlotterItem item , BlotterEvent event ) {
+	private void notifyItem( ActionBase action , EngineBlotterItem item , BlotterEvent event ) {
 		EngineBlotterSet set = item.blotterSet;
-		set.notifyItem( item , event );
+		set.notifyItem( action , item , event );
 	}
 	
-	private void notifyChildItem( EngineBlotterItem baseItem , EngineBlotterTreeItem treeItem , BlotterEvent event ) {
+	private void notifyChildItem( ActionBase action , EngineBlotterItem baseItem , EngineBlotterTreeItem treeItem , BlotterEvent event ) {
 		EngineBlotterSet set = baseItem.blotterSet;
-		set.notifyChildItem( baseItem , treeItem , event );
+		set.notifyChildItem( action , baseItem , treeItem , event );
 	}
 	
 	private void finishItem( EngineBlotterActionItem item ) {

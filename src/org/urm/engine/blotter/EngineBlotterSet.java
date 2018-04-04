@@ -14,6 +14,7 @@ import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
+import org.urm.engine.run.EngineMethod;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.release.Release;
@@ -149,14 +150,22 @@ public class EngineBlotterSet extends EngineEventsSource {
 		stat.statFinishItem( item );
 	}
 	
-	public void notifyItem( EngineBlotterItem item , BlotterEvent event ) {
+	public void notifyItem( ActionBase action , EngineBlotterItem item , BlotterEvent event ) {
 		EngineBlotterEvent data = new EngineBlotterEvent( item , event );
-		super.notify( EventService.OWNER_ENGINE , EventService.EVENT_BLOTTEREVENT , data );
+		addBlotterEvent( action , data );
 	}
 	
-	public void notifyChildItem( EngineBlotterItem baseItem , EngineBlotterTreeItem treeItem , BlotterEvent event ) {
+	public void notifyChildItem( ActionBase action , EngineBlotterItem baseItem , EngineBlotterTreeItem treeItem , BlotterEvent event ) {
 		EngineBlotterEvent data = new EngineBlotterEvent( baseItem , treeItem , event );
-		super.notify( EventService.OWNER_ENGINE , EventService.EVENT_BLOTTEREVENT , data );
+		addBlotterEvent( action , data );
+	}
+
+	private void addBlotterEvent( ActionBase action , EngineBlotterEvent data ) {
+		EngineMethod method = action.getMethod();
+		if( method != null )
+			method.addCommitEvent( this , EventService.OWNER_ENGINE , EventService.EVENT_BLOTTEREVENT , data );
+		else
+			super.notify( EventService.OWNER_ENGINE , EventService.EVENT_BLOTTEREVENT , data );
 	}
 	
 	public synchronized void startChildAction( EngineBlotterActionItem baseItem , EngineBlotterTreeItem treeItem ) {
@@ -234,7 +243,7 @@ public class EngineBlotterSet extends EngineEventsSource {
 			item = new EngineBlotterReleaseItem( this , key );
 			item.createReleaseItem( release );
 			items.put( item.ID , item );
-			notifyItem( item , BlotterEvent.BLOTTER_START );
+			notifyItem( action , item , BlotterEvent.BLOTTER_START );
 		}
 		else {
 			item = ( EngineBlotterReleaseItem )items.get( key );
@@ -243,10 +252,10 @@ public class EngineBlotterSet extends EngineEventsSource {
 			
 			if( success && ( op == ReleaseOperation.DROP || op == ReleaseOperation.ARCHIVE ) ) {
 				items.remove( item.ID );
-				notifyItem( item , BlotterEvent.BLOTTER_STOP );
+				notifyItem( action , item , BlotterEvent.BLOTTER_STOP );
 			}
 			else
-				notifyChildItem( item , action.blotterTreeItem , BlotterEvent.BLOTTER_RELEASEACTION );
+				notifyChildItem( action , item , action.blotterTreeItem , BlotterEvent.BLOTTER_RELEASEACTION );
 		}
 		
 		return( item );
