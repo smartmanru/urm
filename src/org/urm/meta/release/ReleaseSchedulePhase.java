@@ -24,7 +24,7 @@ public class ReleaseSchedulePhase {
 
 	public int ID;
 	public DBEnumLifecycleStageType STAGETYPE;
-	public int STAGE_POS;
+	private int STAGE_POS;
 	public String NAME;
 	public String DESC;
 	public int DAYS;
@@ -35,6 +35,7 @@ public class ReleaseSchedulePhase {
 	public Date FINISH_DATE;
 	public int RV;
 	
+	private int pos;
 	private Date deadlineStart;
 	private Date deadlineFinish;
 	private Date bestStart;
@@ -48,6 +49,7 @@ public class ReleaseSchedulePhase {
 		DAYS = 0;
 		NORMAL_DAYS = 0;
 		FINISHED = false;
+		pos = 0;
 	}
 	
 	public ReleaseSchedulePhase copy( Release rrelease , ReleaseSchedule rschedule ) throws Exception {
@@ -66,6 +68,7 @@ public class ReleaseSchedulePhase {
 		r.FINISH_DATE = FINISH_DATE;
 		r.RV = RV;
 		
+		r.pos = pos;
 		r.deadlineStart = deadlineStart;
 		r.deadlineFinish = deadlineFinish;
 		r.bestStart = bestStart;
@@ -101,6 +104,18 @@ public class ReleaseSchedulePhase {
 		this.FINISH_DATE = null;
 	}
 
+	public void setPos( int pos ) {
+		this.pos = pos;
+	}
+	
+	public int getSchedulePos() {
+		return( pos );
+	}
+	
+	public int getStagePos() {
+		return( STAGE_POS );
+	}
+	
 	public boolean isRelease() {
 		return( STAGETYPE == DBEnumLifecycleStageType.RELEASE );
 	}

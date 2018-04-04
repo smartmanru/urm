@@ -27,7 +27,7 @@ public class DBReleaseSchedulePhase {
 		DBEngineEntities.modifyAppObject( c , entities.entityAppReleasePhase , phase.ID , phase.RV , new String[] {
 				EngineDB.getObject( release.ID ) ,
 				EngineDB.getEnum( phase.STAGETYPE ) ,
-				EngineDB.getInteger( phase.STAGE_POS ) ,
+				EngineDB.getInteger( phase.getStagePos() ) ,
 				EngineDB.getString( phase.NAME ) ,
 				EngineDB.getString( phase.DESC ) ,
 				EngineDB.getInteger( phase.DAYS ) ,
@@ -90,7 +90,7 @@ public class DBReleaseSchedulePhase {
 		
 		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
 				entity.exportxmlEnum( phase.STAGETYPE ) ,
-				entity.exportxmlInt( phase.STAGE_POS ) ,
+				entity.exportxmlInt( phase.getStagePos() ) ,
 				entity.exportxmlString( phase.NAME ) ,
 				entity.exportxmlString( phase.DESC ) ,
 				entity.exportxmlInt( phase.DAYS ) ,

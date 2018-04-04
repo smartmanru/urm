@@ -158,9 +158,10 @@ public class DBReleaseRepository {
 		loaddbReleasesDistTarget( loader , repo );
 		loaddbReleasesTicketTarget( loader , repo );
 		
-		// recalcualte schedules
+		// reorder and recalculate schedules
 		for( Release release : repo.getReleases() ) {
 			ReleaseSchedule schedule = release.getSchedule();
+			schedule.sortPhases();
 			schedule.setDeadlines();
 		}
 	}
@@ -247,12 +248,6 @@ public class DBReleaseRepository {
 		}
 		finally {
 			c.closeQuery();
-		}
-		
-		for( String version : repo.getActiveVersions() ) {
-			Release release = repo.findRelease( version );
-			ReleaseSchedule releaseSchedule = release.getSchedule();
-			releaseSchedule.sortPhases();
 		}
 	}
 

@@ -88,18 +88,21 @@ public class ReleaseSchedule {
 		
 		Map<String,ReleaseSchedulePhase> map = new HashMap<String,ReleaseSchedulePhase>();
 		for( ReleaseSchedulePhase phase : phases ) {
-			String key = ( phase.isRelease() )? "1" : "2";
-			key += "-" + Common.getZeroPadded( phase.STAGE_POS , 10 );
+			String key = ( phase.isRelease() )? "0" : "1";
+			key += "-" + Common.getZeroPadded( phase.getStagePos() , 10 );
 			map.put( key , phase );
 		}
 		
 		phases.clear();
+		int pos = 0; 
 		for( String key : Common.getSortedKeys( map ) ) {
 			ReleaseSchedulePhase phase = map.get( key );
-			int expectedIndex = ( phase.isRelease() )? phase.STAGE_POS : releasePhaseCount + phase.STAGE_POS;
+			int expectedIndex = ( phase.isRelease() )? phase.getStagePos() : releasePhaseCount + phase.getStagePos();
 			if( phases.size() != expectedIndex )
 				Common.exitUnexpected();
 			phases.add( phase );
+			phase.setPos( pos );
+			pos++;
 		}
 	}
 	
@@ -146,6 +149,7 @@ public class ReleaseSchedule {
 			for( LifecyclePhase lcPhase : lc.getPhases() ) {
 				ReleaseSchedulePhase phase = new ReleaseSchedulePhase( release , this );
 				phase.create( lcPhase );
+				phase.setPos( phases.size() );
 				phases.add( phase );
 			}
 			
@@ -444,7 +448,7 @@ public class ReleaseSchedule {
 			action.exit2( _Error.DateEalierThanReleaseStarted2 , "Date cannot be before date when release has been started, release=" + release.RELEASEVER + " date=" + DATE , release.RELEASEVER , DATE );
 		}
 		
-		if( phase.STAGE_POS > 0 && deadlineDate.before( phase.getDeadlineStart() ) ) {
+		if( phase.getSchedulePos() > 0 && deadlineDate.before( phase.getDeadlineStart() ) ) {
 			String DATE = Common.getDateValue( phase.getDeadlineStart() );
 			action.exit2( _Error.DateEalierThanPhaseStart2 , "Date cannot be before date when phase expected to start, release=" + release.RELEASEVER + " date=" + DATE , release.RELEASEVER , DATE );
 		}
@@ -456,8 +460,8 @@ public class ReleaseSchedule {
 		}
 		
 		ReleaseSchedulePhase phaseNext = null;
-		if( phase.STAGE_POS < phases.size() - 1 ) {
-			phaseNext = getPhase( phase.STAGE_POS + 1 );
+		if( phase.getSchedulePos() < phases.size() - 1 ) {
+			phaseNext = getPhase( phase.getSchedulePos() + 1 );
 			String DATE = Common.getDateValue( phaseNext.getDeadlineFinish() );
 			if( deadlineDate.after( phaseNext.getDeadlineFinish() ) )
 				action.exit2( _Error.DateEalierThanNextPhaseDeadline2 , "Date cannot be after next phase deadline, release=" + release.RELEASEVER + " date=" + DATE , release.RELEASEVER , DATE );
@@ -480,7 +484,7 @@ public class ReleaseSchedule {
 		}
 		
 		phase.setFinishDeadline( deadlineDate , false );
-		if( phase.STAGE_POS == releasePhaseCount - 1 ) {
+		if( phase.getSchedulePos() == releasePhaseCount - 1 ) {
 			RELEASE_DATE = deadlineDate;
 			setDeadlinesBest();
 		}
