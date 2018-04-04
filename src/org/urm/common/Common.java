@@ -294,6 +294,11 @@ public class Common {
 		return( getTimeStamp( new Date() ) );
 	}
 
+	public static String getTime( Date date ) {
+        SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss" );
+        return( simpleFormat.format( date ) );
+	}
+	
 	public static String getTimeStamp( Date date ) {
         SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss,SSS" );
         return( simpleFormat.format( date ) );

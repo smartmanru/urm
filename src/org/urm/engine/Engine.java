@@ -1,5 +1,7 @@
 package org.urm.engine;
 
+import java.util.Date;
+
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
@@ -61,6 +63,7 @@ public class Engine {
 	public ActionInit serverAction;
 	
 	public boolean running;
+	public Date dateStarted;
 
 	private TransactionBase currentTransaction = null;
 
@@ -90,6 +93,7 @@ public class Engine {
 		blotter = new BlotterService( this );
 		
 		optionsMeta = new OptionsMeta();
+		dateStarted = new Date();
 	}
 	
 	public void init() throws Exception {
