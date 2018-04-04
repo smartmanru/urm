@@ -260,7 +260,7 @@ public class DBReleaseChanges {
 		method.checkUpdateRelease( release );
 		DBConnection c = method.getMethodConnection( action );
 		
-		if( set.findTicket( code ) != null )
+		if( set.findTicket( code ) == null )
 			Common.exitUnexpected();
 		
 		ticket.modify( type , code , name , link , comments , owner , devdone );

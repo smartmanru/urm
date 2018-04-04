@@ -267,16 +267,4 @@ public class EngineBlotterSet extends EngineEventsSource {
 		return( item );
 	}
 
-	public synchronized EngineBlotterReleaseItem findReleaseItem( String productName , String releaseVer ) {
-		for( EngineBlotterItem item : items.values() ) {
-			EngineBlotterReleaseItem releaseItem = ( EngineBlotterReleaseItem )item;
-			if( releaseItem.release.isMaster() )
-				continue;
-			
-			if( productName.equals( releaseItem.INFO_PRODUCT ) && releaseVer.equals( releaseItem.release.RELEASEVER ) )
-				return( releaseItem );
-		}
-		return( null );
-	}
-
 }

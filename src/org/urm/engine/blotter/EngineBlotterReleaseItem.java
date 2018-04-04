@@ -1,13 +1,21 @@
 package org.urm.engine.blotter;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.DataService;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.meta.engine.AppProduct;
+import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseRepository;
 
 public class EngineBlotterReleaseItem extends EngineBlotterItem {
 
-	public Release release;
+	public int productId;
+	public int repoId;
+	public int metaId;
+	public int releaseId;
 	
-	public String INFO_PRODUCT;
 	public String SORTKEY;
 	
 	public EngineBlotterReleaseItem( EngineBlotterSet blotterSet , String ID ) {
@@ -15,12 +23,16 @@ public class EngineBlotterReleaseItem extends EngineBlotterItem {
 	}
 
 	public void createReleaseItem( Release release ) {
-		this.release = release;
-		this.INFO_PRODUCT = release.repo.meta.name;
-		SORTKEY = getSortKey();
+		this.releaseId = release.ID;
+		this.repoId = release.repo.ID;
+		Meta meta = release.getMeta();
+		this.metaId = meta.getId();
+		AppProduct product = meta.getProduct();
+		this.productId = product.ID;
+		SORTKEY = getSortKey( release );
 	}
 	
-	private String getSortKey() {
+	private String getSortKey( Release release ) {
 		String RELEASEVER = release.RELEASEVER;
 		String[] version = Common.splitDotted( RELEASEVER );
 		for( int k = 0; k < version.length; k++ ) {
@@ -29,6 +41,29 @@ public class EngineBlotterReleaseItem extends EngineBlotterItem {
 		}
 			 
 		return( release.repo.meta.name + "-" + Common.getListDotted( version ) );
+	}
+
+	public Release getRelease( ActionBase action ) {
+		try {
+			DataService data = super.blotterSet.blotter.engine.getData();
+			EngineDirectory directory = data.getDirectory();
+			AppProduct product = directory.findProduct( productId );
+			Meta meta = product.getMeta( action );
+			ReleaseRepository repo = meta.getReleaseRepository();
+			Release release = repo.getRelease( releaseId );
+			return( release );
+		}
+		catch( Throwable e ) {
+			action.log( "get release" , e );
+			return( null );
+		}
+	}
+
+	public AppProduct getProduct( ActionBase action ) {
+		DataService data = super.blotterSet.blotter.engine.getData();
+		EngineDirectory directory = data.getDirectory();
+		AppProduct product = directory.findProduct( productId );
+		return( product );
 	}
 	
 }
