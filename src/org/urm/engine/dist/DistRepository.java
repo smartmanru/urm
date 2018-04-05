@@ -46,23 +46,23 @@ public class DistRepository {
 		modifyState = false;
 	}
 	
-	public DistRepository copy( Meta rmeta , ReleaseRepository rrepo ) {
+	public DistRepository copy( Meta rmeta , ReleaseRepository rrepo ) throws Exception {
 		DistRepository r = new DistRepository( rmeta );
 		r.repoFolder = repoFolder;
 		for( DistRepositoryItem item : normalMap.values() ) {
 			ReleaseDist rreleaseDist = rrepo.findReleaseDist( item.dist );
 			DistRepositoryItem ritem = item.copy( r , rreleaseDist );
-			r.addItem( ritem );
+			r.addNormalItem( ritem );
 		}
 		for( DistRepositoryItem item : masterMap.values() ) {
 			ReleaseDist rreleaseDist = rrepo.findReleaseDist( item.dist );
 			DistRepositoryItem ritem = item.copy( r , rreleaseDist );
-			r.addItem( ritem );
+			r.addMasterItem( ritem );
 		}
-		for( DistRepositoryItem item : masterMap.values() ) {
+		for( DistRepositoryItem item : archiveMap.values() ) {
 			ReleaseDist rreleaseDist = rrepo.findReleaseDist( item.dist );
 			DistRepositoryItem ritem = item.copy( r , rreleaseDist );
-			r.addItem( ritem );
+			r.addArchiveItem( ritem );
 		}
 		return( r );
 	}
@@ -109,17 +109,19 @@ public class DistRepository {
 		ReleaseRepository releaseRepo = meta.getReleaseRepository();
 		RemoteFolder normalFolder = repoFolder.getSubFolder( action , REPO_FOLDER_RELEASES_NORMAL );
 		String[] folders = normalFolder.getTopDirs( action );
+		
 		for( String folder : folders ) {
-			VersionInfo info = VersionInfo.getReleaseDirInfo( folder );
-			Release release = releaseRepo.findRelease( info.getFullVersion() );
+			VersionInfo versionInfo = VersionInfo.getReleaseDirInfo( folder );
+			Release release = releaseRepo.findRelease( versionInfo.getFullVersion() );
 			if( release == null )
 				continue;
 			
-			ReleaseDist releaseDist = release.findDistVariant( info.variant );
+			ReleaseDist releaseDist = release.findDistVariant( versionInfo.variant );
 			DistRepositoryItem item = new DistRepositoryItem( this );
-			item.createItem( action , folder , getNormalReleaseFolder( folder ) );
+			ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta , folder );
+			item.createItem( action , info );
 			item.read( action , normalFolder.getSubFolder( action , folder ) , releaseDist );
-			addItem( item );
+			addNormalItem( item );
 		}
 	}
 	
@@ -206,10 +208,13 @@ public class DistRepository {
 	
 	private DistRepositoryItem createDistItem( ActionBase action , ReleaseLabelInfo info , Dist dist ) throws Exception {
 		DistRepositoryItem item = new DistRepositoryItem( this );
-		item.createItem( action , info.RELEASEDIR , info.RELEASEPATH );
+		item.createItem( action , info );
 		if( dist != null )
 			item.setDist( dist );
-		addItem( item );
+		if( dist.isMaster() )
+			addMasterItem( item );
+		else
+			addNormalItem( item );
 		return( item );
 	}
 
@@ -220,22 +225,28 @@ public class DistRepository {
 	
 	public DistRepositoryItem createRepositoryItem( EngineMethod method , ActionBase action , ReleaseLabelInfo info ) throws Exception {
 		DistRepositoryItem item = new DistRepositoryItem( this );
-		item.createItem( action , info.RELEASEDIR , info.RELEASEPATH );
+		item.createItem( action , info );
 		item.createItemFolder( action );
 		
 		method.createDistItem( this , item );
-		addItem( item );
+		if( info.master )
+			addMasterItem( item );
+		else
+			addNormalItem( item );
 		return( item );
 	}
 
 	public DistRepositoryItem attachRepositoryItem( EngineMethod method , ActionBase action , ReleaseLabelInfo info , ReleaseDist releaseDist ) throws Exception {
 		DistRepositoryItem item = new DistRepositoryItem( this );
-		item.createItem( action , info.RELEASEDIR , info.RELEASEPATH );
+		item.createItem( action , info );
 		RemoteFolder distFolder = getDistFolder( action , item );
 		item.read( action , distFolder , releaseDist );
 		
 		method.createDistItem( this , item );
-		addItem( item );
+		if( releaseDist.release.isMaster() )
+			addMasterItem( item );
+		else
+			addNormalItem( item );
 		return( item );
 	}
 
@@ -317,9 +328,9 @@ public class DistRepository {
 		ReleaseLabelInfo info = getLabelInfo( action , ReleaseLabelInfo.LABEL_MASTER );
 		
 		DistRepositoryItem item = new DistRepositoryItem( this );
-		item.createItem( action , info.RELEASEDIR , info.RELEASEPATH );
+		item.createItem( action , info );
 		
-		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
+		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.DISTPATH );
 		Dist dist = item.createDistMaster( action , distFolder , releaseDist );
 		createDistItem( action , info , dist );
 		return( dist );
@@ -331,9 +342,9 @@ public class DistRepository {
 
 		ReleaseLabelInfo info = getLabelInfo( action , ReleaseLabelInfo.LABEL_MASTER );
 		DistRepositoryItem item = createRepositoryMasterItem( method , action );
-		item.createItem( action , info.RELEASEDIR , info.RELEASEPATH );
+		item.createItem( action , info );
 		
-		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
+		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.DISTPATH );
 		Dist dist = item.createDistMaster( action , distFolder , releaseDist );
 		createDistItem( action , info , dist );
 		
@@ -371,19 +382,27 @@ public class DistRepository {
 		return( item.dist );
 	}
 
-	public void addItem( DistRepositoryItem item ) {
-		if( item.dist.isMaster() )
-			masterMap.put( item.dist.release.NAME , item );
-		else
-		if( item.dist.release.isArchived() )
-			archiveMap.put( item.dist.RELEASEDIR , item );
-		else
-			normalMap.put( item.dist.RELEASEDIR , item );
+	public void addNormalItem( DistRepositoryItem item ) throws Exception {
+		if( item.dist != null && item.dist.isMaster() )
+			Common.exitUnexpected();
+		
+		normalMap.put( item.RELEASEDIR , item );
+	}
+
+	public void addMasterItem( DistRepositoryItem item ) {
+		masterMap.put( item.dist.release.NAME , item );
+	}
+
+	public void addArchiveItem( DistRepositoryItem item ) {
+		archiveMap.put( item.RELEASEDIR , item );
 	}
 
 	public void replaceItem( DistRepositoryItem itemOld , DistRepositoryItem item ) throws Exception {
 		removeItem( itemOld );
-		addItem( item );
+		if( item.dist.isMaster() )
+			addMasterItem( item );
+		else
+			addNormalItem( item );
 	}
 	
 	public synchronized void removeItem( DistRepositoryItem item ) {
@@ -447,7 +466,7 @@ public class DistRepository {
 	public Dist copyDist( ActionBase action , Dist dist , String newName , ReleaseDist newReleaseDist ) throws Exception {
 		ReleaseLabelInfo info = getLabelInfo( action , newReleaseDist.getReleaseDir() );
 		DistRepositoryItem newItem = new DistRepositoryItem( this );
-		newItem.createItem( action , info.RELEASEDIR , info.RELEASEPATH );
+		newItem.createItem( action , info );
 		return( dist.copyDist( action , newName , newItem , newReleaseDist ) );
 	}
 	
@@ -462,8 +481,11 @@ public class DistRepository {
 		dist.moveDist( action , dist.RELEASEDIR + "-old" );
 		distNew.moveDist( action , releasedir );
 		item.setDist( distNew );
-		
-		addItem( item );
+
+		if( dist.isMaster() )
+			addMasterItem( item );
+		else
+			addNormalItem( item );
 	}
 
 	public Dist findDefaultMasterDist() {

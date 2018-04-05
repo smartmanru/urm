@@ -13,7 +13,6 @@ public class DistRepositoryItem {
 	
 	public String RELEASEDIR;
 	public String DISTPATH;
-
 	public Dist dist;
 	
 	private boolean modifyState;
@@ -61,10 +60,10 @@ public class DistRepositoryItem {
 		return( dist );
 	}
 
-	public void createItem( ActionBase action , String releaseDir , String distPath ) throws Exception {
+	public void createItem( ActionBase action , ReleaseLabelInfo info ) throws Exception {
 		this.dist = null;
-		this.RELEASEDIR = releaseDir;
-		this.DISTPATH = distPath;
+		this.RELEASEDIR = info.RELEASEDIR;
+		this.DISTPATH = info.DISTPATH;
 	}
 	
 	public void createItemFolder( ActionBase action ) throws Exception {

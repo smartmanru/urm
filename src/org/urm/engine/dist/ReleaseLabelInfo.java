@@ -14,7 +14,7 @@ public class ReleaseLabelInfo {
 	
 	Meta meta;
 	
-	public String RELEASEPATH = "";
+	public String DISTPATH = "";
 	public String RELEASEVER = "";
 	public String RELEASEDIR = "";
 	public String VARIANT = "";
@@ -60,7 +60,8 @@ public class ReleaseLabelInfo {
 		
 		if( RELEASELABEL.equals( LABEL_MASTER ) ) {
 			RELEASEVER = "(master)";
-			RELEASEPATH = RELEASEDIR;
+			RELEASEDIR = DistRepository.REPO_FOLDER_RELEASES_MASTER;
+			DISTPATH = RELEASEDIR;
 			VARIANT = "";
 			master = true;
 			primary = true;
@@ -76,7 +77,7 @@ public class ReleaseLabelInfo {
 		else {
 			RELEASEVER = getReleaseVerByLabel( action , RELEASELABEL );
 			RELEASEDIR = getReleaseDirByVer( RELEASEVER );
-			RELEASEPATH = "releases/" + RELEASEDIR;
+			DISTPATH = "releases/" + RELEASEDIR;
 			VARIANT = "";
 			this.primary = true;
 			this.archived = archived;
@@ -84,7 +85,7 @@ public class ReleaseLabelInfo {
 	}
 	
 	public void setRepositoryPath( String path ) {
-		this.RELEASEPATH = path;
+		this.DISTPATH = path;
 	}
 	
 	public DBEnumLifecycleType getLifecycleType() {

@@ -63,7 +63,6 @@ public class ActionCopyRelease extends ActionBase {
 			
 			Dist dist = distrepoUpdated.createDistNormal( method , this , item , releaseDist );
 			DBReleaseDist.updateHash( method , this , release , releaseDist , dist );
-			distrepoUpdated.addItem( item );
 			
 			DBReleaseScope.copyScope( method , this , repoUpdated , release , src );
 			Dist srcDist = distrepoUpdated.findDefaultDist( src );
