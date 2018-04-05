@@ -366,8 +366,6 @@ public class Dist {
 	}
 
 	public boolean finish( ActionBase action ) throws Exception {
-		state.ctlFinish( action );
-		
 		// check files/remote empty folders
 		DistFinalizer finalizer = new DistFinalizer( action , this , distFolder , release );
 		if( !finalizer.finish() ) {
@@ -376,7 +374,9 @@ public class Dist {
 			return( false );
 		}
 		
-		return( false );
+		state.ctlFinish( action );
+		
+		return( true );
 	}
 
 	public void complete( ActionBase action ) throws Exception {

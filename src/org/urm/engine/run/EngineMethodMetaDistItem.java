@@ -38,7 +38,7 @@ public class EngineMethodMetaDistItem {
 		DistRepository repo = emm.getDistRepository();
 		ReleaseDist releaseDist = repoReleases.findReleaseDist( item.dist );
 		itemNew = item.copy( repo , releaseDist );
-		repo.replaceItem( itemNew );
+		repo.replaceItem( item , itemNew );
 		
 		item.modify( false );
 		itemOld = item;

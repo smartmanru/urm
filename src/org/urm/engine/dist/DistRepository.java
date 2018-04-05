@@ -1,8 +1,6 @@
 package org.urm.engine.dist;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
@@ -34,22 +32,34 @@ public class DistRepository {
 	public Meta meta;
 	
 	private RemoteFolder repoFolder;
-	private Map<String,DistRepositoryItem> itemMap; 
-	private Map<String,DistRepositoryItem> runMap; 
+	private Map<String,DistRepositoryItem> normalMap; 
+	private Map<String,DistRepositoryItem> masterMap; 
+	private Map<String,DistRepositoryItem> archiveMap; 
 	
 	private boolean modifyState;
 	
 	private DistRepository( Meta meta ) {
 		this.meta = meta;
-		itemMap = new HashMap<String,DistRepositoryItem>();
-		runMap = new HashMap<String,DistRepositoryItem>();
+		normalMap = new HashMap<String,DistRepositoryItem>();
+		masterMap = new HashMap<String,DistRepositoryItem>();
+		archiveMap = new HashMap<String,DistRepositoryItem>();
 		modifyState = false;
 	}
 	
 	public DistRepository copy( Meta rmeta , ReleaseRepository rrepo ) {
 		DistRepository r = new DistRepository( rmeta );
 		r.repoFolder = repoFolder;
-		for( DistRepositoryItem item : itemMap.values() ) {
+		for( DistRepositoryItem item : normalMap.values() ) {
+			ReleaseDist rreleaseDist = rrepo.findReleaseDist( item.dist );
+			DistRepositoryItem ritem = item.copy( r , rreleaseDist );
+			r.addItem( ritem );
+		}
+		for( DistRepositoryItem item : masterMap.values() ) {
+			ReleaseDist rreleaseDist = rrepo.findReleaseDist( item.dist );
+			DistRepositoryItem ritem = item.copy( r , rreleaseDist );
+			r.addItem( ritem );
+		}
+		for( DistRepositoryItem item : masterMap.values() ) {
 			ReleaseDist rreleaseDist = rrepo.findReleaseDist( item.dist );
 			DistRepositoryItem ritem = item.copy( r , rreleaseDist );
 			r.addItem( ritem );
@@ -330,12 +340,24 @@ public class DistRepository {
 		return( dist );
 	}
 
-	public DistRepositoryItem findItem( String RELEASEDIR ) {
-		return( itemMap.get( RELEASEDIR ) );
+	public DistRepositoryItem findNormalItem( String RELEASEDIR ) {
+		return( normalMap.get( RELEASEDIR ) );
 	}
 	
-	public DistRepositoryItem findRunItem( Dist dist ) {
-		return( runMap.get( dist.RELEASEDIR ) );
+	public DistRepositoryItem findArchivedItem( String RELEASEDIR ) {
+		return( archiveMap.get( RELEASEDIR ) );
+	}
+	
+	public DistRepositoryItem findMasterItem( String NAME ) {
+		return( masterMap.get( NAME ) );
+	}
+	
+	public DistRepositoryItem findItem( Dist dist ) {
+		if( dist.isMaster() )
+			return( findMasterItem( dist.release.NAME ) );
+		if( dist.release.isArchived() )
+			return( findArchivedItem( dist.RELEASEDIR ) );
+		return( findNormalItem( dist.RELEASEDIR ) );
 	}
 	
 	public Dist findDist( ReleaseLabelInfo info ) {
@@ -343,45 +365,48 @@ public class DistRepository {
 	}
 	
 	public synchronized Dist findDist( String releaseDir ) {
-		DistRepositoryItem item = runMap.get( releaseDir );
+		DistRepositoryItem item = findNormalItem( releaseDir );
 		if( item == null )
 			return( null );
 		return( item.dist );
 	}
 
 	public void addItem( DistRepositoryItem item ) {
-		itemMap.put( item.RELEASEDIR , item );
-		if( item.dist != null )
-			runMap.put( item.RELEASEDIR , item );
+		if( item.dist.isMaster() )
+			masterMap.put( item.dist.release.NAME , item );
+		else
+		if( item.dist.release.isArchived() )
+			archiveMap.put( item.dist.RELEASEDIR , item );
+		else
+			normalMap.put( item.dist.RELEASEDIR , item );
 	}
 
-	public void replaceItem( DistRepositoryItem item ) throws Exception {
-		if( !itemMap.containsKey( item.RELEASEDIR ) )
-			Common.exitUnexpected();
-		
+	public void replaceItem( DistRepositoryItem itemOld , DistRepositoryItem item ) throws Exception {
+		removeItem( itemOld );
 		addItem( item );
 	}
 	
-	private synchronized DistRepositoryItem findRunItem( String releaseDir ) {
-		return( runMap.get( releaseDir ) );
-	}
-
 	public synchronized void removeItem( DistRepositoryItem item ) {
-		itemMap.remove( item.RELEASEDIR );
-		runMap.remove( item.RELEASEDIR );
+		if( item.dist.isMaster() )
+			masterMap.remove( item.dist.release.NAME );
+		else
+		if( item.dist.release.isArchived() )
+			archiveMap.remove( item.dist.RELEASEDIR );
+		else
+			normalMap.remove( item.dist.RELEASEDIR );
 	}
 
-	public synchronized DistRepositoryItem[] getRunItems() {
-		int count = runMap.size();
+	public synchronized DistRepositoryItem[] getNormalItems() {
+		int count = normalMap.size();
 		DistRepositoryItem[] items = new DistRepositoryItem[ count ];
 		int k = 0;
-		for( String key : Common.getSortedKeys( runMap ) )
-			items[ k++ ] = runMap.get( key );
+		for( String key : Common.getSortedKeys( normalMap ) )
+			items[ k++ ] = normalMap.get( key );
 		return( items );
 	}
 	
 	public synchronized void archiveDist( ActionBase action , Dist dist ) throws Exception {
-		DistRepositoryItem item = findRunItem( dist );
+		DistRepositoryItem item = findItem( dist );
 		if( item == null )
 			Common.exitUnexpected();
 		
@@ -393,26 +418,14 @@ public class DistRepository {
 		removeItem( item );
 	}
 
-	public synchronized Dist reloadDist( ActionBase action , String RELEASELABEL ) throws Exception {
-		ReleaseLabelInfo info = getLabelInfo( action , RELEASELABEL );
-		
-		DistRepositoryItem item = findRunItem( info.RELEASEDIR );
-		if( item == null )
-			return( null );
-			
-		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.RELEASEPATH );
+	public synchronized Dist reloadDist( ActionBase action , DistRepositoryItem item ) throws Exception {
+		RemoteFolder distFolder = getDistFolder( action , item );
 		item.read( action , distFolder , item.dist.releaseDist );
 		return( item.dist );
 	}
 
 	public synchronized String[] getActiveVersions() {
-		List<String> list = new LinkedList<String>();
-		for( String releasedir : runMap.keySet() ) {
-			if( releasedir.equals( REPO_FOLDER_RELEASES_MASTER ) )
-				continue;
-			list.add( releasedir );
-		}
-		return( list.toArray( new String[0] ) );
+		return( VersionInfo.orderVersions( Common.getSortedKeys( normalMap ) ) );
 	}
 	
 	public synchronized Dist getNextDist( ActionBase action , VersionInfo info ) throws Exception {
@@ -424,7 +437,7 @@ public class DistRepository {
 			if( name.equals( ordered[k] ) ) {
 				if( k >= ordered.length - 1 )
 					break;
-				DistRepositoryItem item = itemMap.get( ordered[k+1] );
+				DistRepositoryItem item = normalMap.get( ordered[k+1] );
 				return( item.dist );
 			}
 		}
@@ -439,7 +452,7 @@ public class DistRepository {
 	}
 	
 	public void replaceDist( ActionBase action , Dist dist , Dist distNew ) throws Exception {
-		DistRepositoryItem item = findRunItem( dist );
+		DistRepositoryItem item = findItem( dist );
 		if( item == null )
 			Common.exitUnexpected();
 		
@@ -454,7 +467,7 @@ public class DistRepository {
 	}
 
 	public Dist findDefaultMasterDist() {
-		DistRepositoryItem item = findItem( REPO_FOLDER_RELEASES_MASTER );
+		DistRepositoryItem item = findNormalItem( REPO_FOLDER_RELEASES_MASTER );
 		if( item == null )
 			return( null );
 		return( item.dist );
@@ -477,7 +490,7 @@ public class DistRepository {
 	
 	public DistRepositoryItem findDefaultItem( Release release ) {
 		ReleaseDist dist = release.getDefaultReleaseDist();
-		return( findItem( dist.getReleaseDir() ) );
+		return( findNormalItem( dist.getReleaseDir() ) );
 	}
 	
 	public static String getNormalReleaseFolder( String RELEASEDIR ) throws Exception {

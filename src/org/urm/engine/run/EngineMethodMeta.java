@@ -137,7 +137,7 @@ public class EngineMethodMeta {
 	
 	public synchronized DistRepositoryItem updateDistItem( DistRepositoryItem item ) throws Exception {
 		changeDistRepository();
-		item = updateDistRepository.findItem( item.RELEASEDIR );
+		item = updateDistRepository.findNormalItem( item.RELEASEDIR );
 		
 		EngineMethodMetaDistItem emmd = mapDistItems.get( item.RELEASEDIR );
 		if( emmd == null ) {

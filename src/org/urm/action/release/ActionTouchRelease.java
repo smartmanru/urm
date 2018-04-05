@@ -1,8 +1,11 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.dist.DistRepositoryItem;
+import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -18,6 +21,7 @@ public class ActionTouchRelease extends ActionBase {
 	
 	public ActionTouchRelease( ActionBase action , String stream , Meta meta , String RELEASELABEL ) {
 		super( action , stream , "Touch release=" + RELEASELABEL );
+		this.meta = meta;
 		this.RELEASELABEL = RELEASELABEL;
 	}
 
@@ -30,7 +34,13 @@ public class ActionTouchRelease extends ActionBase {
 			DistRepository distrepoUpdated = method.changeDistRepository( releases );
 
 			// reload distributive
-			Dist dist = distrepoUpdated.reloadDist( this , RELEASELABEL );
+			ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( this , meta , RELEASELABEL );
+			DistRepositoryItem item = distrepoUpdated.findNormalItem( info.RELEASEDIR );
+			if( item == null )
+				Common.exitUnexpected();
+				
+			DistRepositoryItem itemUpdated = method.changeDistItem( distrepoUpdated , item );
+			Dist dist = distrepoUpdated.reloadDist( this , itemUpdated );
 			release = dist.release;
 			
 			return( SCOPESTATE.RunSuccess );

@@ -325,5 +325,9 @@ public class Release {
 	public void setArchived() {
 		ARCHIVED = true;
 	}
+
+	public boolean isArchived() {
+		return( ARCHIVED );
+	}
 	
 }
