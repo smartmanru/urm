@@ -63,6 +63,7 @@ public class DistItemInfo {
 	
 	public void setFinalName( String fileName ) {
 		this.finalName = fileName;
+		this.found = true;
 	}
 	
 	public void setMD5( String md5value ) {

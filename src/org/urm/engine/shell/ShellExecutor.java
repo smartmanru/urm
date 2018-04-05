@@ -1022,6 +1022,11 @@ public abstract class ShellExecutor extends Shell {
 	}
 	
 	public synchronized void getDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files , String excludeRegExp ) throws Exception {
+		if( account.local ) {
+			readDirsAndFiles( action , rootPath , dirs , files , excludeRegExp );
+			return;
+		}
+			
 		try {
 			ShellCore core = opstart( action );
 			core.cmdGetDirsAndFiles( action , rootPath , dirs , files , excludeRegExp );
@@ -1322,4 +1327,31 @@ public abstract class ShellExecutor extends Shell {
 		return( Common.getBaseName( filePath ) );
 	}
 
+	private void readDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files , String excludeRegExp ) throws Exception {
+		rootPath = Common.getLinuxPath( rootPath );
+		if( !rootPath.endsWith( "/" ) )
+			rootPath += "/";
+		
+		String startPath = action.getLocalPath( rootPath );
+		File parent = new File( startPath );
+		addDirsAndFiles( action , parent , startPath , dirs , files , excludeRegExp );
+	}
+	
+	private void addDirsAndFiles( ActionBase action , File parent , String startPath , List<String> dirs , List<String> files , String excludeRegExp ) throws Exception {
+		for( File file : parent.listFiles() ) {
+			String path = file.getPath();
+			if( excludeRegExp.isEmpty() == false && path.matches( excludeRegExp ) )
+				continue;
+			
+			String subPath = Common.getPartAfterFirst( path , startPath );
+			if( file.isDirectory() ) {
+				dirs.add( Common.getLinuxPath( subPath ) );
+				addDirsAndFiles( action , file , startPath , dirs , files , excludeRegExp );
+			}
+			else
+			if( file.isFile() )
+				files.add( Common.getLinuxPath( subPath ) );
+		}
+	}
+	
 }
