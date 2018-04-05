@@ -111,17 +111,22 @@ public class DistRepository {
 		String[] folders = normalFolder.getTopDirs( action );
 		
 		for( String folder : folders ) {
-			VersionInfo versionInfo = VersionInfo.getReleaseDirInfo( folder );
-			Release release = releaseRepo.findRelease( versionInfo.getFullVersion() );
-			if( release == null )
-				continue;
-			
-			ReleaseDist releaseDist = release.findDistVariant( versionInfo.variant );
-			DistRepositoryItem item = new DistRepositoryItem( this );
-			ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta , folder );
-			item.createItem( action , info );
-			item.read( action , normalFolder.getSubFolder( action , folder ) , releaseDist );
-			addNormalItem( item );
+			try {
+				VersionInfo versionInfo = VersionInfo.getReleaseDirInfo( folder );
+				Release release = releaseRepo.findRelease( versionInfo.getFullVersion() );
+				if( release == null )
+					continue;
+				
+				ReleaseDist releaseDist = release.findDistVariant( versionInfo.variant );
+				DistRepositoryItem item = new DistRepositoryItem( this );
+				ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta , folder );
+				item.createItem( action , info );
+				item.read( action , normalFolder.getSubFolder( action , folder ) , releaseDist );
+				addNormalItem( item );
+			}
+			catch( Throwable e ) {
+				action.log( "unable to read release" , e );
+			}
 		}
 	}
 	

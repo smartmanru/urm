@@ -1,9 +1,10 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.db.release.DBRelease;
-import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -24,6 +25,9 @@ public class ActionReopenRelease extends ActionBase {
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		EngineMethod method = super.method;
 		
+		if( !release.isFinalized() )
+			Common.exitUnexpected();
+		
 		Meta meta = release.getMeta();
 		ProductReleases releases = meta.getReleases();
 		synchronized( releases ) {
@@ -31,13 +35,14 @@ public class ActionReopenRelease extends ActionBase {
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			DistRepository distrepoUpdated = method.changeDistRepository( releases );
-			Dist dist = distrepoUpdated.findDefaultDist( releaseUpdated );
+			DistRepositoryItem item = distrepoUpdated.findDefaultItem( releaseUpdated );
+			DistRepositoryItem itemUpdated = method.changeDistItem( distrepoUpdated , item );
 
 			// change database
 			DBRelease.reopen( method , this , releaseUpdated );
 			
 			// change dist
-			dist.reopen( this );
+			itemUpdated.dist.reopen( this );
 		}
 		
 		return( SCOPESTATE.RunSuccess );

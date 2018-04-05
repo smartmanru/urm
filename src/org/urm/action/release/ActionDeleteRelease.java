@@ -40,8 +40,10 @@ public class ActionDeleteRelease extends ActionBase {
 			
 			// drop in file repository
 			DistRepositoryItem item = distrepoUpdated.findDefaultItem( releaseUpdated );
-			DistRepositoryItem itemUpdated = method.deleteDistItem( distrepoUpdated , item );
-			distrepoUpdated.dropDist( method , this , itemUpdated , context.CTX_FORCE );
+			if( item != null ) {
+				DistRepositoryItem itemUpdated = method.deleteDistItem( distrepoUpdated , item );
+				distrepoUpdated.dropDist( method , this , itemUpdated , context.CTX_FORCE );
+			}
 		}
 		
 		return( SCOPESTATE.RunSuccess );

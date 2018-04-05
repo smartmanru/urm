@@ -162,7 +162,7 @@ public class DistFinalizer {
 		// check by category
 		for( String dir : fsd.getAllDirNames() ) {
 			FileSet dirFilesDist = fsd.findDirByName( dir );
-			FileSet dirFilesRelease = fsr.findDirByName( dir );
+			FileSet dirFilesRelease = ( fsr == null )? null : fsr.findDirByName( dir );
 			if( dirFilesRelease == null ) {
 				if( dir.equals( Dist.DATABASE_FOLDER ) ) {
 					if( !finishDistDeliveryDatabase( action , delivery , dirFilesDist , null ) )
@@ -210,11 +210,13 @@ public class DistFinalizer {
 			}
 		}
 
-		for( String dir : fsr.getAllDirNames() ) {
-			FileSet dirFilesDist = fsd.findDirByName( dir );
-			if( dirFilesDist == null ) {
-				action.error( "distributive has missing delivery=" + delivery.NAME + ", dir=" + dir );
-				return( false );
+		if( fsr != null ) {
+			for( String dir : fsr.getAllDirNames() ) {
+				FileSet dirFilesDist = fsd.findDirByName( dir );
+				if( dirFilesDist == null ) {
+					action.error( "distributive has missing delivery=" + delivery.NAME + ", dir=" + dir );
+					return( false );
+				}
 			}
 		}
 		

@@ -321,8 +321,6 @@ public class ReleaseSchedule {
 			ReleaseSchedulePhase phase = getPhase( releasePhaseCount );
 			phase.startPhase( date );
 		}
-		else
-			complete( action );
 	}
 	
 	public void complete( ActionBase action ) throws Exception {
@@ -422,9 +420,6 @@ public class ReleaseSchedule {
 		
 		if( CURRENT_PHASE == releasePhaseCount - 1 )
 			finish( action );
-		else
-		if( CURRENT_PHASE == phases.size() - 1 )
-			complete( action );
 		else {
 			ReleaseSchedulePhase phase = getCurrentPhase();
 			phase.finishPhase( Common.getDateCurrentDay() );
