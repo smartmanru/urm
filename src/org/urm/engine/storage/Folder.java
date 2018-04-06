@@ -516,4 +516,10 @@ public abstract class Folder {
 		return( new Date( fo.lastModified() ) );
 	}
 	
+	public long getFileSize( ActionBase action , String file ) throws Exception {
+		String path = getFilePath( action , file );
+		File fo = new File( action.getLocalPath( path ) );
+		return( fo.length() );
+	}
+	
 }

@@ -24,7 +24,7 @@ public class EngineDB {
 	private Engine engine;
 	
 	private PGConnectionPoolDataSource pool;
-	public static int APP_VERSION = 1226;
+	public static int APP_VERSION = 1227;
 	
 	public EngineDB( Engine engine ) {
 		this.engine = engine;
@@ -134,6 +134,12 @@ public class EngineDB {
 		DateFormat format = new SimpleDateFormat( "yyyyMMdd" );
 		String dateString = format.format( value );
 		return( "to_date('" + dateString + "','YYYYMMDD')" );
+	}
+	
+	public static String getLong( Long value ) {
+		if( value == null )
+			return( "null" );
+		return( "" + value );
 	}
 	
 	public static String getBoolean( boolean value ) {

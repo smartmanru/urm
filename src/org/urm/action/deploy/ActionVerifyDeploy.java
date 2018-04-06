@@ -370,7 +370,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		if( binaryItem.isArchive() )
 			return( executeNodeArchive( server , node , location , binaryItem , tobeServerFolder , asisServerFolder ) );
 		
-		DistItemInfo distInfo = dist.getDistItemInfo( this , binaryItem , true , false );
+		DistItemInfo distInfo = dist.getDistItemInfo( this , binaryItem , true , false , false );
 		if( !distInfo.isFound() ) {
 			debug( "ignore non-release item=" + binaryItem.NAME );
 			return( true );
@@ -405,7 +405,7 @@ public class ActionVerifyDeploy extends ActionBase {
 
 	private boolean executeNodeArchive( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrBinaryItem archiveItem , LocalFolder tobeServerFolder , LocalFolder asisServerFolder ) throws Exception {
 		boolean getMD5 = ( context.CTX_CHECK )? false : true;
-		DistItemInfo distInfo = dist.getDistItemInfo( this , archiveItem , getMD5 , false );
+		DistItemInfo distInfo = dist.getDistItemInfo( this , archiveItem , getMD5 , false , false );
 		if( !distInfo.isFound() ) {
 			debug( "ignore non-release item=" + archiveItem.NAME );
 			return( true );

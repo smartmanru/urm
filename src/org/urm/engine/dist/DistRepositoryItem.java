@@ -149,7 +149,7 @@ public class DistRepositoryItem {
 	}
 
 	private void copyFilesBinaryItem( EngineMethod method , ActionBase action , Dist src , ReleaseDistScopeDeliveryItem item , ReleaseDistScopeDeliveryItem srcItem ) throws Exception {
-		DistItemInfo info = src.getDistItemInfo( action , item.binary , false , false );
+		DistItemInfo info = src.getDistItemInfo( action , item.binary , false , false , false );
 		if( info.isFound() )
 			dist.copyFileDistrToDistr( action , item.distDelivery , src , info.getDeliveryItemPath() );
 	}

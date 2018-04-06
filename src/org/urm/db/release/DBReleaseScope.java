@@ -781,6 +781,46 @@ public class DBReleaseScope {
 				}
 			}
 		}
+		
+		MetaSources sources = meta.getSources();
+		for( ReleaseBuildTarget target : scope.getBuildTargets() ) {
+			if( target.isBuildAll() ) {
+				for( MetaSourceProjectSet set : sources.getSetList() ) {
+					for( MetaSourceProject project : set.getProjects() ) {
+						for( MetaSourceProjectItem item : project.getItems() )
+							finishCreateItem( method , action , release , scope , item );
+					}
+				}
+			}
+			else
+			if( target.isBuildSet() ) {
+				MetaSourceProjectSet set = target.getProjectSet();
+				for( MetaSourceProject project : set.getProjects() ) {
+					for( MetaSourceProjectItem item : project.getItems() )
+						finishCreateItem( method , action , release , scope , item );
+				}
+			}
+			else
+			if( target.isBuildProjectAllItems() ) {
+				MetaSourceProject project = target.getProject();
+				for( MetaSourceProjectItem item : project.getItems() )
+					finishCreateItem( method , action , release , scope , item );
+			}
+		}
 	}
 
+	private static void finishCreateItem( EngineMethod method , ActionBase action , Release release , ReleaseScope scope , MetaSourceProjectItem item ) throws Exception { 
+		DBConnection c = method.getMethodConnection( action );
+		
+		if( item.isInternal() )
+			return;
+
+		ReleaseDistTarget target = scope.findDistBinaryItemTarget( item.distItem );
+		if( target != null )
+			return;
+		
+		target = DBReleaseDistTarget.createBinaryItemTarget( c , release , scope , item.distItem );
+		scope.addDistTarget( target );
+	}
+	
 }

@@ -1190,6 +1190,16 @@ public abstract class ShellExecutor extends Shell {
 		}
 	}
 
+	public synchronized long getFileSize( ActionBase action , String path ) throws Exception {
+		try {
+			ShellCore core = opstart( action );
+			return( core.cmdGetFileSize( action , path ) );
+		}
+		finally {
+			opstop();
+		}
+	}
+
 	public synchronized void downloadUnix( ActionBase action , String URL , String TARGETNAME , String auth ) throws Exception {
 		try {
 			ShellCore core = opstart( action );

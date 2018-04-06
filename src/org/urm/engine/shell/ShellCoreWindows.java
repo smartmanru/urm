@@ -569,6 +569,15 @@ public class ShellCoreWindows extends ShellCore {
 		return( date );
 	}
 	
+	@Override
+	public long cmdGetFileSize( ActionBase action , String filePath ) throws Exception {
+		String value = runCommandGetValueCheckDebug( action , "for %I in (" + filePath + ") do @echo %~zI" );
+		if( !value.matches( "[0-9]+" ) )
+			Common.exitUnexpected();
+		long data = Long.parseLong( value );
+		return( data );
+	}
+	
 	@Override 
 	public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
 		String executeLog = Common.getWinPath( Common.getPath( executor.rootPath , EXECUTE_LOG ) );

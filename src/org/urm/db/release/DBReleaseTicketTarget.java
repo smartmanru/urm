@@ -90,14 +90,11 @@ public class DBReleaseTicketTarget {
 		if( pos <= 0 )
 			pos = set.getLastTargetPos() + 1;
 		
-		Integer buildTargetId = ( buildTarget == null )? null : buildTarget.ID;
-		Integer distTargetId = ( distTarget == null )? null : distTarget.ID;
-		
 		ReleaseTicketTarget ticketTarget = new ReleaseTicketTarget( release , set );
 		ticketTarget.create(
 				pos ,
-				buildTargetId ,
-				distTargetId ,
+				buildTarget ,
+				distTarget ,
 				entity.importxmlBooleanAttr( root , ReleaseTicketTarget.PROPERTY_DESCOPED , false ) ,
 				entity.importxmlBooleanAttr( root , ReleaseTicketTarget.PROPERTY_ACCEPTED , false )
 				);

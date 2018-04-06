@@ -15,6 +15,7 @@ import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineLoaderReleases;
 import org.urm.meta.env.MetaEnvServerLocation;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
@@ -432,15 +433,14 @@ public class Dist {
 		return( folder );
 	}
 
-	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 , boolean getTimestamp ) {
+	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrBinaryItem item , boolean getMD5 , boolean getTimestamp , boolean getSize ) {
 		DistItemInfo info = new DistItemInfo( item );
 		
 		try {
 			if( item.isDerivedItem() ) {
-				DistItemInfo infosrc = getDistItemInfo( action , item.srcDistItem , false , true );
+				DistItemInfo infosrc = getDistItemInfo( action , item.srcDistItem , false , true , false );
 				info.setFinalName( infosrc );
-				info.setMD5( infosrc );
-				info.setTimestamp( infosrc );
+				info.setFinalInfo( infosrc );
 			}
 			else {
 				FileSet files = getFiles( action );
@@ -454,15 +454,21 @@ public class Dist {
 				}
 			}
 			
-			if( info.isFound() && getMD5 ) {
+			if( info.isFound() ) {
 				RemoteFolder fileFolder = distFolder.getSubFolder( action , info.getDistItemFolder() );
-				if( item.isDerivedItem() )
-					info.setMD5( fileFolder.getArchivePartMD5( action , info.getFinalName() , item.SRC_ITEMPATH , item.srcDistItem.EXT ) );
-				else
-				if( item.isArchive() )
-					info.setMD5( fileFolder.getArchiveContentMD5( action , info.getFinalName() , item.EXT ) );
-				else
-					info.setMD5( fileFolder.getFileMD5( action , info.getFinalName() ) );
+				
+				if( getMD5  ) {
+					if( item.isDerivedItem() )
+						info.setMD5( fileFolder.getArchivePartMD5( action , info.getFinalName() , item.SRC_ITEMPATH , item.srcDistItem.EXT ) );
+					else
+					if( item.isArchive() )
+						info.setMD5( fileFolder.getArchiveContentMD5( action , info.getFinalName() , item.EXT ) );
+					else
+						info.setMD5( fileFolder.getFileMD5( action , info.getFinalName() ) );
+				}
+				
+				if( getSize )
+					info.setSize( fileFolder.getFileSize( action , info.getFinalName() ) );
 			}
 		}
 		catch( Throwable e ) {
@@ -526,6 +532,11 @@ public class Dist {
 		return( info );
 	}
 
+	public DistItemInfo getDistItemInfo( ActionBase action , MetaDistrDelivery delivery , MetaDatabaseSchema schema , boolean getMD5 , boolean getTimestamp ) {
+		DistItemInfo info = new DistItemInfo( delivery , schema );
+		return( info );
+	}
+	
 	public void reloadCheckOpenedForDataChange( ActionBase action ) throws Exception {
 		state.ctlReloadCheckOpenedForDataChange( action );
 	}
@@ -652,7 +663,7 @@ public class Dist {
 	}
 	
 	public void removeBinaryItem( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
-		DistItemInfo infoOld = getDistItemInfo( action , distItem , false , false );
+		DistItemInfo infoOld = getDistItemInfo( action , distItem , false , false , false );
 		if( infoOld.isFound() ) {
 			RemoteFolder folder = distFolder.getSubFolder( action , infoOld.getDistItemFolder() );
 			folder.removeFiles( action , infoOld.getFinalName() + " " + infoOld.getFinalName() + ".md5" );
@@ -696,7 +707,7 @@ public class Dist {
 		if( !create )
 			removeBinaryItem( action , distItem );
 		
-		DistItemInfo info = src.getDistItemInfo( action , distItem , true , false );
+		DistItemInfo info = src.getDistItemInfo( action , distItem , true , false , false );
 		if( !info.isFound() ) {
 			action.error( "missing item=" + distItem.NAME );
 			action.exitUnexpectedState();

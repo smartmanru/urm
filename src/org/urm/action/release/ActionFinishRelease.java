@@ -50,22 +50,29 @@ public class ActionFinishRelease extends ActionBase {
 		
 		dist.openForDataChange( this );
 		
-		// check tickets
-		if( !release.MASTER ) {
-			ReleaseChanges changes = release.getChanges();
-			if( !changes.isCompleted() ) {
-				super.error( "release changes are not completed" );
-				dist.closeDataChange( this );
+		try {
+			// check tickets
+			if( !release.MASTER ) {
+				ReleaseChanges changes = release.getChanges();
+				if( !changes.isCompleted() ) {
+					super.error( "release changes are not completed" );
+					dist.closeDataChange( this );
+					return( false );
+				}
+			}
+			
+			// save in database
+			DBRelease.finish( method , this , release , dist );
+			dist.saveMetaFile( this );
+			
+			// finish state
+			if( !dist.finish( this ) ) {
+				super.error( "unable to finalize files" );
 				return( false );
 			}
 		}
-		
-		// save in database
-		DBRelease.finish( method , this , release , dist );
-		dist.saveMetaFile( this );
-		
-		// finish state
-		if( !dist.finish( this ) ) {
+		catch( Throwable e ) {
+			super.log( "unable to finish release" , e );
 			super.error( "unable to finalize files" );
 			return( false );
 		}

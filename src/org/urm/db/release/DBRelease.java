@@ -19,7 +19,11 @@ import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.run.EngineMethod;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseBuildTarget;
 import org.urm.meta.release.ReleaseChanges;
@@ -335,10 +339,17 @@ public class DBRelease {
 	}
 	
 	public static void reopen( EngineMethod method , ActionBase action , Release release ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
 		method.checkUpdateRelease( release );
+		
+		if( !release.isFinalized() )
+			Common.exitUnexpected();
+		if( release.isCompleted() )
+			Common.exitUnexpected();
 		
 		ReleaseSchedule schedule = release.getSchedule();
 		DBReleaseSchedule.reopen( method , action , release , schedule );
+		DBReleaseDistTarget.dropAllDistItems( c , release );
 	}
 	
 	public static void setMasterVersion( EngineMethod method , ActionBase action , Release release , String RELEASEVER ) throws Exception {
@@ -386,9 +397,8 @@ public class DBRelease {
 	}
 
 	private static void createFileRecords( EngineMethod method , ActionBase action , Release release , Dist dist ) throws Exception {
-		/*
 		ReleaseScope scope = release.getScope();
-		DBReleaseDistTarget.dropAllTargets( method , action , release , dist.releaseDist );
+		ReleaseDist releaseDist = dist.releaseDist;
 		
 		for( ReleaseDistTarget target : scope.getDistTargets() ) {
 			if( !target.isDistItem() )
@@ -396,17 +406,33 @@ public class DBRelease {
 			
 			if( target.isBinaryItem() ) {
 				MetaDistrBinaryItem item = target.getBinaryItem();
-				DistItemInfo info = dist.getDistItemInfo( action , true , true );
-				ReleaseDistItem item = DBReleaseDistTarget.createDistItem( method , action , release , target , info );
-				scope.addDistItem( item );
+				DistItemInfo info = dist.getDistItemInfo( action , item , true , true , true );
+				ReleaseDistItem distItem = DBReleaseDistTarget.createDistItem( method , action , release , target , releaseDist , info );
+				releaseDist.addDistItem( distItem );
 			}
 			else
-			if( target.isBinaryItem() ) {
-				ReleaseDistItem item = DBReleaseDistTarget.createDistItem( method , action , release , dist , target );
-				scope.addDistItem( item );
+			if( target.isConfItem() ) {
+				MetaDistrConfItem item = target.getConfItem();
+				DistItemInfo info = dist.getDistItemInfo( action , item );
+				ReleaseDistItem distItem = DBReleaseDistTarget.createDistItem( method , action , release , target , releaseDist , info );
+				releaseDist.addDistItem( distItem );
+			}
+			else
+			if( target.isDoc() ) {
+				MetaProductDoc doc = target.getDoc();
+				MetaDistrDelivery delivery = target.getDelivery();
+				DistItemInfo info = dist.getDistItemInfo( action , delivery , doc , true , true );
+				ReleaseDistItem distItem = DBReleaseDistTarget.createDistItem( method , action , release , target , releaseDist , info );
+				releaseDist.addDistItem( distItem );
+			}
+			if( target.isSchema() ) {
+				MetaDatabaseSchema schema = target.getSchema();
+				MetaDistrDelivery delivery = target.getDelivery();
+				DistItemInfo info = dist.getDistItemInfo( action , delivery , schema , true , true );
+				ReleaseDistItem distItem = DBReleaseDistTarget.createDistItem( method , action , release , target , releaseDist , info );
+				releaseDist.addDistItem( distItem );
 			}
 		}
-		*/
 	}
 	
 }

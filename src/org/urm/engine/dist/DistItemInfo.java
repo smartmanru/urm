@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.urm.common.Common;
 import org.urm.engine.storage.FileInfo;
+import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
@@ -15,6 +16,7 @@ public class DistItemInfo {
 	public MetaDistrBinaryItem distBinaryItem;
 	public MetaDistrConfItem distConfItem;
 	public MetaProductDoc distDocItem;
+	public MetaDatabaseSchema distSchema;
 	
 	private String distDeliveryFolder;
 	private String deliveryItemFolder;
@@ -23,6 +25,7 @@ public class DistItemInfo {
 	private String finalName;
 	private String md5value;
 	private Date timestamp; 
+	private Long size;
 	
 	public DistItemInfo( MetaDistrBinaryItem distBinaryItem ) {
 		this.found = false;
@@ -48,9 +51,23 @@ public class DistItemInfo {
 		this.deliveryItemFolder = Dist.DOC_FOLDER;
 	}
 
+	public DistItemInfo( MetaDistrDelivery delivery , MetaDatabaseSchema distSchema ) {
+		this.found = false;
+		this.delivery = delivery;
+		this.distSchema = distSchema;
+		this.distDeliveryFolder = delivery.FOLDER;
+		this.deliveryItemFolder = Dist.DATABASE_FOLDER;
+	}
+
 	public void setFinalName( DistItemInfo src ) {
 		this.found = src.found;
 		this.finalName = src.finalName;
+	}
+	
+	public void setFinalInfo( DistItemInfo src ) {
+		setMD5( src );
+		setTimestamp( src );
+		setSize( src );
 	}
 	
 	public void setMD5( DistItemInfo src ) {
@@ -61,6 +78,10 @@ public class DistItemInfo {
 		this.timestamp = src.timestamp; 
 	}
 	
+	public void setSize( DistItemInfo src ) {
+		this.size = src.size; 
+	}
+	
 	public void setFinalName( String fileName ) {
 		this.finalName = fileName;
 		this.found = true;
@@ -68,6 +89,10 @@ public class DistItemInfo {
 	
 	public void setMD5( String md5value ) {
 		this.md5value = md5value;
+	}
+
+	public void setSize( Long value ) {
+		this.size = value;
 	}
 
 	public void setTimestamp( Date timestamp ) {
@@ -104,6 +129,10 @@ public class DistItemInfo {
 
 	public String getMD5() {
 		return( md5value );
+	}
+
+	public Long getSize() {
+		return( size );
 	}
 
 	public Date getTimestamp() {

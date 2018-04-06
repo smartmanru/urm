@@ -95,6 +95,7 @@ abstract public class ShellCore {
 	abstract public void cmdCreatePublicDir( ActionBase action , String dir ) throws Exception;
 	abstract public String[] cmdGetFileLines( ActionBase action , String filePath ) throws Exception;
 	abstract public Date cmdGetFileChangeTime( ActionBase action , String filePath ) throws Exception;
+	abstract public long cmdGetFileSize( ActionBase action , String filePath ) throws Exception;
 	abstract public Map<String,List<String>> cmdGetFilesContent( ActionBase action , String dir , String fileMask ) throws Exception;
 	
 	public static ShellCore createShellCore( ActionBase action , ShellExecutor executor , DBEnumOSType osType , boolean local ) throws Exception {

@@ -623,6 +623,16 @@ public class ShellCoreUnix extends ShellCore {
 		return( new Date( data ) );
 	}
 	
+	@Override
+	public long cmdGetFileSize( ActionBase action , String filePath ) throws Exception {
+		String value = runCommandGetValueCheckDebug( action , "wc -c " + filePath );
+		value = Common.getPartBeforeFirst( value , " " );
+		if( !value.matches( "[0-9]+" ) )
+			Common.exitUnexpected();
+		long data = Long.parseLong( value );
+		return( data );
+	}
+	
 	@Override 
 	public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
 		cmdAppendFileWithString( action , "~/" + EXECUTE_LOG , Common.getQuoted( "`date` (SSH_CLIENT=$SSH_CLIENT): " + msg ) ); 

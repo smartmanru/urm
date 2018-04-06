@@ -51,25 +51,34 @@ public class ReleaseTicketTarget {
 		
 		ReleaseChanges rchanges = rrelease.getChanges();
 		if( BUILDTARGET_ID != null )
-			buildTarget = rchanges.getBuildTarget( BUILDTARGET_ID );
+			r.buildTarget = rchanges.getBuildTarget( BUILDTARGET_ID );
 		if( DISTTARGET_ID != null )
-			distTarget = rchanges.getDistTarget( DISTTARGET_ID );
+			r.distTarget = rchanges.getDistTarget( DISTTARGET_ID );
 		
 		return( r );
 	}
 
 	public void create( int POS , Integer BUILDTARGET_ID , Integer DISTTARGET_ID , boolean ACCEPTED , boolean DESCOPED ) throws Exception {
-		this.POS = POS;
-		this.BUILDTARGET_ID = BUILDTARGET_ID;
-		this.DISTTARGET_ID = DISTTARGET_ID;
-		this.ACCEPTED = ACCEPTED;
-		this.DESCOPED = DESCOPED;
-		
 		ReleaseChanges changes = release.getChanges();
 		if( BUILDTARGET_ID != null )
 			buildTarget = changes.getBuildTarget( BUILDTARGET_ID );
 		if( DISTTARGET_ID != null )
 			distTarget = changes.getDistTarget( DISTTARGET_ID );
+
+		this.POS = POS;
+		this.ACCEPTED = ACCEPTED;
+		this.DESCOPED = DESCOPED;
+	}
+	
+	public void create( int POS , ReleaseBuildTarget buildTarget , ReleaseDistTarget distTarget , boolean ACCEPTED , boolean DESCOPED ) throws Exception {
+		this.buildTarget = buildTarget;
+		this.BUILDTARGET_ID = ( buildTarget == null )? null : buildTarget.ID;
+		this.distTarget = distTarget;
+		this.DISTTARGET_ID = ( distTarget == null )? null : distTarget.ID;
+		
+		this.POS = POS;
+		this.ACCEPTED = ACCEPTED;
+		this.DESCOPED = DESCOPED;
 	}
 	
 	public void setPos( int POS ) {

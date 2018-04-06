@@ -38,7 +38,7 @@ public class ReleaseDist {
 		
 		for( ReleaseDistItem item : itemMap.values() ) {
 			ReleaseDistItem ritem = item.copy( rrelease , r );
-			r.addItem( ritem );
+			r.addDistItem( ritem );
 		}
 		
 		return( r );
@@ -66,13 +66,13 @@ public class ReleaseDist {
 		return( false );
 	}
 	
-	public void addItem( ReleaseDistItem item ) {
+	public void addDistItem( ReleaseDistItem item ) {
 		itemMap.put( item.ID ,  item );
 	}
 	
 	public ReleaseDistItem findTarget( ReleaseDistTarget target ) {
 		for( ReleaseDistItem item : itemMap.values() ) {
-			if( item.DELIVERYTARGET_ID == target.ID )
+			if( item.DISTTARGET_ID == target.ID )
 				return( item );
 		}
 		return( null );

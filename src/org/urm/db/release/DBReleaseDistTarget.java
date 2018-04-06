@@ -2,12 +2,16 @@ package org.urm.db.release;
 
 import java.sql.ResultSet;
 
+import org.urm.action.ActionBase;
 import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.dist.DistItemInfo;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.engine.run.EngineMethod;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
@@ -21,6 +25,8 @@ import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseBuildTarget;
 import org.urm.meta.release.ReleaseChanges;
+import org.urm.meta.release.ReleaseDist;
+import org.urm.meta.release.ReleaseDistItem;
 import org.urm.meta.release.ReleaseDistTarget;
 import org.urm.meta.release.ReleaseScope;
 import org.w3c.dom.Document;
@@ -50,6 +56,26 @@ public class DBReleaseDistTarget {
 				EngineDB.getMatchName( target.SCHEMA ) ,
 				EngineDB.getMatchId( target.DOC ) ,
 				EngineDB.getMatchName( target.DOC ) ,
+				} , insert );
+	}
+
+	public static void modifyReleaseDistItem( DBConnection c , Release release , ReleaseDistItem item , boolean insert ) throws Exception {
+		if( insert )
+			item.ID = c.getNextSequenceValue();
+		
+		item.RV = c.getNextReleaseVersion( release );
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.modifyAppObject( c , entities.entityAppReleaseDistItem , item.ID , item.RV , new String[] {
+				EngineDB.getObject( release.ID ) ,
+				EngineDB.getObject( item.releaseDist.ID ) ,
+				EngineDB.getObject( item.DISTTARGET_ID ) ,
+				EngineDB.getString( item.TARGETFILE ) ,
+				EngineDB.getString( item.TARGETFILE_FOLDER ) ,
+				EngineDB.getString( item.TARGETFILE_HASH ) ,
+				EngineDB.getLong( item.TARGETFILE_SIZE ) ,
+				EngineDB.getDate( item.TARGETFILE_TIME ) ,
+				EngineDB.getString( item.SOURCE_RELEASEDIR ) ,
+				EngineDB.getString( item.SOURCE_RELEASETIME )
 				} , insert );
 	}
 
@@ -133,57 +159,71 @@ public class DBReleaseDistTarget {
 	public static ReleaseDistTarget createConfItemTarget( DBConnection c , Release release , ReleaseScope scope , MetaDistrConfItem item ) throws Exception {
 		ReleaseDistTarget target = new ReleaseDistTarget( scope );
 		target.create( item );
-		DBReleaseDistTarget.modifyReleaseDistTarget( c , release , target , true );
+		modifyReleaseDistTarget( c , release , target , true );
 		return( target );
 	}
 
 	public static ReleaseDistTarget createBinaryItemTarget( DBConnection c , Release release , ReleaseScope scope , MetaDistrBinaryItem item ) throws Exception {
 		ReleaseDistTarget target = new ReleaseDistTarget( scope );
 		target.create( item );
-		DBReleaseDistTarget.modifyReleaseDistTarget( c , release , target , true );
+		modifyReleaseDistTarget( c , release , target , true );
 		return( target );
 	}
 
 	public static ReleaseDistTarget createBinaryDeliveryTarget( DBConnection c , Release release , ReleaseScope scope , MetaDistrDelivery delivery ) throws Exception {
 		ReleaseDistTarget target = new ReleaseDistTarget( scope );
 		target.create( delivery , DBEnumDistTargetType.DELIVERYBINARIES );
-		DBReleaseDistTarget.modifyReleaseDistTarget( c , release , target , true );
+		modifyReleaseDistTarget( c , release , target , true );
 		return( target );
 	}
 
 	public static ReleaseDistTarget createDatabaseDeliveryTarget( DBConnection c , Release release , ReleaseScope scope , MetaDistrDelivery delivery ) throws Exception {
 		ReleaseDistTarget target = new ReleaseDistTarget( scope );
 		target.create( delivery , DBEnumDistTargetType.DELIVERYDATABASE );
-		DBReleaseDistTarget.modifyReleaseDistTarget( c , release , target , true );
+		modifyReleaseDistTarget( c , release , target , true );
 		return( target );
 	}
 
 	public static ReleaseDistTarget createConfDeliveryTarget( DBConnection c , Release release , ReleaseScope scope , MetaDistrDelivery delivery ) throws Exception {
 		ReleaseDistTarget target = new ReleaseDistTarget( scope );
 		target.create( delivery , DBEnumDistTargetType.DELIVERYCONFS );
-		DBReleaseDistTarget.modifyReleaseDistTarget( c , release , target , true );
+		modifyReleaseDistTarget( c , release , target , true );
 		return( target );
 	}
 
 	public static ReleaseDistTarget createDocDeliveryTarget( DBConnection c , Release release , ReleaseScope scope , MetaDistrDelivery delivery ) throws Exception {
 		ReleaseDistTarget target = new ReleaseDistTarget( scope );
 		target.create( delivery , DBEnumDistTargetType.DELIVERYDOC );
-		DBReleaseDistTarget.modifyReleaseDistTarget( c , release , target , true );
+		modifyReleaseDistTarget( c , release , target , true );
 		return( target );
 	}
 
 	public static ReleaseDistTarget createDeliverySchemaTarget( DBConnection c , Release release , ReleaseScope scope , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
 		ReleaseDistTarget target = new ReleaseDistTarget( scope );
 		target.create( delivery , schema );
-		DBReleaseDistTarget.modifyReleaseDistTarget( c , release , target , true );
+		modifyReleaseDistTarget( c , release , target , true );
 		return( target );
 	}
 
 	public static ReleaseDistTarget createDeliveryDocTarget( DBConnection c , Release release , ReleaseScope scope , MetaDistrDelivery delivery , MetaProductDoc doc ) throws Exception {
 		ReleaseDistTarget target = new ReleaseDistTarget( scope );
 		target.create( delivery , doc );
-		DBReleaseDistTarget.modifyReleaseDistTarget( c , release , target , true );
+		modifyReleaseDistTarget( c , release , target , true );
 		return( target );
 	}
 
+	public static void dropAllDistItems( DBConnection c , Release release ) throws Exception {
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseDistTarget , DBQueries.FILTER_REL_RELEASE1 , new String[] { EngineDB.getObject( release.ID ) } );
+	}
+
+	public static ReleaseDistItem createDistItem( EngineMethod method , ActionBase action , Release release , ReleaseDistTarget target , ReleaseDist releaseDist , DistItemInfo info ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		
+		ReleaseDistItem item = new ReleaseDistItem( release , releaseDist );
+		item.create( target , info );
+		modifyReleaseDistItem( c , release , item , true );
+		return( item );
+	}
+	
 }
