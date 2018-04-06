@@ -160,6 +160,7 @@ public class DistState {
 			
 			dataHash = parts[ 2 ];
 			metaHash = parts[ 3 ];
+			stateDate = new Date();
 			
 			stateChangeID = parts[ 1 ];
 		}
