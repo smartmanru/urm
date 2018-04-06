@@ -129,6 +129,18 @@ public class ReleaseBuildScope {
 		boolean allItems = false;
 		ReleaseScope releaseScope = release.getScope();
 		for( ReleaseBuildTarget target : releaseScope.getBuildTargets() ) {
+			if( target.isBuildAll() ) {
+				if( target.ALL )
+					allItems = true;
+				break;
+			}
+			
+			if( target.isBuildSet() && target.SRCSET.equals( scopeProject.project.set.ID ) ) {
+				if( target.ALL )
+					allItems = true;
+				break;
+			}
+			
 			if( target.isBuildProject() && target.PROJECT.equals( scopeProject.project.ID ) ) {
 				scopeProject.scopeProjectTarget = target;
 				if( target.ALL )
