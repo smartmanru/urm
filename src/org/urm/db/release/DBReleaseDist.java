@@ -64,7 +64,7 @@ public class DBReleaseDist {
 				state.metaHash ,
 				state.dataHash
 				);
-		modifyReleaseDist( c , releaseDist.release , releaseDist , true );
+		modifyReleaseDist( c , releaseDist.release , releaseDist , false );
 	}
 	
 	public static ReleaseDist createReleaseDist( EngineMethod method , ActionBase action , Release release , String variant ) throws Exception {
