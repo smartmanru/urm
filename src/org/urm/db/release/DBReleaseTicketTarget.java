@@ -83,6 +83,7 @@ public class DBReleaseTicketTarget {
 	}
 	
 	public static ReleaseTicketTarget importxmlChangeTicketTarget( EngineLoader loader , Release release , ReleaseChanges changes , ReleaseTicketSet set , ReleaseBuildTarget buildTarget , ReleaseDistTarget distTarget , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppReleaseTicketTarget;
 		
@@ -98,6 +99,7 @@ public class DBReleaseTicketTarget {
 				entity.importxmlBooleanAttr( root , ReleaseTicketTarget.PROPERTY_DESCOPED , false ) ,
 				entity.importxmlBooleanAttr( root , ReleaseTicketTarget.PROPERTY_ACCEPTED , false )
 				);
+		modifyReleaseTicketTarget( c , release , set , ticketTarget , true );
 		return( ticketTarget );
 	}
 	

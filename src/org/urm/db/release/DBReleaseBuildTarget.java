@@ -95,6 +95,7 @@ public class DBReleaseBuildTarget {
 	}
 	
 	public static ReleaseBuildTarget importxmlBuildTarget( EngineLoader loader , Release release , ReleaseChanges changes , ReleaseScope scope , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppReleaseBuildTarget;
 		
@@ -111,6 +112,7 @@ public class DBReleaseBuildTarget {
 				entity.importxmlStringAttr( root , ReleaseBuildTarget.PROPERTY_BUILDVERSION ) ,
 				entity.importxmlBooleanAttr( root , ReleaseBuildTarget.PROPERTY_ALL , false )
 				);
+		modifyReleaseBuildTarget( c , release , buildTarget , true );
 		return( buildTarget );
 	}
 	
@@ -123,21 +125,21 @@ public class DBReleaseBuildTarget {
 	public static ReleaseBuildTarget createSourceTarget( DBConnection c , Release release , ReleaseScope scope , boolean all ) throws Exception {
 		ReleaseBuildTarget target = new ReleaseBuildTarget( scope );
 		target.create( all );
-		DBReleaseBuildTarget.modifyReleaseBuildTarget( c , release , target , true );
+		modifyReleaseBuildTarget( c , release , target , true );
 		return( target );
 	}
 	
 	public static ReleaseBuildTarget createSourceSetTarget( DBConnection c , Release release , ReleaseScope scope , MetaSourceProjectSet set , boolean all ) throws Exception {
 		ReleaseBuildTarget target = new ReleaseBuildTarget( scope );
 		target.create( set , all );
-		DBReleaseBuildTarget.modifyReleaseBuildTarget( c , release , target , true );
+		modifyReleaseBuildTarget( c , release , target , true );
 		return( target );
 	}
 	
 	public static ReleaseBuildTarget createSourceProjectTarget( DBConnection c , Release release , ReleaseScope scope , MetaSourceProject project , boolean all ) throws Exception {
 		ReleaseBuildTarget target = new ReleaseBuildTarget( scope );
 		target.create( project , all );
-		DBReleaseBuildTarget.modifyReleaseBuildTarget( c , release , target , true );
+		modifyReleaseBuildTarget( c , release , target , true );
 		return( target );
 	}
 
@@ -150,7 +152,7 @@ public class DBReleaseBuildTarget {
 		
 		release.setArchived();
 		target.setSpecifics( branch , tag , version );
-		DBReleaseBuildTarget.modifyReleaseBuildTarget( c , release , target , false );
+		modifyReleaseBuildTarget( c , release , target , false );
 	}
 	
 }

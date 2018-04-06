@@ -129,6 +129,7 @@ public class DBReleaseDistTarget {
 	}
 	
 	public static ReleaseDistTarget importxmlDistTarget( EngineLoader loader , Release release , ReleaseChanges changes , ReleaseScope scope , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppReleaseDistTarget;
 		
@@ -147,6 +148,7 @@ public class DBReleaseDistTarget {
 				docs.getDocMatchItem( null , entity.importxmlStringAttr( root , ReleaseDistTarget.PROPERTY_DOC ) ) ,
 				entity.importxmlBooleanAttr( root , ReleaseDistTarget.PROPERTY_ALL , false )
 				);
+		modifyReleaseDistTarget( c , release , distTarget , true );
 		return( distTarget );
 	}
 	

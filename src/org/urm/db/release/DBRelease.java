@@ -269,7 +269,7 @@ public class DBRelease {
 		if( nodeBuildTarget != null ) {
 			ReleaseBuildTarget buildTarget = DBReleaseBuildTarget.importxmlBuildTarget( loader , release , changes , null , nodeBuildTarget );
 			ReleaseTicketTarget target = DBReleaseTicketTarget.importxmlChangeTicketTarget( loader , release , changes , set , buildTarget , null , root );
-			set.addTarget( target );
+			changes.addBuildTarget( buildTarget );
 			return( target );
 		}
 		
@@ -277,7 +277,7 @@ public class DBRelease {
 		if( nodeDistTarget != null ) {
 			ReleaseDistTarget distTarget = DBReleaseDistTarget.importxmlDistTarget( loader , release , changes , null , nodeDistTarget );
 			ReleaseTicketTarget target = DBReleaseTicketTarget.importxmlChangeTicketTarget( loader , release , changes , set , null , distTarget , root );
-			set.addTarget( target );
+			changes.addDistTarget( distTarget );
 			return( target );
 		}
 		

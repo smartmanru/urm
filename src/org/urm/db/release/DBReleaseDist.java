@@ -55,6 +55,8 @@ public class DBReleaseDist {
 	}
 
 	public static void importxmlReleaseDistProperties( EngineLoader loader , ReleaseDist releaseDist , Dist dist , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
 		DistState state = dist.getStateInfo();
 		releaseDist.create(
 				releaseDist.DIST_VARIANT ,
@@ -62,6 +64,7 @@ public class DBReleaseDist {
 				state.metaHash ,
 				state.dataHash
 				);
+		modifyReleaseDist( c , releaseDist.release , releaseDist , true );
 	}
 	
 	public static ReleaseDist createReleaseDist( EngineMethod method , ActionBase action , Release release , String variant ) throws Exception {
