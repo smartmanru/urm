@@ -154,7 +154,18 @@ public class DBRelease {
 		}
 	}
 	
-	private static void exportxmlReleaseScope( EngineLoader loader , Release release , Document doc , Element root ) {
+	private static void exportxmlReleaseScope( EngineLoader loader , Release release , Document doc , Element root ) throws Exception {
+		ReleaseScope scope = release.getScope();
+		
+		for( ReleaseBuildTarget buildTarget : scope.getBuildTargets() ) {
+			Element nodeBuildTarget = Common.xmlCreateElement( doc , root , ELEMENT_BUILDTARGET );
+			DBReleaseBuildTarget.exportxmlBuildTarget( loader , release , buildTarget , doc , nodeBuildTarget );
+		}
+		
+		for( ReleaseDistTarget distTarget : scope.getDistTargets() ) {
+			Element nodeDistTarget = Common.xmlCreateElement( doc , root , ELEMENT_DISTTARGET );
+			DBReleaseDistTarget.exportxmlDistTarget( loader , release , distTarget , doc , nodeDistTarget );
+		}
 	}
 
 	public static void importxml( EngineLoader loader , Release release , ReleaseDist releaseDist , Dist dist , Node root ) throws Exception {
