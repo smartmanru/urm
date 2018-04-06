@@ -13,15 +13,18 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.BlotterService;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.DistItemInfo;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.run.EngineMethod;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseBuildTarget;
 import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseDist;
+import org.urm.meta.release.ReleaseDistItem;
 import org.urm.meta.release.ReleaseDistTarget;
 import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.release.ReleaseSchedule;
@@ -346,7 +349,7 @@ public class DBRelease {
 		modifyRelease( c , release.repo , release , false );
 	}
 
-	public static void finish( EngineMethod method , ActionBase action , Release release ) throws Exception {
+	public static void finish( EngineMethod method , ActionBase action , Release release , Dist dist ) throws Exception {
 		method.checkUpdateRelease( release );
 		
 		if( release.isFinalized() )
@@ -361,7 +364,7 @@ public class DBRelease {
 		DBReleaseScope.finish( method , action , release , scope );
 		
 		// create file information records
-		createFileRecords( method , action , release );
+		createFileRecords( method , action , release , dist );
 	}
 	
 	public static void complete( EngineMethod method , ActionBase action , Release release ) throws Exception {
@@ -382,12 +385,28 @@ public class DBRelease {
 		blotter.runReleaseStatus( action , release );
 	}
 
-	private static void createFileRecords( EngineMethod method , ActionBase action , Release release ) throws Exception {
+	private static void createFileRecords( EngineMethod method , ActionBase action , Release release , Dist dist ) throws Exception {
+		/*
 		ReleaseScope scope = release.getScope();
+		DBReleaseDistTarget.dropAllTargets( method , action , release , dist.releaseDist );
+		
 		for( ReleaseDistTarget target : scope.getDistTargets() ) {
 			if( !target.isDistItem() )
 				Common.exitUnexpected();
+			
+			if( target.isBinaryItem() ) {
+				MetaDistrBinaryItem item = target.getBinaryItem();
+				DistItemInfo info = dist.getDistItemInfo( action , true , true );
+				ReleaseDistItem item = DBReleaseDistTarget.createDistItem( method , action , release , target , info );
+				scope.addDistItem( item );
+			}
+			else
+			if( target.isBinaryItem() ) {
+				ReleaseDistItem item = DBReleaseDistTarget.createDistItem( method , action , release , dist , target );
+				scope.addDistItem( item );
+			}
 		}
+		*/
 	}
 	
 }

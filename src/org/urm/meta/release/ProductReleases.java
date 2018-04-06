@@ -10,8 +10,8 @@ public class ProductReleases {
 
 	public Meta meta;
 
-	DistRepository repo;
-	ReleaseRepository rrepo;
+	DistRepository distRepo;
+	ReleaseRepository releaseRepo;
 	
 	public ProductReleases( ProductMeta storage , Meta meta ) {
 		this.meta = meta;
@@ -19,27 +19,29 @@ public class ProductReleases {
 
 	public ProductReleases copy( Meta rmeta ) throws Exception {
 		ProductReleases r = new ProductReleases( rmeta.getStorage() , rmeta );
+		r.releaseRepo = releaseRepo.copy( rmeta , r );  
+		r.distRepo = distRepo.copy( rmeta , r.releaseRepo );  
 		return( r );
 	}
 
 	public void setDistRepository( DistRepository repo ) {
-		this.repo = repo;
+		this.distRepo = repo;
 	}
 	
 	public DistRepository getDistRepository() {
-		return( repo );
+		return( distRepo );
 	}
 	
 	public void setReleaseRepository( ReleaseRepository rrepo ) {
-		this.rrepo = rrepo;
+		this.releaseRepo = rrepo;
 	}
 	
 	public ReleaseRepository getReleaseRepository() {
-		return( rrepo );
+		return( releaseRepo );
 	}
 	
 	public Release findRelease( String RELEASEVER ) {
-		return( rrepo.findRelease( RELEASEVER ) );
+		return( releaseRepo.findRelease( RELEASEVER ) );
 	}
 
 	public String getNextRelease( DBEnumLifecycleType type ) {
@@ -54,9 +56,9 @@ public class ProductReleases {
 	}
 	
 	public Release findLastRelease( DBEnumLifecycleType type ) {
-		String[] versions = rrepo.getActiveVersions();
+		String[] versions = releaseRepo.getActiveVersions();
 		for( int k = versions.length - 1; k >= 0; k-- ) {
-			Release release = rrepo.findRelease( versions[ k ] );
+			Release release = releaseRepo.findRelease( versions[ k ] );
 			if( release.TYPE == type )
 				return( release );
 		}

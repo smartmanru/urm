@@ -61,7 +61,7 @@ public class ActionFinishRelease extends ActionBase {
 		}
 		
 		// save in database
-		DBRelease.finish( method , this , release );
+		DBRelease.finish( method , this , release , dist );
 		dist.saveMetaFile( this );
 		
 		// finish state

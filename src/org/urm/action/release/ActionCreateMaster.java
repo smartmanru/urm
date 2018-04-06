@@ -57,7 +57,7 @@ public class ActionCreateMaster extends ActionBase {
 					return( SCOPESTATE.RunFail );
 				
 				// change meta
-				DBRelease.finish( method , this , releaseNew );
+				DBRelease.finish( method , this , releaseNew , dist );
 				dist.saveMetaFile( this );
 			}
 			else

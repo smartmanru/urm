@@ -60,8 +60,6 @@ public class ReleaseBuildScope {
 	private static void createBuildableScopeSet( Release release , ReleaseBuildScopeSet scopeSet ) throws Exception {
 		ReleaseScope releaseScope = release.getScope();
 		for( ReleaseBuildTarget target : releaseScope.getBuildTargets() ) {
-			if( target.isBuildAll() )
-				scopeSet.scopeTarget = target;
 			if( target.isBuildSet() && target.SRCSET.equals( scopeSet.set.ID ) && target.ALL )
 				scopeSet.scopeSetTarget = target;
 		}
