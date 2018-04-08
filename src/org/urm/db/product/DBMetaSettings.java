@@ -97,7 +97,6 @@ public class DBMetaSettings {
 		// context, custom settings
 		AppSystem system = product.system;
 		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
-		settings.setContextProperties( ops , context );
 		
 		EngineSettings engineSettings = context.settings;
 		ObjectProperties opsDefaults = engineSettings.getDefaultProductSettings();
@@ -109,6 +108,7 @@ public class DBMetaSettings {
 		if( coreNode == null )
 			Common.exitUnexpected();
 		DBSettings.importxmlApp( loader , coreNode , ops , storage.PV , DBEnumParamEntityType.PRODUCTDEFS );
+		settings.setContextProperties( ops , context );
 		ops.recalculateProperties();
 		settings.createCoreSettings( ops );
 
