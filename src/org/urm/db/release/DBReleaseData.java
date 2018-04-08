@@ -124,9 +124,13 @@ public class DBReleaseData {
 	public static String FIELD_DISTITEM_SOURCE_RELEASEDIR = "source_releasedir";
 	public static String FIELD_DISTITEM_SOURCE_RELEASETIME = "source_releasetime";
 	
-	public static PropertyEntity upgradeEntityReleaseRepository( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_REPOSITORY , DBEnumParamEntityType.RELEASE_REPOSITORY , DBEnumObjectVersionType.APP , TABLE_REPOSITORY , FIELD_REPOSITORY_ID );
+	public static PropertyEntity makeEntityReleaseRepository( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_REPOSITORY , DBEnumParamEntityType.RELEASE_REPOSITORY , DBEnumObjectVersionType.APP , TABLE_REPOSITORY , FIELD_REPOSITORY_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( ReleaseRepository.PROPERTY_NAME , "repository name" , true , null ) ,
 				EntityVar.metaStringVar( ReleaseRepository.PROPERTY_DESC , FIELD_MAIN_DESC , ReleaseRepository.PROPERTY_DESC , "repository description" , false , null ) ,
@@ -135,15 +139,13 @@ public class DBReleaseData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseRepository( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_REPOSITORY , DBEnumParamEntityType.RELEASE_REPOSITORY , DBEnumObjectVersionType.APP , TABLE_REPOSITORY , FIELD_REPOSITORY_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityReleaseMain( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_MAIN , DBEnumParamEntityType.RELEASE_MAIN , DBEnumObjectVersionType.RELEASE , TABLE_MAIN , FIELD_MAIN_ID );
+	public static PropertyEntity makeEntityReleaseMain( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_MAIN , DBEnumParamEntityType.RELEASE_MAIN , DBEnumObjectVersionType.RELEASE , TABLE_MAIN , FIELD_MAIN_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_MAIN_REPO_ID , "repo id" , DBEnumObjectType.RELEASE_REPOSITORY , true ) ,
 				EntityVar.metaString( Release.PROPERTY_NAME , "release name" , true , null ) ,
@@ -163,15 +165,13 @@ public class DBReleaseData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseMain( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_MAIN , DBEnumParamEntityType.RELEASE_MAIN , DBEnumObjectVersionType.RELEASE , TABLE_MAIN , FIELD_MAIN_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityReleaseDist( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DIST , DBEnumParamEntityType.RELEASE_DIST , DBEnumObjectVersionType.RELEASE , TABLE_DIST , FIELD_DIST_ID );
+	public static PropertyEntity makeEntityReleaseDist( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DIST , DBEnumParamEntityType.RELEASE_DIST , DBEnumObjectVersionType.RELEASE , TABLE_DIST , FIELD_DIST_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaStringVar( ReleaseDist.PROPERTY_VARIANT , FIELD_DIST_VARIANT , ReleaseDist.PROPERTY_VARIANT , "distributive variant" , false , null ) ,
@@ -181,15 +181,13 @@ public class DBReleaseData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseDist( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DIST , DBEnumParamEntityType.RELEASE_DIST , DBEnumObjectVersionType.RELEASE , TABLE_DIST , FIELD_DIST_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityReleaseBuildTarget( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_BUILDTARGET , DBEnumParamEntityType.RELEASE_BUILDTARGET , DBEnumObjectVersionType.RELEASE , TABLE_BUILDTARGET , FIELD_BUILDTARGET_ID );
+	public static PropertyEntity makeEntityReleaseBuildTarget( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_BUILDTARGET , DBEnumParamEntityType.RELEASE_BUILDTARGET , DBEnumObjectVersionType.RELEASE , TABLE_BUILDTARGET , FIELD_BUILDTARGET_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaBooleanDatabaseOnly( ReleaseBuildTarget.PROPERTY_SCOPETARGET , "scope target" , true , false ) ,
@@ -205,15 +203,13 @@ public class DBReleaseData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseBuildTarget( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_BUILDTARGET , DBEnumParamEntityType.RELEASE_BUILDTARGET , DBEnumObjectVersionType.RELEASE , TABLE_BUILDTARGET , FIELD_BUILDTARGET_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityReleaseDistTarget( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DISTTARGET , DBEnumParamEntityType.RELEASE_DISTTARGET , DBEnumObjectVersionType.RELEASE , TABLE_DISTTARGET , FIELD_DISTTARGET_ID );
+	public static PropertyEntity makeEntityReleaseDistTarget( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DISTTARGET , DBEnumParamEntityType.RELEASE_DISTTARGET , DBEnumObjectVersionType.RELEASE , TABLE_DISTTARGET , FIELD_DISTTARGET_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaBooleanDatabaseOnly( ReleaseDistTarget.PROPERTY_SCOPETARGET , "scope target" , true , false ) ,
@@ -232,15 +228,13 @@ public class DBReleaseData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseDistTarget( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DISTTARGET , DBEnumParamEntityType.RELEASE_DISTTARGET , DBEnumObjectVersionType.RELEASE , TABLE_DISTTARGET , FIELD_DISTTARGET_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityReleaseDistItem( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DISTITEM , DBEnumParamEntityType.RELEASE_DISTITEM , DBEnumObjectVersionType.RELEASE , TABLE_DISTITEM , FIELD_DISTITEM_ID );
+	public static PropertyEntity makeEntityReleaseDistItem( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DISTITEM , DBEnumParamEntityType.RELEASE_DISTITEM , DBEnumObjectVersionType.RELEASE , TABLE_DISTITEM , FIELD_DISTITEM_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DISTITEM_DIST_ID , "release distributive id" , DBEnumObjectType.RELEASE_DIST , true ) ,
@@ -255,15 +249,13 @@ public class DBReleaseData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseDistItem( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_DISTITEM , DBEnumParamEntityType.RELEASE_DISTITEM , DBEnumObjectVersionType.RELEASE , TABLE_DISTITEM , FIELD_DISTITEM_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityReleaseSchedule( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_SCHEDULE , DBEnumParamEntityType.RELEASE_SCHEDULE , DBEnumObjectVersionType.RELEASE , TABLE_SCHEDULE , FIELD_SCHEDULE_ID );
+	public static PropertyEntity makeEntityReleaseSchedule( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_SCHEDULE , DBEnumParamEntityType.RELEASE_SCHEDULE , DBEnumObjectVersionType.RELEASE , TABLE_SCHEDULE , FIELD_SCHEDULE_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaDateVar( ReleaseSchedule.PROPERTY_STARTED , FIELD_SCHEDULE_STARTED , ReleaseSchedule.PROPERTY_STARTED , "start date" , true ) ,
 				EntityVar.metaDateVar( ReleaseSchedule.PROPERTY_RELEASEDATE , FIELD_SCHEDULE_RELEASEDATE , ReleaseSchedule.PROPERTY_RELEASEDATE , "release date scheduled" , true ) ,
@@ -275,15 +267,13 @@ public class DBReleaseData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseSchedule( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_SCHEDULE , DBEnumParamEntityType.RELEASE_SCHEDULE , DBEnumObjectVersionType.RELEASE , TABLE_SCHEDULE , FIELD_SCHEDULE_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityReleasePhase( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_PHASE , DBEnumParamEntityType.RELEASE_PHASE , DBEnumObjectVersionType.RELEASE , TABLE_PHASE , FIELD_PHASE_ID );
+	public static PropertyEntity makeEntityReleasePhase( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_PHASE , DBEnumParamEntityType.RELEASE_PHASE , DBEnumObjectVersionType.RELEASE , TABLE_PHASE , FIELD_PHASE_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaEnumVar( ReleaseSchedulePhase.PROPERTY_RELEASESTAGE , FIELD_PHASE_LCSTAGETYPE , ReleaseSchedulePhase.PROPERTY_RELEASESTAGE , "release phase stage type" , true , DBEnumLifecycleStageType.UNKNOWN ) ,
@@ -299,15 +289,13 @@ public class DBReleaseData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleasePhase( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_PHASE , DBEnumParamEntityType.RELEASE_PHASE , DBEnumObjectVersionType.RELEASE , TABLE_PHASE , FIELD_PHASE_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityReleaseTicketSet( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_TICKETSET , DBEnumParamEntityType.RELEASE_TICKETSET , DBEnumObjectVersionType.RELEASE , TABLE_TICKETSET , FIELD_TICKETSET_ID );
+	public static PropertyEntity makeEntityReleaseTicketSet( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_TICKETSET , DBEnumParamEntityType.RELEASE_TICKETSET , DBEnumObjectVersionType.RELEASE , TABLE_TICKETSET , FIELD_TICKETSET_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaString( ReleaseTicketSet.PROPERTY_CODE , "ticket set code" , true , null ) ,
@@ -317,15 +305,13 @@ public class DBReleaseData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseTicketSet( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_TICKETSET , DBEnumParamEntityType.RELEASE_TICKETSET , DBEnumObjectVersionType.RELEASE , TABLE_TICKETSET , FIELD_TICKETSET_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityReleaseTicketTarget( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_TICKETTARGET , DBEnumParamEntityType.RELEASE_TICKETTARGET , DBEnumObjectVersionType.RELEASE , TABLE_TICKETTARGET , FIELD_TICKETTARGET_ID );
+	public static PropertyEntity makeEntityReleaseTicketTarget( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_TICKETTARGET , DBEnumParamEntityType.RELEASE_TICKETTARGET , DBEnumObjectVersionType.RELEASE , TABLE_TICKETTARGET , FIELD_TICKETTARGET_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_TICKETTARGET_TICKETSET_ID , "ticket set id" , DBEnumObjectType.RELEASE_TICKETSET , true ) ,
@@ -337,15 +323,13 @@ public class DBReleaseData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseTicketTarget( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_TICKETTARGET , DBEnumParamEntityType.RELEASE_TICKETTARGET , DBEnumObjectVersionType.RELEASE , TABLE_TICKETTARGET , FIELD_TICKETTARGET_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityReleaseTicket( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_TICKET , DBEnumParamEntityType.RELEASE_TICKET , DBEnumObjectVersionType.RELEASE , TABLE_TICKET , FIELD_TICKET_ID );
+	public static PropertyEntity makeEntityReleaseTicket( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_TICKET , DBEnumParamEntityType.RELEASE_TICKET , DBEnumObjectVersionType.RELEASE , TABLE_TICKET , FIELD_TICKET_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_TICKET_TICKETSET_ID , "ticket set id" , DBEnumObjectType.RELEASE_TICKETSET , true ) ,
@@ -368,12 +352,6 @@ public class DBReleaseData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseTicket( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RELEASE_TICKET , DBEnumParamEntityType.RELEASE_TICKET , DBEnumObjectVersionType.RELEASE , TABLE_TICKET , FIELD_TICKET_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
 	public static void dropAllMeta( EngineLoader loader , ProductReleases releases ) throws Exception {
 		int metaId = releases.meta.getId();
 		dropReleaseTickets( loader , metaId );

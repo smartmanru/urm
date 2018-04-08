@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumChangeType;
 import org.urm.db.core.DBEnums.DBEnumCompItemType;
 
 public class MetaDistrComponent {
@@ -18,6 +19,7 @@ public class MetaDistrComponent {
 	public String NAME;
 	public String DESC;
 	public int PV;
+	public DBEnumChangeType CHANGETYPE;
 
 	private Map<Integer,MetaDistrComponentItem> mapBinaryItemsById;
 	private Map<Integer,MetaDistrComponentItem> mapConfItemsById;
@@ -40,6 +42,7 @@ public class MetaDistrComponent {
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.PV = PV;
+		r.CHANGETYPE = CHANGETYPE;
 		
 		for( MetaDistrComponentItem item : mapBinaryItemsById.values() ) {
 			MetaDistrComponentItem ritem = item.copy( rmeta , r );

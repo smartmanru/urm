@@ -4,6 +4,8 @@ CREATE TABLE main.urm_object_entity (
                 paramentity_type INTEGER NOT NULL,
                 custom BOOLEAN NOT NULL,
                 use_props BOOLEAN NOT NULL,
+                changeable BOOLEAN NOT NULL,
+                pk_field_count INTEGER NOT NULL,
                 app_table VARCHAR(64),
                 id_field VARCHAR(64),
                 object_type INTEGER NOT NULL,

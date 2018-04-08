@@ -1,5 +1,7 @@
 package org.urm.meta.product;
 
+import org.urm.db.core.DBEnums.DBEnumChangeType;
+
 public class MetaProductUnit {
 
 	public static String PROPERTY_NAME = "name";
@@ -12,6 +14,7 @@ public class MetaProductUnit {
 	public String NAME;
 	public String DESC;
 	public int PV;
+	public DBEnumChangeType CHANGETYPE;
 
 	public MetaProductUnit( Meta meta , MetaUnits units ) {
 		this.meta = meta;
@@ -33,9 +36,10 @@ public class MetaProductUnit {
 		MetaProductUnit r = new MetaProductUnit( meta , units );
 		
 		r.ID = ID;
-		r.PV = PV;
 		r.NAME = NAME;
 		r.DESC = DESC;
+		r.PV = PV;
+		r.CHANGETYPE = CHANGETYPE;
 		return( r );
 	}
 

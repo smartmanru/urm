@@ -29,6 +29,22 @@ public abstract class DBEnums {
 		public static DBEnumOwnerStatusType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumOwnerStatusType.class , value , required , null ) ); };
 	}
 	
+	public enum DBEnumChangeType implements DBEnumInterface {
+		UNKNOWN(0,null) ,
+		ORIGINAL(1,null) ,
+		CREATED(2,null) ,
+		UPDATED(3,null) ,
+		DELETED(4,null);
+
+		private final int value;
+		private String[] synonyms;
+		@Override public int code() { return( value ); };
+		@Override public String[] synonyms() { return( synonyms ); };
+		private DBEnumChangeType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
+		public static DBEnumChangeType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumChangeType.class , value , required , null ) ); };
+		public static DBEnumChangeType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumChangeType.class , value , required , null ) ); };
+	}
+	
 	public enum DBEnumResourceType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		CREDENTIALS(1,null) ,
@@ -215,19 +231,22 @@ public abstract class DBEnums {
 		META_SOURCEITEM(106,null) ,
 		META_DOC(107,null) ,
 		META_POLICY(108,null) ,
+		META_POLICYCYCLE(109,null) ,
 		META_DIST_DELIVERY(151,null) ,
-		META_DIST_BINARYITEM(152,null) ,
-		META_DIST_CONFITEM(153,null) ,
-		META_DIST_COMPONENT(154,null) ,
-		META_DIST_COMPITEM(155,null) ,
-		ENVIRONMENT(156,null) ,
-		ENVIRONMENT_SEGMENT(157,null) ,
-		ENVIRONMENT_SERVER(158,null) ,
-		ENVIRONMENT_NODE(159,null) ,
-		ENVIRONMENT_STARTGROUP(160,null) ,
-		ENVIRONMENT_DEPLOYMENT(161,null) ,
-		ENVIRONMENT_MONTARGET(162,null) ,
-		ENVIRONMENT_MONITEM(163,null) ,
+		META_DIST_DELIVERYSCHEMA(152,null) ,
+		META_DIST_DELIVERYDOC(153,null) ,
+		META_DIST_BINARYITEM(161,null) ,
+		META_DIST_CONFITEM(162,null) ,
+		META_DIST_COMPONENT(163,null) ,
+		META_DIST_COMPITEM(164,null) ,
+		ENVIRONMENT(171,null) ,
+		ENVIRONMENT_SEGMENT(172,null) ,
+		ENVIRONMENT_SERVER(173,null) ,
+		ENVIRONMENT_NODE(174,null) ,
+		ENVIRONMENT_STARTGROUP(180,null) ,
+		ENVIRONMENT_DEPLOYMENT(181,null) ,
+		ENVIRONMENT_MONTARGET(182,null) ,
+		ENVIRONMENT_MONITEM(183,null) ,
 		RELEASE_REPOSITORY(201,null) ,
 		RELEASE_MAIN(202,null) ,
 		RELEASE_DIST(203,null) ,
@@ -782,11 +801,14 @@ public abstract class DBEnums {
 		PRODUCT_SOURCEITEM(157,null) ,
 		PRODUCT_DOC(158,null) ,
 		PRODUCT_POLICY(159,null) ,
+		PRODUCT_POLICYCYCLE(160,null) ,
 		PRODUCT_DIST_DELIVERY(201,null) ,
-		PRODUCT_DIST_BINARYITEM(202,null) ,
-		PRODUCT_DIST_CONFITEM(203,null) ,
-		PRODUCT_DIST_COMPONENT(204,null) ,
-		PRODUCT_DIST_COMPITEM(205,null) ,
+		PRODUCT_DIST_DELIVERYSCHEMA(202,null) ,
+		PRODUCT_DIST_DELIVERYDOC(203,null) ,
+		PRODUCT_DIST_BINARYITEM(211,null) ,
+		PRODUCT_DIST_CONFITEM(212,null) ,
+		PRODUCT_DIST_COMPONENT(213,null) ,
+		PRODUCT_DIST_COMPITEM(214,null) ,
 		ENV_PRIMARY(301,null) ,
 		ENV_EXTRA(302,null) ,
 		ENV_CUSTOM(303,null) ,
@@ -933,9 +955,10 @@ public abstract class DBEnums {
 	//#################################################
 	// implementation
 	private static DBEnumInfo[] enums = { 
-		new DBEnumInfo( DBEnumOwnerStatusType.class , 510 ) ,
-		new DBEnumInfo( DBEnumObjectType.class , 511 ) ,
-		new DBEnumInfo( DBEnumObjectVersionType.class , 512 ) ,
+		new DBEnumInfo( DBEnumOwnerStatusType.class , 501 ) ,
+		new DBEnumInfo( DBEnumObjectType.class , 502 ) ,
+		new DBEnumInfo( DBEnumObjectVersionType.class , 503 ) ,
+		new DBEnumInfo( DBEnumChangeType.class , 504 ) ,
 		new DBEnumInfo( DBEnumBaseCategoryType.class , 513 ) , 
 		new DBEnumInfo( DBEnumBaseSrcFormatType.class , 514 ) ,
 		new DBEnumInfo( DBEnumBaseSrcType.class , 515 ) , 

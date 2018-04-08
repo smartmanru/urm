@@ -9,6 +9,7 @@ import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
+import org.urm.db.core.DBEnums.DBEnumChangeType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineLifecycles;
 import org.urm.engine.data.EngineEntities;
@@ -35,7 +36,7 @@ public class DBMetaPolicy {
 		// policy record
 		boolean urgentsAll = true;
 		policy.setAttrs( urgentsAll );
-		modifyPolicy( c , storage , policy , true );
+		modifyPolicy( c , storage , policy , true , DBEnumChangeType.CREATED );
 	}
 	
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
@@ -49,7 +50,7 @@ public class DBMetaPolicy {
 		// policy record
 		boolean urgentsAll = ConfReader.getBooleanPropertyValue( root , MetaProductPolicy.PROPERTY_RELEASELC_URGENTANY , false );
 		policy.setAttrs( urgentsAll );
-		modifyPolicy( c , storage , policy , true );
+		modifyPolicy( c , storage , policy , true , DBEnumChangeType.CREATED );
 		
 		// lifecycle list
 		String major = ConfReader.getPropertyValue( root , MetaProductPolicy.PROPERTY_RELEASELC_MAJOR , "" );
@@ -90,33 +91,34 @@ public class DBMetaPolicy {
 	
 	private static void modifyLifecycles( DBConnection c , ProductMeta storage , MetaProductPolicy policy ) throws Exception {
 		if( policy.LC_MAJOR != null )
-			modifyLifecycle( c , storage , policy.LC_MAJOR , 1 );
+			modifyLifecycle( c , storage , policy.LC_MAJOR , 1 , DBEnumChangeType.CREATED );
 		if( policy.LC_MINOR != null )
-			modifyLifecycle( c , storage , policy.LC_MINOR , 2 );
+			modifyLifecycle( c , storage , policy.LC_MINOR , 2 , DBEnumChangeType.CREATED );
 		
 		for( int k = 0; k < policy.LC_URGENT_LIST.length; k++ ) {
 			MatchItem lc = policy.LC_URGENT_LIST[ k ];
-			modifyLifecycle( c , storage , lc , k + 3 );
+			modifyLifecycle( c , storage , lc , k + 3 , DBEnumChangeType.CREATED );
 		}
 	}
 
-	private static void modifyPolicy( DBConnection c , ProductMeta storage , MetaProductPolicy policy , boolean insert ) throws Exception {
+	private static void modifyPolicy( DBConnection c , ProductMeta storage , MetaProductPolicy policy , boolean insert , DBEnumChangeType type ) throws Exception {
 		policy.PV = c.getNextProductVersion( storage );
+		policy.CHANGETYPE = type;
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaPolicy , storage.ID , policy.PV , new String[] {
 				EngineDB.getBoolean( policy.LCUrgentAll )
-				} , insert );
+				} , insert , type );
 	}
 	
-	public static void modifyLifecycle( DBConnection c , ProductMeta storage , MatchItem item , int index ) throws Exception {
-		if( !c.modify( DBQueries.MODIFY_METALC_ADD5 , new String[] { 
+	public static void modifyLifecycle( DBConnection c , ProductMeta storage , MatchItem item , int index , DBEnumChangeType type ) throws Exception {
+		EngineEntities entities = c.getEntities();
+		int version = c.getNextProductVersion( storage );
+		DBEngineEntities.modifyAppEntity( c , entities.entityAppMetaPolicyLifecycle , version , new String[] { 
 				EngineDB.getInteger( storage.ID ) ,
 				EngineDB.getInteger( index ) ,
 				EngineDB.getMatchId( item ) ,
-				EngineDB.getMatchName( item ) ,
-				EngineDB.getInteger( c.getNextProductVersion( storage ) )
-				} ) )
-			Common.exitUnexpected();
+				EngineDB.getMatchName( item )
+				} , true , type );
 	}
 
 	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
@@ -155,6 +157,7 @@ public class DBMetaPolicy {
 		ResultSet rs = DBEngineEntities.listSingleAppObject( c , entity , storage.ID );
 		try {
 			policy.PV = entity.loaddbVersion( rs );
+			policy.CHANGETYPE = entity.loaddbChangeType( rs );
 			policy.setAttrs( entity.loaddbBoolean( rs , MetaProductPolicy.PROPERTY_RELEASELC_URGENTANY ) );
 		}
 		finally {
@@ -168,7 +171,8 @@ public class DBMetaPolicy {
 
 		EngineMatcher matcher = loader.getMatcher();
 		EngineLifecycles lifecycles = loader.getLifecycles();
-		rs = c.query( DBQueries.QUERY_METALC_GETALL1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		entity = entities.entityAppMetaPolicyLifecycle;
+		rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		try {
 			while( rs.next() ) {
 				int index = rs.getInt( 2 );
@@ -201,6 +205,7 @@ public class DBMetaPolicy {
 	
 	public static void setProductLifecycles( EngineTransaction transaction , ProductMeta storage , MetaProductPolicy policy , String major , String minor , boolean urgentsAll , String [] urgents ) throws Exception {
 		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
 		
 		EngineLifecycles lifecycles = transaction.getLifecycles();
 		MatchItem lcMajor = lifecycles.matchLifecycle( null , major );
@@ -215,13 +220,9 @@ public class DBMetaPolicy {
 		policy.setAttrs( urgentsAll );
 		policy.setLifecycles( lcMajor , lcMinor , lcs );
 		
-		modifyPolicy( c , storage , policy , false );
+		modifyPolicy( c , storage , policy , false , DBEnumChangeType.UPDATED );
 		
-		if( !c.modify( DBQueries.MODIFY_METALC_DELETEALL1 , new String[] { 
-				EngineDB.getInteger( policy.meta.getId() )
-				} ) )
-			Common.exitUnexpected();
-		
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaPolicyLifecycle , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( policy.meta.getId() ) } );
 		modifyLifecycles( c , storage , policy );
 	}
 

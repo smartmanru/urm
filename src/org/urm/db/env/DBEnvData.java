@@ -8,7 +8,6 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.db.core.DBSettings;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -102,9 +101,13 @@ public class DBEnvData {
 	public static String FIELD_MONITEM_TARGET_ID = "monitem_id";
 	public static String FIELD_MONITEM_TYPE = "monitem_type";
 
-	public static PropertyEntity upgradeEntityEnvPrimary( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT , DBEnumParamEntityType.ENV_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_ENV , FIELD_ENV_ID );
+	public static PropertyEntity makeEntityEnvPrimary( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT , DBEnumParamEntityType.ENV_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_ENV , FIELD_ENV_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_META_ID , "product meta id" , DBEnumObjectType.META , false ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_ENV_META_NAME , "product meta name" , false , null ) ,
@@ -124,15 +127,13 @@ public class DBEnvData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityEnvPrimary( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT , DBEnumParamEntityType.ENV_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_ENV , FIELD_ENV_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityEnvExtra( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static PropertyEntity makeEntityEnvExtra( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ENVIRONMENT , DBEnumParamEntityType.ENV_EXTRA , DBEnumObjectVersionType.ENVIRONMENT );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaBoolean( MetaEnv.PROPERTY_DB_AUTH , "secured database authentification" , false , false ) ,
 				EntityVar.metaBoolean( MetaEnv.PROPERTY_SHOWONLY , "showonly mode" , false , false ) ,
@@ -146,15 +147,13 @@ public class DBEnvData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityEnvExtra( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ENVIRONMENT , DBEnumParamEntityType.ENV_EXTRA , DBEnumObjectVersionType.ENVIRONMENT );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntitySegmentPrimary( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_SEGMENT , DBEnumParamEntityType.ENV_SEGMENT_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_SEGMENT , FIELD_SEGMENT_ID );
+	public static PropertyEntity makeEntitySegmentPrimary( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_SEGMENT , DBEnumParamEntityType.ENV_SEGMENT_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_SEGMENT , FIELD_SEGMENT_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_SEGMENT_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , false ) ,
 				EntityVar.metaString( MetaEnvSegment.PROPERTY_NAME , "name" , true , null ) ,
@@ -167,15 +166,13 @@ public class DBEnvData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntitySegmentPrimary( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_SEGMENT , DBEnumParamEntityType.ENV_SEGMENT_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_SEGMENT , FIELD_SEGMENT_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityServerPrimary( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_SERVER , DBEnumParamEntityType.ENV_SERVER_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_SERVER , FIELD_SERVER_ID );
+	public static PropertyEntity makeEntityServerPrimary( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_SERVER , DBEnumParamEntityType.ENV_SERVER_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_SERVER , FIELD_SERVER_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_SERVER_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , false ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_SERVER_SEGMENT_ID , "environment segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , false ) ,
@@ -196,15 +193,13 @@ public class DBEnvData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityServerPrimary( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_SERVER , DBEnumParamEntityType.ENV_SERVER_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_SERVER , FIELD_SERVER_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityServerExtra( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static PropertyEntity makeEntityServerExtra( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ENVIRONMENT_SERVER , DBEnumParamEntityType.ENV_SERVER_EXTRA , DBEnumObjectVersionType.ENVIRONMENT );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( MetaEnvServer.PROPERTY_XDOC , "design identifier" , false , null ) ,
 				EntityVar.metaString( MetaEnvServer.PROPERTY_ROOTPATH , "environment chatroom" , false , null ) ,
@@ -228,15 +223,13 @@ public class DBEnvData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityServerExtra( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ENVIRONMENT_SERVER , DBEnumParamEntityType.ENV_SERVER_EXTRA , DBEnumObjectVersionType.ENVIRONMENT );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityNodePrimary( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_NODE , DBEnumParamEntityType.ENV_NODE_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_NODE , FIELD_NODE_ID );
+	public static PropertyEntity makeEntityNodePrimary( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_NODE , DBEnumParamEntityType.ENV_NODE_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_NODE , FIELD_NODE_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_NODE_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_NODE_SERVER_ID , "environment server id" , DBEnumObjectType.ENVIRONMENT_SERVER , true ) ,
@@ -251,15 +244,13 @@ public class DBEnvData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityNodePrimary( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_NODE , DBEnumParamEntityType.ENV_NODE_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_NODE , FIELD_NODE_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityStartGroup( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_STARTGROUP , DBEnumParamEntityType.ENV_SEGMENT_STARTGROUP , DBEnumObjectVersionType.ENVIRONMENT , TABLE_STARTGROUP , FIELD_STARTGROUP_ID );
+	public static PropertyEntity makeEntityStartGroup( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_STARTGROUP , DBEnumParamEntityType.ENV_SEGMENT_STARTGROUP , DBEnumObjectVersionType.ENVIRONMENT , TABLE_STARTGROUP , FIELD_STARTGROUP_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_STARTGROUP_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_STARTGROUP_SEGMENT_ID , "segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , true ) ,
@@ -269,15 +260,13 @@ public class DBEnvData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityStartGroup( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_STARTGROUP , DBEnumParamEntityType.ENV_SEGMENT_STARTGROUP , DBEnumObjectVersionType.ENVIRONMENT , TABLE_STARTGROUP , FIELD_STARTGROUP_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityServerDeployment( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_DEPLOYMENT , DBEnumParamEntityType.ENV_DEPLOYMENT , DBEnumObjectVersionType.ENVIRONMENT , TABLE_DEPLOYMENT , FIELD_DEPLOYMENT_ID );
+	public static PropertyEntity makeEntityServerDeployment( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_DEPLOYMENT , DBEnumParamEntityType.ENV_DEPLOYMENT , DBEnumObjectVersionType.ENVIRONMENT , TABLE_DEPLOYMENT , FIELD_DEPLOYMENT_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_DEPLOYMENT_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DEPLOYMENT_SERVER_ID , "environment server id" , DBEnumObjectType.ENVIRONMENT_SERVER , true ) ,
@@ -298,15 +287,13 @@ public class DBEnvData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityServerDeployment( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_DEPLOYMENT , DBEnumParamEntityType.ENV_DEPLOYMENT , DBEnumObjectVersionType.ENVIRONMENT , TABLE_DEPLOYMENT , FIELD_DEPLOYMENT_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityMonitoringTarget( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_MONTARGET , DBEnumParamEntityType.ENV_SEGMENT_MONTARGET , DBEnumObjectVersionType.ENVIRONMENT , TABLE_MONTARGET , FIELD_MONTARGET_ID );
+	public static PropertyEntity makeEntityMonitoringTarget( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_MONTARGET , DBEnumParamEntityType.ENV_SEGMENT_MONTARGET , DBEnumObjectVersionType.ENVIRONMENT , TABLE_MONTARGET , FIELD_MONTARGET_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_MONTARGET_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_MONTARGET_SEGMENT_ID , "environment segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , true ) ,
@@ -319,15 +306,13 @@ public class DBEnvData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMonitoringTarget( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_MONTARGET , DBEnumParamEntityType.ENV_SEGMENT_MONTARGET , DBEnumObjectVersionType.ENVIRONMENT , TABLE_MONTARGET , FIELD_MONTARGET_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityMonitoringItem( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_MONITEM , DBEnumParamEntityType.ENV_SEGMENT_MONITEM , DBEnumObjectVersionType.ENVIRONMENT , TABLE_MONITEM , FIELD_MONITEM_ID );
+	public static PropertyEntity makeEntityMonitoringItem( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_MONITEM , DBEnumParamEntityType.ENV_SEGMENT_MONITEM , DBEnumObjectVersionType.ENVIRONMENT , TABLE_MONITEM , FIELD_MONITEM_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_MONITEM_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_MONITEM_TARGET_ID , "monitoring target id" , DBEnumObjectType.ENVIRONMENT_MONTARGET , true ) ,
@@ -338,12 +323,6 @@ public class DBEnvData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMonitoringItem( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_MONITEM , DBEnumParamEntityType.ENV_SEGMENT_MONITEM , DBEnumObjectVersionType.ENVIRONMENT , TABLE_MONITEM , FIELD_MONITEM_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
 	public static void dropEnvData( DBConnection c , ProductMeta storage ) throws Exception {
 		dropEnvDumpData( c , storage );
 		dropEnvDesignData( c , storage );

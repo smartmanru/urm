@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumChangeType;
 
 public class MetaSourceProjectSet {
 
@@ -20,6 +21,7 @@ public class MetaSourceProjectSet {
 	public String NAME;
 	public String DESC;
 	public int PV;
+	public DBEnumChangeType CHANGETYPE;
 
 	private List<MetaSourceProject> orderedList;
 	private Map<String,MetaSourceProject> map;
@@ -39,6 +41,7 @@ public class MetaSourceProjectSet {
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.PV = PV;
+		r.CHANGETYPE = CHANGETYPE;
 		
 		for( MetaSourceProject project : orderedList ) {
 			MetaSourceProject rproject = project.copy( rmeta , r );

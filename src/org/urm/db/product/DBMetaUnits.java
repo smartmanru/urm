@@ -62,17 +62,18 @@ public class DBMetaUnits {
 				entity.importxmlStringAttr( root , MetaProductUnit.PROPERTY_DESC )
 				);
 		
-		modifyUnit( c , storage , unit , true );
+		modifyUnit( c , storage , unit , true , DBEnumChangeType.CREATED );
 		return( unit );
 	}
 	
-	private static void modifyUnit( DBConnection c , ProductMeta storage , MetaProductUnit unit , boolean insert ) throws Exception {
+	private static void modifyUnit( DBConnection c , ProductMeta storage , MetaProductUnit unit , boolean insert , DBEnumChangeType type ) throws Exception {
 		if( insert )
 			unit.ID = DBNames.getNameIndex( c , storage.ID , unit.NAME , DBEnumParamEntityType.PRODUCT_UNIT );
 		else
 			DBNames.updateName( c , storage.ID , unit.NAME , unit.ID , DBEnumParamEntityType.PRODUCT_UNIT );
 		
 		unit.PV = c.getNextProductVersion( storage );
+		unit.CHANGETYPE = type;
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaUnit , unit.ID , unit.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -134,7 +135,7 @@ public class DBMetaUnits {
 		
 		MetaProductUnit unit = new MetaProductUnit( storage.meta , units );
 		unit.createUnit( name , desc );
-		modifyUnit( c , storage , unit , true );
+		modifyUnit( c , storage , unit , true , DBEnumChangeType.CREATED );
 		
 		units.addUnit( unit );
 		return( unit );
@@ -144,7 +145,7 @@ public class DBMetaUnits {
 		DBConnection c = transaction.getConnection();
 		
 		unit.modifyUnit( name , desc );
-		modifyUnit( c , storage , unit , false );
+		modifyUnit( c , storage , unit , false , DBEnumChangeType.UPDATED );
 		
 		units.updateUnit( unit );
 	}

@@ -8,13 +8,16 @@ import org.urm.db.core.DBVersions;
 import org.urm.engine.data.EngineContext;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.EngineLoader;
 
 public abstract class DBEngineContext {
 
-	public static PropertyEntity upgradeEntityRC( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static PropertyEntity makeEntityRC( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.RC , DBEnumObjectVersionType.CORE );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( RunContext.PROPERTY_HOSTNAME , "Server Host" , true , null ) ,
 				EntityVar.metaPathAbsolute( RunContext.PROPERTY_USER_HOME , "Server User Home" , false , null , null ) ,
@@ -28,27 +31,13 @@ public abstract class DBEngineContext {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityRC( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.RC , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity createEntityCustomRC( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.LOCAL_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.RC_CUSTOM , DBVersions.LOCAL_ID , DBEnumObjectVersionType.LOCAL );
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[0] ) ); 
-	}
-
-	public static PropertyEntity loaddbEntityCustomRC( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.LOCAL_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.RC_CUSTOM , DBVersions.LOCAL_ID , DBEnumObjectVersionType.LOCAL );
-		DBSettings.loaddbEntity( c , entity , DBVersions.LOCAL_ID , false );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityEngine( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static PropertyEntity makeEntityEngine( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.ENGINE , DBEnumObjectVersionType.CORE );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaInteger( EngineContext.PROPERTY_CONNECTION_JMX_PORT , "Server Engine JMX Port" , true , 6000 ) ,
 				EntityVar.metaInteger( EngineContext.PROPERTY_CONNECTION_JMXWEB_PORT , "Server Engine JMX HTTP Port" , true , 6001 ) ,
@@ -78,14 +67,18 @@ public abstract class DBEngineContext {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityEngine( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.ENGINE , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbAppEntity( c , entity );
+	public static PropertyEntity createEntityCustomRC( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.LOCAL_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.RC_CUSTOM , DBVersions.LOCAL_ID , DBEnumObjectVersionType.LOCAL );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[0] ) ); 
+	}
+
+	public static PropertyEntity loaddbEntityCustomRC( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.LOCAL_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.RC_CUSTOM , DBVersions.LOCAL_ID , DBEnumObjectVersionType.LOCAL );
+		DBSettings.loaddbEntity( c , entity , DBVersions.LOCAL_ID , false );
 		return( entity );
 	}
 	
-	public static PropertyEntity createEntityCustomEngine( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static PropertyEntity createEntityCustomEngine( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.CORE_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.ENGINE_CUSTOM , DBVersions.CORE_ID , DBEnumObjectVersionType.CORE );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[0] ) ); 
 	}

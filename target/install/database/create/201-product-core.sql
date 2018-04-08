@@ -27,6 +27,7 @@ CREATE TABLE main.urm_product_doc (
                 ext VARCHAR(30) NOT NULL,
                 unitbound BOOLEAN NOT NULL,
                 pv INTEGER NOT NULL,
+                change_type INTEGER NOT NULL,
                 CONSTRAINT urm_product_doc_pk PRIMARY KEY (doc_id)
 );
 COMMENT ON TABLE main.urm_product_doc IS 'Product document type';
@@ -36,6 +37,7 @@ CREATE TABLE main.urm_product_policy (
                 meta_id INTEGER NOT NULL,
                 lcurgent_any BOOLEAN NOT NULL,
                 pv INTEGER NOT NULL,
+                change_type INTEGER NOT NULL,
                 CONSTRAINT urm_product_policy_pk PRIMARY KEY (meta_id)
 );
 COMMENT ON TABLE main.urm_product_policy IS 'Product policy';
@@ -47,6 +49,7 @@ CREATE TABLE main.urm_product_lifecycle (
                 lifecycle_fkid INTEGER,
                 lifecycle_fkname VARCHAR(64),
                 pv INTEGER NOT NULL,
+                change_type INTEGER NOT NULL,
                 CONSTRAINT urm_product_lifecycle_pk PRIMARY KEY (meta_id, lc_index)
 );
 COMMENT ON TABLE main.urm_product_lifecycle IS 'Product lifecycle';
@@ -58,6 +61,7 @@ CREATE TABLE main.urm_source_set (
                 name VARCHAR(30) NOT NULL,
                 xdesc VARCHAR,
                 pv INTEGER NOT NULL,
+                change_type INTEGER NOT NULL,
                 CONSTRAINT urm_source_set_pk PRIMARY KEY (srcset_id)
 );
 COMMENT ON TABLE main.urm_source_set IS 'Product source project set';
@@ -72,6 +76,7 @@ CREATE TABLE main.urm_product_schema (
                 dbname VARCHAR(64),
                 dbuser VARCHAR(64),
                 pv INTEGER NOT NULL,
+                change_type INTEGER NOT NULL,
                 CONSTRAINT urm_product_schema_pk PRIMARY KEY (schema_id)
 );
 COMMENT ON TABLE main.urm_product_schema IS 'Product database logical schema';
@@ -83,6 +88,7 @@ CREATE TABLE main.urm_product_unit (
                 name VARCHAR(64) NOT NULL,
                 xdesc VARCHAR,
                 pv INTEGER NOT NULL,
+                change_type INTEGER NOT NULL,
                 CONSTRAINT urm_product_unit_pk PRIMARY KEY (unit_id)
 );
 COMMENT ON TABLE main.urm_product_unit IS 'Product unit';
@@ -111,6 +117,7 @@ CREATE TABLE main.urm_source_project (
                 custom_build BOOLEAN NOT NULL,
                 custom_get BOOLEAN NOT NULL,
                 pv VARCHAR NOT NULL,
+                change_type INTEGER NOT NULL,
                 CONSTRAINT urm_source_project_pk PRIMARY KEY (project_id)
 );
 COMMENT ON TABLE main.urm_source_project IS 'Product source project';
@@ -130,6 +137,7 @@ CREATE TABLE main.urm_source_item (
                 fixed_version VARCHAR(30),
                 nodist BOOLEAN NOT NULL,
                 pv INTEGER NOT NULL,
+                change_type INTEGER NOT NULL,
                 CONSTRAINT urm_source_item_pk PRIMARY KEY (srcitem_id)
 );
 COMMENT ON TABLE main.urm_source_item IS 'Product source project item';

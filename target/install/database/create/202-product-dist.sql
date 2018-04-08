@@ -5,6 +5,7 @@ CREATE TABLE main.urm_dist_comp (
                 name VARCHAR(64) NOT NULL,
                 xdesc VARCHAR,
                 pv INTEGER NOT NULL,
+                change_type INTEGER NOT NULL,
                 CONSTRAINT urm_dist_comp_pk PRIMARY KEY (comp_id)
 );
 COMMENT ON TABLE main.urm_dist_comp IS 'Product deployment component';
@@ -20,6 +21,7 @@ CREATE TABLE main.urm_dist_delivery (
                 schema_any BOOLEAN NOT NULL,
                 doc_any BOOLEAN NOT NULL,
                 pv INTEGER NOT NULL,
+                change_type INTEGER NOT NULL,
                 CONSTRAINT urm_dist_delivery_pk PRIMARY KEY (delivery_id)
 );
 COMMENT ON TABLE main.urm_dist_delivery IS 'Product distributive delivery';
@@ -30,6 +32,7 @@ CREATE TABLE main.urm_dist_docitem (
                 doc_id INTEGER NOT NULL,
                 meta_id INTEGER NOT NULL,
                 pv INTEGER NOT NULL,
+                change_type INTEGER NOT NULL,
                 CONSTRAINT urm_dist_docitem_pk PRIMARY KEY (delivery_id, doc_id)
 );
 COMMENT ON TABLE main.urm_dist_docitem IS 'Product distributive delivery document item';
@@ -48,6 +51,7 @@ CREATE TABLE main.urm_dist_confitem (
                 exclude VARCHAR,
                 extconf VARCHAR,
                 pv INTEGER NOT NULL,
+                change_type INTEGER NOT NULL,
                 CONSTRAINT urm_dist_confitem_pk PRIMARY KEY (confitem_id)
 );
 COMMENT ON TABLE main.urm_dist_confitem IS 'Product distributive configuration item';
@@ -58,6 +62,7 @@ CREATE TABLE main.urm_dist_schemaitem (
                 schema_id INTEGER NOT NULL,
                 meta_id INTEGER NOT NULL,
                 pv INTEGER NOT NULL,
+                change_type INTEGER NOT NULL,
                 CONSTRAINT urm_dist_schemaitem_pk PRIMARY KEY (delivery_id, schema_id)
 );
 COMMENT ON TABLE main.urm_dist_schemaitem IS 'Product distributive schema';
@@ -85,6 +90,7 @@ CREATE TABLE main.urm_dist_binaryitem (
                 custom_get BOOLEAN NOT NULL,
                 custom_deploy BOOLEAN NOT NULL,
                 pv INTEGER NOT NULL,
+                change_type INTEGER NOT NULL,
                 CONSTRAINT urm_dist_binaryitem_pk PRIMARY KEY (binary_id)
 );
 COMMENT ON TABLE main.urm_dist_binaryitem IS 'Product distributive binary item';
@@ -101,6 +107,7 @@ CREATE TABLE main.urm_dist_compitem (
                 deploy_name VARCHAR(64),
                 wsdl_request VARCHAR,
                 pv INTEGER NOT NULL,
+                change_type INTEGER NOT NULL,
                 CONSTRAINT urm_dist_compitem_pk PRIMARY KEY (compitem_id)
 );
 COMMENT ON TABLE main.urm_dist_compitem IS 'Product deployment component item';

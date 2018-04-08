@@ -35,9 +35,13 @@ public class DBEngineResources {
 	public static String FIELD_RESOURCE_DESC = "xdesc";
 	public static String XMLPROP_RESOURCE_TYPE = "resource_type";
 	
-	public static PropertyEntity upgradeEntityResource( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RESOURCE , DBEnumParamEntityType.RESOURCE , DBEnumObjectVersionType.CORE , TABLE_RESOURCE , FIELD_RESOURCE_ID );
+	public static PropertyEntity makeEntityResource( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RESOURCE , DBEnumParamEntityType.RESOURCE , DBEnumObjectVersionType.CORE , TABLE_RESOURCE , FIELD_RESOURCE_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AuthResource.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( AuthResource.PROPERTY_DESC , FIELD_RESOURCE_DESC , AuthResource.PROPERTY_DESC , "Description" , false , null ) ,
@@ -47,12 +51,6 @@ public class DBEngineResources {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityResource( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.RESOURCE , DBEnumParamEntityType.RESOURCE , DBEnumObjectVersionType.CORE , TABLE_RESOURCE , FIELD_RESOURCE_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
 	public static void importxml( EngineLoader loader , EngineResources resources , Node root ) throws Exception {
 		Node[] list = ConfReader.xmlGetChildren( root , ELEMENT_RESOURCE );
 		if( list != null ) {

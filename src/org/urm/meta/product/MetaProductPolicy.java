@@ -2,6 +2,7 @@ package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumChangeType;
 import org.urm.db.core.DBEnums.DBEnumLifecycleType;
 import org.urm.engine.data.EngineLifecycles;
 import org.urm.meta.MatchItem;
@@ -21,6 +22,7 @@ public class MetaProductPolicy {
 	public boolean LCUrgentAll;
 	public MatchItem[] LC_URGENT_LIST;
 	public int PV;
+	public DBEnumChangeType CHANGETYPE;
 	
 	public MetaProductPolicy( ProductMeta storage , Meta meta ) {
 		LCUrgentAll = false;
@@ -36,6 +38,8 @@ public class MetaProductPolicy {
 		r.LC_MINOR = LC_MINOR;
 		r.LCUrgentAll = LCUrgentAll;
 		r.LC_URGENT_LIST = new MatchItem[ LC_URGENT_LIST.length ];
+		r.PV = PV;
+		r.CHANGETYPE = CHANGETYPE;
 		for( int k = 0; k < LC_URGENT_LIST.length; k++ )
 			r.LC_URGENT_LIST[ k ] = MatchItem.copy( LC_URGENT_LIST[ k ] );
 		

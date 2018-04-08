@@ -10,7 +10,6 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrComponent;
@@ -38,7 +37,10 @@ public class DBProductData {
 	public static String TABLE_SOURCEITEM = "urm_source_item";
 	public static String TABLE_DOC = "urm_product_doc";
 	public static String TABLE_POLICY = "urm_product_policy";
+	public static String TABLE_POLICYCYCLE = "urm_product_lifecycle";
 	public static String TABLE_DELIVERY = "urm_dist_delivery";
+	public static String TABLE_DELIVERYSCHEMA = "urm_dist_schemaitem";
+	public static String TABLE_DELIVERYDOC = "urm_dist_docitem";
 	public static String TABLE_BINARYITEM = "urm_dist_binaryitem";
 	public static String TABLE_CONFITEM = "urm_dist_confitem";
 	public static String TABLE_COMPONENT = "urm_dist_comp";
@@ -92,9 +94,17 @@ public class DBProductData {
 	public static String FIELD_DOC_EXT = "ext";
 	public static String FIELD_POLICY_ID = "meta_id";
 	public static String FIELD_POLICY_LCURGENTALL = "lcurgent_any";
+	public static String FIELD_LIFECYCLE_META = "meta_id";
+	public static String FIELD_LIFECYCLE_LCINDEX = "lc_index";
+	public static String FIELD_LIFECYCLE_FKID = "lifecycle_fkid";
+	public static String FIELD_LIFECYCLE_FKNAME = "lifecycle_fkname";
 	public static String FIELD_DELIVERY_ID = "delivery_id";
 	public static String FIELD_DELIVERY_UNIT_ID = "unit_id";
 	public static String FIELD_DELIVERY_DESC = "xdesc";
+	public static String FIELD_DELIVERYSCHEMA_DELIVERY_ID = "delivery_id";
+	public static String FIELD_DELIVERYSCHEMA_SCHEMA_ID = "schema_id";
+	public static String FIELD_DELIVERYDOC_DELIVERY_ID = "delivery_id";
+	public static String FIELD_DELIVERYDOC_DOC_ID = "doc_id";
 	public static String FIELD_BINARYITEM_ID = "binary_id";
 	public static String FIELD_BINARYITEM_DESC = "xdesc";
 	public static String FIELD_BINARYITEM_DISTITEMTYPE = "distitem_type";
@@ -124,9 +134,13 @@ public class DBProductData {
 	public static String FIELD_COMPITEM_DEPLOYNAME = "deploy_name";
 	public static String FIELD_COMPITEM_WSDL = "wsdl_request";
 	
-	public static PropertyEntity upgradeEntityProductSettings( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static PropertyEntity makeEntityProductSettings( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.UNKNOWN , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.UNKNOWN );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_REDISTLINUX_PATH , "Linux Staging Area Path" , true , null , DBEnumOSType.LINUX ) ,
 				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_REDISTWIN_PATH , "Windows Staging Area Path" , true , null , DBEnumOSType.WINDOWS ) ,
@@ -145,15 +159,13 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityProductSettings( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.UNKNOWN , DBEnumParamEntityType.PRODUCTDEFS , DBEnumObjectVersionType.UNKNOWN );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityProductBuild( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static PropertyEntity makeEntityProductBuild( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.UNKNOWN , DBEnumParamEntityType.PRODUCTBUILD , DBEnumObjectVersionType.UNKNOWN );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_LASTMAJOR , "Last Major Release" , false , null ) ,
 				EntityVar.metaString( MetaProductBuildSettings.PROPERTY_RELEASE_NEXTMAJOR , "Next Major Release" , false , null ) ,
@@ -171,15 +183,13 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityProductBuild( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.UNKNOWN , DBEnumParamEntityType.PRODUCTBUILD , DBEnumObjectVersionType.UNKNOWN );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityProductContext( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static PropertyEntity makeEntityProductContext( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.UNKNOWN , DBEnumParamEntityType.PRODUCTCTX , DBEnumObjectVersionType.UNKNOWN );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( MetaProductSettings.PROPERTY_PRODUCT_NAME , "Product Name" , true , "(product)" ) ,
 				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_PRODUCT_HOME , "Product Home" , true , "(home)" , null ) ,
@@ -194,15 +204,13 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityProductContext( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.UNKNOWN , DBEnumParamEntityType.PRODUCTCTX , DBEnumObjectVersionType.UNKNOWN );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityMeta( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT , DBEnumObjectVersionType.PRODUCT , TABLE_META , FIELD_META_ID );
+	public static PropertyEntity makeEntityMeta( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT , DBEnumObjectVersionType.PRODUCT , TABLE_META , FIELD_META_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_PRODUCT_ID , "Application product id" , DBEnumObjectType.APPPRODUCT , false ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_NAME , "Application product name" , false , null ) ,
@@ -218,15 +226,13 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMeta( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT , DBEnumObjectVersionType.PRODUCT , TABLE_META , FIELD_META_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-
-	public static PropertyEntity upgradeEntityMetaVersion( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static PropertyEntity makeEntityMetaVersion( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_VERSION , DBEnumObjectVersionType.PRODUCT );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_LAST_MAJOR_FIRST , "Major last version, first number" , true , null ) ,
 				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_LAST_MAJOR_SECOND , "Major last version, last number" , true , null ) ,
@@ -239,15 +245,13 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMetaVersion( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_VERSION , DBEnumObjectVersionType.PRODUCT );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityMetaMonitoring( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static PropertyEntity makeEntityMetaMonitoring( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_MONITORING , DBEnumObjectVersionType.PRODUCT );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( MetaProductCoreSettings.PROPERTY_MONITORING_RESOURCE_URL , "Monitoring Resources URL" , true , null ) ,
 				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_RES , "Monitoring Resources Path" , true , null , null ) ,
@@ -257,29 +261,40 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMetaMonitoring( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_MONITORING , DBEnumObjectVersionType.PRODUCT );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-
-	public static PropertyEntity upgradeEntityMetaPolicy( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_POLICY , DBEnumParamEntityType.PRODUCT_POLICY , DBEnumObjectVersionType.PRODUCT , TABLE_POLICY , FIELD_POLICY_ID );
+	public static PropertyEntity makeEntityMetaPolicy( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_POLICY , DBEnumParamEntityType.PRODUCT_POLICY , DBEnumObjectVersionType.PRODUCT , TABLE_POLICY , FIELD_POLICY_ID , true );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
 				EntityVar.metaBooleanVar( MetaProductPolicy.PROPERTY_RELEASELC_URGENTANY , FIELD_POLICY_LCURGENTALL , MetaProductPolicy.PROPERTY_RELEASELC_URGENTANY , "Any urgent lifecycle enabled" , true , false )
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMetaPolicy( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_POLICY , DBEnumParamEntityType.PRODUCT_POLICY , DBEnumObjectVersionType.PRODUCT , TABLE_POLICY , FIELD_POLICY_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
+	public static PropertyEntity makeEntityMetaPolicyLifecycle( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppAssociativeEntity( DBEnumObjectType.META_POLICYCYCLE , DBEnumParamEntityType.PRODUCT_POLICYCYCLE , DBEnumObjectVersionType.PRODUCT , TABLE_POLICYCYCLE , true , 2 );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
+				EntityVar.metaObjectDatabaseOnly( FIELD_LIFECYCLE_META , "meta id" , DBEnumObjectType.META , true ) ,
+				EntityVar.metaIntegerDatabaseOnly( FIELD_LIFECYCLE_LCINDEX , "lifecycle index" , true , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_LIFECYCLE_FKID , "lifecycle id" , DBEnumObjectType.LIFECYCLE , false ) ,
+				EntityVar.metaStringDatabaseOnly( FIELD_LIFECYCLE_FKNAME , "lifecycle name" , false , null ) ,
+		} ) );
 	}
-	
-	public static PropertyEntity upgradeEntityMetaUnit( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_UNIT , DBEnumParamEntityType.PRODUCT_UNIT , DBEnumObjectVersionType.PRODUCT , TABLE_UNIT , FIELD_UNIT_ID );
+
+	public static PropertyEntity makeEntityMetaUnit( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_UNIT , DBEnumParamEntityType.PRODUCT_UNIT , DBEnumObjectVersionType.PRODUCT , TABLE_UNIT , FIELD_UNIT_ID , true );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
 				EntityVar.metaString( MetaProductUnit.PROPERTY_NAME , "Name" , true , null ) ,
@@ -287,17 +302,15 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMetaUnit( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_UNIT , DBEnumParamEntityType.PRODUCT_UNIT , DBEnumObjectVersionType.PRODUCT , TABLE_UNIT , FIELD_UNIT_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityMetaSchema( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SCHEMA , DBEnumParamEntityType.PRODUCT_SCHEMA , DBEnumObjectVersionType.PRODUCT , TABLE_SCHEMA , FIELD_SCHEMA_ID );
+	public static PropertyEntity makeEntityMetaSchema( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SCHEMA , DBEnumParamEntityType.PRODUCT_SCHEMA , DBEnumObjectVersionType.PRODUCT , TABLE_SCHEMA , FIELD_SCHEMA_ID , true );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaString( MetaDatabaseSchema.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( MetaDatabaseSchema.PROPERTY_DESC , FIELD_SCHEMA_DESC , MetaDatabaseSchema.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaEnumVar( MetaDatabaseSchema.PROPERTY_DBTYPE , FIELD_SCHEMA_DBTYPE , MetaDatabaseSchema.PROPERTY_DBTYPE , "Database software type" , true , DBEnumDbmsType.UNKNOWN ) ,
@@ -306,33 +319,29 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMetaSchema( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SCHEMA , DBEnumParamEntityType.PRODUCT_SCHEMA , DBEnumObjectVersionType.PRODUCT , TABLE_SCHEMA , FIELD_SCHEMA_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityMetaSourceSet( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCESET , DBEnumParamEntityType.PRODUCT_SOURCESET , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCESET , FIELD_SOURCESET_ID );
+	public static PropertyEntity makeEntityMetaSourceSet( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCESET , DBEnumParamEntityType.PRODUCT_SOURCESET , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCESET , FIELD_SOURCESET_ID , true );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaString( MetaSourceProjectSet.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( MetaSourceProjectSet.PROPERTY_DESC , FIELD_SOURCESET_DESC , MetaSourceProjectSet.PROPERTY_DESC , "Description" , false , null ) ,
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMetaSourceSet( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCESET , DBEnumParamEntityType.PRODUCT_SOURCESET , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCESET , FIELD_SOURCESET_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityMetaSourceProject( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCEPROJECT , DBEnumParamEntityType.PRODUCT_SOURCEPROJECT , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCEPROJECT , FIELD_SOURCEPROJECT_ID );
+	public static PropertyEntity makeEntityMetaSourceProject( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCEPROJECT , DBEnumParamEntityType.PRODUCT_SOURCEPROJECT , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCEPROJECT , FIELD_SOURCEPROJECT_ID , true );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_SOURCEPROJECT_SET_ID , "Source set" , DBEnumObjectType.META_SOURCESET , true ) ,
 				EntityVar.metaString( MetaSourceProject.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_DESC , FIELD_SOURCEPROJECT_DESC , MetaSourceProject.PROPERTY_DESC , "Description" , false , null ) ,
@@ -356,17 +365,15 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMetaSourceProject( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCEPROJECT , DBEnumParamEntityType.PRODUCT_SOURCEPROJECT , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCEPROJECT , FIELD_SOURCEPROJECT_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityMetaSourceItem( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCEITEM , DBEnumParamEntityType.PRODUCT_SOURCEITEM , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCEITEM , FIELD_SOURCEITEM_ID );
+	public static PropertyEntity makeEntityMetaSourceItem( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCEITEM , DBEnumParamEntityType.PRODUCT_SOURCEITEM , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCEITEM , FIELD_SOURCEITEM_ID , true );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_SOURCEITEM_PROJECT_ID , "Source project" , DBEnumObjectType.META_SOURCEPROJECT , true ) ,
 				EntityVar.metaString( MetaSourceProjectItem.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_DESC , FIELD_SOURCEITEM_DESC , MetaSourceProjectItem.PROPERTY_DESC , "Description" , false , null ) ,
@@ -380,17 +387,15 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMetaSourceItem( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_SOURCEITEM , DBEnumParamEntityType.PRODUCT_SOURCEITEM , DBEnumObjectVersionType.PRODUCT , TABLE_SOURCEITEM , FIELD_SOURCEITEM_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityMetaDoc( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DOC , DBEnumParamEntityType.PRODUCT_DOC , DBEnumObjectVersionType.PRODUCT , TABLE_DOC , FIELD_DOC_ID );
+	public static PropertyEntity makeEntityMetaDoc( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DOC , DBEnumParamEntityType.PRODUCT_DOC , DBEnumObjectVersionType.PRODUCT , TABLE_DOC , FIELD_DOC_ID , true );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaString( MetaProductDoc.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( MetaProductDoc.PROPERTY_DESC , FIELD_DOC_DESC , MetaProductDoc.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaEnumVar( MetaProductDoc.PROPERTY_CATEGORY , FIELD_DOC_CATEGORY , MetaProductDoc.PROPERTY_CATEGORY , "Document category" , true , DBEnumDocCategoryType.UNKNOWN ) ,
@@ -399,17 +404,15 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMetaDoc( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DOC , DBEnumParamEntityType.PRODUCT_DOC , DBEnumObjectVersionType.PRODUCT , TABLE_DOC , FIELD_DOC_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityMetaDistrDelivery( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_DELIVERY , DBEnumParamEntityType.PRODUCT_DIST_DELIVERY , DBEnumObjectVersionType.PRODUCT , TABLE_DELIVERY , FIELD_DELIVERY_ID );
+	public static PropertyEntity makeEntityMetaDistrDelivery( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_DELIVERY , DBEnumParamEntityType.PRODUCT_DIST_DELIVERY , DBEnumObjectVersionType.PRODUCT , TABLE_DELIVERY , FIELD_DELIVERY_ID , true );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DELIVERY_UNIT_ID , "delivery unit id" , DBEnumObjectType.META_UNIT , false ) ,
 				EntityVar.metaStringXmlOnly( MetaDistrDelivery.PROPERTY_UNIT_NAME , "delivery unit name" , false , null ) ,
 				EntityVar.metaString( MetaDistrDelivery.PROPERTY_NAME , "Name" , true , null ) ,
@@ -420,17 +423,43 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMetaDistrDelivery( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_DELIVERY , DBEnumParamEntityType.PRODUCT_DIST_DELIVERY , DBEnumObjectVersionType.PRODUCT , TABLE_DELIVERY , FIELD_DELIVERY_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityMetaDistrBinaryItem( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_BINARYITEM , DBEnumParamEntityType.PRODUCT_DIST_BINARYITEM , DBEnumObjectVersionType.PRODUCT , TABLE_BINARYITEM , FIELD_BINARYITEM_ID );
+	public static PropertyEntity makeEntityMetaDistrDeliverySchema( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppAssociativeEntity( DBEnumObjectType.META_DIST_DELIVERYSCHEMA , DBEnumParamEntityType.PRODUCT_DIST_DELIVERYSCHEMA , DBEnumObjectVersionType.PRODUCT , TABLE_DELIVERYSCHEMA , true , 2 );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DELIVERYSCHEMA_DELIVERY_ID , "delivery id" , DBEnumObjectType.META_DIST_DELIVERY , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DELIVERYSCHEMA_SCHEMA_ID , "schema id" , DBEnumObjectType.META_SCHEMA , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true )
+		} ) );
+	}
+
+	public static PropertyEntity makeEntityMetaDistrDeliveryDoc( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppAssociativeEntity( DBEnumObjectType.META_DIST_DELIVERYDOC , DBEnumParamEntityType.PRODUCT_DIST_DELIVERYDOC , DBEnumObjectVersionType.PRODUCT , TABLE_DELIVERYDOC , true , 2 );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
+				EntityVar.metaObjectDatabaseOnly( FIELD_DELIVERYDOC_DELIVERY_ID , "delivery id" , DBEnumObjectType.META_DIST_DELIVERY , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_DELIVERYDOC_DOC_ID , "doc id" , DBEnumObjectType.META_DOC , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true )
+		} ) );
+	}
+
+	public static PropertyEntity makeEntityMetaDistrBinaryItem( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_BINARYITEM , DBEnumParamEntityType.PRODUCT_DIST_BINARYITEM , DBEnumObjectVersionType.PRODUCT , TABLE_BINARYITEM , FIELD_BINARYITEM_ID , true );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
+				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DELIVERY_ID , "delivery id" , DBEnumObjectType.META_DIST_DELIVERY , true ) ,
 				EntityVar.metaString( MetaDistrBinaryItem.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_DESC , FIELD_BINARYITEM_DESC , MetaDistrBinaryItem.PROPERTY_DESC , "Description" , false , null ) ,
@@ -454,17 +483,15 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMetaDistrBinaryItem( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_BINARYITEM , DBEnumParamEntityType.PRODUCT_DIST_BINARYITEM , DBEnumObjectVersionType.PRODUCT , TABLE_BINARYITEM , FIELD_BINARYITEM_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityMetaDistrConfItem( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_CONFITEM , DBEnumParamEntityType.PRODUCT_DIST_CONFITEM , DBEnumObjectVersionType.PRODUCT , TABLE_CONFITEM , FIELD_CONFITEM_ID );
+	public static PropertyEntity makeEntityMetaDistrConfItem( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_CONFITEM , DBEnumParamEntityType.PRODUCT_DIST_CONFITEM , DBEnumObjectVersionType.PRODUCT , TABLE_CONFITEM , FIELD_CONFITEM_ID , true );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DELIVERY_ID , "delivery id" , DBEnumObjectType.META_DIST_DELIVERY , true ) ,
 				EntityVar.metaString( MetaDistrConfItem.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( MetaDistrConfItem.PROPERTY_DESC , FIELD_CONFITEM_DESC , MetaDistrConfItem.PROPERTY_DESC , "Description" , false , null ) ,
@@ -477,33 +504,29 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMetaDistrConfItem( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_CONFITEM , DBEnumParamEntityType.PRODUCT_DIST_CONFITEM , DBEnumObjectVersionType.PRODUCT , TABLE_CONFITEM , FIELD_CONFITEM_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityMetaDistrComponent( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_COMPONENT , DBEnumParamEntityType.PRODUCT_DIST_COMPONENT , DBEnumObjectVersionType.PRODUCT , TABLE_COMPONENT , FIELD_COMPONENT_ID );
+	public static PropertyEntity makeEntityMetaDistrComponent( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_COMPONENT , DBEnumParamEntityType.PRODUCT_DIST_COMPONENT , DBEnumObjectVersionType.PRODUCT , TABLE_COMPONENT , FIELD_COMPONENT_ID , true );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaString( MetaDistrComponent.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( MetaDistrComponent.PROPERTY_DESC , FIELD_COMPONENT_DESC , MetaDistrComponent.PROPERTY_DESC , "Description" , false , null ) ,
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMetaDistrComponent( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_COMPONENT , DBEnumParamEntityType.PRODUCT_DIST_COMPONENT , DBEnumObjectVersionType.PRODUCT , TABLE_COMPONENT , FIELD_COMPONENT_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity upgradeEntityMetaDistrCompItem( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_COMPITEM , DBEnumParamEntityType.PRODUCT_DIST_COMPITEM , DBEnumObjectVersionType.PRODUCT , TABLE_COMPITEM , FIELD_COMPITEM_ID );
+	public static PropertyEntity makeEntityMetaDistrCompItem( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_COMPITEM , DBEnumParamEntityType.PRODUCT_DIST_COMPITEM , DBEnumObjectVersionType.PRODUCT , TABLE_COMPITEM , FIELD_COMPITEM_ID , true );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_COMPITEM_COMPID , "component id" , DBEnumObjectType.META_DIST_COMPITEM , true ) ,
 				EntityVar.metaEnumDatabaseOnly( FIELD_COMPITEM_TYPE , "component item type" , true , DBEnumCompItemType.UNKNOWN ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_COMPITEM_BINARY_ID , "binary item id" , DBEnumObjectType.META_DIST_BINARYITEM , false ) ,
@@ -515,12 +538,6 @@ public class DBProductData {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityMetaDistrCompItem( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_DIST_COMPITEM , DBEnumParamEntityType.PRODUCT_DIST_COMPITEM , DBEnumObjectVersionType.PRODUCT , TABLE_COMPITEM , FIELD_COMPITEM_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
 	public static void dropProductData( DBConnection c , ProductMeta storage ) throws Exception {
 		dropProductDistData( c , storage );
 		dropProductCoreData( c , storage );
@@ -532,12 +549,8 @@ public class DBProductData {
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrBinaryItem , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrBinaryItem , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrConfItem , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
-		
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTSCHEMAITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_DISTDOCITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrDeliverySchema , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrDeliveryDoc , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrDelivery , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrComponent , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 	}
@@ -550,8 +563,7 @@ public class DBProductData {
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaSchema , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaSourceSet , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDoc , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
-		if( !c.modify( DBQueries.MODIFY_META_DELETEALL_LIFECYCLE1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
+		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaPolicyLifecycle , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaPolicy , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		
 		if( !c.modify( DBQueries.MODIFY_CORE_UNMATCHRELEASES2 , new String[] { EngineDB.getInteger( storage.ID ) , EngineDB.getString( storage.name ) } ) )

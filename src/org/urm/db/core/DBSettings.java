@@ -573,15 +573,17 @@ public abstract class DBSettings {
 
 	private static void insertEntity( DBConnection c , PropertyEntity entity , int version ) throws Exception {
 		entity.VERSION = version;
-		if( !c.modify( DBQueries.MODIFY_PARAM_ADDENTITY11 , new String[] {
-			EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
+		if( !c.modify( DBQueries.MODIFY_PARAM_ADDENTITY13 , new String[] {
+			EngineDB.getObject( entity.PARAM_OBJECT_ID ) ,
 			EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 			EngineDB.getBoolean( entity.CUSTOM ) ,
 			EngineDB.getBoolean( entity.USE_PROPS ) ,
+			EngineDB.getBoolean( entity.CHANGEABLE ) ,
+			EngineDB.getInteger( entity.PK_FIELD_COUNT ) ,
 			EngineDB.getString( entity.APP_TABLE ) ,
 			EngineDB.getString( entity.ID_FIELD ) ,
 			EngineDB.getEnum( entity.OBJECT_TYPE ) ,
-			EngineDB.getInteger( entity.META_OBJECT_ID ) ,
+			EngineDB.getObject( entity.META_OBJECT_ID ) ,
 			EngineDB.getEnum( entity.META_OBJECTVERSION_TYPE ) ,
 			EngineDB.getEnum( entity.DATA_OBJECTVERSION_TYPE ) ,
 			EngineDB.getInteger( version )
@@ -976,20 +978,24 @@ public abstract class DBSettings {
 				Common.exitUnexpected();
 			if( rc.getBoolean( 2 ) != entity.USE_PROPS )
 				Common.exitUnexpected();
-			if( !Common.equalsStrings( rc.getString( 3 ) , entity.APP_TABLE ) )
+			if( rc.getBoolean( 3 ) != entity.CHANGEABLE )
 				Common.exitUnexpected();
-			if( !Common.equalsStrings( rc.getString( 4 ) , entity.ID_FIELD ) )
+			if( rc.getInt( 4 ) != entity.PK_FIELD_COUNT )
 				Common.exitUnexpected();
-			if( rc.getInt( 5 ) != entity.OBJECT_TYPE.code() )
+			if( !Common.equalsStrings( rc.getString( 5 ) , entity.APP_TABLE ) )
 				Common.exitUnexpected();
-			if( rc.getInt( 6 ) != entity.META_OBJECT_ID )
+			if( !Common.equalsStrings( rc.getString( 6 ) , entity.ID_FIELD ) )
 				Common.exitUnexpected();
-			if( rc.getInt( 7 ) != entity.META_OBJECTVERSION_TYPE.code() )
+			if( rc.getInt( 7 ) != entity.OBJECT_TYPE.code() )
 				Common.exitUnexpected();
-			if( rc.getInt( 8 ) != entity.DATA_OBJECTVERSION_TYPE.code() )
+			if( rc.getInt( 8 ) != entity.META_OBJECT_ID )
+				Common.exitUnexpected();
+			if( rc.getInt( 9 ) != entity.META_OBJECTVERSION_TYPE.code() )
+				Common.exitUnexpected();
+			if( rc.getInt( 10 ) != entity.DATA_OBJECTVERSION_TYPE.code() )
 				Common.exitUnexpected();
 		
-			return( rc.getInt( 9 ) );
+			return( rc.getInt( 11 ) );
 		}
 		finally {
 			c.closeQuery();

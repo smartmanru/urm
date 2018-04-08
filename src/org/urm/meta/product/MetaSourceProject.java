@@ -55,6 +55,7 @@ public class MetaSourceProject {
 	public boolean CUSTOMBUILD;
 	public boolean CUSTOMGET;
 	public int PV;
+	public DBEnumChangeType CHANGETYPE;
 	
 	List<MetaSourceProjectItem> itemList;
 	Map<String,MetaSourceProjectItem> itemMap;
@@ -92,6 +93,7 @@ public class MetaSourceProject {
 		r.CUSTOMBUILD = CUSTOMBUILD;
 		r.CUSTOMGET = CUSTOMGET;
 		r.PV = PV;
+		r.CHANGETYPE = CHANGETYPE;
 		
 		// project items
 		for( MetaSourceProjectItem item : itemList ) {

@@ -19,9 +19,13 @@ import org.w3c.dom.Node;
 
 public class DBEngineMonitoring {
 
-	public static PropertyEntity upgradeEntityEngineMonitoring( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static PropertyEntity makeEntityEngineMonitoring( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.MONITORING , DBEnumObjectVersionType.CORE );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaBoolean( EngineMonitoring.PROPERTY_ENABLED , "Instance Monitoring Enabled" , true , false ) ,
 				EntityVar.metaString( EngineMonitoring.PROPERTY_RESOURCE_URL , "Monitoring Resources URL" , true , getProductPath( EngineContext.PROPERTY_MON_RESURL ) ) ,
@@ -32,12 +36,6 @@ public class DBEngineMonitoring {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityEngineMonitoring( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.MONITORING , DBEnumObjectVersionType.CORE );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
 	private static String getProductPath( String var ) {
 		return( EntityVar.p( var ) + "/" + EntityVar.p( MetaProductSettings.PROPERTY_PRODUCT_NAME ) );
 	}

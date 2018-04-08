@@ -48,6 +48,7 @@ public class MetaDistrBinaryItem {
 	public boolean CUSTOM_GET;
 	public boolean CUSTOM_DEPLOY;
 	public int PV;
+	public DBEnumChangeType CHANGETYPE;
 
 	public MetaSourceProjectItem sourceProjectItem;
 	public MetaDistrBinaryItem srcDistItem;
@@ -81,6 +82,7 @@ public class MetaDistrBinaryItem {
 		r.CUSTOM_GET = CUSTOM_GET;
 		r.CUSTOM_DEPLOY = CUSTOM_DEPLOY;
 		r.PV = PV;
+		r.CHANGETYPE = CHANGETYPE;
 		
 		return( r );
 	}

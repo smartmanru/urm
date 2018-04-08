@@ -64,17 +64,18 @@ public class DBMetaDocs {
 				entity.importxmlBooleanAttr( root , MetaProductDoc.PROPERTY_UNITBOUND , false )
 				);
 		
-		modifyDoc( c , storage , doc , true );
+		modifyDoc( c , storage , doc , true , DBEnumChangeType.CREATED );
 		return( doc );
 	}
 	
-	private static void modifyDoc( DBConnection c , ProductMeta storage , MetaProductDoc doc , boolean insert ) throws Exception {
+	private static void modifyDoc( DBConnection c , ProductMeta storage , MetaProductDoc doc , boolean insert , DBEnumChangeType type ) throws Exception {
 		if( insert )
 			doc.ID = DBNames.getNameIndex( c , storage.ID , doc.NAME , DBEnumParamEntityType.PRODUCT_DOC );
 		else
 			DBNames.updateName( c , storage.ID , doc.NAME , doc.ID , DBEnumParamEntityType.PRODUCT_DOC );
 		
 		doc.PV = c.getNextProductVersion( storage );
+		doc.CHANGETYPE = type;
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaDoc , doc.ID , doc.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -83,7 +84,7 @@ public class DBMetaDocs {
 				EngineDB.getEnum( doc.DOC_CATEGORY ) ,
 				EngineDB.getString( doc.EXT ) ,
 				EngineDB.getBoolean( doc.UNITBOUND )
-				} , insert );
+				} , insert , type );
 	}
 	
 	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
@@ -146,7 +147,7 @@ public class DBMetaDocs {
 		
 		MetaProductDoc doc = new MetaProductDoc( storage.meta , docs );
 		doc.createDoc( name , desc , category , ext , unitbound );
-		modifyDoc( c , storage , doc , true );
+		modifyDoc( c , storage , doc , true , DBEnumChangeType.CREATED );
 		
 		docs.addDoc( doc );
 		return( doc );
@@ -157,7 +158,7 @@ public class DBMetaDocs {
 		DBConnection c = transaction.getConnection();
 		
 		doc.modifyDoc( name , desc , category , ext , unitbound );
-		modifyDoc( c , storage , doc , false );
+		modifyDoc( c , storage , doc , false , DBEnumChangeType.UPDATED );
 		
 		docs.updateDoc( doc );
 	}

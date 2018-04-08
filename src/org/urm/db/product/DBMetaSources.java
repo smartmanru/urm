@@ -68,7 +68,7 @@ public class DBMetaSources {
 				entity.importxmlStringAttr( root , MetaSourceProjectSet.PROPERTY_NAME ) ,
 				entity.importxmlStringAttr( root , MetaSourceProjectSet.PROPERTY_DESC )
 				);
-		modifyProjectSet( c , storage , set , true );
+		modifyProjectSet( c , storage , set , true , DBEnumChangeType.CREATED );
 		
 		Node[] projects = ConfReader.xmlGetChildren( root , ELEMENT_PROJECT );
 		if( projects != null ) {
@@ -81,19 +81,20 @@ public class DBMetaSources {
 		return( set );
 	}
 	
-	private static void modifyProjectSet( DBConnection c , ProductMeta storage , MetaSourceProjectSet set , boolean insert ) throws Exception {
+	private static void modifyProjectSet( DBConnection c , ProductMeta storage , MetaSourceProjectSet set , boolean insert , DBEnumChangeType type ) throws Exception {
 		if( insert )
 			set.ID = DBNames.getNameIndex( c , storage.ID , set.NAME , DBEnumParamEntityType.PRODUCT_SOURCESET );
 		else
 			DBNames.updateName( c , storage.ID , set.NAME , set.ID , DBEnumParamEntityType.PRODUCT_SOURCESET );
 		
 		set.PV = c.getNextProductVersion( storage );
+		set.CHANGETYPE = type;
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaSourceSet , set.ID , set.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
 				EngineDB.getString( set.NAME ) ,
 				EngineDB.getString( set.DESC )
-				} , insert );
+				} , insert , type );
 	}
 	
 	public static MetaSourceProject importxmlProject( EngineLoader loader , ProductMeta storage , MetaSources sources , MetaSourceProjectSet set , Node root ) throws Exception {
@@ -160,7 +161,7 @@ public class DBMetaSources {
 				entity.importxmlBooleanAttr( root , MetaSourceProject.PROPERTY_CUSTOM_GET , false )
 				);
 		
-		modifyProject( c , storage , project , true );
+		modifyProject( c , storage , project , true , DBEnumChangeType.CREATED );
 		
 		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_ITEM );
 		if( items != null ) {
@@ -173,13 +174,14 @@ public class DBMetaSources {
 		return( project );
 	}
 	
-	public static void modifyProject( DBConnection c , ProductMeta storage , MetaSourceProject project , boolean insert ) throws Exception {
+	public static void modifyProject( DBConnection c , ProductMeta storage , MetaSourceProject project , boolean insert , DBEnumChangeType type ) throws Exception {
 		if( insert )
 			project.ID = DBNames.getNameIndex( c , storage.ID , project.NAME , DBEnumParamEntityType.PRODUCT_SOURCEPROJECT );
 		else
 			DBNames.updateName( c , storage.ID , project.NAME , project.ID , DBEnumParamEntityType.PRODUCT_SOURCEPROJECT );
 		
 		project.PV = c.getNextProductVersion( storage );
+		project.CHANGETYPE = type;
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaSourceProject , project.ID , project.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -202,7 +204,7 @@ public class DBMetaSources {
 				EngineDB.getString( project.MIRROR_CODEPATH ) ,
 				EngineDB.getBoolean( project.CUSTOMBUILD ) ,
 				EngineDB.getBoolean( project.CUSTOMGET )
-				} , insert );
+				} , insert , type );
 	}
 	
 	public static MetaSourceProjectItem importxmlProjectItem( EngineLoader loader , ProductMeta storage , MetaSources sources , MetaSourceProject project , Node root ) throws Exception {
@@ -225,18 +227,19 @@ public class DBMetaSources {
 				entity.importxmlBooleanAttr( root , MetaSourceProjectItem.PROPERTY_NODIST , false )
 				);
 				
-		modifyProjectItem( c , storage , item , true );
+		modifyProjectItem( c , storage , item , true , DBEnumChangeType.CREATED );
 		
 		return( item );
 	}
 	
-	private static void modifyProjectItem( DBConnection c , ProductMeta storage , MetaSourceProjectItem item , boolean insert ) throws Exception {
+	private static void modifyProjectItem( DBConnection c , ProductMeta storage , MetaSourceProjectItem item , boolean insert , DBEnumChangeType type ) throws Exception {
 		if( insert )
 			item.ID = DBNames.getNameIndex( c , item.project.ID , item.NAME , DBEnumParamEntityType.PRODUCT_SOURCEITEM );
 		else
 			DBNames.updateName( c , item.project.ID , item.NAME , item.ID , DBEnumParamEntityType.PRODUCT_SOURCEITEM );
 		
 		item.PV = c.getNextProductVersion( storage );
+		item.CHANGETYPE = type;
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaSourceItem , item.ID , item.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -250,7 +253,7 @@ public class DBMetaSources {
 				EngineDB.getString( item.PATH ) ,
 				EngineDB.getString( item.FIXED_VERSION ) ,
 				EngineDB.getBoolean( item.INTERNAL )
-				} , insert );
+				} , insert , type );
 	}
 	
 	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
@@ -495,7 +498,7 @@ public class DBMetaSources {
 		
 		MetaSourceProjectSet set = new MetaSourceProjectSet( storage.meta , sources );
 		set.createProjectSet( name , desc );
-		modifyProjectSet( c , storage , set , true );
+		modifyProjectSet( c , storage , set , true , DBEnumChangeType.CREATED );
 		
 		sources.addProjectSet( set );
 		return( set );
@@ -520,7 +523,7 @@ public class DBMetaSources {
 		project.setSource( type , tracker , new MatchItem( mirror.ID ) , null , "" , "" , "" );
 		project.setBuild( new MatchItem( builder ) , addOptions , branch );
 		project.setCustom( customBuild , customGet );
-		modifyProject( c , storage , project , true );
+		modifyProject( c , storage , project , true , DBEnumChangeType.CREATED );
 		
 		sources.addProject( set , project );
 		
@@ -546,7 +549,7 @@ public class DBMetaSources {
 		project.setSource( type , tracker , new MatchItem( mirror.ID ) , null , "" , "" , "" );
 		project.setBuild( new MatchItem( builder ) , addOptions , branch );
 		project.setCustom( customBuild , customGet );
-		modifyProject( c , storage , project , false );
+		modifyProject( c , storage , project , false , DBEnumChangeType.UPDATED );
 
 		if( Common.equalsIntegers( mirror.RESOURCE_ID , repoRes ) == false || 
 				mirror.RESOURCE_REPO.equals( repoName ) == false || 
@@ -670,7 +673,7 @@ public class DBMetaSources {
 		item.createItem( name , desc );
 		item.setSourceData( srcType , basename , ext , staticext , path , version , internal );
 		
-		modifyProjectItem( c , storage , item , true );
+		modifyProjectItem( c , storage , item , true , DBEnumChangeType.CREATED );
 		sources.addProjectItem( project , item );
 		
 		return( item );
@@ -689,7 +692,7 @@ public class DBMetaSources {
 		item.modifyItem( name , desc );
 		item.setSourceData( srcType , basename , ext , staticext , path , version , internal );
 		
-		modifyProjectItem( c , storage , item , false );
+		modifyProjectItem( c , storage , item , false , DBEnumChangeType.UPDATED );
 		sources.updateProjectItem( item );
 	}
 

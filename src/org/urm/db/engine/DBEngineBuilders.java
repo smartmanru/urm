@@ -41,9 +41,13 @@ public class DBEngineBuilders {
 	public static String FIELD_BUILDER_REMOTE = "builder_remote";
 	public static String FIELD_BUILDER_ACCOUNT = "remote_account_id";
 	
-	public static PropertyEntity upgradeEntityBuilder( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BUILDER , DBEnumParamEntityType.BUILDER , DBEnumObjectVersionType.CORE , TABLE_BUILDER , FIELD_BUILDER_ID );
+	public static PropertyEntity makeEntityBuilder( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BUILDER , DBEnumParamEntityType.BUILDER , DBEnumObjectVersionType.CORE , TABLE_BUILDER , FIELD_BUILDER_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( ProjectBuilder.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_DESC , FIELD_BUILDER_DESC , ProjectBuilder.PROPERTY_DESC , "Description" , false , null ) ,
@@ -63,12 +67,6 @@ public class DBEngineBuilders {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityBuilder( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BUILDER , DBEnumParamEntityType.BUILDER , DBEnumObjectVersionType.CORE , TABLE_BUILDER , FIELD_BUILDER_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
 	public static void importxml( EngineLoader loader , EngineBuilders builders , Node root ) throws Exception {
 		Node[] list = ConfReader.xmlGetChildren( root , ELEMENT_BUILDER );
 		if( list != null ) {

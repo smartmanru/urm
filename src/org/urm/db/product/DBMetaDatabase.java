@@ -69,11 +69,11 @@ public class DBMetaDatabase {
 				entity.importxmlStringAttr( node , MetaDatabaseSchema.PROPERTY_DBUSER )
 				);
 		
-		modifySchema( c , storage , schema , true );
+		modifySchema( c , storage , schema , true , DBEnumChangeType.CREATED );
 		return( schema );
 	}
 
-	private static void modifySchema( DBConnection c , ProductMeta storage , MetaDatabaseSchema schema , boolean insert ) throws Exception {
+	private static void modifySchema( DBConnection c , ProductMeta storage , MetaDatabaseSchema schema , boolean insert , DBEnumChangeType type ) throws Exception {
 		if( insert )
 			schema.ID = DBNames.getNameIndex( c , storage.ID , schema.NAME , DBEnumParamEntityType.PRODUCT_SCHEMA );
 		else
@@ -88,7 +88,7 @@ public class DBMetaDatabase {
 				EngineDB.getEnum( schema.DBMS_TYPE ) ,
 				EngineDB.getString( schema.DBNAMEDEF ) ,
 				EngineDB.getString( schema.DBUSERDEF )
-				} , insert );
+				} , insert , type );
 	}
 
 	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
@@ -159,7 +159,7 @@ public class DBMetaDatabase {
 		
 		MetaDatabaseSchema schema = new MetaDatabaseSchema( storage.meta , database );
 		schema.createSchema( name , desc , type , dbname , dbuser );
-		modifySchema( c , storage , schema , true );
+		modifySchema( c , storage , schema , true , DBEnumChangeType.CREATED );
 		
 		database.addSchema( schema );
 		return( schema );
@@ -169,7 +169,7 @@ public class DBMetaDatabase {
 		DBConnection c = transaction.getConnection();
 		
 		schema.modifySchema( name , desc , type , dbname , dbuser );
-		modifySchema( c , storage , schema , false );
+		modifySchema( c , storage , schema , false , DBEnumChangeType.UPDATED );
 		
 		database.updateSchema( schema );
 	}

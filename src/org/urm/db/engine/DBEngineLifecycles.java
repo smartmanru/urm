@@ -48,9 +48,13 @@ public class DBEngineLifecycles {
 	public static String XMLPROP_PHASE_NAME = "id";
 	
 	
-	public static PropertyEntity upgradeEntityReleaseLifecycle( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.LIFECYCLE , DBEnumParamEntityType.LIFECYCLE , DBEnumObjectVersionType.CORE , TABLE_LIFECYCLE , FIELD_LIFECYCLE_ID );
+	public static PropertyEntity makeEntityReleaseLifecycle( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.LIFECYCLE , DBEnumParamEntityType.LIFECYCLE , DBEnumObjectVersionType.CORE , TABLE_LIFECYCLE , FIELD_LIFECYCLE_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaStringVar( ReleaseLifecycle.PROPERTY_NAME , ReleaseLifecycle.PROPERTY_NAME , XMLPROP_LIFECYCLE_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( ReleaseLifecycle.PROPERTY_DESC , FIELD_LIFECYCLE_DESC , ReleaseLifecycle.PROPERTY_DESC , "Description" , false , null ) ,
@@ -63,9 +67,13 @@ public class DBEngineLifecycles {
 		} ) );
 	}
 
-	public static PropertyEntity upgradeEntityLifecyclePhase( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.LIFECYCLEPHASE , DBEnumParamEntityType.LIFECYCLEPHASE , DBEnumObjectVersionType.CORE , TABLE_PHASE , FIELD_PHASE_ID );
+	public static PropertyEntity makeEntityLifecyclePhase( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.LIFECYCLEPHASE , DBEnumParamEntityType.LIFECYCLEPHASE , DBEnumObjectVersionType.CORE , TABLE_PHASE , FIELD_PHASE_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaIntegerDatabaseOnly( FIELD_PHASE_LIFECYCLE , "Lifecycle" , true , null ) ,
 				EntityVar.metaStringVar( LifecyclePhase.PROPERTY_NAME , LifecyclePhase.PROPERTY_NAME , XMLPROP_PHASE_NAME , "Name" , true , null ) ,
@@ -78,18 +86,6 @@ public class DBEngineLifecycles {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseLifecycle( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.LIFECYCLE , DBEnumParamEntityType.LIFECYCLE , DBEnumObjectVersionType.CORE , TABLE_LIFECYCLE , FIELD_LIFECYCLE_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity loaddbEntityLifecyclePhase( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.LIFECYCLEPHASE , DBEnumParamEntityType.LIFECYCLEPHASE , DBEnumObjectVersionType.CORE , TABLE_PHASE , FIELD_PHASE_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
 	public static void importxml( EngineLoader loader , EngineLifecycles lifecycles , Node root ) throws Exception {
 		Node[] list = ConfReader.xmlGetChildren( root , ELEMENT_LIFECYCLE );
 		if( list != null ) {

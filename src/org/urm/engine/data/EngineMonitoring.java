@@ -135,7 +135,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 	
 	private synchronized void createProduct( ActionBase action , AppProduct product ) throws Exception {
-		Meta meta = product.getMeta( action );
+		Meta meta = product.storage.meta;
 		MetaMonitoring mon = meta.getMonitoring();
 		MonitoringProduct monp = new MonitoringProduct( this , product , mon );
 		addProduct( product , monp );

@@ -230,6 +230,9 @@ public class ProductMeta extends EngineObject {
 	}
 
 	public void deleteEnvObjects() {
+		if( envs == null )
+			return;
+		
 		for( MetaEnv env : envs.getEnvs() )
 			env.deleteObject();
 	}

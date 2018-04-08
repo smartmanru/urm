@@ -69,9 +69,13 @@ public class DBEngineAuth {
 	public static String XMLPROP_ANY_PRODUCTS = "anyproduct";
 	public static String XMLPROP_ANY_NETWORKS = "anynetwork";
 	
-	public static PropertyEntity upgradeEntityLDAPSettings( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static PropertyEntity makeEntityLDAPSettings( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppAttrsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.LDAPSETTINGS , DBEnumObjectVersionType.LOCAL );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaBoolean( AuthLdap.PROPERTY_LDAPUSE , "Use LDAP Authentification" , true , false ) ,
 				EntityVar.metaString( AuthLdap.PROPERTY_HOST , "LDAP Server Host" , false , null ) ,
@@ -87,9 +91,13 @@ public class DBEngineAuth {
 		} ) );
 	}
 
-	public static PropertyEntity upgradeEntityAuthUser( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_USER , DBEnumParamEntityType.AUTHUSER , DBEnumObjectVersionType.LOCAL , TABLE_USER , FIELD_USER_ID );
+	public static PropertyEntity makeEntityAuthUser( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_USER , DBEnumParamEntityType.AUTHUSER , DBEnumObjectVersionType.LOCAL , TABLE_USER , FIELD_USER_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AuthUser.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( AuthUser.PROPERTY_DESC , FIELD_USER_DESC , AuthUser.PROPERTY_DESC , "Description" , false , null ) ,
@@ -100,9 +108,13 @@ public class DBEngineAuth {
 		} ) );
 	}
 
-	public static PropertyEntity upgradeEntityAuthGroup( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_GROUP , DBEnumParamEntityType.AUTHGROUP , DBEnumObjectVersionType.LOCAL , TABLE_GROUP , FIELD_GROUP_ID );
+	public static PropertyEntity makeEntityAuthGroup( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_GROUP , DBEnumParamEntityType.AUTHGROUP , DBEnumObjectVersionType.LOCAL , TABLE_GROUP , FIELD_GROUP_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AuthGroup.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( AuthGroup.PROPERTY_DESC , FIELD_GROUP_DESC , AuthGroup.PROPERTY_DESC , "Description" , false , null ) ,
@@ -120,24 +132,6 @@ public class DBEngineAuth {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityLDAPSettings( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppAttrsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.LDAPSETTINGS , DBEnumObjectVersionType.LOCAL );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity loaddbEntityAuthUser( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_USER , DBEnumParamEntityType.AUTHUSER , DBEnumObjectVersionType.LOCAL , TABLE_USER , FIELD_USER_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity loaddbEntityAuthGroup( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_GROUP , DBEnumParamEntityType.AUTHGROUP , DBEnumObjectVersionType.LOCAL , TABLE_GROUP , FIELD_GROUP_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
 	public static void importxml( EngineLoader loader , AuthService auth , Node root ) throws Exception {
 		importxmlLDAPSettings( loader , auth , root );
 		importxmlLocalUsers( loader , auth , root );
