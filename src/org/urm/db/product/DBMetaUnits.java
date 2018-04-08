@@ -79,7 +79,7 @@ public class DBMetaUnits {
 				EngineDB.getInteger( storage.ID ) , 
 				EngineDB.getString( unit.NAME ) ,
 				EngineDB.getString( unit.DESC )
-				} , insert );
+				} , insert , type );
 	}
 	
 	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
