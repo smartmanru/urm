@@ -163,11 +163,11 @@ public class DBMetaSettings {
 		
 		// context, custom, core settings
 		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
-		settings.setContextProperties( ops , context );
 		
 		DBSettings.loaddbCustomEntity( c , ops , false );
 		ops.createCustom();
 		DBSettings.loaddbValues( loader , ops );
+		settings.setContextProperties( ops , context );
 		ops.recalculateProperties();
 		settings.createCoreSettings( ops );
 
