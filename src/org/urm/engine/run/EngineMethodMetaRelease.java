@@ -1,6 +1,9 @@
 package org.urm.engine.run;
 
+import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.DistRepository;
 import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseDist;
 import org.urm.meta.release.ReleaseRepository;
 
 public class EngineMethodMetaRelease {
@@ -53,6 +56,13 @@ public class EngineMethodMetaRelease {
 			releaseNew.setRepository( repo );
 		if( releaseOld != null )
 			releaseOld.modify( true );
+		
+		DistRepository distrepo = emm.getDistRepository();
+		if( releaseNew != null ) {
+			ReleaseDist releaseDist = releaseNew.getDefaultReleaseDist();
+			Dist dist = distrepo.findDefaultDist( releaseNew );
+			dist.setReleaseDist( releaseDist );
+		}
 	}
 	
 	public void abort() throws Exception {

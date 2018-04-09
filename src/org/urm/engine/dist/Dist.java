@@ -122,6 +122,11 @@ public class Dist {
 	public DISTSTATE getState() {
 		return( state.state );
 	}
+
+	public void setReleaseDist( ReleaseDist releaseDist ) {
+		this.releaseDist = releaseDist;
+		this.release = releaseDist.release;
+	}
 	
 	public boolean checkHash( ActionBase action ) throws Exception {
 		if( !state.isFinalized() )
