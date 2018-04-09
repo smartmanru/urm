@@ -44,11 +44,11 @@ public class DBMetaSettings {
 		// context, custom, core settings
 		AppSystem system = product.system;
 		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
-		settings.setContextProperties( ops , context );
 		
 		EngineSettings engineSettings = context.settings;
 		ObjectProperties opsDefaults = engineSettings.getDefaultProductSettings();
 		ops.copyOriginalPropertiesToRaw( opsDefaults.getProperties() );
+		settings.setContextProperties( ops , context );
 		ops.recalculateProperties();
 		settings.createCoreSettings( ops );
 		
