@@ -3,8 +3,6 @@ package org.urm.meta.product;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
-import org.urm.engine.Engine;
 import org.urm.engine.data.EngineProducts;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.properties.ObjectProperties;
@@ -18,8 +16,6 @@ import org.urm.meta.release.ReleaseRepository;
 
 public class ProductMeta extends EngineObject {
 
-	public Engine engine;
-	public EngineProducts products;
 	public AppProduct product;
 	public String name;
 	
@@ -44,16 +40,13 @@ public class ProductMeta extends EngineObject {
 	
 	public ProductMeta( EngineProducts products , AppProduct product ) {
 		super( null );
-		this.products = products;
-		this.engine = products.engine;
 		this.product = product;
 		this.name = product.NAME;
 		
-		meta = new Meta( this , null );
+		meta = new Meta( products , this , null );
 		ID = null;
 		PV = -1;
 		MATCHED = false;
-		engine.trace( "new product storage meta object, id=" + meta.objectId + ", storage=" + objectId );
 		
 		sessionMeta = new HashMap<EngineSession,Meta>();
 		primary = false;
@@ -64,7 +57,7 @@ public class ProductMeta extends EngineObject {
 		return( name );
 	}
 	
-	public synchronized ProductMeta copy( ActionBase action , EngineProducts rproducts , AppProduct rproduct , ObjectProperties opsParent ) throws Exception {
+	public synchronized ProductMeta copy( EngineProducts products , AppProduct rproduct , ObjectProperties opsParent ) throws Exception {
 		ProductMeta r = new ProductMeta( products , rproduct );
 		
 		r.ID = ID;

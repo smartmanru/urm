@@ -67,7 +67,7 @@ public class EngineProducts {
 		if( storage == null )
 			return( null );
 		
-		meta = new Meta( storage , session );
+		meta = new Meta( this , storage , session );
 		engine.trace( "new conf session meta object, id=" + meta.objectId + ", session=" + session.objectId );
 		storage.addSessionMeta( meta );
 		session.addProductMeta( meta );
@@ -118,7 +118,7 @@ public class EngineProducts {
 
 	public synchronized Meta createSessionProductMetadata( ActionBase action , ProductMeta storage ) throws Exception {
 		EngineSession session = action.session;
-		Meta meta = new Meta( storage , session );
+		Meta meta = new Meta( this , storage , session );
 		engine.trace( "new run session meta object, id=" + meta.objectId + ", session=" + session.objectId );
 		storage.addSessionMeta( meta );
 		session.addProductMeta( meta );

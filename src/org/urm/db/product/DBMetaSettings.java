@@ -5,12 +5,13 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
-import org.urm.db.core.DBEnums.DBEnumBuildModeType;
-import org.urm.db.core.DBEnums.DBEnumParamEntityType;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.data.EngineMonitoring;
 import org.urm.engine.data.EngineSettings;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
+import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppProduct;
@@ -82,6 +83,63 @@ public class DBMetaSettings {
 			ObjectProperties opsBuildMode = entities.createMetaBuildModeProps( opsBuildCommon , mode );
 			ObjectProperties opsBuildModeDefaults = engineSettings.getDefaultProductBuildModeSettings( mode );
 			opsBuildMode.copyOriginalPropertiesToRaw( opsBuildModeDefaults.getProperties() );
+			DBSettings.savedbPropertyValues( transaction , opsBuildMode , true , false , version );
+			settings.createBuildModeSettings( mode , opsBuildMode );
+		}
+	}
+	
+	public static void copydb( TransactionBase transaction , ProductMeta src , ProductContext context , ProductMeta dst ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		AppProduct product = dst.product;
+		EngineEntities entities = c.getEntities();
+		
+		MetaProductSettings settings = new MetaProductSettings( dst , dst.meta );
+		dst.setSettings( settings );
+		int version = c.getNextProductVersion( dst );
+
+		// context, custom, core settings
+		AppSystem system = product.system;
+		MetaProductSettings settingsSrc = src.getSettings();
+		ObjectProperties opsSrc = settingsSrc.getParameters();
+		ObjectMeta metaSrc = opsSrc.getMeta();
+		PropertyEntity customSrc = metaSrc.getCustomEntity();
+		PropertyEntity custom = DBSettings.copydbCustomEntity( c , dst.ID , customSrc , version );
+		ObjectProperties ops = entities.createMetaProductProps( dst.ID , system.getParameters() , custom );
+		
+		ops.copyOriginalPropertiesToRaw( opsSrc.getProperties() );
+		settings.setContextProperties( ops , context );
+		ops.recalculateProperties();
+		settings.createCoreSettings( ops );
+		
+		DBSettings.savedbEntityCustom( c , ops , version );
+		DBSettings.savedbPropertyValues( transaction , ops , false , true , version );
+		
+		// monitoring settings
+		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
+		ops.copyOriginalPropertiesToRaw( opsSrc.getProperties() );
+		ObjectProperties monSrc = settingsSrc.getMonitoringProperties();
+		mon.copyOriginalPropertiesToRaw( monSrc.getProperties() );
+		
+		DBSettings.savedbPropertyValues( transaction , mon , true , false , version );
+		mon.recalculateProperties();
+		settings.createMonitoringSettings( mon );
+		
+		// build settings
+		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( ops );
+		MetaProductBuildSettings buildSettingsSrc = settingsSrc.getBuildCommonSettings();
+		ObjectProperties opsBuildCommonSrc = buildSettingsSrc.getProperties();
+		opsBuildCommon.copyOriginalPropertiesToRaw( opsBuildCommonSrc.getProperties() );
+		DBSettings.savedbPropertyValues( transaction , opsBuildCommon , true , false , version );
+		settings.createBuildCommonSettings( opsBuildCommon );
+		
+		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
+			if( mode == DBEnumBuildModeType.UNKNOWN )
+				continue;
+			
+			ObjectProperties opsBuildMode = entities.createMetaBuildModeProps( opsBuildCommon , mode );
+			buildSettingsSrc = settingsSrc.getBuildModeSettings( mode );
+			ObjectProperties opsBuildModeSrc = buildSettingsSrc.getProperties();
+			opsBuildMode.copyOriginalPropertiesToRaw( opsBuildModeSrc.getProperties() );
 			DBSettings.savedbPropertyValues( transaction , opsBuildMode , true , false , version );
 			settings.createBuildModeSettings( mode , opsBuildMode );
 		}

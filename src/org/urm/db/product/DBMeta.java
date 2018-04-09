@@ -15,6 +15,7 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductVersion;
@@ -34,6 +35,15 @@ public class DBMeta {
 		
 		version.createVersion( 1 , 0 , 0 , 0 , 1 , 1 , 1 , 1 ); 
 		modifyMeta( c , storage , version , true );
+	}
+	
+	public static void copydb( TransactionBase transaction , ProductMeta src , ProductMeta dst ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		MetaProductVersion version = src.getVersion();
+		version = version.copy( dst.meta );
+		dst.setVersion( version );
+		
+		modifyMeta( c , dst , version , true );
 	}
 	
 	public static ProductContext[] getProducts( EngineLoader loader ) throws Exception {

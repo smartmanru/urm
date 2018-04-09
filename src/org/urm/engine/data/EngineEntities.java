@@ -327,6 +327,13 @@ public class EngineEntities {
 		return( props );
 	}
 	
+	public ObjectProperties createMetaProductProps( int metaId , ObjectProperties parent , PropertyEntity custom ) throws Exception {
+		ObjectProperties props = new ObjectProperties( DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , DBEnumParamRoleType.DEFAULT , nameMetaProductSet , engine.execrc );
+		props.create( parent , new PropertyEntity[] { entityAppProductContext , entityAppProductSettings } , custom , true );
+		props.setOwnerId( metaId );
+		return( props );
+	}
+	
 	public ObjectProperties createMetaBuildCommonProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties ops = createBuildCommonProps( parent , DBEnumObjectType.META , DBEnumObjectVersionType.PRODUCT , false );
 		return( ops );

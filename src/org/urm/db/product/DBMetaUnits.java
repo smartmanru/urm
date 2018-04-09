@@ -13,6 +13,7 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaProductUnit;
@@ -30,6 +31,19 @@ public class DBMetaUnits {
 	public static void createdb( EngineLoader loader , ProductMeta storage ) throws Exception {
 		MetaUnits units = new MetaUnits( storage , storage.meta );
 		storage.setUnits( units );
+	}
+	
+	public static void copydb( TransactionBase transaction , ProductMeta src , ProductMeta dst ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MetaUnits unitsSrc = src.getUnits();
+		MetaUnits units = new MetaUnits( dst , dst.meta );
+		dst.setUnits( units );
+		for( MetaProductUnit unitSrc : unitsSrc.getUnitList() ) {
+			MetaProductUnit unit = unitSrc.copy( dst.meta , units );
+			modifyUnit( c , dst , unit , true , DBEnumChangeType.ORIGINAL );
+			units.addUnit( unit );
+		}
 	}
 	
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {

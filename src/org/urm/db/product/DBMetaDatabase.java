@@ -14,6 +14,7 @@ import org.urm.db.env.DBMetaEnv;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -31,6 +32,19 @@ public class DBMetaDatabase {
 	public static void createdb( EngineLoader loader , ProductMeta storage ) throws Exception {
 		MetaDatabase database = new MetaDatabase( storage , storage.meta );
 		storage.setDatabase( database );
+	}
+
+	public static void copydb( TransactionBase transaction , ProductMeta src , ProductMeta dst ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MetaDatabase databaseSrc = src.getDatabase();
+		MetaDatabase database = new MetaDatabase( dst , dst.meta );
+		dst.setDatabase( database );
+		
+		for( MetaDatabaseSchema schemaSrc : databaseSrc.getSchemaList() ) {
+			MetaDatabaseSchema schema = schemaSrc.copy( dst.meta , database );
+			modifySchema( c , dst , schema , true , DBEnumChangeType.ORIGINAL );
+		}
 	}
 
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {

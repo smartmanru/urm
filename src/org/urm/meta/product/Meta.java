@@ -51,12 +51,12 @@ public class Meta extends EngineObject {
 
 	public static String PROPERTY_NAME = "name";
 	
-	public Meta( ProductMeta storage , EngineSession session ) {
+	public Meta( EngineProducts products , ProductMeta storage , EngineSession session ) {
 		super( null );
 		this.storage = storage;
-		this.products = storage.products;
+		this.products = products;
 		this.session = session;
-		this.engine = storage.engine;
+		this.engine = products.engine;
 		name = storage.name;
 	}
 	

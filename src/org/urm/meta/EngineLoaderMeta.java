@@ -12,7 +12,9 @@ import org.urm.db.product.DBMetaSettings;
 import org.urm.db.product.DBMetaPolicy;
 import org.urm.db.product.DBMetaSources;
 import org.urm.db.product.DBMetaUnits;
+import org.urm.engine.data.EngineProducts;
 import org.urm.engine.storage.ProductStorage;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDesignDiagram;
 import org.urm.meta.product.MetaDocs;
@@ -141,6 +143,21 @@ public class EngineLoaderMeta {
 		importxmlDistr( ms );
 	}
 	
+	public ProductMeta copydbAll( EngineProducts products , ProductContext context ) throws Exception {
+		trace( "create product data, name=" + set.name + " ..." );
+		ProductMeta dst = new ProductMeta( products , context.product );
+		TransactionBase transaction = loader.getTransaction();
+		copydbMeta( transaction , dst );
+		copydbSettings( transaction , dst , context );
+		copydbPolicy( transaction , dst );
+		copydbUnits( transaction , dst );
+		copydbDatabase( transaction , dst );
+		copydbSources( transaction , dst );
+		copydbDocs( transaction , dst );
+		copydbDistr( transaction , dst );
+		return( dst );
+	}
+
 	private void createdbMeta() throws Exception {
 		trace( "create product meta data ..." );
 		DBMeta.createdb( loader , set );
@@ -439,6 +456,42 @@ public class EngineLoaderMeta {
 	
 	public void trace( String s ) {
 		loader.trace( s );
+	}
+
+	private void copydbMeta( TransactionBase transaction , ProductMeta dst ) throws Exception {
+		trace( "copy product meta data ..." );
+		DBMeta.copydb( transaction , set , dst );
+	}
+
+	private void copydbSettings( TransactionBase transaction , ProductMeta dst , ProductContext context ) throws Exception {
+		trace( "create product settings data ..." );
+		DBMetaSettings.copydb( transaction , set , context , dst );
+	}
+	
+	private void copydbPolicy( TransactionBase transaction , ProductMeta dst ) throws Exception {
+		trace( "copy product policy data ..." );
+		DBMetaPolicy.copydb( transaction , set , dst );
+	}
+
+	private void copydbUnits( TransactionBase transaction , ProductMeta dst ) throws Exception {
+		trace( "copy product units data ..." );
+		DBMetaUnits.copydb( transaction , set , dst );
+	}
+
+	private void copydbDatabase( TransactionBase transaction , ProductMeta dst ) throws Exception {
+		trace( "copy product database data ..." );
+		DBMetaDatabase.copydb( transaction , set , dst );
+	}
+
+	private void copydbSources( TransactionBase transaction , ProductMeta dst ) throws Exception {
+		trace( "copy product sources ..." );
+		DBMetaSources.copydb( transaction , set , dst );
+	}
+
+	private void copydbDocs( TransactionBase transaction , ProductMeta dst ) throws Exception {
+	}
+
+	private void copydbDistr( TransactionBase transaction , ProductMeta dst ) throws Exception {
 	}
 
 }

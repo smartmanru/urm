@@ -16,6 +16,7 @@ import org.urm.engine.data.EngineMirrors;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineMatcher;
 import org.urm.meta.MatchItem;
@@ -43,6 +44,31 @@ public class DBMetaSources {
 	public static void createdb( EngineLoader loader , ProductMeta storage ) throws Exception {
 		MetaSources sources = new MetaSources( storage , storage.meta );
 		storage.setSources( sources );
+	}
+	
+	public static void copydb( TransactionBase transaction , ProductMeta src , ProductMeta dst ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MetaSources sourcesSrc = src.getSources();
+		MetaSources sources = new MetaSources( dst , dst.meta );
+		dst.setSources( sources );
+		for( MetaSourceProjectSet setSrc : sourcesSrc.getSetList() ) {
+			MetaSourceProjectSet set = setSrc.copy( dst.meta , sources );
+			modifyProjectSet( c , dst , set , true , DBEnumChangeType.ORIGINAL );
+			sources.addProjectSet( set );
+			
+			for( MetaSourceProject projectSrc : setSrc.getProjects() ) {
+				MetaSourceProject project = projectSrc.copy( dst.meta , set );
+				modifyProject( c , dst , project , true , DBEnumChangeType.ORIGINAL );
+				set.addProject( project );
+				
+				for( MetaSourceProjectItem itemSrc : projectSrc.getItems() ) {
+					MetaSourceProjectItem item = itemSrc.copy( dst.meta , project );
+					modifyProjectItem( c , dst , item , true , DBEnumChangeType.ORIGINAL );
+					project.addItem( item );
+				}
+			}
+		}
 	}
 	
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {

@@ -140,7 +140,7 @@ public class TransactionMetadata {
 		productType = ( env )? CHANGETYPE.NOTHING : CHANGETYPE.CHANGE;
 		metadataOld = storage;
 		AppSystem system = storage.product.system;
-		metadata = storage.copy( transaction.action , storage.products , storage.product , system.getParameters() );
+		metadata = storage.copy( transaction.getProducts() , storage.product , system.getParameters() );
 		
 		sessionMeta = transaction.action.getProductMetadata( meta.name );
 		sessionMeta.replaceStorage( transaction.action , metadata );

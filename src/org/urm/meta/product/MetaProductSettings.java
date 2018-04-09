@@ -25,7 +25,6 @@ public class MetaProductSettings {
 	public static String PROPERTY_PRODUCT_HOME = "product.home";
 	
 	public Meta meta;
-	public MetaProductSettings settings;
 	
 	// context and custom product properties
 	public ObjectProperties ops;

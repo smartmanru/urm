@@ -15,6 +15,7 @@ import org.urm.engine.data.EngineLifecycles;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineMatcher;
 import org.urm.meta.MatchItem;
@@ -37,6 +38,17 @@ public class DBMetaPolicy {
 		boolean urgentsAll = true;
 		policy.setAttrs( urgentsAll );
 		modifyPolicy( c , storage , policy , true , DBEnumChangeType.CREATED );
+	}
+	
+	public static void copydb( TransactionBase transaction , ProductMeta src , ProductMeta dst ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MetaProductPolicy policySrc = src.getPolicy();
+		MetaProductPolicy policy = policySrc.copy( dst.meta );
+		dst.setPolicy( policy );
+		
+		// policy record
+		modifyPolicy( c , dst , policy , true , DBEnumChangeType.ORIGINAL );
 	}
 	
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {

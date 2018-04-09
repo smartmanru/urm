@@ -848,6 +848,14 @@ public abstract class DBSettings {
 		meta.rebuild();
 	}
 
+	public static PropertyEntity copydbCustomEntity( DBConnection c , int ownerId , PropertyEntity src , int version ) throws Exception {
+		PropertyEntity entity = src.copy();
+		entity.PARAM_OBJECT_ID = ownerId;
+		entity.META_OBJECT_ID = ownerId;
+		savedbPropertyEntity( c , entity , entity.getVars() , version );
+		return( entity );
+	}
+	
 	public static void modifyAppValues( DBConnection c , int objectId , ObjectProperties properties , DBEnumParamEntityType entityType , int version , String[] dbonlyValues , boolean insert ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity entity = meta.getAppEntity( entityType );
