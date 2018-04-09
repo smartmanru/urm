@@ -111,6 +111,7 @@ public class ReleaseTicket {
 	}
 	
 	public void create( int pos , DBEnumTicketType type , String code , String name , String link , String comments , Integer owner , boolean devdone ) throws Exception {
+		this.POS = pos;
 		this.TYPE = type;
 		this.CODE = code;
 		this.NAME = name;
