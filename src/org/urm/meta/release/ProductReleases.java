@@ -51,15 +51,19 @@ public class ProductReleases {
 		if( type == DBEnumLifecycleType.MINOR )
 			return( version.majorLastFirstNumber + "." + version.majorLastSecondNumber + "." + version.nextProdTag );
 		if( type == DBEnumLifecycleType.URGENT )
-			return( version.majorLastFirstNumber + "." + version.majorLastSecondNumber + "." + version.lastProdTag + version.nextUrgentTag );
+			return( version.majorLastFirstNumber + "." + version.majorLastSecondNumber + "." + version.lastProdTag + "." + version.nextUrgentTag );
 		return( "" );
+	}
+
+	public Release findLastRelease() {
+		return( findLastRelease( null ) );
 	}
 	
 	public Release findLastRelease( DBEnumLifecycleType type ) {
 		String[] versions = releaseRepo.getActiveVersions();
 		for( int k = versions.length - 1; k >= 0; k-- ) {
 			Release release = releaseRepo.findRelease( versions[ k ] );
-			if( release.TYPE == type )
+			if( type == null || release.TYPE == type )
 				return( release );
 		}
 		return( null );
