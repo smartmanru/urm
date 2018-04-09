@@ -72,7 +72,7 @@ public class HostAccount extends EngineObject {
 	public void getApplicationReferences( ActionBase action , List<AccountReference> refs ) {
 		EngineDirectory directory = action.getServerDirectory();
 		for( String productName : directory.getProductNames() ) {
-			Meta meta = action.findProductMetadata( productName );
+			Meta meta = action.findMeta( productName );
 			ProductEnvs envs = meta.getEnviroments();
 			envs.getApplicationReferences( this , refs );
 		}

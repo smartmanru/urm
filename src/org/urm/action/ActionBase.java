@@ -932,7 +932,7 @@ abstract public class ActionBase extends ActionCore {
 		return( actionInit.getActiveProductMetadata( metaId ) );
 	}
 
-	public Meta findProductMetadata( String productName ) {
+	public Meta findMeta( String productName ) {
 		return( actionInit.findActiveProductMetadata( productName ) );
 	}
 
