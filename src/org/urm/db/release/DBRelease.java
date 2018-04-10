@@ -360,7 +360,7 @@ public class DBRelease {
 		
 		ReleaseSchedule schedule = release.getSchedule();
 		DBReleaseSchedule.reopen( method , action , release , schedule );
-		DBReleaseDistTarget.dropAllDistItems( c , release );
+		DBReleaseDistTarget.dropAllScopeDistItems( c , release );
 	}
 	
 	public static void setMasterVersion( EngineMethod method , ActionBase action , Release release , String RELEASEVER ) throws Exception {
