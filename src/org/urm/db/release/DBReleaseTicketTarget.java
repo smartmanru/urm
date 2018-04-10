@@ -57,11 +57,10 @@ public class DBReleaseTicketTarget {
 		ReleaseTicketSet set = changes.getSet( setId );
 		ReleaseTicketTarget target = new ReleaseTicketTarget( release , set );
 		
-		int pos = set.getLastTicketPos();
 		target.ID = entity.loaddbId( rs );
 		target.RV = entity.loaddbVersion( rs );
 		target.create(
-				pos ,
+				entity.loaddbInt( rs , ReleaseTicketTarget.PROPERTY_POS ) ,
 				entity.loaddbObject( rs , DBReleaseData.FIELD_TICKETTARGET_BUILDTARGET_ID ) ,
 				entity.loaddbObject( rs , DBReleaseData.FIELD_TICKETTARGET_DISTTARGET_ID ) ,
 				entity.loaddbBoolean( rs , ReleaseTicketTarget.PROPERTY_DESCOPED ) ,
@@ -116,7 +115,7 @@ public class DBReleaseTicketTarget {
 		DBReleaseBuildTarget.modifyReleaseBuildTarget( c , release , buildTarget , true );
 		
 		// create changes target
-		int pos = ticketSet.getLastTicketPos() + 1;
+		int pos = ticketSet.getLastTargetPos() + 1;
 		ReleaseTicketTarget target = new ReleaseTicketTarget( release , ticketSet );
 		target.create( buildTarget , pos );
 		modifyReleaseTicketTarget( c , release , ticketSet , target , true );
@@ -139,7 +138,7 @@ public class DBReleaseTicketTarget {
 		DBReleaseBuildTarget.modifyReleaseBuildTarget( c , release , buildTarget , true );
 		
 		// create changes target
-		int pos = ticketSet.getLastTicketPos() + 1;
+		int pos = ticketSet.getLastTargetPos() + 1;
 		ReleaseTicketTarget target = new ReleaseTicketTarget( release , ticketSet );
 		target.create( buildTarget , pos );
 		modifyReleaseTicketTarget( c , release , ticketSet , target , true );
@@ -170,7 +169,7 @@ public class DBReleaseTicketTarget {
 		DBReleaseDistTarget.modifyReleaseDistTarget( c , release , distTarget , true );
 		
 		// create changes target
-		int pos = ticketSet.getLastTicketPos() + 1;
+		int pos = ticketSet.getLastTargetPos() + 1;
 		ReleaseTicketTarget target = new ReleaseTicketTarget( release , ticketSet );
 		target.create( distTarget , pos );
 		modifyReleaseTicketTarget( c , release , ticketSet , target , true );
@@ -190,7 +189,7 @@ public class DBReleaseTicketTarget {
 		DBReleaseDistTarget.modifyReleaseDistTarget( c , release , distTarget , true );
 		
 		// create changes target
-		int pos = ticketSet.getLastTicketPos() + 1;
+		int pos = ticketSet.getLastTargetPos() + 1;
 		ReleaseTicketTarget target = new ReleaseTicketTarget( release , ticketSet );
 		target.create( distTarget , pos );
 		modifyReleaseTicketTarget( c , release , ticketSet , target , true );
@@ -210,7 +209,7 @@ public class DBReleaseTicketTarget {
 		DBReleaseDistTarget.modifyReleaseDistTarget( c , release , distTarget , true );
 		
 		// create changes target
-		int pos = ticketSet.getLastTicketPos() + 1;
+		int pos = ticketSet.getLastTargetPos() + 1;
 		ReleaseTicketTarget target = new ReleaseTicketTarget( release , ticketSet );
 		target.create( distTarget , pos );
 		modifyReleaseTicketTarget( c , release , ticketSet , target , true );
@@ -230,7 +229,7 @@ public class DBReleaseTicketTarget {
 		DBReleaseDistTarget.modifyReleaseDistTarget( c , release , distTarget , true );
 		
 		// create changes target
-		int pos = ticketSet.getLastTicketPos() + 1;
+		int pos = ticketSet.getLastTargetPos() + 1;
 		ReleaseTicketTarget target = new ReleaseTicketTarget( release , ticketSet );
 		target.create( distTarget , pos );
 		modifyReleaseTicketTarget( c , release , ticketSet , target , true );
@@ -250,7 +249,7 @@ public class DBReleaseTicketTarget {
 		DBReleaseDistTarget.modifyReleaseDistTarget( c , release , distTarget , true );
 		
 		// create changes target
-		int pos = ticketSet.getLastTicketPos() + 1;
+		int pos = ticketSet.getLastTargetPos() + 1;
 		ReleaseTicketTarget target = new ReleaseTicketTarget( release , ticketSet );
 		target.create( distTarget , pos );
 		modifyReleaseTicketTarget( c , release , ticketSet , target , true );
@@ -270,7 +269,7 @@ public class DBReleaseTicketTarget {
 		DBReleaseDistTarget.modifyReleaseDistTarget( c , release , distTarget , true );
 		
 		// create changes target
-		int pos = ticketSet.getLastTicketPos() + 1;
+		int pos = ticketSet.getLastTargetPos() + 1;
 		ReleaseTicketTarget target = new ReleaseTicketTarget( release , ticketSet );
 		target.create( distTarget , pos );
 		modifyReleaseTicketTarget( c , release , ticketSet , target , true );

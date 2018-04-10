@@ -10,6 +10,10 @@ import org.urm.db.release.DBReleaseScope;
 import org.urm.engine.dist.ReleaseBuildScope;
 import org.urm.engine.dist.ReleaseBuildScopeProject;
 import org.urm.engine.dist.ReleaseBuildScopeSet;
+import org.urm.engine.dist.ReleaseDistScope;
+import org.urm.engine.dist.ReleaseDistScopeDelivery;
+import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
+import org.urm.engine.dist.ReleaseDistScopeSet;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -178,6 +182,9 @@ public class ActionSetScope extends ActionBase {
 			}
 		}
 			
+		ReleaseDistScope distScope = ReleaseDistScope.createScope( release );
+		DBReleaseScope.descopeDistAll( method , this , release );
+		
 		Map<String,String> check = new HashMap<String,String>();
 		for( String path : pathItems ) {
 			check.put( path , "all" );
@@ -231,6 +238,36 @@ public class ActionSetScope extends ActionBase {
 		}
 
 		// descope missing
+		for( ReleaseDistScopeSet set : distScope.getSets() ) {
+			for( ReleaseDistScopeDelivery delivery : set.getDeliveries() ) {
+				for( ReleaseDistScopeDeliveryItem item : delivery.getItems() ) {
+					if( item.isBinary() ) {
+						String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.binary.NAME } ) );
+						if( checkItem == null )
+							DBReleaseScope.descopeBinaryItem( method , this , releaseUpdated , item.binary );
+					}
+					else
+					if( item.isConf() ) {
+						String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_CONF , item.conf.NAME } ) );
+						if( checkItem == null )
+							DBReleaseScope.descopeConfItem( method , this , releaseUpdated , item.conf );
+					}
+					else
+					if( item.isSchema() ) {
+						String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_SCHEMA , item.schema.NAME } ) );
+						if( checkItem == null )
+							DBReleaseScope.descopeDeliverySchema( method , this , releaseUpdated , delivery.distDelivery , item.schema );
+					}
+					else
+					if( item.isSchema() ) {
+						String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_SCHEMA , item.schema.NAME } ) );
+						if( checkItem == null )
+							DBReleaseScope.descopeDeliveryDoc( method , this , releaseUpdated , delivery.distDelivery , item.doc );
+					}
+				}
+			}
+		}
+		
 		return( true );
 	}
 

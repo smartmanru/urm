@@ -368,11 +368,8 @@ public class DBReleaseScope {
 		}
 		
 		target = scope.findDistDeliverySchemaTarget( delivery , schema );
-		if( target != null ) {
-			if( !target.ALL )
-				Common.exitUnexpected();
+		if( target != null )
 			return;
-		}
 		
 		target = DBReleaseDistTarget.createDeliverySchemaTarget( c , release , scope , delivery , schema );
 		scope.addDistTarget( target );
@@ -398,11 +395,8 @@ public class DBReleaseScope {
 		}
 		
 		target = scope.findDistDeliveryDocTarget( delivery , doc );
-		if( target != null ) {
-			if( !target.ALL )
-				Common.exitUnexpected();
+		if( target != null )
 			return;
-		}
 		
 		target = DBReleaseDistTarget.createDeliveryDocTarget( c , release , scope , delivery , doc );
 		scope.addDistTarget( target );
@@ -519,6 +513,26 @@ public class DBReleaseScope {
 		}
 	}
 	
+	public static void descopeDeliverySchema( EngineMethod method , ActionBase action , Release release , MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
+		
+		ReleaseDistTarget target = scope.findDistDeliverySchemaTarget( delivery , schema );
+		if( target != null )
+			descopeDistTargetOnly( c , release , scope , target );
+	}
+
+	public static void descopeDeliveryDoc( EngineMethod method , ActionBase action , Release release , MetaDistrDelivery delivery , MetaProductDoc doc ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
+		
+		ReleaseDistTarget target = scope.findDistDeliveryDocTarget( delivery , doc );
+		if( target != null )
+			descopeDistTargetOnly( c , release , scope , target );
+	}
+
 	private static void descopeDeliveryBinaries( DBConnection c , Release release , ReleaseScope scope , MetaDistrDelivery delivery ) throws Exception {
 		for( MetaDistrBinaryItem item : delivery.getBinaryItems() ) {
 			ReleaseDistTarget target = scope.findDistBinaryItemTarget( item );
@@ -640,6 +654,16 @@ public class DBReleaseScope {
 			descopeDelivery( method , action , release , delivery );
 	}
 
+	public static void descopeDistAll( EngineMethod method , ActionBase action , Release release ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		ReleaseScope scope = release.getScope();
+		method.checkUpdateRelease( release );
+		
+		ReleaseDistTarget target = scope.findDistAllTarget();
+		if( target != null )
+			descopeDistTargetOnly( c , release , scope , target );
+	}
+	
 	public static void descopeDelivery( EngineMethod method , ActionBase action , Release release , ReleaseDistScopeDelivery delivery ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		ReleaseScope scope = release.getScope();

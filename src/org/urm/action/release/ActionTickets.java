@@ -370,7 +370,7 @@ public class ActionTickets extends ActionBase {
 		synchronized( releases ) {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			DBReleaseChanges.createSet( method , this , releaseUpdated , changes , code , name , comments );
 		}
@@ -383,7 +383,7 @@ public class ActionTickets extends ActionBase {
 		synchronized( releases ) {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( code );
 			DBReleaseChanges.modifySet( method , this , releaseUpdated , changes , set , codeNew , nameNew , commentsNew );
@@ -397,7 +397,7 @@ public class ActionTickets extends ActionBase {
 		synchronized( releases ) {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( code );
 			DBReleaseChanges.dropSet( method , this , releaseUpdated , changes , set , descope );
@@ -411,7 +411,7 @@ public class ActionTickets extends ActionBase {
 		synchronized( releases ) {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
 			DBReleaseChanges.createTicket( method , this , releaseUpdated , changes , set , type , code , name , link , comments , owner , devdone );
@@ -425,7 +425,7 @@ public class ActionTickets extends ActionBase {
 		synchronized( releases ) {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
 			ReleaseTicket ticket = set.getTicketByPos( ticketPos );
@@ -440,7 +440,7 @@ public class ActionTickets extends ActionBase {
 		synchronized( releases ) {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
 			ReleaseTicket ticket = set.getTicketByPos( ticketPos );
@@ -455,7 +455,7 @@ public class ActionTickets extends ActionBase {
 		synchronized( releases ) {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
 			ReleaseTicket ticket = set.getTicketByPos( ticketPos );
@@ -470,7 +470,7 @@ public class ActionTickets extends ActionBase {
 		synchronized( releases ) {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
 			ReleaseTicket ticket = set.getTicketByPos( ticketPos );
@@ -489,7 +489,7 @@ public class ActionTickets extends ActionBase {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
 			releaseNew = repoUpdated.findReleaseByLabel( this , newRelease );
-			Release releaseNewUpdated = method.deleteRelease( repoUpdated , releaseNew );
+			Release releaseNewUpdated = method.changeRelease( repoUpdated , releaseNew );
 			
 			ReleaseChanges changes = release.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
@@ -507,7 +507,7 @@ public class ActionTickets extends ActionBase {
 		synchronized( releases ) {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
 			ReleaseTicket ticket = set.getTicketByPos( ticketPos );
@@ -523,7 +523,7 @@ public class ActionTickets extends ActionBase {
 		synchronized( releases ) {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
 
@@ -542,7 +542,7 @@ public class ActionTickets extends ActionBase {
 		synchronized( releases ) {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
 
@@ -569,7 +569,7 @@ public class ActionTickets extends ActionBase {
 		synchronized( releases ) {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
 			MetaDistr distr = meta.getDistr();
@@ -625,7 +625,7 @@ public class ActionTickets extends ActionBase {
 		synchronized( releases ) {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
 			ReleaseTicketTarget target = set.getTargetByPos( targetPos );
@@ -644,7 +644,7 @@ public class ActionTickets extends ActionBase {
 		synchronized( releases ) {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			Release releaseUpdated = method.deleteRelease( repoUpdated , release );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
 		
