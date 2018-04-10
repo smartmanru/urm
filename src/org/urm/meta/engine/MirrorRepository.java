@@ -3,6 +3,7 @@ package org.urm.meta.engine;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.data.EngineMirrors;
 import org.urm.meta.EngineObject;
 
 public class MirrorRepository extends EngineObject {

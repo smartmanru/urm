@@ -4,6 +4,8 @@ CREATE TABLE main.urm_object_entity (
                 paramentity_type INTEGER NOT NULL,
                 custom BOOLEAN NOT NULL,
                 use_props BOOLEAN NOT NULL,
+                changeable BOOLEAN NOT NULL,
+                pk_field_count INTEGER NOT NULL,
                 app_table VARCHAR(64),
                 id_field VARCHAR(64),
                 object_type INTEGER NOT NULL,
@@ -65,7 +67,10 @@ CREATE TABLE main.urm_object_param (
                 object_type INTEGER NOT NULL,
                 enumname VARCHAR(64),
                 required BOOLEAN NOT NULL,
+                secured BOOLEAN NOT NULL,
+                inherited BOOLEAN NOT NULL,
                 expr_def VARCHAR,
+                customenum_def VARCHAR,
                 version INTEGER NOT NULL,
                 CONSTRAINT urm_object_param_pk PRIMARY KEY (param_object_id, paramentity_type, param_id)
 );
@@ -125,10 +130,10 @@ COMMENT ON TABLE main.urm_mirror IS 'Code repository';
 
 CREATE TABLE main.urm_object_name (
                 parent INTEGER NOT NULL,
-                object_type INTEGER NOT NULL,
+                paramentity_type INTEGER NOT NULL,
                 name VARCHAR NOT NULL,
                 object_id INTEGER NOT NULL,
-                CONSTRAINT urm_object_name_pk PRIMARY KEY (parent, object_type, name)
+                CONSTRAINT urm_object_name_pk PRIMARY KEY (parent, paramentity_type, name)
 );
 COMMENT ON TABLE main.urm_object_name IS 'Named objects mapping to support import';
 

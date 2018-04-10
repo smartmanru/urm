@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaProductDoc;
 
 public class FileSet {
 
@@ -178,6 +179,10 @@ public class FileSet {
 		return( findDistItem( action , distItem , "" ) );
 	}
 	
+	public String findDistItem( ActionBase action , MetaProductDoc doc ) throws Exception {
+		return( findDistItem( action , doc , "" ) );
+	}
+	
 	public String findDistItem( ActionBase action , MetaDistrBinaryItem distItem , String subPath ) throws Exception {
 		FileSet delivery = getDirByPath( action , subPath );
 		if( delivery == null ) {
@@ -194,6 +199,23 @@ public class FileSet {
 		}
 		
 		action.trace( "missing distItem=" + distItem.NAME + " (path=" + subPath + ", search using " + Common.getList( patterns) + ")" );
+		return( "" );
+	}
+
+	public String findDistItem( ActionBase action , MetaProductDoc doc , String subPath ) throws Exception {
+		FileSet delivery = getDirByPath( action , subPath );
+		if( delivery == null ) {
+			action.trace( "missing delivery folder=" + subPath + " for doc=" + doc.NAME );
+			return( "" );
+		}
+
+		String docname = doc.NAME + doc.EXT;
+		for( String baseName : delivery.files.keySet() ) {
+			if( baseName.equals( docname ) )
+				return( baseName );
+		}
+		
+		action.trace( "missing doc=" + doc.NAME + " (path=" + subPath + ")" );
 		return( "" );
 	}
 

@@ -3,13 +3,15 @@ package org.urm.engine.schedule;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.engine.ScheduleService;
+
 public class ScheduleTaskSet {
 
-	EngineScheduler scheduler;
+	ScheduleService scheduler;
 	
 	Map<String,ScheduleTask> data;
 	
-	public ScheduleTaskSet( EngineScheduler scheduler ) {
+	public ScheduleTaskSet( ScheduleService scheduler ) {
 		this.scheduler = scheduler;
 		data = new HashMap<String,ScheduleTask>(); 
 	}

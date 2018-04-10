@@ -22,7 +22,8 @@ public class ActionGetCodebase extends ActionBase {
 		this.SINGLEFILE = SINGLEFILE;
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
+	@Override 
+	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
 		String BRANCH = scopeProject.getProjectBuildBranch( this );
 		String TAG = scopeProject.getProjectBuildTag( this );
 

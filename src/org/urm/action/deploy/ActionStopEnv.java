@@ -12,6 +12,7 @@ import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.env.MetaEnvStartGroup;
+import org.urm.meta.env.MetaEnvStartInfo;
 
 public class ActionStopEnv extends ActionBase {
 
@@ -31,7 +32,8 @@ public class ActionStopEnv extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeScopeSet( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		for( MetaEnvStartGroup group : set.sg.startInfo.getReverseGroupList() ) {
+		MetaEnvStartInfo startInfo = set.sg.getStartInfo();
+		for( MetaEnvStartGroup group : startInfo.getReverseGroupList() ) {
 			if( !stopServerGroup( state , set , group , targets ) )
 				ifexit( _Error.FailedGroupOperation0 , "failed group operation" , null );
 		}
@@ -39,7 +41,8 @@ public class ActionStopEnv extends ActionBase {
 		// if specific run handle servers not covered by start groups 
 		if( !set.setFull ) {
 			for( ActionScopeTarget target : targets ) {
-				if( target.envServer.startGroup == null ) {
+				MetaEnvStartGroup startGroup = target.envServer.getStartGroup();
+				if( startGroup == null ) {
 					ActionStopServer stopOne = new ActionStopServer( this , target.NAME , target );
 					if( !stopOne.runSimpleEnv( state , target.envServer.sg.env , SecurityAction.ACTION_DEPLOY , false ) )
 						ifexit( _Error.StopenvFailed0 , "unable to stop server" , null );

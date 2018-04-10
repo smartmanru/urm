@@ -2,8 +2,10 @@ package org.urm.meta.product;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumChangeType;
+import org.urm.db.core.DBEnums.DBEnumLifecycleType;
+import org.urm.engine.data.EngineLifecycles;
 import org.urm.meta.MatchItem;
-import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.ReleaseLifecycle;
 
 public class MetaProductPolicy {
@@ -20,10 +22,12 @@ public class MetaProductPolicy {
 	public boolean LCUrgentAll;
 	public MatchItem[] LC_URGENT_LIST;
 	public int PV;
+	public DBEnumChangeType CHANGETYPE;
 	
 	public MetaProductPolicy( ProductMeta storage , Meta meta ) {
 		LCUrgentAll = false;
 		LC_URGENT_LIST = new MatchItem[0];
+		this.meta = meta;
 	}
 
 	public MetaProductPolicy copy( Meta rmeta ) throws Exception {
@@ -34,6 +38,8 @@ public class MetaProductPolicy {
 		r.LC_MINOR = LC_MINOR;
 		r.LCUrgentAll = LCUrgentAll;
 		r.LC_URGENT_LIST = new MatchItem[ LC_URGENT_LIST.length ];
+		r.PV = PV;
+		r.CHANGETYPE = CHANGETYPE;
 		for( int k = 0; k < LC_URGENT_LIST.length; k++ )
 			r.LC_URGENT_LIST[ k ] = MatchItem.copy( LC_URGENT_LIST[ k ] );
 		
@@ -58,6 +64,22 @@ public class MetaProductPolicy {
 		return( getLifecycleName( action , LC_MINOR ) );
 	}
 
+	public Integer getMajorId( ActionBase action ) throws Exception {
+		return( getLifecycleId( action , LC_MAJOR ) );
+	}
+	
+	public Integer getMinorId( ActionBase action ) throws Exception {
+		return( getLifecycleId( action , LC_MINOR ) );
+	}
+	
+	public boolean checkUrgentIncluded( ActionBase action , ReleaseLifecycle lc ) throws Exception {
+		for( MatchItem item : LC_URGENT_LIST ) {
+			if( MatchItem.equals( item , lc.ID ) )
+				return( true );
+		}
+		return( false );
+	}
+	
 	public String[] getUrgentNames( ActionBase action ) throws Exception {
 		String[] names = new String[ LC_URGENT_LIST.length ];
 		for( int k = 0; k < names.length; k++ )
@@ -66,9 +88,29 @@ public class MetaProductPolicy {
 	}
 	
 	public String getLifecycleName( ActionBase action , MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
 		EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
-		ReleaseLifecycle lc = lifecycles.getLifecycle( item.FKID );
+		ReleaseLifecycle lc = lifecycles.getLifecycle( item );
 		return( lc.NAME );
 	}
 
+	public Integer getLifecycleId( ActionBase action , MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		
+		EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
+		ReleaseLifecycle lc = lifecycles.getLifecycle( item );
+		return( lc.ID );
+	}
+
+	public ReleaseLifecycle findLifecycle( ActionBase action , DBEnumLifecycleType lctype ) {
+		EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
+		if( lctype == DBEnumLifecycleType.MAJOR )
+			return( lifecycles.findLifecycle( LC_MAJOR ) ); 
+		if( lctype == DBEnumLifecycleType.MINOR )
+			return( lifecycles.findLifecycle( LC_MINOR ) );
+		return( null );
+	}
+	
 }

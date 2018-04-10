@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.meta.MatchItem;
 import org.urm.meta.env.MetaDump;
 
 public class MetaDatabase {
@@ -65,6 +66,14 @@ public class MetaDatabase {
 		return( mapSchema.get( name ) );
 	}
 
+	public MetaDatabaseSchema findSchema( MatchItem item ) {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( mapSchemaById.get( item.FKID ) );
+		return( mapSchema.get( item.FKNAME ) );
+	}
+	
 	public String[] getExportDumpNames() {
 		return( Common.getSortedKeys( mapExport ) );
 	}
@@ -95,6 +104,21 @@ public class MetaDatabase {
 		return( schema );
 	}
 
+	public MetaDatabaseSchema getSchema( MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( getSchema( item.FKID ) );
+		return( getSchema( item.FKNAME ) );
+	}
+	
+	public String getSchemaName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaDatabaseSchema schema = getSchema( item.FKID );
+		return( schema.NAME );
+	}
+	
 	public boolean checkAligned( String id ) {
 		return( true );
 	}
@@ -123,6 +147,32 @@ public class MetaDatabase {
 			mapExport.remove( dump.NAME );
 		else
 			mapImport.remove( dump.NAME );
+	}
+	
+	public MatchItem getSchemaMatchItem( Integer id , String name ) throws Exception {
+		if( id == null && name.isEmpty() )
+			return( null );
+		MetaDatabaseSchema schema = ( id == null )? findSchema( name ) : getSchema( id );
+		MatchItem match = ( schema == null )? new MatchItem( name ) : new MatchItem( schema.ID );
+		return( match );
+	}
+
+	public boolean matchSchema( MatchItem item ) throws Exception {
+		if( item == null )
+			return( true );
+		
+		MetaDatabaseSchema schema = null;
+		if( item.MATCHED ) {
+			schema = getSchema( item.FKID );
+			return( true );
+		}
+		
+		schema = findSchema( item.FKNAME );
+		if( schema != null ) {
+			item.match( schema.ID );
+			return( true );
+		}
+		return( false );
 	}
 	
 }

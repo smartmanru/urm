@@ -20,13 +20,17 @@ public class ActionChangeKeys extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeAccount( ScopeState state , ActionScopeSet set , Account account ) throws Exception {
-		String F_NEWKEY = context.env.KEYFILE;
+		// not implemented
+		super.exitNotImplemented();
+		
+		// NEEDS REWORK - still non-engine implementation
+		String F_NEWKEY = "TBD"; // context.env.ENVKEY.FKNAME;
 		String F_OLDKEY = F_NEWKEY;
 
-		if( !context.CTX_NEWKEY.isEmpty() )
-			F_NEWKEY = context.CTX_NEWKEY;
-		if( !context.CTX_KEYNAME.isEmpty() )
-			F_OLDKEY = context.CTX_KEYNAME;
+		if( !context.CTX_NEWKEYRES.isEmpty() )
+			F_NEWKEY = context.CTX_NEWKEYRES;
+		if( !context.CTX_KEYRES.isEmpty() )
+			F_OLDKEY = context.CTX_KEYRES;
 		
 		String P_KEYFILENEXT = F_NEWKEY;
 		String P_KEYACCESS = F_OLDKEY;
@@ -80,7 +84,7 @@ public class ActionChangeKeys extends ActionBase {
 		String F_HOSTUSER = account.USER;
 		Account F_TARGETACCOUNT = account;
 		if( F_HOSTUSER.equals( "root" ) == false && context.CTX_SUDO )
-			F_TARGETACCOUNT = account.getRootAccount( this );
+			F_TARGETACCOUNT = account.getRootAccount();
 			
 		if( cmd.equals( "delete" ) == false && cmd.equals( "list" ) == false ) {
 			if( !tryConnect( F_TARGETACCOUNT , F_ACCESSOPTION ) ) {
@@ -97,7 +101,7 @@ public class ActionChangeKeys extends ActionBase {
 		String F_SETUPAUTH;
 		Account F_BEHALFACCOUNT = account;
 		if( F_HOSTUSER.equals( "root" ) == false && context.CTX_ROOTUSER ) {
-			F_BEHALFACCOUNT = account.getRootAccount( this );
+			F_BEHALFACCOUNT = account.getRootAccount();
 
 			if( !checkHostUser( F_BEHALFACCOUNT , F_ACCESSOPTION , F_HOSTUSER ) )
 				exit1( _Error.UnknownHostuser1 , "unknown hostuser=" + F_HOSTUSER , F_HOSTUSER );

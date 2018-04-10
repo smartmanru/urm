@@ -1,9 +1,11 @@
 package org.urm.meta.engine;
 
 import org.urm.action.ActionBase;
+import org.urm.engine.AuthService;
+import org.urm.engine.ShellService;
+import org.urm.engine.data.EngineResources;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
-import org.urm.engine.shell.EngineShellPool;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.meta.EngineObject;
@@ -108,12 +110,13 @@ public class AuthResource extends EngineObject {
 		NAME = name;
 		DESC = Common.nonull( desc );
 		
+		baseurl = Common.nonull( baseurl );
 		if( type != RESOURCE_TYPE ||
 			baseurl.equals( BASEURL ) == false )
 			VERIFIED = false;
 			
 		RESOURCE_TYPE = type;
-		BASEURL = Common.nonull( baseurl );
+		BASEURL = baseurl;
 		
 		ac = null;
 	}
@@ -123,8 +126,8 @@ public class AuthResource extends EngineObject {
 	}
 	
 	public void setAuthData( AuthContext acdata ) throws Exception {
-		EngineAuth auth = resources.engine.getAuth();
-		String authKey = auth.getAuthKey( EngineAuth.AUTH_GROUP_RESOURCE , NAME );
+		AuthService auth = resources.engine.getAuth();
+		String authKey = auth.getAuthKey( AuthService.AUTH_GROUP_RESOURCE , NAME );
 		ac = auth.loadAuthData( authKey );
 		ac.setData( acdata );
 		
@@ -132,9 +135,9 @@ public class AuthResource extends EngineObject {
 	}
 	
 	public void saveAuthData() throws Exception {
-		EngineAuth auth = resources.engine.getAuth();
+		AuthService auth = resources.engine.getAuth();
 		if( ac != null ) {
-			String authKey = auth.getAuthKey( EngineAuth.AUTH_GROUP_RESOURCE , NAME );
+			String authKey = auth.getAuthKey( AuthService.AUTH_GROUP_RESOURCE , NAME );
 			auth.saveAuthData( authKey , ac );
 		}
 	}
@@ -143,12 +146,9 @@ public class AuthResource extends EngineObject {
 		if( ac != null )
 			return;
 		
-		EngineAuth auth = resources.engine.getAuth();
-		String authKey = auth.getAuthKey( EngineAuth.AUTH_GROUP_RESOURCE , NAME );
+		AuthService auth = resources.engine.getAuth();
+		String authKey = auth.getAuthKey( AuthService.AUTH_GROUP_RESOURCE , NAME );
 		ac = auth.loadAuthData( authKey );
-	}
-
-	public void createResource() throws Exception {
 	}
 
 	public boolean vcsVerify( ActionBase action , String repo , String repoPath ) {
@@ -166,8 +166,8 @@ public class AuthResource extends EngineObject {
 	public boolean sshVerify( ActionBase action , DBEnumOSType osType , String host , int port , String user ) {
 		try {
 			loadAuthData();
-			Account account = Account.getResourceAccount( action , this , user , host , port , osType );
-			EngineShellPool pool = action.engine.shellPool;
+			Account account = Account.getResourceAccount( this , user , host , port , osType );
+			ShellService pool = action.engine.shellPool;
 			ShellExecutor shell = pool.createDedicatedRemoteShell( action , action.context.stream , account , this , false );
 			
 			if( shell != null ) {

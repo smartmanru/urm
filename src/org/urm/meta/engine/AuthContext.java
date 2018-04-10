@@ -2,12 +2,14 @@ package org.urm.meta.engine;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.AuthService;
 import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineObject;
+import org.urm.meta.Types.EnumAuthType;
 
 public class AuthContext extends EngineObject {
 
-	EngineAuth auth;
+	AuthService auth;
 	public PropertySet properties;
 	
 	public String METHOD = "";
@@ -22,7 +24,7 @@ public class AuthContext extends EngineObject {
 	public static String METHOD_USER = "user";
 	public static String METHOD_SSHKEY = "sshkey";
 	
-	public AuthContext( EngineAuth auth ) {
+	public AuthContext( AuthService auth ) {
 		super( auth );
 		this.auth = auth;
 	}
@@ -40,6 +42,29 @@ public class AuthContext extends EngineObject {
 	
 	public void createLdap( String name ) {
 		this.USER = name;
+	}
+	
+	public EnumAuthType getAccessType() {
+		if( isAnonymous() )
+			return( EnumAuthType.ANONYMOUS );
+		if( isCommon() ) {
+			if( USER.isEmpty() )
+				return( EnumAuthType.PASSWORD );
+			return( EnumAuthType.CREDENTIALS );
+		}
+		if( isSshKey() )
+			return( EnumAuthType.KEYS );
+		return( EnumAuthType.UNKNOWN );
+	}
+	
+	public void setAnonymous() {
+		METHOD = METHOD_ANONYMOUS;
+		USER = "";
+	}
+	
+	public void setCurrentUser() {
+		METHOD = METHOD_USER;
+		USER = "";
 	}
 	
 	public boolean isAnonymous() {

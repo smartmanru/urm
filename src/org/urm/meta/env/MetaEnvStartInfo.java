@@ -5,14 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
-import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.engine.EngineTransaction;
 import org.urm.meta.product.Meta;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class MetaEnvStartInfo {
 
@@ -20,6 +13,7 @@ public class MetaEnvStartInfo {
 	public MetaEnvSegment sg;
 	
 	Map<String,MetaEnvStartGroup> groupMap;
+	Map<Integer,MetaEnvStartGroup> groupMapById;
 	List<MetaEnvStartGroup> groups;
 	
 	public MetaEnvStartInfo( Meta meta , MetaEnvSegment sg ) {
@@ -27,31 +21,21 @@ public class MetaEnvStartInfo {
 		this.sg = sg;
 		groups = new LinkedList<MetaEnvStartGroup>();
 		groupMap = new HashMap<String,MetaEnvStartGroup>();
+		groupMapById = new HashMap<Integer,MetaEnvStartGroup>();
 	}
 	
-	public MetaEnvStartInfo copy( ActionBase action , Meta meta , MetaEnvSegment sg ) throws Exception {
-		MetaEnvStartInfo r = new MetaEnvStartInfo( meta , sg );
+	public MetaEnvStartInfo copy( Meta rmeta , MetaEnvSegment rsg ) throws Exception {
+		MetaEnvStartInfo r = new MetaEnvStartInfo( rmeta , rsg );
 		for( MetaEnvStartGroup group : groups ) {
-			MetaEnvStartGroup rg = group.copy( action , meta , r );
+			MetaEnvStartGroup rg = group.copy( rmeta , r );
 			r.addGroup( rg );
 		}
 		return( r );
 	}
 	
-	public void load( ActionBase action , Node node ) throws Exception {
-		Node[] items = ConfReader.xmlGetChildren( node , "startgroup" );
-		if( items == null )
-			return;
-		
-		for( Node sgnode : items ) {
-			MetaEnvStartGroup sg = new MetaEnvStartGroup( meta , this );
-			sg.load( action , sgnode );
-			addGroup( sg );
-		}
-	}
-
 	public void addGroup( MetaEnvStartGroup sg ) {
 		groupMap.put( sg.NAME , sg );
+		groupMapById.put( sg.ID , sg );
 		groups.add( sg );
 	}
 	
@@ -66,16 +50,10 @@ public class MetaEnvStartInfo {
 		return( revs.toArray( new MetaEnvStartGroup[0] ) );
 	}
 
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		for( MetaEnvStartGroup group : groups ) {
-			Element itemElement = Common.xmlCreateElement( doc , root , "startgroup" );
-			group.save( action , doc , itemElement );
-		}
-	}
-
-	public void removeServer( EngineTransaction transaction , MetaEnvServer server ) {
-		if( server.startGroup != null )
-			server.startGroup.removeServer( transaction , server );
+	public void removeServer( MetaEnvServer server ) {
+		MetaEnvStartGroup startGroup = server.getStartGroup();
+		if( startGroup != null )
+			startGroup.removeServer( server );
 	}
 
 	public MetaEnvStartGroup findServerGroup( String serverName ) {
@@ -91,11 +69,17 @@ public class MetaEnvStartInfo {
 		List<String> missing = new LinkedList<String>();
 		for( String serverName : sg.getServerNames() ) {
 			MetaEnvServer server = sg.findServer( serverName );
-			if( server.startGroup == null )
+			MetaEnvStartGroup startGroup = server.getStartGroup();
+			
+			if( startGroup == null )
 				missing.add( serverName );
 		}
 		
 		return( missing.toArray( new String[0] ) );
 	}
 	
+	public MetaEnvStartGroup findStartGroup( int id ) {
+		return( groupMapById.get( id ) );
+	}
+
 }

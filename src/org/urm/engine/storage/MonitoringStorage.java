@@ -21,7 +21,10 @@ public class MonitoringStorage {
 	
 	public LocalFolder getDataFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
 		MetaProductCoreSettings core = meta.getProductCoreSettings();
-		MetaEnvSegment sg = target.findSegment();
+		MetaEnvSegment sg = target.getSegment();
+		if( sg == null )
+			Common.exitUnexpected();
+		
 		String path = Common.getPath( core.MONITORING_DIR_DATA , sg.env.NAME );
 		return( artefactory.getAnyFolder( action , path ) );
 	}
@@ -40,7 +43,7 @@ public class MonitoringStorage {
 	
 	public LocalFolder getLogsFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
 		MetaProductCoreSettings core = meta.getProductCoreSettings();
-		MetaEnvSegment sg = target.findSegment();
+		MetaEnvSegment sg = target.getSegment();
 		String path = Common.getPath( core.MONITORING_DIR_LOGS , sg.env.NAME );
 		return( artefactory.getAnyFolder( action , path ) );
 	}
@@ -51,19 +54,19 @@ public class MonitoringStorage {
 	}
 	
 	public String getHistoryImageFile( MetaMonitoringTarget target ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
+		MetaEnvSegment sg = target.getSegment();
 		String file = "history." + sg.env.NAME + "." + sg.NAME + ".png";
 		return( file );
 	}
 	
 	public String getRrdFile( MetaMonitoringTarget target ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
+		MetaEnvSegment sg = target.getSegment();
 		String file = "env." + sg.NAME + ".rrd";
 		return( file );
 	}
 	
 	public String getCheckEnvFile( MetaMonitoringTarget target ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
+		MetaEnvSegment sg = target.getSegment();
 		String file = "checkenv." + sg.NAME + ".log";
 		return( file );
 	}
@@ -82,7 +85,7 @@ public class MonitoringStorage {
 	}
 	
 	public String getStatusReportFile( MetaMonitoringTarget target ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
+		MetaEnvSegment sg = target.getSegment();
 		String basename = "overall." + sg.env.NAME + "." + sg.NAME + ".html";
 		return( basename );
 	}

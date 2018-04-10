@@ -3,7 +3,8 @@ package org.urm.engine.events;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.engine.EngineExecutorTask;
+import org.urm.engine.EventService;
+import org.urm.engine.run.EngineExecutorTask;
 
 public class EngineEventsNotifier extends EngineEventsSource {
 
@@ -29,7 +30,7 @@ public class EngineEventsNotifier extends EngineEventsSource {
 
 	static int NOTIFY_POOL = 10; 
 	
-	public EngineEventsNotifier( EngineEvents events ) {
+	public EngineEventsNotifier( EventService events ) {
 		super( events , "urm.notifier" );
 		queue = new LinkedList<NotifyEvent>();
 		tasks = new LinkedList<ServerExecutorTaskNotify>();
@@ -82,7 +83,7 @@ public class EngineEventsNotifier extends EngineEventsSource {
 		for( int k = 0; k < NOTIFY_POOL; k++ ) {
 			ServerExecutorTaskNotify task = new ServerExecutorTaskNotify( k + 1 );
 			tasks.add( task );
-			events.engine.executor.executeCycle( task );
+			events.engine.tasks.executeCycle( task );
 		}
 	}
 
@@ -93,7 +94,7 @@ public class EngineEventsNotifier extends EngineEventsSource {
 		}
 		
 		for( ServerExecutorTaskNotify task : tasks )
-			events.engine.executor.stopTask( task );
+			events.engine.tasks.stopTask( task );
 		
 		synchronized( tasks ) {
 			tasks.clear();

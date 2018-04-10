@@ -24,6 +24,18 @@ public class MatchItem {
 		MATCHED = ( id == null )? false : true;
 	}
 
+	public static MatchItem create( String value ) {
+		if( value == null || value.isEmpty() )
+			return( null );
+		return( new MatchItem( value ) );
+	}
+	
+	public static MatchItem create( Integer value ) {
+		if( value == null )
+			return( null );
+		return( new MatchItem( value ) );
+	}
+	
 	public static MatchItem copy( MatchItem item ) {
 		if( item == null )
 			return( null );
@@ -31,10 +43,36 @@ public class MatchItem {
 		return( r );
 	}
 
+	public static boolean isMatched( MatchItem item ) {
+		if( item == null )
+			return( true );
+		return( item.MATCHED );
+	}
+		
+	public static boolean equals( MatchItem item , int id ) {
+		if( item == null )
+			return( false );
+		if( item.FKID == id )
+			return( true );
+		return( false );
+	}
+	
+	public boolean equals( int id ) {
+		if( MATCHED && FKID == id )
+			return( true );
+		return( false );
+	}
+	
 	public void match( Integer id ) {
 		FKID = id;
 		FKNAME = "";
 		MATCHED = true;
 	}
-	
+
+	public void unmatch( String name ) {
+		FKID = null;
+		FKNAME = name;
+		MATCHED = false;
+	}
+
 }

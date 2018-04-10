@@ -42,11 +42,7 @@ public class MirrorCaseSubversion extends MirrorCase {
 		LocalFolder comp = getComponentFolder();
 		if( !comp.checkExists( action ) ) {
 			comp.ensureExists( action );
-			if( !vcsSubversion.isValidRepositoryMasterPath( mirror , "/" ) ) {
-				vcsSubversion.createMasterFolder( mirror , "trunk" , "create component" );
-				vcsSubversion.createMasterFolder( mirror , "branches" , "create component" );
-				vcsSubversion.createMasterFolder( mirror , "tags" , "create component" );
-			}
+			vcsSubversion.createRepositoryFolders( mirror );
 		}
 
 		LocalFolder branch = getBranchFolder();
@@ -103,14 +99,26 @@ public class MirrorCaseSubversion extends MirrorCase {
 	@Override
 	public void refreshMirror() throws Exception {
 		LocalFolder branch = getBranchFolder();
-		shell.customCheckStatus( action , branch.folderPath , "svn update " + vcsSubversion.SVNAUTH );
+		try {
+			action.setTimeout( 10 * 60 * 1000 );
+			shell.customCheckStatus( action , branch.folderPath , "svn update " + vcsSubversion.SVNAUTH );
+		}
+		finally {
+			action.setTimeoutDefault();
+		}
 	}
 	
 	@Override
 	public void pushMirror() throws Exception {
 		String msg = "push to origin";
 		LocalFolder branch = getBranchFolder();
-		shell.customCheckStatus( action , branch.folderPath , "svn commit -m " + Common.getQuoted( msg ) + " " + vcsSubversion.SVNAUTH );
+		try {
+			action.setTimeout( 10 * 60 * 1000 );
+			shell.customCheckStatus( action , branch.folderPath , "svn commit -m " + Common.getQuoted( msg ) + " " + vcsSubversion.SVNAUTH );
+		}
+		finally {
+			action.setTimeoutDefault();
+		}
 	}
 
 	@Override

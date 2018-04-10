@@ -1,35 +1,35 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
+import org.urm.db.release.DBReleaseScope;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
-import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.dist.ReleaseTarget;
-import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaDistrBinaryItem;
-import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.release.Release;
 
 public class ActionGetCumulative extends ActionBase {
 
 	Meta meta;
-	public Dist dist;
+	public Release release;
 	
-	public ActionGetCumulative( ActionBase action , String stream , Meta meta , Dist dist ) {
-		super( action , stream , "Rebuild cumulative release=" + dist.RELEASEDIR );
+	public ActionGetCumulative( ActionBase action , String stream , Meta meta , Release release ) {
+		super( action , stream , "Rebuild cumulative release=" + release.RELEASEVER );
 		this.meta = meta;
-		this.dist = dist;
+		this.release = release;
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
+		Meta meta = release.getMeta();
+		DistRepository repo = meta.getDistRepository();
+		Dist dist = repo.findDefaultDist( release );
 		dist.openForDataChange( this );
-		dist.descopeAll( this );
-		dist.saveReleaseXml( this );
 		
-		DistRepository repo = artefactory.getDistRepository( this , meta );
-
+		DBReleaseScope.descopeAll( super.method , this , release );
+		dist.saveMetaFile( this );
+		
 		// dists - source releases sorted from last to most earlier
 		String[] versions = dist.release.getCumulativeVersions();
 		Dist[] dists = new Dist[ versions.length ];
@@ -46,72 +46,17 @@ public class ActionGetCumulative extends ActionBase {
 
 		copyFiles( dists );
 		
-		dist.saveReleaseXml( this );
+		dist.saveMetaFile( this );
 		dist.closeDataChange( this );
 		return( SCOPESTATE.RunSuccess );
 	}
 
 	private boolean addCumulativeVersion( DistRepository repo , String cumver , Dist cumdist ) throws Exception {
-		info( "append cumulative release version=" + cumver + " ..." );
-		
-		if( !cumdist.isFinalized() ) {
-			error( "cannot append cumulative release from non-finalized release version=" + cumver );
-			return( false );
-		}
-		
-		dist.release.addRelease( this , cumdist.release );
-		dist.release.rebuildDeliveries( this );
-		cumdist.openForUse( this );
-		return( true );
+		return( false );
 	}
 	
 	private void copyFiles( Dist[] cumdists ) throws Exception {
-		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
-			if( delivery.hasDatabaseItems() )
-				copyDatabaseItems( cumdists , delivery );
-			for( ReleaseTargetItem item : delivery.getProjectItems() )
-				copyBinaryItem( cumdists , delivery , item.distItem );
-			for( ReleaseTarget item : delivery.getManualItems() )
-				copyBinaryItem( cumdists , delivery , item.distManualItem );
-			for( ReleaseTarget item : delivery.getConfItems() )
-				copyConfItem( cumdists , delivery , item.distConfItem );
-		}
+		Common.exitUnexpected();
 	}
 
-	private void copyDatabaseItems( Dist[] cumdists , ReleaseDelivery delivery ) throws Exception {
-		for( Dist cumdist : cumdists )
-			dist.copyDatabaseDistrToDistr( this , delivery , cumdist );
-	}
-	
-	private void copyBinaryItem( Dist[] cumdists , ReleaseDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
-		for( Dist cumdist : cumdists ) {
-			String file = cumdist.getBinaryDistItemFile( this , item );
-			if( !file.isEmpty() ) {
-				dist.copyBinaryDistrToDistr( this , delivery , cumdist , file );
-				return;
-			}
-		}
-	}
-	
-	private void copyConfItem( Dist[] cumdists , ReleaseDelivery delivery , MetaDistrConfItem item ) throws Exception {
-		// find last full
-		int lastIndex = cumdists.length - 1;
-		for( int k = 0; k < cumdists.length; k++ ) {
-			ReleaseTarget target = cumdists[k].release.findConfComponent( this , item.NAME );
-			if( target != null && target.ALL ) {
-				lastIndex = k;
-				break;
-			}
-		}
-		
-		for( int k = lastIndex; k >= 0; k-- ) {
-			Dist cumdist = cumdists[k];
-			ReleaseTarget target = cumdist.release.findConfComponent( this , item.NAME );
-			if( target == null )
-				continue;
-			
-			dist.appendConfDistrToDistr( this , delivery , cumdist , item );
-		}
-	}
-	
 }

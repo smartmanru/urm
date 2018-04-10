@@ -1,9 +1,14 @@
 package org.urm.meta.engine;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
+import org.urm.engine.data.EngineBase;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
+import org.urm.engine.properties.PropertySet;
 import org.urm.meta.EngineObject;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
@@ -12,6 +17,7 @@ public class BaseItem extends EngineObject {
 
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_ADMIN = "admin";
 	public static String PROPERTY_BASESRC_TYPE = "basesrc_type";
 	public static String PROPERTY_BASESRCFORMAT_TYPE = "basesrcformat_type";
 	public static String PROPERTY_OS_TYPE = "os_type";
@@ -31,6 +37,7 @@ public class BaseItem extends EngineObject {
 	public int ID;
 	public String NAME;
 	public String DESC;
+	public boolean ADMIN;
 	public DBEnumBaseSrcType BASESRC_TYPE;
 	public DBEnumBaseSrcFormatType BASESRCFORMAT_TYPE;
 	public DBEnumOSType OS_TYPE;
@@ -47,20 +54,20 @@ public class BaseItem extends EngineObject {
 	public boolean OFFLINE;
 	public int CV;
 	
-	public ObjectProperties p;
+	public ObjectProperties ops;
 	
-	Map<String,BaseItem> depsDraft;
-	Map<Integer,BaseItem> depsById;
+	List<String> depsDraft;
+	Map<Integer,ObjectProperties> depsById;
 	
-	public BaseItem( BaseGroup group , ObjectProperties p ) {
+	public BaseItem( BaseGroup group , ObjectProperties ops ) {
 		super( group );
 		this.group = group;
-		this.p = p;
+		this.ops = ops;
 		ID = -1;
 		CV = 0;
 		
-		depsDraft = new HashMap<String,BaseItem>();
-		depsById = new HashMap<Integer,BaseItem>(); 
+		depsDraft = new LinkedList<String>();
+		depsById = new HashMap<Integer,ObjectProperties>(); 
 	}
 
 	@Override
@@ -69,21 +76,26 @@ public class BaseItem extends EngineObject {
 	}
 	
 	public void scatterProperties() throws Exception {
-		NAME = p.getPropertyValue( BaseItem.PROPERTY_NAME );
-		DESC = p.getPropertyValue( BaseItem.PROPERTY_DESC );
-		BASESRC_TYPE = DBEnumBaseSrcType.getValue( p.getIntProperty( BaseItem.PROPERTY_BASESRC_TYPE ) , false );
-		BASESRCFORMAT_TYPE = DBEnumBaseSrcFormatType.getValue( p.getIntProperty( BaseItem.PROPERTY_BASESRCFORMAT_TYPE ) , false );
-		OS_TYPE = DBEnumOSType.getValue( p.getIntProperty( BaseItem.PROPERTY_OS_TYPE ) , false );
-		SERVERACCESS_TYPE = DBEnumServerAccessType.getValue( p.getIntProperty( BaseItem.PROPERTY_SERVERACCESS_TYPE ) , false );
-		BASENAME = p.getPropertyValue( BaseItem.PROPERTY_BASENAME );
-		BASEVERSION = p.getPropertyValue( BaseItem.PROPERTY_BASEVERSION );
-		SRCDIR = p.getPropertyValue( BaseItem.PROPERTY_SRCDIR );
-		SRCFILE = p.getPropertyValue( BaseItem.PROPERTY_SRCFILE );
-		SRCFILEDIR = p.getPropertyValue( BaseItem.PROPERTY_SRCFILEDIR );
-		INSTALLSCRIPT = p.getPropertyValue( BaseItem.PROPERTY_INSTALLSCRIPT );
-		INSTALLPATH = p.getPropertyValue( BaseItem.PROPERTY_INSTALLPATH );
-		INSTALLLINK = p.getPropertyValue( BaseItem.PROPERTY_INSTALLLINK );
-		CHARSET = p.getPropertyValue( BaseItem.PROPERTY_CHARSET );
+		NAME = ops.getPropertyValue( BaseItem.PROPERTY_NAME );
+		DESC = ops.getPropertyValue( BaseItem.PROPERTY_DESC );
+		ADMIN = ops.getBooleanProperty( BaseItem.PROPERTY_ADMIN );
+		BASESRC_TYPE = DBEnumBaseSrcType.getValue( ops.getIntProperty( BaseItem.PROPERTY_BASESRC_TYPE ) , false );
+		BASESRCFORMAT_TYPE = DBEnumBaseSrcFormatType.getValue( ops.getIntProperty( BaseItem.PROPERTY_BASESRCFORMAT_TYPE ) , false );
+		OS_TYPE = DBEnumOSType.getValue( ops.getIntProperty( BaseItem.PROPERTY_OS_TYPE ) , false );
+		SERVERACCESS_TYPE = DBEnumServerAccessType.getValue( ops.getIntProperty( BaseItem.PROPERTY_SERVERACCESS_TYPE ) , false );
+		BASENAME = ops.getPropertyValue( BaseItem.PROPERTY_BASENAME );
+		BASEVERSION = ops.getPropertyValue( BaseItem.PROPERTY_BASEVERSION );
+		SRCDIR = ops.getPropertyValue( BaseItem.PROPERTY_SRCDIR );
+		SRCFILE = ops.getPropertyValue( BaseItem.PROPERTY_SRCFILE );
+		SRCFILEDIR = ops.getPropertyValue( BaseItem.PROPERTY_SRCFILEDIR );
+		INSTALLSCRIPT = ops.getPropertyValue( BaseItem.PROPERTY_INSTALLSCRIPT );
+		INSTALLPATH = ops.getPropertyValue( BaseItem.PROPERTY_INSTALLPATH );
+		INSTALLLINK = ops.getPropertyValue( BaseItem.PROPERTY_INSTALLLINK );
+		CHARSET = ops.getPropertyValue( BaseItem.PROPERTY_CHARSET );
+	}
+	
+	public ObjectProperties getParameters() {
+		return( ops );
 	}
 	
 	public void createBaseItem( String name , String desc ) throws Exception {
@@ -94,22 +106,29 @@ public class BaseItem extends EngineObject {
 	public void modifyBaseItem( String name , String desc ) throws Exception {
 		this.NAME = name;
 		this.DESC = Common.nonull( desc );
-		p.setStringProperty( PROPERTY_NAME , NAME );
-		p.setStringProperty( PROPERTY_DESC , DESC );
+		ops.setStringProperty( PROPERTY_NAME , NAME );
+		ops.setStringProperty( PROPERTY_DESC , DESC );
 	}
 	
 	public void setOffline( boolean offline ) throws Exception {
 		this.OFFLINE = offline;
-		p.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
+		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 	}
 	
-	public BaseItem copy( BaseGroup rgroup , ObjectProperties rparameters ) {
+	public BaseItem copy( BaseGroup rgroup , EngineEntities entities , ObjectProperties rparameters ) throws Exception {
 		BaseItem r = new BaseItem( rgroup , rparameters );
 		r.ID = ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.OFFLINE = OFFLINE;
 		r.CV = CV;
+		
+		EngineBase rbase = rgroup.category.base;
+		for( int depId : depsById.keySet() ) {
+			BaseItem rdep = rbase.getItem( depId );
+			r.addDepItem( entities , rdep );
+		}
+		
 		return( r );
 	}
 
@@ -131,12 +150,14 @@ public class BaseItem extends EngineObject {
 		return( false );
 	}
 
-	public boolean isValid() {
+	public boolean isValidImplementation() {
 		if( NAME.isEmpty() || 
 			BASESRC_TYPE == DBEnumBaseSrcType.UNKNOWN || 
 			BASESRCFORMAT_TYPE == DBEnumBaseSrcFormatType.UNKNOWN ||
 			OS_TYPE == DBEnumOSType.UNKNOWN ||
 			SERVERACCESS_TYPE == DBEnumServerAccessType.UNKNOWN )
+			return( false );
+		if( isAccountBound() && ADMIN )
 			return( false );
 		return( true );
 	}
@@ -178,7 +199,8 @@ public class BaseItem extends EngineObject {
 		return( false );
 	}
 	
-	public void modifyData( String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
+	public void modifyData( boolean admin , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
+		this.ADMIN = admin;
 		this.BASENAME = Common.nonull( name );
 		this.BASEVERSION = Common.nonull( version );
 		
@@ -192,25 +214,41 @@ public class BaseItem extends EngineObject {
 		this.INSTALLPATH = Common.nonull( INSTALLPATH );
 		this.INSTALLLINK = Common.nonull( INSTALLLINK );
 		
-		p.setEnumProperty( BaseItem.PROPERTY_BASESRC_TYPE , BASESRC_TYPE );
-		p.setEnumProperty( BaseItem.PROPERTY_BASESRCFORMAT_TYPE , BASESRCFORMAT_TYPE );
-		p.setEnumProperty( BaseItem.PROPERTY_OS_TYPE , OS_TYPE );
-		p.setEnumProperty( BaseItem.PROPERTY_SERVERACCESS_TYPE , SERVERACCESS_TYPE );
-		p.setProperty( BaseItem.PROPERTY_BASENAME , BASENAME );
-		p.setProperty( BaseItem.PROPERTY_BASEVERSION , BASEVERSION );
-		p.setProperty( BaseItem.PROPERTY_SRCDIR , SRCDIR );
-		p.setProperty( BaseItem.PROPERTY_SRCFILE , SRCFILE );
-		p.setProperty( BaseItem.PROPERTY_SRCFILEDIR , SRCFILEDIR );
-		p.setProperty( BaseItem.PROPERTY_INSTALLSCRIPT , INSTALLSCRIPT );
-		p.setProperty( BaseItem.PROPERTY_INSTALLPATH , INSTALLPATH );
-		p.setProperty( BaseItem.PROPERTY_INSTALLLINK , INSTALLLINK );
-		p.setProperty( BaseItem.PROPERTY_CHARSET , CHARSET );
+		ops.setBooleanProperty( BaseItem.PROPERTY_ADMIN , ADMIN );
+		ops.setEnumProperty( BaseItem.PROPERTY_BASESRC_TYPE , BASESRC_TYPE );
+		ops.setEnumProperty( BaseItem.PROPERTY_BASESRCFORMAT_TYPE , BASESRCFORMAT_TYPE );
+		ops.setEnumProperty( BaseItem.PROPERTY_OS_TYPE , OS_TYPE );
+		ops.setEnumProperty( BaseItem.PROPERTY_SERVERACCESS_TYPE , SERVERACCESS_TYPE );
+		ops.setProperty( BaseItem.PROPERTY_BASENAME , BASENAME );
+		ops.setProperty( BaseItem.PROPERTY_BASEVERSION , BASEVERSION );
+		ops.setProperty( BaseItem.PROPERTY_SRCDIR , SRCDIR );
+		ops.setProperty( BaseItem.PROPERTY_SRCFILE , SRCFILE );
+		ops.setProperty( BaseItem.PROPERTY_SRCFILEDIR , SRCFILEDIR );
+		ops.setProperty( BaseItem.PROPERTY_INSTALLSCRIPT , INSTALLSCRIPT );
+		ops.setProperty( BaseItem.PROPERTY_INSTALLPATH , INSTALLPATH );
+		ops.setProperty( BaseItem.PROPERTY_INSTALLLINK , INSTALLLINK );
+		ops.setProperty( BaseItem.PROPERTY_CHARSET , CHARSET );
+	}
+	
+	public Integer[] getDepItemIds() {
+		return( depsById.keySet().toArray( new Integer[0] ) );
+	}
+
+	public ObjectProperties getDependencySettings( int depId ) throws Exception {
+		ObjectProperties ops = depsById.get( depId );
+		if( ops == null )
+			Common.exit1( _Error.UnknownDependencyBaseItem1 , "Unknown dependency base item=" + depId , "" + depId );
+		return( ops );
 	}
 	
 	public String[] getDepItemNames() {
+		EngineBase base = group.category.base;
 		Map<String,BaseItem> map = new HashMap<String,BaseItem>();
-		for( BaseItem item : depsById.values() )
+		
+		for( int itemId : depsById.keySet() ) {
+			BaseItem item = base.findItem( itemId );
 			map.put( item.NAME , item );
+		}
 		return( Common.getSortedKeys( map ) );
 	}
 
@@ -219,11 +257,12 @@ public class BaseItem extends EngineObject {
 	}
 
 	public String[] getDepItemDraftNames() {
-		return( Common.getSortedKeys( depsDraft ) );
+		return( depsDraft.toArray( new String[0] ) );
 	}
 
-	public void addDepItem( BaseItem dep ) {
-		depsById.put( dep.ID , dep );
+	public void addDepItem( EngineEntities entities , BaseItem dep ) throws Exception {
+		ObjectProperties ops = entities.createBaseItemDependencyProps( this , dep );
+		depsById.put( dep.ID , ops );
 	}
 	
 	public void deleteDepItem( BaseItem dep ) {
@@ -235,7 +274,9 @@ public class BaseItem extends EngineObject {
 	}
 	
 	public BaseItem findDepItem( String depName ) {
-		for( BaseItem item : depsById.values() ) {
+		EngineBase base = group.category.base;
+		for( int itemId : depsById.keySet() ) {
+			BaseItem item = base.findItem( itemId );
 			if( depName.equals( item.NAME ) )
 				return( item );
 		}
@@ -243,14 +284,35 @@ public class BaseItem extends EngineObject {
 	}
 	
 	public void addDepDraft( String depName ) {
-		depsDraft.put( depName , null );
+		depsDraft.add( depName );
 	}
 	
 	public boolean checkDependencyItem( String depName ) {
-		for( BaseItem item : depsById.values() ) {
-			if( depName.equals( item.NAME ) )
-				return( true );
+		if( findDepItem( depName ) != null )
+			return( true );
+		return( false );
+	}
+
+	public boolean isValidConfiguration() {
+		PropertySet set = ops.getProperties();
+		if( !set.isCorrect() )
+			return( false );
+		return( true );
+	}
+	
+	public boolean areValidDependencies() {
+		EngineBase base = group.category.base;
+		for( int itemId : depsById.keySet() ) {
+			BaseItem item = base.findItem( itemId );
+			if( item.OFFLINE )
+				return( false );
 		}
+		return( true );
+	}
+	
+	public boolean isValid() {
+		if( isValidImplementation() && isValidConfiguration() && areValidDependencies() )
+			return( true );
 		return( false );
 	}
 	

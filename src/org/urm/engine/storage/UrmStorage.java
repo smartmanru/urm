@@ -84,11 +84,11 @@ public class UrmStorage {
 	}
 
 	private LocalFolder getDatabaseFolder( ActionBase action , MetaEnvServer server , String parentPath , boolean remoteRun ) throws Exception {
-		String folderPath = getDatabaseSpecificFolder( action , server.dbType , server.osType , remoteRun );
+		String folderPath = getDatabaseSpecificFolder( action , server.DBMS_TYPE , server.OS_TYPE , remoteRun );
 		
 		LocalFolder folder = getInstallFolder( action , Common.getPath( parentPath , folderPath ) );
 		if( !folder.checkExists( action ) ) {
-			String dbtype = Common.getEnumLower( server.dbType );
+			String dbtype = Common.getEnumLower( server.DBMS_TYPE );
 			String ostype = Common.getEnumLower( action.execrc.osType );
 			action.exit2( _Error.DatabaseNotSupported2 , "database is not supported: dbtype=" + dbtype + ", ostype=" + ostype , dbtype , ostype );
 		}

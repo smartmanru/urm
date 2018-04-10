@@ -23,7 +23,8 @@ public class ActionPatch extends ActionBase {
 		this.localShell = localShell;
 	}
 
-	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
+	@Override 
+	protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		builder.createShell( this );
 		if( !executePatch() )
 			return( SCOPESTATE.RunFail );

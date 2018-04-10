@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.urm.common.Common;
+import org.urm.engine.data.EngineBase;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.EngineObject;
 import org.urm.db.core.DBEnums.*;
@@ -40,11 +42,11 @@ public class BaseCategory extends EngineObject {
 		return( LABEL );
 	}
 	
-	public BaseCategory copy( EngineBase rn , ObjectProperties parent ) throws Exception {
+	public BaseCategory copy( EngineBase rn , EngineEntities entities , ObjectProperties parent ) throws Exception {
 		BaseCategory r = new BaseCategory( rn , BASECATEGORY_TYPE , NAME );
 		
 		for( BaseGroup group : groupMap.values() ) {
-			BaseGroup rgroup = group.copy( r , parent );
+			BaseGroup rgroup = group.copy( r , entities , parent );
 			r.addGroup( rgroup );
 		}
 		return( r );
@@ -71,7 +73,7 @@ public class BaseCategory extends EngineObject {
 	}
 	
 	public void removeGroup( BaseGroup group ) {
-		groupMap.remove( group );
+		groupMap.remove( group.NAME );
 	}
 	
 	public void modifyGroup( BaseGroup group ) {

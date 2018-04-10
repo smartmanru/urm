@@ -25,11 +25,13 @@ public class BuilderMavenMethod extends Builder {
 		super( builder , project , storage , TAG , APPVERSION );
 	}
 
-	@Override public ShellExecutor createShell( ActionBase action ) throws Exception {
+	@Override 
+	public ShellExecutor createShell( ActionBase action ) throws Exception {
 		return( action.createDedicatedShell( "build" ) );
 	}
 
-	@Override public boolean prepareSource( ActionBase action ) throws Exception {
+	@Override 
+	public boolean prepareSource( ActionBase action ) throws Exception {
 		// handle module options
 
 		action.info( "patchPrepareSource: prepare source code..." );
@@ -68,7 +70,8 @@ public class BuilderMavenMethod extends Builder {
 		return( true );
 	}
 	
-	@Override public boolean checkSourceCode( ActionBase action ) throws Exception {
+	@Override 
+	public boolean checkSourceCode( ActionBase action ) throws Exception {
 		// check pom version
 		LocalFolder CODEPATH = storage.buildFolder; 
 		Document file = action.readXmlFile( CODEPATH.getFilePath( action , "pom.xml" ) );
@@ -92,7 +95,8 @@ public class BuilderMavenMethod extends Builder {
 		return( true );
 	}
 
-	@Override public boolean runBuild( ActionBase action ) throws Exception {
+	@Override 
+	public boolean runBuild( ActionBase action ) throws Exception {
 		// maven params
 		MetaProductBuildSettings build = action.getBuildSettings( project.meta );
 		PropertySet props = super.createProperties( action , project );

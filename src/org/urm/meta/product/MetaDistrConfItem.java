@@ -1,6 +1,7 @@
 package org.urm.meta.product;
 
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumChangeType;
 import org.urm.db.core.DBEnums.DBEnumConfItemType;
 
 public class MetaDistrConfItem {
@@ -27,6 +28,7 @@ public class MetaDistrConfItem {
 	public String EXCLUDE;
 	public String EXTCONF;
 	public int PV;
+	public DBEnumChangeType CHANGETYPE;
 	
 	public MetaDistrConfItem( Meta meta , MetaDistrDelivery delivery ) {
 		this.meta = meta;
@@ -45,6 +47,7 @@ public class MetaDistrConfItem {
 		r.EXCLUDE = EXCLUDE;
 		r.EXTCONF = EXTCONF;
 		r.PV = PV;
+		r.CHANGETYPE = CHANGETYPE;
 		return( r );
 	}
 	

@@ -10,13 +10,13 @@ import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.common.action.CommandOption.FLAG;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.EngineCall;
 import org.urm.engine.Engine;
-import org.urm.engine.EngineSession;
+import org.urm.engine.session.EngineSession;
 import org.urm.engine.shell.Account;
+import org.urm.meta.engine.AuthResource;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
@@ -93,7 +93,7 @@ public class CommandContext {
 	public boolean CTX_LOCAL;
 	public boolean CTX_OFFLINE;
 	public int CTX_TIMEOUT;
-	public String CTX_KEYNAME = "";
+	public String CTX_KEYRES = "";
 	public String CTX_DISTPATH = "";
 	public String CTX_REDISTWIN_PATH = "";
 	public String CTX_REDISTLINUX_PATH = "";
@@ -106,7 +106,6 @@ public class CommandContext {
 	public boolean CTX_CHECK;
 	public boolean CTX_REPLACE;
 	public boolean CTX_BACKUP;
-	public boolean CTX_OBSOLETE;
 	public boolean CTX_CONFDEPLOY;
 	public boolean CTX_PARTIALCONF;
 	public boolean CTX_DEPLOYBINARY;
@@ -145,7 +144,7 @@ public class CommandContext {
 	public String CTX_UNIT = "";
 	public String CTX_BUILDINFO = "";
 	public String CTX_HOSTUSER = "";
-	public String CTX_NEWKEY = "";
+	public String CTX_NEWKEYRES = "";
 	public DBEnumBuildModeType CTX_BUILDMODE = DBEnumBuildModeType.UNKNOWN;
 	public String CTX_OLDRELEASE = "";
 	public String CTX_HOST = "";
@@ -199,7 +198,7 @@ public class CommandContext {
 		this.CTX_LOCAL = context.CTX_LOCAL;
 		this.CTX_OFFLINE = context.CTX_OFFLINE;
 		this.CTX_TIMEOUT = context.CTX_TIMEOUT;
-		this.CTX_KEYNAME = context.CTX_KEYNAME;
+		this.CTX_KEYRES = context.CTX_KEYRES;
 		this.CTX_DISTPATH = context.CTX_DISTPATH;
 		this.CTX_REDISTWIN_PATH = context.CTX_REDISTWIN_PATH;
 		this.CTX_REDISTLINUX_PATH = context.CTX_REDISTLINUX_PATH;
@@ -212,7 +211,6 @@ public class CommandContext {
 		this.CTX_CHECK = context.CTX_CHECK;
 		this.CTX_REPLACE = context.CTX_REPLACE;
 		this.CTX_BACKUP = context.CTX_BACKUP;
-		this.CTX_OBSOLETE = context.CTX_OBSOLETE;
 		this.CTX_CONFDEPLOY = context.CTX_CONFDEPLOY;
 		this.CTX_PARTIALCONF = context.CTX_PARTIALCONF;
 		this.CTX_DEPLOYBINARY = context.CTX_DEPLOYBINARY;
@@ -251,7 +249,7 @@ public class CommandContext {
 		this.CTX_UNIT = context.CTX_UNIT;
 		this.CTX_BUILDINFO = context.CTX_BUILDINFO;
 		this.CTX_HOSTUSER = context.CTX_HOSTUSER;
-		this.CTX_NEWKEY = context.CTX_NEWKEY;
+		this.CTX_NEWKEYRES = context.CTX_NEWKEYRES;
 		this.CTX_BUILDMODE = context.CTX_BUILDMODE;
 		this.CTX_OLDRELEASE = context.CTX_OLDRELEASE;
 		this.CTX_PORT = context.CTX_PORT;
@@ -310,7 +308,7 @@ public class CommandContext {
 		MetaProductCoreSettings core = ( isproduct )? settings.getCoreSettings() : null;
 		CTX_TRACEINTERNAL = ( getFlagValue( "OPT_TRACE" ) && getFlagValue( "OPT_SHOWALL" ) )? true : false;
 		CTX_TRACE = getFlagValue( "OPT_TRACE" );
-		CTX_SHOWONLY = combineValue( "OPT_SHOWONLY" , ( isenv )? env.SHOWONLY : null , def );
+		CTX_SHOWONLY = combineValue( "OPT_SHOWONLY" , ( ( isenv )? env.SHOWONLY : null ) , def );
 		CTX_SHOWALL = getFlagValue( "OPT_SHOWALL" );
 		if( CTX_TRACE )
 			CTX_SHOWALL = true;
@@ -320,18 +318,21 @@ public class CommandContext {
 		CTX_LOCAL = getFlagValue( "OPT_LOCAL" );
 		CTX_OFFLINE = getFlagValue( "OPT_OFFLINE" );
 		CTX_TIMEOUT = getIntParamValue( "OPT_TIMEOUT" , options.optDefaultCommandTimeout ) * 1000;
-		value = getParamValue( "OPT_KEY" ); 
-		CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? env.KEYFILE : "" ) : value;
-		String productValue = ( isproduct )? core.CONFIG_DISTR_PATH : "";
-		CTX_DISTPATH = getParamPathValue( "OPT_DISTPATH" , productValue );
+		value = getParamValue( "OPT_KEY" );
+		CTX_KEYRES = value;
+		if( value.isEmpty() && isenv ) {
+			AuthResource res = env.getEnvKey();
+			CTX_KEYRES = ( res == null )? "" : res.NAME;
+		}
+		
+		CTX_DISTPATH = getParamPathValue( "OPT_DISTPATH" , "" );
 		CTX_REDISTWIN_PATH = ( isproduct )? core.CONFIG_REDISTWIN_PATH : null;
 		if( isenv && !env.REDISTWIN_PATH.isEmpty() )
 			CTX_REDISTWIN_PATH = env.REDISTWIN_PATH;
 		CTX_REDISTLINUX_PATH = ( isproduct )? core.CONFIG_REDISTLINUX_PATH : null;
 		if( isenv && !env.REDISTLINUX_PATH.isEmpty() )
 			CTX_REDISTLINUX_PATH = env.REDISTLINUX_PATH;
-		value = getParamPathValue( "OPT_HIDDENPATH" );
-		CTX_HIDDENPATH = ( value.isEmpty() )? ( ( isenv )? env.CONF_SECRETFILESPATH : "" ) : value;
+		CTX_HIDDENPATH = getParamPathValue( "OPT_HIDDENPATH" );
 		
 		// specific
 		CTX_GET = getFlagValue( "OPT_GET" );
@@ -340,7 +341,6 @@ public class CommandContext {
 		CTX_CHECK = getFlagValue( "OPT_CHECK" , false );
 		CTX_REPLACE = getFlagValue( "OPT_REPLACE" );
 		CTX_BACKUP = combineValue( "OPT_BACKUP" , ( isenv )? env.BACKUP : null , def );
-		CTX_OBSOLETE = combineValue( "OPT_OBSOLETE" , ( isenv )? env.OBSOLETE : null , true );
 		CTX_CONFDEPLOY = combineValue( "OPT_DEPLOYCONF" , ( isenv )? env.CONF_DEPLOY : null , true );
 		CTX_PARTIALCONF = getFlagValue( "OPT_PARTIALCONF" );
 		CTX_DEPLOYBINARY = getFlagValue( "OPT_DEPLOYBINARY" , true );
@@ -359,7 +359,7 @@ public class CommandContext {
 		value = getEnumValue( "OPT_DBMODE" );
 		CTX_DBMODE = ( value.isEmpty() )? SQLMODE.UNKNOWN : SQLMODE.valueOf( value );
 		CTX_DBMOVE = getFlagValue( "OPT_DBMOVE" );
-		CTX_DBAUTH = combineValue( "OPT_DBAUTH" , ( isenv )? env.DB_AUTH : null , false );
+		CTX_DBAUTH = combineValue( "OPT_DBAUTH" , ( isenv )? env.DBAUTH : null , false );
 		CTX_CUMULATIVE = getFlagValue( "OPT_CUMULATIVE" );
 		
 		CTX_DBALIGNED = getParamValue( "OPT_DBALIGNED" );
@@ -381,7 +381,7 @@ public class CommandContext {
 		CTX_UNIT = getParamValue( "OPT_UNIT" );
 		CTX_BUILDINFO = getParamValue( "OPT_BUILDINFO" );
 		CTX_HOSTUSER = getParamValue( "OPT_HOSTUSER" );
-		CTX_NEWKEY = getParamValue( "OPT_NEWKEY" );
+		CTX_NEWKEYRES = getParamValue( "OPT_NEWKEY" );
 		CTX_BUILDMODE = DBEnumBuildModeType.getValue( getParamValue( "OPT_BUILDMODE" ) , false );
 		CTX_OLDRELEASE = getParamValue( "OPT_COMPATIBILITY" );
 		CTX_PORT = getIntParamValue( "OPT_PORT" , -1 );
@@ -403,15 +403,15 @@ public class CommandContext {
 	
 	public void loadEnv( ActionInit action , String ENV , String SG , boolean loadProps ) throws Exception {
 		Meta meta = action.getContextMeta();
-		MetaEnvs envs = meta.getEnviroments();
-		env = envs.findEnv( ENV );
+		ProductEnvs envs = meta.getEnviroments();
+		env = envs.findMetaEnv( ENV );
 		
 		if( SG == null || SG.isEmpty() ) {
 			sg = null;
 			return;
 		}
 		
-		sg = env.getSG( action , SG );
+		sg = env.getSegment( SG );
 		update( action );
 	}
 	
@@ -506,10 +506,17 @@ public class CommandContext {
 		return( options.getIntParamValue( var , defaultValue ) );
 	}
 
-	public boolean combineValue( String var , FLAG confValue , boolean defValue ) throws Exception {
+	public boolean combineValue( String var , Boolean confValue , boolean defValue ) throws Exception {
 		if( !options.isValidVar( var ) )
 			Common.exit1( _Error.UnknownParamVar1 , "unknown param var=" + var , var );
-		return( options.combineValue( var , confValue , defValue ) );
+		FLAG confFlag = FLAG.DEFAULT;
+		if( confValue != null ) {
+			if( confValue.booleanValue() )
+				confFlag = FLAG.YES;
+			else
+				confFlag = FLAG.NO;
+		}
+		return( options.combineValue( var , confFlag, defValue ) );
 	}
 	
 	public int logStartCapture() {

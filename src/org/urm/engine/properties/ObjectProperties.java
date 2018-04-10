@@ -10,19 +10,23 @@ import org.urm.common.RunError;
 import org.urm.db.core.DBEnumInterface;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.core.DBEnums.DBEnumParamRoleType;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 
 public class ObjectProperties {
 
+	public int ownerId;
 	public DBEnumObjectType objectType;				// owner object type
 	public DBEnumObjectVersionType versionType;		// type of module object, owning entity data
 	public DBEnumParamRoleType roleType;
+	
 	private String setName;
 	private RunContext execrc;
 	
 	private ObjectProperties parent;
+	private boolean customDefineAllowed;
 	private boolean loadFailed;
 	private boolean loadFinished;
 	private RunError error;
@@ -40,15 +44,19 @@ public class ObjectProperties {
 		
 		loadFailed = false;
 		loadFinished = false;
+		customDefineAllowed = false;
+		
 		childs = new LinkedList<ObjectProperties>();
 		meta = new ObjectMeta();
 	}
 
 	public ObjectProperties copy( ObjectProperties parent ) {
 		ObjectProperties r = new ObjectProperties( objectType , versionType , roleType , setName , execrc );
+		r.ownerId = ownerId;
 		r.parent = parent;
 		r.loadFailed = loadFailed;
 		r.loadFinished = loadFinished;
+		r.customDefineAllowed = customDefineAllowed;
 		r.error = error;
 		r.meta = meta.copy();
 		
@@ -57,10 +65,29 @@ public class ObjectProperties {
 		return( r );
 	}
 
-	public void create( ObjectProperties parent , PropertyEntity entityFixed , PropertyEntity entityCustom ) throws Exception {
+	public void setOwnerId( int ownerId ) {
+		this.ownerId = ownerId;
+	}
+
+	public void removeChildProperties( ObjectProperties child ) {
+		childs.remove( child );
+	}
+	
+	public void setParentProperties( ObjectProperties parent ) {
+		this.parent = parent;
+		if( parent != null )
+			parent.childs.add( this );
+	}
+	
+	public void create( ObjectProperties parent , PropertyEntity entityFixed , PropertyEntity entityCustom , boolean customDefineAllowed ) throws Exception {
+		create( parent , new PropertyEntity[] { entityFixed } , entityCustom , customDefineAllowed );
+	}
+	
+	public void create( ObjectProperties parent , PropertyEntity[] entitiesFixed , PropertyEntity entityCustom , boolean customDefineAllowed ) throws Exception {
+		this.customDefineAllowed = customDefineAllowed;
 		initCreateStarted( parent );
 		
-		meta.create( entityFixed , entityCustom );
+		meta.create( entitiesFixed , entityCustom );
 		for( EntityVar var : meta.getVars() )
 			createProperty( var );
 		
@@ -95,12 +122,28 @@ public class ObjectProperties {
 		return( parent );
 	}
 
+	public ObjectProperties getTopInherited() {
+		ObjectProperties inherited = this;
+		while( true ) {
+			ObjectProperties inheritedParent = inherited.getParent();
+			if( inheritedParent == null )
+				break;
+			
+			if( inheritedParent.versionType != inherited.versionType )
+				break;
+			
+			inherited = inheritedParent;
+		}
+		
+		return( inherited );
+	}
+	
 	public String getName() {
 		return( setName );
 	}
 	
 	private boolean initCreateStarted( ObjectProperties parent ) {
-		this.parent = parent; 
+		setParentProperties( parent ); 
 		loadFailed = false;
 		loadFinished = false;
 		
@@ -126,29 +169,33 @@ public class ObjectProperties {
 		loadFinished = true;
 	}
 
+	public boolean isCustomDefineAllowed() {
+		return( customDefineAllowed );
+	}
+	
 	public String getPathProperty( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		if( var.isApp() )
 			return( properties.getSystemPathExprProperty( var.NAME , execrc , var.EXPR_DEF , var.REQUIRED ) );
 		return( properties.getPathProperty( var.NAME , var.EXPR_DEF ) );
 	}
 	
 	public int getIntProperty( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		if( var.isApp() )
 			return( properties.getSystemIntExprProperty( var.NAME , var.EXPR_DEF , var.REQUIRED ) );
 		return( properties.getIntProperty( var.NAME , Integer.parseInt( var.EXPR_DEF ) ) );
 	}
 	
 	public boolean getBooleanProperty( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		if( var.isApp() )
 			return( properties.getSystemBooleanExprProperty( var.NAME , var.EXPR_DEF , var.REQUIRED ) );
 		return( properties.getBooleanProperty( var.NAME , Common.getBooleanValue( var.EXPR_DEF ) ) );
 	}
 	
 	public String getStringProperty( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		if( var.isApp() )
 			return( properties.getSystemStringExprProperty( var.NAME , var.EXPR_DEF , var.REQUIRED ) );
 		return( properties.getStringProperty( var.NAME , var.EXPR_DEF ) );
@@ -159,14 +206,14 @@ public class ObjectProperties {
 	}
 	
 	public int getEnumProperty( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		if( var.isApp() )
 			return( properties.getSystemIntExprProperty( var.NAME , var.EXPR_DEF , var.REQUIRED ) );
 		return( properties.getIntProperty( var.NAME , Integer.parseInt( var.EXPR_DEF ) ) );
 	}
 	
 	public Integer getObjectProperty( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		int value = 0;
 		if( var.isApp() )
 			value = properties.getSystemIntExprProperty( var.NAME , var.EXPR_DEF , var.REQUIRED );
@@ -233,7 +280,7 @@ public class ObjectProperties {
 	}
 
 	public void setProperty( String prop , String value ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		properties.setOriginalProperty( var.NAME , var.PARAMVALUE_TYPE , value , var.isApp() , null );
 	}
 
@@ -277,36 +324,36 @@ public class ObjectProperties {
 	}
 
 	public void setManualStringProperty( String prop , String value ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		properties.setManualStringProperty( var.NAME , value );
 	}
 
 	public void setManualIntProperty( String prop , int value ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		properties.setManualNumberProperty( var.NAME , value );
 	}
 
 	public void setManualBooleanProperty( String prop , boolean value ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		properties.setManualBooleanProperty( var.NAME , value );
 	}
 
 	public void setManualUrlProperty( String prop , String value ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		properties.setManualStringProperty( var.NAME , value );
 	}
 
 	public void setManualPathProperty( String prop , String value , ShellExecutor shell ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		properties.setManualPathProperty( var.NAME , value , shell );
 	}
 
 	public String[] getPropertyList() {
-		return( properties.getRunningProperties() );
+		return( properties.getAllPropertyNames() );
 	}
 
 	public String getPropertyValue( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		String value = properties.getPropertyAny( var.NAME );
 		return( getPropertyValue( var , value ) );
 	}
@@ -328,7 +375,7 @@ public class ObjectProperties {
 	}
 	
 	public String getFinalProperty( String prop , Account account , boolean allowParent , boolean allowUnresolved ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		return( properties.getFinalProperty( var.NAME , account , allowParent , allowUnresolved ) );		
 	}
 
@@ -337,13 +384,23 @@ public class ObjectProperties {
 			child.parentPropertiesModified();
 	}
 	
+	public ObjectProperties[] getChildProperties() {
+		return( childs.toArray( new ObjectProperties[0] ) );
+	}
+	
 	public void parentPropertiesModified() throws Exception {
 		recalculateProperties();
 		recalculateChildProperties();
 	}
 
+	public String getExpressionValue( String prop ) throws Exception {
+		EntityVar var = getVar( prop );
+		PropertyValue value = properties.getPropertyValue( var.NAME );
+		return( value.getExpressionValue() );
+	}
+
 	public String getOriginalPropertyValue( String prop ) throws Exception {
-		EntityVar var = meta.getVar( prop );
+		EntityVar var = getVar( prop );
 		PropertyValue value = properties.getPropertyValue( var.NAME );
 		return( value.getOriginalValue() );
 	}
@@ -353,6 +410,17 @@ public class ObjectProperties {
 		return( value.getOriginalValue() );
 	}
 
+	public void clearProperties( DBEnumParamEntityType entityType ) throws Exception {
+		PropertyEntity entity = meta.getEntity( entityType );
+		for( EntityVar var : entity.getVars() )
+			properties.clearProperty( var.NAME );
+	}
+	
+	public void clearProperty( String prop ) throws Exception {
+		EntityVar var = getVar( prop );
+		properties.clearProperty( var.NAME );
+	}
+
 	public EntityVar getVar( int propId ) throws Exception {
 		EntityVar var = meta.findAppVar( propId );
 		if( var != null )
@@ -360,7 +428,8 @@ public class ObjectProperties {
 		
 		ObjectProperties hfind = this;
 		while( hfind != null ) {
-			var = meta.findCustomVar( propId );
+			ObjectMeta metaFind = hfind.getMeta();
+			var = metaFind.findCustomVar( propId );
 			if( var != null ) {
 				if( var.isApp() )
 					Common.exit1( _Error.UnexpectedCustomVar1 , "Unexpected builtin variable name=" + var.NAME  , "" + var.NAME );
@@ -381,7 +450,8 @@ public class ObjectProperties {
 		
 		ObjectProperties hfind = this;
 		while( hfind != null ) {
-			var = meta.findCustomVar( prop );
+			ObjectMeta metaFind = hfind.getMeta();
+			var = metaFind.findCustomVar( prop );
 			if( var != null ) {
 				if( var.isApp() )
 					Common.exit1( _Error.UnexpectedCustomVar1 , "Unexpected builtin variable name=" + var.NAME  , "" + var.NAME );
@@ -391,7 +461,50 @@ public class ObjectProperties {
 			hfind = hfind.parent;
 		}
 		
-		Common.exit1( _Error.UnknownVarName1 , "Unable to find variable id=" + prop , "" + prop );
+		Common.exit1( _Error.UnknownVarName1 , "Unable to find variable name=" + prop , "" + prop );
+		return( null );
+	}
+
+	public ObjectProperties getOwnerObject( String prop ) throws Exception {
+		EntityVar var = meta.findAppVar( prop );
+		if( var != null )
+			return( this );
+		
+		ObjectProperties hfind = this;
+		while( hfind != null ) {
+			ObjectMeta metaFind = hfind.getMeta();
+			var = metaFind.findCustomVar( prop );
+			if( var != null ) {
+				if( var.isApp() )
+					Common.exit1( _Error.UnexpectedCustomVar1 , "Unexpected builtin variable name=" + var.NAME  , "" + var.NAME );
+				return( hfind );
+			}
+			
+			hfind = hfind.parent;
+		}
+		
+		Common.exit1( _Error.UnknownVarName1 , "Unable to find variable name=" + prop , "" + prop );
+		return( null );
+	}
+	
+	public EntityVar findVar( String prop ) {
+		EntityVar var = meta.findAppVar( prop );
+		if( var != null )
+			return( var );
+		
+		ObjectProperties hfind = this;
+		while( hfind != null ) {
+			ObjectMeta metaFind = hfind.getMeta();
+			var = metaFind.findCustomVar( prop );
+			if( var != null ) {
+				if( var.isApp() )
+					return( null );
+				return( var );
+			}
+			
+			hfind = hfind.parent;
+		}
+		
 		return( null );
 	}
 
@@ -420,5 +533,14 @@ public class ObjectProperties {
 	public PropertyValue getProperty( String prop , boolean allowParent , boolean allowUnresolved ) throws Exception {
 		return( properties.getFinalProperty( prop , allowParent , allowUnresolved ) );
 	}
-	
+
+	public void replaceChildsParent( ObjectProperties opsNew ) {
+		for( ObjectProperties opsChild : getChildProperties() ) {
+			ObjectProperties opsParent = opsChild.getParent();
+			if( opsParent != opsNew ) {
+				opsParent.removeChildProperties( opsChild );
+				opsChild.setParentProperties( opsNew );
+			}
+		}
+	}
 }

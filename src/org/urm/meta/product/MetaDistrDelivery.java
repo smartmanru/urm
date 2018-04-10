@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumChangeType;
 
 public class MetaDistrDelivery {
 
@@ -27,6 +28,7 @@ public class MetaDistrDelivery {
 	public boolean SCHEMA_ANY;
 	public boolean DOC_ANY;
 	public int PV;
+	public DBEnumChangeType CHANGETYPE;
 	
 	private Map<String,MetaDistrBinaryItem> mapBinaryItems;
 	private Map<Integer,MetaDistrBinaryItem> mapBinaryItemsById;
@@ -64,6 +66,7 @@ public class MetaDistrDelivery {
 		r.SCHEMA_ANY = SCHEMA_ANY;
 		r.DOC_ANY = DOC_ANY;
 		r.PV = PV;
+		r.CHANGETYPE = CHANGETYPE;
 		
 		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
 			MetaDistrBinaryItem ritem = item.copy( meta , r );
@@ -100,6 +103,18 @@ public class MetaDistrDelivery {
 	}
 	
 	public boolean isEmpty() {
+		if( SCHEMA_ANY ) {
+			MetaDatabase database = meta.getDatabase();
+			if( !database.isEmpty() )
+				return( false );
+		}
+		
+		if( DOC_ANY ) {
+			MetaDocs docs = meta.getDocs();
+			if( !docs.isEmpty() )
+				return( false );
+		}
+		
 		if( mapBinaryItems.isEmpty() && mapConfComps.isEmpty() && mapDatabaseSchema.isEmpty() && mapDocuments.isEmpty() )
 			return( true );
 		return( false );
@@ -221,7 +236,7 @@ public class MetaDistrDelivery {
 	}
 	
 	public MetaProductDoc[] getDocs() {
-		if( SCHEMA_ANY )
+		if( DOC_ANY )
 			return( docs.getDocList() );
 			
 		return( mapDocuments.values().toArray( new MetaProductDoc[0] ) );
@@ -229,6 +244,12 @@ public class MetaDistrDelivery {
 
 	public boolean hasBinaryItems() {
 		if( mapBinaryItems.isEmpty() )
+			return( false );
+		return( true );
+	}
+	
+	public boolean hasConfItems() {
+		if( mapConfComps.isEmpty() )
 			return( false );
 		return( true );
 	}
@@ -241,6 +262,18 @@ public class MetaDistrDelivery {
 		}
 			
 		if( mapDatabaseSchema.isEmpty() )
+			return( false );
+		return( true );
+	}
+
+	public boolean hasDocItems() {
+		if( DOC_ANY ) {
+			if( !docs.isEmpty() )
+				return( true );
+			return( false );
+		}
+			
+		if( mapDocuments.isEmpty() )
 			return( false );
 		return( true );
 	}
@@ -299,7 +332,7 @@ public class MetaDistrDelivery {
 	}
 	
 	public void removeSchema( MetaDatabaseSchema schema ) throws Exception {
-		mapDatabaseSchema.remove( schema.NAME );
+		mapDatabaseSchema.remove( schema.ID );
 	}
 
 	public void setDatabaseAll( boolean all ) throws Exception {

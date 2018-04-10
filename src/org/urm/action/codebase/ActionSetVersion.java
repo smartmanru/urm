@@ -21,32 +21,10 @@ public class ActionSetVersion extends ActionBase {
 		this.BUILDVERSION = BUILDVERSION;
 	}
 
-	private void updateVersion( ActionScopeTarget scopeProject , LocalFolder PATCHPATH ) throws Exception {
-		LocalFolder CODEPATH = PATCHPATH;
-		ProjectBuilder builder = scopeProject.sourceProject.getBuilder( this );
-		String JAVA_HOME = builder .JAVA_JDKHOMEPATH;
-		
-		shell.export( this , "JAVA_HOME" , JAVA_HOME );
-		shell.export( this , "PATH" , "$JAVA_HOME/bin:$PATH" );
-
-		String MAVEN_HOME = builder.BUILDER_HOMEPATH;
-		String MAVEN_CMD = "mvn versions:set -DnewVersion=" + BUILDVERSION;
-
-		shell.export( this , "M2_HOME" , MAVEN_HOME );
-		shell.export( this , "M2" , "$M2_HOME/bin" );
-		shell.export( this , "PATH" , "$M2:$PATH" );
-
-		info( "execute: " + MAVEN_CMD + " ..." );
-		shell.mvnCheckStatus( this , CODEPATH.folderPath , MAVEN_CMD );
-
-		// handle git specifics
-		if( scopeProject.sourceProject.isGitVCS( this ) )
-			shell.gitAddPomFiles( this , CODEPATH.folderPath );
-	}
-	
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
+	@Override 
+	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
 		// ignore if builder is not maven
-		if( !scopeProject.sourceProject.getBuilder( this ).equals( "maven" ) ) {
+		if( !scopeProject.sourceProject.getBuilder( this ).isMaven() ) {
 			info( "project=" + scopeProject.sourceProject.NAME + " is not built by maven. Skipped." );
 			return( SCOPESTATE.NotRun );
 		}
@@ -74,4 +52,28 @@ public class ActionSetVersion extends ActionBase {
 		vcs.commit( scopeProject.sourceProject , BRANCH , PATCHPATH.buildFolder , core.CONFIG_ADM_TRACKER + "-0000: set version " + BUILDVERSION );
 		return( SCOPESTATE.RunSuccess );
 	}
+
+	private void updateVersion( ActionScopeTarget scopeProject , LocalFolder PATCHPATH ) throws Exception {
+		LocalFolder CODEPATH = PATCHPATH;
+		ProjectBuilder builder = scopeProject.sourceProject.getBuilder( this );
+		String JAVA_HOME = builder .JAVA_JDKHOMEPATH;
+		
+		shell.export( this , "JAVA_HOME" , JAVA_HOME );
+		shell.export( this , "PATH" , "$JAVA_HOME/bin:$PATH" );
+
+		String MAVEN_HOME = builder.BUILDER_HOMEPATH;
+		String MAVEN_CMD = "mvn versions:set -DnewVersion=" + BUILDVERSION;
+
+		shell.export( this , "M2_HOME" , MAVEN_HOME );
+		shell.export( this , "M2" , "$M2_HOME/bin" );
+		shell.export( this , "PATH" , "$M2:$PATH" );
+
+		info( "execute: " + MAVEN_CMD + " ..." );
+		shell.mvnCheckStatus( this , CODEPATH.folderPath , MAVEN_CMD );
+
+		// handle git specifics
+		if( scopeProject.sourceProject.isGitVCS( this ) )
+			shell.gitAddPomFiles( this , CODEPATH.folderPath );
+	}
+	
 }

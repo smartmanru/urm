@@ -8,9 +8,9 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.data.EngineMirrors;
 import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AuthResource;
-import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.ProjectBuilder;
 
@@ -55,6 +55,7 @@ public class MetaSourceProject {
 	public boolean CUSTOMBUILD;
 	public boolean CUSTOMGET;
 	public int PV;
+	public DBEnumChangeType CHANGETYPE;
 	
 	List<MetaSourceProjectItem> itemList;
 	Map<String,MetaSourceProjectItem> itemMap;
@@ -92,6 +93,7 @@ public class MetaSourceProject {
 		r.CUSTOMBUILD = CUSTOMBUILD;
 		r.CUSTOMGET = CUSTOMGET;
 		r.PV = PV;
+		r.CHANGETYPE = CHANGETYPE;
 		
 		// project items
 		for( MetaSourceProjectItem item : itemList ) {

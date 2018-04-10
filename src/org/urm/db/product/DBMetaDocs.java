@@ -10,9 +10,9 @@ import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDocs;
@@ -64,17 +64,18 @@ public class DBMetaDocs {
 				entity.importxmlBooleanAttr( root , MetaProductDoc.PROPERTY_UNITBOUND , false )
 				);
 		
-		modifyDoc( c , storage , doc , true );
+		modifyDoc( c , storage , doc , true , DBEnumChangeType.CREATED );
 		return( doc );
 	}
 	
-	private static void modifyDoc( DBConnection c , ProductMeta storage , MetaProductDoc doc , boolean insert ) throws Exception {
+	private static void modifyDoc( DBConnection c , ProductMeta storage , MetaProductDoc doc , boolean insert , DBEnumChangeType type ) throws Exception {
 		if( insert )
-			doc.ID = DBNames.getNameIndex( c , storage.ID , doc.NAME , DBEnumObjectType.META_DOC );
+			doc.ID = DBNames.getNameIndex( c , storage.ID , doc.NAME , DBEnumParamEntityType.PRODUCT_DOC );
 		else
-			DBNames.updateName( c , storage.ID , doc.NAME , doc.ID , DBEnumObjectType.META_DOC );
+			DBNames.updateName( c , storage.ID , doc.NAME , doc.ID , DBEnumParamEntityType.PRODUCT_DOC );
 		
 		doc.PV = c.getNextProductVersion( storage );
+		doc.CHANGETYPE = type;
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaDoc , doc.ID , doc.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -83,7 +84,7 @@ public class DBMetaDocs {
 				EngineDB.getEnum( doc.DOC_CATEGORY ) ,
 				EngineDB.getString( doc.EXT ) ,
 				EngineDB.getBoolean( doc.UNITBOUND )
-				} , insert );
+				} , insert , type );
 	}
 	
 	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
@@ -116,7 +117,7 @@ public class DBMetaDocs {
 		MetaDocs docs = new MetaDocs( storage , storage.meta );
 		storage.setDocs( docs );
 		
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID , new String[] { EngineDB.getInteger( storage.ID ) } );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		try {
 			while( rs.next() ) {
 				MetaProductDoc doc = new MetaProductDoc( storage.meta , docs );
@@ -146,7 +147,7 @@ public class DBMetaDocs {
 		
 		MetaProductDoc doc = new MetaProductDoc( storage.meta , docs );
 		doc.createDoc( name , desc , category , ext , unitbound );
-		modifyDoc( c , storage , doc , true );
+		modifyDoc( c , storage , doc , true , DBEnumChangeType.CREATED );
 		
 		docs.addDoc( doc );
 		return( doc );
@@ -157,7 +158,7 @@ public class DBMetaDocs {
 		DBConnection c = transaction.getConnection();
 		
 		doc.modifyDoc( name , desc , category , ext , unitbound );
-		modifyDoc( c , storage , doc , false );
+		modifyDoc( c , storage , doc , false , DBEnumChangeType.UPDATED );
 		
 		docs.updateDoc( doc );
 	}

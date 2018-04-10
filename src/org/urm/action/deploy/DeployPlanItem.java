@@ -63,7 +63,7 @@ public class DeployPlanItem {
 		
 		if( app ) {
 			executeRedist = false;
-			if( !server.isDatabase() ) {
+			if( !server.isRunDatabase() ) {
 				if( set.sg.plan.redist && execute )
 					executeRedist = true;
 			}

@@ -2,6 +2,9 @@ package org.urm.db;
 
 import java.io.File;
 import java.sql.Connection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Properties;
 
 import org.postgresql.ds.PGConnectionPoolDataSource;
@@ -21,7 +24,7 @@ public class EngineDB {
 	private Engine engine;
 	
 	private PGConnectionPoolDataSource pool;
-	public static int APP_VERSION = 120;
+	public static int APP_VERSION = 1228;
 	
 	public EngineDB( Engine engine ) {
 		this.engine = engine;
@@ -125,6 +128,20 @@ public class EngineDB {
 		return( "'" + value + "'" );
 	}
 
+	public static String getDate( Date value ) {
+		if( value == null )
+			return( "null" );
+		DateFormat format = new SimpleDateFormat( "yyyyMMdd" );
+		String dateString = format.format( value );
+		return( "to_date('" + dateString + "','YYYYMMDD')" );
+	}
+	
+	public static String getLong( Long value ) {
+		if( value == null )
+			return( "null" );
+		return( "" + value );
+	}
+	
 	public static String getBoolean( boolean value ) {
 		return( ( value )? "'yes'" : "'no'" );
 	}
@@ -146,5 +163,5 @@ public class EngineDB {
 	public static String getObject( MetaDatabaseSchema schema ) {
 		return( getObject( Meta.getObject( schema ) ) );
 	}
-	
+
 }

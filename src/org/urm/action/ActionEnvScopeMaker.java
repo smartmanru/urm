@@ -4,11 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.engine.dist.Dist;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvStartGroup;
+import org.urm.meta.release.Release;
 
 public class ActionEnvScopeMaker {
 
@@ -30,41 +31,47 @@ public class ActionEnvScopeMaker {
 		return( scope.isEmpty() );
 	}
 
-	public void addScopeEnvDatabase( Dist dist ) throws Exception {
-		if( dist != null )
-			action.trace( "scope: Env Database Scope, release=" + dist.RELEASEDIR );
+	public void addScopeEnvDatabase( Release release ) throws Exception {
+		if( release != null )
+			action.trace( "scope: Env Database Scope, release=" + release.RELEASEVER );
 		else
 			action.trace( "scope: Env Database Scope" );
 		
-		addEnvDatabaseScope( dist );
+		if( release != null )
+			scope.setReleaseDistScope( release );
+		
+		addEnvDatabaseScope( release );
 	}
 	
-	public void addScopeEnvServers( MetaEnvSegment sg , String[] SERVERS , Dist dist ) throws Exception {
-		if( dist != null )
-			action.trace( "scope: Env Servers Scope, release=" + dist.RELEASEDIR + ", servers=" + Common.getListSet( SERVERS ) );
+	public void addScopeEnvServers( MetaEnvSegment sg , String[] SERVERS , Release release ) throws Exception {
+		if( release != null )
+			action.trace( "scope: Env Servers Scope, release=" + release.RELEASEVER + ", servers=" + Common.getListSet( SERVERS ) );
 		else
 			action.trace( "scope: Env Servers Scope, servers=" + Common.getListSet( SERVERS ) );
 		
 		if( SERVERS == null || SERVERS.length == 0 )
 			action.exit0( _Error.MissingServers0 , "missing items (use \"all\" to reference all items)" );
 		
+		if( release != null )
+			scope.setReleaseDistScope( release );
+		
 		if( SERVERS.length == 1 && SERVERS[0].equals( "all" ) ) {
 			if( sg == null )
-				addScopeEnv( sg , dist );
+				addScopeEnv( sg , release );
 			else
-				addEnvServersScope( sg , null , dist );
+				addEnvServersScope( sg , null , release );
 			return;
 		}
 			
 		if( sg == null )
 			action.exit0( _Error.SegmentUndefined0 , "segment is undefined" );
 		
-		addEnvServersScope( sg , SERVERS , dist );
+		addEnvServersScope( sg , SERVERS , release );
 	}
 
-	public void addScopeEnvServerNodes( MetaEnvSegment sg , String SERVER , String[] NODES , Dist dist ) throws Exception {
-		if( dist != null )
-			action.trace( "scope: Env Server Nodes Scope, release=" + dist.RELEASEDIR + ", server=" + SERVER + ", nodes=" + Common.getListSet( NODES ) );
+	public void addScopeEnvServerNodes( MetaEnvSegment sg , String SERVER , String[] NODES , Release release ) throws Exception {
+		if( release != null )
+			action.trace( "scope: Env Server Nodes Scope, release=" + release.RELEASEVER + ", server=" + SERVER + ", nodes=" + Common.getListSet( NODES ) );
 		else
 			action.trace( "scope: Env Server Nodes Scope, server=" + SERVER + ", nodes=" + Common.getListSet( NODES ) );
 		
@@ -74,10 +81,13 @@ public class ActionEnvScopeMaker {
 		if( NODES == null || NODES.length == 0 )
 			action.exit0( _Error.MissingServerNodes0 , "missing items (use \"all\" to reference all items)" );
 		
+		if( release != null )
+			scope.setReleaseDistScope( release );
+		
 		if( NODES.length == 1 && NODES[0].equals( "all" ) )
-			addEnvServerNodesScope( sg , SERVER , null , dist );
+			addEnvServerNodesScope( sg , SERVER , null , release );
 		else
-			addEnvServerNodesScope( sg , SERVER , NODES , dist );
+			addEnvServerNodesScope( sg , SERVER , NODES , release );
 	}
 
 	public ActionScopeTarget addScopeEnvServerNodes( MetaEnvServer srv , MetaEnvServerNode[] nodes ) throws Exception {
@@ -89,7 +99,7 @@ public class ActionEnvScopeMaker {
 		return( addEnvServerNodesScope( srv.sg , srv , nodes ) );
 	}
 	
-	public void addScopeEnv( MetaEnvSegment sg , Dist dist ) throws Exception {
+	public void addScopeEnv( MetaEnvSegment sg , Release release ) throws Exception {
 		if( env == null )
 			action.exit0( _Error.MissingEnvironment0 , "Missing environment" );
 		
@@ -102,31 +112,34 @@ public class ActionEnvScopeMaker {
 		if( sgMask.isEmpty() )
 			scope.setFullEnv( action , true );
 		
+		if( release != null )
+			scope.setReleaseDistScope( release );
+		
 		for( MetaEnvSegment sgItem : env.getSegments() ) {
 			if( sgMask.isEmpty() || sgItem.NAME.matches( sgMask ) ) {
 				boolean specifiedExplicitly = ( sgMask.isEmpty() )? false : true;
 				ActionScopeSet sset = scope.makeEnvScopeSet( action , env , sgItem , specifiedExplicitly );
-				addEnvServers( sset , null , dist );
+				addEnvServers( sset , null , release );
 			}
 		}
 	}
 
-	private void addEnvServersScope( MetaEnvSegment sg , String[] SERVERS , Dist dist ) throws Exception {
+	private void addEnvServersScope( MetaEnvSegment sg , String[] SERVERS , Release release ) throws Exception {
 		if( ( SERVERS == null || SERVERS.length == 0 ) && 
 			env.getSegmentNames().length == 1 )
 			scope.setFullEnv( action , true );
 			
 		ActionScopeSet sset = scope.makeEnvScopeSet( action , env , sg , true );
-		addEnvServers( sset , SERVERS , dist ); 
+		addEnvServers( sset , SERVERS , release ); 
 	}
 
-	private void addEnvDatabaseScope( Dist dist ) throws Exception {
+	private void addEnvDatabaseScope( Release release ) throws Exception {
 		for( MetaEnvSegment sg : env.getSegments() ) {
 			if( !sg.hasDatabaseServers() )
 				continue;
 			
 			ActionScopeSet sset = scope.makeEnvScopeSet( action , env , sg , false );
-			addEnvDatabases( sset , dist );
+			addEnvDatabases( sset , release );
 		}
 	}
 	
@@ -135,16 +148,16 @@ public class ActionEnvScopeMaker {
 		return( addEnvServer( sset , srv , nodes , true ) );
 	}
 	
-	private void addEnvServerNodesScope( MetaEnvSegment sg , String SERVER , String[] NODES , Dist dist ) throws Exception {
+	private void addEnvServerNodesScope( MetaEnvSegment sg , String SERVER , String[] NODES , Release release ) throws Exception {
 		ActionScopeSet sset = scope.makeEnvScopeSet( action , env , sg , true );
-		MetaEnvServer server = sg.getServer( action , SERVER );
-		addEnvServerNodes( sset , server , NODES , true , dist );
+		MetaEnvServer server = sg.getServer( SERVER );
+		addEnvServerNodes( sset , server , NODES , true , release );
 	}
 
-	public void addEnvServers( ActionScopeSet set , String[] SERVERS , Dist release ) throws Exception {
+	private void addEnvServers( ActionScopeSet set , String[] SERVERS , Release release ) throws Exception {
 		Map<String,MetaEnvServer> releaseServers = null;
 		if( release != null )
-			releaseServers = set.getReleaseServers( action , release );
+			releaseServers = set.getReleaseServers( action );
 	
 		if( SERVERS == null || SERVERS.length == 0 ) {
 			set.setFullContent( true ); 
@@ -160,7 +173,7 @@ public class ActionEnvScopeMaker {
 		
 		Map<String,MetaEnvServer> added = new HashMap<String,MetaEnvServer>();
 		for( String SERVER : SERVERS ) {
-			MetaEnvServer server = set.sg.getServer( action , SERVER );
+			MetaEnvServer server = set.sg.getServer( SERVER );
 			boolean addServer = ( release == null )? true : releaseServers.containsKey( SERVER ); 
 			if( addServer ) {
 				added.put( server.NAME , server );
@@ -171,8 +184,12 @@ public class ActionEnvScopeMaker {
 		}
 	}
 
-	public void addEnvDatabases( ActionScopeSet set , Dist dist ) throws Exception {
-		Map<String,MetaEnvServer> releaseServers = set.getEnvDatabaseServers( action , dist );
+	private void addEnvDatabases( ActionScopeSet set , Release release ) throws Exception {
+		Map<String,MetaEnvServer> servers = null;
+		if( release == null )
+			servers = set.getEnvDatabaseServers( action );
+		else
+			servers = set.getEnvDatabaseReleaseServers( action );
 	
 		if( action.context.CTX_DB.isEmpty() )
 			set.setFullContent( true ); 
@@ -180,10 +197,10 @@ public class ActionEnvScopeMaker {
 			set.setFullContent( false );
 		
 		for( MetaEnvServer server : set.sg.getServers() ) {
-			if( !server.isDatabase() )
+			if( !server.isRunDatabase() )
 				continue;
 			
-			boolean addServer = ( dist == null )? true : releaseServers.containsKey( server.NAME );
+			boolean addServer = ( release == null )? true : servers.containsKey( server.NAME );
 			if( addServer ) {
 				if( action.context.CTX_DB.isEmpty() == false && action.context.CTX_DB.equals( server.NAME ) == false )
 					action.trace( "scope: ignore not-action scope server=" + server.NAME );
@@ -195,7 +212,7 @@ public class ActionEnvScopeMaker {
 		}
 	}
 	
-	public ActionScopeTarget addEnvServer( ActionScopeSet set , MetaEnvServer server , MetaEnvServerNode[] nodes , boolean specifiedExplicitly ) throws Exception {
+	private ActionScopeTarget addEnvServer( ActionScopeSet set , MetaEnvServer server , MetaEnvServerNode[] nodes , boolean specifiedExplicitly ) throws Exception {
 		if( !specifiedExplicitly ) {
 			// check offline or not in given start group
 			if( server.OFFLINE ) {
@@ -206,12 +223,13 @@ public class ActionEnvScopeMaker {
 			}
 			
 			if( !action.context.CTX_STARTGROUP.isEmpty() ) {
-				if( server.startGroup == null ) {
+				MetaEnvStartGroup startGroup = server.getStartGroup();
+				if( startGroup == null ) {
 					action.trace( "scope: ignore non-specified startgroup server=" + server.NAME );
 					return( null );
 				}
 				
-				if( !server.startGroup.NAME.equals( action.context.CTX_STARTGROUP ) ) {
+				if( !startGroup.NAME.equals( action.context.CTX_STARTGROUP ) ) {
 					action.trace( "scope: ignore different startgroup server=" + server.NAME );
 					return( null );
 				}
@@ -224,10 +242,10 @@ public class ActionEnvScopeMaker {
 		return( target );
 	}
 	
-	public ActionScopeTarget addEnvServerNodes( ActionScopeSet set , MetaEnvServer server , String[] NODES , boolean specifiedExplicitly , Dist release ) throws Exception {
+	private ActionScopeTarget addEnvServerNodes( ActionScopeSet set , MetaEnvServer server , String[] NODES , boolean specifiedExplicitly , Release release ) throws Exception {
 		Map<String,MetaEnvServer> releaseServers = null;
 		if( release != null ) {
-			releaseServers = set.getReleaseServers( action , release );
+			releaseServers = set.getReleaseServers( action );
 			if( !releaseServers.containsKey( server.NAME ) ) {
 				action.trace( "scope: ignore non-release server=" + server.NAME );
 				return( null );

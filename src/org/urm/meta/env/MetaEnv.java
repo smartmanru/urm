@@ -5,94 +5,87 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.common.action.CommandOption.FLAG;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.properties.PropertyController;
-import org.urm.engine.properties.PropertySet;
-import org.urm.engine.storage.HiddenFiles;
+import org.urm.db.core.DBEnums.*;
+import org.urm.engine.DataService;
+import org.urm.engine.data.EngineInfrastructure;
+import org.urm.engine.data.EngineResources;
+import org.urm.engine.properties.ObjectProperties;
+import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
+import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.product.MetaProductCoreSettings;
-import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.product._Error;
-import org.urm.meta.Types;
-import org.urm.meta.Types.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
-public class MetaEnv extends PropertyController {
+public class MetaEnv extends EngineObject {
 
-	public Meta meta;
-
-	PropertySet secretProperties;
-	
-	public boolean missingSecretProperties = false; 
-	
-	public int ID;
-	public String NAME;
-	public String BASELINE;
-	public boolean OFFLINE;
-	public String REDISTWIN_PATH;
-	public String REDISTLINUX_PATH;
-	public boolean DISTR_USELOCAL;
-	public String DISTR_HOSTLOGIN;
-	public String DISTR_PATH;
-	public String UPGRADE_PATH;
-	public String CONF_SECRETFILESPATH;
-	public String CHATROOMFILE;
-	public String KEYFILE;
-	public String DB_AUTHFILE;
-	public VarENVTYPE envType;
-	
-	// properties, affecting options
-	public FLAG DB_AUTH;
-	public FLAG OBSOLETE;
-	public FLAG SHOWONLY;
-	public FLAG BACKUP;
-	public FLAG CONF_DEPLOY;
-	public FLAG CONF_KEEPALIVE;
-
-	private List<MetaEnvSegment> originalList;
-	private Map<String,MetaEnvSegment> sgMap;
-
-	// properties
-	public static String PROPERTY_ID = "id";
+	// table properties
+	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_DESC = "desc";
 	public static String PROPERTY_ENVTYPE = "envtype";
 	public static String PROPERTY_BASELINE = "baseenv";
 	public static String PROPERTY_OFFLINE = "offline";
-	public static String PROPERTY_REDISTWIN_PATH = "redist-win-path";
-	public static String PROPERTY_REDISTLINUX_PATH = "redist-linux-path";
-	public static String PROPERTY_DISTR_USELOCAL = "distr-use-local";
+	public static String PROPERTY_ENVKEY = "access";
+	public static String PROPERTY_DISTR_REMOTE = "distr-remote";
 	public static String PROPERTY_DISTR_HOSTLOGIN = "distr-hostlogin";
 	public static String PROPERTY_DISTR_PATH = "distr-path";
-	public static String PROPERTY_UPGRADE_PATH = "upgrade-path";
-	public static String PROPERTY_CONF_SECRETFILESPATH = "secretfiles";
-	public static String PROPERTY_CHATROOMFILE = "chatroomfile";
-	public static String PROPERTY_KEYFILE = "keyfile";
-	public static String PROPERTY_DB_AUTHFILE = "db-authfile";
 	
-	// properties, affecting options
+	// object properties
+	public static String PROPERTY_REDISTWIN_PATH = "redist-win-path";
+	public static String PROPERTY_REDISTLINUX_PATH = "redist-linux-path";
+	public static String PROPERTY_CHATROOM = "chatroom";
+	public static String PROPERTY_DB_AUTHFILE = "db-authfile";
 	public static String PROPERTY_DB_AUTH = "db-auth";
-	public static String PROPERTY_OBSOLETE = "obsolete";
 	public static String PROPERTY_SHOWONLY = "showonly";
 	public static String PROPERTY_BACKUP = "backup";
 	public static String PROPERTY_CONF_DEPLOY = "configuration-deploy";
 	public static String PROPERTY_CONF_KEEPALIVE = "configuration-keepalive";
 
-	public static String ELEMENT_SEGMENT = "segment";
+	public Meta meta;
+	public ProductEnvs envs;
+
+	// table data
+	private ObjectProperties ops;
+	public int ID;
+	public boolean MATCHED;
+	public String NAME;
+	public String DESC;
+	public DBEnumEnvType ENV_TYPE;
+	private MatchItem BASELINE;
+	public boolean OFFLINE;
+	private MatchItem ENVKEY;
+	public boolean DISTR_REMOTE;
+	private MatchItem DISTR_ACCOUNT;
+	public String DISTR_PATH;
+	public int EV;
 	
-	public MetaEnv( ProductMeta storage , MetaProductSettings settings , Meta meta ) {
-		super( storage , null , "env" );
+	// properties
+	public boolean DBAUTH;
+	public boolean SHOWONLY;
+	public boolean BACKUP;
+	public boolean CONF_DEPLOY;
+	public boolean CONF_KEEPALIVE;
+	public String DBAUTH_FILE;
+	public String CHATROOM;
+	public String REDISTWIN_PATH;
+	public String REDISTLINUX_PATH;
+
+	private Map<String,MetaEnvSegment> sgMap;
+	private Map<Integer,MetaEnvSegment> sgMapById;
+
+	public MetaEnv( ProductMeta storage , Meta meta , ProductEnvs envs ) {
+		super( null );
 		this.meta = meta;
-		originalList = new LinkedList<MetaEnvSegment>();
+		this.envs = envs;
+		
+		ID = -1;
+		EV = -1;
+		MATCHED = false;
 		sgMap = new HashMap<String,MetaEnvSegment>();
+		sgMapById = new HashMap<Integer,MetaEnvSegment>();
 	}
 	
 	@Override
@@ -100,255 +93,303 @@ public class MetaEnv extends PropertyController {
 		return( NAME );
 	}
 	
-	@Override
-	public boolean isValid() {
-		if( super.isLoadFailed() )
-			return( false );
-		return( true );
-	}
-	
-	@Override
-	public void scatterProperties( ActionBase action ) throws Exception {
-		NAME = super.getStringPropertyRequired( action , PROPERTY_ID );
-		action.trace( "load properties of env=" + NAME + " ..." );
+	public MetaEnv copy( ProductMeta rstorage , Meta rmeta , ProductEnvs renvs , ObjectProperties rparent ) throws Exception {
+		MetaEnv r = new MetaEnv( rstorage , rmeta , renvs );
 		
-		MetaProductCoreSettings core = meta.getProductCoreSettings();
-		BASELINE = super.getStringProperty( action , PROPERTY_BASELINE );
-		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE , true );
-		REDISTWIN_PATH = super.getPathProperty( action , PROPERTY_REDISTWIN_PATH , core.CONFIG_REDISTWIN_PATH );
-		REDISTLINUX_PATH = super.getPathProperty( action , PROPERTY_REDISTLINUX_PATH , core.CONFIG_REDISTLINUX_PATH );
-		DISTR_USELOCAL = super.getBooleanProperty( action , PROPERTY_DISTR_USELOCAL , true );
-		if( DISTR_USELOCAL )
-			DISTR_HOSTLOGIN = action.context.account.getFullName();
-		else
-			DISTR_HOSTLOGIN = super.getStringProperty( action , PROPERTY_DISTR_HOSTLOGIN , core.CONFIG_DISTR_HOSTLOGIN );
+		r.ops = ops.copy( rparent );
 		
-		DISTR_PATH = super.getPathProperty( action , PROPERTY_DISTR_PATH , core.CONFIG_DISTR_PATH );
-		UPGRADE_PATH = super.getPathProperty( action , PROPERTY_UPGRADE_PATH , core.CONFIG_UPGRADE_PATH );
-		CONF_SECRETFILESPATH = super.getPathProperty( action , PROPERTY_CONF_SECRETFILESPATH );
-		CHATROOMFILE = super.getPathProperty( action , PROPERTY_CHATROOMFILE );
-		KEYFILE = super.getPathProperty( action , PROPERTY_KEYFILE );
-		DB_AUTHFILE = super.getPathProperty( action , PROPERTY_DB_AUTHFILE );
-		String ENVTYPE = super.getStringProperty( action , PROPERTY_ENVTYPE , Common.getEnumLower( VarENVTYPE.DEVELOPMENT ) );
-		envType = Types.getEnvType( ENVTYPE , true );
-
-		// affect runtime options
-		DB_AUTH = super.getOptionProperty( action , PROPERTY_DB_AUTH );
-		OBSOLETE = super.getOptionProperty( action , PROPERTY_OBSOLETE );
-		SHOWONLY = super.getOptionProperty( action , PROPERTY_SHOWONLY );
-		BACKUP = super.getOptionProperty( action , PROPERTY_BACKUP );
-		CONF_DEPLOY = super.getOptionProperty( action , PROPERTY_CONF_DEPLOY );
-		CONF_KEEPALIVE = super.getOptionProperty( action , PROPERTY_CONF_KEEPALIVE );
-		super.finishRawProperties();
+		r.ID = ID;
+		r.NAME = NAME;
+		r.DESC = DESC;
+		r.ENV_TYPE = ENV_TYPE;
+		r.BASELINE = MatchItem.copy( BASELINE );
+		r.OFFLINE = OFFLINE;
+		r.ENVKEY = MatchItem.copy( ENVKEY );
+		r.DISTR_REMOTE = DISTR_REMOTE;
+		r.DISTR_ACCOUNT = MatchItem.copy( DISTR_ACCOUNT );
+		r.DISTR_PATH = DISTR_PATH;
+		r.EV = EV;
+		r.MATCHED = MATCHED;
 		
-		if( !isValid() )
-			action.exit0( _Error.InconsistentVersionAttributes0 , "inconsistent version attributes" );
-	}
-
-	public void createEnv( ActionBase action , String ID , VarENVTYPE envType ) throws Exception {
-		this.NAME = ID;
-		this.envType = envType;
-		createProperties( action );
-	}
-
-	public MetaEnv copy( ActionBase action , Meta meta ) throws Exception {
-		MetaProductSettings product = meta.getProductSettings();
-		MetaEnv r = new MetaEnv( meta.getStorage() , product , meta );
-		r.initCopyStarted( this , null );
-		
-		for( MetaEnvSegment sg : originalList ) {
-			MetaEnvSegment rsg = sg.copy( action , meta , r );
-			r.addSG( rsg );
+		for( MetaEnvSegment sg : sgMap.values() ) {
+			MetaEnvSegment rsg = sg.copy( rmeta , r );
+			r.addSegment( rsg );
 		}
 		
-		r.scatterProperties( action );
-		r.initFinished();
-		action.trace( "copy meta env object, id=" + super.objectId + " to new object id=" + r.objectId );
+		r.scatterExtraProperties();
 		return( r );
 	}
 
-	public boolean isProd() {
-		return( envType == VarENVTYPE.PRODUCTION );
+	public void createSettings( ObjectProperties ops ) throws Exception {
+		this.ops = ops;
 	}
 	
-	public boolean hasBaseline( ActionBase action ) throws Exception {
-		if( BASELINE.isEmpty() )
+	public ObjectProperties getProperties() {
+		return( ops );
+	}
+	
+	public void setMatched( boolean matched ) {
+		this.MATCHED = matched;
+	}
+	
+	public void refreshPrimaryProperties() throws Exception {
+		ops.clearProperties( DBEnumParamEntityType.ENV_PRIMARY );
+		
+		ops.setStringProperty( PROPERTY_NAME , NAME );
+		ops.setStringProperty( PROPERTY_DESC , DESC );
+		ops.setEnumProperty( PROPERTY_ENVTYPE , ENV_TYPE );
+		
+		if( BASELINE != null ) {
+			MetaEnv env = envs.getMetaEnv( BASELINE );
+			ops.setStringProperty( PROPERTY_BASELINE , env.NAME );
+		}
+		
+		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
+		
+		if( ENVKEY != null ) {
+			DataService data = meta.getEngineData();
+			EngineResources resources = data.getResources();
+			AuthResource res = resources.getResource( ENVKEY );
+			ops.setStringProperty( PROPERTY_ENVKEY , res.NAME );
+		}
+		
+		ops.setBooleanProperty( PROPERTY_DISTR_REMOTE , DISTR_REMOTE );
+		if( DISTR_REMOTE ) {
+			DataService data = meta.getEngineData();
+			EngineInfrastructure infra = data.getInfrastructure();
+			HostAccount account = infra.getHostAccount( DISTR_ACCOUNT );
+			ops.setStringProperty( PROPERTY_DISTR_HOSTLOGIN , account.getFinalAccount() );
+			ops.setStringProperty( PROPERTY_DISTR_PATH , DISTR_PATH );
+		}
+	}
+	
+	public void scatterExtraProperties() throws Exception {
+		DBAUTH = ops.getBooleanProperty( PROPERTY_DB_AUTH );
+		SHOWONLY = ops.getBooleanProperty( PROPERTY_SHOWONLY );
+		BACKUP = ops.getBooleanProperty( PROPERTY_BACKUP );
+		CONF_DEPLOY = ops.getBooleanProperty( PROPERTY_CONF_DEPLOY );
+		CONF_KEEPALIVE = ops.getBooleanProperty( PROPERTY_CONF_KEEPALIVE );
+		DBAUTH_FILE = ops.getPathProperty( PROPERTY_DB_AUTHFILE );
+		CHATROOM = ops.getStringProperty( PROPERTY_CHATROOM );
+		REDISTWIN_PATH = ops.getPathProperty( PROPERTY_REDISTWIN_PATH );
+		REDISTLINUX_PATH = ops.getPathProperty( PROPERTY_REDISTLINUX_PATH );
+	}
+
+	public void setEnvPrimary( String name , String desc , DBEnumEnvType type , MatchItem baselineMatchItem , boolean offline , MatchItem envKeyMatchItem , boolean distRemote , MatchItem distAccountMatchItem , String distPath ) throws Exception {
+		NAME = name;
+		DESC = desc;
+		ENV_TYPE = type;
+		BASELINE = MatchItem.copy( baselineMatchItem );
+		OFFLINE = offline;
+		ENVKEY = MatchItem.copy( envKeyMatchItem );
+		DISTR_REMOTE = distRemote;
+		DISTR_ACCOUNT = MatchItem.copy( distAccountMatchItem );
+		DISTR_PATH = distPath;
+	}
+
+	public void refreshProperties() throws Exception {
+		refreshPrimaryProperties();
+		for( MetaEnvSegment sg : sgMap.values() )
+			sg.refreshProperties();
+	}
+	
+	public boolean isProd() {
+		return( ENV_TYPE == DBEnumEnvType.PRODUCTION );
+	}
+	
+	public boolean hasBaseline() {
+		if( BASELINE == null )
 			return( false );
 		return( true );
 	}
 	
-	public String getBaselineEnv( ActionBase action ) throws Exception {
-		return( BASELINE );
+	public MetaEnv getBaseline() throws Exception {
+		MetaEnv env = envs.getMetaEnv( BASELINE );
+		return( env );
 	}
 	
-	public String getBaselineFile( ActionBase action ) throws Exception {
-		return( BASELINE + ".xml" );
-	}
-	
-	public void load( ActionBase action , Node root ) throws Exception {
-		secretProperties = new PropertySet( "secret" , null );
-		if( !super.initCreateStarted( secretProperties ) )
-			return;
-
-		loadProperties( action , root );
-		loadSegments( action , root );
-		resolveLinks( action );
-		
-		super.initFinished();
-	}
-	
-	private void loadProperties( ActionBase action , Node node ) throws Exception {
-		super.loadFromNodeAttributes( action , node , false );
-		
-		CONF_SECRETFILESPATH = super.getPathProperty( action , PROPERTY_CONF_SECRETFILESPATH );
-		
-		HiddenFiles hidden = action.artefactory.getHiddenFiles( meta );
-		String propFile = hidden.getSecretPropertyFile( action , CONF_SECRETFILESPATH );
-		
-		missingSecretProperties = false;
-		if( !propFile.isEmpty() ) {
-			if( !action.shell.checkFileExists( action , propFile ) )
-				missingSecretProperties = true;
-		}
-			
-		scatterProperties( action );
-		if( !missingSecretProperties )
-			loadSecretProperties( action );
-		
-		super.loadFromNodeElements( action , node , true );
-		super.resolveRawProperties();
-	}
-
-	private void loadSecretProperties( ActionBase action ) throws Exception {
-		HiddenFiles hidden = action.artefactory.getHiddenFiles( meta );
-		String propFile = hidden.getSecretPropertyFile( action , CONF_SECRETFILESPATH );
-		if( propFile.isEmpty() )
-			return;
-		
-		secretProperties.loadFromPropertyFile( propFile , action.session.execrc , true );
-		secretProperties.resolveRawProperties();
-	}
-	
-	private void createProperties( ActionBase action ) throws Exception {
-		secretProperties = new PropertySet( "secret" , null );
-		if( !super.initCreateStarted( secretProperties ) )
-			return;
-
-		super.setStringProperty( PROPERTY_ID , NAME );
-		super.setStringProperty( PROPERTY_ENVTYPE , Common.getEnumLower( envType ) );
-		super.finishProperties( action );
-		super.initFinished();
-		
-		scatterProperties( action );
-	}
-	
-	private void loadSegments( ActionBase action , Node node ) throws Exception {
-		Node[] items = ConfReader.xmlGetChildren( node , ELEMENT_SEGMENT );
-		if( items == null )
-			return;
-
-		for( Node sgnode : items ) {
-			MetaEnvSegment sg = new MetaEnvSegment( meta , this );
-			sg.load( action , sgnode );
-			addSG( sg );
-		}
-	}
-
-	private void addSG( MetaEnvSegment sg ) {
-		originalList.add( sg );
+	public void addSegment( MetaEnvSegment sg ) {
 		sgMap.put( sg.NAME , sg );
+		sgMapById.put( sg.ID , sg );
 	}
 	
-	private void resolveLinks( ActionBase action ) throws Exception {
-		for( MetaEnvSegment sg : originalList )
-			sg.resolveLinks( action );
+	public void updateSegment( MetaEnvSegment sg ) throws Exception {
+		Common.changeMapKey( sgMap , sg , sg.NAME );
 	}
 	
 	public MetaEnvSegment findSegment( String name ) {
 		return( sgMap.get( name ) );
 	}
 
-	public MetaEnvSegment getSG( ActionBase action , String name ) throws Exception {
+	public MetaEnvSegment findSegment( int id ) {
+		return( sgMapById.get( id ) );
+	}
+
+	public MetaEnvSegment getSegment( String name ) throws Exception {
 		MetaEnvSegment sg = sgMap.get( name );
 		if( sg == null )
-			action.exit1( _Error.UnknownSegment1 , "unknown segment=" + name , name );
+			Common.exit1( _Error.UnknownSegment1 , "unknown segment=" + name , name );
 		return( sg );
 	}
 
+	public MetaEnvSegment getSegment( int id ) throws Exception {
+		MetaEnvSegment sg = sgMapById.get( id );
+		if( sg == null )
+			Common.exit1( _Error.UnknownSegment1 , "unknown segment=" + id , "" + id );
+		return( sg );
+	}
+
+	public MetaEnvSegment getSegment( MatchItem segment ) throws Exception {
+		if( segment == null )
+			return( null );
+		if( segment.MATCHED )
+			return( getSegment( segment.FKID ) );
+		return( getSegment( segment.FKNAME ) );
+	}
+	
+	public String getSegmentName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaEnvSegment sg = getSegment( item );
+		return( sg.NAME );
+	}
+	
 	public String[] getSegmentNames() {
 		return( Common.getSortedKeys( sgMap ) );
 	}
 	
 	public MetaEnvSegment[] getSegments() {
-		return( originalList.toArray( new MetaEnvSegment[0] ) );
-	}
-	
-	public boolean isMultiSG( ActionBase action ) throws Exception {
-		return( originalList.size() > 1 );
-	}
-	
-	public MetaEnvSegment getMainSG( ActionBase action ) throws Exception {
-		if( originalList.size() == 0 )
-			action.exit0( _Error.NoSegmentDefined0 , "no segment defined" );
-		if( originalList.size() > 1 )
-			action.exitUnexpectedState();
-		return( originalList.get( 0 ) );
-	}
-	
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		super.saveSplit( doc , root );
-		for( MetaEnvSegment sg : originalList ) {
-			Element sgElement = Common.xmlCreateElement( doc , root , ELEMENT_SEGMENT );
-			sg.save( action , doc , sgElement );
+		List<MetaEnvSegment> list = new LinkedList<MetaEnvSegment>();
+		for( String name : Common.getSortedKeys( sgMap ) ) {
+			MetaEnvSegment sg = sgMap.get( name );
+			list.add( sg );
 		}
+		return( list.toArray( new MetaEnvSegment[0] ) );
 	}
 	
-	public void createSegment( EngineTransaction transaction , MetaEnvSegment sg ) {
-		addSG( sg );
+	public boolean isMultiSegment() throws Exception {
+		return( sgMap.size() > 1 );
 	}
 	
-	public void deleteSegment( EngineTransaction transaction , MetaEnvSegment sg ) {
-		int index = originalList.indexOf( sg );
-		if( index < 0 )
-			return;
-		
-		originalList.remove( index );
+	public MetaEnvSegment getMainSegment() throws Exception {
+		if( sgMap.isEmpty() )
+			Common.exit0( _Error.NoSegmentDefined0 , "no segment defined" );
+		if( sgMap.size() > 1 )
+			Common.exitUnexpected();
+		for( MetaEnvSegment sg : sgMap.values() )
+			return( sg );
+		return( null );
+	}
+	
+	public void removeSegment( MetaEnvSegment sg ) {
 		sgMap.remove( sg.NAME );
 	}
 	
-	public void setProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
-		super.updateProperties( transaction , props , system );
-		scatterProperties( transaction.getAction() );
+	public void setBaseline( MatchItem envMatchItem ) throws Exception {
+		this.BASELINE = MatchItem.copy( envMatchItem );
+		refreshPrimaryProperties();
 	}
 	
-	public void setBaseline( EngineTransaction transaction , String baselineEnv ) throws Exception {
-		super.setSystemStringProperty( PROPERTY_BASELINE , baselineEnv );
+	public void setOffline( boolean offline ) throws Exception {
+		this.OFFLINE = offline;
+		refreshPrimaryProperties();
 	}
 	
-	public void setOffline( EngineTransaction transaction , boolean offline ) throws Exception {
-		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
-	}
-	
-	public boolean isBroken() {
-		return( super.isLoadFailed() );
-	}
-
 	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
-		for( MetaEnvSegment sg : originalList )
+		for( MetaEnvSegment sg : sgMap.values() )
 			sg.getApplicationReferences( account , refs );
 	}
 
-	public void deleteHostAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
-		for( MetaEnvSegment sg : originalList )
-			sg.deleteHostAccount( transaction , account );
-	}
-
-	public boolean isConfUsed( MetaDistrConfItem item ) {
-		for( MetaEnvSegment sg : originalList ) {
+	public boolean isConfUsed( MetaDistrConfItem item ) throws Exception {
+		for( MetaEnvSegment sg : sgMap.values() ) {
 			if( sg.isConfUsed( item ) )
 				return( true );
 		}
 		return( false );
+	}
+
+	public MatchItem getBaselineMatchItem() {
+		return( BASELINE );
+	}
+	
+	public MatchItem getEnvKeyMatchItem() {
+		return( ENVKEY );
+	}
+
+	public AuthResource getEnvKey() throws Exception {
+		if( ENVKEY == null )
+			return( null );
+		DataService data = meta.getEngineData();
+		EngineResources resources = data.getResources();
+		return( resources.getResource( ENVKEY ) );
+	}
+	
+	public HostAccount getDistrAccount() throws Exception {
+		if( DISTR_ACCOUNT == null )
+			return( null );
+		DataService data = meta.getEngineData();
+		EngineInfrastructure infra = data.getInfrastructure();
+		return( infra.getHostAccount( DISTR_ACCOUNT ) );
+	}
+	
+	public MatchItem getDistrAccountMatchItem() {
+		return( DISTR_ACCOUNT );
+	}
+	
+	public boolean checkMatched() {
+		if( !MatchItem.isMatched( BASELINE ) )
+			return( false );
+		if( !MatchItem.isMatched( ENVKEY ) )
+			return( false );
+		if( !MatchItem.isMatched( DISTR_ACCOUNT ) )
+			return( false );
+		
+		for( MetaEnvSegment sg : sgMap.values() ) {
+			if( !sg.checkMatched() )
+				return( false );
+		}
+		return( true );
+	}
+
+	public void copyResolveExternals() throws Exception {
+		if( BASELINE != null ) {
+			MetaEnv env = getBaseline();
+			if( env == null )
+				Common.exitUnexpected();
+			
+			BASELINE.match( env.ID );
+		}
+		
+		refreshPrimaryProperties();
+		ops.recalculateProperties();
+		
+		scatterExtraProperties();
+		
+		for( MetaEnvSegment sg : sgMap.values() )
+			sg.copyResolveExternals();
+	}
+
+	public MetaEnvStartGroup getStartGroup( int id ) throws Exception {
+		for( MetaEnvSegment sg : sgMap.values() ) {
+			MetaEnvStartInfo startInfo = sg.getStartInfo();
+			MetaEnvStartGroup startGroup = startInfo.findStartGroup( id );
+			if( startGroup != null )
+				return( startGroup );
+		}
+		
+		Common.exitUnexpected();
+		return( null );
+	}
+	
+	public MetaEnvServer getServer( int id ) throws Exception {
+		for( MetaEnvSegment sg : sgMap.values() ) {
+			MetaEnvServer server = sg.findServer( id );
+			if( server != null )
+				return( server );
+		}
+		
+		Common.exitUnexpected();
+		return( null );
 	}
 	
 }

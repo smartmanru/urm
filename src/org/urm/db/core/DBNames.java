@@ -31,7 +31,7 @@ public abstract class DBNames {
 		ResultSet rs = c.query( DBQueries.QUERY_NAMES_GETALL0 );
 		try {
 			while( rs.next() ) {
-				String key = rs.getInt( 1 ) + "::" + rs.getString( 2 ) + "::" + rs.getString( 3 );
+				String key = rs.getInt( 1 ) + "::" + rs.getInt( 2 ) + "::" + rs.getString( 3 );
 				int value = rs.getInt( 4 );
 				map.put( key ,  value );
 			}
@@ -41,14 +41,7 @@ public abstract class DBNames {
 		}
 	}
 	
-	public static int getNextSequenceValue( DBConnection c ) throws Exception {
-		String value = c.queryValue( DBQueries.QUERY_SEQ_GETNEXTVAL0 );
-		if( value == null )
-			Common.exitUnexpected();
-		return( Integer.parseInt( value ) );
-	}
-	
-	public synchronized static int getNameIndex( DBConnection c , int parent , String name , DBEnumObjectType type ) throws Exception {
+	public synchronized static int getNameIndex( DBConnection c , int parent , String name , DBEnumParamEntityType type ) throws Exception {
 		if( name == null || name.isEmpty() )
 			Common.exit1( _Error.UnexpectedNameNull1 , "Unexpected empty name, object type=" + type.name() , type.name() );
 			
@@ -57,7 +50,7 @@ public abstract class DBNames {
 		if( value != null && value > 0 )
 			return( value );
 			
-		int valueSeq = getNextSequenceValue( c );
+		int valueSeq = c.getNextSequenceValue();
 		if( !c.modify( DBQueries.MODIFY_NAMES_MERGEITEM4 , new String[] { "" + parent , "" + type.code() , EngineDB.getString( name ) , "" + valueSeq } ) )
 			Common.exitUnexpected();
 				
@@ -65,7 +58,7 @@ public abstract class DBNames {
 		return( valueSeq );
 	}
 	
-	public synchronized static void updateName( DBConnection c , int parent , String name , int id , DBEnumObjectType type ) throws Exception {
+	public synchronized static void updateName( DBConnection c , int parent , String name , int id , DBEnumParamEntityType type ) throws Exception {
 		// update name
 		String key = parent + "::" + type.code() + "::" + name;
 		Integer value = map.get( key );

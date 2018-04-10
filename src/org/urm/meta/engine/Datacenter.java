@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.data.EngineInfrastructure;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineObject;
 
@@ -14,7 +15,7 @@ public class Datacenter extends EngineObject {
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
 	
-	EngineInfrastructure infra;
+	public EngineInfrastructure infra;
 	
 	public int ID;
 	public String NAME;
@@ -103,7 +104,7 @@ public class Datacenter extends EngineObject {
 		if( hostLogin.isEmpty() )
 			return( null );
 		
-		Account account = Account.getDatacenterAccount( NAME , hostLogin );
+		Account account = Account.getDatacenterAccount( this , NAME , hostLogin );
 		return( findNetworkByHost( account.HOST ) );
 	}
 
@@ -111,7 +112,7 @@ public class Datacenter extends EngineObject {
 		if( hostName.isEmpty() )
 			return( null );
 		
-		Account account = Account.getDatacenterAccount( NAME , "ignore@" + hostName );
+		Account account = Account.getDatacenterAccount( this , NAME , "ignore@" + hostName );
 		if( account.isHostName() ) {
 			NetworkHost host = findNetworkHost( account.HOST );
 			if( host != null )
@@ -128,16 +129,16 @@ public class Datacenter extends EngineObject {
 		return( null );
 	}
 
-	public HostAccount getFinalAccount( String hostLogin ) throws Exception {
-		HostAccount account = findFinalAccount( hostLogin );
+	public HostAccount getAccountByFinal( String hostLogin ) throws Exception {
+		HostAccount account = findAccountByFinal( hostLogin );
 		if( account == null )
 			Common.exit1( _Error.UnknownHostAccount1 , "Unknown host account: " + hostLogin , hostLogin );
 		return( account );
 	}
 	
-	public HostAccount findFinalAccount( String hostLogin ) {
+	public HostAccount findAccountByFinal( String hostLogin ) {
 		for( Network network : mapNetworks.values() ) {
-			HostAccount account = network.findFinalAccount( hostLogin );
+			HostAccount account = network.findAccountByFinal( hostLogin );
 			if( account != null )
 				return( account );
 		}

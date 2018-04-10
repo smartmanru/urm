@@ -7,8 +7,10 @@ import org.urm.action.ActionBase;
 import org.urm.action.monitor.ActionMonitorTarget;
 import org.urm.action.monitor.MonitorTargetInfo;
 import org.urm.action.monitor.MonitorTop;
-import org.urm.engine.schedule.EngineScheduler;
-import org.urm.engine.schedule.EngineScheduler.ScheduleTaskCategory;
+import org.urm.engine.ScheduleService;
+import org.urm.engine.ScheduleService.ScheduleTaskCategory;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.data.EngineMonitoring;
 import org.urm.engine.schedule.ScheduleTask;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
@@ -50,7 +52,7 @@ public class MonitoringProduct {
 	};
 	
 	EngineMonitoring monitoring;
-	MetaMonitoring meta;
+	public MetaMonitoring meta;
 	Integer productId;
 	Map<Integer,ActionMonitorTarget> targets;
 	
@@ -89,8 +91,8 @@ public class MonitoringProduct {
 	private void stopTarget( ActionBase action , ActionMonitorTarget targetAction ) throws Exception {
 		targetAction.stop();
 		
-		MetaEnvSegment sg = targetAction.target.findSegment();
-		EngineScheduler scheduler = action.getServerScheduler();
+		MetaEnvSegment sg = targetAction.target.getSegment();
+		ScheduleService scheduler = action.getServerScheduler();
 		String sgName = sg.meta.name + "-" + sg.env.NAME + sg.NAME;
 		
 		String codeMajor = sgName + "-major";
@@ -109,7 +111,7 @@ public class MonitoringProduct {
 	}
 	
 	private void startTarget( ActionBase action , MetaMonitoringTarget target ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
+		MetaEnvSegment sg = target.getSegment();
 		if( action.isSegmentOffline( sg ) )
 			return;
 	
@@ -123,7 +125,7 @@ public class MonitoringProduct {
 		
 		targetAction.start();
 		
-		EngineScheduler scheduler = action.getServerScheduler();
+		ScheduleService scheduler = action.getServerScheduler();
 		String sgName = sg.meta.name + "-" + sg.env.NAME + sg.NAME;
 		
 		if( target.MAJOR_ENABLED ) {
@@ -148,7 +150,7 @@ public class MonitoringProduct {
 	private boolean createFolders( ActionBase action ) {
 		MetaProductCoreSettings core = meta.meta.getProductCoreSettings();
 		if( !core.isValidMonitoringSettings() ) {
-			action.error( "monitoring is forced off because monitoring folders are not ready, check settings" );
+			action.error( "monitoring is forced off because monitoring folders are not ready, check settings, product=" + meta.meta.name );
 			return( false );
 		}
 		

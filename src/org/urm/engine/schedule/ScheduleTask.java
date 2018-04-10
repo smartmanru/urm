@@ -2,7 +2,7 @@ package org.urm.engine.schedule;
 
 import java.util.Date;
 
-import org.urm.engine.EngineExecutorTask;
+import org.urm.engine.run.EngineExecutorTask;
 
 abstract public class ScheduleTask extends EngineExecutorTask {
 
@@ -46,6 +46,14 @@ abstract public class ScheduleTask extends EngineExecutorTask {
 
 	public void setStopped() {
 		stopped = true;
+	}
+
+	public Date getFirstStart() {
+		return( schedule.getFirstStart() );		
+	}
+
+	public Date getNextStart() {
+		return( schedule.getNextStart( lastStarted , lastFinished ) );
 	}
 	
 }

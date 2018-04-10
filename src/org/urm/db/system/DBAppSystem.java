@@ -11,17 +11,17 @@ import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
-import org.urm.db.core.DBEnums.DBEnumObjectType;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.db.DBQueries;
-import org.urm.engine.properties.EngineEntities;
-import org.urm.engine.properties.ObjectMeta;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.data.EngineSettings;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppSystem;
-import org.urm.meta.engine.EngineDirectory;
-import org.urm.meta.engine.EngineSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -41,7 +41,8 @@ public abstract class DBAppSystem {
 				);
 		system.setOffline( ConfReader.getBooleanAttrValue( node , AppSystem.PROPERTY_OFFLINE , true ) );
 		modifySystem( c , system , true );
-		DBSettings.importxml( loader , node , props , system.ID , system.ID , false , true , system.SV );
+		props.setOwnerId( system.ID );
+		DBSettings.importxml( loader , node , props , false , true , system.SV );
 		
 		return( system );
 	}
@@ -75,6 +76,8 @@ public abstract class DBAppSystem {
 						);
 				system.setOffline( entity.loaddbBoolean( rs , AppSystem.PROPERTY_OFFLINE ) );
 				system.setMatched( entity.loaddbBoolean( rs , AppSystem.PROPERTY_MATCHED ) );
+				
+				props.setOwnerId( system.ID );
 				systems.add( system );
 			}
 		}
@@ -84,10 +87,9 @@ public abstract class DBAppSystem {
 
 		for( AppSystem system : systems ) {
 			ObjectProperties props = system.getParameters();
-			ObjectMeta meta = props.getMeta();
-			
-			DBSettings.loaddbEntity( c , meta.getCustomEntity() , system.ID );
-			DBSettings.loaddbValues( loader , system.ID , props , false );
+			DBSettings.loaddbCustomEntity( c , props , false );
+			props.createCustom();
+			DBSettings.loaddbValues( loader , props );
 		}
 		
 		return( systems.toArray( new AppSystem[0] ) );
@@ -95,9 +97,9 @@ public abstract class DBAppSystem {
 	
 	public static void modifySystem( DBConnection c , AppSystem system , boolean insert ) throws Exception {
 		if( insert )
-			system.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , system.NAME , DBEnumObjectType.APPSYSTEM );
+			system.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , system.NAME , DBEnumParamEntityType.APPSYSTEM );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , system.NAME , system.ID , DBEnumObjectType.APPSYSTEM );
+			DBNames.updateName( c , DBVersions.CORE_ID , system.NAME , system.ID , DBEnumParamEntityType.APPSYSTEM );
 		
 		system.SV = c.getNextSystemVersion( system );
 		EngineEntities entities = c.getEntities();
@@ -131,6 +133,15 @@ public abstract class DBAppSystem {
 				EngineDB.getInteger( system.SV ) 
 				} ) )
 			Common.exitUnexpected();
+	}
+	
+	public static void updateCustomProperties( EngineTransaction transaction , AppSystem system ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		ObjectProperties ops = system.getParameters();
+		int version = c.getNextSystemVersion( system );
+		DBSettings.savedbPropertyValues( transaction , ops , false , true , version );
+		ops.recalculateChildProperties();
 	}
 	
 }

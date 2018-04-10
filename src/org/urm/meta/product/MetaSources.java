@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
+import org.urm.meta.MatchItem;
 
 public class MetaSources {
 
@@ -148,6 +149,21 @@ public class MetaSources {
 		return( set );
 	}
 	
+	public MetaSourceProjectSet findProjectSet( MatchItem item ) {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( setMapById.get( item.FKID ) );
+		return( setMap.get( item.FKNAME ) );
+	}
+	
+	public String findProjectSetName( MatchItem item ) {
+		MetaSourceProjectSet set = findProjectSet( item );
+		if( item == null )
+			return( null );
+		return( set.NAME );
+	}
+	
 	public MetaSourceProjectSet getProjectSet( String name ) throws Exception {
 		MetaSourceProjectSet set = setMap.get( name );
 		if( set == null )
@@ -156,6 +172,15 @@ public class MetaSources {
 		return( set );
 	}
 
+	public String getProjectSetName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaSourceProjectSet set = findProjectSet( item );
+		if( set == null )
+			Common.exitUnexpected();
+		return( set.NAME );
+	}
+	
 	public MetaSourceProjectSet getProjectSet( int id ) throws Exception {
 		MetaSourceProjectSet set = setMapById.get( id );
 		if( set == null )
@@ -167,6 +192,21 @@ public class MetaSources {
 	public MetaSourceProject findProject( String name ) {
 		MetaSourceProject project = projectMap.get( name );
 		return( project );
+	}
+
+	public MetaSourceProject findProject( MatchItem item ) {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( projectMapById.get( item.FKID ) );
+		return( projectMap.get( item.FKNAME ) );
+	}
+	
+	public String findProjectName( MatchItem item ) {
+		MetaSourceProject project = findProject( item );
+		if( item == null )
+			return( null );
+		return( project.NAME );
 	}
 	
 	public MetaSourceProject getProject( String name ) throws Exception {
@@ -185,6 +225,15 @@ public class MetaSources {
 		return( project );
 	}
 
+	public String getProjectName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaSourceProject project = findProject( item );
+		if( project == null )
+			Common.exitUnexpected();
+		return( project.NAME );
+	}
+	
 	public String[] getProjectNames() {
 		return( Common.getSortedKeys( projectMap ) );
 	}
@@ -234,6 +283,22 @@ public class MetaSources {
 		if( projectMap.isEmpty() )
 			return( false );
 		return( true );
+	}
+
+	public MatchItem getProjectSetMatchItem( Integer id , String name ) throws Exception {
+		if( id == null && name.isEmpty() )
+			return( null );
+		MetaSourceProjectSet set = ( id == null )? findProjectSet( name ) : getProjectSet( id );
+		MatchItem match = ( set == null )? new MatchItem( name ) : new MatchItem( set.ID );
+		return( match );
+	}
+	
+	public MatchItem getProjectMatchItem( Integer id , String name ) throws Exception {
+		if( id == null && name.isEmpty() )
+			return( null );
+		MetaSourceProject project = ( id == null )? findProject( name ) : getProject( id );
+		MatchItem match = ( project == null )? new MatchItem( name ) : new MatchItem( project.ID );
+		return( match );
 	}
 	
 }

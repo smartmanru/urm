@@ -1,6 +1,7 @@
 package org.urm.meta.engine;
 
 import org.urm.common.Common;
+import org.urm.engine.AuthService;
 
 public class AuthUser {
 
@@ -11,7 +12,7 @@ public class AuthUser {
 	public static String PROPERTY_ADMIN = "admin";
 	public static String PROPERTY_LOCAL = "local";
 	
-	EngineAuth auth;
+	AuthService auth;
 	
 	public int ID;
 	public String NAME;
@@ -22,7 +23,7 @@ public class AuthUser {
 	public boolean LOCAL;
 	public int UV;
 	
-	public AuthUser( EngineAuth auth ) {
+	public AuthUser( AuthService auth ) {
 		this.auth = auth;
 	}
 

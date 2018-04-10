@@ -1,12 +1,16 @@
 package org.urm.action.codebase;
 
-import org.urm.engine.dist.ReleaseTarget;
+import org.urm.engine.dist.ReleaseBuildScopeProject;
+import org.urm.engine.dist.ReleaseDistScopeDelivery;
+import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
 
 public class BuildPlanItem {
 	
 	public BuildPlanSet set;
 	public int pos;
-	public ReleaseTarget target;
+	public ReleaseBuildScopeProject buildTarget;
+	public ReleaseDistScopeDelivery distTarget;
+	public ReleaseDistScopeDeliveryItem distItem;
 	public String key;
 	public String dbVersion;
 	
@@ -25,10 +29,9 @@ public class BuildPlanItem {
 	public boolean noBuild;
 	public boolean noGet;
 	
-	public BuildPlanItem( BuildPlanSet set , ReleaseTarget target , int pos , String key ) {
+	public BuildPlanItem( BuildPlanSet set , int pos , String key ) {
 		this.set = set;
 		this.pos = pos;
-		this.target = target;
 		this.key = key;
 		
 		execute = true;
@@ -44,6 +47,18 @@ public class BuildPlanItem {
 		noBuild = false;
 		noGet = false;
 	}
+
+	public void createProject( ReleaseBuildScopeProject target ) {
+		this.buildTarget = target;
+	}
+	
+	public void createDelivery( ReleaseDistScopeDelivery target ) {
+		this.distTarget = target;
+	}
+	
+	public void createDeliveryItem( ReleaseDistScopeDeliveryItem target ) {
+		this.distItem = target;
+	}
 	
 	public void createDatabase( String dbVersion ) {
 		this.dbVersion = dbVersion;
@@ -55,8 +70,10 @@ public class BuildPlanItem {
 	
 	public void setExecute( boolean execute ) {
 		this.execute = execute;
-		executeBuild = ( execute && target.isBuildableProject() )? true : false;
-		boolean canGet = ( target.isProjectTarget() )? ( ( target.isEmpty() )? false : true ) : true;
+		executeBuild = ( execute && buildTarget != null && buildTarget.project.isBuildable() )? true : false;
+		boolean canGet = false;
+		if( buildTarget != null && !buildTarget.isEmpty() )
+			canGet = true;
 		executeGet = ( canGet && execute )? true : false;
 	}
 

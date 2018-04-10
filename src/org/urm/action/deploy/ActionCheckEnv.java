@@ -8,15 +8,17 @@ import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.database.DatabaseClient;
 import org.urm.common.Common;
 import org.urm.common.SimpleHttp;
-import org.urm.engine.status.EngineStatus;
+import org.urm.engine.StateService;
 import org.urm.engine.status.NodeStatus;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.SegmentStatus;
 import org.urm.engine.status.ServerStatus;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.Types.*;
 
@@ -46,7 +48,7 @@ public class ActionCheckEnv extends ActionBase {
 	@Override protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
 		// check all processes
 		infoAction( "check environment=" + context.env.NAME + " ..." );
-		EngineStatus status = super.getServerStatus();
+		StateService status = super.getServerStatus();
 		status.updateRunTime( this , scope.env );
 	}
 
@@ -62,7 +64,7 @@ public class ActionCheckEnv extends ActionBase {
 		else {
 			infoAction( "total status is " + value );
 		}
-		EngineStatus status = super.getServerStatus();
+		StateService status = super.getServerStatus();
 		status.finishUpdate( this , scope.env );
 	}
 	
@@ -70,7 +72,7 @@ public class ActionCheckEnv extends ActionBase {
 		sgStatus = new SegmentStatus( set.sg );
 		sgCaptureIndex = super.logStartCapture();
 		info( "execute segment=" + set.sg.NAME + " ..." );
-		EngineStatus status = super.getServerStatus();
+		StateService status = super.getServerStatus();
 		status.updateRunTime( this , set.sg );
 	}
 
@@ -82,14 +84,14 @@ public class ActionCheckEnv extends ActionBase {
 			info( "## sg " + F_STATUSOBJECT + " check OK" );
 		
 		sgStatus.setLog( super.logFinishCapture( sgCaptureIndex ) );
-		EngineStatus status = super.getServerStatus();
+		StateService status = super.getServerStatus();
 		status.setSegmentStatus( this , set.sg , sgStatus );
 		status.finishUpdate( this , set.sg );
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		ActionScopeSet set = target.set;
-		EngineStatus status = super.getServerStatus();
+		StateService status = super.getServerStatus();
 		status.updateRunTime( this , target.envServer );
 		
 		ServerStatus serverStatus = new ServerStatus( target.envServer );
@@ -107,14 +109,15 @@ public class ActionCheckEnv extends ActionBase {
 			
 			// check associated if specific servers and not specific nodes 
 			if( set.setFull == false && target.itemFull == true ) {
-				if( target.envServer.nlbServer != null ) 
-					checkOneServer( target , state , target.envServer.nlbServer , false , "nlb" , serverStatus );
-				if( target.envServer.staticServer != null ) 
-					checkOneServer( target , state , target.envServer.staticServer , false , "static" , serverStatus );
-				if( target.envServer.subordinateServers != null ) {
-					for( MetaEnvServer server : target.envServer.subordinateServers ) 
-						checkOneServer( target , state , server , false , "subordinate" , serverStatus );
-				}
+				MetaEnvServer nlbServer = target.envServer.getNlbServer();
+				if( nlbServer != null ) 
+					checkOneServer( target , state , nlbServer , false , "nlb" , serverStatus );
+				MetaEnvServer staticServer = target.envServer.getStaticServer();
+				if( staticServer != null ) 
+					checkOneServer( target , state , staticServer , false , "static" , serverStatus );
+				MetaEnvServer[] subordinateServers = target.envServer.getSubordinateServers();
+				for( MetaEnvServer server : subordinateServers ) 
+					checkOneServer( target , state , server , false , "subordinate" , serverStatus );
 			}
 		}
 		catch( Throwable e ) {
@@ -160,7 +163,7 @@ public class ActionCheckEnv extends ActionBase {
 		}
 		
 		// ignore command servers except when specifically called 
-		if( server.isCommand() ) {
+		if( server.isRunCommand() ) {
 			if( context.CTX_ALL == false || main == false ) {
 				debug( "ignore command server=" + server.NAME );
 				return;
@@ -171,7 +174,7 @@ public class ActionCheckEnv extends ActionBase {
 
 		if( main ) {
 			debug( "check nodes ..." );
-			EngineStatus status = super.getServerStatus();
+			StateService status = super.getServerStatus();
 			
 			boolean someNodeAvailable = false;
 			for( ActionScopeTargetItem node : target.getItems( this ) ) {
@@ -211,7 +214,7 @@ public class ActionCheckEnv extends ActionBase {
 		
 		boolean wholeOk = true;
 		
-		if( server.isWebUser() ) {
+		if( server.isRunWebUser() ) {
 			if( !server.WEBMAINURL.isEmpty() )
 				if( !checkOneServerWholeUrl( server.WEBMAINURL , "main web url" , state , null , serverStatus ) )
 					wholeOk = false;
@@ -222,7 +225,7 @@ public class ActionCheckEnv extends ActionBase {
 				wholeOk = false;
 		}
 
-		if( server.isDatabase() ) {
+		if( server.isRunDatabase() ) {
 			if( !checkOneServerWholeDatabase( server , state , serverStatus ) )
 				wholeOk = false;
 		}
@@ -264,14 +267,15 @@ public class ActionCheckEnv extends ActionBase {
 		// by comps
 		boolean ok = true;
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
-			if( deployment.comp == null )
+			if( !deployment.isComponent() )
 				continue;
 			
-			for( MetaDistrComponentItem ws : deployment.comp.getWebServices() ) {
+			MetaDistrComponent comp = deployment.getComponent();
+			for( MetaDistrComponentItem ws : comp.getWebServices() ) {
 				String URL = ws.getURL( ACCESSPOINT ); 
 				if( !checkOneServerWholeUrl( URL , "web service" , state , nodeStatus , serverStatus ) ) {
 					ok = false;
-					S_CHECKENV_SERVER_COMPS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_SERVER_COMPS_FAILED , deployment.comp.NAME );
+					S_CHECKENV_SERVER_COMPS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_SERVER_COMPS_FAILED , comp.NAME );
 				}
 			}
 		}
@@ -306,10 +310,11 @@ public class ActionCheckEnv extends ActionBase {
 			nodeStatus = new NodeStatus( node );
 			captureIndex = super.logStartCapture();
 		}
-		
-		info( "node " + node.POS + "=" + node.HOSTLOGIN );
 
 		try {
+			HostAccount account = node.getHostAccount();
+			info( "node " + node.POS + "=" + account.getFinalAccount() );
+
 			if( checkOneServerNodeStatus( server , node , state , nodeStatus ) ) {
 				if( !checkOneServerNodeComps( server , node , state , nodeStatus ) ) {
 					nodeStatus.setCompsFailed();
@@ -322,11 +327,14 @@ public class ActionCheckEnv extends ActionBase {
 			}
 			
 			// check proxy node
-			if( main && server.proxyServer != null ) { 
-				info( "check proxy node ..." );
-				if( !checkOneServerNodeStatus( server.proxyServer , node.getProxyNode( this ) , state , null ) ) {
-					S_CHECKENV_NODE_FAILED = true;
-					nodeStatus.setProxyFailed( server.proxyServer );
+			if( main ) {
+				MetaEnvServer proxyServer = server.getProxyServer();
+				if( proxyServer != null ) {
+					info( "check proxy node ..." );
+					if( !checkOneServerNodeStatus( proxyServer , node.getProxyNode() , state , null ) ) {
+						S_CHECKENV_NODE_FAILED = true;
+						nodeStatus.setProxyFailed( proxyServer );
+					}
 				}
 			}
 		}
@@ -349,7 +357,7 @@ public class ActionCheckEnv extends ActionBase {
 		if( main ) {
 			String[] log = super.logFinishCapture( captureIndex );
 			nodeStatus.setLog( log );
-			EngineStatus status = super.getServerStatus();
+			StateService status = super.getServerStatus();
 			status.setServerNodeStatus( this , node , nodeStatus );
 			serverStatus.addNodeStatus( nodeStatus ); 
 		}
@@ -358,7 +366,7 @@ public class ActionCheckEnv extends ActionBase {
 	}
 	
 	private boolean checkOneServerNodeStatus( MetaEnvServer server , MetaEnvServerNode node , ScopeState state , NodeStatus mainState ) throws Exception {
-		if( server.isManual() ) {
+		if( server.isAccessManual() ) {
 			debug( "skip check process for manual server=" + server.NAME );
 			if( mainState != null )
 				mainState.setSkipManual();
@@ -381,17 +389,19 @@ public class ActionCheckEnv extends ActionBase {
 		if( process.isStarted( this ) )
 			return( true );
 		
-		if( process.mode == VarPROCESSMODE.ERRORS )
-			error( node.HOSTLOGIN + ": status=errors (" + process.cmdValue + ")" ); 
+		HostAccount account = node.getHostAccount();
+
+		if( process.mode == EnumProcessMode.ERRORS )
+			error( account.getFinalAccount() + ": status=errors (" + process.cmdValue + ")" ); 
 		else
-		if( process.mode == VarPROCESSMODE.STARTING )
-			error( node.HOSTLOGIN + ": status=starting" );
+		if( process.mode == EnumProcessMode.STARTING )
+			error( account.getFinalAccount() + ": status=starting" );
 		else
-		if( process.mode == VarPROCESSMODE.STOPPED )
-			error( node.HOSTLOGIN + ": status=stopped" );
+		if( process.mode == EnumProcessMode.STOPPED )
+			error( account.getFinalAccount() + ": status=stopped" );
 		else
-		if( process.mode == VarPROCESSMODE.UNREACHABLE )
-			error( node.HOSTLOGIN + ": status=unreachable" );
+		if( process.mode == EnumProcessMode.UNREACHABLE )
+			error( account.getFinalAccount() + ": status=unreachable" );
 		else
 			this.exitUnexpectedState();
 		return( false );

@@ -3,21 +3,19 @@ package org.urm.meta.product;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
-import org.urm.engine.Engine;
-import org.urm.engine.EngineSession;
-import org.urm.engine.TransactionBase;
+import org.urm.engine.data.EngineProducts;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.properties.ObjectProperties;
+import org.urm.engine.session.EngineSession;
 import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.EngineProducts;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.ProductEnvs;
+import org.urm.meta.release.ProductReleases;
+import org.urm.meta.release.ReleaseRepository;
 
 public class ProductMeta extends EngineObject {
 
-	public Engine engine;
-	public EngineProducts products;
 	public AppProduct product;
 	public String name;
 	
@@ -34,25 +32,21 @@ public class ProductMeta extends EngineObject {
 	private MetaSources sources;
 	private MetaDocs docs;
 	private MetaDistr distr;
-	private MetaEnvs envs;
+	private ProductEnvs envs;
+	private ProductReleases releases;
 
-	private DistRepository repo;
-	
 	private Map<EngineSession,Meta> sessionMeta;
 	private boolean primary;
 	
 	public ProductMeta( EngineProducts products , AppProduct product ) {
 		super( null );
-		this.products = products;
-		this.engine = products.engine;
 		this.product = product;
 		this.name = product.NAME;
 		
-		meta = new Meta( this , null );
+		meta = new Meta( products , this , null );
 		ID = null;
 		PV = -1;
 		MATCHED = false;
-		engine.trace( "new product storage meta object, id=" + meta.objectId + ", storage=" + objectId );
 		
 		sessionMeta = new HashMap<EngineSession,Meta>();
 		primary = false;
@@ -63,7 +57,7 @@ public class ProductMeta extends EngineObject {
 		return( name );
 	}
 	
-	public synchronized ProductMeta copy( ActionBase action , EngineProducts rproducts , AppProduct rproduct , ObjectProperties opsParent ) throws Exception {
+	public synchronized ProductMeta copy( EngineProducts products , AppProduct rproduct , ObjectProperties opsParent ) throws Exception {
 		ProductMeta r = new ProductMeta( products , rproduct );
 		
 		r.ID = ID;
@@ -80,8 +74,10 @@ public class ProductMeta extends EngineObject {
 		r.docs = docs.copy( r.meta );
 		r.distr = distr.copy( r.meta );
 		
-		r.envs = envs.copy( action , r.meta );
-		r.repo = repo.copy( action , r.meta );
+		r.envs = envs.copy( r.meta );
+		r.envs.copyResolveExternals();
+		
+		r.releases = releases.copy( r.meta );
 		return( r );
 	}
 
@@ -126,12 +122,20 @@ public class ProductMeta extends EngineObject {
 		return( primary );
 	}
 	
-	public void createInitialRepository( TransactionBase transaction , boolean forceClear ) throws Exception {
-		repo = DistRepository.createInitialRepository( transaction.action , meta , forceClear );
-	}
-
 	public DistRepository getDistRepository() {
-		return( repo );
+		return( releases.getDistRepository() );
+	}
+	
+	public ReleaseRepository getReleaseRepository() {
+		return( releases.getReleaseRepository() );
+	}
+	
+	public void setDistRepository( DistRepository repo ) {
+		releases.setDistRepository( repo );
+	}
+	
+	public void setReleaseRepository( ReleaseRepository repo ) {
+		releases.setReleaseRepository( repo );
 	}
 	
 	public void setVersion( MetaProductVersion version ) throws Exception {
@@ -166,12 +170,12 @@ public class ProductMeta extends EngineObject {
 		this.distr = distr;
 	}
 
-	public void setEnvs( MetaEnvs envs ) throws Exception {
+	public void setEnvs( ProductEnvs envs ) throws Exception {
 		this.envs = envs;
 	}
 
-	public void setReleases( DistRepository repo ) throws Exception {
-		this.repo = repo;
+	public void setReleases( ProductReleases releases ) throws Exception {
+		this.releases = releases;
 	}
 	
 	public MetaProductVersion getVersion() {
@@ -206,12 +210,24 @@ public class ProductMeta extends EngineObject {
 		return( sources );
 	}
 	
-	public MetaEnvs getEnviroments() {
+	public ProductEnvs getEnviroments() {
 		return( envs );
+	}
+
+	public ProductReleases getReleases() {
+		return( releases );
 	}
 
 	public boolean isMatched() {
 		return( MATCHED );
+	}
+
+	public void deleteEnvObjects() {
+		if( envs == null )
+			return;
+		
+		for( MetaEnv env : envs.getEnvs() )
+			env.deleteObject();
 	}
 	
 }

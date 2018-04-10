@@ -2,16 +2,17 @@ package org.urm.db.engine;
 
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
+import org.urm.db.env.DBEnvData;
 import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
-import org.urm.engine.EngineTransaction;
+import org.urm.engine.AuthService;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.data.EngineMirrors;
+import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
-import org.urm.meta.engine.EngineAuth;
-import org.urm.meta.engine.EngineDirectory;
-import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.product.ProductMeta;
 
 public class DBEngineProducts {
@@ -32,10 +33,15 @@ public class DBEngineProducts {
 				Common.exitUnexpected();
 
 			change = true;
-			if( !transaction.recreateMetadata( product.storage.meta ) )
+			ProductMeta storage = product.storage;
+			if( !transaction.recreateMetadata( storage.meta ) )
 				Common.exitUnexpected();
 			
-			DBProductData.dropProductData( c , product.storage );
+			if( storage.isExists() ) {
+				DBEnvData.dropEnvData( c , storage );
+				DBProductData.dropProductData( c , storage );
+			}
+			
 			DBEngineDirectory.deleteProduct( transaction , directory , product , true , false , false );
 			DBEngineMirrors.deleteProductResources( transaction , mirrors , product , forceClearMeta , false , false );
 		}
@@ -45,6 +51,8 @@ public class DBEngineProducts {
 		
 		EngineLoader loader = engine.createLoader( transaction );
 		ProductMeta storage = loader.createProduct( product , forceClearMeta , forceClearDist );
+		if( storage == null )
+			Common.exit0( _Error.UnableCreateProduct0 , "Unable to create product" );
 		
 		if( change )
 			transaction.replaceProductMetadata( storage );
@@ -57,7 +65,7 @@ public class DBEngineProducts {
 	public static void deleteProduct( EngineTransaction transaction , AppProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		ActionInit action = transaction.getAction();
-		EngineAuth auth = action.getServerAuth();
+		AuthService auth = action.getServerAuth();
 		EngineMirrors mirrors = action.getActiveMirrors();
 		ProductMeta storage = product.storage;
 
@@ -66,6 +74,7 @@ public class DBEngineProducts {
 		if( !transaction.changeMirrors( mirrors ) )
 			Common.exitUnexpected();
 
+		DBEnvData.dropEnvData( c , storage );
 		DBEngineAuth.deleteProductAccess( c , auth , product );
 		DBProductData.dropProductData( c , storage );
 		DBEngineMirrors.deleteProductResources( transaction , mirrors , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );

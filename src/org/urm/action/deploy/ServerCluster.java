@@ -5,6 +5,7 @@ import org.urm.action.ActionEnvScopeMaker;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.status.ScopeState;
+import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 
@@ -29,7 +30,8 @@ public class ServerCluster {
 		long startMillis = System.currentTimeMillis();
 		for( MetaEnvServerNode node : nodes ) {
 			ScopeState state = new ScopeState( parentState , node );
-			action.info( action.getMode() + " stop " + srv.getServerTypeName( action ) + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+			HostAccount hostAccount = node.getHostAccount();
+			action.info( action.getMode() + " stop " + srv.getServerTypeName() + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + hostAccount.getFinalAccount() + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node , state ); 
 			if( !process.stop( action ) ) {
@@ -56,7 +58,8 @@ public class ServerCluster {
 		boolean res = true;
 		for( MetaEnvServerNode node : nodes ) {
 			ScopeState state = new ScopeState( parentState , node );
-			action.debug( "wait for stop " + srv.getServerTypeName( action ) + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+			HostAccount hostAccount = node.getHostAccount();
+			action.debug( "wait for stop " + srv.getServerTypeName() + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + hostAccount.getFinalAccount() + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node , state ); 
 			if( !process.waitStopped( action , startMillis ) ) {
@@ -76,7 +79,8 @@ public class ServerCluster {
 		long startMillis = System.currentTimeMillis();
 		for( MetaEnvServerNode node : nodes ) {
 			ScopeState state = new ScopeState( parentState , node );
-			action.info( action.getMode() + " start " + srv.getServerTypeName( action ) + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+			HostAccount hostAccount = node.getHostAccount();
+			action.info( action.getMode() + " start " + srv.getServerTypeName() + " app=" + srv.NAME + ", node=" + node.POS + ", account=" + hostAccount.getFinalAccount() + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node , state ); 
 			if( !process.start( action ) ) {
@@ -115,7 +119,8 @@ public class ServerCluster {
 		boolean res = true;
 		for( MetaEnvServerNode node : nodes ) {
 			ScopeState state = new ScopeState( parentState , node );
-			action.debug( "wait for start " + srv.getServerTypeName( action ) + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+			HostAccount hostAccount = node.getHostAccount();
+			action.debug( "wait for start " + srv.getServerTypeName() + " server=" + srv.NAME + ", node=" + node.POS + ", account=" + hostAccount.getFinalAccount() + " ..." );
 			
 			ServerProcess process = new ServerProcess( srv , node , state ); 
 			if( !process.waitStarted( action , startMillis ) ) {

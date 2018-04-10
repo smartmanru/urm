@@ -60,7 +60,7 @@ public class ActionRollout extends ActionBase {
 			return;
 		}
 		
-		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
+		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName() + " ..." );
 		info( "rootpath=" + server.ROOTPATH );
 
 		k = 0;

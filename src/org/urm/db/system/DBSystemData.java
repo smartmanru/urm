@@ -4,7 +4,7 @@ import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.engine.DBEngineEntities;
-import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.data.EngineEntities;
 import org.urm.meta.EngineLoader;
 
 public class DBSystemData {

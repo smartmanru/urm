@@ -46,5 +46,7 @@ public class _Error {
 	public static final int UnknownLdapUser1 = ErrorBase + 61;
 	public static final int UnknownGroup1 = ErrorBase + 62;
 	public static final int UnknownUser1 = ErrorBase + 63;
+	public static final int UnknownAccount1 = ErrorBase + 64;
+	public static final int UnknownDependencyBaseItem1 = ErrorBase + 65;
 	
 }

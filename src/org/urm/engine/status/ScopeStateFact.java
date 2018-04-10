@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.urm.action.deploy.ServerProcess.ProcessAction;
 import org.urm.engine.status.ScopeState.FACTVALUE;
-import org.urm.meta.Types.VarPROCESSMODE;
+import org.urm.meta.Types.EnumProcessMode;
 
 public class ScopeStateFact {
 
@@ -44,14 +44,14 @@ public class ScopeStateFact {
 		return( false );
 	}
 
-	public VarPROCESSMODE getProcessMode() {
+	public EnumProcessMode getProcessMode() {
 		String value = getValue( FACTVALUE.PROCESSMODE );
 		try {
-			return( VarPROCESSMODE.valueOf( value ) );
+			return( EnumProcessMode.valueOf( value ) );
 		}
 		catch( Throwable e ) {
 		}
-		return( VarPROCESSMODE.UNKNOWN );
+		return( EnumProcessMode.UNKNOWN );
 	}
 	
 	public ProcessAction getProcessAction() {

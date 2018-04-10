@@ -18,5 +18,7 @@ public class _Error {
 	public static final int UnknownBuildMode1 = ErrorBase + 27;
 	public static final int ActionException1 = ErrorBase + 28;
 	public static final int WrongArgs0 = ErrorBase + 29;
+	public static final int UnknownRelease1 = ErrorBase + 30;
+	public static final int MissingSegmentName0 = ErrorBase + 31;
 	
 }

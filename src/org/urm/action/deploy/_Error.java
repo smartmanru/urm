@@ -49,5 +49,6 @@ public class _Error {
 	public static final int LoginFailed1 = ErrorBase + 40;
 	public static final int AccTypeNotForOperation1 = ErrorBase + 41;
 	public static final int VerifyDeployFailed1 = ErrorBase + 42;
+	public static final int UnknownSystemFilesCharset1 = ErrorBase + 43;
 	
 }

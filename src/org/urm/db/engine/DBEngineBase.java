@@ -14,21 +14,23 @@ import org.urm.db.core.DBEnums.DBEnumOSType;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
+import org.urm.db.core.DBEnums.DBEnumParamRoleType;
 import org.urm.db.core.DBEnums.DBEnumServerAccessType;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.data.EngineBase;
+import org.urm.engine.data.EngineSettings;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
+import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.BaseCategory;
 import org.urm.meta.engine.BaseGroup;
 import org.urm.meta.engine.BaseItem;
-import org.urm.meta.engine.EngineBase;
-import org.urm.meta.engine.EngineSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -41,35 +43,42 @@ public abstract class DBEngineBase {
 	public static String ELEMENT_GROUP = "group";
 	public static String ELEMENT_ITEM = "item";
 	public static String ELEMENT_DEPITEM = "dependency";
-	public static String XMLPROP_GROUP_NAME = "id";
-	public static String XMLPROP_ITEM_NAME = "id";
 	public static String XMLPROP_ITEM_DEPNAME = "name";
 	public static String FIELD_GROUP_ID = "group_id";
 	public static String FIELD_GROUP_CATEGORY = "basecategory_type";
 	public static String FIELD_GROUP_DESC = "xdesc";
-	public static String FIELD_ITEM_ID = "item_id";
+	public static String FIELD_ITEM_ID = "baseitem_id";
 	public static String FIELD_ITEM_GROUP_ID = "group_id";
 	public static String FIELD_ITEM_DESC = "xdesc";
 	
-	public static PropertyEntity upgradeEntityBaseGroup( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BASE_GROUP , DBEnumParamEntityType.BASEGROUP , DBEnumObjectVersionType.CORE , TABLE_BASEGROUP , FIELD_GROUP_ID );
+	public static PropertyEntity makeEntityBaseGroup( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BASE_GROUP , DBEnumParamEntityType.BASEGROUP , DBEnumObjectVersionType.CORE , TABLE_BASEGROUP , FIELD_GROUP_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaStringXmlOnly( BaseGroup.PROPERTY_TYPE , "Type" , true , null ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_GROUP_CATEGORY , "Category" , true , null ) ,
-				EntityVar.metaStringVar( BaseGroup.PROPERTY_NAME , BaseGroup.PROPERTY_NAME , XMLPROP_GROUP_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( BaseGroup.PROPERTY_NAME , BaseGroup.PROPERTY_NAME , BaseGroup.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( BaseGroup.PROPERTY_DESC , FIELD_GROUP_DESC , BaseGroup.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBoolean( BaseGroup.PROPERTY_OFFLINE , "Offline" , false , true )
 		} ) );
 	}
 
-	public static PropertyEntity upgradeEntityBaseItem( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM , DBEnumObjectVersionType.CORE , TABLE_BASEITEM , FIELD_ITEM_ID );
+	public static PropertyEntity makeEntityBaseItem( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM , DBEnumObjectVersionType.CORE , TABLE_BASEITEM , FIELD_ITEM_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaIntegerDatabaseOnly( FIELD_ITEM_GROUP_ID , "Name" , true , null ) ,
-				EntityVar.metaStringVar( BaseItem.PROPERTY_NAME , BaseItem.PROPERTY_NAME , XMLPROP_ITEM_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( BaseItem.PROPERTY_NAME , BaseItem.PROPERTY_NAME , BaseItem.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( BaseItem.PROPERTY_DESC , FIELD_ITEM_DESC , BaseItem.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaBoolean( BaseItem.PROPERTY_ADMIN , "Administrative" , false , false ) ,
 				EntityVar.metaEnum( BaseItem.PROPERTY_BASESRC_TYPE , "Base item type" , false , DBEnumBaseSrcType.UNKNOWN ) ,
 				EntityVar.metaEnum( BaseItem.PROPERTY_BASESRCFORMAT_TYPE , "Base format type" , false , DBEnumBaseSrcFormatType.UNKNOWN ) ,
 				EntityVar.metaEnum( BaseItem.PROPERTY_OS_TYPE , "Operating system" , false , DBEnumOSType.UNKNOWN ) ,
@@ -87,18 +96,6 @@ public abstract class DBEngineBase {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityBaseGroup( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BASE_GROUP , DBEnumParamEntityType.BASEGROUP , DBEnumObjectVersionType.CORE , TABLE_BASEGROUP , FIELD_GROUP_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity loaddbEntityBaseItem( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM , DBEnumObjectVersionType.CORE , TABLE_BASEITEM , FIELD_ITEM_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
 	public static void importxml( EngineLoader loader , EngineBase base , Node root ) throws Exception {
 		Node[] list = ConfReader.xmlGetChildren( root , ELEMENT_CATEGORY );
 		if( list != null ) {
@@ -154,16 +151,21 @@ public abstract class DBEngineBase {
 		EngineEntities entities = loader.getEntities();
 		EngineSettings settings = loader.getSettings();
 		
-		ObjectProperties props = entities.createBaseItemProps( settings.getEngineProperties() ); 
-		BaseItem item = new BaseItem( group , props );
-		DBSettings.importxmlLoad( loader , root , props , true , false );
+		ObjectProperties ops = entities.createBaseItemProps( settings.getEngineProperties() ); 
+		BaseItem item = new BaseItem( group , ops );
+		DBSettings.importxmlLoadCustomEntity( loader , root , ops );
+		DBSettings.importxmlLoad( loader , root , ops , true , false );
 		item.scatterProperties();
 		
 		if( !item.isValid() )
 			item.setOffline( true );
 		
+		int version = c.getNextCoreVersion();
 		modifyItem( c , item , true );
-		DBSettings.importxmlSave( loader , props , item.ID , DBVersions.CORE_ID , true , false , item.CV ); 
+		ops.setOwnerId( item.ID );
+		
+		DBSettings.savedbEntityCustom( c , ops , version );
+		DBSettings.importxmlSave( loader , ops , item.ID , DBVersions.CORE_ID , true , false , item.CV ); 
 		
 		Node[] list = ConfReader.xmlGetChildren( root , ELEMENT_DEPITEM );
 		if( list != null ) {
@@ -178,11 +180,12 @@ public abstract class DBEngineBase {
 
 	private static void importxmlItemResolve( EngineLoader loader , EngineBase base , BaseItem item ) throws Exception {
 		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
 		
 		int version = item.CV;
 		for( String name : item.getDepItemDraftNames() ) {
 			BaseItem dep = base.getItem( name );
-			addItemDependency( c , item , dep , version );
+			addItemDependency( c , entities , item , dep , version );
 		}
 		
 		item.clearDrafts();
@@ -224,7 +227,7 @@ public abstract class DBEngineBase {
 	}
 
 	public static void exportxmlItem( EngineLoader loader , BaseItem item , Document doc , Element root ) throws Exception {
-		DBSettings.exportxml( loader , doc , root , item.p , false );
+		DBSettings.exportxml( loader , doc , root , item.ops , false );
 		
 		for( String name : item.getDepItemNames() ) {
 			BaseItem dep = item.findDepItem( name );
@@ -290,17 +293,27 @@ public abstract class DBEngineBase {
 				item.ID = entity.loaddbId( rs );
 				item.CV = entity.loaddbVersion( rs );
 				item.scatterProperties();
-						
+
+				p.setOwnerId( item.ID );
 				base.addItem( item );
 			}
 		}
 		finally {
 			c.closeQuery();
 		}
+
+		// load base item custom meta
+		for( BaseItem item : base.getItems() ) {
+			ObjectProperties p = item.getParameters();
+			ObjectMeta meta = p.getMeta();
+			PropertyEntity custom = meta.getCustomEntity();
+			DBSettings.loaddbEntity( c , custom , item.ID , false );
+		}
 	}
 	
 	public static void loaddbItemDeps( EngineLoader loader , EngineBase base ) throws Exception {
 		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
 		
 		ResultSet rs = c.query( DBQueries.QUERY_BASE_ITEMDEPS0 );
 		try {
@@ -310,31 +323,58 @@ public abstract class DBEngineBase {
 				
 				BaseItem item = base.getItem( itemId );
 				BaseItem dep = base.getItem( depId );
-				item.addDepItem( dep );
+				item.addDepItem( entities , dep );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+		
+		loaddbDependencyValues( loader , base );
+	}
+	
+	private static void loaddbDependencyValues( EngineLoader loader , EngineBase base ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
+		ResultSet rs = c.query( DBQueries.QUERY_PARAM_GETPARAMROLEVALUES1 , new String[] { 
+				EngineDB.getEnum( DBEnumParamRoleType.BASEITEM_DEPENDENCY ) } );
+
+		try {
+			while( rs.next() ) {
+				int objectId = rs.getInt( 1 );
+				int paramObjectId = rs.getInt( 2 );
+				int param = rs.getInt( 4 );
+				String exprValue = rs.getString( 5 );
+				
+				BaseItem item = base.getItem( objectId );
+				ObjectProperties ops = item.getDependencySettings( paramObjectId );
+				
+				EntityVar var = ops.getVar( param );
+				ops.setProperty( var , exprValue );
 			}
 		}
 		finally {
 			c.closeQuery();
 		}
 	}
-	
+
 	public static void modifyItem( DBConnection c , BaseItem item , boolean insert ) throws Exception {
 		if( insert )
-			item.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , item.NAME , DBEnumObjectType.BASE_ITEM );
+			item.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , item.NAME , DBEnumParamEntityType.BASEITEM );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , item.NAME , item.ID , DBEnumObjectType.BASE_ITEM );
+			DBNames.updateName( c , DBVersions.CORE_ID , item.NAME , item.ID , DBEnumParamEntityType.BASEITEM );
 		
 		item.CV = c.getNextCoreVersion();
-		DBSettings.modifyAppValues( c , item.ID , item.p , item.CV , new String[] {
+		DBSettings.modifyAppValues( c , item.ID , item.ops , DBEnumParamEntityType.BASEITEM , item.CV , new String[] {
 				EngineDB.getInteger( item.group.ID )
 		} , insert );
 	}
 
 	private static void modifyGroup( DBConnection c , BaseGroup group , boolean insert ) throws Exception {
 		if( insert )
-			group.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , group.NAME , DBEnumObjectType.BASE_GROUP );
+			group.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , group.NAME , DBEnumParamEntityType.BASEGROUP );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , group.NAME , group.ID , DBEnumObjectType.BASE_GROUP );
+			DBNames.updateName( c , DBVersions.CORE_ID , group.NAME , group.ID , DBEnumParamEntityType.BASEGROUP );
 		
 		group.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
@@ -346,7 +386,7 @@ public abstract class DBEngineBase {
 				} , insert );
 	}
 
-	private static void addItemDependency( DBConnection c , BaseItem item , BaseItem dep , int version ) throws Exception {
+	private static void addItemDependency( DBConnection c , EngineEntities entities , BaseItem item , BaseItem dep , int version ) throws Exception {
 		if( !c.modify( DBQueries.MODIFY_BASE_ADDDEPITEM3 , new String[] { 
 				EngineDB.getInteger( item.ID ) , 
 				EngineDB.getInteger( dep.ID ) ,
@@ -354,7 +394,7 @@ public abstract class DBEngineBase {
 				} ) )
 			Common.exitUnexpected();
 		
-		item.addDepItem( dep );
+		item.addDepItem( entities , dep );
 	}
 	
 	public static BaseGroup createGroup( EngineTransaction transaction , EngineBase base , DBEnumBaseCategoryType type , String name , String desc ) throws Exception {
@@ -403,6 +443,7 @@ public abstract class DBEngineBase {
 		BaseItem item = new BaseItem( group , p );
 		item.createBaseItem( name , desc );
 		modifyItem( c , item , true );
+		p.setOwnerId( item.ID );
 		
 		base.addItem( item );
 		return( item );
@@ -416,10 +457,10 @@ public abstract class DBEngineBase {
 		base.updateItem( item );
 	}
 
-	public static void modifyItemData( EngineTransaction transaction , BaseItem item , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
+	public static void modifyItemData( EngineTransaction transaction , BaseItem item , boolean admin , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
-		item.modifyData( name , version , ostype , accessType , srcType , srcFormat , SRCFILE , SRCFILEDIR , INSTALLPATH , INSTALLLINK );
+		item.modifyData( admin , name , version , ostype , accessType , srcType , srcFormat , SRCFILE , SRCFILEDIR , INSTALLPATH , INSTALLLINK );
 		modifyItem( c , item , false );
 	}
 	
@@ -435,8 +476,10 @@ public abstract class DBEngineBase {
 	
 	public static void addItemDependency( EngineTransaction transaction , EngineBase base , BaseItem item , BaseItem dep ) throws Exception {
 		DBConnection c = transaction.getConnection();
+		EngineEntities entities = transaction.getEntities();
+		
 		int version = c.getNextCoreVersion();
-		addItemDependency( c , item , dep , version );
+		addItemDependency( c , entities , item , dep , version );
 	}
 	
 	public static void deleteItemDependency( EngineTransaction transaction , EngineBase base , BaseItem item , BaseItem dep ) throws Exception {
@@ -448,6 +491,24 @@ public abstract class DBEngineBase {
 				} ) )
 			Common.exitUnexpected();
 		item.deleteDepItem( dep );
+	}
+	
+	public static void updateCustomProperties( EngineTransaction transaction , BaseItem item ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		ObjectProperties ops = item.getParameters();
+		int version = c.getNextCoreVersion();
+		DBSettings.savedbPropertyValues( transaction , ops , false , true , version );
+		ops.recalculateChildProperties();
+	}
+	
+	public static void updateCustomDependencyProperties( EngineTransaction transaction , BaseItem item , BaseItem depitem ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		ObjectProperties ops = item.getDependencySettings( depitem.ID );
+		int version = c.getNextCoreVersion();
+		DBSettings.savedbPropertyValues( transaction , ops , false , true , version );
+		ops.recalculateChildProperties();
 	}
 	
 }

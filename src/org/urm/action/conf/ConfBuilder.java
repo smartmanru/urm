@@ -8,9 +8,9 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseDelivery;
-import org.urm.engine.dist.ReleaseTarget;
-import org.urm.engine.properties.PropertySet;
+import org.urm.engine.dist.ReleaseDistScopeDelivery;
+import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyValue;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.FileSet;
@@ -36,19 +36,19 @@ public class ConfBuilder {
 		this.meta = meta;
 	}
 
-	public String createConfDiffFile( Dist release , ReleaseDelivery delivery ) throws Exception {
+	public String createConfDiffFile( Dist dist , ReleaseDistScopeDelivery delivery ) throws Exception {
 		// copy conf from release
 		LocalFolder releaseFolder = artefactory.getWorkFolder( action , "release.delivery.conf" );
 		releaseFolder.recreateThis( action );
-		release.copyDistConfToFolder( action , delivery , releaseFolder );
+		dist.copyDistConfToFolder( action , delivery , releaseFolder );
 		
 		// copy conf from product
 		action.debug( "compare with product configuration ..." );
 		LocalFolder prodFolder = artefactory.getWorkFolder( action , "prod.delivery.conf" );
 		prodFolder.recreateThis( action );
-		SourceStorage storage = artefactory.getSourceStorage( action , delivery.meta , prodFolder );
+		SourceStorage storage = artefactory.getSourceStorage( action , dist.meta , prodFolder );
 		
-		for( ReleaseTarget releaseComp : delivery.getConfItems() ) {
+		for( ReleaseDistScopeDeliveryItem releaseComp : delivery.getItems() ) {
 			ConfSourceFolder sourceFolder = new ConfSourceFolder( meta );
 			sourceFolder.createReleaseConfigurationFolder( action , releaseComp );
 			storage.downloadProductConfigItem( action , sourceFolder , prodFolder );
@@ -62,8 +62,8 @@ public class ConfBuilder {
 		FileSet releaseSet = releaseFolder.getFileSet( action );
 		FileSet prodSet = prodFolder.getFileSet( action );
 		
-		ConfDiffSet diff = new ConfDiffSet( delivery.meta , releaseSet , prodSet , null , true ); 
-		diff.calculate( action , release.release );
+		ConfDiffSet diff = new ConfDiffSet( dist.meta , releaseSet , prodSet , null , true ); 
+		diff.calculate( action , dist.release );
 		
 		String filePath = releaseFolder.getFilePath( action , diffFile ); 
 		diff.save( action , filePath );
@@ -150,43 +150,43 @@ public class ConfBuilder {
 		return( filtered.toArray( new String[0] ) );
 	}
 	
-	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServer server , PropertySet props , Charset charset ) throws Exception {
+	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServer server , ObjectProperties ops , Charset charset ) throws Exception {
 		action.trace( "parse configuration files in folder=" + folder.folderPath + " ..." );
 		FileSet files = folder.getFileSet( action );
-		if( props == null )
-			props = server.getProperties();
+		if( ops == null )
+			ops = server.getProperties();
 		
 		for( String file : files.fileList )
-			configureFile( folder , file , server , props , charset );
+			configureFile( folder , file , server , ops , charset );
 	}
 
-	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServerNode node , PropertySet props ) throws Exception {
-		configureFolder( action , folder , node , props , StandardCharsets.UTF_8 );
+	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServerNode node , ObjectProperties ops ) throws Exception {
+		configureFolder( action , folder , node , ops , StandardCharsets.UTF_8 );
 	}
 	
-	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServerNode node , PropertySet props , Charset charset ) throws Exception {
+	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServerNode node , ObjectProperties ops , Charset charset ) throws Exception {
 		action.trace( "parse configuration files in folder=" + folder.folderPath + " ..." );
 		FileSet files = folder.getFileSet( action );
 		
-		if( props == null )
-			props = node.getProperties();
+		if( ops == null )
+			ops = node.getProperties();
 		
 		for( String file : files.fileList )
-			configureFile( folder , file , node , props , charset );
+			configureFile( folder , file , node , ops , charset );
 	}
 	
-	public void configureFile( LocalFolder live , String file , MetaEnvServer server , PropertySet props , Charset charset ) throws Exception {
+	public void configureFile( LocalFolder live , String file , MetaEnvServer server , ObjectProperties ops , Charset charset ) throws Exception {
 		action.trace( "parse file=" + file + " ..." );
 		String filePath = live.getFilePath( action , file );
 		List<String> fileLines = action.readFileLines( filePath , charset );
 		
-		if( props == null )
-			props = server.getProperties();
+		if( ops == null )
+			ops = server.getProperties();
 		
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
-			PropertyValue res = props.getFinalPropertyValue( s , server.isWindows() , true , false );
+			PropertyValue res = ops.getFinalValue( s , server.isWindows() , true , false );
 			if( res != null ) {
 				fileLines.set( k , res.getFinalValue() );
 				changed = true;
@@ -197,18 +197,18 @@ public class ConfBuilder {
 			Common.createFileFromStringList( action.execrc , filePath , fileLines , charset );
 	}
 	
-	public void configureFile( LocalFolder live , String file , MetaEnvServerNode node , PropertySet props , Charset charset ) throws Exception {
+	public void configureFile( LocalFolder live , String file , MetaEnvServerNode node , ObjectProperties ops , Charset charset ) throws Exception {
 		action.trace( "parse file=" + file + " ..." );
 		String filePath = live.getFilePath( action , file );
 		List<String> fileLines = action.readFileLines( filePath , charset );
 		
-		if( props == null )
-			props = node.getProperties();
+		if( ops == null )
+			ops = node.getProperties();
 		
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
-			PropertyValue res = props.getFinalPropertyValue( s , node.server.isWindows() , true , false );
+			PropertyValue res = ops.getFinalValue( s , node.server.isWindows() , true , false );
 			if( res != null ) {
 				fileLines.set( k , res.getFinalValue() );
 				changed = true;

@@ -6,6 +6,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 
@@ -29,14 +30,15 @@ public class ActionList extends ActionBase {
 	}
 
 	private void showServerInfo( MetaEnvServer server ) throws Exception {
-		String s = "\tserver: " + server.NAME + " type=" + server.getServerTypeName( this );
+		String s = "\tserver: " + server.NAME + " type=" + server.getServerTypeName();
 		if( server.OFFLINE )
 			s += " (offline)";
 		info( s );
 	}
 	
 	private void showNodeInfo( MetaEnvServerNode node ) throws Exception {
-		String s = "\t\tnode " + node.POS + ": " + node.HOSTLOGIN;
+		HostAccount hostAccount = node.getHostAccount(); 
+		String s = "\t\tnode " + node.POS + ": " + hostAccount.getFinalAccount();
 		if( node.OFFLINE )
 			s += " (offline)";
 		info( s );

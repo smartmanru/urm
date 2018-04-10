@@ -14,19 +14,23 @@ public class BuilderGradleMethod extends Builder {
 		super( builder , project , storage , TAG , APPVERSION );
 	}
 	
-	@Override public ShellExecutor createShell( ActionBase action ) throws Exception {
+	@Override 
+	public ShellExecutor createShell( ActionBase action ) throws Exception {
 		return( action.createDedicatedShell( "build" ) );
 	}
 	
-	@Override public boolean prepareSource( ActionBase action ) throws Exception {
+	@Override 
+	public boolean prepareSource( ActionBase action ) throws Exception {
 		return( true );
 	}
 	
-	@Override public boolean checkSourceCode( ActionBase action ) throws Exception {
+	@Override 
+	public boolean checkSourceCode( ActionBase action ) throws Exception {
 		return( true );
 	}
 
-	@Override public boolean runBuild( ActionBase action ) throws Exception {
+	@Override 
+	public boolean runBuild( ActionBase action ) throws Exception {
 		// generic params
 		action.info( "build PATCHPATH=" + CODEPATH.folderPath + " using gradle " + builder.VERSION + " ..." );
 		PropertySet props = super.createProperties( action , project );

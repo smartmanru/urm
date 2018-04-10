@@ -14,12 +14,12 @@ import org.urm.db.core.DBNames;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.data.EngineLifecycles;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.EngineLoader;
-import org.urm.meta.engine.EngineLifecycles;
 import org.urm.meta.engine.LifecyclePhase;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.w3c.dom.Document;
@@ -48,9 +48,13 @@ public class DBEngineLifecycles {
 	public static String XMLPROP_PHASE_NAME = "id";
 	
 	
-	public static PropertyEntity upgradeEntityReleaseLifecycle( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.LIFECYCLE , DBEnumParamEntityType.LIFECYCLE , DBEnumObjectVersionType.CORE , TABLE_LIFECYCLE , FIELD_LIFECYCLE_ID );
+	public static PropertyEntity makeEntityReleaseLifecycle( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.LIFECYCLE , DBEnumParamEntityType.LIFECYCLE , DBEnumObjectVersionType.CORE , TABLE_LIFECYCLE , FIELD_LIFECYCLE_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaStringVar( ReleaseLifecycle.PROPERTY_NAME , ReleaseLifecycle.PROPERTY_NAME , XMLPROP_LIFECYCLE_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( ReleaseLifecycle.PROPERTY_DESC , FIELD_LIFECYCLE_DESC , ReleaseLifecycle.PROPERTY_DESC , "Description" , false , null ) ,
@@ -63,9 +67,13 @@ public class DBEngineLifecycles {
 		} ) );
 	}
 
-	public static PropertyEntity upgradeEntityLifecyclePhase( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.LIFECYCLEPHASE , DBEnumParamEntityType.LIFECYCLEPHASE , DBEnumObjectVersionType.CORE , TABLE_PHASE , FIELD_PHASE_ID );
+	public static PropertyEntity makeEntityLifecyclePhase( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.LIFECYCLEPHASE , DBEnumParamEntityType.LIFECYCLEPHASE , DBEnumObjectVersionType.CORE , TABLE_PHASE , FIELD_PHASE_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaIntegerDatabaseOnly( FIELD_PHASE_LIFECYCLE , "Lifecycle" , true , null ) ,
 				EntityVar.metaStringVar( LifecyclePhase.PROPERTY_NAME , LifecyclePhase.PROPERTY_NAME , XMLPROP_PHASE_NAME , "Name" , true , null ) ,
@@ -78,18 +86,6 @@ public class DBEngineLifecycles {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityReleaseLifecycle( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.LIFECYCLE , DBEnumParamEntityType.LIFECYCLE , DBEnumObjectVersionType.CORE , TABLE_LIFECYCLE , FIELD_LIFECYCLE_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity loaddbEntityLifecyclePhase( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.LIFECYCLEPHASE , DBEnumParamEntityType.LIFECYCLEPHASE , DBEnumObjectVersionType.CORE , TABLE_PHASE , FIELD_PHASE_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
 	public static void importxml( EngineLoader loader , EngineLifecycles lifecycles , Node root ) throws Exception {
 		Node[] list = ConfReader.xmlGetChildren( root , ELEMENT_LIFECYCLE );
 		if( list != null ) {
@@ -151,9 +147,9 @@ public class DBEngineLifecycles {
 	
 	private static void modifyLifecycle( DBConnection c , ReleaseLifecycle lc , boolean insert ) throws Exception {
 		if( insert )
-			lc.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , lc.NAME , DBEnumObjectType.LIFECYCLE );
+			lc.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , lc.NAME , DBEnumParamEntityType.LIFECYCLE );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , lc.NAME , lc.ID , DBEnumObjectType.LIFECYCLE );
+			DBNames.updateName( c , DBVersions.CORE_ID , lc.NAME , lc.ID , DBEnumParamEntityType.LIFECYCLE );
 		
 		lc.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
@@ -171,9 +167,9 @@ public class DBEngineLifecycles {
 
 	private static void modifyPhase( DBConnection c , LifecyclePhase phase , boolean insert ) throws Exception {
 		if( insert )
-			phase.ID = DBNames.getNameIndex( c , phase.lc.ID , phase.NAME , DBEnumObjectType.LIFECYCLEPHASE );
+			phase.ID = DBNames.getNameIndex( c , phase.lc.ID , phase.NAME , DBEnumParamEntityType.LIFECYCLEPHASE );
 		else
-			DBNames.updateName( c , phase.lc.ID , phase.NAME , phase.ID , DBEnumObjectType.LIFECYCLEPHASE );
+			DBNames.updateName( c , phase.lc.ID , phase.NAME , phase.ID , DBEnumParamEntityType.LIFECYCLEPHASE );
 		
 		phase.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
@@ -327,6 +323,11 @@ public class DBEngineLifecycles {
 	public static void deleteLifecycle( EngineTransaction transaction , EngineLifecycles lifecycles , ReleaseLifecycle lc ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
+		if( !c.modify( DBQueries.MODIFY_LIFECYCLE_DROPPHASES1 , new String[] {
+				EngineDB.getInteger( lc.ID )
+				}))
+			transaction.exitUnexpectedState();
+		
 		DBEngineEntities.deleteAppObject( c , entities.entityAppReleaseLifecycle , lc.ID , c.getNextCoreVersion() );
 		lifecycles.removeLifecycle( lc );
 		lc.deleteObject();

@@ -323,7 +323,7 @@ public class CommandOptions {
 	}
 	
 	public CommandOption setFlag( String var , boolean value ) {
-		return( setFlag( meta.getParamVar( var ) , value ) );
+		return( setFlag( meta.getFlagVar( var ) , value ) );
 	}
 	
 	public CommandOption setParam( CommandVar var , String value ) {

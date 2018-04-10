@@ -2,11 +2,11 @@ package org.urm.engine.vcs;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.data.EngineBuilders;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.AuthResource;
-import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.Meta;
@@ -85,7 +85,7 @@ public abstract class GenericVCS {
 		if( !BUILDER.isEmpty() ) {
 			EngineBuilders builders = action.getServerBuilders();
 			ProjectBuilder builder = builders.getBuilder( BUILDER );
-			if( builder.REMOTE ) {
+			if( builder.BUILDER_REMOTE ) {
 				Account account = builder.getRemoteAccount( action );
 				shell = action.getShell( account );
 			}

@@ -23,7 +23,8 @@ public class ActionCopyCodebase extends ActionBase {
 		this.force = force;
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
+	@Override 
+	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
 		if( branchVAR1 == true && branchVAR2 == true && force == false )
 			vcs.copyBranchToNewBranch( scopeProject.sourceProject , VAR1 , VAR2 );

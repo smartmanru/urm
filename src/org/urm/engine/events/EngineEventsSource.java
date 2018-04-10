@@ -3,9 +3,11 @@ package org.urm.engine.events;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.engine.EventService;
+
 abstract public class EngineEventsSource {
 
-	EngineEvents events;
+	EventService events;
 	public String sourceId;
 
 	private Map<String,EngineEventsApp> appMap;
@@ -13,7 +15,7 @@ abstract public class EngineEventsSource {
 	
 	abstract public EngineEventsState getState();
 	
-	public EngineEventsSource( EngineEvents events , String sourceId ) {
+	public EngineEventsSource( EventService events , String sourceId ) {
 		this.events = events;
 		this.sourceId = sourceId;
 		appMap = new HashMap<String,EngineEventsApp>(); 

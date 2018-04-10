@@ -2,19 +2,22 @@ package org.urm.meta;
 
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
+import org.urm.db.core.DBEnums.DBEnumChangeType;
 import org.urm.db.engine.DBEngineMirrors;
+import org.urm.db.env.DBMetaEnv;
 import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBMetaSources;
 import org.urm.db.system.DBAppSystem;
 import org.urm.engine.Engine;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.data.EngineMirrors;
+import org.urm.engine.data.EngineResources;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.AuthResource;
-import org.urm.meta.engine.EngineDirectory;
-import org.urm.meta.engine.EngineMirrors;
-import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.MirrorRepository;
+import org.urm.meta.env.MetaEnv;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.ProductMeta;
@@ -26,6 +29,8 @@ public class EngineMatcher {
 	public RunContext execrc;
 
 	protected ProductMeta matchStorage;
+	protected MetaEnv matchEnv;
+	
 	protected String matchValueInitial;
 	protected int matchOwnerId;
 	protected PropertyEntity matchItemEntity;
@@ -121,6 +126,9 @@ public class EngineMatcher {
 	private void prepareMatchProduct( AppProduct product , boolean update , boolean useOldMatch ) throws Exception {
 	}
 	
+	private void prepareMatchEnv( MetaEnv env , boolean update , boolean useOldMatch ) throws Exception {
+	}
+	
 	private void doneSystem( AppSystem system ) throws Exception {
 		EngineDirectory directory = loader.getDirectory();
 		if( system.MATCHED )
@@ -162,7 +170,7 @@ public class EngineMatcher {
 					DBEngineMirrors.modifyRepository( c , repo , false );
 					
 					ProductMeta storage = sources.meta.getStorage();
-					DBMetaSources.modifyProject( c , storage , project , false );
+					DBMetaSources.modifyProject( c , storage , project , false , DBEnumChangeType.UPDATED );
 				}
 				else {
 					repo.setProductProject( product.ID , project.ID );
@@ -201,12 +209,76 @@ public class EngineMatcher {
 	}
 
 	public void matchProductDone( MatchItem item ) throws Exception {
-		matchProductDone( item , matchStorage , matchValueInitial , matchOwnerId , matchItemEntity , matchItemProperty , matchItemIndex );
+		matchProductDone( item , matchStorage , matchOwnerId , matchItemEntity , matchItemProperty , matchItemIndex );
 	}
 
-	public void matchProductDone( MatchItem item , ProductMeta storage , String value , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
-		if( item != null && !item.MATCHED )
+	public void matchProductDone( MatchItem item , ProductMeta storage , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
+		if( item != null && !item.MATCHED ) {
+			engine.error( "product match failed: object=" + ownerId + ", entity=" + entity.PARAMENTITY_TYPE.name() + ", property=" + prop + ", value=" + matchValueInitial );
 			matchProductUpdateStatus( matchStorage , false , false );
+		}
 	}
 	
+	public String matchEnvBefore( MetaEnv env , String value , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
+		this.matchEnv = env;
+		this.matchValueInitial = value;
+		this.matchOwnerId = ownerId;
+		this.matchItemEntity = entity;
+		this.matchItemProperty = prop;
+		this.matchItemIndex = index;
+		return( value );
+	}
+
+	public void matchEnvDone( MatchItem item ) throws Exception {
+		matchEnvDone( item , matchEnv , matchOwnerId , matchItemEntity , matchItemProperty , matchItemIndex );
+	}
+
+	public void matchEnvDone( MatchItem item , MetaEnv env , int ownerId , PropertyEntity entity , String prop , String index ) throws Exception {
+		if( item != null && !item.MATCHED ) {
+			engine.error( "env match failed: env=" + env.NAME + ", object=" + ownerId + ", entity=" + entity.PARAMENTITY_TYPE.name() + ", property=" + prop + ", value=" + item.FKNAME );
+			matchEnvUpdateStatus( env , false , false );
+		}
+	}
+	
+	private void matchEnvUpdateStatus( MetaEnv env , boolean matched , boolean finish ) {
+		try {
+			if( !matched )
+				env.setMatched( false );
+			if( finish )
+				DBMetaEnv.setMatched( loader , env , matched );
+		}
+		catch( Throwable e ) {
+			loader.log( "update match status" , e );
+		}
+	}
+
+	public boolean matchEnv( EngineLoader loader , ProductMeta set , MetaEnv env , boolean update ) {
+		// product meta
+		try {
+			prepareMatchEnv( env , false , false );
+
+			boolean matched = true;
+			if( !env.checkMatched() )
+				matched = false;
+			
+			if( !matched ) {
+				matchEnvUpdateStatus( env , false , true );
+				return( false );
+			}
+			
+			doneEnv( set , env );
+		}
+		catch( Throwable e ) {
+			loader.log( "match problem " , e );
+			matchEnvUpdateStatus( env , false , true );
+			return( false );
+		}
+		
+		matchEnvUpdateStatus( env , true , true );
+		return( true );
+	}
+	
+	private void doneEnv( ProductMeta set , MetaEnv env ) throws Exception {
+	}
+
 }

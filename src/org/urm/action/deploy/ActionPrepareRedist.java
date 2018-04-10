@@ -36,8 +36,9 @@ public class ActionPrepareRedist extends ActionBase {
 			recreateFolders( server , item.envServerNode );
 		
 		if( target.itemFull ) {
-			if( server.staticServer != null )
-				recreateFoldersSingle( server.staticServer );
+			MetaEnvServer staticServer = server.getStaticServer();
+			if( staticServer != null )
+				recreateFoldersSingle( staticServer );
 		}
 		
 		return( SCOPESTATE.RunSuccess );

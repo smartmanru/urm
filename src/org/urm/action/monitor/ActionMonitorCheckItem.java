@@ -15,6 +15,7 @@ import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.env.MetaMonitoringItem;
 import org.urm.meta.env.MetaMonitoringTarget;
+import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 
 public class ActionMonitorCheckItem extends ActionBase {
@@ -106,15 +107,16 @@ public class ActionMonitorCheckItem extends ActionBase {
 	
 	private boolean monitorServerItems( NodeStatus nodeStatus ) throws Exception {
 		boolean res = true;
-		if( server.isWebUser() && !server.WEBMAINURL.isEmpty() ) {
+		if( server.isRunWebUser() && !server.WEBMAINURL.isEmpty() ) {
 			if( !monitorServerItemsWebUser( nodeStatus ) )
 				res = false;
 		}
 		else
-		if( server.isWebApp() && !server.WEBSERVICEURL.isEmpty() ) {
+		if( server.isRunWebApp() && !server.WEBSERVICEURL.isEmpty() ) {
 			for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
-				if( deployment.comp != null ) {
-					for( MetaDistrComponentItem ws : deployment.comp.getWebServices() ) {
+				if( deployment.isComponent() ) {
+					MetaDistrComponent comp = deployment.getComponent();
+					for( MetaDistrComponentItem ws : comp.getWebServices() ) {
 						if( !monitorServerItemsWebApp( nodeStatus , ws ) )
 							res = false;
 					}

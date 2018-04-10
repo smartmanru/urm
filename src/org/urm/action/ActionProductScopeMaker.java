@@ -1,8 +1,7 @@
 package org.urm.action;
 
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.DBEnumItemOriginType;
-import org.urm.meta.Types.VarCATEGORY;
+import org.urm.db.core.DBEnums.*;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -87,18 +86,40 @@ public class ActionProductScopeMaker {
 			addProductDatabaseDeliveries( ITEMS );
 	}
 
-	public void addScopeProductDatabaseDeliverySchemes( String DELIVERY , String[] ITEMS ) throws Exception {
+	public void addScopeProductDocDeliveries( String[] ITEMS ) throws Exception {
+		action.trace( "scope: Product Doc Deliveries Scope, items=" + Common.getListSet( ITEMS ) );
+		if( ITEMS == null || ITEMS.length == 0 )
+			action.exit0( _Error.MissingTargetItems0 , "missing items (use \"all\" to reference all items)" );
+		
+		if( ITEMS.length == 1 && ITEMS[0].equals( "all" ) )
+			addProductDocDeliveries( null );
+		else
+			addProductDocDeliveries( ITEMS );
+	}
+
+	public void addScopeProductDeliveryDatabaseSchemes( String DELIVERY , String[] ITEMS ) throws Exception {
 		action.trace( "scope: Product Database Delivery Schemes Scope, items=" + Common.getListSet( ITEMS ) );
 		if( ITEMS == null || ITEMS.length == 0 )
 			action.exit0( _Error.MissingTargetItems0 , "missing items (use \"all\" to reference all items)" );
 		
 		if( ITEMS.length == 1 && ITEMS[0].equals( "all" ) )
-			addProductDatabaseDeliverySchemes( DELIVERY , null );
+			addProductDeliveryDatabaseSchemes( DELIVERY , null );
 		else
-			addProductDatabaseDeliverySchemes( DELIVERY , ITEMS );
+			addProductDeliveryDatabaseSchemes( DELIVERY , ITEMS );
 	}
 
-	public void addScopeProductCategory( VarCATEGORY CATEGORY , String[] TARGETS ) throws Exception {
+	public void addScopeProductDeliveryDocs( String DELIVERY , String[] ITEMS ) throws Exception {
+		action.trace( "scope: Product Delivery Doc Scope, items=" + Common.getListSet( ITEMS ) );
+		if( ITEMS == null || ITEMS.length == 0 )
+			action.exit0( _Error.MissingTargetItems0 , "missing items (use \"all\" to reference all items)" );
+		
+		if( ITEMS.length == 1 && ITEMS[0].equals( "all" ) )
+			addProductDeliveryDocs( DELIVERY , null );
+		else
+			addProductDeliveryDocs( DELIVERY , ITEMS );
+	}
+
+	public void addScopeProductCategory( DBEnumScopeCategoryType CATEGORY , String[] TARGETS ) throws Exception {
 		addScopeProductSet( Common.getEnumLower( CATEGORY ) , TARGETS );
 	}
 
@@ -106,22 +127,23 @@ public class ActionProductScopeMaker {
 		addAllSourceProjects();
 		addAllProductConfigs();
 		addAllProductDatabase();
+		addAllProductDocs();
 		addAllManualItems();
 		addAllDerivedItems();
 		scope.setFullProduct( action , true );
 	}
 	
 	private void addProductSet( String set , String[] TARGETS ) throws Exception {
-		if( set.equals( Common.getEnumLower( VarCATEGORY.CONFIG ) ) )
+		if( set.equals( Common.getEnumLower( DBEnumScopeCategoryType.CONFIG ) ) )
 			addProductConfigs( TARGETS );
 		else 
-		if( set.equals( Common.getEnumLower( VarCATEGORY.DB ) ) )
+		if( set.equals( Common.getEnumLower( DBEnumScopeCategoryType.DB ) ) )
 			addProductDatabaseDeliveries( TARGETS );
 		else 
-		if( set.equals( Common.getEnumLower( VarCATEGORY.MANUAL ) ) )
+		if( set.equals( Common.getEnumLower( DBEnumScopeCategoryType.MANUAL ) ) )
 			addManualItems( TARGETS );
 		else 
-		if( set.equals( Common.getEnumLower( VarCATEGORY.DERIVED ) ) )
+		if( set.equals( Common.getEnumLower( DBEnumScopeCategoryType.DERIVED ) ) )
 			addDerivedItems( TARGETS );
 		else {
 			MetaSources sources = meta.getSources();
@@ -139,12 +161,12 @@ public class ActionProductScopeMaker {
 			
 			ActionScopeSet sset = null;
 			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.MANUAL ) {
-				sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.MANUAL );
+				sset = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.MANUAL );
 				addProductManualItems( sset , new String[] { itemName } );
 			}
 			else
 			if( item.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
-				sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.DERIVED );
+				sset = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.DERIVED );
 				addProductDerivedItems( sset , new String[] { itemName } );
 			}
 			else {
@@ -174,7 +196,7 @@ public class ActionProductScopeMaker {
 	}
 	
 	private void addProductConfigs( String[] CONFCOMPS ) throws Exception {
-		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.CONFIG );
+		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.CONFIG );
 		addProductConfigComps( sset , CONFCOMPS );
 	}
 
@@ -182,9 +204,18 @@ public class ActionProductScopeMaker {
 		addProductDatabaseDeliveries( null );
 	}
 	
+	private void addAllProductDocs() throws Exception {
+		addProductDocDeliveries( null );
+	}
+	
 	private void addProductDatabaseDeliveries( String[] DELIVERIES ) throws Exception {
-		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , VarCATEGORY.DB );
+		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.DB );
 		addProductDatabaseDeliveries( set , DELIVERIES );
+	}
+
+	private void addProductDocDeliveries( String[] DELIVERIES ) throws Exception {
+		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.DOC );
+		addProductDocDeliveries( set , DELIVERIES );
 	}
 
 	private void addAllManualItems() throws Exception {
@@ -192,7 +223,7 @@ public class ActionProductScopeMaker {
 	}
 
 	private void addManualItems( String[] DISTITEMS ) throws Exception {
-		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.MANUAL );
+		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.MANUAL );
 		addProductManualItems( sset , DISTITEMS );
 	}
 	
@@ -201,13 +232,18 @@ public class ActionProductScopeMaker {
 	}
 
 	private void addDerivedItems( String[] DISTITEMS ) throws Exception {
-		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , VarCATEGORY.DERIVED );
+		ActionScopeSet sset = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.DERIVED );
 		addProductDerivedItems( sset , DISTITEMS );
 	}
 	
-	private void addProductDatabaseDeliverySchemes( String DELIVERY , String[] SCHEMES ) throws Exception {
-		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , VarCATEGORY.DB );
+	private void addProductDeliveryDatabaseSchemes( String DELIVERY , String[] SCHEMES ) throws Exception {
+		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.DB );
 		addProductDatabaseDeliverySchemes( set , DELIVERY , SCHEMES );
+	}
+
+	private void addProductDeliveryDocs( String DELIVERY , String[] DOCS ) throws Exception {
+		ActionScopeSet set = scope.makeProductCategoryScopeSet( action , DBEnumScopeCategoryType.DOC );
+		addProductDeliveryDocs( set , DELIVERY , DOCS );
 	}
 
 	private void addProductDatabaseDeliveries( ActionScopeSet set , String[] DELIVERIES ) throws Exception {
@@ -215,20 +251,50 @@ public class ActionProductScopeMaker {
 		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
 			set.setFullContent( true ); 
 			for( MetaDistrDelivery item : distr.getDatabaseDeliveries() )
-				addProductDatabase( set , item , false );
+				addProductDatabase( set , item , true , false );
 			return;
 		}
 		
 		for( String key : DELIVERIES ) {
 			MetaDistrDelivery item = distr.getDelivery( key );
 			if( item.hasDatabaseItems() )
-				addProductDatabase( set , item , true );
+				addProductDatabase( set , item , true , true );
 		}
 	}
 
-	private ActionScopeTarget addProductDatabase( ActionScopeSet set , MetaDistrDelivery dbitem , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTarget target = ActionScopeTarget.createDatabaseDeliveryTarget( set , dbitem , specifiedExplicitly , true );
+	private void addProductDocDeliveries( ActionScopeSet set , String[] DELIVERIES ) throws Exception {
+		MetaDistr distr = meta.getDistr();
+		if( DELIVERIES == null || DELIVERIES.length == 0 ) {
+			set.setFullContent( true ); 
+			for( MetaDistrDelivery item : distr.getDatabaseDeliveries() )
+				addProductDoc( set , item , true , false );
+			return;
+		}
+		
+		for( String key : DELIVERIES ) {
+			MetaDistrDelivery item = distr.getDelivery( key );
+			if( item.hasDocItems() )
+				addProductDoc( set , item , true , true );
+		}
+	}
+
+	private ActionScopeTarget addProductDatabase( ActionScopeSet set , MetaDistrDelivery dbitem , boolean allItems , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createDeliveryDatabaseTarget( set , dbitem , specifiedExplicitly , allItems );
 		set.addTarget( action , target );
+		
+		if( allItems )
+			target.addDatabaseSchemes( action , null );
+			
+		return( target );
+	}
+
+	private ActionScopeTarget addProductDoc( ActionScopeSet set , MetaDistrDelivery docitem , boolean allItems , boolean specifiedExplicitly ) throws Exception {
+		ActionScopeTarget target = ActionScopeTarget.createDeliveryDocTarget( set , docitem , specifiedExplicitly , allItems );
+		set.addTarget( action , target );
+		
+		if( allItems )
+			target.addDocs( action , null );
+			
 		return( target );
 	}
 
@@ -305,8 +371,15 @@ public class ActionProductScopeMaker {
 	private void addProductDatabaseDeliverySchemes( ActionScopeSet set , String DELIVERY , String[] SCHEMES ) throws Exception {
 		MetaDistr distr = meta.getDistr();
 		MetaDistrDelivery item = distr.getDelivery( DELIVERY );
-		ActionScopeTarget target = addProductDatabase( set , item , true );
+		ActionScopeTarget target = addProductDatabase( set , item , false , true );
 		target.addDatabaseSchemes( action , SCHEMES );
+	}
+	
+	private void addProductDeliveryDocs( ActionScopeSet set , String DELIVERY , String[] DOCS ) throws Exception {
+		MetaDistr distr = meta.getDistr();
+		MetaDistrDelivery item = distr.getDelivery( DELIVERY );
+		ActionScopeTarget target = addProductDoc( set , item , false , true );
+		target.addDocs( action , DOCS );
 	}
 	
 	private void addProductSourceProjects( ActionScopeSet set , String[] PROJECTS ) throws Exception {

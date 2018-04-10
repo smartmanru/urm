@@ -10,7 +10,9 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
@@ -18,9 +20,9 @@ import org.urm.engine.storage.SourceStorage;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.Types.*;
 
 public class ActionConfigure extends ActionBase {
 
@@ -65,16 +67,19 @@ public class ActionConfigure extends ActionBase {
 		
 		// collect components
 		Map<String, MetaDistrConfItem> confs = new HashMap<String, MetaDistrConfItem>(); 
-		for( ActionScopeSet set : scope.getSets( this ) )
-			for( ActionScopeTarget target : set.getTargets( this ).values() )
-				confs.putAll( target.envServer.getConfItems() );
+		for( ActionScopeSet set : scope.getSets( this ) ) {
+			for( ActionScopeTarget target : set.getTargets() ) {
+				for( MetaDistrConfItem item : target.envServer.getConfItems() )
+					confs.put( item.NAME , item );
+			}
+		}
 		
 		// export/copy to template folder
 		for( MetaDistrConfItem conf : confs.values() )
-			fillTemplateFolder( conf );
+			fillTemplateFolder( conf , scope.releaseDistScope );
 	}
 
-	private void fillTemplateFolder( MetaDistrConfItem conf ) throws Exception {
+	private void fillTemplateFolder( MetaDistrConfItem conf , ReleaseDistScope scope ) throws Exception {
 		if( dist == null ) {
 			// download configuration templates
 			SourceStorage sourceStorage = artefactory.getSourceStorage( this , conf.meta );
@@ -83,7 +88,7 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		// copy from release
-		if( dist.release.findCategoryTarget( this , VarCATEGORY.CONFIG , conf.NAME ) != null ) {
+		if( scope.findCategoryDeliveryItem( DBEnumScopeCategoryType.CONFIG , conf.NAME ) != null ) {
 			LocalFolder folder = templateFolder.getSubFolder( this , conf.NAME );
 			if( folder.checkExists( this ) )
 				dist.copyDistConfToFolder( this , conf , folder );
@@ -107,17 +112,19 @@ public class ActionConfigure extends ActionBase {
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , SourceStorage sourceStorage , LocalFolder parent ) throws Exception {
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
-			if( deployment.confItem != null ) {
-				String name = sourceStorage.getConfItemLiveName( this , node , deployment.confItem );
-				executeNodeConf( parent , sourceStorage , server , node , deployment , deployment.confItem , name );
+			if( deployment.isConfItem() ) {
+				MetaDistrConfItem confItem = deployment.getConfItem(); 
+				String name = sourceStorage.getConfItemLiveName( this , node , confItem );
+				executeNodeConf( parent , sourceStorage , server , node , deployment , confItem , name );
 				continue;
 			}
 			
 			// deployments
-			if( deployment.comp == null )
+			if( !deployment.isComponent() )
 				continue;
 			
-			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems() ) {
+			MetaDistrComponent comp = deployment.getComponent();
+			for( MetaDistrComponentItem compItem : comp.getConfItems() ) {
 				if( compItem.confItem != null ) {
 					String name = sourceStorage.getConfItemLiveName( this , node , compItem.confItem );
 					executeNodeConf( parent , sourceStorage , server , node , deployment , compItem.confItem , name );

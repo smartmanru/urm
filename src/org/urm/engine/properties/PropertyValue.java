@@ -66,6 +66,12 @@ public class PropertyValue {
 		this.finalValue = "";
 	}
 
+	public boolean isOriginalEmpty() {
+		if( originalValue == null || originalValue.isEmpty() )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isNull() {
 		return( nullvalue );
 	}
@@ -130,14 +136,6 @@ public class PropertyValue {
 	
 	public DBEnumParamValueType getType() {
 		return( type );
-	}
-	
-	public String getOriginalValue() {
-		return( originalValue );
-	}
-	
-	public String getFinalValue() {
-		return( finalValue );
 	}
 	
 	public void setName( String propNew ) {
@@ -300,10 +298,22 @@ public class PropertyValue {
 		return( Integer.parseInt( finalValue ) );
 	}
 	
+	public String getOriginalValue() {
+		return( originalValue );
+	}
+	
+	public String getFinalValue() {
+		return( finalValue );
+	}
+	
 	public String getExpressionValue() {
 		if( originalValue.isEmpty() )
 			return( defaultValue );
 		return( originalValue );
+	}
+
+	public String getDefaultValue() {
+		return( defaultValue );
 	}
 
 	public String getString() {

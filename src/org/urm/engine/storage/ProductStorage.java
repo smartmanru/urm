@@ -97,10 +97,10 @@ public class ProductStorage {
 		return( urm.getProductEnvMetadataFolder( action , meta.getProduct() ) );
 	}
 	
-	public String getEnvConfFile( ActionBase action , String envFile ) throws Exception {
+	public String getEnvConfFile( ActionBase action , String envName ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.getProduct() );
-		return( folder.getFilePath( action , envFile ) );
+		return( folder.getFilePath( action , envName + ".xml" ) );
 	}
 	
 	public String getDesignFile( ActionBase action , String fileName ) throws Exception {
@@ -117,6 +117,12 @@ public class ProductStorage {
 		
 		String[] files = folder.findFiles( action , "*.xml" );
 		return( files );
+	}
+	
+	public String getEnvFilePath( ActionBase action , String file ) throws Exception {
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.getProduct() );
+		return( folder.getFilePath( action , file ) );
 	}
 	
 	public String[] getDesignFiles( ActionBase action ) throws Exception {
@@ -179,7 +185,10 @@ public class ProductStorage {
 		String[] columntypes = { "varchar(30)" , "varchar(30)" };
 		List<String[]> data = new LinkedList<String[]>();
 		
-		Map<String,MetaDatabaseSchema> serverSchemas = server.getSchemaSet( action );
+		Map<String,MetaDatabaseSchema> serverSchemas = new HashMap<String,MetaDatabaseSchema>();
+		for( MetaDatabaseSchema schema : server.getSchemaSet() )
+			serverSchemas.put( schema.NAME , schema );
+			
 		for( String SN : tableSet.keySet() ) {
 			MetaDatabaseSchema schema = serverSchemas.get( SN );
 			Map<String,String> tables = tableSet.get( SN );
@@ -199,11 +208,14 @@ public class ProductStorage {
 		if( !client.checkConnect( action , server ) )
 			action.exit0( _Error.UnableConnectAdminDatabase0 , "unable to connect to administrative db" );
 		
-		client.createTableData( action , server.admSchema , table , columns , columntypes , data );  
+		client.createTableData( action , server.getAdmSchema() , table , columns , columntypes , data );  
 	}
 
 	public void saveDatapumpSet( ActionBase action , Map<String,Map<String,String>> tableSet , MetaEnvServer server , String filePath ) throws Exception {
-		Map<String,MetaDatabaseSchema> serverSchemas = server.getSchemaSet( action );
+		Map<String,MetaDatabaseSchema> serverSchemas = new HashMap<String,MetaDatabaseSchema>();
+		for( MetaDatabaseSchema schema : server.getSchemaSet() )
+			serverSchemas.put( schema.NAME , schema );
+		
 		List<String> conf = new LinkedList<String>();
 		
 		for( String SN : tableSet.keySet() ) {
@@ -231,7 +243,7 @@ public class ProductStorage {
 		Common.xmlSaveDoc( doc , file );
 	}
 	
-	public void saveDoc( Document doc , String path ) throws Exception {
+	public static void saveDoc( Document doc , String path ) throws Exception {
 		Element root = doc.getDocumentElement();
 		Common.xmlSetElementAttr( doc , root , XML_APPVERSION , "" + EngineDB.APP_VERSION );
 		Common.xmlSaveDoc( doc , path );

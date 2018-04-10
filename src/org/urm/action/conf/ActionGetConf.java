@@ -34,7 +34,7 @@ public class ActionGetConf extends ActionBase {
 		ConfSourceFolder sourceFolder = new ConfSourceFolder( scopeItem.meta );
 		boolean res = false;
 		if( dist != null ) {
-			sourceFolder.createReleaseConfigurationFolder( this , scopeItem.releaseTarget );
+			sourceFolder.createReleaseConfigurationFolder( this , scopeItem.releaseDistScopeDeliveryItem );
 			res = sourceStorage.downloadReleaseConfigItem( this , dist , sourceFolder , confFolder );
 		}
 		else {

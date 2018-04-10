@@ -6,12 +6,12 @@ import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
-import org.urm.engine.dist.Dist;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.release.Release;
 
 public class ActionBuild extends ActionBase {
 	
@@ -19,16 +19,16 @@ public class ActionBuild extends ActionBase {
 	public LocalFolder OUTDIR;
 	public String OUTFILE;
 	public String TAG;
-	public Dist dist;
+	public Release release;
 
 	public String BUILDSTATUS;
 	
-	public ActionBuild( ActionBase action , String stream , LocalFolder OUTDIR , String OUTFILE , String TAG , Dist dist ) {
+	public ActionBuild( ActionBase action , String stream , LocalFolder OUTDIR , String OUTFILE , String TAG , Release release ) {
 		super( action , stream , "Generic build, tag=" + TAG );
 		this.OUTDIR = OUTDIR;
 		this.OUTFILE = OUTFILE;
 		this.TAG = TAG;
-		this.dist = dist;
+		this.release = release;
 	}
 
 	@Override 

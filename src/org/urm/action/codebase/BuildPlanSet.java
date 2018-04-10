@@ -5,12 +5,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.engine.dist.ReleaseDistSet;
+import org.urm.engine.dist.ReleaseBuildScopeSet;
+import org.urm.engine.dist.ReleaseDistScopeSet;
 
 public class BuildPlanSet {
 	
 	public BuildPlan plan;
-	public ReleaseDistSet set;
+	public ReleaseBuildScopeSet buildSet;
+	public ReleaseDistScopeSet distSet;
 	public int pos;
 	public String name;
 	public Map<String,BuildPlanItem> mapItems;
@@ -19,9 +21,8 @@ public class BuildPlanSet {
 	public boolean conf;
 	public boolean db;
 	
-	public BuildPlanSet( BuildPlan plan , ReleaseDistSet set , int pos , String name ) {
+	public BuildPlanSet( BuildPlan plan , int pos , String name ) {
 		this.plan = plan;
-		this.set = set;
 		this.pos = pos;
 		this.name = name;
 		mapItems = new HashMap<String,BuildPlanItem>();
@@ -29,6 +30,14 @@ public class BuildPlanSet {
 		build = false;
 		conf = false;
 		db = false;
+	}
+
+	public void createBuildSet( ReleaseBuildScopeSet buildSet ) {
+		this.buildSet = buildSet;
+	}
+	
+	public void createDistSet( ReleaseDistScopeSet distSet ) {
+		this.distSet = distSet;
 	}
 	
 	public void addItem( BuildPlanItem item ) {

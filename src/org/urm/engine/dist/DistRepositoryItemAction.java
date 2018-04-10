@@ -3,7 +3,7 @@ package org.urm.engine.dist;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.dist.DistRepository.DistOperation;
+import org.urm.meta.release.ReleaseRepository.ReleaseOperation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -15,7 +15,7 @@ public class DistRepositoryItemAction {
 	public String ACTION_NAME;
 	public long actionStarted;
 	public boolean actionSuccess;
-	public DistOperation actionOp;
+	public ReleaseOperation actionOp;
 	public String ACTION_INFO;
 	
 	public DistRepositoryItemAction( DistRepositoryItem item ) {
@@ -37,7 +37,7 @@ public class DistRepositoryItemAction {
 		ACTION_NAME = ConfReader.getAttrValue( root , "action" );
 		actionStarted = ConfReader.getLongAttrValue( root , "started" , 0 );
 		actionSuccess = ConfReader.getBooleanAttrValue( root , "success" , false );
-		actionOp = DistOperation.valueOf( ConfReader.getAttrValue( root , "op" ).toUpperCase() );
+		actionOp = ReleaseOperation.valueOf( ConfReader.getAttrValue( root , "op" ).toUpperCase() );
 		ACTION_INFO = ConfReader.getAttrValue( root , "info" );
 	}
 
@@ -49,7 +49,7 @@ public class DistRepositoryItemAction {
 		Common.xmlSetElementAttr( doc , root , "info" , ACTION_INFO );
 	}
 	
-	public void create( ActionBase action , boolean success , DistOperation op , String msg ) throws Exception {
+	public void create( ActionBase action , boolean success , ReleaseOperation op , String msg ) throws Exception {
 		ACTION_NAME = action.getClass().getSimpleName();
 		actionStarted = action.blotterTreeItem.startTime;
 		actionSuccess = success;

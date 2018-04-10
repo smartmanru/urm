@@ -3,17 +3,26 @@ package org.urm.action.release;
 import java.util.Date;
 
 import org.urm.action.ActionBase;
+import org.urm.db.release.DBReleaseDist;
+import org.urm.db.release.DBReleaseRepository;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.dist.DistRepositoryItem;
+import org.urm.engine.dist.ReleaseLabelInfo;
+import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
+import org.urm.meta.release.ProductReleases;
+import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseDist;
+import org.urm.meta.release.ReleaseRepository;
 
 public class ActionCreateRelease extends ActionBase {
 
 	public Meta meta;
-	public Dist dist;
+	public Release release;
 	public String RELEASELABEL;
 	public Date releaseDate;
 	public ReleaseLifecycle lc;
@@ -27,9 +36,25 @@ public class ActionCreateRelease extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
-		checkRequired( RELEASELABEL , "RELEASELABEL" );
-		DistRepository repo = artefactory.getDistRepository( this , meta );
-		dist = repo.createDist( this , RELEASELABEL , releaseDate , lc );
+		EngineMethod method = super.method;
+		
+		ProductReleases releases = meta.getReleases();
+		synchronized( releases ) {
+			// update repositories
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			DistRepository distrepoUpdated = method.changeDistRepository( releases );
+			
+			// create release
+			ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( this , meta , RELEASELABEL );
+			release = DBReleaseRepository.createReleaseNormal( method , this , repoUpdated , info , releaseDate , lc );
+			ReleaseDist releaseDist = DBReleaseDist.createReleaseDist( method , this , release , info.VARIANT );
+			
+			// create distributive
+			DistRepositoryItem item = distrepoUpdated.createRepositoryItem( method , this , info );
+			Dist dist = distrepoUpdated.createDistNormal( method , this , item , releaseDist );
+			DBReleaseDist.updateHash( method , this , release , releaseDist , dist );
+		}
+		
 		return( SCOPESTATE.RunSuccess );
 	}
 	

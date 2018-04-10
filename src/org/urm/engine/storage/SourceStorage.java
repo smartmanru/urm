@@ -4,8 +4,8 @@ import org.urm.action.ActionBase;
 import org.urm.action.conf.ConfSourceFolder;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.vcs.GenericVCS;
+import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
@@ -13,6 +13,7 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
@@ -27,6 +28,7 @@ public class SourceStorage {
 
 	public static String CONFIG_FOLDER = "config";
 	public static String DATABASE_FOLDER = "db";
+	public static String DOC_FOLDER = "doc";
 	public static String ERRORS_FOLDER = "errors";
 	public static String MANUAL_FOLDER = "manual";
 
@@ -86,7 +88,7 @@ public class SourceStorage {
 		ProductMeta storage = meta.getStorage();
 		MirrorRepository mirror = action.getConfigurationMirror( storage );
 		GenericVCS vcs = getMirrorVCS( action , mirror );
-		String PATH = getDATAReleaseConfigSourcePath( action , distStorage , sourceFolder.releaseComp );
+		String PATH = getDATAReleaseConfigSourcePath( action , distStorage , sourceFolder );
 		
 		if( downloadConfigItem( action , vcs , PATH , sourceFolder.distrComp , dstFolder ) )
 			return( true );
@@ -107,6 +109,20 @@ public class SourceStorage {
 		
 		String path = vcs.getInfoMasterPath( mirror , PATH );
 		action.info( "no database changes at " + path + ". Skipped." );
+		return( false );
+	}
+	
+	public boolean downloadReleaseDocFiles( ActionBase action , Dist distStorage , MetaDistrDelivery docDelivery , LocalFolder dstFolder ) throws Exception {
+		ProductMeta storage = meta.getStorage();
+		MirrorRepository mirror = action.getConfigurationMirror( storage );
+		GenericVCS vcs = getMirrorVCS( action , mirror );
+		String PATH = getDATAReleaseDocSourcePath( action , distStorage , docDelivery );
+		
+		if( downloadDocFiles( action , vcs , PATH , docDelivery , dstFolder ) )
+			return( true );
+		
+		String path = vcs.getInfoMasterPath( mirror , PATH );
+		action.info( "no doc changes at " + path + ". Skipped." );
 		return( false );
 	}
 	
@@ -150,6 +166,18 @@ public class SourceStorage {
 		
 		if( action.isLocalLinux() )
 			dstFolder.prepareFolderForLinux( action , DATABASE_FOLDER );
+		return( true );
+	}
+	
+	private boolean downloadDocFiles( ActionBase action , GenericVCS vcs , String ITEMPATH , MetaDistrDelivery docDelivery , LocalFolder dstFolder ) throws Exception {
+		if( !isValidPath( action , vcs , ITEMPATH ) )
+			return( false );
+	
+		ProductMeta storage = meta.getStorage();
+		MirrorRepository mirror = action.getConfigurationMirror( storage );
+		if( !vcs.exportRepositoryMasterPath( mirror , dstFolder , ITEMPATH , DOC_FOLDER ) )
+			action.exit2( _Error.UnableExportMirror2 , "unable to export from mirror=" + mirror.NAME + ", ITEMPATH=" + ITEMPATH , mirror.NAME , ITEMPATH );
+		
 		return( true );
 	}
 	
@@ -212,6 +240,11 @@ public class SourceStorage {
 	
 	public String getDBFolderRelPath( ActionBase action , MetaDistrDelivery dbDelivery ) throws Exception {
 		String PATH = Common.getPath( dbDelivery.FOLDER , SourceStorage.DATABASE_FOLDER );
+		return( PATH );
+	}
+	
+	public String getDocFolderRelPath( ActionBase action , MetaDistrDelivery docDelivery ) throws Exception {
+		String PATH = Common.getPath( docDelivery.FOLDER , SourceStorage.DOC_FOLDER );
 		return( PATH );
 	}
 	
@@ -320,12 +353,14 @@ public class SourceStorage {
 		String SERVERPATH = getDATALiveConfigServerPath( action , server.sg , server.NAME );
 		String PATH = Common.getPath( SERVERPATH , item );
 
+		HostAccount hostAccount = node.getHostAccount();
+		
 		String path = vcs.getInfoMasterPath( mirror , PATH );
 		if( !vcs.isValidRepositoryMasterPath( mirror , PATH ) ) {
 			if( !vcs.isValidRepositoryMasterPath( mirror , SERVERPATH ) )
 				vcs.ensureMasterFolderExists( mirror , SERVERPATH , commitMessage );
 			vcs.importMasterFolder( mirror , folder , PATH , commitMessage );
-			action.info( node.HOSTLOGIN + ": live created at " + path );
+			action.info( hostAccount.getFinalAccount() + ": live created at " + path );
 			return;
 		}
 		
@@ -345,9 +380,9 @@ public class SourceStorage {
 		saveLiveConfigItemCopyFolder( action , vcs , mirror , tobeFiles , coFiles , folder , coFolder );
 
 		if( vcs.commitMasterFolder( mirror , coFolder , "/" , commitMessage ) )
-			action.info( node.HOSTLOGIN + ": live updated at " + path );
+			action.info( hostAccount.getFinalAccount() + ": live updated at " + path );
 		else
-			action.debug( node.HOSTLOGIN + ": live not changed at " + path );
+			action.debug( hostAccount.getFinalAccount() + ": live not changed at " + path );
 	}
 
 	private void saveLiveConfigItemCopyFolder( ActionBase action , GenericVCS vcs , MirrorRepository mirror , FileSet tobeFiles , FileSet coFiles , LocalFolder folder , LocalFolder coFolder ) throws Exception {
@@ -391,16 +426,18 @@ public class SourceStorage {
 
 	public void exportTemplates( ActionBase action , LocalFolder parent , MetaEnvServer server ) throws Exception {
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
-			if( deployment.confItem != null ) {
-				exportTemplateConfigItem( action , server.sg , deployment.confItem.NAME , action.context.CTX_TAG , parent );
+			if( deployment.isConfItem() ) {
+				MetaDistrConfItem confItem = deployment.getConfItem();
+				exportTemplateConfigItem( action , server.sg , confItem.NAME , action.context.CTX_TAG , parent );
 				continue;
 			}
 				
 			// deployments
-			if( deployment.comp == null )
+			if( !deployment.isComponent() )
 				continue;
 			
-			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems() ) {
+			MetaDistrComponent comp = deployment.getComponent();
+			for( MetaDistrComponentItem compItem : comp.getConfItems() ) {
 				if( compItem.confItem != null )
 					exportTemplateConfigItem( action , server.sg , compItem.confItem.NAME , action.context.CTX_TAG , parent );
 			}
@@ -440,9 +477,9 @@ public class SourceStorage {
 		return( PATH );
 	}
 
-	private String getDATAReleaseConfigSourcePath( ActionBase action , Dist distStorage , ReleaseTarget releaseComp ) throws Exception {
+	private String getDATAReleaseConfigSourcePath( ActionBase action , Dist distStorage , ConfSourceFolder sourceFolder ) throws Exception {
 		String PATH = Common.getPath( getDATAReleasePath( action , distStorage ) , 
-			getConfFolderRelPath( action , releaseComp.distConfItem ) );
+			getConfFolderRelPath( action , sourceFolder.distrComp ) );
 		return( PATH );
 	}
 
@@ -452,6 +489,12 @@ public class SourceStorage {
 		return( PATH );
 	}
 
+	private String getDATAReleaseDocSourcePath( ActionBase action , Dist distStorage , MetaDistrDelivery docDelivery ) throws Exception {
+		String PATH = Common.getPath( getDATAReleasePath( action , distStorage ) , 
+			getDocFolderRelPath( action , docDelivery ) );
+		return( PATH );
+	}
+	
 	private String getDATAReleaseErrorsPath( ActionBase action , Dist distStorage , MetaDistrDelivery dbDelivery , String errorFolder ) throws Exception {
 		String PATH = Common.getPath( getDATAReleasePath( action , distStorage ) , 
 			getErrorFolderRelPath( action , dbDelivery , errorFolder ) );

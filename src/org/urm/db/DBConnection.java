@@ -13,11 +13,12 @@ import org.urm.db.core.DBEnums.DBEnumOwnerStatusType;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.engine.Engine;
-import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.data.EngineEntities;
 import org.urm.meta.OwnerObjectVersion;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.product.ProductMeta;
+import org.urm.meta.release.Release;
 
 public class DBConnection {
 
@@ -47,6 +48,12 @@ public class DBConnection {
 	public void init() throws Exception {
 		action.trace( "connection created" );
 		stmt = connection.createStatement();
+	}
+	
+	public boolean isConnected() {
+		if( connection != null )
+			return( true );
+		return( false );
 	}
 	
 	public void close( boolean commit ) {
@@ -348,6 +355,10 @@ public class DBConnection {
 		return( getCurrentObjectVersion( envId , DBEnumObjectVersionType.ENVIRONMENT ) );
 	}
 
+	public synchronized int getCurrentEnvironmentVersion( MetaEnv env ) throws Exception {
+		return( getCurrentEnvironmentVersion( env.ID ) );
+	}
+	
 	public synchronized int getNextEnvironmentVersion( MetaEnv env ) throws Exception {
 		return( getNextEnvironmentVersion( env , false ) );
 	}
@@ -361,6 +372,18 @@ public class DBConnection {
 		}
 		return( version.nextVersion );
 	}
+
+	public synchronized int getNextReleaseVersion( Release release ) throws Exception {
+		OwnerObjectVersion object = versions.get( release.ID );
+		if( object == null ) {
+			object = new OwnerObjectVersion( release.ID , DBEnumObjectVersionType.RELEASE );
+			object.VERSION = release.RV;
+			object.nextVersion = object.VERSION + 1;
+			versions.put( release.ID , object );
+		}
+		
+		return( object.nextVersion );
+	}
 	
 	public synchronized int getEnvironmentVersion( int envId ) throws Exception {
 		return( getLastObjectVersion( envId , DBEnumObjectVersionType.ENVIRONMENT ) );
@@ -371,6 +394,13 @@ public class DBConnection {
 		if( value == 0 )
 			return( null );
 		return( value );
+	}
+	
+	public int getNextSequenceValue() throws Exception {
+		String value = queryValue( DBQueries.QUERY_SEQ_GETNEXTVAL0 );
+		if( value == null )
+			Common.exitUnexpected();
+		return( Integer.parseInt( value ) );
 	}
 	
 }

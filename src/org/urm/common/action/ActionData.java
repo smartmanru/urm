@@ -170,7 +170,7 @@ public class ActionData implements Serializable {
 		}
 		
 		String info = "execute options={" + values + "}, args={" + 
-				Common.getList( args.toArray( new String[0] ) , ", " ) + "}";
+				Common.getListCommaSpaced( args.toArray( new String[0] ) ) + "}";
 		return( info );
 	}
 	
@@ -238,7 +238,7 @@ public class ActionData implements Serializable {
 		
 		for( CommandOption option : optionsSet ) {
 			if( option.var == var ) {
-				optionsSet.remove( option.optName );
+				optionsSet.remove( option );
 				break;
 			}
 		}

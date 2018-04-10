@@ -1,105 +1,91 @@
 package org.urm.engine.dist;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.urm.engine.dist.DistRepository.DistOperation;
+import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
+import org.urm.engine.run.EngineMethod;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.engine.ReleaseLifecycle;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import org.urm.meta.release.ReleaseDist;
 
 public class DistRepositoryItem {
 
 	public DistRepository repo;
+	
+	public String RELEASEDIR;
+	public String DISTPATH;
 	public Dist dist;
 	
-	public String RELEASEDIR; 
-	
-	List<DistRepositoryItemAction> history;
+	private boolean modifyState;
 	
 	public DistRepositoryItem( DistRepository repo ) {
 		this.repo = repo;
-		history = new LinkedList<DistRepositoryItemAction>(); 
+		modifyState = false;
 	}
 	
-	public DistRepositoryItem copy( ActionBase action , DistRepository repo ) throws Exception {
-		DistRepositoryItem ritem = new DistRepositoryItem( repo );
-		ritem.RELEASEDIR = RELEASEDIR;
-		for( DistRepositoryItemAction historyItem : history ) {
-			DistRepositoryItemAction rhistoryItem = historyItem.copy( action , ritem );
-			ritem.addHistory( rhistoryItem );
-		}
-		
-		ritem.dist = dist.copy( action , ritem.repo );
-		return( ritem );
+	public DistRepositoryItem copy( DistRepository rrepo , ReleaseDist rreleaseDist ) {
+		DistRepositoryItem r = new DistRepositoryItem( rrepo );
+		r.RELEASEDIR = RELEASEDIR;
+		r.DISTPATH = DISTPATH;
+		r.dist = dist.copy( rrepo.meta , r , rreleaseDist );
+		return( r );
 	}
 	
-	public void load( ActionBase action , Node root ) throws Exception {
-		RELEASEDIR = ConfReader.getAttrValue( root , "releasedir" );
-		
-		Node[] items = ConfReader.xmlGetChildren( root , "action" );
-		if( items == null )
-			return;
-		
-		for( Node historyNode : items ) {
-			DistRepositoryItemAction historyAction = new DistRepositoryItemAction( this );
-			historyAction.load( action , historyNode );
-			addHistory( historyAction );
+	public synchronized void modify( boolean done ) throws Exception {
+		if( !done ) {
+			if( modifyState )
+				Common.exitUnexpected();
+			modifyState = true;
 		}
-	}
-
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		Common.xmlSetElementAttr( doc , root , "releasedir" , dist.RELEASEDIR );
-		
-		for( DistRepositoryItemAction historyAction : history ) {
-			Element distElement = Common.xmlCreateElement( doc , root , "action" );
-			historyAction.save( action , doc , distElement );
+		else {
+			if( !modifyState )
+				Common.exitUnexpected();
+			modifyState = false;
 		}
-	}
-
-	public void read( ActionBase action , RemoteFolder distFolder ) throws Exception {
-		dist = read( action , repo , distFolder );
-		RELEASEDIR = dist.RELEASEDIR;
 	}
 	
-	public static Dist read( ActionBase action , DistRepository repo , RemoteFolder distFolder ) throws Exception {
+	public void setRepository( DistRepository repo ) {
+		this.repo = repo;
+	}
+	
+	public Dist read( ActionBase action , RemoteFolder distFolder , ReleaseDist releaseDist ) throws Exception {
+		RELEASEDIR = distFolder.folderName;
 		if( !distFolder.checkExists( action ) ) {
 			String path = distFolder.getLocalPath( action );
 			action.exit1( _Error.MissingRelease1 , "release does not exist at " + path , path );
 		}
 		
-		Dist dist = new Dist( repo.meta , repo );
+		dist = new Dist( repo.meta , this , releaseDist , distFolder );
 		dist.setFolder( distFolder );
-		dist.load( action );
+		dist.loadState( action );
 		return( dist );
 	}
 
-	public void createItem( ActionBase action , Dist dist ) throws Exception {
-		this.dist = dist;
-		RELEASEDIR = dist.RELEASEDIR;
+	public void createItem( ActionBase action , ReleaseLabelInfo info ) throws Exception {
+		this.dist = null;
+		this.RELEASEDIR = info.RELEASEDIR;
+		this.DISTPATH = info.DISTPATH;
 	}
 	
-	public static Dist createDist( ActionBase action , DistRepository repo , RemoteFolder distFolder , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
+	public void createItemFolder( ActionBase action ) throws Exception {
+		RemoteFolder distFolder = repo.getDistFolder( action , this );
 		if( distFolder.checkExists( action ) ) {
-			String path = distFolder.folderPath;
+			String path = distFolder.getLocalPath( action );
 			action.ifexit( _Error.ReleaseAlreadyExists1 , "distributive already exists at " + path , new String[] { path } );
 		}
-
-		Dist dist = new Dist( repo.meta , repo );
-		dist.setFolder( distFolder );
-		dist.create( action , distFolder.folderName , releaseDate , lc );
-		return( dist );
+		
+		distFolder.ensureExists( action );
 	}
 	
-	public static Dist createProdDist( ActionBase action , DistRepository repo , RemoteFolder distFolder , String RELEASEVER ) throws Exception {
+	public void setDist( Dist dist ) throws Exception {
+		if( !RELEASEDIR.equals( dist.RELEASEDIR ) )
+			Common.exitUnexpected();
+		
+		this.dist = dist;
+	}
+	
+	public Dist createDistMaster( ActionBase action , RemoteFolder distFolder , ReleaseDist releaseDist ) throws Exception {
 		if( distFolder.checkExists( action ) ) {
-			String path = distFolder.folderPath;
+			String path = distFolder.getLocalPath( action );
 			action.ifexit( _Error.ReleaseAlreadyExists1 , "distributive already exists at " + path , new String[] { path } );
 			
 			if( action.isForced() )
@@ -108,33 +94,76 @@ public class DistRepositoryItem {
 		else
 			distFolder.ensureExists( action );
 		
-		Dist dist = new Dist( repo.meta , repo );
+		Dist dist = new Dist( repo.meta , this , releaseDist , distFolder );
 		dist.setFolder( distFolder );
-		dist.createProd( action , RELEASEVER );
-		distFolder.createFileFromString( action , DistRepository.RELEASEHISTORYFILE , getHistoryRecord( action , RELEASEVER , "add" ) );
+		dist.createMaster( action );
 		return( dist );
 	}
 	
-	private static String getHistoryRecord( ActionBase action , String RELEASEVER , String operation ) throws Exception {
-		String s = Common.getNameTimeStamp() + ":" + operation + ":" + RELEASEVER;
-		return( s );
+	public void copyFiles( EngineMethod method , ActionBase action , Dist src ) throws Exception {
+		if( dist == null )
+			Common.exitUnexpected();
+		
+		ReleaseDistScope srcScope = ReleaseDistScope.createScope( src.release );
+		ReleaseDistScope dstScope = ReleaseDistScope.createScope( dist.release );
+		for( ReleaseDistScopeSet set : dstScope.getSets() ) {
+			ReleaseDistScopeSet srcSet = srcScope.findCategorySet( set.CATEGORY );
+			if( srcSet == null )
+				continue;
+			
+			for( ReleaseDistScopeDelivery delivery : set.getDeliveries() ) {
+				ReleaseDistScopeDelivery srcDelivery = srcSet.findDelivery( delivery.distDelivery.NAME );
+				if( srcDelivery == null )
+					continue;
+
+				if( delivery.CATEGORY == DBEnumScopeCategoryType.DB ) {
+					copyFilesDeliveryDatabase( method , action , src , delivery , srcDelivery );
+					continue;
+				}
+				
+				for( ReleaseDistScopeDeliveryItem item : delivery.getItems() ) {
+					if( item.isBinary() ) {
+						ReleaseDistScopeDeliveryItem srcItem = srcDelivery.findBinaryItem( item.binary );
+						if( srcItem != null )
+							copyFilesBinaryItem( method , action , src , item , srcItem );
+					}
+					else
+					if( item.isConf() ) {
+						ReleaseDistScopeDeliveryItem srcItem = srcDelivery.findConfItem( item.conf );
+						if( srcItem != null )
+							copyFilesConfItem( method , action , src , item , srcItem );
+					}
+					else
+					if( item.isDoc() ) {
+						ReleaseDistScopeDeliveryItem srcItem = srcDelivery.findDoc( item.doc );
+						if( srcItem != null )
+							copyFilesDoc( method , action , src , item , srcItem );
+					}
+				}
+			}
+		}
 	}
 
-	public void addAction( ActionBase action , boolean success , DistOperation op , String msg ) throws Exception {
-		DistRepositoryItemAction historyAction = new DistRepositoryItemAction( this );
-		historyAction.create( action , success , op , msg );
-		addHistory( historyAction );
-	}
-	
-	public void archiveItem( ActionBase action ) throws Exception {
+	private void copyFilesDeliveryDatabase( EngineMethod method , ActionBase action , Dist src , ReleaseDistScopeDelivery delivery , ReleaseDistScopeDelivery srcDelivery ) throws Exception {
+		dist.copyDatabaseDistrToDistr( action , delivery.distDelivery , src );
 	}
 
-	private void addHistory( DistRepositoryItemAction historyAction ) {
-		history.add( historyAction );
+	private void copyFilesBinaryItem( EngineMethod method , ActionBase action , Dist src , ReleaseDistScopeDeliveryItem item , ReleaseDistScopeDeliveryItem srcItem ) throws Exception {
+		DistItemInfo info = src.getDistItemInfo( action , item.binary , false , false , false );
+		if( info.isFound() )
+			dist.copyFileDistrToDistr( action , item.distDelivery , src , info.getDeliveryItemPath() );
 	}
 	
-	public synchronized DistRepositoryItemAction[] getHistory() {
-		return( history.toArray( new DistRepositoryItemAction[0] ) );
+	private void copyFilesConfItem( EngineMethod method , ActionBase action , Dist src , ReleaseDistScopeDeliveryItem item , ReleaseDistScopeDeliveryItem srcItem ) throws Exception {
+		DistItemInfo info = src.getDistItemInfo( action , item.conf );
+		if( info.isFound() )
+			dist.copyDirDistrToDistr( action , item.distDelivery , src , info.getDeliveryItemPath() );
+	}
+	
+	private void copyFilesDoc( EngineMethod method , ActionBase action , Dist src , ReleaseDistScopeDeliveryItem item , ReleaseDistScopeDeliveryItem srcItem ) throws Exception {
+		DistItemInfo info = src.getDistItemInfo( action , item.distDelivery , item.doc , false , false );
+		if( info.isFound() )
+			dist.copyFileDistrToDistr( action , item.distDelivery , src , info.getDeliveryItemPath() );
 	}
 	
 }

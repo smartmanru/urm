@@ -12,6 +12,7 @@ import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileInfo;
 import org.urm.engine.storage.RedistStateInfo;
 import org.urm.engine.storage.RedistStorage;
+import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerLocation;
 import org.urm.meta.env.MetaEnvServerNode;
@@ -25,9 +26,9 @@ public class ActionGetDeployInfo extends ActionBase {
 
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName() + " ..." );
 
-		if( server.isDatabase() )
+		if( server.isRunDatabase() )
 			executeTargetDatabase( server );
 		else
 			executeTargetApp( target , server );
@@ -52,7 +53,8 @@ public class ActionGetDeployInfo extends ActionBase {
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			info( "node" + node.POS + " (" + node.HOSTLOGIN + "):" );
+			HostAccount hostAccount = node.getHostAccount();
+			info( "node" + node.POS + " (" + hostAccount.getFinalAccount() + "):" );
 			
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			showDeployInfoApp( server , redist );
@@ -65,15 +67,15 @@ public class ActionGetDeployInfo extends ActionBase {
 
 		for( MetaEnvServerLocation location : server.getLocations( this , binary , conf ) ) {
 			info( "\tlocation: " + location.DEPLOYPATH );
-			if( binary && location.hasBinaryItems( this ) )
+			if( binary && location.hasBinaryItems() )
 				showDeployInfoContent( server , redist , location , true );
-			if( conf && location.hasConfItems( this ) )
+			if( conf && location.hasConfItems() )
 				showDeployInfoContent( server , redist , location , false );
 		}
 	}
 
 	private void showDeployInfoContent( MetaEnvServer server , RedistStorage redist , MetaEnvServerLocation location , boolean binary ) throws Exception {
-		VarCONTENTTYPE contentType = location.getContentType( this , binary );
+		EnumContentType contentType = location.getContentType( binary );
 		RedistStateInfo info = redist.getStateInfo( this , location.DEPLOYPATH , contentType );
 		if( !info.exists ) {
 			String type = ( binary )? "binary" : "conf";

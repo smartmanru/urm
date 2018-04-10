@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.storage.Artefactory;
@@ -21,7 +22,6 @@ import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
-import org.urm.meta.Types.*;
 
 public class SpecificPGU {
 
@@ -62,7 +62,7 @@ public class SpecificPGU {
 	
 	public String getPguServiceCallExt() throws Exception {
 		MetaProductSettings settings = meta.getProductSettings();
-		ObjectProperties ops = settings.getContextProperties();
+		ObjectProperties ops = settings.getParameters();
 		String custom = ops.getStringProperty( "CUSTOM_SERVICECALL_EXT" );
 		if( custom != null && !custom.isEmpty() )
 			return( custom );
@@ -72,7 +72,7 @@ public class SpecificPGU {
 	
 	public String getPguStorageServiceExt() throws Exception {
 		MetaProductSettings settings = meta.getProductSettings();
-		ObjectProperties ops = settings.getContextProperties();
+		ObjectProperties ops = settings.getParameters();
 		String custom = ops.getStringProperty( "CUSTOM_STORAGESERVICE_EXT" );
 		if( custom != null && !custom.isEmpty() )
 			return( custom );
@@ -189,7 +189,7 @@ public class SpecificPGU {
 
 		// download latest built libs for all microportals
 		action.debug( "download last built libs for all microportals from Nexus - to pgu-services-lib ..." );
-		Map<String,ActionScopeTarget> projects = scope.getCategorySetTargets( action , VarCATEGORY.BUILDABLE );
+		Map<String,ActionScopeTarget> projects = scope.getCategorySetTargets( action , DBEnumScopeCategoryType.SEARCH_SOURCEBUILDABLE );
 		
 		for( ActionScopeTarget scopeProject : projects.values() ) {
 			MetaDistrBinaryItem distItem = getWarItem( scopeProject.sourceProject , 1 );

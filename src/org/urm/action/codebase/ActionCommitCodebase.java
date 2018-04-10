@@ -18,7 +18,8 @@ public class ActionCommitCodebase extends ActionBase {
 		this.MESSAGE = MESSAGE;
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
+	@Override 
+	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
 		LocalFolder COPATH = CODIR.getSubFolder( this , scopeProject.sourceProject.NAME );
 		String BRANCH = scopeProject.sourceProject.getDefaultBranch( this );

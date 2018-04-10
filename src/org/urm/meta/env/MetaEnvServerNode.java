@@ -4,113 +4,113 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.properties.PropertyController;
-import org.urm.engine.properties.PropertySet;
+import org.urm.db.core.DBEnums.*;
+import org.urm.engine.DataService;
+import org.urm.engine.data.EngineInfrastructure;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.HostAccount;
-import org.urm.meta.engine.NetworkHost;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product._Error;
-import org.urm.meta.Types;
-import org.urm.meta.Types.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 
-public class MetaEnvServerNode extends PropertyController {
+public class MetaEnvServerNode extends EngineObject {
 
-	public Meta meta;
-	public MetaEnvServer server;
-	
-	public int POS;
-	public VarNODETYPE nodeType;
-	public String HOSTLOGIN;
-	public String DEPLOYGROUP;
-	public boolean OFFLINE;
-	public String DBINSTANCE;
-	public boolean DBSTANDBY;
-	
+	// properties
+	public static String PROPERTY_POS = "pos";
 	public static String PROPERTY_NODETYPE = "type";
 	public static String PROPERTY_HOSTLOGIN = "account";
 	public static String PROPERTY_DEPLOYGROUP = "deploygroup";
 	public static String PROPERTY_OFFLINE = "offline";
-	public static String PROPERTY_DBINSTANCE = "instance";
-	public static String PROPERTY_DBSTANDBY = "standby";
+	public static String PROPERTY_DBINSTANCE = "dbinstance";
+	public static String PROPERTY_DBSTANDBY = "dbstandby";
 	
-	public MetaEnvServerNode( Meta meta , MetaEnvServer server , int POS ) {
-		super( server , "node" );
+	public Meta meta;
+	public MetaEnvServer server;
+
+	private ObjectProperties ops;
+	public int ID;
+	public int POS;
+	public DBEnumNodeType NODE_TYPE;
+	private MatchItem ACCOUNT;
+	public String DEPLOYGROUP;
+	public boolean OFFLINE;
+	public String DBINSTANCE;
+	public boolean DBSTANDBY;
+	public int EV;
+	
+	public MetaEnvServerNode( Meta meta , MetaEnvServer server ) {
+		super( server );
 		this.meta = meta;
 		this.server = server;
-		this.POS = POS;
+		ID = -1;
+		EV = -1;
 	}
 
 	@Override
 	public String getName() {
 		return( "" + POS );
 	}
-	
-	@Override
-	public boolean isValid() {
-		return( true );
-	}
-	
-	@Override
-	public void scatterProperties( ActionBase action ) throws Exception {
-		action.trace( "load properties of node=" + POS );
-		HOSTLOGIN = super.getStringPropertyRequired( action , PROPERTY_HOSTLOGIN );
-		DEPLOYGROUP = super.getStringProperty( action , PROPERTY_DEPLOYGROUP );
-		
-		if( server.isDatabase() )
-			DBINSTANCE = super.getStringProperty( action , PROPERTY_DBINSTANCE );
-		
-		String NODETYPE = super.getStringProperty( action , PROPERTY_NODETYPE , "self" );
-		nodeType = Types.getNodeType( NODETYPE , VarNODETYPE.SELF );
-		
-		OFFLINE = super.getBooleanProperty( action , PROPERTY_OFFLINE );
-		DBSTANDBY = super.getBooleanProperty( action , PROPERTY_DBSTANDBY );
-		
-		super.finishRawProperties();
-	}
 
-	public MetaEnvServerNode copy( ActionBase action , Meta meta , MetaEnvServer server ) throws Exception {
-		MetaEnvServerNode r = new MetaEnvServerNode( meta , server , POS );
-		r.initCopyStarted( this , server.getProperties() );
-		r.scatterProperties( action );
-		r.resolveLinks( action );
-		r.initFinished();
+	public MetaEnvServerNode copy( Meta rmeta , MetaEnvServer rserver ) throws Exception {
+		MetaEnvServerNode r = new MetaEnvServerNode( rmeta , rserver );
+		
+		r.ops = ops.copy( rserver.getProperties() );
+		r.ID = ID;
+		r.POS = POS;
+		r.NODE_TYPE = NODE_TYPE;
+		r.ACCOUNT = MatchItem.copy( ACCOUNT );
+		r.DEPLOYGROUP = DEPLOYGROUP;
+		r.OFFLINE = OFFLINE;
+		r.DBINSTANCE = DBINSTANCE;
+		r.DBSTANDBY = DBSTANDBY;
+		r.EV = EV;
+		
 		return( r );
 	}
 	
-	public void setProperties( EngineTransaction transaction , PropertySet props , boolean system ) throws Exception {
-		super.updateProperties( transaction , props , system );
-		scatterProperties( transaction.getAction() );
+	public boolean checkMatched() {
+		if( !MatchItem.isMatched( ACCOUNT ) )
+			return( false );
+		return( true );
 	}
 	
-	public boolean isBroken() {
-		return( super.isLoadFailed() );
+	public void createSettings( ObjectProperties ops ) throws Exception {
+		this.ops = ops;
 	}
 	
-	public void resolveLinks( ActionBase action ) throws Exception {
+	public ObjectProperties getProperties() {
+		return( ops );
 	}
 	
-	public void load( ActionBase action , Node node ) throws Exception {
-		if( !super.initCreateStarted( server.getProperties() ) )
-			return;
-
-		super.loadFromNodeAttributes( action , node , false );
-		scatterProperties( action );
-		super.loadFromNodeElements( action , node , true );
-		super.resolveRawProperties();
-	}
-	
-	public MetaEnvServerNode getProxyNode( ActionBase action ) throws Exception {
-		MetaEnvServer proxy = server.proxyServer;
-		if( proxy == null )
-			action.exit0( _Error.MissingProxyNode0 , "no proxy server to call" );
+	public void refreshPrimaryProperties() throws Exception {
+		ops.clearProperties( DBEnumParamEntityType.ENV_NODE_PRIMARY );
 		
-		MetaEnvServerNode node = proxy.getNode( action , POS );
+		ops.setIntProperty( PROPERTY_POS , POS );
+		ops.setEnumProperty( PROPERTY_NODETYPE , NODE_TYPE );
+		
+		if( ACCOUNT != null ) {
+			HostAccount account = getHostAccount();
+			if( account != null )
+				ops.setStringProperty( PROPERTY_HOSTLOGIN , account.getFinalAccount() );
+		}
+		
+		ops.setStringProperty( PROPERTY_DEPLOYGROUP , DEPLOYGROUP );
+		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
+		ops.setStringProperty( PROPERTY_DBINSTANCE , DBINSTANCE );
+		ops.setBooleanProperty( PROPERTY_DBSTANDBY , DBSTANDBY );
+	}
+
+	public void updateCustomSettings() throws Exception {
+	}
+	
+	public MetaEnvServerNode getProxyNode() throws Exception {
+		MetaEnvServer proxy = server.getProxyServer();
+		if( proxy == null )
+			Common.exit0( _Error.MissingProxyNode0 , "no proxy server to call" );
+		
+		MetaEnvServerNode node = proxy.getNodeByPos( POS );
 		return( node );
 	}
 
@@ -123,55 +123,49 @@ public class MetaEnvServerNode extends PropertyController {
 	}
 
 	public String getHost( ActionBase action ) throws Exception {
-		Account account = action.getNodeAccount( this );
-		return( account.HOST );
+		HostAccount account = getHostAccount();
+		return( account.host.getHost() );
 	}
 	
-	public boolean isSelf( ActionBase action ) throws Exception {
-		return( nodeType == VarNODETYPE.SELF );
+	public boolean isSelf() throws Exception {
+		return( NODE_TYPE == DBEnumNodeType.SELF );
 	}
 
-	public boolean isAdmin( ActionBase action ) throws Exception {
-		return( nodeType == VarNODETYPE.ADMIN );
+	public boolean isAdmin() throws Exception {
+		return( NODE_TYPE == DBEnumNodeType.ADMIN );
 	}
 
-	public boolean isSlave( ActionBase action ) throws Exception {
-		return( nodeType == VarNODETYPE.SLAVE );
+	public boolean isSlave() throws Exception {
+		return( NODE_TYPE == DBEnumNodeType.SLAVE );
 	}
 
-	public void save( ActionBase action , Document doc , Element root ) throws Exception {
-		super.saveSplit( doc , root );
-	}
-	
-	public void createNode( ActionBase action , VarNODETYPE nodeType , Account account ) throws Exception {
-		if( !super.initCreateStarted( server.getProperties() ) )
-			return;
-
-		super.setStringProperty( PROPERTY_HOSTLOGIN , account.getHostLogin() );
-		super.setStringProperty( PROPERTY_NODETYPE , Common.getEnumLower( nodeType ) );
-		super.setBooleanProperty( PROPERTY_OFFLINE , true );
-		super.finishProperties( action );
-		super.initFinished();
+	public void setNodePrimary( int pos , DBEnumNodeType type , MatchItem account , String deployGroup , boolean offline , String dbInstance , boolean dbStandBy ) throws Exception {
+		this.POS = pos;
+		this.NODE_TYPE = type;
+		this.ACCOUNT = MatchItem.copy( account );
+		this.DEPLOYGROUP = deployGroup;
+		this.OFFLINE = offline;
+		this.DBINSTANCE = dbInstance;
+		this.DBSTANDBY = dbStandBy;
 		
-		scatterProperties( action );
+		refreshPrimaryProperties();
 	}
 
-	public void modifyNode( ActionBase action , int POS , VarNODETYPE nodeType , Account account ) throws Exception {
-		this.POS = POS;
-		super.setStringProperty( PROPERTY_HOSTLOGIN , account.getHostLogin() );
-		super.setStringProperty( PROPERTY_NODETYPE , Common.getEnumLower( nodeType ) );
-		scatterProperties( action );
-	}
-
-	public void setPos( EngineTransaction transaction , int POS ) {
-		this.POS = POS;
+	public void setPos( int pos ) throws Exception {
+		this.POS = pos;
+		refreshPrimaryProperties();
 	}
 	
-	public void setOffline( EngineTransaction transaction , boolean offline ) throws Exception {
-		super.setSystemBooleanProperty( PROPERTY_OFFLINE , offline );
-		scatterProperties( transaction.action );
+	public void setOffline( boolean offline ) throws Exception {
+		this.OFFLINE = offline;
+		refreshPrimaryProperties();
 	}
 
+	public void modifyNode( DBEnumNodeType type , MatchItem account ) {
+		this.NODE_TYPE = type;
+		this.ACCOUNT = MatchItem.copy( account );
+	}
+	
 	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
 		if( !checkReferencedByHostAccount( account ) )
 			return;
@@ -180,27 +174,29 @@ public class MetaEnvServerNode extends PropertyController {
 	}
 	
 	public boolean checkReferencedByHostAccount( HostAccount account ) {
-		Account ha = Account.getDatacenterAccount( server.sg.DC , HOSTLOGIN );
-		if( account.host.isEqualsHost( ha ) && account.NAME.equals( ha.USER ) )
+		if( MatchItem.equals( ACCOUNT , account.ID ) )
 			return( true );
-
 		return( false );
 	}
 
-	public void deleteHostAccount( EngineTransaction transaction , HostAccount account ) throws Exception {
-		if( !checkReferencedByHostAccount( account ) )
-			return;
-
-		setOffline( transaction , true );
+	public void removeHostAccount() throws Exception {
+		ACCOUNT = null;
+		setOffline( true );
 	}
 
-	public void updateHost( EngineTransaction transaction , NetworkHost host ) throws Exception {
-		Account ha = Account.getDatacenterAccount( server.sg.DC , HOSTLOGIN );
-		
-		ActionBase action = transaction.getAction();
-		ha.setHost( action , host );
-		super.setStringProperty( PROPERTY_HOSTLOGIN , ha.getHostLogin() );
-		scatterProperties( action );
+	public HostAccount getHostAccount() throws Exception {
+		DataService data = meta.getEngineData();
+		EngineInfrastructure infra = data.getInfrastructure();
+		return( infra.getHostAccount( ACCOUNT ) );
+	}
+
+	public MatchItem getAccountMatchItem() {
+		return( ACCOUNT );
+	}
+
+	public void copyResolveExternals() throws Exception {
+		refreshPrimaryProperties();
+		ops.recalculateProperties();
 	}
 	
 }

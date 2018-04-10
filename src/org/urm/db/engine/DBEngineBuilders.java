@@ -10,12 +10,13 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.data.EngineBuilders;
+import org.urm.engine.data.EngineInfrastructure;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.EngineLoader;
-import org.urm.meta.engine.EngineBuilders;
 import org.urm.meta.engine.ProjectBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -37,13 +38,16 @@ public class DBEngineBuilders {
 	public static String FIELD_BUILDER_OPTIONS = "builder_options";
 	public static String FIELD_BUILDER_JDKPATH = "java_jdkhomepath";
 	public static String FIELD_BUILDER_REMOTEOSTYPE = "remote_os_type";
-	public static String FIELD_BUILDER_REMOTEHOSTLOGIN = "remote_hostlogin";
-	public static String FIELD_BUILDER_REMOTEPORT = "remote_port";
-	public static String FIELD_BUILDER_REMOTEAUTHRESOURCE = "remote_auth_resource_id";
+	public static String FIELD_BUILDER_REMOTE = "builder_remote";
+	public static String FIELD_BUILDER_ACCOUNT = "remote_account_id";
 	
-	public static PropertyEntity upgradeEntityBuilder( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BUILDER , DBEnumParamEntityType.BUILDER , DBEnumObjectVersionType.CORE , TABLE_BUILDER , FIELD_BUILDER_ID );
+	public static PropertyEntity makeEntityBuilder( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BUILDER , DBEnumParamEntityType.BUILDER , DBEnumObjectVersionType.CORE , TABLE_BUILDER , FIELD_BUILDER_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( ProjectBuilder.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_DESC , FIELD_BUILDER_DESC , ProjectBuilder.PROPERTY_DESC , "Description" , false , null ) ,
@@ -57,20 +61,12 @@ public class DBEngineBuilders {
 				EntityVar.metaObjectVar( ProjectBuilder.PROPERTY_TARGETRESOURCE , FIELD_BUILDER_TARGET_RESOURCE , ProjectBuilder.PROPERTY_TARGETRESOURCE , "Target resource" , DBEnumObjectType.RESOURCE , false ) ,
 				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_TARGETPATH , FIELD_BUILDER_TARGET_PATH , ProjectBuilder.PROPERTY_TARGETPATH , "Target path" , false , null ) ,
 				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_TARGETPLATFORM , FIELD_BUILDER_TARGET_PLATFORM , ProjectBuilder.PROPERTY_TARGETPLATFORM , "Target platform" , false , null ) ,
-				EntityVar.metaBoolean( ProjectBuilder.PROPERTY_REMOTE , "Remote build" , false , false ) ,
-				EntityVar.metaEnumVar( ProjectBuilder.PROPERTY_REMOTEOSTYPE , FIELD_BUILDER_REMOTEOSTYPE , ProjectBuilder.PROPERTY_REMOTEOSTYPE , "Remote host OS type" , false , DBEnumOSType.UNKNOWN ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_REMOTEHOSTLOGIN , FIELD_BUILDER_REMOTEHOSTLOGIN , ProjectBuilder.PROPERTY_REMOTEHOSTLOGIN , "Remote host login" , false , null ) ,
-				EntityVar.metaIntegerVar( ProjectBuilder.PROPERTY_REMOTEPORT , FIELD_BUILDER_REMOTEPORT , ProjectBuilder.PROPERTY_REMOTEPORT , "Remote access port" , false , 22 ) ,
-				EntityVar.metaObjectVar( ProjectBuilder.PROPERTY_REMOTEAUTHRESOURCE , FIELD_BUILDER_REMOTEAUTHRESOURCE , ProjectBuilder.PROPERTY_REMOTEAUTHRESOURCE , "Target resource" , DBEnumObjectType.RESOURCE , false ) ,
+				EntityVar.metaBooleanVar( ProjectBuilder.PROPERTY_BUILDER_REMOTE , FIELD_BUILDER_REMOTE , ProjectBuilder.PROPERTY_BUILDER_REMOTE , "Remote build" , false , false ) ,
+				EntityVar.metaStringXmlOnly( ProjectBuilder.PROPERTY_REMOTEHOSTLOGIN , "Remote host account" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_BUILDER_ACCOUNT , "Remote host login" , DBEnumObjectType.HOSTACCOUNT , false )
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityBuilder( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BUILDER , DBEnumParamEntityType.BUILDER , DBEnumObjectVersionType.CORE , TABLE_BUILDER , FIELD_BUILDER_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
 	public static void importxml( EngineLoader loader , EngineBuilders builders , Node root ) throws Exception {
 		Node[] list = ConfReader.xmlGetChildren( root , ELEMENT_BUILDER );
 		if( list != null ) {
@@ -105,13 +101,18 @@ public class DBEngineBuilders {
 				entity.importxmlStringProperty( root , ProjectBuilder.PROPERTY_TARGETPATH ) ,
 				entity.importxmlStringProperty( root , ProjectBuilder.PROPERTY_TARGETPLATFORM )
 				);
-		builder.setRemoteData(
-				entity.importxmlBooleanProperty( root , ProjectBuilder.PROPERTY_REMOTE , false ) ,
-				DBEnumOSType.getValue( entity.importxmlEnumProperty( root , ProjectBuilder.PROPERTY_REMOTEOSTYPE ) , false ) ,
-				entity.importxmlStringProperty( root , ProjectBuilder.PROPERTY_REMOTEHOSTLOGIN ) ,
-				entity.importxmlIntProperty( root , ProjectBuilder.PROPERTY_REMOTEPORT ) ,
-				entity.importxmlObjectProperty( loader , root , ProjectBuilder.PROPERTY_REMOTEAUTHRESOURCE )
-				);
+		
+		boolean remote = entity.importxmlBooleanProperty( root , ProjectBuilder.PROPERTY_BUILDER_REMOTE , false );
+		Integer hostAccountId = null;
+		if( remote ) {
+			String hostLogin = entity.importxmlStringProperty( root , ProjectBuilder.PROPERTY_REMOTEHOSTLOGIN );
+			if( hostLogin.isEmpty() )
+				Common.exitUnexpected();
+			EngineInfrastructure infra = loader.getInfrastructure();
+			hostAccountId = infra.getHostAccountId( hostLogin );
+		}
+		
+		builder.setRemoteData( remote , hostAccountId );
 		modifyBuilder( c , builder , true );
 
 		return( builder );
@@ -119,9 +120,9 @@ public class DBEngineBuilders {
 	
 	private static void modifyBuilder( DBConnection c , ProjectBuilder builder , boolean insert ) throws Exception {
 		if( insert )
-			builder.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , builder.NAME , DBEnumObjectType.BUILDER );
+			builder.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , builder.NAME , DBEnumParamEntityType.BUILDER );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , builder.NAME , builder.ID , DBEnumObjectType.BUILDER );
+			DBNames.updateName( c , DBVersions.CORE_ID , builder.NAME , builder.ID , DBEnumParamEntityType.BUILDER );
 		
 		builder.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
@@ -138,11 +139,8 @@ public class DBEngineBuilders {
 				EngineDB.getObject( builder.TARGET_RESOURCE_ID ) ,
 				EngineDB.getString( builder.TARGET_PATH ) ,
 				EngineDB.getString( builder.TARGET_PLATFORM ) ,
-				EngineDB.getBoolean( builder.REMOTE ) ,
-				EngineDB.getEnum( builder.REMOTE_OS_TYPE ) ,
-				EngineDB.getString( builder.REMOTE_HOSTLOGIN ) ,
-				EngineDB.getInteger( builder.REMOTE_PORT ) ,
-				EngineDB.getObject( builder.REMOTE_AUTH_RESOURCE_ID )
+				EngineDB.getBoolean( builder.BUILDER_REMOTE ) ,
+				EngineDB.getObject( builder.REMOTE_ACCOUNT_ID )
 		} , insert );
 	}
 
@@ -157,6 +155,8 @@ public class DBEngineBuilders {
 	private static void exportxmlBuilder( EngineLoader loader , ProjectBuilder builder , Document doc , Element root ) throws Exception {
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppProjectBuilder;
+		EngineInfrastructure infra = loader.getInfrastructure();
+		String hostLogin = infra.getHostAccountName( builder.REMOTE_ACCOUNT_ID );
 		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
 				entity.exportxmlString( builder.NAME ) ,
 				entity.exportxmlString( builder.DESC ) ,
@@ -170,11 +170,8 @@ public class DBEngineBuilders {
 				entity.exportxmlObject( loader , ProjectBuilder.PROPERTY_TARGETRESOURCE , builder.TARGET_RESOURCE_ID ) ,
 				entity.exportxmlString( builder.TARGET_PATH ) ,
 				entity.exportxmlString( builder.TARGET_PLATFORM ) ,
-				entity.exportxmlBoolean( builder.REMOTE ) ,
-				entity.exportxmlEnum( builder.REMOTE_OS_TYPE ) ,
-				entity.exportxmlString( builder.REMOTE_HOSTLOGIN ) ,
-				entity.exportxmlInt( builder.REMOTE_PORT ) ,
-				entity.exportxmlObject( loader , ProjectBuilder.PROPERTY_REMOTEAUTHRESOURCE , builder.REMOTE_AUTH_RESOURCE_ID )
+				entity.exportxmlBoolean( builder.BUILDER_REMOTE ) ,
+				entity.exportxmlString( hostLogin )
 		} , false );
 	}
 
@@ -208,11 +205,8 @@ public class DBEngineBuilders {
 						entity.loaddbString( rs , ProjectBuilder.PROPERTY_TARGETPLATFORM )
 						);
 				builder.setRemoteData(
-						entity.loaddbBoolean( rs , ProjectBuilder.PROPERTY_REMOTE ) ,
-						DBEnumOSType.getValue( entity.loaddbEnum( rs , ProjectBuilder.PROPERTY_REMOTEOSTYPE ) , false ) ,
-						entity.loaddbString( rs , ProjectBuilder.PROPERTY_REMOTEHOSTLOGIN ) ,
-						entity.loaddbInt( rs , ProjectBuilder.PROPERTY_REMOTEPORT ) ,
-						entity.loaddbObject( rs , ProjectBuilder.PROPERTY_REMOTEAUTHRESOURCE )
+						entity.loaddbBoolean( rs , ProjectBuilder.PROPERTY_BUILDER_REMOTE ) ,
+						entity.loaddbObject( rs , FIELD_BUILDER_ACCOUNT )
 						);
 				builders.addBuilder( builder );
 			}
@@ -232,7 +226,7 @@ public class DBEngineBuilders {
 		builder.createBuilder( bdata.NAME , bdata.DESC , bdata.VERSION );
 		builder.setMethodData( bdata.BUILDER_METHOD_TYPE , bdata.BUILDER_COMMAND , bdata.BUILDER_HOMEPATH , bdata.BUILDER_OPTIONS , bdata.JAVA_JDKHOMEPATH );
 		builder.setTargetData( bdata.BUILDER_TARGET_TYPE , bdata.TARGET_RESOURCE_ID , bdata.TARGET_PATH , bdata.TARGET_PLATFORM );
-		builder.setRemoteData( bdata.REMOTE , bdata.REMOTE_OS_TYPE , bdata.REMOTE_HOSTLOGIN , bdata.REMOTE_PORT , bdata.REMOTE_AUTH_RESOURCE_ID );
+		builder.setRemoteData( bdata.BUILDER_REMOTE , bdata.REMOTE_ACCOUNT_ID );
 		modifyBuilder( c , builder , true );
 		
 		builders.addBuilder( builder );
@@ -245,7 +239,7 @@ public class DBEngineBuilders {
 		builder.modifyBuilder( bdata.NAME , bdata.DESC , bdata.VERSION );
 		builder.setMethodData( bdata.BUILDER_METHOD_TYPE , bdata.BUILDER_COMMAND , bdata.BUILDER_HOMEPATH , bdata.BUILDER_OPTIONS , bdata.JAVA_JDKHOMEPATH );
 		builder.setTargetData( bdata.BUILDER_TARGET_TYPE , bdata.TARGET_RESOURCE_ID , bdata.TARGET_PATH , bdata.TARGET_PLATFORM );
-		builder.setRemoteData( bdata.REMOTE , bdata.REMOTE_OS_TYPE , bdata.REMOTE_HOSTLOGIN , bdata.REMOTE_PORT , bdata.REMOTE_AUTH_RESOURCE_ID );
+		builder.setRemoteData( bdata.BUILDER_REMOTE , bdata.REMOTE_ACCOUNT_ID );
 		modifyBuilder( c , builder , false );
 		
 		builders.updateBuilder( builder );

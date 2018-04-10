@@ -5,31 +5,32 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.action.codebase.ActionPatch;
+import org.urm.engine.BlotterService;
+import org.urm.engine.EventService;
+import org.urm.engine.BlotterService.BlotterEvent;
+import org.urm.engine.BlotterService.BlotterType;
 import org.urm.engine.action.ActionInit;
-import org.urm.engine.blotter.EngineBlotter.BlotterEvent;
-import org.urm.engine.blotter.EngineBlotter.BlotterType;
+import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.DistRepository;
-import org.urm.engine.dist.DistRepository.DistOperation;
-import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
-import org.urm.engine.dist.DistRepositoryItem;
-import org.urm.meta.engine.EngineDirectory;
+import org.urm.engine.run.EngineMethod;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.product.ProductMeta;
+import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseRepository;
+import org.urm.meta.release.ReleaseRepository.ReleaseOperation;
 
 public class EngineBlotterSet extends EngineEventsSource {
 
-	public EngineBlotter blotter;
+	public BlotterService blotter;
 	public BlotterType type;
 	
 	private Map<String,EngineBlotterItem> items;
 	private Map<String,EngineBlotterMemo> memos;
 	private EngineBlotterStat stat;
 	
-	public EngineBlotterSet( EngineBlotter blotter , BlotterType type , EngineEvents events , String setId ) {
+	public EngineBlotterSet( BlotterService blotter , BlotterType type , EventService events , String setId ) {
 		super( events , setId );
 		this.blotter = blotter;
 		this.type = type;
@@ -58,18 +59,17 @@ public class EngineBlotterSet extends EngineEventsSource {
 		EngineDirectory directory = action.getServerDirectory();
 		for( String productName : directory.getProductNames() ) {
 			Meta meta = action.getProductMetadata( productName );
-			ProductMeta storage = meta.getStorage();
-			DistRepository repo = storage.getDistRepository();
-			if( repo != null )
-				startReleaseSetRepo( action , repo );
+			ReleaseRepository repo = meta.getReleaseRepository();
+			startReleaseSetRepo( action , repo );
 		}
 	}
 
-	public synchronized void startReleaseSetRepo( ActionInit action , DistRepository repo ) throws Exception {
-		for( DistRepositoryItem repoItem : repo.getRunItems() ) {
-			String key = getReleaseKey( repoItem );
+	public synchronized void startReleaseSetRepo( ActionInit action , ReleaseRepository repo ) throws Exception {
+		for( String version : repo.getActiveVersions() ) {
+			Release release = repo.findRelease( version );
+			String key = getReleaseKey( release );
 			EngineBlotterReleaseItem item = new EngineBlotterReleaseItem( this , key );
-			item.createReleaseItem( repoItem );
+			item.createReleaseItem( release );
 			items.put( item.ID , item );
 		}
 	}
@@ -150,14 +150,22 @@ public class EngineBlotterSet extends EngineEventsSource {
 		stat.statFinishItem( item );
 	}
 	
-	public void notifyItem( EngineBlotterItem item , BlotterEvent event ) {
+	public void notifyItem( ActionBase action , EngineBlotterItem item , BlotterEvent event ) {
 		EngineBlotterEvent data = new EngineBlotterEvent( item , event );
-		super.notify( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_BLOTTEREVENT , data );
+		addBlotterEvent( action , data );
 	}
 	
-	public void notifyChildItem( EngineBlotterItem baseItem , EngineBlotterTreeItem treeItem , BlotterEvent event ) {
+	public void notifyChildItem( ActionBase action , EngineBlotterItem baseItem , EngineBlotterTreeItem treeItem , BlotterEvent event ) {
 		EngineBlotterEvent data = new EngineBlotterEvent( baseItem , treeItem , event );
-		super.notify( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_BLOTTEREVENT , data );
+		addBlotterEvent( action , data );
+	}
+
+	private void addBlotterEvent( ActionBase action , EngineBlotterEvent data ) {
+		EngineMethod method = action.getMethod();
+		if( method != null )
+			method.addCommitEvent( this , EventService.OWNER_ENGINE , EventService.EVENT_BLOTTEREVENT , data );
+		else
+			super.notify( EventService.OWNER_ENGINE , EventService.EVENT_BLOTTEREVENT , data );
 	}
 	
 	public synchronized void startChildAction( EngineBlotterActionItem baseItem , EngineBlotterTreeItem treeItem ) {
@@ -227,34 +235,35 @@ public class EngineBlotterSet extends EngineEventsSource {
 	}
 
 	
-	public synchronized EngineBlotterReleaseItem affectReleaseItem( ActionBase action , boolean success , DistOperation op , DistRepositoryItem repoItem ) {
-		String key = getReleaseKey( repoItem );
+	public synchronized EngineBlotterReleaseItem affectReleaseItem( ActionBase action , boolean success , ReleaseOperation op , Release release ) {
+		String key = getReleaseKey( release );
 		
 		EngineBlotterReleaseItem item = null;
-		if( op == DistOperation.CREATE ) {
+		if( op == ReleaseOperation.CREATE ) {
 			item = new EngineBlotterReleaseItem( this , key );
-			item.createReleaseItem( repoItem );
+			item.createReleaseItem( release );
 			items.put( item.ID , item );
-			notifyItem( item , BlotterEvent.BLOTTER_START );
+			notifyItem( action , item , BlotterEvent.BLOTTER_START );
 		}
 		else {
 			item = ( EngineBlotterReleaseItem )items.get( key );
 			if( item == null )
 				return( null );
 			
-			if( success && ( op == DistOperation.DROP || op == DistOperation.ARCHIVE ) ) {
+			if( success && ( op == ReleaseOperation.DROP || op == ReleaseOperation.ARCHIVE ) ) {
 				items.remove( item.ID );
-				notifyItem( item , BlotterEvent.BLOTTER_STOP );
+				notifyItem( action , item , BlotterEvent.BLOTTER_STOP );
 			}
 			else
-				notifyChildItem( item , action.blotterTreeItem , BlotterEvent.BLOTTER_RELEASEACTION );
+				notifyChildItem( action , item , action.blotterTreeItem , BlotterEvent.BLOTTER_RELEASEACTION );
 		}
 		
 		return( item );
 	}
 
-	private String getReleaseKey( DistRepositoryItem repoItem ) {
-		return( repoItem.repo.meta.name + "-" + repoItem.RELEASEDIR );
+	private String getReleaseKey( Release release ) {
+		Meta meta = release.getMeta();
+		return( meta.name + "-" + release.RELEASEVER );
 	}
 
 	private String getReleaseKey( Dist dist ) {
@@ -265,18 +274,6 @@ public class EngineBlotterSet extends EngineEventsSource {
 		String key = getReleaseKey( dist );
 		EngineBlotterReleaseItem item = ( EngineBlotterReleaseItem )items.get( key );
 		return( item );
-	}
-
-	public synchronized EngineBlotterReleaseItem findReleaseItem( String productName , String releaseVer ) {
-		for( EngineBlotterItem item : items.values() ) {
-			EngineBlotterReleaseItem releaseItem = ( EngineBlotterReleaseItem )item;
-			if( releaseItem.repoItem.dist.isMaster() )
-				continue;
-			
-			if( productName.equals( releaseItem.INFO_PRODUCT ) && releaseVer.equals( releaseItem.repoItem.dist.release.RELEASEVER ) )
-				return( releaseItem );
-		}
-		return( null );
 	}
 
 }

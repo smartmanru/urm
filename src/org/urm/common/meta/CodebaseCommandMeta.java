@@ -41,7 +41,7 @@ public class CodebaseCommandMeta extends CommandMeta {
 		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_BUILDTAGS , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "build from tag" , cmdOpts , "<TAG> [set [projects]]" ) );
 		
 		cmdOpts = "OPT_GET,OPT_DIST,OPT_CHECK,OPT_RELEASE,OPT_BRANCH,OPT_TAG,OPT_DATE,OPT_GROUP,OPT_VERSION";
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_BUILDRELEASE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "build release" , cmdOpts , "[set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_BUILDRELEASE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "build release" , cmdOpts , "<RELEASELABEL> [set [projects]]" ) );
 
 		cmdOpts = "";
 		super.defineAction( CommandMethodMeta.newInfo( this , METHOD_CHECKSET , ACTION_ACCESS.PRODUCT , true , SecurityAction.ACTION_CONFIGURE , false , "check configuration variables" , "" , "" ) );
@@ -51,7 +51,7 @@ public class CodebaseCommandMeta extends CommandMeta {
 		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_GETBUILD , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "download build items" , cmdOpts , "[set [projects]]" ) );
 
 		cmdOpts = "OPT_DIST,OPT_RELEASE,OPT_TAG,OPT_DATE,OPT_GROUP,OPT_VERSION";
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_GETRELEASE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "download release build items" , cmdOpts , "[set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_GETRELEASE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "download release build items" , cmdOpts , "<RELEASELABEL> [set [projects]]" ) );
 		
 		cmdOpts = "OPT_RELEASE,OPT_BRANCH,OPT_TAG,OPT_DATE,OPT_GROUP";
 		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_CHECKOUT , ACTION_ACCESS.PRODUCT , true , SecurityAction.ACTION_CODEBASE , true , "checkout sources to update" , cmdOpts , "<CODIR> [set [projects]]" ) );

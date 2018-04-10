@@ -13,11 +13,12 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.ShellService;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
-import org.urm.meta.Types.VarSESSIONTYPE;
+import org.urm.meta.Types.EnumSessionType;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.Meta;
@@ -38,7 +39,7 @@ public abstract class ShellExecutor extends Shell {
 	abstract public boolean start( ActionBase action ) throws Exception;
 
 	// construction and administration
-	protected ShellExecutor( int id , String name , EngineShellPool pool , Account account , String rootPath , Folder tmpFolder , boolean dedicated ) {
+	protected ShellExecutor( int id , String name , ShellService pool , Account account , String rootPath , Folder tmpFolder , boolean dedicated ) {
 		super( id , name , pool , account );
 		this.rootPath = rootPath;
 		this.tmpFolder = tmpFolder;
@@ -47,30 +48,30 @@ public abstract class ShellExecutor extends Shell {
 	}
 	
 	public boolean isWindowsFromUnix() {
-		if( coreHidden.sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX )
+		if( coreHidden.sessionType == EnumSessionType.WINDOWSFROMUNIX )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isUnixFromWindows() {
-		if( coreHidden.sessionType == VarSESSIONTYPE.UNIXFROMWINDOWS )
+		if( coreHidden.sessionType == EnumSessionType.UNIXFROMWINDOWS )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isUnixRemote() {
-		if( coreHidden.sessionType == VarSESSIONTYPE.UNIXREMOTE )
+		if( coreHidden.sessionType == EnumSessionType.UNIXREMOTE )
 			return( true );
 		return( false );
 	}
 	
-	public static ShellExecutor getLocalShellExecutor( ActionBase action , int id , String name , EngineShellPool pool , String rootPath , Folder tmpFolder , boolean dedicated ) throws Exception {
+	public static ShellExecutor getLocalShellExecutor( ActionBase action , int id , String name , ShellService pool , String rootPath , Folder tmpFolder , boolean dedicated ) throws Exception {
 		ShellExecutor executor = new LocalShellExecutor( id , name , pool , rootPath , tmpFolder , dedicated );
 		executor.coreHidden = ShellCore.createShellCore( action, executor , action.context.account.osType , true );
 		return( executor );
 	}
 
-	public static ShellExecutor getRemoteShellExecutor( ActionBase action , int id , String name , EngineShellPool pool , Account account , AuthResource auth , boolean dedicated ) throws Exception {
+	public static ShellExecutor getRemoteShellExecutor( ActionBase action , int id , String name , ShellService pool , Account account , AuthResource auth , boolean dedicated ) throws Exception {
 		RedistStorage storage = action.artefactory.getRedistStorage( action , account );
 		Folder tmpFolder = storage.getRedistTmpFolder( action );
 
@@ -187,7 +188,10 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void createFileFromString( ActionBase action , String path , String value ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			core.cmdCreateFileFromString( action , path , value );
+			if( isLocal() )
+				Files.write( Paths.get( path ), value.getBytes() );
+			else
+				core.cmdCreateFileFromString( action , path , value );
 		}
 		finally {
 			opstop();
@@ -1018,6 +1022,11 @@ public abstract class ShellExecutor extends Shell {
 	}
 	
 	public synchronized void getDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files , String excludeRegExp ) throws Exception {
+		if( account.local ) {
+			readDirsAndFiles( action , rootPath , dirs , files , excludeRegExp );
+			return;
+		}
+			
 		try {
 			ShellCore core = opstart( action );
 			core.cmdGetDirsAndFiles( action , rootPath , dirs , files , excludeRegExp );
@@ -1181,6 +1190,16 @@ public abstract class ShellExecutor extends Shell {
 		}
 	}
 
+	public synchronized long getFileSize( ActionBase action , String path ) throws Exception {
+		try {
+			ShellCore core = opstart( action );
+			return( core.cmdGetFileSize( action , path ) );
+		}
+		finally {
+			opstop();
+		}
+	}
+
 	public synchronized void downloadUnix( ActionBase action , String URL , String TARGETNAME , String auth ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
@@ -1251,7 +1270,7 @@ public abstract class ShellExecutor extends Shell {
 		if( !server.isLinux() )
 			return( false );
 
-		if( !server.isService() )
+		if( !server.isAccessService() )
 			return( false );
 
 		ShellCoreUnix coreUnix = ( ShellCoreUnix )coreHidden;
@@ -1268,13 +1287,13 @@ public abstract class ShellExecutor extends Shell {
 		if( !server.isLinux() )
 			return( "" );
 				
-		if( server.isService() ) {
+		if( server.isAccessService() ) {
 			if( isSystemctlService( action , server ) )
 				return( "/usr/lib/systemd/system/" );
 			return( "/etc/init.d" );
 		}
 		
-		if( server.isGeneric() )
+		if( server.isAccessGeneric() )
 			return( Common.getPath( server.ROOTPATH , server.BINPATH ) );
 			
 		String value = Common.getEnumLower( server.getServerAccessType() );
@@ -1283,13 +1302,13 @@ public abstract class ShellExecutor extends Shell {
 	}
 	
 	public String getSystemFiles( ActionBase action , MetaEnvServer server ) throws Exception {
-		if( isLinux() && server.isService() ) {
+		if( isLinux() && server.isAccessService() ) {
 			if( isSystemctlService( action , server ) )
 				return( server.SYSNAME + ".*" );
 			return( server.SYSNAME );
 		}
 		
-		if( server.isGeneric() ) {
+		if( server.isAccessGeneric() ) {
 			if( isLinux() )
 				return( "server.*.sh" );
 			return( "server.*.cmd" );
@@ -1318,4 +1337,31 @@ public abstract class ShellExecutor extends Shell {
 		return( Common.getBaseName( filePath ) );
 	}
 
+	private void readDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files , String excludeRegExp ) throws Exception {
+		rootPath = Common.getLinuxPath( rootPath );
+		if( !rootPath.endsWith( "/" ) )
+			rootPath += "/";
+		
+		String startPath = action.getLocalPath( rootPath );
+		File parent = new File( startPath );
+		addDirsAndFiles( action , parent , startPath , dirs , files , excludeRegExp );
+	}
+	
+	private void addDirsAndFiles( ActionBase action , File parent , String startPath , List<String> dirs , List<String> files , String excludeRegExp ) throws Exception {
+		for( File file : parent.listFiles() ) {
+			String path = file.getPath();
+			if( excludeRegExp.isEmpty() == false && path.matches( excludeRegExp ) )
+				continue;
+			
+			String subPath = Common.getPartAfterFirst( path , startPath );
+			if( file.isDirectory() ) {
+				dirs.add( Common.getLinuxPath( subPath ) );
+				addDirsAndFiles( action , file , startPath , dirs , files , excludeRegExp );
+			}
+			else
+			if( file.isFile() )
+				files.add( Common.getLinuxPath( subPath ) );
+		}
+	}
+	
 }

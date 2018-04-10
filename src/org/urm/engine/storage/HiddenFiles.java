@@ -35,25 +35,25 @@ public class HiddenFiles {
 			return( false );
 		}
 		
-		if( action.context.env.CONF_SECRETFILESPATH.isEmpty() )
-			return( false );
+		//if( action.context.env.CONF_SECRETFILESPATH.isEmpty() )
+		//	return( false );
 		
-		LocalFolder srcServerFolder = artefactory.getAnyFolder( action , 
-			Common.getPath( action.context.env.CONF_SECRETFILESPATH , confItem.NAME + "-" + server.NAME ) );
-		if( srcServerFolder.checkExists( action ) ) {
-			action.trace( "found server-specific hidden configuration" );
-			folder.copyDirContent( action , srcServerFolder );
-			folder.removeVcsFiles( action );
-		}
-		else {
-			LocalFolder srcFolder = artefactory.getAnyFolder( action , 
-				Common.getPath( action.context.env.CONF_SECRETFILESPATH , confItem.NAME ) );
-			if( srcFolder.checkExists( action ) ) {
-				action.trace( "found environment-specific hidden configuration" );
-				folder.copyDirContent( action , srcFolder );
-				folder.removeVcsFiles( action );
-			}
-		}
+		//LocalFolder srcServerFolder = artefactory.getAnyFolder( action , 
+		//	Common.getPath( action.context.env.CONF_SECRETFILESPATH , confItem.NAME + "-" + server.NAME ) );
+		//if( srcServerFolder.checkExists( action ) ) {
+		//	action.trace( "found server-specific hidden configuration" );
+		//	folder.copyDirContent( action , srcServerFolder );
+		//	folder.removeVcsFiles( action );
+		//}
+		//else {
+		//	LocalFolder srcFolder = artefactory.getAnyFolder( action , 
+		//		Common.getPath( action.context.env.CONF_SECRETFILESPATH , confItem.NAME ) );
+		//	if( srcFolder.checkExists( action ) ) {
+		//		action.trace( "found environment-specific hidden configuration" );
+		//		folder.copyDirContent( action , srcFolder );
+		//		folder.removeVcsFiles( action );
+		//	}
+		//}
 		
 		return( true );
 	}

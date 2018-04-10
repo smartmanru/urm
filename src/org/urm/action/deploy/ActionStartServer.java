@@ -29,12 +29,13 @@ public class ActionStartServer extends ActionBase {
 			return( SCOPESTATE.NotRun );
 		}
 		
-		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName() + " ..." );
 
 		// first start childs
-		if( target.itemFull && server.subordinateServers != null && server.subordinateServers.length != 0 ) {
+		MetaEnvServer[] subordinateServers = server.getSubordinateServers();
+		if( target.itemFull && subordinateServers.length != 0 ) {
 			info( "start subordinate servers ..." );
-			for( MetaEnvServer sub : server.subordinateServers )
+			for( MetaEnvServer sub : subordinateServers )
 				executeServerSingle( sub , state , null );
 		}
 		
@@ -42,9 +43,10 @@ public class ActionStartServer extends ActionBase {
 		info( "start main server ..." );
 		executeServerSingle( server , state , nodes );
 
-		if( target.itemFull && server.proxyServer != null ) {
-			info( "start proxy server=" + server.proxyServer.NAME + " ..." );
-			executeServerSingle( server.proxyServer , state , null );
+		MetaEnvServer proxyServer = server.getProxyServer();
+		if( target.itemFull && proxyServer != null ) {
+			info( "start proxy server=" + proxyServer.NAME + " ..." );
+			executeServerSingle( proxyServer , state , null );
 		}
 
 		return( SCOPESTATE.RunSuccess );
@@ -68,7 +70,7 @@ public class ActionStartServer extends ActionBase {
 			return;
 		}
 	
-		if( actionServer.isCommand() ) {
+		if( actionServer.isRunCommand() ) {
 			if( !isForced() ) {
 				debug( "server=" + actionServer.NAME + " is command server. Skipped." );
 				return;
@@ -83,7 +85,7 @@ public class ActionStartServer extends ActionBase {
 			}
 		}
 		else
-			debug( "server=" + actionServer.NAME + ", type=" + actionServer.getServerTypeName( this ) + " is not supported for start. Skipped." );
+			debug( "server=" + actionServer.NAME + ", type=" + actionServer.getServerTypeName() + " is not supported for start. Skipped." );
 	}
 	
 }

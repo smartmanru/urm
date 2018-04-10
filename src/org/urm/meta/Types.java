@@ -1,8 +1,6 @@
 package org.urm.meta;
 
 import org.urm.common.Common;
-import org.urm.common.ConfReader;
-import org.w3c.dom.Node;
 
 public class Types {
 
@@ -15,7 +13,16 @@ public class Types {
 		SOURCE;
 	};
 	
-	public enum VarELEMENTTYPE {
+	public enum EnumAuthType {
+		UNKNOWN ,
+		PASSWORD ,
+		CREDENTIALS ,
+		KEYS ,
+		ANONYMOUS , 
+		CURRENTUSER
+	};
+	
+	public enum EnumElementType {
 		UNKNOWN ,
 		EXTERNAL ,
 		GENERIC ,
@@ -25,66 +32,13 @@ public class Types {
 		GROUP
 	};
 	
-	public enum VarLINKTYPE {
+	public enum EnumLinkType {
 		UNKNOWN ,
 		GENERIC ,
 		MSG
 	};
 	
-	public enum VarCATEGORY {
-		UNKNOWN ,
-		PROJECT ,
-		CONFIG ,
-		MANUAL ,
-		DERIVED ,
-		DB ,
-		ENV ,
-		BUILDABLE ,
-		PREBUILT
-	};
-
-	public enum VarENVTYPE {
-		UNKNOWN ,
-		PRODUCTION ,
-		UAT ,
-		DEVELOPMENT
-	};
-	
-	public enum VarDEPLOYITEMTYPE {
-		UNKNOWN ,
-		BINARY ,
-		CONF ,
-		SCHEMA ,
-		COMP
-	};
-	
-	public enum VarSERVERRUNTYPE {
-		UNKNOWN ,
-		DATABASE ,
-		APP ,
-		WEBUI ,
-		WEBAPP ,
-		COMMAND
-	};
-
-	public enum VarNODETYPE {
-		UNKNOWN ,
-		SELF ,
-		ADMIN ,
-		SLAVE
-	};
-	
-	public enum VarDEPLOYMODE {
-		UNKNOWN ,
-		MANUAL , 
-		COLD , 
-		HOT ,
-		LINKS_SINGLEDIR ,
-		LINKS_MULTIDIR ,
-		COPYONLY
-	};
-	
-	public enum VarSESSIONTYPE {
+	public enum EnumSessionType {
 		UNKNOWN ,
 		UNIXLOCAL ,
 		UNIXREMOTE ,
@@ -94,7 +48,7 @@ public class Types {
 		WINDOWSFROMUNIX
 	};
 
-	public enum VarPROCESSMODE {
+	public enum EnumProcessMode {
 		UNKNOWN ,
 		STARTED ,
 		STARTING ,
@@ -103,7 +57,7 @@ public class Types {
 		UNREACHABLE
 	};
 
-	public enum VarCONTENTTYPE {
+	public enum EnumContentType {
 		UNKNOWN ,
 		BINARYCOLDDEPLOY ,
 		BINARYHOTDEPLOY ,
@@ -113,7 +67,7 @@ public class Types {
 		CONFCOPYONLY
 	};
 
-	public enum VarNAMETYPE {
+	public enum EnumNameType {
 		UNKNOWN ,
 		ANY ,
 		ALPHANUM ,
@@ -121,169 +75,38 @@ public class Types {
 		ALPHANUMDOTDASH
 	};
 	
-	public enum VarARCHIVETYPE {
+	public enum EnumArchiveType {
 		UNKNOWN ,
 		TARGZ ,
 		TAR ,
 		ZIP
 	};
 	
-	public enum VarTICKETSETSTATUS {
-		UNKNOWN ,
-		NEW ,
-		ACTIVE ,
-		DESCOPED
-	};
-
-	public enum VarTICKETTYPE {
-		UNKNOWN ,
-		FEATURE ,
-		CHANGE ,
-		BUGFIX
-	};
-
-	public enum VarTICKETSTATUS {
-		UNKNOWN ,
-		NEW ,
-		DEVDONE ,
-		QADONE
-	};
-
-	public enum VarTICKETSETTARGETTYPE {
-		UNKNOWN ,
-		PROJECTSET ,
-		PROJECTALLITEMS ,
-		PROJECTNOITEMS ,
-		DISTITEM ,
-		CONFITEM ,
-		SCHEMA ,
-		DELIVERYBINARIES ,
-		DELIVERYCONFS ,
-		DELIVERYDATABASE
-	};
-
-	public enum VarPACKAGEEXTENSION {
+	public enum EnumPackageExtension {
 		UNKNOWN ,
 		NUPKG ,
 		RPM ,
 		DEB
 	}
 	
-	public static VarCATEGORY getCategory( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingCategory0 , "missing category" );
-			return( VarCATEGORY.UNKNOWN );
-		}
-
-		VarCATEGORY value = null;
-		try {
-			value = VarCATEGORY.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidCategory1 , "invalid category=" + ID , ID );
-		}
-		
-		return( value );
+	public enum EnumDistItemType {
+		UNKNOWN ,
+		BINARIES ,
+		CONFIGURATION ,
+		DATABASE ,
+		DOCUMENTATION
 	}
 	
-	public static VarSERVERRUNTYPE getServerRunType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingServerRunType0 , "missing server run type" );
-			return( VarSERVERRUNTYPE.UNKNOWN );
-		}
-		
-		VarSERVERRUNTYPE value = null;
-		try {
-			value = VarSERVERRUNTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidServerRunType1 , "invalid server run type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarNODETYPE getNodeType( String ID , VarNODETYPE defValue ) throws Exception {
-		if( ID.isEmpty() )
-			return( defValue );
-		
-		VarNODETYPE value = null;
-		try {
-			value = VarNODETYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidNodeType1 , "invalid node type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarDEPLOYMODE getDeployMode( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingDeployType0 , "missing deploy type" );
-			return( VarDEPLOYMODE.UNKNOWN );
-		}
-		
-		VarDEPLOYMODE value = null;
-		try {
-			value = VarDEPLOYMODE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidDeployType1 , "invalid deploytype=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarENVTYPE getEnvType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingEnvType0 , "missing deploy item type" );
-			return( VarENVTYPE.UNKNOWN );
-		}
-		
-		VarENVTYPE value = null;
-		try {
-			value = VarENVTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidEnvType1 , "invalid environment type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarDEPLOYITEMTYPE getDeployItemType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingDeployItemType0 , "missing deploy item type" );
-			return( VarDEPLOYITEMTYPE.UNKNOWN );
-		}
-		
-		VarDEPLOYITEMTYPE value = null;
-		try {
-			value = VarDEPLOYITEMTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidDeployItemType1 , "invalid deploy item type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-	
-	public static VarELEMENTTYPE getDesignElementType( String ID , boolean required ) throws Exception {
+	public static EnumElementType getDesignElementType( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingDesignElementType0 , "missing design element type" );
-			return( VarELEMENTTYPE.UNKNOWN );
+			return( EnumElementType.UNKNOWN );
 		}
 		
-		VarELEMENTTYPE value = null;		
+		EnumElementType value = null;		
 		try {
-			value = VarELEMENTTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+			value = EnumElementType.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDesignElementType1 , "invalid design element type=" + ID , ID );
@@ -292,16 +115,16 @@ public class Types {
 		return( value );
 	}
 
-	public static VarLINKTYPE getDesignLinkType( String ID , boolean required ) throws Exception {
+	public static EnumLinkType getDesignLinkType( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingDesignLinkType0 , "missing design link type" );
-			return( VarLINKTYPE.UNKNOWN );
+			return( EnumLinkType.UNKNOWN );
 		}
 		
-		VarLINKTYPE value = null;		
+		EnumLinkType value = null;		
 		try {
-			value = VarLINKTYPE.valueOf( Common.xmlToEnumValue( ID ) );
+			value = EnumLinkType.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidDesignLinkType1 , "invalid design link type=" + ID , ID );
@@ -310,88 +133,16 @@ public class Types {
 		return( value );
 	}
 
-	public static VarTICKETSETSTATUS getTicketSetStatus( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingTicketSetStatus0 , "missing ticket set status" );
-			return( VarTICKETSETSTATUS.UNKNOWN );
-		}
-		
-		VarTICKETSETSTATUS value = null;
-		try {
-			value = VarTICKETSETSTATUS.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidTicketSetStatus1 , "invalid ticket set status=" + ID , ID );
-		}
-		
-		return( value );
-	}
-
-	public static VarTICKETTYPE getTicketType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingTicketType0 , "missing ticket type" );
-			return( VarTICKETTYPE.UNKNOWN );
-		}
-		
-		VarTICKETTYPE value = null;
-		try {
-			value = VarTICKETTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidTicketType1 , "invalid ticket type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-
-	public static VarTICKETSTATUS getTicketStatus( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingTicketStatus0 , "missing ticket status" );
-			return( VarTICKETSTATUS.UNKNOWN );
-		}
-		
-		VarTICKETSTATUS value = null;
-		try {
-			value = VarTICKETSTATUS.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidTicketStatus1 , "invalid ticket status=" + ID , ID );
-		}
-		
-		return( value );
-	}
-
-	public static VarTICKETSETTARGETTYPE getTicketSetTargetType( String ID , boolean required ) throws Exception {
-		if( ID.isEmpty() ) {
-			if( required )
-				Common.exit0( _Error.MissingTicketSetTargetType0 , "missing ticket set target type" );
-			return( VarTICKETSETTARGETTYPE.UNKNOWN );
-		}
-		
-		VarTICKETSETTARGETTYPE value = null;
-		try {
-			value = VarTICKETSETTARGETTYPE.valueOf( Common.xmlToEnumValue( ID ) );
-		}
-		catch( IllegalArgumentException e ) {
-			Common.exit1( _Error.InvalidTicketSetTargetType1 , "invalid ticket set target type=" + ID , ID );
-		}
-		
-		return( value );
-	}
-
-	public static VarPACKAGEEXTENSION getPackageExtension( String ID , boolean required ) throws Exception {
+	public static EnumPackageExtension getPackageExtension( String ID , boolean required ) throws Exception {
 		if( ID.isEmpty() ) {
 			if( required )
 				Common.exit0( _Error.MissingPackageExtension0 , "missing package extension" );
-			return( VarPACKAGEEXTENSION.UNKNOWN );
+			return( EnumPackageExtension.UNKNOWN );
 		}
 		
-		VarPACKAGEEXTENSION value = null;
+		EnumPackageExtension value = null;
 		try {
-			value = VarPACKAGEEXTENSION.valueOf( Common.xmlToEnumValue( ID ) );
+			value = EnumPackageExtension.valueOf( Common.xmlToEnumValue( ID ) );
 		}
 		catch( IllegalArgumentException e ) {
 			Common.exit1( _Error.InvalidPackageExtension1 , "invalid package extension=" + ID , ID );
@@ -400,49 +151,36 @@ public class Types {
 		return( value );
 	}
 
-	public static boolean isBinaryContent( VarCONTENTTYPE c ) throws Exception {
-		if( c == VarCONTENTTYPE.BINARYCOLDDEPLOY || c == VarCONTENTTYPE.BINARYCOPYONLY || c == VarCONTENTTYPE.BINARYHOTDEPLOY )
-			return( true );
-		return( false );
-	}
-	
-	public static boolean isConfContent( VarCONTENTTYPE c ) throws Exception {
-		if( c == VarCONTENTTYPE.CONFCOLDDEPLOY || c == VarCONTENTTYPE.CONFCOPYONLY || c == VarCONTENTTYPE.CONFHOTDEPLOY )
-			return( true );
-		return( false );
-	}
-
-	public static VarCATEGORY readCategoryAttr( Node node ) throws Exception {
-		String value = ConfReader.getAttrValue( node , "category" );
-		return( Types.getCategory( value , true ) );
-	}
-	
-	public static boolean isSourceCategory( VarCATEGORY value ) {
-		if( value == VarCATEGORY.PROJECT )
-			return( true );
-		return( false );
-	}
-	
-	public static VarCATEGORY[] getAllReleaseCategories() {
-		VarCATEGORY[] categories = { VarCATEGORY.PROJECT , VarCATEGORY.CONFIG , VarCATEGORY.DB , VarCATEGORY.MANUAL , VarCATEGORY.DERIVED };
-		return( categories );
-	}
-
-	public static VarCATEGORY[] getAllSourceCategories() {
-		VarCATEGORY[] categories = { VarCATEGORY.PROJECT };
-		return( categories );
-	}
-
-	public static boolean checkCategoryProperty( VarCATEGORY part , VarCATEGORY property ) {
-		if( part == property )
-			return( true );
-		if( property == VarCATEGORY.BUILDABLE ) {
-			if( part == VarCATEGORY.PROJECT )
-				return( true );
+	public static EnumDistItemType getDistItemType( String ID , boolean required ) throws Exception {
+		if( ID.isEmpty() ) {
+			if( required )
+				Common.exit0( _Error.MissingDistItemType0 , "missing dist item type" );
+			return( EnumDistItemType.UNKNOWN );
 		}
+		
+		EnumDistItemType value = null;
+		try {
+			value = EnumDistItemType.valueOf( Common.xmlToEnumValue( ID ) );
+		}
+		catch( IllegalArgumentException e ) {
+			Common.exit1( _Error.InvalidDistItemType1 , "invalid dist item type=" + ID , ID );
+		}
+		
+		return( value );
+	}
+
+	public static boolean isBinaryContent( EnumContentType c ) throws Exception {
+		if( c == EnumContentType.BINARYCOLDDEPLOY || c == EnumContentType.BINARYCOPYONLY || c == EnumContentType.BINARYHOTDEPLOY )
+			return( true );
 		return( false );
 	}
 	
+	public static boolean isConfContent( EnumContentType c ) throws Exception {
+		if( c == EnumContentType.CONFCOLDDEPLOY || c == EnumContentType.CONFCOPYONLY || c == EnumContentType.CONFHOTDEPLOY )
+			return( true );
+		return( false );
+	}
+
 	public static boolean isPackageExtension( String ext ) {
 		try {
 			if( !ext.startsWith( "." ) )

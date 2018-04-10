@@ -14,7 +14,7 @@ public class NodeStatus extends Status {
 	public MetaEnvServerNode node;
 	
 	public OBJECT_STATE mainState;
-	public VarPROCESSMODE mode;
+	public EnumProcessMode mode;
 	public MetaEnvServer proxy;
 	public String unknownReason;
 	public List<WholeUrlFailed> wholeUrls;
@@ -47,24 +47,24 @@ public class NodeStatus extends Status {
 		unknownReason = reason;
 	}
 	
-	public void setProcessMode( VarPROCESSMODE mode ) {
+	public void setProcessMode( EnumProcessMode mode ) {
 		this.mode = mode;
-		if( mode == VarPROCESSMODE.STARTED ) {
+		if( mode == EnumProcessMode.STARTED ) {
 			itemState = mainState = OBJECT_STATE.STATE_HEALTHY;
 			return;
 		}
 		
 		processFailed = true;
-		if( mode == VarPROCESSMODE.UNKNOWN || mode == VarPROCESSMODE.UNREACHABLE )
+		if( mode == EnumProcessMode.UNKNOWN || mode == EnumProcessMode.UNREACHABLE )
 			mainState = OBJECT_STATE.STATE_UNABLE_GETSTATE;
 		else
-		if( mode == VarPROCESSMODE.ERRORS )
+		if( mode == EnumProcessMode.ERRORS )
 			mainState = OBJECT_STATE.STATE_ERRORS_FATAL;
 		else
-		if( mode == VarPROCESSMODE.STARTING )
+		if( mode == EnumProcessMode.STARTING )
 			mainState = OBJECT_STATE.STATE_ERRORS_ALERTS;
 		else
-		if( mode == VarPROCESSMODE.STOPPED )
+		if( mode == EnumProcessMode.STOPPED )
 			mainState = OBJECT_STATE.STATE_STOPPED;
 		
 		itemState = mainState; 

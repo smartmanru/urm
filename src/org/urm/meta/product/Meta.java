@@ -3,14 +3,18 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.EngineSession;
+import org.urm.engine.Engine;
+import org.urm.engine.DataService;
+import org.urm.engine.data.EngineProducts;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.session.EngineSession;
 import org.urm.meta.EngineObject;
 import org.urm.meta.Types.*;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.env.MetaEnv;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.ProductEnvs;
+import org.urm.meta.release.ProductReleases;
+import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.env.MetaMonitoring;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,6 +23,7 @@ import org.w3c.dom.Node;
 public class Meta extends EngineObject {
 
 	public String name;
+	public Engine engine;
 	public EngineSession session;
 	
 	private EngineProducts products;
@@ -46,11 +51,12 @@ public class Meta extends EngineObject {
 
 	public static String PROPERTY_NAME = "name";
 	
-	public Meta( ProductMeta storage , EngineSession session ) {
+	public Meta( EngineProducts products , ProductMeta storage , EngineSession session ) {
 		super( null );
 		this.storage = storage;
-		this.products = storage.products;
+		this.products = products;
 		this.session = session;
+		this.engine = products.engine;
 		name = storage.name;
 	}
 	
@@ -59,14 +65,18 @@ public class Meta extends EngineObject {
 		return( name );
 	}
 
-	public int getId() {
+	public Integer getId() {
 		return( storage.ID );
 	}
 	
 	public AppProduct getProduct() {
 		return( storage.product );
 	}
-	
+
+	public boolean isPrimary() {
+		return( storage.isPrimary() );
+	}
+
 	public void replaceStorage( ActionBase action , ProductMeta storage ) throws Exception {
 		products.releaseSessionProductMetadata( action , this );
 		
@@ -187,18 +197,34 @@ public class Meta extends EngineObject {
 
 	public synchronized MetaMonitoring getMonitoring() {
 		if( monitoring == null ) {
-			MetaEnvs envs = storage.getEnviroments();
+			ProductEnvs envs = storage.getEnviroments();
 			monitoring = envs.getMonitoring();
 		}
 		return( monitoring );
 	}
 	
-	public MetaEnvs getEnviroments() {
+	public ProductEnvs getEnviroments() {
 		return( storage.getEnviroments() );
+	}
+	
+	public ProductReleases getReleases() {
+		return( storage.getReleases() );
 	}
 	
 	public DistRepository getDistRepository() {
 		return( storage.getDistRepository() );
+	}
+	
+	public ReleaseRepository getReleaseRepository() {
+		return( storage.getReleaseRepository() );
+	}
+	
+	public void setDistRepository( DistRepository repo ) {
+		storage.setDistRepository( repo );
+	}
+	
+	public void setReleaseRepository( ReleaseRepository repo ) {
+		storage.setReleaseRepository( repo );
 	}
 	
 	public static String getConfigurableExtensionsFindOptions( ActionBase action ) throws Exception {
@@ -217,24 +243,24 @@ public class Meta extends EngineObject {
 		return( configurableExtensions );
 	}
 
-	public static String getMask( ActionBase action , VarNAMETYPE nameType ) throws Exception {
+	public static String getMask( ActionBase action , EnumNameType nameType ) throws Exception {
     	String mask = null;
-    	if( nameType == VarNAMETYPE.ALPHANUM )
+    	if( nameType == EnumNameType.ALPHANUM )
     		mask = "[0-9a-zA-Z_]+";
     	else
-    	if( nameType == VarNAMETYPE.ALPHANUMDOT )
+    	if( nameType == EnumNameType.ALPHANUMDOT )
     		mask = "[0-9a-zA-Z_.]+";
     	else
-    	if( nameType == VarNAMETYPE.ALPHANUMDOTDASH )
+    	if( nameType == EnumNameType.ALPHANUMDOTDASH )
     		mask = "[0-9a-zA-Z_.-]+";
     	else
     		action.exitUnexpectedState();
     	return( mask );
 	}
 	
-    public static String getNameAttr( ActionBase action , Node node , VarNAMETYPE nameType ) throws Exception {
+    public static String getNameAttr( ActionBase action , Node node , EnumNameType nameType ) throws Exception {
     	String name = ConfReader.getRequiredAttrValue( node , PROPERTY_NAME );
-    	if( nameType == VarNAMETYPE.ANY )
+    	if( nameType == EnumNameType.ANY )
     		return( name );
     	
     	String mask = getMask( action , nameType );
@@ -243,8 +269,8 @@ public class Meta extends EngineObject {
     	return( name );	
     }
 
-    public static void setNameAttr( ActionBase action , Document doc , Element element , VarNAMETYPE nameType , String value ) throws Exception {
-    	if( nameType != VarNAMETYPE.ANY ) {
+    public static void setNameAttr( ActionBase action , Document doc , Element element , EnumNameType nameType , String value ) throws Exception {
+    	if( nameType != EnumNameType.ANY ) {
         	String mask = getMask( action , nameType );
         	if( !value.matches( mask ) )
         		action.exit1( _Error.WrongNameAttribute1 , "name attribute should contain only alphanumeric or dot characters, value=" + value , value );
@@ -254,8 +280,8 @@ public class Meta extends EngineObject {
     }
 
     public MetaEnv findEnv( String name ) {
-    	MetaEnvs envs = storage.getEnviroments();
-    	return( envs.findEnv( name ) );
+    	ProductEnvs envs = storage.getEnviroments();
+    	return( envs.findMetaEnv( name ) );
     }
 
 	public static Integer getObject( MetaDistrBinaryItem item ) {
@@ -274,6 +300,10 @@ public class Meta extends EngineObject {
 		if( schema == null )
 			return( null );
 		return( schema.ID );
+	}
+
+	public DataService getEngineData() {
+		return( engine.getData() );
 	}
 	
 }

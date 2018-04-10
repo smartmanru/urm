@@ -1,16 +1,18 @@
 package org.urm.engine.properties;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 
 public class ObjectMeta {
 
-	PropertyEntity entityApp;
+	PropertyEntity[] entitiesApp;
 	PropertyEntity entityCustom;
 	
-	PropertyEntity[] entities;
 	Map<String,EntityVar> varNames;
 	Map<Integer,EntityVar> varIds;
 	
@@ -19,29 +21,23 @@ public class ObjectMeta {
 		varIds = new HashMap<Integer,EntityVar>();
 	}
 
-	public void create( PropertyEntity entityApp , PropertyEntity entityCustom ) throws Exception {
-		this.entityApp = entityApp;
+	public void create( PropertyEntity[] entitiesApp , PropertyEntity entityCustom ) throws Exception {
+		this.entitiesApp = entitiesApp;
 		this.entityCustom = entityCustom;
 		
-		if( entityApp == null )
+		if( entitiesApp == null )
 			Common.exitUnexpected();
-		
-		if( entityCustom != null )
-			entities = new PropertyEntity[] { entityApp , entityCustom };
-		else
-			entities = new PropertyEntity[] { entityApp };
 		rebuild();
 	}
 
 	public ObjectMeta copy() {
 		ObjectMeta r = new ObjectMeta();
-		r.entities = new PropertyEntity[ entities.length ];
-		r.entityApp = entityApp;
-		r.entities[ 0 ] = entityApp;
-		if( entityCustom != null ) {
+		r.entitiesApp = new PropertyEntity[ entitiesApp.length ];
+		for( int k = 0; k < entitiesApp.length; k++ )
+			r.entitiesApp[ k ] = entitiesApp[ k ];
+		
+		if( entityCustom != null )
 			r.entityCustom = entityCustom.copy();
-			r.entities[ 1 ] = r.entityCustom;
-		}
 		r.rebuild();
 		return( r );
 	}
@@ -49,24 +45,66 @@ public class ObjectMeta {
 	public void rebuild() {
 		varNames.clear();
 		varIds.clear();
-		for( PropertyEntity entity : entities ) {
+		for( PropertyEntity entity : entitiesApp ) {
 			for( EntityVar var : entity.getVars() ) {
+				varNames.put( var.NAME , var );
+				varIds.put( var.PARAM_ID , var );
+			}
+		}
+		
+		if( entityCustom != null ) {
+			for( EntityVar var : entityCustom.getVars() ) {
 				varNames.put( var.NAME , var );
 				varIds.put( var.PARAM_ID , var );
 			}
 		}
 	}
 	
-	public PropertyEntity getAppEntity() {
-		return( entityApp );
+	public PropertyEntity[] getAppEntities() {
+		return( entitiesApp );
+	}
+
+	public PropertyEntity getEntity( DBEnumParamEntityType entityType ) throws Exception {
+		if( entityCustom != null && entityCustom.PARAMENTITY_TYPE == entityType )
+			return( entityCustom );
+		return( getAppEntity( entityType ) );
+	}
+	
+	public PropertyEntity getAppEntity( DBEnumParamEntityType entityType ) throws Exception {
+		for( PropertyEntity entity : entitiesApp ) {
+			if( entity.PARAMENTITY_TYPE == entityType )
+				return( entity );
+		}
+		
+		Common.exitUnexpected();
+		return( null );
+	}
+	
+	
+	public boolean hasCustom() {
+		if( entityCustom != null && !entityCustom.isEmpty() )
+			return( true );
+		return( false );
+	}
+	
+	public boolean hasAppAttrs() {
+		for( PropertyEntity entity : entitiesApp ) {
+			if( !entity.USE_PROPS )
+				return( true );
+		}
+		return( false );
+	}
+	
+	public boolean hasAppProps() {
+		for( PropertyEntity entity : entitiesApp ) {
+			if( entity.USE_PROPS )
+				return( true );
+		}
+		return( false );
 	}
 	
 	public PropertyEntity getCustomEntity() {
 		return( entityCustom );
-	}
-	
-	public PropertyEntity[] getEntities() {
-		return( entities );
 	}
 	
 	public EntityVar[] getVars() {
@@ -126,15 +164,69 @@ public class ObjectMeta {
 			return( var );
 		return( null );
 	}
-	
-	public EntityVar findXmlVar( String xmlprop ) {
-		for( PropertyEntity entity : entities ) {
+
+	public EntityVar findAppXmlVar( String xmlprop ) {
+		for( PropertyEntity entity : entitiesApp ) {
 			EntityVar var = entity.findXmlVar( xmlprop );
+			if( var != null )
+				return( var );
+		}
+		return( null );
+	}
+	
+	public EntityVar findCustomXmlVar( String xmlprop ) {
+		if( entityCustom != null ) {
+			EntityVar var = entityCustom.findXmlVar( xmlprop );
 			if( var != null )
 				return( var );
 		}
 		
 		return( null );
+	}
+	
+	public EntityVar findXmlVar( String xmlprop ) {
+		EntityVar var = findAppXmlVar( xmlprop );
+		if( var != null )
+			return( var );
+		
+		var = findCustomXmlVar( xmlprop );
+		return( var );
+	}
+
+	public EntityVar[] getAppDatabaseVars() {
+		List<EntityVar> list = new LinkedList<EntityVar>();
+		for( PropertyEntity entity : entitiesApp ) {
+			for( EntityVar var : entity.getDatabaseVars() )
+				list.add( var );
+		}
+		return( list.toArray( new EntityVar[0] ) );
+	}
+	
+	public EntityVar[] getAppVars() {
+		List<EntityVar> list = new LinkedList<EntityVar>();
+		for( PropertyEntity entity : entitiesApp ) {
+			for( EntityVar var : entity.getVars() )
+				list.add( var );
+		}
+		return( list.toArray( new EntityVar[0] ) );
+	}
+	
+	public String[] getCustomVarNames() {
+		Map<String,EntityVar> map = new HashMap<String,EntityVar>();
+		if( entityCustom != null ) {
+			for( EntityVar var : entityCustom.getVars() )
+				map.put( var.NAME , var );
+		}
+		return( Common.getSortedKeys( map ) );
+	}
+	
+	public String[] getAppVarNames() {
+		Map<String,EntityVar> map = new HashMap<String,EntityVar>();
+		for( PropertyEntity entity : entitiesApp ) {
+			for( EntityVar var : entity.getVars() )
+				map.put( var.NAME , var );
+		}
+		return( Common.getSortedKeys( map ) );
 	}
 	
 }

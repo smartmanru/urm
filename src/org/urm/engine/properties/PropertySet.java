@@ -143,6 +143,13 @@ public class PropertySet {
 		return( Common.getSortedList( props ) );		
 	}
 
+	public String[] getAllPropertyNames() {
+		List<String> props = new LinkedList<String>();
+		for( PropertyValue p : data.values() )
+			props.add( p.property );
+		return( Common.getSortedList( props ) );		
+	}
+	
 	public PropertyValue[] getAllProperties() {
 		List<PropertyValue> props = new LinkedList<PropertyValue>();
 		for( String p : Common.getSortedKeys( data ) )
@@ -275,8 +282,14 @@ public class PropertySet {
 
 	public void recalculateProperties() throws Exception {
 		resolved = false;
-		for( PropertyValue pv : data.values() )
-			pv.setFinalFromOriginalValue();
+		for( PropertyValue pv : data.values() ) {
+			String expression = null;
+			if( pv.isSourceEmpty() && parent != null )
+				expression = parent.getFinalProperty( pv.property , null , true , true );
+			else
+				expression = pv.getExpressionValue();
+			pv.setFinalValue( expression );
+		}
 		resolveRawProperties( true );
 	}
 
@@ -422,6 +435,12 @@ public class PropertySet {
 		setProperty( pv );
 	}
 
+	public void clearProperty( String key ) {
+		resolved = false;
+		PropertyValue pvc = getPropertyValue( key );
+		pvc.setNull();
+	}
+	
 	public String getPropertyAny( String prop ) throws Exception {
 		PropertyValue pv = getPropertyInternal( prop , true , true , true );
 		if( pv == null )
@@ -442,6 +461,8 @@ public class PropertySet {
 			return( null );
 		String data = pv.getFinalValue();
 		if( pv.getType() != DBEnumParamValueType.PATH )
+			return( data );
+		if( account == null )
 			return( data );
 		return( account.getOSPath( data ) );
 	}
@@ -823,7 +844,7 @@ public class PropertySet {
 			
 		return( true );
 	}
-	
+
 	private PropertyValue setProperty( PropertyValue pv ) {
 		resolved = false;
 		PropertyValue pvc = getPropertyValue( pv.property );

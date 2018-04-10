@@ -32,7 +32,7 @@ public class MetaDistrBinaryItem {
 	public int ID;
 	public String NAME;
 	public String DESC;
-	public DBEnumDistItemType DISTITEM_TYPE;
+	public DBEnumBinaryItemType DISTITEM_TYPE;
 	public String BASENAME_DIST;
 	public String BASENAME_DEPLOY;
 	public String EXT;
@@ -48,6 +48,7 @@ public class MetaDistrBinaryItem {
 	public boolean CUSTOM_GET;
 	public boolean CUSTOM_DEPLOY;
 	public int PV;
+	public DBEnumChangeType CHANGETYPE;
 
 	public MetaSourceProjectItem sourceProjectItem;
 	public MetaDistrBinaryItem srcDistItem;
@@ -81,6 +82,7 @@ public class MetaDistrBinaryItem {
 		r.CUSTOM_GET = CUSTOM_GET;
 		r.CUSTOM_DEPLOY = CUSTOM_DEPLOY;
 		r.PV = PV;
+		r.CHANGETYPE = CHANGETYPE;
 		
 		return( r );
 	}
@@ -112,11 +114,11 @@ public class MetaDistrBinaryItem {
 		this.DESC = desc;
 	}
 	
-	public void createBinaryItem( String name , String desc , DBEnumDistItemType itemType , String distName , String deployName , String ext , DBEnumDeployVersionType versionType , String staticExt , String warContext , String files , String exclude ) throws Exception {
+	public void createBinaryItem( String name , String desc , DBEnumBinaryItemType itemType , String distName , String deployName , String ext , DBEnumDeployVersionType versionType , String staticExt , String warContext , String files , String exclude ) throws Exception {
 		modifyBinaryItem( name , desc , itemType , distName , deployName , ext , versionType , staticExt , warContext , files , exclude );
 	}
 	
-	public void modifyBinaryItem( String name , String desc , DBEnumDistItemType itemType , String distName , String deployName , String ext , DBEnumDeployVersionType versionType , String staticExt , String warContext , String files , String exclude ) throws Exception {
+	public void modifyBinaryItem( String name , String desc , DBEnumBinaryItemType itemType , String distName , String deployName , String ext , DBEnumDeployVersionType versionType , String staticExt , String warContext , String files , String exclude ) throws Exception {
 		this.NAME = name;
 		this.DESC = desc;
 		this.DISTITEM_TYPE = itemType;
@@ -146,7 +148,7 @@ public class MetaDistrBinaryItem {
 		this.delivery = deliveryNew; 
 	}
 	
-	public void setDistData( DBEnumDistItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ) throws Exception {
+	public void setDistData( DBEnumBinaryItemType itemType , String basename , String ext , String archiveFiles , String archiveExclude ) throws Exception {
 		this.DISTITEM_TYPE = itemType;
 		this.BASENAME_DIST = basename;
 		this.EXT = ext;
@@ -157,7 +159,7 @@ public class MetaDistrBinaryItem {
 	}
 
 	public void setDeployData( String deployname , DBEnumDeployVersionType versionType ) throws Exception {
-		if( DISTITEM_TYPE == DBEnumDistItemType.BINARY && versionType == DBEnumDeployVersionType.UNKNOWN )
+		if( DISTITEM_TYPE == DBEnumBinaryItemType.BINARY && versionType == DBEnumDeployVersionType.UNKNOWN )
 			Common.exitUnexpected();
 		
 		this.BASENAME_DEPLOY = deployname;
@@ -276,15 +278,15 @@ public class MetaDistrBinaryItem {
 		return( false );
 	}
 	
-	public VarARCHIVETYPE getArchiveType( ActionBase action ) throws Exception {
+	public EnumArchiveType getArchiveType( ActionBase action ) throws Exception {
 		if( EXT.equals( ".tar.gz" ) || EXT.equals( ".tgz" ) )
-			return( VarARCHIVETYPE.TARGZ );
+			return( EnumArchiveType.TARGZ );
 		
 		if( EXT.equals( ".tar" ) )
-			return( VarARCHIVETYPE.TAR );
+			return( EnumArchiveType.TAR );
 		
 		if( EXT.equals( ".zip" ) )
-			return( VarARCHIVETYPE.ZIP );
+			return( EnumArchiveType.ZIP );
 		
 		action.exit1( _Error.ArchiveTypeNotSupported1 , "not supported archive type=" + EXT , EXT );
 		return( null );

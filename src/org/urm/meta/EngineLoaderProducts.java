@@ -5,29 +5,30 @@ import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
 import org.urm.db.engine.DBEngineAuth;
+import org.urm.db.env.DBEnvData;
 import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
-import org.urm.engine.dist.DistRepository;
+import org.urm.engine.AuthService;
+import org.urm.engine.DataService;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.data.EngineProducts;
+import org.urm.engine.data.EngineSettings;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.EngineAuth;
-import org.urm.meta.engine.EngineDirectory;
-import org.urm.meta.engine.EngineProducts;
-import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.ProductContext;
 import org.urm.meta.product.ProductMeta;
 
 public class EngineLoaderProducts {
 
 	private EngineLoader loader;
-	private EngineData data;
+	private DataService data;
 	public RunContext execrc;
 	public Engine engine;
 
-	public EngineLoaderProducts( EngineLoader loader , EngineData data ) {
+	public EngineLoaderProducts( EngineLoader loader , DataService data ) {
 		this.loader = loader;
 		this.data = data;
 		this.execrc = loader.execrc;
@@ -44,7 +45,6 @@ public class EngineLoaderProducts {
 		ProductMeta set = product.storage;
 		EngineProducts products = data.getProducts();
 		set = new ProductMeta( products , product );
-		set.setPrimary( true );
 		set.setMatched( true );
 		
 		try {
@@ -53,7 +53,7 @@ public class EngineLoaderProducts {
 			ldm.createdbAll( context );
 	
 			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
-			lde.createAll();
+			lde.createAll( forceClearMeta );
 	
 			// create folders
 			ProductStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
@@ -74,11 +74,12 @@ public class EngineLoaderProducts {
 			folder.ensureExists( action );
 	
 			// create distributive
-			DistRepository.createInitialRepository( action , set.meta , forceClearDist );
+			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , set );
+			ldr.createAll( forceClearMeta , forceClearDist );
 			
 			// add product
 			product.setStorage( set );
-			addProduct( set );
+			products.setProductMetadata( set );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -111,7 +112,7 @@ public class EngineLoaderProducts {
 			}
 			
 			context.setProduct( product );
-			loadProduct( product , context , false , update );
+			loadProduct( product , context , false , update , true , null );
 		}
 	}
 
@@ -133,35 +134,27 @@ public class EngineLoaderProducts {
 		if( !matchProductMirrors( product ) )
 			Common.exit1( _Error.InvalidProductMirros1 , "Invalid product mirror repositories, product=" + product.NAME , product.NAME );
 
-		EngineAuth auth = engine.getAuth();
+		AuthService auth = engine.getAuth();
 		DBEngineAuth.deleteProductAccess( c , auth , product );
 		
 		ProductMeta storage = product.storage;
-		if( storage.isExists() )
-			DBProductData.dropProductData( c , storage );
+		if( storage.isExists() ) {
+			if( includingEnvironments )
+				DBEnvData.dropEnvData( c , storage );
+				
+			if( storage.isExists() )
+				DBProductData.dropProductData( c , storage );
+		}
 		
 		synchronized( products ) {
 			ProductContext context = new ProductContext( product , false );
-			ProductMeta storageNew = loadProduct( product , context , true , true );
+			ProductMeta storageNew = loadProduct( product , context , true , true , includingEnvironments , storage );
 			if( storageNew == null )
 				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + product.NAME , product.NAME );
 
-			if( storage != null )
-				products.unloadProduct( storage );
-			
 			if( !storageNew.MATCHED )
 				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + product.NAME , product.NAME );
 		}
-	}
-	
-	public void saveProductMetadata( String productName ) throws Exception {
-		ActionBase action = loader.getAction();
-		EngineProducts products = data.getProducts();
-		ProductMeta storage = products.findProductStorage( productName );
-		if( storage == null )
-			action.exitUnexpectedState();
-
-		saveAll( storage );
 	}
 	
 	public void exportProductMetadata( AppProduct product ) throws Exception {
@@ -173,34 +166,17 @@ public class EngineLoaderProducts {
 		exportAll( storage );
 	}
 	
-	public void saveAll( ProductMeta set ) throws Exception {
-		ActionBase action = loader.getAction();
-		ProductStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
-		
-		EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
-		ldm.saveDesignDocs( ms );
-		
-		EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
-		lde.saveEnvs( ms );
-	}
-	
 	public void exportAll( ProductMeta set ) throws Exception {
 		ActionBase action = loader.getAction();
 		ProductStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
 		
 		EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
-		ldm.exportAll( ms );
+		ldm.exportxmlAll( ms );
 
 		EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
-		lde.exportAll( ms );
+		lde.exportxmlAll( ms );
 	}
 	
-	private boolean addProduct( ProductMeta set ) {
-		EngineProducts products = data.getProducts();
-		products.addProduct( set );
-		return( true );
-	}
-
 	private boolean matchProductMirrors( AppProduct product ) {
 		// match to mirrors
 		EngineMatcher matcher = loader.getMatcher();
@@ -210,10 +186,9 @@ public class EngineLoaderProducts {
 		return( true );
 	}
 	
-	private ProductMeta loadProduct( AppProduct product , ProductContext context , boolean importxml , boolean update ) {
+	private ProductMeta loadProduct( AppProduct product , ProductContext context , boolean importxml , boolean update , boolean includingEnvironments , ProductMeta setOld ) {
 		EngineProducts products = data.getProducts();
 		ProductMeta set = new ProductMeta( products , product );
-		set.setPrimary( true );
 		set.setMatched( true );
 		set.setContext( context ); 
 		
@@ -229,7 +204,7 @@ public class EngineLoaderProducts {
 				
 				ProductStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
 				if( importxml )
-					importxmlAll( set , storageMeta , context );
+					importxmlAll( set , storageMeta , context , update , includingEnvironments );
 				else
 					loaddbAll( set , storageMeta , context );
 
@@ -239,8 +214,10 @@ public class EngineLoaderProducts {
 				else
 					trace( "successfully matched product=" + product.NAME );
 			}
-			else
-				Common.exitUnexpected();
+			else {
+				String path = meta.getLocalPath( action );
+				Common.exit1( _Error.MissingProductFolder1 , "missing product folder=" + path , path );
+			}
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -249,7 +226,9 @@ public class EngineLoaderProducts {
 		}
 		
 		product.setStorage( set );
-		addProduct( set );
+		if( setOld != null )
+			products.unloadProduct( setOld );
+		products.setProductMetadata( set );
 		return( set );
 	}
 	
@@ -263,7 +242,7 @@ public class EngineLoaderProducts {
 		return( null );
 	}
 	
-	private void importxmlAll( ProductMeta set , ProductStorage ms , ProductContext context ) throws Exception {
+	private void importxmlAll( ProductMeta set , ProductStorage ms , ProductContext context , boolean update , boolean includingEnvironments ) throws Exception {
 		ActionBase action = loader.getAction();
 		
 		try {
@@ -271,7 +250,11 @@ public class EngineLoaderProducts {
 			ldm.importxmlAll( ms , context );
 		
 			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
-			lde.loadEnvs( ms );
+			if( includingEnvironments )
+				lde.importxmlAll( ms , update );
+			else
+ 				lde.loaddbAll();
+				
 			ldm.loadDesignDocs( ms );
 			
 			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , set );
@@ -290,7 +273,8 @@ public class EngineLoaderProducts {
 			ldm.loaddbAll( context );
 
 			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
-			lde.loadEnvs( ms );
+			lde.loaddbAll();
+			
 			ldm.loadDesignDocs( ms );
 			
 			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , set );

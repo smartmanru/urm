@@ -18,7 +18,7 @@ public class MetaDesignLink {
 	public String TARGET;
 	public MetaDesignElement target;
 	public String TEXT;
-	private VarLINKTYPE linkType;
+	private EnumLinkType linkType;
 	
 	public MetaDesignLink( Meta meta , MetaDesignDiagram design , MetaDesignElement element ) {
 		this.meta = meta;
@@ -53,11 +53,11 @@ public class MetaDesignLink {
 	}
 
 	public boolean isGenericType() {
-		return( linkType == VarLINKTYPE.GENERIC );		
+		return( linkType == EnumLinkType.GENERIC );		
 	}
 
 	public boolean isMsgType() {
-		return( linkType == VarLINKTYPE.MSG );		
+		return( linkType == EnumLinkType.MSG );		
 	}
 	
 }

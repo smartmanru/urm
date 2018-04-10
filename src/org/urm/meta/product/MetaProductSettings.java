@@ -6,7 +6,9 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
+import org.urm.engine.properties.PropertyEntity;
 
 public class MetaProductSettings {
 
@@ -23,10 +25,10 @@ public class MetaProductSettings {
 	public static String PROPERTY_PRODUCT_HOME = "product.home";
 	
 	public Meta meta;
-	public MetaProductSettings settings;
 	
 	// context and custom product properties
-	public ObjectProperties ctx;
+	public ObjectProperties ops;
+	public ObjectProperties mon;
 	
 	// detailed product properties
 	public MetaProductCoreSettings core;
@@ -38,32 +40,6 @@ public class MetaProductSettings {
 		meta.setSettings( this );
 		core = new MetaProductCoreSettings( meta , this ); 
 		buildModes = new HashMap<DBEnumBuildModeType,MetaProductBuildSettings>();
-	}
-
-	public MetaProductSettings copy( Meta rmeta , ObjectProperties parent ) throws Exception {
-		MetaProductSettings r = new MetaProductSettings( rmeta.getStorage() , rmeta );
-		
-		// context
-		r.ctx = ctx.copy( parent );
-		r.core = core.copy( rmeta , r );
-		
-		if( buildCommon != null )
-			r.buildCommon = buildCommon.copy( rmeta , r , r.getContextProperties() ); 
-		for( DBEnumBuildModeType mode : buildModes.keySet() ) {
-			MetaProductBuildSettings modeSet = buildModes.get( mode );
-			r.buildModes.put( mode , modeSet.copy( rmeta , r , r.buildCommon.getProperties() ) );
-		}
-
-		return( r );
-	}
-
-	public ObjectProperties getContextProperties() {
-		return( ctx );
-	}
-	
-	public void createSettings( ObjectProperties ctx , ProductContext context ) throws Exception {
-		this.ctx = ctx;
-		setContextProperties( context );
 		
 		// build
 		buildCommon = new MetaProductBuildSettings( "build.common" , meta , this );
@@ -77,12 +53,40 @@ public class MetaProductSettings {
 		}
 	}
 
-	public void createCoreSettings( ObjectProperties opsCore ) throws Exception {
-		core.createCoreSettings( opsCore );
+	public MetaProductSettings copy( Meta rmeta , ObjectProperties parent ) throws Exception {
+		MetaProductSettings r = new MetaProductSettings( rmeta.getStorage() , rmeta );
+		
+		// context
+		r.ops = ops.copy( parent );
+		r.mon = mon.copy( r.ops );
+		r.core = core.copy( rmeta , r );
+		
+		if( buildCommon != null )
+			r.buildCommon = buildCommon.copy( rmeta , r , r.getParameters() ); 
+		for( DBEnumBuildModeType mode : buildModes.keySet() ) {
+			MetaProductBuildSettings modeSet = buildModes.get( mode );
+			r.buildModes.put( mode , modeSet.copy( rmeta , r , r.buildCommon.getProperties() ) );
+		}
+		
+		return( r );
+	}
+
+	public ObjectProperties getParameters() {
+		return( ops );
 	}
 	
+	public ObjectProperties getMonitoringProperties() {
+		return( mon );
+	}
+	
+	public void createCoreSettings( ObjectProperties ops ) throws Exception {
+		this.ops = ops;
+		core.createSettings();
+	}
+
 	public void createMonitoringSettings( ObjectProperties mon ) throws Exception {
-		core.createMonitoringSettings( mon );
+		this.mon = mon;
+		core.createMonitoringSettings();
 	}
 	
 	public void createBuildCommonSettings( ObjectProperties opsBuild ) throws Exception {
@@ -94,27 +98,27 @@ public class MetaProductSettings {
 		buildMode.createSettings( opsBuild );
 	}
 
-	private void setContextProperties( ProductContext context ) throws Exception {
-		ctx.setStringProperty( PROPERTY_PRODUCT_NAME , meta.name );
-		ctx.setPathProperty( PROPERTY_PRODUCT_HOME , context.home.folderPath );
+	public void setContextProperties( ObjectProperties ops , ProductContext context ) throws Exception {
+		ops.setStringProperty( PROPERTY_PRODUCT_NAME , meta.name );
+		ops.setPathProperty( PROPERTY_PRODUCT_HOME , context.home.folderPath );
 		
 		MetaProductVersion version = meta.getVersion();
-		updateVersion( version );
+		updateVersion( ops , version );
 	}
 	
-	private void updateVersion( MetaProductVersion version ) throws Exception {
-		ctx.setIntProperty( PROPERTY_LAST_MAJOR_FIRST , version.majorLastFirstNumber );
-		ctx.setIntProperty( PROPERTY_LAST_MAJOR_SECOND , version.majorLastSecondNumber );
-		ctx.setIntProperty( PROPERTY_NEXT_MAJOR_FIRST , version.majorNextFirstNumber );
-		ctx.setIntProperty( PROPERTY_NEXT_MAJOR_SECOND , version.majorNextSecondNumber );
-		ctx.setIntProperty( PROPERTY_LAST_MINOR_FIRST , version.lastProdTag );
-		ctx.setIntProperty( PROPERTY_NEXT_MINOR_FIRST , version.nextProdTag );
-		ctx.setIntProperty( PROPERTY_LAST_MINOR_SECOND , version.lastUrgentTag );
-		ctx.setIntProperty( PROPERTY_NEXT_MINOR_SECOND , version.nextUrgentTag );
+	private void updateVersion( ObjectProperties ops , MetaProductVersion version ) throws Exception {
+		ops.setIntProperty( PROPERTY_LAST_MAJOR_FIRST , version.majorLastFirstNumber );
+		ops.setIntProperty( PROPERTY_LAST_MAJOR_SECOND , version.majorLastSecondNumber );
+		ops.setIntProperty( PROPERTY_NEXT_MAJOR_FIRST , version.majorNextFirstNumber );
+		ops.setIntProperty( PROPERTY_NEXT_MAJOR_SECOND , version.majorNextSecondNumber );
+		ops.setIntProperty( PROPERTY_LAST_MINOR_FIRST , version.lastProdTag );
+		ops.setIntProperty( PROPERTY_NEXT_MINOR_FIRST , version.nextProdTag );
+		ops.setIntProperty( PROPERTY_LAST_MINOR_SECOND , version.lastUrgentTag );
+		ops.setIntProperty( PROPERTY_NEXT_MINOR_SECOND , version.nextUrgentTag );
 	}
 	
 	public void updateSettings( MetaProductVersion version ) throws Exception {
-		updateVersion( version );
+		updateVersion( ops , version );
 		updateContextSettings();
 	}
 
@@ -143,9 +147,11 @@ public class MetaProductSettings {
 		Map<String,String> map = new HashMap<String,String>();
 		String prefix = "export.";
 		
-		for( String name : ctx.getPropertyList() ) {
+		ObjectMeta meta = ops.getMeta();
+		PropertyEntity entity  = meta.getCustomEntity();
+		for( String name : entity.getVarNames() ) {
 			if( name.startsWith( prefix ) ) {
-				String value = ctx.getFinalProperty( name , action.shell.account , true , false );
+				String value = ops.getFinalProperty( name , action.shell.account , true , false );
 				if( value != null )
 					map.put( name.substring( prefix.length() ) , value );
 			}
@@ -177,8 +183,4 @@ public class MetaProductSettings {
 		return( getBuildModeSettings( action.context.buildMode ) );
 	}
 
-	public ObjectProperties getMonitoringProperties() {
-		return( core.mon );
-	}
-	
 }

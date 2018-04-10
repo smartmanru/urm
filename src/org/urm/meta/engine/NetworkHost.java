@@ -21,6 +21,7 @@ public class NetworkHost extends EngineObject {
 	
 	public Network network;
 	Map<String,HostAccount> accountMap;
+	Map<Integer,HostAccount> accountMapById;
 
 	public int ID;
 	public String NAME;
@@ -34,6 +35,7 @@ public class NetworkHost extends EngineObject {
 		super( network );
 		this.network = network;
 		accountMap = new HashMap<String,HostAccount>();
+		accountMapById = new HashMap<Integer,HostAccount>();
 		ID = -1;
 		CV = 0;
 	}
@@ -62,10 +64,12 @@ public class NetworkHost extends EngineObject {
 	
 	public void addAccount( HostAccount account ) {
 		accountMap.put( account.NAME , account );
+		accountMapById.put( account.ID , account );
 	}
 	
 	public void removeAccount( HostAccount account ) throws Exception {
 		accountMap.remove( account.NAME );
+		accountMapById.remove( account.ID );
 	}
 	
 	public String[] getFinalAccounts() {
@@ -93,12 +97,16 @@ public class NetworkHost extends EngineObject {
 		return( Common.getSortedKeys( accountMap ) );
 	}
 
-	public HostAccount findAccount( String accountUser ) {
+	public HostAccount findAccountByUser( String accountUser ) {
 		for( HostAccount account : accountMap.values() ) {
 			if( account.NAME.equals( accountUser ) )
 				return( account );
 		}
 		return( null );
+	}
+
+	public HostAccount findAccount( int accountId ) {
+		return( accountMapById.get( accountId ) );
 	}
 	
 	public void updateAccount( HostAccount account ) throws Exception {
@@ -115,17 +123,22 @@ public class NetworkHost extends EngineObject {
 		return( false );
 	}
 	
-	public HostAccount findFinalAccount( String finalAccount ) {
+	public HostAccount findAccountByFinal( String finalAccount ) {
 		if( finalAccount.isEmpty() )
 			return( null );
 		
-		Account account = Account.getDatacenterAccount( network.datacenter.NAME , finalAccount );
+		Account account = Account.getDatacenterAccount( network.datacenter , finalAccount );
 		if( !isEqualsHost( account.HOST ) )
 			return( null );
 		
-		return( findAccount( account.USER ) );
+		return( findAccountByUser( account.USER ) );
 	}
 
+	public String getHost() {
+		Account account = Account.getHostAccount( this );
+		return( account.HOST );
+	}
+	
 	public boolean isEqualsHost( Account account ) {
 		if( isEqualsHost( account.HOST ) || isEqualsHost( account.IP ) )
 			return( true );

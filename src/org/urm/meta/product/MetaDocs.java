@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.meta.MatchItem;
 
 public class MetaDocs {
 
@@ -55,6 +56,14 @@ public class MetaDocs {
 		return( mapDocs.get( name ) );
 	}
 	
+	public MetaProductDoc findDoc( MatchItem item ) {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( mapDocsById.get( item.FKID ) );
+		return( mapDocs.get( item.FKNAME ) );
+	}
+	
 	public MetaProductDoc getDoc( String name ) throws Exception {
 		MetaProductDoc doc = mapDocs.get( name );
 		if( doc == null )
@@ -62,6 +71,15 @@ public class MetaDocs {
 		return( doc );
 	}
 
+	public String getDocName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaProductDoc doc = findDoc( item );
+		if( doc == null )
+			Common.exitUnexpected();
+		return( doc.NAME );
+	}
+	
 	public MetaProductDoc getDoc( int id ) throws Exception {
 		MetaProductDoc doc = mapDocsById.get( id );
 		if( doc == null )
@@ -97,6 +115,14 @@ public class MetaDocs {
 				return( diagram );
 		}
 		return( null );
+	}
+
+	public MatchItem getDocMatchItem( Integer id , String name ) throws Exception {
+		if( id == null && name.isEmpty() )
+			return( null );
+		MetaProductDoc doc = ( id == null )? findDoc( name ) : getDoc( id );
+		MatchItem match = ( doc == null )? new MatchItem( name ) : new MatchItem( doc.ID );
+		return( match );
 	}
 
 }

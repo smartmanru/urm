@@ -14,6 +14,7 @@ import org.urm.engine.storage.SourceStorage;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 
@@ -30,7 +31,7 @@ public class ActionRestoreConfigs extends ActionBase {
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer; 
 		if( !server.isConfigurable() ) {
-			debug( "ignore server=" + server.NAME + ", type=" + server.getServerTypeName( this ) );
+			debug( "ignore server=" + server.NAME + ", type=" + server.getServerTypeName() );
 			return( SCOPESTATE.NotRun );
 		}
 
@@ -79,17 +80,19 @@ public class ActionRestoreConfigs extends ActionBase {
 		redist.recreateTmpFolder( this );
 		
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
-			if( deployment.confItem != null ) {
-				String name = sourceStorage.getConfItemLiveName( this , node , deployment.confItem );
-				executeNodeConf( parent , sourceStorage , server , node , deployment , deployment.confItem , name , prepare );
+			if( deployment.isConfItem() ) {
+				MetaDistrConfItem confItem = deployment.getConfItem();
+				String name = sourceStorage.getConfItemLiveName( this , node , confItem );
+				executeNodeConf( parent , sourceStorage , server , node , deployment , confItem , name , prepare );
 				continue;
 			}
 			
 			// deployments
-			if( deployment.comp == null )
+			if( !deployment.isComponent() )
 				continue;
 			
-			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems() ) {
+			MetaDistrComponent comp = deployment.getComponent();
+			for( MetaDistrComponentItem compItem : comp.getConfItems() ) {
 				if( compItem.confItem != null ) {
 					String name = sourceStorage.getConfItemLiveName( this , node , compItem.confItem );
 					executeNodeConf( parent , sourceStorage , server , node , deployment , compItem.confItem , name , prepare );

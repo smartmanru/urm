@@ -1,17 +1,23 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.dist.DistRepositoryItem;
+import org.urm.engine.dist.ReleaseLabelInfo;
+import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
+import org.urm.meta.release.ProductReleases;
+import org.urm.meta.release.Release;
 
 public class ActionTouchRelease extends ActionBase {
 
 	public Meta meta;
 	public String RELEASELABEL;
-	public Dist dist;
+	public Release release;
 	
 	public ActionTouchRelease( ActionBase action , String stream , Meta meta , String RELEASELABEL ) {
 		super( action , stream , "Touch release=" + RELEASELABEL );
@@ -20,9 +26,25 @@ public class ActionTouchRelease extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
-		DistRepository repo = artefactory.getDistRepository( this , meta );
-		dist = repo.reloadDist( this , RELEASELABEL );
-		return( SCOPESTATE.RunSuccess );
+		EngineMethod method = super.method;
+		
+		ProductReleases releases = meta.getReleases();
+		synchronized( releases ) {
+			// update repository
+			DistRepository distrepoUpdated = method.changeDistRepository( releases );
+
+			// reload distributive
+			ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( this , meta , RELEASELABEL );
+			DistRepositoryItem item = distrepoUpdated.findNormalItem( info.RELEASEDIR );
+			if( item == null )
+				Common.exitUnexpected();
+				
+			DistRepositoryItem itemUpdated = method.changeDistItem( distrepoUpdated , item );
+			Dist dist = distrepoUpdated.reloadDist( this , itemUpdated );
+			release = dist.release;
+			
+			return( SCOPESTATE.RunSuccess );
+		}
 	}
 	
 }

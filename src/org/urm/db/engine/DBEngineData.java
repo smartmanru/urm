@@ -7,7 +7,7 @@ import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
-import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.data.EngineEntities;
 import org.urm.meta.EngineLoader;
 
 public abstract class DBEngineData {
@@ -58,6 +58,10 @@ public abstract class DBEngineData {
 	private static void dropCoreInfraData( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = c.getEntities();
+		if( !c.modify( DBQueries.MODIFY_CORE_UNMATCHDATACENTERS0 ) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_CORE_UNMATCHACCOUNTS0 ) )
+			Common.exitUnexpected();
 		DBEngineEntities.dropAppObjects( c , entities.entityAppHostAccount );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppNetworkHost );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppNetwork );

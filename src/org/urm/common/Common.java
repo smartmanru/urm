@@ -44,6 +44,9 @@ import org.w3c.dom.Element;
 
 public class Common {
 
+	public static String BOOLEAN_YES = "yes";
+	public static String BOOLEAN_NO = "no";
+	
 	public static String getValueDefault( String value , String defValue ) {
 		if( value == null || value.isEmpty() )
 			return( defValue );
@@ -229,6 +232,30 @@ public class Common {
 		
 		return( value );
 	}
+
+	public static String getListLines( String[] items ) {
+		return( getList( items , "\n" ) );
+	}
+	
+	public static String getListSpaced( String[] items ) {
+		return( getList( items , " " ) );
+	}
+	
+	public static String getListDotted( String[] items ) {
+		return( getList( items , "." ) );
+	}
+	
+	public static String getListComma( String[] items ) {
+		return( getList( items , "," ) );
+	}
+	
+	public static String getListCommaSpaced( String[] items ) {
+		return( getList( items , ", " ) );
+	}
+	
+	public static String getListPath( String[] items ) {
+		return( getList( items , "/" ) );
+	}
 	
 	public static String getList( String[] items , String delimiter ) {
 		String value = "";
@@ -267,6 +294,11 @@ public class Common {
 		return( getTimeStamp( new Date() ) );
 	}
 
+	public static String getTime( Date date ) {
+        SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss" );
+        return( simpleFormat.format( date ) );
+	}
+	
 	public static String getTimeStamp( Date date ) {
         SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss,SSS" );
         return( simpleFormat.format( date ) );
@@ -550,10 +582,10 @@ public class Common {
 		if( s == null )
 			return( false );
 		
-		if( s.equals( "yes" ) )
+		if( s.equals( BOOLEAN_YES ) )
 			return( true );
 		
-		if( !s.equals( "no" ) )
+		if( !s.equals( BOOLEAN_NO ) )
 			throw new RuntimeException( "invalid boolean value=" + s ); 
 			
 		return( false );
@@ -561,9 +593,9 @@ public class Common {
 	
 	public static String getBooleanValue( boolean v ) {
 		if( v == true )
-			return( "yes" );
+			return( BOOLEAN_YES );
 		
-		return( "no" );
+		return( BOOLEAN_NO );
 	}
 
 	public static Date getDateCurrentDay() {
@@ -807,6 +839,13 @@ public class Common {
 	}
 
 	public static Map<String,String> copyListToMap( List<String> list ) {
+		Map<String,String> map = new HashMap<String,String>();
+		for( String s : list )
+			map.put( s , s );
+		return( map );
+	}
+
+	public static Map<String,String> copyListToMap( String[] list ) {
 		Map<String,String> map = new HashMap<String,String>();
 		for( String s : list )
 			map.put( s , s );

@@ -6,7 +6,7 @@ import org.urm.action.ActionScope;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseDelivery;
+import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.env.MetaEnvServer;
@@ -20,12 +20,12 @@ public class DatabaseCommand {
 	}
 
 	public void initDatabase( ScopeState parentState , ActionBase action , String SERVER , int nodePos ) throws Exception {
-		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
+		MetaEnvServer server = action.context.sg.getServer( SERVER );
 		MetaEnvServerNode node;
 		if( nodePos < 0 )
-			node = server.getMasterNode( action );
+			node = server.getMasterNode();
 		else
-			node = server.getNode( action , nodePos );
+			node = server.getNodeByPos( nodePos );
 			
 		ActionInitDatabase ma = new ActionInitDatabase( action , null , server , node );
 		ma.runSimpleEnv( parentState , server.sg.env , SecurityAction.ACTION_DEPLOY , false );
@@ -45,7 +45,7 @@ public class DatabaseCommand {
 		ma.runAll( parentState , scope , server.sg.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
-	public void applyAutomatic( ScopeState parentState , ActionBase action , Dist dist , ReleaseDelivery delivery , String indexScope ) throws Exception {
+	public void applyAutomatic( ScopeState parentState , ActionBase action , Dist dist , ReleaseDistScopeDelivery delivery , String indexScope ) throws Exception {
 		dist.openForUse( action );
 		
 		String deliveryInfo = ( delivery != null )? delivery.distDelivery.NAME : "(all)";
@@ -64,7 +64,7 @@ public class DatabaseCommand {
 		action.info( "apply database changes (" + op + ") release=" + dist.RELEASEDIR + ", delivery=" + deliveryInfo + ", items=" + itemsInfo );
 		
 		ActionEnvScopeMaker maker = new ActionEnvScopeMaker( action , action.context.env );
-		maker.addScopeEnvDatabase( dist );
+		maker.addScopeEnvDatabase( dist.release );
 		
 		ActionApplyAutomatic ma = new ActionApplyAutomatic( action , null , dist , delivery , indexScope );
 		ma.runAll( parentState , maker.getScope() , action.context.env , SecurityAction.ACTION_DEPLOY , false );
@@ -79,13 +79,13 @@ public class DatabaseCommand {
 	}
 
 	public void importDatabase( ScopeState parentState , ActionBase action , String SERVER , String TASK , String CMD , String SCHEMA ) throws Exception {
-		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
+		MetaEnvServer server = action.context.sg.getServer( SERVER );
 		ActionImportDatabase ma = new ActionImportDatabase( action , null , server , TASK , CMD , SCHEMA );
 		ma.runSimpleEnv( parentState , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void exportDatabase( ScopeState parentState , ActionBase action , String SERVER , String TASK , String CMD , String SCHEMA ) throws Exception {
-		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
+		MetaEnvServer server = action.context.sg.getServer( SERVER );
 		ActionExportDatabase ma = new ActionExportDatabase( action , null , server , TASK , CMD , SCHEMA );
 		ma.runSimpleEnv( parentState , action.context.env , SecurityAction.ACTION_SECURED , true );
 	}

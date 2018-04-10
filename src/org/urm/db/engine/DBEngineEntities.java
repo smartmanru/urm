@@ -4,16 +4,21 @@ import java.sql.ResultSet;
 
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
+import org.urm.db.EngineDB;
+import org.urm.db.core.DBEnums.DBEnumChangeType;
+import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
+import org.urm.db.core.DBEnums.DBEnumParamValueSubType;
+import org.urm.db.core.DBEnums.DBEnumParamValueType;
 import org.urm.db.core.DBSettings;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.properties.PropertyValue;
+import org.urm.engine.transaction.TransactionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -24,7 +29,9 @@ public abstract class DBEngineEntities {
 	public static String FIELD_VERSION_SYSTEM = "sv"; 
 	public static String FIELD_VERSION_PRODUCT = "pv"; 
 	public static String FIELD_VERSION_ENVIRONMENT = "ev"; 
+	public static String FIELD_VERSION_RELEASE = "rv"; 
 	public static String FIELD_VERSION_AUTH = "uv"; 
+	public static String FIELD_CHANGETYPE = "change_type";
 	
 	public static String getVersionField( DBEnumObjectVersionType versionType ) {
 		if( versionType == DBEnumObjectVersionType.APP )
@@ -37,35 +44,88 @@ public abstract class DBEngineEntities {
 			return( FIELD_VERSION_PRODUCT );
 		if( versionType == DBEnumObjectVersionType.ENVIRONMENT )
 			return( FIELD_VERSION_ENVIRONMENT );
+		if( versionType == DBEnumObjectVersionType.RELEASE )
+			return( FIELD_VERSION_RELEASE );
 		if( versionType == DBEnumObjectVersionType.LOCAL )
 			return( FIELD_VERSION_AUTH );
 		return( null );
 	}
 
 	public static void modifyAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values , boolean insert ) throws Exception {
-		if( id <= 0 || version <= 0 )
+		if( entity.CHANGEABLE )
 			Common.exitUnexpected();
-		
 		if( insert )
-			insertAppObject( c , entity , id , version , values );
-		else
-			updateAppObject( c , entity , id , version , values );
+			insertAppObject( c , entity , id , version , values , null );
+		updateAppObject( c , entity , id , version , values , null );
 	}
 	
-	public static void insertAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values ) throws Exception {
-		if( id <= 0 || version <= 0 )
+	public static DBEnumChangeType modifyAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values , boolean insert , DBEnumChangeType type ) throws Exception {
+		if( !entity.CHANGEABLE )
+			Common.exitUnexpected();
+		if( insert )
+			return( insertAppObject( c , entity , id , version , values , type ) );
+		return( updateAppObject( c , entity , id , version , values , type ) );
+	}
+	
+	public static void modifyAppEntity( DBConnection c , PropertyEntity entity , int version , String[] values , boolean insert ) throws Exception {
+		if( entity.CHANGEABLE )
+			Common.exitUnexpected();
+		if( entity.hasId() )
+			Common.exitUnexpected();
+		if( insert )
+			insertAppObject( c , entity , null , version , values , null );
+		updateAppObject( c , entity , null , version , values , null );
+	}
+	
+	public static DBEnumChangeType modifyAppEntity( DBConnection c , PropertyEntity entity , int version , String[] values , boolean insert , DBEnumChangeType type ) throws Exception {
+		if( !entity.CHANGEABLE )
+			Common.exitUnexpected();
+		if( entity.hasId() )
+			Common.exitUnexpected();
+		if( insert )
+			return( insertAppObject( c , entity , null , version , values , type ) );
+		return( updateAppObject( c , entity , null , version , values , type ) );
+	}
+	
+	private static DBEnumChangeType insertAppObject( DBConnection c , PropertyEntity entity , Integer id , int version , String[] values , DBEnumChangeType type ) throws Exception {
+		if( entity.hasId() ) {
+			if( id == null )
+				Common.exitUnexpected();
+		}
+		else {
+			if( id != null )
+				Common.exitUnexpected();
+		}
+			
+		if( version <= 0 )
 			Common.exitUnexpected();
 		
 		EntityVar[] vars = entity.getDatabaseVars();
 		if( vars.length != values.length )
 			Common.exitUnexpected();
 
-		String[] valuesFinal = new String[ values.length + 2 ];
+		int addFields = 1;
+		if( id != null )
+			addFields++;
 		
-		valuesFinal[ 0 ] = "" + id;
+		if( entity.CHANGEABLE )
+			addFields++;
+		String[] valuesFinal = new String[ values.length + addFields ];
+		
+		int shift = 0;
+		if( id != null ) {
+			valuesFinal[ 0 ] = "" + id;
+			shift = 1;
+		}
 		for( int k = 0; k < vars.length; k++ )
-			valuesFinal[ k + 1 ] = values[ k ];
-		valuesFinal[ valuesFinal.length - 1 ] = "" + version;
+			valuesFinal[ k + shift ] = values[ k ];
+		
+		if( entity.CHANGEABLE ) {
+			valuesFinal[ valuesFinal.length - 2 ] = EngineDB.getInteger( version );
+			valuesFinal[ valuesFinal.length - 1 ] = EngineDB.getEnum( type );
+		}
+		else
+			valuesFinal[ valuesFinal.length - 1 ] = EngineDB.getInteger( version );
 		
 		String query = "insert into " + entity.APP_TABLE + " ( ";
 		query += getFieldList( entity );
@@ -73,11 +133,14 @@ public abstract class DBEngineEntities {
 		
 		if( !c.modify( query , valuesFinal ) )
 			Common.exitUnexpected();
+		return( type );
 	}
 	
 	private static String getFieldList( PropertyEntity entity ) {
 		EntityVar[] vars = entity.getDatabaseVars();
-		String list = entity.getIdField();
+		String list = "";
+		if( entity.hasId() )
+			list = entity.getIdField();
 		for( int k = 0; k < vars.length; k++ ) {
 			EntityVar var = vars[ k ];
 			list = Common.addToList( list , var.DBNAME , " , " );
@@ -85,11 +148,23 @@ public abstract class DBEngineEntities {
 		
 		String fieldVersion = getVersionField( entity.DATA_OBJECTVERSION_TYPE );
 		list = Common.addToList( list , fieldVersion , " , " );
+		
+		if( entity.CHANGEABLE )
+			list = Common.addToList( list , FIELD_CHANGETYPE , " , " );
 		return( list );
 	}
 	
-	public static void updateAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values ) throws Exception {
-		if( id <= 0 || version <= 0 )
+	private static DBEnumChangeType updateAppObject( DBConnection c , PropertyEntity entity , Integer id , int version , String[] values , DBEnumChangeType type ) throws Exception {
+		if( entity.hasId() ) {
+			if( id == null )
+				Common.exitUnexpected();
+		}
+		else {
+			if( id != null )
+				Common.exitUnexpected();
+		}
+		
+		if( version <= 0 )
 			Common.exitUnexpected();
 		
 		EntityVar[] vars = entity.getDatabaseVars();
@@ -97,17 +172,35 @@ public abstract class DBEngineEntities {
 			Common.exitUnexpected();
 		
 		String query = "update " + entity.APP_TABLE + " set ";
-		for( int k = 0; k < vars.length; k++ ) {
+		int startIndex = 0;
+		if( id == null )
+			startIndex = entity.PK_FIELD_COUNT;
+		
+		for( int k = startIndex; k < vars.length; k++ ) {
 			EntityVar var = vars[ k ];
 			query += var.DBNAME + " = " + values[ k ] + " , ";
 		}
 		
 		String fieldVersion = getVersionField( entity.DATA_OBJECTVERSION_TYPE );
 		query += fieldVersion + " = " + version;
-		query += " where " + entity.getIdField() + " = " + id;
+		if( entity.CHANGEABLE )
+			query += " , " + FIELD_CHANGETYPE + " = " + EngineDB.getEnum( type );
+			
+		query += " where ";
+		if( id != null )
+			query += entity.getIdField() + " = " + id;
+		else {
+			for( int k = 0; k < entity.PK_FIELD_COUNT; k++ ) {
+				EntityVar var = vars[ k ];
+				if( k > 0 )
+					query += " and ";
+				query += var.DBNAME + " = " + values[ k ];
+			}
+		}
 		
 		if( !c.modify( query ) )
 			Common.exitUnexpected();
+		return( type );
 	}
 
 	public static ResultSet listAppObjects( DBConnection c , PropertyEntity entity ) throws Exception {
@@ -117,7 +210,7 @@ public abstract class DBEngineEntities {
 	}
 
 	public static ResultSet listAppObjectsFiltered( DBConnection c , PropertyEntity entity , String filter , String[] args ) throws Exception {
-		String query = "select " + getFieldList( entity ) + " from " + entity.APP_TABLE + " " + filter; 
+		String query = "select " + getFieldList( entity ) + " from " + entity.APP_TABLE + " where " + filter; 
 		ResultSet rs = c.query( query , args );
 		return( rs );
 	}
@@ -137,17 +230,40 @@ public abstract class DBEngineEntities {
 	}
 
 	public static void deleteAppObject( DBConnection c , PropertyEntity entity , int id , int version ) throws Exception {
+		if( entity.CHANGEABLE )
+			Common.exitUnexpected();
+		deleteAppObject( c , entity , id , version , false );
+	}
+	
+	public static DBEnumChangeType deleteAppObject( DBConnection c , PropertyEntity entity , int id , int version , boolean draft ) throws Exception {
 		if( id <= 0 || version <= 0 )
 			Common.exitUnexpected();
 		
-		String query = "delete from " + entity.APP_TABLE + " where " + entity.getIdField() + " = " + id;
+		String query = null;
+		DBEnumChangeType type = null;
+		if( entity.CHANGEABLE && draft ) {
+			String fieldVersion = getVersionField( entity.DATA_OBJECTVERSION_TYPE );
+			type = DBEnumChangeType.DELETED;
+			query = "update " + entity.APP_TABLE + " set changeable = " + EngineDB.getEnum( type ) +
+					", " + fieldVersion + " = " + version +
+					" where " + entity.getIdField() + " = " + id;
+		}
+		else
+			query = "delete from " + entity.APP_TABLE + " where " + entity.getIdField() + " = " + id;
 		if( !c.modify( query ) )
 			Common.exitUnexpected();
+		return( type );
 	}
 	
 	public static void dropAppObjects( DBConnection c , PropertyEntity entity ) throws Exception {
 		String query = "delete from " + entity.APP_TABLE;
 		if( !c.modify( query ) )
+			Common.exitUnexpected();
+	}
+	
+	public static void dropAppObjects( DBConnection c , PropertyEntity entity , String filter , String[] args ) throws Exception {
+		String query = "delete from " + entity.APP_TABLE + " where " + filter;
+		if( !c.modify( query , args ) )
 			Common.exitUnexpected();
 	}
 	
@@ -170,9 +286,8 @@ public abstract class DBEngineEntities {
 	
 	public static void loaddbAppObject( ResultSet rs , ObjectProperties props ) throws Exception {
 		ObjectMeta meta = props.getMeta();
-		PropertyEntity entity = meta.getAppEntity();
 		
-		for( EntityVar var : entity.getVars() ) {
+		for( EntityVar var : meta.getAppVars() ) {
 			if( var.isDatabaseOnly() || var.isXmlOnly() )
 				continue;
 
@@ -195,28 +310,34 @@ public abstract class DBEngineEntities {
 		}
 	}
 
-	public static EntityVar createCustomProperty( EngineTransaction transaction , EngineEntities entities , int ownerId , ObjectProperties ops , String name , String desc , String defvalue ) throws Exception {
+	public static EntityVar createCustomProperty( TransactionBase transaction , EngineEntities entities , ObjectProperties ops , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , boolean inherited , String[] enumList ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
-		if( entity.META_OBJECT_ID != ownerId )
+		if( entity.META_OBJECT_ID != ops.ownerId )
 			transaction.exitUnexpectedState();
 
 		// check unique
 		if( entity.findVar( name ) != null )
 			Common.exitUnexpected();
+
+		if( enumList != null && defValue.isEmpty() == false ) {
+			if( Common.getIndexOf( enumList , defValue ) < 0 )
+				Common.exitUnexpected();
+		}
 		
-		EntityVar var = EntityVar.metaString( name , desc , false , defvalue );
+		EntityVar var = EntityVar.meta( name , name , name , desc , type , subtype , DBEnumObjectType.UNKNOWN , false , secured , inherited , defValue , null , enumList );
 		DBSettings.createCustomProperty( transaction , entity , var );
 		meta.rebuild();
 		
 		ops.createProperty( var );
+		recalculateProperties( transaction , ops );
 		return( var );
 	}
 	
-	public static EntityVar modifyCustomProperty( EngineTransaction transaction , EngineEntities entities , int ownerId , ObjectProperties ops , int paramId , String name , String desc , String defvalue ) throws Exception {
+	public static EntityVar modifyCustomProperty( TransactionBase transaction , EngineEntities entities , ObjectProperties ops , int paramId , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , boolean inherited , String[] enumList ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
-		if( entity.META_OBJECT_ID != ownerId )
+		if( entity.META_OBJECT_ID != ops.ownerId )
 			transaction.exitUnexpectedState();
 			
 		// check unique
@@ -226,23 +347,31 @@ public abstract class DBEngineEntities {
 			Common.exitUnexpected();
 		
 		String originalName = var.NAME;
-		var.modifyCustom( name , desc , defvalue );
+		var.modifyCustom( name , desc , type , subtype , defValue , secured , inherited , enumList );
 		DBSettings.modifyCustomProperty( transaction , var );
 
 		PropertySet set = ops.getProperties();
-		PropertyValue pv = set.renameCustomProperty( originalName , name );
-		pv.setDefault( defvalue );
+		if( !originalName.equals( name ) ) {
+			PropertyValue pv = set.renameCustomProperty( originalName , name );
+			pv.setDefault( defValue );
+		}
+		else {
+			PropertyValue pv = ops.getProperty( name );
+			pv.setDefault( defValue );
+		}
 		
 		meta.rebuild();
-		ops.recalculateProperties();
+		if( !originalName.equals( name ) )
+			renameProperty( transaction , ops , originalName , name );
+		recalculateProperties( transaction , ops );
 		
 		return( var );
 	}
 	
-	public static void deleteCustomProperty( EngineTransaction transaction , EngineEntities entities , int ownerId , ObjectProperties ops , int paramId ) throws Exception {
+	public static void deleteCustomProperty( TransactionBase transaction , EngineEntities entities , ObjectProperties ops , int paramId ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
-		if( entity.META_OBJECT_ID != ownerId )
+		if( entity.META_OBJECT_ID != ops.ownerId )
 			transaction.exitUnexpectedState();
 		
 		EntityVar var = meta.getVar( paramId );
@@ -251,7 +380,54 @@ public abstract class DBEngineEntities {
 		set.removeCustomProperty( var.NAME );
 		
 		meta.rebuild();
+		deleteProperty( transaction , ops , var.NAME );
+		recalculateProperties( transaction , ops );
+	}
+
+	private static void renameProperty( TransactionBase transaction , ObjectProperties ops , String originalName , String name ) throws Exception {
+		renameObjectProperty( transaction , ops , originalName , name );
+		for( ObjectProperties child : ops.getChildProperties() ) {
+			if( child.versionType == ops.versionType )
+				renameProperty( transaction , child , originalName , name );
+		}
+	}
+
+	private static void deleteProperty( TransactionBase transaction , ObjectProperties ops , String name ) throws Exception {
+		deleteObjectProperty( transaction , ops , name );
+		for( ObjectProperties child : ops.getChildProperties() ) {
+			if( child.versionType == ops.versionType )
+				deleteProperty( transaction , child , name );
+		}
+	}
+
+	private static void recalculateProperties( TransactionBase transaction , ObjectProperties ops ) throws Exception {
 		ops.recalculateProperties();
+		ops.recalculateChildProperties();
+	}
+
+	private static void renameObjectProperty( TransactionBase transaction , ObjectProperties ops , String originalName , String name ) throws Exception {
+		String refOld = EntityVar.p( originalName );
+		String refNew = EntityVar.p( name );
+		for( String prop : ops.getPropertyList() ) {
+			EntityVar var = ops.getVar( prop );
+			PropertyValue pv = ops.getProperty( prop );
+			String originalValue = pv.getOriginalValue();
+			if( originalValue.indexOf( refOld ) >= 0 ) {
+				originalValue = Common.replace( originalValue , refOld , refNew );
+				DBSettings.modifyPropertyValue( transaction , ops , var );
+				ops.setProperty( var , originalValue );
+			}
+		}
+	}
+
+	private static void deleteObjectProperty( TransactionBase transaction , ObjectProperties ops , String name ) throws Exception {
+		String ref = EntityVar.p( name );
+		for( String prop : ops.getPropertyList() ) {
+			PropertyValue pv = ops.getProperty( prop );
+			String originalValue = pv.getOriginalValue();
+			if( originalValue.indexOf( ref ) >= 0 )
+				transaction.exit2( _Error.UnableDeleteUsedParam2 , "Unable to delete parameter, referenced in object=" + ops.getName() + ", property=" + prop , ops.getName() , prop );
+		}
 	}
 	
 }

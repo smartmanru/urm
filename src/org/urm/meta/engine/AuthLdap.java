@@ -13,9 +13,9 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.action.ActionInit;
+import org.urm.engine.AuthService;
+import org.urm.engine.data.EngineResources;
 import org.urm.engine.properties.ObjectProperties;
 
 public class AuthLdap {
@@ -32,7 +32,7 @@ public class AuthLdap {
 	public static String PROPERTY_EMAILATTR = "emailattr";
 	public static String PROPERTY_PASSWORDATTR = "passwordattr";
 	
-	EngineAuth auth;
+	AuthService auth;
 	
 	public boolean ldapUse;
 	public String ldapHost;
@@ -57,7 +57,7 @@ public class AuthLdap {
 
 	ObjectProperties props;
 	
-	public AuthLdap( EngineAuth auth ) {
+	public AuthLdap( AuthService auth ) {
 		this.auth = auth;
 		ldapStarted = false;
 		ldapFailed = false;
@@ -132,7 +132,7 @@ public class AuthLdap {
 		ops.setStringProperty( PROPERTY_PASSWORDATTR , userPasswordAttr );
 	}
 	
-	private void create( ActionInit action ) throws Exception {
+	private void create() throws Exception {
 		if( !ldapUse )
 			return;
 		
@@ -153,7 +153,7 @@ public class AuthLdap {
 		if( ldapUserRes == null )
 			return;
 		
-		EngineResources resources = action.getServerResources();
+		EngineResources resources = auth.engine.getData().getResources();
 		AuthResource res = resources.getResource( ldapUserRes );
 		res.loadAuthData();
 		if( !res.ac.isCommon() )
@@ -166,8 +166,14 @@ public class AuthLdap {
 		SEARCH_CONTROLS.setSearchScope( SearchControls.SUBTREE_SCOPE );
 	}
 
-	public void start( ActionInit action ) throws Exception {
-		create( action );
+	public void start() throws Exception {
+		if( ldapStarted )
+			return;
+		
+		if( !ldapUse )
+			return;
+		
+		create();
 		ldapStarted = true;
 		ldapFailed = false;
 	}
@@ -230,13 +236,13 @@ public class AuthLdap {
 		return( ac );
 	}
 	
-	public SearchResult verifyLogin( ActionBase action , String username , String password ) {
+	public SearchResult verifyLogin( String username , String password ) {
 		try {
 			SearchResult user = findUser( username );
 			if( user == null )
 				return( null );
 			
-			if( !verifyLogin( action , user , password ) )
+			if( !verifyLogin( user , password ) )
 				return( null );
 			return( user );
 		}
@@ -246,8 +252,8 @@ public class AuthLdap {
 		return( null );
 	}
 	
-	public boolean verifyLogin( ActionBase action , SearchResult user , String password ) {
-		if( !startUse( action ) )
+	public boolean verifyLogin( SearchResult user , String password ) {
+		if( !startUse() )
 			return( false );
 		
 		String dn = user.getNameInNamespace();
@@ -278,7 +284,7 @@ public class AuthLdap {
 		return( obj.toString() );
 	}
 
-	private boolean startUse( ActionBase action ) {
+	private boolean startUse() {
 		if( !ldapUse )
 			return( false );
 		
@@ -287,19 +293,19 @@ public class AuthLdap {
 				if( ldapFailed )
 					return( false );
 				
-				start( action.actionInit );
+				start();
 			}
 			return( true );
 		}
 		catch( Throwable e ) {
-			action.log( "start using LDAP" , e );
+			auth.engine.log( "start using LDAP" , e );
 			ldapFailed = true;
 			return( false );
 		}
 	}
 	
-	public AuthLdapUser getLdapUserData( ActionBase action , String username ) throws Exception {
-		if( !startUse( action ) )
+	public AuthLdapUser getLdapUserData( String username ) throws Exception {
+		if( !startUse() )
 			return( null );
 		
 		SearchResult res = findUser( username );
@@ -307,8 +313,8 @@ public class AuthLdap {
 		return( user );
 	}
 
-	public String[] getUserList( ActionBase action ) throws Exception {
-		if( !startUse( action ) )
+	public String[] getUserList() throws Exception {
+		if( !startUse() )
 			return( new String[0] );
 		
 		String dnFilter = getUserFilter( true , "" );
@@ -329,7 +335,7 @@ public class AuthLdap {
 				ctx.close(); 
 			} 
 			catch( NamingException e ) { 
-				auth.engine.serverAction.log( "find LDAP users" , e );
+				auth.engine.log( "find LDAP users" , e );
 			} 
 		}
 		

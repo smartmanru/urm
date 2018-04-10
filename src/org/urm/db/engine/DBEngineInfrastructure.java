@@ -12,13 +12,13 @@ import org.urm.db.core.DBNames;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.data.EngineInfrastructure;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.Datacenter;
-import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.Network;
 import org.urm.meta.engine.NetworkHost;
@@ -54,18 +54,26 @@ public class DBEngineInfrastructure {
 	public static String XMLPROP_HOST_OSTYPE = "ostype";
 	public static String XMLPROP_ACCOUNT_NAME = "id";
 	
-	public static PropertyEntity upgradeEntityDatacenter( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.DATACENTER , DBEnumParamEntityType.DATACENTER , DBEnumObjectVersionType.CORE , TABLE_DATACENTER , FIELD_DATACENTER_ID );
+	public static PropertyEntity makeEntityDatacenter( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.DATACENTER , DBEnumParamEntityType.DATACENTER , DBEnumObjectVersionType.CORE , TABLE_DATACENTER , FIELD_DATACENTER_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaStringVar( Datacenter.PROPERTY_NAME , Datacenter.PROPERTY_NAME , XMLPROP_DATACENTER_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( Datacenter.PROPERTY_DESC , FIELD_DATACENTER_DESC , Datacenter.PROPERTY_DESC , "Description" , false , null )
 		} ) );
 	}
 
-	public static PropertyEntity upgradeEntityNetwork( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.NETWORK , DBEnumParamEntityType.NETWORK , DBEnumObjectVersionType.CORE , TABLE_NETWORK , FIELD_NETWORK_ID );
+	public static PropertyEntity makeEntityNetwork( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.NETWORK , DBEnumParamEntityType.NETWORK , DBEnumObjectVersionType.CORE , TABLE_NETWORK , FIELD_NETWORK_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaStringDatabaseOnly( FIELD_NETWORK_DATACENTER , "Datacenter" , true , null ) ,
 				EntityVar.metaStringVar( Network.PROPERTY_NAME , Network.PROPERTY_NAME , XMLPROP_NETWORK_NAME , "Name" , true , null ) ,
@@ -74,9 +82,13 @@ public class DBEngineInfrastructure {
 		} ) );
 	}
 
-	public static PropertyEntity upgradeEntityNetworkHost( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.HOST , DBEnumParamEntityType.HOST , DBEnumObjectVersionType.CORE , TABLE_HOST , FIELD_HOST_ID );
+	public static PropertyEntity makeEntityNetworkHost( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.HOST , DBEnumParamEntityType.HOST , DBEnumObjectVersionType.CORE , TABLE_HOST , FIELD_HOST_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaStringDatabaseOnly( FIELD_HOST_NETWORK , "Network" , true , null ) ,
 				EntityVar.metaStringVar( NetworkHost.PROPERTY_NAME , NetworkHost.PROPERTY_NAME , XMLPROP_HOST_NAME , "Name" , true , null ) ,
@@ -87,9 +99,13 @@ public class DBEngineInfrastructure {
 		} ) );
 	}
 
-	public static PropertyEntity upgradeEntityHostAccount( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ACCOUNT , DBEnumParamEntityType.ACCOUNT , DBEnumObjectVersionType.CORE , TABLE_ACCOUNT , FIELD_ACCOUNT_ID );
+	public static PropertyEntity makeEntityHostAccount( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.HOSTACCOUNT , DBEnumParamEntityType.ACCOUNT , DBEnumObjectVersionType.CORE , TABLE_ACCOUNT , FIELD_ACCOUNT_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaStringDatabaseOnly( FIELD_ACCOUNT_HOST , "Host" , true , null ) ,
 				EntityVar.metaStringVar( HostAccount.PROPERTY_NAME , HostAccount.PROPERTY_NAME , XMLPROP_ACCOUNT_NAME , "Name" , true , null ) ,
@@ -99,30 +115,6 @@ public class DBEngineInfrastructure {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityDatacenter( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.DATACENTER , DBEnumParamEntityType.DATACENTER , DBEnumObjectVersionType.CORE , TABLE_DATACENTER , FIELD_DATACENTER_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity loaddbEntityNetwork( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.NETWORK , DBEnumParamEntityType.NETWORK , DBEnumObjectVersionType.CORE , TABLE_NETWORK , FIELD_NETWORK_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity loaddbEntityNetworkHost( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.HOST , DBEnumParamEntityType.HOST , DBEnumObjectVersionType.CORE , TABLE_HOST , FIELD_HOST_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity loaddbEntityHostAccount( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ACCOUNT , DBEnumParamEntityType.ACCOUNT , DBEnumObjectVersionType.CORE , TABLE_ACCOUNT , FIELD_ACCOUNT_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
 	public static void importxml( EngineLoader loader , EngineInfrastructure infra , Node root ) throws Exception {
 		Node[] list = ConfReader.xmlGetChildren( root , ELEMENT_DATACENTER );
 		if( list != null ) {
@@ -221,9 +213,9 @@ public class DBEngineInfrastructure {
 	
 	private static void modifyDatacenter( DBConnection c , Datacenter datacenter , boolean insert ) throws Exception {
 		if( insert )
-			datacenter.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , datacenter.NAME , DBEnumObjectType.DATACENTER );
+			datacenter.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , datacenter.NAME , DBEnumParamEntityType.DATACENTER );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , datacenter.NAME , datacenter.ID , DBEnumObjectType.DATACENTER );
+			DBNames.updateName( c , DBVersions.CORE_ID , datacenter.NAME , datacenter.ID , DBEnumParamEntityType.DATACENTER );
 		
 		datacenter.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
@@ -235,9 +227,9 @@ public class DBEngineInfrastructure {
 
 	private static void modifyNetwork( DBConnection c , Network network , boolean insert ) throws Exception {
 		if( insert )
-			network.ID = DBNames.getNameIndex( c , network.datacenter.ID , network.NAME , DBEnumObjectType.NETWORK );
+			network.ID = DBNames.getNameIndex( c , network.datacenter.ID , network.NAME , DBEnumParamEntityType.NETWORK );
 		else
-			DBNames.updateName( c , network.datacenter.ID , network.NAME , network.ID , DBEnumObjectType.NETWORK );
+			DBNames.updateName( c , network.datacenter.ID , network.NAME , network.ID , DBEnumParamEntityType.NETWORK );
 		
 		network.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
@@ -251,9 +243,9 @@ public class DBEngineInfrastructure {
 
 	private static void modifyHost( DBConnection c , NetworkHost host , boolean insert ) throws Exception {
 		if( insert )
-			host.ID = DBNames.getNameIndex( c , host.network.ID , host.NAME , DBEnumObjectType.HOST );
+			host.ID = DBNames.getNameIndex( c , host.network.ID , host.NAME , DBEnumParamEntityType.HOST );
 		else
-			DBNames.updateName( c , host.network.ID , host.NAME , host.ID , DBEnumObjectType.HOST );
+			DBNames.updateName( c , host.network.ID , host.NAME , host.ID , DBEnumParamEntityType.HOST );
 		
 		host.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
@@ -269,9 +261,9 @@ public class DBEngineInfrastructure {
 
 	private static void modifyAccount( DBConnection c , HostAccount account , boolean insert ) throws Exception {
 		if( insert )
-			account.ID = DBNames.getNameIndex( c , account.host.ID , account.NAME , DBEnumObjectType.ACCOUNT );
+			account.ID = DBNames.getNameIndex( c , account.host.ID , account.NAME , DBEnumParamEntityType.ACCOUNT );
 		else
-			DBNames.updateName( c , account.host.ID , account.NAME , account.ID , DBEnumObjectType.ACCOUNT );
+			DBNames.updateName( c , account.host.ID , account.NAME , account.ID , DBEnumParamEntityType.ACCOUNT );
 		
 		account.CV = c.getNextCoreVersion();
 		EngineEntities entities = c.getEntities();
@@ -335,7 +327,7 @@ public class DBEngineInfrastructure {
 		} , true );
 		
 		for( String name : host.getAccountNames() ) {
-			HostAccount account = host.findAccount( name );
+			HostAccount account = host.findAccountByUser( name );
 			Element element = Common.xmlCreateElement( doc , root , ELEMENT_ACCOUNT );
 			exportxmlAccount( loader , account , doc , element );
 		}
@@ -564,7 +556,7 @@ public class DBEngineInfrastructure {
 	public static HostAccount createAccount( EngineTransaction transaction , EngineInfrastructure infra , NetworkHost host , String user , String desc , boolean admin , Integer resourceId ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
-		if( host.findAccount( user ) != null )
+		if( host.findAccountByUser( user ) != null )
 			transaction.exitUnexpectedState();
 		
 		HostAccount account = new HostAccount( host );

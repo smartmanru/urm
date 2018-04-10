@@ -45,11 +45,8 @@ CREATE TABLE main.urm_project_builder (
                 target_resource_id INTEGER,
                 target_path VARCHAR,
                 target_platform VARCHAR(64),
-                remote BOOLEAN NOT NULL,
-                remote_os_type INTEGER,
-                remote_hostlogin VARCHAR(64),
-                remote_port INTEGER,
-                remote_auth_resource_id INTEGER,
+                builder_remote BOOLEAN NOT NULL,
+                remote_account_id INTEGER,
                 cv INTEGER NOT NULL,
                 CONSTRAINT urm_project_builder_pk PRIMARY KEY (builder_id)
 );

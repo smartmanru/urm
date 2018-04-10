@@ -10,19 +10,19 @@ import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.system.DBAppProduct;
 import org.urm.db.system.DBAppSystem;
-import org.urm.engine.EngineTransaction;
-import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.data.EngineSettings;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineMatcher;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.AppSystem;
-import org.urm.meta.engine.EngineSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -41,9 +41,13 @@ public abstract class DBEngineDirectory {
 	public static String FIELD_PRODUCT_DESC = "xdesc";
 	public static String FIELD_PRODUCT_MONITORING_ENABLED = "monitoring_enabled";
 	
-	public static PropertyEntity upgradeEntityDirectorySystem( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.APPSYSTEM , DBEnumObjectVersionType.SYSTEM , TABLE_SYSTEM , FIELD_SYSTEM_ID );
+	public static PropertyEntity makeEntityDirectorySystem( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.APPSYSTEM , DBEnumObjectVersionType.SYSTEM , TABLE_SYSTEM , FIELD_SYSTEM_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AppSystem.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( AppSystem.PROPERTY_DESC , FIELD_SYSTEM_DESC , AppSystem.PROPERTY_DESC , "Description" , false , null ) ,
@@ -52,9 +56,13 @@ public abstract class DBEngineDirectory {
 		} ) );
 	}
 
-	public static PropertyEntity upgradeEntityDirectoryProduct( EngineLoader loader ) throws Exception {
-		DBConnection c = loader.getConnection();
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPPRODUCT , DBEnumParamEntityType.APPPRODUCT , DBEnumObjectVersionType.SYSTEM , TABLE_PRODUCT , FIELD_PRODUCT_ID );
+	public static PropertyEntity makeEntityDirectoryProduct( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPPRODUCT , DBEnumParamEntityType.APPPRODUCT , DBEnumObjectVersionType.SYSTEM , TABLE_PRODUCT , FIELD_PRODUCT_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_PRODUCT_SYSTEM_ID , "System" , DBEnumObjectType.APPSYSTEM , true ) ,
 				EntityVar.metaString( AppProduct.PROPERTY_NAME , "Name" , true , null ) ,
@@ -65,18 +73,6 @@ public abstract class DBEngineDirectory {
 		} ) );
 	}
 
-	public static PropertyEntity loaddbEntityDirectorySystem( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.APPSYSTEM , DBEnumObjectVersionType.SYSTEM , TABLE_SYSTEM , FIELD_SYSTEM_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
-	public static PropertyEntity loaddbEntityDirectoryProduct( DBConnection c ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPPRODUCT , DBEnumParamEntityType.APPPRODUCT , DBEnumObjectVersionType.SYSTEM , TABLE_PRODUCT , FIELD_PRODUCT_ID );
-		DBSettings.loaddbAppEntity( c , entity );
-		return( entity );
-	}
-	
 	public static void importxml( EngineLoader loader , EngineDirectory directory , Node root ) throws Exception {
 		if( root == null )
 			return;
@@ -177,7 +173,8 @@ public abstract class DBEngineDirectory {
 		AppSystem system = new AppSystem( directory , props );
 		system.createSystem( name , desc );
 		DBAppSystem.modifySystem( c , system , true );
-		DBSettings.savedbEntityCustom( c , props , system.ID , system.ID , system.SV );
+		props.setOwnerId( system.ID );
+		DBSettings.savedbEntityCustom( c , props , system.SV );
 		
 		directory.addSystem( system );
 		return( system );

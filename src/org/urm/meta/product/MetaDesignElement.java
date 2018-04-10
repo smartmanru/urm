@@ -24,7 +24,7 @@ public class MetaDesignElement {
 	public String GROUPCOLOR;
 	public String GROUPFILLCOLOR;
 	public String FUNCTION;
-	private VarELEMENTTYPE elementType;
+	private EnumElementType elementType;
 	
 	public MetaDesignElement( Meta meta , MetaDesignDiagram design , MetaDesignElement group ) {
 		this.meta = meta;
@@ -36,7 +36,7 @@ public class MetaDesignElement {
 		links = new HashMap<String,MetaDesignLink>();
 		childs = new HashMap<String,MetaDesignElement>();
 		
-		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
+		NAME = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
 		String TYPE = ConfReader.getRequiredAttrValue( node , "type" );
 		elementType = Types.getDesignElementType( TYPE , false );
 		FUNCTION = ConfReader.getAttrValue( node , "function" );
@@ -155,34 +155,34 @@ public class MetaDesignElement {
 	}
 
 	public boolean isGroup() {
-		if( elementType == VarELEMENTTYPE.GROUP )
+		if( elementType == EnumElementType.GROUP )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isGenericType() {
-		return( elementType == VarELEMENTTYPE.GENERIC );
+		return( elementType == EnumElementType.GENERIC );
 	}
 	
 	public boolean isExternalType() {
-		return( elementType == VarELEMENTTYPE.EXTERNAL );
+		return( elementType == EnumElementType.EXTERNAL );
 	}
 	
 	public boolean isLibraryType() {
-		return( elementType == VarELEMENTTYPE.LIBRARY );
+		return( elementType == EnumElementType.LIBRARY );
 	}
 	
 	public boolean isAppServerType() {
-		return( elementType == VarELEMENTTYPE.SERVER );
+		return( elementType == EnumElementType.SERVER );
 	}
 	
 	public boolean isDatabaseServerType() {
-		return( elementType == VarELEMENTTYPE.DATABASE );
+		return( elementType == EnumElementType.DATABASE );
 	}
 	
 	public boolean isServerType() {
-		if( elementType == VarELEMENTTYPE.DATABASE || 
-			elementType == VarELEMENTTYPE.SERVER )
+		if( elementType == EnumElementType.DATABASE || 
+			elementType == EnumElementType.SERVER )
 			return( true );
 		return( false );
 	}

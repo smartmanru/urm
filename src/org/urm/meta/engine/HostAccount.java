@@ -4,9 +4,10 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.shell.Account;
 import org.urm.meta.EngineObject;
-import org.urm.meta.env.MetaEnvs;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.Meta;
 
 public class HostAccount extends EngineObject {
@@ -53,6 +54,10 @@ public class HostAccount extends EngineObject {
 		return( NAME + "@" + host.NAME );
 	}
 
+	public Account getAccount() throws Exception {
+		return( Account.getHostAccount( this ) );
+	}
+	
 	public void createAccount( String user , String desc , boolean isAdmin , Integer resource_id ) throws Exception {
 		modifyAccount( user , desc , isAdmin , resource_id );
 	}
@@ -67,14 +72,10 @@ public class HostAccount extends EngineObject {
 	public void getApplicationReferences( ActionBase action , List<AccountReference> refs ) {
 		EngineDirectory directory = action.getServerDirectory();
 		for( String productName : directory.getProductNames() ) {
-			Meta meta = action.findProductMetadata( productName );
-			MetaEnvs envs = meta.getEnviroments();
+			Meta meta = action.findMeta( productName );
+			ProductEnvs envs = meta.getEnviroments();
 			envs.getApplicationReferences( this , refs );
 		}
 	}
 
-	public Account getHostAccount( ActionBase action ) throws Exception {
-		return( Account.getDatacenterAccount( action , host.network.datacenter.NAME , NAME , host.NAME , host.PORT , host.OS_TYPE ) );
-	}
-	
 }

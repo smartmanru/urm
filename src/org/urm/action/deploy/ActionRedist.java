@@ -6,8 +6,10 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumItemOriginType;
+import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseTarget;
+import org.urm.engine.dist.ReleaseDistScope;
+import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -16,6 +18,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStateInfo;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.SourceStorage;
+import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerLocation;
 import org.urm.meta.env.MetaEnvServerNode;
@@ -42,12 +45,12 @@ public class ActionRedist extends ActionBase {
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		if( server.isDeployPossible() )
-			executeServer( target );
+			executeServer( target , target.set.scope.releaseDistScope );
 		
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private void executeServer( ActionScopeTarget target ) throws Exception {
+	private void executeServer( ActionScopeTarget target , ReleaseDistScope scope ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		MetaEnvServerLocation[] F_ENV_LOCATIONS_BINARY = new MetaEnvServerLocation[0];
 		if( context.CTX_DEPLOYBINARY )
@@ -65,7 +68,7 @@ public class ActionRedist extends ActionBase {
 			return;
 		}
 
-		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
+		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName() + " ..." );
 
 		// iterate by nodes
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
@@ -73,14 +76,15 @@ public class ActionRedist extends ActionBase {
 			info( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
 
 			// deploy both binaries and configs to each node
-			executeNode( server , node , F_ENV_LOCATIONS_BINARY , F_ENV_LOCATIONS_CONFIG , liveServerFolder );
+			executeNode( scope , server , node , F_ENV_LOCATIONS_BINARY , F_ENV_LOCATIONS_CONFIG , liveServerFolder );
 		}
 
-		if( context.CTX_DEPLOYBINARY && server.staticServer != null )
+		MetaEnvServer staticServer = server.getStaticServer();
+		if( context.CTX_DEPLOYBINARY && staticServer != null )
 			exitNotImplemented();
 	}
 
-	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] F_ENV_LOCATIONS_BINARY , MetaEnvServerLocation[] F_ENV_LOCATIONS_CONFIG , LocalFolder liveFolder ) throws Exception {
+	private void executeNode( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] F_ENV_LOCATIONS_BINARY , MetaEnvServerLocation[] F_ENV_LOCATIONS_CONFIG , LocalFolder liveFolder ) throws Exception {
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		redist.recreateTmpFolder( this );
 		
@@ -88,7 +92,7 @@ public class ActionRedist extends ActionBase {
 			if( F_ENV_LOCATIONS_BINARY.length == 0 )
 				trace( "server=" + server.NAME + ", node=" + node.POS + " - ignore binary deploy due to no locations" );
 			else
-				executeNodeBinary( server , node , F_ENV_LOCATIONS_BINARY );
+				executeNodeBinary( scope , server , node , F_ENV_LOCATIONS_BINARY );
 		}
 		else
 			trace( "server=" + server.NAME + ", node=" + node.POS + " - ignore binary deploy due to options" );
@@ -97,20 +101,21 @@ public class ActionRedist extends ActionBase {
 			if( F_ENV_LOCATIONS_CONFIG.length == 0 )
 				trace( "server=" + server.NAME + ", node=" + node.POS + " - ignore config deploy due to no locations" );
 			else
-				executeNodeConfig( server , node , F_ENV_LOCATIONS_CONFIG , liveFolder );
+				executeNodeConfig( scope , server , node , F_ENV_LOCATIONS_CONFIG , liveFolder );
 		}
 
 		if( context.CTX_BACKUP )
 			executeNodeBackup( server , node );
 	}
 
-	private void executeNodeConfig( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] locations , LocalFolder liveFolder ) throws Exception {
-		info( "redist configuration to server=" + server.NAME + " node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+	private void executeNodeConfig( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] locations , LocalFolder liveFolder ) throws Exception {
+		HostAccount hostAccount = node.getHostAccount();
+		info( "redist configuration to server=" + server.NAME + " node=" + node.POS + ", account=" + hostAccount.getFinalAccount() + " ..." );
 		
 		// by deployment location and conf component
 		MetaDistr distr = server.meta.getDistr();
 		for( MetaEnvServerLocation location : locations ) { 
-			String[] items = location.getNodeConfItems( this , node );
+			String[] items = location.getNodeConfItems( node );
 			if( items.length == 0 ) {
 				debug( "redist location=$F_LOCATIONFINAL no configuration to deploy, skipped." );
 				continue;
@@ -118,35 +123,36 @@ public class ActionRedist extends ActionBase {
 			
 			for( String item : items ) {
 				MetaDistrConfItem conf = distr.getConfItem( item );
-				executeNodeConfigComp( server , node , location , conf , liveFolder );
+				executeNodeConfigComp( scope , server , node , location , conf , liveFolder );
 			}
 		}
 	}
 	
-	private void executeNodeBinary( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] locations ) throws Exception {
-		info( "redist binaries to server=" + server.NAME + " node=" + node.POS + ", account=" + node.HOSTLOGIN + " ..." );
+	private void executeNodeBinary( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] locations ) throws Exception {
+		HostAccount hostAccount = node.getHostAccount();
+		info( "redist binaries to server=" + server.NAME + " node=" + node.POS + ", account=" + hostAccount.getFinalAccount() + " ..." );
 		
 		// by deployment location
 		for( MetaEnvServerLocation location : locations ) 
-			executeNodeBinaryLocation( server , node , location );
+			executeNodeBinaryLocation( scope , server , node , location );
 	}
 
-	private void executeNodeBinaryLocation( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location ) throws Exception {
+	private void executeNodeBinaryLocation( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location ) throws Exception {
 		// get components by location
-		String[] items = location.getNodeBinaryItems( this , node );
+		String[] items = location.getNodeBinaryItems( node );
 		if( items.length == 0 ) {
 			debug( "redist location=$F_LOCATIONFINAL no binaries to deploy, skipped." );
 			return;
 		}
 
 		// collect distribution items for all components
-		if( !location.hasBinaryItems( this ) ) {
+		if( !location.hasBinaryItems() ) {
 			debug( "redist location=" + location.DEPLOYPATH + " no items to deploy, skipped." );
 			return;
 		}
 
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
-		VarCONTENTTYPE C_REDIST_DIRTYPE = location.getContentType( this , true );
+		EnumContentType C_REDIST_DIRTYPE = location.getContentType( true );
 
 		info( "redist location=" + location.DEPLOYPATH + " deploytype=" + Common.getEnumLower( location.DEPLOYTYPE ) +
 				" items=" + Common.getListSet( items ) + " contenttype=" + Common.getEnumLower( C_REDIST_DIRTYPE ) + " ..." );
@@ -155,29 +161,25 @@ public class ActionRedist extends ActionBase {
 		redist.createLocation( this , version , location , C_REDIST_DIRTYPE );
 
 		debug( "transfer items - " + Common.getListSet( items ) + " ..." );
-		transferFileSet( server , node , redist , location , items );
+		transferFileSet( scope , server , node , redist , location , items );
 	}
 
-	private void transferFileSet( MetaEnvServer server , MetaEnvServerNode node , RedistStorage redist , MetaEnvServerLocation location , String[] items ) throws Exception {
+	private void transferFileSet( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , RedistStorage redist , MetaEnvServerLocation location , String[] items ) throws Exception {
 		// ensure redist created
-		VarCONTENTTYPE CONTENTTYPE = location.getContentType( this , true );
+		EnumContentType CONTENTTYPE = location.getContentType( true );
 		RedistStateInfo stateInfo = redist.getStateInfo( this , location.DEPLOYPATH , CONTENTTYPE );
 
-		debug( node.HOSTLOGIN + ": redist content=" + Common.getEnumLower( CONTENTTYPE ) + ": items - " + Common.getListSet( items ) + " ..." );
+		HostAccount hostAccount = node.getHostAccount();
+		debug( hostAccount.getFinalAccount() + ": redist content=" + Common.getEnumLower( CONTENTTYPE ) + ": items - " + Common.getListSet( items ) + " ..." );
 		MetaDistr distr = server.meta.getDistr();
 		for( String key : items ) {
 			MetaDistrBinaryItem binaryItem = distr.getBinaryItem( key );
-			String deployBaseName = location.getDeployName( this , key );
-			transferFile( server , node , redist , location , binaryItem , stateInfo , deployBaseName );
+			String deployBaseName = location.getDeployName( key );
+			transferFile( scope , server , node , redist , location , binaryItem , stateInfo , deployBaseName );
 		}
 	}
 
-	private boolean transferFile( MetaEnvServer server , MetaEnvServerNode node , RedistStorage redist , MetaEnvServerLocation location , MetaDistrBinaryItem binaryItem , RedistStateInfo stateInfo , String deployBaseName ) throws Exception {
-		if( !dist.checkIfReleaseItem( this , binaryItem ) ) {
-			trace( "binary item=" + binaryItem.NAME + " is not in release. Skipped." );
-			return( false );
-		}
-		
+	private boolean transferFile( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , RedistStorage redist , MetaEnvServerLocation location , MetaDistrBinaryItem binaryItem , RedistStateInfo stateInfo , String deployBaseName ) throws Exception {
 		if( binaryItem.ITEMORIGIN_TYPE == DBEnumItemOriginType.DERIVED ) {
 			String fileName = dist.getBinaryDistItemFile( this , binaryItem.srcDistItem );
 			if( fileName.isEmpty() ) {
@@ -217,16 +219,16 @@ public class ActionRedist extends ActionBase {
 		return( pathExtracted );
 	}
 	
-	private boolean executeNodeConfigComp( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder liveFolder ) throws Exception {
-		ReleaseTarget target = dist.release.findConfComponent( this , confItem.NAME );
+	private boolean executeNodeConfigComp( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder liveFolder ) throws Exception {
+		ReleaseDistScopeDeliveryItem releaseItem = scope.findCategoryDeliveryItem( DBEnumScopeCategoryType.CONFIG , confItem.NAME );
 		
 		// not in release
-		if( target == null ) {
+		if( releaseItem == null ) {
 			trace( "non-release component=" + confItem.NAME );
 			return( false );
 		}
 		
-		boolean F_PARTIAL = ( target.ALL )? false : true; 
+		boolean F_PARTIAL = releaseItem.partial; 
 
 		debug( "redist configuraton component=" + confItem.NAME + " (partial=" + F_PARTIAL + ") ..." );
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , server.meta );
@@ -251,13 +253,14 @@ public class ActionRedist extends ActionBase {
 	}
 	
 	private void executeNodeBackup( MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
-		debug( node.HOSTLOGIN + ": save backup ..." );
+		HostAccount hostAccount = node.getHostAccount();
+		debug( hostAccount.getFinalAccount() + ": save backup ..." );
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		VersionInfo version = VersionInfo.getDistVersion( dist ); 
 		ServerDeployment deployment = redist.getDeployment( this , version );
 		
 		// backup binary items
-		for( VarCONTENTTYPE content : VarCONTENTTYPE.values() ) {
+		for( EnumContentType content : EnumContentType.values() ) {
 			for( String location : deployment.getLocations( this , content , true ) ) {
 				RedistStateInfo rinfo = new RedistStateInfo( server.meta );
 				RedistStateInfo sinfo = new RedistStateInfo( server.meta );

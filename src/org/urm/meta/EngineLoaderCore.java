@@ -16,18 +16,20 @@ import org.urm.db.engine.DBEngineMonitoring;
 import org.urm.db.engine.DBEngineResources;
 import org.urm.db.engine.DBEngineSettings;
 import org.urm.engine.Engine;
+import org.urm.engine.AuthService;
+import org.urm.engine.DataService;
+import org.urm.engine.data.EngineBase;
+import org.urm.engine.data.EngineBuilders;
+import org.urm.engine.data.EngineContext;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.data.EngineInfrastructure;
+import org.urm.engine.data.EngineLifecycles;
+import org.urm.engine.data.EngineMirrors;
+import org.urm.engine.data.EngineMonitoring;
+import org.urm.engine.data.EngineResources;
+import org.urm.engine.data.EngineSettings;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.EngineAuth;
-import org.urm.meta.engine.EngineBase;
-import org.urm.meta.engine.EngineBuilders;
-import org.urm.meta.engine.EngineContext;
-import org.urm.meta.engine.EngineDirectory;
-import org.urm.meta.engine.EngineInfrastructure;
-import org.urm.meta.engine.EngineLifecycles;
-import org.urm.meta.engine.EngineMirrors;
-import org.urm.meta.engine.EngineMonitoring;
-import org.urm.meta.engine.EngineResources;
-import org.urm.meta.engine.EngineSettings;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.engine._Error;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -35,13 +37,8 @@ import org.w3c.dom.Node;
 
 public class EngineLoaderCore {
 
-	public static String ELEMENT_RESOURCES = "resources";
-	public static String ELEMENT_MIRRORS = "mirror";
-	public static String ELEMENT_BUILDERS = "build";
-	public static String ELEMENT_DIRECTORY = "directory";
-	
 	private EngineLoader loader;
-	private EngineData data;
+	private DataService data;
 	public RunContext execrc;
 	public Engine engine;
 	
@@ -55,7 +52,7 @@ public class EngineLoaderCore {
 	private EngineLifecycles lifecyclesNew;
 	private EngineMonitoring monitoringNew;
 	
-	public EngineLoaderCore( EngineLoader loader , EngineData data ) {
+	public EngineLoaderCore( EngineLoader loader , DataService data ) {
 		this.loader = loader;
 		this.data = data;
 		this.execrc = loader.execrc;
@@ -98,6 +95,12 @@ public class EngineLoaderCore {
 		return( data.getInfrastructure() );
 	}
 
+	public EngineBase getBase() {
+		if( baseNew != null )
+			return( baseNew );
+		return( data.getEngineBase() );
+	}
+
 	public EngineMonitoring getMonitoring() {
 		if( infraNew != null )
 			return( monitoringNew );
@@ -118,19 +121,27 @@ public class EngineLoaderCore {
 	private void exportCore( boolean includingSystems ) throws Exception {
 		trace( "export engine core data ..." );
 		exportxmlSettings();
+		exportxmlResources();
+		exportxmlInfrastructure();
+		
 		exportxmlBase();
 		exportxmlReleaseLifecycles();
 		exportxmlMonitoring();
-		exportxmlRegistry();
-		exportxmlInfrastructure();
+		exportxmlMirrors();
+		exportxmlBuilders();
+		
+		if( includingSystems )
+			exportxmlDirectory();
 	}
 
-	private void exportAuth( EngineAuth auth ) throws Exception {
+	private void exportAuth( AuthService auth ) throws Exception {
 		trace( "export engine auth data ..." );
 		exportxmlAuth( auth );
 	}
 	
 	public void setData() {
+		TransactionBase transaction = loader.getTransaction();
+		
 		if( settingsNew != null ) {
 			data.setSettings( settingsNew );
 			settingsNew = null;
@@ -152,6 +163,7 @@ public class EngineLoaderCore {
 		}
 		
 		if( mirrorsNew != null ) {
+			transaction.setMirrors( mirrorsNew );
 			data.setMirrors( mirrorsNew );
 			mirrorsNew = null;
 		}
@@ -261,30 +273,50 @@ public class EngineLoaderCore {
 		DBEngineMonitoring.loaddb( loader , monitoringNew );
 	}
 
-	private void importxmlRegistry() throws Exception {
-		trace( "import engine registry data ..." );
-		String registryFile = getRegistryFile();
-		Document doc = ConfReader.readXmlFile( execrc , registryFile );
+	private void importxmlResources() throws Exception {
+		trace( "import engine resources data ..." );
+		String resourcesFile = getResourcesFile();
+		Document doc = ConfReader.readXmlFile( execrc , resourcesFile );
 		Node root = doc.getDocumentElement();
-		
-		Node node;
-		node = ConfReader.xmlGetFirstChild( root , ELEMENT_RESOURCES );
-		resourcesNew = new EngineResources( engine ); 
-		DBEngineResources.importxml( loader , resourcesNew , node );
-		node = ConfReader.xmlGetFirstChild( root , ELEMENT_MIRRORS );
-		mirrorsNew = new EngineMirrors( engine );
-		DBEngineMirrors.importxml( loader , mirrorsNew , node );
-		node = ConfReader.xmlGetFirstChild( root , ELEMENT_BUILDERS );
-		buildersNew = new EngineBuilders( engine );
-		DBEngineBuilders.importxml( loader , buildersNew , node );
-	}
 
-	private void loaddbRegistry() throws Exception {
-		trace( "load engine registry data ..." );
+		resourcesNew = new EngineResources( engine ); 
+		DBEngineResources.importxml( loader , resourcesNew , root );
+	}
+	
+	private void importxmlMirrors() throws Exception {
+		trace( "import engine mirrors data ..." );
+		String mirrorsFile = getMirrorsFile();
+		Document doc = ConfReader.readXmlFile( execrc , mirrorsFile );
+		Node root = doc.getDocumentElement();
+
+		mirrorsNew = new EngineMirrors( engine );
+		DBEngineMirrors.importxml( loader , mirrorsNew , root );
+	}
+	
+	private void importxmlBuilders() throws Exception {
+		trace( "import engine builders data ..." );
+		String buildersFile = getBuildersFile();
+		Document doc = ConfReader.readXmlFile( execrc , buildersFile );
+		Node root = doc.getDocumentElement();
+
+		buildersNew = new EngineBuilders( engine );
+		DBEngineBuilders.importxml( loader , buildersNew , root );
+	}
+	
+	private void loaddbResources() throws Exception {
+		trace( "load engine resources data ..." );
 		resourcesNew = new EngineResources( engine ); 
 		DBEngineResources.loaddb( loader , resourcesNew );
+	}
+	
+	private void loaddbMirrors() throws Exception {
+		trace( "load engine mirrors data ..." );
 		mirrorsNew = new EngineMirrors( engine );
 		DBEngineMirrors.loaddb( loader , mirrorsNew );
+	}
+	
+	private void loaddbBuilders() throws Exception {
+		trace( "load engine builders data ..." );
 		buildersNew = new EngineBuilders( engine );
 		DBEngineBuilders.loaddb( loader , buildersNew );
 	}
@@ -297,16 +329,15 @@ public class EngineLoaderCore {
 	
 	public void importxmlDirectory() throws Exception {
 		trace( "import engine directory data ..." );
-		String registryFile = getRegistryFile();
+		String registryFile = getDirectoryFile();
 		Document doc = ConfReader.readXmlFile( execrc , registryFile );
 		Node root = doc.getDocumentElement();
 		
 		directoryNew = new EngineDirectory( engine );
-		Node node = ConfReader.xmlGetFirstChild( root , ELEMENT_DIRECTORY );
-		DBEngineDirectory.importxml( loader , directoryNew , node );
+		DBEngineDirectory.importxml( loader , directoryNew , root );
 	}
 	
-	public void importxmlAuth( EngineAuth auth ) throws Exception {
+	public void importxmlAuth( AuthService auth ) throws Exception {
 		trace( "import engine auth data ..." );
 		String authFile = getAuthFile();
 		Document doc = ConfReader.readXmlFile( execrc , authFile );
@@ -315,29 +346,44 @@ public class EngineLoaderCore {
 		DBEngineAuth.importxml( loader , auth , root );
 	}
 
-	public void loaddbAuth( EngineAuth auth ) throws Exception {
+	public void loaddbAuth( AuthService auth ) throws Exception {
 		trace( "load engine auth data ..." );
 		DBEngineAuth.loaddb( loader , auth );
 	}
 
-	private void exportxmlRegistry() throws Exception {
-		trace( "export engine registry data ..." );
-		String propertyFile = getRegistryFile();
-		Document doc = Common.xmlCreateDoc( "registry" );
+	private void exportxmlResources() throws Exception {
+		trace( "export engine resources data ..." );
+		String propertyFile = getResourcesFile();
+		Document doc = Common.xmlCreateDoc( "resources" );
 		Element root = doc.getDocumentElement();
+		DBEngineResources.exportxml( loader , data.getResources() , doc , root );
+		Common.xmlSaveDoc( doc , propertyFile );
+	}
 		
-		Element node;
-		node = Common.xmlCreateElement( doc , root , ELEMENT_RESOURCES );
-		DBEngineResources.exportxml( loader , data.getResources() , doc , node );
-		node = Common.xmlCreateElement( doc , root , ELEMENT_MIRRORS );
-		DBEngineMirrors.exportxml( loader , data.getMirrors() , doc , node );
-		node = Common.xmlCreateElement( doc , root , ELEMENT_BUILDERS );
-		DBEngineBuilders.exportxml( loader , data.getBuilders() , doc , node );
-		
-		EngineDirectory directory = data.getDirectory();
-		node = Common.xmlCreateElement( doc , root , "directory" );
-		DBEngineDirectory.exportxml( loader , directory , doc , node );
-		
+	private void exportxmlMirrors() throws Exception {
+		trace( "export engine mirrors data ..." );
+		String propertyFile = getMirrorsFile();
+		Document doc = Common.xmlCreateDoc( "mirrors" );
+		Element root = doc.getDocumentElement();
+		DBEngineMirrors.exportxml( loader , data.getMirrors() , doc , root );
+		Common.xmlSaveDoc( doc , propertyFile );
+	}
+	
+	private void exportxmlBuilders() throws Exception {
+		trace( "export engine builders data ..." );
+		String propertyFile = getBuildersFile();
+		Document doc = Common.xmlCreateDoc( "builders" );
+		Element root = doc.getDocumentElement();
+		DBEngineBuilders.exportxml( loader , data.getBuilders() , doc , root );
+		Common.xmlSaveDoc( doc , propertyFile );
+	}
+	
+	private void exportxmlDirectory() throws Exception {
+		trace( "export engine directory data ..." );
+		String propertyFile = getDirectoryFile();
+		Document doc = Common.xmlCreateDoc( "directory" );
+		Element root = doc.getDocumentElement();
+		DBEngineDirectory.exportxml( loader , data.getDirectory() , doc , root );
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 
@@ -391,7 +437,7 @@ public class EngineLoaderCore {
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 	
-	private void exportxmlAuth( EngineAuth auth ) throws Exception {
+	private void exportxmlAuth( AuthService auth ) throws Exception {
 		trace( "export engine auth data ..." );
 		String authFile = getAuthFile();
 		Document doc = Common.xmlCreateDoc( "auth" );
@@ -430,9 +476,27 @@ public class EngineLoaderCore {
 		return( propertyFile );
 	}
 
-	private String getRegistryFile() throws Exception {
+	private String getResourcesFile() throws Exception {
 		String path = Common.getPath( execrc.installPath , "etc" );
-		String propertyFile = Common.getPath( path , "registry.xml" );
+		String propertyFile = Common.getPath( path , "resources.xml" );
+		return( propertyFile );
+	}
+
+	private String getMirrorsFile() throws Exception {
+		String path = Common.getPath( execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "mirrors.xml" );
+		return( propertyFile );
+	}
+
+	private String getBuildersFile() throws Exception {
+		String path = Common.getPath( execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "builders.xml" );
+		return( propertyFile );
+	}
+
+	private String getDirectoryFile() throws Exception {
+		String path = Common.getPath( execrc.installPath , "etc" );
+		String propertyFile = Common.getPath( path , "directory.xml" );
 		return( propertyFile );
 	}
 
@@ -452,11 +516,13 @@ public class EngineLoaderCore {
 		int version = c.getNextCoreVersion();
 		trace( "create new engine core version=" + version + " ..." );
 		importxmlEngineSettings();
+		importxmlResources();
+		importxmlInfrastructure();
+		importxmlMirrors();
 		importxmlBase();
 		importxmlReleaseLifecycles();
 		importxmlMonitoring();
-		importxmlRegistry();
-		importxmlInfrastructure();
+		importxmlBuilders();
 		loader.saveConnection( true );
 		
 		// create distributive folder
@@ -474,11 +540,13 @@ public class EngineLoaderCore {
 		
 		trace( "load engine core data, version=" + c.getCoreVersion() + " ..." );
 		loaddbEngineSettings();
+		loaddbResources();
+		loaddbInfrastructure();
+		loaddbMirrors();
 		loaddbBase();
 		loaddbReleaseLifecycles();
 		loaddbMonitoring();
-		loaddbRegistry();
-		loaddbInfrastructure();
+		loaddbBuilders();
 	}
 	
 }

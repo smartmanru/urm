@@ -13,15 +13,18 @@ public class BuilderGenericMethod extends Builder {
 		super( builder , project , storage , TAG , APPVERSION );
 	}
 
-	@Override public boolean prepareSource( ActionBase action ) throws Exception {
+	@Override 
+	public boolean prepareSource( ActionBase action ) throws Exception {
 		return( true );
 	}
 	
-	@Override public boolean checkSourceCode( ActionBase action ) throws Exception {
+	@Override 
+	public boolean checkSourceCode( ActionBase action ) throws Exception {
 		return( true );
 	}
 
-	@Override public boolean runBuild( ActionBase action ) throws Exception {
+	@Override 
+	public boolean runBuild( ActionBase action ) throws Exception {
 		// generic params
 		action.info( "build PATCHPATH=" + CODEPATH.folderPath + " using generic method=" + builder.NAME + " ..." );
 		PropertySet props = super.createProperties( action , project );

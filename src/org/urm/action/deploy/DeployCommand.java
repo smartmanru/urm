@@ -4,7 +4,9 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
+import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
 import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseDistScopeSet;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.env.MetaEnvSegment;
@@ -90,10 +92,10 @@ public class DeployCommand {
 	public void login( ScopeState parentState , ActionBase action , MetaEnvSegment sg , String SERVER , String NODE ) throws Exception {
 		if( sg == null )
 			action.exit0( _Error.UnknownSegment0 , "Unknown segment, missing specifier" );
-		MetaEnvServer server = sg.getServer( action , SERVER );
+		MetaEnvServer server = sg.getServer( SERVER );
 		
 		int nodePos = ( NODE.isEmpty() )? 1 : Integer.parseInt( NODE );
-		MetaEnvServerNode node = server.getNode( action , nodePos );
+		MetaEnvServerNode node = server.getNodeByPos( nodePos );
 		ActionLogin ca = new ActionLogin( action , null , node );
 		ca.runSimpleEnv( parentState , sg.env , SecurityAction.ACTION_DEPLOY , false );
 	}
@@ -110,7 +112,8 @@ public class DeployCommand {
 		// download configuration templates
 		LocalFolder folder = null;
 		LocalFolder live = null;
-		if( action.context.CTX_CONFDEPLOY && !dist.release.isEmptyConfiguration() ) {
+		ReleaseDistScopeSet set = scope.releaseDistScope.findCategorySet( DBEnumScopeCategoryType.CONFIG );
+		if( action.context.CTX_CONFDEPLOY && set != null ) {
 			ActionConfCheck check = new ActionConfCheck( action , null );
 			if( !check.runAll( parentState , scope , action.context.env , SecurityAction.ACTION_DEPLOY , false ) )
 				action.exit0( _Error.InvalidEnvironmentData0 , "configuration check failed: invalid environment data" );
@@ -209,11 +212,6 @@ public class DeployCommand {
 	public void saveConfigs( ScopeState parentState , ActionBase action , ActionScope scope ) throws Exception {
 		ActionSaveConfigs ca = new ActionSaveConfigs( action , null );
 		ca.runAll( parentState , scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
-	}
-
-	public void upgradeEnv( ScopeState parentState , ActionBase action , String PATCHID , ActionScope scope ) throws Exception {
-		ActionUpgradeEnv ca = new ActionUpgradeEnv( action , null , PATCHID );
-		ca.runEnvUniqueAccounts( parentState , scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
 	public void verifyDeploy( ScopeState parentState , ActionBase action , ActionScope scope , Dist dist ) throws Exception {

@@ -198,14 +198,14 @@ public abstract class Folder {
 		session.move( action , Common.getPath( folderPath , src ) , Common.getPath( folderPath , dst ) );
 	}
 	
-	public void extractArchive( ActionBase action , VarARCHIVETYPE atype , String archiveFile , String targetFolder ) throws Exception {
-		if( atype == VarARCHIVETYPE.TAR )
+	public void extractArchive( ActionBase action , EnumArchiveType atype , String archiveFile , String targetFolder ) throws Exception {
+		if( atype == EnumArchiveType.TAR )
 			extractTar( action , archiveFile , targetFolder );
 		else
-		if( atype == VarARCHIVETYPE.TARGZ )
+		if( atype == EnumArchiveType.TARGZ )
 			extractTarGz( action , archiveFile , targetFolder );
 		else
-		if( atype == VarARCHIVETYPE.ZIP )
+		if( atype == EnumArchiveType.ZIP )
 			unzipToFolder( action , archiveFile , targetFolder );
 		else
 			action.exitUnexpectedState();
@@ -248,12 +248,12 @@ public abstract class Folder {
 		return( session.ls( action , Common.getPath( folderPath , folder ) ) );
 	}
 	
-	public List<String> getTopDirs( ActionBase action ) throws Exception {
+	public String[] getTopDirs( ActionBase action ) throws Exception {
 		ShellExecutor session = getSession( action ); 
 		List<String> dirs = new LinkedList<String>();  
 		List<String> files = new LinkedList<String>();  
 		session.getTopDirsAndFiles( action , folderPath , dirs , files );
-		return( dirs );
+		return( dirs.toArray( new String[0] ) );
 	}
 	
 	public List<String> getTopFiles( ActionBase action ) throws Exception {
@@ -269,27 +269,27 @@ public abstract class Folder {
 		session.getTopDirsAndFiles( action , folderPath , dirs , files );
 	}
 
-	public void createArchiveFromContent( ActionBase action , VarARCHIVETYPE atype , String archiveFilePath , String content , String exclude ) throws Exception {
-		if( atype == VarARCHIVETYPE.TAR )
+	public void createArchiveFromContent( ActionBase action , EnumArchiveType atype , String archiveFilePath , String content , String exclude ) throws Exception {
+		if( atype == EnumArchiveType.TAR )
 			createTarFromContent( action , archiveFilePath , content , exclude );
 		else
-		if( atype == VarARCHIVETYPE.TARGZ )
+		if( atype == EnumArchiveType.TARGZ )
 			createTarGzFromContent( action , archiveFilePath , content , exclude );
 		else
-		if( atype == VarARCHIVETYPE.ZIP )
+		if( atype == EnumArchiveType.ZIP )
 			createZipFromContent( action , archiveFilePath , content , exclude );
 		else
 			action.exitUnexpectedState();
 	}
 	
-	public void createArchiveFromFolderContent( ActionBase action , VarARCHIVETYPE atype , String archiveFilePath , String folder , String content , String exclude ) throws Exception {
-		if( atype == VarARCHIVETYPE.TAR )
+	public void createArchiveFromFolderContent( ActionBase action , EnumArchiveType atype , String archiveFilePath , String folder , String content , String exclude ) throws Exception {
+		if( atype == EnumArchiveType.TAR )
 			createTarFromFolderContent( action , archiveFilePath , folder , content , exclude );
 		else
-		if( atype == VarARCHIVETYPE.TARGZ )
+		if( atype == EnumArchiveType.TARGZ )
 			createTarGzFromFolderContent( action , archiveFilePath , folder , content , exclude );
 		else
-		if( atype == VarARCHIVETYPE.ZIP )
+		if( atype == EnumArchiveType.ZIP )
 			createZipFromFolderContent( action , archiveFilePath , folder , content , exclude );
 		else
 			action.exitUnexpectedState();
@@ -514,6 +514,12 @@ public abstract class Folder {
 		String path = getFilePath( action , file );
 		File fo = new File( action.getLocalPath( path ) );
 		return( new Date( fo.lastModified() ) );
+	}
+	
+	public long getFileSize( ActionBase action , String file ) throws Exception {
+		String path = getFilePath( action , file );
+		File fo = new File( action.getLocalPath( path ) );
+		return( fo.length() );
 	}
 	
 }
