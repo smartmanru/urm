@@ -87,6 +87,10 @@ public class ReleaseChanges {
 		return( set );
 	}
 
+	public ReleaseTicketSet findSet( int id ) {
+		return( setsById.get( id ) );
+	}
+	
 	public ReleaseTicketSet findSet( String code ) {
 		return( sets.get( code ) );
 	}

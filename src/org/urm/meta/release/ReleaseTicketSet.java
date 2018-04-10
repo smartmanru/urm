@@ -173,6 +173,14 @@ public class ReleaseTicketSet {
 		}
 		return( null );
 	}
+
+	public ReleaseTicketTarget findTarget( int id ) {
+		for( ReleaseTicketTarget target : targets ) {
+			if( target.ID == id )
+				return( target );
+		}
+		return( null );
+	}
 	
 	public ReleaseTicketTarget findTarget( MetaSourceProject project ) {
 		for( ReleaseTicketTarget target : targets ) {
