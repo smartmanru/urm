@@ -214,9 +214,12 @@ public class DBReleaseDistTarget {
 		return( target );
 	}
 
-	public static void dropAllDistItems( DBConnection c , Release release ) throws Exception {
+	public static void dropAllScopeDistItems( DBConnection c , Release release ) throws Exception {
 		EngineEntities entities = c.getEntities();
-		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseDistTarget , DBQueries.FILTER_REL_RELEASE1 , new String[] { EngineDB.getObject( release.ID ) } );
+		ReleaseScope scope = release.getScope();
+		int version = c.getNextReleaseVersion( release );
+		for( ReleaseDistTarget target : scope.getDistTargets() )
+			DBEngineEntities.deleteAppObject( c , entities.entityAppReleaseDistTarget , target.ID , version );
 	}
 
 	public static ReleaseDistItem createDistItem( EngineMethod method , ActionBase action , Release release , ReleaseDistTarget target , ReleaseDist releaseDist , DistItemInfo info ) throws Exception {
