@@ -117,7 +117,7 @@ public class DBReleaseData {
 	public static String FIELD_DISTITEM_DISTTARGET_ID = "disttarget_id";
 	public static String FIELD_DISTITEM_DIST_ID = "dist_id";
 	public static String FIELD_DISTITEM_FILE = "targetfile";
-	public static String FIELD_DISTITEM_FILE_PATH = "targetfile_path";
+	public static String FIELD_DISTITEM_FILE_FOLDER = "targetfile_folder";
 	public static String FIELD_DISTITEM_FILE_HASH = "targetfile_hash";
 	public static String FIELD_DISTITEM_FILE_SIZE = "targetfile_size";
 	public static String FIELD_DISTITEM_FILE_TIME = "targetfile_time";
@@ -240,7 +240,7 @@ public class DBReleaseData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_DISTITEM_DIST_ID , "release distributive id" , DBEnumObjectType.RELEASE_DIST , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DISTITEM_DISTTARGET_ID , "release target id" , DBEnumObjectType.RELEASE_DISTTARGET , true ) ,
 				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE , FIELD_DISTITEM_FILE , ReleaseDistItem.PROPERTY_FILE , "file name" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_FOLDER , FIELD_DISTITEM_FILE_PATH , ReleaseDistItem.PROPERTY_FILE_FOLDER , "file path" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_FOLDER , FIELD_DISTITEM_FILE_FOLDER , ReleaseDistItem.PROPERTY_FILE_FOLDER , "file path" , false , null ) ,
 				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_HASH , FIELD_DISTITEM_FILE_HASH , ReleaseDistItem.PROPERTY_FILE_HASH , "file hash" , false , null ) ,
 				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_SIZE , FIELD_DISTITEM_FILE_SIZE , ReleaseDistItem.PROPERTY_FILE_SIZE , "file size" , false , null ) ,
 				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_TIME , FIELD_DISTITEM_FILE_TIME , ReleaseDistItem.PROPERTY_FILE_TIME , "file time" , false , null ) ,
