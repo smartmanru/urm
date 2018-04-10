@@ -34,7 +34,6 @@ public class DistRepository {
 	private RemoteFolder repoFolder;
 	private Map<String,DistRepositoryItem> normalMap; 
 	private Map<String,DistRepositoryItem> masterMap; 
-	private Map<String,DistRepositoryItem> archiveMap; 
 	
 	private boolean modifyState;
 	
@@ -42,7 +41,6 @@ public class DistRepository {
 		this.meta = meta;
 		normalMap = new HashMap<String,DistRepositoryItem>();
 		masterMap = new HashMap<String,DistRepositoryItem>();
-		archiveMap = new HashMap<String,DistRepositoryItem>();
 		modifyState = false;
 	}
 	
@@ -58,11 +56,6 @@ public class DistRepository {
 			ReleaseDist rreleaseDist = rrepo.findReleaseDist( item.dist );
 			DistRepositoryItem ritem = item.copy( r , rreleaseDist );
 			r.addMasterItem( ritem );
-		}
-		for( DistRepositoryItem item : archiveMap.values() ) {
-			ReleaseDist rreleaseDist = rrepo.findReleaseDist( item.dist );
-			DistRepositoryItem ritem = item.copy( r , rreleaseDist );
-			r.addArchiveItem( ritem );
 		}
 		return( r );
 	}
@@ -360,10 +353,6 @@ public class DistRepository {
 		return( normalMap.get( RELEASEDIR ) );
 	}
 	
-	public DistRepositoryItem findArchivedItem( String RELEASEDIR ) {
-		return( archiveMap.get( RELEASEDIR ) );
-	}
-	
 	public DistRepositoryItem findMasterItem( String NAME ) {
 		return( masterMap.get( NAME ) );
 	}
@@ -371,8 +360,6 @@ public class DistRepository {
 	public DistRepositoryItem findItem( Dist dist ) {
 		if( dist.isMaster() )
 			return( findMasterItem( dist.release.NAME ) );
-		if( dist.release.isArchived() )
-			return( findArchivedItem( dist.RELEASEDIR ) );
 		return( findNormalItem( dist.RELEASEDIR ) );
 	}
 	
@@ -398,10 +385,6 @@ public class DistRepository {
 		masterMap.put( item.dist.release.NAME , item );
 	}
 
-	public void addArchiveItem( DistRepositoryItem item ) {
-		archiveMap.put( item.RELEASEDIR , item );
-	}
-
 	public void replaceItem( DistRepositoryItem itemOld , DistRepositoryItem item ) throws Exception {
 		removeItem( itemOld );
 		if( item.dist.isMaster() )
@@ -413,9 +396,6 @@ public class DistRepository {
 	public synchronized void removeItem( DistRepositoryItem item ) {
 		if( item.dist.isMaster() )
 			masterMap.remove( item.dist.release.NAME );
-		else
-		if( item.dist.release.isArchived() )
-			archiveMap.remove( item.dist.RELEASEDIR );
 		else
 			normalMap.remove( item.dist.RELEASEDIR );
 	}

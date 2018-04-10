@@ -31,13 +31,13 @@ public class ActionArchiveRelease extends ActionBase {
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			DistRepository distrepoUpdated = method.changeDistRepository( releases );
-			Dist dist = distrepoUpdated.findDefaultDist( releaseUpdated );
+			Dist distUpdated = distrepoUpdated.findDefaultDist( releaseUpdated );
 			
 			// change database
-			DBReleaseRepository.archiveRelease( super.method , this , release.repo , release );
+			DBReleaseRepository.archiveRelease( super.method , this , repoUpdated , releaseUpdated );
 			
 			// move distributive to archive
-			distrepoUpdated.archiveDist( this , dist );
+			distrepoUpdated.archiveDist( this , distUpdated );
 		}
 		
 		return( SCOPESTATE.RunSuccess );

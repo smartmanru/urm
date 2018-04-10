@@ -61,7 +61,8 @@ public class EngineMethodMetaRelease {
 		if( releaseNew != null ) {
 			ReleaseDist releaseDist = releaseNew.getDefaultReleaseDist();
 			Dist dist = distrepo.findDefaultDist( releaseNew );
-			dist.setReleaseDist( releaseDist );
+			if( dist != null )
+				dist.setReleaseDist( releaseDist );
 		}
 	}
 	

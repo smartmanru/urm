@@ -213,6 +213,8 @@ public class EngineMethod extends EngineExecutorTask {
 		Meta meta = releases.meta;
 		EngineMethodMeta emm = metastatus.get( meta.name );
 		if( emm == null ) {
+			if( !meta.isPrimary() )
+				Common.exitUnexpected();
 			emm = new EngineMethodMeta( this , meta );
 			metastatus.put( meta.name , emm );
 		}

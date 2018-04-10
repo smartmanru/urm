@@ -39,30 +39,33 @@ public class ReleaseRepository {
 	public String NAME;
 	public String DESC;
 	
+	private Map<Integer,Release> mapReleasesById;
 	private Map<String,Release> mapReleasesNormal;
 	private Map<String,Release> mapReleasesMaster;
-	private Map<Integer,Release> mapReleasesById;
+	private Map<Integer,Release> mapReleasesArchived;
 	
 	private boolean modifyState;
 	
 	public ReleaseRepository( Meta meta , ProductReleases releases ) {
 		this.meta = meta;
 		this.releases = releases;
-		mapReleasesNormal = new HashMap<String,Release>();
 		mapReleasesById = new HashMap<Integer,Release>();
+		mapReleasesNormal = new HashMap<String,Release>();
 		mapReleasesMaster = new HashMap<String,Release>();
+		mapReleasesArchived = new HashMap<Integer,Release>();
 		modifyState = false;
 	}
 
-	public ReleaseRepository copy( Meta rmeta , ProductReleases rreleases ) {
+	public ReleaseRepository copy( Meta rmeta , ProductReleases rreleases ) throws Exception {
 		ReleaseRepository r = new ReleaseRepository( rmeta , rreleases );
 		r.ID = ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
 		
-		r.mapReleasesNormal.putAll( mapReleasesNormal );
-		r.mapReleasesMaster.putAll( mapReleasesMaster );
-		r.mapReleasesById.putAll( mapReleasesById );
+		for( Release release : mapReleasesById.values() ) {
+			Release rrelease = release.copy( r );
+			r.addRelease( rrelease );
+		}
 		return( r );
 	}
 	
@@ -105,11 +108,21 @@ public class ReleaseRepository {
 	public Release findRelease( String RELEASEVER ) {
 		try {
 			String version = VersionInfo.normalizeReleaseVer( RELEASEVER );
-			return( mapReleasesNormal.get( version ) );
+			Release release = mapReleasesNormal.get( version );
+			if( release != null )
+				return( release );
+			
+			for( Release releaseArchived : mapReleasesArchived.values() ) {
+				if( !releaseArchived.isMaster() ) {
+					if( version.equals( releaseArchived.RELEASEVER ) )
+						return( releaseArchived );
+				}
+			}
 		}
 		catch( Throwable e ) {
-			return( null );
+			meta.engine.log( "version" , e );
 		}
+		return( null );
 	}
 
 	public Release findDefaultMaster() {
@@ -117,7 +130,17 @@ public class ReleaseRepository {
 	}
 	
 	public Release findMaster( String name ) {
-		return( mapReleasesMaster.get( name ) );
+		Release release = mapReleasesMaster.get( name );
+		if( release != null )
+			return( release );
+		
+		for( Release releaseArchived : mapReleasesArchived.values() ) {
+			if( releaseArchived.isMaster() ) {
+				if( name.equals( releaseArchived.NAME ) )
+					return( releaseArchived );
+			}
+		}
+		return( null );
 	}
 	
 	public synchronized String[] getActiveVersions() {
@@ -138,6 +161,9 @@ public class ReleaseRepository {
 	}
 
 	public synchronized void addRelease( Release release ) {
+		if( release.isArchived() )
+			mapReleasesArchived.put( release.ID , release );
+		else
 		if( release.MASTER )
 			mapReleasesMaster.put( release.NAME , release );
 		else
@@ -146,7 +172,10 @@ public class ReleaseRepository {
 	}
 
 	public synchronized void removeRelease( Release release ) {
-		if( release.MASTER )
+		if( release.isArchived() )
+			mapReleasesArchived.remove( release.ID );
+		else
+		if( release.isMaster() )
 			mapReleasesMaster.remove( release.NAME );
 		else
 			mapReleasesNormal.remove( release.RELEASEVER );
@@ -158,6 +187,17 @@ public class ReleaseRepository {
 			Common.exitUnexpected();
 		
 		addRelease( release );
+	}
+	
+	public void archiveRelease( Release release ) throws Exception {
+		if( !mapReleasesById.containsKey( release.ID ) )
+			Common.exitUnexpected();
+		
+		if( release.isMaster() )
+			mapReleasesMaster.remove( release.NAME );
+		else
+			mapReleasesNormal.remove( release.RELEASEVER );
+		mapReleasesArchived.put( release.ID , release );
 	}
 	
 	public Release getRelease( int id ) throws Exception {

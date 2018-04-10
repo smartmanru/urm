@@ -3,7 +3,9 @@ package org.urm.engine.run;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.EventService;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.meta.product.Meta;
@@ -167,6 +169,8 @@ public class EngineMethodMeta {
 				emmr.commit();
 				
 			meta.setReleaseRepository( updateReleaseRepository );
+			ActionBase action = method.getAction();
+			method.addCommitEvent( action.eventSource , EventService.OWNER_ENGINE , EventService.EVENT_RELEASEREPOCHANGED , updateReleaseRepository );
 		}
 		
 		if( updateDistRepository != null ) {
@@ -174,7 +178,8 @@ public class EngineMethodMeta {
 				emmd.commit();
 			
 			meta.setDistRepository( updateDistRepository );
-			return;
+			ActionBase action = method.getAction();
+			method.addCommitEvent( action.eventSource , EventService.OWNER_ENGINE , EventService.EVENT_DISTREPOCHANGED , updateDistRepository );
 		}
 	}
 	

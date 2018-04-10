@@ -72,7 +72,11 @@ public class Meta extends EngineObject {
 	public AppProduct getProduct() {
 		return( storage.product );
 	}
-	
+
+	public boolean isPrimary() {
+		return( storage.isPrimary() );
+	}
+
 	public void replaceStorage( ActionBase action , ProductMeta storage ) throws Exception {
 		products.releaseSessionProductMetadata( action , this );
 		

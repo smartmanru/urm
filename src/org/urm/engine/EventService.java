@@ -42,6 +42,8 @@ public class EventService extends EngineObject {
 	public static int EVENT_SGITEMS = 150;
 	public static int EVENT_SERVERITEMS = 151;
 	public static int EVENT_NODEITEMS = 152;
+	public static int EVENT_RELEASEREPOCHANGED = 201;
+	public static int EVENT_DISTREPOCHANGED = 202;
 
 	EngineEventsTimer timer;
 	EngineEventsNotifier notifier;

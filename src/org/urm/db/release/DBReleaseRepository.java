@@ -177,7 +177,7 @@ public class DBReleaseRepository {
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppReleaseMain;
 		
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_REL_REPOACTIVE1 , 
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_REL_REPO1 , 
 				new String[] { EngineDB.getInteger( repo.ID ) 
 				} );
 		try {
@@ -391,7 +391,7 @@ public class DBReleaseRepository {
 		release.setArchived();
 		DBRelease.modifyRelease( c , repo , release , false );
 		
-		repo.removeRelease( release );
+		repo.archiveRelease( release );
 	}
 	
 	public static void addDistAction( EngineMethod method , Release release , ReleaseDist releaseDist , boolean success , ReleaseOperation op , String msg ) throws Exception {
