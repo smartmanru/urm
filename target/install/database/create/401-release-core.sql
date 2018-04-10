@@ -104,7 +104,7 @@ CREATE TABLE main.urm_rel_distitem (
                 targetfile VARCHAR,
                 targetfile_folder VARCHAR,
                 targetfile_size BIGINT,
-                targetfile_hash VARCHAR(30),
+                targetfile_hash VARCHAR(64),
                 targetfile_time DATE,
                 source_releasedir VARCHAR(64),
                 source_releasetime DATE,
