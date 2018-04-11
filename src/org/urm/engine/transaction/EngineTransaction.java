@@ -252,9 +252,9 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineBase.deleteItem( this , base , item );
 	}
 
-	public void modifyBaseItemData( BaseItem item , boolean admin , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
+	public void modifyBaseItemData( BaseItem item , boolean admin , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCDIR , String SRCFILE , String SRCFILEDIR , String INSTALLSCRIPT , String INSTALLPATH , String INSTALLLINK ) throws Exception {
 		super.checkTransactionBase();
-		DBEngineBase.modifyItemData( this , item , admin , name , version , ostype , accessType , srcType , srcFormat , SRCFILE , SRCFILEDIR , INSTALLPATH , INSTALLLINK );
+		DBEngineBase.modifyItemData( this , item , admin , name , version , ostype , accessType , srcType , srcFormat , SRCDIR , SRCFILE , SRCFILEDIR , INSTALLSCRIPT , INSTALLPATH , INSTALLLINK );
 	}
 
 	public void addBaseItemDependency( BaseItem item , BaseItem dep ) throws Exception {

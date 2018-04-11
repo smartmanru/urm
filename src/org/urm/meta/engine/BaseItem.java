@@ -199,7 +199,7 @@ public class BaseItem extends EngineObject {
 		return( false );
 	}
 	
-	public void modifyData( boolean admin , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
+	public void modifyData( boolean admin , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCDIR , String SRCFILE , String SRCFILEDIR , String INSTALLSCRIPT , String INSTALLPATH , String INSTALLLINK ) throws Exception {
 		this.ADMIN = admin;
 		this.BASENAME = Common.nonull( name );
 		this.BASEVERSION = Common.nonull( version );
