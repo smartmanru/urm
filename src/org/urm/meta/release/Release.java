@@ -322,6 +322,8 @@ public class Release {
 	}
 
 	public ReleaseDist getDistVariant( int id ) throws Exception {
+		if( defaultDist != null && defaultDist.ID == id )
+			return( defaultDist );
 		ReleaseDist releaseDist = distMapById.get( id );
 		if( releaseDist == null )
 			Common.exitUnexpected();
