@@ -210,8 +210,11 @@ public class BaseItem extends EngineObject {
 		this.BASESRC_TYPE = srcType;
 		this.BASESRCFORMAT_TYPE = srcFormat;
 		
+		this.SRCDIR = Common.nonull( SRCDIR );
 		this.SRCFILE = Common.nonull( SRCFILE );
 		this.SRCFILEDIR = Common.nonull( SRCFILEDIR );
+		
+		this.INSTALLSCRIPT = Common.nonull( INSTALLSCRIPT );
 		this.INSTALLPATH = Common.nonull( INSTALLPATH );
 		this.INSTALLLINK = Common.nonull( INSTALLLINK );
 		
