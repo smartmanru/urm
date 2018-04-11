@@ -121,7 +121,7 @@ public class DBReleaseDistTarget {
 				entity.loaddbString( rs , ReleaseDistItem.PROPERTY_FILE_FOLDER ) ,
 				entity.loaddbString( rs , ReleaseDistItem.PROPERTY_FILE_HASH ) ,
 				entity.loaddbLong( rs , ReleaseDistItem.PROPERTY_FILE_SIZE ) ,
-				entity.loaddbDate( rs , DBReleaseData.FIELD_DISTITEM_FILE_TIME ) ,
+				entity.loaddbDate( rs , ReleaseDistItem.PROPERTY_FILE_TIME ) ,
 				entity.loaddbString( rs , DBReleaseData.FIELD_DISTITEM_SOURCE_RELEASEDIR ) ,
 				entity.loaddbDate( rs , DBReleaseData.FIELD_DISTITEM_SOURCE_RELEASETIME )
 				);
