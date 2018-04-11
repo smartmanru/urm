@@ -147,6 +147,7 @@ public class Dist {
 		
 		state.checkDistDataChangeEnabled( action );
 		String parentFolder = getReleaseConfCompParentFolder( action , conf );
+		distFolder.ensureFolderExists( action , parentFolder );
 		distFolder.copyDirFromLocal( action , sourceFolder , parentFolder );
 	}
 	
@@ -157,6 +158,7 @@ public class Dist {
 		state.checkDistDataChangeEnabled( action );
 		String dstfolder = getReleaseBinaryFolder( action , distItem );
 		String dstname = DBASENAME + DEXT;
+		distFolder.ensureFolderExists( action , dstfolder );
 		distFolder.copyVFileFromLocal( action , sourceFolder , SNAME , dstfolder , dstname , DBASENAME , DEXT );
 	}
 

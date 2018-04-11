@@ -67,7 +67,7 @@ public class ReleaseSchedule {
 			r.addPhase( rphase );
 		}
 		
-		updatePhaseCounts();
+		r.updatePhaseCounts();
 	}
 
 	public void create( Date DATE_STARTED , Date RELEASE_DATE , Date RELEASE_DATE_ACTUAL , Date COMPLETE_DATE_ACTUAL ,
@@ -318,11 +318,13 @@ public class ReleaseSchedule {
 			}
 		}
 
-		CURRENT_PHASE = releasePhaseCount;
 		if( deployPhaseCount > 0 ) {
+			CURRENT_PHASE = releasePhaseCount;
 			ReleaseSchedulePhase phase = getPhase( releasePhaseCount );
 			phase.startPhase( date );
 		}
+		else
+			CURRENT_PHASE = -1;
 	}
 	
 	public void complete( ActionBase action ) throws Exception {

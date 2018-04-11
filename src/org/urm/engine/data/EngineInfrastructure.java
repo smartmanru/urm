@@ -202,7 +202,7 @@ public class EngineInfrastructure extends EngineObject {
 			return( "" );
 		
 		HostAccount account = getHostAccount( id );
-		if( account != null )
+		if( account == null )
 			Common.exitUnexpected();
 		
 		return( account.getFinalAccount() );
@@ -215,7 +215,7 @@ public class EngineInfrastructure extends EngineObject {
 			return( getHostAccount( item.FKID ) );
 		
 		HostAccount account = findHostAccount( item.FKNAME );
-		if( account != null )
+		if( account == null )
 			Common.exitUnexpected();
 		return( account );
 	}

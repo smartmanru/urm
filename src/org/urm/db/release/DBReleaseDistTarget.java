@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 
 import org.urm.action.ActionBase;
 import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
@@ -237,11 +238,7 @@ public class DBReleaseDistTarget {
 
 	public static void dropAllScopeDistItems( DBConnection c , Release release ) throws Exception {
 		EngineEntities entities = c.getEntities();
-		
-		int version = c.getNextReleaseVersion( release );
-		ReleaseDist releaseDist = release.getDefaultReleaseDist();
-		for( ReleaseDistItem item : releaseDist.getDistItems() )
-			DBEngineEntities.deleteAppObject( c , entities.entityAppReleaseDistItem , item.ID , version );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseDistItem , DBQueries.FILTER_REL_RELEASE1 , new String[] { EngineDB.getInteger( release.ID ) } );
 	}
 
 	public static ReleaseDistItem createDistItem( EngineMethod method , ActionBase action , Release release , ReleaseDistTarget target , ReleaseDist releaseDist , DistItemInfo info ) throws Exception {
