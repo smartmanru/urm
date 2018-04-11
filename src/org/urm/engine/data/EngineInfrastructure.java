@@ -191,7 +191,7 @@ public class EngineInfrastructure extends EngineObject {
 			return( null );
 		
 		HostAccount account = findHostAccount( hostLogin );
-		if( account != null )
+		if( account == null )
 			Common.exitUnexpected();
 		
 		return( account.ID );
