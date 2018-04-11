@@ -36,11 +36,7 @@ public class EngineMethodMetaDistItem {
 		if( itemNew != null )
 			return;
 
-		DistRepository repo = emm.getDistRepository();
-		ReleaseDist releaseDist = repoReleases.findReleaseDist( item.dist );
-		itemNew = item.copy( repo , releaseDist );
-		repo.replaceItem( item , itemNew );
-		
+		itemNew = item;
 		item.modify( false );
 		itemOld = item;
 	}

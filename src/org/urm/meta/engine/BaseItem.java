@@ -151,7 +151,8 @@ public class BaseItem extends EngineObject {
 	}
 
 	public boolean isValidImplementation() {
-		if( NAME.isEmpty() || 
+		if( SRCDIR.isEmpty() ||
+			NAME.isEmpty() || 
 			BASESRC_TYPE == DBEnumBaseSrcType.UNKNOWN || 
 			BASESRCFORMAT_TYPE == DBEnumBaseSrcFormatType.UNKNOWN ||
 			OS_TYPE == DBEnumOSType.UNKNOWN ||

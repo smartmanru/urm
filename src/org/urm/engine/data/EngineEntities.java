@@ -301,7 +301,7 @@ public class EngineEntities {
 	public ObjectProperties createBaseItemProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.DEFAULT , nameBaseItem , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM_CUSTOM , DBVersions.CORE_ID , DBEnumObjectVersionType.CORE );
-		props.create( parent , entityAppBaseItem , custom , true );
+		props.create( parent , new PropertyEntity[] { entityAppBaseItem } , custom , true );
 		return( props );
 	}
 
