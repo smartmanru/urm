@@ -179,6 +179,15 @@ public class ProjectBuilder extends EngineObject {
 		return( account.getAccount() );
 	}
 
+	public HostAccount getHostAccount( ActionBase action ) throws Exception {
+		if( !BUILDER_REMOTE )
+			return( null );
+		
+		EngineInfrastructure infra = action.getServerInfrastructure();
+		HostAccount account = infra.getHostAccount( REMOTE_ACCOUNT_ID );
+		return( account );
+	}
+
 	public ShellExecutor createShell( ActionBase action , boolean dedicated ) throws Exception {
 		if( BUILDER_REMOTE ) {
 			Account account = getRemoteAccount( action );
