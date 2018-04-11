@@ -157,6 +157,7 @@ public class DBReleaseRepository {
 		loaddbReleasesBuildTarget( loader , repo );
 		loaddbReleasesDistTarget( loader , repo );
 		loaddbReleasesTicketTarget( loader , repo );
+		loaddbReleasesDistItem( loader , repo );
 		
 		// reorder and recalculate schedules
 		for( Release release : repo.getReleases() ) {
@@ -359,6 +360,28 @@ public class DBReleaseRepository {
 				Release release = repo.getRelease( releaseId );
 				ReleaseChanges releaseChanges = release.getChanges();
 				DBReleaseTicketTarget.loaddbReleaseTicketTarget( loader , release , releaseChanges , rs );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+	}
+
+	private static void loaddbReleasesDistItem( EngineLoader loader , ReleaseRepository repo ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseDistItem;
+		
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_REL_REPORELEASEACTIVE1 , 
+				new String[] { EngineDB.getInteger( repo.ID ) 
+				} );
+		try {
+			while( rs.next() ) {
+				int releaseId = entity.loaddbObject( rs , DBReleaseData.FIELD_RELEASE_ID );
+				int releaseDistId = entity.loaddbObject( rs , DBReleaseData.FIELD_DISTITEM_DIST_ID );
+				Release release = repo.getRelease( releaseId );
+				ReleaseDist releaseDist = release.getDistVariant( releaseDistId );
+				DBReleaseDistTarget.loaddbReleaseDistItem( loader , release , releaseDist , rs );
 			}
 		}
 		finally {

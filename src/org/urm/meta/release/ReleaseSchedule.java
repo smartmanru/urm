@@ -66,6 +66,8 @@ public class ReleaseSchedule {
 			ReleaseSchedulePhase rphase = phase.copy( rrelease , r );
 			r.addPhase( rphase );
 		}
+		
+		updatePhaseCounts();
 	}
 
 	public void create( Date DATE_STARTED , Date RELEASE_DATE , Date RELEASE_DATE_ACTUAL , Date COMPLETE_DATE_ACTUAL ,
@@ -84,7 +86,7 @@ public class ReleaseSchedule {
 	}
 	
 	public void sortPhases() throws Exception {
-		getPhaseCounts();
+		updatePhaseCounts();
 		
 		Map<String,ReleaseSchedulePhase> map = new HashMap<String,ReleaseSchedulePhase>();
 		for( ReleaseSchedulePhase phase : phases ) {
@@ -106,7 +108,7 @@ public class ReleaseSchedule {
 		}
 	}
 	
-	public void getPhaseCounts() {
+	private void updatePhaseCounts() {
 		releasePhaseCount = 0; 
 		deployPhaseCount = 0;
 		
@@ -153,7 +155,7 @@ public class ReleaseSchedule {
 				phases.add( phase );
 			}
 			
-			getPhaseCounts();
+			updatePhaseCounts();
 			if( releasePhaseCount > 0 ) {
 				ReleaseSchedulePhase phase = getPhase( 0 );
 				phase.startPhase( DATE_STARTED );

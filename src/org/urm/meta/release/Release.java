@@ -72,6 +72,7 @@ public class Release {
 	private ReleaseDist defaultDist;
 
 	private Map<String,ReleaseDist> distMap;
+	private Map<Integer,ReleaseDist> distMapById;
 	
 	private boolean modifyState;
 	
@@ -83,6 +84,7 @@ public class Release {
 		scope = new ReleaseScope( this );
 		
 		distMap = new HashMap<String,ReleaseDist>();
+		distMapById = new HashMap<Integer,ReleaseDist>();
 		modifyState = false;
 	}
 
@@ -154,6 +156,7 @@ public class Release {
 			return;
 		
 		distMap.put( releaseDist.DIST_VARIANT , releaseDist );
+		distMapById.put( releaseDist.ID , releaseDist );
 	}
 	
 	public void create( String NAME , String DESC , boolean MASTER , DBEnumLifecycleType TYPE , String RELEASEVER , 
@@ -316,6 +319,13 @@ public class Release {
 		if( variant ==  null || variant.isEmpty() )
 			return( defaultDist );
 		return( distMap.get( variant ) );
+	}
+
+	public ReleaseDist getDistVariant( int id ) throws Exception {
+		ReleaseDist releaseDist = distMapById.get( id );
+		if( releaseDist == null )
+			Common.exitUnexpected();
+		return( releaseDist );
 	}
 
 	public ReleaseScope getScope() {

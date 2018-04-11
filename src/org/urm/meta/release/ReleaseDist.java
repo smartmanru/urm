@@ -89,4 +89,8 @@ public class ReleaseDist {
 		itemMap.clear();
 	}
 
+	public ReleaseDistItem[] getDistItems() {
+		return( itemMap.values().toArray( new ReleaseDistItem[0] ) );
+	}
+	
 }

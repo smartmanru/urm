@@ -74,7 +74,7 @@ public class DBReleaseDistTarget {
 				EngineDB.getLong( item.TARGETFILE_SIZE ) ,
 				EngineDB.getDate( item.TARGETFILE_TIME ) ,
 				EngineDB.getString( item.SOURCE_RELEASEDIR ) ,
-				EngineDB.getString( item.SOURCE_RELEASETIME )
+				EngineDB.getDate( item.SOURCE_RELEASETIME )
 				} , insert );
 	}
 
@@ -105,6 +105,28 @@ public class DBReleaseDistTarget {
 			scope.addDistTarget( target );
 		else
 			changes.addDistTarget( target );
+	}
+	
+	public static void loaddbReleaseDistItem( EngineLoader loader , Release release , ReleaseDist releaseDist , ResultSet rs ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppReleaseDistItem;
+
+		ReleaseDistItem item = new ReleaseDistItem( release , releaseDist );
+		
+		item.ID = entity.loaddbId( rs );
+		item.RV = entity.loaddbVersion( rs );
+		item.create(
+				entity.loaddbObject( rs , DBReleaseData.FIELD_DISTITEM_DISTTARGET_ID ) ,
+				entity.loaddbString( rs , ReleaseDistItem.PROPERTY_FILE ) ,
+				entity.loaddbString( rs , ReleaseDistItem.PROPERTY_FILE_FOLDER ) ,
+				entity.loaddbString( rs , ReleaseDistItem.PROPERTY_FILE_HASH ) ,
+				entity.loaddbLong( rs , ReleaseDistItem.PROPERTY_FILE_SIZE ) ,
+				entity.loaddbDate( rs , DBReleaseData.FIELD_DISTITEM_FILE_TIME ) ,
+				entity.loaddbString( rs , DBReleaseData.FIELD_DISTITEM_SOURCE_RELEASEDIR ) ,
+				entity.loaddbDate( rs , DBReleaseData.FIELD_DISTITEM_SOURCE_RELEASETIME )
+				);
+		
+		releaseDist.addDistItem( item );
 	}
 	
 	public static void exportxmlDistTarget( EngineLoader loader , Release release , ReleaseDistTarget target , Document doc , Element root ) throws Exception {
@@ -215,10 +237,11 @@ public class DBReleaseDistTarget {
 
 	public static void dropAllScopeDistItems( DBConnection c , Release release ) throws Exception {
 		EngineEntities entities = c.getEntities();
-		ReleaseScope scope = release.getScope();
+		
 		int version = c.getNextReleaseVersion( release );
-		for( ReleaseDistTarget target : scope.getDistTargets() )
-			DBEngineEntities.deleteAppObject( c , entities.entityAppReleaseDistTarget , target.ID , version );
+		ReleaseDist releaseDist = release.getDefaultReleaseDist();
+		for( ReleaseDistItem item : releaseDist.getDistItems() )
+			DBEngineEntities.deleteAppObject( c , entities.entityAppReleaseDistItem , item.ID , version );
 	}
 
 	public static ReleaseDistItem createDistItem( EngineMethod method , ActionBase action , Release release , ReleaseDistTarget target , ReleaseDist releaseDist , DistItemInfo info ) throws Exception {

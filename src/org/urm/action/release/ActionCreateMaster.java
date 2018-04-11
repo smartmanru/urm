@@ -2,7 +2,6 @@ package org.urm.action.release;
 
 import org.urm.action.ActionBase;
 import org.urm.db.core.DBEnums.*;
-import org.urm.db.release.DBRelease;
 import org.urm.db.release.DBReleaseDist;
 import org.urm.db.release.DBReleaseRepository;
 import org.urm.engine.dist.Dist;
@@ -53,12 +52,6 @@ public class ActionCreateMaster extends ActionBase {
 			if( copy ) {
 				dist = distrepoUpdated.createMasterCopy( method , this , src , release , releaseDist );
 				createMasterFiles( dist , src );
-				if( !dist.finish( this ) )
-					return( SCOPESTATE.RunFail );
-				
-				// change meta
-				DBRelease.finish( method , this , releaseNew , dist );
-				dist.saveMetaFile( this );
 			}
 			else
 				dist = distrepoUpdated.createMasterInitial( this , release , releaseDist );

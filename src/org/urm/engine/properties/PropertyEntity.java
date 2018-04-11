@@ -349,6 +349,14 @@ public class PropertyEntity {
 		return( value );
 	}
 	
+	public Long loaddbLong( ResultSet rs , String prop ) throws Exception {
+		int column = getDatabaseColumn( prop );
+		long value = rs.getLong( column );
+		if( value == 0 )
+			return( null );
+		return( value );
+	}
+	
 	public Date loaddbDate( ResultSet rs , String prop ) throws Exception {
 		int column = getDatabaseColumn( prop );
 		java.sql.Date sqldate = rs.getDate( column );
