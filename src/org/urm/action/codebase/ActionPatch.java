@@ -6,6 +6,7 @@ import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.product.MetaSourceProjectItem;
 
 public class ActionPatch extends ActionBase {
@@ -84,13 +85,13 @@ public class ActionPatch extends ActionBase {
 
 	private boolean executeGetProjectArtefact( MetaSourceProjectItem item ) throws Exception {
 		LocalFolder downloadFolder = artefactory.getArtefactFolder( this , item.meta );
-		LocalFolder codeFolder = builder.CODEPATH;
-		LocalFolder targetFolder = codeFolder;
+		RemoteFolder codeFolder = builder.CODEPATH;
+		RemoteFolder targetFolder = codeFolder;
 		if( item.project.isBuildable() )
 			targetFolder = codeFolder.getSubFolder( this , builder.builder.TARGET_PATH );
 		
 		if( item.isSourceDirectory() ) {
-			LocalFolder targetDirFolder = targetFolder.getSubFolder( this , item.PATH );
+			RemoteFolder targetDirFolder = targetFolder.getSubFolder( this , item.PATH );
 			LocalFolder downloadDirFolder = downloadFolder.getSubFolder( this , item.BASENAME );
 			if( !shell.checkDirExists( this , targetDirFolder.folderPath ) ) {
 				String dir = shell.getLocalPath( targetDirFolder.folderPath );
@@ -104,12 +105,12 @@ public class ActionPatch extends ActionBase {
 		}
 		
 		if( item.isSourceBasic() || item.isSourcePackage() ) {
-			LocalFolder targetDirFolder = targetFolder.getSubFolder( this , item.PATH );
+			RemoteFolder targetDirFolder = targetFolder.getSubFolder( this , item.PATH );
 			return( copyFile( targetDirFolder , downloadFolder , item.BASENAME , item.EXT ) );
 		}
 			
 		if( item.isSourceStaticWar() ) {
-			LocalFolder targetDirFolder = targetFolder.getSubFolder( this , item.PATH );
+			RemoteFolder targetDirFolder = targetFolder.getSubFolder( this , item.PATH );
 			if( !copyFile( targetDirFolder , downloadFolder , item.BASENAME , item.EXT ) )
 				return( false );
 			if( !copyFile( targetDirFolder , downloadFolder , item.BASENAME , item.STATICEXT ) )
@@ -121,7 +122,7 @@ public class ActionPatch extends ActionBase {
 		return( false );
 	}
 
-	private boolean copyFile( LocalFolder codeDirFolder , LocalFolder downloadFolder , String basename , String ext ) throws Exception {
+	private boolean copyFile( RemoteFolder codeDirFolder , LocalFolder downloadFolder , String basename , String ext ) throws Exception {
 		String srcname = shell.findVersionedFile( this , codeDirFolder.folderPath , basename , ext );
 		String srcfile = basename + ext;
 		if( srcname.isEmpty() ) {

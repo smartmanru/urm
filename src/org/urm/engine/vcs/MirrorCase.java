@@ -9,6 +9,7 @@ import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.MirrorRepository;
+import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaProductCoreSettings;
 
 public abstract class MirrorCase {
@@ -16,6 +17,7 @@ public abstract class MirrorCase {
 	GenericVCS vcs;
 	MirrorRepository mirror;
 	String BRANCH;
+	ProjectBuilder builder;
 	
 	public Account account;
 	
@@ -37,31 +39,31 @@ public abstract class MirrorCase {
 	abstract public LocalFolder getMirrorFolder() throws Exception;
 	abstract public String getSpecialDirectory();
 	
-	public MirrorCase( GenericVCS vcs ) {
-		this.vcs = vcs;
-		
-		shell = vcs.shell;
-		action = vcs.action;
-	}
-
 	public MirrorCase( GenericVCS vcs , MirrorRepository mirror , String BRANCH ) {
 		this.vcs = vcs;
 		this.mirror = mirror;
 		this.BRANCH = BRANCH;
+		this.builder = vcs.builder;
 		
 		shell = vcs.shell;
 		action = vcs.action;
 	}
 
 	public LocalFolder getBaseFolder() throws Exception {
-		String mirrorPath;
-		if( vcs.meta == null ) {
-			EngineSettings settings = action.getServerSettings();
-			mirrorPath = settings.context.WORK_MIRRORPATH;
-		}
-		else {
-			MetaProductCoreSettings core = vcs.meta.getProductCoreSettings();
-			mirrorPath = core.CONFIG_MIRRORPATH;
+		String mirrorPath = "";
+		if( builder != null )
+			mirrorPath = builder.REMOTE_MIRRORPATH;
+		
+		if( mirrorPath.isEmpty() ) {
+			if( vcs.meta == null ) {
+				EngineSettings settings = action.getServerSettings();
+				
+					mirrorPath = settings.context.WORK_MIRRORPATH;
+			}
+			else {
+				MetaProductCoreSettings core = vcs.meta.getProductCoreSettings();
+				mirrorPath = core.CONFIG_MIRRORPATH;
+			}
 		}
 		
 		if( mirrorPath.isEmpty() )
@@ -97,7 +99,7 @@ public abstract class MirrorCase {
 	public void removeResourceFolder() throws Exception {
 		LocalFolder res = getResourceFolder();
 		if( shell.checkDirExists( action , res.folderPath ) )
-			res.removeThis( action );
+			shell.removeDir( action , res.folderPath );
 	}
 	
 	protected void syncFolderToVcsContent( String mirrorSubFolder , LocalFolder folder ) throws Exception {

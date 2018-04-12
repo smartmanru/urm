@@ -12,6 +12,7 @@ import org.urm.engine._Error;
 import org.urm.engine.action.ActionInit;
 import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AuthContext;
+import org.urm.meta.engine.AuthUser;
 import org.urm.meta.product.Meta;
 
 public class EngineSession extends EngineObject {
@@ -109,6 +110,10 @@ public class EngineSession extends EngineObject {
 	
 	public AuthContext getLoginAuth() {
 		return( security.getContext() );
+	}
+	
+	public AuthUser getUser() {
+		return( security.getUser() );
 	}
 	
 	public void setServerLayout( CommandOptions options ) throws Exception {

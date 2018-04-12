@@ -67,6 +67,12 @@ public class AuthContext extends EngineObject {
 		USER = "";
 	}
 	
+	public boolean isCurrentUser() {
+		if( METHOD.equals( METHOD_USER ) )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isAnonymous() {
 		if( METHOD.equals( METHOD_ANONYMOUS ) )
 			return( true );
@@ -131,8 +137,8 @@ public class AuthContext extends EngineObject {
 		if( isCommon() )
 			return( USER );
 		
-		AuthContext login = action.session.getLoginAuth();
-		return( login.USER );
+		AuthUser user = action.session.getUser();
+		return( user.NAME );
 	}
 	
 	public String getPassword( ActionBase action ) {

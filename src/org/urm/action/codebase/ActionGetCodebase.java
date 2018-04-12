@@ -44,7 +44,7 @@ public class ActionGetCodebase extends ActionBase {
 			vcs.checkout( COPATH , scopeProject.sourceProject , BRANCH );
 		}
 		else
-			vcs.export( COPATH , scopeProject.sourceProject , BRANCH , TAG , SINGLEFILE );
+			vcs.export( COPATH , scopeProject.sourceProject , BRANCH , TAG , SINGLEFILE , null );
 		return( SCOPESTATE.RunSuccess );
 	}
 

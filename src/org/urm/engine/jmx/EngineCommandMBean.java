@@ -432,10 +432,13 @@ public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster
 		String password = ( String )args[4];
 		
 		AuthService auth = engine.getAuth();
-		if( !auth.checkLogin( user , password ) )
+		SessionSecurity security = auth.createUserSecurity( user );
+		if( security == null )
 			return( -1 );
 		
-		SessionSecurity security = auth.createUserSecurity( user );
+		if( !auth.doLogin( security , password ) )
+			return( -1 );
+		
 		EngineSession sessionContext = engine.sessions.createSession( security , data.clientrc , true );
 		action.debug( "operation invoked, sessionId=" + sessionContext.sessionId );
 		

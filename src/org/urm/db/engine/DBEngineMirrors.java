@@ -259,8 +259,13 @@ public class DBEngineMirrors {
 	}
 
 	public static void changeProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project , Integer repoRes , String repoName , String repoPath , String codePath ) throws Exception {
-		deleteProjectMirror( transaction , mirrors , project );
-		createProjectMirror( transaction , mirrors , project , repoRes , repoName , repoPath , codePath );
+		DBConnection c = transaction.getConnection();
+		
+		MirrorRepository repo = mirrors.findProjectRepository( project );
+		dropMirrorWorkspace( transaction , mirrors , repo , false );
+		
+		repo.setMirror( repoRes , repoName , repoPath , codePath );
+		modifyRepository( c , repo , false );
 	}
 	
 	public static void deleteProjectMirror( EngineTransaction transaction , EngineMirrors mirrors , MetaSourceProject project ) throws Exception {
@@ -411,7 +416,7 @@ public class DBEngineMirrors {
 		
 		// silently ignore if missing
 		ActionBase action = transaction.getAction();
-		GenericVCS vcs = GenericVCS.getVCS( action , null , repo.RESOURCE_ID , "" , true );
+		GenericVCS vcs = GenericVCS.getVCS( action , null , repo.RESOURCE_ID , true , null );
 		MirrorCase mc = vcs.getMirror( repo );
 		mc.dropMirror( dropOnServer );
 	}

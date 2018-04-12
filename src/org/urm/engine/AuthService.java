@@ -612,20 +612,18 @@ public class AuthService extends EngineObject {
 		return( security.checkSpecial( sr ) );
 	}
 	
-	public boolean checkLogin( String username , String password ) {
+	public boolean doLogin( SessionSecurity security , String password ) {
+		AuthUser user = security.getUser();
+		String username = user.NAME;
+		
 		try {
-			AuthUser user = getUser( username );
-			if( user == null ) {
-				engine.trace( "unsuccessful login: unknown user=" + username );
-				return( false );
-			}
-			
 			if( user.LOCAL ) {
 				String authKey = getAuthKey( AUTH_GROUP_USER , username );
 				AuthContext ac = loadAuthData( authKey );
 				if( !ac.PUBLICKEY.isEmpty() ) {
 			        String checkMessage = ClientAuth.getCheckMessage( username );
 					if( ClientAuth.verifySigned( checkMessage , password , ac.PUBLICKEY ) ) {
+						security.setContext( ac );
 						engine.trace( "successful login using key: user=" + username );
 						return( true );
 					}
@@ -638,6 +636,7 @@ public class AuthService extends EngineObject {
 					String md5 = Common.getMD5( password );
 					if( ac.PASSWORDSAVE.equals( md5 ) ) {
 						ac.setOnlinePassword( password );
+						security.setContext( ac );
 						engine.trace( "successful login using password: user=" + username );
 						return( true );
 					}

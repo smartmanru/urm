@@ -29,6 +29,7 @@ public class ProjectBuilder extends EngineObject {
 	
 	public static String PROPERTY_BUILDER_REMOTE = "remote";
 	public static String PROPERTY_REMOTEHOSTLOGIN = "hostlogin";
+	public static String PROPERTY_REMOTEMIRRORPATH = "mirrorpath";
 	
 	public EngineBuilders builders;
 
@@ -52,6 +53,7 @@ public class ProjectBuilder extends EngineObject {
 
 	public boolean BUILDER_REMOTE;
 	public Integer REMOTE_ACCOUNT_ID;
+	public String REMOTE_MIRRORPATH;
 	public int CV;
 	
 	public ProjectBuilder( EngineBuilders builders ) {
@@ -87,6 +89,7 @@ public class ProjectBuilder extends EngineObject {
 
 		r.BUILDER_REMOTE = BUILDER_REMOTE;
 		r.REMOTE_ACCOUNT_ID = REMOTE_ACCOUNT_ID;
+		r.REMOTE_MIRRORPATH = REMOTE_MIRRORPATH;
 		
 		r.CV = CV;
 		return( r );
@@ -165,9 +168,10 @@ public class ProjectBuilder extends EngineObject {
 		this.TARGET_PLATFORM = Common.nonull( platform );
 	}
 	
-	public void setRemoteData( boolean remote , Integer accountId ) {
+	public void setRemoteData( boolean remote , Integer accountId , String mirrorPath ) {
 		this.BUILDER_REMOTE = remote;
 		this.REMOTE_ACCOUNT_ID = accountId;
+		this.REMOTE_MIRRORPATH = mirrorPath;
 	}
 	
 	public Account getRemoteAccount( ActionBase action ) throws Exception {
