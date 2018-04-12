@@ -234,6 +234,12 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineBase.modifyGroup( this , base , group , name , desc );
 	}
 
+	public void setBaseGroupOffline( BaseGroup group , boolean offline ) throws Exception {
+		super.checkTransactionBase();
+		EngineBase base = super.getTransactionBase();
+		DBEngineBase.setGroupOffline( this , base , group , offline );
+	}
+
 	public BaseItem createBaseItem( BaseGroup group , String name , String desc ) throws Exception {
 		super.checkTransactionBase();
 		EngineBase base = super.getTransactionBase();
@@ -250,6 +256,12 @@ public class EngineTransaction extends TransactionBase {
 		super.checkTransactionBase();
 		EngineBase base = super.getTransactionBase();
 		DBEngineBase.deleteItem( this , base , item );
+	}
+
+	public void setBaseItemOffline( BaseItem item , boolean offline ) throws Exception {
+		super.checkTransactionBase();
+		EngineBase base = super.getTransactionBase();
+		DBEngineBase.setItemOffline( this , base , item , offline );
 	}
 
 	public void modifyBaseItemData( BaseItem item , boolean admin , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCDIR , String SRCFILE , String SRCFILEDIR , String INSTALLSCRIPT , String INSTALLPATH , String INSTALLLINK ) throws Exception {

@@ -55,6 +55,7 @@ public class BaseItem extends EngineObject {
 	public int CV;
 	
 	public ObjectProperties ops;
+	public boolean implemented;
 	
 	List<String> depsDraft;
 	Map<Integer,ObjectProperties> depsById;
@@ -65,6 +66,7 @@ public class BaseItem extends EngineObject {
 		this.ops = ops;
 		ID = -1;
 		CV = 0;
+		implemented = false;
 		
 		depsDraft = new LinkedList<String>();
 		depsById = new HashMap<Integer,ObjectProperties>(); 
@@ -74,10 +76,32 @@ public class BaseItem extends EngineObject {
 	public String getName() {
 		return( NAME );
 	}
-	
-	public void scatterProperties() throws Exception {
+
+	public BaseItem copy( BaseGroup rgroup , EngineEntities entities , ObjectProperties rparameters ) throws Exception {
+		BaseItem r = new BaseItem( rgroup , rparameters );
+		r.ID = ID;
+		r.NAME = NAME;
+		r.DESC = DESC;
+		r.OFFLINE = OFFLINE;
+		r.CV = CV;
+		r.implemented = implemented;
+		
+		EngineBase rbase = rgroup.category.base;
+		for( int depId : depsById.keySet() ) {
+			BaseItem rdep = rbase.getItem( depId );
+			r.addDepItem( entities , rdep );
+		}
+		
+		return( r );
+	}
+
+	public void scatterPropertiesPrimary() throws Exception {
 		NAME = ops.getPropertyValue( BaseItem.PROPERTY_NAME );
 		DESC = ops.getPropertyValue( BaseItem.PROPERTY_DESC );
+		OFFLINE = ops.getBooleanProperty( BaseItem.PROPERTY_OFFLINE );
+	}
+	
+	public void scatterPropertiesData() throws Exception {
 		ADMIN = ops.getBooleanProperty( BaseItem.PROPERTY_ADMIN );
 		BASESRC_TYPE = DBEnumBaseSrcType.getValue( ops.getIntProperty( BaseItem.PROPERTY_BASESRC_TYPE ) , false );
 		BASESRCFORMAT_TYPE = DBEnumBaseSrcFormatType.getValue( ops.getIntProperty( BaseItem.PROPERTY_BASESRCFORMAT_TYPE ) , false );
@@ -92,6 +116,8 @@ public class BaseItem extends EngineObject {
 		INSTALLPATH = ops.getPropertyValue( BaseItem.PROPERTY_INSTALLPATH );
 		INSTALLLINK = ops.getPropertyValue( BaseItem.PROPERTY_INSTALLLINK );
 		CHARSET = ops.getPropertyValue( BaseItem.PROPERTY_CHARSET );
+		
+		implemented = isValidImplementation();
 	}
 	
 	public ObjectProperties getParameters() {
@@ -115,23 +141,14 @@ public class BaseItem extends EngineObject {
 		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 	}
 	
-	public BaseItem copy( BaseGroup rgroup , EngineEntities entities , ObjectProperties rparameters ) throws Exception {
-		BaseItem r = new BaseItem( rgroup , rparameters );
-		r.ID = ID;
-		r.NAME = NAME;
-		r.DESC = DESC;
-		r.OFFLINE = OFFLINE;
-		r.CV = CV;
-		
-		EngineBase rbase = rgroup.category.base;
-		for( int depId : depsById.keySet() ) {
-			BaseItem rdep = rbase.getItem( depId );
-			r.addDepItem( entities , rdep );
-		}
-		
-		return( r );
+	public boolean isImplemented() {
+		return( implemented );
 	}
-
+	
+	public void setImplemented( boolean implemented ) {
+		this.implemented = implemented;
+	}
+	
 	public boolean isHostBound() {
 		if( group.category.BASECATEGORY_TYPE == DBEnumBaseCategoryType.HOST )
 			return( true );
@@ -152,12 +169,16 @@ public class BaseItem extends EngineObject {
 
 	public boolean isValidImplementation() {
 		if( SRCDIR.isEmpty() ||
-			NAME.isEmpty() || 
+			BASENAME.isEmpty() || 
+			BASEVERSION.isEmpty() || 
 			BASESRC_TYPE == DBEnumBaseSrcType.UNKNOWN || 
 			BASESRCFORMAT_TYPE == DBEnumBaseSrcFormatType.UNKNOWN ||
-			OS_TYPE == DBEnumOSType.UNKNOWN ||
-			SERVERACCESS_TYPE == DBEnumServerAccessType.UNKNOWN )
+			OS_TYPE == DBEnumOSType.UNKNOWN )
 			return( false );
+		
+		if( BASESRC_TYPE == DBEnumBaseSrcType.INSTALLER && INSTALLSCRIPT.isEmpty() )
+			return( false );
+		
 		if( isAccountBound() && ADMIN )
 			return( false );
 		return( true );
@@ -200,9 +221,9 @@ public class BaseItem extends EngineObject {
 		return( false );
 	}
 	
-	public void modifyData( boolean admin , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCDIR , String SRCFILE , String SRCFILEDIR , String INSTALLSCRIPT , String INSTALLPATH , String INSTALLLINK ) throws Exception {
+	public void modifyData( boolean admin , String basename , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCDIR , String SRCFILE , String SRCFILEDIR , String INSTALLSCRIPT , String INSTALLPATH , String INSTALLLINK ) throws Exception {
 		this.ADMIN = admin;
-		this.BASENAME = Common.nonull( name );
+		this.BASENAME = Common.nonull( basename );
 		this.BASEVERSION = Common.nonull( version );
 		
 		this.OS_TYPE = ostype;

@@ -61,6 +61,7 @@ public class EngineEntities {
 	public PropertyEntity entityAppEngineMonitoring;
 	public PropertyEntity entityAppBaseGroup;
 	public PropertyEntity entityAppBaseItem;
+	public PropertyEntity entityAppBaseItemData;
 	public PropertyEntity entityAppDirectorySystem;
 	public PropertyEntity entityAppDirectoryProduct;
 	public PropertyEntity entityAppDatacenter;
@@ -138,6 +139,7 @@ public class EngineEntities {
 		entityAppEngineMonitoring = DBEngineMonitoring.makeEntityEngineMonitoring( c , upgrade );
 		entityAppBaseGroup = DBEngineBase.makeEntityBaseGroup( c , upgrade );
 		entityAppBaseItem = DBEngineBase.makeEntityBaseItem( c , upgrade );
+		entityAppBaseItemData = DBEngineBase.makeEntityBaseItemData( c , upgrade );
 		entityAppDirectorySystem = DBEngineDirectory.makeEntityDirectorySystem( c , upgrade );
 		entityAppDirectoryProduct = DBEngineDirectory.makeEntityDirectoryProduct( c , upgrade );
 		entityAppDatacenter = DBEngineInfrastructure.makeEntityDatacenter( c , upgrade );
@@ -301,7 +303,7 @@ public class EngineEntities {
 	public ObjectProperties createBaseItemProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.DEFAULT , nameBaseItem , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM_CUSTOM , DBVersions.CORE_ID , DBEnumObjectVersionType.CORE );
-		props.create( parent , new PropertyEntity[] { entityAppBaseItem } , custom , true );
+		props.create( parent , new PropertyEntity[] { entityAppBaseItem , entityAppBaseItemData } , custom , true );
 		return( props );
 	}
 

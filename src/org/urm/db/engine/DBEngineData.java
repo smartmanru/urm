@@ -73,6 +73,7 @@ public abstract class DBEngineData {
 		EngineEntities entities = c.getEntities();
 		boolean res = true;
 		res = ( res )? c.modify( DBQueries.MODIFY_BASE_DROP_ITEMDEPS0 ) : false;
+		DBEngineEntities.dropAppObjects( c , entities.entityAppBaseItemData );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppBaseItem );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppBaseGroup );
 		if( !res )

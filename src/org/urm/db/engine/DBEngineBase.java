@@ -39,6 +39,7 @@ public abstract class DBEngineBase {
 
 	public static String TABLE_BASEGROUP = "urm_base_group";
 	public static String TABLE_BASEITEM = "urm_base_item";
+	public static String TABLE_BASEITEMDATA = "urm_base_data";
 	public static String ELEMENT_CATEGORY = "category";
 	public static String ELEMENT_GROUP = "group";
 	public static String ELEMENT_ITEM = "item";
@@ -50,6 +51,7 @@ public abstract class DBEngineBase {
 	public static String FIELD_ITEM_ID = "baseitem_id";
 	public static String FIELD_ITEM_GROUP_ID = "group_id";
 	public static String FIELD_ITEM_DESC = "xdesc";
+	public static String FIELD_ITEMDATA_ID = "baseitem_id";
 	
 	public static PropertyEntity makeEntityBaseGroup( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BASE_GROUP , DBEnumParamEntityType.BASEGROUP , DBEnumObjectVersionType.CORE , TABLE_BASEGROUP , FIELD_GROUP_ID , false );
@@ -78,6 +80,18 @@ public abstract class DBEngineBase {
 				EntityVar.metaIntegerDatabaseOnly( FIELD_ITEM_GROUP_ID , "Name" , true , null ) ,
 				EntityVar.metaStringVar( BaseItem.PROPERTY_NAME , BaseItem.PROPERTY_NAME , BaseItem.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( BaseItem.PROPERTY_DESC , FIELD_ITEM_DESC , BaseItem.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaBoolean( BaseItem.PROPERTY_OFFLINE , "Offline" , false , true )
+		} ) );
+	}
+
+	public static PropertyEntity makeEntityBaseItemData( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BASE_ITEMDATA , DBEnumParamEntityType.BASEITEMDATA , DBEnumObjectVersionType.CORE , TABLE_BASEITEMDATA , FIELD_ITEMDATA_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaBoolean( BaseItem.PROPERTY_ADMIN , "Administrative" , false , false ) ,
 				EntityVar.metaEnum( BaseItem.PROPERTY_BASESRC_TYPE , "Base item type" , false , DBEnumBaseSrcType.UNKNOWN ) ,
 				EntityVar.metaEnum( BaseItem.PROPERTY_BASESRCFORMAT_TYPE , "Base format type" , false , DBEnumBaseSrcFormatType.UNKNOWN ) ,
@@ -92,7 +106,6 @@ public abstract class DBEngineBase {
 				EntityVar.metaString( BaseItem.PROPERTY_INSTALLPATH , "Install path" , false , null ) ,
 				EntityVar.metaString( BaseItem.PROPERTY_INSTALLLINK , "Install link" , false , null ) ,
 				EntityVar.metaString( BaseItem.PROPERTY_CHARSET , "Charset" , false , null ) ,
-				EntityVar.metaBoolean( BaseItem.PROPERTY_OFFLINE , "Offline" , false , true )
 		} ) );
 	}
 
@@ -155,13 +168,16 @@ public abstract class DBEngineBase {
 		BaseItem item = new BaseItem( group , ops );
 		DBSettings.importxmlLoadCustomEntity( loader , root , ops );
 		DBSettings.importxmlLoad( loader , root , ops , true , false );
-		item.scatterProperties();
+		item.scatterPropertiesPrimary();
+		item.scatterPropertiesData();
 		
 		if( !item.isValid() )
 			item.setOffline( true );
 		
 		int version = c.getNextCoreVersion();
 		modifyItem( c , item , true );
+		if( item.isImplemented() )
+			modifyItemData( c , item , true );
 		ops.setOwnerId( item.ID );
 		
 		DBSettings.savedbEntityCustom( c , ops , version );
@@ -241,9 +257,20 @@ public abstract class DBEngineBase {
 	}
 	
 	public static void loaddb( EngineLoader loader , EngineBase base ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
 		loaddbGroups( loader , base );
 		loaddbItems( loader , base );
+		loaddbItemsData( loader , base );
 		loaddbItemDeps( loader , base );
+
+		// load base item custom meta
+		for( BaseItem item : base.getItems() ) {
+			ObjectProperties p = item.getParameters();
+			ObjectMeta meta = p.getMeta();
+			PropertyEntity custom = meta.getCustomEntity();
+			DBSettings.loaddbEntity( c , custom , item.ID , false );
+		}
 	}
 
 	public static void loaddbGroups( EngineLoader loader , EngineBase base ) throws Exception {
@@ -287,12 +314,13 @@ public abstract class DBEngineBase {
 				BaseGroup group = base.getGroup( groupId );
 		
 				ObjectProperties p = entities.createBaseItemProps( pe );
-				DBEngineEntities.loaddbAppObject( rs , p );
+				DBEngineEntities.loaddbAppObject( rs , p , entity );
 				
 				BaseItem item = new BaseItem( group , p );
 				item.ID = entity.loaddbId( rs );
 				item.CV = entity.loaddbVersion( rs );
-				item.scatterProperties();
+				item.scatterPropertiesPrimary();
+				item.scatterPropertiesData();
 
 				p.setOwnerId( item.ID );
 				base.addItem( item );
@@ -301,13 +329,26 @@ public abstract class DBEngineBase {
 		finally {
 			c.closeQuery();
 		}
-
-		// load base item custom meta
-		for( BaseItem item : base.getItems() ) {
-			ObjectProperties p = item.getParameters();
-			ObjectMeta meta = p.getMeta();
-			PropertyEntity custom = meta.getCustomEntity();
-			DBSettings.loaddbEntity( c , custom , item.ID , false );
+	}
+	
+	public static void loaddbItemsData( EngineLoader loader , EngineBase base ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = c.getEntities();
+		PropertyEntity entity = entities.entityAppBaseItemData;
+		
+		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
+		try {
+			while( rs.next() ) {
+				int itemId = entity.loaddbId( rs );
+				BaseItem item = base.getItem( itemId );
+		
+				ObjectProperties p = item.getParameters();
+				DBEngineEntities.loaddbAppObject( rs , p , entity );
+				item.scatterPropertiesData();
+			}
+		}
+		finally {
+			c.closeQuery();
 		}
 	}
 	
@@ -358,7 +399,7 @@ public abstract class DBEngineBase {
 		}
 	}
 
-	public static void modifyItem( DBConnection c , BaseItem item , boolean insert ) throws Exception {
+	private static void modifyItem( DBConnection c , BaseItem item , boolean insert ) throws Exception {
 		if( insert )
 			item.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , item.NAME , DBEnumParamEntityType.BASEITEM );
 		else
@@ -368,6 +409,11 @@ public abstract class DBEngineBase {
 		DBSettings.modifyAppValues( c , item.ID , item.ops , DBEnumParamEntityType.BASEITEM , item.CV , new String[] {
 				EngineDB.getInteger( item.group.ID )
 		} , insert );
+	}
+
+	private static void modifyItemData( DBConnection c , BaseItem item , boolean insert ) throws Exception {
+		item.CV = c.getNextCoreVersion();
+		DBSettings.modifyAppValues( c , item.ID , item.ops , DBEnumParamEntityType.BASEITEMDATA , item.CV , null , insert );
 	}
 
 	private static void modifyGroup( DBConnection c , BaseGroup group , boolean insert ) throws Exception {
@@ -430,6 +476,20 @@ public abstract class DBEngineBase {
 		base.updateGroup( group );
 	}
 	
+	public static void setGroupOffline( EngineTransaction transaction , EngineBase base , BaseGroup group , boolean offline ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		group.setOffline( offline );
+		if( offline == true ) {
+			for( BaseItem item : group.getItems() ) {
+				if( !item.OFFLINE ) {
+					transaction.exit0( _Error.GroupHasActive0 , "Group contains active items" );
+				}
+			}
+		}
+		
+		modifyGroup( c , group , false );
+	}
+	
 	public static BaseItem createItem( EngineTransaction transaction , EngineBase base , BaseGroup group , String name , String desc ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
@@ -460,7 +520,25 @@ public abstract class DBEngineBase {
 	public static void modifyItemData( EngineTransaction transaction , BaseItem item , boolean admin , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCDIR , String SRCFILE , String SRCFILEDIR , String INSTALLSCRIPT , String INSTALLPATH , String INSTALLLINK ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
+		boolean insert = ( item.isImplemented() )? false : true;
 		item.modifyData( admin , name , version , ostype , accessType , srcType , srcFormat , SRCDIR , SRCFILE , SRCFILEDIR , INSTALLSCRIPT , INSTALLPATH , INSTALLLINK );
+		if( !item.isValidImplementation() )
+			Common.exitUnexpected();
+		
+		modifyItemData( c , item , insert );
+	}
+	
+	public static void setItemOffline( EngineTransaction transaction , EngineBase base , BaseItem item , boolean offline ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		if( offline == false ) {
+			if( !item.isValid() )
+				transaction.exit0( _Error.ItemIsInvalid0 , "Unable to set item online, configuration is invalid" );
+			if( item.group.OFFLINE )
+				transaction.exit0( _Error.GroupIsOffline0 , "Unable to set item online, group is offline" );
+		}
+		
+		item.setOffline( offline );
 		modifyItem( c , item , false );
 	}
 	
@@ -469,6 +547,7 @@ public abstract class DBEngineBase {
 		
 		EngineEntities entities = c.getEntities();
 		DBSettings.dropObjectSettings( c , item.ID );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppBaseItemData , item.ID , c.getNextCoreVersion() );
 		DBEngineEntities.deleteAppObject( c , entities.entityAppBaseItem , item.ID , c.getNextCoreVersion() );
 		base.removeItem( item );
 		item.deleteObject();
