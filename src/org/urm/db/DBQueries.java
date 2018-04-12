@@ -7,6 +7,7 @@ public abstract class DBQueries {
 	public static String FILTER_META_FK2 = "meta_fkid = @1@ or meta_fkname = @2@";
 	public static String FILTER_DELIVERY_ID1 = "delivery_id = @1@";
 	public static String FILTER_ENV_ID1 = "env_id = @1@";
+	public static String FILTER_ENV_META1 = "env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
 	public static String FILTER_REL_META1 = "release_id in ( select release_id from urm_rel_repository a , urm_rel_main b where a.repo_id = b.repo_id and a.meta_fkid = @1@ )";
 	public static String FILTER_REL_MAINMETA1 = "repo_id in ( select repo_id from urm_rel_repository where meta_fkid = @1@ )";
 	public static String FILTER_REL_REPOMETA1 = "meta_fkid = @1@";
@@ -122,25 +123,16 @@ public abstract class DBQueries {
 			"select server_id from urm_env_server a , urm_env b where a.env_id = b.env_id and b.meta_fkid = @1@ union all " +
 			"select segment_id from urm_env_segment a , urm_env b where a.env_id = b.env_id and b.meta_fkid = @1@ union all " + 
 			"select env_id from urm_env where meta_fkid = @1@ )";
-	public static String MODIFY_ENVALL_DELETEALL_MONITEM1 = "delete from urm_env_monitem where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
-	public static String MODIFY_ENVALL_DELETEALL_MONTARGET1 = "delete from urm_env_montarget where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
-	public static String MODIFY_ENVALL_DELETEALL_NODES1 = "delete from urm_env_node where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
-	public static String MODIFY_ENVALL_DELETEALL_DEPLOYMENTS1 = "delete from urm_env_deployment where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
-	public static String MODIFY_ENVALL_DELETEALL_SERVERDEPS1 = "delete from urm_env_server_deps where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
-	public static String MODIFY_ENVALL_DELETEALL_STARTGROUPSERVERS1 = "delete from urm_env_startgroup_server where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
-	public static String MODIFY_ENVALL_DELETEALL_STARTGROUPS1 = "delete from urm_env_startgroup where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
-	public static String MODIFY_ENVALL_DELETEALL_SERVERS1 = "delete from urm_env_server where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
-	public static String MODIFY_ENVALL_DELETEALL_SEGMENTS1 = "delete from urm_env_segment where env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
-	public static String MODIFY_ENVALL_DELETEALL_ENVS1 = "delete from urm_env where meta_fkid = @1@";
+	public static String MODIFY_ENV_DELETEALL_PARAMVALUES1 = "delete from urm_object_param_value where object_id in ( " +
+			"select node_id from urm_env_node where env_id = @1@ union all " +
+			"select server_id from urm_env_server where env_id = @1@ union all " +
+			"select segment_id from urm_env_segment where env_id = @1@ union all " + 
+			"select env_id from urm_env where env_id = @1@ )";
 
 	public static String MODIFY_ENV_SETSTATUS2 = "update urm_env set matched = @2@ where env_id = @1@";
 	public static String MODIFY_ENV_MATCHBASELINE2 = "update urm_env set baseline_env_fkid = @2@ , baseline_env_fkname = null where env_id = @1@";
 	public static String MODIFY_ENVSG_MATCHBASELINE2 = "update urm_env_segment set baseline_segment_fkid = @2@ , baseline_segment_fkname = null where segment_id = @1@";
-	public static String MODIFY_ENVSG_ADDSTARTGROUPSERVER4 = "insert into urm_env_startgroup_server ( startgroup_id , server_id , env_id , ev ) values ( @values@ )";
 	public static String MODIFY_ENVSERVER_MATCHBASELINE2 = "update urm_env_server set baseline_server_fkid = @2@ , baseline_server_fkname = null where server_id = @1@";
-	public static String MODIFY_ENVSERVER_ADDDEPSERVER5 = "insert into urm_env_server_deps ( server_id , dep_server_id , env_id , serverdependency_type , ev ) values ( @values@ )";
-	public static String QUERY_ENV_GETALLSTARTGROUPITEMS1 = "select startgroup_id , server_id , env_id , ev from urm_env_startgroup_server where env_id = @1@";
-	public static String QUERY_ENV_GETALLSERVERDEPS1 = "select server_id , dep_server_id , env_id , serverdependency_type , ev from urm_env_server_deps where env_id = @1@";
 
 	public static String MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPITEMS1 = "delete from urm_env_startgroup_server where startgroup_id in ( select startgroup_id from urm_env_startgroup where segment_id = @1@ )";
 	public static String MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPS1 = "delete from urm_env_startgroup where segment_id = @1@";

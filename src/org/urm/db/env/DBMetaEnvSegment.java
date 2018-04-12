@@ -286,8 +286,10 @@ public class DBMetaEnvSegment {
 
 	private static void loaddbStartGroupItems( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
 		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppSegmentStartGroupServer;
 		
-		ResultSet rs = c.query( DBQueries.QUERY_ENV_GETALLSTARTGROUPITEMS1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
 		try {
 			while( rs.next() ) {
 				int startGroupId = rs.getInt( 1 );
@@ -305,8 +307,10 @@ public class DBMetaEnvSegment {
 	
 	private static void loaddbServerDeps( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
 		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppServerDependency;
 		
-		ResultSet rs = c.query( DBQueries.QUERY_ENV_GETALLSERVERDEPS1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
 		try {
 			while( rs.next() ) {
 				int serverId = rs.getInt( 1 );
@@ -376,14 +380,13 @@ public class DBMetaEnvSegment {
 	}
 	
 	private static void addStartGroupServer( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvStartGroup group , MetaEnvServer server ) throws Exception {
+		EngineEntities entities = c.getEntities();
 		int version = c.getNextEnvironmentVersion( env );
-		if( !c.modify( DBQueries.MODIFY_ENVSG_ADDSTARTGROUPSERVER4 , new String[] { 
+		DBEngineEntities.modifyAppEntity( c , entities.entityAppSegmentStartGroupServer , version , new String[] { 
 				EngineDB.getInteger( group.ID ) , 
 				EngineDB.getInteger( server.ID ) ,
-				EngineDB.getInteger( env.ID ) ,
-				EngineDB.getInteger( version ) 
-				} ) )
-			Common.exitUnexpected();
+				EngineDB.getInteger( env.ID )
+				} , true );
 	}
 	
 	private static void modifySegmentMatch( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvSegment sg ) throws Exception {

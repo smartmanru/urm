@@ -229,15 +229,14 @@ public class DBMetaEnvServer {
 	}
 	
 	private static void addDependencyServer( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvServer depServer , DBEnumServerDependencyType type ) throws Exception {
+		EngineEntities entities = c.getEntities();
 		int version = c.getNextEnvironmentVersion( env );
-		if( !c.modify( DBQueries.MODIFY_ENVSERVER_ADDDEPSERVER5 , new String[] { 
+		DBEngineEntities.modifyAppEntity( c , entities.entityAppServerDependency , version , new String[] { 
 				EngineDB.getInteger( server.ID ) , 
 				EngineDB.getInteger( depServer.ID ) ,
 				EngineDB.getInteger( env.ID ) ,
-				EngineDB.getEnum( type ) ,
-				EngineDB.getInteger( version )
-				} ) )
-			Common.exitUnexpected();
+				EngineDB.getEnum( type )
+				} , true );
 	}
 	
 	public static void loaddb( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {

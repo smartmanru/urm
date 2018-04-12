@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.AuthResource;
@@ -206,6 +207,23 @@ public class MirrorCaseGit extends MirrorCase {
 		String user = "";
 		if( !res.ac.isAnonymous() )
 			user = res.ac.getUser( action );
+		
+		// only for push
+		if( shell.isLocal() ) {
+			String file = Common.getPath( OSPATH , "packed-refs" );
+			List<String> lines = ConfReader.readFileLines( action.execrc , file );
+			List<String> nopulls = new LinkedList<String>();
+			for( String line : lines ) {
+				if( !line.contains( "refs/pull/" ) )
+					nopulls.add( line );
+			}
+			Common.createFileFromStringList( action.execrc , file , nopulls );
+			
+			shell.customCheckStatus( action , "git -C " + OSPATH + " config --unset-all remote.origin.fetch" );
+			shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/heads/*:refs/heads/*" );
+			shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/tags/*:refs/tags/*" );
+			shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/change/*:refs/change/*" );
+		}
 		
 		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.name " + Common.getQuoted( user ) );
 		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.email " + Common.getQuoted( "ignore@mail.com" ) );

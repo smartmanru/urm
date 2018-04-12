@@ -376,7 +376,11 @@ public class DBMetaEnv {
 	}
 
 	public static void deleteEnv( EngineTransaction transaction , ProductMeta storage , MetaEnv env ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		ProductEnvs envs = storage.getEnviroments();
+		
+		DBEnvData.dropEnvData( c , env );
+		envs.deleteEnv( transaction , env );
 	}
 
 	public static void setEnvOffline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , boolean offline ) throws Exception {

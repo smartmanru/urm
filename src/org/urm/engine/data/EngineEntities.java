@@ -98,11 +98,13 @@ public class EngineEntities {
 	public PropertyEntity entityAppEnvExtra;
 	public PropertyEntity entityAppSegmentPrimary;
 	public PropertyEntity entityAppSegmentStartGroup;
+	public PropertyEntity entityAppSegmentStartGroupServer;
 	public PropertyEntity entityAppSegmentMonTarget;
 	public PropertyEntity entityAppSegmentMonItem;
 	public PropertyEntity entityAppServerPrimary;
 	public PropertyEntity entityAppServerExtra;
 	public PropertyEntity entityAppServerDeployment;
+	public PropertyEntity entityAppServerDependency;
 	public PropertyEntity entityAppNodePrimary;
 	public PropertyEntity entityAppReleaseRepository;
 	public PropertyEntity entityAppReleaseMain;
@@ -176,11 +178,13 @@ public class EngineEntities {
 		entityAppEnvExtra = DBEnvData.makeEntityEnvExtra( c , upgrade );
 		entityAppSegmentPrimary = DBEnvData.makeEntitySegmentPrimary( c , upgrade );
 		entityAppSegmentStartGroup = DBEnvData.makeEntityStartGroup( c , upgrade );
+		entityAppSegmentStartGroupServer = DBEnvData.makeEntityStartGroupServer( c , upgrade );
 		entityAppSegmentMonTarget = DBEnvData.makeEntityMonitoringTarget( c , upgrade );
 		entityAppSegmentMonItem = DBEnvData.makeEntityMonitoringItem( c , upgrade );
 		entityAppServerPrimary = DBEnvData.makeEntityServerPrimary( c , upgrade );
 		entityAppServerExtra = DBEnvData.makeEntityServerExtra( c , upgrade );
 		entityAppServerDeployment = DBEnvData.makeEntityServerDeployment( c , upgrade );
+		entityAppServerDependency = DBEnvData.makeEntityServerDependency( c , upgrade );
 		entityAppNodePrimary = DBEnvData.makeEntityNodePrimary( c , upgrade );
 		entityAppReleaseRepository = DBReleaseData.makeEntityReleaseRepository( c , upgrade );
 		entityAppReleaseMain = DBReleaseData.makeEntityReleaseMain( c , upgrade );
