@@ -208,23 +208,6 @@ public class MirrorCaseGit extends MirrorCase {
 		if( !res.ac.isAnonymous() )
 			user = res.ac.getUser( action );
 		
-		// only for push
-		if( shell.isLocal() ) {
-			String file = Common.getPath( OSPATH , "packed-refs" );
-			List<String> lines = ConfReader.readFileLines( action.execrc , file );
-			List<String> nopulls = new LinkedList<String>();
-			for( String line : lines ) {
-				if( !line.contains( "refs/pull/" ) )
-					nopulls.add( line );
-			}
-			Common.createFileFromStringList( action.execrc , file , nopulls );
-			
-			shell.customCheckStatus( action , "git -C " + OSPATH + " config --unset-all remote.origin.fetch" );
-			shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/heads/*:refs/heads/*" );
-			shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/tags/*:refs/tags/*" );
-			shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/change/*:refs/change/*" );
-		}
-		
 		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.name " + Common.getQuoted( user ) );
 		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.email " + Common.getQuoted( "ignore@mail.com" ) );
 	}
@@ -349,8 +332,26 @@ public class MirrorCaseGit extends MirrorCase {
 			cmd += " " + OSPATH;
 			
 			status = shell.customGetStatus( action , cmd );
-			if( status == 0 )
+			if( status == 0 ) {
 				setAccess( OSPATH );
+				
+				// only for push
+				if( shell.isLocal() ) {
+					String file = Common.getPath( OSPATH , "packed-refs" );
+					List<String> lines = ConfReader.readFileLines( action.execrc , file );
+					List<String> nopulls = new LinkedList<String>();
+					for( String line : lines ) {
+						if( !line.contains( "refs/pull/" ) )
+							nopulls.add( line );
+					}
+					Common.createFileFromStringList( action.execrc , file , nopulls );
+					
+					shell.customCheckStatus( action , "git -C " + OSPATH + " config --unset-all remote.origin.fetch" );
+					shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/heads/*:refs/heads/*" );
+					shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/tags/*:refs/tags/*" );
+					shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/change/*:refs/change/*" );
+				}
+			}
 		}
 		catch( Throwable e ) {
 			action.log( "mirror repository" , e );
