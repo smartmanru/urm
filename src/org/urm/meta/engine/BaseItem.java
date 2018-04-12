@@ -145,10 +145,6 @@ public class BaseItem extends EngineObject {
 		return( implemented );
 	}
 	
-	public void setImplemented( boolean implemented ) {
-		this.implemented = implemented;
-	}
-	
 	public boolean isHostBound() {
 		if( group.category.BASECATEGORY_TYPE == DBEnumBaseCategoryType.HOST )
 			return( true );

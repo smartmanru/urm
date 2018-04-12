@@ -20,5 +20,6 @@ public class _Error {
 	public static final int GroupHasActive0 = ErrorBase + 11;
 	public static final int GroupIsOffline0 = ErrorBase + 12;
 	public static final int ItemIsInvalid0 = ErrorBase + 13;
+	public static final int ItemInvalidData0 = ErrorBase + 14;
 	
 }

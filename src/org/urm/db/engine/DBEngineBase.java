@@ -414,6 +414,7 @@ public abstract class DBEngineBase {
 	private static void modifyItemData( DBConnection c , BaseItem item , boolean insert ) throws Exception {
 		item.CV = c.getNextCoreVersion();
 		DBSettings.modifyAppValues( c , item.ID , item.ops , DBEnumParamEntityType.BASEITEMDATA , item.CV , null , insert );
+		item.implemented = true;
 	}
 
 	private static void modifyGroup( DBConnection c , BaseGroup group , boolean insert ) throws Exception {
@@ -523,7 +524,7 @@ public abstract class DBEngineBase {
 		boolean insert = ( item.isImplemented() )? false : true;
 		item.modifyData( admin , name , version , ostype , accessType , srcType , srcFormat , SRCDIR , SRCFILE , SRCFILEDIR , INSTALLSCRIPT , INSTALLPATH , INSTALLLINK );
 		if( !item.isValidImplementation() )
-			Common.exitUnexpected();
+			transaction.exit0( _Error.ItemInvalidData0 , "Unable to set item data, configuration is invalid" );
 		
 		modifyItemData( c , item , insert );
 	}
