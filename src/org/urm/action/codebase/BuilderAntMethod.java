@@ -52,7 +52,7 @@ public class BuilderAntMethod extends Builder {
 		
 		action.info( "execute: " + ANT_CMD );
 		int timeout = action.setTimeoutUnlimited();
-		int status = session.customGetStatusCheckErrors( action , CODEPATH.folderPath , ANT_CMD );
+		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , ANT_CMD );
 		action.setTimeout( timeout );
 
 		if( status != 0 ) {

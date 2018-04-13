@@ -500,11 +500,13 @@ public abstract class DBEngineBase {
 		if( base.findItem( name ) != null )
 			transaction.exitUnexpectedState();
 		
-		ObjectProperties p = entities.createBaseItemProps( pe );
-		BaseItem item = new BaseItem( group , p );
+		ObjectProperties ops = entities.createBaseItemProps( pe );
+		BaseItem item = new BaseItem( group , ops );
 		item.createBaseItem( name , desc );
 		modifyItem( c , item , true );
-		p.setOwnerId( item.ID );
+		ops.setOwnerId( item.ID );
+		
+		DBSettings.savedbEntityCustom( c , ops , item.CV );
 		
 		base.addItem( item );
 		return( item );

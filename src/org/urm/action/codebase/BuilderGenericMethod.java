@@ -39,7 +39,7 @@ public class BuilderGenericMethod extends Builder {
 		// execute maven
 		action.info( "using generic: " + GENERIC_CMD );
 		int timeout = action.setTimeoutUnlimited();
-		int status = session.customGetStatusCheckErrors( action , CODEPATH.folderPath , GENERIC_CMD );
+		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , GENERIC_CMD );
 		action.setTimeout( timeout );
 
 		if( status != 0 ) {
