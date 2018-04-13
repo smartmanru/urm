@@ -494,6 +494,13 @@ public class GitVCS extends GenericVCS {
 			String password = URLEncoder.encode( res.ac.getPassword( action ) , "UTF-8" );
 			urlAuth = Common.getPartBeforeFirst( url , "//" ) + "//" + userEncoded + ":" + password + "@" + Common.getPartAfterFirst( url , "//" );
 		}
+		else
+		if( res.ac.isCommon() ) {
+			user = res.ac.getUser( action );
+			String userEncoded = URLEncoder.encode( user , "UTF-8" );
+			String password = URLEncoder.encode( res.ac.getPassword( action ) , "UTF-8" );
+			urlAuth = Common.getPartBeforeFirst( url , "//" ) + "//" + userEncoded + ":" + password + "@" + Common.getPartAfterFirst( url , "//" );
+		}
 		
 		return( urlAuth );
 	}

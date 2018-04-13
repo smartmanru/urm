@@ -87,7 +87,7 @@ public class ActionConfigure extends ActionBase {
 	private void configureDefault() throws Exception {
 		if( super.isStandalone() ) {
 			context.session.setStandaloneLayout( context.options );
-			Meta meta = super.getContextMeta();
+			Meta meta = super.getProductMetadata( USEPRODUCT );
 			configureProduct( meta );
 		}
 		else {
@@ -508,3 +508,4 @@ public class ActionConfigure extends ActionBase {
 	}
 
 }
+	
