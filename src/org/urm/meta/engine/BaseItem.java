@@ -68,6 +68,22 @@ public class BaseItem extends EngineObject {
 		CV = 0;
 		implemented = false;
 		
+		NAME = "";
+		DESC = "";
+		BASESRC_TYPE = DBEnumBaseSrcType.UNKNOWN;
+		BASESRCFORMAT_TYPE = DBEnumBaseSrcFormatType.UNKNOWN;
+		OS_TYPE = DBEnumOSType.UNKNOWN;
+		SERVERACCESS_TYPE = DBEnumServerAccessType.UNKNOWN;
+		BASENAME = "";
+		BASEVERSION = "";
+		SRCDIR = "";
+		SRCFILE = "";
+		SRCFILEDIR = "";
+		INSTALLSCRIPT = "";
+		INSTALLPATH = "";
+		INSTALLLINK = "";
+		CHARSET = "";
+
 		depsDraft = new LinkedList<String>();
 		depsById = new HashMap<Integer,ObjectProperties>(); 
 	}
