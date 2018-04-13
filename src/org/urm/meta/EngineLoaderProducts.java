@@ -198,7 +198,7 @@ public class EngineLoaderProducts {
 			LocalFolder meta = urm.getProductCoreMetadataFolder( action , product );
 			
 			if( meta.checkExists( action ) ) {
-				LocalFolder home = urm.getProductCoreMetadataFolder( action , product );
+				LocalFolder home = urm.getProductHome( action , product );
 				context.create( loader.getSettings() , home );
 				set.setContext( context );
 				
