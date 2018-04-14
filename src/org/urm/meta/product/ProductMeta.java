@@ -24,7 +24,6 @@ public class ProductMeta extends EngineObject {
 	public int PV;
 	public boolean MATCHED;
 	
-	private MetaProductVersion version;
 	private MetaProductSettings settings;
 	private MetaProductPolicy policy;
 	private MetaUnits units;
@@ -63,8 +62,6 @@ public class ProductMeta extends EngineObject {
 		r.ID = ID;
 		r.PV = PV;
 		r.MATCHED = MATCHED;
-		
-		r.version = version.copy( r.meta );
 		
 		r.settings = settings.copy( r.meta , opsParent );
 		r.policy = policy.copy( r.meta );
@@ -138,10 +135,6 @@ public class ProductMeta extends EngineObject {
 		releases.setReleaseRepository( repo );
 	}
 	
-	public void setVersion( MetaProductVersion version ) throws Exception {
-		this.version = version;
-	}
-
 	public void setSettings( MetaProductSettings settings ) throws Exception {
 		this.settings = settings;
 	}
@@ -176,10 +169,6 @@ public class ProductMeta extends EngineObject {
 
 	public void setReleases( ProductReleases releases ) throws Exception {
 		this.releases = releases;
-	}
-	
-	public MetaProductVersion getVersion() {
-		return( version );
 	}
 	
 	public MetaProductSettings getSettings() {

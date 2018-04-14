@@ -10,6 +10,7 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrComponent;
@@ -49,14 +50,6 @@ public class DBProductData {
 	public static String FIELD_META_PRODUCT_ID = "product_fkid";
 	public static String FIELD_META_PRODUCT_NAME = "product_fkname";
 	public static String FIELD_META_PRODUCT_MATCHED = "matched";
-	public static String FIELD_META_LAST_MAJOR1 = "last_major1";
-	public static String FIELD_META_LAST_MAJOR2 = "last_major2";
-	public static String FIELD_META_LAST_MINOR1 = "last_minor1";
-	public static String FIELD_META_LAST_MINOR2 = "last_minor2";
-	public static String FIELD_META_NEXT_MAJOR1 = "next_major1";
-	public static String FIELD_META_NEXT_MAJOR2 = "next_major2";
-	public static String FIELD_META_NEXT_MINOR1 = "next_minor1";
-	public static String FIELD_META_NEXT_MINOR2 = "next_minor2";
 	public static String FIELD_UNIT_ID = "unit_id";
 	public static String FIELD_UNIT_DESC = "xdesc";
 	public static String FIELD_SCHEMA_ID = "schema_id";
@@ -193,14 +186,14 @@ public class DBProductData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( MetaProductSettings.PROPERTY_PRODUCT_NAME , "Product Name" , true , "(product)" ) ,
 				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_PRODUCT_HOME , "Product Home" , true , "(home)" , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_LAST_MAJOR_FIRST , "Version Major Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_LAST_MAJOR_SECOND , "Version Minor Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_NEXT_MAJOR_FIRST , "Next Major Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_NEXT_MAJOR_SECOND , "Next Minor Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_LAST_MINOR_FIRST , "Last Tag Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_LAST_MINOR_SECOND , "Last Urgent Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_NEXT_MINOR_FIRST , "Next Tag Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_NEXT_MINOR_SECOND , "Next Urgent Number" , false , null )
+				EntityVar.metaInteger( AppProduct.PROPERTY_LAST_MAJOR_FIRST , "Version Major Number" , false , null ) ,
+				EntityVar.metaInteger( AppProduct.PROPERTY_LAST_MAJOR_SECOND , "Version Minor Number" , false , null ) ,
+				EntityVar.metaInteger( AppProduct.PROPERTY_NEXT_MAJOR_FIRST , "Next Major Number" , false , null ) ,
+				EntityVar.metaInteger( AppProduct.PROPERTY_NEXT_MAJOR_SECOND , "Next Minor Number" , false , null ) ,
+				EntityVar.metaInteger( AppProduct.PROPERTY_LAST_MINOR_FIRST , "Last Tag Number" , false , null ) ,
+				EntityVar.metaInteger( AppProduct.PROPERTY_LAST_MINOR_SECOND , "Last Urgent Number" , false , null ) ,
+				EntityVar.metaInteger( AppProduct.PROPERTY_NEXT_MINOR_FIRST , "Next Tag Number" , false , null ) ,
+				EntityVar.metaInteger( AppProduct.PROPERTY_NEXT_MINOR_SECOND , "Next Urgent Number" , false , null )
 		} ) );
 	}
 
@@ -214,34 +207,7 @@ public class DBProductData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_PRODUCT_ID , "Application product id" , DBEnumObjectType.APPPRODUCT , false ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_NAME , "Application product name" , false , null ) ,
-				EntityVar.metaBooleanDatabaseOnly( FIELD_META_PRODUCT_MATCHED , "Product match status" , false , false ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MAJOR1 , "Major last version, first number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MAJOR2 , "Major last version, last number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MINOR1 , "Minor last version, first number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MINOR2 , "Minor last version, last number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MAJOR1 , "Major next version, first number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MAJOR2 , "Major next version, last number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MINOR1 , "Minor next version, first number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MINOR2 , "Minor next version, second number" , true , null ) ,
-		} ) );
-	}
-
-	public static PropertyEntity makeEntityMetaVersion( DBConnection c , boolean upgrade ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_VERSION , DBEnumObjectVersionType.PRODUCT );
-		if( !upgrade ) {
-			DBSettings.loaddbAppEntity( c , entity );
-			return( entity );
-		}
-		
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_LAST_MAJOR_FIRST , "Major last version, first number" , true , null ) ,
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_LAST_MAJOR_SECOND , "Major last version, last number" , true , null ) ,
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_LAST_MINOR_FIRST , "Minor last version, first number" , true , null ) ,
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_LAST_MINOR_SECOND , "Minor last version, last number" , true , null ) ,
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_NEXT_MAJOR_FIRST , "Major next version, first number" , true , null ) ,
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_NEXT_MAJOR_SECOND , "Major next version, last number" , true , null ) ,
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_NEXT_MINOR_FIRST , "Minor next version, first number" , true , null ) ,
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_NEXT_MINOR_SECOND , "Minor next version, second number" , true , null ) ,
+				EntityVar.metaBooleanDatabaseOnly( FIELD_META_PRODUCT_MATCHED , "Product match status" , false , false )
 		} ) );
 	}
 

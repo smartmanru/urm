@@ -2,8 +2,8 @@ package org.urm.meta.release;
 
 import org.urm.db.core.DBEnums.DBEnumLifecycleType;
 import org.urm.engine.dist.DistRepository;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.ProductMeta;
 
 public class ProductReleases {
@@ -45,13 +45,13 @@ public class ProductReleases {
 	}
 
 	public String getNextRelease( DBEnumLifecycleType type ) {
-		MetaProductVersion version = meta.getVersion();
+		AppProduct product = meta.getProduct();
 		if( type == DBEnumLifecycleType.MAJOR )
-			return( version.majorNextFirstNumber + "." + version.majorNextSecondNumber );
+			return( product.NEXT_MAJOR1 + "." + product.NEXT_MAJOR2 );
 		if( type == DBEnumLifecycleType.MINOR )
-			return( version.majorLastFirstNumber + "." + version.majorLastSecondNumber + "." + version.nextProdTag );
+			return( product.NEXT_MAJOR1 + "." + product.NEXT_MAJOR2 + "." + product.NEXT_MINOR1 );
 		if( type == DBEnumLifecycleType.URGENT )
-			return( version.majorLastFirstNumber + "." + version.majorLastSecondNumber + "." + version.lastProdTag + "." + version.nextUrgentTag );
+			return( product.NEXT_MAJOR1 + "." + product.NEXT_MAJOR2 + "." + product.NEXT_MINOR1 + "." + product.NEXT_MINOR2 );
 		return( "" );
 	}
 

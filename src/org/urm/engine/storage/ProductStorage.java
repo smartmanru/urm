@@ -38,12 +38,6 @@ public class ProductStorage {
 		return( urm.getProductCoreMetadataFolder( action , meta.getProduct() ) );
 	}
 	
-	public String getVersionConfFile( ActionBase action ) throws Exception {
-		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.getProduct() );
-		return( folder.getFilePath( action , UrmStorage.VERSION_SETTINGS_FILE ) );
-	}
-	
 	public String getCoreConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.getProduct() );

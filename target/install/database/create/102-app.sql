@@ -19,6 +19,14 @@ CREATE TABLE main.urm_product (
                 xdesc VARCHAR,
                 offline BOOLEAN NOT NULL,
                 monitoring_enabled BOOLEAN NOT NULL,
+                last_major1 INTEGER NOT NULL,
+                last_major2 INTEGER NOT NULL,
+                last_minor1 INTEGER NOT NULL,
+                last_minor2 INTEGER NOT NULL,
+                next_major1 INTEGER NOT NULL,
+                next_major2 INTEGER NOT NULL,
+                next_minor1 INTEGER NOT NULL,
+                next_minor2 INTEGER NOT NULL,
                 sv INTEGER NOT NULL,
                 CONSTRAINT urm_product_pk PRIMARY KEY (product_id)
 );

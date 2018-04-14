@@ -77,7 +77,6 @@ public class EngineEntities {
 	public PropertyEntity entityAppAuthUser;
 	public PropertyEntity entityAppAuthGroup;
 	public PropertyEntity entityAppMeta;
-	public PropertyEntity entityAppMetaVersion;
 	public PropertyEntity entityAppMetaMonitoring;
 	public PropertyEntity entityAppMetaUnit;
 	public PropertyEntity entityAppMetaSchema;
@@ -157,7 +156,6 @@ public class EngineEntities {
 		entityAppAuthUser = DBEngineAuth.makeEntityAuthUser( c , upgrade );
 		entityAppAuthGroup = DBEngineAuth.makeEntityAuthGroup( c , upgrade );
 		entityAppMeta = DBProductData.makeEntityMeta( c , upgrade );
-		entityAppMetaVersion = DBProductData.makeEntityMetaVersion( c , upgrade );
 		entityAppMetaMonitoring = DBProductData.makeEntityMetaMonitoring( c , upgrade );
 		entityAppMetaUnit = DBProductData.makeEntityMetaUnit( c , upgrade );
 		entityAppMetaSchema = DBProductData.makeEntityMetaSchema( c , upgrade );

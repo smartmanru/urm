@@ -36,6 +36,18 @@ public abstract class DBAppProduct {
 				);
 		product.setOffline( entity.importxmlBooleanAttr( root , AppProduct.PROPERTY_OFFLINE , true ) );
 		product.setMonitoringEnabled( entity.importxmlBooleanAttr( root , AppProduct.PROPERTY_MONITORING_ENABLED , false ) );
+
+		product.setVersions( 
+				entity.importxmlIntProperty( root , AppProduct.PROPERTY_LAST_MAJOR_FIRST , 1 ) ,
+				entity.importxmlIntProperty( root , AppProduct.PROPERTY_LAST_MAJOR_SECOND , 0 ) ,
+				entity.importxmlIntProperty( root , AppProduct.PROPERTY_LAST_MINOR_FIRST , 0 ) ,
+				entity.importxmlIntProperty( root , AppProduct.PROPERTY_LAST_MINOR_SECOND , 0 ) ,
+				entity.importxmlIntProperty( root , AppProduct.PROPERTY_NEXT_MAJOR_FIRST , 1 ) ,
+				entity.importxmlIntProperty( root , AppProduct.PROPERTY_NEXT_MAJOR_SECOND , 1 ) ,
+				entity.importxmlIntProperty( root , AppProduct.PROPERTY_NEXT_MINOR_FIRST , 1 ) ,
+				entity.importxmlIntProperty( root , AppProduct.PROPERTY_NEXT_MINOR_SECOND , 1 )
+				);
+		
 		modifyProduct( c , product , true );
 		
 		return( product );
@@ -49,7 +61,15 @@ public abstract class DBAppProduct {
 				entity.exportxmlString( product.DESC ) ,
 				entity.exportxmlString( product.PATH ) ,
 				entity.exportxmlBoolean( product.OFFLINE ) ,
-				entity.exportxmlBoolean( product.MONITORING_ENABLED )
+				entity.exportxmlBoolean( product.MONITORING_ENABLED ) ,
+				entity.exportxmlInt( product.LAST_MAJOR1 ) , 
+				entity.exportxmlInt( product.LAST_MAJOR2 ) , 
+				entity.exportxmlInt( product.LAST_MINOR1  ) , 
+				entity.exportxmlInt( product.LAST_MINOR2 ) , 
+				entity.exportxmlInt( product.NEXT_MAJOR1 ) , 
+				entity.exportxmlInt( product.NEXT_MAJOR2 ) , 
+				entity.exportxmlInt( product.NEXT_MINOR1 ) , 
+				entity.exportxmlInt( product.NEXT_MINOR2 ) 
 		} , true );
 	}
 
@@ -68,6 +88,7 @@ public abstract class DBAppProduct {
 				AppProduct product = new AppProduct( directory , system );
 				product.ID = entity.loaddbId( rs );
 				product.SV = entity.loaddbVersion( rs );
+				
 				product.createProduct( 
 						entity.loaddbString( rs , AppProduct.PROPERTY_NAME ) , 
 						entity.loaddbString( rs , AppProduct.PROPERTY_DESC ) ,
@@ -75,6 +96,17 @@ public abstract class DBAppProduct {
 						);
 				product.setOffline( entity.loaddbBoolean( rs , AppProduct.PROPERTY_OFFLINE ) );
 				product.setMonitoringEnabled( entity.loaddbBoolean( rs , AppProduct.PROPERTY_MONITORING_ENABLED ) );
+				
+				product.setVersions(
+					entity.loaddbInt( rs , AppProduct.PROPERTY_LAST_MAJOR_FIRST ) ,
+					entity.loaddbInt( rs , AppProduct.PROPERTY_LAST_MAJOR_SECOND ) ,
+					entity.loaddbInt( rs , AppProduct.PROPERTY_LAST_MINOR_FIRST ) ,
+					entity.loaddbInt( rs , AppProduct.PROPERTY_LAST_MINOR_SECOND ) ,
+					entity.loaddbInt( rs , AppProduct.PROPERTY_NEXT_MAJOR_FIRST ) ,
+					entity.loaddbInt( rs , AppProduct.PROPERTY_NEXT_MAJOR_SECOND ) ,
+					entity.loaddbInt( rs , AppProduct.PROPERTY_NEXT_MINOR_FIRST ) ,
+					entity.loaddbInt( rs , AppProduct.PROPERTY_NEXT_MINOR_SECOND )
+				);
 				
 				products.add( product );
 			}
@@ -101,7 +133,15 @@ public abstract class DBAppProduct {
 				EngineDB.getString( product.DESC ) , 
 				EngineDB.getString( product.PATH ) ,
 				EngineDB.getBoolean( product.OFFLINE ) ,
-				EngineDB.getBoolean( product.MONITORING_ENABLED )
+				EngineDB.getBoolean( product.MONITORING_ENABLED ) ,
+				EngineDB.getInteger( product.LAST_MAJOR1 ) ,
+				EngineDB.getInteger( product.LAST_MAJOR2 ) ,
+				EngineDB.getInteger( product.LAST_MINOR1 ) ,
+				EngineDB.getInteger( product.LAST_MINOR2 ) ,
+				EngineDB.getInteger( product.NEXT_MAJOR1 ) ,
+				EngineDB.getInteger( product.NEXT_MAJOR2 ) ,
+				EngineDB.getInteger( product.NEXT_MINOR1 ) ,
+				EngineDB.getInteger( product.NEXT_MINOR2 )
 				} , insert );
 	}
 

@@ -470,6 +470,11 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineDirectory.deleteSystem( this , system.directory , system );
 	}
 	
+	public void updateCustomSystemProperties( AppSystem system ) throws Exception {
+		super.checkTransactionDirectory( system.directory );
+		DBAppSystem.updateCustomProperties( this , system );
+	}
+	
 	public AppProduct createProduct( AppSystem system , String name , String desc , String path , boolean forceClearMeta , boolean forceClearDist ) throws Exception {
 		EngineDirectory directory = system.directory;
 		super.checkTransactionDirectory( directory );
@@ -499,9 +504,9 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineProducts.deleteProduct( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 	}
 
-	public void updateCustomSystemProperties( AppSystem system ) throws Exception {
-		super.checkTransactionDirectory( system.directory );
-		DBAppSystem.updateCustomProperties( this , system );
+	public void updateProductVersion( AppProduct product , int majorFirstNumber , int majorSecondNumber , int lastProdTag , int lastUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int nextUrgentTag ) throws Exception {
+		super.checkTransactionDirectory( product.directory );
+		DBEngineDirectory.modifyProductVersion( this , product.directory , product , majorFirstNumber , majorSecondNumber , lastProdTag , lastUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , nextUrgentTag );
 	}
 	
 	// ################################################################################
@@ -647,12 +652,6 @@ public class EngineTransaction extends TransactionBase {
 		ProductMeta storage = settings.meta.getStorage();
 		super.checkTransactionMetadata( storage );
 		DBMetaSettings.updateProductBuildModeProperties( this , storage , settings , mode );
-	}
-
-	public void updateProductVersion( MetaProductVersion version , int majorFirstNumber , int majorSecondNumber , int lastProdTag , int lastUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int nextUrgentTag ) throws Exception {
-		ProductMeta storage = version.meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		DBMeta.modifyVersion( this , storage , version , majorFirstNumber , majorSecondNumber , lastProdTag , lastUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , nextUrgentTag );
 	}
 
 	public void setProductLifecycles( MetaProductPolicy policy , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {

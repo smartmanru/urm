@@ -18,7 +18,6 @@ import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDesignDiagram;
 import org.urm.meta.product.MetaDocs;
-import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.ProductContext;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
@@ -41,8 +40,6 @@ public class EngineLoaderMeta {
 	public ProductMeta set;
 	public Meta meta;
 
-	public MetaProductVersion versionNew;
-	
 	public EngineLoaderMeta( EngineLoader loader , ProductMeta set ) {
 		this.loader = loader;
 		this.set = set;
@@ -94,7 +91,6 @@ public class EngineLoaderMeta {
 		DBConnection c = loader.getConnection();
 		
 		trace( "export product data, name=" + set.name + ", version=" + c.getCurrentProductVersion( set ) + " ..." );
-		exportxmlMeta( ms );
 		exportxmlSettings( ms );
 		exportxmlPolicy( ms );
 		exportxmlUnits( ms );
@@ -122,7 +118,6 @@ public class EngineLoaderMeta {
 		DBConnection c = loader.getConnection();
 		
 		trace( "load engine product data, name=" + set.name + ", version=" + c.getCurrentProductVersion( set ) + " ..." );
-		loaddbMeta();
 		loaddbSettings( context );
 		loaddbPolicy();
 		loaddbUnits();
@@ -133,7 +128,6 @@ public class EngineLoaderMeta {
 	}
 
 	public void importxmlAll( ProductStorage ms , ProductContext context ) throws Exception {
-		importxmlMeta( ms );
 		importxmlSettings( ms , context );
 		importxmlPolicy( ms );
 		importxmlUnits( ms );
@@ -147,6 +141,7 @@ public class EngineLoaderMeta {
 		trace( "create product data, name=" + set.name + " ..." );
 		ProductMeta dst = new ProductMeta( products , context.product );
 		TransactionBase transaction = loader.getTransaction();
+		
 		copydbMeta( transaction , dst );
 		copydbSettings( transaction , dst , context );
 		copydbPolicy( transaction , dst );
@@ -198,11 +193,6 @@ public class EngineLoaderMeta {
 		DBMetaDistr.createdb( loader , set );
 	}
 	
-	private void loaddbMeta() throws Exception {
-		trace( "load product meta data ..." );
-		DBMeta.loaddb( loader , set );
-	}
-
 	private void loaddbSettings( ProductContext context ) throws Exception {
 		trace( "load product settings data ..." );
 		DBMetaSettings.loaddb( loader , set , context );
@@ -238,33 +228,6 @@ public class EngineLoaderMeta {
 		DBMetaDistr.loaddb( loader , set );
 	}
 	
-	private void importxmlMeta( ProductStorage ms ) throws Exception {
-		ActionBase action = loader.getAction();
-		try {
-			// read
-			String file = ms.getVersionConfFile( action );
-			action.debug( "read product version file " + file + "..." );
-			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
-			Node root = doc.getDocumentElement();
-
-			DBMeta.importxml( loader , set , root );
-		}
-		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductVersion1 , e , "unable to import version metadata, product=" + set.name , set.name );
-		}
-	}
-
-	private void exportxmlMeta( ProductStorage ms ) throws Exception {
-		ActionBase action = loader.getAction();
-		String file = ms.getVersionConfFile( action );
-		action.debug( "export product version file " + file + "..." );
-		Document doc = Common.xmlCreateDoc( XML_ROOT_VERSION );
-		Element root = doc.getDocumentElement();
-
-		DBMeta.exportxml( loader , set , doc , root );
-		ProductStorage.saveDoc( doc , file );
-	}
-
 	private void importxmlSettings( ProductStorage ms , ProductContext context ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
@@ -274,6 +237,7 @@ public class EngineLoaderMeta {
 			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
 			Node root = doc.getDocumentElement();
 
+			DBMeta.importxml( loader , set , root );
 			DBMetaSettings.importxml( loader , set , context , root );
 		}
 		catch( Throwable e ) {

@@ -29,7 +29,6 @@ public class Meta extends EngineObject {
 	private EngineProducts products;
 	private ProductMeta storage;
 
-	private MetaProductVersion version;
 	private MetaProductSettings settings;
 	private MetaProductPolicy policy;
 	private MetaUnits units;
@@ -81,7 +80,6 @@ public class Meta extends EngineObject {
 		products.releaseSessionProductMetadata( action , this );
 		
 		// clear old refs
-		version = null;
 		settings = null;
 		policy = null;
 		units = null;
@@ -104,10 +102,6 @@ public class Meta extends EngineObject {
 			configurableExtensionsFindOptions += "-name \"*." + configurableExtensions[ k ] + "\"";
 		}
 		return( configurableExtensionsFindOptions );
-	}
-	
-	public void setVersion( MetaProductVersion version ) {
-		this.version = version;
 	}
 	
 	public void setSettings( MetaProductSettings settings ) {
@@ -140,12 +134,6 @@ public class Meta extends EngineObject {
 
 	public synchronized ProductMeta getStorage() {
 		return( storage );
-	}
-
-	public synchronized MetaProductVersion getVersion() {
-		if( version == null )
-			version = storage.getVersion();
-		return( version );
 	}
 
 	public synchronized MetaProductPolicy getPolicy() {

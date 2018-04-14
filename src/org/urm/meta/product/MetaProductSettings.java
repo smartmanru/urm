@@ -9,18 +9,10 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.engine.AppProduct;
 
 public class MetaProductSettings {
 
-	public static String PROPERTY_LAST_MAJOR_FIRST = "major.first";
-	public static String PROPERTY_LAST_MAJOR_SECOND = "major.last";
-	public static String PROPERTY_NEXT_MAJOR_FIRST = "next.major.first";
-	public static String PROPERTY_NEXT_MAJOR_SECOND = "next.major.last";
-	public static String PROPERTY_LAST_MINOR_FIRST = "prod.lasttag";
-	public static String PROPERTY_LAST_MINOR_SECOND = "prod.lasturgent";
-	public static String PROPERTY_NEXT_MINOR_FIRST = "prod.nexttag";
-	public static String PROPERTY_NEXT_MINOR_SECOND = "prod.nexturgent";
-	
 	public static String PROPERTY_PRODUCT_NAME = "product";
 	public static String PROPERTY_PRODUCT_HOME = "product.home";
 	
@@ -102,23 +94,22 @@ public class MetaProductSettings {
 		ops.setStringProperty( PROPERTY_PRODUCT_NAME , meta.name );
 		ops.setPathProperty( PROPERTY_PRODUCT_HOME , context.home.folderPath );
 		
-		MetaProductVersion version = meta.getVersion();
-		updateVersion( ops , version );
+		updateVersion( ops , context.product );
 	}
 	
-	private void updateVersion( ObjectProperties ops , MetaProductVersion version ) throws Exception {
-		ops.setIntProperty( PROPERTY_LAST_MAJOR_FIRST , version.majorLastFirstNumber );
-		ops.setIntProperty( PROPERTY_LAST_MAJOR_SECOND , version.majorLastSecondNumber );
-		ops.setIntProperty( PROPERTY_NEXT_MAJOR_FIRST , version.majorNextFirstNumber );
-		ops.setIntProperty( PROPERTY_NEXT_MAJOR_SECOND , version.majorNextSecondNumber );
-		ops.setIntProperty( PROPERTY_LAST_MINOR_FIRST , version.lastProdTag );
-		ops.setIntProperty( PROPERTY_NEXT_MINOR_FIRST , version.nextProdTag );
-		ops.setIntProperty( PROPERTY_LAST_MINOR_SECOND , version.lastUrgentTag );
-		ops.setIntProperty( PROPERTY_NEXT_MINOR_SECOND , version.nextUrgentTag );
+	private void updateVersion( ObjectProperties ops , AppProduct product ) throws Exception {
+		ops.setIntProperty( AppProduct.PROPERTY_LAST_MAJOR_FIRST , product.LAST_MAJOR1 );
+		ops.setIntProperty( AppProduct.PROPERTY_LAST_MAJOR_SECOND , product.LAST_MAJOR2 );
+		ops.setIntProperty( AppProduct.PROPERTY_LAST_MINOR_FIRST , product.LAST_MINOR1 );
+		ops.setIntProperty( AppProduct.PROPERTY_LAST_MINOR_SECOND , product.LAST_MINOR2 );
+		ops.setIntProperty( AppProduct.PROPERTY_NEXT_MAJOR_FIRST , product.NEXT_MAJOR1 );
+		ops.setIntProperty( AppProduct.PROPERTY_NEXT_MAJOR_SECOND , product.NEXT_MAJOR2 );
+		ops.setIntProperty( AppProduct.PROPERTY_NEXT_MINOR_FIRST , product.NEXT_MINOR1 );
+		ops.setIntProperty( AppProduct.PROPERTY_NEXT_MINOR_SECOND , product.NEXT_MINOR2 );
 	}
 	
-	public void updateSettings( MetaProductVersion version ) throws Exception {
-		updateVersion( ops , version );
+	public void updateSettings( AppProduct product ) throws Exception {
+		updateVersion( ops , product );
 		updateContextSettings();
 	}
 

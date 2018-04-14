@@ -4,14 +4,6 @@ CREATE TABLE main.urm_product_meta (
                 product_fkid INTEGER,
                 product_fkname VARCHAR(30),
                 matched BOOLEAN NOT NULL,
-                last_major1 INTEGER NOT NULL,
-                last_major2 INTEGER NOT NULL,
-                last_minor1 INTEGER NOT NULL,
-                last_minor2 INTEGER NOT NULL,
-                next_major1 INTEGER NOT NULL,
-                next_major2 INTEGER NOT NULL,
-                next_minor1 INTEGER NOT NULL,
-                next_minor2 INTEGER NOT NULL,
                 pv INTEGER NOT NULL,
                 CONSTRAINT urm_product_meta_pk PRIMARY KEY (meta_id)
 );
