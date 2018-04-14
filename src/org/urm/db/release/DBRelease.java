@@ -242,9 +242,9 @@ public class DBRelease {
 			else {
 				for( ReleaseSchedulePhase phase : schedule.phases ) {
 					int pos = phase.getSchedulePos();
-					if( phase.isStarted() && pos < current )
+					if( phase.isStarted() && pos > current )
 						Common.exit2( _Error.ReleasePhaseInvalidStart2 , "phase has start date being after current, name=" + phase.NAME + ", pos=" + pos , phase.NAME , "" + pos );
-					if( phase.isFinished() && pos >= current )
+					if( phase.isFinished() && pos <= current )
 						Common.exit2( _Error.ReleasePhaseInvalidFinish2 , "phase has finish date being not after current, name=" + phase.NAME + ", pos=" + pos , phase.NAME , "" + pos );
 				}
 			}
