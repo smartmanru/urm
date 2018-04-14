@@ -40,7 +40,7 @@ public class DataService {
 		
 		db = new EngineDB( engine );
 		core = new EngineCore( engine );
-		products = new EngineProducts( engine ); 
+		products = new EngineProducts( engine , this ); 
 	}
 
 	public void init() throws Exception {

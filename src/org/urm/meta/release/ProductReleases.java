@@ -45,13 +45,13 @@ public class ProductReleases {
 	}
 
 	public String getNextRelease( DBEnumLifecycleType type ) {
-		AppProduct product = meta.getProduct();
+		AppProduct product = meta.findProduct();
 		if( type == DBEnumLifecycleType.MAJOR )
 			return( product.NEXT_MAJOR1 + "." + product.NEXT_MAJOR2 );
 		if( type == DBEnumLifecycleType.MINOR )
-			return( product.NEXT_MAJOR1 + "." + product.NEXT_MAJOR2 + "." + product.NEXT_MINOR1 );
+			return( product.LAST_MAJOR1 + "." + product.LAST_MAJOR2 + "." + product.NEXT_MINOR1 );
 		if( type == DBEnumLifecycleType.URGENT )
-			return( product.NEXT_MAJOR1 + "." + product.NEXT_MAJOR2 + "." + product.NEXT_MINOR1 + "." + product.NEXT_MINOR2 );
+			return( product.LAST_MAJOR1 + "." + product.LAST_MAJOR2 + "." + product.LAST_MINOR1 + "." + product.NEXT_MINOR2 );
 		return( "" );
 	}
 

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.engine.DataService;
 import org.urm.engine.Engine;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.session.EngineSession;
@@ -17,14 +18,16 @@ import org.urm.meta.product.ProductMeta;
 public class EngineProducts {
 
 	public Engine engine;
+	private DataService data;
 	
 	private ProductMeta offline;
 	private Map<String,ProductMeta> productMeta;
 	private Map<String,ProductMeta> productMetaSkipped;
 	private Map<Integer,ProductMeta> productMetaById;
 	
-	public EngineProducts( Engine engine ) {
+	public EngineProducts( Engine engine , DataService data ) {
 		this.engine = engine;
+		this.data = data;
 		productMeta = new HashMap<String,ProductMeta>();
 		productMetaSkipped = new HashMap<String,ProductMeta>();
 		productMetaById = new HashMap<Integer,ProductMeta>();
@@ -42,6 +45,16 @@ public class EngineProducts {
 		
 		if( set.ID != null )
 			productMetaById.remove( set.ID );
+	}
+	
+	public AppProduct getProduct( int id ) throws Exception {
+		EngineDirectory directory = data.getDirectory();
+		return( directory.getProduct( id ) );
+	}
+	
+	public AppProduct findProduct( int id ) {
+		EngineDirectory directory = data.getDirectory();
+		return( directory.findProduct( id ) );
 	}
 	
 	public synchronized void addEnv( MetaEnv env ) {

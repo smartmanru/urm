@@ -68,8 +68,8 @@ public class Meta extends EngineObject {
 		return( storage.ID );
 	}
 	
-	public AppProduct getProduct() {
-		return( storage.product );
+	public AppProduct findProduct() {
+		return( storage.findProduct() );
 	}
 
 	public boolean isPrimary() {

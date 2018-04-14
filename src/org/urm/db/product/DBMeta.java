@@ -75,7 +75,7 @@ public class DBMeta {
 		storage.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMeta , storage.ID , storage.PV , new String[] {
-				EngineDB.getInteger( storage.product.ID ) ,
+				EngineDB.getInteger( storage.productId ) ,
 				EngineDB.getString( null ) ,
 				EngineDB.getBoolean( storage.MATCHED )
 				} , insert );

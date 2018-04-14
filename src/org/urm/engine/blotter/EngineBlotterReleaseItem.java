@@ -27,7 +27,7 @@ public class EngineBlotterReleaseItem extends EngineBlotterItem {
 		this.repoId = release.repo.ID;
 		Meta meta = release.getMeta();
 		this.metaId = meta.getId();
-		AppProduct product = meta.getProduct();
+		AppProduct product = meta.findProduct();
 		this.productId = product.ID;
 		SORTKEY = getSortKey( release );
 	}

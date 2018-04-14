@@ -139,8 +139,10 @@ public class TransactionMetadata {
 		
 		productType = ( env )? CHANGETYPE.NOTHING : CHANGETYPE.CHANGE;
 		metadataOld = storage;
-		AppSystem system = storage.product.system;
-		metadata = storage.copy( transaction.getProducts() , storage.product , system.getParameters() );
+		
+		AppProduct product = storage.getProduct();
+		AppSystem system = product.system;
+		metadata = storage.copy( transaction.getProducts() , product , system.getParameters() );
 		
 		sessionMeta = transaction.action.getProductMetadata( meta.name );
 		sessionMeta.replaceStorage( transaction.action , metadata );
@@ -226,7 +228,7 @@ public class TransactionMetadata {
 			if( metadataOld == null )
 				return( false );
 
-			AppProduct product = metadataOld.product;
+			AppProduct product = metadataOld.getProduct();
 			deleteProductFinish( product , metadataOld );
 			transaction.deleteProductMetadata( metadataOld );
 			transaction.trace( "transaction product storage meta: delete=" + metadataOld.objectId );
@@ -239,7 +241,7 @@ public class TransactionMetadata {
 			if( metadata == null )
 				return( false );
 				
-			AppProduct product = metadata.product;
+			AppProduct product = metadata.getProduct();
 			transaction.setProductMetadata( metadata );
 			product.setStorage( metadata );
 			if( sessionMeta != null )

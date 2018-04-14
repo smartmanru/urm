@@ -51,7 +51,7 @@ public class ActionSave extends ActionBase {
 		for( String name : directory.getProductNames() ) {
 			info( "save product=" + name + " ..." );
 			
-			LocalFolder folder = urm.getProductHome( this , meta.getProduct() );
+			LocalFolder folder = urm.getProductHome( this , meta.findProduct() );
 			saveProduct( folder , false );
 		}
 	}

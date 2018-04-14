@@ -443,17 +443,17 @@ public class AuthService extends EngineObject {
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , meta.getProduct() , null , DBEnumBuildModeType.UNKNOWN , readOnly ) );
+		return( checkAccessProductAction( action , sa , meta.findProduct() , null , DBEnumBuildModeType.UNKNOWN , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , DBEnumBuildModeType mode , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , meta.getProduct() , null , mode , readOnly ) );
+		return( checkAccessProductAction( action , sa , meta.findProduct() , null , mode , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , String envName , boolean readOnly ) {
 		ProductEnvs envs = meta.getEnviroments();
 		MetaEnv env = envs.findMetaEnv( envName );
-		return( checkAccessProductAction( action , sa , meta.getProduct() , env , DBEnumBuildModeType.UNKNOWN , readOnly ) );
+		return( checkAccessProductAction( action , sa , meta.findProduct() , env , DBEnumBuildModeType.UNKNOWN , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , String envName , boolean readOnly ) {
@@ -474,11 +474,11 @@ public class AuthService extends EngineObject {
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , MetaEnv env , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , meta.getProduct() , env , null , readOnly ) );
+		return( checkAccessProductAction( action , sa , meta.findProduct() , env , null , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , MetaEnv env , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , env.meta.getProduct() , env , null , readOnly ) );
+		return( checkAccessProductAction( action , sa , env.meta.findProduct() , env , null , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , MetaEnv env , DBEnumBuildModeType mode , boolean readOnly ) {

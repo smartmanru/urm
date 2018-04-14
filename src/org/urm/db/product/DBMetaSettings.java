@@ -35,7 +35,7 @@ public class DBMetaSettings {
 	public static void createdb( EngineLoader loader , ProductMeta storage , ProductContext context ) throws Exception {
 		DBConnection c = loader.getConnection();
 		TransactionBase transaction = loader.getTransaction();
-		AppProduct product = storage.product;
+		AppProduct product = storage.getProduct();
 		EngineEntities entities = loader.getEntities();
 		
 		MetaProductSettings settings = new MetaProductSettings( storage , storage.meta );
@@ -90,7 +90,7 @@ public class DBMetaSettings {
 	
 	public static void copydb( TransactionBase transaction , ProductMeta src , ProductContext context , ProductMeta dst ) throws Exception {
 		DBConnection c = transaction.getConnection();
-		AppProduct product = dst.product;
+		AppProduct product = dst.getProduct();
 		EngineEntities entities = c.getEntities();
 		
 		MetaProductSettings settings = new MetaProductSettings( dst , dst.meta );
@@ -146,7 +146,7 @@ public class DBMetaSettings {
 	}
 	
 	public static void importxml( EngineLoader loader , ProductMeta storage , ProductContext context , Node root ) throws Exception {
-		AppProduct product = storage.product;
+		AppProduct product = storage.getProduct();
 		EngineEntities entities = loader.getEntities();
 		
 		MetaProductSettings settings = new MetaProductSettings( storage , storage.meta );
@@ -217,7 +217,8 @@ public class DBMetaSettings {
 		MetaProductSettings settings = new MetaProductSettings( storage , storage.meta );
 		storage.setSettings( settings );
 
-		AppSystem system = storage.product.system;
+		AppProduct product = storage.getProduct();
+		AppSystem system = product.system;
 		
 		// context, custom, core settings
 		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
@@ -327,7 +328,7 @@ public class DBMetaSettings {
 
 	public static void updateMonitoringProperties( TransactionBase transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
 		DBConnection c = transaction.getConnection();
-		AppProduct product = storage.product;
+		AppProduct product = storage.getProduct();
 		ActionBase action = transaction.getAction();
 		EngineMonitoring mon = transaction.getMonitoring();
 		

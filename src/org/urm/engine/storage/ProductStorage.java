@@ -30,82 +30,82 @@ public class ProductStorage {
 
 	public LocalFolder getHomeFolder( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		return( urm.getProductHome( action , meta.getProduct() ) );
+		return( urm.getProductHome( action , meta.findProduct() ) );
 	}
 	
 	public LocalFolder getMetaFolder( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		return( urm.getProductCoreMetadataFolder( action , meta.getProduct() ) );
+		return( urm.getProductCoreMetadataFolder( action , meta.findProduct() ) );
 	}
 	
 	public String getCoreConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.getProduct() );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.findProduct() );
 		return( folder.getFilePath( action , UrmStorage.CORE_SETTINGS_FILE ) );
 	}
 	
 	public String getUnitsFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.getProduct() );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.findProduct() );
 		return( folder.getFilePath( action , UrmStorage.UNITS_FILE ) );
 	}
 	
 	public String getDocumentationFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.getProduct() );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.findProduct() );
 		return( folder.getFilePath( action , UrmStorage.DOCUMENTATION_FILE ) );
 	}
 	
 	public String getPolicyConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.getProduct() );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.findProduct() );
 		return( folder.getFilePath( action , UrmStorage.POLICY_SETTINGS_FILE ) );
 	}
 	
 	public String getDatabaseConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.getProduct() );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.findProduct() );
 		return( folder.getFilePath( action , UrmStorage.DATABASE_SETTINGS_FILE ) );
 	}
 	
 	public String getDistrConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.getProduct() );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.findProduct() );
 		return( folder.getFilePath( action , UrmStorage.DISTR_SETTINGS_FILE ) );
 	}
 
 	public String getSourcesConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.getProduct() );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.findProduct() );
 		return( folder.getFilePath( action , UrmStorage.SOURCE_SETTINGS_FILE ) );
 	}
 
 	public String getMonitoringConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.getProduct() );
+		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.findProduct() );
 		return( folder.getFilePath( action , UrmStorage.MONITORING_SETTINGS_FILE ) );
 	}
 	
 	public LocalFolder getEnvConfFolder( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		return( urm.getProductEnvMetadataFolder( action , meta.getProduct() ) );
+		return( urm.getProductEnvMetadataFolder( action , meta.findProduct() ) );
 	}
 	
 	public String getEnvConfFile( ActionBase action , String envName ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.getProduct() );
+		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.findProduct() );
 		return( folder.getFilePath( action , envName + ".xml" ) );
 	}
 	
 	public String getDesignFile( ActionBase action , String fileName ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductXDocMetadataFolder( action , meta.getProduct() );
+		LocalFolder folder = urm.getProductXDocMetadataFolder( action , meta.findProduct() );
 		return( folder.getFilePath( action , fileName ) );
 	}
 	
 	public String[] getEnvFiles( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.getProduct() );
+		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.findProduct() );
 		if( !folder.checkExists( action ) )
 			return( new String[0] );
 		
@@ -115,13 +115,13 @@ public class ProductStorage {
 	
 	public String getEnvFilePath( ActionBase action , String file ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.getProduct() );
+		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.findProduct() );
 		return( folder.getFilePath( action , file ) );
 	}
 	
 	public String[] getDesignFiles( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductXDocMetadataFolder( action , meta.getProduct() );
+		LocalFolder folder = urm.getProductXDocMetadataFolder( action , meta.findProduct() );
 		if( !folder.checkExists( action ) )
 			return( new String[0] );
 		
@@ -131,7 +131,7 @@ public class ProductStorage {
 	
 	public String getDatapumpFile( ActionBase action , String specFile ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductDatapumpMetadataFolder( action , meta.getProduct() );
+		LocalFolder folder = urm.getProductDatapumpMetadataFolder( action , meta.findProduct() );
 		return( folder.getFilePath( action , specFile ) );
 	}
 
@@ -252,7 +252,7 @@ public class ProductStorage {
 	
 	public void deleteEnvConfFile( ActionBase action , String envFile ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.getProduct() );
+		LocalFolder folder = urm.getProductEnvMetadataFolder( action , meta.findProduct() );
 		folder.removeFiles( action , envFile );
 	}
 	

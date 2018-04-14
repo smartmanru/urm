@@ -16,13 +16,13 @@ import org.urm.meta.release.ReleaseRepository;
 
 public class ProductMeta extends EngineObject {
 
-	public AppProduct product;
 	public String name;
 	
 	public Meta meta;
 	public Integer ID;
 	public int PV;
 	public boolean MATCHED;
+	public int productId;
 	
 	private MetaProductSettings settings;
 	private MetaProductPolicy policy;
@@ -34,12 +34,14 @@ public class ProductMeta extends EngineObject {
 	private ProductEnvs envs;
 	private ProductReleases releases;
 
+	private EngineProducts products;
 	private Map<EngineSession,Meta> sessionMeta;
 	private boolean primary;
 	
 	public ProductMeta( EngineProducts products , AppProduct product ) {
 		super( null );
-		this.product = product;
+		this.products = products;
+		this.productId = product.ID;
 		this.name = product.NAME;
 		
 		meta = new Meta( products , this , null );
@@ -73,11 +75,19 @@ public class ProductMeta extends EngineObject {
 		
 		r.envs = envs.copy( r.meta );
 		r.envs.copyResolveExternals();
-		
 		r.releases = releases.copy( r.meta );
+		
 		return( r );
 	}
 
+	public AppProduct getProduct() throws Exception {
+		return( products.getProduct( productId ) );
+	}
+	
+	public AppProduct findProduct() {
+		return( products.findProduct( productId ) );
+	}
+	
 	public void setMatched( boolean matched ) {
 		this.MATCHED = matched;
 	}
