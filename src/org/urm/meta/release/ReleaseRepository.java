@@ -179,7 +179,7 @@ public class ReleaseRepository {
 			mapReleasesMaster.remove( release.NAME );
 		else
 			mapReleasesNormal.remove( release.RELEASEVER );
-		mapReleasesById.put( release.ID , release );
+		mapReleasesById.remove( release.ID );
 	}
 
 	public void replaceRelease( Release release ) throws Exception {
