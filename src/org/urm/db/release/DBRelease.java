@@ -232,6 +232,22 @@ public class DBRelease {
 			for( Node nodePhase : nodeItems )
 				DBReleaseSchedulePhase.importxmlReleaseSchedulePhase( loader , release , schedule , nodePhase );
 			schedule.sortPhases();
+
+			// verify phase states
+			int current = schedule.CURRENT_PHASE;
+			if( current == -1 ) {
+				if( !schedule.COMPLETED )
+					Common.exitUnexpected();
+			}
+			else {
+				for( ReleaseSchedulePhase phase : schedule.phases ) {
+					int pos = phase.getSchedulePos();
+					if( phase.isStarted() && pos < current )
+						Common.exitUnexpected();
+					if( phase.isFinished() && pos >= current )
+						Common.exitUnexpected();
+				}
+			}
 		}
 		
 		schedule.setDeadlines();
