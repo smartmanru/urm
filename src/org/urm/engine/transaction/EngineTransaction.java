@@ -10,6 +10,7 @@ import org.urm.db.env.DBMetaEnvServer;
 import org.urm.db.env.DBMetaEnvServerNode;
 import org.urm.db.env.DBMetaMonitoring;
 import org.urm.db.product.*;
+import org.urm.db.system.DBAppProduct;
 import org.urm.db.system.DBAppSystem;
 import org.urm.engine.Engine;
 import org.urm.engine.AuthService;
@@ -509,6 +510,12 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineDirectory.modifyProductVersion( this , product.directory , product , majorFirstNumber , majorSecondNumber , lastProdTag , lastUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , nextUrgentTag );
 	}
 	
+	public void setProductLifecycles( AppProduct product , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
+		super.checkTransactionDirectory( product.directory );
+		AppProductPolicy policy = product.getPolicy();
+		DBAppProduct.setProductLifecycles( this , product , policy , major , minor , urgentsAll , urgents );
+	}
+	
 	// ################################################################################
 	// ################################################################################
 	// MONITORING
@@ -654,12 +661,6 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaSettings.updateProductBuildModeProperties( this , storage , settings , mode );
 	}
 
-	public void setProductLifecycles( MetaProductPolicy policy , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
-		ProductMeta storage = policy.meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		DBMetaPolicy.setProductLifecycles( this , storage , policy , major , minor , urgentsAll , urgents );
-	}
-	
 	public MetaDistrDelivery createDistrDelivery( MetaDistr distr , String unitName , String name , String desc , String folder ) throws Exception {
 		ProductMeta storage = distr.meta.getStorage();
 		super.checkTransactionMetadata( storage );

@@ -30,7 +30,6 @@ public class Meta extends EngineObject {
 	private ProductMeta storage;
 
 	private MetaProductSettings settings;
-	private MetaProductPolicy policy;
 	private MetaUnits units;
 	private MetaDatabase database;
 	private MetaDocs docs;
@@ -81,7 +80,6 @@ public class Meta extends EngineObject {
 		
 		// clear old refs
 		settings = null;
-		policy = null;
 		units = null;
 		database = null;
 		docs = null;
@@ -108,10 +106,6 @@ public class Meta extends EngineObject {
 		this.settings = settings;
 	}
 	
-	public void setPolicy( MetaProductPolicy policy ) {
-		this.policy = policy;
-	}
-	
 	public void setUnits( MetaUnits units ) {
 		this.units = units;
 	}
@@ -134,12 +128,6 @@ public class Meta extends EngineObject {
 
 	public synchronized ProductMeta getStorage() {
 		return( storage );
-	}
-
-	public synchronized MetaProductPolicy getPolicy() {
-		if( policy == null )
-			policy = storage.getPolicy();
-		return( policy );
 	}
 
 	public synchronized MetaProductCoreSettings getProductCoreSettings() {

@@ -53,12 +53,12 @@ public class DBMetaSources {
 		MetaSources sources = new MetaSources( dst , dst.meta );
 		dst.setSources( sources );
 		for( MetaSourceProjectSet setSrc : sourcesSrc.getSetList() ) {
-			MetaSourceProjectSet set = setSrc.copy( dst.meta , sources );
+			MetaSourceProjectSet set = setSrc.copy( dst.meta , sources , false );
 			modifyProjectSet( c , dst , set , true , DBEnumChangeType.ORIGINAL );
 			sources.addProjectSet( set );
 			
 			for( MetaSourceProject projectSrc : setSrc.getProjects() ) {
-				MetaSourceProject project = projectSrc.copy( dst.meta , set );
+				MetaSourceProject project = projectSrc.copy( dst.meta , set , false );
 				modifyProject( c , dst , project , true , DBEnumChangeType.ORIGINAL );
 				set.addProject( project );
 				

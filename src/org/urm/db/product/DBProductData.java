@@ -20,7 +20,6 @@ import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductDoc;
-import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaSourceProject;
@@ -37,8 +36,6 @@ public class DBProductData {
 	public static String TABLE_SOURCEPROJECT = "urm_source_project";
 	public static String TABLE_SOURCEITEM = "urm_source_item";
 	public static String TABLE_DOC = "urm_product_doc";
-	public static String TABLE_POLICY = "urm_product_policy";
-	public static String TABLE_POLICYCYCLE = "urm_product_lifecycle";
 	public static String TABLE_DELIVERY = "urm_dist_delivery";
 	public static String TABLE_DELIVERYSCHEMA = "urm_dist_schemaitem";
 	public static String TABLE_DELIVERYDOC = "urm_dist_docitem";
@@ -85,12 +82,6 @@ public class DBProductData {
 	public static String FIELD_DOC_DESC = "xdesc";
 	public static String FIELD_DOC_CATEGORY = "doccategory_type";
 	public static String FIELD_DOC_EXT = "ext";
-	public static String FIELD_POLICY_ID = "meta_id";
-	public static String FIELD_POLICY_LCURGENTALL = "lcurgent_any";
-	public static String FIELD_LIFECYCLE_META = "meta_id";
-	public static String FIELD_LIFECYCLE_LCINDEX = "lc_index";
-	public static String FIELD_LIFECYCLE_FKID = "lifecycle_fkid";
-	public static String FIELD_LIFECYCLE_FKNAME = "lifecycle_fkname";
 	public static String FIELD_DELIVERY_ID = "delivery_id";
 	public static String FIELD_DELIVERY_UNIT_ID = "unit_id";
 	public static String FIELD_DELIVERY_DESC = "xdesc";
@@ -224,33 +215,6 @@ public class DBProductData {
 				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_DATA , "Monitoring Database Path" , true , null , null ) ,
 				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_REPORTS , "Monitoring Reports Path" , true , null , null ) ,
 				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_LOGS , "Monitoring Logs" , true , null , null )
-		} ) );
-	}
-
-	public static PropertyEntity makeEntityMetaPolicy( DBConnection c , boolean upgrade ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_POLICY , DBEnumParamEntityType.PRODUCT_POLICY , DBEnumObjectVersionType.PRODUCT , TABLE_POLICY , FIELD_POLICY_ID , true );
-		if( !upgrade ) {
-			DBSettings.loaddbAppEntity( c , entity );
-			return( entity );
-		}
-		
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
-				EntityVar.metaBooleanVar( MetaProductPolicy.PROPERTY_RELEASELC_URGENTANY , FIELD_POLICY_LCURGENTALL , MetaProductPolicy.PROPERTY_RELEASELC_URGENTANY , "Any urgent lifecycle enabled" , true , false )
-		} ) );
-	}
-
-	public static PropertyEntity makeEntityMetaPolicyLifecycle( DBConnection c , boolean upgrade ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppAssociativeEntity( DBEnumObjectType.META_POLICYCYCLE , DBEnumParamEntityType.PRODUCT_POLICYCYCLE , DBEnumObjectVersionType.PRODUCT , TABLE_POLICYCYCLE , true , 2 );
-		if( !upgrade ) {
-			DBSettings.loaddbAppEntity( c , entity );
-			return( entity );
-		}
-		
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
-				EntityVar.metaObjectDatabaseOnly( FIELD_LIFECYCLE_META , "meta id" , DBEnumObjectType.META , true ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_LIFECYCLE_LCINDEX , "lifecycle index" , true , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_LIFECYCLE_FKID , "lifecycle id" , DBEnumObjectType.LIFECYCLE , false ) ,
-				EntityVar.metaStringDatabaseOnly( FIELD_LIFECYCLE_FKNAME , "lifecycle name" , false , null ) ,
 		} ) );
 	}
 
@@ -529,8 +493,6 @@ public class DBProductData {
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaSchema , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaSourceSet , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDoc , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
-		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaPolicyLifecycle , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
-		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaPolicy , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		
 		if( !c.modify( DBQueries.MODIFY_CORE_UNMATCHRELEASES2 , new String[] { EngineDB.getInteger( storage.ID ) , EngineDB.getString( storage.name ) } ) )
 			Common.exitUnexpected();

@@ -33,7 +33,7 @@ public class MetaSources {
 	public MetaSources copy( Meta rmeta ) throws Exception {
 		MetaSources r = new MetaSources( rmeta.getStorage() , rmeta );
 		for( MetaSourceProjectSet set : setMap.values() ) {
-			MetaSourceProjectSet rset = set.copy( rmeta , r );
+			MetaSourceProjectSet rset = set.copy( rmeta , r , true );
 			r.addProjectSet( rset );
 		}
 

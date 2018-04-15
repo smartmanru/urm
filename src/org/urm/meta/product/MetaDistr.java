@@ -39,7 +39,7 @@ public class MetaDistr {
 		MetaDocs rdocs = rmeta.getDocs();
 		
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
-			MetaDistrDelivery rd = delivery.copy( rmeta , r , rdb , rdocs );
+			MetaDistrDelivery rd = delivery.copy( rmeta , r , rdb , rdocs , true );
 			r.addDelivery( rd );
 		}
 		
@@ -56,7 +56,7 @@ public class MetaDistr {
 		}
 		
 		for( MetaDistrComponent item : mapComps.values() ) {
-			MetaDistrComponent ritem = item.copy( rmeta , r );
+			MetaDistrComponent ritem = item.copy( rmeta , r , true );
 			r.addComponent( ritem );
 		}
 		

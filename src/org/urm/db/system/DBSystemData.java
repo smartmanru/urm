@@ -16,10 +16,13 @@ public class DBSystemData {
 		res = ( res )? c.modify( DBQueries.MODIFY_APP_UNMATCHPRODUCTS0 ) : false;
 		res = ( res )? c.modify( DBQueries.MODIFY_APP_DROP_SYSTEMPARAMVALUES0 ) : false;
 		res = ( res )? c.modify( DBQueries.MODIFY_APP_DROP_SYSTEMPARAMS0 ) : false;
-		DBEngineEntities.dropAppObjects( c , entities.entityAppDirectoryProduct );
-		DBEngineEntities.dropAppObjects( c , entities.entityAppDirectorySystem );
 		if( !res )
 			Common.exitUnexpected();
+		
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductPolicyLifecycle );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductPolicy );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppDirectoryProduct );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppDirectorySystem );
 	}
 	
 }

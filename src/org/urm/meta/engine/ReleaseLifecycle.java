@@ -13,7 +13,6 @@ import org.urm.engine.data.EngineLifecycles;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.meta.EngineObject;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseSchedule;
@@ -217,37 +216,39 @@ public class ReleaseLifecycle extends EngineObject {
 		return( REGULAR );
 	}
 
-	public static Date findReleaseDate( ActionBase action , String RELEASEVER , Meta meta , ReleaseLifecycle lc ) throws Exception {
+	public static Date findReleaseDate( ActionBase action , String RELEASEVER , AppProduct product , ReleaseLifecycle lc ) throws Exception {
 		Date date = null;
 		if( lc == null )
-			date = ReleaseLifecycle.findReleaseDate( action , RELEASEVER , meta );
+			date = ReleaseLifecycle.findReleaseDate( action , RELEASEVER , product );
 		else
-			date = lc.getReleaseDate( action , RELEASEVER , meta );
+			date = lc.getReleaseDate( action , RELEASEVER , product );
 		
 		if( date == null && lc != null )
 			date = Common.addDays( new Date() , lc.DAYS_TO_RELEASE );
 		return( date );
 	}
 	
-	public static Date findReleaseDate( ActionBase action , String RELEASEVER , Meta meta ) throws Exception {
+	public static Date findReleaseDate( ActionBase action , String RELEASEVER , AppProduct product ) throws Exception {
 		VersionInfo info = VersionInfo.getReleaseDirInfo( RELEASEVER );
 		
-		MetaProductPolicy policy = meta.getPolicy();
-		ReleaseLifecycle lc = policy.findLifecycle( action , info.getLifecycleType() );
+		AppProductPolicy policy = product.getPolicy();
+		ReleaseLifecycle lc = policy.findLifecycle( info.getLifecycleType() );
 		if( lc == null )
 			return( null );
 		
-		return( lc.getReleaseDate( action , RELEASEVER , meta , info ) );
+		return( lc.getReleaseDate( action , RELEASEVER , product , info ) );
 	}
 
-	public Date getReleaseDate( ActionBase action , String RELEASEVER , Meta meta ) throws Exception {
+	public Date getReleaseDate( ActionBase action , String RELEASEVER , AppProduct product ) throws Exception {
 		VersionInfo info = VersionInfo.getReleaseDirInfo( RELEASEVER );
-		return( getReleaseDate( action , RELEASEVER , meta , info ) );
+		return( getReleaseDate( action , RELEASEVER , product , info ) );
 	}
 	
-	public Date getReleaseDate( ActionBase action , String RELEASEVER , Meta meta , VersionInfo info ) throws Exception {
+	public Date getReleaseDate( ActionBase action , String RELEASEVER , AppProduct product , VersionInfo info ) throws Exception {
+		Meta meta = product.getMeta( action );
 		ProductReleases releases = meta.getReleases();
 		String prevReleaseVer = info.getPreviousVersion();
+		
 		if( !prevReleaseVer.isEmpty() ) {
 			Release release = releases.findRelease( prevReleaseVer );
 			if( release != null ) {

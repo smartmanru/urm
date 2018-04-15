@@ -45,6 +45,7 @@ public class AppProduct extends EngineObject {
 	public int SV;
 	
 	public ProductMeta storage;
+	public AppProductPolicy policy;
 
 	public AppProduct( EngineDirectory directory , AppSystem system ) {
 		super( directory );
@@ -60,6 +61,8 @@ public class AppProduct extends EngineObject {
 		this.LAST_MINOR2 = 0;
 		this.NEXT_MINOR2 = 0;
 		this.SV = 0;
+		
+		policy = new AppProductPolicy( directory , this );
 	}
 	
 	@Override
@@ -67,8 +70,13 @@ public class AppProduct extends EngineObject {
 		return( NAME );
 	}
 
+	public void setPolicy( AppProductPolicy policy ) {
+		this.policy = policy;
+	}
+	
 	public AppProduct copy( EngineDirectory nr , AppSystem rs ) {
 		AppProduct r = new AppProduct( nr , rs );
+		
 		r.ID = ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
@@ -86,7 +94,13 @@ public class AppProduct extends EngineObject {
 		r.SV = SV;
 		
 		r.storage = storage;
+		r.policy = policy.copy( nr ,  r );
+		
 		return( r );
+	}
+	
+	public AppProductPolicy getPolicy() {
+		return( policy );
 	}
 	
 	public boolean isValid() {

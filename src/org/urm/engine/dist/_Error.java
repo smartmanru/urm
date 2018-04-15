@@ -50,9 +50,7 @@ public class _Error {
 	public static final int ReleaseRepositoryExists1 = ErrorBase + 43;
 	public static final int MissingReleaseRepositoryParent1 = ErrorBase + 44;
 	public static final int MissingReleaseRepository1 = ErrorBase + 45;
-	public static final int NotExpectedReleasecycleType1 = ErrorBase + 46;
 	public static final int MissingReleaseDate0 = ErrorBase + 47;
-	public static final int MissingReleasecycleType0 = ErrorBase + 48;
 	public static final int DisabledLifecycle1 = ErrorBase + 49;
 	public static final int AlreadyReleased1 = ErrorBase + 50;
 	public static final int NotCompletedSource1 = ErrorBase + 51;

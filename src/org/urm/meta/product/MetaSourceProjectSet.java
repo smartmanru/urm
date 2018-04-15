@@ -34,7 +34,7 @@ public class MetaSourceProjectSet {
 		map = new HashMap<String, MetaSourceProject>();
 	}
 	
-	public MetaSourceProjectSet copy( Meta rmeta , MetaSources rsources ) throws Exception {
+	public MetaSourceProjectSet copy( Meta rmeta , MetaSources rsources , boolean all ) throws Exception {
 		MetaSourceProjectSet r = new MetaSourceProjectSet( rmeta , rsources );
 		
 		r.ID = ID;
@@ -43,9 +43,11 @@ public class MetaSourceProjectSet {
 		r.PV = PV;
 		r.CHANGETYPE = CHANGETYPE;
 		
-		for( MetaSourceProject project : orderedList ) {
-			MetaSourceProject rproject = project.copy( rmeta , r );
-			r.addProject( rproject );
+		if( all ) {
+			for( MetaSourceProject project : orderedList ) {
+				MetaSourceProject rproject = project.copy( rmeta , r , true );
+				r.addProject( rproject );
+			}
 		}
 		
 		return( r );

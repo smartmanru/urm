@@ -323,12 +323,10 @@ public class DBEngineLifecycles {
 	public static void deleteLifecycle( EngineTransaction transaction , EngineLifecycles lifecycles , ReleaseLifecycle lc ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
-		if( !c.modify( DBQueries.MODIFY_LIFECYCLE_DROPPHASES1 , new String[] {
-				EngineDB.getInteger( lc.ID )
-				}))
-			transaction.exitUnexpectedState();
 		
+		DBEngineEntities.dropAppObjects( c , entities.entityAppLifecyclePhase , DBQueries.FILTER_LIFECYCLE_ID1 , new String[] { EngineDB.getInteger( lc.ID ) } );
 		DBEngineEntities.deleteAppObject( c , entities.entityAppReleaseLifecycle , lc.ID , c.getNextCoreVersion() );
+		
 		lifecycles.removeLifecycle( lc );
 		lc.deleteObject();
 	}
@@ -356,6 +354,7 @@ public class DBEngineLifecycles {
 	
 	public static void changePhases( EngineTransaction transaction , EngineLifecycles lifecycles , ReleaseLifecycle lc , LifecyclePhase[] phases ) throws Exception {
 		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
 		
 		LifecyclePhase[] phasesNew = new LifecyclePhase[ phases.length ];
 		for( int k = 0; k < phases.length; k++ ) {
@@ -364,10 +363,7 @@ public class DBEngineLifecycles {
 		}
 		lc.setPhases( phasesNew );
 		
-		if( !c.modify( DBQueries.MODIFY_LIFECYCLE_DROPPHASES1 , new String[] { 
-				EngineDB.getInteger( lc.ID )
-			} ))
-			transaction.exitUnexpectedState();
+		DBEngineEntities.dropAppObjects( c , entities.entityAppLifecyclePhase , DBQueries.FILTER_LIFECYCLE_ID1 , new String[] { EngineDB.getInteger( lc.ID ) } );
 		
 		for( LifecyclePhase phase : lc.getPhases() )
 			modifyPhase( c , phase , true );

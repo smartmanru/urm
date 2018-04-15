@@ -9,7 +9,6 @@ import org.urm.db.product.DBMetaDatabase;
 import org.urm.db.product.DBMetaDistr;
 import org.urm.db.product.DBMetaDocs;
 import org.urm.db.product.DBMetaSettings;
-import org.urm.db.product.DBMetaPolicy;
 import org.urm.db.product.DBMetaSources;
 import org.urm.db.product.DBMetaUnits;
 import org.urm.engine.data.EngineProducts;
@@ -92,7 +91,6 @@ public class EngineLoaderMeta {
 		
 		trace( "export product data, name=" + set.name + ", version=" + c.getCurrentProductVersion( set ) + " ..." );
 		exportxmlSettings( ms );
-		exportxmlPolicy( ms );
 		exportxmlUnits( ms );
 		exportxmlDatabase( ms );
 		exportxmlSources( ms );
@@ -106,7 +104,6 @@ public class EngineLoaderMeta {
 		trace( "create product data, name=" + set.name + " ..." );
 		createdbMeta();
 		createdbSettings( context );
-		createdbPolicy();
 		createdbUnits();
 		createdbDatabase();
 		createdbSources();
@@ -119,7 +116,6 @@ public class EngineLoaderMeta {
 		
 		trace( "load engine product data, name=" + set.name + ", version=" + c.getCurrentProductVersion( set ) + " ..." );
 		loaddbSettings( context );
-		loaddbPolicy();
 		loaddbUnits();
 		loaddbDatabase();
 		loaddbSources();
@@ -129,7 +125,6 @@ public class EngineLoaderMeta {
 
 	public void importxmlAll( ProductStorage ms , ProductContext context ) throws Exception {
 		importxmlSettings( ms , context );
-		importxmlPolicy( ms );
 		importxmlUnits( ms );
 		importxmlDatabase( ms );
 		importxmlSources( ms );
@@ -144,7 +139,6 @@ public class EngineLoaderMeta {
 		
 		copydbMeta( transaction , dst );
 		copydbSettings( transaction , dst , context );
-		copydbPolicy( transaction , dst );
 		copydbUnits( transaction , dst );
 		copydbDatabase( transaction , dst );
 		copydbSources( transaction , dst );
@@ -161,11 +155,6 @@ public class EngineLoaderMeta {
 	private void createdbSettings( ProductContext context ) throws Exception {
 		trace( "create product settings data ..." );
 		DBMetaSettings.createdb( loader , set , context );
-	}
-	
-	private void createdbPolicy() throws Exception {
-		trace( "create product policy data ..." );
-		DBMetaPolicy.createdb( loader , set );
 	}
 	
 	private void createdbUnits() throws Exception {
@@ -196,11 +185,6 @@ public class EngineLoaderMeta {
 	private void loaddbSettings( ProductContext context ) throws Exception {
 		trace( "load product settings data ..." );
 		DBMetaSettings.loaddb( loader , set , context );
-	}
-	
-	private void loaddbPolicy() throws Exception {
-		trace( "load product policy data ..." );
-		DBMetaPolicy.loaddb( loader , set );
 	}
 	
 	private void loaddbUnits() throws Exception {
@@ -256,33 +240,6 @@ public class EngineLoaderMeta {
 		ProductStorage.saveDoc( doc , file );
 	}
 	
-	private void importxmlPolicy( ProductStorage ms ) throws Exception {
-		ActionBase action = loader.getAction();
-		try {
-			// read
-			String file = ms.getPolicyConfFile( action );
-			action.debug( "read product policy file " + file + "..." );
-			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
-			Node root = doc.getDocumentElement();
-			
-			DBMetaPolicy.importxml( loader , set , root );
-		}
-		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductVersion1 , e , "unable to import version metadata, product=" + set.name , set.name );
-		}
-	}
-
-	private void exportxmlPolicy( ProductStorage ms ) throws Exception {
-		ActionBase action = loader.getAction();
-		String file = ms.getPolicyConfFile( action );
-		action.debug( "export product policy file " + file + "..." );
-		Document doc = Common.xmlCreateDoc( XML_ROOT_POLICY );
-		Element root = doc.getDocumentElement();
-		
-		DBMetaPolicy.exportxml( loader , set , doc , root );
-		ProductStorage.saveDoc( doc , file );
-	}
-
 	private void importxmlUnits( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
@@ -432,11 +389,6 @@ public class EngineLoaderMeta {
 		DBMetaSettings.copydb( transaction , set , context , dst );
 	}
 	
-	private void copydbPolicy( TransactionBase transaction , ProductMeta dst ) throws Exception {
-		trace( "copy product policy data ..." );
-		DBMetaPolicy.copydb( transaction , set , dst );
-	}
-
 	private void copydbUnits( TransactionBase transaction , ProductMeta dst ) throws Exception {
 		trace( "copy product units data ..." );
 		DBMetaUnits.copydb( transaction , set , dst );
@@ -453,9 +405,13 @@ public class EngineLoaderMeta {
 	}
 
 	private void copydbDocs( TransactionBase transaction , ProductMeta dst ) throws Exception {
+		trace( "copy product docs ..." );
+		DBMetaDocs.copydb( transaction , set , dst );
 	}
 
 	private void copydbDistr( TransactionBase transaction , ProductMeta dst ) throws Exception {
+		trace( "copy product distributive ..." );
+		DBMetaDistr.copydb( transaction , set , dst );
 	}
 
 }

@@ -72,7 +72,7 @@ public class MetaSourceProject {
 		itemMapById = new HashMap<Integer,MetaSourceProjectItem>();
 	}
 	
-	public MetaSourceProject copy( Meta rmeta , MetaSourceProjectSet rset ) throws Exception {
+	public MetaSourceProject copy( Meta rmeta , MetaSourceProjectSet rset , boolean all ) throws Exception {
 		MetaSourceProject r = new MetaSourceProject( rmeta , rset );
 		r.ID = ID;
 		r.NAME = NAME;
@@ -96,9 +96,11 @@ public class MetaSourceProject {
 		r.CHANGETYPE = CHANGETYPE;
 		
 		// project items
-		for( MetaSourceProjectItem item : itemList ) {
-			MetaSourceProjectItem ritem = item.copy( rmeta , r );
-			r.addItem( ritem );
+		if( all ) {
+			for( MetaSourceProjectItem item : itemList ) {
+				MetaSourceProjectItem ritem = item.copy( rmeta , r );
+				r.addItem( ritem );
+			}
 		}
 		
 		return( r );

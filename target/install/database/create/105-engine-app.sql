@@ -45,7 +45,6 @@ COMMENT ON TABLE main.urm_product_policy IS 'Instance product policy';
 CREATE TABLE main.urm_product_lifecycle (
                 product_id INTEGER NOT NULL,
                 lifecycle_id INTEGER NOT NULL,
-                lifecycle_type INTEGER NOT NULL,
                 sv INTEGER NOT NULL,
                 CONSTRAINT urm_product_lifecycle_pk PRIMARY KEY (product_id, lifecycle_id)
 );

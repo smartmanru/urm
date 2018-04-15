@@ -4,19 +4,26 @@ import java.sql.ResultSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
+import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBVersions;
-import org.urm.db.core.DBEnums.DBEnumParamEntityType;
+import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.data.EngineLifecycles;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.engine.AppProductPolicy;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.ReleaseLifecycle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -49,7 +56,7 @@ public abstract class DBAppProduct {
 				);
 		
 		modifyProduct( c , product , true );
-		
+
 		return( product );
 	}
 	
@@ -148,7 +155,181 @@ public abstract class DBAppProduct {
 	public static void deleteProduct( DBConnection c , AppProduct product ) throws Exception {
 		EngineEntities entities = c.getEntities();
 		int version = c.getNextSystemVersion( product.system );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductPolicyLifecycle , DBQueries.FILTER_PRODUCT_ID1 , new String[] { EngineDB.getInteger( product.ID ) } );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppProductPolicy , product.ID , version );
 		DBEngineEntities.deleteAppObject( c , entities.entityAppDirectoryProduct , product.ID , version );
 	}
+
+	public static void createdbPolicy( DBConnection c , EngineDirectory directory , AppProduct product ) throws Exception {
+		AppProductPolicy policy = new AppProductPolicy( directory , product );
+		product.setPolicy( policy );
+		
+		// policy record
+		boolean urgentsAll = true;
+		policy.setAttrs( urgentsAll );
+		modifyPolicy( c , product , policy , true );
+	}
 	
+	private static void modifyPolicy( DBConnection c , AppProduct product , AppProductPolicy policy , boolean insert ) throws Exception {
+		policy.SV = c.getNextCoreVersion();
+		EngineEntities entities = c.getEntities();
+		DBEngineEntities.modifyAppObject( c , entities.entityAppProductPolicy , product.ID , policy.SV , new String[] {
+				EngineDB.getBoolean( policy.LCUrgentAll )
+				} , insert );
+	}
+	
+	public static void importxmlPolicy( EngineLoader loader , EngineDirectory directory , AppProduct product , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineLifecycles lifecycles = loader.getLifecycles();
+		
+		AppProductPolicy policy = new AppProductPolicy( directory , product );
+		product.setPolicy( policy );
+		
+		// policy record
+		boolean urgentsAll = ConfReader.getBooleanPropertyValue( root , AppProductPolicy.PROPERTY_RELEASELC_URGENTANY , false );
+		policy.setAttrs( urgentsAll );
+		modifyPolicy( c , product , policy , true );
+		
+		// lifecycle list
+		String major = ConfReader.getPropertyValue( root , AppProductPolicy.PROPERTY_RELEASELC_MAJOR , "" );
+		ReleaseLifecycle lcMajor = ( major.isEmpty() )? null : lifecycles.getLifecycle( major );
+		
+		String minor = ConfReader.getPropertyValue( root , AppProductPolicy.PROPERTY_RELEASELC_MINOR , "" );
+		ReleaseLifecycle lcMinor = ( minor.isEmpty() )? null : lifecycles.getLifecycle( minor );
+		
+		String URGENTS = "";
+		if( !urgentsAll )
+			URGENTS = ConfReader.getPropertyValue( root , AppProductPolicy.PROPERTY_RELEASELC_URGENTS , "" );
+		String[] urgents = Common.splitSpaced( URGENTS );
+		ReleaseLifecycle[] lcUrgents = new ReleaseLifecycle[ urgents.length ];
+		for( int k = 0; k < urgents.length; k++ )
+			lcUrgents[ k ] = lifecycles.getLifecycle( urgents[ k ] );
+
+		policy.setLifecycles( lcMajor , lcMinor , lcUrgents );
+		
+		modifyLifecycles( c , product , policy , true );
+	}
+	
+	private static void modifyLifecycles( DBConnection c , AppProduct product , AppProductPolicy policy , boolean insert ) throws Exception {
+		EngineEntities entities = c.getEntities();
+		
+		if( !insert )
+			DBEngineEntities.dropAppObjects( c , entities.entityAppProductPolicyLifecycle , DBQueries.FILTER_PRODUCT_ID1 , new String[] { EngineDB.getInteger( product.ID ) } );
+			
+		if( policy.hasMajor() )
+			modifyLifecycle( c , product , policy.getMajorId() );
+		if( policy.hasMinor() )
+			modifyLifecycle( c , product , policy.getMinorId() );
+		
+		Integer[] urgents = policy.getUrgentIds();
+		for( int k = 0; k < urgents.length; k++ )
+			modifyLifecycle( c , product , urgents[ k ] );
+	}
+
+	private static void modifyLifecycle( DBConnection c , AppProduct product , int lcId ) throws Exception {
+		EngineEntities entities = c.getEntities();
+		int version = c.getNextCoreVersion( );
+		DBEngineEntities.modifyAppEntity( c , entities.entityAppProductPolicyLifecycle , version , new String[] { 
+				EngineDB.getObject( product.ID ) ,
+				EngineDB.getObject( lcId )
+				} , true );
+	}
+
+	public static void exportxmlPolicy( EngineLoader loader , AppProduct product , Document doc , Element root ) throws Exception {
+		AppProductPolicy policy = product.getPolicy();
+		
+		EngineLifecycles lifecycles = loader.getLifecycles();
+		if( policy.hasMajor() ) {
+			ReleaseLifecycle lc = lifecycles.getLifecycle( policy.getMajorId() );
+			Common.xmlCreatePropertyElement( doc , root , AppProductPolicy.PROPERTY_RELEASELC_MAJOR , lc.NAME );
+		}
+		if( policy.hasMinor() ) {
+			ReleaseLifecycle lc = lifecycles.getLifecycle( policy.getMinorId() );
+			Common.xmlCreatePropertyElement( doc , root , AppProductPolicy.PROPERTY_RELEASELC_MINOR , lc.NAME );
+		}
+		
+		Common.xmlCreateBooleanPropertyElement( doc , root , AppProductPolicy.PROPERTY_RELEASELC_URGENTANY , policy.LCUrgentAll );
+		if( !policy.LCUrgentAll ) {
+			String[] names = policy.getUrgentNames();
+			Common.xmlCreatePropertyElement( doc , root , AppProductPolicy.PROPERTY_RELEASELC_URGENTS , Common.getList( names ) );
+		}
+	}
+
+	public static void loaddbPolicy( EngineLoader loader , AppProduct product ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = c.getEntities();
+		PropertyEntity entity = entities.entityAppProductPolicy;
+		EngineLifecycles lifecycles = loader.getLifecycles();
+
+		AppProductPolicy policy = new AppProductPolicy( product.directory , product );
+		product.setPolicy( policy );
+		
+		// master attrs
+		ResultSet rs = DBEngineEntities.listSingleAppObject( c , entity , product.ID );
+		try {
+			policy.SV = entity.loaddbVersion( rs );
+			policy.setAttrs( entity.loaddbBoolean( rs , AppProductPolicy.PROPERTY_RELEASELC_URGENTANY ) );
+		}
+		finally {
+			c.closeQuery();
+		}
+
+		// lifecycles
+		ReleaseLifecycle major = null;
+		ReleaseLifecycle minor = null;
+		List<ReleaseLifecycle> urgents = new LinkedList<ReleaseLifecycle>();;
+		
+		entity = entities.entityAppProductPolicyLifecycle;
+		rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_PRODUCT_ID1 , new String[] { EngineDB.getInteger( product.ID ) } );
+		try {
+			while( rs.next() ) {
+				Integer id = c.getNullInt( rs , 1 );
+				
+				ReleaseLifecycle lc = lifecycles.getLifecycle( id );
+				if( lc.isMajor() ) {
+					if( major != null )
+						Common.exitUnexpected();
+					major = lc;
+				}
+				else
+				if( lc.isMinor() ) {
+					if( minor != null )
+						Common.exitUnexpected();
+					minor = lc;
+				}
+				else
+				if( lc.isUrgent() )
+					urgents.add( lc );
+				else
+					Common.exitUnexpected();
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+		
+		policy.setLifecycles( major , minor , urgents.toArray( new ReleaseLifecycle[0] ) );
+	}
+	
+	public static void setProductLifecycles( EngineTransaction transaction , AppProduct product , AppProductPolicy policy , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		EngineLifecycles lifecycles = transaction.getLifecycles();
+		
+		ReleaseLifecycle lcMajor = ( major.isEmpty() )? null : lifecycles.getLifecycle( major );
+		ReleaseLifecycle lcMinor = ( minor.isEmpty() )? null : lifecycles.getLifecycle( minor );
+		ReleaseLifecycle[] lcUrgents = new ReleaseLifecycle[ 0 ];
+		
+		if( !urgentsAll ) {
+			lcUrgents = new ReleaseLifecycle[ urgents.length ];
+			for( int k = 0; k < urgents.length; k++ )
+				lcUrgents[ k ] = lifecycles.getLifecycle( urgents[ k ] );
+		}
+		
+		policy.setAttrs( urgentsAll );
+		policy.setLifecycles( lcMajor , lcMinor , lcUrgents );
+		
+		modifyPolicy( c , product , policy , false );
+		modifyLifecycles( c , product , policy , false );
+	}
+
 }

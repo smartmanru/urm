@@ -22,6 +22,7 @@ import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.EngineMatcher;
 import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.AppProductPolicy;
 import org.urm.meta.engine.AppSystem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -31,9 +32,12 @@ public abstract class DBEngineDirectory {
 
 	public static String ELEMENT_SYSTEM = "system";
 	public static String ELEMENT_PRODUCT = "product";
+	public static String ELEMENT_POLICY = "policy";
 	
 	public static String TABLE_SYSTEM = "urm_system";
 	public static String TABLE_PRODUCT = "urm_product";
+	public static String TABLE_POLICY = "urm_product_policy";
+	public static String TABLE_POLICYCYCLE = "urm_product_lifecycle";
 	public static String FIELD_SYSTEM_ID = "system_id";
 	public static String FIELD_SYSTEM_DESC = "xdesc";
 	public static String FIELD_PRODUCT_SYSTEM_ID = "system_id";
@@ -48,6 +52,10 @@ public abstract class DBEngineDirectory {
 	public static String FIELD_PRODUCT_NEXT_MAJOR2 = "next_major2";
 	public static String FIELD_PRODUCT_NEXT_MINOR1 = "next_minor1";
 	public static String FIELD_PRODUCT_NEXT_MINOR2 = "next_minor2";
+	public static String FIELD_POLICY_ID = "product_id";
+	public static String FIELD_POLICY_LCURGENTALL = "lcurgent_any";
+	public static String FIELD_LIFECYCLE_PRODUCT = "product_id";
+	public static String FIELD_LIFECYCLE_ID = "lifecycle_id";
 	
 	public static PropertyEntity makeEntityDirectorySystem( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.APPSYSTEM , DBEnumObjectVersionType.SYSTEM , TABLE_SYSTEM , FIELD_SYSTEM_ID , false );
@@ -89,6 +97,31 @@ public abstract class DBEngineDirectory {
 		} ) );
 	}
 
+	public static PropertyEntity makeEntityProductPolicy( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_POLICY , DBEnumParamEntityType.PRODUCT_POLICY , DBEnumObjectVersionType.PRODUCT , TABLE_POLICY , FIELD_POLICY_ID , true );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
+				EntityVar.metaBooleanVar( AppProductPolicy.PROPERTY_RELEASELC_URGENTANY , FIELD_POLICY_LCURGENTALL , AppProductPolicy.PROPERTY_RELEASELC_URGENTANY , "Any urgent lifecycle enabled" , true , false )
+		} ) );
+	}
+
+	public static PropertyEntity makeEntityProductPolicyLifecycle( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppAssociativeEntity( DBEnumObjectType.META_POLICYCYCLE , DBEnumParamEntityType.PRODUCT_POLICYCYCLE , DBEnumObjectVersionType.PRODUCT , TABLE_POLICYCYCLE , true , 2 );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
+				EntityVar.metaObjectDatabaseOnly( FIELD_LIFECYCLE_PRODUCT , "product id" , DBEnumObjectType.META , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_LIFECYCLE_ID , "lifecycle id" , DBEnumObjectType.LIFECYCLE , false ) ,
+		} ) );
+	}
+
 	public static void importxml( EngineLoader loader , EngineDirectory directory , Node root ) throws Exception {
 		if( root == null )
 			return;
@@ -119,7 +152,16 @@ public abstract class DBEngineDirectory {
 	}
 
 	private static AppProduct importxmlProduct( EngineLoader loader , EngineDirectory directory , AppSystem system , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		
 		AppProduct product = DBAppProduct.importxmlProduct( loader , directory , system , root );
+		
+		Node node = ConfReader.xmlGetFirstChild( root , ELEMENT_POLICY );
+		if( node == null )
+			DBAppProduct.createdbPolicy( c , directory , product );
+		else
+			DBAppProduct.importxmlPolicy( loader , directory , product , node );
+				
 		return( product );
 	}
 
@@ -144,6 +186,8 @@ public abstract class DBEngineDirectory {
 	
 	private static void exportxmlProduct( EngineLoader loader , EngineDirectory directory , AppProduct product , Document doc , Element root ) throws Exception {
 		DBAppProduct.exportxmlProduct( loader , product , doc , root );
+		Element elementPolicy = Common.xmlCreateElement( doc , root , ELEMENT_POLICY );
+		DBAppProduct.exportxmlPolicy( loader , product , doc , elementPolicy );
 	}
 	
 	public static void loaddb( EngineLoader loader , EngineDirectory directory ) throws Exception {
@@ -162,6 +206,10 @@ public abstract class DBEngineDirectory {
 	
 	private static void loaddbProducts( EngineLoader loader , EngineDirectory directory ) throws Exception {
 		AppProduct[] products = DBAppProduct.loaddb( loader , directory );
+		
+		for( AppProduct product : products )
+			DBAppProduct.loaddbPolicy( loader , product );
+		
 		for( AppProduct product : products )
 			directory.addUnmatchedProduct( product );
 	}
@@ -198,6 +246,7 @@ public abstract class DBEngineDirectory {
 
 	public static void modifySystem( EngineTransaction transaction , EngineDirectory directory , AppSystem system , String name , String desc ) throws Exception {
 		DBConnection c = transaction.getConnection();
+		
 		system.modifySystem( name , desc );
 		DBAppSystem.modifySystem( c , system , false );
 		directory.updateSystem( system );
@@ -205,6 +254,7 @@ public abstract class DBEngineDirectory {
 	
 	public static void setSystemOffline( EngineTransaction transaction , EngineDirectory directory , AppSystem system , boolean offline ) throws Exception {
 		DBConnection c = transaction.getConnection();
+		
 		system.setOffline( offline );
 		DBAppSystem.modifySystem( c , system , false );
 	}
@@ -227,9 +277,13 @@ public abstract class DBEngineDirectory {
 		if( directory.findProduct( name ) != null )
 			transaction.exitUnexpectedState();
 		
+		// create product
 		AppProduct product = new AppProduct( directory , system );
 		product.createProduct( name , desc , path );
 		DBAppProduct.modifyProduct( c , product , true );
+		
+		// create initial policy
+		DBAppProduct.createdbPolicy( c , directory , product );
 		
 		directory.addProduct( product );
 		return( product );

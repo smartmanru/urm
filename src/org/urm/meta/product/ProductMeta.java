@@ -25,7 +25,6 @@ public class ProductMeta extends EngineObject {
 	public int productId;
 	
 	private MetaProductSettings settings;
-	private MetaProductPolicy policy;
 	private MetaUnits units;
 	private MetaDatabase database;
 	private MetaSources sources;
@@ -66,7 +65,6 @@ public class ProductMeta extends EngineObject {
 		r.MATCHED = MATCHED;
 		
 		r.settings = settings.copy( r.meta , opsParent );
-		r.policy = policy.copy( r.meta );
 		r.units = units.copy( r.meta );
 		r.database = database.copy( r.meta );
 		r.sources = sources.copy( r.meta );
@@ -149,10 +147,6 @@ public class ProductMeta extends EngineObject {
 		this.settings = settings;
 	}
 
-	public void setPolicy( MetaProductPolicy policy ) throws Exception {
-		this.policy = policy;
-	}
-
 	public void setUnits( MetaUnits units ) throws Exception {
 		this.units = units;
 	}
@@ -183,10 +177,6 @@ public class ProductMeta extends EngineObject {
 	
 	public MetaProductSettings getSettings() {
 		return( settings );
-	}
-	
-	public MetaProductPolicy getPolicy() {
-		return( policy );
 	}
 	
 	public MetaUnits getUnits() {

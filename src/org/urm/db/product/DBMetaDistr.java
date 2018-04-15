@@ -18,6 +18,7 @@ import org.urm.db.env.DBMetaEnv;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -58,6 +59,81 @@ public class DBMetaDistr {
 	public static void createdb( EngineLoader loader , ProductMeta storage ) throws Exception {
 		MetaDistr distr = new MetaDistr( storage , storage.meta );
 		storage.setDistr( distr );
+	}
+	
+	public static void copydb( TransactionBase transaction , ProductMeta src , ProductMeta dst ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MetaDistr distrSrc = src.getDistr();
+		MetaDistr distr = new MetaDistr( dst , dst.meta );
+		MetaDatabase db = dst.getDatabase();
+		MetaDocs docs = dst.getDocs();
+		
+		dst.setDistr( distr );
+		for( MetaDistrDelivery deliverySrc : distrSrc.getDeliveries() ) {
+			MetaDistrDelivery delivery = deliverySrc.copy( dst.meta , distr , db , docs , false );
+			modifyDelivery( c , dst , delivery , true , DBEnumChangeType.ORIGINAL );
+			distr.addDelivery( delivery );
+			
+			for( MetaDistrBinaryItem itemSrc : deliverySrc.getBinaryItems() ) {
+				MetaDistrBinaryItem item = itemSrc.copy( dst.meta , delivery );
+				modifyBinaryItem( c , dst , item , true , DBEnumChangeType.ORIGINAL );
+				distr.addBinaryItem( delivery , item );
+			}
+			
+			for( MetaDistrConfItem itemSrc : deliverySrc.getConfItems() ) {
+				MetaDistrConfItem item = itemSrc.copy( dst.meta , delivery );
+				modifyConfItem( c , dst , item , true , DBEnumChangeType.ORIGINAL );
+				distr.addConfItem( delivery , item );
+			}
+			
+			for( MetaDatabaseSchema schemaSrc : deliverySrc.getDatabaseSchemes() ) {
+				MetaDatabaseSchema schema = db.getSchema( schemaSrc.NAME );
+				modifyDeliverySchema( c , dst , delivery , schema , true , DBEnumChangeType.ORIGINAL );
+				distr.addDeliverySchema( delivery , schema );
+			}
+			
+			for( MetaProductDoc docSrc : deliverySrc.getDocs() ) {
+				MetaProductDoc doc = docs.getDoc( docSrc.NAME );
+				modifyDeliveryDoc( c , dst , delivery , doc , true , DBEnumChangeType.ORIGINAL );
+				distr.addDeliveryDoc( delivery , doc );
+			}
+		}
+
+		for( MetaDistrComponent compSrc : distrSrc.getComponents() ) {
+			MetaDistrComponent comp = compSrc.copy( dst.meta , distr , false );
+			modifyComponent( c , dst , comp , true , DBEnumChangeType.ORIGINAL );
+			distr.addComponent( comp );
+			
+			for( MetaDistrComponentItem itemSrc : compSrc.getBinaryItems() ) {
+				MetaDistrComponentItem item = itemSrc.copy( dst.meta , comp );
+				modifyComponentItem( c , dst , distr , comp , item , true , DBEnumChangeType.ORIGINAL );
+				comp.addBinaryItem( item );
+			}
+			
+			for( MetaDistrComponentItem itemSrc : compSrc.getConfItems() ) {
+				MetaDistrComponentItem item = itemSrc.copy( dst.meta , comp );
+				modifyComponentItem( c , dst , distr , comp , item , true , DBEnumChangeType.ORIGINAL );
+				comp.addConfItem( item );
+			}
+			
+			for( MetaDistrComponentItem itemSrc : compSrc.getSchemaItems() ) {
+				MetaDistrComponentItem item = itemSrc.copy( dst.meta , comp );
+				modifyComponentItem( c , dst , distr , comp , item , true , DBEnumChangeType.ORIGINAL );
+				comp.addSchemaItem( item );
+			}
+			
+			for( MetaDistrComponentItem itemSrc : compSrc.getWebServices() ) {
+				MetaDistrComponentItem item = itemSrc.copy( dst.meta , comp );
+				modifyComponentItem( c , dst , distr , comp , item , true , DBEnumChangeType.ORIGINAL );
+				comp.addWebService( item );
+			}
+		}
+		
+		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
+			for( MetaDistrBinaryItem item : delivery.getBinaryItems() )
+				item.resolveReferences();
+		}
 	}
 	
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {

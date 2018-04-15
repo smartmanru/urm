@@ -56,12 +56,6 @@ public class ProductStorage {
 		return( folder.getFilePath( action , UrmStorage.DOCUMENTATION_FILE ) );
 	}
 	
-	public String getPolicyConfFile( ActionBase action ) throws Exception {
-		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.findProduct() );
-		return( folder.getFilePath( action , UrmStorage.POLICY_SETTINGS_FILE ) );
-	}
-	
 	public String getDatabaseConfFile( ActionBase action ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
 		LocalFolder folder = urm.getProductCoreMetadataFolder( action , meta.findProduct() );

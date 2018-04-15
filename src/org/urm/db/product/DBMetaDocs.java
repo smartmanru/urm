@@ -13,6 +13,7 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.EngineLoader;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDocs;
@@ -138,6 +139,19 @@ public class DBMetaDocs {
 		}
 	}
 
+	public static void copydb( TransactionBase transaction , ProductMeta src , ProductMeta dst ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MetaDocs docsSrc = src.getDocs();
+		MetaDocs docs = new MetaDocs( dst , dst.meta );
+		dst.setDocs( docs );
+		for( MetaProductDoc docSrc : docsSrc.getDocList() ) {
+			MetaProductDoc doc = docSrc.copy( dst.meta , docs );
+			modifyDoc( c , dst , doc , true , DBEnumChangeType.ORIGINAL );
+			docs.addDoc( doc );
+		}
+	}
+	
 	public static MetaProductDoc createDoc( EngineTransaction transaction , ProductMeta storage , MetaDocs docs , 
 			String name , String desc , DBEnumDocCategoryType category , String ext , boolean unitbound ) throws Exception {
 		DBConnection c = transaction.getConnection();

@@ -64,6 +64,8 @@ public class EngineEntities {
 	public PropertyEntity entityAppBaseItemData;
 	public PropertyEntity entityAppDirectorySystem;
 	public PropertyEntity entityAppDirectoryProduct;
+	public PropertyEntity entityAppProductPolicy;
+	public PropertyEntity entityAppProductPolicyLifecycle;
 	public PropertyEntity entityAppDatacenter;
 	public PropertyEntity entityAppNetwork;
 	public PropertyEntity entityAppNetworkHost;
@@ -84,8 +86,6 @@ public class EngineEntities {
 	public PropertyEntity entityAppMetaSourceProject;
 	public PropertyEntity entityAppMetaSourceItem;
 	public PropertyEntity entityAppMetaDoc;
-	public PropertyEntity entityAppMetaPolicy;
-	public PropertyEntity entityAppMetaPolicyLifecycle;
 	public PropertyEntity entityAppMetaDistrDelivery;
 	public PropertyEntity entityAppMetaDistrDeliverySchema;
 	public PropertyEntity entityAppMetaDistrDeliveryDoc;
@@ -143,6 +143,8 @@ public class EngineEntities {
 		entityAppBaseItemData = DBEngineBase.makeEntityBaseItemData( c , upgrade );
 		entityAppDirectorySystem = DBEngineDirectory.makeEntityDirectorySystem( c , upgrade );
 		entityAppDirectoryProduct = DBEngineDirectory.makeEntityDirectoryProduct( c , upgrade );
+		entityAppProductPolicy = DBEngineDirectory.makeEntityProductPolicy( c , upgrade );
+		entityAppProductPolicyLifecycle = DBEngineDirectory.makeEntityProductPolicyLifecycle( c , upgrade );
 		entityAppDatacenter = DBEngineInfrastructure.makeEntityDatacenter( c , upgrade );
 		entityAppNetwork = DBEngineInfrastructure.makeEntityNetwork( c , upgrade );
 		entityAppNetworkHost = DBEngineInfrastructure.makeEntityNetworkHost( c , upgrade );
@@ -163,8 +165,6 @@ public class EngineEntities {
 		entityAppMetaSourceProject = DBProductData.makeEntityMetaSourceProject( c , upgrade );
 		entityAppMetaSourceItem = DBProductData.makeEntityMetaSourceItem( c , upgrade );
 		entityAppMetaDoc = DBProductData.makeEntityMetaDoc( c , upgrade );
-		entityAppMetaPolicy = DBProductData.makeEntityMetaPolicy( c , upgrade );
-		entityAppMetaPolicyLifecycle = DBProductData.makeEntityMetaPolicyLifecycle( c , upgrade );
 		entityAppMetaDistrDelivery = DBProductData.makeEntityMetaDistrDelivery( c , upgrade );
 		entityAppMetaDistrDeliverySchema = DBProductData.makeEntityMetaDistrDeliverySchema( c , upgrade );
 		entityAppMetaDistrDeliveryDoc = DBProductData.makeEntityMetaDistrDeliveryDoc( c , upgrade );

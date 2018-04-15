@@ -56,7 +56,7 @@ public class MetaDistrDelivery {
 		DOC_ANY = false;
 	}
 
-	public MetaDistrDelivery copy( Meta meta , MetaDistr distr , MetaDatabase rdb , MetaDocs rdocs ) throws Exception {
+	public MetaDistrDelivery copy( Meta meta , MetaDistr distr , MetaDatabase rdb , MetaDocs rdocs , boolean all ) throws Exception {
 		MetaDistrDelivery r = new MetaDistrDelivery( meta , distr , rdb , rdocs );
 		r.ID = ID;
 		r.UNIT_ID = UNIT_ID; 
@@ -68,24 +68,26 @@ public class MetaDistrDelivery {
 		r.PV = PV;
 		r.CHANGETYPE = CHANGETYPE;
 		
-		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
-			MetaDistrBinaryItem ritem = item.copy( meta , r );
-			r.addBinaryItem( ritem );
-		}
-			
-		for( MetaDistrConfItem item : mapConfComps.values() ) {
-			MetaDistrConfItem ritem = item.copy( meta , r );
-			r.addConfItem( ritem );
-		}
-			
-		for( MetaDatabaseSchema item : mapDatabaseSchema.values() ) {
-			MetaDatabaseSchema ritem = rdb.getSchema( item.NAME );
-			r.addSchema( ritem );
-		}
-			
-		for( MetaProductDoc item : mapDocuments.values() ) {
-			MetaProductDoc ritem = rdocs.getDoc( item.NAME );
-			r.addDocument( ritem );
+		if( all ) {
+			for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
+				MetaDistrBinaryItem ritem = item.copy( meta , r );
+				r.addBinaryItem( ritem );
+			}
+				
+			for( MetaDistrConfItem item : mapConfComps.values() ) {
+				MetaDistrConfItem ritem = item.copy( meta , r );
+				r.addConfItem( ritem );
+			}
+				
+			for( MetaDatabaseSchema item : mapDatabaseSchema.values() ) {
+				MetaDatabaseSchema ritem = rdb.getSchema( item.NAME );
+				r.addSchema( ritem );
+			}
+				
+			for( MetaProductDoc item : mapDocuments.values() ) {
+				MetaProductDoc ritem = rdocs.getDoc( item.NAME );
+				r.addDocument( ritem );
+			}
 		}
 			
 		return( r );
