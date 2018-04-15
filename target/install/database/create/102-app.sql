@@ -33,9 +33,42 @@ CREATE TABLE main.urm_product (
 COMMENT ON TABLE main.urm_product IS 'Application product';
 
 
+CREATE TABLE main.urm_product_policy (
+                product_id INTEGER NOT NULL,
+                lcurgent_any BOOLEAN NOT NULL,
+                sv INTEGER NOT NULL,
+                CONSTRAINT urm_product_policy_pk PRIMARY KEY (product_id)
+);
+COMMENT ON TABLE main.urm_product_policy IS 'Instance product policy';
+
+
+CREATE TABLE main.urm_product_lifecycle (
+                product_id INTEGER NOT NULL,
+                lifecycle_id INTEGER NOT NULL,
+                lifecycle_type INTEGER NOT NULL,
+                sv INTEGER NOT NULL,
+                CONSTRAINT urm_product_lifecycle_pk PRIMARY KEY (product_id, lifecycle_id)
+);
+COMMENT ON TABLE main.urm_product_lifecycle IS 'Product lifecycle by policy';
+
+
 ALTER TABLE main.urm_product ADD CONSTRAINT urm_system_product_fk
 FOREIGN KEY (system_id)
 REFERENCES main.urm_system (system_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE main.urm_product_policy ADD CONSTRAINT urm_product_urm_product_policy_fk
+FOREIGN KEY (product_id)
+REFERENCES main.urm_product (product_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE main.urm_product_lifecycle ADD CONSTRAINT urm_product_policy_urm_product_lifecycle_fk
+FOREIGN KEY (product_id)
+REFERENCES main.urm_product_policy (product_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;

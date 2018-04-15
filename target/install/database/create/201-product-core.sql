@@ -25,28 +25,6 @@ CREATE TABLE main.urm_product_doc (
 COMMENT ON TABLE main.urm_product_doc IS 'Product document type';
 
 
-CREATE TABLE main.urm_product_policy (
-                meta_id INTEGER NOT NULL,
-                lcurgent_any BOOLEAN NOT NULL,
-                pv INTEGER NOT NULL,
-                change_type INTEGER NOT NULL,
-                CONSTRAINT urm_product_policy_pk PRIMARY KEY (meta_id)
-);
-COMMENT ON TABLE main.urm_product_policy IS 'Product policy';
-
-
-CREATE TABLE main.urm_product_lifecycle (
-                meta_id INTEGER NOT NULL,
-                lc_index INTEGER NOT NULL,
-                lifecycle_fkid INTEGER,
-                lifecycle_fkname VARCHAR(64),
-                pv INTEGER NOT NULL,
-                change_type INTEGER NOT NULL,
-                CONSTRAINT urm_product_lifecycle_pk PRIMARY KEY (meta_id, lc_index)
-);
-COMMENT ON TABLE main.urm_product_lifecycle IS 'Product lifecycle';
-
-
 CREATE TABLE main.urm_source_set (
                 srcset_id INTEGER NOT NULL,
                 meta_id INTEGER NOT NULL,
@@ -156,23 +134,9 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE main.urm_product_policy ADD CONSTRAINT urm_product_meta_urm_product_policy_fk
-FOREIGN KEY (meta_id)
-REFERENCES main.urm_product_meta (meta_id)
-ON DELETE NO ACTION
-ON UPDATE NO ACTION
-NOT DEFERRABLE;
-
 ALTER TABLE main.urm_product_doc ADD CONSTRAINT urm_product_meta_urm_product_doc_fk
 FOREIGN KEY (meta_id)
 REFERENCES main.urm_product_meta (meta_id)
-ON DELETE NO ACTION
-ON UPDATE NO ACTION
-NOT DEFERRABLE;
-
-ALTER TABLE main.urm_product_lifecycle ADD CONSTRAINT urm_product_policy_urm_product_lifecycle_fk
-FOREIGN KEY (meta_id)
-REFERENCES main.urm_product_policy (meta_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
