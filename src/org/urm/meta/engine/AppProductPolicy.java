@@ -1,0 +1,208 @@
+package org.urm.meta.engine;
+
+import org.urm.action.ActionBase;
+import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumLifecycleType;
+import org.urm.engine.DataService;
+import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.data.EngineLifecycles;
+
+public class AppProductPolicy {
+
+	public static String PROPERTY_RELEASELC_MAJOR = "minor";
+	public static String PROPERTY_RELEASELC_MINOR = "major";
+	public static String PROPERTY_RELEASELC_URGENTANY = "urgentany";
+	public static String PROPERTY_RELEASELC_URGENTS = "urgentset";
+
+	public EngineDirectory directory;
+	public AppProduct product;
+	
+	private Integer LC_MAJOR;
+	private Integer LC_MINOR;
+	public boolean LCUrgentAll;
+	private Integer[] LC_URGENT_LIST;
+	public int SV;
+	
+	public AppProductPolicy( EngineDirectory directory , AppProduct product ) {
+		this.directory = directory;
+		this.product = product;
+		LCUrgentAll = false;
+		LC_URGENT_LIST = new Integer[0];
+	}
+
+	public AppProductPolicy copy( EngineDirectory rdirectory , AppProduct rproduct ) {
+		AppProductPolicy r = new AppProductPolicy( rdirectory , rproduct );
+		
+		// stored
+		r.LC_MAJOR = LC_MAJOR;
+		r.LC_MINOR = LC_MINOR;
+		r.LCUrgentAll = LCUrgentAll;
+		r.LC_URGENT_LIST = LC_URGENT_LIST.clone();
+		r.SV = SV;
+		
+		return( r );
+	}
+
+	public void setAttrs( boolean urgentsAll ) {
+		LCUrgentAll = urgentsAll;
+	}
+	
+	public void setLifecycles( ReleaseLifecycle major , ReleaseLifecycle minor , ReleaseLifecycle[] urgents ) throws Exception {
+		LC_MAJOR = null;
+		if( major != null ) {
+			if( !major.isMajor() )
+				Common.exitUnexpected();
+			LC_MAJOR = major.ID;
+		}
+		
+		LC_MINOR = null;
+		if( minor != null ) {
+			if( !major.isMinor() )
+				Common.exitUnexpected();
+			LC_MINOR = minor.ID;
+		}
+		
+		LC_URGENT_LIST = new Integer[ urgents.length ];
+		for( int k = 0; k < urgents.length; k++ ) {
+			if( !urgents[ k ].isUrgent() )
+				Common.exitUnexpected();
+			
+			LC_URGENT_LIST[ k ] = urgents[ k ].ID;
+		}
+	}
+
+	public String getMajorName() throws Exception {
+		if( LC_MAJOR == null )
+			return( "" );
+		ReleaseLifecycle lc = findLifecycle( LC_MAJOR );
+		return( lc.NAME );
+	}
+
+	public String getMinorName() throws Exception {
+		if( LC_MINOR == null )
+			return( "" );
+		ReleaseLifecycle lc = findLifecycle( LC_MINOR );
+		return( lc.NAME );
+	}
+
+	public Integer getMajorId() {
+		return( LC_MAJOR );
+	}
+	
+	public Integer getMinorId() {
+		return( LC_MINOR );
+	}
+	
+	public Integer[] getUrgentIds() {
+		return( LC_URGENT_LIST );
+	}
+	
+	private ReleaseLifecycle findLifecycle( int id ) {
+		DataService data = directory.engine.getData();
+		EngineLifecycles lifecycles = data.getReleaseLifecycles();
+		return( lifecycles.findLifecycle( id ) );
+	}
+	
+	public boolean checkUrgentIncluded( ReleaseLifecycle lc ) {
+		for( Integer item : LC_URGENT_LIST ) {
+			if( item == lc.ID )
+				return( true );
+		}
+		return( false );
+	}
+	
+	public String[] getUrgentNames() {
+		String[] names = new String[ LC_URGENT_LIST.length ];
+		for( int k = 0; k < names.length; k++ ) {
+			ReleaseLifecycle lc = findLifecycle( LC_URGENT_LIST[ k ] );
+			names[ k ] = lc.NAME;
+		}
+		return( Common.getSortedList( names ) );
+	}
+	
+	public ReleaseLifecycle findLifecycle( DBEnumLifecycleType lctype ) {
+		if( lctype == DBEnumLifecycleType.MAJOR ) {
+			if( LC_MAJOR == null )
+				return( null );
+			return( findLifecycle( LC_MAJOR ) );
+		}
+		if( lctype == DBEnumLifecycleType.MINOR ) {
+			if( LC_MINOR == null )
+				return( null );
+			return( findLifecycle( LC_MINOR ) );
+		}
+		return( null );
+	}
+
+	public boolean hasMajor() {
+		if( LC_MAJOR != null )
+			return( true );
+		return( false );
+	}
+
+	public boolean hasMinor() {
+		if( LC_MINOR != null )
+			return( true );
+		return( false );
+	}
+
+	public ReleaseLifecycle getLifecycle( ActionBase action , ReleaseLifecycle lc , DBEnumLifecycleType type ) throws Exception {
+		if( type == DBEnumLifecycleType.MAJOR ) {
+			Integer expected = LC_MAJOR;
+			if( expected == null ) {
+				if( lc != null )
+					return( lc );
+			}
+			else {
+				if( lc != null ) {
+					if( expected != lc.ID )
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" + lc.NAME , lc.NAME );
+					return( lc );
+				}
+				
+				EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
+				return( lifecycles.getLifecycle( expected ) );
+			}
+		}
+		else
+		if( type == DBEnumLifecycleType.MINOR ) {
+			Integer expected = LC_MINOR;
+			if( expected == null ) {
+				if( lc != null )
+					return( lc );
+			}
+			else {
+				if( lc != null ) {
+					if( expected != lc.ID )
+						action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" + lc.NAME , lc.NAME );
+					return( lc );
+				}
+				
+				EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
+				return( lifecycles.getLifecycle( expected ) );
+			}
+		}
+		else
+		if( type == DBEnumLifecycleType.URGENT ) {
+			Integer[] expected = LC_URGENT_LIST;
+			if( expected.length == 0 ) {
+				if( lc != null )
+					return( lc );
+			}
+			else {
+				if( lc != null ) {
+					for( int k = 0; k < expected.length; k++ ) {
+						if( expected[ k ] == lc.ID )
+							return( lc );
+					}
+					action.exit1( _Error.NotExpectedReleasecycleType1 , "Unexpected release cycle type=" + lc.NAME , lc.NAME );
+				}
+				
+				action.exit0( _Error.MissingReleasecycleType0 , "Missing release cycle type" );
+			}
+		}
+		
+		return( null );
+	}
+	
+}
