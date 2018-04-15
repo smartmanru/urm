@@ -80,7 +80,7 @@ public class DBSystemData {
 	}
 
 	public static PropertyEntity makeEntityProductPolicy( DBConnection c , boolean upgrade ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_POLICY , DBEnumParamEntityType.PRODUCT_POLICY , DBEnumObjectVersionType.PRODUCT , TABLE_POLICY , FIELD_POLICY_ID , false );
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_POLICY , DBEnumParamEntityType.PRODUCT_POLICY , DBEnumObjectVersionType.SYSTEM , TABLE_POLICY , FIELD_POLICY_ID , false );
 		if( !upgrade ) {
 			DBSettings.loaddbAppEntity( c , entity );
 			return( entity );
@@ -92,7 +92,7 @@ public class DBSystemData {
 	}
 
 	public static PropertyEntity makeEntityProductPolicyLifecycle( DBConnection c , boolean upgrade ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppAssociativeEntity( DBEnumObjectType.META_POLICYCYCLE , DBEnumParamEntityType.PRODUCT_POLICYCYCLE , DBEnumObjectVersionType.PRODUCT , TABLE_POLICYCYCLE , false , 2 );
+		PropertyEntity entity = PropertyEntity.getAppAssociativeEntity( DBEnumObjectType.META_POLICYCYCLE , DBEnumParamEntityType.PRODUCT_POLICYCYCLE , DBEnumObjectVersionType.SYSTEM , TABLE_POLICYCYCLE , false , 2 );
 		if( !upgrade ) {
 			DBSettings.loaddbAppEntity( c , entity );
 			return( entity );
