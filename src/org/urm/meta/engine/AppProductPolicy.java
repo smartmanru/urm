@@ -57,7 +57,7 @@ public class AppProductPolicy {
 		
 		LC_MINOR = null;
 		if( minor != null ) {
-			if( !major.isMinor() )
+			if( !minor.isMinor() )
 				Common.exitUnexpected();
 			LC_MINOR = minor.ID;
 		}
