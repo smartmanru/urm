@@ -12,7 +12,6 @@ import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.*;
-import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineEntities;
@@ -89,7 +88,7 @@ public abstract class DBAppProduct {
 		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
 		try {
 			while( rs.next() ) {
-				int systemId = entity.loaddbInt( rs , DBEngineDirectory.FIELD_PRODUCT_SYSTEM_ID );
+				int systemId = entity.loaddbInt( rs , DBSystemData.FIELD_PRODUCT_SYSTEM_ID );
 				AppSystem system = directory.getSystem( systemId );
 				
 				AppProduct product = new AppProduct( directory , system );
@@ -171,7 +170,7 @@ public abstract class DBAppProduct {
 	}
 	
 	private static void modifyPolicy( DBConnection c , AppProduct product , AppProductPolicy policy , boolean insert ) throws Exception {
-		policy.SV = c.getNextCoreVersion();
+		policy.SV = c.getNextSystemVersion( product.system );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppProductPolicy , product.ID , policy.SV , new String[] {
 				EngineDB.getBoolean( policy.LCUrgentAll )
@@ -228,7 +227,7 @@ public abstract class DBAppProduct {
 
 	private static void modifyLifecycle( DBConnection c , AppProduct product , int lcId ) throws Exception {
 		EngineEntities entities = c.getEntities();
-		int version = c.getNextCoreVersion( );
+		int version = c.getNextSystemVersion( product.system );
 		DBEngineEntities.modifyAppEntity( c , entities.entityAppProductPolicyLifecycle , version , new String[] { 
 				EngineDB.getObject( product.ID ) ,
 				EngineDB.getObject( lcId )
