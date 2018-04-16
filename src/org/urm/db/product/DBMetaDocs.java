@@ -15,6 +15,7 @@ import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.Types.EnumModifyType;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaProductDoc;
@@ -65,18 +66,18 @@ public class DBMetaDocs {
 				entity.importxmlBooleanAttr( root , MetaProductDoc.PROPERTY_UNITBOUND , false )
 				);
 		
-		modifyDoc( c , storage , doc , true , DBEnumChangeType.CREATED );
+		modifyDoc( c , storage , doc , true , EnumModifyType.ORIGINAL );
 		return( doc );
 	}
 	
-	private static void modifyDoc( DBConnection c , ProductMeta storage , MetaProductDoc doc , boolean insert , DBEnumChangeType type ) throws Exception {
+	private static void modifyDoc( DBConnection c , ProductMeta storage , MetaProductDoc doc , boolean insert , EnumModifyType type ) throws Exception {
 		if( insert )
 			doc.ID = DBNames.getNameIndex( c , storage.ID , doc.NAME , DBEnumParamEntityType.PRODUCT_DOC );
 		else
 			DBNames.updateName( c , storage.ID , doc.NAME , doc.ID , DBEnumParamEntityType.PRODUCT_DOC );
 		
 		doc.PV = c.getNextProductVersion( storage );
-		doc.CHANGETYPE = type;
+		doc.CHANGETYPE = EngineDB.getChangeModify( insert , doc.CHANGETYPE , type );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaDoc , doc.ID , doc.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -85,7 +86,7 @@ public class DBMetaDocs {
 				EngineDB.getEnum( doc.DOC_CATEGORY ) ,
 				EngineDB.getString( doc.EXT ) ,
 				EngineDB.getBoolean( doc.UNITBOUND )
-				} , insert , type );
+				} , insert , doc.CHANGETYPE );
 	}
 	
 	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
@@ -124,6 +125,7 @@ public class DBMetaDocs {
 				MetaProductDoc doc = new MetaProductDoc( storage.meta , docs );
 				doc.ID = entity.loaddbId( rs );
 				doc.PV = entity.loaddbVersion( rs );
+				doc.CHANGETYPE = entity.loaddbChangeType( rs );
 				doc.createDoc( 
 						entity.loaddbString( rs , MetaProductDoc.PROPERTY_NAME ) , 
 						entity.loaddbString( rs , MetaProductDoc.PROPERTY_DESC ) ,
@@ -147,7 +149,7 @@ public class DBMetaDocs {
 		dst.setDocs( docs );
 		for( MetaProductDoc docSrc : docsSrc.getDocList() ) {
 			MetaProductDoc doc = docSrc.copy( dst.meta , docs );
-			modifyDoc( c , dst , doc , true , DBEnumChangeType.ORIGINAL );
+			modifyDoc( c , dst , doc , true , EnumModifyType.ORIGINAL );
 			docs.addDoc( doc );
 		}
 	}
@@ -161,7 +163,7 @@ public class DBMetaDocs {
 		
 		MetaProductDoc doc = new MetaProductDoc( storage.meta , docs );
 		doc.createDoc( name , desc , category , ext , unitbound );
-		modifyDoc( c , storage , doc , true , DBEnumChangeType.CREATED );
+		modifyDoc( c , storage , doc , true , EnumModifyType.NORMAL );
 		
 		docs.addDoc( doc );
 		return( doc );
@@ -172,7 +174,7 @@ public class DBMetaDocs {
 		DBConnection c = transaction.getConnection();
 		
 		doc.modifyDoc( name , desc , category , ext , unitbound );
-		modifyDoc( c , storage , doc , false , DBEnumChangeType.UPDATED );
+		modifyDoc( c , storage , doc , false , EnumModifyType.NORMAL );
 		
 		docs.updateDoc( doc );
 	}
@@ -184,8 +186,10 @@ public class DBMetaDocs {
 		MetaDistr distr = storage.getDistr();
 		DBMetaDistr.deleteDocument( transaction , storage , distr , doc );
 		
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDoc , doc.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
-		docs.removeDoc( doc );
+		doc.CHANGETYPE = EngineDB.getChangeDelete( doc.CHANGETYPE );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDoc , doc.ID , c.getNextProductVersion( storage ) , doc.CHANGETYPE );
+		if( doc.CHANGETYPE == null )
+			docs.removeDoc( doc );
 	}
 
 }

@@ -168,6 +168,9 @@ public class EngineDB {
 	}
 
 	public static DBEnumChangeType getChangeModify( boolean insert , DBEnumChangeType oldType , EnumModifyType type ) throws Exception {
+		if( type == EnumModifyType.SET )
+			return( oldType );
+		
 		if( insert ) {
 			if( type == EnumModifyType.ORIGINAL )
 				return( DBEnumChangeType.ORIGINAL );
@@ -198,6 +201,28 @@ public class EngineDB {
 		
 		if( oldType == DBEnumChangeType.UPDATED )
 			return( DBEnumChangeType.DELETED );
+		
+		Common.exitUnexpected();
+		return( null );
+	}
+
+	public static DBEnumChangeType getChangeAssociative( DBEnumChangeType oldType , boolean insert ) throws Exception {
+		if( insert ) {
+			if( oldType == null )
+				return( DBEnumChangeType.CREATED );
+			if( oldType == DBEnumChangeType.ORIGINAL || oldType == DBEnumChangeType.CREATED )
+				return( oldType );
+			if( oldType == DBEnumChangeType.DELETED )
+				return( DBEnumChangeType.ORIGINAL );
+			
+			Common.exitUnexpected();
+			return( null );
+		}
+
+		if( oldType == DBEnumChangeType.ORIGINAL || oldType == DBEnumChangeType.DELETED )
+			return( DBEnumChangeType.DELETED );
+		if( oldType == DBEnumChangeType.CREATED )
+			return( null );
 		
 		Common.exitUnexpected();
 		return( null );

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.db.core.DBEnums.DBEnumChangeType;
 import org.urm.meta.MatchItem;
 
 public class MetaDistr {
@@ -360,12 +361,12 @@ public class MetaDistr {
 		addConfItem( item );
 	}
 
-	public void addDeliverySchema( MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
-		delivery.addSchema( schema );
+	public void addDeliverySchema( MetaDistrDelivery delivery , MetaDatabaseSchema schema , DBEnumChangeType changeType ) throws Exception {
+		delivery.addSchema( schema , changeType );
 	}
 
-	public void addDeliveryDoc( MetaDistrDelivery delivery , MetaProductDoc doc ) throws Exception {
-		delivery.addDocument( doc );
+	public void addDeliveryDoc( MetaDistrDelivery delivery , MetaProductDoc doc , DBEnumChangeType changeType ) throws Exception {
+		delivery.addDocument( doc , changeType );
 	}
 
 	public void addBinaryItem( MetaDistrBinaryItem item ) throws Exception {

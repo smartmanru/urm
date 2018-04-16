@@ -175,8 +175,8 @@ public class DBMetaUnits {
 		MetaSources sources = storage.getSources();
 		DBMetaSources.deleteUnit( transaction , storage , sources , unit );
 		
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaUnit , unit.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
 		unit.CHANGETYPE = EngineDB.getChangeDelete( unit.CHANGETYPE );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaUnit , unit.ID , c.getNextProductVersion( storage ) , unit.CHANGETYPE );
 		if( unit.CHANGETYPE == null )
 			units.removeUnit( unit );
 	}

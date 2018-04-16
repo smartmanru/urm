@@ -1049,5 +1049,37 @@ public class MetaEnvServer extends EngineObject {
 			return( true );
 		return( false );
 	}
+
+	public MetaEnvServerDeployment findBinaryItemDeployment( MetaDistrBinaryItem item ) {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isBinaryItem( item ) )
+				return( deployment );
+		}
+		return( null );
+	}
+	
+	public MetaEnvServerDeployment findConfItemDeployment( MetaDistrConfItem item ) {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isConfItem( item ) )
+				return( deployment );
+		}
+		return( null );
+	}
+	
+	public MetaEnvServerDeployment findDatabaseSchemaDeployment( MetaDatabaseSchema schema ) {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isSchema( schema ) )
+				return( deployment );
+		}
+		return( null );
+	}
+
+	public MetaEnvServerDeployment findComponentDeployment( MetaDistrComponent comp ) {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isComponent( comp ) )
+				return( deployment );
+		}
+		return( null );
+	}
 	
 }

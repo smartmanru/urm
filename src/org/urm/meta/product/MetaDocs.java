@@ -56,6 +56,10 @@ public class MetaDocs {
 		return( mapDocs.get( name ) );
 	}
 	
+	public MetaProductDoc findDoc( int id ) {
+		return( mapDocsById.get( id ) );
+	}
+	
 	public MetaProductDoc findDoc( MatchItem item ) {
 		if( item == null )
 			return( null );

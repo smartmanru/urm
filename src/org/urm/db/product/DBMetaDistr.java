@@ -20,6 +20,7 @@ import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.Types.EnumModifyType;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
@@ -72,60 +73,60 @@ public class DBMetaDistr {
 		dst.setDistr( distr );
 		for( MetaDistrDelivery deliverySrc : distrSrc.getDeliveries() ) {
 			MetaDistrDelivery delivery = deliverySrc.copy( dst.meta , distr , db , docs , false );
-			modifyDelivery( c , dst , delivery , true , DBEnumChangeType.ORIGINAL );
+			modifyDelivery( c , dst , delivery , true , EnumModifyType.ORIGINAL );
 			distr.addDelivery( delivery );
 			
 			for( MetaDistrBinaryItem itemSrc : deliverySrc.getBinaryItems() ) {
 				MetaDistrBinaryItem item = itemSrc.copy( dst.meta , delivery );
-				modifyBinaryItem( c , dst , item , true , DBEnumChangeType.ORIGINAL );
+				modifyBinaryItem( c , dst , item , true , EnumModifyType.ORIGINAL );
 				distr.addBinaryItem( delivery , item );
 			}
 			
 			for( MetaDistrConfItem itemSrc : deliverySrc.getConfItems() ) {
 				MetaDistrConfItem item = itemSrc.copy( dst.meta , delivery );
-				modifyConfItem( c , dst , item , true , DBEnumChangeType.ORIGINAL );
+				modifyConfItem( c , dst , item , true , EnumModifyType.ORIGINAL );
 				distr.addConfItem( delivery , item );
 			}
 			
 			for( MetaDatabaseSchema schemaSrc : deliverySrc.getDatabaseSchemes() ) {
 				MetaDatabaseSchema schema = db.getSchema( schemaSrc.NAME );
-				modifyDeliverySchema( c , dst , delivery , schema , true , DBEnumChangeType.ORIGINAL );
-				distr.addDeliverySchema( delivery , schema );
+				DBEnumChangeType changeType = modifyDeliverySchema( c , dst , delivery , schema , true , EnumModifyType.ORIGINAL );
+				distr.addDeliverySchema( delivery , schema , changeType );
 			}
 			
 			for( MetaProductDoc docSrc : deliverySrc.getDocs() ) {
 				MetaProductDoc doc = docs.getDoc( docSrc.NAME );
-				modifyDeliveryDoc( c , dst , delivery , doc , true , DBEnumChangeType.ORIGINAL );
-				distr.addDeliveryDoc( delivery , doc );
+				DBEnumChangeType changeType = modifyDeliveryDoc( c , dst , delivery , doc , true , EnumModifyType.ORIGINAL );
+				distr.addDeliveryDoc( delivery , doc , changeType );
 			}
 		}
 
 		for( MetaDistrComponent compSrc : distrSrc.getComponents() ) {
 			MetaDistrComponent comp = compSrc.copy( dst.meta , distr , false );
-			modifyComponent( c , dst , comp , true , DBEnumChangeType.ORIGINAL );
+			modifyComponent( c , dst , comp , true , EnumModifyType.ORIGINAL );
 			distr.addComponent( comp );
 			
 			for( MetaDistrComponentItem itemSrc : compSrc.getBinaryItems() ) {
 				MetaDistrComponentItem item = itemSrc.copy( dst.meta , comp );
-				modifyComponentItem( c , dst , distr , comp , item , true , DBEnumChangeType.ORIGINAL );
+				modifyComponentItem( c , dst , distr , comp , item , true , EnumModifyType.ORIGINAL );
 				comp.addBinaryItem( item );
 			}
 			
 			for( MetaDistrComponentItem itemSrc : compSrc.getConfItems() ) {
 				MetaDistrComponentItem item = itemSrc.copy( dst.meta , comp );
-				modifyComponentItem( c , dst , distr , comp , item , true , DBEnumChangeType.ORIGINAL );
+				modifyComponentItem( c , dst , distr , comp , item , true , EnumModifyType.ORIGINAL );
 				comp.addConfItem( item );
 			}
 			
 			for( MetaDistrComponentItem itemSrc : compSrc.getSchemaItems() ) {
 				MetaDistrComponentItem item = itemSrc.copy( dst.meta , comp );
-				modifyComponentItem( c , dst , distr , comp , item , true , DBEnumChangeType.ORIGINAL );
+				modifyComponentItem( c , dst , distr , comp , item , true , EnumModifyType.ORIGINAL );
 				comp.addSchemaItem( item );
 			}
 			
 			for( MetaDistrComponentItem itemSrc : compSrc.getWebServices() ) {
 				MetaDistrComponentItem item = itemSrc.copy( dst.meta , comp );
-				modifyComponentItem( c , dst , distr , comp , item , true , DBEnumChangeType.ORIGINAL );
+				modifyComponentItem( c , dst , distr , comp , item , true , EnumModifyType.ORIGINAL );
 				comp.addWebService( item );
 			}
 		}
@@ -189,7 +190,7 @@ public class DBMetaDistr {
 				);
 		delivery.setDatabaseAll( entity.importxmlBooleanAttr( root , MetaDistrDelivery.PROPERTY_SCHEMA_ANY , false ) );
 		delivery.setDocAll( entity.importxmlBooleanAttr( root , MetaDistrDelivery.PROPERTY_DOC_ANY , false ) );
-		modifyDelivery( c , storage , delivery , true , DBEnumChangeType.CREATED );
+		modifyDelivery( c , storage , delivery , true , EnumModifyType.ORIGINAL );
 		
 		importxmlDeliveryBinaryItems( loader , storage , distr , delivery , root );
 		importxmlDeliveryConfItems( loader , storage , distr , delivery , root );
@@ -304,7 +305,7 @@ public class DBMetaDistr {
 				entity.importxmlBooleanAttr( root , MetaDistrBinaryItem.PROPERTY_CUSTOMDEPLOY , false )
 				);
 		
-		modifyBinaryItem( c , storage , item , true , DBEnumChangeType.CREATED );
+		modifyBinaryItem( c , storage , item , true , EnumModifyType.ORIGINAL );
 		
 		return( item );
 	}
@@ -336,7 +337,7 @@ public class DBMetaDistr {
 				entity.importxmlStringAttr( root , MetaDistrConfItem.PROPERTY_EXCLUDE ) ,
 				entity.importxmlStringAttr( root , MetaDistrConfItem.PROPERTY_EXTCONF )
 				);
-		modifyConfItem( c , storage , item , true , DBEnumChangeType.CREATED );
+		modifyConfItem( c , storage , item , true , EnumModifyType.ORIGINAL );
 		
 		return( item );
 	}
@@ -352,8 +353,8 @@ public class DBMetaDistr {
 		for( Node node : distitems ) {
 			String name = ConfReader.getAttrValue( node , ATTR_DELIVERY_SCHEMA );
 			MetaDatabaseSchema schema = database.getSchema( name );
-			distr.addDeliverySchema( delivery , schema );
-			modifyDeliverySchema( c , storage , delivery , schema , true , DBEnumChangeType.CREATED );
+			DBEnumChangeType changeType = modifyDeliverySchema( c , storage , delivery , schema , true , EnumModifyType.ORIGINAL );
+			distr.addDeliverySchema( delivery , schema , changeType );
 		}
 	}
 	
@@ -368,8 +369,8 @@ public class DBMetaDistr {
 		for( Node node : distitems ) {
 			String name = ConfReader.getAttrValue( node , ATTR_DELIVERY_DOCNAME );
 			MetaProductDoc doc = docs.getDoc( name );
-			distr.addDeliveryDoc( delivery , doc );
-			modifyDeliveryDoc( c , storage , delivery , doc , true , DBEnumChangeType.CREATED );
+			DBEnumChangeType changeType = modifyDeliveryDoc( c , storage , delivery , doc , true , EnumModifyType.ORIGINAL );
+			distr.addDeliveryDoc( delivery , doc , changeType );
 		}
 	}
 	
@@ -383,7 +384,7 @@ public class DBMetaDistr {
 				entity.importxmlStringAttr( root , MetaDistrComponent.PROPERTY_NAME ) ,
 				entity.importxmlStringAttr( root , MetaDistrComponent.PROPERTY_DESC )
 				);
-		modifyComponent( c , storage , comp , true , DBEnumChangeType.CREATED );
+		modifyComponent( c , storage , comp , true , EnumModifyType.ORIGINAL );
 
 		// component items
 		Node[] compitems = ConfReader.xmlGetChildren( root , ELEMENT_COMPITEM_BINARYITEM );
@@ -447,7 +448,7 @@ public class DBMetaDistr {
 		else
 			Common.exitUnexpected();
 
-		modifyComponentItem( c , storage , distr , comp , item , true , DBEnumChangeType.CREATED );
+		modifyComponentItem( c , storage , distr , comp , item , true , EnumModifyType.ORIGINAL );
 		return( item );
 	}
 
@@ -474,6 +475,7 @@ public class DBMetaDistr {
 				MetaDistrDelivery delivery = new MetaDistrDelivery( storage.meta , distr , db , docs );
 				delivery.ID = entity.loaddbId( rs );
 				delivery.PV = entity.loaddbVersion( rs );
+				delivery.CHANGETYPE = entity.loaddbChangeType( rs );
 				delivery.createDelivery( 
 						units.getUnitId( entity.loaddbString( rs , DBProductData.FIELD_DELIVERY_UNIT_ID ) ) ,
 						entity.loaddbString( rs , MetaDistrDelivery.PROPERTY_NAME ) ,
@@ -510,6 +512,7 @@ public class DBMetaDistr {
 				MetaDistrBinaryItem item = new MetaDistrBinaryItem( storage.meta , delivery );
 				item.ID = entity.loaddbId( rs );
 				item.PV = entity.loaddbVersion( rs );
+				item.CHANGETYPE = entity.loaddbChangeType( rs );
 				item.createBinaryItem( 
 						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_NAME ) ,
 						entity.loaddbString( rs , MetaDistrBinaryItem.PROPERTY_DESC ) ,
@@ -556,6 +559,7 @@ public class DBMetaDistr {
 				MetaDistrConfItem item = new MetaDistrConfItem( storage.meta , delivery );
 				item.ID = entity.loaddbId( rs );
 				item.PV = entity.loaddbVersion( rs );
+				item.CHANGETYPE = entity.loaddbChangeType( rs );
 				item.createConfItem(
 						entity.loaddbString( rs , MetaDistrConfItem.PROPERTY_NAME ) ,
 						entity.loaddbString( rs , MetaDistrConfItem.PROPERTY_DESC ) ,
@@ -578,13 +582,15 @@ public class DBMetaDistr {
 		DBConnection c = loader.getConnection();
 		MetaDatabase db = storage.getDatabase();
 		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrDeliverySchema;
 		
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entities.entityAppMetaDistrDeliverySchema , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		try {
 			while( rs.next() ) {
 				MetaDistrDelivery delivery = distr.getDelivery( rs.getInt( 1 ) );
 				MetaDatabaseSchema schema = db.getSchema( rs.getInt( 2 ) );
-				delivery.addSchema( schema );
+				DBEnumChangeType changeType = entity.loaddbChangeType( rs );
+				delivery.addSchema( schema , changeType );
 			}
 		}
 		finally {
@@ -596,13 +602,15 @@ public class DBMetaDistr {
 		DBConnection c = loader.getConnection();
 		MetaDocs docs = storage.getDocs();
 		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaDistrDeliveryDoc;
 		
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entities.entityAppMetaDistrDeliveryDoc , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		try {
 			while( rs.next() ) {
 				MetaDistrDelivery delivery = distr.getDelivery( rs.getInt( 1 ) );
 				MetaProductDoc doc = docs.getDoc( rs.getInt( 2 ) );
-				delivery.addDocument( doc );
+				DBEnumChangeType changeType = entity.loaddbChangeType( rs );
+				delivery.addDocument( doc , changeType );
 			}
 		}
 		finally {
@@ -621,6 +629,7 @@ public class DBMetaDistr {
 				MetaDistrComponent comp = new MetaDistrComponent( storage.meta , distr );
 				comp.ID = entity.loaddbId( rs );
 				comp.PV = entity.loaddbVersion( rs );
+				comp.CHANGETYPE = entity.loaddbChangeType( rs );
 				comp.createComponent(
 						entity.loaddbString( rs , MetaDistrComponent.PROPERTY_NAME ) ,
 						entity.loaddbString( rs , MetaDistrComponent.PROPERTY_DESC )
@@ -648,6 +657,7 @@ public class DBMetaDistr {
 				MetaDistrComponentItem item = new MetaDistrComponentItem( storage.meta , comp );
 				item.ID = entity.loaddbId( rs );
 				item.PV = entity.loaddbVersion( rs );
+				item.CHANGETYPE = entity.loaddbChangeType( rs );
 				
 				DBEnumCompItemType type = DBEnumCompItemType.getValue( entity.loaddbEnum( rs , DBProductData.FIELD_COMPITEM_TYPE ) , true );
 				String deployName = entity.loaddbString( rs , MetaDistrComponentItem.PROPERTY_DEPLOYNAME );
@@ -852,14 +862,14 @@ public class DBMetaDistr {
 		}
 	}
 	
-	private static void modifyDelivery( DBConnection c , ProductMeta storage , MetaDistrDelivery delivery , boolean insert , DBEnumChangeType type ) throws Exception {
+	private static void modifyDelivery( DBConnection c , ProductMeta storage , MetaDistrDelivery delivery , boolean insert , EnumModifyType type ) throws Exception {
 		if( insert )
 			delivery.ID = DBNames.getNameIndex( c , storage.ID , delivery.NAME , DBEnumParamEntityType.PRODUCT_DIST_DELIVERY );
 		else
 			DBNames.updateName( c , storage.ID , delivery.NAME , delivery.ID , DBEnumParamEntityType.PRODUCT_DIST_DELIVERY );
 		
 		delivery.PV = c.getNextProductVersion( storage );
-		delivery.CHANGETYPE = type;
+		delivery.CHANGETYPE = EngineDB.getChangeModify( insert , delivery.CHANGETYPE , type );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaDistrDelivery , delivery.ID , delivery.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) ,
@@ -869,30 +879,34 @@ public class DBMetaDistr {
 				EngineDB.getString( delivery.FOLDER ) ,
 				EngineDB.getBoolean( delivery.SCHEMA_ANY ) ,
 				EngineDB.getBoolean( delivery.DOC_ANY )
-				} , insert , type );
+				} , insert , delivery.CHANGETYPE );
 	}
 	
-	private static void modifyDeliverySchema( DBConnection c , ProductMeta storage , MetaDistrDelivery delivery , MetaDatabaseSchema schema , boolean insert , DBEnumChangeType type ) throws Exception {
+	private static DBEnumChangeType modifyDeliverySchema( DBConnection c , ProductMeta storage , MetaDistrDelivery delivery , MetaDatabaseSchema schema , boolean insert , EnumModifyType type ) throws Exception {
 		int version = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
+		DBEnumChangeType changeType = EngineDB.getChangeModify( insert , delivery.getSchemaChangeType( schema ) , type );
 		DBEngineEntities.modifyAppEntity( c , entities.entityAppMetaDistrDeliverySchema , version , new String[] {
 				EngineDB.getInteger( delivery.ID ) ,
 				EngineDB.getInteger( schema.ID ) ,
 				EngineDB.getInteger( storage.ID )
-				} , insert , type );
+				} , insert , changeType );
+		return( changeType );
 	}
 	
-	private static void modifyDeliveryDoc( DBConnection c , ProductMeta storage , MetaDistrDelivery delivery , MetaProductDoc doc , boolean insert , DBEnumChangeType type ) throws Exception {
+	private static DBEnumChangeType modifyDeliveryDoc( DBConnection c , ProductMeta storage , MetaDistrDelivery delivery , MetaProductDoc doc , boolean insert , EnumModifyType type ) throws Exception {
 		int version = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
+		DBEnumChangeType changeType = EngineDB.getChangeModify( insert , delivery.getDocChangeType( doc ) , type );
 		DBEngineEntities.modifyAppEntity( c , entities.entityAppMetaDistrDeliveryDoc , version , new String[] {
 				EngineDB.getInteger( delivery.ID ) ,
 				EngineDB.getInteger( doc.ID ) ,
 				EngineDB.getInteger( storage.ID )
-				} , insert , type );
+				} , insert , changeType );
+		return( changeType );
 	}
 	
-	private static void modifyBinaryItem( DBConnection c , ProductMeta storage , MetaDistrBinaryItem item , boolean insert , DBEnumChangeType type ) throws Exception {
+	private static void modifyBinaryItem( DBConnection c , ProductMeta storage , MetaDistrBinaryItem item , boolean insert , EnumModifyType type ) throws Exception {
 		EngineEntities entities = c.getEntities();
 		if( insert )
 			item.ID = DBNames.getNameIndex( c , storage.ID , item.NAME , DBEnumParamEntityType.PRODUCT_DIST_BINARYITEM );
@@ -900,7 +914,7 @@ public class DBMetaDistr {
 			DBNames.updateName( c , storage.ID , item.NAME , item.ID , DBEnumParamEntityType.PRODUCT_DIST_BINARYITEM );
 		
 		item.PV = c.getNextProductVersion( storage );
-		item.CHANGETYPE = type;
+		item.CHANGETYPE = EngineDB.getChangeModify( insert , item.CHANGETYPE , type );
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaDistrBinaryItem , item.ID , item.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) ,
 				EngineDB.getObject( item.delivery.ID ) ,
@@ -921,17 +935,17 @@ public class DBMetaDistr {
 				EngineDB.getString( item.WAR_CONTEXT ) ,
 				EngineDB.getBoolean( item.CUSTOM_GET ) ,
 				EngineDB.getBoolean( item.CUSTOM_DEPLOY )
-				} , insert , type );
+				} , insert , item.CHANGETYPE );
 	}
 	
-	private static void modifyConfItem( DBConnection c , ProductMeta storage , MetaDistrConfItem item , boolean insert , DBEnumChangeType type ) throws Exception {
+	private static void modifyConfItem( DBConnection c , ProductMeta storage , MetaDistrConfItem item , boolean insert , EnumModifyType type ) throws Exception {
 		if( insert )
 			item.ID = DBNames.getNameIndex( c , storage.ID , item.NAME , DBEnumParamEntityType.PRODUCT_DIST_CONFITEM );
 		else
 			DBNames.updateName( c , storage.ID , item.NAME , item.ID , DBEnumParamEntityType.PRODUCT_DIST_CONFITEM );
 		
 		item.PV = c.getNextProductVersion( storage );
-		item.CHANGETYPE = type;
+		item.CHANGETYPE = EngineDB.getChangeModify( insert , item.CHANGETYPE , type );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaDistrConfItem , item.ID , item.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) ,
@@ -944,26 +958,26 @@ public class DBMetaDistr {
 				EngineDB.getString( item.SECURED ) ,
 				EngineDB.getString( item.EXCLUDE ) ,
 				EngineDB.getString( item.EXTCONF )
-				} , insert , type );
+				} , insert , item.CHANGETYPE );
 	}
 	
-	private static void modifyComponent( DBConnection c , ProductMeta storage , MetaDistrComponent comp , boolean insert , DBEnumChangeType type ) throws Exception {
+	private static void modifyComponent( DBConnection c , ProductMeta storage , MetaDistrComponent comp , boolean insert , EnumModifyType type ) throws Exception {
 		if( insert )
 			comp.ID = DBNames.getNameIndex( c , storage.ID , comp.NAME , DBEnumParamEntityType.PRODUCT_DIST_COMPONENT );
 		else
 			DBNames.updateName( c , storage.ID , comp.NAME , comp.ID , DBEnumParamEntityType.PRODUCT_DIST_COMPONENT );
 		
 		comp.PV = c.getNextProductVersion( storage );
-		comp.CHANGETYPE = type;
+		comp.CHANGETYPE = EngineDB.getChangeModify( insert , comp.CHANGETYPE , type );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaDistrComponent , comp.ID , comp.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) ,
 				EngineDB.getString( comp.NAME ) ,
 				EngineDB.getString( comp.DESC )
-				} , insert , type );
+				} , insert , comp.CHANGETYPE );
 	}
 
-	private static void modifyComponentItem( DBConnection c , ProductMeta storage , MetaDistr distr , MetaDistrComponent comp , MetaDistrComponentItem item , boolean insert , DBEnumChangeType type ) throws Exception {
+	private static void modifyComponentItem( DBConnection c , ProductMeta storage , MetaDistr distr , MetaDistrComponent comp , MetaDistrComponentItem item , boolean insert , EnumModifyType type ) throws Exception {
 		String name = item.getMatchName();
 		if( insert )
 			item.ID = DBNames.getNameIndex( c , comp.ID , name , DBEnumParamEntityType.PRODUCT_DIST_COMPITEM );
@@ -971,7 +985,7 @@ public class DBMetaDistr {
 			DBNames.updateName( c , comp.ID , name , item.ID , DBEnumParamEntityType.PRODUCT_DIST_COMPITEM );
 		
 		item.PV = c.getNextProductVersion( storage );
-		item.CHANGETYPE = type;
+		item.CHANGETYPE = EngineDB.getChangeModify( insert , item.CHANGETYPE , type );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaDistrCompItem , item.ID , item.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) ,
@@ -982,7 +996,7 @@ public class DBMetaDistr {
 				EngineDB.getObject( item.schema ) ,
 				EngineDB.getString( item.DEPLOY_NAME ) ,
 				EngineDB.getString( item.WSDL_REQUEST )
-				} , insert , type );
+				} , insert , item.CHANGETYPE );
 	}
 
 	public static MetaDistrDelivery createDelivery( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , Integer unitId , String name , String desc , String folder ) throws Exception {
@@ -992,7 +1006,7 @@ public class DBMetaDistr {
 		MetaDocs docs = storage.getDocs();
 		MetaDistrDelivery delivery = new MetaDistrDelivery( storage.meta , distr , db , docs );
 		delivery.createDelivery( unitId , name , desc , folder );
-		modifyDelivery( c , storage , delivery , true , DBEnumChangeType.CREATED );
+		modifyDelivery( c , storage , delivery , true , EnumModifyType.NORMAL );
 		
 		distr.addDelivery( delivery );
 		return( delivery );
@@ -1002,7 +1016,7 @@ public class DBMetaDistr {
 		DBConnection c = transaction.getConnection();
 		
 		delivery.modifyDelivery( unitId , name , desc , folder );
-		modifyDelivery( c , storage , delivery , false , DBEnumChangeType.UPDATED );
+		modifyDelivery( c , storage , delivery , false , EnumModifyType.NORMAL );
 		
 		distr.updateDelivery( delivery );
 	}
@@ -1014,8 +1028,10 @@ public class DBMetaDistr {
 		if( !delivery.isEmpty() )
 			Common.exitUnexpected();
 		
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrDelivery , delivery.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
-		distr.removeDelivery( delivery );
+		delivery.CHANGETYPE = EngineDB.getChangeDelete( delivery.CHANGETYPE );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrDelivery , delivery.ID , c.getNextProductVersion( storage ) , delivery.CHANGETYPE );
+		if( delivery.CHANGETYPE == null )
+			distr.removeDelivery( delivery );
 	}
 
 	public static MetaDistrBinaryItem createBinaryItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , 
@@ -1040,7 +1056,7 @@ public class DBMetaDistr {
 			item.setManualOrigin();
 		item.setCustom( customGet , customDeploy );
 		
-		modifyBinaryItem( c , storage , item , true , DBEnumChangeType.CREATED );
+		modifyBinaryItem( c , storage , item , true , EnumModifyType.NORMAL );
 		
 		distr.addBinaryItem( delivery , item );
 		return( item );
@@ -1070,7 +1086,7 @@ public class DBMetaDistr {
 			item.setManualOrigin();
 		item.setCustom( customGet , customDeploy );
 		
-		modifyBinaryItem( c , storage , item , false , DBEnumChangeType.UPDATED );
+		modifyBinaryItem( c , storage , item , false , EnumModifyType.NORMAL );
 		
 		distr.updateBinaryItem( item );
 	}
@@ -1090,23 +1106,24 @@ public class DBMetaDistr {
 				comp.removeCompItem( compItem );
 		}
 
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrBinaryItem , item.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
-		
-		distr.removeBinaryItem( item.delivery , item );
+		item.CHANGETYPE = EngineDB.getChangeDelete( item.CHANGETYPE );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrBinaryItem , item.ID , c.getNextProductVersion( storage ) , item.CHANGETYPE );
+		if( item.CHANGETYPE == null )
+			distr.removeBinaryItem( item.delivery , item );
 	}
 
 	public static void changeBinaryItemDelivery( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrBinaryItem item , MetaDistrDelivery delivery ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		delivery.moveItemToThis( item );
-		modifyBinaryItem( c , storage , item , false , DBEnumChangeType.UPDATED );
+		modifyBinaryItem( c , storage , item , false , EnumModifyType.NORMAL );
 	}
 	
 	public static void changeBinaryItemProjectToManual( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrBinaryItem item ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		item.changeProjectToManual();
-		modifyBinaryItem( c , storage , item , false , DBEnumChangeType.UPDATED );
+		modifyBinaryItem( c , storage , item , false , EnumModifyType.NORMAL );
 	}
 
 	public static MetaDistrConfItem createConfItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery ,
@@ -1115,7 +1132,7 @@ public class DBMetaDistr {
 		
 		MetaDistrConfItem item = new MetaDistrConfItem( storage.meta , delivery );
 		item.createConfItem( name , desc , type , files , templates , secured , exclude , extconf );
-		modifyConfItem( c , storage , item , true , DBEnumChangeType.CREATED );
+		modifyConfItem( c , storage , item , true , EnumModifyType.NORMAL );
 		
 		distr.addConfItem( delivery , item );
 		return( item );
@@ -1126,7 +1143,7 @@ public class DBMetaDistr {
 		DBConnection c = transaction.getConnection();
 		
 		item.modifyConfItem( name , desc , type , files , templates , secured , exclude , extconf );
-		modifyConfItem( c , storage , item , false , DBEnumChangeType.UPDATED );
+		modifyConfItem( c , storage , item , false , EnumModifyType.NORMAL );
 		
 		distr.updateConfItem( item );
 	}
@@ -1146,9 +1163,10 @@ public class DBMetaDistr {
 				comp.removeCompItem( compItem );
 		}
 
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrConfItem , item.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
-		
-		distr.removeConfItem( item.delivery , item );
+		item.CHANGETYPE = EngineDB.getChangeDelete( item.CHANGETYPE );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrConfItem , item.ID , c.getNextProductVersion( storage ) , item.CHANGETYPE );
+		if( item.CHANGETYPE == null )
+			distr.removeConfItem( item.delivery , item );
 	}
 
 	public static void setDeliveryDatabaseAll( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery ) throws Exception {
@@ -1157,25 +1175,26 @@ public class DBMetaDistr {
 		
 		delivery.setDatabaseAll( true );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrDeliverySchema , DBQueries.FILTER_DELIVERY_ID1 , new String[] { EngineDB.getInteger( delivery.ID ) } );
-		modifyDelivery( c , storage , delivery , false , DBEnumChangeType.UPDATED );
+		modifyDelivery( c , storage , delivery , false , EnumModifyType.NORMAL );
 	}
 	
 	public static void setDeliveryDatabaseSet( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , MetaDatabaseSchema[] set ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
+		MetaDatabase db = storage.getDatabase();
 		
 		boolean needUpdate = false;
 		if( delivery.SCHEMA_ANY )
 			needUpdate = true;
 			
-		delivery.setDatabaseSet( set );
+		setDatabaseSet( delivery , db , set );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrDeliverySchema , DBQueries.FILTER_DELIVERY_ID1 , new String[] { EngineDB.getInteger( delivery.ID ) } );
 		
 		if( needUpdate )
-			modifyDelivery( c , storage , delivery , false , DBEnumChangeType.UPDATED );
+			modifyDelivery( c , storage , delivery , false , EnumModifyType.NORMAL );
 
 		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() )
-			modifyDeliverySchema( c , storage , delivery , schema , true , DBEnumChangeType.CREATED );
+			modifyDeliverySchema( c , storage , delivery , schema , true , EnumModifyType.SET );
 	}
 	
 	public static void setDeliveryDocumentationAll( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery ) throws Exception {
@@ -1184,25 +1203,26 @@ public class DBMetaDistr {
 		
 		delivery.setDocAll( true );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrDeliveryDoc , DBQueries.FILTER_DELIVERY_ID1 , new String[] { EngineDB.getInteger( delivery.ID ) } );
-		modifyDelivery( c , storage , delivery , false , DBEnumChangeType.UPDATED );
+		modifyDelivery( c , storage , delivery , false , EnumModifyType.NORMAL );
 	}
 	
 	public static void setDeliveryDocSet( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrDelivery delivery , MetaProductDoc[] set ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
+		MetaDocs docs = storage.getDocs();
 		
 		boolean needUpdate = false;
 		if( delivery.DOC_ANY )
 			needUpdate = true;
 			
-		delivery.setDocSet( set );
+		setDocSet( delivery , docs , set );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDistrDeliveryDoc , DBQueries.FILTER_DELIVERY_ID1 , new String[] { EngineDB.getInteger( delivery.ID ) } );
 		
 		if( needUpdate )
-			modifyDelivery( c , storage , delivery , false , DBEnumChangeType.UPDATED );
+			modifyDelivery( c , storage , delivery , false , EnumModifyType.NORMAL );
 
 		for( MetaProductDoc doc : delivery.getDocs() )
-			modifyDeliveryDoc( c , storage , delivery , doc , true , DBEnumChangeType.CREATED );
+			modifyDeliveryDoc( c , storage , delivery , doc , true , EnumModifyType.SET );
 	}
 	
 	public static void deleteDatabaseSchema( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDatabaseSchema schema ) throws Exception {
@@ -1222,7 +1242,7 @@ public class DBMetaDistr {
 		
 		MetaDistrComponent comp = new MetaDistrComponent( storage.meta , distr );
 		comp.createComponent( name , desc );
-		modifyComponent( c , storage , comp , true , DBEnumChangeType.CREATED );
+		modifyComponent( c , storage , comp , true , EnumModifyType.NORMAL );
 		
 		distr.addComponent( comp );
 		return( comp );
@@ -1232,7 +1252,7 @@ public class DBMetaDistr {
 		DBConnection c = transaction.getConnection();
 		
 		comp.modifyComponent( name , desc );
-		modifyComponent( c , storage , comp , false , DBEnumChangeType.UPDATED );
+		modifyComponent( c , storage , comp , false , EnumModifyType.NORMAL );
 		
 		distr.updateComponent( comp );
 	}
@@ -1244,9 +1264,10 @@ public class DBMetaDistr {
 		if( !c.modify( DBQueries.MODIFY_DISTR_CASCADECOMP_ALLITEMS1 , new String[] { EngineDB.getInteger( comp.ID ) } ) )
 			Common.exitUnexpected();
 		
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrComponent , comp.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
-		
-		distr.removeComponent( comp );
+		comp.CHANGETYPE = EngineDB.getChangeDelete( comp.CHANGETYPE );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrComponent , comp.ID , c.getNextProductVersion( storage ) , comp.CHANGETYPE );
+		if( comp.CHANGETYPE == null )
+			distr.removeComponent( comp );
 	}
 
 	public static void deleteUnit( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaProductUnit unit ) throws Exception {
@@ -1255,7 +1276,7 @@ public class DBMetaDistr {
 		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
 			if( Common.equalsIntegers( delivery.UNIT_ID , unit.ID ) ) {
 				delivery.clearUnit();
-				modifyDelivery( c , storage , delivery , false , DBEnumChangeType.UPDATED );
+				modifyDelivery( c , storage , delivery , false , EnumModifyType.NORMAL );
 			}
 		}
 	}	
@@ -1285,7 +1306,7 @@ public class DBMetaDistr {
 		else
 			Common.exitUnexpected();
 		
-		modifyComponentItem( c , storage , distr , comp , item , true , DBEnumChangeType.CREATED );
+		modifyComponentItem( c , storage , distr , comp , item , true , EnumModifyType.NORMAL );
 		
 		comp.addItem( item );
 		return( item );
@@ -1308,16 +1329,75 @@ public class DBMetaDistr {
 		else
 			Common.exitUnexpected();
 		
-		modifyComponentItem( c , storage , distr , comp , item , false , DBEnumChangeType.UPDATED );
+		modifyComponentItem( c , storage , distr , comp , item , false , EnumModifyType.NORMAL );
 	}
 	
 	public static void deleteComponentItem( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaDistrComponent comp , MetaDistrComponentItem item ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
 		
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrCompItem , item.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
+		item.CHANGETYPE = EngineDB.getChangeDelete( item.CHANGETYPE );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrCompItem , item.ID , c.getNextProductVersion( storage ) , item.CHANGETYPE );
+		if( item.CHANGETYPE == null )
+			comp.removeCompItem( item );
+	}
+
+	private static void setDatabaseSet( MetaDistrDelivery delivery , MetaDatabase db , MetaDatabaseSchema[] set ) throws Exception {
+		delivery.setDatabaseAll( false );
+
+		for( MetaDatabaseSchema schema : set ) {
+			DBEnumChangeType type = delivery.getSchemaChangeType( schema );
+			type = EngineDB.getChangeAssociative( type , true );
+		}
 		
-		comp.removeCompItem( item );
+		for( int id : delivery.getSchemaIds() ) {
+			boolean delete = true;
+			for( MetaDatabaseSchema schema : set ) {
+				if( schema.ID == id ) {
+					delete = false;
+					break;
+				}
+			}
+
+			if( delete ) {
+				DBEnumChangeType type = delivery.getSchemaChangeType( id );
+				type = EngineDB.getChangeAssociative( type , false );
+				MetaDatabaseSchema schema = db.getSchema( id );
+				if( type == null )
+					delivery.removeSchema( schema );
+				else
+					delivery.addSchema( schema , type );
+			}
+		}
+	}
+	
+	private static void setDocSet( MetaDistrDelivery delivery , MetaDocs docs , MetaProductDoc[] set ) throws Exception {
+		delivery.setDocAll( false );
+			
+		for( MetaProductDoc doc : set ) {
+			DBEnumChangeType type = delivery.getDocChangeType( doc );
+			type = EngineDB.getChangeAssociative( type , true );
+		}
+		
+		for( int id : delivery.getDocIds() ) {
+			boolean delete = true;
+			for( MetaProductDoc doc : set ) {
+				if( doc.ID == id ) {
+					delete = false;
+					break;
+				}
+			}
+
+			if( delete ) {
+				DBEnumChangeType type = delivery.getDocChangeType( id );
+				type = EngineDB.getChangeAssociative( type , false );
+				MetaProductDoc doc = docs.getDoc( id );
+				if( type == null )
+					delivery.removeDoc( doc );
+				else
+					delivery.addDocument( doc , type );
+			}
+		}
 	}
 	
 }

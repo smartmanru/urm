@@ -475,10 +475,10 @@ public class DBMetaEnvServer {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			deployment = deployment.copy( storage.meta , server );
 			server.addDeployment( deployment );
-			DBMetaEnvServerDeployment.modifyDeployment( c , storage , env , deployment , true );
+			DBMetaEnvServerDeployment.modifyDeployment( c , storage , env , server , deployment , true );
 		}
 	}
-	
+
 	public static void updateCustomProperties( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		ObjectProperties ops = server.getProperties();

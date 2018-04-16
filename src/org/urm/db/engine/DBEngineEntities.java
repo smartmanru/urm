@@ -59,12 +59,12 @@ public abstract class DBEngineEntities {
 		updateAppObject( c , entity , id , version , values , null );
 	}
 	
-	public static DBEnumChangeType modifyAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values , boolean insert , DBEnumChangeType type ) throws Exception {
+	public static void modifyAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values , boolean insert , DBEnumChangeType type ) throws Exception {
 		if( !entity.CHANGEABLE )
 			Common.exitUnexpected();
 		if( insert )
-			return( insertAppObject( c , entity , id , version , values , type ) );
-		return( updateAppObject( c , entity , id , version , values , type ) );
+			insertAppObject( c , entity , id , version , values , type );
+		updateAppObject( c , entity , id , version , values , type );
 	}
 	
 	public static void modifyAppEntity( DBConnection c , PropertyEntity entity , int version , String[] values , boolean insert ) throws Exception {
@@ -77,17 +77,17 @@ public abstract class DBEngineEntities {
 		updateAppObject( c , entity , null , version , values , null );
 	}
 	
-	public static DBEnumChangeType modifyAppEntity( DBConnection c , PropertyEntity entity , int version , String[] values , boolean insert , DBEnumChangeType type ) throws Exception {
+	public static void modifyAppEntity( DBConnection c , PropertyEntity entity , int version , String[] values , boolean insert , DBEnumChangeType type ) throws Exception {
 		if( !entity.CHANGEABLE )
 			Common.exitUnexpected();
 		if( entity.hasId() )
 			Common.exitUnexpected();
 		if( insert )
-			return( insertAppObject( c , entity , null , version , values , type ) );
-		return( updateAppObject( c , entity , null , version , values , type ) );
+			insertAppObject( c , entity , null , version , values , type );
+		updateAppObject( c , entity , null , version , values , type );
 	}
 	
-	private static DBEnumChangeType insertAppObject( DBConnection c , PropertyEntity entity , Integer id , int version , String[] values , DBEnumChangeType type ) throws Exception {
+	private static void insertAppObject( DBConnection c , PropertyEntity entity , Integer id , int version , String[] values , DBEnumChangeType type ) throws Exception {
 		if( entity.hasId() ) {
 			if( id == null )
 				Common.exitUnexpected();
@@ -133,7 +133,6 @@ public abstract class DBEngineEntities {
 		
 		if( !c.modify( query , valuesFinal ) )
 			Common.exitUnexpected();
-		return( type );
 	}
 	
 	private static String getFieldList( PropertyEntity entity ) {
@@ -154,7 +153,7 @@ public abstract class DBEngineEntities {
 		return( list );
 	}
 	
-	private static DBEnumChangeType updateAppObject( DBConnection c , PropertyEntity entity , Integer id , int version , String[] values , DBEnumChangeType type ) throws Exception {
+	private static void updateAppObject( DBConnection c , PropertyEntity entity , Integer id , int version , String[] values , DBEnumChangeType type ) throws Exception {
 		if( entity.hasId() ) {
 			if( id == null )
 				Common.exitUnexpected();
@@ -200,7 +199,6 @@ public abstract class DBEngineEntities {
 		
 		if( !c.modify( query ) )
 			Common.exitUnexpected();
-		return( type );
 	}
 
 	public static ResultSet listAppObjects( DBConnection c , PropertyEntity entity ) throws Exception {
@@ -232,27 +230,29 @@ public abstract class DBEngineEntities {
 	public static void deleteAppObject( DBConnection c , PropertyEntity entity , int id , int version ) throws Exception {
 		if( entity.CHANGEABLE )
 			Common.exitUnexpected();
-		deleteAppObject( c , entity , id , version , false );
+		deleteAppObject( c , entity , id , version , null );
 	}
 	
-	public static DBEnumChangeType deleteAppObject( DBConnection c , PropertyEntity entity , int id , int version , boolean draft ) throws Exception {
+	public static void deleteAppObject( DBConnection c , PropertyEntity entity , int id , int version , DBEnumChangeType changeType ) throws Exception {
 		if( id <= 0 || version <= 0 )
 			Common.exitUnexpected();
 		
 		String query = null;
-		DBEnumChangeType type = null;
-		if( entity.CHANGEABLE && draft ) {
+		if( entity.CHANGEABLE && changeType == DBEnumChangeType.DELETED ) {
 			String fieldVersion = getVersionField( entity.DATA_OBJECTVERSION_TYPE );
-			type = DBEnumChangeType.DELETED;
-			query = "update " + entity.APP_TABLE + " set change_type = " + EngineDB.getEnum( type ) +
+			query = "update " + entity.APP_TABLE + " set change_type = " + EngineDB.getEnum( changeType ) +
 					", " + fieldVersion + " = " + version +
 					" where " + entity.getIdField() + " = " + id;
 		}
-		else
+		else {
+			if( changeType != null )
+				Common.exitUnexpected();
+			
 			query = "delete from " + entity.APP_TABLE + " where " + entity.getIdField() + " = " + id;
+		}
+		
 		if( !c.modify( query ) )
 			Common.exitUnexpected();
-		return( type );
 	}
 	
 	public static void dropAppObjects( DBConnection c , PropertyEntity entity ) throws Exception {

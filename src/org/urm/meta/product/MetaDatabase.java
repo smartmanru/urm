@@ -66,6 +66,10 @@ public class MetaDatabase {
 		return( mapSchema.get( name ) );
 	}
 
+	public MetaDatabaseSchema findSchema( int id ) {
+		return( mapSchemaById.get( id ) );
+	}
+
 	public MetaDatabaseSchema findSchema( MatchItem item ) {
 		if( item == null )
 			return( null );

@@ -20,6 +20,7 @@ public class MetaDatabaseSchema {
 	public String DBNAMEDEF;
 	public String DBUSERDEF;
 	public int PV;
+	public DBEnumChangeType CHANGETYPE;
 	
 	public MetaDatabaseSchema( Meta meta , MetaDatabase database ) {
 		this.meta = meta;
@@ -38,6 +39,7 @@ public class MetaDatabaseSchema {
 		r.DBUSERDEF = DBUSERDEF;
 		r.DESC = DESC;
 		r.PV = PV;
+		r.CHANGETYPE = CHANGETYPE;
 		return( r );
 	}
 

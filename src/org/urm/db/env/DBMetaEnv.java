@@ -26,6 +26,8 @@ import org.urm.meta.EngineMatcher;
 import org.urm.meta.MatchItem;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -338,14 +340,28 @@ public class DBMetaEnv {
 
 	public static void deleteBinaryItem( EngineTransaction transaction , ProductMeta storage , MetaDistrBinaryItem item ) throws Exception {
 		ProductEnvs envs = storage.getEnviroments();
-		envs.removeBinaryItemFromEnvironments( item );
-		Common.exitUnexpected();
+		for( MetaEnv env : envs.getEnvs() ) {
+			for( MetaEnvSegment sg : env.getSegments() ) {
+				for( MetaEnvServer server : sg.getServers() ) {
+					MetaEnvServerDeployment deployment = server.findBinaryItemDeployment( item );
+					if( deployment != null )
+						DBMetaEnvServerDeployment.deleteDeployment( transaction , storage , env , server , deployment );
+				}
+			}
+		}
 	}
 	
 	public static void deleteConfItem( EngineTransaction transaction , ProductMeta storage , MetaDistrConfItem item ) throws Exception {
 		ProductEnvs envs = storage.getEnviroments();
-		envs.removeConfItemFromEnvironments( item );
-		Common.exitUnexpected();
+		for( MetaEnv env : envs.getEnvs() ) {
+			for( MetaEnvSegment sg : env.getSegments() ) {
+				for( MetaEnvServer server : sg.getServers() ) {
+					MetaEnvServerDeployment deployment = server.findConfItemDeployment( item );
+					if( deployment != null )
+						DBMetaEnvServerDeployment.deleteDeployment( transaction , storage , env , server , deployment );
+				}
+			}
+		}
 	}
 
 	public static MetaEnv createEnv( EngineTransaction transaction , ProductMeta storage , String name , String desc , DBEnumEnvType envType ) throws Exception {

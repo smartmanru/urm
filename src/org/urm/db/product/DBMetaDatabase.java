@@ -16,6 +16,7 @@ import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.Types.EnumModifyType;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -44,7 +45,7 @@ public class DBMetaDatabase {
 		
 		for( MetaDatabaseSchema schemaSrc : databaseSrc.getSchemaList() ) {
 			MetaDatabaseSchema schema = schemaSrc.copy( dst.meta , database );
-			modifySchema( c , dst , schema , true , DBEnumChangeType.ORIGINAL );
+			modifySchema( c , dst , schema , true , EnumModifyType.ORIGINAL );
 		}
 	}
 
@@ -84,17 +85,18 @@ public class DBMetaDatabase {
 				entity.importxmlStringAttr( node , MetaDatabaseSchema.PROPERTY_DBUSER )
 				);
 		
-		modifySchema( c , storage , schema , true , DBEnumChangeType.CREATED );
+		modifySchema( c , storage , schema , true , EnumModifyType.ORIGINAL );
 		return( schema );
 	}
 
-	private static void modifySchema( DBConnection c , ProductMeta storage , MetaDatabaseSchema schema , boolean insert , DBEnumChangeType type ) throws Exception {
+	private static void modifySchema( DBConnection c , ProductMeta storage , MetaDatabaseSchema schema , boolean insert , EnumModifyType type ) throws Exception {
 		if( insert )
 			schema.ID = DBNames.getNameIndex( c , storage.ID , schema.NAME , DBEnumParamEntityType.PRODUCT_SCHEMA );
 		else
 			DBNames.updateName( c , storage.ID , schema.NAME , schema.ID , DBEnumParamEntityType.PRODUCT_SCHEMA );
 		
 		schema.PV = c.getNextProductVersion( storage );
+		schema.CHANGETYPE = EngineDB.getChangeModify( insert , schema.CHANGETYPE , type );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaSchema , schema.ID , schema.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -103,7 +105,7 @@ public class DBMetaDatabase {
 				EngineDB.getEnum( schema.DBMS_TYPE ) ,
 				EngineDB.getString( schema.DBNAMEDEF ) ,
 				EngineDB.getString( schema.DBUSERDEF )
-				} , insert , type );
+				} , insert , schema.CHANGETYPE );
 	}
 
 	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
@@ -174,7 +176,7 @@ public class DBMetaDatabase {
 		
 		MetaDatabaseSchema schema = new MetaDatabaseSchema( storage.meta , database );
 		schema.createSchema( name , desc , type , dbname , dbuser );
-		modifySchema( c , storage , schema , true , DBEnumChangeType.CREATED );
+		modifySchema( c , storage , schema , true , EnumModifyType.NORMAL );
 		
 		database.addSchema( schema );
 		return( schema );
@@ -184,7 +186,7 @@ public class DBMetaDatabase {
 		DBConnection c = transaction.getConnection();
 		
 		schema.modifySchema( name , desc , type , dbname , dbuser );
-		modifySchema( c , storage , schema , false , DBEnumChangeType.UPDATED );
+		modifySchema( c , storage , schema , false , EnumModifyType.NORMAL );
 		
 		database.updateSchema( schema );
 	}
@@ -199,8 +201,10 @@ public class DBMetaDatabase {
 		MetaDistr distr = meta.getDistr();
 		DBMetaDistr.deleteDatabaseSchema( transaction , storage , distr , schema );
 		
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaSchema , schema.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
-		database.removeSchema( schema );
+		schema.CHANGETYPE = EngineDB.getChangeDelete( schema.CHANGETYPE );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaSchema , schema.ID , c.getNextProductVersion( storage ) , schema.CHANGETYPE );
+		if( schema.CHANGETYPE == null )
+			database.removeSchema( schema );
 	}
 
 }

@@ -7,7 +7,8 @@ public class Types {
 	public enum EnumModifyType {
 		ORIGINAL ,
 		NORMAL ,
-		MATCH
+		MATCH ,
+		SET
 	};
 	
 	public enum EnumResourceCategory {

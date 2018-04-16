@@ -2,7 +2,6 @@ package org.urm.meta;
 
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
-import org.urm.db.core.DBEnums.DBEnumChangeType;
 import org.urm.db.engine.DBEngineMirrors;
 import org.urm.db.env.DBMetaEnv;
 import org.urm.db.product.DBMeta;

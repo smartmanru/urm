@@ -630,7 +630,8 @@ public class DBMetaSources {
 			PropertyEntity entity = entities.entityAppMetaSourceSet;
 			
 			int version = c.getNextProductVersion( storage );
-			DBEngineEntities.deleteAppObject( c , entity , setOld.ID , version , storage.isDraft() );
+			setOld.CHANGETYPE = EngineDB.getChangeDelete( setOld.CHANGETYPE );
+			DBEngineEntities.deleteAppObject( c , entity , setOld.ID , version , setOld.CHANGETYPE );
 			sources.removeProjectSet( setOld );
 		}
 	}
@@ -749,8 +750,8 @@ public class DBMetaSources {
 			transaction.exitUnexpectedState();
 		
 		int version = c.getCurrentProductVersion( storage );
-		DBEngineEntities.deleteAppObject( c , entity , project.ID , version , storage.isDraft() );
 		project.CHANGETYPE = EngineDB.getChangeDelete( project.CHANGETYPE );
+		DBEngineEntities.deleteAppObject( c , entity , project.ID , version , project.CHANGETYPE );
 		if( project.CHANGETYPE == null ) {
 			sources.removeProject( project.set , project );
 		
@@ -766,8 +767,8 @@ public class DBMetaSources {
 		PropertyEntity entity = entities.entityAppMetaSourceItem;
 		
 		int version = c.getNextProductVersion( storage );
-		DBEngineEntities.deleteAppObject( c , entity , item.ID , version , storage.isDraft() );
 		item.CHANGETYPE = EngineDB.getChangeDelete( item.CHANGETYPE );
+		DBEngineEntities.deleteAppObject( c , entity , item.ID , version , item.CHANGETYPE );
 		if( item.CHANGETYPE == null )
 			sources.removeProjectItem( item.project , item );
 	}
