@@ -1250,9 +1250,13 @@ public class DBMetaDistr {
 	}
 
 	public static void deleteUnit( EngineTransaction transaction , ProductMeta storage , MetaDistr distr , MetaProductUnit unit ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
 		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
-			if( Common.equalsIntegers( delivery.UNIT_ID , unit.ID ) )
+			if( Common.equalsIntegers( delivery.UNIT_ID , unit.ID ) ) {
 				delivery.clearUnit();
+				modifyDelivery( c , storage , delivery , false , DBEnumChangeType.UPDATED );
+			}
 		}
 	}	
 	

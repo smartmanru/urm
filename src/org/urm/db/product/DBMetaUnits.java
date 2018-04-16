@@ -15,6 +15,7 @@ import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.Types.EnumModifyType;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaSources;
@@ -41,7 +42,7 @@ public class DBMetaUnits {
 		dst.setUnits( units );
 		for( MetaProductUnit unitSrc : unitsSrc.getUnitList() ) {
 			MetaProductUnit unit = unitSrc.copy( dst.meta , units );
-			modifyUnit( c , dst , unit , true , DBEnumChangeType.ORIGINAL );
+			modifyUnit( c , dst , unit , true , EnumModifyType.ORIGINAL );
 			units.addUnit( unit );
 		}
 	}
@@ -76,24 +77,24 @@ public class DBMetaUnits {
 				entity.importxmlStringAttr( root , MetaProductUnit.PROPERTY_DESC )
 				);
 		
-		modifyUnit( c , storage , unit , true , DBEnumChangeType.CREATED );
+		modifyUnit( c , storage , unit , true , EnumModifyType.ORIGINAL );
 		return( unit );
 	}
 	
-	private static void modifyUnit( DBConnection c , ProductMeta storage , MetaProductUnit unit , boolean insert , DBEnumChangeType type ) throws Exception {
+	private static void modifyUnit( DBConnection c , ProductMeta storage , MetaProductUnit unit , boolean insert , EnumModifyType type ) throws Exception {
 		if( insert )
 			unit.ID = DBNames.getNameIndex( c , storage.ID , unit.NAME , DBEnumParamEntityType.PRODUCT_UNIT );
 		else
 			DBNames.updateName( c , storage.ID , unit.NAME , unit.ID , DBEnumParamEntityType.PRODUCT_UNIT );
 		
 		unit.PV = c.getNextProductVersion( storage );
-		unit.CHANGETYPE = type;
+		unit.CHANGETYPE = EngineDB.getChangeModify( insert , unit.CHANGETYPE , type );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaUnit , unit.ID , unit.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
 				EngineDB.getString( unit.NAME ) ,
 				EngineDB.getString( unit.DESC )
-				} , insert , type );
+				} , insert , unit.CHANGETYPE );
 	}
 	
 	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
@@ -129,6 +130,7 @@ public class DBMetaUnits {
 				MetaProductUnit unit = new MetaProductUnit( storage.meta , units );
 				unit.ID = entity.loaddbId( rs );
 				unit.PV = entity.loaddbVersion( rs );
+				unit.CHANGETYPE = entity.loaddbChangeType( rs );
 				unit.createUnit( 
 						entity.loaddbString( rs , MetaProductUnit.PROPERTY_NAME ) , 
 						entity.loaddbString( rs , MetaProductUnit.PROPERTY_DESC )
@@ -149,7 +151,7 @@ public class DBMetaUnits {
 		
 		MetaProductUnit unit = new MetaProductUnit( storage.meta , units );
 		unit.createUnit( name , desc );
-		modifyUnit( c , storage , unit , true , DBEnumChangeType.CREATED );
+		modifyUnit( c , storage , unit , true , EnumModifyType.NORMAL );
 		
 		units.addUnit( unit );
 		return( unit );
@@ -159,7 +161,7 @@ public class DBMetaUnits {
 		DBConnection c = transaction.getConnection();
 		
 		unit.modifyUnit( name , desc );
-		modifyUnit( c , storage , unit , false , DBEnumChangeType.UPDATED );
+		modifyUnit( c , storage , unit , false , EnumModifyType.NORMAL );
 		
 		units.updateUnit( unit );
 	}
@@ -174,7 +176,9 @@ public class DBMetaUnits {
 		DBMetaSources.deleteUnit( transaction , storage , sources , unit );
 		
 		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaUnit , unit.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
-		units.removeUnit( unit );
+		unit.CHANGETYPE = EngineDB.getChangeDelete( unit.CHANGETYPE );
+		if( unit.CHANGETYPE == null )
+			units.removeUnit( unit );
 	}
 
 }

@@ -13,6 +13,7 @@ import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineMirrors;
 import org.urm.engine.data.EngineResources;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.Types.EnumModifyType;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.AuthResource;
@@ -170,7 +171,7 @@ public class EngineMatcher {
 					DBEngineMirrors.modifyRepository( c , repo , false );
 					
 					ProductMeta storage = sources.meta.getStorage();
-					DBMetaSources.modifyProject( c , storage , project , false , DBEnumChangeType.UPDATED );
+					DBMetaSources.modifyProject( c , storage , project , false , EnumModifyType.MATCH );
 				}
 				else {
 					repo.setProductProject( product.ID , project.ID );

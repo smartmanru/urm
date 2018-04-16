@@ -4,6 +4,12 @@ import org.urm.common.Common;
 
 public class Types {
 
+	public enum EnumModifyType {
+		ORIGINAL ,
+		NORMAL ,
+		MATCH
+	};
+	
 	public enum EnumResourceCategory {
 		ANY ,
 		VCS ,
