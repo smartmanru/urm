@@ -31,6 +31,7 @@ import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductMeta;
@@ -334,8 +335,15 @@ public class DBMetaEnv {
 
 	public static void deleteDatabaseSchema( EngineTransaction transaction , ProductMeta storage , MetaDatabaseSchema schema ) throws Exception {
 		ProductEnvs envs = storage.getEnviroments();
-		envs.removeDatabaseSchemaFromEnvironments( schema );
-		Common.exitUnexpected();
+		for( MetaEnv env : envs.getEnvs() ) {
+			for( MetaEnvSegment sg : env.getSegments() ) {
+				for( MetaEnvServer server : sg.getServers() ) {
+					MetaEnvServerDeployment deployment = server.findDatabaseSchemaDeployment( schema );
+					if( deployment != null )
+						DBMetaEnvServerDeployment.deleteDeployment( transaction , storage , env , server , deployment );
+				}
+			}
+		}
 	}
 
 	public static void deleteBinaryItem( EngineTransaction transaction , ProductMeta storage , MetaDistrBinaryItem item ) throws Exception {
@@ -364,6 +372,19 @@ public class DBMetaEnv {
 		}
 	}
 
+	public static void deleteComponent( EngineTransaction transaction , ProductMeta storage , MetaDistrComponent comp ) throws Exception {
+		ProductEnvs envs = storage.getEnviroments();
+		for( MetaEnv env : envs.getEnvs() ) {
+			for( MetaEnvSegment sg : env.getSegments() ) {
+				for( MetaEnvServer server : sg.getServers() ) {
+					MetaEnvServerDeployment deployment = server.findComponentDeployment( comp );
+					if( deployment != null )
+						DBMetaEnvServerDeployment.deleteDeployment( transaction , storage , env , server , deployment );
+				}
+			}
+		}
+	}
+	
 	public static MetaEnv createEnv( EngineTransaction transaction , ProductMeta storage , String name , String desc , DBEnumEnvType envType ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = transaction.getEntities();

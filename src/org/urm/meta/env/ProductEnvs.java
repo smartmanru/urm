@@ -15,8 +15,6 @@ import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaDatabaseSchema;
-import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductMeta;
 
@@ -87,20 +85,6 @@ public class ProductEnvs {
 		ProductStorage storage = action.artefactory.getMetadataStorage( action , product , env.meta );
 		storage.deleteEnvConfFile( action , envFile );
 		env.deleteObject();
-	}
-
-	public void removeComponentFromEnvironments( MetaDistrComponent item ) throws Exception {
-		for( MetaEnv env : getEnvs() )
-			for( MetaEnvSegment sg : env.getSegments() )
-				for( MetaEnvServer server : sg.getServers() )
-					server.removeComponent( item );
-	}
-
-	public void removeDatabaseSchemaFromEnvironments( MetaDatabaseSchema schema ) throws Exception {
-		for( MetaEnv env : getEnvs() )
-			for( MetaEnvSegment sg : env.getSegments() )
-				for( MetaEnvServer server : sg.getServers() )
-					server.removeSchema( schema );
 	}
 
 	public MetaEnv findMetaEnv( int id ) {

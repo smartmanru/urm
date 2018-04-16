@@ -1261,6 +1261,8 @@ public class DBMetaDistr {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
 		
+		DBMetaEnv.deleteComponent( transaction , storage , comp );
+		
 		if( !c.modify( DBQueries.MODIFY_DISTR_CASCADECOMP_ALLITEMS1 , new String[] { EngineDB.getInteger( comp.ID ) } ) )
 			Common.exitUnexpected();
 		
