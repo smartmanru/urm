@@ -282,7 +282,7 @@ public abstract class DBAppProduct {
 		rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_PRODUCT_ID1 , new String[] { EngineDB.getInteger( product.ID ) } );
 		try {
 			while( rs.next() ) {
-				Integer id = c.getNullInt( rs , 1 );
+				Integer id = c.getNullInt( rs , 2 );
 				
 				ReleaseLifecycle lc = lifecycles.getLifecycle( id );
 				if( lc.isMajor() ) {
