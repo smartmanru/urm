@@ -1,10 +1,11 @@
-package org.urm.meta.release;
+package org.urm.meta.engine;
 
 import org.urm.db.core.DBEnums.DBEnumLifecycleType;
 import org.urm.engine.dist.DistRepository;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
+import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseRepository;
 
 public class ProductReleases {
 
