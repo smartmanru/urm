@@ -24,6 +24,7 @@ import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.ProductEnvs;
@@ -269,8 +270,9 @@ public class ActionConfigure extends ActionBase {
 		if( executor.name.equals( DeployCommandMeta.NAME ) ) {
 			String proxyPath = DeployCommandMeta.NAME;
 			
-			Map<String,MetaEnv> envMap = new HashMap<String,MetaEnv>(); 
-			ProductStorage ms = artefactory.getMetadataStorage( this , meta );
+			Map<String,MetaEnv> envMap = new HashMap<String,MetaEnv>();
+			AppProduct product = meta.findProduct();
+			ProductStorage ms = artefactory.getMetadataStorage( this , product , meta );
 			
 			MetaEnvSegment sg = null;
 			ProductEnvs envs = meta.getEnviroments();

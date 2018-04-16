@@ -12,7 +12,7 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
-import org.urm.meta.release.ProductReleases;
+import org.urm.meta.engine.ProductReleases;
 import org.urm.meta.release.ReleaseRepository;
 
 public class DBProductReleases {

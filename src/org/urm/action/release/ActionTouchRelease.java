@@ -9,8 +9,8 @@ import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.engine.ProductReleases;
 import org.urm.meta.product.Meta;
-import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
 
 public class ActionTouchRelease extends ActionBase {

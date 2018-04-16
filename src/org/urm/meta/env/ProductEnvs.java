@@ -12,6 +12,7 @@ import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -84,7 +85,8 @@ public class ProductEnvs {
 		mapEnvs.remove( env.NAME );
 		
 		ActionBase action = transaction.getAction();
-		ProductStorage storage = action.artefactory.getMetadataStorage( action , env.meta );
+		AppProduct product = env.meta.findProduct();
+		ProductStorage storage = action.artefactory.getMetadataStorage( action , product , env.meta );
 		storage.deleteEnvConfFile( action , envFile );
 		env.deleteObject();
 	}

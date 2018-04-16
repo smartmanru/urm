@@ -10,7 +10,7 @@ import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.EngineLoader;
-import org.urm.meta.release.ProductReleases;
+import org.urm.meta.engine.ProductReleases;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseBuildTarget;
 import org.urm.meta.release.ReleaseDist;

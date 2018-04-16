@@ -7,7 +7,7 @@ import org.urm.meta.engine.AppProduct;
 public class ProductContext {
 
 	public AppProduct product;
-	public Integer ID;
+	public Integer META_ID;
 	public String NAME;
 	public Integer PRODUCT_ID;
 	public boolean MATCHED;
@@ -17,7 +17,7 @@ public class ProductContext {
 	public LocalFolder home;
 	
 	public ProductContext( int metaId , Integer productId , String name , boolean matched , int version ) {
-		this.ID = metaId;
+		this.META_ID = metaId;
 		this.NAME = name;
 		this.PRODUCT_ID = productId;
 		this.MATCHED = matched;
@@ -31,7 +31,8 @@ public class ProductContext {
 		this.PRODUCT_ID = product.ID;
 	}
 
-	public void create( EngineSettings settings , LocalFolder home ) throws Exception {
+	public void create( AppProduct product , EngineSettings settings , LocalFolder home ) throws Exception {
+		this.product = product;
 		this.settings = settings;
 		this.home = home;
 	}

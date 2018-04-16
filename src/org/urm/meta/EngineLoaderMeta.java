@@ -154,7 +154,7 @@ public class EngineLoaderMeta {
 
 	private void createdbSettings( ProductContext context ) throws Exception {
 		trace( "create product settings data ..." );
-		DBMetaSettings.createdb( loader , set , context );
+		DBMetaSettings.createdb( loader , context.product , set , context );
 	}
 	
 	private void createdbUnits() throws Exception {

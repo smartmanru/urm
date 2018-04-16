@@ -40,7 +40,7 @@ public class EngineLoaderProducts {
 		ProductContext context = new ProductContext( product , false );
 		EngineSettings settings = loader.getSettings();
 		UrmStorage urm = action.artefactory.getUrmStorage();
-		context.create( settings , urm.getProductHome( action , product ) );
+		context.create( product , settings , urm.getProductHome( action , product ) );
 		
 		ProductMeta set = product.storage;
 		EngineProducts products = data.getProducts();
@@ -56,7 +56,7 @@ public class EngineLoaderProducts {
 			lde.createAll( forceClearMeta );
 	
 			// create folders
-			ProductStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
+			ProductStorage ms = action.artefactory.getMetadataStorage( action , product , set.meta );
 			LocalFolder homeFolder = ms.getHomeFolder( action );
 			if( homeFolder.checkExists( action ) ) {
 				if( !forceClearMeta ) {
@@ -168,7 +168,8 @@ public class EngineLoaderProducts {
 	
 	public void exportAll( ProductMeta set ) throws Exception {
 		ActionBase action = loader.getAction();
-		ProductStorage ms = action.artefactory.getMetadataStorage( action , set.meta );
+		AppProduct product = set.getProduct();
+		ProductStorage ms = action.artefactory.getMetadataStorage( action , product , set.meta );
 		
 		EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
 		ldm.exportxmlAll( ms );
@@ -199,10 +200,10 @@ public class EngineLoaderProducts {
 			
 			if( meta.checkExists( action ) ) {
 				LocalFolder home = urm.getProductHome( action , product );
-				context.create( loader.getSettings() , home );
+				context.create( product , loader.getSettings() , home );
 				set.setContext( context );
 				
-				ProductStorage storageMeta = action.artefactory.getMetadataStorage( action , set.meta );
+				ProductStorage storageMeta = action.artefactory.getMetadataStorage( action , product , set.meta );
 				if( importxml )
 					importxmlAll( set , storageMeta , context , update , includingEnvironments );
 				else

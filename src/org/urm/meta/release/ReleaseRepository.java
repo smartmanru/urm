@@ -8,6 +8,7 @@ import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.dist.VersionInfo;
+import org.urm.meta.engine.ProductReleases;
 import org.urm.meta.product.Meta;
 
 public class ReleaseRepository {
@@ -42,7 +43,6 @@ public class ReleaseRepository {
 	private Map<Integer,Release> mapReleasesById;
 	private Map<String,Release> mapReleasesNormal;
 	private Map<String,Release> mapReleasesMaster;
-	private Map<Integer,Release> mapReleasesArchived;
 	
 	private boolean modifyState;
 	
@@ -52,7 +52,6 @@ public class ReleaseRepository {
 		mapReleasesById = new HashMap<Integer,Release>();
 		mapReleasesNormal = new HashMap<String,Release>();
 		mapReleasesMaster = new HashMap<String,Release>();
-		mapReleasesArchived = new HashMap<Integer,Release>();
 		modifyState = false;
 	}
 
@@ -111,13 +110,6 @@ public class ReleaseRepository {
 			Release release = mapReleasesNormal.get( version );
 			if( release != null )
 				return( release );
-			
-			for( Release releaseArchived : mapReleasesArchived.values() ) {
-				if( !releaseArchived.isMaster() ) {
-					if( version.equals( releaseArchived.RELEASEVER ) )
-						return( releaseArchived );
-				}
-			}
 		}
 		catch( Throwable e ) {
 			meta.engine.log( "version" , e );
@@ -133,13 +125,6 @@ public class ReleaseRepository {
 		Release release = mapReleasesMaster.get( name );
 		if( release != null )
 			return( release );
-		
-		for( Release releaseArchived : mapReleasesArchived.values() ) {
-			if( releaseArchived.isMaster() ) {
-				if( name.equals( releaseArchived.NAME ) )
-					return( releaseArchived );
-			}
-		}
 		return( null );
 	}
 	
@@ -162,8 +147,8 @@ public class ReleaseRepository {
 
 	public synchronized void addRelease( Release release ) {
 		if( release.isArchived() )
-			mapReleasesArchived.put( release.ID , release );
-		else
+			return;
+		
 		if( release.MASTER )
 			mapReleasesMaster.put( release.NAME , release );
 		else
@@ -172,9 +157,6 @@ public class ReleaseRepository {
 	}
 
 	public synchronized void removeRelease( Release release ) {
-		if( release.isArchived() )
-			mapReleasesArchived.remove( release.ID );
-		else
 		if( release.isMaster() )
 			mapReleasesMaster.remove( release.NAME );
 		else
@@ -197,7 +179,6 @@ public class ReleaseRepository {
 			mapReleasesMaster.remove( release.NAME );
 		else
 			mapReleasesNormal.remove( release.RELEASEVER );
-		mapReleasesArchived.put( release.ID , release );
 	}
 	
 	public Release getRelease( int id ) throws Exception {

@@ -204,6 +204,7 @@ public class EngineLoader {
 	}
 
 	public LocalFolder getProductHomeFolder( String productName ) throws Exception {
+		AppProduct product = action.findProduct( productName );
 		Meta meta = action.actionInit.findActiveProductMetadata( productName );
 		if( meta == null ) {
 			String path = Common.getPath( execrc.installPath , "products/" + productName );
@@ -211,7 +212,7 @@ public class EngineLoader {
 			return( folder );
 		}
 		
-		ProductStorage storageMeta = action.artefactory.getMetadataStorage( action , meta );
+		ProductStorage storageMeta = action.artefactory.getMetadataStorage( action , product , meta );
 		LocalFolder folder = storageMeta.getHomeFolder( action );
 		return( folder );
 	}

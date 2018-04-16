@@ -6,6 +6,7 @@ import java.util.List;
 import org.urm.engine.CallService;
 import org.urm.engine.StateService;
 import org.urm.engine._Error;
+import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineMonitoring;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.AppProduct;
@@ -241,7 +242,8 @@ public class TransactionMetadata {
 			if( metadata == null )
 				return( false );
 				
-			AppProduct product = metadata.getProduct();
+			EngineDirectory directory = transaction.getDirectory();
+			AppProduct product = directory.getProduct( metadata.productId );
 			transaction.setProductMetadata( metadata );
 			product.setStorage( metadata );
 			if( sessionMeta != null )

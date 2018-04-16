@@ -6,8 +6,8 @@ import org.urm.engine.dist.DistRepository;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.meta.engine.ProductReleases;
 import org.urm.meta.product.Meta;
-import org.urm.meta.release.ProductReleases;
 
 public class ActionForceCloseDist extends ActionBase {
 

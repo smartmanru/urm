@@ -32,10 +32,9 @@ public class DBMetaSettings {
 	public static String ELEMENT_BUILD = "build";
 	public static String ELEMENT_MODE = "mode";
 	
-	public static void createdb( EngineLoader loader , ProductMeta storage , ProductContext context ) throws Exception {
+	public static void createdb( EngineLoader loader , AppProduct product , ProductMeta storage , ProductContext context ) throws Exception {
 		DBConnection c = loader.getConnection();
 		TransactionBase transaction = loader.getTransaction();
-		AppProduct product = storage.getProduct();
 		EngineEntities entities = loader.getEntities();
 		
 		MetaProductSettings settings = new MetaProductSettings( storage , storage.meta );

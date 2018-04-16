@@ -9,9 +9,9 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.session.EngineSession;
 import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.ProductReleases;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
-import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.ReleaseRepository;
 
 public class ProductMeta extends EngineObject {
@@ -91,7 +91,7 @@ public class ProductMeta extends EngineObject {
 	}
 	
 	public void setContext( ProductContext context ) {
-		this.ID = context.ID;
+		this.ID = context.META_ID;
 		this.PV = context.PV;
 	}
 	
