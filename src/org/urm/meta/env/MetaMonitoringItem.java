@@ -6,6 +6,7 @@ import org.urm.meta.product.Meta;
 public class MetaMonitoringItem {
 
 	public static String PROPERTY_TYPE = "type";
+	public static String PROPERTY_DESC = "desc";
 	public static String PROPERTY_URL = "url";
 	public static String PROPERTY_WSDATA = "wsdata";
 	public static String PROPERTY_WSCHECK = "wscheck";
@@ -15,6 +16,7 @@ public class MetaMonitoringItem {
 	
 	public int ID;
 	public DBEnumMonItemType MONITEM_TYPE;
+	public String DESC;
 	public String URL;
 	public String WSDATA;
 	public String WSCHECK;
@@ -29,6 +31,7 @@ public class MetaMonitoringItem {
 		MetaMonitoringItem r = new MetaMonitoringItem( rmeta , rtarget );
 		r.ID = ID;
 		r.MONITEM_TYPE = MONITEM_TYPE;
+		r.DESC = DESC;
 		r.URL = URL;
 		r.WSDATA = WSDATA;
 		r.WSCHECK = WSCHECK;
@@ -36,10 +39,11 @@ public class MetaMonitoringItem {
 		return( r );
 	}		
 
-	public void create( String url , String wsdata , String wscheck ) {
+	public void create( String url , String wsdata , String wscheck , String desc ) {
 		this.URL = url;
 		this.WSDATA = wsdata;
 		this.WSCHECK = wscheck;
+		this.DESC = desc;
 	}
 	
 }

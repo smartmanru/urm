@@ -22,6 +22,7 @@ public class ProductMeta extends EngineObject {
 	public Integer ID;
 	public int PV;
 	public boolean MATCHED;
+	public boolean DRAFT;
 	public int productId;
 	
 	private MetaProductSettings settings;
@@ -47,6 +48,7 @@ public class ProductMeta extends EngineObject {
 		ID = null;
 		PV = -1;
 		MATCHED = false;
+		DRAFT = true;
 		
 		sessionMeta = new HashMap<EngineSession,Meta>();
 		primary = false;
@@ -125,6 +127,10 @@ public class ProductMeta extends EngineObject {
 	
 	public boolean isPrimary() {
 		return( primary );
+	}
+	
+	public boolean isDraft() {
+		return( DRAFT );
 	}
 	
 	public DistRepository getDistRepository() {

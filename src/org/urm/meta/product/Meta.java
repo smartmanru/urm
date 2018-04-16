@@ -75,6 +75,10 @@ public class Meta extends EngineObject {
 		return( storage.isPrimary() );
 	}
 
+	public boolean isDraft() {
+		return( storage.isDraft() );
+	}
+	
 	public void replaceStorage( ActionBase action , ProductMeta storage ) throws Exception {
 		products.releaseSessionProductMetadata( action , this );
 		

@@ -626,7 +626,7 @@ public class DBMetaSources {
 			PropertyEntity entity = entities.entityAppMetaSourceSet;
 			
 			int version = c.getNextProductVersion( storage );
-			DBEngineEntities.deleteAppObject( c , entity , setOld.ID , version );
+			DBEngineEntities.deleteAppObject( c , entity , setOld.ID , version , storage.isDraft() );
 			sources.removeProjectSet( setOld );
 		}
 	}
@@ -742,7 +742,7 @@ public class DBMetaSources {
 			transaction.exitUnexpectedState();
 		
 		int version = c.getCurrentProductVersion( storage );
-		DBEngineEntities.deleteAppObject( c , entity , project.ID , version );
+		DBEngineEntities.deleteAppObject( c , entity , project.ID , version , storage.isDraft() );
 		sources.removeProject( project.set , project );
 		
 		transaction.changeMirrors();
@@ -756,7 +756,7 @@ public class DBMetaSources {
 		PropertyEntity entity = entities.entityAppMetaSourceItem;
 		
 		int version = c.getNextProductVersion( storage );
-		DBEngineEntities.deleteAppObject( c , entity , item.ID , version );
+		DBEngineEntities.deleteAppObject( c , entity , item.ID , version , storage.isDraft() );
 		sources.removeProjectItem( item.project , item );
 	}
 

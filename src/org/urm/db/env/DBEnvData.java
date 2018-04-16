@@ -102,6 +102,7 @@ public class DBEnvData {
 	public static String FIELD_MONITEM_ID = "monitem_id";
 	public static String FIELD_MONITEM_TARGET_ID = "monitem_id";
 	public static String FIELD_MONITEM_TYPE = "monitem_type";
+	public static String FIELD_MONITEM_DESC = "xdesc";
 
 	public static PropertyEntity makeEntityEnvPrimary( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT , DBEnumParamEntityType.ENV_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_ENV , FIELD_ENV_ID , false );
@@ -347,6 +348,7 @@ public class DBEnvData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_MONITEM_TARGET_ID , "monitoring target id" , DBEnumObjectType.ENVIRONMENT_MONTARGET , true ) ,
+				EntityVar.metaStringVar( MetaMonitoringItem.PROPERTY_DESC , FIELD_MONITEM_DESC , MetaMonitoringItem.PROPERTY_DESC , "description" , false , null ) ,
 				EntityVar.metaEnumVar( MetaMonitoringItem.PROPERTY_TYPE , FIELD_MONITEM_TYPE , MetaMonitoringItem.PROPERTY_TYPE , "monitoring item type" , true , DBEnumMonItemType.UNKNOWN ) ,
 				EntityVar.metaString( MetaMonitoringItem.PROPERTY_URL , "check url" , false , null ) ,
 				EntityVar.metaString( MetaMonitoringItem.PROPERTY_WSDATA , "check request" , false , null ) ,

@@ -76,7 +76,7 @@ public class EngineMatcher {
 		if( repo != null )
 			repo.setProduct( product.ID );
 		else {
-			loader.trace( "missing mirror product meta repository" );
+			loader.trace( "missing mirror product meta repository, product=" + product.NAME );
 			ok = false;
 		}
 		
@@ -84,7 +84,7 @@ public class EngineMatcher {
 		if( repo != null )
 			repo.setProduct( product.ID );
 		else {
-			loader.trace( "missing mirror product data repository" );
+			loader.trace( "missing mirror product data repository, product=" + product.NAME );
 			ok = false;
 		}
 		

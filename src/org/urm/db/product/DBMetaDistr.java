@@ -1014,7 +1014,7 @@ public class DBMetaDistr {
 		if( !delivery.isEmpty() )
 			Common.exitUnexpected();
 		
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrDelivery , delivery.ID , c.getNextProductVersion( storage ) );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrDelivery , delivery.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
 		distr.removeDelivery( delivery );
 	}
 
@@ -1090,7 +1090,7 @@ public class DBMetaDistr {
 				comp.removeCompItem( compItem );
 		}
 
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrBinaryItem , item.ID , c.getNextProductVersion( storage ) );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrBinaryItem , item.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
 		
 		distr.removeBinaryItem( item.delivery , item );
 	}
@@ -1146,7 +1146,7 @@ public class DBMetaDistr {
 				comp.removeCompItem( compItem );
 		}
 
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrConfItem , item.ID , c.getNextProductVersion( storage ) );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrConfItem , item.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
 		
 		distr.removeConfItem( item.delivery , item );
 	}
@@ -1244,7 +1244,7 @@ public class DBMetaDistr {
 		if( !c.modify( DBQueries.MODIFY_DISTR_CASCADECOMP_ALLITEMS1 , new String[] { EngineDB.getInteger( comp.ID ) } ) )
 			Common.exitUnexpected();
 		
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrComponent , comp.ID , c.getNextProductVersion( storage ) );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrComponent , comp.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
 		
 		distr.removeComponent( comp );
 	}
@@ -1311,7 +1311,7 @@ public class DBMetaDistr {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
 		
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrCompItem , item.ID , c.getNextProductVersion( storage ) );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDistrCompItem , item.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
 		
 		comp.removeCompItem( item );
 	}

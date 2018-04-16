@@ -101,13 +101,18 @@ public class EngineLoaderProducts {
 		for( String name : directory.getAllProductNames( null ) ) {
 			AppProduct product = directory.findProduct( name );
 			
-			if( !matchProductMirrors( product ) )
+			if( !matchProductMirrors( product ) ) {
+				trace( "skip load not mirrored product name=" + name );
 				continue;
+			}
 			
 			ProductContext context = findContext( product , products );
 			if( context == null || ( update == false && context.MATCHED == false ) ) {
 				skipProduct( product , context );
-				trace( "skip load product name=" + name );
+				if( context == null )
+					trace( "skip load unknown product name=" + name );
+				else
+					trace( "skip load mismatched product name=" + name );
 				continue;
 			}
 			

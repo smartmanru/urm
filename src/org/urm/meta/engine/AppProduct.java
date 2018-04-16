@@ -52,14 +52,6 @@ public class AppProduct extends EngineObject {
 		this.directory = directory;
 		this.system = system;
 		this.ID = -1;
-		this.LAST_MAJOR1 = 0;
-		this.LAST_MAJOR2 = 0;
-		this.NEXT_MAJOR1 = 0;
-		this.NEXT_MAJOR2 = 0;
-		this.LAST_MINOR1 = 0;
-		this.NEXT_MINOR1 = 0;
-		this.LAST_MINOR2 = 0;
-		this.NEXT_MINOR2 = 0;
 		this.SV = 0;
 		
 		policy = new AppProductPolicy( directory , this );
@@ -134,6 +126,15 @@ public class AppProduct extends EngineObject {
 		modifyProduct( name , desc , path );
 		OFFLINE = true;
 		MONITORING_ENABLED = false;
+		
+		this.LAST_MAJOR1 = 1;
+		this.LAST_MAJOR2 = 0;
+		this.LAST_MINOR1 = 0;
+		this.LAST_MINOR2 = 0;
+		this.NEXT_MAJOR1 = 1;
+		this.NEXT_MAJOR2 = 1;
+		this.NEXT_MINOR1 = 1;
+		this.NEXT_MINOR2 = 1;
 	}
 
 	public void modifyProduct( String name , String desc , String path ) throws Exception {

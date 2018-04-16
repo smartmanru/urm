@@ -20,6 +20,7 @@ CREATE TABLE main.urm_env_monitem (
                 env_id INTEGER NOT NULL,
                 montarget_id INTEGER NOT NULL,
                 monitem_type INTEGER NOT NULL,
+                xdesc VARCHAR,
                 url VARCHAR,
                 wsdata VARCHAR,
                 wscheck VARCHAR,

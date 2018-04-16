@@ -16,6 +16,7 @@ import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.EngineLoader;
+import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
@@ -194,10 +195,11 @@ public class DBMetaDatabase {
 
 		DBMetaEnv.deleteDatabaseSchema( transaction , storage , schema );
 		
-		MetaDistr distr = schema.meta.getDistr();
+		Meta meta = schema.meta;
+		MetaDistr distr = meta.getDistr();
 		DBMetaDistr.deleteDatabaseSchema( transaction , storage , distr , schema );
 		
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaSchema , schema.ID , c.getNextProductVersion( storage ) );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaSchema , schema.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
 		database.removeSchema( schema );
 	}
 

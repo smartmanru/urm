@@ -95,7 +95,11 @@ public class DBMetaMonitoring {
 		
 		for( Node node : items ) {
 			MetaMonitoringItem item = new MetaMonitoringItem( storage.meta , target );
-			item.create( entity.importxmlStringAttr( node , MetaMonitoringItem.PROPERTY_URL ) , "" , "" );
+			item.create( 
+					entity.importxmlStringAttr( node , MetaMonitoringItem.PROPERTY_URL ) , 
+					"" , 
+					"" ,
+					entity.importxmlStringAttr( node , MetaMonitoringItem.PROPERTY_DESC ) );
 			target.addUrl( item );
 			modifyItem( c , storage , env , item , true );
 		}
@@ -116,7 +120,8 @@ public class DBMetaMonitoring {
 			item.create( 
 					entity.importxmlStringAttr( node , MetaMonitoringItem.PROPERTY_URL ) , 
 					getNodeSubTree( action , node , MetaMonitoringItem.PROPERTY_WSDATA ) ,
-					getNodeSubTree( action , node , MetaMonitoringItem.PROPERTY_WSCHECK ) );
+					getNodeSubTree( action , node , MetaMonitoringItem.PROPERTY_WSCHECK ) ,
+					entity.importxmlStringAttr( node , MetaMonitoringItem.PROPERTY_DESC ) );
 			target.addWS( item );
 			modifyItem( c , storage , env , item , true );
 		}
@@ -153,6 +158,7 @@ public class DBMetaMonitoring {
 				EngineDB.getObject( env.ID ) ,
 				EngineDB.getObject( item.target.ID ) ,
 				EngineDB.getEnum( item.MONITEM_TYPE ) ,
+				EngineDB.getString( item.DESC ) ,
 				EngineDB.getString( item.URL ) ,
 				EngineDB.getString( item.WSDATA ) ,
 				EngineDB.getString( item.WSCHECK )

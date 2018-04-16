@@ -173,7 +173,7 @@ public class DBMetaUnits {
 		MetaSources sources = storage.getSources();
 		DBMetaSources.deleteUnit( transaction , storage , sources , unit );
 		
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaUnit , unit.ID , c.getNextProductVersion( storage ) );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaUnit , unit.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
 		units.removeUnit( unit );
 	}
 

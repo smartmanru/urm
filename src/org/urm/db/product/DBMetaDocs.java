@@ -184,7 +184,7 @@ public class DBMetaDocs {
 		MetaDistr distr = storage.getDistr();
 		DBMetaDistr.deleteDocument( transaction , storage , distr , doc );
 		
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDoc , doc.ID , c.getNextProductVersion( storage ) );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaDoc , doc.ID , c.getNextProductVersion( storage ) , storage.isDraft() );
 		docs.removeDoc( doc );
 	}
 

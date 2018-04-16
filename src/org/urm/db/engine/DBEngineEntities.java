@@ -244,7 +244,7 @@ public abstract class DBEngineEntities {
 		if( entity.CHANGEABLE && draft ) {
 			String fieldVersion = getVersionField( entity.DATA_OBJECTVERSION_TYPE );
 			type = DBEnumChangeType.DELETED;
-			query = "update " + entity.APP_TABLE + " set changeable = " + EngineDB.getEnum( type ) +
+			query = "update " + entity.APP_TABLE + " set change_type = " + EngineDB.getEnum( type ) +
 					", " + fieldVersion + " = " + version +
 					" where " + entity.getIdField() + " = " + id;
 		}
