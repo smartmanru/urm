@@ -47,6 +47,7 @@ public class EngineLoaderProducts {
 		EngineProduct ep = products.getEngineProduct( product );
 		ProductMeta set = new ProductMeta( ep );
 		set.setMatched( true );
+		set.setRevision( "initial" );
 		
 		try {
 			// create in database
