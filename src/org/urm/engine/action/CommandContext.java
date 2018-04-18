@@ -299,6 +299,7 @@ public class CommandContext {
 	
 	public void update( ActionBase action , Meta meta ) throws Exception {
 		this.meta = meta;
+		this.product = meta.getProduct();
 		
 		boolean isproduct = ( meta != null )? true : false; 
 		boolean isenv = ( env == null )? false : true; 
