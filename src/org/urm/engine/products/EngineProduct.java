@@ -97,7 +97,7 @@ public class EngineProduct {
 		releases.setDistRepository( repo );
 	}
 
-	public void addProductMeta( ProductMeta storage ) {
+	public void addProductMeta( ProductMeta storage ) throws Exception {
 		revisions.addProductMeta( storage );
 	}
 	
@@ -123,7 +123,7 @@ public class EngineProduct {
 		}
 	}
 
-	public void setDraftRevision( ProductMeta storage ) {
+	public void setDraftRevision( ProductMeta storage ) throws Exception {
 		revisions.setDraftRevision( storage );
 	}
 	

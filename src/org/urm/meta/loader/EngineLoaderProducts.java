@@ -39,10 +39,9 @@ public class EngineLoaderProducts {
 	
 	public ProductMeta createProductMetadata( AppProduct product , boolean forceClearMeta , boolean forceClearDist ) throws Exception {
 		ActionBase action = loader.getAction();
-		ProductContext context = new ProductContext( product , false );
 		EngineSettings settings = loader.getSettings();
 		UrmStorage urm = action.artefactory.getUrmStorage();
-		context.create( product , settings , urm.getProductHome( action , product ) );
+		ProductContext context = new ProductContext( product , settings , urm.getProductHome( action , product ) );
 		
 		EngineProducts products = data.getProducts();
 		EngineProduct ep = products.getEngineProduct( product );
@@ -96,8 +95,6 @@ public class EngineLoaderProducts {
 	public void loadProducts( boolean update ) throws Exception {
 		data.unloadProducts();
 		
-		ProductContext[] products = DBMeta.getProducts( loader );
-		
 		EngineDirectory directory = loader.getDirectory();
 		for( String name : directory.getAllProductNames( null ) ) {
 			AppProduct product = directory.findProduct( name );
@@ -107,31 +104,10 @@ public class EngineLoaderProducts {
 				continue;
 			}
 			
-			ProductContext context = findContext( product , products );
-			if( context == null || ( update == false && context.MATCHED == false ) ) {
-				skipProduct( product , context );
-				if( context == null )
-					trace( "skip load unknown product name=" + name );
-				else
-					trace( "skip load mismatched product name=" + name );
-				continue;
-			}
-			
-			context.setProduct( product );
-			loadProduct( product , context , false , update , true , null );
+			loadProduct( product , update );
 		}
 	}
 
-	public void skipProduct( AppProduct product , ProductContext context ) throws Exception {
-		EngineProducts products = data.getProducts();
-		EngineProduct ep = products.getEngineProduct( product );
-		
-		ProductMeta storage = new ProductMeta( ep );
-		if( context != null )
-			storage.setContext( context );
-		products.addProductSkipped( storage );
-	}
-	
 	public void importProduct( AppProduct product , boolean includingEnvironments ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
@@ -156,8 +132,7 @@ public class EngineLoaderProducts {
 		}
 		
 		synchronized( products ) {
-			ProductContext context = new ProductContext( product , false );
-			ProductMeta storageNew = loadProduct( product , context , true , true , includingEnvironments , storage );
+			ProductMeta storageNew = importProduct( product , true , includingEnvironments , storage );
 			if( storageNew == null )
 				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + product.NAME , product.NAME );
 
@@ -199,13 +174,12 @@ public class EngineLoaderProducts {
 		return( true );
 	}
 	
-	private ProductMeta loadProduct( AppProduct product , ProductContext context , boolean importxml , boolean update , boolean includingEnvironments , ProductMeta setOld ) {
+	private ProductMeta importProduct( AppProduct product , boolean update , boolean includingEnvironments , ProductMeta setOld ) {
 		EngineProducts products = data.getProducts();
 		EngineProduct ep = products.findEngineProduct( product );
 		
 		ProductMeta set = new ProductMeta( ep );
 		set.setMatched( true );
-		set.setContext( context );
 		set.setRevision( "initial" );
 		
 		ActionBase action = loader.getAction();
@@ -215,20 +189,20 @@ public class EngineLoaderProducts {
 			
 			if( meta.checkExists( action ) ) {
 				LocalFolder home = urm.getProductHome( action , product );
-				context.create( product , loader.getSettings() , home );
-				set.setContext( context );
+				ProductContext context = new ProductContext( product , loader.getSettings() , home );
 				
 				ProductStorage storageMeta = action.artefactory.getMetadataStorage( action , product );
-				if( importxml )
-					importxmlAll( set , storageMeta , context , update , includingEnvironments );
-				else
-					loaddbAll( set , storageMeta , context );
+				importxmlAll( set , storageMeta , context , update , includingEnvironments );
 
 				EngineMatcher matcher = loader.getMatcher();
 				if( !matcher.matchProduct( loader , product , set , update ) )
 					trace( "match failed for product=" + product.NAME );
-				else
+				else {
+					products.setProductDraft( product , set );
+					if( setOld != null )
+						products.unloadProduct( setOld );
 					trace( "successfully matched product=" + product.NAME );
+				}
 			}
 			else {
 				String path = meta.getLocalPath( action );
@@ -241,22 +215,57 @@ public class EngineLoaderProducts {
 			set.setMatched( false );
 		}
 		
-		if( setOld != null )
-			products.unloadProduct( setOld );
-		products.setProductDraft( product , set );
 		return( set );
 	}
 	
-	private ProductContext findContext( AppProduct product , ProductContext[] products ) {
-		for( ProductContext context : products ) {
-			if( context.PRODUCT_ID == product.ID )
-				return( context );
-			if( context.NAME.equals( product.NAME ) )
-				return( context );
+	private void loadProduct( AppProduct product , boolean update ) {
+		EngineProducts products = data.getProducts();
+		EngineProduct ep = products.findEngineProduct( product );
+		
+		ActionBase action = loader.getAction();
+		try {
+			UrmStorage urm = action.artefactory.getUrmStorage();
+			LocalFolder meta = urm.getProductCoreMetadataFolder( action , product );
+			LocalFolder home = urm.getProductHome( action , product );
+			ProductContext context = new ProductContext( product , loader.getSettings() , home );
+			
+			if( meta.checkExists( action ) ) {
+				ProductMeta[] sets = DBMeta.loaddbMeta( loader , ep );
+				for( ProductMeta set : sets )
+					loadProductRevision( product , context , update , ep , set );
+			}
+			else {
+				String path = meta.getLocalPath( action );
+				Common.exit1( _Error.MissingProductFolder1 , "missing product folder=" + path , path );
+			}
 		}
-		return( null );
+		catch( Throwable e ) {
+			action.handle( e );
+			action.error( "unable to load metadata, product=" + product.NAME );
+		}
 	}
+
+	private void loadProductRevision( AppProduct product , ProductContext context , boolean update , EngineProduct ep , ProductMeta set ) {
+		ActionBase action = loader.getAction();
+		try {
+			set.setMatched( true );
+			loaddbAll( set , context );
 	
+			EngineMatcher matcher = loader.getMatcher();
+			if( !matcher.matchProduct( loader , product , set , update ) )
+				trace( "match failed for product=" + product.NAME + ", revision=" + set.REVISION );
+			else
+				trace( "successfully matched product=" + product.NAME + ", revision=" + set.REVISION );
+			
+			ep.addProductMeta( set );
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			action.error( "unable to load metadata, product=" + product.NAME );
+			set.setMatched( false );
+		}
+	}
+
 	private void importxmlAll( ProductMeta set , ProductStorage ms , ProductContext context , boolean update , boolean includingEnvironments ) throws Exception {
 		ActionBase action = loader.getAction();
 		
@@ -280,7 +289,7 @@ public class EngineLoaderProducts {
 		}
 	}
 	
-	private void loaddbAll( ProductMeta set , ProductStorage ms , ProductContext context ) throws Exception {
+	private void loaddbAll( ProductMeta set , ProductContext context ) throws Exception {
 		ActionBase action = loader.getAction();
 		
 		try {
@@ -289,8 +298,6 @@ public class EngineLoaderProducts {
 
 			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
 			lde.loaddbAll();
-			
-			ldm.loadDesignDocs( ms );
 			
 			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , set );
 			ldr.loadReleases( set , false );

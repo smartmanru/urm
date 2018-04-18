@@ -64,11 +64,6 @@ public class EngineProducts {
 		return( ep );
 	}
 	
-	public void addProductMeta( ProductMeta storage ) throws Exception {
-		EngineProduct ep = findEngineProduct( storage );
-		ep.addProductMeta( storage );
-	}
-	
 	public synchronized void addProductSkipped( ProductMeta storage ) throws Exception {
 		EngineProduct ep = getEngineProduct( storage );
 		ep.addProductMeta( storage );
@@ -105,7 +100,7 @@ public class EngineProducts {
 		ep.unloadProduct( storage );
 	}
 	
-	public void setProductDraft( AppProduct product , ProductMeta storage ) {
+	public void setProductDraft( AppProduct product , ProductMeta storage ) throws Exception {
 		EngineProduct ep = findEngineProduct( product );
 		ep.setDraftRevision( storage );
 	}

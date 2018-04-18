@@ -4,6 +4,7 @@ CREATE TABLE main.urm_product_meta (
                 product_fkid INTEGER,
                 name VARCHAR(30) NOT NULL,
                 revision VARCHAR(30) NOT NULL,
+                draft BOOLEAN NOT NULL,
                 matched BOOLEAN NOT NULL,
                 pv INTEGER NOT NULL,
                 CONSTRAINT urm_product_meta_pk PRIMARY KEY (meta_id)

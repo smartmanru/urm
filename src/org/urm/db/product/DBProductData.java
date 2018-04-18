@@ -47,6 +47,7 @@ public class DBProductData {
 	public static String FIELD_META_PRODUCT_ID = "product_fkid";
 	public static String FIELD_META_PRODUCT_NAME = "name";
 	public static String FIELD_META_PRODUCT_REVISION = "revision";
+	public static String FIELD_META_PRODUCT_DRAFT = "draft";
 	public static String FIELD_META_PRODUCT_MATCHED = "matched";
 	public static String FIELD_UNIT_ID = "unit_id";
 	public static String FIELD_UNIT_DESC = "xdesc";
@@ -200,6 +201,7 @@ public class DBProductData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_PRODUCT_ID , "Application product id" , DBEnumObjectType.APPPRODUCT , false ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_NAME , "Application product name" , true , null ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_REVISION , "Product revision name" , true , null ) ,
+				EntityVar.metaBooleanDatabaseOnly( FIELD_META_PRODUCT_DRAFT , "Product draft status" , true , true ) ,
 				EntityVar.metaBooleanDatabaseOnly( FIELD_META_PRODUCT_MATCHED , "Product match status" , true , false )
 		} ) );
 	}

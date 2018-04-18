@@ -76,6 +76,12 @@ public class ProductMeta extends EngineObject {
 		return( r );
 	}
 
+	public void create( String revision , boolean draft , boolean matched ) {
+		this.REVISION = revision;
+		this.DRAFT = draft;
+		this.MATCHED = matched;
+	}
+	
 	public EngineProduct getEngineProduct() {
 		return( ep );
 	}
@@ -90,11 +96,6 @@ public class ProductMeta extends EngineObject {
 	
 	public void setMatched( boolean matched ) {
 		this.MATCHED = matched;
-	}
-	
-	public void setContext( ProductContext context ) {
-		this.ID = context.META_ID;
-		this.PV = context.PV;
 	}
 	
 	public void setRevision( String revision ) {

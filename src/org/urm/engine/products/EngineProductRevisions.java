@@ -34,9 +34,12 @@ public class EngineProductRevisions {
 		return( storage );
 	}
 	
-	public synchronized void addProductMeta( ProductMeta storage ) {
-		if( storage.DRAFT )
+	public synchronized void addProductMeta( ProductMeta storage ) throws Exception {
+		if( storage.DRAFT ) {
+			if( draft != null )
+				Common.exitUnexpected();
 			draft = storage;
+		}
 		productMetaById.put( storage.ID , storage );
 	}
 
@@ -68,11 +71,12 @@ public class EngineProductRevisions {
 		return( productMetaById.values().toArray( new ProductMeta[0] ) );
 	}
 	
-	public synchronized void setDraftRevision( ProductMeta storage ) {
+	public synchronized void setDraftRevision( ProductMeta storage ) throws Exception {
 		ProductMeta storageOld = productMetaById.get( storage.ID );
 		if( storageOld != null )
 			storageOld.setPrimary( false );
-		
+
+		draft = null;
 		addProductMeta( storage );
 		storage.setPrimary( true );
 	}
