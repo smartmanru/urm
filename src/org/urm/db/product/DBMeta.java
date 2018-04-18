@@ -22,26 +22,25 @@ import org.w3c.dom.Node;
 
 public class DBMeta {
 
-	public static void createdb( EngineLoader loader , ProductMeta storage ) throws Exception {
+	public static void createdb( EngineLoader loader , AppProduct product , ProductMeta storage ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
-		modifyMeta( c , storage , true );
+		modifyMeta( c , product , storage , true );
 	}
 	
-	public static void copydb( TransactionBase transaction , ProductMeta src , ProductMeta dst ) throws Exception {
+	public static void copydb( TransactionBase transaction , AppProduct product , ProductMeta src , ProductMeta dst ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
-		modifyMeta( c , dst , true );
+		modifyMeta( c , product , dst , true );
 	}
 	
-	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
+	public static void importxml( EngineLoader loader , AppProduct product , ProductMeta storage , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
-		modifyMeta( c , storage , true );
+		modifyMeta( c , product , storage , true );
 	}
 
-	private static void modifyMeta( DBConnection c , ProductMeta storage , boolean insert ) throws Exception {
-		AppProduct product = storage.getProduct();
+	private static void modifyMeta( DBConnection c , AppProduct product , ProductMeta storage , boolean insert ) throws Exception {
 		if( insert )
 			storage.ID = DBNames.getNameIndex( c , product.ID , storage.REVISION , DBEnumParamEntityType.PRODUCT );
 		else

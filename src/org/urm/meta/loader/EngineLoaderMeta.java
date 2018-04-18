@@ -103,7 +103,7 @@ public class EngineLoaderMeta {
 	
 	public void createdbAll( ProductContext context ) throws Exception {
 		trace( "create product data, name=" + set.NAME + " ..." );
-		createdbMeta();
+		createdbMeta( context );
 		createdbSettings( context );
 		createdbUnits();
 		createdbDatabase();
@@ -139,7 +139,7 @@ public class EngineLoaderMeta {
 		ProductMeta dst = new ProductMeta( ep );
 		TransactionBase transaction = loader.getTransaction();
 		
-		copydbMeta( transaction , dst );
+		copydbMeta( transaction , dst , context );
 		copydbSettings( transaction , dst , context );
 		copydbUnits( transaction , dst );
 		copydbDatabase( transaction , dst );
@@ -149,9 +149,9 @@ public class EngineLoaderMeta {
 		return( dst );
 	}
 
-	private void createdbMeta() throws Exception {
+	private void createdbMeta( ProductContext context ) throws Exception {
 		trace( "create product meta data ..." );
-		DBMeta.createdb( loader , set );
+		DBMeta.createdb( loader , context.product , set );
 	}
 
 	private void createdbSettings( ProductContext context ) throws Exception {
@@ -223,7 +223,7 @@ public class EngineLoaderMeta {
 			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
 			Node root = doc.getDocumentElement();
 
-			DBMeta.importxml( loader , set , root );
+			DBMeta.importxml( loader , context.product , set , root );
 			DBMetaSettings.importxml( loader , set , context , root );
 		}
 		catch( Throwable e ) {
@@ -381,9 +381,9 @@ public class EngineLoaderMeta {
 		loader.trace( s );
 	}
 
-	private void copydbMeta( TransactionBase transaction , ProductMeta dst ) throws Exception {
+	private void copydbMeta( TransactionBase transaction , ProductMeta dst , ProductContext context ) throws Exception {
 		trace( "copy product meta data ..." );
-		DBMeta.copydb( transaction , set , dst );
+		DBMeta.copydb( transaction , context.product , set , dst );
 	}
 
 	private void copydbSettings( TransactionBase transaction , ProductMeta dst , ProductContext context ) throws Exception {
