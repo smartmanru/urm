@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -109,7 +110,8 @@ public class ActionImportDatabase extends ActionBase {
 	}
 
 	private void checkSource() throws Exception {
-		DistRepository repository = server.meta.getDistRepository();
+		EngineProduct ep = server.meta.getEngineProduct();
+		DistRepository repository = ep.getDistRepository();
 		distDataFolder = repository.getDataFolder( this , DATASET );
 		if( !distDataFolder.checkExists( this ) )
 			exit1( _Error.MissingDataFolder1 , "data folder does not exist: " + distDataFolder.folderPath , distDataFolder.folderPath );
@@ -201,7 +203,7 @@ public class ActionImportDatabase extends ActionBase {
 		importScriptsFolder.copyFileFromLocal( this , confFile );
 		
 		AppProduct product = server.meta.findProduct();
-		ProductStorage ms = artefactory.getMetadataStorage( this , product , server.meta );
+		ProductStorage ms = artefactory.getMetadataStorage( this , product );
 		String tablesFilePath = workFolder.getFilePath( this , UrmStorage.TABLES_FILE_NAME );
 		ms.saveDatapumpSet( this , tableSet , server , tablesFilePath );
 		importScriptsFolder.copyFileFromLocal( this , tablesFilePath );
@@ -217,7 +219,7 @@ public class ActionImportDatabase extends ActionBase {
 		
 		if( CMD.equals( "all" ) || CMD.equals( "data" ) ) {
 			AppProduct product = server.meta.findProduct();
-			ProductStorage ms = artefactory.getMetadataStorage( this , product , server.meta );
+			ProductStorage ms = artefactory.getMetadataStorage( this , product );
 			ms.loadDatapumpSet( this , tableSet , server , false , false );
 			
 			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )

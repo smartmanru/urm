@@ -15,8 +15,8 @@ import org.urm.db.core.DBEnumInterface;
 import org.urm.db.core.DBEnums;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
-import org.urm.meta.MatchItem;
-import org.urm.meta.Types.EnumModifyType;
+import org.urm.meta.loader.MatchItem;
+import org.urm.meta.loader.Types.EnumModifyType;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -75,7 +75,7 @@ public class EngineDB {
 	public DBConnection getConnection( ActionBase action ) throws Exception {
 		Connection connection = pool.getConnection();
 		connection.setAutoCommit( false );
-		DBConnection dbc = new DBConnection( engine , action.getServerEntities() , action , connection );
+		DBConnection dbc = new DBConnection( engine , action.getEngineEntities() , action , connection );
 		dbc.init();
 		return( dbc );
 	}

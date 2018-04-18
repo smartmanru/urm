@@ -8,10 +8,10 @@ import org.urm.db.release.DBRelease;
 import org.urm.db.release.DBReleaseSchedule;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.engine.ProductReleases;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
@@ -36,10 +36,10 @@ public class ActionModifyRelease extends ActionBase {
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repository
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 
 			if( releaseUpdated.isFinalized() )
@@ -55,7 +55,7 @@ public class ActionModifyRelease extends ActionBase {
 			DBRelease.setProperties( method , this , releaseUpdated );
 
 			// update distributive
-			DistRepository distrepoUpdated = method.changeDistRepository( releases );
+			DistRepository distrepoUpdated = method.changeDistRepository( meta.getProduct() );
 			Dist distUpdated = distrepoUpdated.findDefaultDist( releaseUpdated );
 			try {
 				distUpdated.openForDataChange( this );

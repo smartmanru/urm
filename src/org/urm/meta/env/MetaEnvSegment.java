@@ -11,11 +11,11 @@ import org.urm.engine.DataService;
 import org.urm.engine.data.EngineInfrastructure;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.shell.Account;
-import org.urm.meta.EngineObject;
-import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.HostAccount;
+import org.urm.meta.loader.EngineObject;
+import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrConfItem;
 

@@ -10,10 +10,10 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.transaction.EngineTransaction;
-import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.HostAccount;
+import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductMeta;
@@ -31,7 +31,7 @@ public class ProductEnvs {
 		
 		mapEnvs = new HashMap<String,MetaEnv>();
 		mapEnvsById = new HashMap<Integer,MetaEnv>();
-		mon = new MetaMonitoring( storage , meta );
+		mon = new MetaMonitoring( this );
 	}
 	
 	public ProductEnvs copy( Meta rmeta ) throws Exception {
@@ -82,7 +82,7 @@ public class ProductEnvs {
 		
 		ActionBase action = transaction.getAction();
 		AppProduct product = env.meta.findProduct();
-		ProductStorage storage = action.artefactory.getMetadataStorage( action , product , env.meta );
+		ProductStorage storage = action.artefactory.getMetadataStorage( action , product );
 		storage.deleteEnvConfFile( action , envFile );
 		env.deleteObject();
 	}

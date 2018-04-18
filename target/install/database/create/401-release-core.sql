@@ -5,6 +5,7 @@ CREATE TABLE main.urm_rel_repository (
                 xdesc VARCHAR,
                 meta_fkid INTEGER,
                 meta_fkname VARCHAR(30),
+                meta_fkrevision VARCHAR(30),
                 av INTEGER NOT NULL,
                 CONSTRAINT urm_rel_repository_pk PRIMARY KEY (repo_id)
 );

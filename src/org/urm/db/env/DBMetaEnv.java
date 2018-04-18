@@ -21,14 +21,14 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.transaction.TransactionBase;
-import org.urm.meta.EngineLoader;
-import org.urm.meta.EngineMatcher;
-import org.urm.meta.MatchItem;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.ProductEnvs;
+import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.loader.EngineMatcher;
+import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrComponent;
@@ -244,7 +244,7 @@ public class DBMetaEnv {
 		List<MetaEnv> list = new LinkedList<MetaEnv>();
 		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_FK2 , new String[] { 
 				EngineDB.getInteger( storage.ID ) ,
-				EngineDB.getString( storage.name ) 
+				EngineDB.getString( storage.NAME ) 
 				} );
 		try {
 			while( rs.next() ) {

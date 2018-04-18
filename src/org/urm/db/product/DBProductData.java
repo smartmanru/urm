@@ -45,7 +45,8 @@ public class DBProductData {
 	public static String TABLE_COMPITEM = "urm_dist_compitem";
 	public static String FIELD_META_ID = "meta_id";
 	public static String FIELD_META_PRODUCT_ID = "product_fkid";
-	public static String FIELD_META_PRODUCT_NAME = "product_fkname";
+	public static String FIELD_META_PRODUCT_NAME = "name";
+	public static String FIELD_META_PRODUCT_REVISION = "revision";
 	public static String FIELD_META_PRODUCT_MATCHED = "matched";
 	public static String FIELD_UNIT_ID = "unit_id";
 	public static String FIELD_UNIT_DESC = "xdesc";
@@ -197,8 +198,9 @@ public class DBProductData {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_PRODUCT_ID , "Application product id" , DBEnumObjectType.APPPRODUCT , false ) ,
-				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_NAME , "Application product name" , false , null ) ,
-				EntityVar.metaBooleanDatabaseOnly( FIELD_META_PRODUCT_MATCHED , "Product match status" , false , false )
+				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_NAME , "Application product name" , true , null ) ,
+				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_REVISION , "Product revision name" , true , null ) ,
+				EntityVar.metaBooleanDatabaseOnly( FIELD_META_PRODUCT_MATCHED , "Product match status" , true , false )
 		} ) );
 	}
 
@@ -494,7 +496,7 @@ public class DBProductData {
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaSourceSet , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDoc , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		
-		if( !c.modify( DBQueries.MODIFY_CORE_UNMATCHRELEASES2 , new String[] { EngineDB.getInteger( storage.ID ) , EngineDB.getString( storage.name ) } ) )
+		if( !c.modify( DBQueries.MODIFY_REL_REPO_UNMATCHRELEASES1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
 			Common.exitUnexpected();
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMeta , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 	}

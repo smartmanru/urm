@@ -6,7 +6,7 @@ import org.urm.db.EngineDB;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.core.DBEnums.DBEnumParamValueSubType;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.loader.EngineLoader;
 
 public abstract class DBUpgradeSet {
 

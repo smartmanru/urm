@@ -2,8 +2,8 @@ package org.urm.meta.release;
 
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.AuthService;
-import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AuthUser;
+import org.urm.meta.loader.MatchItem;
 
 public class ReleaseTicket {
 

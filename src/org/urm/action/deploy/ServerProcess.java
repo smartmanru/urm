@@ -8,7 +8,7 @@ import org.urm.engine.status.ScopeState.FACTVALUE;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.Types.*;
+import org.urm.meta.loader.Types.*;
 
 public class ServerProcess {
 

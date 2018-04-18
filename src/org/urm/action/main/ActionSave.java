@@ -47,7 +47,7 @@ public class ActionSave extends ActionBase {
 		saveProduct( pf , false );
 		
 		UrmStorage urm = artefactory.getUrmStorage();
-		EngineDirectory directory = actionInit.getServerDirectory();
+		EngineDirectory directory = actionInit.getEngineDirectory();
 		for( String name : directory.getProductNames() ) {
 			info( "save product=" + name + " ..." );
 			

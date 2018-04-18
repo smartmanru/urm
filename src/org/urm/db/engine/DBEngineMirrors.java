@@ -19,8 +19,10 @@ import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineMirrors;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.storage.LocalFolder;
@@ -28,15 +30,15 @@ import org.urm.engine.storage.SourceStorage;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.engine.vcs.MirrorCase;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine._Error;
-import org.urm.meta.product.Meta;
+import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -315,7 +317,7 @@ public class DBEngineMirrors {
 		ActionInit action = transaction.getAction();
 		GenericVCS vcs = GenericVCS.getVCS( action , null , repo.RESOURCE_ID );
 		
-		Map<String,LocalFolder> map = getFolderMap( action , mirrors , repo );
+		Map<String,LocalFolder> map = getFolderMap( transaction , mirrors , repo );
 		
 		MirrorCase mc = vcs.getMirror( repo );
 		if( push )
@@ -354,8 +356,17 @@ public class DBEngineMirrors {
 			transaction.handle0( e , _Error.UnablePublishRepository0 , "Unable to create mirror repository" );
 		}
 	}
+
+	private static Map<String,LocalFolder> getFolderMap( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo ) throws Exception {
+		EngineDirectory directory = transaction.getDirectory();
+		AppProduct product = directory.getProduct( repo.productId );
+		EngineProductRevisions revisions = product.findRevisions();
+		ProductMeta storage = revisions.getDraftRevision();
+		ActionInit action = transaction.getAction();
+		return( getFolderMap( action , mirrors , repo , storage ) );
+	}
 	
-	private static Map<String,LocalFolder> getFolderMap( ActionInit action , EngineMirrors mirrors , MirrorRepository repo ) throws Exception {
+	private static Map<String,LocalFolder> getFolderMap( ActionInit action , EngineMirrors mirrors , MirrorRepository repo , ProductMeta storage ) throws Exception {
 		EngineLoader loader = action.engine.createLoader( action );
 		
 		Map<String,LocalFolder> map = new HashMap<String,LocalFolder>();
@@ -372,9 +383,7 @@ public class DBEngineMirrors {
 		}
 		else
 		if( repo.MIRROR_TYPE == DBEnumMirrorType.PRODUCT_DATA ) {
-			AppProduct product = action.getProduct( repo.productId );
-			Meta meta = action.getActiveProductMetadata( product.NAME );
-			MetaProductSettings settings = meta.getProductSettings();
+			MetaProductSettings settings = storage.getSettings();
 			MetaProductCoreSettings core = settings.getCoreSettings();
 			LocalFolder home = loader.getEngineHomeFolder();
 			addFolderMapItem( action , map , SourceStorage.DATA_LIVE , home , core.CONFIG_SOURCE_CFG_LIVEROOTDIR );
@@ -432,7 +441,7 @@ public class DBEngineMirrors {
 		
 		ActionInit action = transaction.getAction();
 		
-		Map<String,LocalFolder> map = getFolderMap( action , mirrors , repo );
+		Map<String,LocalFolder> map = getFolderMap( transaction , mirrors , repo );
 		for( String mirrorFolder : map.keySet() ) {
 			LocalFolder folder = map.get( mirrorFolder );
 			folder.ensureExists( action );
@@ -452,7 +461,7 @@ public class DBEngineMirrors {
 		MirrorCase mc = vcs.getMirror( repo );
 		mc.useMirror();
 		
-		Map<String,LocalFolder> map = getFolderMap( action , mirrors , repo );
+		Map<String,LocalFolder> map = getFolderMap( transaction , mirrors , repo );
 		for( String mirrorFolder : map.keySet() ) {
 			LocalFolder folder = map.get( mirrorFolder );
 			folder.ensureExists( action );

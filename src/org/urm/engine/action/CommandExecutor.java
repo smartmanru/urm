@@ -15,9 +15,12 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
 import org.urm.engine.TaskService;
 import org.urm.engine.data.EngineLifecycles;
+import org.urm.engine.products.EngineProductReleases;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.release.Release;
 
 public abstract class CommandExecutor {
 
@@ -167,8 +170,14 @@ public abstract class CommandExecutor {
 		if( value.isEmpty() )
 			return( null );
 		
-		EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
+		EngineLifecycles lifecycles = action.getEngineLifecycles();
 		return( lifecycles.getLifecycle( value ) );
+	}
+
+	public Release getReleaseByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
+		AppProduct product = action.getContextProduct();
+		EngineProductReleases releases = product.findReleases();
+		return( releases.getReleaseByLabel( action , RELEASELABEL ) );
 	}
 	
 }

@@ -13,6 +13,7 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
 import org.urm.engine.session.EngineSession;
 import org.urm.engine.shell.Account;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
@@ -68,6 +69,7 @@ public class CommandContext {
 	public EngineSession session;
 	public ActionBase action;
 
+	public AppProduct product;
 	public Meta meta;
 	public MetaEnv env; 
 	public MetaEnvSegment sg;

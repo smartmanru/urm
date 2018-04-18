@@ -6,7 +6,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.meta.EngineObject;
+import org.urm.meta.loader.EngineObject;
 
 public class AppSystem extends EngineObject {
 

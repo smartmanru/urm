@@ -2,7 +2,7 @@ package org.urm.meta.env;
 
 import org.urm.action.ActionBase;
 import org.urm.db.core.DBEnums.*;
-import org.urm.meta.MatchItem;
+import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;

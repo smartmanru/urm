@@ -9,7 +9,7 @@ import org.urm.engine.data.EngineBase;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
-import org.urm.meta.EngineObject;
+import org.urm.meta.loader.EngineObject;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 

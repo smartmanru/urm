@@ -8,7 +8,7 @@ import org.urm.common.Common;
 import org.urm.engine.data.EngineBase;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.meta.EngineObject;
+import org.urm.meta.loader.EngineObject;
 import org.urm.db.core.DBEnums.*;
 
 public class BaseCategory extends EngineObject {

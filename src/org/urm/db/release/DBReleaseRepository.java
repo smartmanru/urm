@@ -14,10 +14,10 @@ import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.dist._Error;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.run.EngineMethod;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppProductPolicy;
 import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseChanges;
@@ -33,7 +33,7 @@ public class DBReleaseRepository {
 	public static Release createReleaseNormal( EngineMethod method , ActionBase action , ReleaseRepository repo , ReleaseLabelInfo info , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		Meta meta = repo.meta;
 
-		if( repo.findRelease( info.RELEASEVER ) != null )
+		if( repo.findReleaseByFullVersion( info.RELEASEVER ) != null )
 			action.exit1( _Error.ReleaseAlreadyExists1 , "release version=" + info.RELEASEVER + " already exists" , info.RELEASEVER );
 		
 		AppProduct product = meta.findProduct();
@@ -53,7 +53,7 @@ public class DBReleaseRepository {
 	}
 
 	public static Release createReleaseNormal( EngineMethod method , ActionBase action , ReleaseRepository repo , ReleaseLabelInfo info ) throws Exception {
-		if( repo.findRelease( info.RELEASEVER ) != null )
+		if( repo.findReleaseByFullVersion( info.RELEASEVER ) != null )
 			action.exit1( _Error.ReleaseAlreadyExists1 , "release version=" + info.RELEASEVER + " already exists" , info.RELEASEVER );
 		
 		action.debug( "create normal release: version=" + info.RELEASEVER + ", version=" + info.RELEASEVER + " ..." );

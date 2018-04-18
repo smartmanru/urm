@@ -27,11 +27,11 @@ import org.urm.engine.data.EngineProducts;
 import org.urm.engine.data.EngineResources;
 import org.urm.engine.data.EngineSettings;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.TransactionMetadata.TransactionMetadataEnv;
-import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.AuthResource;
@@ -50,6 +50,7 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.env.ProductEnvs;
+import org.urm.meta.loader.EngineObject;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -837,14 +838,15 @@ public class TransactionBase extends EngineObject {
 	}
 
 	public Meta createProductMetadata( ProductMeta storage ) throws Exception {
-		TransactionMetadata tm = productMeta.get( storage.name );
+		EngineProduct ep = storage.getEngineProduct();
+		TransactionMetadata tm = productMeta.get( storage.NAME );
 		
 		// should be first product transaction operation
 		if( tm != null )
 			action.exitUnexpectedState();
 		
-		Meta meta = data.createSessionProductMetadata( this , storage );
-		tm = new TransactionMetadata( this );
+		Meta meta = ep.createSessionMeta( action , storage );
+		tm = new TransactionMetadata( this , ep );
 		if( !tm.createProduct( meta ) )
 			Common.exitUnexpected();
 			
@@ -864,13 +866,15 @@ public class TransactionBase extends EngineObject {
 				if( tm != null )
 					action.exitUnexpectedState();
 				
-				if( !checkSecurityProductChange( product.storage.meta , null ) )
+				if( !checkSecurityProductChange( product , null ) )
 					return( false );
 				
-				tm = new TransactionMetadata( this );
+				EngineProduct ep = product.getEngineProduct();
+				tm = new TransactionMetadata( this , ep );
 				if( tm.importProduct( product ) ) {
 					useDatabase();
-					addTransactionMeta( product.storage.ID , product.NAME , tm );
+					ProductMeta storage = ep.getDraftRevision();
+					addTransactionMeta( storage.ID , product.NAME , tm );
 					return( true );
 				}
 			}
@@ -895,7 +899,8 @@ public class TransactionBase extends EngineObject {
 				if( tm == null )
 					action.exitUnexpectedState();
 				
-				if( !checkSecurityProductChange( env.meta , env ) )
+				EngineProduct ep = env.getEngineProduct();
+				if( !checkSecurityProductChange( ep.getProduct() , env ) )
 					return( false );
 				
 				if( tm.importEnv( env ) )
@@ -922,10 +927,11 @@ public class TransactionBase extends EngineObject {
 				if( tm != null )
 					action.exitUnexpectedState();
 				
-				if( !checkSecurityProductChange( meta , null ) )
+				EngineProduct ep = meta.getEngineProduct();
+				if( !checkSecurityProductChange( ep.getProduct() , null ) )
 					return( false );
 				
-				tm = new TransactionMetadata( this );
+				tm = new TransactionMetadata( this , ep );
 				if( tm.recreateProduct( meta ) ) {
 					useDatabase();
 					addTransactionMeta( meta.getId() , meta.name , tm );
@@ -956,7 +962,8 @@ public class TransactionBase extends EngineObject {
 				if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
 					return( false );
 				
-				tm = new TransactionMetadata( this );
+				EngineProduct ep = meta.getEngineProduct();
+				tm = new TransactionMetadata( this , ep );
 				if( tm.deleteProduct( meta ) ) {
 					useDatabase();
 					addTransactionMeta( meta.getId() , meta.name , tm );
@@ -984,11 +991,12 @@ public class TransactionBase extends EngineObject {
 						return( true );
 				}
 				
-				if( !checkSecurityProductChange( meta , null ) )
+				EngineProduct ep = meta.getEngineProduct();
+				if( !checkSecurityProductChange( ep.getProduct() , null ) )
 					return( false );
 				
 				if( tm == null ) {
-					tm = new TransactionMetadata( this );
+					tm = new TransactionMetadata( this , ep );
 					addTransactionMeta( meta.getId() , meta.name , tm );
 				}
 				
@@ -1019,11 +1027,12 @@ public class TransactionBase extends EngineObject {
 						return( true );
 				}
 				
-				if( !checkSecurityProductChange( env.meta , env ) )
+				EngineProduct ep = env.getEngineProduct();
+				if( !checkSecurityProductChange( ep.getProduct() , env ) )
 					return( false );
 				
 				if( tm == null ) {
-					tm = new TransactionMetadata( this );
+					tm = new TransactionMetadata( this , ep );
 					addTransactionMeta( meta.getId() , meta.name , tm );
 				}
 				
@@ -1137,7 +1146,7 @@ public class TransactionBase extends EngineObject {
 
 	protected void checkTransactionMetadata( ProductMeta sourceMeta ) throws Exception {
 		checkTransaction();
-		TransactionMetadata meta = productMeta.get( sourceMeta.name );
+		TransactionMetadata meta = productMeta.get( sourceMeta.NAME );
 		if( meta == null )
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
 		
@@ -1332,11 +1341,8 @@ public class TransactionBase extends EngineObject {
 	}
 	
 	public Meta getMeta( Meta meta ) throws Exception {
-		return( action.getActiveProductMetadata( meta.name ) );
-	}
-
-	public Meta getMeta( AppProduct product ) throws Exception {
-		return( action.getActiveProductMetadata( product.NAME ) );
+		EngineProduct ep = meta.getEngineProduct();
+		return( ep.findSessionMeta( action , meta.getStorage() , true ) );
 	}
 
 	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
@@ -1548,25 +1554,27 @@ public class TransactionBase extends EngineObject {
 		return( false );
 	}
 
-	public boolean checkSecurityProductChange( Meta meta , MetaEnv env ) {
+	public boolean checkSecurityProductChange( AppProduct product , MetaEnv env ) {
 		AuthService auth = engine.getAuth();
-		if( auth.checkAccessProductAction( action , SecurityAction.ACTION_CONFIGURE , meta , env , false ) )
+		if( auth.checkAccessProductAction( action , SecurityAction.ACTION_CONFIGURE , product , env , false ) )
 			return( true );
 		
 		checkSecurityFailed();
 		return( false );
 	}
 
-	public void setProductMetadata( ProductMeta metadata ) throws Exception {
-		data.setProductMetadata( this , metadata );
+	protected void setProductDraft( AppProduct product , ProductMeta metadata ) throws Exception {
+		EngineProducts products = data.getProducts();
+		products.setProductDraft( product , metadata );
 	}
 	
 	public void deleteProductMetadata( ProductMeta metadata ) throws Exception {
-		data.deleteProductMetadata( this , metadata );
+		EngineProducts products = data.getProducts();
+		products.deleteProductMetadata( this , metadata );
 	}
 	
 	public void replaceProductMetadata( ProductMeta storage ) throws Exception {
-		TransactionMetadata tm = productMeta.get( storage.name );
+		TransactionMetadata tm = productMeta.get( storage.NAME );
 		if( tm == null )
 			action.exitUnexpectedState();
 		

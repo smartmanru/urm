@@ -6,8 +6,11 @@ import java.util.List;
 import org.urm.engine.CallService;
 import org.urm.engine.StateService;
 import org.urm.engine._Error;
+import org.urm.engine.action.ActionInit;
 import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineMonitoring;
+import org.urm.engine.products.EngineProduct;
+import org.urm.engine.products.EngineProductSessions;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
@@ -32,6 +35,7 @@ public class TransactionMetadata {
 	};
 	
 	TransactionBase transaction;
+	EngineProduct ep;
 	
 	CHANGETYPE productType;
 	
@@ -44,8 +48,9 @@ public class TransactionMetadata {
 	
 	private List<TransactionMetadataEnv> transactionEnvs;
 	
-	public TransactionMetadata( TransactionBase transaction ) {
+	public TransactionMetadata( TransactionBase transaction , EngineProduct ep ) {
 		this.transaction = transaction;
+		this.ep = ep;
 		
 		matchedBeforeImport = false;
 		
@@ -75,7 +80,9 @@ public class TransactionMetadata {
 		productType = CHANGETYPE.IMPORT;
 		this.product = product;
 		matchedBeforeImport = product.isMatched();
-		metadata = product.storage;
+		
+		EngineProduct ep = product.getEngineProduct();
+		metadata = ep.getDraftRevision();
 		return( true );
 	}
 
@@ -143,10 +150,13 @@ public class TransactionMetadata {
 		
 		AppProduct product = storage.getProduct();
 		AppSystem system = product.system;
-		metadata = storage.copy( transaction.getProducts() , product , system.getParameters() );
+		metadata = storage.copy( system.getParameters() );
 		
-		sessionMeta = transaction.action.getProductMetadata( meta.name );
-		sessionMeta.replaceStorage( transaction.action , metadata );
+		ActionInit action = transaction.getAction();
+		sessionMeta = ep.findSessionMeta( action , storage , true );
+		
+		EngineProductSessions sessions = ep.getSessions();
+		sessions.replaceStorage( transaction.action , sessionMeta , metadata );
 		transaction.trace( "transaction product storage meta: source=" + storage.objectId + ", copy=" + metadata.objectId );
 		return( true );
 	}
@@ -205,13 +215,15 @@ public class TransactionMetadata {
 		if( metadataOld == null )
 			return;
 
-		String name = metadataOld.name;
+		String name = metadataOld.NAME;
 		try {
 			if( save )
-				transaction.setProductMetadata( metadataOld );
+				transaction.setProductDraft( product , metadataOld );
 			
-			if( productType != CHANGETYPE.DELETE && sessionMeta != null )
-				sessionMeta.replaceStorage( transaction.action , metadataOld );
+			if( productType != CHANGETYPE.DELETE && sessionMeta != null ) {
+				EngineProductSessions sessions = ep.getSessions();
+				sessions.replaceStorage( transaction.action , sessionMeta , metadataOld );
+			}
 			
 			productType = CHANGETYPE.NOTHING;
 			
@@ -243,11 +255,13 @@ public class TransactionMetadata {
 				return( false );
 				
 			EngineDirectory directory = transaction.getDirectory();
-			AppProduct product = directory.getProduct( metadata.productId );
-			transaction.setProductMetadata( metadata );
-			product.setStorage( metadata );
-			if( sessionMeta != null )
-				sessionMeta.replaceStorage( transaction.action , metadata );
+			AppProduct product = directory.getProduct( ep.productId );
+			transaction.setProductDraft( product , metadata );
+			
+			if( sessionMeta != null ) {
+				EngineProductSessions sessions = ep.getSessions();
+				sessions.replaceStorage( transaction.action , sessionMeta , metadata );
+			}
 			transaction.trace( "transaction product storage meta: save=" + metadata.objectId );
 			
 			if( productType == CHANGETYPE.CREATE )
@@ -276,17 +290,17 @@ public class TransactionMetadata {
 	}
 
 	private void createProductFinish( AppProduct product ) throws Exception {
-		StateService status = transaction.action.getServerStatus();
+		StateService status = transaction.action.getEngineStatus();
 		status.createProduct( transaction , product );
-		EngineMonitoring mon = transaction.action.getServerMonitoring();
+		EngineMonitoring mon = transaction.action.getEngineMonitoring();
 		mon.transactionCommitCreateProduct( transaction , product );
 		CallService jmx = transaction.engine.jmx;
 		jmx.addProduct( product );
 	}
 	
 	private void importProductFinish() throws Exception {
-		StateService status = transaction.action.getServerStatus();
-		EngineMonitoring mon = transaction.action.getServerMonitoring();
+		StateService status = transaction.action.getEngineStatus();
+		EngineMonitoring mon = transaction.action.getEngineMonitoring();
 		CallService jmx = transaction.engine.jmx;
 
 		if( matchedBeforeImport ) {
@@ -308,19 +322,18 @@ public class TransactionMetadata {
 	}
 	
 	private void deleteProductFinish( AppProduct product , ProductMeta metadata ) throws Exception {
-		StateService status = transaction.action.getServerStatus();
+		StateService status = transaction.action.getEngineStatus();
 		status.deleteProduct( transaction , metadata );
-		EngineMonitoring mon = transaction.action.getServerMonitoring();
+		EngineMonitoring mon = transaction.action.getEngineMonitoring();
 		mon.transactionCommitDeleteProduct( transaction , product );
 		CallService jmx = transaction.engine.jmx;
 		jmx.deleteProduct( product );
 	}
 	
 	private void modifyProductFinish( AppProduct product , ProductMeta metadataOld , ProductMeta metadataNew ) throws Exception {
-		product.setStorage( metadataNew );
-		StateService status = transaction.action.getServerStatus();
+		StateService status = transaction.action.getEngineStatus();
 		status.modifyProduct( transaction , metadataOld , metadataNew );
-		EngineMonitoring mon = transaction.action.getServerMonitoring();
+		EngineMonitoring mon = transaction.action.getEngineMonitoring();
 		mon.transactionCommitModifyProduct( transaction , product );
 	}
 	

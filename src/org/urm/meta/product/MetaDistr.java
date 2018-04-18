@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumChangeType;
-import org.urm.meta.MatchItem;
+import org.urm.meta.loader.MatchItem;
 
 public class MetaDistr {
 

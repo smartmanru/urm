@@ -4,10 +4,10 @@ import org.urm.action.ActionBase;
 import org.urm.db.release.DBRelease;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.engine.ProductReleases;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseChanges;
@@ -27,12 +27,12 @@ public class ActionFinishRelease extends ActionBase {
 		EngineMethod method = super.method;
 		
 		Meta meta = release.getMeta();
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repository
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
-			DistRepository distrepoUpdated = method.changeDistRepository( releases );
+			DistRepository distrepoUpdated = method.changeDistRepository( meta.getProduct() );
 			Dist dist = distrepoUpdated.findDefaultDist( releaseUpdated );
 			
 			if( !finish( method , releaseUpdated , dist ) )

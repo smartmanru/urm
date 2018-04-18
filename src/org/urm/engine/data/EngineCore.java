@@ -2,7 +2,7 @@ package org.urm.engine.data;
 
 import org.urm.engine.Engine;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.loader.EngineLoader;
 
 public class EngineCore {
 

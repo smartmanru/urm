@@ -6,6 +6,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
@@ -38,7 +39,8 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		ReleaseSchedule schedule = release.getSchedule();
 	
 		Meta meta = release.getMeta();
-		DistRepository repo = meta.getDistRepository();
+		EngineProduct ep = meta.getEngineProduct();
+		DistRepository repo = ep.getDistRepository();
 		Dist dist = repo.findDefaultMasterDist();
 		FileSet files = dist.getFiles( this );
 		String hashStatus = dist.checkHash( this )? "OK" : "not matched";

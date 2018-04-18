@@ -8,7 +8,7 @@ import org.urm.db.core.DBEnums;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
 import org.urm.engine.data.EngineEntities;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.loader.EngineLoader;
 
 public abstract class DBEngineData {
 

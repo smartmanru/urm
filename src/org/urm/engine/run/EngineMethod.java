@@ -16,9 +16,11 @@ import org.urm.engine.action.CommandMethod;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.engine.events.EngineEventsSource;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.status.ScopeState;
-import org.urm.meta.engine.ProductReleases;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.ProductMeta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseRepository;
 
@@ -31,7 +33,7 @@ public class EngineMethod extends EngineExecutorTask {
 
 	private DBConnection connection;
 	private List<DBConnection> dbstatus;
-	private Map<String,EngineMethodMeta> metastatus;
+	private Map<String,EngineMethodProduct> metastatus;
 	private List<EngineMethodNotify> notify;
 	
 	public EngineMethod( ActionBase action , CommandExecutor executor , CommandMethod command , ScopeState parentState ) {
@@ -42,7 +44,7 @@ public class EngineMethod extends EngineExecutorTask {
 		this.parentState = parentState;
 		
 		dbstatus = new LinkedList<DBConnection>();
-		metastatus = new HashMap<String,EngineMethodMeta>();
+		metastatus = new HashMap<String,EngineMethodProduct>();
 		notify = new LinkedList<EngineMethodNotify>(); 
 	}
 
@@ -82,7 +84,7 @@ public class EngineMethod extends EngineExecutorTask {
 				connection = null;
 			}
 			
-			for( EngineMethodMeta emm : metastatus.values() )
+			for( EngineMethodProduct emm : metastatus.values() )
 				emm.commit();
 			
 			notifyEvents();
@@ -99,7 +101,7 @@ public class EngineMethod extends EngineExecutorTask {
 			connection = null;
 		}
 		
-		for( EngineMethodMeta emm : metastatus.values() )
+		for( EngineMethodProduct emm : metastatus.values() )
 			emm.abort();
 	}
 
@@ -135,26 +137,32 @@ public class EngineMethod extends EngineExecutorTask {
 		dbstatus.clear();
 	}
 
-	public ReleaseRepository changeReleaseRepository( ProductReleases releases ) throws Exception {
-		EngineMethodMeta emm = getEmm( releases );
-		return( emm.changeReleaseRepository() );
+	public ReleaseRepository changeReleaseRepository( Meta meta ) throws Exception {
+		return( changeReleaseRepository( meta.getStorage() ) );
 	}
 	
-	public DistRepository changeDistRepository( ProductReleases releases ) throws Exception {
-		EngineMethodMeta emm = getEmm( releases );
+	public ReleaseRepository changeReleaseRepository( ProductMeta storage ) throws Exception {
+		if( !storage.isPrimary() )
+			Common.exitUnexpected();
+		EngineMethodProduct emm = getEmm( storage.getEngineProduct() );
+		return( emm.changeReleaseRepository( storage ) );
+	}
+	
+	public DistRepository changeDistRepository( AppProduct product ) throws Exception {
+		EngineMethodProduct emm = getEmm( product.getEngineProduct() );
 		return( emm.changeDistRepository() );
 	}
 
-	private EngineMethodMeta checkUpdateReleaseRepository( ReleaseRepository repo ) throws Exception {
-		EngineMethodMeta emm = findEmm( repo.meta );
+	private EngineMethodProduct checkUpdateReleaseRepository( ReleaseRepository repo ) throws Exception {
+		EngineMethodProduct emm = findEmm( repo.meta.getEngineProduct() );
 		if( emm == null )
 			Common.exitUnexpected();
 		emm.checkUpdateReleaseRepository( repo );
 		return( emm );
 	}
 
-	private EngineMethodMeta checkUpdateDistRepository( DistRepository repo ) throws Exception {
-		EngineMethodMeta emm = findEmm( repo.meta );
+	private EngineMethodProduct checkUpdateDistRepository( DistRepository repo ) throws Exception {
+		EngineMethodProduct emm = findEmm( repo.releases.ep );
 		if( emm == null )
 			Common.exitUnexpected();
 		emm.checkUpdateDistRepository( repo );
@@ -162,72 +170,66 @@ public class EngineMethod extends EngineExecutorTask {
 	}
 
 	public void checkUpdateDistItem( DistRepositoryItem item ) throws Exception {
-		EngineMethodMeta emm = findEmm( item.repo.meta );
+		EngineMethodProduct emm = findEmm( item.repo.releases.ep );
 		if( emm == null )
 			Common.exitUnexpected();
 		emm.checkUpdateDistItem( item );
 	}
 	
 	public void checkUpdateRelease( Release release ) throws Exception {
-		EngineMethodMeta emm = findEmm( release.getMeta() );
+		Meta meta = release.getMeta();
+		EngineMethodProduct emm = findEmm( meta.ep );
 		if( emm == null )
 			Common.exitUnexpected();
 		emm.checkUpdateRelease( release );
 	}
 	
 	public Release createRelease( ReleaseRepository repo , Release release ) throws Exception {
-		EngineMethodMeta emm = checkUpdateReleaseRepository( repo );
+		EngineMethodProduct emm = checkUpdateReleaseRepository( repo );
 		emm.createRelease( release );
 		return( release );
 	}
 	
 	public Release changeRelease( ReleaseRepository repo , Release release ) throws Exception {
-		EngineMethodMeta emm = checkUpdateReleaseRepository( repo );
+		EngineMethodProduct emm = checkUpdateReleaseRepository( repo );
 		return( emm.updateRelease( release ) );
 	}
 	
 	public Release deleteRelease( ReleaseRepository repo , Release release ) throws Exception {
-		EngineMethodMeta emm = checkUpdateReleaseRepository( repo );
+		EngineMethodProduct emm = checkUpdateReleaseRepository( repo );
 		emm.deleteRelease( release );
 		return( release );
 	}
 	
 	public DistRepositoryItem createDistItem( DistRepository repo , DistRepositoryItem item ) throws Exception {
-		EngineMethodMeta emm = checkUpdateDistRepository( repo );
+		EngineMethodProduct emm = checkUpdateDistRepository( repo );
 		emm.createDistItem( item );
 		return( item );
 	}
 	
 	public DistRepositoryItem changeDistItem( DistRepository repo , DistRepositoryItem item ) throws Exception {
-		EngineMethodMeta emm = checkUpdateDistRepository( repo );
+		EngineMethodProduct emm = checkUpdateDistRepository( repo );
 		return( emm.updateDistItem( item ) );
 	}
 
 	public DistRepositoryItem deleteDistItem( DistRepository repo , DistRepositoryItem item ) throws Exception {
-		EngineMethodMeta emm = checkUpdateDistRepository( repo );
+		EngineMethodProduct emm = checkUpdateDistRepository( repo );
 		emm.deleteDistItem( item );
 		return( item );
 	}
 	
-	private synchronized EngineMethodMeta getEmm( ProductReleases releases ) throws Exception {
-		Meta meta = releases.meta;
-		EngineMethodMeta emm = metastatus.get( meta.name );
+	private synchronized EngineMethodProduct getEmm( EngineProduct ep ) throws Exception {
+		EngineMethodProduct emm = metastatus.get( ep.productName );
 		if( emm == null ) {
-			if( !meta.isPrimary() )
-				Common.exitUnexpected();
-			emm = new EngineMethodMeta( this , meta );
-			metastatus.put( meta.name , emm );
-		}
-		else {
-			if( emm.meta != meta )
-				Common.exitUnexpected();
+			emm = new EngineMethodProduct( this , ep );
+			metastatus.put( ep.productName , emm );
 		}
 		
 		return( emm ); 
 	}
 
-	private synchronized EngineMethodMeta findEmm( Meta meta ) throws Exception {
-		return( metastatus.get( meta.name ) );
+	private synchronized EngineMethodProduct findEmm( EngineProduct ep ) throws Exception {
+		return( metastatus.get( ep.productName ) );
 	}
 
 	public synchronized void addCommitEvent( EngineEventsSource source , int eventOwner , int eventType , Object data ) {

@@ -5,19 +5,13 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.dist.VersionInfo;
-import org.urm.meta.engine.ProductReleases;
 import org.urm.meta.product.Meta;
 
 public class ReleaseRepository {
 
 	public static String MASTER_NAME_PRIMARY = "primary";
-	
-	public static String PROPERTY_NAME = "name";
-	public static String PROPERTY_DESC = "desc";
-	public static String PROPERTY_PRODUCT = "product";
 	
 	public enum ReleaseOperation {
 		CREATE ,
@@ -34,7 +28,6 @@ public class ReleaseRepository {
 	};
 	
 	public Meta meta;
-	public ProductReleases releases;
 	
 	public int ID;
 	public String NAME;
@@ -46,17 +39,17 @@ public class ReleaseRepository {
 	
 	private boolean modifyState;
 	
-	public ReleaseRepository( Meta meta , ProductReleases releases ) {
+	public ReleaseRepository( Meta meta ) {
 		this.meta = meta;
-		this.releases = releases;
+		
 		mapReleasesById = new HashMap<Integer,Release>();
 		mapReleasesNormal = new HashMap<String,Release>();
 		mapReleasesMaster = new HashMap<String,Release>();
 		modifyState = false;
 	}
 
-	public ReleaseRepository copy( Meta rmeta , ProductReleases rreleases ) throws Exception {
-		ReleaseRepository r = new ReleaseRepository( rmeta , rreleases );
+	public ReleaseRepository copy( Meta rmeta ) throws Exception {
+		ReleaseRepository r = new ReleaseRepository( rmeta );
 		r.ID = ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
@@ -104,19 +97,10 @@ public class ReleaseRepository {
 		return( mapReleasesById.get( id ) ); 
 	}
 	
-	public Release findRelease( String RELEASEVER ) {
-		try {
-			String version = VersionInfo.normalizeReleaseVer( RELEASEVER );
-			Release release = mapReleasesNormal.get( version );
-			if( release != null )
-				return( release );
-		}
-		catch( Throwable e ) {
-			meta.engine.log( "version" , e );
-		}
-		return( null );
+	public Release findReleaseByFullVersion( String RELEASEVER ) {
+		return( mapReleasesById.get( RELEASEVER ) ); 
 	}
-
+	
 	public Release findDefaultMaster() {
 		return( findMaster( ReleaseRepository.MASTER_NAME_PRIMARY ) );
 	}
@@ -130,19 +114,6 @@ public class ReleaseRepository {
 	
 	public synchronized String[] getActiveVersions() {
 		return( VersionInfo.orderVersions( Common.getSortedKeys( mapReleasesNormal ) ) );
-	}
-
-	public Release getNextRelease( String RELEASEVER ) {
-		try {
-			String[] versions = getActiveVersions();
-			String version = VersionInfo.normalizeReleaseVer( RELEASEVER );
-			int index = Common.getIndexOf( versions , version );
-			if( index >= 0 && index < versions.length - 1 )
-				return( mapReleasesNormal.get( versions[ index + 1 ] ) );
-		}		
-		catch( Throwable e ) {
-		}
-		return( null );	
 	}
 
 	public synchronized void addRelease( Release release ) {
@@ -185,19 +156,4 @@ public class ReleaseRepository {
 		return( mapReleasesById.get( id ) );
 	}
 
-	public ReleaseDist findReleaseDist( Dist dist ) {
-		if( dist.isMaster() ) {
-			Release release = mapReleasesMaster.get( dist.release.NAME );
-			if( release == null )
-				return( null );
-			return( release.getDefaultReleaseDist() );
-		}
-		
-		Release release = mapReleasesById.get( dist.release.ID );
-		if( release == null )
-			return( null );
-		
-		return( release.findDistVariant( dist.releaseDist.DIST_VARIANT ) ); 
-	}
-	
 }

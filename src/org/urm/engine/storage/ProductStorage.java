@@ -11,7 +11,6 @@ import org.urm.common.Common;
 import org.urm.db.EngineDB;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.w3c.dom.Document;
@@ -23,12 +22,10 @@ public class ProductStorage {
 	
 	public Artefactory artefactory;
 	public AppProduct product;
-	public Meta meta;
 	
-	public ProductStorage( Artefactory artefactory , AppProduct product , Meta meta ) {
+	public ProductStorage( Artefactory artefactory , AppProduct product ) {
 		this.artefactory = artefactory;
 		this.product = product;
-		this.meta = meta;
 	}
 
 	public LocalFolder getHomeFolder( ActionBase action ) throws Exception {
@@ -132,7 +129,7 @@ public class ProductStorage {
 		return( folder.getFilePath( action , specFile ) );
 	}
 
-	public HashMap<String,Map<String,String>> readDatapumpFile( ActionBase action , String specFile , String schema ) throws Exception {
+	public HashMap<String,Map<String,String>> readDatapumpFile( ActionBase action , String specFile , MetaDatabase database , String schema ) throws Exception {
 		String tablesetPath = getDatapumpFile( action , specFile );
 		action.info( "reading export table set file " + tablesetPath + " ..." );
 		
@@ -155,7 +152,6 @@ public class ProductStorage {
 			
 			Map<String,String> tables = tableSet.get( SN );
 			if( tables == null ) {
-				MetaDatabase database = meta.getDatabase();
 				database.getSchema( SN );
 				tables = new HashMap<String,String>();
 				tableSet.put( SN , tables );

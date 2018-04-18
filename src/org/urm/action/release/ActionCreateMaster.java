@@ -10,10 +10,10 @@ import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
 import org.urm.engine.dist.ReleaseDistScopeSet;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.engine.ProductReleases;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
@@ -37,12 +37,12 @@ public class ActionCreateMaster extends ActionBase {
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			DistRepository distrepoUpdated = method.changeDistRepository( releases );
-			Dist src = distrepoUpdated.getDistByLabel( this , RELEASEVER );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
+			DistRepository distrepoUpdated = method.changeDistRepository( meta.getProduct() );
+			Dist src = distrepoUpdated.getDistByLabel( this , meta , RELEASEVER );
 			
 			// create release
 			Release releaseNew = DBReleaseRepository.createReleaseMaster( method , this , repoUpdated , RELEASEVER );

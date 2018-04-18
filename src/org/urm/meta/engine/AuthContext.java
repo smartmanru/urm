@@ -4,8 +4,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.AuthService;
 import org.urm.engine.properties.PropertySet;
-import org.urm.meta.EngineObject;
-import org.urm.meta.Types.EnumAuthType;
+import org.urm.meta.loader.EngineObject;
+import org.urm.meta.loader.Types.EnumAuthType;
 
 public class AuthContext extends EngineObject {
 

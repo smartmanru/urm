@@ -7,7 +7,7 @@ import org.urm.engine.data.EngineBuilders;
 import org.urm.engine.data.EngineInfrastructure;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
-import org.urm.meta.EngineObject;
+import org.urm.meta.loader.EngineObject;
 
 public class ProjectBuilder extends EngineObject {
 
@@ -178,7 +178,7 @@ public class ProjectBuilder extends EngineObject {
 		if( !BUILDER_REMOTE )
 			return( action.getLocalAccount() );
 		
-		EngineInfrastructure infra = action.getServerInfrastructure();
+		EngineInfrastructure infra = action.getEngineInfrastructure();
 		HostAccount account = infra.getHostAccount( REMOTE_ACCOUNT_ID );
 		return( account.getAccount() );
 	}
@@ -187,7 +187,7 @@ public class ProjectBuilder extends EngineObject {
 		if( !BUILDER_REMOTE )
 			return( null );
 		
-		EngineInfrastructure infra = action.getServerInfrastructure();
+		EngineInfrastructure infra = action.getEngineInfrastructure();
 		HostAccount account = infra.getHostAccount( REMOTE_ACCOUNT_ID );
 		return( account );
 	}

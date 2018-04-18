@@ -69,7 +69,7 @@ public class ActionMonitorTarget extends ActionBase {
 		info.stop( this );
 
 		if( sg != null ) { 
-			StateService status = super.getServerStatus();
+			StateService status = super.getEngineStatus();
 			StatusSource source = status.getObjectSource( sg );
 			if( source != null )
 				source.customEvent( EventService.OWNER_ENGINE , EventService.EVENT_MONITORGRAPHCHANGED , info );
@@ -85,7 +85,7 @@ public class ActionMonitorTarget extends ActionBase {
 		long timeStart = System.currentTimeMillis();
 		boolean ok = true;
 		
-		StateService engineStatus = super.getServerStatus();
+		StateService engineStatus = super.getEngineStatus();
 		String name = sg.env.NAME + "::" + sg.NAME;
 		
 		for( MetaEnvServer server : sg.getServers() ) {

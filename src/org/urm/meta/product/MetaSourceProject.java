@@ -9,10 +9,10 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.data.EngineMirrors;
-import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.ProjectBuilder;
+import org.urm.meta.loader.MatchItem;
 
 public class MetaSourceProject {
 
@@ -193,7 +193,7 @@ public class MetaSourceProject {
 	}
 	
 	public MirrorRepository getMirror( ActionBase action ) throws Exception {
-		EngineMirrors mirrors = action.getServerMirrors();
+		EngineMirrors mirrors = action.getEngineMirrors();
 		MirrorRepository mirror = mirrors.getRepository( MIRROR.FKID );
 		return( mirror );
 	}

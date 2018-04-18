@@ -13,11 +13,11 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.db.release.DBReleaseChanges;
 import org.urm.db.release.DBReleaseTicketTarget;
 import org.urm.engine.AuthService;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.MetaSources;
-import org.urm.meta.engine.ProductReleases;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -366,10 +366,10 @@ public class ActionTickets extends ActionBase {
 	private void executeCreateSet( String code , String name , String comments ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			DBReleaseChanges.createSet( method , this , releaseUpdated , changes , code , name , comments );
@@ -379,10 +379,10 @@ public class ActionTickets extends ActionBase {
 	private void executeModifySet( String code , String codeNew , String nameNew , String commentsNew ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( code );
@@ -393,10 +393,10 @@ public class ActionTickets extends ActionBase {
 	private void executeDropSet( String code , boolean descope ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( code );
@@ -407,10 +407,10 @@ public class ActionTickets extends ActionBase {
 	private void executeCreateTicket( String setCode , DBEnumTicketType type , String code , String name , String link , String comments , Integer owner , boolean devdone ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
@@ -421,10 +421,10 @@ public class ActionTickets extends ActionBase {
 	private void executeModifyTicket( String setCode , int ticketPos , DBEnumTicketType type , String code , String name , String link , String comments , Integer owner , boolean devdone ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
@@ -436,10 +436,10 @@ public class ActionTickets extends ActionBase {
 	private void executeDropTicket( String setCode , int ticketPos , boolean descope ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
@@ -451,10 +451,10 @@ public class ActionTickets extends ActionBase {
 	private void executeSetTicketDone( String setCode , int ticketPos ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
@@ -466,10 +466,10 @@ public class ActionTickets extends ActionBase {
 	private void executeSetTicketVerified( String setCode , int ticketPos ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
@@ -481,13 +481,13 @@ public class ActionTickets extends ActionBase {
 	private void executeCopyTicket( String setCode , int ticketPos , String newRelease , String newSetCode ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
-			if( newRelease.equals( release.RELEASEVER ) )
-				Common.exitUnexpected();
-			
+		if( newRelease.equals( release.RELEASEVER ) )
+			Common.exitUnexpected();
+		
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			releaseNew = repoUpdated.findReleaseByLabel( this , newRelease );
 			Release releaseNewUpdated = method.changeRelease( repoUpdated , releaseNew );
 			
@@ -503,10 +503,10 @@ public class ActionTickets extends ActionBase {
 	private void executeMoveTicket( String setCode , int ticketPos , String newSetCode ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
@@ -519,10 +519,10 @@ public class ActionTickets extends ActionBase {
 	private void executeCreateSetTarget( String setCode , String element ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
@@ -538,10 +538,10 @@ public class ActionTickets extends ActionBase {
 	private void executeCreateProjectTarget( String setCode , String element , String[] items ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
@@ -565,10 +565,10 @@ public class ActionTickets extends ActionBase {
 	private void executeCreateDeliveryTarget( String setCode , String deliveryName , String type , String[] items ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
@@ -621,10 +621,10 @@ public class ActionTickets extends ActionBase {
 	private void executeDropTarget( String setCode , int targetPos , boolean descope ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );
@@ -640,10 +640,10 @@ public class ActionTickets extends ActionBase {
 	private void executeAcceptSet( ScopeState state , String setCode , boolean allTickets , String[] tickets , boolean allTargets , String[] targets ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseChanges changes = releaseUpdated.getChanges();
 			ReleaseTicketSet set = changes.getSet( setCode );

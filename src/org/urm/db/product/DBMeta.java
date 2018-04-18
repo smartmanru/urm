@@ -9,13 +9,13 @@ import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
-import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.TransactionBase;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.engine.AppProduct;
+import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.ProductContext;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Node;
@@ -67,16 +67,18 @@ public class DBMeta {
 	}
 
 	private static void modifyMeta( DBConnection c , ProductMeta storage , boolean insert ) throws Exception {
+		AppProduct product = storage.getProduct();
 		if( insert )
-			storage.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , storage.name , DBEnumParamEntityType.PRODUCT );
+			storage.ID = DBNames.getNameIndex( c , product.ID , storage.REVISION , DBEnumParamEntityType.PRODUCT );
 		else
-			DBNames.updateName( c , DBVersions.CORE_ID , storage.name , storage.ID , DBEnumParamEntityType.PRODUCT );
+			DBNames.updateName( c , product.ID , storage.REVISION , storage.ID , DBEnumParamEntityType.PRODUCT );
 		
 		storage.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMeta , storage.ID , storage.PV , new String[] {
-				EngineDB.getInteger( storage.productId ) ,
-				EngineDB.getString( null ) ,
+				EngineDB.getInteger( product.ID ) ,
+				EngineDB.getString( storage.NAME ) ,
+				EngineDB.getString( storage.REVISION ) ,
 				EngineDB.getBoolean( storage.MATCHED )
 				} , insert );
 	}

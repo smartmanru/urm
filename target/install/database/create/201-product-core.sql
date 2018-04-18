@@ -2,13 +2,18 @@
 CREATE TABLE main.urm_product_meta (
                 meta_id INTEGER NOT NULL,
                 product_fkid INTEGER,
-                product_fkname VARCHAR(30),
+                name VARCHAR(30) NOT NULL,
+                revision VARCHAR(30) NOT NULL,
                 matched BOOLEAN NOT NULL,
                 pv INTEGER NOT NULL,
                 CONSTRAINT urm_product_meta_pk PRIMARY KEY (meta_id)
 );
 COMMENT ON TABLE main.urm_product_meta IS 'Product';
 
+
+CREATE UNIQUE INDEX urm_product_meta_idx
+ ON main.urm_product_meta
+ ( name, revision );
 
 CREATE TABLE main.urm_product_doc (
                 doc_id INTEGER NOT NULL,

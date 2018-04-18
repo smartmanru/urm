@@ -1,29 +1,25 @@
 package org.urm.meta.product;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.urm.engine.data.EngineProducts;
-import org.urm.engine.dist.DistRepository;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.engine.session.EngineSession;
-import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.ProductReleases;
 import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.env.ProductEnvs;
+import org.urm.meta.loader.EngineObject;
 import org.urm.meta.release.ReleaseRepository;
 
 public class ProductMeta extends EngineObject {
 
-	public String name;
+	public EngineProduct ep;
 	
 	public Meta meta;
 	public Integer ID;
+	public String NAME;
+	public boolean DRAFT;
+	public String REVISION;
 	public int PV;
 	public boolean MATCHED;
-	public boolean DRAFT;
-	public int productId;
 	
 	private MetaProductSettings settings;
 	private MetaUnits units;
@@ -31,38 +27,38 @@ public class ProductMeta extends EngineObject {
 	private MetaSources sources;
 	private MetaDocs docs;
 	private MetaDistr distr;
+	
 	private ProductEnvs envs;
-	private ProductReleases releases;
+	private ReleaseRepository releases;
 
-	private EngineProducts products;
-	private Map<EngineSession,Meta> sessionMeta;
 	private boolean primary;
 	
-	public ProductMeta( EngineProducts products , AppProduct product ) {
+	public ProductMeta( EngineProduct ep ) {
 		super( null );
-		this.products = products;
-		this.productId = product.ID;
-		this.name = product.NAME;
+		this.ep = ep;
+		this.NAME = ep.productName;
 		
-		meta = new Meta( products , this , null );
+		meta = new Meta( ep , this , null );
 		ID = null;
 		PV = -1;
 		MATCHED = false;
 		DRAFT = true;
 		
-		sessionMeta = new HashMap<EngineSession,Meta>();
 		primary = false;
 	}
 
 	@Override
 	public String getName() {
-		return( name );
+		return( NAME );
 	}
 	
-	public synchronized ProductMeta copy( EngineProducts products , AppProduct rproduct , ObjectProperties opsParent ) throws Exception {
-		ProductMeta r = new ProductMeta( products , rproduct );
+	public synchronized ProductMeta copy( ObjectProperties opsParent ) throws Exception {
+		ProductMeta r = new ProductMeta( ep );
 		
 		r.ID = ID;
+		r.NAME = NAME;
+		r.DRAFT = DRAFT;
+		r.REVISION = REVISION;
 		r.PV = PV;
 		r.MATCHED = MATCHED;
 		
@@ -80,12 +76,16 @@ public class ProductMeta extends EngineObject {
 		return( r );
 	}
 
+	public EngineProduct getEngineProduct() {
+		return( ep );
+	}
+	
 	public AppProduct getProduct() throws Exception {
-		return( products.getProduct( productId ) );
+		return( ep.getProduct() );
 	}
 	
 	public AppProduct findProduct() {
-		return( products.findProduct( productId ) );
+		return( ep.findProduct() );
 	}
 	
 	public void setMatched( boolean matched ) {
@@ -107,24 +107,6 @@ public class ProductMeta extends EngineObject {
 		this.primary = primary;
 	}
 	
-	public synchronized void addSessionMeta( Meta meta ) {
-		sessionMeta.put( meta.session , meta );
-	}
-	
-	public synchronized void releaseSessionMeta( Meta meta ) {
-		sessionMeta.remove( meta.session );
-	}
-
-	public synchronized Meta findSessionMeta( EngineSession session ) {
-		return( sessionMeta.get( session ) );
-	}
-
-	public synchronized boolean isReferencedBySessions() {
-		if( sessionMeta.isEmpty() )
-			return( false );
-		return( true );
-	}
-	
 	public boolean isPrimary() {
 		return( primary );
 	}
@@ -133,20 +115,12 @@ public class ProductMeta extends EngineObject {
 		return( DRAFT );
 	}
 	
-	public DistRepository getDistRepository() {
-		return( releases.getDistRepository() );
-	}
-	
 	public ReleaseRepository getReleaseRepository() {
-		return( releases.getReleaseRepository() );
-	}
-	
-	public void setDistRepository( DistRepository repo ) {
-		releases.setDistRepository( repo );
+		return( releases );
 	}
 	
 	public void setReleaseRepository( ReleaseRepository repo ) {
-		releases.setReleaseRepository( repo );
+		releases = repo;
 	}
 	
 	public void setSettings( MetaProductSettings settings ) throws Exception {
@@ -177,10 +151,6 @@ public class ProductMeta extends EngineObject {
 		this.envs = envs;
 	}
 
-	public void setReleases( ProductReleases releases ) throws Exception {
-		this.releases = releases;
-	}
-	
 	public MetaProductSettings getSettings() {
 		return( settings );
 	}
@@ -209,10 +179,10 @@ public class ProductMeta extends EngineObject {
 		return( envs );
 	}
 
-	public ProductReleases getReleases() {
-		return( releases );
+	public MetaMonitoring getMonitoring() {
+		return( envs.getMonitoring() );
 	}
-
+	
 	public boolean isMatched() {
 		return( MATCHED );
 	}

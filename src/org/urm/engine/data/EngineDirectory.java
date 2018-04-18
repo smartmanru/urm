@@ -4,17 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
+import org.urm.engine.DataService;
 import org.urm.engine.Engine;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.transaction.TransactionBase;
-import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
-import org.urm.meta.engine._Error;
+import org.urm.meta.loader.EngineObject;
 
 public class EngineDirectory extends EngineObject {
 
 	public Engine engine;
+	public DataService data;
 
 	private Map<String,AppSystem> mapSystems;
 	private Map<String,AppProduct> mapProducts;
@@ -24,9 +26,10 @@ public class EngineDirectory extends EngineObject {
 	private Map<Integer,AppSystem> mapSystemUnmatched;
 	private Map<Integer,AppProduct> mapProductUnmatched;
 	
-	public EngineDirectory( Engine engine ) {
+	public EngineDirectory( Engine engine , DataService data ) {
 		super( null );
 		this.engine = engine;
+		this.data = data;
 		
 		mapSystems = new HashMap<String,AppSystem>();
 		mapProducts = new HashMap<String,AppProduct>();
@@ -43,7 +46,7 @@ public class EngineDirectory extends EngineObject {
 	}
 
 	public EngineDirectory copy( TransactionBase transaction ) throws Exception {
-		EngineDirectory r = new EngineDirectory( engine );
+		EngineDirectory r = new EngineDirectory( engine , data );
 		
 		for( AppSystem system : mapSystems.values() ) {
 			AppSystem rs = r.copySystem( transaction , system );
@@ -287,6 +290,15 @@ public class EngineDirectory extends EngineObject {
 				return( false );
 		}
 		return( true );
+	}
+	
+	public EngineProduct findEngineProduct( AppProduct product ) {
+		EngineProducts products = data.getProducts();
+		return( products.findEngineProduct( product ) );
+	}
+
+	public EngineProducts getEngineProducts() {
+		return( data.getProducts() );
 	}
 	
 }

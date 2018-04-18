@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.engine.schedule.ScheduleProperties;
-import org.urm.meta.product.Meta;
 
 public class MetaMonitoringTarget {
 
@@ -16,7 +15,7 @@ public class MetaMonitoringTarget {
 	public static String PROPERTY_MINOR_SCHEDULE = "minor.schedule";
 	public static String PROPERTY_MINOR_MAXTIME = "minor.maxtime";
 
-	public Meta meta;
+	public ProductEnvs envs;
 	public MetaMonitoring mon;
 	
 	public int ID;
@@ -34,8 +33,8 @@ public class MetaMonitoringTarget {
 	private List<MetaMonitoringItem> listUrls;
 	private List<MetaMonitoringItem> listWS;
 
-	public MetaMonitoringTarget( Meta meta , MetaMonitoring mon ) {
-		this.meta = meta;
+	public MetaMonitoringTarget( ProductEnvs envs , MetaMonitoring mon ) {
+		this.envs = envs;
 		this.mon = mon;
 		
 		ID = -1;
@@ -44,8 +43,9 @@ public class MetaMonitoringTarget {
 		listWS = new LinkedList<MetaMonitoringItem>();
 	}
 
-	public MetaMonitoringTarget copy( Meta rmeta , MetaMonitoring rmon ) {
-		MetaMonitoringTarget r = new MetaMonitoringTarget( rmeta , rmon );
+	public MetaMonitoringTarget copy( ProductEnvs renvs , MetaMonitoring rmon ) {
+		MetaMonitoringTarget r = new MetaMonitoringTarget( renvs , rmon );
+		
 		r.ID = ID;
 		r.ENV_ID = ENV_ID;
 		r.SEGMENT_ID = SEGMENT_ID;
@@ -58,12 +58,12 @@ public class MetaMonitoringTarget {
 		r.EV = EV;
 		
 		for( MetaMonitoringItem item : listUrls ) {
-			MetaMonitoringItem ritem = item.copy( meta , r );
+			MetaMonitoringItem ritem = item.copy( renvs , r );
 			r.addUrl( ritem );
 		}
 		
 		for( MetaMonitoringItem item : listWS ) {
-			MetaMonitoringItem ritem = item.copy( meta , r );
+			MetaMonitoringItem ritem = item.copy( renvs , r );
 			r.addWS( ritem );
 		}
 		
@@ -107,12 +107,10 @@ public class MetaMonitoringTarget {
 	}
 
 	public MetaEnv getEnv() {
-		ProductEnvs envs = meta.getEnviroments();
 		return( envs.findMetaEnv( ENV_ID ) );
 	}
 	
 	public MetaEnvSegment getSegment() {
-		ProductEnvs envs = meta.getEnviroments();
 		MetaEnv env = envs.findMetaEnv( ENV_ID );
 		return( env.findSegment( SEGMENT_ID ) );
 	}

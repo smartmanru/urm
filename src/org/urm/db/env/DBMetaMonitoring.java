@@ -10,13 +10,13 @@ import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.transaction.EngineTransaction;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.env.MetaMonitoringItem;
 import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.env.ProductEnvs;
+import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -49,7 +49,7 @@ public class DBMetaMonitoring {
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppSegmentMonTarget;
 		
-		MetaMonitoringTarget target = new MetaMonitoringTarget( storage.meta , mon );
+		MetaMonitoringTarget target = new MetaMonitoringTarget( storage.getEnviroments() , mon );
 		
 		String envName = ConfReader.getRequiredAttrValue( root , ATTR_ENV );
 		String sgName = ConfReader.getRequiredAttrValue( root , ATTR_SEGMENT );
@@ -94,7 +94,7 @@ public class DBMetaMonitoring {
 			return;
 		
 		for( Node node : items ) {
-			MetaMonitoringItem item = new MetaMonitoringItem( storage.meta , target );
+			MetaMonitoringItem item = new MetaMonitoringItem( storage.getEnviroments() , target );
 			item.create( 
 					entity.importxmlStringAttr( node , MetaMonitoringItem.PROPERTY_URL ) , 
 					"" , 
@@ -116,7 +116,7 @@ public class DBMetaMonitoring {
 			return;
 		
 		for( Node node : items ) {
-			MetaMonitoringItem item = new MetaMonitoringItem( storage.meta , target );
+			MetaMonitoringItem item = new MetaMonitoringItem( storage.getEnviroments() , target );
 			item.create( 
 					entity.importxmlStringAttr( node , MetaMonitoringItem.PROPERTY_URL ) , 
 					getNodeSubTree( action , node , MetaMonitoringItem.PROPERTY_WSDATA ) ,
@@ -175,7 +175,7 @@ public class DBMetaMonitoring {
 				
 		MetaMonitoringTarget target = mon.findMonitoringTarget( sg );
 		if( target == null ) {
-			target = new MetaMonitoringTarget( storage.meta , mon );
+			target = new MetaMonitoringTarget( storage.getEnviroments() , mon );
 			target.createTarget( sg );
 			target.modifyTarget( major , enabled , schedule , maxTime );
 			mon.addTarget( target );

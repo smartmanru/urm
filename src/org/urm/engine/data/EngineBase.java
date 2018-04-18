@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.meta.EngineObject;
-import org.urm.meta.MatchItem;
 import org.urm.meta.engine.BaseCategory;
 import org.urm.meta.engine.BaseGroup;
 import org.urm.meta.engine.BaseItem;
 import org.urm.meta.engine._Error;
+import org.urm.meta.loader.EngineObject;
+import org.urm.meta.loader.MatchItem;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
 

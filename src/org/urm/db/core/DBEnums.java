@@ -9,7 +9,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.loader.EngineLoader;
 
 public abstract class DBEnums {
 

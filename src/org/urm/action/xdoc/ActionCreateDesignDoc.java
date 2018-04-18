@@ -39,7 +39,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		getProdServers();
 		
 		AppProduct product = meta.findProduct();
-		ProductStorage ms = artefactory.getMetadataStorage( this , product , meta );
+		ProductStorage ms = artefactory.getMetadataStorage( this , product );
 		MetaDocs docs = meta.getDocs();
 		for( String designFile : ms.getDesignFiles( this ) ) {
 			MetaDesignDiagram design = docs.findDiagram( designFile );

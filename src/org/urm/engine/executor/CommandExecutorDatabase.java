@@ -6,21 +6,22 @@ import org.urm.action.ActionScope;
 import org.urm.action.database.DatabaseCommand;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
-import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.status.ScopeState;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.ProductMeta;
 
 public class CommandExecutorDatabase extends CommandExecutor {
 
@@ -67,8 +68,8 @@ public class CommandExecutorDatabase extends CommandExecutor {
 	private class GetReleaseScripts extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
-		Meta meta = action.getContextMeta();
-		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
+		AppProduct product = action.getContextProduct();
+		Dist dist = action.getReleaseDist( product , RELEASELABEL );
 		String[] DELIVERIES = getArgList( action , 1 );
 		
 		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
@@ -89,8 +90,8 @@ public class CommandExecutorDatabase extends CommandExecutor {
 	private class ApplyManual extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
-		Meta meta = action.getContextMeta();
-		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
+		AppProduct product = action.getContextProduct();
+		Dist dist = action.getReleaseDist( product , RELEASELABEL );
 		String SERVER = getRequiredArg( action , 1 , "DBSERVER" );
 		MetaEnvServer server = action.context.sg.getServer( SERVER );
 		ActionScope scope = getIndexScope( action , dist , 2 );
@@ -101,8 +102,8 @@ public class CommandExecutorDatabase extends CommandExecutor {
 	private class ApplyAutomatic extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
-		Meta meta = action.getContextMeta();
-		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
+		AppProduct product = action.getContextProduct();
+		Dist dist = action.getReleaseDist( product , RELEASELABEL );
 		String DELIVERY = getRequiredArg( action , 1 , "delivery" );
 		
 		ReleaseDistScopeDelivery delivery = null;
@@ -122,9 +123,10 @@ public class CommandExecutorDatabase extends CommandExecutor {
 	private class ManageRelease extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
-		Meta meta = action.getContextMeta();
-		DistRepository repo = meta.getDistRepository();
-		String RELEASEVER = repo.getReleaseVerByLabel( action , RELEASELABEL );
+		
+		AppProduct product = action.getContextProduct();
+		Dist dist = action.getReleaseDist( product , RELEASELABEL );
+		Meta meta = dist.meta;
 		
 		String CMD = getRequiredArg( action , 1 , "CMD" );
 		String DELIVERY = getRequiredArg( action , 2 , "delivery" );
@@ -134,13 +136,14 @@ public class CommandExecutorDatabase extends CommandExecutor {
 		if( DELIVERY.equals( "all" ) )
 			checkNoArgs( action , 3 );
 		else {
-			MetaDistr distr = meta.getDistr();
+			ProductMeta storage = meta.getStorage();
+			MetaDistr distr = storage.getDistr();
 			delivery = distr.getDelivery( DELIVERY );
 			indexScope = getRequiredArg( action , 3 , "mask" );
 			checkNoArgs( action , 4 );
 		}
 		
-		impl.manageRelease( parentState , action , meta , RELEASEVER , delivery , CMD , indexScope );
+		impl.manageRelease( parentState , action , meta , dist.release.RELEASEVER , delivery , CMD , indexScope );
 	}
 	}
 	

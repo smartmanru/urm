@@ -1,12 +1,12 @@
 package org.urm.meta.engine;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.data.EngineDirectory;
-import org.urm.meta.EngineObject;
-import org.urm.meta.product.Meta;
-import org.urm.meta.product.ProductMeta;
-import org.urm.meta.product._Error;
+import org.urm.engine.products.EngineProduct;
+import org.urm.engine.products.EngineProductEnvs;
+import org.urm.engine.products.EngineProductReleases;
+import org.urm.engine.products.EngineProductRevisions;
+import org.urm.meta.loader.EngineObject;
 
 public class AppProduct extends EngineObject {
 
@@ -44,9 +44,9 @@ public class AppProduct extends EngineObject {
 
 	public int SV;
 	
-	public ProductMeta storage;
 	public AppProductPolicy policy;
-
+	private boolean matched;
+	
 	public AppProduct( EngineDirectory directory , AppSystem system ) {
 		super( directory );
 		this.directory = directory;
@@ -55,6 +55,7 @@ public class AppProduct extends EngineObject {
 		this.SV = 0;
 		
 		policy = new AppProductPolicy( directory , this );
+		matched = false;
 	}
 	
 	@Override
@@ -85,7 +86,6 @@ public class AppProduct extends EngineObject {
 		r.NEXT_MINOR2 = NEXT_MINOR2;
 		r.SV = SV;
 		
-		r.storage = storage;
 		r.policy = policy.copy( nr ,  r );
 		
 		return( r );
@@ -105,21 +105,12 @@ public class AppProduct extends EngineObject {
 		return( true );
 	}
 	
-	public Meta getMeta( ActionBase action ) throws Exception {
-		if( storage == null )
-			action.exitUnexpectedState();
-		
-		return( action.getProductMetadata( NAME ) );
-	}
-
-	public void setStorage( ProductMeta storage ) {
-		this.storage = storage;
+	public void setMatched( boolean matched ) {
+		this.matched = matched;
 	}
 	
 	public boolean isMatched() {
-		if( storage == null )
-			return( false );
-		return( storage.MATCHED );
+		return( matched );
 	}
 	
 	public void createProduct( String name , String desc , String path ) throws Exception {
@@ -173,6 +164,38 @@ public class AppProduct extends EngineObject {
 		
 		if( !isValid() )
 			Common.exit0( _Error.InconsistentVersionAttributes0 , "Inconsistent version attributes" );
+	}
+
+	public EngineProduct getEngineProduct() throws Exception {
+		EngineProduct ep = directory.findEngineProduct( this );
+		if( ep == null )
+			Common.exitUnexpected();
+		return( ep );
+	}
+	
+	public EngineProduct findEngineProduct() {
+		return( directory.findEngineProduct( this ) );
+	}
+	
+	public EngineProductReleases findReleases() {
+		EngineProduct ep = findEngineProduct();
+		if( ep == null )
+			return( null );
+		return( ep.getReleases() ); 
+	}
+	
+	public EngineProductEnvs findEnvs() {
+		EngineProduct ep = findEngineProduct();
+		if( ep == null )
+			return( null );
+		return( ep.getEnvs() ); 
+	}
+	
+	public EngineProductRevisions findRevisions() {
+		EngineProduct ep = findEngineProduct();
+		if( ep == null )
+			return( null );
+		return( ep.getRevisions() ); 
 	}
 	
 }

@@ -5,15 +5,13 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.Engine;
 import org.urm.engine.DataService;
-import org.urm.engine.data.EngineProducts;
-import org.urm.engine.dist.DistRepository;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.session.EngineSession;
-import org.urm.meta.EngineObject;
-import org.urm.meta.Types.*;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.ProductReleases;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
+import org.urm.meta.loader.EngineObject;
+import org.urm.meta.loader.Types.*;
 import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.env.MetaMonitoring;
 import org.w3c.dom.Document;
@@ -25,8 +23,8 @@ public class Meta extends EngineObject {
 	public String name;
 	public Engine engine;
 	public EngineSession session;
+	public EngineProduct ep;
 	
-	private EngineProducts products;
 	private ProductMeta storage;
 
 	private MetaProductSettings settings;
@@ -49,13 +47,13 @@ public class Meta extends EngineObject {
 
 	public static String PROPERTY_NAME = "name";
 	
-	public Meta( EngineProducts products , ProductMeta storage , EngineSession session ) {
+	public Meta( EngineProduct ep , ProductMeta storage , EngineSession session ) {
 		super( null );
+		this.ep = ep;
 		this.storage = storage;
-		this.products = products;
 		this.session = session;
-		this.engine = products.engine;
-		name = storage.name;
+		this.engine = ep.engine;
+		name = storage.NAME;
 	}
 	
 	@Override
@@ -67,8 +65,16 @@ public class Meta extends EngineObject {
 		return( storage.ID );
 	}
 	
+	public EngineProduct getEngineProduct() {
+		return( ep );
+	}
+	
+	public AppProduct getProduct() throws Exception {
+		return( ep.getProduct() );
+	}
+
 	public AppProduct findProduct() {
-		return( storage.findProduct() );
+		return( ep.findProduct() );
 	}
 
 	public boolean isPrimary() {
@@ -79,9 +85,7 @@ public class Meta extends EngineObject {
 		return( storage.isDraft() );
 	}
 	
-	public void replaceStorage( ActionBase action , ProductMeta storage ) throws Exception {
-		products.releaseSessionProductMetadata( action , this );
-		
+	public void setStorage( ProductMeta storage ) {
 		// clear old refs
 		settings = null;
 		units = null;
@@ -92,8 +96,6 @@ public class Meta extends EngineObject {
 		monitoring = null;
 		
 		this.storage = storage;
-		storage.addSessionMeta( this );
-		session.addProductMeta( this );
 	}
 
 	private static String createConfigurableExtensions() {
@@ -187,24 +189,8 @@ public class Meta extends EngineObject {
 		return( storage.getEnviroments() );
 	}
 	
-	public ProductReleases getReleases() {
-		return( storage.getReleases() );
-	}
-	
-	public DistRepository getDistRepository() {
-		return( storage.getDistRepository() );
-	}
-	
-	public ReleaseRepository getReleaseRepository() {
+	public ReleaseRepository getReleases() {
 		return( storage.getReleaseRepository() );
-	}
-	
-	public void setDistRepository( DistRepository repo ) {
-		storage.setDistRepository( repo );
-	}
-	
-	public void setReleaseRepository( ReleaseRepository repo ) {
-		storage.setReleaseRepository( repo );
 	}
 	
 	public static String getConfigurableExtensionsFindOptions( ActionBase action ) throws Exception {

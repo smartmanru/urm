@@ -3,26 +3,23 @@ package org.urm.meta.env;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.meta.product.Meta;
-import org.urm.meta.product.ProductMeta;
-
 public class MetaMonitoring {
 
-	public Meta meta;
+	public ProductEnvs envs;
 	
 	private Map<Integer,MetaMonitoringTarget> mapTargets;
 
-	public MetaMonitoring( ProductMeta storage , Meta meta ) {
-		this.meta = meta;
+	public MetaMonitoring( ProductEnvs envs ) {
+		this.envs = envs;
 		
 		mapTargets = new HashMap<Integer,MetaMonitoringTarget>();
 	}
 	
-	public MetaMonitoring copy( Meta rmeta ) throws Exception {
-		MetaMonitoring r = new MetaMonitoring( rmeta.getStorage() , rmeta );
+	public MetaMonitoring copy( ProductEnvs renvs ) throws Exception {
+		MetaMonitoring r = new MetaMonitoring( renvs );
 		
 		for( MetaMonitoringTarget target : mapTargets.values() ) {
-			MetaMonitoringTarget rtarget = target.copy( meta , r );
+			MetaMonitoringTarget rtarget = target.copy( renvs , r );
 			r.addTarget( rtarget );
 		}
 		

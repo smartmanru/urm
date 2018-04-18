@@ -32,5 +32,6 @@ public class _Error {
 	public static final int MissingBuildMode0 = ErrorBase + 23;
 	public static final int ActionStopped0 = ErrorBase + 24;
 	public static final int MissingDocItems0 = ErrorBase + 25;
+	public static final int UnableToUpgrade2 = ErrorBase + 26;
 
 }

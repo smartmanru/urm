@@ -15,12 +15,11 @@ import org.urm.common.RunContext;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.action.ActionInit;
+import org.urm.engine.products.EngineProductEnvs;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.session.EngineSession;
 import org.urm.engine.session.SessionSecurity;
-import org.urm.meta.EngineObject;
-import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AuthContext;
 import org.urm.meta.engine.AuthGroup;
@@ -32,6 +31,8 @@ import org.urm.meta.engine.Network;
 import org.urm.meta.engine._Error;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
+import org.urm.meta.loader.EngineObject;
+import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
 
 public class AuthService extends EngineObject {
@@ -455,12 +456,16 @@ public class AuthService extends EngineObject {
 		MetaEnv env = envs.findMetaEnv( envName );
 		return( checkAccessProductAction( action , sa , meta.findProduct() , env , DBEnumBuildModeType.UNKNOWN , readOnly ) );
 	}
+
+	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , MetaEnv env , boolean readOnly ) {
+		return( checkAccessProductAction( action , sa , product , env.NAME , readOnly ) );
+	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , String envName , boolean readOnly ) {
 		try {
-			Meta meta = product.getMeta( action );
-			ProductEnvs envs = meta.getEnviroments();
-			MetaEnv env = envs.findMetaEnv( envName );
+			EngineProductEnvs envs = product.findEnvs();
+			
+			MetaEnv env = envs.findEnv( envName );
 			return( checkAccessProductAction( action , sa , product , env , DBEnumBuildModeType.UNKNOWN , readOnly ) );
 		}
 		catch( Throwable e ) {

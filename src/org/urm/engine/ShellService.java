@@ -184,7 +184,7 @@ public class ShellService {
 		SHELL_UNAVAILABLE_SKIPTIME = DEFAULT_SHELL_UNAVAILABLE_SKIPTIME;
 		SHELL_HOUSEKEEP_TIME = DEFAULT_SHELL_HOUSEKEEP_TIME;
 		if( !action.isStandalone() ) {
-			EngineContext context = action.getServerSettings().context;
+			EngineContext context = action.getEngineSettings().context;
 			SHELL_SILENT_MAX = context.SHELL_SILENTMAX;
 			SHELL_UNAVAILABLE_SKIPTIME = context.SHELL_UNAVAILABLE_SKIPTIME;
 			SHELL_HOUSEKEEP_TIME = context.SHELL_HOUSEKEEP_TIME;

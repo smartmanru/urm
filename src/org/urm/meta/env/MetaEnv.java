@@ -10,12 +10,13 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.engine.DataService;
 import org.urm.engine.data.EngineInfrastructure;
 import org.urm.engine.data.EngineResources;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.meta.EngineObject;
-import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.HostAccount;
+import org.urm.meta.loader.EngineObject;
+import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.ProductMeta;
@@ -120,6 +121,10 @@ public class MetaEnv extends EngineObject {
 		return( r );
 	}
 
+	public EngineProduct getEngineProduct() {
+		return( meta.ep );
+	}
+	
 	public void createSettings( ObjectProperties ops ) throws Exception {
 		this.ops = ops;
 	}

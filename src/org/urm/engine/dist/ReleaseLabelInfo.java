@@ -95,6 +95,9 @@ public class ReleaseLabelInfo {
 	private String getReleaseVerByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 
+		if( meta == null )
+			Common.exitUnexpected();
+		
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
 		
 		String RELEASEVER = "";

@@ -160,7 +160,7 @@ public class AppProductPolicy {
 					return( lc );
 				}
 				
-				EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
+				EngineLifecycles lifecycles = action.getEngineLifecycles();
 				return( lifecycles.getLifecycle( expected ) );
 			}
 		}
@@ -178,7 +178,7 @@ public class AppProductPolicy {
 					return( lc );
 				}
 				
-				EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
+				EngineLifecycles lifecycles = action.getEngineLifecycles();
 				return( lifecycles.getLifecycle( expected ) );
 			}
 		}

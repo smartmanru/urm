@@ -33,7 +33,6 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.shell.Account;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.*;
 import org.urm.meta.env.MetaDump;
 import org.urm.meta.env.MetaEnv;
@@ -43,6 +42,7 @@ import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.env.MetaEnvStartInfo;
 import org.urm.meta.env.MetaMonitoringTarget;
+import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.*;
 
 public class EngineTransaction extends TransactionBase {
@@ -462,7 +462,7 @@ public class EngineTransaction extends TransactionBase {
 	public void deleteSystem( AppSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		super.checkTransactionDirectory( system.directory );
 		
-		EngineMirrors mirrors = action.getServerMirrors();
+		EngineMirrors mirrors = action.getEngineMirrors();
 		for( String productName : system.getProductNames() ) {
 			AppProduct product = system.findProduct( productName );
 			DBEngineMirrors.deleteProductResources( this , mirrors , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );

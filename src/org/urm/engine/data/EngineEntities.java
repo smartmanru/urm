@@ -21,8 +21,8 @@ import org.urm.engine.Engine;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.BaseItem;
+import org.urm.meta.loader.EngineLoader;
 
 public class EngineEntities {
 

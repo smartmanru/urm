@@ -5,7 +5,7 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.storage.FileInfo;
-import org.urm.meta.Types.*;
+import org.urm.meta.loader.Types.*;
 
 public class MetaDistrBinaryItem {
 

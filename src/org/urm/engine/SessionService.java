@@ -16,13 +16,13 @@ import org.urm.engine.action.ActionInit.RootActionType;
 import org.urm.meta.engine.AuthUser;
 import org.urm.meta.product.Meta;
 import org.urm.engine.action.CommandExecutor;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.session.EngineSession;
 import org.urm.engine.session.SessionSecurity;
 
 public class SessionService {
 
 	public Engine engine;
-	private DataService data;
 	
 	boolean running = false;
 	boolean stop = false;
@@ -36,9 +36,8 @@ public class SessionService {
 	
 	int sessionSequence = 0;
 	
-	public SessionService( Engine engine , DataService data ) {
+	public SessionService( Engine engine ) {
 		this.engine = engine;
-		this.data = data;
 	
 		sessions = new HashMap<Integer,EngineSession>(); 
 		calls = new HashMap<String,EngineCall>();
@@ -265,7 +264,8 @@ public class SessionService {
 	}
 
 	public void releaseSessionProductMetadata( ActionInit action , Meta meta ) throws Exception {
-		data.releaseSessionProductMetadata( action , meta );
+		EngineProduct ep = meta.getEngineProduct();
+		ep.releaseSessionMeta( action , meta );
 	}
 	
 }

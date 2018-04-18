@@ -39,6 +39,9 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
+import org.urm.engine.products.EngineProduct;
+import org.urm.engine.products.EngineProductReleases;
+import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.run.EngineMethod;
@@ -54,8 +57,6 @@ import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.EngineObject;
-import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.AuthUser;
 import org.urm.meta.engine.Datacenter;
@@ -67,13 +68,15 @@ import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.loader.EngineObject;
+import org.urm.meta.loader.MatchItem;
+import org.urm.meta.loader.Types.*;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -473,7 +476,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public ShellExecutor createDedicatedRemoteShell( String name , Account account , boolean setAction ) throws Exception {
-		EngineResources res = getServerResources();
+		EngineResources res = getEngineResources();
 		AuthResource ar = res.getResource( account.AUTHRESOURCE_ID );
 		ar.loadAuthData();
 		return( engine.shellPool.createDedicatedRemoteShell( this , name , account , ar , setAction ) );
@@ -699,12 +702,16 @@ abstract public class ActionBase extends ActionCore {
 		return( getShell( context.account ) );
 	}
 	
-	public Dist getReleaseDist( Meta meta , String RELEASELABEL ) throws Exception {
-		return( artefactory.getDistStorageByLabel( this , meta , RELEASELABEL ) );
+	public Dist getReleaseDist( AppProduct product , String RELEASELABEL ) throws Exception {
+		EngineProduct ep = product.getEngineProduct();
+		EngineProductReleases releases = ep.getReleases();
+		return( releases.getDistByLabel( this , null , RELEASELABEL ) );
 	}
 	
-	public Dist getMasterDist( Meta meta ) throws Exception {
-		return( artefactory.getDistStorageByLabel( this , meta , ReleaseLabelInfo.LABEL_MASTER ) );
+	public Dist getMasterDist( AppProduct product ) throws Exception {
+		EngineProduct ep = product.getEngineProduct();
+		EngineProductReleases releases = ep.getReleases();
+		return( releases.getDistByLabel( this , null , ReleaseLabelInfo.LABEL_MASTER ) );
 	}
 	
 	public String readFile( String path ) throws Exception {
@@ -790,70 +797,87 @@ abstract public class ActionBase extends ActionCore {
 		return( null );
 	}
 	
-	public EngineEntities getServerEntities() {
+	public EngineEntities getEngineEntities() {
 		return( actionInit.getActiveEntities() );
 	}
 	
-	public EngineResources getServerResources() {
+	public EngineResources getEngineResources() {
 		return( actionInit.getActiveResources() );
 	}
 	
-	public EngineBuilders getServerBuilders() {
+	public EngineBuilders getEngineBuilders() {
 		return( actionInit.getActiveBuilders() );
 	}
 	
-	public EngineDirectory getServerDirectory() {
+	public EngineDirectory getEngineDirectory() {
 		return( actionInit.getActiveDirectory() );
 	}
 	
-	public EngineSettings getServerSettings() {
+	public EngineSettings getEngineSettings() {
 		return( actionInit.getActiveServerSettings() );
 	}
 
-	public EngineContext getServerContext() {
+	public EngineContext getEngineContext() {
 		return( actionInit.getActiveServerContext() );
 	}
 	
-	public EngineMirrors getServerMirrors() {
+	public EngineMirrors getEngineMirrors() {
 		return( actionInit.getActiveMirrors() );
 	}
 	
-	public EngineBase getServerBase() {
-		return( actionInit.getServerBase() );
+	public EngineBase getEngineBase() {
+		return( actionInit.getEngineBase() );
 	}
 	
-	public StateService getServerStatus() {
-		return( actionInit.getServerStatus() );
+	public StateService getEngineStatus() {
+		return( actionInit.getEngineStatus() );
 	}
 	
-	public ScheduleService getServerScheduler() {
-		return( actionInit.getServerScheduler() );
+	public ScheduleService getEngineScheduler() {
+		return( actionInit.getEngineScheduler() );
 	}
 	
-	public EngineInfrastructure getServerInfrastructure() {
-		return( actionInit.getServerInfrastructure() );
+	public EngineInfrastructure getEngineInfrastructure() {
+		return( actionInit.getEngineInfrastructure() );
 	}
 	
-	public EngineLifecycles getServerReleaseLifecycles() {
-		return( actionInit.getServerReleaseLifecycles() );
+	public EngineLifecycles getEngineLifecycles() {
+		return( actionInit.getEngineLifecycles() );
 	}
 	
-	public EngineMonitoring getServerMonitoring() {
-		return( actionInit.getServerMonitoring() );
+	public EngineMonitoring getEngineMonitoring() {
+		return( actionInit.getEngineMonitoring() );
+	}
+	
+	public EngineProduct getEngineProduct( String name ) throws Exception {
+		AppProduct product = getProduct( name );
+		return( product.getEngineProduct() );
+	}
+	
+	public EngineProduct findEngineProduct( String name ) {
+		AppProduct product = findProduct( name );
+		if( product == null )
+			return( null );
+		return( product.findEngineProduct() );
+	}
+	
+	public EngineProduct getEngineProduct( int id ) throws Exception {
+		AppProduct product = getProduct( id );
+		return( product.getEngineProduct() );
 	}
 	
 	public AppProduct getProduct( String name ) throws Exception {
-		EngineDirectory directory = getServerDirectory();
+		EngineDirectory directory = getEngineDirectory();
 		return( directory.getProduct( name ) );
 	}
 	
 	public AppProduct getProduct( int id ) throws Exception {
-		EngineDirectory directory = getServerDirectory();
+		EngineDirectory directory = getEngineDirectory();
 		return( directory.getProduct( id ) );
 	}
 	
 	public AppProduct findProduct( String name ) {
-		EngineDirectory directory = getServerDirectory();
+		EngineDirectory directory = getEngineDirectory();
 		return( directory.findProduct( name ) );
 	}
 	
@@ -863,20 +887,20 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public MirrorRepository getProjectMirror( MetaSourceProject project ) throws Exception {
-		EngineMirrors mirrors = getServerMirrors();
+		EngineMirrors mirrors = getEngineMirrors();
 		MirrorRepository repo = mirrors.findProjectRepository( project );
 		return( repo );
 	}
 
 	public MirrorRepository getMetaMirror( ProductMeta meta ) throws Exception {
-		EngineMirrors mirrors = getServerMirrors();
-		MirrorRepository repo = mirrors.findProductMetaRepository( meta.name );
+		EngineMirrors mirrors = getEngineMirrors();
+		MirrorRepository repo = mirrors.findProductMetaRepository( meta.NAME );
 		return( repo );
 	}
 
 	public MirrorRepository getConfigurationMirror( ProductMeta meta ) throws Exception {
-		EngineMirrors mirrors = getServerMirrors();
-		MirrorRepository repo = mirrors.findProductDataRepository( meta.name );
+		EngineMirrors mirrors = getEngineMirrors();
+		MirrorRepository repo = mirrors.findProductDataRepository( meta.NAME );
 		if( repo == null )
 			exit0( _Error.MissingMirrorConfig0 , "Missing product configuration files mirror" );
 		
@@ -887,7 +911,7 @@ abstract public class ActionBase extends ActionCore {
 		if( match == null )
 			return( null );
 		
-		EngineBuilders builders = getServerBuilders();
+		EngineBuilders builders = getEngineBuilders();
 		if( match.FKID != null )
 			return( builders.getBuilder( match.FKID ) );
 		return( builders.getBuilder( match.FKNAME ) );
@@ -898,42 +922,38 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public MirrorRepository getServerMirror() throws Exception {
-		EngineMirrors mirrors = getServerMirrors();
+		EngineMirrors mirrors = getEngineMirrors();
 		MirrorRepository repo = mirrors.findServerRepository();
 		return( repo );
 	}
 	
 	public AuthResource getResource( String name ) throws Exception {
-		EngineResources resources = getServerResources();
+		EngineResources resources = getEngineResources();
 		AuthResource res = resources.getResource( name );
 		return( res );
 	}
 	
 	public AuthResource getResource( Integer id ) throws Exception {
-		EngineResources resources = getServerResources();
+		EngineResources resources = getEngineResources();
 		AuthResource res = resources.getResource( id );
 		return( res );
 	}
 	
-	public Meta getContextMeta() throws Exception {
-		if( context.meta != null )
-			return( context.meta );
+	public AppProduct getContextProduct() throws Exception {
+		if( context.product != null )
+			return( context.product );
 		
 		if( !session.product )
 			exitUnexpectedState();
-		return( getProductMetadata( session.productName ) );
+		return( getProduct( session.productName ) );
 	}
 
-	public Meta getProductMetadata( String productName ) throws Exception {
-		return( actionInit.getActiveProductMetadata( productName ) );
-	}
-
-	public Meta getProductMetadata( int metaId ) throws Exception {
-		return( actionInit.getActiveProductMetadata( metaId ) );
-	}
-
-	public Meta findMeta( String productName ) {
-		return( actionInit.findActiveProductMetadata( productName ) );
+	public Meta getContextMeta() throws Exception {
+		AppProduct product = getContextProduct();
+		EngineProduct ep = product.getEngineProduct();
+		EngineProductRevisions revisions = ep.getRevisions();
+		ProductMeta storage = revisions.getDraftRevision();
+		return( ep.getSessionMeta( this , storage , false ) );
 	}
 
 	public boolean isProductOffline( Meta meta ) {

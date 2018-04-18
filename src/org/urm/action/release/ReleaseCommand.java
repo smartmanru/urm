@@ -30,17 +30,17 @@ public class ReleaseCommand {
 	}
 	
 	public static void deleteMaster( ScopeState parentState , ActionBase action , Meta meta ) throws Exception {
-		ReleaseRepository repo = meta.getReleaseRepository();
+		ReleaseRepository repo = meta.getReleases();
 		Release release = repo.findDefaultMaster();
 		if( release == null )
 			Common.exitUnexpected();
 		
-		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , meta , release , true );
+		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , release , true );
 		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void masterStatus( ScopeState parentState , ActionBase action , Meta meta ) throws Exception {
-		ReleaseRepository repo = meta.getReleaseRepository();
+		ReleaseRepository repo = meta.getReleases();
 		Release release = repo.findDefaultMaster();
 		ActionPrintReleaseStatus ma = new ActionPrintReleaseStatus( action , null , release );
 		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , true );
@@ -67,7 +67,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotDropProd0 , "Cannot drop full master release, use master command" );
 		
 		Meta meta = release.getMeta();
-		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , meta , release , force );
+		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , release , force );
 		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
@@ -78,7 +78,7 @@ public class ReleaseCommand {
 	
 	public static void copyRelease( ScopeState parentState , ActionBase action , Release releaseSrc , String RELEASEDST , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		Meta meta = releaseSrc.getMeta();
-		ActionCopyRelease ma = new ActionCopyRelease( action , null , meta , releaseSrc , RELEASEDST , releaseDate , lc );
+		ActionCopyRelease ma = new ActionCopyRelease( action , null , releaseSrc , RELEASEDST , releaseDate , lc );
 		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 	
@@ -218,7 +218,7 @@ public class ReleaseCommand {
 			action.exit0( _Error.NotCumulativeRelease0 , "should be cumulative release" );
 		
 		Meta meta = release.getMeta();
-		ActionGetCumulative ca = new ActionGetCumulative( action , null , meta , release );
+		ActionGetCumulative ca = new ActionGetCumulative( action , null , release );
 		ca.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
 	}
 

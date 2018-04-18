@@ -11,8 +11,8 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.data.EngineLifecycles;
 import org.urm.engine.dist.VersionInfo;
-import org.urm.meta.EngineObject;
-import org.urm.meta.product.Meta;
+import org.urm.engine.products.EngineProductReleases;
+import org.urm.meta.loader.EngineObject;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseSchedule;
 
@@ -244,8 +244,7 @@ public class ReleaseLifecycle extends EngineObject {
 	}
 	
 	public Date getReleaseDate( ActionBase action , String RELEASEVER , AppProduct product , VersionInfo info ) throws Exception {
-		Meta meta = product.getMeta( action );
-		ProductReleases releases = meta.getReleases();
+		EngineProductReleases releases = product.findReleases();
 		String prevReleaseVer = info.getPreviousVersion();
 		
 		if( !prevReleaseVer.isEmpty() ) {

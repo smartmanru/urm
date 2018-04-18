@@ -9,10 +9,12 @@ import org.urm.engine.AuthService;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineMirrors;
+import org.urm.engine.products.EngineProduct;
+import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.transaction.EngineTransaction;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
+import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.ProductMeta;
 
 public class DBEngineProducts {
@@ -23,7 +25,7 @@ public class DBEngineProducts {
 		ActionInit action = transaction.getAction();
 		EngineDirectory directory = system.directory;
 		
-		transaction.changeMirrors( action.getServerMirrors() );
+		transaction.changeMirrors( action.getEngineMirrors() );
 		EngineMirrors mirrors = transaction.getTransactionMirrors();
 		
 		AppProduct product = directory.findProduct( name );
@@ -33,13 +35,16 @@ public class DBEngineProducts {
 				Common.exitUnexpected();
 
 			change = true;
-			ProductMeta storage = product.storage;
-			if( !transaction.recreateMetadata( storage.meta ) )
-				Common.exitUnexpected();
-			
-			if( storage.isExists() ) {
-				DBEnvData.dropEnvData( c , storage );
-				DBProductData.dropProductData( c , storage );
+			EngineProduct ep = product.findEngineProduct();
+			ProductMeta storage = ep.getDraftRevision();
+			if( storage != null ) {
+				if( !transaction.recreateMetadata( storage.meta ) )
+					Common.exitUnexpected();
+				
+				if( storage.isExists() ) {
+					DBEnvData.dropEnvData( c , storage );
+					DBProductData.dropProductData( c , storage );
+				}
 			}
 			
 			DBEngineDirectory.deleteProduct( transaction , directory , product , true , false , false );
@@ -67,16 +72,20 @@ public class DBEngineProducts {
 		ActionInit action = transaction.getAction();
 		AuthService auth = action.getServerAuth();
 		EngineMirrors mirrors = action.getActiveMirrors();
-		ProductMeta storage = product.storage;
-
-		if( !transaction.deleteMetadata( storage.meta ) )
-			Common.exitUnexpected();
+		
 		if( !transaction.changeMirrors( mirrors ) )
 			Common.exitUnexpected();
 
-		DBEnvData.dropEnvData( c , storage );
+		EngineProduct ep = product.getEngineProduct();
+		EngineProductRevisions revisions = ep.getRevisions();
+		for( ProductMeta storage : revisions.getRevisions() ) {
+			if( !transaction.deleteMetadata( storage.meta ) )
+				Common.exitUnexpected();
+			DBEnvData.dropEnvData( c , storage );
+			DBProductData.dropProductData( c , storage );
+		}
+		
 		DBEngineAuth.deleteProductAccess( c , auth , product );
-		DBProductData.dropProductData( c , storage );
 		DBEngineMirrors.deleteProductResources( transaction , mirrors , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		DBEngineDirectory.deleteProduct( transaction , product.directory , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 	}

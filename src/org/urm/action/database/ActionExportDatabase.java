@@ -8,6 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -107,7 +108,8 @@ public class ActionExportDatabase extends ActionBase {
 	}
 
 	private void prepareDestination() throws Exception {
-		repository = server.meta.getDistRepository();
+		EngineProduct ep = server.meta.getEngineProduct();
+		repository = ep.getDistRepository();
 		distDataFolder = repository.getDataNewFolder( this , DATASET );
 		distDataFolder.ensureExists( this );
 		distLogFolder = repository.getExportLogFolder( this , DATASET );
@@ -173,7 +175,7 @@ public class ActionExportDatabase extends ActionBase {
 		exportScriptsFolder.copyFileFromLocal( this , confFile );
 		
 		AppProduct product = server.meta.findProduct();
-		ProductStorage ms = artefactory.getMetadataStorage( this , product , server.meta );
+		ProductStorage ms = artefactory.getMetadataStorage( this , product );
 		String tablesFilePath = work.getFilePath( this , UrmStorage.TABLES_FILE_NAME );
 		ms.saveDatapumpSet( this , tableSet , server , tablesFilePath );
 		exportScriptsFolder.copyFileFromLocal( this , tablesFilePath );
@@ -182,7 +184,7 @@ public class ActionExportDatabase extends ActionBase {
 	private void runAll() throws Exception {
 		if( !STANDBY ) {
 			AppProduct product = server.meta.findProduct();
-			ProductStorage ms = artefactory.getMetadataStorage( this , product , server.meta );
+			ProductStorage ms = artefactory.getMetadataStorage( this , product );
 			ms.loadDatapumpSet( this , tableSet , server , STANDBY , true );
 		}
 		

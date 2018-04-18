@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.urm.action.deploy.ServerProcess.ProcessAction;
 import org.urm.engine.status.ScopeState.FACTVALUE;
-import org.urm.meta.Types.EnumProcessMode;
+import org.urm.meta.loader.Types.EnumProcessMode;
 
 public class ScopeStateFact {
 

@@ -14,11 +14,12 @@ import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
+import org.urm.engine.products.EngineProductReleases;
 import org.urm.engine.run.EngineMethod;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.release.Release;
-import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.release.ReleaseRepository.ReleaseOperation;
 
 public class EngineBlotterSet extends EngineEventsSource {
@@ -56,17 +57,17 @@ public class EngineBlotterSet extends EngineEventsSource {
 	}
 
 	public synchronized void startReleaseSet( ActionInit action ) throws Exception {
-		EngineDirectory directory = action.getServerDirectory();
+		EngineDirectory directory = action.getEngineDirectory();
 		for( String productName : directory.getProductNames() ) {
-			Meta meta = action.getProductMetadata( productName );
-			ReleaseRepository repo = meta.getReleaseRepository();
-			startReleaseSetRepo( action , repo );
+			AppProduct product = directory.findProduct( productName );
+			EngineProductReleases releases =  product.findReleases();
+			startReleaseSetRepo( action , releases );
 		}
 	}
 
-	public synchronized void startReleaseSetRepo( ActionInit action , ReleaseRepository repo ) throws Exception {
-		for( String version : repo.getActiveVersions() ) {
-			Release release = repo.findRelease( version );
+	public synchronized void startReleaseSetRepo( ActionInit action , EngineProductReleases releases ) throws Exception {
+		for( String version : releases.getActiveVersions() ) {
+			Release release = releases.findRelease( version );
 			String key = getReleaseKey( release );
 			EngineBlotterReleaseItem item = new EngineBlotterReleaseItem( this , key );
 			item.createReleaseItem( release );

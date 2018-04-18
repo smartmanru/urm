@@ -18,6 +18,7 @@ import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.dist.ReleaseDistScopeSet;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.LogStorage;
@@ -45,7 +46,8 @@ public class CodebaseCommand {
 			
 			if( action.context.CTX_GET || action.context.CTX_DIST ) {
 				Meta meta = release.getMeta();
-				DistRepository repo = meta.getDistRepository();
+				EngineProduct ep = meta.getEngineProduct();
+				DistRepository repo = ep.getDistRepository();
 				Dist dist = repo.findDefaultDist( release );
 				if( dist == null )
 					Common.exitUnexpected();
@@ -305,7 +307,8 @@ public class CodebaseCommand {
 		
 		// execute
 		Meta meta = release.getMeta();
-		DistRepository repo = meta.getDistRepository();
+		EngineProduct ep = meta.getEngineProduct();
+		DistRepository repo = ep.getDistRepository();
 		Dist dist = repo.findDefaultDist( release );
 		if( dist == null )
 			Common.exitUnexpected();

@@ -14,10 +14,10 @@ import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
 import org.urm.engine.dist.ReleaseDistScopeSet;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.engine.ProductReleases;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
@@ -57,11 +57,10 @@ public class ActionSetScope extends ActionBase {
 		EngineMethod method = super.method;
 
 		Meta meta = release.getMeta();
-		ProductReleases releases = meta.getReleases();
-		ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-		Release releaseUpdated = method.changeRelease( repoUpdated , release );
-		
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			if( sourcePath ) {
 				if( !executeBySource( method , releaseUpdated ) )
 					return( SCOPESTATE.RunFail );

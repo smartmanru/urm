@@ -8,10 +8,10 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
-import org.urm.meta.EngineObject;
 import org.urm.meta.engine.LifecyclePhase;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.engine._Error;
+import org.urm.meta.loader.EngineObject;
 
 public class EngineLifecycles extends EngineObject {
 
