@@ -85,6 +85,10 @@ public class Meta extends EngineObject {
 		return( storage.isDraft() );
 	}
 	
+	public String getRevision() {
+		return( storage.REVISION );
+	}
+	
 	public void setStorage( ProductMeta storage ) {
 		// clear old refs
 		settings = null;
