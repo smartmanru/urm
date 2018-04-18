@@ -672,6 +672,10 @@ public abstract class DBSettings {
 		meta.rebuild();
 	}
 
+	public static void loaddbCustomEntity( DBConnection c , PropertyEntity entity ) throws Exception {
+		loaddbEntity( c , entity , entity.META_OBJECT_ID , false );
+	}
+	
 	public static void loaddbAppEntity( DBConnection c , PropertyEntity entity ) throws Exception {
 		loaddbEntity( c , entity , DBVersions.APP_ID , false );
 	}

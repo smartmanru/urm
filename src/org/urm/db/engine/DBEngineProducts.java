@@ -36,7 +36,7 @@ public class DBEngineProducts {
 
 			change = true;
 			EngineProduct ep = product.findEngineProduct();
-			ProductMeta storage = ep.getDraftRevision();
+			ProductMeta storage = ep.findDraftRevision();
 			if( storage != null ) {
 				if( !transaction.recreateMetadata( storage.meta ) )
 					Common.exitUnexpected();

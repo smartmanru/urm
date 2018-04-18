@@ -195,9 +195,8 @@ public class EngineEntities {
 		entityAppReleaseTicketTarget = DBReleaseData.makeEntityReleaseTicketTarget( c , upgrade );
 		entityAppReleaseTicket = DBReleaseData.makeEntityReleaseTicket( c , upgrade );
 		entityAppReleaseDistItem = DBReleaseData.makeEntityReleaseDistItem( c , upgrade );
-		
-		entityCustomRC = DBEngineContext.createEntityCustomRC( c );
-		entityCustomEngine = DBEngineContext.createEntityCustomEngine( c );
+		entityCustomRC = DBEngineContext.makeEntityCustomRC( c , upgrade );
+		entityCustomEngine = DBEngineContext.makeEntityCustomEngine( c , upgrade );
 	}
 	
 	public void updateEntity( PropertyEntity entity ) {

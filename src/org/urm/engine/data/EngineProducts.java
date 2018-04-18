@@ -55,7 +55,7 @@ public class EngineProducts {
 	}
 	
 	public synchronized EngineProduct findEngineProduct( AppProduct product ) {
-		EngineProduct ep = products.get( product.ID );
+		EngineProduct ep = productsById.get( product.ID );
 		if( ep == null ) {
 			ep = new EngineProduct( data , this , product );
 			products.put( product.NAME , ep );

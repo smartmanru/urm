@@ -191,7 +191,7 @@ public abstract class DBEngineDirectory {
 		// create initial policy
 		DBAppProduct.createdbPolicy( c , directory , product );
 		
-		directory.addProduct( product );
+		directory.addMatchedProduct( product );
 		return( product );
 	}
 	

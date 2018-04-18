@@ -5,6 +5,7 @@ public abstract class DBQueries {
 
 	public static String FILTER_META_ID1 = "meta_id = @1@";
 	public static String FILTER_META_FK2 = "meta_fkid = @1@ or meta_fkname = @2@";
+	public static String FILTER_META_NAME1 = "name = @1@";
 	public static String FILTER_DELIVERY_ID1 = "delivery_id = @1@";
 	public static String FILTER_ENV_ID1 = "env_id = @1@";
 	public static String FILTER_ENV_META1 = "env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
@@ -138,6 +139,6 @@ public abstract class DBQueries {
 	public static String MODIFY_ENV_CASCADESERVER_ALLDEPLOYMENTS1 = "delete from urm_env_deployment where server_id = @1@";
 
 	public static String MODIFY_REL_REPO_MATCHMETA3 = "update urm_rel_repository set meta_fkid = @1@ , meta_fkname = null , meta_fkrevision = null where meta_fkid is null and meta_fkname = @2@ and meta_fkrevision = @3@";
-	public static String MODIFY_REL_REPO_UNMATCHRELEASES1 = "update urm_rel_repository set meta_fkid = null , meta_fkname = meta.name , meta_fkrevision = meta.revision from ( select meta_id , name , revision from urm_product_meta ) as meta where meta_fkid is not null and meta_fkid is not null and meta_fkid = meta.id and meta_fkid = @1@";
+	public static String MODIFY_REL_REPO_UNMATCHRELEASES1 = "update urm_rel_repository set meta_fkid = null , meta_fkname = meta.name , meta_fkrevision = meta.revision from ( select meta_id , name , revision from urm_product_meta ) as meta where meta_fkid is not null and meta_fkid is not null and meta_fkid = meta.meta_id and meta_fkid = @1@";
 	
 }

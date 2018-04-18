@@ -104,7 +104,8 @@ public class EngineLoaderProducts {
 				continue;
 			}
 			
-			loadProduct( product , update );
+			if( loadProduct( product , update ) )
+				directory.addMatchedProduct( product );
 		}
 	}
 
@@ -138,6 +139,9 @@ public class EngineLoaderProducts {
 
 			if( !storageNew.MATCHED )
 				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + product.NAME , product.NAME );
+			
+			EngineDirectory directory = product.directory;
+			directory.addMatchedProduct( product );
 		}
 	}
 	
@@ -218,34 +222,46 @@ public class EngineLoaderProducts {
 		return( set );
 	}
 	
-	private void loadProduct( AppProduct product , boolean update ) {
+	private boolean loadProduct( AppProduct product , boolean update ) {
 		EngineProducts products = data.getProducts();
 		EngineProduct ep = products.findEngineProduct( product );
 		
 		ActionBase action = loader.getAction();
 		try {
 			UrmStorage urm = action.artefactory.getUrmStorage();
-			LocalFolder meta = urm.getProductCoreMetadataFolder( action , product );
 			LocalFolder home = urm.getProductHome( action , product );
 			ProductContext context = new ProductContext( product , loader.getSettings() , home );
 			
-			if( meta.checkExists( action ) ) {
-				ProductMeta[] sets = DBMeta.loaddbMeta( loader , ep );
-				for( ProductMeta set : sets )
-					loadProductRevision( product , context , update , ep , set );
+			ProductMeta[] sets = DBMeta.loaddbMeta( loader , ep );
+			for( ProductMeta set : sets )
+				loadProductRevision( product , context , update , ep , set );
+			
+			ProductMeta draft = ep.findDraftRevision();
+			if( draft == null ) {
+				action.error( "unable to use metadata because of missing draft revision, product=" + product.NAME );
+				return( false );
 			}
-			else {
-				String path = meta.getLocalPath( action );
-				Common.exit1( _Error.MissingProductFolder1 , "missing product folder=" + path , path );
+			
+			if( !draft.MATCHED ){
+				action.error( "unable to use metadata because of mismatched draft revision, product=" + product.NAME );
+				return( false );
 			}
+			
+			return( true );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
 			action.error( "unable to load metadata, product=" + product.NAME );
+			return( false );
 		}
 	}
 
 	private void loadProductRevision( AppProduct product , ProductContext context , boolean update , EngineProduct ep , ProductMeta set ) {
+		if( update == false && !set.MATCHED ) {
+			trace( "skip loading mismatched product=" + product.NAME + ", revision=" + set.REVISION );
+			return;
+		}
+		
 		ActionBase action = loader.getAction();
 		try {
 			set.setMatched( true );

@@ -73,7 +73,7 @@ public class DBMeta {
 		PropertyEntity entity = entities.entityAppMeta;
 		List<ProductMeta> products = new LinkedList<ProductMeta>();
 		
-		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_NAME1 , new String[] { EngineDB.getString( ep.productName ) } );
 		try {
 			while( rs.next() ) {
 				ProductMeta meta = new ProductMeta( ep );

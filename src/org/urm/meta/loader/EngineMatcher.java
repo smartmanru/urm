@@ -136,8 +136,6 @@ public class EngineMatcher {
 	}
 	
 	private void doneProduct( AppProduct product , ProductMeta set ) throws Exception {
-		EngineDirectory directory = loader.getDirectory();
-		directory.addProduct( product );
 	}
 
 	private boolean matchProjectMirrors( AppProduct product , MetaSources sources , boolean update ) throws Exception {

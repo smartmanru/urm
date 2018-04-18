@@ -45,7 +45,7 @@ public class EngineProduct {
 		return( skipped );
 	}
 
-	public ProductMeta getDraftRevision() {
+	public ProductMeta findDraftRevision() {
 		return( revisions.getDraftRevision() );
 	}
 	

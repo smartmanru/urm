@@ -82,7 +82,7 @@ public class TransactionMetadata {
 		matchedBeforeImport = product.isMatched();
 		
 		EngineProduct ep = product.getEngineProduct();
-		metadata = ep.getDraftRevision();
+		metadata = ep.findDraftRevision();
 		return( true );
 	}
 

@@ -75,7 +75,7 @@ public class EngineDirectory extends EngineObject {
 		addSystem( rs );
 		
 		for( AppProduct rp : rs.getProducts() )
-			addProduct( rp );
+			addMatchedProduct( rp );
 		
 		return( rs );
 	}
@@ -202,7 +202,8 @@ public class EngineDirectory extends EngineObject {
 		product.system.removeProduct( product );
 	}
 	
-	public void addProduct( AppProduct product ) {
+	public void addMatchedProduct( AppProduct product ) {
+		product.setMatched( true );
 		mapProductUnmatched.remove( product.ID );
 		mapProducts.put( product.NAME , product );
 		mapProductsById.put( product.ID , product );
