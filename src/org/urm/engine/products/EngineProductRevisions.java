@@ -41,6 +41,7 @@ public class EngineProductRevisions {
 			draft = storage;
 		}
 		productMetaById.put( storage.ID , storage );
+		storage.setPrimary( true );
 	}
 
 	public synchronized void unloadProduct( ProductMeta storage ) {
@@ -78,7 +79,6 @@ public class EngineProductRevisions {
 
 		draft = null;
 		addProductMeta( storage );
-		storage.setPrimary( true );
 	}
 	
 }
