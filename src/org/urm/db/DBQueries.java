@@ -137,7 +137,7 @@ public abstract class DBQueries {
 	public static String MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPS1 = "delete from urm_env_startgroup where segment_id = @1@";
 	public static String MODIFY_ENV_CASCADESERVER_ALLDEPLOYMENTS1 = "delete from urm_env_deployment where server_id = @1@";
 
-	public static String MODIFY_REL_REPO_MATCHMETA3 = "update urm_rel_repository set meta_fkid = @1@ where meta_fkid is null and name = @2@ and revision = @3@";
-	public static String MODIFY_REL_REPO_UNMATCHRELEASES1 = "update urm_rel_repository set meta_fkid = null where meta_fkid is not null and meta_fkid = @1@";
+	public static String MODIFY_REL_REPO_MATCHMETA3 = "update urm_rel_repository set meta_fkid = @1@ , meta_fkname = null , meta_fkrevision = null where meta_fkid is null and meta_fkname = @2@ and meta_fkrevision = @3@";
+	public static String MODIFY_REL_REPO_UNMATCHRELEASES1 = "update urm_rel_repository set meta_fkid = null , meta_fkname = meta.name , meta_fkrevision = meta.revision from ( select meta_id , name , revision from urm_product_meta ) as meta where meta_fkid is not null and meta_fkid is not null and meta_fkid = meta.id and meta_fkid = @1@";
 	
 }

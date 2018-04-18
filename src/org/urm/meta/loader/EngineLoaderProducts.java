@@ -147,7 +147,7 @@ public class EngineLoaderProducts {
 		EngineProduct ep = products.getEngineProduct( product );
 		EngineProductRevisions epr = ep.getRevisions();
 		ProductMeta storage = epr.getDraftRevision();
-		if( storage.isExists() ) {
+		if( storage != null ) {
 			if( includingEnvironments )
 				DBEnvData.dropEnvData( c , storage );
 				
@@ -205,7 +205,8 @@ public class EngineLoaderProducts {
 		
 		ProductMeta set = new ProductMeta( ep );
 		set.setMatched( true );
-		set.setContext( context ); 
+		set.setContext( context );
+		set.setRevision( "initial" );
 		
 		ActionBase action = loader.getAction();
 		try {

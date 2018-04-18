@@ -106,6 +106,7 @@ public class DBProductReleases {
 				EngineDB.getString( repo.NAME ) ,
 				EngineDB.getString( repo.DESC ) ,
 				EngineDB.getObject( repo.meta.getId() ) ,
+				EngineDB.getString( null ) ,
 				EngineDB.getString( null )
 		} , insert );
 	}

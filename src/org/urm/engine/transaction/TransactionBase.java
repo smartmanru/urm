@@ -874,7 +874,8 @@ public class TransactionBase extends EngineObject {
 				if( tm.importProduct( product ) ) {
 					useDatabase();
 					ProductMeta storage = ep.getDraftRevision();
-					addTransactionMeta( storage.ID , product.NAME , tm );
+					Integer metaId = ( storage == null )? null : storage.ID;
+					addTransactionMeta( metaId , product.NAME , tm );
 					return( true );
 				}
 			}

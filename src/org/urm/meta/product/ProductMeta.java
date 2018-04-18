@@ -97,6 +97,10 @@ public class ProductMeta extends EngineObject {
 		this.PV = context.PV;
 	}
 	
+	public void setRevision( String revision ) {
+		this.REVISION = revision;
+	}
+	
 	public boolean isExists() {
 		if( ID != null )
 			return( true );

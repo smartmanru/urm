@@ -458,7 +458,7 @@ public class AuthService extends EngineObject {
 	}
 
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , MetaEnv env , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , product , env.NAME , readOnly ) );
+		return( checkAccessProductAction( action , sa , product , env , DBEnumBuildModeType.UNKNOWN , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , String envName , boolean readOnly ) {
