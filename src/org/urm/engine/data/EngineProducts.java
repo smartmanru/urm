@@ -93,6 +93,8 @@ public class EngineProducts {
 	public synchronized void unloadProducts() {
 		for( EngineProduct ep : products.values() )
 			ep.unloadProduct();
+		products.clear();
+		productsById.clear();
 	}
 
 	public synchronized void unloadProduct( ProductMeta storage ) {
