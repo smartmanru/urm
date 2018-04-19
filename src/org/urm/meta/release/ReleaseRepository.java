@@ -98,7 +98,7 @@ public class ReleaseRepository {
 	}
 	
 	public Release findReleaseByFullVersion( String RELEASEVER ) {
-		return( mapReleasesById.get( RELEASEVER ) ); 
+		return( mapReleasesNormal.get( RELEASEVER ) ); 
 	}
 	
 	public Release findDefaultMaster() {

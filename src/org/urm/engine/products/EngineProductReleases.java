@@ -1,9 +1,7 @@
 package org.urm.engine.products;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
@@ -24,12 +22,10 @@ public class EngineProductReleases {
 	public Engine engine;
 	public EngineProduct ep;
 	private DistRepository distRepo;
-	private Map<Integer,ReleaseRepository> metaReleases;
 	
 	public EngineProductReleases( EngineProduct ep ) {
 		this.engine = ep.engine;
 		this.ep = ep;
-		metaReleases = new HashMap<Integer,ReleaseRepository>(); 
 	}
 
 	public AppProduct findProduct() {
@@ -42,17 +38,6 @@ public class EngineProductReleases {
 	
 	public DistRepository getDistRepository() {
 		return( distRepo );
-	}
-	
-	public void setReleaseRepository( ProductMeta storage , ReleaseRepository repo ) {
-		metaReleases.put( storage.ID , repo );
-	}
-	
-	public ReleaseRepository getReleaseRepository( ProductMeta storage ) throws Exception {
-		ReleaseRepository repo = metaReleases.get( storage.ID );
-		if( repo == null )
-			Common.exitUnexpected();
-		return( repo );
 	}
 	
 	public String getNextRelease( DBEnumLifecycleType type ) {
@@ -72,8 +57,11 @@ public class EngineProductReleases {
 	
 	public String[] getActiveVersions() {
 		String[] versions = new String[0];
-		for( ReleaseRepository repo : metaReleases.values() )
+		EngineProductRevisions revisions = ep.getRevisions();
+		for( ProductMeta storage : revisions.getRevisions() ) {
+			ReleaseRepository repo = storage.getReleaseRepository();
 			versions = Common.addArrays( versions , repo.getActiveVersions() );
+		}
 		
 		return( VersionInfo.orderVersions( versions ) );
 	}
@@ -101,7 +89,9 @@ public class EngineProductReleases {
 	public Release findRelease( String RELEASEVER ) {
 		try {
 			String version = VersionInfo.normalizeReleaseVer( RELEASEVER );
-			for( ReleaseRepository repo : metaReleases.values() ) {
+			EngineProductRevisions revisions = ep.getRevisions();
+			for( ProductMeta storage : revisions.getRevisions() ) {
+				ReleaseRepository repo = storage.getReleaseRepository();
 				Release release = repo.findReleaseByFullVersion( version );
 				if( release != null )
 					return( release );
@@ -114,7 +104,9 @@ public class EngineProductReleases {
 	}
 
 	public Release findRelease( int id ) {
-		for( ReleaseRepository repo : metaReleases.values() ) {
+		EngineProductRevisions revisions = ep.getRevisions();
+		for( ProductMeta storage : revisions.getRevisions() ) {
+			ReleaseRepository repo = storage.getReleaseRepository();
 			Release release = repo.findRelease( id );
 			if( release != null )
 				return( release );
@@ -138,7 +130,9 @@ public class EngineProductReleases {
 	public ReleaseDist findReleaseDist( Dist dist ) {
 		Release release = null;
 		if( dist.isMaster() ) {
-			for( ReleaseRepository repo : metaReleases.values() ) {
+			EngineProductRevisions revisions = ep.getRevisions();
+			for( ProductMeta storage : revisions.getRevisions() ) {
+				ReleaseRepository repo = storage.getReleaseRepository();
 				release = repo.findRelease( dist.release.ID );
 				if( release != null )
 					break;
@@ -159,7 +153,9 @@ public class EngineProductReleases {
 	}
 
 	public Release getReleaseByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
-		for( ReleaseRepository repo : metaReleases.values() ) {
+		EngineProductRevisions revisions = ep.getRevisions();
+		for( ProductMeta storage : revisions.getRevisions() ) {
+			ReleaseRepository repo = storage.getReleaseRepository();
 			Release release = repo.findReleaseByLabel( action , RELEASELABEL );
 			if( release != null )
 				return( release );
@@ -174,7 +170,9 @@ public class EngineProductReleases {
 	}
 	
 	public Release getRelease( int id ) throws Exception {
-		for( ReleaseRepository repo : metaReleases.values() ) {
+		EngineProductRevisions revisions = ep.getRevisions();
+		for( ProductMeta storage : revisions.getRevisions() ) {
+			ReleaseRepository repo = storage.getReleaseRepository();
 			Release release = repo.findRelease( id );
 			if( release != null )
 				return( release );
@@ -184,7 +182,9 @@ public class EngineProductReleases {
 	}
 
 	public Release findDefaultMaster() {
-		for( ReleaseRepository repo : metaReleases.values() ) {
+		EngineProductRevisions revisions = ep.getRevisions();
+		for( ProductMeta storage : revisions.getRevisions() ) {
+			ReleaseRepository repo = storage.getReleaseRepository();
 			Release release = repo.findDefaultMaster();
 			if( release != null )
 				return( release );
